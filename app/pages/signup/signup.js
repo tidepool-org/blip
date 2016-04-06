@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -14,25 +13,32 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var _ = require('lodash');
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var config = require('../../config');
+import * as actions from '../../redux/actions';
 
-var utils = require('../../core/utils');
-var WaitList = require('../../components/waitlist');
-var LoginNav = require('../../components/loginnav');
-var LoginLogo = require('../../components/loginlogo');
-var SimpleForm = require('../../components/simpleform');
+import _ from 'lodash';
+import config from '../../config';
 
-var Signup = React.createClass({
+import utils from '../../core/utils';
+import WaitList from '../../components/waitlist';
+import LoginNav from '../../components/loginnav';
+import LoginLogo from '../../components/loginlogo';
+import SimpleForm from '../../components/simpleform';
+
+export let Signup = React.createClass({
   propTypes: {
-    configuredInviteKey: React.PropTypes.string,
-    inviteKey: React.PropTypes.string,
+    acknowledgeNotification: React.PropTypes.func.isRequired,
+    api: React.PropTypes.object.isRequired,
+    configuredInviteKey: React.PropTypes.string.isRequired,
     inviteEmail: React.PropTypes.string,
+    inviteKey: React.PropTypes.string,
+    notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
-    onSubmitSuccess: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    working: React.PropTypes.bool.isRequired
   },
 
   formInputs: function() {
@@ -60,7 +66,7 @@ var Signup = React.createClass({
     ];
   },
 
-  isWaitListed:function(){
+  isWaitListed: function() {
 
     var hasInviteKey = !_.isEmpty(this.props.inviteKey) || this.props.inviteKey === '';
     var hasInviteEmail = !_.isEmpty(this.props.inviteEmail);
@@ -94,7 +100,6 @@ var Signup = React.createClass({
     }
 
     return {
-      working: false,
       loading: true,
       showWaitList: false,
       formValues: formValues,
@@ -147,7 +152,7 @@ var Signup = React.createClass({
 
   renderForm: function() {
     var submitButtonText = 'Sign up';
-    if (this.state.working) {
+    if (this.props.working) {
       submitButtonText = 'Signing up...';
     }
 
@@ -157,9 +162,9 @@ var Signup = React.createClass({
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}
-        submitDisabled={this.state.working}
+        submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification}/>
+        notification={this.state.notification || this.props.notification}/>
     );
 
   },
@@ -167,7 +172,7 @@ var Signup = React.createClass({
   handleSubmit: function(formValues) {
     var self = this;
 
-    if (this.state.working) {
+    if (this.props.working) {
       return;
     }
 
@@ -182,12 +187,12 @@ var Signup = React.createClass({
 
     formValues = this.prepareFormValuesForSubmit(formValues);
 
-    this.submitFormValues(formValues);
+    this.props.onSubmit(this.props.api, formValues);
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
+    this.props.acknowledgeNotification('signingUp');
     this.setState({
-      working: true,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -231,7 +236,6 @@ var Signup = React.createClass({
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
-        working: false,
         validationErrors: validationErrors,
         notification: {
           type: 'error',
@@ -253,30 +257,32 @@ var Signup = React.createClass({
       }
     };
   },
-
-  submitFormValues: function(formValues) {
-    var self = this;
-    var submit = this.props.onSubmit;
-
-    submit(formValues, function(err, result) {
-      if (err) {
-        var message = 'An error occured while signing up.';
-        if (err.status === 400) {
-          message = 'An account already exists for that email.';
-        }
-
-        self.setState({
-          working: false,
-          notification: {
-            type: 'error',
-            message: message
-          }
-        });
-        return;
-      }
-      self.props.onSubmitSuccess(result);
-    });
-  }
 });
 
-module.exports = Signup;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+export function mapStateToProps(state) {
+  return {
+    notification: state.blip.working.signingUp.notification,
+    working: state.blip.working.signingUp.inProgress,
+  };
+}
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  onSubmit: actions.async.signup,
+  acknowledgeNotification: actions.sync.acknowledgeNotification
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  return Object.assign({}, stateProps, dispatchProps, {
+    configuredInviteKey: config.INVITE_KEY,
+    inviteKey: utils.getInviteKey(ownProps.location),
+    inviteEmail: utils.getInviteEmail(ownProps.location),
+    trackMetric: ownProps.routes[0].trackMetric,
+    api: ownProps.routes[0].api,
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Signup);

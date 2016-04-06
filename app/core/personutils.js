@@ -32,6 +32,10 @@ personUtils.patientInfo = function(person) {
   return utils.getIn(person, ['profile', 'patient']);
 };
 
+personUtils.hasAcceptedTerms = function(person) {
+  return !_.isEmpty(_.get(person, 'termsAccepted', null));
+};
+
 personUtils.isPatient = function(person) {
   return Boolean(personUtils.patientInfo(person));
 };

@@ -20,7 +20,7 @@ npm-debug.log
 tmp
 dist
 config/*
-!config/sample.sh
-!config/mock.sh
+!config/local.sh
 test/bin
 sauce_connect.log
+selenium-debug.log

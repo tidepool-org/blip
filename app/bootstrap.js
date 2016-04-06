@@ -17,10 +17,12 @@ import React from 'react';
 import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
-import { Router } from 'react-router';
-import { createHistory } from 'history';
+
+import blipCreateStore from './redux/store';
+import AppRoot from './redux/containers/Root';
 
 import { getRoutes } from './routes';
+
 import config from './config';
 import api from './core/api';
 import personUtils from './core/personutils';
@@ -55,11 +57,6 @@ appContext.props = {
   config: appContext.config
 };
 
-appContext.useMock = mock => {
-  appContext.mock = mock;
-  appContext.api = mock.patchApi(appContext.api);
-};
-
 appContext.init = callback => {
 
   function beginInit() {
@@ -68,20 +65,6 @@ appContext.init = callback => {
 
   function initNoTouch() {
     detectTouchScreen();
-    initMock();
-  }
-
-  function initMock() {
-    if (appContext.mock) {
-      // Load mock params from config variables
-      // and URL query string (before hash)
-      var paramsConfig = queryString.parseTypes(config.MOCK_PARAMS);
-      var paramsUrl = queryString.parseTypes(window.location.search);
-      var params = _.assign(paramsConfig, paramsUrl);
-
-      appContext.mock.init(params);
-      appContext.log('Mock services initialized with params', params);
-    }
     initApi();
   }
 
@@ -91,12 +74,6 @@ appContext.init = callback => {
 
   beginInit();
 };
-
-const routing = (
-  <Router history={createHistory()}>
-    {getRoutes(appContext)}
-  </Router>
-);
 
 /**
  * Application start function. This is what should be called
@@ -111,16 +88,15 @@ appContext.start = () => {
 
   appContext.init(() => {
     appContext.log('Starting app...');
+
+    const store = blipCreateStore(appContext.api);
+
     appContext.component = render(
-      routing,
+      <AppRoot store={store} routing={getRoutes(appContext, store)} />,
       document.getElementById('app')
     );
 
     appContext.log('App started');
-
-    if (appContext.mock) {
-      appContext.log('App running with mock services');
-    }
   });
 };
 

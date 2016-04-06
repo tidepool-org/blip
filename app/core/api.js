@@ -101,6 +101,21 @@ api.user.signup = function(user, cb) {
     if (err) {
       return cb(err);
     }
+    
+    /**
+     * Because Platform Client handles this error slightly weirdly, and returns
+     * it in the account object we need to inspect the account object
+     * for the following object signature and then if found, call the 
+     * callback with an error based on the contents of the object
+     *
+     * TODO: consider when refactoring platform client
+     */
+    if(account.code && account.code === 409) {
+      return cb({
+        status: account.code,
+        error: account.reason
+      });
+    }
 
     var userId = account.userid;
 
@@ -132,6 +147,9 @@ api.user.logout = function(cb) {
   if (!api.user.isAuthenticated()) {
     api.log('not authenticated but still destroySession');
     tidepool.destroySession();
+    if (cb) {
+      cb();
+    }
     return;
   }
 
@@ -480,7 +498,9 @@ api.team.replyToMessageThread = function(message,cb){
     if (error) {
       return cb(error);
     }
-    cb(null, replyId);
+    if (cb) {
+      cb(null, replyId);
+    }
   });
 };
 
@@ -492,7 +512,9 @@ api.team.startMessageThread = function(message,cb){
     if (error) {
       return cb(error);
     }
-    cb(null, messageId);
+    if (cb) {
+      cb(null, messageId);
+    }
   });
 };
 
@@ -503,7 +525,9 @@ api.team.editMessage = function(message,cb){
     if (error) {
       return cb(error);
     }
-    cb(null, null);
+    if (cb) {
+      cb(null, null);
+    }
   });
 };
 
@@ -608,10 +632,10 @@ api.metrics.track = function(eventName, properties, cb) {
 
 api.errors = {};
 
-api.errors.log = function(error, message, properties) {
+api.errors.log = function(error, message, properties, cb) {
   api.log('POST /errors');
 
-  return tidepool.logAppError(error, message, properties);
+  return tidepool.logAppError(error, message, properties, cb);
 };
 
 module.exports = api;

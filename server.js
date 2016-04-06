@@ -24,7 +24,7 @@ if (!(config.httpPort || config.httpsPort)) {
 }
 
 if (config.httpPort) {
-  http.createServer(app).listen(config.httpPort, function() {
+  app.server = http.createServer(app).listen(config.httpPort, function() {
     console.log('Connect server started on port', config.httpPort);
     console.log('Serving static directory "' + staticDir + '/"');
   });
@@ -55,3 +55,5 @@ if (config.discovery && config.publishHost) {
   console.log('Publishing to service discovery: ',serviceDescriptor);
   hakken.publish(serviceDescriptor);
 }
+
+module.exports = app;
