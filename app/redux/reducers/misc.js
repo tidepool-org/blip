@@ -309,6 +309,7 @@ export const membershipPermissionsInOtherCareTeams = (state = initialState.membe
   }
 };
 
+// NB: not being used (yet!)
 export const timePrefs = (state = initialState.timePrefs, action) => {
   switch(action.type) {
     case types.SET_TIME_PREFERENCES:
@@ -318,6 +319,7 @@ export const timePrefs = (state = initialState.timePrefs, action) => {
   }
 };
 
+// NB: not being used (yet!)
 export const bgPrefs = (state = initialState.bgPrefs, action) => {
   switch(action.type) {
     case types.SET_BLOOD_GLUCOSE_PREFERENCES:
