@@ -216,25 +216,14 @@ export const loggedInUserId = (state = initialState.loggedInUserId, action) => {
 export const membersOfTargetCareTeam = (state = initialState.membersOfTargetCareTeam, action) => {
   switch(action.type) {
     case types.FETCH_PATIENT_SUCCESS:
-      if (action.payload.patient.team){
-        let ids = [];
-        ids = action.payload.patient.team.map((t) => t.userid);
-        return update(state, { $set: ids });
-      }
-
-      return state;
+      const team = _.get(action.payload, ['patient', 'team'], []);
+      return team.map((member) => member.userid);
     case types.REMOVE_MEMBER_SUCCESS:
-      let members = [];
-      state.forEach((member) => {
-        let id = parseInt(member, 10);
-        if (id !== action.payload.removedMemberId) {
-          members.push(member);
-        }
+      return _.reject(state, (memberId) => {
+        return memberId === _.get(action.payload, 'removedMemberId', null);
       });
-
-      return update(state, { $set: members });
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: [] });
+      return [];
     default:
       return state;
   }
@@ -243,24 +232,20 @@ export const membersOfTargetCareTeam = (state = initialState.membersOfTargetCare
 export const memberInOtherCareTeams = (state = initialState.memberInOtherCareTeams, action) => {
   switch(action.type) {
     case types.FETCH_PATIENTS_SUCCESS:
-      let ids = action.payload.patients.map((p) => p.userid);
-
-      return update(state, { $set: ids });
+      const patients = _.get(action.payload, ['patients'], []);
+      return patients.map((patient) => patient.userid);
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
-      let { creator } = action.payload.acceptedReceivedInvite;
-      return update(state, { $push: [ creator.userid ] });
+      const creatorId = _.get(action.payload, ['acceptedReceivedInvite', 'userid'], null);
+      if (creatorId) {
+        return update(state, { $push: [ creatorId ]});
+      }
+      return state;
     case types.REMOVE_PATIENT_SUCCESS:
-      let patients = [];
-      state.forEach((patient) => {
-        let id = parseInt(patient, 10);
-        if (id !== action.payload.removedPatientId) {
-          patients.push(patient);
-        }
+      return _.reject(state, (memberId) => {
+        return memberId === _.get(action.payload, 'removedPatientId', null);
       });
-
-      return update(state, { $set: patients });
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: [] });
+      return [];
     default:
       return state;
   }
@@ -393,16 +378,20 @@ export const patientNotesMap = (state = initialState.patientNotesMap, action) =>
 export const pendingSentInvites = (state = initialState.pendingSentInvites, action) => {
   switch(action.type) {
     case types.FETCH_PENDING_SENT_INVITES_SUCCESS:
-      return update(state, { $set: action.payload.pendingSentInvites });
+      return update(state, { $set: _.get(action.payload, 'pendingSentInvites', []) });
     case types.SEND_INVITE_SUCCESS:
-      return update(state, { $push: [ action.payload.invite ] });
+      const invite = _.get(action.payload, 'invite', null);
+      if (invite) {
+        return update(state, { $push: [ action.payload.invite ] });
+      }
+      return state;
     case types.CANCEL_SENT_INVITE_SUCCESS:
-      return update(state, { $apply: (currentValue) => {
-          return currentValue.filter( (i) => i.email !== action.payload.removedEmail )
+      return update(state, { $apply: (invite) => {
+          return invite.filter( (i) => i.email !== action.payload.removedEmail )
         }
       });
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: [] });
+      return [];
     default:
       return state;
   }
@@ -411,19 +400,19 @@ export const pendingSentInvites = (state = initialState.pendingSentInvites, acti
 export const pendingReceivedInvites = (state = initialState.pendingReceivedInvites, action) => {
   switch(action.type) {
     case types.FETCH_PENDING_RECEIVED_INVITES_SUCCESS:
-      return update(state, { $set: action.payload.pendingReceivedInvites });
+      return update(state, { $set: _.get(action.payload, 'pendingReceivedInvites', []) });
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
-      return update(state, { $apply: (currentValue) => {
-          return currentValue.filter( (i) => i.key !== action.payload.acceptedReceivedInvite.key );
+      return update(state, { $apply: (invite) => {
+          return invite.filter( (i) => i.key !== _.get(action.payload, 'acceptedReceivedInvite.key', null) );
         }
       });
     case types.REJECT_RECEIVED_INVITE_SUCCESS:
-      return update(state, { $apply: (currentValue) => {
-          return currentValue.filter( (i) => i.key !== action.payload.rejectedReceivedInvite.key );
+      return update(state, { $apply: (invite) => {
+          return invite.filter( (i) => i.key !== _.get(action.payload, 'rejectedReceivedInvite.key', null) );
         }
       });
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: [] });
+      return [];
     default:
       return state;
   }

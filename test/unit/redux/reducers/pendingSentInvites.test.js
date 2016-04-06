@@ -29,41 +29,41 @@ import { pendingSentInvites as reducer } from '../../../../app/redux/reducers/mi
 
 import actions from '../../../../app/redux/actions/index';
 
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
-
 import { pendingSentInvites as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
 describe('pendingSentInvites', () => {
   describe('fetchPendingSentInvitesSuccess', () => {
-    it('should set state to an array of pendingSentInvites', () => {
+    it('should set state to an array of pending invites', () => {
       let initialStateForTest = [];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let pendingSentInvites = [
-        { inviteid: 30 },
-        { inviteid: 50 }
+        { inviteid: 'xyz123zyx' },
+        { inviteid: 'abc987cba' }
       ];
 
-      let action = actions.sync.fetchPendingSentInvitesSuccess(pendingSentInvites)
+      let action = actions.sync.fetchPendingSentInvitesSuccess(pendingSentInvites);
 
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(pendingSentInvites.length);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('sendInviteSuccess', () => {
     it('should push new invitation to state', () => {
       let initialStateForTest = [
-        { inviteid: 30 },
-        { inviteid: 50 }
+        { inviteid: 'xyz123zyx' },
+        { inviteid: 'abc987cba' }
       ];
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let invitation = { inviteid: 500 };
+      let invitation = { inviteid: 'def456fed' };
 
-      let action = actions.sync.sendInviteSuccess(invitation)
+      let action = actions.sync.sendInviteSuccess(invitation);
 
       let state = reducer(initialStateForTest, action);
 
@@ -75,32 +75,33 @@ describe('pendingSentInvites', () => {
   describe('cancelSentInviteSuccess', () => {
     it('should remove invitation from state array', () => {
       let initialStateForTest = [
-        { inviteid: 30, email: 'g@g.com' },
-        { inviteid: 50, email: 'a@a.com' }
+        { inviteid: 'xyz123zyx', email: 'g@g.com' },
+        { inviteid: 'abc987cba', email: 'a@a.com' }
       ];
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let removedEmail = 'g@g.com';
 
-      let action = actions.sync.cancelSentInviteSuccess(removedEmail)
+      let action = actions.sync.cancelSentInviteSuccess(removedEmail);
 
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(initialStateForTest.length - 1);
+      expect(_.findWhere(state, {email: removedEmail})).to.be.undefined;
       expect(state[0].email).to.equal('a@a.com');
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('logoutRequest', () => {
-    it('should remove invitation from state array', () => {
+    it('should set state to empty array', () => {
       let initialStateForTest = [
-        { inviteid: 30, email: 'g@g.com' },
-        { inviteid: 50, email: 'a@a.com' }
+        { inviteid: 'xyz123zyx', email: 'g@g.com' },
+        { inviteid: 'abc987cba', email: 'a@a.com' }
       ];
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.logoutRequest()
+      let action = actions.sync.logoutRequest();
 
       let state = reducer(initialStateForTest, action);
 

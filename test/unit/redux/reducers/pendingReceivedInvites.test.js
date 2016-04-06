@@ -29,80 +29,79 @@ import { pendingReceivedInvites as reducer } from '../../../../app/redux/reducer
 
 import actions from '../../../../app/redux/actions/index';
 
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
-
 import { pendingReceivedInvites as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
 describe('pendingReceivedInvites', () => {
   describe('fetchPendingReceivedInvitesSuccess', () => {
-    it('should set state to an array of pendingReceivedInvites', () => {
+    it('should set state to an array of pending invites', () => {
       let initialStateForTest = [];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let pendingReceivedInvites = [
-        { key: 30 },
-        { key: 50 }
+        { key: 'xyz123zyx' },
+        { key: 'abc987cba' }
       ];
 
-      let action = actions.sync.fetchPendingReceivedInvitesSuccess(pendingReceivedInvites)
+      let action = actions.sync.fetchPendingReceivedInvitesSuccess(pendingReceivedInvites);
 
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(pendingReceivedInvites.length);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('acceptReceivedInviteSuccess', () => {
-    it('should remove accepted membership to state', () => {
+    it('should remove accepted membership from state array', () => {
       let initialStateForTest = [
-        { key: 30 },
-        { key: 50 }
+        { key: 'xyz123zyx' },
+        { key: 'abc987cba' }
       ];
-
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let membership = { key: 50 };
+      let membership = { key: 'abc987cba' };
 
-      let action = actions.sync.acceptReceivedInviteSuccess(membership)
+      let action = actions.sync.acceptReceivedInviteSuccess(membership);
 
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(initialStateForTest.length - 1);
+      expect(_.findWhere(state, membership)).to.be.undefined;
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('rejectReceivedInviteSuccess', () => {
-    it('should remove invitation from state array', () => {
+    it('should remove rejected invite from state array', () => {
       let initialStateForTest = [
-        { key: 30, email: 'g@g.com' },
-        { key: 50, email: 'a@a.com' }
+        { key: 'xyz123zyx', email: 'g@g.com' },
+        { key: 'abc987cba', email: 'a@a.com' }
       ];
-
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let membership = { key: 30 };
+      let membership = { key: 'xyz123zyx' };
 
-      let action = actions.sync.rejectReceivedInviteSuccess(membership)
+      let action = actions.sync.rejectReceivedInviteSuccess(membership);
 
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(initialStateForTest.length - 1);
+      expect(_.findWhere(state, membership)).to.be.undefined;
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('logoutRequest', () => {
-    it('should remove invitation from state array', () => {
+    it('should set to an empty array', () => {
       let initialStateForTest = [
-        { key: 30 },
-        { key: 50 }
+        { key: 'xyz123zyx' },
+        { key: 'abc987cba' }
       ];
-
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.logoutRequest()
+      let action = actions.sync.logoutRequest();
 
       let state = reducer(initialStateForTest, action);
 

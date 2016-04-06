@@ -23,58 +23,64 @@
 
 import _ from 'lodash';
 
+import mutationTracker from 'object-invariant-test-helper';
+
 import { memberInOtherCareTeams as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
-
-import { notification as initialState } from '../../../../app/redux/reducers/initialState';
+import { memberInOtherCareTeams as initialState } from '../../../../app/redux/reducers/initialState';
+let tracked = mutationTracker.trackObj(initialState);
 
 var expect = chai.expect;
 
 describe('memberInOtherCareTeams', () => {
   describe('fetchPatientsSuccess', () => {
-    it('should set state to list of ids', () => {
-      let initialStateForTest = null;
+    it('should populate an array of patient ids', () => {
       let patients = [
-        { userid: 111, name: 'Frank Jones' },
-        { userid: 112, name: 'Jenny Jones' },
-      ]
+        { userid: 'a1b2c3', name: 'Frank Jones' },
+        { userid: 'd4e5f6', name: 'Jenny Jones' },
+      ];
 
-      let action = actions.sync.fetchPatientsSuccess(patients)
-      let state = reducer(initialStateForTest, action);
+      let action = actions.sync.fetchPatientsSuccess(patients);
+      let state = reducer(initialState, action);
 
       expect(state.length).to.equal(2);
       expect(state[0]).to.equal(patients[0].userid);
       expect(state[1]).to.equal(patients[1].userid);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('removePatientSuccess', () => {
     it('should remove member from hash map', () => {
-      let patientId = 56
+      let patientId = 'x1y2z3';
 
-      let initialStateForTest = [ 500, 234, 56];
+      let initialStateForTest = [ 'a1b2c3', 'd4e5f6', 'x1y2z3' ];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
       
-      let action = actions.sync.removePatientSuccess(patientId)
+      let action = actions.sync.removePatientSuccess(patientId);
 
       let state = reducer(initialStateForTest, action);
 
-      expect(Object.keys(state).length).to.equal(2);
-      expect(state[patientId]).to.be.undefined;
+      expect(state.length).to.equal(2);
+      expect(state[2]).to.be.undefined;
+      expect(_.includes(state, patientId)).to.be.false;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('logoutRequest', () => {
     it('should set state to null', () => {
-      let initialStateForTest = [1, 2 ,3];
+      let initialStateForTest = [ 'a1b2c3', 'd4e5f6', 'x1y2z3' ];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
       
-      let action = actions.sync.logoutRequest()
+      let action = actions.sync.logoutRequest();
 
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(0);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 });
