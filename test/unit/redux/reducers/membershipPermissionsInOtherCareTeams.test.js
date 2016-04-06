@@ -29,13 +29,37 @@ import { membershipPermissionsInOtherCareTeams as reducer } from '../../../../ap
 
 import actions from '../../../../app/redux/actions/index';
 
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
-
 import { membershipPermissionsInOtherCareTeams as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
 describe('membershipPermissionsInOtherCareTeams', () => {
+  describe('acceptReceivedInviteSuccess', () => {
+    it('should add membership to the hash map', () => {
+      let acceptedReceivedInvite = {
+        creatorId: 'a1b2c3',
+        context: {
+          view: {},
+          note: {}
+        }
+      };
+
+      let initialStateForTest = {};
+
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+      
+      let action = actions.sync.acceptReceivedInviteSuccess(acceptedReceivedInvite);
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(1);
+      expect(Object.keys(state.a1b2c3).length).to.equal(2);
+      expect(state.a1b2c3.view).to.exist;
+      expect(state.a1b2c3.note).to.exist;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
   describe('fetchPatientsSuccess', () => {
     it('should set state to a hash map of permissions in other care teams', () => {
       let patients = [
@@ -63,7 +87,7 @@ describe('membershipPermissionsInOtherCareTeams', () => {
   });
 
   describe('removePatientSuccess', () => {
-    it('should remove member from hash map', () => {
+    it('should remove membership from hash map', () => {
       let patientId = 'a1b2c3';
 
       let initialStateForTest = {

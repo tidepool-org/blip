@@ -294,6 +294,11 @@ export const permissionsOfMembersInTargetCareTeam = (state = initialState.permis
 
 export const membershipPermissionsInOtherCareTeams = (state = initialState.membershipPermissionsInOtherCareTeams, action) => {
   switch(action.type) {
+    case types.ACCEPT_RECEIVED_INVITE_SUCCESS: {
+      const { creatorId } = action.payload.acceptedReceivedInvite;
+      const { context } = action.payload.acceptedReceivedInvite;
+      return update(state, { $merge: { [creatorId]: context }});
+    }
     case types.FETCH_PATIENTS_SUCCESS: {
       let permissions = {};
       action.payload.patients.forEach((p) => permissions[p.userid] = p.permissions);

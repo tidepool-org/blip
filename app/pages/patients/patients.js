@@ -371,6 +371,9 @@ export function mapStateToProps(state) {
       var permissions = state.blip.membershipPermissionsInOtherCareTeams;
       var keys = Object.keys(state.blip.membershipPermissionsInOtherCareTeams);
       keys.forEach((key) => {
+        if (!patientMap[key]) {
+          patientMap[key] = state.blip.allUsersMap[key];
+        }
         patientMap[key].permissions = permissions[key];
       });
     }
