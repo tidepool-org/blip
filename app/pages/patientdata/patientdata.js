@@ -389,7 +389,7 @@ export let PatientData = React.createClass({
       edit(message, cb);
     }
     var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.updateBasicsData(data);
+    this.updateBasicsData(data);
     this.props.trackMetric('Edit To Message');
   },
 
