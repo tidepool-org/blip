@@ -122,29 +122,41 @@ export const resentEmailVerification = (state = initialState.resentEmailVerifica
 export const allUsersMap = (state = initialState.allUsersMap, action) => {
   switch(action.type) {
     case types.FETCH_USER_SUCCESS:
-    case types.LOGIN_SUCCESS:
-      return update(state, { [action.payload.user.userid]: { $set: _.omit(action.payload.user, ['permissions', 'team']) } });
-    case types.FETCH_PATIENT_SUCCESS: 
-      let intermediate;
-
-      if (state[action.payload.patient.userid]) {
-        intermediate = update(state,  { [action.payload.patient.userid]: { $merge: _.omit(action.payload.patient, ['permissions', 'team']) } });
+    case types.LOGIN_SUCCESS: {
+      const { user } = action.payload;
+      return update(state, {
+        [user.userid]: { $set: _.omit(user, ['permissions', 'team'])}
+      });
+    }
+    case types.FETCH_PATIENT_SUCCESS: {
+      let newState;
+      const { patient } = action.payload;
+      if (state[patient.userid]) {
+        newState = update(state, {
+          [patient.userid]: { $merge: _.omit(patient, ['permissions', 'team'])}
+        });
       } else {
-        intermediate = update(state,  { [action.payload.patient.userid]: { $set: _.omit(action.payload.patient, ['permissions', 'team']) } });
+        newState = update(state, {
+          [patient.userid]: { $set: _.omit(patient, ['permissions', 'team'])}
+        });
       }
-      
-      if (action.payload.patient.team) {
+
+      const { team } = patient;
+      if (team) {
         let others = {};
-        action.payload.patient.team.forEach((t) => others[t.userid] = _.omit(t, 'permissions'));
-        return update(intermediate, { $merge: others });
+        action.payload.patient.team.forEach(
+          (member) => others[member.userid] = _.omit(member, 'permissions')
+        );
+        return update(newState, { $merge: others });
       }
-      
-      return intermediate;
-    case types.FETCH_PATIENTS_SUCCESS: 
+      return newState;
+    }
+    case types.FETCH_PATIENTS_SUCCESS:
+      const { patients } = action.payload || [];
       let patientsMap = {};
       
-      action.payload.patients.forEach((p) => {
-        patientsMap[p.userid] = _.omit(p, ['permissions', 'team']);
+      patients.forEach((patient) => {
+        patientsMap[patient.userid] = _.omit(patient, ['permissions', 'team']);
       });
 
       return update(state, { $merge: patientsMap });
@@ -155,14 +167,12 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       return update(state, { [action.payload.userId]: { $merge: { termsAccepted: action.payload.acceptedDate } } });
     case types.CREATE_PATIENT_SUCCESS:
       return update(state, { [action.payload.userId]: { $merge: { profile: action.payload.patient.profile } } });
-    case types.UPDATE_USER_REQUEST:
-      return update(state, { [action.payload.userId]: { $merge: _.omit(action.payload.updatingUser, ['permissions']) }});
     case types.UPDATE_USER_SUCCESS:
-      return update(state, { [action.payload.userId]: { $merge: _.omit(action.payload.updatedUser, ['permissions']) }});
+      return update(state, { [action.payload.userId]: { $merge: action.payload.updatedUser }});
     case types.UPDATE_PATIENT_SUCCESS:
-      return update(state, { [action.payload.updatedPatient.userid]: { $merge: _.omit(action.payload.updatedPatient, ['permissions']) }});
+      return update(state, { [action.payload.updatedPatient.userid]: { $merge: _.omit(action.payload.updatedPatient, ['permissions', 'team']) }});
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: {} });
+      return {};
     default:
       return state;
   }
