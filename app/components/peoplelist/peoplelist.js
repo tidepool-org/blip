@@ -48,7 +48,7 @@ var PeopleList = React.createClass({
 
       // first sort by fullName
       var sortedPeople = _.sortBy(this.props.people, function(person) {
-        var patient = person.profile.patient;
+        var patient = _.get(person, 'profile.patient', null);
         return (patient && patient.isOtherPerson && patient.fullName) ? person.profile.patient.fullName : person.profile.fullName;
       });
 
