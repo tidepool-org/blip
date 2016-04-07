@@ -49,7 +49,8 @@ var PeopleList = React.createClass({
       // first sort by fullName
       var sortedPeople = _.sortBy(this.props.people, function(person) {
         var patient = _.get(person, 'profile.patient', null);
-        return (patient && patient.isOtherPerson && patient.fullName) ? person.profile.patient.fullName : person.profile.fullName;
+        return (patient && patient.isOtherPerson && patient.fullName) ? 
+          patient.fullName : person.profile.fullName;
       });
 
       // then pop the logged-in user to the top if has data
