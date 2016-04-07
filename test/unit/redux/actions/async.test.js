@@ -28,7 +28,7 @@ describe('Actions', () => {
   })
 
   describe('Asynchronous Actions', () => {
-    describe('signup', (done) => {
+    describe('signup', () => {
       it('should trigger SIGNUP_SUCCESS and it should call signup and get once for a successful request', () => {
         let user = { id: 27 };
         let api = {
@@ -45,10 +45,12 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
 
+        let store = mockStore(initialState);
         store.dispatch(async.signup(api, {foo: 'bar'}));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
       });
 
       it('[409] should trigger SIGNUP_FAILURE and it should call signup once and get zero times for a failed signup request', () => {
@@ -69,10 +71,11 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.signup(api, {foo: 'bar'}));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.user.signup.callCount).to.equal(1);
       });
 
@@ -80,7 +83,7 @@ describe('Actions', () => {
         let user = { id: 27 };
         let api = {
           user: {
-            signup: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+            signup: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null)
           }
         };
 
@@ -94,16 +97,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.signup(api, {foo: 'bar'}));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.user.signup.callCount).to.equal(1);
       });
     });
 
     describe('confirmSignup', () => {
-      it('should trigger CONFIRM_SIGNUP_SUCCESS and it should call confirmSignup once for a successful request', (done) => {
+      it('should trigger CONFIRM_SIGNUP_SUCCESS and it should call confirmSignup once for a successful request', () => {
         let user = { id: 27 };
         let api = {
           user: {
@@ -118,14 +122,16 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.confirmSignup(api, 'fakeSignupKey'));
 
-        expect(api.user.confirmSignup.calledWith('fakeSignupKey').callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.confirmSignUp.calledWith('fakeSignupKey')).to.be.true;
+        expect(api.user.confirmSignUp.callCount).to.equal(1);
       });
 
-      it('should trigger CONFIRM_SIGNUP_FAILURE and it should call confirmSignup once for a failed request', (done) => {
+      it('should trigger CONFIRM_SIGNUP_FAILURE and it should call confirmSignup once for a failed request', () => {
         let user = { id: 27 };
         let api = {
           user: {
@@ -144,16 +150,18 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.confirmSignup(api, 'fakeSignupKey'));
 
-        expect(api.user.confirmSignup.calledWith('fakeSignupKey').callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.confirmSignUp.calledWith('fakeSignupKey')).to.be.true;
+        expect(api.user.confirmSignUp.callCount).to.equal(1);
       });
     });
 
     describe('resendEmailVerification', () => {
-      it('should trigger RESEND_EMAIL_VERIFICATION_SUCCESS and it should call resendEmailVerification once for a successful request', (done) => {
+      it('should trigger RESEND_EMAIL_VERIFICATION_SUCCESS and it should call resendEmailVerification once for a successful request', () => {
         const email = 'foo@bar.com';
         let api = {
           user: {
@@ -169,14 +177,16 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.resendEmailVerification(api, email));
 
-        expect(api.user.resendEmailVerification.calledWith(email).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.resendEmailVerification.calledWith(email)).to.be.true;
+        expect(api.user.resendEmailVerification.callCount).to.equal(1);
       });
 
-      it('should trigger RESEND_EMAIL_VERIFICATION_FAILURE and it should call resendEmailVerification once for a failed request', (done) => {
+      it('should trigger RESEND_EMAIL_VERIFICATION_FAILURE and it should call resendEmailVerification once for a failed request', () => {
         const email = 'foo@bar.com';
         let api = {
           user: {
@@ -195,16 +205,18 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.resendEmailVerification(api, email));
 
-        expect(api.user.resendEmailVerification.calledWith(email).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.resendEmailVerification.calledWith(email)).to.be.true;
+        expect(api.user.resendEmailVerification.callCount).to.equal(1);
       });
     });
 
     describe('acceptTerms', () => {
-      it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request', (done) => {
+      it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request', () => {
         let acceptedDate = new Date();
         let loggedInUserId = 500;
         let termsData = { termsAccepted: new Date() };
@@ -216,7 +228,8 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'ACCEPT_TERMS_REQUEST' },
-          { type: 'ACCEPT_TERMS_SUCCESS', payload: { userId: loggedInUserId, acceptedDate: acceptedDate } }
+          { type: 'ACCEPT_TERMS_SUCCESS', payload: { userId: loggedInUserId, acceptedDate: acceptedDate } },
+          { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -224,15 +237,18 @@ describe('Actions', () => {
 
         let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
 
-        let store = mockStore(initialStateForTest, expectedActions, done);
-
+        let store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate));
 
-        expect(api.user.acceptTerms.calledWith(termsData).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
+        expect(api.user.acceptTerms.callCount).to.equal(1);
       });
 
-      it('should trigger ACCEPT_TERMS_FAILURE and it should call acceptTerms once for a failed request', (done) => {
-        let termsData = { termsAccepted: new Date() };
+      it('should trigger ACCEPT_TERMS_FAILURE and it should call acceptTerms once for a failed request', () => {
+        let acceptedDate = new Date();
+        let termsData = { termsAccepted: acceptedDate };
         let loggedInUserId = 500;
         let api = {
           user: {
@@ -253,16 +269,18 @@ describe('Actions', () => {
 
         let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
 
-        let store = mockStore(initialStateForTest, expectedActions, done);
+        let store = mockStore(initialStateForTest);
+        store.dispatch(async.acceptTerms(api, acceptedDate));
 
-        store.dispatch(async.acceptTerms(api, termsData));
-
-        expect(api.user.acceptTerms.calledWith(termsData).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
+        expect(api.user.acceptTerms.callCount).to.equal(1);
       });
     });
 
     describe('login', () => {
-      it('should trigger LOGIN_SUCCESS and it should call login and user.get once for a successful request', (done) => {
+      it('should trigger LOGIN_SUCCESS and it should call login and user.get once for a successful request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
         let user = { id: 27 };
         let api = {
@@ -274,20 +292,23 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGIN_REQUEST' },
-          { type: 'LOGIN_SUCCESS', payload: { user: user } }
+          { type: 'LOGIN_SUCCESS', payload: { user: user } },
+          { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
 
+        let store = mockStore(initialState);
         store.dispatch(async.login(api, creds));
 
-        expect(api.user.login.calledWith(creds).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.get.callCount).to.equal(1);
       });
 
-      it('should trigger LOGIN_SUCCESS and it should call login, user.get and patient.get once for a successful request', (done) => {
+      it('should trigger LOGIN_SUCCESS and it should call login, user.get and patient.get once for a successful request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
         let user = { id: 27, profile: { patient: true } };
         let patient = { foo: 'bar' };
@@ -304,21 +325,24 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGIN_REQUEST' },
-          { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } }
+          { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } },
+          { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
+        let store = mockStore(initialState);
 
         store.dispatch(async.login(api, creds));
 
-        expect(api.user.login.calledWith(creds).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.get.callCount).to.equal(1);
         expect(api.patient.get.callCount).to.equal(1);
       });
 
-      it('[400] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login request', (done) => {
+      it('[400] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
         let user = { id: 27 };
         let api = {
@@ -338,15 +362,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.login(api, creds));
 
-        expect(api.user.login.calledWith(creds).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
+        expect(api.user.login.callCount).to.equal(1);
         expect(api.user.get.callCount).to.equal(0);
       });
 
-      it('[401] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login because of wrong password request', (done) => {
+      it('[401] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login because of wrong password request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
         let user = { id: 27 };
         let api = {
@@ -366,15 +392,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.login(api, creds));
 
-        expect(api.user.login.calledWith(creds).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
+        expect(api.user.login.callCount).to.equal(1);
         expect(api.user.get.callCount).to.equal(0);
       });
 
-      it('[403] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login because of unverified e-mail', (done) => {
+      it('[403] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login because of unverified e-mail', () => {
         let creds = { username: 'bruce', password: 'wayne' };
         let user = { id: 27 };
         let api = {
@@ -389,20 +417,23 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGIN_REQUEST' },
-          { type: 'LOGIN_FAILURE', error: err, payload: payload, meta: { apiError: {status: 403, body: 'E-mail not verified!'}} }
+          { type: 'LOGIN_FAILURE', error: err, payload: payload, meta: { apiError: {status: 403, body: 'E-mail not verified!'}} },
+          { type: '@@router/TRANSITION', payload: { args: [ '/email-verification' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.login(api, creds));
 
-        expect(api.user.login.calledWith(creds).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
+        expect(api.user.login.callCount).to.equal(1);
         expect(api.user.get.callCount).to.equal(0);
       });
 
-      it('[500 on user fetch] should trigger LOGIN_FAILURE and it should call login and user.get once for a failed user.get request', (done) => {
+      it('[500 on user fetch] should trigger LOGIN_FAILURE and it should call login and user.get once for a failed user.get request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
         let user = { id: 27 };
         let api = {
@@ -422,15 +453,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.login(api, creds));
 
-        expect(api.user.login.calledWith(creds).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
+        expect(api.user.login.callCount).to.equal(1);
         expect(api.user.get.callCount).to.equal(1);
       });
 
-      it('[500 on patient fetch] should trigger LOGIN_FAILURE and it should call login, user.get, and patient.get once for a failed patient.get request', (done) => {
+      it('[500 on patient fetch] should trigger LOGIN_FAILURE and it should call login, user.get, and patient.get once for a failed patient.get request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
         let user = { id: 27, profile: { patient: true} };
         let api = {
@@ -453,18 +486,20 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.login(api, creds));
 
-        expect(api.user.login.calledWith(creds).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
+        expect(api.user.login.callCount).to.equal(1);
         expect(api.user.get.callCount).to.equal(1);
         expect(api.patient.get.callCount).to.equal(1);
       });
     });
 
     describe('logout', () => {
-      it('should trigger LOGOUT_SUCCESS and it should call logout once for a successful request', (done) => {
+      it('should trigger LOGOUT_SUCCESS and it should call logout once for a successful request', () => {
         let api = {
           user: {
             logout: sinon.stub().callsArgWith(0, null)
@@ -479,18 +514,19 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.logout(api));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.user.logout.callCount).to.equal(1);
       });
     });
 
     describe('createPatient', () => {
-      it('should trigger CREATE_PATIENT_SUCCESS and it should call createPatient once for a successful request', (done) => {
+      it('should trigger CREATE_PATIENT_SUCCESS and it should call createPatient once for a successful request', () => {
         let loggedInUserId = 500;
-        let patient = { id: 27, name: 'Bruce' };
+        let patient = { userid: 27, name: 'Bruce' };
         let api = {
           patient: {
             post: sinon.stub().callsArgWith(1, null, patient)
@@ -499,21 +535,24 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CREATE_PATIENT_REQUEST' },
-          { type: 'CREATE_PATIENT_SUCCESS', payload: { userId: loggedInUserId, patient: patient } }
+          { type: 'CREATE_PATIENT_SUCCESS', payload: { userId: loggedInUserId, patient: patient } },
+          { type: '@@router/TRANSITION', payload: { args: [ '/patients/27/data' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
         let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
 
-        let store = mockStore(initialStateForTest, expectedActions, done);
-
+        let store = mockStore(initialStateForTest);
         store.dispatch(async.createPatient(api, patient));
 
-        expect(api.patient.post.calledWith(patient).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.patient.post.calledWith(patient)).to.be.true;
+        expect(api.patient.post.callCount).to.equal(1);
       });
 
-      it('should trigger CREATE_PATIENT_FAILURE and it should call createPatient once for a failed request', (done) => {
+      it('should trigger CREATE_PATIENT_FAILURE and it should call createPatient once for a failed request', () => {
         let loggedInUserId = 500;
         let patient = { id: 27, name: 'Bruce' };
         let api = {
@@ -535,16 +574,18 @@ describe('Actions', () => {
 
         let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
 
-        let store = mockStore(initialStateForTest, expectedActions, done);
-
+        let store = mockStore(initialStateForTest);
         store.dispatch(async.createPatient(api, patient));
 
-        expect(api.patient.post.calledWith(patient).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.patient.post.calledWith(patient)).to.be.true;
+        expect(api.patient.post.callCount).to.equal(1);
       });
     });
 
     describe('removePatient', () => {
-      it('should trigger REMOVE_PATIENT_SUCCESS and it should call leaveGroup and patient.getAll once for a successful request', (done) => {
+      it('should trigger REMOVE_PATIENT_SUCCESS and it should call leaveGroup and patient.getAll once for a successful request', () => {
         let patientId = 27;
         let patients = [
           { id: 200 },
@@ -568,15 +609,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.removePatient(api, patientId));
 
-        expect(api.access.leaveGroup.calledWith(patientId).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.access.leaveGroup.calledWith(patientId)).to.be.true;
+        expect(api.access.leaveGroup.callCount).to.equal(1)
         expect(api.patient.getAll.callCount).to.equal(1);
       });
 
-      it('should trigger REMOVE_PATIENT_FAILURE and it should call removePatient once for a failed request', (done) => {
+      it('should trigger REMOVE_PATIENT_FAILURE and it should call removePatient once for a failed request', () => {
         let patientId = 27;
         let api = {
           access: {
@@ -595,16 +638,18 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.removePatient(api, patientId));
 
-        expect(api.access.leaveGroup.calledWith(patientId).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.access.leaveGroup.calledWith(patientId)).to.be.true;
+        expect(api.access.leaveGroup.callCount).to.equal(1)
       });
     });
 
     describe('removeMember', () => {
-      it('should trigger REMOVE_MEMBER_SUCCESS and it should call removeMember once for a successful request', (done) => {
+      it('should trigger REMOVE_MEMBER_SUCCESS and it should call removeMember once for a successful request', () => {
         let memberId = 27;
         let patientId = 456;
         let patient = { id: 546, name: 'Frank' };
@@ -627,16 +672,18 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.removeMember(api, patientId, memberId));
 
-        expect(api.access.removeMember.calledWith(memberId).callCount).to.equal(1);
-        expect(api.patient.get.calledWith(patientId).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.access.removeMember.calledWith(memberId)).to.be.true;
+        expect(api.patient.get.calledWith(patientId)).to.be.true;
       });
 
-      it('should trigger REMOVE_MEMBER_FAILURE and it should call removeMember once for a failed request', (done) => {
+      it('should trigger REMOVE_MEMBER_FAILURE and it should call removeMember once for a failed request', () => {
         let memberId = 27;
+        let patientId = 420;
         let api = {
           access: {
             removeMember: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'})
@@ -654,16 +701,17 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
+        let store = mockStore(initialState);
+        store.dispatch(async.removeMember(api, patientId, memberId));
 
-        store.dispatch(async.removeMember(api, memberId));
-
-        expect(api.access.removeMember.calledWith(memberId).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.access.removeMember.calledWith(memberId)).to.be.true;
       });
     });
 
     describe('sendInvite', () => {
-      it('should trigger SEND_INVITE_SUCCESS and it should call sendInvite once for a successful request', (done) => {
+      it('should trigger SEND_INVITE_SUCCESS and it should call sendInvite once for a successful request', () => {
         let email = 'a@b.com';
         let permissions = {
           view: true
@@ -682,14 +730,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.sendInvite(api, email, permissions));
 
-        expect(api.invitation.send.calledWith(email, permissions).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
       });
 
-      it('should trigger SEND_INVITE_FAILURE when invite has already been sent to the e-mail', (done) => {
+      it('should trigger SEND_INVITE_FAILURE when invite has already been sent to the e-mail', () => {
         let email = 'a@b.com';
         let permissions = {
           view: true
@@ -712,14 +761,15 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.sendInvite(api, email, permissions));
 
-        expect(api.invitation.send.calledWith(email, permissions).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
       });
 
-      it('should trigger SEND_INVITE_FAILURE and it should call sendInvite once for a failed request', (done) => {
+      it('should trigger SEND_INVITE_FAILURE and it should call sendInvite once for a failed request', () => {
         let email = 'a@b.com';
         let permissions = {
           view: true
@@ -742,16 +792,17 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.sendInvite(api, email, permissions));
 
-        expect(api.invitation.send.calledWith(email, permissions).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
       });
     });
 
     describe('cancelSentInvite', () => {
-      it('should trigger CANCEL_SENT_INVITE_SUCCESS and it should call cancelSentInvite once for a successful request', (done) => {
+      it('should trigger CANCEL_SENT_INVITE_SUCCESS and it should call cancelSentInvite once for a successful request', () => {
         let email = 'a@b.com';
         let api = {
           invitation: {
@@ -766,14 +817,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.cancelSentInvite(api, email));
 
-        expect(api.invitation.cancel.calledWith(email).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.cancel.calledWith(email)).to.be.true;
       });
 
-      it('should trigger CANCEL_SENT_INVITE_FAILURE and it should call cancelSentInvite once for a failed request', (done) => {
+      it('should trigger CANCEL_SENT_INVITE_FAILURE and it should call cancelSentInvite once for a failed request', () => {
         let email = 'a@b.com';
         let api = {
           invitation: {
@@ -792,16 +844,17 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.cancelSentInvite(api, email));
 
-        expect(api.invitation.cancel.calledWith(email).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.cancel.calledWith(email)).to.be.true;
       });
     });
 
     describe('acceptReceivedInvite', () => {
-      it('should trigger ACCEPT_RECEIVED_INVITE_SUCCESS and it should call acceptReceivedInvite once for a successful request', (done) => {
+      it('should trigger ACCEPT_RECEIVED_INVITE_SUCCESS and it should call acceptReceivedInvite once for a successful request', () => {
         let invitation = { key: 'foo', creator: { userid: 500 } };
         let patient = { id: 500, name: 'Buddy Holly', age: 65 };
 
@@ -823,15 +876,16 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.acceptReceivedInvite(api, invitation));
 
-        expect(api.invitation.accept.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
-        expect(api.patient.get.calledWith(invitation.creator.userid).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.accept.calledWith(invitation.key, invitation.creator.userid)).to.be.true;
+        expect(api.patient.get.calledWith(invitation.creator.userid)).to.be.true;
       });
 
-      it('should trigger ACCEPT_RECEIVED_INVITE_FAILURE and it should call acceptReceivedInvite once for a failed request', (done) => {
+      it('should trigger ACCEPT_RECEIVED_INVITE_FAILURE and it should call acceptReceivedInvite once for a failed request', () => {
         let invitation = { key: 'foo', creator: { id: 500 } };
         let api = {
           invitation: {
@@ -850,16 +904,17 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.acceptReceivedInvite(api, invitation));
 
-        expect(api.invitation.accept.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.accept.calledWith(invitation.key, invitation.creator.userid)).to.be.true;
       });
     });
 
     describe('rejectReceivedInvite', () => {
-      it('should trigger REJECT_RECEIVED_INVITE_SUCCESS and it should call rejectReceivedInvite once for a successful request', (done) => {
+      it('should trigger REJECT_RECEIVED_INVITE_SUCCESS and it should call rejectReceivedInvite once for a successful request', () => {
         let invitation = { key: 'foo', creator: { userid: 500 } };
         let api = {
           invitation: {
@@ -874,14 +929,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.rejectReceivedInvite(api, invitation));
 
-        expect(api.invitation.dismiss.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.dismiss.calledWith(invitation.key, invitation.creator.userid)).to.be.true;
       });
 
-      it('should trigger REJECT_RECEIVED_INVITE_FAILURE and it should call rejectReceivedInvite once for a failed request', (done) => {
+      it('should trigger REJECT_RECEIVED_INVITE_FAILURE and it should call rejectReceivedInvite once for a failed request', () => {
         let invitation = { key: 'foo', creator: { id: 500 } };
         let api = {
           invitation: {
@@ -900,16 +956,17 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.rejectReceivedInvite(api, invitation));
 
-        expect(api.invitation.dismiss.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.dismiss.calledWith(invitation.key, invitation.creator.userid)).to.be.true;
       });
     });
 
     describe('setMemberPermissions', () => {
-      it('should trigger SET_MEMBER_PERMISSIONS_SUCCESS and it should call setMemberPermissions once for a successful request', (done) => {
+      it('should trigger SET_MEMBER_PERMISSIONS_SUCCESS and it should call setMemberPermissions once for a successful request', () => {
         let patientId = 50;
         let patient = { id: 50, name: 'Jeanette Peach' };
         let memberId = 2;
@@ -938,15 +995,16 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.setMemberPermissions(api, patientId, memberId, permissions));
 
-        expect(api.access.setMemberPermissions.calledWith(memberId, permissions).callCount).to.equal(1);
-        expect(api.patient.get.calledWith(patientId).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.access.setMemberPermissions.calledWith(memberId, permissions)).to.be.true;
+        expect(api.patient.get.calledWith(patientId)).to.be.true;
       });
 
-      it('should trigger SET_MEMBER_PERMISSIONS_FAILURE and it should call setMemberPermissions once for a failed request', (done) => {
+      it('should trigger SET_MEMBER_PERMISSIONS_FAILURE and it should call setMemberPermissions once for a failed request', () => {
         let patientId = 50;
         let memberId = 2;
         let permissions = {
@@ -969,16 +1027,17 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.setMemberPermissions(api, patientId, memberId, permissions));
 
-        expect(api.access.setMemberPermissions.calledWith(memberId, permissions).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.access.setMemberPermissions.calledWith(memberId, permissions)).to.be.true;
       });
     });
 
     describe('updatePatient', () => {
-      it('should trigger UPDATE_PATIENT_SUCCESS and it should call updatePatient once for a successful request', (done) => {
+      it('should trigger UPDATE_PATIENT_SUCCESS and it should call updatePatient once for a successful request', () => {
         let patient = { name: 'Bruce' };
         let api = {
           patient: {
@@ -993,14 +1052,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.updatePatient(api, patient));
 
-        expect(api.access.updatePatient.calledWith(patient).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.patient.put.calledWith(patient)).to.be.true;
       });
 
-      it('should trigger UPDATE_PATIENT_FAILURE and it should call updatePatient once for a failed request', (done) => {
+      it('should trigger UPDATE_PATIENT_FAILURE and it should call updatePatient once for a failed request', () => {
         let patient = { name: 'Bruce' };
         let api = {
           patient: {
@@ -1019,16 +1079,17 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.updatePatient(api, patient));
 
-        expect(api.access.updatePatient.calledWith(patient).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.patient.put.calledWith(patient)).to.be.true;
       });
     });
 
     describe('updateUser', () => {
-      it('should trigger UPDATE_USER_SUCCESS and it should call updateUser once for a successful request', (done) => {
+      it('should trigger UPDATE_USER_SUCCESS and it should call updateUser once for a successful request', () => {
         let loggedInUserId = 400;
         let currentUser = { 
           profile: { 
@@ -1064,7 +1125,8 @@ describe('Actions', () => {
           profile: { 
             name: 'Joe Steven Bloggs', 
             age: 30
-          }
+          },
+          password: 'foo'
         };
 
         let updatedUser = {
@@ -1095,14 +1157,15 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore({ blip : initialStateForTest }, expectedActions, done);
-
+        let store = mockStore({ blip : initialStateForTest });
         store.dispatch(async.updateUser(api, formValues));
 
-        expect(api.access.updateUser.calledWith(userUpdates).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.put.calledWith(userUpdates)).to.be.true;
       });
 
-      it('should trigger UPDATE_USER_FAILURE and it should call updateUser once for a failed request', (done) => {
+      it('should trigger UPDATE_USER_FAILURE and it should call updateUser once for a failed request', () => {
         let loggedInUserId = 400;
         let currentUser = { 
           profile: { 
@@ -1120,7 +1183,7 @@ describe('Actions', () => {
           profile: { 
             name: 'Joe Steven Bloggs', 
             age: 30
-          }, 
+          }
         };
 
         let updatingUser = {
@@ -1138,7 +1201,8 @@ describe('Actions', () => {
           profile: { 
             name: 'Joe Steven Bloggs', 
             age: 30
-          }
+          },
+          password: 'foo'
         };
         let api = {
           user: {
@@ -1159,16 +1223,17 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore({ blip : initialStateForTest }, expectedActions, done);
-
+        let store = mockStore({ blip : initialStateForTest });
         store.dispatch(async.updateUser(api, formValues));
 
-        expect(api.access.updateUser.calledWith(userUpdates).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.put.calledWith(userUpdates)).to.be.true;
       });
     });
 
     describe('requestPasswordReset', () => {
-      it('should trigger REQUEST_PASSWORD_RESET_SUCCESS and it should call requestPasswordReset once for a successful request', (done) => {
+      it('should trigger REQUEST_PASSWORD_RESET_SUCCESS and it should call requestPasswordReset once for a successful request', () => {
         const email = 'foo@bar.com';
         let api = {
           user: {
@@ -1183,14 +1248,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.requestPasswordReset(api, email));
 
-        expect(api.user.requestPasswordReset.calledWith(email).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.requestPasswordReset.calledWith(email)).to.be.true;
       });
 
-      it('should trigger REQUEST_PASSWORD_RESET_FAILURE and it should call requestPasswordReset once for a failed request', (done) => {
+      it('should trigger REQUEST_PASSWORD_RESET_FAILURE and it should call requestPasswordReset once for a failed request', () => {
         const email = 'foo@bar.com';
         let api = {
           user: {
@@ -1208,16 +1274,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.requestPasswordReset(api, email));
 
-        expect(api.user.requestPasswordReset.calledWith(email).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.requestPasswordReset.calledWith(email)).to.be.true;
       });
     });
 
     describe('confirmPasswordReset', () => {
-      it('should trigger CONFIRM_PASSWORD_RESET_SUCCESS and it should call confirmPasswordReset once for a successful requestPasswordReset', (done) => {
+      it('should trigger CONFIRM_PASSWORD_RESET_SUCCESS and it should call confirmPasswordReset once for a successful requestPasswordReset', () => {
         const payload = {};
         let api = {
           user: {
@@ -1232,14 +1299,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.confirmPasswordReset(api, payload));
 
-        expect(api.user.confirmPasswordReset.calledWith(payload).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.confirmPasswordReset.calledWith(payload)).to.be.true;
       });
 
-      it('should trigger CONFIRM_PASSWORD_RESET_FAILURE and it should call confirmPasswordReset once for a failed requestPasswordReset', (done) => {
+      it('should trigger CONFIRM_PASSWORD_RESET_FAILURE and it should call confirmPasswordReset once for a failed requestPasswordReset', () => {
         const payload = {};
         let api = {
           user: {
@@ -1257,16 +1325,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.confirmPasswordReset(api, payload));
 
-        expect(api.user.confirmPasswordReset.calledWith(payload).callCount).to.equal(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.confirmPasswordReset.calledWith(payload)).to.be.true;
       });
     });
 
     describe('logError', () => {
-      it('should trigger LOG_ERROR_SUCCESS and it should call error once for a successful request', (done) => {
+      it('should trigger LOG_ERROR_SUCCESS and it should call error once for a successful request', () => {
         let error = 'Error';
         let message = 'Some random detailed error message!';
         let props = { 
@@ -1287,16 +1356,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.logError(api, error, message, props));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.errors.log.withArgs(error, message, props).callCount).to.equal(1);
       });
     });
 
     describe('fetchUser', () => {
-      it('should trigger FETCH_USER_SUCCESS and it should call get once for a successful request', (done) => {
+      it('should trigger FETCH_USER_SUCCESS and it should call get once for a successful request', () => {
         let user = { emailVerified: true, username: 'frankie@gmaz.com', id: 306, name: 'Frankie Boyle' };
 
         let api = {
@@ -1312,14 +1382,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.fetchUser(api));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.user.get.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_USER_SUCCESS and it should call user.get and patient.get once for a successful request', (done) => {
+      it('should trigger FETCH_USER_SUCCESS and it should call user.get and patient.get once for a successful request', () => {
         let user = { emailVerified: true, username: 'frankie@gmaz.com', id: 306, name: 'Frankie Boyle', profile: { patient: true } };
         let patient = { foo: 'bar' };
         let api = {
@@ -1338,15 +1409,16 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.fetchUser(api));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.user.get.callCount).to.equal(1);
         expect(api.patient.get.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_USER_FAILURE and it should call error once for a request for user that has not verified email', (done) => {
+      it('should trigger FETCH_USER_FAILURE and it should call error once for a request for user that has not verified email', () => {
         let user = { emailVerified: false, username: 'frankie@gmaz.com', id: 306, name: 'Frankie Boyle' };
 
         let api = {
@@ -1362,15 +1434,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
 
+        let store = mockStore(initialState);
         store.dispatch(async.fetchUser(api));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.user.get.callCount).to.equal(1);
       });
 
 
-      it('[401] should trigger FETCH_USER_FAILURE and it should call error once for a failed request', (done) => {
+      it('[401] should trigger FETCH_USER_FAILURE and it should call error once for a failed request', () => {
         let user = { id: 306, name: 'Frankie Boyle' };
 
         let api = {
@@ -1386,14 +1460,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.fetchUser(api));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.user.get.callCount).to.equal(1);
       });
 
-      it('[500] should trigger FETCH_USER_FAILURE and it should call error once for a failed request', (done) => {
+      it('[500] should trigger FETCH_USER_FAILURE and it should call error once for a failed request', () => {
         let user = { id: 306, name: 'Frankie Boyle' };
 
         let api = {
@@ -1412,16 +1487,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.fetchUser(api));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.user.get.callCount).to.equal(1);
       });
     });
 
     describe('fetchPendingSentInvites', () => {
-      it('should trigger FETCH_PENDING_SENT_INVITES_SUCCESS and it should call error once for a successful request', (done) => {
+      it('should trigger FETCH_PENDING_SENT_INVITES_SUCCESS and it should call error once for a successful request', () => {
         let pendingSentInvites = [ 1, 555, 78191 ];
 
         let api = {
@@ -1437,14 +1513,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.fetchPendingSentInvites(api));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.invitation.getSent.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PENDING_SENT_INVITES_FAILURE and it should call error once for a failed request', (done) => {
+      it('should trigger FETCH_PENDING_SENT_INVITES_FAILURE and it should call error once for a failed request', () => {
         let pendingSentInvites = [ 1, 555, 78191 ];
 
         let api = {
@@ -1463,16 +1540,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.fetchPendingSentInvites(api));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.invitation.getSent.callCount).to.equal(1);
       });
     });
 
     describe('fetchPendingReceivedInvites', () => {
-      it('should trigger FETCH_PENDING_RECEIVED_INVITES_SUCCESS and it should call error once for a successful request', (done) => {
+      it('should trigger FETCH_PENDING_RECEIVED_INVITES_SUCCESS and it should call error once for a successful request', () => {
         let pendingReceivedInvites = [ 1, 555, 78191 ];
 
         let api = {
@@ -1488,14 +1566,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.fetchPendingReceivedInvites(api));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.invitation.getReceived.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PENDING_RECEIVED_INVITES_FAILURE and it should call error once for a failed request', (done) => {
+      it('should trigger FETCH_PENDING_RECEIVED_INVITES_FAILURE and it should call error once for a failed request', () => {
         let pendingReceivedInvites = [ 1, 555, 78191 ];
 
         let api = {
@@ -1514,16 +1593,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.fetchPendingReceivedInvites(api));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.invitation.getReceived.callCount).to.equal(1);
       });
     });
 
     describe('fetchPatient', () => {
-      it('should trigger FETCH_PATIENT_SUCCESS and it should call error once for a successful request', (done) => {
+      it('should trigger FETCH_PATIENT_SUCCESS and it should call error once for a successful request', () => {
         let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
 
         let api = {
@@ -1539,14 +1619,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore({ blip: initialState }, expectedActions, done);
-
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchPatient(api, 58686));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
 
-      it('[500] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', (done) => {
+      it('[500] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
         let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
 
         let api = {
@@ -1565,14 +1646,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore({ blip: initialState }, expectedActions, done);
-
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchPatient(api, 58686));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
 
-      it('[404] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', (done) => {
+      it('[404] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
         let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
         let thisInitialState = Object.assign(initialState, {loggedInUserId: 58686});
 
@@ -1592,16 +1674,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore({ blip: thisInitialState }, expectedActions, done);
-
+        let store = mockStore({ blip: thisInitialState });
         store.dispatch(async.fetchPatient(api, 58686));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
     });
 
     describe('fetchPatients', () => {
-      it('should trigger FETCH_PATIENTS_SUCCESS and it should call error once for a successful request', (done) => {
+      it('should trigger FETCH_PATIENTS_SUCCESS and it should call error once for a successful request', () => {
         let patients = [
           { id: 58686, name: 'Buddy Holly', age: 65 }
         ]
@@ -1619,14 +1702,15 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.fetchPatients(api));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.patient.getAll.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PATIENTS_FAILURE and it should call error once for a failed request', (done) => {
+      it('should trigger FETCH_PATIENTS_FAILURE and it should call error once for a failed request', () => {
         let patients = [
           { id: 58686, name: 'Buddy Holly', age: 65 }
         ]
@@ -1647,16 +1731,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.fetchPatients(api));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.patient.getAll.callCount).to.equal(1);
       });
     });
 
     describe('fetchPatientData', () => {
-      it('should trigger FETCH_PATIENT_DATA_SUCCESS and it should call error once for a successful request', (done) => {
+      it('should trigger FETCH_PATIENT_DATA_SUCCESS and it should call error once for a successful request', () => {
         async.__Rewire__('utils', {
           processPatientData: sinon.stub().returnsArg(0)
         });
@@ -1687,15 +1772,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore({ blip: initialState }, expectedActions, done);
 
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchPatientData(api, patientId));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.patientData.get.withArgs(patientId).callCount).to.equal(1);
         expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to patient data call returning error', (done) => {
+      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to patient data call returning error', () => {
         async.__Rewire__('utils', {
           processPatientData: sinon.stub()
         });
@@ -1729,16 +1816,17 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore({ blip: initialState }, expectedActions, done);
-
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchPatientData(api, patientId));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.patientData.get.withArgs(patientId).callCount).to.equal(1);
         expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
 
 
-      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to team notes call returning error', (done) => {
+      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to team notes call returning error', () => {
         async.__Rewire__('utils', {
           processPatientData: sinon.stub()
         });
@@ -1772,17 +1860,19 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
 
+        let store = mockStore(initialState);
         store.dispatch(async.fetchPatientData(api, patientId));
-
+        
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.patientData.get.withArgs(patientId).callCount).to.equal(1);
         expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
     });
 
     describe('fetchMessageThread', () => {
-      it('should trigger FETCH_MESSAGE_THREAD_SUCCESS and it should call error once for a successful request', (done) => {
+      it('should trigger FETCH_MESSAGE_THREAD_SUCCESS and it should call error once for a successful request', () => {
         let messageThread = [
           { message: 'Foobar' }
         ]
@@ -1800,14 +1890,16 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
 
+        let store = mockStore(initialState);
         store.dispatch(async.fetchMessageThread(api, 300));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.team.getMessageThread.withArgs(300).callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_MESSAGE_THREAD_FAILURE and it should call error once for a failed request', (done) => {
+      it('should trigger FETCH_MESSAGE_THREAD_FAILURE and it should call error once for a failed request', () => {
         let messageThread = [
           { message: 'Foobar' }
         ]
@@ -1828,10 +1920,11 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState, expectedActions, done);
-
+        let store = mockStore(initialState);
         store.dispatch(async.fetchMessageThread(api, 400));
 
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
         expect(api.team.getMessageThread.withArgs(400).callCount).to.equal(1);
       });
     });
