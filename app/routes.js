@@ -73,15 +73,20 @@ export const requireAuthAndNoPatient = (api, store) => (nextState, replace, cb) 
   } else {
     const user = _.get(state.allUsersMap, state.loggedInUserId, {});
     if (!_.isEmpty(user)) {
-      checkIfPatient(user);
+      checkUserStatus(user);
     } else {
       api.user.get(function(err, user) {
-        checkIfPatient(user);
+        checkUserStatus(user);
       });
     }
-    function checkIfPatient(user) {
+    function checkUserStatus(user) {
+      if (!personUtils.hasAcceptedTerms(user)) {
+        replace('/terms');
+        return cb();
+      }
       if (personUtils.isPatient(user)) {
         replace('/patients');
+        return cb();
       }
       cb();
     }
