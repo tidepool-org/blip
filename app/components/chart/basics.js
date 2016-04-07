@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -144,13 +144,14 @@ var Basics = React.createClass({
     var basicsData = this.props.patientData.basicsData;
     var data;
     if (basicsData.data) {
-      data = basicsData;
+      data = basicsData.data;
     }
     else {
       return true;
     }
     // require basal, bolus, and smbg data to show The Basics
-    var hasBasicsData = data.basal && data.bolus && data.smbg;
+    var hasBasicsData = !_.isEmpty(data.basal.data) &&
+      !_.isEmpty(data.bolus) && !_.isEmpty(data.smbg);
     if (hasBasicsData === false) {
       return true;
     }

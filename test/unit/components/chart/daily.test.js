@@ -1,7 +1,10 @@
 /* global chai */
+/* global describe */
+/* global sinon */
+/* global it */
 
 var React = require('react');
-var TestUtils = require('react/lib/ReactTestUtils');
+var TestUtils = require('react-addons-test-utils');
 var _ = require('lodash');
 var expect = chai.expect;
 var rewire = require('rewire');

@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var Link = require('react-router').Link;
 var _ = require('lodash');
 var cx = require('classnames');
 
@@ -89,12 +90,12 @@ var PatientCard = React.createClass({
     var self = this;
     var handleClick = function(e) {
       self.props.trackMetric('Clicked VDF View Data');
-      self.props.onClick(e);
+      self.props.onClick();
     };
 
     return (
       
-      <a className={classes} href={this.props.href} onClick={handleClick}>View</a>
+      <Link className={classes} to={this.props.href} onClick={handleClick}>View</Link>
       
     );
   },
@@ -122,9 +123,9 @@ var PatientCard = React.createClass({
 
     return (
       
-      <a className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('profile')} onMouseLeave={this.setHighlight('view')} href={url} title="Profile">
+      <Link className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('profile')} onMouseLeave={this.setHighlight('view')} to={url} title="Profile">
         <i className={iconClass}></i>
-      </a>
+      </Link>
       
     );
   },
@@ -135,7 +136,7 @@ var PatientCard = React.createClass({
     });
 
     if (_.isEmpty(patient.permissions) === false && (!patient.permissions.admin && !patient.permissions.root)) {
-      var title = 'Remove yourself from ' + this.getFullName() + "'s care team.";
+      var title = 'Remove yourself from ' + this.getFullName() + '\'s care team.';
 
       return (
         
@@ -193,7 +194,7 @@ var PatientCard = React.createClass({
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
         
-        <a className={classes} onClick={handleClick} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} href={shareUrl} title="Share data">Share</a>
+        <Link className={classes} onClick={handleClick} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} to={shareUrl} title="Share data">Share</Link>
         
       );
     }
@@ -244,7 +245,11 @@ var PatientCard = React.createClass({
   handleRemove: function(patient) {
     var self = this;
 
-    return function() {
+    return function(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       self.setState({
         showModalOverlay: true,
         dialog: self.renderRemoveDialog(patient)
@@ -278,7 +283,6 @@ var PatientCard = React.createClass({
   },
 
   onClick: function() {
-    window.location.hash = this.props.href;
     this.props.onClick();
   }
 });

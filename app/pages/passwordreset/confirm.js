@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -14,21 +13,31 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var _ = require('lodash');
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { Link } from 'react-router';
+import _ from 'lodash';
 
-var config = require('../../config');
+import * as actions from '../../redux/actions';
 
-var utils = require('../../core/utils');
-var LoginNav = require('../../components/loginnav');
-var LoginLogo = require('../../components/loginlogo');
-var SimpleForm = require('../../components/simpleform');
+import config from '../../config';
 
-var ConfirmPasswordReset = React.createClass({
+import utils from '../../core/utils';
+import LoginNav from '../../components/loginnav';
+import LoginLogo from '../../components/loginlogo';
+import SimpleForm from '../../components/simpleform';
+
+export var ConfirmPasswordReset = React.createClass({
   propTypes: {
-    resetKey: React.PropTypes.string.isRequired,
+    acknowledgeNotification: React.PropTypes.func.isRequired,
+    api: React.PropTypes.object.isRequired,
+    notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    resetKey: React.PropTypes.string.isRequired,
+    success: React.PropTypes.bool.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
+    working: React.PropTypes.bool.isRequired
   },
 
   formInputs: function() {
@@ -61,7 +70,7 @@ var ConfirmPasswordReset = React.createClass({
 
   render: function() {
     var content;
-    if (this.state.success) {
+    if (this.props.success) {
       content = (
         <div className="PasswordReset-intro">
           <div className="PasswordReset-title">{'Success!'}</div>
@@ -69,7 +78,7 @@ var ConfirmPasswordReset = React.createClass({
             <p>{'Your password was changed successfully. You can now log in with your new password.'}</p>
           </div>
           <div className="PasswordReset-button">
-            <a className="btn btn-primary" href="#/login">Log in</a>
+            <Link className="btn btn-primary" to="/login">Log in</Link>
           </div>
         </div>
       );
@@ -82,7 +91,7 @@ var ConfirmPasswordReset = React.createClass({
           </div>
           <div className="PasswordReset-form">{this.renderForm()}</div>
           <div className="PasswordReset-link">
-            <a href="#/login">Cancel</a>
+            <Link to="/login">Cancel</Link>
           </div>
         </div>
       );
@@ -134,12 +143,12 @@ var ConfirmPasswordReset = React.createClass({
 
     formValues = this.prepareFormValuesForSubmit(formValues);
 
-    this.submitFormValues(formValues);
+    this.props.onSubmit(this.props.api, formValues);
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
+    this.props.acknowledgeNotification('confirmingPasswordReset');
     this.setState({
-      working: true,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -179,7 +188,6 @@ var ConfirmPasswordReset = React.createClass({
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
-        working: false,
         validationErrors: validationErrors
       });
     }
@@ -193,29 +201,32 @@ var ConfirmPasswordReset = React.createClass({
       email: formValues.email,
       password: formValues.password
     };
-  },
-
-  submitFormValues: function(formValues) {
-    var self = this;
-    var submit = this.props.onSubmit;
-
-    submit(formValues, function(err) {
-      if (err) {
-        return self.setState({
-          working: false,
-          notification: {
-            type: 'error',
-            message: 'We couldn\'t change your password. You may have mistyped your email, or the reset link may have expired.'
-          }
-        });
-      }
-
-      self.setState({
-        working: false,
-        success: true
-      });
-    });
   }
 });
 
-module.exports = ConfirmPasswordReset;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+export function mapStateToProps(state) {
+  return {
+    notification: state.blip.working.confirmingPasswordReset.notification,
+    working: state.blip.working.confirmingPasswordReset.inProgress,
+    success: state.blip.passwordResetConfirmed
+  };
+}
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  onSubmit: actions.async.confirmPasswordReset,
+  acknowledgeNotification: actions.sync.acknowledgeNotification
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  return Object.assign({}, stateProps, dispatchProps, {
+    resetKey: ownProps.location.query.resetKey,
+    trackMetric: ownProps.routes[0].trackMetric,
+    api: ownProps.routes[0].api,
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(ConfirmPasswordReset);

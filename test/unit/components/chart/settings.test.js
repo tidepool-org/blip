@@ -1,7 +1,10 @@
 /* global chai */
+/* global describe */
+/* global sinon */
+/* global it */
 
 var React = require('react');
-var TestUtils = require('react/lib/ReactTestUtils');
+var TestUtils = require('react-addons-test-utils');
 var _ = require('lodash');
 var expect = chai.expect;
 var rewire = require('rewire');
@@ -19,18 +22,19 @@ describe('Settings', function () {
   });
 
   describe('render', function() {
-    it('should console.warn when missing required props', function () {
-      console.warn = sinon.spy();
+    it('should console.error when missing required props', function () {
+      console.error = sinon.stub();
       var settingsElem = React.createElement(Settings, {});
       var elem = TestUtils.renderIntoDocument(settingsElem);
-      expect(console.warn.calledWith('Warning: Required prop `bgPrefs` was not specified in `Settings`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `chartPrefs` was not specified in `Settings`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `patientData` was not specified in `Settings`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `onClickRefresh` was not specified in `Settings`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `onSwitchToDaily` was not specified in `Settings`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `onSwitchToSettings` was not specified in `Settings`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `Settings`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `uploadUrl` was not specified in `Settings`.')).to.equal(true);
+
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `bgPrefs` was not specified in `Settings`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `chartPrefs` was not specified in `Settings`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `patientData` was not specified in `Settings`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onClickRefresh` was not specified in `Settings`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSwitchToDaily` was not specified in `Settings`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSwitchToSettings` was not specified in `Settings`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Settings`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `uploadUrl` was not specified in `Settings`.')).to.equal(true);
     });
 
     it('should render without problems', function () {

@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -14,50 +13,58 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var _ = require('lodash');
-var bows = require('bows');
-var sundial = require('sundial');
+import React from 'react';
+import { Link } from 'react-router';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var config = require('../../config');
-var loadingGif = require('./loading.gif');
+import _ from 'lodash';
+import bows from 'bows';
+import sundial from 'sundial';
 
-var personUtils = require('../../core/personutils');
-var utils = require('../../core/utils');
-var Header = require('../../components/chart').header;
-var Basics = require('../../components/chart').basics;
-var Daily = require('../../components/chart').daily;
-var Modal = require('../../components/chart').modal;
-var Weekly = require('../../components/chart').weekly;
-var Settings = require('../../components/chart').settings;
+import config from '../../config';
+import loadingGif from './loading.gif';
 
-var nurseShark = require('tideline/plugins/nurseshark/');
+import * as actions from '../../redux/actions';
 
-var Messages = require('../../components/messages');
+import personUtils from '../../core/personutils';
+import utils from '../../core/utils';
+import { header as Header } from '../../components/chart';
+import { basics as Basics } from '../../components/chart';
+import { daily as Daily } from '../../components/chart';
+import { modal as Modal } from '../../components/chart';
+import { weekly as Weekly } from '../../components/chart';
+import { settings as Settings } from '../../components/chart';
 
-var PatientData = React.createClass({
+import nurseShark from 'tideline/plugins/nurseshark/';
+
+import Messages from '../../components/messages';
+
+export let PatientData = React.createClass({
   propTypes: {
-    bgPrefs: React.PropTypes.object,
-    timePrefs: React.PropTypes.object.isRequired,
-    patientData: React.PropTypes.object,
-    patient: React.PropTypes.object,
+    clearPatientData: React.PropTypes.func.isRequired,
+    currentPatientInViewId: React.PropTypes.string.isRequired,
+    fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingPatientData: React.PropTypes.bool.isRequired,
-    isUserPatient: React.PropTypes.bool,
+    isUserPatient: React.PropTypes.bool.isRequired,
+    messageThread: React.PropTypes.array,
+    onCloseMessageThread: React.PropTypes.func.isRequired,
+    onCreateMessage: React.PropTypes.func.isRequired,
+    onEditMessage: React.PropTypes.func.isRequired,
+    onFetchMessageThread: React.PropTypes.func.isRequired,
+    onRefresh: React.PropTypes.func.isRequired,
+    onSaveComment: React.PropTypes.func.isRequired,
+    patient: React.PropTypes.object,
+    patientDataMap: React.PropTypes.object.isRequired,
+    patientNotesMap: React.PropTypes.object.isRequired,
     queryParams: React.PropTypes.object.isRequired,
-    uploadUrl: React.PropTypes.string,
-    onRefresh: React.PropTypes.func,
-    onFetchMessageThread: React.PropTypes.func,
-    onSaveComment: React.PropTypes.func,
-    onEditMessage: React.PropTypes.func,
-    onCreateMessage: React.PropTypes.func,
-    onUpdatePatientData: React.PropTypes.func,
-    user: React.PropTypes.object,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    uploadUrl: React.PropTypes.string.isRequired,
+    user: React.PropTypes.object
   },
 
   getInitialState: function() {
-    var params = this.props.queryParams;
     var state = {
       chartPrefs: {
         modal: {
@@ -82,23 +89,15 @@ var PatientData = React.createClass({
       createMessageDatetime: null,
       datetimeLocation: null,
       initialDatetimeLocation: null,
-      messages: null
+      processingData: true,
+      processedPatientData: null,
+      timePrefs: {
+        timezoneAware: false,
+        timezoneName: null
+      }
     };
 
     return state;
-  },
-
-  componentWillMount: function() {
-    var params = this.props.queryParams;
-
-    if (!_.isEmpty(params)) {
-      var prefs = _.cloneDeep(this.state.chartPrefs);
-      prefs.bolusRatio = params.dynamicCarbs ? 0.5 : 0.35;
-      prefs.dynamicCarbs = params.dynamicCarbs;
-      this.setState({
-        chartPrefs: prefs
-      });
-    }
   },
 
   log: bows('PatientData'),
@@ -118,7 +117,7 @@ var PatientData = React.createClass({
   },
 
   renderPatientData: function() {
-    if (this.props.fetchingPatient || this.props.fetchingPatientData) {
+    if (this.props.fetchingPatient || this.props.fetchingPatientData || this.state.processingData) {
       return this.renderLoading();
     }
 
@@ -208,19 +207,11 @@ var PatientData = React.createClass({
   },
 
   isEmptyPatientData: function() {
-    // Make sure the patient object and userid is set to prevent TypeErrors
-    // when not setting this prop
-    if (!utils.getIn(this.props, ['patient', 'userid'])) {
-      return true;
-    }
-
-    var patientDataLength =
-      utils.getIn(this.props.patientData, [this.props.patient.userid, 'data', 'length'], 0);
-    return !Boolean(patientDataLength);
+    return (!_.get(this.props, 'patient.userid', false) || !this.state.processedPatientData);
   },
 
   isInsufficientPatientData: function() {
-    var data = this.props.patientData[this.props.patient.userid].data;
+    var data = _.get(this.state.processedPatientData, 'data', {});
     // add additional checks against data and return false iff:
     // only messages data
     if (_.reject(data, function(d) { return d.type === 'message'; }).length === 0) {
@@ -233,13 +224,12 @@ var PatientData = React.createClass({
   renderChart: function() {
     switch (this.state.chartType) {
       case 'basics':
-
         return (
           <Basics
-            bgPrefs={this.props.bgPrefs}
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            timePrefs={this.props.timePrefs}
-            patientData={this.props.patientData[this.props.patient.userid]}
+            timePrefs={this.state.timePrefs}
+            patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -256,11 +246,11 @@ var PatientData = React.createClass({
         
         return (
           <Daily
-            bgPrefs={this.props.bgPrefs}
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            timePrefs={this.props.timePrefs}
+            timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData[this.props.patient.userid]}
+            patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -277,11 +267,11 @@ var PatientData = React.createClass({
         
         return (
           <Modal
-            bgPrefs={this.props.bgPrefs}
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            timePrefs={this.props.timePrefs}
+            timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData[this.props.patient.userid]}
+            patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -299,11 +289,11 @@ var PatientData = React.createClass({
         
         return (
           <Weekly
-            bgPrefs={this.props.bgPrefs}
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            timePrefs={this.props.timePrefs}
+            timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData[this.props.patient.userid]}
+            patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -320,10 +310,10 @@ var PatientData = React.createClass({
         
         return (
           <Settings
-            bgPrefs={this.props.bgPrefs}
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            timePrefs={this.props.timePrefs}
-            patientData={this.props.patientData[this.props.patient.userid]}
+            timePrefs={this.state.timePrefs}
+            patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -350,25 +340,25 @@ var PatientData = React.createClass({
           onSave={this.props.onCreateMessage}
           onNewMessage={this.handleMessageCreation}
           onEdit={this.handleEditMessage}
-          timePrefs={this.props.timePrefs} />
+          timePrefs={this.state.timePrefs} />
       );
-    } else if(this.state.messages) {
+    } else if(this.props.messageThread) {
       return (
         <Messages
-          messages={this.state.messages}
+          messages={this.props.messageThread}
           user={this.props.user}
           patient={this.props.patient}
           onClose={this.closeMessageThread}
           onSave={this.handleReplyToMessage}
           onEdit={this.handleEditMessage}
-          timePrefs={this.props.timePrefs} />
+          timePrefs={this.state.timePrefs} />
       );
     }
     
   },
 
   closeMessageThread: function(){
-    this.setState({ messages: null });
+    this.props.onCloseMessageThread();
     this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed Message Thread Modal');
   },
@@ -381,7 +371,7 @@ var PatientData = React.createClass({
 
   handleMessageCreation: function(message){
     var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
-    this.props.onUpdatePatientData(this.props.patient.userid, data);
+    this.updateBasicsData(data);
     this.props.trackMetric('Created New Message');
   },
 
@@ -399,7 +389,7 @@ var PatientData = React.createClass({
       edit(message, cb);
     }
     var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.onUpdatePatientData(this.props.patient.userid, data);
+    this.updateBasicsData(data);
     this.props.trackMetric('Edit To Message');
   },
 
@@ -408,9 +398,7 @@ var PatientData = React.createClass({
 
     var fetchMessageThread = this.props.onFetchMessageThread;
     if (fetchMessageThread) {
-      fetchMessageThread(messageThread,function(thread){
-        self.setState({ messages: thread });
-      });
+      fetchMessageThread(messageThread);
     }
 
     this.props.trackMetric('Clicked Message Icon');
@@ -466,8 +454,8 @@ var PatientData = React.createClass({
       });
       return;
     }
-    if (this.props.timePrefs.timezoneAware) {
-      datetime = sundial.applyOffset(datetime, sundial.getOffsetFromZone(datetime, this.props.timePrefs.timezoneName));
+    if (this.state.timePrefs.timezoneAware) {
+      datetime = sundial.applyOffset(datetime, sundial.getOffsetFromZone(datetime, this.state.timePrefs.timezoneName));
       datetime = datetime.toISOString();
     }
     this.setState({
@@ -500,13 +488,20 @@ var PatientData = React.createClass({
 
     var refresh = this.props.onRefresh;
     if (refresh) {
-      this.setState({title: this.DEFAULT_TITLE});
-      refresh();
+      this.props.clearPatientData(this.props.currentPatientInViewId);
+      this.setState({ 
+        title: this.DEFAULT_TITLE, 
+        processingData: true,
+        processedPatientData: null 
+      });
+      refresh(this.props.currentPatientInViewId);
     }
   },
 
   updateBasicsData: function(data) {
-    this.props.onUpdatePatientData(this.props.patient.userid, data);
+    this.setState({
+      processedPatientData: data
+    });
   },
 
   updateChartPrefs: function(newChartPrefs) {
@@ -521,7 +516,135 @@ var PatientData = React.createClass({
     this.setState({
       datetimeLocation: datetime
     });
+  },
+
+  componentWillMount: function() {
+    this.doFetching(this.props);
+    var params = this.props.queryParams;
+
+    if (!_.isEmpty(params)) {
+      var prefs = _.cloneDeep(this.state.chartPrefs);
+      prefs.bolusRatio = params.dynamicCarbs ? 0.5 : 0.35;
+      prefs.dynamicCarbs = params.dynamicCarbs;
+      this.setState({
+        chartPrefs: prefs
+      });
+    }
+  },
+
+  componentWillUnmount: function() {
+    this.props.clearPatientData(this.props.currentPatientInViewId);
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    var userId = this.props.currentPatientInViewId;
+    var currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
+    
+    var nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
+    
+    if (!currentPatientData && nextPatientData) {
+      this.doProcessing(nextProps);
+    }
+  },
+
+  doProcessing: function(nextProps) {
+    var userId = this.props.currentPatientInViewId;
+    var patientData = _.get(nextProps, ['patientDataMap', userId], null);
+    if (patientData) {
+      let combinedData = patientData.concat(nextProps.patientNotesMap[userId]);
+      window.downloadInputData = () => {
+        console.save(combinedData, 'blip-input.json');
+      };
+      let processedData = utils.processPatientData(
+        this, 
+        combinedData, 
+        this.props.queryParams
+      );
+      this.setState({
+        processedPatientData: processedData,
+        bgPrefs: {
+          bgClasses: processedData.bgClasses,
+          bgUnits: processedData.bgUnits
+        },
+        processingData: false
+      });
+    }
+  },
+
+  doFetching: function(nextProps) {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('Viewed Care Team List');
+    }
+
+    if (!nextProps.fetchers) {
+      return
+    }
+
+    nextProps.fetchers.forEach(function(fetcher) { 
+      fetcher();
+    });
   }
 });
 
-module.exports = PatientData;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+let getFetchers = (dispatchProps, ownProps, api) => {
+  return [
+    dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
+    dispatchProps.fetchPatientData.bind(null, api, ownProps.routeParams.id)
+  ];
+};
+
+export function mapStateToProps(state) {
+  var user = null;
+  var patient = null;
+  if (state.blip.allUsersMap){
+    if (state.blip.loggedInUserId) {
+      user = state.blip.allUsersMap[state.blip.loggedInUserId];
+    }
+
+    if (state.blip.currentPatientInViewId){
+      patient = state.blip.allUsersMap[state.blip.currentPatientInViewId];
+    }
+  }
+
+  return {
+    user: user,
+    isUserPatient: personUtils.isSame(user, patient),
+    patient: patient,
+    patientDataMap: state.blip.patientDataMap,
+    patientNotesMap: state.blip.patientNotesMap,
+    messageThread: state.blip.messageThread,
+    fetchingPatient: state.blip.working.fetchingPatient.inProgress,
+    fetchingPatientData: state.blip.working.fetchingPatientData.inProgress
+  };
+}
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  fetchPatient: actions.async.fetchPatient,
+  fetchPatientData: actions.async.fetchPatientData,
+  clearPatientData: actions.sync.clearPatientData,
+  fetchMessageThread: actions.async.fetchMessageThread,
+  closeMessageThread: actions.sync.closeMessageThread,
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  var api = ownProps.routes[0].api;
+  return Object.assign({}, _.pick(dispatchProps, ['clearPatientData']), stateProps, {
+    fetchers: getFetchers(dispatchProps, ownProps, api),
+    uploadUrl: api.getUploadUrl(),
+    onRefresh: dispatchProps.fetchPatientData.bind(null, api),
+    onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
+    onCloseMessageThread: dispatchProps.closeMessageThread,
+    onSaveComment: api.team.replyToMessageThread.bind(api),
+    onCreateMessage: api.team.startMessageThread.bind(api),
+    onEditMessage: api.team.editMessage.bind(api),
+    trackMetric: ownProps.routes[0].trackMetric,
+    queryParams: ownProps.location.query,
+    currentPatientInViewId: ownProps.routeParams.id
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(PatientData);

@@ -1,5 +1,6 @@
 test:
   override:
-    - node_modules/jsxhint/cli.js 'app/**/*.js' 'mock/**/*.js' 'test/**/*.js' '*.js'
-    - nvm exec 0.10 npm test
-    - nvm exec 0.12 npm test
+    - nvm exec 0.12.7 npm run lint
+    - nvm exec 0.12.7 npm test
+    - nvm exec stable npm run lint
+    - nvm exec stable npm test

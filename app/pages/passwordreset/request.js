@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -14,20 +14,31 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var _ = require('lodash');
 
-var config = require('../../config');
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var utils = require('../../core/utils');
-var LoginNav = require('../../components/loginnav');
-var LoginLogo = require('../../components/loginlogo');
-var SimpleForm = require('../../components/simpleform');
+import * as actions from '../../redux/actions';
 
-var RequestPasswordReset = React.createClass({
+import { Link } from 'react-router';
+import _ from 'lodash';
+
+import config from '../../config';
+
+import utils from '../../core/utils';
+import LoginNav from '../../components/loginnav';
+import LoginLogo from '../../components/loginlogo';
+import SimpleForm from '../../components/simpleform';
+
+export let RequestPasswordReset = React.createClass({
   propTypes: {
+    acknowledgeNotification: React.PropTypes.func.isRequired,
+    api: React.PropTypes.object.isRequired,
+    notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    working: React.PropTypes.bool.isRequired
   },
 
   formInputs: function() {
@@ -38,7 +49,6 @@ var RequestPasswordReset = React.createClass({
 
   getInitialState: function() {
     return {
-      working: false,
       success: false,
       formValues: {},
       validationErrors: {},
@@ -82,7 +92,7 @@ var RequestPasswordReset = React.createClass({
           <div className="container-small-inner login-form-box">
             {content}
             <div className="PasswordReset-link">
-              <a href="#/login">Return to login</a>
+              <Link to="/login">Return to login</Link>
             </div>
           </div>
         </div>
@@ -91,7 +101,7 @@ var RequestPasswordReset = React.createClass({
   },
 
   renderForm: function() {
-    var submitButtonText = this.state.working ? 'Sending email...' : 'Send reset link';
+    var submitButtonText = this.props.working ? 'Sending email...' : 'Send reset link';
 
     return (
       <SimpleForm
@@ -99,16 +109,16 @@ var RequestPasswordReset = React.createClass({
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}
-        submitDisabled={this.state.working}
+        submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification}/>
+        notification={this.state.notification || this.props.notification}/>
     );
   },
 
   handleSubmit: function(formValues) {
     var self = this;
 
-    if (this.state.working) {
+    if (this.props.working) {
       return;
     }
 
@@ -119,12 +129,15 @@ var RequestPasswordReset = React.createClass({
       return;
     }
 
-    this.submitFormValues(formValues);
+    this.props.onSubmit(this.props.api, formValues.email);
+    this.setState({
+      success: true
+    })
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
+    this.props.acknowledgeNotification('requestingPasswordReset');
     this.setState({
-      working: true,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -146,35 +159,35 @@ var RequestPasswordReset = React.createClass({
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
-        working: false,
         validationErrors: validationErrors
       });
     }
 
     return validationErrors;
-  },
-
-  submitFormValues: function(formValues) {
-    var self = this;
-    var submit = this.props.onSubmit;
-
-    submit(formValues.email, function(err) {
-      if (err) {
-        return self.setState({
-          working: false,
-          notification: {
-            type: 'error',
-            message: 'An error occured while resetting your password.'
-          }
-        });
-      }
-
-      self.setState({
-        working: false,
-        success: true
-      });
-    });
   }
 });
 
-module.exports = RequestPasswordReset;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+export function mapStateToProps(state) {
+  return {
+    notification: state.blip.working.requestingPasswordReset.notification,
+    working: state.blip.working.requestingPasswordReset.inProgress
+  };
+}
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  onSubmit: actions.async.requestPasswordReset,
+  acknowledgeNotification: actions.sync.acknowledgeNotification
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  return Object.assign({}, stateProps, dispatchProps, {
+    trackMetric: ownProps.routes[0].trackMetric,
+    api: ownProps.routes[0].api
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(RequestPasswordReset);

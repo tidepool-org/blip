@@ -1,17 +1,22 @@
 var http = require('http');
 var https = require('https');
 var path = require('path');
-var connect = require('connect');
-var serveStatic = require('serve-static');
+var express = require('express');
 
 var config = require('./config.server.js');
 
 var buildDir = 'dist';
 
-var app = connect();
+var app = express();
 
 var staticDir = path.join(__dirname, buildDir);
-app.use(serveStatic(staticDir));
+app.use(express.static(staticDir));
+
+
+//So that we can use react-router and browser history
+app.get('*', function (request, response){
+  response.sendFile(staticDir + '/index.html');
+});
 
 // If no ports specified, just start on default HTTP port
 if (!(config.httpPort || config.httpsPort)) {
@@ -19,7 +24,7 @@ if (!(config.httpPort || config.httpsPort)) {
 }
 
 if (config.httpPort) {
-  http.createServer(app).listen(config.httpPort, function() {
+  app.server = http.createServer(app).listen(config.httpPort, function() {
     console.log('Connect server started on port', config.httpPort);
     console.log('Serving static directory "' + staticDir + '/"');
   });
@@ -50,3 +55,5 @@ if (config.discovery && config.publishHost) {
   console.log('Publishing to service discovery: ',serviceDescriptor);
   hakken.publish(serviceDescriptor);
 }
+
+module.exports = app;

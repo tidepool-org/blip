@@ -1,3 +1,7 @@
+/* global chai */
+/* global describe */
+/* global it */
+
 var personUtils = require('../../../app/core/personutils');
 var expect = chai.expect;
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
@@ -25,6 +29,32 @@ describe('personutils', function() {
       var result = personUtils.patientInfo(person);
 
       expect(result.diagnosisDate).to.equal('1990-01-31');
+    });
+  });
+
+  describe('hasAcceptedTerms', function() {
+    it('should return true if the user has a string in the `termsAccepted` field', function() {
+      var person = {termsAccepted: 'foo'};
+
+      expect(personUtils.hasAcceptedTerms(person)).to.be.true;
+    });
+
+    it('should return true if the user has a date in the `termsAccepted` field', function() {
+      var person = {termsAccepted: '2015-01-01'};
+
+      expect(personUtils.hasAcceptedTerms(person)).to.be.true;
+    });
+
+    it('should return false if `termsAccepted` is an empty string', function() {
+      var person = {termsAccepted: ''};
+
+      expect(personUtils.hasAcceptedTerms(person)).to.be.false;
+    });
+
+    it('should return false if `termsAccepted` does not exist', function() {
+      var person = {};
+
+      expect(personUtils.hasAcceptedTerms(person)).to.be.false;
     });
   });
 
@@ -331,16 +361,16 @@ describe('personutils', function() {
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
 
       expect(error.about).to.equal('Please keep "about" text under 256 characters');
-    }); 
+    });
 
     it('should return no error message when diagnosisDate and birthday and about is at max length', function() {
       var formValues = {
         fullName: 'Joe Bloggs',
         birthday: '01/01/1984',
         diagnosisDate: '01/05/1984',
-        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' + 
-        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' + 
-        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' + 
+        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
+        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' +
+        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' +
         ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolb'
       };
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);

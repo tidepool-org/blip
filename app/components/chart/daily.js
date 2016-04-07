@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -18,6 +18,7 @@
 var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
+var ReactDOM = require('react-dom');
 var sundial = require('sundial');
 
 // tideline dependencies & plugins
@@ -60,7 +61,7 @@ var DailyChart = React.createClass({
   },
   mountChart: function() {
     this.log('Mounting...');
-    this.chart = chartDailyFactory(this.getDOMNode(), _.pick(this.props, this.chartOpts))
+    this.chart = chartDailyFactory(ReactDOM.findDOMNode(this), _.pick(this.props, this.chartOpts))
       .setupPools();
     this.bindEvents();
   },
@@ -85,7 +86,7 @@ var DailyChart = React.createClass({
     if (datetime) {
       this.chart.locate(datetime);
     }
-    else if (this.state.datetimeLocation != null) {
+    else if (this.state.datetimeLocation !== null) {
       this.chart.locate(this.state.datetimeLocation);
     }
     else {

@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -18,6 +18,7 @@
 var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
+var ReactDOM = require('react-dom');
 var sundial = require('sundial');
 
 // tideline dependencies & plugins
@@ -47,8 +48,8 @@ var WeeklyChart = React.createClass({
     onSelectSMBG: React.PropTypes.func.isRequired,
     onTransition: React.PropTypes.func.isRequired
   },
-  componentDidMount: function() {
-    this.mountChart(this.getDOMNode());
+  mount: function() {
+    this.mountChart(ReactDOM.findDOMNode(this));
     this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
   },
   componentWillUnmount: function() {
@@ -126,7 +127,7 @@ var Weekly = React.createClass({
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
-    initialDatetimeLocation: React.PropTypes.string.isRequired,
+    initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
@@ -144,6 +145,11 @@ var Weekly = React.createClass({
       showingValues: false,
       title: ''
     };
+  },
+  componentDidMount:function () {
+    if (this.refs.chart) {
+      this.refs.chart.mount();
+    }
   },
   render: function() {
     

@@ -1,7 +1,10 @@
 /* global chai */
+/* global describe */
+/* global sinon */
+/* global it */
 
 var React = require('react');
-var TestUtils = require('react/lib/ReactTestUtils');
+var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
 var NotificationElem = require('../../../app/components/notification');
@@ -10,11 +13,15 @@ describe('NotificationElem', function () {
   
   describe('render', function() {
     it('should render without problems', function () {
-      console.warn = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<NotificationElem/>);
+      console.error = sinon.stub();
+      var props = {
+        contents: {},
+        onClose: sinon.stub()
+      }
+      var elem = TestUtils.renderIntoDocument(<NotificationElem {...props}/>);
 
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 });

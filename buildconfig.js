@@ -17,7 +17,7 @@ function getHash(str) {
 }
 
 console.log('Building config...');
-exec('webpack --entry \'./config.app.js\' --output-library \'config\' --output-file \'config.js\' --colors --progress');
+exec('webpack --entry \'./config.app.js\' --output-library \'config\' --output-filename \'config.js\' --colors --progress');
 
 var hash = getHash(fs.readFileSync('dist/config.js'));
 var filename = 'config.' + hash + '.js';
@@ -27,7 +27,7 @@ mv('-f', 'dist/config.js', 'dist/' + filename);
 console.log('Updating "dist/index.html"...');
 var indexHtml = fs.readFileSync('dist/index.html', 'utf8');
 indexHtml = indexHtml.replace('<!-- config -->',
-  '<script type="text/javascript" src="' + filename + '"></script>'
+  '<script type="text/javascript" src="/' + filename + '"></script>'
 );
 indexHtml.to('dist/index.html');
 

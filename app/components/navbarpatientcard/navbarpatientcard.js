@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var Link = require('react-router').Link;
 var _ = require('lodash');
 var cx = require('classnames');
 
@@ -74,7 +75,7 @@ var NavbarPatientCard = React.createClass({
 
     return (
       
-      <a className={classes} onClick={handleClick} href={this.props.href}>View</a>
+      <Link className={classes} onClick={handleClick} to={this.props.href}>View</Link>
       
     );
   },
@@ -98,12 +99,12 @@ var NavbarPatientCard = React.createClass({
 
     return (
       
-      <a className={classes} href={url} onClick={handleClick} title="Profile">
+      <Link className={classes} to={url} onClick={handleClick} title="Profile">
         <div className="patientcard-fullname" title={this.getFullName()}>
           {this.getFullName()}
           <i className="patientcard-icon icon-settings"></i>
         </div>
-      </a>
+      </Link>
       
     );
   },
@@ -152,7 +153,7 @@ var NavbarPatientCard = React.createClass({
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
         
-        <a className={classes} onClick={handleClick} href={shareUrl} title="Share data">Share</a>
+        <Link className={classes} onClick={handleClick} to={shareUrl} title="Share data">Share</Link>
         
       );
     }

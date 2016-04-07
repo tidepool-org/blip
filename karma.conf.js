@@ -1,8 +1,10 @@
+var path = require('path');
 var webpack = require('webpack');
-var RewirePlugin = require("rewire-webpack");
+var RewirePlugin = require('rewire-webpack');
 
 var defineEnvPlugin = new webpack.DefinePlugin({
-  __DEV__: false
+  __DEV__: false,
+  __TEST__: true
 });
 
 module.exports = function (config) {
@@ -23,8 +25,10 @@ module.exports = function (config) {
     webpack: { // Simplified Webpack configuration
       module: {
         loaders: [
-          {test: /\.js$/, loader: 'jsx-loader'},
-          {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
+          {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader?optional=runtime&plugins=babel-plugin-rewire'},
+          // need this condition when testing with Tideline loaded from Github branch
+          {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
+          {test: /\.less$/, loader: 'style-loader!css-loader!postcss-loader!less-loader'},
           {test: /\.gif$/, loader: 'url-loader?limit=10000&mimetype=image/gif'},
           {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},
           {test: /\.png$/, loader: 'url-loader?limit=10000&mimetype=image/png'},
@@ -41,9 +45,11 @@ module.exports = function (config) {
         new RewirePlugin()
       ],
       node: {
-        fs: "empty",
-        module: "empty"
-      }
+        fs: 'empty',
+        module: 'empty'
+      },
+      resolve: { fallback: path.join(__dirname, 'node_modules') },
+      resolveLoader: { fallback: path.join(__dirname, 'node_modules') }
     },
     webpackServer: {
       noInfo: true // We don't want webpack output

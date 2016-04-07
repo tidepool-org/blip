@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var Link = require('react-router').Link;
 
 var logoSrc = require('./images/tidepool-logo-370x40.png');
 
@@ -69,7 +70,7 @@ var LoginNav = React.createClass({
 
     var self = this;
     var page = this.props.page;
-    var href = '#/signup';
+    var href = '/signup';
     var className = 'js-signup-link';
     var icon = 'icon-add';
     var text = 'Sign up';
@@ -78,7 +79,7 @@ var LoginNav = React.createClass({
     };
 
     if (page === 'signup') {
-      href = '#/login';
+      href = '/login';
       className = 'js-login-link';
       icon = 'icon-login';
       text = 'Log in';
@@ -89,9 +90,9 @@ var LoginNav = React.createClass({
 
     return (
       
-      <a
-        href={href}
-        className={className}><i className={icon}></i>{' ' + text}</a>
+      <Link
+        to={href}
+        className={className}><i className={icon}></i>{' ' + text}</Link>
       
     );
   }

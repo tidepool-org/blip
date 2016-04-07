@@ -7,8 +7,9 @@ Blip is a web app for Type-1 Diabetes (T1D) built on top of the [Tidepool](http:
 Tech stack:
 
 - [React](http://facebook.github.io/react)
-- [LESS](http://lesscss.org/)
-- [D3.js](http://d3js.org/)
+- [redux](http://redux.js.org/)
+- [less](http://lesscss.org/)
+- [d3.js](http://d3js.org/)
 
 Table of contents:
 
@@ -26,7 +27,6 @@ Table of contents:
     - [Less](#less)
     - [Icons](#icons)
     - [JSHint](#jshint)
-    - [Mock mode](#mock-mode)
     - [Perceived speed](#perceived-speed)
 - [Testing](#testing)
 - [Build and deployment](#build-and-deployment)
@@ -44,32 +44,31 @@ Clone this repo then install dependencies:
 $ npm install
 ```
 
-## Quick start
+## Running locally
 
-Start the development server (in "mock mode") with:
+If you're running the entire Tidepool platform locally as per [starting services](http://developer.tidepool.io/starting-up-services/ 'Tidepool developer portal: starting services'), you can start blip using your local platform with:
 
 ```bash
-$ source config/mock.sh
+$ source config/local.sh
 $ npm start
 ```
 
-Open your web browser and navigate to `http://localhost:3000/`. You can see the
-mock data by logging in with email "**demo**" and password "**demo**".
+Open your web browser and navigate to `http://localhost:3000/`.
 
-### Running local
+### Creating a user without e-mail verification
 
-If you are running Blip and all services locally as per [Run Servers](https://github.com/tidepool-org/tools#runservers) then there is a workaround so you don't have to verify your new user.
+When running locally, there is a workaround so you don't have to verify the e-mail address of a new user: if you create a new user and add the localhost secret +skip to the e-mail address - e.g. `me+skip@something.org` - this will then allow you to login straightaway, skipping the e-mail verification step.
 
-If you create a new user then add the localhost secret +skip to the email address. e.g. ```me+skip@something.org```. This will then allow you to login straight away.
+**NB: The UI is *not* guaranteed to display correctly for +skip-created users on all pages. For now, you must create a normal account (without +skip) if you want to work on the sign-up flow, although we have plans to fix the way the +skip workaround operates on the platform to address this.**
 
 ## Config
 
-Configuration values are set with environment variables (see `config/sample.sh`).
+Configuration values are set with environment variables (see `config/local.sh`).
 
 You can set environment variables manually, or use a bash script. For example:
 
 ```bash
-source config/devel.sh
+source config/local.sh
 ```
 
 Ask the project owners to provide you with config scripts for different environments, or you can create one of your own. It is recommended to put them in the `config/` directory, where they will be ignored by Git.
@@ -80,77 +79,33 @@ The following snippets of documentation should help you find your way around and
 
 ### Code organization
 
-- **App** (`app/app.js`): Expose a global `window.app` object where everything else is attached; create the main React component `app.component`
-- **Router** (`app/router.js`): Handle client-side URI routing (using [director](https://github.com/flatiron/director)); attached to the global `app` object
-- **Core** (`app/core`): Scripts and styles shared by all app components
+- **Bootstrap** (`app/bootstrap.js`): Where our application is "bootstrapped" into the HTML served. We initialize the API and then render the React application here.
+- **Redux** (`app/redux`): Where our redux implementation lives. This code is responsible for state management of the application.
+- **Root** (`app/redux/containers/Root.js`): The Root component for our React application.
+- **Routes** (`app/routes.js`): Our route definitions for the application.
+- **Core** (`app/core`): Scripts and styles shared by all app components. This is where the API and various utilities lives.
 - **Components** (`app/components`): Reusable React components, the building-blocks of the application
 - **Pages** (`app/pages`): Higher-level React components that combine reusable components together; switch from page to page on route change
-- **Services** (`app/core/<service>.js`): Singletons used to interface with external services or to provide some common utility; they are attached to the global `app` object (for example, `app.api` which handles communicating with the backend)
+- **Services** (`app/core/<service>.js`): Singletons used to interface with external services or to provide some common utility; they are attached to the global `app` object (for example, `app.api` which handles communicating with the platform).
 
 ### React components
 
 When writing [React](http://facebook.github.io/react) components, try to follow the following guidelines:
 
 - Keep components small. If a component gets too big, it might be worth splitting it out into smaller pieces.
-- Keep state to a minimum. A component without anything in `state` and only `props` would be best. When state is needed, make sure nothing is reduntant and can be derived from other state values. Move state upstream (to parent components) as much as it makes sense.
-- Use the `propTypes` attribute to document what props the component expects
+- Keep state to a minimum. A component without anything in `state` and only `props` would be best. When state is needed, make sure nothing is redundant and can be derived from other state values. Move state upstream (to parent components) as much as it makes sense.
+- Use the `propTypes` attribute to document what props the component requires.
 
-See ["Writing good React components"](http://blog.whn.se/post/69621609605/writing-good-react-components).
+See ["Writing good React components"](https://blog.whn.se/writing-good-react-components-9923f6682d85#.nd83fi33l).
 
 More on state:
-- The main `AppComponent` holds all of the state global to the app (like if the user is logged in or not)
-- Each page (`app/pages`) can hold some state specific to that page
-- Reusable components (`app/components`) typically hold no state (with rare exceptions, like forms)
-
-### Webpack
-
-We use [Webpack](http://webpack.github.io/) to package all source files into a bundle that can be distributed to the user's browser. We also use CommonJS to import any module or asset.
-
-Require a JavaScript file, npm package, or JSON file like you would normally in Node:
-
-```javascript
-// app.js
-var foo = require('./foo');
-var React = require('react');
-var pkg = require('../package.json');
-```
-
-You can also require a Less file, which will be added to the page as a `<style>` tag:
-
-```javascript
-// app.js
-require('./style.less');
-```
-
-To use an image, the require statement will either return the URL to the image, or encode it directly as a string (depending on its size). Both are suitable for `src` or `href` attributes.
-
-```javascript
-// avatar.js
-var imgSrc = require('./default-avatar.png');
-
-var html = '<img src="' + imgSrc + '" />';
-```
-
-Assets, like fonts, can also be required in Less files (Webpack will apply the same logic described above for images in JS files):
-
-```less
-@font-face {
-  font-family: 'Blip Icons';
-  src: url('../fonts/blip-icons.eot');
-}
-```
+- Each page (`app/pages` is a connected "smart" component (in redux's terminology) that is connected to our redux store, which holds and manages all global app state.
+- Each page (`app/pages`) can hold some state specific to that page.
+- Reusable components (`app/components`) typically hold no state (with rare exceptions, like forms).
 
 ### Config object
 
-The `config.app.js` file will have some magic constants that look like ```__FOO__``` statements replaced by the value of the corresponding environment variable when the build or development server is run. If you need to add new environment variables, you should also update `webpack.config.js` with definitions for them, as well as .jshintrc.
-
-### Dependencies
-
-All third-party dependencies are installed through npm, and need to be `require`able through the CommonJS format.
-
-If a dependency is needed directly in the app, by the build step, or by the production server, it should go in `dependencies` in the `package.json`. This is because we use `npm install --production` when deploying.
-
-All other dependencies used in development (testing, development server, etc.), can go in the `devDependencies`.
+The `config.app.js` file will have some magic constants that look like `__FOO__` statements replaced by the value of the corresponding environment variable when the build or development server is run. If you need to add new environment variables, you should also update `webpack.config.js` with definitions for them, as well as `.eslintrc`.
 
 ### Debugging
 
@@ -182,24 +137,6 @@ Some styles we'd rather not use on touch screens (for example hover effects whic
 }
 ```
 
-Keep all elements and styles **responsive**, i.e. make sure they look good on any screen size. For media queries, we like to use the mobile-first approach, i.e. define styles for all screen sizes first, then override for bigger screen sizes. For example:
-
-```less
-.container {
-  // On mobile and up, fill whole screen
-  width: 100%;
-
-  @media(min-width: 1024px) {
-    // When screen gets big enough, switch to fixed-width
-    width: 1024px;
-    margin-right: auto;
-    margin-left: auto;
-  }
-}
-```
-
-If using class names to select elements from JavaScript (for tests, or using jQuery), prefix them with `js-`. That way style changes and script changes can be done more independently.
-
 ### Icons
 
 We use an icon font for app icons (in `app/core/fonts/`). To use an icon, simply add the correct class to an element (convention is to use the `<i>` element), for example:
@@ -210,54 +147,13 @@ We use an icon font for app icons (in `app/core/fonts/`). To use an icon, simply
 
 Take a look at the `app/core/less/icons.less` file for available icons.
 
-### JSHint
+### ESLint
 
 In a separate terminal, you can lint JS files with:
 
 ```bash
-$ npm run jshint
+$ npm run lint
 ```
-
-You can also watch files and re-run JSHint on changes with:
-
-```bash
-$ npm run jshint-watch
-```
-
-### Mock mode
-
-For local development, demoing, or testing, you can run the app in "mock" mode by setting the environment variable `MOCK=true` (to turn it off use `MOCK=''`). In this mode, the app will not make any calls to external services, and use dummy data contained in `.json` files.
-
-All app objects (mostly app services) that make any external call should have their methods making these external calls patched by a mock. These are located in the `mock/` directory. To create one, return a `patchService(service)` function (see existing mocks for examples).
-
-Mock data is generated from `.json` files, which are combined into a JavaScript object that mirrors the directory structure of the data files (for example `patients/11.json` will be available at `data.patients['11']`). See the [blip-mock-data](https://github.com/tidepool-org/blip-mock-data) repository for more details.
-
-You can configure the behavior of mock services using **mock parameters**. These are passed through the URL query string.
-
-Note that because of the way URLs work, the query parameters MUST be before the '#'.
-
-For example:
-
-```
-http://localhost:3000/?auth.skip=11&api.patient.getall.delay=2000#/patients
-```
-
-With the URL above, mock services will receive the parameters:
-
-```javascript
-{
-  'auth.skip': 11,
-  'api.patient.getall.delay': 2000
-}
-```
-
-Mock parameters are very useful in development (for example, you don't necessarily want to sign in every time you refresh). They are helpful when testing (manually or automatically) different behaviors: What happens if this API call returns an empty list? What is displayed while we are waiting for data to come back from the server? Etc.
-
-To find out which mock parameters are available, please see the corresponding service and method in the `mock/` folder (look for calls to `getParam()`).
-
-The naming convention for these parameters is **all lower-case**, and **name-spaced with periods**. For example, to have the call to `api.patient.getAll()` return an empty list, I would use the name `api.patient.getall.empty`.
-
-If you would like to build the app with mock parameters "baked-in", you can also use the `MOCK_PARAMS` environement variable, which works like a query string (ex: `$ export MOCK_PARAMS='auth.skip=11&api.delay=1000'`). If the same parameter is set in the URL and the environment variable, the URL's value will be used.
 
 ### Perceived speed
 
@@ -280,6 +176,45 @@ To run the unit tests, use:
 
 ```bash
 $ npm test
+```
+
+To run the unit tests in Chrome, use:
+
+```bash
+$ npm run browser-tests
+```
+
+To run the unit tests in watch, use:
+
+```bash
+$ npm run karma-watch
+```
+
+### Integration testing with Nightwatch
+
+#### Prerequisites:
+
+1. [Java JDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html) (for Selenium)
+1. [Docker](https://www.docker.com/products/docker-toolbox 'Docker Toolbox')
+
+#### Setup:
+
+1. Launch the default docker machine: [Mac](https://docs.docker.com/engine/installation/mac/#from-your-shell) or
+   [Win](https://docs.docker.com/engine/installation/windows/#using-docker-from-windows-command-prompt-cmd-exe)
+1. Launch test containers with:
+ ```bash
+ $ docker-compose up -d
+ ```
+1. run Nightwatch with:
+```bash
+$ npm run nightwatch
+```
+by default this will run all the tests in the `integration` directory
+
+#### Teardown:
+1. Exit test containers with:
+```bash
+$ docker-compose down
 ```
 
 ## Build and deployment
@@ -310,7 +245,7 @@ $ npm run server
 You can also build everything at once locally by simply running:
 
 ```bash
-$ source config/mock.sh
+$ source config/local.sh
 $ npm run build
 $ npm run server
 ```

@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var Link = require('react-router').Link;
 var _ = require('lodash');
 var sundial = require('sundial');
 
@@ -26,12 +27,12 @@ var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
 var PatientInfo = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
-    fetchingUser: React.PropTypes.bool,
+    fetchingPatient: React.PropTypes.bool.isRequired,
+    fetchingUser: React.PropTypes.bool.isRequired,
+    onUpdatePatient: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object,
-    fetchingPatient: React.PropTypes.bool,
-    onUpdatePatient: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    user: React.PropTypes.object
   },
 
   getInitialState: function() {
@@ -235,7 +236,7 @@ var PatientInfo = React.createClass({
         <div className="PatientInfo-block PatientInfo-block--withArrow">
           {this.getDisplayName(this.props.patient)}
           {' (edit in '}
-          <a href="#/profile">account</a>
+          <Link to="/profile">account</Link>
           {')'}
         </div>
       );
@@ -432,7 +433,7 @@ var PatientInfo = React.createClass({
       'about'
     ], function(acc, key, value) {
       if (self.refs[key]) {
-        acc[key] = self.refs[key].getDOMNode().value;
+        acc[key] = self.refs[key].value;
       }
       return acc;
     }, {});
