@@ -67,7 +67,7 @@ var NotesLink = React.createClass({
               </div>
             </div>
             <div>
-              <p className="NotesLink-key-paragraph">On your smartphone, go to <a href="notes.tidepool.io">notes.tidepool.io</a>.</p>
+              <p className="NotesLink-key-paragraph">On your smartphone, go to <a href="http://notes.tidepool.io">notes.tidepool.io</a>.</p>
             </div>
           </div>
         </div>
