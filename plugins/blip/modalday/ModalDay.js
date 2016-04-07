@@ -185,7 +185,7 @@ d3.chart('ModalDay', {
       dataBind: function() {
         var bgClasses = chart.bgClasses();
         return this.selectAll('g')
-          .data([bgClasses.low.boundary,bgClasses.target.boundary,bgClasses['very-high'].boundary]);
+          .data([bgClasses.low.boundary,bgClasses.target.boundary,bgClasses.high.boundary]);
       },
       insert: function() {
         return this.append('g')
@@ -503,14 +503,7 @@ module.exports = {
   render: function(data, opts) {
     opts = opts || {};
     var defaults = {
-      boxOverlay: true,
-      classes: {
-        'very-low': {boundary: 60},
-        low: {boundary: 80},
-        target: {boundary: 180},
-        high: {boundary: 200},
-        'very-high': {boundary: 300}
-      }
+      boxOverlay: true
     };
 
     _.defaults(opts, defaults);
