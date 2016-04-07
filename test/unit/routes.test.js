@@ -179,7 +179,7 @@ describe('routes', () => {
       });
     });
 
-    it('should update the route to /patients if the user is authenticated and already has data storage set up', (done) => {
+    it('should update the route to /patients if the user is authenticated and already has accepted TOS and has data storage set up', (done) => {
       let api = {
         user: {
           get: (cb) => {
@@ -187,6 +187,7 @@ describe('routes', () => {
               null,
               {
                 userid: 'a1b2c3',
+                termsAccepted: '2016-01-01T05:00:00-08:00',
                 profile: {
                   patient: {}
                 }
@@ -227,6 +228,7 @@ describe('routes', () => {
             allUsersMap: {
               a1b2c3: {
                 userid: 'a1b2c3',
+                termsAccepted: '2016-01-01T05:00:00-08:00',
                 profile: {
                   patient: {}
                 }
@@ -248,6 +250,68 @@ describe('routes', () => {
       });
     });
 
+    it('should update the route to /terms if the user has not yet accepted the TOS', (done) => {
+      let api = {
+        user: {
+          get: (cb) => {
+            cb(null, {
+              userid: 'a1b2c3',
+              termsAccepted: ''
+            });
+          },
+          isAuthenticated: sinon.stub().returns(true)
+        }
+      };
+
+      let store = {
+        getState: () => ({
+          blip: {}
+        })
+      };
+
+      let replace = sinon.stub();
+
+      expect(replace.callCount).to.equal(0);
+
+      requireAuthAndNoPatient(api, store)(null, replace, () => {
+        expect(replace.withArgs('/terms').callCount).to.equal(1);
+        done();
+      });
+    });
+
+    it('should update the route to /terms if the user has not yet accepted the TOS', (done) => {
+      let api = {
+        user: {
+          get: sinon.stub(),
+          isAuthenticated: sinon.stub().returns(true)
+        }
+      };
+
+      let store = {
+        getState: () => ({
+          blip: {
+            allUsersMap: {
+              a1b2c3: {
+                userid: 'a1b2c3',
+                termsAccepted: ''
+              }
+            },
+            loggedInUserId: 'a1b2c3'
+          }
+        })
+      };
+
+      let replace = sinon.stub();
+
+      expect(replace.callCount).to.equal(0);
+
+      requireAuthAndNoPatient(api, store)(null, replace, () => {
+        expect(replace.withArgs('/terms').callCount).to.equal(1);
+        expect(api.user.get.callCount).to.equal(0);
+        done();
+      });
+    });
+
     it('should not update the route if the user is authenticated and does not have data storage set up', (done) => {
       let api = {
         user: {
@@ -256,6 +320,7 @@ describe('routes', () => {
               null,
               {
                 userid: 'a1b2c3',
+                termsAccepted: '2016-01-01T05:00:00-08:00',
                 profile: {
                   about: 'Foo bar'
                 }
@@ -296,6 +361,7 @@ describe('routes', () => {
             allUsersMap: {
               a1b2c3: {
                 userid: 'a1b2c3',
+                termsAccepted: '2016-01-01T05:00:00-08:00',
                 profile: {
                   about: 'Foo bar'
                 }
