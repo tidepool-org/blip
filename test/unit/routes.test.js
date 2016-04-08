@@ -385,17 +385,20 @@ describe('routes', () => {
     });
   });
 
-  describe('requireNoAuth', () => {
+  describe('ensureNoAuth', () => {
     it('should call api.user.logout', () => {
       let api = {
         user: {
-          logout: sinon.stub()
+          logout: sinon.stub().callsArg(0);
         }
       };
+
+      let cb = sinon.stub();
       
-      ensureNoAuth(api)(null, null);
+      ensureNoAuth(api)(null, null, cb);
 
       expect(api.user.logout.callCount).to.equal(1);
+      expect(cb.callCount).to.equal(1);
     });
   });
 

@@ -97,9 +97,10 @@ export const requireAuthAndNoPatient = (api, store) => (nextState, replace, cb) 
  * 
  * @param  {Object} nextState
  * @param  {Function} replace
+ * @param  {Function} cb
  */
-export const ensureNoAuth = (api) => (nextState, replace) => {
-  api.user.logout();
+export const ensureNoAuth = (api) => (nextState, replace, cb) => {
+  api.user.logout(cb);
 };
 
 /**
