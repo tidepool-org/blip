@@ -192,7 +192,7 @@ describe('allUsersMap', () => {
     });
   });
 
-  describe('createPatientSuccess', () => {
+  describe('setupDataStorageSuccess', () => {
     it('should update the profile with patient info for the user', () => {
       let initialStateForTest = {
         a1b2c3:  { userid: 'a1b2c3' }
@@ -202,7 +202,7 @@ describe('allUsersMap', () => {
 
       let patient = { userid: 'a1b2c3', name: 'Xavier', profile: { foo: 'bar' } };
 
-      let action = actions.sync.createPatientSuccess('a1b2c3', patient)
+      let action = actions.sync.setupDataStorageSuccess('a1b2c3', patient)
 
       let state = reducer(initialStateForTest, action);
 

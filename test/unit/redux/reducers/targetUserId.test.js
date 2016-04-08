@@ -80,7 +80,7 @@ describe('targetUserId', () => {
     });
   });
 
-  describe('createPatientSuccess', () => {
+  describe('setupDataStorageSuccess', () => {
     it('should set state to newly created patient', () => {
       let initialStateForTest = null;
       const userid = 'a1b2c3';
@@ -93,7 +93,7 @@ describe('targetUserId', () => {
         userid
       };
 
-      let action = actions.sync.createPatientSuccess(userid, patient);
+      let action = actions.sync.setupDataStorageSuccess(userid, patient);
 
       let state = reducer(initialStateForTest, action);
 

@@ -37,9 +37,9 @@ export const notification = (state = initialState.notification, action) => {
     case types.CONFIRM_PASSWORD_RESET_FAILURE:
     case types.ACCEPT_TERMS_FAILURE:
     case types.RESEND_EMAIL_VERIFICATION_FAILURE:
-    case types.CREATE_PATIENT_FAILURE:
-    case types.REMOVE_PATIENT_FAILURE:
-    case types.REMOVE_MEMBER_FAILURE:
+    case types.SETUP_DATA_STORAGE_FAILURE:
+    case types.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE:
+    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE:
     case types.REQUEST_PASSWORD_RESET_FAILURE:
     case types.SEND_INVITE_FAILURE:
     case types.CANCEL_SENT_INVITE_FAILURE:
@@ -165,7 +165,7 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       return update(state, { $merge: { [creator.userid]: creator } });
     case types.ACCEPT_TERMS_SUCCESS:
       return update(state, { [action.payload.userId]: { $merge: { termsAccepted: action.payload.acceptedDate } } });
-    case types.CREATE_PATIENT_SUCCESS:
+    case types.SETUP_DATA_STORAGE_SUCCESS:
       return update(state, { [action.payload.userId]: { $merge: { profile: action.payload.patient.profile } } });
     case types.UPDATE_USER_SUCCESS:
       return update(state, { [action.payload.userId]: { $merge: action.payload.updatedUser }});
@@ -180,7 +180,7 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
 
 export const currentPatientInViewId = (state = initialState.currentPatientInViewId, action) => {
   switch(action.type) {
-    case types.CREATE_PATIENT_SUCCESS:
+    case types.SETUP_DATA_STORAGE_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
       return _.get(action.payload, ['patient', 'userid'], null);
     case types.UPDATE_PATIENT_SUCCESS:
@@ -195,7 +195,7 @@ export const currentPatientInViewId = (state = initialState.currentPatientInView
 
 export const targetUserId = (state = initialState.targetUserId, action) => {
   switch(action.type) {
-    case types.CREATE_PATIENT_SUCCESS:
+    case types.SETUP_DATA_STORAGE_SUCCESS:
       return _.get(action.payload, ['patient', 'userid'], null);
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS:
@@ -228,7 +228,7 @@ export const membersOfTargetCareTeam = (state = initialState.membersOfTargetCare
     case types.FETCH_PATIENT_SUCCESS:
       const team = _.get(action.payload, ['patient', 'team'], []);
       return team.map((member) => member.userid);
-    case types.REMOVE_MEMBER_SUCCESS:
+    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
       return _.reject(state, (memberId) => {
         return memberId === _.get(action.payload, 'removedMemberId', null);
       });
@@ -239,7 +239,7 @@ export const membersOfTargetCareTeam = (state = initialState.membersOfTargetCare
   }
 };
 
-export const memberInOtherCareTeams = (state = initialState.memberInOtherCareTeams, action) => {
+export const membershipInOtherCareTeams = (state = initialState.membershipInOtherCareTeams, action) => {
   switch(action.type) {
     case types.FETCH_PATIENTS_SUCCESS:
       const patients = _.get(action.payload, ['patients'], []);
@@ -250,7 +250,7 @@ export const memberInOtherCareTeams = (state = initialState.memberInOtherCareTea
         return update(state, { $push: [ creatorId ]});
       }
       return state;
-    case types.REMOVE_PATIENT_SUCCESS:
+    case types.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS:
       return _.reject(state, (memberId) => {
         return memberId === _.get(action.payload, 'removedPatientId', null);
       });
@@ -263,7 +263,7 @@ export const memberInOtherCareTeams = (state = initialState.memberInOtherCareTea
 
 export const permissionsOfMembersInTargetCareTeam = (state = initialState.permissionsOfMembersInTargetCareTeam, action) => {
   switch(action.type) {
-    case types.CREATE_PATIENT_SUCCESS: {
+    case types.SETUP_DATA_STORAGE_SUCCESS: {
       const userId = _.get(action.payload, 'userId');
       if (userId) {
         return update(state, {
@@ -293,7 +293,7 @@ export const permissionsOfMembersInTargetCareTeam = (state = initialState.permis
         return state;
       }
     }
-    case types.REMOVE_MEMBER_SUCCESS:
+    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
       return _.omit(state, _.get(action.payload, 'removedMemberId', null));
     case types.LOGOUT_REQUEST:
       return {};
@@ -315,7 +315,7 @@ export const membershipPermissionsInOtherCareTeams = (state = initialState.membe
 
       return update(state, { $set: permissions });
     }
-    case types.REMOVE_PATIENT_SUCCESS:
+    case types.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS:
       return _.omit(state, _.get(action.payload, 'removedPatientId', null));
     case types.LOGOUT_REQUEST:
       return {};

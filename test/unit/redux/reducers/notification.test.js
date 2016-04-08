@@ -128,14 +128,14 @@ describe('notification', () => {
     });
   });
 
-  describe('createPatientFailure', () => {
+  describe('setupDataStorageFailure', () => {
     it('should build a notification', () => {
-      let action = actions.sync.createPatientFailure(ERR);
+      let action = actions.sync.setupDataStorageFailure(ERR);
 
       let state = reducer(initialState, action);
 
       expect(state).to.deep.equal({
-        key: 'creatingPatient',
+        key: 'settingUpDataStorage',
         isDismissible: true,
         link: null,
         status: null
@@ -143,14 +143,14 @@ describe('notification', () => {
     });
   });
 
-  describe('removePatientFailure', () => {
+  describe('removeMembershipInOtherCareTeamFailure', () => {
     it('should build a notification', () => {
-      let action = actions.sync.removePatientFailure(ERR);
+      let action = actions.sync.removeMembershipInOtherCareTeamFailure(ERR);
 
       let state = reducer(initialState, action);
 
       expect(state).to.deep.equal({
-        key: 'removingPatient',
+        key: 'removingMembershipInOtherCareTeam',
         isDismissible: true,
         link: null,
         status: null

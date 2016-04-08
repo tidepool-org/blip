@@ -32,7 +32,7 @@ describe('PatientCareTeam', () => {
         cancellingSentInvite: {inProgress: true, notification: null},
         fetchingPatient: {inProgress: false, notification: null},
         fetchingUser: {inProgress: false, notification: null},
-        removingMember: {inProgress: true, notification: null},
+        removingMemberFromTargetCareTeam: {inProgress: true, notification: null},
         sendingInvite: {inProgress: false, notification: null},
         settingMemberPermissions: {inProgress: false, notification: null}
       }
@@ -72,8 +72,8 @@ describe('PatientCareTeam', () => {
       expect(result.changingMemberPermissions).to.equal(state.working.settingMemberPermissions.inProgress);
     });
 
-    it('should map working.removingMember.inProgress to removingMember', () => {
-      expect(result.removingMember).to.equal(state.working.removingMember.inProgress);
+    it('should map working.removingMemberFromTargetCareTeam.inProgress to removingMember', () => {
+      expect(result.removingMember).to.equal(state.working.removingMemberFromTargetCareTeam.inProgress);
     });
 
     it('should map working.sendingInvite to invitingMemberInfo', () => {

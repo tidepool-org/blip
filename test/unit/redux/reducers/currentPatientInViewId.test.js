@@ -32,13 +32,13 @@ import { currentPatientInViewId as initialState } from '../../../../app/redux/re
 var expect = chai.expect;
 
 describe('currentPatientInViewId', () => {
-  describe('createPatientSuccess', () => {
+  describe('setupDataStorageSuccess', () => {
     it('should set state to created patient', () => {
       let initialStateForTest = null;
       let userId = 'a1b2c3';
       let patient = { userid: userId, name: 'Jess' };
 
-      let action = actions.sync.createPatientSuccess(userId, patient);
+      let action = actions.sync.setupDataStorageSuccess(userId, patient);
 
       let state = reducer(initialStateForTest, action);
       
