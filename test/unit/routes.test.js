@@ -389,7 +389,7 @@ describe('routes', () => {
     it('should call api.user.logout', () => {
       let api = {
         user: {
-          logout: sinon.stub().callsArg(0);
+          logout: sinon.stub().callsArg(0)
         }
       };
 
