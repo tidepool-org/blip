@@ -13,6 +13,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+/* global __PASSWORD_MIN_LENGTH__ */
+
 var pkg = require('./package.json');
 
 function booleanFromText(value, defaultValue) {
