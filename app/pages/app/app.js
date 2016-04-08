@@ -31,7 +31,6 @@ import * as UserMessages from '../../redux/constants/usrMessages';
 // Components
 import Navbar from '../../components/navbar';
 import LogoutOverlay from '../../components/logoutoverlay';
-import BrowserWarningOverlay from '../../components/browserwarningoverlay';
 import TidepoolNotification from '../../components/notification';
 import MailTo from '../../components/mailto';
 
@@ -137,12 +136,6 @@ export class AppComponent extends React.Component {
     if (this.props.loggingOut) {
       return (
         <LogoutOverlay ref="logoutOverlay" />
-      );
-    }
-
-    if (!utils.isChrome()) {
-      return (
-        <BrowserWarningOverlay />
       );
     }
   }

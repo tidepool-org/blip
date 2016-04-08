@@ -4,6 +4,7 @@
 /* global it */
 
 import {
+  requiresChrome,
   requireAuth,
   requireAuthAndNoPatient,
   requireNoAuth,
@@ -23,6 +24,43 @@ import { Router } from 'react-router'
 var expect = chai.expect;
 
 describe('routes', () => {
+  describe('requiresChrome', () => {
+    it('should not redirect and call next when isChrome is true', () => {
+      let utils = {
+        isChrome: sinon.stub().returns(true)
+      };
+
+      let next = sinon.stub();
+      let replace = sinon.stub();
+      let nextState = {};
+      let cb = sinon.stub();
+
+      requiresChrome(utils, next)(nextState, replace, cb);
+
+      expect(utils.isChrome.callCount).to.equal(1);
+      expect(replace.callCount).to.equal(0);
+      expect(cb.callCount).to.equal(0);
+      expect(next.withArgs(nextState, replace, cb).callCount).to.equal(1);
+    });
+
+    it('should redirect and call cb when isChrome is false', () => {
+      let utils = {
+        isChrome: sinon.stub().returns(false)
+      };
+
+      let next = sinon.stub();
+      let replace = sinon.stub();
+      let nextState = {};
+      let cb = sinon.stub();
+
+      requiresChrome(utils, next)(nextState, replace, cb);
+
+      expect(utils.isChrome.callCount).to.equal(1);
+      expect(replace.withArgs('/browser-warning').callCount).to.equal(1);
+      expect(cb.callCount).to.equal(1);
+      expect(next.callCount).to.equal(0);
+    });
+  });
 
   describe('requireAuth', () => {
     it('should update route to /login if user is not authenticated', (done) => {
