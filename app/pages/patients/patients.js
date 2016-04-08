@@ -361,8 +361,8 @@ export function mapStateToProps(state) {
       }
     }
 
-    if (state.blip.memberInOtherCareTeams) {
-      state.blip.memberInOtherCareTeams.forEach((key) => {
+    if (state.blip.membershipInOtherCareTeams) {
+      state.blip.membershipInOtherCareTeams.forEach((key) => {
         patientMap[key] = state.blip.allUsersMap[key];
       });
     }
@@ -399,7 +399,7 @@ export function mapStateToProps(state) {
 let mapDispatchToProps = dispatch => bindActionCreators({
   acceptReceivedInvite: actions.async.acceptReceivedInvite,
   rejectReceivedInvite: actions.async.rejectReceivedInvite,
-  removePatient: actions.async.removePatient,
+  removePatient: actions.async.removeMembershipInOtherCareTeam,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchPatients: actions.async.fetchPatients,
   clearPatientInView: actions.sync.clearPatientInView,

@@ -58,18 +58,18 @@ export default (type) => {
     case types.RESEND_EMAIL_VERIFICATION_SUCCESS:
     case types.RESEND_EMAIL_VERIFICATION_FAILURE:
       return 'resendingEmailVerification';
-    case types.CREATE_PATIENT_REQUEST:
-    case types.CREATE_PATIENT_SUCCESS:
-    case types.CREATE_PATIENT_FAILURE:
-      return 'creatingPatient';
-    case types.REMOVE_PATIENT_REQUEST:
-    case types.REMOVE_PATIENT_SUCCESS:
-    case types.REMOVE_PATIENT_FAILURE:
-      return 'removingPatient';
-    case types.REMOVE_MEMBER_REQUEST:
-    case types.REMOVE_MEMBER_SUCCESS:
-    case types.REMOVE_MEMBER_FAILURE:
-      return 'removingMember';
+    case types.SETUP_DATA_STORAGE_REQUEST:
+    case types.SETUP_DATA_STORAGE_SUCCESS:
+    case types.SETUP_DATA_STORAGE_FAILURE:
+      return 'settingUpDataStorage';
+    case types.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST:
+    case types.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS:
+    case types.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE:
+      return 'removingMembershipInOtherCareTeam';
+    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST:
+    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
+    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE:
+      return 'removingMemberFromTargetCareTeam';
     case types.REQUEST_PASSWORD_RESET_REQUEST:
     case types.REQUEST_PASSWORD_RESET_SUCCESS:
     case types.REQUEST_PASSWORD_RESET_FAILURE:

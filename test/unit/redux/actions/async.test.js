@@ -523,8 +523,8 @@ describe('Actions', () => {
       });
     });
 
-    describe('createPatient', () => {
-      it('should trigger CREATE_PATIENT_SUCCESS and it should call createPatient once for a successful request', () => {
+    describe('setupDataStorage', () => {
+      it('should trigger SETUP_DATA_STORAGE_SUCCESS and it should call setupDataStorage once for a successful request', () => {
         let loggedInUserId = 500;
         let patient = { userid: 27, name: 'Bruce' };
         let api = {
@@ -534,8 +534,8 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'CREATE_PATIENT_REQUEST' },
-          { type: 'CREATE_PATIENT_SUCCESS', payload: { userId: loggedInUserId, patient: patient } },
+          { type: 'SETUP_DATA_STORAGE_REQUEST' },
+          { type: 'SETUP_DATA_STORAGE_SUCCESS', payload: { userId: loggedInUserId, patient: patient } },
           { type: '@@router/TRANSITION', payload: { args: [ '/patients/27/data' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
@@ -544,7 +544,7 @@ describe('Actions', () => {
         let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
-        store.dispatch(async.createPatient(api, patient));
+        store.dispatch(async.setupDataStorage(api, patient));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -552,7 +552,7 @@ describe('Actions', () => {
         expect(api.patient.post.callCount).to.equal(1);
       });
 
-      it('should trigger CREATE_PATIENT_FAILURE and it should call createPatient once for a failed request', () => {
+      it('should trigger SETUP_DATA_STORAGE_FAILURE and it should call setupDataStorage once for a failed request', () => {
         let loggedInUserId = 500;
         let patient = { id: 27, name: 'Bruce' };
         let api = {
@@ -565,8 +565,8 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'CREATE_PATIENT_REQUEST' },
-          { type: 'CREATE_PATIENT_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'SETUP_DATA_STORAGE_REQUEST' },
+          { type: 'SETUP_DATA_STORAGE_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -575,7 +575,7 @@ describe('Actions', () => {
         let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
-        store.dispatch(async.createPatient(api, patient));
+        store.dispatch(async.setupDataStorage(api, patient));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -584,8 +584,8 @@ describe('Actions', () => {
       });
     });
 
-    describe('removePatient', () => {
-      it('should trigger REMOVE_PATIENT_SUCCESS and it should call leaveGroup and patient.getAll once for a successful request', () => {
+    describe('removeMembershipInOtherCareTeam', () => {
+      it('should trigger REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS and it should call leaveGroup and patient.getAll once for a successful request', () => {
         let patientId = 27;
         let patients = [
           { id: 200 },
@@ -601,16 +601,17 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'REMOVE_PATIENT_REQUEST' },
-          { type: 'REMOVE_PATIENT_SUCCESS', payload: { removedPatientId: patientId } },
+          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
+          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS', payload: { removedPatientId: patientId } },
           { type: 'FETCH_PATIENTS_REQUEST' },
           { type: 'FETCH_PATIENTS_SUCCESS', payload: { patients: patients } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
+
         let store = mockStore(initialState);
-        store.dispatch(async.removePatient(api, patientId));
+        store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -619,7 +620,7 @@ describe('Actions', () => {
         expect(api.patient.getAll.callCount).to.equal(1);
       });
 
-      it('should trigger REMOVE_PATIENT_FAILURE and it should call removePatient once for a failed request', () => {
+      it('should trigger REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE and it should call removeMembershipInOtherCareTeam once for a failed request', () => {
         let patientId = 27;
         let api = {
           access: {
@@ -631,15 +632,15 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'REMOVE_PATIENT_REQUEST' },
-          { type: 'REMOVE_PATIENT_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
+          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
         let store = mockStore(initialState);
-        store.dispatch(async.removePatient(api, patientId));
+        store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -648,8 +649,8 @@ describe('Actions', () => {
       });
     });
 
-    describe('removeMember', () => {
-      it('should trigger REMOVE_MEMBER_SUCCESS and it should call removeMember once for a successful request', () => {
+    describe('removeMemberFromTargetCareTeam', () => {
+      it('should trigger REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS and it should call removeMemberFromTargetCareTeam once for a successful request', () => {
         let memberId = 27;
         let patientId = 456;
         let patient = { id: 546, name: 'Frank' };
@@ -663,8 +664,8 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'REMOVE_MEMBER_REQUEST' },
-          { type: 'REMOVE_MEMBER_SUCCESS', payload: { removedMemberId: memberId } },
+          { type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST' },
+          { type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS', payload: { removedMemberId: memberId } },
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } }
         ];
@@ -673,15 +674,16 @@ describe('Actions', () => {
         });
 
         let store = mockStore(initialState);
-        store.dispatch(async.removeMember(api, patientId, memberId));
+
+        store.dispatch(async.removeMemberFromTargetCareTeam(api, patientId, memberId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.access.removeMember.calledWith(memberId)).to.be.true;
-        expect(api.patient.get.calledWith(patientId)).to.be.true;
+        expect(api.access.removeMember.withArgs(memberId).callCount).to.equal(1);
+        expect(api.patient.get.withArgs(patientId).callCount).to.equal(1);
       });
 
-      it('should trigger REMOVE_MEMBER_FAILURE and it should call removeMember once for a failed request', () => {
+      it('should trigger REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE and it should call removeMemberFromTargetCareTeam once for a failed request', () => {
         let memberId = 27;
         let patientId = 420;
         let api = {
@@ -694,15 +696,15 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'REMOVE_MEMBER_REQUEST' },
-          { type: 'REMOVE_MEMBER_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST' },
+          { type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
         let store = mockStore(initialState);
-        store.dispatch(async.removeMember(api, patientId, memberId));
+        store.dispatch(async.removeMemberFromTargetCareTeam(api, patientId, memberId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
