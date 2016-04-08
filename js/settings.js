@@ -242,13 +242,13 @@ module.exports = function(opts) {
           // we are overriding the passed-in scheduleClass (that used to mark the top/open sched)
           // in order to set the currently active sched as open by default
           if (isActiveSchedule) {
-            return 'd3-settings-col-label ' + scheduleClass;
+            return 'd3-settings-col-label d3-settings-col-open';
           }
           else {
             return 'd3-settings-col-label d3-settings-col-collapsed';
           }
         })
-        .html((scheduleClass ? '<i class="icon-down"></i>' : '<i class="icon-right"></i>') + displayName);
+        .html((isActiveSchedule ? '<i class="icon-down"></i>' : '<i class="icon-right"></i>') + displayName);
     }
 
     var columnTable = columnDiv.append('table');

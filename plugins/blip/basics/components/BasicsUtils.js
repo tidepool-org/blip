@@ -1,5 +1,7 @@
 var _ = require('lodash');
 
+var format = require('../../../../js/data/util/format');
+
 module.exports = {
   /**
    * Get the count value associated with this day
@@ -63,11 +65,11 @@ module.exports = {
 
     return {
       bg: {
-        verylow: 'below ' + bgClasses['very-low'].boundary + bgUnits,
-        low: 'between ' + bgClasses['very-low'].boundary + ' - ' + bgClasses.low.boundary + bgUnits,
-        target: 'between ' + bgClasses.low.boundary + ' - ' + bgClasses.target.boundary + bgUnits,
-        high: 'between ' + bgClasses.target.boundary + ' - ' + bgClasses.high.boundary + bgUnits,
-        veryhigh: 'above ' + bgClasses.high.boundary + bgUnits
+        verylow: 'below ' + format.tooltipBGValue(bgClasses['very-low'].boundary, bgUnits) + bgUnits,
+        low: 'between ' + format.tooltipBGValue(bgClasses['very-low'].boundary, bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.low.boundary, bgUnits) + bgUnits,
+        target: 'between ' + format.tooltipBGValue(bgClasses.low.boundary, bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.target.boundary, bgUnits) + bgUnits,
+        high: 'between ' + format.tooltipBGValue(bgClasses.target.boundary, bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.high.boundary, bgUnits) + bgUnits,
+        veryhigh: 'above ' + format.tooltipBGValue(bgClasses.high.boundary, bgUnits) + bgUnits
       }
     };
   }

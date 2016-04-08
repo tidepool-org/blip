@@ -305,13 +305,6 @@ module.exports = function() {
     create: function(el, scales, opts) {
       opts = opts || {};
       var defaults = {
-        bgClasses: {
-          'very-low': {boundary: 60},
-          low: {boundary: 80},
-          target: {boundary: 180},
-          high: {boundary: 200},
-          'very-high': {boundary: 300}
-        },
         smbg: {
           r: 5,
           stroke: 1,
