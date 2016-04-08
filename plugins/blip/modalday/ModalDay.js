@@ -463,7 +463,16 @@ module.exports = {
     };
     _.defaults(opts, defaults);
 
-    var bgDomain = [opts.bgDomain[0]];
+    // to prevent setting the lower bound of the domain below the lowest axis label at 80
+    var lowerBound = opts.bgDomain[0];
+    if (opts.smbg.units === 'mg/dL' && lowerBound > 80) {
+      lowerBound = 80;
+    }
+    if (opts.smbg.units === 'mmol/L' && lowerBound > 4.4) {
+      lowerBound = 4.4;
+    }
+
+    var bgDomain = [lowerBound];
     if (opts.clampTop) {
       if (opts.smbg.units === 'mg/dL') {
         bgDomain.push(400);
