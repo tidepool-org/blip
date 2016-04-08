@@ -185,7 +185,7 @@ d3.chart('ModalDay', {
       dataBind: function() {
         var bgClasses = chart.bgClasses();
         return this.selectAll('g')
-          .data([bgClasses.low.boundary,bgClasses.target.boundary,bgClasses.high.boundary]);
+          .data([bgClasses.low.boundary, bgClasses.target.boundary, bgClasses.high.boundary]);
       },
       insert: function() {
         return this.append('g')
