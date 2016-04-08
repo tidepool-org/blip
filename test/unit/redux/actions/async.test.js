@@ -524,7 +524,7 @@ describe('Actions', () => {
     });
 
     describe('setupDataStorage', () => {
-      it('should trigger SETUP_DATA_STORAGE_SUCCESS and it should call setupDataStorage once for a successful request', (done) => {
+      it('should trigger SETUP_DATA_STORAGE_SUCCESS and it should call setupDataStorage once for a successful request', () => {
         let loggedInUserId = 500;
         let patient = { userid: 27, name: 'Bruce' };
         let api = {
@@ -552,7 +552,7 @@ describe('Actions', () => {
         expect(api.patient.post.callCount).to.equal(1);
       });
 
-      it('should trigger SETUP_DATA_STORAGE_FAILURE and it should call setupDataStorage once for a failed request', (done) => {
+      it('should trigger SETUP_DATA_STORAGE_FAILURE and it should call setupDataStorage once for a failed request', () => {
         let loggedInUserId = 500;
         let patient = { id: 27, name: 'Bruce' };
         let api = {
@@ -585,7 +585,7 @@ describe('Actions', () => {
     });
 
     describe('removeMembershipInOtherCareTeam', () => {
-      it('should trigger REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS and it should call leaveGroup and patient.getAll once for a successful request', (done) => {
+      it('should trigger REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS and it should call leaveGroup and patient.getAll once for a successful request', () => {
         let patientId = 27;
         let patients = [
           { id: 200 },
@@ -620,7 +620,7 @@ describe('Actions', () => {
         expect(api.patient.getAll.callCount).to.equal(1);
       });
 
-      it('should trigger REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE and it should call removeMembershipInOtherCareTeam once for a failed request', (done) => {
+      it('should trigger REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE and it should call removeMembershipInOtherCareTeam once for a failed request', () => {
         let patientId = 27;
         let api = {
           access: {
@@ -650,7 +650,7 @@ describe('Actions', () => {
     });
 
     describe('removeMemberFromTargetCareTeam', () => {
-      it('should trigger REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS and it should call removeMemberFromTargetCareTeam once for a successful request', (done) => {
+      it('should trigger REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS and it should call removeMemberFromTargetCareTeam once for a successful request', () => {
         let memberId = 27;
         let patientId = 456;
         let patient = { id: 546, name: 'Frank' };
@@ -679,11 +679,11 @@ describe('Actions', () => {
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.access.removeMemberFromTargetCareTeam.withArgs(memberId).callCount).to.equal(1);
-        expect(api.patient.get.calledWith(patientId).callCount).to.equal(1);
+        expect(api.access.removeMember.withArgs(memberId).callCount).to.equal(1);
+        expect(api.patient.get.withArgs(patientId).callCount).to.equal(1);
       });
 
-      it('should trigger REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE and it should call removeMemberFromTargetCareTeam once for a failed request', (done) => {
+      it('should trigger REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE and it should call removeMemberFromTargetCareTeam once for a failed request', () => {
         let memberId = 27;
         let patientId = 420;
         let api = {
