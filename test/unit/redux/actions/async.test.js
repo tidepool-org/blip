@@ -487,8 +487,8 @@ describe('Actions', () => {
       });
     });
 
-    describe('createPatient', () => {
-      it('should trigger CREATE_PATIENT_SUCCESS and it should call createPatient once for a successful request', (done) => {
+    describe('setupDataStorage', () => {
+      it('should trigger SETUP_DATA_STORAGE_SUCCESS and it should call setupDataStorage once for a successful request', (done) => {
         let loggedInUserId = 500;
         let patient = { id: 27, name: 'Bruce' };
         let api = {
@@ -498,8 +498,8 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'CREATE_PATIENT_REQUEST' },
-          { type: 'CREATE_PATIENT_SUCCESS', payload: { userId: loggedInUserId, patient: patient } }
+          { type: 'SETUP_DATA_STORAGE_REQUEST' },
+          { type: 'SETUP_DATA_STORAGE_SUCCESS', payload: { userId: loggedInUserId, patient: patient } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -508,12 +508,12 @@ describe('Actions', () => {
 
         let store = mockStore(initialStateForTest, expectedActions, done);
 
-        store.dispatch(async.createPatient(api, patient));
+        store.dispatch(async.setupDataStorage(api, patient));
 
         expect(api.patient.post.calledWith(patient).callCount).to.equal(1);
       });
 
-      it('should trigger CREATE_PATIENT_FAILURE and it should call createPatient once for a failed request', (done) => {
+      it('should trigger SETUP_DATA_STORAGE_FAILURE and it should call setupDataStorage once for a failed request', (done) => {
         let loggedInUserId = 500;
         let patient = { id: 27, name: 'Bruce' };
         let api = {
@@ -526,8 +526,8 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'CREATE_PATIENT_REQUEST' },
-          { type: 'CREATE_PATIENT_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'SETUP_DATA_STORAGE_REQUEST' },
+          { type: 'SETUP_DATA_STORAGE_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -537,14 +537,14 @@ describe('Actions', () => {
 
         let store = mockStore(initialStateForTest, expectedActions, done);
 
-        store.dispatch(async.createPatient(api, patient));
+        store.dispatch(async.setupDataStorage(api, patient));
 
         expect(api.patient.post.calledWith(patient).callCount).to.equal(1);
       });
     });
 
-    describe('removePatient', () => {
-      it('should trigger REMOVE_PATIENT_SUCCESS and it should call leaveGroup and patient.getAll once for a successful request', (done) => {
+    describe('removeMembershipInOtherCareTeam', () => {
+      it('should trigger REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS and it should call leaveGroup and patient.getAll once for a successful request', (done) => {
         let patientId = 27;
         let patients = [
           { id: 200 },
@@ -560,8 +560,8 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'REMOVE_PATIENT_REQUEST' },
-          { type: 'REMOVE_PATIENT_SUCCESS', payload: { removedPatientId: patientId } },
+          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
+          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS', payload: { removedPatientId: patientId } },
           { type: 'FETCH_PATIENTS_REQUEST' },
           { type: 'FETCH_PATIENTS_SUCCESS', payload: { patients: patients } }
         ];
@@ -570,13 +570,13 @@ describe('Actions', () => {
         });
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.removePatient(api, patientId));
+        store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId));
 
         expect(api.access.leaveGroup.calledWith(patientId).callCount).to.equal(1);
         expect(api.patient.getAll.callCount).to.equal(1);
       });
 
-      it('should trigger REMOVE_PATIENT_FAILURE and it should call removePatient once for a failed request', (done) => {
+      it('should trigger REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE and it should call removeMembershipInOtherCareTeam once for a failed request', (done) => {
         let patientId = 27;
         let api = {
           access: {
@@ -588,8 +588,8 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'REMOVE_PATIENT_REQUEST' },
-          { type: 'REMOVE_PATIENT_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
+          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -597,14 +597,14 @@ describe('Actions', () => {
 
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.removePatient(api, patientId));
+        store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId));
 
         expect(api.access.leaveGroup.calledWith(patientId).callCount).to.equal(1);
       });
     });
 
-    describe('removeMember', () => {
-      it('should trigger REMOVE_MEMBER_SUCCESS and it should call removeMember once for a successful request', (done) => {
+    describe('removeMemberFromTargetCareTeam', () => {
+      it('should trigger REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS and it should call removeMemberFromTargetCareTeam once for a successful request', (done) => {
         let memberId = 27;
         let patientId = 456;
         let patient = { id: 546, name: 'Frank' };
@@ -618,8 +618,8 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'REMOVE_MEMBER_REQUEST' },
-          { type: 'REMOVE_MEMBER_SUCCESS', payload: { removedMemberId: memberId } },
+          { type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST' },
+          { type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS', payload: { removedMemberId: memberId } },
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } }
         ];
@@ -629,13 +629,13 @@ describe('Actions', () => {
 
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.removeMember(api, patientId, memberId));
+        store.dispatch(async.removeMemberFromTargetCareTeam(api, patientId, memberId));
 
-        expect(api.access.removeMember.calledWith(memberId).callCount).to.equal(1);
+        expect(api.access.removeMemberFromTargetCareTeam.calledWith(memberId).callCount).to.equal(1);
         expect(api.patient.get.calledWith(patientId).callCount).to.equal(1);
       });
 
-      it('should trigger REMOVE_MEMBER_FAILURE and it should call removeMember once for a failed request', (done) => {
+      it('should trigger REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE and it should call removeMemberFromTargetCareTeam once for a failed request', (done) => {
         let memberId = 27;
         let api = {
           access: {
@@ -647,8 +647,8 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'REMOVE_MEMBER_REQUEST' },
-          { type: 'REMOVE_MEMBER_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST' },
+          { type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -656,7 +656,7 @@ describe('Actions', () => {
 
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.removeMember(api, memberId));
+        store.dispatch(async.removeMemberFromTargetCareTeam(api, memberId));
 
         expect(api.access.removeMember.calledWith(memberId).callCount).to.equal(1);
       });

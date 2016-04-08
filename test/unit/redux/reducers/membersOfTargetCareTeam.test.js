@@ -57,14 +57,14 @@ describe('membersOfTargetCareTeam', () => {
     });
   });
 
-  describe('removeMemberSuccess', () => {
+  describe('removeMemberFromTargetCareTeamSuccess', () => {
     it('should remove member from array', () => {
       let patientId = 'x1y2z3';
 
       let initialStateForTest = [ 'a1b2c3', 'd4e5f6', 'x1y2z3' ];
       let tracked = mutationTracker.trackObj(initialStateForTest);
       
-      let action = actions.sync.removeMemberSuccess(patientId);
+      let action = actions.sync.removeMemberFromTargetCareTeamSuccess(patientId);
 
       let state = reducer(initialStateForTest, action);
 

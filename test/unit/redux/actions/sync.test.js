@@ -429,150 +429,150 @@ describe('Actions', () => {
       });
     });
 
-    describe('createPatientRequest', () => {
+    describe('setupDataStorageRequest', () => {
       it('should be a TSA', () => {
-        let action = sync.createPatientRequest();
+        let action = sync.setupDataStorageRequest();
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal CREATE_PATIENT_REQUEST', () => {
-        let action = sync.createPatientRequest();
-        expect(action.type).to.equal('CREATE_PATIENT_REQUEST');
+      it('type should equal SETUP_DATA_STORAGE_REQUEST', () => {
+        let action = sync.setupDataStorageRequest();
+        expect(action.type).to.equal('SETUP_DATA_STORAGE_REQUEST');
       });
     });
 
-    describe('createPatientSuccess', () => {
+    describe('setupDataStorageSuccess', () => {
       it('should be a TSA', () => {
         let userId = 540;
         let patient = {
           id: 540
         };
-        let action = sync.createPatientSuccess(userId, patient);
+        let action = sync.setupDataStorageSuccess(userId, patient);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal CREATE_PATIENT_SUCCESS', () => {
+      it('type should equal SETUP_DATA_STORAGE_SUCCESS', () => {
         let userId = 540;
         let patient = {
           id: 540
         };
-        let action = sync.createPatientSuccess(userId, patient);
+        let action = sync.setupDataStorageSuccess(userId, patient);
 
-        expect(action.type).to.equal('CREATE_PATIENT_SUCCESS');
+        expect(action.type).to.equal('SETUP_DATA_STORAGE_SUCCESS');
         expect(action.payload.userId).to.equal(userId);
         expect(action.payload.patient).to.equal(patient);
       });
     });
 
-    describe('createPatientFailure', () => {
+    describe('setupDataStorageFailure', () => {
       it('should be a TSA', () => {
         let error = new Error(':(');
-        let action = sync.createPatientFailure(error);
+        let action = sync.setupDataStorageFailure(error);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal CREATE_PATIENT_FAILURE and error should equal passed error', () => {
+      it('type should equal SETUP_DATA_STORAGE_FAILURE and error should equal passed error', () => {
         let error = new Error(':(');
-        let action = sync.createPatientFailure(error);
+        let action = sync.setupDataStorageFailure(error);
 
-        expect(action.type).to.equal('CREATE_PATIENT_FAILURE');
+        expect(action.type).to.equal('SETUP_DATA_STORAGE_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
 
-    describe('removePatientRequest', () => {
+    describe('removeMembershipInOtherCareTeamRequest', () => {
       it('should be a TSA', () => {
-        let action = sync.removePatientRequest();
+        let action = sync.removeMembershipInOtherCareTeamRequest();
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal REMOVE_PATIENT_REQUEST', () => {
-        let action = sync.removePatientRequest();
-        expect(action.type).to.equal('REMOVE_PATIENT_REQUEST');
+      it('type should equal REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST', () => {
+        let action = sync.removeMembershipInOtherCareTeamRequest();
+        expect(action.type).to.equal('REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST');
       });
     });
 
-    describe('removePatientSuccess', () => {
+    describe('removeMembershipInOtherCareTeamSuccess', () => {
       it('should be a TSA', () => {
         let patientId = 540;
-        let action = sync.removePatientSuccess(patientId);
+        let action = sync.removeMembershipInOtherCareTeamSuccess(patientId);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal REMOVE_PATIENT_SUCCESS', () => {
+      it('type should equal REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS', () => {
         let patientId = 540;
-        let action = sync.removePatientSuccess(patientId);
+        let action = sync.removeMembershipInOtherCareTeamSuccess(patientId);
 
-        expect(action.type).to.equal('REMOVE_PATIENT_SUCCESS');
+        expect(action.type).to.equal('REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS');
         expect(action.payload.removedPatientId).to.equal(patientId);
       });
     });
 
-    describe('removePatientFailure', () => {
+    describe('removeMembershipInOtherCareTeamFailure', () => {
       it('should be a TSA', () => {
         let error = new Error(':(');
-        let action = sync.removePatientFailure(error);
+        let action = sync.removeMembershipInOtherCareTeamFailure(error);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal REMOVE_PATIENT_FAILURE and error should equal passed error', () => {
+      it('type should equal REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE and error should equal passed error', () => {
         let error = new Error(':(');
-        let action = sync.removePatientFailure(error);
+        let action = sync.removeMembershipInOtherCareTeamFailure(error);
 
-        expect(action.type).to.equal('REMOVE_PATIENT_FAILURE');
+        expect(action.type).to.equal('REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
 
-    describe('removeMemberRequest', () => {
+    describe('removeMemberFromTargetCareTeamRequest', () => {
       it('should be a TSA', () => {
-        let action = sync.removeMemberRequest();
+        let action = sync.removeMemberFromTargetCareTeamRequest();
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal REMOVE_MEMBER_REQUEST', () => {
-        let action = sync.removeMemberRequest();
-        expect(action.type).to.equal('REMOVE_MEMBER_REQUEST');
+      it('type should equal REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST', () => {
+        let action = sync.removeMemberFromTargetCareTeamRequest();
+        expect(action.type).to.equal('REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST');
       });
     });
 
-    describe('removeMemberSuccess', () => {
+    describe('removeMemberFromTargetCareTeamSuccess', () => {
       it('should be a TSA', () => {
         let memberId = 540;
-        let action = sync.removeMemberSuccess(memberId);
+        let action = sync.removeMemberFromTargetCareTeamSuccess(memberId);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal REMOVE_MEMBER_SUCCESS', () => {
+      it('type should equal REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS', () => {
         let memberId = 540;
-        let action = sync.removeMemberSuccess(memberId);
+        let action = sync.removeMemberFromTargetCareTeamSuccess(memberId);
 
-        expect(action.type).to.equal('REMOVE_MEMBER_SUCCESS');
+        expect(action.type).to.equal('REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS');
         expect(action.payload.removedMemberId).to.equal(memberId);
       });
     });
 
-    describe('removeMemberFailure', () => {
+    describe('removeMemberFromTargetCareTeamFailure', () => {
       it('should be a TSA', () => {
         let error = new Error(':(');
-        let action = sync.removeMemberFailure(error);
+        let action = sync.removeMemberFromTargetCareTeamFailure(error);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal REMOVE_MEMBER_FAILURE and error should equal passed error', () => {
+      it('type should equal REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE and error should equal passed error', () => {
         let error = new Error(':(');
-        let action = sync.removeMemberFailure(error);
+        let action = sync.removeMemberFromTargetCareTeamFailure(error);
 
-        expect(action.type).to.equal('REMOVE_MEMBER_FAILURE');
+        expect(action.type).to.equal('REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE');
         expect(action.error).to.equal(error);
       });
     });

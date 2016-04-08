@@ -200,23 +200,23 @@ export function logout(api) {
 }
 
 /**
- * Create Patient Async Action Creator
+ * Setup data storage Async Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} patient
  */
-export function createPatient(api, patient) {
+export function setupDataStorage(api, patient) {
   return (dispatch, getState) => {
     const { blip: { loggedInUserId } } = getState();
-    dispatch(sync.createPatientRequest());
+    dispatch(sync.setupDataStorageRequest());
 
     api.patient.post(patient, (err, createdPatient) => {
       if (err) {
-        dispatch(sync.createPatientFailure(
+        dispatch(sync.setupDataStorageFailure(
           createActionError(ErrorMessages.ERR_DSA_SETUP, err), err
         ));
       } else {
-        dispatch(sync.createPatientSuccess(loggedInUserId, createdPatient));
+        dispatch(sync.setupDataStorageSuccess(loggedInUserId, createdPatient));
         dispatch(routeActions.push(`/patients/${createdPatient.userid}/data`));
       }
     });
@@ -224,23 +224,22 @@ export function createPatient(api, patient) {
 }
 
 /**
- * Remove Patient Async Action Creator
- * This function calls fetchPatients to get an updated list of patients
+ * Remove membership in other care team Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} patientId
  */
-export function removePatient(api, patientId) {
+export function removeMembershipInOtherCareTeam(api, patientId) {
   return (dispatch) => {
-    dispatch(sync.removePatientRequest());
+    dispatch(sync.removeMembershipInOtherCareTeamRequest());
 
     api.access.leaveGroup(patientId, (err) => {
       if (err) {
-        dispatch(sync.removePatientFailure(
+        dispatch(sync.removeMembershipInOtherCareTeamFailure(
           createActionError(ErrorMessages.ERR_REMOVING_MEMBERSHIP, err), err
         ));
       } else {
-        dispatch(sync.removePatientSuccess(patientId));
+        dispatch(sync.removeMembershipInOtherCareTeamSuccess(patientId));
         dispatch(fetchPatients(api));
       }
     });
@@ -248,24 +247,23 @@ export function removePatient(api, patientId) {
 }
 
 /**
- * Remove Member Async Action Creator
- * This function calls fetchPatient to get an updated patient object
+ * Remove member from target care team Async Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
  * @param  {String|Number} patientId
  * @param  {String|Number} memberId
  */
-export function removeMember(api, patientId, memberId) {
+export function removeMemberFromTargetCareTeam(api, patientId, memberId) {
   return (dispatch) => {
-    dispatch(sync.removeMemberRequest());
+    dispatch(sync.removeMemberFromTargetCareTeamRequest());
 
     api.access.removeMember(memberId, (err) => {
       if (err) {
-        dispatch(sync.removeMemberFailure(
+        dispatch(sync.removeMemberFromTargetCareTeamFailure(
           createActionError(ErrorMessages.ERR_REMOVING_MEMBER, err), err
         ));
       } else {
-        dispatch(sync.removeMemberSuccess(memberId));
+        dispatch(sync.removeMemberFromTargetCareTeamSuccess(memberId));
         dispatch(fetchPatient(api, patientId));
       }
     });
