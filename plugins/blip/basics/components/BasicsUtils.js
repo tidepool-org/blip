@@ -1,7 +1,6 @@
 var _ = require('lodash');
 
-var tideline = require('../../../../js/index');
-var format = tideline.data.util.format;
+var format = require('../../../../js/data/util/format');
 
 module.exports = {
   /**
