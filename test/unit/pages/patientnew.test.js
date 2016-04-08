@@ -98,7 +98,7 @@ describe('PatientNew', function () {
       },
       loggedInUserId: 'a1b2c3',
       working: {
-        creatingPatient: {inProgress: true, notification: 'Hi :)'},
+        settingUpDataStorage: {inProgress: true, notification: 'Hi :)'},
         fetchingUser: {inProgress: false}
       }
     };
@@ -115,12 +115,12 @@ describe('PatientNew', function () {
       expect(result.fetchingUser).to.equal(state.working.fetchingUser.inProgress);
     });
 
-    it('should map working.creatingPatient.inProgress to working', () => {
-      expect(result.working).to.equal(state.working.creatingPatient.inProgress);
+    it('should map working.settingUpDataStorage.inProgress to working', () => {
+      expect(result.working).to.equal(state.working.settingUpDataStorage.inProgress);
     });
 
-    it('should map working.creatingPatient.notification to notification', () => {
-      expect(result.notification).to.deep.equal(state.working.creatingPatient.notification);
+    it('should map working.settingUpDataStorage.notification to notification', () => {
+      expect(result.notification).to.deep.equal(state.working.settingUpDataStorage.notification);
     });
   });
 });

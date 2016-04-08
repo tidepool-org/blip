@@ -806,168 +806,168 @@ describe('working', () => {
       });
     });
 
-    describe('createPatient', () => {
+    describe('setupDataStorage', () => {
       describe('request', () => {
-        it('should set creatingPatient to be true', () => {
-          let action = actions.sync.createPatientRequest(); 
+        it('should set settingUpDataStorage to be true', () => {
+          let action = actions.sync.setupDataStorageRequest(); 
 
-          expect(initialState.creatingPatient.inProgress).to.be.false;
+          expect(initialState.settingUpDataStorage.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.creatingPatient.inProgress).to.be.true;
+          expect(state.settingUpDataStorage.inProgress).to.be.true;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });
 
       describe('failure', () => {
-        it('should set creatingPatient to be false and set error', () => {
+        it('should set settingUpDataStorage to be false and set error', () => {
           let initialStateForTest = _.merge({}, initialState, {
-            creatingPatient: {
+            settingUpDataStorage: {
               inProgress: true,
               notification: null
             }
           });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
-          let action = actions.sync.createPatientFailure(error);
+          let action = actions.sync.setupDataStorageFailure(error);
           
-          expect(initialStateForTest.creatingPatient.inProgress).to.be.true;
-          expect(initialStateForTest.creatingPatient.notification).to.be.null;
+          expect(initialStateForTest.settingUpDataStorage.inProgress).to.be.true;
+          expect(initialStateForTest.settingUpDataStorage.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.creatingPatient.inProgress).to.be.false;
-          expect(state.creatingPatient.notification.type).to.equal('error');
-          expect(state.creatingPatient.notification.message).to.equal(error.message);
+          expect(state.settingUpDataStorage.inProgress).to.be.false;
+          expect(state.settingUpDataStorage.notification.type).to.equal('error');
+          expect(state.settingUpDataStorage.notification.message).to.equal(error.message);
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });
 
       describe('success', () => {
-        it('should set creatingPatient to be false and set patient', () => {
+        it('should set settingUpDataStorage to be false and set patient', () => {
           let initialStateForTest = _.merge({}, initialState, {
-            creatingPatient: {
+            settingUpDataStorage: {
               inProgress: true,
               notification: null
             }
           });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let patient = 'Patient!';
-          let action = actions.sync.createPatientSuccess(patient);
+          let action = actions.sync.setupDataStorageSuccess(patient);
 
-          expect(initialStateForTest.creatingPatient.inProgress).to.be.true;
+          expect(initialStateForTest.settingUpDataStorage.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.creatingPatient.inProgress).to.be.false;
+          expect(state.settingUpDataStorage.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });
     });
 
-    describe('removePatient', () => {
+    describe('removeMembershipInOtherCareTeam', () => {
       describe('request', () => {
-        it('should set removingPatient to be true', () => {
-          let action = actions.sync.removePatientRequest(); 
+        it('should set removingMembershipInOtherCareTeam to be true', () => {
+          let action = actions.sync.removeMembershipInOtherCareTeamRequest(); 
 
-          expect(initialState.removingPatient.inProgress).to.be.false;
+          expect(initialState.removingMembershipInOtherCareTeam.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.removingPatient.inProgress).to.be.true;
+          expect(state.removingMembershipInOtherCareTeam.inProgress).to.be.true;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });
 
       describe('failure', () => {
-        it('should set removingPatient to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { removingPatient: { inProgress : true, notification: null } });
+        it('should set removingMembershipInOtherCareTeam to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { removingMembershipInOtherCareTeam: { inProgress : true, notification: null } });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
-          let action = actions.sync.removePatientFailure(error);
+          let action = actions.sync.removeMembershipInOtherCareTeamFailure(error);
           
-          expect(initialStateForTest.removingPatient.inProgress).to.be.true;
-          expect(initialStateForTest.removingPatient.notification).to.be.null;
+          expect(initialStateForTest.removingMembershipInOtherCareTeam.inProgress).to.be.true;
+          expect(initialStateForTest.removingMembershipInOtherCareTeam.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.removingPatient.inProgress).to.be.false;
-          expect(state.removingPatient.notification.type).to.equal('error');
-          expect(state.removingPatient.notification.message).to.equal(error.message);
+          expect(state.removingMembershipInOtherCareTeam.inProgress).to.be.false;
+          expect(state.removingMembershipInOtherCareTeam.notification.type).to.equal('error');
+          expect(state.removingMembershipInOtherCareTeam.notification.message).to.equal(error.message);
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });
 
       describe('success', () => {
-        it('should set removingPatient to be false', () => {
-          let initialStateForTest = _.merge({}, initialState, { removingPatient: { inProgress : true, notification: null } });
+        it('should set removingMembershipInOtherCareTeam to be false', () => {
+          let initialStateForTest = _.merge({}, initialState, { removingMembershipInOtherCareTeam: { inProgress : true, notification: null } });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let patientId = 15;
-          let action = actions.sync.removePatientSuccess(patientId);
+          let action = actions.sync.removeMembershipInOtherCareTeamSuccess(patientId);
 
-          expect(initialStateForTest.removingPatient.inProgress).to.be.true;
+          expect(initialStateForTest.removingMembershipInOtherCareTeam.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.removingPatient.inProgress).to.be.false;
+          expect(state.removingMembershipInOtherCareTeam.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });
     });
 
-    describe('removeMember', () => {
+    describe('removeMemberFromTargetCareTeam', () => {
       describe('request', () => {
-        it('should set removingMember to be true', () => {
-          let action = actions.sync.removeMemberRequest(); 
+        it('should set removingMemberFromTargetCareTeam to be true', () => {
+          let action = actions.sync.removeMemberFromTargetCareTeamRequest(); 
 
-          expect(initialState.removingMember.inProgress).to.be.false;
+          expect(initialState.removingMemberFromTargetCareTeam.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.removingMember.inProgress).to.be.true;
+          expect(state.removingMemberFromTargetCareTeam.inProgress).to.be.true;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });
 
       describe('failure', () => {
-        it('should set removingMember to be false and set error', () => {
+        it('should set removingMemberFromTargetCareTeam to be false and set error', () => {
           let initialStateForTest = _.merge({}, initialState, { 
-            removingMember: { 
+            removingMemberFromTargetCareTeam: { 
               inProgress: true, 
               notification: null
             }
           });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
-          let action = actions.sync.removeMemberFailure(error);
+          let action = actions.sync.removeMemberFromTargetCareTeamFailure(error);
           
-          expect(initialStateForTest.removingMember.inProgress).to.be.true;
-          expect(initialStateForTest.removingMember.notification).to.be.null;
+          expect(initialStateForTest.removingMemberFromTargetCareTeam.inProgress).to.be.true;
+          expect(initialStateForTest.removingMemberFromTargetCareTeam.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.removingMember.inProgress).to.be.false;
-          expect(state.removingMember.notification.type).to.equal('error');
-          expect(state.removingMember.notification.message).to.equal(error.message);
+          expect(state.removingMemberFromTargetCareTeam.inProgress).to.be.false;
+          expect(state.removingMemberFromTargetCareTeam.notification.type).to.equal('error');
+          expect(state.removingMemberFromTargetCareTeam.notification.message).to.equal(error.message);
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });
 
       describe('success', () => {
-        it('should set removingMember to be false', () => {
+        it('should set removingMemberFromTargetCareTeam to be false', () => {
           let initialStateForTest = _.merge({}, initialState, { 
-            removingMember: { 
+            removingMemberFromTargetCareTeam: { 
               inProgress: true, 
               notification: null
             }
           });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let memberId = 15;
-          let action = actions.sync.removeMemberSuccess(memberId);
+          let action = actions.sync.removeMemberFromTargetCareTeamSuccess(memberId);
 
-          expect(initialStateForTest.removingMember.inProgress).to.be.true;
+          expect(initialStateForTest.removingMemberFromTargetCareTeam.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.removingMember.inProgress).to.be.false;
+          expect(state.removingMemberFromTargetCareTeam.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });

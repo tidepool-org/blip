@@ -223,15 +223,15 @@ export function acceptTermsFailure(error, apiError) {
   };
 }
 
-export function createPatientRequest() {
+export function setupDataStorageRequest() {
   return {
-    type: ActionTypes.CREATE_PATIENT_REQUEST
+    type: ActionTypes.SETUP_DATA_STORAGE_REQUEST
   };
 }
 
-export function createPatientSuccess(userId, patient) {
+export function setupDataStorageSuccess(userId, patient) {
   return {
-    type: ActionTypes.CREATE_PATIENT_SUCCESS,
+    type: ActionTypes.SETUP_DATA_STORAGE_SUCCESS,
     payload: {
       userId,
       patient
@@ -239,9 +239,9 @@ export function createPatientSuccess(userId, patient) {
   };
 }
 
-export function createPatientFailure(error, apiError) {
+export function setupDataStorageFailure(error, apiError) {
   return {
-    type: ActionTypes.CREATE_PATIENT_FAILURE,
+    type: ActionTypes.SETUP_DATA_STORAGE_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null
@@ -249,24 +249,24 @@ export function createPatientFailure(error, apiError) {
   };
 }
 
-export function removePatientRequest() {
+export function removeMembershipInOtherCareTeamRequest() {
   return {
-    type: ActionTypes.REMOVE_PATIENT_REQUEST
+    type: ActionTypes.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST
   };
 }
 
-export function removePatientSuccess(removedPatientId) {
+export function removeMembershipInOtherCareTeamSuccess(removedPatientId) {
   return {
-    type: ActionTypes.REMOVE_PATIENT_SUCCESS,
+    type: ActionTypes.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS,
     payload: {
       removedPatientId: removedPatientId
     }
   };
 }
 
-export function removePatientFailure(error, apiError) {
+export function removeMembershipInOtherCareTeamFailure(error, apiError) {
   return {
-    type: ActionTypes.REMOVE_PATIENT_FAILURE,
+    type: ActionTypes.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null
@@ -274,24 +274,24 @@ export function removePatientFailure(error, apiError) {
   };
 }
 
-export function removeMemberRequest() {
+export function removeMemberFromTargetCareTeamRequest() {
   return {
-    type: ActionTypes.REMOVE_MEMBER_REQUEST
+    type: ActionTypes.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST
   };
 }
 
-export function removeMemberSuccess(removedMemberId) {
+export function removeMemberFromTargetCareTeamSuccess(removedMemberId) {
   return {
-    type: ActionTypes.REMOVE_MEMBER_SUCCESS,
+    type: ActionTypes.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS,
     payload: {
       removedMemberId: removedMemberId
     }
   };
 }
 
-export function removeMemberFailure(error, apiError) {
+export function removeMemberFromTargetCareTeamFailure(error, apiError) {
   return {
-    type: ActionTypes.REMOVE_MEMBER_FAILURE,
+    type: ActionTypes.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null
