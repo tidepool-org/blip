@@ -62,7 +62,6 @@ export const requireAuth = (api, store) => (nextState, replace, cb) => {
  * @param  {Object} nextState
  * @param  {Function} replace
  *
- * @return {boolean|null} returns true if hash mapping happened
  */
 export const requireAuthAndNoPatient = (api, store) => (nextState, replace, cb) => {
   let { blip: state } = store.getState();
@@ -94,13 +93,21 @@ export const requireAuthAndNoPatient = (api, store) => (nextState, replace, cb) 
 };
 
 /**
+ * This function ensures any logged in state is destroyed on entering a route
+ * 
+ * @param  {Object} nextState
+ * @param  {Function} replace
+ */
+export const ensureNoAuth = (api) => (nextState, replace) => {
+  api.user.logout();
+};
+
+/**
  * This function redirects any requests that land on pages that should only be
  * visible when logged out if the user is logged in
  *
  * @param  {Object} nextState
  * @param  {Function} replace
- *
- * @return {boolean|null} returns true if hash mapping happened
  */
 export const requireNoAuth = (api) => (nextState, replace) => {
   if (api.user.isAuthenticated()) {
@@ -115,8 +122,6 @@ export const requireNoAuth = (api) => (nextState, replace) => {
  *
  * @param  {Object} nextState
  * @param  {Function} replace
- *
- * @return {boolean|null} returns true if hash mapping happened
  */
 export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
   let { blip: state } = store.getState();
@@ -164,8 +169,6 @@ export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
  *
  * @param  {Object} nextState
  * @param  {Function} replace
- *
- * @return {boolean|null} returns true if hash mapping happened
  */
 export const onUploaderPasswordReset = (api) => (nextState, replace) => {
   if (api.user.isAuthenticated()) {
@@ -249,7 +252,7 @@ export const getRoutes = (appContext, store) => {
       <Route path='patients/:id/share' component={Share} onEnter={requireAuth(api, store)} />
       <Route path='patients/:id/data' component={PatientData} onEnter={requireAuth(api, store)} />
       <Route path='request-password-reset' component={RequestPasswordReset} onEnter={requireNoAuth(api)} />
-      <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={requireNoAuth(api)} />
+      <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={ensureNoAuth(api)} />
       <Route path='request-password-from-uploader' component={RequestPasswordReset} onEnter={onUploaderPasswordReset(api)} />
       <Route path='*' onEnter={onOtherRouteEnter(api)} />
     </Route>

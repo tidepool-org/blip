@@ -12,7 +12,8 @@ import {
   hashToUrl,
   onIndexRouteEnter,
   onOtherRouteEnter,
-  onLogoutEnter
+  onLogoutEnter,
+  ensureNoAuth
 } from '../../app/routes';
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
@@ -381,6 +382,20 @@ describe('routes', () => {
         expect(api.user.get.callCount).to.equal(0);
         done();
       });
+    });
+  });
+
+  describe('requireNoAuth', () => {
+    it('should call api.user.logout', () => {
+      let api = {
+        user: {
+          logout: sinon.stub()
+        }
+      };
+      
+      ensureNoAuth(api)(null, null);
+
+      expect(api.user.logout.callCount).to.equal(1);
     });
   });
 
