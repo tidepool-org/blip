@@ -535,7 +535,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'SETUP_DATA_STORAGE_REQUEST' },
-          { type: 'SETUP_DATA_STORAGE_SUCCESS', payload: { userId: loggedInUserId, patient: patient } }
+          { type: 'SETUP_DATA_STORAGE_SUCCESS', payload: { userId: loggedInUserId, patient: patient } },
           { type: '@@router/TRANSITION', payload: { args: [ '/patients/27/data' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
