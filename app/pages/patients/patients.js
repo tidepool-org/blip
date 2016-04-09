@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -293,9 +292,6 @@ export let Patients = React.createClass({
   },
 
   doFetching: function(nextProps) {
-    if (this.props.trackMetric) {
-      this.props.trackMetric('Viewed Care Team List');
-    }
 
     if (!nextProps.fetchers) {
       return
@@ -305,14 +301,19 @@ export let Patients = React.createClass({
       fetcher();
     });
   },
-
-  /**
-   * Before rendering for first time
-   * begin fetching any required data
-   */
   componentWillMount: function() {
     if (this.props.clearPatientInView) {
       this.props.clearPatientInView();
+    }
+  },
+
+  /**
+   * After rendering for first time
+   * begin fetching any required data
+   */
+  componentDidMount: function() {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('Viewed Care Team List');
     }
     
     this.doFetching(this.props);
