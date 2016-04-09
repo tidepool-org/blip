@@ -68,7 +68,7 @@ export var UserProfile = React.createClass({
 
   componentDidMount: function() {
     if (this.props.trackMetric) {
-      this.props.trackMetric('Viewed Account');
+      this.props.trackMetric('Viewed Account Edit');
     }
   },
 
