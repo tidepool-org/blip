@@ -24,6 +24,7 @@ import blipState from '../reducers/initialState';
 import reducers from '../reducers';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
+import trackingMiddleware from '../utils/trackingMiddleware';
 
 const reduxRouterMiddleware = syncHistory(browserHistory);
 
@@ -38,7 +39,8 @@ function _createStore(api) {
   const createStoreWithMiddleware = applyMiddleware(
     thunkMiddleware,
     reduxRouterMiddleware,
-    createErrorLogger(api)
+    createErrorLogger(api),
+    trackingMiddleware(api)
   )(createStore);
 
   return createStoreWithMiddleware(reducer, initialState);

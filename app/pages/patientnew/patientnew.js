@@ -82,6 +82,12 @@ export let PatientNew = React.createClass({
     };
   },
 
+  componentDidMount: function() {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('Viewed Profile Create');
+    }
+  },
+
   componentWillReceiveProps: function(nextProps) {
     this.setState({
       formValues: _.assign(this.state.formValues, {
