@@ -51,8 +51,8 @@
     "shelljs": "0.6.0",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "0.4.10",
-    "tidepool-platform-client": "0.23.0",
+    "tideline": "0.4.12",
+    "tidepool-platform-client": "0.23.1",
     "url-loader": "0.5.7",
     "webpack": "1.12.14"
   },
