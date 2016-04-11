@@ -65,11 +65,11 @@ module.exports = {
 
     return {
       bg: {
-        verylow: 'below ' + format.tooltipBGValue(bgClasses['very-low'].boundary, bgUnits) + bgUnits,
-        low: 'between ' + format.tooltipBGValue(bgClasses['very-low'].boundary, bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.low.boundary, bgUnits) + bgUnits,
-        target: 'between ' + format.tooltipBGValue(bgClasses.low.boundary, bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.target.boundary, bgUnits) + bgUnits,
-        high: 'between ' + format.tooltipBGValue(bgClasses.target.boundary, bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.high.boundary, bgUnits) + bgUnits,
-        veryhigh: 'above ' + format.tooltipBGValue(bgClasses.high.boundary, bgUnits) + bgUnits
+        verylow: 'below ' + format.tooltipBGValue(bgClasses['very-low'].boundary, opts.bgUnits) + bgUnits,
+        low: 'between ' + format.tooltipBGValue(bgClasses['very-low'].boundary, opts.bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.low.boundary, opts.bgUnits) + bgUnits,
+        target: 'between ' + format.tooltipBGValue(bgClasses.low.boundary, opts.bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.target.boundary, opts.bgUnits) + bgUnits,
+        high: 'between ' + format.tooltipBGValue(bgClasses.target.boundary, opts.bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.high.boundary, opts.bgUnits) + bgUnits,
+        veryhigh: 'above ' + format.tooltipBGValue(bgClasses.high.boundary, opts.bgUnits) + bgUnits
       }
     };
   }
