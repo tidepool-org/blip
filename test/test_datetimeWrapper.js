@@ -107,6 +107,15 @@ describe('sundial', function() {
     });
 
     describe('applyOffset', function() {
+      it('should throw an error if no timestamp is provided', function() {
+        var fn1 = function() { datetimeWrapper.applyOffset(undefined); };
+        expect(fn1).to.throw('No timestamp provided as first argument!');
+        var fn2 = function() { datetimeWrapper.applyOffset(null); };
+        expect(fn2).to.throw('No timestamp provided as first argument!');
+        var fn3 = function() { datetimeWrapper.applyOffset(''); };
+        expect(fn3).to.throw('No timestamp provided as first argument!');
+      });
+
       it('should yield a UTC timestamp five hours later when given offset of 300, Zulu timestamp', function() {
         var res = datetimeWrapper.applyOffset('2014-01-01T00:00:00.000Z', 300);
         expect(res.toISOString()).to.equal('2014-01-01T05:00:00.000Z');
@@ -134,6 +143,15 @@ describe('sundial', function() {
     });
 
     describe('applyTimezone', function() {
+      it('should throw an error if no timestamp is provided', function() {
+        var fn1 = function() { datetimeWrapper.applyTimezone(undefined); };
+        expect(fn1).to.throw('No timestamp provided as first argument!');
+        var fn2 = function() { datetimeWrapper.applyTimezone(null); };
+        expect(fn2).to.throw('No timestamp provided as first argument!');
+        var fn3 = function() { datetimeWrapper.applyTimezone(''); };
+        expect(fn3).to.throw('No timestamp provided as first argument!');
+      });
+
       it('should yield a UTC time offset five hours later when non-DST and given `US/Eastern` timezone', function() {
         var res = datetimeWrapper.applyTimezone('2014-01-01T00:00:00', 'US/Eastern').toISOString();
         expect(res).to.equal('2014-01-01T05:00:00.000Z');
@@ -156,6 +174,15 @@ describe('sundial', function() {
     });
 
     describe('applyTimezoneAndConversionOffset', function() {
+      it('should throw an error if no timestamp is provided', function() {
+        var fn1 = function() { datetimeWrapper.applyTimezoneAndConversionOffset(undefined); };
+        expect(fn1).to.throw('No timestamp provided as first argument!');
+        var fn2 = function() { datetimeWrapper.applyTimezoneAndConversionOffset(null); };
+        expect(fn2).to.throw('No timestamp provided as first argument!');
+        var fn3 = function() { datetimeWrapper.applyTimezoneAndConversionOffset(''); };
+        expect(fn3).to.throw('No timestamp provided as first argument!');
+      });
+
       it('should yield a UTC time offset five hours later when non-DST and given `US/Eastern` timezone, no conversionOffset', function() {
         var res = datetimeWrapper.applyTimezoneAndConversionOffset('2014-01-01T00:00:00', 'US/Eastern', 0).toISOString();
         expect(res).to.equal('2014-01-01T05:00:00.000Z');
@@ -280,6 +307,15 @@ describe('sundial', function() {
     });
 
     describe('findTimeFromDeviceTimeAndOffsets', function() {
+      it('should throw an error if no Date is provided', function() {
+        var fn1 = function() { datetimeWrapper.findTimeFromDeviceTimeAndOffsets(undefined); };
+        expect(fn1).to.throw('No Date provided as first argument!');
+        var fn2 = function() { datetimeWrapper.findTimeFromDeviceTimeAndOffsets(null); };
+        expect(fn2).to.throw('No Date provided as first argument!');
+        var fn3 = function() { datetimeWrapper.findTimeFromDeviceTimeAndOffsets(''); };
+        expect(fn3).to.throw('No Date provided as first argument!');
+      });
+
       it('should just add `.000Z` when all offsets are 0', function() {
         var ts = '2013-03-06T10:13:00.000Z';
         var jsDate = Date.UTC(2013,2,6,10,13,0);
@@ -329,6 +365,15 @@ describe('sundial', function() {
     });
 
     describe('formatDeviceTime', function() {
+      it('should throw an error if no datetime is provided', function() {
+        var fn1 = function() { datetimeWrapper.formatDeviceTime(undefined); };
+        expect(fn1).to.throw('No datetime provided as first argument!');
+        var fn2 = function() { datetimeWrapper.formatDeviceTime(null); };
+        expect(fn2).to.throw('No datetime provided as first argument!');
+        var fn3 = function() { datetimeWrapper.formatDeviceTime(''); };
+        expect(fn3).to.throw('No datetime provided as first argument!');
+      });
+
       it('returns a string formatted as ISO-format without milliseconds or timezone offset', function() {
         expect(datetimeWrapper.formatDeviceTime('2014-01-01T00:00:00.000Z')).to.equal('2014-01-01T00:00:00');
       });
@@ -351,6 +396,15 @@ describe('sundial', function() {
     });
 
     describe('formatFromOffset', function() {
+      it('should throw an error if no timestamp is provided', function() {
+        var fn1 = function() { datetimeWrapper.formatFromOffset(undefined); };
+        expect(fn1).to.throw('No timestamp provided as first argument!');
+        var fn2 = function() { datetimeWrapper.formatFromOffset(null); };
+        expect(fn2).to.throw('No timestamp provided as first argument!');
+        var fn3 = function() { datetimeWrapper.formatFromOffset(''); };
+        expect(fn3).to.throw('No timestamp provided as first argument!');
+      });
+
       var utcDateString = '2013-05-09T00:00:00-00:00';
       it('returns a string formatted as MMMM D [at] h:mm a with the given offset applied', function() {
         expect(datetimeWrapper.formatFromOffset(utcDateString, -240)).to.equal('May 8 at 8:00 pm');
@@ -360,6 +414,15 @@ describe('sundial', function() {
     describe('formatForStorage', function() {
       var basicTimestamp = '2014-10-03T13:23';
       var offsetMins = -780;
+
+      it('should throw an error if no timestamp is provided', function() {
+        var fn1 = function() { datetimeWrapper.formatForStorage(undefined); };
+        expect(fn1).to.throw('No timestamp provided as first argument!');
+        var fn2 = function() { datetimeWrapper.formatForStorage(null); };
+        expect(fn2).to.throw('No timestamp provided as first argument!');
+        var fn3 = function() { datetimeWrapper.formatForStorage(''); };
+        expect(fn3).to.throw('No timestamp provided as first argument!');
+      });
 
       it('returns a string',function(){
 
@@ -391,6 +454,15 @@ describe('sundial', function() {
     });
 
     describe('formatInTimezone', function() {
+      it('should throw an error if no timestamp is provided', function() {
+        var fn1 = function() { datetimeWrapper.formatInTimezone(undefined); };
+        expect(fn1).to.throw('No timestamp provided as first argument!');
+        var fn2 = function() { datetimeWrapper.formatInTimezone(null); };
+        expect(fn2).to.throw('No timestamp provided as first argument!');
+        var fn3 = function() { datetimeWrapper.formatInTimezone(''); };
+        expect(fn3).to.throw('No timestamp provided as first argument!');
+      });
+
       it('returns `365th` at UTC 9 a.m., Honolulu 11 p.m. New Year\'s Eve', function() {
         var res = datetimeWrapper.formatInTimezone('2014-01-01T09:00:00Z', 'Pacific/Honolulu', 'DDDo');
         expect(res).to.equal('365th');
@@ -427,6 +499,15 @@ describe('sundial', function() {
     });
 
     describe('getMsFromMidnight', function() {
+      it('should throw an error if no datetime is provided', function() {
+        var fn1 = function() { datetimeWrapper.getMsFromMidnight(undefined); };
+        expect(fn1).to.throw('No datetime provided as first argument!');
+        var fn2 = function() { datetimeWrapper.getMsFromMidnight(null); };
+        expect(fn2).to.throw('No datetime provided as first argument!');
+        var fn3 = function() { datetimeWrapper.getMsFromMidnight(''); };
+        expect(fn3).to.throw('No datetime provided as first argument!');
+      });
+
       it('should return 1 when 1ms from UTC midnight and no offset', function() {
         expect(datetimeWrapper.getMsFromMidnight('2014-01-01T00:00:00.001Z')).to.equal(1);
       });
@@ -457,6 +538,15 @@ describe('sundial', function() {
     });
 
     describe('getOffsetFromTime', function() {
+      it('should throw an error if no timestamp is provided', function() {
+        var fn1 = function() { datetimeWrapper.getOffsetFromTime(undefined); };
+        expect(fn1).to.throw('No timestamp provided as first argument!');
+        var fn2 = function() { datetimeWrapper.getOffsetFromTime(null); };
+        expect(fn2).to.throw('No timestamp provided as first argument!');
+        var fn3 = function() { datetimeWrapper.getOffsetFromTime(''); };
+        expect(fn3).to.throw('No timestamp provided as first argument!');
+      });
+
       it('returns the offset from UTC in minutes, +/-HH:MM zone format',function(){
 
         var timestamp = '2013-01-01T00:00:00-13:00';
@@ -479,6 +569,15 @@ describe('sundial', function() {
     });
 
     describe('getOffsetFromZone', function() {
+      it('should throw an error if no timestamp is provided', function() {
+        var fn1 = function() { datetimeWrapper.getOffsetFromZone(undefined); };
+        expect(fn1).to.throw('No timestamp provided as first argument!');
+        var fn2 = function() { datetimeWrapper.getOffsetFromZone(null); };
+        expect(fn2).to.throw('No timestamp provided as first argument!');
+        var fn3 = function() { datetimeWrapper.getOffsetFromZone(''); };
+        expect(fn3).to.throw('No timestamp provided as first argument!');
+      });
+
       it('returns an offset of -300 for US/Eastern during non-DST', function() {
         var offset = datetimeWrapper.getOffsetFromZone('2014-01-01T00:00:00.000Z', 'US/Eastern');
         expect(offset).to.equal(-300);
@@ -519,6 +618,15 @@ describe('sundial', function() {
     });
 
     describe('getUTCFromLocalTimeAndTimezone', function() {
+      it('should throw an error if no timestamp is provided', function() {
+        var fn1 = function() { datetimeWrapper.getUTCFromLocalTimeAndTimezone(undefined); };
+        expect(fn1).to.throw('No timestamp provided as first argument!');
+        var fn2 = function() { datetimeWrapper.getUTCFromLocalTimeAndTimezone(null); };
+        expect(fn2).to.throw('No timestamp provided as first argument!');
+        var fn3 = function() { datetimeWrapper.getUTCFromLocalTimeAndTimezone(''); };
+        expect(fn3).to.throw('No timestamp provided as first argument!');
+      });
+
       it('returns UTC integer of a local timestamp plus timezone', function(){
         expect(datetimeWrapper.getUTCFromLocalTimeAndTimezone(
           '2015-01-01T00:00:00', 'US/Eastern')
@@ -558,7 +666,6 @@ describe('sundial', function() {
     });
 
     describe('isValidDate', function() {
-
       it('returns false for null',function(){
         expect(datetimeWrapper.isValidDate(null)).is.false;
       });
@@ -574,7 +681,6 @@ describe('sundial', function() {
     });
 
     describe('isValidDateForMask', function() {
-
       var MASK = 'MM/DD/YYYY';
 
       it('returns false for null',function(){
@@ -623,6 +729,15 @@ describe('sundial', function() {
     });
 
     describe('parseFromFormat', function() {
+      it('should throw an error if no timestamp is provided', function() {
+        var fn1 = function() { datetimeWrapper.parseFromFormat(undefined); };
+        expect(fn1).to.throw('No timestamp provided as first argument!');
+        var fn2 = function() { datetimeWrapper.parseFromFormat(null); };
+        expect(fn2).to.throw('No timestamp provided as first argument!');
+        var fn3 = function() { datetimeWrapper.parseFromFormat(''); };
+        expect(fn3).to.throw('No timestamp provided as first argument!');
+      });
+
       var euroFormat = 'DD-MM-YYYY hh:mm a';
       it('should yield a UTC time offset five hours later when non-DST and given `US/Eastern` timezone', function() {
         var res = datetimeWrapper.parseFromFormat('31-12-2013 06:32 p.m.', euroFormat, 'US/Eastern').toISOString();
@@ -658,6 +773,15 @@ describe('sundial', function() {
     });
 
     describe('translateMask', function() {
+      it('should throw an error if no timestr is provided', function() {
+        var fn1 = function() { datetimeWrapper.translateMask(undefined); };
+        expect(fn1).to.throw('No datetime provided as first argument!');
+        var fn2 = function() { datetimeWrapper.translateMask(null); };
+        expect(fn2).to.throw('No datetime provided as first argument!');
+        var fn3 = function() { datetimeWrapper.translateMask(''); };
+        expect(fn3).to.throw('No datetime provided as first argument!');
+      });
+
       var AMERICAN_MASK = 'MM/DD/YYYY';
       var INTL_MASK = 'DD/MM/YYYY';
       var ISO_MASK = 'YYYY-MM-DD';
