@@ -19,6 +19,7 @@ import async from 'async';
 import sundial from 'sundial';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Link } from 'react-router';
 
 import * as actions from '../../redux/actions';
 
@@ -230,14 +231,16 @@ export class AppComponent extends React.Component {
         <div className='container-nav-inner'>
           <div className='footer-section footer-section-top'>
             <NotesLink />
-            <div className="footer-subtext">{"Record notes on the go"}</div>
-          </div>
-          <div className='footer-section'>
             <MailTo
               linkTitle={title}
               emailAddress={'support@tidepool.org'}
               emailSubject={subject}
               onLinkClicked={this.logSupportContact} />
+            <div className='footer-link'>
+              <Link to='/terms'>Terms of Service</Link>
+            </div>
+          </div>
+          <div className='footer-section'>
             {this.renderVersion()}
           </div>
         </div>

@@ -44,10 +44,18 @@
     padding: 0 20px;
 
     .footer-link {
+      display: inline-block;
+      padding: 0 20px;
       font-size: 14px;
+      border-right: 1px solid @gray-dark;
 
       a {
+
         &:extend(.link-secondary all);
+      }
+
+      &:last-child {
+        border-right: none;
       }
     }
 
@@ -59,17 +67,22 @@
     }
 
     &.footer-section-top {
-      margin-bottom: 50px;
+      margin-bottom: 20px;
 
       .footer-link {
         a {
-          color: @blue-green;
+          color: @gray-dark;
           &:hover,
           &:focus {
-            color: @blue-green-light;
+            color: @gray-darkest;
           }
         }
       }
     }
+  }
+
+  .Navbar-version {
+    font-size: 14px;
+    color: @gray-dark;
   }
 }

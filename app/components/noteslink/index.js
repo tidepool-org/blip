@@ -34,7 +34,7 @@ var NotesLink = React.createClass({
   render: function() {
     return (
       <div className='footer-link NotesLink-dialog'>
-        <a href="#" onClick={this.showModal}>Get Blip Notes</a>
+        <a href="#" onClick={this.showModal}>Get Blip Notes App</a>
         {this.renderModalOverlay()}
       </div>
     );
