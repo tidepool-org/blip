@@ -23,7 +23,6 @@ const trackMetricMap = {
   SIGNUP_SUCCESS: 'Signed Up',
   LOGIN_SUCCESS: 'Logged In',
   SETUP_DATA_STORAGE_SUCCESS: 'Created Profile',
-  CONFIRM_SIGNUP_SUCCESS: 'Finalized Signup',
   UPDATE_PATIENT_SUCCESS: 'Updated Profile',
   UPDATE_USER_SUCCESS: 'Updated Account',
   LOGOUT_REQUEST: 'Logged Out'
