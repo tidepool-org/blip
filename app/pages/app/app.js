@@ -235,7 +235,7 @@ export class AppComponent extends React.Component {
               linkTitle={title}
               emailAddress={'support@tidepool.org'}
               emailSubject={subject}
-              onLinkClicked={this.logSupportContact} />
+              onLinkClicked={this.logSupportContact.bind(this)} />
             <div className='footer-link'>
               <Link to='/terms'>Terms of Service</Link>
             </div>
