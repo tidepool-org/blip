@@ -158,6 +158,35 @@ describe('Actions', () => {
         expect(api.user.confirmSignUp.calledWith('fakeSignupKey')).to.be.true;
         expect(api.user.confirmSignUp.callCount).to.equal(1);
       });
+
+      it('[400] should trigger CONFIRM_SIGNUP_FAILURE and it should call confirmSignup once for a failed request and redirect for password creation', () => {
+        let user = { id: 27 };
+        let api = {
+          user: {
+            confirmSignUp: sinon.stub().callsArgWith(1, {status: 400, message: 'User does not have a password'})
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_CONFIRMING_SIGNUP);
+        err.status = 400;
+
+        let expectedActions = [
+          { type: 'CONFIRM_SIGNUP_REQUEST' },
+          { type: 'CONFIRM_SIGNUP_FAILURE', error: err, meta: { apiError: {status: 400, message: 'User does not have a password'} } },
+          { type: '@@router/TRANSITION', payload: { args: [ '/verification-with-password' ], method: 'push' } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(initialState);
+        store.dispatch(async.confirmSignup(api, 'fakeSignupKey'));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.confirmSignUp.calledWith('fakeSignupKey')).to.be.true;
+        expect(api.user.confirmSignUp.callCount).to.equal(1);
+      });
     });
 
     describe('resendEmailVerification', () => {
@@ -989,7 +1018,7 @@ describe('Actions', () => {
           { type: 'SET_MEMBER_PERMISSIONS_SUCCESS', payload: {
               memberId: memberId,
               permissions: permissions
-            } 
+            }
           },
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
@@ -1093,11 +1122,11 @@ describe('Actions', () => {
     describe('updateUser', () => {
       it('should trigger UPDATE_USER_SUCCESS and it should call updateUser once for a successful request', () => {
         let loggedInUserId = 400;
-        let currentUser = { 
-          profile: { 
-            name: 'Joe Bloggs', 
+        let currentUser = {
+          profile: {
+            name: 'Joe Bloggs',
             age: 29
-          }, 
+          },
           password: 'foo',
           emails: [
             'joe@bloggs.com'
@@ -1105,18 +1134,18 @@ describe('Actions', () => {
           username: 'Joe'
         };
 
-        let formValues = { 
-          profile: { 
-            name: 'Joe Steven Bloggs', 
+        let formValues = {
+          profile: {
+            name: 'Joe Steven Bloggs',
             age: 30
-          }, 
+          },
         };
 
         let updatingUser = {
-          profile: { 
-            name: 'Joe Steven Bloggs', 
+          profile: {
+            name: 'Joe Steven Bloggs',
             age: 30
-          }, 
+          },
           emails: [
             'joe@bloggs.com'
           ],
@@ -1124,18 +1153,18 @@ describe('Actions', () => {
         };
 
         let userUpdates = {
-          profile: { 
-            name: 'Joe Steven Bloggs', 
+          profile: {
+            name: 'Joe Steven Bloggs',
             age: 30
           },
           password: 'foo'
         };
 
         let updatedUser = {
-          profile: { 
-            name: 'Joe Steven Bloggs', 
+          profile: {
+            name: 'Joe Steven Bloggs',
             age: 30
-          }, 
+          },
           emails: [
             'joe@bloggs.com'
           ],
@@ -1169,11 +1198,11 @@ describe('Actions', () => {
 
       it('should trigger UPDATE_USER_FAILURE and it should call updateUser once for a failed request', () => {
         let loggedInUserId = 400;
-        let currentUser = { 
-          profile: { 
-            name: 'Joe Bloggs', 
+        let currentUser = {
+          profile: {
+            name: 'Joe Bloggs',
             age: 29
-          }, 
+          },
           password: 'foo',
           emails: [
             'joe@bloggs.com'
@@ -1181,18 +1210,18 @@ describe('Actions', () => {
           username: 'Joe'
         };
 
-        let formValues = { 
-          profile: { 
-            name: 'Joe Steven Bloggs', 
+        let formValues = {
+          profile: {
+            name: 'Joe Steven Bloggs',
             age: 30
           }
         };
 
         let updatingUser = {
-          profile: { 
-            name: 'Joe Steven Bloggs', 
+          profile: {
+            name: 'Joe Steven Bloggs',
             age: 30
-          }, 
+          },
           emails: [
             'joe@bloggs.com'
           ],
@@ -1200,8 +1229,8 @@ describe('Actions', () => {
         };
 
         let userUpdates = {
-          profile: { 
-            name: 'Joe Steven Bloggs', 
+          profile: {
+            name: 'Joe Steven Bloggs',
             age: 30
           },
           password: 'foo'
@@ -1340,7 +1369,7 @@ describe('Actions', () => {
       it('should trigger LOG_ERROR_SUCCESS and it should call error once for a successful request', () => {
         let error = 'Error';
         let message = 'Some random detailed error message!';
-        let props = { 
+        let props = {
           stacktrace: true
         };
 
@@ -1865,7 +1894,7 @@ describe('Actions', () => {
 
         let store = mockStore(initialState);
         store.dispatch(async.fetchPatientData(api, patientId));
-        
+
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.patientData.get.withArgs(patientId).callCount).to.equal(1);

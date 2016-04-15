@@ -89,6 +89,18 @@ export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage
   }
 };
 
+export const signupKey = (state = initialState.signupKey, action) => {
+  switch(action.type) {
+    case types.CONFIRM_SIGNUP_FAILURE:
+      const { signupKey } = action.payload;
+      return signupKey;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
 export const isLoggedIn = (state = initialState.isLoggedIn, action) => {
   switch(action.type) {
     case types.FETCH_USER_SUCCESS:
@@ -154,7 +166,7 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
     case types.FETCH_PATIENTS_SUCCESS:
       const { patients } = action.payload || [];
       let patientsMap = {};
-      
+
       patients.forEach((patient) => {
         patientsMap[patient.userid] = _.omit(patient, ['permissions', 'team']);
       });
@@ -189,7 +201,7 @@ export const currentPatientInViewId = (state = initialState.currentPatientInView
     case types.CLEAR_PATIENT_IN_VIEW:
       return null;
     default:
-      return state; 
+      return state;
   }
 };
 

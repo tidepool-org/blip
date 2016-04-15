@@ -39,7 +39,7 @@ function createActionError(usrErrMessage, apiError) {
 
 /**
  * Signup Async Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} accountDetails contains email, password, name
  */
@@ -65,7 +65,7 @@ export function signup(api, accountDetails) {
 
 /**
  * Confirm Signup Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} signupKey
  */
@@ -76,8 +76,36 @@ export function confirmSignup(api, signupKey) {
     api.user.confirmSignUp(signupKey, function(err) {
       if (err) {
         dispatch(sync.confirmSignupFailure(
-          createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err
+          createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err, signupKey
         ));
+        if(err.status === 400){
+          dispatch(routeActions.push('/verification-with-password'));
+        }
+      } else {
+        dispatch(sync.confirmSignupSuccess())
+      }
+    })
+  };
+}
+
+/**
+ * Custodial Confirm Signup Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} signupKey
+ */
+export function verificationWithPassword(api, signupKey, birthday, password) {
+  return (dispatch) => {
+    dispatch(sync.confirmSignupRequest());
+
+    api.user.confirmSignUp(signupKey, birthday, password, function(err) {
+      if (err) {
+        dispatch(sync.confirmSignupFailure(
+          createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err, signupKey
+        ));
+        //if(err.status === 400){
+        //  dispatch(routeActions.push('/verification-with-password'));
+        //}
       } else {
         dispatch(sync.confirmSignupSuccess())
       }
@@ -87,7 +115,7 @@ export function confirmSignup(api, signupKey) {
 
 /**
  * Resend Email Verification Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} email
  */
@@ -109,7 +137,7 @@ export function resendEmailVerification(api, email) {
 
 /**
  * Accept Terms Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} acceptedDate
  */
@@ -201,7 +229,7 @@ export function logout(api) {
 
 /**
  * Setup data storage Async Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} patient
  */
@@ -225,7 +253,7 @@ export function setupDataStorage(api, patient) {
 
 /**
  * Remove membership in other care team Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} patientId
  */
@@ -248,7 +276,7 @@ export function removeMembershipInOtherCareTeam(api, patientId) {
 
 /**
  * Remove member from target care team Async Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {String|Number} patientId
  * @param  {String|Number} memberId
@@ -272,7 +300,7 @@ export function removeMemberFromTargetCareTeam(api, patientId, memberId) {
 
 /**
  * Send Invite Async Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} email
  * @param  {Object} permissions
@@ -301,7 +329,7 @@ export function sendInvite(api, email, permissions) {
 
 /**
  * Cancel Sent Invite Async Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} email
  */
@@ -323,7 +351,7 @@ export function cancelSentInvite(api, email) {
 
 /**
  * Accept ReceivedInvite Async Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} invite
  */
@@ -332,7 +360,7 @@ export function acceptReceivedInvite(api, invite) {
     dispatch(sync.acceptReceivedInviteRequest(invite));
 
     api.invitation.accept(
-      invite.key, 
+      invite.key,
       invite.creator.userid, (err) => {
       if (err) {
         dispatch(sync.acceptReceivedInviteFailure(
@@ -348,7 +376,7 @@ export function acceptReceivedInvite(api, invite) {
 
 /**
  * Dismiss Membership Async Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} invite
  */
@@ -357,7 +385,7 @@ export function rejectReceivedInvite(api, invite) {
     dispatch(sync.rejectReceivedInviteRequest(invite));
 
     api.invitation.dismiss(
-      invite.key, 
+      invite.key,
       invite.creator.userid, (err) => {
       if (err) {
         dispatch(sync.rejectReceivedInviteFailure(
@@ -376,7 +404,7 @@ export function rejectReceivedInvite(api, invite) {
  *
  * @todo  refactor this behaviour so that the updating of the whole patient
  * is not neccessary
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {String|Number} patientId
  * @param  {String|Number} memberId
@@ -387,7 +415,7 @@ export function setMemberPermissions(api, patientId, memberId, permissions) {
     dispatch(sync.setMemberPermissionsRequest());
 
     api.access.setMemberPermissions(
-      memberId, 
+      memberId,
       permissions, (err) => {
       if (err) {
         dispatch(sync.setMemberPermissionsFailure(
@@ -403,14 +431,14 @@ export function setMemberPermissions(api, patientId, memberId, permissions) {
 
 /**
  * Update Patient Data Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} patient
  */
 export function updatePatient(api, patient) {
   return (dispatch) => {
     dispatch(sync.updatePatientRequest());
-    
+
     api.patient.put(patient, (err, updatedPatient) => {
       if (err) {
         dispatch(sync.updatePatientFailure(
@@ -425,7 +453,7 @@ export function updatePatient(api, patient) {
 
 /**
  * Update User Data Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param {userId} userId
  * @param  {Object} formValues
@@ -435,10 +463,10 @@ export function updateUser(api, formValues) {
     const { blip: { loggedInUserId, allUsersMap } } = getState();
     const loggedInUser = allUsersMap[loggedInUserId];
 
-    const newUser = _.assign({}, 
+    const newUser = _.assign({},
       _.omit(loggedInUser, 'profile'),
       _.omit(formValues, 'profile'),
-      { profile: _.assign({}, loggedInUser.profile, formValues.profile) } 
+      { profile: _.assign({}, loggedInUser.profile, formValues.profile) }
     );
 
     dispatch(sync.updateUserRequest(loggedInUserId, _.omit(newUser, 'password')));
@@ -447,7 +475,7 @@ export function updateUser(api, formValues) {
     if (userUpdates.username === loggedInUser.username) {
       userUpdates = _.omit(userUpdates, 'username', 'emails');
     }
-    
+
     api.user.put(userUpdates, (err, updatedUser) => {
       if (err) {
         dispatch(sync.updateUserFailure(
@@ -528,13 +556,13 @@ export function logError(api, error, message, properties) {
 
 /**
  * Fetch User Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  */
 export function fetchUser(api) {
   return (dispatch) => {
     dispatch(sync.fetchUserRequest());
-    
+
     api.user.get((err, user) => {
       if (err) {
         if (err.status === 401) {
@@ -571,13 +599,13 @@ export function fetchUser(api) {
 
 /**
  * Fetch Pending Sent Invites Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  */
 export function fetchPendingSentInvites(api) {
   return (dispatch) => {
     dispatch(sync.fetchPendingSentInvitesRequest());
-    
+
     api.invitation.getSent((err, pending) => {
       if (err) {
         dispatch(sync.fetchPendingSentInvitesFailure(
@@ -592,13 +620,13 @@ export function fetchPendingSentInvites(api) {
 
 /**
  * Fetch Pending Received Invites Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  */
 export function fetchPendingReceivedInvites(api) {
   return (dispatch) => {
     dispatch(sync.fetchPendingReceivedInvitesRequest());
-    
+
     api.invitation.getReceived((err, pending) => {
       if (err) {
         dispatch(sync.fetchPendingReceivedInvitesFailure(
@@ -613,14 +641,14 @@ export function fetchPendingReceivedInvites(api) {
 
 /**
  * Fetch Patient Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param {String|Number} id
  */
 export function fetchPatient(api, id) {
   return (dispatch, getState) => {
     dispatch(sync.fetchPatientRequest());
-    
+
     api.patient.get(id, (err, patient) => {
       if (err) {
         let errMsg = ErrorMessages.ERR_FETCHING_PATIENT;
@@ -650,13 +678,13 @@ export function fetchPatient(api, id) {
 
 /**
  * Fetch Patients Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  */
 export function fetchPatients(api) {
   return (dispatch) => {
     dispatch(sync.fetchPatientsRequest());
-    
+
     api.patient.getAll((err, patients) => {
       if (err) {
         dispatch(sync.fetchPatientsFailure(
@@ -671,7 +699,7 @@ export function fetchPatients(api) {
 
 /**
  * Fetch Patient Data Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param {String|Number} id
  * @param {Object} queryParams
@@ -699,14 +727,14 @@ export function fetchPatientData(api, id) {
 
 /**
  * Fetch Message Thread Action Creator
- * 
+ *
  * @param  {Object} api an instance of the API wrapper
  * @param {String|Number} id
  */
 export function fetchMessageThread(api, id ) {
   return (dispatch) => {
     dispatch(sync.fetchMessageThreadRequest());
-    
+
     api.team.getMessageThread(id, (err, messageThread) => {
       if (err) {
         dispatch(sync.fetchMessageThreadFailure(

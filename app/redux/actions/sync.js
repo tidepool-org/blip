@@ -159,10 +159,13 @@ export function confirmSignupSuccess() {
   };
 }
 
-export function confirmSignupFailure(error, apiError) {
+export function confirmSignupFailure(error, apiError, signupKey) {
   return {
     type: ActionTypes.CONFIRM_SIGNUP_FAILURE,
     error: error,
+    payload: {
+      signupKey
+    },
     meta: {
       apiError: apiError || null
     }
