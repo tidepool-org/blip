@@ -213,18 +213,17 @@ module.exports = function (common, config, deps) {
    * @returns {cb}  cb(err, response)
    */
   function login(user, options, cb) {
+    options = options || {};
+    if (typeof options === 'function') {
+      cb = options;
+      options = {};
+    }
 
     if (user.username == null) {
       return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a username' });
     }
     if (user.password == null) {
       return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
-    }
-
-    options = options || {};
-    if (typeof options === 'function') {
-      cb = options;
-      options = {};
     }
 
     superagent
@@ -280,17 +279,17 @@ module.exports = function (common, config, deps) {
    * @returns {cb}  cb(err, response)
    */
   function signup(user, options, cb) {
+    options = options || {};
+    if (typeof options === 'function') {
+      cb = options;
+      options = {};
+    }
+
     if (user.username == null) {
       return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a username' });
     }
     if (user.password == null) {
       return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
-    }
-
-    options = options || {};
-    if (typeof options === 'function') {
-      cb = options;
-      options = {};
     }
 
     var newUser = _.pick(user, 'username', 'password', 'emails');
