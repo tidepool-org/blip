@@ -19,7 +19,7 @@ var plugins = [ defineEnvPlugin, new ExtractTextPlugin('style.[contenthash].css'
 var appEntry = './app/main.js';
 var entryScripts = appEntry;
 var loaders = [
-  {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
+  {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader?optional=runtime'},
   {test: /\.gif$/, loader: 'url-loader?limit=100000&mimetype=image/gif'},
   {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},
   {test: /\.png$/, loader: 'url-loader?limit=10000&mimetype=image/png'},
@@ -48,7 +48,7 @@ if (isDev) {
   loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader' , 'postcss-loader', 'less-loader']})
 } else {
   loaders.push({test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')});
-  loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
+  loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader?optional=runtime']});
 }
 
 module.exports = {
