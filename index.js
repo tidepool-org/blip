@@ -69,8 +69,10 @@ module.exports = function (config, deps) {
     * @returns {String} url for uploads
     */
     getUploadUrl: common.getUploadUrl,
+    hasDataHost: common.hasDataHost,
     setApiHost: common.setApiHost,
     setUploadHost: common.setUploadHost,
+    setDataHost: common.setDataHost,
     setBlipHost: common.setBlipHost,
     makeBlipUrl: common.makeBlipUrl,
     /**
@@ -348,6 +350,99 @@ module.exports = function (config, deps) {
             return cb(err);
           }
           return cb(null,res.body);
+        });
+    },
+    /**
+     * Create a dataset for the given user
+     *
+     * @param {String} userId of the user to create the dataset for
+     * @param {Object} info for the dataset
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    createDatasetForUser: function (userId, info, cb) {
+      common.assertArgumentsSize(arguments, 3);
+
+      if (!common.hasDataHost()) {
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'The data host needs to be configured' });
+      }
+
+       superagent
+        .post(common.makeDataUrl('/api/v1/users/' + userId + '/datasets'))
+        .send(info)
+        .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
+        .end(
+        function (err, res) {
+
+          if (err != null) {
+            return cb(err);
+          } else if (res.status !== 201) {
+            return cb(res.body);
+          }
+
+          return cb(null, res.body);
+        });
+    },
+    /**
+     * Finalize the given dataset (close and post-process)
+     *
+     * @param {String} datasetId of the dataset to finalize
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    finalizeDataset: function (datasetId, cb) {
+      common.assertArgumentsSize(arguments, 2);
+
+      if (!common.hasDataHost()) {
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'The data host needs to be configured' });
+      }
+
+       superagent
+        .put(common.makeDataUrl('/api/v1/datasets/' + datasetId))
+        .send({dataState: 'closed'})
+        .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
+        .end(
+        function (err, res) {
+
+          if (err != null) {
+            return cb(err);
+          } else if (res.status !== 200) {
+            return cb(res.body);
+          }
+
+          return cb();
+        });
+    },
+    /**
+     * Add data to the given dataset
+     *
+     * @param {String} dataSetId of the dataset to add data
+     * @param {Object} data to be added
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    addDataToDataset: function (dataSetId, data, cb) {
+      common.assertArgumentsSize(arguments, 3);
+
+      if (!common.hasDataHost()) {
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'The data host needs to be configured' });
+      }
+
+       superagent
+        .post(common.makeDataUrl('/api/v1/datasets/' + dataSetId + '/data'))
+        .send(data)
+        .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
+        .end(
+        function (err, res) {
+
+          if (err != null) {
+            return cb(err);
+          } else if (res.status !== 200) {
+            return cb(res.body);
+          }
+
+          return cb(null,res.body);
+
         });
     },
     /**
