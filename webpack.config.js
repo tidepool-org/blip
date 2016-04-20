@@ -48,7 +48,7 @@ if (isDev) {
   loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader' , 'postcss-loader', 'less-loader']})
 } else {
   loaders.push({test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')});
-  loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
+  loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader?optional=runtime']});
 }
 
 module.exports = {

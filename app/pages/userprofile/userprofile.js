@@ -66,6 +66,12 @@ export var UserProfile = React.createClass({
     };
   },
 
+  componentDidMount: function() {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('Viewed Account Edit');
+    }
+  },
+
   componentWillReceiveProps: function(nextProps) {
     // Keep form values in sync with upstream changes
     this.setState({formValues: this.formValuesFromUser(nextProps.user)});

@@ -28,6 +28,7 @@ import blipState from '../reducers/initialState';
 import reducers from '../reducers';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
+import trackingMiddleware from '../utils/trackingMiddleware';
 
 function getDebugSessionKey() {
   const matches = window.location.href.match(/[?&]debug_session=([^&]+)\b/);
@@ -53,7 +54,8 @@ const enhancer = (api) => {
       thunkMiddleware,
       loggerMiddleware,
       reduxRouterMiddleware,
-      createErrorLogger(api)
+      createErrorLogger(api),
+      trackingMiddleware(api)
     ),
     DevTools.instrument(),
     // We can persist debug sessions this way
