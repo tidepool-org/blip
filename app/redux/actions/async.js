@@ -79,7 +79,7 @@ export function confirmSignup(api, signupKey) {
           createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err, signupKey
         ));
         if(err.status === 400){
-          dispatch(routeActions.push('/verification-with-password'));
+          dispatch(routeActions.push(`/verification-with-password?signupKey=${signupKey}`));
         }
       } else {
         dispatch(sync.confirmSignupSuccess())
@@ -239,6 +239,7 @@ export function setupDataStorage(api, patient) {
     dispatch(sync.setupDataStorageRequest());
 
     api.patient.post(patient, (err, createdPatient) => {
+      err = { status: 400, message: 'Messed up!' };
       if (err) {
         dispatch(sync.setupDataStorageFailure(
           createActionError(ErrorMessages.ERR_DSA_SETUP, err), err

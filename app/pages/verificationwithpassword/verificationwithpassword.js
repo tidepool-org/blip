@@ -28,8 +28,6 @@ import WaitList from '../../components/waitlist';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
-import DatePicker from '../../components/datepicker';
-import InputGroup from '../../components/inputgroup';
 import personUtils from '../../core/personutils';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
@@ -49,49 +47,13 @@ export let VerificationWithPassword = React.createClass({
   },
 
   formInputs:  [
-      {
-        name: 'birthday',
-        label: 'Birthday',
-        type: 'datepicker'
-      },
-      {
-        name: 'password',
-        label: 'Password',
-        type: 'password',
-        placeholder: '******'
-      },
-      {
-        name: 'passwordConfirm',
-        label: 'Confirm password',
-        type: 'password',
-        placeholder: '******'
-      }
-    ],
-
-  isWaitListed: function() {
-
-    var hasInviteKey = !_.isEmpty(this.props.inviteKey) || this.props.inviteKey === '';
-    var hasInviteEmail = !_.isEmpty(this.props.inviteEmail);
-
-    if (hasInviteKey && hasInviteEmail) {
-      // don't show waitlist if invited user to create account and join careteam
-      return false;
-    }
-    else if (hasInviteKey) {
-      // do we have a valid waitlist key?
-      if (_.isEmpty(this.props.configuredInviteKey) ||
-        this.props.inviteKey === this.props.configuredInviteKey) {
-        return false;
-      }
-      else {
-        return true;
-      }
-    }
-    return true;
-  },
+    { name: 'birthday', label: 'Birthday', type: 'datepicker' },
+    { name: 'password', label: 'Password', type: 'password', placeholder: '******' },
+    { name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '******' }
+  ],
 
   componentWillMount: function() {
-    this.setState({loading: false, showWaitList: this.isWaitListed() });
+    this.setState({ loading: false });
   },
 
   getInitialState: function() {
@@ -103,7 +65,6 @@ export let VerificationWithPassword = React.createClass({
 
     return {
       loading: true,
-      showWaitList: false,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -122,21 +83,27 @@ export let VerificationWithPassword = React.createClass({
   },
 
   render: function() {
-    var form = this.renderForm();
-      return (
-        <div className="VerificationWithPassword">
-          <LoginNav
-            page="VerificationWithPassword"
-            hideLinks={Boolean(this.props.inviteEmail)}
-            trackMetric={this.props.trackMetric} />
-          <LoginLogo />
-          <div className="container-small-outer VerificationWithPassword-form">
-            <div className="container-small-inner VerificationWithPassword-form-box">
-              {form}
-            </div>
+    return (
+      <div className="VerificationWithPassword">
+        <LoginNav
+          page="VerificationWithPassword"
+          hideLinks={Boolean(this.props.inviteEmail)}
+          trackMetric={this.props.trackMetric} />
+        <LoginLogo />
+        <div className="container-small-outer VerificationWithPassword-form">
+          <div className="container-small-inner VerificationWithPassword-form-box">
+            <SimpleForm
+              inputs={this.formInputs}
+              formValues={this.state.formValues}
+              validationErrors={this.state.validationErrors}
+              submitButtonText={this.getSubmitButtonText()}
+              submitDisabled={this.props.working}
+              onSubmit={this.handleSubmit}
+              notification={this.state.notification || this.props.notification} />
           </div>
         </div>
-      );
+      </div>
+    );
   },
 
   renderInviteIntroduction: function() {
@@ -149,104 +116,6 @@ export let VerificationWithPassword = React.createClass({
         <p>{'You\'ve been invited to Blip.'}</p><p>{'Sign up to view the invitation.'}</p>
       </div>
     );
-  },
-
-  renderForm: function() {
-    return (
-        <form className="PatientNew-form">
-          <div className="PatientNew-formInputs">
-            {this.renderInputs()}
-          </div>
-          <div className="PatientNew-formActions">
-            {this.renderButtons()}
-            {this.renderNotification()}
-          </div>
-        </form>
-    );
-  },
-
-  renderInputs: function() {
-    return _.map(this.formInputs, this.renderInput);
-  },
-
-  renderInput: function(input) {
-    var name = input.name;
-    var value = this.state.formValues[name];
-
-    if (name === 'isOtherPerson') {
-      value = this.state.formValues.isOtherPerson ? 'yes' : 'no';
-    }
-
-    if (input.type === 'datepicker') {
-      return this.renderDatePicker(input);
-    }
-
-    return (
-      <div key={name} className={'PatientNew-inputGroup PatientNew-inputGroup--' + name}>
-        <InputGroup
-          name={name}
-          label={input.label}
-          value={value}
-          items={input.items}
-          error={this.state.validationErrors[name]}
-          type={input.type}
-          placeholder={input.placeholder}
-          disabled={this.isFormDisabled() || input.disabled}
-          onChange={this.handleInputChange}/>
-      </div>
-    );
-  },
-
-  renderDatePicker: function(input) {
-    var name = input.name;
-    var classes = 'PatientNew-datePicker PatientNew-inputGroup PatientNew-inputGroup--' + name;
-    var error = this.state.validationErrors[name];
-    var message;
-    if (error) {
-      classes = classes + ' PatientNew-datePicker--error';
-      message = <div className="PatientNew-datePickerMessage">{error}</div>;
-    }
-
-    return (
-      <div key={name} className={classes}>
-        <div>
-          <label className="PatientNew-datePickerLabel">{input.label}</label>
-          <DatePicker
-            name={name}
-            value={this.state.formValues[name]}
-            disabled={this.isFormDisabled() || input.disabled}
-            onChange={this.handleInputChange} />
-        </div>
-        {message}
-      </div>
-    );
-  },
-
-  renderButtons: function() {
-    return (
-      <div>
-        <Link to="/patients" className="btn btn-secondary PatientNew-cancel">Cancel</Link>
-        <button
-          className="btn btn-primary PatientNew-submit"
-          onClick={this.handleSubmit}
-          disabled={this.isFormDisabled()}>
-          {this.getSubmitButtonText()}
-        </button>
-      </div>
-    );
-  },
-
-  renderNotification: function() {
-    var notification = this.props.notification;
-    if (notification && notification.message) {
-      var type = notification.type || 'alert';
-      return (
-        <div className={'PatientNew-notification PatientNew-notification--' + type}>
-          {notification.message}
-        </div>
-      );
-    }
-    return null;
   },
 
   handleSubmit: function(e) {

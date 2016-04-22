@@ -22,6 +22,16 @@ import nurseShark from 'tideline/plugins/nurseshark';
 
 var utils = {};
 
+/**
+ * Convenience function for capitalizing a string
+ * 
+ * @param  {String} str
+ * @return {String}
+ */
+utils.capitalize = (str) => {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
 // Returns the value in a nested object,
 // where `props` is the sequence of properties to follow.
 // Returns `undefined` if the key is not present,

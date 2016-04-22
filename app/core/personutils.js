@@ -120,7 +120,6 @@ personUtils.validateFormValues = function(formValues, isNameRequired, dateFormat
   // moving to make diagnosisDate optional so we can use this to verify custodial accounts
   var diagnosisDate = formValues.diagnosisDate;
   if (diagnosisDate && !(diagnosisDate && sundial.isValidDateForMask(diagnosisDate, dateFormat))) {
-    debugger;
     validationErrors.diagnosisDate = INVALID_DATE_TEXT;
   }
 
@@ -134,7 +133,6 @@ personUtils.validateFormValues = function(formValues, isNameRequired, dateFormat
   }
 
   if (!validationErrors.diagnosisDate && diagnosisDateObj > currentDateObj) {
-    debugger;
     validationErrors.diagnosisDate = INVALID_DATE_TEXT;
   }
 
