@@ -26,6 +26,7 @@ import _ from 'lodash';
 import config from '../../config';
 
 import utils from '../../core/utils';
+import { validateForm } from '../../core/validation';
 
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
@@ -157,16 +158,12 @@ export let Login = React.createClass({
   },
 
   validateFormValues: function(formValues) {
-    var validationErrors = {};
-    var IS_REQUIRED = 'This field is required.';
+    var form = [
+      { type: 'name', name: 'password', label: 'this field', value: formValues.password },
+      { type: 'email', name: 'username', label: 'this field', value: formValues.username },
+    ];
 
-    if (!formValues.username) {
-      validationErrors.username = IS_REQUIRED;
-    }
-
-    if (!formValues.password) {
-      validationErrors.password = IS_REQUIRED;
-    }
+    var validationErrors = validateForm(form);
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
