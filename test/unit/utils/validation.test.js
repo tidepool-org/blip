@@ -103,7 +103,7 @@ describe('validation', () => {
         var response = validation.typeValidators.about('about', longAbout);
 
         expect(response.valid).to.be.false;
-        expect(response.message).to.equal('Please keep about text under 256 characters.');
+        expect(response.message).to.equal('About must be at most 256 characters long.');
       });
     });
 
@@ -130,14 +130,14 @@ describe('validation', () => {
         var response = validation.typeValidators.email('email address', '[hello]');
 
         expect(response.valid).to.be.false;
-        expect(response.message).to.equal('Invalid email address.');
+        expect(response.message).to.equal('Email address is invalid.');
       });
 
       it('should return invalid object when fieldValue is invalid email "partial@email"', () => {
         var response = validation.typeValidators.email('email address', 'partial@email');
 
         expect(response.valid).to.be.false;
-        expect(response.message).to.equal('Invalid email address.');
+        expect(response.message).to.equal('Email address is invalid.');
       });
 
       it('should return valid object when fieldValue is valid email "derek@derek.com"', () => {
@@ -514,7 +514,7 @@ describe('validation', () => {
       var response = validation.validateField('email', 'email address', 'aaa&eee');
 
       expect(response.valid).to.be.false;
-      expect(response.message).to.equal('Invalid email address.');
+      expect(response.message).to.equal('Email address is invalid.');
     });
 
     it('should return valid for email when value vaid email', () => {

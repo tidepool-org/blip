@@ -18,24 +18,46 @@ import _ from 'lodash';
 import sundial from 'sundial';
 
 import { capitalize, validateEmail } from './utils';
+import * as errors from './validation/errors';
 
 import config from '../config';
 
-// make sure these are in config and come from config
+// ensure config vars are defined
 export const ABOUT_MAX_LENGTH = config.ABOUT_MAX_LENGTH || 256;
 export const PASSWORD_MIN_LENGTH = config.PASSWORD_MIN_LENGTH || 8;
 export const PASSWORD_MAX_LENGTH = config.PASSWORD_MAX_LENGTH  || 72;
 
+/**
+ * Validation response when a field passes the validation checks
+ * 
+ * @return {Object}
+ */
 export const valid = () => ({
   valid: true,
   message: null
 });
 
+/**
+ * Validation response when a field fails the validation checks
+ * 
+ * @param  {String} message error message that will be displayed in the form
+ * 
+ * @return {Object}
+ */
 export const invalid = (message) => ({
   valid: false,
   message: message
 });
 
+/**
+ * The date type validator. N.B It is has been extracted from inline definition in type
+ * validators due to it being used inside of another.
+ * 
+ * @param  {String} fieldLabel
+ * @param  {Object} fieldValue
+ * @param  {Object} currentDateObj for testing purposes
+ * @return {Object}
+ */
 const dateValidator = (fieldLabel, fieldValue, currentDateObj) => {
   let now = new Date();
   let dateMask = 'M-D-YYYY';
@@ -44,78 +66,81 @@ const dateValidator = (fieldLabel, fieldValue, currentDateObj) => {
   currentDateObj = currentDateObj || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
 
   if (!fieldValue) {
-    return invalid(capitalize(`${fieldLabel} is required.`));
+    return invalid(errors.isRequired(fieldLabel));
   }
 
   if (!fieldValue.day || !fieldValue.month || !fieldValue.year) {
-    return invalid(capitalize(`${fieldLabel} is not a complete date.`));
+    return invalid(errors.incompleteDate(fieldLabel));
   }
 
   dateString = `${fieldValue.month}-${fieldValue.day}-${fieldValue.year}`;
   if (!sundial.isValidDateForMask(dateString, dateMask)) {
-    return invalid('Hmm, this date doesn’t look right');
+    return invalid(errors.invalidDate());
   }
 
   if (currentDateObj < sundial.parseFromFormat(dateString, dateMask)) {
-    return invalid(capitalize(`${fieldLabel} cannot be in the future!`));
+    return invalid(errors.futureDate(fieldLabel));
   }
 
   return valid();
 };
 
-const passwordValidator = (fieldLabel, fieldValue) => {
-  if (!fieldValue || fieldValue.length === 0) {
-    return invalid(capitalize(`${fieldLabel} is required.`));
-  }
-
-  if (/\s/g.test(fieldValue)) { //check for white-space (spaces, tabs)
-    return invalid(capitalize(`${fieldLabel} must not contain white spaces.`));
-  }
-
-  if (fieldValue.length < PASSWORD_MIN_LENGTH) {
-    return invalid(capitalize(`${fieldLabel} must be at least ${PASSWORD_MIN_LENGTH} characters long.`));
-  }
-
-  if (fieldValue.length > PASSWORD_MAX_LENGTH) {
-    return invalid(capitalize(`${fieldLabel} must be at most ${PASSWORD_MAX_LENGTH} characters long.`));
-  }
-
-  return valid();
-};
-
+/**
+ * Map of type validators for use in validateField()
+ * 
+ * @type {Object}
+ */
 export const typeValidators = {
   name: (fieldLabel, fieldValue) => {
     if (!fieldValue || fieldValue.length === 0) {
-      return invalid(capitalize(`${fieldLabel} is required.`));
+      return invalid(errors.isRequired(fieldLabel));
     }
     return valid();
   },
   about: (fieldLabel, fieldValue) => {    
     if (fieldValue && fieldValue.length > ABOUT_MAX_LENGTH) {
-      return invalid(`Please keep ${fieldLabel} text under ${ABOUT_MAX_LENGTH} characters.`);
+      return invalid(errors.isTooLong(ABOUT_MAX_LENGTH, fieldLabel));
     }
 
     return valid();
   },
   email: (fieldLabel, fieldValue) => {
     if (!fieldValue || fieldValue.length === 0) {
-      return invalid(capitalize(`${fieldLabel} is required.`));
+      return invalid(errors.isRequired(fieldLabel));
     }
 
     if (!validateEmail(fieldValue)) {
-      return invalid(`Invalid ${fieldLabel}.`);
+      return invalid(errors.invalidEmail(fieldLabel));
     }
 
     return valid();
   },
-  password: passwordValidator,
+  password: (fieldLabel, fieldValue) => {
+    if (!fieldValue || fieldValue.length === 0) {
+      return invalid(errors.isRequired(fieldLabel));
+    }
+
+    if (/\s/g.test(fieldValue)) { //check for white-space (spaces, tabs)
+      return invalid(errors.containsWhiteSpaces(fieldLabel));
+    }
+
+    if (fieldValue.length < PASSWORD_MIN_LENGTH) {
+      return invalid(errors.isTooShort(PASSWORD_MIN_LENGTH, fieldLabel));
+    }
+
+    if (fieldValue.length > PASSWORD_MAX_LENGTH) {
+      return invalid(errors.isTooLong(PASSWORD_MAX_LENGTH, fieldLabel));
+    }
+
+    return valid();
+  },
   confirmPassword: (fieldLabel, fieldValue, prerequisites) => {
     if (!prerequisites.password || prerequisites.password.length === 0) {
-      return invalid('You have not entered a password.');
+      return invalid(errors.noPassword());
     }
 
     if (prerequisites.password !== fieldValue) {
-      return invalid('Passwords don\'t match.');
+      return invalid(errors.passwordsDontMatch());
     }
 
     return valid();
@@ -131,11 +156,11 @@ export const typeValidators = {
     }
 
     if (!prerequisites.birthday) {
-      return invalid('You have not specified your birthday!');
+      return invalid(errors.noBirthday());
     }
 
     if (!dateValidator('', prerequisites.birthday).valid) {
-      return invalid('You have not specified a valid birthday!');
+      return invalid(errors.invalidBirthday());
     }
 
     birthdayDateString = `${prerequisites.birthday.month}-${prerequisites.birthday.day}-${prerequisites.birthday.year}`
@@ -145,13 +170,22 @@ export const typeValidators = {
     diagnosisDateObj = sundial.parseFromFormat(diagnosisDateString, dateMask);
 
     if (birthdayObj > diagnosisDateObj) {
-      return invalid(`Hmm, ${fieldLabel} usually comes after birthday.`)
+      return invalid(errors.mustBeAfterBirthday(fieldLabel));
     }
 
     return valid();
   }
 };
 
+/**
+ * Validates a single form field
+ * 
+ * @param  {String} type          
+ * @param  {String} fieldLabel
+ * @param  {String|Number|Object} fieldValue
+ * @param  {Object|null} prerequisites
+ * @return {Object}               either the results of invalid(message) or valid()
+ */
 export const validateField = (type, fieldLabel, fieldValue, prerequisites) => {
   if(!typeValidators[type]) { // Gordon Dent: at present we do not have generic validation, we may way to add this
     return valid();
@@ -159,6 +193,13 @@ export const validateField = (type, fieldLabel, fieldValue, prerequisites) => {
   return typeValidators[type](fieldLabel, fieldValue, prerequisites);
 };
 
+/**
+ * Validates an array of fields
+ * 
+ * @param  {Array} form 
+ * 
+ * @return {Object} an object which is either empty (valid form) or contains entries for field names with error messages
+ */
 export const validateForm = (form) => {
   if (!form) { // Gordon Dent: may want to check if not object too
     return {};
@@ -178,3 +219,7 @@ export const validateForm = (form) => {
       return reduction;
     }, {});
 };
+
+export const prepareForm = () => {
+
+}
