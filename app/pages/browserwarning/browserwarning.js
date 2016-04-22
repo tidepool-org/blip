@@ -22,7 +22,7 @@ var BrowserWarning = React.createClass({
     return (
       <div className="browser-warning js-terms">
         <div className="browser-warning-content browser-warning-box">
-          <h1 className="browser-warning-title">Blip is only certified to work on Chrome browser.</h1>
+          <h1 className="browser-warning-title">Blip's visualization is only certified to work on Chrome browser.</h1>
           <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html">
             <div className="browser-warning-chrome-image"></div>
           </a>
