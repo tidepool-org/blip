@@ -67,7 +67,7 @@ var NotesLink = React.createClass({
               </div>
             </div>
             <div>
-              <p className="NotesLink-key-paragraph">On your smartphone, go to <a href="http://tidepool.org/products/blip-notes/">notes.tidepool.io</a>.</p>
+              <p className="NotesLink-key-paragraph">Get the app on Android or iOS go to <a href="http://tidepool.org/notes">tidepool.org/notes</a>.</p>
             </div>
           </div>
         </div>
