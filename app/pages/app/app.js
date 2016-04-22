@@ -230,14 +230,14 @@ export class AppComponent extends React.Component {
       <div className='container-nav-outer footer'>
         <div className='container-nav-inner'>
           <div className='footer-section footer-section-top'>
-            <NotesLink />
-            <MailTo
-              linkTitle={title}
-              emailAddress={'support@tidepool.org'}
-              emailSubject={subject}
-              onLinkClicked={this.logSupportContact.bind(this)} />
             <div className='footer-link'>
-              <Link to='/terms'>Terms of Service</Link>
+              <a href="http://tidepool.org/notes" target="_blank">Get Blip Notes App</a>
+            </div>
+            <div className='footer-link'>
+              <a href="http://support.tidepool.org" target="_blank">Get Support</a>
+            </div>
+            <div className='footer-link'>
+              <a href='https://tidepool.org/terms-of-use' target='_blank'>Privacy and Terms of Use</a>
             </div>
           </div>
           <div className='footer-section'>
