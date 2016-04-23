@@ -98,7 +98,6 @@ export const typeValidators = {
     return valid();
   },
   about: (fieldLabel, fieldValue) => {
-    console.log( ' | About validation', fieldValue); 
     if (fieldValue && fieldValue.length > ABOUT_MAX_LENGTH) {
       return invalid(errors.isTooLong(ABOUT_MAX_LENGTH, fieldLabel));
     }
