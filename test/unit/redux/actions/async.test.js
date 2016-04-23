@@ -144,7 +144,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CONFIRM_SIGNUP_REQUEST' },
-          { type: 'CONFIRM_SIGNUP_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'CONFIRM_SIGNUP_FAILURE', error: err, payload: { signupKey: 'fakeSignupKey' }, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -172,8 +172,8 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CONFIRM_SIGNUP_REQUEST' },
-          { type: 'CONFIRM_SIGNUP_FAILURE', error: err, meta: { apiError: {status: 400, message: 'User does not have a password'} } },
-          { type: '@@router/TRANSITION', payload: { args: [ '/verification-with-password' ], method: 'push' } }
+          { type: 'CONFIRM_SIGNUP_FAILURE', error: err, payload: { signupKey: 'fakeSignupKey' }, meta: { apiError: {status: 400, message: 'User does not have a password'} } },
+          { type: '@@router/TRANSITION', payload: { args: [ '/verification-with-password?signupKey=fakeSignupKey' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

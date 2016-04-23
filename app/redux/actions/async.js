@@ -239,7 +239,6 @@ export function setupDataStorage(api, patient) {
     dispatch(sync.setupDataStorageRequest());
 
     api.patient.post(patient, (err, createdPatient) => {
-      err = { status: 400, message: 'Messed up!' };
       if (err) {
         dispatch(sync.setupDataStorageFailure(
           createActionError(ErrorMessages.ERR_DSA_SETUP, err), err
