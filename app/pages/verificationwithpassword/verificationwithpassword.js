@@ -28,22 +28,22 @@ import WaitList from '../../components/waitlist';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
-import personUtils from '../../core/personutils';
+import { validateForm } from '../../core/validation';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
 export let VerificationWithPassword = React.createClass({
   propTypes: {
-    //acknowledgeNotification: React.PropTypes.func.isRequired,
+    acknowledgeNotification: React.PropTypes.func.isRequired,
     api: React.PropTypes.object.isRequired,
-    //configuredInviteKey: React.PropTypes.string.isRequired,
-    //inviteEmail: React.PropTypes.string,
-    //inviteKey: React.PropTypes.string,
+    configuredInviteKey: React.PropTypes.string.isRequired,
+    inviteEmail: React.PropTypes.string,
+    inviteKey: React.PropTypes.string,
     notification: React.PropTypes.object,
-    signupKey: React.PropTypes.string.isRequired
-    //onSubmit: React.PropTypes.func.isRequired,
-    //trackMetric: React.PropTypes.func.isRequired,
-    //working: React.PropTypes.bool.isRequired
+    signupKey: React.PropTypes.string.isRequired,
+    onSubmit: React.PropTypes.func.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
+    working: React.PropTypes.bool.isRequired
   },
 
   formInputs:  [
@@ -132,20 +132,13 @@ export let VerificationWithPassword = React.createClass({
 
     this.resetFormStateBeforeSubmit(formValues);
 
-    formValues = this.prepareFormValuesForValidation(formValues);
-
-    formValues = _.clone(formValues);
-
     var validationErrors = this.validateFormValues(formValues);
 
     if (!_.isEmpty(validationErrors)) {
-      debugger;
       return;
     }
-    debugger;
 
     formValues = this.prepareFormValuesForSubmit(formValues);
-
     this.props.onSubmit(this.props.api, this.props.signupKey, formValues.birthday, formValues.password);
   },
 
@@ -158,30 +151,12 @@ export let VerificationWithPassword = React.createClass({
   },
 
   validateFormValues: function(formValues) {
-    var validationErrors = {};
-    var IS_REQUIRED = 'This field is required.';
-    var SHORT_PASSWORD = 'Password must be at least ' + config.PASSWORD_MIN_LENGTH + ' characters long.';
-
-    if (!formValues.password) {
-      validationErrors.password = IS_REQUIRED;
-    }
-
-    if (formValues.password && formValues.password.length < config.PASSWORD_MIN_LENGTH) {
-      validationErrors.password = SHORT_PASSWORD;
-    }
-
-    if (formValues.password) {
-      if (!formValues.passwordConfirm) {
-        validationErrors.passwordConfirm = IS_REQUIRED;
-      }
-      else if (formValues.passwordConfirm !== formValues.password) {
-        validationErrors.passwordConfirm = 'Passwords don\'t match.';
-      }
-    }
-
-    var validationErrors2 = personUtils.validateFormValues(formValues, false, MODEL_DATE_FORMAT);
-
-    validationErrors = _.assign(validationErrors, validationErrors2);
+    var form = [
+      { type: 'date', name: 'birthday', label: 'birthday', value: formValues.birthday },
+      { type: 'password', name: 'password', label: 'password', values: formValues.password},
+      { type: 'confirmPassword', name: 'confirmPassword', label: 'confirm password', values: formValues.confirmPassword, prerequisites: { password: formValues.password } }
+    ];
+    var validationErrors = validateForm(form);
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
@@ -196,38 +171,6 @@ export let VerificationWithPassword = React.createClass({
     return validationErrors;
   },
 
-  isDateObjectComplete: function(dateObj) {
-    if (!dateObj) {
-      return false;
-    }
-    return (!_.isEmpty(dateObj.year) && dateObj.year.length === 4 && !_.isEmpty(dateObj.month) && !_.isEmpty(dateObj.day));
-  },
-
-  // because JavaScript Date will coerce impossible dates into possible ones with
-  // no opportunity for exposing the error to the user
-  // i.e., mis-typing 02/31/2014 instead of 03/31/2014 will be saved as 03/03/2014!
-  makeRawDateString: function(dateObj){
-
-    var mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
-    mm = (mm.length === 1) ? '0'+ mm : mm;
-    var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
-
-    return dateObj.year+'-'+mm+'-'+dd;
-  },
-
-  prepareFormValuesForValidation: function(formValues) {
-    formValues = _.clone(formValues);
-    var formBDay = formValues.birthday;
-
-    if (this.isDateObjectComplete(formBDay)) {
-      formValues.birthday = this.makeRawDateString(formBDay);
-    }
-    else {
-      formValues.birthday = null;
-    }
-
-    return formValues;
-  },
 
   handleInputChange: function(attributes) {
     var key = attributes.name;
@@ -237,18 +180,7 @@ export let VerificationWithPassword = React.createClass({
     }
 
     var formValues = _.clone(this.state.formValues);
-    if (key === 'isOtherPerson') {
-      var isOtherPerson = (attributes.value === 'yes') ? true : false;
-      var fullName = isOtherPerson ? '' : this.getUserFullName();
-      formValues = _.assign(formValues, {
-        isOtherPerson: isOtherPerson,
-        fullName: fullName
-      });
-    }
-    else {
-      formValues[key] = value;
-    }
-
+    formValues[key] = value;
     this.setState({formValues: formValues});
   },
 

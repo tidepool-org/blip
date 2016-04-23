@@ -21,6 +21,7 @@ import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
 import sundial from 'sundial';
+import { validateForm } from '../../core/validation';
 
 import * as actions from '../../redux/actions';
 
@@ -276,20 +277,32 @@ export let PatientNew = React.createClass({
 
     this.resetFormStateBeforeSubmit(formValues);
 
-    formValues = this.prepareFormValuesForValidation(formValues);
+    var validationErrors = this.validateFormValues(formValues);
 
-    var validationErrors = personUtils.validateFormValues(formValues, true, MODEL_DATE_FORMAT);
     if (!_.isEmpty(validationErrors)) {
-      this.setState({
-        working: false,
-        validationErrors: validationErrors
-      });
       return;
     }
 
     formValues = this.prepareFormValuesForSubmit(formValues);
-
     this.props.onSubmit(formValues);
+  },
+
+  validateFormValues: function(formValues) {
+    var form = [
+      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
+      { type: 'date', name: 'birthday', label: 'birthday', value: formValues.birthday },
+      { type: 'diagnosisDate', name: 'diagnosisDate', label: 'diagnosis date', value: formValues.diagnosisDate, prerequisites: { birthday: formValues.birthday } },
+      { type: 'about', name: 'about', label: 'about', value: formValues.about}
+    ];
+    var validationErrors = validateForm(form);
+
+    if (!_.isEmpty(validationErrors)) {
+      this.setState({
+        validationErrors: validationErrors
+      });
+    }
+
+    return validationErrors;
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
@@ -298,32 +311,6 @@ export let PatientNew = React.createClass({
       formValues: formValues,
       validationErrors: {}
     });
-  },
-
-  prepareFormValuesForValidation: function(formValues) {
-    formValues = _.clone(formValues);
-    var formBDay = formValues.birthday;
-    var formDDay = formValues.diagnosisDate;
-
-    if (this.isDateObjectComplete(formBDay)) {
-      formValues.birthday = this.makeRawDateString(formBDay);
-    }
-    else {
-      formValues.birthday = null;
-    }
-
-    if (this.isDateObjectComplete(formDDay)) {
-      formValues.diagnosisDate = this.makeRawDateString(formDDay);
-    }
-    else {
-      formValues.diagnosisDate = null;
-    }
-
-    if (!formValues.about) {
-      formValues = _.omit(formValues, 'about');
-    }
-
-    return formValues;
   },
 
   // because JavaScript Date will coerce impossible dates into possible ones with
@@ -348,8 +335,8 @@ export let PatientNew = React.createClass({
   prepareFormValuesForSubmit: function(formValues) {
     var profile = {};
     var patient = {
-      birthday: formValues.birthday,
-      diagnosisDate: formValues.diagnosisDate
+      birthday: this.makeRawDateString(formValues.birthday),
+      diagnosisDate: this.makeRawDateString(formValues.diagnosisDate)
     };
 
     if (formValues.about) {
