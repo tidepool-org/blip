@@ -35,7 +35,11 @@ export const requiresChrome = (utils, next) => (nextState, replace, cb)  => {
     replace('/browser-warning');
     return (!!cb) ? cb() : true;
   } else {
-    next(nextState, replace, cb);
+    console.log('next', next);
+    if (next) {
+      next(nextState, replace, cb);
+    }
+    
   }
 }
 
@@ -129,9 +133,13 @@ export const ensureNoAuth = (api) => (nextState, replace, cb) => {
  * @param  {Object} nextState
  * @param  {Function} replace
  */
-export const requireNoAuth = (api) => (nextState, replace) => {
+export const requireNoAuth = (api) => (nextState, replace, cb) => {
   if (api.user.isAuthenticated()) {
     replace('/patients');
+  }
+
+  if (!!cb) {
+    cb();
   }
 };
 
@@ -190,9 +198,13 @@ export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
  * @param  {Object} nextState
  * @param  {Function} replace
  */
-export const onUploaderPasswordReset = (api) => (nextState, replace) => {
+export const onUploaderPasswordReset = (api) => (nextState, replace, cb) => {
   if (api.user.isAuthenticated()) {
     replace('/profile');
+  }
+
+  if (!!cb) {
+    cb();
   }
 }
 
@@ -223,9 +235,9 @@ export const hashToUrl = (nextState, replace) => {
  * @param  {Object} nextState
  * @param  {Function} replace
  */
-export const onIndexRouteEnter = (api, store) => (nextState, replace) => {
+export const onIndexRouteEnter = (api, store) => (nextState, replace, cb) => {
   if (!hashToUrl(nextState, replace)) {
-    requireNoAuth(api)(nextState, replace);
+    requireNoAuth(api)(nextState, replace, cb);
   }
 }
 
@@ -260,20 +272,20 @@ export const getRoutes = (appContext, store) => {
 
   return (
     <Route path='/' component={AppComponent} {...props}>
-      <IndexRoute component={Login} onEnter={onIndexRouteEnter(api, store)} />
-      <Route path='login' component={Login} onEnter={requireNoAuth(api)} />
-      <Route path='terms' components={Terms} />
-      <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />
-      <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api, store)} />
-      <Route path='profile' component={UserProfile} onEnter={requireAuth(api, store)} />
-      <Route path='patients' component={Patients} onEnter={requireAuth(api, store)} />
-      <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api, store)} />
-      <Route path='patients/:id/profile' component={PatientProfile} onEnter={requireAuth(api, store)} />
-      <Route path='patients/:id/share' component={Share} onEnter={requireAuth(api, store)} />
+      <IndexRoute component={Login} onEnter={requiresChrome(utils, onIndexRouteEnter(api, store))} />
+      <Route path='login' component={Login} onEnter={requiresChrome(utils, requireNoAuth(api))} />
+      <Route path='terms' components={Terms} onEnter={requiresChrome(utils)}/>
+      <Route path='signup' component={Signup} onEnter={requiresChrome(utils, requireNoAuth(api))} />
+      <Route path='email-verification' component={EmailVerification} onEnter={requiresChrome(utils, requireNotVerified(api, store))} />
+      <Route path='profile' component={UserProfile} onEnter={requiresChrome(utils, requireAuth(api, store))} />
+      <Route path='patients' component={Patients} onEnter={requiresChrome(utils, requireAuth(api, store))} />
+      <Route path='patients/new' component={PatientNew} onEnter={requiresChrome(utils, requireAuthAndNoPatient(api, store))} />
+      <Route path='patients/:id/profile' component={PatientProfile} onEnter={requiresChrome(utils, requireAuth(api, store))} />
+      <Route path='patients/:id/share' component={Share} onEnter={requiresChrome(utils, requireAuth(api, store))} />
       <Route path='patients/:id/data' component={PatientData} onEnter={requiresChrome(utils, requireAuth(api, store))} />
-      <Route path='request-password-reset' component={RequestPasswordReset} onEnter={requireNoAuth(api)} />
-      <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={ensureNoAuth(api)} />
-      <Route path='request-password-from-uploader' component={RequestPasswordReset} onEnter={onUploaderPasswordReset(api)} />
+      <Route path='request-password-reset' component={RequestPasswordReset} onEnter={requiresChrome(utils, requireNoAuth(api))} />
+      <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={requiresChrome(utils, ensureNoAuth(api))} />
+      <Route path='request-password-from-uploader' component={RequestPasswordReset} onEnter={requiresChrome(utils, onUploaderPasswordReset(api))} />
       <Route path='browser-warning' component={BrowserWarning} />
       <Route path='*' onEnter={onOtherRouteEnter(api)} />
     </Route>
