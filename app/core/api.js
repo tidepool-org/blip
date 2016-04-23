@@ -279,10 +279,8 @@ api.user.confirmSignUp = function(key, birthday, password, callback) {
   api.log('PUT /confirm/accept/signup/'+key);
   if(_.isFunction(birthday)){
     callback = birthday;
-    debugger;
     return tidepool.signupConfirm(key, callback);
   } else {
-    debugger;
     return tidepool.custodialSignupConfirm(key, birthday, password, callback);
   }
 
