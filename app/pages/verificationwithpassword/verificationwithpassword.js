@@ -199,9 +199,9 @@ export let VerificationWithPassword = React.createClass({
 
 export function mapStateToProps(state) {
   return {
-    notification: state.blip.working.signingUp.notification,
+    notification: state.blip.working.verifyingCustodial.notification,
     signupKey: state.blip.signupKey,
-    working: state.blip.working.signingUp.inProgress
+    working: state.blip.working.verifyingCustodial.inProgress
   };
 }
 
