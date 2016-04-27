@@ -92,8 +92,9 @@ export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage
 export const signupKey = (state = initialState.signupKey, action) => {
   switch(action.type) {
     case types.CONFIRM_SIGNUP_FAILURE:
-      const { signupKey } = action.payload;
-      return signupKey;
+      return action.payload.signupKey;
+    case types.VERIFY_CUSTODIAL_FAILURE:
+      return action.payload.signupKey;
     case types.LOGOUT_REQUEST:
       return null;
     default:
