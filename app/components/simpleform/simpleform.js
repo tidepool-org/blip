@@ -28,6 +28,7 @@ var SimpleForm = React.createClass({
     submitButtonText: React.PropTypes.string,
     submitDisabled: React.PropTypes.bool,
     onSubmit: React.PropTypes.func,
+    onChnage: React.PropTypes.func,
     notification: React.PropTypes.object,
     disabled: React.PropTypes.bool
   },
@@ -163,7 +164,9 @@ var SimpleForm = React.createClass({
     var key = attributes.name;
     var value = attributes.value;
 
-    if (key) {
+    if (this.props.onChange) {
+      this.props.onChange(attributes);
+    } else if (key) {
       var formValues = _.clone(this.state.formValues);
       formValues[key] = value;
       this.setState({formValues: formValues});

@@ -27,6 +27,7 @@ import * as actions from '../../redux/actions';
 
 import InputGroup from '../../components/inputgroup';
 import DatePicker from '../../components/datepicker';
+import SimpleForm from '../../components/simpleform';
 import personUtils from '../../core/personutils';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
@@ -46,8 +47,8 @@ export let PatientNew = React.createClass({
       name: 'isOtherPerson',
       type: 'radios',
       items: [
-        {value: 'no', label: 'This is for me, I have type 1 diabetes'},
-        {value: 'yes', label: 'This is for someone I care for who has type 1 diabetes'}
+        {value: false, label: 'This is for me, I have type 1 diabetes'},
+        {value: true, label: 'This is for someone I care for who has type 1 diabetes'}
       ]
     },
     {
@@ -138,87 +139,17 @@ export let PatientNew = React.createClass({
 
   renderForm: function() {
     return (
-        <form className="PatientNew-form">
-          <div className="PatientNew-formInputs">
-            {this.renderInputs()}
-          </div>
-          <div className="PatientNew-formActions">
-            {this.renderButtons()}
-            {this.renderNotification()}
-          </div>
-        </form>
+      <SimpleForm
+        inputs={this.formInputs}
+        formValues={this.state.formValues}
+        validationErrors={this.state.validationErrors}
+        submitButtonText={this.getSubmitButtonText()}
+        submitDisabled={this.props.working}
+        onSubmit={this.handleSubmit}
+        onChange={this.handleInputChange}
+        notification={this.state.notification || this.props.notification}/>
     );
-  },
 
-  renderInputs: function() {
-    return _.map(this.formInputs, this.renderInput);
-  },
-
-  renderInput: function(input) {
-    var name = input.name;
-    var value = this.state.formValues[name];
-
-    if (name === 'isOtherPerson') {
-      value = this.state.formValues.isOtherPerson ? 'yes' : 'no';
-    }
-
-    if (input.type === 'datepicker') {
-      return this.renderDatePicker(input);
-    }
-
-    return (
-      <div key={name} className={'PatientNew-inputGroup PatientNew-inputGroup--' + name}>
-        <InputGroup
-          name={name}
-          label={input.label}
-          value={value}
-          items={input.items}
-          error={this.state.validationErrors[name]}
-          type={input.type}
-          placeholder={input.placeholder}
-          disabled={this.isFormDisabled() || input.disabled}
-          onChange={this.handleInputChange}/>
-      </div>
-    );
-  },
-
-  renderDatePicker: function(input) {
-    var name = input.name;
-    var classes = 'PatientNew-datePicker PatientNew-inputGroup PatientNew-inputGroup--' + name;
-    var error = this.state.validationErrors[name];
-    var message;
-    if (error) {
-      classes = classes + ' PatientNew-datePicker--error';
-      message = <div className="PatientNew-datePickerMessage">{error}</div>;
-    }
-
-    return (
-      <div key={name} className={classes}>
-        <div>
-          <label className="PatientNew-datePickerLabel">{input.label}</label>
-          <DatePicker
-            name={name}
-            value={this.state.formValues[name]}
-            disabled={this.isFormDisabled() || input.disabled}
-            onChange={this.handleInputChange} />
-        </div>
-        {message}
-      </div>
-    );
-  },
-
-  renderButtons: function() {
-    return (
-      <div>
-        <Link to="/patients" className="btn btn-secondary PatientNew-cancel">Cancel</Link>
-        <button
-          className="btn btn-primary PatientNew-submit"
-          onClick={this.handleSubmit}
-          disabled={this.isFormDisabled()}>
-          {this.getSubmitButtonText()}
-        </button>
-      </div>
-    );
   },
 
   renderNotification: function() {
@@ -253,8 +184,9 @@ export let PatientNew = React.createClass({
     }
 
     var formValues = _.clone(this.state.formValues);
+
     if (key === 'isOtherPerson') {
-      var isOtherPerson = (attributes.value === 'yes') ? true : false;
+      var isOtherPerson = (attributes.value === 'true') ? true : false;
       var fullName = isOtherPerson ? '' : this.getUserFullName();
       formValues = _.assign(formValues, {
         isOtherPerson: isOtherPerson,
@@ -268,13 +200,7 @@ export let PatientNew = React.createClass({
     this.setState({formValues: formValues});
   },
 
-  handleSubmit: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
-
-    var formValues = this.state.formValues;
-
+  handleSubmit: function(formValues) {
     this.resetFormStateBeforeSubmit(formValues);
 
     var validationErrors = this.validateFormValues(formValues);
