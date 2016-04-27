@@ -239,6 +239,10 @@ export const onIndexRouteEnter = (api, store) => (nextState, replace, cb) => {
   if (!hashToUrl(nextState, replace)) {
     requireNoAuth(api)(nextState, replace, cb);
   }
+
+  if (!!cb) {
+    cb();
+  }
 }
 
 /**

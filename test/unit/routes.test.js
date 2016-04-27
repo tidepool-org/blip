@@ -852,6 +852,40 @@ describe('routes', () => {
       expect(replace.withArgs('/patient/435/data').callCount).to.equal(1);
     });
 
+    it('should update route to /patient/435/data when #/patient/435/data present and call provided callback', () => {
+      let nextState = {
+        location: {
+          pathname: '/',
+          hash: '#/patient/435/data'
+        }
+      };
+
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(true)
+        }
+      };
+
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: false
+          }
+        })
+      };
+
+      let replace = sinon.stub();
+      let cb = sinon.stub();
+
+      expect(replace.callCount).to.equal(0);
+      expect(cb.callCount).to.equal(0);
+
+      onIndexRouteEnter(api, store)(nextState, replace, cb);
+
+      expect(replace.withArgs('/patient/435/data').callCount).to.equal(1);
+      expect(cb.callCount).to.equal(1);
+    });
+
     it('should update route to /patients when logged in', () => {
       let nextState = {
         location: {
