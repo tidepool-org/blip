@@ -275,15 +275,14 @@ api.user.confirmPasswordReset = function(payload, callback) {
   return tidepool.confirmPasswordReset(payload, callback);
 };
 
-api.user.confirmSignUp = function(key, birthday, password, callback) {
+api.user.confirmSignUp = function(key, callback) {
   api.log('PUT /confirm/accept/signup/'+key);
-  if(_.isFunction(birthday)){
-    callback = birthday;
-    return tidepool.signupConfirm(key, callback);
-  } else {
-    return tidepool.custodialSignupConfirm(key, birthday, password, callback);
-  }
+  return tidepool.signupConfirm(key, callback);
+};
 
+api.user.custodialConfirmSignUp = function(key, birthday, password, callback) {
+  api.log('PUT /confirm/accept/signup/'+key, 'custodial');
+  return tidepool.custodialSignupConfirm(key, birthday, password, callback);
 };
 
 // ----- Patient -----

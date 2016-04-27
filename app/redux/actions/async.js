@@ -94,20 +94,18 @@ export function confirmSignup(api, signupKey) {
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} signupKey
  */
-export function verificationWithPassword(api, signupKey, birthday, password) {
+export function verifyCustodial
+(api, signupKey, birthday, password) {
   return (dispatch) => {
-    dispatch(sync.confirmSignupRequest());
+    dispatch(sync.verifyCustodialRequest());
 
-    api.user.confirmSignUp(signupKey, birthday, password, function(err) {
+    api.user.custodialConfirmSignUp(signupKey, birthday, password, function(err) {
       if (err) {
-        dispatch(sync.confirmSignupFailure(
+        dispatch(sync.verifyCustodialFailure(
           createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err, signupKey
         ));
-        //if(err.status === 400){
-        //  dispatch(routeActions.push('/verification-with-password'));
-        //}
       } else {
-        dispatch(sync.confirmSignupSuccess())
+        dispatch(sync.verifyCustodialSuccess())
       }
     })
   };

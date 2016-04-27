@@ -67,6 +67,7 @@ export default {
     settingMemberPermissions: Object.assign({}, working),
     updatingPatient: Object.assign({}, working),
     updatingUser: Object.assign({}, working),
+    verifyingCustodial: Object.assign({}, working),
     signingUp: Object.assign({}, working),
   },
   notification: null,

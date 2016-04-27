@@ -102,6 +102,10 @@ export default (type) => {
     case types.UPDATE_USER_SUCCESS:
     case types.UPDATE_USER_FAILURE:
       return 'updatingUser';
+    case types.VERIFY_CUSTODIAL_REQUEST:
+    case types.VERIFY_CUSTODIAL_SUCCESS:
+    case types.VERIFY_CUSTODIAL_FAILURE:
+      return 'verifyingCustodial';
     default:
       return null;
   }

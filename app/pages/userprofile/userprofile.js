@@ -142,7 +142,6 @@ export var UserProfile = React.createClass({
   },
 
   handleSubmit: function(formValues) {
-    console.log('Submitted', formValues);
     var self = this;
 
     this.resetFormStateBeforeSubmit(formValues);

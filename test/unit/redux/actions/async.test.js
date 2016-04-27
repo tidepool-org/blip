@@ -189,6 +189,66 @@ describe('Actions', () => {
       });
     });
 
+    describe('verifyCustodial', () => {
+      it('should trigger VERIFY_CUSTODIAL_SUCCESS and it should call verifyCustodial once for a successful request', () => {
+        let user = { id: 27 };
+        let key = 'fakeSignupKey';
+        let birthday = '07/18/1988';
+        let password = 'foobar01';
+        let api = {
+          user: {
+            custodialConfirmSignUp: sinon.stub().callsArgWith(3, null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'VERIFY_CUSTODIAL_REQUEST' },
+          { type: 'VERIFY_CUSTODIAL_SUCCESS' }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore(initialState);
+        store.dispatch(async.verifyCustodial(api, key, birthday, password));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.custodialConfirmSignUp.calledWith(key, birthday, password)).to.be.true;
+        expect(api.user.custodialConfirmSignUp.callCount).to.equal(1);
+      });
+
+      it('should trigger VERIFY_CUSTODIAL_FAILURE and it should call verifyCustodial once for a failed request', () => {
+        let user = { id: 27 };
+        let key = 'fakeSignupKey';
+        let birthday = '07/18/1988';
+        let password = 'foobar01';
+        let api = {
+          user: {
+            custodialConfirmSignUp: sinon.stub().callsArgWith(3, {status: 500, body: 'Error!'})
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_CONFIRMING_SIGNUP);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'VERIFY_CUSTODIAL_REQUEST' },
+          { type: 'VERIFY_CUSTODIAL_FAILURE', error: err, payload: { signupKey: 'fakeSignupKey' }, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(initialState);
+        store.dispatch(async.verifyCustodial(api, key, birthday, password));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.custodialConfirmSignUp.calledWith(key, birthday, password)).to.be.true;
+        expect(api.user.custodialConfirmSignUp.callCount).to.equal(1);
+      });
+    });
+
     describe('resendEmailVerification', () => {
       it('should trigger RESEND_EMAIL_VERIFICATION_SUCCESS and it should call resendEmailVerification once for a successful request', () => {
         const email = 'foo@bar.com';

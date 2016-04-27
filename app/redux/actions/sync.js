@@ -172,6 +172,31 @@ export function confirmSignupFailure(error, apiError, signupKey) {
   };
 }
 
+export function verifyCustodialRequest() {
+  return {
+    type: ActionTypes.VERIFY_CUSTODIAL_REQUEST
+  };
+}
+
+export function verifyCustodialSuccess() {
+  return {
+    type: ActionTypes.VERIFY_CUSTODIAL_SUCCESS
+  };
+}
+
+export function verifyCustodialFailure(error, apiError, signupKey) {
+  return {
+    type: ActionTypes.VERIFY_CUSTODIAL_FAILURE,
+    error: error,
+    payload: {
+      signupKey
+    },
+    meta: {
+      apiError: apiError || null
+    }
+  };
+}
+
 export function resendEmailVerificationRequest() {
   return {
     type: ActionTypes.RESEND_EMAIL_VERIFICATION_REQUEST

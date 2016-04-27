@@ -187,7 +187,7 @@ export const typeValidators = {
  * @return {Object}               either the results of invalid(message) or valid()
  */
 export const validateField = (type, fieldLabel, fieldValue, prerequisites) => {
-  if(!typeValidators[type]) { // Gordon Dent: at present we do not have generic validation, we may way to add this
+  if(!typeValidators[type]) { // @TODO: Gordon Dent: at present we do not have generic validation, we may way to add this
     return valid();
   }
   return typeValidators[type](fieldLabel, fieldValue, prerequisites);
@@ -201,7 +201,7 @@ export const validateField = (type, fieldLabel, fieldValue, prerequisites) => {
  * @return {Object} an object which is either empty (valid form) or contains entries for field names with error messages
  */
 export const validateForm = (form) => {
-  if (!form) { // Gordon Dent: may want to check if not object too
+  if (!form) { // @TODO: Gordon Dent: may want to check if not object too
     return {};
   }
 
@@ -219,7 +219,3 @@ export const validateForm = (form) => {
       return reduction;
     }, {});
 };
-
-export const prepareForm = () => {
-
-}

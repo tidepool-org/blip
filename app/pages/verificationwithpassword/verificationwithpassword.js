@@ -206,7 +206,7 @@ export function mapStateToProps(state) {
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  onSubmit: actions.async.verificationWithPassword,
+  onSubmit: actions.async.verifyCustodial,
   acknowledgeNotification: actions.sync.acknowledgeNotification
 }, dispatch);
 
