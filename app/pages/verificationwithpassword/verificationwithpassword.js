@@ -32,6 +32,9 @@ import { validateForm } from '../../core/validation';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
+var birthdayText = 'In order to verify your identity we need you to confirm your birthday.';
+var passwordText = 'Now that you\'re claiming your account, we need you to set a password for logging in.';
+
 export let VerificationWithPassword = React.createClass({
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
@@ -47,7 +50,9 @@ export let VerificationWithPassword = React.createClass({
   },
 
   formInputs:  [
+    { type: 'explanation', text: birthdayText },
     { name: 'birthday', label: 'Birthday', type: 'datepicker' },
+    { type: 'explanation', text: passwordText },
     { name: 'password', label: 'Password', type: 'password', placeholder: '******' },
     { name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '******' }
   ],
@@ -118,12 +123,7 @@ export let VerificationWithPassword = React.createClass({
     );
   },
 
-  handleSubmit: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
-
-    var formValues = this.state.formValues;
+  handleSubmit: function(formValues) {
     var self = this;
 
     if (this.props.working) {

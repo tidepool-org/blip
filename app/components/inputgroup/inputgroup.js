@@ -25,6 +25,7 @@ var InputGroup = React.createClass({
     name: React.PropTypes.string,
     label: React.PropTypes.string,
     items: React.PropTypes.array,
+    text: React.PropTypes.string,
     value: React.PropTypes.oneOfType([
       React.PropTypes.string,
       React.PropTypes.bool,
@@ -100,6 +101,10 @@ var InputGroup = React.createClass({
 
     if (type === 'datepicker') {
       return this.renderDatePicker();
+    }
+
+    if (type === 'explanation') {
+      return this.renderExplanation();
     }
 
     return (
@@ -207,6 +212,12 @@ var InputGroup = React.createClass({
         disabled={this.props.disabled}
         onChange={this.handleChange} />
     );
+  },
+
+  renderExplanation: function() {
+    return <div className='input-group-explanation'>
+      {this.props.text}
+    </div>;
   },
 
   renderMessage: function() {
