@@ -74,7 +74,7 @@ var SimpleForm = React.createClass({
     
     return (
         <form className="simple-form">
-          <div className="simple-form-inputs" ref="inputs">
+          <div className="simple-form-inputs" ref="inputs" key="inputs">
             {inputs}
           </div>
           <div className="simple-form-action-group">
