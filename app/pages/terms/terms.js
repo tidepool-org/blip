@@ -228,9 +228,9 @@ export class Terms extends React.Component {
 
   websiteTerms() {
     return React.DOM.iframe({
-      className         : 'terms-iframe',
-      src               : 'https://tidepool.org/terms-of-use/',
-      scrolling         : 'yes',
+      className         : 'terms-iframe-terms',
+      src               : 'https://tidepool.org/terms-of-use-summary',
+      scrolling         : 'no',
       frameBorder       : '0',
       allowTransparency : 'true'
     });
@@ -238,9 +238,9 @@ export class Terms extends React.Component {
 
   websitePrivacy() {
     return React.DOM.iframe({
-      className         : 'terms-iframe',
-      src               : 'https://tidepool.org/privacy-policy/',
-      scrolling         : 'yes',
+      className         : 'terms-iframe-privacy',
+      src               : 'https://tidepool.org/privacy-policy-summary',
+      scrolling         : 'no',
       frameBorder       : '0',
       allowTransparency : 'true'
     });
