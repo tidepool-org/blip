@@ -21,6 +21,7 @@ import { bindActionCreators } from 'redux';
 import * as actions from '../../redux/actions';
 
 import _ from 'lodash';
+import { validateForm } from '../../core/validation';
 
 import config from '../../config';
 
@@ -141,11 +142,10 @@ export var UserProfile = React.createClass({
   },
 
   handleSubmit: function(formValues) {
+    console.log('Submitted', formValues);
     var self = this;
 
     this.resetFormStateBeforeSubmit(formValues);
-
-    formValues = this.prepareFormValuesForValidation(formValues);
 
     var validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
@@ -153,7 +153,6 @@ export var UserProfile = React.createClass({
     }
 
     formValues = this.prepareFormValuesForSubmit(formValues);
-
     this.submitFormValues(formValues);
   },
 
@@ -166,58 +165,26 @@ export var UserProfile = React.createClass({
     clearTimeout(this.messageTimeoutId);
   },
 
-  prepareFormValuesForValidation: function(formValues) {
-    formValues = _.clone(formValues);
-
-    // If not changing password, omit password attributes
-    if (!formValues.password && !formValues.passwordConfirm) {
-      return _.omit(formValues, ['password', 'passwordConfirm']);
-    }
-
-    return formValues;
-  },
 
   validateFormValues: function(formValues) {
-    var validationErrors = {};
-    var IS_REQUIRED = 'This field is required.';
-    var INVALID_EMAIL = 'Invalid email address.';
-    var SHORT_PASSWORD = 'Password must be at least ' + config.PASSWORD_MIN_LENGTH + ' characters long.';
-
-    if (!formValues.fullName) {
-      validationErrors.fullName = IS_REQUIRED;
-    }
-
-    if (!formValues.username) {
-      validationErrors.username = IS_REQUIRED;
-    }
-
-    if (formValues.username && !utils.validateEmail(formValues.username)) {
-      validationErrors.username = INVALID_EMAIL;
-    }
+    var form = [
+      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
+      { type: 'email', name: 'username', label: 'email', value: formValues.username }
+    ];
 
     if (formValues.password || formValues.passwordConfirm) {
-      if (!formValues.password) {
-        validationErrors.password = IS_REQUIRED;
-      }
-      else if (!formValues.passwordConfirm) {
-        validationErrors.passwordConfirm = IS_REQUIRED;
-      }
-      else if (formValues.passwordConfirm !== formValues.password) {
-        validationErrors.passwordConfirm = 'Passwords don\'t match.';
-      }
+      form = _.merge(form, [
+        { type: 'password', name: 'password', label: 'password', value: formValues.password },
+        { type: 'confirmPassword', name: 'passwordConfirm', label: 'confirm password', value: formValues.passwordConfirm, prerequisites: { password: formValues.password }  }
+      ]);
     }
 
-    if (formValues.password && formValues.password.length < config.PASSWORD_MIN_LENGTH) {
-      validationErrors.password = SHORT_PASSWORD;
-    }
+
+    var validationErrors = validateForm(form);
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
-        validationErrors: validationErrors,
-        notification: {
-          type: 'error',
-          message:'Some entries are invalid.'
-        }
+        validationErrors: validationErrors
       });
     }
 
