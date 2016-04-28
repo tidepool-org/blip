@@ -56,9 +56,9 @@ export default (state = initialState, action) => {
     case types.CONFIRM_PASSWORD_RESET_REQUEST:
     case types.ACCEPT_TERMS_REQUEST:
     case types.RESEND_EMAIL_VERIFICATION_REQUEST:
-    case types.CREATE_PATIENT_REQUEST:
-    case types.REMOVE_PATIENT_REQUEST:
-    case types.REMOVE_MEMBER_REQUEST:
+    case types.SETUP_DATA_STORAGE_REQUEST:
+    case types.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST:
+    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST:
     case types.REQUEST_PASSWORD_RESET_REQUEST:
     case types.SEND_INVITE_REQUEST:
     case types.CANCEL_SENT_INVITE_REQUEST:
@@ -100,9 +100,9 @@ export default (state = initialState, action) => {
     case types.CONFIRM_PASSWORD_RESET_SUCCESS:
     case types.ACCEPT_TERMS_SUCCESS:
     case types.RESEND_EMAIL_VERIFICATION_SUCCESS:
-    case types.CREATE_PATIENT_SUCCESS:
-    case types.REMOVE_PATIENT_SUCCESS:
-    case types.REMOVE_MEMBER_SUCCESS:
+    case types.SETUP_DATA_STORAGE_SUCCESS:
+    case types.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS:
+    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
     case types.REQUEST_PASSWORD_RESET_SUCCESS:
     case types.SEND_INVITE_SUCCESS:
     case types.CANCEL_SENT_INVITE_SUCCESS:
@@ -143,9 +143,9 @@ export default (state = initialState, action) => {
     case types.CONFIRM_PASSWORD_RESET_FAILURE:
     case types.ACCEPT_TERMS_FAILURE:
     case types.RESEND_EMAIL_VERIFICATION_FAILURE:
-    case types.CREATE_PATIENT_FAILURE:
-    case types.REMOVE_PATIENT_FAILURE:
-    case types.REMOVE_MEMBER_FAILURE:
+    case types.SETUP_DATA_STORAGE_FAILURE:
+    case types.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE:
+    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE:
     case types.REQUEST_PASSWORD_RESET_FAILURE:
     case types.SEND_INVITE_FAILURE:
     case types.CANCEL_SENT_INVITE_FAILURE:

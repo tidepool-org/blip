@@ -25,11 +25,11 @@ import _ from 'lodash';
 
 import mutationTracker from 'object-invariant-test-helper';
 
-import { memberInOtherCareTeams as reducer } from '../../../../app/redux/reducers/misc';
+import { membershipInOtherCareTeams as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
-import { memberInOtherCareTeams as initialState } from '../../../../app/redux/reducers/initialState';
+import { membershipInOtherCareTeams as initialState } from '../../../../app/redux/reducers/initialState';
 let tracked = mutationTracker.trackObj(initialState);
 
 var expect = chai.expect;
@@ -52,14 +52,14 @@ describe('memberInOtherCareTeams', () => {
     });
   });
 
-  describe('removePatientSuccess', () => {
+  describe('removeMembershipInOtherCareTeamSuccess', () => {
     it('should remove member from hash map', () => {
       let patientId = 'x1y2z3';
 
       let initialStateForTest = [ 'a1b2c3', 'd4e5f6', 'x1y2z3' ];
       let tracked = mutationTracker.trackObj(initialStateForTest);
       
-      let action = actions.sync.removePatientSuccess(patientId);
+      let action = actions.sync.removeMembershipInOtherCareTeamSuccess(patientId);
 
       let state = reducer(initialStateForTest, action);
 

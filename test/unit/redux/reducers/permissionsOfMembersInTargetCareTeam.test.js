@@ -36,7 +36,7 @@ import { notification as initialState } from '../../../../app/redux/reducers/ini
 var expect = chai.expect;
 
 describe('permissionsOfMembersInTargetCareTeam', () => {
-  describe('createPatientSuccess', () => {
+  describe('setupDataStorageSuccess', () => {
     it('should set root perms for newly create target patient', () => {
       const userid = 'a1b2c3';
       const patient = {};
@@ -44,7 +44,7 @@ describe('permissionsOfMembersInTargetCareTeam', () => {
       let initialStateForTest = {};
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.createPatientSuccess(userid, patient);
+      let action = actions.sync.setupDataStorageSuccess(userid, patient);
 
       let state = reducer(initialStateForTest, action);
 
@@ -181,7 +181,7 @@ describe('permissionsOfMembersInTargetCareTeam', () => {
     });
   });
 
-  describe('removeMemberSuccess', () => {
+  describe('removeMemberFromTargetCareTeamSuccess', () => {
     it('should remove member from hash map', () => {
       let patientId = 'a1b2c3';
 
@@ -191,7 +191,7 @@ describe('permissionsOfMembersInTargetCareTeam', () => {
       };
       let tracked = mutationTracker.trackObj(initialStateForTest);
       
-      let action = actions.sync.removeMemberSuccess(patientId);
+      let action = actions.sync.removeMemberFromTargetCareTeamSuccess(patientId);
 
       let state = reducer(initialStateForTest, action);
 

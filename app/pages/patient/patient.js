@@ -191,11 +191,17 @@ const Patient = React.createClass({
     );
   },
 
-  doFetching: function(nextProps) {
-    if (this.props.trackMetric) {
-      this.props.trackMetric('Viewed Share');
+  componentDidMount: function() {
+    if (this.props.trackMetric) { 
+      if (this.props.shareOnly) {
+        this.props.trackMetric('Viewed Share');
+      } else {
+        this.props.trackMetric('Viewed Profile')
+      }
     }
+  },
 
+  doFetching: function(nextProps) {
     if (!nextProps.fetchers) {
       return
     }

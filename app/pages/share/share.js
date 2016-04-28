@@ -57,7 +57,7 @@ export function mapStateToProps(state) {
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     pendingSentInvites: state.blip.pendingSentInvites,
     changingMemberPermissions: state.blip.working.settingMemberPermissions.inProgress,
-    removingMember: state.blip.working.removingMember.inProgress,
+    removingMember: state.blip.working.removingMemberFromTargetCareTeam.inProgress,
     invitingMemberInfo: state.blip.working.sendingInvite,
     cancellingInvite: state.blip.working.cancellingSentInvite.inProgress
   };
@@ -67,7 +67,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   acknowledgeNotification: actions.sync.acknowledgeNotification,
   updatePatient: actions.async.updatePatient,
   changeMemberPermissions: actions.async.setMemberPermissions,
-  removeMember: actions.async.removeMember,
+  removeMember: actions.async.removeMemberFromTargetCareTeam,
   inviteMember: actions.async.sendInvite,
   cancelInvite: actions.async.cancelSentInvite,
   fetchPatient: actions.async.fetchPatient,

@@ -72,6 +72,10 @@ describe('PeopleList', function () {
           }
         }, {
           profile: {
+            fullName: 'amanda jones'
+          }
+        }, {
+          profile: {
             fullName: 'Anna Zork'
           }
         }]
@@ -80,13 +84,61 @@ describe('PeopleList', function () {
       var elem = TestUtils.renderIntoDocument(listElem);
       var renderedDOM = ReactDOM.findDOMNode(elem);
       var fullNames = renderedDOM.querySelectorAll('.patientcard-fullname');
-      expect(fullNames.length).to.equal(4);
+      expect(fullNames.length).to.equal(5);
       expect(fullNames[0].title).to.equal('Zoe Doe');
-      expect(fullNames[1].title).to.equal('Anna Zork');
-      expect(fullNames[2].title).to.equal('John Doe');
-      expect(fullNames[3].title).to.equal('Tucker Doe');
+      expect(fullNames[1].title).to.equal('amanda jones');
+      expect(fullNames[2].title).to.equal('Anna Zork');
+      expect(fullNames[3].title).to.equal('John Doe');
+      expect(fullNames[4].title).to.equal('Tucker Doe');
     });
 
+    it('should use a patients fullName to sort if present and isOtherPerson', function() {
+      var props = {
+        people: [{
+          profile: {
+            fullName: 'Zoe Doe',
+          },
+          permissions: {
+            root: {}
+          }
+        }, {
+          profile: {
+            fullName: 'Professor Snape',
+            patient: {
+              fullName: 'Alan Rickman',
+              isOtherPerson: true
+            }
+          }
+        }, {
+          profile: {
+            fullName: 'John Doe'
+          }
+        }, {
+          profile: {
+            fullName: 'Anna Zork'
+          }
+        },
+        {
+          profile: {
+            fullName: 'Bruce Wayne',
+            patient: {
+              fullName: 'Christian Bale',
+              isOtherPerson: true
+            }
+          }
+        }]
+      };
+      var listElem = React.createElement(PeopleList, props);
+      var elem = TestUtils.renderIntoDocument(listElem);
+      var renderedDOM = ReactDOM.findDOMNode(elem);
+      var fullNames = renderedDOM.querySelectorAll('.patientcard-fullname');
+      expect(fullNames.length).to.equal(5);
+      expect(fullNames[0].title).to.equal('Zoe Doe');
+      expect(fullNames[1].title).to.equal('Alan Rickman');
+      expect(fullNames[2].title).to.equal('Anna Zork');
+      expect(fullNames[3].title).to.equal('Christian Bale');
+      expect(fullNames[4].title).to.equal('John Doe');
+    });
 
 
     it('should be sorted by fullName, no logged-in user present (b/c not data storage acct)', function() {

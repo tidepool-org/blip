@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.12.4",
+  "version": "0.12.10",
   "private": true,
   "scripts": {
     "test": "./node_modules/karma/bin/karma start",
@@ -20,6 +20,7 @@
     "async": "1.5.2",
     "babel-core": "5.8.38",
     "babel-loader": "5.4.0",
+    "babel-runtime": "5.8.38",
     "bows": "1.5.0",
     "classnames": "2.2.3",
     "crossfilter": "1.3.12",
@@ -51,15 +52,14 @@
     "shelljs": "0.6.0",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "0.4.10",
-    "tidepool-platform-client": "0.23.0",
+    "tideline": "0.4.12",
+    "tidepool-platform-client": "0.23.1",
     "url-loader": "0.5.7",
     "webpack": "1.12.14"
   },
   "devDependencies": {
     "babel-eslint": "5.0.4",
     "babel-plugin-rewire": "0.1.12",
-    "babel-runtime": "5.8.38",
     "chai": "3.5.0",
     "chromedriver": "2.21.2",
     "eslint": "2.2.0",
@@ -86,7 +86,7 @@
     "redux-devtools": "3.1.1",
     "redux-devtools-dock-monitor": "1.1.1",
     "redux-devtools-log-monitor": "1.0.9",
-    "redux-mock-store": "0.0.6",
+    "redux-mock-store": "1.0.2",
     "rewire": "2.5.1",
     "rewire-webpack": "1.0.1",
     "salinity": "0.0.8",

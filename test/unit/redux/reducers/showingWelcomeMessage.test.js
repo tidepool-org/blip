@@ -42,9 +42,9 @@ describe('showingWelcomeMessage', () => {
 
       expect(state).to.be.true;
 
-      let state = reducer(null, action);
+      let nextState = reducer(null, action);
 
-      expect(state).to.be.true;
+      expect(nextState).to.be.true;
     });
   });
 
@@ -58,9 +58,9 @@ describe('showingWelcomeMessage', () => {
 
       expect(state).to.be.false;
 
-      let state = reducer(null, action);
+      let nextState = reducer(null, action);
 
-      expect(state).to.be.true;
+      expect(nextState).to.be.false;
     });
   });
 });

@@ -77,10 +77,10 @@ describe('UserProfile', function () {
       var render = TestUtils.renderIntoDocument(elem);
       var backButton = TestUtils.findRenderedDOMComponentWithClass(render, 'js-back');
 
-      expect(props.trackMetric.callCount).to.equal(0);
+      expect(props.trackMetric.callCount).to.equal(1);
       expect(props.history.goBack.callCount).to.equal(0);
       TestUtils.Simulate.click(backButton);
-      expect(props.trackMetric.callCount).to.equal(1);
+      expect(props.trackMetric.callCount).to.equal(2);
       expect(props.history.goBack.callCount).to.equal(1);
     });
   });

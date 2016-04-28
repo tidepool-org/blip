@@ -82,6 +82,12 @@ export let PatientNew = React.createClass({
     };
   },
 
+  componentDidMount: function() {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('Viewed Profile Create');
+    }
+  },
+
   componentWillReceiveProps: function(nextProps) {
     this.setState({
       formValues: _.assign(this.state.formValues, {
@@ -382,19 +388,19 @@ export function mapStateToProps(state) {
   return {
     user: user,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
-    working: state.blip.working.creatingPatient.inProgress,
-    notification: state.blip.working.creatingPatient.notification
+    working: state.blip.working.settingUpDataStorage.inProgress,
+    notification: state.blip.working.settingUpDataStorage.notification
   };
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  createPatient: actions.async.createPatient
+  setupDataStorage: actions.async.setupDataStorage
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, {
-    onSubmit: dispatchProps.createPatient.bind(null, api),
+    onSubmit: dispatchProps.setupDataStorage.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });
 };

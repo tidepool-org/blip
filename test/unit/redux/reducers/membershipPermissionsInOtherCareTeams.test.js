@@ -86,7 +86,7 @@ describe('membershipPermissionsInOtherCareTeams', () => {
     });
   });
 
-  describe('removePatientSuccess', () => {
+  describe('removeMembershipInOtherCareTeamSuccess', () => {
     it('should remove membership from hash map', () => {
       let patientId = 'a1b2c3';
 
@@ -98,7 +98,7 @@ describe('membershipPermissionsInOtherCareTeams', () => {
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
       
-      let action = actions.sync.removePatientSuccess(patientId);
+      let action = actions.sync.removeMembershipInOtherCareTeamSuccess(patientId);
 
       let state = reducer(initialStateForTest, action);
 
