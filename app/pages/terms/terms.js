@@ -14,12 +14,33 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 import React  from 'react';
-import LoginNav from '../../components/loginnav';
-
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import LoginNav from '../../components/loginnav';
+import utils  from '../../core/utils';
 import * as actions from '../../redux/actions';
+
+const TERMS_OF_USE_FULL_LINK = 'https://tidepool.org/terms-of-use';
+const TERMS_OF_USE_SUMMARY_LINK = 'https://tidepool.org/terms-of-use-summary';
+const PRIVACY_POLICY_FULL_LINK = 'https://tidepool.org/privacy-policy';
+const PRIVACY_POLICY_SUMMARY_LINK = 'https://tidepool.org/privacy-policy-summary';
+
+const ACCEPT_OF_AGE_NORMAL = <span>
+  I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy
+</span>;
+
+const ACCEPT_OF_AGE_MOBILE = <span>
+  I am 18 or older and I accept the terms of the <a href={TERMS_OF_USE_FULL_LINK} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={PRIVACY_POLICY_FULL_LINK} target='_blank'>Privacy Policy</a>
+</span>;
+
+const ACCEPT_ON_BEHALF_NORMAL = <span>
+  I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the Tidepool Applications Terms of Use and Privacy Policy
+</span>;
+
+const ACCEPT_ON_BEHALF_MOBILE = <span>
+  I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the <a href={TERMS_OF_USE_FULL_LINK} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={PRIVACY_POLICY_FULL_LINK} target='_blank'>Privacy Policy</a>
+</span>;
 
 export class Terms extends React.Component {
   static propTypes = {
@@ -38,8 +59,8 @@ export class Terms extends React.Component {
       NOT_OF_AGE: {value: '<=12', label: ' I am 12 years old or younger.'}
     },
     messages: {
-      ACCEPT_OF_AGE: 'I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy',
-      ACCEPT_ON_BEHALF: 'I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the Tidepool Applications Terms of Use and Privacy Policy',
+      ACCEPT_OF_AGE: (utils.isMobile()) ? ACCEPT_OF_AGE_MOBILE : ACCEPT_OF_AGE_NORMAL,
+      ACCEPT_ON_BEHALF: (utils.isMobile()) ? ACCEPT_ON_BEHALF_MOBILE : ACCEPT_ON_BEHALF_NORMAL,
       SORRY_NOT_OF_AGE: 'We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.'
     }
   };
@@ -109,19 +130,29 @@ export class Terms extends React.Component {
   }
 
   renderTermsAndPrivacyStep() {
-    var terms = this.websiteTerms();
-    var privacy = this.websitePrivacy();
+    var title = this.renderTitle();
+    var terms = this.renderWebsiteTerms();
+    var privacy = this.renderWebsitePrivacy();
     var termsForm = this.renderTermsForm();
 
     return (
       <div ref='acceptTermsStep'>
-        <div className='terms-title'>TERMS OF USE</div>
+        {title}
         {terms}
-        <div className='privacy-title'>PRIVACY POLICY</div>
         {privacy}
         {termsForm}
       </div>
     );
+  }
+
+  renderTitle() {
+    if (!utils.isMobile() || !this.props.authenticated || this.props.termsAccepted) {
+      return null;
+    }
+
+    return <div className='terms-title'>
+      Tidepool Applications Terms of Use and Privacy Policy
+    </div>;
   }
 
   renderTermsForm() {
@@ -226,10 +257,17 @@ export class Terms extends React.Component {
 
   }
 
-  websiteTerms() {
+  renderWebsiteTerms() {
+    if (utils.isMobile()) {
+      if (this.props.authenticated && !this.props.termsAccepted) {
+        return null;
+      }
+      return <a className='terms-link' href={TERMS_OF_USE_FULL_LINK} target='_blank'>Tidepool Application Terms of Use</a>
+    }
+
     var iframe = React.DOM.iframe({
       className         : 'terms-iframe-terms',
-      src               : 'https://tidepool.org/terms-of-use-summary',
+      src               : TERMS_OF_USE_SUMMARY_LINK,
       frameBorder       : '0',
       allowTransparency : 'true'
     });
@@ -239,10 +277,17 @@ export class Terms extends React.Component {
     </div>;
   }
 
-  websitePrivacy() {
+  renderWebsitePrivacy() {
+    if (utils.isMobile()) {
+      if (this.props.authenticated && !this.props.termsAccepted) {
+        return null;
+      }
+      return <a className='terms-link' href={PRIVACY_POLICY_FULL_LINK} target='_blank'>Privacy</a>
+    }
+
     var iframe = React.DOM.iframe({
       className         : 'terms-iframe-privacy',
-      src               : 'https://tidepool.org/privacy-policy-summary',
+      src               : PRIVACY_POLICY_SUMMARY_LINK,
       frameBorder       : '0',
       allowTransparency : 'true'
     });
