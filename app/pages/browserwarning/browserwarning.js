@@ -1,6 +1,5 @@
-
 /**
- * Copyright (c) 2014, Tidepool Project
+ * Copyright (c) 2016, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -14,52 +13,36 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
+import React, { PropTypes, Component } from 'react'
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var utils = require('../../core/utils');
+import cx from 'classnames';
 
-var BrowserWarning = React.createClass({
-  render: function() {
-    var self = this;
-    var downloadCopy = <div className="browser-warning-chrome-image"></div>;
+import BrowserWarningComponent from '../../components/browserwarning';
 
-    if (!utils.isMobile()) {
-      downloadCopy = (<div>
-        <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html">
-          <div className="browser-warning-chrome-image"></div>
-        </a>
-        <div className="browser-warning-text">
-          <span className="dark-text">Copy and paste</span>
-          <input type="text" className="blip-link-text" value="blip.tidepool.org"></input>
-          <span className="dark-text">into Chrome.</span>
-        </div>
-        <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>Copy link</button>
-        <div className="browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html">here</a></div>
-      </div>);
+export class BrowserWarning extends Component {
+  static propTypes = {
+    authenticated: PropTypes.bool.isRequired
+  };
+
+  render() {
+    var classes = {
+      'container-box-outer': true, 
+      'browser-warning-logged-out': !this.props.authenticated
     }
-
-    
-    return (
-      <div className="browser-warning js-terms">
-        <div className="browser-warning-content browser-warning-box">
-          <h1 className="browser-warning-title">Blip's visualization is only certified to work on Chrome browser on a computer.</h1>
-          {downloadCopy}
-        </div>
+    return <div className={cx(classes)}>
+      <div className="browser-warning-container">
+        <BrowserWarningComponent />
       </div>
-    );
-  },
-
-  copyText: function() {
-    var copyText = document.querySelector('.blip-link-text');
-    copyText.select();
-
-    try {
-      var copyCmd = document.execCommand('copy');
-      copyText.setSelectionRange(0,0);
-    } catch (err) {
-      console.log('Unable to copy');
-    }
+    </div>;
   }
-});
+}
 
-module.exports = BrowserWarning;
+export function mapStateToProps(state) {
+  return {
+    authenticated: state.blip.isLoggedIn
+  };
+}
+
+export default connect(mapStateToProps)(BrowserWarning);

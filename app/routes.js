@@ -35,7 +35,6 @@ export const requiresChrome = (utils, next) => (nextState, replace, cb)  => {
     replace('/browser-warning');
     return (!!cb) ? cb() : true;
   } else {
-    console.log('next', next);
     if (next) {
       next(nextState, replace, cb);
     }

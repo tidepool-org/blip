@@ -1,0 +1,103 @@
+/**
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+@browser-warning-zindex:       @zindex-overlay-background;
+@browser-warning-text-zindex:  @zindex-overlay;
+@browser-warning-box-width:    530px;
+
+@blue-color: #6078ff;
+@grey-color: #837995;
+@dark-blue-color: #281747;
+@white-color: #ffffff;
+
+.browser-warning {
+  background: #fff;
+  margin: 30px auto;
+  width: @browser-warning-box-width;
+  overflow-y: scroll;
+
+  @media (max-width: @browser-warning-box-width) {
+    width: 100%;
+  }
+}
+
+.browser-warning-box {
+  margin-right: auto;
+  margin-left: auto;
+  padding-left: @spacing-small;
+  padding-right: @spacing-small;
+  text-align: center;
+
+  @media(min-width: @browser-warning-box-width) {
+    width: @browser-warning-box-width;
+  }
+
+  .browser-warning-title {
+    font-size: 18px;
+    line-height: 20px;
+    font-weight: 600;
+    color: @dark-blue-color;
+    margin-bottom: @spacing-large;
+    text-align: center;
+  }
+
+  .browser-warning-text {
+    text-align: center;
+
+    .blip-link-text {
+      border: none;
+      margin: 0 5px;
+      text-align: center;
+      color: @grey-color;
+      width: 130px;
+    }
+
+    .dark-text {
+      color: @dark-blue-color;
+      font-weight: 600;
+    }
+
+    margin-bottom: 30px;
+  }
+
+  .browser-warning-copy-button {
+    background-color: @blue-color;
+    color: @white-color;
+    font-weight: 600;
+    padding: 10px 30px;
+    border-radius: 2px;
+    border: none;
+    margin: 0 auto 20px;
+  }
+
+  .browser-warning-download-text {
+    font-size: 14px;
+    color: @dark-blue-color;
+    font-weight: 500;
+
+    a {
+      color: @blue-color;
+    }
+  }
+
+  .browser-warning-chrome-image {
+    background: url('chrome-logo.png') no-repeat;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 30px;
+
+    background-size: cover;
+  }
+}
