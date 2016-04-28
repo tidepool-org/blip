@@ -227,23 +227,31 @@ export class Terms extends React.Component {
   }
 
   websiteTerms() {
-    return React.DOM.iframe({
+    var iframe = React.DOM.iframe({
       className         : 'terms-iframe-terms',
       src               : 'https://tidepool.org/terms-of-use-summary',
       scrolling         : 'no',
       frameBorder       : '0',
       allowTransparency : 'true'
     });
+
+    return <div className='iframe-holder'>
+      {iframe}
+    </div>;
   }
 
   websitePrivacy() {
-    return React.DOM.iframe({
+    var iframe = React.DOM.iframe({
       className         : 'terms-iframe-privacy',
       src               : 'https://tidepool.org/privacy-policy-summary',
       scrolling         : 'no',
       frameBorder       : '0',
       allowTransparency : 'true'
     });
+
+    return <div className='iframe-holder'>
+      {iframe}
+    </div>;
   }
 
   handleBack(e) {
