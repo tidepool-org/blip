@@ -35,7 +35,6 @@ import LogoutOverlay from '../../components/logoutoverlay';
 import BrowserWarningOverlay from '../../components/browserwarningoverlay';
 import TidepoolNotification from '../../components/notification';
 import MailTo from '../../components/mailto';
-import NotesLink from '../../components/noteslink';
 
 // Styles
 require('tideline/css/tideline.less');
