@@ -80,7 +80,7 @@ module.exports = function (common, deps) {
           return cb(err);
         }
         if (res.status !== 200) {
-          return cb({status:res.status,message:res.body.reason});
+          return cb({status:res.status, error:res.body.error, message:res.body.reason});
         }
         return cb();
       });
