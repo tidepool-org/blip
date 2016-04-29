@@ -153,8 +153,8 @@ export let VerificationWithPassword = React.createClass({
   validateFormValues: function(formValues) {
     var form = [
       { type: 'date', name: 'birthday', label: 'birthday', value: formValues.birthday },
-      { type: 'password', name: 'password', label: 'password', values: formValues.password},
-      { type: 'confirmPassword', name: 'confirmPassword', label: 'confirm password', values: formValues.confirmPassword, prerequisites: { password: formValues.password } }
+      { type: 'password', name: 'password', label: 'password', value: formValues.password},
+      { type: 'confirmPassword', name: 'passwordConfirm', label: 'confirm password', value: formValues.passwordConfirm, prerequisites: { password: formValues.password } }
     ];
     var validationErrors = validateForm(form);
 
