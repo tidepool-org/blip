@@ -245,7 +245,6 @@ var InputGroup = React.createClass({
   handleChange: function(e) {
     var target = e.target || e;
 
-    console.log(e, target);
     var attributes = {
       name: target.name,
       value: target.value
