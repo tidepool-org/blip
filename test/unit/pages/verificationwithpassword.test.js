@@ -16,7 +16,7 @@ describe('VerificationWithPassword', () => {
   });
 
   describe('render', function() {
-    it('should render with 8 warnings when no props provided', function () {
+    it('should render with 9 warnings when no props provided', function () {
       console.error = sinon.stub();
       let props = {};
       let elem = React.createElement(VerificationWithPassword, props);
@@ -29,7 +29,7 @@ describe('VerificationWithPassword', () => {
       let props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
-        configuredInviteKey: 'foo',
+        signupEmail: 'g@a.com',
         signupKey: 'bar',
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
@@ -43,10 +43,11 @@ describe('VerificationWithPassword', () => {
 
   describe('getInitialState', () => {
     it('should return an Object that matches expectedInitialState', () => {
+      console.error = sinon.stub();
       let props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
-        configuredInviteKey: 'foo',
+        signupEmail: 'g@a.com',
         signupKey: 'bar',
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
@@ -65,53 +66,24 @@ describe('VerificationWithPassword', () => {
 
       expect(render.getInitialState()).to.eql(expectedInitialState);
     });
-
-    it('should return an Object that matches expectedInitialState with inviteEmail when set in props', () => {
-      let props = {
-        acknowledgeNotification: sinon.stub(),
-        api: {},
-        configuredInviteKey: 'foo',
-        signupKey: 'bar',
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false,
-        inviteEmail: 'bill@ted.com'
-      }
-      let expectedInitialState = {
-        loading: true,
-        formValues: {
-          username: props.inviteEmail
-        },
-        validationErrors: {},
-        notification: null
-      };
-
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
-      expect(console.error.callCount).to.equal(0);
-
-      expect(render.getInitialState()).to.eql(expectedInitialState);
-    });
   });
 
 
   describe('handleInputChange', () => {
     it('should update formValues in state with changed value', () => {
+      console.error = sinon.stub();
       let props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
-        configuredInviteKey: 'foo',
+        signupEmail: 'g@a.com',
         signupKey: 'bar',
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
-        working: false,
-        inviteEmail: 'bill@ted.com'
+        working: false
       }
       let expectedInitialState = {
         loading: true,
-        formValues: {
-          username: props.inviteEmail
-        },
+        formValues: {},
         validationErrors: {},
         notification: null
       };
@@ -121,18 +93,19 @@ describe('VerificationWithPassword', () => {
 
       expect(render.getInitialState()).to.eql(expectedInitialState);
 
-      render.handleInputChange({name: 'username', value: 'dean@frank.co.uk'});
+      render.handleInputChange({name: 'password', value: 'foo'});
 
-      expect(render.state.formValues.username).to.equal('dean@frank.co.uk');
+      expect(render.state.formValues.password).to.equal('foo');
     });
   });
 
   describe('resetFormStateBeforeSubmit', () => {
     it('should update state ith supplied formValues and empty validation errors and notification', () => {
+      console.error = sinon.stub();
       let props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
-        configuredInviteKey: 'foo',
+        signupEmail: 'g@a.com',
         signupKey: 'bar',
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
@@ -179,8 +152,7 @@ describe('VerificationWithPassword', () => {
             notification: null,
             inProgress: false
           }
-        },
-        signupKey: 'foobar'
+        }
       }
     };
     
@@ -188,12 +160,15 @@ describe('VerificationWithPassword', () => {
       assert.isFunction(mapStateToProps);
     });
 
-    it('should return object with notification, signupKey and working populated', () => {
+    it('should return object with notification and working populated', () => {
       let mapped = mapStateToProps(state);
 
       expect(mapped.notification).to.equal(state.blip.working.verifyingCustodial.notification);
       expect(mapped.working).to.equal(state.blip.working.verifyingCustodial.inProgress);
-      expect(mapped.signupKey).to.equal(state.blip.signupKey);
     });
+  });
+
+  describe('isFormDisabled', () => {
+    
   });
 });

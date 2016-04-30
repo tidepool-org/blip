@@ -39,10 +39,8 @@ export let VerificationWithPassword = React.createClass({
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
     api: React.PropTypes.object.isRequired,
-    configuredInviteKey: React.PropTypes.string.isRequired,
-    inviteEmail: React.PropTypes.string,
-    inviteKey: React.PropTypes.string,
     notification: React.PropTypes.object,
+    signupEmail: React.PropTypes.string.isRequired,
     signupKey: React.PropTypes.string.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -63,10 +61,6 @@ export let VerificationWithPassword = React.createClass({
 
   getInitialState: function() {
     var formValues = {};
-
-    if (this.props.inviteEmail) {
-      formValues.username = this.props.inviteEmail;
-    }
 
     return {
       loading: true,
@@ -92,7 +86,6 @@ export let VerificationWithPassword = React.createClass({
       <div className="VerificationWithPassword">
         <LoginNav
           page="VerificationWithPassword"
-          hideLinks={Boolean(this.props.inviteEmail)}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
         <div className="container-small-outer VerificationWithPassword-form">
@@ -107,18 +100,6 @@ export let VerificationWithPassword = React.createClass({
               notification={this.state.notification || this.props.notification} />
           </div>
         </div>
-      </div>
-    );
-  },
-
-  renderInviteIntroduction: function() {
-    if (!this.props.inviteEmail) {
-      return null;
-    }
-
-    return (
-      <div className='VerificationWithPassword-inviteIntro'>
-        <p>{'You\'ve been invited to Blip.'}</p><p>{'Sign up to view the invitation.'}</p>
       </div>
     );
   },
@@ -139,7 +120,7 @@ export let VerificationWithPassword = React.createClass({
     }
 
     formValues = this.prepareFormValuesForSubmit(formValues);
-    this.props.onSubmit(this.props.api, this.props.signupKey, formValues.birthday, formValues.password);
+    this.props.onSubmit(this.props.api, this.props.signupKey, this.props.signupEmail, formValues.birthday, formValues.password);
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
@@ -184,10 +165,19 @@ export let VerificationWithPassword = React.createClass({
     this.setState({formValues: formValues});
   },
 
+  makeRawDateString: function(dateObj){
+
+    var mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
+    mm = (mm.length === 1) ? '0'+ mm : mm;
+    var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
+
+    return dateObj.year+'-'+mm+'-'+dd;
+  },
+
 
   prepareFormValuesForSubmit: function(formValues) {
     return {
-      birthday: formValues.birthday,
+      birthday: this.makeRawDateString(formValues.birthday),
       password: formValues.password
     };
   },
@@ -200,7 +190,6 @@ export let VerificationWithPassword = React.createClass({
 export function mapStateToProps(state) {
   return {
     notification: state.blip.working.verifyingCustodial.notification,
-    signupKey: state.blip.signupKey,
     working: state.blip.working.verifyingCustodial.inProgress
   };
 }
@@ -213,8 +202,8 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return Object.assign({}, stateProps, dispatchProps, {
     configuredInviteKey: config.INVITE_KEY,
-    inviteKey: utils.getInviteKey(ownProps.location),
-    inviteEmail: utils.getInviteEmail(ownProps.location),
+    signupEmail: utils.getSignupEmail(ownProps.location),
+    signupKey: utils.getSignupKey(ownProps.location),
     trackMetric: ownProps.routes[0].trackMetric,
     api: ownProps.routes[0].api,
   });

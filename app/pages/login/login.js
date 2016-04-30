@@ -216,7 +216,7 @@ export let Login = React.createClass({
 let getFetchers = (dispatchProps, ownProps, other, api) => {
   if (other.signupKey) {
     return [
-      dispatchProps.confirmSignup.bind(null, api, other.signupKey)
+      dispatchProps.confirmSignup.bind(null, api, other.signupKey, other.signupEmail)
     ];
   }
 
@@ -242,7 +242,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
   let api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, dispatchProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, { signupKey }, api),
+    fetchers: getFetchers(dispatchProps, ownProps, { signupKey, signupEmail: seedEmail }, api),
     isInvite: isInvite,
     seedEmail: seedEmail,
     trackMetric: ownProps.routes[0].trackMetric,

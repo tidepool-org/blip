@@ -73,7 +73,9 @@ const dateValidator = (fieldLabel, fieldValue, currentDateObj) => {
     return invalid(errors.incompleteDate(fieldLabel));
   }
 
-  dateString = `${fieldValue.month}-${fieldValue.day}-${fieldValue.year}`;
+  let month = parseInt(fieldValue.month, 10) + 1; // month is zero indexed
+
+  dateString = `${month}-${fieldValue.day}-${fieldValue.year}`;
   if (!sundial.isValidDateForMask(dateString, dateMask)) {
     return invalid(errors.invalidDate());
   }

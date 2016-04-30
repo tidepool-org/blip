@@ -68,8 +68,9 @@ export function signup(api, accountDetails) {
  *
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} signupKey
+ * @param  {String} signupEmail
  */
-export function confirmSignup(api, signupKey) {
+export function confirmSignup(api, signupKey, signupEmail) {
   return (dispatch) => {
     dispatch(sync.confirmSignupRequest());
 
@@ -78,8 +79,8 @@ export function confirmSignup(api, signupKey) {
         dispatch(sync.confirmSignupFailure(
           createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err, signupKey
         ));
-        if(err.status === 400){
-          dispatch(routeActions.push(`/verification-with-password?signupKey=${signupKey}`));
+        if (err.status === 409) {
+          dispatch(routeActions.push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
         }
       } else {
         dispatch(sync.confirmSignupSuccess())
@@ -93,19 +94,27 @@ export function confirmSignup(api, signupKey) {
  *
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} signupKey
+ * @param  {String} signupEmail
+ * @param  {String} birthday
+ * @param  {String} password
  */
-export function verifyCustodial
-(api, signupKey, birthday, password) {
+export function verifyCustodial(api, signupKey, signupEmail, birthday, password) {
   return (dispatch) => {
     dispatch(sync.verifyCustodialRequest());
-
     api.user.custodialConfirmSignUp(signupKey, birthday, password, function(err) {
       if (err) {
+        let errorMessage = ErrorMessages.ERR_CONFIRMING_SIGNUP;
+
+        if (err.error && ErrorMessages.VERIFY_CUSTODIAL_ERRORS[err.error]) {
+          errorMessage = ErrorMessages.VERIFY_CUSTODIAL_ERRORS[err.error];
+        }
+
         dispatch(sync.verifyCustodialFailure(
-          createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err, signupKey
+          createActionError(errorMessage, err), err, signupKey
         ));
       } else {
-        dispatch(sync.verifyCustodialSuccess())
+        dispatch(sync.verifyCustodialSuccess());
+        dispatch(login(api, {username: signupEmail, password: password}));
       }
     })
   };

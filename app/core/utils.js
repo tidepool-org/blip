@@ -165,8 +165,15 @@ utils.getSignupKey = function(location) {
 utils.getSignupEmail = function (location) {
   if (location && location.query) {
     let { signupEmail } = location.query;
-    if (!_.isEmpty(signupEmail) && utils.validateEmail(signupEmail)){
-      return signupEmail;
+    if (!_.isEmpty(signupEmail)) {
+      // all standard query string parsers transform + to a space
+      // so we reverse and swap spaces for +
+      // in order to allow e-mails with mutators (e.g., +skip) to pass waitlist
+      signupEmail = signupEmail.replace(/\s/, '+');
+
+      if (utils.validateEmail(signupEmail)) {
+        return signupEmail;
+      }
     }
   }
   return null;

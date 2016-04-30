@@ -334,7 +334,7 @@ describe('validation', () => {
       });
 
       it('should return invalid object when fieldValue is invalid date (invalid day)', () => {
-        var birthday = { day: '31', month: '2', year: '2002' };
+        var birthday = { day: '31', month: '1', year: '2002' };
         var response = validation.typeValidators.date('birthday', birthday);
 
         expect(response.valid).to.be.false;
@@ -425,7 +425,7 @@ describe('validation', () => {
       });
 
       it('should return invalid object when fieldValue is invalid date (invalid day)', () => {
-        var diagnosis = { day: '31', month: '2', year: '2002' };
+        var diagnosis = { day: '31', month: '1', year: '2002' };
         var response = validation.typeValidators.diagnosisDate('diagnosis date', diagnosis);
 
         expect(response.valid).to.be.false;

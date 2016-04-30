@@ -159,30 +159,31 @@ describe('Actions', () => {
         expect(api.user.confirmSignUp.callCount).to.equal(1);
       });
 
-      it('[400] should trigger CONFIRM_SIGNUP_FAILURE and it should call confirmSignup once for a failed request and redirect for password creation', () => {
+      it('[409] should trigger CONFIRM_SIGNUP_FAILURE and it should call confirmSignup once for a failed request and redirect for password creation', () => {
         let user = { id: 27 };
         let api = {
           user: {
-            confirmSignUp: sinon.stub().callsArgWith(1, {status: 400, message: 'User does not have a password'})
+            confirmSignUp: sinon.stub().callsArgWith(1, {status: 409, message: 'User does not have a password'})
           }
         };
 
         let err = new Error(ErrorMessages.ERR_CONFIRMING_SIGNUP);
-        err.status = 400;
+        err.status = 409;
 
         let expectedActions = [
           { type: 'CONFIRM_SIGNUP_REQUEST' },
-          { type: 'CONFIRM_SIGNUP_FAILURE', error: err, payload: { signupKey: 'fakeSignupKey' }, meta: { apiError: {status: 400, message: 'User does not have a password'} } },
-          { type: '@@router/TRANSITION', payload: { args: [ '/verification-with-password?signupKey=fakeSignupKey' ], method: 'push' } }
+          { type: 'CONFIRM_SIGNUP_FAILURE', error: err, payload: { signupKey: 'fakeSignupKey' }, meta: { apiError: {status: 409, message: 'User does not have a password'} } },
+          { type: '@@router/TRANSITION', payload: { args: [ '/verification-with-password?signupKey=fakeSignupKey&signupEmail=g@a.com' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
         let store = mockStore(initialState);
-        store.dispatch(async.confirmSignup(api, 'fakeSignupKey'));
+        store.dispatch(async.confirmSignup(api, 'fakeSignupKey', 'g@a.com'));
 
         const actions = store.getActions();
+        
         expect(actions).to.eql(expectedActions);
         expect(api.user.confirmSignUp.calledWith('fakeSignupKey')).to.be.true;
         expect(api.user.confirmSignUp.callCount).to.equal(1);
@@ -193,26 +194,34 @@ describe('Actions', () => {
       it('should trigger VERIFY_CUSTODIAL_SUCCESS and it should call verifyCustodial once for a successful request', () => {
         let user = { id: 27 };
         let key = 'fakeSignupKey';
+        let email = 'g@a.com';
         let birthday = '07/18/1988';
         let password = 'foobar01';
+        let creds = { username: email, password: password };
         let api = {
           user: {
-            custodialConfirmSignUp: sinon.stub().callsArgWith(3, null)
+            custodialConfirmSignUp: sinon.stub().callsArgWith(3, null),
+            login: sinon.stub().callsArgWith(2, null),
+            get: sinon.stub().callsArgWith(0, null, user)
           }
         };
 
         let expectedActions = [
           { type: 'VERIFY_CUSTODIAL_REQUEST' },
-          { type: 'VERIFY_CUSTODIAL_SUCCESS' }
+          { type: 'VERIFY_CUSTODIAL_SUCCESS' },
+          { type: 'LOGIN_REQUEST' },
+          { type: 'LOGIN_SUCCESS', payload: { user: user } },
+          { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore(initialState);
-        store.dispatch(async.verifyCustodial(api, key, birthday, password));
+        store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
+
         expect(api.user.custodialConfirmSignUp.calledWith(key, birthday, password)).to.be.true;
         expect(api.user.custodialConfirmSignUp.callCount).to.equal(1);
       });
@@ -220,6 +229,7 @@ describe('Actions', () => {
       it('should trigger VERIFY_CUSTODIAL_FAILURE and it should call verifyCustodial once for a failed request', () => {
         let user = { id: 27 };
         let key = 'fakeSignupKey';
+        let email = 'g@a.com';
         let birthday = '07/18/1988';
         let password = 'foobar01';
         let api = {
@@ -240,7 +250,7 @@ describe('Actions', () => {
         });
 
         let store = mockStore(initialState);
-        store.dispatch(async.verifyCustodial(api, key, birthday, password));
+        store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
