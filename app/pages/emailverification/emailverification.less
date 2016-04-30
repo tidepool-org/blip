@@ -13,17 +13,41 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+@breakWidth: 1000px;
+@sideMargin: 50px;
+
+.EmailVerification-intro {
+  margin: 0 auto;
+  width: @breakWidth;
+
+  @media (max-width: @breakWidth) {
+    width: 100%;
+  }
+}
+
 .EmailVerification-title {
   margin-bottom: 20px;
-  font-weight: bold;
   font-size: 20px;
   line-height: 1;
   text-align: center;
+  color: @purple-highcontrast;
+
+  @media (max-width: @breakWidth) {
+    margin-left: @sideMargin;
+    margin-right: @sideMargin;
+  }
 }
 
 .EmailVerification-instructions {
   margin-bottom: 20px;
+  font-size: 20px;
   text-align: center;
+  color: @purple-highcontrast;
+
+  @media (max-width: @breakWidth) {
+    margin-left: @sideMargin;
+    margin-right: @sideMargin;
+  }
 }
 
 .EmailVerification-resend-note {
