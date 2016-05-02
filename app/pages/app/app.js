@@ -19,7 +19,6 @@ import async from 'async';
 import sundial from 'sundial';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Link } from 'react-router';
 
 import * as actions from '../../redux/actions';
 
