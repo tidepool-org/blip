@@ -376,8 +376,11 @@ module.exports = function (config, deps) {
 
           if (err != null) {
             return cb(err);
+          } else if (res.error != null) {
+            return cb(res.error);
           } else if (res.status !== 201) {
-            return cb(res.body);
+            var errText = 'Unexpected HTTP response: ' + res.status;
+            return cb(new Error(errText));
           }
 
           return cb(null, res.body);
