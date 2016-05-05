@@ -24,7 +24,7 @@ export default class BrowserWarning extends Component {
 
     if (!utils.isMobile()) {
       downloadCopy = (<div>
-        <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html">
+        <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" target="_blank">
           <div className="browser-warning-chrome-image"></div>
         </a>
         <div className="browser-warning-text">
@@ -33,7 +33,7 @@ export default class BrowserWarning extends Component {
           <span className="dark-text">into Chrome.</span>
         </div>
         <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>Copy link</button>
-        <div className="browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html">here</a></div>
+        <div className="browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" target="_blank">here</a></div>
       </div>);
     }
 
@@ -54,9 +54,8 @@ export default class BrowserWarning extends Component {
 
     try {
       var copyCmd = document.execCommand('copy');
-      copyText.setSelectionRange(0,0);
     } catch (err) {
-      console.log('Unable to copy');
+      console.log('Unable to copy - unsupported browser');
     }
   }
 }
