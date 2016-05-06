@@ -373,10 +373,11 @@ module.exports = function (config, deps) {
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
         .end(
         function (err, res) {
+          console.log("err", err, "res", res);
 
           if (err != null) {
             return cb(err);
-          } else if (res.error != null) {
+          } else if (res.error === true) {
             if(_.isObject(res.body)) {
               return cb(res.body); // for our custom error arrays
             } else {
