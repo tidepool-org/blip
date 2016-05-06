@@ -26,19 +26,11 @@ const TERMS_OF_USE_SUMMARY_LINK = 'https://tidepool.org/terms-of-use-summary';
 const PRIVACY_POLICY_FULL_LINK = 'https://tidepool.org/privacy-policy';
 const PRIVACY_POLICY_SUMMARY_LINK = 'https://tidepool.org/privacy-policy-summary';
 
-const ACCEPT_OF_AGE_NORMAL = <span>
-  I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy
-</span>;
-
-const ACCEPT_OF_AGE_MOBILE = <span>
+const ACCEPT_OF_AGE = <span>
   I am 18 or older and I accept the terms of the <a href={TERMS_OF_USE_FULL_LINK} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={PRIVACY_POLICY_FULL_LINK} target='_blank'>Privacy Policy</a>
 </span>;
 
-const ACCEPT_ON_BEHALF_NORMAL = <span>
-  I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the Tidepool Applications Terms of Use and Privacy Policy
-</span>;
-
-const ACCEPT_ON_BEHALF_MOBILE = <span>
+const ACCEPT_ON_BEHALF = <span>
   I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the <a href={TERMS_OF_USE_FULL_LINK} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={PRIVACY_POLICY_FULL_LINK} target='_blank'>Privacy Policy</a>
 </span>;
 
@@ -59,8 +51,8 @@ export class Terms extends React.Component {
       NOT_OF_AGE: {value: '<=12', label: ' I am 12 years old or younger.'}
     },
     messages: {
-      ACCEPT_OF_AGE: (utils.isMobile()) ? ACCEPT_OF_AGE_MOBILE : ACCEPT_OF_AGE_NORMAL,
-      ACCEPT_ON_BEHALF: (utils.isMobile()) ? ACCEPT_ON_BEHALF_MOBILE : ACCEPT_ON_BEHALF_NORMAL,
+      ACCEPT_OF_AGE: ACCEPT_OF_AGE,
+      ACCEPT_ON_BEHALF:  ACCEPT_ON_BEHALF,
       SORRY_NOT_OF_AGE: 'We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.'
     }
   };
