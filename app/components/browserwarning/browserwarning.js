@@ -57,7 +57,7 @@ export default class BrowserWarning extends Component {
     return (
       <div className="browser-warning js-terms">
         <div className="browser-warning-content browser-warning-box">
-          <h1 className="browser-warning-title">Blip's visualization is only certified to work on Chrome browser on a computer.</h1>
+          <h1 className="browser-warning-title">Blip's visualizations are only certified to work in the Chrome browser, and on Mac or PC.</h1>
           {downloadCopy}
         </div>
       </div>
