@@ -50,10 +50,10 @@ export default class BrowserWarning extends Component {
           <span className="dark-text">into Chrome.</span>
         </div>
         {copyButton}
-        <div className="browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" target="_blank">here</a></div>
+        <div className="browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" target="_blank">here</a>.</div>
       </div>);
     }
-    
+
     return (
       <div className="browser-warning js-terms">
         <div className="browser-warning-content browser-warning-box">
