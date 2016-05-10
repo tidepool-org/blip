@@ -115,9 +115,13 @@ describe('Terms', () => {
       var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
       TestUtils.Simulate.click(ageBtn);
 
-      var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe');
-      expect(iframes).not.to.equal(null);
-      expect(iframes.length).to.equal(2);
+      var termsIframe = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe-terms');
+      expect(termsIframe).not.to.equal(null);
+      expect(termsIframe.length).to.equal(1);
+
+      var privacyIframe = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe-privacy');
+      expect(privacyIframe).not.to.equal(null);
+      expect(privacyIframe.length).to.equal(1);
     });
 
     describe('flow for 18 and over login', () => {
@@ -133,14 +137,18 @@ describe('Terms', () => {
         expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.OF_AGE.value);
 
         // iframes shown with TOU and PP
-        var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe');
-        expect(iframes).not.to.equal(null);
-        expect(iframes.length).to.equal(2);
+        var termsIframe = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe-terms');
+        expect(termsIframe).not.to.equal(null);
+        expect(termsIframe.length).to.equal(1);
 
-        var termsDetails = iframes[0];
-        expect(termsDetails.props.src).to.equal('https://tidepool.org/terms-of-use/');
-        var privacyDetails = iframes[1];
-        expect(privacyDetails.props.src).to.equal('https://tidepool.org/privacy-policy/');
+        var privacyIframe = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe-privacy');
+        expect(privacyIframe).not.to.equal(null);
+        expect(privacyIframe.length).to.equal(1);
+
+        var termsDetails = termsIframe[0];
+        expect(termsDetails.props.src).to.equal('https://tidepool.org/terms-of-use-summary');
+        var privacyDetails = privacyIframe[0];
+        expect(privacyDetails.props.src).to.equal('https://tidepool.org/privacy-policy-summary');
 
         expect(termsElem.state.agreed).to.equal(false);
       });

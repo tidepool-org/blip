@@ -183,6 +183,7 @@ var Navbar = React.createClass({
   },
 
   renderMenuSection: function() {
+    var currentPage = (this.props.currentPage && this.props.currentPage[0] === '/') ? this.props.currentPage.slice(1) : this.props.currentPage;
     var user = this.props.user;
 
     if (_.isEmpty(user)) {
@@ -199,15 +200,14 @@ var Navbar = React.createClass({
     var handleCareteam = function() {
       self.props.trackMetric('Clicked Navbar CareTeam');
     };
-
     var patientsClasses = cx({
       'Navbar-button': true,
-      'Navbar-selected': this.props.currentPage && this.props.currentPage === 'patients'
+      'Navbar-selected': currentPage && currentPage === 'patients'
     });
 
     var accountSettingsClasses = cx({
       'Navbar-button': true,
-      'Navbar-dropdownIcon-show': this.props.currentPage && this.props.currentPage === 'profile'
+      'Navbar-dropdownIcon-show': currentPage && currentPage === 'profile',
     });
 
     var dropdownClasses = cx({
@@ -218,7 +218,7 @@ var Navbar = React.createClass({
     var dropdownIconClasses = cx({
       'Navbar-dropdownIcon': true,
       'Navbar-dropdownIcon-show': self.state.showDropdown,
-      'Navbar-dropdownIcon-current': this.props.currentPage && this.props.currentPage === 'profile'
+      'Navbar-dropdownIcon-current': currentPage && currentPage === 'profile'
     });
 
     var dropdownIconIClasses = cx({
