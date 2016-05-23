@@ -684,6 +684,7 @@ module.exports = function (config, deps) {
      */
     acceptTerms: user.acceptTerms,
     createChildAccount: user.createChildAccount,
+    createCustodialAccount: user.createCustodialAccount,
     destroySession: user.destroySession,
     getCurrentUser: user.getCurrentUser,
     getUserId: user.getUserId,
