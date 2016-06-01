@@ -373,11 +373,16 @@ module.exports = function (config, deps) {
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
         .end(
         function (err, res) {
-
           if (err != null) {
             return cb(err);
+          } else if (res.error === true) {
+            if(_.isObject(res.body)) {
+              return cb(res.body); // for our custom error arrays
+            } else {
+              return cb(res.error);
+            }
           } else if (res.status !== 201) {
-            return cb(res.body);
+            return cb(new Error('Unexpected HTTP response: ' + res.status));
           }
 
           return cb(null, res.body);
