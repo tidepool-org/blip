@@ -797,7 +797,6 @@ module.exports = function (config, deps) {
      */
     signupStart: confirm.signupStart,
     signupConfirm: confirm.signupConfirm,
-    custodialSignupConfirm: confirm.custodialSignupConfirm,
     signupResend: confirm.signupResend,
     signupCancel: confirm.signupCancel,
     /**
