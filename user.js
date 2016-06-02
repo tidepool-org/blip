@@ -311,89 +311,6 @@ module.exports = function (common, config, deps) {
       });
   }
   /**
-   * Create a child account for the logged in user
-   *
-   * @param profile {Object} profile for account that is being created for
-   * @param cb
-   * @returns {cb}  cb(err, response)
-   */
-  function createChildAccount(profile,cb) {
-
-    if (_.isEmpty(profile.fullName)) {
-      return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a fullName' });
-    }
-
-    var childUser = { username: profile.fullName };
-    // create an child account to attach to ours
-    function createAccount(next){
-      superagent
-       .post(common.makeAPIUrl('/auth/childuser'))
-       .send(childUser)
-       .end(
-       function (err, res) {
-        if (err != null) {
-          return next(err);
-        }
-        if(res.status === 201){
-          childUser.id = res.body.userid;
-          childUser.token = res.headers[common.SESSION_TOKEN_HEADER];
-          return next(null,{userid:res.body.userid});
-        }
-        return next({status:res.status,message:res.error});
-      });
-    }
-    //add a profile name to the child account
-    function createProfile(next){
-      superagent
-        .put(common.makeAPIUrl('/metadata/'+ childUser.id + '/profile'))
-        .send(profile)
-        .set(common.SESSION_TOKEN_HEADER, childUser.token)
-        .end(
-          function (err, res) {
-            if (err != null) {
-              return next(err);
-            }
-            if(res.status === 200){
-              return next(null,res.body);
-            }
-            return next({status:res.status,message:res.error});
-          });
-    }
-    //give the parent account admin perms on the child account
-    function giveRootPermsOnChild(next){
-      superagent
-        .post(common.makeAPIUrl('/access/'+ childUser.id + '/' +getUserId()))
-        .send({admin: {}})
-        .set(common.SESSION_TOKEN_HEADER, childUser.token)
-        .end(
-          function (err, res) {
-            if (err != null) {
-              return cb(err);
-            }
-            if(res.status === 200){
-              return next(null,res.body);
-            }
-            return next({status:res.status,message:res.error});
-          });
-    }
-
-    async.series([
-      createAccount,
-      createProfile,
-      giveRootPermsOnChild
-    ], function(err, results) {
-      if(_.isEmpty(err)){
-
-        var acct = {
-          userid: results[0].userid,
-          profile: results[1]
-        };
-        return cb(null,acct);
-      }
-      return cb(err);
-    });
-  }
-  /**
    * Update current user account info
    *
    * @param {Object} user object with account info
@@ -439,7 +356,6 @@ module.exports = function (common, config, deps) {
   }
   return {
     acceptTerms : acceptTerms,
-    createChildAccount : createChildAccount,
     destroySession: destroySession,
     getCurrentUser : getCurrentUser,
     getUserId : getUserId,
