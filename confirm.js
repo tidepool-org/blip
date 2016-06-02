@@ -56,7 +56,31 @@ module.exports = function (common, deps) {
           return cb(err);
         }
         if (res.status !== 200) {
-          return cb({status:res.status,message:res.error});
+          return cb({status:res.status,message:res.body.reason});
+        }
+        return cb();
+      });
+    },
+    /**
+     * Verify a custodial signup with birthday and password
+     *
+     * @param {String} signupId - id of the signup confirmation
+     * @param {String} birthday - birthday of the signup
+     * @param {String} password - password of the signup
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    custodialSignupConfirm: function (signupId, birthday, password, cb) {
+      common.assertArgumentsSize(arguments, 4);
+      superagent
+       .put(common.makeAPIUrl('/confirm/accept/signup/'+signupId))
+       .send({birthday: birthday, password: password})
+       .end(function (err, res) {
+        if (err != null) {
+          return cb(err);
+        }
+        if (res.status !== 200) {
+          return cb({status:res.status, error:res.body.error, message:res.body.reason});
         }
         return cb();
       });
