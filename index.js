@@ -421,12 +421,12 @@ module.exports = function (config, deps) {
     /**
      * Add data to the given dataset
      *
-     * @param {String} dataSetId of the dataset to add data
+     * @param {String} datasetId of the dataset to add data
      * @param {Object} data to be added
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    addDataToDataset: function (dataSetId, data, cb) {
+    addDataToDataset: function (datasetId, data, cb) {
       common.assertArgumentsSize(arguments, 3);
 
       if (!common.hasDataHost()) {
@@ -434,7 +434,7 @@ module.exports = function (config, deps) {
       }
 
        superagent
-        .post(common.makeDataUrl('/api/v1/datasets/' + dataSetId + '/data'))
+        .post(common.makeDataUrl('/api/v1/datasets/' + datasetId + '/data'))
         .send(data)
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
         .end(
