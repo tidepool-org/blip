@@ -29,7 +29,9 @@ module.exports = function(options) {
   if (options.uploadApi == null) {
     options.uploadApi = 'https://uploads.tidepool.org';
   }
-
+  if (options.dataHost == null) {
+    options.dataHost = 'https://data.tidepool.org';
+  }
 
   var log = options.log;
   if (log == null) {

@@ -26,6 +26,7 @@ var createTidepoolClient = require('tidepool-platform-client');
 var tidepool = createTidepoolClient({
   host: 'https://api.tidepool.org',
   uploadApi: 'https://uploads.tidepool.org',
+  dataHost: 'https://data.tidepool.org',
   log: {
     warn: function() {},
     info: function() {},

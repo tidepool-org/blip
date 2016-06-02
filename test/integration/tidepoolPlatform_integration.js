@@ -236,13 +236,7 @@ describe('platform client', function () {
     it('get another users public profile', function (done) {
       //logged in as a_PWD you can get the profile for a_Member
       pwdClient.findProfile(a_Member.id, function (error, profile) {
-        expect(error).to.not.exist;
-
-        expect(profile).to.exist;
-        expect(profile.fullName).to.equal(a_Member.profile.fullName);
-        expect(profile).to.not.have.property('password');
-        expect(profile).to.not.have.property('username');
-
+        expect(error).to.deep.equal({ status: 401, body: {} });
         done();
       });
     });
@@ -439,46 +433,6 @@ describe('platform client', function () {
         expect(error).to.exist;
         expect(error.message).to.exist;
         expect(update).to.not.exist;
-        done();
-      });
-    });
-  });
-  describe('handles child accounts', function () {
-
-    it('only if we have a profile.fullName', function(done){
-      var notProfile = {
-        opps:'My Kid',
-        patient: {
-          stuff: 'I am not patient :)'
-        }
-      };
-
-      memberClient.createChildAccount(notProfile, function(err, childAccount){
-        expect(err).to.exist;
-        expect(err).to.have.keys('status', 'message');
-        expect(childAccount).to.not.exist;
-        done();
-      });
-    });
-
-    it('so we can create a child account that a_Member has root permissions on', function(done){
-
-      var kidsProfile = {
-        fullName:'My Kid',
-        patient: {
-          stuff: 'I am not patient :)'
-        }
-      };
-
-
-      memberClient.createChildAccount(kidsProfile, function(err, childAccount){
-        expect(err).to.not.exist;
-        expect(childAccount).to.exist;
-        expect(childAccount).to.have.keys('userid', 'profile');
-        //check the profile
-        var profile = childAccount.profile;
-        expect(profile).to.have.keys('fullName','patient');
-        expect(profile.patient.stuff).to.equal(kidsProfile.patient.stuff);
         done();
       });
     });
