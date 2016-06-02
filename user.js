@@ -311,6 +311,91 @@ module.exports = function (common, config, deps) {
       });
   }
   /**
+   * Create a custodial account for the logged in user
+   *
+   * @param profile {Object} profile for account that is being created for
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
+  function createCustodialAccount(profile, cb) {
+
+    if (_.isEmpty(profile.fullName)) {
+      return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a fullName' });
+    }
+
+    var custodialUser = {};
+    // create an custodial account to attach to ours
+    function createAccount(next){
+      superagent
+       .post(common.makeAPIUrl('/auth/user/' + getUserId() + '/user'))
+       .set(common.SESSION_TOKEN_HEADER, getUserToken())
+       .send({})
+       .end(
+       function (err, res) {
+        if (err != null) {
+          return next(err);
+        }
+        if(res.status === 201){
+          custodialUser.id = res.body.userid;
+          return next(null,{userid:res.body.userid});
+        }
+        return next({status:res.status,message:res.error});
+      });
+    }
+    //add a profile name to the child account
+    function createProfile(next){
+      superagent
+        .put(common.makeAPIUrl('/metadata/'+ custodialUser.id + '/profile'))
+        .send(profile)
+        .set(common.SESSION_TOKEN_HEADER, getUserToken())
+        .end(
+          function (err, res) {
+            if (err != null) {
+              return next(err);
+            }
+            if(res.status === 200){
+              return next(null,res.body);
+            }
+            return next({status:res.status,message:res.error});
+          });
+    }
+    // optionally send a confirmation email if email was provided
+    function sendEmailConfirmation(next){
+      if(_.isEmpty(profile.emails)){
+        return next(null);
+      }
+      superagent
+        .post(common.makeAPIUrl('/confirm/send/signup/'+custodialUser.id))
+        .set(common.SESSION_TOKEN_HEADER, getUserToken())
+        .send({})
+        .end(
+          function (err, res) {
+            if (err != null) {
+              return next(err);
+            }
+            if(res.status === 200){
+              return next(null,res.body);
+            }
+            return next({status:res.status,message:res.error});
+          });
+    }
+
+    async.series([
+      createAccount,
+      createProfile,
+      sendEmailConfirmation
+    ], function(err, results) {
+      if(_.isEmpty(err)){
+        var acct = {
+          userid: results[0].userid,
+          profile: results[1]
+        };
+        return cb(null,acct);
+      }
+      return cb(err);
+    });
+  }
+  /**
    * Update current user account info
    *
    * @param {Object} user object with account info
@@ -356,6 +441,7 @@ module.exports = function (common, config, deps) {
   }
   return {
     acceptTerms : acceptTerms,
+    createCustodialAccount : createCustodialAccount,
     destroySession: destroySession,
     getCurrentUser : getCurrentUser,
     getUserId : getUserId,

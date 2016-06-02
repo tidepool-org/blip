@@ -783,6 +783,7 @@ module.exports = function (config, deps) {
      * User
      */
     acceptTerms: user.acceptTerms,
+    createCustodialAccount: user.createCustodialAccount,
     destroySession: user.destroySession,
     getCurrentUser: user.getCurrentUser,
     getUserId: user.getUserId,
