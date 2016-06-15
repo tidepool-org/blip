@@ -32,8 +32,9 @@ import { validateForm } from '../../core/validation';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
-var birthdayText = 'In order to verify your identity we need you to confirm your birthday.';
-var passwordText = 'Now that you\'re claiming your account, we need you to set a password for logging in.';
+var formText = 'Keeping your data safe is our highest priority.';
+var formText2 = 'Let\'s confirm who you are and set up a password.';
+var blankLine = String.fromCharCode(160);
 
 export let VerificationWithPassword = React.createClass({
   propTypes: {
@@ -48,10 +49,11 @@ export let VerificationWithPassword = React.createClass({
   },
 
   formInputs:  [
-    { type: 'explanation', text: birthdayText },
-    { name: 'birthday', label: 'Birthday', type: 'datepicker' },
-    { type: 'explanation', text: passwordText },
-    { name: 'password', label: 'Password', type: 'password', placeholder: '******' },
+    { type: 'explanation', text: formText }, { type: 'explanation', text: formText2 },
+    { type: 'explanation', text: blankLine },
+    { name: 'birthday', label: 'What is your date of birth?', type: 'datepicker' },
+    { type: 'explanation', text: blankLine },
+    { name: 'password', label: 'New Password', type: 'password', placeholder: '******' },
     { name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '******' }
   ],
 
@@ -78,7 +80,7 @@ export let VerificationWithPassword = React.createClass({
     if (this.props.working) {
       return 'Setting up...';
     }
-    return 'Set up';
+    return 'Ready!';
   },
 
   render: function() {
