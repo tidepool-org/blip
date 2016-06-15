@@ -12,8 +12,11 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
+@terms-vs-box-width: 500px;
+@terms-sm-box-width: 600px;
+@terms-md-box-width: 700px;
+@terms-box-width:    800px;
 
-@terms-box-width:     800px;
 @terms-age-box-width: 500px;
 
 .terms {
@@ -62,10 +65,71 @@
   margin-bottom: @spacing-large;
 }
 
-.terms-iframe {
+.iframe-holder {
+  overflow: scroll-y !important; 
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.terms-title {
+  margin-bottom: 15px;
+}
+
+.terms-link {
+  display: block;
+  margin: 15px 0;
+  font-size: 1em;
+}
+
+.terms-iframe-terms {
   margin-bottom: @spacing-large;
   width: @terms-box-width;
-  height: 400px;
+  height: 500px;
+
+  @media(max-width: @terms-vs-box-width) {
+    width: 95%;
+    height: 940px;
+  }
+
+  @media(min-width: @terms-vs-box-width) and (max-width: @terms-sm-box-width) {
+    width: @terms-vs-box-width;
+    height: 700px;
+  }
+
+  @media(min-width: @terms-sm-box-width) and (max-width: @terms-md-box-width) {
+    width: @terms-sm-box-width;
+    height: 640px;
+  }
+
+  @media(min-width: @terms-md-box-width) and (max-width: @terms-box-width) {
+    width: @terms-md-box-width;
+    height: 600px;
+  }
+}
+
+.terms-iframe-privacy {
+  margin-bottom: @spacing-large;
+  width: @terms-box-width;
+  height: 700px;
+
+  @media(max-width: @terms-vs-box-width) {
+    width: 95%;
+    height: 1190px;
+  }
+
+  @media(min-width: @terms-vs-box-width) and (max-width: @terms-sm-box-width) {
+    width: @terms-vs-box-width;
+    height: 990px;
+  }
+
+  @media(min-width: @terms-sm-box-width) and (max-width: @terms-md-box-width) {
+    width: @terms-sm-box-width;
+    height: 840px;
+  }
+
+  @media(min-width: @terms-md-box-width) and (max-width: @terms-box-width) {
+    width: @terms-md-box-width;
+    height: 770px;
+  }
 }
 
 .terms-text {

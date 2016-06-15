@@ -38,9 +38,9 @@ describe('showingWelcomeMessage', () => {
 
       let action = actions.sync.showWelcomeMessage();
 
-      let state = reducer(initialStateForTest, action);
+      let intermediate = reducer(initialStateForTest, action);
 
-      expect(state).to.be.true;
+      expect(intermediate).to.be.true;
 
       let nextState = reducer(null, action);
 
@@ -54,9 +54,9 @@ describe('showingWelcomeMessage', () => {
 
       let action = actions.sync.hideWelcomeMessage();
 
-      let state = reducer(initialStateForTest, action);
+      let intermediate = reducer(initialStateForTest, action);
 
-      expect(state).to.be.false;
+      expect(intermediate).to.be.false;
 
       let nextState = reducer(null, action);
 

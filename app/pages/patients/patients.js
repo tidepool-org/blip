@@ -29,6 +29,7 @@ import config from '../../config';
 import personUtils from '../../core/personutils';
 import PeopleList from '../../components/peoplelist';
 import Invitation from '../../components/invitation';
+import BrowserWarning from '../../components/browserwarning';
 
 export let Patients = React.createClass({
   propTypes: {
@@ -188,6 +189,10 @@ export let Patients = React.createClass({
   renderPatients: function() {
     if (!this.hasPatients()) {
       return null;
+    }
+
+    if (!utils.isChrome()) {
+      return <BrowserWarning />;
     }
 
     var patients = this.props.patients;
