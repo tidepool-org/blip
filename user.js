@@ -325,10 +325,15 @@ module.exports = function (common, config, deps) {
     var custodialUser = {};
     // create an custodial account to attach to ours
     function createAccount(next){
+      var body = {};
+      if(!_.isEmpty(profile.emails)){
+        body.emails = profile.emails;
+        body.username = profile.emails[0];
+      }
       superagent
        .post(common.makeAPIUrl('/auth/user/' + getUserId() + '/user'))
        .set(common.SESSION_TOKEN_HEADER, getUserToken())
-       .send({})
+       .send(body)
        .end(
        function (err, res) {
         if (err != null) {
