@@ -16,7 +16,7 @@ describe('VerificationWithPassword', () => {
   });
 
   describe('render', function() {
-    it('should render with 9 warnings when no props provided', function () {
+    it('should render with 8 warnings when no props provided', function () {
       console.error = sinon.stub();
       let props = {};
       let elem = React.createElement(VerificationWithPassword, props);
@@ -169,6 +169,40 @@ describe('VerificationWithPassword', () => {
   });
 
   describe('isFormDisabled', () => {
-    
+    it('should return true if fetching user', () => {
+      let props = {
+        acknowledgeNotification: sinon.stub(),
+        api: {},
+        signupEmail: 'g@a.com',
+        signupKey: 'bar',
+        onSubmit: sinon.stub(),
+        trackMetric: sinon.stub(),
+        working: false,
+        fetchingUser: true
+      }
+
+      let elem = React.createElement(VerificationWithPassword, props);
+      let render = TestUtils.renderIntoDocument(elem);
+
+      expect(render.isFormDisabled()).to.be.true;
+    });
+
+    it('should return undefined otherwise', () => {
+      let props = {
+        acknowledgeNotification: sinon.stub(),
+        api: {},
+        signupEmail: 'g@a.com',
+        signupKey: 'bar',
+        onSubmit: sinon.stub(),
+        trackMetric: sinon.stub(),
+        working: false
+      }
+
+      let elem = React.createElement(VerificationWithPassword, props);
+      let render = TestUtils.renderIntoDocument(elem);
+
+      expect(render.isFormDisabled()).to.be.undefined;
+    });
+
   });
 });
