@@ -8,7 +8,7 @@ export const ERR_EMAIL_NOT_VERIFIED = 'Looks like your e-mail address has not be
 // relating to care team invitations
 export const ERR_ALREADY_SENT_TO_EMAIL = 'Looks like you\'ve already sent an invitation to that email.';
 
-export const SIGNUP_ERROR = 'An error occured while signing up.';
+export const SIGNUP_ERROR = 'An error occurred while signing up.';
 
 // these get assigned based on HTTP status codes
 // default
@@ -25,7 +25,7 @@ export const ERR_ACCEPTING_INVITE = 'Something went wrong while accepting a rece
 export const ERR_ACCEPTING_TERMS = 'Something went wrong while accepting the terms and conditions.';
 export const ERR_ACCOUNT_NOT_CONFIGURED = 'Sorry! It appears that this account hasn\'t been fully set up. Please notify the account owner that data storage may not be set up for this account.';
 export const ERR_CANCELLING_INVITE = 'Something went wrong while cancelling an outgoing care team invitation.';
-export const ERR_CHANGING_PERMS = 'Something went wrong while changing care team member perimissions.';
+export const ERR_CHANGING_PERMS = 'Something went wrong while changing care team member permissions.';
 export const ERR_CONFIRMING_PASSWORD_RESET = 'We couldn\'t change your password. You may have mistyped your email, or the reset link may have expired.';
 export const ERR_CONFIRMING_SIGNUP = 'Something went wrong while confirming your sign-up.';
 export const ERR_DSA_SETUP = 'Something went wrong while setting up data storage.';
@@ -36,7 +36,7 @@ export const ERR_FETCHING_PATIENTS = 'Something went wrong while fetching patien
 export const ERR_FETCHING_PENDING_RECEIVED_INVITES = 'Something went wrong while fetching received invitations to others\' care teams.';
 export const ERR_FETCHING_PENDING_SENT_INVITES = 'Something went wrong while fetching pending outgoing care team invitations.';
 export const ERR_FETCHING_USER = 'Something went wrong while fetching user.';
-export const ERR_LOGIN = 'An error occured while logging in.';
+export const ERR_LOGIN = 'An error occurred while logging in.';
 export const ERR_REJECTING_INVITE = 'Something went wrong while rejecting a received care team invitation.';
 export const ERR_REMOVING_MEMBER = 'Something went wrong trying to remove a member from a care team.';
 export const ERR_REMOVING_MEMBERSHIP = 'Something went wrong trying to leave a care team.';
