@@ -24,7 +24,7 @@ describe('VerificationWithPassword', () => {
       expect(console.error.callCount).to.equal(8);
     });
 
-    it('should render without wanrings when all required props provided', function () {
+    it('should render without warnings when all required props provided', function () {
       console.error = sinon.stub();
       let props = {
         acknowledgeNotification: sinon.stub(),
@@ -130,7 +130,7 @@ describe('VerificationWithPassword', () => {
         }
       };
       render.setState(intermediateState);
-      
+
       expect(render.state.validationErrors).to.eql(intermediateState.validationErrors);
 
       render.resetFormStateBeforeSubmit({});
@@ -155,7 +155,7 @@ describe('VerificationWithPassword', () => {
         }
       }
     };
-    
+
     it('should be a function', () => {
       assert.isFunction(mapStateToProps);
     });
