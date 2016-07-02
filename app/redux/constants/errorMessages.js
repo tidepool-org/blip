@@ -50,7 +50,7 @@ export const ERR_YOUR_ACCOUNT_NOT_CONFIGURED = 'Sorry! It appears that your acco
 
 export const ERR_BIRTHDAY_INVALID = 'Birthday is invalid.';
 export const ERR_BIRTHDAY_MISSING = 'Birthday is required.';
-export const ERR_BIRTHDAY_MISMATCH = 'The birthday specified does not match what is in our system!';
+export const ERR_BIRTHDAY_MISMATCH = 'The birthday specified does not match what is in our system. Please contact the clinic that created your account and ask them to update your birthday.';
 export const ERR_PASSWORD_MISSING = 'Password is required.';
 export const ERR_PASSWORD_INVALID = 'Password is invalid.';
 
