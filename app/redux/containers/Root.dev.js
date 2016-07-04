@@ -4,9 +4,20 @@ import { Router, browserHistory } from 'react-router';
 
 import DevTools from './DevTools';
 
+/* global __DEV_TOOLS__ */
+
 export default class Root extends Component {
   render() {
     const { store, routing } = this.props;
+    if (!__DEV_TOOLS__) {
+      return (
+        <Provider store={store}>
+          <Router history={browserHistory}>
+            {routing}
+          </Router>
+        </Provider>
+      );
+    }
     return (
       <Provider store={store}>
         <div>
