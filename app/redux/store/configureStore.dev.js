@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* global __DEV_TOOLS__ */
+
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import { persistState } from 'redux-devtools';
 import thunkMiddleware from 'redux-thunk';
@@ -47,20 +49,34 @@ const loggerMiddleware = createLogger({
   collapsed: true,
 });
 
-
-const enhancer = (api) => {
-  return compose(
-    applyMiddleware(
-      thunkMiddleware,
-      loggerMiddleware,
-      reduxRouterMiddleware,
-      createErrorLogger(api),
-      trackingMiddleware(api)
-    ),
-    DevTools.instrument(),
-    // We can persist debug sessions this way
-    persistState(getDebugSessionKey())
-  );
+let enhancer;
+if (!__DEV_TOOLS__) {
+  enhancer = (api) => {
+    return compose(
+      applyMiddleware(
+        thunkMiddleware,
+        reduxRouterMiddleware,
+        createErrorLogger(api),
+        trackingMiddleware(api)
+      ),
+      persistState(getDebugSessionKey())
+    );
+  }
+} else {
+  enhancer = (api) => {
+    return compose(
+      applyMiddleware(
+        thunkMiddleware,
+        loggerMiddleware,
+        reduxRouterMiddleware,
+        createErrorLogger(api),
+        trackingMiddleware(api)
+      ),
+      DevTools.instrument(),
+      // We can persist debug sessions this way
+      persistState(getDebugSessionKey())
+    );
+  }
 }
 
 let initialState = { blip: blipState };

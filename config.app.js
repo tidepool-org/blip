@@ -44,5 +44,5 @@ module.exports = {
   UPLOAD_API: __UPLOAD_API__ || 'https://tidepool.org/uploader',
   API_HOST: __API_HOST__ || 'https://dev-api.tidepool.org',
   INVITE_KEY: __INVITE_KEY__ || '',
-  PASSWORD_MIN_LENGTH: integerFromText(__PASSWORD_MIN_LENGTH__, 8)
+  PASSWORD_MIN_LENGTH: integerFromText(__PASSWORD_MIN_LENGTH__, 8),
 };

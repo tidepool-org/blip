@@ -12,7 +12,8 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __INVITE_KEY__: JSON.stringify(process.env.INVITE_KEY || null),
   __PASSWORD_MIN_LENGTH__: JSON.stringify(process.env.PASSWORD_MIN_LENGTH || null),
   __DEV__: isDev,
-  __TEST__: false
+  __TEST__: false,
+  __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false)
 });
 
 var plugins = [ defineEnvPlugin, new ExtractTextPlugin('style.[contenthash].css') ];
