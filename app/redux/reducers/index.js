@@ -39,7 +39,8 @@ import {
   resentEmailVerification,
   sentEmailVerification,
   showingWelcomeMessage,
-  timePrefs
+  timePrefs,
+  signupKey
 } from './misc';
 
 export default combineReducers({
@@ -64,5 +65,6 @@ export default combineReducers({
   sentEmailVerification,
   showingWelcomeMessage,
   timePrefs,
+  signupKey,
   working
 });

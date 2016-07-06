@@ -56,7 +56,7 @@ var DatePicker = React.createClass({
 
   render: function() {
     return (
-      <div className="DatePicker">
+      <div className="DatePicker" name={this.props.name}>
         {this.renderMonth()}
         {this.renderDay()}
         {this.renderYear()}

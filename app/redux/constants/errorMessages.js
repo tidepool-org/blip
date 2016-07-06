@@ -47,3 +47,18 @@ export const ERR_SIGNUP = 'Something went wrong trying to sign you up.';
 export const ERR_UPDATING_PATIENT = 'Something went wrong while saving patient profile.';
 export const ERR_UPDATING_USER = 'Something went wrong while updating user account.';
 export const ERR_YOUR_ACCOUNT_NOT_CONFIGURED = 'Sorry! It appears that your account hasn\'t been fully set up.';
+
+export const ERR_BIRTHDAY_INVALID = 'Birthday is invalid.';
+export const ERR_BIRTHDAY_MISSING = 'Birthday is required.';
+export const ERR_BIRTHDAY_MISMATCH = 'The birthday specified does not match what is in our system. Please contact the clinic that created your account and ask them to update your birthday.';
+export const ERR_PASSWORD_MISSING = 'Password is required.';
+export const ERR_PASSWORD_INVALID = 'Password is invalid.';
+
+export const VERIFY_CUSTODIAL_ERRORS = {
+  1001: ERR_PASSWORD_MISSING,
+  1002: ERR_PASSWORD_MISSING,
+  1003: ERR_PASSWORD_INVALID,
+  1004: ERR_BIRTHDAY_MISSING,
+  1005: ERR_BIRTHDAY_INVALID,
+  1006: ERR_BIRTHDAY_MISMATCH
+};

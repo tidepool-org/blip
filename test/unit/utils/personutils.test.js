@@ -252,18 +252,6 @@ describe('personutils', function() {
       expect(error.birthday).to.equal(INVALID_DATE_TEXT);
     });
 
-    it('should return error message when diagnosisDate is null', function() {
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: null,
-        about: null
-      };
-      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
-
-      expect(error.diagnosisDate).to.equal(INVALID_DATE_TEXT);
-    });
-
     it('should return error message when diagnosisDate is invalid', function() {
       var formValues = {
         fullName: 'Joe Bloggs',
