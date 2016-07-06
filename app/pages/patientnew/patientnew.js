@@ -53,6 +53,7 @@ export let PatientNew = React.createClass({
     },
     {
       name: 'fullName',
+      type: 'text',
       placeholder: 'Full name'
     },
     {

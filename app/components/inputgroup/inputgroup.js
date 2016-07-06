@@ -32,7 +32,7 @@ var InputGroup = React.createClass({
       React.PropTypes.object // dates for datepicker input type are objects
     ]),
     error: React.PropTypes.string,
-    type: React.PropTypes.string,
+    type: React.PropTypes.string.isRequired,
     placeholder: React.PropTypes.string,
     rows: React.PropTypes.number,
     disabled: React.PropTypes.bool,
