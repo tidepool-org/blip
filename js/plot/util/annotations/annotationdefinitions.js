@@ -39,7 +39,7 @@ var definitions = {
       var b = ' pumps don\'t capture the details of how combo boluses are split between the normal and extended amounts.';
       return defs.stitch(a, b, source);
     },
-    'animas/bolus/out-of-sequence': function(source, defs) {
+    'animas/out-of-sequence': function(source, defs) {
       var a = 'If the data here overlaps, it\'s because the date/time was changed and ';
       var b = ' pumps don\'t capture when this happened.';
       return defs.stitch(a, b, source);
@@ -52,7 +52,7 @@ var definitions = {
       var b = ' pumps do not capture exactly when.';
       return defs.stitch(a, b, source);
     },
-    'animas/basal/marked-suspended-form-alarm': function(source, defs) {
+    'animas/basal/marked-suspended-from-alarm': function(source, defs) {
       return 'This suspend happened because of one of the following alarms - no power, occlusion, auto-off, or no insulin.';
     },
     'carelink/basal/fabricated-from-schedule': function(source, defs) {
