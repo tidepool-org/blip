@@ -36,20 +36,20 @@ var definitions = {
     },
     'animas/bolus/extended-equal-split': function(source, defs) {
       var a = '';
-      var b = ' pumps do not store the details of how a combo bolus was split between normal and extended amounts.';
+      var b = ' pumps don\'t capture the details of how combo boluses are split between the normal and extended amounts.';
       return defs.stitch(a, b, source);
     },
     'animas/bolus/out-of-sequence': function(source, defs) {
-      var a = 'We sense the data here may overlap. This is likely due to a change in the date or time. ';
-      var b = ' pumps do not store these changes.';
+      var a = 'If the data here overlaps, it\'s because the date/time was changed and ';
+      var b = ' pumps don\'t capture when this happened.';
       return defs.stitch(a, b, source);
     },
     'animas/basal/flat-rate': function(source, defs) {
-      return 'We show the time split here because this basal rate is longer than 5 days which is too hard to display. ';
+      return 'This basal rate was running for longer than 5 days, which we cannot display.';
     },
     'animas/bolus/unknown-duration': function(source, defs) {
-      var a = 'This bolus was canceled and ';
-      var b = 'does not tell us when.';
+      var a = 'We know this bolus was canceled, but ';
+      var b = ' pumps do not capture exactly when.';
       return defs.stitch(a, b, source);
     },
     'animas/basal/marked-suspended-form-alarm': function(source, defs) {
