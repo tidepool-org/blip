@@ -67,6 +67,7 @@ export default (state = initialState, action) => {
     case types.SET_MEMBER_PERMISSIONS_REQUEST:
     case types.UPDATE_PATIENT_REQUEST:
     case types.UPDATE_USER_REQUEST:
+    case types.VERIFY_CUSTODIAL_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {
@@ -111,6 +112,7 @@ export default (state = initialState, action) => {
     case types.SET_MEMBER_PERMISSIONS_SUCCESS:
     case types.UPDATE_PATIENT_SUCCESS:
     case types.UPDATE_USER_SUCCESS:
+    case types.VERIFY_CUSTODIAL_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {
@@ -154,6 +156,7 @@ export default (state = initialState, action) => {
     case types.SET_MEMBER_PERMISSIONS_FAILURE:
     case types.UPDATE_PATIENT_FAILURE:
     case types.UPDATE_USER_FAILURE:
+    case types.VERIFY_CUSTODIAL_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {

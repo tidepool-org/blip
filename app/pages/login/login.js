@@ -26,6 +26,7 @@ import _ from 'lodash';
 import config from '../../config';
 
 import utils from '../../core/utils';
+import { validateForm } from '../../core/validation';
 
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
@@ -46,9 +47,9 @@ export let Login = React.createClass({
 
   formInputs: function() {
     return [
-      {name: 'username', label: 'Email', type: 'email', disabled: !!this.props.seedEmail},
-      {name: 'password', label: 'Password', type: 'password'},
-      {name: 'remember', label: 'Remember me', type: 'checkbox'}
+      { name: 'username', label: 'Email', type: 'email', disabled: !!this.props.seedEmail },
+      { name: 'password', label: 'Password', type: 'password' },
+      { name: 'remember', label: 'Remember me', type: 'checkbox' }
     ];
   },
 
@@ -157,16 +158,12 @@ export let Login = React.createClass({
   },
 
   validateFormValues: function(formValues) {
-    var validationErrors = {};
-    var IS_REQUIRED = 'This field is required.';
+    var form = [
+      { type: 'name', name: 'password', label: 'this field', value: formValues.password },
+      { type: 'email', name: 'username', label: 'this field', value: formValues.username },
+    ];
 
-    if (!formValues.username) {
-      validationErrors.username = IS_REQUIRED;
-    }
-
-    if (!formValues.password) {
-      validationErrors.password = IS_REQUIRED;
-    }
+    var validationErrors = validateForm(form);
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
@@ -219,7 +216,7 @@ export let Login = React.createClass({
 let getFetchers = (dispatchProps, ownProps, other, api) => {
   if (other.signupKey) {
     return [
-      dispatchProps.confirmSignup.bind(null, api, other.signupKey)
+      dispatchProps.confirmSignup.bind(null, api, other.signupKey, other.signupEmail)
     ];
   }
 
@@ -245,7 +242,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
   let api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, dispatchProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, { signupKey }, api),
+    fetchers: getFetchers(dispatchProps, ownProps, { signupKey, signupEmail: seedEmail }, api),
     isInvite: isInvite,
     seedEmail: seedEmail,
     trackMetric: ownProps.routes[0].trackMetric,

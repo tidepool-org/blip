@@ -21,11 +21,13 @@ import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
 import sundial from 'sundial';
+import { validateForm } from '../../core/validation';
 
 import * as actions from '../../redux/actions';
 
 import InputGroup from '../../components/inputgroup';
 import DatePicker from '../../components/datepicker';
+import SimpleForm from '../../components/simpleform';
 import personUtils from '../../core/personutils';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
@@ -45,12 +47,13 @@ export let PatientNew = React.createClass({
       name: 'isOtherPerson',
       type: 'radios',
       items: [
-        {value: 'no', label: 'This is for me, I have type 1 diabetes'},
-        {value: 'yes', label: 'This is for someone I care for who has type 1 diabetes'}
+        {value: false, label: 'This is for me, I have type 1 diabetes'},
+        {value: true, label: 'This is for someone I care for who has type 1 diabetes'}
       ]
     },
     {
       name: 'fullName',
+      type: 'text',
       placeholder: 'Full name'
     },
     {
@@ -137,87 +140,17 @@ export let PatientNew = React.createClass({
 
   renderForm: function() {
     return (
-        <form className="PatientNew-form">
-          <div className="PatientNew-formInputs">
-            {this.renderInputs()}
-          </div>
-          <div className="PatientNew-formActions">
-            {this.renderButtons()}
-            {this.renderNotification()}
-          </div>
-        </form>
+      <SimpleForm
+        inputs={this.formInputs}
+        formValues={this.state.formValues}
+        validationErrors={this.state.validationErrors}
+        submitButtonText={this.getSubmitButtonText()}
+        submitDisabled={this.props.working}
+        onSubmit={this.handleSubmit}
+        onChange={this.handleInputChange}
+        notification={this.state.notification || this.props.notification}/>
     );
-  },
 
-  renderInputs: function() {
-    return _.map(this.formInputs, this.renderInput);
-  },
-
-  renderInput: function(input) {
-    var name = input.name;
-    var value = this.state.formValues[name];
-
-    if (name === 'isOtherPerson') {
-      value = this.state.formValues.isOtherPerson ? 'yes' : 'no';
-    }
-
-    if (input.type === 'datepicker') {
-      return this.renderDatePicker(input);
-    }
-
-    return (
-      <div key={name} className={'PatientNew-inputGroup PatientNew-inputGroup--' + name}>
-        <InputGroup
-          name={name}
-          label={input.label}
-          value={value}
-          items={input.items}
-          error={this.state.validationErrors[name]}
-          type={input.type}
-          placeholder={input.placeholder}
-          disabled={this.isFormDisabled() || input.disabled}
-          onChange={this.handleInputChange}/>
-      </div>
-    );
-  },
-
-  renderDatePicker: function(input) {
-    var name = input.name;
-    var classes = 'PatientNew-datePicker PatientNew-inputGroup PatientNew-inputGroup--' + name;
-    var error = this.state.validationErrors[name];
-    var message;
-    if (error) {
-      classes = classes + ' PatientNew-datePicker--error';
-      message = <div className="PatientNew-datePickerMessage">{error}</div>;
-    }
-
-    return (
-      <div key={name} className={classes}>
-        <div>
-          <label className="PatientNew-datePickerLabel">{input.label}</label>
-          <DatePicker
-            name={name}
-            value={this.state.formValues[name]}
-            disabled={this.isFormDisabled() || input.disabled}
-            onChange={this.handleInputChange} />
-        </div>
-        {message}
-      </div>
-    );
-  },
-
-  renderButtons: function() {
-    return (
-      <div>
-        <Link to="/patients" className="btn btn-secondary PatientNew-cancel">Cancel</Link>
-        <button
-          className="btn btn-primary PatientNew-submit"
-          onClick={this.handleSubmit}
-          disabled={this.isFormDisabled()}>
-          {this.getSubmitButtonText()}
-        </button>
-      </div>
-    );
   },
 
   renderNotification: function() {
@@ -252,8 +185,9 @@ export let PatientNew = React.createClass({
     }
 
     var formValues = _.clone(this.state.formValues);
+
     if (key === 'isOtherPerson') {
-      var isOtherPerson = (attributes.value === 'yes') ? true : false;
+      var isOtherPerson = (attributes.value === 'true') ? true : false;
       var fullName = isOtherPerson ? '' : this.getUserFullName();
       formValues = _.assign(formValues, {
         isOtherPerson: isOtherPerson,
@@ -267,29 +201,35 @@ export let PatientNew = React.createClass({
     this.setState({formValues: formValues});
   },
 
-  handleSubmit: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
-
-    var formValues = this.state.formValues;
-
+  handleSubmit: function(formValues) {
     this.resetFormStateBeforeSubmit(formValues);
 
-    formValues = this.prepareFormValuesForValidation(formValues);
+    var validationErrors = this.validateFormValues(formValues);
 
-    var validationErrors = personUtils.validateFormValues(formValues, true, MODEL_DATE_FORMAT);
     if (!_.isEmpty(validationErrors)) {
-      this.setState({
-        working: false,
-        validationErrors: validationErrors
-      });
       return;
     }
 
     formValues = this.prepareFormValuesForSubmit(formValues);
-
     this.props.onSubmit(formValues);
+  },
+
+  validateFormValues: function(formValues) {
+    var form = [
+      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
+      { type: 'date', name: 'birthday', label: 'birthday', value: formValues.birthday },
+      { type: 'diagnosisDate', name: 'diagnosisDate', label: 'diagnosis date', value: formValues.diagnosisDate, prerequisites: { birthday: formValues.birthday } },
+      { type: 'about', name: 'about', label: 'about', value: formValues.about}
+    ];
+    var validationErrors = validateForm(form);
+
+    if (!_.isEmpty(validationErrors)) {
+      this.setState({
+        validationErrors: validationErrors
+      });
+    }
+
+    return validationErrors;
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
@@ -298,32 +238,6 @@ export let PatientNew = React.createClass({
       formValues: formValues,
       validationErrors: {}
     });
-  },
-
-  prepareFormValuesForValidation: function(formValues) {
-    formValues = _.clone(formValues);
-    var formBDay = formValues.birthday;
-    var formDDay = formValues.diagnosisDate;
-
-    if (this.isDateObjectComplete(formBDay)) {
-      formValues.birthday = this.makeRawDateString(formBDay);
-    }
-    else {
-      formValues.birthday = null;
-    }
-
-    if (this.isDateObjectComplete(formDDay)) {
-      formValues.diagnosisDate = this.makeRawDateString(formDDay);
-    }
-    else {
-      formValues.diagnosisDate = null;
-    }
-
-    if (!formValues.about) {
-      formValues = _.omit(formValues, 'about');
-    }
-
-    return formValues;
   },
 
   // because JavaScript Date will coerce impossible dates into possible ones with
@@ -348,8 +262,8 @@ export let PatientNew = React.createClass({
   prepareFormValuesForSubmit: function(formValues) {
     var profile = {};
     var patient = {
-      birthday: formValues.birthday,
-      diagnosisDate: formValues.diagnosisDate
+      birthday: this.makeRawDateString(formValues.birthday),
+      diagnosisDate: this.makeRawDateString(formValues.diagnosisDate)
     };
 
     if (formValues.about) {

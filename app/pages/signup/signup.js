@@ -21,6 +21,7 @@ import * as actions from '../../redux/actions';
 
 import _ from 'lodash';
 import config from '../../config';
+import { validateForm } from '../../core/validation';
 
 import utils from '../../core/utils';
 import WaitList from '../../components/waitlist';
@@ -200,39 +201,14 @@ export let Signup = React.createClass({
   },
 
   validateFormValues: function(formValues) {
-    var validationErrors = {};
-    var IS_REQUIRED = 'This field is required.';
-    var INVALID_EMAIL = 'Invalid email address.';
-    var SHORT_PASSWORD = 'Password must be at least ' + config.PASSWORD_MIN_LENGTH + ' characters long.';
+    var form = [
+      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
+      { type: 'email', name: 'username', label: 'email address', value: formValues.username },
+      { type: 'password', name: 'password', label: 'password', value: formValues.password },
+      { type: 'confirmPassword', name: 'passwordConfirm', label: 'confirm password', value: formValues.passwordConfirm, prerequisites: { password: formValues.password }  }
+    ];
 
-    if (!formValues.fullName) {
-      validationErrors.fullName = IS_REQUIRED;
-    }
-
-    if (!formValues.username) {
-      validationErrors.username = IS_REQUIRED;
-    }
-
-    if (formValues.username && !utils.validateEmail(formValues.username)) {
-      validationErrors.username = INVALID_EMAIL;
-    }
-
-    if (!formValues.password) {
-      validationErrors.password = IS_REQUIRED;
-    }
-
-    if (formValues.password && formValues.password.length < config.PASSWORD_MIN_LENGTH) {
-      validationErrors.password = SHORT_PASSWORD;
-    }
-
-    if (formValues.password) {
-      if (!formValues.passwordConfirm) {
-        validationErrors.passwordConfirm = IS_REQUIRED;
-      }
-      else if (formValues.passwordConfirm !== formValues.password) {
-        validationErrors.passwordConfirm = 'Passwords don\'t match.';
-      }
-    }
+    var validationErrors = validateForm(form);
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({

@@ -7,6 +7,20 @@ var expect = chai.expect;
 
 describe('utils', function() {
 
+  describe('capitalize', function() {
+    it('should return a capitalized string', function(){
+      expect(utils.capitalize('lower')).to.equal('Lower');
+    });
+
+    it('should return a string if already capitalized', function(){
+      expect(utils.capitalize('Upper')).to.equal('Upper');
+    });
+
+    it('should return an empty string if given one', function(){
+      expect(utils.capitalize('')).to.equal('');
+    });
+  });
+
   describe('getIn', function() {
     var obj = {a: {b: 1, l: [1]}};
 
@@ -95,5 +109,52 @@ describe('utils', function() {
     it('should validate jane as email', function() {
       expect(utils.validateEmail('jane')).to.be.false;
     });
+  });
+
+  describe('getSignupEmail', function(){
+    it('should return email from location object', function(){
+      var location = {
+        query: {
+          signupEmail: 'jane@tidepool.org'
+        }
+      };
+      expect(utils.getSignupEmail(location)).to.equal('jane@tidepool.org');
+    });
+
+    it('should handle conversion of space to plus', function(){
+      var location = {
+        query: {
+          signupEmail: 'jane skip@tidepool.org'
+        }
+      };
+      expect(utils.getSignupEmail(location)).to.equal('jane+skip@tidepool.org');
+    });
+
+    it('should return null if no argument given', function(){
+      expect(utils.getSignupEmail()).to.equal(null);
+    });
+
+    it('should return null if no query property', function(){
+      expect(utils.getSignupEmail({})).to.equal(null);
+    });
+
+    it('should return null if no signupEmail in query property', function(){
+      var location = {
+        query: {
+          signupKey: 'someKey'
+        }
+      };
+      expect(utils.getSignupEmail(location)).to.equal(null);
+    });
+
+    it('should return null if signupEmail is not valid', function(){
+      var location = {
+        query: {
+          signupEmail: 'notgood@'
+        }
+      };
+      expect(utils.getSignupEmail(location)).to.equal(null);
+    });
+    
   });
 });

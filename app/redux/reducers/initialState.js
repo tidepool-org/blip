@@ -22,9 +22,10 @@ const working = {
   notification: null
 };
 
-export default { 
+export default {
   passwordResetConfirmed: false,
   showingWelcomeMessage: null,
+  signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,
   resentEmailVerification: false,
@@ -65,14 +66,15 @@ export default {
     sendingInvite: Object.assign({}, working),
     settingMemberPermissions: Object.assign({}, working),
     updatingPatient: Object.assign({}, working),
-    updatingUser: Object.assign({}, working),  
+    updatingUser: Object.assign({}, working),
+    verifyingCustodial: Object.assign({}, working),
     signingUp: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {
     timezoneAware: false,
     timezoneName: null
-  }, 
+  },
   bgPrefs: {
     bgUnits: 'mg/dL'
   }

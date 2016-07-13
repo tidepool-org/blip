@@ -159,10 +159,38 @@ export function confirmSignupSuccess() {
   };
 }
 
-export function confirmSignupFailure(error, apiError) {
+export function confirmSignupFailure(error, apiError, signupKey) {
   return {
     type: ActionTypes.CONFIRM_SIGNUP_FAILURE,
     error: error,
+    payload: {
+      signupKey
+    },
+    meta: {
+      apiError: apiError || null
+    }
+  };
+}
+
+export function verifyCustodialRequest() {
+  return {
+    type: ActionTypes.VERIFY_CUSTODIAL_REQUEST
+  };
+}
+
+export function verifyCustodialSuccess() {
+  return {
+    type: ActionTypes.VERIFY_CUSTODIAL_SUCCESS
+  };
+}
+
+export function verifyCustodialFailure(error, apiError, signupKey) {
+  return {
+    type: ActionTypes.VERIFY_CUSTODIAL_FAILURE,
+    error: error,
+    payload: {
+      signupKey
+    },
     meta: {
       apiError: apiError || null
     }

@@ -16,6 +16,7 @@ import ConfirmPasswordReset from './pages/passwordreset/confirm';
 import EmailVerification from './pages/emailverification';
 import BrowserWarning from './pages/browserwarning';
 import Terms from './pages/terms';
+import VerificationWithPassword from './pages/verificationwithpassword';
 
 
 import utils from './core/utils';
@@ -116,7 +117,7 @@ export const requireAuthAndNoPatient = (api, store) => (nextState, replace, cb) 
 
 /**
  * This function ensures any logged in state is destroyed on entering a route
- * 
+ *
  * @param  {Object} nextState
  * @param  {Function} replace
  * @param  {Function} cb
@@ -266,7 +267,7 @@ export const onOtherRouteEnter = (api) => (nextState, replace) => {
  *
  * @param  {Object} appContext
  * @param {Object} store
- * 
+ *
  * @return {Route} the react-router routes
  */
 export const getRoutes = (appContext, store) => {
@@ -289,6 +290,7 @@ export const getRoutes = (appContext, store) => {
       <Route path='request-password-reset' component={RequestPasswordReset} onEnter={requireNoAuth(api)} />
       <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={ensureNoAuth(api)} />
       <Route path='request-password-from-uploader' component={RequestPasswordReset} onEnter={onUploaderPasswordReset(api)} />
+      <Route path='verification-with-password' component={VerificationWithPassword} onEnter={requireNoAuth(api)} />
       <Route path='browser-warning' component={BrowserWarning} />
       <Route path='*' onEnter={onOtherRouteEnter(api)} />
     </Route>

@@ -101,11 +101,11 @@ api.user.signup = function(user, cb) {
     if (err) {
       return cb(err);
     }
-    
+
     /**
      * Because Platform Client handles this error slightly weirdly, and returns
      * it in the account object we need to inspect the account object
-     * for the following object signature and then if found, call the 
+     * for the following object signature and then if found, call the
      * callback with an error based on the contents of the object
      *
      * TODO: consider when refactoring platform client
@@ -278,6 +278,11 @@ api.user.confirmPasswordReset = function(payload, callback) {
 api.user.confirmSignUp = function(key, callback) {
   api.log('PUT /confirm/accept/signup/'+key);
   return tidepool.signupConfirm(key, callback);
+};
+
+api.user.custodialConfirmSignUp = function(key, birthday, password, callback) {
+  api.log('PUT /confirm/accept/signup/'+key, 'custodial');
+  return tidepool.custodialSignupConfirm(key, birthday, password, callback);
 };
 
 // ----- Patient -----

@@ -20,7 +20,8 @@ describe('InputGroup', function () {
     it('should render without problems when required props are present', function () {
       console.error = sinon.stub();
       var props = {
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        type: 'explanation'
       };
       var elem = React.createElement(InputGroup, props);
       var render = TestUtils.renderIntoDocument(elem);

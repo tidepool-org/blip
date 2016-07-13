@@ -17,18 +17,22 @@
 var React = require('react');
 var _ = require('lodash');
 
+var DatePicker = require('../datepicker');
+
 // Input with label and validation error message
 var InputGroup = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
     label: React.PropTypes.string,
     items: React.PropTypes.array,
+    text: React.PropTypes.string,
     value: React.PropTypes.oneOfType([
       React.PropTypes.string,
-      React.PropTypes.bool
+      React.PropTypes.bool,
+      React.PropTypes.object // dates for datepicker input type are objects
     ]),
     error: React.PropTypes.string,
-    type: React.PropTypes.string,
+    type: React.PropTypes.string.isRequired,
     placeholder: React.PropTypes.string,
     rows: React.PropTypes.number,
     disabled: React.PropTypes.bool,
@@ -93,6 +97,14 @@ var InputGroup = React.createClass({
 
     if (type === 'radios') {
       return this.renderRadios();
+    }
+
+    if (type === 'datepicker') {
+      return this.renderDatePicker();
+    }
+
+    if (type === 'explanation') {
+      return this.renderExplanation();
     }
 
     return (
@@ -192,6 +204,22 @@ var InputGroup = React.createClass({
     );
   },
 
+  renderDatePicker: function() {
+    return (
+      <DatePicker
+        name={this.props.name}
+        value={this.props.value}
+        disabled={this.props.disabled}
+        onChange={this.handleChange} />
+    );
+  },
+
+  renderExplanation: function() {
+    return <div className='input-group-explanation'>
+      {this.props.text}
+    </div>;
+  },
+
   renderMessage: function() {
     var error = this.props.error;
     if (error) {
@@ -215,7 +243,8 @@ var InputGroup = React.createClass({
   },
 
   handleChange: function(e) {
-    var target = e.target;
+    var target = e.target || e;
+
     var attributes = {
       name: target.name,
       value: target.value
