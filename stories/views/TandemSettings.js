@@ -2,7 +2,7 @@ import React from 'react';
 
 import { storiesOf } from '@kadira/storybook';
 
-import TandemSettings from '../../src/views/TandemSettings';
+import TandemSettings from '../../src/views/settings/TandemSettings';
 
 storiesOf('TandemSettings', module)
   .add('flat rate', () => (

@@ -6,11 +6,21 @@ Tidepool data visualization for diabetes device data.
 
 ## Getting started
 
-After cloning this repository to your local machine, install the dependencies:
+After cloning this repository to your local machine, first make sure that you have a version of `npm` that is recent enough - at least `3.x`. We are still using node `0.12.x` for our engine, and a `3.x` version of `npm` does **not** get installed by default if you are installing node `0.12.x` through a mechanism like [`nvm`](https://github.com/creationix/nvm 'nvm'). In this case, you will need to manually update with:
+
+```bash
+$ npm install -g npm
+```
+
+Then, install the dependencies:
 
 ```bash
 $ npm install
 ```
+
+## Directory structure
+
+Coming soon!
 
 ## Development
 
@@ -75,4 +85,8 @@ $ npm run lint
 
 ### Publishing examples to GitHub Pages with React Storybook
 
+Coming soon!
+
 ### Building and publishing to `npm`
+
+Coming soon!
