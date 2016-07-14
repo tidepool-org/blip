@@ -17,7 +17,6 @@ describe('Message', function () {
 
   describe('getInitialState', function() {
     it('should return an object with editing set to false', function() {
-      console.error = sinon.stub();
       var note = {
         timestamp : new Date().toISOString(),
         messagetext : 'foo',
@@ -31,23 +30,11 @@ describe('Message', function () {
       var initialState = elem.getInitialState();
       expect(Object.keys(initialState).length).to.equal(1);
       expect(initialState.editing).to.equal(false);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `theNote` was not specified in `Message`.')).to.equal(false);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `Message`.')).to.equal(false);
     });
   });
 
   describe('render', function() {
-    it('should console.error when required props are missing', function () {
-      console.error = sinon.spy();
-      var elem = TestUtils.renderIntoDocument(<Message />);
-
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `theNote` was not specified in `Message`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `Message`.')).to.equal(true);
-      expect(console.error.callCount).to.equal(2);
-    });
-
     it('should render a populated message', function() {
-      console.error = sinon.spy();
       var note = {
         timestamp : new Date().toISOString(),
         messagetext : 'foo bar',

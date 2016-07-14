@@ -12,22 +12,11 @@ var PeopleList = require('../../../app/components/peoplelist');
 var PatientCard = require('../../../app/components/patientcard');
 
 describe('PeopleList', function () {
-  
   describe('render', function() {
-    it('should console.error when required props not set', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<PeopleList/>);
-
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(1);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PeopleList`.')).to.equal(true);
-    });
-
     it('should not console.error when trackMetric set', function() {
       console.error = sinon.stub();
       var props = {
-        trackMetric: function() {},
-        patient: {}
+        trackMetric: function() {}
       };
       var listElem = React.createElement(PeopleList, props);
       var elem = TestUtils.renderIntoDocument(listElem);
@@ -38,7 +27,6 @@ describe('PeopleList', function () {
   });
 
   describe('getInitialState', function() {
-
     it('should return object with expected properties', function() {
       console.error = sinon.stub();
       var props = {
@@ -49,7 +37,7 @@ describe('PeopleList', function () {
       var state = elem.getInitialState();
 
       expect(state.editing).to.equal(false);
-    }); 
+    });
   });
 
   describe('sorting of people list', function() {

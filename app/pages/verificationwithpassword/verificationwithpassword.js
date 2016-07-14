@@ -48,7 +48,8 @@ export let VerificationWithPassword = React.createClass({
   },
 
   formInputs:  [
-    { type: 'explanation', text: formText }, { type: 'explanation', text: formText2 },
+    { name: 'explanation1', type: 'explanation', text: formText },
+    { name: 'explanation2', type: 'explanation', text: formText2 },
     { name: 'birthday', label: 'What is your birthday?', type: 'datepicker' },
     { name: 'password', label: 'Password', type: 'password', placeholder: '******' },
     { name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '******' }

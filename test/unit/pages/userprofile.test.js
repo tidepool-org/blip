@@ -33,16 +33,6 @@ describe('UserProfile', function () {
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
     });
-
-    it('should console.error when required props are missing', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<UserProfile />);
-      expect(console.error.callCount).to.equal(4);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `UserProfile`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `history` was not specified in `UserProfile`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `UserProfile`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `UserProfile`.')).to.equal(true);
-    });
   });
 
   describe('getInitialState', function() {

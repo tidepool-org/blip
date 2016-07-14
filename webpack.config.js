@@ -20,7 +20,7 @@ var defineEnvPlugin = new webpack.DefinePlugin({
 
 var plugins = [ defineEnvPlugin, new ExtractTextPlugin('style.[contenthash].css') ];
 var appEntry = './app/main.js';
-var entryScripts = appEntry;
+var entryScripts = ['babel-polyfill', appEntry];
 var loaders = [
   {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
   {test: /\.gif$/, loader: 'url-loader?limit=100000&mimetype=image/gif'},
@@ -47,11 +47,11 @@ if (isDev) {
     'webpack/hot/only-dev-server',
     appEntry
   ];
-  loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['react-hot', 'babel-loader']});
+  loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
   loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader' , 'postcss-loader', 'less-loader']})
 } else {
   loaders.push({test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')});
-  loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader?optional=runtime']});
+  loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
 }
 
 module.exports = {

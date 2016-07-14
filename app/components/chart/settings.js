@@ -33,7 +33,6 @@ var tideline = {
   log: bows('Settings')
 };
 
-
 var SettingsChart = React.createClass({
   chartOpts: ['bgUnits'],
   log: bows('Settings Chart'),
@@ -68,7 +67,8 @@ var SettingsChart = React.createClass({
   render: function() {
     
     return (
-      <div id="tidelineContainer" className="patient-data-chart-growing"></div>
+      <div id="tidelineContainer" className="patient-data-chart-growing">
+      </div>
       );
     
   }

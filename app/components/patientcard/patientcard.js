@@ -24,7 +24,7 @@ var ModalOverlay = require('../modaloverlay');
 
 var PatientCard = React.createClass({
   propTypes: {
-    href: React.PropTypes.string,
+    href: React.PropTypes.string.isRequired,
     currentPage: React.PropTypes.string,
     isEditing: React.PropTypes.bool,
     isNavbar: React.PropTypes.bool,

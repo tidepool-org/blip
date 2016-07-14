@@ -48,7 +48,6 @@ var InputGroup = React.createClass({
     var message = this.renderMessage();
 
     return (
-      
       <div className={className}>
         <div>
           {label}
@@ -56,7 +55,6 @@ var InputGroup = React.createClass({
         </div>
         {message}
       </div>
-      
     );
   },
 
@@ -72,12 +70,10 @@ var InputGroup = React.createClass({
 
     if (text) {
       return (
-        
         <label
           className="input-group-label"
           htmlFor={htmlFor}
           ref="label">{text}</label>
-        
       );
     }
 
@@ -108,7 +104,6 @@ var InputGroup = React.createClass({
     }
 
     return (
-      
       <input
         type={type}
         className="input-group-control form-control"
@@ -119,14 +114,12 @@ var InputGroup = React.createClass({
         onChange={this.handleChange}
         disabled={this.props.disabled}
         ref="control"/>
-      
     );
   },
 
   renderTextArea: function() {
     var rows = this.props.rows || this.DEFAULT_TEXTAREA_ROWS;
 
-    
     return (
       <textarea
         className="input-group-control form-control"
@@ -139,13 +132,11 @@ var InputGroup = React.createClass({
         disabled={this.props.disabled}
         ref="control"></textarea>
     );
-    
   },
 
   renderCheckbox: function() {
 
     return (
-      
       <label
         className="input-group-checkbox-label"
         htmlFor={this.props.name}
@@ -162,7 +153,6 @@ var InputGroup = React.createClass({
         {' '}
         {this.props.label}
       </label>
-      
     );
   },
 
@@ -171,7 +161,7 @@ var InputGroup = React.createClass({
     var radios = _.map(this.props.items, function(radio, index) {
       var id = self.props.name + index;
       var checked = (self.props.value === radio.value);
-      
+
       return (
         <label
           className="input-group-radio-label"
@@ -192,15 +182,12 @@ var InputGroup = React.createClass({
           {radio.label}
         </label>
       );
-      
     });
 
     return (
-      
       <div className="input-group-radios">
         {radios}
       </div>
-      
     );
   },
 
@@ -224,11 +211,9 @@ var InputGroup = React.createClass({
     var error = this.props.error;
     if (error) {
       return (
-        
         <div
           className="input-group-message form-help-block"
           ref="message">{error}</div>
-        
       );
     }
     return null;

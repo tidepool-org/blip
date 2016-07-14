@@ -21,20 +21,21 @@ import update from 'react-addons-update';
 import * as types from '../constants/actionTypes';
 import actionWorkingMap from '../constants/actionWorkingMap';
 
-import { working as initialState } from './initialState';
+import initialState from './initialState';
+const { working: initialWorkingState } = initialState;
 
-export default (state = initialState, action) => {
+export default (state = initialWorkingState, action) => {
   let key;
   switch (action.type) {
     case types.ACKNOWLEDGE_NOTIFICATION:
       if (action.payload.acknowledgedNotification) {
-        return update(state, { 
-          [action.payload.acknowledgedNotification]: { 
+        return update(state, {
+          [action.payload.acknowledgedNotification]: {
             notification: { $set: null }
           }
         });
       } else {
-        return initialState;
+        return initialWorkingState;
       }
 
     /**
@@ -163,7 +164,7 @@ export default (state = initialState, action) => {
           [key]: {
             $set: {
               inProgress: false,
-              notification: { 
+              notification: {
                 type: 'error',
                 message: _.get(action, ['error', 'message'], null)
               }
@@ -174,7 +175,7 @@ export default (state = initialState, action) => {
         return state;
       }
 
-    default: 
+    default:
       return state;
   }
 };

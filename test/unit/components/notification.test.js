@@ -10,7 +10,6 @@ var expect = chai.expect;
 var NotificationElem = require('../../../app/components/notification');
 
 describe('NotificationElem', function () {
-  
   describe('render', function() {
     it('should render without problems', function () {
       console.error = sinon.stub();

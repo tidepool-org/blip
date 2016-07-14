@@ -2,25 +2,28 @@
 /* global describe */
 /* global sinon */
 /* global it */
+/* global before */
+/* global after */
 
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 
-import rewire from 'rewire';
-import rewireModule from '../../../utils/rewireModule';
-
 var expect = chai.expect;
 
-var Patient = rewire('../../../../app/pages/patient/patient');
+import Patient from '../../../../app/pages/patient/patient';
 import PatientTeam from '../../../../app/pages/patient/patientteam';
 
 describe('Patient', function () {
-  rewireModule(Patient, {
-    PatientInfo: React.createClass({
+  before(() => {
+    Patient.__Rewire__('PatientInfo', React.createClass({
       render: function() {
         return (<div className='fake-patient-info-view'></div>);
       }
-    })
+    }));
+  });
+
+  after(() => {
+    Patient.__ResetDependency__('PatientInfo');
   });
 
   describe('render', function() {
@@ -38,19 +41,6 @@ describe('Patient', function () {
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
-    });
-
-    it('should warn when no props are set', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Patient/>);
-
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(5);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchers` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Patient`.')).to.equal(true);
     });
   });
 

@@ -2,22 +2,20 @@
 /* global describe */
 /* global sinon */
 /* global it */
+/* global before */
+/* global after */
 
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 
-import rewire from 'rewire';
-import rewireModule from '../../utils/rewireModule';
 
 var assert = chai.assert;
 var expect = chai.expect;
 
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
-var PD = rewire('../../../app/pages/patientdata/patientdata.js');
+import PD, { PatientData } from '../../../app/pages/patientdata/patientdata.js';
 import { mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
-
-var PatientData = PD.PatientData;
 
 /**
  * Need to set window.config for config module
@@ -25,12 +23,16 @@ var PatientData = PD.PatientData;
 window.config = {};
 
 describe('PatientData', function () {
-  rewireModule(PD, {
-    Basics: React.createClass({
+  before(() => {
+    PD.__Rewire__('Basics', React.createClass({
       render: function() {
         return (<div className='fake-basics-view'></div>);
       }
-    })
+    }));
+  });
+
+  after(() => {
+    PD.__ResetDependency__('Basics');
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -64,30 +66,6 @@ describe('PatientData', function () {
       var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
-    });
-
-    it('should warn when required props are not present', function() {
-      console.error = sinon.spy();
-      var elem = TestUtils.renderIntoDocument(<PatientData/>);
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(17);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `clearPatientData` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `currentPatientInViewId` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchers` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatientData` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `isUserPatient` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onCloseMessageThread` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onCreateMessage` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onEditMessage` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onFetchMessageThread` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onRefresh` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSaveComment` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `patientDataMap` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `patientNotesMap` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `queryParams` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `uploadUrl` was not specified in `PatientData`.')).to.equal(true);
     });
 
     describe('loading message', () => {
@@ -232,7 +210,7 @@ describe('PatientData', function () {
           var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
           expect(x).to.be.ok;
 
-          expect(x.getDOMNode().textContent).to.equal('Fooey McBar does not have any data yet.');
+          expect(x.textContent).to.equal('Fooey McBar does not have any data yet.');
         });
 
         it ('should render the no data message when no data is present for current patient', function() {
@@ -269,7 +247,7 @@ describe('PatientData', function () {
           var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
           expect(x).to.be.ok;
 
-          expect(x.getDOMNode().textContent).to.equal('Fooey McBar does not have any data yet.');
+          expect(x.textContent).to.equal('Fooey McBar does not have any data yet.');
         });
       });
 

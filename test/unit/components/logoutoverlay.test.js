@@ -17,7 +17,6 @@ describe('LogoutOverlay', function () {
   });
 
   describe('render', function() {
-
     it('should render without problems', function () {
       console.error = sinon.stub();
       var props = {};
@@ -32,7 +31,7 @@ describe('LogoutOverlay', function () {
       var props = {};
       var elem = React.createElement(LogoutOverlay, props);
       var render = TestUtils.renderIntoDocument(elem);
-      
+
       var state = render.getInitialState();
 
       expect(state.fadeOut).to.equal(false);

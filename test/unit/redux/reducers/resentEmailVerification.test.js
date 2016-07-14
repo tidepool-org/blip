@@ -25,7 +25,7 @@ import _ from 'lodash';
 
 import { resentEmailVerification as reducer } from '../../../../app/redux/reducers/misc';
 
-import actions from '../../../../app/redux/actions/index';
+import * as actions from '../../../../app/redux/actions/index';
 
 import { resentEmailVerification as initialState } from '../../../../app/redux/reducers/initialState';
 

@@ -16,14 +16,6 @@ describe('VerificationWithPassword', () => {
   });
 
   describe('render', function() {
-    it('should render with 8 warnings when no props provided', function () {
-      console.error = sinon.stub();
-      let props = {};
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
-      expect(console.error.callCount).to.equal(8);
-    });
-
     it('should render without warnings when all required props provided', function () {
       console.error = sinon.stub();
       let props = {
