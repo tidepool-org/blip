@@ -5,10 +5,11 @@
   "scripts": {
     "test": "./node_modules/karma/bin/karma start",
     "nightwatch": "export API_HOST='http://localhost:8009' && npm run build && npm run install-selenium && ./node_modules/nightwatch/bin/nightwatch",
+    "nightwatch-single": "./node_modules/nightwatch/bin/nightwatch",
     "browser-tests": "./node_modules/karma/bin/karma start --browsers Chrome",
     "karma-watch": "./node_modules/karma/bin/karma start --no-single-run --reporters=mocha,notification",
     "start": "NODE_ENV=development webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
-    "build": "npm run build-app && npm run build-config",
+    "build": "NODE_ENV=production npm run build-app && npm run build-config",
     "build-app": "node buildapp",
     "build-config": "node buildconfig",
     "server": "node server",
