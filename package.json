@@ -50,5 +50,8 @@
     "react-hot-loader": "3.0.0-beta.2",
     "style-loader": "0.13.1",
     "webpack": "1.13.1"
+  },
+  "dependencies": {
+    "lodash": "4.13.1"
   }
 }
