@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -33,6 +33,27 @@ var definitions = {
       var a = 'This BG value was above or below ';
       var b = '\'s threshold for reporting a numerical value. Your actual BG value was higher or lower than displayed.';
       return defs.stitch(a, b, source);
+    },
+    'animas/bolus/extended-equal-split': function(source, defs) {
+      var a = '';
+      var b = ' pumps don\'t capture the details of how combo boluses are split between the normal and extended amounts.';
+      return defs.stitch(a, b, source);
+    },
+    'animas/out-of-sequence': function(source, defs) {
+      var a = 'If the data here overlaps, it\'s because the date/time was changed and ';
+      var b = ' pumps don\'t capture when this happened.';
+      return defs.stitch(a, b, source);
+    },
+    'animas/basal/flat-rate': function(source, defs) {
+      return 'This basal rate was running for longer than 5 days, which we cannot display.';
+    },
+    'animas/bolus/unknown-duration': function(source, defs) {
+      var a = 'We know this bolus was canceled, but ';
+      var b = ' pumps do not capture exactly when.';
+      return defs.stitch(a, b, source);
+    },
+    'animas/basal/marked-suspended-from-alarm': function(source, defs) {
+      return 'This suspend happened because of one of the following alarms - no power, occlusion, auto-off, or no insulin.';
     },
     'carelink/basal/fabricated-from-schedule': function(source, defs) {
       var a = 'We are calculating the basal rates here using the active basal schedule in your pump settings (and applying the percentage of an active temp basal where applicable), but ';
