@@ -1,0 +1,9 @@
+{
+  "globals": {
+    "assert": false,
+    "expect": false
+  },
+  "rules": {
+    "no-unused-expressions": 0
+  }
+}

@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/travis/tidepool-org/tideline/master.svg)](https://travis-ci.org/tidepool-org/tideline)
+[![Build Status](https://img.shields.io/travis/tidepool-org/viz/master.svg)](https://travis-ci.org/tidepool-org/viz)
 
 # @tidepool-org/viz
 
@@ -31,12 +31,6 @@ To work on code in this repository within [blip](https://github.com/tidepool-org
 ```bash
 $ rm -rf node_modules/viz/
 $ npm link ../viz/
-```
-
-Then in *this* repository, you must (temporarily) remove the React dependency:
-
-```bash
-$ rm -rf node_modules/react/
 ```
 
 And start the build in watch mode:
