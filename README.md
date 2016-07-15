@@ -1,6 +1,6 @@
 [![Build Status](https://img.shields.io/travis/tidepool-org/viz/master.svg)](https://travis-ci.org/tidepool-org/viz)
 
-# @tidepool-org/viz
+# @tidepool/viz
 
 Tidepool data visualization for diabetes device data.
 
