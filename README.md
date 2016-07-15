@@ -33,7 +33,7 @@ $ rm -rf node_modules/viz/
 $ npm link ../viz/
 ```
 
-And start the build in watch mode:
+Then in this viz/ directory, start the build in watch mode:
 
 ```bash
 $ npm start
