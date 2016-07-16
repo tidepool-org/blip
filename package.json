@@ -38,6 +38,7 @@
     "babel-preset-react": "6.11.1",
     "babel-preset-stage-0": "6.5.0",
     "babel-preset-stage-2": "6.11.0",
+    "bows": "1.5.0",
     "chai": "3.5.0",
     "css-loader": "0.23.1",
     "enzyme": "2.4.1",
@@ -65,5 +66,13 @@
     "react-hot-loader": "3.0.0-beta.2",
     "style-loader": "0.13.1",
     "webpack": "1.13.1"
+  },
+  "peerDependencies": {
+    "d3-array": "1.x",
+    "d3-time": "1.x",
+    "moment-timezone": "0.x",
+    "react-addons-update": "15.x",
+    "react-redux": "4.x",
+    "redux": "3.x"
   }
 }
