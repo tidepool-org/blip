@@ -79,12 +79,14 @@ export let PatientData = React.createClass({
           },
           activeDomain: '2 weeks',
           extentSize: 14,
-          boxOverlay: true,
-          grouped: true,
-          showingLines: false
+          showingCbg: true,
+          showingSmbg: false,
+          smbgGrouped: true,
+          smbgLines: false,
+          smbgRangeOverlay: true,
         }
       },
-      chartType: 'basics',
+      chartType: 'modal',
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,

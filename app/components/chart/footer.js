@@ -30,11 +30,12 @@ var TidelineFooter = React.createClass({
     onClickGroup: React.PropTypes.func,
     onClickLines: React.PropTypes.func,
     onClickValues: React.PropTypes.func,
+    onClickRefresh: React.PropTypes.func,
+    onClickBgDataToggle: React.PropTypes.func,
     boxOverlay: React.PropTypes.bool,
     grouped: React.PropTypes.bool,
     showingLines: React.PropTypes.bool,
     showingValues: React.PropTypes.bool,
-    onClickRefresh: React.PropTypes.func
   },
   render: function() {
     var refreshLinkClass = cx({
