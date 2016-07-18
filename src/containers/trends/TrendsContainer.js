@@ -24,9 +24,11 @@ import bows from 'bows';
 import { extent } from 'd3-array';
 // eslint-disable-next-line import/no-unresolved
 import { utcDay } from 'd3-time';
-// eslint-disable-next-line import/no-unresolved
-import moment from 'moment-timezone';
 import React, { PropTypes } from 'react';
+// eslint-disable-next-line import/no-unresolved
+import update from 'react-addons-update';
+
+import * as datetime from '../../utils/datetime';
 
 class TrendsContainer extends React.Component {
   static propTypes = {
@@ -60,6 +62,7 @@ class TrendsContainer extends React.Component {
       currentCbgData: [],
       currentSmbgData: [],
       dateDomain: null,
+      mostRecent: null,
     };
   }
 
@@ -70,17 +73,11 @@ class TrendsContainer extends React.Component {
     const bgDomain = extent(allBg, d => d.value);
 
     // find initial date domain (based on initialDatetimeLocation or current time)
-    const { extentSize, initialDatetimeLocation } = this.props;
-    const { timePrefs: { timezoneAware, timezoneName } } = this.props;
-    let timezone = 'UTC';
-    if (timezoneAware) {
-      timezone = timezoneName || 'UTC';
-    }
-    const end = moment.utc(initialDatetimeLocation || new Date().valueOf())
-      .tz(timezone)
-      .startOf('day')
-      .add(1, 'day')
-      .toDate();
+    const { extentSize, initialDatetimeLocation, timePrefs } = this.props;
+    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+    const mostRecent = datetime.timezoneAwareCeiling(new Date().valueOf(), timezone);
+    const end = initialDatetimeLocation ?
+      datetime.timezoneAwareCeiling(initialDatetimeLocation, timezone) : mostRecent;
     const start = utcDay.offset(end, -extentSize);
     const dateDomain = [start.toISOString(), end.toISOString()];
 
@@ -92,13 +89,28 @@ class TrendsContainer extends React.Component {
       currentCbgData: cbgByDate.top(Infinity).reverse(),
       currentSmbgData: smbgByDate.top(Infinity).reverse(),
       dateDomain: { start: dateDomain[0], end: dateDomain[1], type: this.determineDataToShow() },
+      mostRecent: mostRecent.toISOString(),
     });
     this.props.onDatetimeLocationChange(dateDomain);
   }
 
-  // componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps) {
+    const { dateDomain: { end } } = this.state;
+    if (nextProps.extentSize !== this.props.extentSize) {
+      const start = utcDay.offset(new Date(end), -nextProps.extentSize).toISOString();
+      this.setExtent([start, end]);
+    }
 
-  // }
+    if (!_.isEqual(nextProps.activeDays, this.props.activeDays)) {
+      const { cbgByDayOfWeek, smbgByDayOfWeek } = this.props;
+      this.refilterByDayOfWeek(cbgByDayOfWeek, nextProps.activeDays);
+      this.refilterByDayOfWeek(smbgByDayOfWeek, nextProps.activeDays);
+      this.setState({
+        currentCbgData: cbgByDayOfWeek.top(Infinity).reverse(),
+        currentSmbgData: smbgByDayOfWeek.top(Infinity).reverse(),
+      });
+    }
+  }
 
   getCurrentDay() {
     const { dateDomain: { end } } = this.state;
@@ -113,16 +125,42 @@ class TrendsContainer extends React.Component {
     this.setState({
       currentCbgData: cbgByDate.top(Infinity).reverse(),
       currentSmbgData: smbgByDate.top(Infinity).reverse(),
-      dateDomain: { start: newDomain[0], end: newDomain[1] },
+      dateDomain: update(
+        this.state.dateDomain, { $merge: { start: newDomain[0], end: newDomain[1] } }
+      ),
     });
+  }
+
+  goBack() {
+    const { dateDomain: { start: newEnd } } = this.state;
+    const start = utcDay.offset(new Date(newEnd), -this.props.extentSize).toISOString();
+    const newDomain = [start, newEnd];
+    this.setExtent(newDomain);
+    this.props.onDatetimeLocationChange(newDomain);
+  }
+
+  goForward() {
+    const { dateDomain: { end: newStart }, mostRecent } = this.state;
+    const end = utcDay.offset(new Date(newStart), this.props.extentSize).toISOString();
+    const newDomain = [newStart, end];
+    this.setExtent(newDomain);
+    this.props.onDatetimeLocationChange(newDomain);
+    return (end === mostRecent);
+  }
+
+  goToMostRecent() {
+    const { mostRecent: end } = this.state;
+    const start = utcDay.offset(new Date(end), -this.props.extentSize).toISOString();
+    const newDomain = [start, end];
+    this.setExtent(newDomain);
+    this.props.onDatetimeLocationChange(newDomain);
   }
 
   refilterByDate(dataByDate, dateDomain) {
     dataByDate.filter(dateDomain);
   }
 
-  refilterByDayOfWeek(dataByDayOfWeek) {
-    const { activeDays } = this.props;
+  refilterByDayOfWeek(dataByDayOfWeek, activeDays) {
     dataByDayOfWeek.filterFunction(this.filterActiveDaysFn(activeDays));
   }
 
@@ -163,13 +201,8 @@ class TrendsContainer extends React.Component {
   render() {
     const type = _.get(this.state, ['dateDomain', 'type'], null);
     if (type === 'smbg') {
-      const { smbgTrendsComponent: SMBGTrends } = this.props;
-      // TODO: refactor `timezone` assignment - repeated from above!
-      const { timePrefs: { timezoneAware, timezoneName } } = this.props;
-      let timezone = 'UTC';
-      if (timezoneAware) {
-        timezone = timezoneName || 'UTC';
-      }
+      const { smbgTrendsComponent: SMBGTrends, timePrefs } = this.props;
+      const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
       return (
         <SMBGTrends
           bgClasses={this.props.bgClasses}
