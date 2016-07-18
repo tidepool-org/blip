@@ -96,9 +96,16 @@ var Modal = React.createClass({
         chartType={this.chartType}
         atMostRecent={this.state.atMostRecent}
         inTransition={this.state.inTransition}
+        atMostRecent={this.state.atMostRecent}
         title={this.state.title}
+        iconBack={'icon-back'}
+        iconNext={'icon-next'}
+        iconMostRecent={'icon-most-recent'}
+        onClickBack={this.handleClickBack}
         onClickBasics={this.props.onSwitchToBasics}
         onClickModal={this.handleClickModal}
+        onClickMostRecent={this.handleClickMostRecent}
+        onClickNext={this.handleClickForward}
         onClickOneDay={this.handleClickDaily}
         onClickTwoWeeks={this.handleClickWeekly}
         onClickSettings={this.handleClickSettings}
@@ -193,6 +200,32 @@ var Modal = React.createClass({
     });
   },
   // handlers
+  handleClickBack: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    this.setState({
+      atMostRecent: false
+    });
+    this.refs.chart.goBack();
+  },
+  handleClickForward: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    this.setState({
+      atMostRecent: this.refs.chart.goForward()
+    });
+  },
+  handleClickMostRecent: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    this.setState({
+      atMostRecent: true
+    });
+    this.refs.chart.goToMostRecent();
+  },
   handleClickDaily: function(e) {
     if (e) {
       e.preventDefault();

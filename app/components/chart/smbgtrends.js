@@ -72,7 +72,7 @@ class SMBGTrends extends React.Component {
     console.timeEnd('SMBGTrends Draw');
   }
 
-  componentWillUnMount() {
+  componentWillUnmount() {
     this.log('Unmounting...')
     this.chart.destroy();
   }
