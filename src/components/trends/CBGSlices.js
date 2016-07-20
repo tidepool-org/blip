@@ -17,6 +17,7 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+// eslint-disable-next-line import/no-unresolved
 import cx from 'classnames';
 
 import styles from './CBGSlices.css';

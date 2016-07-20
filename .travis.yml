@@ -6,9 +6,6 @@ node_js:
   - "0.12.7"
   - "stable"
 
-before_script:
-  - npm install -g npm
-
 script:
   - npm test
 

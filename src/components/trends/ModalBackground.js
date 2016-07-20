@@ -16,6 +16,7 @@
  */
 
 import _ from 'lodash';
+// eslint-disable-next-line import/no-unresolved
 import cx from 'classnames';
 // eslint-disable-next-line import/no-unresolved
 import { range } from 'd3-array';

@@ -68,6 +68,7 @@
     "webpack": "1.13.1"
   },
   "peerDependencies": {
+    "classnames": "2.x",
     "d3-array": "1.x",
     "d3-shape": "1.x",
     "d3-time": "1.x",
