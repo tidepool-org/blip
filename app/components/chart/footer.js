@@ -35,6 +35,8 @@ var TidelineFooter = React.createClass({
     boxOverlay: React.PropTypes.bool,
     grouped: React.PropTypes.bool,
     showingLines: React.PropTypes.bool,
+    showingCbg: React.PropTypes.bool,
+    showingSmbg: React.PropTypes.bool,
     showingValues: React.PropTypes.bool,
   },
   render: function() {
@@ -42,7 +44,6 @@ var TidelineFooter = React.createClass({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
-    
     var showValues = (
       <div className="footer-right-options">
         <label htmlFor="valuesCheckbox">
@@ -51,10 +52,8 @@ var TidelineFooter = React.createClass({
             onChange={this.props.onClickValues} /> Values
         </label>
       </div>
-      );
-    
+    );
 
-    
     var modalOpts = (
       <div className="footer-right-options">
         <label htmlFor="overlayCheckbox">
@@ -75,15 +74,18 @@ var TidelineFooter = React.createClass({
             onChange={this.props.onClickLines} /> Lines
         </label>
       </div>
-      );
-    
+    );
 
-    
-    var rightSide = this.props.chartType === 'weekly' ? showValues :
-      this.props.chartType === 'modal' ? modalOpts : null;
-    
+    var rightSide = null;
 
-    
+    if (this.props.chartType === 'weekly') {
+      rightSide = showValues;
+    } else if (this.props.chartType === 'modal') {
+      if (this.props.showingSmbg) {
+        rightSide = modalOpts;
+      }
+    }
+
     return (
       <div className="container-box-outer patient-data-footer-outer">
         <div className="container-box-inner patient-data-footer-inner">
@@ -91,12 +93,14 @@ var TidelineFooter = React.createClass({
             <button className="btn btn-chart btn-refresh"
               onClick={this.props.onClickRefresh}>
               Refresh</button>
+            <span onClick={this.props.onClickBgDataToggle}>
+              {this.props.showingSmbg ? ' Showing fingerstick data' : ' Showing CGM data'}
+            </span>
           </div>
           <div className="patient-data-footer-right">{rightSide}</div>
         </div>
       </div>
-      );
-    
+    );
   }
 });
 

@@ -40,15 +40,16 @@ class SMBGTrends extends React.Component {
   }
 
   componentDidMount() {
-    const { bgDomain, el, timezone } = this.props;
+    const { bgDomain, bgUnits, timezone } = this.props;
     this.log('Mounting...');
     this.chart = modalDay.create(document.getElementById('tidelineContainer'), {
       bgDomain,
+      bgUnits,
       clampTop: true,
       timezone,
     });
     console.time('SMBGTrends Draw');
-    const { bgClasses, bgUnits, boxOverlay, grouped, showingLines } = this.props;
+    const { bgClasses, boxOverlay, grouped, showingLines } = this.props;
     this.chart.render(this.props.data, {
       bgClasses,
       bgUnits,

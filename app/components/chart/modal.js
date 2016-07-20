@@ -68,7 +68,7 @@ var Modal = React.createClass({
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <div ref="modal" id="tidelineContainer" className="patient-data-chart-modal">
+              <div id="tidelineContainer" className="patient-data-chart-modal">
                 {this.renderChart()}
               </div>
             </div>
@@ -130,9 +130,17 @@ var Modal = React.createClass({
     );
   },
   renderChart: function() {
+    const { bgPrefs: { bgClasses, bgUnits } } = this.props;
+    let bgBounds = {
+      veryHighThreshold: bgClasses.high.boundary,
+      targetUpperBound: bgClasses.target.boundary,
+      targetLowerBound: bgClasses.low.boundary,
+      veryLowThreshold: bgClasses['very-low'].boundary,
+    };
     return (
       <TrendsContainer
         activeDays={this.props.chartPrefs.modal.activeDays}
+        bgBounds={bgBounds}
         bgClasses={this.props.bgPrefs.bgClasses}
         bgUnits={this.props.bgPrefs.bgUnits}
         extentSize={this.props.chartPrefs.modal.extentSize}
@@ -151,7 +159,7 @@ var Modal = React.createClass({
         smbgByDayOfWeek={this.props.patientData.smbgByDayOfWeek}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
-        onSelectDay={this.handleSelectDay}
+        onSwitchBgDataSource={this.toggleBgDataSource}
       ref="chart" />
     );
   },
@@ -313,9 +321,12 @@ var Modal = React.createClass({
     };
   },
   toggleBgDataSource: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.modal.showingCbg = prefs.modal.showingCbg ? false : true;
-    prefs.modal.showingSmbg = prefs.modal.showingSmbg ? false : true;
+    prefs.modal.showingCbg = !prefs.modal.showingCbg;
+    prefs.modal.showingSmbg = !prefs.modal.showingSmbg;
     this.props.updateChartPrefs(prefs);
   },
   toggleBoxOverlay: function(e) {
