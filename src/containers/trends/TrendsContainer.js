@@ -23,19 +23,40 @@ import bows from 'bows';
 // eslint-disable-next-line import/no-unresolved
 import { extent } from 'd3-array';
 // eslint-disable-next-line import/no-unresolved
+import { scaleLinear } from 'd3-scale';
+// eslint-disable-next-line import/no-unresolved
 import { utcDay } from 'd3-time';
 import React, { PropTypes } from 'react';
-// eslint-disable-next-line import/no-unresolved
-import update from 'react-addons-update';
 
+import CBGTrendsContainer from './CBGTrendsContainer';
 import * as datetime from '../../utils/datetime';
 
 class TrendsContainer extends React.Component {
   static propTypes = {
-    activeDays: PropTypes.object.isRequired,
-    bgClasses: PropTypes.object.isRequired,
-    bgUnits: PropTypes.string.isRequired,
-    extentSize: PropTypes.number.isRequired,
+    activeDays: PropTypes.shape({
+      monday: PropTypes.bool.isRequired,
+      tuesday: PropTypes.bool.isRequired,
+      wednesday: PropTypes.bool.isRequired,
+      thursday: PropTypes.bool.isRequired,
+      friday: PropTypes.bool.isRequired,
+      saturday: PropTypes.bool.isRequired,
+      sunday: PropTypes.bool.isRequired,
+    }).isRequired,
+    bgBounds: PropTypes.shape({
+      veryHighThreshold: PropTypes.number.isRequired,
+      targetUpperBound: PropTypes.number.isRequired,
+      targetLowerBound: PropTypes.number.isRequired,
+      veryLowThreshold: PropTypes.number.isRequired,
+    }),
+    bgClasses: PropTypes.shape({
+      'very-high': PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
+      high: PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
+      target: PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
+      low: PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
+      'very-low': PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
+    }).isRequired,
+    bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']),
+    extentSize: PropTypes.oneOf([7, 14, 28]),
     initialDatetimeLocation: PropTypes.string,
     showingSmbg: PropTypes.bool.isRequired,
     showingCbg: PropTypes.bool.isRequired,
@@ -51,18 +72,19 @@ class TrendsContainer extends React.Component {
     smbgByDayOfWeek: PropTypes.object.isRequired,
     // handlers
     onDatetimeLocationChange: PropTypes.func.isRequired,
-    onSelectDay: PropTypes.func.isRequired,
+    onSwitchBgDataSource: PropTypes.func.isRequired,
   };
 
   constructor(props) {
     super(props);
     this.log = bows('TrendsContainer');
     this.state = {
-      bgDomain: null,
       currentCbgData: [],
       currentSmbgData: [],
       dateDomain: null,
       mostRecent: null,
+      xScale: null,
+      yScale: null,
     };
   }
 
@@ -71,6 +93,14 @@ class TrendsContainer extends React.Component {
     const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek } = this.props;
     const allBg = cbgByDate.filterAll().top(Infinity).concat(smbgByDate.filterAll().top(Infinity));
     const bgDomain = extent(allBg, d => d.value);
+
+    const { bgBounds, bgUnits } = this.props;
+    const upperBound = (bgUnits === 'mg/dL') ? 400 : 22.5;
+    const yScaleDomain = [bgDomain[0], upperBound];
+    if (bgDomain[0] > bgBounds.targetLowerBound) {
+      yScaleDomain[0] = bgBounds.targetLowerBound;
+    }
+    const yScale = scaleLinear().domain(yScaleDomain);
 
     // find initial date domain (based on initialDatetimeLocation or current time)
     const { extentSize, initialDatetimeLocation, timePrefs } = this.props;
@@ -88,9 +118,11 @@ class TrendsContainer extends React.Component {
       bgDomain: { lo: bgDomain[0], hi: bgDomain[1] },
       currentCbgData: cbgByDate.top(Infinity).reverse(),
       currentSmbgData: smbgByDate.top(Infinity).reverse(),
-      dateDomain: { start: dateDomain[0], end: dateDomain[1], type: this.determineDataToShow() },
+      dateDomain: { start: dateDomain[0], end: dateDomain[1] },
       mostRecent: mostRecent.toISOString(),
-    });
+      xScale: scaleLinear().domain([0, 864e5]),
+      yScale,
+    }, this.determineDataToShow);
     this.props.onDatetimeLocationChange(dateDomain);
   }
 
@@ -125,9 +157,7 @@ class TrendsContainer extends React.Component {
     this.setState({
       currentCbgData: cbgByDate.top(Infinity).reverse(),
       currentSmbgData: smbgByDate.top(Infinity).reverse(),
-      dateDomain: update(
-        this.state.dateDomain, { $merge: { start: newDomain[0], end: newDomain[1] } }
-      ),
+      dateDomain: { start: newDomain[0], end: newDomain[1] },
     });
   }
 
@@ -190,21 +220,20 @@ class TrendsContainer extends React.Component {
 
   determineDataToShow() {
     const { currentCbgData } = this.state;
-    const { extentSize } = this.props;
-    const minimumCbgs = (extentSize * CBG_READINGS_ONE_DAY) / 2;
-    if (currentCbgData.length >= minimumCbgs) {
-      return 'cbg';
+    const { extentSize, showingCbg } = this.props;
+    const minimumCbgs = (extentSize * CBG_READINGS_ONE_DAY) / 5;
+    if (currentCbgData.length >= minimumCbgs && !showingCbg) {
+      this.props.onSwitchBgDataSource();
     }
-    return 'smbg';
   }
 
   render() {
-    const type = _.get(this.state, ['dateDomain', 'type'], null);
-    if (type === 'smbg') {
-      const { smbgTrendsComponent: SMBGTrends, timePrefs } = this.props;
-      const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+    const { timePrefs } = this.props;
+    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+    if (this.props.showingSmbg) {
+      const { smbgTrendsComponent: SMBGTrendsContainer } = this.props;
       return (
-        <SMBGTrends
+        <SMBGTrendsContainer
           bgClasses={this.props.bgClasses}
           bgDomain={[this.state.bgDomain.lo, this.state.bgDomain.hi]}
           bgUnits={this.props.bgUnits}
@@ -213,6 +242,17 @@ class TrendsContainer extends React.Component {
           grouped={this.props.smbgGrouped}
           showingLines={this.props.smbgLines}
           timezone={timezone}
+        />
+      );
+    } else if (this.props.showingCbg) {
+      return (
+        <CBGTrendsContainer
+          bgBounds={this.props.bgBounds}
+          bgUnits={this.props.bgUnits}
+          data={this.state.currentCbgData}
+          timezone={timezone}
+          xScale={this.state.xScale}
+          yScale={this.state.yScale}
         />
       );
     }

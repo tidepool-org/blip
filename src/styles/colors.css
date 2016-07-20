@@ -1,4 +1,11 @@
 :root {
   --basal: #19A0D7;
   --bolus: #7CD0F0;
+
+  --bkgrnd-darkest: #D3DBDD;
+  --bkgrnd-darker: #DCE4E7;
+  --bkgrnd-dark: #E3EAED;
+  --bkgrnd-light: #F2F4F6;
+  --bkgrnd-lighter: #E9EFF1;
+  --bkgrnd-lightest: #F8F9FA;
 }

@@ -1,0 +1,15 @@
+.cbgSlice {
+  composes: slice from '../../styles/trends.css';
+}
+
+.rangeSlice {
+  stroke-opacity: 0.25;
+}
+
+.outerSlice {
+  stroke-opacity: 0.35;
+}
+
+.quartileSlice {
+  stroke-opacity: 0.75;
+}

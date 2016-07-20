@@ -1,0 +1,25 @@
+@import './colors.css';
+
+.backgroundDarkest {
+  fill: var(--bkgrnd-darkest);
+}
+
+.backgroundDarker {
+  fill: var(--bkgrnd-darker);
+}
+
+.backgroundDark {
+  fill: var(--bkgrnd-dark);
+}
+
+.backgroundLight {
+  fill: var(--bkgrnd-light);
+}
+
+.backgroundLighter {
+  fill: var(--bkgrnd-lighter);
+}
+
+.backgroundLightest {
+  fill: var(--bkgrnd-lightest);
+}

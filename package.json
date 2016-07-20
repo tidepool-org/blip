@@ -70,9 +70,12 @@
   "peerDependencies": {
     "d3-array": "1.x",
     "d3-time": "1.x",
+    "lodash": "3.x",
     "moment-timezone": "0.x",
     "react-addons-update": "15.x",
+    "react-motion": "0.x",
     "react-redux": "4.x",
-    "redux": "3.x"
+    "redux": "3.x",
+    "simple-statistics": "2.x"
   }
 }
