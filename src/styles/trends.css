@@ -1,5 +1,7 @@
+@import './colors.css';
+
 .slice {
-  stroke: #5C74EF;
+  stroke: var(--trends-slice);
   stroke-linecap: round;
   stroke-width: 18px;
 }

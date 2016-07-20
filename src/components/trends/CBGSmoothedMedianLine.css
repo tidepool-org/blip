@@ -1,0 +1,8 @@
+@import '../../styles/colors.css';
+
+.medianLine {
+  fill: none;
+  stroke: var(--trends-median);
+  stroke-width: 3px;
+  stroke-linecap: round;
+}

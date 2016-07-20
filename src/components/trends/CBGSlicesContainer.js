@@ -22,7 +22,9 @@ import stats from 'simple-statistics';
 // eslint-disable-next-line import/no-unresolved
 import { Motion, spring } from 'react-motion';
 
+// import CBGIndividualMedians from './CBGIndividualMedians';
 import CBGSlices from './CBGSlices';
+import CBGSmoothedMedianLine from './CBGSmoothedMedianLine';
 
 export default class CBGSlicesContainer extends React.Component {
   static propTypes = {
@@ -86,6 +88,7 @@ export default class CBGSlicesContainer extends React.Component {
       yPositions[`${i}-min`] = transform(d.min);
       yPositions[`${i}-tenthQuantile`] = transform(d.tenthQuantile);
       yPositions[`${i}-firstQuartile`] = transform(d.firstQuartile);
+      yPositions[`${i}-median`] = transform(d.median);
       yPositions[`${i}-thirdQuartile`] = transform(d.thirdQuartile);
       yPositions[`${i}-ninetiethQuantile`] = transform(d.ninetiethQuantile);
       yPositions[`${i}-max`] = transform(d.max);
@@ -98,8 +101,11 @@ export default class CBGSlicesContainer extends React.Component {
     const { mungedData } = this.state;
     return (
       <Motion style={this.calcYPositions(mungedData, yScale)}>
-        {(interpolatedStyle) => (
-          <CBGSlices data={mungedData} xScale={xScale} yPositions={interpolatedStyle} />
+        {(interpolated) => (
+          <g id="cbgAnimationContainer">
+            <CBGSlices data={mungedData} xScale={xScale} yPositions={interpolated} />
+            <CBGSmoothedMedianLine data={mungedData} xScale={xScale} yPositions={interpolated} />
+          </g>
         )}
       </Motion>
     );

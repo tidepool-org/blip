@@ -69,6 +69,7 @@
   },
   "peerDependencies": {
     "d3-array": "1.x",
+    "d3-shape": "1.x",
     "d3-time": "1.x",
     "lodash": "3.x",
     "moment-timezone": "0.x",
