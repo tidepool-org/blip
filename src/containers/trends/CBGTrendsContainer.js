@@ -18,9 +18,9 @@
 import React, { PropTypes } from 'react';
 import bows from 'bows';
 
-import ModalBackground from '../../components/trends/ModalBackground';
+import ModalBackground from '../../components/trends/common/ModalBackground';
 import YAxisLabels from '../../components/trends/common/YAxisLabels';
-import CBGSlicesContainer from '../../components/trends/CBGSlicesContainer';
+import CBGSlicesContainer from '../../components/trends/cbg/CBGSlicesContainer';
 
 /*
  * TODO: DISCUSS

@@ -35,7 +35,7 @@ const FILL_CLASSES = [
 
 const THREE_HRS = 10800000;
 
-import styles from '../../styles/background.css';
+import styles from '../../../styles/background.css';
 
 const ModalBackground = (props) => {
   const { data, margins, smbgOpts, svgDimensions, xScale } = props;
