@@ -1,5 +1,3 @@
-@import '../../styles/colors.css';
-
 .cbgMedian {
   fill: var(--trends-median);
   fill-opacity: 0.5;

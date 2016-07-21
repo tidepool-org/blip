@@ -1,5 +1,3 @@
-@import '../../styles/colors.css';
-
 .medianLine {
   fill: none;
   stroke: var(--trends-median);
