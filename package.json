@@ -40,6 +40,7 @@
     "babel-preset-stage-2": "6.11.0",
     "bows": "1.6.0",
     "chai": "3.5.0",
+    "classnames": "2.2.5",
     "css-loader": "0.23.1",
     "enzyme": "2.4.1",
     "eslint": "2.13.1",
@@ -55,6 +56,7 @@
     "karma-mocha-reporter": "2.0.4",
     "karma-phantomjs-launcher": "1.0.1",
     "karma-webpack": "1.7.0",
+    "lodash": "3.10.1",
     "mocha": "2.5.3",
     "phantomjs-prebuilt": "2.1.7",
     "postcss": "5.1.0",
@@ -62,14 +64,18 @@
     "postcss-loader": "0.9.1",
     "react": "15.2.1",
     "react-addons-test-utils": "15.2.1",
+    "react-addons-update": "15.2.1",
     "react-dom": "15.2.1",
     "react-hot-loader": "3.0.0-beta.2",
+    "react-redux": "4.4.5",
+    "redux": "3.5.2",
     "style-loader": "0.13.1",
     "webpack": "1.13.1"
   },
   "peerDependencies": {
     "classnames": "2.x",
     "d3-array": "1.x",
+    "d3-scale": "1.x",
     "d3-shape": "1.x",
     "d3-time": "1.x",
     "lodash": "3.x",
@@ -79,5 +85,14 @@
     "react-redux": "4.x",
     "redux": "3.x",
     "simple-statistics": "2.x"
+  },
+  "dependencies": {
+    "d3-array": "1.0.0",
+    "d3-scale": "1.0.1",
+    "d3-shape": "1.0.0",
+    "d3-time": "1.0.0",
+    "moment-timezone": "0.5.4",
+    "react-motion": "0.4.4",
+    "simple-statistics": "2.1.0"
   }
 }
