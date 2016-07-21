@@ -2,10 +2,10 @@
 
 .basalSchedulesHeader {
   background-color: var(--basal);
-  composes: white-text from '../../styles/typography.css';
+  composes: whiteText from '../../styles/typography.css';
 }
 .bolusSettingsHeader {
   background-color: var(--bolus);
-  composes: white-text from '../../styles/typography.css';
+  composes: whiteText from '../../styles/typography.css';
 }
 
