@@ -22,11 +22,11 @@ import React, { PropTypes } from 'react';
 import styles from './CBGSmoothedMedianLine.css';
 
 const CBGSmoothedMedianLine = (props) => {
-  const { data, xScale, yPositions } = props;
+  const { data, fallBackYPositions, xScale, yPositions } = props;
 
   const generatePath = line()
     .x((d) => (xScale(d.msX)))
-    .y((d, i) => (yPositions[`${i}-median`]))
+    .y((d) => (yPositions[`${d.id}-median`] || fallBackYPositions[`${d.id}-median`]))
     .curve(curveBasis);
 
   return (
@@ -36,6 +36,7 @@ const CBGSmoothedMedianLine = (props) => {
 
 CBGSmoothedMedianLine.propTypes = {
   data: PropTypes.array.isRequired,
+  fallBackYPositions: PropTypes.object.isRequired,
   xScale: PropTypes.func.isRequired,
   yPositions: PropTypes.object.isRequired,
 };

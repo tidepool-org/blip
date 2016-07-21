@@ -21,19 +21,25 @@ import React, { PropTypes } from 'react';
 import styles from './CBGIndividualMedians.css';
 
 const CBGIndividualMedians = (props) => {
-  const { data, radius, xScale, yPositions } = props;
+  const { data, fallBackYPositions, radius, xScale, yPositions } = props;
 
   return (
     <g id="cbgIndividualMedians">
-      {_.map(data, (d, i) => (
-        <circle
-          className={styles.cbgMedian}
-          key={`individualMedian-${i}`}
-          cx={xScale(d.msX)}
-          cy={yPositions[`${i}-median`]}
-          r={radius}
-        />)
-      )}
+      {_.map(data, (d) => {
+        const cy = yPositions[`${d.id}-median`] || fallBackYPositions[`${d.id}-median`];
+        if (cy) {
+          return (
+            <circle
+              className={styles.cbgMedian}
+              key={`individualMedian-${d.id}`}
+              cx={xScale(d.msX)}
+              cy={cy}
+              r={radius}
+            />
+          );
+        }
+        return null;
+      })}
     </g>
   );
 };
@@ -44,6 +50,7 @@ CBGIndividualMedians.defaultProps = {
 
 CBGIndividualMedians.propTypes = {
   data: PropTypes.array.isRequired,
+  fallBackYPositions: PropTypes.object.isRequired,
   radius: PropTypes.number.isRequired,
   xScale: PropTypes.func.isRequired,
   yPositions: PropTypes.object.isRequired,

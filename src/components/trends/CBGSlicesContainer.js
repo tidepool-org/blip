@@ -57,9 +57,12 @@ export default class CBGSlicesContainer extends React.Component {
   }
 
   mungeData(binSize, data) {
-    const binned = _.groupBy(data, (d) => (
-      Math.ceil(d.msPer24 / binSize) * binSize - (binSize / 2)
-    ));
+    const binned = _.groupBy(data, (d) => {
+      if (d.msPer24 === 0) {
+        return binSize / 2;
+      }
+      return Math.ceil(d.msPer24 / binSize) * binSize - (binSize / 2);
+    });
     const binKeys = Object.keys(binned);
     const valueExtractor = (d) => (d.value);
     const mungedData = [];
@@ -81,17 +84,16 @@ export default class CBGSlicesContainer extends React.Component {
     return mungedData;
   }
 
-  calcYPositions(mungedData, yScale) {
-    const transform = (d) => (spring(yScale(d)));
+  calcYPositions(mungedData, yScale, transform) {
     const yPositions = {};
-    _.each(mungedData, (d, i) => {
-      yPositions[`${i}-min`] = transform(d.min);
-      yPositions[`${i}-tenthQuantile`] = transform(d.tenthQuantile);
-      yPositions[`${i}-firstQuartile`] = transform(d.firstQuartile);
-      yPositions[`${i}-median`] = transform(d.median);
-      yPositions[`${i}-thirdQuartile`] = transform(d.thirdQuartile);
-      yPositions[`${i}-ninetiethQuantile`] = transform(d.ninetiethQuantile);
-      yPositions[`${i}-max`] = transform(d.max);
+    _.each(mungedData, (d) => {
+      yPositions[`${d.id}-min`] = transform(d.min);
+      yPositions[`${d.id}-tenthQuantile`] = transform(d.tenthQuantile);
+      yPositions[`${d.id}-firstQuartile`] = transform(d.firstQuartile);
+      yPositions[`${d.id}-median`] = transform(d.median);
+      yPositions[`${d.id}-thirdQuartile`] = transform(d.thirdQuartile);
+      yPositions[`${d.id}-ninetiethQuantile`] = transform(d.ninetiethQuantile);
+      yPositions[`${d.id}-max`] = transform(d.max);
     });
     return yPositions;
   }
@@ -99,12 +101,24 @@ export default class CBGSlicesContainer extends React.Component {
   render() {
     const { xScale, yScale } = this.props;
     const { mungedData } = this.state;
+    const withSpring = this.calcYPositions(mungedData, yScale, (d) => (spring(yScale(d))));
+    const fallback = this.calcYPositions(mungedData, yScale, (d) => (yScale(d)));
     return (
-      <Motion style={this.calcYPositions(mungedData, yScale)}>
+      <Motion style={withSpring}>
         {(interpolated) => (
           <g id="cbgAnimationContainer">
-            <CBGSlices data={mungedData} xScale={xScale} yPositions={interpolated} />
-            <CBGSmoothedMedianLine data={mungedData} xScale={xScale} yPositions={interpolated} />
+            <CBGSlices
+              data={mungedData}
+              fallBackYPositions={fallback}
+              xScale={xScale}
+              yPositions={interpolated}
+            />
+            <CBGSmoothedMedianLine
+              data={mungedData}
+              fallBackYPositions={fallback}
+              xScale={xScale}
+              yPositions={interpolated}
+            />
           </g>
         )}
       </Motion>

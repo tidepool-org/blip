@@ -23,45 +23,42 @@ import cx from 'classnames';
 import styles from './CBGSlices.css';
 
 const CBGSlices = (props) => {
-  const { data, xScale, yPositions } = props;
+  const { data, fallBackYPositions, xScale, yPositions } = props;
+
+  function renderLine(d, category, y1Access, y2Access) {
+    const y1 = yPositions[y1Access] || fallBackYPositions[y1Access];
+    const y2 = yPositions[y2Access] || fallBackYPositions[y2Access];
+    if (y1 && y2) {
+      return (
+        <line
+          className={cx({ [styles.cbgSlice]: true, [styles[category]]: true })}
+          key={`${category}-${d.id}`}
+          x1={xScale(d.msX)}
+          x2={xScale(d.msX)}
+          y1={y1}
+          y2={y2}
+        />
+      );
+    }
+    return null;
+  }
 
   return (
     <g id="cbgSlices">
       <g id="rangeSlices">
-        {_.map(data, (d, i) => (
-          <line
-            className={cx({ [styles.cbgSlice]: true, [styles.rangeSlice]: true })}
-            key={`rangeSlice-${i}`}
-            x1={xScale(d.msX)}
-            x2={xScale(d.msX)}
-            y1={yPositions[`${i}-min`]}
-            y2={yPositions[`${i}-max`]}
-          />)
-        )}
+        {_.map(data, (d) => (
+          renderLine(d, 'rangeSlice', `${d.id}-min`, `${d.id}-max`)
+        ))}
       </g>
       <g id="outerSlices">
-        {_.map(data, (d, i) => (
-          <line
-            className={cx({ [styles.cbgSlice]: true, [styles.outerSlice]: true })}
-            key={`outerSlice-${i}`}
-            x1={xScale(d.msX)}
-            x2={xScale(d.msX)}
-            y1={yPositions[`${i}-tenthQuantile`]}
-            y2={yPositions[`${i}-ninetiethQuantile`]}
-          />)
-        )}
+        {_.map(data, (d) => (
+          renderLine(d, 'outerSlice', `${d.id}-tenthQuantile`, `${d.id}-ninetiethQuantile`)
+        ))}
       </g>
       <g id="quartileSlices">
-        {_.map(data, (d, i) => (
-          <line
-            className={cx({ [styles.cbgSlice]: true, [styles.quartileSlice]: true })}
-            key={`quartileSlice-${i}`}
-            x1={xScale(d.msX)}
-            x2={xScale(d.msX)}
-            y1={yPositions[`${i}-firstQuartile`]}
-            y2={yPositions[`${i}-thirdQuartile`]}
-          />)
-        )}
+        {_.map(data, (d) => (
+          renderLine(d, 'quartileSlice', `${d.id}-firstQuartile`, `${d.id}-thirdQuartile`)
+        ))}
       </g>
     </g>
   );
@@ -69,6 +66,7 @@ const CBGSlices = (props) => {
 
 CBGSlices.propTypes = {
   data: PropTypes.array.isRequired,
+  fallBackYPositions: PropTypes.object.isRequired,
   xScale: PropTypes.func.isRequired,
   yPositions: PropTypes.object.isRequired,
 };
