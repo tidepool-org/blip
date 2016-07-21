@@ -19,6 +19,7 @@ import React, { PropTypes } from 'react';
 import bows from 'bows';
 
 import ModalBackground from '../../components/trends/ModalBackground';
+import YAxisLabels from '../../components/trends/common/YAxisLabels';
 import CBGSlicesContainer from '../../components/trends/CBGSlicesContainer';
 
 /*
@@ -104,6 +105,11 @@ class CBGTrendsContainer extends React.Component {
           smbgOpts={this.props.smbgOpts}
           svgDimensions={this.state.svgDimensions}
           xScale={this.props.xScale}
+        />
+        <YAxisLabels
+          bgBounds={this.props.bgBounds}
+          margins={this.props.margins}
+          yScale={this.props.yScale}
         />
         <CBGSlicesContainer
           data={this.props.data}

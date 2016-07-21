@@ -1,3 +1,19 @@
 .whiteText {
   color: white;
 }
+
+.axisSize {
+  font-size: 14px;
+}
+
+.svgGrayText {
+  fill: var(--text-gray);
+}
+
+.svgRightAnchored {
+  text-anchor: end;
+}
+
+.svgVerticalCentered {
+  dominant-baseline: central;
+}

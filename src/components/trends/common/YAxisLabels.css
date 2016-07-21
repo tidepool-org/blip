@@ -1,0 +1,7 @@
+.text {
+  composes: axisSize svgGrayText svgRightAnchored svgVerticalCentered from '../../../styles/typography.css';
+}
+
+.tick {
+  stroke: var(--axis-tick);
+}
