@@ -15,7 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-// eslint-disable-next-line import/no-unresolved
 import moment from 'moment-timezone';
 
 /**

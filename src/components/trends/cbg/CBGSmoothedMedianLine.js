@@ -15,7 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-// eslint-disable-next-line import/no-unresolved
 import { curveBasis, line } from 'd3-shape';
 import React, { PropTypes } from 'react';
 

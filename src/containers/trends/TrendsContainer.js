@@ -17,14 +17,10 @@
 
 const CBG_READINGS_ONE_DAY = 86400000 / (1000 * 60 * 5);
 
-// eslint-disable-next-line import/no-unresolved
 import _ from 'lodash';
 import bows from 'bows';
-// eslint-disable-next-line import/no-unresolved
 import { extent } from 'd3-array';
-// eslint-disable-next-line import/no-unresolved
 import { scaleLinear } from 'd3-scale';
-// eslint-disable-next-line import/no-unresolved
 import { utcDay } from 'd3-time';
 import React, { PropTypes } from 'react';
 

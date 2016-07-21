@@ -17,9 +17,7 @@
 
 import _ from 'lodash';
 import React from 'react';
-// eslint-disable-next-line import/no-unresolved
 import stats from 'simple-statistics';
-// eslint-disable-next-line import/no-unresolved
 import { Motion, spring } from 'react-motion';
 
 // import CBGIndividualMedians from './CBGIndividualMedians';
