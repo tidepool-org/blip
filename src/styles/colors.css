@@ -11,7 +11,8 @@
   --bkgrnd-lighter: #E9EFF1;
   --bkgrnd-lightest: #F8F9FA;
 
-  --text-gray: #727375;
+  --text-medium-contrast: #727375;
+  --text-high-contrast: #281946;
 
   --trends-median: #281946;
   --trends-slice: #5C74EF;

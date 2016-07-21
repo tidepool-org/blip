@@ -1,5 +1,7 @@
 .cbgSlice {
-  composes: slice from '../../styles/trends.css';
+  stroke: var(--trends-slice);
+  stroke-linecap: round;
+  stroke-width: 18px;
 }
 
 .rangeSlice {

@@ -6,8 +6,9 @@
   font-size: 14px;
 }
 
-.svgGrayText {
-  fill: var(--text-gray);
+.mediumContrastText {
+  color: var(--text-medium-contrast);
+  fill: var(--text-medium-contrast);
 }
 
 .svgRightAnchored {

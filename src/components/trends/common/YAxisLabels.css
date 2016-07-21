@@ -1,5 +1,5 @@
 .text {
-  composes: axisSize svgGrayText svgRightAnchored svgVerticalCentered from '../../../styles/typography.css';
+  composes: axisSize mediumContrastText svgRightAnchored svgVerticalCentered from '../../../styles/typography.css';
 }
 
 .tick {
