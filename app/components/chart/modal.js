@@ -60,6 +60,12 @@ var Modal = React.createClass({
       visibleDays: 0
     };
   },
+  componentDidMount: function() {
+    if (this.refs.chart) {
+      // necessary to get a ref from the redux connect()ed TrendsContainer
+      this.chart = this.refs.chart.getWrappedInstance();
+    }
+  },
   render: function() {
     return (
       <div id="tidelineMain">
@@ -215,14 +221,14 @@ var Modal = React.createClass({
     this.setState({
       atMostRecent: false
     });
-    this.refs.chart.goBack();
+    this.chart.goBack();
   },
   handleClickForward: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.setState({
-      atMostRecent: this.refs.chart.goForward()
+      atMostRecent: this.chart.goForward()
     });
   },
   handleClickMostRecent: function(e) {
@@ -232,13 +238,13 @@ var Modal = React.createClass({
     this.setState({
       atMostRecent: true
     });
-    this.refs.chart.goToMostRecent();
+    this.chart.goToMostRecent();
   },
   handleClickDaily: function(e) {
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart ? this.refs.chart.getCurrentDay() : this.props.initialDatetimeLocation;
+    var datetime = this.chart ? this.chart.getCurrentDay() : this.props.initialDatetimeLocation;
     this.props.onSwitchToDaily(datetime);
   },
   handleClickModal: function(e) {
@@ -256,9 +262,9 @@ var Modal = React.createClass({
     prefs.modal.activeDomain = '1 week';
     prefs.modal.extentSize = 7;
     this.props.updateChartPrefs(prefs);
-    var current = new Date(this.refs.chart.getCurrentDay());
+    var current = new Date(this.chart.getCurrentDay());
     var newDomain = this.getNewDomain(current, 7);
-    this.refs.chart.setExtent(newDomain);
+    this.chart.setExtent(newDomain);
     this.handleDatetimeLocationChange(newDomain);
   },
   handleClickTwoWeeks: function(e) {
@@ -269,9 +275,9 @@ var Modal = React.createClass({
     prefs.modal.activeDomain = '2 weeks';
     prefs.modal.extentSize = 14;
     this.props.updateChartPrefs(prefs);
-    var current = new Date(this.refs.chart.getCurrentDay());
+    var current = new Date(this.chart.getCurrentDay());
     var newDomain = this.getNewDomain(current, 14);
-    this.refs.chart.setExtent(newDomain);
+    this.chart.setExtent(newDomain);
     this.handleDatetimeLocationChange(newDomain);
   },
   handleClickFourWeeks: function(e) {
@@ -282,16 +288,16 @@ var Modal = React.createClass({
     prefs.modal.activeDomain = '4 weeks';
     prefs.modal.extentSize = 28;
     this.props.updateChartPrefs(prefs);
-    var current = new Date(this.refs.chart.getCurrentDay());
+    var current = new Date(this.chart.getCurrentDay());
     var newDomain = this.getNewDomain(current, 28);
-    this.refs.chart.setExtent(newDomain);
+    this.chart.setExtent(newDomain);
     this.handleDatetimeLocationChange(newDomain);
   },
   handleClickWeekly: function(e) {
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart ? this.refs.chart.getCurrentDay() : this.props.initialDatetimeLocation;
+    var datetime = this.chart ? this.chart.getCurrentDay() : this.props.initialDatetimeLocation;
     this.props.onSwitchToWeekly(datetime);
   },
   handleClickSettings: function(e) {

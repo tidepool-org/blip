@@ -24,6 +24,8 @@ import createLogger from 'redux-logger';
 import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
 
+import { vizReducer } from '@tidepool/viz';
+
 import DevTools from '../containers/DevTools';
 
 import blipState from '../reducers/initialState';
@@ -41,7 +43,8 @@ const reduxRouterMiddleware = syncHistory(browserHistory);
 
 const reducer = combineReducers({
   blip: reducers,
-  routing: routeReducer
+  routing: routeReducer,
+  viz: vizReducer,
 });
 
 const loggerMiddleware = createLogger({
