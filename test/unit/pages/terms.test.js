@@ -117,7 +117,6 @@ describe('Terms', () => {
     describe('flow for 18 and over login', () => {
       it('shows TOU and PP', () => {
         var overEighteen = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[0];
-        console.log(overEighteen.value);
         expect(overEighteen.value).to.equal(termsElem.props.ages.OF_AGE.value);
         // continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
@@ -175,7 +174,6 @@ describe('Terms', () => {
 
         // now we should be able to click the button
         var buttons = TestUtils.scryRenderedDOMComponentsWithTag(termsElem, 'button');
-        console.log(buttons);
         expect(buttons[1].textContent).to.equal('Continue');
         expect(buttons[1].disabled).to.equal(false);
         expect(buttons[0].textContent).to.equal('Back');
