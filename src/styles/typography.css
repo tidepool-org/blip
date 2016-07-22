@@ -11,6 +11,15 @@
   fill: var(--text-medium-contrast);
 }
 
+.highContrastText {
+  color: var(--text-high-contrast);
+  fill: var(--text-high-contrast);
+}
+
+.svgMiddleAnchored {
+  text-anchor: middle;
+}
+
 .svgRightAnchored {
   text-anchor: end;
 }

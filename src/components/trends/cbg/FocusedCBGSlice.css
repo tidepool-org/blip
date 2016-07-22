@@ -1,0 +1,6 @@
+.text {
+  composes: highContrastText svgMiddleAnchored svgVerticalCentered from '../../../styles/typography.css';
+  font-size: 12px;
+  font-weight: bold;
+  pointer-events: none;
+}

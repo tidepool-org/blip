@@ -23,11 +23,14 @@ import { extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { utcDay } from 'd3-time';
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
+import * as actions from '../../actions/';
 import CBGTrendsContainer from './CBGTrendsContainer';
 import * as datetime from '../../utils/datetime';
 
-class TrendsContainer extends React.Component {
+export class TrendsContainer extends React.Component {
   static propTypes = {
     activeDays: PropTypes.shape({
       monday: PropTypes.bool.isRequired,
@@ -69,6 +72,15 @@ class TrendsContainer extends React.Component {
     // handlers
     onDatetimeLocationChange: PropTypes.func.isRequired,
     onSwitchBgDataSource: PropTypes.func.isRequired,
+    // viz state
+    viz: PropTypes.shape({
+      trends: PropTypes.shape({
+        focusedCbgSlice: PropTypes.object,
+      }).isRequired,
+    }).isRequired,
+    // actions
+    focusTrendsCbgSlice: PropTypes.func.isRequired,
+    unfocusTrendsCbgSlice: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -246,6 +258,9 @@ class TrendsContainer extends React.Component {
           bgBounds={this.props.bgBounds}
           bgUnits={this.props.bgUnits}
           data={this.state.currentCbgData}
+          focusedSlice={this.props.viz.trends.focusedCbgSlice}
+          focusSlice={this.props.focusTrendsCbgSlice}
+          unfocusSlice={this.props.unfocusTrendsCbgSlice}
           timezone={timezone}
           xScale={this.state.xScale}
           yScale={this.state.yScale}
@@ -256,4 +271,22 @@ class TrendsContainer extends React.Component {
   }
 }
 
-export default TrendsContainer;
+export function mapStateToProps(state) {
+  return {
+    viz: state.viz,
+  };
+}
+
+export function mapDispatchToProps(dispatch) {
+  return bindActionCreators({
+    focusTrendsCbgSlice: actions.focusTrendsCbgSlice,
+    unfocusTrendsCbgSlice: actions.unfocusTrendsCbgSlice,
+  }, dispatch);
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+  (stateProps, dispatchProps, ownProps) => (Object.assign({}, ownProps, stateProps, dispatchProps)),
+  { withRef: true },
+)(TrendsContainer);

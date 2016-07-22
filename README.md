@@ -33,7 +33,13 @@ $ rm -rf node_modules/viz/
 $ npm link ../viz/
 ```
 
-Then in this viz/ directory, start the build in watch mode:
+Then in this viz/ directory, remove your copy of React (because it expects to be a singleton and configuring webpack to dedupe multiple locations from which React is `require`ed or `import`ed thus far has eluded us):
+
+```bash
+$  rm -rf node_modules/react/
+```
+
+And finally, start the build in watch mode:
 
 ```bash
 $ npm start

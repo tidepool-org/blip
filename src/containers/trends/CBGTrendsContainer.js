@@ -21,6 +21,7 @@ import bows from 'bows';
 import ModalBackground from '../../components/trends/common/ModalBackground';
 import YAxisLabels from '../../components/trends/common/YAxisLabels';
 import CBGSlicesContainer from '../../components/trends/cbg/CBGSlicesContainer';
+import FocusedCBGSlice from '../../components/trends/cbg/FocusedCBGSlice';
 
 /*
  * TODO: DISCUSS
@@ -61,9 +62,12 @@ class CBGTrendsContainer extends React.Component {
     }),
     bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']),
     data: PropTypes.array.isRequired,
+    focusedSlice: PropTypes.object,
+    focusSlice: PropTypes.func.isRequired,
     margins: PropTypes.object.isRequired,
     smbgOpts: PropTypes.object.isRequired,
     timezone: PropTypes.string.isRequired,
+    unfocusSlice: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
@@ -113,6 +117,14 @@ class CBGTrendsContainer extends React.Component {
         />
         <CBGSlicesContainer
           data={this.props.data}
+          focusedSlice={this.props.focusedSlice}
+          focusSlice={this.props.focusSlice}
+          unfocusSlice={this.props.unfocusSlice}
+          xScale={this.props.xScale}
+          yScale={this.props.yScale}
+        />
+        <FocusedCBGSlice
+          focusedSlice={this.props.focusedSlice}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />

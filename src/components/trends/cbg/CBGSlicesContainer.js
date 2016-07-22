@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash';
-import React from 'react';
+import React, { PropTypes } from 'react';
 import stats from 'simple-statistics';
 import { Motion, spring } from 'react-motion';
 
@@ -26,10 +26,13 @@ import CBGSmoothedMedianLine from './CBGSmoothedMedianLine';
 
 export default class CBGSlicesContainer extends React.Component {
   static propTypes = {
-    binSize: React.PropTypes.number.isRequired,
-    data: React.PropTypes.array.isRequired,
-    xScale: React.PropTypes.func.isRequired,
-    yScale: React.PropTypes.func.isRequired,
+    binSize: PropTypes.number.isRequired,
+    data: PropTypes.array.isRequired,
+    focusedSlice: PropTypes.object,
+    focusSlice: PropTypes.func.isRequired,
+    unfocusSlice: PropTypes.func.isRequired,
+    xScale: PropTypes.func.isRequired,
+    yScale: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -51,7 +54,9 @@ export default class CBGSlicesContainer extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const { binSize, data } = nextProps;
-    this.setState({ mungedData: this.mungeData(binSize, data) });
+    if (binSize !== this.props.binSize || data !== this.props.data) {
+      this.setState({ mungedData: this.mungeData(binSize, data) });
+    }
   }
 
   mungeData(binSize, data) {
@@ -97,7 +102,7 @@ export default class CBGSlicesContainer extends React.Component {
   }
 
   render() {
-    const { xScale, yScale } = this.props;
+    const { focusedSlice, focusSlice, unfocusSlice, xScale, yScale } = this.props;
     const { mungedData } = this.state;
     const withSpring = this.calcYPositions(mungedData, yScale, (d) => (spring(yScale(d))));
     const fallback = this.calcYPositions(mungedData, yScale, (d) => (yScale(d)));
@@ -108,6 +113,9 @@ export default class CBGSlicesContainer extends React.Component {
             <CBGSlices
               data={mungedData}
               fallBackYPositions={fallback}
+              focusedSlice={focusedSlice}
+              focusSlice={focusSlice}
+              unfocusSlice={unfocusSlice}
               xScale={xScale}
               yPositions={interpolated}
             />

@@ -23,15 +23,25 @@ import styles from './CBGSlices.css';
 
 const CBGSlices = (props) => {
   const { data, fallBackYPositions, xScale, yPositions } = props;
+  const { focusedSlice, focusSlice, unfocusSlice } = props;
 
   function renderLine(d, category, y1Access, y2Access) {
     const y1 = yPositions[y1Access] || fallBackYPositions[y1Access];
     const y2 = yPositions[y2Access] || fallBackYPositions[y2Access];
+    const focus = focusSlice.bind(null, d);
+    const unfocus = unfocusSlice.bind(null);
+    const classes = cx({
+      [styles.cbgSlice]: true,
+      [styles[category]]: true,
+      [styles[`${category}Focused`]]: d.id === _.get(focusedSlice, 'id', null),
+    });
     if (y1 && y2) {
       return (
         <line
-          className={cx({ [styles.cbgSlice]: true, [styles[category]]: true })}
+          className={classes}
           key={`${category}-${d.id}`}
+          onMouseOver={focus}
+          onMouseOut={unfocus}
           x1={xScale(d.msX)}
           x2={xScale(d.msX)}
           y1={y1}
@@ -66,6 +76,9 @@ const CBGSlices = (props) => {
 CBGSlices.propTypes = {
   data: PropTypes.array.isRequired,
   fallBackYPositions: PropTypes.object.isRequired,
+  focusedSlice: PropTypes.object,
+  focusSlice: PropTypes.func.isRequired,
+  unfocusSlice: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yPositions: PropTypes.object.isRequired,
 };

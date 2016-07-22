@@ -7,11 +7,20 @@
 .rangeSlice {
   stroke-opacity: 0.25;
 }
+.rangeSliceFocused {
+  stroke-opacity: 0.3;
+}
 
 .outerSlice {
   stroke-opacity: 0.35;
 }
+.outerSliceFocused {
+  stroke-opacity: 0.45;
+}
 
 .quartileSlice {
   stroke-opacity: 0.75;
+}
+.quartileSliceFocused {
+  stroke-opacity: 1;
 }
