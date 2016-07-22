@@ -71,6 +71,9 @@ export default class CBGSlicesContainer extends React.Component {
     const mungedData = [];
     for (let i = 0; i < binKeys.length; ++i) {
       const values = _.map(binned[binKeys[i]], valueExtractor);
+      const msX = parseInt(binKeys[i], 10);
+      const msFrom = msX - (binSize / 2);
+      const msTo = msX + (binSize / 2);
       mungedData.push({
         id: binKeys[i],
         min: stats.min(values),
@@ -80,7 +83,9 @@ export default class CBGSlicesContainer extends React.Component {
         ninetiethQuantile: stats.quantile(values, 0.9),
         max: stats.max(values),
         median: stats.median(values),
-        msX: parseInt(binKeys[i], 10),
+        msX,
+        msFrom,
+        msTo,
         data: binned[binKeys[i]],
       });
     }

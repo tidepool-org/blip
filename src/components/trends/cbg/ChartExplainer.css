@@ -15,25 +15,30 @@
  * == BSD2 LICENSE ==
  */
 
-require('./styles/colors.css');
+.container {
+  color: var(--text-medium-contrast);
+  width: 75%;
+  min-height: 76px;
+  margin-left: 40px;
 
-import TandemSettings from './views/settings/TandemSettings';
+  display: flex;
+  justify-content: space-between;
+}
 
-import ChartExplainer from './components/trends/cbg/ChartExplainer';
-import TrendsContainer from './containers/trends/TrendsContainer';
+.rightColumn {
+  text-align: right;
+}
 
-import vizReducer from './reducers/';
+.header {
+  margin: 0;
+  font-size: 14px;
+}
 
-const components = {
-  ChartExplainer,
-};
+.text {
+  margin: 0;
+  font-size: 14px;
+}
 
-const containers = {
-  TrendsContainer,
-};
-
-const views = {
-  Settings: { TandemSettings },
-};
-
-export { components, containers, views, vizReducer };
+.number {
+  font-weight: bold;
+}

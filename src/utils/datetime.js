@@ -46,3 +46,16 @@ export function timezoneAwareCeiling(utc, timezone) {
     .add(1, 'day')
     .toDate();
 }
+
+export function formatDurationHours(duration) {
+  return moment(String(moment.duration(duration).hours()), 'H').format('h,a');
+}
+
+export function formatDurationMinutes(duration) {
+  return moment(String(moment.duration(duration).minutes()), 'm').format('mm');
+}
+
+export function formatDurationToClocktime(duration) {
+  const hoursPlus = formatDurationHours(duration).split(',');
+  return `${hoursPlus[0]}:${formatDurationMinutes(duration)} ${hoursPlus[1]}`;
+}
