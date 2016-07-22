@@ -1,4 +1,5 @@
 var path = require('path');
+var cssVariables = require('postcss-custom-properties');
 var format = require('util').format;
 var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -67,7 +68,8 @@ module.exports = {
   entry: entryScripts,
   output: output,
   module: {
-    loaders: loaders
+    loaders: loaders,
+    postcss: [cssVariables],
   },
   // tideline DEV env variable only needs to be true in tideline local dev
   plugins: plugins,
