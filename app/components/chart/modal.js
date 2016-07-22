@@ -30,6 +30,7 @@ import SMBGTrends from './smbgtrends';
 
 import * as viz from '@tidepool/viz';
 const TrendsContainer = viz.containers.TrendsContainer;
+const ChartExplainer = viz.components.ChartExplainer;
 
 var Modal = React.createClass({
   chartType: 'modal',
@@ -40,6 +41,7 @@ var Modal = React.createClass({
     timePrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
+    trendsState: React.PropTypes.object.isRequired,
     // refresh handler
     onClickRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
@@ -77,6 +79,7 @@ var Modal = React.createClass({
               <div id="tidelineContainer" className="patient-data-chart-modal">
                 {this.renderChart()}
               </div>
+              {this.renderChartExplainer()}
             </div>
           </div>
         </div>
@@ -167,6 +170,14 @@ var Modal = React.createClass({
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSwitchBgDataSource={this.toggleBgDataSource}
       ref="chart" />
+    );
+  },
+  renderChartExplainer() {
+    if (!this.props.chartPrefs.modal.showingCbg) {
+      return null;
+    }
+    return (
+      <ChartExplainer focusedSlice={this.props.trendsState.focusedCbgSlice} />
     );
   },
   renderMissingSMBGHeader: function() {
