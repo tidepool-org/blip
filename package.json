@@ -10,8 +10,8 @@
     "karma-watch": "./node_modules/karma/bin/karma start --no-single-run --reporters=mocha,notification",
     "start": "NODE_ENV=development webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
     "build": "NODE_ENV=production npm run build-app && npm run build-config",
-    "build-app": "node buildapp",
-    "build-config": "node buildconfig",
+    "build-app": "NODE_ENV=production node buildapp",
+    "build-config": "NODE_ENV=production node buildconfig",
     "server": "node server",
     "lint": "eslint app test",
     "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0"
