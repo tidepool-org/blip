@@ -15,36 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-.whiteText {
-  color: white;
-}
-
-.axisSize {
-  font-size: 14px;
-}
-
-.mediumContrastText {
-  color: var(--text-medium-contrast);
-  fill: var(--text-medium-contrast);
-}
-
-.highContrastText {
-  color: var(--text-high-contrast);
-  fill: var(--text-high-contrast);
-}
-
-.svgMiddleAnchored {
-  text-anchor: middle;
-}
-
-.svgRightAnchored {
-  text-anchor: end;
-}
-
-.svgStartAnchored {
-  text-anchor: start;
-}
-
-.svgVerticalCentered {
-  dominant-baseline: central;
+.text {
+  composes: axisSize mediumContrastText svgStartAnchored from '../../../styles/typography.css';
 }

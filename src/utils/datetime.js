@@ -17,6 +17,8 @@
 
 import moment from 'moment-timezone';
 
+export const THREE_HRS = 10800000;
+
 /**
  * getTimezoneFromTimePrefs
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String

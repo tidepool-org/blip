@@ -31,7 +31,7 @@ const FILL_CLASSES = [
   'backgroundDarker',
 ];
 
-const THREE_HRS = 10800000;
+import * as datetime from '../../../utils/datetime';
 
 import styles from '../../../styles/background.css';
 
@@ -59,7 +59,7 @@ const ModalBackground = (props) => {
 };
 
 ModalBackground.defaultProps = {
-  data: _.map(range(0, 8), (i) => (i * THREE_HRS)),
+  data: _.map(range(0, 8), (i) => (i * datetime.THREE_HRS)),
 };
 
 ModalBackground.propTypes = {

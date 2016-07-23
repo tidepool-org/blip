@@ -19,6 +19,7 @@ import React, { PropTypes } from 'react';
 import bows from 'bows';
 
 import ModalBackground from '../../components/trends/common/ModalBackground';
+import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import YAxisLabels from '../../components/trends/common/YAxisLabels';
 import CBGSlicesContainer from '../../components/trends/cbg/CBGSlicesContainer';
 import FocusedCBGSlice from '../../components/trends/cbg/FocusedCBGSlice';
@@ -108,6 +109,12 @@ class CBGTrendsContainer extends React.Component {
           margins={this.props.margins}
           smbgOpts={this.props.smbgOpts}
           svgDimensions={this.state.svgDimensions}
+          xScale={this.props.xScale}
+        />
+        <XAxisLabels
+          focusedRange={null}
+          margins={this.props.margins}
+          useRangeLabels={false}
           xScale={this.props.xScale}
         />
         <YAxisLabels
