@@ -135,12 +135,6 @@ export class TrendsContainer extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { dateDomain: { end } } = this.state;
-    if (nextProps.extentSize !== this.props.extentSize) {
-      const start = utcDay.offset(new Date(end), -nextProps.extentSize).toISOString();
-      this.setExtent([start, end]);
-    }
-
     if (!_.isEqual(nextProps.activeDays, this.props.activeDays)) {
       const { cbgByDayOfWeek, smbgByDayOfWeek } = this.props;
       this.refilterByDayOfWeek(cbgByDayOfWeek, nextProps.activeDays);
@@ -200,14 +194,6 @@ export class TrendsContainer extends React.Component {
 
   refilterByDayOfWeek(dataByDayOfWeek, activeDays) {
     dataByDayOfWeek.filterFunction(this.filterActiveDaysFn(activeDays));
-  }
-
-  saveCurrentData() {
-    const { cbgByDate, smbgByDate } = this.props;
-    this.setState({
-      currentCbgData: cbgByDate.top(Infinity).reverse(),
-      currentSmbgData: smbgByDate.top(Infinity).reverse(),
-    });
   }
 
   initialFiltering(dataByDate, dataByDayOfWeek, dateDomain) {
