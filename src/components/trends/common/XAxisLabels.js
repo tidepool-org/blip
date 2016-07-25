@@ -28,7 +28,12 @@ const XAxisLabels = (props) => {
   return (
     <g id="xAxisLabels">
       {_.map(data, (msInDay) => (
-        <text className={styles.text} x={xScale(msInDay) + xOffset} y={margins.top - yOffset}>
+        <text
+          className={styles.text}
+          key={msInDay}
+          x={xScale(msInDay) + xOffset}
+          y={margins.top - yOffset}
+        >
           {datetime.formatDurationToClocktime(msInDay)}
         </text>
       ))}
