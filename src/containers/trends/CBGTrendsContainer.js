@@ -22,6 +22,7 @@ import ModalBackground from '../../components/trends/common/ModalBackground';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import YAxisLabels from '../../components/trends/common/YAxisLabels';
 import CBGSlicesContainer from '../../components/trends/cbg/CBGSlicesContainer';
+import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 import FocusedCBGSlice from '../../components/trends/cbg/FocusedCBGSlice';
 
 /*
@@ -129,6 +130,12 @@ class CBGTrendsContainer extends React.Component {
           margins={this.props.margins}
           svgDimensions={this.state.svgDimensions}
           unfocusSlice={this.props.unfocusSlice}
+          xScale={this.props.xScale}
+          yScale={this.props.yScale}
+        />
+        <TargetRangeLines
+          bgBounds={this.props.bgBounds}
+          smbgOpts={this.props.smbgOpts}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
