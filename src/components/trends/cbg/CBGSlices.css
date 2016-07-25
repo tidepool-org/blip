@@ -15,6 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
+.noDataMsg {
+  composes: mediumContrastText svgMiddleAnchored from '../../../styles/typography.css';
+}
+
 .cbgSlice {
   stroke: var(--trends-slice);
   stroke-linecap: round;

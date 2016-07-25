@@ -30,6 +30,8 @@ export default class CBGSlicesContainer extends React.Component {
     data: PropTypes.array.isRequired,
     focusedSlice: PropTypes.object,
     focusSlice: PropTypes.func.isRequired,
+    margins: PropTypes.object.isRequired,
+    svgDimensions: PropTypes.object.isRequired,
     unfocusSlice: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
@@ -107,7 +109,7 @@ export default class CBGSlicesContainer extends React.Component {
   }
 
   render() {
-    const { focusedSlice, focusSlice, unfocusSlice, xScale, yScale } = this.props;
+    const { xScale, yScale } = this.props;
     const { mungedData } = this.state;
     const withSpring = this.calcYPositions(mungedData, yScale, (d) => (spring(yScale(d))));
     const fallback = this.calcYPositions(mungedData, yScale, (d) => (yScale(d)));
@@ -118,9 +120,11 @@ export default class CBGSlicesContainer extends React.Component {
             <CBGSlices
               data={mungedData}
               fallBackYPositions={fallback}
-              focusedSlice={focusedSlice}
-              focusSlice={focusSlice}
-              unfocusSlice={unfocusSlice}
+              focusedSlice={this.props.focusedSlice}
+              focusSlice={this.props.focusSlice}
+              margins={this.props.margins}
+              svgDimensions={this.props.svgDimensions}
+              unfocusSlice={this.props.unfocusSlice}
               xScale={xScale}
               yPositions={interpolated}
             />

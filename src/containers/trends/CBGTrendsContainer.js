@@ -126,6 +126,8 @@ class CBGTrendsContainer extends React.Component {
           data={this.props.data}
           focusedSlice={this.props.focusedSlice}
           focusSlice={this.props.focusSlice}
+          margins={this.props.margins}
+          svgDimensions={this.state.svgDimensions}
           unfocusSlice={this.props.unfocusSlice}
           xScale={this.props.xScale}
           yScale={this.props.yScale}

@@ -52,6 +52,17 @@ const CBGSlices = (props) => {
     return null;
   }
 
+  if (_.isEmpty(data)) {
+    const { margins, svgDimensions } = props;
+    const xPos = (svgDimensions.width / 2) - margins.left + margins.right;
+    const yPos = (svgDimensions.height / 2) - margins.top + margins.bottom;
+    return (
+      <text className={styles.noDataMsg} id="noDataMsg" x={xPos + 40} y={yPos}>
+        No CGM data for this time period :(
+      </text>
+    );
+  }
+
   return (
     <g id="cbgSlices">
       <g id="rangeSlices">
@@ -78,6 +89,8 @@ CBGSlices.propTypes = {
   fallBackYPositions: PropTypes.object.isRequired,
   focusedSlice: PropTypes.object,
   focusSlice: PropTypes.func.isRequired,
+  margins: PropTypes.object.isRequired,
+  svgDimensions: PropTypes.object.isRequired,
   unfocusSlice: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yPositions: PropTypes.object.isRequired,
