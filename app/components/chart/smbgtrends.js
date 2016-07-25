@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import bows from 'bows';
 import React, { PropTypes } from 'react';
 
@@ -79,6 +80,11 @@ class SMBGTrends extends React.Component {
   }
 
   render() {
+    if (_.isEmpty(this.props.data)) {
+      return (
+        <p className="patient-data-chart-modal-no-data">No fingerstick data for this time period :(</p>
+      );
+    }
     return null;
   }
 }
