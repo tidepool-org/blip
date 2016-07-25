@@ -470,21 +470,33 @@ module.exports = function(pool, opts) {
                 ' (' + format.tooltipValue(bolus.extended) + ')');
           }
           else {
-            extRow.append('td')
-              .attr('class', 'dual')
-              .text('Up front: ');
-            extRow.append('td')
-              .attr('class', 'secondary')
-              .text(format.percentage(bolus.normal/commonbolus.getProgrammed(d)) +
-                ' (' + format.tooltipValue(bolus.normal) + ')');
-            var extRow2 = tbl.append('tr');
-            extRow2.append('td')
-              .attr('class', 'dual')
-              .text(format.timespan({duration: bolus.duration}) + ':');
-            extRow2.append('td')
-              .attr('class', 'secondary')
-              .text(format.percentage(bolus.extended/commonbolus.getProgrammed(bolus)) +
-                ' (' + format.tooltipValue(bolus.extended) + ')');
+            // Animas unknown split extended
+            if (bolus.annotations && Array.isArray(bolus.annotations) &&
+                bolus.annotations.length > 0 && bolus.annotations[0].code === 'animas/bolus/extended-equal-split'){
+              extRow.append('td')
+                .attr('class', 'dual')
+                .text(format.timespan({duration: bolus.duration}) + ':');
+              extRow.append('td')
+                .attr('class', 'secondary')
+                .text('unknown %');
+            }
+            else {
+              extRow.append('td')
+                .attr('class', 'dual')
+                .text('Up front: ');
+              extRow.append('td')
+                .attr('class', 'secondary')
+                .text(format.percentage(bolus.normal/commonbolus.getProgrammed(d)) +
+                  ' (' + format.tooltipValue(bolus.normal) + ')');
+              var extRow2 = tbl.append('tr');
+              extRow2.append('td')
+                .attr('class', 'dual')
+                .text(format.timespan({duration: bolus.duration}) + ':');
+              extRow2.append('td')
+                .attr('class', 'secondary')
+                .text(format.percentage(bolus.extended/commonbolus.getProgrammed(bolus)) +
+                  ' (' + format.tooltipValue(bolus.extended) + ')');
+            }
           }
         }
       },
