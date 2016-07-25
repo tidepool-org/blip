@@ -103,7 +103,6 @@ var Modal = React.createClass({
     return (
       <Header
         chartType={this.chartType}
-        atMostRecent={this.state.atMostRecent}
         inTransition={this.state.inTransition}
         atMostRecent={this.state.atMostRecent}
         title={this.state.title}
