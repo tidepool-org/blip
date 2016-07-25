@@ -217,7 +217,7 @@ var Modal = React.createClass({
       timezone = timePrefs.timezoneName || 'UTC';
     }
     current = sundial.ceil(current, 'day', timezone);
-    return [d3.time.day.utc.offset(current, -extent), current];
+    return [d3.time.day.utc.offset(current, -extent).toISOString(), current.toISOString()];
   },
   updateVisibleDays: function() {
     this.setState({
@@ -270,6 +270,10 @@ var Modal = React.createClass({
       e.preventDefault();
     }
     var prefs = _.cloneDeep(this.props.chartPrefs);
+    // no change, return early
+    if (prefs.activeDomain === '1 week' && prefs.extentSize === 7) {
+      return;
+    }
     prefs.modal.activeDomain = '1 week';
     prefs.modal.extentSize = 7;
     this.props.updateChartPrefs(prefs);
@@ -283,6 +287,10 @@ var Modal = React.createClass({
       e.preventDefault();
     }
     var prefs = _.cloneDeep(this.props.chartPrefs);
+    // no change, return early
+    if (prefs.activeDomain === '2 weeks' && prefs.extentSize === 14) {
+      return;
+    }
     prefs.modal.activeDomain = '2 weeks';
     prefs.modal.extentSize = 14;
     this.props.updateChartPrefs(prefs);
@@ -296,6 +304,10 @@ var Modal = React.createClass({
       e.preventDefault();
     }
     var prefs = _.cloneDeep(this.props.chartPrefs);
+    // no change, return early
+    if (prefs.activeDomain === '4 weeks' && prefs.extentSize === 28) {
+      return;
+    }
     prefs.modal.activeDomain = '4 weeks';
     prefs.modal.extentSize = 28;
     this.props.updateChartPrefs(prefs);
