@@ -24,19 +24,46 @@ import * as datetime from '../../../utils/datetime';
 import styles from './XAxisLabels.css';
 
 const XAxisLabels = (props) => {
-  const { data, margins, xOffset, xScale, yOffset } = props;
+  const { data, focusedRange, margins, xOffset, xScale, yOffset } = props;
+  const yPos = margins.top - yOffset;
+  let dataWithoutFocused = null;
+  let focusedMsInDay = null;
+  if (focusedRange) {
+    const sliceAfter = _.findIndex(data, (d) => (d >= focusedRange.msTo));
+    focusedMsInDay = data[sliceAfter - 1];
+    dataWithoutFocused = _.reject(data, (d, i) => (i === (sliceAfter - 1)));
+  }
+
+  function renderFocusedRange() {
+    if (focusedRange) {
+      return (
+        <text
+          className={styles.focusedRange}
+          x={xScale(focusedMsInDay) + xOffset}
+          y={yPos}
+        >
+          {`${datetime.formatDurationToClocktime(focusedRange.msFrom, false)}
+          - ${datetime.formatDurationToClocktime(focusedRange.msTo, false)}
+          `}
+        </text>
+      );
+    }
+    return null;
+  }
+
   return (
     <g id="xAxisLabels">
-      {_.map(data, (msInDay) => (
+      {_.map(dataWithoutFocused || data, (msInDay) => (
         <text
           className={styles.text}
           key={msInDay}
           x={xScale(msInDay) + xOffset}
-          y={margins.top - yOffset}
+          y={yPos}
         >
           {datetime.formatDurationToClocktime(msInDay)}
         </text>
       ))}
+      {renderFocusedRange()}
     </g>
   );
 };

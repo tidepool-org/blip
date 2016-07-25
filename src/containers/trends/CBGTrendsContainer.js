@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import bows from 'bows';
 
@@ -104,6 +105,10 @@ class CBGTrendsContainer extends React.Component {
 
   render() {
     const { svgDimensions } = this.state;
+    let focusedRange = null;
+    if (this.props.focusedSlice !== null) {
+      focusedRange = _.pick(this.props.focusedSlice, ['msFrom', 'msTo']);
+    }
     return (
       <svg {...svgDimensions}>
         <ModalBackground
@@ -113,7 +118,7 @@ class CBGTrendsContainer extends React.Component {
           xScale={this.props.xScale}
         />
         <XAxisLabels
-          focusedRange={null}
+          focusedRange={focusedRange}
           margins={this.props.margins}
           useRangeLabels={false}
           xScale={this.props.xScale}

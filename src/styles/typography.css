@@ -19,6 +19,10 @@
   color: white;
 }
 
+.boldText {
+  font-weight: bold;
+}
+
 .axisSize {
   font-size: 14px;
 }

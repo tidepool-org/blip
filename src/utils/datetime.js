@@ -57,7 +57,10 @@ export function formatDurationMinutes(duration) {
   return moment(String(moment.duration(duration).minutes()), 'm').format('mm');
 }
 
-export function formatDurationToClocktime(duration) {
+export function formatDurationToClocktime(duration, includeAmOrPm = true) {
   const hoursPlus = formatDurationHours(duration).split(',');
-  return `${hoursPlus[0]}:${formatDurationMinutes(duration)} ${hoursPlus[1]}`;
+  if (includeAmOrPm) {
+    return `${hoursPlus[0]}:${formatDurationMinutes(duration)} ${hoursPlus[1]}`;
+  }
+  return `${hoursPlus[0]}:${formatDurationMinutes(duration)}`;
 }
