@@ -177,7 +177,7 @@ export class TrendsContainer extends React.Component {
     const newDomain = [newStart, end];
     this.setExtent(newDomain);
     this.props.onDatetimeLocationChange(newDomain);
-    return (end === mostRecent);
+    return (end >= mostRecent);
   }
 
   goToMostRecent() {
