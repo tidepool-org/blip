@@ -20,9 +20,12 @@ import React, { PropTypes } from 'react';
 import stats from 'simple-statistics';
 import { Motion, spring } from 'react-motion';
 
-// import CBGIndividualMedians from './CBGIndividualMedians';
-import CBGSlices from './CBGSlices';
+import * as datetime from '../../../utils/datetime';
+
+import CBGSlice from './CBGSlice';
 import CBGSmoothedMedianLine from './CBGSmoothedMedianLine';
+
+import styles from './CBGSlicesContainer.css';
 
 export default class CBGSlicesContainer extends React.Component {
   static propTypes = {
@@ -94,49 +97,94 @@ export default class CBGSlicesContainer extends React.Component {
     return mungedData;
   }
 
+  calcMedianPositions(mungedData, yScale, transform) {
+    const medians = {};
+    _.each(mungedData, (d) => {
+      medians[d.id] = transform(d.median);
+    });
+    return medians;
+  }
+
   calcYPositions(mungedData, yScale, transform) {
     const yPositions = {};
     _.each(mungedData, (d) => {
-      yPositions[`${d.id}-min`] = transform(d.min);
-      yPositions[`${d.id}-tenthQuantile`] = transform(d.tenthQuantile);
-      yPositions[`${d.id}-firstQuartile`] = transform(d.firstQuartile);
-      yPositions[`${d.id}-median`] = transform(d.median);
-      yPositions[`${d.id}-thirdQuartile`] = transform(d.thirdQuartile);
-      yPositions[`${d.id}-ninetiethQuantile`] = transform(d.ninetiethQuantile);
-      yPositions[`${d.id}-max`] = transform(d.max);
+      yPositions[d.id] = _.mapValues(
+        _.pick(d, [
+          'min',
+          'median',
+          'max',
+          'tenthQuantile',
+          'ninetiethQuantile',
+          'firstQuartile',
+          'thirdQuartile',
+        ]),
+        (val) => (transform(val))
+      );
     });
     return yPositions;
   }
 
   render() {
-    const { xScale, yScale } = this.props;
     const { mungedData } = this.state;
-    const withSpring = this.calcYPositions(mungedData, yScale, (d) => (spring(yScale(d))));
-    const fallback = this.calcYPositions(mungedData, yScale, (d) => (yScale(d)));
-    return (
-      <Motion style={withSpring}>
+    if (_.isEmpty(mungedData)) {
+      const { margins, svgDimensions } = this.props;
+      const xPos = (svgDimensions.width / 2) - margins.left + margins.right;
+      const yPos = (svgDimensions.height / 2) - margins.top + margins.bottom;
+      return (
+        <text className={styles.noDataMsg} id="noDataMsg" x={xPos + 40} y={yPos}>
+          No CGM data for this time period :(
+        </text>
+      );
+    }
+    const { binSize, xScale, yScale } = this.props;
+    const dataById = {};
+    _.each(mungedData, (d) => {
+      dataById[d.id] = d;
+    });
+    const yPositions = this.calcYPositions(
+      mungedData, yScale, (d) => (spring(yScale(d)))
+    );
+    const mediansWithSpring = this.calcMedianPositions(
+      mungedData, yScale, (d) => (spring(yScale(d)))
+    );
+
+    function cannotRenderSmoothedMedianLine() {
+      return _.isEmpty(mediansWithSpring) ||
+        (Object.keys(mediansWithSpring).length !== (datetime.TWENTY_FOUR_HRS / binSize));
+    }
+
+    const medianDisplay = cannotRenderSmoothedMedianLine() ? null :
+    (
+      <Motion style={mediansWithSpring}>
         {(interpolated) => (
-          <g id="cbgAnimationContainer">
-            <CBGSlices
-              data={mungedData}
-              fallBackYPositions={fallback}
-              focusedSlice={this.props.focusedSlice}
-              focusSlice={this.props.focusSlice}
-              margins={this.props.margins}
-              svgDimensions={this.props.svgDimensions}
-              unfocusSlice={this.props.unfocusSlice}
-              xScale={xScale}
-              yPositions={interpolated}
-            />
-            <CBGSmoothedMedianLine
-              data={mungedData}
-              fallBackYPositions={fallback}
-              xScale={xScale}
-              yPositions={interpolated}
-            />
-          </g>
+          <CBGSmoothedMedianLine
+            data={mungedData}
+            xScale={xScale}
+            yPositions={interpolated}
+          />
         )}
       </Motion>
+    );
+
+    return (
+      <g id="cbgAnimationContainer">
+        {_.map(yPositions, (val, id) => (
+          <Motion key={id} style={yPositions[id]}>
+            {(interpolated) => (
+              <CBGSlice
+                datum={dataById[id]}
+                focusSlice={this.props.focusSlice}
+                isFocused={id === _.get(this.props.focusedSlice, 'id', null)}
+                key={id}
+                unfocusSlice={this.props.unfocusSlice}
+                xScale={xScale}
+                yPositions={interpolated}
+              />
+            )}
+          </Motion>
+        ))}
+        {medianDisplay}
+      </g>
     );
   }
 }

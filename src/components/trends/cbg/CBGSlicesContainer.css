@@ -15,7 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-.cbgMedian {
-  fill: var(--trends-median);
-  fill-opacity: 0.5;
+.noDataMsg {
+  composes: mediumContrastText svgMiddleAnchored from '../../../styles/typography.css';
 }

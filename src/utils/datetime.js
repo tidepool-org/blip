@@ -18,6 +18,7 @@
 import moment from 'moment-timezone';
 
 export const THREE_HRS = 10800000;
+export const TWENTY_FOUR_HRS = 86400000;
 
 /**
  * getTimezoneFromTimePrefs

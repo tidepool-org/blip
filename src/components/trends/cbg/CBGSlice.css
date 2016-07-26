@@ -15,8 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-.noDataMsg {
-  composes: mediumContrastText svgMiddleAnchored from '../../../styles/typography.css';
+.cbgMedian {
+  fill: var(--trends-median);
+  fill-opacity: 0.5;
 }
 
 .cbgSlice {
@@ -26,22 +27,28 @@
 }
 
 .rangeSlice {
+  composes: cbgSlice;
   stroke-opacity: 0.25;
 }
 .rangeSliceFocused {
+  composes: cbgSlice;
   stroke-opacity: 0.3;
 }
 
 .outerSlice {
+  composes: cbgSlice;
   stroke-opacity: 0.35;
 }
 .outerSliceFocused {
+  composes: cbgSlice;
   stroke-opacity: 0.45;
 }
 
 .quartileSlice {
+  composes: cbgSlice;
   stroke-opacity: 0.75;
 }
 .quartileSliceFocused {
+  composes: cbgSlice;
   stroke-opacity: 1;
 }
