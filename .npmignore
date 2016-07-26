@@ -1,0 +1,13 @@
+data/
+src/
+stories/
+storybook/
+test/
+.babelrc
+.editorconfig
+.eslintrc
+.gitignore
+.travis.yml
+karma.conf.js
+loadtests.js
+webpack.config.js

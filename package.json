@@ -8,6 +8,8 @@
   "main": "dist/index.js",
   "scripts": {
     "browser-tests": "./node_modules/.bin/karma start --browsers Chrome",
+    "build": "npm test && npm run clean && ./node_modules/.bin/babel src --out-dir dist --copy-files",
+    "clean": "./node_modules/.bin/rimraf ./dist/*",
     "karma-watch": "./node_modules/.bin/karma start --no-single-run",
     "lint": "./node_modules/.bin/eslint .storybook/ src/ stories/ test/ *.js",
     "pretest": "npm run lint",
@@ -69,6 +71,7 @@
     "react-hot-loader": "3.0.0-beta.2",
     "react-redux": "4.4.5",
     "redux": "3.5.2",
+    "rimraf": "2.5.4",
     "style-loader": "0.13.1",
     "webpack": "1.13.1"
   },
