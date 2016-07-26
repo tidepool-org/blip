@@ -30,8 +30,13 @@ const XAxisLabels = (props) => {
   let focusedMsInDay = null;
   if (focusedRange) {
     const sliceAfter = _.findIndex(data, (d) => (d >= focusedRange.msTo));
-    focusedMsInDay = data[sliceAfter - 1];
-    dataWithoutFocused = _.reject(data, (d, i) => (i === (sliceAfter - 1)));
+    if (sliceAfter !== -1) {
+      focusedMsInDay = data[sliceAfter - 1];
+      dataWithoutFocused = _.reject(data, (d, i) => (i === (sliceAfter - 1)));
+    } else {
+      focusedMsInDay = data[data.length - 1];
+      dataWithoutFocused = _.dropRight(data, 1);
+    }
   }
 
   function renderFocusedRange() {
