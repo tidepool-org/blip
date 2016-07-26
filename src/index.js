@@ -20,12 +20,15 @@ require('./styles/colors.css');
 import TandemSettings from './views/settings/TandemSettings';
 
 import ChartExplainer from './components/trends/cbg/ChartExplainer';
+import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
+
 import TrendsContainer from './containers/trends/TrendsContainer';
 
 import vizReducer from './reducers/';
 
 const components = {
   ChartExplainer,
+  TwoOptionToggle,
 };
 
 const containers = {

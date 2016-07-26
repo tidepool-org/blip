@@ -23,6 +23,10 @@
   font-weight: bold;
 }
 
+.smallSize {
+  font-size: 12px;
+}
+
 .axisSize {
   font-size: 14px;
 }
