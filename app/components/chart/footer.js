@@ -19,6 +19,9 @@ var bows = require('bows');
 var React = require('react');
 var cx = require('classnames');
 
+import * as viz from '@tidepool/viz';
+const TwoOptionToggle = viz.components.TwoOptionToggle;
+
 var tideline = {
   log: bows('Footer')
 };
@@ -77,6 +80,7 @@ var TidelineFooter = React.createClass({
     );
 
     var rightSide = null;
+    var bgDataToggle = null;
 
     if (this.props.chartType === 'weekly') {
       rightSide = showValues;
@@ -84,6 +88,13 @@ var TidelineFooter = React.createClass({
       if (this.props.showingSmbg) {
         rightSide = modalOpts;
       }
+      bgDataToggle = (
+        <TwoOptionToggle
+          left={{ label: 'BGM', state: this.props.showingSmbg }}
+          right={{ label: 'CGM', state: this.props.showingCbg }}
+          toggleFn={this.props.onClickBgDataToggle}
+        />
+      );
     }
 
     return (
@@ -93,9 +104,7 @@ var TidelineFooter = React.createClass({
             <button className="btn btn-chart btn-refresh"
               onClick={this.props.onClickRefresh}>
               Refresh</button>
-            <span onClick={this.props.onClickBgDataToggle}>
-              {this.props.showingSmbg ? ' Showing fingerstick data' : ' Showing CGM data'}
-            </span>
+            {bgDataToggle}
           </div>
           <div className="patient-data-footer-right">{rightSide}</div>
         </div>
