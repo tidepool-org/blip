@@ -5,7 +5,6 @@ import { storiesOf } from '@kadira/storybook';
 import ChartExplainer from '../../../../src/components/trends/cbg/ChartExplainer';
 
 storiesOf('ChartExplainer', module)
-  .add('default', () => (<ChartExplainer />))
   .add('focused cbg slice', () => {
     const focusedSlice = {
       msFrom: 0,

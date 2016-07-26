@@ -21,13 +21,9 @@ import * as datetime from '../../../utils/datetime';
 import styles from './ChartExplainer.css';
 
 const ChartExplainer = (props) => {
-  const { defaultText, focusedSlice: slice } = props;
+  const { focusedSlice: slice } = props;
   if (slice === null) {
-    return (
-      <div className={styles.container} id="trendsCbgExplainer">
-        <p className={styles.text}>{defaultText}</p>
-      </div>
-    );
+    return null;
   }
   const fromTime = datetime.formatDurationToClocktime(slice.msFrom);
   const toTime = datetime.formatDurationToClocktime(slice.msTo);
@@ -46,7 +42,7 @@ const ChartExplainer = (props) => {
           <span className={styles.number}>{slice.ninetiethQuantile}</span>
         </p>
       </div>
-      <div className={styles.rightColumn}>
+      <div>
         <p className={styles.text}>
           Your middle reading is <span className={styles.number}>{slice.median}</span>
         </p>
@@ -62,13 +58,10 @@ const ChartExplainer = (props) => {
 };
 
 ChartExplainer.defaultProps = {
-  defaultText: `Hover over a "slice" to see details or
-    switch from CGM to fingerstick data using the toggle below.`,
   focusedSlice: null,
 };
 
 ChartExplainer.propTypes = {
-  defaultText: PropTypes.string.isRequired,
   focusedSlice: PropTypes.object,
 };
 

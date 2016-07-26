@@ -16,27 +16,28 @@
  */
 
 .container {
-  color: var(--text-medium-contrast);
-  width: 75%;
-  min-height: 76px;
-  margin-left: 40px;
+  position: absolute;
+  width: 560px;
 
   display: flex;
   justify-content: space-between;
-}
 
-.rightColumn {
-  text-align: right;
+  background-color: white;
+  border: 2px solid var(--chrome);
+  color: var(--text-medium-contrast);
+  margin-left: 40px;
+  padding: 6px;
+  z-index: 100;
 }
 
 .header {
-  margin: 0;
   font-size: 14px;
+  margin: 0;
 }
 
 .text {
-  margin: 0;
   font-size: 14px;
+  margin: 0;
 }
 
 .number {
