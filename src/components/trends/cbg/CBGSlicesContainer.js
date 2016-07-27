@@ -20,10 +20,7 @@ import React, { PropTypes } from 'react';
 import stats from 'simple-statistics';
 import { Motion, spring } from 'react-motion';
 
-import * as datetime from '../../../utils/datetime';
-
 import CBGSlice from './CBGSlice';
-import CBGSmoothedMedianLine from './CBGSmoothedMedianLine';
 
 import styles from './CBGSlicesContainer.css';
 
@@ -136,34 +133,13 @@ export default class CBGSlicesContainer extends React.Component {
         </text>
       );
     }
-    const { binSize, xScale, yScale } = this.props;
+    const { xScale, yScale } = this.props;
     const dataById = {};
     _.each(mungedData, (d) => {
       dataById[d.id] = d;
     });
     const yPositions = this.calcYPositions(
       mungedData, yScale, (d) => (spring(yScale(d)))
-    );
-    const mediansWithSpring = this.calcMedianPositions(
-      mungedData, yScale, (d) => (spring(yScale(d)))
-    );
-
-    function cannotRenderSmoothedMedianLine() {
-      return _.isEmpty(mediansWithSpring) ||
-        (Object.keys(mediansWithSpring).length !== (datetime.TWENTY_FOUR_HRS / binSize));
-    }
-
-    const medianDisplay = cannotRenderSmoothedMedianLine() ? null :
-    (
-      <Motion style={mediansWithSpring}>
-        {(interpolated) => (
-          <CBGSmoothedMedianLine
-            data={mungedData}
-            xScale={xScale}
-            yPositions={interpolated}
-          />
-        )}
-      </Motion>
     );
 
     return (
@@ -183,7 +159,6 @@ export default class CBGSlicesContainer extends React.Component {
             )}
           </Motion>
         ))}
-        {medianDisplay}
       </g>
     );
   }
