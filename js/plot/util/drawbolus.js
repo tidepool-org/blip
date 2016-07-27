@@ -390,6 +390,8 @@ module.exports = function(pool, opts) {
       html: function(group, d) {
         var bolus = pluckBolus(d);
         var justBolus = (bolus.normal === commonbolus.getMaxValue(d)) && !d.carbInput;
+        var isAnimasCombo = bolus.annotations && Array.isArray(bolus.annotations) &&
+          bolus.annotations.length > 0 && bolus.annotations[0].code === 'animas/bolus/extended-equal-split';
 
         var title = group.append('div')
           .attr('class', 'title');
@@ -405,7 +407,7 @@ module.exports = function(pool, opts) {
           title.classed('wider', true);
         }
         // if not interrupted, then extended boluses get a headline
-        else if (bolus.extended) {
+        else if (bolus.extended && !isAnimasCombo) {
           title.append('p')
             .attr('class', 'plain right')
             .text('Extended');
@@ -435,7 +437,7 @@ module.exports = function(pool, opts) {
             .text(format.tooltipValue(commonbolus.getRecommended(d)));
         }
         // only show programmed when different from delivery
-        if (commonbolus.getProgrammed(d) !== commonbolus.getDelivered(d)) {
+        if (commonbolus.getProgrammed(d) !== commonbolus.getDelivered(d) || isAnimasCombo) {
           var intRow = tbl.append('tr');
           intRow.append('td')
             .attr('class', 'label')
@@ -444,6 +446,26 @@ module.exports = function(pool, opts) {
             .attr('class', 'right')
             .text(format.tooltipValue(commonbolus.getProgrammed(d)));
         }
+
+        if (isAnimasCombo){
+          var extRow = tbl.append('tr');
+          extRow.append('td').attr('class', 'label').text('Extended');
+          // If interrupted
+          if (commonbolus.getProgrammed(d) !== commonbolus.getDelivered(d)) {
+            extRow.append('td')
+              .attr('class', 'right')
+              .text('(' + format.timespan({duration: bolus.expectedDuration}) + ')');
+          }
+          else {
+            extRow.append('td')
+              .attr('class', 'right')
+              .text(format.timespan({duration: bolus.duration}));
+          }
+          var amtSpltRow = tbl.append('tr');
+          amtSpltRow.append('td').attr('colspan', '2')
+            .attr('class', 'em').text('Animas does not report combo split');
+        }
+
         // actual delivered bolus
         var delRow = tbl.append('tr');
         delRow.append('td')
@@ -470,17 +492,7 @@ module.exports = function(pool, opts) {
                 ' (' + format.tooltipValue(bolus.extended) + ')');
           }
           else {
-            // Animas unknown split extended
-            if (bolus.annotations && Array.isArray(bolus.annotations) &&
-                bolus.annotations.length > 0 && bolus.annotations[0].code === 'animas/bolus/extended-equal-split'){
-              extRow.append('td')
-                .attr('class', 'dual')
-                .text(format.timespan({duration: bolus.duration}) + ':');
-              extRow.append('td')
-                .attr('class', 'secondary')
-                .text('unknown %');
-            }
-            else {
+            if (!isAnimasCombo){
               extRow.append('td')
                 .attr('class', 'dual')
                 .text('Up front: ');
