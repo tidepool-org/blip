@@ -390,8 +390,7 @@ module.exports = function(pool, opts) {
       html: function(group, d) {
         var bolus = pluckBolus(d);
         var justBolus = (bolus.normal === commonbolus.getMaxValue(d)) && !d.carbInput;
-        var isAnimasCombo = bolus.annotations && Array.isArray(bolus.annotations) &&
-          bolus.annotations.length > 0 && bolus.annotations[0].code === 'animas/bolus/extended-equal-split';
+        var isAnimasCombo = _.some(bolus.annotations, {code: 'animas/bolus/extended-equal-split'});
 
         var title = group.append('div')
           .attr('class', 'title');
