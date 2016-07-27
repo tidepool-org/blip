@@ -20,7 +20,7 @@ import React, { PropTypes } from 'react';
 import styles from './CBGSlice.css';
 
 const CBGSlice = (props) => {
-  const { datum, radius, xScale, yPositions } = props;
+  const { datum, xScale, yPositions } = props;
   const { isFocused, focusSlice, unfocusSlice } = props;
 
   function renderLine(category, y1Accessor, y2Accessor) {
@@ -49,20 +49,9 @@ const CBGSlice = (props) => {
         renderLine('rangeSlice', 'min', 'max'),
         renderLine('outerSlice', 'tenthQuantile', 'ninetiethQuantile'),
         renderLine('quartileSlice', 'firstQuartile', 'thirdQuartile'),
-        <circle
-          className={styles.cbgMedian}
-          key={`individualMedian-${datum.id}`}
-          cx={xScale(datum.msX)}
-          cy={yPositions.median}
-          r={radius}
-        />,
       ]}
     </g>
   );
-};
-
-CBGSlice.defaultProps = {
-  radius: 7,
 };
 
 CBGSlice.propTypes = {
