@@ -435,7 +435,7 @@ module.exports = function(pool, opts) {
             .attr('class', 'right')
             .text(format.tooltipValue(commonbolus.getRecommended(d)));
         }
-        // only show programmed when different from delivery
+        // only show programmed when different from delivery or bolus is Animas combo
         if (commonbolus.getProgrammed(d) !== commonbolus.getDelivered(d) || isAnimasCombo) {
           var intRow = tbl.append('tr');
           intRow.append('td')
