@@ -448,16 +448,16 @@ module.exports = function(pool, opts) {
         }
 
         if (isAnimasCombo){
-          var extRow = tbl.append('tr');
-          extRow.append('td').attr('class', 'label').text('Extended');
+          var animExtRow = tbl.append('tr');
+          animExtRow.append('td').attr('class', 'label').text('Extended');
           // If interrupted
           if (commonbolus.getProgrammed(d) !== commonbolus.getDelivered(d)) {
-            extRow.append('td')
+            animExtRow.append('td')
               .attr('class', 'right')
               .text('(' + format.timespan({duration: bolus.expectedDuration}) + ')');
           }
           else {
-            extRow.append('td')
+            animExtRow.append('td')
               .attr('class', 'right')
               .text(format.timespan({duration: bolus.duration}));
           }
