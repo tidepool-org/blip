@@ -17,7 +17,7 @@
     "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0"
   },
   "dependencies": {
-    "@tidepool/viz": "0.0.0",
+    "@tidepool/viz": "0.0.1",
     "async": "1.5.2",
     "babel-core": "6.11.4",
     "babel-loader": "6.2.4",
