@@ -23,9 +23,11 @@ const CBGSlice = (props) => {
   const { datum, radius, xScale, yPositions } = props;
   const { isFocused, focusSlice, unfocusSlice } = props;
 
+  const focusMedian = focusSlice.bind(null, datum, ['median']);
+  const unfocus = unfocusSlice.bind(null);
+
   function renderLine(category, y1Accessor, y2Accessor) {
-    const focus = focusSlice.bind(null, datum);
-    const unfocus = unfocusSlice.bind(null);
+    const focus = focusSlice.bind(null, datum, [y1Accessor, y2Accessor]);
     if (yPositions[y1Accessor] && yPositions[y2Accessor]) {
       return (
         <line
@@ -52,6 +54,8 @@ const CBGSlice = (props) => {
         <circle
           className={styles.cbgMedian}
           key={`individualMedian-${datum.id}`}
+          onMouseOver={focusMedian}
+          onMouseOut={unfocus}
           cx={xScale(datum.msX)}
           cy={yPositions.median}
           r={radius}

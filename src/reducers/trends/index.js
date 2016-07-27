@@ -30,4 +30,15 @@ export const focusedCbgSlice = (state = null, action) => {
   }
 };
 
-export default combineReducers({ focusedCbgSlice });
+export const focusedCbgSliceKeys = (state = null, action) => {
+  switch (action.type) {
+    case actionTypes.FOCUS_TRENDS_CBG_SLICE:
+      return action.payload.focusedKeys;
+    case actionTypes.UNFOCUS_TRENDS_CBG_SLICE:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export default combineReducers({ focusedCbgSlice, focusedCbgSliceKeys });

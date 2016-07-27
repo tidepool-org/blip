@@ -15,9 +15,19 @@
  * == BSD2 LICENSE ==
  */
 
-.text {
-  composes: highContrastText svgMiddleAnchored svgVerticalCentered from '../../../styles/typography.css';
+.common {
+  composes: svgMiddleAnchored svgVerticalCentered from '../../../styles/typography.css';
   font-size: 12px;
   font-weight: bold;
   pointer-events: none;
+}
+
+.text {
+  composes: common;
+  composes: highContrastText from '../../../styles/typography.css';
+}
+
+.median {
+  composes: common;
+  composes: whiteText from '../../../styles/typography.css';
 }

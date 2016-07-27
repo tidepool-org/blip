@@ -66,6 +66,7 @@ class CBGTrendsContainer extends React.Component {
     bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']),
     data: PropTypes.array.isRequired,
     focusedSlice: PropTypes.object,
+    focusedSliceKeys: PropTypes.array,
     focusSlice: PropTypes.func.isRequired,
     margins: PropTypes.object.isRequired,
     smbgOpts: PropTypes.object.isRequired,
@@ -146,6 +147,7 @@ class CBGTrendsContainer extends React.Component {
         />
         <FocusedCBGSlice
           focusedSlice={this.props.focusedSlice}
+          focusedSliceKeys={this.props.focusedSliceKeys}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />

@@ -15,22 +15,30 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 import styles from './FocusedCBGSlice.css';
 
 const FocusedCBGSlice = (props) => {
-  const { focusedSlice: slice, xScale, yOffset, yScale } = props;
-  if (slice === null) {
+  const { focusedSliceKeys: keys, focusedSlice: slice, xScale, yOffset, yScale } = props;
+  if (keys === null || slice === null) {
     return null;
+  }
+  if (_.isEqual(keys, ['median'])) {
+    return (
+      <text className={styles.median} x={xScale(slice.msX)} y={yScale(slice.median) - yOffset}>
+        {slice.median}
+      </text>
+    );
   }
   return (
     <g id="focusedCbgSliceLabels">
-      <text className={styles.text} x={xScale(slice.msX)} y={yScale(slice.thirdQuartile) - yOffset}>
-        {slice.thirdQuartile}
+      <text className={styles.text} x={xScale(slice.msX)} y={yScale(slice[keys[1]]) - yOffset}>
+        {slice[keys[1]]}
       </text>
-      <text className={styles.text} x={xScale(slice.msX)} y={yScale(slice.firstQuartile) + yOffset}>
-        {slice.firstQuartile}
+      <text className={styles.text} x={xScale(slice.msX)} y={yScale(slice[keys[0]]) + yOffset}>
+        {slice[keys[0]]}
       </text>
     </g>
   );
@@ -42,6 +50,7 @@ FocusedCBGSlice.defaultProps = {
 
 FocusedCBGSlice.propTypes = {
   focusedSlice: PropTypes.object,
+  focusedSliceKeys: PropTypes.array,
   xScale: PropTypes.func.isRequired,
   yOffset: PropTypes.number.isRequired,
   yScale: PropTypes.func.isRequired,

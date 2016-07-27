@@ -1,4 +1,6 @@
 .targetRangeLine {
+  pointer-events: none;
+
   stroke: var(--chrome);
   stroke-width: 2px;
 }

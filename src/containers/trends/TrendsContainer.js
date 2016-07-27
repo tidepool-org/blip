@@ -76,6 +76,7 @@ export class TrendsContainer extends React.Component {
     viz: PropTypes.shape({
       trends: PropTypes.shape({
         focusedCbgSlice: PropTypes.object,
+        focusedCbgSliceKeys: PropTypes.array,
       }).isRequired,
     }).isRequired,
     // actions
@@ -245,6 +246,7 @@ export class TrendsContainer extends React.Component {
           bgUnits={this.props.bgUnits}
           data={this.state.currentCbgData}
           focusedSlice={this.props.viz.trends.focusedCbgSlice}
+          focusedSliceKeys={this.props.viz.trends.focusedCbgSliceKeys}
           focusSlice={this.props.focusTrendsCbgSlice}
           unfocusSlice={this.props.unfocusTrendsCbgSlice}
           timezone={timezone}
