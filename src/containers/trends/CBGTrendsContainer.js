@@ -19,7 +19,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import bows from 'bows';
 
-import SolidBackground from '../../components/trends/common/SolidBackground';
+import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import YAxisLabels from '../../components/trends/common/YAxisLabels';
 import CBGSlicesContainer from '../../components/trends/cbg/CBGSlicesContainer';
@@ -112,11 +112,13 @@ class CBGTrendsContainer extends React.Component {
     }
     return (
       <svg {...svgDimensions}>
-        <SolidBackground
+        <BackgroundWithTargetRange
+          bgBounds={this.props.bgBounds}
           margins={this.props.margins}
           smbgOpts={this.props.smbgOpts}
           svgDimensions={this.state.svgDimensions}
           xScale={this.props.xScale}
+          yScale={this.props.yScale}
         />
         <XAxisLabels
           focusedRange={focusedRange}
