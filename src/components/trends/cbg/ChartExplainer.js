@@ -44,13 +44,13 @@ const ChartExplainer = (props) => {
       </div>
       <div>
         <p className={styles.text}>
-          Your middle reading is <span className={styles.number}>{slice.median}</span>
+          Highest: <span className={styles.number}>{slice.max}</span>
         </p>
         <p className={styles.text}>
-          Your lowest reading is <span className={styles.number}>{slice.min}</span>
+          Middle: <span className={styles.number}>{slice.median}</span>
         </p>
         <p className={styles.text}>
-          Your highest reading is <span className={styles.number}>{slice.max}</span>
+          Lowest: <span className={styles.number}>{slice.min}</span>
         </p>
       </div>
     </div>

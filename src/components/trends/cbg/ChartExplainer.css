@@ -17,8 +17,8 @@
 
 .container {
   position: absolute;
-  width: 560px;
-  left: 390px;
+  width: 460px;
+  left: 490px;
 
   display: flex;
   justify-content: space-between;
