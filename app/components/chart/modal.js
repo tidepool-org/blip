@@ -176,7 +176,9 @@ var Modal = React.createClass({
       return null;
     }
     return (
-      <ChartExplainer focusedSlice={this.props.trendsState.focusedCbgSlice} />
+      <ChartExplainer
+        bgUnits={this.props.bgPrefs.bgUnits}
+        focusedSlice={this.props.trendsState.focusedCbgSlice} />
     );
   },
   renderMissingSMBGHeader: function() {
