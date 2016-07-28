@@ -18,27 +18,32 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
+import { displayBgValue } from '../../../utils/format';
+
 import styles from './FocusedCBGSlice.css';
 
 const FocusedCBGSlice = (props) => {
-  const { focusedSliceKeys: keys, focusedSlice: slice, xScale, yOffset, yScale } = props;
+  const { focusedSliceKeys: keys, focusedSlice: slice } = props;
+  const { bgUnits, xScale, yOffset, yScale } = props;
+
   if (keys === null || slice === null) {
     return null;
   }
+
   if (_.isEqual(keys, ['median'])) {
     return (
       <text className={styles.median} x={xScale(slice.msX)} y={yScale(slice.median) - yOffset}>
-        {slice.median}
+        {displayBgValue(slice.median, bgUnits)}
       </text>
     );
   }
   return (
     <g id="focusedCbgSliceLabels">
       <text className={styles.text} x={xScale(slice.msX)} y={yScale(slice[keys[1]]) - yOffset}>
-        {slice[keys[1]]}
+        {displayBgValue(slice[keys[1]], bgUnits)}
       </text>
       <text className={styles.text} x={xScale(slice.msX)} y={yScale(slice[keys[0]]) + yOffset}>
-        {slice[keys[0]]}
+        {displayBgValue(slice[keys[0]], bgUnits)}
       </text>
     </g>
   );
@@ -49,6 +54,7 @@ FocusedCBGSlice.defaultProps = {
 };
 
 FocusedCBGSlice.propTypes = {
+  bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
   focusedSlice: PropTypes.object,
   focusedSliceKeys: PropTypes.array,
   xScale: PropTypes.func.isRequired,

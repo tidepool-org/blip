@@ -18,10 +18,12 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
+import { displayBgValue } from '../../../utils/format';
+
 import styles from './YAxisLabels.css';
 
 const YAxisLabels = (props) => {
-  const { bgBounds, margins, textToTickGap, tickWidth, yScale } = props;
+  const { bgBounds, bgUnits, margins, textToTickGap, tickWidth, yScale } = props;
 
   return (
     <g id="yAxisLabels">
@@ -32,7 +34,7 @@ const YAxisLabels = (props) => {
             x={margins.left - tickWidth - textToTickGap}
             y={yScale(bgBounds[boundKey])}
           >
-            {bgBounds[boundKey]}
+            {displayBgValue(bgBounds[boundKey], bgUnits)}
           </text>
           <line
             className={styles.tick}
@@ -59,6 +61,7 @@ YAxisLabels.propTypes = {
     targetLowerBound: PropTypes.number.isRequired,
     veryLowThreshold: PropTypes.number.isRequired,
   }),
+  bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
   margins: PropTypes.object.isRequired,
   textToTickGap: PropTypes.number.isRequired,
   tickWidth: PropTypes.number.isRequired,

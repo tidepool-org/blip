@@ -18,39 +18,50 @@
 import React, { PropTypes } from 'react';
 
 import * as datetime from '../../../utils/datetime';
+import { displayBgValue } from '../../../utils/format';
+
 import styles from './ChartExplainer.css';
 
 const ChartExplainer = (props) => {
-  const { focusedSlice: slice } = props;
+  const { bgUnits, focusedSlice: slice } = props;
   if (slice === null) {
     return null;
   }
   const fromTime = datetime.formatDurationToClocktime(slice.msFrom);
   const toTime = datetime.formatDurationToClocktime(slice.msTo);
+
   return (
     <div className={styles.container} id="trendsCbgExplainer">
       <div>
         <h3 className={styles.header}>{`From ${fromTime} to ${toTime}:`}</h3>
         <p className={styles.text}>
           Half of your readings are between&nbsp;
-          <span className={styles.number}>{slice.firstQuartile}</span> and&nbsp;
-          <span className={styles.number}>{slice.thirdQuartile}</span>
+          <span className={styles.number}>
+            {displayBgValue(slice.firstQuartile, bgUnits)}
+          </span> and&nbsp;
+          <span className={styles.number}>
+            {displayBgValue(slice.thirdQuartile, bgUnits)}
+          </span>
         </p>
         <p className={styles.text}>
           Most of your readings are between&nbsp;
-          <span className={styles.number}>{slice.tenthQuantile}</span> and&nbsp;
-          <span className={styles.number}>{slice.ninetiethQuantile}</span>
+          <span className={styles.number}>
+            {displayBgValue(slice.tenthQuantile, bgUnits)}
+          </span> and&nbsp;
+          <span className={styles.number}>
+            {displayBgValue(slice.ninetiethQuantile, bgUnits)}
+          </span>
         </p>
       </div>
       <div>
         <p className={styles.text}>
-          Highest: <span className={styles.number}>{slice.max}</span>
+          Highest: <span className={styles.number}>{displayBgValue(slice.max, bgUnits)}</span>
         </p>
         <p className={styles.text}>
-          Middle: <span className={styles.number}>{slice.median}</span>
+          Middle: <span className={styles.number}>{displayBgValue(slice.median, bgUnits)}</span>
         </p>
         <p className={styles.text}>
-          Lowest: <span className={styles.number}>{slice.min}</span>
+          Lowest: <span className={styles.number}>{displayBgValue(slice.min, bgUnits)}</span>
         </p>
       </div>
     </div>
@@ -62,6 +73,7 @@ ChartExplainer.defaultProps = {
 };
 
 ChartExplainer.propTypes = {
+  bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
   focusedSlice: PropTypes.object,
 };
 

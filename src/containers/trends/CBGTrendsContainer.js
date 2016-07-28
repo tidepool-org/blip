@@ -128,6 +128,7 @@ class CBGTrendsContainer extends React.Component {
         />
         <YAxisLabels
           bgBounds={this.props.bgBounds}
+          bgUnits={this.props.bgUnits}
           margins={this.props.margins}
           yScale={this.props.yScale}
         />
@@ -148,6 +149,7 @@ class CBGTrendsContainer extends React.Component {
           yScale={this.props.yScale}
         />
         <FocusedCBGSlice
+          bgUnits={this.props.bgUnits}
           focusedSlice={this.props.focusedSlice}
           focusedSliceKeys={this.props.focusedSliceKeys}
           xScale={this.props.xScale}
