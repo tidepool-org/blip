@@ -17,5 +17,21 @@ storiesOf('ChartExplainer', module)
       min: 46,
       max: 307,
     };
-    return (<ChartExplainer focusedSlice={focusedSlice} />);
+    const wrappingDivStyles = {
+      display: 'flex',
+      'flex-direction': 'column',
+      'justify-content': 'center',
+      position: 'relative',
+      width: '980px',
+      height: '340px',
+      'background-color': 'white',
+    };
+    return (
+      <div style={wrappingDivStyles}>
+        <svg width="960" height="320" style={{ display: 'block', margin: '0 auto' }}>
+          <rect width="960" height="320" x="0" y="0" fill="#EEE" />
+        </svg>
+        <ChartExplainer bgUnits="mg/dL" focusedSlice={focusedSlice} />
+      </div>
+    );
   });

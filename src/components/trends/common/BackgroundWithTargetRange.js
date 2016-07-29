@@ -28,6 +28,17 @@ const BackgroundWithTargetRange = (props) => {
 
   const width = svgDimensions.width - margins.left - margins.right;
 
+  const lines = props.linesAtThreeHrs ? _.map(data, (val, i) => (
+    <line
+      className={styles.threeHrLine}
+      key={`threeHrLine-${i}`}
+      x1={xScale(val)}
+      x2={xScale(val)}
+      y1={margins.top}
+      y2={svgDimensions.height - margins.bottom}
+    />
+  )) : null;
+
   return (
     <g id="background">
       <rect
@@ -51,22 +62,14 @@ const BackgroundWithTargetRange = (props) => {
         width={width}
         height={svgDimensions.height - margins.bottom - yScale(bgBounds.targetLowerBound)}
       />
-      {_.map(data, (val, i) => (
-        <line
-          className={styles.threeHrLine}
-          key={`threeHrLine-${i}`}
-          x1={xScale(val)}
-          x2={xScale(val)}
-          y1={margins.top}
-          y2={svgDimensions.height - margins.bottom}
-        />
-      ))}
+      {lines}
     </g>
   );
 };
 
 BackgroundWithTargetRange.defaultProps = {
   data: _.map(range(1, 8), (i) => (i * datetime.THREE_HRS)),
+  linesAtThreeHrs: false,
 };
 
 BackgroundWithTargetRange.propTypes = {
@@ -77,8 +80,8 @@ BackgroundWithTargetRange.propTypes = {
     veryLowThreshold: PropTypes.number.isRequired,
   }).isRequired,
   data: PropTypes.array.isRequired,
+  linesAtThreeHrs: PropTypes.bool.isRequired,
   margins: PropTypes.object.isRequired,
-  smbgOpts: PropTypes.object.isRequired,
   svgDimensions: PropTypes.object.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,

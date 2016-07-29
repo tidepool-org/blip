@@ -18,7 +18,8 @@
 .container {
   position: absolute;
   width: 460px;
-  left: 490px;
+  right: 10px;
+  box-sizing: border-box;
 
   display: flex;
   justify-content: space-between;
