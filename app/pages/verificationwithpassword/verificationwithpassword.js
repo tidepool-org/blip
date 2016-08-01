@@ -19,6 +19,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
+import * as errorMessages from '../../redux/constants/errorMessages';
 
 import _ from 'lodash';
 import config from '../../config';
@@ -58,6 +59,12 @@ export let VerificationWithPassword = React.createClass({
     this.setState({ loading: false });
   },
 
+  componentDidMount: function() {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('VCA Home Verification - Screen Displayed');
+    }
+  },
+
   getInitialState: function() {
     var formValues = {};
 
@@ -81,6 +88,9 @@ export let VerificationWithPassword = React.createClass({
   },
 
   render: function() {
+    if (_.get(this.props, 'notification.message', '') === errorMessages.ERR_BIRTHDAY_MISMATCH) {
+      this.props.trackMetric('VCA Home Verification - Birthday Mismatch')
+    }
     return (
       <div className="VerificationWithPassword">
         <LoginNav
