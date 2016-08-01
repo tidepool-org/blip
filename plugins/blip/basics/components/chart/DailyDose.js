@@ -23,6 +23,8 @@ var cx = require('classnames');
 var basicsActions = require('../../logic/actions');
 var inputRef = 'weightInput';
 
+var UnknownStatistic = require('../misc/UnknownStatistic');
+
 var MAX_WEIGHT = 500;
 
 var DailyDose = React.createClass({
@@ -46,6 +48,10 @@ var DailyDose = React.createClass({
    */
   render: function() {
     var buttonClass = (this.state.valid) ? 'active' : '';
+
+    if (!_.get(this.props, ['data', 'totalDailyDose'])) {
+      return <UnknownStatistic />;
+    }
 
     return (
       <div className='DailyDose'>

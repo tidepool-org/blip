@@ -24,7 +24,6 @@ var BasalBolusRatio = React.createClass({
     data: React.PropTypes.object.isRequired
   },
   componentDidMount: function() {
-    var ratioData = this.props.data.basalBolusRatio;
     var el = this.refs.pie;
     var w = el.offsetWidth, h = el.offsetHeight;
     var svg = d3.select(el)
@@ -33,11 +32,23 @@ var BasalBolusRatio = React.createClass({
         width: w,
         height: h
       });
+    var pieRadius = Math.min(w, h)/2;
+    var ratioData = _.get(this.props.data, 'basalBolusRatio', null);
+    if (ratioData === null) {
+      svg.append('circle')
+        .attr({
+          'class': 'd3-circle-nodata',
+          cx: w/2,
+          cy: h/2,
+          // subtract half of the stroke-width from the radius to avoid cut-off
+          r: pieRadius - 1.5,
+        });
+      return;
+    }
     var data = [
       {type: 'basal', value: ratioData.basal, order: 2},
       {type: 'bolus', value: ratioData.bolus, order: 1}
     ];
-    var pieRadius = Math.min(w, h)/2;
     var pie = d3.layout.pie()
       .value(function(d) { return d.value; })
       .sort(function(d) { return d.order; });
@@ -62,6 +73,8 @@ var BasalBolusRatio = React.createClass({
   render: function() {
     var data = this.props.data;
     var percent = d3.format('%');
+    var basal = _.get(data, ['basalBolusRatio', 'basal'], null);
+    var bolus = _.get(data, ['basalBolusRatio', 'bolus'], null);
     return (
       <div className='BasalBolusRatio'>
         <div ref="pie" className='BasalBolusRatio-inner BasalBolusRatio-pie'>
@@ -69,13 +82,13 @@ var BasalBolusRatio = React.createClass({
         <div className='BasalBolusRatio-inner'>
           <p>
             <span className='BasalBolusRatio-percent BasalBolusRatio-percent--basal'>
-              {percent(data.basalBolusRatio.basal)}
+              {basal ? percent(basal) : '-- %'}
             </span>
             <span className='BasalBolusRatio-label BasalBolusRatio-label--basal'>
             &nbsp;basal
             </span>
             <span className='BasalBolusRatio-percent BasalBolusRatio-percent--bolus'>
-              {' : ' + percent(data.basalBolusRatio.bolus)}
+              {' : ' + (basal ? percent(bolus) : '-- %')}
             </span>
             <span className='BasalBolusRatio-label BasalBolusRatio-label--bolus'>
             &nbsp;bolus
