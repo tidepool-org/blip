@@ -86,7 +86,8 @@ export let VerificationWithPassword = React.createClass({
       <div className="VerificationWithPassword">
         <LoginNav
           page="VerificationWithPassword"
-          trackMetric={this.props.trackMetric} />
+          trackMetric={this.props.trackMetric}
+          hideLinks={true} />
         <LoginLogo />
         <div className="container-small-outer VerificationWithPassword-form">
           <div className="container-small-inner VerificationWithPassword-form-box">
