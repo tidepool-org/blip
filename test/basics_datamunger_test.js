@@ -146,12 +146,19 @@ describe('basics datamunger', function() {
     var bd = {
       data: {
         basal: {data: basal},
-        bolus: {data: bolus}
+        bolus: {data: bolus, dataByDate: {'2015-09-01': [], '2015-09-02': []}}
       },
       dateRange: [
         '2015-09-01T00:00:00.000Z',
         '2015-09-02T00:00:00.000Z'
-      ]
+      ],
+      days: [{
+        date: '2015-09-01',
+        type: 'past',
+      }, {
+        date: '2015-09-02',
+        type: 'past',
+      }]
     };
 
     it('should be a function', function() {
@@ -171,12 +178,16 @@ describe('basics datamunger', function() {
         var bd2 = {
           data: {
             basal: {data: basal},
-            bolus: {data: bolus}
+            bolus: {data: bolus, dataByDate: {'2015-09-01': []}}
           },
           dateRange: [
             '2015-09-01T12:00:00.000Z',
             '2015-09-01T20:00:00.000Z'
-          ]
+          ],
+          days: [{
+            date: '2015-09-01',
+            type: 'past',
+          }]
         };
         expect(dm.calculateBasalBolusStats(bd2).basalBolusRatio.basal).to.equal(0.5);
         expect(dm.calculateBasalBolusStats(bd2).basalBolusRatio.bolus).to.equal(0.5);
@@ -187,12 +198,16 @@ describe('basics datamunger', function() {
         var bd3 = {
           data: {
             basal: {data: basal},
-            bolus: {data: twoBoluses}
+            bolus: {data: twoBoluses, dataByDate: {'2015-09-01': []}}
           },
           dateRange: [
             '2015-09-01T06:00:00.000Z',
             '2015-09-01T18:00:00.000Z'
-          ]
+          ],
+          days: [{
+            date: '2015-09-01',
+            type: 'past',
+          }]
         };
         expect(dm.calculateBasalBolusStats(bd3).basalBolusRatio.basal).to.equal(0.6);
         expect(dm.calculateBasalBolusStats(bd3).basalBolusRatio.bolus).to.equal(0.4);
@@ -208,12 +223,16 @@ describe('basics datamunger', function() {
         var bd2 = {
           data: {
             basal: {data: basal},
-            bolus: {data: bolus}
+            bolus: {data: bolus, dataByDate: {'2015-09-01': []}}
           },
           dateRange: [
             '2015-09-01T12:00:00.000Z',
             '2015-09-01T20:00:00.000Z'
-          ]
+          ],
+          days: [{
+            date: '2015-09-01',
+            type: 'past',
+          }]
         };
         expect(dm.calculateBasalBolusStats(bd2).totalDailyDose).to.equal(24.0);
       });
@@ -223,12 +242,16 @@ describe('basics datamunger', function() {
         var bd3 = {
           data: {
             basal: {data: basal},
-            bolus: {data: twoBoluses}
+            bolus: {data: bolus, dataByDate: {'2015-09-01': []}}
           },
           dateRange: [
             '2015-09-01T06:00:00.000Z',
             '2015-09-01T18:00:00.000Z'
-          ]
+          ],
+          days: [{
+            date: '2015-09-01',
+            type: 'past',
+          }]
         };
         expect(dm.calculateBasalBolusStats(bd3).totalDailyDose).to.equal(20.0);
       });
