@@ -100,7 +100,6 @@ var BasalBolusRatio = React.createClass({
     });
     return (
       <div className='BasalBolusRatio'>
-        {(basal && bolus) ? null : (<UnknownStatistic />)}
         <div ref="pie" className='BasalBolusRatio-inner BasalBolusRatio-pie'>
         </div>
         <div className='BasalBolusRatio-inner'>
@@ -119,6 +118,7 @@ var BasalBolusRatio = React.createClass({
             </span>
           </p>
         </div>
+        {(basal && bolus) ? null : (<UnknownStatistic />)}
       </div>
     );
   }

@@ -56,7 +56,6 @@ var DailyDose = React.createClass({
 
     return (
       <div className='DailyDose'>
-        {noTDD ? (<UnknownStatistic />) : null}
         <div className="DailyDose-weightInputContainer">
           <div className="DailyDose-weightInputForm">
             <label className={weightLabelClass}>Weight</label>
@@ -64,6 +63,7 @@ var DailyDose = React.createClass({
           </div>
           {noTDD ? null : calculateButton}
         </div>
+        {noTDD ? (<UnknownStatistic />) : null}
       </div>
     );
   },
