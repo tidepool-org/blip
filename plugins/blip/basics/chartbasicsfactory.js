@@ -66,16 +66,18 @@ var BasicsChart = React.createClass({
         }
       });
     }
-    if (_.isEmpty(basicsData.basalBolusRatio)) {
+    if (_.isEmpty(basicsData.data.basalBolusRatio)) {
       var basalBolusRatioSection = _.find(basicsData.sections, function(section) {
         return section.id === 'basalBolusRatio';
       });
+      basalBolusRatioSection.noData = true;
       basalBolusRatioSection.open = false;
     }
-    if (_.isEmpty(basicsData.totalDailyDose)) {
+    if (basicsData.data.totalDailyDose == null) {
       var totalDailyDoseSection = _.find(basicsData.sections, function(section) {
         return section.id === 'totalDailyDose';
       });
+      totalDailyDoseSection.noData = true;
       totalDailyDoseSection.open = false;
     }
   },

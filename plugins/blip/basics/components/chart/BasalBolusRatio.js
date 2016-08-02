@@ -16,8 +16,11 @@
  */
 
 var _ = require('lodash');
+var cx = require('classnames');
 var d3 = require('d3');
 var React = require('react');
+
+var UnknownStatistic = require('../misc/UnknownStatistic');
 
 var BasalBolusRatio = React.createClass({
   propTypes: {
@@ -75,22 +78,43 @@ var BasalBolusRatio = React.createClass({
     var percent = d3.format('%');
     var basal = _.get(data, ['basalBolusRatio', 'basal'], null);
     var bolus = _.get(data, ['basalBolusRatio', 'bolus'], null);
+    var basalPercentClasses = cx({
+      'BasalBolusRatio-percent': true,
+      'BasalBolusRatio-percent--basal': !!basal,
+      'BasalBolusRatio--nodata': !basal
+    });
+    var basalLabelClasses = cx({
+      'BasalBolusRatio-label': true,
+      'BasalBolusRatio-label--basal': !!basal,
+      'BasalBolusRatio--nodata': !basal
+    });
+    var bolusPercentClasses = cx({
+      'BasalBolusRatio-percent': true,
+      'BasalBolusRatio-percent--bolus': !!bolus,
+      'BasalBolusRatio--nodata': !bolus
+    });
+    var bolusLabelClasses = cx({
+      'BasalBolusRatio-label': true,
+      'BasalBolusRatio-label--bolus': !!bolus,
+      'BasalBolusRatio--nodata': !bolus
+    });
     return (
       <div className='BasalBolusRatio'>
+        {(basal && bolus) ? null : (<UnknownStatistic />)}
         <div ref="pie" className='BasalBolusRatio-inner BasalBolusRatio-pie'>
         </div>
         <div className='BasalBolusRatio-inner'>
           <p>
-            <span className='BasalBolusRatio-percent BasalBolusRatio-percent--basal'>
+            <span className={basalPercentClasses}>
               {basal ? percent(basal) : '-- %'}
             </span>
-            <span className='BasalBolusRatio-label BasalBolusRatio-label--basal'>
+            <span className={basalLabelClasses}>
             &nbsp;basal
             </span>
-            <span className='BasalBolusRatio-percent BasalBolusRatio-percent--bolus'>
+            <span className={bolusPercentClasses}>
               {' : ' + (basal ? percent(bolus) : '-- %')}
             </span>
-            <span className='BasalBolusRatio-label BasalBolusRatio-label--bolus'>
+            <span className={bolusLabelClasses}>
             &nbsp;bolus
             </span>
           </p>
