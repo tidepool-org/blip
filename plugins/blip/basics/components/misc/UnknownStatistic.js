@@ -20,8 +20,9 @@ var React = require('react');
 var UnknownStatistic = React.createClass({
   render: function() {
     return (
-      <p>
-        We aren't showing you this data because there was at least one full day without a bolus, which makes us think that this statistic is likely inaccurate.
+      <p className="UnknownStatistic">
+        <span className="UnknownStatistic-lead">Why is this grey? </span>
+        There isn't enough data here to be sure this statistic is right.
       </p>
     );
   }
