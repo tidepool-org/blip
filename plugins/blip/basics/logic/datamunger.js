@@ -74,7 +74,11 @@ module.exports = function(bgClasses) {
       // if one or more of the days (excepting most recent) don't have any boluses
       // then don't calculate these stats at all, since may be inaccurate if
       // long-running basals exist
-      var mostRecent = _.filter(basicsData.days, {type: 'mostRecent'})[0].date;
+      var mostRecent = _.get(
+        _.filter(basicsData.days, {type: 'mostRecent'}),
+        [0, 'date'],
+        ''
+      );
       var pastBolusDays = _.reject(
         Object.keys(basicsData.data.bolus.dataByDate),
         function(date) { return date === mostRecent; }
