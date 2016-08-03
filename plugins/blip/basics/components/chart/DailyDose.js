@@ -23,6 +23,8 @@ var cx = require('classnames');
 var basicsActions = require('../../logic/actions');
 var inputRef = 'weightInput';
 
+var UnknownStatistic = require('../misc/UnknownStatistic');
+
 var MAX_WEIGHT = 500;
 
 var DailyDose = React.createClass({
@@ -45,17 +47,23 @@ var DailyDose = React.createClass({
    * @return {Element}
    */
   render: function() {
+    var noTDD = !_.get(this.props, ['data', 'totalDailyDose']);
     var buttonClass = (this.state.valid) ? 'active' : '';
+    var calculateButton = (
+      <button onClick={this.onClickCalculate} className={buttonClass} >Calculate</button>
+    );
+    var weightLabelClass = cx({'DailyDose-weightInputForm-label--nodata': noTDD});
 
     return (
       <div className='DailyDose'>
         <div className="DailyDose-weightInputContainer">
           <div className="DailyDose-weightInputForm">
-            <label>Weight</label>
-            {this.renderWeightSelector()}
+            <label className={weightLabelClass}>Weight</label>
+            {this.renderWeightSelector(noTDD)}
           </div>
-          <button onClick={this.onClickCalculate} className={buttonClass} >Calculate</button>
+          {noTDD ? null : calculateButton}
         </div>
+        {noTDD ? (<UnknownStatistic />) : null}
       </div>
     );
   },
@@ -68,11 +76,12 @@ var DailyDose = React.createClass({
    * 
    * @return {Element}
    */
-  renderWeightSelector: function() {
+  renderWeightSelector: function(noTDD) {
     var currentWeight;
 
     var classes = cx({
       'DailyDose-weightInputForm-selector' : true,
+      'DailyDose-weightInputForm-selector--nodata': noTDD,
       'valid': this.state.valid === true
     });
 
@@ -90,7 +99,7 @@ var DailyDose = React.createClass({
       tooHighErrorElem = <div className='DailyDose-weightInputForm-tooHigh'>Weight cannot exceed {MAX_WEIGHT}kg</div>;
     }
 
-    inputElem = <input className="DailyDose-weightInputForm-input" type="number" min="0" max={MAX_WEIGHT} step="0.1" ref={inputRef} name={inputRef} value={currentWeight} onChange={this.onWeightChange} />;
+    inputElem = <input className="DailyDose-weightInputForm-input" disabled={!!noTDD} type="number" min="0" max={MAX_WEIGHT} step="0.1" ref={inputRef} name={inputRef} value={currentWeight} onChange={this.onWeightChange} />;
 
     return (
       <div>

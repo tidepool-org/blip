@@ -66,6 +66,20 @@ var BasicsChart = React.createClass({
         }
       });
     }
+    if (_.isEmpty(basicsData.data.basalBolusRatio)) {
+      var basalBolusRatioSection = _.find(basicsData.sections, function(section) {
+        return section.id === 'basalBolusRatio';
+      });
+      basalBolusRatioSection.noData = true;
+      basalBolusRatioSection.open = false;
+    }
+    if (basicsData.data.totalDailyDose == null) {
+      var totalDailyDoseSection = _.find(basicsData.sections, function(section) {
+        return section.id === 'totalDailyDose';
+      });
+      totalDailyDoseSection.noData = true;
+      totalDailyDoseSection.open = false;
+    }
   },
   componentWillMount: function() {
     var basicsData = this.props.patientData.basicsData;
