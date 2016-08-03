@@ -158,6 +158,9 @@ describe('basics datamunger', function() {
       }, {
         date: '2015-09-02',
         type: 'past',
+      }, {
+        date: '2015-09-03',
+        type: 'mostRecent',
       }]
     };
 
@@ -187,6 +190,9 @@ describe('basics datamunger', function() {
           days: [{
             date: '2015-09-01',
             type: 'past',
+          }, {
+            date: '2015-09-02',
+            type: 'mostRecent',
           }]
         };
         expect(dm.calculateBasalBolusStats(bd2).basalBolusRatio.basal).to.equal(0.5);
@@ -207,6 +213,9 @@ describe('basics datamunger', function() {
           days: [{
             date: '2015-09-01',
             type: 'past',
+          }, {
+            date: '2015-09-02',
+            type: 'mostRecent',
           }]
         };
         expect(dm.calculateBasalBolusStats(bd3).basalBolusRatio.basal).to.equal(0.6);
@@ -216,6 +225,8 @@ describe('basics datamunger', function() {
       it('should not calculate a statistic if there are `past` days with no boluses', function() {
         var bd4 = _.cloneDeep(bd);
         delete bd4.data.bolus.dataByDate['2015-09-02'];
+        bd4.data.bolus.dataByDate['2015-09-03'] = [];
+        bd4.days.push({date: '2015-09-03', type: 'mostRecent'});
         expect(dm.calculateBasalBolusStats(bd4).basalBolusRatio).to.be.null;
       });
     });
@@ -238,6 +249,9 @@ describe('basics datamunger', function() {
           days: [{
             date: '2015-09-01',
             type: 'past',
+          }, {
+            date: '2015-09-02',
+            type: 'mostRecent',
           }]
         };
         expect(dm.calculateBasalBolusStats(bd2).totalDailyDose).to.equal(24.0);
@@ -257,6 +271,9 @@ describe('basics datamunger', function() {
           days: [{
             date: '2015-09-01',
             type: 'past',
+          }, {
+            date: '2015-09-02',
+            type: 'mostRecent',
           }]
         };
         expect(dm.calculateBasalBolusStats(bd3).totalDailyDose).to.equal(20.0);
@@ -265,6 +282,8 @@ describe('basics datamunger', function() {
       it('should not calculate a statistic if there are `past` days with no boluses', function() {
         var bd4 = _.cloneDeep(bd);
         delete bd4.data.bolus.dataByDate['2015-09-01'];
+        bd4.data.bolus.dataByDate['2015-09-03'] = [];
+        bd4.days.push({date: '2015-09-03', type: 'mostRecent'});
         expect(dm.calculateBasalBolusStats(bd4).totalDailyDose).to.be.null;
       });
     });
