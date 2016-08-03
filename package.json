@@ -42,6 +42,7 @@
     "babel-preset-stage-2": "6.11.0",
     "bows": "1.6.0",
     "chai": "3.5.0",
+    "chance": "1.0.4",
     "classnames": "2.2.5",
     "css-loader": "0.23.1",
     "enzyme": "2.4.1",

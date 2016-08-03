@@ -3,6 +3,7 @@ import React from 'react';
 
 import { storiesOf } from '@kadira/storybook';
 
+// eslint-disable-next-line max-len
 import BackgroundWithTargetRange from '../../../../src/components/trends/common/BackgroundWithTargetRange';
 
 const w = 800;

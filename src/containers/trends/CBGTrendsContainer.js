@@ -70,6 +70,11 @@ class CBGTrendsContainer extends React.Component {
     focusSlice: PropTypes.func.isRequired,
     margins: PropTypes.object.isRequired,
     smbgOpts: PropTypes.object.isRequired,
+    // dimensions only used in React storybook!
+    svgDimensions: PropTypes.shape({
+      width: PropTypes.number.isRequired,
+      height: PropTypes.number.isRequired,
+    }),
     timezone: PropTypes.string.isRequired,
     unfocusSlice: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
@@ -87,11 +92,20 @@ class CBGTrendsContainer extends React.Component {
   }
 
   componentWillMount() {
-    const el = document.getElementById('tidelineContainer');
-    const svgDimensions = {
-      width: el.offsetWidth,
-      height: el.offsetHeight,
-    };
+    let svgDimensions = {};
+    try {
+      const el = document.getElementById('tidelineContainer');
+      svgDimensions = {
+        width: el.offsetWidth,
+        height: el.offsetHeight,
+      };
+    } catch (e) {
+      if (e instanceof TypeError) {
+        svgDimensions = this.props.svgDimensions;
+      } else {
+        throw (e);
+      }
+    }
     const { xScale, yScale } = this.props;
     xScale.range([
       MARGINS.left + Math.round(SMBG_OPTS.maxR),
