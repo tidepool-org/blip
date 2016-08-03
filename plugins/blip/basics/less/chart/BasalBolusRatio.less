@@ -1,5 +1,6 @@
 .BasalBolusRatio {
   margin: 0;
+  padding: 8px 0px;
 
   font-size: @huge-numbers;
   font-weight: bold;
@@ -10,15 +11,16 @@
       margin-bottom: 8px;
     }
   }
+  &:last-child {
+    p {
+      margin-bottom: 0px;
+    }
+  }
 
   .BasalBolusRatio-inner {
     width: 100%;
     p {
-      margin-bottom: 8px;
       text-align: center;
-    }
-    .BasalBolusRatio--nodata {
-      color: @text-light;
     }
     .BasalBolusRatio-percent {
       &.BasalBolusRatio-percent--basal {
@@ -42,12 +44,6 @@
     }
     .d3-arc-bolus {
       fill: @bolus;
-    }
-    .d3-circle-nodata {
-      fill: transparent;
-      stroke: @text-light;
-      stroke-width: 3px;
-      stroke-dasharray: 8,5;
     }
   }
 }

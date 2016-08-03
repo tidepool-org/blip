@@ -17,8 +17,6 @@
 
 /* global d3 */
 
-var _ = require('lodash');
-var cx = require('classnames');
 var React = require('react');
 var basicsActions = require('../../logic/actions');
 
@@ -36,13 +34,8 @@ var DailyDoseTitle = React.createClass({
   },
   render: function() {
     var weight = this.getUserWeight();
-    var dose = _.get(this.props, ['data', 'totalDailyDose'], null);
-    var displayDose = dose ? d3.format('.1f')(dose) : '--';
-    var headerClasses = cx({
-      DailyDoseTitle: true,
-      'SectionHeader--nodata': !dose,
-    });
-    if (weight && dose) {
+    var dose = (this.props.data) ? this.props.data.totalDailyDose : 0;
+    if (weight) {
       var dosePerKg = dose / weight;
       return (
         <h3 className="DailyDoseTitle" onClick={this.handleToggleSection}>
@@ -53,10 +46,11 @@ var DailyDoseTitle = React.createClass({
         </h3>
       );
     } else {
+      var title = 'Total Daily Dose / KG';
       return (
-        <h3 className={headerClasses} onClick={this.handleToggleSection}>
+        <h3 className="DailyDoseTitle" onClick={this.handleToggleSection}>
           <span className="DailyDoseTitle-label">Avg total daily dose</span>
-          <span className="DailyDoseTitle-value DailyDose-text--large">{displayDose}</span>
+          <span className="DailyDoseTitle-value DailyDose-text--large">{d3.format('.1f')(dose)}</span>
           <span className="DailyDoseTitle-value DailyDose-text--small">&nbsp;u</span>
           <i className={this.props.iconClass}/>
         </h3>

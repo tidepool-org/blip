@@ -146,19 +146,12 @@ describe('basics datamunger', function() {
     var bd = {
       data: {
         basal: {data: basal},
-        bolus: {data: bolus, dataByDate: {'2015-09-01': [], '2015-09-02': []}}
+        bolus: {data: bolus}
       },
       dateRange: [
         '2015-09-01T00:00:00.000Z',
         '2015-09-02T00:00:00.000Z'
-      ],
-      days: [{
-        date: '2015-09-01',
-        type: 'past',
-      }, {
-        date: '2015-09-02',
-        type: 'past',
-      }]
+      ]
     };
 
     it('should be a function', function() {
@@ -178,16 +171,12 @@ describe('basics datamunger', function() {
         var bd2 = {
           data: {
             basal: {data: basal},
-            bolus: {data: bolus, dataByDate: {'2015-09-01': []}}
+            bolus: {data: bolus}
           },
           dateRange: [
             '2015-09-01T12:00:00.000Z',
             '2015-09-01T20:00:00.000Z'
-          ],
-          days: [{
-            date: '2015-09-01',
-            type: 'past',
-          }]
+          ]
         };
         expect(dm.calculateBasalBolusStats(bd2).basalBolusRatio.basal).to.equal(0.5);
         expect(dm.calculateBasalBolusStats(bd2).basalBolusRatio.bolus).to.equal(0.5);
@@ -198,25 +187,15 @@ describe('basics datamunger', function() {
         var bd3 = {
           data: {
             basal: {data: basal},
-            bolus: {data: twoBoluses, dataByDate: {'2015-09-01': []}}
+            bolus: {data: twoBoluses}
           },
           dateRange: [
             '2015-09-01T06:00:00.000Z',
             '2015-09-01T18:00:00.000Z'
-          ],
-          days: [{
-            date: '2015-09-01',
-            type: 'past',
-          }]
+          ]
         };
         expect(dm.calculateBasalBolusStats(bd3).basalBolusRatio.basal).to.equal(0.6);
         expect(dm.calculateBasalBolusStats(bd3).basalBolusRatio.bolus).to.equal(0.4);
-      });
-
-      it('should not calculate a statistic if there are `past` days with no boluses', function() {
-        var bd4 = _.cloneDeep(bd);
-        delete bd4.data.bolus.dataByDate['2015-09-02'];
-        expect(dm.calculateBasalBolusStats(bd4).basalBolusRatio).to.be.null;
       });
     });
 
@@ -229,16 +208,12 @@ describe('basics datamunger', function() {
         var bd2 = {
           data: {
             basal: {data: basal},
-            bolus: {data: bolus, dataByDate: {'2015-09-01': []}}
+            bolus: {data: bolus}
           },
           dateRange: [
             '2015-09-01T12:00:00.000Z',
             '2015-09-01T20:00:00.000Z'
-          ],
-          days: [{
-            date: '2015-09-01',
-            type: 'past',
-          }]
+          ]
         };
         expect(dm.calculateBasalBolusStats(bd2).totalDailyDose).to.equal(24.0);
       });
@@ -248,24 +223,14 @@ describe('basics datamunger', function() {
         var bd3 = {
           data: {
             basal: {data: basal},
-            bolus: {data: bolus, dataByDate: {'2015-09-01': []}}
+            bolus: {data: twoBoluses}
           },
           dateRange: [
             '2015-09-01T06:00:00.000Z',
             '2015-09-01T18:00:00.000Z'
-          ],
-          days: [{
-            date: '2015-09-01',
-            type: 'past',
-          }]
+          ]
         };
         expect(dm.calculateBasalBolusStats(bd3).totalDailyDose).to.equal(20.0);
-      });
-
-      it('should not calculate a statistic if there are `past` days with no boluses', function() {
-        var bd4 = _.cloneDeep(bd);
-        delete bd4.data.bolus.dataByDate['2015-09-01'];
-        expect(dm.calculateBasalBolusStats(bd4).totalDailyDose).to.be.null;
       });
     });
   });
@@ -409,9 +374,9 @@ describe('basics datamunger', function() {
       var then = '2015-01-01T00:00:00.000Z';
       var bd = {
         data: {
-          basal: {data: [{type: 'basal', deliveryType: 'temp', normalTime: then, displayOffset: 0}]},
-          bolus: {data: [{type: 'bolus', normalTime: then, displayOffset: 0}]},
-          reservoirChange: {data: [{type: 'deviceEvent', subType: 'reservoirChange', normalTime: then, displayOffset: 0}]}
+          basal: {data: [{type: 'basal', deliveryType: 'temp', time: then, displayOffset: 0}]},
+          bolus: {data: [{type: 'bolus', time: then, displayOffset: 0}]},
+          reservoirChange: {data: [{type: 'deviceEvent', subType: 'reservoirChange', time: then, displayOffset: 0}]}
         },
         days: [{date: '2015-01-01', type: 'past'}, {date: '2015-01-02', type: 'mostRecent'}]
       };
@@ -421,10 +386,6 @@ describe('basics datamunger', function() {
         it('should build crossfilter utils for ' + type, function() {
           expect(Object.keys(bd.data[type])).to.deep.equal(['data', 'cf', 'byLocalDate', 'dataByDate']);
         });
-
-        it('should build a `dataByDate` object for ' + type + ' with *only* localDates with data as keys', function() {
-          expect(Object.keys(bd.data[type].dataByDate)).to.deep.equal(['2015-01-01']);
-        });
       });
     });
 
@@ -432,8 +393,8 @@ describe('basics datamunger', function() {
       var then = '2015-01-01T00:00:00.000Z';
       var bd = {
         data: {
-          smbg: {data: [{type: 'smbg', normalTime: then, displayOffset: 0}]},
-          calibration: {data: [{type: 'deviceEvent', subType: 'calibration', normalTime: then, displayOffset: 0}]}
+          smbg: {data: [{type: 'smbg', time: then, displayOffset: 0}]},
+          calibration: {data: [{type: 'deviceEvent', subType: 'calibration', time: then, displayOffset: 0}]}
         },
         days: [{date: '2015-01-01', type: 'past'}, {date: '2015-01-02', type: 'mostRecent'}]
       };
@@ -442,10 +403,6 @@ describe('basics datamunger', function() {
       types.forEach(function(type) {
         it('should build crossfilter utils in fingerstick.' + type, function() {
           expect(Object.keys(bd.data.fingerstick[type])).to.deep.equal(['cf', 'byLocalDate', 'dataByDate']);
-        });
-
-        it('should build a `dataByDate` object for ' + type + ' with *only* localDates with data as keys', function() {
-          expect(Object.keys(bd.data.fingerstick[type].dataByDate)).to.deep.equal(['2015-01-01']);
         });
       });
     });

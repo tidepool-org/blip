@@ -96,11 +96,8 @@ var DashboardSection = React.createClass({
         sectionName: this.props.name 
       });
     } else {
-      var headerClasses = cx({
-        'SectionHeader--nodata': section.noData,
-      });
       titleContainer = (
-        <h3 className={headerClasses} onClick={this.handleToggleSection}>{this.props.title}
+        <h3 onClick={this.handleToggleSection}>{this.props.title}
           <i className={iconClass}/>
         </h3>
       );

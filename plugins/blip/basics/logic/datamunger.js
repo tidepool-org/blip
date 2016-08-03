@@ -70,18 +70,8 @@ module.exports = function(bgClasses) {
       return bgDistribution;
     },
     calculateBasalBolusStats: function(basicsData) {
-      var pastDays = _.filter(basicsData.days, {type: 'past'});
-      // if one or more of the days (excepting most recent) don't have any boluses
-      // then don't calculate these stats at all, since may be inaccurate if
-      // long-running basals exist
-      if (Object.keys(basicsData.data.bolus.dataByDate).length < pastDays.length) {
-        return {
-          basalBolusRatio: null,
-          totalDailyDose: null,
-        };
-      }
-      var boluses = basicsData.data.bolus.data;
       var basals = basicsData.data.basal.data;
+      var boluses = basicsData.data.bolus.data;
       var start = basals[0].normalTime;
       if (start < basicsData.dateRange[0]) {
         start = basicsData.dateRange[0];
