@@ -22,7 +22,7 @@ var UnknownStatistic = React.createClass({
     return (
       <p className="UnknownStatistic">
         <span className="UnknownStatistic-lead">Why is this grey? </span>
-        At least one day does not have boluses, so the statistic may not be right.
+        At least one day does not have boluses, so the statistic wouldn't be right.
       </p>
     );
   }
