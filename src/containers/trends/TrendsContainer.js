@@ -41,12 +41,15 @@ export class TrendsContainer extends React.Component {
       saturday: PropTypes.bool.isRequired,
       sunday: PropTypes.bool.isRequired,
     }).isRequired,
+    // new data structure to replace bgClasses
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,
       targetUpperBound: PropTypes.number.isRequired,
       targetLowerBound: PropTypes.number.isRequired,
       veryLowThreshold: PropTypes.number.isRequired,
     }),
+    // legacy data structure for representing target range, &c
+    // needed for passed-in legacy tideline smbg component but will phase out!
     bgClasses: PropTypes.shape({
       'very-high': PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
       high: PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
