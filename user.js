@@ -415,6 +415,22 @@ module.exports = function (common, config, deps) {
     common.doPutWithToken('/auth/user', updateData, cb);
   }
   /**
+   * Update custodial user account info
+   *
+   * @param {Object} user object with account info
+   * @param custodial user id
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
+  function updateCustodialUser(user, id, cb) {
+    common.assertArgumentsSize(arguments, 3);
+    var updateData = {
+      updates: _.pick(user, 'username', 'password', 'emails', 'termsAccepted')
+    };
+
+    common.doPutWithToken('/auth/user/' + id, updateData, cb);
+  }
+  /**
    * Add or update the date the user accepted the terms and conditions
    *
    * @param {Object} user object with the attached terms info
@@ -456,6 +472,7 @@ module.exports = function (common, config, deps) {
     logout : logout,
     signup : signup,
     initialize : initialize,
-    updateCurrentUser : updateCurrentUser
+    updateCurrentUser : updateCurrentUser,
+    updateCustodialUser : updateCustodialUser
   };
 };
