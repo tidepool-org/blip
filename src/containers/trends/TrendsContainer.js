@@ -153,7 +153,7 @@ export class TrendsContainer extends React.Component {
   getCurrentDay() {
     const { dateDomain: { end } } = this.state;
     // TODO: replace with more robust code for finding noon of the local timezone day
-    return new Date(Date.parse(end) - (864e5 / 2));
+    return new Date(Date.parse(end) - (864e5 / 2)).toISOString();
   }
 
   setExtent(newDomain) {
