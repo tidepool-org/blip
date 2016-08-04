@@ -104,7 +104,9 @@ var TidelineFooter = React.createClass({
             <button className="btn btn-chart btn-refresh"
               onClick={this.props.onClickRefresh}>
               Refresh</button>
+            <span className="toggle-container">
             {bgDataToggle}
+            </span>
           </div>
           <div className="patient-data-footer-right">{rightSide}</div>
         </div>
