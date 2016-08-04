@@ -28,7 +28,6 @@ export default class CBGSlicesContainer extends React.Component {
   static propTypes = {
     binSize: PropTypes.number.isRequired,
     data: PropTypes.array.isRequired,
-    focusedSlice: PropTypes.object,
     focusSlice: PropTypes.func.isRequired,
     margins: PropTypes.object.isRequired,
     svgDimensions: PropTypes.object.isRequired,
@@ -150,7 +149,6 @@ export default class CBGSlicesContainer extends React.Component {
               <CBGSlice
                 datum={dataById[id]}
                 focusSlice={this.props.focusSlice}
-                isFocused={id === _.get(this.props.focusedSlice, 'id', null)}
                 key={id}
                 unfocusSlice={this.props.unfocusSlice}
                 xScale={xScale}

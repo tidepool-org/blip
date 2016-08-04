@@ -128,6 +128,7 @@ class CBGTrendsContainer extends React.Component {
       <svg {...svgDimensions}>
         <BackgroundWithTargetRange
           bgBounds={this.props.bgBounds}
+          linesAtThreeHrs
           margins={this.props.margins}
           smbgOpts={this.props.smbgOpts}
           svgDimensions={this.state.svgDimensions}
@@ -148,7 +149,6 @@ class CBGTrendsContainer extends React.Component {
         />
         <CBGSlicesContainer
           data={this.props.data}
-          focusedSlice={this.props.focusedSlice}
           focusSlice={this.props.focusSlice}
           margins={this.props.margins}
           svgDimensions={this.state.svgDimensions}

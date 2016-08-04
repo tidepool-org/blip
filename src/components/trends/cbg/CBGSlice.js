@@ -21,7 +21,7 @@ import styles from './CBGSlice.css';
 
 const CBGSlice = (props) => {
   const { datum, radius, xScale, yPositions } = props;
-  const { isFocused, focusSlice, unfocusSlice } = props;
+  const { focusSlice, unfocusSlice } = props;
 
   const focusMedian = focusSlice.bind(null, datum, ['median']);
   const unfocus = unfocusSlice.bind(null);
@@ -31,7 +31,7 @@ const CBGSlice = (props) => {
     if (yPositions[y1Accessor] && yPositions[y2Accessor]) {
       return (
         <line
-          className={isFocused ? styles[`${category}Focused`] : styles[category]}
+          className={styles[category]}
           key={`${category}-${datum.id}`}
           onMouseOver={focus}
           onMouseOut={unfocus}
@@ -72,7 +72,6 @@ CBGSlice.defaultProps = {
 CBGSlice.propTypes = {
   datum: PropTypes.object.isRequired,
   focusSlice: PropTypes.func.isRequired,
-  isFocused: PropTypes.bool.isRequired,
   radius: PropTypes.number.isRequired,
   unfocusSlice: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,

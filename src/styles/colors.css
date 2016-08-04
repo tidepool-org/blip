@@ -19,6 +19,11 @@
   --basal: #19A0D7;
   --bolus: #7CD0F0;
 
+  --data-purple--lightest: #B6C1E3;
+  --data-purple--light: #96A6E9;
+  --data-purple--medium: #627CFF;
+  --data-purple--dark: #281746;
+
   --axis-tick: #B9C8D0;
 
   --bkgrnd-darkest: #D3DBDD;
@@ -32,7 +37,4 @@
 
   --text-medium-contrast: #727375;
   --text-high-contrast: #281946;
-
-  --trends-median: #281946;
-  --trends-slice: #5C74EF;
 }

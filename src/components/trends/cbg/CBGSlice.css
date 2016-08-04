@@ -16,39 +16,25 @@
  */
 
 .cbgMedian {
-  fill: var(--trends-median);
-  fill-opacity: 0.5;
+  fill: var(--data-purple--dark);
 }
 
 .cbgSlice {
-  stroke: var(--trends-slice);
   stroke-linecap: round;
   stroke-width: 18px;
 }
 
 .rangeSlice {
   composes: cbgSlice;
-  stroke-opacity: 0.25;
-}
-.rangeSliceFocused {
-  composes: cbgSlice;
-  stroke-opacity: 0.3;
+  stroke: var(--data-purple--lightest);
 }
 
 .outerSlice {
   composes: cbgSlice;
-  stroke-opacity: 0.35;
-}
-.outerSliceFocused {
-  composes: cbgSlice;
-  stroke-opacity: 0.45;
+  stroke: var(--data-purple--light);
 }
 
 .quartileSlice {
   composes: cbgSlice;
-  stroke-opacity: 0.75;
-}
-.quartileSliceFocused {
-  composes: cbgSlice;
-  stroke-opacity: 1;
+  stroke: var(--data-purple--medium);
 }
