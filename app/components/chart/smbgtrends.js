@@ -59,6 +59,7 @@ class SMBGTrends extends React.Component {
       showingLines,
     });
     console.timeEnd('SMBGTrends Draw');
+    this.chart.emitter.on('selectDay', this.props.onSelectDay);
   }
 
   componentDidUpdate() {
