@@ -20,21 +20,20 @@
 }
 
 .cbgSlice {
-  stroke-linecap: round;
-  stroke-width: 18px;
+  stroke: none;
 }
 
 .rangeSlice {
   composes: cbgSlice;
-  stroke: var(--data-purple--lightest);
+  fill: var(--data-purple--lightest);
 }
 
 .outerSlice {
   composes: cbgSlice;
-  stroke: var(--data-purple--light);
+  fill: var(--data-purple--light);
 }
 
 .quartileSlice {
   composes: cbgSlice;
-  stroke: var(--data-purple--medium);
+  fill: var(--data-purple--medium);
 }

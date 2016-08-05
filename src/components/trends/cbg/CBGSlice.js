@@ -20,7 +20,7 @@ import React, { PropTypes } from 'react';
 import styles from './CBGSlice.css';
 
 const CBGSlice = (props) => {
-  const { datum, radius, xScale, yPositions } = props;
+  const { datum, medianRadius, sliceCapRadius, xScale, yPositions } = props;
   const { focusSlice, unfocusSlice } = props;
 
   const focusMedian = focusSlice.bind(null, datum, ['median']);
@@ -30,15 +30,17 @@ const CBGSlice = (props) => {
     const focus = focusSlice.bind(null, datum, [y1Accessor, y2Accessor]);
     if (yPositions[y1Accessor] && yPositions[y2Accessor]) {
       return (
-        <line
+        <rect
           className={styles[category]}
           key={`${category}-${datum.id}`}
           onMouseOver={focus}
           onMouseOut={unfocus}
-          x1={xScale(datum.msX)}
-          x2={xScale(datum.msX)}
-          y1={yPositions[y1Accessor]}
-          y2={yPositions[y2Accessor]}
+          x={xScale(datum.msX) - sliceCapRadius}
+          width={2 * sliceCapRadius}
+          y={yPositions[y2Accessor]}
+          height={yPositions[y1Accessor] - yPositions[y2Accessor]}
+          rx={sliceCapRadius}
+          ry={sliceCapRadius}
         />
       );
     }
@@ -58,7 +60,7 @@ const CBGSlice = (props) => {
           onMouseOut={unfocus}
           cx={xScale(datum.msX)}
           cy={yPositions.median}
-          r={radius}
+          r={medianRadius}
         />,
       ]}
     </g>
@@ -66,13 +68,15 @@ const CBGSlice = (props) => {
 };
 
 CBGSlice.defaultProps = {
-  radius: 7,
+  medianRadius: 7,
+  sliceCapRadius: 9,
 };
 
 CBGSlice.propTypes = {
   datum: PropTypes.object.isRequired,
   focusSlice: PropTypes.func.isRequired,
-  radius: PropTypes.number.isRequired,
+  medianRadius: PropTypes.number.isRequired,
+  sliceCapRadius: PropTypes.number.isRequired,
   unfocusSlice: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yPositions: PropTypes.object.isRequired,
