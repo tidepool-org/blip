@@ -150,8 +150,11 @@ svg {
   &.d3-fill-lightest {
     fill: @fill-lightest;
   }
-  &.d3-rect-fill-faded {
-    opacity: 0.5;
+  &.d3-fill-trends {
+    fill: @fill-trends;
+  }
+  &.d3-fill-target {
+    fill: @fill-target;
   }
 
   &.d3-fill-midnight {
@@ -163,6 +166,9 @@ svg {
 .d3-line-guide {
   stroke: white;
   stroke-width: 2px;
+  &.d3-line-trends {
+    stroke-width: 1px;
+  }
   &.d3-line-bg-threshold {
     stroke-dasharray: 3,5;
   }
