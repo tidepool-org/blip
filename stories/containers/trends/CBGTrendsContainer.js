@@ -26,9 +26,6 @@ const props = {
   focusedSlice: null,
   focusedSliceKeys: null,
   focusSlice: () => {},
-  svgDimensions: {
-    width: w, height: h,
-  },
   timezone: 'US/Pacific',
   unfocusSlice: () => {},
   xScale,

@@ -54,6 +54,10 @@ class CBGTrendsContainer extends React.Component {
   static defaultProps = {
     margins: MARGINS,
     smbgOpts: SMBG_OPTS,
+    svgDimensions: {
+      width: 960,
+      height: 520,
+    },
   };
 
   static propTypes = {
@@ -74,7 +78,7 @@ class CBGTrendsContainer extends React.Component {
     svgDimensions: PropTypes.shape({
       width: PropTypes.number.isRequired,
       height: PropTypes.number.isRequired,
-    }),
+    }).isRequired,
     timezone: PropTypes.string.isRequired,
     unfocusSlice: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
@@ -86,27 +90,11 @@ class CBGTrendsContainer extends React.Component {
     this.log = bows('CBGTrendsContainer');
     this.state = {
       mungedData: [],
-      svgDimensions: null,
-      yScale: null,
     };
   }
 
   componentWillMount() {
-    let svgDimensions = {};
-    try {
-      const el = document.getElementById('tidelineContainer');
-      svgDimensions = {
-        width: el.offsetWidth,
-        height: el.offsetHeight,
-      };
-    } catch (e) {
-      if (e instanceof TypeError) {
-        svgDimensions = this.props.svgDimensions;
-      } else {
-        throw (e);
-      }
-    }
-    const { xScale, yScale } = this.props;
+    const { svgDimensions, xScale, yScale } = this.props;
     xScale.range([
       MARGINS.left + Math.round(SMBG_OPTS.maxR),
       svgDimensions.width - MARGINS.right - Math.round(SMBG_OPTS.maxR),
@@ -115,23 +103,21 @@ class CBGTrendsContainer extends React.Component {
       svgDimensions.height - MARGINS.bottom - BUMPERS.bottom,
       MARGINS.top + BUMPERS.top,
     ]);
-    this.setState({ svgDimensions });
   }
 
   render() {
-    const { svgDimensions } = this.state;
     let focusedRange = null;
     if (this.props.focusedSlice !== null) {
       focusedRange = _.pick(this.props.focusedSlice, ['msFrom', 'msTo']);
     }
     return (
-      <svg {...svgDimensions}>
+      <svg {...this.props.svgDimensions}>
         <BackgroundWithTargetRange
           bgBounds={this.props.bgBounds}
           linesAtThreeHrs
           margins={this.props.margins}
           smbgOpts={this.props.smbgOpts}
-          svgDimensions={this.state.svgDimensions}
+          svgDimensions={this.props.svgDimensions}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
@@ -151,7 +137,7 @@ class CBGTrendsContainer extends React.Component {
           data={this.props.data}
           focusSlice={this.props.focusSlice}
           margins={this.props.margins}
-          svgDimensions={this.state.svgDimensions}
+          svgDimensions={this.props.svgDimensions}
           unfocusSlice={this.props.unfocusSlice}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
