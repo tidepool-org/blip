@@ -74,6 +74,7 @@ export class TrendsContainer extends React.Component {
     smbgByDayOfWeek: PropTypes.object.isRequired,
     // handlers
     onDatetimeLocationChange: PropTypes.func.isRequired,
+    onSelectDay: PropTypes.func.isRequired,
     onSwitchBgDataSource: PropTypes.func.isRequired,
     // viz state
     viz: PropTypes.shape({
@@ -238,6 +239,7 @@ export class TrendsContainer extends React.Component {
           boxOverlay={this.props.smbgRangeOverlay}
           data={this.state.currentSmbgData}
           grouped={this.props.smbgGrouped}
+          onSelectDay={this.props.onSelectDay}
           showingLines={this.props.smbgLines}
           timezone={timezone}
         />
