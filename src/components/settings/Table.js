@@ -20,7 +20,9 @@ class Table extends React.Component {
   }
 
   renderHeader(normalizedColumns) {
-    const cells = normalizedColumns.map((column) => <th className={column.className}>{column.label}</th>);
+    const cells = normalizedColumns.map(
+      (column) => <th className={column.className}>{column.label}</th>
+    );
     return (<thead>{cells}</thead>);
   }
 
@@ -55,8 +57,10 @@ class Table extends React.Component {
       this.renderRows(normalizedColumns),
     ];
 
-    if (this.props.title){
-      const title = (<caption className={this.props.title.className}>{this.props.title.label}</caption>);
+    if (this.props.title) {
+      const title = (
+        <caption className={this.props.title.className}>{this.props.title.label}</caption>
+      );
       tableContents = [
         title,
         this.renderHeader(normalizedColumns),

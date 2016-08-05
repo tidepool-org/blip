@@ -15,7 +15,6 @@ const Medtronic = (props) => {
     const schedules = _.keysIn(pumpSettings.basalSchedules);
 
     const tables = schedules.map((schedule) => {
-
       const starts = pumpSettings.basalSchedules[schedule].map(s => s.start);
       const data = starts.map((startTime) => (
         { start: pumpSettings
@@ -27,7 +26,7 @@ const Medtronic = (props) => {
             .filter(s => s.start === startTime)
             .map(s => s.rate) }
       ));
-      const title = {label: schedule, className: styles.basalSchedulesHeader };
+      const title = { label: schedule, className: styles.basalSchedulesHeader };
 
       return (
         <div>
@@ -37,18 +36,17 @@ const Medtronic = (props) => {
             columns={columns}
           />
         </div>
-      )
+      );
     });
     return (<div>{tables}</div>);
   };
 
   const getSensitivityData = () => {
-
     const columns = [
       { key: 'start', label: 'Start time', className: '' },
       { key: 'amount', label: `Value (${bgUnits}/U)`, className: '' },
     ];
-    const title = {label: 'Sensitivity (ISF, Correction)', className: styles.bolusSettingsHeader };
+    const title = { label: 'Sensitivity (ISF, Correction)', className: styles.bolusSettingsHeader };
     const starts = pumpSettings.insulinSensitivity.map(s => s.start);
     const data = starts.map((startTime) => (
       { start: pumpSettings
@@ -75,10 +73,10 @@ const Medtronic = (props) => {
   const getBgTargetData = () => {
     const columns = [
       { key: 'start', label: 'Start time', className: '' },
-      { key: 'low', label: `Low`, className: '' },
-      { key: 'high', label: `High`, className: '' },
+      { key: 'low', label: 'Low', className: '' },
+      { key: 'high', label: 'High', className: '' },
     ];
-    const title = {label: `BG Target (${bgUnits})`, className: styles.bolusSettingsHeader };
+    const title = { label: `BG Target (${bgUnits})`, className: styles.bolusSettingsHeader };
     const starts = pumpSettings.bgTarget.map(s => s.start);
     const data = starts.map((startTime) => (
       { start: pumpSettings
@@ -111,7 +109,10 @@ const Medtronic = (props) => {
       { key: 'start', label: 'Start time', className: '' },
       { key: 'amount', label: 'Value (g/U)', className: '' },
     ];
-    const title = {label: 'Insulin to Carb Ratio (I:C)', className: styles.bolusSettingsHeader };
+    const title = {
+      label: 'Insulin to Carb Ratio (I:C)',
+      className: styles.bolusSettingsHeader,
+    };
     const starts = pumpSettings.carbRatio.map(s => s.start);
     const data = starts.map((startTime) => (
       { start: pumpSettings
@@ -133,7 +134,6 @@ const Medtronic = (props) => {
         />
       </div>
     );
-
   };
 
   return (

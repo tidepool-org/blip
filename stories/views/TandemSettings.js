@@ -9,7 +9,7 @@ import Medtronic from '../../src/views/settings/Medtronic';
 
 const tandemFlatRateSettings = require('../../data/pumpSettings/tandem/flatrate.json');
 const medtronicFlatRateSettings = require('../../data/pumpSettings/medtronic/flatrate.json');
-const mmolL = 'mmol/L'
+const mmolL = 'mmol/L';
 
 storiesOf('TandemSettings', module)
   .add('flat rate', () => (
