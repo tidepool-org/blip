@@ -66,6 +66,13 @@ export let VerificationWithPassword = React.createClass({
     }
   },
 
+  componentWillReceiveProps: function(nextProps) {
+    if (_.get(this.props, 'notification.message', null) === null &&
+        _.get(nextProps, 'notification.message') === errorMessages.ERR_BIRTHDAY_MISMATCH) {
+      this.props.trackMetric('VCA Home Verification - Birthday Mismatch')
+    }
+  },
+
   getInitialState: function() {
     var formValues = {};
 
@@ -89,9 +96,6 @@ export let VerificationWithPassword = React.createClass({
   },
 
   render: function() {
-    if (_.get(this.props, 'notification.message', '') === errorMessages.ERR_BIRTHDAY_MISMATCH) {
-      this.props.trackMetric('VCA Home Verification - Birthday Mismatch')
-    }
     return (
       <div className="VerificationWithPassword">
         <LoginNav
