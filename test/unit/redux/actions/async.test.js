@@ -7,26 +7,32 @@
 
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
+
 import _ from 'lodash';
 
 import isTSA from 'tidepool-standard-action';
+
+import * as async from '../../../../app/redux/actions/async';
 
 import initialState from '../../../../app/redux/reducers/initialState';
 
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
-// need to require() async in order to rewire utils inside
-const async = require('../../../../app/redux/actions/async');
-
 describe('Actions', () => {
-  const mockStore = configureStore([thunk]);
+  const trackMetric = sinon.spy();
+  const mockStore = configureStore([
+    thunk,
+    trackingMiddleware({ metrics: { track: trackMetric } })
+  ]);
 
   afterEach(function() {
     // very important to do this in an afterEach than in each test when __Rewire__ is used
     // if you try to reset within each test you'll make it impossible for tests to fail!
     async.__ResetDependency__('utils')
-  });
+    trackMetric.reset();
+  })
 
   describe('Asynchronous Actions', () => {
     describe('signup', () => {
@@ -52,6 +58,7 @@ describe('Actions', () => {
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
+        expect(trackMetric.calledWith('Signed Up')).to.be.true;
       });
 
       it('[409] should trigger SIGNUP_FAILURE and it should call signup once and get zero times for a failed signup request', () => {
@@ -184,7 +191,7 @@ describe('Actions', () => {
         store.dispatch(async.confirmSignup(api, 'fakeSignupKey', 'g@a.com'));
 
         const actions = store.getActions();
-        
+
         expect(actions).to.eql(expectedActions);
         expect(api.user.confirmSignUp.calledWith('fakeSignupKey')).to.be.true;
         expect(api.user.confirmSignUp.callCount).to.equal(1);
@@ -225,6 +232,9 @@ describe('Actions', () => {
 
         expect(api.user.custodialConfirmSignUp.calledWith(key, birthday, password)).to.be.true;
         expect(api.user.custodialConfirmSignUp.callCount).to.equal(1);
+
+        expect(trackMetric.calledWith('VCA Home Verification - Verified')).to.be.true;
+        expect(trackMetric.calledWith('Logged In')).to.be.true;
       });
 
       it('should trigger VERIFY_CUSTODIAL_FAILURE and it should call verifyCustodial once for a failed request', () => {
@@ -406,6 +416,7 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.get.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Logged In')).to.be.true;
       });
 
       it('should trigger LOGIN_SUCCESS and it should call login, user.get and patient.get once for a successful request', () => {
@@ -440,6 +451,7 @@ describe('Actions', () => {
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.get.callCount).to.equal(1);
         expect(api.patient.get.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Logged In')).to.be.true;
       });
 
       it('[400] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login request', () => {
@@ -620,6 +632,7 @@ describe('Actions', () => {
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.user.logout.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Logged Out')).to.be.true;
       });
     });
 
@@ -650,6 +663,7 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.patient.post.calledWith(patient)).to.be.true;
         expect(api.patient.post.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Created Profile')).to.be.true;
       });
 
       it('should trigger SETUP_DATA_STORAGE_FAILURE and it should call setupDataStorage once for a failed request', () => {
@@ -1160,6 +1174,7 @@ describe('Actions', () => {
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.patient.put.calledWith(patient)).to.be.true;
+        expect(trackMetric.calledWith('Updated Profile')).to.be.true;
       });
 
       it('should trigger UPDATE_PATIENT_FAILURE and it should call updatePatient once for a failed request', () => {
@@ -1265,6 +1280,7 @@ describe('Actions', () => {
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.user.put.calledWith(userUpdates)).to.be.true;
+        expect(trackMetric.calledWith('Updated Account')).to.be.true;
       });
 
       it('should trigger UPDATE_USER_FAILURE and it should call updateUser once for a failed request', () => {
@@ -1843,7 +1859,6 @@ describe('Actions', () => {
     });
 
     describe('fetchPatientData', () => {
-
       it('should trigger FETCH_PATIENT_DATA_SUCCESS and it should call error once for a successful request', () => {
         async.__Rewire__('utils', {
           processPatientData: sinon.stub().returnsArg(0)
