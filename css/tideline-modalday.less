@@ -15,26 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-.svg-tooltip-smbg.monday {
-  stroke: @monday;
-}
-.svg-tooltip-smbg.tuesday {
-  stroke: @tuesday;
-}
-.svg-tooltip-smbg.wednesday {
-  stroke: @wednesday;
-}
-.svg-tooltip-smbg.thursday {
-  stroke: @thursday;
-}
-.svg-tooltip-smbg.friday {
-  stroke: @friday;
-}
-.svg-tooltip-smbg.saturday {
-  stroke: @saturday;
-}
-.svg-tooltip-smbg.sunday {
-  stroke: @sunday;
+.svg-tooltip-smbg {
+  stroke: @trends-smbg;
 }
 
 .d3-axis.d3-left {
@@ -51,10 +33,12 @@
 .modalDay {
   circle {
     opacity: 0.75;
+    fill: @trends-smbg;
   }
   .smbgPath {
     fill: none;
     opacity: 0.75;
+    stroke: @trends-smbg;
     stroke-dasharray: 4, 4;
   }
   rect {
@@ -83,119 +67,16 @@
   }
 }
 
-.monday {
-  circle {
-    fill: @monday;
-  }
-  path {
-    stroke: @monday;
-  }
-}
-.tuesday {
-  circle {
-    fill: @tuesday;
-  }
-  path {
-    stroke: @tuesday;
-  }
-}
-.wednesday {
-  circle {
-    fill: @wednesday;
-  }
-  path {
-    stroke: @wednesday;
-  }
-}
-.thursday {
-  circle {
-    fill: @thursday;
-  }
-  path {
-    stroke: @thursday;
-  }
-}
-.friday {
-  circle {
-    fill: @friday;
-  }
-  path {
-    stroke: @friday;
-  }
-}
-.saturday {
-  circle {
-    fill: @saturday;
-  }
-  path {
-    stroke: @saturday;
-  }
-}
-.sunday {
-  circle {
-    fill: @sunday;
-  }
-  path {
-    stroke: @sunday;
-  }
-}
-
-@brush: lighten(@background, 20%);
-
-#brushHandleGroup {
-  rect.background {
-    fill: none;
-    stroke: @brush;
-    stroke-width: 1.5;
-  }
-  rect.extent {
-    fill: @brush;
-    stroke: none;
-  }
-
-  text {
-    dominant-baseline: central;
-    fill: @brush;
-    font-size: 14px;
-    &.hidden {
-      visibility: hidden;
-    }
-    &.left {
-      text-anchor: end;
-    }
-    &.right {
-      text-anchor: start;
-    }
-  }
-}
-
-#brushTicks {
-  line {
-    stroke: @brush;
-  }
-}
-
-#brushAxisText {
-  text {
-    fill: @text;
-    font-size: 12px;
-    dominant-baseline: hanging;
-    &.centered {
-      text-anchor: middle;
-    }
-  }
-}
-
 circle.meanCircle {
   fill: none;
-  stroke: white;
+  stroke: @trends-mean;
   stroke-width: 3px;
 }
 rect.rangeBox {
-  fill: @range;
-  opacity: 0.3;
+  fill: @trends-range;
+  opacity: 0.5;
 
   &:hover {
-    opacity: 0.5;
+    opacity: 0.8;
   }
 }
