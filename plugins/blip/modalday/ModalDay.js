@@ -178,7 +178,6 @@ d3.chart('ModalDay', {
         var start = d3.time.day.utc.floor(now);
         var end = d3.time.hour.offset(d3.time.day.utc.ceil(now), 3);
         var data = d3.time.hour.utc.range(start, end, 3);
-        console.log(this);
         return this.selectAll('line')
           .data(data);
       },
