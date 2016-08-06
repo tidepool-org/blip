@@ -22,7 +22,7 @@ import BackgroundWithTargetRange from '../../components/trends/common/Background
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import XAxisTicks from '../../components/trends/common/XAxisTicks';
 import YAxisLabelsAndTicks from '../../components/trends/common/YAxisLabelsAndTicks';
-import CBGSlicesContainer from '../../components/trends/cbg/CBGSlicesContainer';
+import CBGSlicesAnimationContainer from '../../components/trends/cbg/CBGSlicesAnimationContainer';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 import FocusedCBGSlice from '../../components/trends/cbg/FocusedCBGSlice';
 
@@ -132,7 +132,7 @@ class CBGTrendsContainer extends React.Component {
           margins={this.props.margins}
           yScale={this.props.yScale}
         />
-        <CBGSlicesContainer
+        <CBGSlicesAnimationContainer
           data={this.props.data}
           focusSlice={this.props.focusSlice}
           margins={this.props.margins}

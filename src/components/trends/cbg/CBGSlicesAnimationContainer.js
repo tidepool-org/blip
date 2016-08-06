@@ -22,7 +22,7 @@ import { Motion, spring } from 'react-motion';
 
 import CBGSlice from './CBGSlice';
 
-import styles from './CBGSlicesContainer.css';
+import styles from './CBGSlicesAnimationContainer.css';
 
 export default class CBGSlicesContainer extends React.Component {
   static propTypes = {
