@@ -30,7 +30,6 @@ import SMBGTrends from './smbgtrends';
 
 import * as viz from '@tidepool/viz';
 const TrendsContainer = viz.containers.TrendsContainer;
-const ChartExplainer = viz.components.ChartExplainer;
 
 var Modal = React.createClass({
   chartType: 'modal',
@@ -79,7 +78,6 @@ var Modal = React.createClass({
               <div id="tidelineContainer" className="patient-data-chart-modal">
                 {this.renderChart()}
               </div>
-              {this.renderChartExplainer()}
             </div>
           </div>
         </div>
@@ -170,16 +168,6 @@ var Modal = React.createClass({
         onSelectDay={this.handleSelectDay}
         onSwitchBgDataSource={this.toggleBgDataSource}
       ref="chart" />
-    );
-  },
-  renderChartExplainer() {
-    if (!this.props.chartPrefs.modal.showingCbg) {
-      return null;
-    }
-    return (
-      <ChartExplainer
-        bgUnits={this.props.bgPrefs.bgUnits}
-        focusedSlice={this.props.trendsState.focusedCbgSlice} />
     );
   },
   renderMissingSMBGHeader: function() {
