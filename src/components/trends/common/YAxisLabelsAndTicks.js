@@ -20,7 +20,7 @@ import React, { PropTypes } from 'react';
 
 import { displayBgValue } from '../../../utils/format';
 
-import styles from './YAxisLabels.css';
+import styles from './YAxisLabelsAndTicks.css';
 
 const YAxisLabels = (props) => {
   const { bgBounds, bgUnits, margins, textToTickGap, tickWidth, yScale } = props;

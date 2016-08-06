@@ -21,44 +21,36 @@ import React, { PropTypes } from 'react';
 
 import * as datetime from '../../../utils/datetime';
 
-import styles from './XAxisLabels.css';
+import styles from './XAxisTicks.css';
 
-const XAxisLabels = (props) => {
-  const { data, margins, xOffset, xScale, yOffset } = props;
-  const yPos = margins.top - yOffset;
-
+const XAxisTicks = (props) => {
+  const { data, margins, tickLength, xScale } = props;
   return (
-    <g id="xAxisLabels">
-      {_.map(data, (msInDay) => {
-        const timePieces = datetime.formatDurationToClocktime(msInDay);
-        return (
-          <text
-            className={styles.text}
-            key={msInDay}
-            x={xScale(msInDay) + xOffset}
-            y={yPos}
-          >
-            {`${timePieces.hours} ${timePieces.timeOfDay}`}
-          </text>
-        );
-      })}
+    <g id="xAxisTicks">
+      {_.map(data, (msInDay) => (
+        <line
+          className={styles.tick}
+          key={msInDay}
+          x1={xScale(msInDay)}
+          x2={xScale(msInDay)}
+          y1={margins.top}
+          y2={margins.top - tickLength}
+        />
+      ))}
     </g>
   );
 };
 
-XAxisLabels.defaultProps = {
-  data: _.map(range(0, 8), (i) => (i * datetime.THREE_HRS)),
-  xOffset: 5,
-  yOffset: 5,
+XAxisTicks.defaultProps = {
+  data: _.map(range(0, 9), (i) => (i * datetime.THREE_HRS)),
+  tickLength: 15,
 };
 
-XAxisLabels.propTypes = {
+XAxisTicks.propTypes = {
   data: PropTypes.array.isRequired,
   margins: PropTypes.object.isRequired,
-  useRangeLabels: PropTypes.bool.isRequired,
-  xOffset: PropTypes.number.isRequired,
+  tickLength: PropTypes.number.isRequired,
   xScale: PropTypes.func.isRequired,
-  yOffset: PropTypes.number.isRequired,
 };
 
-export default XAxisLabels;
+export default XAxisTicks;

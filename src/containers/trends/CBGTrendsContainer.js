@@ -15,13 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import bows from 'bows';
 
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
-import YAxisLabels from '../../components/trends/common/YAxisLabels';
+import XAxisTicks from '../../components/trends/common/XAxisTicks';
+import YAxisLabelsAndTicks from '../../components/trends/common/YAxisLabelsAndTicks';
 import CBGSlicesContainer from '../../components/trends/cbg/CBGSlicesContainer';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 import FocusedCBGSlice from '../../components/trends/cbg/FocusedCBGSlice';
@@ -106,10 +106,6 @@ class CBGTrendsContainer extends React.Component {
   }
 
   render() {
-    let focusedRange = null;
-    if (this.props.focusedSlice !== null) {
-      focusedRange = _.pick(this.props.focusedSlice, ['msFrom', 'msTo']);
-    }
     return (
       <svg {...this.props.svgDimensions}>
         <BackgroundWithTargetRange
@@ -122,12 +118,15 @@ class CBGTrendsContainer extends React.Component {
           yScale={this.props.yScale}
         />
         <XAxisLabels
-          focusedRange={focusedRange}
           margins={this.props.margins}
           useRangeLabels={false}
           xScale={this.props.xScale}
         />
-        <YAxisLabels
+        <XAxisTicks
+          margins={this.props.margins}
+          xScale={this.props.xScale}
+        />
+        <YAxisLabelsAndTicks
           bgBounds={this.props.bgBounds}
           bgUnits={this.props.bgUnits}
           margins={this.props.margins}
