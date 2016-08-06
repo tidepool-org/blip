@@ -77,7 +77,7 @@ d3.chart('ModalDay', {
                   return yScale(bgClasses.low.boundary);
               }
             }
-          })
+          });
         }
       }
     });
@@ -104,7 +104,7 @@ d3.chart('ModalDay', {
         enter: function() {
           var xPosition = function(d) {
             return chart.xScale()(d);
-          }
+          };
           this.attr({
             x1: xPosition,
             x2: xPosition
@@ -113,9 +113,8 @@ d3.chart('ModalDay', {
       }
     });
 
-    this.layer('xAxis', this.base.select('#modalMainGroup').append('g')
+    this.layer('xAxis labels', this.base.select('#modalMainGroup').append('g')
       .attr('id', 'modalXAxis')
-      .append('g')
       .attr('class', 'd3-axis d3-top'), {
       dataBind: function() {
         var now = new Date();
@@ -138,7 +137,7 @@ d3.chart('ModalDay', {
         }
         else {
           data = d3.time.hour.utc.range(start, end, 3).map(function (d) {
-            return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
+            return d3.time.format.utc('%-I %p')(d).toLowerCase();
           });
         }
         return this.selectAll('text')
@@ -167,6 +166,38 @@ d3.chart('ModalDay', {
                 }
             })
             .text(function(d) { return d; });
+        }
+      }
+    });
+
+    this.layer('xAxis ticks', this.base.select('#modalXAxis'), {
+      dataBind: function() {
+        var now = new Date();
+        // this is fine to leave with no arbitrary timezone
+        // it's only generating text for x-axis tick labels
+        var start = d3.time.day.utc.floor(now);
+        var end = d3.time.hour.offset(d3.time.day.utc.ceil(now), 3);
+        var data = d3.time.hour.utc.range(start, end, 3);
+        console.log(this);
+        return this.selectAll('line')
+          .data(data);
+      },
+      insert: function() {
+        return this.append('line')
+          .attr({
+            y1: chart.margins().main.top,
+            y2: chart.margins().main.top - chart.tickLength().x
+          });
+      },
+      events: {
+        enter: function() {
+          var xPosition = function(d, i) {
+            return chart.xScale()(i * THREE_HRS);
+          };
+          this.attr({
+            x1: xPosition,
+            x2: xPosition
+          });
         }
       }
     });
@@ -428,7 +459,7 @@ module.exports = {
         units: opts.bgUnits || 'mg/dL'
       },
       statsHeight: 0,
-      tickLength: {y: 8},
+      tickLength: {x: 15, y: 8},
       tickShift: {x: 5, y: 10}
     };
     defaults.margins = {
