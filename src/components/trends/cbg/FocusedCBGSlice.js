@@ -31,8 +31,9 @@ const FocusedCBGSlice = (props) => {
   }
 
   if (_.isEqual(keys, ['median'])) {
+    const yPos = yScale(slice.median) - (yOffset * 2);
     return (
-      <text className={styles.median} x={xScale(slice.msX)} y={yScale(slice.median) - yOffset}>
+      <text className={styles.median} x={xScale(slice.msX)} y={yPos}>
         {displayBgValue(slice.median, bgUnits)}
       </text>
     );
@@ -50,7 +51,7 @@ const FocusedCBGSlice = (props) => {
 };
 
 FocusedCBGSlice.defaultProps = {
-  yOffset: 18,
+  yOffset: 9,
 };
 
 FocusedCBGSlice.propTypes = {
