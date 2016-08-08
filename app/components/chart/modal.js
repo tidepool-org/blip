@@ -29,6 +29,7 @@ var Footer = require('./footer');
 import SMBGTrends from './smbgtrends';
 
 import * as viz from '@tidepool/viz';
+const FocusedCBGSliceTime = viz.components.FocusedCBGSliceTime;
 const TrendsContainer = viz.containers.TrendsContainer;
 
 var Modal = React.createClass({
@@ -78,6 +79,7 @@ var Modal = React.createClass({
               <div id="tidelineContainer" className="patient-data-chart-modal">
                 {this.renderChart()}
               </div>
+              {this.renderFocusedCBGTime()}
             </div>
           </div>
         </div>
@@ -168,6 +170,15 @@ var Modal = React.createClass({
         onSelectDay={this.handleSelectDay}
         onSwitchBgDataSource={this.toggleBgDataSource}
       ref="chart" />
+    );
+  },
+  renderFocusedCBGTime: function() {
+    if (!this.props.chartPrefs.modal.showingCbg) {
+      return null;
+    }
+    return (
+      <FocusedCBGSliceTime
+        focusedSlice={this.props.trendsState.focusedCbgSlice} />
     );
   },
   renderMissingSMBGHeader: function() {
