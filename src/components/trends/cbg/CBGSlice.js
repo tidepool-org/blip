@@ -23,11 +23,21 @@ const CBGSlice = (props) => {
   const { datum, medianRadius, sliceCapRadius, xScale, yPositions } = props;
   const { focusSlice, unfocusSlice } = props;
 
-  const focusMedian = focusSlice.bind(null, datum, ['median']);
+  const focusMedian = () => {
+    focusSlice(datum, {
+      topOptions: yPositions,
+      left: xScale(datum.msX),
+    }, ['median']);
+  };
   const unfocus = unfocusSlice.bind(null);
 
   function renderLine(category, y1Accessor, y2Accessor) {
-    const focus = focusSlice.bind(null, datum, [y1Accessor, y2Accessor]);
+    const focus = () => {
+      focusSlice(datum, {
+        topOptions: yPositions,
+        left: xScale(datum.msX),
+      }, [y1Accessor, y2Accessor]);
+    };
     if (yPositions[y1Accessor] && yPositions[y2Accessor]) {
       return (
         <rect

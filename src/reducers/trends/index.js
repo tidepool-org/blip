@@ -22,7 +22,10 @@ import * as actionTypes from '../../actions/constants';
 export const focusedCbgSlice = (state = null, action) => {
   switch (action.type) {
     case actionTypes.FOCUS_TRENDS_CBG_SLICE:
-      return action.payload.sliceData;
+      return {
+        slice: action.payload.sliceData,
+        position: action.payload.slicePosition,
+      };
     case actionTypes.UNFOCUS_TRENDS_CBG_SLICE:
       return null;
     default:

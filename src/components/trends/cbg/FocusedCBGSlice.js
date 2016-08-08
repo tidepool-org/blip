@@ -23,7 +23,11 @@ import { displayBgValue } from '../../../utils/format';
 import styles from './FocusedCBGSlice.css';
 
 const FocusedCBGSlice = (props) => {
-  const { focusedSliceKeys: keys, focusedSlice: slice } = props;
+  const { focusedSliceKeys: keys, focusedSlice } = props;
+  if (!focusedSlice) {
+    return null;
+  }
+  const { focusedSlice: { slice } } = props;
   const { bgUnits, xScale, yOffset, yScale } = props;
 
   if (keys === null || slice === null) {

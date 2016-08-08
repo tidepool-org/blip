@@ -20,10 +20,10 @@ import * as actionTypes from './constants';
 /*
  * TRENDS VIEW ACTIONS
  */
-export function focusTrendsCbgSlice(sliceData, focusedKeys) {
+export function focusTrendsCbgSlice(sliceData, slicePosition, focusedKeys) {
   return {
     type: actionTypes.FOCUS_TRENDS_CBG_SLICE,
-    payload: { focusedKeys, sliceData },
+    payload: { focusedKeys, sliceData, slicePosition },
   };
 }
 

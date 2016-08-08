@@ -15,29 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-require('./styles/colors.css');
+.container {
+  composes: mediumContrastText smallSize from '../../../styles/typography.css';
+  background-color: rgba(255, 255, 255, 0.25);
+  padding: 0px 6px;
+  position: absolute;
+  transform: translateX(-50%);
+}
 
-import TandemSettings from './views/settings/TandemSettings';
-
-import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
-
-import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
-
-import TrendsContainer from './containers/trends/TrendsContainer';
-
-import vizReducer from './reducers/';
-
-const components = {
-  FocusedCBGSliceTime,
-  TwoOptionToggle,
-};
-
-const containers = {
-  TrendsContainer,
-};
-
-const views = {
-  Settings: { TandemSettings },
-};
-
-export { components, containers, views, vizReducer };
+.text {
+  white-space: nowrap;
+}
