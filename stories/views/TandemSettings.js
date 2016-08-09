@@ -2,10 +2,13 @@ import React from 'react';
 
 import { storiesOf } from '@kadira/storybook';
 
-import TandemSettings from '../../src/views/settings/TandemSettings';
+import TandemSettings from '../../src/containers/settings/tandem/TandemSettings';
 
-import Tandem from '../../src/views/settings/Tandem';
-import Medtronic from '../../src/views/settings/Medtronic';
+import Tandem from '../../src/containers/settings/tandem/Tandem';
+import Medtronic from '../../src/containers/settings/medtronic/Medtronic';
+
+
+import CollapsibleContainer from '../../src/containers/common/CollapsibleContainer';
 
 const tandemFlatRateSettings = require('../../data/pumpSettings/tandem/flatrate.json');
 const medtronicFlatRateSettings = require('../../data/pumpSettings/medtronic/flatrate.json');
@@ -27,5 +30,18 @@ storiesOf('TandemSettings', module)
 storiesOf('MedtronicSettings', module)
   .add('flat rate', () => (
     // eslint-disable-next-line global-require
-    <Medtronic pumpSettings={medtronicFlatRateSettings} bgUnits={mmolL} />
+    <div>
+      <CollapsibleContainer keepContent={false} title="Section One" openByDefault={false} >
+        <Medtronic pumpSettings={medtronicFlatRateSettings} bgUnits={mmolL} />
+      </CollapsibleContainer>
+      <CollapsibleContainer keepContent={false} title="Section Two" >
+        <Medtronic pumpSettings={medtronicFlatRateSettings} bgUnits={mmolL} />
+      </CollapsibleContainer>
+    </div>
+  ));
+
+storiesOf('CollapsibleContainer', module)
+  .add('standard', () => (
+    // eslint-disable-next-line global-require
+    <CollapsibleContainer keepContent={false} />
   ));
