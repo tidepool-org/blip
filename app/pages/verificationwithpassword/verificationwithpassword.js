@@ -34,7 +34,6 @@ import { validateForm } from '../../core/validation';
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
 var formText = 'Welcome to Blip!';
-var formText2 = 'Please confirm your birthday and create a password to see your data.';
 
 export let VerificationWithPassword = React.createClass({
   propTypes: {
@@ -49,11 +48,10 @@ export let VerificationWithPassword = React.createClass({
   },
 
   formInputs:  [
-    { name: 'explanation1', type: 'explanation', text: formText },
-    { name: 'explanation2', type: 'explanation', text: formText2 },
-    { name: 'birthday', label: 'What is your birthday?', type: 'datepicker' },
-    { name: 'password', label: 'Password', type: 'password', placeholder: '******' },
-    { name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '******' }
+    { type: 'explanation', text: formText },
+    { name: 'birthday', label: 'Birthday', type: 'datepicker' },
+    { name: 'password', label: 'Create Password', type: 'password', placeholder: '' },
+    { name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '' }
   ],
 
   componentWillMount: function() {
