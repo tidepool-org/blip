@@ -1,0 +1,8 @@
+.absolute {
+  pointer-events: none;
+  position: absolute;
+}
+
+.smallHorizontalPadding {
+  padding: 0px 6px;
+}

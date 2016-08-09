@@ -33,14 +33,10 @@ const FocusedCBGSliceTime = (props) => {
   const displayFrom = `${timePiecesFrom.hours}:${timePiecesFrom.minutes}`;
   const displayTo = `${timePiecesTo.hours}:${timePiecesTo.minutes}`;
   return (
-    <div className={styles.container} style={{ top: top + props.yOffset, left }}>
+    <div className={styles.container} style={{ top, left }}>
       <span className={styles.text}>{`${displayFrom} - ${displayTo}`}</span>
     </div>
   );
-};
-
-FocusedCBGSliceTime.defaultProps = {
-  yOffset: -45,
 };
 
 FocusedCBGSliceTime.propTypes = {
@@ -56,7 +52,6 @@ FocusedCBGSliceTime.propTypes = {
       left: PropTypes.number.isRequired,
     }).isRequired,
   }),
-  yOffset: PropTypes.number.isRequired,
 };
 
 export default FocusedCBGSliceTime;

@@ -34,16 +34,25 @@ const FocusedCBGSlice = (props) => {
     return null;
   }
 
-  if (_.isEqual(keys, ['median'])) {
-    const yPos = yScale(slice.median) - (yOffset * 2);
+  const medianHovered = _.isEqual(keys, ['median']);
+
+  const yPosMedian = yScale(slice.median) - (yOffset * 1.5);
+  const medianClass = medianHovered ? styles.medianAlone : styles.median;
+  const medianDisplay = (
+    <text className={medianClass} x={xScale(slice.msX)} y={yPosMedian}>
+      {displayBgValue(slice.median, bgUnits)}
+    </text>
+  );
+  if (medianHovered) {
     return (
-      <text className={styles.median} x={xScale(slice.msX)} y={yPos}>
-        {displayBgValue(slice.median, bgUnits)}
-      </text>
+      <g id="focusedCbgSliceLabels">
+        {medianDisplay}
+      </g>
     );
   }
   return (
     <g id="focusedCbgSliceLabels">
+      {medianDisplay}
       <text className={styles.text} x={xScale(slice.msX)} y={yScale(slice[keys[1]]) - yOffset}>
         {displayBgValue(slice[keys[1]], bgUnits)}
       </text>

@@ -42,6 +42,10 @@
   fill: var(--text-high-contrast);
 }
 
+.noWrap {
+  white-space: nowrap;
+}
+
 .svgMiddleAnchored {
   text-anchor: middle;
 }

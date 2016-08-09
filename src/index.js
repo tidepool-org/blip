@@ -19,6 +19,7 @@ require('./styles/colors.css');
 
 import TandemSettings from './views/settings/TandemSettings';
 
+import FocusedCBGSliceHTMLLabels from './components/trends/cbg/FocusedCBGSliceHTMLLabels';
 import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
 
 import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
@@ -28,6 +29,7 @@ import TrendsContainer from './containers/trends/TrendsContainer';
 import vizReducer from './reducers/';
 
 const components = {
+  FocusedCBGSliceHTMLLabels,
   FocusedCBGSliceTime,
   TwoOptionToggle,
 };

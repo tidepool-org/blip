@@ -17,6 +17,8 @@
 
 import React, { PropTypes } from 'react';
 
+import { THREE_HRS } from '../../../utils/datetime';
+
 import styles from './CBGSlice.css';
 
 const CBGSlice = (props) => {
@@ -24,18 +26,22 @@ const CBGSlice = (props) => {
   const { focusSlice, unfocusSlice } = props;
 
   const focusMedian = () => {
+    const left = xScale(datum.msX);
     focusSlice(datum, {
+      left,
+      tooltipLeft: datum.msX > props.tooltipLeftThreshold,
       topOptions: yPositions,
-      left: xScale(datum.msX),
     }, ['median']);
   };
   const unfocus = unfocusSlice.bind(null);
 
   function renderLine(category, y1Accessor, y2Accessor) {
+    const left = xScale(datum.msX);
     const focus = () => {
       focusSlice(datum, {
+        left,
+        tooltipLeft: datum.msX > props.tooltipLeftThreshold,
         topOptions: yPositions,
-        left: xScale(datum.msX),
       }, [y1Accessor, y2Accessor]);
     };
     if (yPositions[y1Accessor] && yPositions[y2Accessor]) {
@@ -45,7 +51,7 @@ const CBGSlice = (props) => {
           key={`${category}-${datum.id}`}
           onMouseOver={focus}
           onMouseOut={unfocus}
-          x={xScale(datum.msX) - sliceCapRadius}
+          x={left - sliceCapRadius}
           width={2 * sliceCapRadius}
           y={yPositions[y2Accessor]}
           height={yPositions[y1Accessor] - yPositions[y2Accessor]}
@@ -80,6 +86,8 @@ const CBGSlice = (props) => {
 CBGSlice.defaultProps = {
   medianRadius: 7,
   sliceCapRadius: 9,
+  // for time values after 6 p.m. (1800), float the tooltips left instead of right
+  tooltipLeftThreshold: 6 * THREE_HRS,
 };
 
 CBGSlice.propTypes = {
@@ -87,6 +95,7 @@ CBGSlice.propTypes = {
   focusSlice: PropTypes.func.isRequired,
   medianRadius: PropTypes.number.isRequired,
   sliceCapRadius: PropTypes.number.isRequired,
+  tooltipLeftThreshold: PropTypes.number.isRequired,
   unfocusSlice: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yPositions: PropTypes.object.isRequired,

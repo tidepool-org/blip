@@ -63,6 +63,7 @@
     "mocha": "2.5.3",
     "phantomjs-prebuilt": "2.1.7",
     "postcss": "5.1.0",
+    "postcss-calc": "5.3.0",
     "postcss-custom-properties": "5.0.1",
     "postcss-loader": "0.9.1",
     "react": "15.2.1",

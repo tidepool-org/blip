@@ -16,13 +16,12 @@
  */
 
 .container {
+  composes: absolute smallHorizontalPadding from '../../../styles/layout.css';
   composes: mediumContrastText smallSize from '../../../styles/typography.css';
   background-color: rgba(255, 255, 255, 0.25);
-  padding: 0px 6px;
-  position: absolute;
-  transform: translateX(-50%);
+  transform: translate(-50%, -225%);
 }
 
 .text {
-  white-space: nowrap;
+  composes: noWrap from '../../../styles/typography.css';
 }
