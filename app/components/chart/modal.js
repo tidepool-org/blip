@@ -29,6 +29,7 @@ var Footer = require('./footer');
 import SMBGTrends from './smbgtrends';
 
 import * as viz from '@tidepool/viz';
+const FocusedCBGSliceHTMLLabels = viz.components.FocusedCBGSliceHTMLLabels;
 const FocusedCBGSliceTime = viz.components.FocusedCBGSliceTime;
 const TrendsContainer = viz.containers.TrendsContainer;
 
@@ -80,6 +81,7 @@ var Modal = React.createClass({
                 {this.renderChart()}
               </div>
               {this.renderFocusedCBGTime()}
+              {this.renderFocusedCBGHTMLLabels()}
             </div>
           </div>
         </div>
@@ -170,6 +172,17 @@ var Modal = React.createClass({
         onSelectDay={this.handleSelectDay}
         onSwitchBgDataSource={this.toggleBgDataSource}
       ref="chart" />
+    );
+  },
+  renderFocusedCBGHTMLLabels: function() {
+    if (!this.props.chartPrefs.modal.showingCbg) {
+      return null;
+    }
+    return (
+      <FocusedCBGSliceHTMLLabels
+        bgUnits={this.props.bgPrefs.bgUnits}
+        focusedKeys={this.props.trendsState.focusedCbgSliceKeys}
+        focusedSlice={this.props.trendsState.focusedCbgSlice} />
     );
   },
   renderFocusedCBGTime: function() {
