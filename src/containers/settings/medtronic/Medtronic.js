@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
+
 import Table from '../../../components/settings/Table';
+import * as datetime from '../../../utils/datetime';
 
 import styles from './Medtronic.css';
 
@@ -17,10 +19,10 @@ const Medtronic = (props) => {
     const tables = schedules.map((schedule) => {
       const starts = pumpSettings.basalSchedules[schedule].map(s => s.start);
       const data = starts.map((startTime) => (
-        { start: pumpSettings
+        { start: datetime.millisecondsAsTimeOfDay(pumpSettings
             .basalSchedules[schedule]
             .filter(s => s.start === startTime)
-            .map(s => s.start),
+            .map(s => s.start)),
           rate: pumpSettings.
             basalSchedules[schedule]
             .filter(s => s.start === startTime)
@@ -49,10 +51,10 @@ const Medtronic = (props) => {
     const title = { label: 'Sensitivity (ISF, Correction)', className: styles.bolusSettingsHeader };
     const starts = pumpSettings.insulinSensitivity.map(s => s.start);
     const data = starts.map((startTime) => (
-      { start: pumpSettings
+      { start: datetime.millisecondsAsTimeOfDay(pumpSettings
           .insulinSensitivity
           .filter(s => s.start === startTime)
-          .map(s => s.start),
+          .map(s => s.start)),
         amount: pumpSettings.
           insulinSensitivity
           .filter(s => s.start === startTime)
@@ -79,10 +81,10 @@ const Medtronic = (props) => {
     const title = { label: `BG Target (${bgUnits})`, className: styles.bolusSettingsHeader };
     const starts = pumpSettings.bgTarget.map(s => s.start);
     const data = starts.map((startTime) => (
-      { start: pumpSettings
+      { start: datetime.millisecondsAsTimeOfDay(pumpSettings
           .bgTarget
           .filter(s => s.start === startTime)
-          .map(s => s.start),
+          .map(s => s.start)),
         low: pumpSettings.
           bgTarget
           .filter(s => s.start === startTime)
@@ -115,10 +117,10 @@ const Medtronic = (props) => {
     };
     const starts = pumpSettings.carbRatio.map(s => s.start);
     const data = starts.map((startTime) => (
-      { start: pumpSettings
+      { start: datetime.millisecondsAsTimeOfDay(pumpSettings
           .carbRatio
           .filter(s => s.start === startTime)
-          .map(s => s.start),
+          .map(s => s.start)),
         amount: pumpSettings
           .carbRatio
           .filter(s => s.start === startTime)

@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
+
 import Table from '../../../components/settings/Table';
+import * as datetime from '../../../utils/datetime';
 
 import styles from './Tandem.css';
 
@@ -13,10 +15,10 @@ const Tandem = (props) => {
     const starts = pumpSettings.basalSchedules[scheduleName].map(s => s.start);
 
     return starts.map((startTime) => (
-      { start: pumpSettings
+      { start: datetime.millisecondsAsTimeOfDay(pumpSettings
           .basalSchedules[scheduleName]
           .filter(s => s.start === startTime)
-          .map(s => s.start),
+          .map(s => s.start)),
         rate: pumpSettings.
           basalSchedules[scheduleName]
           .filter(s => s.start === startTime)
