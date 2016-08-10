@@ -12,8 +12,6 @@ const Tandem = (props) => {
 
   const schedules = _.keysIn(pumpSettings.basalSchedules);
 
-  console.log('schedules: ', schedules);
-
   const getScheduleData = (scheduleName) => {
     const starts = pumpSettings.basalSchedules[scheduleName].map(s => s.start);
 
