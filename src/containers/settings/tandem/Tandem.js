@@ -6,6 +6,7 @@ import styles from './Tandem.css';
 import Table from '../../../components/common/Table';
 import * as datetime from '../../../utils/datetime';
 import * as format from '../../../utils/format';
+import * as constants from '../constants';
 
 const Tandem = (props) => {
   const { bgUnits, pumpSettings } = props;
@@ -23,7 +24,7 @@ const Tandem = (props) => {
         rate: format.displayDecimal(pumpSettings.
           basalSchedules[scheduleName]
           .filter(s => s.start === startTime)
-          .map(s => s.rate), 3),
+          .map(s => s.rate), constants.DISPLAY_PRESCION_PLACES),
         bgTarget: format.displayBgValue(pumpSettings
           .bgTargets[scheduleName]
           .filter(s => s.start === startTime)
@@ -73,13 +74,13 @@ const Tandem = (props) => {
 };
 
 Tandem.propTypes = {
-  bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
+  bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
   pumpSettings: PropTypes.object.isRequired,
 };
 
 // TODO: use webpack.DefinePlugin and only define defaultProps in DEV mode!
 Tandem.defaultProps = {
-  bgUnits: 'mg/dL',
+  bgUnits: constants.MGDL_UNITS,
 };
 
 export default Tandem;

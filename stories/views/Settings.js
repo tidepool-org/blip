@@ -26,10 +26,10 @@ storiesOf('MedtronicSettings', module)
   .add('flat rate', () => (
     // eslint-disable-next-line global-require
     <div>
-      <CollapsibleContainer keepContent={false} title="Section One" openByDefault={false} >
+      <CollapsibleContainer keepContent={false} label="Section One" openByDefault >
         <Medtronic pumpSettings={medtronicFlatRateSettings} bgUnits={mmolL} />
       </CollapsibleContainer>
-      <CollapsibleContainer keepContent={false} title="Section Two" >
+      <CollapsibleContainer keepContent={false} label="Section Two" >
         <Medtronic pumpSettings={medtronicFlatRateSettings} bgUnits={mmolL} />
       </CollapsibleContainer>
     </div>
