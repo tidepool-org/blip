@@ -2,8 +2,6 @@ import React from 'react';
 
 import { storiesOf } from '@kadira/storybook';
 
-import TandemSettings from '../../src/containers/settings/tandem/TandemSettings';
-
 import Tandem from '../../src/containers/settings/tandem/Tandem';
 import Medtronic from '../../src/containers/settings/medtronic/Medtronic';
 
@@ -16,13 +14,10 @@ const mmolL = 'mmol/L';
 
 storiesOf('TandemSettings', module)
   .add('flat rate', () => (
-    <TandemSettings pumpSettings={tandemFlatRateSettings} />
-  ))
-  .add('table flat rate', () => (
     // eslint-disable-next-line global-require
     <Tandem pumpSettings={tandemFlatRateSettings} bgUnits={mmolL} />
   ))
-  .add('table multi rate', () => (
+  .add('multi rate', () => (
     // eslint-disable-next-line global-require
     <Tandem pumpSettings={tandemFlatRateSettings} bgUnits={mmolL} />
   ));

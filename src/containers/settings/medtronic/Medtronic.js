@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
-import Table from '../../../components/settings/Table';
+import Table from '../../../components/common/Table';
 import * as datetime from '../../../utils/datetime';
 import * as format from '../../../utils/format';
 

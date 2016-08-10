@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import styles from './Tandem.css';
 
-import Table from '../../../components/settings/Table';
+import Table from '../../../components/common/Table';
 import * as datetime from '../../../utils/datetime';
 import * as format from '../../../utils/format';
 
@@ -11,6 +11,8 @@ const Tandem = (props) => {
   const { bgUnits, pumpSettings } = props;
 
   const schedules = _.keysIn(pumpSettings.basalSchedules);
+
+  console.log('schedules: ', schedules);
 
   const getScheduleData = (scheduleName) => {
     const starts = pumpSettings.basalSchedules[scheduleName].map(s => s.start);

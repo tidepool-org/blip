@@ -1,9 +1,13 @@
 require('./styles/colors.css');
 
-import TandemSettings from './views/settings/TandemSettings';
+import Medtronic from './containers/settings/medtronic/Medtronic';
+import Tandem from './containers/settings/tandem/Tandem';
 
 const views = {
-  Settings: { TandemSettings },
+  Settings: {
+    Tandem,
+    Medtronic,
+  },
 };
 
 export default views;
