@@ -152,6 +152,7 @@ export default class CBGSlicesContainer extends React.Component {
           <g id="cbgAnimationContainer">
             {_.map(interpolated, (config) => (
               <CBGSlice
+                aSliceIsFocused={focusedSlice !== null}
                 datum={dataById[config.key]}
                 focusSlice={this.props.focusSlice}
                 isFocused={config.key === _.get(focusedSlice, ['slice', 'id'], null)}

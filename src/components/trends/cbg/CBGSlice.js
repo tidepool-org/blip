@@ -26,11 +26,15 @@ const CBGSlice = (props) => {
   if (!datum) {
     return null;
   }
-  const { isFocused, medianRadius, sliceCapRadius, xScale, yPositions } = props;
+  const { aSliceIsFocused, isFocused } = props;
+  const { medianRadius, sliceCapRadius, xScale, yPositions } = props;
   const { focusSlice, unfocusSlice } = props;
 
   function getClass(category) {
-    return isFocused ? styles[`${category}Focused`] : styles[category];
+    if (aSliceIsFocused) {
+      return isFocused ? styles[category] : styles[`${category}Backgrounded`];
+    }
+    return styles[category];
   }
 
   const focusMedian = () => {
@@ -96,6 +100,7 @@ CBGSlice.defaultProps = {
 };
 
 CBGSlice.propTypes = {
+  aSliceIsFocused: PropTypes.bool.isRequired,
   datum: PropTypes.object,
   focusSlice: PropTypes.func.isRequired,
   isFocused: PropTypes.bool.isRequired,
