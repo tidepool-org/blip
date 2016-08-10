@@ -3,6 +3,7 @@ import _ from 'lodash';
 
 import Table from '../../../components/settings/Table';
 import * as datetime from '../../../utils/datetime';
+import * as format from '../../../utils/format';
 
 import styles from './Medtronic.css';
 
@@ -23,10 +24,10 @@ const Medtronic = (props) => {
             .basalSchedules[schedule]
             .filter(s => s.start === startTime)
             .map(s => s.start)),
-          rate: pumpSettings.
+          rate: format.displayDecimal(pumpSettings.
             basalSchedules[schedule]
             .filter(s => s.start === startTime)
-            .map(s => s.rate) }
+            .map(s => s.rate), 3) }
       ));
       const title = { label: schedule, className: styles.basalSchedulesHeader };
 
@@ -55,10 +56,10 @@ const Medtronic = (props) => {
           .insulinSensitivity
           .filter(s => s.start === startTime)
           .map(s => s.start)),
-        amount: pumpSettings.
+        amount: format.displayBgValue(pumpSettings.
           insulinSensitivity
           .filter(s => s.start === startTime)
-          .map(s => s.amount) }
+          .map(s => s.amount), bgUnits) }
     ));
 
     return (
@@ -85,14 +86,14 @@ const Medtronic = (props) => {
           .bgTarget
           .filter(s => s.start === startTime)
           .map(s => s.start)),
-        low: pumpSettings.
+        low: format.displayBgValue(pumpSettings.
           bgTarget
           .filter(s => s.start === startTime)
-          .map(s => s.low),
-        high: pumpSettings
+          .map(s => s.low), bgUnits),
+        high: format.displayBgValue(pumpSettings
           .bgTarget
           .filter(s => s.start === startTime)
-          .map(s => s.high) }
+          .map(s => s.high), bgUnits) }
     ));
 
     return (

@@ -1,10 +1,11 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
+import styles from './Tandem.css';
+
 import Table from '../../../components/settings/Table';
 import * as datetime from '../../../utils/datetime';
-
-import styles from './Tandem.css';
+import * as format from '../../../utils/format';
 
 const Tandem = (props) => {
   const { bgUnits, pumpSettings } = props;
@@ -19,22 +20,22 @@ const Tandem = (props) => {
           .basalSchedules[scheduleName]
           .filter(s => s.start === startTime)
           .map(s => s.start)),
-        rate: pumpSettings.
+        rate: format.displayDecimal(pumpSettings.
           basalSchedules[scheduleName]
           .filter(s => s.start === startTime)
-          .map(s => s.rate),
-        bgTarget: pumpSettings
+          .map(s => s.rate), 3),
+        bgTarget: format.displayBgValue(pumpSettings
           .bgTargets[scheduleName]
           .filter(s => s.start === startTime)
-          .map(s => s.target),
+          .map(s => s.target), bgUnits),
         carbRatio: pumpSettings
           .carbRatios[scheduleName]
           .filter(s => s.start === startTime)
           .map(s => s.amount),
-        insulinSensitivity: pumpSettings
+        insulinSensitivity: format.displayBgValue(pumpSettings
           .insulinSensitivities[scheduleName]
           .filter(s => s.start === startTime)
-          .map(s => s.amount) }
+          .map(s => s.amount), bgUnits) }
     ));
   };
 
