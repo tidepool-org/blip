@@ -19,7 +19,7 @@ class CollapsibleContainer extends React.Component {
   render() {
     return (
       <div>
-        <div onClick={this.handleClick}>{this.props.title}</div>
+        <div onClick={this.handleClick}>{this.props.label}</div>
         <Collapse
           style={styles.collapsibleContainer}
           isOpened={this.state.isOpened}
@@ -34,7 +34,7 @@ class CollapsibleContainer extends React.Component {
 
 CollapsibleContainer.propTypes = {
   children: React.PropTypes.element.isRequired,
-  title: React.PropTypes.string.isRequired,
+  label: React.PropTypes.string.isRequired,
   openByDefault: React.PropTypes.bool,
 };
 
