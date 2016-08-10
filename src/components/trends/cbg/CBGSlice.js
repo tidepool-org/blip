@@ -22,8 +22,12 @@ import { THREE_HRS } from '../../../utils/datetime';
 import styles from './CBGSlice.css';
 
 const CBGSlice = (props) => {
-  const { datum, medianRadius, sliceCapRadius, xScale, yPositions } = props;
+  const { datum, isFocused, medianRadius, sliceCapRadius, xScale, yPositions } = props;
   const { focusSlice, unfocusSlice } = props;
+
+  function getClass(category) {
+    return isFocused ? styles[`${category}Focused`] : styles[category];
+  }
 
   const focusMedian = () => {
     const left = xScale(datum.msX);
@@ -47,7 +51,7 @@ const CBGSlice = (props) => {
     if (yPositions[y1Accessor] && yPositions[y2Accessor]) {
       return (
         <rect
-          className={styles[category]}
+          className={getClass(category)}
           key={`${category}-${datum.id}`}
           onMouseOver={focus}
           onMouseOut={unfocus}
@@ -70,7 +74,7 @@ const CBGSlice = (props) => {
         renderLine('outerSlice', 'tenthQuantile', 'ninetiethQuantile'),
         renderLine('quartileSlice', 'firstQuartile', 'thirdQuartile'),
         <circle
-          className={styles.cbgMedian}
+          className={getClass('cbgMedian')}
           key={`individualMedian-${datum.id}`}
           onMouseOver={focusMedian}
           onMouseOut={unfocus}
@@ -93,6 +97,7 @@ CBGSlice.defaultProps = {
 CBGSlice.propTypes = {
   datum: PropTypes.object.isRequired,
   focusSlice: PropTypes.func.isRequired,
+  isFocused: PropTypes.bool.isRequired,
   medianRadius: PropTypes.number.isRequired,
   sliceCapRadius: PropTypes.number.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,

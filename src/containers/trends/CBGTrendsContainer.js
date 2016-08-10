@@ -133,6 +133,7 @@ class CBGTrendsContainer extends React.Component {
         />
         <CBGSlicesAnimationContainer
           data={this.props.data}
+          focusedSlice={this.props.focusedSlice}
           focusSlice={this.props.focusSlice}
           margins={this.props.margins}
           svgDimensions={this.props.svgDimensions}

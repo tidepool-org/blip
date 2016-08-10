@@ -18,6 +18,8 @@
 .cbgMedian {
   fill: var(--data-purple--dark);
 }
+.cbgMedianFocused {
+}
 
 .cbgSlice {
   stroke: none;
@@ -27,13 +29,22 @@
   composes: cbgSlice;
   fill: var(--data-purple--lightest);
 }
+.rangeSliceFocused {
+  composes: cbgSlice;
+}
 
 .outerSlice {
   composes: cbgSlice;
   fill: var(--data-purple--light);
 }
+.outerSliceFocused {
+  composes: cbgSlice;
+}
 
 .quartileSlice {
   composes: cbgSlice;
   fill: var(--data-purple--medium);
+}
+.quartileSliceFocused {
+  composes: cbgSlice;
 }
