@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import stats from 'simple-statistics';
-import { Motion, spring } from 'react-motion';
+import { TransitionMotion, spring } from 'react-motion';
 
 import CBGSlice from './CBGSlice';
 
@@ -69,6 +69,7 @@ export default class CBGSlicesContainer extends React.Component {
       return Math.ceil(d.msPer24 / binSize) * binSize - (binSize / 2);
     });
     const binKeys = Object.keys(binned);
+
     const valueExtractor = (d) => (d.value);
     const mungedData = [];
     for (let i = 0; i < binKeys.length; ++i) {
@@ -103,20 +104,23 @@ export default class CBGSlicesContainer extends React.Component {
   }
 
   calcYPositions(mungedData, yScale, transform) {
-    const yPositions = {};
+    const yPositions = [];
     _.each(mungedData, (d) => {
-      yPositions[d.id] = _.mapValues(
-        _.pick(d, [
-          'min',
-          'median',
-          'max',
-          'tenthQuantile',
-          'ninetiethQuantile',
-          'firstQuartile',
-          'thirdQuartile',
-        ]),
-        (val) => (transform(val))
-      );
+      yPositions.push({
+        key: d.id,
+        style: _.mapValues(
+          _.pick(d, [
+            'min',
+            'median',
+            'max',
+            'tenthQuantile',
+            'ninetiethQuantile',
+            'firstQuartile',
+            'thirdQuartile',
+          ]),
+          (val) => (transform(val))
+        ),
+      });
     });
     return yPositions;
   }
@@ -143,23 +147,23 @@ export default class CBGSlicesContainer extends React.Component {
     );
 
     return (
-      <g id="cbgAnimationContainer">
-        {_.map(yPositions, (val, id) => (
-          <Motion key={id} style={yPositions[id]}>
-            {(interpolated) => (
+      <TransitionMotion styles={yPositions}>
+        {(interpolated) => (
+          <g id="cbgAnimationContainer">
+            {_.map(interpolated, (config) => (
               <CBGSlice
-                datum={dataById[id]}
+                datum={dataById[config.key]}
                 focusSlice={this.props.focusSlice}
-                isFocused={id === _.get(focusedSlice, ['slice', 'id'], null)}
-                key={id}
+                isFocused={config.key === _.get(focusedSlice, ['slice', 'id'], null)}
+                key={config.key}
                 unfocusSlice={this.props.unfocusSlice}
                 xScale={xScale}
-                yPositions={interpolated}
+                yPositions={config.style}
               />
-            )}
-          </Motion>
-        ))}
-      </g>
+            ))}
+          </g>
+        )}
+      </TransitionMotion>
     );
   }
 }

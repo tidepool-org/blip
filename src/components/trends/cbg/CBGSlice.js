@@ -22,7 +22,11 @@ import { THREE_HRS } from '../../../utils/datetime';
 import styles from './CBGSlice.css';
 
 const CBGSlice = (props) => {
-  const { datum, isFocused, medianRadius, sliceCapRadius, xScale, yPositions } = props;
+  const { datum } = props;
+  if (!datum) {
+    return null;
+  }
+  const { isFocused, medianRadius, sliceCapRadius, xScale, yPositions } = props;
   const { focusSlice, unfocusSlice } = props;
 
   function getClass(category) {
@@ -48,23 +52,20 @@ const CBGSlice = (props) => {
         topOptions: yPositions,
       }, [y1Accessor, y2Accessor]);
     };
-    if (yPositions[y1Accessor] && yPositions[y2Accessor]) {
-      return (
-        <rect
-          className={getClass(category)}
-          key={`${category}-${datum.id}`}
-          onMouseOver={focus}
-          onMouseOut={unfocus}
-          x={left - sliceCapRadius}
-          width={2 * sliceCapRadius}
-          y={yPositions[y2Accessor]}
-          height={yPositions[y1Accessor] - yPositions[y2Accessor]}
-          rx={sliceCapRadius}
-          ry={sliceCapRadius}
-        />
-      );
-    }
-    return null;
+    return (
+      <rect
+        className={getClass(category)}
+        key={`${category}-${datum.id}`}
+        onMouseOver={focus}
+        onMouseOut={unfocus}
+        x={left - sliceCapRadius}
+        width={2 * sliceCapRadius}
+        y={yPositions[y2Accessor]}
+        height={yPositions[y1Accessor] - yPositions[y2Accessor]}
+        rx={sliceCapRadius}
+        ry={sliceCapRadius}
+      />
+    );
   }
 
   return (
@@ -95,7 +96,7 @@ CBGSlice.defaultProps = {
 };
 
 CBGSlice.propTypes = {
-  datum: PropTypes.object.isRequired,
+  datum: PropTypes.object,
   focusSlice: PropTypes.func.isRequired,
   isFocused: PropTypes.bool.isRequired,
   medianRadius: PropTypes.number.isRequired,
