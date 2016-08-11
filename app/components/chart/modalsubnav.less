@@ -39,6 +39,10 @@
 
   .domainContainer {
     margin-top: @spacing-base;
+
+    .active {
+      font-weight: bold;
+    }
   }
 
   .visibleDays {
@@ -64,19 +68,16 @@
   }
 
   a.dayFilter {
-    background-color: fade(@purple-highcontrast, 25%);
     cursor: pointer;
     display: inline-block;
     line-height: (1.5 * @spacing-base) - 4;
+    padding: 0;
     width: 30px;
     margin: 0 3px;
 
     text-align: center;
 
-    color: white;
-
     &.active {
-      background-color: @purple-highcontrast;
       font-weight: bold;
       opacity: 1.0;
     }
