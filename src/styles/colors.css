@@ -21,8 +21,8 @@
 
   --data-purple--lightest: #B6C1E3;
   --data-purple--light: #96A6E9;
-  --data-purple--medium: #617CFC; // was #627CFF
-  --data-purple--dark: #291A45; // was #281746
+  --data-purple--medium: #617CFC; /* was #627CFF */
+  --data-purple--dark: #291A45; /* was #281746 */
 
   --axis-tick: #B9C8D0;
 
