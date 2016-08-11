@@ -4,7 +4,6 @@ import styles from './Tandem.css';
 
 import Table from '../../../components/common/Table';
 import * as common from '../common';
-import * as format from '../../../utils/format';
 
 const Tandem = (props) => {
   const { bgUnits, pumpSettings } = props;
@@ -15,20 +14,31 @@ const Tandem = (props) => {
     const starts = pumpSettings.basalSchedules[scheduleName].map(s => s.start);
 
     return starts.map((startTime) => (
-      { start: common.getTime(pumpSettings.basalSchedules[scheduleName], startTime),
-        rate: common.getRate(pumpSettings.basalSchedules[scheduleName], startTime),
-        bgTarget: format.displayBgValue(pumpSettings
-          .bgTargets[scheduleName]
-          .filter(s => s.start === startTime)
-          .map(s => s.target), bgUnits),
+      { start: common.getTime(
+          pumpSettings.basalSchedules[scheduleName],
+          startTime,
+        ),
+        rate: common.getRate(
+          pumpSettings.basalSchedules[scheduleName],
+          startTime,
+        ),
+        bgTarget: common.getBloodGlucoseValue(
+          pumpSettings.bgTargets[scheduleName],
+          'target',
+          startTime,
+          bgUnits,
+        ),
         carbRatio: pumpSettings
           .carbRatios[scheduleName]
           .filter(s => s.start === startTime)
           .map(s => s.amount),
-        insulinSensitivity: format.displayBgValue(pumpSettings
-          .insulinSensitivities[scheduleName]
-          .filter(s => s.start === startTime)
-          .map(s => s.amount), bgUnits) }
+        insulinSensitivity: common.getBloodGlucoseValue(
+          pumpSettings.insulinSensitivities[scheduleName],
+          'amount',
+          startTime,
+          bgUnits,
+        ),
+      }
     ));
   };
 
