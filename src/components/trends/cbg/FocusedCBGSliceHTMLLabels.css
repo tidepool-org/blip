@@ -87,6 +87,14 @@
   transform: translate(-50%, 15%);
 }
 
+.topNumberInside {
+  transform: translate(-50%, 15%);
+}
+
+.bottomNumberInside {
+  transform: translate(-50%, -115%);
+}
+
 /* content <span> styles */
 .plainNumber {
   composes: smallSize whiteText from '../../../styles/typography.css';

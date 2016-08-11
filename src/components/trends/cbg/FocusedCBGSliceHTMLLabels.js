@@ -28,6 +28,42 @@ const FocusedCBGSliceHTMLLabels = (props) => {
   if (!focusedSlice) {
     return null;
   }
+
+  function renderLabels(keys) {
+    return _.map(keys, (key) => {
+      const absPos = { left: position.left, top: position.topOptions[key] };
+      const valueClasses = cx({
+        [styles.container]: true,
+        [styles.bottomNumber]: props.bottomNumbers[key] || false,
+        [styles.topNumber]: props.topNumbers[key] || false,
+      });
+      return (
+        <div className={valueClasses} key={key} style={absPos}>
+          <span className={styles.number}>{displayBgValue(slice[key], bgUnits)}</span>
+        </div>
+      );
+    });
+  }
+
+  function renderExplainers(keys) {
+    return _.map(keys, (key) => {
+      if (!props.explainers[key]) {
+        return null;
+      }
+      const absPos = { left: position.left, top: position.topOptions[key] };
+      const explainerClasses = cx({
+        [styles.container]: true,
+        [styles[`${key}Explainer`]]: !position.tooltipLeft,
+        [styles[`${key}ExplainerLeft`]]: position.tooltipLeft,
+      });
+      return (
+        <div className={explainerClasses} key={key} style={absPos}>
+          <span className={styles.explainerText}>{props.explainers[key]}</span>
+        </div>
+      );
+    });
+  }
+
   const { bgUnits, focusedKeys: keys, focusedSlice: { slice, position } } = props;
   const medPos = { left: position.left, top: position.topOptions.median };
   if (_.isEqual(keys, ['median'])) {
@@ -46,41 +82,37 @@ const FocusedCBGSliceHTMLLabels = (props) => {
         </div>
       </div>
     );
+  } else if (_.isEqual(keys, ['min', 'max'])) {
+    return (
+      <div>
+        <div className={`${styles.container} ${styles.medianUnfocused}`} style={medPos}>
+          <span className={styles.plainNumber}>{displayBgValue(slice.median, bgUnits)}</span>
+        </div>
+        {renderLabels(keys)}
+        {_.map(['tenthQuantile', 'ninetiethQuantile'], (key) => {
+          const absPos = { left: position.left, top: position.topOptions[key] };
+          const valueClasses = cx({
+            [styles.container]: true,
+            [styles.bottomNumberInside]: props.bottomNumbers[key] || false,
+            [styles.topNumberInside]: props.topNumbers[key] || false,
+          });
+          return (
+            <div className={valueClasses} key={key} style={absPos}>
+              <span className={styles.number}>{displayBgValue(slice[key], bgUnits)}</span>
+            </div>
+          );
+        })}
+        {renderExplainers(keys)}
+      </div>
+    );
   }
   return (
     <div>
       <div className={`${styles.container} ${styles.medianUnfocused}`} style={medPos}>
         <span className={styles.plainNumber}>{displayBgValue(slice.median, bgUnits)}</span>
       </div>
-      {_.map(keys, (key) => {
-        const absPos = { left: position.left, top: position.topOptions[key] };
-        const valueClasses = cx({
-          [styles.container]: true,
-          [styles.bottomNumber]: props.bottomNumbers[key] || false,
-          [styles.topNumber]: props.topNumbers[key] || false,
-        });
-        return (
-          <div className={valueClasses} key={key} style={absPos}>
-            <span className={styles.number}>{displayBgValue(slice[key], bgUnits)}</span>
-          </div>
-        );
-      })}
-      {_.map(keys, (key) => {
-        if (!props.explainers[key]) {
-          return null;
-        }
-        const absPos = { left: position.left, top: position.topOptions[key] };
-        const explainerClasses = cx({
-          [styles.container]: true,
-          [styles[`${key}Explainer`]]: !position.tooltipLeft,
-          [styles[`${key}ExplainerLeft`]]: position.tooltipLeft,
-        });
-        return (
-          <div className={explainerClasses} key={key} style={absPos}>
-            <span className={styles.explainerText}>{props.explainers[key]}</span>
-          </div>
-        );
-      })}
+      {renderLabels(keys)}
+      {renderExplainers(keys)}
     </div>
   );
 };
