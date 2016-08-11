@@ -23,7 +23,7 @@ class CollapsibleContainer extends React.Component {
         <Collapse
           style={styles.collapsibleContainer}
           isOpened={this.state.isOpened}
-          springConfig={{stiffness: 120, damping: 20}}
+          springConfig={{ stiffness: 120, damping: 20 }}
         >
           <div>{this.props.children}</div>
         </Collapse>

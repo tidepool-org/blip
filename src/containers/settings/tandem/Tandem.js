@@ -8,7 +8,7 @@ import * as common from '../common';
 const Tandem = (props) => {
   const { bgUnits, pumpSettings } = props;
 
-  const schedules = _.keysIn(pumpSettings.basalSchedules);
+  const schedules = common.getScheduleNames(pumpSettings.basalSchedules);
 
   const getScheduleData = (scheduleName) => {
     const starts = pumpSettings.basalSchedules[scheduleName].map(s => s.start);
@@ -28,10 +28,11 @@ const Tandem = (props) => {
           startTime,
           bgUnits,
         ),
-        carbRatio: pumpSettings
-          .carbRatios[scheduleName]
-          .filter(s => s.start === startTime)
-          .map(s => s.amount),
+        carbRatio: common.getValue(
+          pumpSettings.carbRatios[scheduleName],
+          'amount',
+          startTime,
+        ),
         insulinSensitivity: common.getBloodGlucoseValue(
           pumpSettings.insulinSensitivities[scheduleName],
           'amount',

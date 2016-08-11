@@ -14,31 +14,35 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-
 import _ from 'lodash';
 
 import * as datetime from '../../utils/datetime';
 import * as format from '../../utils/format';
-
 
 export const DISPLAY_PRESCION_PLACES = 3;
 export const MGDL_UNITS = 'mg/dL';
 export const MMOLL_UNITS = 'mmol/L';
 
 export function getTime(data, startTime) {
-	const millis = data.filter(s => s.start === startTime).map(s => s.start)[0];
-	return datetime.millisecondsAsTimeOfDay(millis);
+  const millis = data.filter(s => s.start === startTime).map(s => s.start)[0];
+  return datetime.millisecondsAsTimeOfDay(millis);
 }
 
 export function getRate(data, startTime) {
-	const rate = data.filter(s => s.start === startTime).map(s => s.rate);
-	return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
+  const rate = data.filter(s => s.start === startTime).map(s => s.rate);
+  return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
 }
 
 export function getBloodGlucoseValue(data, fieldName, startTime, units) {
-	console.log('feild: ',fieldName);
-	console.log('data: ',data);
-	const value = data.filter(s => s.start === startTime).map(s => s[fieldName]);
-	return format.displayBgValue(value, units);
+  const value = data.filter(s => s.start === startTime).map(s => s[fieldName]);
+  return format.displayBgValue(value, units);
+}
+
+export function getValue(data, fieldName, startTime) {
+  return data.filter(s => s.start === startTime).map(s => s[fieldName]);
+}
+
+export function getScheduleNames(data) {
+  return _.keysIn(data);
 }
 
