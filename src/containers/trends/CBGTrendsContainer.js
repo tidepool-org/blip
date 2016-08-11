@@ -33,7 +33,7 @@ import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
  * in this parent/container component are just used directly as constants.
  */
 const BUMPERS = {
-  top: 30,
+  top: 50,
   bottom: 30,
 };
 
