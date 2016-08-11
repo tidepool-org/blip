@@ -19,6 +19,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
+import * as errorMessages from '../../redux/constants/errorMessages';
 
 import _ from 'lodash';
 import config from '../../config';
@@ -33,7 +34,6 @@ import { validateForm } from '../../core/validation';
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
 var formText = 'Welcome to Blip!';
-var formText2 = 'Please confirm your birthday and create a password to see your data.';
 
 export let VerificationWithPassword = React.createClass({
   propTypes: {
@@ -48,14 +48,27 @@ export let VerificationWithPassword = React.createClass({
   },
 
   formInputs:  [
-    { type: 'explanation', text: formText }, { type: 'explanation', text: formText2 },
-    { name: 'birthday', label: 'What is your birthday?', type: 'datepicker' },
-    { name: 'password', label: 'Password', type: 'password', placeholder: '******' },
-    { name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '******' }
+    { type: 'explanation', text: formText },
+    { name: 'birthday', label: 'Birthday', type: 'datepicker' },
+    { name: 'password', label: 'Create Password', type: 'password', placeholder: '' },
+    { name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '' }
   ],
 
   componentWillMount: function() {
     this.setState({ loading: false });
+  },
+
+  componentDidMount: function() {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('VCA Home Verification - Screen Displayed');
+    }
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    if (_.get(this.props, 'notification.message', null) === null &&
+        _.get(nextProps, 'notification.message') === errorMessages.ERR_BIRTHDAY_MISMATCH) {
+      this.props.trackMetric('VCA Home Verification - Birthday Mismatch')
+    }
   },
 
   getInitialState: function() {
@@ -85,7 +98,8 @@ export let VerificationWithPassword = React.createClass({
       <div className="VerificationWithPassword">
         <LoginNav
           page="VerificationWithPassword"
-          trackMetric={this.props.trackMetric} />
+          trackMetric={this.props.trackMetric}
+          hideLinks={true} />
         <LoginLogo />
         <div className="container-small-outer VerificationWithPassword-form">
           <div className="container-small-inner VerificationWithPassword-form-box">
