@@ -336,6 +336,33 @@ d3.chart('ModalDay', {
         }
       }
     });
+
+    this.layer('targetRangeLines', this.base.select('#modalMainGroup').append('g').attr('id', 'targetRangeLines'), {
+      dataBind: function(data) {
+        return this.selectAll('line')
+          .data(['target', 'low']);
+      },
+      insert: function() {
+        var xRange = chart.xScale().range();
+        var bigR = chart.smbgOpts().maxR;
+        return this.append('line')
+          .attr({
+            'class': 'd3-line-guide d3-line-bg-threshold-trends',
+            x1: xRange[0] - bigR,
+            x2: xRange[1] + bigR
+          });
+      },
+      events: {
+        enter: function() {
+          var bgClasses = chart.bgClasses();
+          var yScale = chart.yScale();
+          this.attr({
+            y1: function(d) { return yScale(bgClasses[d].boundary); },
+            y2: function(d) { return yScale(bgClasses[d].boundary); }
+          });
+        }
+      }
+    })
   },
   bgUnits: function(bgUnits) {
     if (!arguments.length) { return this._bgUnits; }
