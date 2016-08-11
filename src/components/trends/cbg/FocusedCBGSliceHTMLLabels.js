@@ -95,7 +95,7 @@ FocusedCBGSliceHTMLLabels.defaultProps = {
     max: 'top 10% of readings',
     median: 'middle (median)',
     min: 'bottom 10% of readings',
-    ninetiethQuantile: 'most, 80%, of readings',
+    ninetiethQuantile: 'most (80%) of readings',
     thirdQuartile: 'half of readings',
   },
   topNumbers: {
