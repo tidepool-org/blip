@@ -65,6 +65,7 @@ var basicsState = {
       column: 'left',
       id: 'basalBolusRatio',
       index: 3,
+      noData: false,
       title: 'Basal : bolus ratio',
       open: true
     },
@@ -154,6 +155,7 @@ var basicsState = {
       column: 'left',
       id: 'totalDailyDose',
       index: 2,
+      noData: false,
       title: DailyDoseTitle,
       open: true
     }
