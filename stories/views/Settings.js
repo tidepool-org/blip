@@ -9,6 +9,7 @@ import Medtronic from '../../src/containers/settings/medtronic/Medtronic';
 import CollapsibleContainer from '../../src/containers/common/CollapsibleContainer';
 
 const tandemFlatRateSettings = require('../../data/pumpSettings/tandem/flatrate.json');
+const tandemMultiRateSettings = require('../../data/pumpSettings/tandem/multirate.json');
 const medtronicFlatRateSettings = require('../../data/pumpSettings/medtronic/flatrate.json');
 const mmolL = 'mmol/L';
 
@@ -19,7 +20,7 @@ storiesOf('TandemSettings', module)
   ))
   .add('multi rate', () => (
     // eslint-disable-next-line global-require
-    <Tandem pumpSettings={tandemFlatRateSettings} bgUnits={mmolL} />
+    <Tandem pumpSettings={tandemMultiRateSettings} bgUnits={mmolL} />
   ));
 
 storiesOf('MedtronicSettings', module)

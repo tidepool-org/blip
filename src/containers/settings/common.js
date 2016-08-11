@@ -15,6 +15,22 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
+
+import * as datetime from '../../utils/datetime';
+import * as format from '../../utils/format';
+
+
 export const DISPLAY_PRESCION_PLACES = 3;
 export const MGDL_UNITS = 'mg/dL';
 export const MMOLL_UNITS = 'mmol/L';
+
+export function getTime(data, startTime) {
+	const millis = data.filter(s => s.start === startTime).map(s => s.start)[0];
+	return datetime.millisecondsAsTimeOfDay(millis);
+}
+
+export function getRate(data, startTime) {
+	const rate = data.filter(s => s.start === startTime).map(s => s.rate);
+	return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
+}

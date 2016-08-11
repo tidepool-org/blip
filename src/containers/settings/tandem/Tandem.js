@@ -1,12 +1,10 @@
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
 
 import styles from './Tandem.css';
 
 import Table from '../../../components/common/Table';
-import * as datetime from '../../../utils/datetime';
+import * as common from '../common';
 import * as format from '../../../utils/format';
-import * as constants from '../constants';
 
 const Tandem = (props) => {
   const { bgUnits, pumpSettings } = props;
@@ -17,14 +15,8 @@ const Tandem = (props) => {
     const starts = pumpSettings.basalSchedules[scheduleName].map(s => s.start);
 
     return starts.map((startTime) => (
-      { start: datetime.millisecondsAsTimeOfDay(pumpSettings
-          .basalSchedules[scheduleName]
-          .filter(s => s.start === startTime)
-          .map(s => s.start)),
-        rate: format.displayDecimal(pumpSettings.
-          basalSchedules[scheduleName]
-          .filter(s => s.start === startTime)
-          .map(s => s.rate), constants.DISPLAY_PRESCION_PLACES),
+      { start: common.getTime(pumpSettings.basalSchedules[scheduleName], startTime),
+        rate: common.getRate(pumpSettings.basalSchedules[scheduleName], startTime),
         bgTarget: format.displayBgValue(pumpSettings
           .bgTargets[scheduleName]
           .filter(s => s.start === startTime)
@@ -74,13 +66,13 @@ const Tandem = (props) => {
 };
 
 Tandem.propTypes = {
-  bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
+  bgUnits: PropTypes.oneOf([common.MMOLL_UNITS, common.MGDL_UNITS]).isRequired,
   pumpSettings: PropTypes.object.isRequired,
 };
 
 // TODO: use webpack.DefinePlugin and only define defaultProps in DEV mode!
 Tandem.defaultProps = {
-  bgUnits: constants.MGDL_UNITS,
+  bgUnits: common.MGDL_UNITS,
 };
 
 export default Tandem;

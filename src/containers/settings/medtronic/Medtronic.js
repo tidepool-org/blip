@@ -2,9 +2,8 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
 import Table from '../../../components/common/Table';
-import * as datetime from '../../../utils/datetime';
 import * as format from '../../../utils/format';
-import * as constants from '../constants';
+import * as common from '../common';
 
 import styles from './Medtronic.css';
 
@@ -21,14 +20,9 @@ const Medtronic = (props) => {
     const tables = schedules.map((schedule) => {
       const starts = pumpSettings.basalSchedules[schedule].map(s => s.start);
       const data = starts.map((startTime) => (
-        { start: datetime.millisecondsAsTimeOfDay(pumpSettings
-            .basalSchedules[schedule]
-            .filter(s => s.start === startTime)
-            .map(s => s.start)),
-          rate: format.displayDecimal(pumpSettings.
-            basalSchedules[schedule]
-            .filter(s => s.start === startTime)
-            .map(s => s.rate), constants.DISPLAY_PRESCION_PLACES) }
+        { start: common.getTime(pumpSettings.basalSchedules[schedule], startTime),
+          rate: common.getRate(pumpSettings.basalSchedules[schedule], startTime),
+        }
       ));
       const title = { label: schedule, className: styles.basalSchedulesHeader };
 
@@ -52,13 +46,10 @@ const Medtronic = (props) => {
     ];
     const title = { label: 'Sensitivity (ISF, Correction)', className: styles.bolusSettingsHeader };
     const starts = pumpSettings.insulinSensitivity.map(s => s.start);
+    const sensitivityData = pumpSettings.insulinSensitivity;
     const data = starts.map((startTime) => (
-      { start: datetime.millisecondsAsTimeOfDay(pumpSettings
-          .insulinSensitivity
-          .filter(s => s.start === startTime)
-          .map(s => s.start)),
-        amount: format.displayBgValue(pumpSettings.
-          insulinSensitivity
+      { start: common.getTime(sensitivityData, startTime),
+        amount: format.displayBgValue(sensitivityData
           .filter(s => s.start === startTime)
           .map(s => s.amount), bgUnits) }
     ));
@@ -83,10 +74,7 @@ const Medtronic = (props) => {
     const title = { label: `BG Target (${bgUnits})`, className: styles.bolusSettingsHeader };
     const starts = pumpSettings.bgTarget.map(s => s.start);
     const data = starts.map((startTime) => (
-      { start: datetime.millisecondsAsTimeOfDay(pumpSettings
-          .bgTarget
-          .filter(s => s.start === startTime)
-          .map(s => s.start)),
+      { start: common.getTime(pumpSettings.bgTarget, startTime),
         low: format.displayBgValue(pumpSettings.
           bgTarget
           .filter(s => s.start === startTime)
@@ -119,10 +107,7 @@ const Medtronic = (props) => {
     };
     const starts = pumpSettings.carbRatio.map(s => s.start);
     const data = starts.map((startTime) => (
-      { start: datetime.millisecondsAsTimeOfDay(pumpSettings
-          .carbRatio
-          .filter(s => s.start === startTime)
-          .map(s => s.start)),
+      { start: common.getTime(pumpSettings.carbRatio, startTime),
         amount: pumpSettings
           .carbRatio
           .filter(s => s.start === startTime)
@@ -151,13 +136,13 @@ const Medtronic = (props) => {
 };
 
 Medtronic.propTypes = {
-  bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
+  bgUnits: PropTypes.oneOf([common.MMOLL_UNITS, common.MGDL_UNITS]).isRequired,
   pumpSettings: PropTypes.object.isRequired,
 };
 
 // TODO: use webpack.DefinePlugin and only define defaultProps in DEV mode!
 Medtronic.defaultProps = {
-  bgUnits: constants.MGDL_UNITS,
+  bgUnits: common.MGDL_UNITS,
 };
 
 export default Medtronic;
