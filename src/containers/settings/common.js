@@ -34,3 +34,11 @@ export function getRate(data, startTime) {
 	const rate = data.filter(s => s.start === startTime).map(s => s.rate);
 	return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
 }
+
+export function getBloodGlucoseValue(data, fieldName, startTime, units) {
+	console.log('feild: ',fieldName);
+	console.log('data: ',data);
+	const value = data.filter(s => s.start === startTime).map(s => s[fieldName]);
+	return format.displayBgValue(value, units);
+}
+

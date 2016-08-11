@@ -49,9 +49,8 @@ const Medtronic = (props) => {
     const sensitivityData = pumpSettings.insulinSensitivity;
     const data = starts.map((startTime) => (
       { start: common.getTime(sensitivityData, startTime),
-        amount: format.displayBgValue(sensitivityData
-          .filter(s => s.start === startTime)
-          .map(s => s.amount), bgUnits) }
+        amount: common.getBloodGlucoseValue(sensitivityData, 'amount', startTime, bgUnits),
+      }
     ));
 
     return (
@@ -75,14 +74,9 @@ const Medtronic = (props) => {
     const starts = pumpSettings.bgTarget.map(s => s.start);
     const data = starts.map((startTime) => (
       { start: common.getTime(pumpSettings.bgTarget, startTime),
-        low: format.displayBgValue(pumpSettings.
-          bgTarget
-          .filter(s => s.start === startTime)
-          .map(s => s.low), bgUnits),
-        high: format.displayBgValue(pumpSettings
-          .bgTarget
-          .filter(s => s.start === startTime)
-          .map(s => s.high), bgUnits) }
+        low: common.getBloodGlucoseValue(pumpSettings.bgTarget, 'low', startTime, bgUnits),
+        high: common.getBloodGlucoseValue(pumpSettings.bgTarget, 'high', startTime, bgUnits),
+      }
     ));
 
     return (
