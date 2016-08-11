@@ -20,7 +20,7 @@
 }
 
 .targetBackground {
-  fill: var(--bkgrnd-light);
+  fill: var(--bkgrnd-dark);
 }
 
 .threeHrLine {
