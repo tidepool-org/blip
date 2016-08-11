@@ -19,32 +19,40 @@
   fill: var(--data-purple--dark);
 }
 .cbgMedianBackgrounded {
+  composes: cbgMedian;
+  fill-opacity: 0.5;
 }
 
-.cbgSlice {
+.noStroke {
   stroke: none;
 }
 
 .rangeSlice {
-  composes: cbgSlice;
+  // the stroke on this outermost slice is to blend in w/bkgrnd
+  // and thus prevent flashing when mousing from slice to slice
+  stroke: var(--bkgrnd-darkest);
+  stroke-width: 1px;
   fill: var(--data-purple--lightest);
 }
 .rangeSliceBackgrounded {
-  composes: cbgSlice;
+  composes: rangeSlice;
+  fill-opacity: 0.5;
 }
 
 .outerSlice {
-  composes: cbgSlice;
+  composes: noStroke;
   fill: var(--data-purple--light);
 }
 .outerSliceBackgrounded {
-  composes: cbgSlice;
+  composes: outerSlice;
+  fill-opacity: 0.5;
 }
 
 .quartileSlice {
-  composes: cbgSlice;
+  composes: noStroke;
   fill: var(--data-purple--medium);
 }
 .quartileSliceBackgrounded {
-  composes: cbgSlice;
+  composes: quartileSlice;
+  fill-opacity: 0.5;
 }
