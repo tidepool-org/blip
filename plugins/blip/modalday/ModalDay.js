@@ -474,7 +474,7 @@ module.exports = {
         left: defaults.baseMargin,
         bottom: defaults.baseMargin/2
       },
-      topBumper: 30,
+      topBumper: 50,
       bottomBumper: 30
     };
     defaults.margins.highlightLabel = {
