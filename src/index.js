@@ -17,8 +17,6 @@
 
 require('./styles/colors.css');
 
-import TandemSettings from './views/settings/TandemSettings';
-
 import FocusedCBGSliceHTMLLabels from './components/trends/cbg/FocusedCBGSliceHTMLLabels';
 import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
 
@@ -38,8 +36,4 @@ const containers = {
   TrendsContainer,
 };
 
-const views = {
-  Settings: { TandemSettings },
-};
-
-export { components, containers, views, vizReducer };
+export { components, containers, vizReducer };
