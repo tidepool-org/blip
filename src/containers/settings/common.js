@@ -37,11 +37,14 @@ export function getRate(data, startTime) {
 }
 
 export function getValue(data, fieldName, startTime) {
-  return data.filter(s => s.start === startTime).map(s => s[fieldName]);
+  return data.filter(s => s.start === startTime).map(s => s[fieldName])[0];
 }
 
 export function getBloodGlucoseValue(data, fieldName, startTime, units) {
   const value = getValue(data, fieldName, startTime);
+  if (value === null || value === undefined) {
+    return '';
+  }
   return format.displayBgValue(value, units);
 }
 

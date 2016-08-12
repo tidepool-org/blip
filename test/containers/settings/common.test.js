@@ -39,7 +39,14 @@ describe('common', () => {
   });
   describe('getBloodGlucoseValue', () => {
     it('should return the formatted Blood Glucose value', () => {
-      expect(common.getBloodGlucoseValue(settingsData.bgTargets.Normal, 'target', 0, 'mmol/L')).to.equal('5.0');
+      expect(
+        common.getBloodGlucoseValue(settingsData.bgTargets.Normal, 'target', 0, 'mmol/L')
+      ).to.equal('5.0');
+    });
+    it('should return nothing if there is no match', () => {
+      expect(
+        common.getBloodGlucoseValue(settingsData.bgTargets.Normal, 'target', 999999, 'mmol/L')
+      ).to.equal('');
     });
   });
 });
