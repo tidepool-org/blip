@@ -33,13 +33,13 @@ export function getRate(data, startTime) {
   return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
 }
 
-export function getBloodGlucoseValue(data, fieldName, startTime, units) {
-  const value = data.filter(s => s.start === startTime).map(s => s[fieldName]);
-  return format.displayBgValue(value, units);
-}
-
 export function getValue(data, fieldName, startTime) {
   return data.filter(s => s.start === startTime).map(s => s[fieldName]);
+}
+
+export function getBloodGlucoseValue(data, fieldName, startTime, units) {
+  const value = getValue(data, fieldName, startTime);
+  return format.displayBgValue(value, units);
 }
 
 export function getScheduleNames(data) {
