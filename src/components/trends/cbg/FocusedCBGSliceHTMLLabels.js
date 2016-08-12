@@ -29,8 +29,11 @@ const FocusedCBGSliceHTMLLabels = (props) => {
     return null;
   }
 
-  function renderLabels(keys) {
-    return _.map(keys, (key) => {
+  const { bgUnits, focusedKeys: keys, focusedSlice: { slice, position } } = props;
+  const medPos = { left: position.left, top: position.topOptions.median };
+
+  function renderLabels(focusedKeys) {
+    return _.map(focusedKeys, (key) => {
       const absPos = { left: position.left, top: position.topOptions[key] };
       const valueClasses = cx({
         [styles.container]: true,
@@ -45,8 +48,8 @@ const FocusedCBGSliceHTMLLabels = (props) => {
     });
   }
 
-  function renderExplainers(keys) {
-    return _.map(keys, (key) => {
+  function renderExplainers(focusedKeys) {
+    return _.map(focusedKeys, (key) => {
       if (!props.explainers[key]) {
         return null;
       }
@@ -64,8 +67,6 @@ const FocusedCBGSliceHTMLLabels = (props) => {
     });
   }
 
-  const { bgUnits, focusedKeys: keys, focusedSlice: { slice, position } } = props;
-  const medPos = { left: position.left, top: position.topOptions.median };
   if (_.isEqual(keys, ['median'])) {
     const explainerClasses = cx({
       [styles.container]: true,
