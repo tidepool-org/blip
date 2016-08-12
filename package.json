@@ -17,7 +17,7 @@
     "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0"
   },
   "dependencies": {
-    "@tidepool/viz": "0.0.2",
+    "@tidepool/viz": "0.0.3",
     "async": "1.5.2",
     "babel-core": "6.11.4",
     "babel-loader": "6.2.4",
@@ -67,7 +67,7 @@
     "simple-statistics": "2.1.0",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "git://github.com/tidepool-org/tideline.git#jebeck/cgm-in-trends",
+    "tideline": "git://github.com/tidepool-org/tideline.git#jebeck/cgm-trends-iteration.2",
     "tidepool-platform-client": "0.26.0",
     "url-loader": "0.5.7",
     "webpack": "1.13.1"
