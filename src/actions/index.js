@@ -27,6 +27,12 @@ export function focusTrendsCbgSlice(sliceData, slicePosition, focusedKeys) {
   };
 }
 
+export function markTrendsViewed() {
+  return {
+    type: actionTypes.MARK_TRENDS_VIEWED,
+  };
+}
+
 export function unfocusTrendsCbgSlice() {
   return {
     type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,

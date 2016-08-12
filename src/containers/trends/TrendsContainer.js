@@ -81,10 +81,12 @@ export class TrendsContainer extends React.Component {
       trends: PropTypes.shape({
         focusedCbgSlice: PropTypes.object,
         focusedCbgSliceKeys: PropTypes.array,
+        touched: PropTypes.bool.isRequired,
       }).isRequired,
     }).isRequired,
     // actions
     focusTrendsCbgSlice: PropTypes.func.isRequired,
+    markTrendsViewed: PropTypes.func.isRequired,
     unfocusTrendsCbgSlice: PropTypes.func.isRequired,
   };
 
@@ -218,12 +220,17 @@ export class TrendsContainer extends React.Component {
   }
 
   determineDataToShow() {
+    const { viz: { trends: { touched } } } = this.props;
+    if (touched) {
+      return;
+    }
     const { currentCbgData } = this.state;
     const { extentSize, showingCbg } = this.props;
-    const minimumCbgs = (extentSize * CBG_READINGS_ONE_DAY) / 5;
-    if (currentCbgData.length >= minimumCbgs && !showingCbg) {
+    const minimumCbgs = (extentSize * CBG_READINGS_ONE_DAY) / 2;
+    if (showingCbg && currentCbgData.length < minimumCbgs) {
       this.props.onSwitchBgDataSource();
     }
+    this.props.markTrendsViewed();
   }
 
   render() {
@@ -273,6 +280,7 @@ export function mapStateToProps(state) {
 export function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     focusTrendsCbgSlice: actions.focusTrendsCbgSlice,
+    markTrendsViewed: actions.markTrendsViewed,
     unfocusTrendsCbgSlice: actions.unfocusTrendsCbgSlice,
   }, dispatch);
 }

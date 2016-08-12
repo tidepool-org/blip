@@ -44,4 +44,13 @@ export const focusedCbgSliceKeys = (state = null, action) => {
   }
 };
 
-export default combineReducers({ focusedCbgSlice, focusedCbgSliceKeys });
+export const touched = (state = false, action) => {
+  switch (action.type) {
+    case actionTypes.MARK_TRENDS_VIEWED:
+      return true;
+    default:
+      return state;
+  }
+};
+
+export default combineReducers({ focusedCbgSlice, focusedCbgSliceKeys, touched });
