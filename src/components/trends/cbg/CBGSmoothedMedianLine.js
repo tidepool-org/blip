@@ -15,25 +15,28 @@
  * == BSD2 LICENSE ==
  */
 
-require('./styles/colors.css');
+import { curveBasis, line } from 'd3-shape';
+import React, { PropTypes } from 'react';
 
-import FocusedCBGSliceHTMLLabels from './components/trends/cbg/FocusedCBGSliceHTMLLabels';
-import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
+import styles from './CBGSmoothedMedianLine.css';
 
-import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
+const CBGSmoothedMedianLine = (props) => {
+  const { data, xScale, yPositions } = props;
 
-import TrendsContainer from './containers/trends/TrendsContainer';
+  const generatePath = line()
+    .x((d) => (xScale(d.msX)))
+    .y((d) => (yPositions[d.id]))
+    .curve(curveBasis);
 
-import vizReducer from './reducers/';
-
-const components = {
-  FocusedCBGSliceHTMLLabels,
-  FocusedCBGSliceTime,
-  TwoOptionToggle,
+  return (
+    <path className={styles.medianLine} id="cbgSmoothedMedianLine" d={generatePath(data)} />
+  );
 };
 
-const containers = {
-  TrendsContainer,
+CBGSmoothedMedianLine.propTypes = {
+  data: PropTypes.array.isRequired,
+  xScale: PropTypes.func.isRequired,
+  yPositions: PropTypes.object.isRequired,
 };
 
-export { components, containers, vizReducer };
+export default CBGSmoothedMedianLine;

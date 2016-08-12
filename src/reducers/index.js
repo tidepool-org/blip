@@ -15,25 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-require('./styles/colors.css');
+import { combineReducers } from 'redux';
 
-import FocusedCBGSliceHTMLLabels from './components/trends/cbg/FocusedCBGSliceHTMLLabels';
-import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
+import trends from './trends';
 
-import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
-
-import TrendsContainer from './containers/trends/TrendsContainer';
-
-import vizReducer from './reducers/';
-
-const components = {
-  FocusedCBGSliceHTMLLabels,
-  FocusedCBGSliceTime,
-  TwoOptionToggle,
-};
-
-const containers = {
-  TrendsContainer,
-};
-
-export { components, containers, vizReducer };
+export default combineReducers({ trends });

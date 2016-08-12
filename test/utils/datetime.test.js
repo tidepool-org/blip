@@ -15,25 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-require('./styles/colors.css');
+/* eslint-env node, mocha */
 
-import FocusedCBGSliceHTMLLabels from './components/trends/cbg/FocusedCBGSliceHTMLLabels';
-import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
+import * as datetime from '../../src/utils/datetime';
 
-import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
+describe('datetime', () => {
+  describe('THREE_HRS', () => {
+    it('should be an integer', () => {
+      assert.isNumber(datetime.THREE_HRS);
+    });
+  });
 
-import TrendsContainer from './containers/trends/TrendsContainer';
-
-import vizReducer from './reducers/';
-
-const components = {
-  FocusedCBGSliceHTMLLabels,
-  FocusedCBGSliceTime,
-  TwoOptionToggle,
-};
-
-const containers = {
-  TrendsContainer,
-};
-
-export { components, containers, vizReducer };
+  describe('TWENTY_FOUR_HRS', () => {
+    it('should be an integer', () => {
+      assert.isNumber(datetime.TWENTY_FOUR_HRS);
+    });
+  });
+});

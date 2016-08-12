@@ -15,25 +15,24 @@
  * == BSD2 LICENSE ==
  */
 
-require('./styles/colors.css');
+.common {
+  composes: svgMiddleAnchored svgVerticalCentered from '../../../styles/typography.css';
+  font-size: 12px;
+  pointer-events: none;
+}
 
-import FocusedCBGSliceHTMLLabels from './components/trends/cbg/FocusedCBGSliceHTMLLabels';
-import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
+.text {
+  composes: common;
+  composes: highContrastText from '../../../styles/typography.css';
+  font-weight: bold;
+}
 
-import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
+.median {
+  composes: common;
+  composes: whiteText from '../../../styles/typography.css';
+}
 
-import TrendsContainer from './containers/trends/TrendsContainer';
-
-import vizReducer from './reducers/';
-
-const components = {
-  FocusedCBGSliceHTMLLabels,
-  FocusedCBGSliceTime,
-  TwoOptionToggle,
-};
-
-const containers = {
-  TrendsContainer,
-};
-
-export { components, containers, vizReducer };
+.medianAlone {
+  composes: median;
+  font-weight: bold;
+}

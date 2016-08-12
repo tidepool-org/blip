@@ -1,5 +1,6 @@
 const format = require('util').format;
 const path = require('path');
+const calc = require('postcss-calc');
 const cssVariables = require('postcss-custom-properties');
 
 const cssModules = 'modules&localIdentName=[name]--[local]--[hash:base64:5]';
@@ -35,6 +36,6 @@ module.exports = {
         loader: 'json-loader',
       },
     ],
-    postcss: [cssVariables],
+    postcss: [calc, cssVariables],
   },
 };

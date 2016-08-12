@@ -15,25 +15,23 @@
  * == BSD2 LICENSE ==
  */
 
-require('./styles/colors.css');
+import * as actionTypes from '../constants';
 
-import FocusedCBGSliceHTMLLabels from './components/trends/cbg/FocusedCBGSliceHTMLLabels';
-import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
+export function focusTrendsCbgSlice(sliceData, slicePosition, focusedKeys) {
+  return {
+    type: actionTypes.FOCUS_TRENDS_CBG_SLICE,
+    payload: { focusedKeys, sliceData, slicePosition },
+  };
+}
 
-import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
+export function markTrendsViewed() {
+  return {
+    type: actionTypes.MARK_TRENDS_VIEWED,
+  };
+}
 
-import TrendsContainer from './containers/trends/TrendsContainer';
-
-import vizReducer from './reducers/';
-
-const components = {
-  FocusedCBGSliceHTMLLabels,
-  FocusedCBGSliceTime,
-  TwoOptionToggle,
-};
-
-const containers = {
-  TrendsContainer,
-};
-
-export { components, containers, vizReducer };
+export function unfocusTrendsCbgSlice() {
+  return {
+    type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,
+  };
+}

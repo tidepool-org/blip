@@ -15,25 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-require('./styles/colors.css');
+.container {
+  composes: absolute smallHorizontalPadding from '../../../styles/layout.css';
+  composes: mediumContrastText smallSize from '../../../styles/typography.css';
+  background-color: rgba(255, 255, 255, 0.25);
+  transform: translate(-50%, -225%);
+}
 
-import FocusedCBGSliceHTMLLabels from './components/trends/cbg/FocusedCBGSliceHTMLLabels';
-import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
-
-import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
-
-import TrendsContainer from './containers/trends/TrendsContainer';
-
-import vizReducer from './reducers/';
-
-const components = {
-  FocusedCBGSliceHTMLLabels,
-  FocusedCBGSliceTime,
-  TwoOptionToggle,
-};
-
-const containers = {
-  TrendsContainer,
-};
-
-export { components, containers, vizReducer };
+.text {
+  composes: noWrap from '../../../styles/typography.css';
+}
