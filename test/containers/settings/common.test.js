@@ -1,14 +1,22 @@
 /* eslint-env node, mocha */
 /* eslint no-console: 0*/
 
-// import React from 'react';
-// import { shallow } from 'enzyme';
+import * as common from '../../../src/containers/settings/common';
 
-// import TimedSettings from '../../../src/components/settings/TimedSettings';
-
-// describe('TimedSettings', () => {
-//   it('should render a table', () => {
-//     const wrapper = shallow(<T />);
-//     expect(wrapper.find('table').length).to.equal(1);
-//   });
-// });
+describe('common', () => {
+  describe('DISPLAY_PRESCION_PLACES', () => {
+    it('should be 3', () => {
+      expect(common.DISPLAY_PRESCION_PLACES).to.equal(3);
+    });
+  });
+  describe('MMOLL_UNITS', () => {
+    it('should be mmol/L', () => {
+      expect(common.MMOLL_UNITS).to.equal('mmol/L');
+    });
+  });
+  describe('MGDL_UNITS', () => {
+    it('should be mg/dL', () => {
+      expect(common.MGDL_UNITS).to.equal('mg/dL');
+    });
+  });
+});
