@@ -1,14 +1,15 @@
 /* eslint-env node, mocha */
 /* eslint no-console: 0*/
 
-// import React from 'react';
-// import { shallow } from 'enzyme';
+import * as datetime from '../../src/utils/datetime';
 
-// import TimedSettings from '../../../src/components/settings/TimedSettings';
-
-// describe('TimedSettings', () => {
-//   it('should render a table', () => {
-//     const wrapper = shallow(<T />);
-//     expect(wrapper.find('table').length).to.equal(1);
-//   });
-// });
+describe('datetime', () => {
+  describe('millisecondsAsTimeOfDay', () => {
+    it('should give 03:30 am', () => {
+      expect(datetime.millisecondsAsTimeOfDay(12600000)).to.equal('03:30 am');
+    });
+    it('should give 08:00 pm', () => {
+      expect(datetime.millisecondsAsTimeOfDay(72000000)).to.equal('08:00 pm');
+    });
+  });
+});
