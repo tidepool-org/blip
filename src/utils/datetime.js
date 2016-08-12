@@ -18,5 +18,8 @@
 import moment from 'moment-timezone';
 
 export function millisecondsAsTimeOfDay(milliseconds) {
+  if (milliseconds === null || milliseconds === undefined) {
+    return '';
+  }
   return moment(milliseconds).utc().format('hh:mm a');
 }
