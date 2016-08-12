@@ -29,7 +29,10 @@ export function getTime(data, startTime) {
 }
 
 export function getRate(data, startTime) {
-  const rate = data.filter(s => s.start === startTime).map(s => s.rate);
+  const rate = data.filter(s => s.start === startTime).map(s => s.rate)[0];
+  if (rate === null || rate === undefined) {
+    return '';
+  }
   return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
 }
 
