@@ -30,4 +30,3 @@ export function displayBgValue(val, units) {
   }
   return displayDecimal(val);
 }
-

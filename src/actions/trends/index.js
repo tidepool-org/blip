@@ -15,26 +15,23 @@
  * == BSD2 LICENSE ==
  */
 
-:root {
-  --basal: #19A0D7;
-  --bolus: #7CD0F0;
+import * as actionTypes from '../constants';
 
-  --data-purple--lightest: #B6C1E3;
-  --data-purple--light: #96A6E9;
-  --data-purple--medium: #617CFC; /* was #627CFF */
-  --data-purple--dark: #291A45; /* was #281746 */
+export function focusTrendsCbgSlice(sliceData, slicePosition, focusedKeys) {
+  return {
+    type: actionTypes.FOCUS_TRENDS_CBG_SLICE,
+    payload: { focusedKeys, sliceData, slicePosition },
+  };
+}
 
-  --axis-tick: #B9C8D0;
+export function markTrendsViewed() {
+  return {
+    type: actionTypes.MARK_TRENDS_VIEWED,
+  };
+}
 
-  --bkgrnd-darkest: #D3DBDD;
-  --bkgrnd-darker: #DCE4E7;
-  --bkgrnd-dark: #E3EAED;
-  --bkgrnd-light: #F2F4F6;
-  --bkgrnd-lighter: #E9EFF1;
-  --bkgrnd-lightest: #F8F9FA;
-
-  --chrome: #989897;
-
-  --text-medium-contrast: #727375;
-  --text-high-contrast: #281946;
+export function unfocusTrendsCbgSlice() {
+  return {
+    type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,
+  };
 }

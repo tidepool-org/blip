@@ -15,26 +15,28 @@
  * == BSD2 LICENSE ==
  */
 
-:root {
-  --basal: #19A0D7;
-  --bolus: #7CD0F0;
+import { curveBasis, line } from 'd3-shape';
+import React, { PropTypes } from 'react';
 
-  --data-purple--lightest: #B6C1E3;
-  --data-purple--light: #96A6E9;
-  --data-purple--medium: #617CFC; /* was #627CFF */
-  --data-purple--dark: #291A45; /* was #281746 */
+import styles from './CBGSmoothedMedianLine.css';
 
-  --axis-tick: #B9C8D0;
+const CBGSmoothedMedianLine = (props) => {
+  const { data, xScale, yPositions } = props;
 
-  --bkgrnd-darkest: #D3DBDD;
-  --bkgrnd-darker: #DCE4E7;
-  --bkgrnd-dark: #E3EAED;
-  --bkgrnd-light: #F2F4F6;
-  --bkgrnd-lighter: #E9EFF1;
-  --bkgrnd-lightest: #F8F9FA;
+  const generatePath = line()
+    .x((d) => (xScale(d.msX)))
+    .y((d) => (yPositions[d.id]))
+    .curve(curveBasis);
 
-  --chrome: #989897;
+  return (
+    <path className={styles.medianLine} id="cbgSmoothedMedianLine" d={generatePath(data)} />
+  );
+};
 
-  --text-medium-contrast: #727375;
-  --text-high-contrast: #281946;
-}
+CBGSmoothedMedianLine.propTypes = {
+  data: PropTypes.array.isRequired,
+  xScale: PropTypes.func.isRequired,
+  yPositions: PropTypes.object.isRequired,
+};
+
+export default CBGSmoothedMedianLine;

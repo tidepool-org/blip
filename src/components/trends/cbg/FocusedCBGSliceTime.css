@@ -15,26 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-:root {
-  --basal: #19A0D7;
-  --bolus: #7CD0F0;
+.container {
+  composes: absolute smallHorizontalPadding from '../../../styles/layout.css';
+  composes: mediumContrastText smallSize from '../../../styles/typography.css';
+  background-color: rgba(255, 255, 255, 0.25);
+  transform: translate(-50%, -225%);
+}
 
-  --data-purple--lightest: #B6C1E3;
-  --data-purple--light: #96A6E9;
-  --data-purple--medium: #617CFC; /* was #627CFF */
-  --data-purple--dark: #291A45; /* was #281746 */
-
-  --axis-tick: #B9C8D0;
-
-  --bkgrnd-darkest: #D3DBDD;
-  --bkgrnd-darker: #DCE4E7;
-  --bkgrnd-dark: #E3EAED;
-  --bkgrnd-light: #F2F4F6;
-  --bkgrnd-lighter: #E9EFF1;
-  --bkgrnd-lightest: #F8F9FA;
-
-  --chrome: #989897;
-
-  --text-medium-contrast: #727375;
-  --text-high-contrast: #281946;
+.text {
+  composes: noWrap from '../../../styles/typography.css';
 }

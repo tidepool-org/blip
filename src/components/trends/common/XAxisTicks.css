@@ -1,0 +1,3 @@
+.tick {
+  stroke: var(--axis-tick);
+}
