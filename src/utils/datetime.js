@@ -43,6 +43,8 @@ export function getTimezoneFromTimePrefs(timePrefs) {
  * @return {JavaScript Date} datetime
  */
 export function timezoneAwareCeiling(utc, timezone) {
+  // TODO: this is a bug here that's causing basics timezone to creep forward
+  // if the utc passed in *is* a local midnight/start-of-day value, adding 1 is unnecessary
   return moment.utc(utc)
     .tz(timezone)
     .startOf('day')
