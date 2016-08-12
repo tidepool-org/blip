@@ -362,7 +362,7 @@ d3.chart('ModalDay', {
           });
         }
       }
-    })
+    });
   },
   bgUnits: function(bgUnits) {
     if (!arguments.length) { return this._bgUnits; }
