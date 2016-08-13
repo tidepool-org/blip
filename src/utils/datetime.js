@@ -43,23 +43,51 @@ export function getTimezoneFromTimePrefs(timePrefs) {
  * @return {JavaScript Date} datetime
  */
 export function timezoneAwareCeiling(utc, timezone) {
-  // TODO: this is a bug here that's causing basics timezone to creep forward
-  // if the utc passed in *is* a local midnight/start-of-day value, adding 1 is unnecessary
-  return moment.utc(utc)
+  if (utc instanceof Date) {
+    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+  }
+  const startOfDay = moment.utc(utc)
     .tz(timezone)
-    .startOf('day')
-    .add(1, 'day')
-    .toDate();
+    .startOf('day');
+
+  const utcHammertime = typeof utc === 'string' ? Date.parse(utc) : utc;
+  if (startOfDay.valueOf() === utcHammertime) {
+    return startOfDay.toDate();
+  }
+  return startOfDay.add(1, 'day').toDate();
 }
 
+/**
+ * formatDurationHours
+ * @param {Number} duration - positive integer representing a time of day
+ *                            in milliseconds within a 24-hr day
+ *
+ * @return {String} '[hours on 12-hr clock],[am or pm]'
+ */
 export function formatDurationHours(duration) {
   return moment(String(moment.duration(duration).hours()), 'H').format('h,a');
 }
 
+/**
+ * formatDurationMinutes
+ * @param {Number} duration - positive integer representing a time of day
+ *                            in milliseconds within a 24-hr day
+ *
+ * @return {String} '[zero-padded mins]'
+ */
 export function formatDurationMinutes(duration) {
   return moment(String(moment.duration(duration).minutes()), 'm').format('mm');
 }
 
+/**
+ * formatDurationToClocktime
+ * @param {Number} duration - positive integer representing a time of day
+ *                            in milliseconds within a 24-hr day
+ *
+ * @return {Object} { hours: 'hours on 12-hr clock',
+ *                    minutes: 'zero-padded mins',
+ *                    timeOfDay: 'am or pm' }
+ */
 export function formatDurationToClocktime(duration) {
   const hoursPlus = formatDurationHours(duration).split(',');
   return {
