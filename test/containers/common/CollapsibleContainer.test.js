@@ -28,7 +28,7 @@ describe('CollapsibleContainer', () => {
   });
   it('can set to be open by default', () => {
     const wrapper = shallow(
-      <CollapsibleContainer label="test me" openByDefault={true}>
+      <CollapsibleContainer label="test me" openByDefault>
         <div className="unique" />
       </CollapsibleContainer>
     );
