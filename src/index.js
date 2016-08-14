@@ -26,6 +26,7 @@ import TrendsContainer from './containers/trends/TrendsContainer';
 
 import Medtronic from './containers/settings/medtronic/Medtronic';
 import Tandem from './containers/settings/tandem/Tandem';
+import CollapsibleContainer from './containers/common/CollapsibleContainer';
 
 import vizReducer from './reducers/';
 
@@ -33,6 +34,7 @@ const components = {
   FocusedCBGSliceHTMLLabels,
   FocusedCBGSliceTime,
   TwoOptionToggle,
+  CollapsibleContainer,
 };
 
 const containers = {

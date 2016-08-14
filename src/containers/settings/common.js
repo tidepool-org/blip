@@ -30,19 +30,23 @@ export function getTime(data, startTime) {
 
 export function getRate(data, startTime) {
   const rate = data.filter(s => s.start === startTime).map(s => s.rate)[0];
-  if (rate === null || rate === undefined) {
+  if (rate === null || (typeof rate === 'undefined')) {
     return '';
   }
   return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
 }
 
 export function getValue(data, fieldName, startTime) {
-  return data.filter(s => s.start === startTime).map(s => s[fieldName])[0];
+  const val = data.filter(s => s.start === startTime).map(s => s[fieldName])[0];
+  if (val === null || (typeof val === 'undefined')) {
+    return '';
+  }
+  return val;
 }
 
 export function getBloodGlucoseValue(data, fieldName, startTime, units) {
   const value = getValue(data, fieldName, startTime);
-  if (value === null || value === undefined) {
+  if (value === null || (typeof value === 'undefined')) {
     return '';
   }
   return format.displayBgValue(value, units);

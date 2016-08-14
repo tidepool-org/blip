@@ -46,6 +46,25 @@ describe('common', () => {
     it('should return nothing if there is no match', () => {
       expect(
         common.getBloodGlucoseValue(settingsData.bgTargets.Normal, 'target', 999999, 'mmol/L')
+      ).to.equal('0.0');
+    });
+  });
+  describe('getScheduleNames', () => {
+    it('should return the schedule names for a type', () => {
+      expect(
+        common.getScheduleNames(settingsData.basalSchedules)
+      ).to.have.length(2).and.contain('Normal').and.contain('Sick');
+    });
+  });
+  describe('getValue', () => {
+    it('should return value for a named field and start time', () => {
+      expect(
+        common.getValue(settingsData.bgTargets.Normal, 'target', 0)
+      ).to.equal(4.9956731919409805);
+    });
+    it('should return nothing if there is no match', () => {
+      expect(
+        common.getValue(settingsData.bgTargets.Normal, 'blah', 0)
       ).to.equal('');
     });
   });
