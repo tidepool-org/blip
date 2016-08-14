@@ -11,7 +11,7 @@ describe('format', () => {
     it('should give no places when zero specified', () => {
       expect(format.displayDecimal(9.3328, 0)).to.equal('9');
     });
-    it('should give then number of places when specified', () => {
+    it('should give the number of places when they are specified', () => {
       expect(format.displayDecimal(9.3328, 1)).to.equal('9.3');
     });
   });

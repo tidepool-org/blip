@@ -36,7 +36,7 @@ class CollapsibleContainer extends React.Component {
   render() {
     return (
       <div>
-        <div onClick={this.handleClick}>{this.props.label}</div>
+        <div className="label" onClick={this.handleClick}>{this.props.label}</div>
         <Collapse
           style={styles.collapsibleContainer}
           isOpened={this.state.isOpened}
