@@ -26,4 +26,20 @@ describe('CollapsibleContainer', () => {
     wrapper.find('.label').simulate('click');
     expect(wrapper.state().isOpened).to.equal(false);
   });
+  it('can set to be open by default', () => {
+    const wrapper = shallow(
+      <CollapsibleContainer label="test me" openByDefault={true}>
+        <div className="unique" />
+      </CollapsibleContainer>
+    );
+    expect(wrapper.state().isOpened).to.equal(true);
+  });
+  it('can set to be closed by default', () => {
+    const wrapper = shallow(
+      <CollapsibleContainer label="test me" openByDefault={false}>
+        <div className="unique" />
+      </CollapsibleContainer>
+    );
+    expect(wrapper.state().isOpened).to.equal(false);
+  });
 });
