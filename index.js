@@ -793,6 +793,7 @@ module.exports = function (config, deps) {
     logout: user.logout,
     signup: user.signup,
     updateCurrentUser: user.updateCurrentUser,
+    updateCustodialUser: user.updateCustodialUser,
     /**
      * Signup
      */
