@@ -68,28 +68,28 @@ describe('common', () => {
       ).to.equal('');
     });
   });
-  describe('getDevice', () => {
-    it('should return the id of the device', () => {
+  describe('getDeviceMeta', () => {
+    it('should return the name, schedule and date uploaded device', () => {
       expect(
-        common.getDevice(settingsData)
-      ).to.equal('DevId0987654321');
+        common.getDeviceMeta(settingsData)
+      ).to.have.property('name').equal('DevId0987654321');
+      expect(
+        common.getDeviceMeta(settingsData)
+      ).to.have.property('schedule').equal('Normal');
+      expect(
+        common.getDeviceMeta(settingsData)
+      ).to.have.property('uploaded').equal('July 12 at 11:56 am');
     });
-    it('should return unkown if not found', () => {
+    it('should return the name, schedule and date uploaded as unknown', () => {
       expect(
-        common.getDevice({})
-      ).to.equal('unkown');
-    });
-  });
-  describe('getActiveSchedule', () => {
-    it('should return the name of the active schedule at time of upload', () => {
+        common.getDeviceMeta({})
+      ).to.have.property('name').equal('unknown');
       expect(
-        common.getActiveSchedule(settingsData)
-      ).to.equal('Normal');
-    });
-    it('should return unkown if not found', () => {
+        common.getDeviceMeta({})
+      ).to.have.property('schedule').equal('unknown');
       expect(
-        common.getActiveSchedule({})
-      ).to.equal('unkown');
+        common.getDeviceMeta({})
+      ).to.have.property('uploaded').equal('unknown');
     });
   });
 });

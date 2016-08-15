@@ -56,11 +56,11 @@ export function getScheduleNames(data) {
   return _.keysIn(data);
 }
 
-export function getDevice(data) {
-  return data.deviceId || 'unkown';
-}
-
-export function getActiveSchedule(data) {
-  return data.activeSchedule || 'unkown';
+export function getDeviceMeta(data) {
+  return {
+    name: data.deviceId || 'unknown',
+    schedule: data.activeSchedule || 'unknown',
+    uploaded: datetime.formatDisplayDate(data.deviceTime) || 'unknown',
+  };
 }
 

@@ -69,6 +69,13 @@ export function formatDurationToClocktime(duration) {
   };
 }
 
+export function formatDisplayDate(timestamp) {
+  if (!timestamp) {
+    return '';
+  }
+  return moment(timestamp).utc().format('MMMM D [at] h:mm a');
+}
+
 export function millisecondsAsTimeOfDay(milliseconds) {
   if (milliseconds === null || milliseconds === undefined) {
     return '';
