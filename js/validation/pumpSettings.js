@@ -76,7 +76,7 @@ module.exports = schema(
             high: schema().banned(),
             range: schema().banned()
           }
-        ),
+        )
       )
     ),
     carbRatio: schema().array(
