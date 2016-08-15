@@ -20,6 +20,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
+import { formatClassesAsSelector } from '../../../helpers/cssmodules';
+
 import TwoOptionToggle, { Toggle }
   from '../../../../src/components/common/controls/TwoOptionToggle';
 import styles from '../../../../src/components/common/controls/TwoOptionToggle.css';
@@ -47,16 +49,12 @@ describe('TwoOptionToggle', () => {
   });
 
   it('should render two labels', () => {
-    // TODO: discuss if this is the best strategy... too fragile?
-    // are CSS modules class orders guaranteed?
-    const spanClass = `${styles.label}`.split(' ')[0];
-    expect(wrapper.find(`.${spanClass}`)).to.have.length(2);
+    expect(wrapper.find(formatClassesAsSelector(styles.label))).to.have.length(2);
   });
 
   it('should fire the passed-in `toggleFn` on click of Toggle', () => {
     expect(toggleFn.callCount).to.equal(0);
-    const toggleClass = `${styles.toggle}`.split(' ')[0];
-    wrapper.find(`.${toggleClass}`).simulate('click');
+    wrapper.find(formatClassesAsSelector(styles.toggle)).simulate('click');
     expect(toggleFn.calledOnce).to.be.true;
   });
 
@@ -75,8 +73,7 @@ describe('TwoOptionToggle', () => {
       toggleFn: freshToggleFn,
     });
     expect(freshToggleFn.callCount).to.equal(0);
-    const toggleClass = `${styles.toggle}`.split(' ')[0];
-    wrapper.find(`.${toggleClass}`).simulate('click');
+    wrapper.find(formatClassesAsSelector(styles.toggle)).simulate('click');
     expect(freshToggleFn.callCount).to.equal(0);
   });
 });
