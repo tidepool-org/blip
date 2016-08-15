@@ -68,4 +68,28 @@ describe('common', () => {
       ).to.equal('');
     });
   });
+  describe('getDevice', () => {
+    it('should return the id of the device', () => {
+      expect(
+        common.getDevice(settingsData)
+      ).to.equal('DevId0987654321');
+    });
+    it('should return unkown if not found', () => {
+      expect(
+        common.getDevice({})
+      ).to.equal('unkown');
+    });
+  });
+  describe('getActiveSchedule', () => {
+    it('should return the name of the active schedule at time of upload', () => {
+      expect(
+        common.getActiveSchedule(settingsData)
+      ).to.equal('Normal');
+    });
+    it('should return unkown if not found', () => {
+      expect(
+        common.getActiveSchedule({})
+      ).to.equal('unkown');
+    });
+  });
 });

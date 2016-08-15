@@ -56,3 +56,11 @@ export function getScheduleNames(data) {
   return _.keysIn(data);
 }
 
+export function getDevice(data) {
+  return data.deviceId || 'unkown';
+}
+
+export function getActiveSchedule(data) {
+  return data.activeSchedule || 'unkown';
+}
+
