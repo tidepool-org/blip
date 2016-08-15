@@ -78,7 +78,7 @@ describe('common', () => {
       ).to.have.property('schedule').equal('Normal');
       expect(
         common.getDeviceMeta(settingsData)
-      ).to.have.property('uploaded').equal('July 12 at 11:56 am');
+      ).to.have.property('uploaded').not.equal('unknown');
     });
     it('should return the name, schedule and date uploaded as unknown', () => {
       expect(
