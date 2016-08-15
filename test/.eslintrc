@@ -1,7 +1,8 @@
 {
   "globals": {
     "assert": false,
-    "expect": false
+    "expect": false,
+    "sinon": false
   },
   "rules": {
     "no-unused-expressions": 0

@@ -13,7 +13,7 @@ module.exports = function karmaConfig(config) {
     browserNoActivityTimeout: 60000,
     singleRun: true,
     colors: true,
-    frameworks: ['mocha', 'chai'],
+    frameworks: ['mocha', 'chai', 'sinon'],
     files: [
       'loadtests.js',
     ],
