@@ -1,0 +1,16 @@
+.header {
+  display: table;
+}
+.headerOuter {
+  composes: header;
+  display: table-cell;
+}
+.headerOuterHidden {
+  composes: header;
+  display: none;
+}
+.headerInner {
+  composes: header;
+  display: block;
+  margin: 5px;
+}

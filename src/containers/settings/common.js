@@ -15,7 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
 import _ from 'lodash';
 
 import * as datetime from '../../utils/datetime';
@@ -77,23 +76,3 @@ export function getDeviceMeta(settingsData) {
     uploaded: datetime.formatDisplayDate(settingsData.deviceTime) || 'unknown',
   };
 }
-
-export function buildHeader(deviceType, settings, styles) {
-  const deviceData = getDeviceMeta(settings);
-  return (
-    <div>
-      <ul className={styles.header}>
-        <li className={styles.headerOuter}>
-          <span className={styles.headerInner}>{deviceType}</span>
-        </li>
-        <li className={styles.headerOuter}>
-          <span className={styles.headerInner}>{deviceData.name}</span>
-        </li>
-        <li className={styles.headerOuter}>
-          <span className={styles.headerInner}>Uploaded on {deviceData.uploaded}</span>
-        </li>
-      </ul>
-    </div>
-  );
-}
-

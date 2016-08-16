@@ -11,13 +11,5 @@
 .header {
   display: table;
 }
-.headerOuter {
-  composes: header;
-  display: table-cell;
-}
-.headerInner {
-  composes: header;
-  display: block;
-  margin: 5px;
-}
+
 

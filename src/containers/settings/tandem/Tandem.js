@@ -20,6 +20,7 @@ import React, { PropTypes } from 'react';
 import styles from './Tandem.css';
 
 import Table from '../../../components/common/Table';
+import Header from '../header/Header';
 import * as common from '../common';
 
 const Tandem = (props) => {
@@ -88,11 +89,12 @@ const Tandem = (props) => {
     </div>
   ));
 
-  const header = common.buildHeader('Tandem', pumpSettings, styles);
-
   return (
     <div>
-      {header}
+      <Header
+        deviceType="Tandem"
+        deviceMeta={common.getDeviceMeta(pumpSettings)}
+      />
       {tables}
     </div>
   );

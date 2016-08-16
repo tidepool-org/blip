@@ -18,6 +18,7 @@
 import React, { PropTypes } from 'react';
 
 import Table from '../../../components/common/Table';
+import Header from '../header/Header';
 import * as common from '../common';
 
 import styles from './Medtronic.css';
@@ -166,11 +167,12 @@ const Medtronic = (props) => {
     );
   };
 
-  const header = common.buildHeader('Medtronic', pumpSettings, styles);
-
   return (
     <div>
-      {header}
+      <Header
+        deviceType="Medtronic"
+        deviceMeta={common.getDeviceMeta(pumpSettings)}
+      />
       <div className={styles.settings}>
         {buildBasalRateTables()}
         {getSensitivityData()}
