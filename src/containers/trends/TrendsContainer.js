@@ -47,7 +47,7 @@ export class TrendsContainer extends React.Component {
       targetUpperBound: PropTypes.number.isRequired,
       targetLowerBound: PropTypes.number.isRequired,
       veryLowThreshold: PropTypes.number.isRequired,
-    }),
+    }).isRequired,
     // legacy data structure for representing target range, &c
     // needed for passed-in legacy tideline smbg component but will phase out!
     bgClasses: PropTypes.shape({
@@ -57,8 +57,8 @@ export class TrendsContainer extends React.Component {
       low: PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
       'very-low': PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
     }).isRequired,
-    bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']),
-    extentSize: PropTypes.oneOf([7, 14, 28]),
+    bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
+    extentSize: PropTypes.oneOf([7, 14, 28]).isRequired,
     initialDatetimeLocation: PropTypes.string,
     showingSmbg: PropTypes.bool.isRequired,
     showingCbg: PropTypes.bool.isRequired,
@@ -66,7 +66,11 @@ export class TrendsContainer extends React.Component {
     smbgGrouped: PropTypes.bool.isRequired,
     smbgLines: PropTypes.bool.isRequired,
     smbgTrendsComponent: PropTypes.func.isRequired,
-    timePrefs: PropTypes.object.isRequired,
+    timePrefs: PropTypes.shape({
+      timezoneAware: PropTypes.bool.isRequired,
+      timezoneName: PropTypes.string.isRequired,
+    }).isRequired,
+    yScaleClampTop: PropTypes.object.isRequired,
     // data (crossfilter dimensions)
     cbgByDate: PropTypes.object.isRequired,
     cbgByDayOfWeek: PropTypes.object.isRequired,
@@ -90,6 +94,13 @@ export class TrendsContainer extends React.Component {
     unfocusTrendsCbgSlice: PropTypes.func.isRequired,
   };
 
+  static defaultProps = {
+    yScaleClampTop: {
+      'mg/dL': 400,
+      'mmol/L': 22.5,
+    },
+  };
+
   constructor(props) {
     super(props);
     this.log = bows('TrendsContainer');
@@ -109,13 +120,13 @@ export class TrendsContainer extends React.Component {
     const allBg = cbgByDate.filterAll().top(Infinity).concat(smbgByDate.filterAll().top(Infinity));
     const bgDomain = extent(allBg, d => d.value);
 
-    const { bgBounds, bgUnits } = this.props;
-    const upperBound = (bgUnits === 'mg/dL') ? 400 : 22.5;
+    const { bgBounds, bgUnits, yScaleClampTop } = this.props;
+    const upperBound = yScaleClampTop[bgUnits];
     const yScaleDomain = [bgDomain[0], upperBound];
     if (bgDomain[0] > bgBounds.targetLowerBound) {
       yScaleDomain[0] = bgBounds.targetLowerBound;
     }
-    const yScale = scaleLinear().domain(yScaleDomain);
+    const yScale = scaleLinear().domain(yScaleDomain).clamp(true);
 
     // find initial date domain (based on initialDatetimeLocation or current time)
     const { extentSize, initialDatetimeLocation, timePrefs } = this.props;
@@ -141,6 +152,15 @@ export class TrendsContainer extends React.Component {
     this.props.onDatetimeLocationChange(dateDomain);
   }
 
+  /*
+   * NB: we don't do as much here as one might expect
+   * because we're using the "expose component functions"
+   * strategy of communicating between components
+   * (https://facebook.github.io/react/tips/expose-component-functions.html)
+   * this is the legacy of blip's interface with the d3.chart-architected
+   * smbg version of trends view and thus only remains
+   * as a temporary compatibility interface
+   */
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(nextProps.activeDays, this.props.activeDays)) {
       const { cbgByDayOfWeek, smbgByDayOfWeek } = this.props;
@@ -154,9 +174,12 @@ export class TrendsContainer extends React.Component {
   }
 
   getCurrentDay() {
+    const { timePrefs } = this.props;
     const { dateDomain: { end } } = this.state;
-    // TODO: replace with more robust code for finding noon of the local timezone day
-    return new Date(Date.parse(end) - (864e5 / 2)).toISOString();
+    return datetime.localNoonBeforeTimestamp(
+      end,
+      datetime.getTimezoneFromTimePrefs(timePrefs)
+    ).toISOString();
   }
 
   setExtent(newDomain) {
@@ -172,7 +195,12 @@ export class TrendsContainer extends React.Component {
 
   goBack() {
     const { dateDomain: { start: newEnd } } = this.state;
-    const start = utcDay.offset(new Date(newEnd), -this.props.extentSize).toISOString();
+    const { timePrefs } = this.props;
+    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+    const start = datetime.timezoneAwareOffset(newEnd, timezone, {
+      amount: -this.props.extentSize,
+      units: 'days',
+    }).toISOString();
     const newDomain = [start, newEnd];
     this.setExtent(newDomain);
     this.props.onDatetimeLocationChange(newDomain);

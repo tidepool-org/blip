@@ -113,6 +113,65 @@ describe('datetime', () => {
     });
   });
 
+  describe('timezoneAwareOffset', () => {
+    it('should be a function', () => {
+      assert.isFunction(datetime.timezoneAwareOffset);
+    });
+
+    it('should error if passed a JavaScript Date for the `utc` param', () => {
+      const fn = () => { datetime.timezoneAwareOffset(new Date()); };
+      expect(fn)
+        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+    });
+
+    it('should offset from noon to noon across DST', () => {
+      const dt = '2016-03-13T17:00:00.000Z';
+      expect(datetime.timezoneAwareOffset(dt, 'US/Central', {
+        amount: -10,
+        units: 'days',
+      }).toISOString()).to.equal('2016-03-03T18:00:00.000Z');
+    });
+  });
+
+  describe('localNoonBeforeTimestamp', () => {
+    it('should be a function', () => {
+      assert.isFunction(datetime.localNoonBeforeTimestamp);
+    });
+
+    it('should error if passed a JavaScript Date for the `utc` param', () => {
+      const fn = () => { datetime.localNoonBeforeTimestamp(new Date()); };
+      expect(fn)
+        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+    });
+
+    it('[UTC, midnight input] should return the timestamp for the noon prior', () => {
+      const dt = '2016-03-15T00:00:00.000Z';
+      expect(datetime.localNoonBeforeTimestamp(dt, 'UTC').toISOString())
+        .to.equal('2016-03-14T12:00:00.000Z');
+      const asInteger = Date.parse(dt);
+      expect(datetime.localNoonBeforeTimestamp(asInteger, 'UTC').toISOString())
+        .to.equal('2016-03-14T12:00:00.000Z');
+    });
+
+    it('[UTC, anytime input] should return the timestamp for the noon prior', () => {
+      const dt = '2016-03-14T02:36:25.342Z';
+      expect(datetime.localNoonBeforeTimestamp(dt, 'UTC').toISOString())
+        .to.equal('2016-03-14T12:00:00.000Z');
+      const asInteger = Date.parse(dt);
+      expect(datetime.localNoonBeforeTimestamp(asInteger, 'UTC').toISOString())
+        .to.equal('2016-03-14T12:00:00.000Z');
+    });
+
+    it('[across DST] should return the timestamp for the noon prior', () => {
+      const dt = '2016-03-14T05:00:00.000Z';
+      expect(datetime.localNoonBeforeTimestamp(dt, 'US/Central').toISOString())
+        .to.equal('2016-03-13T17:00:00.000Z');
+      const asInteger = Date.parse(dt);
+      expect(datetime.localNoonBeforeTimestamp(asInteger, 'US/Central').toISOString())
+        .to.equal('2016-03-13T17:00:00.000Z');
+    });
+  });
+
   describe('formatDurationHours', () => {
     it('should be a function', () => {
       assert.isFunction(datetime.formatDurationHours);
