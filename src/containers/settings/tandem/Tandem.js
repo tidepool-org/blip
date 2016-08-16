@@ -35,7 +35,7 @@ const Tandem = (props) => {
           pumpSettings.basalSchedules[scheduleName],
           startTime,
         ),
-        rate: common.getRate(
+        rate: common.getBasalRate(
           pumpSettings.basalSchedules[scheduleName],
           startTime,
         ),

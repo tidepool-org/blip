@@ -23,44 +23,56 @@ export const DISPLAY_PRESCION_PLACES = 3;
 export const MGDL_UNITS = 'mg/dL';
 export const MMOLL_UNITS = 'mmol/L';
 
-export function getTime(data, startTime) {
-  const millis = data.filter(s => s.start === startTime).map(s => s.start)[0];
+export function getTime(scheduleData, startTime) {
+  const millis = scheduleData.filter(s => s.start === startTime).map(s => s.start)[0];
   return datetime.millisecondsAsTimeOfDay(millis);
 }
 
-export function getRate(data, startTime) {
-  const rate = data.filter(s => s.start === startTime).map(s => s.rate)[0];
+export function getBasalRate(scheduleData, startTime) {
+  const rate = scheduleData.filter(s => s.start === startTime).map(s => s.rate)[0];
   if (rate === null || (typeof rate === 'undefined')) {
     return '';
   }
   return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
 }
 
-export function getValue(data, fieldName, startTime) {
-  const val = data.filter(s => s.start === startTime).map(s => s[fieldName])[0];
+export function getValue(scheduleData, fieldName, startTime) {
+  const val = scheduleData.filter(s => s.start === startTime).map(s => s[fieldName])[0];
   if (val === null || (typeof val === 'undefined')) {
     return '';
   }
   return val;
 }
 
-export function getBloodGlucoseValue(data, fieldName, startTime, units) {
-  const value = getValue(data, fieldName, startTime);
+export function getBloodGlucoseValue(scheduleData, fieldName, startTime, units) {
+  const value = getValue(scheduleData, fieldName, startTime);
   if (value === null || (typeof value === 'undefined')) {
     return '';
   }
   return format.displayBgValue(value, units);
 }
 
-export function getScheduleNames(data) {
-  return _.keysIn(data);
+export function getTotalBasalRates(scheduleData) {
+  const rates = scheduleData.map(s => s.rate);
+  if (rates === null || (typeof rates === 'undefined')) {
+    return '';
+  }
+  let total = 0;
+  for (let i = rates.length - 1; i >= 0; i--) {
+    total += rates[i];
+  }
+  return format.displayDecimal(total, DISPLAY_PRESCION_PLACES);
 }
 
-export function getDeviceMeta(data) {
+export function getScheduleNames(settingsData) {
+  return _.keysIn(settingsData);
+}
+
+export function getDeviceMeta(settingsData) {
   return {
-    name: data.deviceId || 'unknown',
-    schedule: data.activeSchedule || 'unknown',
-    uploaded: datetime.formatDisplayDate(data.deviceTime) || 'unknown',
+    name: settingsData.deviceId || 'unknown',
+    schedule: settingsData.activeSchedule || 'unknown',
+    uploaded: datetime.formatDisplayDate(settingsData.deviceTime) || 'unknown',
   };
 }
 

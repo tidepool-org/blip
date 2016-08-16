@@ -39,7 +39,7 @@ const Medtronic = (props) => {
             pumpSettings.basalSchedules[schedule],
             startTime
           ),
-          rate: common.getRate(
+          rate: common.getBasalRate(
             pumpSettings.basalSchedules[schedule],
             startTime
           ),
