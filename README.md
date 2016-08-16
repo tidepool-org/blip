@@ -187,7 +187,7 @@ $ npm run browser-tests
 To run the unit tests in watch, use:
 
 ```bash
-$ npm run karma-watch
+$ npm run test-watch
 ```
 
 ### Integration testing with Nightwatch
