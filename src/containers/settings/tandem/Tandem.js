@@ -31,7 +31,7 @@ const Tandem = (props) => {
   const getScheduleData = (scheduleName) => {
     const starts = pumpSettings.basalSchedules[scheduleName].map(s => s.start);
 
-    return starts.map((startTime) => (
+    const data = starts.map((startTime) => (
       { start: common.getTime(
           pumpSettings.basalSchedules[scheduleName],
           startTime,
@@ -59,6 +59,16 @@ const Tandem = (props) => {
         ),
       }
     ));
+
+    data.push({
+      start: 'Total',
+      rate: common.getTotalBasalRates(pumpSettings.basalSchedules[scheduleName]),
+      bgTarget: '',
+      carbRatio: '',
+      insulinSensitivity: '',
+    });
+
+    return data;
   };
 
   const COLUMNS = [

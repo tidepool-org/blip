@@ -46,6 +46,12 @@ const Medtronic = (props) => {
           ),
         }
       ));
+
+      data.push({
+        start: 'Total',
+        rate: common.getTotalBasalRates(pumpSettings.basalSchedules[schedule]),
+      });
+
       const title = { label: schedule, className: styles.basalSchedulesHeader };
 
       return (
