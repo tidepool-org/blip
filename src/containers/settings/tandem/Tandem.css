@@ -8,4 +8,16 @@
   background-color: var(--bolus);
   composes: white-text from '../../../styles/typography.css';
 }
+.header {
+  display: table;
+}
+.headerOuter {
+  composes: header;
+  display: table-cell;
+}
+.headerInner {
+  composes: header;
+  display: block;
+  margin: 5px;
+}
 

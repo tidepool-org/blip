@@ -166,12 +166,17 @@ const Medtronic = (props) => {
     );
   };
 
+  const header = common.buildHeader('Medtronic', pumpSettings, styles);
+
   return (
-    <div className={styles.settings}>
-      {buildBasalRateTables()}
-      {getSensitivityData()}
-      {getBgTargetData()}
-      {getCarbRatioData()}
+    <div>
+      {header}
+      <div className={styles.settings}>
+        {buildBasalRateTables()}
+        {getSensitivityData()}
+        {getBgTargetData()}
+        {getCarbRatioData()}
+      </div>
     </div>
   );
 };

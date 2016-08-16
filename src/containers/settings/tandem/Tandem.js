@@ -88,8 +88,13 @@ const Tandem = (props) => {
     </div>
   ));
 
+  const header = common.buildHeader('Tandem', pumpSettings, styles);
+
   return (
-    <div>{tables}</div>
+    <div>
+      {header}
+      {tables}
+    </div>
   );
 };
 

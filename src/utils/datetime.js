@@ -73,7 +73,7 @@ export function formatDisplayDate(timestamp) {
   if (!timestamp) {
     return '';
   }
-  return moment(timestamp).utc().format('MMMM D [at] h:mm a');
+  return moment(timestamp).utc().format('MMM Do YYYY');
 }
 
 export function millisecondsAsTimeOfDay(milliseconds) {
