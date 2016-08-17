@@ -2,6 +2,7 @@
 /* global sinon */
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 var rewire = require('rewire');
@@ -44,7 +45,6 @@ describe('DailyDose', function () {
       var elem = TestUtils.renderIntoDocument(
         <DailyDose data={props.data} />
       );
-      
       expect(console.error.callCount).to.equal(0);
 
       var compElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose');
@@ -63,13 +63,12 @@ describe('DailyDose', function () {
       var elem = TestUtils.renderIntoDocument(
         <DailyDose data={props.data} />
       );
-      
       expect(console.error.callCount).to.equal(0);
       expect(elem.state.valid).to.be.false;
       expect(elem.state.formWeight).to.equal(null);
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      expect(React.findDOMNode(inputElem).value).to.be.empty;
+      expect(ReactDOM.findDOMNode(inputElem).value).to.be.empty;
     });
 
     it('should render with filled in input when weight specified', function () {
@@ -85,13 +84,12 @@ describe('DailyDose', function () {
       var elem = TestUtils.renderIntoDocument(
         <DailyDose data={props.data} />
       );
-      
       expect(console.error.callCount).to.equal(0);
       expect(elem.state.valid).to.be.true;
       expect(elem.state.formWeight).to.equal(null);
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      expect(React.findDOMNode(inputElem).value).to.equal('10');
+      expect(ReactDOM.findDOMNode(inputElem).value).to.equal('10');
     });
   });
 
@@ -108,7 +106,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      React.findDOMNode(inputElem).value = 2;
+      ReactDOM.findDOMNode(inputElem).value = 2;
 
       expect(elem.state.valid).to.be.false;
       expect(elem.state.formWeight).to.equal(null);
@@ -129,7 +127,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      React.findDOMNode(inputElem).value = '2.';
+      ReactDOM.findDOMNode(inputElem).value = '2.';
       expect(elem.state.valid).to.be.false;
       elem.onWeightChange();
       expect(elem.state.valid).to.be.false;
@@ -147,7 +145,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      React.findDOMNode(inputElem).value = 2.3;
+      ReactDOM.findDOMNode(inputElem).value = 2.3;
 
       expect(elem.state.valid).to.be.false;
       expect(elem.state.formWeight).to.equal(null);
@@ -168,7 +166,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      React.findDOMNode(inputElem).value = 0.11;
+      ReactDOM.findDOMNode(inputElem).value = 0.11;
 
       expect(elem.state.valid).to.be.false;
       expect(elem.state.formWeight).to.equal(null);
@@ -189,7 +187,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      React.findDOMNode(inputElem).value = -4;
+      ReactDOM.findDOMNode(inputElem).value = -4;
 
       expect(elem.state.valid).to.be.false;
       elem.onWeightChange();
@@ -208,7 +206,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      React.findDOMNode(inputElem).value = 500;
+      ReactDOM.findDOMNode(inputElem).value = 500;
 
       expect(elem.state.valid).to.be.false;
       elem.onWeightChange();
@@ -230,7 +228,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      React.findDOMNode(inputElem).value = 501;
+      ReactDOM.findDOMNode(inputElem).value = 501;
 
       expect(elem.state.valid).to.be.false;
       elem.onWeightChange();
@@ -253,7 +251,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      React.findDOMNode(inputElem).value = 2.3;
+      ReactDOM.findDOMNode(inputElem).value = 2.3;
 
       elem.onClickCalculate();
       expect(basicsActions.addToBasicsData.withArgs('weight', 2.3).callCount).to.equal(1);
@@ -271,7 +269,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      React.findDOMNode(inputElem).value = 0;
+      ReactDOM.findDOMNode(inputElem).value = 0;
 
       elem.onClickCalculate();
       expect(basicsActions.addToBasicsData.callCount).to.equal(0);
@@ -289,7 +287,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      React.findDOMNode(inputElem).value = 'foo';
+      ReactDOM.findDOMNode(inputElem).value = 'foo';
 
       elem.onClickCalculate();
       expect(basicsActions.addToBasicsData.callCount).to.equal(0);

@@ -7,7 +7,6 @@
   "eqnull": true,
   "immed": true,
   "indent": 2,
-  "latedef": "nofunc",
   "newcap": true,
   "noarg": true,
   "undef": true,
