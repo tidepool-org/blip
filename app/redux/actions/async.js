@@ -113,8 +113,7 @@ export function verifyCustodial(api, signupKey, signupEmail, birthday, password)
           createActionError(errorMessage, err), err, signupKey
         ));
       } else {
-        dispatch(sync.verifyCustodialSuccess());
-        dispatch(login(api, {username: signupEmail, password: password}));
+        dispatch(login(api, {username: signupEmail, password: password}, null, sync.verifyCustodialSuccess));
       }
     })
   };
@@ -173,8 +172,9 @@ export function acceptTerms(api, acceptedDate) {
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} accountDetails contains email and password
  * @param  {?Object} options optionalArgument that contains options like remember
+ * @param  {?Function} postLoginAction optionalArgument action to call after login success
  */
-export function login(api, credentials, options) {
+export function login(api, credentials, options, postLoginAction) {
   return (dispatch) => {
     dispatch(sync.loginRequest());
 
@@ -205,11 +205,17 @@ export function login(api, credentials, options) {
                 } else {
                   user = update(user, { $merge: patient });
                   dispatch(sync.loginSuccess(user));
+                  if (postLoginAction) {
+                    dispatch(postLoginAction());
+                  }
                   dispatch(routeActions.push('/patients?justLoggedIn=true'));
                 }
               });
             } else {
               dispatch(sync.loginSuccess(user));
+              if (postLoginAction) {
+                dispatch(postLoginAction());
+              }
               dispatch(routeActions.push('/patients?justLoggedIn=true'));
             }
           }
