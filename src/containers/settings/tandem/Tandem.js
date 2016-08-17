@@ -20,6 +20,7 @@ import React, { PropTypes } from 'react';
 import styles from './Tandem.css';
 
 import Table from '../../../components/common/Table';
+import CollapsibleContainer from '../../common/CollapsibleContainer';
 import Header from '../header/Header';
 import * as common from '../common';
 
@@ -82,20 +83,25 @@ const Tandem = (props) => {
       label: `BG Target (${bgUnits})`,
       className: styles.bolusSettingsHeader },
     { key: 'carbRatio',
-      label: 'Insulin : Carb (g)',
+      label: 'I : C Ratio (g)',
       className: styles.bolusSettingsHeader },
     { key: 'insulinSensitivity',
-      label: `Sensitivity (${bgUnits}/U)`,
+      label: `ISF (${bgUnits}/U)`,
       className: styles.bolusSettingsHeader },
   ];
 
   const tables = schedules.map((schedule) => (
     <div>
-      <h3>{schedule}</h3>
-      <Table
-        rows={getScheduleData(schedule)}
-        columns={COLUMNS}
-      />
+      <CollapsibleContainer
+        keepContent={false}
+        label={schedule}
+        openByDefault
+      >
+        <Table
+          rows={getScheduleData(schedule)}
+          columns={COLUMNS}
+        />
+      </CollapsibleContainer>
     </div>
   ));
 

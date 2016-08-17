@@ -18,6 +18,7 @@
 import React, { PropTypes } from 'react';
 
 import Table from '../../../components/common/Table';
+import CollapsibleContainer from '../../common/CollapsibleContainer';
 import Header from '../header/Header';
 import * as common from '../common';
 
@@ -56,11 +57,16 @@ const Medtronic = (props) => {
 
       return (
         <div>
-          <Table
-            title={title}
-            rows={data}
-            columns={columns}
-          />
+          <CollapsibleContainer
+            keepContent={false}
+            styledLabel={title}
+            openByDefault
+          >
+            <Table
+              rows={data}
+              columns={columns}
+            />
+          </CollapsibleContainer>
         </div>
       );
     });
@@ -72,7 +78,7 @@ const Medtronic = (props) => {
       { key: 'start', label: 'Start time', className: '' },
       { key: 'amount', label: `Value (${bgUnits}/U)`, className: '' },
     ];
-    const title = { label: 'Sensitivity (ISF, Correction)', className: styles.bolusSettingsHeader };
+    const title = { label: 'Sensitivity', className: styles.bolusSettingsHeader };
     const starts = pumpSettings.insulinSensitivity.map(s => s.start);
     const sensitivityData = pumpSettings.insulinSensitivity;
     const data = starts.map((startTime) => (
@@ -145,7 +151,7 @@ const Medtronic = (props) => {
       { key: 'amount', label: 'Value (g/U)', className: '' },
     ];
     const title = {
-      label: 'Insulin to Carb Ratio (I:C)',
+      label: 'Carb Ratios',
       className: styles.bolusSettingsHeader,
     };
     const starts = pumpSettings.carbRatio.map(s => s.start);

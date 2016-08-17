@@ -34,9 +34,18 @@ class CollapsibleContainer extends React.Component {
   }
 
   render() {
+    let label = (<div className="label" onClick={this.handleClick}>{this.props.label}</div>);
+    if (this.props.styledLabel) {
+      label = (
+        <div className={this.props.styledLabel.className} onClick={this.handleClick}>
+          {this.props.styledLabel.label}
+        </div>
+      );
+    }
+
     return (
       <div>
-        <div className="label" onClick={this.handleClick}>{this.props.label}</div>
+        {label}
         <Collapse
           style={styles.collapsibleContainer}
           isOpened={this.state.isOpened}
@@ -51,7 +60,8 @@ class CollapsibleContainer extends React.Component {
 
 CollapsibleContainer.propTypes = {
   children: React.PropTypes.element.isRequired,
-  label: React.PropTypes.string.isRequired,
+  label: React.PropTypes.string,
+  styledLabel: React.PropTypes.object,
   openByDefault: React.PropTypes.bool,
 };
 

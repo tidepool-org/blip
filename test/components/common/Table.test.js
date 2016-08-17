@@ -87,7 +87,6 @@ describe('Table', () => {
     const testColumnClasses = [
       { key: 'one',
         label: 'Label one',
-        className: '',
       },
       { key: 'two',
         label: 'Label two',

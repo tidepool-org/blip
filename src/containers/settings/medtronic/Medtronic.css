@@ -1,12 +1,15 @@
 @import '../../../styles/colors.css';
 
+.settingsHeaderText {
+  composes: whiteText from '../../../styles/typography.css';
+}
 .basalSchedulesHeader {
   background-color: var(--basal);
-  composes: white-text from '../../../styles/typography.css';
+  composes: settingsHeaderText;
 }
 .bolusSettingsHeader {
   background-color: var(--bolus);
-  composes: white-text from '../../../styles/typography.css';
+  composes: settingsHeaderText;
 }
 .settings {
   display: flex;
