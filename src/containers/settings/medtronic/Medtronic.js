@@ -58,9 +58,8 @@ const Medtronic = (props) => {
       return (
         <div>
           <CollapsibleContainer
-            keepContent={false}
             styledLabel={title}
-            openByDefault
+            openByDefault={schedule === pumpSettings.activeSchedule}
           >
             <Table
               rows={data}

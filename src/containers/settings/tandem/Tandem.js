@@ -93,9 +93,8 @@ const Tandem = (props) => {
   const tables = schedules.map((schedule) => (
     <div>
       <CollapsibleContainer
-        keepContent={false}
         label={schedule}
-        openByDefault
+        openByDefault={schedule === pumpSettings.activeSchedule}
       >
         <Table
           rows={getScheduleData(schedule)}

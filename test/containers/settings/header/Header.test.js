@@ -16,10 +16,10 @@ describe('Header', () => {
         deviceMeta={{ name: 'SN123', uploaded: 'Jul 12th 2016' }}
       />
     );
-    expect(wrapper.state().serialNumberClass).to.equal(styles.headerOuter);
-    wrapper.find('li').at(0).simulate('click');
     expect(wrapper.state().serialNumberClass).to.equal(styles.headerOuterHidden);
     wrapper.find('li').at(0).simulate('click');
     expect(wrapper.state().serialNumberClass).to.equal(styles.headerOuter);
+    wrapper.find('li').at(0).simulate('click');
+    expect(wrapper.state().serialNumberClass).to.equal(styles.headerOuterHidden);
   });
 });
