@@ -1,10 +1,6 @@
 var path = require('path');
-var format = require('util').format;
 var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-
-const cssModules = 'modules&localIdentName=[name]--[local]--[hash:base64:5]';
-const importLoaders = 'importLoaders=1';
 
 var isDev = (process.env.NODE_ENV === 'development');
 // these values are required in the config.app.js file -- we can't use
@@ -54,12 +50,10 @@ if (isDev) {
     appEntry
   ];
 
-  loaders.push({test: /\.css$/, loader: format('style-loader!css-loader?%s&%s!postcss-loader', importLoaders, cssModules)});
-  loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader' , 'postcss-loader', 'less-loader']});
+  loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader', 'less-loader']});
   loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
 } else {
-  loaders.push({test: /\.css$/, loader: ExtractTextPlugin.extract('style-loader', format('css-loader?%s&%s!postcss-loader', importLoaders, cssModules))});
-  loaders.push({test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')});
+  loaders.push({test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!less-loader')});
   loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
 }
 
