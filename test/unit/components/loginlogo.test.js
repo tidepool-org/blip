@@ -17,7 +17,6 @@ describe('LoginLogo', function () {
   });
 
   describe('render', function() {
-
     it('should render without problems', function () {
       console.error = sinon.stub();
       var props = {};

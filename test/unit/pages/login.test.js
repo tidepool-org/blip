@@ -35,19 +35,6 @@ describe('Login', function () {
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
     });
-
-    it('should console.error when required props are missing', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Login />);
-      expect(console.error.callCount).to.equal(7);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `Login`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `confirmSignup` was not specified in `Login`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchers` was not specified in `Login`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `isInvite` was not specified in `Login`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Login`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Login`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `Login`.')).to.equal(true);
-    });
   });
 
   describe('mapStateToProps', () => {

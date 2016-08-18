@@ -7,11 +7,10 @@ var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
-var BrowserWarning = require('../../../app/components/browserwarning');
+import BrowserWarning from '../../../app/components/browserwarning';
 
 describe('BrowserWarning', function () {
-
-  it('should be exposed as a module and be of type function', function() {
+  it('should be a function', function() {
     expect(BrowserWarning).to.be.a('function');
   });
 

@@ -31,18 +31,6 @@ describe('EmailVerification', function () {
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
     });
-
-    it('should console.error when required props are missing', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<EmailVerification />);
-      expect(console.error.callCount).to.equal(6);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `EmailVerification`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmitResend` was not specified in `EmailVerification`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `resent` was not specified in `EmailVerification`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `sent` was not specified in `EmailVerification`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `EmailVerification`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `EmailVerification`.')).to.equal(true);
-    });
   });
 
   describe('mapStateToProps', () => {

@@ -20,7 +20,6 @@ import React from 'react';
 import { Link } from 'react-router';
 import sundial from 'sundial';
 import async from 'async';
-import utils from '../../core/utils';
 import * as ActionTypes from '../constants/actionTypes';
 import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
@@ -28,6 +27,8 @@ import * as sync from './sync.js';
 import update from 'react-addons-update';
 
 import { routeActions } from 'react-router-redux';
+
+const utils = require('../../core/utils');
 
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);

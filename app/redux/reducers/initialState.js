@@ -22,7 +22,7 @@ const working = {
   notification: null
 };
 
-export default {
+const initialState = {
   passwordResetConfirmed: false,
   showingWelcomeMessage: null,
   signupKey: null,
@@ -79,3 +79,5 @@ export default {
     bgUnits: 'mg/dL'
   }
 };
+
+export default initialState;

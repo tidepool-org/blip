@@ -71,7 +71,6 @@ var SimpleForm = React.createClass({
     var submitButton = this.renderSubmitButton();
     var notification = this.renderNotification();
 
-    
     return (
         <form className="simple-form">
           <div className="simple-form-inputs" ref="inputs" key="inputs">
@@ -83,16 +82,13 @@ var SimpleForm = React.createClass({
           </div>
         </form>
     );
-    
   },
 
   renderInputs: function() {
     var self = this;
     var inputs = this.props.inputs || [];
     if (inputs.length) {
-      
       return _.map(inputs, self.renderInput);
-      
     }
 
     return null;
@@ -109,7 +105,6 @@ var SimpleForm = React.createClass({
     var placeholder = input.placeholder;
     var disabled = this.props.disabled || input.disabled;
 
-    
     return (
       <InputGroup
         key={name}
@@ -124,14 +119,12 @@ var SimpleForm = React.createClass({
         disabled={disabled}
         onChange={this.handleChange}/>
     );
-    
   },
 
   renderSubmitButton: function() {
     var text = this.props.submitButtonText || 'Submit';
     var disabled = this.props.disabled || this.props.submitDisabled;
 
-    
     return (
       <button
         className="simple-form-submit btn btn-primary js-form-submit"
@@ -139,7 +132,6 @@ var SimpleForm = React.createClass({
         disabled={disabled}
         ref="submitButton">{text}</button>
     );
-    
   },
 
   renderNotification: function() {
@@ -153,11 +145,9 @@ var SimpleForm = React.createClass({
       ].join(' ');
       var message = notification.message;
 
-      
       return (
         <div className={className} ref="notification">{message}</div>
       );
-      
     }
     return null;
   },

@@ -35,19 +35,6 @@ describe('ConfirmPasswordReset', function () {
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
     });
-
-    it('should console.error when required props are missing', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<ConfirmPasswordReset />);
-      expect(console.error.callCount).to.equal(7);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `api` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `resetKey` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `success` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
-    });
   });
 
   describe('formInputs', function() {

@@ -27,7 +27,7 @@ import mutationTracker from 'object-invariant-test-helper';
 
 import { membershipInOtherCareTeams as reducer } from '../../../../app/redux/reducers/misc';
 
-import actions from '../../../../app/redux/actions/index';
+import * as actions from '../../../../app/redux/actions/index';
 
 import { membershipInOtherCareTeams as initialState } from '../../../../app/redux/reducers/initialState';
 let tracked = mutationTracker.trackObj(initialState);

@@ -25,9 +25,10 @@ import _ from 'lodash';
 import mutationTracker from 'object-invariant-test-helper';
 
 import reducer from '../../../../app/redux/reducers/working';
-import actions from '../../../../app/redux/actions/index';
+import * as actions from '../../../../app/redux/actions/index';
 
-import { working as initialState } from '../../../../app/redux/reducers/initialState';
+import initialAll from '../../../../app/redux/reducers/initialState';
+const { working: initialState } = initialAll;
 let tracked = mutationTracker.trackObj(initialState);
 
 var expect = chai.expect;

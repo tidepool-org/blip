@@ -17,13 +17,6 @@ describe('Invitation', function () {
   });
 
   describe('render', function() {
-    it('should console.error when required props are missing', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Invitation />);
-      expect(console.error.callCount).to.equal(4);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Invitation`.')).to.equal(true);
-    });
-
     it('should render without problems when required props are present', function () {
       console.error = sinon.stub();
       var props = {

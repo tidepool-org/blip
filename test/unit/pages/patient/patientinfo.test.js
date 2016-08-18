@@ -26,20 +26,6 @@ describe('PatientInfo', function () {
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });
-
-    it('should warn when no props are set', function() {
-      console.error = sinon.stub();
-      var props = {};
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(4);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `PatientInfo`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `PatientInfo`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onUpdatePatient` was not specified in `PatientInfo`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientInfo`.')).to.equal(true);
-    });
   });
 
   describe('getInitialState', function() {

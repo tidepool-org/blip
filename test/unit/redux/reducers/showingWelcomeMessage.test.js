@@ -25,7 +25,7 @@ import _ from 'lodash';
 
 import { showingWelcomeMessage as reducer } from '../../../../app/redux/reducers/misc';
 
-import actions from '../../../../app/redux/actions/index';
+import * as actions from '../../../../app/redux/actions/index';
 
 import { showingWelcomeMessage as initialState } from '../../../../app/redux/reducers/initialState';
 

@@ -17,30 +17,15 @@ describe('Navbar', function () {
   });
 
   describe('render', function() {
-
     it('should render without problems when required props present', function () {
       console.error = sinon.stub();
       var props = {
-        currentPage: '',
-        user: {},
-        fetchingUser: false,
-        patient: {},
-        fetchingPatient: false,
-        getUploadUrl: sinon.stub(),
-        onLogout: sinon.stub(),
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(Navbar, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
-    });
-
-    it('should render with 3 warnings when no props are present', function () {
-      console.error = sinon.stub();
-      var props = {};
-      var elem = React.createElement(Navbar, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      expect(console.error.callCount).to.equal(1);
+      expect(render).to.be.ok;
     });
   });
 });

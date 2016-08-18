@@ -17,13 +17,6 @@ describe('LoginNav', function () {
   });
 
   describe('render', function() {
-    it('should console.error when required props are missing', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<LoginNav />);
-      expect(console.error.callCount).to.equal(1);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `LoginNav`.')).to.equal(true);
-    });
-
     it('should render without problems when required props are present', function () {
       console.error = sinon.stub();
       var props = {
@@ -31,6 +24,7 @@ describe('LoginNav', function () {
       };
       var elem = React.createElement(LoginNav, props);
       var render = TestUtils.renderIntoDocument(elem);
+      expect(render).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });
   });

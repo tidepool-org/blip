@@ -26,16 +26,6 @@ describe('Terms', () => {
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });
-    it('should console.error when required props are not set', () => {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Terms/>);
-
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(3);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `authenticated` was not specified in `Terms`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Terms`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Terms`.')).to.equal(true);
-    });
   });
 
   describe('by default', function(){
@@ -127,7 +117,7 @@ describe('Terms', () => {
     describe('flow for 18 and over login', () => {
       it('shows TOU and PP', () => {
         var overEighteen = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[0];
-        expect(overEighteen.props.value).to.equal(termsElem.props.ages.OF_AGE.value);
+        expect(overEighteen.value).to.equal(termsElem.props.ages.OF_AGE.value);
         // continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
         TestUtils.Simulate.click(ageBtn);
@@ -146,9 +136,9 @@ describe('Terms', () => {
         expect(privacyIframe.length).to.equal(1);
 
         var termsDetails = termsIframe[0];
-        expect(termsDetails.props.src).to.equal('https://tidepool.org/terms-of-use-summary');
+        expect(termsDetails.src).to.equal('https://tidepool.org/terms-of-use-summary');
         var privacyDetails = privacyIframe[0];
-        expect(privacyDetails.props.src).to.equal('https://tidepool.org/privacy-policy-summary');
+        expect(privacyDetails.src).to.equal('https://tidepool.org/privacy-policy-summary');
 
         expect(termsElem.state.agreed).to.equal(false);
       });
@@ -184,9 +174,9 @@ describe('Terms', () => {
 
         // now we should be able to click the button
         var buttons = TestUtils.scryRenderedDOMComponentsWithTag(termsElem, 'button');
-        expect(buttons[1].props.children).to.equal('Continue');
-        expect(buttons[1].props.disabled).to.equal(false);
-        expect(buttons[0].props.children).to.equal('Back');
+        expect(buttons[1].textContent).to.equal('Continue');
+        expect(buttons[1].disabled).to.equal(false);
+        expect(buttons[0].textContent).to.equal('Back');
       });
 
       it('will not allow TOU and PP confirmation if both checkboxes are not selected', () => {
@@ -216,9 +206,9 @@ describe('Terms', () => {
 
         // now we should NOT be able to click the button
         var buttons = TestUtils.scryRenderedDOMComponentsWithTag(termsElem, 'button');
-        expect(buttons[1].props.children).to.equal('Continue');
-        expect(buttons[1].props.disabled).to.equal(true);
-        expect(buttons[0].props.children).to.equal('Back');
+        expect(buttons[1].textContent).to.equal('Continue');
+        expect(buttons[1].disabled).to.equal(true);
+        expect(buttons[0].textContent).to.equal('Back');
 
         // now switch to test the other way also
         TestUtils.Simulate.change(agreedOnBehalf);
@@ -227,9 +217,9 @@ describe('Terms', () => {
         expect(termsElem.state.agreedOnBehalf).to.equal(false);
 
         // now we should STILL NOT be able to click the button
-        expect(buttons[1].props.children).to.equal('Continue');
-        expect(buttons[1].props.disabled).to.equal(true);
-        expect(buttons[0].props.children).to.equal('Back');
+        expect(buttons[1].textContent).to.equal('Continue');
+        expect(buttons[1].disabled).to.equal(true);
+        expect(buttons[0].textContent).to.equal('Back');
       });
     });
 
@@ -239,7 +229,7 @@ describe('Terms', () => {
         var underTwelveOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[2];
 
         TestUtils.Simulate.change(underTwelveOpt);
-        expect(underTwelveOpt.props.value).to.equal(termsElem.props.ages.NOT_OF_AGE.value);
+        expect(underTwelveOpt.value).to.equal(termsElem.props.ages.NOT_OF_AGE.value);
 
         // select Continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');

@@ -27,7 +27,7 @@ import mutationTracker from 'object-invariant-test-helper';
 
 import { pendingReceivedInvites as reducer } from '../../../../app/redux/reducers/misc';
 
-import actions from '../../../../app/redux/actions/index';
+import * as actions from '../../../../app/redux/actions/index';
 
 import { pendingReceivedInvites as initialState } from '../../../../app/redux/reducers/initialState';
 

@@ -5,7 +5,7 @@
 /* global afterEach */
 /* global it */
 
-describe('Blip demo test for Mocha', function() {
+describe('blip landing page', function() {
   before(function(client, done) {
     done();
   });
@@ -24,13 +24,13 @@ describe('Blip demo test for Mocha', function() {
     done();
   });
 
-  it('uses BDD to run the simple test', function(client) {
+  it('should have the Tidepool logo', function(client) {
     client
       .url('http://localhost:3000/')
       .expect.element('.login-nav-tidepool-logo').to.be.present;
   });
 
-  it('can set the username', function(client) {
+  it('should have a username form field that can be set', function(client) {
     client.expect.element('#username').to.be.present;
 
     client.setValue('#username', ['duderino'])
