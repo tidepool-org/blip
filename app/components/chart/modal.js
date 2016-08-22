@@ -252,6 +252,9 @@ var Modal = React.createClass({
     if (e) {
       e.preventDefault();
     }
+    if (this.state.atMostRecent) {
+      return;
+    }
     this.setState({
       atMostRecent: this.chart.goForward()
     });
@@ -259,6 +262,9 @@ var Modal = React.createClass({
   handleClickMostRecent: function(e) {
     if (e) {
       e.preventDefault();
+    }
+    if (this.state.atMostRecent) {
+      return;
     }
     this.setState({
       atMostRecent: true
