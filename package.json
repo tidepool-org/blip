@@ -79,7 +79,6 @@
     "karma-sourcemap-loader": "0.3.7",
     "karma-webpack": "1.8.0",
     "mocha": "3.0.2",
-    "mocha-loader": "0.7.1",
     "moment": "2.14.1",
     "nightwatch": "0.9.7",
     "object-invariant-test-helper": "0.1.1",
