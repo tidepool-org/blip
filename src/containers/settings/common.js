@@ -37,6 +37,20 @@ export function getBasalRate(scheduleData, startTime) {
   return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
 }
 
+export function getBasalRateT(ratesData, name, startTime) {
+  const ratesForSchedule = ratesData
+    .filter(r => r.name === name)[0].value;
+
+  const rate = ratesForSchedule
+    .filter(s => s.start === startTime)
+    .map(s => s.rate)[0];
+
+  if (rate === null || (typeof rate === 'undefined')) {
+    return '';
+  }
+  return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
+}
+
 export function getValue(scheduleData, fieldName, startTime) {
   const val = scheduleData.filter(s => s.start === startTime).map(s => s[fieldName])[0];
   if (val === null || (typeof val === 'undefined')) {
@@ -61,6 +75,30 @@ export function getTotalBasalRates(scheduleData) {
   let total = 0;
   for (let i = rates.length - 1; i >= 0; i--) {
     total += rates[i];
+  }
+  return format.displayDecimal(total, DISPLAY_PRESCION_PLACES);
+}
+
+export function getTotalBasalRatesT(ratesData, name) {
+  let ratesForSchedule = ratesData
+    .filter(r => r.name === name)[0];
+
+  if (ratesForSchedule === null || (typeof ratesForSchedule === 'undefined')) {
+    return '';
+  }
+  ratesForSchedule = ratesForSchedule.value;
+  let total = 0;
+  for (let i = ratesForSchedule.length - 1; i >= 0; i--) {
+
+    const start = ratesForSchedule[i].start;
+    let finish = 86400000;
+    const next = i+1;
+    if (next < ratesForSchedule.length) {
+      finish = ratesForSchedule[next].start;
+    }
+    const hrs = (finish-start) / (60 * 60 * 1000);
+
+    total += (ratesForSchedule[i].rate * hrs);
   }
   return format.displayDecimal(total, DISPLAY_PRESCION_PLACES);
 }

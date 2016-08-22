@@ -27,43 +27,46 @@ import * as common from '../common';
 const Tandem = (props) => {
   const { bgUnits, pumpSettings } = props;
 
-  const schedules = common.getScheduleNames(pumpSettings.basalSchedules);
+  const schedules = common.getScheduleNames(pumpSettings.bgTargets);
 
   const getScheduleData = (scheduleName) => {
-    const starts = pumpSettings.basalSchedules[scheduleName].map(s => s.start);
+    const starts = pumpSettings.bgTargets[scheduleName].map(s => s.start);
 
-    const data = starts.map((startTime) => (
-      { start: common.getTime(
-          pumpSettings.basalSchedules[scheduleName],
-          startTime,
-        ),
-        rate: common.getBasalRate(
-          pumpSettings.basalSchedules[scheduleName],
-          startTime,
-        ),
-        bgTarget: common.getBloodGlucoseValue(
-          pumpSettings.bgTargets[scheduleName],
-          'target',
-          startTime,
-          bgUnits,
-        ),
-        carbRatio: common.getValue(
-          pumpSettings.carbRatios[scheduleName],
-          'amount',
-          startTime,
-        ),
-        insulinSensitivity: common.getBloodGlucoseValue(
-          pumpSettings.insulinSensitivities[scheduleName],
-          'amount',
-          startTime,
-          bgUnits,
-        ),
-      }
-    ));
+    const data = starts.map((startTime) => ({
+      start: common.getTime(
+        pumpSettings.bgTargets[scheduleName],
+        startTime,
+      ),
+      rate: common.getBasalRateT(
+        pumpSettings.basalSchedules,
+        scheduleName,
+        startTime,
+      ),
+      bgTarget: common.getBloodGlucoseValue(
+        pumpSettings.bgTargets[scheduleName],
+        'target',
+        startTime,
+        bgUnits,
+      ),
+      carbRatio: common.getValue(
+        pumpSettings.carbRatios[scheduleName],
+        'amount',
+        startTime,
+      ),
+      insulinSensitivity: common.getBloodGlucoseValue(
+        pumpSettings.insulinSensitivities[scheduleName],
+        'amount',
+        startTime,
+        bgUnits,
+      ) })
+    );
 
     data.push({
       start: 'Total',
-      rate: common.getTotalBasalRates(pumpSettings.basalSchedules[scheduleName]),
+      rate: common.getTotalBasalRatesT(
+        pumpSettings.basalSchedules,
+        scheduleName,
+      ),
       bgTarget: '',
       carbRatio: '',
       insulinSensitivity: '',
