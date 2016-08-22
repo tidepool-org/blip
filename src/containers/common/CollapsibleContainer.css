@@ -3,3 +3,7 @@
 .collapsibleContainer {
   border: var(--basal);
 }
+
+.wrapper {
+  margin-bottom: 15px;
+}

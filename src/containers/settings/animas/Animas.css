@@ -2,6 +2,10 @@
 
 .settingsHeaderText {
   composes: whiteText from '../../../styles/typography.css';
+  min-width: 180px;
+  padding-left: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 .basalSchedulesHeader {
   background-color: var(--basal);
@@ -16,5 +20,3 @@
   flex-direction: row wrap;
   justify-content: space-around;
 }
-
-

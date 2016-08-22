@@ -44,10 +44,10 @@ class CollapsibleContainer extends React.Component {
     }
 
     return (
-      <div>
+      <div className={styles.wrapper}>
         {label}
         <Collapse
-          style={styles.collapsibleContainer}
+          className={styles.collapsibleContainer}
           isOpened={this.state.isOpened}
           springConfig={{ stiffness: 120, damping: 20 }}
         >
