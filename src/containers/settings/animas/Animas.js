@@ -21,9 +21,9 @@ import Header from '../header/Header';
 import * as common from '../common';
 import * as commonTables from '../commonTables';
 
-import styles from './Medtronic.css';
+import styles from './Animas.css';
 
-const Medtronic = (props) => {
+const Animas = (props) => {
   const { bgUnits, pumpSettings } = props;
 
   const basalColumns = [
@@ -35,7 +35,7 @@ const Medtronic = (props) => {
     { key: 'amount', label: `Value (${bgUnits}/U)`, className: '' },
   ];
   const sensitivityTitle = {
-    label: 'Sensitivity',
+    label: 'ISF',
     className: styles.bolusSettingsHeader,
   };
   const ratioColumns = [
@@ -43,7 +43,7 @@ const Medtronic = (props) => {
     { key: 'amount', label: 'Value (g/U)', className: '' },
   ];
   const ratioTitle = {
-    label: 'Carb Ratios',
+    label: 'I:C Ratio',
     className: styles.bolusSettingsHeader,
   };
   const bgTargetsColumns = [
@@ -56,7 +56,7 @@ const Medtronic = (props) => {
   return (
     <div>
       <Header
-        deviceType="Medtronic"
+        deviceType="Animas"
         deviceMeta={common.getDeviceMeta(pumpSettings)}
       />
       <div className={styles.settings}>
@@ -95,14 +95,14 @@ const Medtronic = (props) => {
   );
 };
 
-Medtronic.propTypes = {
+Animas.propTypes = {
   bgUnits: PropTypes.oneOf([common.MMOLL_UNITS, common.MGDL_UNITS]).isRequired,
   pumpSettings: PropTypes.object.isRequired,
 };
 
 // TODO: use webpack.DefinePlugin and only define defaultProps in DEV mode!
-Medtronic.defaultProps = {
+Animas.defaultProps = {
   bgUnits: common.MGDL_UNITS,
 };
 
-export default Medtronic;
+export default Animas;

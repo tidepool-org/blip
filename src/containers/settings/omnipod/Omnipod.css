@@ -1,0 +1,20 @@
+@import '../../../styles/colors.css';
+
+.settingsHeaderText {
+  composes: whiteText from '../../../styles/typography.css';
+}
+.basalSchedulesHeader {
+  background-color: var(--basal);
+  composes: settingsHeaderText;
+}
+.bolusSettingsHeader {
+  background-color: var(--bolus);
+  composes: settingsHeaderText;
+}
+.settings {
+  display: flex;
+  flex-direction: row wrap;
+  justify-content: space-around;
+}
+
+

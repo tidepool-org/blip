@@ -26,6 +26,8 @@ import TrendsContainer from './containers/trends/TrendsContainer';
 
 import Medtronic from './containers/settings/medtronic/Medtronic';
 import Tandem from './containers/settings/tandem/Tandem';
+import Omnipod from './containers/settings/omnipod/Omnipod';
+
 import CollapsibleContainer from './containers/common/CollapsibleContainer';
 
 import vizReducer from './reducers/';
@@ -38,9 +40,10 @@ const components = {
 };
 
 const containers = {
-  TrendsContainer,
-  Tandem,
   Medtronic,
+  Omnipod,
+  Tandem,
+  TrendsContainer,
 };
 
 export { components, containers, vizReducer };

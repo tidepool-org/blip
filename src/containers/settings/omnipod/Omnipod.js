@@ -21,9 +21,9 @@ import Header from '../header/Header';
 import * as common from '../common';
 import * as commonTables from '../commonTables';
 
-import styles from './Medtronic.css';
+import styles from './Omnipod.css';
 
-const Medtronic = (props) => {
+const Omnipod = (props) => {
   const { bgUnits, pumpSettings } = props;
 
   const basalColumns = [
@@ -35,7 +35,7 @@ const Medtronic = (props) => {
     { key: 'amount', label: `Value (${bgUnits}/U)`, className: '' },
   ];
   const sensitivityTitle = {
-    label: 'Sensitivity',
+    label: 'Correction factor',
     className: styles.bolusSettingsHeader,
   };
   const ratioColumns = [
@@ -43,7 +43,7 @@ const Medtronic = (props) => {
     { key: 'amount', label: 'Value (g/U)', className: '' },
   ];
   const ratioTitle = {
-    label: 'Carb Ratios',
+    label: 'IC ratio',
     className: styles.bolusSettingsHeader,
   };
   const bgTargetsColumns = [
@@ -51,12 +51,12 @@ const Medtronic = (props) => {
     { key: 'low', label: 'Low', className: '' },
     { key: 'high', label: 'High', className: '' },
   ];
-  const bgTargetsTitle = { label: `BG Target (${bgUnits})`, className: styles.bolusSettingsHeader };
+  const bgTargetsTitle = { label: `Target BG (${bgUnits})`, className: styles.bolusSettingsHeader };
 
   return (
     <div>
       <Header
-        deviceType="Medtronic"
+        deviceType="Omnipod"
         deviceMeta={common.getDeviceMeta(pumpSettings)}
       />
       <div className={styles.settings}>
@@ -95,14 +95,14 @@ const Medtronic = (props) => {
   );
 };
 
-Medtronic.propTypes = {
+Omnipod.propTypes = {
   bgUnits: PropTypes.oneOf([common.MMOLL_UNITS, common.MGDL_UNITS]).isRequired,
   pumpSettings: PropTypes.object.isRequired,
 };
 
 // TODO: use webpack.DefinePlugin and only define defaultProps in DEV mode!
-Medtronic.defaultProps = {
+Omnipod.defaultProps = {
   bgUnits: common.MGDL_UNITS,
 };
 
-export default Medtronic;
+export default Omnipod;
