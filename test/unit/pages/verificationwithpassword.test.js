@@ -70,44 +70,6 @@ describe('VerificationWithPassword', () => {
       expect(props.trackMetric.calledWith('VCA Home Verification - Screen Displayed')).to.be.true;
       expect(props.trackMetric.calledWith('VCA Home Verification - Birthday Mismatch')).to.be.true;
     });
-
-    it('should fire metric when mounted/rendered', function() {
-      let props = {
-        acknowledgeNotification: sinon.stub(),
-        api: {},
-        signupEmail: 'g@a.com',
-        signupKey: 'bar',
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false
-      };
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
-      expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.trackMetric.calledWith('VCA Home Verification - Screen Displayed')).to.be.true;
-    });
-  });
-
-  describe('componentWillReceiveProps', function() {
-    it('should fire a metric for birthday mismatch', () => {
-      console.error = sinon.stub();
-      let props = {
-        acknowledgeNotification: sinon.stub(),
-        api: {},
-        signupEmail: 'g@a.com',
-        signupKey: 'bar',
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false
-      };
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
-      render.componentWillReceiveProps({notification:{message: errorMessages.ERR_BIRTHDAY_MISMATCH}});
-      expect(console.error.callCount).to.equal(0);
-      expect(props.trackMetric.callCount).to.equal(2);
-      expect(props.trackMetric.calledWith('VCA Home Verification - Screen Displayed')).to.be.true;
-      expect(props.trackMetric.calledWith('VCA Home Verification - Birthday Mismatch')).to.be.true;
-    });
   });
 
   describe('getInitialState', () => {

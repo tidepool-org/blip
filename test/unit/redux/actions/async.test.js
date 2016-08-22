@@ -13,12 +13,13 @@ import _ from 'lodash';
 
 import isTSA from 'tidepool-standard-action';
 
-import * as async from '../../../../app/redux/actions/async';
-
 import initialState from '../../../../app/redux/reducers/initialState';
 
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
+
+// need to require() async in order to rewire utils inside
+const async = require('../../../../app/redux/actions/async');
 
 describe('Actions', () => {
   const trackMetric = sinon.spy();
