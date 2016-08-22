@@ -23,6 +23,15 @@ import { mount } from 'enzyme';
 
 import CBGTrendsContainer from '../../../src/containers/trends/CBGTrendsContainer';
 
+import BackgroundWithTargetRange
+  from '../../../src/components/trends/common/BackgroundWithTargetRange';
+import XAxisLabels from '../../../src/components/trends/common/XAxisLabels';
+import XAxisTicks from '../../../src/components/trends/common/XAxisTicks';
+import YAxisLabelsAndTicks from '../../../src/components/trends/common/YAxisLabelsAndTicks';
+import CBGSlicesAnimationContainer
+  from '../../../src/components/trends/cbg/CBGSlicesAnimationContainer';
+import TargetRangeLines from '../../../src/components/trends/common/TargetRangeLines';
+
 function makeScale(scale) {
   // eslint-disable-next-line no-param-reassign
   scale.range = sinon.stub().returns([0, 10]);
@@ -73,6 +82,41 @@ describe('CBGTrendsContainer', () => {
       expect(props.yScale.range.callCount).to.equal(1);
       expect(props.yScale.range.firstCall.args[0]).to.deep.equal([480, 80]);
       CBGTrendsContainer.prototype.componentWillMount.restore();
+    });
+  });
+
+  describe('render', () => {
+    let wrapper;
+    before(() => {
+      wrapper = mount(<CBGTrendsContainer {...props} />);
+    });
+
+    it('should render a BackgroundWithTargetRange', () => {
+      expect(wrapper.find(BackgroundWithTargetRange)).to.have.length(1);
+    });
+
+    it('should render a XAxisLabels', () => {
+      expect(wrapper.find(XAxisLabels)).to.have.length(1);
+    });
+
+    it('should render a XAxisTicks', () => {
+      expect(wrapper.find(XAxisTicks)).to.have.length(1);
+    });
+
+    it('should render a YAxisLabelsAndTicks', () => {
+      expect(wrapper.find(YAxisLabelsAndTicks)).to.have.length(1);
+    });
+
+    it('should render a CBGSlicesAnimationContainer', () => {
+      expect(wrapper.find(CBGSlicesAnimationContainer)).to.have.length(1);
+    });
+
+    it('should render a TargetRangeLines', () => {
+      expect(wrapper.find(TargetRangeLines)).to.have.length(1);
+    });
+
+    it('should render the TargetRangeLines on top', () => {
+      expect(wrapper.children().last().is(TargetRangeLines)).to.be.true;
     });
   });
 });
