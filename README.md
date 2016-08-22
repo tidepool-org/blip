@@ -127,14 +127,20 @@ The `test/` directory mirrors the structure of `src/`. Our convention for naming
 To work on code in this repository within [blip](https://github.com/tidepool-org/blip 'Tidepool on GitHub: blip'), first do the following from your local blip repository (assuming blip/ and viz/ are sister directories):
 
 ```bash
-$ rm -rf node_modules/viz/
 $ npm link ../viz/
 ```
 
 Then in this viz/ directory, remove your copy of React (because it expects to be a singleton and configuring webpack to dedupe multiple locations from which React is `require`ed or `import`ed thus far has eluded us):
 
 ```bash
-$  rm -rf node_modules/react/
+$ rm -rf node_modules/react/
+```
+
+NB: If you're also making changes in tideline and thus also `npm link`-ing tideline into blip locally, you'll need to do the same deletion of React from *tideline's* node modules. @jebeck now does both deletions from the blip repo like so, in order not to forget to do both:
+
+```bash
+$ rm -rf ../viz/node_modules/react/
+$ rm -rf ../tideline/node_modules/react/
 ```
 
 And finally, start the build in watch mode:
