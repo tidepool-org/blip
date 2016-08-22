@@ -11,6 +11,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 /* jshint esnext:true, asi: true */
 
+var _ = _interopRequire(require("lodash"));
 var React = _interopRequire(require("react"));
 var ReactDOM = _interopRequire(require("react-dom"));
 
@@ -114,7 +115,7 @@ module.exports = React.createClass({
         onBlur: this.handleBlur,
         className: "react-toggle-screenreader-only",
         type: "checkbox"
-      }, this.props))
+      }, _.omit(this.props, 'noImage')))
     );
   }
 });
