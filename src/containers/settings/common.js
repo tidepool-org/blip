@@ -89,14 +89,13 @@ export function getTotalBasalRatesT(ratesData, name) {
   ratesForSchedule = ratesForSchedule.value;
   let total = 0;
   for (let i = ratesForSchedule.length - 1; i >= 0; i--) {
-
     const start = ratesForSchedule[i].start;
     let finish = 86400000;
-    const next = i+1;
+    const next = i + 1;
     if (next < ratesForSchedule.length) {
       finish = ratesForSchedule[next].start;
     }
-    const hrs = (finish-start) / (60 * 60 * 1000);
+    const hrs = (finish - start) / (60 * 60 * 1000);
 
     total += (ratesForSchedule[i].rate * hrs);
   }
