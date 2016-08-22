@@ -1,0 +1,78 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+/* eslint-env node, mocha */
+
+import React from 'react';
+
+import { mount } from 'enzyme';
+
+import CBGTrendsContainer from '../../../src/containers/trends/CBGTrendsContainer';
+
+function makeScale(scale) {
+  // eslint-disable-next-line no-param-reassign
+  scale.range = sinon.stub().returns([0, 10]);
+  return scale;
+}
+
+describe('CBGTrendsContainer', () => {
+  const props = {
+    bgBounds: {
+      veryHighThreshold: 300,
+      targetUpperBound: 180,
+      targetLowerBound: 80,
+      veryLowThreshold: 60,
+    },
+    bgUnits: 'mg/dL',
+    data: [],
+    focusSlice: () => {},
+    timezone: 'UTC',
+    unfocusSlice: () => {},
+    xScale: makeScale(() => {}),
+    yScale: makeScale(() => {}),
+  };
+
+  afterEach(() => {
+    props.xScale.range.reset();
+    props.yScale.range.reset();
+  });
+
+  describe('componentWillMount', () => {
+    it('should set the range of the xScale', () => {
+      sinon.spy(CBGTrendsContainer.prototype, 'componentWillMount');
+      expect(CBGTrendsContainer.prototype.componentWillMount.callCount).to.equal(0);
+      mount(<CBGTrendsContainer {...props} />);
+      expect(CBGTrendsContainer.prototype.componentWillMount.callCount).to.equal(1);
+      expect(props.xScale.range.callCount).to.equal(3);
+      expect(props.xScale.range.firstCall.args[0]).to.deep.equal([48, 942]);
+      // called twice as getter in TargetRangeLines
+      expect(props.xScale.range.secondCall.args[0]).to.be.undefined;
+      expect(props.xScale.range.thirdCall.args[0]).to.be.undefined;
+      CBGTrendsContainer.prototype.componentWillMount.restore();
+    });
+
+    it('should set the range of the yScale', () => {
+      sinon.spy(CBGTrendsContainer.prototype, 'componentWillMount');
+      expect(CBGTrendsContainer.prototype.componentWillMount.callCount).to.equal(0);
+      mount(<CBGTrendsContainer {...props} />);
+      expect(CBGTrendsContainer.prototype.componentWillMount.callCount).to.equal(1);
+      expect(props.yScale.range.callCount).to.equal(1);
+      expect(props.yScale.range.firstCall.args[0]).to.deep.equal([480, 80]);
+      CBGTrendsContainer.prototype.componentWillMount.restore();
+    });
+  });
+});

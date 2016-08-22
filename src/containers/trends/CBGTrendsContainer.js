@@ -16,7 +16,6 @@
  */
 
 import React, { PropTypes } from 'react';
-import bows from 'bows';
 
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
@@ -73,7 +72,6 @@ class CBGTrendsContainer extends React.Component {
     focusSlice: PropTypes.func.isRequired,
     margins: PropTypes.object.isRequired,
     smbgOpts: PropTypes.object.isRequired,
-    // dimensions only used in React storybook!
     svgDimensions: PropTypes.shape({
       width: PropTypes.number.isRequired,
       height: PropTypes.number.isRequired,
@@ -84,23 +82,15 @@ class CBGTrendsContainer extends React.Component {
     yScale: PropTypes.func.isRequired,
   };
 
-  constructor(props) {
-    super(props);
-    this.log = bows('CBGTrendsContainer');
-    this.state = {
-      mungedData: [],
-    };
-  }
-
   componentWillMount() {
-    const { svgDimensions, xScale, yScale } = this.props;
+    const { margins, svgDimensions, xScale, yScale } = this.props;
     xScale.range([
-      MARGINS.left + Math.round(SMBG_OPTS.maxR),
-      svgDimensions.width - MARGINS.right - Math.round(SMBG_OPTS.maxR),
+      margins.left + Math.round(SMBG_OPTS.maxR),
+      svgDimensions.width - margins.right - Math.round(SMBG_OPTS.maxR),
     ]);
     yScale.range([
-      svgDimensions.height - MARGINS.bottom - BUMPERS.bottom,
-      MARGINS.top + BUMPERS.top,
+      svgDimensions.height - margins.bottom - BUMPERS.bottom,
+      margins.top + BUMPERS.top,
     ]);
   }
 
