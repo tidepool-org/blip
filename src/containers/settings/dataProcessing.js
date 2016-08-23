@@ -18,14 +18,14 @@
 import * as common from './common';
 
 export function processBasalRateData(scheduleData) {
-  const starts = scheduleData.map(s => s.start);
+  const starts = scheduleData.value.map(s => s.start);
   const data = starts.map((startTime) => (
     { start: common.getTime(
-        scheduleData,
+        scheduleData.value,
         startTime
       ),
       rate: common.getBasalRate(
-        scheduleData,
+        scheduleData.value,
         startTime
       ),
     }
@@ -33,7 +33,7 @@ export function processBasalRateData(scheduleData) {
 
   data.push({
     start: 'Total',
-    rate: common.getTotalBasalRates(scheduleData),
+    rate: common.getTotalBasalRates(scheduleData.value),
   });
 
   return data;

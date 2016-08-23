@@ -24,9 +24,7 @@ import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
 
 import TrendsContainer from './containers/trends/TrendsContainer';
 
-import Medtronic from './containers/settings/medtronic/Medtronic';
-import Tandem from './containers/settings/tandem/Tandem';
-import Omnipod from './containers/settings/omnipod/Omnipod';
+import * as SettingsContainerFactory from './containers/settings/factory';
 
 import CollapsibleContainer from './containers/common/CollapsibleContainer';
 
@@ -40,10 +38,8 @@ const components = {
 };
 
 const containers = {
-  Medtronic,
-  Omnipod,
-  Tandem,
   TrendsContainer,
+  SettingsContainerFactory,
 };
 
 export { components, containers, vizReducer };

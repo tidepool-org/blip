@@ -37,16 +37,23 @@ const Omnipod = (props) => {
     const schedules = common.getScheduleNames(pumpSettings.basalSchedules);
 
     const tables = schedules.map((schedule) => {
-      const title = { label: schedule, className: styles.basalSchedulesHeader };
+      const title = {
+        label: pumpSettings.basalSchedules[schedule].name,
+        className: styles.basalSchedulesHeader,
+      };
 
       return (
         <div>
           <CollapsibleContainer
             styledLabel={title}
-            openByDefault={schedule === pumpSettings.activeSchedule}
+            openByDefault={
+              pumpSettings.basalSchedules[schedule].name === pumpSettings.activeSchedule
+            }
           >
             <Table
-              rows={dataProcessing.processBasalRateData(pumpSettings.basalSchedules[schedule])}
+              rows={
+                dataProcessing.processBasalRateData(pumpSettings.basalSchedules[schedule])
+              }
               columns={columns}
             />
           </CollapsibleContainer>
