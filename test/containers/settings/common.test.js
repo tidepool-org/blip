@@ -5,7 +5,6 @@ import * as common from '../../../src/containers/settings/common';
 
 const settingsData = require('../../../data/pumpSettings/tandem/flatrate.json');
 const multirateSettingsData = require('../../../data/pumpSettings/tandem/multirate.json');
-const rateData = require('../../../data/pumpSettings/tandem/ratedata.json');
 
 describe('common', () => {
   describe('DISPLAY_PRESCION_PLACES', () => {
@@ -26,64 +25,40 @@ describe('common', () => {
   describe('getTime', () => {
     it('should return the formatted time', () => {
       expect(
-        common.getTime(settingsData.basalSchedules.Normal, 0)
+        common.getTime(settingsData.bgTargets.Normal, 0)
       ).to.equal('12:00 am');
     });
     it('should return nothing if there is no match', () => {
       expect(
-        common.getTime(settingsData.basalSchedules.Normal, 999999)
-      ).to.equal('');
-    });
-  });
-  describe('getBasalRate', () => {
-    it('should return the formatted rate', () => {
-      expect(
-        common.getBasalRate(settingsData.basalSchedules.Normal, 0)
-      ).to.equal('0.450');
-    });
-    it('should return nothing if there is no match', () => {
-      expect(
-        common.getBasalRate(settingsData.basalSchedules.Normal, 999999)
+        common.getTime(settingsData.bgTargets.Normal, 999999)
       ).to.equal('');
     });
   });
   describe('getBasalRateT', () => {
     it('should return the formatted rate', () => {
       expect(
-        common.getBasalRateT(rateData.basalSchedules, 'Normal', 0)
-      ).to.equal('0.950');
+        common.getBasalRateT(multirateSettingsData.basalSchedules, 'Normal', 0)
+      ).to.equal('0.350');
     });
     it('should return nothing if there is no match', () => {
       expect(
-        common.getBasalRateT(rateData.basalSchedules, 'Normal', 999999)
+        common.getBasalRateT(multirateSettingsData.basalSchedules, 'Normal', 999999)
       ).to.equal('');
-    });
-  });
-  describe('getTotalBasalRates', () => {
-    it('should return the rate total flat rate settings', () => {
-      expect(
-        common.getTotalBasalRates(settingsData.basalSchedules.Normal)
-      ).to.equal('10.800');
-    });
-    it('should return the rate total for multi rate settings', () => {
-      expect(
-        common.getTotalBasalRates(multirateSettingsData.basalSchedules.Sick)
-      ).to.equal('15.938');
     });
   });
   describe('getTotalBasalRatesT', () => {
     it('should return the rate total for multi rate settings', () => {
       expect(
         common.getTotalBasalRatesT(
-          rateData.basalSchedules,
+          multirateSettingsData.basalSchedules,
           'Normal',
         )
-      ).to.equal('18.625');
+      ).to.equal('15.938');
     });
     it('should return nothing if there is no match', () => {
       expect(
         common.getTotalBasalRatesT(
-          rateData.basalSchedules,
+          multirateSettingsData.basalSchedules,
           'NA',
         )
       ).to.equal('');
@@ -99,13 +74,6 @@ describe('common', () => {
       expect(
         common.getBloodGlucoseValue(settingsData.bgTargets.Normal, 'target', 999999, 'mmol/L')
       ).to.equal('0.0');
-    });
-  });
-  describe('getScheduleNames', () => {
-    it('should return the schedule names for a type', () => {
-      expect(
-        common.getScheduleNames(settingsData.basalSchedules)
-      ).to.have.length(2).and.contain('Normal').and.contain('Sick');
     });
   });
   describe('getValue', () => {

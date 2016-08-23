@@ -1,14 +1,17 @@
 {
   "type": "pumpSettings",
   "activeSchedule": "Normal",
-  "basalSchedules": {
-    "Normal": [
-      {
-        "start": 0,
-        "rate": 0.75
-      }
-    ]
-  },
+  "basalSchedules": [
+    {
+      "name": "Normal",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.75
+        }
+      ]
+    }
+  ],
   "units": {
     "carbs": "grams",
     "bg": "mmol/L"

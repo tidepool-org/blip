@@ -1,44 +1,50 @@
 {
   "type": "pumpSettings",
   "activeSchedule": "Normal",
-  "basalSchedules": {
-    "Normal": [
-      {
-        "start": 0,
-        "rate": 0.325
-      },
-      {
-        "start": 9000000,
-        "rate": 0.45
-      },
-      {
-        "start": 23400000,
-        "rate": 0.95
-      },
-      {
-        "start": 46800000,
-        "rate": 1.375
-      }
-    ],
-    "Other": [
-      {
-        "start": 0,
-        "rate": 0.325
-      },
-      {
-        "start": 9000000,
-        "rate": 0.45
-      },
-      {
-        "start": 23400000,
-        "rate": 0.95
-      },
-      {
-        "start": 46800000,
-        "rate": 1.375
-      }
-    ]
-  },
+  "basalSchedules": [
+    {
+      "name": "Normal",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.325
+        },
+        {
+          "start": 9000000,
+          "rate": 0.45
+        },
+        {
+          "start": 23400000,
+          "rate": 0.95
+        },
+        {
+          "start": 46800000,
+          "rate": 1.375
+        }
+      ]
+    },
+    {
+      "name": "Other",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.325
+        },
+        {
+          "start": 9000000,
+          "rate": 0.45
+        },
+        {
+          "start": 23400000,
+          "rate": 0.95
+        },
+        {
+          "start": 46800000,
+          "rate": 1.375
+        }
+      ]
+    }
+  ],
   "units": {
     "carbs": "grams",
     "bg": "mmol/L"

@@ -1,62 +1,71 @@
 {
   "type": "pumpSettings",
   "activeSchedule": "Normal",
-  "basalSchedules": {
-    "Normal": [
-      {
-        "start": 0,
-        "rate": 0.35
-      },
-      {
-        "start": 12600000,
-        "rate": 0.225
-      },
-      {
-        "start": 36000000,
-        "rate": 1.075
-      },
-      {
-        "start": 72000000,
-        "rate": 0.625
-      }
-    ],
-    "Sick": [
-      {
-        "start": 0,
-        "rate": 0.35
-      },
-      {
-        "start": 12600000,
-        "rate": 0.225
-      },
-      {
-        "start": 36000000,
-        "rate": 1.075
-      },
-      {
-        "start": 72000000,
-        "rate": 0.625
-      }
-    ],
-    "Sports": [
-      {
-        "start": 0,
-        "rate": 0.35
-      },
-      {
-        "start": 12600000,
-        "rate": 0.225
-      },
-      {
-        "start": 36000000,
-        "rate": 1.075
-      },
-      {
-        "start": 72000000,
-        "rate": 0.625
-      }
-    ]
-  },
+  "basalSchedules": [
+    {
+      "name": "Normal",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.35
+        },
+        {
+          "start": 12600000,
+          "rate": 0.225
+        },
+        {
+          "start": 36000000,
+          "rate": 1.075
+        },
+        {
+          "start": 72000000,
+          "rate": 0.625
+        }
+      ]
+    },
+    {
+      "name": "Sick",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.35
+        },
+        {
+          "start": 12600000,
+          "rate": 0.225
+        },
+        {
+          "start": 36000000,
+          "rate": 1.075
+        },
+        {
+          "start": 72000000,
+          "rate": 0.625
+        }
+      ]
+    },
+    {
+      "name": "Sports",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.35
+        },
+        {
+          "start": 12600000,
+          "rate": 0.225
+        },
+        {
+          "start": 36000000,
+          "rate": 1.075
+        },
+        {
+          "start": 72000000,
+          "rate": 0.625
+        }
+      ]
+    }
+  ],
   "units": {
     "carbs": "grams",
     "bg": "mmol/L"
