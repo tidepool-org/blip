@@ -1,34 +1,43 @@
 {
   "type": "pumpSettings",
   "activeSchedule": "Normal",
-  "basalSchedules": {
-    "Normal": [
-      {
-        "start": 0,
-        "rate": 0.85
-      },
-      {
-        "start": 41400000,
-        "rate": 1.625
-      }
-    ],
-    "Stress": [
-      {
-        "start": 0,
-        "rate": 1.725
-      },
-      {
-        "start": 9000000,
-        "rate": 0.425
-      }
-    ],
-    "Weekday": [
-      {
-        "start": 0,
-        "rate": 0.325
-      }
-    ]
-  },
+  "basalSchedules": [
+    {
+      "name": "Normal",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.85
+        },
+        {
+          "start": 41400000,
+          "rate": 1.625
+        }
+      ]
+    },
+    {
+      "name": "Stress",
+      "value" : [
+        {
+          "start": 0,
+          "rate": 1.725
+        },
+        {
+          "start": 9000000,
+          "rate": 0.425
+        }
+      ]
+    },
+    {
+      "name": "Weekday",
+      "value" : [
+        {
+          "start": 0,
+          "rate": 0.325
+        }
+      ]
+    }
+  ],
   "units": {
     "carbs": "grams",
     "bg": "mmol/L"
