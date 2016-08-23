@@ -68,13 +68,16 @@ export function getBloodGlucoseValue(scheduleData, fieldName, startTime, units) 
 }
 
 export function getTotalBasalRates(scheduleData) {
-  const rates = scheduleData.map(s => s.rate);
-  if (rates === null || (typeof rates === 'undefined')) {
-    return '';
-  }
   let total = 0;
-  for (let i = rates.length - 1; i >= 0; i--) {
-    total += rates[i];
+  for (let i = scheduleData.length - 1; i >= 0; i--) {
+    const start = scheduleData[i].start;
+    let finish = 86400000;
+    const next = i + 1;
+    if (next < scheduleData.length) {
+      finish = scheduleData[next].start;
+    }
+    const hrs = (finish - start) / (60 * 60 * 1000);
+    total += (scheduleData[i].rate * hrs);
   }
   return format.displayDecimal(total, DISPLAY_PRESCION_PLACES);
 }

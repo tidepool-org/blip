@@ -18,40 +18,118 @@
 import React, { PropTypes } from 'react';
 
 import Header from '../header/Header';
+import Table from '../../../components/common/Table';
+import CollapsibleContainer from '../../common/CollapsibleContainer';
+
 import * as common from '../common';
-import * as commonTables from '../commonTables';
+import * as dataProcessing from '../dataProcessing';
 
 import styles from './Animas.css';
 
 const Animas = (props) => {
   const { bgUnits, pumpSettings } = props;
 
-  const basalColumns = [
-    { key: 'start', label: 'Start time', className: '' },
-    { key: 'rate', label: 'Value (U/hr)', className: '' },
-  ];
-  const sensitivityColumns = [
-    { key: 'start', label: 'Start time', className: '' },
-    { key: 'amount', label: `Value (${bgUnits}/U)`, className: '' },
-  ];
-  const sensitivityTitle = {
-    label: 'ISF',
-    className: styles.bolusSettingsHeader,
+  const renderBasalsData = () => {
+    const columns = [
+      { key: 'start', label: 'Start time', className: '' },
+      { key: 'rate', label: 'Value (U/hr)', className: '' },
+    ];
+    const schedules = common.getScheduleNames(pumpSettings.basalSchedules);
+
+    const tables = schedules.map((schedule) => {
+      const title = { label: schedule, className: styles.basalSchedulesHeader };
+
+      return (
+        <div>
+          <CollapsibleContainer
+            styledLabel={title}
+            openByDefault={schedule === pumpSettings.activeSchedule}
+          >
+            <Table
+              rows={dataProcessing.processBasalRateData(pumpSettings.basalSchedules[schedule])}
+              columns={columns}
+            />
+          </CollapsibleContainer>
+        </div>
+      );
+    });
+    return (<div>{tables}</div>);
   };
-  const ratioColumns = [
-    { key: 'start', label: 'Start time', className: '' },
-    { key: 'amount', label: 'Value (g/U)', className: '' },
-  ];
-  const ratioTitle = {
-    label: 'I:C Ratio',
-    className: styles.bolusSettingsHeader,
+
+  const renderSensitivityData = () => {
+    const columns = [
+      { key: 'start', label: 'Start time', className: '' },
+      { key: 'amount', label: `Value (${bgUnits}/U)`, className: '' },
+    ];
+    const title = {
+      label: 'ISF',
+      className: styles.bolusSettingsHeader,
+    };
+    return (
+      <div>
+        <Table
+          title={title}
+          rows={
+            dataProcessing.processSensitivityData(
+              pumpSettings.insulinSensitivity,
+              bgUnits,
+            )
+          }
+          columns={columns}
+        />
+      </div>
+    );
   };
-  const bgTargetsColumns = [
-    { key: 'start', label: 'Start time', className: '' },
-    { key: 'low', label: 'Low', className: '' },
-    { key: 'high', label: 'High', className: '' },
-  ];
-  const bgTargetsTitle = { label: `BG Target (${bgUnits})`, className: styles.bolusSettingsHeader };
+
+  const renderRatioData = () => {
+    const columns = [
+      { key: 'start', label: 'Start time', className: '' },
+      { key: 'amount', label: 'Value (g/U)', className: '' },
+    ];
+    const title = {
+      label: 'I:C Ratio',
+      className: styles.bolusSettingsHeader,
+    };
+    return (
+      <div>
+        <Table
+          title={title}
+          rows={
+            dataProcessing.processCarbRatioData(
+              pumpSettings.carbRatio,
+            )
+          }
+          columns={columns}
+        />
+      </div>
+    );
+  };
+
+  const renderTargetData = () => {
+    const columns = [
+      { key: 'start', label: 'Start time', className: '' },
+      { key: 'low', label: 'Low', className: '' },
+      { key: 'high', label: 'High', className: '' },
+    ];
+    const title = {
+      label: `BG Target (${bgUnits})`,
+      className: styles.bolusSettingsHeader,
+    };
+    return (
+      <div>
+        <Table
+          title={title}
+          rows={
+            dataProcessing.processBgTargetData(
+              pumpSettings.bgTarget,
+              bgUnits,
+            )
+          }
+          columns={columns}
+        />
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -60,36 +138,10 @@ const Animas = (props) => {
         deviceMeta={common.getDeviceMeta(pumpSettings)}
       />
       <div className={styles.settings}>
-        {
-          commonTables.buildBasalRateTables(
-            styles.basalSchedulesHeader,
-            basalColumns,
-            pumpSettings.basalSchedules,
-          )
-        }
-        {
-          commonTables.buildSensitivityTable(
-            sensitivityTitle,
-            sensitivityColumns,
-            pumpSettings.insulinSensitivity,
-            bgUnits,
-          )
-        }
-        {
-          commonTables.buildBgTargetTable(
-            bgTargetsTitle,
-            bgTargetsColumns,
-            pumpSettings.bgTarget,
-            bgUnits,
-          )
-        }
-        {
-          commonTables.buildCarbRatioTable(
-            ratioTitle,
-            ratioColumns,
-            pumpSettings.carbRatio,
-          )
-        }
+        {renderBasalsData()}
+        {renderSensitivityData()}
+        {renderTargetData()}
+        {renderRatioData()}
       </div>
     </div>
   );

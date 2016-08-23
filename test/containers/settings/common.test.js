@@ -63,12 +63,12 @@ describe('common', () => {
     it('should return the rate total flat rate settings', () => {
       expect(
         common.getTotalBasalRates(settingsData.basalSchedules.Normal)
-      ).to.equal('0.450');
+      ).to.equal('10.800');
     });
     it('should return the rate total for multi rate settings', () => {
       expect(
         common.getTotalBasalRates(multirateSettingsData.basalSchedules.Sick)
-      ).to.equal('2.275');
+      ).to.equal('15.938');
     });
   });
   describe('getTotalBasalRatesT', () => {
