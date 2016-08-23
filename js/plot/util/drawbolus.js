@@ -390,6 +390,7 @@ module.exports = function(pool, opts) {
       html: function(group, d) {
         var bolus = pluckBolus(d);
         var justBolus = (bolus.normal === commonbolus.getMaxValue(d)) && !d.carbInput;
+        var isAnimasCombo = _.some(bolus.annotations, {code: 'animas/bolus/extended-equal-split'});
 
         var title = group.append('div')
           .attr('class', 'title');
@@ -405,7 +406,7 @@ module.exports = function(pool, opts) {
           title.classed('wider', true);
         }
         // if not interrupted, then extended boluses get a headline
-        else if (bolus.extended) {
+        else if (bolus.extended && !isAnimasCombo) {
           title.append('p')
             .attr('class', 'plain right')
             .text('Extended');
@@ -434,8 +435,8 @@ module.exports = function(pool, opts) {
             .attr('class', 'right')
             .text(format.tooltipValue(commonbolus.getRecommended(d)));
         }
-        // only show programmed when different from delivery
-        if (commonbolus.getProgrammed(d) !== commonbolus.getDelivered(d)) {
+        // only show programmed when different from delivery or bolus is Animas combo
+        if (commonbolus.getProgrammed(d) !== commonbolus.getDelivered(d) || isAnimasCombo) {
           var intRow = tbl.append('tr');
           intRow.append('td')
             .attr('class', 'label')
@@ -444,6 +445,26 @@ module.exports = function(pool, opts) {
             .attr('class', 'right')
             .text(format.tooltipValue(commonbolus.getProgrammed(d)));
         }
+
+        if (isAnimasCombo){
+          var animExtRow = tbl.append('tr');
+          animExtRow.append('td').attr('class', 'label').text('Extended');
+          // If interrupted
+          if (commonbolus.getProgrammed(d) !== commonbolus.getDelivered(d)) {
+            animExtRow.append('td')
+              .attr('class', 'right')
+              .text('(' + format.timespan({duration: bolus.expectedDuration}) + ')');
+          }
+          else {
+            animExtRow.append('td')
+              .attr('class', 'right')
+              .text(format.timespan({duration: bolus.duration}));
+          }
+          var amtSpltRow = tbl.append('tr');
+          amtSpltRow.append('td').attr('colspan', '2')
+            .attr('class', 'em').text('Animas does not report combo split');
+        }
+
         // actual delivered bolus
         var delRow = tbl.append('tr');
         delRow.append('td')
@@ -470,21 +491,23 @@ module.exports = function(pool, opts) {
                 ' (' + format.tooltipValue(bolus.extended) + ')');
           }
           else {
-            extRow.append('td')
-              .attr('class', 'dual')
-              .text('Up front: ');
-            extRow.append('td')
-              .attr('class', 'secondary')
-              .text(format.percentage(bolus.normal/commonbolus.getProgrammed(d)) +
-                ' (' + format.tooltipValue(bolus.normal) + ')');
-            var extRow2 = tbl.append('tr');
-            extRow2.append('td')
-              .attr('class', 'dual')
-              .text(format.timespan({duration: bolus.duration}) + ':');
-            extRow2.append('td')
-              .attr('class', 'secondary')
-              .text(format.percentage(bolus.extended/commonbolus.getProgrammed(bolus)) +
-                ' (' + format.tooltipValue(bolus.extended) + ')');
+            if (!isAnimasCombo){
+              extRow.append('td')
+                .attr('class', 'dual')
+                .text('Up front: ');
+              extRow.append('td')
+                .attr('class', 'secondary')
+                .text(format.percentage(bolus.normal/commonbolus.getProgrammed(d)) +
+                  ' (' + format.tooltipValue(bolus.normal) + ')');
+              var extRow2 = tbl.append('tr');
+              extRow2.append('td')
+                .attr('class', 'dual')
+                .text(format.timespan({duration: bolus.duration}) + ':');
+              extRow2.append('td')
+                .attr('class', 'secondary')
+                .text(format.percentage(bolus.extended/commonbolus.getProgrammed(bolus)) +
+                  ' (' + format.tooltipValue(bolus.extended) + ')');
+            }
           }
         }
       },

@@ -70,7 +70,7 @@ If you want to run the example with real data to view instead of the demo data g
  1. Set your `$DATA` environment variable to the filename with `export DATA='blip-input.json'`.
  1. Start the tideline example with `npm start` as usual.
 
-### Test
+### Testing
 
 To run the tests in Chrome using [Mocha](http://visionmedia.github.io/mocha/ 'Mocha') and the [testem](https://github.com/airportyh/testem 'Test'em') test runner:
 
@@ -78,18 +78,24 @@ To run the tests in Chrome using [Mocha](http://visionmedia.github.io/mocha/ 'Mo
 $ npm test
 ```
 
-#### JSHint
+To run the unit tests in watch, use:
+
+```bash
+$ npm run test-watch
+```
+
+#### Lint
 
 Run JSHint with:
 
 ```bash
-$ npm run jshint
+$ npm run lint
 ```
 
 You can also watch files for changes and re-run automatically by starting:
 
 ```bash
-$ npm run jshint-watch
+$ npm run lint-watch
 ```
 
 ## Code Philosophy and Organization

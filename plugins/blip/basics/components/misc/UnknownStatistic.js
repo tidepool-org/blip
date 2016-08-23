@@ -1,56 +1,31 @@
-/*
+/* 
  * == BSD2 LICENSE ==
- * Copyright (c) 2015, Tidepool Project
- *
+ * Copyright (c) 2016 Tidepool Project
+ * 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- *
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
+ * 
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
 
-.DashboardSection {
-  display: flex;
-  flex-direction: column;
+var React = require('react');
 
-  overflow-y: hidden;
-
-  background-color: white;
-
-  .header {
-    color: @headline-color;
-    margin: 0;
-    i {
-      float: right;
-    }
+var UnknownStatistic = React.createClass({
+  render: function() {
+    return (
+      <p className="UnknownStatistic">
+        <span className="UnknownStatistic-lead">Why is this grey? </span>
+        At least one day does not have boluses, so the statistic wouldn't be right.
+      </p>
+    );
   }
+});
 
-  h3 {
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: bold;
-    .header;
-    padding: 15px 5px;
-    &.SectionHeader--nodata {
-      span {
-        color: @text-light;
-      }
-    }
-  }
-}
-
-
-.DashboardSection-container {
-
-  .DashboardSection-content {
-    box-sizing: border-box;
-    padding: 0px 15px 5px 15px;
-    
-  }
-}
+module.exports = UnknownStatistic;

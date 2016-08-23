@@ -16,15 +16,17 @@
  */
 
 var _ = require('lodash');
+var cx = require('classnames');
 var d3 = require('d3');
 var React = require('react');
+
+var UnknownStatistic = require('../misc/UnknownStatistic');
 
 var BasalBolusRatio = React.createClass({
   propTypes: {
     data: React.PropTypes.object.isRequired
   },
   componentDidMount: function() {
-    var ratioData = this.props.data.basalBolusRatio;
     var el = this.refs.pie;
     var w = el.offsetWidth, h = el.offsetHeight;
     var svg = d3.select(el)
@@ -33,11 +35,23 @@ var BasalBolusRatio = React.createClass({
         width: w,
         height: h
       });
+    var pieRadius = Math.min(w, h)/2;
+    var ratioData = _.get(this.props.data, 'basalBolusRatio', null);
+    if (ratioData === null) {
+      svg.append('circle')
+        .attr({
+          'class': 'd3-circle-nodata',
+          cx: w/2,
+          cy: h/2,
+          // subtract half of the stroke-width from the radius to avoid cut-off
+          r: pieRadius - 1.5,
+        });
+      return;
+    }
     var data = [
       {type: 'basal', value: ratioData.basal, order: 2},
       {type: 'bolus', value: ratioData.bolus, order: 1}
     ];
-    var pieRadius = Math.min(w, h)/2;
     var pie = d3.layout.pie()
       .value(function(d) { return d.value; })
       .sort(function(d) { return d.order; });
@@ -62,26 +76,49 @@ var BasalBolusRatio = React.createClass({
   render: function() {
     var data = this.props.data;
     var percent = d3.format('%');
+    var basal = _.get(data, ['basalBolusRatio', 'basal'], null);
+    var bolus = _.get(data, ['basalBolusRatio', 'bolus'], null);
+    var basalPercentClasses = cx({
+      'BasalBolusRatio-percent': true,
+      'BasalBolusRatio-percent--basal': !!basal,
+      'BasalBolusRatio--nodata': !basal
+    });
+    var basalLabelClasses = cx({
+      'BasalBolusRatio-label': true,
+      'BasalBolusRatio-label--basal': !!basal,
+      'BasalBolusRatio--nodata': !basal
+    });
+    var bolusPercentClasses = cx({
+      'BasalBolusRatio-percent': true,
+      'BasalBolusRatio-percent--bolus': !!bolus,
+      'BasalBolusRatio--nodata': !bolus
+    });
+    var bolusLabelClasses = cx({
+      'BasalBolusRatio-label': true,
+      'BasalBolusRatio-label--bolus': !!bolus,
+      'BasalBolusRatio--nodata': !bolus
+    });
     return (
       <div className='BasalBolusRatio'>
         <div ref="pie" className='BasalBolusRatio-inner BasalBolusRatio-pie'>
         </div>
         <div className='BasalBolusRatio-inner'>
           <p>
-            <span className='BasalBolusRatio-percent BasalBolusRatio-percent--basal'>
-              {percent(data.basalBolusRatio.basal)}
+            <span className={basalPercentClasses}>
+              {basal ? percent(basal) : '-- %'}
             </span>
-            <span className='BasalBolusRatio-label BasalBolusRatio-label--basal'>
+            <span className={basalLabelClasses}>
             &nbsp;basal
             </span>
-            <span className='BasalBolusRatio-percent BasalBolusRatio-percent--bolus'>
-              {' : ' + percent(data.basalBolusRatio.bolus)}
+            <span className={bolusPercentClasses}>
+              {' : ' + (basal ? percent(bolus) : '-- %')}
             </span>
-            <span className='BasalBolusRatio-label BasalBolusRatio-label--bolus'>
+            <span className={bolusLabelClasses}>
             &nbsp;bolus
             </span>
           </p>
         </div>
+        {(basal && bolus) ? null : (<UnknownStatistic />)}
       </div>
     );
   }
