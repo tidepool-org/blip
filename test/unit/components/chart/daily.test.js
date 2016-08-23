@@ -2,75 +2,80 @@
 /* global describe */
 /* global sinon */
 /* global it */
+/* global before */
+/* global after */
 
 var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var _ = require('lodash');
 var expect = chai.expect;
-var rewire = require('rewire');
-var rewireModule = require('../../../utils/rewireModule');
+
+import Daily from '../../../../app/components/chart/daily';
 
 require('tideline/css/tideline.less');
 require('../../../../app/core/less/fonts.less');
 require('../../../../app/style.less');
 
 describe('Daily', function () {
-  var Daily = rewire('../../../../app/components/chart/daily');
 
-  rewireModule(Daily, { 
-    DailyChart: React.createClass({
+  before(() => {
+    Daily.__Rewire__('DailyChart', React.createClass({
       render: function() {
         return (<div className='fake-daily-chart'></div>);
       }
-    })
+    }));
+  });
+
+  after(() => {
+    Daily.__ResetDependency__('DailyChart');
   });
 
   describe('render', function() {
     it('should render without problems', function () {
+      console.error = sinon.stub();
       var props = {
         bgPrefs: {
-          'bgClasses': {
+          bgClasses: {
             'very-low': {
-              'boundary': 60
+              boundary: 60
             },
             'low': {
-              'boundary': 80
+              boundary: 80
             },
             'target': {
-              'boundary': 180
+              boundary: 180
             },
             'high': {
-              'boundary': 200
+              boundary: 200
             },
             'very-high': {
-              'boundary': 300
+              boundary: 300
             }
           },
-          'bgUnits': 'mg/dL'
+          bgUnits: 'mg/dL'
         },
         chartPrefs: {
-          'modal': {
-            'activeDays': {
-              'monday': true,
-              'tuesday': true,
-              'wednesday': true,
-              'thursday': true,
-              'friday': true,
-              'saturday': true,
-              'sunday': true
+          modal: {
+            activeDays: {
+              monday: true,
+              tuesday: true,
+              wednesday: true,
+              thursday: true,
+              friday: true,
+              saturday: true,
+              sunday: true
             },
-            'activeDomain': '2 weeks',
-            'extentSize': 14,
-            'boxOverlay': true,
-            'grouped': true,
-            'showingLines': false
-          },
-          'timePrefs': {
-            'timezoneAware': false,
-            'timezoneName': 'US/Pacific'
+            activeDomain: '2 weeks',
+            extentSize: 14,
+            boxOverlay: true,
+            grouped: true,
+            showingLines: false
           }
         },
-        imageBaseUrl: 'undefined/tideline',
+        timePrefs: {
+          timezoneAware: false,
+          timezoneName: 'US/Pacific'
+        },
         initialDateTimeLocation: '2014-03-13T12:00:00.000Z',
         patientData: {
           grouped: { foo: 'bar' }
@@ -78,29 +83,34 @@ describe('Daily', function () {
         onClickRefresh: function() {},
         onCreateMessage: function() {},
         onShowMessageThread: function() {},
+        onSwitchToBasics: function() {},
         onSwitchToDaily: function() {},
         onSwitchToSettings: function() {},
         onSwitchToWeekly: function() {},
-        updateChartPrefs: function() {},
-        updateDateTimeLocation: function() {},
+        updateDatetimeLocation: function() {},
       };
       var dailyElem = React.createElement(Daily, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
+      expect(console.error.callCount).to.equal(0);
     });
 
     it('should have a refresh button which should call onClickRefresh when clicked', function () {
       var props = {
         bgPrefs: {},
         chartPrefs: {},
+        timePrefs: {},
+        initialDateTimeLocation: 'foo',
         patientData: {
         },
         onClickRefresh: sinon.spy(),
-        onSwitchToDaily: sinon.spy(),
-        onSwitchToSettings: sinon.spy(),
-        onSwitchToWeekly: sinon.spy(),
-        trackMetric: sinon.spy(),
-        uploadUrl: ''
+        onCreateMessage: function() {},
+        onShowMessageThread: function() {},
+        onSwitchToBasics: function() {},
+        onSwitchToDaily: function() {},
+        onSwitchToSettings: function() {},
+        onSwitchToWeekly: function() {},
+        updateDatetimeLocation: function() {}
       };
       var dailyElem = React.createElement(Daily, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);

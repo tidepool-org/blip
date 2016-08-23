@@ -25,9 +25,7 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 describe('App',  () => {
-  // We must remember to require the base module when mocking dependencies,
-  // otherwise dependencies mocked will be bound to the wrong scope!
-  
+
   api.log = sinon.stub();
 
   var baseProps = {
@@ -43,8 +41,6 @@ describe('App',  () => {
 
   describe('render', () => {
     it('should render without problems or warnings when required props provided', () => {
-      console.error = sinon.stub();
-
       var props = _.assign({}, baseProps, {
         authenticated: false,
         children: createFragment({}),
@@ -57,36 +53,22 @@ describe('App',  () => {
         onCloseNotification: sinon.stub(),
         onLogout: sinon.stub()
       });
-      
+
       var elem = TestUtils.renderIntoDocument(<App {...props}/>);
       expect(elem).to.be.ok;
-      // we allow one error for the children, which is difficult to mock!
-      expect(console.error.callCount).to.equal(1);
       var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
       expect(app).to.be.ok;
-      expect(console.error.calledWith('Warning: Failed propType: Invalid prop `children` of type `array` supplied to `AppComponent`, expected `object`.')).to.equal(true);
     });
 
 
     it('should console.error when required props not provided', () => {
       console.error = sinon.stub();
-      
+
       var elem = TestUtils.renderIntoDocument(<App {...baseProps}/>);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(10);
       var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
       expect(app).to.be.ok;
-
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `authenticated` was not specified in `AppComponent`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `children` was not specified in `AppComponent`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchers` was not specified in `AppComponent`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `AppComponent`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `AppComponent`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `location` was not specified in `AppComponent`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `loggingOut` was not specified in `AppComponent`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onAcceptTerms` was not specified in `AppComponent`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onCloseNotification` was not specified in `AppComponent`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onLogout` was not specified in `AppComponent`.')).to.equal(true);
     });
 
     it('should render footer', () => {

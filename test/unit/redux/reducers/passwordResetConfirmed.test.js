@@ -25,7 +25,7 @@ import _ from 'lodash';
 
 import { passwordResetConfirmed as reducer } from '../../../../app/redux/reducers/misc';
 
-import actions from '../../../../app/redux/actions/index';
+import * as actions from '../../../../app/redux/actions/index';
 
 import { passwordResetConfirmed as initialState } from '../../../../app/redux/reducers/initialState';
 

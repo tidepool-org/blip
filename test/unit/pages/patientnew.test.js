@@ -6,8 +6,6 @@
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 
-import rewire from 'rewire';
-import rewireModule from '../../utils/rewireModule';
 
 import { PatientNew } from '../../../app/pages/patientnew';
 import { mapStateToProps } from '../../../app/pages/patientnew';
@@ -21,8 +19,6 @@ var expect = chai.expect;
 window.config = {};
 
 describe('PatientNew', function () {
-  
-
   it('should be exposed as a module and be of type function', function() {
     expect(PatientNew).to.be.a('function');
   });
@@ -39,17 +35,6 @@ describe('PatientNew', function () {
       var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
-    });
-
-    it('should warn when required props are not present', function() {
-      console.error = sinon.spy();
-      var elem = TestUtils.renderIntoDocument(<PatientNew/>);
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(4);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `PatientNew`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `PatientNew`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientNew`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `PatientNew`.')).to.equal(true);
     });
   });
 

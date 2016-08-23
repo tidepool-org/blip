@@ -17,31 +17,15 @@ describe('Messages', function () {
   });
 
   describe('render', function() {
-    it('should console.error when required props are missing', function () {
-      console.error = sinon.stub();
-      var props = {};
-      var elem = React.createElement(Messages, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `Messages`.')).to.equal(true);
-    });
-
-    it('should render without problems with required props are present', function () {
+    it('should render without problems when required props are present', function () {
       console.error = sinon.stub();
       var props = {
-        messages : [],
-        createDatetime : '',
-        user : {},
-        patient : {},
-        onClose : sinon.stub(),
-        onSave : sinon.stub(),
-        onEdit : sinon.stub(),
-        onNewMessage : sinon.stub(),
         timePrefs: {}
       };
       var elem = React.createElement(Messages, props);
       var render = TestUtils.renderIntoDocument(elem);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `Messages`.')).to.equal(false);
+      expect(render).to.be.ok;
+      expect(console.error.callCount).to.equal(0);
     });
   });
 
@@ -54,6 +38,7 @@ describe('Messages', function () {
       var render = TestUtils.renderIntoDocument(elem);
       var state = render.getInitialState();
 
+      expect(state.messages).to.deep.equal(props.messages);
     });
   });
 });

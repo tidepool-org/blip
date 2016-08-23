@@ -2,50 +2,43 @@
 /* global describe */
 /* global sinon */
 /* global it */
+/* global before */
+/* global after */
 
 var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var _ = require('lodash');
 var expect = chai.expect;
-var rewire = require('rewire');
-var rewireModule = require('../../../utils/rewireModule');
+
+import Settings from '../../../../app/components/chart/settings';
 
 describe('Settings', function () {
-  var Settings = rewire('../../../../app/components/chart/settings');
-
-  rewireModule(Settings, {
-    SettingsChart: React.createClass({
+  before(() => {
+    Settings.__Rewire__('SettingsChart', React.createClass({
       render: function() {
         return (<div className='fake-settings-view'></div>);
       }
-    })
+    }));
+  });
+
+  after(() => {
+    Settings.__ResetDependency__('SettingsChart');
   });
 
   describe('render', function() {
-    it('should console.error when missing required props', function () {
-      console.error = sinon.stub();
-      var settingsElem = React.createElement(Settings, {});
-      var elem = TestUtils.renderIntoDocument(settingsElem);
-
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `bgPrefs` was not specified in `Settings`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `chartPrefs` was not specified in `Settings`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `patientData` was not specified in `Settings`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onClickRefresh` was not specified in `Settings`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSwitchToDaily` was not specified in `Settings`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSwitchToSettings` was not specified in `Settings`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Settings`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `uploadUrl` was not specified in `Settings`.')).to.equal(true);
-    });
-
     it('should render without problems', function () {
+      console.error = sinon.stub();
       var props = {
         bgPrefs: {},
         chartPrefs: {},
+        timePrefs: {},
         patientData: {
           grouped: { pumpSettings: 'bar' }
         },
         onClickRefresh: function() {},
+        onSwitchToBasics: function() {},
         onSwitchToDaily: function() {},
+        onSwitchToModal: function() {},
         onSwitchToSettings: function() {},
         onSwitchToWeekly: function() {},
         trackMetric: function() {},
@@ -54,6 +47,7 @@ describe('Settings', function () {
       var settingsElem = React.createElement(Settings, props);
       var elem = TestUtils.renderIntoDocument(settingsElem);
       expect(elem).to.be.ok;
+      expect(console.error.callCount).to.equal(0);
     });
 
     it('should render with missing data message when no pumpSettings data supplied', function () {
@@ -75,7 +69,6 @@ describe('Settings', function () {
       expect(elem).to.be.ok;
       var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
       expect(x).to.be.ok;
-      expect(x.props.children.length).to.equal(3);
     });
 
     it('should have a refresh button which should call onClickRefresh when clicked', function () {

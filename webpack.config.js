@@ -14,13 +14,15 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __PASSWORD_MAX_LENGTH__: JSON.stringify(process.env.PASSWORD_MAX_LENGTH || null),
   __ABOUT_MAX_LENGTH__: JSON.stringify(process.env.ABOUT_MAX_LENGTH || null),
   __DEV__: isDev,
-  __TEST__: false
+  __TEST__: false,
+  __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false)
 });
 
 var plugins = [ defineEnvPlugin, new ExtractTextPlugin('style.[contenthash].css') ];
 var appEntry = './app/main.js';
-var entryScripts = appEntry;
+var entryScripts = ['babel-polyfill', appEntry];
 var loaders = [
+  // the JSX in tideline needs transpiling
   {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
   {test: /\.gif$/, loader: 'url-loader?limit=100000&mimetype=image/gif'},
   {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},
@@ -42,15 +44,17 @@ if (isDev) {
   output.publicPath = 'http://localhost:3000/';
   plugins.push(new webpack.HotModuleReplacementPlugin());
   entryScripts = [
+    'babel-polyfill',
     'webpack-dev-server/client?http://localhost:3000',
     'webpack/hot/only-dev-server',
     appEntry
   ];
-  loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['react-hot', 'babel-loader']});
-  loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader' , 'postcss-loader', 'less-loader']})
+
+  loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader', 'less-loader']});
+  loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
 } else {
-  loaders.push({test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')});
-  loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader?optional=runtime']});
+  loaders.push({test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!less-loader')});
+  loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
 }
 
 module.exports = {

@@ -1,6 +1,0 @@
-test:
-  override:
-    - nvm exec 0.12.7 npm run lint
-    - nvm exec 0.12.7 npm test
-    - nvm exec stable npm run lint
-    - nvm exec stable npm test

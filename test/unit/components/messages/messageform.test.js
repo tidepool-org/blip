@@ -21,24 +21,6 @@ describe('MessageForm', function () {
     expect(MessageForm).to.be.a('function');
   });
 
-  describe('render', function() {
-    it('should console.error when required props are missing', function () {
-      console.error = sinon.stub();
-      var props = {
-        formFields : {},
-        messagePrompt : '',
-        saveBtnText : '',
-        cancelBtnText : '',
-        onCancel : sinon.stub(),
-        onSubmit : sinon.stub()
-      };
-      var elem = React.createElement(MessageForm, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `MessageForm`.')).to.equal(true);
-      expect(console.error.callCount).to.equal(1);
-    });
-  });
-
   describe('getInitialState', function() {
     it('should equal expected initial state', function() {
       var props = {};

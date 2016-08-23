@@ -32,18 +32,6 @@ describe('Signup', function () {
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
     });
-    
-    it('should console.error when required props not set', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Signup />);
-      expect(console.error.callCount).to.equal(6);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `Signup`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `api` was not specified in `Signup`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `configuredInviteKey` was not specified in `Signup`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Signup`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Signup`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `Signup`.')).to.equal(true);
-    });
 
     it('should render signup-form when no key is set and no key is configured', function () {
       var props = {

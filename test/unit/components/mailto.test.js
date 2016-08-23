@@ -17,15 +17,6 @@ describe('MailTo', function () {
   });
 
   describe('render', function() {
-
-    it('should render and throw 4 warnings when no props defined', function () {
-      console.error = sinon.stub();
-      var props = {};
-      var elem = React.createElement(MailTo, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      expect(console.error.callCount).to.equal(4);
-    });
-
     it('should render without problems when required props are present', function () {
       console.error = sinon.stub();
       var props = {

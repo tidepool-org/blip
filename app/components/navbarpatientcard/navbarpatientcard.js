@@ -24,7 +24,7 @@ var utils = require('../../core/utils');
 
 var NavbarPatientCard = React.createClass({
   propTypes: {
-    href: React.PropTypes.string,
+    href: React.PropTypes.string.isRequired,
     currentPage: React.PropTypes.string,
     uploadUrl: React.PropTypes.string,
     patient: React.PropTypes.object,
