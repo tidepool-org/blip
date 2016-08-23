@@ -217,9 +217,9 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'VERIFY_CUSTODIAL_REQUEST' },
-          { type: 'VERIFY_CUSTODIAL_SUCCESS' },
           { type: 'LOGIN_REQUEST' },
           { type: 'LOGIN_SUCCESS', payload: { user: user } },
+          { type: 'VERIFY_CUSTODIAL_SUCCESS' },
           { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
