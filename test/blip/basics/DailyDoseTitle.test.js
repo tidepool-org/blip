@@ -2,6 +2,7 @@
 /* global sinon */
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
@@ -39,7 +40,7 @@ describe('DailyDoseTitle', function () {
           sectionName={props.sectionName} />
       );
       expect(console.error.callCount).to.equal(0);
-      
+
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
       expect(headerElem).to.be.ok;
     });
@@ -60,15 +61,15 @@ describe('DailyDoseTitle', function () {
           iconClass={props.iconClass}
           sectionName={props.sectionName} />
       );
-      
+
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
       expect(headerElem).to.be.ok;
 
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
-      expect(React.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
+      expect(ReactDOM.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
-      expect(React.findDOMNode(inputElem).textContent).to.equal('0.11');
+      expect(ReactDOM.findDOMNode(inputElem).textContent).to.equal('0.11');
     });
 
     it('should render total daily dose / kg as 0.10 when weight set to 100 and totalDailyDose to 10', function () {
@@ -87,15 +88,15 @@ describe('DailyDoseTitle', function () {
           iconClass={props.iconClass}
           sectionName={props.sectionName} />
       );
-      
+
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
       expect(headerElem).to.be.ok;
 
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
-      expect(React.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
+      expect(ReactDOM.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
-      expect(React.findDOMNode(inputElem).textContent).to.equal('0.10');
+      expect(ReactDOM.findDOMNode(inputElem).textContent).to.equal('0.10');
     });
 
     it('should render total daily dose / kg as 0.33 when weight set to 90 and totalDailyDose to 30', function () {
@@ -114,15 +115,15 @@ describe('DailyDoseTitle', function () {
           iconClass={props.iconClass}
           sectionName={props.sectionName} />
       );
-      
+
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
       expect(headerElem).to.be.ok;
 
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
-      expect(React.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
+      expect(ReactDOM.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
-      expect(React.findDOMNode(inputElem).textContent).to.equal('0.33');
+      expect(ReactDOM.findDOMNode(inputElem).textContent).to.equal('0.33');
     });
 
     it('should render avg total daily dose when no weight set', function () {
@@ -141,15 +142,15 @@ describe('DailyDoseTitle', function () {
           iconClass={props.iconClass}
           sectionName={props.sectionName} />
       );
-      
+
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
       expect(headerElem).to.be.ok;
 
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
-      expect(React.findDOMNode(titleElem).textContent).to.equal('Avg total daily dose');
+      expect(ReactDOM.findDOMNode(titleElem).textContent).to.equal('Avg total daily dose');
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
-      expect(React.findDOMNode(inputElem).textContent).to.equal('11.0');
+      expect(ReactDOM.findDOMNode(inputElem).textContent).to.equal('11.0');
     });
   });
 });
