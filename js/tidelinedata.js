@@ -339,15 +339,11 @@ function TidelineData(data, opts) {
             d.normalEnd = dt.addDuration(d.time, d.duration);
           }
         }
-        // for now only adding local features to smbg & cbg (for modal day)
-        // TODO: here and below if we keep the d.msPer24 front-loaded here
-        // we need to factor it out into `dt` like all other things w/moment dep
-        // (and, obvi, remove moment dep in this file)
         if (d.type === 'smbg' || d.type === 'cbg') {
           var date = new Date(d.time);
           d.localDayOfWeek = dt.getLocalDayOfWeek(date, opts.timePrefs.timezoneName);
           d.localDate = dt.getLocalDate(date, opts.timePrefs.timezoneName);
-          d.msPer24 = Date.parse(d.normalTime) - moment.utc(Date.parse(d.normalTime)).tz(opts.timePrefs.timezoneName).startOf('day');
+          d.msPer24 = dt.getMsPer24(d.normalTime, opts.timePrefs.timezoneName);
         }
       };
     }
@@ -384,7 +380,7 @@ function TidelineData(data, opts) {
           var date = new Date(d.normalTime);
           d.localDayOfWeek = dt.getLocalDayOfWeek(date);
           d.localDate = d.normalTime.slice(0,10);
-          d.msPer24 = Date.parse(d.normalTime) - moment.utc(Date.parse(d.normalTime)).tz(opts.timePrefs.timezoneName).startOf('day');
+          d.msPer24 = dt.getMsPer24(d.normalTime, opts.timePrefs.timezoneName);
         }
       };
     }
