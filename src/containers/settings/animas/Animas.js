@@ -115,8 +115,8 @@ const Animas = (props) => {
   const renderTargetData = () => {
     const columns = [
       { key: 'start', label: 'Start time', className: '' },
-      { key: 'low', label: 'Low', className: '' },
-      { key: 'high', label: 'High', className: '' },
+      { key: 'target', label: 'Target', className: '' },
+      { key: 'range', label: 'Range +/-', className: '' },
     ];
     const title = {
       label: `BG Target (${bgUnits})`,
@@ -130,6 +130,7 @@ const Animas = (props) => {
             dataProcessing.processBgTargetData(
               pumpSettings.bgTarget,
               bgUnits,
+              { one: 'target', two: 'range' },
             )
           }
           columns={columns}

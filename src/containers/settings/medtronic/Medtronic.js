@@ -130,6 +130,7 @@ const Medtronic = (props) => {
             dataProcessing.processBgTargetData(
               pumpSettings.bgTarget,
               bgUnits,
+              { one: 'low', two: 'high' },
             )
           }
           columns={columns}

@@ -115,8 +115,8 @@ const Omnipod = (props) => {
   const renderTargetData = () => {
     const columns = [
       { key: 'start', label: 'Start time', className: '' },
-      { key: 'low', label: 'Low', className: '' },
-      { key: 'high', label: 'High', className: '' },
+      { key: 'target', label: 'Target', className: '' },
+      { key: 'high', label: 'Correct Above', className: '' },
     ];
     const title = {
       label: `Target BG (${bgUnits})`,
@@ -130,6 +130,7 @@ const Omnipod = (props) => {
             dataProcessing.processBgTargetData(
               pumpSettings.bgTarget,
               bgUnits,
+              { one: 'target', two: 'high' },
             )
           }
           columns={columns}
