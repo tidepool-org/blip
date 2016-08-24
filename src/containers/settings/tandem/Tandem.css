@@ -19,15 +19,36 @@
   font-size: 13px;
   font-weight: bold;
   margin-bottom: 10px;
+  color: #727378;
+  position: relative;
+}
+
+.collapsibleHeader::after {
+  content: '›';
+  padding: 0 10px;
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  top: -2px;
+}
+
+.collapsibleOpened .collapsibleHeader::after {
+
+}
+
+.collapsibleClosed .collapsibleHeader::after {
+  transform: rotate(90deg);
+  padding-bottom: 5px;
 }
 
 .basalTable {
   composes: smallSize from '../../../styles/typography.css';
   width: 582px;
   border-spacing: 1px 0px;
+  color: #727378;
 }
 .basalTable td, .basalTable th {
-  padding: 5px;
+  padding: 9px;
   text-align: center;
 }
 .basalTable td:first-of-type {

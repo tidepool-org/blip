@@ -98,6 +98,8 @@ const Tandem = (props) => {
       <CollapsibleContainer
         styledLabel={{ label: schedule, className: styles.collapsibleHeader }}
         openByDefault={schedule === pumpSettings.activeSchedule}
+        openedStyle={styles.collapsibleOpened}
+        closedStyle={styles.collapsibleClosed}
       >
         <Table
           rows={getScheduleData(schedule)}
