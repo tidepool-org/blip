@@ -39,22 +39,23 @@ export function processBasalRateData(scheduleData) {
   return data;
 }
 
-export function processBgTargetData(targetsData, bgUnits) {
+export function processBgTargetData(targetsData, bgUnits, keys) {
   const starts = targetsData.map(s => s.start);
+
   return starts.map((startTime) => ({
     start: common.getTime(
       targetsData,
       startTime
     ),
-    low: common.getBloodGlucoseValue(
+    columnTwo: common.getBloodGlucoseValue(
       targetsData,
-      'low',
+      keys.columnTwo,
       startTime,
       bgUnits
     ),
-    high: common.getBloodGlucoseValue(
+    columnThree: common.getBloodGlucoseValue(
       targetsData,
-      'high',
+      keys.columnThree,
       startTime,
       bgUnits
     ),

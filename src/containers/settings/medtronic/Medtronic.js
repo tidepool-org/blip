@@ -115,8 +115,8 @@ const Medtronic = (props) => {
   const renderTargetData = () => {
     const columns = [
       { key: 'start', label: 'Start time', className: '' },
-      { key: 'low', label: 'Low', className: '' },
-      { key: 'high', label: 'High', className: '' },
+      { key: 'columnTwo', label: 'Low', className: '' },
+      { key: 'columnThree', label: 'High', className: '' },
     ];
     const title = {
       label: `BG Target (${bgUnits})`,
@@ -130,7 +130,7 @@ const Medtronic = (props) => {
             dataProcessing.processBgTargetData(
               pumpSettings.bgTarget,
               bgUnits,
-              { one: 'low', two: 'high' },
+              { columnTwo: 'low', columnThree: 'high' },
             )
           }
           columns={columns}
