@@ -9,7 +9,7 @@ var defineEnvPlugin = new webpack.DefinePlugin({
 module.exports = {
   module: {
     loaders: [
-      {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader?plugins=babel-plugin-rewire'},
+      {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader'},
       // the JSX in tideline needs transpiling
       {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
       {test: /\.less$/, loader: 'style-loader!css-loader!less-loader'},

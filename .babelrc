@@ -1,7 +1,12 @@
 {
-  "plugins": [
-    "react-hot-loader/babel"
-  ],
+  "env": {
+    "dev": {
+      "plugins": ["react-hot-loader/babel"],
+    },
+    "test": {
+      "plugins": ["rewire"]
+    }
+  },
   "presets": [
     "es2015",
     "stage-0",
