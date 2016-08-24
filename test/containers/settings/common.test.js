@@ -38,7 +38,7 @@ describe('common', () => {
     it('should return the schedule names for a type', () => {
       expect(
         common.getScheduleNamesMap(settingsData.basalSchedules)
-      ).to.contain({0: 'Normal'}).and.contain({1:'Sick'});
+      ).to.contain({ 0: 'Normal' }).and.contain({ 1: 'Sick' });
     });
   });
   describe('getBasalRateT', () => {
