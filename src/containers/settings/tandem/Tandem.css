@@ -15,5 +15,27 @@
 .header {
   display: table;
 }
+.collapsibleHeader {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
 
-
+.basalTable {
+  composes: smallSize from '../../../styles/typography.css';
+  width: 582px;
+  border-spacing: 1px 0px;
+}
+.basalTable td, .basalTable th {
+  padding: 5px;
+  text-align: center;
+}
+.basalTable td:first-of-type {
+  font-weight: 600;
+}
+.basalTable tbody tr:nth-child(odd) {
+  background-color: #ececec;
+}
+.basalTable tbody tr:nth-child(even), .basalTable thead tr {
+  background-color: #f7f7f8;
+}
