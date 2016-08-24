@@ -109,6 +109,10 @@ export function getScheduleNames(settingsData) {
   return _.keysIn(settingsData);
 }
 
+export function getScheduleNamesMap(settingsData) {
+  return _.mapValues(settingsData, 'name');
+}
+
 export function getDeviceMeta(settingsData) {
   return {
     name: settingsData.deviceId || 'unknown',
