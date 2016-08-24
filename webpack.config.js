@@ -19,8 +19,7 @@ var defineEnvPlugin = new webpack.DefinePlugin({
 });
 
 var plugins = [ defineEnvPlugin, new ExtractTextPlugin('style.[contenthash].css') ];
-var appEntry = './app/main.js';
-var entryScripts = ['babel-polyfill', appEntry];
+var entryScripts = ['babel-polyfill', './app/main.prod.js'];
 var loaders = [
   // the JSX in tideline needs transpiling
   {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
@@ -47,7 +46,7 @@ if (isDev) {
     'babel-polyfill',
     'webpack-dev-server/client?http://localhost:3000',
     'webpack/hot/only-dev-server',
-    appEntry
+    './app/main.js'
   ];
 
   loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader', 'less-loader']});

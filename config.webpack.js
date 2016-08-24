@@ -22,7 +22,8 @@ module.exports = {
   entry: './config.app.js',
   output: {
     path: path.join(__dirname, '/dist'),
-    filename: 'config.js'
+    filename: 'config.js',
+    library: 'config'
   },
   module: {
     loaders: [

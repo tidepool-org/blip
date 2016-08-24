@@ -25,7 +25,8 @@ const trackMetricMap = {
   SETUP_DATA_STORAGE_SUCCESS: 'Created Profile',
   UPDATE_PATIENT_SUCCESS: 'Updated Profile',
   UPDATE_USER_SUCCESS: 'Updated Account',
-  LOGOUT_REQUEST: 'Logged Out'
+  LOGOUT_REQUEST: 'Logged Out',
+  VERIFY_CUSTODIAL_SUCCESS: 'VCA Home Verification - Verified'
 };
 
 export default (api) => {
