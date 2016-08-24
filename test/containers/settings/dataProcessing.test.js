@@ -12,6 +12,7 @@ describe('dataProcessing', () => {
         dataProcessing.processBgTargetData(
           multirateData.bgTarget,
           multirateData.units.bg,
+          { columnTwo: 'low', columnThree: 'high' },
         )
       ).to.have.length(3);
     });
@@ -20,8 +21,9 @@ describe('dataProcessing', () => {
         dataProcessing.processBgTargetData(
           multirateData.bgTarget,
           multirateData.units.bg,
+          { columnTwo: 'low', columnThree: 'high' },
         )[1]
-      ).to.deep.equal({ start: '11:30 am', low: '4.4', high: '6.7' });
+      ).to.deep.equal({ start: '11:30 am', columnTwo: '4.4', columnThree: '6.7' });
     });
   });
   describe('processCarbRatioData', () => {
