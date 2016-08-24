@@ -86,7 +86,7 @@ const Tandem = (props) => {
       label: `BG Target (${bgUnits})`,
       className: styles.bolusSettingsHeader },
     { key: 'carbRatio',
-      label: 'I : C Ratio (g)',
+      label: 'I:C Ratio (g/U)',
       className: styles.bolusSettingsHeader },
     { key: 'insulinSensitivity',
       label: `ISF (${bgUnits}/U)`,
