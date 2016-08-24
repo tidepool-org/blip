@@ -96,12 +96,13 @@ const Tandem = (props) => {
   const tables = schedules.map((schedule) => (
     <div>
       <CollapsibleContainer
-        label={schedule}
+        styledLabel={{ label: schedule, className: styles.collapsibleHeader }}
         openByDefault={schedule === pumpSettings.activeSchedule}
       >
         <Table
           rows={getScheduleData(schedule)}
           columns={COLUMNS}
+          tableStyle={styles.basalTable}
         />
       </CollapsibleContainer>
     </div>

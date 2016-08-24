@@ -85,7 +85,11 @@ class Table extends React.Component {
       ];
     }
 
-    return (<table>{tableContents}</table>);
+    return (
+      <table className={`${this.props.tableStyle || ''}`}>
+        {tableContents}
+      </table>
+    );
   }
 }
 
@@ -93,6 +97,7 @@ Table.propTypes = {
   title: PropTypes.object,
   rows: PropTypes.array,
   columns: PropTypes.array,
+  tableStyle: PropTypes.string,
 };
 
 export default Table;
