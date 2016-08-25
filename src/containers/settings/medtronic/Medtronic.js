@@ -49,18 +49,21 @@ const Medtronic = (props) => {
             openByDefault={
               pumpSettings.basalSchedules[schedule].name === pumpSettings.activeSchedule
             }
+            openedStyle={styles.collapsibleOpened}
+            closedStyle={styles.collapsibleClosed}
           >
             <Table
               rows={
                 dataProcessing.processBasalRateData(pumpSettings.basalSchedules[schedule])
               }
               columns={columns}
+              tableStyle={styles.basalTable}
             />
           </CollapsibleContainer>
         </div>
       );
     });
-    return (<div>{tables}</div>);
+    return (<div className={styles.block}>{tables}</div>);
   };
 
   const renderSensitivityData = () => {
@@ -73,7 +76,7 @@ const Medtronic = (props) => {
       className: styles.bolusSettingsHeader,
     };
     return (
-      <div>
+      <div className={styles.block}>
         <Table
           title={title}
           rows={
@@ -83,6 +86,7 @@ const Medtronic = (props) => {
             )
           }
           columns={columns}
+          tableStyle={styles.settingsTable}
         />
       </div>
     );
@@ -98,7 +102,7 @@ const Medtronic = (props) => {
       className: styles.bolusSettingsHeader,
     };
     return (
-      <div>
+      <div className={styles.block}>
         <Table
           title={title}
           rows={
@@ -107,6 +111,7 @@ const Medtronic = (props) => {
             )
           }
           columns={columns}
+          tableStyle={styles.settingsTable}
         />
       </div>
     );
@@ -123,7 +128,7 @@ const Medtronic = (props) => {
       className: styles.bolusSettingsHeader,
     };
     return (
-      <div>
+      <div className={styles.block}>
         <Table
           title={title}
           rows={
@@ -134,6 +139,7 @@ const Medtronic = (props) => {
             )
           }
           columns={columns}
+          tableStyle={styles.settingsTable}
         />
       </div>
     );
