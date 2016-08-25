@@ -24,25 +24,28 @@ class Header extends React.Component {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
-    this.state = { serialNumberClass: styles.headerOuterHidden };
+    this.state = { serialNumberExpanded: false };
   }
 
   handleClick() {
-    if (this.state.serialNumberClass === styles.headerOuter) {
-      this.setState({ serialNumberClass: styles.headerOuterHidden });
-    } else {
-      this.setState({ serialNumberClass: styles.headerOuter });
-    }
+    this.setState({ serialNumberExpanded: !this.state.serialNumberExpanded });
   }
 
   render() {
+    const serialNumberClass = this.state.serialNumberExpanded ?
+      styles.headerOuterExpanded :
+      styles.headerOuterHidden;
+    const deviceClass = this.state.serialNumberExpanded ?
+      styles.headerOuterExpanded :
+      styles.headerOuter;
+
     return (
       <div>
         <ul className={styles.header}>
-          <li onClick={this.handleClick} className={styles.headerOuter}>
+          <li onClick={this.handleClick} className={deviceClass}>
             <span className={styles.headerInner}>{this.props.deviceType}</span>
           </li>
-          <li className={this.state.serialNumberClass}>
+          <li onClick={this.handleClick} className={serialNumberClass}>
             <span className={styles.headerInner}>{this.props.deviceMeta.name}</span>
           </li>
           <li className={styles.headerOuter}>

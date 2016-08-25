@@ -10,8 +10,40 @@
   composes: header;
   display: none;
 }
+.headerOuterExpanded {
+  composes: header;
+  display: table-cell;
+}
 .headerInner {
   composes: header;
   display: block;
   margin: 5px 5px 5px 0;
+}
+.headerOuter:first-of-type {
+  position: relative;
+  padding-right: 10px;
+  cursor: pointer;
+}
+.headerOuter:first-of-type::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  right: 5px;
+  top: 45%;
+  transform: translateY(-50%);
+}
+.headerOuterExpanded:nth-of-type(2) {
+  position: relative;
+  padding-right: 10px;
+  cursor: pointer;
+}
+.headerOuterExpanded:nth-of-type(2)::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  right: 5px;
+  top: 55%;
+  transform: rotate(180deg) translateY(50%);
 }
