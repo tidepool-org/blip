@@ -13,6 +13,7 @@
 .headerOuterExpanded {
   composes: header;
   display: table-cell;
+  cursor: pointer;
 }
 .headerInner {
   composes: header;
