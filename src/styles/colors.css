@@ -18,6 +18,8 @@
 :root {
   --basal: #19A0D7;
   --bolus: #7CD0F0;
+  --table-stripe--light: #F7F7F7;
+  --table-stripe--dark: #ECECEC;
 
   --data-purple--lightest: #B6C1E3;
   --data-purple--light: #96A6E9;

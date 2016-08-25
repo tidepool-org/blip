@@ -1,75 +1,35 @@
-@import '../../../styles/colors.css';
+.settings {
+  composes: settings from '../settings.css';
+}
+
+.block {
+  composes: block from '../settings.css';
+}
 
 .settingsHeaderText {
-  composes: whiteText smallSize from '../../../styles/typography.css';
-  min-width: 180px;
-  padding-left: 12px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  font-weight: bold;
-  text-align: left;
+  composes: settingsHeaderText from '../settings.css';
 }
+
 .basalSchedulesHeader {
-  background-color: var(--basal);
-  composes: settingsHeaderText;
-  position: relative;
+  composes: basalSchedulesHeader from '../settings.css';
 }
-.collapsibleOpened .basalSchedulesHeader::after {
-    content: '›';
-    font-size: 15px;
-    font-weight: bold;
-    position: absolute;
-    right: 10px;
-    top: 45%;
-    transform: translateY(-50%);
+
+.collapsibleOpened {
+  composes: collapsibleOpened from '../settings.css';
 }
-.collapsibleClosed .basalSchedulesHeader::after {
-  content: '›';
-  font-size: 15px;
-  font-weight: bold;
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%) rotate(90deg);
+
+.collapsibleClosed {
+  composes: collapsibleClosed from '../settings.css';
 }
+
 .bolusSettingsHeader {
-  background-color: var(--bolus);
-  composes: settingsHeaderText;
+  composes: bolusSettingsHeader from '../settings.css';
 }
-.settings {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-}
-.block {
-  margin-right: 10px;
-}
+
 .basalTable {
-  composes: smallSize from '../../../styles/typography.css';
-  min-width: 192px;
-  border-spacing: 1px 0px;
-  color: #727378;
+  composes: basalTable from '../settings.css';
 }
-.basalTable td, .basalTable th {
-  padding: 9px;
-  text-align: right;
-}
-.basalTable th {
-  font-weight: normal;
-}
-.basalTable tbody tr:nth-child(odd) {
-  background-color: #ececec;
-}
-.basalTable tbody tr:nth-child(even), .basalTable thead tr {
-  background-color: #f7f7f8;
-}
-.basalTable tbody tr:last-of-type {
-  font-weight:bold;
-}
+
 .settingsTable {
-  composes: basalTable;
-}
-.settingsTable tbody tr:last-of-type {
-  font-weight: normal;
+  composes: settingsTable from '../settings.css';
 }

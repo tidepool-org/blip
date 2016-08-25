@@ -1,25 +1,47 @@
-@import '../../../styles/colors.css';
+.settings {
+  composes: settings from '../settings.css';
+}
+
+.collapsibleOpened {
+  composes: collapsibleOpened from '../settings.css';
+}
+
+.collapsibleClosed {
+  composes: collapsibleClosed from '../settings.css';
+}
+
+.basalTable {
+  composes: basalTable from '../settings.css';
+}
+
+.settingsTable {
+  composes: settingsTable from '../settings.css';
+}
 
 .settingsHeaderText {
   composes: whiteText from '../../../styles/typography.css';
   font-weight: normal;
 }
+
 .basalSchedulesHeader {
   background-color: var(--basal);
   composes: settingsHeaderText;
 }
+
 .bolusSettingsHeader {
   background-color: var(--bolus);
   composes: settingsHeaderText;
 }
+
 .header {
   display: table;
 }
+
 .collapsibleHeader {
   font-size: 13px;
   font-weight: bold;
   margin-bottom: 10px;
-  color: #727378;
+  color: var(--text-medium-contrast);
   position: relative;
 }
 
@@ -32,31 +54,20 @@
   top: -2px;
 }
 
-.collapsibleOpened .collapsibleHeader::after {
-
-}
-
 .collapsibleClosed .collapsibleHeader::after {
   transform: rotate(90deg);
   padding-bottom: 5px;
 }
 
 .basalTable {
-  composes: smallSize from '../../../styles/typography.css';
+  composes: basalTable from '../settings.css';
   width: 582px;
-  border-spacing: 1px 0px;
-  color: #727378;
 }
+
 .basalTable td, .basalTable th {
-  padding: 9px;
   text-align: center;
 }
+
 .basalTable td:first-of-type {
   font-weight: 600;
-}
-.basalTable tbody tr:nth-child(odd) {
-  background-color: #ececec;
-}
-.basalTable tbody tr:nth-child(even), .basalTable thead tr {
-  background-color: #f7f7f8;
 }

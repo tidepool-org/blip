@@ -1,0 +1,89 @@
+@import '../../styles/colors.css';
+
+.settings {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.block {
+  margin-right: 10px;
+}
+
+.settingsHeaderText {
+  composes: whiteText smallSize from '../../styles/typography.css';
+  min-width: 180px;
+  padding-left: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-weight: bold;
+  text-align: left;
+}
+
+.basalSchedulesHeader {
+  composes: settingsHeaderText;
+  background-color: var(--basal);
+  position: relative;
+}
+
+.collapsibleOpened .basalSchedulesHeader::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  right: 10px;
+  top: 45%;
+  transform: translateY(-50%);
+}
+
+.collapsibleClosed .basalSchedulesHeader::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.bolusSettingsHeader {
+  background-color: var(--bolus);
+  composes: settingsHeaderText;
+}
+
+.basalTable {
+  composes: smallSize from '../../styles/typography.css';
+  min-width: 192px;
+  border-spacing: 1px 0px;
+  color: var(--text-medium-contrast);;
+}
+
+.basalTable td, .basalTable th {
+  padding: 9px;
+  text-align: right;
+}
+
+.basalTable th {
+  font-weight: normal;
+}
+
+.basalTable tbody tr:nth-child(odd) {
+  background-color: var(--table-stripe--dark);
+}
+
+.basalTable tbody tr:nth-child(even), .basalTable thead tr {
+  background-color: var(--table-stripe--light);
+}
+
+.basalTable tbody tr:last-of-type {
+  font-weight:bold;
+}
+
+.settingsTable {
+  composes: basalTable;
+}
+
+.settingsTable tbody tr:last-of-type {
+  font-weight: normal;
+}
