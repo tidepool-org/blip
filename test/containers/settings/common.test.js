@@ -34,41 +34,35 @@ describe('common', () => {
       ).to.equal('');
     });
   });
-  describe('getScheduleNamesMap', () => {
+  describe('getSchedules', () => {
     it('should return the schedule names for a type', () => {
       expect(
-        common.getScheduleNamesMap(settingsData.basalSchedules)
-      ).to.contain({ 0: 'Normal' }).and.contain({ 1: 'Sick' });
+        common.getSchedules(settingsData.basalSchedules)
+      )
+      .to.have.length(2)
+      .to.contain({ name: 'Normal', position: 0 })
+      .and.contain({ name: 'Sick', position: 1 });
     });
   });
-  describe('getBasalRateT', () => {
+  describe('getBasalRate', () => {
     it('should return the formatted rate', () => {
       expect(
-        common.getBasalRateT(multirateSettingsData.basalSchedules, 'Normal', 0)
+        common.getBasalRate(multirateSettingsData.basalSchedules[0].value, 0)
       ).to.equal('0.350');
     });
     it('should return nothing if there is no match', () => {
       expect(
-        common.getBasalRateT(multirateSettingsData.basalSchedules, 'Normal', 999999)
+        common.getBasalRate(multirateSettingsData.basalSchedules[0].value, 999999)
       ).to.equal('');
     });
   });
-  describe('getTotalBasalRatesT', () => {
+  describe('getTotalBasalRates', () => {
     it('should return the rate total for multi rate settings', () => {
       expect(
-        common.getTotalBasalRatesT(
-          multirateSettingsData.basalSchedules,
-          'Normal',
+        common.getTotalBasalRates(
+          multirateSettingsData.basalSchedules[0].value,
         )
       ).to.equal('15.938');
-    });
-    it('should return nothing if there is no match', () => {
-      expect(
-        common.getTotalBasalRatesT(
-          multirateSettingsData.basalSchedules,
-          'NA',
-        )
-      ).to.equal('');
     });
   });
   describe('getBloodGlucoseValue', () => {
@@ -120,3 +114,4 @@ describe('common', () => {
     });
   });
 });
+

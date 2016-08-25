@@ -24,6 +24,10 @@ export const DISPLAY_PRESCION_PLACES = 3;
 export const MGDL_UNITS = 'mg/dL';
 export const MMOLL_UNITS = 'mmol/L';
 
+function noData(val) {
+  return val === null || (typeof val === 'undefined');
+}
+
 export function getTime(scheduleData, startTime) {
   const millis = scheduleData.filter(s => s.start === startTime).map(s => s.start)[0];
   return datetime.millisecondsAsTimeOfDay(millis);
@@ -31,21 +35,7 @@ export function getTime(scheduleData, startTime) {
 
 export function getBasalRate(scheduleData, startTime) {
   const rate = scheduleData.filter(s => s.start === startTime).map(s => s.rate)[0];
-  if (rate === null || (typeof rate === 'undefined')) {
-    return '';
-  }
-  return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
-}
-
-export function getBasalRateT(ratesData, name, startTime) {
-  const ratesForSchedule = ratesData
-    .filter(r => r.name === name)[0].value;
-
-  const rate = ratesForSchedule
-    .filter(s => s.start === startTime)
-    .map(s => s.rate)[0];
-
-  if (rate === null || (typeof rate === 'undefined')) {
+  if (noData(rate)) {
     return '';
   }
   return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
@@ -53,18 +43,18 @@ export function getBasalRateT(ratesData, name, startTime) {
 
 export function getValue(scheduleData, fieldName, startTime) {
   const val = scheduleData.filter(s => s.start === startTime).map(s => s[fieldName])[0];
-  if (val === null || (typeof val === 'undefined')) {
+  if (noData(val)) {
     return '';
   }
   return val;
 }
 
 export function getBloodGlucoseValue(scheduleData, fieldName, startTime, units) {
-  const value = getValue(scheduleData, fieldName, startTime);
-  if (value === null || (typeof value === 'undefined')) {
+  const bgValue = getValue(scheduleData, fieldName, startTime);
+  if (noData(bgValue)) {
     return '';
   }
-  return format.displayBgValue(value, units);
+  return format.displayBgValue(bgValue, units);
 }
 
 export function getTotalBasalRates(scheduleData) {
@@ -82,35 +72,17 @@ export function getTotalBasalRates(scheduleData) {
   return format.displayDecimal(total, DISPLAY_PRESCION_PLACES);
 }
 
-export function getTotalBasalRatesT(ratesData, name) {
-  let ratesForSchedule = ratesData
-    .filter(r => r.name === name)[0];
-
-  if (ratesForSchedule === null || (typeof ratesForSchedule === 'undefined')) {
-    return '';
-  }
-  ratesForSchedule = ratesForSchedule.value;
-  let total = 0;
-  for (let i = ratesForSchedule.length - 1; i >= 0; i--) {
-    const start = ratesForSchedule[i].start;
-    let finish = 86400000;
-    const next = i + 1;
-    if (next < ratesForSchedule.length) {
-      finish = ratesForSchedule[next].start;
-    }
-    const hrs = (finish - start) / (60 * 60 * 1000);
-
-    total += (ratesForSchedule[i].rate * hrs);
-  }
-  return format.displayDecimal(total, DISPLAY_PRESCION_PLACES);
-}
-
 export function getScheduleNames(settingsData) {
   return _.keysIn(settingsData);
 }
 
-export function getScheduleNamesMap(settingsData) {
-  return _.mapValues(settingsData, 'name');
+export function getSchedules(settingsData) {
+  const names = _.map(settingsData, 'name');
+  const schedules = [];
+  for (let i = names.length - 1; i >= 0; i--) {
+    schedules.push({ name: names[i], position: i });
+  }
+  return schedules;
 }
 
 export function getDeviceMeta(settingsData) {

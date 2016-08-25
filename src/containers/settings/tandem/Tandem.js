@@ -26,35 +26,33 @@ import * as common from '../common';
 
 const Tandem = (props) => {
   const { bgUnits, pumpSettings } = props;
+  const schedules = common.getSchedules(pumpSettings.basalSchedules);
 
-  const schedules = common.getScheduleNames(pumpSettings.bgTargets);
-
-  const getScheduleData = (scheduleName) => {
-    const starts = pumpSettings.bgTargets[scheduleName].map(s => s.start);
+  const getScheduleData = (schedule) => {
+    const starts = pumpSettings.bgTargets[schedule.name].map(s => s.start);
 
     const data = starts.map((startTime) => ({
       start: common.getTime(
-        pumpSettings.bgTargets[scheduleName],
+        pumpSettings.bgTargets[schedule.name],
         startTime,
       ),
-      rate: common.getBasalRateT(
-        pumpSettings.basalSchedules,
-        scheduleName,
+      rate: common.getBasalRate(
+        pumpSettings.basalSchedules[schedule.position].value,
         startTime,
       ),
       bgTarget: common.getBloodGlucoseValue(
-        pumpSettings.bgTargets[scheduleName],
+        pumpSettings.bgTargets[schedule.name],
         'target',
         startTime,
         bgUnits,
       ),
       carbRatio: common.getValue(
-        pumpSettings.carbRatios[scheduleName],
+        pumpSettings.carbRatios[schedule.name],
         'amount',
         startTime,
       ),
       insulinSensitivity: common.getBloodGlucoseValue(
-        pumpSettings.insulinSensitivities[scheduleName],
+        pumpSettings.insulinSensitivities[schedule.name],
         'amount',
         startTime,
         bgUnits,
@@ -63,9 +61,8 @@ const Tandem = (props) => {
 
     data.push({
       start: 'Total',
-      rate: common.getTotalBasalRatesT(
-        pumpSettings.basalSchedules,
-        scheduleName,
+      rate: common.getTotalBasalRates(
+        pumpSettings.basalSchedules[schedule.position].value,
       ),
       bgTarget: '',
       carbRatio: '',
@@ -96,8 +93,11 @@ const Tandem = (props) => {
   const tables = schedules.map((schedule) => (
     <div>
       <CollapsibleContainer
-        styledLabel={{ label: schedule, className: styles.collapsibleHeader }}
-        openByDefault={schedule === pumpSettings.activeSchedule}
+        styledLabel={{
+          label: schedule.name,
+          className: styles.collapsibleHeader,
+        }}
+        openByDefault={schedule.name === pumpSettings.activeSchedule}
         openedStyle={styles.collapsibleOpened}
         closedStyle={styles.collapsibleClosed}
       >
@@ -109,7 +109,6 @@ const Tandem = (props) => {
       </CollapsibleContainer>
     </div>
   ));
-
   return (
     <div>
       <Header
