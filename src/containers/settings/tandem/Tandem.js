@@ -22,7 +22,9 @@ import styles from './Tandem.css';
 import Table from '../../../components/common/Table';
 import CollapsibleContainer from '../../common/CollapsibleContainer';
 import Header from '../header/Header';
+
 import * as common from '../common';
+import * as dataProcessing from '../dataProcessing';
 
 const Tandem = (props) => {
   const { bgUnits, pumpSettings } = props;
@@ -58,7 +60,7 @@ const Tandem = (props) => {
         closedStyle={styles.collapsibleClosed}
       >
         <Table
-          rows={common.processTimedSettings(pumpSettings, schedule, bgUnits)}
+          rows={dataProcessing.processTimedSettings(pumpSettings, schedule, bgUnits)}
           columns={COLUMNS}
           tableStyle={styles.basalTable}
         />
