@@ -22,6 +22,15 @@
           "start": 63000000
         }
       ]
+    },
+    {
+      "name": "schedule a",
+      "value": [
+        {
+          "rate": 0,
+          "start": 0
+        }
+      ]
     }
   ],
   "units": {

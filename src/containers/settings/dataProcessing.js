@@ -19,17 +19,26 @@ import * as common from './common';
 
 export function processBasalRateData(scheduleData) {
   const starts = scheduleData.value.map(s => s.start);
-  const data = starts.map((startTime) => (
-    { start: common.getTime(
-        scheduleData.value,
-        startTime
-      ),
-      rate: common.getBasalRate(
-        scheduleData.value,
-        startTime
-      ),
+  const noData = [{ start: '-', rate: '-' }];
+
+  if (starts.length === 0) {
+    return noData;
+  } else if (starts.length === 1) {
+    if (Number(common.getBasalRate(scheduleData.value, starts[0])) === 0) {
+      return noData;
     }
-  ));
+  }
+
+  const data = starts.map((startTime) => ({
+    start: common.getTime(
+      scheduleData.value,
+      startTime
+    ),
+    rate: common.getBasalRate(
+      scheduleData.value,
+      startTime
+    ),
+  }));
 
   data.push({
     start: 'Total',
