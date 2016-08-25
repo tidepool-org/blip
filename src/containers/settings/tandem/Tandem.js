@@ -26,51 +26,7 @@ import * as common from '../common';
 
 const Tandem = (props) => {
   const { bgUnits, pumpSettings } = props;
-  const schedules = common.getSchedules(pumpSettings.basalSchedules);
-
-  const getScheduleData = (schedule) => {
-    const starts = pumpSettings.bgTargets[schedule.name].map(s => s.start);
-
-    const data = starts.map((startTime) => ({
-      start: common.getTime(
-        pumpSettings.bgTargets[schedule.name],
-        startTime,
-      ),
-      rate: common.getBasalRate(
-        pumpSettings.basalSchedules[schedule.position].value,
-        startTime,
-      ),
-      bgTarget: common.getBloodGlucoseValue(
-        pumpSettings.bgTargets[schedule.name],
-        'target',
-        startTime,
-        bgUnits,
-      ),
-      carbRatio: common.getValue(
-        pumpSettings.carbRatios[schedule.name],
-        'amount',
-        startTime,
-      ),
-      insulinSensitivity: common.getBloodGlucoseValue(
-        pumpSettings.insulinSensitivities[schedule.name],
-        'amount',
-        startTime,
-        bgUnits,
-      ) })
-    );
-
-    data.push({
-      start: 'Total',
-      rate: common.getTotalBasalRates(
-        pumpSettings.basalSchedules[schedule.position].value,
-      ),
-      bgTarget: '',
-      carbRatio: '',
-      insulinSensitivity: '',
-    });
-
-    return data;
-  };
+  const schedules = common.getTimedSchedules(pumpSettings.basalSchedules);
 
   const COLUMNS = [
     { key: 'start',
@@ -102,7 +58,7 @@ const Tandem = (props) => {
         closedStyle={styles.collapsibleClosed}
       >
         <Table
-          rows={getScheduleData(schedule)}
+          rows={common.processTimedSettings(pumpSettings, schedule, bgUnits)}
           columns={COLUMNS}
           tableStyle={styles.basalTable}
         />

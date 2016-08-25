@@ -30,8 +30,7 @@ export function processBasalRateData(scheduleData) {
   }
 
   const data = starts.map((startTime) => ({
-    start: common.getTime(
-      scheduleData.value,
+    start: common.getFormattedTime(
       startTime
     ),
     rate: common.getBasalRate(
@@ -52,8 +51,7 @@ export function processBgTargetData(targetsData, bgUnits, keys) {
   const starts = targetsData.map(s => s.start);
 
   return starts.map((startTime) => ({
-    start: common.getTime(
-      targetsData,
+    start: common.getFormattedTime(
       startTime
     ),
     columnTwo: common.getBloodGlucoseValue(
@@ -73,34 +71,73 @@ export function processBgTargetData(targetsData, bgUnits, keys) {
 
 export function processCarbRatioData(carbRatioData) {
   const starts = carbRatioData.map(s => s.start);
-  return starts.map((startTime) => (
-    { start: common.getTime(
-        carbRatioData,
-        startTime
-      ),
-      amount: common.getValue(
-        carbRatioData,
-        'amount',
-        startTime
-      ),
-    }
-  ));
+  return starts.map((startTime) => ({
+    start: common.getFormattedTime(
+      startTime
+    ),
+    amount: common.getValue(
+      carbRatioData,
+      'amount',
+      startTime
+    ),
+  }));
 }
 
 export function processSensitivityData(sensitivityData, bgUnits) {
   const starts = sensitivityData.map(s => s.start);
-  return starts.map((startTime) => (
-    { start: common.getTime(
-        sensitivityData,
-        startTime
-      ),
-      amount: common.getBloodGlucoseValue(
-        sensitivityData,
-        'amount',
-        startTime,
-        bgUnits
-      ),
-    }
-  ));
+  return starts.map((startTime) => ({
+    start: common.getFormattedTime(
+      startTime
+    ),
+    amount: common.getBloodGlucoseValue(
+      sensitivityData,
+      'amount',
+      startTime,
+      bgUnits
+    ),
+  }));
+}
+
+export function processTimedSettings(pumpSettings, schedule, bgUnits) {
+  const starts = pumpSettings.bgTargets[schedule.name].map(s => s.start);
+
+  const data = starts.map((startTime) => ({
+    start: common.getFormattedTime(
+      startTime,
+    ),
+    rate: common.getBasalRate(
+      pumpSettings.basalSchedules[schedule.position].value,
+      startTime,
+    ),
+    bgTarget: common.getBloodGlucoseValue(
+      pumpSettings.bgTargets[schedule.name],
+      'target',
+      startTime,
+      bgUnits,
+    ),
+    carbRatio: common.getValue(
+      pumpSettings.carbRatios[schedule.name],
+      'amount',
+      startTime,
+    ),
+    insulinSensitivity: common.getBloodGlucoseValue(
+      pumpSettings.insulinSensitivities[schedule.name],
+      'amount',
+      startTime,
+      bgUnits,
+    ),
+  }));
+
+  data.push({
+    start: 'Total',
+    rate: common.getTotalBasalRates(
+      pumpSettings.basalSchedules[schedule.position].value,
+    ),
+    bgTarget: '',
+    carbRatio: '',
+    insulinSensitivity: '',
+  });
+
+  return data;
 }
 

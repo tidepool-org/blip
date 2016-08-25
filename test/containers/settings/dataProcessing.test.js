@@ -5,6 +5,8 @@ import * as dataProcessing from '../../../src/containers/settings/dataProcessing
 
 const multirateData = require('../../../data/pumpSettings/medtronic/multirate.json');
 
+const timedSettingsData = require('../../../data/pumpSettings/tandem/multirate.json');
+
 describe('dataProcessing', () => {
   describe('processBgTargetData', () => {
     it('should return formatted objects', () => {
@@ -70,6 +72,53 @@ describe('dataProcessing', () => {
       )
       .to.have.length(1)
       .to.contain({ start: '-', rate: '-' });
+    });
+  });
+  describe('processTimedSettings', () => {
+    it('should return formatted objects', () => {
+      expect(
+        dataProcessing.processTimedSettings(
+          timedSettingsData,
+          { name: 'Sick', position: 1 },
+          timedSettingsData.units.bg,
+        )
+      )
+      .to.have.length(5)
+      .to.contain({
+        start: '12:00 am',
+        rate: '0.350',
+        bgTarget: '5.3',
+        carbRatio: 7,
+        insulinSensitivity: '2.6',
+      })
+      .and.contain({
+        start: '03:30 am',
+        rate: '0.225',
+        bgTarget: '5.0',
+        carbRatio: 10,
+        insulinSensitivity: '4.5',
+      })
+      .and.contain({
+        start: '10:00 am',
+        rate: '1.075',
+        bgTarget: '5.0',
+        carbRatio: 10,
+        insulinSensitivity: '4.5',
+      })
+      .and.contain({
+        start: '08:00 pm',
+        rate: '0.625',
+        bgTarget: '5.0',
+        carbRatio: 9,
+        insulinSensitivity: '4.5',
+      })
+      .and.contain({
+        start: 'Total',
+        rate: '15.938',
+        bgTarget: '',
+        carbRatio: '',
+        insulinSensitivity: '',
+      });
     });
   });
 });

@@ -22,22 +22,20 @@ describe('common', () => {
       expect(common.MGDL_UNITS).to.equal('mg/dL');
     });
   });
-  describe('getTime', () => {
+  describe('getFormattedTime', () => {
     it('should return the formatted time', () => {
       expect(
-        common.getTime(settingsData.bgTargets.Normal, 0)
+        common.getFormattedTime(0)
       ).to.equal('12:00 am');
-    });
-    it('should return nothing if there is no match', () => {
       expect(
-        common.getTime(settingsData.bgTargets.Normal, 999999)
-      ).to.equal('');
+        common.getFormattedTime(9000000)
+      ).to.equal('02:30 am');
     });
   });
-  describe('getSchedules', () => {
-    it('should return the schedule names for a type', () => {
+  describe('getTimedSchedules', () => {
+    it('should return the timed settings schedule names', () => {
       expect(
-        common.getSchedules(settingsData.basalSchedules)
+        common.getTimedSchedules(settingsData.basalSchedules)
       )
       .to.have.length(2)
       .to.contain({ name: 'Normal', position: 0 })

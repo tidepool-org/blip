@@ -28,9 +28,8 @@ function noData(val) {
   return val === null || (typeof val === 'undefined');
 }
 
-export function getTime(scheduleData, startTime) {
-  const millis = scheduleData.filter(s => s.start === startTime).map(s => s.start)[0];
-  return datetime.millisecondsAsTimeOfDay(millis);
+export function getFormattedTime(startTime) {
+  return datetime.millisecondsAsTimeOfDay(startTime);
 }
 
 export function getBasalRate(scheduleData, startTime) {
@@ -58,15 +57,18 @@ export function getBloodGlucoseValue(scheduleData, fieldName, startTime, units) 
 }
 
 export function getTotalBasalRates(scheduleData) {
+  const HOUR_IN_MILLISECONDS = 60 * 60 * 1000;
+  const DAY_IN_MILLISECONDS = 86400000;
+
   let total = 0;
   for (let i = scheduleData.length - 1; i >= 0; i--) {
     const start = scheduleData[i].start;
-    let finish = 86400000;
+    let finish = DAY_IN_MILLISECONDS;
     const next = i + 1;
     if (next < scheduleData.length) {
       finish = scheduleData[next].start;
     }
-    const hrs = (finish - start) / (60 * 60 * 1000);
+    const hrs = (finish - start) / HOUR_IN_MILLISECONDS;
     total += (scheduleData[i].rate * hrs);
   }
   return format.displayDecimal(total, DISPLAY_PRESCION_PLACES);
@@ -76,7 +78,7 @@ export function getScheduleNames(settingsData) {
   return _.keysIn(settingsData);
 }
 
-export function getSchedules(settingsData) {
+export function getTimedSchedules(settingsData) {
   const names = _.map(settingsData, 'name');
   const schedules = [];
   for (let i = names.length - 1; i >= 0; i--) {
