@@ -1,5 +1,6 @@
 .header {
   display: table;
+  padding-left:0px;
 }
 .headerOuter {
   composes: header;
@@ -12,5 +13,5 @@
 .headerInner {
   composes: header;
   display: block;
-  margin: 5px;
+  margin: 5px 5px 5px 0;
 }

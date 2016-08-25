@@ -43,24 +43,27 @@ const Animas = (props) => {
       };
 
       return (
-        <div>
+        <div key={schedule}>
           <CollapsibleContainer
             styledLabel={title}
             openByDefault={
               pumpSettings.basalSchedules[schedule].name === pumpSettings.activeSchedule
             }
+            openedStyle={styles.collapsibleOpened}
+            closedStyle={styles.collapsibleClosed}
           >
             <Table
               rows={
                 dataProcessing.processBasalRateData(pumpSettings.basalSchedules[schedule])
               }
               columns={columns}
+              tableStyle={styles.basalTable}
             />
           </CollapsibleContainer>
         </div>
       );
     });
-    return (<div>{tables}</div>);
+    return (<div className={styles.block}>{tables}</div>);
   };
 
   const renderSensitivityData = () => {
@@ -73,7 +76,7 @@ const Animas = (props) => {
       className: styles.bolusSettingsHeader,
     };
     return (
-      <div>
+      <div className={styles.block}>
         <Table
           title={title}
           rows={
@@ -98,7 +101,7 @@ const Animas = (props) => {
       className: styles.bolusSettingsHeader,
     };
     return (
-      <div>
+      <div className={styles.block}>
         <Table
           title={title}
           rows={
@@ -123,7 +126,7 @@ const Animas = (props) => {
       className: styles.bolusSettingsHeader,
     };
     return (
-      <div>
+      <div className={styles.block}>
         <Table
           title={title}
           rows={
