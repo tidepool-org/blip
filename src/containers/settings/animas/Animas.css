@@ -58,7 +58,6 @@
 .basalTable th {
   font-weight: normal;
 }
-
 .basalTable tbody tr:nth-child(odd) {
   background-color: #ececec;
 }
@@ -67,4 +66,10 @@
 }
 .basalTable tbody tr:last-of-type {
   font-weight:bold;
+}
+.settingsTable {
+  composes: basalTable;
+}
+.settingsTable tbody tr:last-of-type {
+  font-weight: normal;
 }

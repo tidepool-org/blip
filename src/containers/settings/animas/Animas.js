@@ -86,6 +86,7 @@ const Animas = (props) => {
             )
           }
           columns={columns}
+          tableStyle={styles.settingsTable}
         />
       </div>
     );
@@ -110,6 +111,7 @@ const Animas = (props) => {
             )
           }
           columns={columns}
+          tableStyle={styles.settingsTable}
         />
       </div>
     );
@@ -137,6 +139,7 @@ const Animas = (props) => {
             )
           }
           columns={columns}
+          tableStyle={styles.settingsTable}
         />
       </div>
     );
