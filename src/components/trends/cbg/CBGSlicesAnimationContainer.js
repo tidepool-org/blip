@@ -17,8 +17,9 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import stats from 'simple-statistics';
 import { TransitionMotion, spring } from 'react-motion';
+
+import { findTimeOfDayBin, mungeDataForBin } from '../../../utils/trends/data';
 
 import CBGSlice from './CBGSlice';
 
@@ -62,35 +63,14 @@ export default class CBGSlicesAnimationContainer extends React.Component {
   }
 
   mungeData(binSize, data) {
-    const binned = _.groupBy(data, (d) => {
-      if (d.msPer24 === 0) {
-        return binSize / 2;
-      }
-      return Math.ceil(d.msPer24 / binSize) * binSize - (binSize / 2);
-    });
+    const binned = _.groupBy(data, (d) => (findTimeOfDayBin(binSize, d.msPer24)));
     const binKeys = Object.keys(binned);
 
     const valueExtractor = (d) => (d.value);
     const mungedData = [];
     for (let i = 0; i < binKeys.length; ++i) {
       const values = _.map(binned[binKeys[i]], valueExtractor);
-      const msX = parseInt(binKeys[i], 10);
-      const msFrom = msX - (binSize / 2);
-      const msTo = msX + (binSize / 2);
-      mungedData.push({
-        id: binKeys[i],
-        min: stats.min(values),
-        tenthQuantile: stats.quantile(values, 0.1),
-        firstQuartile: stats.quantile(values, 0.25),
-        thirdQuartile: stats.quantile(values, 0.75),
-        ninetiethQuantile: stats.quantile(values, 0.9),
-        max: stats.max(values),
-        median: stats.median(values),
-        msX,
-        msFrom,
-        msTo,
-        data: binned[binKeys[i]],
-      });
+      mungedData.push(mungeDataForBin(binKeys[i], binSize, values));
     }
     return mungedData;
   }

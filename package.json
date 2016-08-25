@@ -95,8 +95,7 @@
     "react-addons-update": "15.x",
     "react-motion": "0.x",
     "react-redux": "4.x",
-    "redux": "3.x",
-    "simple-statistics": "2.x"
+    "redux": "3.x"
   },
   "dependencies": {
     "d3-array": "1.0.1",
@@ -105,7 +104,6 @@
     "d3-shape": "1.0.3",
     "d3-time": "1.0.2",
     "moment-timezone": "0.5.5",
-    "react-motion": "0.4.4",
-    "simple-statistics": "2.1.0"
+    "react-motion": "0.4.4"
   }
 }
