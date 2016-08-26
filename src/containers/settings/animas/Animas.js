@@ -38,7 +38,10 @@ const Animas = (props) => {
 
     const tables = schedules.map((schedule) => {
       const title = {
-        label: pumpSettings.basalSchedules[schedule].name,
+        label: common.getScheduleLabel(
+          pumpSettings.basalSchedules[schedule].name,
+          pumpSettings.activeSchedule,
+        ),
         className: styles.basalSchedulesHeader,
       };
 

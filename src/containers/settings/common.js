@@ -32,6 +32,13 @@ export function getFormattedTime(startTime) {
   return datetime.millisecondsAsTimeOfDay(startTime);
 }
 
+export function getScheduleLabel(scheduleName, activeName) {
+  if (scheduleName === activeName) {
+    return `${scheduleName} (Active at upload)`;
+  }
+  return scheduleName;
+}
+
 export function getBasalRate(scheduleData, startTime) {
   const rate = scheduleData.filter(s => s.start === startTime).map(s => s.rate)[0];
   if (noData(rate)) {

@@ -52,7 +52,7 @@ const Tandem = (props) => {
     <div>
       <CollapsibleContainer
         styledLabel={{
-          label: schedule.name,
+          label: common.getScheduleLabel(schedule.name, pumpSettings.activeSchedule),
           className: styles.collapsibleHeader,
         }}
         openByDefault={schedule.name === pumpSettings.activeSchedule}

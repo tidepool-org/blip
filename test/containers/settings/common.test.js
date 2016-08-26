@@ -32,6 +32,18 @@ describe('common', () => {
       ).to.equal('02:30 am');
     });
   });
+  describe('getScheduleLabel', () => {
+    it('should return the formatted time', () => {
+      expect(
+        common.getScheduleLabel('one', 'two')
+      ).to.equal('one');
+    });
+    it('should return the formatted time', () => {
+      expect(
+        common.getScheduleLabel('one', 'one')
+      ).to.equal('one (Active at upload)');
+    });
+  });
   describe('getTimedSchedules', () => {
     it('should return the timed settings schedule names', () => {
       expect(
