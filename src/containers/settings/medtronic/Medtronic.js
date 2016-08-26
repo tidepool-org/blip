@@ -46,7 +46,7 @@ const Medtronic = (props) => {
       };
 
       return (
-        <div>
+        <div key={schedule}>
           <CollapsibleContainer
             styledLabel={title}
             openByDefault={

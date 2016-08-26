@@ -49,7 +49,7 @@ const Tandem = (props) => {
   ];
 
   const tables = schedules.map((schedule) => (
-    <div>
+    <div key={schedule.name}>
       <CollapsibleContainer
         styledLabel={{
           label: common.getScheduleLabel(schedule.name, pumpSettings.activeSchedule),
