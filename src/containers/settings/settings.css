@@ -13,7 +13,7 @@
 
 .settingsHeaderText {
   composes: whiteText smallSize from '../../styles/typography.css';
-  min-width: 180px;
+  min-width: 160px;
   padding-left: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -23,8 +23,13 @@
 
 .basalSchedulesHeader {
   composes: settingsHeaderText;
+  width: 160px;
   background-color: var(--basal);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
   position: relative;
+  padding-right: 20px;
 }
 
 .collapsibleOpened .basalSchedulesHeader::after {
