@@ -52,7 +52,7 @@ describe('Table', () => {
     expect(wrapper.find('table')).to.have.length(1);
     expect(wrapper.find('thead')).to.have.length(1);
     expect(wrapper.find('th')).to.have.length(3);
-    expect(wrapper.find('tr')).to.have.length(3);
+    expect(wrapper.find('tr')).to.have.length(4);
     expect(wrapper.find('td')).to.have.length(9);
   });
   it('does not require a title', () => {
@@ -66,7 +66,7 @@ describe('Table', () => {
     expect(wrapper.find('table')).to.have.length(1);
     expect(wrapper.find('thead')).to.have.length(1);
     expect(wrapper.find('th')).to.have.length(3);
-    expect(wrapper.find('tr')).to.have.length(3);
+    expect(wrapper.find('tr')).to.have.length(4);
     expect(wrapper.find('td')).to.have.length(9);
   });
   it('handles no data', () => {
@@ -80,7 +80,7 @@ describe('Table', () => {
     expect(wrapper.find('table')).to.have.length(1);
     expect(wrapper.find('thead')).to.have.length(1);
     expect(wrapper.find('th')).to.have.length(3);
-    expect(wrapper.find('tr')).to.have.length(0);
+    expect(wrapper.find('tr')).to.have.length(1);
     expect(wrapper.find('td')).to.have.length(0);
   });
   it('allows the setting of the column className', () => {
