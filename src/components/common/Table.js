@@ -38,48 +38,46 @@ class Table extends React.Component {
 
   renderHeader(normalizedColumns) {
     const cells = normalizedColumns.map(
-      (column) => <th className={column.className}>{column.label}</th>
+      (column, key) => <th key={key} className={column.className}>{column.label}</th>
     );
-    return (<thead>{cells}</thead>);
+    return (<thead key={`thead_${cells.length}`}>{cells}</thead>);
   }
 
   renderRow(normalizedColumns, rowKey, rowData) {
-    const cells = normalizedColumns.map((column) => {
-      const theKey = column.key;
-      const content = column.cell(rowData, theKey);
-
-      return (<td>{content}</td>);
-    });
-
-    return (<tr>{cells}</tr>);
+    const cells = normalizedColumns.map(
+      (column) => <td key={column.key}>{column.cell(rowData, column.key)}</td>
+    );
+    return (<tr key={rowKey}>{cells}</tr>);
   }
 
   renderRows(normalizedColumns) {
-    const rows = this.props.rows;
-    const renderRow = this.renderRow;
-    let key = 1;
-
-    const rowData = rows.map((row) => (
-      renderRow(normalizedColumns, key++, row)
+    const rowData = this.props.rows.map((row, key) => (
+      this.renderRow(normalizedColumns, key, row)
     ));
-
-    return (<tbody>{rowData}</tbody>);
+    return (<tbody key={`tbody_${rowData.length}`}>{rowData}</tbody>);
   }
 
   render() {
     const normalizedColumns = this.normalizeColumns();
 
-    let tableContents = [
-      this.renderHeader(normalizedColumns),
-      this.renderRows(normalizedColumns),
-    ];
+    let tableContents = [];
 
     if (this.props.title) {
       const title = (
-        <caption className={this.props.title.className}>{this.props.title.label}</caption>
+        <caption
+          key={this.props.title.label}
+          className={this.props.title.className}
+        >
+          {this.props.title.label}
+        </caption>
       );
       tableContents = [
         title,
+        this.renderHeader(normalizedColumns),
+        this.renderRows(normalizedColumns),
+      ];
+    } else {
+      tableContents = [
         this.renderHeader(normalizedColumns),
         this.renderRows(normalizedColumns),
       ];

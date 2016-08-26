@@ -9,7 +9,7 @@ import CollapsibleContainer from '../../../src/containers/common/CollapsibleCont
 describe('CollapsibleContainer', () => {
   it('renders children when passed in', () => {
     const wrapper = shallow(
-      <CollapsibleContainer label="test me">
+      <CollapsibleContainer label="test me" openByDefault>
         <div className="unique" />
       </CollapsibleContainer>
     );
@@ -17,7 +17,7 @@ describe('CollapsibleContainer', () => {
   });
   it('has click event on label', () => {
     const wrapper = shallow(
-      <CollapsibleContainer label="test me">
+      <CollapsibleContainer label="test me" openByDefault={false}>
         <div className="unique" />
       </CollapsibleContainer>
     );
