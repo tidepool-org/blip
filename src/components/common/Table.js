@@ -40,7 +40,7 @@ class Table extends React.Component {
     const cells = normalizedColumns.map(
       (column, key) => <th key={key} className={column.className}>{column.label}</th>
     );
-    return (<thead key={`thead_${cells.length}`}>{cells}</thead>);
+    return (<thead key={`thead_${cells.length}`}><tr>{cells}</tr></thead>);
   }
 
   renderRow(normalizedColumns, rowKey, rowData) {
