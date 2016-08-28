@@ -1,17 +1,17 @@
 /* eslint-env node, mocha */
 /* eslint no-console: 0*/
 
-import * as dataProcessing from '../../../src/containers/settings/dataProcessing';
+import * as processing from '../../../../src/containers/settings/data/processing';
 
-const multirateData = require('../../../data/pumpSettings/medtronic/multirate.json');
+const multirateData = require('../../../../data/pumpSettings/medtronic/multirate.json');
 
-const timedSettingsData = require('../../../data/pumpSettings/tandem/multirate.json');
+const timedSettingsData = require('../../../../data/pumpSettings/tandem/multirate.json');
 
-describe('dataProcessing', () => {
+describe('processing', () => {
   describe('processBgTargetData', () => {
     it('should return formatted objects', () => {
       expect(
-        dataProcessing.processBgTargetData(
+        processing.processBgTargetData(
           multirateData.bgTarget,
           multirateData.units.bg,
           { columnTwo: 'low', columnThree: 'high' },
@@ -26,7 +26,7 @@ describe('dataProcessing', () => {
   describe('processCarbRatioData', () => {
     it('should return formatted objects', () => {
       expect(
-        dataProcessing.processCarbRatioData(
+        processing.processCarbRatioData(
           multirateData.carbRatio,
         )
       )
@@ -40,7 +40,7 @@ describe('dataProcessing', () => {
   describe('processSensitivityData', () => {
     it('should return formatted objects', () => {
       expect(
-        dataProcessing.processSensitivityData(
+        processing.processSensitivityData(
           multirateData.insulinSensitivity,
           multirateData.units.bg,
         )
@@ -52,7 +52,7 @@ describe('dataProcessing', () => {
   describe('processBasalRateData', () => {
     it('should return formatted objects', () => {
       expect(
-        dataProcessing.processBasalRateData(
+        processing.processBasalRateData(
           multirateData.basalSchedules[0],
         )
       )
@@ -66,7 +66,7 @@ describe('dataProcessing', () => {
     });
     it('should cope with empty shedules', () => {
       expect(
-        dataProcessing.processBasalRateData(
+        processing.processBasalRateData(
           multirateData.basalSchedules[1],
         )
       )
@@ -77,7 +77,7 @@ describe('dataProcessing', () => {
   describe('processTimedSettings', () => {
     it('should return formatted objects', () => {
       expect(
-        dataProcessing.processTimedSettings(
+        processing.processTimedSettings(
           timedSettingsData,
           { name: 'Sick', position: 1 },
           timedSettingsData.units.bg,

@@ -21,8 +21,8 @@ import Header from '../header/Header';
 import Table from '../../../components/common/Table';
 import CollapsibleContainer from '../../common/CollapsibleContainer';
 
-import * as common from '../common';
-import * as dataProcessing from '../dataProcessing';
+import * as utilities from '../data/utilities';
+import * as processing from '../data/processing';
 
 import styles from './Medtronic.css';
 
@@ -34,11 +34,11 @@ const Medtronic = (props) => {
       { key: 'start', label: 'Start time', className: '' },
       { key: 'rate', label: 'Value (U/hr)', className: '' },
     ];
-    const schedules = common.getScheduleNames(pumpSettings.basalSchedules);
+    const schedules = utilities.getScheduleNames(pumpSettings.basalSchedules);
 
     const tables = schedules.map((schedule) => {
       const title = {
-        label: common.getScheduleLabel(
+        label: utilities.getScheduleLabel(
           pumpSettings.basalSchedules[schedule].name,
           pumpSettings.activeSchedule,
         ),
@@ -57,7 +57,7 @@ const Medtronic = (props) => {
           >
             <Table
               rows={
-                dataProcessing.processBasalRateData(pumpSettings.basalSchedules[schedule])
+                processing.processBasalRateData(pumpSettings.basalSchedules[schedule])
               }
               columns={columns}
               tableStyle={styles.basalTable}
@@ -83,7 +83,7 @@ const Medtronic = (props) => {
         <Table
           title={title}
           rows={
-            dataProcessing.processSensitivityData(
+            processing.processSensitivityData(
               pumpSettings.insulinSensitivity,
               bgUnits,
             )
@@ -109,7 +109,7 @@ const Medtronic = (props) => {
         <Table
           title={title}
           rows={
-            dataProcessing.processCarbRatioData(
+            processing.processCarbRatioData(
               pumpSettings.carbRatio,
             )
           }
@@ -135,7 +135,7 @@ const Medtronic = (props) => {
         <Table
           title={title}
           rows={
-            dataProcessing.processBgTargetData(
+            processing.processBgTargetData(
               pumpSettings.bgTarget,
               bgUnits,
               { columnTwo: 'low', columnThree: 'high' },
@@ -152,7 +152,7 @@ const Medtronic = (props) => {
     <div>
       <Header
         deviceType="Medtronic"
-        deviceMeta={common.getDeviceMeta(pumpSettings)}
+        deviceMeta={utilities.getDeviceMeta(pumpSettings)}
       />
       <div className={styles.settings}>
         {renderBasalsData()}
@@ -165,13 +165,13 @@ const Medtronic = (props) => {
 };
 
 Medtronic.propTypes = {
-  bgUnits: PropTypes.oneOf([common.MMOLL_UNITS, common.MGDL_UNITS]).isRequired,
+  bgUnits: PropTypes.oneOf([utilities.MMOLL_UNITS, utilities.MGDL_UNITS]).isRequired,
   pumpSettings: PropTypes.object.isRequired,
 };
 
 // TODO: use webpack.DefinePlugin and only define defaultProps in DEV mode!
 Medtronic.defaultProps = {
-  bgUnits: common.MGDL_UNITS,
+  bgUnits: utilities.MGDL_UNITS,
 };
 
 export default Medtronic;

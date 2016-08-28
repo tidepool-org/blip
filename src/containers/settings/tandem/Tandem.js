@@ -23,12 +23,12 @@ import Table from '../../../components/common/Table';
 import CollapsibleContainer from '../../common/CollapsibleContainer';
 import Header from '../header/Header';
 
-import * as common from '../common';
-import * as dataProcessing from '../dataProcessing';
+import * as utilities from '../data/utilities';
+import * as processing from '../data/processing';
 
 const Tandem = (props) => {
   const { bgUnits, pumpSettings } = props;
-  const schedules = common.getTimedSchedules(pumpSettings.basalSchedules);
+  const schedules = utilities.getTimedSchedules(pumpSettings.basalSchedules);
 
   const COLUMNS = [
     { key: 'start',
@@ -52,7 +52,7 @@ const Tandem = (props) => {
     <div key={schedule.name}>
       <CollapsibleContainer
         styledLabel={{
-          label: common.getScheduleLabel(schedule.name, pumpSettings.activeSchedule),
+          label: utilities.getScheduleLabel(schedule.name, pumpSettings.activeSchedule),
           className: styles.collapsibleHeader,
         }}
         openByDefault={schedule.name === pumpSettings.activeSchedule}
@@ -60,7 +60,7 @@ const Tandem = (props) => {
         closedStyle={styles.collapsibleClosed}
       >
         <Table
-          rows={dataProcessing.processTimedSettings(pumpSettings, schedule, bgUnits)}
+          rows={processing.processTimedSettings(pumpSettings, schedule, bgUnits)}
           columns={COLUMNS}
           tableStyle={styles.basalTable}
         />
@@ -71,7 +71,7 @@ const Tandem = (props) => {
     <div>
       <Header
         deviceType="Tandem"
-        deviceMeta={common.getDeviceMeta(pumpSettings)}
+        deviceMeta={utilities.getDeviceMeta(pumpSettings)}
       />
       {tables}
     </div>
@@ -79,13 +79,13 @@ const Tandem = (props) => {
 };
 
 Tandem.propTypes = {
-  bgUnits: PropTypes.oneOf([common.MMOLL_UNITS, common.MGDL_UNITS]).isRequired,
+  bgUnits: PropTypes.oneOf([utilities.MMOLL_UNITS, utilities.MGDL_UNITS]).isRequired,
   pumpSettings: PropTypes.object.isRequired,
 };
 
 // TODO: use webpack.DefinePlugin and only define defaultProps in DEV mode!
 Tandem.defaultProps = {
-  bgUnits: common.MGDL_UNITS,
+  bgUnits: utilities.MGDL_UNITS,
 };
 
 export default Tandem;

@@ -21,13 +21,14 @@ import Omnipod from './omnipod/Omnipod';
 import Animas from './animas/Animas';
 
 export function getChart(deviceType) {
-  if (deviceType.toLowerCase() === 'carelink') {
+  const chartType = deviceType.toLowerCase();
+  if (chartType === 'carelink') {
     return Medtronic;
-  } else if (deviceType.toLowerCase() === 'tandem') {
+  } else if (chartType === 'tandem') {
     return Tandem;
-  } else if (deviceType.toLowerCase() === 'insulet') {
+  } else if (chartType === 'insulet') {
     return Omnipod;
-  } else if (deviceType.toLowerCase() === 'animas') {
+  } else if (chartType === 'animas') {
     return Animas;
   }
   return null;

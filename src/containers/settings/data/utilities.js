@@ -17,8 +17,8 @@
 
 import _ from 'lodash';
 
-import * as datetime from '../../utils/datetime';
-import * as format from '../../utils/format';
+import * as datetime from '../../../utils/datetime';
+import * as format from '../../../utils/format';
 
 export const DISPLAY_PRESCION_PLACES = 3;
 export const MGDL_UNITS = 'mg/dL';

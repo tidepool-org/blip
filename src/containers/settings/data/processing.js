@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import * as common from './common';
+import * as utilities from './utilities';
 
 export function processBasalRateData(scheduleData) {
   const starts = scheduleData.value.map(s => s.start);
@@ -24,16 +24,16 @@ export function processBasalRateData(scheduleData) {
   if (starts.length === 0) {
     return noData;
   } else if (starts.length === 1) {
-    if (Number(common.getBasalRate(scheduleData.value, starts[0])) === 0) {
+    if (Number(utilities.getBasalRate(scheduleData.value, starts[0])) === 0) {
       return noData;
     }
   }
 
   const data = starts.map((startTime) => ({
-    start: common.getFormattedTime(
+    start: utilities.getFormattedTime(
       startTime
     ),
-    rate: common.getBasalRate(
+    rate: utilities.getBasalRate(
       scheduleData.value,
       startTime
     ),
@@ -41,7 +41,7 @@ export function processBasalRateData(scheduleData) {
 
   data.push({
     start: 'Total',
-    rate: common.getTotalBasalRates(scheduleData.value),
+    rate: utilities.getTotalBasalRates(scheduleData.value),
   });
 
   return data;
@@ -51,16 +51,16 @@ export function processBgTargetData(targetsData, bgUnits, keys) {
   const starts = targetsData.map(s => s.start);
 
   return starts.map((startTime) => ({
-    start: common.getFormattedTime(
+    start: utilities.getFormattedTime(
       startTime
     ),
-    columnTwo: common.getBloodGlucoseValue(
+    columnTwo: utilities.getBloodGlucoseValue(
       targetsData,
       keys.columnTwo,
       startTime,
       bgUnits
     ),
-    columnThree: common.getBloodGlucoseValue(
+    columnThree: utilities.getBloodGlucoseValue(
       targetsData,
       keys.columnThree,
       startTime,
@@ -72,10 +72,10 @@ export function processBgTargetData(targetsData, bgUnits, keys) {
 export function processCarbRatioData(carbRatioData) {
   const starts = carbRatioData.map(s => s.start);
   return starts.map((startTime) => ({
-    start: common.getFormattedTime(
+    start: utilities.getFormattedTime(
       startTime
     ),
-    amount: common.getValue(
+    amount: utilities.getValue(
       carbRatioData,
       'amount',
       startTime
@@ -86,10 +86,10 @@ export function processCarbRatioData(carbRatioData) {
 export function processSensitivityData(sensitivityData, bgUnits) {
   const starts = sensitivityData.map(s => s.start);
   return starts.map((startTime) => ({
-    start: common.getFormattedTime(
+    start: utilities.getFormattedTime(
       startTime
     ),
-    amount: common.getBloodGlucoseValue(
+    amount: utilities.getBloodGlucoseValue(
       sensitivityData,
       'amount',
       startTime,
@@ -102,25 +102,25 @@ export function processTimedSettings(pumpSettings, schedule, bgUnits) {
   const starts = pumpSettings.bgTargets[schedule.name].map(s => s.start);
 
   const data = starts.map((startTime) => ({
-    start: common.getFormattedTime(
+    start: utilities.getFormattedTime(
       startTime,
     ),
-    rate: common.getBasalRate(
+    rate: utilities.getBasalRate(
       pumpSettings.basalSchedules[schedule.position].value,
       startTime,
     ),
-    bgTarget: common.getBloodGlucoseValue(
+    bgTarget: utilities.getBloodGlucoseValue(
       pumpSettings.bgTargets[schedule.name],
       'target',
       startTime,
       bgUnits,
     ),
-    carbRatio: common.getValue(
+    carbRatio: utilities.getValue(
       pumpSettings.carbRatios[schedule.name],
       'amount',
       startTime,
     ),
-    insulinSensitivity: common.getBloodGlucoseValue(
+    insulinSensitivity: utilities.getBloodGlucoseValue(
       pumpSettings.insulinSensitivities[schedule.name],
       'amount',
       startTime,
@@ -130,7 +130,7 @@ export function processTimedSettings(pumpSettings, schedule, bgUnits) {
 
   data.push({
     start: 'Total',
-    rate: common.getTotalBasalRates(
+    rate: utilities.getTotalBasalRates(
       pumpSettings.basalSchedules[schedule.position].value,
     ),
     bgTarget: '',
