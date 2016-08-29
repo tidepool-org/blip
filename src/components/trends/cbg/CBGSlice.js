@@ -47,7 +47,7 @@ const CBGSlice = (props) => {
   };
   const unfocus = unfocusSlice.bind(null);
 
-  function renderLine(category, y1Accessor, y2Accessor) {
+  function renderRoundedRect(category, y1Accessor, y2Accessor) {
     const left = xScale(datum.msX);
     const focus = () => {
       focusSlice(datum, {
@@ -60,6 +60,7 @@ const CBGSlice = (props) => {
       <rect
         className={getClass(category)}
         key={`${category}-${datum.id}`}
+        id={`${category}-${datum.id}`}
         onMouseOver={focus}
         onMouseOut={unfocus}
         x={left - sliceCapRadius}
@@ -73,14 +74,15 @@ const CBGSlice = (props) => {
   }
 
   return (
-    <g id="cbgSlice">
+    <g id={`cbgSlice-${datum.id}`}>
       {[
-        renderLine('rangeSlice', 'min', 'max'),
-        renderLine('outerSlice', 'tenthQuantile', 'ninetiethQuantile'),
-        renderLine('quartileSlice', 'firstQuartile', 'thirdQuartile'),
+        renderRoundedRect('rangeSlice', 'min', 'max'),
+        renderRoundedRect('outerSlice', 'tenthQuantile', 'ninetiethQuantile'),
+        renderRoundedRect('quartileSlice', 'firstQuartile', 'thirdQuartile'),
         <circle
           className={getClass('cbgMedian')}
           key={`individualMedian-${datum.id}`}
+          id={`individualMedian-${datum.id}`}
           onMouseOver={focusMedian}
           onMouseOut={unfocus}
           cx={xScale(datum.msX)}
@@ -109,7 +111,15 @@ CBGSlice.propTypes = {
   tooltipLeftThreshold: PropTypes.number.isRequired,
   unfocusSlice: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
-  yPositions: PropTypes.object.isRequired,
+  yPositions: PropTypes.shape({
+    min: PropTypes.number.isRequired,
+    tenthQuantile: PropTypes.number.isRequired,
+    firstQuartile: PropTypes.number.isRequired,
+    median: PropTypes.number.isRequired,
+    thirdQuartile: PropTypes.number.isRequired,
+    ninetiethQuantile: PropTypes.number.isRequired,
+    max: PropTypes.number.isRequired,
+  }).isRequired,
 };
 
 export default CBGSlice;
