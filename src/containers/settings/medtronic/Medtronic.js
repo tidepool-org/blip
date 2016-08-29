@@ -166,12 +166,7 @@ const Medtronic = (props) => {
 
 Medtronic.propTypes = {
   bgUnits: PropTypes.oneOf([utilities.MMOLL_UNITS, utilities.MGDL_UNITS]).isRequired,
-  pumpSettings: PropTypes.object.isRequired,
-};
-
-// TODO: use webpack.DefinePlugin and only define defaultProps in DEV mode!
-Medtronic.defaultProps = {
-  bgUnits: utilities.MGDL_UNITS,
+  pumpSettings: processing.settingsShape.isRequired,
 };
 
 export default Medtronic;

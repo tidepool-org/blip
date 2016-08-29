@@ -80,12 +80,7 @@ const Tandem = (props) => {
 
 Tandem.propTypes = {
   bgUnits: PropTypes.oneOf([utilities.MMOLL_UNITS, utilities.MGDL_UNITS]).isRequired,
-  pumpSettings: PropTypes.object.isRequired,
-};
-
-// TODO: use webpack.DefinePlugin and only define defaultProps in DEV mode!
-Tandem.defaultProps = {
-  bgUnits: utilities.MGDL_UNITS,
+  pumpSettings: processing.timedSettingsShape.isRequired,
 };
 
 export default Tandem;

@@ -15,7 +15,86 @@
  * == BSD2 LICENSE ==
  */
 
+import React from 'react';
+
 import * as utilities from './utilities';
+
+export const settingsShape = React.PropTypes.shape({
+  activeSchedule: React.PropTypes.string.isRequired,
+  units: React.PropTypes.object.isRequired,
+  deviceId: React.PropTypes.string.isRequired,
+  basalSchedules: React.PropTypes.arrayOf(
+    React.PropTypes.shape({
+      name: React.PropTypes.string.isRequired,
+      value: React.PropTypes.arrayOf(
+        React.PropTypes.shape({
+          start: React.PropTypes.number.isRequired,
+          rate: React.PropTypes.number.isRequired,
+        }),
+      ),
+    }),
+  ).isRequired,
+  bgTarget: React.PropTypes.arrayOf(
+    React.PropTypes.shape({
+      start: React.PropTypes.number.isRequired,
+      target: React.PropTypes.number,
+      range: React.PropTypes.number,
+    })
+  ).isRequired,
+  carbRatio: React.PropTypes.arrayOf(
+    React.PropTypes.shape({
+      start: React.PropTypes.number.isRequired,
+      amount: React.PropTypes.number.isRequired,
+    })
+  ).isRequired,
+  insulinSensitivity: React.PropTypes.arrayOf(
+    React.PropTypes.shape({
+      start: React.PropTypes.number.isRequired,
+      amount: React.PropTypes.number.isRequired,
+    })
+  ).isRequired,
+});
+
+export const timedSettingsShape = React.PropTypes.shape({
+  activeSchedule: React.PropTypes.string.isRequired,
+  units: React.PropTypes.object.isRequired,
+  deviceId: React.PropTypes.string.isRequired,
+  basalSchedules: React.PropTypes.arrayOf(
+    React.PropTypes.shape({
+      name: React.PropTypes.string.isRequired,
+      value: React.PropTypes.arrayOf(
+        React.PropTypes.shape({
+          start: React.PropTypes.number.isRequired,
+          rate: React.PropTypes.number.isRequired,
+        }),
+      ),
+    }),
+  ).isRequired,
+  bgTargets: React.PropTypes.objectOf(
+    React.PropTypes.arrayOf(
+      React.PropTypes.shape({
+        start: React.PropTypes.number.isRequired,
+        target: React.PropTypes.number.isRequired,
+      })
+    ),
+  ).isRequired,
+  carbRatios: React.PropTypes.objectOf(
+    React.PropTypes.arrayOf(
+      React.PropTypes.shape({
+        start: React.PropTypes.number.isRequired,
+        amount: React.PropTypes.number.isRequired,
+      })
+    ),
+  ).isRequired,
+  insulinSensitivities: React.PropTypes.objectOf(
+    React.PropTypes.arrayOf(
+      React.PropTypes.shape({
+        start: React.PropTypes.number.isRequired,
+        amount: React.PropTypes.number.isRequired,
+      })
+    ),
+  ).isRequired,
+});
 
 export function processBasalRateData(scheduleData) {
   const starts = scheduleData.value.map(s => s.start);
