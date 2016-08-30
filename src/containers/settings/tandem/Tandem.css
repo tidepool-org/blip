@@ -52,11 +52,13 @@
   font-weight: bold;
   position: absolute;
   top: -2px;
+  transition-duration: 0.25s;
 }
 
 .collapsibleClosed .collapsibleHeader::after {
   transform: rotate(90deg);
   padding-bottom: 5px;
+  transition-duration: 0.25s;
 }
 
 .basalTable {
