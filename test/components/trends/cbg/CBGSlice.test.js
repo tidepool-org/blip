@@ -19,25 +19,24 @@
 
 import _ from 'lodash';
 import React from 'react';
-import { scaleLinear } from 'd3-scale';
 
 import { mount } from 'enzyme';
 
+import * as scales from '../../../helpers/scales';
+const {
+  trendsHeight,
+  trendsWidth,
+  trendsXScale: xScale,
+  trendsYScale: yScale,
+} = scales.trends;
 import SVGContainer from '../../../helpers/SVGContainer';
 
 import CBGSlice from '../../../../src/components/trends/cbg/CBGSlice';
-import { TWENTY_FOUR_HRS } from '../../../../src/utils/datetime';
 
 describe('CBGSlice', () => {
   let wrapper;
-  const svgWidth = 864;
-  const svgHeight = 360;
   const focusSlice = sinon.spy();
   const unfocusSlice = sinon.spy();
-  const yScale = scaleLinear()
-    .domain([40, 400])
-    .range([svgHeight, 0])
-    .clamp(true);
   const datum = {
     id: '2700000',
     min: 22,
@@ -57,7 +56,7 @@ describe('CBGSlice', () => {
     focusSlice,
     isFocused: false,
     unfocusSlice,
-    xScale: scaleLinear().domain([0, TWENTY_FOUR_HRS]).range([0, svgWidth]),
+    xScale,
     yPositions: {
       min: yScale(datum.min),
       tenthQuantile: yScale(datum.tenthQuantile),
@@ -69,14 +68,24 @@ describe('CBGSlice', () => {
     },
   };
   before(() => {
-    wrapper = mount(<SVGContainer component={CBGSlice} innerProps={props} />);
+    wrapper = mount(
+      <SVGContainer
+        component={CBGSlice}
+        dimensions={{ width: trendsWidth, height: trendsHeight }}
+        innerProps={props}
+      />
+    );
   });
 
   describe('when a datum (slice data) is not provided', () => {
     let noDatumWrapper;
     before(() => {
       noDatumWrapper = mount(
-        <SVGContainer component={CBGSlice} innerProps={_.omit(props, 'datum')} />
+        <SVGContainer
+          component={CBGSlice}
+          dimensions={{ width: trendsWidth, height: trendsHeight }}
+          innerProps={_.omit(props, 'datum')}
+        />
       );
     });
 
@@ -100,7 +109,7 @@ describe('CBGSlice', () => {
       expect(rangeRect.x).to.equal(18);
       expect(rangeRect.width).to.equal(18);
       expect(rangeRect.y).to.equal(0);
-      expect(rangeRect.height).to.equal(svgHeight);
+      expect(rangeRect.height).to.equal(trendsHeight);
     });
 
     it('should render a 10th-90th quantile rect', () => {

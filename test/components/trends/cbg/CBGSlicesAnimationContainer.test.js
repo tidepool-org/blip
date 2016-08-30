@@ -17,19 +17,23 @@
 
 /* eslint-env node, mocha */
 
-import { scaleLinear } from 'd3-scale';
 import React from 'react';
 
 import { mount } from 'enzyme';
+
+import * as scales from '../../../helpers/scales';
+const {
+  trendsWidth: width,
+  trendsHeight: height,
+  trendsXScale: xScale,
+  trendsYScale: yScale,
+} = scales.trends;
 
 import CBGSlicesAnimationContainer
   from '../../../../src/components/trends/cbg/CBGSlicesAnimationContainer';
 
 describe('CBGSlicesAnimationContainer', () => {
   let wrapper;
-
-  const width = 864;
-  const height = 360;
 
   // six-hour bins for testing
   const binSize = 1000 * 60 * 60 * 6;
@@ -41,13 +45,8 @@ describe('CBGSlicesAnimationContainer', () => {
     margins: { top: 0, left: 0, bottom: 0, right: 0 },
     svgDimensions: { width, height },
     unfocusSlice: () => {},
-    xScale: scaleLinear()
-      .domain([0, 864e5])
-      .range([0, width]),
-    yScale: scaleLinear()
-      .domain([40, 400])
-      .clamp(true)
-      .range([height, 0]),
+    xScale,
+    yScale,
   };
 
   before(() => {

@@ -15,27 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import { scaleLinear } from 'd3-scale';
 
-const SVGContainer = (props) => {
-  const { component: Component, innerProps, dimensions: { width, height } } = props;
+const trendsWidth = 864;
+const trendsHeight = 360;
 
-  return (
-    <div>
-      <svg width={width} height={height}>
-        <Component {...innerProps} />
-      </svg>
-    </div>
-  );
-};
+const trendsXScale = scaleLinear()
+  .domain([0, 864e5])
+  .range([0, trendsWidth]);
 
-SVGContainer.propTypes = {
-  component: PropTypes.func.isRequired,
-  dimensions: PropTypes.shape({
-    width: PropTypes.number.isRequired,
-    height: PropTypes.number.isRequired,
-  }).isRequired,
-  innerProps: PropTypes.any.isRequired,
-};
+const trendsYScale = scaleLinear()
+  .domain([40, 400])
+  .range([trendsHeight, 0])
+  .clamp(true);
 
-export default SVGContainer;
+const trends = { trendsWidth, trendsHeight, trendsXScale, trendsYScale };
+
+export { trends };
