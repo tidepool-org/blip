@@ -12,7 +12,7 @@ module.exports = {
       {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader?plugins=babel-plugin-rewire'},
       // the JSX in tideline needs transpiling
       {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
-      {test: /\.less$/, loader: 'style-loader!css-loader!postcss-loader!less-loader'},
+      {test: /\.less$/, loader: 'style-loader!css-loader!less-loader'},
       {test: /\.gif$/, loader: 'url-loader?limit=10000&mimetype=image/gif'},
       {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},
       {test: /\.png$/, loader: 'url-loader?limit=10000&mimetype=image/png'},

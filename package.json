@@ -40,7 +40,6 @@
     "less-loader": "2.2.3",
     "lodash": "3.10.1",
     "ms": "0.7.1",
-    "postcss-loader": "0.9.1",
     "qs": "6.2.1",
     "react": "15.2.1",
     "react-addons-pure-render-mixin": "15.2.1",
