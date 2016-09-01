@@ -17,7 +17,7 @@
 
 /* eslint-env node, mocha */
 
-import { range } from 'd3-array';
+import { range, shuffle } from 'd3-array';
 
 import * as utils from '../../../src/utils/trends/data';
 
@@ -91,7 +91,7 @@ describe('[trends] data utils', () => {
     const binSize = 1000 * 60 * 30;
     const min = 0;
     const max = 100;
-    const data = range(min, max + 1);
+    const data = shuffle(range(min, max + 1));
 
     const res = utils.mungeDataForBin(binKey, binSize, data);
 

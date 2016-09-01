@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import { max, median, min, quantile } from 'd3-array';
 
 import { TWENTY_FOUR_HRS } from '../datetime';
@@ -45,16 +46,17 @@ export function findTimeOfDayBin(binSize, msPer24) {
  * @return {Object} mungedData
  */
 export function mungeDataForBin(binKey, binSize, data) {
+  const sorted = _.sortBy(data, d => d);
   const centerOfBinMs = parseInt(binKey, 10);
   return {
     id: binKey,
-    min: min(data),
-    tenthQuantile: quantile(data, 0.1),
-    firstQuartile: quantile(data, 0.25),
-    median: median(data),
-    thirdQuartile: quantile(data, 0.75),
-    ninetiethQuantile: quantile(data, 0.9),
-    max: max(data),
+    min: min(sorted),
+    tenthQuantile: quantile(sorted, 0.1),
+    firstQuartile: quantile(sorted, 0.25),
+    median: median(sorted),
+    thirdQuartile: quantile(sorted, 0.75),
+    ninetiethQuantile: quantile(sorted, 0.9),
+    max: max(sorted),
     msX: centerOfBinMs,
     msFrom: centerOfBinMs - (binSize / 2),
     msTo: centerOfBinMs + (binSize / 2),
