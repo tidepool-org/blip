@@ -69,23 +69,21 @@ describe('CBGSlice', () => {
   };
   before(() => {
     wrapper = mount(
-      <SVGContainer
-        component={CBGSlice}
-        dimensions={{ width: trendsWidth, height: trendsHeight }}
-        innerProps={props}
-      />
+      <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
+        <CBGSlice {...props} />
+      </SVGContainer>
     );
   });
 
   describe('when a datum (slice data) is not provided', () => {
     let noDatumWrapper;
     before(() => {
+      const noDatumProps = _.omit(props, 'datum');
+
       noDatumWrapper = mount(
-        <SVGContainer
-          component={CBGSlice}
-          dimensions={{ width: trendsWidth, height: trendsHeight }}
-          innerProps={_.omit(props, 'datum')}
-        />
+        <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
+          <CBGSlice {...noDatumProps} />
+        </SVGContainer>
       );
     });
 

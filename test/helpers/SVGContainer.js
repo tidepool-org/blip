@@ -18,24 +18,23 @@
 import React, { PropTypes } from 'react';
 
 const SVGContainer = (props) => {
-  const { component: Component, innerProps, dimensions: { width, height } } = props;
+  const { children, dimensions: { width, height } } = props;
 
   return (
     <div>
       <svg width={width} height={height}>
-        <Component {...innerProps} />
+        {children}
       </svg>
     </div>
   );
 };
 
 SVGContainer.propTypes = {
-  component: PropTypes.func.isRequired,
+  children: PropTypes.object.isRequired,
   dimensions: PropTypes.shape({
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
   }).isRequired,
-  innerProps: PropTypes.any.isRequired,
 };
 
 export default SVGContainer;
