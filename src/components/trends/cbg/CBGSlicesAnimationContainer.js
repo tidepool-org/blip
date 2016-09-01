@@ -25,6 +25,8 @@ import CBGSlice from './CBGSlice';
 
 import styles from './CBGSlicesAnimationContainer.css';
 
+// TODO: move to containers/ perhaps?
+
 export default class CBGSlicesAnimationContainer extends React.Component {
   static propTypes = {
     binSize: PropTypes.number.isRequired,
