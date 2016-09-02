@@ -243,9 +243,6 @@ var Modal = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.setState({
-      atMostRecent: false
-    });
     this.chart.goBack();
   },
   handleClickForward: function(e) {
@@ -255,9 +252,7 @@ var Modal = React.createClass({
     if (this.state.atMostRecent) {
       return;
     }
-    this.setState({
-      atMostRecent: this.chart.goForward()
-    });
+    this.chart.goForward();
   },
   handleClickMostRecent: function(e) {
     if (e) {
@@ -266,9 +261,6 @@ var Modal = React.createClass({
     if (this.state.atMostRecent) {
       return;
     }
-    this.setState({
-      atMostRecent: true
-    });
     this.chart.goToMostRecent();
   },
   handleClickDaily: function(e) {
@@ -349,9 +341,10 @@ var Modal = React.createClass({
     }
     this.props.onSwitchToSettings();
   },
-  handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
+  handleDatetimeLocationChange: function(datetimeLocationEndpoints, atMostRecent) {
     if (this.isMounted()) {
       this.setState({
+        atMostRecent: atMostRecent,
         title: this.getTitle(datetimeLocationEndpoints)
       });
       this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
