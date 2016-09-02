@@ -149,7 +149,7 @@ export class TrendsContainer extends React.Component {
       xScale: scaleLinear().domain([0, 864e5]),
       yScale,
     }, this.determineDataToShow);
-    this.props.onDatetimeLocationChange(dateDomain);
+    this.props.onDatetimeLocationChange(dateDomain, end === mostRecent);
   }
 
   /*
@@ -194,7 +194,7 @@ export class TrendsContainer extends React.Component {
   }
 
   goBack() {
-    const { dateDomain: { start: newEnd } } = this.state;
+    const { dateDomain: { start: newEnd }, mostRecent } = this.state;
     const { timePrefs } = this.props;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
     const start = datetime.timezoneAwareOffset(newEnd, timezone, {
@@ -203,7 +203,7 @@ export class TrendsContainer extends React.Component {
     }).toISOString();
     const newDomain = [start, newEnd];
     this.setExtent(newDomain);
-    this.props.onDatetimeLocationChange(newDomain);
+    this.props.onDatetimeLocationChange(newDomain, newEnd >= mostRecent);
   }
 
   goForward() {
@@ -211,8 +211,7 @@ export class TrendsContainer extends React.Component {
     const end = utcDay.offset(new Date(newStart), this.props.extentSize).toISOString();
     const newDomain = [newStart, end];
     this.setExtent(newDomain);
-    this.props.onDatetimeLocationChange(newDomain);
-    return (end >= mostRecent);
+    this.props.onDatetimeLocationChange(newDomain, end >= mostRecent);
   }
 
   goToMostRecent() {
@@ -220,7 +219,7 @@ export class TrendsContainer extends React.Component {
     const start = utcDay.offset(new Date(end), -this.props.extentSize).toISOString();
     const newDomain = [start, end];
     this.setExtent(newDomain);
-    this.props.onDatetimeLocationChange(newDomain);
+    this.props.onDatetimeLocationChange(newDomain, true);
   }
 
   refilterByDate(dataByDate, dateDomain) {
