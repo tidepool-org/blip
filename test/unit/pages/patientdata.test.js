@@ -58,7 +58,8 @@ describe('PatientData', function () {
         patientNotesMap: {},
         queryParams: {},
         trackMetric: sinon.stub(),
-        uploadUrl: 'http://foo.com'
+        uploadUrl: 'http://foo.com',
+        viz: {},
       };
 
       console.error = sinon.spy();
