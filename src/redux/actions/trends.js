@@ -15,4 +15,23 @@
  * == BSD2 LICENSE ==
  */
 
-export * from './trends/';
+import * as actionTypes from './constants';
+
+export function focusTrendsCbgSlice(sliceData, slicePosition, focusedKeys) {
+  return {
+    type: actionTypes.FOCUS_TRENDS_CBG_SLICE,
+    payload: { focusedKeys, sliceData, slicePosition },
+  };
+}
+
+export function markTrendsViewed() {
+  return {
+    type: actionTypes.MARK_TRENDS_VIEWED,
+  };
+}
+
+export function unfocusTrendsCbgSlice() {
+  return {
+    type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,
+  };
+}

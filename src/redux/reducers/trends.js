@@ -17,7 +17,7 @@
 
 import { combineReducers } from 'redux';
 
-import * as actionTypes from '../../actions/constants';
+import * as actionTypes from '../actions/constants';
 
 export const focusedCbgSlice = (state = null, action) => {
   switch (action.type) {

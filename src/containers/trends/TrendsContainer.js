@@ -26,7 +26,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import * as actions from '../../actions/';
+import * as actions from '../../redux/actions/';
 import CBGTrendsContainer from './CBGTrendsContainer';
 import * as datetime from '../../utils/datetime';
 
