@@ -55,7 +55,6 @@ XAxisLabels.defaultProps = {
 XAxisLabels.propTypes = {
   data: PropTypes.array.isRequired,
   margins: PropTypes.object.isRequired,
-  useRangeLabels: PropTypes.bool.isRequired,
   xOffset: PropTypes.number.isRequired,
   xScale: PropTypes.func.isRequired,
   yOffset: PropTypes.number.isRequired,
