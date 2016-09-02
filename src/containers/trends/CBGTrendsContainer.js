@@ -21,7 +21,7 @@ import BackgroundWithTargetRange from '../../components/trends/common/Background
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import XAxisTicks from '../../components/trends/common/XAxisTicks';
 import YAxisLabelsAndTicks from '../../components/trends/common/YAxisLabelsAndTicks';
-import CBGSlicesAnimationContainer from '../../components/trends/cbg/CBGSlicesAnimationContainer';
+import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 
 /*
@@ -65,13 +65,56 @@ class CBGTrendsContainer extends React.Component {
       targetLowerBound: PropTypes.number.isRequired,
       veryLowThreshold: PropTypes.number.isRequired,
     }),
-    bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']),
-    data: PropTypes.array.isRequired,
-    focusedSlice: PropTypes.object,
-    focusedSliceKeys: PropTypes.array,
+    bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
+    data: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      msPer24: PropTypes.number.isRequired,
+      value: PropTypes.number.isRequired,
+    })).isRequired,
+    focusedSlice: PropTypes.shape({
+      slice: PropTypes.shape({
+        firstQuartile: PropTypes.number.isRequired,
+        max: PropTypes.number.isRequired,
+        median: PropTypes.number.isRequired,
+        min: PropTypes.number.isRequired,
+        ninetiethQuantile: PropTypes.number.isRequired,
+        tenthQuantile: PropTypes.number.isRequired,
+        thirdQuartile: PropTypes.number.isRequired,
+      }).isRequired,
+      position: PropTypes.shape({
+        left: PropTypes.number.isRequired,
+        tooltipLeft: PropTypes.bool.isRequired,
+        topOptions: PropTypes.shape({
+          firstQuartile: PropTypes.number.isRequired,
+          max: PropTypes.number.isRequired,
+          median: PropTypes.number.isRequired,
+          min: PropTypes.number.isRequired,
+          ninetiethQuantile: PropTypes.number.isRequired,
+          tenthQuantile: PropTypes.number.isRequired,
+          thirdQuartile: PropTypes.number.isRequired,
+        }).isRequired,
+      }).isRequired,
+    }),
+    focusedSliceKeys: PropTypes.arrayOf(PropTypes.oneOf([
+      'firstQuartile',
+      'max',
+      'median',
+      'min',
+      'ninetiethQuantile',
+      'tenthQuantile',
+      'thirdQuartile',
+    ])),
     focusSlice: PropTypes.func.isRequired,
-    margins: PropTypes.object.isRequired,
-    smbgOpts: PropTypes.object.isRequired,
+    margins: PropTypes.shape({
+      top: PropTypes.number.isRequired,
+      right: PropTypes.number.isRequired,
+      bottom: PropTypes.number.isRequired,
+      left: PropTypes.number.isRequired,
+    }).isRequired,
+    smbgOpts: PropTypes.shape({
+      maxR: PropTypes.number.isRequired,
+      r: PropTypes.number.isRequired,
+    }).isRequired,
     svgDimensions: PropTypes.shape({
       width: PropTypes.number.isRequired,
       height: PropTypes.number.isRequired,

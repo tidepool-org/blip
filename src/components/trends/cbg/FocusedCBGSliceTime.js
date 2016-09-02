@@ -42,14 +42,26 @@ const FocusedCBGSliceTime = (props) => {
 FocusedCBGSliceTime.propTypes = {
   focusedSlice: PropTypes.shape({
     slice: PropTypes.shape({
-      msFrom: PropTypes.number.isRequired,
-      msTo: PropTypes.number.isRequired,
+      firstQuartile: PropTypes.number.isRequired,
+      max: PropTypes.number.isRequired,
+      median: PropTypes.number.isRequired,
+      min: PropTypes.number.isRequired,
+      ninetiethQuantile: PropTypes.number.isRequired,
+      tenthQuantile: PropTypes.number.isRequired,
+      thirdQuartile: PropTypes.number.isRequired,
     }).isRequired,
     position: PropTypes.shape({
-      topOptions: PropTypes.shape({
-        max: PropTypes.number.isRequired,
-      }).isRequired,
       left: PropTypes.number.isRequired,
+      tooltipLeft: PropTypes.bool.isRequired,
+      topOptions: PropTypes.shape({
+        firstQuartile: PropTypes.number.isRequired,
+        max: PropTypes.number.isRequired,
+        median: PropTypes.number.isRequired,
+        min: PropTypes.number.isRequired,
+        ninetiethQuantile: PropTypes.number.isRequired,
+        tenthQuantile: PropTypes.number.isRequired,
+        thirdQuartile: PropTypes.number.isRequired,
+      }).isRequired,
     }).isRequired,
   }),
 };

@@ -140,9 +140,27 @@ FocusedCBGSliceHTMLLabels.defaultProps = {
 
 FocusedCBGSliceHTMLLabels.propTypes = {
   bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
-  bottomNumbers: PropTypes.object.isRequired,
-  explainers: PropTypes.object.isRequired,
-  focusedKeys: PropTypes.array,
+  bottomNumbers: PropTypes.shape({
+    min: PropTypes.bool.isRequired,
+    tenthQuantile: PropTypes.bool.isRequired,
+    firstQuartile: PropTypes.bool.isRequired,
+  }).isRequired,
+  explainers: PropTypes.shape({
+    max: PropTypes.string.isRequired,
+    median: PropTypes.string.isRequired,
+    min: PropTypes.string.isRequired,
+    ninetiethQuantile: PropTypes.string.isRequired,
+    thirdQuartile: PropTypes.string.isRequired,
+  }).isRequired,
+  focusedKeys: PropTypes.arrayOf(PropTypes.oneOf([
+    'firstQuartile',
+    'max',
+    'median',
+    'min',
+    'ninetiethQuantile',
+    'tenthQuantile',
+    'thirdQuartile',
+  ])),
   focusedSlice: PropTypes.shape({
     slice: PropTypes.shape({
       firstQuartile: PropTypes.number.isRequired,
@@ -167,7 +185,11 @@ FocusedCBGSliceHTMLLabels.propTypes = {
       }).isRequired,
     }).isRequired,
   }),
-  topNumbers: PropTypes.object.isRequired,
+  topNumbers: PropTypes.shape({
+    max: PropTypes.bool.isRequired,
+    ninetiethQuantile: PropTypes.bool.isRequired,
+    thirdQuartile: PropTypes.bool.isRequired,
+  }).isRequired,
 };
 
 export default FocusedCBGSliceHTMLLabels;

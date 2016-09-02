@@ -16,5 +16,5 @@
  */
 
 .noDataMsg {
-  composes: mediumContrastText svgMiddleAnchored from '../../../styles/typography.css';
+  composes: mediumContrastText svgMiddleAnchored from '../../styles/typography.css';
 }

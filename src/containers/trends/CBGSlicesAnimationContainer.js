@@ -19,9 +19,9 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
-import { findTimeOfDayBin, mungeDataForBin } from '../../../utils/trends/data';
+import { findTimeOfDayBin, mungeDataForBin } from '../../utils/trends/data';
 
-import CBGSlice from './CBGSlice';
+import CBGSlice from '../../components/trends/cbg/CBGSlice';
 
 import styles from './CBGSlicesAnimationContainer.css';
 
@@ -30,11 +30,47 @@ import styles from './CBGSlicesAnimationContainer.css';
 export default class CBGSlicesAnimationContainer extends React.Component {
   static propTypes = {
     binSize: PropTypes.number.isRequired,
-    data: PropTypes.array.isRequired,
-    focusedSlice: PropTypes.object,
+    data: PropTypes.arrayOf(PropTypes.shape({
+      // here only documenting the properties we actually use rather than the *whole* data model!
+      id: PropTypes.string.isRequired,
+      msPer24: PropTypes.number.isRequired,
+      value: PropTypes.number.isRequired,
+    })).isRequired,
+    focusedSlice: PropTypes.shape({
+      slice: PropTypes.shape({
+        firstQuartile: PropTypes.number.isRequired,
+        max: PropTypes.number.isRequired,
+        median: PropTypes.number.isRequired,
+        min: PropTypes.number.isRequired,
+        ninetiethQuantile: PropTypes.number.isRequired,
+        tenthQuantile: PropTypes.number.isRequired,
+        thirdQuartile: PropTypes.number.isRequired,
+      }).isRequired,
+      position: PropTypes.shape({
+        left: PropTypes.number.isRequired,
+        tooltipLeft: PropTypes.bool.isRequired,
+        topOptions: PropTypes.shape({
+          firstQuartile: PropTypes.number.isRequired,
+          max: PropTypes.number.isRequired,
+          median: PropTypes.number.isRequired,
+          min: PropTypes.number.isRequired,
+          ninetiethQuantile: PropTypes.number.isRequired,
+          tenthQuantile: PropTypes.number.isRequired,
+          thirdQuartile: PropTypes.number.isRequired,
+        }).isRequired,
+      }).isRequired,
+    }),
     focusSlice: PropTypes.func.isRequired,
-    margins: PropTypes.object.isRequired,
-    svgDimensions: PropTypes.object.isRequired,
+    margins: PropTypes.shape({
+      top: PropTypes.number.isRequired,
+      right: PropTypes.number.isRequired,
+      bottom: PropTypes.number.isRequired,
+      left: PropTypes.number.isRequired,
+    }).isRequired,
+    svgDimensions: PropTypes.shape({
+      width: PropTypes.number.isRequired,
+      height: PropTypes.number.isRequired,
+    }).isRequired,
     unfocusSlice: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,

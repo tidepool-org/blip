@@ -29,7 +29,7 @@ import XAxisLabels from '../../../src/components/trends/common/XAxisLabels';
 import XAxisTicks from '../../../src/components/trends/common/XAxisTicks';
 import YAxisLabelsAndTicks from '../../../src/components/trends/common/YAxisLabelsAndTicks';
 import CBGSlicesAnimationContainer
-  from '../../../src/components/trends/cbg/CBGSlicesAnimationContainer';
+  from '../../../src/containers/trends/CBGSlicesAnimationContainer';
 import TargetRangeLines from '../../../src/components/trends/common/TargetRangeLines';
 
 function makeScale(scale) {

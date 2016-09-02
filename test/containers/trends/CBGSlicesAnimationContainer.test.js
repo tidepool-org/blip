@@ -21,7 +21,7 @@ import React from 'react';
 
 import { mount } from 'enzyme';
 
-import * as scales from '../../../helpers/scales';
+import * as scales from '../../helpers/scales';
 const {
   trendsWidth: width,
   trendsHeight: height,
@@ -30,7 +30,7 @@ const {
 } = scales.trends;
 
 import CBGSlicesAnimationContainer
-  from '../../../../src/components/trends/cbg/CBGSlicesAnimationContainer';
+  from '../../../src/containers/trends/CBGSlicesAnimationContainer';
 
 describe('CBGSlicesAnimationContainer', () => {
   let wrapper;

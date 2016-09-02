@@ -103,7 +103,19 @@ CBGSlice.defaultProps = {
 
 CBGSlice.propTypes = {
   aSliceIsFocused: PropTypes.bool.isRequired,
-  datum: PropTypes.object,
+  datum: PropTypes.shape({
+    firstQuartile: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
+    max: PropTypes.number.isRequired,
+    median: PropTypes.number.isRequired,
+    min: PropTypes.number.isRequired,
+    msFrom: PropTypes.number.isRequired,
+    msTo: PropTypes.number.isRequired,
+    msX: PropTypes.number.isRequired,
+    ninetiethQuantile: PropTypes.number.isRequired,
+    tenthQuantile: PropTypes.number.isRequired,
+    thirdQuartile: PropTypes.number.isRequired,
+  }),
   focusSlice: PropTypes.func.isRequired,
   isFocused: PropTypes.bool.isRequired,
   medianRadius: PropTypes.number.isRequired,

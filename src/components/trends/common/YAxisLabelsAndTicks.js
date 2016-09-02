@@ -62,7 +62,12 @@ YAxisLabels.propTypes = {
     veryLowThreshold: PropTypes.number.isRequired,
   }),
   bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
-  margins: PropTypes.object.isRequired,
+  margins: PropTypes.shape({
+    top: PropTypes.number.isRequired,
+    right: PropTypes.number.isRequired,
+    bottom: PropTypes.number.isRequired,
+    left: PropTypes.number.isRequired,
+  }).isRequired,
   textToTickGap: PropTypes.number.isRequired,
   tickWidth: PropTypes.number.isRequired,
   yScale: PropTypes.func.isRequired,
