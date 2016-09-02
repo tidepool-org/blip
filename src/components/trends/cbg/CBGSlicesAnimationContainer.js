@@ -77,14 +77,6 @@ export default class CBGSlicesAnimationContainer extends React.Component {
     return mungedData;
   }
 
-  calcMedianPositions(mungedData, yScale, transform) {
-    const medians = {};
-    _.each(mungedData, (d) => {
-      medians[d.id] = transform(d.median);
-    });
-    return medians;
-  }
-
   calcYPositions(mungedData, yScale, transform) {
     const yPositions = [];
     _.each(mungedData, (d) => {
