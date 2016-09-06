@@ -205,7 +205,6 @@ export class TrendsContainer extends React.Component {
     }).toISOString();
     const newDomain = [start, newEnd];
     this.setExtent(newDomain);
-    this.props.onDatetimeLocationChange(newDomain, newEnd >= mostRecent);
   }
 
   goForward() {
@@ -213,7 +212,6 @@ export class TrendsContainer extends React.Component {
     const end = utcDay.offset(new Date(newStart), this.props.extentSize).toISOString();
     const newDomain = [newStart, end];
     this.setExtent(newDomain);
-    this.props.onDatetimeLocationChange(newDomain, end >= mostRecent);
   }
 
   goToMostRecent() {
@@ -221,7 +219,6 @@ export class TrendsContainer extends React.Component {
     const start = utcDay.offset(new Date(end), -this.props.extentSize).toISOString();
     const newDomain = [start, end];
     this.setExtent(newDomain);
-    this.props.onDatetimeLocationChange(newDomain, true);
   }
 
   refilterByDate(dataByDate, dateDomain) {
