@@ -18,6 +18,24 @@
 var common = require('./common.js');
 var schema = require('./validator/schematron.js');
 
+var carbRatioSchema = schema().array(
+  schema(
+    {
+      amount: schema().number().min(0),
+      start: schema().number().min(0).max(86400000)
+    }
+  )
+);
+
+var insulinSensitivitySchema = schema().array(
+  schema(
+    {
+      amount: schema().number().min(0),
+      start: schema().number().min(0).max(86400000)
+    }
+  )
+);
+
 module.exports = schema(
   common,
   [schema().oneOf(
@@ -73,49 +91,21 @@ module.exports = schema(
   ),
   schema().oneOf(
     schema({
-      carbRatio: schema().array(
-        schema(
-          {
-            amount: schema().number().min(0),
-            start: schema().number().min(0).max(86400000)
-          }
-        )
-      )
+      carbRatio: carbRatioSchema
     }),
     schema({
       carbRatios: schema().object(function(ratios){
-        return _.every(ratios, schema().array(
-          schema(
-            {
-              amount: schema().number().min(0),
-              start: schema().number().min(0).max(86400000)
-            }
-          )
-        ))
+        return _.every(ratios, carbRatioSchema)
       })
     })
   ),
   schema().oneOf(
     schema({
-      insulinSensitivity: schema().array(
-        schema(
-          {
-            amount: schema().number().min(0),
-            start: schema().number().min(0).max(86400000)
-          }
-        )
-      )
+      insulinSensitivity: insulinSensitivitySchema
     }),
     schema({
       insulinSensitivities: schema().object(function(sensitivities){
-        return _.every(sensitivities, schema().array(
-          schema(
-            {
-              amount: schema().number().min(0),
-              start: schema().number().min(0).max(86400000)
-            }
-          )
-        ))
+        return _.every(sensitivities, insulinSensitivitySchema)
       })
     })
   )],
