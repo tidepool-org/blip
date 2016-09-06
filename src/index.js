@@ -24,22 +24,19 @@ import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
 
 import TrendsContainer from './containers/trends/TrendsContainer';
 
-import * as SettingsContainerFactory from './containers/settings/factory';
-
-import CollapsibleContainer from './containers/common/CollapsibleContainer';
+import * as SettingsFactory from './components/settings/factory';
 
 import vizReducer from './reducers/';
 
 const components = {
   FocusedCBGSliceHTMLLabels,
   FocusedCBGSliceTime,
+  SettingsFactory,
   TwoOptionToggle,
-  CollapsibleContainer,
 };
 
 const containers = {
   TrendsContainer,
-  SettingsContainerFactory,
 };
 
 export { components, containers, vizReducer };
