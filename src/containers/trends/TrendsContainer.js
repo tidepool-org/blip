@@ -184,6 +184,7 @@ export class TrendsContainer extends React.Component {
 
   setExtent(newDomain) {
     const { cbgByDate, smbgByDate } = this.props;
+    const { mostRecent } = this.state;
     this.refilterByDate(cbgByDate, newDomain);
     this.refilterByDate(smbgByDate, newDomain);
     this.setState({
@@ -191,6 +192,7 @@ export class TrendsContainer extends React.Component {
       currentSmbgData: smbgByDate.top(Infinity).reverse(),
       dateDomain: { start: newDomain[0], end: newDomain[1] },
     });
+    this.props.onDatetimeLocationChange(newDomain, newDomain[1] >= mostRecent);
   }
 
   goBack() {
