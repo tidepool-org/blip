@@ -291,7 +291,6 @@ var Modal = React.createClass({
     var current = new Date(this.chart.getCurrentDay());
     var newDomain = this.getNewDomain(current, 7);
     this.chart.setExtent(newDomain);
-    this.handleDatetimeLocationChange(newDomain);
   },
   handleClickTwoWeeks: function(e) {
     if (e) {
@@ -308,7 +307,6 @@ var Modal = React.createClass({
     var current = new Date(this.chart.getCurrentDay());
     var newDomain = this.getNewDomain(current, 14);
     this.chart.setExtent(newDomain);
-    this.handleDatetimeLocationChange(newDomain);
   },
   handleClickFourWeeks: function(e) {
     if (e) {
@@ -325,7 +323,6 @@ var Modal = React.createClass({
     var current = new Date(this.chart.getCurrentDay());
     var newDomain = this.getNewDomain(current, 28);
     this.chart.setExtent(newDomain);
-    this.handleDatetimeLocationChange(newDomain);
   },
   handleClickWeekly: function(e) {
     if (e) {
