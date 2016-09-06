@@ -196,7 +196,7 @@ export class TrendsContainer extends React.Component {
   }
 
   goBack() {
-    const { dateDomain: { start: newEnd }, mostRecent } = this.state;
+    const { dateDomain: { start: newEnd } } = this.state;
     const { timePrefs } = this.props;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
     const start = datetime.timezoneAwareOffset(newEnd, timezone, {
@@ -208,7 +208,7 @@ export class TrendsContainer extends React.Component {
   }
 
   goForward() {
-    const { dateDomain: { end: newStart }, mostRecent } = this.state;
+    const { dateDomain: { end: newStart } } = this.state;
     const end = utcDay.offset(new Date(newStart), this.props.extentSize).toISOString();
     const newDomain = [newStart, end];
     this.setExtent(newDomain);
