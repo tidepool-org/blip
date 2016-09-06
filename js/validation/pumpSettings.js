@@ -20,6 +20,105 @@ var schema = require('./validator/schematron.js');
 
 module.exports = schema(
   common,
+  [schema().oneOf(
+    schema({
+      bgTarget: schema().array(schema().oneOf(
+        // Medtronic
+        schema(
+            {
+              low: schema().number(),
+              high: schema().number(),
+              start: schema().number().min(0).max(86400000),
+              range: schema().banned(),
+              target: schema().banned()
+            }
+          ),
+        // Animas
+        schema(
+            {
+              target: schema().number(),
+              range: schema().number(),
+              start: schema().number().min(0).max(86400000),
+              low: schema().banned(),
+              high: schema().banned()
+            }
+          ),
+        // OmniPod
+        schema(
+            {
+              target: schema().number(),
+              high: schema().number(),
+              start: schema().number().min(0).max(86400000),
+              low: schema().banned(),
+              range: schema().banned()
+            }
+          )
+        )
+      ),
+    }),
+    schema({
+      bgTargets: schema().object(function(targets){
+        return _.every(targets, schema().array(schema(
+            {
+              target: schema().number(),
+              start: schema().number().min(0).max(86400000),
+              low: schema().banned(),
+              high: schema().banned(),
+              range: schema().banned()
+            }
+          )
+        ))
+      })
+    })
+  ),
+  schema().oneOf(
+    schema({
+      carbRatio: schema().array(
+        schema(
+          {
+            amount: schema().number().min(0),
+            start: schema().number().min(0).max(86400000)
+          }
+        )
+      )
+    }),
+    schema({
+      carbRatios: schema().object(function(ratios){
+        return _.every(ratios, schema().array(
+          schema(
+            {
+              amount: schema().number().min(0),
+              start: schema().number().min(0).max(86400000)
+            }
+          )
+        ))
+      })
+    })
+  ),
+  schema().oneOf(
+    schema({
+      insulinSensitivity: schema().array(
+        schema(
+          {
+            amount: schema().number().min(0),
+            start: schema().number().min(0).max(86400000)
+          }
+        )
+      )
+    }),
+    schema({
+      insulinSensitivities: schema().object(function(sensitivities){
+        return _.every(sensitivities, schema().array(
+          schema(
+            {
+              amount: schema().number().min(0),
+              start: schema().number().min(0).max(86400000)
+            }
+          )
+        ))
+      })
+    })
+  )],
   {
     basalSchedules: schema().array(
       schema(
@@ -36,65 +135,6 @@ module.exports = schema(
         }
       )
     ),
-    bgTarget: schema().array(schema().oneOf(
-      // Medtronic
-      schema(
-          {
-            low: schema().number(),
-            high: schema().number(),
-            start: schema().number().min(0).max(86400000),
-            range: schema().banned(),
-            target: schema().banned()
-          }
-        ),
-      // Animas
-      schema(
-          {
-            target: schema().number(),
-            range: schema().number(),
-            start: schema().number().min(0).max(86400000),
-            low: schema().banned(),
-            high: schema().banned()
-          }
-        ),
-      // OmniPod
-      schema(
-          {
-            target: schema().number(),
-            high: schema().number(),
-            start: schema().number().min(0).max(86400000),
-            low: schema().banned(),
-            range: schema().banned()
-          }
-        ),
-      // Tandem
-      schema(
-          {
-            target: schema().number(),
-            start: schema().number().min(0).max(86400000),
-            low: schema().banned(),
-            high: schema().banned(),
-            range: schema().banned()
-          }
-        )
-      )
-    ),
-    carbRatio: schema().array(
-      schema(
-        {
-          amount: schema().number().min(0),
-          start: schema().number().min(0).max(86400000)
-        }
-      )
-    ),
     deviceTime: schema().ifExists().isDeviceTime(),
-    insulinSensitivity: schema().array(
-      schema(
-        {
-          amount: schema().number().min(0),
-          start: schema().number().min(0).max(86400000)
-        }
-      )
-    )
   }
 );
