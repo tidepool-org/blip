@@ -68,6 +68,7 @@
     "lodash": "3.10.1",
     "mocha": "3.0.2",
     "moment-timezone": "0.5.5",
+    "object-invariant-test-helper": "0.1.1",
     "phantomjs-prebuilt": "2.1.12",
     "postcss": "5.1.2",
     "postcss-calc": "5.3.1",
