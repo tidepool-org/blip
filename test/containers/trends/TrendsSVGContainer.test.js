@@ -19,7 +19,7 @@ import React from 'react';
 
 import { mount } from 'enzyme';
 
-import CBGTrendsContainer from '../../../src/containers/trends/CBGTrendsContainer';
+import { TrendsSVGContainer } from '../../../src/containers/trends/TrendsSVGContainer';
 
 import BackgroundWithTargetRange
   from '../../../src/components/trends/common/BackgroundWithTargetRange';
@@ -36,7 +36,7 @@ function makeScale(scale) {
   return scale;
 }
 
-describe('CBGTrendsContainer', () => {
+describe('TrendsSVGContainer', () => {
   const props = {
     bgBounds: {
       veryHighThreshold: 300,
@@ -45,8 +45,14 @@ describe('CBGTrendsContainer', () => {
       veryLowThreshold: 60,
     },
     bgUnits: 'mg/dL',
+    // normally provided by react-dimensions wrapper but we test w/o that
+    containerHeight: 520,
+    // normally provided by react-dimensions wrapper but we test w/o that
+    containerWidth: 960,
     data: [],
     focusSlice: () => {},
+    showingCbg: true,
+    showingSmbg: false,
     timezone: 'UTC',
     unfocusSlice: () => {},
     xScale: makeScale(() => {}),
@@ -60,33 +66,33 @@ describe('CBGTrendsContainer', () => {
 
   describe('componentWillMount', () => {
     it('should set the range of the xScale', () => {
-      sinon.spy(CBGTrendsContainer.prototype, 'componentWillMount');
-      expect(CBGTrendsContainer.prototype.componentWillMount.callCount).to.equal(0);
-      mount(<CBGTrendsContainer {...props} />);
-      expect(CBGTrendsContainer.prototype.componentWillMount.callCount).to.equal(1);
+      sinon.spy(TrendsSVGContainer.prototype, 'componentWillMount');
+      expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(0);
+      mount(<TrendsSVGContainer {...props} />);
+      expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(1);
       expect(props.xScale.range.callCount).to.equal(3);
       expect(props.xScale.range.firstCall.args[0]).to.deep.equal([48, 942]);
       // called twice as getter in TargetRangeLines
       expect(props.xScale.range.secondCall.args[0]).to.be.undefined;
       expect(props.xScale.range.thirdCall.args[0]).to.be.undefined;
-      CBGTrendsContainer.prototype.componentWillMount.restore();
+      TrendsSVGContainer.prototype.componentWillMount.restore();
     });
 
     it('should set the range of the yScale', () => {
-      sinon.spy(CBGTrendsContainer.prototype, 'componentWillMount');
-      expect(CBGTrendsContainer.prototype.componentWillMount.callCount).to.equal(0);
-      mount(<CBGTrendsContainer {...props} />);
-      expect(CBGTrendsContainer.prototype.componentWillMount.callCount).to.equal(1);
+      sinon.spy(TrendsSVGContainer.prototype, 'componentWillMount');
+      expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(0);
+      mount(<TrendsSVGContainer {...props} />);
+      expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(1);
       expect(props.yScale.range.callCount).to.equal(1);
       expect(props.yScale.range.firstCall.args[0]).to.deep.equal([480, 80]);
-      CBGTrendsContainer.prototype.componentWillMount.restore();
+      TrendsSVGContainer.prototype.componentWillMount.restore();
     });
   });
 
   describe('render', () => {
     let wrapper;
     before(() => {
-      wrapper = mount(<CBGTrendsContainer {...props} />);
+      wrapper = mount(<TrendsSVGContainer {...props} />);
     });
 
     it('should render a BackgroundWithTargetRange', () => {

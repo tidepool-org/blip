@@ -23,7 +23,7 @@
  * in this parent/container component are just used directly as constants.
  */
 const BUMPERS = {
-  top: 30,
+  top: 50,
   bottom: 30,
 };
 
@@ -49,7 +49,7 @@ import YAxisLabelsAndTicks from '../../components/trends/common/YAxisLabelsAndTi
 import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 
-class TrendsInnerContainer extends React.Component {
+export class TrendsSVGContainer extends React.Component {
   componentWillMount() {
     const { containerHeight: height, containerWidth: width } = this.props;
     const { margins, smbgOpts, xScale, yScale } = this.props;
@@ -127,12 +127,12 @@ class TrendsInnerContainer extends React.Component {
   }
 }
 
-TrendsInnerContainer.defaultProps = {
+TrendsSVGContainer.defaultProps = {
   margins: MARGINS,
   smbgOpts: SMBG_OPTS,
 };
 
-TrendsInnerContainer.propTypes = {
+TrendsSVGContainer.propTypes = {
   bgBounds: PropTypes.shape({
     veryHighThreshold: PropTypes.number.isRequired,
     targetUpperBound: PropTypes.number.isRequired,
@@ -190,4 +190,4 @@ TrendsInnerContainer.propTypes = {
   yScale: PropTypes.func.isRequired,
 };
 
-export default dimensions()(TrendsInnerContainer);
+export default dimensions()(TrendsSVGContainer);

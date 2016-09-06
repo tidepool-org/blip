@@ -19,7 +19,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
-import { findTimeOfDayBin, mungeDataForBin } from '../../utils/trends/data';
+import { findTimeOfDayBin, mungeCbgDataForBin } from '../../utils/trends/data';
 
 import CBGSlice from '../../components/trends/cbg/CBGSlice';
 
@@ -106,7 +106,7 @@ export default class CBGSlicesAnimationContainer extends React.Component {
     const mungedData = [];
     for (let i = 0; i < binKeys.length; ++i) {
       const values = _.map(binned[binKeys[i]], valueExtractor);
-      mungedData.push(mungeDataForBin(binKeys[i], binSize, values));
+      mungedData.push(mungeCbgDataForBin(binKeys[i], binSize, values));
     }
     return mungedData;
   }
