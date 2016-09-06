@@ -23,12 +23,11 @@ import Header from '../common/Header';
 import Table from '../common/Table';
 import CollapsibleContainer from '../common/CollapsibleContainer';
 
-import * as utilities from '../data/utilities';
-import * as processing from '../data/processing';
+import * as data from '../../../utils/settings/data';
 
 const Tandem = (props) => {
   const { bgUnits, pumpSettings } = props;
-  const schedules = utilities.getTimedSchedules(pumpSettings.basalSchedules);
+  const schedules = data.getTimedSchedules(pumpSettings.basalSchedules);
 
   const COLUMNS = [
     { key: 'start',
@@ -52,7 +51,7 @@ const Tandem = (props) => {
     <div key={schedule.name}>
       <CollapsibleContainer
         styledLabel={{
-          label: utilities.getScheduleLabel(schedule.name, pumpSettings.activeSchedule),
+          label: data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule),
           className: styles.collapsibleHeader,
         }}
         openByDefault={schedule.name === pumpSettings.activeSchedule}
@@ -60,7 +59,7 @@ const Tandem = (props) => {
         closedStyle={styles.collapsibleClosed}
       >
         <Table
-          rows={processing.processTimedSettings(pumpSettings, schedule, bgUnits)}
+          rows={data.processTimedSettings(pumpSettings, schedule, bgUnits)}
           columns={COLUMNS}
           tableStyle={styles.basalTable}
         />
@@ -71,7 +70,7 @@ const Tandem = (props) => {
     <div>
       <Header
         deviceType="Tandem"
-        deviceMeta={utilities.getDeviceMeta(pumpSettings)}
+        deviceMeta={data.getDeviceMeta(pumpSettings)}
       />
       {tables}
     </div>
@@ -79,8 +78,47 @@ const Tandem = (props) => {
 };
 
 Tandem.propTypes = {
-  bgUnits: PropTypes.oneOf([utilities.MMOLL_UNITS, utilities.MGDL_UNITS]).isRequired,
-  pumpSettings: processing.timedSettingsShape.isRequired,
+  bgUnits: PropTypes.oneOf([data.MMOLL_UNITS, data.MGDL_UNITS]).isRequired,
+  pumpSettings: React.PropTypes.shape({
+    activeSchedule: React.PropTypes.string.isRequired,
+    units: React.PropTypes.object.isRequired,
+    deviceId: React.PropTypes.string.isRequired,
+    basalSchedules: React.PropTypes.arrayOf(
+      React.PropTypes.shape({
+        name: React.PropTypes.string.isRequired,
+        value: React.PropTypes.arrayOf(
+          React.PropTypes.shape({
+            start: React.PropTypes.number.isRequired,
+            rate: React.PropTypes.number.isRequired,
+          }),
+        ),
+      }),
+    ).isRequired,
+    bgTargets: React.PropTypes.objectOf(
+      React.PropTypes.arrayOf(
+        React.PropTypes.shape({
+          start: React.PropTypes.number.isRequired,
+          target: React.PropTypes.number.isRequired,
+        })
+      ),
+    ).isRequired,
+    carbRatios: React.PropTypes.objectOf(
+      React.PropTypes.arrayOf(
+        React.PropTypes.shape({
+          start: React.PropTypes.number.isRequired,
+          amount: React.PropTypes.number.isRequired,
+        })
+      ),
+    ).isRequired,
+    insulinSensitivities: React.PropTypes.objectOf(
+      React.PropTypes.arrayOf(
+        React.PropTypes.shape({
+          start: React.PropTypes.number.isRequired,
+          amount: React.PropTypes.number.isRequired,
+        })
+      ),
+    ).isRequired,
+  }).isRequired,
 };
 
 export default Tandem;

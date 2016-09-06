@@ -21,8 +21,7 @@ import Header from '../common/Header';
 import Table from '../common/Table';
 import CollapsibleContainer from '../common/CollapsibleContainer';
 
-import * as utilities from '../data/utilities';
-import * as processing from '../data/processing';
+import * as data from '../../../utils/settings/data';
 
 import styles from './Animas.css';
 
@@ -34,11 +33,11 @@ const Animas = (props) => {
       { key: 'start', label: 'Start time', className: '' },
       { key: 'rate', label: 'Value (U/hr)', className: '' },
     ];
-    const schedules = utilities.getScheduleNames(pumpSettings.basalSchedules);
+    const schedules = data.getScheduleNames(pumpSettings.basalSchedules);
 
     const tables = schedules.map((schedule) => {
       const title = {
-        label: utilities.getScheduleLabel(
+        label: data.getScheduleLabel(
           pumpSettings.basalSchedules[schedule].name,
           pumpSettings.activeSchedule,
         ),
@@ -57,7 +56,7 @@ const Animas = (props) => {
           >
             <Table
               rows={
-                processing.processBasalRateData(pumpSettings.basalSchedules[schedule])
+                data.processBasalRateData(pumpSettings.basalSchedules[schedule])
               }
               columns={columns}
               tableStyle={styles.basalTable}
@@ -83,7 +82,7 @@ const Animas = (props) => {
         <Table
           title={title}
           rows={
-            processing.processSensitivityData(
+            data.processSensitivityData(
               pumpSettings.insulinSensitivity,
               bgUnits,
             )
@@ -109,7 +108,7 @@ const Animas = (props) => {
         <Table
           title={title}
           rows={
-            processing.processCarbRatioData(
+            data.processCarbRatioData(
               pumpSettings.carbRatio,
             )
           }
@@ -135,7 +134,7 @@ const Animas = (props) => {
         <Table
           title={title}
           rows={
-            processing.processBgTargetData(
+            data.processBgTargetData(
               pumpSettings.bgTarget,
               bgUnits,
               { columnTwo: 'target', columnThree: 'range' },
@@ -151,7 +150,7 @@ const Animas = (props) => {
     <div>
       <Header
         deviceType="Animas"
-        deviceMeta={utilities.getDeviceMeta(pumpSettings)}
+        deviceMeta={data.getDeviceMeta(pumpSettings)}
       />
       <div className={styles.settings}>
         {renderBasalsData()}
@@ -164,8 +163,42 @@ const Animas = (props) => {
 };
 
 Animas.propTypes = {
-  bgUnits: PropTypes.oneOf([utilities.MMOLL_UNITS, utilities.MGDL_UNITS]).isRequired,
-  pumpSettings: processing.settingsShape.isRequired,
+  bgUnits: PropTypes.oneOf([data.MMOLL_UNITS, data.MGDL_UNITS]).isRequired,
+  pumpSettings: React.PropTypes.shape({
+    activeSchedule: React.PropTypes.string.isRequired,
+    units: React.PropTypes.object.isRequired,
+    deviceId: React.PropTypes.string.isRequired,
+    basalSchedules: React.PropTypes.arrayOf(
+      React.PropTypes.shape({
+        name: React.PropTypes.string.isRequired,
+        value: React.PropTypes.arrayOf(
+          React.PropTypes.shape({
+            start: React.PropTypes.number.isRequired,
+            rate: React.PropTypes.number.isRequired,
+          }),
+        ),
+      }),
+    ).isRequired,
+    bgTarget: React.PropTypes.arrayOf(
+      React.PropTypes.shape({
+        start: React.PropTypes.number.isRequired,
+        target: React.PropTypes.number,
+        range: React.PropTypes.number,
+      })
+    ).isRequired,
+    carbRatio: React.PropTypes.arrayOf(
+      React.PropTypes.shape({
+        start: React.PropTypes.number.isRequired,
+        amount: React.PropTypes.number.isRequired,
+      })
+    ).isRequired,
+    insulinSensitivity: React.PropTypes.arrayOf(
+      React.PropTypes.shape({
+        start: React.PropTypes.number.isRequired,
+        amount: React.PropTypes.number.isRequired,
+      })
+    ).isRequired,
+  }).isRequired,
 };
 
 export default Animas;
