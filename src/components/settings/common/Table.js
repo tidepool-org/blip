@@ -92,10 +92,13 @@ class Table extends React.Component {
 }
 
 Table.propTypes = {
-  title: PropTypes.object,
-  rows: PropTypes.array,
-  columns: PropTypes.array,
-  tableStyle: PropTypes.string,
+  title: React.PropTypes.shape({
+    className: React.PropTypes.string.isRequired,
+    label: React.PropTypes.string.isRequired,
+  }),
+  rows: PropTypes.array.isRequired,
+  columns: PropTypes.array.isRequired,
+  tableStyle: PropTypes.string.isRequired,
 };
 
 export default Table;
