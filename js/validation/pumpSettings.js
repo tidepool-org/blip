@@ -17,6 +17,7 @@
 
 var common = require('./common.js');
 var schema = require('./validator/schematron.js');
+var _ = require('lodash');
 
 var carbRatioSchema = schema().array(
   schema(
@@ -85,7 +86,7 @@ module.exports = schema(
               range: schema().banned()
             }
           )
-        ))
+        ));
       })
     })
   ),
@@ -95,7 +96,7 @@ module.exports = schema(
     }),
     schema({
       carbRatios: schema().object(function(ratios){
-        return _.every(ratios, carbRatioSchema)
+        return _.every(ratios, carbRatioSchema);
       })
     })
   ),
@@ -105,7 +106,7 @@ module.exports = schema(
     }),
     schema({
       insulinSensitivities: schema().object(function(sensitivities){
-        return _.every(sensitivities, insulinSensitivitySchema)
+        return _.every(sensitivities, insulinSensitivitySchema);
       })
     })
   )],
