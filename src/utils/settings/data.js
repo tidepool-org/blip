@@ -20,9 +20,7 @@ import _ from 'lodash';
 import * as datetime from '../datetime';
 import * as format from '../format';
 
-export const DISPLAY_PRESCION_PLACES = 3;
-export const MGDL_UNITS = 'mg/dL';
-export const MMOLL_UNITS = 'mmol/L';
+const DISPLAY_PRECISION_PLACES = 3;
 
 function noData(val) {
   return val === null || (typeof val === 'undefined');
@@ -33,7 +31,7 @@ function getBasalRate(scheduleData, startTime) {
   if (noData(rate)) {
     return '';
   }
-  return format.displayDecimal(rate, DISPLAY_PRESCION_PLACES);
+  return format.displayDecimal(rate, DISPLAY_PRECISION_PLACES);
 }
 
 function getValue(scheduleData, fieldName, startTime) {
@@ -67,7 +65,7 @@ export function getTotalBasalRates(scheduleData) {
     const hrs = (finish - start) / HOUR_IN_MILLISECONDS;
     total += (scheduleData[i].rate * hrs);
   }
-  return format.displayDecimal(total, DISPLAY_PRESCION_PLACES);
+  return format.displayDecimal(total, DISPLAY_PRECISION_PLACES);
 }
 
 export function getScheduleLabel(scheduleName, activeName) {

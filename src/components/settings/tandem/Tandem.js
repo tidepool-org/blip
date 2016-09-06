@@ -23,6 +23,7 @@ import Header from '../common/Header';
 import Table from '../common/Table';
 import CollapsibleContainer from '../common/CollapsibleContainer';
 
+import * as constants from '../../../utils/constants';
 import * as data from '../../../utils/settings/data';
 
 const Tandem = (props) => {
@@ -78,7 +79,7 @@ const Tandem = (props) => {
 };
 
 Tandem.propTypes = {
-  bgUnits: PropTypes.oneOf([data.MMOLL_UNITS, data.MGDL_UNITS]).isRequired,
+  bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
   pumpSettings: React.PropTypes.shape({
     activeSchedule: React.PropTypes.string.isRequired,
     units: React.PropTypes.object.isRequired,

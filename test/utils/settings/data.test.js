@@ -121,21 +121,6 @@ describe('data', () => {
       });
     });
   });
-  describe('DISPLAY_PRESCION_PLACES', () => {
-    it('should be 3', () => {
-      expect(data.DISPLAY_PRESCION_PLACES).to.equal(3);
-    });
-  });
-  describe('MMOLL_UNITS', () => {
-    it('should be mmol/L', () => {
-      expect(data.MMOLL_UNITS).to.equal('mmol/L');
-    });
-  });
-  describe('MGDL_UNITS', () => {
-    it('should be mg/dL', () => {
-      expect(data.MGDL_UNITS).to.equal('mg/dL');
-    });
-  });
   describe('getScheduleLabel', () => {
     it('should return the formatted time', () => {
       expect(
