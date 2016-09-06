@@ -24,7 +24,7 @@ import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
 
 import TrendsContainer from './containers/trends/TrendsContainer';
 
-import * as SettingsFactory from './components/settings/factory';
+import * as SettingsFactory from './utils/settings/factory';
 
 import vizReducer from './reducers/';
 

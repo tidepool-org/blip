@@ -1,7 +1,7 @@
 /* eslint-env node, mocha */
 /* eslint no-console: 0*/
 
-import * as factory from '../../../src/components/settings/factory';
+import * as factory from '../../../src/utils/settings/factory';
 
 import Medtronic from '../../../src/components/settings/medtronic/Medtronic';
 import Animas from '../../../src/components/settings/animas/Animas';

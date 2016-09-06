@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-import Medtronic from './medtronic/Medtronic';
-import Tandem from './tandem/Tandem';
-import Omnipod from './omnipod/Omnipod';
-import Animas from './animas/Animas';
+import Medtronic from '../../components/settings/medtronic/Medtronic';
+import Tandem from '../../components/settings/tandem/Tandem';
+import Omnipod from '../../components/settings/omnipod/Omnipod';
+import Animas from '../../components/settings/animas/Animas';
 
 export function getChart(deviceType) {
   const chartType = deviceType.toLowerCase();
