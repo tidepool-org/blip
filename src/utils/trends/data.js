@@ -38,14 +38,14 @@ export function findTimeOfDayBin(binSize, msPer24) {
 }
 
 /**
- * mungeDataForBin
+ * mungeCbgDataForBin
  * @param {String} binKey - String of natural number milliseconds bin
  * @param {Number} binSize - natural number duration in milliseconds
  * @param {Array} data - Array of blood-glucose values in mg/dL or mmol/L
  *
  * @return {Object} mungedData
  */
-export function mungeDataForBin(binKey, binSize, data) {
+export function mungeCbgDataForBin(binKey, binSize, data) {
   const sorted = _.sortBy(data, d => d);
   const centerOfBinMs = parseInt(binKey, 10);
   return {
@@ -61,4 +61,14 @@ export function mungeDataForBin(binKey, binSize, data) {
     msFrom: centerOfBinMs - (binSize / 2),
     msTo: centerOfBinMs + (binSize / 2),
   };
+}
+
+/**
+ * DESCRIPTION
+ * @param {TYPE} NAME
+ * @param {TYPE} NAME
+ * @return {TYPE} NAME
+ */
+export function mungeSmbgDataForBin(binKey, binSize, data) {
+
 }
