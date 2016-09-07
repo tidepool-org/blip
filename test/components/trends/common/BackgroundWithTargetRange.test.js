@@ -15,7 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
 import React from 'react';
 
 import { mount } from 'enzyme';
@@ -72,6 +71,8 @@ describe('BackgroundWithTargetRange', () => {
   it('should render two rects above and below target range', () => {
     const nonTargetRects = wrapper.find(formatClassesAsSelector(styles.nonTargetBackground));
     expect(nonTargetRects).to.have.length(2);
+    // Enzyme forEach cannot be replaced by _.forEach
+    // eslint-disable-next-line lodash/prefer-lodash-method
     nonTargetRects.forEach((rect) => {
       expect(rect.is('rect')).to.be.true;
     });
@@ -106,6 +107,8 @@ describe('BackgroundWithTargetRange', () => {
     it('should render seven 3-hr dividing lines', () => {
       const threeHrLines = withLinesWrapper.find(formatClassesAsSelector(styles.threeHrLine));
       expect(threeHrLines).to.have.length(7);
+      // Enzyme forEach cannot be replaced by _.forEach
+      // eslint-disable-next-line lodash/prefer-lodash-method
       threeHrLines.forEach((line, i) => {
         expect(line.is('line')).to.be.true;
         expect(line.prop('x1')).to.equal(xScale((i + 1) * (TWENTY_FOUR_HRS / 8)));

@@ -15,7 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
 import React from 'react';
 
 import { mount } from 'enzyme';
@@ -56,6 +55,8 @@ describe('XAxisTicks', () => {
   it('should render nine tick lines at three hour intervals', () => {
     const ticks = wrapper.find('line');
     expect(ticks).to.have.length(9);
+    // Enzyme forEach cannot be replaced by _.forEach
+    // eslint-disable-next-line lodash/prefer-lodash-method
     ticks.forEach((tick, i) => {
       expect(tick.prop('x1')).to.equal(xScale(i * (TWENTY_FOUR_HRS / 8)));
       expect(tick.prop('x2')).to.equal(xScale(i * (TWENTY_FOUR_HRS / 8)));

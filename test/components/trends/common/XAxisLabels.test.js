@@ -15,7 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
 import React from 'react';
 
 import { mount } from 'enzyme';
@@ -56,6 +55,8 @@ describe('XAxisLabels', () => {
   it('should render eight text labels at three hour intervals', () => {
     const labels = wrapper.find('text');
     expect(labels).to.have.length(8);
+    // Enzyme forEach cannot be replaced by _.forEach
+    // eslint-disable-next-line lodash/prefer-lodash-method
     labels.forEach((label, i) => {
       expect(label.prop('x')).to.equal(xScale(i * (TWENTY_FOUR_HRS / 8)));
     });

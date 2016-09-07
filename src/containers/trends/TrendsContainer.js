@@ -222,6 +222,7 @@ export class TrendsContainer extends React.Component {
   }
 
   refilterByDate(dataByDate, dateDomain) {
+    // eslint-disable-next-line lodash/prefer-lodash-method
     dataByDate.filter(dateDomain);
   }
 
@@ -238,6 +239,7 @@ export class TrendsContainer extends React.Component {
     dataByDayOfWeek.filterFunction(this.filterActiveDaysFn(activeDays));
 
     // filter within date domain
+    // eslint-disable-next-line lodash/prefer-lodash-method
     dataByDate.filter(dateDomain);
   }
 
@@ -314,6 +316,6 @@ export function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-  (stateProps, dispatchProps, ownProps) => (Object.assign({}, ownProps, stateProps, dispatchProps)),
+  (stateProps, dispatchProps, ownProps) => (_.assign({}, ownProps, stateProps, dispatchProps)),
   { withRef: true },
 )(TrendsContainer);

@@ -66,10 +66,10 @@ describe('TrendsContainer', () => {
         top: topStub,
       };
       return {
-        cbgByDate: Object.assign({}, byDate),
-        cbgByDayOfWeek: Object.assign({}, byDayOfWeek),
-        smbgByDate: Object.assign({}, byDate),
-        smbgByDayOfWeek: Object.assign({}, byDayOfWeek),
+        cbgByDate: _.assign({}, byDate),
+        cbgByDayOfWeek: _.assign({}, byDayOfWeek),
+        smbgByDate: _.assign({}, byDate),
+        smbgByDayOfWeek: _.assign({}, byDayOfWeek),
       };
     }
 
@@ -215,7 +215,7 @@ describe('TrendsContainer', () => {
         expect(markTrendsViewed.callCount).to.equal(0);
         mount(
           <TrendsContainer
-            {...Object.assign({}, props, { viz: { trends: { touched: true } } })}
+            {..._.assign({}, props, { viz: { trends: { touched: true } } })}
             {...mgdl}
             {...makeDataStubs(justOneDatum)}
           />
@@ -251,7 +251,7 @@ describe('TrendsContainer', () => {
         expect(onSwitchBgDataSource.callCount).to.equal(0);
         mount(
           <TrendsContainer
-            {...Object.assign({}, props, { viz: { trends: { touched: true } } })}
+            {..._.assign({}, props, { viz: { trends: { touched: true } } })}
             {...mgdl}
             {...makeDataStubs(justOneDatum)}
           />
@@ -534,7 +534,7 @@ describe('TrendsContainer', () => {
       it('should render DummyComponent as `SMBGTrendsContainer` when showingSmbg', () => {
         const wrapper = mount(
           <TrendsContainer
-            {...Object.assign({}, props, {
+            {..._.assign({}, props, {
               showingCbg: false,
               showingSmbg: true,
             })}
@@ -548,7 +548,7 @@ describe('TrendsContainer', () => {
       it('should render `null` if !showingCbg and !showingSmbg', () => {
         const wrapper = mount(
           <TrendsContainer
-            {...Object.assign({}, props, {
+            {..._.assign({}, props, {
               showingCbg: false,
               showingSmbg: false,
             })}

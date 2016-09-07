@@ -100,7 +100,7 @@ export default class CBGSlicesAnimationContainer extends React.Component {
 
   mungeData(binSize, data) {
     const binned = _.groupBy(data, (d) => (findTimeOfDayBin(binSize, d.msPer24)));
-    const binKeys = Object.keys(binned);
+    const binKeys = _.keys(binned);
 
     const valueExtractor = (d) => (d.value);
     const mungedData = [];
