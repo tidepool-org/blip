@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* eslint-env node, mocha */
-
 import { range, shuffle } from 'd3-array';
 
 import * as utils from '../../../src/utils/trends/data';

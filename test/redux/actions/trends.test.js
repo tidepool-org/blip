@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* eslint-env node, mocha */
-
 import isTSA from 'tidepool-standard-action';
 
 import * as actionTypes from '../../../src/redux/actions/constants';

@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* eslint-env node, mocha */
-
 import React from 'react';
 
 import { shallow } from 'enzyme';

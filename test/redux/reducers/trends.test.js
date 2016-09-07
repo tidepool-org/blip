@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* eslint-env node, mocha */
-
 import mutationTracker from 'object-invariant-test-helper';
 
 import * as actionTypes from '../../../src/redux/actions/constants';

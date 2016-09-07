@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* eslint-env node, mocha */
-
 import _ from 'lodash';
 import React from 'react';
 

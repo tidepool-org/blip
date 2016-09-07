@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* eslint-env node, mocha */
-
 import * as format from '../../src/utils/format';
 
 describe('format', () => {
