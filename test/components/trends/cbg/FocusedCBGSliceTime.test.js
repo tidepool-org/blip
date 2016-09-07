@@ -27,14 +27,26 @@ import styles from '../../../../src/components/trends/cbg/FocusedCBGSliceTime.cs
 describe('FocusedCBGSliceTime', () => {
   const focusedSlice = {
     slice: {
-      msFrom: 0,
-      msTo: 3600000,
+      firstQuartile: 25,
+      max: 421,
+      median: 100,
+      min: 28,
+      ninetiethQuantile: 382,
+      tenthQuantile: 67,
+      thirdQuartile: 270,
     },
     position: {
+      left: 10,
+      tooltipLeft: false,
       topOptions: {
-        max: 300,
+        firstQuartile: 25,
+        max: 421,
+        median: 100,
+        min: 28,
+        ninetiethQuantile: 382,
+        tenthQuantile: 67,
+        thirdQuartile: 270,
       },
-      left: 180,
     },
   };
 

@@ -41,6 +41,7 @@ describe('TargetRangeLines', () => {
     },
     smbgOpts: {
       maxR: 0,
+      r: 3,
     },
     xScale,
     yScale,

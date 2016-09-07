@@ -42,16 +42,32 @@ describe('TrendsContainer', () => {
     const extentSize = 7;
     const timezone = 'US/Pacific';
 
-    const justOneDatum = sinon.stub().returns([{ value: 100 }]);
+    const justOneDatum = sinon.stub().returns([{
+      id: chance.hash({ length: 6 }),
+      msPer24: chance.integer({ min: 0, max: 864e5 }),
+      value: 100,
+    }]);
     const lowestBg = 25;
     const sevenDaysData = sinon.stub().returns(
-      _.map(range(0, 288 * extentSize), () => ({ value: chance.pickone([lowestBg, 525]) }))
+      _.map(range(0, 288 * extentSize), () => ({
+        id: chance.hash({ length: 6 }),
+        msPer24: chance.integer({ min: 0, max: 864e5 }),
+        value: chance.pickone([lowestBg, 525]),
+      }))
     );
 
-    const justOneDatumMmol = sinon.stub().returns([{ value: 5.2 }]);
+    const justOneDatumMmol = sinon.stub().returns([{
+      id: chance.hash({ length: 6 }),
+      msPer24: chance.integer({ min: 0, max: 864e5 }),
+      value: 5.2,
+    }]);
     const lowestBgMmol = 3.1;
     const sevenDaysDataMmol = sinon.stub().returns(
-      _.map(range(0, 288 * extentSize), () => ({ value: chance.pickone([lowestBgMmol, 28.4]) }))
+      _.map(range(0, 288 * extentSize), () => ({
+        id: chance.hash({ length: 6 }),
+        msPer24: chance.integer({ min: 0, max: 864e5 }),
+        value: chance.pickone([lowestBgMmol, 28.4]),
+      }))
     );
 
     function makeDataStubs(topStub) {

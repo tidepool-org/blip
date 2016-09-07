@@ -79,7 +79,7 @@ describe('CBGSlicesAnimationContainer', () => {
       const instance = wrapper.instance();
       sinon.spy(instance, 'mungeData');
       expect(instance.mungeData.callCount).to.equal(0);
-      wrapper.setProps({ data: [{ msPer24: 0, value: 90 }] });
+      wrapper.setProps({ data: [{ id: 'a1b2c3', msPer24: 0, value: 90 }] });
       expect(instance.mungeData.callCount).to.equal(1);
       instance.mungeData.restore();
     });
