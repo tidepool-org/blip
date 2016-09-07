@@ -1,4 +1,11 @@
 {
   "extends": "airbnb",
-  "parser": "babel-eslint"
+  "parser": "babel-eslint",
+  "plugins": ["lodash"],
+  "rules": {
+    "lodash/prefer-lodash-method": "error"
+  },
+  "settings": {
+    "lodash": 3
+  }
 }
