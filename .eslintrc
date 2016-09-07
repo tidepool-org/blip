@@ -4,5 +4,8 @@
   "plugins": ["lodash"],
   "rules": {
     "lodash/prefer-lodash-method": "error"
+  },
+  "settings": {
+    "lodash": 3
   }
 }
