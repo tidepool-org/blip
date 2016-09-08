@@ -1,10 +1,15 @@
 {
+  "env": {
+    "mocha": true,
+    "node": true
+  },
   "globals": {
     "assert": false,
     "expect": false,
     "sinon": false
   },
   "rules": {
-    "no-unused-expressions": 0
+    "lodash/prefer-lodash-method": ["error", {"except": ["find"]}], // because of Enzyme .find
+    "no-unused-expressions": "off"
   }
 }
