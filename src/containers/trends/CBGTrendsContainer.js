@@ -74,9 +74,13 @@ class CBGTrendsContainer extends React.Component {
     focusedSlice: PropTypes.shape({
       slice: PropTypes.shape({
         firstQuartile: PropTypes.number.isRequired,
+        id: PropTypes.string.isRequired,
         max: PropTypes.number.isRequired,
         median: PropTypes.number.isRequired,
         min: PropTypes.number.isRequired,
+        msFrom: PropTypes.number.isRequired,
+        msTo: PropTypes.number.isRequired,
+        msX: PropTypes.number.isRequired,
         ninetiethQuantile: PropTypes.number.isRequired,
         tenthQuantile: PropTypes.number.isRequired,
         thirdQuartile: PropTypes.number.isRequired,

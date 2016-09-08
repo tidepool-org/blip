@@ -28,9 +28,13 @@ describe('FocusedCBGSliceTime', () => {
   const focusedSlice = {
     slice: {
       firstQuartile: 25,
+      id: 'a1b2c3',
       max: 421,
       median: 100,
       min: 28,
+      msFrom: 0,
+      msTo: 1800000,
+      msX: 900000,
       ninetiethQuantile: 382,
       tenthQuantile: 67,
       thirdQuartile: 270,

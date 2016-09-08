@@ -83,8 +83,43 @@ export class TrendsContainer extends React.Component {
     // viz state
     viz: PropTypes.shape({
       trends: PropTypes.shape({
-        focusedCbgSlice: PropTypes.object,
-        focusedCbgSliceKeys: PropTypes.array,
+        focusedCbgSlice: PropTypes.shape({
+          slice: PropTypes.shape({
+            firstQuartile: PropTypes.number.isRequired,
+            id: PropTypes.string.isRequired,
+            max: PropTypes.number.isRequired,
+            median: PropTypes.number.isRequired,
+            min: PropTypes.number.isRequired,
+            msFrom: PropTypes.number.isRequired,
+            msTo: PropTypes.number.isRequired,
+            msX: PropTypes.number.isRequired,
+            ninetiethQuantile: PropTypes.number.isRequired,
+            tenthQuantile: PropTypes.number.isRequired,
+            thirdQuartile: PropTypes.number.isRequired,
+          }),
+          position: PropTypes.shape({
+            left: PropTypes.number.isRequired,
+            tooltipLeft: PropTypes.bool.isRequired,
+            topOptions: PropTypes.shape({
+              firstQuartile: PropTypes.number.isRequired,
+              max: PropTypes.number.isRequired,
+              median: PropTypes.number.isRequired,
+              min: PropTypes.number.isRequired,
+              ninetiethQuantile: PropTypes.number.isRequired,
+              tenthQuantile: PropTypes.number.isRequired,
+              thirdQuartile: PropTypes.number.isRequired,
+            }),
+          }),
+        }),
+        focusedCbgSliceKeys: PropTypes.arrayOf(PropTypes.oneOf([
+          'firstQuartile',
+          'max',
+          'median',
+          'min',
+          'ninetiethQuantile',
+          'tenthQuantile',
+          'thirdQuartile',
+        ])),
         touched: PropTypes.bool.isRequired,
       }).isRequired,
     }).isRequired,

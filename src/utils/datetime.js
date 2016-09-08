@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import moment from 'moment-timezone';
 
 export const THREE_HRS = 10800000;
@@ -95,41 +96,17 @@ export function localNoonBeforeTimestamp(utc, timezone) {
 }
 
 /**
- * formatDurationHours
+ * millisecondsAsTimeOfDay
  * @param {Number} duration - positive integer representing a time of day
  *                            in milliseconds within a 24-hr day
+ * @param {String} [format] - optional moment display format string; default is 'h:mm a'
  *
- * @return {String} '[hours on 12-hr clock],[am or pm]'
+ * @return {String} formatted clocktime
  */
-export function formatDurationHours(duration) {
-  return moment(String(moment.duration(duration).hours()), 'H').format('h,a');
-}
-
-/**
- * formatDurationMinutes
- * @param {Number} duration - positive integer representing a time of day
- *                            in milliseconds within a 24-hr day
- *
- * @return {String} '[zero-padded mins]'
- */
-export function formatDurationMinutes(duration) {
-  return moment(String(moment.duration(duration).minutes()), 'm').format('mm');
-}
-
-/**
- * formatDurationToClocktime
- * @param {Number} duration - positive integer representing a time of day
- *                            in milliseconds within a 24-hr day
- *
- * @return {Object} { hours: 'hours on 12-hr clock',
- *                    minutes: 'zero-padded mins',
- *                    timeOfDay: 'am or pm' }
- */
-export function formatDurationToClocktime(duration) {
-  const hoursPlus = formatDurationHours(duration).split(',');
-  return {
-    hours: hoursPlus[0],
-    minutes: formatDurationMinutes(duration),
-    timeOfDay: hoursPlus[1],
-  };
+export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
+  if (_.isNull(milliseconds) || _.isUndefined(milliseconds) ||
+    milliseconds < 0 || milliseconds >= TWENTY_FOUR_HRS || milliseconds instanceof Date) {
+    throw new Error('First argument must be a value in milliseconds per twenty-four hour day!');
+  }
+  return moment.utc(milliseconds).format(format);
 }

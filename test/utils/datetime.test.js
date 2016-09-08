@@ -170,76 +170,41 @@ describe('datetime', () => {
     });
   });
 
-  describe('formatDurationHours', () => {
+  describe('millisecondsAsTimeOfDay', () => {
+    const twoTwentyAfternoonMs = 1000 * 60 * 60 * 14 + 1000 * 60 * 20;
+    const errorMsg = 'First argument must be a value in milliseconds per twenty-four hour day!';
+
     it('should be a function', () => {
-      assert.isFunction(datetime.formatDurationHours);
+      assert.isFunction(datetime.millisecondsAsTimeOfDay);
     });
 
-    it('should return a default midnight `12,am` if no `duration` provided', () => {
-      expect(datetime.formatDurationHours()).to.equal('12,am');
+    it('should error if no `milliseconds` provided', () => {
+      const fn = () => { datetime.millisecondsAsTimeOfDay(); };
+      expect(fn).throw(errorMsg);
     });
 
-    it('should return `12,am` for a zero duration', () => {
-      expect(datetime.formatDurationHours(0)).to.equal('12,am');
+    it('should error if milliseconds < 0 or >= 864e5', () => {
+      const fn0 = () => { datetime.millisecondsAsTimeOfDay(-1); };
+      expect(fn0).to.throw(errorMsg);
+      const fn1 = () => { datetime.millisecondsAsTimeOfDay(864e5); };
+      expect(fn1).throw(errorMsg);
+      const fn2 = () => { datetime.millisecondsAsTimeOfDay(864e5 + 5); };
+      expect(fn2).throw(errorMsg);
     });
 
-    it('should return `9,am` for a duration of 1000 * 60 * 60 * 9', () => {
-      const nineMorningMs = 1000 * 60 * 60 * 9;
-      expect(datetime.formatDurationHours(nineMorningMs)).to.equal('9,am');
+    it('should error if JavaScript Date provided', () => {
+      const fn = () => { datetime.millisecondsAsTimeOfDay(new Date()); };
+      expect(fn).throw(errorMsg);
     });
 
-    it('should return `12,pm` for a duration of 1000 * 60 * 60 * 12.5', () => {
-      const twelveThirtyAfternoonMs = 1000 * 60 * 60 * 12.5;
-      expect(datetime.formatDurationHours(twelveThirtyAfternoonMs)).to.equal('12,pm');
-    });
-  });
-
-  describe('formatDurationMinutes', () => {
-    it('should be a function', () => {
-      assert.isFunction(datetime.formatDurationMinutes);
+    it('should translate duration of 1000 * 60 * 60 * 14 ⅓ to `2:20 pm`', () => {
+      expect(datetime.millisecondsAsTimeOfDay(twoTwentyAfternoonMs))
+        .to.equal('2:20 pm');
     });
 
-    it('should return a default `00` if no `duration` provided', () => {
-      expect(datetime.formatDurationMinutes()).to.equal('00');
-    });
-
-    it('should return `00` for a zero or sub-second duration', () => {
-      expect(datetime.formatDurationMinutes(0)).to.equal('00');
-      expect(datetime.formatDurationMinutes(999)).to.equal('00');
-    });
-
-    it('should return `25` for a 1000 * 60 * 25 duration', () => {
-      const twentyFiveMinsMs = 1000 * 60 * 25;
-      expect(datetime.formatDurationMinutes(twentyFiveMinsMs)).to.equal('25');
-    });
-
-    it('should return `30` for a duration of 1000 * 60 * 60 * 12.5', () => {
-      const twelveThirtyAfternoonMs = 1000 * 60 * 60 * 12.5;
-      expect(datetime.formatDurationMinutes(twelveThirtyAfternoonMs)).to.equal('30');
-    });
-  });
-
-  describe('formatDurationToClocktime', () => {
-    it('should be a function', () => {
-      assert.isFunction(datetime.formatDurationToClocktime);
-    });
-
-    it('should return an object of defaults if no `duration` provided', () => {
-      expect(datetime.formatDurationToClocktime()).to.deep.equal({
-        hours: '12',
-        minutes: '00',
-        timeOfDay: 'am',
-      });
-    });
-
-    it('should translate duration of 1000 * 60 * 60 * 14 ⅓ to `2`,`20`,`pm`', () => {
-      const twoTwentyAfternoonMs = 1000 * 60 * 60 * 14 + 1000 * 60 * 20;
-      expect(datetime.formatDurationToClocktime(twoTwentyAfternoonMs))
-        .to.deep.equal({
-          hours: '2',
-          minutes: '20',
-          timeOfDay: 'pm',
-        });
+    it('should use a custom format string passed as second arg', () => {
+      expect(datetime.millisecondsAsTimeOfDay(twoTwentyAfternoonMs, 'kk🙃mm'))
+        .to.equal('14🙃20');
     });
   });
 });
