@@ -20,7 +20,6 @@
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var d3 = require('d3');
-var moment = require('moment-timezone');
 
 var validate = require('./validation/validate');
 
