@@ -158,6 +158,7 @@ var ModalSubNav = React.createClass({
   renderDay: function(day) {
     var dayLinkClass = cx({
       'dayFilter': true,
+      'btn btn-chart-control': true,
       'active': this.props.activeDays[day],
       'inactive': !this.props.activeDays[day]
     }) + ' ' + day;

@@ -61,7 +61,8 @@ export let PatientData = React.createClass({
     queryParams: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
-    user: React.PropTypes.object
+    user: React.PropTypes.object,
+    viz: React.PropTypes.object.isRequired,
   },
 
   getInitialState: function() {
@@ -79,9 +80,13 @@ export let PatientData = React.createClass({
           },
           activeDomain: '2 weeks',
           extentSize: 14,
-          boxOverlay: true,
-          grouped: true,
-          showingLines: false
+          // we track both showingCbg & showingSmbg as separate Booleans for now
+          // in case we decide to layer BGM & CGM data, as has been discussed/prototyped
+          showingCbg: true,
+          showingSmbg: false,
+          smbgGrouped: true,
+          smbgLines: false,
+          smbgRangeOverlay: true,
         }
       },
       chartType: 'basics',
@@ -282,6 +287,7 @@ export let PatientData = React.createClass({
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
+            trendsState={this.props.viz.trends}
             ref="tideline" />
           );
         
@@ -618,7 +624,8 @@ export function mapStateToProps(state) {
     patientNotesMap: state.blip.patientNotesMap,
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
-    fetchingPatientData: state.blip.working.fetchingPatientData.inProgress
+    fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
+    viz: state.viz,
   };
 }
 

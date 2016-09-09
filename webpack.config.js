@@ -60,13 +60,19 @@ module.exports = {
   entry: entryScripts,
   output: output,
   module: {
-    loaders: loaders
+    loaders: loaders,
   },
   // tideline DEV env variable only needs to be true in tideline local dev
   plugins: plugins,
   // resolves tideline's embedded React dependencies
-  resolve: { fallback: path.join(__dirname, 'node_modules') },
-  resolveLoader: { fallback: path.join(__dirname, 'node_modules') },
+  resolve: {
+    root: path.resolve('./node_modules'),
+    fallback: path.join(__dirname, 'node_modules'),
+  },
+  resolveLoader: {
+    root: path.resolve('./node_modules'),
+    fallback: path.join(__dirname, 'node_modules'),
+  },
   devServer: {
     publicPath: output.publicPath,
     hot: true,

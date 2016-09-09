@@ -29,6 +29,9 @@ var TidelineHeader = React.createClass({
     inTransition: React.PropTypes.bool.isRequired,
     atMostRecent: React.PropTypes.bool.isRequired,
     title: React.PropTypes.string.isRequired,
+    iconBack: React.PropTypes.string,
+    iconNext: React.PropTypes.string,
+    iconMostRecent: React.PropTypes.string,
     onClickBack: React.PropTypes.func,
     onClickBasics: React.PropTypes.func,
     onClickModal: React.PropTypes.func,
@@ -80,8 +83,7 @@ var TidelineHeader = React.createClass({
       'patient-data-icon': true,
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data' ||
-        this.props.chartType === 'modal'
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
     var backClass = cx({
@@ -90,7 +92,7 @@ var TidelineHeader = React.createClass({
       'patient-data-subnav-active': !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
-        this.props.chartType === 'no-data' || this.props.chartType === 'modal'
+        this.props.chartType === 'no-data'
     });
 
     var nextClass = cx({
@@ -99,7 +101,7 @@ var TidelineHeader = React.createClass({
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
-        this.props.chartType === 'no-data' || this.props.chartType === 'modal'
+        this.props.chartType === 'no-data'
     });
 
     var settingsLinkClass = cx({
