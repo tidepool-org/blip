@@ -24,7 +24,7 @@ import utils from '../../core/utils';
 
 import * as viz from '@tidepool/viz';
 
-const ChartFactory = viz.containers.SettingsContainerFactory;
+const ChartFactory = viz.components.SettingsFactory;
 
 
 import Header from './header';
