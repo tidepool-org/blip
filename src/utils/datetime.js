@@ -105,7 +105,7 @@ export function localNoonBeforeTimestamp(utc, timezone) {
  */
 export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
   if (_.isNull(milliseconds) || _.isUndefined(milliseconds) ||
-    milliseconds < 0 || milliseconds >= TWENTY_FOUR_HRS || milliseconds instanceof Date) {
+    milliseconds < 0 || milliseconds > TWENTY_FOUR_HRS || milliseconds instanceof Date) {
     throw new Error('First argument must be a value in milliseconds per twenty-four hour day!');
   }
   return moment.utc(milliseconds).format(format);

@@ -186,15 +186,18 @@ describe('datetime', () => {
     it('should error if milliseconds < 0 or >= 864e5', () => {
       const fn0 = () => { datetime.millisecondsAsTimeOfDay(-1); };
       expect(fn0).to.throw(errorMsg);
-      const fn1 = () => { datetime.millisecondsAsTimeOfDay(864e5); };
+      const fn1 = () => { datetime.millisecondsAsTimeOfDay(864e5 + 1); };
       expect(fn1).throw(errorMsg);
-      const fn2 = () => { datetime.millisecondsAsTimeOfDay(864e5 + 5); };
-      expect(fn2).throw(errorMsg);
     });
 
     it('should error if JavaScript Date provided', () => {
       const fn = () => { datetime.millisecondsAsTimeOfDay(new Date()); };
       expect(fn).throw(errorMsg);
+    });
+
+    it('should translate durations of 0 and 864e5 to `12:00 am`', () => {
+      expect(datetime.millisecondsAsTimeOfDay(0)).to.equal('12:00 am');
+      expect(datetime.millisecondsAsTimeOfDay(864e5)).to.equal('12:00 am');
     });
 
     it('should translate duration of 1000 * 60 * 60 * 14 ⅓ to `2:20 pm`', () => {
