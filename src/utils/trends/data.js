@@ -43,7 +43,7 @@ export function findTimeOfDayBin(binSize, msPer24) {
  * @param {Number} binSize - natural number duration in milliseconds
  * @param {Array} data - Array of blood-glucose values in mg/dL or mmol/L
  *
- * @return {Object} mungedData
+ * @return {Object} calculatedStats
  */
 export function calculateStatsForBin(binKey, binSize, data) {
   const sorted = _.sortBy(data, d => d);
