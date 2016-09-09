@@ -103,6 +103,7 @@ CBGSlice.defaultProps = {
 
 CBGSlice.propTypes = {
   aSliceIsFocused: PropTypes.bool.isRequired,
+  // if there's a gap in data, a `datum` may not exist, so not required
   datum: PropTypes.shape({
     firstQuartile: PropTypes.number.isRequired,
     id: PropTypes.string.isRequired,

@@ -19,6 +19,7 @@ import _ from 'lodash';
 import cx from 'classnames';
 import React, { PropTypes } from 'react';
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { displayBgValue } from '../../../utils/format';
 
 import styles from './FocusedCBGSliceHTMLLabels.css';
@@ -139,7 +140,7 @@ FocusedCBGSliceHTMLLabels.defaultProps = {
 };
 
 FocusedCBGSliceHTMLLabels.propTypes = {
-  bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
+  bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   bottomNumbers: PropTypes.shape({
     min: PropTypes.bool.isRequired,
     tenthQuantile: PropTypes.bool.isRequired,

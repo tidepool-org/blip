@@ -17,6 +17,7 @@
 
 import React, { PropTypes } from 'react';
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import XAxisTicks from '../../components/trends/common/XAxisTicks';
@@ -65,7 +66,7 @@ class CBGTrendsContainer extends React.Component {
       targetLowerBound: PropTypes.number.isRequired,
       veryLowThreshold: PropTypes.number.isRequired,
     }),
-    bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
+    bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
     data: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.string.isRequired,
       msPer24: PropTypes.number.isRequired,

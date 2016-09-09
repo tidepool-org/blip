@@ -83,7 +83,7 @@ describe('[trends] data utils', () => {
     });
   });
 
-  describe('mungeDataForBin', () => {
+  describe('calculateStatsForBin', () => {
     const bin = 900000;
     const binKey = bin.toString();
     const binSize = 1000 * 60 * 30;
@@ -91,10 +91,10 @@ describe('[trends] data utils', () => {
     const max = 100;
     const data = shuffle(range(min, max + 1));
 
-    const res = utils.mungeDataForBin(binKey, binSize, data);
+    const res = utils.calculateStatsForBin(binKey, binSize, data);
 
     it('should be a function', () => {
-      assert.isFunction(utils.mungeDataForBin);
+      assert.isFunction(utils.calculateStatsForBin);
     });
 
     it('should add the `binKey` as the `id` on the resulting object', () => {
