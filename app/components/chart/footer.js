@@ -84,16 +84,19 @@ var TidelineFooter = React.createClass({
 
     if (this.props.chartType === 'weekly') {
       rightSide = showValues;
-    } else if (this.props.chartType === 'modal') {
+    }
+    if (this.props.chartType === 'modal') {
       if (this.props.showingSmbg) {
         rightSide = modalOpts;
       }
       bgDataToggle = (
-        <TwoOptionToggle
-          left={{ label: 'BGM', state: this.props.showingSmbg }}
-          right={{ label: 'CGM', state: this.props.showingCbg }}
-          toggleFn={this.props.onClickBgDataToggle}
-        />
+        <span className="toggle-container">
+          <TwoOptionToggle
+            left={{ label: 'BGM', state: this.props.showingSmbg }}
+            right={{ label: 'CGM', state: this.props.showingCbg }}
+            toggleFn={this.props.onClickBgDataToggle}
+          />
+        </span>
       );
     }
 
@@ -104,9 +107,7 @@ var TidelineFooter = React.createClass({
             <button className="btn btn-chart btn-refresh"
               onClick={this.props.onClickRefresh}>
               Refresh</button>
-            <span className="toggle-container">
             {bgDataToggle}
-            </span>
           </div>
           <div className="patient-data-footer-right">{rightSide}</div>
         </div>
