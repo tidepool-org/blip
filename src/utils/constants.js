@@ -15,20 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-import { format } from 'd3-format';
+export const MGDL_CLAMP_TOP = 400;
+export const MMOLL_CLAMP_TOP = 22.5;
 
-import { MMOLL_UNITS } from './constants';
+export const MGDL_UNITS = 'mg/dL';
+export const MMOLL_UNITS = 'mmol/L';
 
-/**
- * displayBgValue
- * @param {Number} val - integer or float blood glucose value in either mg/dL or mmol/L
- * @param {String} units - 'mg/dL' or 'mmol/L'
- *
- * @return {String} stringBgValue
- */
-export function displayBgValue(val, units) {
-  if (units === MMOLL_UNITS) {
-    return format('.1f')(val);
-  }
-  return format('d')(val);
-}
+const ONE_WEEK = 7;
+const TWO_WEEKS = 14;
+const FOUR_WEEKS = 28;
+
+export const trends = { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } };

@@ -15,20 +15,26 @@
  * == BSD2 LICENSE ==
  */
 
-import { format } from 'd3-format';
+import React, { PropTypes } from 'react';
 
-import { MMOLL_UNITS } from './constants';
+const SVGContainer = (props) => {
+  const { children, dimensions: { width, height } } = props;
 
-/**
- * displayBgValue
- * @param {Number} val - integer or float blood glucose value in either mg/dL or mmol/L
- * @param {String} units - 'mg/dL' or 'mmol/L'
- *
- * @return {String} stringBgValue
- */
-export function displayBgValue(val, units) {
-  if (units === MMOLL_UNITS) {
-    return format('.1f')(val);
-  }
-  return format('d')(val);
-}
+  return (
+    <div>
+      <svg width={width} height={height}>
+        {children}
+      </svg>
+    </div>
+  );
+};
+
+SVGContainer.propTypes = {
+  children: PropTypes.object.isRequired,
+  dimensions: PropTypes.shape({
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+  }).isRequired,
+};
+
+export default SVGContainer;

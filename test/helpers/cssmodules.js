@@ -15,24 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-.common {
-  composes: svgMiddleAnchored svgVerticalCentered from '../../../styles/typography.css';
-  font-size: 12px;
-  pointer-events: none;
-}
-
-.text {
-  composes: common;
-  composes: highContrastText from '../../../styles/typography.css';
-  font-weight: bold;
-}
-
-.median {
-  composes: common;
-  composes: whiteText from '../../../styles/typography.css';
-}
-
-.medianAlone {
-  composes: median;
-  font-weight: bold;
+export function formatClassesAsSelector(classesStr) {
+  return `.${classesStr}`.replace(/\s/g, '.');
 }

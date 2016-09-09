@@ -47,10 +47,13 @@ TwoOptionToggle.propTypes = {
   toggleFn: PropTypes.func.isRequired,
 };
 
-const Toggle = (props) => {
+export const Toggle = (props) => {
   const { disabled, leftOptionActive, toggleFn } = props;
   return (
-    <div className={disabled ? styles.disabled : styles.toggle} onClick={toggleFn} >
+    <div
+      className={disabled ? styles.disabled : styles.toggle}
+      onClick={disabled ? () => {} : toggleFn}
+    >
       <div className={styles.track} />
       <div className={leftOptionActive ? styles.leftThumb : styles.rightThumb} />
     </div>

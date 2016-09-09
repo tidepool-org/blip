@@ -47,8 +47,13 @@ XAxisTicks.defaultProps = {
 };
 
 XAxisTicks.propTypes = {
-  data: PropTypes.array.isRequired,
-  margins: PropTypes.object.isRequired,
+  data: PropTypes.arrayOf(PropTypes.number.isRequired).isRequired,
+  margins: PropTypes.shape({
+    top: PropTypes.number.isRequired,
+    right: PropTypes.number.isRequired,
+    bottom: PropTypes.number.isRequired,
+    left: PropTypes.number.isRequired,
+  }).isRequired,
   tickLength: PropTypes.number.isRequired,
   xScale: PropTypes.func.isRequired,
 };

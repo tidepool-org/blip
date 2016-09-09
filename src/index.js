@@ -24,7 +24,7 @@ import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
 
 import TrendsContainer from './containers/trends/TrendsContainer';
 
-import vizReducer from './reducers/';
+import vizReducer from './redux/reducers/';
 
 const components = {
   FocusedCBGSliceHTMLLabels,

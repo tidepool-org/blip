@@ -52,7 +52,10 @@ TargetRangeLines.propTypes = {
     targetLowerBound: PropTypes.number.isRequired,
     veryLowThreshold: PropTypes.number.isRequired,
   }),
-  smbgOpts: PropTypes.object.isRequired,
+  smbgOpts: PropTypes.shape({
+    maxR: PropTypes.number.isRequired,
+    r: PropTypes.number.isRequired,
+  }).isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
 };

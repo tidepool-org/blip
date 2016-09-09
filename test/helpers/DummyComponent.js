@@ -15,4 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-export * from './trends/';
+import React from 'react';
+
+const DummyComponent = () => (<div className="dummy" />);
+
+export default DummyComponent;

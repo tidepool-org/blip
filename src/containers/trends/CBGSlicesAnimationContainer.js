@@ -17,21 +17,62 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import stats from 'simple-statistics';
 import { TransitionMotion, spring } from 'react-motion';
 
-import CBGSlice from './CBGSlice';
+import { findTimeOfDayBin, calculateStatsForBin } from '../../utils/trends/data';
+
+import CBGSlice from '../../components/trends/cbg/CBGSlice';
 
 import styles from './CBGSlicesAnimationContainer.css';
 
-export default class CBGSlicesContainer extends React.Component {
+export default class CBGSlicesAnimationContainer extends React.Component {
   static propTypes = {
     binSize: PropTypes.number.isRequired,
-    data: PropTypes.array.isRequired,
-    focusedSlice: PropTypes.object,
+    data: PropTypes.arrayOf(PropTypes.shape({
+      // here only documenting the properties we actually use rather than the *whole* data model!
+      id: PropTypes.string.isRequired,
+      msPer24: PropTypes.number.isRequired,
+      value: PropTypes.number.isRequired,
+    })).isRequired,
+    focusedSlice: PropTypes.shape({
+      slice: PropTypes.shape({
+        firstQuartile: PropTypes.number.isRequired,
+        id: PropTypes.string.isRequired,
+        max: PropTypes.number.isRequired,
+        median: PropTypes.number.isRequired,
+        min: PropTypes.number.isRequired,
+        msFrom: PropTypes.number.isRequired,
+        msTo: PropTypes.number.isRequired,
+        msX: PropTypes.number.isRequired,
+        ninetiethQuantile: PropTypes.number.isRequired,
+        tenthQuantile: PropTypes.number.isRequired,
+        thirdQuartile: PropTypes.number.isRequired,
+      }).isRequired,
+      position: PropTypes.shape({
+        left: PropTypes.number.isRequired,
+        tooltipLeft: PropTypes.bool.isRequired,
+        topOptions: PropTypes.shape({
+          firstQuartile: PropTypes.number.isRequired,
+          max: PropTypes.number.isRequired,
+          median: PropTypes.number.isRequired,
+          min: PropTypes.number.isRequired,
+          ninetiethQuantile: PropTypes.number.isRequired,
+          tenthQuantile: PropTypes.number.isRequired,
+          thirdQuartile: PropTypes.number.isRequired,
+        }).isRequired,
+      }).isRequired,
+    }),
     focusSlice: PropTypes.func.isRequired,
-    margins: PropTypes.object.isRequired,
-    svgDimensions: PropTypes.object.isRequired,
+    margins: PropTypes.shape({
+      top: PropTypes.number.isRequired,
+      right: PropTypes.number.isRequired,
+      bottom: PropTypes.number.isRequired,
+      left: PropTypes.number.isRequired,
+    }).isRequired,
+    svgDimensions: PropTypes.shape({
+      width: PropTypes.number.isRequired,
+      height: PropTypes.number.isRequired,
+    }).isRequired,
     unfocusSlice: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
@@ -62,45 +103,16 @@ export default class CBGSlicesContainer extends React.Component {
   }
 
   mungeData(binSize, data) {
-    const binned = _.groupBy(data, (d) => {
-      if (d.msPer24 === 0) {
-        return binSize / 2;
-      }
-      return Math.ceil(d.msPer24 / binSize) * binSize - (binSize / 2);
-    });
-    const binKeys = Object.keys(binned);
+    const binned = _.groupBy(data, (d) => (findTimeOfDayBin(binSize, d.msPer24)));
+    const binKeys = _.keys(binned);
 
     const valueExtractor = (d) => (d.value);
     const mungedData = [];
     for (let i = 0; i < binKeys.length; ++i) {
       const values = _.map(binned[binKeys[i]], valueExtractor);
-      const msX = parseInt(binKeys[i], 10);
-      const msFrom = msX - (binSize / 2);
-      const msTo = msX + (binSize / 2);
-      mungedData.push({
-        id: binKeys[i],
-        min: stats.min(values),
-        tenthQuantile: stats.quantile(values, 0.1),
-        firstQuartile: stats.quantile(values, 0.25),
-        thirdQuartile: stats.quantile(values, 0.75),
-        ninetiethQuantile: stats.quantile(values, 0.9),
-        max: stats.max(values),
-        median: stats.median(values),
-        msX,
-        msFrom,
-        msTo,
-        data: binned[binKeys[i]],
-      });
+      mungedData.push(calculateStatsForBin(binKeys[i], binSize, values));
     }
     return mungedData;
-  }
-
-  calcMedianPositions(mungedData, yScale, transform) {
-    const medians = {};
-    _.each(mungedData, (d) => {
-      medians[d.id] = transform(d.median);
-    });
-    return medians;
   }
 
   calcYPositions(mungedData, yScale, transform) {

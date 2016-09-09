@@ -15,28 +15,23 @@
  * == BSD2 LICENSE ==
  */
 
-import { curveBasis, line } from 'd3-shape';
-import React, { PropTypes } from 'react';
+import * as actionTypes from './constants';
 
-import styles from './CBGSmoothedMedianLine.css';
+export function focusTrendsCbgSlice(sliceData, slicePosition, focusedKeys) {
+  return {
+    type: actionTypes.FOCUS_TRENDS_CBG_SLICE,
+    payload: { focusedKeys, sliceData, slicePosition },
+  };
+}
 
-const CBGSmoothedMedianLine = (props) => {
-  const { data, xScale, yPositions } = props;
+export function markTrendsViewed() {
+  return {
+    type: actionTypes.MARK_TRENDS_VIEWED,
+  };
+}
 
-  const generatePath = line()
-    .x((d) => (xScale(d.msX)))
-    .y((d) => (yPositions[d.id]))
-    .curve(curveBasis);
-
-  return (
-    <path className={styles.medianLine} id="cbgSmoothedMedianLine" d={generatePath(data)} />
-  );
-};
-
-CBGSmoothedMedianLine.propTypes = {
-  data: PropTypes.array.isRequired,
-  xScale: PropTypes.func.isRequired,
-  yPositions: PropTypes.object.isRequired,
-};
-
-export default CBGSmoothedMedianLine;
+export function unfocusTrendsCbgSlice() {
+  return {
+    type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,
+  };
+}

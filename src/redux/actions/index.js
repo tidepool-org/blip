@@ -15,20 +15,4 @@
  * == BSD2 LICENSE ==
  */
 
-import { format } from 'd3-format';
-
-import { MMOLL_UNITS } from './constants';
-
-/**
- * displayBgValue
- * @param {Number} val - integer or float blood glucose value in either mg/dL or mmol/L
- * @param {String} units - 'mg/dL' or 'mmol/L'
- *
- * @return {String} stringBgValue
- */
-export function displayBgValue(val, units) {
-  if (units === MMOLL_UNITS) {
-    return format('.1f')(val);
-  }
-  return format('d')(val);
-}
+export * from './trends';
