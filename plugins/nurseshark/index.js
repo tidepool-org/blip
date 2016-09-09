@@ -188,6 +188,7 @@ var nurseshark = {
     timeIt(sortByTime, 'Sort');
 
     var uploadIDSources = {};
+    var uploadIDSerials = {};
     var processedData = [], erroredData = [];
     var collections = {
       allBoluses: {},
@@ -198,9 +199,10 @@ var nurseshark = {
     function createUploadIDsMap() {
       var uploads = _.where(data, {type: 'upload'});
       _.each(uploads, function(upload) {
-        uploadIDSources[upload.uploadId] = upload.source || 
-          ((upload.deviceManufacturers && Array.isArray(upload.deviceManufacturers) && upload.deviceManufacturers.length > 0) ? 
+        uploadIDSources[upload.uploadId] = upload.source ||
+          ((upload.deviceManufacturers && Array.isArray(upload.deviceManufacturers) && upload.deviceManufacturers.length > 0) ?
             upload.deviceManufacturers[0] : 'Unknown');
+        uploadIDSerials[upload.uploadId] = upload.deviceSerialNumber ? upload.deviceSerialNumber : 'Unknown';
       });
     }
 
@@ -228,6 +230,7 @@ var nurseshark = {
         if (!d.source) {
           if (d.uploadId) {
             d.source = uploadIDSources[d.uploadId];
+            d.deviceSerialNumber = uploadIDSerials[d.uploadId];
           }
           // probably doesn't exist: for data too old to have uploadId but also without `source`
           else {
