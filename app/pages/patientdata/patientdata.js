@@ -80,6 +80,8 @@ export let PatientData = React.createClass({
           },
           activeDomain: '2 weeks',
           extentSize: 14,
+          // we track both showingCbg & showingSmbg as separate Booleans for now
+          // in case we decide to layer BGM & CGM data, as has been discussed/prototyped
           showingCbg: true,
           showingSmbg: false,
           smbgGrouped: true,
