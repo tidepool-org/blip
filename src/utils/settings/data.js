@@ -93,6 +93,7 @@ export function getDeviceMeta(settingsData) {
     name: settingsData.deviceId || 'unknown',
     schedule: settingsData.activeSchedule || 'unknown',
     uploaded: datetime.formatDisplayDate(settingsData.deviceTime) || 'unknown',
+    serial: settingsData.deviceSerialNumber || 'unknown',
   };
 }
 

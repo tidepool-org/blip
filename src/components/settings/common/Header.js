@@ -46,7 +46,7 @@ class Header extends React.Component {
             <span className={styles.headerInner}>{this.props.deviceType}</span>
           </li>
           <li onClick={this.handleClick} className={serialNumberClass}>
-            <span className={styles.headerInner}>{this.props.deviceMeta.name}</span>
+            <span className={styles.headerInner}>{this.props.deviceMeta.serial}</span>
           </li>
           <li className={styles.headerOuter}>
             <span className={styles.headerInner}>Uploaded on {this.props.deviceMeta.uploaded}</span>
