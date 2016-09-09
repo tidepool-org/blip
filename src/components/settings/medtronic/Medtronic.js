@@ -16,6 +16,7 @@
  */
 
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 
 import Header from '../common/Header';
 import Table from '../common/Table';
@@ -36,7 +37,7 @@ const Medtronic = (props) => {
     ];
     const schedules = data.getScheduleNames(pumpSettings.basalSchedules);
 
-    const tables = schedules.map((schedule) => {
+    const tables = _.map(schedules, (schedule) => {
       const title = {
         label: data.getScheduleLabel(
           pumpSettings.basalSchedules[schedule].name,

@@ -16,6 +16,7 @@
  */
 
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 
 import styles from './Tandem.css';
 
@@ -48,7 +49,7 @@ const Tandem = (props) => {
       className: styles.bolusSettingsHeader },
   ];
 
-  const tables = schedules.map((schedule) => (
+  const tables = _.map(schedules, (schedule) => (
     <div key={schedule.name}>
       <CollapsibleContainer
         styledLabel={{

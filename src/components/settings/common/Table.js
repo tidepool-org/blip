@@ -16,6 +16,7 @@
  */
 
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 
 class Table extends React.Component {
 
@@ -27,7 +28,7 @@ class Table extends React.Component {
     const getItemField = this.getItemField;
     const columns = this.props.columns;
 
-    return columns.map((column) => ({
+    return _.map(columns, (column) => ({
       key: column.key,
       label: column.label,
       className: column.className,
@@ -37,21 +38,21 @@ class Table extends React.Component {
   }
 
   renderHeader(normalizedColumns) {
-    const cells = normalizedColumns.map(
+    const cells = _.map(normalizedColumns,
       (column, key) => <th key={key} className={column.className}>{column.label}</th>
     );
     return (<thead key={`thead_${cells.length}`}><tr>{cells}</tr></thead>);
   }
 
   renderRow(normalizedColumns, rowKey, rowData) {
-    const cells = normalizedColumns.map(
+    const cells = _.map(normalizedColumns,
       (column) => <td key={column.key}>{column.cell(rowData, column.key)}</td>
     );
     return (<tr key={rowKey}>{cells}</tr>);
   }
 
   renderRows(normalizedColumns) {
-    const rowData = this.props.rows.map((row, key) => (
+    const rowData = _.map(this.props.rows, (row, key) => (
       this.renderRow(normalizedColumns, key, row)
     ));
     return (<tbody key={`tbody_${rowData.length}`}>{rowData}</tbody>);

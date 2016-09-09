@@ -27,7 +27,10 @@ function noData(val) {
 }
 
 function getBasalRate(scheduleData, startTime) {
-  const rate = scheduleData.filter(s => s.start === startTime).map(s => s.rate)[0];
+  const rate = _.find(scheduleData, function (schedule) {
+    return schedule.start === startTime
+  }).rate;
+
   if (noData(rate)) {
     return '';
   }
@@ -35,7 +38,10 @@ function getBasalRate(scheduleData, startTime) {
 }
 
 function getValue(scheduleData, fieldName, startTime) {
-  const val = scheduleData.filter(s => s.start === startTime).map(s => s[fieldName])[0];
+  const val = _.find(scheduleData, function (schedule) {
+    return schedule.start === startTime
+  })[fieldName];
+
   if (noData(val)) {
     return '';
   }
@@ -48,6 +54,10 @@ function getBloodGlucoseValue(scheduleData, fieldName, startTime, units) {
     return '';
   }
   return format.displayBgValue(bgValue, units);
+}
+
+function getStarts(timedData){
+  return _.map(timedData, 'start');
 }
 
 export function getTotalBasalRates(scheduleData) {
@@ -98,7 +108,7 @@ export function getDeviceMeta(settingsData) {
 }
 
 export function processBasalRateData(scheduleData) {
-  const starts = scheduleData.value.map(s => s.start);
+  const starts = getStarts(scheduleData.value);
   const noRateData = [{ start: '-', rate: '-' }];
 
   if (starts.length === 0) {
@@ -109,7 +119,7 @@ export function processBasalRateData(scheduleData) {
     }
   }
 
-  const data = starts.map((startTime) => ({
+  const data =  _.map(starts, (startTime) => ({
     start: datetime.millisecondsAsTimeOfDay(
       startTime
     ),
@@ -128,9 +138,7 @@ export function processBasalRateData(scheduleData) {
 }
 
 export function processBgTargetData(targetsData, bgUnits, keys) {
-  const starts = targetsData.map(s => s.start);
-
-  return starts.map((startTime) => ({
+  return _.map(getStarts(targetsData), (startTime) => ({
     start: datetime.millisecondsAsTimeOfDay(
       startTime
     ),
@@ -150,8 +158,7 @@ export function processBgTargetData(targetsData, bgUnits, keys) {
 }
 
 export function processCarbRatioData(carbRatioData) {
-  const starts = carbRatioData.map(s => s.start);
-  return starts.map((startTime) => ({
+  return _.map(getStarts(carbRatioData), (startTime) => ({
     start: datetime.millisecondsAsTimeOfDay(
       startTime
     ),
@@ -164,8 +171,7 @@ export function processCarbRatioData(carbRatioData) {
 }
 
 export function processSensitivityData(sensitivityData, bgUnits) {
-  const starts = sensitivityData.map(s => s.start);
-  return starts.map((startTime) => ({
+  return _.map(getStarts(sensitivityData), (startTime) => ({
     start: datetime.millisecondsAsTimeOfDay(
       startTime
     ),
@@ -179,9 +185,7 @@ export function processSensitivityData(sensitivityData, bgUnits) {
 }
 
 export function processTimedSettings(pumpSettings, schedule, bgUnits) {
-  const starts = pumpSettings.bgTargets[schedule.name].map(s => s.start);
-
-  const data = starts.map((startTime) => ({
+  const data = _.map(getStarts(pumpSettings.bgTargets[schedule.name]), (startTime) => ({
     start: datetime.millisecondsAsTimeOfDay(
       startTime,
     ),
