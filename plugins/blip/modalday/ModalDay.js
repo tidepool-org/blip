@@ -30,102 +30,91 @@ d3.chart('ModalDay', {
 
     var dayCharts = {};
 
-    this.layer('backgroundRects', this.base.select('#modalMainGroup').append('g').attr('id', 'modalBackgroundRects'), {
+    this.layer('backgroundRect', this.base.select('#modalMainGroup').append('g').attr('id', 'modalBackground'), {
       dataBind: function() {
-        var data = [];
-        for (var i = 0; i < 8; ++i) {
-          data.push(i*THREE_HRS);
-        }
-        return this.selectAll('g')
-          .data(data);
+        return this.selectAll('rect')
+          .data(['aboveTarget', 'targetRange', 'belowTarget']);
       },
       insert: function() {
-        return this.append('g');
+        var mainMargins = chart.margins().main;
+        var xRange = chart.xScale().range();
+        var bigR = chart.smbgOpts().maxR;
+        return this.append('rect')
+          .attr({
+            x: mainMargins.left,
+            width: (xRange[1] - xRange[0]) + 2 * bigR,
+          });
       },
       events: {
         enter: function() {
-          var fillClasses = [
-            'd3-fill-darkest',
-            'd3-fill-dark',
-            'd3-fill-lighter',
-            'd3-fill-light',
-            'd3-fill-lightest',
-            'd3-fill-lighter',
-            'd3-fill-dark',
-            'd3-fill-darker'
-          ];
-          var range = chart.xScale().range();
           var yScale = chart.yScale();
-          var toEnter = this;
           var mainMargins = chart.margins().main;
-          var usableHeight = chart.height - mainMargins.top - mainMargins.bottom;
           var bgClasses = chart.bgClasses();
-          var xPosition = function(d, i) {
-            if (i === 0) {
-              return mainMargins.left;
+          this.attr({
+            'class': function(d) {
+              if (d === 'targetRange') {
+                return 'd3-rect-fill d3-fill-target';
+              }
+              return 'd3-rect-fill d3-fill-trends';
+            },
+            height: function(d) {
+              switch (d) {
+                case 'aboveTarget':
+                  return yScale(bgClasses.target.boundary) - mainMargins.top;
+                case 'targetRange':
+                  return yScale(bgClasses.low.boundary) - yScale(bgClasses.target.boundary);
+                case 'belowTarget':
+                  return chart.height - mainMargins.bottom - yScale(bgClasses.low.boundary);
+              }
+            },
+            y: function(d) {
+              switch (d) {
+                case 'aboveTarget':
+                  return mainMargins.top;
+                case 'targetRange':
+                  return yScale(bgClasses.target.boundary);
+                case 'belowTarget':
+                  return yScale(bgClasses.low.boundary);
+              }
             }
-            else {
-              return chart.xScale()(d);
-            }
-          };
-          var rectWidth = function(d, i) {
-            // rectangles are three hours wide, so we get width of one from dividing total width by eight
-            var baseWidth = (range[1] - range[0])/8;
-            var bigR = chart.smbgOpts().maxR;
-            if (i === 0 || i === 7) {
-              return baseWidth + bigR;
-            }
-            else {
-              return baseWidth;
-            }
-          };
-          toEnter.append('rect')
-            .attr({
-              'class': function(d, i) {
-                return fillClasses[i];
-              },
-              x: xPosition,
-              y: chart.margins().main.top,
-              width: rectWidth,
-              height: yScale(bgClasses.target.boundary) - mainMargins.top
-            })
-            .classed({
-              'd3-rect-fill': true
-            });
-          toEnter.append('rect')
-            .attr({
-              'class': function(d, i) {
-                return fillClasses[i];
-              },
-              x: xPosition,
-              y: yScale(bgClasses.target.boundary),
-              width: rectWidth,
-              height: yScale(bgClasses.low.boundary) - yScale(bgClasses.target.boundary)
-            })
-            .classed({
-              'd3-rect-fill': true,
-              'd3-rect-fill-faded': true
-            });
-          toEnter.append('rect')
-            .attr({
-              'class': function(d, i) {
-                return fillClasses[i];
-              },
-              x: xPosition,
-              y: yScale(bgClasses.low.boundary),
-              width: rectWidth,
-              height: chart.height - mainMargins.bottom - yScale(bgClasses.low.boundary)
-            })
-            .classed({
-              'd3-rect-fill': true
-            });
+          });
         }
       }
     });
 
-    this.layer('xAxis', this.base.select('#modalMainGroup').append('g')
+    this.layer('threeHourLines', this.base.select('#modalBackground'), {
+      dataBind: function() {
+        var data = [];
+        for (var i = 1; i < 8; ++i) {
+          data.push(i*THREE_HRS);
+        }
+        return this.selectAll('line')
+          .data(data);
+      },
+      insert: function() {
+        var mainMargins = chart.margins().main;
+        return this.append('line')
+          .attr({
+            'class': 'd3-line-guide d3-line-trends',
+            y1: mainMargins.top,
+            y2: chart.height - mainMargins.bottom
+          });
+      },
+      events: {
+        enter: function() {
+          var xPosition = function(d) {
+            return chart.xScale()(d);
+          };
+          this.attr({
+            x1: xPosition,
+            x2: xPosition
+          });
+        }
+      }
+    });
+
+    this.layer('xAxis labels', this.base.select('#modalMainGroup').append('g')
       .attr('id', 'modalXAxis')
-      .append('g')
       .attr('class', 'd3-axis d3-top'), {
       dataBind: function() {
         var now = new Date();
@@ -148,7 +137,7 @@ d3.chart('ModalDay', {
         }
         else {
           data = d3.time.hour.utc.range(start, end, 3).map(function (d) {
-            return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
+            return d3.time.format.utc('%-I %p')(d).toLowerCase();
           });
         }
         return this.selectAll('text')
@@ -177,6 +166,37 @@ d3.chart('ModalDay', {
                 }
             })
             .text(function(d) { return d; });
+        }
+      }
+    });
+
+    this.layer('xAxis ticks', this.base.select('#modalXAxis'), {
+      dataBind: function() {
+        var now = new Date();
+        // this is fine to leave with no arbitrary timezone
+        // it's only generating text for x-axis tick labels
+        var start = d3.time.day.utc.floor(now);
+        var end = d3.time.hour.offset(d3.time.day.utc.ceil(now), 3);
+        var data = d3.time.hour.utc.range(start, end, 3);
+        return this.selectAll('line')
+          .data(data);
+      },
+      insert: function() {
+        return this.append('line')
+          .attr({
+            y1: chart.margins().main.top,
+            y2: chart.margins().main.top - chart.tickLength().x
+          });
+      },
+      events: {
+        enter: function() {
+          var xPosition = function(d, i) {
+            return chart.xScale()(i * THREE_HRS);
+          };
+          this.attr({
+            x1: xPosition,
+            x2: xPosition
+          });
         }
       }
     });
@@ -316,6 +336,33 @@ d3.chart('ModalDay', {
         }
       }
     });
+
+    this.layer('targetRangeLines', this.base.select('#modalMainGroup').append('g').attr('id', 'targetRangeLines'), {
+      dataBind: function(data) {
+        return this.selectAll('line')
+          .data(['target', 'low']);
+      },
+      insert: function() {
+        var xRange = chart.xScale().range();
+        var bigR = chart.smbgOpts().maxR;
+        return this.append('line')
+          .attr({
+            'class': 'd3-line-guide d3-line-bg-threshold-trends',
+            x1: xRange[0] - bigR,
+            x2: xRange[1] + bigR
+          });
+      },
+      events: {
+        enter: function() {
+          var bgClasses = chart.bgClasses();
+          var yScale = chart.yScale();
+          this.attr({
+            y1: function(d) { return yScale(bgClasses[d].boundary); },
+            y2: function(d) { return yScale(bgClasses[d].boundary); }
+          });
+        }
+      }
+    });
   },
   bgUnits: function(bgUnits) {
     if (!arguments.length) { return this._bgUnits; }
@@ -438,7 +485,7 @@ module.exports = {
         units: opts.bgUnits || 'mg/dL'
       },
       statsHeight: 0,
-      tickLength: {y: 8},
+      tickLength: {x: 15, y: 8},
       tickShift: {x: 5, y: 10}
     };
     defaults.margins = {
@@ -454,7 +501,7 @@ module.exports = {
         left: defaults.baseMargin,
         bottom: defaults.baseMargin/2
       },
-      topBumper: 30,
+      topBumper: 50,
       bottomBumper: 30
     };
     defaults.margins.highlightLabel = {
