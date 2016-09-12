@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { displayBgValue } from '../../../utils/format';
 
 import styles from './YAxisLabelsAndTicks.css';
@@ -61,7 +62,7 @@ YAxisLabels.propTypes = {
     targetLowerBound: PropTypes.number.isRequired,
     veryLowThreshold: PropTypes.number.isRequired,
   }),
-  bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
+  bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   margins: PropTypes.shape({
     top: PropTypes.number.isRequired,
     right: PropTypes.number.isRequired,

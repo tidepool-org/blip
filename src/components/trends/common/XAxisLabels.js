@@ -19,7 +19,7 @@ import _ from 'lodash';
 import { range } from 'd3-array';
 import React, { PropTypes } from 'react';
 
-import * as datetime from '../../../utils/datetime';
+import { millisecondsAsTimeOfDay, THREE_HRS } from '../../../utils/datetime';
 
 import styles from './XAxisLabels.css';
 
@@ -30,7 +30,7 @@ const XAxisLabels = (props) => {
   return (
     <g id="xAxisLabels">
       {_.map(data, (msInDay) => {
-        const timePieces = datetime.formatDurationToClocktime(msInDay);
+        const displayTime = millisecondsAsTimeOfDay(msInDay, 'h a');
         return (
           <text
             className={styles.text}
@@ -38,7 +38,7 @@ const XAxisLabels = (props) => {
             x={xScale(msInDay) + xOffset}
             y={yPos}
           >
-            {`${timePieces.hours} ${timePieces.timeOfDay}`}
+            {displayTime}
           </text>
         );
       })}
@@ -47,7 +47,7 @@ const XAxisLabels = (props) => {
 };
 
 XAxisLabels.defaultProps = {
-  data: _.map(range(0, 8), (i) => (i * datetime.THREE_HRS)),
+  data: _.map(range(0, 8), (i) => (i * THREE_HRS)),
   xOffset: 5,
   yOffset: 5,
 };

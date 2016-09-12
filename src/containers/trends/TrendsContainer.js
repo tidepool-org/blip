@@ -28,6 +28,10 @@ import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions/';
 import TrendsSVGContainer from './TrendsSVGContainer';
+import {
+  MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP, MGDL_UNITS, MMOLL_UNITS, trends,
+} from '../../utils/constants';
+const { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } } = trends;
 import * as datetime from '../../utils/datetime';
 
 export class TrendsContainer extends React.Component {
@@ -57,8 +61,8 @@ export class TrendsContainer extends React.Component {
       low: PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
       'very-low': PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
     }).isRequired,
-    bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
-    extentSize: PropTypes.oneOf([7, 14, 28]).isRequired,
+    bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
+    extentSize: PropTypes.oneOf([ONE_WEEK, TWO_WEEKS, FOUR_WEEKS]).isRequired,
     initialDatetimeLocation: PropTypes.string,
     showingSmbg: PropTypes.bool.isRequired,
     showingCbg: PropTypes.bool.isRequired,
@@ -70,7 +74,10 @@ export class TrendsContainer extends React.Component {
       timezoneAware: PropTypes.bool.isRequired,
       timezoneName: PropTypes.string.isRequired,
     }).isRequired,
-    yScaleClampTop: PropTypes.object.isRequired,
+    yScaleClampTop: PropTypes.shape({
+      [MGDL_UNITS]: PropTypes.number.isRequired,
+      [MMOLL_UNITS]: PropTypes.number.isRequired,
+    }).isRequired,
     // data (crossfilter dimensions)
     cbgByDate: PropTypes.object.isRequired,
     cbgByDayOfWeek: PropTypes.object.isRequired,
@@ -83,8 +90,43 @@ export class TrendsContainer extends React.Component {
     // viz state
     viz: PropTypes.shape({
       trends: PropTypes.shape({
-        focusedCbgSlice: PropTypes.object,
-        focusedCbgSliceKeys: PropTypes.array,
+        focusedCbgSlice: PropTypes.shape({
+          slice: PropTypes.shape({
+            firstQuartile: PropTypes.number.isRequired,
+            id: PropTypes.string.isRequired,
+            max: PropTypes.number.isRequired,
+            median: PropTypes.number.isRequired,
+            min: PropTypes.number.isRequired,
+            msFrom: PropTypes.number.isRequired,
+            msTo: PropTypes.number.isRequired,
+            msX: PropTypes.number.isRequired,
+            ninetiethQuantile: PropTypes.number.isRequired,
+            tenthQuantile: PropTypes.number.isRequired,
+            thirdQuartile: PropTypes.number.isRequired,
+          }),
+          position: PropTypes.shape({
+            left: PropTypes.number.isRequired,
+            tooltipLeft: PropTypes.bool.isRequired,
+            topOptions: PropTypes.shape({
+              firstQuartile: PropTypes.number.isRequired,
+              max: PropTypes.number.isRequired,
+              median: PropTypes.number.isRequired,
+              min: PropTypes.number.isRequired,
+              ninetiethQuantile: PropTypes.number.isRequired,
+              tenthQuantile: PropTypes.number.isRequired,
+              thirdQuartile: PropTypes.number.isRequired,
+            }),
+          }),
+        }),
+        focusedCbgSliceKeys: PropTypes.arrayOf(PropTypes.oneOf([
+          'firstQuartile',
+          'max',
+          'median',
+          'min',
+          'ninetiethQuantile',
+          'tenthQuantile',
+          'thirdQuartile',
+        ])),
         touched: PropTypes.bool.isRequired,
       }).isRequired,
     }).isRequired,
@@ -96,8 +138,8 @@ export class TrendsContainer extends React.Component {
 
   static defaultProps = {
     yScaleClampTop: {
-      'mg/dL': 400,
-      'mmol/L': 22.5,
+      [MGDL_UNITS]: MGDL_CLAMP_TOP,
+      [MMOLL_UNITS]: MMOLL_CLAMP_TOP,
     },
   };
 
@@ -200,6 +242,7 @@ export class TrendsContainer extends React.Component {
     const { timePrefs } = this.props;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
     const start = datetime.timezoneAwareOffset(newEnd, timezone, {
+      // negative because we are moving backward in time
       amount: -this.props.extentSize,
       units: 'days',
     }).toISOString();
