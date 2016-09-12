@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -121,11 +121,14 @@ function TidelineData(data, opts) {
     startTimer('crossfilter');
     that.filterData = crossfilter(data);
     that.smbgData = crossfilter(that.grouped.smbg || []);
+    that.cbgData = crossfilter(that.grouped.cbg || []);
     endTimer('crossfilter');
     that.dataByDate = that.createCrossFilter('datetime');
     that.dataById = that.createCrossFilter('id');
     that.smbgByDate = that.createCrossFilter('smbgByDatetime');
     that.smbgByDayOfWeek = that.createCrossFilter('smbgByDayOfWeek');
+    that.cbgByDate = that.createCrossFilter('cbgByDatetime');
+    that.cbgByDayOfWeek = that.createCrossFilter('cbgByDayOfWeek');
   }
 
   this.createCrossFilter = function(dim) {
@@ -149,6 +152,16 @@ function TidelineData(data, opts) {
       case 'smbgByDayOfWeek':
         startTimer(dim + ' dimension');
         newDim = this.smbgData.dimension(function(d) { return d.localDayOfWeek; });
+        endTimer(dim + ' dimension');
+        break;
+      case 'cbgByDatetime':
+        startTimer(dim + ' dimension');
+        newDim = this.cbgData.dimension(function(d) { return d.normalTime; });
+        endTimer(dim + ' dimension');
+        break;
+      case 'cbgByDayOfWeek':
+        startTimer(dim + ' dimension');
+        newDim = this.cbgData.dimension(function(d) { return d.localDayOfWeek; });
         endTimer(dim + ' dimension');
         break;
     }
@@ -306,10 +319,10 @@ function TidelineData(data, opts) {
     startTimer('setBGPrefs');
     this.bgClasses = opts.bgClasses;
     this.bgUnits = opts.bgUnits;
-    if (this.bgUnits === 'mmol/L') { 
+    if (this.bgUnits === 'mmol/L') {
       for (var key in opts.bgClasses) {
         opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/constants.GLUCOSE_MM;
-      } 
+      }
     }
     endTimer('setBGPrefs');
   };
@@ -325,11 +338,11 @@ function TidelineData(data, opts) {
             d.normalEnd = dt.addDuration(d.time, d.duration);
           }
         }
-        // for now only adding local features to smbg (for modal day)
-        if (d.type === 'smbg') {
+        if (d.type === 'smbg' || d.type === 'cbg') {
           var date = new Date(d.time);
           d.localDayOfWeek = dt.getLocalDayOfWeek(date, opts.timePrefs.timezoneName);
           d.localDate = dt.getLocalDate(date, opts.timePrefs.timezoneName);
+          d.msPer24 = dt.getMsPer24(d.normalTime, opts.timePrefs.timezoneName);
         }
       };
     }
@@ -361,11 +374,12 @@ function TidelineData(data, opts) {
             d.normalEnd = dt.addDuration(d.normalTime, d.duration);
           }
         }
-        // for now only adding local features to smbg (for modal day)
-        if (d.type === 'smbg') {
+        // for now only adding local features to smbg & cbg (for modal day)
+        if (d.type === 'smbg' || d.type === 'cbg') {
           var date = new Date(d.normalTime);
           d.localDayOfWeek = dt.getLocalDayOfWeek(date);
           d.localDate = d.normalTime.slice(0,10);
+          d.msPer24 = dt.getMsPer24(d.normalTime, opts.timePrefs.timezoneName);
         }
       };
     }
@@ -454,7 +468,7 @@ function TidelineData(data, opts) {
     bgClasses: this.bgClasses,
     DAILY_MIN: opts.SMBG_DAILY_MIN
   });
-  
+
   if (data.length > 0 && !_.isEmpty(this.diabetesData)) {
     var dData = this.diabetesData;
     this.data = _.sortBy(_.reject(data, function(d) {
@@ -475,7 +489,7 @@ function TidelineData(data, opts) {
     this.data = [];
   }
   endTimer('setUtilities');
-  
+
   updateCrossFilters(this.data);
 
   startTimer('basicsData');

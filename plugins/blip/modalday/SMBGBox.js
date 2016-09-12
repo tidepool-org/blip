@@ -196,7 +196,7 @@ d3.chart('SMBGBoxOverlay', {
         return this.append('circle')
           .attr({
             'class': 'meanCircle',
-            r: chart.opts().rectWidth/2,
+            r: chart.opts().meanCircleR,
             id: function(d) { return 'meanCircle-' + d.id; }
           });
       },
@@ -300,6 +300,7 @@ module.exports = {
           height: 20,
           width: 65
         },
+        meanCircleR: 7,
         rectWidth: 18
       }
     };
