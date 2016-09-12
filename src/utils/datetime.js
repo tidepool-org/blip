@@ -111,6 +111,11 @@ export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
   return moment.utc(milliseconds).format(format);
 }
 
+/**
+ * formatDisplayDate
+ * @param  {Number} timestamp integer timestamp
+ * @return {String}           formatted UTC date string
+ */
 export function formatDisplayDate(timestamp) {
   if (!timestamp) {
     return '';

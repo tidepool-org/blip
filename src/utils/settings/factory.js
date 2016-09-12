@@ -20,6 +20,11 @@ import Tandem from '../../components/settings/tandem/Tandem';
 import Omnipod from '../../components/settings/omnipod/Omnipod';
 import Animas from '../../components/settings/animas/Animas';
 
+/**
+ * getChart
+ * @param  {String} deviceType desired chart device name
+ * @return {Component}         React component for given device name
+ */
 export function getChart(deviceType) {
   const chartType = deviceType.toLowerCase();
   if (chartType === 'carelink') {
