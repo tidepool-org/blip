@@ -17,7 +17,7 @@
 
 import React, { PropTypes } from 'react';
 
-import { formatDurationToClocktime } from '../../../utils/datetime';
+import { millisecondsAsTimeOfDay } from '../../../utils/datetime';
 
 import styles from './FocusedCBGSliceTime.css';
 
@@ -28,10 +28,8 @@ const FocusedCBGSliceTime = (props) => {
   }
   const { slice: { msFrom, msTo } } = focusedSlice;
   const { position: { left, topOptions: { max: top } } } = focusedSlice;
-  const timePiecesFrom = formatDurationToClocktime(msFrom);
-  const timePiecesTo = formatDurationToClocktime(msTo);
-  const displayFrom = `${timePiecesFrom.hours}:${timePiecesFrom.minutes}`;
-  const displayTo = `${timePiecesTo.hours}:${timePiecesTo.minutes}`;
+  const displayFrom = millisecondsAsTimeOfDay(msFrom, 'h:mm');
+  const displayTo = millisecondsAsTimeOfDay(msTo, 'h:mm');
   return (
     <div className={styles.container} style={{ top, left }}>
       <span className={styles.text}>{`${displayFrom} - ${displayTo}`}</span>
@@ -42,14 +40,30 @@ const FocusedCBGSliceTime = (props) => {
 FocusedCBGSliceTime.propTypes = {
   focusedSlice: PropTypes.shape({
     slice: PropTypes.shape({
+      firstQuartile: PropTypes.number.isRequired,
+      id: PropTypes.string.isRequired,
+      max: PropTypes.number.isRequired,
+      median: PropTypes.number.isRequired,
+      min: PropTypes.number.isRequired,
       msFrom: PropTypes.number.isRequired,
       msTo: PropTypes.number.isRequired,
+      msX: PropTypes.number.isRequired,
+      ninetiethQuantile: PropTypes.number.isRequired,
+      tenthQuantile: PropTypes.number.isRequired,
+      thirdQuartile: PropTypes.number.isRequired,
     }).isRequired,
     position: PropTypes.shape({
-      topOptions: PropTypes.shape({
-        max: PropTypes.number.isRequired,
-      }).isRequired,
       left: PropTypes.number.isRequired,
+      tooltipLeft: PropTypes.bool.isRequired,
+      topOptions: PropTypes.shape({
+        firstQuartile: PropTypes.number.isRequired,
+        max: PropTypes.number.isRequired,
+        median: PropTypes.number.isRequired,
+        min: PropTypes.number.isRequired,
+        ninetiethQuantile: PropTypes.number.isRequired,
+        tenthQuantile: PropTypes.number.isRequired,
+        thirdQuartile: PropTypes.number.isRequired,
+      }).isRequired,
     }).isRequired,
   }),
 };

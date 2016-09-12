@@ -19,6 +19,7 @@ import _ from 'lodash';
 import cx from 'classnames';
 import React, { PropTypes } from 'react';
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { displayBgValue } from '../../../utils/format';
 
 import styles from './FocusedCBGSliceHTMLLabels.css';
@@ -139,16 +140,38 @@ FocusedCBGSliceHTMLLabels.defaultProps = {
 };
 
 FocusedCBGSliceHTMLLabels.propTypes = {
-  bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
-  bottomNumbers: PropTypes.object.isRequired,
-  explainers: PropTypes.object.isRequired,
-  focusedKeys: PropTypes.array,
+  bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
+  bottomNumbers: PropTypes.shape({
+    min: PropTypes.bool.isRequired,
+    tenthQuantile: PropTypes.bool.isRequired,
+    firstQuartile: PropTypes.bool.isRequired,
+  }).isRequired,
+  explainers: PropTypes.shape({
+    max: PropTypes.string.isRequired,
+    median: PropTypes.string.isRequired,
+    min: PropTypes.string.isRequired,
+    ninetiethQuantile: PropTypes.string.isRequired,
+    thirdQuartile: PropTypes.string.isRequired,
+  }).isRequired,
+  focusedKeys: PropTypes.arrayOf(PropTypes.oneOf([
+    'firstQuartile',
+    'max',
+    'median',
+    'min',
+    'ninetiethQuantile',
+    'tenthQuantile',
+    'thirdQuartile',
+  ])),
   focusedSlice: PropTypes.shape({
     slice: PropTypes.shape({
       firstQuartile: PropTypes.number.isRequired,
+      id: PropTypes.string.isRequired,
       max: PropTypes.number.isRequired,
       median: PropTypes.number.isRequired,
       min: PropTypes.number.isRequired,
+      msFrom: PropTypes.number.isRequired,
+      msTo: PropTypes.number.isRequired,
+      msX: PropTypes.number.isRequired,
       ninetiethQuantile: PropTypes.number.isRequired,
       tenthQuantile: PropTypes.number.isRequired,
       thirdQuartile: PropTypes.number.isRequired,
@@ -167,7 +190,11 @@ FocusedCBGSliceHTMLLabels.propTypes = {
       }).isRequired,
     }).isRequired,
   }),
-  topNumbers: PropTypes.object.isRequired,
+  topNumbers: PropTypes.shape({
+    max: PropTypes.bool.isRequired,
+    ninetiethQuantile: PropTypes.bool.isRequired,
+    thirdQuartile: PropTypes.bool.isRequired,
+  }).isRequired,
 };
 
 export default FocusedCBGSliceHTMLLabels;

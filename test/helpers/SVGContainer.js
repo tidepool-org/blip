@@ -15,28 +15,26 @@
  * == BSD2 LICENSE ==
  */
 
-require('./styles/colors.css');
+import React, { PropTypes } from 'react';
 
-import FocusedCBGSliceHTMLLabels from './components/trends/cbg/FocusedCBGSliceHTMLLabels';
-import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
+const SVGContainer = (props) => {
+  const { children, dimensions: { width, height } } = props;
 
-import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
-
-import TrendsContainer from './containers/trends/TrendsContainer';
-
-import * as SettingsFactory from './utils/settings/factory';
-
-import vizReducer from './redux/reducers/';
-
-const components = {
-  FocusedCBGSliceHTMLLabels,
-  FocusedCBGSliceTime,
-  SettingsFactory,
-  TwoOptionToggle,
+  return (
+    <div>
+      <svg width={width} height={height}>
+        {children}
+      </svg>
+    </div>
+  );
 };
 
-const containers = {
-  TrendsContainer,
+SVGContainer.propTypes = {
+  children: PropTypes.object.isRequired,
+  dimensions: PropTypes.shape({
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+  }).isRequired,
 };
 
-export { components, containers, vizReducer };
+export default SVGContainer;

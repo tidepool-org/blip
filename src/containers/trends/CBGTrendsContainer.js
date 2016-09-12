@@ -16,13 +16,13 @@
  */
 
 import React, { PropTypes } from 'react';
-import bows from 'bows';
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import XAxisTicks from '../../components/trends/common/XAxisTicks';
 import YAxisLabelsAndTicks from '../../components/trends/common/YAxisLabelsAndTicks';
-import CBGSlicesAnimationContainer from '../../components/trends/cbg/CBGSlicesAnimationContainer';
+import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 
 /*
@@ -66,14 +66,60 @@ class CBGTrendsContainer extends React.Component {
       targetLowerBound: PropTypes.number.isRequired,
       veryLowThreshold: PropTypes.number.isRequired,
     }),
-    bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']),
-    data: PropTypes.array.isRequired,
-    focusedSlice: PropTypes.object,
-    focusedSliceKeys: PropTypes.array,
+    bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
+    data: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      msPer24: PropTypes.number.isRequired,
+      value: PropTypes.number.isRequired,
+    })).isRequired,
+    focusedSlice: PropTypes.shape({
+      slice: PropTypes.shape({
+        firstQuartile: PropTypes.number.isRequired,
+        id: PropTypes.string.isRequired,
+        max: PropTypes.number.isRequired,
+        median: PropTypes.number.isRequired,
+        min: PropTypes.number.isRequired,
+        msFrom: PropTypes.number.isRequired,
+        msTo: PropTypes.number.isRequired,
+        msX: PropTypes.number.isRequired,
+        ninetiethQuantile: PropTypes.number.isRequired,
+        tenthQuantile: PropTypes.number.isRequired,
+        thirdQuartile: PropTypes.number.isRequired,
+      }).isRequired,
+      position: PropTypes.shape({
+        left: PropTypes.number.isRequired,
+        tooltipLeft: PropTypes.bool.isRequired,
+        topOptions: PropTypes.shape({
+          firstQuartile: PropTypes.number.isRequired,
+          max: PropTypes.number.isRequired,
+          median: PropTypes.number.isRequired,
+          min: PropTypes.number.isRequired,
+          ninetiethQuantile: PropTypes.number.isRequired,
+          tenthQuantile: PropTypes.number.isRequired,
+          thirdQuartile: PropTypes.number.isRequired,
+        }).isRequired,
+      }).isRequired,
+    }),
+    focusedSliceKeys: PropTypes.arrayOf(PropTypes.oneOf([
+      'firstQuartile',
+      'max',
+      'median',
+      'min',
+      'ninetiethQuantile',
+      'tenthQuantile',
+      'thirdQuartile',
+    ])),
     focusSlice: PropTypes.func.isRequired,
-    margins: PropTypes.object.isRequired,
-    smbgOpts: PropTypes.object.isRequired,
-    // dimensions only used in React storybook!
+    margins: PropTypes.shape({
+      top: PropTypes.number.isRequired,
+      right: PropTypes.number.isRequired,
+      bottom: PropTypes.number.isRequired,
+      left: PropTypes.number.isRequired,
+    }).isRequired,
+    smbgOpts: PropTypes.shape({
+      maxR: PropTypes.number.isRequired,
+      r: PropTypes.number.isRequired,
+    }).isRequired,
     svgDimensions: PropTypes.shape({
       width: PropTypes.number.isRequired,
       height: PropTypes.number.isRequired,
@@ -84,23 +130,15 @@ class CBGTrendsContainer extends React.Component {
     yScale: PropTypes.func.isRequired,
   };
 
-  constructor(props) {
-    super(props);
-    this.log = bows('CBGTrendsContainer');
-    this.state = {
-      mungedData: [],
-    };
-  }
-
   componentWillMount() {
-    const { svgDimensions, xScale, yScale } = this.props;
+    const { margins, svgDimensions, xScale, yScale } = this.props;
     xScale.range([
-      MARGINS.left + Math.round(SMBG_OPTS.maxR),
-      svgDimensions.width - MARGINS.right - Math.round(SMBG_OPTS.maxR),
+      margins.left + Math.round(SMBG_OPTS.maxR),
+      svgDimensions.width - margins.right - Math.round(SMBG_OPTS.maxR),
     ]);
     yScale.range([
-      svgDimensions.height - MARGINS.bottom - BUMPERS.bottom,
-      MARGINS.top + BUMPERS.top,
+      svgDimensions.height - margins.bottom - BUMPERS.bottom,
+      margins.top + BUMPERS.top,
     ]);
   }
 

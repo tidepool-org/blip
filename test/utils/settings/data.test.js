@@ -20,7 +20,7 @@ describe('data', () => {
       .to.have.length(3)
       .to.contain({ start: '12:00 am', columnTwo: '3.9', columnThree: '7.8' })
       .and.contain({ start: '11:30 am', columnTwo: '4.4', columnThree: '6.7' })
-      .and.contain({ start: '06:00 pm', columnTwo: '4.2', columnThree: '8.3' });
+      .and.contain({ start: '6:00 pm', columnTwo: '4.2', columnThree: '8.3' });
     });
   });
   describe('processCarbRatioData', () => {
@@ -32,9 +32,9 @@ describe('data', () => {
       )
       .to.have.length(4)
       .to.contain({ start: '12:00 am', amount: 24 })
-      .and.contain({ start: '02:30 am', amount: 22 })
-      .and.contain({ start: '06:00 am', amount: 17 })
-      .and.contain({ start: '05:30 pm', amount: 6 });
+      .and.contain({ start: '2:30 am', amount: 22 })
+      .and.contain({ start: '6:00 am', amount: 17 })
+      .and.contain({ start: '5:30 pm', amount: 6 });
     });
   });
   describe('processSensitivityData', () => {
@@ -58,9 +58,9 @@ describe('data', () => {
       )
       .to.have.length(5)
       .to.contain({ start: '12:00 am', rate: '0.750' })
-      .and.contain({ start: '02:30 am', rate: '0.850' })
-      .and.contain({ start: '06:00 am', rate: '0.900' })
-      .and.contain({ start: '05:30 pm', rate: '0.850' })
+      .and.contain({ start: '2:30 am', rate: '0.850' })
+      .and.contain({ start: '6:00 am', rate: '0.900' })
+      .and.contain({ start: '5:30 pm', rate: '0.850' })
       .and.contain({ start: '12:00 am', rate: '0.750' })
       .and.contain({ start: 'Total', rate: '20.725' });
     });
@@ -92,7 +92,7 @@ describe('data', () => {
         insulinSensitivity: '2.6',
       })
       .and.contain({
-        start: '03:30 am',
+        start: '3:30 am',
         rate: '0.225',
         bgTarget: '5.0',
         carbRatio: 10,
@@ -106,7 +106,7 @@ describe('data', () => {
         insulinSensitivity: '4.5',
       })
       .and.contain({
-        start: '08:00 pm',
+        start: '8:00 pm',
         rate: '0.625',
         bgTarget: '5.0',
         carbRatio: 9,

@@ -15,6 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-.noDataMsg {
-  composes: mediumContrastText svgMiddleAnchored from '../../../styles/typography.css';
-}
+import { scaleLinear } from 'd3-scale';
+
+const trendsWidth = 864;
+const trendsHeight = 360;
+
+const trendsXScale = scaleLinear()
+  .domain([0, 864e5])
+  .range([0, trendsWidth]);
+
+const trendsYScale = scaleLinear()
+  .domain([40, 400])
+  .range([trendsHeight, 0])
+  .clamp(true);
+
+const trends = { trendsWidth, trendsHeight, trendsXScale, trendsYScale };
+
+export { trends };

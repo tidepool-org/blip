@@ -15,9 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-.medianLine {
-  fill: none;
-  stroke: var(--trends-median);
-  stroke-width: 3px;
-  stroke-linecap: round;
+.noDataMsg {
+  composes: mediumContrastText svgMiddleAnchored from '../../styles/typography.css';
 }

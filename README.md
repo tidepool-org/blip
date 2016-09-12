@@ -20,14 +20,14 @@ $ npm install
 
 ## Directory structure
 
-As of August, 2016, the directory structure is as follows (although this may change as we continue to develop new code in this repository):
+As of September, 2016, the directory structure is as follows (although this may change as we continue to develop new code in this repository):
 
+<!-- to generate the directory structure below use `tree -d --matchdirs -I 'coverage|dist|node_modules'` -->
 ```
 ├── data
 │   └── pumpSettings
 │       └── tandem
 ├── src
-│   ├── actions
 │   ├── components
 │   │   ├── common
 │   │   │   └── controls
@@ -37,10 +37,12 @@ As of August, 2016, the directory structure is as follows (although this may cha
 │   │       └── smbg
 │   ├── containers
 │   │   └── trends
-│   ├── reducers
-│   │   └── trends
+│   ├── redux
+│   │   ├── actions
+│   │   └── reducers
 │   ├── styles
 │   └── utils
+│       └── trends
 ├── stories
 │   ├── components
 │   │   ├── common
@@ -51,24 +53,42 @@ As of August, 2016, the directory structure is as follows (although this may cha
 │       └── trends
 ├── storybook
 └── test
+    ├── components
+    │   ├── common
+    │   │   └── controls
+    │   └── trends
+    │       ├── cbg
+    │       └── common
+    ├── containers
+    │   └── trends
+    ├── helpers
+    ├── redux
+    │   ├── actions
+    │   └── reducers
     └── utils
+        └── trends
 ```
 
 All active, non-tooling code in the repository is contained in `src/`, and `src/` has the following structure:
 
 ```
-src/
-├── actions
-├── components
-├── containers
-├── reducers
-├── styles
-└── utils
+└── src
+    ├── components
+    ├── containers
+    ├── redux
+    ├── styles
+    └── utils
 ```
 
 ### Redux directories
 
-Within `src/`, the `actions/` and `reducers/` contain the actions and reducers specific to the components in this component library. An `index.js` file in each of these directories exports the set of actions and a root reducer for a consuming application to import and consume via `connect()`ed components (in the case of actions) and by adding the reducer as a branch of the consuming application's state tree.
+```
+└── redux
+    ├── actions
+    └── reducers
+```
+
+Within `src/redux/`, the `actions/` and `reducers/` contain the actions and reducers specific to the components in this component library. An `index.js` file in each of these directories exports the set of actions and a root reducer for a consuming application to import and consume via `connect()`ed components (in the case of actions) and by adding the reducer as a branch of the consuming application's state tree.
 
 In both `actions/` and `reducers/`, files should be grouped into sub-directories by ["view"](#views) or located in a directory called `common/` if the action(s) or reducer(s) is relevant to more than one view.
 

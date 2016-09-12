@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import moment from 'moment-timezone';
 
 export const THREE_HRS = 10800000;
@@ -43,30 +44,71 @@ export function getTimezoneFromTimePrefs(timePrefs) {
  * @return {JavaScript Date} datetime
  */
 export function timezoneAwareCeiling(utc, timezone) {
-  // TODO: this is a bug here that's causing basics timezone to creep forward
-  // if the utc passed in *is* a local midnight/start-of-day value, adding 1 is unnecessary
+  if (utc instanceof Date) {
+    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+  }
+  const startOfDay = moment.utc(utc)
+    .tz(timezone)
+    .startOf('day');
+
+  const utcHammertime = typeof utc === 'string' ? Date.parse(utc) : utc;
+  if (startOfDay.valueOf() === utcHammertime) {
+    return startOfDay.toDate();
+  }
+  return startOfDay.add(1, 'day').toDate();
+}
+
+/**
+ * timezoneAwareOffset
+ * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
+ * @param {String} timezone - named timezone
+ * @param {Object} offset - { amount: integer (+/-), units: 'hour', 'day', &c }
+ *
+ * @return {JavaScript Date} datetime
+ */
+export function timezoneAwareOffset(utc, timezone, offset) {
+  if (utc instanceof Date) {
+    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+  }
   return moment.utc(utc)
     .tz(timezone)
-    .startOf('day')
-    .add(1, 'day')
+    .add(offset.amount, offset.units)
     .toDate();
 }
 
-export function formatDurationHours(duration) {
-  return moment(String(moment.duration(duration).hours()), 'H').format('h,a');
+/**
+ * localNoonBeforeTimestamp
+ * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
+ * @param {String} timezone - named timezone
+ *
+ * @return {JavaScript Date} datetime
+ */
+export function localNoonBeforeTimestamp(utc, timezone) {
+  if (utc instanceof Date) {
+    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+  }
+  const ceil = timezoneAwareCeiling(utc, timezone);
+  return moment.utc(ceil.valueOf())
+    .tz(timezone)
+    .subtract(1, 'day')
+    .hours(12)
+    .toDate();
 }
 
-export function formatDurationMinutes(duration) {
-  return moment(String(moment.duration(duration).minutes()), 'm').format('mm');
-}
-
-export function formatDurationToClocktime(duration) {
-  const hoursPlus = formatDurationHours(duration).split(',');
-  return {
-    hours: hoursPlus[0],
-    minutes: formatDurationMinutes(duration),
-    timeOfDay: hoursPlus[1],
-  };
+/**
+ * millisecondsAsTimeOfDay
+ * @param {Number} duration - positive integer representing a time of day
+ *                            in milliseconds within a 24-hr day
+ * @param {String} [format] - optional moment display format string; default is 'h:mm a'
+ *
+ * @return {String} formatted clocktime
+ */
+export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
+  if (_.isNull(milliseconds) || _.isUndefined(milliseconds) ||
+    milliseconds < 0 || milliseconds > TWENTY_FOUR_HRS || milliseconds instanceof Date) {
+    throw new Error('First argument must be a value in milliseconds per twenty-four hour day!');
+  }
+  return moment.utc(milliseconds).format(format);
 }
 
 export function formatDisplayDate(timestamp) {
@@ -74,11 +116,4 @@ export function formatDisplayDate(timestamp) {
     return '';
   }
   return moment(timestamp).utc().format('MMM Do YYYY');
-}
-
-export function millisecondsAsTimeOfDay(milliseconds) {
-  if (milliseconds === null || milliseconds === undefined) {
-    return '';
-  }
-  return moment(milliseconds).utc().format('hh:mm a');
 }

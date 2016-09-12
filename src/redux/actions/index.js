@@ -15,28 +15,4 @@
  * == BSD2 LICENSE ==
  */
 
-require('./styles/colors.css');
-
-import FocusedCBGSliceHTMLLabels from './components/trends/cbg/FocusedCBGSliceHTMLLabels';
-import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
-
-import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
-
-import TrendsContainer from './containers/trends/TrendsContainer';
-
-import * as SettingsFactory from './utils/settings/factory';
-
-import vizReducer from './redux/reducers/';
-
-const components = {
-  FocusedCBGSliceHTMLLabels,
-  FocusedCBGSliceTime,
-  SettingsFactory,
-  TwoOptionToggle,
-};
-
-const containers = {
-  TrendsContainer,
-};
-
-export { components, containers, vizReducer };
+export * from './trends';
