@@ -60,3 +60,4 @@ describe('format', () => {
       expect(format.displayBgValue(12.77, 'mmol/L')).to.equal('12.8');
     });
   });
+});
