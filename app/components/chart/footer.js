@@ -19,6 +19,9 @@ var bows = require('bows');
 var React = require('react');
 var cx = require('classnames');
 
+import * as viz from '@tidepool/viz';
+const TwoOptionToggle = viz.components.TwoOptionToggle;
+
 var tideline = {
   log: bows('Footer')
 };
@@ -30,18 +33,20 @@ var TidelineFooter = React.createClass({
     onClickGroup: React.PropTypes.func,
     onClickLines: React.PropTypes.func,
     onClickValues: React.PropTypes.func,
+    onClickRefresh: React.PropTypes.func,
+    onClickBgDataToggle: React.PropTypes.func,
     boxOverlay: React.PropTypes.bool,
     grouped: React.PropTypes.bool,
     showingLines: React.PropTypes.bool,
+    showingCbg: React.PropTypes.bool,
+    showingSmbg: React.PropTypes.bool,
     showingValues: React.PropTypes.bool,
-    onClickRefresh: React.PropTypes.func
   },
   render: function() {
     var refreshLinkClass = cx({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
-    
     var showValues = (
       <div className="footer-right-options">
         <label htmlFor="valuesCheckbox">
@@ -50,10 +55,8 @@ var TidelineFooter = React.createClass({
             onChange={this.props.onClickValues} /> Values
         </label>
       </div>
-      );
-    
+    );
 
-    
     var modalOpts = (
       <div className="footer-right-options">
         <label htmlFor="overlayCheckbox">
@@ -74,15 +77,29 @@ var TidelineFooter = React.createClass({
             onChange={this.props.onClickLines} /> Lines
         </label>
       </div>
+    );
+
+    var rightSide = null;
+    var bgDataToggle = null;
+
+    if (this.props.chartType === 'weekly') {
+      rightSide = showValues;
+    }
+    if (this.props.chartType === 'modal') {
+      if (this.props.showingSmbg) {
+        rightSide = modalOpts;
+      }
+      bgDataToggle = (
+        <span className="toggle-container">
+          <TwoOptionToggle
+            left={{ label: 'BGM', state: this.props.showingSmbg }}
+            right={{ label: 'CGM', state: this.props.showingCbg }}
+            toggleFn={this.props.onClickBgDataToggle}
+          />
+        </span>
       );
-    
+    }
 
-    
-    var rightSide = this.props.chartType === 'weekly' ? showValues :
-      this.props.chartType === 'modal' ? modalOpts : null;
-    
-
-    
     return (
       <div className="container-box-outer patient-data-footer-outer">
         <div className="container-box-inner patient-data-footer-inner">
@@ -90,12 +107,12 @@ var TidelineFooter = React.createClass({
             <button className="btn btn-chart btn-refresh"
               onClick={this.props.onClickRefresh}>
               Refresh</button>
+            {bgDataToggle}
           </div>
           <div className="patient-data-footer-right">{rightSide}</div>
         </div>
       </div>
-      );
-    
+    );
   }
 });
 

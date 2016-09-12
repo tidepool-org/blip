@@ -20,6 +20,8 @@ import thunkMiddleware from 'redux-thunk';
 import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
 
+import { vizReducer } from '@tidepool/viz';
+
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
 
@@ -30,7 +32,8 @@ const reduxRouterMiddleware = syncHistory(browserHistory);
 
 const reducer = combineReducers({
   blip: reducers,
-  routing: routeReducer
+  routing: routeReducer,
+  viz: vizReducer,
 });
 
 let initialState = { blip: blipState };

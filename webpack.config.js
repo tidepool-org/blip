@@ -59,7 +59,7 @@ module.exports = {
   entry: entryScripts,
   output: output,
   module: {
-    loaders: loaders
+    loaders: loaders,
   },
   // tideline DEV env variable only needs to be true in tideline local dev
   plugins: plugins,
