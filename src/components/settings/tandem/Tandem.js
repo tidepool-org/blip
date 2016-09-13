@@ -28,7 +28,7 @@ import * as constants from '../../../utils/constants';
 import * as data from '../../../utils/settings/data';
 
 const Tandem = (props) => {
-  const { bgUnits, pumpSettings } = props;
+  const { bgUnits, pumpSettings, timePrefs } = props;
   const schedules = data.getTimedSchedules(pumpSettings.basalSchedules);
 
   const COLUMNS = [
@@ -72,7 +72,7 @@ const Tandem = (props) => {
     <div>
       <Header
         deviceType="Tandem"
-        deviceMeta={data.getDeviceMeta(pumpSettings)}
+        deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
       />
       {tables}
     </div>
@@ -81,6 +81,10 @@ const Tandem = (props) => {
 
 Tandem.propTypes = {
   bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
+  timePrefs: PropTypes.shape({
+    timezoneAware: React.PropTypes.bool.isRequired,
+    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
+  }).isRequired,
   pumpSettings: React.PropTypes.shape({
     activeSchedule: React.PropTypes.string.isRequired,
     units: React.PropTypes.object.isRequired,

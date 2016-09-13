@@ -114,11 +114,14 @@ export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
 /**
  * formatDisplayDate
  * @param  {Number} timestamp integer timestamp
+ * @param  {Object} timePrefs object containing timezoneAware Boolean and timezoneName String
+ *
  * @return {String}           formatted UTC date string
  */
-export function formatDisplayDate(timestamp) {
+export function formatDisplayDate(timestamp, timePrefs) {
   if (!timestamp) {
     return '';
   }
-  return moment(timestamp).utc().format('MMM Do YYYY');
+  return moment().utc(timestamp).tz(getTimezoneFromTimePrefs(timePrefs))
+    .format('MMM Do YYYY');
 }

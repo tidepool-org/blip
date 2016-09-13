@@ -166,14 +166,15 @@ export function getTimedSchedules(settingsData) {
 /**
  * getDeviceMeta
  * @param  {Object} settingsData all settings data
+ * @param  {Object} timePrefs    timezone preferences object
  *
  * @return {Object}              filtered meta data
  */
-export function getDeviceMeta(settingsData) {
+export function getDeviceMeta(settingsData, timePrefs) {
   return {
     name: settingsData.deviceId || 'unknown',
     schedule: settingsData.activeSchedule || 'unknown',
-    uploaded: datetime.formatDisplayDate(settingsData.deviceTime) || 'unknown',
+    uploaded: datetime.formatDisplayDate(settingsData.time, timePrefs) || 'unknown',
     serial: settingsData.deviceSerialNumber || 'unknown',
   };
 }

@@ -28,7 +28,7 @@ import * as data from '../../../utils/settings/data';
 import styles from './Animas.css';
 
 const Animas = (props) => {
-  const { bgUnits, pumpSettings } = props;
+  const { bgUnits, pumpSettings, timePrefs } = props;
 
   const renderBasalsData = () => {
     const columns = [
@@ -152,7 +152,7 @@ const Animas = (props) => {
     <div>
       <Header
         deviceType="Animas"
-        deviceMeta={data.getDeviceMeta(pumpSettings)}
+        deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
       />
       <div className={styles.settings}>
         {renderBasalsData()}
@@ -166,6 +166,10 @@ const Animas = (props) => {
 
 Animas.propTypes = {
   bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
+  timePrefs: PropTypes.shape({
+    timezoneAware: React.PropTypes.bool.isRequired,
+    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
+  }).isRequired,
   pumpSettings: React.PropTypes.shape({
     activeSchedule: React.PropTypes.string.isRequired,
     units: React.PropTypes.object.isRequired,
