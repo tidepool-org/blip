@@ -23,7 +23,7 @@
 
 .basalSchedulesHeader {
   composes: settingsHeaderText;
-  width: 160px;
+  min-width: 160px;
   background-color: var(--basal);
   text-overflow: ellipsis;
   overflow: hidden;
