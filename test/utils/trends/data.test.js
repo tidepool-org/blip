@@ -83,7 +83,7 @@ describe('[trends] data utils', () => {
     });
   });
 
-  describe('calculateStatsForBin', () => {
+  describe('calculateCbgStatsForBin', () => {
     const bin = 900000;
     const binKey = bin.toString();
     const binSize = 1000 * 60 * 30;
@@ -91,10 +91,10 @@ describe('[trends] data utils', () => {
     const max = 100;
     const data = shuffle(range(min, max + 1));
 
-    const res = utils.calculateStatsForBin(binKey, binSize, data);
+    const res = utils.calculateCbgStatsForBin(binKey, binSize, data);
 
     it('should be a function', () => {
-      assert.isFunction(utils.calculateStatsForBin);
+      assert.isFunction(utils.calculateCbgStatsForBin);
     });
 
     it('should add the `binKey` as the `id` on the resulting object', () => {
@@ -143,9 +143,39 @@ describe('[trends] data utils', () => {
     });
   });
 
-  describe('mungeSmbgDataForBin', () => {
+  describe('calculateSmbgStatsForBin', () => {
+    const bin = 1800000;
+    const binKey = bin.toString();
+    const binSize = 1000 * 60 * 60 * 3;
+    const min = 0;
+    const max = 100;
+    const data = shuffle(range(min, max + 1));
+
+    const res = utils.calculateSmbgStatsForBin(binKey, binSize, data);
+
     it('should be a function', () => {
-      assert.isFunction(utils.mungeSmbgDataForBin);
+      assert.isFunction(utils.calculateSmbgStatsForBin);
+    });
+
+    it('should add the `binKey` as the `id` on the resulting object', () => {
+      assert.isString(res.id);
+      expect(res.id).to.equal(binKey);
+    });
+
+    it('should add the minimum as the `min` on the resulting object', () => {
+      expect(res.min).to.equal(min);
+    });
+
+    it('should add the mean as the `mean` on the resulting object', () => {
+      expect(res.mean).to.equal(50);
+    });
+
+    it('should add the maximum as the `max` on the resulting object', () => {
+      expect(res.max).to.equal(max);
+    });
+
+    it('should add the bin as `msX` on the resulting object', () => {
+      expect(res.msX).to.equal(bin);
     });
   });
 });

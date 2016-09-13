@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash';
-import { max, median, min, quantile } from 'd3-array';
+import { max, mean, median, min, quantile } from 'd3-array';
 
 import { TWENTY_FOUR_HRS } from '../datetime';
 
@@ -38,14 +38,14 @@ export function findTimeOfDayBin(binSize, msPer24) {
 }
 
 /**
- * calculateStatsForBin
+ * calculateCbgStatsForBin
  * @param {String} binKey - String of natural number milliseconds bin
  * @param {Number} binSize - natural number duration in milliseconds
- * @param {Array} data - Array of blood-glucose values in mg/dL or mmol/L
+ * @param {Array} data - Array of cbg values in mg/dL or mmol/L
  *
- * @return {Object} calculatedStats
+ * @return {Object} calculatedCbgStats
  */
-export function calculateStatsForBin(binKey, binSize, data) {
+export function calculateCbgStatsForBin(binKey, binSize, data) {
   const sorted = _.sortBy(data, d => d);
   const centerOfBinMs = parseInt(binKey, 10);
   return {
@@ -64,11 +64,20 @@ export function calculateStatsForBin(binKey, binSize, data) {
 }
 
 /**
- * DESCRIPTION
- * @param {TYPE} NAME
- * @param {TYPE} NAME
- * @return {TYPE} NAME
+ * calculateSmbgStatsForBin
+ * @param {String} binKey - String of natural number milliseconds bin
+ * @param {Number} binSize - natural number duration in milliseconds
+ * @param {Array} data - Array of smbg values in mg/dL or mmol/L
+ *
+ * @return {Object} calculatedSmbgStats
  */
-export function mungeSmbgDataForBin(binKey, binSize, data) {
-
+export function calculateSmbgStatsForBin(binKey, binSize, data) {
+  const centerOfBinMs = parseInt(binKey, 10);
+  return {
+    id: binKey,
+    min: min(data),
+    mean: mean(data),
+    max: max(data),
+    msX: centerOfBinMs,
+  };
 }
