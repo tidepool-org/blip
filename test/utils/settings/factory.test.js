@@ -54,7 +54,6 @@ describe('factory', () => {
       const fn = () => { factory.getChart('unknown'); };
       expect(fn)
         .to.throw('`deviceType` must one of `carelink`, `tandem`, `insulet` or `animas`');
-
     });
   });
 });
