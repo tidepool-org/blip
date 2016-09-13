@@ -7,6 +7,7 @@ import { shallow } from 'enzyme';
 import Omnipod from '../../../../src/components/settings/omnipod/Omnipod';
 
 const multirateData = require('../../../../data/pumpSettings/omnipod/multirate.json');
+const timePrefs = { timezoneAware: false, timezoneName: null };
 
 describe('Omnipod', () => {
   it('should render without problems when bgUnits and pumpSettings provided', () => {
@@ -15,6 +16,7 @@ describe('Omnipod', () => {
       <Omnipod
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(console.error.callCount).to.equal(0);
@@ -24,6 +26,7 @@ describe('Omnipod', () => {
       <Omnipod
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('Header')).to.have.length(1);
@@ -33,6 +36,7 @@ describe('Omnipod', () => {
       <Omnipod
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('Header').props().deviceType).to.equal('Omnipod');
@@ -42,6 +46,7 @@ describe('Omnipod', () => {
       <Omnipod
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('Table')).to.have.length(5);
@@ -51,6 +56,7 @@ describe('Omnipod', () => {
       <Omnipod
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('CollapsibleContainer')).to.have.length(2);

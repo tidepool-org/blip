@@ -7,6 +7,7 @@ import { shallow } from 'enzyme';
 import Animas from '../../../../src/components/settings/animas/Animas';
 
 const multirateData = require('../../../../data/pumpSettings/animas/multirate.json');
+const timePrefs = { timezoneAware: false, timezoneName: null };
 
 const badSettingsNoActiveSchedule = {
   units: { bg: '', carbs: '' },
@@ -24,6 +25,7 @@ describe('Animas', () => {
       <Animas
         bgUnits="mg/dL"
         pumpSettings={badSettingsNoActiveSchedule}
+        timePrefs={timePrefs}
       />
     );
     expect(console.error.callCount).to.equal(1);
@@ -33,6 +35,7 @@ describe('Animas', () => {
     shallow(
       <Animas
         pumpSettings={multirateData}
+        timePrefs={timePrefs}
       />
     );
     expect(console.error.callCount).to.equal(1);
@@ -43,6 +46,7 @@ describe('Animas', () => {
       <Animas
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(console.error.callCount).to.equal(0);
@@ -52,6 +56,7 @@ describe('Animas', () => {
       <Animas
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('Header')).to.have.length(1);
@@ -61,6 +66,7 @@ describe('Animas', () => {
       <Animas
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('Header').props().deviceType).to.equal('Animas');
@@ -70,6 +76,7 @@ describe('Animas', () => {
       <Animas
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('Table')).to.have.length(6);
@@ -79,6 +86,7 @@ describe('Animas', () => {
       <Animas
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('CollapsibleContainer')).to.have.length(3);

@@ -153,26 +153,30 @@ describe('data', () => {
     });
   });
   describe('getDeviceMeta', () => {
+    const timePrefs = {
+      timezoneAware: false,
+      timezoneName: null,
+    };
     it('should return the name, schedule and date uploaded device', () => {
       expect(
-        data.getDeviceMeta(settingsData)
+        data.getDeviceMeta(settingsData, timePrefs)
       ).to.have.property('name').equal('DevId0987654321');
       expect(
-        data.getDeviceMeta(settingsData)
+        data.getDeviceMeta(settingsData, timePrefs)
       ).to.have.property('schedule').equal('Normal');
       expect(
-        data.getDeviceMeta(settingsData)
+        data.getDeviceMeta(settingsData, timePrefs)
       ).to.have.property('uploaded').not.equal('unknown');
     });
     it('should return the name, schedule and date uploaded as unknown', () => {
       expect(
-        data.getDeviceMeta({})
+        data.getDeviceMeta({}, timePrefs)
       ).to.have.property('name').equal('unknown');
       expect(
-        data.getDeviceMeta({})
+        data.getDeviceMeta({}, timePrefs)
       ).to.have.property('schedule').equal('unknown');
       expect(
-        data.getDeviceMeta({})
+        data.getDeviceMeta({}, timePrefs)
       ).to.have.property('uploaded').equal('unknown');
     });
   });

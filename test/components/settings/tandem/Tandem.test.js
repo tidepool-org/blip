@@ -8,6 +8,7 @@ import Tandem from '../../../../src/components/settings/tandem/Tandem';
 
 const multirateData = require('../../../../data/pumpSettings/tandem/multirate.json');
 const flatrateData = require('../../../../data/pumpSettings/tandem/flatrate.json');
+const timePrefs = { timezoneAware: false, timezoneName: null };
 
 describe('Tandem', () => {
   it('should render without problems when bgUnits and pumpSettings provided', () => {
@@ -16,6 +17,7 @@ describe('Tandem', () => {
       <Tandem
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(console.error.callCount).to.equal(0);
@@ -25,6 +27,7 @@ describe('Tandem', () => {
       <Tandem
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('Header')).to.have.length(1);
@@ -34,6 +37,7 @@ describe('Tandem', () => {
       <Tandem
         pumpSettings={multirateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('Header').props().deviceType).to.equal('Tandem');
@@ -43,6 +47,7 @@ describe('Tandem', () => {
       <Tandem
         pumpSettings={flatrateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('Table')).to.have.length(2);
@@ -52,6 +57,7 @@ describe('Tandem', () => {
       <Tandem
         pumpSettings={flatrateData}
         bgUnits="mg/dL"
+        timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('CollapsibleContainer')).to.have.length(2);
