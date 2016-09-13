@@ -101,6 +101,7 @@ var Settings = React.createClass({
         <SettingsChart
           pumpSettings={this.props.patientData.grouped.pumpSettings[0]}
           bgUnits={this.props.bgPrefs.bgUnits}
+          timePrefs={this.props.timePrefs}
         />
       );
     }
