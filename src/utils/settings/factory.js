@@ -22,8 +22,10 @@ import Animas from '../../components/settings/animas/Animas';
 
 /**
  * getChart
- * @param  {String} deviceType desired chart device name
- * @return {Component}         React component for given device name
+ * @param  {String} deviceType - desired chart device name.
+ *                               Either `carelink`, `tandem`, `insulet` or `animas`.
+ *
+ * @return {Component} - React component for given device type or an error if an unsupported type
  */
 export function getChart(deviceType) {
   const chartType = deviceType.toLowerCase();
@@ -36,5 +38,5 @@ export function getChart(deviceType) {
   } else if (chartType === 'animas') {
     return Animas;
   }
-  return null;
+  throw new Error('`deviceType` must one of `carelink`, `tandem`, `insulet` or `animas`');
 }

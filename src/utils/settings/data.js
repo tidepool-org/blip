@@ -24,7 +24,9 @@ const DISPLAY_PRECISION_PLACES = 3;
 
 /**
  * noData
+ * @private
  * @param  {ANY} val value to check
+ *
  * @return {Boolean}     true if value is defined and not null, false otherwise
  */
 function noData(val) {
@@ -33,8 +35,9 @@ function noData(val) {
 
 /**
  * getBasalRate
+ * @private
  * @param  {Array} scheduleData  basal schedule
- * @param  {Number} startTime    integer number of seconds from start of day
+ * @param  {Number} startTime    milliseconds from start of day
  * @return {String}              formatted basal rate
  */
 function getBasalRate(scheduleData, startTime) {
@@ -50,9 +53,11 @@ function getBasalRate(scheduleData, startTime) {
 
 /**
  * getValue
+ * @private
  * @param  {Array} scheduleData  basal scheduleData
  * @param  {String} fieldName    field to search for
- * @param  {Number} startTime    integer number of seconds from start of day
+ * @param  {Number} startTime    milliseconds from start of day
+ *
  * @return {String}              value of field for startTime
  */
 function getValue(scheduleData, fieldName, startTime) {
@@ -68,10 +73,12 @@ function getValue(scheduleData, fieldName, startTime) {
 
 /**
  * getBloodGlucoseValue
+ * @private
  * @param  {Array} scheduleData  basal schedule
  * @param  {String} fieldName    field to search format
- * @param  {Number} startTime    integer number of seconds from start of day
+ * @param  {Number} startTime    milliseconds from start of day
  * @param  {String} units        MGDL_UNITS or MMOLL_UNITS
+ *
  * @return {String}              formatted blood glucose value
  */
 function getBloodGlucoseValue(scheduleData, fieldName, startTime, units) {
@@ -84,8 +91,10 @@ function getBloodGlucoseValue(scheduleData, fieldName, startTime, units) {
 
 /**
  * getStarts
+ * @private
  * @param  {Array} timedData array with time based data
- * @return {Array}           array of start times
+ *
+ * @return {Array}           array of start times in milliseconds
  */
 function getStarts(timedData) {
   return _.map(timedData, 'start');
@@ -94,6 +103,7 @@ function getStarts(timedData) {
 /**
  * getTotalBasalRates
  * @param  {Array} scheduleData  basal schedule data
+ *
  * @return {String}              formatted total of basal rates
  */
 export function getTotalBasalRates(scheduleData) {
@@ -118,6 +128,7 @@ export function getTotalBasalRates(scheduleData) {
  * getScheduleLabel
  * @param  {String} scheduleName basal schedule name
  * @param  {String} activeName   basal name active at upload timestamp
+ *
  * @return {String}              formatted basal schedule label
  */
 export function getScheduleLabel(scheduleName, activeName) {
@@ -130,6 +141,7 @@ export function getScheduleLabel(scheduleName, activeName) {
 /**
  * getScheduleNames
  * @param  {Object} settingsData object with basal schedule properties
+ *
  * @return {Array}               array of basal schedule names
  */
 export function getScheduleNames(settingsData) {
@@ -139,6 +151,7 @@ export function getScheduleNames(settingsData) {
 /**
  * getTimedSchedules
  * @param  {Array} settingsData array of basal schedules
+ *
  * @return {Array}              array of {name, position} basal objects
  */
 export function getTimedSchedules(settingsData) {
@@ -153,6 +166,7 @@ export function getTimedSchedules(settingsData) {
 /**
  * getDeviceMeta
  * @param  {Object} settingsData all settings data
+ *
  * @return {Object}              filtered meta data
  */
 export function getDeviceMeta(settingsData) {
@@ -167,6 +181,7 @@ export function getDeviceMeta(settingsData) {
 /**
  * processBasalRateData
  * @param  {Object} scheduleData basal schedule object
+ *
  * @return {Array}               array of formatted schedule entries
  */
 export function processBasalRateData(scheduleData) {
@@ -201,8 +216,9 @@ export function processBasalRateData(scheduleData) {
 /**
  * processBgTargetData
  * @param  {Array} targetsData  array of blood glucose targets
- * @param  {String} bgUnits     'mg/dL or mmol/L'
+ * @param  {String} bgUnits     MGDL_UNITS or MMOLL_UNITS
  * @param  {Object} keys        key names as {columnTwo, columnThree}
+ *
  * @return {Array}              formatted bloog glucose target data
  */
 export function processBgTargetData(targetsData, bgUnits, keys) {
@@ -228,6 +244,7 @@ export function processBgTargetData(targetsData, bgUnits, keys) {
 /**
  * processCarbRatioData
  * @param  {Array} carbRatioData  array of carb ratio data
+ *
  * @return {Array}                array of formatted carb ratio objects
  */
 export function processCarbRatioData(carbRatioData) {
@@ -246,7 +263,8 @@ export function processCarbRatioData(carbRatioData) {
 /**
  * processSensitivityData
  * @param  {Array} sensitivityData  array of sensitivity data
- * @param  {String} bgUnits         'mg/dL or mmol/L'
+ * @param  {String} bgUnits         MGDL_UNITS or MMOLL_UNITS
+ *
  * @return {Array}                  array of formatted sensitivity objects
  */
 export function processSensitivityData(sensitivityData, bgUnits) {
@@ -267,7 +285,8 @@ export function processSensitivityData(sensitivityData, bgUnits) {
  * processTimedSettings
  * @param  {Object} pumpSettings entire pump settings object
  * @param  {Object} schedule     {name, position} schedule object
- * @param  {String} bgUnits      'mg/dL or mmol/L'
+ * @param  {String} bgUnits      MGDL_UNITS or MMOLL_UNITS
+ *
  * @return {Array}               array of formatted objects with
  *                                 {start, rate, bgTarget, carbRatio, insulinSensitivity}
  */
