@@ -77,7 +77,7 @@ module.exports = schema(
     }),
     schema({
       bgTargets: schema().object(function(targets){
-        return _.every(targets, schema().array(schema(
+        _.forEach(targets, schema().array(schema(
             {
               target: schema().number(),
               start: schema().number().min(0).max(86400000),
@@ -96,7 +96,7 @@ module.exports = schema(
     }),
     schema({
       carbRatios: schema().object(function(ratios){
-        return _.every(ratios, carbRatioSchema);
+        _.forEach(ratios, carbRatioSchema);
       })
     })
   ),
@@ -106,7 +106,7 @@ module.exports = schema(
     }),
     schema({
       insulinSensitivities: schema().object(function(sensitivities){
-        return _.every(sensitivities, insulinSensitivitySchema);
+        _.forEach(sensitivities, insulinSensitivitySchema);
       })
     })
   )],
