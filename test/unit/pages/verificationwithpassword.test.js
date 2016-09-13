@@ -18,7 +18,6 @@ describe('VerificationWithPassword', () => {
 
   describe('render', function() {
     it('should render without warnings when all required props provided', function () {
-      //TODO: check this - should be 0??
       console.error = sinon.stub();
 
       let props = {
@@ -32,9 +31,7 @@ describe('VerificationWithPassword', () => {
       };
       let elem = React.createElement(VerificationWithPassword, props);
       let render = TestUtils.renderIntoDocument(elem);
-      //TODO: check this - should be 0??
-      expect(console.error.callCount).to.equal(1);
-      //TODO: check this - should be 0??
+      expect(console.error.callCount).to.equal(0);
     });
 
     it('should fire metric when mounted/rendered', function() {
