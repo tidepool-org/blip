@@ -209,4 +209,39 @@ describe('datetime', () => {
         .to.equal('14🙃20');
     });
   });
+
+  describe('formatDisplayDate', () => {
+    const tzAwareLA = {
+      timezoneAware: true,
+      timezoneName: 'America/Los_Angeles',
+    };
+    const tzAwareNY = {
+      timezoneAware: true,
+      timezoneName: 'America/New_York',
+    };
+    const tzUnaware = {
+      timezoneAware: false,
+      timezoneName: null,
+    };
+    const hammertime = 1473048000000; // 09/05/2016 @ 4:00am (UTC)
+
+    it('should be a function', () => {
+      assert.isFunction(datetime.formatDisplayDate);
+    });
+
+    it('should return "Sep 4th 2016" for tzAware LA', () => {
+      expect(datetime.formatDisplayDate(hammertime, tzAwareLA))
+        .to.equal('Sep 4th 2016');
+    });
+
+    it('should return "Sep 5th 2016" for tzAware NY', () => {
+      expect(datetime.formatDisplayDate(hammertime, tzAwareNY))
+        .to.equal('Sep 5th 2016');
+    });
+
+    it('should return "Sep 5th 2016" for tzUnaware', () => {
+      expect(datetime.formatDisplayDate(hammertime, tzUnaware))
+        .to.equal('Sep 5th 2016');
+    });
+  });
 });

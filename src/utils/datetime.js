@@ -113,7 +113,7 @@ export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
 
 /**
  * formatDisplayDate
- * @param  {Number} timestamp integer timestamp
+ * @param  {Number} timestamp integer hammertime
  * @param  {Object} timePrefs object containing timezoneAware Boolean and timezoneName String
  *
  * @return {String}           formatted timezoneAware date string

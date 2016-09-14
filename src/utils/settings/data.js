@@ -19,6 +19,7 @@ import _ from 'lodash';
 
 import * as datetime from '../datetime';
 import * as format from '../format';
+import moment from 'moment-timezone';
 
 const DISPLAY_PRECISION_PLACES = 3;
 
@@ -171,10 +172,25 @@ export function getTimedSchedules(settingsData) {
  * @return {Object}              filtered meta data
  */
 export function getDeviceMeta(settingsData, timePrefs) {
+  let uploadedTime;
+  if (timePrefs.timezoneAware) {
+    if (settingsData.time) {
+      uploadedTime = datetime.formatDisplayDate(moment(settingsData.time).valueOf(), timePrefs);
+    } else {
+      uploadedTime = 'unknown';
+    }
+  } else {
+    if (settingsData.deviceTime) {
+      uploadedTime = datetime.formatDisplayDate(moment(settingsData.deviceTime).valueOf(),
+        timePrefs);
+    } else {
+      uploadedTime = 'unknown';
+    }
+  }
   return {
     name: settingsData.deviceId || 'unknown',
     schedule: settingsData.activeSchedule || 'unknown',
-    uploaded: datetime.formatDisplayDate(settingsData.time, timePrefs) || 'unknown',
+    uploaded: uploadedTime,
     serial: settingsData.deviceSerialNumber || 'unknown',
   };
 }
