@@ -223,7 +223,7 @@ describe('datetime', () => {
       timezoneAware: false,
       timezoneName: null,
     };
-    const hammertime = 1473048000000; // 09/05/2016 @ 4:00am (UTC)
+    const hammertime = 1473048000000; // 2016-09-05T04:00:00Z
 
     it('should be a function', () => {
       assert.isFunction(datetime.formatDisplayDate);
