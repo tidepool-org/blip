@@ -1,6 +1,6 @@
 ## JavaScript utilities
 
-This directory contains pure JavaScript utilities for data munging, datetime manipulation, and data display formatting. This document describes 
+This directory contains pure JavaScript utilities for data munging, datetime manipulation, and data display formatting. This document describes our coding standards for these utilities.
 
 ### use of ES6 `import` and `export`
 
@@ -27,6 +27,6 @@ const d = moment.utc(utc);
 
 See [moment's documentation on 'UTC' mode](http://momentjs.com/docs/#/parsing/utc/) for further details.
 
-In particular, try to avoid `moment(utc).utc(), as this will first create a representation of the hammertime in the browser's timezone/locale, then convert it back to offset-less UTC, an unnecessary step.
+In particular, try to avoid `moment(utc).utc()`, as this will first create a representation of the hammertime in the browser's timezone/locale, then convert it back to offset-less UTC, an unnecessary step.
 
 Also be **sure** to avoid `moment().utc(utc)` as this creates a new "moment" object representing the time of execution, then ignores the `utc` parameter to the `utc()` method!
