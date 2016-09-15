@@ -124,6 +124,6 @@ export function formatDisplayDate(utc, timePrefs) {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
-  return moment(utc).utc().tz(getTimezoneFromTimePrefs(timePrefs))
+  return moment.utc(utc).tz(getTimezoneFromTimePrefs(timePrefs))
     .format('MMM Do YYYY');
 }
