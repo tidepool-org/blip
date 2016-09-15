@@ -369,12 +369,33 @@ function getHandlers(bgUnits) {
             }
           }
         }
+        if (d.bgTargets) {
+          _.forEach(d.bgTargets, function(bgTarget, bgTargetName){
+            for (var j = 0; j < d.bgTargets[bgTargetName].length; ++j) {
+              var current = d.bgTargets[bgTargetName][j];
+              for (var key in current) {
+                if (key !== 'range' && key !== 'start') {
+                  current[key] = translateBg(current[key]);
+                }
+              }
+            }
+          });
+        }
         if (d.insulinSensitivity) {
           var isfLen = d.insulinSensitivity.length;
           for (var i = 0; i < isfLen; ++i) {
             var item = d.insulinSensitivity[i];
             item.amount = translateBg(item.amount);
           }
+        }
+        if (d.insulinSensitivities) {
+          _.forEach(d.insulinSensitivities, function(sensitivity, sensitivityName) {
+            var isfLen = d.insulinSensitivities[sensitivityName].length;
+            for (var i = 0; i < isfLen; ++i) {
+              var item = d.insulinSensitivities[sensitivityName][i];
+              item.amount = translateBg(item.amount);
+            }
+          });
         }
       }
       d.basalSchedules = basalSchedulesToArray(d.basalSchedules);
