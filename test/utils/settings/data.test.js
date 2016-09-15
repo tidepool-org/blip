@@ -157,21 +157,21 @@ describe('data', () => {
       timezoneAware: false,
       timezoneName: null,
     };
-    it('should return the name, schedule and date uploaded device', () => {
+    it('should return the serial, schedule and date uploaded device', () => {
       expect(
         data.getDeviceMeta(settingsData, timePrefs)
-      ).to.have.property('name').equal('DevId0987654321');
+      ).to.have.property('serial').equal('0987654321');
       expect(
         data.getDeviceMeta(settingsData, timePrefs)
       ).to.have.property('schedule').equal('Normal');
       expect(
         data.getDeviceMeta(settingsData, timePrefs)
-      ).to.have.property('uploaded').not.equal('unknown');
+      ).to.have.property('uploaded').equal('Jul 12th 2016');
     });
-    it('should return the name, schedule and date uploaded as unknown', () => {
+    it('should return the serial, schedule and date uploaded as unknown', () => {
       expect(
         data.getDeviceMeta({}, timePrefs)
-      ).to.have.property('name').equal('unknown');
+      ).to.have.property('serial').equal('unknown');
       expect(
         data.getDeviceMeta({}, timePrefs)
       ).to.have.property('schedule').equal('unknown');

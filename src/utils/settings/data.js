@@ -182,7 +182,6 @@ export function getDeviceMeta(settingsData, timePrefs) {
     }
   }
   return {
-    name: settingsData.deviceId || 'unknown',
     schedule: settingsData.activeSchedule || 'unknown',
     uploaded: uploadedTime || 'unknown',
     serial: settingsData.deviceSerialNumber || 'unknown',
