@@ -312,11 +312,14 @@ export class TrendsContainer extends React.Component {
         data={this.state.currentCbgData}
         focusedSlice={this.props.viz.trends.focusedCbgSlice}
         focusedSliceKeys={this.props.viz.trends.focusedCbgSliceKeys}
+        focusRange={(d) => { console.log('focusRange', d); }}
         focusSlice={this.props.focusTrendsCbgSlice}
         showingCbg={this.props.showingCbg}
         showingSmbg={this.props.showingSmbg}
+        smbgRangeOverlay={this.props.smbgRangeOverlay}
         xScale={this.state.xScale}
         yScale={this.state.yScale}
+        unfocusRange={() => { console.log('unfocusRange'); }}
         unfocusSlice={this.props.unfocusTrendsCbgSlice}
       />
     );

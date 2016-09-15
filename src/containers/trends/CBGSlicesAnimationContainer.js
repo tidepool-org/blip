@@ -73,6 +73,7 @@ export default class CBGSlicesAnimationContainer extends React.Component {
       width: PropTypes.number.isRequired,
       height: PropTypes.number.isRequired,
     }).isRequired,
+    tooltipLeftThreshold: PropTypes.number.isRequired,
     unfocusSlice: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
@@ -169,6 +170,7 @@ export default class CBGSlicesAnimationContainer extends React.Component {
                 focusSlice={this.props.focusSlice}
                 isFocused={config.key === _.get(focusedSlice, ['slice', 'id'], null)}
                 key={config.key}
+                tooltipLeftThreshold={this.props.tooltipLeftThreshold}
                 unfocusSlice={this.props.unfocusSlice}
                 xScale={xScale}
                 yPositions={config.style}

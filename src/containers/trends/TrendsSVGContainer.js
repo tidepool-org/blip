@@ -42,12 +42,15 @@ const SMBG_OPTS = {
 import React, { PropTypes } from 'react';
 import dimensions from 'react-dimensions';
 
+
+import { THREE_HRS } from '../../utils/datetime';
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
+import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
+import SMBGRangeAvgAnimationContainer from './SMBGRangeAvgAnimationContainer';
+import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import XAxisTicks from '../../components/trends/common/XAxisTicks';
 import YAxisLabelsAndTicks from '../../components/trends/common/YAxisLabelsAndTicks';
-import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
-import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 
 export class TrendsSVGContainer extends React.Component {
   componentWillMount() {
@@ -73,6 +76,7 @@ export class TrendsSVGContainer extends React.Component {
           focusSlice={this.props.focusSlice}
           margins={this.props.margins}
           svgDimensions={{ height, width }}
+          tooltipLeftThreshold={this.props.tooltipLeftThreshold}
           unfocusSlice={this.props.unfocusSlice}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
@@ -83,6 +87,23 @@ export class TrendsSVGContainer extends React.Component {
   }
 
   renderSmbg() {
+    if (this.props.showingSmbg) {
+      const rangeOverlay = this.props.smbgRangeOverlay ?
+        (<SMBGRangeAvgAnimationContainer
+          data={this.props.data}
+          focusRange={this.props.focusRange}
+          smbgRangeOverlay={this.props.smbgRangeOverlay}
+          tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+          unfocusRange={this.props.unfocusRange}
+          xScale={this.props.xScale}
+          yScale={this.props.yScale}
+        />) : null;
+      return (
+        <g id="smbgTrends">
+          {[rangeOverlay]}
+        </g>
+      );
+    }
     return null;
   }
 
@@ -130,6 +151,8 @@ export class TrendsSVGContainer extends React.Component {
 TrendsSVGContainer.defaultProps = {
   margins: MARGINS,
   smbgOpts: SMBG_OPTS,
+  // for time values after 6 p.m. (1800), float the tooltips left instead of right
+  tooltipLeftThreshold: 6 * THREE_HRS,
 };
 
 TrendsSVGContainer.propTypes = {
@@ -172,6 +195,7 @@ TrendsSVGContainer.propTypes = {
       }).isRequired,
     }).isRequired,
   }),
+  focusRange: PropTypes.func.isRequired,
   focusSlice: PropTypes.func.isRequired,
   margins: PropTypes.shape({
     top: PropTypes.number.isRequired,
@@ -185,6 +209,9 @@ TrendsSVGContainer.propTypes = {
     maxR: PropTypes.number.isRequired,
     r: PropTypes.number.isRequired,
   }).isRequired,
+  smbgRangeOverlay: PropTypes.bool.isRequired,
+  tooltipLeftThreshold: PropTypes.number.isRequired,
+  unfocusRange: PropTypes.func.isRequired,
   unfocusSlice: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
