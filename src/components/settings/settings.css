@@ -64,6 +64,7 @@
   min-width: 192px;
   border-spacing: 1px 0px;
   color: var(--text-medium-contrast);;
+  border-collapse: separate;
 }
 
 .basalTable td, .basalTable th {
