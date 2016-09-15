@@ -227,10 +227,12 @@ var nurseshark = {
       }
       else {
         d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
+        if (d.uploadId) {
+          d.deviceSerialNumber = uploadIDSerials[d.uploadId];
+        }
         if (!d.source) {
           if (d.uploadId) {
             d.source = uploadIDSources[d.uploadId];
-            d.deviceSerialNumber = uploadIDSerials[d.uploadId];
           }
           // probably doesn't exist: for data too old to have uploadId but also without `source`
           else {
