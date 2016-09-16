@@ -593,16 +593,18 @@ describe('TrendsContainer', () => {
   });
 
   describe('mapDispatchToProps', () => {
+    const ownProps = { currentPatientInViewId: 'a1b2c3' };
+
     it('should return an object with a `focusTrendsCbgSlice` key', () => {
-      expect(mapDispatchToProps(sinon.stub())).to.have.property('focusTrendsCbgSlice');
+      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('focusTrendsCbgSlice');
     });
 
     it('should return an object with a `markTrendsViewed` key', () => {
-      expect(mapDispatchToProps(sinon.stub())).to.have.property('markTrendsViewed');
+      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('markTrendsViewed');
     });
 
     it('should return an object with an `unfocusTrendsCbgSlice` key', () => {
-      expect(mapDispatchToProps(sinon.stub())).to.have.property('unfocusTrendsCbgSlice');
+      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('unfocusTrendsCbgSlice');
     });
   });
 });

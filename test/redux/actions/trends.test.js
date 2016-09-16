@@ -21,11 +21,13 @@ import * as actionTypes from '../../../src/redux/constants/actionTypes';
 import * as actions from '../../../src/redux/actions/';
 
 describe('trends actions', () => {
+  const userId = 'a1b2c3';
+
   describe('focusTrendsCbgSlice', () => {
     const sliceData = {};
     const slicePosition = {};
     const focusedKeys = [];
-    const action = actions.focusTrendsCbgSlice(sliceData, slicePosition, focusedKeys);
+    const action = actions.focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKeys);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
@@ -34,13 +36,13 @@ describe('trends actions', () => {
     it('should create an action to focus a trends cbg slice', () => {
       expect(action).to.deep.equal({
         type: actionTypes.FOCUS_TRENDS_CBG_SLICE,
-        payload: { sliceData, slicePosition, focusedKeys },
+        payload: { sliceData, slicePosition, focusedKeys, userId },
       });
     });
   });
 
   describe('markTrendsViewed', () => {
-    const action = actions.markTrendsViewed();
+    const action = actions.markTrendsViewed(userId);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
@@ -49,12 +51,13 @@ describe('trends actions', () => {
     it('should create an action to marks trends viewed', () => {
       expect(action).to.deep.equal({
         type: actionTypes.MARK_TRENDS_VIEWED,
+        payload: { userId },
       });
     });
   });
 
   describe('unfocusTrendsCbgSlice', () => {
-    const action = actions.unfocusTrendsCbgSlice();
+    const action = actions.unfocusTrendsCbgSlice(userId);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
@@ -63,6 +66,7 @@ describe('trends actions', () => {
     it('should create an action to unfocus (all) trends cbg slices', () => {
       expect(action).to.deep.equal({
         type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,
+        payload: { userId },
       });
     });
   });

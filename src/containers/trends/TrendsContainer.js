@@ -62,6 +62,7 @@ export class TrendsContainer extends React.Component {
       'very-low': PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
     }).isRequired,
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
+    currentPatientInViewId: PropTypes.string.isRequired,
     extentSize: PropTypes.oneOf([ONE_WEEK, TWO_WEEKS, FOUR_WEEKS]).isRequired,
     initialDatetimeLocation: PropTypes.string,
     showingSmbg: PropTypes.bool.isRequired,
@@ -348,11 +349,11 @@ export function mapStateToProps(state) {
   };
 }
 
-export function mapDispatchToProps(dispatch) {
+export function mapDispatchToProps(dispatch, ownProps) {
   return bindActionCreators({
-    focusTrendsCbgSlice: actions.focusTrendsCbgSlice,
-    markTrendsViewed: actions.markTrendsViewed,
-    unfocusTrendsCbgSlice: actions.unfocusTrendsCbgSlice,
+    focusTrendsCbgSlice: actions.focusTrendsCbgSlice.bind(null, ownProps.currentPatientInViewId),
+    markTrendsViewed: actions.markTrendsViewed.bind(null, ownProps.currentPatientInViewId),
+    unfocusTrendsCbgSlice: actions.unfocusTrendsCbgSlice.bind(null, ownProps.currentPatientInViewId),
   }, dispatch);
 }
 
