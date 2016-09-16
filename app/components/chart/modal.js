@@ -38,6 +38,7 @@ var Modal = React.createClass({
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
+    currentPatientInViewId: React.PropTypes.string.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
@@ -152,6 +153,7 @@ var Modal = React.createClass({
         bgBounds={bgBounds}
         bgClasses={this.props.bgPrefs.bgClasses}
         bgUnits={this.props.bgPrefs.bgUnits}
+        currentPatientInViewId={this.props.currentPatientInViewId}
         extentSize={this.props.chartPrefs.modal.extentSize}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
         showingSmbg={this.props.chartPrefs.modal.showingSmbg}

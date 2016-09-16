@@ -274,6 +274,7 @@ export let PatientData = React.createClass({
           <Modal
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            currentPatientInViewId={this.props.currentPatientInViewId}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.state.processedPatientData}
