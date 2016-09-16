@@ -89,47 +89,45 @@ export class TrendsContainer extends React.Component {
     onSelectDay: PropTypes.func.isRequired,
     onSwitchBgDataSource: PropTypes.func.isRequired,
     // viz state
-    viz: PropTypes.shape({
-      trends: PropTypes.shape({
-        focusedCbgSlice: PropTypes.shape({
-          slice: PropTypes.shape({
+    trendsState: PropTypes.shape({
+      focusedCbgSlice: PropTypes.shape({
+        slice: PropTypes.shape({
+          firstQuartile: PropTypes.number.isRequired,
+          id: PropTypes.string.isRequired,
+          max: PropTypes.number.isRequired,
+          median: PropTypes.number.isRequired,
+          min: PropTypes.number.isRequired,
+          msFrom: PropTypes.number.isRequired,
+          msTo: PropTypes.number.isRequired,
+          msX: PropTypes.number.isRequired,
+          ninetiethQuantile: PropTypes.number.isRequired,
+          tenthQuantile: PropTypes.number.isRequired,
+          thirdQuartile: PropTypes.number.isRequired,
+        }),
+        position: PropTypes.shape({
+          left: PropTypes.number.isRequired,
+          tooltipLeft: PropTypes.bool.isRequired,
+          topOptions: PropTypes.shape({
             firstQuartile: PropTypes.number.isRequired,
-            id: PropTypes.string.isRequired,
             max: PropTypes.number.isRequired,
             median: PropTypes.number.isRequired,
             min: PropTypes.number.isRequired,
-            msFrom: PropTypes.number.isRequired,
-            msTo: PropTypes.number.isRequired,
-            msX: PropTypes.number.isRequired,
             ninetiethQuantile: PropTypes.number.isRequired,
             tenthQuantile: PropTypes.number.isRequired,
             thirdQuartile: PropTypes.number.isRequired,
           }),
-          position: PropTypes.shape({
-            left: PropTypes.number.isRequired,
-            tooltipLeft: PropTypes.bool.isRequired,
-            topOptions: PropTypes.shape({
-              firstQuartile: PropTypes.number.isRequired,
-              max: PropTypes.number.isRequired,
-              median: PropTypes.number.isRequired,
-              min: PropTypes.number.isRequired,
-              ninetiethQuantile: PropTypes.number.isRequired,
-              tenthQuantile: PropTypes.number.isRequired,
-              thirdQuartile: PropTypes.number.isRequired,
-            }),
-          }),
         }),
-        focusedCbgSliceKeys: PropTypes.arrayOf(PropTypes.oneOf([
-          'firstQuartile',
-          'max',
-          'median',
-          'min',
-          'ninetiethQuantile',
-          'tenthQuantile',
-          'thirdQuartile',
-        ])),
-        touched: PropTypes.bool.isRequired,
-      }).isRequired,
+      }),
+      focusedCbgSliceKeys: PropTypes.arrayOf(PropTypes.oneOf([
+        'firstQuartile',
+        'max',
+        'median',
+        'min',
+        'ninetiethQuantile',
+        'tenthQuantile',
+        'thirdQuartile',
+      ])),
+      touched: PropTypes.bool.isRequired,
     }).isRequired,
     // actions
     focusTrendsCbgSlice: PropTypes.func.isRequired,
@@ -292,7 +290,7 @@ export class TrendsContainer extends React.Component {
   }
 
   determineDataToShow() {
-    const { viz: { trends: { touched } } } = this.props;
+    const { trendsState: { touched } } = this.props;
     if (touched) {
       return;
     }
@@ -329,8 +327,8 @@ export class TrendsContainer extends React.Component {
           bgBounds={this.props.bgBounds}
           bgUnits={this.props.bgUnits}
           data={this.state.currentCbgData}
-          focusedSlice={this.props.viz.trends.focusedCbgSlice}
-          focusedSliceKeys={this.props.viz.trends.focusedCbgSliceKeys}
+          focusedSlice={this.props.trendsState.focusedCbgSlice}
+          focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
           focusSlice={this.props.focusTrendsCbgSlice}
           unfocusSlice={this.props.unfocusTrendsCbgSlice}
           timezone={timezone}
@@ -343,17 +341,24 @@ export class TrendsContainer extends React.Component {
   }
 }
 
-export function mapStateToProps(state) {
+export function mapStateToProps(state, ownProps) {
+  const userId = _.get(ownProps, 'currentPatientInViewId');
   return {
-    viz: state.viz,
+    trendsState: _.get(state, ['viz', 'trends', userId], {}),
   };
 }
 
 export function mapDispatchToProps(dispatch, ownProps) {
   return bindActionCreators({
-    focusTrendsCbgSlice: actions.focusTrendsCbgSlice.bind(null, ownProps.currentPatientInViewId),
-    markTrendsViewed: actions.markTrendsViewed.bind(null, ownProps.currentPatientInViewId),
-    unfocusTrendsCbgSlice: actions.unfocusTrendsCbgSlice.bind(null, ownProps.currentPatientInViewId),
+    focusTrendsCbgSlice: actions.focusTrendsCbgSlice.bind(
+      null, ownProps.currentPatientInViewId
+    ),
+    markTrendsViewed: actions.markTrendsViewed.bind(
+      null, ownProps.currentPatientInViewId
+    ),
+    unfocusTrendsCbgSlice: actions.unfocusTrendsCbgSlice.bind(
+      null, ownProps.currentPatientInViewId
+    ),
   }, dispatch);
 }
 
