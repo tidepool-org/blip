@@ -17,7 +17,7 @@
 
 import mutationTracker from 'object-invariant-test-helper';
 
-import * as actionTypes from '../../../src/redux/actions/constants';
+import * as actionTypes from '../../../src/redux/constants/actionTypes';
 import * as reducers from '../../../src/redux/reducers/trends';
 
 describe('focusedCbgSlice', () => {

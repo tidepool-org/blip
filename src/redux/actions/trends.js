@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import * as actionTypes from './constants';
+import * as actionTypes from '../constants/actionTypes';
 
 export function focusTrendsCbgSlice(sliceData, slicePosition, focusedKeys) {
   return {
