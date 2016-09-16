@@ -57,6 +57,15 @@ describe('focusedCbgSlice', () => {
       })).to.be.null;
     });
   });
+
+  describe('LOGOUT_REQUEST', () => {
+    it('should reset to the default state of `null`', () => {
+      const initialState = { slice, position };
+      expect(reducers.focusedCbgSlice(initialState, {
+        type: actionTypes.LOGOUT_REQUEST,
+      })).to.be.null;
+    });
+  });
 });
 
 describe('focusedCbgSliceKeys', () => {
@@ -91,6 +100,14 @@ describe('focusedCbgSliceKeys', () => {
       })).to.be.null;
     });
   });
+
+  describe('LOGOUT_REQUEST', () => {
+    it('should reset to the default state of `null`', () => {
+      expect(reducers.focusedCbgSliceKeys(focusedKeys, {
+        type: actionTypes.LOGOUT_REQUEST,
+      })).to.be.null;
+    });
+  });
 });
 
 describe('touched', () => {
@@ -103,6 +120,14 @@ describe('touched', () => {
       expect(reducers.touched(undefined, {
         type: actionTypes.MARK_TRENDS_VIEWED,
       })).to.be.true;
+    });
+  });
+
+  describe('LOGOUT_REQUEST', () => {
+    it('should reset to the default state of `false`', () => {
+      expect(reducers.touched(true, {
+        type: actionTypes.LOGOUT_REQUEST,
+      })).to.be.false;
     });
   });
 });

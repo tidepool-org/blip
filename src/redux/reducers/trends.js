@@ -26,6 +26,7 @@ export const focusedCbgSlice = (state = null, action) => {
         slice: action.payload.sliceData,
         position: action.payload.slicePosition,
       };
+    case actionTypes.LOGOUT_REQUEST:
     case actionTypes.UNFOCUS_TRENDS_CBG_SLICE:
       return null;
     default:
@@ -37,6 +38,7 @@ export const focusedCbgSliceKeys = (state = null, action) => {
   switch (action.type) {
     case actionTypes.FOCUS_TRENDS_CBG_SLICE:
       return action.payload.focusedKeys;
+    case actionTypes.LOGOUT_REQUEST:
     case actionTypes.UNFOCUS_TRENDS_CBG_SLICE:
       return null;
     default:
@@ -46,6 +48,8 @@ export const focusedCbgSliceKeys = (state = null, action) => {
 
 export const touched = (state = false, action) => {
   switch (action.type) {
+    case actionTypes.LOGOUT_REQUEST:
+      return false;
     case actionTypes.MARK_TRENDS_VIEWED:
       return true;
     default:
