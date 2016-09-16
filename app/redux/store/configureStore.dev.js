@@ -19,10 +19,14 @@
 
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import { persistState } from 'redux-devtools';
+import createWorkerMiddleware from 'redux-worker-middleware';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
+
+import ProcessDataWorker from 'worker!../../core/processdata';
+const processDataWorker = new ProcessDataWorker;
 
 import { vizReducer } from '@tidepool/viz';
 
@@ -57,6 +61,7 @@ if (!__DEV_TOOLS__) {
   enhancer = (api) => {
     return compose(
       applyMiddleware(
+        createWorkerMiddleware(processDataWorker),
         thunkMiddleware,
         reduxRouterMiddleware,
         createErrorLogger(api),
@@ -69,6 +74,7 @@ if (!__DEV_TOOLS__) {
   enhancer = (api) => {
     return compose(
       applyMiddleware(
+        createWorkerMiddleware(processDataWorker),
         thunkMiddleware,
         loggerMiddleware,
         reduxRouterMiddleware,

@@ -196,11 +196,7 @@ utils.getInviteKey = function(location) {
   return '';
 }
 
-utils.processPatientData = (comp, data, queryParams) => {
-  if (!(data && data.length >= 0)) {
-    return null;
-  }
-
+utils.getTimezoneForDataProcessing = (data, queryParams) => {
   var timePrefsForTideline;
   function setNewTimePrefs(timezoneName) {
     // have to replace - from queryParams set timezone with /
@@ -235,6 +231,15 @@ utils.processPatientData = (comp, data, queryParams) => {
   else {
     console.log('Falling back to timezone-naive display.');
   }
+  return timePrefsForTideline;
+}
+
+utils.processPatientData = (comp, data, queryParams) => {
+  if (!(data && data.length >= 0)) {
+    return null;
+  }
+
+  const timePrefsForTideline = utils.getTimezoneForDataProcessing(data, queryParams);
   if (!_.isEmpty(timePrefsForTideline)) {
     comp.setState({
       timePrefs: timePrefsForTideline

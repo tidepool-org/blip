@@ -16,6 +16,7 @@
  */
 
 import _ from 'lodash';
+import d3 from 'd3';
 import React from 'react';
 import { Link } from 'react-router';
 import sundial from 'sundial';
@@ -733,9 +734,40 @@ export function fetchPatientData(api, id) {
       } else {
         let patientData = results.patientData || [];
         let notes = results.teamNotes || [];
+        dispatch(workerProcessPatientData(id, patientData));
         dispatch(sync.fetchPatientDataSuccess(id, patientData, notes));
       }
     });
+  };
+}
+
+/**
+ * Web Worker Process Patient Data Action Creator
+ *
+ * @param {String|Number} id
+ * @param {Array} data
+ */
+export function workerProcessPatientData(id, data) {
+  return (dispatch, getState) => {
+    const sorted = _.sortBy(
+      _.filter(data, (d) => { return _.includes(['cbg', 'smbg', 'upload'], d.type); }),
+      'time'
+    );
+    const thirtyDaysAgo = d3.time.day.utc.offset(new Date(), -30).toISOString();
+    const indexAtThirtyDaysAgo = _.findLastIndex(sorted, (d) => {
+      return d.time < thirtyDaysAgo;
+    });
+    const mostRecentThirtyDaysData = sorted.splice(indexAtThirtyDaysAgo);
+    const { routing: { location: { query: queryParams } } } = getState();
+    let timePrefs = utils.getTimezoneForDataProcessing(mostRecentThirtyDaysData, queryParams);
+    if (_.isEmpty(timePrefs)) {
+      timePrefs = {
+        timezoneAware: false,
+        timezoneName: null,
+      };
+    }
+    dispatch(sync.workerProcessDataRequest(id, mostRecentThirtyDaysData, timePrefs));
+    dispatch(sync.workerProcessDataRequest(id, sorted, timePrefs));
   };
 }
 

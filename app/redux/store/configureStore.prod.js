@@ -20,6 +20,8 @@ import thunkMiddleware from 'redux-thunk';
 import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
 
+// TODO: put worker middleware in here!
+
 import { vizReducer } from '@tidepool/viz';
 
 import blipState from '../reducers/initialState';
