@@ -28,7 +28,7 @@ const CBGSlice = (props) => {
   }
   const { aSliceIsFocused, isFocused } = props;
   const { medianRadius, sliceCapRadius, xScale, yPositions } = props;
-  const { focusSlice, unfocusSlice } = props;
+  const { focusSlice, unfocusSlice: unfocus } = props;
 
   function getClass(category) {
     if (aSliceIsFocused) {
@@ -45,7 +45,6 @@ const CBGSlice = (props) => {
       topOptions: yPositions,
     }, ['median']);
   };
-  const unfocus = unfocusSlice.bind(null);
 
   function renderRoundedRect(category, y1Accessor, y2Accessor) {
     const left = xScale(datum.msX);

@@ -350,14 +350,14 @@ export function mapStateToProps(state, ownProps) {
 
 export function mapDispatchToProps(dispatch, ownProps) {
   return bindActionCreators({
-    focusTrendsCbgSlice: actions.focusTrendsCbgSlice.bind(
-      null, ownProps.currentPatientInViewId
+    focusTrendsCbgSlice: _.partial(
+      actions.focusTrendsCbgSlice, ownProps.currentPatientInViewId
     ),
-    markTrendsViewed: actions.markTrendsViewed.bind(
-      null, ownProps.currentPatientInViewId
+    markTrendsViewed: _.partial(
+      actions.markTrendsViewed, ownProps.currentPatientInViewId
     ),
-    unfocusTrendsCbgSlice: actions.unfocusTrendsCbgSlice.bind(
-      null, ownProps.currentPatientInViewId
+    unfocusTrendsCbgSlice: _.partial(
+      actions.unfocusTrendsCbgSlice, ownProps.currentPatientInViewId
     ),
   }, dispatch);
 }
