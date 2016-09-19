@@ -29,7 +29,7 @@ import DummyComponent from '../../helpers/DummyComponent';
 
 import { TrendsContainer, mapStateToProps, mapDispatchToProps }
   from '../../../src/containers/trends/TrendsContainer';
-import CBGTrendsContainer from '../../../src/containers/trends/CBGTrendsContainer';
+import TrendsSVGContainer from '../../../src/containers/trends/TrendsSVGContainer';
 
 describe('TrendsContainer', () => {
   describe('TrendsContainer (w/o redux connect()ion)', () => {
@@ -534,45 +534,12 @@ describe('TrendsContainer', () => {
       });
     });
 
-    // NB: these rendering tests are set up for a single rendering cycle
-    // so they don't check the logic around rendering smbg if there's not enough cbg
-    // we simply manipulate the props *directly* and see what renders
-    // other tests around the lifecycle methods and what happens in them
-    // cover the logic that switches to smbg rendering if not enough cbg
     describe('render', () => {
-      it('should render `CBGTrendsContainer` when showingCbg', () => {
+      it('should render `TrendsSVGContainer`', () => {
         const wrapper = mount(
           <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum)} />
         );
-        expect(wrapper.find(CBGTrendsContainer)).to.have.length(1);
-      });
-
-      it('should render DummyComponent as `SMBGTrendsContainer` when showingSmbg', () => {
-        const wrapper = mount(
-          <TrendsContainer
-            {..._.assign({}, props, {
-              showingCbg: false,
-              showingSmbg: true,
-            })}
-            {...mgdl}
-            {...makeDataStubs(justOneDatum)}
-          />
-        );
-        expect(wrapper.find(DummyComponent)).to.have.length(1);
-      });
-
-      it('should render `null` if !showingCbg and !showingSmbg', () => {
-        const wrapper = mount(
-          <TrendsContainer
-            {..._.assign({}, props, {
-              showingCbg: false,
-              showingSmbg: false,
-            })}
-            {...mgdl}
-            {...makeDataStubs(justOneDatum)}
-          />
-        );
-        expect(wrapper.html()).to.be.null;
+        expect(wrapper.find(TrendsSVGContainer)).to.have.length(1);
       });
     });
   });

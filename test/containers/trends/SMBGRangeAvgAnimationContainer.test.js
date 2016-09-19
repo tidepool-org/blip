@@ -21,16 +21,14 @@ import { mount } from 'enzyme';
 
 import * as scales from '../../helpers/scales';
 const {
-  trendsWidth: width,
-  trendsHeight: height,
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
 
-import CBGSlicesAnimationContainer
-  from '../../../src/containers/trends/CBGSlicesAnimationContainer';
+import SMBGRangeAvgAnimationContainer
+  from '../../../src/containers/trends/SMBGRangeAvgAnimationContainer';
 
-describe('CBGSlicesAnimationContainer', () => {
+describe('SMBGRangeAvgAnimationContainer', () => {
   let wrapper;
 
   // six-hour bins for testing
@@ -39,29 +37,28 @@ describe('CBGSlicesAnimationContainer', () => {
   const props = {
     binSize,
     data: [],
-    focusSlice: () => {},
-    margins: { top: 0, left: 0, bottom: 0, right: 0 },
-    svgDimensions: { width, height },
+    focusRange: () => {},
+    smbgRangeOverlay: true,
     tooltipLeftThreshold: 0,
-    unfocusSlice: () => {},
+    unfocusRange: () => {},
     xScale,
     yScale,
   };
 
   before(() => {
-    wrapper = mount(<CBGSlicesAnimationContainer {...props} />);
+    wrapper = mount(<SMBGRangeAvgAnimationContainer {...props} />);
   });
 
   describe('componentWillMount', () => {
     it('sets mungedData in state', () => {
-      sinon.spy(CBGSlicesAnimationContainer.prototype, 'componentWillMount');
-      sinon.spy(CBGSlicesAnimationContainer.prototype, 'setState');
-      expect(CBGSlicesAnimationContainer.prototype.componentWillMount.callCount).to.equal(0);
-      expect(CBGSlicesAnimationContainer.prototype.setState.callCount).to.equal(0);
-      mount(<CBGSlicesAnimationContainer {...props} />);
-      expect(CBGSlicesAnimationContainer.prototype.componentWillMount.callCount).to.equal(1);
-      expect(CBGSlicesAnimationContainer.prototype.setState.callCount).to.equal(1);
-      expect(CBGSlicesAnimationContainer.prototype.setState.firstCall.args[0])
+      sinon.spy(SMBGRangeAvgAnimationContainer.prototype, 'componentWillMount');
+      sinon.spy(SMBGRangeAvgAnimationContainer.prototype, 'setState');
+      expect(SMBGRangeAvgAnimationContainer.prototype.componentWillMount.callCount).to.equal(0);
+      expect(SMBGRangeAvgAnimationContainer.prototype.setState.callCount).to.equal(0);
+      mount(<SMBGRangeAvgAnimationContainer {...props} />);
+      expect(SMBGRangeAvgAnimationContainer.prototype.componentWillMount.callCount).to.equal(1);
+      expect(SMBGRangeAvgAnimationContainer.prototype.setState.callCount).to.equal(1);
+      expect(SMBGRangeAvgAnimationContainer.prototype.setState.firstCall.args[0])
         .to.deep.equal({ mungedData: [] });
     });
   });
@@ -83,6 +80,12 @@ describe('CBGSlicesAnimationContainer', () => {
       wrapper.setProps({ data: [{ id: 'a1b2c3', msPer24: 0, value: 90 }] });
       expect(instance.mungeData.callCount).to.equal(1);
       instance.mungeData.restore();
+    });
+  });
+
+  describe('render', () => {
+    it('renders a <g> with id #smbgRangeAvgAnimationContainer', () => {
+      expect(wrapper.find('#smbgRangeAvgAnimationContainer').length).to.equal(1);
     });
   });
 });

@@ -18,6 +18,10 @@
 import * as datetime from '../../src/utils/datetime';
 
 describe('datetime', () => {
+  describe('THIRTY_MINS', () => {
+    assert.isNumber(datetime.THIRTY_MINS);
+  });
+
   describe('THREE_HRS', () => {
     it('should be an integer', () => {
       assert.isNumber(datetime.THREE_HRS);

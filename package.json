@@ -103,6 +103,7 @@
     "d3-scale": "1.0.3",
     "d3-shape": "1.0.3",
     "d3-time": "1.0.2",
+    "react-dimensions": "2.0.0-alpha1",
     "react-motion": "0.4.4"
   }
 }

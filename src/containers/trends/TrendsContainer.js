@@ -27,7 +27,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions/';
-import CBGTrendsContainer from './CBGTrendsContainer';
+import TrendsSVGContainer from './TrendsSVGContainer';
 import {
   MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP, MGDL_UNITS, MMOLL_UNITS, trends,
 } from '../../utils/constants';
@@ -305,40 +305,24 @@ export class TrendsContainer extends React.Component {
   }
 
   render() {
-    const { timePrefs } = this.props;
-    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    if (this.props.showingSmbg) {
-      const { smbgTrendsComponent: SMBGTrendsContainer } = this.props;
-      return (
-        <SMBGTrendsContainer
-          bgClasses={this.props.bgClasses}
-          bgDomain={[this.state.bgDomain.lo, this.state.bgDomain.hi]}
-          bgUnits={this.props.bgUnits}
-          boxOverlay={this.props.smbgRangeOverlay}
-          data={this.state.currentSmbgData}
-          grouped={this.props.smbgGrouped}
-          onSelectDay={this.props.onSelectDay}
-          showingLines={this.props.smbgLines}
-          timezone={timezone}
-        />
-      );
-    } else if (this.props.showingCbg) {
-      return (
-        <CBGTrendsContainer
-          bgBounds={this.props.bgBounds}
-          bgUnits={this.props.bgUnits}
-          data={this.state.currentCbgData}
-          focusedSlice={this.props.viz.trends.focusedCbgSlice}
-          focusedSliceKeys={this.props.viz.trends.focusedCbgSliceKeys}
-          focusSlice={this.props.focusTrendsCbgSlice}
-          unfocusSlice={this.props.unfocusTrendsCbgSlice}
-          timezone={timezone}
-          xScale={this.state.xScale}
-          yScale={this.state.yScale}
-        />
-      );
-    }
-    return null;
+    return (
+      <TrendsSVGContainer
+        bgBounds={this.props.bgBounds}
+        bgUnits={this.props.bgUnits}
+        data={this.state.currentCbgData}
+        focusedSlice={this.props.viz.trends.focusedCbgSlice}
+        focusedSliceKeys={this.props.viz.trends.focusedCbgSliceKeys}
+        focusRange={(d) => { console.log('focusRange', d); }}
+        focusSlice={this.props.focusTrendsCbgSlice}
+        showingCbg={this.props.showingCbg}
+        showingSmbg={this.props.showingSmbg}
+        smbgRangeOverlay={this.props.smbgRangeOverlay}
+        xScale={this.state.xScale}
+        yScale={this.state.yScale}
+        unfocusRange={() => { console.log('unfocusRange'); }}
+        unfocusSlice={this.props.unfocusTrendsCbgSlice}
+      />
+    );
   }
 }
 

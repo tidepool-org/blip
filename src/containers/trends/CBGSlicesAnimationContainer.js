@@ -19,7 +19,8 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
-import { findTimeOfDayBin, calculateStatsForBin } from '../../utils/trends/data';
+import { THIRTY_MINS } from '../../utils/datetime';
+import { findTimeOfDayBin, calculateCbgStatsForBin } from '../../utils/trends/data';
 
 import CBGSlice from '../../components/trends/cbg/CBGSlice';
 
@@ -73,14 +74,14 @@ export default class CBGSlicesAnimationContainer extends React.Component {
       width: PropTypes.number.isRequired,
       height: PropTypes.number.isRequired,
     }).isRequired,
+    tooltipLeftThreshold: PropTypes.number.isRequired,
     unfocusSlice: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
-    // thirty-minute bins
-    binSize: 1000 * 60 * 30,
+    binSize: THIRTY_MINS,
   };
 
   constructor(props) {
@@ -110,7 +111,7 @@ export default class CBGSlicesAnimationContainer extends React.Component {
     const mungedData = [];
     for (let i = 0; i < binKeys.length; ++i) {
       const values = _.map(binned[binKeys[i]], valueExtractor);
-      mungedData.push(calculateStatsForBin(binKeys[i], binSize, values));
+      mungedData.push(calculateCbgStatsForBin(binKeys[i], binSize, values));
     }
     return mungedData;
   }
@@ -169,6 +170,7 @@ export default class CBGSlicesAnimationContainer extends React.Component {
                 focusSlice={this.props.focusSlice}
                 isFocused={config.key === _.get(focusedSlice, ['slice', 'id'], null)}
                 key={config.key}
+                tooltipLeftThreshold={this.props.tooltipLeftThreshold}
                 unfocusSlice={this.props.unfocusSlice}
                 xScale={xScale}
                 yPositions={config.style}

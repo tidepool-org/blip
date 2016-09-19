@@ -29,6 +29,7 @@ const {
 } = scales.trends;
 import SVGContainer from '../../../helpers/SVGContainer';
 
+import { THREE_HRS } from '../../../../src/utils/datetime';
 import CBGSlice from '../../../../src/components/trends/cbg/CBGSlice';
 
 describe('CBGSlice', () => {
@@ -53,6 +54,7 @@ describe('CBGSlice', () => {
     datum,
     focusSlice,
     isFocused: false,
+    tooltipLeftThreshold: THREE_HRS * 6,
     unfocusSlice,
     xScale,
     yPositions: {
