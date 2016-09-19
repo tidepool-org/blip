@@ -32,15 +32,15 @@ function getTimezoneFromTimePrefs(timePrefs) {
 
 function toHammertime(d) {
   return {
-    deviceDisplayHammertime: Date.parse(d.deviceTime + '.000Z'),
-    utcHammertime: Date.parse(d.time),
+    rawDisplayTimeMs: Date.parse(d.deviceTime + '.000Z'),
+    hammertime: Date.parse(d.time),
   }
 }
 
 function cloneAndTransform(d) {
   return _.pick(
     Object.assign({}, d, toHammertime(d)),
-    ['deviceDisplayHammertime', 'id', 'type', 'utcHammertime', 'value']
+    ['rawDisplayTimeMs', 'id', 'type', 'hammertime', 'value']
   );
 }
 
