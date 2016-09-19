@@ -93,6 +93,7 @@ export class TrendsSVGContainer extends React.Component {
         (<SMBGRangeAvgAnimationContainer
           data={this.props.data}
           focusRange={this.props.focusRange}
+          key="SMBGRangeAvgAnimationContainer"
           smbgRangeOverlay={this.props.smbgRangeOverlay}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
           unfocusRange={this.props.unfocusRange}
