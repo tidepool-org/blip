@@ -236,7 +236,7 @@ describe('platform client', function () {
     it('get another users public profile', function (done) {
       //logged in as a_PWD you can get the profile for a_Member
       pwdClient.findProfile(a_Member.id, function (error, profile) {
-        expect(error).to.deep.equal({ status: 401, body: {} });
+        expect(error).to.deep.equal({ status: 401, body: 'Unauthorized' });
         done();
       });
     });
@@ -475,7 +475,7 @@ describe('platform client', function () {
 
     it('but a_Member cannot see the other team members for a_PWD', function (done) {
       memberClient.getTeamMembers(a_PWD.id, function (error, patientsTeam) {
-        expect(error).to.deep.equal({ status: 401, body: 'These are not the droids you are looking for.' });
+        expect(error).to.deep.equal({ status: 401, body: 'Unauthorized' });
         done();
       });
     });
@@ -592,7 +592,7 @@ describe('platform client', function () {
       });
     });
     it('so we can accept the T&C', function (done) {
-      var termsToApply = { termsAccepted : new Date().toISOString()};
+      var termsToApply = { termsAccepted : '2015-12-31T23:59:59-08:00'};
       pwdClient.updateCurrentUser(termsToApply, function(error){
         expect(error).to.not.exist;
         pwdClient.getCurrentUser(function(error2, details){
