@@ -103,6 +103,7 @@ describe('TrendsContainer', () => {
         saturday: false,
         sunday: false,
       },
+      currentPatientInViewId: 'a1b2c3',
       extentSize,
       showingSmbg: false,
       showingCbg: true,
@@ -121,10 +122,8 @@ describe('TrendsContainer', () => {
       onDatetimeLocationChange,
       onSelectDay: sinon.stub(),
       onSwitchBgDataSource,
-      viz: {
-        trends: {
-          touched: false,
-        },
+      trendsState: {
+        touched: false,
       },
       focusTrendsCbgSlice: sinon.stub(),
       markTrendsViewed,
@@ -231,7 +230,7 @@ describe('TrendsContainer', () => {
         expect(markTrendsViewed.callCount).to.equal(0);
         mount(
           <TrendsContainer
-            {..._.assign({}, props, { viz: { trends: { touched: true } } })}
+            {..._.assign({}, props, { trendsState: { touched: true } })}
             {...mgdl}
             {...makeDataStubs(justOneDatum)}
           />
@@ -267,7 +266,7 @@ describe('TrendsContainer', () => {
         expect(onSwitchBgDataSource.callCount).to.equal(0);
         mount(
           <TrendsContainer
-            {..._.assign({}, props, { viz: { trends: { touched: true } } })}
+            {..._.assign({}, props, { trendsState: { touched: true } })}
             {...mgdl}
             {...makeDataStubs(justOneDatum)}
           />
@@ -578,31 +577,37 @@ describe('TrendsContainer', () => {
   });
 
   describe('mapStateToProps', () => {
+    const userId = 'a1b2c3';
     const state = {
       viz: {
         trends: {
-          oneOption: true,
-          otherOption: false,
+          [userId]: {
+            oneOption: true,
+            otherOption: false,
+          },
         },
       },
     };
 
-    it('should map state.viz to `viz`', () => {
-      expect(mapStateToProps(state).viz).to.deep.equal(state.viz);
+    it('should map state.viz.trends[currentPatientInViewId] to `trendsState`', () => {
+      expect(mapStateToProps(state, { currentPatientInViewId: userId }).trendsState)
+        .to.deep.equal(state.viz.trends[userId]);
     });
   });
 
   describe('mapDispatchToProps', () => {
+    const ownProps = { currentPatientInViewId: 'a1b2c3' };
+
     it('should return an object with a `focusTrendsCbgSlice` key', () => {
-      expect(mapDispatchToProps(sinon.stub())).to.have.property('focusTrendsCbgSlice');
+      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('focusTrendsCbgSlice');
     });
 
     it('should return an object with a `markTrendsViewed` key', () => {
-      expect(mapDispatchToProps(sinon.stub())).to.have.property('markTrendsViewed');
+      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('markTrendsViewed');
     });
 
     it('should return an object with an `unfocusTrendsCbgSlice` key', () => {
-      expect(mapDispatchToProps(sinon.stub())).to.have.property('unfocusTrendsCbgSlice');
+      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('unfocusTrendsCbgSlice');
     });
   });
 });
