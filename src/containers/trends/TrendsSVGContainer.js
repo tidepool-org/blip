@@ -43,6 +43,7 @@ import React, { PropTypes } from 'react';
 import dimensions from 'react-dimensions';
 
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
@@ -162,7 +163,7 @@ TrendsSVGContainer.propTypes = {
     targetLowerBound: PropTypes.number.isRequired,
     veryLowThreshold: PropTypes.number.isRequired,
   }).isRequired,
-  bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
+  bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   containerHeight: PropTypes.number.isRequired,
   containerWidth: PropTypes.number.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({

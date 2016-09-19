@@ -19,7 +19,8 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
-import { findTimeOfDayBin, calculateSmbgStatsForBin } from '../../utils/trends/data';
+import { THREE_HRS } from '../../utils/datetime';
+import { calculateSmbgStatsForBin, findTimeOfDayBin } from '../../utils/trends/data';
 
 import SMBGRangeAvg from '../../components/trends/smbg/SMBGRangeAvg';
 
@@ -41,8 +42,7 @@ export default class SMBGRangeAvgAnimationContainer extends React.Component {
   };
 
   static defaultProps = {
-    // three-hour bins
-    binSize: 1000 * 60 * 60 * 3,
+    binSize: THREE_HRS,
   };
 
   constructor(props) {
