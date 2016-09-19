@@ -179,20 +179,22 @@ var Modal = React.createClass({
     if (!this.props.chartPrefs.modal.showingCbg) {
       return null;
     }
+    const { currentPatientInViewId } = this.props;
     return (
       <FocusedCBGSliceHTMLLabels
         bgUnits={this.props.bgPrefs.bgUnits}
-        focusedKeys={this.props.trendsState.focusedCbgSliceKeys}
-        focusedSlice={this.props.trendsState.focusedCbgSlice} />
+        focusedKeys={this.props.trendsState[currentPatientInViewId].focusedCbgSliceKeys}
+        focusedSlice={this.props.trendsState[currentPatientInViewId].focusedCbgSlice} />
     );
   },
   renderFocusedCBGTime: function() {
     if (!this.props.chartPrefs.modal.showingCbg) {
       return null;
     }
+    const { currentPatientInViewId } = this.props;
     return (
       <FocusedCBGSliceTime
-        focusedSlice={this.props.trendsState.focusedCbgSlice} />
+        focusedSlice={this.props.trendsState[currentPatientInViewId].focusedCbgSlice} />
     );
   },
   renderMissingSMBGHeader: function() {
