@@ -368,7 +368,7 @@ module.exports = function (config, deps) {
       }
 
        superagent
-        .post(common.makeDataUrl('/api/v1/users/' + userId + '/datasets'))
+        .post(common.makeDataUrl('/v1/users/' + userId + '/datasets'))
         .send(info)
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
         .end(
@@ -403,7 +403,7 @@ module.exports = function (config, deps) {
       }
 
        superagent
-        .put(common.makeDataUrl('/api/v1/datasets/' + datasetId))
+        .put(common.makeDataUrl('/v1/datasets/' + datasetId))
         .send({dataState: 'closed'})
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
         .end(
@@ -434,7 +434,7 @@ module.exports = function (config, deps) {
       }
 
        superagent
-        .post(common.makeDataUrl('/api/v1/datasets/' + datasetId + '/data'))
+        .post(common.makeDataUrl('/v1/datasets/' + datasetId + '/data'))
         .send(data)
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
         .end(
