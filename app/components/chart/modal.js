@@ -38,6 +38,7 @@ var Modal = React.createClass({
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
+    currentPatientInViewId: React.PropTypes.string.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
@@ -152,6 +153,7 @@ var Modal = React.createClass({
         bgBounds={bgBounds}
         bgClasses={this.props.bgPrefs.bgClasses}
         bgUnits={this.props.bgPrefs.bgUnits}
+        currentPatientInViewId={this.props.currentPatientInViewId}
         extentSize={this.props.chartPrefs.modal.extentSize}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
         showingSmbg={this.props.chartPrefs.modal.showingSmbg}
@@ -177,20 +179,22 @@ var Modal = React.createClass({
     if (!this.props.chartPrefs.modal.showingCbg) {
       return null;
     }
+    const { currentPatientInViewId } = this.props;
     return (
       <FocusedCBGSliceHTMLLabels
         bgUnits={this.props.bgPrefs.bgUnits}
-        focusedKeys={this.props.trendsState.focusedCbgSliceKeys}
-        focusedSlice={this.props.trendsState.focusedCbgSlice} />
+        focusedKeys={this.props.trendsState[currentPatientInViewId].focusedCbgSliceKeys}
+        focusedSlice={this.props.trendsState[currentPatientInViewId].focusedCbgSlice} />
     );
   },
   renderFocusedCBGTime: function() {
     if (!this.props.chartPrefs.modal.showingCbg) {
       return null;
     }
+    const { currentPatientInViewId } = this.props;
     return (
       <FocusedCBGSliceTime
-        focusedSlice={this.props.trendsState.focusedCbgSlice} />
+        focusedSlice={this.props.trendsState[currentPatientInViewId].focusedCbgSlice} />
     );
   },
   renderMissingSMBGHeader: function() {
