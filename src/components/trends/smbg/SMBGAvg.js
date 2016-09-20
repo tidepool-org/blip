@@ -25,9 +25,8 @@ const SMBGAvg = (props) => {
     return null;
   }
 
-  const { focusRange, meanRadius, unfocusRange, xScale, yPositions } = props;
+  const { focusRange, meanRadius, unfocusRange: unfocus, xScale, yPositions } = props;
   const xPos = xScale(datum.msX);
-  const unfocus = unfocusRange.bind(null);
   const focus = () => {
     focusRange(datum, {
       left: xPos,
@@ -53,7 +52,6 @@ const SMBGAvg = (props) => {
 
 SMBGAvg.defaultProps = {
   meanRadius: 7,
-  rectWidth: 18,
 };
 
 SMBGAvg.propTypes = {
@@ -67,7 +65,6 @@ SMBGAvg.propTypes = {
   }),
   focusRange: PropTypes.func.isRequired,
   meanRadius: PropTypes.number.isRequired,
-  rectWidth: PropTypes.number.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
   unfocusRange: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,

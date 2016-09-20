@@ -25,9 +25,8 @@ const SMBGRange = (props) => {
     return null;
   }
 
-  const { focusRange, rectWidth, unfocusRange, xScale, yPositions } = props;
+  const { focusRange, rectWidth, unfocusRange: unfocus, xScale, yPositions } = props;
   const xPos = xScale(datum.msX);
-  const unfocus = unfocusRange.bind(null);
   const focus = () => {
     focusRange(datum, {
       left: xPos,
@@ -53,7 +52,6 @@ const SMBGRange = (props) => {
 };
 
 SMBGRange.defaultProps = {
-  meanRadius: 7,
   rectWidth: 18,
 };
 
@@ -67,7 +65,6 @@ SMBGRange.propTypes = {
     msX: PropTypes.number.isRequired,
   }),
   focusRange: PropTypes.func.isRequired,
-  meanRadius: PropTypes.number.isRequired,
   rectWidth: PropTypes.number.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
   unfocusRange: PropTypes.func.isRequired,
