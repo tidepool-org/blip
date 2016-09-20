@@ -36,16 +36,16 @@ const Tandem = (props) => {
       label: 'Start time',
       className: '' },
     { key: 'rate',
-      label: 'Basal Rates (U/hr)',
+      label: <div>Basal Rates <span className={styles.lightText}>U/hr</span></div>,
       className: styles.basalSchedulesHeader },
     { key: 'bgTarget',
-      label: `BG Target (${bgUnits})`,
+      label: <div>BG Target <span className={styles.lightText}>{bgUnits}</span></div>,
       className: styles.bolusSettingsHeader },
     { key: 'carbRatio',
-      label: 'I:C Ratio (g/U)',
+      label: <div>I:C Ratio <span className={styles.lightText}>g/U</span></div>,
       className: styles.bolusSettingsHeader },
     { key: 'insulinSensitivity',
-      label: `ISF (${bgUnits}/U)`,
+      label: <div>ISF <span className={styles.lightText}>{bgUnits}/U</span></div>,
       className: styles.bolusSettingsHeader },
   ];
 
@@ -53,7 +53,8 @@ const Tandem = (props) => {
     <div key={schedule.name}>
       <CollapsibleContainer
         styledLabel={{
-          label: data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule),
+          label: data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule,
+            styles.lightText),
           className: styles.collapsibleHeader,
         }}
         openByDefault={schedule.name === pumpSettings.activeSchedule}

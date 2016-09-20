@@ -16,6 +16,7 @@
  */
 
 import _ from 'lodash';
+import React from 'react';
 
 import * as datetime from '../datetime';
 import * as format from '../format';
@@ -128,14 +129,18 @@ export function getTotalBasalRates(scheduleData) {
  * getScheduleLabel
  * @param  {String} scheduleName basal schedule name
  * @param  {String} activeName   basal name active at upload timestamp
+ * @param  {String} activeClass  class name to apply to active text
  *
  * @return {String}              formatted basal schedule label
  */
-export function getScheduleLabel(scheduleName, activeName) {
+export function getScheduleLabel(scheduleName, activeName, activeClass) {
   if (scheduleName === activeName) {
-    return `${scheduleName} (Active at upload)`;
+    return (<div>
+      {scheduleName}
+      <span className={activeClass}> Active at upload</span>
+    </div>);
   }
-  return scheduleName;
+  return <div>{scheduleName}</div>;
 }
 
 /**

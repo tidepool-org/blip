@@ -32,7 +32,7 @@
   padding-right: 20px;
 }
 
-.collapsibleOpened .basalSchedulesHeader::after {
+.collapsibleClosed .basalSchedulesHeader::after {
   content: '›';
   font-size: 15px;
   font-weight: bold;
@@ -43,7 +43,7 @@
   transition: 0.25s;
 }
 
-.collapsibleClosed .basalSchedulesHeader::after {
+.collapsibleOpened .basalSchedulesHeader::after {
   content: '›';
   font-size: 15px;
   font-weight: bold;
@@ -63,7 +63,7 @@
   composes: smallSize from '../../styles/typography.css';
   min-width: 192px;
   border-spacing: 1px 0px;
-  color: var(--text-medium-contrast);;
+  color: var(--text-medium-contrast);
   border-collapse: separate;
 }
 
@@ -74,6 +74,7 @@
 
 .basalTable th {
   font-weight: normal;
+  color: #8B8C8F;
 }
 
 .basalTable tbody tr:nth-child(odd) {
@@ -85,7 +86,7 @@
 }
 
 .basalTable tbody tr:last-of-type {
-  font-weight:bold;
+  font-weight: bold;
 }
 
 .settingsTable {
@@ -94,4 +95,8 @@
 
 .settingsTable tbody tr:last-of-type {
   font-weight: normal;
+}
+
+.basalTable th:first-of-type, .basalTable td:first-of-type {
+  text-align: left;
 }

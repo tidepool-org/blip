@@ -1,19 +1,24 @@
 .header {
+  position: relative;
   display: table;
-  padding-left:0px;
+  padding-left: 0px;
+}
+.headerOuter:nth-last-of-type(1) .headerInner{
+  transition-property: width;
+  transition-duration: .25s;
+  overflow: hidden;
+}
+.headerClosed .headerOuter:nth-last-of-type(1) .headerInner {
+  width: 0px;
+}
+.headerExpanded .headerOuter:nth-last-of-type(1) .headerInner {
+  width: 100%;
 }
 .headerOuter {
   composes: header;
-  display: table-cell;
-}
-.headerOuterHidden {
-  composes: header;
-  display: none;
-}
-.headerOuterExpanded {
-  composes: header;
-  display: table-cell;
-  cursor: pointer;
+  display: inline-block;
+  font-weight: 300;
+  overflow: hidden;
 }
 .headerInner {
   composes: header;
@@ -21,11 +26,13 @@
   margin: 5px 5px 5px 0;
 }
 .headerOuter:first-of-type {
-  position: relative;
-  padding-right: 10px;
   cursor: pointer;
+  font-weight: 600;
 }
-.headerOuter:first-of-type::after {
+.headerOuter:nth-last-of-type(2) {
+  padding-right: 10px;
+}
+.headerClosed .headerOuter:nth-last-of-type(2)::after {
   content: '›';
   font-size: 15px;
   font-weight: bold;
@@ -34,12 +41,7 @@
   top: 45%;
   transform: translateY(-50%);
 }
-.headerOuterExpanded:nth-of-type(2) {
-  position: relative;
-  padding-right: 10px;
-  cursor: pointer;
-}
-.headerOuterExpanded:nth-of-type(2)::after {
+.headerExpanded .headerOuter:nth-last-of-type(2)::after {
   content: '›';
   font-size: 15px;
   font-weight: bold;

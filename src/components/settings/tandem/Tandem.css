@@ -19,13 +19,16 @@
 }
 
 .settingsHeaderText {
-  composes: whiteText from '../../../styles/typography.css';
-  font-weight: normal;
+  composes: whiteText boldText from '../../../styles/typography.css';
 }
 
 .basalSchedulesHeader {
   background-color: var(--basal);
   composes: settingsHeaderText;
+}
+
+.lightText {
+  composes: lightText from '../../../styles/typography.css';
 }
 
 .bolusSettingsHeader {
@@ -40,12 +43,16 @@
 .collapsibleHeader {
   font-size: 13px;
   font-weight: bold;
-  margin-bottom: 10px;
+  padding-bottom: 10px;
   color: var(--text-medium-contrast);
   position: relative;
 }
 
-.collapsibleHeader::after {
+.activeLabel {
+  font-weight: 300;
+}
+
+.collapsibleHeader div::after {
   content: '›';
   padding: 0 10px;
   font-size: 15px;
@@ -53,23 +60,34 @@
   position: absolute;
   top: -2px;
   transition-duration: 0.25s;
+  transform: rotate(90deg) translateX(10%);
 }
 
-.collapsibleClosed .collapsibleHeader::after {
-  transform: rotate(90deg);
+.collapsibleClosed .collapsibleHeader div::after {
   padding-bottom: 5px;
   transition-duration: 0.25s;
+  transform: rotate(0deg);
 }
 
 .basalTable {
   composes: basalTable from '../settings.css';
   width: 582px;
+  margin-left: 30px;
+}
+
+.basalTable th {
+  color: white;
+  font-weight: 600;
 }
 
 .basalTable td, .basalTable th {
   text-align: center;
 }
 
-.basalTable td:first-of-type {
-  font-weight: 600;
+.basalTable th:first-of-type {
+  color: #727375;
+}
+
+.basalTable td:first-of-type, .basalTable th:first-of-type {
+  font-weight: bold;
 }

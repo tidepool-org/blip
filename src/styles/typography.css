@@ -24,6 +24,10 @@
   font-weight: bold;
 }
 
+.lightText {
+  font-weight: 300;
+}
+
 .smallSize {
   font-size: 12px;
 }

@@ -15,9 +15,9 @@ describe('Header', () => {
       />
     );
     expect(wrapper.state().serialNumberExpanded).to.be.false;
-    wrapper.find('li').at(0).simulate('click');
+    wrapper.find('ul').at(0).simulate('click');
     expect(wrapper.state().serialNumberExpanded).to.be.true;
-    wrapper.find('li').at(0).simulate('click');
+    wrapper.find('ul').at(0).simulate('click');
     expect(wrapper.state().serialNumberExpanded).to.be.false;
   });
 });

@@ -2,6 +2,7 @@
 /* eslint no-console: 0*/
 
 import * as data from '../../../src/utils/settings/data';
+import { shallow } from 'enzyme';
 
 const multirateSettingsData = require('../../../data/pumpSettings/medtronic/multirate.json');
 const settingsData = require('../../../data/pumpSettings/tandem/flatrate.json');
@@ -122,15 +123,13 @@ describe('data', () => {
     });
   });
   describe('getScheduleLabel', () => {
-    it('should return the formatted time', () => {
-      expect(
-        data.getScheduleLabel('one', 'two')
-      ).to.equal('one');
+    it('should return the formatted label', () => {
+      const wrapper = shallow(data.getScheduleLabel('one', 'two'));
+      expect(wrapper.text()).to.equal('one');
     });
-    it('should return the formatted time', () => {
-      expect(
-        data.getScheduleLabel('one', 'one')
-      ).to.equal('one (Active at upload)');
+    it('should return the formatted label', () => {
+      const wrapper = shallow(data.getScheduleLabel('one', 'one'));
+      expect(wrapper.text()).to.equal('one Active at upload');
     });
   });
   describe('getTimedSchedules', () => {

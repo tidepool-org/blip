@@ -42,6 +42,7 @@ const Animas = (props) => {
         label: data.getScheduleLabel(
           pumpSettings.basalSchedules[schedule].name,
           pumpSettings.activeSchedule,
+          styles.lightText,
         ),
         className: styles.basalSchedulesHeader,
       };

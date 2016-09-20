@@ -33,3 +33,7 @@
 .settingsTable {
   composes: settingsTable from '../settings.css';
 }
+
+.lightText {
+  composes: lightText from '../../../styles/typography.css';
+}
