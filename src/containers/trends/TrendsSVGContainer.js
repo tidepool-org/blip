@@ -72,7 +72,7 @@ export class TrendsSVGContainer extends React.Component {
     if (this.props.showingCbg) {
       return (
         <CBGSlicesAnimationContainer
-          data={this.props.data}
+          data={this.props.cbgData}
           focusedSlice={this.props.focusedSlice}
           focusSlice={this.props.focusSlice}
           margins={this.props.margins}
@@ -91,7 +91,7 @@ export class TrendsSVGContainer extends React.Component {
     if (this.props.showingSmbg) {
       const rangeOverlay = this.props.smbgRangeOverlay ?
         (<SMBGRangeAvgAnimationContainer
-          data={this.props.data}
+          data={this.props.smbgData}
           focusRange={this.props.focusRange}
           key="SMBGRangeAvgAnimationContainer"
           smbgRangeOverlay={this.props.smbgRangeOverlay}
@@ -168,6 +168,18 @@ TrendsSVGContainer.propTypes = {
   containerHeight: PropTypes.number.isRequired,
   containerWidth: PropTypes.number.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
+    // here only documenting the properties we actually use rather than the *whole* data model!
+    id: PropTypes.string.isRequired,
+    msPer24: PropTypes.number.isRequired,
+    value: PropTypes.number.isRequired,
+  })),
+  smbgData: PropTypes.arrayOf(PropTypes.shape({
+    // here only documenting the properties we actually use rather than the *whole* data model!
+    id: PropTypes.string.isRequired,
+    msPer24: PropTypes.number.isRequired,
+    value: PropTypes.number.isRequired,
+  })).isRequired,
+  cbgData: PropTypes.arrayOf(PropTypes.shape({
     // here only documenting the properties we actually use rather than the *whole* data model!
     id: PropTypes.string.isRequired,
     msPer24: PropTypes.number.isRequired,

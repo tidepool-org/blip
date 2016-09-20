@@ -308,7 +308,8 @@ export class TrendsContainer extends React.Component {
       <TrendsSVGContainer
         bgBounds={this.props.bgBounds}
         bgUnits={this.props.bgUnits}
-        data={this.state.currentCbgData}
+        smbgData={this.state.currentSmbgData}
+        cbgData={this.state.currentCbgData}
         focusedSlice={this.props.trendsState.focusedCbgSlice}
         focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
         focusRange={(d) => { console.log('focusRange', d); }}
