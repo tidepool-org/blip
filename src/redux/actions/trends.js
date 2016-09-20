@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-import * as actionTypes from './constants';
+import * as actionTypes from '../constants/actionTypes';
 
-export function focusTrendsCbgSlice(sliceData, slicePosition, focusedKeys) {
+export function focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKeys) {
   return {
     type: actionTypes.FOCUS_TRENDS_CBG_SLICE,
-    payload: { focusedKeys, sliceData, slicePosition },
+    payload: { focusedKeys, sliceData, slicePosition, userId },
   };
 }
 
@@ -31,15 +31,17 @@ export function focusTrendsSmbgRangeAvg(rangeAvgData, rangeAvgPosition) {
   };
 }
 
-export function markTrendsViewed() {
+export function markTrendsViewed(userId) {
   return {
     type: actionTypes.MARK_TRENDS_VIEWED,
+    payload: { userId },
   };
 }
 
-export function unfocusTrendsCbgSlice() {
+export function unfocusTrendsCbgSlice(userId) {
   return {
     type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,
+    payload: { userId },
   };
 }
 

@@ -62,6 +62,7 @@ export class TrendsContainer extends React.Component {
       'very-low': PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
     }).isRequired,
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
+    currentPatientInViewId: PropTypes.string.isRequired,
     extentSize: PropTypes.oneOf([ONE_WEEK, TWO_WEEKS, FOUR_WEEKS]).isRequired,
     initialDatetimeLocation: PropTypes.string,
     showingSmbg: PropTypes.bool.isRequired,
@@ -88,47 +89,45 @@ export class TrendsContainer extends React.Component {
     onSelectDay: PropTypes.func.isRequired,
     onSwitchBgDataSource: PropTypes.func.isRequired,
     // viz state
-    viz: PropTypes.shape({
-      trends: PropTypes.shape({
-        focusedCbgSlice: PropTypes.shape({
-          slice: PropTypes.shape({
+    trendsState: PropTypes.shape({
+      focusedCbgSlice: PropTypes.shape({
+        slice: PropTypes.shape({
+          firstQuartile: PropTypes.number.isRequired,
+          id: PropTypes.string.isRequired,
+          max: PropTypes.number.isRequired,
+          median: PropTypes.number.isRequired,
+          min: PropTypes.number.isRequired,
+          msFrom: PropTypes.number.isRequired,
+          msTo: PropTypes.number.isRequired,
+          msX: PropTypes.number.isRequired,
+          ninetiethQuantile: PropTypes.number.isRequired,
+          tenthQuantile: PropTypes.number.isRequired,
+          thirdQuartile: PropTypes.number.isRequired,
+        }),
+        position: PropTypes.shape({
+          left: PropTypes.number.isRequired,
+          tooltipLeft: PropTypes.bool.isRequired,
+          topOptions: PropTypes.shape({
             firstQuartile: PropTypes.number.isRequired,
-            id: PropTypes.string.isRequired,
             max: PropTypes.number.isRequired,
             median: PropTypes.number.isRequired,
             min: PropTypes.number.isRequired,
-            msFrom: PropTypes.number.isRequired,
-            msTo: PropTypes.number.isRequired,
-            msX: PropTypes.number.isRequired,
             ninetiethQuantile: PropTypes.number.isRequired,
             tenthQuantile: PropTypes.number.isRequired,
             thirdQuartile: PropTypes.number.isRequired,
           }),
-          position: PropTypes.shape({
-            left: PropTypes.number.isRequired,
-            tooltipLeft: PropTypes.bool.isRequired,
-            topOptions: PropTypes.shape({
-              firstQuartile: PropTypes.number.isRequired,
-              max: PropTypes.number.isRequired,
-              median: PropTypes.number.isRequired,
-              min: PropTypes.number.isRequired,
-              ninetiethQuantile: PropTypes.number.isRequired,
-              tenthQuantile: PropTypes.number.isRequired,
-              thirdQuartile: PropTypes.number.isRequired,
-            }),
-          }),
         }),
-        focusedCbgSliceKeys: PropTypes.arrayOf(PropTypes.oneOf([
-          'firstQuartile',
-          'max',
-          'median',
-          'min',
-          'ninetiethQuantile',
-          'tenthQuantile',
-          'thirdQuartile',
-        ])),
-        touched: PropTypes.bool.isRequired,
-      }).isRequired,
+      }),
+      focusedCbgSliceKeys: PropTypes.arrayOf(PropTypes.oneOf([
+        'firstQuartile',
+        'max',
+        'median',
+        'min',
+        'ninetiethQuantile',
+        'tenthQuantile',
+        'thirdQuartile',
+      ])),
+      touched: PropTypes.bool.isRequired,
     }).isRequired,
     // actions
     focusTrendsCbgSlice: PropTypes.func.isRequired,
@@ -291,7 +290,7 @@ export class TrendsContainer extends React.Component {
   }
 
   determineDataToShow() {
-    const { viz: { trends: { touched } } } = this.props;
+    const { trendsState: { touched } } = this.props;
     if (touched) {
       return;
     }
@@ -310,8 +309,8 @@ export class TrendsContainer extends React.Component {
         bgBounds={this.props.bgBounds}
         bgUnits={this.props.bgUnits}
         data={this.state.currentCbgData}
-        focusedSlice={this.props.viz.trends.focusedCbgSlice}
-        focusedSliceKeys={this.props.viz.trends.focusedCbgSliceKeys}
+        focusedSlice={this.props.trendsState.focusedCbgSlice}
+        focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
         focusRange={(d) => { console.log('focusRange', d); }}
         focusSlice={this.props.focusTrendsCbgSlice}
         showingCbg={this.props.showingCbg}
@@ -326,17 +325,24 @@ export class TrendsContainer extends React.Component {
   }
 }
 
-export function mapStateToProps(state) {
+export function mapStateToProps(state, ownProps) {
+  const userId = _.get(ownProps, 'currentPatientInViewId');
   return {
-    viz: state.viz,
+    trendsState: _.get(state, ['viz', 'trends', userId], {}),
   };
 }
 
-export function mapDispatchToProps(dispatch) {
+export function mapDispatchToProps(dispatch, ownProps) {
   return bindActionCreators({
-    focusTrendsCbgSlice: actions.focusTrendsCbgSlice,
-    markTrendsViewed: actions.markTrendsViewed,
-    unfocusTrendsCbgSlice: actions.unfocusTrendsCbgSlice,
+    focusTrendsCbgSlice: _.partial(
+      actions.focusTrendsCbgSlice, ownProps.currentPatientInViewId
+    ),
+    markTrendsViewed: _.partial(
+      actions.markTrendsViewed, ownProps.currentPatientInViewId
+    ),
+    unfocusTrendsCbgSlice: _.partial(
+      actions.unfocusTrendsCbgSlice, ownProps.currentPatientInViewId
+    ),
   }, dispatch);
 }
 

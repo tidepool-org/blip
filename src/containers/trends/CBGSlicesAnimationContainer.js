@@ -19,6 +19,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
+import { THIRTY_MINS } from '../../utils/datetime';
 import { findTimeOfDayBin, calculateCbgStatsForBin } from '../../utils/trends/data';
 
 import CBGSlice from '../../components/trends/cbg/CBGSlice';
@@ -80,8 +81,7 @@ export default class CBGSlicesAnimationContainer extends React.Component {
   };
 
   static defaultProps = {
-    // thirty-minute bins
-    binSize: 1000 * 60 * 30,
+    binSize: THIRTY_MINS,
   };
 
   constructor(props) {

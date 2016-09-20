@@ -43,6 +43,7 @@ import React, { PropTypes } from 'react';
 import dimensions from 'react-dimensions';
 
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
@@ -92,6 +93,7 @@ export class TrendsSVGContainer extends React.Component {
         (<SMBGRangeAvgAnimationContainer
           data={this.props.data}
           focusRange={this.props.focusRange}
+          key="SMBGRangeAvgAnimationContainer"
           smbgRangeOverlay={this.props.smbgRangeOverlay}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
           unfocusRange={this.props.unfocusRange}
@@ -162,7 +164,7 @@ TrendsSVGContainer.propTypes = {
     targetLowerBound: PropTypes.number.isRequired,
     veryLowThreshold: PropTypes.number.isRequired,
   }).isRequired,
-  bgUnits: PropTypes.oneOf(['mg/dL', 'mmol/L']).isRequired,
+  bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   containerHeight: PropTypes.number.isRequired,
   containerWidth: PropTypes.number.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
