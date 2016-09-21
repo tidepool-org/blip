@@ -74,10 +74,10 @@ const Medtronic = (props) => {
   const renderSensitivityData = () => {
     const columns = [
       { key: 'start', label: 'Start time', className: '' },
-      { key: 'amount', label: `Value (${bgUnits}/U)`, className: '' },
+      { key: 'amount', label: 'Value', className: '' },
     ];
     const title = {
-      label: 'Sensitivity',
+      label: <div>Sensitivity <span className={styles.lightText}>{bgUnits}/U</span></div>,
       className: styles.bolusSettingsHeader,
     };
     return (
@@ -100,10 +100,10 @@ const Medtronic = (props) => {
   const renderRatioData = () => {
     const columns = [
       { key: 'start', label: 'Start time', className: '' },
-      { key: 'amount', label: 'Value (g/U)', className: '' },
+      { key: 'amount', label: 'Value', className: '' },
     ];
     const title = {
-      label: 'Carb Ratios',
+      label: <div>Carb Ratios <span className={styles.lightText}>g/U</span></div>,
       className: styles.bolusSettingsHeader,
     };
     return (
@@ -129,7 +129,7 @@ const Medtronic = (props) => {
       { key: 'columnThree', label: 'High', className: '' },
     ];
     const title = {
-      label: `BG Target (${bgUnits})`,
+      label: <div>BG Target <span className={styles.lightText}>{bgUnits}</span></div>,
       className: styles.bolusSettingsHeader,
     };
     return (

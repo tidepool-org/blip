@@ -74,10 +74,10 @@ const Omnipod = (props) => {
   const renderSensitivityData = () => {
     const columns = [
       { key: 'start', label: 'Start time', className: '' },
-      { key: 'amount', label: `Value (${bgUnits}/U)`, className: '' },
+      { key: 'amount', label: 'Value', className: '' },
     ];
     const title = {
-      label: 'Correction factor',
+      label: <div>Correction factor <span className={styles.lightText}>{bgUnits}/U</span></div>,
       className: styles.bolusSettingsHeader,
     };
     return (
@@ -100,10 +100,10 @@ const Omnipod = (props) => {
   const renderRatioData = () => {
     const columns = [
       { key: 'start', label: 'Start time', className: '' },
-      { key: 'amount', label: 'Value (g/U)', className: '' },
+      { key: 'amount', label: 'Value', className: '' },
     ];
     const title = {
-      label: 'IC ratio',
+      label: <div>IC ratio <span className={styles.lightText}>g/U</span></div>,
       className: styles.bolusSettingsHeader,
     };
     return (
@@ -129,7 +129,7 @@ const Omnipod = (props) => {
       { key: 'columnThree', label: 'Correct Above', className: '' },
     ];
     const title = {
-      label: `Target BG (${bgUnits})`,
+      label: <div>Target BG <span className={styles.lightText}>{bgUnits}</span></div>,
       className: styles.bolusSettingsHeader,
     };
     return (

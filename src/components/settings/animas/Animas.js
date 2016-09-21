@@ -74,10 +74,10 @@ const Animas = (props) => {
   const renderSensitivityData = () => {
     const columns = [
       { key: 'start', label: 'Start time', className: '' },
-      { key: 'amount', label: `Value (${bgUnits}/U)`, className: '' },
+      { key: 'amount', label: 'Value', className: '' },
     ];
     const title = {
-      label: 'ISF',
+      label: <div>ISF <span className={styles.lightText}>{bgUnits}/U</span></div>,
       className: styles.bolusSettingsHeader,
     };
     return (
@@ -100,10 +100,10 @@ const Animas = (props) => {
   const renderRatioData = () => {
     const columns = [
       { key: 'start', label: 'Start time', className: '' },
-      { key: 'amount', label: 'Value (g/U)', className: '' },
+      { key: 'amount', label: 'Value', className: '' },
     ];
     const title = {
-      label: 'I:C Ratio',
+      label: <div>I:C Ratio <span className={styles.lightText}>g/U</span></div>,
       className: styles.bolusSettingsHeader,
     };
     return (
@@ -129,7 +129,7 @@ const Animas = (props) => {
       { key: 'columnThree', label: 'Range +/-', className: '' },
     ];
     const title = {
-      label: `BG Target (${bgUnits})`,
+      label: <div>BG Target <span className={styles.lightText}>{bgUnits}</span></div>,
       className: styles.bolusSettingsHeader,
     };
     return (
