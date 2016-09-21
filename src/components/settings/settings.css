@@ -12,13 +12,13 @@
 }
 
 .settingsHeaderText {
-  composes: whiteText smallSize from '../../styles/typography.css';
+  composes: whiteText boldText from '../../styles/typography.css';
   min-width: 160px;
   padding-left: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
-  font-weight: bold;
   text-align: left;
+  font-size: 14px;
 }
 
 .basalSchedulesHeader {
@@ -60,15 +60,15 @@
 }
 
 .basalTable {
-  composes: smallSize from '../../styles/typography.css';
-  min-width: 192px;
+  font-size: 14px;
+  min-width: 200px;
   border-spacing: 1px 0px;
   color: var(--text-medium-contrast);
   border-collapse: separate;
 }
 
 .basalTable td, .basalTable th {
-  padding: 9px;
+  padding: 10px;
   text-align: right;
 }
 
