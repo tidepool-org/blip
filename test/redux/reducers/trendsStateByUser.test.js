@@ -124,9 +124,7 @@ describe('trendsStateByUser', () => {
   });
 
   describe('FOCUS_TRENDS_SMBG_RANGE_AVG', () => {
-
     const data = { median: 100 };
-    const position = { median: 10 };
 
     it('should store focused data and the data\'s position', () => {
       const initialState = {
@@ -234,7 +232,6 @@ describe('trendsStateByUser', () => {
   describe('UNFOCUS_TRENDS_SMBG_RANGE_AVG', () => {
     it('should reset the focusedSmbgAvg state to `null`', () => {
       const data = { median: 100 };
-      const position = { median: 10 };
 
       const initialState = {
         [USER_1]: {
