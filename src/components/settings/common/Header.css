@@ -24,6 +24,7 @@
   composes: header;
   display: block;
   margin: 5px 5px 5px 0;
+  white-space: nowrap;
 }
 .headerOuter:first-of-type {
   cursor: pointer;

@@ -46,7 +46,9 @@ class Header extends React.Component {
             <span className={styles.headerInner}>Uploaded on {this.props.deviceMeta.uploaded}</span>
           </li>
           <li className={styles.headerOuter}>
-            <span className={styles.headerInner}>{this.props.deviceMeta.serial}</span>
+            <span className={styles.headerInner}>
+              Serial Number: {this.props.deviceMeta.serial}
+            </span>
           </li>
         </ul>
       </div>
