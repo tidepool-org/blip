@@ -75,7 +75,10 @@ const Tandem = (props) => {
         deviceType="Tandem"
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
       />
-      {tables}
+      <div>
+        <span className={styles.title}>Profile Settings</span>
+        {tables}
+      </div>
     </div>
   );
 };
