@@ -95,7 +95,7 @@ class Table extends React.Component {
 Table.propTypes = {
   title: React.PropTypes.shape({
     className: React.PropTypes.string.isRequired,
-    label: React.PropTypes.string.isRequired,
+    label: React.PropTypes.node.isRequired,
   }),
   rows: PropTypes.array.isRequired,
   columns: PropTypes.array.isRequired,
