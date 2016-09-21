@@ -3,12 +3,20 @@
 .settings {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-start;
 }
 
 .block {
   margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.nonBasalWrap {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: flex-start;
 }
 
 .settingsHeaderText {

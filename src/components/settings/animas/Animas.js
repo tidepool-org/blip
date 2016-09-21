@@ -157,9 +157,11 @@ const Animas = (props) => {
       />
       <div className={styles.settings}>
         {renderBasalsData()}
-        {renderSensitivityData()}
-        {renderTargetData()}
-        {renderRatioData()}
+        <div className={styles.nonBasalWrap}>
+          {renderSensitivityData()}
+          {renderTargetData()}
+          {renderRatioData()}
+        </div>
       </div>
     </div>
   );

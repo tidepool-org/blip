@@ -6,6 +6,10 @@
   composes: block from '../settings.css';
 }
 
+.nonBasalWrap {
+  composes: nonBasalWrap from '../settings.css';
+}
+
 .settingsHeaderText {
   composes: settingsHeaderText from '../settings.css';
 }
