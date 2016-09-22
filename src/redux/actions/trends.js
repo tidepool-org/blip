@@ -24,6 +24,13 @@ export function focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKey
   };
 }
 
+export function focusTrendsSmbgRangeAvg(userId, rangeAvgData, rangeAvgPosition) {
+  return {
+    type: actionTypes.FOCUS_TRENDS_SMBG_RANGE_AVG,
+    payload: { rangeAvgData, rangeAvgPosition, userId },
+  };
+}
+
 export function markTrendsViewed(userId) {
   return {
     type: actionTypes.MARK_TRENDS_VIEWED,
@@ -34,6 +41,13 @@ export function markTrendsViewed(userId) {
 export function unfocusTrendsCbgSlice(userId) {
   return {
     type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,
+    payload: { userId },
+  };
+}
+
+export function unfocusTrendsSmbgRangeAvg(userId) {
+  return {
+    type: actionTypes.UNFOCUS_TRENDS_SMBG_RANGE_AVG,
     payload: { userId },
   };
 }

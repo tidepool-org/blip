@@ -163,7 +163,7 @@ FocusedCBGSliceHTMLLabels.propTypes = {
     'thirdQuartile',
   ])),
   focusedSlice: PropTypes.shape({
-    slice: PropTypes.shape({
+    data: PropTypes.shape({
       firstQuartile: PropTypes.number.isRequired,
       id: PropTypes.string.isRequired,
       max: PropTypes.number.isRequired,
