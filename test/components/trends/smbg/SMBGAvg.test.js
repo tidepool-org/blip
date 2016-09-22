@@ -30,12 +30,12 @@ const {
 import SVGContainer from '../../../helpers/SVGContainer';
 
 import { THREE_HRS } from '../../../../src/utils/datetime';
-import SMBGRangeAvg from '../../../../src/components/trends/smbg/SMBGRangeAvg';
+import SMBGAvg from '../../../../src/components/trends/smbg/SMBGAvg';
 
-describe('SMBGRangeAvg', () => {
+describe('SMBGAvg', () => {
   let wrapper;
-  const focusRange = sinon.spy();
-  const unfocusRange = sinon.spy();
+  const focusAvg = sinon.spy();
+  const unfocusAvg = sinon.spy();
   const datum = {
     id: '5400000',
     max: 521,
@@ -45,9 +45,9 @@ describe('SMBGRangeAvg', () => {
   };
   const props = {
     datum,
-    focusRange,
+    focusAvg,
     tooltipLeftThreshold: THREE_HRS * 6,
-    unfocusRange,
+    unfocusAvg,
     xScale,
     yPositions: {
       min: yScale(datum.min),
@@ -58,7 +58,7 @@ describe('SMBGRangeAvg', () => {
   before(() => {
     wrapper = mount(
       <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-        <SMBGRangeAvg {...props} />
+        <SMBGAvg {...props} />
       </SVGContainer>
     );
   });
@@ -70,35 +70,24 @@ describe('SMBGRangeAvg', () => {
 
       noDatumWrapper = mount(
         <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <SMBGRangeAvg {...noDatumProps} />
+          <SMBGAvg {...noDatumProps} />
         </SVGContainer>
       );
     });
 
     it('should render nothing', () => {
-      expect(noDatumWrapper.find(`#smbgRangeAvg-${datum.id}`).length).to.equal(0);
+      expect(noDatumWrapper.find(`#smbgAvg-${datum.id}`).length).to.equal(0);
     });
   });
 
   describe('when a datum (overlay data) is provided', () => {
-    it('should render a smbgRangeAvg <g> with a <rect> and a <circle>', () => {
-      expect(wrapper.find(`#smbgRangeAvg-${datum.id}`).length).to.equal(1);
-      expect(wrapper.find(`#smbgRangeAvg-${datum.id} rect`).length).to.equal(1);
-      expect(wrapper.find(`#smbgRangeAvg-${datum.id} circle`).length).to.equal(1);
-    });
-
-    it('should render a min/max rect covering the whole yScale range', () => {
-      const rangeRect = wrapper
-        .find(`#smbgRangeAvg-${datum.id} #smbgRange-${datum.id}`).props();
-      expect(rangeRect.x).to.equal(45);
-      expect(rangeRect.width).to.equal(18);
-      expect(rangeRect.y).to.equal(0);
-      expect(rangeRect.height).to.equal(trendsHeight);
+    it('should render a smbgAvg <circle>', () => {
+      expect(wrapper.find(`#smbgAvg-${datum.id} circle`).length).to.equal(1);
     });
 
     it('should render a median <circle>', () => {
       const medianCircle = wrapper
-        .find(`#smbgRangeAvg-${datum.id} #smbgMean-${datum.id}`).props();
+        .find(`#smbgAvg-${datum.id}`).props();
       expect(medianCircle.cx).to.equal(54);
       expect(medianCircle.cy).to.equal(260);
     });
@@ -106,30 +95,30 @@ describe('SMBGRangeAvg', () => {
 
   describe('interactions', () => {
     afterEach(() => {
-      props.focusRange.reset();
-      props.unfocusRange.reset();
+      props.focusAvg.reset();
+      props.unfocusAvg.reset();
     });
 
-    it('should call focusRange on mouseover of min/max rect', () => {
-      const rangeRect = wrapper
-        .find(`#smbgRangeAvg-${datum.id} #smbgRange-${datum.id}`);
-      expect(focusRange.callCount).to.equal(0);
-      rangeRect.simulate('mouseover');
-      expect(focusRange.args[0][0]).to.deep.equal(datum);
-      expect(focusRange.args[0][1]).to.deep.equal({
+    it('should call focusAvg on mouseover of circle', () => {
+      const avgCircle = wrapper
+        .find(`#smbgAvg-${datum.id}`);
+      expect(focusAvg.callCount).to.equal(0);
+      avgCircle.simulate('mouseover');
+      expect(focusAvg.args[0][0]).to.deep.equal(datum);
+      expect(focusAvg.args[0][1]).to.deep.equal({
         left: 54,
         tooltipLeft: false,
         yPositions: props.yPositions,
       });
-      expect(focusRange.callCount).to.equal(1);
+      expect(focusAvg.callCount).to.equal(1);
     });
 
-    it('should call unfocusRange on mouseout of min/max rect', () => {
-      const rangeRect = wrapper
-        .find(`#smbgRangeAvg-${datum.id} #smbgRange-${datum.id}`);
-      expect(unfocusRange.callCount).to.equal(0);
-      rangeRect.simulate('mouseout');
-      expect(unfocusRange.callCount).to.equal(1);
+    it('should call unfocusAvg on mouseout of min/max rect', () => {
+      const avgCircle = wrapper
+        .find(`#smbgAvg-${datum.id}`);
+      expect(unfocusAvg.callCount).to.equal(0);
+      avgCircle.simulate('mouseout');
+      expect(unfocusAvg.callCount).to.equal(1);
     });
   });
 });

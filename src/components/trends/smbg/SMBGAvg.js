@@ -17,19 +17,18 @@
 
 import React, { PropTypes } from 'react';
 
-import styles from './SMBGRangeAvg.css';
+import styles from './SMBGAvg.css';
 
-const SMBGRangeAvg = (props) => {
+const SMBGAvg = (props) => {
   const { datum } = props;
   if (!datum) {
     return null;
   }
 
-  const { focusRange, meanRadius, rectWidth, unfocusRange, xScale, yPositions } = props;
+  const { focusAvg, avgRadius, unfocusAvg: unfocus, xScale, yPositions } = props;
   const xPos = xScale(datum.msX);
-  const unfocus = unfocusRange.bind(null);
   const focus = () => {
-    focusRange(datum, {
+    focusAvg(datum, {
       left: xPos,
       tooltipLeft: datum.msX > props.tooltipLeftThreshold,
       yPositions,
@@ -37,36 +36,23 @@ const SMBGRangeAvg = (props) => {
   };
 
   return (
-    <g id={`smbgRangeAvg-${datum.id}`}>
-      <rect
-        className={styles.smbgRange}
-        id={`smbgRange-${datum.id}`}
-        onMouseOver={focus}
-        onMouseOut={unfocus}
-        x={xPos - rectWidth / 2}
-        y={yPositions.max}
-        width={rectWidth}
-        height={yPositions.min - yPositions.max}
-      />
-      <circle
-        className={styles.smbgMean}
-        id={`smbgMean-${datum.id}`}
-        onMouseOver={focus}
-        onMouseOut={unfocus}
-        cx={xPos}
-        cy={yPositions.mean}
-        r={meanRadius}
-      />
-    </g>
+    <circle
+      className={styles.smbgAvg}
+      id={`smbgAvg-${datum.id}`}
+      onMouseOver={focus}
+      onMouseOut={unfocus}
+      cx={xPos}
+      cy={yPositions.mean}
+      r={avgRadius}
+    />
   );
 };
 
-SMBGRangeAvg.defaultProps = {
-  meanRadius: 7,
-  rectWidth: 18,
+SMBGAvg.defaultProps = {
+  avgRadius: 7,
 };
 
-SMBGRangeAvg.propTypes = {
+SMBGAvg.propTypes = {
   // if there's a gap in data, a `datum` may not exist, so not required
   datum: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -75,11 +61,10 @@ SMBGRangeAvg.propTypes = {
     min: PropTypes.number.isRequired,
     msX: PropTypes.number.isRequired,
   }),
-  focusRange: PropTypes.func.isRequired,
-  meanRadius: PropTypes.number.isRequired,
-  rectWidth: PropTypes.number.isRequired,
+  focusAvg: PropTypes.func.isRequired,
+  avgRadius: PropTypes.number.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
-  unfocusRange: PropTypes.func.isRequired,
+  unfocusAvg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yPositions: PropTypes.shape({
     min: PropTypes.number.isRequired,
@@ -88,4 +73,4 @@ SMBGRangeAvg.propTypes = {
   }).isRequired,
 };
 
-export default SMBGRangeAvg;
+export default SMBGAvg;
