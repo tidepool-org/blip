@@ -91,7 +91,7 @@ export class TrendsContainer extends React.Component {
     // viz state
     trendsState: PropTypes.shape({
       focusedCbgSlice: PropTypes.shape({
-        slice: PropTypes.shape({
+        data: PropTypes.shape({
           firstQuartile: PropTypes.number.isRequired,
           id: PropTypes.string.isRequired,
           max: PropTypes.number.isRequired,

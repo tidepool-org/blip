@@ -174,7 +174,7 @@ TrendsSVGContainer.propTypes = {
     value: PropTypes.number.isRequired,
   })).isRequired,
   focusedSlice: PropTypes.shape({
-    slice: PropTypes.shape({
+    data: PropTypes.shape({
       firstQuartile: PropTypes.number.isRequired,
       max: PropTypes.number.isRequired,
       median: PropTypes.number.isRequired,

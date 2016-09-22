@@ -36,7 +36,7 @@ export default class CBGSlicesAnimationContainer extends React.Component {
       value: PropTypes.number.isRequired,
     })).isRequired,
     focusedSlice: PropTypes.shape({
-      slice: PropTypes.shape({
+      data: PropTypes.shape({
         firstQuartile: PropTypes.number.isRequired,
         id: PropTypes.string.isRequired,
         max: PropTypes.number.isRequired,

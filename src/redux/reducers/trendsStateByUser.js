@@ -22,13 +22,13 @@ import * as actionTypes from '../constants/actionTypes';
 
 const FOCUSED_CBG_SLICE = 'focusedCbgSlice';
 const FOCUSED_CBG_KEYS = 'focusedCbgSliceKeys';
-const FOCUSED_SMBG_AVG = 'focusedSmbgAvg';
+const FOCUSED_SMBG_RANGE_AVG = 'focusedSmbgRangeAvg';
 const TOUCHED = 'touched';
 
 const initialState = {
   [FOCUSED_CBG_SLICE]: null,
   [FOCUSED_CBG_KEYS]: null,
-  [FOCUSED_SMBG_AVG]: null,
+  [FOCUSED_SMBG_RANGE_AVG]: null,
   [TOUCHED]: false,
 };
 
@@ -45,11 +45,11 @@ const trendsStateByUser = (state = {}, action) => {
       );
     }
     case actionTypes.FOCUS_TRENDS_CBG_SLICE: {
-      const { focusedKeys, sliceData: slice, slicePosition: position, userId } = action.payload;
+      const { focusedKeys, sliceData: data, slicePosition: position, userId } = action.payload;
       return update(
         state,
         { [userId]: {
-          [FOCUSED_CBG_SLICE]: { $set: { slice, position } },
+          [FOCUSED_CBG_SLICE]: { $set: { data, position } },
           [FOCUSED_CBG_KEYS]: { $set: focusedKeys },
         } }
       );
@@ -59,7 +59,7 @@ const trendsStateByUser = (state = {}, action) => {
       return update(
         state,
         { [userId]: {
-          [FOCUSED_SMBG_AVG]: { $set: { data, position } },
+          [FOCUSED_SMBG_RANGE_AVG]: { $set: { data, position } },
         } }
       );
     }
@@ -87,7 +87,7 @@ const trendsStateByUser = (state = {}, action) => {
       return update(
         state,
         { [userId]: {
-          [FOCUSED_SMBG_AVG]: { $set: null },
+          [FOCUSED_SMBG_RANGE_AVG]: { $set: null },
         } }
       );
     }
