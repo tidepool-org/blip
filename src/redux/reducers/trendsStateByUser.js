@@ -52,6 +52,15 @@ const trendsStateByUser = (state = {}, action) => {
         } }
       );
     }
+    case actionTypes.FOCUS_TRENDS_SMBG: {
+      const { smbg, position, userId } = action.payload;
+      return update(
+        state,
+        { [userId]: {
+          [FOCUSED_SLICE]: { $set: { smbg, position } },
+        } }
+      );
+    }
     case actionTypes.LOGOUT_REQUEST:
       return {};
     case actionTypes.MARK_TRENDS_VIEWED: {

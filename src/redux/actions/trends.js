@@ -24,6 +24,13 @@ export function focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKey
   };
 }
 
+export function focusTrendsSmbg(userId, smbg, position) {
+  return {
+    type: actionTypes.FOCUS_TRENDS_SMBG,
+    payload: { smbg, position, userId },
+  };
+}
+
 export function markTrendsViewed(userId) {
   return {
     type: actionTypes.MARK_TRENDS_VIEWED,
@@ -37,3 +44,11 @@ export function unfocusTrendsCbgSlice(userId) {
     payload: { userId },
   };
 }
+
+export function unfocusTrendsSmbg(userId) {
+  return {
+    type: actionTypes.UNFOCUS_TRENDS_SMBG,
+    payload: { userId },
+  };
+}
+
