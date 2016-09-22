@@ -1616,7 +1616,7 @@ describe('Actions', () => {
     });
 
     describe('fetchPendingSentInvites', () => {
-      it('should trigger FETCH_PENDING_SENT_INVITES_SUCCESS and it should call error once for a successful request', () => {
+      it('should trigger FETCH_PENDING_SENT_INVITES_SUCCESS and it should call getSent once for a successful request', () => {
         let pendingSentInvites = [ 1, 555, 78191 ];
 
         let api = {
@@ -1640,7 +1640,7 @@ describe('Actions', () => {
         expect(api.invitation.getSent.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PENDING_SENT_INVITES_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger FETCH_PENDING_SENT_INVITES_FAILURE and it should call getSent once for a failed request', () => {
         let pendingSentInvites = [ 1, 555, 78191 ];
 
         let api = {
@@ -1669,7 +1669,7 @@ describe('Actions', () => {
     });
 
     describe('fetchPendingReceivedInvites', () => {
-      it('should trigger FETCH_PENDING_RECEIVED_INVITES_SUCCESS and it should call error once for a successful request', () => {
+      it('should trigger FETCH_PENDING_RECEIVED_INVITES_SUCCESS and it should call getReceived once for a successful request', () => {
         let pendingReceivedInvites = [ 1, 555, 78191 ];
 
         let api = {
@@ -1693,7 +1693,7 @@ describe('Actions', () => {
         expect(api.invitation.getReceived.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PENDING_RECEIVED_INVITES_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger FETCH_PENDING_RECEIVED_INVITES_FAILURE and it should call getReceived once for a failed request', () => {
         let pendingReceivedInvites = [ 1, 555, 78191 ];
 
         let api = {
@@ -1722,7 +1722,7 @@ describe('Actions', () => {
     });
 
     describe('fetchPatient', () => {
-      it('should trigger FETCH_PATIENT_SUCCESS and it should call error once for a successful request', () => {
+      it('should trigger FETCH_PATIENT_SUCCESS and it should call get once for a successful request', () => {
         let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
 
         let api = {
@@ -1746,7 +1746,7 @@ describe('Actions', () => {
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
 
-      it('[500] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
+      it('[500] should trigger FETCH_PATIENT_FAILURE and it should call get once for a failed request', () => {
         let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
 
         let api = {
@@ -1773,7 +1773,7 @@ describe('Actions', () => {
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
 
-      it('[404] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
+      it('[404] should trigger FETCH_PATIENT_FAILURE and it should call get once for a failed request', () => {
         let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
         let thisInitialState = Object.assign(initialState, {loggedInUserId: 58686});
 
@@ -1803,7 +1803,7 @@ describe('Actions', () => {
     });
 
     describe('fetchPatients', () => {
-      it('should trigger FETCH_PATIENTS_SUCCESS and it should call error once for a successful request', () => {
+      it('should trigger FETCH_PATIENTS_SUCCESS and it should call getAll once for a successful request', () => {
         let patients = [
           { id: 58686, name: 'Buddy Holly', age: 65 }
         ]
@@ -1829,7 +1829,7 @@ describe('Actions', () => {
         expect(api.patient.getAll.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PATIENTS_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger FETCH_PATIENTS_FAILURE and it should call getAll once for a failed request', () => {
         let patients = [
           { id: 58686, name: 'Buddy Holly', age: 65 }
         ]
@@ -1860,8 +1860,13 @@ describe('Actions', () => {
     });
 
     describe('fetchPatientData', () => {
-      it('should trigger FETCH_PATIENT_DATA_SUCCESS and it should call error once for a successful request', () => {
+      it('should trigger two WORKER_PROCESS_DATA_REQUESTs and then FETCH_PATIENT_DATA_SUCCESS and it should call patientData.get and getNotes once each for a successful request', () => {
+        const timePrefs = {
+          timezoneAware: true,
+          timezoneName: 'US/Pacific'
+        }
         async.__Rewire__('utils', {
+          getTimezoneForDataProcessing: sinon.stub().returns(timePrefs),
           processPatientData: sinon.stub().returnsArg(0)
         });
 
@@ -1886,7 +1891,9 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientData : patientData, patientNotes: teamNotes, patientId: patientId } }
+          { type: 'WORKER_PROCESS_DATA_REQUEST', payload: { data: [], timePrefs: timePrefs, userId: patientId  }, meta: { WebWorker: true } },
+          { type: 'WORKER_PROCESS_DATA_REQUEST', payload: { data: [], timePrefs: timePrefs, userId: patientId  }, meta: { WebWorker: true } },
+          { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientData : patientData, patientNotes: teamNotes, patientId: patientId } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -1901,7 +1908,7 @@ describe('Actions', () => {
         expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to patient data call returning error', () => {
+      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call patientData.get and getNotes once each for a failed request due to patient data call returning error', () => {
         async.__Rewire__('utils', {
           processPatientData: sinon.stub()
         });
@@ -1945,7 +1952,7 @@ describe('Actions', () => {
       });
 
 
-      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to team notes call returning error', () => {
+      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call patientData.get and getNotes once each for a failed request due to team notes call returning error', () => {
         async.__Rewire__('utils', {
           processPatientData: sinon.stub()
         });
@@ -1991,7 +1998,7 @@ describe('Actions', () => {
     });
 
     describe('fetchMessageThread', () => {
-      it('should trigger FETCH_MESSAGE_THREAD_SUCCESS and it should call error once for a successful request', () => {
+      it('should trigger FETCH_MESSAGE_THREAD_SUCCESS and it should call getMessageThread once for a successful request', () => {
         let messageThread = [
           { message: 'Foobar' }
         ]
@@ -2018,7 +2025,7 @@ describe('Actions', () => {
         expect(api.team.getMessageThread.withArgs(300).callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_MESSAGE_THREAD_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger FETCH_MESSAGE_THREAD_FAILURE and it should call getMessageThread once for a failed request', () => {
         let messageThread = [
           { message: 'Foobar' }
         ]

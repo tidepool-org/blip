@@ -736,7 +736,7 @@ export function fetchPatientData(api, id) {
       } else {
         let patientData = results.patientData || [];
         let notes = results.teamNotes || [];
-        const { routing: { location: { query: queryParams } } } = getState();
+        const queryParams = _.get(getState(), ['routing', 'location', 'query'], {});
         let timePrefs = utils.getTimezoneForDataProcessing(patientData, queryParams);
         if (_.isEmpty(timePrefs)) {
           timePrefs = {

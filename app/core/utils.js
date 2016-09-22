@@ -232,7 +232,7 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
     console.log('Falling back to timezone-naive display.');
   }
   return timePrefsForTideline;
-}
+};
 
 utils.processPatientData = (comp, data, queryParams) => {
   if (!(data && data.length >= 0)) {
