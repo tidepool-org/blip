@@ -29,6 +29,7 @@ const TOUCHED = 'touched';
 const initialState = {
   [FOCUSED_CBG_SLICE]: null,
   [FOCUSED_CBG_KEYS]: null,
+  [FOCUSED_SMBG]: null,
   [FOCUSED_SMBG_RANGE_AVG]: null,
   [TOUCHED]: false,
 };
@@ -65,11 +66,11 @@ const trendsStateByUser = (state = {}, action) => {
       );
     }
     case actionTypes.FOCUS_TRENDS_SMBG: {
-      const { smbg, position, userId } = action.payload;
+      const { smbgData: data, smbgPosition: position, userId } = action.payload;
       return update(
         state,
         { [userId]: {
-          [FOCUSED_SMBG]: { $set: { smbg, position } },
+          [FOCUSED_SMBG]: { $set: { data, position } },
         } }
       );
     }
