@@ -91,7 +91,7 @@ export class TrendsContainer extends React.Component {
     // viz state
     trendsState: PropTypes.shape({
       focusedCbgSlice: PropTypes.shape({
-        slice: PropTypes.shape({
+        data: PropTypes.shape({
           firstQuartile: PropTypes.number.isRequired,
           id: PropTypes.string.isRequired,
           max: PropTypes.number.isRequired,
@@ -131,8 +131,10 @@ export class TrendsContainer extends React.Component {
     }).isRequired,
     // actions
     focusTrendsCbgSlice: PropTypes.func.isRequired,
+    focusTrendsSmbgRangeAvg: PropTypes.func.isRequired,
     markTrendsViewed: PropTypes.func.isRequired,
     unfocusTrendsCbgSlice: PropTypes.func.isRequired,
+    unfocusTrendsSmbgRangeAvg: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -338,11 +340,17 @@ export function mapDispatchToProps(dispatch, ownProps) {
     focusTrendsCbgSlice: _.partial(
       actions.focusTrendsCbgSlice, ownProps.currentPatientInViewId
     ),
+    focusTrendsSmbgRangeAvg: _.partial(
+      actions.focusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
+    ),
     markTrendsViewed: _.partial(
       actions.markTrendsViewed, ownProps.currentPatientInViewId
     ),
     unfocusTrendsCbgSlice: _.partial(
       actions.unfocusTrendsCbgSlice, ownProps.currentPatientInViewId
+    ),
+    unfocusTrendsSmbgRangeAvg: _.partial(
+      actions.unfocusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
     ),
   }, dispatch);
 }
