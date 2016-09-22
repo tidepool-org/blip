@@ -536,28 +536,6 @@ export function updateUserFailure(error, apiError) {
   };
 }
 
-export function workerProcessDataRequest(userId, data, timePrefs) {
-  return {
-    type: ActionTypes.WORKER_PROCESS_DATA_REQUEST,
-    payload: { data, timePrefs, userId },
-    meta: { WebWorker: true },
-  };
-}
-
-export function workerProcessDataSuccess(userId, data) {
-  return {
-    type: ActionTypes.WORKER_PROCESS_DATA_SUCCESS,
-    payload: { userId, data },
-  };
-}
-
-export function workerProcessDataFailure(errorMsg) {
-  return {
-    type: ActionTypes.WORKER_PROCESS_DATA_FAILURE,
-    error: new Error(errorMsg),
-  };
-}
-
 export function logErrorRequest() {
   return {
     type: ActionTypes.LOG_ERROR_REQUEST
