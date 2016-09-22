@@ -274,7 +274,7 @@ describe('trendsStateByUser', () => {
         [USER_1]: {
           focusedCbgSlice: null,
           focusedCbgSliceKeys: null,
-          focusedSmbg:  { data, position },
+          focusedSmbg: { data, position },
           focusedSmbgRangeAvg: null,
           touched: true,
         },
