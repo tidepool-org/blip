@@ -17,6 +17,5 @@
 
 .smbgAvg {
   fill: var(--data-purple--dark);
-  pointer-events: none;
   stroke: none;
 }

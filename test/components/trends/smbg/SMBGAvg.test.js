@@ -76,19 +76,18 @@ describe('SMBGAvg', () => {
     });
 
     it('should render nothing', () => {
-      expect(noDatumWrapper.find(`#SMBGAvg-${datum.id}`).length).to.equal(0);
+      expect(noDatumWrapper.find(`#smbgAvg-${datum.id}`).length).to.equal(0);
     });
   });
 
   describe('when a datum (overlay data) is provided', () => {
-    it('should render a smbgAvg <g> with a <circle>', () => {
-      expect(wrapper.find(`#smbgAvgGroup-${datum.id}`).length).to.equal(1);
-      expect(wrapper.find(`#smbgAvgGroup-${datum.id} circle`).length).to.equal(1);
+    it('should render a smbgAvg <circle>', () => {
+      expect(wrapper.find(`circle`).length).to.equal(1);
     });
 
     it('should render a median <circle>', () => {
       const medianCircle = wrapper
-        .find(`#smbgAvgGroup-${datum.id} #smbgAvg-${datum.id}`).props();
+        .find(`#smbgAvg-${datum.id}`).props();
       expect(medianCircle.cx).to.equal(54);
       expect(medianCircle.cy).to.equal(260);
     });
@@ -102,7 +101,7 @@ describe('SMBGAvg', () => {
 
     it('should call focusAvg on mouseover of circle', () => {
       const avgCircle = wrapper
-        .find(`#smbgAvgGroup-${datum.id} #smbgAvg-${datum.id}`);
+        .find(`#smbgAvg-${datum.id}`);
       expect(focusAvg.callCount).to.equal(0);
       avgCircle.simulate('mouseover');
       expect(focusAvg.args[0][0]).to.deep.equal(datum);
@@ -116,7 +115,7 @@ describe('SMBGAvg', () => {
 
     it('should call unfocusAvg on mouseout of min/max rect', () => {
       const avgCircle = wrapper
-        .find(`#smbgAvgGroup-${datum.id} #smbgAvg-${datum.id}`);
+        .find(`#smbgAvg-${datum.id}`);
       expect(unfocusAvg.callCount).to.equal(0);
       avgCircle.simulate('mouseout');
       expect(unfocusAvg.callCount).to.equal(1);

@@ -76,19 +76,18 @@ describe('SMBGRange', () => {
     });
 
     it('should render nothing', () => {
-      expect(noDatumWrapper.find(`#smbgRangeGroup-${datum.id}`).length).to.equal(0);
+      expect(noDatumWrapper.find(`#smbgRange-${datum.id}`).length).to.equal(0);
     });
   });
 
   describe('when a datum (overlay data) is provided', () => {
-    it('should render a SMBGRange <g> with a <rect>', () => {
-      expect(wrapper.find(`#smbgRangeGroup-${datum.id}`).length).to.equal(1);
-      expect(wrapper.find(`#smbgRangeGroup-${datum.id} rect`).length).to.equal(1);
+    it('should render a SMBGRange <rect>', () => {
+      expect(wrapper.find(`#smbgRange-${datum.id} rect`).length).to.equal(1);
     });
 
     it('should render a min/max rect covering the whole yScale range', () => {
       const rangeRect = wrapper
-        .find(`#smbgRangeGroup-${datum.id} #smbgRange-${datum.id}`).props();
+        .find(`#smbgRange-${datum.id}`).props();
       expect(rangeRect.x).to.equal(45);
       expect(rangeRect.width).to.equal(18);
       expect(rangeRect.y).to.equal(0);
@@ -104,7 +103,7 @@ describe('SMBGRange', () => {
 
     it('should call focusRange on mouseover of min/max rect', () => {
       const rangeRect = wrapper
-        .find(`#smbgRangeGroup-${datum.id} #smbgRange-${datum.id}`);
+        .find(`#smbgRange-${datum.id}`);
       expect(focusRange.callCount).to.equal(0);
       rangeRect.simulate('mouseover');
       expect(focusRange.args[0][0]).to.deep.equal(datum);
@@ -118,7 +117,7 @@ describe('SMBGRange', () => {
 
     it('should call unfocusRange on mouseout of min/max rect', () => {
       const rangeRect = wrapper
-        .find(`#smbgRangeGroup-${datum.id} #smbgRange-${datum.id}`);
+        .find(`#smbgRange-${datum.id}`);
       expect(unfocusRange.callCount).to.equal(0);
       rangeRect.simulate('mouseout');
       expect(unfocusRange.callCount).to.equal(1);

@@ -36,17 +36,15 @@ const SMBGAvg = (props) => {
   };
 
   return (
-    <g id={`smbgAvgGroup-${datum.id}`}>
-      <circle
-        className={styles.smbgAvg}
-        id={`smbgAvg-${datum.id}`}
-        onMouseOver={focus}
-        onMouseOut={unfocus}
-        cx={xPos}
-        cy={yPositions.mean}
-        r={avgRadius}
-      />
-    </g>
+    <circle
+      className={styles.smbgAvg}
+      id={`smbgAvg-${datum.id}`}
+      onMouseOver={focus}
+      onMouseOut={unfocus}
+      cx={xPos}
+      cy={yPositions.mean}
+      r={avgRadius}
+    />
   );
 };
 

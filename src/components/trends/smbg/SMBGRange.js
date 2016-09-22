@@ -36,18 +36,16 @@ const SMBGRange = (props) => {
   };
 
   return (
-    <g id={`smbgRangeGroup-${datum.id}`}>
-      <rect
-        className={styles.smbgRange}
-        id={`smbgRange-${datum.id}`}
-        onMouseOver={focus}
-        onMouseOut={unfocus}
-        x={xPos - rectWidth / 2}
-        y={yPositions.max}
-        width={rectWidth}
-        height={yPositions.min - yPositions.max}
-      />
-    </g>
+    <rect
+      className={styles.smbgRange}
+      id={`smbgRange-${datum.id}`}
+      onMouseOver={focus}
+      onMouseOut={unfocus}
+      x={xPos - rectWidth / 2}
+      y={yPositions.max}
+      width={rectWidth}
+      height={yPositions.min - yPositions.max}
+    />
   );
 };
 
