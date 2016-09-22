@@ -82,7 +82,7 @@ describe('SMBGAvg', () => {
 
   describe('when a datum (overlay data) is provided', () => {
     it('should render a smbgAvg <circle>', () => {
-      expect(wrapper.find(`circle`).length).to.equal(1);
+      expect(wrapper.find(`#smbgAvg-${datum.id} circle`).length).to.equal(1);
     });
 
     it('should render a median <circle>', () => {
