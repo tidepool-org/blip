@@ -124,7 +124,6 @@ describe('trendsStateByUser', () => {
   });
 
   describe('FOCUS_TRENDS_SMBG_RANGE_AVG', () => {
-
     it('should store focused data and the data\'s position', () => {
       const initialState = {
         [USER_1]: {
@@ -230,7 +229,6 @@ describe('trendsStateByUser', () => {
 
   describe('UNFOCUS_TRENDS_SMBG_RANGE_AVG', () => {
     it('should reset the focusedSmbgRangeAvg state to `null`', () => {
-
       const initialState = {
         [USER_1]: {
           focusedCbgSlice: null,
