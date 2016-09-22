@@ -122,9 +122,9 @@ export default class SMBGRangeAvgAnimationContainer extends React.Component {
                 />
                 <SMBGAvg
                   datum={dataById[config.key]}
-                  focusRange={this.props.focusRange}
+                  focusAvg={this.props.focusRange}
                   tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-                  unfocusRange={this.props.unfocusRange}
+                  unfocusAvg={this.props.unfocusRange}
                   xScale={xScale}
                   yPositions={config.style}
                 />
