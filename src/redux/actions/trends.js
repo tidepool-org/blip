@@ -31,6 +31,13 @@ export function focusTrendsSmbg(userId, smbg, position) {
   };
 }
 
+export function focusTrendsSmbgRangeAvg(userId, rangeAvgData, rangeAvgPosition) {
+  return {
+    type: actionTypes.FOCUS_TRENDS_SMBG_RANGE_AVG,
+    payload: { rangeAvgData, rangeAvgPosition, userId },
+  };
+}
+
 export function markTrendsViewed(userId) {
   return {
     type: actionTypes.MARK_TRENDS_VIEWED,
@@ -52,3 +59,9 @@ export function unfocusTrendsSmbg(userId) {
   };
 }
 
+export function unfocusTrendsSmbgRangeAvg(userId) {
+  return {
+    type: actionTypes.UNFOCUS_TRENDS_SMBG_RANGE_AVG,
+    payload: { userId },
+  };
+}
