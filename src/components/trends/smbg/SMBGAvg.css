@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-.smbgMean {
+.smbgAvg {
   fill: var(--data-purple--dark);
   pointer-events: none;
   stroke: none;

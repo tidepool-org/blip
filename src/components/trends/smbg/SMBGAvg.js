@@ -25,10 +25,10 @@ const SMBGAvg = (props) => {
     return null;
   }
 
-  const { focusRange, meanRadius, unfocusRange: unfocus, xScale, yPositions } = props;
+  const { focusAvg, avgRadius, unfocusAvg: unfocus, xScale, yPositions } = props;
   const xPos = xScale(datum.msX);
   const focus = () => {
-    focusRange(datum, {
+    focusAvg(datum, {
       left: xPos,
       tooltipLeft: datum.msX > props.tooltipLeftThreshold,
       yPositions,
@@ -38,20 +38,20 @@ const SMBGAvg = (props) => {
   return (
     <g id={`smbgAvgGroup-${datum.id}`}>
       <circle
-        className={styles.smbgMean}
-        id={`smbgMean-${datum.id}`}
+        className={styles.smbgAvg}
+        id={`smbgAvg-${datum.id}`}
         onMouseOver={focus}
         onMouseOut={unfocus}
         cx={xPos}
         cy={yPositions.mean}
-        r={meanRadius}
+        r={avgRadius}
       />
     </g>
   );
 };
 
 SMBGAvg.defaultProps = {
-  meanRadius: 7,
+  avgRadius: 7,
 };
 
 SMBGAvg.propTypes = {
@@ -63,10 +63,10 @@ SMBGAvg.propTypes = {
     min: PropTypes.number.isRequired,
     msX: PropTypes.number.isRequired,
   }),
-  focusRange: PropTypes.func.isRequired,
-  meanRadius: PropTypes.number.isRequired,
+  focusAvg: PropTypes.func.isRequired,
+  avgRadius: PropTypes.number.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
-  unfocusRange: PropTypes.func.isRequired,
+  unfocusAvg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yPositions: PropTypes.shape({
     min: PropTypes.number.isRequired,
