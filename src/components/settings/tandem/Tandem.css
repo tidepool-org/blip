@@ -8,7 +8,7 @@
 
 .collapsibleClosed {
   composes: collapsibleClosed from '../settings.css';
-  margin-bottom: 5px;
+  margin-bottom: 0px;
 }
 
 .basalTable {
@@ -20,12 +20,13 @@
 }
 
 .settingsHeaderText {
-  composes: whiteText boldText from '../../../styles/typography.css';
+  composes: boldText from '../../../styles/typography.css';
 }
 
 .basalSchedulesHeader {
   background-color: var(--basal);
   composes: settingsHeaderText;
+  composes: whiteText from '../../../styles/typography.css';
 }
 
 .lightText {
@@ -42,28 +43,28 @@
 }
 
 .collapsibleHeader {
+  composes: mediumContrastText from '../../../styles/typography.css';
   font-size: 14px;
   font-weight: bold;
-  padding-bottom: 10px;
-  color: var(--text-medium-contrast);
   position: relative;
   margin-left: 30px;
+  margin-bottom: 10px;
 }
 
 .collapsibleHeader::before {
   content: '';
   border-bottom: 1px solid #ededed;
-  margin-top: 5px;
   margin-bottom: 10px;
   margin-left: -1em;
   display: block;
 }
 
 .title {
+  composes: mediumContrastText from '../../../styles/typography.css';
+  display: inline-block;
   font-size: 14px;
   font-weight: bold;
   padding-bottom: 10px;
-  color: var(--text-medium-contrast);
 }
 
 .activeLabel {
@@ -95,7 +96,6 @@
 }
 
 .basalTable th {
-  color: white;
   font-weight: 600;
 }
 
@@ -104,9 +104,13 @@
 }
 
 .basalTable th:first-of-type {
-  color: #727375;
+
 }
 
 .basalTable td:first-of-type, .basalTable th:first-of-type {
   font-weight: bold;
+}
+
+:global(body) {
+  overflow-y: scroll;
 }

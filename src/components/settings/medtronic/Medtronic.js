@@ -33,7 +33,7 @@ const Medtronic = (props) => {
   const renderBasalsData = () => {
     const columns = [
       { key: 'start', label: 'Start time', className: '' },
-      { key: 'rate', label: 'Value (U/hr)', className: '' },
+      { key: 'rate', label: 'Value', className: '' },
     ];
     const schedules = data.getScheduleNames(pumpSettings.basalSchedules);
 
@@ -43,6 +43,7 @@ const Medtronic = (props) => {
           pumpSettings.basalSchedules[schedule].name,
           pumpSettings.activeSchedule,
           styles.lightText,
+          'U/hr',
         ),
         className: styles.basalSchedulesHeader,
       };

@@ -20,7 +20,7 @@
 }
 
 .settingsHeaderText {
-  composes: whiteText boldText from '../../styles/typography.css';
+  composes: mediumContrastText boldText from '../../styles/typography.css';
   min-width: 160px;
   padding-left: 12px;
   padding-top: 4px;
@@ -31,7 +31,11 @@
 
 .basalSchedulesHeader {
   composes: settingsHeaderText;
-  min-width: 160px;
+  composes: whiteText from '../../styles/typography.css';
+/* need this because of order of definition of colors in typography file lets
+  mediumContrastText override whiteText when composing both */
+  color: white;
+  min-width: 198px;
   background-color: var(--basal);
   text-overflow: ellipsis;
   overflow: hidden;
@@ -68,10 +72,10 @@
 }
 
 .basalTable {
+  composes: mediumContrastText from '../../styles/typography.css';
   font-size: 14px;
-  min-width: 200px;
+  min-width: 230px;
   border-spacing: 1px 0px;
-  color: var(--text-medium-contrast);
   border-collapse: separate;
 }
 
@@ -82,7 +86,6 @@
 
 .basalTable th {
   font-weight: normal;
-  color: #8B8C8F;
 }
 
 .basalTable tbody tr:nth-child(odd) {
