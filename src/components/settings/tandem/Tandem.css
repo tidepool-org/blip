@@ -24,9 +24,8 @@
 }
 
 .basalSchedulesHeader {
-  background-color: var(--basal);
   composes: settingsHeaderText;
-  composes: whiteText from '../../../styles/typography.css';
+  border-left: 12px solid var(--basal);
 }
 
 .lightText {
@@ -34,8 +33,8 @@
 }
 
 .bolusSettingsHeader {
-  background-color: var(--bolus);
   composes: settingsHeaderText;
+  border-left: 12px solid var(--bolus);
 }
 
 .header {
@@ -71,6 +70,11 @@
   font-weight: 300;
 }
 
+.collapsibleHeader div {
+  transition-duration: 0.25s;
+  cursor: pointer;
+}
+
 .collapsibleHeader div::after {
   content: '›';
   font-size: 15px;
@@ -78,7 +82,6 @@
   position: absolute;
   margin-left: 8px;
   margin-top: 1px;
-  transition-duration: 0.25s;
   transform: rotate(90deg) translateX(10%);
 }
 
@@ -89,9 +92,13 @@
   transform: rotate(0deg);
 }
 
+.collapsibleHeader div:hover {
+  color: var(--text-hover);
+}
+
 .basalTable {
   composes: basalTable from '../settings.css';
-  width: 600px;
+  width: 630px;
   margin-left: 40px;
 }
 

@@ -8,6 +8,7 @@
 }
 
 .block {
+  max-width: 300px;
   margin-right: 10px;
   margin-bottom: 10px;
 }
@@ -27,21 +28,20 @@
   padding-bottom: 4px;
   text-align: left;
   font-size: 14px;
+  border-left: 12px solid;
+  border-bottom: 1px solid var(--table-stripe--dark);
+  background-color: var(--table-stripe--light);
 }
 
 .basalSchedulesHeader {
   composes: settingsHeaderText;
-  composes: whiteText from '../../styles/typography.css';
-/* need this because of order of definition of colors in typography file lets
-  mediumContrastText override whiteText when composing both */
-  color: white;
   min-width: 198px;
-  background-color: var(--basal);
+  border-left-color: var(--basal);
   text-overflow: ellipsis;
   overflow: hidden;
-  white-space: nowrap;
   position: relative;
   padding-right: 20px;
+  cursor: pointer;
 }
 
 .collapsibleClosed .basalSchedulesHeader::after {
@@ -53,6 +53,10 @@
   top: 45%;
   transform: translateY(-50%);
   transition: 0.25s;
+}
+
+.basalSchedulesHeader:hover {
+  color: var(--basal);
 }
 
 .collapsibleOpened .basalSchedulesHeader::after {
@@ -67,14 +71,15 @@
 }
 
 .bolusSettingsHeader {
-  background-color: var(--bolus);
   composes: settingsHeaderText;
+  border-left-color: var(--bolus);
 }
 
 .basalTable {
   composes: mediumContrastText from '../../styles/typography.css';
   font-size: 14px;
   min-width: 230px;
+  width: 100%;
   border-spacing: 1px 0px;
   border-collapse: separate;
 }
