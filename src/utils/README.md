@@ -30,3 +30,5 @@ See [moment's documentation on 'UTC' mode](http://momentjs.com/docs/#/parsing/ut
 In particular, try to avoid `moment(hammertime).utc()`, as this will first create a representation of the hammertime in the browser's timezone/locale, then convert it back to offset-less UTC, an unnecessary step.
 
 Also be **sure** to avoid `moment().utc(hammertime)` as this creates a new "moment" object representing the time of execution, then ignores the `hammertime` parameter to the `utc()` method!
+
+We are also enforcing use of `moment.utc()` and disallowing `moment().utc()` with the help of [an ESLint plugin](https://github.com/wunderflats/eslint-plugin-moment-utc).
