@@ -49,12 +49,12 @@ describe('[trends] data utils', () => {
         expect(utils.findTimeOfDayBin(binSize, 0)).to.equal(1800000);
       });
 
-      it('should assign a bin of `1800000` to a datum at time 3600000', () => {
-        expect(utils.findTimeOfDayBin(binSize, 3600000)).to.equal(1800000);
+      it('should assign a bin of `1800000` to a datum at time 3599999', () => {
+        expect(utils.findTimeOfDayBin(binSize, 3599999)).to.equal(1800000);
       });
 
-      it('should assign a bin of `5400000` to a datum at time 3600001', () => {
-        expect(utils.findTimeOfDayBin(binSize, 3600001)).to.equal(5400000);
+      it('should assign a bin of `5400000` to a datum at time 3600000', () => {
+        expect(utils.findTimeOfDayBin(binSize, 3600000)).to.equal(5400000);
       });
 
       it('should assign a bin of `5400000` to a datum at time 7199999', () => {
@@ -69,12 +69,12 @@ describe('[trends] data utils', () => {
         expect(utils.findTimeOfDayBin(binSize, 0)).to.equal(900000);
       });
 
-      it('should assign a bin of `2700000` to a datum at time 3600000', () => {
-        expect(utils.findTimeOfDayBin(binSize, 3600000)).to.equal(2700000);
+      it('should assign a bin of `2700000` to a datum at time 3599999', () => {
+        expect(utils.findTimeOfDayBin(binSize, 3599999)).to.equal(2700000);
       });
 
-      it('should assign a bin of `4500000` to a datum at time 3600001', () => {
-        expect(utils.findTimeOfDayBin(binSize, 3600001)).to.equal(4500000);
+      it('should assign a bin of `4500000` to a datum at time 3600000', () => {
+        expect(utils.findTimeOfDayBin(binSize, 3600000)).to.equal(4500000);
       });
 
       it('should assign a bin of `6300000` to a datum at time 7199999', () => {
