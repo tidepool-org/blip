@@ -19,14 +19,14 @@ We use [`moment-timezone`](http://momentjs.com/timezone/) when we need to do dat
 
 We are trying to move towards a standard in this repository of dealing with datetimes as hammertimes (milliseconds since January 1, 1970) as much as possible, rather than as ISO 8601-formatted Zulu timestamps in String format, as we've done in the past.
 
-When you need to apply an arbitrary timezone to format a datetime for display, the initial construction of the moment object should look like this, if `utc` is your hammertime value:
+When you need to apply an arbitrary timezone to format a datetime for display, the initial construction of the moment object should look like this:
 
 ```JavaScript
-const d = moment.utc(utc);
+const d = moment.utc(hammertime);
 ```
 
 See [moment's documentation on 'UTC' mode](http://momentjs.com/docs/#/parsing/utc/) for further details.
 
-In particular, try to avoid `moment(utc).utc()`, as this will first create a representation of the hammertime in the browser's timezone/locale, then convert it back to offset-less UTC, an unnecessary step.
+In particular, try to avoid `moment(hammertime).utc()`, as this will first create a representation of the hammertime in the browser's timezone/locale, then convert it back to offset-less UTC, an unnecessary step.
 
-Also be **sure** to avoid `moment().utc(utc)` as this creates a new "moment" object representing the time of execution, then ignores the `utc` parameter to the `utc()` method!
+Also be **sure** to avoid `moment().utc(hammertime)` as this creates a new "moment" object representing the time of execution, then ignores the `hammertime` parameter to the `utc()` method!
