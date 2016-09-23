@@ -21,20 +21,18 @@ import { max, mean, median, min, quantile } from 'd3-array';
 import { TWENTY_FOUR_HRS } from '../datetime';
 
 /**
- * findTimeOfDayBin
+ * findBinForTimeOfDay
  * @param {Number} binSize - natural number duration in milliseconds
  * @param {Number} msPer24 - natural number milliseconds into a twenty-four hour day
  *
  * @return {Number} bin
  */
-export function findTimeOfDayBin(binSize, msPer24) {
+export function findBinForTimeOfDay(binSize, msPer24) {
   if (msPer24 < 0 || msPer24 >= TWENTY_FOUR_HRS) {
     throw new Error('`msPer24` < 0 or >= 86400000 is invalid!');
   }
-  if (msPer24 === 0) {
-    return binSize / 2;
-  }
-  return Math.ceil(msPer24 / binSize) * binSize - (binSize / 2);
+
+  return Math.floor(msPer24 / binSize) * binSize + (binSize / 2);
 }
 
 /**
