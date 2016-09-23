@@ -17,6 +17,6 @@
 
 import { combineReducers } from 'redux';
 
-import trends from './trends';
+import trends from './trendsStateByUser';
 
 export default combineReducers({ trends });

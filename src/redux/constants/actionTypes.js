@@ -18,3 +18,9 @@
 export const FOCUS_TRENDS_CBG_SLICE = 'FOCUS_TRENDS_CBG_SLICE';
 export const MARK_TRENDS_VIEWED = 'MARK_TRENDS_VIEWED';
 export const UNFOCUS_TRENDS_CBG_SLICE = 'UNFOCUS_TRENDS_CBG_SLICE';
+
+// from blip's redux implementation
+// TODO: how could we DRY this out??
+
+export const FETCH_PATIENT_DATA_SUCCESS = 'FETCH_PATIENT_DATA_SUCCESS';
+export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
