@@ -41,6 +41,23 @@ describe('trends actions', () => {
     });
   });
 
+  describe('focusTrendsSmbg', () => {
+    const smbgData = {};
+    const smbgPosition = {};
+    const action = actions.focusTrendsSmbg(userId, smbgData, smbgPosition);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to focus a trends smbg', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.FOCUS_TRENDS_SMBG,
+        payload: { smbgData, smbgPosition, userId },
+      });
+    });
+  });
+
   describe('focusTrendsSmbgRangeAvg', () => {
     const rangeAvgData = {};
     const rangeAvgPosition = {};
@@ -83,6 +100,21 @@ describe('trends actions', () => {
     it('should create an action to unfocus (all) trends cbg slices', () => {
       expect(action).to.deep.equal({
         type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,
+        payload: { userId },
+      });
+    });
+  });
+
+  describe('unfocusTrendsSmbg', () => {
+    const action = actions.unfocusTrendsSmbg(userId);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to unfocus trends smbg', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.UNFOCUS_TRENDS_SMBG,
         payload: { userId },
       });
     });
