@@ -20,9 +20,10 @@ import React, { PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
 import { THREE_HRS } from '../../utils/datetime';
-import { calculateSmbgStatsForBin, findTimeOfDayBin } from '../../utils/trends/data';
+import { calculateSmbgStatsForBin, findBinForTimeOfDay } from '../../utils/trends/data';
 
-import SMBGRangeAvg from '../../components/trends/smbg/SMBGRangeAvg';
+import SMBGRange from '../../components/trends/smbg/SMBGRange';
+import SMBGAvg from '../../components/trends/smbg/SMBGAvg';
 
 export default class SMBGRangeAvgAnimationContainer extends React.Component {
   static propTypes = {
@@ -65,7 +66,7 @@ export default class SMBGRangeAvgAnimationContainer extends React.Component {
   }
 
   mungeData(binSize, data) {
-    const binned = _.groupBy(data, (d) => (findTimeOfDayBin(binSize, d.msPer24)));
+    const binned = _.groupBy(data, (d) => (findBinForTimeOfDay(binSize, d.msPer24)));
     const binKeys = _.keys(binned);
 
     const valueExtractor = (d) => (d.value);
@@ -105,18 +106,25 @@ export default class SMBGRangeAvgAnimationContainer extends React.Component {
     const yPositions = this.calcYPositions(
       mungedData, yScale, (d) => (spring(yScale(d)))
     );
-
     return (
       <TransitionMotion styles={yPositions}>
         {(interpolated) => (
           <g id="smbgRangeAvgAnimationContainer">
             {_.map(interpolated, (config) => (
               <g className="smbgRangeAvg" key={config.key}>
-                <SMBGRangeAvg
+                <SMBGRange
                   datum={dataById[config.key]}
                   focusRange={this.props.focusRange}
                   tooltipLeftThreshold={this.props.tooltipLeftThreshold}
                   unfocusRange={this.props.unfocusRange}
+                  xScale={xScale}
+                  yPositions={config.style}
+                />
+                <SMBGAvg
+                  datum={dataById[config.key]}
+                  focusAvg={this.props.focusRange}
+                  tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+                  unfocusAvg={this.props.unfocusRange}
                   xScale={xScale}
                   yPositions={config.style}
                 />

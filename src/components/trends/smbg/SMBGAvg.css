@@ -15,16 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-.smbgMean {
+.smbgAvg {
   fill: var(--data-purple--dark);
-  pointer-events: none;
   stroke: none;
-}
-
-.smbgRange {
-  fill: var(--data-purple--lightest);
-  opacity: 0.5;
-}
-.smbgRange:hover {
-  opacity: 0.8;
 }
