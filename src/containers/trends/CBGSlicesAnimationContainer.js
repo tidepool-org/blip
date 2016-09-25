@@ -20,7 +20,7 @@ import React, { PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
 import { THIRTY_MINS } from '../../utils/datetime';
-import { findTimeOfDayBin, calculateCbgStatsForBin } from '../../utils/trends/data';
+import { findBinForTimeOfDay, calculateCbgStatsForBin } from '../../utils/trends/data';
 
 import CBGSlice from '../../components/trends/cbg/CBGSlice';
 
@@ -104,7 +104,7 @@ export default class CBGSlicesAnimationContainer extends React.Component {
   }
 
   mungeData(binSize, data) {
-    const binned = _.groupBy(data, (d) => (findTimeOfDayBin(binSize, d.msPer24)));
+    const binned = _.groupBy(data, (d) => (findBinForTimeOfDay(binSize, d.msPer24)));
     const binKeys = _.keys(binned);
 
     const valueExtractor = (d) => (d.value);

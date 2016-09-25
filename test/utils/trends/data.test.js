@@ -20,24 +20,24 @@ import { range, shuffle } from 'd3-array';
 import * as utils from '../../../src/utils/trends/data';
 
 describe('[trends] data utils', () => {
-  describe('findTimeOfDayBin', () => {
+  describe('findBinForTimeOfDay', () => {
     it('should be a function', () => {
-      assert.isFunction(utils.findTimeOfDayBin);
+      assert.isFunction(utils.findBinForTimeOfDay);
     });
 
     describe('error conditions', () => {
       it('should error on a negative msPer24', () => {
-        const fn = () => (utils.findTimeOfDayBin(1, -1));
+        const fn = () => (utils.findBinForTimeOfDay(1, -1));
         expect(fn).to.throw('`msPer24` < 0 or >= 86400000 is invalid!');
       });
 
       it('should error on a msPer24 = 864e5', () => {
-        const fn = () => (utils.findTimeOfDayBin(1, 86400000));
+        const fn = () => (utils.findBinForTimeOfDay(1, 86400000));
         expect(fn).to.throw('`msPer24` < 0 or >= 86400000 is invalid!');
       });
 
       it('should error on a msPer24 > 864e5', () => {
-        const fn = () => (utils.findTimeOfDayBin(1, 86400001));
+        const fn = () => (utils.findBinForTimeOfDay(1, 86400001));
         expect(fn).to.throw('`msPer24` < 0 or >= 86400000 is invalid!');
       });
     });
@@ -46,19 +46,19 @@ describe('[trends] data utils', () => {
       const binSize = 1000 * 60 * 60;
 
       it('should assign a bin of `1800000` to a datum at time 0', () => {
-        expect(utils.findTimeOfDayBin(binSize, 0)).to.equal(1800000);
+        expect(utils.findBinForTimeOfDay(binSize, 0)).to.equal(1800000);
       });
 
-      it('should assign a bin of `1800000` to a datum at time 3600000', () => {
-        expect(utils.findTimeOfDayBin(binSize, 3600000)).to.equal(1800000);
+      it('should assign a bin of `1800000` to a datum at time 3599999', () => {
+        expect(utils.findBinForTimeOfDay(binSize, 3599999)).to.equal(1800000);
       });
 
-      it('should assign a bin of `5400000` to a datum at time 3600001', () => {
-        expect(utils.findTimeOfDayBin(binSize, 3600001)).to.equal(5400000);
+      it('should assign a bin of `5400000` to a datum at time 3600000', () => {
+        expect(utils.findBinForTimeOfDay(binSize, 3600000)).to.equal(5400000);
       });
 
       it('should assign a bin of `5400000` to a datum at time 7199999', () => {
-        expect(utils.findTimeOfDayBin(binSize, 7199999)).to.equal(5400000);
+        expect(utils.findBinForTimeOfDay(binSize, 7199999)).to.equal(5400000);
       });
     });
 
@@ -66,19 +66,19 @@ describe('[trends] data utils', () => {
       const binSize = 1000 * 60 * 30;
 
       it('should assign a bin of `900000` to a datum at time 0', () => {
-        expect(utils.findTimeOfDayBin(binSize, 0)).to.equal(900000);
+        expect(utils.findBinForTimeOfDay(binSize, 0)).to.equal(900000);
       });
 
-      it('should assign a bin of `2700000` to a datum at time 3600000', () => {
-        expect(utils.findTimeOfDayBin(binSize, 3600000)).to.equal(2700000);
+      it('should assign a bin of `2700000` to a datum at time 3599999', () => {
+        expect(utils.findBinForTimeOfDay(binSize, 3599999)).to.equal(2700000);
       });
 
-      it('should assign a bin of `4500000` to a datum at time 3600001', () => {
-        expect(utils.findTimeOfDayBin(binSize, 3600001)).to.equal(4500000);
+      it('should assign a bin of `4500000` to a datum at time 3600000', () => {
+        expect(utils.findBinForTimeOfDay(binSize, 3600000)).to.equal(4500000);
       });
 
       it('should assign a bin of `6300000` to a datum at time 7199999', () => {
-        expect(utils.findTimeOfDayBin(binSize, 7199999)).to.equal(6300000);
+        expect(utils.findBinForTimeOfDay(binSize, 7199999)).to.equal(6300000);
       });
     });
   });
