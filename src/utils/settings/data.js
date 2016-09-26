@@ -130,17 +130,19 @@ export function getTotalBasalRates(scheduleData) {
  * @param  {String} scheduleName basal schedule name
  * @param  {String} activeName   basal name active at upload timestamp
  * @param  {String} activeClass  class name to apply to active text
+ * @param  {String} units        units to append to schedule name
  *
  * @return {String}              formatted basal schedule label
  */
-export function getScheduleLabel(scheduleName, activeName, activeClass) {
+export function getScheduleLabel(scheduleName, activeName, activeClass, units) {
+  const unitsSpan = units ? <span className={activeClass}> {units}</span> : null;
   if (scheduleName === activeName) {
     return (<div>
-      {scheduleName}
-      <span className={activeClass}> Active at upload</span>
+      {scheduleName}{unitsSpan}
+      <span className={activeClass}>{'\u00a0\u00a0'}Active at upload</span>
     </div>);
   }
-  return <div>{scheduleName}</div>;
+  return <div>{scheduleName}{unitsSpan}</div>;
 }
 
 /**

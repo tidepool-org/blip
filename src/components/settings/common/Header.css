@@ -3,6 +3,10 @@
   display: table;
   padding-left: 0px;
   margin-bottom: 5px;
+  cursor: pointer;
+}
+.header:hover {
+  color: var(--text-hover);
 }
 .headerOuter:nth-last-of-type(1) .headerInner{
   transition-property: width;
