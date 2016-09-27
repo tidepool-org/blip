@@ -28,6 +28,8 @@ import SMBGAvg from '../../components/trends/smbg/SMBGAvg';
 export default class SMBGRangeAvgAnimationContainer extends React.Component {
   static propTypes = {
     binSize: PropTypes.number.isRequired,
+    // TODO: add a `component` prop for either SMBGRange or SMBGAvg to be passed in
+    // we'll need to render SMBGRangeAvgAnimationContainer twice in two layers in TrendsSVGContainer
     data: PropTypes.arrayOf(PropTypes.shape({
       // here only documenting the properties we actually use rather than the *whole* data model!
       id: PropTypes.string.isRequired,
