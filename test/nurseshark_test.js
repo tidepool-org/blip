@@ -347,6 +347,33 @@ describe('nurseshark', function() {
       assert.isArray(res[0].basalSchedules);
     });
 
+    it('should add deviceSerialNumber to pumpSettings', function() {
+      var now = new Date().toISOString();
+      var upload = {
+        type: 'upload',
+        deviceManufacturers: ['Demo'],
+        deviceSerialNumber: '9876',
+        uploadId: '1234',
+        time: now,
+        timezoneOffset: 0
+      };
+      var settings = {
+        type: 'pumpSettings',
+        basalSchedules: {
+          foo: [],
+          bar: []
+        },
+        units: {
+          bg: 'mg/dL'
+        },
+        time: now,
+        timezoneOffset: 0,
+        uploadId: '1234'
+      };
+      var res = nurseshark.processData([upload, settings]).processedData;
+      expect(res[0].deviceSerialNumber).to.equal('9876');
+    });
+
     it('should add a source field if missing and there is an upload object with deviceManufacturers', function() {
       var now = new Date().toISOString();
       var upload = {

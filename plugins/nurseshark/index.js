@@ -188,6 +188,7 @@ var nurseshark = {
     timeIt(sortByTime, 'Sort');
 
     var uploadIDSources = {};
+    var uploadIDSerials = {};
     var processedData = [], erroredData = [];
     var collections = {
       allBoluses: {},
@@ -198,9 +199,10 @@ var nurseshark = {
     function createUploadIDsMap() {
       var uploads = _.where(data, {type: 'upload'});
       _.each(uploads, function(upload) {
-        uploadIDSources[upload.uploadId] = upload.source || 
-          ((upload.deviceManufacturers && Array.isArray(upload.deviceManufacturers) && upload.deviceManufacturers.length > 0) ? 
+        uploadIDSources[upload.uploadId] = upload.source ||
+          ((upload.deviceManufacturers && Array.isArray(upload.deviceManufacturers) && upload.deviceManufacturers.length > 0) ?
             upload.deviceManufacturers[0] : 'Unknown');
+        uploadIDSerials[upload.uploadId] = upload.deviceSerialNumber ? upload.deviceSerialNumber : 'Unknown';
       });
     }
 
@@ -225,6 +227,9 @@ var nurseshark = {
       }
       else {
         d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
+        if (d.uploadId) {
+          d.deviceSerialNumber = uploadIDSerials[d.uploadId];
+        }
         if (!d.source) {
           if (d.uploadId) {
             d.source = uploadIDSources[d.uploadId];
@@ -366,12 +371,33 @@ function getHandlers(bgUnits) {
             }
           }
         }
+        if (d.bgTargets) {
+          _.forEach(d.bgTargets, function(bgTarget, bgTargetName){
+            for (var j = 0; j < d.bgTargets[bgTargetName].length; ++j) {
+              var current = d.bgTargets[bgTargetName][j];
+              for (var key in current) {
+                if (key !== 'range' && key !== 'start') {
+                  current[key] = translateBg(current[key]);
+                }
+              }
+            }
+          });
+        }
         if (d.insulinSensitivity) {
           var isfLen = d.insulinSensitivity.length;
           for (var i = 0; i < isfLen; ++i) {
             var item = d.insulinSensitivity[i];
             item.amount = translateBg(item.amount);
           }
+        }
+        if (d.insulinSensitivities) {
+          _.forEach(d.insulinSensitivities, function(sensitivity, sensitivityName) {
+            var isfLen = d.insulinSensitivities[sensitivityName].length;
+            for (var i = 0; i < isfLen; ++i) {
+              var item = d.insulinSensitivities[sensitivityName][i];
+              item.amount = translateBg(item.amount);
+            }
+          });
         }
       }
       d.basalSchedules = basalSchedulesToArray(d.basalSchedules);
