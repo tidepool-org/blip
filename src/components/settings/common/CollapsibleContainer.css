@@ -1,0 +1,9 @@
+@import '../../../styles/colors.css';
+
+.collapsibleContainer {
+  border: var(--basal);
+}
+
+.wrapper {
+  margin-bottom: 15px;
+}

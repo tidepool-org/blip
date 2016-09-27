@@ -1,0 +1,58 @@
+.header {
+  position: relative;
+  display: table;
+  padding-left: 0px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+.header:hover {
+  color: var(--text-hover);
+}
+.headerOuter:nth-last-of-type(1) .headerInner{
+  transition-property: width;
+  transition-duration: .25s;
+  overflow: hidden;
+}
+.headerClosed .headerOuter:nth-last-of-type(1) .headerInner {
+  width: 0px;
+}
+.headerExpanded .headerOuter:nth-last-of-type(1) .headerInner {
+  width: 100%;
+}
+.headerOuter {
+  composes: header;
+  display: inline-block;
+  font-weight: 300;
+  overflow: hidden;
+}
+.headerInner {
+  composes: header;
+  display: block;
+  margin: 5px 5px 5px 0;
+  white-space: nowrap;
+}
+.headerOuter:first-of-type {
+  cursor: pointer;
+  font-weight: 600;
+}
+.headerOuter:nth-last-of-type(2) {
+  padding-right: 10px;
+}
+.headerClosed .headerOuter:nth-last-of-type(2)::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  right: 5px;
+  top: 45%;
+  transform: translateY(-50%);
+}
+.headerExpanded .headerOuter:nth-last-of-type(2)::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  right: 5px;
+  top: 55%;
+  transform: rotate(180deg) translateY(50%);
+}

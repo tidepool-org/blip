@@ -23,7 +23,6 @@ describe('datetime', () => {
       assert.isNumber(datetime.THREE_HRS);
     });
   });
-
   describe('TWENTY_FOUR_HRS', () => {
     it('should be an integer', () => {
       assert.isNumber(datetime.TWENTY_FOUR_HRS);
@@ -208,6 +207,63 @@ describe('datetime', () => {
     it('should use a custom format string passed as second arg', () => {
       expect(datetime.millisecondsAsTimeOfDay(twoTwentyAfternoonMs, 'kk🙃mm'))
         .to.equal('14🙃20');
+    });
+  });
+
+  describe('formatDisplayDate', () => {
+    const tzAwareLA = {
+      timezoneAware: true,
+      timezoneName: 'America/Los_Angeles',
+    };
+    const tzAwareNY = {
+      timezoneAware: true,
+      timezoneName: 'America/New_York',
+    };
+    const tzUnaware = {
+      timezoneAware: false,
+      timezoneName: null,
+    };
+    const utcString = '2016-09-05T04:00:00Z';
+    const hammertime = Date.parse(utcString);
+
+    it('should be a function', () => {
+      assert.isFunction(datetime.formatDisplayDate);
+    });
+
+    it('should return "Sep 4th 2016" for hammertime tzAware LA', () => {
+      expect(datetime.formatDisplayDate(hammertime, tzAwareLA))
+        .to.equal('Sep 4th 2016');
+    });
+
+    it('should return "Sep 4th 2016" for utcString tzAware LA', () => {
+      expect(datetime.formatDisplayDate(utcString, tzAwareLA))
+        .to.equal('Sep 4th 2016');
+    });
+
+    it('should return "Sep 5th 2016" for hammertime tzAware NY', () => {
+      expect(datetime.formatDisplayDate(hammertime, tzAwareNY))
+        .to.equal('Sep 5th 2016');
+    });
+
+    it('should return "Sep 5th 2016" for utcString tzAware NY', () => {
+      expect(datetime.formatDisplayDate(utcString, tzAwareNY))
+        .to.equal('Sep 5th 2016');
+    });
+
+    it('should return "Sep 5th 2016" for hammertime tzUnaware', () => {
+      expect(datetime.formatDisplayDate(hammertime, tzUnaware))
+        .to.equal('Sep 5th 2016');
+    });
+
+    it('should return "Sep 5th 2016" for utcString tzUnaware', () => {
+      expect(datetime.formatDisplayDate(utcString, tzUnaware))
+        .to.equal('Sep 5th 2016');
+    });
+
+    it('should error if passed a JavaScript Date for the `utc` param', () => {
+      const fn = () => { datetime.formatDisplayDate(new Date(), tzAwareLA); };
+      expect(fn)
+        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
     });
   });
 });

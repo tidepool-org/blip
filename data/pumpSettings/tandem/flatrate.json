@@ -1,20 +1,26 @@
 {
   "type": "pumpSettings",
   "activeSchedule": "Normal",
-  "basalSchedules": {
-    "Normal": [
-      {
-        "start": 0,
-        "rate": 0.45
-      }
-    ],
-    "Sick": [
-      {
-        "start": 0,
-        "rate": 0.675
-      }
-    ]
-  },
+  "basalSchedules": [
+    {
+      "name": "Normal",
+      "value": [
+        {
+          "rate": 0.45,
+          "start": 0
+        }
+      ]
+    },
+    {
+      "name": "Sick",
+      "value": [
+        {
+          "rate": 0.675,
+          "start": 0
+        }
+      ]
+    }
+  ],
   "units": {
     "carbs": "grams",
     "bg": "mmol/L"
@@ -69,5 +75,6 @@
   "id": "5bd5bfa1f1364f53b848a9e00ef23c65",
   "time": "2016-07-13T06:56:43.251Z",
   "timezoneOffset": -420,
-  "uploadId": "SampleUploadId"
+  "uploadId": "SampleUploadId",
+  "deviceSerialNumber": "0987654321"
 }
