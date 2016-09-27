@@ -40,7 +40,7 @@
   text-overflow: ellipsis;
   overflow: hidden;
   position: relative;
-  padding-right: 20px;
+  padding-right: 25px;
   cursor: pointer;
 }
 
@@ -52,11 +52,11 @@
   right: 10px;
   top: 45%;
   transform: translateY(-50%);
-  transition: 0.25s;
+  transition: transform 0.25s;
 }
 
 .basalSchedulesHeader:hover {
-  color: var(--basal);
+  color: var(--text-hover);
 }
 
 .collapsibleOpened .basalSchedulesHeader::after {
@@ -67,7 +67,7 @@
   right: 10px;
   top: 50%;
   transform: translateY(-40%) rotate(90deg);
-  transition: 0.25s;
+  transition: transform 0.25s;
 }
 
 .bolusSettingsHeader {
