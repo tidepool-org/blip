@@ -17,7 +17,7 @@
     "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0"
   },
   "dependencies": {
-    "@tidepool/viz": "0.2.8-alpha",
+    "@tidepool/viz": "0.2.9",
     "async": "1.5.2",
     "babel-core": "6.13.2",
     "babel-loader": "6.2.5",
@@ -56,7 +56,7 @@
     "shelljs": "0.7.3",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "git://github.com/tidepool-org/tideline.git#tandem-settings",
+    "tideline": "0.5.0",
     "tidepool-platform-client": "0.27.0",
     "url-loader": "0.5.7",
     "webpack": "1.13.2"

@@ -27,7 +27,6 @@ describe('Settings', function () {
 
   describe('render', function() {
     it('should render without problems', function () {
-      console.error = sinon.stub();
       var props = {
         bgPrefs: {},
         chartPrefs: {},
@@ -47,8 +46,6 @@ describe('Settings', function () {
       var settingsElem = React.createElement(Settings, props);
       var elem = TestUtils.renderIntoDocument(settingsElem);
       expect(elem).to.be.ok;
-      //TODO: JHB need to understand how to see the actual message content so I know what to do
-      //expect(console.error.callCount).to.equal(0);
     });
 
     it('should render with missing data message when no pumpSettings data supplied', function () {
