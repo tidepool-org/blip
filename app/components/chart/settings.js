@@ -92,14 +92,16 @@ var Settings = React.createClass({
   },
   renderChart: function() {
 
+    const settings = this.props.patientData.grouped.pumpSettings;
+
     const SettingsChart = ChartFactory.getChart(
-      this.props.patientData.grouped.pumpSettings[0].source,
+      _.get(settings, ['0','source']),
     );
 
     if (SettingsChart){
       return (
         <SettingsChart
-          pumpSettings={this.props.patientData.grouped.pumpSettings[0]}
+          pumpSettings={_.get(settings, ['0'])}
           bgUnits={this.props.bgPrefs.bgUnits}
           timePrefs={this.props.timePrefs}
         />
