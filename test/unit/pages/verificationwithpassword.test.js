@@ -19,6 +19,7 @@ describe('VerificationWithPassword', () => {
   describe('render', function() {
     it('should render without warnings when all required props provided', function () {
       console.error = sinon.stub();
+
       let props = {
         acknowledgeNotification: sinon.stub(),
         api: {},

@@ -48,7 +48,6 @@ if (isDev) {
     'webpack/hot/only-dev-server',
     './app/main.js'
   ];
-
   loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader', 'less-loader']});
   loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
 } else {

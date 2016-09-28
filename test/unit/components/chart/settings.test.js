@@ -27,13 +27,12 @@ describe('Settings', function () {
 
   describe('render', function() {
     it('should render without problems', function () {
-      console.error = sinon.stub();
       var props = {
         bgPrefs: {},
         chartPrefs: {},
         timePrefs: {},
         patientData: {
-          grouped: { pumpSettings: 'bar' }
+          grouped: { pumpSettings: [{ source: 'animas' }]}
         },
         onClickRefresh: function() {},
         onSwitchToBasics: function() {},
@@ -47,7 +46,6 @@ describe('Settings', function () {
       var settingsElem = React.createElement(Settings, props);
       var elem = TestUtils.renderIntoDocument(settingsElem);
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
     });
 
     it('should render with missing data message when no pumpSettings data supplied', function () {
