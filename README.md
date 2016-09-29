@@ -18,6 +18,25 @@ Then, install the dependencies:
 $ npm install
 ```
 
+### A note on dependencies
+
+The division between `devDependencies`, `dependencies`, and `peerDependencies` in this repository requires a bit of explanation.
+
+We publish this repository as a package to the npm registry for use as a dependency in [blip](https://github.com/tidepool-org/blip). Some of the dependencies here are *also* dependencies of blip, but some of the added non-tooling (i.e., production) dependencies are unique to the visualization code. In general, we group the dependencies as follows:
+
+**devDependencies**:
+- dependencies for tooling and building
+- dependencies for linting and testing
+- dependencies that exist in blip
+
+**peerDependencies**:
+- dependencies that exist in blip
+
+**dependencies**:
+- dependencies that do *not* exist in blip
+
+**In addition**, the webpack build for the npm package specifies *all* of the `peerDependencies` (i.e., those shared with blip from the `devDependencies`) as `externals` in `package.config.js`. When you add a dependency of this kind, be sure to add it there as well, or the production build will be affected/bloated/potentially break! (You'll be fine in local development with all deps & devDeps installed, so consider yourself warned.)
+
 ## Directory structure
 
 As of September, 2016, the directory structure is as follows (although this may change as we continue to develop new code in this repository):
