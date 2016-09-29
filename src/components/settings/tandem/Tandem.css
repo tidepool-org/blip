@@ -1,0 +1,126 @@
+.settings {
+  composes: settings from '../settings.css';
+}
+
+.collapsibleOpened {
+  composes: collapsibleOpened from '../settings.css';
+}
+
+.collapsibleClosed {
+  composes: collapsibleClosed from '../settings.css';
+  margin-bottom: 0px;
+}
+
+.basalTable {
+  composes: basalTable from '../settings.css';
+}
+
+.settingsTable {
+  composes: settingsTable from '../settings.css';
+}
+
+.settingsHeaderText {
+  composes: boldText from '../../../styles/typography.css';
+}
+
+.basalSchedulesHeader {
+  composes: settingsHeaderText;
+  border-left: 12px solid var(--basal);
+}
+
+.lightText {
+  composes: lightText from '../../../styles/typography.css';
+}
+
+.bolusSettingsHeader {
+  composes: settingsHeaderText;
+  border-left: 12px solid var(--bolus);
+}
+
+.header {
+  display: table;
+}
+
+.collapsibleHeader {
+  composes: mediumContrastText from '../../../styles/typography.css';
+  font-size: 14px;
+  font-weight: bold;
+  position: relative;
+  margin-left: 30px;
+  margin-bottom: 10px;
+}
+
+.collapsibleHeader::before {
+  content: '';
+  border-bottom: 1px solid #ededed;
+  margin-bottom: 10px;
+  margin-left: -1em;
+  display: block;
+}
+
+.title {
+  composes: mediumContrastText from '../../../styles/typography.css';
+  display: inline-block;
+  font-size: 14px;
+  font-weight: bold;
+  padding-bottom: 10px;
+}
+
+.activeLabel {
+  font-weight: 300;
+}
+
+.collapsibleHeader {
+  transition-duration: 0.25s;
+  transition-property: transform, margin;
+  cursor: pointer;
+}
+
+.collapsibleHeader div::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  margin-left: 8px;
+  margin-top: 1px;
+  transition-property: transform, margin;
+  transition-duration: 0.25s;
+  transform: rotate(90deg) translateX(10%);
+}
+
+.collapsibleClosed .collapsibleHeader div::after {
+  margin-left: 6px;
+  margin-top: -1px;
+  transition-duration: 0.25s;
+  transform: rotate(0deg);
+}
+
+.collapsibleHeader:hover {
+  color: var(--text-hover);
+}
+
+.basalTable {
+  composes: basalTable from '../settings.css';
+  width: 630px;
+  margin-left: 40px;
+}
+
+.basalTable th {
+  font-weight: 600;
+}
+
+.basalTable td, .basalTable th {
+  text-align: center;
+}
+
+.basalTable th:first-of-type {
+
+}
+
+.basalTable td:first-of-type, .basalTable th:first-of-type {
+  font-weight: bold;
+}
+
+:global(body) {
+  overflow-y: scroll;
+}
