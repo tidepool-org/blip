@@ -28,25 +28,27 @@ import { findClassForValue } from '../../../utils/bgBoundary';
 import styles from './SMBGDayPoints.css';
 
 const SMBGDayPoints = (props) => {
-  const { datum } = props;
-  if (!datum) {
+  const { data } = props;
+  if (!data) {
     return null;
   }
 
   const { radius, xScale, yScale } = props;
 
+  const smbgs = _.each(data, (smbg) => (
+    <circle
+      className={findClassForValue(smbg.value)}
+      key={`smbg-${smbg.id}`}
+      id={`smbg-${smbg.id}`}
+      cx={xScale(smbg.msX)}
+      cy={yScale(smbg.value)}
+      r={radius}
+    />
+  ));
+
   return (
-    <g id={`cbgSlice-${datum.id}`}>
-      {
-        <circle
-          className={findClassForValue(datum.value)}
-          key={`datum-${datum.id}`}
-          id={`datum-${datum.id}`}
-          cx={xScale(datum.msX)}
-          cy={yScale(datum.value)}
-          r={radius}
-        />,
-      }
+    <g id='smbgs'}>
+      {smbgs}
     </g>
   );
 };
