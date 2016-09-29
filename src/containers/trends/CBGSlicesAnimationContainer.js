@@ -142,7 +142,6 @@ export default class CBGSlicesAnimationContainer extends React.Component {
     if (_.isEmpty(mungedData)) {
       return (
         <NoData
-          message="No CGM data for this time period :("
           margins={this.props.margins}
           dimensions={this.props.svgDimensions}
         />

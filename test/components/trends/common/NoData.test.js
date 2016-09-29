@@ -22,67 +22,61 @@ import { shallow } from 'enzyme';
 import NoData from '../../../../src/components/trends/common/NoData';
 
 describe('NoData', () => {
-  const messageProp = 'Nothing to see here :(';
-  const marginsProp = {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-  };
-  const dimensionsProp = {
-    width: 100,
-    height: 50,
-  };
+  const xPos = 10;
+  const yPos = 50;
 
   it('should render without issue when all properties provided', () => {
-    console.error = sinon.stub();
-    shallow(
-      <NoData
-        message={messageProp}
-        margins={marginsProp}
-        dimensions={dimensionsProp}
-      />
-    );
-    expect(console.error.callCount).to.equal(0);
-  });
-  it('should render with one issue when no message provided', () => {
-    console.error = sinon.stub();
-    shallow(
-      <NoData
-        margins={marginsProp}
-        dimensions={dimensionsProp}
-      />
-    );
-    expect(console.error.callCount).to.equal(1);
-  });
-  it('should render with one issue when no margins provided', () => {
-    console.error = sinon.stub();
-    shallow(
-      <NoData
-        message={messageProp}
-        dimensions={dimensionsProp}
-      />
-    );
-    expect(console.error.callCount).to.equal(1);
-  });
-  it('should render with one issue when no dimensions provided', () => {
-    console.error = sinon.stub();
-    shallow(
-      <NoData
-        message={messageProp}
-        margins={marginsProp}
-      />
-    );
-    expect(console.error.callCount).to.equal(1);
-  });
-  it('should render with the provided message', () => {
     const wrapper = shallow(
       <NoData
-        message="other message"
-        margins={marginsProp}
-        dimensions={dimensionsProp}
+        xPos={xPos}
+        yPos={yPos}
       />
     );
-    expect(wrapper.find('text').text()).to.equal('other message');
+    expect(wrapper.find('text')).to.have.length(1);
+  });
+  it('should render given with x and y position', () => {
+    const wrapper = shallow(
+      <NoData
+        xPos={xPos}
+        yPos={yPos}
+      />
+    );
+    expect(wrapper.find('text[x=10]')).to.have.length(1);
+    expect(wrapper.find('text[y=50]')).to.have.length(1);
+  });
+  it('should not render when yPos not provided', () => {
+    const wrapper = shallow(
+      <NoData
+        xPos={xPos}
+      />
+    );
+    expect(wrapper.find('text')).to.have.length(0);
+  });
+  it('should not render when xPos not provided', () => {
+    const wrapper = shallow(
+      <NoData
+        yPos={yPos}
+      />
+    );
+    expect(wrapper.find('text')).to.have.length(0);
+  });
+  it('should render with the provided data type in the message', () => {
+    const wrapper = shallow(
+      <NoData
+        dataType='TEST'
+        xPos={xPos}
+        yPos={yPos}
+      />
+    );
+    expect(wrapper.find('text').text()).to.equal('There is no TEST data for this time period :(');
+  });
+  it('should render with default CBG message when no type provided', () => {
+    const wrapper = shallow(
+      <NoData
+        xPos={xPos}
+        yPos={yPos}
+      />
+    );
+    expect(wrapper.find('text').text()).to.equal('There is no CBG data for this time period :(');
   });
 });

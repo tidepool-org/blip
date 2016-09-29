@@ -15,39 +15,34 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 import styles from './NoData.css';
 
 const NoData = (props) => {
-  const { margins, dimensions, message } = props;
+  let noDataMessage = _.template("There is no <%= type %> data for this time period :(");
+  const { xPos, yPos, dataType } = props;
 
-  if (!margins || !dimensions) {
+  if (!xPos || !yPos) {
     return null;
   }
 
-  const xPos = (dimensions.width / 2) - margins.left + margins.right;
-  const yPos = (dimensions.height / 2) - margins.top + margins.bottom;
-
   return (
-    <text className={styles.noDataMsg} id="noDataMsg" x={xPos + 40} y={yPos}>
-      {message}
+    <text className={styles.noDataMsg} id="noDataMsg" x={xPos} y={yPos}>
+      {noDataMessage({ type: dataType })}
     </text>
   );
 };
 
+NoData.defaultProps = {
+  dataType: 'CBG'
+};
+
 NoData.propTypes = {
-  message: PropTypes.string.isRequired,
-  margins: PropTypes.shape({
-    top: PropTypes.number.isRequired,
-    right: PropTypes.number.isRequired,
-    bottom: PropTypes.number.isRequired,
-    left: PropTypes.number.isRequired,
-  }).isRequired,
-  dimensions: PropTypes.shape({
-    width: PropTypes.number.isRequired,
-    height: PropTypes.number.isRequired,
-  }).isRequired,
+  dataType: PropTypes.string.isRequired,
+  xPos: PropTypes.number.isRequired,
+  yPos: PropTypes.number.isRequired,
 };
 
 export default NoData;

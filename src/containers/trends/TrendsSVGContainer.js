@@ -48,6 +48,7 @@ import { THREE_HRS } from '../../utils/datetime';
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
 import SMBGRangeAvgAnimationContainer from './SMBGRangeAvgAnimationContainer';
+import NoData from '../../components/trends/common/NoData';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import XAxisTicks from '../../components/trends/common/XAxisTicks';
@@ -67,9 +68,28 @@ export class TrendsSVGContainer extends React.Component {
     ]);
   }
 
+  xPos(width, margins) {
+    return (width / 2) - margins.left + margins.right;
+  }
+
+  yPos(height, margins){
+    return (height / 2) - margins.top + margins.bottom;
+  }
+
   renderCbg() {
     const { containerHeight: height, containerWidth: width } = this.props;
     if (this.props.showingCbg) {
+
+      // if (_.isEmpty(this.props.cbgData)) {
+      //   return (
+      //     <NoData
+      //       dataType='CBG'
+      //       xPos={this.xPos(width, this.props.margins)}
+      //       yPos={this.yPos(height, this.props.margins)}
+      //     />
+      //   );
+      // }
+
       return (
         <CBGSlicesAnimationContainer
           data={this.props.cbgData}
@@ -89,6 +109,17 @@ export class TrendsSVGContainer extends React.Component {
 
   renderSmbg() {
     if (this.props.showingSmbg) {
+
+      // if (_.isEmpty(this.props.smbgData)) {
+      //   return (
+      //     <NoData
+      //      dataType='SMBG'
+      //       xPos={this.xPos(this.props.containerHeight, this.props.margins)}
+      //       yPos={this.yPos(this.props.containerWidth, this.props.margins)}
+      //     />
+      //   );
+      // }
+
       const rangeOverlay = this.props.smbgRangeOverlay ?
         (<SMBGRangeAvgAnimationContainer
           data={this.props.smbgData}
