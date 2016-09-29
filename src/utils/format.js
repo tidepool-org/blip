@@ -16,8 +16,20 @@
  */
 
 import { format } from 'd3-format';
-
 import { MMOLL_UNITS } from './constants';
+
+/**
+ * displayDecimal
+ * @param  {Number} val    numeric value to format
+ * @param  {Number} places number of decimal places to displayDecimal
+ * @return {String}        val formatted to places decimal places
+ */
+export function displayDecimal(val, places) {
+  if (places === null || places === undefined) {
+    return format('d')(val);
+  }
+  return format(`.${places}f`)(val);
+}
 
 /**
  * displayBgValue
