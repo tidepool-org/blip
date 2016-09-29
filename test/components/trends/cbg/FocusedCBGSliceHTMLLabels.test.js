@@ -32,7 +32,7 @@ import styles
 
 describe('FocusedCBGSliceHTMLLabels', () => {
   const focusedSlice = {
-    slice: {
+    data: {
       firstQuartile: 25,
       id: 'a1b2c3',
       max: 421,

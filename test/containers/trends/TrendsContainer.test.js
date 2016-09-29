@@ -126,8 +126,10 @@ describe('TrendsContainer', () => {
         touched: false,
       },
       focusTrendsCbgSlice: sinon.stub(),
+      focusTrendsSmbgRangeAvg: sinon.stub(),
       markTrendsViewed,
       unfocusTrendsCbgSlice: sinon.stub(),
+      unfocusTrendsSmbgRangeAvg: sinon.stub(),
     };
 
     const mgdl = {
