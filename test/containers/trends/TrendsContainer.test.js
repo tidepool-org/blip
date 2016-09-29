@@ -32,6 +32,11 @@ import { TrendsContainer, mapStateToProps, mapDispatchToProps }
 import TrendsSVGContainer from '../../../src/containers/trends/TrendsSVGContainer';
 
 describe('TrendsContainer', () => {
+  // stubbing console.warn gets rid of the annoying warnings from react-dimensions
+  // due to not rendering TrendsContainer within a real app like blip
+  // eslint-disable-next-line no-console
+  console.warn = sinon.stub();
+
   describe('TrendsContainer (w/o redux connect()ion)', () => {
     let minimalData;
     let enoughCbgData;
