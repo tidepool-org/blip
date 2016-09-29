@@ -26,7 +26,7 @@ const FocusedCBGSliceTime = (props) => {
   if (!focusedSlice) {
     return null;
   }
-  const { slice: { msFrom, msTo } } = focusedSlice;
+  const { data: { msFrom, msTo } } = focusedSlice;
   const { position: { left, topOptions: { max: top } } } = focusedSlice;
   const displayFrom = millisecondsAsTimeOfDay(msFrom, 'h:mm');
   const displayTo = millisecondsAsTimeOfDay(msTo, 'h:mm');

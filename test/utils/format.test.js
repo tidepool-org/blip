@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
+
 import * as format from '../../src/utils/format';
 
 describe('format', () => {
@@ -40,11 +42,11 @@ describe('format', () => {
     });
 
     it('should return a String integer if `units` are `mg/dL`', () => {
-      expect(format.displayBgValue(120.5, 'mg/dL')).to.equal('121');
+      expect(format.displayBgValue(120.5, MGDL_UNITS)).to.equal('121');
     });
 
     it('should return a String number w/one decimal point precision (`units` are `mmol/L`)', () => {
-      expect(format.displayBgValue(6.6886513292098675, 'mmol/L')).to.equal('6.7');
+      expect(format.displayBgValue(6.6886513292098675, MMOLL_UNITS)).to.equal('6.7');
     });
     it('should give no decimals when mg/dl units', () => {
       expect(format.displayBgValue(352, 'mg/dL')).to.equal('352');
