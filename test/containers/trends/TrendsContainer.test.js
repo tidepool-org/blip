@@ -24,6 +24,7 @@ import React from 'react';
 
 import { mount } from 'enzyme';
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
 import { timezoneAwareCeiling } from '../../../src/utils/datetime';
 import DummyComponent from '../../helpers/DummyComponent';
 
@@ -121,8 +122,8 @@ describe('TrendsContainer', () => {
         timezoneName: timezone,
       },
       yScaleClampTop: {
-        'mg/dL': 300,
-        'mmol/L': 25,
+        [MGDL_UNITS]: 300,
+        [MMOLL_UNITS]: 25,
       },
       onDatetimeLocationChange,
       onSelectDay: sinon.stub(),
@@ -138,7 +139,7 @@ describe('TrendsContainer', () => {
     };
 
     const mgdl = {
-      bgUnits: 'mg/dL',
+      bgUnits: MGDL_UNITS,
       bgBounds: {
         veryHighThreshold: 300,
         targetUpperBound: 180,
@@ -154,7 +155,7 @@ describe('TrendsContainer', () => {
       },
     };
     const mmoll = {
-      bgUnits: 'mmol/L',
+      bgUnits: MMOLL_UNITS,
       bgBounds: {
         veryHighThreshold: 30,
         targetUpperBound: 10,
@@ -332,13 +333,13 @@ describe('TrendsContainer', () => {
         it('should have a minimum yScale domain: [targetLowerBound, yScaleClampTop]', () => {
           const { yScale } = minimalData.state();
           expect(yScale.domain())
-            .to.deep.equal([mgdl.bgBounds.targetLowerBound, props.yScaleClampTop['mg/dL']]);
+            .to.deep.equal([mgdl.bgBounds.targetLowerBound, props.yScaleClampTop[MGDL_UNITS]]);
         });
 
         it('should have a maximum yScale domain: [lowest generated value, yScaleClampTop]', () => {
           const { yScale } = enoughCbgData.state();
           expect(yScale.domain())
-            .to.deep.equal([lowestBg, props.yScaleClampTop['mg/dL']]);
+            .to.deep.equal([lowestBg, props.yScaleClampTop[MGDL_UNITS]]);
         });
       });
 
@@ -351,13 +352,13 @@ describe('TrendsContainer', () => {
         it('should have a minimum yScale domain: [targetLowerBound, yScaleClampTop]', () => {
           const { yScale } = minimalDataMmol.state();
           expect(yScale.domain())
-            .to.deep.equal([mmoll.bgBounds.targetLowerBound, props.yScaleClampTop['mmol/L']]);
+            .to.deep.equal([mmoll.bgBounds.targetLowerBound, props.yScaleClampTop[MMOLL_UNITS]]);
         });
 
         it('should have a maximum yScale domain: [lowest generated value, yScaleClampTop]', () => {
           const { yScale } = enoughCbgDataMmol.state();
           expect(yScale.domain())
-            .to.deep.equal([lowestBgMmol, props.yScaleClampTop['mmol/L']]);
+            .to.deep.equal([lowestBgMmol, props.yScaleClampTop[MMOLL_UNITS]]);
         });
       });
     });

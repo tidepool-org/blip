@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 
 import { formatClassesAsSelector } from '../../../helpers/cssmodules';
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../../src/utils/constants';
 import FocusedCBGSliceHTMLLabels
   from '../../../../src/components/trends/cbg/FocusedCBGSliceHTMLLabels';
 import styles
@@ -63,7 +64,7 @@ describe('FocusedCBGSliceHTMLLabels', () => {
   describe('when no focused slice', () => {
     it('should render nothing', () => {
       const minimalProps = {
-        bgUnits: 'mmol/L',
+        bgUnits: MMOLL_UNITS,
       };
       const wrapper = shallow(
         <FocusedCBGSliceHTMLLabels {...minimalProps} />
@@ -78,7 +79,7 @@ describe('FocusedCBGSliceHTMLLabels', () => {
     before(() => {
       wrapper = shallow(
         <FocusedCBGSliceHTMLLabels
-          bgUnits={'mg/dL'}
+          bgUnits={MGDL_UNITS}
           focusedKeys={['median']}
           focusedSlice={focusedSlice}
         />
@@ -102,7 +103,7 @@ describe('FocusedCBGSliceHTMLLabels', () => {
     before(() => {
       wrapper = shallow(
         <FocusedCBGSliceHTMLLabels
-          bgUnits={'mg/dL'}
+          bgUnits={MGDL_UNITS}
           focusedKeys={['min', 'max']}
           focusedSlice={focusedSlice}
         />
@@ -140,7 +141,7 @@ describe('FocusedCBGSliceHTMLLabels', () => {
     before(() => {
       wrapper = shallow(
         <FocusedCBGSliceHTMLLabels
-          bgUnits={'mg/dL'}
+          bgUnits={MGDL_UNITS}
           focusedKeys={['tenthQuantile', 'ninetiethQuantile']}
           focusedSlice={focusedSlice}
         />
@@ -173,7 +174,7 @@ describe('FocusedCBGSliceHTMLLabels', () => {
     before(() => {
       wrapper = shallow(
         <FocusedCBGSliceHTMLLabels
-          bgUnits={'mg/dL'}
+          bgUnits={MGDL_UNITS}
           focusedKeys={['firstQuartile', 'thirdQuartile']}
           focusedSlice={focusedSlice}
         />

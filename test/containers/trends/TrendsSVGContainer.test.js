@@ -22,6 +22,7 @@ import { mount } from 'enzyme';
 
 import { TrendsSVGContainer } from '../../../src/containers/trends/TrendsSVGContainer';
 
+import { MGDL_UNITS } from '../../../src/utils/constants';
 import BackgroundWithTargetRange
   from '../../../src/components/trends/common/BackgroundWithTargetRange';
 import CBGSlicesAnimationContainer
@@ -47,7 +48,7 @@ describe('TrendsSVGContainer', () => {
       targetLowerBound: 80,
       veryLowThreshold: 60,
     },
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     // normally provided by react-dimensions wrapper but we test w/o that
     containerHeight: 520,
     // normally provided by react-dimensions wrapper but we test w/o that
