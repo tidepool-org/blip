@@ -35,7 +35,7 @@ We publish this repository as a package to the npm registry for use as a depende
 **dependencies**:
 - dependencies that do *not* exist in blip
 
-**In addition**, the webpack build for the npm package specifies *all* of the `peerDependencies` (i.e., those shared with blip from the `devDependencies`) as `externals` in `package.config.js`. When you add a dependency of this kind, be sure to add it there as well, or the production build will be affected/bloated/potentially break! (You'll be fine in local development with all deps & devDeps installed, so consider yourself warned.)
+**In addition**, the webpack build for the npm package specifies *all* of the `dependencies` and `peerDependencies` (i.e., those shared with blip from the `devDependencies`) as `externals` in `package.config.js`. (This keeps the size of the @tidepool/viz library bundle as small as possible and prevents duplicated bundled external dependencies.) When you add a dependency of either kind, be sure to add it there as well, or the production build will be affected/bloated/potentially break! (You'll be fine in local development with all deps & devDeps installed, so consider yourself warned.)
 
 ## Directory structure
 
