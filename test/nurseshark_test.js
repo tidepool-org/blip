@@ -285,7 +285,9 @@ describe('nurseshark', function() {
         bgInput: 15.1518112923307,
         bgTarget: {
           high: 5.550747991045533,
-          low: 5.550747991045533
+          low: 5.550747991045533,
+          target: 5.550747991045533,
+          range: 0.555074799,
         },
         insulinSensitivity: 3.7753739955227665,
         timezoneOffset: 0
@@ -294,6 +296,8 @@ describe('nurseshark', function() {
       expect(res.bgInput).to.equal(273);
       expect(res.bgTarget.low).to.equal(100);
       expect(res.bgTarget.high).to.equal(100);
+      expect(res.bgTarget.target).to.equal(100);
+      expect(res.bgTarget.range).to.equal(10);
       expect(res.insulinSensitivity).to.equal(68);
     });
 
@@ -308,7 +312,7 @@ describe('nurseshark', function() {
         },
         bgTarget: [{
           target: 6.66089758925464,
-          range: 10
+          range: 0.555074799
         }],
         insulinSensitivity: [
           {
