@@ -365,7 +365,7 @@ function getHandlers(bgUnits) {
           for (var j = 0; j < d.bgTarget.length; ++j) {
             var current = d.bgTarget[j];
             for (var key in current) {
-              if (key !== 'range' && key !== 'start') {
+              if (key !== 'start') {
                 current[key] = translateBg(current[key]);
               }
             }
@@ -430,9 +430,7 @@ function getHandlers(bgUnits) {
         }
         if (d.bgTarget) {
           for (var key in d.bgTarget) {
-            if (key !== 'range') {
-              d.bgTarget[key] = translateBg(d.bgTarget[key]);
-            }
+            d.bgTarget[key] = translateBg(d.bgTarget[key]);
           }
         }
         if (d.insulinSensitivity) {
