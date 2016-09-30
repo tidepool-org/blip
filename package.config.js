@@ -14,12 +14,14 @@ packageConfig.externals = {
   'd3-time': 'd3-time',
   lodash: 'lodash',
   'moment-timezone': 'moment-timezone',
+  react: 'react',
   'react-addons-update': 'react-addons-update',
+  'react-collapse': 'react-collapse',
+  'react-dimensions': 'react-dimensions',
+  'react-height': 'react-height',
   'react-motion': 'react-motion',
   'react-redux': 'react-redux',
   redux: 'redux',
-  react: 'react',
-  'simple-statistics': 'simple-statistics',
 };
 
 module.exports = packageConfig;
