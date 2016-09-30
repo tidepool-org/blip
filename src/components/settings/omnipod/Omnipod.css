@@ -42,6 +42,6 @@
   composes: lightText from '../../../styles/typography.css';
 }
 
-:global(body) {
+:global(html > body) {
   overflow-y: scroll;
 }
