@@ -24,6 +24,7 @@ import React from 'react';
 
 import { mount } from 'enzyme';
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
 import { timezoneAwareCeiling } from '../../../src/utils/datetime';
 import DummyComponent from '../../helpers/DummyComponent';
 
@@ -32,6 +33,11 @@ import { TrendsContainer, mapStateToProps, mapDispatchToProps }
 import TrendsSVGContainer from '../../../src/containers/trends/TrendsSVGContainer';
 
 describe('TrendsContainer', () => {
+  // stubbing console.warn gets rid of the annoying warnings from react-dimensions
+  // due to not rendering TrendsContainer within a real app like blip
+  // eslint-disable-next-line no-console
+  console.warn = sinon.stub();
+
   describe('TrendsContainer (w/o redux connect()ion)', () => {
     let minimalData;
     let enoughCbgData;
@@ -116,8 +122,8 @@ describe('TrendsContainer', () => {
         timezoneName: timezone,
       },
       yScaleClampTop: {
-        'mg/dL': 300,
-        'mmol/L': 25,
+        [MGDL_UNITS]: 300,
+        [MMOLL_UNITS]: 25,
       },
       onDatetimeLocationChange,
       onSelectDay: sinon.stub(),
@@ -126,12 +132,14 @@ describe('TrendsContainer', () => {
         touched: false,
       },
       focusTrendsCbgSlice: sinon.stub(),
+      focusTrendsSmbgRangeAvg: sinon.stub(),
       markTrendsViewed,
       unfocusTrendsCbgSlice: sinon.stub(),
+      unfocusTrendsSmbgRangeAvg: sinon.stub(),
     };
 
     const mgdl = {
-      bgUnits: 'mg/dL',
+      bgUnits: MGDL_UNITS,
       bgBounds: {
         veryHighThreshold: 300,
         targetUpperBound: 180,
@@ -147,7 +155,7 @@ describe('TrendsContainer', () => {
       },
     };
     const mmoll = {
-      bgUnits: 'mmol/L',
+      bgUnits: MMOLL_UNITS,
       bgBounds: {
         veryHighThreshold: 30,
         targetUpperBound: 10,
@@ -325,13 +333,13 @@ describe('TrendsContainer', () => {
         it('should have a minimum yScale domain: [targetLowerBound, yScaleClampTop]', () => {
           const { yScale } = minimalData.state();
           expect(yScale.domain())
-            .to.deep.equal([mgdl.bgBounds.targetLowerBound, props.yScaleClampTop['mg/dL']]);
+            .to.deep.equal([mgdl.bgBounds.targetLowerBound, props.yScaleClampTop[MGDL_UNITS]]);
         });
 
         it('should have a maximum yScale domain: [lowest generated value, yScaleClampTop]', () => {
           const { yScale } = enoughCbgData.state();
           expect(yScale.domain())
-            .to.deep.equal([lowestBg, props.yScaleClampTop['mg/dL']]);
+            .to.deep.equal([lowestBg, props.yScaleClampTop[MGDL_UNITS]]);
         });
       });
 
@@ -344,13 +352,13 @@ describe('TrendsContainer', () => {
         it('should have a minimum yScale domain: [targetLowerBound, yScaleClampTop]', () => {
           const { yScale } = minimalDataMmol.state();
           expect(yScale.domain())
-            .to.deep.equal([mmoll.bgBounds.targetLowerBound, props.yScaleClampTop['mmol/L']]);
+            .to.deep.equal([mmoll.bgBounds.targetLowerBound, props.yScaleClampTop[MMOLL_UNITS]]);
         });
 
         it('should have a maximum yScale domain: [lowest generated value, yScaleClampTop]', () => {
           const { yScale } = enoughCbgDataMmol.state();
           expect(yScale.domain())
-            .to.deep.equal([lowestBgMmol, props.yScaleClampTop['mmol/L']]);
+            .to.deep.equal([lowestBgMmol, props.yScaleClampTop[MMOLL_UNITS]]);
         });
       });
     });
