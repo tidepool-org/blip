@@ -22,10 +22,9 @@
 // and so do the circles for every smbg in the day and the line too (see notes in SMBGDayLine)
 
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 
-import { findClassForValue } from '../../../utils/bgBoundary';
-
-import styles from './SMBGDayPoints.css';
+import { findClassForValue } from '../../../utils/trends/bgBoundary';
 
 const SMBGDayPoints = (props) => {
   const { data } = props;
@@ -47,7 +46,7 @@ const SMBGDayPoints = (props) => {
   ));
 
   return (
-    <g id='smbgs'}>
+    <g id="smbgs">
       {smbgs}
     </g>
   );
@@ -58,14 +57,14 @@ SMBGDayPoints.defaultProps = {
 };
 
 SMBGDayPoints.propTypes = {
-	data: PropTypes.arrayOf(PropTypes.shape({
+  data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     msX: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
   })).isRequired,
-	xScale: PropTypes.func.isRequired,
-	yScale: PropTypes.func.isRequired,
-	radius: PropTypes.number.isRequired,
+  xScale: PropTypes.func.isRequired,
+  yScale: PropTypes.func.isRequired,
+  radius: PropTypes.number.isRequired,
 };
 
 export default SMBGDayPoints;

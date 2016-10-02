@@ -15,28 +15,29 @@
  * == BSD2 LICENSE ==
  */
 
-export function findClassForValue(bgValue){
+/**
+ * findClassForValue
+ * @param {Number} bgValue - integer blood glucose value in mg/dL
+ *
+ * @return {string} class(s) to be used for the given bgValue
+ */
+export function findClassForValue(bgValue) {
   const classes = {
-    'very-low': {boundary: 60},
-    low: {boundary: 80},
-    target: {boundary: 180},
-    high: {boundary: 200},
-    'very-high': {boundary: 300},
+    'very-low': { boundary: 60 },
+    low: { boundary: 80 },
+    target: { boundary: 180 },
+    high: { boundary: 200 },
+    'very-high': { boundary: 300 },
   };
 
   if (bgValue < classes['very-low'].boundary) {
     return 'bg-low';
-  }
-  else if ((bgValue >= classes['very-low'].boundary) && (bgValue < classes.low.boundary)) {
+  } else if ((bgValue >= classes['very-low'].boundary) && (bgValue < classes.low.boundary)) {
     return 'bg-low circle-open';
-  }
-  else if ((bgValue >= classes.low.boundary) && (bgValue <= classes.target.boundary)) {
+  } else if ((bgValue >= classes.low.boundary) && (bgValue <= classes.target.boundary)) {
     return 'bg-target';
-  }
-  else if ((bgValue > classes.target.boundary) && (bgValue <= classes.high.boundary)) {
+  } else if ((bgValue > classes.target.boundary) && (bgValue <= classes.high.boundary)) {
     return 'bg-high circle-open';
   }
-  else if (bgValue > classes.high.boundary) {
-    return 'bg-high';
-  }
+  return 'bg-high';
 }
