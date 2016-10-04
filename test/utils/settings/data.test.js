@@ -150,6 +150,13 @@ describe('data', () => {
         )
       ).to.equal('20.725');
     });
+    it('should return the rate total for flatrate settings', () => {
+      expect(
+        data.getTotalBasalRates(
+          settingsData.basalSchedules[0].value,
+        )
+      ).to.equal('10.800');
+    });
   });
   describe('getDeviceMeta', () => {
     const timePrefs = {
@@ -165,7 +172,7 @@ describe('data', () => {
       ).to.have.property('schedule').equal('Normal');
       expect(
         data.getDeviceMeta(settingsData, timePrefs)
-      ).to.have.property('uploaded').equal('Jul 12th 2016');
+      ).to.have.property('uploaded').equal('Jul 12, 2016');
     });
     it('should return the serial, schedule and date uploaded as unknown', () => {
       expect(
