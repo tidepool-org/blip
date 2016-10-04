@@ -26,3 +26,57 @@
 //   (there seems to be a regression on prod re: the rendering of the fatter invisible lines)
 // - [maybe] day is focused (through hover) fatter & solid line connecting the dots
 //   this style also applies when a single smbg is focused
+
+import React, { PropTypes } from 'react';
+import _ from 'lodash';
+
+import styles from './SMBGDayLine.css';
+
+const SMBGDayLine = (props) => {
+  const { data } = props;
+  if (!data) {
+    return null;
+  }
+
+  const { xScale, yScale } = props;
+
+  const renderPointToPoint = (start, finish) => {
+    return (
+      <line
+        className={styles.smbgDayLine}
+        key={`smbg-${start.id}-${finish.id}`}
+        id={`smbg-${start.id}-${finish.id}`}
+        x1={xScale(start.msX)}
+        x2={xScale(finish.msX)}
+        y1={yScale(start.value)}
+        y2={yScale(finish.value)}
+      />
+    );
+  };
+
+  let lines = _.each(data, (smbg, key) => {
+    if (key > 0) {
+      renderPointToPoint(data[key - 1], smbg);
+    } else {
+      renderPointToPoint(smbg, data[1]);
+    }
+  });
+
+  return (
+    <g id="dayLine">
+      {lines}
+    </g>
+  );
+};
+
+SMBGDayLine.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    msX: PropTypes.number.isRequired,
+    value: PropTypes.number.isRequired,
+  })).isRequired,
+  xScale: PropTypes.func.isRequired,
+  yScale: PropTypes.func.isRequired,
+};
+
+export default SMBGDayLine;

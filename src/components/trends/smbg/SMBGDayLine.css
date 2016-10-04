@@ -1,0 +1,7 @@
+.smbgDayLine {
+  pointer-events: none;
+
+  stroke: white;
+  stroke-dasharray: 9,9;
+  stroke-width: 2px;
+}

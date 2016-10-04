@@ -15,12 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-// TODO: this component should render each of the smbgs in a given day as a circle
-// it also attaches onMouseOver and onMouseOut handlers to each circle
-// for focusing that particular smbg
-// when an smbg is focused, it's circle gets bigger
-// and so do the circles for every smbg in the day and the line too (see notes in SMBGDayLine)
-
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
@@ -34,16 +28,30 @@ const SMBGDayPoints = (props) => {
 
   const { radius, xScale, yScale } = props;
 
-  const smbgs = _.each(data, (smbg) => (
-    <circle
-      className={findClassForValue(smbg.value)}
-      key={`smbg-${smbg.id}`}
-      id={`smbg-${smbg.id}`}
-      cx={xScale(smbg.msX)}
-      cy={yScale(smbg.value)}
-      r={radius}
-    />
-  ));
+  const renderSmbg = (smbg) => {
+    const focus = () => {
+      console.log('focused on', smbg.id);
+    };
+    const unfocus = () => {
+      console.log('unfocus', smbg.id);
+    };
+    return (
+      <circle
+        className={findClassForValue(smbg.value)}
+        key={`smbg-${smbg.id}`}
+        id={`smbg-${smbg.id}`}
+        onMouseOver={focus}
+        onMouseOut={unfocus}
+        cx={xScale(smbg.msX)}
+        cy={yScale(smbg.value)}
+        r={radius}
+      />
+    );
+  };
+
+  const smbgs = _.each(data, (smbg) => ({
+    renderSmbg(smbg);
+  });
 
   return (
     <g id="smbgs">
