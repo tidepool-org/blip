@@ -159,10 +159,11 @@ const Medtronic = (props) => {
       />
       <div className={styles.settings}>
         <div>
-          <span className={styles.title}>Basal Rates</span>
+          <span className={styles.categoryTitle}>Basal Rates</span>
           {renderBasalsData()}
         </div>
         <div className={styles.nonBasalWrap}>
+          <span className={styles.categoryTitle}>Bolus Calculator</span>
           {renderSensitivityData()}
           {renderTargetData()}
           {renderRatioData()}

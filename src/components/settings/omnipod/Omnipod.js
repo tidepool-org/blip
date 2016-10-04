@@ -158,8 +158,12 @@ const Omnipod = (props) => {
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
       />
       <div className={styles.settings}>
-        {renderBasalsData()}
+        <div>
+          <span className={styles.categoryTitle}>Basal Rates</span>
+          {renderBasalsData()}
+        </div>
         <div className={styles.nonBasalWrap}>
+          <span className={styles.categoryTitle}>Bolus Calculator</span>
           {renderSensitivityData()}
           {renderTargetData()}
           {renderRatioData()}
