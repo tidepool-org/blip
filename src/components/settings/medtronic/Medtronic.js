@@ -163,7 +163,7 @@ const Medtronic = (props) => {
           {renderBasalsData()}
         </div>
         <div className={styles.nonBasalWrap}>
-          <span className={styles.categoryTitle}>Bolus Calculator</span>
+          <span className={styles.categoryTitle}>Bolus Wizard</span>
           {renderSensitivityData()}
           {renderTargetData()}
           {renderRatioData()}

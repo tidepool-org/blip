@@ -162,7 +162,7 @@ const Animas = (props) => {
           {renderBasalsData()}
         </div>
         <div className={styles.nonBasalWrap}>
-          <span className={styles.categoryTitle}>Bolus Calculator</span>
+          <span className={styles.categoryTitle}>ezCarb ezBG</span>
           {renderSensitivityData()}
           {renderTargetData()}
           {renderRatioData()}
