@@ -38,6 +38,14 @@
   composes: settingsTable from '../settings.css';
 }
 
+.title {
+  composes: mediumContrastText from '../../../styles/typography.css';
+  display: inline-block;
+  font-size: 14px;
+  font-weight: bold;
+  padding-bottom: 10px;
+}
+
 .lightText {
   composes: lightText from '../../../styles/typography.css';
 }

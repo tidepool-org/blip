@@ -158,7 +158,10 @@ const Medtronic = (props) => {
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
       />
       <div className={styles.settings}>
-        {renderBasalsData()}
+        <div>
+          <span className={styles.title}>Basal Rates</span>
+          {renderBasalsData()}
+        </div>
         <div className={styles.nonBasalWrap}>
           {renderSensitivityData()}
           {renderTargetData()}
