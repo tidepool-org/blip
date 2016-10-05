@@ -28,9 +28,7 @@
 //   this style also applies when a single smbg is focused
 
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
-
-import styles from './SMBGDayLine.css';
+import { line } from 'd3-shape';
 
 const SMBGDayLine = (props) => {
   const { data } = props;
@@ -40,31 +38,13 @@ const SMBGDayLine = (props) => {
 
   const { xScale, yScale } = props;
 
-  const renderPointToPoint = (start, finish) => {
-    return (
-      <line
-        className={styles.smbgDayLine}
-        key={`smbg-${start.id}-${finish.id}`}
-        id={`smbg-${start.id}-${finish.id}`}
-        x1={xScale(start.msX)}
-        x2={xScale(finish.msX)}
-        y1={yScale(start.value)}
-        y2={yScale(finish.value)}
-      />
-    );
-  };
-
-  let lines = _.each(data, (smbg, key) => {
-    if (key > 0) {
-      renderPointToPoint(data[key - 1], smbg);
-    } else {
-      renderPointToPoint(smbg, data[1]);
-    }
-  });
+  const dayLine = line()
+    .x((d) => { xScale(d.msX); })
+    .y((d) => { yScale(d.value); });
 
   return (
     <g id="dayLine">
-      {lines}
+      <path d={dayLine(data)} />
     </g>
   );
 };

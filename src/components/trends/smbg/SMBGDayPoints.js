@@ -28,7 +28,7 @@ const SMBGDayPoints = (props) => {
 
   const { radius, xScale, yScale } = props;
 
-  const renderSmbg = (smbg) => {
+  function renderSmbg(smbg) {
     const focus = () => {
       console.log('focused on', smbg.id);
     };
@@ -47,9 +47,9 @@ const SMBGDayPoints = (props) => {
         r={radius}
       />
     );
-  };
+  }
 
-  const smbgs = _.each(data, (smbg) => ({
+  const smbgs = _.each(data, (smbg) => {
     renderSmbg(smbg);
   });
 
