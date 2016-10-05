@@ -33,7 +33,7 @@ export const CLOSE_MESSAGE_THREAD = 'CLOSE_MESSAGE_THREAD';
 
 /*
  * Asyncronous action types
- */ 
+ */
 
 // user.get
 export const FETCH_USER_REQUEST = 'FETCH_USER_REQUEST';

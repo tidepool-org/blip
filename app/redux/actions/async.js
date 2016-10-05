@@ -16,6 +16,7 @@
  */
 
 import _ from 'lodash';
+import d3 from 'd3';
 import React from 'react';
 import { Link } from 'react-router';
 import sundial from 'sundial';
@@ -27,6 +28,8 @@ import * as sync from './sync.js';
 import update from 'react-addons-update';
 
 import { routeActions } from 'react-router-redux';
+
+import { actions } from '@tidepool/viz';
 
 const utils = require('../../core/utils');
 
@@ -719,7 +722,7 @@ export function fetchPatients(api) {
  * @param {Object} queryParams
  */
 export function fetchPatientData(api, id) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.fetchPatientDataRequest());
 
     async.parallel({
@@ -733,6 +736,15 @@ export function fetchPatientData(api, id) {
       } else {
         let patientData = results.patientData || [];
         let notes = results.teamNotes || [];
+        const queryParams = _.get(getState(), ['routing', 'location', 'query'], {});
+        let timePrefs = utils.getTimezoneForDataProcessing(patientData, queryParams);
+        if (_.isEmpty(timePrefs)) {
+          timePrefs = {
+            timezoneAware: false,
+            timezoneName: null,
+          };
+        }
+        dispatch(actions.workerProcessPatientData(id, patientData, timePrefs));
         dispatch(sync.fetchPatientDataSuccess(id, patientData, notes));
       }
     });

@@ -19,14 +19,26 @@
 
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import { persistState } from 'redux-devtools';
+import createWorkerMiddleware from '../utils/workerMiddleware';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
 
-import { vizReducer } from '@tidepool/viz';
+import { vizReducer, Worker } from '@tidepool/viz';
+const worker = new Worker;
 
 import DevTools from '../containers/DevTools';
+
+import * as ActionTypes from '../constants/actionTypes';
+
+import { actions } from '@tidepool/viz';
+
+const workerErrActionCreators = {
+  [ActionTypes.WORKER_FILTER_DATA_REQUEST]: actions.workerFilterDataFailure,
+  [ActionTypes.WORKER_PROCESS_DATA_REQUEST]: actions.workerProcessDataFailure,
+};
+
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
@@ -57,6 +69,7 @@ if (!__DEV_TOOLS__) {
   enhancer = (api) => {
     return compose(
       applyMiddleware(
+        createWorkerMiddleware(worker, workerErrActionCreators),
         thunkMiddleware,
         reduxRouterMiddleware,
         createErrorLogger(api),
@@ -69,6 +82,7 @@ if (!__DEV_TOOLS__) {
   enhancer = (api) => {
     return compose(
       applyMiddleware(
+        createWorkerMiddleware(worker, workerErrActionCreators),
         thunkMiddleware,
         loggerMiddleware,
         reduxRouterMiddleware,
