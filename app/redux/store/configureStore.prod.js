@@ -16,13 +16,23 @@
  */
 
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
+import createWorkerMiddleware from '../utils/workerMiddleware';
 import thunkMiddleware from 'redux-thunk';
 import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
 
 // TODO: put worker middleware in here!
 
-import { vizReducer } from '@tidepool/viz';
+import { vizReducer, Worker } from '@tidepool/viz';
+const worker = new Worker;
+
+import * as ActionTypes from '../constants/actionTypes';
+import { actions } from '@tidepool/viz';
+
+const workerErrActionCreators = {
+  [ActionTypes.WORKER_FILTER_DATA_REQUEST]: actions.workerFilterDataFailure,
+  [ActionTypes.WORKER_PROCESS_DATA_REQUEST]: actions.workerProcessDataFailure,
+};
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
@@ -42,6 +52,7 @@ let initialState = { blip: blipState };
 
 function _createStore(api) {
   const createStoreWithMiddleware = applyMiddleware(
+    createWorkerMiddleware(worker, workerErrActionCreators),
     thunkMiddleware,
     reduxRouterMiddleware,
     createErrorLogger(api),
