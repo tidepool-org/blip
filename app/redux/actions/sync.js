@@ -680,7 +680,8 @@ export function fetchPatientsFailure(error, apiError) {
 
 export function fetchPatientDataRequest() {
   return {
-    type: ActionTypes.FETCH_PATIENT_DATA_REQUEST
+    type: ActionTypes.FETCH_PATIENT_DATA_REQUEST,
+    meta: { WebWorker: true },
   };
 }
 

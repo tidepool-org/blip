@@ -1890,7 +1890,7 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
+          { type: 'FETCH_PATIENT_DATA_REQUEST', meta: { WebWorker: true } },
           { type: 'WORKER_PROCESS_DATA_REQUEST', payload: { data: [], timePrefs: timePrefs, userId: patientId  }, meta: { WebWorker: true } },
           { type: 'WORKER_PROCESS_DATA_REQUEST', payload: { data: [], timePrefs: timePrefs, userId: patientId  }, meta: { WebWorker: true } },
           { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientData : patientData, patientNotes: teamNotes, patientId: patientId } },
@@ -1936,7 +1936,7 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
+          { type: 'FETCH_PATIENT_DATA_REQUEST', meta: { WebWorker: true } },
           { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
@@ -1980,7 +1980,7 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
+          { type: 'FETCH_PATIENT_DATA_REQUEST', meta: { WebWorker: true } },
           { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
