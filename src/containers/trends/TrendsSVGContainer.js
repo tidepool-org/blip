@@ -41,12 +41,14 @@ const SMBG_OPTS = {
 
 import React, { PropTypes } from 'react';
 import dimensions from 'react-dimensions';
+import _ from 'lodash';
 
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
+import SMBGDayAnimationContainer from './SMBGDayAnimationContainer';
 import SMBGRangeAvgAnimationContainer from './SMBGRangeAvgAnimationContainer';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
@@ -100,9 +102,18 @@ export class TrendsSVGContainer extends React.Component {
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />) : null;
+
+      const smbgDaysOverlay = (
+        <SMBGDayAnimationContainer
+          data={this.props.smbgData}
+          xScale={this.props.xScale}
+          yScale={this.props.yScale}
+        />
+      );
       return (
         <g id="smbgTrends">
         {[rangeOverlay]}
+        {[smbgDaysOverlay]}
           // TODO: render SMBGRangeAvgAnimationContainer if rangeOverlay passing in onl
           //   SMBGRange as the component to render (bottom layer)
           // TODO: replace with the two layers of SMBGRangeAvgAnimationContainer

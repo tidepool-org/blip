@@ -18,7 +18,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
-import { findClassForValue } from '../../../utils/trends/bgBoundary';
+import styles from './SMBGDayPoints.css';
 
 const SMBGDayPoints = (props) => {
   const { data } = props;
@@ -26,7 +26,8 @@ const SMBGDayPoints = (props) => {
     return null;
   }
 
-  const { radius, xScale, yScale } = props;
+  const { xScale, yPosition } = props;
+  const radius = 7;
 
   function renderSmbg(smbg) {
     const focus = () => {
@@ -37,13 +38,13 @@ const SMBGDayPoints = (props) => {
     };
     return (
       <circle
-        className={findClassForValue(smbg.value)}
+        className={styles.smbg}
         key={`smbg-${smbg.id}`}
         id={`smbg-${smbg.id}`}
         onMouseOver={focus}
         onMouseOut={unfocus}
         cx={xScale(smbg.msX)}
-        cy={yScale(smbg.value)}
+        cy={yPosition.value}
         r={radius}
       />
     );
@@ -60,10 +61,6 @@ const SMBGDayPoints = (props) => {
   );
 };
 
-SMBGDayPoints.defaultProps = {
-  radius: 7,
-};
-
 SMBGDayPoints.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -71,8 +68,11 @@ SMBGDayPoints.propTypes = {
     value: PropTypes.number.isRequired,
   })).isRequired,
   xScale: PropTypes.func.isRequired,
-  yScale: PropTypes.func.isRequired,
-  radius: PropTypes.number.isRequired,
+  yPosition: PropTypes.shape({
+    value: PropTypes.number.isRequired,
+  }).isRequired,
+  //focusSmbg: PropTypes.func.isRequired,
+  //unfocusSmbg: PropTypes.func.isRequired,
 };
 
 export default SMBGDayPoints;
