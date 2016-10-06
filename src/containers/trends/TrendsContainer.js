@@ -60,7 +60,6 @@ export class TrendsContainer extends React.Component {
     smbgRangeOverlay: PropTypes.bool.isRequired,
     smbgGrouped: PropTypes.bool.isRequired,
     smbgLines: PropTypes.bool.isRequired,
-    //smbgTrendsComponent: PropTypes.func.isRequired,
     timePrefs: PropTypes.shape({
       timezoneAware: PropTypes.bool.isRequired,
       timezoneName: PropTypes.string.isRequired,

@@ -41,8 +41,6 @@ const SMBG_OPTS = {
 
 import React, { PropTypes } from 'react';
 import dimensions from 'react-dimensions';
-import _ from 'lodash';
-
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
