@@ -25,8 +25,6 @@ var Header = require('./header');
 var SubNav = require('./modalsubnav');
 var Footer = require('./footer');
 
-import SMBGTrends from './smbgtrends';
-
 import * as viz from '@tidepool/viz';
 const FocusedCBGSliceHTMLLabels = viz.components.FocusedCBGSliceHTMLLabels;
 const FocusedCBGSliceTime = viz.components.FocusedCBGSliceTime;
@@ -151,7 +149,6 @@ var Modal = React.createClass({
       <TrendsContainer
         activeDays={this.props.chartPrefs.modal.activeDays}
         bgBounds={bgBounds}
-        bgClasses={this.props.bgPrefs.bgClasses}
         bgUnits={this.props.bgPrefs.bgUnits}
         currentPatientInViewId={this.props.currentPatientInViewId}
         extentSize={this.props.chartPrefs.modal.extentSize}
@@ -161,7 +158,6 @@ var Modal = React.createClass({
         smbgRangeOverlay={this.props.chartPrefs.modal.smbgRangeOverlay}
         smbgGrouped={this.props.chartPrefs.modal.smbgGrouped}
         smbgLines={this.props.chartPrefs.modal.smbgLines}
-        smbgTrendsComponent={SMBGTrends}
         timePrefs={this.props.timePrefs}
         // data
         cbgByDate={this.props.patientData.cbgByDate}
