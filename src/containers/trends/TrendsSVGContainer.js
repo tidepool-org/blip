@@ -107,16 +107,14 @@ export class TrendsSVGContainer extends React.Component {
       return (
         <g id="smbgTrends">
         {[rangeOverlay]}
-        {_.map(smbgsByDate, (smbgs, date) => {
-          return (
-            <SMBGDayAnimationContainer
-              day={date}
-              data={smbgs}
-              xScale={this.props.xScale}
-              yScale={this.props.yScale}
-            />
-          );
-        })}
+        {_.map(smbgsByDate, (smbgs, date) => (
+          <SMBGDayAnimationContainer
+            day={date}
+            data={smbgs}
+            xScale={this.props.xScale}
+            yScale={this.props.yScale}
+          />)
+        )}
           // TODO: render SMBGRangeAvgAnimationContainer if rangeOverlay passing in onl
           //   SMBGRange as the component to render (bottom layer)
           // TODO: replace with the two layers of SMBGRangeAvgAnimationContainer
