@@ -39,7 +39,7 @@ const SMBGDayLine = (props) => {
   const { xScale, yScale } = props;
 
   const dayLine = line()
-    .x((d) => { xScale(d.msX); })
+    .x((d) => { xScale(d.msPer24); })
     .y((d) => { yScale(d.value); });
 
   return (
@@ -52,7 +52,7 @@ const SMBGDayLine = (props) => {
 SMBGDayLine.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
-    msX: PropTypes.number.isRequired,
+    msPer24: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
   })).isRequired,
   xScale: PropTypes.func.isRequired,

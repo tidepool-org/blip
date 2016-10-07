@@ -26,7 +26,7 @@ const SMBGDayPoints = (props) => {
     return null;
   }
 
-  const { day, xScale } = props;
+  const { day, xScale, yScale } = props;
   const radius = 7;
 
   return (
@@ -46,7 +46,7 @@ const SMBGDayPoints = (props) => {
             onMouseOver={focus}
             onMouseOut={unfocus}
             cx={xScale(smbg.msPer24)}
-            cy={smbg.value}
+            cy={yScale(smbg.value)}
             r={radius}
           />
         );
@@ -59,10 +59,11 @@ SMBGDayPoints.propTypes = {
   day: PropTypes.string.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
-    msX: PropTypes.number.isRequired,
+    msPer24: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
   })).isRequired,
   xScale: PropTypes.func.isRequired,
+  yScale: PropTypes.func.isRequired,
   //focusSmbg: PropTypes.func.isRequired,
   //unfocusSmbg: PropTypes.func.isRequired,
 };

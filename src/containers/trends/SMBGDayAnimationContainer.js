@@ -42,7 +42,7 @@ import React, { PropTypes } from 'react';
 import SMBGDayPoints from '../../components/trends/smbg/SMBGDayPoints';
 
 const SMBGDayAnimationContainer = (props) => {
-  const { xScale, day, data } = props;
+  const { xScale, yScale, day, data } = props;
 
   return (
     <g id={`smbgDayAnimationContainer-${day}`}>
@@ -50,6 +50,7 @@ const SMBGDayAnimationContainer = (props) => {
         day={day}
         data={data}
         xScale={xScale}
+        yScale={yScale}
       />
     </g>
   );
@@ -68,7 +69,7 @@ SMBGDayAnimationContainer.propTypes = {
   // focusDayLine: PropTypes.func.isRequired,
   // unfocusDayLine: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
-  // yScale: PropTypes.func.isRequired,
+  yScale: PropTypes.func.isRequired,
 };
 
 export default SMBGDayAnimationContainer;
