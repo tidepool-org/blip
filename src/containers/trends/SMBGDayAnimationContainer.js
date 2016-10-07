@@ -45,7 +45,7 @@ const SMBGDayAnimationContainer = (props) => {
   const { xScale, day, data } = props;
 
   return (
-    <g id={`smbgDay-${day}`}>
+    <g id={`smbgDayAnimationContainer-${day}`}>
       <SMBGDayPoints
         day={day}
         data={data}

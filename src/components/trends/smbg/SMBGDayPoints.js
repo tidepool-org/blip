@@ -26,17 +26,17 @@ const SMBGDayPoints = (props) => {
     return null;
   }
 
-  const { xScale, day } = props;
+  const { day, xScale } = props;
   const radius = 7;
 
   return (
-    <g id={`smbgs-${day}`}>
+    <g id={`smbgDayPoints-${day}`}>
       {_.map(data, (smbg) => {
         const focus = () => {
-          console.log('focused on', smbg.id);
+          console.log('focused on: ', smbg);
         };
         const unfocus = () => {
-          console.log('unfocus', smbg.id);
+          console.log('unfocus:', smbg.id);
         };
         return (
           <circle
@@ -45,7 +45,7 @@ const SMBGDayPoints = (props) => {
             id={`smbg-${smbg.id}`}
             onMouseOver={focus}
             onMouseOut={unfocus}
-            cx={xScale(smbg.msX)}
+            cx={xScale(smbg.msPer24)}
             cy={smbg.value}
             r={radius}
           />
