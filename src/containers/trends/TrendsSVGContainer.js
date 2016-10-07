@@ -102,22 +102,21 @@ export class TrendsSVGContainer extends React.Component {
           yScale={this.props.yScale}
         />) : null;
 
-      // only one day for now
       const smbgsByDate = _.groupBy(this.props.smbgData, 'localDate');
-      const days = _.keys(smbgsByDate);
-
-      const smbgDaysOverlay = (
-        <SMBGDayAnimationContainer
-          day={days[0]}
-          data={smbgsByDate[days[0]]}
-          xScale={this.props.xScale}
-        />
-      );
 
       return (
         <g id="smbgTrends">
         {[rangeOverlay]}
-        {[smbgDaysOverlay]}
+        {_.map(smbgsByDate, (smbgs, date) => {
+          return (
+            <SMBGDayAnimationContainer
+              day={date}
+              data={smbgs}
+              xScale={this.props.xScale}
+              yScale={this.props.yScale}
+            />
+          );
+        })}
           // TODO: render SMBGRangeAvgAnimationContainer if rangeOverlay passing in onl
           //   SMBGRange as the component to render (bottom layer)
           // TODO: replace with the two layers of SMBGRangeAvgAnimationContainer
