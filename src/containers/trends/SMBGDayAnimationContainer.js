@@ -35,106 +35,40 @@
 //    + attaches hover handler for focusing the day of smbgs
 
 
-import _ from 'lodash';
+// import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { TransitionMotion, spring } from 'react-motion';
-
-import { THREE_HRS } from '../../utils/datetime';
-import { calculateSmbgStatsForBin, findBinForTimeOfDay } from '../../utils/trends/data';
+// import { TransitionMotion } from 'react-motion';
 
 import SMBGDayPoints from '../../components/trends/smbg/SMBGDayPoints';
 
-export default class SMBGDayAnimationContainer extends React.Component {
-  static propTypes = {
-    binSize: PropTypes.number,
-    data: PropTypes.arrayOf(PropTypes.shape({
-      // here only documenting the properties we actually use rather than the *whole* data model!
-      id: PropTypes.string.isRequired,
-      msPer24: PropTypes.number.isRequired,
-      value: PropTypes.number.isRequired,
-    })).isRequired,
-    // focusSmbg: PropTypes.func.isRequired,
-    // unfocusSmbg: PropTypes.func.isRequired,
-    // focusDayLine: PropTypes.func.isRequired,
-    // unfocusDayLine: PropTypes.func.isRequired,
-    xScale: PropTypes.func.isRequired,
-    yScale: PropTypes.func.isRequired,
-  };
+const SMBGDayAnimationContainer = (props) => {
+  const { xScale, day, data } = props;
 
-  static defaultProps = {
-    binSize: THREE_HRS * 8,
-  };
+  return (
+    <g id={`smbgDay-${day}`}>
+      <SMBGDayPoints
+        day={day}
+        data={data}
+        xScale={xScale}
+      />
+    </g>
+  );
+};
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      mungedData: [],
-    };
-  }
+SMBGDayAnimationContainer.propTypes = {
+  day: PropTypes.string.isRequired,
+  data: PropTypes.arrayOf(PropTypes.shape({
+    // here only documenting the properties we actually use rather than the *whole* data model!
+    id: PropTypes.string.isRequired,
+    msPer24: PropTypes.number.isRequired,
+    value: PropTypes.number.isRequired,
+  })).isRequired,
+  // focusSmbg: PropTypes.func.isRequired,
+  // unfocusSmbg: PropTypes.func.isRequired,
+  // focusDayLine: PropTypes.func.isRequired,
+  // unfocusDayLine: PropTypes.func.isRequired,
+  xScale: PropTypes.func.isRequired,
+  // yScale: PropTypes.func.isRequired,
+};
 
-  componentWillMount() {
-    const { binSize, data } = this.props;
-    this.setState({ mungedData: this.mungeData(binSize, data) });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { binSize, data } = nextProps;
-    if (binSize !== this.props.binSize || data !== this.props.data) {
-      this.setState({ mungedData: this.mungeData(binSize, data) });
-    }
-  }
-
-  mungeData(binSize, data) {
-    const binned = _.groupBy(data, (d) => (findBinForTimeOfDay(binSize, d.msPer24)));
-    const binKeys = _.keys(binned);
-
-    const valueExtractor = (d) => (d.value);
-    const mungedData = [];
-    for (let i = 0; i < binKeys.length; ++i) {
-      const values = _.map(binned[binKeys[i]], valueExtractor);
-      mungedData.push(calculateSmbgStatsForBin(binKeys[i], binSize, values));
-    }
-    return mungedData;
-  }
-
-  calcYPositions(mungedData, yScale, transform) {
-    const yPositions = [];
-    _.each(mungedData, (d) => {
-      yPositions.push({
-        key: d.id,
-        style: _.mapValues(
-          _.pick(d, [
-            'value',
-          ]),
-          (val) => (transform(val))
-        ),
-      });
-    });
-    return yPositions;
-  }
-
-  render() {
-    const { mungedData } = this.state;
-    const { xScale, yScale } = this.props;
-    const yPositions = this.calcYPositions(
-      mungedData, yScale, (d) => (spring(yScale(d)))
-    );
-    return (
-      <TransitionMotion styles={yPositions}>
-        {(interpolated) => (
-          <g id="smbgDayAnimationContainer">
-            {_.map(interpolated, (config) => (
-              <g className="smbgDay" key={config.key}>
-                <SMBGDayPoints
-                  data={mungedData}
-                  xScale={xScale}
-                  yPositions={config.style}
-                />
-              </g>
-            ))}
-          </g>
-        )}
-      </TransitionMotion>
-    );
-  }
-}
+export default SMBGDayAnimationContainer;

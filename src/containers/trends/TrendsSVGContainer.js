@@ -40,6 +40,7 @@ const SMBG_OPTS = {
 };
 
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 import dimensions from 'react-dimensions';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
@@ -101,13 +102,18 @@ export class TrendsSVGContainer extends React.Component {
           yScale={this.props.yScale}
         />) : null;
 
+      // only one day for now
+      const smbgsByDate = _.groupBy(this.props.smbgData, 'localDate');
+      const days = _.keys(smbgsByDate);
+
       const smbgDaysOverlay = (
         <SMBGDayAnimationContainer
-          data={this.props.smbgData}
+          day={days[0]}
+          data={smbgsByDate[days[0]]}
           xScale={this.props.xScale}
-          yScale={this.props.yScale}
         />
       );
+
       return (
         <g id="smbgTrends">
         {[rangeOverlay]}
