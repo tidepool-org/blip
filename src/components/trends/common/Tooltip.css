@@ -1,0 +1,28 @@
+.tooltip {
+  display: block;
+  font-size: 14px;
+  background-color: #ffffff;
+  border: solid;
+  position: absolute;
+  border-radius: 4px;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.title {
+  composes: mediumContrastText from '../../../styles/typography.css';
+  composes: content;
+  background-color: #EAEAEE;
+}
+
+.tail {
+  width: 0px;
+  height: 0px;
+  border-style: solid;
+  border-color: transparent;
+  position: absolute;
+}

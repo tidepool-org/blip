@@ -26,17 +26,22 @@ const SMBGDayPoints = (props) => {
     return null;
   }
 
-  const { day, xScale, yScale } = props;
+  const { day, xScale, yScale, focusSmbg, unfocusSmbg } = props;
   const radius = 7;
 
   return (
     <g id={`smbgDayPoints-${day}`}>
       {_.map(data, (smbg) => {
+        const cx = xScale(smbg.msPer24);
+        const cy = yScale(smbg.value);
+        const position = { left: cx, top: cy };
         const focus = () => {
           console.log('focused on: ', smbg);
+          focusSmbg(smbg, position);
         };
         const unfocus = () => {
           console.log('unfocus:', smbg.id);
+          unfocusSmbg();
         };
         return (
           <circle
@@ -45,8 +50,8 @@ const SMBGDayPoints = (props) => {
             id={`smbg-${smbg.id}`}
             onMouseOver={focus}
             onMouseOut={unfocus}
-            cx={xScale(smbg.msPer24)}
-            cy={yScale(smbg.value)}
+            cx={cx}
+            cy={cy}
             r={radius}
           />
         );
@@ -64,8 +69,8 @@ SMBGDayPoints.propTypes = {
   })).isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
-  //focusSmbg: PropTypes.func.isRequired,
-  //unfocusSmbg: PropTypes.func.isRequired,
+  focusSmbg: PropTypes.func.isRequired,
+  unfocusSmbg: PropTypes.func.isRequired,
 };
 
 export default SMBGDayPoints;

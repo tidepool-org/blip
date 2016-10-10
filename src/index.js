@@ -19,6 +19,7 @@ require('./styles/colors.css');
 
 import FocusedCBGSliceHTMLLabels from './components/trends/cbg/FocusedCBGSliceHTMLLabels';
 import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
+import FocusedSMBGPointLabel from './components/trends/smbg/FocusedSMBGPointLabel';
 
 import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
 
@@ -31,6 +32,7 @@ import vizReducer from './redux/reducers/';
 const components = {
   FocusedCBGSliceHTMLLabels,
   FocusedCBGSliceTime,
+  FocusedSMBGPointLabel,
   SettingsFactory,
   TwoOptionToggle,
 };
