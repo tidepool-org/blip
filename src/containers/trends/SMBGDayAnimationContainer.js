@@ -40,9 +40,10 @@ import React, { PropTypes } from 'react';
 // import { TransitionMotion } from 'react-motion';
 
 import SMBGDayPoints from '../../components/trends/smbg/SMBGDayPoints';
+// import SMBGDayLine from '../../components/trends/smbg/SMBGDayLine';
 
 const SMBGDayAnimationContainer = (props) => {
-  const { xScale, yScale, day, data } = props;
+  const { xScale, yScale, day, data, grouped } = props;
 
   return (
     <g id={`smbgDayAnimationContainer-${day}`}>
@@ -51,6 +52,7 @@ const SMBGDayAnimationContainer = (props) => {
         data={data}
         xScale={xScale}
         yScale={yScale}
+        grouped={grouped}
       />
     </g>
   );
@@ -64,6 +66,8 @@ SMBGDayAnimationContainer.propTypes = {
     msPer24: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
   })).isRequired,
+  grouped: PropTypes.bool.isRequired,
+  lines: PropTypes.bool.isRequired,
   // focusSmbg: PropTypes.func.isRequired,
   // unfocusSmbg: PropTypes.func.isRequired,
   // focusDayLine: PropTypes.func.isRequired,

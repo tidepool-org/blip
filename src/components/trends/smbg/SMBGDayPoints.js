@@ -18,6 +18,9 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
+import { THREE_HRS } from '../../../utils/datetime';
+import { findBinForTimeOfDay } from '../../../utils/trends/data';
+
 import styles from './SMBGDayPoints.css';
 
 const SMBGDayPoints = (props) => {
@@ -26,7 +29,7 @@ const SMBGDayPoints = (props) => {
     return null;
   }
 
-  const { day, xScale, yScale } = props;
+  const { day, xScale, yScale, grouped } = props;
   const radius = 7;
 
   return (
@@ -38,6 +41,13 @@ const SMBGDayPoints = (props) => {
         const unfocus = () => {
           console.log('unfocus:', smbg.id);
         };
+        const xPosition = (msPer24) => {
+          if (grouped) {
+            return xScale(findBinForTimeOfDay(THREE_HRS, msPer24));
+          }
+          return xScale(msPer24);
+        };
+
         return (
           <circle
             className={styles.smbg}
@@ -45,7 +55,7 @@ const SMBGDayPoints = (props) => {
             id={`smbg-${smbg.id}`}
             onMouseOver={focus}
             onMouseOut={unfocus}
-            cx={xScale(smbg.msPer24)}
+            cx={xPosition(smbg.msPer24)}
             cy={yScale(smbg.value)}
             r={radius}
           />
@@ -64,6 +74,7 @@ SMBGDayPoints.propTypes = {
   })).isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
+  grouped: PropTypes.bool.isRequired,
   //focusSmbg: PropTypes.func.isRequired,
   //unfocusSmbg: PropTypes.func.isRequired,
 };

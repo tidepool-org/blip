@@ -307,6 +307,8 @@ export class TrendsContainer extends React.Component {
         focusSlice={this.props.focusTrendsCbgSlice}
         showingCbg={this.props.showingCbg}
         showingSmbg={this.props.showingSmbg}
+        smbgGrouped={this.props.smbgGrouped}
+        smbgLines={this.props.smbgLines}
         smbgRangeOverlay={this.props.smbgRangeOverlay}
         xScale={this.state.xScale}
         yScale={this.state.yScale}
