@@ -115,6 +115,8 @@ export class TrendsSVGContainer extends React.Component {
             yScale={this.props.yScale}
             focusSmbg={this.props.focusPoint}
             unfocusSmbg={this.props.unfocusPoint}
+            lines={this.props.smbgLines}
+            grouped={this.props.smbgGrouped}
           />)
         )}
           // TODO: render SMBGRangeAvgAnimationContainer if rangeOverlay passing in onl
@@ -246,6 +248,8 @@ TrendsSVGContainer.propTypes = {
   }).isRequired,
   showingCbg: PropTypes.bool.isRequired,
   showingSmbg: PropTypes.bool.isRequired,
+  smbgGrouped: PropTypes.bool.isRequired,
+  smbgLines: PropTypes.bool.isRequired,
   smbgOpts: PropTypes.shape({
     maxR: PropTypes.number.isRequired,
     r: PropTypes.number.isRequired,

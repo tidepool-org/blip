@@ -18,6 +18,9 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
+import { THREE_HRS } from '../../../utils/datetime';
+import { findBinForTimeOfDay } from '../../../utils/trends/data';
+
 import styles from './SMBGDayPoints.css';
 
 const SMBGDayPoints = (props) => {
@@ -26,13 +29,18 @@ const SMBGDayPoints = (props) => {
     return null;
   }
 
-  const { day, xScale, yScale, focusSmbg, unfocusSmbg } = props;
+  const { day, xScale, yScale, focusSmbg, unfocusSmbg, grouped } = props;
   const radius = 7;
-
+  const xPosition = (msPer24) => {
+    if (grouped) {
+      return xScale(findBinForTimeOfDay(THREE_HRS, msPer24));
+    }
+    return xScale(msPer24);
+  };
   return (
     <g id={`smbgDayPoints-${day}`}>
       {_.map(data, (smbg) => {
-        const cx = xScale(smbg.msPer24);
+        const cx = xPosition(smbg.msPer24);
         const cy = yScale(smbg.value);
         const position = { left: cx, top: cy };
         const focus = () => {
@@ -71,6 +79,7 @@ SMBGDayPoints.propTypes = {
   yScale: PropTypes.func.isRequired,
   focusSmbg: PropTypes.func.isRequired,
   unfocusSmbg: PropTypes.func.isRequired,
+  grouped: PropTypes.bool.isRequired,
 };
 
 export default SMBGDayPoints;

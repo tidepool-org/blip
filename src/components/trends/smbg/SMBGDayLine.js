@@ -36,20 +36,21 @@ const SMBGDayLine = (props) => {
     return null;
   }
 
-  const { xScale, yScale } = props;
+  const { day, xScale, yScale } = props;
 
-  const dayLine = line()
+  const dayLine = line(data)
     .x((d) => { xScale(d.msPer24); })
     .y((d) => { yScale(d.value); });
 
   return (
-    <g id="dayLine">
-      <path d={dayLine(data)} />
+    <g id={`smbgDayLine-${day}`}>
+      <path d={dayLine} />
     </g>
   );
 };
 
 SMBGDayLine.propTypes = {
+  day: PropTypes.string.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     msPer24: PropTypes.number.isRequired,
