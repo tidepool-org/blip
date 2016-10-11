@@ -35,7 +35,7 @@ class Tooltip extends React.Component {
     const offset = {};
     const tooltipRect = this.element.getBoundingClientRect();
     if (tail) {
-      const tailRect = this.tailElem && this.tailElem.getBoundingClientRect();
+      const tailRect = this.tailElem.getBoundingClientRect();
       const tailCenter = {
         top: tailRect.top + (tailRect.height / 2),
         left: tailRect.left + (tailRect.width / 2),

@@ -15,32 +15,46 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import cx from 'classnames';
 import React, { PropTypes } from 'react';
 import Tooltip from '../common/Tooltip';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { displayBgValue } from '../../../utils/format';
+import { formatTooltipDate } from '../../../utils/datetime';
 
 import styles from './FocusedSMBGPointLabel.css';
 
 const FocusedSMBGPointLabel = (props) => {
-  console.log(props);
   const { focusedPoint } = props;
   if (!focusedPoint) {
     return null;
   }
 
-  const { bgUnits, focusedPoint: { data, position } } = props;
+  const { bgUnits, focusedPoint: { data, position }, timePrefs } = props;
+  let uploadedTime;
+  if (timePrefs.timezoneAware) {
+    if (data.time) {
+      uploadedTime = formatTooltipDate(Date.parse(data.time), timePrefs);
+    }
+  } else {
+    if (data.deviceTime) {
+      uploadedTime = formatTooltipDate(Date.parse(data.deviceTime), timePrefs);
+    }
+  }
   return (
     <div className={styles.container}>
       <Tooltip
-        content={displayBgValue(data.value, bgUnits)}
+        content={<span className={styles.number}>{displayBgValue(data.value, bgUnits)}</span>}
         position={position}
         side={'bottom'}
         tail={false}
         offset={{ top: 15, left: 0 }}
+      />
+      <Tooltip
+        title={<span className={styles.explainerText}>{uploadedTime}</span>}
+        position={position}
+        side={'right'}
+        offset={{ top: 0, left: 30 }}
       />
     </div>
   );
@@ -50,44 +64,21 @@ FocusedSMBGPointLabel.defaultProps = {};
 
 FocusedSMBGPointLabel.propTypes = {
   bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
-  focusedKeys: PropTypes.arrayOf(PropTypes.oneOf([
-    'firstQuartile',
-    'max',
-    'median',
-    'min',
-    'ninetiethQuantile',
-    'tenthQuantile',
-    'thirdQuartile',
-  ])),
-  focusedPoint: PropTypes.object,
-  focusedSlice: PropTypes.shape({
+  focusedPoint: PropTypes.shape({
     data: PropTypes.shape({
-      firstQuartile: PropTypes.number.isRequired,
-      id: PropTypes.string.isRequired,
-      max: PropTypes.number.isRequired,
-      median: PropTypes.number.isRequired,
-      min: PropTypes.number.isRequired,
-      msFrom: PropTypes.number.isRequired,
-      msTo: PropTypes.number.isRequired,
-      msX: PropTypes.number.isRequired,
-      ninetiethQuantile: PropTypes.number.isRequired,
-      tenthQuantile: PropTypes.number.isRequired,
-      thirdQuartile: PropTypes.number.isRequired,
+      value: PropTypes.number.isRequired,
+      time: PropTypes.string,
+      deviceTime: PropTypes.string,
     }).isRequired,
     position: PropTypes.shape({
+      top: PropTypes.number.isRequired,
       left: PropTypes.number.isRequired,
-      tooltipLeft: PropTypes.bool.isRequired,
-      topOptions: PropTypes.shape({
-        firstQuartile: PropTypes.number.isRequired,
-        max: PropTypes.number.isRequired,
-        median: PropTypes.number.isRequired,
-        min: PropTypes.number.isRequired,
-        ninetiethQuantile: PropTypes.number.isRequired,
-        tenthQuantile: PropTypes.number.isRequired,
-        thirdQuartile: PropTypes.number.isRequired,
-      }).isRequired,
     }).isRequired,
   }),
+  timePrefs: PropTypes.shape({
+    timezoneAware: React.PropTypes.bool.isRequired,
+    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
+  }).isRequired,
 };
 
 export default FocusedSMBGPointLabel;
