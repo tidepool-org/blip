@@ -28,6 +28,7 @@
 //   this style also applies when a single smbg is focused
 
 import React, { PropTypes } from 'react';
+import { TransitionMotion, spring } from 'react-motion';
 import { line } from 'd3-shape';
 import _ from 'lodash';
 
@@ -42,9 +43,6 @@ const SMBGDayLine = (props) => {
 
   const { day, xScale, yScale, grouped } = props;
 
-  // TODO: const mapObject = (obj, fn) => _.mapKeys(obj, key => fn(obj[key], key, obj));
-  const mapObject = (obj, fn) => Object.keys(obj).map(key => fn(obj[key], key, obj));
-
   const xPosition = (msPer24) => {
     if (grouped) {
       return findBinForTimeOfDay(THREE_HRS, msPer24);
@@ -54,25 +52,29 @@ const SMBGDayLine = (props) => {
 
   const getPoints = (smbgs) => {
     const points = [];
-    _.map(smbgs, (d, i) => {
-      points[String(i)] = {
-        x: xScale(xPosition(d.msPer24)),
-        y: yScale(d.value),
-      };
+    _.map(smbgs, (d) => {
+      points.push({
+        key: d.id,
+        style: [
+          spring(xScale(xPosition(d.msPer24))), spring(yScale(d.value)),
+        ],
+      });
     });
     return points;
   };
 
-  const smbgDayLine = line()(mapObject(getPoints(data), ({ x, y }) => [x, y]));
-
   return (
     <g id={`smbgDayLine-${day}`}>
-      <path
-        d={smbgDayLine}
-        fill="transparent"
-        stroke="currentColor"
-        strokeWidth={1}
-      />
+      <TransitionMotion styles={getPoints(data)}>
+        {(interpolated) => (
+          <path
+            d={line()(_.pluck(interpolated, 'style'))}
+            fill="transparent"
+            stroke="currentColor"
+            strokeWidth={1}
+          />
+        )}
+      </TransitionMotion>
     </g>
   );
 };
