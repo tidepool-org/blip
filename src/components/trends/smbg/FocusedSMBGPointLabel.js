@@ -26,7 +26,6 @@ import { formatTooltipDate } from '../../../utils/datetime';
 import styles from './FocusedSMBGPointLabel.css';
 
 const FocusedSMBGPointLabel = (props) => {
-  console.log('pointlabel',props);
   const { focusedPoint } = props;
   if (!focusedPoint) {
     return null;
@@ -54,7 +53,7 @@ const FocusedSMBGPointLabel = (props) => {
   ));
   return (
     <div className={styles.container}>
-    {pointTooltips}
+      {pointTooltips}
       <Tooltip
         title={<span className={styles.explainerText}>{smbgTime}</span>}
         position={position}

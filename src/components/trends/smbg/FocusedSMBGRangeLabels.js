@@ -27,8 +27,6 @@ import styles from './FocusedSMBGRangeLabels.css';
 const ONE_AND_A_HALF_HOURS = THREE_HRS / 2;
 
 const FocusedSMBGRangeLabels = (props) => {
-  console.log(props);
-
   const { focusedRange } = props;
   if (!focusedRange) {
     return null;
