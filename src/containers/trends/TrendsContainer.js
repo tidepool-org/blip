@@ -297,6 +297,7 @@ export class TrendsContainer extends React.Component {
   }
 
   render() {
+    console.log(this.props);
     return (
       <TrendsSVGContainer
         bgBounds={this.props.bgBounds}

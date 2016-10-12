@@ -66,6 +66,7 @@ const SMBGDayAnimationContainer = (props) => {
 
   return (
     <g id={`smbgDayAnimationContainer-${day}`}>
+      {getDayLine()}
       <SMBGDayPoints
         day={day}
         data={data}
@@ -75,7 +76,6 @@ const SMBGDayAnimationContainer = (props) => {
         unfocusSmbg={unfocusSmbg}
         grouped={grouped}
       />
-      {getDayLine()}
     </g>
   );
 };

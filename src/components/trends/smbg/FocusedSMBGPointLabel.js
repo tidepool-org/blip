@@ -16,6 +16,7 @@
  */
 
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 import Tooltip from '../common/Tooltip';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
@@ -25,36 +26,40 @@ import { formatTooltipDate } from '../../../utils/datetime';
 import styles from './FocusedSMBGPointLabel.css';
 
 const FocusedSMBGPointLabel = (props) => {
+  console.log('pointlabel',props);
   const { focusedPoint } = props;
   if (!focusedPoint) {
     return null;
   }
 
-  const { bgUnits, focusedPoint: { data, position }, timePrefs } = props;
-  let uploadedTime;
+  const { bgUnits, focusedPoint: { data, position, dayPoints, positions }, timePrefs } = props;
+  let smbgTime;
   if (timePrefs.timezoneAware) {
     if (data.time) {
-      uploadedTime = formatTooltipDate(Date.parse(data.time), timePrefs);
+      smbgTime = formatTooltipDate(Date.parse(data.time), timePrefs);
     }
   } else {
     if (data.deviceTime) {
-      uploadedTime = formatTooltipDate(Date.parse(data.deviceTime), timePrefs);
+      smbgTime = formatTooltipDate(Date.parse(data.deviceTime), timePrefs);
     }
   }
+  const pointTooltips = _.map(dayPoints, (smbg, i) => (
+    <Tooltip
+      content={<span className={styles.number}>{displayBgValue(smbg.value, bgUnits)}</span>}
+      position={positions[i]}
+      side={'bottom'}
+      tail={false}
+      offset={{ top: 15, left: 0 }}
+    />
+  ));
   return (
     <div className={styles.container}>
+    {pointTooltips}
       <Tooltip
-        content={<span className={styles.number}>{displayBgValue(data.value, bgUnits)}</span>}
-        position={position}
-        side={'bottom'}
-        tail={false}
-        offset={{ top: 15, left: 0 }}
-      />
-      <Tooltip
-        title={<span className={styles.explainerText}>{uploadedTime}</span>}
+        title={<span className={styles.explainerText}>{smbgTime}</span>}
         position={position}
         side={'right'}
-        offset={{ top: 0, left: 30 }}
+        offset={{ top: 10, left: 30 }}
       />
     </div>
   );

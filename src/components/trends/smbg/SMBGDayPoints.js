@@ -37,6 +37,9 @@ const SMBGDayPoints = (props) => {
     }
     return xScale(msPer24);
   };
+  const positions = _.map(data, (smbg) => ({
+    left: xPosition(smbg.msPer24), top: yScale(smbg.value),
+  }));
   return (
     <g id={`smbgDayPoints-${day}`}>
       {_.map(data, (smbg) => {
@@ -44,8 +47,8 @@ const SMBGDayPoints = (props) => {
         const cy = yScale(smbg.value);
         const position = { left: cx, top: cy };
         const focus = () => {
-          console.log('focused on: ', smbg);
-          focusSmbg(smbg, position);
+          console.log('focused on: ', smbg, data);
+          focusSmbg(smbg, position, data, positions);
         };
         const unfocus = () => {
           console.log('unfocus:', smbg.id);
