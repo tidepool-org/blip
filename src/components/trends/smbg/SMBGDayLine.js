@@ -29,6 +29,10 @@
 
 import React, { PropTypes } from 'react';
 import { line } from 'd3-shape';
+import _ from 'lodash';
+
+import { THREE_HRS } from '../../../utils/datetime';
+import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
 const SMBGDayLine = (props) => {
   const { data } = props;
@@ -36,15 +40,39 @@ const SMBGDayLine = (props) => {
     return null;
   }
 
-  const { day, xScale, yScale } = props;
+  const { day, xScale, yScale, grouped } = props;
 
-  const dayLine = line(data)
-    .x((d) => { xScale(d.msPer24); })
-    .y((d) => { yScale(d.value); });
+  // TODO: const mapObject = (obj, fn) => _.mapKeys(obj, key => fn(obj[key], key, obj));
+  const mapObject = (obj, fn) => Object.keys(obj).map(key => fn(obj[key], key, obj));
+
+  const xPosition = (msPer24) => {
+    if (grouped) {
+      return findBinForTimeOfDay(THREE_HRS, msPer24);
+    }
+    return msPer24;
+  };
+
+  const getPoints = (smbgs) => {
+    const points = [];
+    _.map(smbgs, (d, i) => {
+      points[String(i)] = {
+        x: xScale(xPosition(d.msPer24)),
+        y: yScale(d.value),
+      };
+    });
+    return points;
+  };
+
+  const smbgDayLine = line()(mapObject(getPoints(data), ({ x, y }) => [x, y]));
 
   return (
     <g id={`smbgDayLine-${day}`}>
-      <path d={dayLine} />
+      <path
+        d={smbgDayLine}
+        fill="transparent"
+        stroke="currentColor"
+        strokeWidth={1}
+      />
     </g>
   );
 };
@@ -58,6 +86,7 @@ SMBGDayLine.propTypes = {
   })).isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
+  grouped: PropTypes.bool.isRequired,
 };
 
 export default SMBGDayLine;

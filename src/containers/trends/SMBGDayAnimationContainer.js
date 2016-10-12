@@ -37,13 +37,33 @@
 
 // import _ from 'lodash';
 import React, { PropTypes } from 'react';
-// import { TransitionMotion } from 'react-motion';
+// import { TransitionMotion, spring } from 'react-motion';
 
 import SMBGDayPoints from '../../components/trends/smbg/SMBGDayPoints';
-// import SMBGDayLine from '../../components/trends/smbg/SMBGDayLine';
+import SMBGDayLine from '../../components/trends/smbg/SMBGDayLine';
 
 const SMBGDayAnimationContainer = (props) => {
-  const { xScale, yScale, day, data, grouped } = props;
+  const { data } = props;
+  if (!data) {
+    return null;
+  }
+
+  const { xScale, yScale, day, grouped, lines } = props;
+
+  const getDayLine = () => {
+    if (lines) {
+      return (
+        <SMBGDayLine
+          day={day}
+          data={data}
+          xScale={xScale}
+          yScale={yScale}
+          grouped={grouped}
+        />
+      );
+    }
+    return null;
+  };
 
   return (
     <g id={`smbgDayAnimationContainer-${day}`}>
@@ -54,6 +74,7 @@ const SMBGDayAnimationContainer = (props) => {
         yScale={yScale}
         grouped={grouped}
       />
+      {getDayLine()}
     </g>
   );
 };

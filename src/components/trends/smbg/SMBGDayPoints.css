@@ -16,8 +16,8 @@
  */
 
 .smbg {
-  fill: var(--data-purple--lightest);
-  opacity: 0.5;
+  fill: var(--data-purple--medium);
+  opacity: 0.75;
 }
 
 .smbg:hover {
