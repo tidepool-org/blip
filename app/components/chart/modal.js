@@ -28,6 +28,8 @@ var Footer = require('./footer');
 import * as viz from '@tidepool/viz';
 const FocusedCBGSliceHTMLLabels = viz.components.FocusedCBGSliceHTMLLabels;
 const FocusedCBGSliceTime = viz.components.FocusedCBGSliceTime;
+const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
+const FocusedSMBGRangeLabels = viz.components.FocusedSMBGRangeLabels;
 const TrendsContainer = viz.containers.TrendsContainer;
 
 var Modal = React.createClass({
@@ -80,6 +82,8 @@ var Modal = React.createClass({
               </div>
               {this.renderFocusedCBGTime()}
               {this.renderFocusedCBGHTMLLabels()}
+              {this.renderFocusedSMBGPointLabel()}
+              {this.renderFocusedSMBGRangeLabels()}
             </div>
           </div>
         </div>
@@ -191,6 +195,30 @@ var Modal = React.createClass({
     return (
       <FocusedCBGSliceTime
         focusedSlice={this.props.trendsState[currentPatientInViewId].focusedCbgSlice} />
+    );
+  },
+  renderFocusedSMBGPointLabel: function() {
+    if (!this.props.chartPrefs.modal.showingSmbg) {
+      return null;
+    }
+    const { currentPatientInViewId } = this.props;
+    return (
+      <FocusedSMBGPointLabel
+        bgUnits={this.props.bgPrefs.bgUnits}
+        timePrefs={this.props.timePrefs}
+        focusedPoint={this.props.trendsState[currentPatientInViewId].focusedSmbg} />
+    );
+  },
+  renderFocusedSMBGRangeLabels: function() {
+    if (!this.props.chartPrefs.modal.showingSmbg) {
+      return null;
+    }
+    const { currentPatientInViewId } = this.props;
+    return (
+      <FocusedSMBGRangeLabels
+        bgUnits={this.props.bgPrefs.bgUnits}
+        timePrefs={this.props.timePrefs}
+        focusedRange={this.props.trendsState[currentPatientInViewId].focusedSmbgRangeAvg} />
     );
   },
   renderMissingSMBGHeader: function() {
