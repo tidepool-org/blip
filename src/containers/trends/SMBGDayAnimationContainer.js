@@ -47,9 +47,7 @@ const SMBGDayAnimationContainer = (props) => {
   if (!data) {
     return null;
   }
-  const { xScale, yScale, day, data, focusSmbg, unfocusSmbg, grouped } = props;
-
-  const { xScale, yScale, day, grouped, lines } = props;
+  const { xScale, yScale, day, focusSmbg, unfocusSmbg, grouped, lines } = props;
 
   const getDayLine = () => {
     if (lines) {
