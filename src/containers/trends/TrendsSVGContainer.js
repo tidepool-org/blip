@@ -109,6 +109,7 @@ export class TrendsSVGContainer extends React.Component {
         {[rangeOverlay]}
         {_.map(smbgsByDate, (smbgs, date) => (
           <SMBGDayAnimationContainer
+            key={`smbgDayAnimationContainer-${date}`}
             day={date}
             data={smbgs}
             xScale={this.props.xScale}
