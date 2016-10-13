@@ -1,7 +1,7 @@
-.smbgDayLine {
+.smbgPath {
   pointer-events: none;
-
-  stroke: white;
-  stroke-dasharray: 9,9;
-  stroke-width: 2px;
+  fill: none;
+  opacity: 0.75;
+  stroke: var(--smbg-dayline);
+  stroke-dasharray: 4, 4;
 }

@@ -35,6 +35,9 @@ import _ from 'lodash';
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
+
+import styles from './SMBGDayLineAnimated.css';
+
 const SMBGDayLineAnimated = (props) => {
   const { data } = props;
   if (!data) {
@@ -69,9 +72,7 @@ const SMBGDayLineAnimated = (props) => {
         {(interpolated) => (
           <path
             d={line()(_.pluck(interpolated, 'style'))}
-            fill="transparent"
-            stroke="currentColor"
-            strokeWidth={1}
+            className={styles.smbgPath}
           />
         )}
       </TransitionMotion>
