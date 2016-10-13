@@ -48,11 +48,9 @@ const SMBGDayPointsAnimated = (props) => {
         const cy = yScale(smbg.value);
         const position = { left: cx, top: cy };
         const focus = () => {
-          console.log('focused on: ', smbg, data);
           focusSmbg(smbg, position, data, positions);
         };
         const unfocus = () => {
-          console.log('unfocus:', smbg.id);
           unfocusSmbg();
         };
 

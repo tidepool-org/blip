@@ -59,6 +59,8 @@ const SMBGDaysAnimationContainer = (props) => {
         data={smbgs}
         xScale={xScale}
         yScale={yScale}
+        focusLine={focusSmbg}
+        unfocusLine={unfocusSmbg}
         grouped={grouped}
       />
     ));
