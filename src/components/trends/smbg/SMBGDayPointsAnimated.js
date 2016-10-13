@@ -16,14 +16,15 @@
  */
 
 import React, { PropTypes } from 'react';
+import { Motion, spring } from 'react-motion';
 import _ from 'lodash';
 
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
-import styles from './SMBGDayPoints.css';
+import styles from './SMBGDayPointsAnimated.css';
 
-const SMBGDayPoints = (props) => {
+const SMBGDayPointsAnimated = (props) => {
   const { data } = props;
   if (!data) {
     return null;
@@ -41,6 +42,7 @@ const SMBGDayPoints = (props) => {
         const unfocus = () => {
           console.log('unfocus:', smbg.id);
         };
+
         const xPosition = (msPer24) => {
           if (grouped) {
             return xScale(findBinForTimeOfDay(THREE_HRS, msPer24));
@@ -49,23 +51,27 @@ const SMBGDayPoints = (props) => {
         };
 
         return (
-          <circle
-            className={styles.smbg}
-            key={`smbg-${smbg.id}`}
-            id={`smbg-${smbg.id}`}
-            onMouseOver={focus}
-            onMouseOut={unfocus}
-            cx={xPosition(smbg.msPer24)}
-            cy={yScale(smbg.value)}
-            r={radius}
-          />
+          <Motion style={{xPos: spring(xPosition(smbg.msPer24))}}>
+            {(interpolated) => (
+              <circle
+                className={styles.smbg}
+                key={`smbg-${smbg.id}`}
+                id={`smbg-${smbg.id}`}
+                onMouseOver={focus}
+                onMouseOut={unfocus}
+                cx={interpolated.xPos}
+                cy={yScale(smbg.value)}
+                r={radius}
+              />
+            )}
+          </Motion>
         );
       })}
     </g>
   );
 };
 
-SMBGDayPoints.propTypes = {
+SMBGDayPointsAnimated.propTypes = {
   day: PropTypes.string.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -75,8 +81,6 @@ SMBGDayPoints.propTypes = {
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
   grouped: PropTypes.bool.isRequired,
-  //focusSmbg: PropTypes.func.isRequired,
-  //unfocusSmbg: PropTypes.func.isRequired,
 };
 
-export default SMBGDayPoints;
+export default SMBGDayPointsAnimated;

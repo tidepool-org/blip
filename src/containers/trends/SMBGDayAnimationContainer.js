@@ -34,13 +34,10 @@
 //    + render a line connecting smbgs in the day
 //    + attaches hover handler for focusing the day of smbgs
 
-
-// import _ from 'lodash';
 import React, { PropTypes } from 'react';
-// import { TransitionMotion, spring } from 'react-motion';
 
-import SMBGDayPoints from '../../components/trends/smbg/SMBGDayPoints';
-import SMBGDayLine from '../../components/trends/smbg/SMBGDayLine';
+import SMBGDayPointsAnimated from '../../components/trends/smbg/SMBGDayPointsAnimated';
+import SMBGDayLineAnimated from '../../components/trends/smbg/SMBGDayLineAnimated';
 
 const SMBGDayAnimationContainer = (props) => {
   const { data } = props;
@@ -53,7 +50,7 @@ const SMBGDayAnimationContainer = (props) => {
   const getDayLine = () => {
     if (lines) {
       return (
-        <SMBGDayLine
+        <SMBGDayLineAnimated
           day={day}
           data={data}
           xScale={xScale}
@@ -67,7 +64,7 @@ const SMBGDayAnimationContainer = (props) => {
 
   return (
     <g id={`smbgDayAnimationContainer-${day}`}>
-      <SMBGDayPoints
+      <SMBGDayPointsAnimated
         day={day}
         data={data}
         xScale={xScale}
