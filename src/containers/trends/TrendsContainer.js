@@ -121,9 +121,11 @@ export class TrendsContainer extends React.Component {
     // actions
     focusTrendsCbgSlice: PropTypes.func.isRequired,
     focusTrendsSmbgRangeAvg: PropTypes.func.isRequired,
+    focusTrendsSmbg: PropTypes.func.isRequired,
     markTrendsViewed: PropTypes.func.isRequired,
     unfocusTrendsCbgSlice: PropTypes.func.isRequired,
     unfocusTrendsSmbgRangeAvg: PropTypes.func.isRequired,
+    unfocusTrendsSmbg: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -295,6 +297,7 @@ export class TrendsContainer extends React.Component {
   }
 
   render() {
+    console.log(this.props);
     return (
       <TrendsSVGContainer
         bgBounds={this.props.bgBounds}
@@ -303,7 +306,8 @@ export class TrendsContainer extends React.Component {
         cbgData={this.state.currentCbgData}
         focusedSlice={this.props.trendsState.focusedCbgSlice}
         focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
-        focusRange={(d) => { console.log('focusRange', d); }}
+        focusRange={this.props.focusTrendsSmbgRangeAvg}
+        focusPoint={this.props.focusTrendsSmbg}
         focusSlice={this.props.focusTrendsCbgSlice}
         showingCbg={this.props.showingCbg}
         showingSmbg={this.props.showingSmbg}
@@ -312,7 +316,8 @@ export class TrendsContainer extends React.Component {
         smbgRangeOverlay={this.props.smbgRangeOverlay}
         xScale={this.state.xScale}
         yScale={this.state.yScale}
-        unfocusRange={() => { console.log('unfocusRange'); }}
+        unfocusRange={this.props.unfocusTrendsSmbgRangeAvg}
+        unfocusPoint={this.props.unfocusTrendsSmbg}
         unfocusSlice={this.props.unfocusTrendsCbgSlice}
       />
     );
@@ -334,6 +339,9 @@ export function mapDispatchToProps(dispatch, ownProps) {
     focusTrendsSmbgRangeAvg: _.partial(
       actions.focusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
     ),
+    focusTrendsSmbg: _.partial(
+      actions.focusTrendsSmbg, ownProps.currentPatientInViewId
+    ),
     markTrendsViewed: _.partial(
       actions.markTrendsViewed, ownProps.currentPatientInViewId
     ),
@@ -342,6 +350,9 @@ export function mapDispatchToProps(dispatch, ownProps) {
     ),
     unfocusTrendsSmbgRangeAvg: _.partial(
       actions.unfocusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
+    ),
+    unfocusTrendsSmbg: _.partial(
+      actions.unfocusTrendsSmbg, ownProps.currentPatientInViewId
     ),
   }, dispatch);
 }

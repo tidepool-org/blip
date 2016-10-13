@@ -46,7 +46,7 @@ const SMBGDaysAnimationContainer = (props) => {
     return null;
   }
 
-  const { xScale, yScale, grouped, lines } = props;
+  const { xScale, yScale, grouped, lines, focusSmbg, unfocusSmbg } = props;
   const smbgsByDate = _.groupBy(data, 'localDate');
 
   function getLines() {
@@ -71,6 +71,8 @@ const SMBGDaysAnimationContainer = (props) => {
         data={smbgs}
         xScale={xScale}
         yScale={yScale}
+        focusSmbg={focusSmbg}
+        unfocusSmbg={unfocusSmbg}
         grouped={grouped}
       />
     ));
@@ -93,8 +95,8 @@ SMBGDaysAnimationContainer.propTypes = {
   })).isRequired,
   grouped: PropTypes.bool.isRequired,
   lines: PropTypes.bool.isRequired,
-  // focusSmbg: PropTypes.func.isRequired,
-  // unfocusSmbg: PropTypes.func.isRequired,
+  focusSmbg: PropTypes.func.isRequired,
+  unfocusSmbg: PropTypes.func.isRequired,
   // focusDayLine: PropTypes.func.isRequired,
   // unfocusDayLine: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,

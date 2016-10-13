@@ -30,24 +30,30 @@ const SMBGDayPointsAnimated = (props) => {
     return null;
   }
 
-  const { day, xScale, yScale, grouped } = props;
+  const { day, xScale, yScale, focusSmbg, unfocusSmbg, grouped } = props;
   const radius = 7;
-
+  const xPosition = (msPer24) => {
+    if (grouped) {
+      return xScale(findBinForTimeOfDay(THREE_HRS, msPer24));
+    }
+    return xScale(msPer24);
+  };
+  const positions = _.map(data, (smbg) => ({
+    left: xPosition(smbg.msPer24), top: yScale(smbg.value),
+  }));
   return (
     <g id={`smbgDayPoints-${day}`}>
       {_.map(data, (smbg) => {
+        const cx = xPosition(smbg.msPer24);
+        const cy = yScale(smbg.value);
+        const position = { left: cx, top: cy };
         const focus = () => {
-          console.log('focused on: ', smbg);
+          console.log('focused on: ', smbg, data);
+          focusSmbg(smbg, position, data, positions);
         };
         const unfocus = () => {
           console.log('unfocus:', smbg.id);
-        };
-
-        const xPosition = (msPer24) => {
-          if (grouped) {
-            return xScale(findBinForTimeOfDay(THREE_HRS, msPer24));
-          }
-          return xScale(msPer24);
+          unfocusSmbg();
         };
 
         return (
@@ -80,6 +86,8 @@ SMBGDayPointsAnimated.propTypes = {
   })).isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
+  focusSmbg: PropTypes.func.isRequired,
+  unfocusSmbg: PropTypes.func.isRequired,
   grouped: PropTypes.bool.isRequired,
 };
 

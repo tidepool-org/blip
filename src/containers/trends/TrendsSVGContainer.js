@@ -107,6 +107,8 @@ export class TrendsSVGContainer extends React.Component {
           data={this.props.smbgData}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
+          focusSmbg={this.props.focusPoint}
+          unfocusSmbg={this.props.unfocusPoint}
           lines={this.props.smbgLines}
           grouped={this.props.smbgGrouped}
         />
@@ -235,6 +237,7 @@ TrendsSVGContainer.propTypes = {
     }).isRequired,
   }),
   focusRange: PropTypes.func.isRequired,
+  focusPoint: PropTypes.func.isRequired,
   focusSlice: PropTypes.func.isRequired,
   margins: PropTypes.shape({
     top: PropTypes.number.isRequired,
@@ -253,6 +256,7 @@ TrendsSVGContainer.propTypes = {
   smbgRangeOverlay: PropTypes.bool.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
   unfocusRange: PropTypes.func.isRequired,
+  unfocusPoint: PropTypes.func.isRequired,
   unfocusSlice: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
