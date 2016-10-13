@@ -35,49 +35,56 @@
 //    + attaches hover handler for focusing the day of smbgs
 
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 
 import SMBGDayPointsAnimated from '../../components/trends/smbg/SMBGDayPointsAnimated';
 import SMBGDayLineAnimated from '../../components/trends/smbg/SMBGDayLineAnimated';
 
-const SMBGDayAnimationContainer = (props) => {
+const SMBGDaysAnimationContainer = (props) => {
   const { data } = props;
   if (!data) {
     return null;
   }
 
-  const { xScale, yScale, day, grouped, lines } = props;
+  const { xScale, yScale, grouped, lines } = props;
+  const smbgsByDate = _.groupBy(data, 'localDate');
 
-  const getDayLine = () => {
-    if (lines) {
-      return (
-        <SMBGDayLineAnimated
-          day={day}
-          data={data}
-          xScale={xScale}
-          yScale={yScale}
-          grouped={grouped}
-        />
-      );
+  function getLines() {
+    if (!lines) {
+      return null;
     }
-    return null;
-  };
-
-  return (
-    <g id={`smbgDayAnimationContainer-${day}`}>
-      <SMBGDayPointsAnimated
-        day={day}
-        data={data}
+    return _.map(smbgsByDate, (smbgs, date) => (
+      <SMBGDayLineAnimated
+        day={date}
+        data={smbgs}
         xScale={xScale}
         yScale={yScale}
         grouped={grouped}
       />
-      {getDayLine()}
+    ));
+  }
+
+  function getPoints() {
+    return _.map(smbgsByDate, (smbgs, date) => (
+      <SMBGDayPointsAnimated
+        day={date}
+        data={smbgs}
+        xScale={xScale}
+        yScale={yScale}
+        grouped={grouped}
+      />
+    ));
+  }
+
+  return (
+    <g id="smbgDayAnimationContainer">
+      {getLines()}
+      {getPoints()}
     </g>
   );
 };
 
-SMBGDayAnimationContainer.propTypes = {
-  day: PropTypes.string.isRequired,
+SMBGDaysAnimationContainer.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({
     // here only documenting the properties we actually use rather than the *whole* data model!
     id: PropTypes.string.isRequired,
@@ -94,4 +101,4 @@ SMBGDayAnimationContainer.propTypes = {
   yScale: PropTypes.func.isRequired,
 };
 
-export default SMBGDayAnimationContainer;
+export default SMBGDaysAnimationContainer;

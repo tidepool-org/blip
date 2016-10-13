@@ -40,14 +40,13 @@ const SMBG_OPTS = {
 };
 
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
 import dimensions from 'react-dimensions';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
-import SMBGDayAnimationContainer from './SMBGDayAnimationContainer';
+import SMBGDaysAnimationContainer from './SMBGDaysAnimationContainer';
 import SMBGRangeAvgAnimationContainer from './SMBGRangeAvgAnimationContainer';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
@@ -102,22 +101,21 @@ export class TrendsSVGContainer extends React.Component {
           yScale={this.props.yScale}
         />) : null;
 
-      const smbgsByDate = _.groupBy(this.props.smbgData, 'localDate');
+      const daysOverlay = (
+        <SMBGDaysAnimationContainer
+          key="smbgDayAnimationContainer"
+          data={this.props.smbgData}
+          xScale={this.props.xScale}
+          yScale={this.props.yScale}
+          lines={this.props.smbgLines}
+          grouped={this.props.smbgGrouped}
+        />
+      );
 
       return (
         <g id="smbgTrends">
         {[rangeOverlay]}
-        {_.map(smbgsByDate, (smbgs, date) => (
-          <SMBGDayAnimationContainer
-            key={`smbgDayAnimationContainer-${date}`}
-            day={date}
-            data={smbgs}
-            xScale={this.props.xScale}
-            yScale={this.props.yScale}
-            lines={this.props.smbgLines}
-            grouped={this.props.smbgGrouped}
-          />)
-        )}
+        {[daysOverlay]}
           // TODO: render SMBGRangeAvgAnimationContainer if rangeOverlay passing in onl
           //   SMBGRange as the component to render (bottom layer)
           // TODO: replace with the two layers of SMBGRangeAvgAnimationContainer
