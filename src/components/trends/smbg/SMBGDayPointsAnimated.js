@@ -16,14 +16,15 @@
  */
 
 import React, { PropTypes } from 'react';
+import { Motion, spring } from 'react-motion';
 import _ from 'lodash';
 
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
-import styles from './SMBGDayPoints.css';
+import styles from './SMBGDayPointsAnimated.css';
 
-const SMBGDayPoints = (props) => {
+const SMBGDayPointsAnimated = (props) => {
   const { data } = props;
   if (!data) {
     return null;
@@ -54,24 +55,29 @@ const SMBGDayPoints = (props) => {
           console.log('unfocus:', smbg.id);
           unfocusSmbg();
         };
+
         return (
-          <circle
-            className={styles.smbg}
-            key={`smbg-${smbg.id}`}
-            id={`smbg-${smbg.id}`}
-            onMouseOver={focus}
-            onMouseOut={unfocus}
-            cx={cx}
-            cy={cy}
-            r={radius}
-          />
+          <Motion style={{ xPos: spring(xPosition(smbg.msPer24)) }}>
+            {(interpolated) => (
+              <circle
+                className={styles.smbg}
+                key={`smbg-${smbg.id}`}
+                id={`smbg-${smbg.id}`}
+                onMouseOver={focus}
+                onMouseOut={unfocus}
+                cx={interpolated.xPos}
+                cy={yScale(smbg.value)}
+                r={radius}
+              />
+            )}
+          </Motion>
         );
       })}
     </g>
   );
 };
 
-SMBGDayPoints.propTypes = {
+SMBGDayPointsAnimated.propTypes = {
   day: PropTypes.string.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -85,4 +91,4 @@ SMBGDayPoints.propTypes = {
   grouped: PropTypes.bool.isRequired,
 };
 
-export default SMBGDayPoints;
+export default SMBGDayPointsAnimated;

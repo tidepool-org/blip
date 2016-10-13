@@ -35,7 +35,7 @@ import _ from 'lodash';
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
-const SMBGDayLine = (props) => {
+const SMBGDayLineAnimated = (props) => {
   const { data } = props;
   if (!data) {
     return null;
@@ -79,7 +79,7 @@ const SMBGDayLine = (props) => {
   );
 };
 
-SMBGDayLine.propTypes = {
+SMBGDayLineAnimated.propTypes = {
   day: PropTypes.string.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -91,4 +91,4 @@ SMBGDayLine.propTypes = {
   grouped: PropTypes.bool.isRequired,
 };
 
-export default SMBGDayLine;
+export default SMBGDayLineAnimated;

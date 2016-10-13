@@ -34,68 +34,73 @@
 //    + render a line connecting smbgs in the day
 //    + attaches hover handler for focusing the day of smbgs
 
-
-// import _ from 'lodash';
 import React, { PropTypes } from 'react';
-// import { TransitionMotion, spring } from 'react-motion';
+import _ from 'lodash';
 
-import SMBGDayPoints from '../../components/trends/smbg/SMBGDayPoints';
-import SMBGDayLine from '../../components/trends/smbg/SMBGDayLine';
+import SMBGDayPointsAnimated from '../../components/trends/smbg/SMBGDayPointsAnimated';
+import SMBGDayLineAnimated from '../../components/trends/smbg/SMBGDayLineAnimated';
 
-const SMBGDayAnimationContainer = (props) => {
+const SMBGDaysAnimationContainer = (props) => {
   const { data } = props;
   if (!data) {
     return null;
   }
-  const { xScale, yScale, day, focusSmbg, unfocusSmbg, grouped, lines } = props;
 
-  const getDayLine = () => {
-    if (lines) {
-      return (
-        <SMBGDayLine
-          day={day}
-          data={data}
-          xScale={xScale}
-          yScale={yScale}
-          grouped={grouped}
-        />
-      );
+  const { xScale, yScale, grouped, lines, focusSmbg, unfocusSmbg } = props;
+  const smbgsByDate = _.groupBy(data, 'localDate');
+
+  function getLines() {
+    if (!lines) {
+      return null;
     }
-    return null;
-  };
+    return _.map(smbgsByDate, (smbgs, date) => (
+      <SMBGDayLineAnimated
+        day={date}
+        data={smbgs}
+        xScale={xScale}
+        yScale={yScale}
+        grouped={grouped}
+      />
+    ));
+  }
 
-  return (
-    <g id={`smbgDayAnimationContainer-${day}`}>
-      {getDayLine()}
-      <SMBGDayPoints
-        day={day}
-        data={data}
+  function getPoints() {
+    return _.map(smbgsByDate, (smbgs, date) => (
+      <SMBGDayPointsAnimated
+        day={date}
+        data={smbgs}
         xScale={xScale}
         yScale={yScale}
         focusSmbg={focusSmbg}
         unfocusSmbg={unfocusSmbg}
         grouped={grouped}
       />
+    ));
+  }
+
+  return (
+    <g id="smbgDayAnimationContainer">
+      {getLines()}
+      {getPoints()}
     </g>
   );
 };
 
-SMBGDayAnimationContainer.propTypes = {
-  day: PropTypes.string.isRequired,
+SMBGDaysAnimationContainer.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({
     // here only documenting the properties we actually use rather than the *whole* data model!
     id: PropTypes.string.isRequired,
     msPer24: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
   })).isRequired,
-  focusSmbg: PropTypes.func.isRequired,
-  unfocusSmbg: PropTypes.func.isRequired,
   grouped: PropTypes.bool.isRequired,
   lines: PropTypes.bool.isRequired,
+  focusSmbg: PropTypes.func.isRequired,
+  unfocusSmbg: PropTypes.func.isRequired,
   // focusDayLine: PropTypes.func.isRequired,
   // unfocusDayLine: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
 };
 
-export default SMBGDayAnimationContainer;
+export default SMBGDaysAnimationContainer;
