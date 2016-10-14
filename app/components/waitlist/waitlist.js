@@ -21,7 +21,7 @@ var WaitList = React.createClass({
   render: function() {
     return (
       <div className="waitlist-container" >
-        <iframe id="typeform-full" width="100%" height="100%" frameBorder="0" src="https://tidepool.typeform.com/to/AaDf0A"></iframe>
+        <iframe id="typeform-full" width="100%" height="100%" frameBorder="0" src="https://tidepool.typeform.com/to/vuFnxn"></iframe>
       </div>
     );
   }
