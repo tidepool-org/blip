@@ -107,8 +107,9 @@ export class TrendsSVGContainer extends React.Component {
           data={this.props.smbgData}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
-          focusSmbg={this.props.focusPoint}
-          unfocusSmbg={this.props.unfocusPoint}
+          focusedSmbg={this.props.focusedSmbg}
+          focusSmbg={this.props.focusSmbg}
+          unfocusSmbg={this.props.unfocusSmbg}
           lines={this.props.smbgLines}
           grouped={this.props.smbgGrouped}
         />
@@ -236,8 +237,25 @@ TrendsSVGContainer.propTypes = {
       }).isRequired,
     }).isRequired,
   }),
+  focusedSmbg: PropTypes.shape({
+    smbgData: PropTypes.shape({
+      value: PropTypes.number.isRequired,
+    }),
+    smbgPosition: PropTypes.shape({
+      top: PropTypes.number.isRequired,
+      left: PropTypes.number.isRequired,
+    }),
+    day: PropTypes.string.isRequired,
+    smbgDay: PropTypes.arrayOf(PropTypes.shape({
+      value: PropTypes.number.isRequired,
+    })),
+    smbgPositions: PropTypes.arrayOf(PropTypes.shape({
+      top: PropTypes.number.isRequired,
+      left: PropTypes.number.isRequired,
+    })),
+  }),
   focusRange: PropTypes.func.isRequired,
-  focusPoint: PropTypes.func.isRequired,
+  focusSmbg: PropTypes.func.isRequired,
   focusSlice: PropTypes.func.isRequired,
   margins: PropTypes.shape({
     top: PropTypes.number.isRequired,
@@ -256,7 +274,7 @@ TrendsSVGContainer.propTypes = {
   smbgRangeOverlay: PropTypes.bool.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
   unfocusRange: PropTypes.func.isRequired,
-  unfocusPoint: PropTypes.func.isRequired,
+  unfocusSmbg: PropTypes.func.isRequired,
   unfocusSlice: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,

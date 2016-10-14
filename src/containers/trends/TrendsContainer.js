@@ -116,6 +116,23 @@ export class TrendsContainer extends React.Component {
         'tenthQuantile',
         'thirdQuartile',
       ])),
+      focusedSmbg: PropTypes.shape({
+        smbgData: PropTypes.shape({
+          value: PropTypes.number.isRequired,
+        }),
+        smbgPosition: PropTypes.shape({
+          top: PropTypes.number.isRequired,
+          left: PropTypes.number.isRequired,
+        }),
+        day: PropTypes.string.isRequired,
+        smbgDay: PropTypes.arrayOf(PropTypes.shape({
+          value: PropTypes.number.isRequired,
+        })),
+        smbgPositions: PropTypes.arrayOf(PropTypes.shape({
+          top: PropTypes.number.isRequired,
+          left: PropTypes.number.isRequired,
+        })),
+      }),
       touched: PropTypes.bool.isRequired,
     }).isRequired,
     // actions
@@ -305,8 +322,9 @@ export class TrendsContainer extends React.Component {
         cbgData={this.state.currentCbgData}
         focusedSlice={this.props.trendsState.focusedCbgSlice}
         focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
+        focusedSmbg={this.props.trendsState.focusedSmbg}
         focusRange={this.props.focusTrendsSmbgRangeAvg}
-        focusPoint={this.props.focusTrendsSmbg}
+        focusSmbg={this.props.focusTrendsSmbg}
         focusSlice={this.props.focusTrendsCbgSlice}
         showingCbg={this.props.showingCbg}
         showingSmbg={this.props.showingSmbg}
@@ -316,7 +334,7 @@ export class TrendsContainer extends React.Component {
         xScale={this.state.xScale}
         yScale={this.state.yScale}
         unfocusRange={this.props.unfocusTrendsSmbgRangeAvg}
-        unfocusPoint={this.props.unfocusTrendsSmbg}
+        unfocusSmbg={this.props.unfocusTrendsSmbg}
         unfocusSlice={this.props.unfocusTrendsCbgSlice}
       />
     );

@@ -41,44 +41,29 @@ import SMBGDayPointsAnimated from '../../components/trends/smbg/SMBGDayPointsAni
 import SMBGDayLineAnimated from '../../components/trends/smbg/SMBGDayLineAnimated';
 
 class SMBGDaysAnimationContainer extends React.Component {
-
   constructor(props) {
     super(props);
-    this.state = { selected: null };
-    this.handleSMBGFocus = this.handleSMBGFocus.bind(this);
-    this.handleSMBGUnfocus = this.handleSMBGUnfocus.bind(this);
-  }
-
-  handleSMBGFocus(smbg, position, data, positions) {
-    this.setState({ selected: { smbgs: data, date: _.find(data, 'localDate').localDate } });
-    this.props.focusSmbg(smbg, position, data, positions);
-  }
-
-  handleSMBGUnfocus() {
-    this.setState({ selected: null });
-    this.props.unfocusSmbg();
   }
 
   render() {
-    const { data, xScale, yScale, grouped, lines } = this.props;
-    const { selected } = this.state;
+    const { data, xScale, yScale, grouped, lines, focusedSmbg, focusSmbg, unfocusSmbg } = this.props;
+    const focusedDay = focusedSmbg ? focusedSmbg.day : '';
     const smbgsByDate = _.groupBy(data, 'localDate');
-    const smbgFocus = this.handleSMBGFocus;
-    const smbgUnfocus = this.handleSMBGUnfocus;
 
     function getLines() {
       if (!lines) {
-        if (!selected) {
+        if (!focusedDay) {
           return null;
         }
         return (
           <SMBGDayLineAnimated
-            day={selected.date}
-            data={selected.smbgs}
+            day={focusedDay}
+            focusedDay={focusedDay}
+            data={focusedSmbg.dayPoints}
             xScale={xScale}
             yScale={yScale}
-            focusLine={smbgFocus}
-            unfocusLine={smbgUnfocus}
+            focusLine={focusSmbg}
+            unfocusLine={unfocusSmbg}
             grouped={grouped}
           />
         );
@@ -86,11 +71,12 @@ class SMBGDaysAnimationContainer extends React.Component {
       return _.map(smbgsByDate, (smbgs, date) => (
         <SMBGDayLineAnimated
           day={date}
+          focusedDay={focusedDay}
           data={smbgs}
           xScale={xScale}
           yScale={yScale}
-          focusLine={smbgFocus}
-          unfocusLine={smbgUnfocus}
+          focusLine={focusSmbg}
+          unfocusLine={unfocusSmbg}
           grouped={grouped}
         />
       ));
@@ -100,11 +86,12 @@ class SMBGDaysAnimationContainer extends React.Component {
       return _.map(smbgsByDate, (smbgs, date) => (
         <SMBGDayPointsAnimated
           day={date}
+          focusedDay={focusedDay}
           data={smbgs}
           xScale={xScale}
           yScale={yScale}
-          focusSmbg={smbgFocus}
-          unfocusSmbg={smbgUnfocus}
+          focusSmbg={focusSmbg}
+          unfocusSmbg={unfocusSmbg}
           grouped={grouped}
         />
       ));
@@ -130,8 +117,6 @@ SMBGDaysAnimationContainer.propTypes = {
   lines: PropTypes.bool.isRequired,
   focusSmbg: PropTypes.func.isRequired,
   unfocusSmbg: PropTypes.func.isRequired,
-  // focusDayLine: PropTypes.func.isRequired,
-  // unfocusDayLine: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
 };

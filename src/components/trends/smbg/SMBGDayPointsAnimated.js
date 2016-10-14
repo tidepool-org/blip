@@ -30,8 +30,8 @@ const SMBGDayPointsAnimated = (props) => {
     return null;
   }
 
-  const { day, xScale, yScale, focusSmbg, unfocusSmbg, grouped } = props;
-  const radius = 7;
+  const { day, xScale, yScale, focusSmbg, unfocusSmbg, grouped, focusedDay } = props;
+  const radius = day === focusedDay ? 9 : 7;
   const xPosition = (msPer24) => {
     if (grouped) {
       return xScale(findBinForTimeOfDay(THREE_HRS, msPer24));
@@ -48,7 +48,7 @@ const SMBGDayPointsAnimated = (props) => {
         const cy = yScale(smbg.value);
         const position = { left: cx, top: cy };
         const focus = () => {
-          focusSmbg(smbg, position, data, positions);
+          focusSmbg(smbg, position, data, positions, day);
         };
         const unfocus = () => {
           unfocusSmbg();

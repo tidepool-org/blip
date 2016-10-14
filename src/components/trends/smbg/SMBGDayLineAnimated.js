@@ -31,10 +31,10 @@ import React, { PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 import { line } from 'd3-shape';
 import _ from 'lodash';
+import cx from 'classnames';
 
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
-
 
 import styles from './SMBGDayLineAnimated.css';
 
@@ -44,7 +44,7 @@ const SMBGDayLineAnimated = (props) => {
     return null;
   }
 
-  const { day, xScale, yScale, grouped, focusLine, unfocusLine } = props;
+  const { day, xScale, yScale, grouped, focusLine, unfocusLine, focusedDay } = props;
 
   const xPosition = (msPer24) => {
     if (grouped) {
@@ -68,14 +68,19 @@ const SMBGDayLineAnimated = (props) => {
     return points;
   };
 
+  const classes = cx({
+    [styles.smbgPath]: true,
+    [styles.highlightPath]: focusedDay === day,
+  });
+
   return (
     <g id={`smbgDayLine-${day}`}>
       <TransitionMotion styles={getPoints(data)}>
         {(interpolated) => (
           <path
             d={line()(_.pluck(interpolated, 'style'))}
-            className={styles.smbgPath}
-            onMouseOver={() => { focusLine(data[0], positions[0], data, positions); }}
+            className={classes}
+            onMouseOver={() => { focusLine(data[0], positions[0], data, positions, day); }}
             onMouseOut={() => { unfocusLine(); }}
           />
         )}

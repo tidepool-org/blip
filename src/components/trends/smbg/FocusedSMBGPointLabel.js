@@ -31,7 +31,7 @@ const FocusedSMBGPointLabel = (props) => {
     return null;
   }
 
-  const { bgUnits, focusedPoint: { data, position, dayPoints, positions }, timePrefs } = props;
+  const { bgUnits, focusedPoint: { data, position, dayPoints, positions }, timePrefs, grouped, lines } = props;
   let smbgTime;
   if (timePrefs.timezoneAware) {
     if (data.time) {
@@ -54,7 +54,7 @@ const FocusedSMBGPointLabel = (props) => {
   ));
   return (
     <div className={styles.container}>
-      {pointTooltips}
+      {lines && !grouped && pointTooltips}
       <Tooltip
         title={<span className={styles.explainerText}>{smbgTime}</span>}
         position={position}

@@ -24,10 +24,10 @@ export function focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKey
   };
 }
 
-export function focusTrendsSmbg(userId, smbgData, smbgPosition, smbgDay, smbgPositions) {
+export function focusTrendsSmbg(userId, smbgData, smbgPosition, smbgDay, smbgPositions, day) {
   return {
     type: actionTypes.FOCUS_TRENDS_SMBG,
-    payload: { smbgData, smbgPosition, smbgDay, smbgPositions, userId },
+    payload: { smbgData, smbgPosition, smbgDay, smbgPositions, userId, day },
   };
 }
 

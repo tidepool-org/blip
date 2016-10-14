@@ -4,3 +4,8 @@
   stroke: var(--smbg-dayline);
   stroke-dasharray: 4, 4;
 }
+
+.highlightPath {
+  stroke-width: 2px;
+  stroke-dasharray: 4, 0;
+}
