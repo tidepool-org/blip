@@ -44,6 +44,7 @@ const FocusedSMBGPointLabel = (props) => {
   }
   const pointTooltips = _.map(dayPoints, (smbg, i) => (
     <Tooltip
+      key={i}
       content={<span className={styles.number}>{displayBgValue(smbg.value, bgUnits)}</span>}
       position={positions[i]}
       side={'bottom'}

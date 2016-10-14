@@ -44,7 +44,7 @@ const SMBGDayLineAnimated = (props) => {
     return null;
   }
 
-  const { day, xScale, yScale, grouped } = props;
+  const { day, xScale, yScale, grouped, focusLine, unfocusLine } = props;
 
   const xPosition = (msPer24) => {
     if (grouped) {
@@ -52,7 +52,9 @@ const SMBGDayLineAnimated = (props) => {
     }
     return msPer24;
   };
-
+  const positions = _.map(data, (smbg) => ({
+    left: xScale(xPosition(smbg.msPer24)), top: yScale(smbg.value),
+  }));
   const getPoints = (smbgs) => {
     const points = [];
     _.map(smbgs, (d) => {
@@ -73,6 +75,8 @@ const SMBGDayLineAnimated = (props) => {
           <path
             d={line()(_.pluck(interpolated, 'style'))}
             className={styles.smbgPath}
+            onMouseOver={() => { focusLine(data[0], positions[0], data, positions); }}
+            onMouseOut={() => { unfocusLine(); }}
           />
         )}
       </TransitionMotion>
@@ -89,6 +93,8 @@ SMBGDayLineAnimated.propTypes = {
   })).isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
+  focusLine: PropTypes.func.isRequired,
+  unfocusLine: PropTypes.func.isRequired,
   grouped: PropTypes.bool.isRequired,
 };
 

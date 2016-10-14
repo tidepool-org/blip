@@ -77,6 +77,8 @@ class SMBGDaysAnimationContainer extends React.Component {
             data={selected.smbgs}
             xScale={xScale}
             yScale={yScale}
+            focusLine={smbgFocus}
+            unfocusLine={smbgUnfocus}
             grouped={grouped}
           />
         );
@@ -87,6 +89,8 @@ class SMBGDaysAnimationContainer extends React.Component {
           data={smbgs}
           xScale={xScale}
           yScale={yScale}
+          focusLine={smbgFocus}
+          unfocusLine={smbgUnfocus}
           grouped={grouped}
         />
       ));

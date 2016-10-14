@@ -1,5 +1,4 @@
 .smbgPath {
-  pointer-events: none;
   fill: none;
   opacity: 0.75;
   stroke: var(--smbg-dayline);
