@@ -40,51 +40,80 @@ import _ from 'lodash';
 import SMBGDayPointsAnimated from '../../components/trends/smbg/SMBGDayPointsAnimated';
 import SMBGDayLineAnimated from '../../components/trends/smbg/SMBGDayLineAnimated';
 
-const SMBGDaysAnimationContainer = (props) => {
-  const { data } = props;
-  if (!data) {
-    return null;
+class SMBGDaysAnimationContainer extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = { selected: null };
+    this.handleSMBGFocus = this.handleSMBGFocus.bind(this);
+    this.handleSMBGUnfocus = this.handleSMBGUnfocus.bind(this);
   }
 
-  const { xScale, yScale, grouped, lines, focusSmbg, unfocusSmbg } = props;
-  const smbgsByDate = _.groupBy(data, 'localDate');
+  handleSMBGFocus(smbg, position, data, positions) {
+    this.setState({ selected: { smbgs: data, date: _.find(data, 'localDate').localDate } });
+    this.props.focusSmbg(smbg, position, data, positions);
+  }
 
-  function getLines() {
-    if (!lines) {
-      return null;
+  handleSMBGUnfocus() {
+    this.setState({ selected: null });
+    this.props.unfocusSmbg();
+  }
+
+  render() {
+    const { data, xScale, yScale, grouped, lines } = this.props;
+    const { selected } = this.state;
+    const smbgsByDate = _.groupBy(data, 'localDate');
+    const smbgFocus = this.handleSMBGFocus;
+    const smbgUnfocus = this.handleSMBGUnfocus;
+
+    function getLines() {
+      if (!lines) {
+        if (!selected) {
+          return null;
+        }
+        return (
+          <SMBGDayLineAnimated
+            day={selected.date}
+            data={selected.smbgs}
+            xScale={xScale}
+            yScale={yScale}
+            grouped={grouped}
+          />
+        );
+      }
+      return _.map(smbgsByDate, (smbgs, date) => (
+        <SMBGDayLineAnimated
+          day={date}
+          data={smbgs}
+          xScale={xScale}
+          yScale={yScale}
+          grouped={grouped}
+        />
+      ));
     }
-    return _.map(smbgsByDate, (smbgs, date) => (
-      <SMBGDayLineAnimated
-        day={date}
-        data={smbgs}
-        xScale={xScale}
-        yScale={yScale}
-        grouped={grouped}
-      />
-    ));
-  }
 
-  function getPoints() {
-    return _.map(smbgsByDate, (smbgs, date) => (
-      <SMBGDayPointsAnimated
-        day={date}
-        data={smbgs}
-        xScale={xScale}
-        yScale={yScale}
-        focusSmbg={focusSmbg}
-        unfocusSmbg={unfocusSmbg}
-        grouped={grouped}
-      />
-    ));
-  }
+    function getPoints() {
+      return _.map(smbgsByDate, (smbgs, date) => (
+        <SMBGDayPointsAnimated
+          day={date}
+          data={smbgs}
+          xScale={xScale}
+          yScale={yScale}
+          focusSmbg={smbgFocus}
+          unfocusSmbg={smbgUnfocus}
+          grouped={grouped}
+        />
+      ));
+    }
 
-  return (
-    <g id="smbgDayAnimationContainer">
-      {getLines()}
-      {getPoints()}
-    </g>
-  );
-};
+    return (
+      <g id="smbgDayAnimationContainer">
+        {getLines()}
+        {getPoints()}
+      </g>
+    );
+  }
+}
 
 SMBGDaysAnimationContainer.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({
