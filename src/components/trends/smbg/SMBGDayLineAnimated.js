@@ -101,6 +101,7 @@ SMBGDayLineAnimated.propTypes = {
   focusLine: PropTypes.func.isRequired,
   unfocusLine: PropTypes.func.isRequired,
   grouped: PropTypes.bool.isRequired,
+  focusedDay: PropTypes.string.isRequired,
 };
 
 export default SMBGDayLineAnimated;

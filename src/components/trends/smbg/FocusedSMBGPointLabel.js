@@ -31,7 +31,14 @@ const FocusedSMBGPointLabel = (props) => {
     return null;
   }
 
-  const { bgUnits, focusedPoint: { data, position, dayPoints, positions }, timePrefs, grouped, lines } = props;
+  const {
+    bgUnits,
+    focusedPoint: { data, position, dayPoints, positions },
+    timePrefs,
+    grouped,
+    lines,
+  } = props;
+
   let smbgTime;
   if (timePrefs.timezoneAware) {
     if (data.time) {
@@ -84,6 +91,8 @@ FocusedSMBGPointLabel.propTypes = {
     timezoneAware: React.PropTypes.bool.isRequired,
     timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
   }).isRequired,
+  grouped: React.PropTypes.bool.isRequired,
+  lines: React.PropTypes.bool.isRequired,
 };
 
 export default FocusedSMBGPointLabel;

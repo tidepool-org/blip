@@ -87,6 +87,7 @@ SMBGDayPointsAnimated.propTypes = {
   focusSmbg: PropTypes.func.isRequired,
   unfocusSmbg: PropTypes.func.isRequired,
   grouped: PropTypes.bool.isRequired,
+  focusedDay: PropTypes.string.isRequired,
 };
 
 export default SMBGDayPointsAnimated;
