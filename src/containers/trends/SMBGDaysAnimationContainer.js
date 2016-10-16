@@ -111,6 +111,7 @@ SMBGDaysAnimationContainer.propTypes = {
     id: PropTypes.string.isRequired,
     msPer24: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
+    localDate: PropTypes.string.isRequired,
   })).isRequired,
   grouped: PropTypes.bool.isRequired,
   lines: PropTypes.bool.isRequired,
