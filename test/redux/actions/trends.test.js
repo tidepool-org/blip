@@ -46,7 +46,8 @@ describe('trends actions', () => {
     const smbgPosition = {};
     const smbgPositions = [];
     const smbgDay = [];
-    const action = actions.focusTrendsSmbg(userId, smbgData, smbgPosition, smbgDay, smbgPositions);
+    const day = {};
+    const action = actions.focusTrendsSmbg(userId, smbgData, smbgPosition, smbgDay, smbgPositions, day);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
@@ -55,7 +56,7 @@ describe('trends actions', () => {
     it('should create an action to focus a trends smbg', () => {
       expect(action).to.deep.equal({
         type: actionTypes.FOCUS_TRENDS_SMBG,
-        payload: { smbgData, smbgPosition, smbgDay, smbgPositions, userId },
+        payload: { smbgData, smbgPosition, smbgDay, smbgPositions, userId, day },
       });
     });
   });
