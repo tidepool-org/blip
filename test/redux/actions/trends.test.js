@@ -47,7 +47,14 @@ describe('trends actions', () => {
     const smbgPositions = [];
     const smbgDay = [];
     const day = {};
-    const action = actions.focusTrendsSmbg(userId, smbgData, smbgPosition, smbgDay, smbgPositions, day);
+    const action = actions.focusTrendsSmbg(
+      userId,
+      smbgData,
+      smbgPosition,
+      smbgDay,
+      smbgPositions,
+      day,
+    );
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;

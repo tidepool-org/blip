@@ -153,7 +153,7 @@ describe('trendsStateByUser', () => {
           smbgPosition: position,
           smbgDay: dayPoints,
           smbgPositions: positions,
-          day: day,
+          day,
           userId: USER_1,
         },
       })[USER_1]).to.deep.equal({
