@@ -48,7 +48,7 @@ import { THREE_HRS } from '../../utils/datetime';
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
 import SMBGRangeAvgAnimationContainer from './SMBGRangeAvgAnimationContainer';
-// import NoData from '../../components/trends/common/NoData';
+import NoData from '../../components/trends/common/NoData';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import XAxisTicks from '../../components/trends/common/XAxisTicks';
@@ -68,23 +68,23 @@ export class TrendsSVGContainer extends React.Component {
     ]);
   }
 
-  // noDataPosition() {
-  //   const { containerHeight: height, containerWidth: width, margins } = this.props;
-  //   const xPos = (width / 2) - margins.left + margins.right;
-  //   const yPos = (height / 2) - margins.top + margins.bottom;
-  //   return { x: xPos, y: yPos };
-  // }
+  renderNoDataMessage(dataType) {
+    const { containerHeight: height, containerWidth: width, margins } = this.props;
+    const xPos = (width / 2) - margins.left + margins.right;
+    const yPos = (height / 2) - margins.top + margins.bottom;
+    const messagePosition = { x: xPos, y: yPos };
+    return (
+      <NoData
+        dataType={dataType}
+        position={messagePosition}
+      />
+    );
+  }
 
   renderCbg() {
     if (this.props.showingCbg) {
       if (_.isEmpty(this.props.cbgData)) {
-        console.log('no CBG data');
-        // return (
-        //   <NoData
-        //     dataType="CBG"
-        //     position={this.noDataPosition()}
-        //   />
-        // );
+        return this.renderNoDataMessage();
       }
 
       const { containerHeight: height, containerWidth: width } = this.props;
@@ -109,13 +109,7 @@ export class TrendsSVGContainer extends React.Component {
   renderSmbg() {
     if (this.props.showingSmbg) {
       if (_.isEmpty(this.props.smbgData)) {
-        console.log('no SMBG data');
-        // return (
-        //   <NoData
-        //     dataType="SMBG"
-        //     position={this.noDataPosition()}
-        //   />
-        // );
+        return this.renderNoDataMessage();
       }
 
       const rangeOverlay = this.props.smbgRangeOverlay ?
