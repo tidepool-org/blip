@@ -84,7 +84,7 @@ const FocusedSMBGPointLabel = (props) => {
   />);
   return (
     <div className={styles.container}>
-      {lines && !grouped && pointTooltips}
+      {!grouped && pointTooltips}
       {!lines || (grouped && lines) ? singleDetailed : simpleTime}
     </div>
   );

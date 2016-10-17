@@ -25,15 +25,15 @@
   font-size: 17px;
 }
 
-.detailNumber {
-  composes: number;
-  text-align: center;
-}
-
 .explainerText {
   composes: highContrastText noWrap from '../../../styles/typography.css';
   display: block;
   padding: 5px;
+}
+
+.detailNumber {
+  composes: explainerText number;
+  text-align: center;
 }
 
 .shortDate {
