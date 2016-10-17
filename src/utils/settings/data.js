@@ -120,7 +120,8 @@ export function getTotalBasalRates(scheduleData) {
       finish = scheduleData[next].start;
     }
     const hrs = (finish - start) / HOUR_IN_MILLISECONDS;
-    total += (scheduleData[i].rate * hrs);
+    const amount = parseFloat(scheduleData[i].rate.toFixed(DISPLAY_PRECISION_PLACES)) * hrs;
+    total += parseFloat(amount.toFixed(DISPLAY_PRECISION_PLACES));
   }
   return format.displayDecimal(total, DISPLAY_PRECISION_PLACES);
 }
