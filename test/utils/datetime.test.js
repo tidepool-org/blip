@@ -264,6 +264,36 @@ describe('datetime', () => {
         .to.equal('Sep 5th 2016');
     });
 
+    it('should return "Sep 4" for hammertime tzAware LA "MMM D"', () => {
+      expect(datetime.formatDisplayDate(hammertime, tzAwareLA, 'MMM D'))
+        .to.equal('Sep 4');
+    });
+
+    it('should return "Sep 4" for utcString tzAware LA "MMM D"', () => {
+      expect(datetime.formatDisplayDate(utcString, tzAwareLA, 'MMM D'))
+        .to.equal('Sep 4');
+    });
+
+    it('should return "Sep 5" for hammertime tzAware NY "MMM D"', () => {
+      expect(datetime.formatDisplayDate(hammertime, tzAwareNY, 'MMM D'))
+        .to.equal('Sep 5');
+    });
+
+    it('should return "Sep 5" for utcString tzAware NY "MMM D"', () => {
+      expect(datetime.formatDisplayDate(utcString, tzAwareNY, 'MMM D'))
+        .to.equal('Sep 5');
+    });
+
+    it('should return "Sep 5" for hammertime tzUnaware "MMM D"', () => {
+      expect(datetime.formatDisplayDate(hammertime, tzUnaware, 'MMM D'))
+        .to.equal('Sep 5');
+    });
+
+    it('should return "Sep 5" for utcString tzUnaware "MMM D"', () => {
+      expect(datetime.formatDisplayDate(utcString, tzUnaware, 'MMM D'))
+        .to.equal('Sep 5');
+    });
+
     it('should error if passed a JavaScript Date for the `utc` param', () => {
       const fn = () => { datetime.formatDisplayDate(new Date(), tzAwareLA); };
       expect(fn)
