@@ -1,0 +1,118 @@
+@import '../../styles/colors.css';
+
+.settings {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+}
+
+.block {
+  max-width: 300px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.nonBasalWrap {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+.settingsHeaderText {
+  composes: mediumContrastText boldText from '../../styles/typography.css';
+  min-width: 160px;
+  padding-left: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  text-align: left;
+  font-size: 14px;
+  border-left: 12px solid;
+  border-bottom: 1px solid var(--table-stripe--dark);
+  background-color: var(--table-stripe--light);
+}
+
+.basalSchedulesHeader {
+  composes: settingsHeaderText;
+  min-width: 198px;
+  border-left-color: var(--basal);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  position: relative;
+  padding-right: 25px;
+  cursor: pointer;
+}
+
+.collapsibleClosed .basalSchedulesHeader::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  right: 10px;
+  top: 45%;
+  transform: translateY(-50%);
+  transition: transform 0.25s;
+}
+
+.basalSchedulesHeader:hover {
+  color: var(--text-hover);
+}
+
+.collapsibleOpened .basalSchedulesHeader::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-40%) rotate(90deg);
+  transition: transform 0.25s;
+}
+
+.bolusSettingsHeader {
+  composes: settingsHeaderText;
+  border-left-color: var(--bolus);
+}
+
+.basalTable {
+  composes: mediumContrastText from '../../styles/typography.css';
+  font-size: 14px;
+  min-width: 230px;
+  width: 100%;
+  border-spacing: 1px 0px;
+  border-collapse: separate;
+}
+
+.basalTable td, .basalTable th {
+  padding: 10px;
+  text-align: right;
+}
+
+.basalTable th {
+  font-weight: normal;
+}
+
+.basalTable tbody tr:nth-child(odd) {
+  background-color: var(--table-stripe--dark);
+}
+
+.basalTable tbody tr:nth-child(even), .basalTable thead tr {
+  background-color: var(--table-stripe--light);
+}
+
+.basalTable tbody tr:last-of-type {
+  font-weight: bold;
+}
+
+.settingsTable {
+  composes: basalTable;
+}
+
+.settingsTable tbody tr:last-of-type {
+  font-weight: normal;
+}
+
+.basalTable th:first-of-type, .basalTable td:first-of-type {
+  text-align: left;
+}

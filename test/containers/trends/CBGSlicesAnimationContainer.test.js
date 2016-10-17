@@ -27,6 +27,7 @@ const {
   trendsYScale: yScale,
 } = scales.trends;
 
+import { THREE_HRS } from '../../../src/utils/datetime';
 import CBGSlicesAnimationContainer
   from '../../../src/containers/trends/CBGSlicesAnimationContainer';
 
@@ -34,7 +35,7 @@ describe('CBGSlicesAnimationContainer', () => {
   let wrapper;
 
   // six-hour bins for testing
-  const binSize = 1000 * 60 * 60 * 6;
+  const binSize = THREE_HRS * 2;
 
   const props = {
     binSize,

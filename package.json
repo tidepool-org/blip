@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "0.1.2",
+  "version": "0.2.12-alpha",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
@@ -54,6 +54,7 @@
     "eslint-plugin-import": "1.14.0",
     "eslint-plugin-jsx-a11y": "1.5.5",
     "eslint-plugin-lodash": "1.10.3",
+    "eslint-plugin-moment-utc": "1.0.0",
     "eslint-plugin-react": "5.2.2",
     "json-loader": "0.5.4",
     "karma": "1.2.0",
@@ -88,6 +89,17 @@
     "tidepool-standard-action": "0.1.1",
     "webpack": "1.13.2"
   },
+  "dependencies": {
+    "d3-array": "1.0.1",
+    "d3-format": "1.0.2",
+    "d3-scale": "1.0.3",
+    "d3-shape": "1.0.3",
+    "d3-time": "1.0.2",
+    "react-collapse": "2.3.1",
+    "react-dimensions": "2.0.0-alpha1",
+    "react-height": "2.1.1",
+    "react-motion": "0.4.4"
+  },
   "peerDependencies": {
     "classnames": "2.x",
     "lodash": "3.x",
@@ -96,14 +108,5 @@
     "react-addons-update": "15.x",
     "react-redux": "4.x",
     "redux": "3.x"
-  },
-  "dependencies": {
-    "d3-array": "1.0.1",
-    "d3-format": "1.0.2",
-    "d3-scale": "1.0.3",
-    "d3-shape": "1.0.3",
-    "d3-time": "1.0.2",
-    "react-dimensions": "2.0.0-alpha1",
-    "react-motion": "0.4.4"
   }
 }

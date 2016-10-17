@@ -26,7 +26,7 @@ import styles from '../../../../src/components/trends/cbg/FocusedCBGSliceTime.cs
 
 describe('FocusedCBGSliceTime', () => {
   const focusedSlice = {
-    slice: {
+    data: {
       firstQuartile: 25,
       id: 'a1b2c3',
       max: 421,
