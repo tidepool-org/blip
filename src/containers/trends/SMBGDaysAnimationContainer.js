@@ -116,6 +116,12 @@ SMBGDaysAnimationContainer.propTypes = {
   grouped: PropTypes.bool.isRequired,
   lines: PropTypes.bool.isRequired,
   focusedSmbg: PropTypes.shape({
+    dayPoints: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      msPer24: PropTypes.number.isRequired,
+      value: PropTypes.number.isRequired,
+      localDate: PropTypes.string.isRequired,
+    })).isRequired,
     smbgData: PropTypes.shape({
       value: PropTypes.number.isRequired,
     }),

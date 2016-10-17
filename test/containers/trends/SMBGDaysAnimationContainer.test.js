@@ -32,7 +32,11 @@ describe('SMBGDaysAnimationContainer', () => {
   let wrapper;
 
   const props = {
-    data: [],
+    data: [
+      { id: '0', value: 120, msPer24: 0, localDate: '2016-08-28' },
+      { id: '1', value: 90, msPer24: 9000000, localDate: '2016-08-28' },
+      { id: '2', value: 180, msPer24: 21600000, localDate: '2016-08-28' },
+    ],
     grouped: true,
     lines: true,
     focusedSmbg: {},
@@ -49,6 +53,36 @@ describe('SMBGDaysAnimationContainer', () => {
   describe('render', () => {
     it('renders a <g> with id #smbgDayAnimationContainer', () => {
       expect(wrapper.find('#smbgDayAnimationContainer').length).to.equal(1);
+    });
+    describe('smbg day line', () => {
+      it('is shown when lines option is true', () => {
+        expect(wrapper.find('#smbgDayAnimationContainer path').length).to.equal(1);
+      });
+      it('is not shown when lines option is false', () => {
+        props.lines = false;
+        wrapper = mount(<SMBGDaysAnimationContainer {...props} />);
+        expect(wrapper.find('#smbgDayAnimationContainer path').length).to.equal(0);
+      });
+    });
+    describe('focused smbg line', () => {
+      it('is shown when lines option is false but we have a focusedSmbg', () => {
+        props.lines = false;
+
+        props.focusedSmbg = {
+          dayPoints: props.data,
+          smbgPosition: { top: 0, left: 0 },
+          day: '2016-08-28',
+          smbgDay: [{ value: 200 }],
+          smbgPositions: [{ top: 0, left: 10 }, { top: 10, left: 50 }],
+        };
+        wrapper = mount(<SMBGDaysAnimationContainer {...props} />);
+        expect(wrapper.find('#smbgDayAnimationContainer path').length).to.equal(1);
+      });
+    });
+    describe('smbg day points', () => {
+      it('are shown', () => {
+        expect(wrapper.find('#smbgDayAnimationContainer circle').length).to.equal(3);
+      });
     });
   });
 });
