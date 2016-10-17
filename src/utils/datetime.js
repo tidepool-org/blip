@@ -118,14 +118,13 @@ export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
  * @param  {Object} timePrefs object containing timezone preferences
  * @param  {boolean} timePrefs.timezoneAware boolean to indicate timezone awareness
  * @param  {(string|null)} timePrefs.timezoneName name of timezone or null
- * @param  {string} [format] optional moment display format string; default is 'MMM Do YYYY'
+ * @param  {string} [format] optional moment display format string; default is 'MMM D, YYYY'
  *
  * @return {string}           formatted timezoneAware date string
  */
-export function formatDisplayDate(utc, timePrefs, format = 'MMM Do YYYY') {
+export function formatDisplayDate(utc, timePrefs, format = 'MMM D, YYYY') {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
-  return moment.utc(utc).tz(getTimezoneFromTimePrefs(timePrefs))
-    .format(format);
+  return moment.utc(utc).tz(getTimezoneFromTimePrefs(timePrefs)).format(format);
 }

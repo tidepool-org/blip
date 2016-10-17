@@ -20,6 +20,14 @@
   align-content: flex-start;
 }
 
+.categoryTitle {
+  composes: mediumContrastText from '../../styles/typography.css';
+  display: inline-block;
+  width: 100%;
+  font-size: 14px;
+  padding-bottom: 5px;
+}
+
 .settingsHeaderText {
   composes: mediumContrastText boldText from '../../styles/typography.css';
   min-width: 160px;
