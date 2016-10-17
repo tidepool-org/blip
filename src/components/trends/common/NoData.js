@@ -21,28 +21,30 @@ import React, { PropTypes } from 'react';
 import styles from './NoData.css';
 
 const NoData = (props) => {
-  let noDataMessage = _.template("There is no <%= type %> data for this time period :(");
-  const { xPos, yPos, dataType } = props;
+  const noDataMessage = _.template('There is no <%= type %> data for this time period :(');
+  const { position, dataType } = props;
 
-  if (!xPos || !yPos) {
+  if (!position) {
     return null;
   }
 
   return (
-    <text className={styles.noDataMsg} id="noDataMsg" x={xPos} y={yPos}>
+    <text className={styles.noDataMsg} id="noDataMsg" x={position.x} y={position.y}>
       {noDataMessage({ type: dataType })}
     </text>
   );
 };
 
 NoData.defaultProps = {
-  dataType: 'CBG'
+  dataType: 'CBG',
 };
 
 NoData.propTypes = {
   dataType: PropTypes.string.isRequired,
-  xPos: PropTypes.number.isRequired,
-  yPos: PropTypes.number.isRequired,
+  position: PropTypes.shape({
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+  }).isRequired,
 };
 
 export default NoData;

@@ -53,8 +53,8 @@ describe('TrendsSVGContainer', () => {
     containerHeight: 520,
     // normally provided by react-dimensions wrapper but we test w/o that
     containerWidth: 960,
-    cbgData: [],
-    smbgData: [],
+    cbgData: [{ id: 'a2b3c4', msPer24: 6000, value: 180 }],
+    smbgData: [{ id: 'a2b3c4', msPer24: 6000, value: 180 }],
     focusRange: () => {},
     focusSlice: () => {},
     showingCbg: true,

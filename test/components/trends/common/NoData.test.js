@@ -22,14 +22,12 @@ import { shallow } from 'enzyme';
 import NoData from '../../../../src/components/trends/common/NoData';
 
 describe('NoData', () => {
-  const xPos = 10;
-  const yPos = 50;
+  const position = { x: 10, y: 50 };
 
   it('should render without issue when all properties provided', () => {
     const wrapper = shallow(
       <NoData
-        xPos={xPos}
-        yPos={yPos}
+        position={position}
       />
     );
     expect(wrapper.find('text')).to.have.length(1);
@@ -37,35 +35,23 @@ describe('NoData', () => {
   it('should render given with x and y position', () => {
     const wrapper = shallow(
       <NoData
-        xPos={xPos}
-        yPos={yPos}
+        position={position}
       />
     );
     expect(wrapper.find('text[x=10]')).to.have.length(1);
     expect(wrapper.find('text[y=50]')).to.have.length(1);
   });
-  it('should not render when yPos not provided', () => {
+  it('should not render when position not provided', () => {
     const wrapper = shallow(
-      <NoData
-        xPos={xPos}
-      />
-    );
-    expect(wrapper.find('text')).to.have.length(0);
-  });
-  it('should not render when xPos not provided', () => {
-    const wrapper = shallow(
-      <NoData
-        yPos={yPos}
-      />
+      <NoData />
     );
     expect(wrapper.find('text')).to.have.length(0);
   });
   it('should render with the provided data type in the message', () => {
     const wrapper = shallow(
       <NoData
-        dataType='TEST'
-        xPos={xPos}
-        yPos={yPos}
+        dataType="TEST"
+        position={position}
       />
     );
     expect(wrapper.find('text').text()).to.equal('There is no TEST data for this time period :(');
@@ -73,8 +59,7 @@ describe('NoData', () => {
   it('should render with default CBG message when no type provided', () => {
     const wrapper = shallow(
       <NoData
-        xPos={xPos}
-        yPos={yPos}
+        position={position}
       />
     );
     expect(wrapper.find('text').text()).to.equal('There is no CBG data for this time period :(');
