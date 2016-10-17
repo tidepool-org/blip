@@ -206,6 +206,8 @@ var Modal = React.createClass({
       <FocusedSMBGPointLabel
         bgUnits={this.props.bgPrefs.bgUnits}
         timePrefs={this.props.timePrefs}
+        grouped={this.props.chartPrefs.modal.smbgGrouped}
+        lines={this.props.chartPrefs.modal.smbgLines}
         focusedPoint={this.props.trendsState[currentPatientInViewId].focusedSmbg} />
     );
   },
