@@ -35,7 +35,6 @@ const FocusedSMBGPointLabel = (props) => {
     bgUnits,
     focusedPoint: { data, position, dayPoints, positions },
     timePrefs,
-    grouped,
     lines,
   } = props;
 
