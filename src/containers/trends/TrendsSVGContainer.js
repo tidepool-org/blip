@@ -46,7 +46,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
-import SMBGDaysAnimationContainer from './SMBGDaysAnimationContainer';
+import SMBGDaysContainer from './SMBGDaysContainer';
 import SMBGRangeAvgAnimationContainer from './SMBGRangeAvgAnimationContainer';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
@@ -102,8 +102,8 @@ export class TrendsSVGContainer extends React.Component {
         />) : null;
 
       const daysOverlay = (
-        <SMBGDaysAnimationContainer
-          key="smbgDayAnimationContainer"
+        <SMBGDaysContainer
+          key="smbgDaysContainer"
           data={this.props.smbgData}
           xScale={this.props.xScale}
           yScale={this.props.yScale}

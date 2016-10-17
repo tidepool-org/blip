@@ -25,10 +25,10 @@ const {
   trendsYScale: yScale,
 } = scales.trends;
 
-import SMBGDaysAnimationContainer
-  from '../../../src/containers/trends/SMBGDaysAnimationContainer';
+import SMBGDaysContainer
+  from '../../../src/containers/trends/SMBGDaysContainer';
 
-describe('SMBGDaysAnimationContainer', () => {
+describe('SMBGDaysContainer', () => {
   let wrapper;
 
   const props = {
@@ -47,21 +47,21 @@ describe('SMBGDaysAnimationContainer', () => {
   };
 
   before(() => {
-    wrapper = mount(<SMBGDaysAnimationContainer {...props} />);
+    wrapper = mount(<SMBGDaysContainer {...props} />);
   });
 
   describe('render', () => {
-    it('renders a <g> with id #smbgDayAnimationContainer', () => {
-      expect(wrapper.find('#smbgDayAnimationContainer').length).to.equal(1);
+    it('renders a <g> with id #smbgDaysContainer', () => {
+      expect(wrapper.find('#smbgDaysContainer').length).to.equal(1);
     });
     describe('smbg day line', () => {
       it('is shown when lines option is true', () => {
-        expect(wrapper.find('#smbgDayAnimationContainer path').length).to.equal(1);
+        expect(wrapper.find('#smbgDaysContainer path').length).to.equal(1);
       });
       it('is not shown when lines option is false', () => {
         props.lines = false;
-        wrapper = mount(<SMBGDaysAnimationContainer {...props} />);
-        expect(wrapper.find('#smbgDayAnimationContainer path').length).to.equal(0);
+        wrapper = mount(<SMBGDaysContainer {...props} />);
+        expect(wrapper.find('#smbgDaysContainer path').length).to.equal(0);
       });
     });
     describe('focused smbg line', () => {
@@ -75,13 +75,13 @@ describe('SMBGDaysAnimationContainer', () => {
           smbgDay: [{ value: 200 }],
           smbgPositions: [{ top: 0, left: 10 }, { top: 10, left: 50 }],
         };
-        wrapper = mount(<SMBGDaysAnimationContainer {...props} />);
-        expect(wrapper.find('#smbgDayAnimationContainer path').length).to.equal(1);
+        wrapper = mount(<SMBGDaysContainer {...props} />);
+        expect(wrapper.find('#smbgDaysContainer path').length).to.equal(1);
       });
     });
     describe('smbg day points', () => {
       it('are shown', () => {
-        expect(wrapper.find('#smbgDayAnimationContainer circle').length).to.equal(3);
+        expect(wrapper.find('#smbgDaysContainer circle').length).to.equal(3);
       });
     });
   });
