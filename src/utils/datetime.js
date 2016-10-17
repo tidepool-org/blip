@@ -118,30 +118,14 @@ export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
  * @param  {Object} timePrefs object containing timezone preferences
  * @param  {boolean} timePrefs.timezoneAware boolean to indicate timezone awareness
  * @param  {(string|null)} timePrefs.timezoneName name of timezone or null
+ * @param  {string} [format] optional moment display format string; default is 'MMM Do YYYY'
  *
  * @return {string}           formatted timezoneAware date string
  */
-export function formatDisplayDate(utc, timePrefs) {
+export function formatDisplayDate(utc, timePrefs, format = 'MMM Do YYYY') {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
   return moment.utc(utc).tz(getTimezoneFromTimePrefs(timePrefs))
-    .format('MMM Do YYYY');
-}
-
-/**
- * formatTooltipDate
- * @param  {(string|number)} utc Zulu timestamp (Integer hammertime also OK)
- * @param  {Object} timePrefs object containing timezone preferences
- * @param  {boolean} timePrefs.timezoneAware boolean to indicate timezone awareness
- * @param  {(string|null)} timePrefs.timezoneName name of timezone or null
- *
- * @return {string}           formatted timezoneAware date string
- */
-export function formatTooltipDate(utc, timePrefs) {
-  if (utc instanceof Date) {
-    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
-  }
-  return moment.utc(utc).tz(getTimezoneFromTimePrefs(timePrefs))
-    .format('dddd MMM D');
+    .format(format);
 }

@@ -21,7 +21,7 @@ import Tooltip from '../common/Tooltip';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { displayBgValue } from '../../../utils/format';
-import { formatTooltipDate } from '../../../utils/datetime';
+import { formatDisplayDate, millisecondsAsTimeOfDay } from '../../../utils/datetime';
 
 import styles from './FocusedSMBGPointLabel.css';
 
@@ -39,16 +39,18 @@ const FocusedSMBGPointLabel = (props) => {
     lines,
   } = props;
 
-  let smbgTime;
+  let parsedTime;
   if (timePrefs.timezoneAware) {
     if (data.time) {
-      smbgTime = formatTooltipDate(Date.parse(data.time), timePrefs);
+      parsedTime = Date.parse(data.time);
     }
   } else {
     if (data.deviceTime) {
-      smbgTime = formatTooltipDate(Date.parse(data.deviceTime), timePrefs);
+      parsedTime = Date.parse(data.deviceTime);
     }
   }
+  const smbgTime = formatDisplayDate(parsedTime, timePrefs, 'dddd MMM D');
+  const shortDate = formatDisplayDate(parsedTime, timePrefs, 'MMM D');
   const pointTooltips = _.map(dayPoints, (smbg, i) => (
     <Tooltip
       key={i}
@@ -59,15 +61,31 @@ const FocusedSMBGPointLabel = (props) => {
       offset={{ top: 15, left: 0 }}
     />
   ));
+  const simpleTime = (<Tooltip
+    title={<span className={styles.explainerText}>{smbgTime}</span>}
+    position={position}
+    side={'right'}
+    offset={{ top: 10, left: 30 }}
+  />);
+  const singleDetailed = (<Tooltip
+    title={<span className={styles.tipWrapper}>
+      <span className={styles.shortDate}>{shortDate}</span>
+      <span className={styles.shortTime}>{millisecondsAsTimeOfDay(data.msPer24)}</span>
+    </span>
+    }
+    content={<span className={styles.tipWrapper}>
+      <span className={styles.detailNumber}>{displayBgValue(data.value, bgUnits)}</span>
+      <span className={styles.subType}>{data.subType}</span>
+    </span>
+    }
+    position={position}
+    side={'right'}
+    offset={{ top: 0, left: 5 }}
+  />);
   return (
     <div className={styles.container}>
       {lines && !grouped && pointTooltips}
-      <Tooltip
-        title={<span className={styles.explainerText}>{smbgTime}</span>}
-        position={position}
-        side={'right'}
-        offset={{ top: 10, left: 30 }}
-      />
+      {!lines || (grouped && lines) ? singleDetailed : simpleTime}
     </div>
   );
 };
@@ -81,6 +99,8 @@ FocusedSMBGPointLabel.propTypes = {
       value: PropTypes.number.isRequired,
       time: PropTypes.string,
       deviceTime: PropTypes.string,
+      subType: PropTypes.string.isRequired,
+      msPer24: PropTypes.number.isRequired,
     }).isRequired,
     position: PropTypes.shape({
       top: PropTypes.number.isRequired,

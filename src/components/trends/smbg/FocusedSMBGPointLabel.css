@@ -25,8 +25,32 @@
   font-size: 17px;
 }
 
+.detailNumber {
+  composes: number;
+  text-align: center;
+}
+
 .explainerText {
   composes: highContrastText noWrap from '../../../styles/typography.css';
   display: block;
   padding: 5px;
+}
+
+.shortDate {
+  composes: explainerText;
+}
+
+.shortTime {
+  composes: explainerText;
+}
+
+.subType {
+  composes: explainerText;
+  font-style: italic;
+}
+
+.tipWrapper {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: nowrap;
 }
