@@ -23,7 +23,6 @@ import { THIRTY_MINS } from '../../utils/datetime';
 import { findBinForTimeOfDay, calculateCbgStatsForBin } from '../../utils/trends/data';
 
 import CBGSlice from '../../components/trends/cbg/CBGSlice';
-import NoData from '../../components/trends/common/NoData';
 
 export default class CBGSlicesAnimationContainer extends React.Component {
   static propTypes = {
@@ -139,14 +138,6 @@ export default class CBGSlicesAnimationContainer extends React.Component {
 
   render() {
     const { mungedData } = this.state;
-    if (_.isEmpty(mungedData)) {
-      return (
-        <NoData
-          margins={this.props.margins}
-          dimensions={this.props.svgDimensions}
-        />
-      );
-    }
     const { focusedSlice, xScale, yScale } = this.props;
     const dataById = {};
     _.each(mungedData, (d) => {

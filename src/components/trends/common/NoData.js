@@ -20,9 +20,11 @@ import React, { PropTypes } from 'react';
 
 import styles from './NoData.css';
 
+const dataTypes = { cbg: 'CGM', smbg: 'BGM' };
+
 const NoData = (props) => {
-  const noDataMessage = _.template('There is no <%= type %> data for this time period :(');
-  const { position, dataType } = props;
+  const { position, dataType, messageString } = props;
+  const noDataMessage = _.template(messageString);
 
   if (!position) {
     return null;
@@ -30,16 +32,18 @@ const NoData = (props) => {
 
   return (
     <text className={styles.noDataMsg} id="noDataMsg" x={position.x} y={position.y}>
-      {noDataMessage({ type: dataType })}
+      {noDataMessage({ dataType })}
     </text>
   );
 };
 
 NoData.defaultProps = {
-  dataType: 'CBG',
+  dataType: dataTypes.cbg,
+  messageString: 'There is no <%= dataType %> data for this time period :(',
 };
 
 NoData.propTypes = {
+  messageString: PropTypes.string.isRequired,
   dataType: PropTypes.string.isRequired,
   position: PropTypes.shape({
     x: PropTypes.number.isRequired,
@@ -47,4 +51,4 @@ NoData.propTypes = {
   }).isRequired,
 };
 
-export default NoData;
+export { NoData, dataTypes };
