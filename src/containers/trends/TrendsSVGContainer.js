@@ -70,8 +70,8 @@ export class TrendsSVGContainer extends React.Component {
 
   renderNoDataMessage(dataType) {
     const { containerHeight: height, containerWidth: width, margins } = this.props;
-    const xPos = (width / 2) - margins.left + margins.right;
-    const yPos = (height / 2) - margins.top + margins.bottom;
+    const xPos = (width / 2) + margins.right;
+    const yPos = (height / 2) + margins.bottom;
     const messagePosition = { x: xPos, y: yPos };
     return (
       <NoData
