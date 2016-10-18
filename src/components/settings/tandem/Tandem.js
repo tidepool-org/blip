@@ -36,35 +36,43 @@ const Tandem = (props) => {
       label: 'Start time',
       className: '' },
     { key: 'rate',
-      label: <div>Basal Rates <span className={styles.lightText}>U/hr</span></div>,
-      className: styles.basalSchedulesHeader },
+      label: {
+        main: 'Basal Rates',
+        secondary: 'U/hr',
+      },
+      className: styles.basalScheduleHeader },
     { key: 'bgTarget',
-      label: <div>BG Target <span className={styles.lightText}>{bgUnits}</span></div>,
+      label: {
+        main: 'BG Target',
+        secondary: bgUnits,
+      },
       className: styles.bolusSettingsHeader },
     { key: 'carbRatio',
-      label: <div>I:C Ratio <span className={styles.lightText}>g/U</span></div>,
+      label: {
+        main: 'I:C Ratio',
+        secondary: 'g/U',
+      },
       className: styles.bolusSettingsHeader },
     { key: 'insulinSensitivity',
-      label: <div>ISF <span className={styles.lightText}>{bgUnits}/U</span></div>,
+      label: {
+        main: 'ISF',
+        secondary: `${bgUnits}/U`,
+      },
       className: styles.bolusSettingsHeader },
   ];
 
   const tables = _.map(schedules, (schedule) => (
     <div key={schedule.name}>
       <CollapsibleContainer
-        styledLabel={{
-          label: data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule,
-            styles.lightText),
-          className: styles.collapsibleHeader,
-        }}
+        label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, true)}
+        labelClass={styles.collapsibleLabel}
         openByDefault={schedule.name === pumpSettings.activeSchedule}
-        openedStyle={styles.collapsibleOpened}
-        closedStyle={styles.collapsibleClosed}
+        twoLineLabel={false}
       >
         <Table
           rows={data.processTimedSettings(pumpSettings, schedule, bgUnits)}
           columns={COLUMNS}
-          tableStyle={styles.basalTable}
+          tableStyle={styles.profileTable}
         />
       </CollapsibleContainer>
     </div>

@@ -16,7 +16,6 @@
  */
 
 import _ from 'lodash';
-import React from 'react';
 
 import * as datetime from '../datetime';
 import * as format from '../format';
@@ -130,20 +129,15 @@ export function getTotalBasalRates(scheduleData) {
  * getScheduleLabel
  * @param  {String} scheduleName basal schedule name
  * @param  {String} activeName   basal name active at upload timestamp
- * @param  {String} activeClass  class name to apply to active text
- * @param  {String} units        units to append to schedule name
  *
- * @return {String}              formatted basal schedule label
+ * @return {String}              object representing basal schedule label
  */
-export function getScheduleLabel(scheduleName, activeName, activeClass, units) {
-  const unitsSpan = units ? <span className={activeClass}> {units}</span> : null;
-  if (scheduleName === activeName) {
-    return (<div>
-      {scheduleName}{unitsSpan}
-      <span className={activeClass}>{'\u00a0\u00a0'}Active at upload</span>
-    </div>);
-  }
-  return <div>{scheduleName}{unitsSpan}</div>;
+export function getScheduleLabel(scheduleName, activeName, noUnits) {
+  return {
+    main: scheduleName,
+    secondary: scheduleName === activeName ? 'Active at upload' : '',
+    units: noUnits ? '' : 'U/hr',
+  };
 }
 
 /**
@@ -346,4 +340,17 @@ export function processTimedSettings(pumpSettings, schedule, bgUnits) {
     insulinSensitivity: '',
   });
   return data;
+}
+
+/**
+ * startTimeAndValue
+ * @param {TYPE} accessor key for value displayed in this column
+ *
+ * @return {Array} array of objects describing table columns
+ */
+export function startTimeAndValue(valueKey) {
+  return [
+    { key: 'start', label: 'Start time' },
+    { key: valueKey, label: 'Value' },
+  ];
 }

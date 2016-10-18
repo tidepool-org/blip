@@ -1,126 +1,61 @@
-.settings {
-  composes: settings from '../settings.css';
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+@import '../../../styles/colors.css';
+
+.headerCommon {
+  line-height: 20px;
 }
 
-.collapsibleOpened {
-  composes: collapsibleOpened from '../settings.css';
-}
-
-.collapsibleClosed {
-  composes: collapsibleClosed from '../settings.css';
-  margin-bottom: 0px;
-}
-
-.basalTable {
-  composes: basalTable from '../settings.css';
-}
-
-.settingsTable {
-  composes: settingsTable from '../settings.css';
-}
-
-.settingsHeaderText {
-  composes: boldText from '../../../styles/typography.css';
-}
-
-.basalSchedulesHeader {
-  composes: settingsHeaderText;
-  border-left: 12px solid var(--basal);
-}
-
-.lightText {
-  composes: lightText from '../../../styles/typography.css';
+.basalScheduleHeader {
+  composes: basalHeaderBackground settingsHeaderText from '../settings.css';
+  composes: headerCommon;
 }
 
 .bolusSettingsHeader {
-  composes: settingsHeaderText;
-  border-left: 12px solid var(--bolus);
+  composes: bolusHeaderBackground settingsHeaderText from '../settings.css';
+  composes: headerCommon;
 }
 
-.header {
-  display: table;
+.collapsibleLabel {
+  border-top: 1px solid var(--collapsible--border);
+  justify-content: flex-start;
+  line-height: 40px;
+  margin-left: 20px;
+  padding-left: 1em;
 }
 
-.collapsibleHeader {
-  composes: mediumContrastText from '../../../styles/typography.css';
-  font-size: 14px;
-  font-weight: bold;
-  position: relative;
-  margin-left: 30px;
-  margin-bottom: 10px;
-}
-
-.collapsibleHeader::before {
-  content: '';
-  border-bottom: 1px solid #ededed;
-  margin-bottom: 10px;
-  margin-left: -1em;
-  display: block;
-}
-
-.title {
-  composes: mediumContrastText from '../../../styles/typography.css';
-  display: inline-block;
-  font-size: 14px;
-  font-weight: bold;
-  padding-bottom: 10px;
-}
-
-.activeLabel {
-  font-weight: 300;
-}
-
-.collapsibleHeader {
-  transition-duration: 0.25s;
-  transition-property: transform, margin;
-  cursor: pointer;
-}
-
-.collapsibleHeader div::after {
-  content: '›';
-  font-size: 15px;
-  font-weight: bold;
-  position: absolute;
-  margin-left: 8px;
-  margin-top: 1px;
-  transition-property: transform, margin;
-  transition-duration: 0.25s;
-  transform: rotate(90deg) translateX(10%);
-}
-
-.collapsibleClosed .collapsibleHeader div::after {
-  margin-left: 6px;
-  margin-top: -1px;
-  transition-duration: 0.25s;
-  transform: rotate(0deg);
-}
-
-.collapsibleHeader:hover {
-  color: var(--text-hover);
-}
-
-.basalTable {
+.profileTable {
   composes: basalTable from '../settings.css';
-  width: 630px;
+  padding-bottom: 1em;
   margin-left: 40px;
+  width: 720px;
 }
 
-.basalTable th {
-  font-weight: 600;
-}
-
-.basalTable td, .basalTable th {
+.profileTable td, .profileTable th {
   text-align: center;
 }
 
-.basalTable th:first-of-type {
-
-}
-
-.basalTable td:first-of-type, .basalTable th:first-of-type {
+.profileTable td:first-of-type, .profileTable th:first-of-type {
   font-weight: bold;
 }
 
-:global(html > body) {
-  overflow-y: scroll;
+.title {
+  composes: boldText defaultSize mediumContrastText from '../../../styles/typography.css';
+  display: inline-block;
+  padding-bottom: 10px;
 }
