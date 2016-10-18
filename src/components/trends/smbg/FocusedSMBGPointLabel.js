@@ -60,31 +60,35 @@ const FocusedSMBGPointLabel = (props) => {
       offset={{ top: 15, left: 0 }}
     />
   ));
-  const simpleTime = (<Tooltip
-    title={<span className={styles.explainerText}>{smbgTime}</span>}
-    position={position}
-    side={'right'}
-    offset={{ top: 10, left: 30 }}
-  />);
-  const singleDetailed = (<Tooltip
-    title={<span className={styles.tipWrapper}>
-      <span className={styles.shortDate}>{shortDate}</span>
-      <span className={styles.shortTime}>{millisecondsAsTimeOfDay(data.msPer24)}</span>
-    </span>
-    }
-    content={<span className={styles.tipWrapper}>
-      <span className={styles.detailNumber}>{displayBgValue(data.value, bgUnits)}</span>
-      <span className={styles.subType}>{data.subType}</span>
-    </span>
-    }
-    position={position}
-    side={'right'}
-    offset={{ top: 0, left: 5 }}
-  />);
+  let focusedTooltip;
+  if (lines) {
+    focusedTooltip = (<Tooltip
+      title={<span className={styles.explainerText}>{smbgTime}</span>}
+      position={position}
+      side={'right'}
+      offset={{ top: 10, left: 30 }}
+    />);
+  } else {
+    focusedTooltip = (<Tooltip
+      title={<span className={styles.tipWrapper}>
+        <span className={styles.shortDate}>{shortDate}</span>
+        <span className={styles.shortTime}>{millisecondsAsTimeOfDay(data.msPer24)}</span>
+      </span>
+      }
+      content={<span className={styles.tipWrapper}>
+        <span className={styles.detailNumber}>{displayBgValue(data.value, bgUnits)}</span>
+        <span className={styles.subType}>{data.subType}</span>
+      </span>
+      }
+      position={position}
+      side={'right'}
+      offset={{ top: 0, left: 5 }}
+    />);
+  }
   return (
     <div className={styles.container}>
       {pointTooltips}
-      {!lines ? singleDetailed : simpleTime}
+      {focusedTooltip}
     </div>
   );
 };
