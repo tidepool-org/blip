@@ -34,8 +34,8 @@ import SMBGRange from '../../../../src/components/trends/smbg/SMBGRange';
 
 describe('SMBGRange', () => {
   let wrapper;
-  const focusRange = sinon.spy();
-  const unfocusRange = sinon.spy();
+  const focus = sinon.spy();
+  const unfocus = sinon.spy();
   const datum = {
     id: '5400000',
     max: 521,
@@ -45,9 +45,9 @@ describe('SMBGRange', () => {
   };
   const props = {
     datum,
-    focusRange,
+    focus,
     tooltipLeftThreshold: THREE_HRS * 6,
-    unfocusRange,
+    unfocus,
     xScale,
     yPositions: {
       min: yScale(datum.min),
@@ -97,30 +97,30 @@ describe('SMBGRange', () => {
 
   describe('interactions', () => {
     afterEach(() => {
-      props.focusRange.reset();
-      props.unfocusRange.reset();
+      props.focus.reset();
+      props.unfocus.reset();
     });
 
-    it('should call focusRange on mouseover of min/max rect', () => {
+    it('should call focus on mouseover of min/max rect', () => {
       const rangeRect = wrapper
         .find(`#smbgRange-${datum.id}`);
-      expect(focusRange.callCount).to.equal(0);
+      expect(focus.callCount).to.equal(0);
       rangeRect.simulate('mouseover');
-      expect(focusRange.args[0][0]).to.deep.equal(datum);
-      expect(focusRange.args[0][1]).to.deep.equal({
+      expect(focus.args[0][0]).to.deep.equal(datum);
+      expect(focus.args[0][1]).to.deep.equal({
         left: 54,
         tooltipLeft: false,
         yPositions: props.yPositions,
       });
-      expect(focusRange.callCount).to.equal(1);
+      expect(focus.callCount).to.equal(1);
     });
 
-    it('should call unfocusRange on mouseout of min/max rect', () => {
+    it('should call unfocus on mouseout of min/max rect', () => {
       const rangeRect = wrapper
         .find(`#smbgRange-${datum.id}`);
-      expect(unfocusRange.callCount).to.equal(0);
+      expect(unfocus.callCount).to.equal(0);
       rangeRect.simulate('mouseout');
-      expect(unfocusRange.callCount).to.equal(1);
+      expect(unfocus.callCount).to.equal(1);
     });
   });
 });

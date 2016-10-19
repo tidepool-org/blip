@@ -25,10 +25,10 @@ const SMBGAvg = (props) => {
     return null;
   }
 
-  const { focusAvg, avgRadius, unfocusAvg: unfocus, xScale, yPositions } = props;
+  const { focus, avgRadius, unfocus, xScale, yPositions } = props;
   const xPos = xScale(datum.msX);
-  const focus = () => {
-    focusAvg(datum, {
+  const focusAvg = () => {
+    focus(datum, {
       left: xPos,
       tooltipLeft: datum.msX > props.tooltipLeftThreshold,
       yPositions,
@@ -39,7 +39,7 @@ const SMBGAvg = (props) => {
     <circle
       className={styles.smbgAvg}
       id={`smbgAvg-${datum.id}`}
-      onMouseOver={focus}
+      onMouseOver={focusAvg}
       onMouseOut={unfocus}
       cx={xPos}
       cy={yPositions.mean}
@@ -61,10 +61,10 @@ SMBGAvg.propTypes = {
     min: PropTypes.number.isRequired,
     msX: PropTypes.number.isRequired,
   }),
-  focusAvg: PropTypes.func.isRequired,
+  focus: PropTypes.func.isRequired,
   avgRadius: PropTypes.number.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
-  unfocusAvg: PropTypes.func.isRequired,
+  unfocus: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yPositions: PropTypes.shape({
     min: PropTypes.number.isRequired,

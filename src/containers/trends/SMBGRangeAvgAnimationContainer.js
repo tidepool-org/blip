@@ -22,26 +22,21 @@ import { TransitionMotion, spring } from 'react-motion';
 import { THREE_HRS } from '../../utils/datetime';
 import { calculateSmbgStatsForBin, findBinForTimeOfDay } from '../../utils/trends/data';
 
-import SMBGRange from '../../components/trends/smbg/SMBGRange';
-import SMBGAvg from '../../components/trends/smbg/SMBGAvg';
-
 export default class SMBGRangeAvgAnimationContainer extends React.Component {
   static propTypes = {
     binSize: PropTypes.number.isRequired,
-    // TODO: add a `component` prop for either SMBGRange or SMBGAvg to be passed in
-    // we'll need to render SMBGRangeAvgAnimationContainer twice in two layers in TrendsSVGContainer
     data: PropTypes.arrayOf(PropTypes.shape({
       // here only documenting the properties we actually use rather than the *whole* data model!
       id: PropTypes.string.isRequired,
       msPer24: PropTypes.number.isRequired,
       value: PropTypes.number.isRequired,
     })).isRequired,
-    focusRange: PropTypes.func.isRequired,
-    smbgRangeOverlay: PropTypes.bool.isRequired,
+    focus: PropTypes.func.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
-    unfocusRange: PropTypes.func.isRequired,
+    unfocus: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
+    smbgComponent: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -101,6 +96,7 @@ export default class SMBGRangeAvgAnimationContainer extends React.Component {
   render() {
     const { mungedData } = this.state;
     const { xScale, yScale } = this.props;
+    const { smbgComponent: SMBGComponent } = this.props;
     const dataById = {};
     _.each(mungedData, (d) => {
       dataById[d.id] = d;
@@ -114,19 +110,11 @@ export default class SMBGRangeAvgAnimationContainer extends React.Component {
           <g id="smbgRangeAvgAnimationContainer">
             {_.map(interpolated, (config) => (
               <g className="smbgRangeAvg" key={config.key}>
-                <SMBGRange
+                <SMBGComponent
                   datum={dataById[config.key]}
-                  focusRange={this.props.focusRange}
+                  focus={this.props.focus}
                   tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-                  unfocusRange={this.props.unfocusRange}
-                  xScale={xScale}
-                  yPositions={config.style}
-                />
-                <SMBGAvg
-                  datum={dataById[config.key]}
-                  focusAvg={this.props.focusRange}
-                  tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-                  unfocusAvg={this.props.unfocusRange}
+                  unfocus={this.props.unfocus}
                   xScale={xScale}
                   yPositions={config.style}
                 />

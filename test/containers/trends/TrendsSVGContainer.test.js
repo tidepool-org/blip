@@ -146,12 +146,12 @@ describe('TrendsSVGContainer', () => {
 
     describe('showing BGM data', () => {
       describe('when smbgRangeOverlay is true', () => {
-        it('should render an SMBGRangeAvgAnimationContainer', () => {
+        it('should render an SMBGRangeAvgAnimationContainer for average and range', () => {
           const smbgRangeProps = _.assign(
             {}, props, { showingSmbg: true, smbgRangeOverlay: true }
           );
           const smbgRangeWrapper = mount(<TrendsSVGContainer {...smbgRangeProps} />);
-          expect(smbgRangeWrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(1);
+          expect(smbgRangeWrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(2);
         });
       });
 
@@ -171,7 +171,7 @@ describe('TrendsSVGContainer', () => {
           const noCbgWrapper = mount(<TrendsSVGContainer {...noCbgProps} />);
           expect(noCbgWrapper.prop('showingCbg')).to.be.false;
           expect(noCbgWrapper.find(CBGSlicesAnimationContainer)).to.have.length(0);
-          expect(noCbgWrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(1);
+          expect(noCbgWrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(2);
         });
       });
     });
