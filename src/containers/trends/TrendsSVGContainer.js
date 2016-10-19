@@ -138,8 +138,8 @@ export class TrendsSVGContainer extends React.Component {
       return (
         <g id="smbgTrends">
         {rangeOverlay}
-        {averageOverlay}
         {days}
+        {averageOverlay}
         </g>
       );
     }

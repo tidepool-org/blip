@@ -55,11 +55,10 @@ const SMBGDayPointsAnimated = (props) => {
         };
 
         return (
-          <Motion style={{ xPos: spring(xPosition(smbg.msPer24)) }}>
+          <Motion style={{ xPos: spring(xPosition(smbg.msPer24)) }} key={`smbg-${smbg.id}`}>
             {(interpolated) => (
               <circle
                 className={styles.smbg}
-                key={`smbg-${smbg.id}`}
                 id={`smbg-${smbg.id}`}
                 onMouseOver={focus}
                 onMouseOut={unfocus}

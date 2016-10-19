@@ -51,6 +51,7 @@ const SMBGDaysContainer = (props) => {
     }
     return _.map(smbgsByDate, (smbgs, date) => (
       <SMBGDayLineAnimated
+        key={date}
         day={date}
         focusedDay={focusedDay}
         data={smbgs}
@@ -66,6 +67,7 @@ const SMBGDaysContainer = (props) => {
   function getPoints() {
     return _.map(smbgsByDate, (smbgs, date) => (
       <SMBGDayPointsAnimated
+        key={date}
         day={date}
         focusedDay={focusedDay}
         data={smbgs}

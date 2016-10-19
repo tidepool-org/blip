@@ -109,16 +109,15 @@ export default class SMBGRangeAvgAnimationContainer extends React.Component {
         {(interpolated) => (
           <g id="smbgRangeAvgAnimationContainer">
             {_.map(interpolated, (config) => (
-              <g className="smbgRangeAvg" key={config.key}>
-                <SMBGComponent
-                  datum={dataById[config.key]}
-                  focus={this.props.focus}
-                  tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-                  unfocus={this.props.unfocus}
-                  xScale={xScale}
-                  yPositions={config.style}
-                />
-              </g>
+              <SMBGComponent
+                key={config.key}
+                datum={dataById[config.key]}
+                focus={this.props.focus}
+                tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+                unfocus={this.props.unfocus}
+                xScale={xScale}
+                yPositions={config.style}
+              />
             ))}
           </g>
         )}
