@@ -48,7 +48,7 @@ import { THREE_HRS } from '../../utils/datetime';
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
 import SMBGRangeAvgAnimationContainer from './SMBGRangeAvgAnimationContainer';
-import { NoData, dataTypes } from '../../components/trends/common/NoData';
+import NoData from '../../components/trends/common/NoData';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import XAxisTicks from '../../components/trends/common/XAxisTicks';
@@ -84,7 +84,7 @@ export class TrendsSVGContainer extends React.Component {
   renderCbg() {
     if (this.props.showingCbg) {
       if (_.isEmpty(this.props.cbgData)) {
-        return this.renderNoDataMessage(dataTypes.cbg);
+        return this.renderNoDataMessage('cbg');
       }
 
       const { containerHeight: height, containerWidth: width } = this.props;
@@ -109,7 +109,7 @@ export class TrendsSVGContainer extends React.Component {
   renderSmbg() {
     if (this.props.showingSmbg) {
       if (_.isEmpty(this.props.smbgData)) {
-        return this.renderNoDataMessage(dataTypes.smbg);
+        return this.renderNoDataMessage('smbg');
       }
 
       const rangeOverlay = this.props.smbgRangeOverlay ?

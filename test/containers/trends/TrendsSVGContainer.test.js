@@ -29,8 +29,7 @@ import CBGSlicesAnimationContainer
   from '../../../src/containers/trends/CBGSlicesAnimationContainer';
 import SMBGRangeAvgAnimationContainer
   from '../../../src/containers/trends/SMBGRangeAvgAnimationContainer';
-import { NoData }
-  from '../../../src/components/trends/common/NoData';
+import NoData from '../../../src/components/trends/common/NoData';
 import TargetRangeLines from '../../../src/components/trends/common/TargetRangeLines';
 import XAxisLabels from '../../../src/components/trends/common/XAxisLabels';
 import XAxisTicks from '../../../src/components/trends/common/XAxisTicks';
@@ -188,7 +187,7 @@ describe('TrendsSVGContainer', () => {
         const noDataWrapper = mount(<TrendsSVGContainer {...noSMBGDataProps} />);
         expect(noDataWrapper.find(NoData)).to.have.length(1);
         expect(noDataWrapper.find('text #noDataMsg').text())
-          .to.equal('There is no BGM data for this time period :(');
+          .to.equal('There is no fingerstick data for this time period :(');
       });
     });
   });

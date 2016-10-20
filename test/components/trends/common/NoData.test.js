@@ -19,7 +19,7 @@ import React from 'react';
 
 import { shallow } from 'enzyme';
 
-import { NoData, dataTypes } from '../../../../src/components/trends/common/NoData';
+import NoData from '../../../../src/components/trends/common/NoData';
 
 describe('NoData', () => {
   const position = { x: 10, y: 50 };
@@ -50,35 +50,40 @@ describe('NoData', () => {
   it('should render with the provided data type in the message', () => {
     const wrapper = shallow(
       <NoData
-        dataType="TEST"
+        dataType="smbg"
         position={position}
       />
     );
-    expect(wrapper.find('text').text()).to.equal('There is no TEST data for this time period :(');
+    expect(wrapper.find('text').text())
+      .to.equal('There is no fingerstick data for this time period :(');
   });
-  it('should render with the provided data type in the message', () => {
-    const wrapper = shallow(
-      <NoData
-        dataType={dataTypes.smbg}
-        position={position}
-      />
-    );
-    expect(wrapper.find('text').text()).to.equal('There is no BGM data for this time period :(');
-  });
-  it('should render with default CBG message when no type provided', () => {
+  it('should not specify a default data type', () => {
     const wrapper = shallow(
       <NoData
         position={position}
       />
     );
-    expect(wrapper.find('text').text()).to.equal('There is no CGM data for this time period :(');
+    expect(wrapper.find('text').text())
+      .to.equal('There is no  data for this time period :(');
   });
   it('should be able to override the message with a templated string', () => {
     const wrapper = shallow(
       <NoData
         position={position}
-        dataType={dataTypes.smbg}
-        messageString="Whoops no <%= dataType %> data!"
+        displayTypes={{ cbg: 'CGM', smbg: 'fingerstick' }}
+        dataType="smbg"
+        messageString="Whoops no <%= displayType %> data!"
+      />
+    );
+    expect(wrapper.find('text').text()).to.equal('Whoops no fingerstick data!');
+  });
+  it('should be able to override the message with own displayTypes', () => {
+    const wrapper = shallow(
+      <NoData
+        position={position}
+        displayTypes={{ cbg: 'CGM', smbg: 'BGM' }}
+        dataType="smbg"
+        messageString="Whoops no <%= displayType %> data!"
       />
     );
     expect(wrapper.find('text').text()).to.equal('Whoops no BGM data!');

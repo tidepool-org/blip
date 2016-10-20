@@ -15,40 +15,44 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 
 import styles from './NoData.css';
 
-const dataTypes = { cbg: 'CGM', smbg: 'BGM' };
-
 const NoData = (props) => {
-  const { position, dataType, messageString } = props;
+  const { position, dataType, displayTypes, messageString } = props;
   const noDataMessage = _.template(messageString);
 
   if (!position) {
     return null;
   }
 
+  let displayType = '';
+  if (dataType) {
+    displayType = displayTypes[dataType];
+  }
+
   return (
     <text className={styles.noDataMsg} id="noDataMsg" x={position.x} y={position.y}>
-      {noDataMessage({ dataType })}
+      {noDataMessage({ displayType })}
     </text>
   );
 };
 
 NoData.defaultProps = {
-  dataType: dataTypes.cbg,
-  messageString: 'There is no <%= dataType %> data for this time period :(',
+  displayTypes: { cbg: 'CGM', smbg: 'fingerstick' },
+  messageString: 'There is no <%= displayType %> data for this time period :(',
 };
 
 NoData.propTypes = {
   messageString: PropTypes.string.isRequired,
-  dataType: PropTypes.string.isRequired,
+  dataType: React.PropTypes.oneOf(['cbg', 'smbg']),
+  displayTypes: PropTypes.object.isRequired,
   position: PropTypes.shape({
     x: PropTypes.number.isRequired,
     y: PropTypes.number.isRequired,
   }).isRequired,
 };
 
-export { NoData, dataTypes };
+export default NoData;
