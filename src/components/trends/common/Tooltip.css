@@ -23,7 +23,7 @@
 .title {
   composes: mediumContrastText from '../../../styles/typography.css';
   composes: content;
-  background-color: #EAEAEE;
+  background-color: var(--tooltip-title-bg);
 }
 
 .tail {
@@ -32,4 +32,8 @@
   border-style: solid;
   border-color: transparent;
   position: absolute;
+}
+
+:export {
+  tooltipTitleBg: var(--tooltip-title-bg);
 }

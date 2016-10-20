@@ -114,7 +114,7 @@ class Tooltip extends React.Component {
     if (title) {
       renderedTitle = (<div className={styles.title}>
         <span>{title}</span>
-        {tail && !content && this.renderTail('#EAEAEE')}
+        {tail && !content && this.renderTail(styles.tooltipTitleBg)}
       </div>);
     }
     return renderedTitle;
