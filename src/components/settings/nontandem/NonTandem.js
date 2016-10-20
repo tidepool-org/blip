@@ -30,9 +30,12 @@ import styles from './NonTandem.css';
 const NonTandem = (props) => {
   const {
     bgTargetColumns,
+    bgTargetLabel,
     bgUnits,
     bolusSettingsLabel,
+    carbRatioLabel,
     deviceType,
+    insulinSensitivityLabel,
     pumpSettings,
     timePrefs,
   } = props;
@@ -89,7 +92,7 @@ const NonTandem = (props) => {
   const renderSensitivityData = () => {
     const title = {
       label: {
-        main: 'Correction factor',
+        main: insulinSensitivityLabel,
         secondary: `${bgUnits}/U`,
       },
       className: styles.bolusSettingsHeader,
@@ -114,7 +117,7 @@ const NonTandem = (props) => {
   const renderRatioData = () => {
     const title = {
       label: {
-        main: 'IC ratio',
+        main: carbRatioLabel,
         secondary: 'g/U',
       },
       className: styles.bolusSettingsHeader,
@@ -138,7 +141,7 @@ const NonTandem = (props) => {
   const renderTargetData = () => {
     const title = {
       label: {
-        main: 'Target BG',
+        main: bgTargetLabel,
         secondary: bgUnits,
       },
       className: styles.bolusSettingsHeader,
@@ -190,9 +193,12 @@ NonTandem.propTypes = {
     key: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
   }).isRequired).isRequired,
+  bgTargetLabel: PropTypes.string.isRequired,
   bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
   bolusSettingsLabel: PropTypes.string.isRequired,
+  carbRatioLabel: PropTypes.string.isRequired,
   deviceType: PropTypes.string.isRequired,
+  insulinSensitivityLabel: PropTypes.string.isRequired,
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool.isRequired,
     timezoneName: PropTypes.oneOfType([PropTypes.string, null]),

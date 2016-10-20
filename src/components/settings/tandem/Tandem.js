@@ -43,19 +43,19 @@ const Tandem = (props) => {
       className: styles.basalScheduleHeader },
     { key: 'bgTarget',
       label: {
-        main: 'BG Target',
+        main: 'Target BG',
         secondary: bgUnits,
       },
       className: styles.bolusSettingsHeader },
     { key: 'carbRatio',
       label: {
-        main: 'I:C Ratio',
+        main: 'Carb Ratio',
         secondary: 'g/U',
       },
       className: styles.bolusSettingsHeader },
     { key: 'insulinSensitivity',
       label: {
-        main: 'ISF',
+        main: 'Correction Factor',
         secondary: `${bgUnits}/U`,
       },
       className: styles.bolusSettingsHeader },

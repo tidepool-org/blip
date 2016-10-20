@@ -44,6 +44,21 @@ export function injectManufacturerSpecificInfo(manufacturer, Component) {
       { key: 'columnThree', label: 'Correct Above' },
     ],
   };
+  const bgTargetByManufacturer = {
+    animas: 'BG Target',
+    carelink: 'BG Target',
+    insulet: 'Target BG',
+  };
+  const insulinSensitivityByManufacturer = {
+    animas: 'ISF',
+    carelink: 'Sensitivity',
+    insulet: 'Correction factor',
+  };
+  const carbRatioByManufacturer = {
+    animas: 'I:C Ratio',
+    carelink: 'Carb Ratios',
+    insulet: 'IC ratio',
+  };
   const bolusSettingsLabelsByManufacturer = {
     animas: 'ezCarb ezBG',
     carelink: 'Bolus Wizard',
@@ -56,6 +71,9 @@ export function injectManufacturerSpecificInfo(manufacturer, Component) {
   };
   return (props) => (
     <Component
+      bgTargetLabel={bgTargetByManufacturer[manufacturer]}
+      carbRatioLabel={carbRatioByManufacturer[manufacturer]}
+      insulinSensitivityLabel={insulinSensitivityByManufacturer[manufacturer]}
       bgTargetColumns={bgTargetsByManufacturer[manufacturer]}
       bolusSettingsLabel={bolusSettingsLabelsByManufacturer[manufacturer]}
       deviceType={deviceTypesByManufacturer[manufacturer]}
