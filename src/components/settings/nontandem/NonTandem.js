@@ -36,6 +36,7 @@ const NonTandem = (props) => {
     carbRatioLabel,
     deviceType,
     insulinSensitivityLabel,
+    manufacturerKey,
     pumpSettings,
     timePrefs,
   } = props;
@@ -44,8 +45,12 @@ const NonTandem = (props) => {
     const schedules = data.getScheduleNames(pumpSettings.basalSchedules);
 
     const tables = _.map(schedules, (schedule) => {
+      let scheduleName = pumpSettings.basalSchedules[schedule].name;
+      if (manufacturerKey === 'carelink') {
+        scheduleName = _.map(scheduleName.split(' '), (part) => (_.capitalize(part))).join(' ');
+      }
       const label = data.getScheduleLabel(
-        pumpSettings.basalSchedules[schedule].name,
+        scheduleName,
         pumpSettings.activeSchedule,
       );
 
@@ -199,6 +204,7 @@ NonTandem.propTypes = {
   carbRatioLabel: PropTypes.string.isRequired,
   deviceType: PropTypes.string.isRequired,
   insulinSensitivityLabel: PropTypes.string.isRequired,
+  manufacturerKey: PropTypes.oneOf(['animas', 'carelink', 'insulet']),
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool.isRequired,
     timezoneName: PropTypes.oneOfType([PropTypes.string, null]),

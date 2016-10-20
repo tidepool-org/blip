@@ -71,12 +71,13 @@ export function injectManufacturerSpecificInfo(manufacturer, Component) {
   };
   return (props) => (
     <Component
-      bgTargetLabel={bgTargetByManufacturer[manufacturer]}
-      carbRatioLabel={carbRatioByManufacturer[manufacturer]}
-      insulinSensitivityLabel={insulinSensitivityByManufacturer[manufacturer]}
       bgTargetColumns={bgTargetsByManufacturer[manufacturer]}
+      bgTargetLabel={bgTargetByManufacturer[manufacturer]}
       bolusSettingsLabel={bolusSettingsLabelsByManufacturer[manufacturer]}
+      carbRatioLabel={carbRatioByManufacturer[manufacturer]}
       deviceType={deviceTypesByManufacturer[manufacturer]}
+      insulinSensitivityLabel={insulinSensitivityByManufacturer[manufacturer]}
+      manufacturerKey={manufacturer}
       {...props}
     />
   );
