@@ -13,10 +13,6 @@
   text-align: right;
 }
 
-.settingsTable th {
-  font-weight: normal;
-}
-
 .settingsTable th:first-of-type, .settingsTable td:first-of-type {
   text-align: left;
 }
@@ -66,6 +62,10 @@
 
 .settingsHeader {
   composes: settingsHeaderDecoration settingsHeaderHeight settingsHeaderLayout settingsHeaderText;
+}
+
+.secondaryLeftPadding {
+  padding-left: 8px;
 }
 
 .secondaryText {

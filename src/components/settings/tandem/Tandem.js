@@ -33,8 +33,7 @@ const Tandem = (props) => {
 
   const COLUMNS = [
     { key: 'start',
-      label: 'Start time',
-      className: '' },
+      label: 'Start time' },
     { key: 'rate',
       label: {
         main: 'Basal Rates',
