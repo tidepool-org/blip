@@ -132,6 +132,7 @@ export class TrendsSVGContainer extends React.Component {
           unfocusSmbg={this.props.unfocusSmbg}
           lines={this.props.smbgLines}
           grouped={this.props.smbgGrouped}
+          smbgOpts={this.props.smbgOpts}
         />
       );
 

@@ -27,7 +27,7 @@ const SMBGDaysContainer = (props) => {
     return null;
   }
 
-  const { xScale, yScale, grouped, lines, focusedSmbg, focusSmbg, unfocusSmbg } = props;
+  const { xScale, yScale, grouped, lines, focusedSmbg, focusSmbg, unfocusSmbg, smbgOpts } = props;
   const focusedDay = focusedSmbg ? focusedSmbg.day : '';
   const smbgsByDate = _.groupBy(data, 'localDate');
 
@@ -76,6 +76,7 @@ const SMBGDaysContainer = (props) => {
         focusSmbg={focusSmbg}
         unfocusSmbg={unfocusSmbg}
         grouped={grouped}
+        smbgOpts={smbgOpts}
       />
     ));
   }
@@ -122,6 +123,10 @@ SMBGDaysContainer.propTypes = {
     })),
   }),
   focusSmbg: PropTypes.func.isRequired,
+  smbgOpts: PropTypes.shape({
+    maxR: PropTypes.number.isRequired,
+    r: PropTypes.number.isRequired,
+  }).isRequired,
   unfocusSmbg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
