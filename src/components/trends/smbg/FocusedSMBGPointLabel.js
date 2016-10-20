@@ -99,23 +99,30 @@ FocusedSMBGPointLabel.propTypes = {
   bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   focusedPoint: PropTypes.shape({
     data: PropTypes.shape({
-      value: PropTypes.number.isRequired,
-      time: PropTypes.string,
       deviceTime: PropTypes.string,
-      subType: PropTypes.string.isRequired,
       msPer24: PropTypes.number.isRequired,
+      subType: PropTypes.string.isRequired,
+      time: PropTypes.string,
+      value: PropTypes.number.isRequired,
     }).isRequired,
+    dayPoints: PropTypes.arrayOf(PropTypes.shape({
+      value: PropTypes.number.isRequired,
+    })).isRequired,
     position: PropTypes.shape({
-      top: PropTypes.number.isRequired,
       left: PropTypes.number.isRequired,
+      top: PropTypes.number.isRequired,
     }).isRequired,
+    positions: PropTypes.arrayOf(PropTypes.shape({
+      left: PropTypes.number.isRequired,
+      top: PropTypes.number.isRequired,
+    })).isRequired,
   }),
+  grouped: React.PropTypes.bool.isRequired,
+  lines: React.PropTypes.bool.isRequired,
   timePrefs: PropTypes.shape({
     timezoneAware: React.PropTypes.bool.isRequired,
     timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
   }).isRequired,
-  grouped: React.PropTypes.bool.isRequired,
-  lines: React.PropTypes.bool.isRequired,
 };
 
 export default FocusedSMBGPointLabel;
