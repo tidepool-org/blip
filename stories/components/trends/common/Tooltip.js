@@ -6,8 +6,8 @@ import { storiesOf } from '@kadira/storybook';
 import Tooltip from '../../../../src/components/trends/common/Tooltip';
 
 const props = {
-  title: 'Title',
-  content: <span style={{ fontSize: '15px' }}>Some Content</span>,
+  title: <span style={{ padding: '5px', display: 'block' }}>Title</span>,
+  content: <span style={{ fontSize: '15px', display: 'block', padding: '5px' }}>Some Content</span>,
   position: { top: 200, left: 200 },
 };
 
