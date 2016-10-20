@@ -44,6 +44,10 @@ describe('SMBGDaysContainer', () => {
     unfocusSmbg: () => {},
     xScale,
     yScale,
+    smbgOpts: {
+      maxR: 7.5,
+      r: 6,
+    },
   };
 
   before(() => {

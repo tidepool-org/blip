@@ -43,6 +43,10 @@ describe('SMBGDayPointsAnimated', () => {
     { id: '1', value: 90, msPer24: 9000000 },
     { id: '2', value: 180, msPer24: 21600000 },
   ];
+  const smbgOpts = {
+    maxR: 7.5,
+    r: 6,
+  };
 
   const props = {
     date,
@@ -53,6 +57,7 @@ describe('SMBGDayPointsAnimated', () => {
     unfocusSmbg,
     grouped,
     focusedDay,
+    smbgOpts,
   };
   before(() => {
     wrapper = mount(
