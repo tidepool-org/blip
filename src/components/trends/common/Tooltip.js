@@ -72,7 +72,7 @@ class Tooltip extends React.Component {
 
   renderTail(color = 'white') {
     const { tailWidth, tailHeight, borderWidth, borderColor, side } = this.props;
-    const tailSide = side === 'left' ? 'right' : 'left';
+    const tailSide = (side === 'left') ? 'right' : 'left';
     const padding = 10;
     let marginOuterValue;
     let marginInnerValue;
@@ -83,7 +83,7 @@ class Tooltip extends React.Component {
       marginOuterValue = `calc(${padding}px + ${borderWidth}px)`;
       marginInnerValue = `${padding - 1}px`;
     }
-    const borderSide = tailSide === 'left' ? 'right' : 'left';
+    const borderSide = (tailSide === 'left') ? 'right' : 'left';
 
     return (<div>
       <div
@@ -157,7 +157,7 @@ Tooltip.propTypes = {
   position: PropTypes.shape({
     top: PropTypes.number.isRequired,
     left: PropTypes.number.isRequired,
-  }),
+  }).isRequired,
   offset: PropTypes.shape({
     top: PropTypes.number.isRequired,
     left: PropTypes.number.isRequired,
@@ -177,7 +177,6 @@ Tooltip.defaultProps = {
   tailHeight: 8,
   borderColor: 'black',
   borderWidth: 2,
-  position: { top: 0, left: 0 },
   offset: { top: 0, left: 0 },
 };
 
