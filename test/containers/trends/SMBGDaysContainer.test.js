@@ -71,7 +71,7 @@ describe('SMBGDaysContainer', () => {
         props.focusedSmbg = {
           dayPoints: props.data,
           smbgPosition: { top: 0, left: 0 },
-          day: '2016-08-28',
+          date: '2016-08-28',
           smbgDay: [{ value: 200 }],
           smbgPositions: [{ top: 0, left: 10 }, { top: 10, left: 50 }],
         };

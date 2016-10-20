@@ -28,7 +28,7 @@ const SMBGDaysContainer = (props) => {
   }
 
   const { xScale, yScale, grouped, lines, focusedSmbg, focusSmbg, unfocusSmbg, smbgOpts } = props;
-  const focusedDay = focusedSmbg ? focusedSmbg.day : '';
+  const focusedDay = focusedSmbg ? focusedSmbg.date : '';
   const smbgsByDate = _.groupBy(data, 'localDate');
 
   function getLines() {
@@ -38,7 +38,7 @@ const SMBGDaysContainer = (props) => {
       }
       return (
         <SMBGDayLineAnimated
-          day={focusedDay}
+          date={focusedDay}
           focusedDay={focusedDay}
           data={focusedSmbg.dayPoints}
           xScale={xScale}
@@ -52,7 +52,7 @@ const SMBGDaysContainer = (props) => {
     return _.map(smbgsByDate, (smbgs, date) => (
       <SMBGDayLineAnimated
         key={date}
-        day={date}
+        date={date}
         focusedDay={focusedDay}
         data={smbgs}
         xScale={xScale}
@@ -68,7 +68,7 @@ const SMBGDaysContainer = (props) => {
     return _.map(smbgsByDate, (smbgs, date) => (
       <SMBGDayPointsAnimated
         key={date}
-        day={date}
+        date={date}
         focusedDay={focusedDay}
         data={smbgs}
         xScale={xScale}
@@ -113,7 +113,7 @@ SMBGDaysContainer.propTypes = {
       top: PropTypes.number.isRequired,
       left: PropTypes.number.isRequired,
     }),
-    day: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
     smbgDay: PropTypes.arrayOf(PropTypes.shape({
       value: PropTypes.number.isRequired,
     })),

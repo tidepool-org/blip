@@ -144,7 +144,7 @@ describe('trendsStateByUser', () => {
         },
       };
       const tracked = mutationTracker.trackObj(initialState);
-      const day = {};
+      const date = {};
 
       expect(trendsStateByUser(initialState, {
         type: actionTypes.FOCUS_TRENDS_SMBG,
@@ -153,13 +153,13 @@ describe('trendsStateByUser', () => {
           smbgPosition: position,
           smbgDay: dayPoints,
           smbgPositions: positions,
-          day,
+          date,
           userId: USER_1,
         },
       })[USER_1]).to.deep.equal({
         focusedCbgSlice: null,
         focusedCbgSliceKeys: null,
-        focusedSmbg: { data, position, dayPoints, positions, day },
+        focusedSmbg: { data, position, dayPoints, positions, date },
         focusedSmbgRangeAvg: null,
         touched: true,
       });

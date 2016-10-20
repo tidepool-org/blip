@@ -37,7 +37,7 @@ describe('SMBGDayLineAnimated', () => {
   const unfocusLine = sinon.spy();
   const grouped = true;
   const focusedDay = [];
-  const day = '2016-08-14';
+  const date = '2016-08-14';
   const data = [
     { id: '0', value: 120, msPer24: 0 },
     { id: '1', value: 90, msPer24: 9000000 },
@@ -45,7 +45,7 @@ describe('SMBGDayLineAnimated', () => {
   ];
 
   const props = {
-    day,
+    date,
     data,
     xScale,
     yScale,
@@ -75,13 +75,13 @@ describe('SMBGDayLineAnimated', () => {
     });
 
     it('should render nothing', () => {
-      expect(noDataWrapper.find(`#smbgDayLine-${day}`).length).to.equal(0);
+      expect(noDataWrapper.find(`#smbgDayLine-${date}`).length).to.equal(0);
     });
   });
 
   describe('when a data is provided', () => {
     it('should render a smbgDayLine <path>', () => {
-      expect(wrapper.find(`#smbgDayLine-${day} path`).length).to.equal(1);
+      expect(wrapper.find(`#smbgDayLine-${date} path`).length).to.equal(1);
     });
   });
 
@@ -93,7 +93,7 @@ describe('SMBGDayLineAnimated', () => {
 
     it('should call focusLine on mouseover of smbg circle', () => {
       const smbgDayLine = wrapper
-        .find(`#smbgDayLine-${day} path`);
+        .find(`#smbgDayLine-${date} path`);
       expect(focusLine.callCount).to.equal(0);
       smbgDayLine.simulate('mouseover');
       expect(focusLine.callCount).to.equal(1);
@@ -101,7 +101,7 @@ describe('SMBGDayLineAnimated', () => {
 
     it('should call unfocusLine on mouseout of smbg circle', () => {
       const smbgDayLine = wrapper
-        .find(`#smbgDayLine-${day} path`);
+        .find(`#smbgDayLine-${date} path`);
       expect(unfocusLine.callCount).to.equal(0);
       smbgDayLine.simulate('mouseout');
       expect(unfocusLine.callCount).to.equal(1);

@@ -37,7 +37,7 @@ describe('SMBGDayPointsAnimated', () => {
   const unfocusSmbg = sinon.spy();
   const grouped = true;
   const focusedDay = [];
-  const day = '2016-08-14';
+  const date = '2016-08-14';
   const data = [
     { id: '0', value: 120, msPer24: 0 },
     { id: '1', value: 90, msPer24: 9000000 },
@@ -45,7 +45,7 @@ describe('SMBGDayPointsAnimated', () => {
   ];
 
   const props = {
-    day,
+    date,
     data,
     xScale,
     yScale,
@@ -75,13 +75,13 @@ describe('SMBGDayPointsAnimated', () => {
     });
 
     it('should render nothing', () => {
-      expect(noDataWrapper.find(`#smbgDayPoints-${day}`).length).to.equal(0);
+      expect(noDataWrapper.find(`#smbgDayPoints-${date}`).length).to.equal(0);
     });
   });
 
   describe('when a data is provided', () => {
     it('should render a smbgDayPoints <circle>', () => {
-      expect(wrapper.find(`#smbgDayPoints-${day} circle`).length).to.equal(3);
+      expect(wrapper.find(`#smbgDayPoints-${date} circle`).length).to.equal(3);
     });
   });
 

@@ -72,11 +72,11 @@ const trendsStateByUser = (state = {}, action) => {
         userId,
         smbgDay: dayPoints,
         smbgPositions: positions,
-        day } = action.payload;
+        date } = action.payload;
       return update(
         state,
         { [userId]: {
-          [FOCUSED_SMBG]: { $set: { data, position, dayPoints, positions, day } },
+          [FOCUSED_SMBG]: { $set: { data, position, dayPoints, positions, date } },
         } }
       );
     }

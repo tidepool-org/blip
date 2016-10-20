@@ -124,7 +124,7 @@ export class TrendsContainer extends React.Component {
           top: PropTypes.number.isRequired,
           left: PropTypes.number.isRequired,
         }),
-        day: PropTypes.string.isRequired,
+        date: PropTypes.string.isRequired,
         smbgDay: PropTypes.arrayOf(PropTypes.shape({
           value: PropTypes.number.isRequired,
         })),
