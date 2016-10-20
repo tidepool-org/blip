@@ -25,6 +25,12 @@ import { formatDisplayDate, millisecondsAsTimeOfDay } from '../../../utils/datet
 
 import styles from './FocusedSMBGPointLabel.css';
 
+// tooltip offsets
+const SIMPLE_VALUE_TOP_OFFSET = 15;
+const SIMPLE_DAY_TOP_OFFSET = 10;
+const SIMPLE_DAY_LEFT_OFFSET = 30;
+const DETAILED_DAY_LEFT_OFFSET = 5;
+
 const FocusedSMBGPointLabel = (props) => {
   const { focusedPoint } = props;
   if (!focusedPoint) {
@@ -57,7 +63,7 @@ const FocusedSMBGPointLabel = (props) => {
       position={positions[i]}
       side={'bottom'}
       tail={false}
-      offset={{ top: 15, left: 0 }}
+      offset={{ top: SIMPLE_VALUE_TOP_OFFSET, left: 0 }}
     />
   ));
   let focusedTooltip;
@@ -66,7 +72,7 @@ const FocusedSMBGPointLabel = (props) => {
       title={<span className={styles.explainerText}>{smbgTime}</span>}
       position={position}
       side={'right'}
-      offset={{ top: 10, left: 30 }}
+      offset={{ top: SIMPLE_DAY_TOP_OFFSET, left: SIMPLE_DAY_LEFT_OFFSET }}
     />);
   } else {
     focusedTooltip = (<Tooltip
@@ -82,7 +88,7 @@ const FocusedSMBGPointLabel = (props) => {
       }
       position={position}
       side={'right'}
-      offset={{ top: 0, left: 5 }}
+      offset={{ top: 0, left: DETAILED_DAY_LEFT_OFFSET }}
     />);
   }
   return (
