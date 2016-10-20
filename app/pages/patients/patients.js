@@ -192,7 +192,8 @@ export let Patients = React.createClass({
     }
 
     if (!utils.isChrome()) {
-      return <BrowserWarning />;
+      return <BrowserWarning
+        trackMetric={this.props.trackMetric} />;
     }
 
     var patients = this.props.patients;
