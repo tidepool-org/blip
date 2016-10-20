@@ -21,8 +21,7 @@
 }
 
 .number {
-  composes: boldText highContrastText noWrap from '../../../styles/typography.css';
-  font-size: 17px;
+  composes: boldText highContrastText noWrap largeSize from '../../../styles/typography.css';
 }
 
 .explainerText {

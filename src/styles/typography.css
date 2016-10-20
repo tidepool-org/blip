@@ -36,6 +36,10 @@
   font-size: 14px;
 }
 
+.largeSize {
+  font-size: 17px;
+}
+
 .mediumContrastText {
   color: var(--text-medium-contrast);
   fill: var(--text-medium-contrast);
