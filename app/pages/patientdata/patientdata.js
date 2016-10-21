@@ -186,7 +186,7 @@ export let PatientData = React.createClass({
             target="_blank"
             onClick={handleClickUpload}>Upload data</a>
           <p>
-            {'Or try '}<a href="" onClick={this.handleClickRefresh}>refreshing</a>{' the page.'}
+            {'Or try '}<a href="" onClick={this.handleClickNoDataRefresh}>refreshing</a>{' the page.'}
           </p>
         </div>
       );
@@ -484,6 +484,11 @@ export let PatientData = React.createClass({
   },
 
   handleClickRefresh: function(e) {
+    this.handleRefresh(e);
+    this.props.trackMetric('Clicked Refresh');
+  },
+
+  handleClickNoDataRefresh: function(e) {
     this.handleRefresh(e);
     this.props.trackMetric('Clicked No Data Refresh');
   },
