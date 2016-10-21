@@ -18,20 +18,21 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import Header from '../../../../src/components/settings/common/Header';
+import SingleLineCollapsibleContainerLabel
+  from '../../../../src/components/settings/common/SingleLineCollapsibleContainerLabel';
 
-describe('Header', () => {
-  it('should expand to show serial number on click of device name', () => {
+describe('SingleLineCollapsibleContainerLabel', () => {
+  it('should render a label with a click handler', () => {
+    const clicker = sinon.stub();
+    expect(clicker.callCount).to.equal(0);
     const wrapper = shallow(
-      <Header
-        deviceType="Testing"
-        deviceMeta={{ name: 'SN123', uploaded: 'Jul 12th 2016' }}
+      <SingleLineCollapsibleContainerLabel
+        isOpened
+        label={{ main: 'Foo', secondary: 'Bar' }}
+        onClick={clicker}
       />
     );
-    expect(wrapper.state().serialNumberExpanded).to.be.false;
-    wrapper.find('ul').at(0).simulate('click');
-    expect(wrapper.state().serialNumberExpanded).to.be.true;
-    wrapper.find('ul').at(0).simulate('click');
-    expect(wrapper.state().serialNumberExpanded).to.be.false;
+    wrapper.simulate('click');
+    expect(clicker.callCount).to.equal(1);
   });
 });

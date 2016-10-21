@@ -79,6 +79,7 @@ const NonTandem = (props) => {
           <CollapsibleContainer
             label={label}
             labelClass={styles.singleLineBasalScheduleHeader}
+            openByDefault={false}
           >
             <Table
               rows={

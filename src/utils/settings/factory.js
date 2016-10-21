@@ -91,7 +91,8 @@ export function injectManufacturerSpecificInfo(manufacturer, Component) {
  * @return {Component} - React component for given device type or an error if an unsupported type
  */
 export function getChart(deviceType) {
-  const deviceKey = deviceType.toLowerCase();
+  let deviceKey = deviceType.toLowerCase();
+  deviceKey = (deviceKey === 'medtronic') ? 'carelink' : deviceKey;
   if (deviceKey === 'carelink') {
     return injectManufacturerSpecificInfo(deviceKey, NonTandem);
   } else if (deviceKey === 'tandem') {
@@ -101,5 +102,6 @@ export function getChart(deviceType) {
   } else if (deviceKey === 'animas') {
     return injectManufacturerSpecificInfo(deviceKey, NonTandem);
   }
-  throw new Error('`deviceType` must one of `carelink`, `tandem`, `insulet` or `animas`');
+  const types = ['animas', 'carelink', 'insulet', 'medtronic', 'tandem'];
+  throw new Error(`\`deviceType\` must one of ${types.join(', ')}.`);
 }

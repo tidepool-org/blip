@@ -48,7 +48,8 @@ SingleLineCollapsibleContainerLabel.propTypes = {
   label: PropTypes.shape({
     main: PropTypes.string.isRequired,
     secondary: PropTypes.string.isRequired,
-  }),
+    units: PropTypes.string,
+  }).isRequired,
   onClick: PropTypes.func.isRequired,
 };
 

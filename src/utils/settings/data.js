@@ -54,7 +54,7 @@ function getBasalRate(scheduleData, startTime) {
 /**
  * getValue
  * @private
- * @param  {Array} scheduleData  basal scheduleData
+ * @param  {Array} scheduleData  scheduleData
  * @param  {String} fieldName    field to search for
  * @param  {Number} startTime    milliseconds from start of day
  *
@@ -74,7 +74,7 @@ function getValue(scheduleData, fieldName, startTime) {
 /**
  * getBloodGlucoseValue
  * @private
- * @param  {Array} scheduleData  basal schedule
+ * @param  {Array} scheduleData  scheduleData
  * @param  {String} fieldName    field to search format
  * @param  {Number} startTime    milliseconds from start of day
  * @param  {String} units        MGDL_UNITS or MMOLL_UNITS
