@@ -16,7 +16,11 @@ describe('BrowserWarning', function () {
 
   describe('render', function() {
     it('should render without problems', function () {
-      var elem = TestUtils.renderIntoDocument(<BrowserWarning/>);
+      var props = {
+        trackMetric: function() {}
+      };
+      var browserWarningElem = React.createElement(BrowserWarning, props);
+      var elem = TestUtils.renderIntoDocument(browserWarningElem);
       expect(elem).to.be.ok;
     });
   });
