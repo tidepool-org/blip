@@ -15,5 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-export * from './trends';
-export * from './settings';
+import * as actionTypes from '../constants/actionTypes';
+
+export function toggleSettingsSection(userId, deviceKey, scheduleOrProfileKey) {
+  return {
+    type: actionTypes.TOGGLE_SETTINGS_SECTION,
+    payload: { deviceKey, scheduleOrProfileKey, userId },
+  };
+}

@@ -19,6 +19,8 @@ export const FOCUS_TRENDS_CBG_SLICE = 'FOCUS_TRENDS_CBG_SLICE';
 export const MARK_TRENDS_VIEWED = 'MARK_TRENDS_VIEWED';
 export const UNFOCUS_TRENDS_CBG_SLICE = 'UNFOCUS_TRENDS_CBG_SLICE';
 
+export const TOGGLE_SETTINGS_SECTION = 'TOGGLE_SETTINGS_SECTION';
+
 // from blip's redux implementation
 // TODO: how could we DRY this out??
 
