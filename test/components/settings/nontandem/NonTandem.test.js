@@ -21,7 +21,7 @@ import React from 'react';
 // because the component is wrapped, can't use shallow
 import { mount } from 'enzyme';
 
-import { getChart } from '../../../../src/utils/settings/factory';
+import { getSettingsComponent } from '../../../../src/utils/settings/factory';
 import { MGDL_UNITS } from '../../../../src/utils/constants';
 
 const animasMultiRateData = require('../../../../data/pumpSettings/animas/multirate.json');
@@ -34,7 +34,7 @@ describe('NonTandem', () => {
   const activeAtUploadText = 'Active at upload';
 
   describe('Animas', () => {
-    const Animas = getChart('Animas');
+    const Animas = getSettingsComponent('Animas');
     it('should render without problems when bgUnits and pumpSettings provided', () => {
       console.error = sinon.stub();
       mount(
@@ -105,7 +105,7 @@ describe('NonTandem', () => {
   });
 
   describe('Insulet', () => {
-    const Insulet = getChart('Insulet');
+    const Insulet = getSettingsComponent('Insulet');
     it('should render without problems when bgUnits and pumpSettings provided', () => {
       console.error = sinon.stub();
       mount(
@@ -176,7 +176,7 @@ describe('NonTandem', () => {
   });
 
   describe('Medtronic', () => {
-    const Medtronic = getChart('Medtronic');
+    const Medtronic = getSettingsComponent('Medtronic');
     it('should render without problems when bgUnits and pumpSettings provided', () => {
       console.error = sinon.stub();
       mount(

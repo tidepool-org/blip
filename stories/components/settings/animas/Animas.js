@@ -2,8 +2,8 @@ import React from 'react';
 
 import { storiesOf } from '@kadira/storybook';
 
-import { getChart } from '../../../../src/utils/settings/factory';
-const DeviceSettings = getChart('animas');
+import { getSettingsComponent } from '../../../../src/utils/settings/factory';
+const DeviceSettings = getSettingsComponent('animas');
 const flatRateSettings = require('../../../../data/pumpSettings/animas/flatrate.json');
 const multiRateSettings = require('../../../../data/pumpSettings/animas/multirate.json');
 const mmolL = 'mmol/L';

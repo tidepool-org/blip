@@ -27,14 +27,14 @@ describe('settings factory', () => {
   describe('NonTandem', () => {
     describe('Animas', () => {
       it('should return wrapped NonTandem component when given "animas"', () => {
-        const Chart = factory.getChart('animas');
+        const Chart = factory.getSettingsComponent('animas');
         assert.isFunction(Chart);
         const wrapper = shallow(<Chart />);
         expect(wrapper.find(NonTandem)).to.have.length(1);
       });
 
       it('should return wrapped NonTandem component when given "aNImaS"', () => {
-        const Chart = factory.getChart('aNImaS');
+        const Chart = factory.getSettingsComponent('aNImaS');
         assert.isFunction(Chart);
         const wrapper = shallow(<Chart />);
         expect(wrapper.find(NonTandem)).to.have.length(1);
@@ -43,14 +43,14 @@ describe('settings factory', () => {
 
     describe('CareLink', () => {
       it('should return wrapped NonTandem component when given "carelink"', () => {
-        const Chart = factory.getChart('carelink');
+        const Chart = factory.getSettingsComponent('carelink');
         assert.isFunction(Chart);
         const wrapper = shallow(<Chart />);
         expect(wrapper.find(NonTandem)).to.have.length(1);
       });
 
       it('should return wrapped NonTandem component when given "cArEliNK"', () => {
-        const Chart = factory.getChart('cArEliNK');
+        const Chart = factory.getSettingsComponent('cArEliNK');
         assert.isFunction(Chart);
         const wrapper = shallow(<Chart />);
         expect(wrapper.find(NonTandem)).to.have.length(1);
@@ -60,14 +60,14 @@ describe('settings factory', () => {
 
     describe('Insulet', () => {
       it('should return wrapped NonTandem component when given "insulet"', () => {
-        const Chart = factory.getChart('insulet');
+        const Chart = factory.getSettingsComponent('insulet');
         assert.isFunction(Chart);
         const wrapper = shallow(<Chart />);
         expect(wrapper.find(NonTandem)).to.have.length(1);
       });
 
       it('should return wrapped NonTandem component when given "iNSulET"', () => {
-        const Chart = factory.getChart('iNSulET');
+        const Chart = factory.getSettingsComponent('iNSulET');
         assert.isFunction(Chart);
         const wrapper = shallow(<Chart />);
         expect(wrapper.find(NonTandem)).to.have.length(1);
@@ -77,14 +77,14 @@ describe('settings factory', () => {
 
     describe('Medtronic', () => {
       it('should return wrapped NonTandem component when given "medtronic"', () => {
-        const Chart = factory.getChart('medtronic');
+        const Chart = factory.getSettingsComponent('medtronic');
         assert.isFunction(Chart);
         const wrapper = shallow(<Chart />);
         expect(wrapper.find(NonTandem)).to.have.length(1);
       });
 
       it('should return wrapped NonTandem component when given "mEdTRonIc"', () => {
-        const Chart = factory.getChart('mEdTRonIc');
+        const Chart = factory.getSettingsComponent('mEdTRonIc');
         assert.isFunction(Chart);
         const wrapper = shallow(<Chart />);
         expect(wrapper.find(NonTandem)).to.have.length(1);
@@ -94,19 +94,19 @@ describe('settings factory', () => {
 
   describe('Tandem', () => {
     it('should return Tandem component when given "tandem"', () => {
-      const chart = factory.getChart('tandem');
+      const chart = factory.getSettingsComponent('tandem');
       expect(chart).to.equal(Tandem);
     });
 
     it('should return Tandem component when given "tAnDEM"', () => {
-      const chart = factory.getChart('tAnDEM');
+      const chart = factory.getSettingsComponent('tAnDEM');
       expect(chart).to.equal(Tandem);
     });
   });
 
   describe('error', () => {
     it('should throw when given unknown deviceType', () => {
-      const fn = () => { factory.getChart('unknown'); };
+      const fn = () => { factory.getSettingsComponent('unknown'); };
       expect(fn).to.throw('`deviceType` must one of');
     });
   });

@@ -2,8 +2,8 @@ import React from 'react';
 
 import { storiesOf } from '@kadira/storybook';
 
-import { getChart } from '../../../../src/utils/settings/factory';
-const DeviceSettings = getChart('carelink');
+import { getSettingsComponent } from '../../../../src/utils/settings/factory';
+const DeviceSettings = getSettingsComponent('carelink');
 const flatRateSettings = require('../../../../data/pumpSettings/medtronic/flatrate.json');
 const multiRateSettings = require('../../../../data/pumpSettings/medtronic/multirate.json');
 const mmolL = 'mmol/L';

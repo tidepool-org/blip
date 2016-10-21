@@ -2,8 +2,8 @@ import React from 'react';
 
 import { storiesOf } from '@kadira/storybook';
 
-import { getChart } from '../../../../src/utils/settings/factory';
-const DeviceSettings = getChart('insulet');
+import { getSettingsComponent } from '../../../../src/utils/settings/factory';
+const DeviceSettings = getSettingsComponent('insulet');
 const flatRateSettings = require('../../../../data/pumpSettings/omnipod/flatrate.json');
 const multiRateSettings = require('../../../../data/pumpSettings/omnipod/multirate.json');
 const mmolL = 'mmol/L';

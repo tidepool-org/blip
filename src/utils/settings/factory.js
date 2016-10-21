@@ -84,13 +84,13 @@ export function injectManufacturerSpecificInfo(manufacturer, Component) {
 }
 
 /**
- * getChart
+ * getSettingsComponent
  * @param  {String} deviceType - desired chart device name.
  *                               Either `carelink`, `tandem`, `insulet` or `animas`.
  *
  * @return {Component} - React component for given device type or an error if an unsupported type
  */
-export function getChart(deviceType) {
+export function getSettingsComponent(deviceType) {
   let deviceKey = deviceType.toLowerCase();
   deviceKey = (deviceKey === 'medtronic') ? 'carelink' : deviceKey;
   if (deviceKey === 'carelink') {
