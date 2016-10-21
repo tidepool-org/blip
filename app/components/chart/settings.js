@@ -22,10 +22,7 @@ import ReactDOM from 'react-dom';
 
 import utils from '../../core/utils';
 
-import * as viz from '@tidepool/viz';
-
-const ChartFactory = viz.components.SettingsFactory;
-
+import { getSettingsComponent } from '@tidepool/viz';
 
 import Header from './header';
 import Footer from './footer';
@@ -95,7 +92,7 @@ var Settings = React.createClass({
 
     const settings = this.props.patientData.grouped.pumpSettings;
 
-    const SettingsChart = ChartFactory.getChart(
+    const SettingsChart = getSettingsComponent(
       _.get(_.last(settings), 'source'),
     );
 
