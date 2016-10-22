@@ -17,16 +17,18 @@
 
 import React from 'react';
 
+import PumpSettingsContainer from '../../containers/settings/PumpSettingsContainer';
+
 import NonTandem from '../../components/settings/nontandem/NonTandem';
 import Tandem from '../../components/settings/tandem/Tandem';
 
 /**
- * injectBolusSettingsColumns
+ * injectManufacturerSpecificInfo
  * @param {String} manufacturer - non-Tandem insulin pump manufacturer
  *
- * @return {Component} NonTandem React component with bolusSettingsColumns injected
+ * @return {Function} wrapper for Component with injected props
  */
-export function injectManufacturerSpecificInfo(manufacturer, Component) {
+export function injectManufacturerSpecificInfo(manufacturer) {
   const bgTargetsByManufacturer = {
     animas: [
       { key: 'start', label: 'Start time' },
@@ -69,18 +71,28 @@ export function injectManufacturerSpecificInfo(manufacturer, Component) {
     carelink: 'Medtronic',
     insulet: 'OmniPod',
   };
-  return (props) => (
-    <Component
-      bgTargetColumns={bgTargetsByManufacturer[manufacturer]}
-      bgTargetLabel={bgTargetByManufacturer[manufacturer]}
-      bolusSettingsLabel={bolusSettingsLabelsByManufacturer[manufacturer]}
-      carbRatioLabel={carbRatioByManufacturer[manufacturer]}
-      deviceType={deviceTypesByManufacturer[manufacturer]}
-      insulinSensitivityLabel={insulinSensitivityByManufacturer[manufacturer]}
-      manufacturerKey={manufacturer}
-      {...props}
-    />
-  );
+  return (Component) => ((props) => {
+    const NonTandemComponent = (
+      <Component
+        bgTargetColumns={bgTargetsByManufacturer[manufacturer]}
+        bgTargetLabel={bgTargetByManufacturer[manufacturer]}
+        bolusSettingsLabel={bolusSettingsLabelsByManufacturer[manufacturer]}
+        carbRatioLabel={carbRatioByManufacturer[manufacturer]}
+        deviceType={deviceTypesByManufacturer[manufacturer]}
+        insulinSensitivityLabel={insulinSensitivityByManufacturer[manufacturer]}
+        manufacturerKey={manufacturer}
+        {...props}
+      />
+    );
+    return (
+      <PumpSettingsContainer
+        deviceKey={manufacturer}
+        {...props}
+      >
+        {(manufacturer === 'tandem') ? <Component {...props} /> : NonTandemComponent}
+      </PumpSettingsContainer>
+    );
+  });
 }
 
 /**
@@ -94,13 +106,13 @@ export function getSettingsComponent(deviceType) {
   let deviceKey = deviceType.toLowerCase();
   deviceKey = (deviceKey === 'medtronic') ? 'carelink' : deviceKey;
   if (deviceKey === 'carelink') {
-    return injectManufacturerSpecificInfo(deviceKey, NonTandem);
+    return injectManufacturerSpecificInfo(deviceKey)(NonTandem);
   } else if (deviceKey === 'tandem') {
-    return Tandem;
+    return injectManufacturerSpecificInfo(deviceKey)(Tandem);
   } else if (deviceKey === 'insulet') {
-    return injectManufacturerSpecificInfo(deviceKey, NonTandem);
+    return injectManufacturerSpecificInfo(deviceKey)(NonTandem);
   } else if (deviceKey === 'animas') {
-    return injectManufacturerSpecificInfo(deviceKey, NonTandem);
+    return injectManufacturerSpecificInfo(deviceKey)(NonTandem);
   }
   const types = ['animas', 'carelink', 'insulet', 'medtronic', 'tandem'];
   throw new Error(`\`deviceType\` must one of ${types.join(', ')}.`);

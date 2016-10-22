@@ -20,6 +20,7 @@
 import React from 'react';
 // because the component is wrapped, can't use shallow
 import { mount } from 'enzyme';
+import configureStore from 'redux-mock-store';
 
 import { getSettingsComponent } from '../../../../src/utils/settings/factory';
 import { MGDL_UNITS } from '../../../../src/utils/constants';
@@ -28,30 +29,21 @@ const animasMultiRateData = require('../../../../data/pumpSettings/animas/multir
 const omnipodMultiRateData = require('../../../../data/pumpSettings/omnipod/multirate.json');
 const medtronicMultiRateData = require('../../../../data/pumpSettings/medtronic/multirate.json');
 
-const timePrefs = { timezoneAware: false, timezoneName: null };
+const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
 
 describe('NonTandem', () => {
   const activeAtUploadText = 'Active at upload';
-
+    const mockStore = configureStore()();
   describe('Animas', () => {
-    const Animas = getSettingsComponent('Animas');
-    it('should render without problems when bgUnits and pumpSettings provided', () => {
-      console.error = sinon.stub();
-      mount(
-        <Animas
-          pumpSettings={animasMultiRateData}
-          bgUnits={MGDL_UNITS}
-          timePrefs={timePrefs}
-        />
-      );
-      expect(console.error.callCount).to.equal(0);
-    });
+    const NonTandem = getSettingsComponent('Animas');
 
     it('should have a header', () => {
       const wrapper = mount(
-        <Animas
-          pumpSettings={animasMultiRateData}
+        <NonTandem
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={animasMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );
@@ -60,9 +52,11 @@ describe('NonTandem', () => {
 
     it('should have Animas as the Header deviceType', () => {
       const wrapper = mount(
-        <Animas
-          pumpSettings={animasMultiRateData}
+        <NonTandem
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={animasMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );
@@ -71,9 +65,11 @@ describe('NonTandem', () => {
 
     it('should have four Tables', () => {
       const wrapper = mount(
-        <Animas
-          pumpSettings={animasMultiRateData}
+        <NonTandem
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={animasMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );
@@ -82,9 +78,11 @@ describe('NonTandem', () => {
 
     it('should have three CollapsibleContainers', () => {
       const wrapper = mount(
-        <Animas
-          pumpSettings={animasMultiRateData}
+        <NonTandem
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={animasMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );
@@ -93,9 +91,11 @@ describe('NonTandem', () => {
 
     it('should have `Active at Upload` text somewhere', () => {
       const wrapper = mount(
-        <Animas
-          pumpSettings={animasMultiRateData}
+        <NonTandem
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={animasMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );
@@ -105,24 +105,15 @@ describe('NonTandem', () => {
   });
 
   describe('Insulet', () => {
-    const Insulet = getSettingsComponent('Insulet');
-    it('should render without problems when bgUnits and pumpSettings provided', () => {
-      console.error = sinon.stub();
-      mount(
-        <Insulet
-          pumpSettings={omnipodMultiRateData}
-          bgUnits={MGDL_UNITS}
-          timePrefs={timePrefs}
-        />
-      );
-      expect(console.error.callCount).to.equal(0);
-    });
+    const NonTandem = getSettingsComponent('Insulet');
 
     it('should have a header', () => {
       const wrapper = mount(
-        <Insulet
-          pumpSettings={omnipodMultiRateData}
+        <NonTandem
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={omnipodMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );
@@ -131,9 +122,11 @@ describe('NonTandem', () => {
 
     it('should have OmniPod as the Header deviceType', () => {
       const wrapper = mount(
-        <Insulet
-          pumpSettings={omnipodMultiRateData}
+        <NonTandem
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={omnipodMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );
@@ -142,9 +135,11 @@ describe('NonTandem', () => {
 
     it('should have four Tables', () => {
       const wrapper = mount(
-        <Insulet
-          pumpSettings={omnipodMultiRateData}
+        <NonTandem
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={omnipodMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );
@@ -153,9 +148,11 @@ describe('NonTandem', () => {
 
     it('should have two CollapsibleContainers', () => {
       const wrapper = mount(
-        <Insulet
-          pumpSettings={omnipodMultiRateData}
+        <NonTandem
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={omnipodMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );
@@ -165,8 +162,10 @@ describe('NonTandem', () => {
     it('should have `Active at Upload` text somewhere', () => {
       const wrapper = mount(
         <Insulet
-          pumpSettings={omnipodMultiRateData}
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={omnipodMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );
@@ -176,24 +175,15 @@ describe('NonTandem', () => {
   });
 
   describe('Medtronic', () => {
-    const Medtronic = getSettingsComponent('Medtronic');
-    it('should render without problems when bgUnits and pumpSettings provided', () => {
-      console.error = sinon.stub();
-      mount(
-        <Medtronic
-          pumpSettings={medtronicMultiRateData}
-          bgUnits={MGDL_UNITS}
-          timePrefs={timePrefs}
-        />
-      );
-      expect(console.error.callCount).to.equal(0);
-    });
+    const NonTandem = getSettingsComponent('Medtronic');
 
     it('should have a header', () => {
       const wrapper = mount(
-        <Medtronic
-          pumpSettings={medtronicMultiRateData}
+        <NonTandem
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={medtronicMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );
@@ -202,20 +192,37 @@ describe('NonTandem', () => {
 
     it('should have Medtronic as the Header deviceType', () => {
       const wrapper = mount(
-        <Medtronic
-          pumpSettings={medtronicMultiRateData}
+        <NonTandem
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={medtronicMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );
       expect(wrapper.find('Header').props().deviceType).to.equal('Medtronic');
     });
 
+    it('should have four CollapsibleContainers', () => {
+      const wrapper = mount(
+        <NonTandem
+          bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={medtronicMultiRateData}
+          store={mockStore}
+          timePrefs={timePrefs}
+        />
+      );
+      expect(wrapper.find('Table')).to.have.length(4);
+    });
+
     it('should have `Active at Upload` text somewhere', () => {
       const wrapper = mount(
-        <Medtronic
-          pumpSettings={medtronicMultiRateData}
+        <NonTandem
           bgUnits={MGDL_UNITS}
+          currentPatientInViewId="a1b2c3"
+          pumpSettings={medtronicMultiRateData}
+          store={mockStore}
           timePrefs={timePrefs}
         />
       );

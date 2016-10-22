@@ -18,5 +18,6 @@
 import { combineReducers } from 'redux';
 
 import trends from './trendsStateByUser';
+import settings from './settingsStateByUser';
 
-export default combineReducers({ trends });
+export default combineReducers({ settings, trends });
