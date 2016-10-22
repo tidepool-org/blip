@@ -44,6 +44,18 @@ describe('settingsStateByUser', () => {
       });
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
+
+    it('should do nothing if user already in tree', () => {
+      const initialState = { [USER_1]: { [deviceKey]: { illness: false } } };
+      const tracked = mutationTracker.trackObj(initialState);
+      expect(settingsStateByUser(initialState, {
+        type: actionTypes.FETCH_PATIENT_DATA_SUCCESS,
+        payload: { patientId: USER_1 },
+      })).to.deep.equal({
+        [USER_1]: { [deviceKey]: { illness: false } },
+      });
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
   });
 
   describe('LOGOUT_REQUEST', () => {
