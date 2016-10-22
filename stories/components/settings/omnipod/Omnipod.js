@@ -2,6 +2,8 @@ import React from 'react';
 
 import { storiesOf } from '@kadira/storybook';
 
+import configureStore from 'redux-mock-store';
+
 import { getSettingsComponent } from '../../../../src/utils/settings/factory';
 const DeviceSettings = getSettingsComponent('insulet');
 const flatRateSettings = require('../../../../data/pumpSettings/omnipod/flatrate.json');
@@ -9,12 +11,22 @@ const multiRateSettings = require('../../../../data/pumpSettings/omnipod/multira
 const mmolL = 'mmol/L';
 const timePrefs = { timezoneAware: false, timezoneName: null };
 
+const mockStore = configureStore()();
+
 storiesOf('OmniPod', module)
   .add('flat rate', () => (
-    // eslint-disable-next-line global-require
-    <DeviceSettings pumpSettings={flatRateSettings} bgUnits={mmolL} timePrefs={timePrefs} />
+    <DeviceSettings
+      bgUnits={mmolL}
+      pumpSettings={flatRateSettings}
+      store={mockStore}
+      timePrefs={timePrefs}
+    />
   ))
   .add('multi rate', () => (
-    // eslint-disable-next-line global-require
-    <DeviceSettings pumpSettings={multiRateSettings} bgUnits={mmolL} timePrefs={timePrefs} />
+    <DeviceSettings
+      bgUnits={mmolL}
+      pumpSettings={multiRateSettings}
+      store={mockStore}
+      timePrefs={timePrefs}
+    />
   ));
