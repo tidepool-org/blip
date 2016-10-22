@@ -99,8 +99,9 @@ var Settings = React.createClass({
     if (SettingsChart){
       return (
         <SettingsChart
-          pumpSettings={_.last(settings)}
+          currentPatientInViewId={this.props.currentPatientInViewId}
           bgUnits={this.props.bgPrefs.bgUnits}
+          pumpSettings={_.last(settings)}
           timePrefs={this.props.timePrefs}
         />
       );
