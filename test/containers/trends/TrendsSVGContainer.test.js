@@ -29,6 +29,7 @@ import CBGSlicesAnimationContainer
   from '../../../src/containers/trends/CBGSlicesAnimationContainer';
 import SMBGRangeAvgAnimationContainer
   from '../../../src/containers/trends/SMBGRangeAvgAnimationContainer';
+import NoData from '../../../src/components/trends/common/NoData';
 import TargetRangeLines from '../../../src/components/trends/common/TargetRangeLines';
 import XAxisLabels from '../../../src/components/trends/common/XAxisLabels';
 import XAxisTicks from '../../../src/components/trends/common/XAxisTicks';
@@ -53,8 +54,8 @@ describe('TrendsSVGContainer', () => {
     containerHeight: 520,
     // normally provided by react-dimensions wrapper but we test w/o that
     containerWidth: 960,
-    cbgData: [],
-    smbgData: [],
+    cbgData: [{ id: 'a2b3c4', msPer24: 6000, value: 180 }],
+    smbgData: [{ id: 'a2b3c4', msPer24: 6000, value: 180 }],
     focusRange: () => {},
     focusSlice: () => {},
     showingCbg: true,
@@ -142,6 +143,13 @@ describe('TrendsSVGContainer', () => {
           expect(wrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(0);
         });
       });
+      it('should render a no data message when there are no cbg values', () => {
+        const noCBGDataProps = _.assign({}, props, { cbgData: [] });
+        const noDataWrapper = mount(<TrendsSVGContainer {...noCBGDataProps} />);
+        expect(noDataWrapper.find(NoData)).to.have.length(1);
+        expect(noDataWrapper.find('text #noDataMsg').text())
+          .to.equal('There is no CGM data for this time period :(');
+      });
     });
 
     describe('showing BGM data', () => {
@@ -173,6 +181,13 @@ describe('TrendsSVGContainer', () => {
           expect(noCbgWrapper.find(CBGSlicesAnimationContainer)).to.have.length(0);
           expect(noCbgWrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(1);
         });
+      });
+      it('should render a no data message when there are no smbg values', () => {
+        const noSMBGDataProps = _.assign({}, props, { showingSmbg: true, smbgData: [] });
+        const noDataWrapper = mount(<TrendsSVGContainer {...noSMBGDataProps} />);
+        expect(noDataWrapper.find(NoData)).to.have.length(1);
+        expect(noDataWrapper.find('text #noDataMsg').text())
+          .to.equal('There is no fingerstick data for this time period :(');
       });
     });
   });

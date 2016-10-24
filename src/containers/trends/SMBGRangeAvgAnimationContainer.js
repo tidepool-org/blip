@@ -98,6 +98,7 @@ export default class SMBGRangeAvgAnimationContainer extends React.Component {
 
   render() {
     const { mungedData } = this.state;
+
     const { xScale, yScale } = this.props;
     const dataById = {};
     _.each(mungedData, (d) => {
