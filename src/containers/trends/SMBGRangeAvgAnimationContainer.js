@@ -95,7 +95,6 @@ export default class SMBGRangeAvgAnimationContainer extends React.Component {
 
   render() {
     const { mungedData } = this.state;
-
     if (_.isEmpty(mungedData)) {
       return (null);
     }

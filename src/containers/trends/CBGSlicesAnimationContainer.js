@@ -24,8 +24,6 @@ import { findBinForTimeOfDay, calculateCbgStatsForBin } from '../../utils/trends
 
 import CBGSlice from '../../components/trends/cbg/CBGSlice';
 
-import styles from './CBGSlicesAnimationContainer.css';
-
 export default class CBGSlicesAnimationContainer extends React.Component {
   static propTypes = {
     binSize: PropTypes.number.isRequired,
@@ -140,16 +138,6 @@ export default class CBGSlicesAnimationContainer extends React.Component {
 
   render() {
     const { mungedData } = this.state;
-    if (_.isEmpty(mungedData)) {
-      const { margins, svgDimensions } = this.props;
-      const xPos = (svgDimensions.width / 2) - margins.left + margins.right;
-      const yPos = (svgDimensions.height / 2) - margins.top + margins.bottom;
-      return (
-        <text className={styles.noDataMsg} id="noDataMsg" x={xPos + 40} y={yPos}>
-          No CGM data for this time period :(
-        </text>
-      );
-    }
     const { focusedSlice, xScale, yScale } = this.props;
     const dataById = {};
     _.each(mungedData, (d) => {

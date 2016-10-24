@@ -41,6 +41,7 @@ const SMBG_OPTS = {
 
 import React, { PropTypes } from 'react';
 import dimensions from 'react-dimensions';
+import _ from 'lodash';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
@@ -50,6 +51,8 @@ import SMBGDaysContainer from './SMBGDaysContainer';
 import SMBGRangeAvgAnimationContainer from './SMBGRangeAvgAnimationContainer';
 import SMBGAvg from '../../components/trends/smbg/SMBGAvg';
 import SMBGRange from '../../components/trends/smbg/SMBGRange';
+
+import NoData from '../../components/trends/common/NoData';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import XAxisTicks from '../../components/trends/common/XAxisTicks';
@@ -69,9 +72,27 @@ export class TrendsSVGContainer extends React.Component {
     ]);
   }
 
+  renderNoDataMessage(dataType) {
+    const { containerHeight: height, containerWidth: width, margins } = this.props;
+    const xPos = (width / 2) + margins.right;
+    const yPos = (height / 2) + margins.bottom;
+    const messagePosition = { x: xPos, y: yPos };
+    return (
+      <NoData
+        dataType={dataType}
+        position={messagePosition}
+      />
+    );
+  }
+
   renderCbg() {
-    const { containerHeight: height, containerWidth: width } = this.props;
     if (this.props.showingCbg) {
+      if (_.isEmpty(this.props.cbgData)) {
+        return this.renderNoDataMessage('cbg');
+      }
+
+      const { containerHeight: height, containerWidth: width } = this.props;
+
       return (
         <CBGSlicesAnimationContainer
           data={this.props.cbgData}
@@ -91,6 +112,10 @@ export class TrendsSVGContainer extends React.Component {
 
   renderSmbg() {
     if (this.props.showingSmbg) {
+      if (_.isEmpty(this.props.smbgData)) {
+        return this.renderNoDataMessage('smbg');
+      }
+
       let rangeOverlay = null;
       let averageOverlay = null;
       if (this.props.smbgRangeOverlay) {
