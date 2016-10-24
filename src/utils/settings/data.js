@@ -130,7 +130,7 @@ export function getTotalBasalRates(scheduleData) {
  * @param  {String} scheduleName basal schedule name
  * @param  {String} activeName   basal name active at upload timestamp
  *
- * @return {String}              object representing basal schedule label
+ * @return {Object}              object representing basal schedule label
  */
 export function getScheduleLabel(scheduleName, activeName, noUnits) {
   return {

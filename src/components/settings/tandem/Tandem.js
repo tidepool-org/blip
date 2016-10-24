@@ -24,7 +24,7 @@ import Header from '../common/Header';
 import Table from '../common/Table';
 import CollapsibleContainer from '../common/CollapsibleContainer';
 
-import * as constants from '../../../utils/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import * as data from '../../../utils/settings/data';
 
 const Tandem = (props) => {
@@ -91,7 +91,7 @@ const Tandem = (props) => {
 };
 
 Tandem.propTypes = {
-  bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
+  bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
   timePrefs: PropTypes.shape({
     timezoneAware: React.PropTypes.bool.isRequired,
     timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),

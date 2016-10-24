@@ -79,11 +79,11 @@ class Table extends React.Component {
     let tableContents = [];
 
     if (this.props.title) {
-      const { label: { main, secondary } } = this.props.title;
+      const { className, label: { main, secondary } } = this.props.title;
       const title = (
         <caption
           key={main}
-          className={this.props.title.className}
+          className={className}
         >
           {main}<span className={styles.secondaryLabel}>{secondary}</span>
         </caption>
