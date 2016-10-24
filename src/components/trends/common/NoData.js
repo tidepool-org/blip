@@ -47,7 +47,7 @@ NoData.defaultProps = {
 
 NoData.propTypes = {
   messageString: PropTypes.string.isRequired,
-  dataType: React.PropTypes.oneOf(['cbg', 'smbg']),
+  dataType: React.PropTypes.oneOf(['cbg', 'smbg']).isRequired,
   displayTypes: PropTypes.object.isRequired,
   position: PropTypes.shape({
     x: PropTypes.number.isRequired,
