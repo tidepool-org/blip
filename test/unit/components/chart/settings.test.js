@@ -35,6 +35,7 @@ describe('Settings', function () {
           grouped: { pumpSettings: [{ source: 'animas' }]}
         },
         onClickRefresh: function() {},
+        onClickNoDataRefresh: function() {},
         onSwitchToBasics: function() {},
         onSwitchToDaily: function() {},
         onSwitchToModal: function() {},
@@ -56,6 +57,7 @@ describe('Settings', function () {
           grouped: { foo: 'bar' }
         },
         onClickRefresh: sinon.spy(),
+        onClickNoDataRefresh: sinon.spy(),
         onSwitchToDaily: sinon.spy(),
         onSwitchToSettings: sinon.spy(),
         onSwitchToWeekly: sinon.spy(),
@@ -76,6 +78,7 @@ describe('Settings', function () {
         patientData: {
         },
         onClickRefresh: sinon.spy(),
+        onClickNoDataRefresh: sinon.spy(),
         onSwitchToDaily: sinon.spy(),
         onSwitchToSettings: sinon.spy(),
         onSwitchToWeekly: sinon.spy(),

@@ -22,35 +22,49 @@ const COPY_STATUS_SUCCESS = 10;
 const COPY_STATUS_FAIL = 20;
 
 export default class BrowserWarning extends Component {
+  static propTypes = {
+    trackMetric: React.PropTypes.func.isRequired
+  };
+
   constructor(props) {
     super(props);
     this.state = {
       copyStatus: COPY_STATUS_NULL
     };
   }
+
+  componentDidMount() {
+    this.props.trackMetric('Chrome Required - Screen Displayed');
+  }
+
   render() {
     var self = this;
     var downloadCopy = <div className="browser-warning-chrome-image"></div>;
     var copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>Copy link</button>;
+    var handleClickDownload = function() {
+      self.props.trackMetric('Clicked Download Chrome');
+    }
 
     if (this.state.copyStatus === COPY_STATUS_SUCCESS) {
+      self.props.trackMetric('Clicked Copy blip.tidepool.org, automatically copied');
       copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>Copied!</button>
     } else if (this.state.copyStatus === COPY_STATUS_FAIL) {
+      self.props.trackMetric('Clicked Copy blip.tidepool.org, manually copied');
       copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>Please press Ctrl + C now</button>
     }
 
     if (!utils.isMobile()) {
       downloadCopy = (<div>
-        <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" target="_blank">
+        <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">
           <div className="browser-warning-chrome-image"></div>
         </a>
         <div className="browser-warning-text">
           <span className="dark-text">Copy and paste</span>
-          <input type="text" className="blip-link-text" value="blip.tidepool.org"></input>
+          <input type="text" className="blip-link-text" value="blip.tidepool.org" readOnly={true}></input>
           <span className="dark-text">into Chrome.</span>
         </div>
         {copyButton}
-        <div className="browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" target="_blank">here</a>.</div>
+        <div className="browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">here</a>.</div>
       </div>);
     }
 
