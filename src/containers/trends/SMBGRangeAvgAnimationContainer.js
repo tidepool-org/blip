@@ -95,6 +95,11 @@ export default class SMBGRangeAvgAnimationContainer extends React.Component {
 
   render() {
     const { mungedData } = this.state;
+
+    if (_.isEmpty(mungedData)) {
+      return (null);
+    }
+
     const { xScale, yScale } = this.props;
     const { smbgComponent: SMBGComponent } = this.props;
     const dataById = {};
@@ -104,6 +109,7 @@ export default class SMBGRangeAvgAnimationContainer extends React.Component {
     const yPositions = this.calcYPositions(
       mungedData, yScale, (d) => (spring(yScale(d)))
     );
+
     return (
       <TransitionMotion styles={yPositions}>
         {(interpolated) => (

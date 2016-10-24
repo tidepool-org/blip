@@ -28,6 +28,8 @@ const {
 import { THREE_HRS } from '../../../src/utils/datetime';
 import SMBGRangeAvgAnimationContainer
   from '../../../src/containers/trends/SMBGRangeAvgAnimationContainer';
+import SMBGAvg
+  from '../../../src/components/trends/smbg/SMBGAvg';
 
 describe('SMBGRangeAvgAnimationContainer', () => {
   let wrapper;
@@ -44,6 +46,7 @@ describe('SMBGRangeAvgAnimationContainer', () => {
     unfocusRange: () => {},
     xScale,
     yScale,
+    smbgComponent: SMBGAvg,
   };
 
   before(() => {
@@ -78,7 +81,12 @@ describe('SMBGRangeAvgAnimationContainer', () => {
       const instance = wrapper.instance();
       sinon.spy(instance, 'mungeData');
       expect(instance.mungeData.callCount).to.equal(0);
-      wrapper.setProps({ data: [{ id: 'a1b2c3', msPer24: 0, value: 90 }] });
+      wrapper.setProps({
+        data: [
+          { id: 'b1', msPer24: 0, value: 90 },
+          { id: 'b2', msPer24: 9000000, value: 90 },
+        ],
+      });
       expect(instance.mungeData.callCount).to.equal(1);
       instance.mungeData.restore();
     });
