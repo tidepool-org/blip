@@ -2,7 +2,6 @@ import React from 'react';
 
 import { storiesOf } from '@kadira/storybook';
 
-// eslint-disable-next-line max-len
 import Tooltip from '../../../../src/components/trends/common/Tooltip';
 
 const props = {
