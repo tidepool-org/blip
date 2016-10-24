@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import React from 'react';
 
 import { mount } from 'enzyme';
@@ -54,7 +55,20 @@ describe('SMBGDaysContainer', () => {
     wrapper = mount(<SMBGDaysContainer {...props} />);
   });
 
-  describe('render', () => {
+  describe('when no data is provided', () => {
+    let noDataWrapper;
+    before(() => {
+      const noDataProps = _.omit(props, 'data');
+      noDataWrapper = mount(<SMBGDaysContainer {...noDataProps} />);
+    });
+
+    it('should render nothing', () => {
+      expect(noDataWrapper.find('#smbgDaysContainer circle').length).to.equal(0);
+      expect(noDataWrapper.find('#smbgDaysContainer path').length).to.equal(0);
+    });
+  });
+
+  describe('with data provided should render', () => {
     it('renders a <g> with id #smbgDaysContainer', () => {
       expect(wrapper.find('#smbgDaysContainer').length).to.equal(1);
     });
