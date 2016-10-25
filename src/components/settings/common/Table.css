@@ -15,7 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-.secondaryLabel {
+.secondaryLabelAlone {
   composes: secondaryLeftPadding from '../settings.css';
   font-weight: normal;
+}
+
+.secondaryLabelWithMain {
+  composes: lightText from '../../../styles/typography.css';
+  composes: secondaryLeftPadding from '../settings.css';
 }
