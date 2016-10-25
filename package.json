@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.14.8",
+  "version": "0.14.9",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -17,7 +17,7 @@
     "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0"
   },
   "dependencies": {
-    "@tidepool/viz": "0.2.14",
+    "@tidepool/viz": "0.2.15",
     "async": "1.5.2",
     "babel-core": "6.13.2",
     "babel-loader": "6.2.5",
