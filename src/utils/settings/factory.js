@@ -15,10 +15,73 @@
  * == BSD2 LICENSE ==
  */
 
-import Medtronic from '../../components/settings/medtronic/Medtronic';
+import React from 'react';
+
+import NonTandem from '../../components/settings/nontandem/NonTandem';
 import Tandem from '../../components/settings/tandem/Tandem';
-import Omnipod from '../../components/settings/omnipod/Omnipod';
-import Animas from '../../components/settings/animas/Animas';
+
+/**
+ * injectBolusSettingsColumns
+ * @param {String} manufacturer - non-Tandem insulin pump manufacturer
+ *
+ * @return {Component} NonTandem React component with bolusSettingsColumns injected
+ */
+export function injectManufacturerSpecificInfo(manufacturer, Component) {
+  const bgTargetsByManufacturer = {
+    animas: [
+      { key: 'start', label: 'Start time' },
+      { key: 'columnTwo', label: 'Target' },
+      { key: 'columnThree', label: 'Range' },
+    ],
+    carelink: [
+      { key: 'start', label: 'Start time' },
+      { key: 'columnTwo', label: 'Low' },
+      { key: 'columnThree', label: 'High' },
+    ],
+    insulet: [
+      { key: 'start', label: 'Start time' },
+      { key: 'columnTwo', label: 'Target' },
+      { key: 'columnThree', label: 'Correct Above' },
+    ],
+  };
+  const bgTargetByManufacturer = {
+    animas: 'BG Target',
+    carelink: 'BG Target',
+    insulet: 'Target BG',
+  };
+  const insulinSensitivityByManufacturer = {
+    animas: 'ISF',
+    carelink: 'Sensitivity',
+    insulet: 'Correction factor',
+  };
+  const carbRatioByManufacturer = {
+    animas: 'I:C Ratio',
+    carelink: 'Carb Ratios',
+    insulet: 'IC ratio',
+  };
+  const bolusSettingsLabelsByManufacturer = {
+    animas: 'ezCarb ezBG',
+    carelink: 'Bolus Wizard',
+    insulet: 'Bolus Calculator',
+  };
+  const deviceTypesByManufacturer = {
+    animas: 'Animas',
+    carelink: 'Medtronic',
+    insulet: 'OmniPod',
+  };
+  return (props) => (
+    <Component
+      bgTargetColumns={bgTargetsByManufacturer[manufacturer]}
+      bgTargetLabel={bgTargetByManufacturer[manufacturer]}
+      bolusSettingsLabel={bolusSettingsLabelsByManufacturer[manufacturer]}
+      carbRatioLabel={carbRatioByManufacturer[manufacturer]}
+      deviceType={deviceTypesByManufacturer[manufacturer]}
+      insulinSensitivityLabel={insulinSensitivityByManufacturer[manufacturer]}
+      manufacturerKey={manufacturer}
+      {...props}
+    />
+  );
+}
 
 /**
  * getChart
@@ -28,15 +91,17 @@ import Animas from '../../components/settings/animas/Animas';
  * @return {Component} - React component for given device type or an error if an unsupported type
  */
 export function getChart(deviceType) {
-  const chartType = deviceType.toLowerCase();
-  if (chartType === 'carelink') {
-    return Medtronic;
-  } else if (chartType === 'tandem') {
+  let deviceKey = deviceType.toLowerCase();
+  deviceKey = (deviceKey === 'medtronic') ? 'carelink' : deviceKey;
+  if (deviceKey === 'carelink') {
+    return injectManufacturerSpecificInfo(deviceKey, NonTandem);
+  } else if (deviceKey === 'tandem') {
     return Tandem;
-  } else if (chartType === 'insulet') {
-    return Omnipod;
-  } else if (chartType === 'animas') {
-    return Animas;
+  } else if (deviceKey === 'insulet') {
+    return injectManufacturerSpecificInfo(deviceKey, NonTandem);
+  } else if (deviceKey === 'animas') {
+    return injectManufacturerSpecificInfo(deviceKey, NonTandem);
   }
-  throw new Error('`deviceType` must one of `carelink`, `tandem`, `insulet` or `animas`');
+  const types = ['animas', 'carelink', 'insulet', 'medtronic', 'tandem'];
+  throw new Error(`\`deviceType\` must one of ${types.join(', ')}.`);
 }

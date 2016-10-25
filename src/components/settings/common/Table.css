@@ -16,5 +16,6 @@
  */
 
 .secondaryLabel {
-  composes: secondaryText from '../settings.css';
+  composes: secondaryLeftPadding from '../settings.css';
+  font-weight: normal;
 }

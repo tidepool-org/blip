@@ -36,6 +36,10 @@
   font-size: 14px;
 }
 
+.defaultSize {
+  font-size: 14px;
+}
+
 .mediumContrastText {
   color: var(--text-medium-contrast);
   fill: var(--text-medium-contrast);

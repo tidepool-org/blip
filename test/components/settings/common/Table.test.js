@@ -1,5 +1,19 @@
-/* eslint-env node, mocha */
-/* eslint no-console: 0*/
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
 
 import React from 'react';
 import { shallow } from 'enzyme';
@@ -36,16 +50,20 @@ describe('Table', () => {
     },
   ];
   const testTitle = {
-    label: 'Hello',
+    label: {
+      main: 'Hello',
+      secondary: 'km/hr',
+    },
     className: 'stuff',
   };
 
-  it('uses given rows, columns and title', () => {
+  it('should use given rows, columns, and title', () => {
     const wrapper = shallow(
       <Table
         title={testTitle}
         rows={testData}
         columns={testColumns}
+        tableStyle="whatever"
       />
     );
     expect(wrapper.find('caption')).to.have.length(1);
@@ -55,11 +73,13 @@ describe('Table', () => {
     expect(wrapper.find('tr')).to.have.length(4);
     expect(wrapper.find('td')).to.have.length(9);
   });
-  it('does not require a title', () => {
+
+  it('should not require a title', () => {
     const wrapper = shallow(
       <Table
         rows={testData}
         columns={testColumns}
+        tableStyle="whatever"
       />
     );
     expect(wrapper.find('caption')).to.have.length(0);
@@ -69,11 +89,13 @@ describe('Table', () => {
     expect(wrapper.find('tr')).to.have.length(4);
     expect(wrapper.find('td')).to.have.length(9);
   });
-  it('handles no data', () => {
+
+  it('should handle no data', () => {
     const wrapper = shallow(
       <Table
         rows={[]}
         columns={testColumns}
+        tableStyle="whatever"
       />
     );
     expect(wrapper.find('caption')).to.have.length(0);
@@ -82,29 +104,5 @@ describe('Table', () => {
     expect(wrapper.find('th')).to.have.length(3);
     expect(wrapper.find('tr')).to.have.length(1);
     expect(wrapper.find('td')).to.have.length(0);
-  });
-  it('allows the setting of the column className', () => {
-    const testColumnClasses = [
-      { key: 'one',
-        label: 'Label one',
-      },
-      { key: 'two',
-        label: 'Label two',
-        className: 'largeColumn',
-      },
-      { key: 'three',
-        label: 'Label three',
-        className: 'testClass',
-      },
-    ];
-
-    const wrapper = shallow(
-      <Table
-        rows={[]}
-        columns={testColumnClasses}
-      />
-    );
-    expect(wrapper.find('th.largeColumn')).to.have.length(1);
-    expect(wrapper.find('th.testClass')).to.have.length(1);
   });
 });

@@ -24,7 +24,7 @@ import Header from '../common/Header';
 import Table from '../common/Table';
 import CollapsibleContainer from '../common/CollapsibleContainer';
 
-import * as constants from '../../../utils/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import * as data from '../../../utils/settings/data';
 
 const Tandem = (props) => {
@@ -33,38 +33,45 @@ const Tandem = (props) => {
 
   const COLUMNS = [
     { key: 'start',
-      label: 'Start time',
-      className: '' },
+      label: 'Start time' },
     { key: 'rate',
-      label: <div>Basal Rates <span className={styles.lightText}>U/hr</span></div>,
-      className: styles.basalSchedulesHeader },
+      label: {
+        main: 'Basal Rates',
+        secondary: 'U/hr',
+      },
+      className: styles.basalScheduleHeader },
     { key: 'bgTarget',
-      label: <div>BG Target <span className={styles.lightText}>{bgUnits}</span></div>,
+      label: {
+        main: 'Target BG',
+        secondary: bgUnits,
+      },
       className: styles.bolusSettingsHeader },
     { key: 'carbRatio',
-      label: <div>I:C Ratio <span className={styles.lightText}>g/U</span></div>,
+      label: {
+        main: 'Carb Ratio',
+        secondary: 'g/U',
+      },
       className: styles.bolusSettingsHeader },
     { key: 'insulinSensitivity',
-      label: <div>ISF <span className={styles.lightText}>{bgUnits}/U</span></div>,
+      label: {
+        main: 'Correction Factor',
+        secondary: `${bgUnits}/U`,
+      },
       className: styles.bolusSettingsHeader },
   ];
 
   const tables = _.map(schedules, (schedule) => (
     <div key={schedule.name}>
       <CollapsibleContainer
-        styledLabel={{
-          label: data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule,
-            styles.lightText),
-          className: styles.collapsibleHeader,
-        }}
+        label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, true)}
+        labelClass={styles.collapsibleLabel}
         openByDefault={schedule.name === pumpSettings.activeSchedule}
-        openedStyle={styles.collapsibleOpened}
-        closedStyle={styles.collapsibleClosed}
+        twoLineLabel={false}
       >
         <Table
           rows={data.processTimedSettings(pumpSettings, schedule, bgUnits)}
           columns={COLUMNS}
-          tableStyle={styles.basalTable}
+          tableStyle={styles.profileTable}
         />
       </CollapsibleContainer>
     </div>
@@ -84,7 +91,7 @@ const Tandem = (props) => {
 };
 
 Tandem.propTypes = {
-  bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
+  bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
   timePrefs: PropTypes.shape({
     timezoneAware: React.PropTypes.bool.isRequired,
     timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),

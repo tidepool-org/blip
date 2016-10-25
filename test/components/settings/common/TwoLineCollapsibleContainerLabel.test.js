@@ -15,6 +15,24 @@
  * == BSD2 LICENSE ==
  */
 
-.secondaryLabel {
-  composes: secondaryText from '../settings.css';
-}
+import React from 'react';
+import { shallow } from 'enzyme';
+
+import TwoLineCollapsibleContainerLabel
+  from '../../../../src/components/settings/common/TwoLineCollapsibleContainerLabel';
+
+describe('TwoLineCollapsibleContainerLabel', () => {
+  it('should render a label with a click handler', () => {
+    const clicker = sinon.stub();
+    expect(clicker.callCount).to.equal(0);
+    const wrapper = shallow(
+      <TwoLineCollapsibleContainerLabel
+        isOpened
+        label={{ main: 'Foo', secondary: 'Bar', units: 'g' }}
+        onClick={clicker}
+      />
+    );
+    wrapper.simulate('click');
+    expect(clicker.callCount).to.equal(1);
+  });
+});
