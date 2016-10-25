@@ -22,7 +22,7 @@ import Header from '../common/Header';
 import Table from '../common/Table';
 import CollapsibleContainer from '../common/CollapsibleContainer';
 
-import * as constants from '../../../utils/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import * as data from '../../../utils/settings/data';
 
 import styles from './NonTandem.css';
@@ -200,7 +200,7 @@ NonTandem.propTypes = {
     label: PropTypes.string.isRequired,
   }).isRequired).isRequired,
   bgTargetLabel: PropTypes.string.isRequired,
-  bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
+  bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
   bolusSettingsLabel: PropTypes.string.isRequired,
   carbRatioLabel: PropTypes.string.isRequired,
   deviceType: PropTypes.string.isRequired,
