@@ -15,13 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
+import _ from 'lodash';
+import React, { Component, PropTypes } from 'react';
 import Collapse from 'react-collapse';
+
+import SingleLineCollapsibleContainerLabel from './SingleLineCollapsibleContainerLabel';
+import TwoLineCollapsibleContainerLabel from './TwoLineCollapsibleContainerLabel';
 
 import styles from './CollapsibleContainer.css';
 
-class CollapsibleContainer extends React.Component {
-
+class CollapsibleContainer extends Component {
   constructor(props) {
     super(props);
     this.state = { isOpened: this.props.openByDefault };
@@ -34,28 +37,30 @@ class CollapsibleContainer extends React.Component {
   }
 
   render() {
-    let label = (<div className="label" onClick={this.handleClick}>{this.props.label}</div>);
-    let style = '';
-    if (this.props.styledLabel) {
-      label = (
-        <div className={this.props.styledLabel.className} onClick={this.handleClick}>
-          {this.props.styledLabel.label}
-        </div>
+    const { label, labelClass } = this.props;
+    let renderedLabel = (
+      <SingleLineCollapsibleContainerLabel
+        className={labelClass}
+        isOpened={this.state.isOpened}
+        label={label}
+        onClick={this.handleClick}
+      />
+    );
+    const { twoLineLabel, label: { secondary } } = this.props;
+    if (twoLineLabel && !_.isEmpty(secondary)) {
+      renderedLabel = (
+        <TwoLineCollapsibleContainerLabel
+          className={labelClass}
+          isOpened={this.state.isOpened}
+          label={label}
+          onClick={this.handleClick}
+        />
       );
-    }
-    if (this.state.isOpened) {
-      if (this.props.openedStyle) {
-        style = ` ${this.props.openedStyle}`;
-      }
-    } else {
-      if (this.props.closedStyle) {
-        style = ` ${this.props.closedStyle}`;
-      }
     }
 
     return (
-      <div className={`${styles.wrapper}${style}`}>
-        {label}
+      <div>
+        {renderedLabel}
         <Collapse
           className={styles.collapsibleContainer}
           isOpened={this.state.isOpened}
@@ -68,13 +73,20 @@ class CollapsibleContainer extends React.Component {
   }
 }
 
+CollapsibleContainer.defaultProps = {
+  twoLineLabel: true,
+};
+
 CollapsibleContainer.propTypes = {
-  children: React.PropTypes.element.isRequired,
-  label: React.PropTypes.string,
-  styledLabel: React.PropTypes.object,
-  openByDefault: React.PropTypes.bool,
-  openedStyle: React.PropTypes.string,
-  closedStyle: React.PropTypes.string,
+  children: PropTypes.element.isRequired,
+  label: PropTypes.shape({
+    main: PropTypes.string.isRequired,
+    secondary: PropTypes.string.isRequired,
+    units: PropTypes.string.isRequired,
+  }).isRequired,
+  labelClass: PropTypes.string.isRequired,
+  openByDefault: PropTypes.bool.isRequired,
+  twoLineLabel: PropTypes.bool,
 };
 
 export default CollapsibleContainer;

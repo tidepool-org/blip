@@ -1,13 +1,30 @@
-/* eslint-env node, mocha */
-/* eslint no-console: 0*/
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+/* eslint no-console:0 */
 
 import React from 'react';
 import { shallow } from 'enzyme';
 
 import Tandem from '../../../../src/components/settings/tandem/Tandem';
+import { MGDL_UNITS } from '../../../../src/utils/constants';
 
 const multirateData = require('../../../../data/pumpSettings/tandem/multirate.json');
-const flatrateData = require('../../../../data/pumpSettings/tandem/flatrate.json');
+
 const timePrefs = { timezoneAware: false, timezoneName: null };
 
 describe('Tandem', () => {
@@ -16,50 +33,54 @@ describe('Tandem', () => {
     shallow(
       <Tandem
         pumpSettings={multirateData}
-        bgUnits="mg/dL"
+        bgUnits={MGDL_UNITS}
         timePrefs={timePrefs}
       />
     );
     expect(console.error.callCount).to.equal(0);
   });
-  it('should find a header', () => {
+
+  it('should have a header', () => {
     const wrapper = shallow(
       <Tandem
         pumpSettings={multirateData}
-        bgUnits="mg/dL"
+        bgUnits={MGDL_UNITS}
         timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('Header')).to.have.length(1);
   });
-  it('should find have the header deviceType as Tandem', () => {
+
+  it('should have Tandem as the Header deviceType', () => {
     const wrapper = shallow(
       <Tandem
         pumpSettings={multirateData}
-        bgUnits="mg/dL"
+        bgUnits={MGDL_UNITS}
         timePrefs={timePrefs}
       />
     );
     expect(wrapper.find('Header').props().deviceType).to.equal('Tandem');
   });
-  it('should have two tables ', () => {
+
+  it('should have three Tables', () => {
     const wrapper = shallow(
       <Tandem
-        pumpSettings={flatrateData}
-        bgUnits="mg/dL"
+        pumpSettings={multirateData}
+        bgUnits={MGDL_UNITS}
         timePrefs={timePrefs}
       />
     );
-    expect(wrapper.find('Table')).to.have.length(2);
+    expect(wrapper.find('Table')).to.have.length(3);
   });
-  it('should have two collapsible containers', () => {
+
+  it('should have three CollapsibleContainers', () => {
     const wrapper = shallow(
       <Tandem
-        pumpSettings={flatrateData}
-        bgUnits="mg/dL"
+        pumpSettings={multirateData}
+        bgUnits={MGDL_UNITS}
         timePrefs={timePrefs}
       />
     );
-    expect(wrapper.find('CollapsibleContainer')).to.have.length(2);
+    expect(wrapper.find('CollapsibleContainer')).to.have.length(3);
   });
 });

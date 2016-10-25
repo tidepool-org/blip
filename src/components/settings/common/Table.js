@@ -18,6 +18,8 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
+import styles from './Table.css';
+
 class Table extends React.Component {
 
   getItemField(item, field) {
@@ -26,20 +28,33 @@ class Table extends React.Component {
 
   normalizeColumns() {
     const getItemField = this.getItemField;
-    const columns = this.props.columns;
+    const { columns } = this.props;
 
     return _.map(columns, (column) => ({
+      cell: getItemField,
+      className: column.className,
       key: column.key,
       label: column.label,
-      className: column.className,
-      cell: getItemField,
-    })
-    );
+    }));
   }
 
   renderHeader(normalizedColumns) {
     const cells = _.map(normalizedColumns,
-      (column, key) => <th key={key} className={column.className}>{column.label}</th>
+      (column, key) => {
+        const { label } = column;
+        if (typeof label === 'object' && _.isEqual(_.keys(label), ['main', 'secondary'])) {
+          return (
+            <th key={key} className={column.className}>
+              {label.main}<span className={styles.secondaryLabel}>{label.secondary}</span>
+            </th>
+          );
+        }
+        return (
+          <th key={key} className={styles.secondaryLabel}>
+            {label}
+          </th>
+        );
+      }
     );
     return (<thead key={`thead_${cells.length}`}><tr>{cells}</tr></thead>);
   }
@@ -64,12 +79,13 @@ class Table extends React.Component {
     let tableContents = [];
 
     if (this.props.title) {
+      const { className, label: { main, secondary } } = this.props.title;
       const title = (
         <caption
-          key={this.props.title.label}
-          className={this.props.title.className}
+          key={main}
+          className={className}
         >
-          {this.props.title.label}
+          {main}<span className={styles.secondaryLabel}>{secondary}</span>
         </caption>
       );
       tableContents = [
@@ -85,7 +101,7 @@ class Table extends React.Component {
     }
 
     return (
-      <table className={`${this.props.tableStyle || ''}`}>
+      <table className={this.props.tableStyle}>
         {tableContents}
       </table>
     );
@@ -95,7 +111,7 @@ class Table extends React.Component {
 Table.propTypes = {
   title: React.PropTypes.shape({
     className: React.PropTypes.string.isRequired,
-    label: React.PropTypes.node.isRequired,
+    label: React.PropTypes.object.isRequired,
   }),
   rows: PropTypes.array.isRequired,
   columns: PropTypes.array.isRequired,
