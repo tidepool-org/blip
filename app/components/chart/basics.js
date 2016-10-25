@@ -38,6 +38,7 @@ var Basics = React.createClass({
     timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
+    onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
@@ -117,7 +118,7 @@ var Basics = React.createClass({
             onClick={handleClickUpload}>upload</a>
           {' your pump.'}</p>
         <p>{'If you just uploaded, try '}
-          <a href="" onClick={this.props.onClickRefresh}>refreshing</a>
+          <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>
           {'.'}
         </p>
       </div>

@@ -23,7 +23,8 @@ import BrowserWarningComponent from '../../components/browserwarning';
 
 export class BrowserWarning extends Component {
   static propTypes = {
-    authenticated: PropTypes.bool.isRequired
+    authenticated: PropTypes.bool.isRequired,
+    trackMetric: React.PropTypes.func.isRequired
   };
 
   render() {
@@ -33,7 +34,8 @@ export class BrowserWarning extends Component {
     }
     return <div className={cx(classes)}>
       <div className="browser-warning-container">
-        <BrowserWarningComponent />
+        <BrowserWarningComponent
+          trackMetric={this.props.trackMetric} />
       </div>
     </div>;
   }
@@ -45,4 +47,12 @@ export function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(BrowserWarning);
+let mapDispatchToProps = {};
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  return Object.assign({}, stateProps, dispatchProps, {
+    trackMetric: ownProps.routes[0].trackMetric
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(BrowserWarning);
