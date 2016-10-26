@@ -85,6 +85,24 @@ export class TrendsSVGContainer extends React.Component {
     );
   }
 
+  renderOverlay(smbgComponent, componentKey) {
+    if (this.props.smbgRangeOverlay) {
+      return (
+        <SMBGRangeAvgAnimationContainer
+          data={this.props.smbgData}
+          focus={this.props.focusRange}
+          key={componentKey}
+          tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+          unfocus={this.props.unfocusRange}
+          xScale={this.props.xScale}
+          yScale={this.props.yScale}
+          smbgComponent={smbgComponent}
+        />
+      );
+    }
+    return null;
+  }
+
   renderCbg() {
     if (this.props.showingCbg) {
       if (_.isEmpty(this.props.cbgData)) {
@@ -116,36 +134,6 @@ export class TrendsSVGContainer extends React.Component {
         return this.renderNoDataMessage('smbg');
       }
 
-      let rangeOverlay = null;
-      let averageOverlay = null;
-      if (this.props.smbgRangeOverlay) {
-        rangeOverlay = (
-          <SMBGRangeAvgAnimationContainer
-            data={this.props.smbgData}
-            focus={this.props.focusRange}
-            key="SMBGRangeAnimationContainer"
-            tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-            unfocus={this.props.unfocusRange}
-            xScale={this.props.xScale}
-            yScale={this.props.yScale}
-            smbgComponent={SMBGRange}
-          />
-        );
-
-        averageOverlay = (
-          <SMBGRangeAvgAnimationContainer
-            data={this.props.smbgData}
-            focus={this.props.focusRange}
-            key="SMBGAvgAnimationContainer"
-            tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-            unfocus={this.props.unfocusRange}
-            xScale={this.props.xScale}
-            yScale={this.props.yScale}
-            smbgComponent={SMBGAvg}
-          />
-        );
-      }
-
       const days = (
         <SMBGsByDateContainer
           key="smbgDaysContainer"
@@ -163,9 +151,9 @@ export class TrendsSVGContainer extends React.Component {
 
       return (
         <g id="smbgTrends">
-        {rangeOverlay}
+        {this.renderOverlay(SMBGRange, 'SMBGRangeAnimationContainer')}
         {days}
-        {averageOverlay}
+        {this.renderOverlay(SMBGAvg, 'SMBGAvgAnimationContainer')}
         </g>
       );
     }
