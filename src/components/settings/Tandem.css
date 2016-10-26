@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-@import '../../../styles/colors.css';
+@import '../../styles/colors.css';
 
 .headerCommon {
   line-height: 20px;

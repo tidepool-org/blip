@@ -22,12 +22,12 @@ import React from 'react';
 import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
 
-import NonTandem from '../../../../src/components/settings/nontandem/NonTandem';
-import { MGDL_UNITS } from '../../../../src/utils/constants';
+import NonTandem from '../../../src/components/settings/NonTandem';
+import { MGDL_UNITS } from '../../../src/utils/constants';
 
-const animasMultiRateData = require('../../../../data/pumpSettings/animas/multirate.json');
-const omnipodMultiRateData = require('../../../../data/pumpSettings/omnipod/multirate.json');
-const medtronicMultiRateData = require('../../../../data/pumpSettings/medtronic/multirate.json');
+const animasMultiRateData = require('../../../data/pumpSettings/animas/multirate.json');
+const omnipodMultiRateData = require('../../../data/pumpSettings/omnipod/multirate.json');
+const medtronicMultiRateData = require('../../../data/pumpSettings/medtronic/multirate.json');
 
 const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
 

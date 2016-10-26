@@ -20,12 +20,12 @@ import _ from 'lodash';
 
 import styles from './Tandem.css';
 
-import Header from '../common/Header';
-import Table from '../common/Table';
-import CollapsibleContainer from '../common/CollapsibleContainer';
+import Header from './common/Header';
+import Table from './common/Table';
+import CollapsibleContainer from './common/CollapsibleContainer';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
-import * as data from '../../../utils/settings/data';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
+import * as data from '../../utils/settings/data';
 
 const Tandem = (props) => {
   const {

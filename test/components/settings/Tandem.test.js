@@ -20,10 +20,10 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
 
-import Tandem from '../../../../src/components/settings/tandem/Tandem';
-import { MGDL_UNITS } from '../../../../src/utils/constants';
+import Tandem from '../../../src/components/settings/Tandem';
+import { MGDL_UNITS } from '../../../src/utils/constants';
 
-const multirateData = require('../../../../data/pumpSettings/tandem/multirate.json');
+const multirateData = require('../../../data/pumpSettings/tandem/multirate.json');
 
 const timePrefs = { timezoneAware: false, timezoneName: null };
 
