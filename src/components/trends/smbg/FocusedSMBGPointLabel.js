@@ -54,7 +54,7 @@ const FocusedSMBGPointLabel = (props) => {
       parsedTime = Date.parse(data.deviceTime);
     }
   }
-  const smbgTime = formatDisplayDate(parsedTime, timePrefs, 'dddd MMM D');
+  const lineDate = formatDisplayDate(parsedTime, timePrefs, 'dddd MMM D');
   const shortDate = formatDisplayDate(parsedTime, timePrefs, 'MMM D');
   const pointTooltips = _.map(dayPoints, (smbg, i) => (
     <Tooltip
@@ -69,7 +69,7 @@ const FocusedSMBGPointLabel = (props) => {
   let focusedTooltip;
   if (lines) {
     focusedTooltip = (<Tooltip
-      title={<span className={styles.explainerText}>{smbgTime}</span>}
+      title={<span className={styles.explainerText}>{lineDate}</span>}
       position={position}
       side={'right'}
       offset={{ top: SIMPLE_DAY_TOP_OFFSET, left: SIMPLE_DAY_LEFT_OFFSET }}
