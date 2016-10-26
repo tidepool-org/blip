@@ -17,7 +17,7 @@
 
 .tooltip {
   display: block;
-  font-size: 14px;
+  composes: defaultSize from '../../../styles/typography.css';
   background-color: #FFFFFF;
   border: solid;
   position: absolute;
