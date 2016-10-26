@@ -22,12 +22,12 @@
 }
 
 .basalScheduleHeader {
-  composes: basalHeaderBackground settingsHeaderText from '../settings.css';
+  composes: basalHeaderBackground settingsHeaderText from './settings.css';
   composes: headerCommon;
 }
 
 .bolusSettingsHeader {
-  composes: bolusHeaderBackground settingsHeaderText from '../settings.css';
+  composes: bolusHeaderBackground settingsHeaderText from './settings.css';
   composes: headerCommon;
 }
 
@@ -40,7 +40,7 @@
 }
 
 .profileTable {
-  composes: basalTable from '../settings.css';
+  composes: basalTable from './settings.css';
   padding-bottom: 1em;
   margin-left: 40px;
   width: 800px;
@@ -55,7 +55,7 @@
 }
 
 .title {
-  composes: boldText defaultSize mediumContrastText from '../../../styles/typography.css';
+  composes: boldText defaultSize mediumContrastText from '../../styles/typography.css';
   display: inline-block;
   padding-bottom: 10px;
 }

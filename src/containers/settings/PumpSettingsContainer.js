@@ -23,8 +23,8 @@ import { bindActionCreators } from 'redux';
 import * as actions from '../../redux/actions/';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 
-import NonTandem from '../../components/settings/nontandem/NonTandem';
-import Tandem from '../../components/settings/tandem/Tandem';
+import NonTandem from '../../components/settings/NonTandem';
+import Tandem from '../../components/settings/Tandem';
 
 export class PumpSettingsContainer extends React.Component {
   static propTypes = {

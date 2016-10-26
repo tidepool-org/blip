@@ -72,7 +72,7 @@ const Tandem = (props) => {
       <CollapsibleContainer
         label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, true)}
         labelClass={styles.collapsibleLabel}
-        opened={openedSections[schedule.name]}
+        opened={_.get(openedSections, schedule.name, false)}
         toggleExpansion={_.partial(toggleProfileExpansion, schedule.name)}
         twoLineLabel={false}
       >
@@ -87,7 +87,7 @@ const Tandem = (props) => {
   return (
     <div>
       <Header
-        deviceType="Tandem"
+        deviceDisplayName="Tandem"
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
       />
       <div>
@@ -99,7 +99,7 @@ const Tandem = (props) => {
 };
 
 Tandem.propTypes = {
-  bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
+  bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
   openedSections: PropTypes.object.isRequired,
   pumpSettings: React.PropTypes.shape({
     activeSchedule: React.PropTypes.string.isRequired,

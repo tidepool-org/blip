@@ -33,41 +33,41 @@ const BG_TARGET_COLS_BY_MANUFACTURER = {
     { key: 'columnTwo', label: 'Target' },
     { key: 'columnThree', label: 'Range' },
   ],
-  carelink: [
-    { key: 'start', label: 'Start time' },
-    { key: 'columnTwo', label: 'Low' },
-    { key: 'columnThree', label: 'High' },
-  ],
   insulet: [
     { key: 'start', label: 'Start time' },
     { key: 'columnTwo', label: 'Target' },
     { key: 'columnThree', label: 'Correct Above' },
   ],
+  medtronic: [
+    { key: 'start', label: 'Start time' },
+    { key: 'columnTwo', label: 'Low' },
+    { key: 'columnThree', label: 'High' },
+  ],
 };
 const BG_TARGET_BY_MANUFACTURER = {
   animas: 'BG Target',
-  carelink: 'BG Target',
   insulet: 'Target BG',
+  medtronic: 'BG Target',
 };
 const ISF_BY_MANUFACTURER = {
   animas: 'ISF',
-  carelink: 'Sensitivity',
   insulet: 'Correction factor',
+  medtronic: 'Sensitivity',
 };
 const CARB_RATIO_BY_MANUFACTURER = {
   animas: 'I:C Ratio',
-  carelink: 'Carb Ratios',
   insulet: 'IC ratio',
+  medtronic: 'Carb Ratios',
 };
 const BOLUS_SETTINGS_LABEL_BY_MANUFACTURER = {
   animas: 'ezCarb ezBG',
-  carelink: 'Bolus Wizard',
   insulet: 'Bolus Calculator',
+  medtronic: 'Bolus Wizard',
 };
 const DEVICE_DISPLAY_NAME_BY_MANUFACTURER = {
   animas: 'Animas',
-  carelink: 'Medtronic',
   insulet: 'OmniPod',
+  medtronic: 'Medtronic',
 };
 
 const NonTandem = (props) => {
@@ -80,12 +80,18 @@ const NonTandem = (props) => {
     toggleBasalScheduleExpansion,
   } = props;
 
+  let lookupKey = manufacturerKey;
+
+  if (manufacturerKey === 'carelink') {
+    lookupKey = 'medtronic';
+  }
+
   function renderBasalsData() {
     const schedules = data.getScheduleNames(pumpSettings.basalSchedules);
 
     const tables = _.map(schedules, (schedule) => {
       let scheduleName = pumpSettings.basalSchedules[schedule].name;
-      if (manufacturerKey === 'carelink') {
+      if (lookupKey === 'medtronic') {
         scheduleName = _.map(scheduleName.split(' '), (part) => (_.capitalize(part))).join(' ');
       }
       const label = data.getScheduleLabel(
@@ -141,7 +147,7 @@ const NonTandem = (props) => {
   function renderSensitivityData() {
     const title = {
       label: {
-        main: ISF_BY_MANUFACTURER[manufacturerKey],
+        main: ISF_BY_MANUFACTURER[lookupKey],
         secondary: `${bgUnits}/U`,
       },
       className: styles.bolusSettingsHeader,
@@ -166,7 +172,7 @@ const NonTandem = (props) => {
   function renderRatioData() {
     const title = {
       label: {
-        main: CARB_RATIO_BY_MANUFACTURER[manufacturerKey],
+        main: CARB_RATIO_BY_MANUFACTURER[lookupKey],
         secondary: 'g/U',
       },
       className: styles.bolusSettingsHeader,
@@ -190,7 +196,7 @@ const NonTandem = (props) => {
   function renderTargetData() {
     const title = {
       label: {
-        main: BG_TARGET_BY_MANUFACTURER[manufacturerKey],
+        main: BG_TARGET_BY_MANUFACTURER[lookupKey],
         secondary: bgUnits,
       },
       className: styles.bolusSettingsHeader,
@@ -206,7 +212,7 @@ const NonTandem = (props) => {
               { columnTwo: 'target', columnThree: 'high' },
             )
           }
-          columns={BG_TARGET_COLS_BY_MANUFACTURER[manufacturerKey]}
+          columns={BG_TARGET_COLS_BY_MANUFACTURER[lookupKey]}
           tableStyle={styles.settingsTable}
         />
       </div>
@@ -216,7 +222,7 @@ const NonTandem = (props) => {
   return (
     <div>
       <Header
-        deviceDisplayName={DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturerKey]}
+        deviceDisplayName={DEVICE_DISPLAY_NAME_BY_MANUFACTURER[lookupKey]}
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
       />
       <div className={styles.settingsContainer}>
@@ -226,7 +232,7 @@ const NonTandem = (props) => {
         </div>
         <div>
           <div className={styles.categoryTitle}>
-            {BOLUS_SETTINGS_LABEL_BY_MANUFACTURER[manufacturerKey]}
+            {BOLUS_SETTINGS_LABEL_BY_MANUFACTURER[lookupKey]}
           </div>
           <div className={styles.bolusSettingsContainer}>
             {renderSensitivityData()}
@@ -240,12 +246,8 @@ const NonTandem = (props) => {
 };
 
 NonTandem.propTypes = {
-  bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
-  manufacturerKey: PropTypes.oneOf(['animas', 'carelink', 'insulet']),
-  timePrefs: PropTypes.shape({
-    timezoneAware: PropTypes.bool.isRequired,
-    timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
-  }).isRequired,
+  bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
+  manufacturerKey: PropTypes.oneOf(['animas', 'carelink', 'insulet', 'medtronic']),
   openedSections: PropTypes.object.isRequired,
   pumpSettings: PropTypes.shape({
     activeSchedule: PropTypes.string.isRequired,
@@ -281,6 +283,10 @@ NonTandem.propTypes = {
         amount: PropTypes.number.isRequired,
       })
     ).isRequired,
+  }).isRequired,
+  timePrefs: PropTypes.shape({
+    timezoneAware: PropTypes.bool.isRequired,
+    timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
   }).isRequired,
   toggleBasalScheduleExpansion: PropTypes.func.isRequired,
 };

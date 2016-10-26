@@ -32,8 +32,8 @@ const medtronicMultiRateData = require('../../../../data/pumpSettings/medtronic/
 const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
 
 describe('NonTandem', () => {
-    const activeAtUploadText = 'Active at upload';
-    const mockStore = configureStore()();
+  const activeAtUploadText = 'Active at upload';
+  const mockStore = configureStore()();
 
   describe('Animas', () => {
     it('should have a header', () => {
@@ -166,7 +166,7 @@ describe('NonTandem', () => {
 
     it('should have `Active at Upload` text somewhere', () => {
       const wrapper = mount(
-        <Insulet
+        <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
           pumpSettings={omnipodMultiRateData}
