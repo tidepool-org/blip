@@ -31,6 +31,8 @@ const medtronicMultiRateData = require('../../../../data/pumpSettings/medtronic/
 const timePrefs = { timezoneAware: false, timezoneName: null };
 
 describe('NonTandem', () => {
+  const activeAtUploadText = 'Active at upload';
+
   describe('Animas', () => {
     const Animas = getChart('Animas');
     it('should render without problems when bgUnits and pumpSettings provided', () => {
@@ -87,6 +89,18 @@ describe('NonTandem', () => {
         />
       );
       expect(wrapper.find('CollapsibleContainer')).to.have.length(3);
+    });
+
+    it('should have `Active at Upload` text somewhere', () => {
+      const wrapper = mount(
+        <Animas
+          pumpSettings={animasMultiRateData}
+          bgUnits={MGDL_UNITS}
+          timePrefs={timePrefs}
+        />
+      );
+      expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
+        .to.be.true;
     });
   });
 
@@ -147,6 +161,18 @@ describe('NonTandem', () => {
       );
       expect(wrapper.find('CollapsibleContainer')).to.have.length(2);
     });
+
+    it('should have `Active at Upload` text somewhere', () => {
+      const wrapper = mount(
+        <Insulet
+          pumpSettings={omnipodMultiRateData}
+          bgUnits={MGDL_UNITS}
+          timePrefs={timePrefs}
+        />
+      );
+      expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
+        .to.be.true;
+    });
   });
 
   describe('Medtronic', () => {
@@ -183,6 +209,18 @@ describe('NonTandem', () => {
         />
       );
       expect(wrapper.find('Header').props().deviceType).to.equal('Medtronic');
+    });
+
+    it('should have `Active at Upload` text somewhere', () => {
+      const wrapper = mount(
+        <Medtronic
+          pumpSettings={medtronicMultiRateData}
+          bgUnits={MGDL_UNITS}
+          timePrefs={timePrefs}
+        />
+      );
+      expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
+        .to.be.true;
     });
   });
 });
