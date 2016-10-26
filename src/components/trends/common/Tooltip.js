@@ -84,38 +84,43 @@ class Tooltip extends React.Component {
       marginInnerValue = `${padding - 1}px`;
     }
     const borderSide = (tailSide === 'left') ? 'right' : 'left';
-
-    return (<div>
-      <div
-        ref={(ref) => { this.tailElem = ref; }}
-        className={styles.tail}
-        style={{
-          marginTop: `-${tailHeight}px`,
-          marginLeft: marginOuterValue,
-          borderWidth: `${tailHeight}px ${2 * tailWidth}px`,
-          [`border${_.capitalize(borderSide)}Color`]: borderColor,
-        }}
-      ></div>
-      <div
-        className={styles.tail}
-        style={{
-          marginTop: `-${tailHeight}px`,
-          marginLeft: marginInnerValue,
-          borderWidth: `${tailHeight}px ${2 * tailWidth}px`,
-          [`border${_.capitalize(borderSide)}Color`]: color,
-        }}
-      ></div>
-    </div>);
+    // The two child divs form the solid color tail and the border around it by layering
+    // on one another offset by the border width adjusted slightly for the angle
+    return (
+      <div>
+        <div
+          ref={(ref) => { this.tailElem = ref; }}
+          className={styles.tail}
+          style={{
+            marginTop: `-${tailHeight}px`,
+            marginLeft: marginOuterValue,
+            borderWidth: `${tailHeight}px ${2 * tailWidth}px`,
+            [`border${_.capitalize(borderSide)}Color`]: borderColor,
+          }}
+        ></div>
+        <div
+          className={styles.tail}
+          style={{
+            marginTop: `-${tailHeight}px`,
+            marginLeft: marginInnerValue,
+            borderWidth: `${tailHeight}px ${2 * tailWidth}px`,
+            [`border${_.capitalize(borderSide)}Color`]: color,
+          }}
+        ></div>
+      </div>
+    );
   }
 
   renderTitle(title) {
     const { tail, content } = this.props;
     let renderedTitle = null;
     if (title) {
-      renderedTitle = (<div className={styles.title}>
-        <span>{title}</span>
-        {tail && !content && this.renderTail(styles.tooltipTitleBg)}
-      </div>);
+      renderedTitle = (
+        <div className={styles.title}>
+          <span>{title}</span>
+          {tail && !content && this.renderTail(styles.tooltipTitleBg)}
+        </div>
+      );
     }
     return renderedTitle;
   }
@@ -124,10 +129,12 @@ class Tooltip extends React.Component {
     let renderedContent = null;
     const { tail } = this.props;
     if (content) {
-      renderedContent = (<div className={styles.content}>
-        <span>{content}</span>
-        {tail && this.renderTail()}
-      </div>);
+      renderedContent = (
+        <div className={styles.content}>
+          <span>{content}</span>
+          {tail && this.renderTail()}
+        </div>
+      );
     }
     return renderedContent;
   }

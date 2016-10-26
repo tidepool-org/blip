@@ -68,28 +68,32 @@ const FocusedSMBGPointLabel = (props) => {
   ));
   let focusedTooltip;
   if (lines) {
-    focusedTooltip = (<Tooltip
-      title={<span className={styles.explainerText}>{lineDate}</span>}
-      position={position}
-      side={'right'}
-      offset={{ top: SIMPLE_DAY_TOP_OFFSET, left: SIMPLE_DAY_LEFT_OFFSET }}
-    />);
+    focusedTooltip = (
+      <Tooltip
+        title={<span className={styles.explainerText}>{lineDate}</span>}
+        position={position}
+        side={'right'}
+        offset={{ top: SIMPLE_DAY_TOP_OFFSET, left: SIMPLE_DAY_LEFT_OFFSET }}
+      />
+    );
   } else {
-    focusedTooltip = (<Tooltip
-      title={<span className={styles.tipWrapper}>
-        <span className={styles.shortDate}>{shortDate}</span>
-        <span className={styles.shortTime}>{millisecondsAsTimeOfDay(data.msPer24)}</span>
-      </span>
-      }
-      content={<span className={styles.tipWrapper}>
-        <span className={styles.detailNumber}>{displayBgValue(data.value, bgUnits)}</span>
-        <span className={styles.subType}>{data.subType}</span>
-      </span>
-      }
-      position={position}
-      side={'right'}
-      offset={{ top: 0, left: DETAILED_DAY_LEFT_OFFSET }}
-    />);
+    focusedTooltip = (
+      <Tooltip
+        title={<span className={styles.tipWrapper}>
+          <span className={styles.shortDate}>{shortDate}</span>
+          <span className={styles.shortTime}>{millisecondsAsTimeOfDay(data.msPer24)}</span>
+        </span>
+        }
+        content={<span className={styles.tipWrapper}>
+          <span className={styles.detailNumber}>{displayBgValue(data.value, bgUnits)}</span>
+          <span className={styles.subType}>{data.subType}</span>
+        </span>
+        }
+        position={position}
+        side={'right'}
+        offset={{ top: 0, left: DETAILED_DAY_LEFT_OFFSET }}
+      />
+    );
   }
   return (
     <div className={styles.container}>

@@ -10,17 +10,19 @@ const props = {
   position: { top: 200, left: 200 },
 };
 
-const refDiv = (<div
-  style={{
-    position: 'absolute',
-    width: '3px',
-    height: '3px',
-    top: '199px',
-    left: '199px',
-    backgroundColor: 'red',
-    zIndex: '1',
-  }}
-/>);
+const refDiv = (
+  <div
+    style={{
+      position: 'absolute',
+      width: '3px',
+      height: '3px',
+      top: '199px',
+      left: '199px',
+      backgroundColor: 'red',
+      zIndex: '1',
+    }}
+  />
+);
 
 storiesOf('Tooltip', module)
   .add('defaults', () => (
