@@ -20,6 +20,7 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
 
+import CollapsibleContainer from '../../../src/components/settings/common/CollapsibleContainer';
 import Tandem from '../../../src/components/settings/Tandem';
 import { MGDL_UNITS } from '../../../src/utils/constants';
 
@@ -28,13 +29,16 @@ const multirateData = require('../../../data/pumpSettings/tandem/multirate.json'
 const timePrefs = { timezoneAware: false, timezoneName: null };
 
 describe('Tandem', () => {
-  it('should render without problems when bgUnits and pumpSettings provided', () => {
-    console.error = sinon.stub();
+  it('should render without problems when required props provided', () => {
+    console.error = sinon.spy();
+    expect(console.error.callCount).to.equal(0);
     shallow(
       <Tandem
-        pumpSettings={multirateData}
         bgUnits={MGDL_UNITS}
+        openedSections={{ [multirateData.activeSchedule]: true }}
+        pumpSettings={multirateData}
         timePrefs={timePrefs}
+        toggleProfileExpansion={() => {}}
       />
     );
     expect(console.error.callCount).to.equal(0);
@@ -43,45 +47,53 @@ describe('Tandem', () => {
   it('should have a header', () => {
     const wrapper = shallow(
       <Tandem
-        pumpSettings={multirateData}
         bgUnits={MGDL_UNITS}
+        openedSections={{ [multirateData.activeSchedule]: true }}
+        pumpSettings={multirateData}
         timePrefs={timePrefs}
+        toggleProfileExpansion={() => {}}
       />
     );
     expect(wrapper.find('Header')).to.have.length(1);
   });
 
-  it('should have Tandem as the Header deviceType', () => {
+  it('should have Tandem as the Header deviceDisplayName', () => {
     const wrapper = shallow(
       <Tandem
-        pumpSettings={multirateData}
         bgUnits={MGDL_UNITS}
+        openedSections={{ [multirateData.activeSchedule]: true }}
+        pumpSettings={multirateData}
         timePrefs={timePrefs}
+        toggleProfileExpansion={() => {}}
       />
     );
-    expect(wrapper.find('Header').props().deviceType).to.equal('Tandem');
+    expect(wrapper.find('Header').props().deviceDisplayName).to.equal('Tandem');
   });
 
   it('should have three Tables', () => {
     const wrapper = shallow(
       <Tandem
-        pumpSettings={multirateData}
         bgUnits={MGDL_UNITS}
+        openedSections={{ [multirateData.activeSchedule]: true }}
+        pumpSettings={multirateData}
         timePrefs={timePrefs}
+        toggleProfileExpansion={() => {}}
       />
     );
     expect(wrapper.find('Table')).to.have.length(3);
   });
 
   it('should have three CollapsibleContainers', () => {
-    const wrapper = shallow(
+    const wrapper = mount(
       <Tandem
-        pumpSettings={multirateData}
         bgUnits={MGDL_UNITS}
+        openedSections={{ [multirateData.activeSchedule]: true }}
+        pumpSettings={multirateData}
         timePrefs={timePrefs}
+        toggleProfileExpansion={() => {}}
       />
     );
-    expect(wrapper.find('CollapsibleContainer')).to.have.length(3);
+    expect(wrapper.find(CollapsibleContainer)).to.have.length(3);
   });
 
   it('should have `Active at Upload` text somewhere', () => {
@@ -89,9 +101,11 @@ describe('Tandem', () => {
     // must use mount to search far enough down in tree!
     const wrapper = mount(
       <Tandem
-        pumpSettings={multirateData}
         bgUnits={MGDL_UNITS}
+        openedSections={{ [multirateData.activeSchedule]: true }}
+        pumpSettings={multirateData}
         timePrefs={timePrefs}
+        toggleProfileExpansion={() => {}}
       />
     );
     expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))

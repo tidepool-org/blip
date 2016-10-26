@@ -19,9 +19,9 @@
 
 import React from 'react';
 // because the component is wrapped, can't use shallow
-import { mount } from 'enzyme';
-import configureStore from 'redux-mock-store';
+import { mount, shallow } from 'enzyme';
 
+import CollapsibleContainer from '../../../src/components/settings/common/CollapsibleContainer';
 import NonTandem from '../../../src/components/settings/NonTandem';
 import { MGDL_UNITS } from '../../../src/utils/constants';
 
@@ -33,18 +33,17 @@ const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
 
 describe('NonTandem', () => {
   const activeAtUploadText = 'Active at upload';
-  const mockStore = configureStore()();
 
   describe('Animas', () => {
     it('should have a header', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
           manufacturerKey={'animas'}
+          openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
       expect(wrapper.find('Header')).to.have.length(1);
@@ -54,52 +53,55 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
           manufacturerKey={'animas'}
+          openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
       expect(wrapper.find('Header').props().deviceDisplayName).to.equal('Animas');
     });
 
-    it('should have four Tables', () => {
-      const wrapper = mount(
+    // these tables are the bolus settings + basal schedules
+    it('should have six Tables', () => {
+      const wrapper = shallow(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
           manufacturerKey={'animas'}
+          openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
-      expect(wrapper.find('Table')).to.have.length(4);
+      expect(wrapper.find('Table')).to.have.length(6);
     });
 
+    // these containers are the basal schedules
     it('should have three CollapsibleContainers', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
           manufacturerKey={'animas'}
+          openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
-      expect(wrapper.find('CollapsibleContainer')).to.have.length(3);
+      expect(wrapper.find(CollapsibleContainer)).to.have.length(3);
     });
 
     it('should have `Active at Upload` text somewhere', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
+          manufacturerKey={'animas'}
+          openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
       expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
@@ -112,11 +114,11 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
           manufacturerKey={'insulet'}
+          openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
       expect(wrapper.find('Header')).to.have.length(1);
@@ -126,52 +128,55 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
           manufacturerKey={'insulet'}
+          openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
       expect(wrapper.find('Header').props().deviceDisplayName).to.equal('OmniPod');
     });
 
-    it('should have four Tables', () => {
-      const wrapper = mount(
+    // these tables are the bolus settings + basal schedules
+    it('should have five Tables', () => {
+      const wrapper = shallow(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
           manufacturerKey={'insulet'}
+          openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
-      expect(wrapper.find('Table')).to.have.length(4);
+      expect(wrapper.find('Table')).to.have.length(5);
     });
 
+    // these containers are the basal schedules
     it('should have two CollapsibleContainers', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
           manufacturerKey={'insulet'}
+          openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
-      expect(wrapper.find('CollapsibleContainer')).to.have.length(2);
+      expect(wrapper.find(CollapsibleContainer)).to.have.length(2);
     });
 
     it('should have `Active at Upload` text somewhere', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
+          manufacturerKey={'insulet'}
+          openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
       expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
@@ -179,16 +184,16 @@ describe('NonTandem', () => {
     });
   });
 
-  describe('Medtronic', () => {
+  describe('CareLink/Medtronic', () => {
     it('should have a header', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
           manufacturerKey={'carelink'}
+          openedSections={{}}
           pumpSettings={medtronicMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
       expect(wrapper.find('Header')).to.have.length(1);
@@ -198,43 +203,75 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
           manufacturerKey={'carelink'}
+          openedSections={{}}
           pumpSettings={medtronicMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
       expect(wrapper.find('Header').props().deviceDisplayName).to.equal('Medtronic');
     });
 
-    it('should have four CollapsibleContainers', () => {
+    // these tables are the bolus settings + basal schedules
+    it('should have five Tables', () => {
+      const wrapper = shallow(
+        <NonTandem
+          bgUnits={MGDL_UNITS}
+          manufacturerKey={'carelink'}
+          openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
+          pumpSettings={medtronicMultiRateData}
+          timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
+        />
+      );
+      expect(wrapper.find('Table')).to.have.length(5);
+    });
+
+    // these containers are the basal schedules
+    it('should have two CollapsibleContainers', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
           manufacturerKey={'carelink'}
+          openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
           pumpSettings={medtronicMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
-      expect(wrapper.find('Table')).to.have.length(4);
+      expect(wrapper.find(CollapsibleContainer)).to.have.length(2);
     });
 
     it('should have `Active at Upload` text somewhere', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          currentPatientInViewId="a1b2c3"
           manufacturerKey={'carelink'}
+          openedSections={{}}
           pumpSettings={medtronicMultiRateData}
-          store={mockStore}
           timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
         />
       );
       expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
         .to.be.true;
+    });
+
+    it('should also render w/o error with `medtronic` as the manufacturerKey', () => {
+      console.error = sinon.spy();
+      expect(console.error.callCount).to.equal(0);
+      shallow(
+        <NonTandem
+          bgUnits={MGDL_UNITS}
+          manufacturerKey={'medtronic'}
+          openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
+          pumpSettings={medtronicMultiRateData}
+          timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
+        />
+      );
+      expect(console.error.callCount).to.equal(0);
     });
   });
 });
