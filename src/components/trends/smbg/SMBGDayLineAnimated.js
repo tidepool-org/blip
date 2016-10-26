@@ -52,18 +52,22 @@ const SMBGDayLineAnimated = (props) => {
     }
     return msPer24;
   };
+
   const positions = _.map(data, (smbg) => ({
-    left: xScale(xPosition(smbg.msPer24)), top: yScale(smbg.value),
+    left: xScale(xPosition(smbg.msPer24)),
+    top: yScale(smbg.value),
   }));
+
   const getPoints = (smbgs) => {
     const points = [];
     _.map(smbgs, (d) => {
       points.push({
         key: d.id,
-        style: [
-          spring(xScale(xPosition(d.msPer24))), spring(yScale(d.value)),
-        ],
-      });
+        style: {
+          x: spring(xScale(xPosition(d.msPer24))),
+          y: spring(yScale(d.value)),
+        } },
+      );
     });
     return points;
   };
@@ -73,12 +77,16 @@ const SMBGDayLineAnimated = (props) => {
     [styles.highlightPath]: focusedDay === date,
   });
 
+  // NOTE: This mapping is required due to the differing
+  // expectations of TransitionMotion and d3 line
+  const mapObject = (obj, fn) => _.map(_.keys(obj), (key) => fn(obj[key], key, obj));
+
   return (
     <g id={`smbgDayLine-${date}`}>
       <TransitionMotion styles={getPoints(data)}>
         {(interpolated) => (
           <path
-            d={line()(_.pluck(interpolated, 'style'))}
+            d={line()(mapObject(_.pluck(interpolated, 'style'), ({ x, y }) => [x, y]))}
             className={classes}
             onMouseOver={() => { focusLine(data[0], positions[0], data, positions, date); }}
             onMouseOut={() => { unfocusLine(); }}
