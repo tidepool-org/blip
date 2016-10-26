@@ -22,7 +22,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
 
-import { getSettingsComponent } from '../../../../src/utils/settings/factory';
+import NonTandem from '../../../../src/components/settings/nontandem/NonTandem';
 import { MGDL_UNITS } from '../../../../src/utils/constants';
 
 const animasMultiRateData = require('../../../../data/pumpSettings/animas/multirate.json');
@@ -32,16 +32,16 @@ const medtronicMultiRateData = require('../../../../data/pumpSettings/medtronic/
 const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
 
 describe('NonTandem', () => {
-  const activeAtUploadText = 'Active at upload';
+    const activeAtUploadText = 'Active at upload';
     const mockStore = configureStore()();
-  describe('Animas', () => {
-    const NonTandem = getSettingsComponent('Animas');
 
+  describe('Animas', () => {
     it('should have a header', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
+          manufacturerKey={'animas'}
           pumpSettings={animasMultiRateData}
           store={mockStore}
           timePrefs={timePrefs}
@@ -50,17 +50,18 @@ describe('NonTandem', () => {
       expect(wrapper.find('Header')).to.have.length(1);
     });
 
-    it('should have Animas as the Header deviceType', () => {
+    it('should have Animas as the Header deviceDisplayName', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
+          manufacturerKey={'animas'}
           pumpSettings={animasMultiRateData}
           store={mockStore}
           timePrefs={timePrefs}
         />
       );
-      expect(wrapper.find('Header').props().deviceType).to.equal('Animas');
+      expect(wrapper.find('Header').props().deviceDisplayName).to.equal('Animas');
     });
 
     it('should have four Tables', () => {
@@ -68,6 +69,7 @@ describe('NonTandem', () => {
         <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
+          manufacturerKey={'animas'}
           pumpSettings={animasMultiRateData}
           store={mockStore}
           timePrefs={timePrefs}
@@ -81,6 +83,7 @@ describe('NonTandem', () => {
         <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
+          manufacturerKey={'animas'}
           pumpSettings={animasMultiRateData}
           store={mockStore}
           timePrefs={timePrefs}
@@ -105,13 +108,12 @@ describe('NonTandem', () => {
   });
 
   describe('Insulet', () => {
-    const NonTandem = getSettingsComponent('Insulet');
-
     it('should have a header', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
+          manufacturerKey={'insulet'}
           pumpSettings={omnipodMultiRateData}
           store={mockStore}
           timePrefs={timePrefs}
@@ -120,17 +122,18 @@ describe('NonTandem', () => {
       expect(wrapper.find('Header')).to.have.length(1);
     });
 
-    it('should have OmniPod as the Header deviceType', () => {
+    it('should have OmniPod as the Header deviceDisplayName', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
+          manufacturerKey={'insulet'}
           pumpSettings={omnipodMultiRateData}
           store={mockStore}
           timePrefs={timePrefs}
         />
       );
-      expect(wrapper.find('Header').props().deviceType).to.equal('OmniPod');
+      expect(wrapper.find('Header').props().deviceDisplayName).to.equal('OmniPod');
     });
 
     it('should have four Tables', () => {
@@ -138,6 +141,7 @@ describe('NonTandem', () => {
         <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
+          manufacturerKey={'insulet'}
           pumpSettings={omnipodMultiRateData}
           store={mockStore}
           timePrefs={timePrefs}
@@ -151,6 +155,7 @@ describe('NonTandem', () => {
         <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
+          manufacturerKey={'insulet'}
           pumpSettings={omnipodMultiRateData}
           store={mockStore}
           timePrefs={timePrefs}
@@ -175,13 +180,12 @@ describe('NonTandem', () => {
   });
 
   describe('Medtronic', () => {
-    const NonTandem = getSettingsComponent('Medtronic');
-
     it('should have a header', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
+          manufacturerKey={'carelink'}
           pumpSettings={medtronicMultiRateData}
           store={mockStore}
           timePrefs={timePrefs}
@@ -190,17 +194,18 @@ describe('NonTandem', () => {
       expect(wrapper.find('Header')).to.have.length(1);
     });
 
-    it('should have Medtronic as the Header deviceType', () => {
+    it('should have Medtronic as the Header deviceDisplayName', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
+          manufacturerKey={'carelink'}
           pumpSettings={medtronicMultiRateData}
           store={mockStore}
           timePrefs={timePrefs}
         />
       );
-      expect(wrapper.find('Header').props().deviceType).to.equal('Medtronic');
+      expect(wrapper.find('Header').props().deviceDisplayName).to.equal('Medtronic');
     });
 
     it('should have four CollapsibleContainers', () => {
@@ -208,6 +213,7 @@ describe('NonTandem', () => {
         <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
+          manufacturerKey={'carelink'}
           pumpSettings={medtronicMultiRateData}
           store={mockStore}
           timePrefs={timePrefs}
@@ -221,6 +227,7 @@ describe('NonTandem', () => {
         <NonTandem
           bgUnits={MGDL_UNITS}
           currentPatientInViewId="a1b2c3"
+          manufacturerKey={'carelink'}
           pumpSettings={medtronicMultiRateData}
           store={mockStore}
           timePrefs={timePrefs}

@@ -28,7 +28,14 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import * as data from '../../../utils/settings/data';
 
 const Tandem = (props) => {
-  const { bgUnits, pumpSettings, timePrefs } = props;
+  const {
+    bgUnits,
+    openedSections,
+    pumpSettings,
+    timePrefs,
+    toggleProfileExpansion,
+  } = props;
+
   const schedules = data.getTimedSchedules(pumpSettings.basalSchedules);
 
   const COLUMNS = [
@@ -65,7 +72,8 @@ const Tandem = (props) => {
       <CollapsibleContainer
         label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, true)}
         labelClass={styles.collapsibleLabel}
-        openByDefault={schedule.name === pumpSettings.activeSchedule}
+        opened={openedSections[schedule.name]}
+        toggleExpansion={_.partial(toggleProfileExpansion, schedule.name)}
         twoLineLabel={false}
       >
         <Table
@@ -91,11 +99,8 @@ const Tandem = (props) => {
 };
 
 Tandem.propTypes = {
-  bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
-  timePrefs: PropTypes.shape({
-    timezoneAware: React.PropTypes.bool.isRequired,
-    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
-  }).isRequired,
+  bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
+  openedSections: PropTypes.object.isRequired,
   pumpSettings: React.PropTypes.shape({
     activeSchedule: React.PropTypes.string.isRequired,
     units: React.PropTypes.object.isRequired,
@@ -136,6 +141,11 @@ Tandem.propTypes = {
       ).isRequired,
     ).isRequired,
   }).isRequired,
+  timePrefs: PropTypes.shape({
+    timezoneAware: React.PropTypes.bool.isRequired,
+    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
+  }).isRequired,
+  toggleProfileExpansion: PropTypes.func.isRequired,
 };
 
 export default Tandem;

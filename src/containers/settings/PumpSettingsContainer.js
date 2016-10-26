@@ -23,12 +23,16 @@ import { bindActionCreators } from 'redux';
 import * as actions from '../../redux/actions/';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 
+import NonTandem from '../../components/settings/nontandem/NonTandem';
+import Tandem from '../../components/settings/tandem/Tandem';
+
 export class PumpSettingsContainer extends React.Component {
   static propTypes = {
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
-    children: PropTypes.element.isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
-    deviceKey: PropTypes.oneOf(['animas', 'carelink', 'insulet', 'medtronic', 'tandem']).isRequired,
+    manufacturerKey: PropTypes.oneOf(
+      ['animas', 'carelink', 'insulet', 'medtronic', 'tandem']
+    ).isRequired,
     markSettingsViewed: PropTypes.func.isRequired,
     // see more specific schema in NonTandem and Tandem components!
     pumpSettings: PropTypes.shape({
@@ -44,16 +48,47 @@ export class PumpSettingsContainer extends React.Component {
 
   componentWillMount() {
     const { markSettingsViewed } = this.props;
-    const { deviceKey, pumpSettings: { activeSchedule }, toggleSettingsSection } = this.props;
+    const { manufacturerKey, pumpSettings: { activeSchedule }, toggleSettingsSection } = this.props;
     const { settingsState: { touched } } = this.props;
     if (!touched) {
       markSettingsViewed();
-      toggleSettingsSection(deviceKey, activeSchedule);
+      toggleSettingsSection(manufacturerKey, activeSchedule);
     }
   }
 
   render() {
-    return this.props.children;
+    const { settingsState } = this.props;
+    if (_.isEmpty(settingsState)) {
+      return null;
+    }
+    const { bgUnits, manufacturerKey, pumpSettings, timePrefs, toggleSettingsSection } = this.props;
+    const supportedNonTandemPumps = ['animas', 'carelink', 'insulet', 'medtronic'];
+    const toggleFn = _.partial(toggleSettingsSection, manufacturerKey);
+    if (manufacturerKey === 'tandem') {
+      return (
+        <Tandem
+          bgUnits={bgUnits}
+          openedSections={settingsState[manufacturerKey]}
+          pumpSettings={pumpSettings}
+          timePrefs={timePrefs}
+          toggleProfileExpansion={toggleFn}
+        />
+      );
+    } else if (_.includes(supportedNonTandemPumps, manufacturerKey)) {
+      return (
+        <NonTandem
+          bgUnits={bgUnits}
+          manufacturerKey={manufacturerKey}
+          openedSections={settingsState[manufacturerKey]}
+          pumpSettings={pumpSettings}
+          timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={toggleFn}
+        />
+      );
+    }
+    // eslint-disable-next-line no-console
+    console.warn(`Unknown manufacturer key: [${manufacturerKey}]!`);
+    return null;
   }
 }
 

@@ -27,21 +27,60 @@ import * as data from '../../../utils/settings/data';
 
 import styles from './NonTandem.css';
 
+const BG_TARGET_COLS_BY_MANUFACTURER = {
+  animas: [
+    { key: 'start', label: 'Start time' },
+    { key: 'columnTwo', label: 'Target' },
+    { key: 'columnThree', label: 'Range' },
+  ],
+  carelink: [
+    { key: 'start', label: 'Start time' },
+    { key: 'columnTwo', label: 'Low' },
+    { key: 'columnThree', label: 'High' },
+  ],
+  insulet: [
+    { key: 'start', label: 'Start time' },
+    { key: 'columnTwo', label: 'Target' },
+    { key: 'columnThree', label: 'Correct Above' },
+  ],
+};
+const BG_TARGET_BY_MANUFACTURER = {
+  animas: 'BG Target',
+  carelink: 'BG Target',
+  insulet: 'Target BG',
+};
+const ISF_BY_MANUFACTURER = {
+  animas: 'ISF',
+  carelink: 'Sensitivity',
+  insulet: 'Correction factor',
+};
+const CARB_RATIO_BY_MANUFACTURER = {
+  animas: 'I:C Ratio',
+  carelink: 'Carb Ratios',
+  insulet: 'IC ratio',
+};
+const BOLUS_SETTINGS_LABEL_BY_MANUFACTURER = {
+  animas: 'ezCarb ezBG',
+  carelink: 'Bolus Wizard',
+  insulet: 'Bolus Calculator',
+};
+const DEVICE_DISPLAY_NAME_BY_MANUFACTURER = {
+  animas: 'Animas',
+  carelink: 'Medtronic',
+  insulet: 'OmniPod',
+};
+
 const NonTandem = (props) => {
   const {
-    bgTargetColumns,
-    bgTargetLabel,
     bgUnits,
-    bolusSettingsLabel,
-    carbRatioLabel,
-    deviceType,
-    insulinSensitivityLabel,
     manufacturerKey,
+    openedSections,
     pumpSettings,
     timePrefs,
+    toggleBasalScheduleExpansion,
   } = props;
 
-  const renderBasalsData = () => {
+  function renderBasalsData() {
     const schedules = data.getScheduleNames(pumpSettings.basalSchedules);
 
     const tables = _.map(schedules, (schedule) => {
@@ -53,14 +92,17 @@ const NonTandem = (props) => {
         scheduleName,
         pumpSettings.activeSchedule,
       );
+      const scheduledIsExpanded = _.get(openedSections, scheduleName, false);
+      const toggleFn = _.partial(toggleBasalScheduleExpansion, scheduleName);
 
-      if (pumpSettings.basalSchedules[schedule].name === pumpSettings.activeSchedule) {
+      if (scheduleName === pumpSettings.activeSchedule) {
         return (
           <div className={styles.categoryContainer} key={schedule}>
             <CollapsibleContainer
               label={label}
               labelClass={styles.twoLineBasalScheduleHeader}
-              openByDefault
+              opened={scheduledIsExpanded}
+              toggleExpansion={toggleFn}
               twoLineLabel
             >
               <Table
@@ -79,7 +121,8 @@ const NonTandem = (props) => {
           <CollapsibleContainer
             label={label}
             labelClass={styles.singleLineBasalScheduleHeader}
-            openByDefault={false}
+            opened={scheduledIsExpanded}
+            toggleExpansion={toggleFn}
           >
             <Table
               rows={
@@ -93,12 +136,12 @@ const NonTandem = (props) => {
       );
     });
     return (<div className={styles.categoryContainer}>{tables}</div>);
-  };
+  }
 
-  const renderSensitivityData = () => {
+  function renderSensitivityData() {
     const title = {
       label: {
-        main: insulinSensitivityLabel,
+        main: ISF_BY_MANUFACTURER[manufacturerKey],
         secondary: `${bgUnits}/U`,
       },
       className: styles.bolusSettingsHeader,
@@ -118,12 +161,12 @@ const NonTandem = (props) => {
         />
       </div>
     );
-  };
+  }
 
-  const renderRatioData = () => {
+  function renderRatioData() {
     const title = {
       label: {
-        main: carbRatioLabel,
+        main: CARB_RATIO_BY_MANUFACTURER[manufacturerKey],
         secondary: 'g/U',
       },
       className: styles.bolusSettingsHeader,
@@ -142,12 +185,12 @@ const NonTandem = (props) => {
         />
       </div>
     );
-  };
+  }
 
-  const renderTargetData = () => {
+  function renderTargetData() {
     const title = {
       label: {
-        main: bgTargetLabel,
+        main: BG_TARGET_BY_MANUFACTURER[manufacturerKey],
         secondary: bgUnits,
       },
       className: styles.bolusSettingsHeader,
@@ -163,17 +206,17 @@ const NonTandem = (props) => {
               { columnTwo: 'target', columnThree: 'high' },
             )
           }
-          columns={bgTargetColumns}
+          columns={BG_TARGET_COLS_BY_MANUFACTURER[manufacturerKey]}
           tableStyle={styles.settingsTable}
         />
       </div>
     );
-  };
+  }
 
   return (
     <div>
       <Header
-        deviceType={deviceType}
+        deviceDisplayName={DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturerKey]}
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
       />
       <div className={styles.settingsContainer}>
@@ -182,7 +225,9 @@ const NonTandem = (props) => {
           {renderBasalsData()}
         </div>
         <div>
-          <div className={styles.categoryTitle}>{bolusSettingsLabel}</div>
+          <div className={styles.categoryTitle}>
+            {BOLUS_SETTINGS_LABEL_BY_MANUFACTURER[manufacturerKey]}
+          </div>
           <div className={styles.bolusSettingsContainer}>
             {renderSensitivityData()}
             {renderTargetData()}
@@ -195,21 +240,13 @@ const NonTandem = (props) => {
 };
 
 NonTandem.propTypes = {
-  bgTargetColumns: PropTypes.arrayOf(PropTypes.shape({
-    key: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
-  }).isRequired).isRequired,
-  bgTargetLabel: PropTypes.string.isRequired,
-  bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
-  bolusSettingsLabel: PropTypes.string.isRequired,
-  carbRatioLabel: PropTypes.string.isRequired,
-  deviceType: PropTypes.string.isRequired,
-  insulinSensitivityLabel: PropTypes.string.isRequired,
+  bgUnits: PropTypes.oneOf([constants.MMOLL_UNITS, constants.MGDL_UNITS]).isRequired,
   manufacturerKey: PropTypes.oneOf(['animas', 'carelink', 'insulet']),
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool.isRequired,
     timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
   }).isRequired,
+  openedSections: PropTypes.object.isRequired,
   pumpSettings: PropTypes.shape({
     activeSchedule: PropTypes.string.isRequired,
     units: PropTypes.object.isRequired,
@@ -245,6 +282,7 @@ NonTandem.propTypes = {
       })
     ).isRequired,
   }).isRequired,
+  toggleBasalScheduleExpansion: PropTypes.func.isRequired,
 };
 
 export default NonTandem;

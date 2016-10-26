@@ -22,9 +22,8 @@ import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
 
 import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
 
+import PumpSettingsContainer from './containers/settings/PumpSettingsContainer';
 import TrendsContainer from './containers/trends/TrendsContainer';
-
-import { getSettingsComponent } from './utils/settings/factory';
 
 import vizReducer from './redux/reducers/';
 
@@ -35,7 +34,8 @@ const components = {
 };
 
 const containers = {
+  PumpSettingsContainer,
   TrendsContainer,
 };
 
-export { components, containers, getSettingsComponent, vizReducer };
+export { components, containers, vizReducer };
