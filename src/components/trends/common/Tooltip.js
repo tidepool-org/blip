@@ -161,13 +161,13 @@ Tooltip.propTypes = {
   offset: PropTypes.shape({
     top: PropTypes.number.isRequired,
     left: PropTypes.number.isRequired,
-  }),
-  tail: PropTypes.bool,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']),
-  tailWidth: PropTypes.number,
-  tailHeight: PropTypes.number,
-  borderColor: PropTypes.string,
-  borderWidth: PropTypes.number,
+  }).isRequired,
+  tail: PropTypes.bool.isRequired,
+  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+  tailWidth: PropTypes.number.isRequired,
+  tailHeight: PropTypes.number.isRequired,
+  borderColor: PropTypes.string.isRequired,
+  borderWidth: PropTypes.number.isRequired,
 };
 
 Tooltip.defaultProps = {
