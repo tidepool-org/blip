@@ -26,10 +26,10 @@ const {
   trendsYScale: yScale,
 } = scales.trends;
 
-import SMBGDaysContainer
-  from '../../../src/containers/trends/SMBGDaysContainer';
+import SMBGsByDateContainer
+  from '../../../src/containers/trends/SMBGsByDateContainer';
 
-describe('SMBGDaysContainer', () => {
+describe('SMBGsByDateContainer', () => {
   let wrapper;
 
   const props = {
@@ -52,34 +52,34 @@ describe('SMBGDaysContainer', () => {
   };
 
   before(() => {
-    wrapper = mount(<SMBGDaysContainer {...props} />);
+    wrapper = mount(<SMBGsByDateContainer {...props} />);
   });
 
   describe('when no data is provided', () => {
     let noDataWrapper;
     before(() => {
       const noDataProps = _.omit(props, 'data');
-      noDataWrapper = mount(<SMBGDaysContainer {...noDataProps} />);
+      noDataWrapper = mount(<SMBGsByDateContainer {...noDataProps} />);
     });
 
     it('should render nothing', () => {
-      expect(noDataWrapper.find('#smbgDaysContainer circle').length).to.equal(0);
-      expect(noDataWrapper.find('#smbgDaysContainer path').length).to.equal(0);
+      expect(noDataWrapper.find('#smbgsByDateContainer circle').length).to.equal(0);
+      expect(noDataWrapper.find('#smbgsByDateContainer path').length).to.equal(0);
     });
   });
 
   describe('with data provided should render', () => {
-    it('renders a <g> with id #smbgDaysContainer', () => {
-      expect(wrapper.find('#smbgDaysContainer').length).to.equal(1);
+    it('renders a <g> with id #smbgsByDateContainer', () => {
+      expect(wrapper.find('#smbgsByDateContainer').length).to.equal(1);
     });
     describe('smbg day line', () => {
       it('is shown when lines option is true', () => {
-        expect(wrapper.find('#smbgDaysContainer path').length).to.equal(1);
+        expect(wrapper.find('#smbgsByDateContainer path').length).to.equal(1);
       });
       it('is not shown when lines option is false', () => {
         props.lines = false;
-        wrapper = mount(<SMBGDaysContainer {...props} />);
-        expect(wrapper.find('#smbgDaysContainer path').length).to.equal(0);
+        wrapper = mount(<SMBGsByDateContainer {...props} />);
+        expect(wrapper.find('#smbgsByDateContainer path').length).to.equal(0);
       });
     });
     describe('focused smbg line', () => {
@@ -93,13 +93,13 @@ describe('SMBGDaysContainer', () => {
           smbgDay: [{ value: 200 }],
           smbgPositions: [{ top: 0, left: 10 }, { top: 10, left: 50 }],
         };
-        wrapper = mount(<SMBGDaysContainer {...props} />);
-        expect(wrapper.find('#smbgDaysContainer path').length).to.equal(1);
+        wrapper = mount(<SMBGsByDateContainer {...props} />);
+        expect(wrapper.find('#smbgsByDateContainer path').length).to.equal(1);
       });
     });
     describe('smbg day points', () => {
       it('are shown', () => {
-        expect(wrapper.find('#smbgDaysContainer circle').length).to.equal(3);
+        expect(wrapper.find('#smbgsByDateContainer circle').length).to.equal(3);
       });
     });
   });

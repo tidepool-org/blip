@@ -21,7 +21,7 @@ import _ from 'lodash';
 import SMBGDayPointsAnimated from '../../components/trends/smbg/SMBGDayPointsAnimated';
 import SMBGDayLineAnimated from '../../components/trends/smbg/SMBGDayLineAnimated';
 
-const SMBGDaysContainer = (props) => {
+const SMBGsByDateContainer = (props) => {
   const { data } = props;
   if (!data) {
     return null;
@@ -82,14 +82,14 @@ const SMBGDaysContainer = (props) => {
   }
 
   return (
-    <g id="smbgDaysContainer">
+    <g id="smbgsByDateContainer">
       {getLines()}
       {getPoints()}
     </g>
   );
 };
 
-SMBGDaysContainer.propTypes = {
+SMBGsByDateContainer.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({
     // here only documenting the properties we actually use rather than the *whole* data model!
     id: PropTypes.string.isRequired,
@@ -132,4 +132,4 @@ SMBGDaysContainer.propTypes = {
   yScale: PropTypes.func.isRequired,
 };
 
-export default SMBGDaysContainer;
+export default SMBGsByDateContainer;
