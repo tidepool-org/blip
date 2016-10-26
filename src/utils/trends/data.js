@@ -77,5 +77,7 @@ export function calculateSmbgStatsForBin(binKey, binSize, data) {
     mean: mean(data),
     max: max(data),
     msX: centerOfBinMs,
+    msFrom: centerOfBinMs - (binSize / 2),
+    msTo: centerOfBinMs + (binSize / 2),
   };
 }

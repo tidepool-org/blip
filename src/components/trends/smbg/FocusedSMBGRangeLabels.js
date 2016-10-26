@@ -20,11 +20,9 @@ import Tooltip from '../common/Tooltip';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { displayBgValue } from '../../../utils/format';
-import { THREE_HRS, millisecondsAsTimeOfDay } from '../../../utils/datetime';
+import { millisecondsAsTimeOfDay } from '../../../utils/datetime';
 
 import styles from './FocusedSMBGRangeLabels.css';
-
-const ONE_AND_A_HALF_HOURS = THREE_HRS / 2;
 
 const FocusedSMBGRangeLabels = (props) => {
   const { focusedRange } = props;
@@ -33,8 +31,8 @@ const FocusedSMBGRangeLabels = (props) => {
   }
 
   const { bgUnits, focusedRange: { data, position } } = props;
-  const timeFrom = millisecondsAsTimeOfDay(data.msX - ONE_AND_A_HALF_HOURS);
-  const timeTo = millisecondsAsTimeOfDay(data.msX + ONE_AND_A_HALF_HOURS);
+  const timeFrom = millisecondsAsTimeOfDay(data.msFrom);
+  const timeTo = millisecondsAsTimeOfDay(data.msTo);
   const maxPosition = { top: position.yPositions.max, left: position.left };
   const meanPosition = { top: position.yPositions.mean, left: position.left };
   const meanSide = position.tooltipLeft ? 'left' : 'right';
