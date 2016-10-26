@@ -22,7 +22,8 @@ import ReactDOM from 'react-dom';
 
 import utils from '../../core/utils';
 
-import { getSettingsComponent } from '@tidepool/viz';
+import * as viz from '@tidepool/viz';
+const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 
 import Header from './header';
 import Footer from './footer';
@@ -90,22 +91,18 @@ var Settings = React.createClass({
   },
   renderChart: function() {
 
-    const settings = this.props.patientData.grouped.pumpSettings;
+    const allSettings = this.props.patientData.grouped.pumpSettings;
+    const mostRecentSettings = _.last(allSettings);
 
-    const SettingsChart = getSettingsComponent(
-      _.get(_.last(settings), 'source'),
+    return (
+      <PumpSettingsContainer
+        currentPatientInViewId={this.props.currentPatientInViewId}
+        bgUnits={this.props.bgPrefs.bgUnits}
+        manufacturerKey={_.get(mostRecentSettings, 'source').toLowerCase()}
+        pumpSettings={mostRecentSettings}
+        timePrefs={this.props.timePrefs}
+      />
     );
-
-    if (SettingsChart){
-      return (
-        <SettingsChart
-          currentPatientInViewId={this.props.currentPatientInViewId}
-          bgUnits={this.props.bgPrefs.bgUnits}
-          pumpSettings={_.last(settings)}
-          timePrefs={this.props.timePrefs}
-        />
-      );
-    }
 
   },
   renderMissingSettingsMessage: function() {
