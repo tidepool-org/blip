@@ -146,6 +146,7 @@ export class TrendsSVGContainer extends React.Component {
           lines={this.props.smbgLines}
           grouped={this.props.smbgGrouped}
           smbgOpts={this.props.smbgOpts}
+          tooltipLeftThreshold={this.props.tooltipLeftThreshold}
         />
       );
 

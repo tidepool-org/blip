@@ -56,6 +56,7 @@ const FocusedSMBGPointLabel = (props) => {
   }
   const lineDate = formatDisplayDate(parsedTime, timePrefs, 'dddd MMM D');
   const shortDate = formatDisplayDate(parsedTime, timePrefs, 'MMM D');
+  const side = position.tooltipLeft ? 'left' : 'right';
   const pointTooltips = _.map(dayPoints, (smbg, i) => (
     <Tooltip
       key={i}
@@ -72,8 +73,11 @@ const FocusedSMBGPointLabel = (props) => {
       <Tooltip
         title={<span className={styles.explainerText}>{lineDate}</span>}
         position={position}
-        side={'right'}
-        offset={{ top: SIMPLE_DAY_TOP_OFFSET, left: SIMPLE_DAY_LEFT_OFFSET }}
+        side={side}
+        offset={{
+          top: SIMPLE_DAY_TOP_OFFSET,
+          left: position.tooltipLeft ? -SIMPLE_DAY_LEFT_OFFSET : SIMPLE_DAY_LEFT_OFFSET,
+        }}
       />
     );
   } else {
@@ -90,8 +94,11 @@ const FocusedSMBGPointLabel = (props) => {
         </span>
         }
         position={position}
-        side={'right'}
-        offset={{ top: 0, left: DETAILED_DAY_LEFT_OFFSET }}
+        side={side}
+        offset={{
+          top: 0,
+          left: position.tooltipLeft ? -DETAILED_DAY_LEFT_OFFSET : DETAILED_DAY_LEFT_OFFSET,
+        }}
       />
     );
   }
@@ -121,6 +128,7 @@ FocusedSMBGPointLabel.propTypes = {
       top: PropTypes.number.isRequired,
     }).isRequired,
     positions: PropTypes.arrayOf(PropTypes.shape({
+      tooltipLeft: PropTypes.bool.isRequired,
       left: PropTypes.number.isRequired,
       top: PropTypes.number.isRequired,
     })).isRequired,

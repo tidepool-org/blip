@@ -60,6 +60,7 @@ const SMBGsByDateContainer = (props) => {
         focusLine={focusSmbg}
         unfocusLine={unfocusSmbg}
         grouped={grouped}
+        tooltipLeftThreshold={props.tooltipLeftThreshold}
       />
     ));
   }
@@ -77,6 +78,7 @@ const SMBGsByDateContainer = (props) => {
         unfocusSmbg={unfocusSmbg}
         grouped={grouped}
         smbgOpts={smbgOpts}
+        tooltipLeftThreshold={props.tooltipLeftThreshold}
       />
     ));
   }
@@ -99,6 +101,7 @@ SMBGsByDateContainer.propTypes = {
   })).isRequired,
   grouped: PropTypes.bool.isRequired,
   lines: PropTypes.bool.isRequired,
+  tooltipLeftThreshold: PropTypes.number.isRequired,
   focusedSmbg: PropTypes.shape({
     dayPoints: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.string.isRequired,

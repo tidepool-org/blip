@@ -20,6 +20,8 @@ import React from 'react';
 
 import { mount } from 'enzyme';
 
+import { THREE_HRS } from '../../../../src/utils/datetime';
+
 import * as scales from '../../../helpers/scales';
 const {
   trendsHeight,
@@ -58,6 +60,7 @@ describe('SMBGDayPointsAnimated', () => {
     grouped,
     focusedDay,
     smbgOpts,
+    tooltipLeftThreshold: THREE_HRS * 6,
   };
   before(() => {
     wrapper = mount(

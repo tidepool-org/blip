@@ -20,6 +20,8 @@ import React from 'react';
 
 import { mount } from 'enzyme';
 
+import { THREE_HRS } from '../../../src/utils/datetime';
+
 import * as scales from '../../helpers/scales';
 const {
   trendsXScale: xScale,
@@ -49,6 +51,7 @@ describe('SMBGsByDateContainer', () => {
       maxR: 7.5,
       r: 6,
     },
+    tooltipLeftThreshold: THREE_HRS * 6,
   };
 
   before(() => {

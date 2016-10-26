@@ -46,7 +46,11 @@ const SMBGDayPointsAnimated = (props) => {
       {_.map(data, (smbg) => {
         const cx = xPosition(smbg.msPer24);
         const cy = yScale(smbg.value);
-        const position = { left: cx, top: cy };
+        const position = {
+          tooltipLeft: smbg.msPer24 > props.tooltipLeftThreshold,
+          left: cx,
+          top: cy,
+        };
         const focus = () => {
           focusSmbg(smbg, position, data, positions, date);
         };
@@ -91,6 +95,7 @@ SMBGDayPointsAnimated.propTypes = {
     maxR: PropTypes.number.isRequired,
     r: PropTypes.number.isRequired,
   }).isRequired,
+  tooltipLeftThreshold: PropTypes.number.isRequired,
 };
 
 export default SMBGDayPointsAnimated;

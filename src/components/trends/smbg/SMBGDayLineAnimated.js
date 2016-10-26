@@ -54,6 +54,7 @@ const SMBGDayLineAnimated = (props) => {
   };
 
   const positions = _.map(data, (smbg) => ({
+    tooltipLeft: smbg.msPer24 > props.tooltipLeftThreshold,
     left: xScale(xPosition(smbg.msPer24)),
     top: yScale(smbg.value),
   }));
@@ -110,6 +111,7 @@ SMBGDayLineAnimated.propTypes = {
   unfocusLine: PropTypes.func.isRequired,
   grouped: PropTypes.bool.isRequired,
   focusedDay: PropTypes.string.isRequired,
+  tooltipLeftThreshold: PropTypes.number.isRequired,
 };
 
 export default SMBGDayLineAnimated;
