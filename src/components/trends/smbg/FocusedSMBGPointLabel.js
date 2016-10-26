@@ -99,8 +99,6 @@ const FocusedSMBGPointLabel = (props) => {
   );
 };
 
-FocusedSMBGPointLabel.defaultProps = {};
-
 FocusedSMBGPointLabel.propTypes = {
   bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   focusedPoint: PropTypes.shape({
