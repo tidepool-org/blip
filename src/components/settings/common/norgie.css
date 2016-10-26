@@ -15,6 +15,23 @@
  * == BSD2 LICENSE ==
  */
 
-.secondaryLabel {
-  composes: secondaryText from '../settings.css';
+// empty class necessary for CSS modules composition
+.norgie {
+
+}
+
+.norgie::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: bold;
+  padding-left: 8px;
+  margin-right: 16px;
+  transform: rotate(0deg);
+
+  transition-duration: 0.25s;
+  transition-property: rotate, transform;
+}
+
+.opened::after {
+  transform: rotate(90deg) translate(-20%, -15%);
 }

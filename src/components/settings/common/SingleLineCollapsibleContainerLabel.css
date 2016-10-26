@@ -15,6 +15,26 @@
  * == BSD2 LICENSE ==
  */
 
-.secondaryLabel {
+.collapsibleLabel {
+  composes: settingsHeader from '../settings.css';
+}
+
+.labelContainer {
+  composes: defaultSize mediumContrastText from '../../../styles/typography.css';
+  composes: norgie from './norgie.css';
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+}
+
+.labelContainer:hover {
+  color: var(--text-hover);
+}
+
+.mainText {
+  composes: boldText from '../../../styles/typography.css';
+}
+
+.secondaryText {
   composes: secondaryText from '../settings.css';
 }

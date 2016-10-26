@@ -20,7 +20,6 @@ import React from 'react';
 import styles from './Header.css';
 
 class Header extends React.Component {
-
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
@@ -33,8 +32,7 @@ class Header extends React.Component {
 
   render() {
     const headerClass = this.state.serialNumberExpanded ?
-      styles.headerExpanded :
-      styles.headerClosed;
+      styles.headerExpanded : styles.headerClosed;
 
     return (
       <div>

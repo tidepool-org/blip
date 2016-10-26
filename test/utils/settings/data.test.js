@@ -1,8 +1,21 @@
-/* eslint-env node, mocha */
-/* eslint no-console: 0*/
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
 
 import * as data from '../../../src/utils/settings/data';
-import { shallow } from 'enzyme';
 
 const multirateSettingsData = require('../../../data/pumpSettings/medtronic/multirate.json');
 const settingsData = require('../../../data/pumpSettings/tandem/flatrate.json');
@@ -24,6 +37,7 @@ describe('data', () => {
       .and.contain({ start: '6:00 pm', columnTwo: '4.2', columnThree: '8.3' });
     });
   });
+
   describe('processCarbRatioData', () => {
     it('should return formatted objects', () => {
       expect(
@@ -38,6 +52,7 @@ describe('data', () => {
       .and.contain({ start: '5:30 pm', amount: 6 });
     });
   });
+
   describe('processSensitivityData', () => {
     it('should return formatted objects', () => {
       expect(
@@ -50,6 +65,7 @@ describe('data', () => {
       .and.contain({ start: '12:00 am', amount: '1.8' });
     });
   });
+
   describe('processBasalRateData', () => {
     it('should return formatted objects', () => {
       expect(
@@ -65,6 +81,7 @@ describe('data', () => {
       .and.contain({ start: '12:00 am', rate: '0.750' })
       .and.contain({ start: 'Total', rate: '20.725' });
     });
+
     it('should cope with empty shedules', () => {
       expect(
         data.processBasalRateData(
@@ -73,8 +90,19 @@ describe('data', () => {
       )
       .to.have.length(1)
       .to.contain({ start: '-', rate: '-' });
+      expect(
+        data.processBasalRateData({
+          name: 'Foo',
+          value: [{
+            start: 0,
+          }],
+        })
+      )
+      .to.have.length(1)
+      .to.contain({ start: '-', rate: '-' });
     });
   });
+
   describe('processTimedSettings', () => {
     it('should return formatted objects', () => {
       expect(
@@ -122,16 +150,33 @@ describe('data', () => {
       });
     });
   });
+
   describe('getScheduleLabel', () => {
-    it('should return the formatted label', () => {
-      const wrapper = shallow(data.getScheduleLabel('one', 'two'));
-      expect(wrapper.text()).to.equal('one');
+    it('should return an object of the basal schedule label parts', () => {
+      expect(data.getScheduleLabel('one', 'two')).to.deep.equal({
+        main: 'one',
+        secondary: '',
+        units: 'U/hr',
+      });
     });
-    it('should return the formatted label', () => {
-      const wrapper = shallow(data.getScheduleLabel('one', 'one'));
-      expect(wrapper.text()).to.equal('one Active at upload');
+
+    it('should provide "Active at upload" in `secondary` if schedule names match', () => {
+      expect(data.getScheduleLabel('one', 'one')).to.deep.equal({
+        main: 'one',
+        secondary: 'Active at upload',
+        units: 'U/hr',
+      });
+    });
+
+    it('should return an empty string for `units` if given `noUnits` option', () => {
+      expect(data.getScheduleLabel('one', 'one', true)).to.deep.equal({
+        main: 'one',
+        secondary: 'Active at upload',
+        units: '',
+      });
     });
   });
+
   describe('getTimedSchedules', () => {
     it('should return the timed settings schedule names', () => {
       expect(
@@ -142,6 +187,7 @@ describe('data', () => {
       .and.contain({ name: 'Sick', position: 1 });
     });
   });
+
   describe('getTotalBasalRates', () => {
     it('should return the rate total for multi rate settings', () => {
       expect(
@@ -150,6 +196,7 @@ describe('data', () => {
         )
       ).to.equal('20.725');
     });
+
     it('should return the rate total for flatrate settings', () => {
       expect(
         data.getTotalBasalRates(
@@ -158,12 +205,13 @@ describe('data', () => {
       ).to.equal('10.800');
     });
   });
+
   describe('getDeviceMeta', () => {
     const timePrefs = {
       timezoneAware: false,
       timezoneName: null,
     };
-    it('should return the serial, schedule and date uploaded device', () => {
+    it('[timezone-naive] should return the serial, schedule and date uploaded device', () => {
       expect(
         data.getDeviceMeta(settingsData, timePrefs)
       ).to.have.property('serial').equal('0987654321');
@@ -174,6 +222,23 @@ describe('data', () => {
         data.getDeviceMeta(settingsData, timePrefs)
       ).to.have.property('uploaded').equal('Jul 12, 2016');
     });
+
+    it('[timezone-aware] should return the serial, schedule and date uploaded device', () => {
+      const timezoneAwarePrefs = {
+        timezoneAware: true,
+        timezoneName: 'US/Mountain',
+      };
+      expect(
+        data.getDeviceMeta(settingsData, timezoneAwarePrefs)
+      ).to.have.property('serial').equal('0987654321');
+      expect(
+        data.getDeviceMeta(settingsData, timezoneAwarePrefs)
+      ).to.have.property('schedule').equal('Normal');
+      expect(
+        data.getDeviceMeta(settingsData, timezoneAwarePrefs)
+      ).to.have.property('uploaded').equal('Jul 13, 2016');
+    });
+
     it('should return the serial, schedule and date uploaded as unknown', () => {
       expect(
         data.getDeviceMeta({}, timePrefs)
@@ -184,6 +249,17 @@ describe('data', () => {
       expect(
         data.getDeviceMeta({}, timePrefs)
       ).to.have.property('uploaded').equal('unknown');
+    });
+  });
+
+  describe('startTimeAndValue', () => {
+    const valueKey = 'whatever';
+    it('should return an array of "Start Time" and "Value" column descriptions', () => {
+      expect(data.startTimeAndValue(valueKey)).to.deep.equal([{
+        key: 'start', label: 'Start time',
+      }, {
+        key: valueKey, label: 'Value',
+      }]);
     });
   });
 });
