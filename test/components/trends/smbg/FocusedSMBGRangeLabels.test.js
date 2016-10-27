@@ -39,6 +39,8 @@ describe('FocusedSMBGRangeLabels', () => {
       mean: 180,
       min: 70,
       msX: 81000000,
+      msFrom: 75600000,
+      msTo: 86400000,
     },
     position: {
       left: 880,

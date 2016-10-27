@@ -79,6 +79,8 @@ FocusedSMBGRangeLabels.propTypes = {
       mean: PropTypes.number.isRequired,
       min: PropTypes.number.isRequired,
       msX: PropTypes.number.isRequired,
+      msFrom: PropTypes.number.isRequired,
+      msTo: PropTypes.number.isRequired,
     }).isRequired,
     position: PropTypes.shape({
       left: PropTypes.number.isRequired,
