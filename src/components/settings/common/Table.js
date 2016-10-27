@@ -45,12 +45,12 @@ class Table extends React.Component {
         if (typeof label === 'object' && _.isEqual(_.keys(label), ['main', 'secondary'])) {
           return (
             <th key={key} className={column.className}>
-              {label.main}<span className={styles.secondaryLabel}>{label.secondary}</span>
+              {label.main}<span className={styles.secondaryLabelWithMain}>{label.secondary}</span>
             </th>
           );
         }
         return (
-          <th key={key} className={styles.secondaryLabel}>
+          <th key={key} className={styles.secondaryLabelAlone}>
             {label}
           </th>
         );
@@ -85,7 +85,7 @@ class Table extends React.Component {
           key={main}
           className={className}
         >
-          {main}<span className={styles.secondaryLabel}>{secondary}</span>
+          {main}<span className={styles.secondaryLabelWithMain}>{secondary}</span>
         </caption>
       );
       tableContents = [

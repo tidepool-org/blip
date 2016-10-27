@@ -23,7 +23,7 @@ import norgie from './norgie.css';
 import styles from './SingleLineCollapsibleContainerLabel.css';
 
 const SingleLineCollapsibleContainerLabel = (props) => {
-  const { className, isOpened, label: { main, units }, onClick } = props;
+  const { className, isOpened, label: { main, secondary, units }, onClick } = props;
   const containerClasses = cx({
     label: true, // for testing
     [styles.collapsibleLabel]: !Boolean(className),
@@ -35,6 +35,8 @@ const SingleLineCollapsibleContainerLabel = (props) => {
     <div className={containerClasses} onClick={onClick}>
       <div>
         <span className={styles.mainText}>{main}</span>
+        {_.isEmpty(secondary) ?
+          null : (<span className={styles.secondaryText}>{secondary}</span>)}
         {_.isEmpty(units) ?
           null : (<span className={styles.secondaryText}>{units}</span>)}
       </div>
