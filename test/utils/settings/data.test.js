@@ -21,7 +21,7 @@ const multirateSettingsData = require('../../../data/pumpSettings/medtronic/mult
 const settingsData = require('../../../data/pumpSettings/tandem/flatrate.json');
 const timedSettingsData = require('../../../data/pumpSettings/tandem/multirate.json');
 
-describe('data', () => {
+describe('[settings] data utils', () => {
   describe('processBgTargetData', () => {
     it('should return formatted objects', () => {
       expect(

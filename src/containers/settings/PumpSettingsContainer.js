@@ -29,7 +29,6 @@ import Tandem from '../../components/settings/Tandem';
 export class PumpSettingsContainer extends React.Component {
   static propTypes = {
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
-    currentPatientInViewId: PropTypes.string.isRequired,
     manufacturerKey: PropTypes.oneOf(
       ['animas', 'carelink', 'insulet', 'medtronic', 'tandem']
     ).isRequired,
@@ -113,5 +112,4 @@ export function mapDispatchToProps(dispatch, ownProps) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-  (stateProps, dispatchProps, ownProps) => (_.assign({}, ownProps, stateProps, dispatchProps)),
 )(PumpSettingsContainer);
