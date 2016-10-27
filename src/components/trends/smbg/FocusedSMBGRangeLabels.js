@@ -16,7 +16,7 @@
  */
 
 import React, { PropTypes } from 'react';
-import Tooltip from '../common/Tooltip';
+import Tooltip from '../../common/tooltips/Tooltip';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { displayBgValue } from '../../../utils/format';

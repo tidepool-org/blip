@@ -2,7 +2,7 @@ import React from 'react';
 
 import { storiesOf } from '@kadira/storybook';
 
-import Tooltip from '../../../../src/components/trends/common/Tooltip';
+import Tooltip from '../../../../src/components/common/tooltips/Tooltip';
 
 const props = {
   title: <span style={{ padding: '5px', display: 'block' }}>Title</span>,

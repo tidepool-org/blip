@@ -21,8 +21,8 @@ import { mount } from 'enzyme';
 
 import { formatClassesAsSelector } from '../../../helpers/cssmodules';
 
-import Tooltip from '../../../../src/components/trends/common/Tooltip';
-import styles from '../../../../src/components/trends/common/Tooltip.css';
+import Tooltip from '../../../../src/components/common/tooltips/Tooltip';
+import styles from '../../../../src/components/common/tooltips/Tooltip.css';
 
 describe('Tooltip', () => {
   const position = { top: 50, left: 50 };
