@@ -18,7 +18,7 @@
 /* eslint no-console:0 */
 
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 
 import Tandem from '../../../../src/components/settings/tandem/Tandem';
 import { MGDL_UNITS } from '../../../../src/utils/constants';
@@ -82,5 +82,19 @@ describe('Tandem', () => {
       />
     );
     expect(wrapper.find('CollapsibleContainer')).to.have.length(3);
+  });
+
+  it('should have `Active at Upload` text somewhere', () => {
+    const activeAtUploadText = 'Active at upload';
+    // must use mount to search far enough down in tree!
+    const wrapper = mount(
+      <Tandem
+        pumpSettings={multirateData}
+        bgUnits={MGDL_UNITS}
+        timePrefs={timePrefs}
+      />
+    );
+    expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
+      .to.be.true;
   });
 });
