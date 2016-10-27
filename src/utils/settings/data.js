@@ -24,13 +24,12 @@ const DISPLAY_PRECISION_PLACES = 3;
 
 /**
  * noData
- * @private
  * @param  {ANY} val value to check
  *
- * @return {Boolean}     true if value is defined and not null, false otherwise
+ * @return {Boolean}     true if value is defined, not null, not empty string, false otherwise
  */
-function noData(val) {
-  return val === null || (typeof val === 'undefined');
+export function noData(val) {
+  return val == null || (typeof val === 'string' && _.isEmpty(val));
 }
 
 /**

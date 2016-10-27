@@ -104,6 +104,17 @@ describe('PumpSettingsContainer', () => {
     });
 
     describe('render', () => {
+      it('should render nothing if `settingsState` is empty', () => {
+        const wrapper = mount(
+          <PumpSettingsContainer
+            {...props}
+            pumpSettings={animasSettings}
+            settingsState={{}}
+          />
+        );
+        expect(wrapper.html()).to.be.null;
+      });
+
       it('should render `NonTandem` for manufacturerKey of `animas`', () => {
         const manufacturerKey = 'animas';
         const wrapper = mount(
