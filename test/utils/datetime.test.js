@@ -300,4 +300,36 @@ describe('datetime', () => {
         .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
     });
   });
+
+  describe('getParsedTime', () => {
+    const tzAware = {
+      timezoneAware: true,
+      timezoneName: 'America/New_York',
+    };
+    const tzUnaware = {
+      timezoneAware: false,
+      timezoneName: null,
+    };
+    const data = {
+      time: '2016-09-23T23:00:00.000Z',
+      deviceTime: '2016-09-23T19:00:00',
+    };
+    it('should return 1474671600000 for timezone aware', () => {
+      expect(datetime.getParsedTime(data, tzAware)).to.equal(1474671600000);
+    });
+    it('should return 1474657200000 for timezone unaware', () => {
+      expect(datetime.getParsedTime(data, tzUnaware)).to.equal(1474657200000);
+    });
+    it('should return false if time is not present in timezone aware', () => {
+      expect(datetime.getParsedTime({}, tzAware)).to.be.false;
+    });
+    it('should return false if deviceTime is not present in timezone unaware', () => {
+      expect(datetime.getParsedTime({}, tzUnaware)).to.be.false;
+    });
+    it('should error if time/deviceTime is not string timestamp', () => {
+      const fn = () => { datetime.getParsedTime({ time: 'tuesday' }, tzAware); };
+      expect(fn)
+        .to.throw('time and deviceTime must be a ISO-formatted String timestamp');
+    });
+  });
 });

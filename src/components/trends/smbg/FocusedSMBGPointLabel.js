@@ -21,7 +21,7 @@ import Tooltip from '../../common/tooltips/Tooltip';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { displayBgValue } from '../../../utils/format';
-import { formatDisplayDate, millisecondsAsTimeOfDay } from '../../../utils/datetime';
+import { formatDisplayDate, millisecondsAsTimeOfDay, getParsedTime } from '../../../utils/datetime';
 
 import styles from './FocusedSMBGPointLabel.css';
 
@@ -44,16 +44,7 @@ const FocusedSMBGPointLabel = (props) => {
     lines,
   } = props;
 
-  let parsedTime;
-  if (timePrefs.timezoneAware) {
-    if (data.time) {
-      parsedTime = Date.parse(data.time);
-    }
-  } else {
-    if (data.deviceTime) {
-      parsedTime = Date.parse(data.deviceTime);
-    }
-  }
+  const parsedTime = getParsedTime(data, timePrefs);
   const lineDate = formatDisplayDate(parsedTime, timePrefs, 'dddd MMM D');
   const shortDate = formatDisplayDate(parsedTime, timePrefs, 'MMM D');
   const side = position.tooltipLeft ? 'left' : 'right';

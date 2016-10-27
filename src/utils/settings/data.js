@@ -173,16 +173,8 @@ export function getTimedSchedules(settingsData) {
  * @return {Object}              filtered meta data
  */
 export function getDeviceMeta(settingsData, timePrefs) {
-  let uploadedTime;
-  if (timePrefs.timezoneAware) {
-    if (settingsData.time) {
-      uploadedTime = datetime.formatDisplayDate(Date.parse(settingsData.time), timePrefs);
-    }
-  } else {
-    if (settingsData.deviceTime) {
-      uploadedTime = datetime.formatDisplayDate(Date.parse(settingsData.deviceTime), timePrefs);
-    }
-  }
+  const parsedTime = datetime.getParsedTime(settingsData, timePrefs);
+  const uploadedTime = parsedTime ? datetime.formatDisplayDate(parsedTime, timePrefs) : false;
   return {
     schedule: settingsData.activeSchedule || 'unknown',
     uploaded: uploadedTime || 'unknown',

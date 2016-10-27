@@ -128,3 +128,34 @@ export function formatDisplayDate(utc, timePrefs, format = 'MMM D, YYYY') {
   }
   return moment.utc(utc).tz(getTimezoneFromTimePrefs(timePrefs)).format(format);
 }
+
+/**
+ * Parse time for a datum based on timezone awareness
+ * @param  {Object} data            data point to parse a time for
+ * @param  {string} data.time       utc Zulu timestamp
+ * @param  {string} data.deviceTime utc Zulu timestamp
+ * @param  {Object} timePrefs       object containing timezone preferences
+ * @param  {boolean} timePrefs.timezoneAware boolean to indicate timezone awareness
+ *
+ * @return {number|false}           hammertime or Bool false for missing properties
+ */
+export function getParsedTime(data, timePrefs) {
+  let parsedTime;
+  if (timePrefs.timezoneAware) {
+    if (!_.isUndefined(data.time)) {
+      parsedTime = Date.parse(data.time);
+    } else {
+      parsedTime = false;
+    }
+  } else {
+    if (!_.isUndefined(data.deviceTime)) {
+      parsedTime = Date.parse(data.deviceTime);
+    } else {
+      parsedTime = false;
+    }
+  }
+  if (_.isNaN(parsedTime)) {
+    throw new Error('time and deviceTime must be a ISO-formatted String timestamp');
+  }
+  return parsedTime;
+}
