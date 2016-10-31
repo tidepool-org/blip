@@ -18,31 +18,27 @@ import React, { Component } from 'react'
 
 import logoSrc from './images/T-logo-dark-512x512.png';
 
-export default class UploaderButton extends Component {
-  static propTypes = {
-    buttonUrl: React.PropTypes.string.isRequired,
-    onClick: React.PropTypes.func,
-    buttonText: React.PropTypes.string.isRequired
-  };
-
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <div>
-        <a
-          className="btn btn-uploader"
-          href={this.props.buttonUrl}
-          target="_blank"
-          onClick={this.props.onClick}>
-            <div className="uploader-logo">
-              <img src={logoSrc} alt="Tidepool Uploader" />
-            </div>
-            {this.props.buttonText}
-          </a>
-      </div>
-    );
-  }
+const UploaderButton = (props) => {
+  return (
+    <div>
+      <a
+        className="btn btn-uploader"
+        href={props.buttonUrl}
+        target="_blank"
+        onClick={props.onClick}>
+          <div className="uploader-logo">
+            <img src={logoSrc} alt="Tidepool Uploader" />
+          </div>
+          {props.buttonText}
+        </a>
+    </div>
+  );
 }
+
+UploaderButton.propTypes = {
+  buttonUrl: React.PropTypes.string.isRequired,
+  onClick: React.PropTypes.func,
+  buttonText: React.PropTypes.string.isRequired
+};
+
+export default UploaderButton;
