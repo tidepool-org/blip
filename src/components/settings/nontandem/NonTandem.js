@@ -45,16 +45,14 @@ const NonTandem = (props) => {
     const schedules = data.getScheduleNames(pumpSettings.basalSchedules);
 
     const tables = _.map(schedules, (schedule) => {
-      let scheduleName = pumpSettings.basalSchedules[schedule].name;
-      if (manufacturerKey === 'carelink') {
-        scheduleName = _.map(scheduleName.split(' '), (part) => (_.capitalize(part))).join(' ');
-      }
+      const scheduleName = pumpSettings.basalSchedules[schedule].name;
       const label = data.getScheduleLabel(
         scheduleName,
         pumpSettings.activeSchedule,
+        deviceKey
       );
 
-      if (pumpSettings.basalSchedules[schedule].name === pumpSettings.activeSchedule) {
+      if (scheduleName === pumpSettings.activeSchedule) {
         return (
           <div className={styles.categoryContainer} key={schedule}>
             <CollapsibleContainer

@@ -24,7 +24,9 @@ import { mount } from 'enzyme';
 import { getChart } from '../../../../src/utils/settings/factory';
 import { MGDL_UNITS } from '../../../../src/utils/constants';
 
+const animasFlatRateData = require('../../../../data/pumpSettings/animas/flatrate.json');
 const animasMultiRateData = require('../../../../data/pumpSettings/animas/multirate.json');
+const omnipodFlatRateData = require('../../../../data/pumpSettings/omnipod/flatrate.json');
 const omnipodMultiRateData = require('../../../../data/pumpSettings/omnipod/multirate.json');
 const medtronicMultiRateData = require('../../../../data/pumpSettings/medtronic/multirate.json');
 
@@ -39,8 +41,8 @@ describe('NonTandem', () => {
       console.error = sinon.stub();
       mount(
         <Animas
-          pumpSettings={animasMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
         />
       );
@@ -50,30 +52,30 @@ describe('NonTandem', () => {
     it('should have a header', () => {
       const wrapper = mount(
         <Animas
-          pumpSettings={animasMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
         />
       );
       expect(wrapper.find('Header')).to.have.length(1);
     });
 
-    it('should have Animas as the Header deviceType', () => {
+    it('should have Animas as the Header deviceDisplayName', () => {
       const wrapper = mount(
         <Animas
-          pumpSettings={animasMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
         />
       );
-      expect(wrapper.find('Header').props().deviceType).to.equal('Animas');
+      expect(wrapper.find('Header').props().deviceDisplayName).to.equal('Animas');
     });
 
     it('should have four Tables', () => {
       const wrapper = mount(
         <Animas
-          pumpSettings={animasMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
         />
       );
@@ -83,19 +85,33 @@ describe('NonTandem', () => {
     it('should have three CollapsibleContainers', () => {
       const wrapper = mount(
         <Animas
-          pumpSettings={animasMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
         />
       );
       expect(wrapper.find('CollapsibleContainer')).to.have.length(3);
     });
 
+    it('should preserve user capitalization of schedule name', () => {
+      const wrapper = mount(
+        <Animas
+          bgUnits={MGDL_UNITS}
+          pumpSettings={animasFlatRateData}
+          timePrefs={timePrefs}
+        />
+      );
+      expect(wrapper.find('.label').someWhere(n => (n.text().search('normal') !== -1)))
+        .to.be.true;
+      expect(wrapper.find('.label').someWhere(n => (n.text().search('Weekday') !== -1)))
+        .to.be.true;
+    });
+
     it('should have `Active at Upload` text somewhere', () => {
       const wrapper = mount(
         <Animas
-          pumpSettings={animasMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
         />
       );
@@ -110,8 +126,8 @@ describe('NonTandem', () => {
       console.error = sinon.stub();
       mount(
         <Insulet
-          pumpSettings={omnipodMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
         />
       );
@@ -121,30 +137,30 @@ describe('NonTandem', () => {
     it('should have a header', () => {
       const wrapper = mount(
         <Insulet
-          pumpSettings={omnipodMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
         />
       );
       expect(wrapper.find('Header')).to.have.length(1);
     });
 
-    it('should have OmniPod as the Header deviceType', () => {
+    it('should have OmniPod as the Header deviceDisplayName', () => {
       const wrapper = mount(
         <Insulet
-          pumpSettings={omnipodMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
         />
       );
-      expect(wrapper.find('Header').props().deviceType).to.equal('OmniPod');
+      expect(wrapper.find('Header').props().deviceDisplayName).to.equal('OmniPod');
     });
 
     it('should have four Tables', () => {
       const wrapper = mount(
         <Insulet
-          pumpSettings={omnipodMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
         />
       );
@@ -154,19 +170,31 @@ describe('NonTandem', () => {
     it('should have two CollapsibleContainers', () => {
       const wrapper = mount(
         <Insulet
-          pumpSettings={omnipodMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
         />
       );
       expect(wrapper.find('CollapsibleContainer')).to.have.length(2);
     });
 
+    it('should preserve user capitalization of schedule name', () => {
+      const wrapper = mount(
+        <Insulet
+          bgUnits={MGDL_UNITS}
+          pumpSettings={omnipodFlatRateData}
+          timePrefs={timePrefs}
+        />
+      );
+      expect(wrapper.find('.label').someWhere(n => (n.text().search('normal') !== -1)))
+        .to.be.true;
+    });
+
     it('should have `Active at Upload` text somewhere', () => {
       const wrapper = mount(
         <Insulet
-          pumpSettings={omnipodMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
         />
       );
@@ -181,8 +209,8 @@ describe('NonTandem', () => {
       console.error = sinon.stub();
       mount(
         <Medtronic
-          pumpSettings={medtronicMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
         />
       );
@@ -192,30 +220,46 @@ describe('NonTandem', () => {
     it('should have a header', () => {
       const wrapper = mount(
         <Medtronic
-          pumpSettings={medtronicMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
         />
       );
       expect(wrapper.find('Header')).to.have.length(1);
     });
 
-    it('should have Medtronic as the Header deviceType', () => {
+    it('should have Medtronic as the Header deviceDisplayName', () => {
       const wrapper = mount(
         <Medtronic
-          pumpSettings={medtronicMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
         />
       );
-      expect(wrapper.find('Header').props().deviceType).to.equal('Medtronic');
+      expect(wrapper.find('Header').props().deviceDisplayName).to.equal('Medtronic');
+    });
+
+    it('should capitalize all basal schedule names', () => {
+      const wrapper = mount(
+        <Medtronic
+          bgUnits={MGDL_UNITS}
+          pumpSettings={medtronicMultiRateData}
+          timePrefs={timePrefs}
+        />
+      );
+      expect(wrapper.find('.label').someWhere(n => (n.text().search('Standard') !== -1)))
+        .to.be.true;
+      expect(wrapper.find('.label').someWhere(n => (n.text().search('Pattern A') !== -1)))
+        .to.be.true;
+      expect(wrapper.find('.label').someWhere(n => (n.text().search('Pattern B') !== -1)))
+        .to.be.true;
     });
 
     it('should have `Active at Upload` text somewhere', () => {
       const wrapper = mount(
         <Medtronic
-          pumpSettings={medtronicMultiRateData}
           bgUnits={MGDL_UNITS}
+          pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
         />
       );
