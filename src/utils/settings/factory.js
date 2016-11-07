@@ -64,7 +64,7 @@ export function injectManufacturerSpecificInfo(manufacturer, Component) {
     carelink: 'Bolus Wizard',
     insulet: 'Bolus Calculator',
   };
-  const deviceTypesByManufacturer = {
+  const deviceDisplayNamesByManufacturer = {
     animas: 'Animas',
     carelink: 'Medtronic',
     insulet: 'OmniPod',
@@ -75,9 +75,9 @@ export function injectManufacturerSpecificInfo(manufacturer, Component) {
       bgTargetLabel={bgTargetByManufacturer[manufacturer]}
       bolusSettingsLabel={bolusSettingsLabelsByManufacturer[manufacturer]}
       carbRatioLabel={carbRatioByManufacturer[manufacturer]}
-      deviceType={deviceTypesByManufacturer[manufacturer]}
+      deviceDisplayName={deviceDisplayNamesByManufacturer[manufacturer]}
+      deviceKey={manufacturer}
       insulinSensitivityLabel={insulinSensitivityByManufacturer[manufacturer]}
-      manufacturerKey={manufacturer}
       {...props}
     />
   );

@@ -34,9 +34,9 @@ const NonTandem = (props) => {
     bgUnits,
     bolusSettingsLabel,
     carbRatioLabel,
-    deviceType,
+    deviceDisplayName,
+    deviceKey,
     insulinSensitivityLabel,
-    manufacturerKey,
     pumpSettings,
     timePrefs,
   } = props;
@@ -173,7 +173,7 @@ const NonTandem = (props) => {
   return (
     <div>
       <Header
-        deviceType={deviceType}
+        deviceDisplayName={deviceDisplayName}
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
       />
       <div className={styles.settingsContainer}>
@@ -203,9 +203,9 @@ NonTandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
   bolusSettingsLabel: PropTypes.string.isRequired,
   carbRatioLabel: PropTypes.string.isRequired,
-  deviceType: PropTypes.string.isRequired,
+  deviceKey: PropTypes.oneOf(['animas', 'carelink', 'insulet', 'medtronic']).isRequired,
+  deviceDisplayName: PropTypes.oneOf(['Animas', 'Medtronic', 'OmniPod']).isRequired,
   insulinSensitivityLabel: PropTypes.string.isRequired,
-  manufacturerKey: PropTypes.oneOf(['animas', 'carelink', 'insulet']),
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool.isRequired,
     timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
