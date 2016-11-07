@@ -3,26 +3,43 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
-var expect = chai.expect;
+import React from 'react';
+import { mount, shallow } from 'enzyme';
 
 import UploaderButton from '../../../app/components/uploaderbutton';
 
 describe('UploaderButton', function () {
+  const props = {
+    buttonUrl: 'http://tidepool.org/products/tidepool-uploader/',
+    buttonText: 'Get the Tidepool Uploader',
+    onClick: sinon.spy()
+  };
+
+  let wrapper;
+  beforeEach(() => {
+    wrapper = shallow(
+      <UploaderButton
+        {...props}
+      />
+    );
+  });
+
   it('should be a function', function() {
     expect(UploaderButton).to.be.a('function');
   });
 
   describe('render', function() {
     it('should render without problems', function () {
-      var props = {
-        buttonUrl: 'http://tidepool.org/products/tidepool-uploader/',
-        buttonText: 'Get the Tidepool Uploader'
-      };
-      var uploaderButtonElem = React.createElement(UploaderButton, props);
-      var elem = TestUtils.renderIntoDocument(uploaderButtonElem);
-      expect(elem).to.be.ok;
+      expect(wrapper.find(UploaderButton)).to.have.length(0);
     });
+
+    it('should have provided button text', function () {
+      expect(wrapper.find('.btn-uploader').someWhere(n => (n.text().search(props.buttonText) !== -1))).to.be.true;
+    });
+
+    it('should respond to an onClick event', () => {
+      wrapper.find('a').simulate('click');
+      expect(props.onClick).to.have.property('callCount', 1);
+  });
   });
 });
