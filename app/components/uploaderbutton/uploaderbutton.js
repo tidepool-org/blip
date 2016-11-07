@@ -37,7 +37,7 @@ const UploaderButton = (props) => {
 
 UploaderButton.propTypes = {
   buttonUrl: React.PropTypes.string.isRequired,
-  onClick: React.PropTypes.func,
+  onClick: React.PropTypes.func.isRequired,
   buttonText: React.PropTypes.string.isRequired
 };
 
