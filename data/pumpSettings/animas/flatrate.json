@@ -1,9 +1,9 @@
 {
   "type": "pumpSettings",
-  "activeSchedule": "Normal",
+  "activeSchedule": "normal",
   "basalSchedules": [
     {
-      "name": "Normal",
+      "name": "normal",
       "value": [
         {
           "start": 0,
@@ -12,7 +12,7 @@
       ]
     },
     {
-      "name": "Stress",
+      "name": "stress",
       "value" : [
         {
           "start": 0,
