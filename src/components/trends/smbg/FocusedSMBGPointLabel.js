@@ -29,7 +29,7 @@ import styles from './FocusedSMBGPointLabel.css';
 const SIMPLE_VALUE_TOP_OFFSET = 10;
 const SIMPLE_DAY_TOP_OFFSET = 10;
 const SIMPLE_DAY_LEFT_OFFSET = 30;
-const DETAILED_DAY_LEFT_OFFSET = 5;
+const DETAILED_DAY_LEFT_OFFSET = 10;
 
 const FocusedSMBGPointLabel = (props) => {
   const { focusedPoint } = props;
