@@ -18,6 +18,7 @@
 import React, { PropTypes } from 'react';
 import { Motion, spring } from 'react-motion';
 import _ from 'lodash';
+import cx from 'classnames';
 
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
@@ -44,12 +45,12 @@ const SMBGDayPointsAnimated = (props) => {
   return (
     <g id={`smbgDayPoints-${date}`}>
       {_.map(data, (smbg) => {
-        const cx = xPosition(smbg.msPer24);
-        const cy = yScale(smbg.value);
+        const xPos = xPosition(smbg.msPer24);
+        const yPos = yScale(smbg.value);
         const position = {
           tooltipLeft: smbg.msPer24 > props.tooltipLeftThreshold,
-          left: cx,
-          top: cy,
+          left: xPos,
+          top: yPos,
         };
         const focus = () => {
           focusSmbg(smbg, position, data, positions, date);
@@ -57,12 +58,16 @@ const SMBGDayPointsAnimated = (props) => {
         const unfocus = () => {
           unfocusSmbg();
         };
+        const classes = cx({
+          [styles.smbg]: true,
+          [styles.solid]: date === focusedDay,
+        });
 
         return (
           <Motion style={{ xPos: spring(xPosition(smbg.msPer24)) }} key={`smbg-${smbg.id}`}>
             {(interpolated) => (
               <circle
-                className={styles.smbg}
+                className={classes}
                 id={`smbg-${smbg.id}`}
                 onMouseOver={focus}
                 onMouseOut={unfocus}
