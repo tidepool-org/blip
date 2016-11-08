@@ -103,19 +103,30 @@ var BasalBolusRatio = React.createClass({
     });
     return (
       <div className='BasalBolusRatio'>
-        <div className='BasalBolusRatio-inner BasalBolusRatio-text BasalBolusRatio-left'>
-          <p>basal</p>
-          <p>{basal ? percent(basal) : '-- %'}</p>
-          <p>{basal ? decimal(basalAverageDaily) : '--'}</p>
+        <div className='BasalBolusRatio-basal'>
+            <p className='BasalBolusRatio-label BasalBolusRatio-label--basal'>
+              Basal
+            </p>
+            <p className='BasalBolusRatio-percent BasalBolusRatio-percent--basal'>
+              {percent(data.basalBolusRatio.basal)}
+            </p>
+            <p className='BasalBolusRatio-units BasalBolusRatio-units--bolus'>
+              {decimal(basalAverageDaily)} U
+            </p>
         </div>
-        <div ref="pie" className='BasalBolusRatio-inner BasalBolusRatio-pie'>
+        <div ref="pie" className='BasalBolusRatio-pie'>
         </div>
-        <div className='BasalBolusRatio-inner BasalBolusRatio-text BasalBolusRatio-right'>
-          <p>bolus</p>
-          <p>{' : ' + (basal ? percent(bolus) : '-- %')}</p>
-          <p>{' : ' + (basal ? decimal(bolusAverageDaily) : '--')}</p>
+        <div className='BasalBolusRatio-bolus'>
+          <p className='BasalBolusRatio-label BasalBolusRatio-label--bolus'>
+            Bolus
+          </p>
+          <p className='BasalBolusRatio-percent BasalBolusRatio-percent--bolus'>
+            {percent(data.basalBolusRatio.bolus)}
+          </p>
+          <p className='BasalBolusRatio-units BasalBolusRatio-units--bolus'>
+            {decimal(bolusAverageDaily)} U
+          </p>
         </div>
-        {(basal && bolus) ? null : (<UnknownStatistic />)}
       </div>
     );
   }

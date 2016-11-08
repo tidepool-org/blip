@@ -1,25 +1,21 @@
 .BasalBolusRatio {
   margin: 0;
+  padding: 8px 0px;
 
   font-size: @huge-numbers;
   font-weight: bold;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
 
-  .BasalBolusRatio-pie {
+  .BasalBolusRatio-basal, .BasalBolusRatio-bolus {
+    width: 85px;
     height: 90px;
     p {
-      margin-bottom: 8px;
-    }
-  }
-
-  .BasalBolusRatio-inner {
-    width: 100%;
-    p {
-      margin-bottom: 8px;
       text-align: center;
+      margin: 7px 0;
     }
-    .BasalBolusRatio--nodata {
-      color: @text-light;
-    }
+
     .BasalBolusRatio-percent {
       &.BasalBolusRatio-percent--basal {
         color: @basal;
@@ -37,17 +33,35 @@
         color: @bolus;
       }
     }
+    .BasalBolusRatio-units {
+      font-size: @small-text;
+      font-weight: 100;
+      &.BasalBolusRatio-units--basal {
+        color: @basal;
+      }
+      &.BasalBolusRatio-units--bolus {
+        color: @bolus;
+      }
+    }
+    margin-bottom: 10px;
+  }
+
+  .BasalBolusRatio-pie {
+    height: 90px;
+    width: 100px;
+    margin: 0 auto;
+
     .d3-arc-basal {
       fill: @basal;
     }
     .d3-arc-bolus {
       fill: @bolus;
     }
-    .d3-circle-nodata {
-      fill: transparent;
-      stroke: @text-light;
-      stroke-width: 3px;
-      stroke-dasharray: 8,5;
+  }
+
+  &:last-child {
+    p {
+      margin-bottom: 0px;
     }
   }
 }
