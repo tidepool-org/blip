@@ -28,7 +28,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import * as data from '../../../utils/settings/data';
 
 const Tandem = (props) => {
-  const { bgUnits, pumpSettings, timePrefs } = props;
+  const { bgUnits, deviceDisplayName, deviceKey, pumpSettings, timePrefs } = props;
   const schedules = data.getTimedSchedules(pumpSettings.basalSchedules);
 
   const COLUMNS = [
@@ -63,7 +63,7 @@ const Tandem = (props) => {
   const tables = _.map(schedules, (schedule) => (
     <div key={schedule.name}>
       <CollapsibleContainer
-        label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, true)}
+        label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, deviceKey, true)}
         labelClass={styles.collapsibleLabel}
         openByDefault={schedule.name === pumpSettings.activeSchedule}
         twoLineLabel={false}
@@ -79,7 +79,7 @@ const Tandem = (props) => {
   return (
     <div>
       <Header
-        deviceType="Tandem"
+        deviceDisplayName={deviceDisplayName}
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
       />
       <div>
@@ -92,10 +92,8 @@ const Tandem = (props) => {
 
 Tandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
-  timePrefs: PropTypes.shape({
-    timezoneAware: React.PropTypes.bool.isRequired,
-    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
-  }).isRequired,
+  deviceDisplayName: PropTypes.oneOf(['Tandem']).isRequired,
+  deviceKey: PropTypes.oneOf(['tandem']).isRequired,
   pumpSettings: React.PropTypes.shape({
     activeSchedule: React.PropTypes.string.isRequired,
     units: React.PropTypes.object.isRequired,
@@ -135,6 +133,10 @@ Tandem.propTypes = {
         })
       ).isRequired,
     ).isRequired,
+  }).isRequired,
+  timePrefs: PropTypes.shape({
+    timezoneAware: React.PropTypes.bool.isRequired,
+    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
   }).isRequired,
 };
 

@@ -34,9 +34,9 @@ const NonTandem = (props) => {
     bgUnits,
     bolusSettingsLabel,
     carbRatioLabel,
-    deviceType,
+    deviceDisplayName,
+    deviceKey,
     insulinSensitivityLabel,
-    manufacturerKey,
     pumpSettings,
     timePrefs,
   } = props;
@@ -45,16 +45,14 @@ const NonTandem = (props) => {
     const schedules = data.getScheduleNames(pumpSettings.basalSchedules);
 
     const tables = _.map(schedules, (schedule) => {
-      let scheduleName = pumpSettings.basalSchedules[schedule].name;
-      if (manufacturerKey === 'carelink') {
-        scheduleName = _.map(scheduleName.split(' '), (part) => (_.capitalize(part))).join(' ');
-      }
+      const scheduleName = pumpSettings.basalSchedules[schedule].name;
       const label = data.getScheduleLabel(
         scheduleName,
         pumpSettings.activeSchedule,
+        deviceKey
       );
 
-      if (pumpSettings.basalSchedules[schedule].name === pumpSettings.activeSchedule) {
+      if (scheduleName === pumpSettings.activeSchedule) {
         return (
           <div className={styles.categoryContainer} key={schedule}>
             <CollapsibleContainer
@@ -173,7 +171,7 @@ const NonTandem = (props) => {
   return (
     <div>
       <Header
-        deviceType={deviceType}
+        deviceDisplayName={deviceDisplayName}
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
       />
       <div className={styles.settingsContainer}>
@@ -203,9 +201,9 @@ NonTandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
   bolusSettingsLabel: PropTypes.string.isRequired,
   carbRatioLabel: PropTypes.string.isRequired,
-  deviceType: PropTypes.string.isRequired,
+  deviceKey: PropTypes.oneOf(['animas', 'carelink', 'insulet', 'medtronic']).isRequired,
+  deviceDisplayName: PropTypes.oneOf(['Animas', 'Medtronic', 'OmniPod']).isRequired,
   insulinSensitivityLabel: PropTypes.string.isRequired,
-  manufacturerKey: PropTypes.oneOf(['animas', 'carelink', 'insulet']),
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool.isRequired,
     timezoneName: PropTypes.oneOfType([PropTypes.string, null]),

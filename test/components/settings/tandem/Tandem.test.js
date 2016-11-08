@@ -23,78 +23,76 @@ import { mount, shallow } from 'enzyme';
 import Tandem from '../../../../src/components/settings/tandem/Tandem';
 import { MGDL_UNITS } from '../../../../src/utils/constants';
 
+const flatrateData = require('../../../../data/pumpSettings/tandem/flatrate.json');
 const multirateData = require('../../../../data/pumpSettings/tandem/multirate.json');
 
 const timePrefs = { timezoneAware: false, timezoneName: null };
 
 describe('Tandem', () => {
-  it('should render without problems when bgUnits and pumpSettings provided', () => {
-    console.error = sinon.stub();
-    shallow(
+  let wrapper;
+  beforeEach(() => {
+    wrapper = shallow(
       <Tandem
-        pumpSettings={multirateData}
         bgUnits={MGDL_UNITS}
+        deviceDisplayName={'Tandem'}
+        deviceKey={'tandem'}
+        pumpSettings={multirateData}
         timePrefs={timePrefs}
       />
     );
+  });
+
+  it('should render without problems when bgUnits and pumpSettings provided', () => {
+    console.error = sinon.stub();
     expect(console.error.callCount).to.equal(0);
   });
 
   it('should have a header', () => {
-    const wrapper = shallow(
-      <Tandem
-        pumpSettings={multirateData}
-        bgUnits={MGDL_UNITS}
-        timePrefs={timePrefs}
-      />
-    );
     expect(wrapper.find('Header')).to.have.length(1);
   });
 
-  it('should have Tandem as the Header deviceType', () => {
-    const wrapper = shallow(
-      <Tandem
-        pumpSettings={multirateData}
-        bgUnits={MGDL_UNITS}
-        timePrefs={timePrefs}
-      />
-    );
-    expect(wrapper.find('Header').props().deviceType).to.equal('Tandem');
+  it('should have Tandem as the Header deviceDisplayName', () => {
+    expect(wrapper.find('Header').props().deviceDisplayName).to.equal('Tandem');
   });
 
   it('should have three Tables', () => {
-    const wrapper = shallow(
-      <Tandem
-        pumpSettings={multirateData}
-        bgUnits={MGDL_UNITS}
-        timePrefs={timePrefs}
-      />
-    );
     expect(wrapper.find('Table')).to.have.length(3);
   });
 
   it('should have three CollapsibleContainers', () => {
-    const wrapper = shallow(
+    expect(wrapper.find('CollapsibleContainer')).to.have.length(3);
+  });
+
+  it('should preserve user capitalization of profile names', () => {
+    // must use mount to search far enough down in tree!
+    const mounted = mount(
       <Tandem
-        pumpSettings={multirateData}
         bgUnits={MGDL_UNITS}
+        deviceDisplayName={'Tandem'}
+        deviceKey={'tandem'}
+        pumpSettings={flatrateData}
         timePrefs={timePrefs}
       />
     );
-    expect(wrapper.find('CollapsibleContainer')).to.have.length(3);
+    expect(mounted.find('.label').someWhere(n => (n.text().search('Normal') !== -1)))
+      .to.be.true;
+    expect(mounted.find('.label').someWhere(n => (n.text().search('sick') !== -1)))
+      .to.be.true;
   });
 
   it('should have `Active at Upload` text somewhere', () => {
     const activeAtUploadText = 'Active at upload';
     // must use mount to search far enough down in tree!
-    const wrapper = mount(
+    const mounted = mount(
       <Tandem
-        pumpSettings={multirateData}
         bgUnits={MGDL_UNITS}
+        deviceDisplayName={'Tandem'}
+        deviceKey={'tandem'}
+        pumpSettings={multirateData}
         timePrefs={timePrefs}
       />
     );
-    expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
+    expect(mounted.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
       .to.be.true;
   });
 });

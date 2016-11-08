@@ -24,7 +24,7 @@ describe('Header', () => {
   it('should expand to show serial number on click of device name', () => {
     const wrapper = shallow(
       <Header
-        deviceType="Testing"
+        deviceDisplayName="Testing"
         deviceMeta={{ name: 'SN123', uploaded: 'Jul 12th 2016' }}
       />
     );
