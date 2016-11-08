@@ -26,7 +26,7 @@ import { formatDisplayDate, millisecondsAsTimeOfDay, getParsedTime } from '../..
 import styles from './FocusedSMBGPointLabel.css';
 
 // tooltip offsets
-const SIMPLE_VALUE_TOP_OFFSET = 15;
+const SIMPLE_VALUE_TOP_OFFSET = 10;
 const SIMPLE_DAY_TOP_OFFSET = 10;
 const SIMPLE_DAY_LEFT_OFFSET = 30;
 const DETAILED_DAY_LEFT_OFFSET = 5;
