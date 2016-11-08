@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -76,8 +76,11 @@ var BasalBolusRatio = React.createClass({
   render: function() {
     var data = this.props.data;
     var percent = d3.format('%');
+    var decimal = d3.format('.1f');
     var basal = _.get(data, ['basalBolusRatio', 'basal'], null);
+    var basalAverageDaily = _.get(data, ['basalBolusRatio', 'basalAverageDaily'], null);
     var bolus = _.get(data, ['basalBolusRatio', 'bolus'], null);
+    var bolusAverageDaily = _.get(data, ['basalBolusRatio', 'bolusAverageDaily'], null);
     var basalPercentClasses = cx({
       'BasalBolusRatio-percent': true,
       'BasalBolusRatio-percent--basal': !!basal,
@@ -100,23 +103,17 @@ var BasalBolusRatio = React.createClass({
     });
     return (
       <div className='BasalBolusRatio'>
+        <div className='BasalBolusRatio-inner BasalBolusRatio-text BasalBolusRatio-left'>
+          <p>basal</p>
+          <p>{basal ? percent(basal) : '-- %'}</p>
+          <p>{basal ? decimal(basalAverageDaily) : '--'}</p>
+        </div>
         <div ref="pie" className='BasalBolusRatio-inner BasalBolusRatio-pie'>
         </div>
-        <div className='BasalBolusRatio-inner'>
-          <p>
-            <span className={basalPercentClasses}>
-              {basal ? percent(basal) : '-- %'}
-            </span>
-            <span className={basalLabelClasses}>
-            &nbsp;basal
-            </span>
-            <span className={bolusPercentClasses}>
-              {' : ' + (basal ? percent(bolus) : '-- %')}
-            </span>
-            <span className={bolusLabelClasses}>
-            &nbsp;bolus
-            </span>
-          </p>
+        <div className='BasalBolusRatio-inner BasalBolusRatio-text BasalBolusRatio-right'>
+          <p>bolus</p>
+          <p>{' : ' + (basal ? percent(bolus) : '-- %')}</p>
+          <p>{' : ' + (basal ? decimal(bolusAverageDaily) : '--')}</p>
         </div>
         {(basal && bolus) ? null : (<UnknownStatistic />)}
       </div>
