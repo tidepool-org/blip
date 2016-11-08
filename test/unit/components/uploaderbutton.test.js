@@ -2,11 +2,14 @@
 /* global describe */
 /* global sinon */
 /* global it */
+/* global beforeEach */
 
 import React from 'react';
 import { mount, shallow } from 'enzyme';
 
 import UploaderButton from '../../../app/components/uploaderbutton';
+
+const expect = chai.expect;
 
 describe('UploaderButton', function () {
   const props = {
