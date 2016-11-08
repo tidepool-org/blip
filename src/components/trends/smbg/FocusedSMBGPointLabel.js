@@ -48,6 +48,11 @@ const FocusedSMBGPointLabel = (props) => {
   const lineDate = formatDisplayDate(parsedTime, timePrefs, 'dddd MMM D');
   const shortDate = formatDisplayDate(parsedTime, timePrefs, 'MMM D');
   const side = position.tooltipLeft ? 'left' : 'right';
+  if (!lines) {
+    const focusedPointIndex = _.indexOf(dayPoints, data);
+    _.pullAt(dayPoints, focusedPointIndex);
+    _.pullAt(positions, focusedPointIndex);
+  }
   const pointTooltips = _.map(dayPoints, (smbg, i) => (
     <Tooltip
       key={i}
