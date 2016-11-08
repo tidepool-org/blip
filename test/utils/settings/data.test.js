@@ -220,8 +220,24 @@ describe('[settings] data utils', () => {
       });
     });
 
+    it('should capitalize schedule name if deviceType is `carelink`', () => {
+      expect(data.getScheduleLabel('pattern a', 'pattern a', 'carelink')).to.deep.equal({
+        main: 'Pattern A',
+        secondary: 'Active at upload',
+        units: 'U/hr',
+      });
+    });
+
+    it('should capitalize schedule name if deviceType is `medtronic`', () => {
+      expect(data.getScheduleLabel('pattern a', 'pattern a', 'medtronic')).to.deep.equal({
+        main: 'Pattern A',
+        secondary: 'Active at upload',
+        units: 'U/hr',
+      });
+    });
+
     it('should return an empty string for `units` if given `noUnits` option', () => {
-      expect(data.getScheduleLabel('one', 'one', true)).to.deep.equal({
+      expect(data.getScheduleLabel('one', 'one', 'tandem', true)).to.deep.equal({
         main: 'one',
         secondary: 'Active at upload',
         units: '',
@@ -236,7 +252,7 @@ describe('[settings] data utils', () => {
       )
       .to.have.length(2)
       .to.contain({ name: 'Normal', position: 0 })
-      .and.contain({ name: 'Sick', position: 1 });
+      .and.contain({ name: 'sick', position: 1 });
     });
   });
 
@@ -269,7 +285,7 @@ describe('[settings] data utils', () => {
       ).to.have.property('serial').equal('0987654321');
       expect(
         data.getDeviceMeta(settingsData, timePrefs)
-      ).to.have.property('schedule').equal('Normal');
+      ).to.have.property('schedule').equal('sick');
       expect(
         data.getDeviceMeta(settingsData, timePrefs)
       ).to.have.property('uploaded').equal('Jul 12, 2016');
@@ -285,7 +301,7 @@ describe('[settings] data utils', () => {
       ).to.have.property('serial').equal('0987654321');
       expect(
         data.getDeviceMeta(settingsData, timezoneAwarePrefs)
-      ).to.have.property('schedule').equal('Normal');
+      ).to.have.property('schedule').equal('sick');
       expect(
         data.getDeviceMeta(settingsData, timezoneAwarePrefs)
       ).to.have.property('uploaded').equal('Jul 13, 2016');

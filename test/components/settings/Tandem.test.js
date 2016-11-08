@@ -24,7 +24,8 @@ import CollapsibleContainer from '../../../src/components/settings/common/Collap
 import Tandem from '../../../src/components/settings/Tandem';
 import { MGDL_UNITS } from '../../../src/utils/constants';
 
-const multirateData = require('../../../data/pumpSettings/tandem/multirate.json');
+const flatrateData = require('../../../../data/pumpSettings/tandem/flatrate.json');
+const multirateData = require('../../../../data/pumpSettings/tandem/multirate.json');
 
 const timePrefs = { timezoneAware: false, timezoneName: null };
 

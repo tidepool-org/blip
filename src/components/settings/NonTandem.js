@@ -27,6 +27,12 @@ import * as data from '../../utils/settings/data';
 
 import styles from './NonTandem.css';
 
+const BG_TARGET_ACCESSORS_BY_MANUFACTURER = {
+  animas: { columnTwo: 'target', columnThree: 'range' },
+  insulet: { columnTwo: 'target', columnThree: 'high' },
+  medtronic: { columnTwo: 'low', columnThree: 'high' },
+};
+
 const BG_TARGET_COLS_BY_MANUFACTURER = {
   animas: [
     { key: 'start', label: 'Start time' },
@@ -44,26 +50,31 @@ const BG_TARGET_COLS_BY_MANUFACTURER = {
     { key: 'columnThree', label: 'High' },
   ],
 };
+
 const BG_TARGET_BY_MANUFACTURER = {
   animas: 'BG Target',
   insulet: 'Target BG',
   medtronic: 'BG Target',
 };
+
 const ISF_BY_MANUFACTURER = {
   animas: 'ISF',
   insulet: 'Correction factor',
   medtronic: 'Sensitivity',
 };
+
 const CARB_RATIO_BY_MANUFACTURER = {
   animas: 'I:C Ratio',
   insulet: 'IC ratio',
   medtronic: 'Carb Ratios',
 };
+
 const BOLUS_SETTINGS_LABEL_BY_MANUFACTURER = {
   animas: 'ezCarb ezBG',
   insulet: 'Bolus Calculator',
   medtronic: 'Bolus Wizard',
 };
+
 const DEVICE_DISPLAY_NAME_BY_MANUFACTURER = {
   animas: 'Animas',
   insulet: 'OmniPod',
@@ -73,16 +84,16 @@ const DEVICE_DISPLAY_NAME_BY_MANUFACTURER = {
 const NonTandem = (props) => {
   const {
     bgUnits,
-    manufacturerKey,
+    deviceKey,
     openedSections,
     pumpSettings,
     timePrefs,
     toggleBasalScheduleExpansion,
   } = props;
 
-  let lookupKey = manufacturerKey;
+  let lookupKey = deviceKey;
 
-  if (manufacturerKey === 'carelink') {
+  if (deviceKey === 'carelink') {
     lookupKey = 'medtronic';
   }
 
@@ -90,13 +101,11 @@ const NonTandem = (props) => {
     const schedules = data.getScheduleNames(pumpSettings.basalSchedules);
 
     const tables = _.map(schedules, (schedule) => {
-      let scheduleName = pumpSettings.basalSchedules[schedule].name;
-      if (lookupKey === 'medtronic') {
-        scheduleName = _.map(scheduleName.split(' '), (part) => (_.capitalize(part))).join(' ');
-      }
+      const scheduleName = pumpSettings.basalSchedules[schedule].name;
       const label = data.getScheduleLabel(
         scheduleName,
         pumpSettings.activeSchedule,
+        deviceKey
       );
       const scheduledIsExpanded = _.get(openedSections, scheduleName, false);
       const toggleFn = _.partial(toggleBasalScheduleExpansion, scheduleName);
@@ -209,7 +218,7 @@ const NonTandem = (props) => {
             data.processBgTargetData(
               pumpSettings.bgTarget,
               bgUnits,
-              { columnTwo: 'target', columnThree: 'high' },
+              BG_TARGET_ACCESSORS_BY_MANUFACTURER[lookupKey],
             )
           }
           columns={BG_TARGET_COLS_BY_MANUFACTURER[lookupKey]}
@@ -247,7 +256,7 @@ const NonTandem = (props) => {
 
 NonTandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
-  manufacturerKey: PropTypes.oneOf(['animas', 'carelink', 'insulet', 'medtronic']),
+  deviceKey: PropTypes.oneOf(['animas', 'carelink', 'insulet', 'medtronic']).isRequired,
   openedSections: PropTypes.object.isRequired,
   pumpSettings: PropTypes.shape({
     activeSchedule: PropTypes.string.isRequired,

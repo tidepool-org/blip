@@ -67,6 +67,7 @@ export class PumpSettingsContainer extends React.Component {
       return (
         <Tandem
           bgUnits={bgUnits}
+          deviceKey={manufacturerKey}
           openedSections={settingsState[manufacturerKey]}
           pumpSettings={pumpSettings}
           timePrefs={timePrefs}
@@ -77,7 +78,7 @@ export class PumpSettingsContainer extends React.Component {
       return (
         <NonTandem
           bgUnits={bgUnits}
-          manufacturerKey={manufacturerKey}
+          deviceKey={manufacturerKey}
           openedSections={settingsState[manufacturerKey]}
           pumpSettings={pumpSettings}
           timePrefs={timePrefs}

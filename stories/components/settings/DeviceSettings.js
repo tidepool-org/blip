@@ -15,7 +15,7 @@ storiesOf('Device Settings [Animas]', module)
   .add('flat rate', () => (
     <NonTandem
       bgUnits={MMOLL_UNITS}
-      manufacturerKey={'animas'}
+      deviceKey={'animas'}
       openedSections={{ [animasFlatRateData.activeSchedule]: true }}
       pumpSettings={animasFlatRateData}
       timePrefs={timePrefs}
@@ -25,7 +25,7 @@ storiesOf('Device Settings [Animas]', module)
   .add('multi rate', () => (
     <NonTandem
       bgUnits={MMOLL_UNITS}
-      manufacturerKey={'animas'}
+      deviceKey={'animas'}
       openedSections={{ [animasMultiRateData.activeSchedule]: true }}
       pumpSettings={animasMultiRateData}
       timePrefs={timePrefs}
@@ -40,7 +40,7 @@ storiesOf('Device Settings [Medtronic]', module)
   .add('flat rate', () => (
     <NonTandem
       bgUnits={MMOLL_UNITS}
-      manufacturerKey={'medtronic'}
+      deviceKey={'medtronic'}
       openedSections={{ [medtronicFlatRateData.activeSchedule]: true }}
       pumpSettings={medtronicFlatRateData}
       timePrefs={timePrefs}
@@ -50,7 +50,7 @@ storiesOf('Device Settings [Medtronic]', module)
   .add('multi rate', () => (
     <NonTandem
       bgUnits={MMOLL_UNITS}
-      manufacturerKey={'medtronic'}
+      deviceKey={'medtronic'}
       openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
       pumpSettings={medtronicMultiRateData}
       timePrefs={timePrefs}
@@ -65,7 +65,7 @@ storiesOf('Device Settings [OmniPod]', module)
   .add('flat rate', () => (
     <NonTandem
       bgUnits={MMOLL_UNITS}
-      manufacturerKey={'insulet'}
+      deviceKey={'insulet'}
       openedSections={{ [omnipodFlatRateData.activeSchedule]: true }}
       pumpSettings={omnipodFlatRateData}
       timePrefs={timePrefs}
@@ -75,7 +75,7 @@ storiesOf('Device Settings [OmniPod]', module)
   .add('multi rate', () => (
     <NonTandem
       bgUnits={MMOLL_UNITS}
-      manufacturerKey={'insulet'}
+      deviceKey={'insulet'}
       openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
       pumpSettings={omnipodMultiRateData}
       timePrefs={timePrefs}

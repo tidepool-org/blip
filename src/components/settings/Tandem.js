@@ -30,6 +30,7 @@ import * as data from '../../utils/settings/data';
 const Tandem = (props) => {
   const {
     bgUnits,
+    deviceKey,
     openedSections,
     pumpSettings,
     timePrefs,
@@ -70,7 +71,7 @@ const Tandem = (props) => {
   const tables = _.map(schedules, (schedule) => (
     <div key={schedule.name}>
       <CollapsibleContainer
-        label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, true)}
+        label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, deviceKey, true)}
         labelClass={styles.collapsibleLabel}
         opened={_.get(openedSections, schedule.name, false)}
         toggleExpansion={_.partial(toggleProfileExpansion, schedule.name)}
@@ -100,6 +101,7 @@ const Tandem = (props) => {
 
 Tandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
+  deviceKey: PropTypes.oneOf(['tandem']).isRequired,
   openedSections: PropTypes.object.isRequired,
   pumpSettings: React.PropTypes.shape({
     activeSchedule: React.PropTypes.string.isRequired,
