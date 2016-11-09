@@ -117,18 +117,18 @@ export class TrendsContainer extends React.Component {
         'thirdQuartile',
       ])),
       focusedSmbg: PropTypes.shape({
-        smbgData: PropTypes.shape({
+        data: PropTypes.shape({
           value: PropTypes.number.isRequired,
         }),
-        smbgPosition: PropTypes.shape({
+        position: PropTypes.shape({
           top: PropTypes.number.isRequired,
           left: PropTypes.number.isRequired,
         }),
         date: PropTypes.string.isRequired,
-        smbgDay: PropTypes.arrayOf(PropTypes.shape({
+        dayPoints: PropTypes.arrayOf(PropTypes.shape({
           value: PropTypes.number.isRequired,
         })),
-        smbgPositions: PropTypes.arrayOf(PropTypes.shape({
+        positions: PropTypes.arrayOf(PropTypes.shape({
           top: PropTypes.number.isRequired,
           left: PropTypes.number.isRequired,
         })),

@@ -281,10 +281,10 @@ TrendsSVGContainer.propTypes = {
     }).isRequired,
   }),
   focusedSmbg: PropTypes.shape({
-    smbgData: PropTypes.shape({
+    data: PropTypes.shape({
       value: PropTypes.number.isRequired,
     }),
-    smbgPosition: PropTypes.shape({
+    position: PropTypes.shape({
       top: PropTypes.number.isRequired,
       left: PropTypes.number.isRequired,
     }),
@@ -292,7 +292,7 @@ TrendsSVGContainer.propTypes = {
     dayPoints: PropTypes.arrayOf(PropTypes.shape({
       value: PropTypes.number.isRequired,
     })),
-    smbgPositions: PropTypes.arrayOf(PropTypes.shape({
+    positions: PropTypes.arrayOf(PropTypes.shape({
       top: PropTypes.number.isRequired,
       left: PropTypes.number.isRequired,
     })),
