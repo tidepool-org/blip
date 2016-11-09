@@ -111,7 +111,7 @@ var BasalBolusRatio = React.createClass({
               {percent(data.basalBolusRatio.basal)}
             </p>
             <p className='BasalBolusRatio-units BasalBolusRatio-units--bolus'>
-              {decimal(basalAverageDaily)} U
+              {decimal(basalAverageDaily)} u
             </p>
         </div>
         <div ref="pie" className='BasalBolusRatio-pie'>
@@ -124,7 +124,7 @@ var BasalBolusRatio = React.createClass({
             {percent(data.basalBolusRatio.bolus)}
           </p>
           <p className='BasalBolusRatio-units BasalBolusRatio-units--bolus'>
-            {decimal(bolusAverageDaily)} U
+            {decimal(bolusAverageDaily)} u
           </p>
         </div>
       </div>
