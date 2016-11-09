@@ -41,8 +41,9 @@ describe('UploaderButton', function () {
     });
 
     it('should respond to an onClick event', () => {
+      var callCount = props.onClick.callCount;
       wrapper.find('a').simulate('click');
-      expect(props.onClick).to.have.property('callCount', 1);
+      expect(props.onClick.callCount).to.equal(callCount + 1);
   });
   });
 });
