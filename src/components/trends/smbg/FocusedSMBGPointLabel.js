@@ -22,6 +22,7 @@ import Tooltip from '../../common/tooltips/Tooltip';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { displayBgValue } from '../../../utils/format';
 import { formatDisplayDate, millisecondsAsTimeOfDay, getParsedTime } from '../../../utils/datetime';
+import { categorizeSmbgSubtype } from '../../../utils/trends/data';
 
 import styles from './FocusedSMBGPointLabel.css';
 
@@ -86,7 +87,7 @@ const FocusedSMBGPointLabel = (props) => {
         }
         content={<span className={styles.tipWrapper}>
           <span className={styles.detailNumber}>{displayBgValue(data.value, bgUnits)}</span>
-          <span className={styles.subType}>{data.subType}</span>
+          <span className={styles.subType}>{categorizeSmbgSubtype(data)}</span>
         </span>
         }
         position={position}
