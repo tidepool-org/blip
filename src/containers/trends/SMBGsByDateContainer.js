@@ -46,6 +46,7 @@ const SMBGsByDateContainer = (props) => {
           focusLine={focusSmbg}
           unfocusLine={unfocusSmbg}
           grouped={grouped}
+          tooltipLeftThreshold={props.tooltipLeftThreshold}
         />
       );
     }
