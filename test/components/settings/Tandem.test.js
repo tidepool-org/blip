@@ -97,6 +97,23 @@ describe('Tandem', () => {
     expect(wrapper.find(CollapsibleContainer)).to.have.length(3);
   });
 
+  it('should preserve user capitalization of profile names', () => {
+    // must use mount to search far enough down in tree!
+    const mounted = mount(
+      <Tandem
+        bgUnits={MGDL_UNITS}
+        openedSections={{ [flatrateData.activeSchedule]: true }}
+        pumpSettings={flatrateData}
+        timePrefs={timePrefs}
+        toggleProfileExpansion={() => {}}
+      />
+    );
+    expect(mounted.find('.label').someWhere(n => (n.text().search('Normal') !== -1)))
+      .to.be.true;
+    expect(mounted.find('.label').someWhere(n => (n.text().search('sick') !== -1)))
+      .to.be.true;
+  });
+
   it('should have `Active at Upload` text somewhere', () => {
     const activeAtUploadText = 'Active at upload';
     // must use mount to search far enough down in tree!

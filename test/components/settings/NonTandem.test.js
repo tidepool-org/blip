@@ -25,7 +25,9 @@ import CollapsibleContainer from '../../../src/components/settings/common/Collap
 import NonTandem from '../../../src/components/settings/NonTandem';
 import { MGDL_UNITS } from '../../../src/utils/constants';
 
+const animasFlatRateData = require('../../../data/pumpSettings/animas/flatrate.json');
 const animasMultiRateData = require('../../../data/pumpSettings/animas/multirate.json');
+const omnipodFlatRateData = require('../../../data/pumpSettings/omnipod/flatrate.json');
 const omnipodMultiRateData = require('../../../data/pumpSettings/omnipod/multirate.json');
 const medtronicMultiRateData = require('../../../data/pumpSettings/medtronic/multirate.json');
 
@@ -91,6 +93,23 @@ describe('NonTandem', () => {
         />
       );
       expect(wrapper.find(CollapsibleContainer)).to.have.length(3);
+    });
+
+    it('should preserve user capitalization of schedule name', () => {
+      const wrapper = mount(
+        <NonTandem
+          bgUnits={MGDL_UNITS}
+          deviceKey={'animas'}
+          openedSections={{ [animasFlatRateData.activeSchedule]: true }}
+          pumpSettings={animasFlatRateData}
+          timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
+        />
+      );
+      expect(wrapper.find('.label').someWhere(n => (n.text().search('normal') !== -1)))
+        .to.be.true;
+      expect(wrapper.find('.label').someWhere(n => (n.text().search('Weekday') !== -1)))
+        .to.be.true;
     });
 
     it('should have `Active at Upload` text somewhere', () => {
@@ -168,6 +187,21 @@ describe('NonTandem', () => {
       expect(wrapper.find(CollapsibleContainer)).to.have.length(2);
     });
 
+    it('should preserve user capitalization of schedule name', () => {
+      const wrapper = mount(
+        <NonTandem
+          bgUnits={MGDL_UNITS}
+          deviceKey={'insulet'}
+          openedSections={{ [omnipodFlatRateData.activeSchedule]: true }}
+          pumpSettings={omnipodFlatRateData}
+          timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
+        />
+      );
+      expect(wrapper.find('.label').someWhere(n => (n.text().search('normal') !== -1)))
+        .to.be.true;
+    });
+
     it('should have `Active at Upload` text somewhere', () => {
       const wrapper = mount(
         <NonTandem
@@ -241,6 +275,25 @@ describe('NonTandem', () => {
         />
       );
       expect(wrapper.find(CollapsibleContainer)).to.have.length(3);
+    });
+
+    it('should capitalize all basal schedule names', () => {
+      const wrapper = mount(
+        <NonTandem
+          bgUnits={MGDL_UNITS}
+          deviceKey={'carelink'}
+          openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
+          pumpSettings={medtronicMultiRateData}
+          timePrefs={timePrefs}
+          toggleBasalScheduleExpansion={() => {}}
+        />
+      );
+      expect(wrapper.find('.label').someWhere(n => (n.text().search('Standard') !== -1)))
+        .to.be.true;
+      expect(wrapper.find('.label').someWhere(n => (n.text().search('Pattern A') !== -1)))
+        .to.be.true;
+      expect(wrapper.find('.label').someWhere(n => (n.text().search('Pattern B') !== -1)))
+        .to.be.true;
     });
 
     it('should have `Active at Upload` text somewhere', () => {
