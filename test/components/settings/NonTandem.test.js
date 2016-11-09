@@ -39,7 +39,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'animas'}
+          deviceKey={'animas'}
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
@@ -53,7 +53,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'animas'}
+          deviceKey={'animas'}
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
@@ -68,7 +68,7 @@ describe('NonTandem', () => {
       const wrapper = shallow(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'animas'}
+          deviceKey={'animas'}
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
@@ -83,7 +83,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'animas'}
+          deviceKey={'animas'}
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
@@ -97,7 +97,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'animas'}
+          deviceKey={'animas'}
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
@@ -114,7 +114,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'insulet'}
+          deviceKey={'insulet'}
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
@@ -128,7 +128,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'insulet'}
+          deviceKey={'insulet'}
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
@@ -143,7 +143,7 @@ describe('NonTandem', () => {
       const wrapper = shallow(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'insulet'}
+          deviceKey={'insulet'}
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
@@ -158,7 +158,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'insulet'}
+          deviceKey={'insulet'}
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
@@ -172,7 +172,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'insulet'}
+          deviceKey={'insulet'}
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
@@ -189,7 +189,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'carelink'}
+          deviceKey={'carelink'}
           openedSections={{}}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
@@ -203,7 +203,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'carelink'}
+          deviceKey={'carelink'}
           openedSections={{}}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
@@ -214,40 +214,40 @@ describe('NonTandem', () => {
     });
 
     // these tables are the bolus settings + basal schedules
-    it('should have five Tables', () => {
+    it('should have six Tables', () => {
       const wrapper = shallow(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'carelink'}
+          deviceKey={'carelink'}
           openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
-      expect(wrapper.find('Table')).to.have.length(5);
+      expect(wrapper.find('Table')).to.have.length(6);
     });
 
     // these containers are the basal schedules
-    it('should have two CollapsibleContainers', () => {
+    it('should have three CollapsibleContainers', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'carelink'}
+          deviceKey={'carelink'}
           openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
-      expect(wrapper.find(CollapsibleContainer)).to.have.length(2);
+      expect(wrapper.find(CollapsibleContainer)).to.have.length(3);
     });
 
     it('should have `Active at Upload` text somewhere', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'carelink'}
+          deviceKey={'carelink'}
           openedSections={{}}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
@@ -258,13 +258,13 @@ describe('NonTandem', () => {
         .to.be.true;
     });
 
-    it('should also render w/o error with `medtronic` as the manufacturerKey', () => {
+    it('should also render w/o error with `medtronic` as the deviceKey', () => {
       console.error = sinon.spy();
       expect(console.error.callCount).to.equal(0);
       shallow(
         <NonTandem
           bgUnits={MGDL_UNITS}
-          manufacturerKey={'medtronic'}
+          deviceKey={'medtronic'}
           openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}

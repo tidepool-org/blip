@@ -150,4 +150,9 @@ Tandem.propTypes = {
   toggleProfileExpansion: PropTypes.func.isRequired,
 };
 
+Tandem.defaultProps = {
+  deviceDisplayName: 'Tandem',
+  deviceKey: 'tandem',
+};
+
 export default Tandem;
