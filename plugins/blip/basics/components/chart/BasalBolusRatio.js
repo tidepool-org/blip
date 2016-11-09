@@ -78,9 +78,9 @@ var BasalBolusRatio = React.createClass({
     var percent = d3.format('%');
     var decimal = d3.format('.1f');
     var basal = _.get(data, ['basalBolusRatio', 'basal'], null);
-    var basalAverageDaily = _.get(data, ['basalBolusRatio', 'basalAverageDaily'], null);
+    var basalAverageDaily = _.get(data, ['averageDailyDose', 'basal'], null);
     var bolus = _.get(data, ['basalBolusRatio', 'bolus'], null);
-    var bolusAverageDaily = _.get(data, ['basalBolusRatio', 'bolusAverageDaily'], null);
+    var bolusAverageDaily = _.get(data, ['averageDailyDose', 'bolus'], null);
     var basalPercentClasses = cx({
       'BasalBolusRatio-percent': true,
       'BasalBolusRatio-percent--basal': !!basal,

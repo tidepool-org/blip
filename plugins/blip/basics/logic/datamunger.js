@@ -150,9 +150,11 @@ module.exports = function(bgClasses) {
       return {
         basalBolusRatio: {
           basal: sumBasalInsulin/totalInsulin,
-          basalAverageDaily: sumBasalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY),
-          bolus: sumBolusInsulin/totalInsulin,
-          bolusAverageDaily: sumBolusInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
+          bolus: sumBolusInsulin/totalInsulin
+        },
+        averageDailyDose: {
+          basal: sumBasalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY),
+          bolus: sumBolusInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
         },
         totalDailyDose: totalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
       };
