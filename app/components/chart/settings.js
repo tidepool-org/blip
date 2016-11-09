@@ -90,9 +90,7 @@ var Settings = React.createClass({
       );
   },
   renderChart: function() {
-
-    const allSettings = this.props.patientData.grouped.pumpSettings;
-    const mostRecentSettings = _.last(allSettings);
+    const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
 
     return (
       <PumpSettingsContainer
@@ -103,7 +101,6 @@ var Settings = React.createClass({
         timePrefs={this.props.timePrefs}
       />
     );
-
   },
   renderMissingSettingsMessage: function() {
     var self = this;
