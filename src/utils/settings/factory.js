@@ -27,6 +27,11 @@ import Tandem from '../../components/settings/tandem/Tandem';
  * @return {Component} NonTandem React component with bolusSettingsColumns injected
  */
 export function injectManufacturerSpecificInfo(manufacturer, Component) {
+  const bgTargetDataAccessorsByManufacturer = {
+    animas: { columnTwo: 'target', columnThree: 'range' },
+    carelink: { columnTwo: 'low', columnThree: 'high' },
+    insulet: { columnTwo: 'target', columnThree: 'high' },
+  };
   const bgTargetsByManufacturer = {
     animas: [
       { key: 'start', label: 'Start time' },
@@ -72,6 +77,7 @@ export function injectManufacturerSpecificInfo(manufacturer, Component) {
   return (props) => (
     <Component
       bgTargetColumns={bgTargetsByManufacturer[manufacturer]}
+      bgTargetDataAccessor={bgTargetDataAccessorsByManufacturer[manufacturer]}
       bgTargetLabel={bgTargetByManufacturer[manufacturer]}
       bolusSettingsLabel={bolusSettingsLabelsByManufacturer[manufacturer]}
       carbRatioLabel={carbRatioByManufacturer[manufacturer]}

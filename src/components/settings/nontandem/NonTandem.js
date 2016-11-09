@@ -30,6 +30,7 @@ import styles from './NonTandem.css';
 const NonTandem = (props) => {
   const {
     bgTargetColumns,
+    bgTargetDataAccessor,
     bgTargetLabel,
     bgUnits,
     bolusSettingsLabel,
@@ -158,7 +159,7 @@ const NonTandem = (props) => {
             data.processBgTargetData(
               pumpSettings.bgTarget,
               bgUnits,
-              { columnTwo: 'target', columnThree: 'high' },
+              bgTargetDataAccessor,
             )
           }
           columns={bgTargetColumns}
@@ -197,6 +198,10 @@ NonTandem.propTypes = {
     key: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
   }).isRequired).isRequired,
+  bgTargetDataAccessor: PropTypes.shape({
+    columnTwo: PropTypes.oneOf(['high', 'low', 'range', 'target']).isRequired,
+    columnThree: PropTypes.oneOf(['high', 'low', 'range', 'target']).isRequired,
+  }).isRequired,
   bgTargetLabel: PropTypes.string.isRequired,
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
   bolusSettingsLabel: PropTypes.string.isRequired,
