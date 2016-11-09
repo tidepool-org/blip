@@ -133,28 +133,47 @@ export class TrendsSVGContainer extends React.Component {
       if (_.isEmpty(this.props.smbgData)) {
         return this.renderNoDataMessage('smbg');
       }
-
+      let points = this.props.smbgData;
+      if (this.props.focusedSmbg) {
+        points = _.without(this.props.smbgData, this.props.focusedSmbg.dayPoints);
+      }
       const days = (
         <SMBGsByDateContainer
           key="smbgDaysContainer"
-          data={this.props.smbgData}
+          data={points}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
           focusedSmbg={this.props.focusedSmbg}
           focusSmbg={this.props.focusSmbg}
-          unfocusSmbg={this.props.unfocusSmbg}
+          unfocusSmbg={() => {}}
           lines={this.props.smbgLines}
           grouped={this.props.smbgGrouped}
           smbgOpts={this.props.smbgOpts}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
         />
       );
+      const focusedDay = this.props.focusedSmbg ? (
+        <SMBGsByDateContainer
+          key="focusedSmbgDayContainer"
+          data={this.props.focusedSmbg.dayPoints}
+          xScale={this.props.xScale}
+          yScale={this.props.yScale}
+          focusedSmbg={this.props.focusedSmbg}
+          focusSmbg={() => {}}
+          unfocusSmbg={this.props.unfocusSmbg}
+          lines={this.props.smbgLines}
+          grouped={this.props.smbgGrouped}
+          smbgOpts={this.props.smbgOpts}
+          tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+        />
+      ) : null;
 
       return (
         <g id="smbgTrends">
         {this.renderOverlay(SMBGRange, 'SMBGRangeAnimationContainer')}
         {days}
         {this.renderOverlay(SMBGAvg, 'SMBGAvgAnimationContainer')}
+        {focusedDay}
         </g>
       );
     }
@@ -270,7 +289,7 @@ TrendsSVGContainer.propTypes = {
       left: PropTypes.number.isRequired,
     }),
     date: PropTypes.string.isRequired,
-    smbgDay: PropTypes.arrayOf(PropTypes.shape({
+    dayPoints: PropTypes.arrayOf(PropTypes.shape({
       value: PropTypes.number.isRequired,
     })),
     smbgPositions: PropTypes.arrayOf(PropTypes.shape({
