@@ -40,7 +40,9 @@ const SMBGDayPointsAnimated = (props) => {
     return xScale(msPer24);
   };
   const positions = _.map(data, (smbg) => ({
-    left: xPosition(smbg.msPer24), top: yScale(smbg.value),
+    left: xPosition(smbg.msPer24),
+    top: yScale(smbg.value),
+    tooltipLeft: smbg.msPer24 > props.tooltipLeftThreshold,
   }));
   return (
     <g id={`smbgDayPoints-${date}`}>
