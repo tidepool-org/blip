@@ -38,7 +38,8 @@ describe('CollapsibleContainer', () => {
       <CollapsibleContainer
         label={label}
         labelClass={labelClass}
-        openByDefault
+        opened
+        toggleExpansion={() => {}}
       >
         <div className="unique" />
       </CollapsibleContainer>
@@ -51,7 +52,8 @@ describe('CollapsibleContainer', () => {
       <CollapsibleContainer
         label={label}
         labelClass={labelClass}
-        openByDefault={false}
+        opened={false}
+        toggleExpansion={() => {}}
         twoLineLabel
       >
         <div className="unique" />
@@ -66,8 +68,9 @@ describe('CollapsibleContainer', () => {
       <CollapsibleContainer
         label={label}
         labelClass={labelClass}
-        openByDefault={false}
+        opened={false}
         twoLineLabel={false}
+        toggleExpansion={() => {}}
       >
         <div className="unique" />
       </CollapsibleContainer>
@@ -81,8 +84,9 @@ describe('CollapsibleContainer', () => {
       <CollapsibleContainer
         label={{ main: 'Foo', secondary: '', units: 'lbs' }}
         labelClass={labelClass}
-        openByDefault={false}
+        opened={false}
         twoLineLabel
+        toggleExpansion={() => {}}
       >
         <div className="unique" />
       </CollapsibleContainer>
@@ -91,45 +95,20 @@ describe('CollapsibleContainer', () => {
     expect(wrapper.find(TwoLineCollapsibleContainerLabel)).to.have.length(0);
   });
 
-  it('should toggle isOpened state on click', () => {
+  it('should call toggleExpansion function on click', () => {
+    const toggleExpansion = sinon.spy();
     const wrapper = mount(
       <CollapsibleContainer
         label={label}
         labelClass={labelClass}
-        openByDefault={false}
+        opened={false}
+        toggleExpansion={toggleExpansion}
       >
         <div className="unique" />
       </CollapsibleContainer>
     );
+    expect(toggleExpansion.callCount).to.equal(0);
     wrapper.find('.label').simulate('click');
-    expect(wrapper.state().isOpened).to.equal(true);
-    wrapper.find('.label').simulate('click');
-    expect(wrapper.state().isOpened).to.equal(false);
-  });
-
-  it('should be open by default if given `openByDefault`', () => {
-    const wrapper = mount(
-      <CollapsibleContainer
-        label={label}
-        labelClass={labelClass}
-        openByDefault
-      >
-        <div className="unique" />
-      </CollapsibleContainer>
-    );
-    expect(wrapper.state().isOpened).to.equal(true);
-  });
-
-  it('should not be open if given `openByDefault=false`', () => {
-    const wrapper = mount(
-      <CollapsibleContainer
-        label={label}
-        labelClass={labelClass}
-        openByDefault={false}
-      >
-        <div className="unique" />
-      </CollapsibleContainer>
-    );
-    expect(wrapper.state().isOpened).to.equal(false);
+    expect(toggleExpansion.callCount).to.equal(1);
   });
 });

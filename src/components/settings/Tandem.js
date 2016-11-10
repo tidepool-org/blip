@@ -20,15 +20,23 @@ import _ from 'lodash';
 
 import styles from './Tandem.css';
 
-import Header from '../common/Header';
-import Table from '../common/Table';
-import CollapsibleContainer from '../common/CollapsibleContainer';
+import Header from './common/Header';
+import Table from './common/Table';
+import CollapsibleContainer from './common/CollapsibleContainer';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
-import * as data from '../../../utils/settings/data';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
+import * as data from '../../utils/settings/data';
 
 const Tandem = (props) => {
-  const { bgUnits, deviceDisplayName, deviceKey, pumpSettings, timePrefs } = props;
+  const {
+    bgUnits,
+    deviceKey,
+    openedSections,
+    pumpSettings,
+    timePrefs,
+    toggleProfileExpansion,
+  } = props;
+
   const schedules = data.getTimedSchedules(pumpSettings.basalSchedules);
 
   const COLUMNS = [
@@ -65,7 +73,8 @@ const Tandem = (props) => {
       <CollapsibleContainer
         label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, deviceKey, true)}
         labelClass={styles.collapsibleLabel}
-        openByDefault={schedule.name === pumpSettings.activeSchedule}
+        opened={_.get(openedSections, schedule.name, false)}
+        toggleExpansion={_.partial(toggleProfileExpansion, schedule.name)}
         twoLineLabel={false}
       >
         <Table
@@ -79,7 +88,7 @@ const Tandem = (props) => {
   return (
     <div>
       <Header
-        deviceDisplayName={deviceDisplayName}
+        deviceDisplayName="Tandem"
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
       />
       <div>
@@ -92,8 +101,8 @@ const Tandem = (props) => {
 
 Tandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
-  deviceDisplayName: PropTypes.oneOf(['Tandem']).isRequired,
   deviceKey: PropTypes.oneOf(['tandem']).isRequired,
+  openedSections: PropTypes.object.isRequired,
   pumpSettings: React.PropTypes.shape({
     activeSchedule: React.PropTypes.string.isRequired,
     units: React.PropTypes.object.isRequired,
@@ -138,6 +147,7 @@ Tandem.propTypes = {
     timezoneAware: React.PropTypes.bool.isRequired,
     timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
   }).isRequired,
+  toggleProfileExpansion: PropTypes.func.isRequired,
 };
 
 Tandem.defaultProps = {

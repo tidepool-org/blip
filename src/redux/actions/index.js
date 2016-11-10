@@ -16,3 +16,4 @@
  */
 
 export * from './trends';
+export * from './settings';

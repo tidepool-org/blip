@@ -21,7 +21,25 @@ const multirateSettingsData = require('../../../data/pumpSettings/medtronic/mult
 const settingsData = require('../../../data/pumpSettings/tandem/flatrate.json');
 const timedSettingsData = require('../../../data/pumpSettings/tandem/multirate.json');
 
-describe('data', () => {
+describe('[settings] data utils', () => {
+  describe('noData', () => {
+    it('should return true on `null`', () => {
+      expect(data.noData(null)).to.be.true;
+    });
+
+    it('should return true on `undefined`', () => {
+      expect(data.noData(undefined)).to.be.true;
+    });
+
+    it('should return true on an empty string', () => {
+      expect(data.noData('')).to.be.true;
+    });
+
+    it('should NOT return true on 0', () => {
+      expect(data.noData(0)).to.be.false;
+    });
+  });
+
   describe('processBgTargetData', () => {
     it('should return formatted objects', () => {
       expect(
@@ -35,6 +53,20 @@ describe('data', () => {
       .to.contain({ start: '12:00 am', columnTwo: '3.9', columnThree: '7.8' })
       .and.contain({ start: '11:30 am', columnTwo: '4.4', columnThree: '6.7' })
       .and.contain({ start: '6:00 pm', columnTwo: '4.2', columnThree: '8.3' });
+    });
+
+    it('should return empty string for BG value if not found', () => {
+      expect(
+        data.processBgTargetData(
+          multirateSettingsData.bgTarget,
+          multirateSettingsData.units.bg,
+          { columnTwo: 'target', columnThree: 'high' },
+        )
+      )
+      .to.have.length(3)
+      .to.contain({ start: '12:00 am', columnTwo: '', columnThree: '7.8' })
+      .and.contain({ start: '11:30 am', columnTwo: '', columnThree: '6.7' })
+      .and.contain({ start: '6:00 pm', columnTwo: '', columnThree: '8.3' });
     });
   });
 
@@ -86,6 +118,26 @@ describe('data', () => {
       expect(
         data.processBasalRateData(
           multirateSettingsData.basalSchedules[1],
+        )
+      )
+      .to.have.length(1)
+      .to.contain({ start: '-', rate: '-' });
+      expect(
+        data.processBasalRateData({
+          name: 'Foo',
+          value: [{
+            start: 0,
+          }],
+        })
+      )
+      .to.have.length(1)
+      .to.contain({ start: '-', rate: '-' });
+    });
+
+    it('should cope with no schedule (empty array)', () => {
+      expect(
+        data.processBasalRateData(
+          [],
         )
       )
       .to.have.length(1)

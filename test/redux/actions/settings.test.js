@@ -20,53 +20,36 @@ import isTSA from 'tidepool-standard-action';
 import * as actionTypes from '../../../src/redux/constants/actionTypes';
 import * as actions from '../../../src/redux/actions/';
 
-describe('trends action creators', () => {
+describe('settings action creators', () => {
   const userId = 'a1b2c3';
 
-  describe('focusTrendsCbgSlice', () => {
-    const sliceData = {};
-    const slicePosition = {};
-    const focusedKeys = [];
-    const action = actions.focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKeys);
-
+  describe('markSettingsViewed', () => {
+    const action = actions.markSettingsViewed(userId);
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to focus a trends cbg slice', () => {
+    it('should create an action to marks settings viewed', () => {
       expect(action).to.deep.equal({
-        type: actionTypes.FOCUS_TRENDS_CBG_SLICE,
-        payload: { sliceData, slicePosition, focusedKeys, userId },
-      });
-    });
-  });
-
-  describe('markTrendsViewed', () => {
-    const action = actions.markTrendsViewed(userId);
-
-    it('should be a TSA', () => {
-      expect(isTSA(action)).to.be.true;
-    });
-
-    it('should create an action to marks trends viewed', () => {
-      expect(action).to.deep.equal({
-        type: actionTypes.MARK_TRENDS_VIEWED,
+        type: actionTypes.MARK_SETTINGS_VIEWED,
         payload: { userId },
       });
     });
   });
 
-  describe('unfocusTrendsCbgSlice', () => {
-    const action = actions.unfocusTrendsCbgSlice(userId);
+  describe('toggleSettingsSection', () => {
+    const deviceKey = 'acme';
+    const scheduleOrProfileKey = 'weekday';
+    const action = actions.toggleSettingsSection(userId, deviceKey, scheduleOrProfileKey);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to unfocus (all) trends cbg slices', () => {
+    it('should create an action to toggle the expansion of a settings section', () => {
       expect(action).to.deep.equal({
-        type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,
-        payload: { userId },
+        type: actionTypes.TOGGLE_SETTINGS_SECTION,
+        payload: { deviceKey, scheduleOrProfileKey, userId },
       });
     });
   });
