@@ -86,6 +86,7 @@ module.exports = function(bgClasses) {
       if (pastBolusDays.length < pastDays.length) {
         return {
           basalBolusRatio: null,
+          averageDailyDose: null,
           totalDailyDose: null,
         };
       }
@@ -151,6 +152,10 @@ module.exports = function(bgClasses) {
         basalBolusRatio: {
           basal: sumBasalInsulin/totalInsulin,
           bolus: sumBolusInsulin/totalInsulin
+        },
+        averageDailyDose: {
+          basal: sumBasalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY),
+          bolus: sumBolusInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
         },
         totalDailyDose: totalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
       };

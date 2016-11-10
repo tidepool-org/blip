@@ -91,6 +91,7 @@ var BasicsChart = React.createClass({
       basicsData.data.bgDistribution = dataMunger.bgDistribution(basicsData);
       var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData);
       basicsData.data.basalBolusRatio = basalBolusStats.basalBolusRatio;
+      basicsData.data.averageDailyDose = basalBolusStats.averageDailyDose;
       basicsData.data.totalDailyDose = basalBolusStats.totalDailyDose;
       this._adjustSectionsBasedOnAvailableData(basicsData);
     }
