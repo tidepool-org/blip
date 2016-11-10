@@ -79,6 +79,8 @@ var BasalBolusRatio = React.createClass({
     var decimal = d3.format('.1f');
     var basal = _.get(data, ['basalBolusRatio', 'basal'], null);
     var bolus = _.get(data, ['basalBolusRatio', 'bolus'], null);
+    var basalAverageDailyDose = _.get(data, ['averageDailyDose', 'basal'], null);
+    var bolusAverageDailyDose = _.get(data, ['averageDailyDose', 'bolus'], null);
     var basalPercentClasses = cx({
       'BasalBolusRatio-percent': true,
       'BasalBolusRatio-percent--basal': !!basal,
@@ -106,10 +108,10 @@ var BasalBolusRatio = React.createClass({
               Basal
             </p>
             <p className='BasalBolusRatio-percent BasalBolusRatio-percent--basal'>
-              {percent(data.basalBolusRatio.basal)}
+              {percent(basal)}
             </p>
             <p className='BasalBolusRatio-units BasalBolusRatio-units--bolus'>
-              {decimal(data.averageDailyDose.basal)} u
+              {decimal(basalAverageDailyDose)} U
             </p>
         </div>
         <div ref="pie" className='BasalBolusRatio-pie'>
@@ -119,10 +121,10 @@ var BasalBolusRatio = React.createClass({
             Bolus
           </p>
           <p className='BasalBolusRatio-percent BasalBolusRatio-percent--bolus'>
-            {percent(data.averageDailyDose.bolus)}
+            {percent(bolus)}
           </p>
           <p className='BasalBolusRatio-units BasalBolusRatio-units--bolus'>
-            {decimal(data.bolusAverageDaily.bolus)} u
+            {decimal(bolusAverageDailyDose)} U
           </p>
         </div>
       </div>

@@ -231,6 +231,69 @@ describe('basics datamunger', function() {
       });
     });
 
+    describe('averageDailyDose', function() {
+      it('should calculate average daily amount of basal insulin', function() {
+        expect(dm.calculateBasalBolusStats(bd).averageDailyDose.basal).to.equal(12.0);
+      });
+
+      it('should calculate average daily amount of bolus insulin', function() {
+        expect(dm.calculateBasalBolusStats(bd).averageDailyDose.bolus).to.equal(4.0);
+      });
+
+      it('should exclude any portion of basal duration prior to or following basics date range', function() {
+        var bd2 = {
+          data: {
+            basal: {data: basal},
+            bolus: {data: bolus, dataByDate: {'2015-09-01': []}}
+          },
+          dateRange: [
+            '2015-09-01T12:00:00.000Z',
+            '2015-09-01T20:00:00.000Z'
+          ],
+          days: [{
+            date: '2015-09-01',
+            type: 'past',
+          }, {
+            date: '2015-09-02',
+            type: 'mostRecent',
+          }]
+        };
+        expect(dm.calculateBasalBolusStats(bd2).averageDailyDose.basal).to.equal(12.0);
+        expect(dm.calculateBasalBolusStats(bd2).averageDailyDose.bolus).to.equal(12.0);
+      });
+
+      it('should exclude any boluses falling outside basal date range', function() {
+        var twoBoluses = [bolus[0], anotherBolus];
+        var bd3 = {
+          data: {
+            basal: {data: basal},
+            bolus: {data: twoBoluses, dataByDate: {'2015-09-01': []}}
+          },
+          dateRange: [
+            '2015-09-01T06:00:00.000Z',
+            '2015-09-01T18:00:00.000Z'
+          ],
+          days: [{
+            date: '2015-09-01',
+            type: 'past',
+          }, {
+            date: '2015-09-02',
+            type: 'mostRecent',
+          }]
+        };
+        expect(dm.calculateBasalBolusStats(bd3).averageDailyDose.basal).to.equal(12.0);
+        expect(dm.calculateBasalBolusStats(bd3).averageDailyDose.bolus).to.equal(8.0);
+      });
+
+      it('should not calculate a statistic if there are `past` days with no boluses', function() {
+        var bd4 = _.cloneDeep(bd);
+        delete bd4.data.bolus.dataByDate['2015-09-02'];
+        bd4.data.bolus.dataByDate['2015-09-03'] = [];
+        bd4.days.push({date: '2015-09-03', type: 'mostRecent'});
+        expect(dm.calculateBasalBolusStats(bd4).averageDailyDose).to.be.null;
+      });
+    });
+
     describe('totalDailyDose', function() {
       it('should calculate average total daily dose', function() {
         expect(dm.calculateBasalBolusStats(bd).totalDailyDose).to.equal(16.0);

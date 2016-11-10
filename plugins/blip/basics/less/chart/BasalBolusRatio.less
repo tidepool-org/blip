@@ -2,8 +2,6 @@
   margin: 0;
   padding: 8px 0px;
 
-  font-size: @huge-numbers;
-  font-weight: bold;
   display: flex;
   flex-flow: row wrap;
   justify-content: space-around;
@@ -17,6 +15,8 @@
     }
 
     .BasalBolusRatio-percent {
+      font-size: @huge-numbers;
+      font-weight: bold;
       &.BasalBolusRatio-percent--basal {
         color: @bolus-ratio-label;
       }
@@ -26,6 +26,7 @@
     }
     .BasalBolusRatio-label {
       font-size: @small-text;
+      font-weight: bold;
       &.BasalBolusRatio-label--basal {
         color: @basal-ratio-label;
       }
@@ -35,7 +36,6 @@
     }
     .BasalBolusRatio-units {
       font-size: @small-text;
-      font-weight: 100;
       &.BasalBolusRatio-units--basal {
         color: @basal-ratio-label;
       }

@@ -86,6 +86,7 @@ module.exports = function(bgClasses) {
       if (pastBolusDays.length < pastDays.length) {
         return {
           basalBolusRatio: null,
+          averageDailyDose: null,
           totalDailyDose: null,
         };
       }
