@@ -322,6 +322,7 @@ export let PatientData = React.createClass({
           <Settings
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            currentPatientInViewId={this.props.currentPatientInViewId}
             timePrefs={this.state.timePrefs}
             patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
