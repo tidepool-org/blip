@@ -68,8 +68,6 @@ const FocusedSMBGRangeLabels = (props) => {
   );
 };
 
-FocusedSMBGRangeLabels.defaultProps = {};
-
 FocusedSMBGRangeLabels.propTypes = {
   bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   focusedRange: PropTypes.shape({
