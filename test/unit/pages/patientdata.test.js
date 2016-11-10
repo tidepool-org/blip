@@ -208,7 +208,7 @@ describe('PatientData', function () {
           expect(elem).to.be.ok;
           elem.setState({processingData: false});
 
-          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
+          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-no-data');
           expect(x).to.be.ok;
 
           expect(x.textContent).to.equal('Fooey McBar does not have any data yet.');
@@ -245,7 +245,7 @@ describe('PatientData', function () {
             }
           });
 
-          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
+          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-no-data');
           expect(x).to.be.ok;
 
           expect(x.textContent).to.equal('Fooey McBar does not have any data yet.');
@@ -300,7 +300,7 @@ describe('PatientData', function () {
             }
           });
 
-          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-no-data');
+          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-uploader-message');
           expect(x).to.be.ok;
         });
       });

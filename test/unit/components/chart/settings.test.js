@@ -10,20 +10,11 @@ var TestUtils = require('react-addons-test-utils');
 var _ = require('lodash');
 var expect = chai.expect;
 
+const renderer = TestUtils.createRenderer();
+
 import Settings from '../../../../app/components/chart/settings';
 
 describe('Settings', function () {
-  before(() => {
-    Settings.__Rewire__('SettingsChart', React.createClass({
-      render: function() {
-        return (<div className='fake-settings-view'></div>);
-      }
-    }));
-  });
-
-  after(() => {
-    Settings.__ResetDependency__('SettingsChart');
-  });
 
   describe('render', function() {
     it('should render without problems', function () {
@@ -45,8 +36,9 @@ describe('Settings', function () {
         uploadUrl: ''
       };
       var settingsElem = React.createElement(Settings, props);
-      var elem = TestUtils.renderIntoDocument(settingsElem);
-      expect(elem).to.be.ok;
+      var elem = renderer.render(settingsElem);
+      var result = renderer.getRenderOutput();
+      expect(result).to.be.ok;
     });
 
     it('should render with missing data message when no pumpSettings data supplied', function () {
