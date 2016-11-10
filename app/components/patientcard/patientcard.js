@@ -56,14 +56,17 @@ var PatientCard = React.createClass({
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
 
-    
     return (
       <div>
         <div onMouseEnter={this.setHighlight('view')} onMouseLeave={this.setHighlight('')} className={classes}
           onClick={this.onClick}>
-          <i className="Navbar-icon icon-face-standin"></i>
+          <Link className="patientcard-icon" to={this.props.href} onClick={self.handleViewClick}>
+            <i className="Navbar-icon icon-face-standin"></i>
+          </Link>
           <div className="patientcard-info">
-            <div className="patientcard-fullname" title={this.getFullName()}>{this.getFullName()} {profile}</div>
+            <Link className="patientcard-fullname-link" to={this.props.href} onClick={self.handleViewClick}>
+              <div className="patientcard-fullname" title={this.getFullName()}>{this.getFullName()} {profile}</div>
+            </Link>
             <div className="patientcard-actions">
               {view}
               {share}
@@ -88,14 +91,10 @@ var PatientCard = React.createClass({
     });
 
     var self = this;
-    var handleClick = function(e) {
-      self.props.trackMetric('Clicked VDF View Data');
-      self.props.onClick();
-    };
 
     return (
       
-      <Link className={classes} to={this.props.href} onClick={handleClick}>View</Link>
+      <Link className={classes} to={this.props.href} onClick={self.handleViewClick}>View</Link>
       
     );
   },
@@ -284,7 +283,12 @@ var PatientCard = React.createClass({
 
   onClick: function() {
     this.props.onClick();
-  }
+  },
+
+  handleViewClick: function() {
+    this.props.trackMetric('Clicked VDF View Data');
+    this.props.onClick();
+  },
 });
 
 module.exports = PatientCard;
