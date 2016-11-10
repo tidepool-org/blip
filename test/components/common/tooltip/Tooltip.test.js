@@ -42,6 +42,7 @@ describe('Tooltip', () => {
     expect(wrapper.find(formatClassesAsSelector(styles.content))).to.have.length(2);
     expect(wrapper.find(formatClassesAsSelector(styles.tail))).to.have.length(2);
   });
+
   it('should render without a tail when tail is false', () => {
     const wrapper = mount(
       <Tooltip
@@ -55,5 +56,111 @@ describe('Tooltip', () => {
     // title composes content, so there'll be two matches
     expect(wrapper.find(formatClassesAsSelector(styles.content))).to.have.length(2);
     expect(wrapper.find(formatClassesAsSelector(styles.tail))).to.have.length(0);
+  });
+
+  it('should have offset {top: -5, left: -5} when tail on left', () => {
+    const wrapper = mount(
+      <Tooltip
+        position={position}
+        title={title}
+        content={content}
+        side={'left'}
+      />
+    );
+    const tailElem = wrapper.node.tailElem;
+    const tailgetBoundingClientRect = sinon.stub(tailElem, 'getBoundingClientRect');
+    tailgetBoundingClientRect.returns({ top: 50, left: 50, height: 10, width: 10 });
+    const tooltipElem = wrapper.node.element;
+    const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
+    tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
+    wrapper.instance().calculateOffset();
+    expect(wrapper.state()).to.deep.equal({ offset: { top: -5, left: -5 } });
+  });
+
+  it('should have offset {top: -5, left: -105} when tail on right', () => {
+    const wrapper = mount(
+      <Tooltip
+        position={position}
+        title={title}
+        content={content}
+        side={'right'}
+      />
+    );
+    const tailElem = wrapper.node.tailElem;
+    const tailgetBoundingClientRect = sinon.stub(tailElem, 'getBoundingClientRect');
+    tailgetBoundingClientRect.returns({ top: 50, left: 150, height: 10, width: 10 });
+    const tooltipElem = wrapper.node.element;
+    const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
+    tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
+    wrapper.instance().calculateOffset();
+    expect(wrapper.state()).to.deep.equal({ offset: { top: -5, left: -105 } });
+  });
+
+  it('should have offset {top: -50, left: -100} when no tail, on left', () => {
+    const wrapper = mount(
+      <Tooltip
+        position={position}
+        title={title}
+        content={content}
+        tail={false}
+        side={'left'}
+      />
+    );
+    const tooltipElem = wrapper.node.element;
+    const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
+    tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
+    wrapper.instance().calculateOffset();
+    expect(wrapper.state()).to.deep.equal({ offset: { top: -50, left: -100 } });
+  });
+
+  it('should have offset {top: -50, left: 0} when no tail, on right', () => {
+    const wrapper = mount(
+      <Tooltip
+        position={position}
+        title={title}
+        content={content}
+        tail={false}
+        side={'right'}
+      />
+    );
+    const tooltipElem = wrapper.node.element;
+    const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
+    tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
+    wrapper.instance().calculateOffset();
+    expect(wrapper.state()).to.deep.equal({ offset: { top: -50, left: 0 } });
+  });
+
+  it('should have offset {top: -100, left: -50} when no tail, on top', () => {
+    const wrapper = mount(
+      <Tooltip
+        position={position}
+        title={title}
+        content={content}
+        tail={false}
+        side={'top'}
+      />
+    );
+    const tooltipElem = wrapper.node.element;
+    const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
+    tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
+    wrapper.instance().calculateOffset();
+    expect(wrapper.state()).to.deep.equal({ offset: { top: -100, left: -50 } });
+  });
+
+  it('should have offset {top: 0, left: -50} when no tail, on bottom', () => {
+    const wrapper = mount(
+      <Tooltip
+        position={position}
+        title={title}
+        content={content}
+        tail={false}
+        side={'bottom'}
+      />
+    );
+    const tooltipElem = wrapper.node.element;
+    const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
+    tooltipgetBoundingClientRect.returns({ top: 0, left: 50, height: 100, width: 100 });
+    wrapper.instance().calculateOffset();
+    expect(wrapper.state()).to.deep.equal({ offset: { top: 0, left: -50 } });
   });
 });
