@@ -23,7 +23,8 @@ import { mount, shallow } from 'enzyme';
 
 import CollapsibleContainer from '../../../src/components/settings/common/CollapsibleContainer';
 import NonTandem from '../../../src/components/settings/NonTandem';
-import { MGDL_UNITS } from '../../../src/utils/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
+import { displayDecimal } from '../../../src/utils/format';
 
 const animasFlatRateData = require('../../../data/pumpSettings/animas/flatrate.json');
 const animasMultiRateData = require('../../../data/pumpSettings/animas/multirate.json');
@@ -126,6 +127,66 @@ describe('NonTandem', () => {
       expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
         .to.be.true;
     });
+
+    describe('bolus settings', () => {
+      it('should surface the expected value for ISF', () => {
+        const wrapper = mount(
+          <NonTandem
+            bgUnits={MMOLL_UNITS}
+            deviceKey={'animas'}
+            openedSections={{ [animasMultiRateData.activeSchedule]: true }}
+            pumpSettings={animasMultiRateData}
+            timePrefs={timePrefs}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+        const isfTable = wrapper.find('table').filterWhere(n => (n.text().search('ISF') !== -1));
+        expect(isfTable.someWhere(
+          n => (n.text().search(
+            displayDecimal(animasMultiRateData.insulinSensitivity[0].amount, 1)
+          ) !== -1)
+        )).to.be.true;
+      });
+
+      it('should surface the expected target & range values for BG Target', () => {
+        const wrapper = mount(
+          <NonTandem
+            bgUnits={MMOLL_UNITS}
+            deviceKey={'animas'}
+            openedSections={{ [animasMultiRateData.activeSchedule]: true }}
+            pumpSettings={animasMultiRateData}
+            timePrefs={timePrefs}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+        const bgTargetTable = wrapper.find('table')
+          .filterWhere(n => (n.text().search('BG Target') !== -1));
+        expect(bgTargetTable.someWhere(
+          n => (n.text().search(displayDecimal(animasMultiRateData.bgTarget[0].target, 1)) !== -1)
+        )).to.be.true;
+        expect(bgTargetTable.someWhere(
+          n => (n.text().search(displayDecimal(animasMultiRateData.bgTarget[0].range, 1)) !== -1)
+        )).to.be.true;
+      });
+
+      it('should surface the expected value for I:C Ratio', () => {
+        const wrapper = mount(
+          <NonTandem
+            bgUnits={MMOLL_UNITS}
+            deviceKey={'animas'}
+            openedSections={{ [animasMultiRateData.activeSchedule]: true }}
+            pumpSettings={animasMultiRateData}
+            timePrefs={timePrefs}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+        const carbRatioTable = wrapper.find('table')
+          .filterWhere(n => (n.text().search('I:C Ratio') !== -1));
+        expect(carbRatioTable.someWhere(
+          n => (n.text().search(animasMultiRateData.carbRatio[0].amount) !== -1)
+        )).to.be.true;
+      });
+    });
   });
 
   describe('Insulet', () => {
@@ -215,6 +276,67 @@ describe('NonTandem', () => {
       );
       expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
         .to.be.true;
+    });
+
+    describe('bolus settings', () => {
+      it('should surface the expected value for Correction factor', () => {
+        const wrapper = mount(
+          <NonTandem
+            bgUnits={MMOLL_UNITS}
+            deviceKey={'insulet'}
+            openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
+            pumpSettings={omnipodMultiRateData}
+            timePrefs={timePrefs}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+        const isfTable = wrapper.find('table')
+          .filterWhere(n => (n.text().search('Correction factor') !== -1));
+        expect(isfTable.someWhere(
+          n => (n.text().search(
+            displayDecimal(omnipodMultiRateData.insulinSensitivity[0].amount, 1)
+          ) !== -1)
+        )).to.be.true;
+      });
+
+      it('should surface the expected target & correct above values for Target BG', () => {
+        const wrapper = mount(
+          <NonTandem
+            bgUnits={MMOLL_UNITS}
+            deviceKey={'insulet'}
+            openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
+            pumpSettings={omnipodMultiRateData}
+            timePrefs={timePrefs}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+        const bgTargetTable = wrapper.find('table')
+          .filterWhere(n => (n.text().search('Target BG') !== -1));
+        expect(bgTargetTable.someWhere(
+          n => (n.text().search(displayDecimal(omnipodMultiRateData.bgTarget[0].target), 1) !== -1)
+        )).to.be.true;
+        expect(bgTargetTable.someWhere(
+          n => (n.text().search(displayDecimal(omnipodMultiRateData.bgTarget[0].high, 1)) !== -1)
+        )).to.be.true;
+      });
+
+      it('should surface the expected value for IC ratio', () => {
+        const wrapper = mount(
+          <NonTandem
+            bgUnits={MMOLL_UNITS}
+            deviceKey={'insulet'}
+            openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
+            pumpSettings={omnipodMultiRateData}
+            timePrefs={timePrefs}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+        const carbRatioTable = wrapper.find('table')
+          .filterWhere(n => (n.text().search('IC ratio') !== -1));
+        expect(carbRatioTable.someWhere(
+          n => (n.text().search(omnipodMultiRateData.carbRatio[0].amount) !== -1)
+        )).to.be.true;
+      });
     });
   });
 
@@ -325,6 +447,100 @@ describe('NonTandem', () => {
         />
       );
       expect(console.error.callCount).to.equal(0);
+    });
+
+    describe('bolus settings', () => {
+      it('should surface the expected value for Sensitivity', () => {
+        const wrapper = mount(
+          <NonTandem
+            bgUnits={MMOLL_UNITS}
+            deviceKey={'medtronic'}
+            openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
+            pumpSettings={medtronicMultiRateData}
+            timePrefs={timePrefs}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+        const isfTable = wrapper.find('table')
+          .filterWhere(n => (n.text().search('Sensitivity') !== -1));
+        expect(isfTable.someWhere(
+          n => (n.text().search(
+            displayDecimal(medtronicMultiRateData.insulinSensitivity[0].amount, 1)
+          ) !== -1)
+        )).to.be.true;
+      });
+
+      it('should surface the expected low & high values for BG Target', () => {
+        const wrapper = mount(
+          <NonTandem
+            bgUnits={MMOLL_UNITS}
+            deviceKey={'medtronic'}
+            openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
+            pumpSettings={medtronicMultiRateData}
+            timePrefs={timePrefs}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+        const bgTargetTable = wrapper.find('table')
+          .filterWhere(n => (n.text().search('BG Target') !== -1));
+        expect(bgTargetTable.someWhere(
+          n => (n.text().search(
+            displayDecimal(medtronicMultiRateData.bgTarget[0].low, 1)
+          ) !== -1)
+        )).to.be.true;
+        expect(bgTargetTable.someWhere(
+          n => (n.text().search(
+            displayDecimal(medtronicMultiRateData.bgTarget[0].high, 1)
+          ) !== -1)
+        )).to.be.true;
+        expect(bgTargetTable.someWhere(
+          n => (n.text().search(
+            displayDecimal(medtronicMultiRateData.bgTarget[1].low, 1)
+          ) !== -1)
+        )).to.be.true;
+        expect(bgTargetTable.someWhere(
+          n => (n.text().search(
+            displayDecimal(medtronicMultiRateData.bgTarget[1].high, 1)
+          ) !== -1)
+        )).to.be.true;
+        expect(bgTargetTable.someWhere(
+          n => (n.text().search(
+            displayDecimal(medtronicMultiRateData.bgTarget[2].low, 1)
+          ) !== -1)
+        )).to.be.true;
+        expect(bgTargetTable.someWhere(
+          n => (n.text().search(
+            displayDecimal(medtronicMultiRateData.bgTarget[2].high, 1)
+          ) !== -1)
+        )).to.be.true;
+      });
+
+      it('should surface the expected values for Carb Ratios', () => {
+        const wrapper = mount(
+          <NonTandem
+            bgUnits={MMOLL_UNITS}
+            deviceKey={'medtronic'}
+            openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
+            pumpSettings={medtronicMultiRateData}
+            timePrefs={timePrefs}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+        const carbRatioTable = wrapper.find('table')
+          .filterWhere(n => (n.text().search('Carb Ratios') !== -1));
+        expect(carbRatioTable.someWhere(
+          n => (n.text().search(medtronicMultiRateData.carbRatio[0].amount) !== -1)
+        )).to.be.true;
+        expect(carbRatioTable.someWhere(
+          n => (n.text().search(medtronicMultiRateData.carbRatio[1].amount) !== -1)
+        )).to.be.true;
+        expect(carbRatioTable.someWhere(
+          n => (n.text().search(medtronicMultiRateData.carbRatio[2].amount) !== -1)
+        )).to.be.true;
+        expect(carbRatioTable.someWhere(
+          n => (n.text().search(medtronicMultiRateData.carbRatio[3].amount) !== -1)
+        )).to.be.true;
+      });
     });
   });
 });
