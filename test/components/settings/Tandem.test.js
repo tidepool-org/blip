@@ -22,7 +22,8 @@ import { mount, shallow } from 'enzyme';
 
 import CollapsibleContainer from '../../../src/components/settings/common/CollapsibleContainer';
 import Tandem from '../../../src/components/settings/Tandem';
-import { MGDL_UNITS } from '../../../src/utils/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
+import { displayDecimal } from '../../../src/utils/format';
 
 const flatrateData = require('../../../data/pumpSettings/tandem/flatrate.json');
 const multirateData = require('../../../data/pumpSettings/tandem/multirate.json');
@@ -128,5 +129,51 @@ describe('Tandem', () => {
     );
     expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
       .to.be.true;
+  });
+
+  describe('timed settings', () => {
+    let wrapper;
+    let sickProfileTable;
+
+    before(() => {
+      // must use mount to search far enough down in tree!
+      wrapper = mount(
+        <Tandem
+          bgUnits={MMOLL_UNITS}
+          openedSections={{ [flatrateData.activeSchedule]: true }}
+          pumpSettings={flatrateData}
+          timePrefs={timePrefs}
+          toggleProfileExpansion={() => {}}
+        />
+      );
+
+      sickProfileTable = wrapper.find('table').filterWhere(
+        n => (n.text().search('Basal Rates') !== -1)
+      );
+    });
+
+    it('should surface the expected basal rate value', () => {
+      expect(sickProfileTable.someWhere(
+        n => (n.text().search(displayDecimal(flatrateData.basalSchedules[1].value[0].rate, 1)))
+      )).to.be.true;
+    });
+
+    it('should surface the expected target BG value', () => {
+      expect(sickProfileTable.someWhere(
+        n => (n.text().search(displayDecimal(flatrateData.bgTargets.sick[0].target, 1)))
+      )).to.be.true;
+    });
+
+    it('should surface the expected carb ratio value', () => {
+      expect(sickProfileTable.someWhere(
+        n => (n.text().search(displayDecimal(flatrateData.carbRatios.sick[0].target, 1)))
+      )).to.be.true;
+    });
+
+    it('should surface the expected correction factor value', () => {
+      expect(sickProfileTable.someWhere(
+        n => (n.text().search(displayDecimal(flatrateData.insulinSensitivities.sick[0].target, 1)))
+      )).to.be.true;
+    });
   });
 });
