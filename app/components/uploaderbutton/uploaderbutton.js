@@ -16,9 +16,16 @@
 
 import React, { Component } from 'react'
 
-import logoSrc from './images/T-logo-dark-512x512.png';
+import logoPath from './images/T-logo-dark-512x512.png';
 
 const UploaderButton = (props) => {
+  // fixes issue where local and remote server environments handle import differently,
+  // either including (for local) or excluding (for dev/staging/production) protocol and hostname in path
+  let logoSrc = logoPath;
+  if (logoSrc.slice(0,4) !== 'http') {
+    logoSrc = '/' + logoPath;
+  }
+
   return (
     <div>
       <a
