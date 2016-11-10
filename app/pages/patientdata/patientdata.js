@@ -29,6 +29,7 @@ import * as actions from '../../redux/actions';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
+import { URL_UPLOADER_CHROME_STORE, URL_BLIP_NOTES_APP_STORE } from '../../core/constants';
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
@@ -39,6 +40,7 @@ import { settings as Settings } from '../../components/chart';
 import nurseShark from 'tideline/plugins/nurseshark/';
 
 import Messages from '../../components/messages';
+import UploaderButton from '../../components/uploaderbutton';
 
 export let PatientData = React.createClass({
   propTypes: {
@@ -177,30 +179,29 @@ export let PatientData = React.createClass({
     };
 
     if (this.props.isUserPatient) {
-      
       content = (
-        <div className="patient-data-message-no-data">
-          <p>{'There is no data in here yet!'}</p>
-          <a
-            href={this.props.uploadUrl}
-            target="_blank"
-            onClick={handleClickUpload}>Upload data</a>
-          <p>
-            {'Or try '}<a href="" onClick={this.handleClickNoDataRefresh}>refreshing</a>{' the page.'}
+        <div className="patient-data-uploader-message">
+          <h1>To see your data, you’ll need to upload it!</h1>
+          <UploaderButton
+            buttonUrl={URL_UPLOADER_CHROME_STORE}
+            onClick={handleClickUpload}
+            buttonText='Get the Tidepool Uploader' />
+          <p>To upload Dexcom with iPhone get <a href={URL_BLIP_NOTES_APP_STORE} className="uploader-color-override" target="_blank">Blip Notes</a></p>
+          <p className="patient-no-data-help">
+            Already uploaded? <a href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</a><br />
+            <b>Need help?</b> Email us at <a className="uploader-color-override" href="mailto:support@tidepool.org">support@tidepool.org</a> or visit our <a className="uploader-color-override" href="http://support.tidepool.org/">help page</a>.
           </p>
         </div>
       );
-      
     }
 
-    
     return (
       <div>
         {header}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <div className="patient-data-message">
+              <div className="patient-data-message-no-data">
                 {content}
               </div>
             </div>
@@ -208,7 +209,7 @@ export let PatientData = React.createClass({
         </div>
       </div>
     );
-    
+
   },
 
   isEmptyPatientData: function() {
