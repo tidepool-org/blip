@@ -23,9 +23,7 @@ import ReactDOM from 'react-dom';
 import utils from '../../core/utils';
 
 import * as viz from '@tidepool/viz';
-
-const ChartFactory = viz.components.SettingsFactory;
-
+const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 
 import Header from './header';
 import Footer from './footer';
@@ -92,23 +90,17 @@ var Settings = React.createClass({
       );
   },
   renderChart: function() {
+    const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
 
-    const settings = this.props.patientData.grouped.pumpSettings;
-
-    const SettingsChart = ChartFactory.getChart(
-      _.get(_.last(settings), 'source'),
+    return (
+      <PumpSettingsContainer
+        currentPatientInViewId={this.props.currentPatientInViewId}
+        bgUnits={this.props.bgPrefs.bgUnits}
+        manufacturerKey={_.get(mostRecentSettings, 'source').toLowerCase()}
+        pumpSettings={mostRecentSettings}
+        timePrefs={this.props.timePrefs}
+      />
     );
-
-    if (SettingsChart){
-      return (
-        <SettingsChart
-          pumpSettings={_.last(settings)}
-          bgUnits={this.props.bgPrefs.bgUnits}
-          timePrefs={this.props.timePrefs}
-        />
-      );
-    }
-
   },
   renderMissingSettingsMessage: function() {
     var self = this;
