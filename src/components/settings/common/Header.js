@@ -38,7 +38,7 @@ class Header extends React.Component {
       <div>
         <ul className={`${styles.header} ${headerClass}`} onClick={this.handleClick}>
           <li className={styles.headerOuter}>
-            <span className={styles.headerInner}>{this.props.deviceType}</span>
+            <span className={styles.headerInner}>{this.props.deviceDisplayName}</span>
           </li>
           <li className={styles.headerOuter}>
             <span className={styles.headerInner}>Uploaded on {this.props.deviceMeta.uploaded}</span>
@@ -55,7 +55,7 @@ class Header extends React.Component {
 }
 
 Header.propTypes = {
-  deviceType: React.PropTypes.string.isRequired,
+  deviceDisplayName: React.PropTypes.string.isRequired,
   deviceMeta: React.PropTypes.object.isRequired,
 };
 

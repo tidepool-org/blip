@@ -1,15 +1,23 @@
 {
   "type": "pumpSettings",
-  "activeSchedule": "Normal",
+  "activeSchedule": "standard",
   "basalSchedules": [
     {
-      "name": "Normal",
+      "name": "standard",
       "value": [
         {
           "start": 0,
           "rate": 0.75
         }
       ]
+    },
+    {
+      "name": "pattern a",
+      "value": []
+    },
+    {
+      "name": "pattern b",
+      "value": []
     }
   ],
   "units": {

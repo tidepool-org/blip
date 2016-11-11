@@ -15,9 +15,18 @@
  * == BSD2 LICENSE ==
  */
 
-import { combineReducers } from 'redux';
+import * as actionTypes from '../constants/actionTypes';
 
-import trends from './trendsStateByUser';
-import settings from './settingsStateByUser';
+export function markSettingsViewed(userId) {
+  return {
+    type: actionTypes.MARK_SETTINGS_VIEWED,
+    payload: { userId },
+  };
+}
 
-export default combineReducers({ settings, trends });
+export function toggleSettingsSection(userId, deviceKey, scheduleOrProfileKey) {
+  return {
+    type: actionTypes.TOGGLE_SETTINGS_SECTION,
+    payload: { deviceKey, scheduleOrProfileKey, userId },
+  };
+}

@@ -1,9 +1,9 @@
 {
   "type": "pumpSettings",
-  "activeSchedule": "Normal",
+  "activeSchedule": "normal",
   "basalSchedules": [
     {
-      "name": "Normal",
+      "name": "normal",
       "value": [
         {
           "rate": 0.325,

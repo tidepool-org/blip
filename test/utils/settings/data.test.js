@@ -21,7 +21,25 @@ const multirateSettingsData = require('../../../data/pumpSettings/medtronic/mult
 const settingsData = require('../../../data/pumpSettings/tandem/flatrate.json');
 const timedSettingsData = require('../../../data/pumpSettings/tandem/multirate.json');
 
-describe('data', () => {
+describe('[settings] data utils', () => {
+  describe('noData', () => {
+    it('should return true on `null`', () => {
+      expect(data.noData(null)).to.be.true;
+    });
+
+    it('should return true on `undefined`', () => {
+      expect(data.noData(undefined)).to.be.true;
+    });
+
+    it('should return true on an empty string', () => {
+      expect(data.noData('')).to.be.true;
+    });
+
+    it('should NOT return true on 0', () => {
+      expect(data.noData(0)).to.be.false;
+    });
+  });
+
   describe('processBgTargetData', () => {
     it('should return formatted objects', () => {
       expect(
@@ -35,6 +53,20 @@ describe('data', () => {
       .to.contain({ start: '12:00 am', columnTwo: '3.9', columnThree: '7.8' })
       .and.contain({ start: '11:30 am', columnTwo: '4.4', columnThree: '6.7' })
       .and.contain({ start: '6:00 pm', columnTwo: '4.2', columnThree: '8.3' });
+    });
+
+    it('should return empty string for BG value if not found', () => {
+      expect(
+        data.processBgTargetData(
+          multirateSettingsData.bgTarget,
+          multirateSettingsData.units.bg,
+          { columnTwo: 'target', columnThree: 'high' },
+        )
+      )
+      .to.have.length(3)
+      .to.contain({ start: '12:00 am', columnTwo: '', columnThree: '7.8' })
+      .and.contain({ start: '11:30 am', columnTwo: '', columnThree: '6.7' })
+      .and.contain({ start: '6:00 pm', columnTwo: '', columnThree: '8.3' });
     });
   });
 
@@ -86,6 +118,26 @@ describe('data', () => {
       expect(
         data.processBasalRateData(
           multirateSettingsData.basalSchedules[1],
+        )
+      )
+      .to.have.length(1)
+      .to.contain({ start: '-', rate: '-' });
+      expect(
+        data.processBasalRateData({
+          name: 'Foo',
+          value: [{
+            start: 0,
+          }],
+        })
+      )
+      .to.have.length(1)
+      .to.contain({ start: '-', rate: '-' });
+    });
+
+    it('should cope with no schedule (empty array)', () => {
+      expect(
+        data.processBasalRateData(
+          [],
         )
       )
       .to.have.length(1)
@@ -168,8 +220,24 @@ describe('data', () => {
       });
     });
 
+    it('should capitalize schedule name if deviceType is `carelink`', () => {
+      expect(data.getScheduleLabel('pattern a', 'pattern a', 'carelink')).to.deep.equal({
+        main: 'Pattern A',
+        secondary: 'Active at upload',
+        units: 'U/hr',
+      });
+    });
+
+    it('should capitalize schedule name if deviceType is `medtronic`', () => {
+      expect(data.getScheduleLabel('pattern a', 'pattern a', 'medtronic')).to.deep.equal({
+        main: 'Pattern A',
+        secondary: 'Active at upload',
+        units: 'U/hr',
+      });
+    });
+
     it('should return an empty string for `units` if given `noUnits` option', () => {
-      expect(data.getScheduleLabel('one', 'one', true)).to.deep.equal({
+      expect(data.getScheduleLabel('one', 'one', 'tandem', true)).to.deep.equal({
         main: 'one',
         secondary: 'Active at upload',
         units: '',
@@ -184,7 +252,7 @@ describe('data', () => {
       )
       .to.have.length(2)
       .to.contain({ name: 'Normal', position: 0 })
-      .and.contain({ name: 'Sick', position: 1 });
+      .and.contain({ name: 'sick', position: 1 });
     });
   });
 
@@ -217,7 +285,7 @@ describe('data', () => {
       ).to.have.property('serial').equal('0987654321');
       expect(
         data.getDeviceMeta(settingsData, timePrefs)
-      ).to.have.property('schedule').equal('Normal');
+      ).to.have.property('schedule').equal('sick');
       expect(
         data.getDeviceMeta(settingsData, timePrefs)
       ).to.have.property('uploaded').equal('Jul 12, 2016');
@@ -233,7 +301,7 @@ describe('data', () => {
       ).to.have.property('serial').equal('0987654321');
       expect(
         data.getDeviceMeta(settingsData, timezoneAwarePrefs)
-      ).to.have.property('schedule').equal('Normal');
+      ).to.have.property('schedule').equal('sick');
       expect(
         data.getDeviceMeta(settingsData, timezoneAwarePrefs)
       ).to.have.property('uploaded').equal('Jul 13, 2016');

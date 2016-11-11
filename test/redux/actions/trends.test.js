@@ -20,7 +20,7 @@ import isTSA from 'tidepool-standard-action';
 import * as actionTypes from '../../../src/redux/constants/actionTypes';
 import * as actions from '../../../src/redux/actions/';
 
-describe('trends actions', () => {
+describe('trends action creators', () => {
   const userId = 'a1b2c3';
 
   describe('focusTrendsCbgSlice', () => {

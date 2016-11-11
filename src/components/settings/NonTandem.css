@@ -31,7 +31,7 @@
 }
 
 .categoryTitle {
-  composes: mediumContrastText from '../../../styles/typography.css';
+  composes: mediumContrastText from '../../styles/typography.css';
   width: 100%;
   padding-bottom: 10px;
 }
@@ -43,7 +43,7 @@
 }
 
 .basalTable {
-  composes: basalTable from '../settings.css';
+  composes: basalTable from './settings.css';
 }
 
 .basalTable td:first-child, .basalTable th:first-child {
@@ -51,7 +51,7 @@
 }
 
 .settingsTable {
-  composes: settingsTable from '../settings.css';
+  composes: settingsTable from './settings.css';
 }
 
 .settingsTable td:first-child, .settingsTable th:first-child {
@@ -59,14 +59,14 @@
 }
 
 .singleLineBasalScheduleHeader {
-  composes: basalHeaderBackground settingsHeader from '../settings.css';
+  composes: basalHeaderBackground settingsHeader from './settings.css';
   justify-content: space-between;
 }
 
 .twoLineBasalScheduleHeader {
-  composes: basalHeaderBackground settingsHeaderDecoration settingsHeaderLayout settingsHeaderText from '../settings.css';
+  composes: basalHeaderBackground settingsHeaderDecoration settingsHeaderLayout settingsHeaderText from './settings.css';
 }
 
 .bolusSettingsHeader {
-  composes: bolusHeaderBackground settingsHeader from '../settings.css';
+  composes: bolusHeaderBackground settingsHeader from './settings.css';
 }

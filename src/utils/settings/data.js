@@ -24,13 +24,12 @@ const DISPLAY_PRECISION_PLACES = 3;
 
 /**
  * noData
- * @private
  * @param  {ANY} val value to check
  *
- * @return {Boolean}     true if value is defined and not null, false otherwise
+ * @return {Boolean}     true if value is defined, not null, not empty string, false otherwise
  */
-function noData(val) {
-  return val === null || (typeof val === 'undefined');
+export function noData(val) {
+  return val == null || (typeof val === 'string' && _.isEmpty(val));
 }
 
 /**
@@ -127,14 +126,21 @@ export function getTotalBasalRates(scheduleData) {
 
 /**
  * getScheduleLabel
- * @param  {String} scheduleName basal schedule name
- * @param  {String} activeName   basal name active at upload timestamp
+ * @param  {String} scheduleName  basal schedule name
+ * @param  {String} activeName    name of active basal schedule at time of upload
+ * @param  {String} deviceKey    one of: animas, carelink, insulet, medtronic, tandem
+ * @param  {Boolean} noUnits      whether units should be included in label object
  *
  * @return {Object}              object representing basal schedule label
  */
-export function getScheduleLabel(scheduleName, activeName, noUnits) {
+export function getScheduleLabel(scheduleName, activeName, deviceKey, noUnits) {
+  const CAPITALIZED = ['carelink', 'medtronic'];
+  let displayName = scheduleName;
+  if (_.includes(CAPITALIZED, deviceKey)) {
+    displayName = _.map(scheduleName.split(' '), (part) => (_.capitalize(part))).join(' ');
+  }
   return {
-    main: scheduleName,
+    main: displayName,
     secondary: scheduleName === activeName ? 'Active at upload' : '',
     units: noUnits ? '' : 'U/hr',
   };
