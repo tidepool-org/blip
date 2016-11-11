@@ -34,8 +34,8 @@ import SMBGAvg from '../../../../src/components/trends/smbg/SMBGAvg';
 
 describe('SMBGAvg', () => {
   let wrapper;
-  const focusAvg = sinon.spy();
-  const unfocusAvg = sinon.spy();
+  const focus = sinon.spy();
+  const unfocus = sinon.spy();
   const datum = {
     id: '5400000',
     max: 521,
@@ -45,9 +45,9 @@ describe('SMBGAvg', () => {
   };
   const props = {
     datum,
-    focusAvg,
+    focus,
     tooltipLeftThreshold: THREE_HRS * 6,
-    unfocusAvg,
+    unfocus,
     xScale,
     yPositions: {
       min: yScale(datum.min),
@@ -95,30 +95,30 @@ describe('SMBGAvg', () => {
 
   describe('interactions', () => {
     afterEach(() => {
-      props.focusAvg.reset();
-      props.unfocusAvg.reset();
+      props.focus.reset();
+      props.unfocus.reset();
     });
 
-    it('should call focusAvg on mouseover of circle', () => {
+    it('should call focus on mouseover of circle', () => {
       const avgCircle = wrapper
         .find(`#smbgAvg-${datum.id}`);
-      expect(focusAvg.callCount).to.equal(0);
+      expect(focus.callCount).to.equal(0);
       avgCircle.simulate('mouseover');
-      expect(focusAvg.args[0][0]).to.deep.equal(datum);
-      expect(focusAvg.args[0][1]).to.deep.equal({
+      expect(focus.args[0][0]).to.deep.equal(datum);
+      expect(focus.args[0][1]).to.deep.equal({
         left: 54,
         tooltipLeft: false,
         yPositions: props.yPositions,
       });
-      expect(focusAvg.callCount).to.equal(1);
+      expect(focus.callCount).to.equal(1);
     });
 
-    it('should call unfocusAvg on mouseout of min/max rect', () => {
+    it('should call unfocus on mouseout of min/max rect', () => {
       const avgCircle = wrapper
         .find(`#smbgAvg-${datum.id}`);
-      expect(unfocusAvg.callCount).to.equal(0);
+      expect(unfocus.callCount).to.equal(0);
       avgCircle.simulate('mouseout');
-      expect(unfocusAvg.callCount).to.equal(1);
+      expect(unfocus.callCount).to.equal(1);
     });
   });
 });

@@ -47,7 +47,11 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
 import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
 import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
+import SMBGsByDateContainer from './SMBGsByDateContainer';
 import SMBGRangeAvgAnimationContainer from './SMBGRangeAvgAnimationContainer';
+import SMBGAvg from '../../components/trends/smbg/SMBGAvg';
+import SMBGRange from '../../components/trends/smbg/SMBGRange';
+
 import NoData from '../../components/trends/common/NoData';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
 import XAxisLabels from '../../components/trends/common/XAxisLabels';
@@ -81,6 +85,24 @@ export class TrendsSVGContainer extends React.Component {
     );
   }
 
+  renderOverlay(smbgComponent, componentKey) {
+    if (this.props.smbgRangeOverlay) {
+      return (
+        <SMBGRangeAvgAnimationContainer
+          data={this.props.smbgData}
+          focus={this.props.focusRange}
+          key={componentKey}
+          tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+          unfocus={this.props.unfocusRange}
+          xScale={this.props.xScale}
+          yScale={this.props.yScale}
+          smbgComponent={smbgComponent}
+        />
+      );
+    }
+    return null;
+  }
+
   renderCbg() {
     if (this.props.showingCbg) {
       if (_.isEmpty(this.props.cbgData)) {
@@ -111,21 +133,47 @@ export class TrendsSVGContainer extends React.Component {
       if (_.isEmpty(this.props.smbgData)) {
         return this.renderNoDataMessage('smbg');
       }
-
-      const rangeOverlay = this.props.smbgRangeOverlay ?
-        (<SMBGRangeAvgAnimationContainer
-          data={this.props.smbgData}
-          focusRange={this.props.focusRange}
-          key="SMBGRangeAvgAnimationContainer"
-          smbgRangeOverlay={this.props.smbgRangeOverlay}
-          tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-          unfocusRange={this.props.unfocusRange}
+      let points = this.props.smbgData;
+      if (this.props.focusedSmbg) {
+        points = _.without(this.props.smbgData, this.props.focusedSmbg.dayPoints);
+      }
+      const days = (
+        <SMBGsByDateContainer
+          key="smbgDaysContainer"
+          data={points}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
-        />) : null;
+          focusedSmbg={this.props.focusedSmbg}
+          focusSmbg={this.props.focusSmbg}
+          unfocusSmbg={() => {}}
+          lines={this.props.smbgLines}
+          grouped={this.props.smbgGrouped}
+          smbgOpts={this.props.smbgOpts}
+          tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+        />
+      );
+      const focusedDay = this.props.focusedSmbg ? (
+        <SMBGsByDateContainer
+          key="focusedSmbgDayContainer"
+          data={this.props.focusedSmbg.dayPoints}
+          xScale={this.props.xScale}
+          yScale={this.props.yScale}
+          focusedSmbg={this.props.focusedSmbg}
+          focusSmbg={() => {}}
+          unfocusSmbg={this.props.unfocusSmbg}
+          lines={this.props.smbgLines}
+          grouped={this.props.smbgGrouped}
+          smbgOpts={this.props.smbgOpts}
+          tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+        />
+      ) : null;
+
       return (
         <g id="smbgTrends">
-          {[rangeOverlay]}
+        {this.renderOverlay(SMBGRange, 'SMBGRangeAnimationContainer')}
+        {days}
+        {this.renderOverlay(SMBGAvg, 'SMBGAvgAnimationContainer')}
+        {focusedDay}
         </g>
       );
     }
@@ -232,7 +280,25 @@ TrendsSVGContainer.propTypes = {
       }).isRequired,
     }).isRequired,
   }),
+  focusedSmbg: PropTypes.shape({
+    data: PropTypes.shape({
+      value: PropTypes.number.isRequired,
+    }),
+    position: PropTypes.shape({
+      top: PropTypes.number.isRequired,
+      left: PropTypes.number.isRequired,
+    }),
+    date: PropTypes.string.isRequired,
+    dayPoints: PropTypes.arrayOf(PropTypes.shape({
+      value: PropTypes.number.isRequired,
+    })),
+    positions: PropTypes.arrayOf(PropTypes.shape({
+      top: PropTypes.number.isRequired,
+      left: PropTypes.number.isRequired,
+    })),
+  }),
   focusRange: PropTypes.func.isRequired,
+  focusSmbg: PropTypes.func.isRequired,
   focusSlice: PropTypes.func.isRequired,
   margins: PropTypes.shape({
     top: PropTypes.number.isRequired,
@@ -242,6 +308,8 @@ TrendsSVGContainer.propTypes = {
   }).isRequired,
   showingCbg: PropTypes.bool.isRequired,
   showingSmbg: PropTypes.bool.isRequired,
+  smbgGrouped: PropTypes.bool.isRequired,
+  smbgLines: PropTypes.bool.isRequired,
   smbgOpts: PropTypes.shape({
     maxR: PropTypes.number.isRequired,
     r: PropTypes.number.isRequired,
@@ -249,6 +317,7 @@ TrendsSVGContainer.propTypes = {
   smbgRangeOverlay: PropTypes.bool.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
   unfocusRange: PropTypes.func.isRequired,
+  unfocusSmbg: PropTypes.func.isRequired,
   unfocusSlice: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,

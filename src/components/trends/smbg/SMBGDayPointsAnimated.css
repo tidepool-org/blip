@@ -15,61 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-.whiteText {
-  color: white;
-  fill: white;
+.smbg {
+  fill: var(--data-purple--medium);
+  opacity: 0.75;
 }
 
-.boldText {
-  font-weight: bold;
-}
-
-.lightText {
-  font-weight: 300;
-}
-
-.smallSize {
-  font-size: 12px;
-}
-
-.axisSize {
-  font-size: 14px;
-}
-
-.largeSize {
-  font-size: 17px;
-}
-
-.defaultSize {
-  font-size: 14px;
-}
-
-.mediumContrastText {
-  color: var(--text-medium-contrast);
-  fill: var(--text-medium-contrast);
-}
-
-.highContrastText {
-  color: var(--text-high-contrast);
-  fill: var(--text-high-contrast);
-}
-
-.noWrap {
-  white-space: nowrap;
-}
-
-.svgMiddleAnchored {
-  text-anchor: middle;
-}
-
-.svgRightAnchored {
-  text-anchor: end;
-}
-
-.svgStartAnchored {
-  text-anchor: start;
-}
-
-.svgVerticalCentered {
-  dominant-baseline: central;
+.solid {
+  opacity: 1;
 }

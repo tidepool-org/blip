@@ -66,11 +66,17 @@ const trendsStateByUser = (state = {}, action) => {
       );
     }
     case actionTypes.FOCUS_TRENDS_SMBG: {
-      const { smbgData: data, smbgPosition: position, userId } = action.payload;
+      const {
+        smbgData: data,
+        smbgPosition: position,
+        userId,
+        smbgDay: dayPoints,
+        smbgPositions: positions,
+        date } = action.payload;
       return update(
         state,
         { [userId]: {
-          [FOCUSED_SMBG]: { $set: { data, position } },
+          [FOCUSED_SMBG]: { $set: { data, position, dayPoints, positions, date } },
         } }
       );
     }

@@ -25,10 +25,10 @@ const SMBGRange = (props) => {
     return null;
   }
 
-  const { focusRange, rectWidth, unfocusRange: unfocus, xScale, yPositions } = props;
+  const { focus, rectWidth, unfocus, xScale, yPositions } = props;
   const xPos = xScale(datum.msX);
-  const focus = () => {
-    focusRange(datum, {
+  const focusRange = () => {
+    focus(datum, {
       left: xPos,
       tooltipLeft: datum.msX > props.tooltipLeftThreshold,
       yPositions,
@@ -39,7 +39,7 @@ const SMBGRange = (props) => {
     <rect
       className={styles.smbgRange}
       id={`smbgRange-${datum.id}`}
-      onMouseOver={focus}
+      onMouseOver={focusRange}
       onMouseOut={unfocus}
       x={xPos - rectWidth / 2}
       y={yPositions.max}
@@ -62,10 +62,10 @@ SMBGRange.propTypes = {
     min: PropTypes.number.isRequired,
     msX: PropTypes.number.isRequired,
   }),
-  focusRange: PropTypes.func.isRequired,
+  focus: PropTypes.func.isRequired,
   rectWidth: PropTypes.number.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
-  unfocusRange: PropTypes.func.isRequired,
+  unfocus: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yPositions: PropTypes.shape({
     min: PropTypes.number.isRequired,

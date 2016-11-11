@@ -15,61 +15,41 @@
  * == BSD2 LICENSE ==
  */
 
-.whiteText {
-  color: white;
-  fill: white;
+.container {
+  composes: absolute smallHorizontalPadding from '../../../styles/layout.css';
+  top: 0px;
 }
 
-.boldText {
-  font-weight: bold;
+.number {
+  composes: boldText highContrastText noWrap largeSize from '../../../styles/typography.css';
 }
 
-.lightText {
-  font-weight: 300;
+.explainerText {
+  composes: highContrastText noWrap from '../../../styles/typography.css';
+  display: block;
+  padding: 5px;
 }
 
-.smallSize {
-  font-size: 12px;
+.detailNumber {
+  composes: explainerText number;
+  text-align: center;
 }
 
-.axisSize {
-  font-size: 14px;
+.shortDate {
+  composes: explainerText;
 }
 
-.largeSize {
-  font-size: 17px;
+.shortTime {
+  composes: explainerText;
 }
 
-.defaultSize {
-  font-size: 14px;
+.subType {
+  composes: explainerText;
+  font-style: italic;
 }
 
-.mediumContrastText {
-  color: var(--text-medium-contrast);
-  fill: var(--text-medium-contrast);
-}
-
-.highContrastText {
-  color: var(--text-high-contrast);
-  fill: var(--text-high-contrast);
-}
-
-.noWrap {
-  white-space: nowrap;
-}
-
-.svgMiddleAnchored {
-  text-anchor: middle;
-}
-
-.svgRightAnchored {
-  text-anchor: end;
-}
-
-.svgStartAnchored {
-  text-anchor: start;
-}
-
-.svgVerticalCentered {
-  dominant-baseline: central;
+.tipWrapper {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: nowrap;
 }

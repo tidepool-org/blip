@@ -178,4 +178,28 @@ describe('[trends] data utils', () => {
       expect(res.msX).to.equal(bin);
     });
   });
+
+  describe('categorizeSmbgSubtype', () => {
+    const missingSubtype = {};
+    const manualSubtype = {
+      subType: 'manual',
+    };
+    const nonManualSubtype = {
+      subType: 'linked',
+    };
+    it('should be a function', () => {
+      assert.isFunction(utils.categorizeSmbgSubtype);
+    });
+    it('should categorize a non-subTyped smbg as `meter`', () => {
+      expect(utils.categorizeSmbgSubtype(missingSubtype)).to.equal('meter');
+    });
+
+    it('should categorize a `linked` smbg as `meter`', () => {
+      expect(utils.categorizeSmbgSubtype(nonManualSubtype)).to.equal('meter');
+    });
+
+    it('should categorize a `manual` smbg as `manual`', () => {
+      expect(utils.categorizeSmbgSubtype(manualSubtype)).to.equal('manual');
+    });
+  });
 });

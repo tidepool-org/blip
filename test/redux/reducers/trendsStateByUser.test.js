@@ -26,6 +26,8 @@ describe('trendsStateByUser', () => {
 
   const data = { median: 100 };
   const position = { median: 10 };
+  const positions = [{ median: 10 }, { median: 10 }];
+  const dayPoints = [{ id: 8, value: 200, msPer24: 10000 }];
 
   it('should return the initial state of {}', () => {
     expect(trendsStateByUser(undefined, {})).to.deep.equal({});
@@ -142,13 +144,22 @@ describe('trendsStateByUser', () => {
         },
       };
       const tracked = mutationTracker.trackObj(initialState);
+      const date = {};
+
       expect(trendsStateByUser(initialState, {
         type: actionTypes.FOCUS_TRENDS_SMBG,
-        payload: { smbgData: data, smbgPosition: position, userId: USER_1 },
+        payload: {
+          smbgData: data,
+          smbgPosition: position,
+          smbgDay: dayPoints,
+          smbgPositions: positions,
+          date,
+          userId: USER_1,
+        },
       })[USER_1]).to.deep.equal({
         focusedCbgSlice: null,
         focusedCbgSliceKeys: null,
-        focusedSmbg: { data, position },
+        focusedSmbg: { data, position, dayPoints, positions, date },
         focusedSmbgRangeAvg: null,
         touched: true,
       });

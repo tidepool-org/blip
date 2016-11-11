@@ -77,5 +77,22 @@ export function calculateSmbgStatsForBin(binKey, binSize, data) {
     mean: mean(data),
     max: max(data),
     msX: centerOfBinMs,
+    msFrom: centerOfBinMs - (binSize / 2),
+    msTo: centerOfBinMs + (binSize / 2),
   };
+}
+
+/**
+ * Returns a category based on SMBG subType
+ * @param  {Object} data smbg
+ * @return {String}      category name for subType
+ */
+export function categorizeSmbgSubtype(data) {
+  let category;
+  if (data.subType && data.subType === 'manual') {
+    category = data.subType;
+  } else {
+    category = 'meter';
+  }
+  return category;
 }

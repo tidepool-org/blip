@@ -15,61 +15,43 @@
  * == BSD2 LICENSE ==
  */
 
-.whiteText {
-  color: white;
-  fill: white;
+.tooltip {
+  display: block;
+  composes: defaultSize from '../../../styles/typography.css';
+  background-color: #FFFFFF;
+  border: solid;
+  position: absolute;
+  border-radius: 4px;
+  opacity: 0.75;
 }
 
-.boldText {
-  font-weight: bold;
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 5px 10px;
+  box-sizing: border-box;
 }
 
-.lightText {
-  font-weight: 300;
+.content span {
+  width: 100%;
 }
 
-.smallSize {
-  font-size: 12px;
+.title {
+  composes: mediumContrastText from '../../../styles/typography.css';
+  composes: content;
+  background-color: var(--tooltip-title-bg);
 }
 
-.axisSize {
-  font-size: 14px;
+.tail {
+  width: 0px;
+  height: 0px;
+  border-style: solid;
+  border-color: transparent;
+  position: absolute;
 }
 
-.largeSize {
-  font-size: 17px;
-}
-
-.defaultSize {
-  font-size: 14px;
-}
-
-.mediumContrastText {
-  color: var(--text-medium-contrast);
-  fill: var(--text-medium-contrast);
-}
-
-.highContrastText {
-  color: var(--text-high-contrast);
-  fill: var(--text-high-contrast);
-}
-
-.noWrap {
-  white-space: nowrap;
-}
-
-.svgMiddleAnchored {
-  text-anchor: middle;
-}
-
-.svgRightAnchored {
-  text-anchor: end;
-}
-
-.svgStartAnchored {
-  text-anchor: start;
-}
-
-.svgVerticalCentered {
-  dominant-baseline: central;
+:export {
+  tooltipTitleBg: var(--tooltip-title-bg);
 }
