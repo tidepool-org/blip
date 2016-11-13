@@ -30,7 +30,7 @@ var PermissionInputGroup = React.createClass({
   },
   getDefaultProps: function() {
     return {
-      value: false,
+      value: true,
       working: false,
     };
   },
@@ -52,7 +52,6 @@ var PermissionInputGroup = React.createClass({
   },
   render: function() {
     return (
-      
       <InputGroup
         name={this.state.name}
         type="checkbox"
@@ -60,7 +59,6 @@ var PermissionInputGroup = React.createClass({
         disabled={this.props.working}
         value={this.props.value}
         onChange={this.handleChange}/>
-        
     );
   }
 });
@@ -75,7 +73,8 @@ var MemberInviteForm = React.createClass({
   },
   getInitialState: function() {
     return {
-      allowUpload: false,
+      //by default uploads are allowed
+      allowUpload: true,
       error: null
     };
   },
@@ -309,9 +308,9 @@ var PatientTeam = React.createClass({
               <div className="PatientInfo-block PatientInfo-block--withArrow"><div>{member.profile.fullName}</div></div>
               <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-delete"></i></a>
               <div className="clear"></div>
-              <PermissionInputGroup 
-                onChange={this.handlePermissionChange(member)} 
-                value={allowUpload} 
+              <PermissionInputGroup
+                onChange={this.handlePermissionChange(member)}
+                value={allowUpload}
                 working={this.props.changingMemberPermissions}
               />
             </div>
@@ -493,7 +492,7 @@ var PatientTeam = React.createClass({
     if (utils.getIn(this.props, ['patient', 'team'])) {
       members = _.map(this.props.patient.team, this.renderTeamMember);
     }
-    
+
     var editControls = _.isEmpty(members) ? null : this.renderEditControls();
 
     var pendingSentInvites = [];
@@ -512,7 +511,7 @@ var PatientTeam = React.createClass({
       'PatientTeam-list': true,
       'PatientTeam-list--single': emptyList,
     });
-    
+
     var patientName = personUtils.patientFullName(this.props.patient);
 
     return (
