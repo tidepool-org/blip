@@ -58,13 +58,12 @@ var PatientCard = React.createClass({
 
     return (
       <div>
-        <div onMouseEnter={this.setHighlight('view')} onMouseLeave={this.setHighlight('')} className={classes}
-          onClick={this.onClick}>
-          <Link className="patientcard-icon" to={this.props.href} onClick={self.handleViewClick}>
+        <div className={classes} onClick={this.onClick}>
+          <Link className="patientcard-icon" to={this.props.href} onMouseEnter={this.setHighlight('view')} onMouseLeave={this.setHighlight('')} onClick={self.handleViewClick}>
             <i className="Navbar-icon icon-face-standin"></i>
           </Link>
           <div className="patientcard-info">
-            <Link className="patientcard-fullname-link" to={this.props.href} onClick={self.handleViewClick}>
+            <Link className="patientcard-fullname-link" to={this.props.href} onMouseEnter={this.setHighlight('view')} onMouseLeave={this.setHighlight('')} onClick={self.handleViewClick}>
               <div className="patientcard-fullname" title={this.getFullName()}>{this.getFullName()} {profile}</div>
             </Link>
             <div className="patientcard-actions">
