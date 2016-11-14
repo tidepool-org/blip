@@ -29,6 +29,7 @@
     "bows": "1.6.0",
     "classnames": "2.2.5",
     "css-loader": "0.23.1",
+    "enzyme": "2.4.1",
     "express": "4.14.0",
     "extract-text-webpack-plugin": "1.0.1",
     "file-loader": "0.9.0",
@@ -56,7 +57,7 @@
     "shelljs": "0.7.3",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "0.5.1",
+    "tideline": "0.5.5",
     "tidepool-platform-client": "0.27.0",
     "url-loader": "0.5.7",
     "webpack": "1.13.2"

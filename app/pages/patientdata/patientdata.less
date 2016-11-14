@@ -192,11 +192,38 @@
 }
 
 .patient-data-message-no-data {
-  > a {
-    font-size: 40px;
-    padding: 40px;
-    display: inline-block;
+  text-align: center;
+  margin-top: 80px;
+
+  @media(min-width: @patient-data-message-breakpoint) {
+    margin-left: auto;
+    margin-right: auto;
+    width: 575px;
   }
+
+  h1 {
+    font-size: 26px;
+    font-weight: normal;
+    margin-bottom: @spacing-large;
+  }
+
+  p {
+    font-size: 18px;
+  }
+
+  .uploader-color-override {
+    color: @purple-medium;
+
+    &:hover, &:focus {
+      color: @purple-uploader;
+      text-decoration: none;
+    }
+  }
+}
+
+.patient-no-data-help {
+  margin-top: 210px;
+  line-height: 25px;
 }
 
 // Footer
