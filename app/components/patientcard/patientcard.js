@@ -131,6 +131,7 @@ var PatientCard = React.createClass({
 
   renderRemove: function(patient) {
     var classes = cx({
+      'patientcard-actions-remove': true,
       'patientcard-actions--highlight': this.state.highlight === 'remove'
     });
 
