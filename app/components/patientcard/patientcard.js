@@ -287,7 +287,6 @@ var PatientCard = React.createClass({
 
   handleViewClick: function() {
     this.props.trackMetric('Clicked VDF View Data');
-    this.props.onClick();
   },
 });
 
