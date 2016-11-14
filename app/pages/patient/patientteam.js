@@ -145,8 +145,10 @@ var MemberInviteForm = React.createClass({
     };
 
     if (allowUpload) {
-      this.props.trackMetric('Clicked Allow Uploading');
+      this.props.trackMetric('Allow Uploading turned on');
       permissions.upload = {};
+    } else {
+      this.props.trackMetric('Allow Uploading turned off');
     }
 
     this.setState({
