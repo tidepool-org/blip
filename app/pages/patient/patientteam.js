@@ -122,8 +122,9 @@ var MemberInviteForm = React.createClass({
       e.preventDefault();
     }
 
-    var email = this.refs.email.value;
-    var allowUpload = this.refs.allowUpload.getValue();
+    var self = this;
+    var email = self.refs.email.value;
+    var allowUpload = self.refs.allowUpload.getValue();
 
     var validateEmail = function(email) {
       var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -131,12 +132,10 @@ var MemberInviteForm = React.createClass({
     };
 
     if (!validateEmail(email)) {
-      this.setState({
-        error: 'Invalid email address.'
-      });
+      self.setState({error: 'Invalid email address.'});
       return;
     } else {
-      this.setState({error: null});
+      self.setState({error: null});
     }
 
     var permissions = {
@@ -145,17 +144,14 @@ var MemberInviteForm = React.createClass({
     };
 
     if (allowUpload) {
-      this.props.trackMetric('Allow Uploading turned on');
+      self.props.trackMetric('Allow Uploading turned on');
       permissions.upload = {};
     } else {
-      this.props.trackMetric('Allow Uploading turned off');
+      self.props.trackMetric('Allow Uploading turned off');
     }
 
-    this.setState({
-      allowUpload: allowUpload,
-    });
-    var self = this;
-    this.props.onSubmit(email, permissions);
+    self.setState({ allowUpload: allowUpload});
+    self.props.onSubmit(email, permissions);
     self.props.trackMetric('Clicked Invite');
   }
 });
@@ -538,4 +534,7 @@ var PatientTeam = React.createClass({
   }
 });
 
-module.exports = PatientTeam;
+module.exports = {
+  PatientTeam,
+  MemberInviteForm
+};
