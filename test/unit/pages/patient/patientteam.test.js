@@ -81,20 +81,20 @@ describe('MemberInviteForm', function () {
     it('should be tracked when allowUpload is true', function() {
       wrapper.ref('email').get(0).value = 'test@tidepool.org';
       expect(props.trackMetric.callCount).to.equal(0);
-      wrapper.find('button.PatientInfo-button--primary').simulate('click')
-      //one metric for `Allow Uploading turned on`
-      //one metric for `Clicked Invite`
+      wrapper.find('button.PatientInfo-button--primary').simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
+      expect(props.trackMetric.calledWith('Allow Uploading turned on')).to.be.true;
+      expect(props.trackMetric.calledWith('Clicked Invite')).to.be.true;
     });
     it('should be tracked when allowUpload is false', function() {
       wrapper.ref('email').get(0).value = 'test@tidepool.org';
       wrapper.setState({ allowUpload: false });
       expect(wrapper.state().allowUpload).to.equal(false);
       expect(props.trackMetric.callCount).to.equal(0);
-      wrapper.find('button.PatientInfo-button--primary').simulate('click')
-      //one metric for `Allow Uploading turned off`
-      //one metric for `Clicked Invite`
+      wrapper.find('button.PatientInfo-button--primary').simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
+      expect(props.trackMetric.calledWith('Allow Uploading turned off')).to.be.true;
+      expect(props.trackMetric.calledWith('Clicked Invite')).to.be.true;
     });
   });
 });
