@@ -51,16 +51,16 @@ describe('PatientCard', function () {
 
     it('should render a patientcard-leave with delete icon and title text', function() {
       var patientCardLeave = renderedDOMElem.querySelectorAll('.patientcard-leave');
-      var leaveLink = renderedDOMElem.querySelectorAll('a');
+      var leaveLink = renderedDOMElem.querySelector('a.patientcard-actions-remove');
       var deleteIcon = renderedDOMElem.querySelectorAll('.icon-delete');
       expect(patientCardLeave.length).to.equal(1);
       expect(deleteIcon.length).to.equal(1);
-      expect(leaveLink[1].title).to.equal('Remove yourself from Jane Doe\'s care team.');
+      expect(leaveLink.title).to.equal('Remove yourself from Jane Doe\'s care team.');
     });
 
     it('should render a confirmation overlay when you click to remove yourself from a care team', function() {
-      var leaveLink = renderedDOMElem.querySelectorAll('a');
-      TestUtils.Simulate.click(leaveLink[1]);
+      var leaveLink = renderedDOMElem.querySelector('a.patientcard-actions-remove');
+      TestUtils.Simulate.click(leaveLink);
       var overlay = renderedDOMElem.querySelectorAll('.ModalOverlay-content');
       expect(overlay.length).to.equal(1);
     });
