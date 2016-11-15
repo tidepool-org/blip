@@ -37,6 +37,7 @@ describe('SMBGDayPointsAnimated', () => {
   let wrapper;
   const focusSmbg = sinon.spy();
   const unfocusSmbg = sinon.spy();
+  const onSelectDay = sinon.spy();
   const grouped = true;
   const focusedDay = [];
   const date = '2016-08-14';
@@ -49,6 +50,7 @@ describe('SMBGDayPointsAnimated', () => {
     maxR: 7.5,
     r: 6,
   };
+  const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
 
   const props = {
     date,
@@ -57,9 +59,11 @@ describe('SMBGDayPointsAnimated', () => {
     yScale,
     focusSmbg,
     unfocusSmbg,
+    onSelectDay,
     grouped,
     focusedDay,
     smbgOpts,
+    timePrefs,
     tooltipLeftThreshold: THREE_HRS * 6,
   };
   before(() => {
@@ -114,6 +118,14 @@ describe('SMBGDayPointsAnimated', () => {
       expect(unfocusSmbg.callCount).to.equal(0);
       smbgCircle.simulate('mouseout');
       expect(unfocusSmbg.callCount).to.equal(1);
+    });
+
+    it('should call onSelectDay on double click of smbg circle', () => {
+      const smbgCircle = wrapper
+        .find(`#smbg-${data[0].id}`);
+      expect(onSelectDay.callCount).to.equal(0);
+      smbgCircle.simulate('doubleClick');
+      expect(onSelectDay.callCount).to.equal(1);
     });
   });
 });

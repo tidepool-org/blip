@@ -35,6 +35,7 @@ describe('SMBGDayLineAnimated', () => {
   let wrapper;
   const focusLine = sinon.spy();
   const unfocusLine = sinon.spy();
+  const onSelectDay = sinon.spy();
   const grouped = true;
   const focusedDay = [];
   const date = '2016-08-14';
@@ -43,6 +44,7 @@ describe('SMBGDayLineAnimated', () => {
     { id: '1', value: 90, msPer24: 9000000 },
     { id: '2', value: 180, msPer24: 21600000 },
   ];
+  const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
 
   const props = {
     date,
@@ -53,6 +55,8 @@ describe('SMBGDayLineAnimated', () => {
     unfocusLine,
     grouped,
     focusedDay,
+    onSelectDay,
+    timePrefs,
   };
   before(() => {
     wrapper = mount(
@@ -91,7 +95,7 @@ describe('SMBGDayLineAnimated', () => {
       props.unfocusLine.reset();
     });
 
-    it('should call focusLine on mouseover of smbg circle', () => {
+    it('should call focusLine on mouseover of smbg line', () => {
       const smbgDayLine = wrapper
         .find(`#smbgDayLine-${date} path`);
       expect(focusLine.callCount).to.equal(0);
@@ -99,12 +103,20 @@ describe('SMBGDayLineAnimated', () => {
       expect(focusLine.callCount).to.equal(1);
     });
 
-    it('should call unfocusLine on mouseout of smbg circle', () => {
+    it('should call unfocusLine on mouseout of smbg line', () => {
       const smbgDayLine = wrapper
         .find(`#smbgDayLine-${date} path`);
       expect(unfocusLine.callCount).to.equal(0);
       smbgDayLine.simulate('mouseout');
       expect(unfocusLine.callCount).to.equal(1);
+    });
+
+    it('should call onSelectDay on double click of smbg circle', () => {
+      const smbgDayLine = wrapper
+        .find(`#smbgDayLine-${date} path`);
+      expect(onSelectDay.callCount).to.equal(0);
+      smbgDayLine.simulate('doubleClick');
+      expect(onSelectDay.callCount).to.equal(1);
     });
   });
 });

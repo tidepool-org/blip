@@ -331,6 +331,8 @@ export class TrendsContainer extends React.Component {
         smbgGrouped={this.props.smbgGrouped}
         smbgLines={this.props.smbgLines}
         smbgRangeOverlay={this.props.smbgRangeOverlay}
+        onSelectDay={this.props.onSelectDay}
+        timePrefs={this.props.timePrefs}
         xScale={this.state.xScale}
         yScale={this.state.yScale}
         unfocusRange={this.props.unfocusTrendsSmbgRangeAvg}

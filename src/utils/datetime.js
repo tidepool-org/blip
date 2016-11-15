@@ -159,3 +159,19 @@ export function getParsedTime(data, timePrefs) {
   }
   return parsedTime;
 }
+
+/**
+ * Get an ISO formatted string representing noon for a given time's date
+ * @param  {(string|number)} utc Zulu timestamp (Integer hammertime also OK)
+ * @param  {Object} timePrefs object containing timezone preferences
+ * @param  {boolean} timePrefs.timezoneAware boolean to indicate timezone awareness
+ * @param  {(string|null)} timePrefs.timezoneName name of timezone or null
+ * @return {String}           ISO-formatted string
+ */
+export function midDayForDate(utc, timePrefs) {
+  return moment.utc(utc)
+    .tz(getTimezoneFromTimePrefs(timePrefs))
+    .startOf('day')
+    .add(12, 'hours')
+    .toISOString();
+}

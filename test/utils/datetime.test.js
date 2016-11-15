@@ -332,4 +332,22 @@ describe('datetime', () => {
         .to.throw('time and deviceTime must be a ISO-formatted String timestamp');
     });
   });
+
+  describe('midDayForDate', () => {
+    const tzAware = {
+      timezoneAware: true,
+      timezoneName: 'America/New_York',
+    };
+    const tzUnaware = {
+      timezoneAware: false,
+      timezoneName: null,
+    };
+    const utc = Date.parse('2016-09-23T23:00:00.000Z');
+    it('should return "2016-09-23T16:00:00.000Z" if timezone aware', () => {
+      expect(datetime.midDayForDate(utc, tzAware)).to.equal('2016-09-23T16:00:00.000Z');
+    });
+    it('should return "2016-09-23T12:00:00.000Z" if timezone unaware', () => {
+      expect(datetime.midDayForDate(utc, tzUnaware)).to.equal('2016-09-23T12:00:00.000Z');
+    });
+  });
 });

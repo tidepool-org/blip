@@ -20,7 +20,7 @@ import { Motion, spring } from 'react-motion';
 import _ from 'lodash';
 import cx from 'classnames';
 
-import { THREE_HRS } from '../../../utils/datetime';
+import { THREE_HRS, midDayForDate, getParsedTime } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
 import styles from './SMBGDayPointsAnimated.css';
@@ -31,7 +31,16 @@ const SMBGDayPointsAnimated = (props) => {
     return null;
   }
 
-  const { date, xScale, yScale, focusSmbg, unfocusSmbg, grouped, focusedDay, smbgOpts } = props;
+  const { date,
+    xScale,
+    yScale,
+    focusSmbg,
+    unfocusSmbg,
+    grouped,
+    focusedDay,
+    smbgOpts,
+    onSelectDay,
+    timePrefs } = props;
   const radius = (date === focusedDay) ? smbgOpts.maxR : smbgOpts.r;
   const xPosition = (msPer24) => {
     if (grouped) {
@@ -60,6 +69,9 @@ const SMBGDayPointsAnimated = (props) => {
         const unfocus = () => {
           unfocusSmbg();
         };
+        const selectDay = () => {
+          onSelectDay(midDayForDate(getParsedTime(smbg, timePrefs), timePrefs));
+        };
         const classes = cx({
           [styles.smbg]: true,
           [styles.solid]: date === focusedDay,
@@ -73,6 +85,7 @@ const SMBGDayPointsAnimated = (props) => {
                 id={`smbg-${smbg.id}`}
                 onMouseOver={focus}
                 onMouseOut={unfocus}
+                onDoubleClick={selectDay}
                 cx={interpolated.xPos}
                 cy={yScale(smbg.value)}
                 r={radius}
@@ -98,6 +111,11 @@ SMBGDayPointsAnimated.propTypes = {
   unfocusSmbg: PropTypes.func.isRequired,
   grouped: PropTypes.bool.isRequired,
   focusedDay: PropTypes.string.isRequired,
+  onSelectDay: PropTypes.func.isRequired,
+  timePrefs: PropTypes.shape({
+    timezoneAware: PropTypes.bool.isRequired,
+    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
+  }).isRequired,
   smbgOpts: PropTypes.shape({
     maxR: PropTypes.number.isRequired,
     r: PropTypes.number.isRequired,
