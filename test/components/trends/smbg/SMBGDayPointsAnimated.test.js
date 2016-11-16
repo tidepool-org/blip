@@ -50,7 +50,6 @@ describe('SMBGDayPointsAnimated', () => {
     maxR: 7.5,
     r: 6,
   };
-  const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
 
   const props = {
     date,
@@ -63,7 +62,6 @@ describe('SMBGDayPointsAnimated', () => {
     grouped,
     focusedDay,
     smbgOpts,
-    timePrefs,
     tooltipLeftThreshold: THREE_HRS * 6,
   };
   before(() => {

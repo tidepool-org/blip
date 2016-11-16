@@ -44,7 +44,6 @@ describe('SMBGDayLineAnimated', () => {
     { id: '1', value: 90, msPer24: 9000000 },
     { id: '2', value: 180, msPer24: 21600000 },
   ];
-  const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
 
   const props = {
     date,
@@ -56,7 +55,6 @@ describe('SMBGDayLineAnimated', () => {
     grouped,
     focusedDay,
     onSelectDay,
-    timePrefs,
   };
   before(() => {
     wrapper = mount(
