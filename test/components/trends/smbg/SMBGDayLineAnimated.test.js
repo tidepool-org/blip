@@ -109,7 +109,7 @@ describe('SMBGDayLineAnimated', () => {
       expect(unfocusLine.callCount).to.equal(1);
     });
 
-    it('should call onSelectDay on double click of smbg circle', () => {
+    it('should call onSelectDay on double click of smbg line', () => {
       const smbgDayLine = wrapper
         .find(`#smbgDayLine-${date} path`);
       expect(onSelectDay.callCount).to.equal(0);
