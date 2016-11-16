@@ -336,20 +336,38 @@ describe('datetime', () => {
   describe('midDayForDate', () => {
     const tzAware = {
       timezoneAware: true,
-      timezoneName: 'America/New_York',
+      timezoneName: 'America/North_Dakota/New_Salem',
     };
     const tzUnaware = {
       timezoneAware: false,
       timezoneName: null,
     };
     const localDate = '2016-09-23';
+    const dstBegin = '2016-03-13';
+    const dstEnd = '2016-11-06';
 
-    it('should return "2016-09-23T16:00:00.000Z" if timezone aware', () => {
-      expect(datetime.midDayForDate(localDate, tzAware)).to.equal('2016-09-23T16:00:00.000Z');
+    it('should return "2016-09-23T17:00:00.000Z" if timezone aware', () => {
+      expect(datetime.midDayForDate(localDate, tzAware)).to.equal('2016-09-23T17:00:00.000Z');
     });
 
     it('should return "2016-09-23T12:00:00.000Z" if timezone unaware', () => {
       expect(datetime.midDayForDate(localDate, tzUnaware)).to.equal('2016-09-23T12:00:00.000Z');
+    });
+
+    it('should return "2016-03-13T18:00:00.000Z" if on DST begin, timezone aware', () => {
+      expect(datetime.midDayForDate(dstBegin, tzAware)).to.equal('2016-03-13T18:00:00.000Z');
+    });
+
+    it('should return "2016-03-13T12:00:00.000Z" if on DST begin, timezone unaware', () => {
+      expect(datetime.midDayForDate(dstBegin, tzUnaware)).to.equal('2016-03-13T12:00:00.000Z');
+    });
+
+    it('should return "2016-11-06T17:00:00.000Z" if on DST end, timezone aware', () => {
+      expect(datetime.midDayForDate(dstEnd, tzAware)).to.equal('2016-11-06T17:00:00.000Z');
+    });
+
+    it('should return "2016-11-06T12:00:00.000Z" if on DST end, timezone unaware', () => {
+      expect(datetime.midDayForDate(dstEnd, tzUnaware)).to.equal('2016-11-06T12:00:00.000Z');
     });
   });
 });
