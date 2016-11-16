@@ -342,12 +342,14 @@ describe('datetime', () => {
       timezoneAware: false,
       timezoneName: null,
     };
-    const utc = Date.parse('2016-09-23T23:00:00.000Z');
+    const localDate = '2016-09-23';
+
     it('should return "2016-09-23T16:00:00.000Z" if timezone aware', () => {
-      expect(datetime.midDayForDate(utc, tzAware)).to.equal('2016-09-23T16:00:00.000Z');
+      expect(datetime.midDayForDate(localDate, tzAware)).to.equal('2016-09-23T16:00:00.000Z');
     });
+
     it('should return "2016-09-23T12:00:00.000Z" if timezone unaware', () => {
-      expect(datetime.midDayForDate(utc, tzUnaware)).to.equal('2016-09-23T12:00:00.000Z');
+      expect(datetime.midDayForDate(localDate, tzUnaware)).to.equal('2016-09-23T12:00:00.000Z');
     });
   });
 });

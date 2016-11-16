@@ -161,16 +161,15 @@ export function getParsedTime(data, timePrefs) {
 }
 
 /**
- * Get an ISO formatted string representing noon for a given time's date
- * @param  {(string|number)} utc Zulu timestamp (Integer hammertime also OK)
+ * Get an ISO formatted string representing noon for a given (pre-TZ adjusted) date
+ * @param  {String} localDate date already adjusted for timeZone
  * @param  {Object} timePrefs object containing timezone preferences
  * @param  {boolean} timePrefs.timezoneAware boolean to indicate timezone awareness
  * @param  {(string|null)} timePrefs.timezoneName name of timezone or null
  * @return {String}           ISO-formatted string
  */
-export function midDayForDate(utc, timePrefs) {
-  return moment.utc(utc)
-    .tz(getTimezoneFromTimePrefs(timePrefs))
+export function midDayForDate(localDate, timePrefs) {
+  return moment.tz(localDate, getTimezoneFromTimePrefs(timePrefs))
     .startOf('day')
     .add(12, 'hours')
     .toISOString();

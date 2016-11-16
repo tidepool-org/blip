@@ -33,7 +33,7 @@ import { line } from 'd3-shape';
 import _ from 'lodash';
 import cx from 'classnames';
 
-import { THREE_HRS, midDayForDate, getParsedTime } from '../../../utils/datetime';
+import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
 import styles from './SMBGDayLineAnimated.css';
@@ -51,8 +51,7 @@ const SMBGDayLineAnimated = (props) => {
     focusLine,
     unfocusLine,
     focusedDay,
-    onSelectDay,
-    timePrefs } = props;
+    onSelectDay } = props;
 
   const xPosition = (msPer24) => {
     if (grouped) {
@@ -100,7 +99,7 @@ const SMBGDayLineAnimated = (props) => {
             onMouseOver={() => { focusLine(data[0], positions[0], data, positions, date); }}
             onMouseOut={() => { unfocusLine(); }}
             onDoubleClick={() => {
-              onSelectDay(midDayForDate(getParsedTime(data[0], timePrefs), timePrefs));
+              onSelectDay(date);
             }}
           />
         )}
@@ -123,10 +122,6 @@ SMBGDayLineAnimated.propTypes = {
   grouped: PropTypes.bool.isRequired,
   focusedDay: PropTypes.string.isRequired,
   onSelectDay: PropTypes.func.isRequired,
-  timePrefs: PropTypes.shape({
-    timezoneAware: PropTypes.bool.isRequired,
-    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
-  }).isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
 };
 

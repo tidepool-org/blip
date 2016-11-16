@@ -149,7 +149,6 @@ export class TrendsSVGContainer extends React.Component {
           lines={this.props.smbgLines}
           grouped={this.props.smbgGrouped}
           onSelectDay={this.props.onSelectDay}
-          timePrefs={this.props.timePrefs}
           smbgOpts={this.props.smbgOpts}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
         />
@@ -166,7 +165,6 @@ export class TrendsSVGContainer extends React.Component {
           lines={this.props.smbgLines}
           grouped={this.props.smbgGrouped}
           onSelectDay={this.props.onSelectDay}
-          timePrefs={this.props.timePrefs}
           smbgOpts={this.props.smbgOpts}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
         />
@@ -311,10 +309,6 @@ TrendsSVGContainer.propTypes = {
     left: PropTypes.number.isRequired,
   }).isRequired,
   onSelectDay: PropTypes.func.isRequired,
-  timePrefs: PropTypes.shape({
-    timezoneAware: PropTypes.bool.isRequired,
-    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
-  }).isRequired,
   showingCbg: PropTypes.bool.isRequired,
   showingSmbg: PropTypes.bool.isRequired,
   smbgGrouped: PropTypes.bool.isRequired,
