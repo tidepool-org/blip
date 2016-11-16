@@ -177,6 +177,9 @@ export let PatientData = React.createClass({
     var handleClickUpload = function() {
       self.props.trackMetric('Clicked No Data Upload');
     };
+    var handleClickBlipNotes = function() {
+      self.props.trackMetric('Clicked No Data Get Blip Notes');
+    };
 
     if (this.props.isUserPatient) {
       content = (
@@ -186,7 +189,7 @@ export let PatientData = React.createClass({
             buttonUrl={URL_UPLOADER_CHROME_STORE}
             onClick={handleClickUpload}
             buttonText='Get the Tidepool Uploader' />
-          <p>To upload Dexcom with iPhone get <a href={URL_BLIP_NOTES_APP_STORE} className="uploader-color-override" target="_blank">Blip Notes</a></p>
+          <p>To upload Dexcom with iPhone get <a href={URL_BLIP_NOTES_APP_STORE} className="uploader-color-override" target="_blank" onClick={handleClickBlipNotes}>Blip Notes</a></p>
           <p className="patient-no-data-help">
             Already uploaded? <a href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</a><br />
             <b>Need help?</b> Email us at <a className="uploader-color-override" href="mailto:support@tidepool.org">support@tidepool.org</a> or visit our <a className="uploader-color-override" href="http://support.tidepool.org/">help page</a>.
