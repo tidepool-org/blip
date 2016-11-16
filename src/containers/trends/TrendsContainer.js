@@ -199,9 +199,6 @@ export class TrendsContainer extends React.Component {
       mostRecent: mostRecent.toISOString(),
       xScale: scaleLinear().domain([0, 864e5]),
       yScale,
-      selectDay: (date) => {
-        this.props.onSelectDay(datetime.midDayForDate(date, timePrefs));
-      },
     }, this.determineDataToShow);
     this.props.onDatetimeLocationChange(dateDomain, end === mostRecent);
   }
@@ -247,6 +244,10 @@ export class TrendsContainer extends React.Component {
       dateDomain: { start: newDomain[0], end: newDomain[1] },
     });
     this.props.onDatetimeLocationChange(newDomain, newDomain[1] >= mostRecent);
+  }
+
+  selectDay() {
+    return (date) => this.props.onSelectDay(datetime.midDayForDate(date, this.props.timePrefs));
   }
 
   goBack() {
@@ -334,7 +335,7 @@ export class TrendsContainer extends React.Component {
         smbgGrouped={this.props.smbgGrouped}
         smbgLines={this.props.smbgLines}
         smbgRangeOverlay={this.props.smbgRangeOverlay}
-        onSelectDay={this.state.selectDay}
+        onSelectDay={this.selectDay()}
         xScale={this.state.xScale}
         yScale={this.state.yScale}
         unfocusRange={this.props.unfocusTrendsSmbgRangeAvg}
