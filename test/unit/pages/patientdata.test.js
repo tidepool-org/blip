@@ -6,6 +6,7 @@
 /* global after */
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 
 
@@ -302,6 +303,88 @@ describe('PatientData', function () {
 
           var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-uploader-message');
           expect(x).to.be.ok;
+        });
+
+        it('should track click on main upload button', function() {
+          var props = {
+            currentPatientInViewId: 40,
+            isUserPatient: true,
+            patient: {
+              userid: 40,
+              profile: {
+                fullName: 'Fooey McBar'
+              }
+            },
+            fetchingPatient: false,
+            fetchingPatientData: false,
+            trackMetric: sinon.stub()
+          };
+
+          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+          // bypass the actual processing function since that's not what we're testing here!
+          elem.doProcessing = () => {
+            elem.setState({
+              processedPatientData: {data: []},
+              processingData: false
+            });
+          }
+          elem.componentWillReceiveProps({
+            patientDataMap: {
+              40: []
+            },
+            patientNotesMap: {
+              40: []
+            }
+          });
+
+          var renderedDOMElem = ReactDOM.findDOMNode(elem);
+          var links = renderedDOMElem.querySelectorAll('.patient-data-uploader-message a');
+
+          var callCount = props.trackMetric.callCount;
+          TestUtils.Simulate.click(links[0]);
+          expect(props.trackMetric.callCount).to.equal(callCount + 1);
+          expect(props.trackMetric.calledWith('Clicked No Data Upload')).to.be.true;
+        });
+
+        it('should track click on Blip Notes link', function() {
+          var props = {
+            currentPatientInViewId: 40,
+            isUserPatient: true,
+            patient: {
+              userid: 40,
+              profile: {
+                fullName: 'Fooey McBar'
+              }
+            },
+            fetchingPatient: false,
+            fetchingPatientData: false,
+            trackMetric: sinon.stub()
+          };
+
+          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+          // bypass the actual processing function since that's not what we're testing here!
+          elem.doProcessing = () => {
+            elem.setState({
+              processedPatientData: {data: []},
+              processingData: false
+            });
+          }
+          elem.componentWillReceiveProps({
+            patientDataMap: {
+              40: []
+            },
+            patientNotesMap: {
+              40: []
+            }
+          });
+
+          var renderedDOMElem = ReactDOM.findDOMNode(elem);
+          var links = renderedDOMElem.querySelectorAll('.patient-data-uploader-message a');
+
+          var callCount = props.trackMetric.callCount;
+          TestUtils.Simulate.click(links[1]);
+          expect(props.trackMetric.callCount).to.equal(callCount + 1);
+          expect(props.trackMetric.calledWith('Clicked No Data Get Blip Notes')).to.be.true;
         });
       });
     });

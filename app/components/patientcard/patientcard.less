@@ -18,8 +18,6 @@
 }
 
 .patient-list-item {
-  cursor: pointer;
-
   .no-touch &:hover,
   &:focus,
   &:active {
@@ -69,6 +67,11 @@
     height: 33px;
   }
 
+  > a.patientcard-icon {
+    width: auto;
+    height: auto;
+  }
+
   .icon-face-standin {
     font-size: 45px;
     width: 65px;
@@ -87,6 +90,10 @@
   max-width: 210px;
   color: @gray-dark;
   font-style: normal;
+}
+
+.patientcard-fullname-link:hover {
+  text-decoration: none;
 }
 
 .patientcard-leave {
@@ -171,7 +178,6 @@ a.patientcard {
 
 .patientcard-actions--highlight {
   color: @blue-green !important;
-  text-decoration: none;
 
   .patientcard-fullname {
     color: @blue-green;
