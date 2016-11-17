@@ -43,7 +43,8 @@ var BasicsChart = React.createClass({
     onSelectDay: React.PropTypes.func.isRequired,
     patientData: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
-    updateBasicsData: React.PropTypes.func.isRequired
+    updateBasicsData: React.PropTypes.func.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
   },
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
     if (_.isEmpty(basicsData.data.reservoirChange.data)) {
@@ -145,7 +146,8 @@ var BasicsChart = React.createClass({
           open={section.open}
           section={section}
           title={section.title}
-          timezone={tz} />
+          timezone={tz}
+          trackMetric={self.props.trackMetric} />
       );
     });
   }

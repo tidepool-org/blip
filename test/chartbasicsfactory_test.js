@@ -40,7 +40,8 @@ describe('BasicsChart', function() {
       onSelectDay: _.noop,
       patientData: td,
       timePrefs: {},
-      updateBasicsData: _.noop
+      updateBasicsData: _.noop,
+      trackMetric: _.noop
     };
     var elem = React.createElement(BasicsChart, props);
     var render = TestUtils.renderIntoDocument(elem);
@@ -56,7 +57,7 @@ describe('BasicsChart', function() {
       TestUtils.renderIntoDocument(elem);
     }
     catch(e) {
-      expect(console.error.callCount).to.equal(6);
+      expect(console.error.callCount).to.equal(7);
     }
   });
 
@@ -68,7 +69,8 @@ describe('BasicsChart', function() {
       onSelectDay: _.noop,
       patientData: td,
       timePrefs: {},
-      updateBasicsData: _.noop
+      updateBasicsData: _.noop,
+      trackMetric: _.noop
     };
     var elem = React.createElement(BasicsChart, props);
     var render = TestUtils.renderIntoDocument(elem);

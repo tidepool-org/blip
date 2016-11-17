@@ -30,8 +30,13 @@ basicsActions.bindApp = function(app) {
   return this;
 };
 
-basicsActions.toggleSection = function(sectionName) {
+basicsActions.toggleSection = function(sectionName, metricsFunc) {
   var sections = _.cloneDeep(this.app.state.sections);
+  if (!sections[sectionName].open) {
+    metricsFunc(sections[sectionName].id + ' was opened');
+  } else {
+    metricsFunc(sections[sectionName].id + ' was closed');
+  }
   sections[sectionName].open = !sections[sectionName].open;
   this.app.setState({sections: sections});
 };

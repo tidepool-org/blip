@@ -6,7 +6,7 @@ var ReactDOM = require('react-dom');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
-var DailyDoseTitle = require('../../../plugins/blip/basics/components/misc/DailyDoseTitle');
+var DailyDoseTitle = require('../../../../plugins/blip/basics/components/misc/DailyDoseTitle');
 
 describe('DailyDoseTitle', function () {
 
@@ -18,7 +18,7 @@ describe('DailyDoseTitle', function () {
     it('should render and show 3 warning messages for missing props', function () {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<DailyDoseTitle/>);
-      expect(console.error.callCount).to.equal(3);
+      expect(console.error.callCount).to.equal(4);
     });
 
     it('should render without problem when props provided', function () {
@@ -30,14 +30,16 @@ describe('DailyDoseTitle', function () {
           totalDailyDose: 46
         },
         iconClass: 'icon-down',
-        sectionName: 'ace'
+        sectionName: 'ace',
+        trackMetric: sinon.stub(),
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDoseTitle 
+        <DailyDoseTitle
           data={props.data}
           iconClass={props.iconClass}
-          sectionName={props.sectionName} />
+          sectionName={props.sectionName}
+          trackMetric={props.trackMetric} />
       );
       expect(console.error.callCount).to.equal(0);
 
@@ -52,14 +54,16 @@ describe('DailyDoseTitle', function () {
           totalDailyDose: 11
         },
         iconClass: 'icon-down',
-        sectionName: 'ace'
+        sectionName: 'ace',
+        trackMetric: sinon.stub()
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDoseTitle 
+        <DailyDoseTitle
           data={props.data}
           iconClass={props.iconClass}
-          sectionName={props.sectionName} />
+          sectionName={props.sectionName}
+          trackMetric={props.trackMetric} />
       );
 
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
@@ -79,14 +83,16 @@ describe('DailyDoseTitle', function () {
           totalDailyDose: 10
         },
         iconClass: 'icon-down',
-        sectionName: 'ace'
+        sectionName: 'ace',
+        trackMetric: sinon.stub()
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDoseTitle 
+        <DailyDoseTitle
           data={props.data}
           iconClass={props.iconClass}
-          sectionName={props.sectionName} />
+          sectionName={props.sectionName}
+          trackMetric={props.trackMetric} />
       );
 
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
@@ -106,14 +112,16 @@ describe('DailyDoseTitle', function () {
           totalDailyDose: 30
         },
         iconClass: 'icon-down',
-        sectionName: 'ace'
+        sectionName: 'ace',
+        trackMetric: sinon.stub()
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDoseTitle 
+        <DailyDoseTitle
           data={props.data}
           iconClass={props.iconClass}
-          sectionName={props.sectionName} />
+          sectionName={props.sectionName}
+          trackMetric={props.trackMetric} />
       );
 
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
@@ -133,14 +141,16 @@ describe('DailyDoseTitle', function () {
           totalDailyDose: 11
         },
         iconClass: 'icon-down',
-        sectionName: 'ace'
+        sectionName: 'ace',
+        trackMetric: sinon.stub()
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDoseTitle 
+        <DailyDoseTitle
           data={props.data}
           iconClass={props.iconClass}
-          sectionName={props.sectionName} />
+          sectionName={props.sectionName}
+          trackMetric={props.trackMetric} />
       );
 
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');

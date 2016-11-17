@@ -7,7 +7,7 @@ var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 var rewire = require('rewire');
 
-var DailyDose = rewire('../../../plugins/blip/basics/components/chart/DailyDose');
+var DailyDose = rewire('../../../../plugins/blip/basics/components/chart/DailyDose');
 
 describe('DailyDose', function () {
   var basicsActions = {

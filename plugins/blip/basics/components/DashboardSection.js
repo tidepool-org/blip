@@ -38,8 +38,8 @@ var DashboardSection = React.createClass({
     timezone: React.PropTypes.string.isRequired,
     title: React.PropTypes.oneOfType([
         React.PropTypes.string,
-        React.PropTypes.func ]).isRequired
-
+        React.PropTypes.func ]).isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
   },
   render: function() {
     var dataDisplay;
@@ -96,7 +96,8 @@ var DashboardSection = React.createClass({
       titleContainer = this.props.title({
         data: this.props.data,
         iconClass: iconClass,
-        sectionName: this.props.name
+        sectionName: this.props.name,
+        trackMetric: this.props.trackMetric
       });
     } else {
       var headerClasses = cx({
@@ -126,7 +127,7 @@ var DashboardSection = React.createClass({
       e.preventDefault();
     }
     if (this.props.open !== 'na') {
-      basicsActions.toggleSection(this.props.name);
+      basicsActions.toggleSection(this.props.name, this.props.trackMetric);
     }
   }
 });
