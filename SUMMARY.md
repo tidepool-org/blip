@@ -1,0 +1,16 @@
+# Summary
+
++ [@tidepool/viz developer guide](docs/StartHere.md)
+    + [background](docs/Background.md)
+    + [overview of features](docs/FeatureOverview.md)
+    + [planned architecture](docs/Architecture.md)
+    + [app & directory structure](docs/DirectoryStructure.md)
+    + [code style](docs/CodeStyle.md)
++ [usage of dependencies](docs/Dependencies.md)
+    + [D3](docs/D3.md)
+    + [Moment](docs/Moment.md)
+    + [React](docs/React.md)
+    + [Redux](docs/Redux.md)
+    + [webpack](docs/Webpack.md)
++ [misc](docs/Misc.md)
+    + [Time-rendering modes](docs/TimeRenderingModes.md)
