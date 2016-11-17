@@ -41,6 +41,7 @@ var DailyDoseTitle = React.createClass({
     var headerClasses = cx({
       DailyDoseTitle: true,
       'SectionHeader--nodata': !dose,
+      'selectable': true,
     });
     if (weight && dose) {
       var dosePerKg = dose / weight;

@@ -32,7 +32,6 @@
   }
 
   h3 {
-    cursor: pointer;
     font-size: 15px;
     font-weight: bold;
     .header;
@@ -42,9 +41,11 @@
         color: @text-light;
       }
     }
+    &.selectable {
+      cursor: pointer;
+    }
   }
 }
-
 
 .DashboardSection-container {
 

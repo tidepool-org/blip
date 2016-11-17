@@ -42,7 +42,7 @@ var basicsState = {
       hasHover: true,
       id: 'basals',
       index: 4,
-      open: true,
+      open: 'na',
       selector: SummaryGroup,
       selectorOptions: {
         primary: { key: 'total', label: 'Basal Events' },
@@ -87,7 +87,7 @@ var basicsState = {
       hasHover: true,
       id: 'boluses',
       index: 2,
-      open: true,
+      open: 'na',
       selector: SummaryGroup,
       selectorOptions: {
         primary: { key: 'total', label: 'Avg per day', average: true },
@@ -115,7 +115,7 @@ var basicsState = {
       hasHover: true,
       id: 'fingersticks',
       index: 1,
-      open: true,
+      open: 'na',
       selector: SummaryGroup,
       selectorOptions: {
         primary: { path: 'smbg', key: 'total', label: 'Avg per day', average: true },
@@ -144,7 +144,7 @@ var basicsState = {
       id: 'siteChanges',
       index: 3,
       noDataMessage: 'Infusion site changes are not yet available for all pumps. Coming soon!',
-      open: true,
+      open: 'na',
       title: 'Infusion site changes',
       type: 'reservoirChange'
     },
@@ -157,7 +157,7 @@ var basicsState = {
       index: 2,
       noData: false,
       title: DailyDoseTitle,
-      open: true
+      open: false
     }
   }
 };
