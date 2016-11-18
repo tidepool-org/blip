@@ -11,7 +11,7 @@ import TestUtils from 'react-addons-test-utils';
 var expect = chai.expect;
 
 import Patient from '../../../../app/pages/patient/patient';
-import PatientTeam from '../../../../app/pages/patient/patientteam';
+import { PatientTeam } from '../../../../app/pages/patient/patientteam';
 
 describe('Patient', function () {
   before(() => {

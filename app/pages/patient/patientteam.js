@@ -30,7 +30,7 @@ var PermissionInputGroup = React.createClass({
   },
   getDefaultProps: function() {
     return {
-      value: false,
+      value: true,
       working: false,
     };
   },
@@ -52,7 +52,6 @@ var PermissionInputGroup = React.createClass({
   },
   render: function() {
     return (
-      
       <InputGroup
         name={this.state.name}
         type="checkbox"
@@ -60,7 +59,6 @@ var PermissionInputGroup = React.createClass({
         disabled={this.props.working}
         value={this.props.value}
         onChange={this.handleChange}/>
-        
     );
   }
 });
@@ -75,7 +73,8 @@ var MemberInviteForm = React.createClass({
   },
   getInitialState: function() {
     return {
-      allowUpload: false,
+      //by default uploads are allowed
+      allowUpload: true,
       error: null
     };
   },
@@ -123,8 +122,9 @@ var MemberInviteForm = React.createClass({
       e.preventDefault();
     }
 
-    var email = this.refs.email.value;
-    var allowUpload = this.refs.allowUpload.getValue();
+    var self = this;
+    var email = self.refs.email.value;
+    var allowUpload = self.refs.allowUpload.getValue();
 
     var validateEmail = function(email) {
       var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -132,12 +132,10 @@ var MemberInviteForm = React.createClass({
     };
 
     if (!validateEmail(email)) {
-      this.setState({
-        error: 'Invalid email address.'
-      });
+      self.setState({error: 'Invalid email address.'});
       return;
     } else {
-      this.setState({error: null});
+      self.setState({error: null});
     }
 
     var permissions = {
@@ -146,15 +144,14 @@ var MemberInviteForm = React.createClass({
     };
 
     if (allowUpload) {
-      this.props.trackMetric('Clicked Allow Uploading');
+      self.props.trackMetric('Allow Uploading turned on');
       permissions.upload = {};
+    } else {
+      self.props.trackMetric('Allow Uploading turned off');
     }
 
-    this.setState({
-      allowUpload: allowUpload,
-    });
-    var self = this;
-    this.props.onSubmit(email, permissions);
+    self.setState({ allowUpload: allowUpload});
+    self.props.onSubmit(email, permissions);
     self.props.trackMetric('Clicked Invite');
   }
 });
@@ -309,9 +306,9 @@ var PatientTeam = React.createClass({
               <div className="PatientInfo-block PatientInfo-block--withArrow"><div>{member.profile.fullName}</div></div>
               <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-delete"></i></a>
               <div className="clear"></div>
-              <PermissionInputGroup 
-                onChange={this.handlePermissionChange(member)} 
-                value={allowUpload} 
+              <PermissionInputGroup
+                onChange={this.handlePermissionChange(member)}
+                value={allowUpload}
                 working={this.props.changingMemberPermissions}
               />
             </div>
@@ -493,7 +490,7 @@ var PatientTeam = React.createClass({
     if (utils.getIn(this.props, ['patient', 'team'])) {
       members = _.map(this.props.patient.team, this.renderTeamMember);
     }
-    
+
     var editControls = _.isEmpty(members) ? null : this.renderEditControls();
 
     var pendingSentInvites = [];
@@ -512,7 +509,7 @@ var PatientTeam = React.createClass({
       'PatientTeam-list': true,
       'PatientTeam-list--single': emptyList,
     });
-    
+
     var patientName = personUtils.patientFullName(this.props.patient);
 
     return (
@@ -537,4 +534,7 @@ var PatientTeam = React.createClass({
   }
 });
 
-module.exports = PatientTeam;
+module.exports = {
+  PatientTeam,
+  MemberInviteForm
+};

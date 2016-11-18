@@ -2,52 +2,99 @@
 /* global describe */
 /* global sinon */
 /* global it */
+/* global beforeEach */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
-var expect = chai.expect;
+import React from 'react';
+import { shallow, mount } from 'enzyme';
 
-var PatientTeam = require('../../../../app/pages/patient/patientteam');
+import { PatientTeam, MemberInviteForm } from '../../../../app/pages/patient/patientteam';
+
+const expect = chai.expect;
 
 describe('PatientTeam', function () {
-  describe('render', function() {
-    it('should render without problems when required props are present', function() {
-      console.error = sinon.stub();
-      var props = {
-        acknowledgeNotification: sinon.stub(),
-        cancellingInvite: false,
-        changingMemberPermissions: false,
-        invitingMemberInfo: {inProgress: false, notification: null},
-        onCancelInvite: sinon.stub(),
-        onChangeMemberPermissions: sinon.stub(),
-        onInviteMember: sinon.stub(),
-        onRemoveMember: sinon.stub(),
-        patient: {},
-        pendingSentInvites: [],
-        removingMember: false,
-        trackMetric: sinon.stub(),
-        user: {}
-      };
-      var patientElem = React.createElement(PatientTeam, props);
-      var elem = TestUtils.renderIntoDocument(patientElem);
+  const props = {
+    acknowledgeNotification: sinon.stub(),
+    cancellingInvite: false,
+    changingMemberPermissions: false,
+    invitingMemberInfo: {inProgress: false, notification: null},
+    onCancelInvite: sinon.stub(),
+    onChangeMemberPermissions: sinon.stub(),
+    onInviteMember: sinon.stub(),
+    onRemoveMember: sinon.stub(),
+    patient: {},
+    pendingSentInvites: [],
+    removingMember: false,
+    trackMetric: sinon.stub(),
+    user: {}
+  };
 
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
+  let wrapper;
+  beforeEach(() => {
+    wrapper = shallow(
+      <PatientTeam
+        {...props}
+      />
+    );
+  });
+  describe('state', function() {
+    it('should return an object with four items', function() {
+      expect(Object.keys(wrapper.state()).length).to.equal(4);
+    });
+    it('should return showModalOverlay as false', function() {
+      expect(wrapper.state().showModalOverlay).to.equal(false);
+    });
+    it('should return dialog as empty string', function() {
+      expect(wrapper.state().dialog).to.equal('');
+    });
+    it('should return invite as false', function() {
+      expect(wrapper.state().invite).to.equal(false);
+    });
+    it('should return editing as false', function() {
+      expect(wrapper.state().editing).to.equal(false);
     });
   });
+});
 
-  describe('getInitialState', function() {
-    it('should return an object', function() {
-      var props = {};
-      var patientElem = React.createElement(PatientTeam, props);
-      var elem = TestUtils.renderIntoDocument(patientElem);
-      var initialState = elem.getInitialState();
+describe('MemberInviteForm', function () {
+  const props = {
+    onSubmit: sinon.stub(),
+    onCancel: sinon.stub(),
+    working: false,
+    trackMetric: sinon.stub()
+  };
 
-      expect(Object.keys(initialState).length).to.equal(4);
-      expect(initialState.showModalOverlay).to.equal(false);
-      expect(initialState.dialog).to.equal('');
-      expect(initialState.invite).to.equal(false);
-      expect(initialState.editing).to.equal(false);
+  let wrapper;
+  beforeEach(() => {
+    props.trackMetric.reset();
+    wrapper = mount(
+      <MemberInviteForm
+        {...props}
+      />
+    );
+  });
+  describe('state', function() {
+    it('should return allowUpload as true', function() {
+      expect(wrapper.state().allowUpload).to.equal(true);
+    });
+  });
+  describe('metric', function() {
+    it('should be tracked when allowUpload is true', function() {
+      wrapper.ref('email').get(0).value = 'test@tidepool.org';
+      expect(props.trackMetric.callCount).to.equal(0);
+      wrapper.find('button.PatientInfo-button--primary').simulate('click');
+      expect(props.trackMetric.callCount).to.equal(2);
+      expect(props.trackMetric.calledWith('Allow Uploading turned on')).to.be.true;
+      expect(props.trackMetric.calledWith('Clicked Invite')).to.be.true;
+    });
+    it('should be tracked when allowUpload is false', function() {
+      wrapper.ref('email').get(0).value = 'test@tidepool.org';
+      wrapper.setState({ allowUpload: false });
+      expect(wrapper.state().allowUpload).to.equal(false);
+      expect(props.trackMetric.callCount).to.equal(0);
+      wrapper.find('button.PatientInfo-button--primary').simulate('click');
+      expect(props.trackMetric.callCount).to.equal(2);
+      expect(props.trackMetric.calledWith('Allow Uploading turned off')).to.be.true;
+      expect(props.trackMetric.calledWith('Clicked Invite')).to.be.true;
     });
   });
 });
