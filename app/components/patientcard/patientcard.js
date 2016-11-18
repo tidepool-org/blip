@@ -47,7 +47,8 @@ var PatientCard = React.createClass({
     var self = this;
     var classes = cx({
       'patientcard': true,
-      'isEditing': this.props.isEditing
+      'isEditing': this.props.isEditing,
+      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'view')
     });
 
     var view = this.renderView(patient);
