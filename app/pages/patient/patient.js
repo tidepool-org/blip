@@ -25,7 +25,7 @@ import _ from 'lodash';
 import personUtils from '../../core/personutils';
 import ModalOverlay from '../../components/modaloverlay';
 import PatientInfo from './patientinfo';
-import PatientTeam from './patientteam';
+import { PatientTeam } from './patientteam';
 
 const Patient = React.createClass({
   // many things *not* required here because they aren't needed for 
