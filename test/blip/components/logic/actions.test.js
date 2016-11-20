@@ -22,14 +22,15 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var basicsActions = require('../../../../plugins/blip/basics/logic/actions');
+var togglableState = require('../../../../plugins/blip/basics/TogglableState');
 
 describe('actions', function() {
 
   var app = {
     state: {
       sections: {
-        'tst': { id: 'tst section', open: false },
-        'tst2': { id: 'tst2 section', open: true }
+        'tst': { id: 'tst section', togglable: togglableState.closed },
+        'tst2': { id: 'tst2 section', togglable: togglableState.open }
       }
     },
     setState: sinon.stub()

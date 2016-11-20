@@ -15,7 +15,7 @@ describe('DailyDoseTitle', function () {
   });
 
   describe('render', function() {
-    it('should render and show 3 warning messages for missing props', function () {
+    it('should render and show 4 warning messages for missing props', function () {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<DailyDoseTitle/>);
       expect(console.error.callCount).to.equal(4);

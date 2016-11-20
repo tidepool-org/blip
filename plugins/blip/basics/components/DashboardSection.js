@@ -86,13 +86,11 @@ var DashboardSection = React.createClass({
           title={this.props.title} />
       );
     }
-    var iconClass = null;
-    if (this.props.togglable !== togglableState.off) {
-      iconClass = cx({
-        'icon-down': this.props.togglable === togglableState.open,
-        'icon-right': this.props.togglable === togglableState.closed
-      });
-    }
+    var iconClass = cx({
+      'icon-down': this.props.togglable === togglableState.open,
+      'icon-right': this.props.togglable === togglableState.closed
+    });
+
     var containerClass = cx({
       'DashboardSection-container': true
     });

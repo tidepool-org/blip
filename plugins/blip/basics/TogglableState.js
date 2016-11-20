@@ -20,7 +20,7 @@
  *
  * `open`: toggle will default to an open state
  * `closed`: toggle will default to a closed state
- * `off`: section is NOT togglable and will remain open
+ * `off`: section is NOT togglable and will always remain open
  *
  * NOTE: the `open` and `closed` are bool values as this is what is expected by the Toggle component
  */
