@@ -1,16 +1,16 @@
 
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -55,7 +55,7 @@ var Basics = React.createClass({
     };
   },
   render: function() {
-    
+
     return (
       <div id="tidelineMain">
         <Header
@@ -84,10 +84,10 @@ var Basics = React.createClass({
         ref="footer" />
       </div>
       );
-    
+
   },
   renderChart: function() {
-    
+
     return (
       <div id="tidelineContainer" className="patient-data-chart-growing">
         <BasicsChart
@@ -97,17 +97,18 @@ var Basics = React.createClass({
           patientData={this.props.patientData}
           timePrefs={this.props.timePrefs}
           updateBasicsData={this.props.updateBasicsData}
-          ref="chart" />
+          ref="chart"
+          trackMetric={this.props.trackMetric} />
       </div>
     );
-    
+
   },
   renderMissingBasicsMessage: function() {
     var self = this;
     var handleClickUpload = function() {
       self.props.trackMetric('Clicked Partial Data Upload, No Pump Data for Basics');
     };
-    
+
     return (
       <div className="patient-data-message patient-data-message-loading">
         <p>{'Blip\'s Basics view shows a summary of your recent pump activity, but it looks like you haven\'t uploaded pump data yet.'}</p>
@@ -123,7 +124,7 @@ var Basics = React.createClass({
         </p>
       </div>
     );
-    
+
   },
   getTitle: function() {
     if (this.isMissingBasics()) {
