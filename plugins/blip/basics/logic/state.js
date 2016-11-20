@@ -32,6 +32,8 @@ var InfusionHoverDisplay = React.createFactory(require('../components/day/hover/
 
 var basicsActions = require('./actions');
 
+var togglableState = require('../TogglableState');
+
 var basicsState = {
   sections: {
     basals: {
@@ -42,7 +44,7 @@ var basicsState = {
       hasHover: true,
       id: 'basals',
       index: 4,
-      open: 'na',
+      togglable: togglableState.off,
       selector: SummaryGroup,
       selectorOptions: {
         primary: { key: 'total', label: 'Basal Events' },
@@ -67,7 +69,7 @@ var basicsState = {
       index: 3,
       noData: false,
       title: 'Insulin ratio',
-      open: true
+      togglable: togglableState.off
     },
     bgDistribution: {
       active: true,
@@ -77,7 +79,7 @@ var basicsState = {
       id: 'bgDistribution',
       index: 1,
       title: 'BG distribution',
-      open: true
+      togglable: togglableState.off
     },
     boluses: {
       active: true,
@@ -87,7 +89,7 @@ var basicsState = {
       hasHover: true,
       id: 'boluses',
       index: 2,
-      open: 'na',
+      togglable: togglableState.off,
       selector: SummaryGroup,
       selectorOptions: {
         primary: { key: 'total', label: 'Avg per day', average: true },
@@ -115,7 +117,7 @@ var basicsState = {
       hasHover: true,
       id: 'fingersticks',
       index: 1,
-      open: 'na',
+      togglable: togglableState.off,
       selector: SummaryGroup,
       selectorOptions: {
         primary: { path: 'smbg', key: 'total', label: 'Avg per day', average: true },
@@ -144,7 +146,7 @@ var basicsState = {
       id: 'siteChanges',
       index: 3,
       noDataMessage: 'Infusion site changes are not yet available for all pumps. Coming soon!',
-      open: 'na',
+      togglable: togglableState.off,
       title: 'Infusion site changes',
       type: 'reservoirChange'
     },
@@ -157,7 +159,8 @@ var basicsState = {
       index: 2,
       noData: false,
       title: DailyDoseTitle,
-      open: false
+      open: false,
+      togglable: togglableState.closed
     }
   }
 };

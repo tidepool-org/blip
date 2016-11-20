@@ -25,6 +25,8 @@ var debug = bows('Section');
 var basicsActions = require('../logic/actions');
 var NoDataContainer = require('./NoDataContainer');
 
+var togglableState = require('../TogglableState');
+
 var DashboardSection = React.createClass({
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
@@ -33,7 +35,11 @@ var DashboardSection = React.createClass({
     days: React.PropTypes.array.isRequired,
     name: React.PropTypes.string.isRequired,
     onSelectDay: React.PropTypes.func.isRequired,
-    open: React.PropTypes.oneOf([true, false, 'na']).isRequired,
+    togglable: React.PropTypes.oneOf([
+      togglableState.open,
+      togglableState.closed,
+      togglableState.off,
+    ]).isRequired,
     section: React.PropTypes.object.isRequired,
     timezone: React.PropTypes.string.isRequired,
     title: React.PropTypes.oneOfType([
@@ -81,10 +87,10 @@ var DashboardSection = React.createClass({
       );
     }
     var iconClass = null;
-    if (this.props.open !== 'na') {
+    if (this.props.togglable !== togglableState.off) {
       iconClass = cx({
-        'icon-down': this.props.open,
-        'icon-right': !this.props.open
+        'icon-down': this.props.togglable === togglableState.open,
+        'icon-right': this.props.togglable === togglableState.closed
       });
     }
     var containerClass = cx({
@@ -102,7 +108,7 @@ var DashboardSection = React.createClass({
     } else {
       var headerClasses = cx({
         'SectionHeader--nodata': section.noData,
-        'selectable': this.props.open !== 'na'
+        'selectable': this.props.togglable !== togglableState.off
       });
       titleContainer = (
         <h3 className={headerClasses} onClick={this.handleToggleSection}>{this.props.title}
@@ -116,7 +122,7 @@ var DashboardSection = React.createClass({
         {titleContainer}
         <div className={containerClass} ref='container'>
           <div className='DashboardSection-content' ref='content'>
-            {this.props.open ? dataDisplay : null}
+            {this.props.togglable ? dataDisplay : null}
           </div>
         </div>
       </div>
@@ -126,7 +132,7 @@ var DashboardSection = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    if (this.props.open !== 'na') {
+    if (this.props.togglable !== togglableState.off) {
       basicsActions.toggleSection(this.props.name, this.props.trackMetric);
     }
   }

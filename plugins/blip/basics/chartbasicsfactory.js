@@ -33,6 +33,7 @@ var basicsActions = require('./logic/actions');
 var dataMungerMkr = require('./logic/datamunger');
 
 var Section = require('./components/DashboardSection');
+var togglableState = require('./TogglableState');
 
 var dataUrl = 'data/blip-input.json';
 
@@ -73,6 +74,7 @@ var BasicsChart = React.createClass({
       });
       basalBolusRatioSection.noData = true;
       basalBolusRatioSection.open = false;
+      basalBolusRatioSection.togglable = togglableState.off;
     }
     if (basicsData.data.totalDailyDose == null) {
       var totalDailyDoseSection = _.find(basicsData.sections, function(section) {
@@ -80,6 +82,7 @@ var BasicsChart = React.createClass({
       });
       totalDailyDoseSection.noData = true;
       totalDailyDoseSection.open = false;
+      totalDailyDoseSection.togglable = togglableState.off;
     }
   },
   componentWillMount: function() {
@@ -144,6 +147,7 @@ var BasicsChart = React.createClass({
           name={section.name}
           onSelectDay={self.props.onSelectDay}
           open={section.open}
+          togglable={section.togglable}
           section={section}
           title={section.title}
           timezone={tz}

@@ -21,6 +21,8 @@ var moment = require('moment-timezone');
 
 var sundial = require('sundial');
 
+var togglableState = require('../TogglableState');
+
 var debug = bows('basicsActions');
 
 var basicsActions = {};
@@ -32,12 +34,13 @@ basicsActions.bindApp = function(app) {
 
 basicsActions.toggleSection = function(sectionName, metricsFunc) {
   var sections = _.cloneDeep(this.app.state.sections);
-  if (!sections[sectionName].open) {
+  if (sections[sectionName].togglable === togglableState.closed) {
+    sections[sectionName].togglable = togglableState.open;
     metricsFunc(sections[sectionName].id + ' was opened');
   } else {
+    sections[sectionName].togglable = togglableState.closed;
     metricsFunc(sections[sectionName].id + ' was closed');
   }
-  sections[sectionName].open = !sections[sectionName].open;
   this.app.setState({sections: sections});
 };
 
