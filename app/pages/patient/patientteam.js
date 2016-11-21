@@ -41,7 +41,6 @@ var PermissionInputGroup = React.createClass({
   },
   handleChange: function(obj) {
     if(this.props.onChange) {
-      var self = this;
       this.props.onChange(obj.value);
     } else {
       this.setState({value: obj.value});
@@ -144,10 +143,10 @@ var MemberInviteForm = React.createClass({
     };
 
     if (allowUpload) {
-      self.props.trackMetric('Allow Uploading turned on');
+      self.props.trackMetric('invitation with upload on');
       permissions.upload = {};
     } else {
-      self.props.trackMetric('Allow Uploading turned off');
+      self.props.trackMetric('invitation with upload off');
     }
 
     self.setState({ allowUpload: allowUpload});
@@ -262,14 +261,15 @@ var PatientTeam = React.createClass({
       };
 
       if (allowUpload) {
+        self.props.trackMetric('upload permission turned on');
         permissions.upload = {};
+      } else {
+        self.props.trackMetric('upload permission turned off');
       }
 
       self.props.onChangeMemberPermissions(self.props.user.userid, member.userid, permissions);
 
-      self.setState({
-        showModalOverlay: false,
-      });
+      self.setState({ showModalOverlay: false });
     };
   },
 
