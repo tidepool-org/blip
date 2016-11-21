@@ -37,15 +37,17 @@ describe('BasicsChart', function() {
     var props = {
       bgUnits: 'mg/dL',
       bgClasses: td.bgClasses,
-      onSelectDay: _.noop,
+      onSelectDay: sinon.stub(),
       patientData: td,
       timePrefs: {},
-      updateBasicsData: _.noop
+      updateBasicsData: sinon.stub(),
+      trackMetric: sinon.stub()
     };
     var elem = React.createElement(BasicsChart, props);
     var render = TestUtils.renderIntoDocument(elem);
     expect(elem).to.be.ok;
     expect(console.error.callCount).to.equal(0);
+
   });
 
   it('should console.error when required props are missing', function() {
@@ -56,7 +58,7 @@ describe('BasicsChart', function() {
       TestUtils.renderIntoDocument(elem);
     }
     catch(e) {
-      expect(console.error.callCount).to.equal(6);
+      expect(console.error.callCount).to.equal(7);
     }
   });
 
@@ -65,10 +67,11 @@ describe('BasicsChart', function() {
     var props = {
       bgUnits: 'mg/dL',
       bgClasses: td.bgClasses,
-      onSelectDay: _.noop,
+      onSelectDay: sinon.stub(),
       patientData: td,
       timePrefs: {},
-      updateBasicsData: _.noop
+      updateBasicsData: sinon.stub(),
+      trackMetric: sinon.stub()
     };
     var elem = React.createElement(BasicsChart, props);
     var render = TestUtils.renderIntoDocument(elem);
