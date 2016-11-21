@@ -120,7 +120,7 @@ var DashboardSection = React.createClass({
         {titleContainer}
         <div className={containerClass} ref='container'>
           <div className='DashboardSection-content' ref='content'>
-            {this.props.togglable ? dataDisplay : null}
+            {this.props.togglable !== togglableState.closed ? dataDisplay : null}
           </div>
         </div>
       </div>
