@@ -5,7 +5,7 @@
 /* global beforeEach */
 
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 
 import { PatientTeam, MemberInviteForm } from '../../../../app/pages/patient/patientteam';
 
@@ -30,7 +30,8 @@ describe('PatientTeam', function () {
 
   let wrapper;
   beforeEach(() => {
-    wrapper = shallow(
+    props.trackMetric.reset();
+    wrapper = mount(
       <PatientTeam
         {...props}
       />
@@ -51,6 +52,22 @@ describe('PatientTeam', function () {
     });
     it('should return editing as false', function() {
       expect(wrapper.state().editing).to.equal(false);
+    });
+  });
+  describe('metric', function() {
+    it('should be tracked when allowUpload is updated to true for existing member', function() {
+      expect(props.trackMetric.callCount).to.equal(0);
+      const handlePermissionChangeFunc =  wrapper.instance().handlePermissionChange({ userid: 123 , profile: { fullName: 'testing 123' }});
+      handlePermissionChangeFunc(true);
+      expect(props.trackMetric.callCount).to.equal(1);
+      expect(props.trackMetric.calledWith('upload permission turned on')).to.be.true;
+    });
+    it('should be tracked when allowUpload is updated to false for existing member', function() {
+      expect(props.trackMetric.callCount).to.equal(0);
+      const handlePermissionChangeFunc =  wrapper.instance().handlePermissionChange({ userid: 999 , profile: { fullName: 'testing 999' }});
+      handlePermissionChangeFunc(false);
+      expect(props.trackMetric.callCount).to.equal(1);
+      expect(props.trackMetric.calledWith('upload permission turned off')).to.be.true;
     });
   });
 });
@@ -83,7 +100,7 @@ describe('MemberInviteForm', function () {
       expect(props.trackMetric.callCount).to.equal(0);
       wrapper.find('button.PatientInfo-button--primary').simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
-      expect(props.trackMetric.calledWith('Allow Uploading turned on')).to.be.true;
+      expect(props.trackMetric.calledWith('invitation with upload on')).to.be.true;
       expect(props.trackMetric.calledWith('Clicked Invite')).to.be.true;
     });
     it('should be tracked when allowUpload is false', function() {
@@ -93,7 +110,7 @@ describe('MemberInviteForm', function () {
       expect(props.trackMetric.callCount).to.equal(0);
       wrapper.find('button.PatientInfo-button--primary').simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
-      expect(props.trackMetric.calledWith('Allow Uploading turned off')).to.be.true;
+      expect(props.trackMetric.calledWith('invitation with upload off')).to.be.true;
       expect(props.trackMetric.calledWith('Clicked Invite')).to.be.true;
     });
   });
