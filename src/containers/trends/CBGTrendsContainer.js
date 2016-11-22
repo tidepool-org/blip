@@ -72,6 +72,12 @@ class CBGTrendsContainer extends React.Component {
       msPer24: PropTypes.number.isRequired,
       value: PropTypes.number.isRequired,
     })).isRequired,
+    displayFlags: PropTypes.shape({
+      cbg100Enabled: PropTypes.bool.isRequired,
+      cbg80Enabled: PropTypes.bool.isRequired,
+      cbg50Enabled: PropTypes.bool.isRequired,
+      cbgMedianEnabled: PropTypes.bool.isRequired,
+    }).isRequired,
     focusedSlice: PropTypes.shape({
       slice: PropTypes.shape({
         firstQuartile: PropTypes.number.isRequired,
@@ -171,6 +177,7 @@ class CBGTrendsContainer extends React.Component {
         />
         <CBGSlicesAnimationContainer
           data={this.props.data}
+          displayFlags={this.props.displayFlags}
           focusedSlice={this.props.focusedSlice}
           focusSlice={this.props.focusSlice}
           margins={this.props.margins}

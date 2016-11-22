@@ -23,11 +23,29 @@ import * as actionTypes from '../constants/actionTypes';
 const FOCUSED_SLICE = 'focusedCbgSlice';
 const FOCUSED_KEYS = 'focusedCbgSliceKeys';
 const TOUCHED = 'touched';
+const CBG_FLAGS = 'cbgFlags';
+const CBG_100_ENABLED = 'cbg100Enabled';
+const CBG_80_ENABLED = 'cbg80Enabled';
+const CBG_50_ENABLED = 'cbg50Enabled';
+const CBG_MEDIAN_ENABLED = 'cbgMedianEnabled';
+
+const CBG_FLAG_MAP = {
+  100: CBG_100_ENABLED,
+  80: CBG_80_ENABLED,
+  50: CBG_50_ENABLED,
+  median: CBG_MEDIAN_ENABLED,
+};
 
 const initialState = {
   [FOCUSED_SLICE]: null,
   [FOCUSED_KEYS]: null,
   [TOUCHED]: false,
+  [CBG_FLAGS]: {
+    [CBG_100_ENABLED]: false,
+    [CBG_80_ENABLED]: true,
+    [CBG_50_ENABLED]: true,
+    [CBG_MEDIAN_ENABLED]: true,
+  },
 };
 
 const trendsStateByUser = (state = {}, action) => {
@@ -68,6 +86,32 @@ const trendsStateByUser = (state = {}, action) => {
         { [userId]: {
           [FOCUSED_SLICE]: { $set: null },
           [FOCUSED_KEYS]: { $set: null },
+        } }
+      );
+    }
+    case actionTypes.TURN_ON_CBG_RANGE: {
+      const { userId, range } = action.payload;
+      const key = _.get(CBG_FLAG_MAP, range);
+      if (!key) {
+        return state;
+      }
+      return update(
+        state,
+        { [userId]: {
+          [CBG_FLAGS]: { [key]: { $set: true } },
+        } }
+      );
+    }
+    case actionTypes.TURN_OFF_CBG_RANGE: {
+      const { userId, range } = action.payload;
+      const key = _.get(CBG_FLAG_MAP, range);
+      if (!key) {
+        return state;
+      }
+      return update(
+        state,
+        { [userId]: {
+          [CBG_FLAGS]: { [key]: { $set: false } },
         } }
       );
     }

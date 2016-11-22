@@ -37,3 +37,17 @@ export function unfocusTrendsCbgSlice(userId) {
     payload: { userId },
   };
 }
+
+export function turnOnCbgRange(userId, range) {
+  return {
+    type: actionTypes.TURN_ON_CBG_RANGE,
+    payload: { userId, range },
+  };
+}
+
+export function turnOffCbgRange(userId, range) {
+  return {
+    type: actionTypes.TURN_OFF_CBG_RANGE,
+    payload: { userId, range },
+  };
+}

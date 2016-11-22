@@ -29,6 +29,10 @@ const CBGSlice = (props) => {
   const { aSliceIsFocused, isFocused } = props;
   const { medianRadius, sliceCapRadius, xScale, yPositions } = props;
   const { focusSlice, unfocusSlice: unfocus } = props;
+  const { cbg100Enabled: hundred,
+    cbg80Enabled: eighty,
+    cbg50Enabled: fifty,
+    cbgMedianEnabled: median } = props.displayFlags;
 
   function getClass(category) {
     if (aSliceIsFocused) {
@@ -75,10 +79,10 @@ const CBGSlice = (props) => {
   return (
     <g id={`cbgSlice-${datum.id}`}>
       {[
-        renderRoundedRect('rangeSlice', 'min', 'max'),
-        renderRoundedRect('outerSlice', 'tenthQuantile', 'ninetiethQuantile'),
-        renderRoundedRect('quartileSlice', 'firstQuartile', 'thirdQuartile'),
-        <circle
+        hundred && renderRoundedRect('rangeSlice', 'min', 'max'),
+        eighty && renderRoundedRect('outerSlice', 'tenthQuantile', 'ninetiethQuantile'),
+        fifty && renderRoundedRect('quartileSlice', 'firstQuartile', 'thirdQuartile'),
+        median && <circle
           className={getClass('cbgMedian')}
           key={`individualMedian-${datum.id}`}
           id={`individualMedian-${datum.id}`}
@@ -116,6 +120,12 @@ CBGSlice.propTypes = {
     tenthQuantile: PropTypes.number.isRequired,
     thirdQuartile: PropTypes.number.isRequired,
   }),
+  displayFlags: PropTypes.shape({
+    cbg100Enabled: PropTypes.bool.isRequired,
+    cbg80Enabled: PropTypes.bool.isRequired,
+    cbg50Enabled: PropTypes.bool.isRequired,
+    cbgMedianEnabled: PropTypes.bool.isRequired,
+  }).isRequired,
   focusSlice: PropTypes.func.isRequired,
   isFocused: PropTypes.bool.isRequired,
   medianRadius: PropTypes.number.isRequired,

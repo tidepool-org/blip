@@ -128,6 +128,12 @@ export class TrendsContainer extends React.Component {
         'thirdQuartile',
       ])),
       touched: PropTypes.bool.isRequired,
+      cbgFlags: PropTypes.shape({
+        cbg100Enabled: PropTypes.bool.isRequired,
+        cbg80Enabled: PropTypes.bool.isRequired,
+        cbg50Enabled: PropTypes.bool.isRequired,
+        cbgMedianEnabled: PropTypes.bool.isRequired,
+      }).isRequired,
     }).isRequired,
     // actions
     focusTrendsCbgSlice: PropTypes.func.isRequired,
@@ -327,6 +333,7 @@ export class TrendsContainer extends React.Component {
           bgBounds={this.props.bgBounds}
           bgUnits={this.props.bgUnits}
           data={this.state.currentCbgData}
+          displayFlags={this.props.trendsState.cbgFlags}
           focusedSlice={this.props.trendsState.focusedCbgSlice}
           focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
           focusSlice={this.props.focusTrendsCbgSlice}

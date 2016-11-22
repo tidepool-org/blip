@@ -15,17 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-export const FOCUS_TRENDS_CBG_SLICE = 'FOCUS_TRENDS_CBG_SLICE';
-export const MARK_SETTINGS_VIEWED = 'MARK_SETTINGS_VIEWED';
-export const MARK_TRENDS_VIEWED = 'MARK_TRENDS_VIEWED';
-export const UNFOCUS_TRENDS_CBG_SLICE = 'UNFOCUS_TRENDS_CBG_SLICE';
-export const TURN_ON_CBG_RANGE = 'TURN_ON_CBG_RANGE';
-export const TURN_OFF_CBG_RANGE = 'TURN_OFF_CBG_RANGE';
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-export const TOGGLE_SETTINGS_SECTION = 'TOGGLE_SETTINGS_SECTION';
-
-// from blip's redux implementation
-// TODO: how could we DRY this out??
-
-export const FETCH_PATIENT_DATA_SUCCESS = 'FETCH_PATIENT_DATA_SUCCESS';
-export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
+.label {
+  composes: mediumContrastText from '../../../styles/typography.css';
+  font-size: 16px;
+  padding-right: 12px;
+}
