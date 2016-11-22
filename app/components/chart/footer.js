@@ -21,6 +21,7 @@ var cx = require('classnames');
 
 import * as viz from '@tidepool/viz';
 const TwoOptionToggle = viz.components.TwoOptionToggle;
+const RangeSelect = viz.components.RangeSelect;
 
 var tideline = {
   log: bows('Footer')
@@ -41,6 +42,8 @@ var TidelineFooter = React.createClass({
     showingCbg: React.PropTypes.bool,
     showingSmbg: React.PropTypes.bool,
     showingValues: React.PropTypes.bool,
+    trendsState: React.PropTypes.object,
+    currentPatientInViewId: React.PropTypes.string,
   },
   render: function() {
     var refreshLinkClass = cx({
@@ -88,6 +91,8 @@ var TidelineFooter = React.createClass({
     if (this.props.chartType === 'modal') {
       if (this.props.showingSmbg) {
         rightSide = modalOpts;
+      } else {
+        rightSide = <RangeSelect trendsState={this.props.trendsState} currentPatientInViewId={this.props.currentPatientInViewId} />;
       }
       bgDataToggle = (
         <span className="toggle-container">

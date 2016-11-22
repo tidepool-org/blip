@@ -26,13 +26,26 @@ const trackMetricMap = {
   UPDATE_PATIENT_SUCCESS: 'Updated Profile',
   UPDATE_USER_SUCCESS: 'Updated Account',
   LOGOUT_REQUEST: 'Logged Out',
-  VERIFY_CUSTODIAL_SUCCESS: 'VCA Home Verification - Verified'
+  VERIFY_CUSTODIAL_SUCCESS: 'VCA Home Verification - Verified',
 };
+
+const interpretMetricMap = {
+  TURN_ON_CBG_RANGE: function(action) {
+    return `Turn on ${action.payload.range}${_.isNumber(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}`;
+  },
+  TURN_OFF_CBG_RANGE: function(action) {
+    return `Turn off ${action.payload.range}${_.isNumber(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}`;
+  }
+}
 
 export default (api) => {
   return ({ getState }) => (next) => (action) => {
+    console.log(action);
     if (trackMetricMap[action.type]) {
       api.metrics.track(trackMetricMap[action.type]);
+    }
+    if (interpretMetricMap[action.type]) {
+      api.metrics.track(interpretMetricMap[action.type](action));
     }
     return next(action);
   };
