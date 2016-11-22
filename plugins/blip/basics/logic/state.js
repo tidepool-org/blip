@@ -159,7 +159,6 @@ var basicsState = {
       index: 2,
       noData: false,
       title: DailyDoseTitle,
-      open: false,
       togglable: togglableState.closed
     }
   }

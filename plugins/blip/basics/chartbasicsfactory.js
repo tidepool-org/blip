@@ -73,7 +73,6 @@ var BasicsChart = React.createClass({
         return section.id === 'basalBolusRatio';
       });
       basalBolusRatioSection.noData = true;
-      basalBolusRatioSection.open = false;
       basalBolusRatioSection.togglable = togglableState.off;
     }
     if (basicsData.data.totalDailyDose == null) {
@@ -81,8 +80,7 @@ var BasicsChart = React.createClass({
         return section.id === 'totalDailyDose';
       });
       totalDailyDoseSection.noData = true;
-      totalDailyDoseSection.open = false;
-      totalDailyDoseSection.togglable = togglableState.off;
+      totalDailyDoseSection.togglable = togglableState.closed;
     }
   },
   componentWillMount: function() {
