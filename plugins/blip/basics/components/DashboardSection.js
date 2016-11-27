@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -25,6 +25,8 @@ var debug = bows('Section');
 var basicsActions = require('../logic/actions');
 var NoDataContainer = require('./NoDataContainer');
 
+var togglableState = require('../TogglableState');
+
 var DashboardSection = React.createClass({
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
@@ -33,13 +35,17 @@ var DashboardSection = React.createClass({
     days: React.PropTypes.array.isRequired,
     name: React.PropTypes.string.isRequired,
     onSelectDay: React.PropTypes.func.isRequired,
-    open: React.PropTypes.bool.isRequired,
+    togglable: React.PropTypes.oneOf([
+      togglableState.open,
+      togglableState.closed,
+      togglableState.off,
+    ]).isRequired,
     section: React.PropTypes.object.isRequired,
     timezone: React.PropTypes.string.isRequired,
     title: React.PropTypes.oneOfType([
         React.PropTypes.string,
-        React.PropTypes.func ]).isRequired
-
+        React.PropTypes.func ]).isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
   },
   render: function() {
     var dataDisplay;
@@ -81,9 +87,10 @@ var DashboardSection = React.createClass({
       );
     }
     var iconClass = cx({
-      'icon-down': this.props.open,
-      'icon-right': !this.props.open
+      'icon-down': this.props.togglable === togglableState.open,
+      'icon-right': this.props.togglable === togglableState.closed
     });
+
     var containerClass = cx({
       'DashboardSection-container': true
     });
@@ -93,11 +100,13 @@ var DashboardSection = React.createClass({
       titleContainer = this.props.title({
         data: this.props.data,
         iconClass: iconClass,
-        sectionName: this.props.name 
+        sectionName: this.props.name,
+        trackMetric: this.props.trackMetric
       });
     } else {
       var headerClasses = cx({
         'SectionHeader--nodata': section.noData,
+        'selectable': this.props.togglable !== togglableState.off
       });
       titleContainer = (
         <h3 className={headerClasses} onClick={this.handleToggleSection}>{this.props.title}
@@ -111,7 +120,7 @@ var DashboardSection = React.createClass({
         {titleContainer}
         <div className={containerClass} ref='container'>
           <div className='DashboardSection-content' ref='content'>
-            {this.props.open ? dataDisplay : null}
+            {this.props.togglable !== togglableState.closed ? dataDisplay : null}
           </div>
         </div>
       </div>
@@ -121,7 +130,9 @@ var DashboardSection = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    basicsActions.toggleSection(this.props.name);
+    if (this.props.togglable !== togglableState.off) {
+      basicsActions.toggleSection(this.props.name, this.props.trackMetric);
+    }
   }
 });
 

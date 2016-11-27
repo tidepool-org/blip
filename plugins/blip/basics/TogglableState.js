@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2015, Tidepool Project
+ * Copyright (c) 2016 Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,43 +15,19 @@
  * == BSD2 LICENSE ==
  */
 
-.DashboardSection {
-  display: flex;
-  flex-direction: column;
 
-  overflow-y: hidden;
+/* We have three allowable states
+ *
+ * `open`: toggle will default to an open state
+ * `closed`: toggle will default to a closed state
+ * `off`: section is NOT togglable and will always remain open
+ *
+ * NOTE: the `open` and `closed` are bool values as this is what is expected by the Toggle component
+ */
+var TogglableState = {
+  open: true,
+  closed: false,
+  off: 'off'
+};
 
-  background-color: white;
-
-  .header {
-    color: @headline-color;
-    margin: 0;
-    i {
-      float: right;
-    }
-  }
-
-  h3 {
-    font-size: 15px;
-    font-weight: bold;
-    .header;
-    padding: 15px 5px;
-    &.SectionHeader--nodata {
-      color: @text-light;
-      span {
-        color: @text-light;
-      }
-    }
-    &.selectable {
-      cursor: pointer;
-    }
-  }
-}
-
-.DashboardSection-container {
-
-  .DashboardSection-content {
-    box-sizing: border-box;
-    padding: 0px 15px 5px 15px;
-  }
-}
+module.exports = TogglableState;

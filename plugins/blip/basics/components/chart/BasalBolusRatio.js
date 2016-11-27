@@ -81,52 +81,65 @@ var BasalBolusRatio = React.createClass({
     var bolus = _.get(data, ['basalBolusRatio', 'bolus'], null);
     var basalAverageDailyDose = _.get(data, ['averageDailyDose', 'basal'], null);
     var bolusAverageDailyDose = _.get(data, ['averageDailyDose', 'bolus'], null);
+
     var basalPercentClasses = cx({
       'BasalBolusRatio-percent': true,
-      'BasalBolusRatio-percent--basal': !!basal,
+      'BasalBolusRatio-percent--basal': basal,
+      'BasalBolusRatio--nodata': !basal
+    });
+    var basalUnitsClasses = cx({
+      'BasalBolusRatio-units': true,
+      'BasalBolusRatio-units--basal': basal,
       'BasalBolusRatio--nodata': !basal
     });
     var basalLabelClasses = cx({
       'BasalBolusRatio-label': true,
-      'BasalBolusRatio-label--basal': !!basal,
+      'BasalBolusRatio-label--basal': basal,
       'BasalBolusRatio--nodata': !basal
     });
     var bolusPercentClasses = cx({
       'BasalBolusRatio-percent': true,
-      'BasalBolusRatio-percent--bolus': !!bolus,
+      'BasalBolusRatio-percent--bolus': bolus,
       'BasalBolusRatio--nodata': !bolus
     });
     var bolusLabelClasses = cx({
       'BasalBolusRatio-label': true,
-      'BasalBolusRatio-label--bolus': !!bolus,
+      'BasalBolusRatio-label--bolus': bolus,
       'BasalBolusRatio--nodata': !bolus
     });
+    var bolusUnitsClasses = cx({
+      'BasalBolusRatio-units': true,
+      'BasalBolusRatio-units--bolus': bolus,
+      'BasalBolusRatio--nodata': !bolus
+    });
+
     return (
       <div className='BasalBolusRatio'>
         <div className='BasalBolusRatio-basal'>
-            <p className='BasalBolusRatio-label BasalBolusRatio-label--basal'>
+            <p className={basalLabelClasses}>
               Basal
             </p>
-            <p className='BasalBolusRatio-percent BasalBolusRatio-percent--basal'>
-              {percent(basal)}
+            <p className={basalPercentClasses}>
+              {basal ? percent(basal) : '-- %'}
             </p>
-            <p className='BasalBolusRatio-units BasalBolusRatio-units--bolus'>
-              {decimal(basalAverageDailyDose)} U
+            <p className={basalUnitsClasses}>
+              {basalAverageDailyDose ? decimal(basalAverageDailyDose) : '--'} U
             </p>
         </div>
         <div ref="pie" className='BasalBolusRatio-pie'>
         </div>
         <div className='BasalBolusRatio-bolus'>
-          <p className='BasalBolusRatio-label BasalBolusRatio-label--bolus'>
+          <p className={bolusLabelClasses}>
             Bolus
           </p>
-          <p className='BasalBolusRatio-percent BasalBolusRatio-percent--bolus'>
-            {percent(bolus)}
+          <p className={bolusPercentClasses}>
+            {bolus ? percent(bolus) : '-- %'}
           </p>
-          <p className='BasalBolusRatio-units BasalBolusRatio-units--bolus'>
-            {decimal(bolusAverageDailyDose)} U
+          <p className={bolusUnitsClasses}>
+            {bolusAverageDailyDose ? decimal(bolusAverageDailyDose) : '--'} U
           </p>
         </div>
+        {(basal && bolus) ? null : (<UnknownStatistic />)}
       </div>
     );
   }
