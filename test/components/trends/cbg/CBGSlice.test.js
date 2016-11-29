@@ -33,6 +33,7 @@ import CBGSlice from '../../../../src/components/trends/cbg/CBGSlice';
 
 describe('CBGSlice', () => {
   let wrapper;
+  let fullWrapper;
   const focusSlice = sinon.spy();
   const unfocusSlice = sinon.spy();
   const datum = {
@@ -64,11 +65,23 @@ describe('CBGSlice', () => {
       ninetiethQuantile: yScale(datum.ninetiethQuantile),
       max: yScale(datum.max),
     },
+    displayFlags: {
+      cbg100Enabled: false,
+      cbg80Enabled: true,
+      cbg50Enabled: true,
+      cbgMedianEnabled: true,
+    },
   };
+  const fullDisplayProps = _.merge(_.cloneDeep(props), { displayFlags: { cbg100Enabled: true } });
   before(() => {
     wrapper = mount(
       <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
         <CBGSlice {...props} />
+      </SVGContainer>
+    );
+    fullWrapper = mount(
+      <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
+        <CBGSlice {...fullDisplayProps} />
       </SVGContainer>
     );
   });
@@ -92,20 +105,11 @@ describe('CBGSlice', () => {
     });
   });
 
-  describe('when a datum (slice data) is provided', () => {
+  describe('when a datum (slice data) is provided w/ default display flags', () => {
     it('should render a cbgSlice <g> with three <rect>s and one <circle>', () => {
       expect(wrapper.find(`#cbgSlice-${datum.id}`).length).to.equal(1);
-      expect(wrapper.find(`#cbgSlice-${datum.id} rect`).length).to.equal(3);
+      expect(wrapper.find(`#cbgSlice-${datum.id} rect`).length).to.equal(2);
       expect(wrapper.find(`#cbgSlice-${datum.id} circle`).length).to.equal(1);
-    });
-
-    it('should render a min/max rect covering the whole yScale range', () => {
-      const rangeRect = wrapper
-        .find(`#cbgSlice-${datum.id} #rangeSlice-${datum.id}`).props();
-      expect(rangeRect.x).to.equal(18);
-      expect(rangeRect.width).to.equal(18);
-      expect(rangeRect.y).to.equal(0);
-      expect(rangeRect.height).to.equal(trendsHeight);
     });
 
     it('should render a 10th-90th quantile rect', () => {
@@ -134,6 +138,48 @@ describe('CBGSlice', () => {
     });
   });
 
+  describe('when a datum (slice data) is provided w/ full display flags', () => {
+    it('should render a cbgSlice <g> with three <rect>s and one <circle>', () => {
+      expect(fullWrapper.find(`#cbgSlice-${datum.id}`).length).to.equal(1);
+      expect(fullWrapper.find(`#cbgSlice-${datum.id} rect`).length).to.equal(3);
+      expect(fullWrapper.find(`#cbgSlice-${datum.id} circle`).length).to.equal(1);
+    });
+
+    it('should render a min/max rect covering the whole yScale range', () => {
+      const rangeRect = fullWrapper
+        .find(`#cbgSlice-${datum.id} #rangeSlice-${datum.id}`).props();
+      expect(rangeRect.x).to.equal(18);
+      expect(rangeRect.width).to.equal(18);
+      expect(rangeRect.y).to.equal(0);
+      expect(rangeRect.height).to.equal(trendsHeight);
+    });
+
+    it('should render a 10th-90th quantile rect', () => {
+      const outerRect = fullWrapper
+        .find(`#cbgSlice-${datum.id} #outerSlice-${datum.id}`).props();
+      expect(outerRect.x).to.equal(18);
+      expect(outerRect.width).to.equal(18);
+      expect(outerRect.y).to.equal(155);
+      expect(outerRect.height).to.equal(340 - 155);
+    });
+
+    it('should render a 1st-3rd quartiles rect', () => {
+      const quartilesRect = fullWrapper
+        .find(`#cbgSlice-${datum.id} #quartileSlice-${datum.id}`).props();
+      expect(quartilesRect.x).to.equal(18);
+      expect(quartilesRect.width).to.equal(18);
+      expect(quartilesRect.y).to.equal(220);
+      expect(quartilesRect.height).to.equal(300 - 220);
+    });
+
+    it('should render a median <circle>', () => {
+      const medianCircle = fullWrapper
+        .find(`#cbgSlice-${datum.id} #individualMedian-${datum.id}`).props();
+      expect(medianCircle.cx).to.equal(27);
+      expect(medianCircle.cy).to.equal(260);
+    });
+  });
+
   describe('interactions', () => {
     afterEach(() => {
       props.focusSlice.reset();
@@ -141,7 +187,7 @@ describe('CBGSlice', () => {
     });
 
     it('should call focusSlice on mouseover of min/max rect', () => {
-      const rangeRect = wrapper
+      const rangeRect = fullWrapper
         .find(`#cbgSlice-${datum.id} #rangeSlice-${datum.id}`);
       expect(focusSlice.callCount).to.equal(0);
       rangeRect.simulate('mouseover');
@@ -156,7 +202,7 @@ describe('CBGSlice', () => {
     });
 
     it('should call focusSlice on mouseover of 10th-90th quantile rect', () => {
-      const outerRect = wrapper
+      const outerRect = fullWrapper
         .find(`#cbgSlice-${datum.id} #outerSlice-${datum.id}`);
       expect(focusSlice.callCount).to.equal(0);
       outerRect.simulate('mouseover');
@@ -171,7 +217,7 @@ describe('CBGSlice', () => {
     });
 
     it('should call focusSlice on mouseover of 1st-3rd quartile rect', () => {
-      const quartilesRect = wrapper
+      const quartilesRect = fullWrapper
         .find(`#cbgSlice-${datum.id} #quartileSlice-${datum.id}`);
       expect(focusSlice.callCount).to.equal(0);
       quartilesRect.simulate('mouseover');
@@ -186,7 +232,7 @@ describe('CBGSlice', () => {
     });
 
     it('should call focusSlice on mouseover of median circle', () => {
-      const medianCircle = wrapper
+      const medianCircle = fullWrapper
         .find(`#cbgSlice-${datum.id} #individualMedian-${datum.id}`);
       expect(focusSlice.callCount).to.equal(0);
       medianCircle.simulate('mouseover');
@@ -201,7 +247,7 @@ describe('CBGSlice', () => {
     });
 
     it('should call unfocusSlice on mouseout of min/max rect', () => {
-      const rangeRect = wrapper
+      const rangeRect = fullWrapper
         .find(`#cbgSlice-${datum.id} #rangeSlice-${datum.id}`);
       expect(unfocusSlice.callCount).to.equal(0);
       rangeRect.simulate('mouseout');
@@ -209,7 +255,7 @@ describe('CBGSlice', () => {
     });
 
     it('should call unfocusSlice on mouseout of 10th-90th quantile rect', () => {
-      const outerRect = wrapper
+      const outerRect = fullWrapper
         .find(`#cbgSlice-${datum.id} #outerSlice-${datum.id}`);
       expect(unfocusSlice.callCount).to.equal(0);
       outerRect.simulate('mouseout');
@@ -217,7 +263,7 @@ describe('CBGSlice', () => {
     });
 
     it('should call unfocusSlice on mouseout of 1st-3rd quartile rect', () => {
-      const quartilesRect = wrapper
+      const quartilesRect = fullWrapper
         .find(`#cbgSlice-${datum.id} #quartileSlice-${datum.id}`);
       expect(unfocusSlice.callCount).to.equal(0);
       quartilesRect.simulate('mouseout');
@@ -225,7 +271,7 @@ describe('CBGSlice', () => {
     });
 
     it('should call unfocusSlice on mouseout of median circle', () => {
-      const medianCircle = wrapper
+      const medianCircle = fullWrapper
         .find(`#cbgSlice-${datum.id} #individualMedian-${datum.id}`);
       expect(unfocusSlice.callCount).to.equal(0);
       medianCircle.simulate('mouseout');

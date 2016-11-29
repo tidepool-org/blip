@@ -39,6 +39,7 @@ describe('CBGSlicesAnimationContainer', () => {
   const props = {
     binSize,
     data: [],
+    displayFlags: {},
     focusSlice: () => {},
     margins: { top: 0, left: 0, bottom: 0, right: 0 },
     svgDimensions: { width, height },
