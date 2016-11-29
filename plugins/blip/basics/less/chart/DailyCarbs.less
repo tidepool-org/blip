@@ -1,0 +1,33 @@
+.DailyCarbs {
+  margin: 0;
+  padding: 8px 0px;
+
+  display: flex;
+  align-content: space-around;
+  align-items: center;
+
+  margin-bottom: 10px;
+
+  .DailyCarbs-circle {
+    height: 90px;
+    width: 100px;
+    margin: 0 auto;
+
+    .d3-circle-nodata {
+      fill: @text-light;
+    }
+    .d3-circle-data {
+      fill: #ffd47c;
+    }
+    .d3-circle-amount {
+      font-size: @huge-numbers;
+      font-weight: bold;
+    }
+  }
+
+  &:last-child {
+    p {
+      margin-bottom: 0px;
+    }
+  }
+}

@@ -29,72 +29,28 @@ module.exports = function(bgClasses) {
 
   return {
     calculateCarbStats: function(basicsData) {
-      var pastDays = _.filter(basicsData.days, {type: 'past'});
-      // if one or more of the days (excepting most recent) don't have any carbs
-      var mostRecent = _.get(
-        _.filter(basicsData.days, {type: 'mostRecent'}),
-        [0, 'date'],
-        ''
-      );
-      var pastCarbsDays = _.reject(
-        Object.keys(basicsData.data.carbs.dataByDate),
-        function(date) { return date === mostRecent; }
-      );
-      if (pastCarbsDays.length < pastDays.length) {
-        return {
-          averageDailyCarbs: null,
-        };
-      }
-      var carbs = basicsData.data.carbs.data;
+
+      var wizardEvents = basicsData.data.wizard.data;
+
+      var carbs = _.filter(wizardEvents, function(wizardEvent) {
+        return wizardEvent.carbInput && wizardEvent.carbInput > 0 ;
+      });
+
       var start = carbs[0].normalTime;
       if (start < basicsData.dateRange[0]) {
         start = basicsData.dateRange[0];
       }
-      var end = carbs[carbs.length - 1].normalEnd;
+      var end = carbs[carbs.length - 1].normalTime;
       if (end > basicsData.dateRange[1]) {
         end = basicsData.dateRange[1];
       }
 
-      // find the duration of a basal segment that falls within the basicsData.dateRange
-      function getDurationInRange(d) {
-        if (d.normalTime >= start && d.normalEnd <= end) {
-          return d.duration;
-        }
-        else if (d.normalTime < start) {
-          if (d.normalEnd > start) {
-            if (d.normalEnd <= end) {
-              return Date.parse(d.normalEnd) - Date.parse(start);
-            }
-            else {
-              return Date.parse(end) - Date.parse(start);
-            }
-          }
-          return 0;
-        }
-        else if (d.normalEnd > end) {
-          if (d.normalTime < end) {
-            return Date.parse(end) - Date.parse(d.normalTime);
-          }
-          return 0;
-        }
-        else {
-          return 0;
-        }
-      }
-      var sumDurations = _.reduce(carbs, function(total, d) {
-        return total + getDurationInRange(d);
-      }, 0);
-
       var sumCarbs = _.reduce(_.map(carbs, function(d) {
-        if (d.normalTime >= start && d.normalTime <= end) {
-          return (d.extended || 0) + (d.normal || 0);
-        }
-        else {
-          return 0;
-        }
+        return d.carbInput;
       }), function(total, carbs) {
         return total + carbs;
       });
+
       return {
         averageDailyCarbs: sumCarbs/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
       };

@@ -15,17 +15,21 @@
  * == BSD2 LICENSE ==
  */
 
+/* global d3 */
+
 var _ = require('lodash');
 var cx = require('classnames');
 var d3 = require('d3');
 var React = require('react');
+
+var UnknownStatistic = require('../misc/UnknownStatistic');
 
 var DailyCarbs = React.createClass({
   propTypes: {
     data: React.PropTypes.object.isRequired
   },
   componentDidMount: function() {
-    var el = this.refs.pie;
+    var el = this.refs.carbsCircle;
     var w = el.offsetWidth, h = el.offsetHeight;
     var svg = d3.select(el)
       .append('svg')
@@ -33,60 +37,49 @@ var DailyCarbs = React.createClass({
         width: w,
         height: h
       });
-    var pieRadius = Math.min(w, h)/2;
+
+    var radius = Math.min(w, h)/2;
     var averageDailyCarbs = _.get(this.props.data, 'averageDailyCarbs', null);
+    var circleClassName = 'd3-circle-data';
     if (averageDailyCarbs === null) {
-      svg.append('circle')
-        .attr({
-          'class': 'd3-circle-nodata',
-          cx: w/2,
-          cy: h/2,
-          // subtract half of the stroke-width from the radius to avoid cut-off
-          r: pieRadius - 1.5,
-        });
-      return;
+      circleClassName = 'd3-circle-nodata';
     }
-    var data = [
-      {type: 'carbs', value: averageDailyCarbs, order: 1}
-    ];
-    var pie = d3.layout.pie()
-      .value(function(d) { return d.value; })
-      .sort(function(d) { return d.order; });
-    svg.append('g')
-      .attr('transform', 'translate(' + (w/2) + ',' + (h/2) + ')')
-      .selectAll('path')
-      .data(pie(data))
-      .enter()
-      .append('path')
+
+    var decimal = d3.format('.0f');
+
+    svg.append('circle')
       .attr({
-        d: d3.svg.arc().outerRadius(pieRadius),
-        class: function(d, i) {
-          if (i === 0) {
-            return 'd3-arc-basal';
-          }
-          else {
-            return 'd3-arc-bolus';
-          }
-        }
+        'class': circleClassName,
+        cx: w/2,
+        cy: h/2,
+        // subtract half of the stroke-width from the radius to avoid cut-off
+        r: radius - 1.5,
       });
+
+    svg.append('text')
+      .text(decimal(averageDailyCarbs) + ' g')
+      .attr({
+        'class': 'd3-circle-amount',
+        dx: w/2,
+        dy: h/2,
+        'text-anchor': 'middle',
+      });
+
   },
   render: function() {
-    var data = this.props.data;
-    var decimal = d3.format('.1f');
-    var averageDailyCarbs = _.get(data, ['averageDailyDose', 'basal'], null);
+    var averageDailyCarbs = _.get(this.props.data, 'averageDailyCarbs', null);
+    var headerClasses = cx({
+      DailyCarbs: true,
+      'SectionHeader--nodata': !averageDailyCarbs,
+      'selectable': false,
+    });
     return (
-      <div className='BasalBolusRatio'>
-        <div className='BasalBolusRatio-basal'>
-            <p className='BasalBolusRatio-label BasalBolusRatio-label--basal'>
-              Avg Daily Carbs
-            </p>
-            <p className='BasalBolusRatio-units BasalBolusRatio-units--bolus'>
-              {decimal(averageDailyCarbs)} g
-            </p>
+      <h3 className="DailyCarbs" className={headerClasses}>
+        <span className="DailyCarbs-label">Avg daily carbs</span>
+        <div ref="carbsCircle" className="DailyCarbs-circle">
         </div>
-        <div ref="pie" className='BasalBolusRatio-pie'>
-        </div>
-      </div>
+        {averageDailyCarbs ? null : (<UnknownStatistic />)}
+      </h3>
     );
   }
 });
