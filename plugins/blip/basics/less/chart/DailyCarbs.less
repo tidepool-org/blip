@@ -15,35 +15,19 @@
 
 .DailyCarbs {
 
-  display: flex;
-  align-content: space-around;
-  align-items: center;
-
-  color: @headline-color;
   font-weight: bold;
-  margin-top: 15px;
-  margin-bottom: 5px;
+  padding: 15px 5px;
+  margin-bottom: 15px;
 
-  .DailyCarbs-circle {
-    height: 80px;
-    width: 80px;
-    margin: 0 auto;
-
-    .d3-circle-nodata {
-      fill: @text-light;
-    }
-    .d3-circle-data {
-      fill: @carbs-circle-fill;
-    }
-    .d3-circle-amount {
-      fill: @text;
-      font-size: @huge-numbers;
-    }
+  .DailyCarbs-label {
+    color: @headline-color;
+    font-size: 15px;
+    float: left;
   }
 
-  &:last-child {
-    p {
-      margin-bottom: 0px;
-    }
+  .DailyCarbs-amount {
+    color: @text;
+    font-size: @huge-numbers;
+    float: right;
   }
 }

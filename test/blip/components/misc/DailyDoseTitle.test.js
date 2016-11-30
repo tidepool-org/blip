@@ -72,8 +72,8 @@ describe('DailyDoseTitle', function () {
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
       expect(ReactDOM.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
 
-      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
-      expect(ReactDOM.findDOMNode(inputElem).textContent).to.equal('0.11');
+      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-value');
+      expect(ReactDOM.findDOMNode(inputElem).textContent).to.equal('0.11 U');
     });
 
     it('should render total daily dose / kg as 0.10 when weight set to 100 and totalDailyDose to 10', function () {
@@ -101,8 +101,8 @@ describe('DailyDoseTitle', function () {
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
       expect(ReactDOM.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
 
-      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
-      expect(ReactDOM.findDOMNode(inputElem).textContent).to.equal('0.10');
+      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-value');
+      expect(ReactDOM.findDOMNode(inputElem).textContent).to.equal('0.10 U');
     });
 
     it('should render total daily dose / kg as 0.33 when weight set to 90 and totalDailyDose to 30', function () {
@@ -130,8 +130,8 @@ describe('DailyDoseTitle', function () {
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
       expect(ReactDOM.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
 
-      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
-      expect(ReactDOM.findDOMNode(inputElem).textContent).to.equal('0.33');
+      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-value');
+      expect(ReactDOM.findDOMNode(inputElem).textContent).to.equal('0.33 U');
     });
 
     it('should render avg total daily dose when no weight set', function () {
@@ -159,8 +159,8 @@ describe('DailyDoseTitle', function () {
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
       expect(ReactDOM.findDOMNode(titleElem).textContent).to.equal('Avg total daily dose');
 
-      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
-      expect(ReactDOM.findDOMNode(inputElem).textContent).to.equal('11.0');
+      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-value');
+      expect(ReactDOM.findDOMNode(inputElem).textContent).to.equal('11.0 U');
     });
   });
 });
