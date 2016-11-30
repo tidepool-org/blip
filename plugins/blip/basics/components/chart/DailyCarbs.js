@@ -79,7 +79,7 @@ var DailyCarbs = React.createClass({
       'selectable': false,
     });
     return (
-      <div className="DailyCarbs" className={headerClasses}>
+      <div className={headerClasses}>
         <span className="DailyCarbs-label">Avg daily carbs</span>
         <div ref="carbsCircle" className="DailyCarbs-circle">
         </div>
