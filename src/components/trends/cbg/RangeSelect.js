@@ -25,7 +25,7 @@ import LabeledCheckbox from '../../common/controls/LabeledCheckbox';
 
 import styles from './RangeSelect.css';
 
-const RangeSelect = (props) =>
+export const RangeSelect = (props) =>
   (<div className={styles.container}>
     <LabeledCheckbox
       checked={props.trendsState.cbgFlags.cbg100Enabled}
@@ -58,8 +58,14 @@ const RangeSelect = (props) =>
   </div>);
 
 RangeSelect.propTypes = {
-  trendsState: PropTypes.object.isRequired,
-  changeCbgRange: PropTypes.func.isRequired,
+  trendsState: PropTypes.shape({
+    cbgFlags: PropTypes.shape({
+      cbg100Enabled: PropTypes.bool.isRequired,
+      cbg80Enabled: PropTypes.bool.isRequired,
+      cbg50Enabled: PropTypes.bool.isRequired,
+      cbgMedianEnabled: PropTypes.bool.isRequired,
+    }).isRequired,
+  }).isRequired,
   turnOnCbgRange: PropTypes.func.isRequired,
   turnOffCbgRange: PropTypes.func.isRequired,
 };
