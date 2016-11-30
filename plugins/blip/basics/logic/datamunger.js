@@ -36,23 +36,32 @@ module.exports = function(bgClasses) {
         return wizardEvent.carbInput && wizardEvent.carbInput > 0 ;
       });
 
-      var start = carbs[0].normalTime;
-      if (start < basicsData.dateRange[0]) {
-        start = basicsData.dateRange[0];
-      }
-      var end = carbs[carbs.length - 1].normalTime;
-      if (end > basicsData.dateRange[1]) {
-        end = basicsData.dateRange[1];
-      }
+      if (!_.isEmpty(carbs)) {
 
-      var sumCarbs = _.reduce(_.map(carbs, function(d) {
-        return d.carbInput;
-      }), function(total, carbs) {
-        return total + carbs;
-      });
+        var start = carbs[0].normalTime;
+        if (start < basicsData.dateRange[0]) {
+          start = basicsData.dateRange[0];
+        }
+        var end = carbs[carbs.length - 1].normalTime;
+        if (end > basicsData.dateRange[1]) {
+          end = basicsData.dateRange[1];
+        }
 
+        var sumCarbs = _.reduce(_.map(carbs, function(d) {
+          if (d.normalTime >= start && d.normalTime <= end) {
+            return d.carbInput;
+          }
+          return 0;
+        }), function(total, carbs) {
+          return total + carbs;
+        });
+
+        return {
+          averageDailyCarbs: sumCarbs/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
+        };
+      }
       return {
-        averageDailyCarbs: sumCarbs/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
+        averageDailyCarbs: null
       };
     },
     bgDistribution: function(basicsData) {

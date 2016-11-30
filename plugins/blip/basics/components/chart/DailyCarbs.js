@@ -40,12 +40,17 @@ var DailyCarbs = React.createClass({
 
     var radius = Math.min(w, h)/2;
     var averageDailyCarbs = _.get(this.props.data, 'averageDailyCarbs', null);
+    var decimal = d3.format('.0f');
+
     var circleClassName = 'd3-circle-data';
+    var circleAmountLabelClassName = 'd3-circle-amount';
+    var circleAmountLabel = decimal(averageDailyCarbs) + ' g';
     if (averageDailyCarbs === null) {
       circleClassName = 'd3-circle-nodata';
+      circleAmountLabelClassName = 'd3-circle-noamount';
+      circleAmountLabel = '-- g';
     }
 
-    var decimal = d3.format('.0f');
 
     svg.append('circle')
       .attr({
@@ -57,11 +62,11 @@ var DailyCarbs = React.createClass({
       });
 
     svg.append('text')
-      .text(decimal(averageDailyCarbs) + ' g')
+      .text(circleAmountLabel)
       .attr({
-        'class': 'd3-circle-amount',
+        'class': circleAmountLabelClassName,
         dx: w/2,
-        dy: h/2,
+        dy: h/2 + 10, //magic number .....
         'text-anchor': 'middle',
       });
 
@@ -74,12 +79,12 @@ var DailyCarbs = React.createClass({
       'selectable': false,
     });
     return (
-      <h3 className="DailyCarbs" className={headerClasses}>
+      <div className="DailyCarbs" className={headerClasses}>
         <span className="DailyCarbs-label">Avg daily carbs</span>
         <div ref="carbsCircle" className="DailyCarbs-circle">
         </div>
         {averageDailyCarbs ? null : (<UnknownStatistic />)}
-      </h3>
+      </div>
     );
   }
 });
