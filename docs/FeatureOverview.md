@@ -1,0 +1,13 @@
+## Overview of features
+
+Blip is a web app for people with type 1 diabetes (PwDs) and their care teams. There are four main areas of functionality provided by the app:
+
+- signing up for a Tidepool platform account, which includes:
+    + verifying the sign-up e-mail address
+    + accepting Tidepool's Terms of Use and Privacy Policy
+    + setting up a "data storage account" (DSA)
+- adding & updating user profile information
+- editing & updating account settings (e-mail address & password)
+- viewing diabetes device data & notes + adding or responding to notes
+
+Hint: reading through the [state tree glossary](./StateTreeGlossary.md) (especially the [actions and working section](./StateTreeGlossary.md#actions-and-working)) should yield a pretty thorough overview of all the actions available to a user in blip, since we track the status of actions (at least those requiring communication with Tidepool's servers) in the state tree.

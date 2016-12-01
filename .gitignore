@@ -15,6 +15,7 @@ Thumbs.db
 .Trashes
 
 # Application specific files
+_book
 node_modules
 npm-debug.log
 tmp
@@ -24,3 +25,7 @@ config/*
 test/bin
 sauce_connect.log
 selenium-debug.log
+web/
+
+# GitBook
+_book/
