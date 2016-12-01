@@ -506,6 +506,8 @@ function TidelineData(data, opts) {
             return true;
           }
           return false;
+        case 'wizard':
+          return true;
         default:
           return false;
       }

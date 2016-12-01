@@ -354,11 +354,11 @@ describe('basics datamunger', function() {
 
   describe('calculateCarbStats', function() {
     var wizard = [
-      { type: 'wizard', carbInput: 100, normalTime: '2015-09-01T00:00:00Z' },
-      { type: 'wizard', carbInput: 77, normalTime: '2015-09-01T06:00:00Z' },
-      { type: 'wizard', carbInput: 33, normalTime: '2015-09-01T08:00:00Z' },
-      { type: 'wizard', carbInput: 50, normalTime: '2015-09-02T00:00:00Z' },
-      { type: 'wizard', carbInput: 50, normalTime: '2015-09-03T00:00:00Z' }
+      { type: 'wizard', carbInput: 100, normalTime: '2015-09-01T07:00:00Z' },
+      { type: 'wizard', carbInput: 77, normalTime: '2015-09-01T10:30:00Z' },
+      { type: 'wizard', carbInput: 33, normalTime: '2015-09-01T13:00:00Z' },
+      { type: 'wizard', carbInput: 50, normalTime: '2015-09-02T07:00:00Z' },
+      { type: 'wizard', carbInput: 50, normalTime: '2015-09-02T10:00:00Z' }
     ];
 
     it('should be a function', function() {
@@ -387,28 +387,7 @@ describe('basics datamunger', function() {
           }]
         };
 
-        expect(dm.calculateCarbStats(basicsData).averageDailyCarbs).to.equal(130);
-      });
-
-      it('should exclude any carbs falling outside date range', function() {
-
-        var basicsData2 = {
-          data: {
-            wizard: { data: wizard }
-          },
-          dateRange: [
-            '2015-09-01T12:00:00.000Z',
-            '2015-09-02T12:00:00.000Z'
-          ],
-          days: [{
-            date: '2015-09-01',
-            type: 'past',
-          }, {
-            date: '2015-09-02',
-            type: 'mostRecent',
-          }]
-        };
-        expect(dm.calculateCarbStats(basicsData2).averageDailyCarbs).to.equal(50);
+        expect(dm.calculateCarbStats(basicsData).averageDailyCarbs).to.equal(155);
       });
     });
   });

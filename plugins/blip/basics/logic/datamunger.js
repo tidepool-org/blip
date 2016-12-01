@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -38,26 +38,17 @@ module.exports = function(bgClasses) {
 
       if (!_.isEmpty(carbs)) {
 
-        var start = carbs[0].normalTime;
-        if (start < basicsData.dateRange[0]) {
-          start = basicsData.dateRange[0];
-        }
-        var end = carbs[carbs.length - 1].normalTime;
-        if (end > basicsData.dateRange[1]) {
-          end = basicsData.dateRange[1];
-        }
-
         var sumCarbs = _.reduce(_.map(carbs, function(d) {
-          if (d.normalTime >= start && d.normalTime <= end) {
-            return d.carbInput;
-          }
-          return 0;
+          return d.carbInput;
         }), function(total, carbs) {
           return total + carbs;
         });
 
+        var toDate = Date.parse(basicsData.dateRange[1]);
+        var fromDate = Date.parse(basicsData.dateRange[0]);
+
         return {
-          averageDailyCarbs: sumCarbs/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
+          averageDailyCarbs: sumCarbs/((toDate - fromDate)/constants.MS_IN_DAY)
         };
       }
       return {
@@ -442,7 +433,7 @@ module.exports = function(bgClasses) {
           fsSummary.total += fsSummary[fsCategory].total;
         });
         fingerstickData.summary = fsSummary;
-        
+
         var fsTags = _.flatten(fsSection.selectorOptions.rows.map(function(row) {
           return _.pluck(_.filter(row, function(opt) {
             return opt.path === 'smbg';
