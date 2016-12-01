@@ -49,6 +49,9 @@ describe('LabeledCheckbox', () => {
       expect(checkedWrapper.find('input[type="checkbox"]').length).to.equal(1);
       expect(checkedWrapper.find('input[type="checkbox"]').prop('checked')).to.be.true;
     });
+    it('should render the label', () => {
+      expect(checkedWrapper.find('label').text()).to.have.string('Checked Label');
+    });
     it('should trigger offFn when changed', () => {
       expect(offFn.callCount).to.equal(0);
       checkedWrapper.find('input[type="checkbox"]').simulate('change');
@@ -60,6 +63,9 @@ describe('LabeledCheckbox', () => {
     it('should render an unchecked checkbox', () => {
       expect(uncheckedWrapper.find('input[type="checkbox"]').length).to.equal(1);
       expect(uncheckedWrapper.find('input[type="checkbox"]').prop('checked')).to.be.false;
+    });
+    it('should render the label', () => {
+      expect(uncheckedWrapper.find('label').text()).to.have.string('Unchecked Label');
     });
     it('should trigger onFn when changed', () => {
       expect(onFn.callCount).to.equal(0);
