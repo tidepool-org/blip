@@ -31,10 +31,10 @@ const trackMetricMap = {
 
 const interpretMetricMap = {
   TURN_ON_CBG_RANGE: function(action) {
-    return `Turn on ${action.payload.range}${_.isNumber(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}`;
+    return `Turn on ${action.payload.range}${!_.isNaN(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}`;
   },
   TURN_OFF_CBG_RANGE: function(action) {
-    return `Turn off ${action.payload.range}${_.isNumber(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}`;
+    return `Turn off ${action.payload.range}${!_.isNaN(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}`;
   }
 }
 
