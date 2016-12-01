@@ -240,12 +240,6 @@ TrendsSVGContainer.propTypes = {
   bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   containerHeight: PropTypes.number.isRequired,
   containerWidth: PropTypes.number.isRequired,
-  data: PropTypes.arrayOf(PropTypes.shape({
-    // here only documenting the properties we actually use rather than the *whole* data model!
-    id: PropTypes.string.isRequired,
-    msPer24: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired,
-  })),
   smbgData: PropTypes.arrayOf(PropTypes.shape({
     // here only documenting the properties we actually use rather than the *whole* data model!
     id: PropTypes.string.isRequired,

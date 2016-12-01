@@ -156,7 +156,7 @@ export default class CBGSlicesAnimationContainer extends React.Component {
                 aSliceIsFocused={focusedSlice !== null}
                 datum={dataById[config.key]}
                 focusSlice={this.props.focusSlice}
-                isFocused={config.key === _.get(focusedSlice, ['slice', 'id'], null)}
+                isFocused={config.key === _.get(focusedSlice, ['data', 'id'], null)}
                 key={config.key}
                 tooltipLeftThreshold={this.props.tooltipLeftThreshold}
                 unfocusSlice={this.props.unfocusSlice}
