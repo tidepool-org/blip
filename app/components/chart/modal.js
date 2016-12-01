@@ -367,6 +367,11 @@ var Modal = React.createClass({
   toggleBgDataSource: function(e) {
     if (e) {
       e.preventDefault();
+      if (this.props.chartPrefs.modal.showingCbg) {
+        this.props.trackMetric('Trends Click to BGM');
+      } else {
+        this.props.trackMetric('Trends Click to CGM');
+      }
     }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.showingCbg = !prefs.modal.showingCbg;

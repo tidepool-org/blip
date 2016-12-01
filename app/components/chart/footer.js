@@ -92,7 +92,10 @@ var TidelineFooter = React.createClass({
       if (this.props.showingSmbg) {
         rightSide = modalOpts;
       } else {
-        rightSide = <RangeSelect trendsState={this.props.trendsState} currentPatientInViewId={this.props.currentPatientInViewId} />;
+        rightSide = <RangeSelect
+          trendsState={this.props.trendsState}
+          currentPatientInViewId={this.props.currentPatientInViewId}
+        />;
       }
       bgDataToggle = (
         <span className="toggle-container">
