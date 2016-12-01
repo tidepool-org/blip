@@ -18,11 +18,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { formatClassesAsSelector } from '../../../helpers/cssmodules';
-
-import LabeledCheckbox
-  from '../../../../src/components/common/controls/LabeledCheckbox';
-import styles from '../../../../src/components/common/controls/LabeledCheckbox.css';
+import LabeledCheckbox from '../../../../src/components/common/controls/LabeledCheckbox';
 
 describe('LabeledCheckbox', () => {
   let checkedWrapper;
