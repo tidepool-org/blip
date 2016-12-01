@@ -14,7 +14,9 @@
     "build-config": "NODE_ENV=production node buildconfig",
     "server": "node server",
     "lint": "eslint app test",
-    "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0"
+    "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0",
+    "build-docs": "./update-gh-pages.sh",
+    "serve-docs": "./node_modules/.bin/gitbook serve"
   },
   "dependencies": {
     "@tidepool/viz": "0.2.20",
@@ -69,6 +71,7 @@
     "chromedriver": "2.23.1",
     "eslint": "2.13.1",
     "eslint-plugin-react": "6.1.2",
+    "gitbook-cli": "2.3.0",
     "karma": "1.2.0",
     "karma-chai": "0.1.0",
     "karma-chrome-launcher": "2.0.0",
