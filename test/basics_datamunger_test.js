@@ -381,6 +381,13 @@ describe('basics datamunger', function() {
 
         expect(dm.calculateBasalBolusStats(bdCarbs).averageDailyCarbs).to.equal(135);
       });
+      it('should not calculate a statistic if there are `past` days with no carbs', function() {
+        var bdCarbs = _.cloneDeep(bd);
+        delete bdCarbs.data.bolus.dataByDate['2015-09-02'];
+        bdCarbs.data.bolus.dataByDate['2015-09-03'] = [];
+        bdCarbs.days.push({date: '2015-09-03', type: 'mostRecent'});
+         expect(dm.calculateBasalBolusStats(bdCarbs).averageDailyCarbs).to.be.null;
+      });
     });
   });
 
