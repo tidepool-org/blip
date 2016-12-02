@@ -39,7 +39,8 @@ const SMBGDayPointsAnimated = (props) => {
     grouped,
     focusedDay,
     smbgOpts,
-    onSelectDay } = props;
+    onSelectDay,
+    nonInteractive } = props;
   const radius = (date === focusedDay) ? smbgOpts.maxR : smbgOpts.r;
   const xPosition = (msPer24) => {
     if (grouped) {
@@ -88,6 +89,7 @@ const SMBGDayPointsAnimated = (props) => {
                 cx={interpolated.xPos}
                 cy={yScale(smbg.value)}
                 r={radius}
+                pointerEvents={nonInteractive ? 'none' : 'all'}
               />
             )}
           </Motion>
@@ -116,6 +118,7 @@ SMBGDayPointsAnimated.propTypes = {
     r: PropTypes.number.isRequired,
   }).isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
+  nonInteractive: PropTypes.bool,
 };
 
 export default SMBGDayPointsAnimated;

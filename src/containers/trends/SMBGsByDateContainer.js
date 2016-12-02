@@ -36,7 +36,8 @@ const SMBGsByDateContainer = (props) => {
     unfocusSmbg,
     smbgOpts,
     tooltipLeftThreshold,
-    onSelectDay } = props;
+    onSelectDay,
+    nonInteractive } = props;
   const focusedDay = focusedSmbg ? focusedSmbg.date : '';
   const smbgsByDate = _.groupBy(data, 'localDate');
 
@@ -57,6 +58,7 @@ const SMBGsByDateContainer = (props) => {
           onSelectDay={onSelectDay}
           grouped={grouped}
           tooltipLeftThreshold={tooltipLeftThreshold}
+          nonInteractive={nonInteractive}
         />
       );
     }
@@ -73,6 +75,7 @@ const SMBGsByDateContainer = (props) => {
         onSelectDay={onSelectDay}
         grouped={grouped}
         tooltipLeftThreshold={tooltipLeftThreshold}
+        nonInteractive={nonInteractive}
       />
     ));
   }
@@ -92,6 +95,7 @@ const SMBGsByDateContainer = (props) => {
         grouped={grouped}
         smbgOpts={smbgOpts}
         tooltipLeftThreshold={tooltipLeftThreshold}
+        nonInteractive={nonInteractive}
       />
     ));
   }
@@ -147,6 +151,7 @@ SMBGsByDateContainer.propTypes = {
   unfocusSmbg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
+  nonInteractive: PropTypes.bool,
 };
 
 export default SMBGsByDateContainer;

@@ -133,19 +133,14 @@ export class TrendsSVGContainer extends React.Component {
       if (_.isEmpty(this.props.smbgData)) {
         return this.renderNoDataMessage('smbg');
       }
-      let points = this.props.smbgData;
-      if (this.props.focusedSmbg) {
-        points = _.without(this.props.smbgData, this.props.focusedSmbg.dayPoints);
-      }
       const days = (
         <SMBGsByDateContainer
           key="smbgDaysContainer"
-          data={points}
+          data={this.props.smbgData}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
-          focusedSmbg={this.props.focusedSmbg}
           focusSmbg={this.props.focusSmbg}
-          unfocusSmbg={() => {}}
+          unfocusSmbg={this.props.unfocusSmbg}
           lines={this.props.smbgLines}
           grouped={this.props.smbgGrouped}
           onSelectDay={this.props.onSelectDay}
@@ -153,6 +148,9 @@ export class TrendsSVGContainer extends React.Component {
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
         />
       );
+      // Focused day will be rendered last, on top of everything else but flagged
+      // as nonInteractive to allow mouse events to be handled exclusively by normally
+      // rendered points and lines
       const focusedDay = this.props.focusedSmbg ? (
         <SMBGsByDateContainer
           key="focusedSmbgDayContainer"
@@ -161,12 +159,13 @@ export class TrendsSVGContainer extends React.Component {
           yScale={this.props.yScale}
           focusedSmbg={this.props.focusedSmbg}
           focusSmbg={() => {}}
-          unfocusSmbg={this.props.unfocusSmbg}
+          unfocusSmbg={() => {}}
           lines={this.props.smbgLines}
           grouped={this.props.smbgGrouped}
           onSelectDay={this.props.onSelectDay}
           smbgOpts={this.props.smbgOpts}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+          nonInteractive
         />
       ) : null;
 

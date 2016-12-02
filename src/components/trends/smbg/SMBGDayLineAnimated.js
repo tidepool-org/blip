@@ -51,7 +51,8 @@ const SMBGDayLineAnimated = (props) => {
     focusLine,
     unfocusLine,
     focusedDay,
-    onSelectDay } = props;
+    onSelectDay,
+    nonInteractive } = props;
 
   const xPosition = (msPer24) => {
     if (grouped) {
@@ -101,6 +102,7 @@ const SMBGDayLineAnimated = (props) => {
             onDoubleClick={() => {
               onSelectDay(date);
             }}
+            pointerEvents={nonInteractive ? 'none' : 'stroke'}
           />
         )}
       </TransitionMotion>
@@ -123,6 +125,7 @@ SMBGDayLineAnimated.propTypes = {
   focusedDay: PropTypes.string.isRequired,
   onSelectDay: PropTypes.func.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
+  nonInteractive: PropTypes.bool,
 };
 
 export default SMBGDayLineAnimated;
