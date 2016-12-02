@@ -28,33 +28,6 @@ module.exports = function(bgClasses) {
   var classifiers = classifiersMkr(bgClasses);
 
   return {
-    calculateCarbStats: function(basicsData) {
-
-      var wizardEvents = basicsData.data.wizard.data;
-
-      var carbs = _.filter(wizardEvents, function(wizardEvent) {
-        return wizardEvent.carbInput && wizardEvent.carbInput > 0 ;
-      });
-
-      if (!_.isEmpty(carbs)) {
-
-        var sumCarbs = _.reduce(_.map(carbs, function(d) {
-          return d.carbInput;
-        }), function(total, carbs) {
-          return total + carbs;
-        });
-
-        var toDate = Date.parse(basicsData.dateRange[1]);
-        var fromDate = Date.parse(basicsData.dateRange[0]);
-
-        return {
-          averageDailyCarbs: sumCarbs/((toDate - fromDate)/constants.MS_IN_DAY)
-        };
-      }
-      return {
-        averageDailyCarbs: null
-      };
-    },
     bgDistribution: function(basicsData) {
       var categorizeBg = classifiers.categorizeBg;
       function reshapeAsPercentages(grouped, total) {
@@ -115,10 +88,15 @@ module.exports = function(bgClasses) {
           basalBolusRatio: null,
           averageDailyDose: null,
           totalDailyDose: null,
+          averageDailyCarbs: null,
         };
       }
       var boluses = basicsData.data.bolus.data;
       var basals = basicsData.data.basal.data;
+      var carbs =  _.filter(basicsData.data.wizard.data, function(wizardEvent) {
+        return wizardEvent.carbInput && wizardEvent.carbInput > 0 ;
+      });
+
       var start = basals[0].normalTime;
       if (start < basicsData.dateRange[0]) {
         start = basicsData.dateRange[0];
@@ -167,12 +145,25 @@ module.exports = function(bgClasses) {
         if (d.normalTime >= start && d.normalTime <= end) {
           return (d.extended || 0) + (d.normal || 0);
         }
-        else {
-          return 0;
-        }
+        return 0;
       }), function(total, insulin) {
         return total + insulin;
       });
+
+      var sumCarbs = _.reduce(_.map(carbs, function(d) {
+        if (d.normalTime >= start && d.normalTime <= end) {
+          return d.carbInput;
+        }
+        return 0;
+      }), function(total, carbs) {
+        return total + carbs;
+      });
+
+      console.log('total carbs: ',sumCarbs);
+      console.log('from: ',start);
+      console.log('to: ',end);
+      console.log('time: ',((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY));
+
       var totalInsulin = sumBasalInsulin + sumBolusInsulin;
 
       return {
@@ -184,7 +175,8 @@ module.exports = function(bgClasses) {
           basal: sumBasalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY),
           bolus: sumBolusInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
         },
-        totalDailyDose: totalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
+        totalDailyDose: totalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY),
+        averageDailyCarbs: sumCarbs/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
       };
     },
     infusionSiteHistory: function(basicsData) {
