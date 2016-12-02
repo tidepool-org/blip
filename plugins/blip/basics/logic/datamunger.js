@@ -159,11 +159,6 @@ module.exports = function(bgClasses) {
         return total + carbs;
       });
 
-      console.log('total carbs: ',sumCarbs);
-      console.log('from: ',start);
-      console.log('to: ',end);
-      console.log('time: ',((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY));
-
       var totalInsulin = sumBasalInsulin + sumBolusInsulin;
 
       return {
