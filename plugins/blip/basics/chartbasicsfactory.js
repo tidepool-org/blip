@@ -95,6 +95,7 @@ var BasicsChart = React.createClass({
       basicsData.data.basalBolusRatio = basalBolusStats.basalBolusRatio;
       basicsData.data.averageDailyDose = basalBolusStats.averageDailyDose;
       basicsData.data.totalDailyDose = basalBolusStats.totalDailyDose;
+      basicsData.data.averageDailyCarbs = basalBolusStats.averageDailyCarbs;
       this._adjustSectionsBasedOnAvailableData(basicsData);
     }
     this.setState(basicsData);

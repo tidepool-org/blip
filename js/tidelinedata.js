@@ -57,7 +57,7 @@ function TidelineData(data, opts) {
     CBG_PERCENT_FOR_ENOUGH: 0.75,
     CBG_MAX_DAILY: 288,
     SMBG_DAILY_MIN: 4,
-    basicsTypes: ['basal', 'bolus', 'cbg', 'smbg', 'deviceEvent'],
+    basicsTypes: ['basal', 'bolus', 'cbg', 'smbg', 'deviceEvent', 'wizard'],
     bgClasses: {
       'very-low': {boundary: 60},
       low: {boundary: 80},
@@ -506,6 +506,8 @@ function TidelineData(data, opts) {
             return true;
           }
           return false;
+        case 'wizard':
+          return true;
         default:
           return false;
       }

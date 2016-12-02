@@ -28,6 +28,7 @@ var BGDistribution = React.createFactory(require('../components/chart/BGDistribu
 var WrapCount = React.createFactory(require('../components/chart/WrapCount'));
 var SiteChange = React.createFactory(require('../components/chart/SiteChange'));
 var DailyDose = React.createFactory(require('../components/chart/DailyDose'));
+var DailyCarbs = React.createFactory(require('../components/chart/DailyCarbs'));
 var InfusionHoverDisplay = React.createFactory(require('../components/day/hover/InfusionHoverDisplay'));
 
 var basicsActions = require('./actions');
@@ -156,10 +157,21 @@ var basicsState = {
       container: BasicContainer,
       column: 'left',
       id: 'totalDailyDose',
-      index: 2,
+      index: 4,
       noData: false,
       title: DailyDoseTitle,
       togglable: togglableState.closed
+    },
+    averageDailyCarbs: {
+      active: true,
+      chart: DailyCarbs,
+      container: BasicContainer,
+      column: 'left',
+      id: 'averageDailyCarbs',
+      index: 2,
+      noData: false,
+      title: '',
+      togglable: togglableState.off
     }
   }
 };

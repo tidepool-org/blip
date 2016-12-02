@@ -103,7 +103,7 @@ var DashboardSection = React.createClass({
         sectionName: this.props.name,
         trackMetric: this.props.trackMetric
       });
-    } else {
+    } else if (this.props.title) {
       var headerClasses = cx({
         'SectionHeader--nodata': section.noData,
         'selectable': this.props.togglable !== togglableState.off

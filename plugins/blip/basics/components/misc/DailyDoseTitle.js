@@ -49,8 +49,7 @@ var DailyDoseTitle = React.createClass({
       return (
         <h3 className="DailyDoseTitle" onClick={this.handleToggleSection}>
           <span className="DailyDoseTitle-label">Total daily dose / kg</span>
-          <span className="DailyDoseTitle-value DailyDose-text--large">{d3.format('.2f')(dosePerKg)}</span>
-          <span className="DailyDoseTitle-value DailyDose-text--small">&nbsp;U</span>
+          <span className="DailyDoseTitle-value">{d3.format('.2f')(dosePerKg) + ' U'}</span>
           <i className={this.props.iconClass}/>
         </h3>
       );
@@ -58,8 +57,7 @@ var DailyDoseTitle = React.createClass({
       return (
         <h3 className={headerClasses} onClick={this.handleToggleSection}>
           <span className="DailyDoseTitle-label">Avg total daily dose</span>
-          <span className="DailyDoseTitle-value DailyDose-text--large">{displayDose}</span>
-          <span className="DailyDoseTitle-value DailyDose-text--small">&nbsp;U</span>
+          <span className="DailyDoseTitle-value">{displayDose + ' U'}</span>
           <i className={this.props.iconClass}/>
         </h3>
       );

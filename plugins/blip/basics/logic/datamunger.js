@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -88,10 +88,15 @@ module.exports = function(bgClasses) {
           basalBolusRatio: null,
           averageDailyDose: null,
           totalDailyDose: null,
+          averageDailyCarbs: null,
         };
       }
       var boluses = basicsData.data.bolus.data;
       var basals = basicsData.data.basal.data;
+      var carbs =  _.filter(basicsData.data.wizard.data, function(wizardEvent) {
+        return wizardEvent.carbInput && wizardEvent.carbInput > 0 ;
+      });
+
       var start = basals[0].normalTime;
       if (start < basicsData.dateRange[0]) {
         start = basicsData.dateRange[0];
@@ -140,12 +145,20 @@ module.exports = function(bgClasses) {
         if (d.normalTime >= start && d.normalTime <= end) {
           return (d.extended || 0) + (d.normal || 0);
         }
-        else {
-          return 0;
-        }
+        return 0;
       }), function(total, insulin) {
         return total + insulin;
       });
+
+      var sumCarbs = _.reduce(_.map(carbs, function(d) {
+        if (d.normalTime >= start && d.normalTime <= end) {
+          return d.carbInput;
+        }
+        return 0;
+      }), function(total, carbs) {
+        return total + carbs;
+      });
+
       var totalInsulin = sumBasalInsulin + sumBolusInsulin;
 
       return {
@@ -157,7 +170,8 @@ module.exports = function(bgClasses) {
           basal: sumBasalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY),
           bolus: sumBolusInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
         },
-        totalDailyDose: totalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
+        totalDailyDose: totalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY),
+        averageDailyCarbs: sumCarbs/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
       };
     },
     infusionSiteHistory: function(basicsData) {
@@ -406,7 +420,7 @@ module.exports = function(bgClasses) {
           fsSummary.total += fsSummary[fsCategory].total;
         });
         fingerstickData.summary = fsSummary;
-        
+
         var fsTags = _.flatten(fsSection.selectorOptions.rows.map(function(row) {
           return _.pluck(_.filter(row, function(opt) {
             return opt.path === 'smbg';
