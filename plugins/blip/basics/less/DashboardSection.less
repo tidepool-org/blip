@@ -36,14 +36,16 @@
     font-weight: bold;
     .header;
     padding: 15px 5px;
-    &.SectionHeader--nodata {
-      color: @text-light;
-      span {
-        color: @text-light;
-      }
-    }
     &.selectable {
       cursor: pointer;
+    }
+  }
+
+
+  .SectionHeader--nodata {
+    color: @text-light;
+    span:not(.UnknownStatistic-lead) {
+      color: @text-light;
     }
   }
 }

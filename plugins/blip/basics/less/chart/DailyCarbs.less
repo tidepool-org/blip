@@ -18,7 +18,18 @@
   font-weight: bold;
 
   padding: 15px 0 15px 0;
-  margin-bottom: 15px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+
+  &.SectionHeader--nodata {
+    padding-bottom: 0px;
+    p {
+      padding-top: 15px;
+    }
+  }
 
   .DailyCarbs-label {
     color: @headline-color;
