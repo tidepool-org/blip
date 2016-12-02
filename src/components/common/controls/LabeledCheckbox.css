@@ -15,12 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .label {
   composes: mediumContrastText from '../../../styles/typography.css';
   font-size: 16px;
