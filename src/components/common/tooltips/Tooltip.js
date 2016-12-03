@@ -27,11 +27,15 @@ class Tooltip extends React.Component {
   }
 
   componentDidMount() {
-    this.calculateOffset();
+    this.calculateOffset(this.props);
   }
 
-  calculateOffset() {
-    const { offset: propOffset, tail } = this.props;
+  componentWillReceiveProps(nextProps) {
+    this.calculateOffset(nextProps);
+  }
+
+  calculateOffset(currentProps) {
+    const { offset: propOffset, tail } = currentProps;
     const offset = {};
     const tooltipRect = this.element.getBoundingClientRect();
     if (tail) {
