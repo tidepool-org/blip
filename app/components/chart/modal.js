@@ -26,8 +26,8 @@ var SubNav = require('./modalsubnav');
 var Footer = require('./footer');
 
 import * as viz from '@tidepool/viz';
-const FocusedCBGSliceHTMLLabels = viz.components.FocusedCBGSliceHTMLLabels;
-const FocusedCBGSliceTime = viz.components.FocusedCBGSliceTime;
+const FocusedCBGSliceMedianLabel = viz.components.FocusedCBGSliceMedianLabel;
+const FocusedCBGSliceRangeLabels = viz.components.FocusedCBGSliceRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
 const FocusedSMBGRangeLabels = viz.components.FocusedSMBGRangeLabels;
 const TrendsContainer = viz.containers.TrendsContainer;
@@ -80,8 +80,8 @@ var Modal = React.createClass({
               <div id="tidelineContainer" className="patient-data-chart-modal">
                 {this.renderChart()}
               </div>
-              {this.renderFocusedCBGTime()}
-              {this.renderFocusedCBGHTMLLabels()}
+              {this.renderFocusedCBGSliceRangeLabels()}
+              {this.renderFocusedCBGSliceMedianLabel()}
               {this.renderFocusedSMBGPointLabel()}
               {this.renderFocusedSMBGRangeLabels()}
             </div>
@@ -175,25 +175,26 @@ var Modal = React.createClass({
       ref="chart" />
     );
   },
-  renderFocusedCBGHTMLLabels: function() {
+  renderFocusedCBGSliceMedianLabel: function() {
     if (!this.props.chartPrefs.modal.showingCbg) {
       return null;
     }
     const { currentPatientInViewId } = this.props;
     return (
-      <FocusedCBGSliceHTMLLabels
+      <FocusedCBGSliceMedianLabel
         bgUnits={this.props.bgPrefs.bgUnits}
-        focusedKeys={this.props.trendsState[currentPatientInViewId].focusedCbgSliceKeys}
         focusedSlice={this.props.trendsState[currentPatientInViewId].focusedCbgSlice} />
     );
   },
-  renderFocusedCBGTime: function() {
+  renderFocusedCBGSliceRangeLabels: function() {
     if (!this.props.chartPrefs.modal.showingCbg) {
       return null;
     }
     const { currentPatientInViewId } = this.props;
     return (
-      <FocusedCBGSliceTime
+      <FocusedCBGSliceRangeLabels
+        bgUnits={this.props.bgPrefs.bgUnits}
+        focusedKeys={this.props.trendsState[currentPatientInViewId].focusedCbgSliceKeys}
         focusedSlice={this.props.trendsState[currentPatientInViewId].focusedCbgSlice} />
     );
   },
