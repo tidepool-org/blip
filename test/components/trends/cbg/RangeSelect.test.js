@@ -19,13 +19,13 @@ import React from 'react';
 
 import { mount } from 'enzyme';
 import LabeledCheckbox from '../../../../src/components/common/controls/LabeledCheckbox';
-import { RangeSelect, mapStateToProps, mapDispatchToProps }
+import { RangeSelect, mapDispatchToProps }
   from '../../../../src/components/trends/cbg/RangeSelect';
 
 describe('RangeSelect', () => {
   describe('RangeSelect (w/o redux connect()ion)', () => {
     const props = {
-      cbgFlags: {
+      displayFlags: {
         cbg100Enabled: false,
         cbg80Enabled: true,
         cbg50Enabled: true,
@@ -33,14 +33,6 @@ describe('RangeSelect', () => {
       },
       turnOnCbgRange: sinon.spy(),
       turnOffCbgRange: sinon.spy(),
-      trendsState: {
-        cbgFlags: {
-          cbg100Enabled: false,
-          cbg80Enabled: true,
-          cbg50Enabled: true,
-          cbgMedianEnabled: true,
-        },
-      },
     };
 
     const wrapper = mount(
@@ -62,25 +54,6 @@ describe('RangeSelect', () => {
       wrapper.find('input[type="checkbox"]').at(1).simulate('change');
       expect(props.turnOffCbgRange.callCount).to.equal(1);
       expect(props.turnOffCbgRange.calledWith('80')).to.be.true;
-    });
-  });
-
-  describe('mapStateToProps', () => {
-    const userId = 'a1b2c3';
-    const state = {
-      viz: {
-        trends: {
-          [userId]: {
-            oneOption: true,
-            otherOption: false,
-          },
-        },
-      },
-    };
-
-    it('should map state.viz.trends[currentPatientInViewId] to `trendsState`', () => {
-      expect(mapStateToProps(state, { currentPatientInViewId: userId }).trendsState)
-        .to.deep.equal(state.viz.trends[userId]);
     });
   });
 
