@@ -99,6 +99,7 @@ var Modal = React.createClass({
          showingCbg={this.props.chartPrefs.modal.showingCbg}
          showingSmbg={this.props.chartPrefs.modal.showingSmbg}
          displayFlags={this.props.trendsState[currentPatientInViewId].cbgFlags}
+         currentPatientInViewId={currentPatientInViewId}
          ref="footer" />
       </div>
     );
