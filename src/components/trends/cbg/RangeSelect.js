@@ -66,7 +66,6 @@ RangeSelect.propTypes = {
   }).isRequired,
   turnOnCbgRange: PropTypes.func.isRequired,
   turnOffCbgRange: PropTypes.func.isRequired,
-  currentPatientInViewId: PropTypes.string.isRequired,
 };
 
 export function mapDispatchToProps(dispatch, ownProps) {
