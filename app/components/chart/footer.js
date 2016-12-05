@@ -42,8 +42,7 @@ var TidelineFooter = React.createClass({
     showingCbg: React.PropTypes.bool,
     showingSmbg: React.PropTypes.bool,
     showingValues: React.PropTypes.bool,
-    trendsState: React.PropTypes.object,
-    currentPatientInViewId: React.PropTypes.string,
+    displayFlags: React.PropTypes.object,
   },
   render: function() {
     var refreshLinkClass = cx({
@@ -93,8 +92,7 @@ var TidelineFooter = React.createClass({
         rightSide = modalOpts;
       } else {
         rightSide = <RangeSelect
-          trendsState={this.props.trendsState}
-          currentPatientInViewId={this.props.currentPatientInViewId}
+          displayFlags={this.props.displayFlags}
         />;
       }
       bgDataToggle = (
