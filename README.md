@@ -50,12 +50,12 @@ Open your web browser and navigate to `http://localhost:3000/`.
 
 ### Getting past e-mail verification for a user created locally
 
-When running locally with runservers, no e-mail will be sent to a sign-up e-mail address, and so a workaround is needed to get past the e-mail verification step for a newly created local account being used for development. What you need to do is construct the login URL that is provided in a link in the verification e-mail *manually* by finding the correct ID for the e-mail confirmation. There are two ways to do this: by looking in the local `server.log` (located at the root level of where you've cloned all the Tidepool repositories) or by finding it in your local Mongo database. The steps for the latter are:
+When running locally with `runservers`, no e-mail will be sent to a sign-up e-mail address, and so a workaround is needed to get past the e-mail verification step for a newly created local account being used for development. What you need to do is construct the login URL that is provided in a link in the verification e-mail *manually* by finding the correct ID for the e-mail confirmation. There are two ways to do this: by looking in the local `server.log` (located at the root level of where you've cloned all the Tidepool repositories) or by finding it in your local Mongo database. The steps for the latter are:
 
 - start a Mongo shell in a fresh Terminal window with `mongo`
 - switch to the `confirm` database with `use confirm`
 - find the pending account with `db.confirmations.find({status: 'pending'});`
-- copy the `_id` from the pending confirmation record with an `email` matching the account you've just created and provide it as a `signupKey` parameter in the login URL: `http://localhost:3000/login?signUpKey=<_id>`
+- copy the `_id` from the pending confirmation record with an `email` matching the account you've just created and provide it as a `signupKey` parameter in the login URL: `http://localhost:3000/login?signupKey=<_id>`
 
 ### Creating a user without e-mail verification
 
