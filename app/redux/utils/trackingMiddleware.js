@@ -40,7 +40,6 @@ const interpretMetricMap = {
 
 export default (api) => {
   return ({ getState }) => (next) => (action) => {
-    console.log(action);
     if (trackMetricMap[action.type]) {
       api.metrics.track(trackMetricMap[action.type]);
     }
