@@ -28,28 +28,28 @@ import styles from './RangeSelect.css';
 export const RangeSelect = (props) =>
   (<div className={styles.container}>
     <LabeledCheckbox
-      checked={props.trendsState.cbgFlags.cbg100Enabled}
+      checked={props.displayFlags.cbg100Enabled}
       name="hundred"
       label="100% of Readings"
       onFn={_.partial(props.turnOnCbgRange, '100')}
       offFn={_.partial(props.turnOffCbgRange, '100')}
     />
     <LabeledCheckbox
-      checked={props.trendsState.cbgFlags.cbg80Enabled}
+      checked={props.displayFlags.cbg80Enabled}
       name="eighty"
       label="80% of Readings"
       onFn={_.partial(props.turnOnCbgRange, '80')}
       offFn={_.partial(props.turnOffCbgRange, '80')}
     />
     <LabeledCheckbox
-      checked={props.trendsState.cbgFlags.cbg50Enabled}
+      checked={props.displayFlags.cbg50Enabled}
       name="fifty"
       label="50% of Readings"
       onFn={_.partial(props.turnOnCbgRange, '50')}
       offFn={_.partial(props.turnOffCbgRange, '50')}
     />
     <LabeledCheckbox
-      checked={props.trendsState.cbgFlags.cbgMedianEnabled}
+      checked={props.displayFlags.cbgMedianEnabled}
       name="median"
       label="Median"
       onFn={_.partial(props.turnOnCbgRange, 'median')}
@@ -58,24 +58,16 @@ export const RangeSelect = (props) =>
   </div>);
 
 RangeSelect.propTypes = {
-  trendsState: PropTypes.shape({
-    cbgFlags: PropTypes.shape({
-      cbg100Enabled: PropTypes.bool.isRequired,
-      cbg80Enabled: PropTypes.bool.isRequired,
-      cbg50Enabled: PropTypes.bool.isRequired,
-      cbgMedianEnabled: PropTypes.bool.isRequired,
-    }).isRequired,
+  displayFlags: PropTypes.shape({
+    cbg100Enabled: PropTypes.bool.isRequired,
+    cbg80Enabled: PropTypes.bool.isRequired,
+    cbg50Enabled: PropTypes.bool.isRequired,
+    cbgMedianEnabled: PropTypes.bool.isRequired,
   }).isRequired,
   turnOnCbgRange: PropTypes.func.isRequired,
   turnOffCbgRange: PropTypes.func.isRequired,
+  currentPatientInViewId: PropTypes.string.isRequired,
 };
-
-export function mapStateToProps(state, ownProps) {
-  const userId = _.get(ownProps, 'currentPatientInViewId');
-  return {
-    trendsState: _.get(state, ['viz', 'trends', userId], {}),
-  };
-}
 
 export function mapDispatchToProps(dispatch, ownProps) {
   return bindActionCreators({
@@ -89,7 +81,7 @@ export function mapDispatchToProps(dispatch, ownProps) {
 }
 
 export default connect(
-  mapStateToProps,
+  () => {},
   mapDispatchToProps,
   (stateProps, dispatchProps, ownProps) => (_.assign({}, ownProps, stateProps, dispatchProps)),
 )(RangeSelect);
