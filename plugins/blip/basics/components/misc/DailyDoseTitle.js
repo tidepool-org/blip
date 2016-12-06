@@ -48,16 +48,20 @@ var DailyDoseTitle = React.createClass({
       var dosePerKg = dose / weight;
       return (
         <h3 className="DailyDoseTitle" onClick={this.handleToggleSection}>
-          <span className="DailyDoseTitle-label">Total daily dose / kg</span>
-          <span className="DailyDoseTitle-value">{d3.format('.2f')(dosePerKg) + ' U'}</span>
+          <div className="DailyDoseTitle-content">
+            <span className="DailyDoseTitle-label">Total daily dose / kg</span>
+            <span className="DailyDoseTitle-value">{d3.format('.2f')(dosePerKg) + ' U'}</span>
+          </div>
           <i className={this.props.iconClass}/>
         </h3>
       );
     } else {
       return (
         <h3 className={headerClasses} onClick={this.handleToggleSection}>
-          <span className="DailyDoseTitle-label">Avg total daily dose</span>
-          <span className="DailyDoseTitle-value">{displayDose + ' U'}</span>
+          <div className="DailyDoseTitle-content">
+            <span className="DailyDoseTitle-label">Avg total daily dose</span>
+            <span className="DailyDoseTitle-value">{displayDose + ' U'}</span>
+          </div>
           <i className={this.props.iconClass}/>
         </h3>
       );
