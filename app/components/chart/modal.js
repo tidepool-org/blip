@@ -176,10 +176,11 @@ var Modal = React.createClass({
     );
   },
   renderFocusedCBGSliceMedianLabel: function() {
-    if (!this.props.chartPrefs.modal.showingCbg) {
+    const { currentPatientInViewId } = this.props;
+    if (!_.get(this.props, ['chartPrefs', 'modal', 'showingCbg']) ||
+      !_.get(this.props, ['trendsState', currentPatientInViewId, 'showingCbgSliceLabels'])) {
       return null;
     }
-    const { currentPatientInViewId } = this.props;
     return (
       <FocusedCBGSliceMedianLabel
         bgUnits={this.props.bgPrefs.bgUnits}
@@ -187,10 +188,11 @@ var Modal = React.createClass({
     );
   },
   renderFocusedCBGSliceRangeLabels: function() {
-    if (!this.props.chartPrefs.modal.showingCbg) {
+    const { currentPatientInViewId } = this.props;
+    if (!_.get(this.props, ['chartPrefs', 'modal', 'showingCbg']) ||
+      !_.get(this.props, ['trendsState', currentPatientInViewId, 'showingCbgSliceLabels'])) {
       return null;
     }
-    const { currentPatientInViewId } = this.props;
     return (
       <FocusedCBGSliceRangeLabels
         bgUnits={this.props.bgPrefs.bgUnits}
