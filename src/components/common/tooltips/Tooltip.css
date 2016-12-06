@@ -20,6 +20,7 @@
   composes: defaultSize from '../../../styles/typography.css';
   background-color: #FFFFFF;
   border: solid;
+  pointer-events: none;
   position: absolute;
   border-radius: 4px;
   opacity: 0.75;
