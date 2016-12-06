@@ -26,10 +26,10 @@ var SubNav = require('./modalsubnav');
 var Footer = require('./footer');
 
 import * as viz from '@tidepool/viz';
-const FocusedCBGSliceMedianLabel = viz.components.FocusedCBGSliceMedianLabel;
-const FocusedCBGSliceRangeLabels = viz.components.FocusedCBGSliceRangeLabels;
+const CBGDayTraceLabels = viz.components.CBGDayTraceLabels;
+const FocusedCBGSliceLabel = viz.components.FocusedCBGSliceLabel;
+const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
-const FocusedSMBGRangeLabels = viz.components.FocusedSMBGRangeLabels;
 const TrendsContainer = viz.containers.TrendsContainer;
 
 var Modal = React.createClass({
@@ -80,10 +80,10 @@ var Modal = React.createClass({
               <div id="tidelineContainer" className="patient-data-chart-modal">
                 {this.renderChart()}
               </div>
-              {this.renderFocusedCBGSliceRangeLabels()}
-              {this.renderFocusedCBGSliceMedianLabel()}
+              {this.renderCBGDayTraceLabels()}
               {this.renderFocusedSMBGPointLabel()}
-              {this.renderFocusedSMBGRangeLabels()}
+              {this.renderFocusedRangeLabels()}
+              {this.renderFocusedCBGSliceLabel()}
             </div>
           </div>
         </div>
@@ -175,30 +175,61 @@ var Modal = React.createClass({
       ref="chart" />
     );
   },
-  renderFocusedCBGSliceMedianLabel: function() {
-    const { currentPatientInViewId } = this.props;
-    if (!_.get(this.props, ['chartPrefs', 'modal', 'showingCbg']) ||
-      !_.get(this.props, ['trendsState', currentPatientInViewId, 'showingCbgSliceLabels'])) {
+  renderCBGDayTraceLabels: function() {
+    const { currentPatientInViewId, trendsState } = this.props;
+    const { chartPrefs: { modal: { showingCbg } } } = this.props;
+    const focusedCbgDateMean = _.get(trendsState, [currentPatientInViewId, 'focusedCbgDateMean']);
+    if (showingCbg && focusedCbgDateMean) {
+      return (
+        <CBGDayTraceLabels
+          bgUnits={this.props.bgPrefs.bgUnits}
+          focusedCbgDateMean={trendsState[currentPatientInViewId].focusedCbgDateMean}
+        />
+      );
+    }
+    return null;
+  },
+  renderFocusedCBGSliceLabel: function() {
+    const { currentPatientInViewId, trendsState } = this.props;
+    const { chartPrefs: { modal: { showingCbg } } } = this.props;
+    const showingCbgWithLabels = showingCbg && _.get(trendsState, [currentPatientInViewId, 'showingCbgSliceLabels']);
+    if (!showingCbgWithLabels) {
       return null;
     }
     return (
-      <FocusedCBGSliceMedianLabel
+      <FocusedCBGSliceLabel
         bgUnits={this.props.bgPrefs.bgUnits}
-        focusedSlice={this.props.trendsState[currentPatientInViewId].focusedCbgSlice} />
+        focusedKeys={trendsState[currentPatientInViewId].focusedCbgSliceKeys}
+        focusedSlice={trendsState[currentPatientInViewId].focusedCbgSlice}
+      />
     );
   },
-  renderFocusedCBGSliceRangeLabels: function() {
-    const { currentPatientInViewId } = this.props;
-    if (!_.get(this.props, ['chartPrefs', 'modal', 'showingCbg']) ||
-      !_.get(this.props, ['trendsState', currentPatientInViewId, 'showingCbgSliceLabels'])) {
-      return null;
+  renderFocusedRangeLabels: function() {
+    const { currentPatientInViewId, trendsState } = this.props;
+    const { chartPrefs: { modal: { showingCbg, showingSmbg } } } = this.props;
+    const showingCbgWithLabels = showingCbg && _.get(trendsState, [currentPatientInViewId, 'showingCbgSliceLabels']);
+    // exclusive or!
+    if ((showingCbgWithLabels && !showingSmbg) || (!showingCbgWithLabels && showingSmbg)) {
+      if (showingCbg) {
+        return (
+          <FocusedRangeLabels
+            bgUnits={this.props.bgPrefs.bgUnits}
+            dataType={'cbg'}
+            focusedKeys={trendsState[currentPatientInViewId].focusedCbgSliceKeys}
+            focusedSlice={trendsState[currentPatientInViewId].focusedCbgSlice}
+            timePrefs={this.props.timePrefs} />
+        );
+      } else if (showingSmbg) {
+        return (
+          <FocusedRangeLabels
+            bgUnits={this.props.bgPrefs.bgUnits}
+            dataType={'smbg'}
+            focusedRange={trendsState[currentPatientInViewId].focusedSmbgRangeAvg}
+            timePrefs={this.props.timePrefs} />
+        );
+      }
     }
-    return (
-      <FocusedCBGSliceRangeLabels
-        bgUnits={this.props.bgPrefs.bgUnits}
-        focusedKeys={this.props.trendsState[currentPatientInViewId].focusedCbgSliceKeys}
-        focusedSlice={this.props.trendsState[currentPatientInViewId].focusedCbgSlice} />
-    );
+    return null;
   },
   renderFocusedSMBGPointLabel: function() {
     if (!this.props.chartPrefs.modal.showingSmbg) {
@@ -212,18 +243,6 @@ var Modal = React.createClass({
         grouped={this.props.chartPrefs.modal.smbgGrouped}
         lines={this.props.chartPrefs.modal.smbgLines}
         focusedPoint={this.props.trendsState[currentPatientInViewId].focusedSmbg} />
-    );
-  },
-  renderFocusedSMBGRangeLabels: function() {
-    if (!this.props.chartPrefs.modal.showingSmbg) {
-      return null;
-    }
-    const { currentPatientInViewId } = this.props;
-    return (
-      <FocusedSMBGRangeLabels
-        bgUnits={this.props.bgPrefs.bgUnits}
-        timePrefs={this.props.timePrefs}
-        focusedRange={this.props.trendsState[currentPatientInViewId].focusedSmbgRangeAvg} />
     );
   },
   renderMissingSMBGHeader: function() {
