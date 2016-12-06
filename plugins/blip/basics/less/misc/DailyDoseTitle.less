@@ -1,13 +1,22 @@
 .DailyDoseTitle {
 
-  span.DailyDoseTitle-label {
-    padding-right: 35px;
-  }
-  span.DailyDoseTitle-value {
-    color: @text;
-    font-weight: bold;
-    font-size: @huge-numbers;
-    padding-left: 5px;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+
+  .DailyDoseTitle-content {
+
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    flex-grow: 1;
+    padding-right: 15px;
+
+    span.DailyDoseTitle-value {
+      color: @text;
+      font-weight: bold;
+      font-size: @huge-numbers;
+    }
   }
   .icon-right:before, .icon-down:before {
     margin-left: -15px;
