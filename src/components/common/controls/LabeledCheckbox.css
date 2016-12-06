@@ -16,7 +16,6 @@
  */
 
 .label {
-  composes: mediumContrastText from '../../../styles/typography.css';
-  font-size: 16px;
+  composes: mediumContrastText largeSize from '../../../styles/typography.css';
   padding-right: 12px;
 }

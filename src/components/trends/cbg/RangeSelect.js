@@ -81,7 +81,6 @@ export function mapDispatchToProps(dispatch, ownProps) {
 }
 
 export default connect(
-  () => {},
+  null,
   mapDispatchToProps,
-  (stateProps, dispatchProps, ownProps) => (_.assign({}, ownProps, stateProps, dispatchProps)),
 )(RangeSelect);
