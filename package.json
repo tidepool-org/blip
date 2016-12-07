@@ -88,6 +88,7 @@
     "object-invariant-test-helper": "0.1.1",
     "phantomjs-prebuilt": "2.1.12",
     "react-addons-create-fragment": "15.2.1",
+    "react-addons-perf": "15.2.1",
     "react-addons-test-utils": "15.2.1",
     "redux-devtools": "3.3.1",
     "redux-devtools-dock-monitor": "1.1.1",
