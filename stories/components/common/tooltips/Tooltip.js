@@ -37,6 +37,12 @@ storiesOf('Tooltip', module)
       <Tooltip {...props} offset={{ top: -5, left: -5 }} />
     </div>
   ))
+  .add('backgroundColor', () => (
+    <div>
+      {refDiv}
+      <Tooltip {...props} backgroundColor={'papayawhip'} />
+    </div>
+  ))
   .add('borderColor', () => (
     <div>
       {refDiv}
