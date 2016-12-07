@@ -91,7 +91,7 @@ export let PatientData = React.createClass({
           smbgRangeOverlay: true,
         }
       },
-      chartType: 'basics',
+      chartType: 'modal',
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
