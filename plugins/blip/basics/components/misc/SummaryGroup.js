@@ -31,7 +31,8 @@ var SummaryGroup = React.createClass({
     data: React.PropTypes.object.isRequired,
     selectedSubtotal: React.PropTypes.string.isRequired,
     selectorOptions: React.PropTypes.object.isRequired,
-    sectionId: React.PropTypes.string.isRequired
+    sectionId: React.PropTypes.string.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
   },
   render: function() {
     var self = this;
@@ -182,7 +183,7 @@ var SummaryGroup = React.createClass({
     }
   },
   handleSelectSubtotal: function(selectedSubtotal) {
-    basicsActions.selectSubtotal(this.props.sectionId, selectedSubtotal);
+    basicsActions.selectSubtotal(this.props.sectionId, selectedSubtotal, this.props.trackMetric);
   }
 });
 

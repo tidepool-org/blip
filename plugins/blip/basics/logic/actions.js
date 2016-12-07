@@ -44,9 +44,11 @@ basicsActions.toggleSection = function(sectionName, metricsFunc) {
   this.app.setState({sections: sections});
 };
 
-basicsActions.selectSubtotal = function(sectionName, selectedKey) {
+basicsActions.selectSubtotal = function(sectionName, selectedKey, metricsFunc) {
   var sections = _.cloneDeep(this.app.state.sections);
   var selectorOptions = sections[sectionName].selectorOptions;
+
+  metricsFunc('filtered on ' + selectedKey);
 
   selectorOptions = clearSelected(selectorOptions);
   sections[sectionName].selectorOptions = setSelected(selectorOptions, selectedKey);
