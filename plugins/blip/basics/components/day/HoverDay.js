@@ -24,7 +24,7 @@ var HoverDay = React.createClass({
       dayAbbrevMask: 'MMM D'
     };
   },
-  handleDblClickDay: function() {
+  handleClickDay: function() {
     this.props.onSelectDay(
       moment.tz(this.props.date, this.props.timezone)
         .startOf('day')
@@ -57,7 +57,7 @@ var HoverDay = React.createClass({
     }
 
     return (
-      <div className={containerClass} onDoubleClick={this.handleDblClickDay}
+      <div className={containerClass} onClick={this.handleClickDay}
         onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
         <p className='Calendar-weekday'>
           {moment(this.props.date).format(this.props.dayAbbrevMask)}
