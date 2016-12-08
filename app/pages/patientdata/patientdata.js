@@ -431,7 +431,7 @@ export let PatientData = React.createClass({
   },
 
   handleSwitchToDaily: function(datetime, title) {
-    this.props.trackMetric('clicked Basics '+title+' calendar', {
+    this.props.trackMetric('Clicked Basics '+title+' calendar', {
       fromChart: this.state.chartType
     });
     this.setState({
