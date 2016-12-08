@@ -80,12 +80,12 @@ describe('TrendsContainer', () => {
       const byDate = {
         filter: () => {},
         filterAll: sinon.stub().returnsThis(),
-        top: topStub,
+        top: (...args) => topStub(...args),
       };
       const byDayOfWeek = {
         filterAll: sinon.stub().returnsThis(),
         filterFunction: () => {},
-        top: topStub,
+        top: (...args) => topStub(...args),
       };
       return {
         cbgByDate: _.assign({}, byDate),
@@ -285,6 +285,7 @@ describe('TrendsContainer', () => {
 
     describe('componentWillReceiveProps', () => {
       it('should perform data refiltering if `activeDays` changes', () => {
+        const byDateSpy = sinon.spy(minimalData.props().smbgByDate, 'top');
         const instance = minimalData.instance();
         const refilterSpy = sinon.spy(instance, 'refilterByDayOfWeek');
         const stateSpy = sinon.spy(instance, 'setState');
@@ -303,6 +304,7 @@ describe('TrendsContainer', () => {
         });
         expect(refilterSpy.callCount).to.equal(2);
         expect(stateSpy.callCount).to.equal(1);
+        expect(byDateSpy.callCount).to.equal(1);
         instance.refilterByDayOfWeek.restore();
         instance.setState.restore();
       });

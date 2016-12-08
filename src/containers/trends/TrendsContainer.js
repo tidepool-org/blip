@@ -214,12 +214,12 @@ export class TrendsContainer extends React.Component {
    */
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(nextProps.activeDays, this.props.activeDays)) {
-      const { cbgByDayOfWeek, smbgByDayOfWeek } = this.props;
+      const { cbgByDayOfWeek, smbgByDayOfWeek, smbgByDate, cbgByDate } = nextProps;
       this.refilterByDayOfWeek(cbgByDayOfWeek, nextProps.activeDays);
       this.refilterByDayOfWeek(smbgByDayOfWeek, nextProps.activeDays);
       this.setState({
-        currentCbgData: cbgByDayOfWeek.top(Infinity).reverse(),
-        currentSmbgData: smbgByDayOfWeek.top(Infinity).reverse(),
+        currentCbgData: cbgByDate.top(Infinity).reverse(),
+        currentSmbgData: smbgByDate.top(Infinity).reverse(),
       });
     }
   }
