@@ -184,8 +184,8 @@ var Basics = React.createClass({
     }
     this.props.onSwitchToWeekly();
   },
-  handleSelectDay: function(date) {
-    this.props.onSwitchToDaily(date);
+  handleSelectDay: function(date, title) {
+    this.props.onSwitchToDaily(date, title);
   }
 });
 
