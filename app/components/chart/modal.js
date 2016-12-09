@@ -27,7 +27,6 @@ var Footer = require('./footer');
 
 import * as viz from '@tidepool/viz';
 const CBGDayTraceLabels = viz.components.CBGDayTraceLabels;
-const FocusedCBGSliceLabel = viz.components.FocusedCBGSliceLabel;
 const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
 const TrendsContainer = viz.containers.TrendsContainer;
@@ -83,7 +82,6 @@ var Modal = React.createClass({
               {this.renderCBGDayTraceLabels()}
               {this.renderFocusedSMBGPointLabel()}
               {this.renderFocusedRangeLabels()}
-              {this.renderFocusedCBGSliceLabel()}
             </div>
           </div>
         </div>
@@ -178,31 +176,16 @@ var Modal = React.createClass({
   renderCBGDayTraceLabels: function() {
     const { currentPatientInViewId, trendsState } = this.props;
     const { chartPrefs: { modal: { showingCbg } } } = this.props;
-    const focusedCbgDateMean = _.get(trendsState, [currentPatientInViewId, 'focusedCbgDateMean']);
-    if (showingCbg && focusedCbgDateMean) {
+    const focusedCbgDate = _.get(trendsState, [currentPatientInViewId, 'focusedCbgDate']);
+    if (showingCbg && focusedCbgDate) {
       return (
         <CBGDayTraceLabels
           bgUnits={this.props.bgPrefs.bgUnits}
-          focusedCbgDateMean={trendsState[currentPatientInViewId].focusedCbgDateMean}
+          focusedCbgDate={trendsState[currentPatientInViewId].focusedCbgDate}
         />
       );
     }
     return null;
-  },
-  renderFocusedCBGSliceLabel: function() {
-    const { currentPatientInViewId, trendsState } = this.props;
-    const { chartPrefs: { modal: { showingCbg } } } = this.props;
-    const showingCbgWithLabels = showingCbg && _.get(trendsState, [currentPatientInViewId, 'showingCbgSliceLabels']);
-    if (!showingCbgWithLabels) {
-      return null;
-    }
-    return (
-      <FocusedCBGSliceLabel
-        bgUnits={this.props.bgPrefs.bgUnits}
-        focusedKeys={trendsState[currentPatientInViewId].focusedCbgSliceKeys}
-        focusedSlice={trendsState[currentPatientInViewId].focusedCbgSlice}
-      />
-    );
   },
   renderFocusedRangeLabels: function() {
     const { currentPatientInViewId, trendsState } = this.props;
