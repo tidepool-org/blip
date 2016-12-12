@@ -115,6 +115,7 @@ export class TrendsSVGContainer extends React.Component {
         <CBGSlicesAnimationContainer
           data={this.props.cbgData}
           focusedSlice={this.props.focusedSlice}
+          displayFlags={this.props.displayFlags}
           focusSlice={this.props.focusSlice}
           margins={this.props.margins}
           svgDimensions={{ height, width }}
@@ -251,6 +252,12 @@ TrendsSVGContainer.propTypes = {
     msPer24: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
   })).isRequired,
+  displayFlags: PropTypes.shape({
+    cbg100Enabled: PropTypes.bool.isRequired,
+    cbg80Enabled: PropTypes.bool.isRequired,
+    cbg50Enabled: PropTypes.bool.isRequired,
+    cbgMedianEnabled: PropTypes.bool.isRequired,
+  }).isRequired,
   focusedSlice: PropTypes.shape({
     data: PropTypes.shape({
       firstQuartile: PropTypes.number.isRequired,

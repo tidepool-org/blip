@@ -333,6 +333,7 @@ export class TrendsContainer extends React.Component {
         focusedSlice={this.props.trendsState.focusedCbgSlice}
         focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
         focusedSmbg={this.props.trendsState.focusedSmbg}
+        displayFlags={this.props.trendsState.cbgFlags}
         focusRange={this.props.focusTrendsSmbgRangeAvg}
         focusSmbg={this.props.focusTrendsSmbg}
         focusSlice={this.props.focusTrendsCbgSlice}

@@ -163,6 +163,12 @@ describe('trendsStateByUser', () => {
         focusedSmbg: null,
         focusedSmbgRangeAvg: null,
         touched: true,
+        cbgFlags: {
+          cbg100Enabled: false,
+          cbg80Enabled: true,
+          cbg50Enabled: true,
+          cbgMedianEnabled: true,
+        },
       });
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
@@ -177,6 +183,12 @@ describe('trendsStateByUser', () => {
           focusedSmbg: null,
           focusedSmbgRangeAvg: null,
           touched: true,
+          cbgFlags: {
+            cbg100Enabled: false,
+            cbg80Enabled: true,
+            cbg50Enabled: true,
+            cbgMedianEnabled: true,
+          },
         },
       };
       const tracked = mutationTracker.trackObj(initialState);
@@ -198,6 +210,12 @@ describe('trendsStateByUser', () => {
         focusedSmbg: { data, position, dayPoints, positions, date },
         focusedSmbgRangeAvg: null,
         touched: true,
+        cbgFlags: {
+          cbg100Enabled: false,
+          cbg80Enabled: true,
+          cbg50Enabled: true,
+          cbgMedianEnabled: true,
+        },
       });
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
@@ -212,6 +230,12 @@ describe('trendsStateByUser', () => {
           focusedSmbg: null,
           focusedSmbgRangeAvg: null,
           touched: true,
+          cbgFlags: {
+            cbg100Enabled: false,
+            cbg80Enabled: true,
+            cbg50Enabled: true,
+            cbgMedianEnabled: true,
+          },
         },
       };
       const tracked = mutationTracker.trackObj(initialState);
@@ -353,6 +377,12 @@ describe('trendsStateByUser', () => {
         focusedSmbg: null,
         focusedSmbgRangeAvg: null,
         touched: true,
+        cbgFlags: {
+          cbg100Enabled: false,
+          cbg80Enabled: true,
+          cbg50Enabled: true,
+          cbgMedianEnabled: true,
+        },
       });
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
@@ -391,6 +421,12 @@ describe('trendsStateByUser', () => {
           focusedSmbg: null,
           focusedSmbgRangeAvg: { data, position },
           touched: true,
+          cbgFlags: {
+            cbg100Enabled: false,
+            cbg80Enabled: true,
+            cbg50Enabled: true,
+            cbgMedianEnabled: true,
+          },
         },
       };
       const tracked = mutationTracker.trackObj(initialState);
