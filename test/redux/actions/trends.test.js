@@ -41,6 +41,50 @@ describe('trends action creators', () => {
     });
   });
 
+  describe('focusTrendsSmbg', () => {
+    const smbgData = {};
+    const smbgPosition = {};
+    const smbgPositions = [];
+    const smbgDay = [];
+    const date = {};
+    const action = actions.focusTrendsSmbg(
+      userId,
+      smbgData,
+      smbgPosition,
+      smbgDay,
+      smbgPositions,
+      date,
+    );
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to focus a trends smbg', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.FOCUS_TRENDS_SMBG,
+        payload: { smbgData, smbgPosition, smbgDay, smbgPositions, userId, date },
+      });
+    });
+  });
+
+  describe('focusTrendsSmbgRangeAvg', () => {
+    const rangeAvgData = {};
+    const rangeAvgPosition = {};
+    const action = actions.focusTrendsSmbgRangeAvg(userId, rangeAvgData, rangeAvgPosition);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to focus a trends smbg range average', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.FOCUS_TRENDS_SMBG_RANGE_AVG,
+        payload: { rangeAvgData, rangeAvgPosition, userId },
+      });
+    });
+  });
+
   describe('markTrendsViewed', () => {
     const action = actions.markTrendsViewed(userId);
 
@@ -98,6 +142,36 @@ describe('trends action creators', () => {
     it('should create an action to unfocus (all) trends cbg slices', () => {
       expect(action).to.deep.equal({
         type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,
+        payload: { userId },
+      });
+    });
+  });
+
+  describe('unfocusTrendsSmbg', () => {
+    const action = actions.unfocusTrendsSmbg(userId);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to unfocus trends smbg', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.UNFOCUS_TRENDS_SMBG,
+        payload: { userId },
+      });
+    });
+  });
+
+  describe('unfocusTrendsSmbgRangeAvg', () => {
+    const action = actions.unfocusTrendsSmbgRangeAvg(userId);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to unfocus (all) trends smbg range averages', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.UNFOCUS_TRENDS_SMBG_RANGE_AVG,
         payload: { userId },
       });
     });

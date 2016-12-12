@@ -27,7 +27,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions/';
-import CBGTrendsContainer from './CBGTrendsContainer';
+import TrendsSVGContainer from './TrendsSVGContainer';
 import {
   MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP, MGDL_UNITS, MMOLL_UNITS, trends,
 } from '../../utils/constants';
@@ -45,21 +45,11 @@ export class TrendsContainer extends React.Component {
       saturday: PropTypes.bool.isRequired,
       sunday: PropTypes.bool.isRequired,
     }).isRequired,
-    // new data structure to replace bgClasses
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,
       targetUpperBound: PropTypes.number.isRequired,
       targetLowerBound: PropTypes.number.isRequired,
       veryLowThreshold: PropTypes.number.isRequired,
-    }).isRequired,
-    // legacy data structure for representing target range, &c
-    // needed for passed-in legacy tideline smbg component but will phase out!
-    bgClasses: PropTypes.shape({
-      'very-high': PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
-      high: PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
-      target: PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
-      low: PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
-      'very-low': PropTypes.shape({ boundary: PropTypes.number.isRequired }).isRequired,
     }).isRequired,
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
@@ -70,10 +60,9 @@ export class TrendsContainer extends React.Component {
     smbgRangeOverlay: PropTypes.bool.isRequired,
     smbgGrouped: PropTypes.bool.isRequired,
     smbgLines: PropTypes.bool.isRequired,
-    smbgTrendsComponent: PropTypes.func.isRequired,
     timePrefs: PropTypes.shape({
       timezoneAware: PropTypes.bool.isRequired,
-      timezoneName: PropTypes.string.isRequired,
+      timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
     }).isRequired,
     yScaleClampTop: PropTypes.shape({
       [MGDL_UNITS]: PropTypes.number.isRequired,
@@ -91,7 +80,7 @@ export class TrendsContainer extends React.Component {
     // viz state
     trendsState: PropTypes.shape({
       focusedCbgSlice: PropTypes.shape({
-        slice: PropTypes.shape({
+        data: PropTypes.shape({
           firstQuartile: PropTypes.number.isRequired,
           id: PropTypes.string.isRequired,
           max: PropTypes.number.isRequired,
@@ -127,6 +116,23 @@ export class TrendsContainer extends React.Component {
         'tenthQuantile',
         'thirdQuartile',
       ])),
+      focusedSmbg: PropTypes.shape({
+        data: PropTypes.shape({
+          value: PropTypes.number.isRequired,
+        }),
+        position: PropTypes.shape({
+          top: PropTypes.number.isRequired,
+          left: PropTypes.number.isRequired,
+        }),
+        date: PropTypes.string.isRequired,
+        dayPoints: PropTypes.arrayOf(PropTypes.shape({
+          value: PropTypes.number.isRequired,
+        })),
+        positions: PropTypes.arrayOf(PropTypes.shape({
+          top: PropTypes.number.isRequired,
+          left: PropTypes.number.isRequired,
+        })),
+      }),
       touched: PropTypes.bool.isRequired,
       cbgFlags: PropTypes.shape({
         cbg100Enabled: PropTypes.bool.isRequired,
@@ -137,8 +143,12 @@ export class TrendsContainer extends React.Component {
     }).isRequired,
     // actions
     focusTrendsCbgSlice: PropTypes.func.isRequired,
+    focusTrendsSmbgRangeAvg: PropTypes.func.isRequired,
+    focusTrendsSmbg: PropTypes.func.isRequired,
     markTrendsViewed: PropTypes.func.isRequired,
     unfocusTrendsCbgSlice: PropTypes.func.isRequired,
+    unfocusTrendsSmbgRangeAvg: PropTypes.func.isRequired,
+    unfocusTrendsSmbg: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -210,12 +220,12 @@ export class TrendsContainer extends React.Component {
    */
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(nextProps.activeDays, this.props.activeDays)) {
-      const { cbgByDayOfWeek, smbgByDayOfWeek } = this.props;
+      const { cbgByDayOfWeek, smbgByDayOfWeek, smbgByDate, cbgByDate } = nextProps;
       this.refilterByDayOfWeek(cbgByDayOfWeek, nextProps.activeDays);
       this.refilterByDayOfWeek(smbgByDayOfWeek, nextProps.activeDays);
       this.setState({
-        currentCbgData: cbgByDayOfWeek.top(Infinity).reverse(),
-        currentSmbgData: smbgByDayOfWeek.top(Infinity).reverse(),
+        currentCbgData: cbgByDate.top(Infinity).reverse(),
+        currentSmbgData: smbgByDate.top(Infinity).reverse(),
       });
     }
   }
@@ -240,6 +250,10 @@ export class TrendsContainer extends React.Component {
       dateDomain: { start: newDomain[0], end: newDomain[1] },
     });
     this.props.onDatetimeLocationChange(newDomain, newDomain[1] >= mostRecent);
+  }
+
+  selectDay() {
+    return (date) => this.props.onSelectDay(datetime.midDayForDate(date, this.props.timePrefs));
   }
 
   goBack() {
@@ -310,41 +324,31 @@ export class TrendsContainer extends React.Component {
   }
 
   render() {
-    const { timePrefs } = this.props;
-    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    if (this.props.showingSmbg) {
-      const { smbgTrendsComponent: SMBGTrendsContainer } = this.props;
-      return (
-        <SMBGTrendsContainer
-          bgClasses={this.props.bgClasses}
-          bgDomain={[this.state.bgDomain.lo, this.state.bgDomain.hi]}
-          bgUnits={this.props.bgUnits}
-          boxOverlay={this.props.smbgRangeOverlay}
-          data={this.state.currentSmbgData}
-          grouped={this.props.smbgGrouped}
-          onSelectDay={this.props.onSelectDay}
-          showingLines={this.props.smbgLines}
-          timezone={timezone}
-        />
-      );
-    } else if (this.props.showingCbg) {
-      return (
-        <CBGTrendsContainer
-          bgBounds={this.props.bgBounds}
-          bgUnits={this.props.bgUnits}
-          data={this.state.currentCbgData}
-          displayFlags={this.props.trendsState.cbgFlags}
-          focusedSlice={this.props.trendsState.focusedCbgSlice}
-          focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
-          focusSlice={this.props.focusTrendsCbgSlice}
-          unfocusSlice={this.props.unfocusTrendsCbgSlice}
-          timezone={timezone}
-          xScale={this.state.xScale}
-          yScale={this.state.yScale}
-        />
-      );
-    }
-    return null;
+    return (
+      <TrendsSVGContainer
+        bgBounds={this.props.bgBounds}
+        bgUnits={this.props.bgUnits}
+        smbgData={this.state.currentSmbgData}
+        cbgData={this.state.currentCbgData}
+        focusedSlice={this.props.trendsState.focusedCbgSlice}
+        focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
+        focusedSmbg={this.props.trendsState.focusedSmbg}
+        focusRange={this.props.focusTrendsSmbgRangeAvg}
+        focusSmbg={this.props.focusTrendsSmbg}
+        focusSlice={this.props.focusTrendsCbgSlice}
+        showingCbg={this.props.showingCbg}
+        showingSmbg={this.props.showingSmbg}
+        smbgGrouped={this.props.smbgGrouped}
+        smbgLines={this.props.smbgLines}
+        smbgRangeOverlay={this.props.smbgRangeOverlay}
+        onSelectDay={this.selectDay()}
+        xScale={this.state.xScale}
+        yScale={this.state.yScale}
+        unfocusRange={this.props.unfocusTrendsSmbgRangeAvg}
+        unfocusSmbg={this.props.unfocusTrendsSmbg}
+        unfocusSlice={this.props.unfocusTrendsCbgSlice}
+      />
+    );
   }
 }
 
@@ -360,11 +364,23 @@ export function mapDispatchToProps(dispatch, ownProps) {
     focusTrendsCbgSlice: _.partial(
       actions.focusTrendsCbgSlice, ownProps.currentPatientInViewId
     ),
+    focusTrendsSmbgRangeAvg: _.partial(
+      actions.focusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
+    ),
+    focusTrendsSmbg: _.partial(
+      actions.focusTrendsSmbg, ownProps.currentPatientInViewId
+    ),
     markTrendsViewed: _.partial(
       actions.markTrendsViewed, ownProps.currentPatientInViewId
     ),
     unfocusTrendsCbgSlice: _.partial(
       actions.unfocusTrendsCbgSlice, ownProps.currentPatientInViewId
+    ),
+    unfocusTrendsSmbgRangeAvg: _.partial(
+      actions.unfocusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
+    ),
+    unfocusTrendsSmbg: _.partial(
+      actions.unfocusTrendsSmbg, ownProps.currentPatientInViewId
     ),
   }, dispatch);
 }

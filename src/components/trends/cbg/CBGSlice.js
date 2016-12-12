@@ -17,8 +17,6 @@
 
 import React, { PropTypes } from 'react';
 
-import { THREE_HRS } from '../../../utils/datetime';
-
 import styles from './CBGSlice.css';
 
 const CBGSlice = (props) => {
@@ -100,8 +98,6 @@ const CBGSlice = (props) => {
 CBGSlice.defaultProps = {
   medianRadius: 7,
   sliceCapRadius: 9,
-  // for time values after 6 p.m. (1800), float the tooltips left instead of right
-  tooltipLeftThreshold: 6 * THREE_HRS,
 };
 
 CBGSlice.propTypes = {

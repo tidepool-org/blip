@@ -18,6 +18,10 @@
 import * as datetime from '../../src/utils/datetime';
 
 describe('datetime', () => {
+  describe('THIRTY_MINS', () => {
+    assert.isNumber(datetime.THIRTY_MINS);
+  });
+
   describe('THREE_HRS', () => {
     it('should be an integer', () => {
       assert.isNumber(datetime.THREE_HRS);
@@ -260,10 +264,110 @@ describe('datetime', () => {
         .to.equal('Sep 5, 2016');
     });
 
+    it('should return "Sep 4" for hammertime tzAware LA "MMM D"', () => {
+      expect(datetime.formatDisplayDate(hammertime, tzAwareLA, 'MMM D'))
+        .to.equal('Sep 4');
+    });
+
+    it('should return "Sep 4" for utcString tzAware LA "MMM D"', () => {
+      expect(datetime.formatDisplayDate(utcString, tzAwareLA, 'MMM D'))
+        .to.equal('Sep 4');
+    });
+
+    it('should return "Sep 5" for hammertime tzAware NY "MMM D"', () => {
+      expect(datetime.formatDisplayDate(hammertime, tzAwareNY, 'MMM D'))
+        .to.equal('Sep 5');
+    });
+
+    it('should return "Sep 5" for utcString tzAware NY "MMM D"', () => {
+      expect(datetime.formatDisplayDate(utcString, tzAwareNY, 'MMM D'))
+        .to.equal('Sep 5');
+    });
+
+    it('should return "Sep 5" for hammertime tzUnaware "MMM D"', () => {
+      expect(datetime.formatDisplayDate(hammertime, tzUnaware, 'MMM D'))
+        .to.equal('Sep 5');
+    });
+
+    it('should return "Sep 5" for utcString tzUnaware "MMM D"', () => {
+      expect(datetime.formatDisplayDate(utcString, tzUnaware, 'MMM D'))
+        .to.equal('Sep 5');
+    });
+
     it('should error if passed a JavaScript Date for the `utc` param', () => {
       const fn = () => { datetime.formatDisplayDate(new Date(), tzAwareLA); };
       expect(fn)
         .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+    });
+  });
+
+  describe('getParsedTime', () => {
+    const tzAware = {
+      timezoneAware: true,
+      timezoneName: 'America/New_York',
+    };
+    const tzUnaware = {
+      timezoneAware: false,
+      timezoneName: null,
+    };
+    const data = {
+      time: '2016-09-23T23:00:00.000Z',
+      deviceTime: '2016-09-23T19:00:00',
+    };
+    it('should return 1474671600000 for timezone aware', () => {
+      expect(datetime.getParsedTime(data, tzAware)).to.equal(1474671600000);
+    });
+    it('should return 1474657200000 for timezone unaware', () => {
+      expect(datetime.getParsedTime(data, tzUnaware)).to.equal(1474657200000);
+    });
+    it('should return false if time is not present in timezone aware', () => {
+      expect(datetime.getParsedTime({}, tzAware)).to.be.false;
+    });
+    it('should return false if deviceTime is not present in timezone unaware', () => {
+      expect(datetime.getParsedTime({}, tzUnaware)).to.be.false;
+    });
+    it('should error if time/deviceTime is not string timestamp', () => {
+      const fn = () => { datetime.getParsedTime({ time: 'tuesday' }, tzAware); };
+      expect(fn)
+        .to.throw('time and deviceTime must be a ISO-formatted String timestamp');
+    });
+  });
+
+  describe('midDayForDate', () => {
+    const tzAware = {
+      timezoneAware: true,
+      timezoneName: 'America/North_Dakota/New_Salem',
+    };
+    const tzUnaware = {
+      timezoneAware: false,
+      timezoneName: null,
+    };
+    const localDate = '2016-09-23';
+    const dstBegin = '2016-03-13';
+    const dstEnd = '2016-11-06';
+
+    it('should return "2016-09-23T17:00:00.000Z" if timezone aware', () => {
+      expect(datetime.midDayForDate(localDate, tzAware)).to.equal('2016-09-23T17:00:00.000Z');
+    });
+
+    it('should return "2016-09-23T12:00:00.000Z" if timezone unaware', () => {
+      expect(datetime.midDayForDate(localDate, tzUnaware)).to.equal('2016-09-23T12:00:00.000Z');
+    });
+
+    it('should return "2016-03-13T18:00:00.000Z" if on DST begin, timezone aware', () => {
+      expect(datetime.midDayForDate(dstBegin, tzAware)).to.equal('2016-03-13T18:00:00.000Z');
+    });
+
+    it('should return "2016-03-13T12:00:00.000Z" if on DST begin, timezone unaware', () => {
+      expect(datetime.midDayForDate(dstBegin, tzUnaware)).to.equal('2016-03-13T12:00:00.000Z');
+    });
+
+    it('should return "2016-11-06T17:00:00.000Z" if on DST end, timezone aware', () => {
+      expect(datetime.midDayForDate(dstEnd, tzAware)).to.equal('2016-11-06T17:00:00.000Z');
+    });
+
+    it('should return "2016-11-06T12:00:00.000Z" if on DST end, timezone unaware', () => {
+      expect(datetime.midDayForDate(dstEnd, tzUnaware)).to.equal('2016-11-06T12:00:00.000Z');
     });
   });
 });
