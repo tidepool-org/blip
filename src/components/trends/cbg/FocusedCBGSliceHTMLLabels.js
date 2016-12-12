@@ -30,7 +30,7 @@ const FocusedCBGSliceHTMLLabels = (props) => {
     return null;
   }
 
-  const { bgUnits, focusedKeys: keys, focusedSlice: { slice, position } } = props;
+  const { bgUnits, focusedKeys: keys, focusedSlice: { data, position } } = props;
   const medPos = { left: position.left, top: position.topOptions.median };
 
   function renderLabels(focusedKeys) {
@@ -43,7 +43,7 @@ const FocusedCBGSliceHTMLLabels = (props) => {
       });
       return (
         <div className={valueClasses} key={key} style={absPos}>
-          <span className={styles.number}>{displayBgValue(slice[key], bgUnits)}</span>
+          <span className={styles.number}>{displayBgValue(data[key], bgUnits)}</span>
         </div>
       );
     });
@@ -77,7 +77,7 @@ const FocusedCBGSliceHTMLLabels = (props) => {
     return (
       <div>
         <div className={`${styles.container} ${styles.medianValue}`} style={medPos}>
-          <span className={styles.number}>{displayBgValue(slice.median, bgUnits)}</span>
+          <span className={styles.number}>{displayBgValue(data.median, bgUnits)}</span>
         </div>
         <div className={explainerClasses} style={medPos}>
           <span className={styles.explainerText}>{props.explainers.median}</span>
@@ -88,7 +88,7 @@ const FocusedCBGSliceHTMLLabels = (props) => {
     return (
       <div>
         <div className={`${styles.container} ${styles.medianUnfocused}`} style={medPos}>
-          <span className={styles.plainNumber}>{displayBgValue(slice.median, bgUnits)}</span>
+          <span className={styles.plainNumber}>{displayBgValue(data.median, bgUnits)}</span>
         </div>
         {renderLabels(keys)}
         {_.map(['tenthQuantile', 'ninetiethQuantile'], (key) => {
@@ -100,7 +100,7 @@ const FocusedCBGSliceHTMLLabels = (props) => {
           });
           return (
             <div className={valueClasses} key={key} style={absPos}>
-              <span className={styles.number}>{displayBgValue(slice[key], bgUnits)}</span>
+              <span className={styles.number}>{displayBgValue(data[key], bgUnits)}</span>
             </div>
           );
         })}
@@ -111,7 +111,7 @@ const FocusedCBGSliceHTMLLabels = (props) => {
   return (
     <div>
       <div className={`${styles.container} ${styles.medianUnfocused}`} style={medPos}>
-        <span className={styles.plainNumber}>{displayBgValue(slice.median, bgUnits)}</span>
+        <span className={styles.plainNumber}>{displayBgValue(data.median, bgUnits)}</span>
       </div>
       {renderLabels(keys)}
       {renderExplainers(keys)}
@@ -163,7 +163,7 @@ FocusedCBGSliceHTMLLabels.propTypes = {
     'thirdQuartile',
   ])),
   focusedSlice: PropTypes.shape({
-    slice: PropTypes.shape({
+    data: PropTypes.shape({
       firstQuartile: PropTypes.number.isRequired,
       id: PropTypes.string.isRequired,
       max: PropTypes.number.isRequired,

@@ -20,13 +20,17 @@ import update from 'react-addons-update';
 
 import * as actionTypes from '../constants/actionTypes';
 
-const FOCUSED_SLICE = 'focusedCbgSlice';
-const FOCUSED_KEYS = 'focusedCbgSliceKeys';
+const FOCUSED_CBG_SLICE = 'focusedCbgSlice';
+const FOCUSED_CBG_KEYS = 'focusedCbgSliceKeys';
+const FOCUSED_SMBG = 'focusedSmbg';
+const FOCUSED_SMBG_RANGE_AVG = 'focusedSmbgRangeAvg';
 const TOUCHED = 'touched';
 
 const initialState = {
-  [FOCUSED_SLICE]: null,
-  [FOCUSED_KEYS]: null,
+  [FOCUSED_CBG_SLICE]: null,
+  [FOCUSED_CBG_KEYS]: null,
+  [FOCUSED_SMBG]: null,
+  [FOCUSED_SMBG_RANGE_AVG]: null,
   [TOUCHED]: false,
 };
 
@@ -43,12 +47,36 @@ const trendsStateByUser = (state = {}, action) => {
       );
     }
     case actionTypes.FOCUS_TRENDS_CBG_SLICE: {
-      const { focusedKeys, sliceData: slice, slicePosition: position, userId } = action.payload;
+      const { focusedKeys, sliceData: data, slicePosition: position, userId } = action.payload;
       return update(
         state,
         { [userId]: {
-          [FOCUSED_SLICE]: { $set: { slice, position } },
-          [FOCUSED_KEYS]: { $set: focusedKeys },
+          [FOCUSED_CBG_SLICE]: { $set: { data, position } },
+          [FOCUSED_CBG_KEYS]: { $set: focusedKeys },
+        } }
+      );
+    }
+    case actionTypes.FOCUS_TRENDS_SMBG_RANGE_AVG: {
+      const { rangeAvgData: data, rangeAvgPosition: position, userId } = action.payload;
+      return update(
+        state,
+        { [userId]: {
+          [FOCUSED_SMBG_RANGE_AVG]: { $set: { data, position } },
+        } }
+      );
+    }
+    case actionTypes.FOCUS_TRENDS_SMBG: {
+      const {
+        smbgData: data,
+        smbgPosition: position,
+        userId,
+        smbgDay: dayPoints,
+        smbgPositions: positions,
+        date } = action.payload;
+      return update(
+        state,
+        { [userId]: {
+          [FOCUSED_SMBG]: { $set: { data, position, dayPoints, positions, date } },
         } }
       );
     }
@@ -66,8 +94,26 @@ const trendsStateByUser = (state = {}, action) => {
       return update(
         state,
         { [userId]: {
-          [FOCUSED_SLICE]: { $set: null },
-          [FOCUSED_KEYS]: { $set: null },
+          [FOCUSED_CBG_SLICE]: { $set: null },
+          [FOCUSED_CBG_KEYS]: { $set: null },
+        } }
+      );
+    }
+    case actionTypes.UNFOCUS_TRENDS_SMBG: {
+      const { userId } = action.payload;
+      return update(
+        state,
+        { [userId]: {
+          [FOCUSED_SMBG]: { $set: null },
+        } }
+      );
+    }
+    case actionTypes.UNFOCUS_TRENDS_SMBG_RANGE_AVG: {
+      const { userId } = action.payload;
+      return update(
+        state,
+        { [userId]: {
+          [FOCUSED_SMBG_RANGE_AVG]: { $set: null },
         } }
       );
     }

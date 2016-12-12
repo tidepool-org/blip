@@ -27,6 +27,7 @@ const {
   trendsYScale: yScale,
 } = scales.trends;
 
+import { THREE_HRS } from '../../../src/utils/datetime';
 import CBGSlicesAnimationContainer
   from '../../../src/containers/trends/CBGSlicesAnimationContainer';
 
@@ -34,7 +35,7 @@ describe('CBGSlicesAnimationContainer', () => {
   let wrapper;
 
   // six-hour bins for testing
-  const binSize = 1000 * 60 * 60 * 6;
+  const binSize = THREE_HRS * 2;
 
   const props = {
     binSize,
@@ -42,6 +43,7 @@ describe('CBGSlicesAnimationContainer', () => {
     focusSlice: () => {},
     margins: { top: 0, left: 0, bottom: 0, right: 0 },
     svgDimensions: { width, height },
+    tooltipLeftThreshold: 0,
     unfocusSlice: () => {},
     xScale,
     yScale,
@@ -79,7 +81,7 @@ describe('CBGSlicesAnimationContainer', () => {
       const instance = wrapper.instance();
       sinon.spy(instance, 'mungeData');
       expect(instance.mungeData.callCount).to.equal(0);
-      wrapper.setProps({ data: [{ id: 'a1b2c3', msPer24: 0, value: 90 }] });
+      wrapper.setProps({ data: [{ id: 'a2b3c4', msPer24: 6000, value: 180 }] });
       expect(instance.mungeData.callCount).to.equal(1);
       instance.mungeData.restore();
     });

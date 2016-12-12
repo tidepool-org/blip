@@ -24,14 +24,20 @@ import React from 'react';
 
 import { mount } from 'enzyme';
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
 import { timezoneAwareCeiling } from '../../../src/utils/datetime';
 import DummyComponent from '../../helpers/DummyComponent';
 
 import { TrendsContainer, mapStateToProps, mapDispatchToProps }
   from '../../../src/containers/trends/TrendsContainer';
-import CBGTrendsContainer from '../../../src/containers/trends/CBGTrendsContainer';
+import TrendsSVGContainer from '../../../src/containers/trends/TrendsSVGContainer';
 
 describe('TrendsContainer', () => {
+  // stubbing console.warn gets rid of the annoying warnings from react-dimensions
+  // due to not rendering TrendsContainer within a real app like blip
+  // eslint-disable-next-line no-console
+  console.warn = sinon.stub();
+
   describe('TrendsContainer (w/o redux connect()ion)', () => {
     let minimalData;
     let enoughCbgData;
@@ -74,12 +80,12 @@ describe('TrendsContainer', () => {
       const byDate = {
         filter: () => {},
         filterAll: sinon.stub().returnsThis(),
-        top: topStub,
+        top: (...args) => topStub(...args),
       };
       const byDayOfWeek = {
         filterAll: sinon.stub().returnsThis(),
         filterFunction: () => {},
-        top: topStub,
+        top: (...args) => topStub(...args),
       };
       return {
         cbgByDate: _.assign({}, byDate),
@@ -116,8 +122,8 @@ describe('TrendsContainer', () => {
         timezoneName: timezone,
       },
       yScaleClampTop: {
-        'mg/dL': 300,
-        'mmol/L': 25,
+        [MGDL_UNITS]: 300,
+        [MMOLL_UNITS]: 25,
       },
       onDatetimeLocationChange,
       onSelectDay: sinon.stub(),
@@ -126,12 +132,14 @@ describe('TrendsContainer', () => {
         touched: false,
       },
       focusTrendsCbgSlice: sinon.stub(),
+      focusTrendsSmbgRangeAvg: sinon.stub(),
       markTrendsViewed,
       unfocusTrendsCbgSlice: sinon.stub(),
+      unfocusTrendsSmbgRangeAvg: sinon.stub(),
     };
 
     const mgdl = {
-      bgUnits: 'mg/dL',
+      bgUnits: MGDL_UNITS,
       bgBounds: {
         veryHighThreshold: 300,
         targetUpperBound: 180,
@@ -147,7 +155,7 @@ describe('TrendsContainer', () => {
       },
     };
     const mmoll = {
-      bgUnits: 'mmol/L',
+      bgUnits: MMOLL_UNITS,
       bgBounds: {
         veryHighThreshold: 30,
         targetUpperBound: 10,
@@ -277,6 +285,7 @@ describe('TrendsContainer', () => {
 
     describe('componentWillReceiveProps', () => {
       it('should perform data refiltering if `activeDays` changes', () => {
+        const byDateSpy = sinon.spy(minimalData.props().smbgByDate, 'top');
         const instance = minimalData.instance();
         const refilterSpy = sinon.spy(instance, 'refilterByDayOfWeek');
         const stateSpy = sinon.spy(instance, 'setState');
@@ -295,6 +304,7 @@ describe('TrendsContainer', () => {
         });
         expect(refilterSpy.callCount).to.equal(2);
         expect(stateSpy.callCount).to.equal(1);
+        expect(byDateSpy.callCount).to.equal(1);
         instance.refilterByDayOfWeek.restore();
         instance.setState.restore();
       });
@@ -325,13 +335,13 @@ describe('TrendsContainer', () => {
         it('should have a minimum yScale domain: [targetLowerBound, yScaleClampTop]', () => {
           const { yScale } = minimalData.state();
           expect(yScale.domain())
-            .to.deep.equal([mgdl.bgBounds.targetLowerBound, props.yScaleClampTop['mg/dL']]);
+            .to.deep.equal([mgdl.bgBounds.targetLowerBound, props.yScaleClampTop[MGDL_UNITS]]);
         });
 
         it('should have a maximum yScale domain: [lowest generated value, yScaleClampTop]', () => {
           const { yScale } = enoughCbgData.state();
           expect(yScale.domain())
-            .to.deep.equal([lowestBg, props.yScaleClampTop['mg/dL']]);
+            .to.deep.equal([lowestBg, props.yScaleClampTop[MGDL_UNITS]]);
         });
       });
 
@@ -344,13 +354,13 @@ describe('TrendsContainer', () => {
         it('should have a minimum yScale domain: [targetLowerBound, yScaleClampTop]', () => {
           const { yScale } = minimalDataMmol.state();
           expect(yScale.domain())
-            .to.deep.equal([mmoll.bgBounds.targetLowerBound, props.yScaleClampTop['mmol/L']]);
+            .to.deep.equal([mmoll.bgBounds.targetLowerBound, props.yScaleClampTop[MMOLL_UNITS]]);
         });
 
         it('should have a maximum yScale domain: [lowest generated value, yScaleClampTop]', () => {
           const { yScale } = enoughCbgDataMmol.state();
           expect(yScale.domain())
-            .to.deep.equal([lowestBgMmol, props.yScaleClampTop['mmol/L']]);
+            .to.deep.equal([lowestBgMmol, props.yScaleClampTop[MMOLL_UNITS]]);
         });
       });
     });
@@ -533,45 +543,12 @@ describe('TrendsContainer', () => {
       });
     });
 
-    // NB: these rendering tests are set up for a single rendering cycle
-    // so they don't check the logic around rendering smbg if there's not enough cbg
-    // we simply manipulate the props *directly* and see what renders
-    // other tests around the lifecycle methods and what happens in them
-    // cover the logic that switches to smbg rendering if not enough cbg
     describe('render', () => {
-      it('should render `CBGTrendsContainer` when showingCbg', () => {
+      it('should render `TrendsSVGContainer`', () => {
         const wrapper = mount(
           <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum)} />
         );
-        expect(wrapper.find(CBGTrendsContainer)).to.have.length(1);
-      });
-
-      it('should render DummyComponent as `SMBGTrendsContainer` when showingSmbg', () => {
-        const wrapper = mount(
-          <TrendsContainer
-            {..._.assign({}, props, {
-              showingCbg: false,
-              showingSmbg: true,
-            })}
-            {...mgdl}
-            {...makeDataStubs(justOneDatum)}
-          />
-        );
-        expect(wrapper.find(DummyComponent)).to.have.length(1);
-      });
-
-      it('should render `null` if !showingCbg and !showingSmbg', () => {
-        const wrapper = mount(
-          <TrendsContainer
-            {..._.assign({}, props, {
-              showingCbg: false,
-              showingSmbg: false,
-            })}
-            {...mgdl}
-            {...makeDataStubs(justOneDatum)}
-          />
-        );
-        expect(wrapper.html()).to.be.null;
+        expect(wrapper.find(TrendsSVGContainer)).to.have.length(1);
       });
     });
   });
