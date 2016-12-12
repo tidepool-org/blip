@@ -17,14 +17,15 @@ var HoverDay = React.createClass({
     onSelectDay: React.PropTypes.func.isRequired,
     subtotalType: React.PropTypes.string,
     timezone: React.PropTypes.string.isRequired,
-    type: React.PropTypes.string.isRequired
+    type: React.PropTypes.string.isRequired,
+    title: React.PropTypes.string.isRequired
   },
   getDefaultProps: function() {
     return {
       dayAbbrevMask: 'MMM D'
     };
   },
-  handleDblClickDay: function() {
+  handleClickDay: function() {
     this.props.onSelectDay(
       moment.tz(this.props.date, this.props.timezone)
         .startOf('day')
@@ -32,7 +33,8 @@ var HoverDay = React.createClass({
         // refers to the center, not the left edge, of the daily view switching to
         // but we want the left edge at midnight
         .add(constants.MS_IN_DAY/2, 'milliseconds')
-        .toDate().toISOString()
+        .toDate().toISOString(),
+      this.props.title
     );
   },
   mouseEnter: function () {
@@ -57,7 +59,7 @@ var HoverDay = React.createClass({
     }
 
     return (
-      <div className={containerClass} onDoubleClick={this.handleDblClickDay}
+      <div className={containerClass} onClick={this.handleClickDay}
         onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
         <p className='Calendar-weekday'>
           {moment(this.props.date).format(this.props.dayAbbrevMask)}

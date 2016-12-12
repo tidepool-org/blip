@@ -43,7 +43,8 @@ var CalendarContainer = React.createClass({
     selector: React.PropTypes.func,
     selectorOptions: React.PropTypes.object,
     timezone: React.PropTypes.string.isRequired,
-    type: React.PropTypes.string.isRequired
+    type: React.PropTypes.string.isRequired,
+    title: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
     return {
@@ -128,7 +129,8 @@ var CalendarContainer = React.createClass({
     return this.props.days.map(function(day, id) {
       if (self.props.hasHover && self.state.hoverDate === day.date) {
         return (
-          <HoverDay key={day.date}
+          <HoverDay
+            key={day.date}
             data={path ? self.props.data[self.props.type][path] :
               self.props.data[self.props.type]}
             date={day.date}
@@ -137,7 +139,9 @@ var CalendarContainer = React.createClass({
             onSelectDay={self.props.onSelectDay}
             subtotalType={self._getSelectedSubtotal()}
             timezone={self.props.timezone}
-            type={self.props.type} />
+            type={self.props.type}
+            title={self.props.title}
+          />
         );
       } else {
         return (
