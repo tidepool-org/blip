@@ -25,11 +25,11 @@ var Header = require('./header');
 var SubNav = require('./modalsubnav');
 var Footer = require('./footer');
 
-import SMBGTrends from './smbgtrends';
-
 import * as viz from '@tidepool/viz';
 const FocusedCBGSliceHTMLLabels = viz.components.FocusedCBGSliceHTMLLabels;
 const FocusedCBGSliceTime = viz.components.FocusedCBGSliceTime;
+const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
+const FocusedSMBGRangeLabels = viz.components.FocusedSMBGRangeLabels;
 const TrendsContainer = viz.containers.TrendsContainer;
 
 var Modal = React.createClass({
@@ -82,6 +82,8 @@ var Modal = React.createClass({
               </div>
               {this.renderFocusedCBGTime()}
               {this.renderFocusedCBGHTMLLabels()}
+              {this.renderFocusedSMBGPointLabel()}
+              {this.renderFocusedSMBGRangeLabels()}
             </div>
           </div>
         </div>
@@ -151,7 +153,6 @@ var Modal = React.createClass({
       <TrendsContainer
         activeDays={this.props.chartPrefs.modal.activeDays}
         bgBounds={bgBounds}
-        bgClasses={this.props.bgPrefs.bgClasses}
         bgUnits={this.props.bgPrefs.bgUnits}
         currentPatientInViewId={this.props.currentPatientInViewId}
         extentSize={this.props.chartPrefs.modal.extentSize}
@@ -161,7 +162,6 @@ var Modal = React.createClass({
         smbgRangeOverlay={this.props.chartPrefs.modal.smbgRangeOverlay}
         smbgGrouped={this.props.chartPrefs.modal.smbgGrouped}
         smbgLines={this.props.chartPrefs.modal.smbgLines}
-        smbgTrendsComponent={SMBGTrends}
         timePrefs={this.props.timePrefs}
         // data
         cbgByDate={this.props.patientData.cbgByDate}
@@ -195,6 +195,32 @@ var Modal = React.createClass({
     return (
       <FocusedCBGSliceTime
         focusedSlice={this.props.trendsState[currentPatientInViewId].focusedCbgSlice} />
+    );
+  },
+  renderFocusedSMBGPointLabel: function() {
+    if (!this.props.chartPrefs.modal.showingSmbg) {
+      return null;
+    }
+    const { currentPatientInViewId } = this.props;
+    return (
+      <FocusedSMBGPointLabel
+        bgUnits={this.props.bgPrefs.bgUnits}
+        timePrefs={this.props.timePrefs}
+        grouped={this.props.chartPrefs.modal.smbgGrouped}
+        lines={this.props.chartPrefs.modal.smbgLines}
+        focusedPoint={this.props.trendsState[currentPatientInViewId].focusedSmbg} />
+    );
+  },
+  renderFocusedSMBGRangeLabels: function() {
+    if (!this.props.chartPrefs.modal.showingSmbg) {
+      return null;
+    }
+    const { currentPatientInViewId } = this.props;
+    return (
+      <FocusedSMBGRangeLabels
+        bgUnits={this.props.bgPrefs.bgUnits}
+        timePrefs={this.props.timePrefs}
+        focusedRange={this.props.trendsState[currentPatientInViewId].focusedSmbgRangeAvg} />
     );
   },
   renderMissingSMBGHeader: function() {
