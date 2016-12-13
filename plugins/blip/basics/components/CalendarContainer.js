@@ -44,6 +44,7 @@ var CalendarContainer = React.createClass({
     selectorOptions: React.PropTypes.object,
     timezone: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
     title: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
@@ -103,7 +104,8 @@ var CalendarContainer = React.createClass({
       data: this.props.data[this.props.type].summary,
       selectedSubtotal: this._getSelectedSubtotal(),
       selectorOptions: this.props.selectorOptions,
-      sectionId: this.props.sectionId
+      sectionId: this.props.sectionId,
+      trackMetric: this.props.trackMetric,
     });
   },
   renderDayLabels: function() {

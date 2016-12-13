@@ -67,6 +67,7 @@ var DashboardSection = React.createClass({
             selectorOptions={section.selectorOptions}
             timezone={this.props.timezone}
             type={section.type}
+            trackMetric={this.props.trackMetric}
             title={section.title} />
         );
       }
