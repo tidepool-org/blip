@@ -26,7 +26,7 @@ var SubNav = require('./modalsubnav');
 var Footer = require('./footer');
 
 import * as viz from '@tidepool/viz';
-const CBGDayTraceLabels = viz.components.CBGDayTraceLabels;
+const CBGDateTraceLabels = viz.components.CBGDateTraceLabels;
 const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
 const TrendsContainer = viz.containers.TrendsContainer;
@@ -79,7 +79,7 @@ var Modal = React.createClass({
               <div id="tidelineContainer" className="patient-data-chart-modal">
                 {this.renderChart()}
               </div>
-              {this.renderCBGDayTraceLabels()}
+              {this.renderCBGDateTraceLabels()}
               {this.renderFocusedSMBGPointLabel()}
               {this.renderFocusedRangeLabels()}
             </div>
@@ -173,13 +173,13 @@ var Modal = React.createClass({
       ref="chart" />
     );
   },
-  renderCBGDayTraceLabels: function() {
+  renderCBGDateTraceLabels: function() {
     const { currentPatientInViewId, trendsState } = this.props;
     const { chartPrefs: { modal: { showingCbg } } } = this.props;
     const focusedCbgDate = _.get(trendsState, [currentPatientInViewId, 'focusedCbgDate']);
     if (showingCbg && focusedCbgDate) {
       return (
-        <CBGDayTraceLabels
+        <CBGDateTraceLabels
           bgUnits={this.props.bgPrefs.bgUnits}
           focusedCbgDate={trendsState[currentPatientInViewId].focusedCbgDate}
         />
