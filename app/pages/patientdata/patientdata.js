@@ -113,14 +113,12 @@ export let PatientData = React.createClass({
     var patientData = this.renderPatientData();
     var messages = this.renderMessagesContainer();
 
-    
     return (
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
       </div>
     );
-    
   },
 
   renderPatientData: function() {
@@ -136,7 +134,6 @@ export let PatientData = React.createClass({
   },
 
   renderEmptyHeader: function() {
-    
     return (
       <Header
         chartType={'no-data'}
@@ -145,12 +142,10 @@ export let PatientData = React.createClass({
         title={'Data'}
         ref="header" />
       );
-    
   },
 
   renderLoading: function() {
     var header = this.renderEmptyHeader();
-    
     return (
       <div>
         {header}
@@ -166,7 +161,6 @@ export let PatientData = React.createClass({
         </div>
       </div>
     );
-    
   },
 
   renderNoData: function() {
@@ -253,7 +247,7 @@ export let PatientData = React.createClass({
           );
 
       case 'daily':
-        
+
         return (
           <Daily
             bgPrefs={this.state.bgPrefs}
@@ -272,9 +266,9 @@ export let PatientData = React.createClass({
             updateDatetimeLocation={this.updateDatetimeLocation}
             ref="tideline" />
           );
-        
+
       case 'modal':
-        
+
         return (
           <Modal
             bgPrefs={this.state.bgPrefs}
@@ -296,9 +290,9 @@ export let PatientData = React.createClass({
             trendsState={this.props.viz.trends}
             ref="tideline" />
           );
-        
+
       case 'weekly':
-        
+
         return (
           <Weekly
             bgPrefs={this.state.bgPrefs}
@@ -318,9 +312,9 @@ export let PatientData = React.createClass({
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
-        
+
       case 'settings':
-        
+
         return (
           <Settings
             bgPrefs={this.state.bgPrefs}
@@ -339,12 +333,12 @@ export let PatientData = React.createClass({
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
-        
+
     }
   },
 
   renderMessagesContainer: function() {
-    
+
     if (this.state.createMessageDatetime) {
       return (
         <Messages
@@ -369,7 +363,7 @@ export let PatientData = React.createClass({
           timePrefs={this.state.timePrefs} />
       );
     }
-    
+
   },
 
   closeMessageThread: function(){
@@ -436,8 +430,8 @@ export let PatientData = React.createClass({
     });
   },
 
-  handleSwitchToDaily: function(datetime) {
-    this.props.trackMetric('Clicked Switch To One Day', {
+  handleSwitchToDaily: function(datetime, title) {
+    this.props.trackMetric('Clicked Basics '+title+' calendar', {
       fromChart: this.state.chartType
     });
     this.setState({
@@ -509,10 +503,10 @@ export let PatientData = React.createClass({
     var refresh = this.props.onRefresh;
     if (refresh) {
       this.props.clearPatientData(this.props.currentPatientInViewId);
-      this.setState({ 
-        title: this.DEFAULT_TITLE, 
+      this.setState({
+        title: this.DEFAULT_TITLE,
         processingData: true,
-        processedPatientData: null 
+        processedPatientData: null
       });
       refresh(this.props.currentPatientInViewId);
     }
@@ -559,9 +553,9 @@ export let PatientData = React.createClass({
   componentWillReceiveProps: function(nextProps) {
     var userId = this.props.currentPatientInViewId;
     var currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
-    
+
     var nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
-    
+
     if (!currentPatientData && nextPatientData) {
       this.doProcessing(nextProps);
     }
@@ -576,8 +570,8 @@ export let PatientData = React.createClass({
         console.save(combinedData, 'blip-input.json');
       };
       let processedData = utils.processPatientData(
-        this, 
-        combinedData, 
+        this,
+        combinedData,
         this.props.queryParams
       );
       this.setState({
@@ -600,7 +594,7 @@ export let PatientData = React.createClass({
       return
     }
 
-    nextProps.fetchers.forEach(function(fetcher) { 
+    nextProps.fetchers.forEach(function(fetcher) {
       fetcher();
     });
   }
