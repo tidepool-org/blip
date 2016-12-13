@@ -168,7 +168,7 @@ var Modal = React.createClass({
         smbgByDayOfWeek={this.props.patientData.smbgByDayOfWeek}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
-        onSelectDay={this.handleSelectDay}
+        onSelectDate={this.handleSelectDate}
         onSwitchBgDataSource={this.toggleBgDataSource}
       ref="chart" />
     );
@@ -381,7 +381,7 @@ var Modal = React.createClass({
       this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
     }
   },
-  handleSelectDay: function(date) {
+  handleSelectDate: function(date) {
     this.props.onSwitchToDaily(date);
   },
   toggleDay: function(day) {
