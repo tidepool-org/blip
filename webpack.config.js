@@ -7,6 +7,9 @@ var isDev = (process.env.NODE_ENV === 'development');
 // process.env with webpack, we have to create these magic constants
 // individually.
 var defineEnvPlugin = new webpack.DefinePlugin({
+  'process.env': {
+    'NODE_ENV': isDev ? JSON.stringify('development') : JSON.stringify('production')
+  },
   __UPLOAD_API__: JSON.stringify(process.env.UPLOAD_API || null),
   __API_HOST__: JSON.stringify(process.env.API_HOST || null),
   __INVITE_KEY__: JSON.stringify(process.env.INVITE_KEY || null),
