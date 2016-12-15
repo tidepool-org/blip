@@ -56,6 +56,12 @@ describe('TrendsSVGContainer', () => {
     containerWidth: 960,
     cbgData: [{ id: 'a2b3c4', msPer24: 6000, value: 180 }],
     smbgData: [{ id: 'a2b3c4', msPer24: 6000, value: 180 }],
+    displayFlags: {
+      cbg100Enabled: false,
+      cbg80Enabled: true,
+      cbg50Enabled: true,
+      cbgMedianEnabled: true,
+    },
     focusRange: () => {},
     focusSlice: () => {},
     showingCbg: true,

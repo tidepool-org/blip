@@ -130,6 +130,7 @@ describe('TrendsContainer', () => {
       onSwitchBgDataSource,
       trendsState: {
         touched: false,
+        cbgFlags: {},
       },
       focusTrendsCbgSlice: sinon.stub(),
       focusTrendsSmbgRangeAvg: sinon.stub(),
@@ -238,7 +239,7 @@ describe('TrendsContainer', () => {
         expect(markTrendsViewed.callCount).to.equal(0);
         mount(
           <TrendsContainer
-            {..._.assign({}, props, { trendsState: { touched: true } })}
+            {..._.merge({}, props, { trendsState: { touched: true } })}
             {...mgdl}
             {...makeDataStubs(justOneDatum)}
           />
@@ -274,7 +275,7 @@ describe('TrendsContainer', () => {
         expect(onSwitchBgDataSource.callCount).to.equal(0);
         mount(
           <TrendsContainer
-            {..._.assign({}, props, { trendsState: { touched: true } })}
+            {..._.merge({}, props, { trendsState: { touched: true } })}
             {...mgdl}
             {...makeDataStubs(justOneDatum)}
           />

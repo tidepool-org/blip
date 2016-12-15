@@ -21,6 +21,7 @@ import FocusedCBGSliceHTMLLabels from './components/trends/cbg/FocusedCBGSliceHT
 import FocusedCBGSliceTime from './components/trends/cbg/FocusedCBGSliceTime';
 import FocusedSMBGPointLabel from './components/trends/smbg/FocusedSMBGPointLabel';
 import FocusedSMBGRangeLabels from './components/trends/smbg/FocusedSMBGRangeLabels';
+import RangeSelect from './components/trends/cbg/RangeSelect';
 
 import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
 
@@ -34,6 +35,7 @@ const components = {
   FocusedCBGSliceTime,
   FocusedSMBGPointLabel,
   FocusedSMBGRangeLabels,
+  RangeSelect,
   TwoOptionToggle,
 };
 

@@ -25,6 +25,18 @@ const FOCUSED_CBG_KEYS = 'focusedCbgSliceKeys';
 const FOCUSED_SMBG = 'focusedSmbg';
 const FOCUSED_SMBG_RANGE_AVG = 'focusedSmbgRangeAvg';
 const TOUCHED = 'touched';
+const CBG_FLAGS = 'cbgFlags';
+const CBG_100_ENABLED = 'cbg100Enabled';
+const CBG_80_ENABLED = 'cbg80Enabled';
+const CBG_50_ENABLED = 'cbg50Enabled';
+const CBG_MEDIAN_ENABLED = 'cbgMedianEnabled';
+
+const CBG_FLAG_MAP = {
+  100: CBG_100_ENABLED,
+  80: CBG_80_ENABLED,
+  50: CBG_50_ENABLED,
+  median: CBG_MEDIAN_ENABLED,
+};
 
 const initialState = {
   [FOCUSED_CBG_SLICE]: null,
@@ -32,6 +44,12 @@ const initialState = {
   [FOCUSED_SMBG]: null,
   [FOCUSED_SMBG_RANGE_AVG]: null,
   [TOUCHED]: false,
+  [CBG_FLAGS]: {
+    [CBG_100_ENABLED]: false,
+    [CBG_80_ENABLED]: true,
+    [CBG_50_ENABLED]: true,
+    [CBG_MEDIAN_ENABLED]: true,
+  },
 };
 
 const trendsStateByUser = (state = {}, action) => {
@@ -114,6 +132,32 @@ const trendsStateByUser = (state = {}, action) => {
         state,
         { [userId]: {
           [FOCUSED_SMBG_RANGE_AVG]: { $set: null },
+        } }
+      );
+    }
+    case actionTypes.TURN_ON_CBG_RANGE: {
+      const { userId, range } = action.payload;
+      const key = _.get(CBG_FLAG_MAP, range);
+      if (!key) {
+        return state;
+      }
+      return update(
+        state,
+        { [userId]: {
+          [CBG_FLAGS]: { [key]: { $set: true } },
+        } }
+      );
+    }
+    case actionTypes.TURN_OFF_CBG_RANGE: {
+      const { userId, range } = action.payload;
+      const key = _.get(CBG_FLAG_MAP, range);
+      if (!key) {
+        return state;
+      }
+      return update(
+        state,
+        { [userId]: {
+          [CBG_FLAGS]: { [key]: { $set: false } },
         } }
       );
     }
