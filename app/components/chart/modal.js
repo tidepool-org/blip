@@ -70,6 +70,7 @@ var Modal = React.createClass({
     }
   },
   render: function() {
+    const { currentPatientInViewId } = this.props;
     return (
       <div id="tidelineMain">
         {this.renderHeader()}
@@ -99,7 +100,9 @@ var Modal = React.createClass({
          showingLines={this.props.chartPrefs.modal.smbgLines}
          showingCbg={this.props.chartPrefs.modal.showingCbg}
          showingSmbg={this.props.chartPrefs.modal.showingSmbg}
-        ref="footer" />
+         displayFlags={this.props.trendsState[currentPatientInViewId].cbgFlags}
+         currentPatientInViewId={currentPatientInViewId}
+         ref="footer" />
       </div>
     );
   },
@@ -391,6 +394,11 @@ var Modal = React.createClass({
   toggleBgDataSource: function(e) {
     if (e) {
       e.preventDefault();
+      if (this.props.chartPrefs.modal.showingCbg) {
+        this.props.trackMetric('Trends Click to BGM');
+      } else {
+        this.props.trackMetric('Trends Click to CGM');
+      }
     }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.showingCbg = !prefs.modal.showingCbg;
