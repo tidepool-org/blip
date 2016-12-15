@@ -83,6 +83,7 @@ var WeeklyChart = React.createClass({
     else {
       this.chart.load(data);
     }
+    this.chart.showValues();
   },
   render: function() {
     /* jshint ignore:start */
@@ -143,7 +144,7 @@ var Weekly = React.createClass({
     return {
       atMostRecent: false,
       inTransition: false,
-      showingValues: false,
+      showingValues: true,
       title: ''
     };
   },
@@ -153,7 +154,7 @@ var Weekly = React.createClass({
     }
   },
   render: function() {
-    
+
     return (
       <div id="tidelineMain" className="grid">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
@@ -172,10 +173,10 @@ var Weekly = React.createClass({
         ref="footer" />
       </div>
       );
-    
+
   },
   renderChart: function() {
-    
+
     return (
       <WeeklyChart
         bgClasses={this.props.bgPrefs.bgClasses}
@@ -191,10 +192,10 @@ var Weekly = React.createClass({
         onTransition={this.handleInTransition}
         ref="chart" />
     );
-    
+
   },
   renderHeader: function() {
-    
+
     return (
       <Header
         chartType={this.chartType}
@@ -214,10 +215,10 @@ var Weekly = React.createClass({
         onClickTwoWeeks={this.handleClickTwoWeeks}
       ref="header" />
     );
-    
+
   },
   renderMissingSMBGHeader: function() {
-    
+
     return (
       <Header
         chartType={this.chartType}
@@ -230,14 +231,14 @@ var Weekly = React.createClass({
         onClickTwoWeeks={this.handleClickTwoWeeks}
       ref="header" />
     );
-    
+
   },
   renderMissingSMBGMessage: function() {
     var self = this;
     var handleClickUpload = function() {
       self.props.trackMetric('Clicked Partial Data Upload, No SMBG');
     };
-    
+
     return (
       <div className="patient-data-message patient-data-message-loading">
         <p>{'Blip\'s Weekly view shows a history of your finger stick BG data, but it looks like you haven\'t uploaded finger stick data yet.'}</p>
@@ -253,7 +254,7 @@ var Weekly = React.createClass({
         </p>
       </div>
     );
-    
+
   },
   formatDate: function(datetime) {
     // even when timezoneAware, labels should be generated as if UTC; just trust me (JEB)
@@ -337,9 +338,11 @@ var Weekly = React.createClass({
   },
   toggleValues: function(e) {
     if (this.state.showingValues) {
+      this.props.trackMetric('Clicked Show Values Off');
       this.refs.chart.hideValues();
     }
     else {
+      this.props.trackMetric('Clicked Show Values On');
       this.refs.chart.showValues();
     }
     this.setState({showingValues: !this.state.showingValues});
