@@ -44,7 +44,7 @@ export let Signup = React.createClass({
 
   formInputs: function() {
     return [
-      {name: 'fullName', label: 'Full name', placeholder: 'ex: Mary Smith'},
+      {name: 'fullName', label: 'Full name'},
       {
         name: 'username',
         label: 'Email',
@@ -55,14 +55,12 @@ export let Signup = React.createClass({
       {
         name: 'password',
         label: 'Password',
-        type: 'password',
-        placeholder: '******'
+        type: 'password'
       },
       {
         name: 'passwordConfirm',
         label: 'Confirm password',
-        type: 'password',
-        placeholder: '******'
+        type: 'password'
       }
     ];
   },
