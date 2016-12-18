@@ -46,7 +46,8 @@ var WeeklyChart = React.createClass({
     onMostRecent: React.PropTypes.func.isRequired,
     onClickValues: React.PropTypes.func.isRequired,
     onSelectSMBG: React.PropTypes.func.isRequired,
-    onTransition: React.PropTypes.func.isRequired
+    onTransition: React.PropTypes.func.isRequired,
+    isClinicAccount: React.PropTypes.bool.isRequired,
   },
   mount: function() {
     this.mountChart(ReactDOM.findDOMNode(this));
@@ -83,7 +84,9 @@ var WeeklyChart = React.createClass({
     else {
       this.chart.load(data);
     }
-    this.chart.showValues();
+    if (this.props.isClinicAccount){
+      this.chart.showValues();
+    }
   },
   render: function() {
     /* jshint ignore:start */
@@ -138,13 +141,14 @@ var Weekly = React.createClass({
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
-    uploadUrl: React.PropTypes.string.isRequired
+    uploadUrl: React.PropTypes.string.isRequired,
+    isClinicAccount: React.PropTypes.bool.isRequired,
   },
   getInitialState: function() {
     return {
       atMostRecent: false,
       inTransition: false,
-      showingValues: true,
+      showingValues: this.props.isClinicAccount,
       title: ''
     };
   },
@@ -190,7 +194,8 @@ var Weekly = React.createClass({
         onClickValues={this.toggleValues}
         onSelectSMBG={this.handleSelectSMBG}
         onTransition={this.handleInTransition}
-        ref="chart" />
+        ref="chart"
+        isClinicAccount={this.props.isClinicAccount} />
     );
 
   },
