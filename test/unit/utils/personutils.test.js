@@ -80,6 +80,31 @@ describe('personutils', function() {
     });
   });
 
+  describe('isClinic', function() {
+    it('should return true if person has clinic role', function() {
+      var person = {
+        profile: {
+          fullName: 'Mary Smith'
+        },
+        roles: ['clinic']
+      };
+
+      var result = personUtils.isClinic(person);
+
+      expect(result).to.be.ok;
+    });
+
+    it('should return false if person has no clinic role', function() {
+      var person = {
+        profile: {}
+      };
+
+      var result = personUtils.isClinic(person);
+
+      expect(result).to.not.be.ok;
+    });
+  });
+
   describe('patientFullName', function() {
     it('should return profile name if same person', function() {
       var person = {

@@ -60,12 +60,12 @@ describe('ConfirmPasswordReset', function () {
       expect(formInputs[1].name).to.equal('password');
       expect(formInputs[1].label).to.equal('New password');
       expect(formInputs[1].type).to.equal('password');
-      expect(formInputs[1].placeholder).to.equal('******');
+      expect(formInputs[1].placeholder).to.be.undefined;
 
       expect(formInputs[2].name).to.equal('passwordConfirm');
       expect(formInputs[2].label).to.equal('Confirm new password');
       expect(formInputs[2].type).to.equal('password');
-      expect(formInputs[2].placeholder).to.equal('******');
+      expect(formInputs[2].placeholder).to.be.undefined;
     });
   });
 

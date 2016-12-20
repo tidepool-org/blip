@@ -310,7 +310,8 @@ export let PatientData = React.createClass({
             trackMetric={this.props.trackMetric}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
-            ref="tideline" />
+            ref="tideline"
+            isClinicAccount={personUtils.isClinic(this.props.user)} />
           );
 
       case 'settings':

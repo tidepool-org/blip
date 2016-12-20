@@ -46,7 +46,8 @@ var WeeklyChart = React.createClass({
     onMostRecent: React.PropTypes.func.isRequired,
     onClickValues: React.PropTypes.func.isRequired,
     onSelectSMBG: React.PropTypes.func.isRequired,
-    onTransition: React.PropTypes.func.isRequired
+    onTransition: React.PropTypes.func.isRequired,
+    isClinicAccount: React.PropTypes.bool.isRequired,
   },
   mount: function() {
     this.mountChart(ReactDOM.findDOMNode(this));
@@ -82,6 +83,9 @@ var WeeklyChart = React.createClass({
     }
     else {
       this.chart.load(data);
+    }
+    if (this.props.isClinicAccount){
+      this.chart.showValues();
     }
   },
   render: function() {
@@ -137,13 +141,14 @@ var Weekly = React.createClass({
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
-    uploadUrl: React.PropTypes.string.isRequired
+    uploadUrl: React.PropTypes.string.isRequired,
+    isClinicAccount: React.PropTypes.bool.isRequired,
   },
   getInitialState: function() {
     return {
       atMostRecent: false,
       inTransition: false,
-      showingValues: false,
+      showingValues: this.props.isClinicAccount,
       title: ''
     };
   },
@@ -153,7 +158,7 @@ var Weekly = React.createClass({
     }
   },
   render: function() {
-    
+
     return (
       <div id="tidelineMain" className="grid">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
@@ -172,10 +177,10 @@ var Weekly = React.createClass({
         ref="footer" />
       </div>
       );
-    
+
   },
   renderChart: function() {
-    
+
     return (
       <WeeklyChart
         bgClasses={this.props.bgPrefs.bgClasses}
@@ -189,12 +194,13 @@ var Weekly = React.createClass({
         onClickValues={this.toggleValues}
         onSelectSMBG={this.handleSelectSMBG}
         onTransition={this.handleInTransition}
-        ref="chart" />
+        ref="chart"
+        isClinicAccount={this.props.isClinicAccount} />
     );
-    
+
   },
   renderHeader: function() {
-    
+
     return (
       <Header
         chartType={this.chartType}
@@ -214,10 +220,10 @@ var Weekly = React.createClass({
         onClickTwoWeeks={this.handleClickTwoWeeks}
       ref="header" />
     );
-    
+
   },
   renderMissingSMBGHeader: function() {
-    
+
     return (
       <Header
         chartType={this.chartType}
@@ -230,14 +236,14 @@ var Weekly = React.createClass({
         onClickTwoWeeks={this.handleClickTwoWeeks}
       ref="header" />
     );
-    
+
   },
   renderMissingSMBGMessage: function() {
     var self = this;
     var handleClickUpload = function() {
       self.props.trackMetric('Clicked Partial Data Upload, No SMBG');
     };
-    
+
     return (
       <div className="patient-data-message patient-data-message-loading">
         <p>{'Blip\'s Weekly view shows a history of your finger stick BG data, but it looks like you haven\'t uploaded finger stick data yet.'}</p>
@@ -253,7 +259,7 @@ var Weekly = React.createClass({
         </p>
       </div>
     );
-    
+
   },
   formatDate: function(datetime) {
     // even when timezoneAware, labels should be generated as if UTC; just trust me (JEB)
@@ -337,9 +343,11 @@ var Weekly = React.createClass({
   },
   toggleValues: function(e) {
     if (this.state.showingValues) {
+      this.props.trackMetric('Clicked Show Values Off');
       this.refs.chart.hideValues();
     }
     else {
+      this.props.trackMetric('Clicked Show Values On');
       this.refs.chart.showValues();
     }
     this.setState({showingValues: !this.state.showingValues});

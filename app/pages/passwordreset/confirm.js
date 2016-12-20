@@ -46,14 +46,12 @@ export var ConfirmPasswordReset = React.createClass({
       {
         name: 'password',
         label: 'New password',
-        type: 'password',
-        placeholder: '******'
+        type: 'password'
       },
       {
         name: 'passwordConfirm',
         label: 'Confirm new password',
-        type: 'password',
-        placeholder: '******'
+        type: 'password'
       }
     ];
   },
