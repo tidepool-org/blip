@@ -25,6 +25,7 @@ import { RangeSelect, mapDispatchToProps }
 describe('RangeSelect', () => {
   describe('RangeSelect (w/o redux connect()ion)', () => {
     const props = {
+      currentPatientInViewId: 'a1b2c3',
       displayFlags: {
         cbg100Enabled: false,
         cbg80Enabled: true,
