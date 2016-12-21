@@ -163,4 +163,52 @@ describe('Tooltip', () => {
     wrapper.instance().calculateOffset(wrapper.props());
     expect(wrapper.state()).to.deep.equal({ offset: { top: 0, left: -50 } });
   });
+
+  describe('lifecycle methods', () => {
+    it('calls componentDidMount', () => {
+      sinon.spy(Tooltip.prototype, 'componentDidMount');
+      mount(
+        <Tooltip
+          position={position}
+          title={title}
+          content={content}
+        />
+      );
+      expect(Tooltip.prototype.componentDidMount.calledOnce).to.be.true;
+    });
+
+    it('componentDidMount in turn calls calculateOffset', () => {
+      const wrapper = mount(
+        <Tooltip
+          position={position}
+          title={title}
+          content={content}
+        />
+      );
+      const instance = wrapper.instance();
+      const calcSpy = sinon.spy(instance, 'calculateOffset');
+      expect(calcSpy.callCount).to.equal(0);
+      instance.componentDidMount();
+      expect(calcSpy.calledOnce).to.be.true;
+    });
+
+    it('calls componentWillReceiveProps (which calls calculateOffset) on props update', () => {
+      sinon.spy(Tooltip.prototype, 'componentWillReceiveProps');
+      const wrapper = mount(
+        <Tooltip
+          position={position}
+          title={title}
+          content={content}
+        />
+      );
+      const instance = wrapper.instance();
+      const calcSpy = sinon.spy(instance, 'calculateOffset');
+      expect(Tooltip.prototype.componentWillReceiveProps.callCount).to.equal(0);
+      expect(calcSpy.callCount).to.equal(0);
+      wrapper.setProps({ title: 'New title!' });
+      expect(Tooltip.prototype.componentWillReceiveProps.calledOnce).to.be.true;
+      expect(calcSpy.calledOnce).to.be.true;
+      expect(calcSpy.args[0][0]).to.deep.equal(wrapper.props());
+    });
+  });
 });
