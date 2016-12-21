@@ -74,10 +74,10 @@ storiesOf('Tooltip', module)
       />
     </div>
   ))
-  .add('transparent backgroundColor, tail, no title', () => (
+  .add('[KNOWN ISSUE] transparent backgroundColor with tail', () => (
     <div>
       {refDiv}
-      <Tooltip {...props} title={null} backgroundColor={'transparent'} />
+      <Tooltip {...props} backgroundColor={'transparent'} />
     </div>
   ))
   .add('borderWidth', () => (
@@ -98,10 +98,16 @@ storiesOf('Tooltip', module)
       <Tooltip {...props} tailHeight={4} />
     </div>
   ))
-  .add('no content', () => (
+  .add('tail, no content', () => (
     <div>
       {refDiv}
       <Tooltip {...props} content={null} />
+    </div>
+  ))
+  .add('no tail, no content', () => (
+    <div>
+      {refDiv}
+      <Tooltip {...props} content={null} tail={false} />
     </div>
   ))
   .add('no title', () => (
