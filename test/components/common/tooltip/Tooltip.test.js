@@ -164,6 +164,76 @@ describe('Tooltip', () => {
     expect(wrapper.state()).to.deep.equal({ offset: { top: 0, left: -50 } });
   });
 
+  describe('an additional `offset` provided in props', () => {
+    it('should be added to the calculated offset', () => {
+      const top = 7;
+      const left = 7;
+      const wrapper = mount(
+        <Tooltip
+          offset={{ top, left }}
+          position={position}
+          title={title}
+          content={content}
+          side={'right'}
+        />
+      );
+      const tailElem = wrapper.node.tailElem;
+      const tailgetBoundingClientRect = sinon.stub(tailElem, 'getBoundingClientRect');
+      tailgetBoundingClientRect.returns({ top: 50, left: 150, height: 10, width: 10 });
+      const tooltipElem = wrapper.node.element;
+      const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
+      tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
+      wrapper.instance().calculateOffset(wrapper.props());
+      expect(wrapper.state()).to.deep.equal({ offset: { top: 2, left: -98 } });
+    });
+
+    describe('`horizontal` instead of `left` provided in `offset` in props', () => {
+      it('should be used as-is in the offset computation for a tooltip on the right', () => {
+        const top = 7;
+        const horizontal = 7;
+        const wrapper = mount(
+          <Tooltip
+            offset={{ top, horizontal }}
+            position={position}
+            title={title}
+            content={content}
+            side={'right'}
+          />
+        );
+        const tailElem = wrapper.node.tailElem;
+        const tailgetBoundingClientRect = sinon.stub(tailElem, 'getBoundingClientRect');
+        tailgetBoundingClientRect.returns({ top: 50, left: 150, height: 10, width: 10 });
+        const tooltipElem = wrapper.node.element;
+        const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
+        tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
+        wrapper.instance().calculateOffset(wrapper.props());
+        expect(wrapper.state()).to.deep.equal({ offset: { top: 2, left: -98 } });
+      });
+
+      it('should be subtracted from the offset computation for a tooltip on the left', () => {
+        const top = 7;
+        const horizontal = 7;
+        const wrapper = mount(
+          <Tooltip
+            offset={{ top, horizontal }}
+            position={position}
+            title={title}
+            content={content}
+            side={'left'}
+          />
+        );
+        const tailElem = wrapper.node.tailElem;
+        const tailgetBoundingClientRect = sinon.stub(tailElem, 'getBoundingClientRect');
+        tailgetBoundingClientRect.returns({ top: 50, left: 50, height: 10, width: 10 });
+        const tooltipElem = wrapper.node.element;
+        const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
+        tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
+        wrapper.instance().calculateOffset(wrapper.props());
+        expect(wrapper.state()).to.deep.equal({ offset: { top: 2, left: -12 } });
+      });
+    });
+  });
+
   describe('lifecycle methods', () => {
     it('calls componentDidMount', () => {
       sinon.spy(Tooltip.prototype, 'componentDidMount');

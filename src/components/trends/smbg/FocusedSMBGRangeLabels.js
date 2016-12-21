@@ -55,7 +55,7 @@ const FocusedSMBGRangeLabels = (props) => {
         }
         side={meanSide}
         position={meanPosition}
-        offset={{ top: 0, left: position.tooltipLeft ? -10 : 10 }}
+        offset={{ top: 0, horizontal: 10 }}
       />
       <Tooltip
         content={<span className={styles.number}>{displayBgValue(data.min, bgUnits)}</span>}

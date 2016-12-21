@@ -29,8 +29,8 @@ import styles from './FocusedSMBGPointLabel.css';
 // tooltip offsets
 const SIMPLE_VALUE_TOP_OFFSET = 10;
 const SIMPLE_DAY_TOP_OFFSET = 10;
-const SIMPLE_DAY_LEFT_OFFSET = 30;
-const DETAILED_DAY_LEFT_OFFSET = 10;
+const SIMPLE_DAY_HORIZ_OFFSET = 30;
+const DETAILED_DAY_HORIZ_OFFSET = 10;
 
 const FocusedSMBGPointLabel = (props) => {
   const { focusedPoint } = props;
@@ -73,7 +73,7 @@ const FocusedSMBGPointLabel = (props) => {
         side={side}
         offset={{
           top: SIMPLE_DAY_TOP_OFFSET,
-          left: position.tooltipLeft ? -SIMPLE_DAY_LEFT_OFFSET : SIMPLE_DAY_LEFT_OFFSET,
+          horizontal: SIMPLE_DAY_HORIZ_OFFSET,
         }}
       />
     );
@@ -94,7 +94,7 @@ const FocusedSMBGPointLabel = (props) => {
         side={side}
         offset={{
           top: 0,
-          left: position.tooltipLeft ? -DETAILED_DAY_LEFT_OFFSET : DETAILED_DAY_LEFT_OFFSET,
+          horizontal: DETAILED_DAY_HORIZ_OFFSET,
         }}
       />
     );

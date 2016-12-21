@@ -35,9 +35,14 @@ class Tooltip extends React.Component {
   }
 
   calculateOffset(currentProps) {
-    const { offset: propOffset, tail } = currentProps;
+    const { offset: propOffset, side, tail } = currentProps;
     const offset = {};
     const tooltipRect = this.element.getBoundingClientRect();
+    let horizontalOffset = (propOffset.left != null) ?
+      propOffset.left : (propOffset.horizontal || 0);
+    if (side === 'left') {
+      horizontalOffset = -horizontalOffset;
+    }
     if (tail) {
       const tailRect = this.tailElem.getBoundingClientRect();
       const tailCenter = {
@@ -45,11 +50,11 @@ class Tooltip extends React.Component {
         left: tailRect.left + (tailRect.width / 2),
       };
       offset.top = -tailCenter.top + tooltipRect.top + propOffset.top;
-      offset.left = -tailCenter.left + tooltipRect.left + propOffset.left;
+      offset.left = -tailCenter.left + tooltipRect.left + horizontalOffset;
     } else {
       let leftOffset;
       let topOffset;
-      switch (this.props.side) {
+      switch (side) {
         case 'top':
           leftOffset = -tooltipRect.width / 2;
           topOffset = -tooltipRect.height;
@@ -108,7 +113,8 @@ class Tooltip extends React.Component {
             marginTop: `-${tailHeight}px`,
             marginLeft: marginInnerValue,
             borderWidth: `${tailHeight}px ${2 * tailWidth}px`,
-            [`border${_.capitalize(borderSide)}Color`]: this.props.backgroundColor || backgroundColor,
+            [`border${_.capitalize(borderSide)}Color`]:
+              this.props.backgroundColor || backgroundColor,
           }}
         ></div>
       </div>
@@ -171,13 +177,14 @@ Tooltip.propTypes = {
   }).isRequired,
   offset: PropTypes.shape({
     top: PropTypes.number.isRequired,
-    left: PropTypes.number.isRequired,
+    left: PropTypes.number,
+    horizontal: PropTypes.number,
   }).isRequired,
   tail: PropTypes.bool.isRequired,
   side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
-  backgroundColor: PropTypes.string.isRequired,
+  backgroundColor: PropTypes.string,
   borderColor: PropTypes.string.isRequired,
   borderWidth: PropTypes.number.isRequired,
 };
