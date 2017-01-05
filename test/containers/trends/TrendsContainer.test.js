@@ -130,12 +130,19 @@ describe('TrendsContainer', () => {
       onSwitchBgDataSource,
       trendsState: {
         touched: false,
-        cbgFlags: {},
+        cbgFlags: {
+          cbg50Enabled: true,
+          cbg80Enabled: true,
+          cbg100Enabled: true,
+          cbgMedianEnabled: true,
+        },
       },
       focusTrendsCbgSlice: sinon.stub(),
+      focusTrendsSmbg: sinon.stub(),
       focusTrendsSmbgRangeAvg: sinon.stub(),
       markTrendsViewed,
       unfocusTrendsCbgSlice: sinon.stub(),
+      unfocusTrendsSmbg: sinon.stub(),
       unfocusTrendsSmbgRangeAvg: sinon.stub(),
     };
 
@@ -147,13 +154,6 @@ describe('TrendsContainer', () => {
         targetLowerBound: 80,
         veryLowThreshold: 60,
       },
-      bgClasses: {
-        'very-high': { boundary: 600 },
-        high: { boundary: 300 },
-        target: { boundary: 180 },
-        low: { boundary: 80 },
-        'very-low': { boundary: 60 },
-      },
     };
     const mmoll = {
       bgUnits: MMOLL_UNITS,
@@ -162,13 +162,6 @@ describe('TrendsContainer', () => {
         targetUpperBound: 10,
         targetLowerBound: 4.4,
         veryLowThreshold: 3.5,
-      },
-      bgClasses: {
-        'very-high': { boundary: 40 },
-        high: { boundary: 30 },
-        target: { boundary: 10 },
-        low: { boundary: 4.4 },
-        'very-low': { boundary: 3.5 },
       },
     };
 
@@ -580,12 +573,30 @@ describe('TrendsContainer', () => {
       expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('focusTrendsCbgSlice');
     });
 
+    it('should return an object with a `focusTrendsSmbgRangeAvg` key', () => {
+      expect(mapDispatchToProps(sinon.stub(), ownProps))
+        .to.have.property('focusTrendsSmbgRangeAvg');
+    });
+
+    it('should return an object with a `focusTrendsSmbg` key', () => {
+      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('focusTrendsSmbg');
+    });
+
     it('should return an object with a `markTrendsViewed` key', () => {
       expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('markTrendsViewed');
     });
 
     it('should return an object with an `unfocusTrendsCbgSlice` key', () => {
       expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('unfocusTrendsCbgSlice');
+    });
+
+    it('should return an object with a `unfocusTrendsSmbgRangeAvg` key', () => {
+      expect(mapDispatchToProps(sinon.stub(), ownProps))
+        .to.have.property('unfocusTrendsSmbgRangeAvg');
+    });
+
+    it('should return an object with a `unfocusTrendsSmbg` key', () => {
+      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('unfocusTrendsSmbg');
     });
   });
 });
