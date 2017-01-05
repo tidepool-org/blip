@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
+
 /**
  * classifyBgValue
  * @param {Object} bgBounds - object describing boundaries for blood glucose categories
@@ -23,6 +25,13 @@
  * @return {String} bgClassification - low, target, high
  */
 export function classifyBgValue(bgBounds, bgValue) {
+  if (_.isEmpty(bgBounds) ||
+    !_.isNumber(_.get(bgBounds, 'targetLowerBound')) ||
+    !_.isNumber(_.get(bgBounds, 'targetUpperBound'))) {
+    throw new Error(
+      'You must provide a `bgBounds` object with a `targetLowerBound` and a `targetUpperBound`!'
+    );
+  }
   const { targetLowerBound, targetUpperBound } = bgBounds;
   if (bgValue < targetLowerBound) {
     return 'low';
