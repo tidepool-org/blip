@@ -235,8 +235,9 @@ describe('Tooltip', () => {
   });
 
   describe('lifecycle methods', () => {
-    it('calls componentDidMount', () => {
+    it('calls componentDidMount (which calls calculateOffset)', () => {
       sinon.spy(Tooltip.prototype, 'componentDidMount');
+      sinon.spy(Tooltip.prototype, 'calculateOffset');
       mount(
         <Tooltip
           position={position}
@@ -245,21 +246,9 @@ describe('Tooltip', () => {
         />
       );
       expect(Tooltip.prototype.componentDidMount.calledOnce).to.be.true;
-    });
-
-    it('componentDidMount in turn calls calculateOffset', () => {
-      const wrapper = mount(
-        <Tooltip
-          position={position}
-          title={title}
-          content={content}
-        />
-      );
-      const instance = wrapper.instance();
-      const calcSpy = sinon.spy(instance, 'calculateOffset');
-      expect(calcSpy.callCount).to.equal(0);
-      instance.componentDidMount();
-      expect(calcSpy.calledOnce).to.be.true;
+      expect(Tooltip.prototype.calculateOffset.calledOnce).to.be.true;
+      Tooltip.prototype.componentDidMount.restore();
+      Tooltip.prototype.calculateOffset.restore();
     });
 
     it('calls componentWillReceiveProps (which calls calculateOffset) on props update', () => {
@@ -279,6 +268,8 @@ describe('Tooltip', () => {
       expect(Tooltip.prototype.componentWillReceiveProps.calledOnce).to.be.true;
       expect(calcSpy.calledOnce).to.be.true;
       expect(calcSpy.args[0][0]).to.deep.equal(wrapper.props());
+      Tooltip.prototype.componentWillReceiveProps.restore();
+      instance.calculateOffset.restore();
     });
   });
 });
