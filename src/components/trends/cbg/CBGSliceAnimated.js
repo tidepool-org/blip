@@ -206,7 +206,7 @@ class CBGSliceAnimated extends Component {
               spring(yScale(datum[segment.heightKeys[0]]) - yScale(datum[segment.heightKeys[1]])),
             [segment.y]: spring(yScale(datum[segment.y])),
           },
-          })) : []}
+        })) : []}
         willEnter={this.willEnter}
         willLeave={this.willLeave}
       >

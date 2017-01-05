@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import React from 'react';
 
 import { mount } from 'enzyme';
@@ -77,12 +78,11 @@ describe('CBGSlicesContainer', () => {
       };
       expect(CBGSlicesContainer.prototype.setState.firstCall.args[0])
         .to.deep.equal({ mungedData: [
-            _.assign({id: "10800000", msFrom: 0, msTo: 21600000, msX: 10800000}, undefineds),
-            _.assign({id: "32400000", msFrom: 21600000, msTo: 43200000, msX: 32400000}, undefineds),
-            _.assign({id: "54000000", msFrom: 43200000, msTo: 64800000, msX: 54000000}, undefineds),
-            _.assign({id: "75600000", msFrom: 64800000, msTo: 86400000, msX: 75600000}, undefineds)
-          ]
-        });
+          _.assign({ id: '10800000', msFrom: 0, msTo: 21600000, msX: 10800000 }, undefineds),
+          _.assign({ id: '32400000', msFrom: 21600000, msTo: 43200000, msX: 32400000 }, undefineds),
+          _.assign({ id: '54000000', msFrom: 43200000, msTo: 64800000, msX: 54000000 }, undefineds),
+          _.assign({ id: '75600000', msFrom: 64800000, msTo: 86400000, msX: 75600000 }, undefineds),
+        ] });
     });
   });
 
@@ -107,8 +107,9 @@ describe('CBGSlicesContainer', () => {
   });
 
   describe('render', () => {
-    it('should render the appropriate number of CBGSliceAnimated components for the `binSize`', () => {
-      expect(wrapper.find(CBGSliceAnimated).length).to.equal(TWENTY_FOUR_HRS/wrapper.prop('binSize'));
+    it('should render proper number of CBGSliceAnimated components for the `binSize`', () => {
+      expect(wrapper.find(CBGSliceAnimated).length)
+        .to.equal(TWENTY_FOUR_HRS / wrapper.prop('binSize'));
     });
   });
 });

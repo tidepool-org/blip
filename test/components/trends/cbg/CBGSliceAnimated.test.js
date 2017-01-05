@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import React from 'react';
 import { TransitionMotion } from 'react-motion';
 
@@ -71,7 +72,7 @@ describe('CBGSliceAnimated', () => {
     before(() => {
       wrapper = mount(
         <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...props}/>
+          <CBGSliceAnimated {...props} />
         </SVGContainer>
       );
     });
@@ -101,7 +102,7 @@ describe('CBGSliceAnimated', () => {
       it('should define a `willLeave` instance method', () => {
         expect(CBGSliceAnimated.prototype.willLeave).to.exist;
       });
-    })
+    });
   });
 
   describe('when only `cbg100Enabled`', () => {
@@ -111,12 +112,12 @@ describe('CBGSliceAnimated', () => {
         cbg80Enabled: false,
         cbg50Enabled: false,
         cbgMedianEnabled: false,
-      }
-    })
+      },
+    });
     before(() => {
       wrapper = mount(
         <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...cbg100EnabledProps}/>
+          <CBGSliceAnimated {...cbg100EnabledProps} />
         </SVGContainer>
       );
     });
@@ -135,12 +136,12 @@ describe('CBGSliceAnimated', () => {
         cbg80Enabled: true,
         cbg50Enabled: false,
         cbgMedianEnabled: false,
-      }
-    })
+      },
+    });
     before(() => {
       wrapper = mount(
         <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...cbg80EnabledProps}/>
+          <CBGSliceAnimated {...cbg80EnabledProps} />
         </SVGContainer>
       );
     });
@@ -159,12 +160,12 @@ describe('CBGSliceAnimated', () => {
         cbg80Enabled: false,
         cbg50Enabled: true,
         cbgMedianEnabled: false,
-      }
-    })
+      },
+    });
     before(() => {
       wrapper = mount(
         <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...cbg50EnabledProps}/>
+          <CBGSliceAnimated {...cbg50EnabledProps} />
         </SVGContainer>
       );
     });
@@ -182,12 +183,12 @@ describe('CBGSliceAnimated', () => {
         cbg80Enabled: false,
         cbg50Enabled: false,
         cbgMedianEnabled: true,
-      }
-    })
+      },
+    });
     before(() => {
       wrapper = mount(
         <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...cbgMedianEnabledProps}/>
+          <CBGSliceAnimated {...cbgMedianEnabledProps} />
         </SVGContainer>
       );
     });
@@ -205,12 +206,12 @@ describe('CBGSliceAnimated', () => {
         cbg80Enabled: false,
         cbg50Enabled: false,
         cbgMedianEnabled: false,
-      }
-    })
+      },
+    });
     before(() => {
       wrapper = mount(
         <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...allUncheckedProps}/>
+          <CBGSliceAnimated {...allUncheckedProps} />
         </SVGContainer>
       );
     });
@@ -236,12 +237,12 @@ describe('CBGSliceAnimated', () => {
         msX: 2700000,
         msFrom: 1800000,
         msTo: 3600000,
-      }
+      },
     });
     before(() => {
       wrapper = mount(
         <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...gapInDataProps}/>
+          <CBGSliceAnimated {...gapInDataProps} />
         </SVGContainer>
       );
     });
