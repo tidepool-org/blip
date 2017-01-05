@@ -10,21 +10,29 @@ const props = {
   position: { top: 200, left: 200 },
 };
 
+const BackgroundDecorator = (story) => (
+  <div style={{ backgroundColor: 'FloralWhite', width: '100%', height: '96vh' }}>
+    {story()}
+  </div>
+);
+
 const refDiv = (
   <div
     style={{
       position: 'absolute',
-      width: '3px',
-      height: '3px',
+      width: '10px',
+      height: '10px',
       top: '199px',
       left: '199px',
-      backgroundColor: 'red',
+      backgroundColor: 'FireBrick',
+      opacity: 0.50,
       zIndex: '1',
     }}
   />
 );
 
 storiesOf('Tooltip', module)
+  .addDecorator(BackgroundDecorator)
   .add('defaults', () => (
     <div>
       {refDiv}
@@ -37,10 +45,39 @@ storiesOf('Tooltip', module)
       <Tooltip {...props} offset={{ top: -5, left: -5 }} />
     </div>
   ))
+  .add('backgroundColor', () => (
+    <div>
+      {refDiv}
+      <Tooltip {...props} backgroundColor={'papayawhip'} />
+    </div>
+  ))
   .add('borderColor', () => (
     <div>
       {refDiv}
       <Tooltip {...props} borderColor={'blue'} />
+    </div>
+  ))
+  .add('transparent backgroundColor, no tail', () => (
+    <div>
+      {refDiv}
+      <Tooltip {...props} tail={false} backgroundColor={'transparent'} />
+    </div>
+  ))
+  .add('transparent, no tail, no title', () => (
+    <div>
+      {refDiv}
+      <Tooltip
+        {...props}
+        title={null}
+        backgroundColor={'transparent'}
+        borderColor={'transparent'}
+      />
+    </div>
+  ))
+  .add('[KNOWN ISSUE] transparent backgroundColor with tail', () => (
+    <div>
+      {refDiv}
+      <Tooltip {...props} backgroundColor={'transparent'} />
     </div>
   ))
   .add('borderWidth', () => (
@@ -61,10 +98,16 @@ storiesOf('Tooltip', module)
       <Tooltip {...props} tailHeight={4} />
     </div>
   ))
-  .add('no content', () => (
+  .add('tail, no content', () => (
     <div>
       {refDiv}
       <Tooltip {...props} content={null} />
+    </div>
+  ))
+  .add('no tail, no content', () => (
+    <div>
+      {refDiv}
+      <Tooltip {...props} content={null} tail={false} />
     </div>
   ))
   .add('no title', () => (

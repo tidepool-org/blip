@@ -27,13 +27,22 @@ class Tooltip extends React.Component {
   }
 
   componentDidMount() {
-    this.calculateOffset();
+    this.calculateOffset(this.props);
   }
 
-  calculateOffset() {
-    const { offset: propOffset, tail } = this.props;
+  componentWillReceiveProps(nextProps) {
+    this.calculateOffset(nextProps);
+  }
+
+  calculateOffset(currentProps) {
+    const { offset: propOffset, side, tail } = currentProps;
     const offset = {};
     const tooltipRect = this.element.getBoundingClientRect();
+    let horizontalOffset = (propOffset.left != null) ?
+      propOffset.left : (propOffset.horizontal || 0);
+    if (side === 'left') {
+      horizontalOffset = -horizontalOffset;
+    }
     if (tail) {
       const tailRect = this.tailElem.getBoundingClientRect();
       const tailCenter = {
@@ -41,11 +50,11 @@ class Tooltip extends React.Component {
         left: tailRect.left + (tailRect.width / 2),
       };
       offset.top = -tailCenter.top + tooltipRect.top + propOffset.top;
-      offset.left = -tailCenter.left + tooltipRect.left + propOffset.left;
+      offset.left = -tailCenter.left + tooltipRect.left + horizontalOffset;
     } else {
       let leftOffset;
       let topOffset;
-      switch (this.props.side) {
+      switch (side) {
         case 'top':
           leftOffset = -tooltipRect.width / 2;
           topOffset = -tooltipRect.height;
@@ -64,13 +73,13 @@ class Tooltip extends React.Component {
           topOffset = -tooltipRect.height / 2;
       }
       offset.top = topOffset + propOffset.top;
-      offset.left = leftOffset + propOffset.left;
+      offset.left = leftOffset + horizontalOffset;
     }
 
     this.setState({ offset });
   }
 
-  renderTail(color = 'white') {
+  renderTail(backgroundColor = 'white') {
     const { tailWidth, tailHeight, borderWidth, borderColor, side } = this.props;
     const tailSide = (side === 'left') ? 'right' : 'left';
     const padding = 10;
@@ -104,7 +113,8 @@ class Tooltip extends React.Component {
             marginTop: `-${tailHeight}px`,
             marginLeft: marginInnerValue,
             borderWidth: `${tailHeight}px ${2 * tailWidth}px`,
-            [`border${_.capitalize(borderSide)}Color`]: color,
+            [`border${_.capitalize(borderSide)}Color`]:
+              this.props.backgroundColor || backgroundColor,
           }}
         ></div>
       </div>
@@ -140,7 +150,7 @@ class Tooltip extends React.Component {
   }
 
   render() {
-    const { title, content, position, borderColor, borderWidth } = this.props;
+    const { title, content, position, backgroundColor, borderColor, borderWidth } = this.props;
     const { offset } = this.state;
     const top = position.top + offset.top;
     const left = position.left + offset.left;
@@ -148,7 +158,7 @@ class Tooltip extends React.Component {
     return (
       <div
         className={styles.tooltip}
-        style={{ top, left, borderColor, borderWidth: `${borderWidth}px` }}
+        style={{ top, left, backgroundColor, borderColor, borderWidth: `${borderWidth}px` }}
         ref={(ref) => { this.element = ref; }}
       >
         {title && this.renderTitle(title)}
@@ -167,12 +177,14 @@ Tooltip.propTypes = {
   }).isRequired,
   offset: PropTypes.shape({
     top: PropTypes.number.isRequired,
-    left: PropTypes.number.isRequired,
+    left: PropTypes.number,
+    horizontal: PropTypes.number,
   }).isRequired,
   tail: PropTypes.bool.isRequired,
   side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
+  backgroundColor: PropTypes.string,
   borderColor: PropTypes.string.isRequired,
   borderWidth: PropTypes.number.isRequired,
 };
