@@ -25,6 +25,7 @@ const {
   trendsWidth,
   trendsYScale: yScale,
 } = scales.trends;
+import bgBounds from '../../../helpers/bgBounds';
 import SVGContainer from '../../../helpers/SVGContainer';
 
 import { MGDL_UNITS } from '../../../../src/utils/constants';
@@ -33,12 +34,7 @@ import YAxisLabelsAndTicks from '../../../../src/components/trends/common/YAxisL
 describe('YAxisLabelsAndTicks', () => {
   let wrapper;
   const props = {
-    bgBounds: {
-      veryHighThreshold: 300,
-      targetUpperBound: 180,
-      targetLowerBound: 80,
-      veryLowThreshold: 55,
-    },
+    bgBounds,
     bgUnits: MGDL_UNITS,
     margins: {
       top: 0,

@@ -20,6 +20,8 @@ import React from 'react';
 
 import { shallow } from 'enzyme';
 
+import bgBounds from '../../helpers/bgBounds';
+
 import { TrendsSVGContainer } from '../../../src/containers/trends/TrendsSVGContainer';
 
 import { MGDL_UNITS } from '../../../src/utils/constants';
@@ -43,12 +45,7 @@ function makeScale(scale) {
 
 describe('TrendsSVGContainer', () => {
   const props = {
-    bgBounds: {
-      veryHighThreshold: 300,
-      targetUpperBound: 180,
-      targetLowerBound: 80,
-      veryLowThreshold: 60,
-    },
+    bgBounds,
     bgUnits: MGDL_UNITS,
     // normally provided by react-dimensions wrapper but we test w/o that
     containerHeight: 520,
