@@ -45,7 +45,7 @@ const initialState = {
   [FOCUSED_SMBG_RANGE_AVG]: null,
   [TOUCHED]: false,
   [CBG_FLAGS]: {
-    [CBG_100_ENABLED]: false,
+    [CBG_100_ENABLED]: true,
     [CBG_80_ENABLED]: true,
     [CBG_50_ENABLED]: true,
     [CBG_MEDIAN_ENABLED]: true,
