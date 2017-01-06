@@ -23,8 +23,8 @@ import { mount } from 'enzyme';
 import { TrendsSVGContainer } from '../../../src/containers/trends/TrendsSVGContainer';
 
 import { MGDL_UNITS } from '../../../src/utils/constants';
-import BackgroundWithTargetRange
-  from '../../../src/components/trends/common/BackgroundWithTargetRange';
+import Background
+  from '../../../src/components/trends/common/Background';
 import CBGSlicesAnimationContainer
   from '../../../src/containers/trends/CBGSlicesAnimationContainer';
 import SMBGRangeAvgAnimationContainer
@@ -110,8 +110,8 @@ describe('TrendsSVGContainer', () => {
       wrapper = mount(<TrendsSVGContainer {...props} />);
     });
 
-    it('should render a BackgroundWithTargetRange', () => {
-      expect(wrapper.find(BackgroundWithTargetRange)).to.have.length(1);
+    it('should render a Background', () => {
+      expect(wrapper.find(Background)).to.have.length(1);
     });
 
     it('should render a XAxisLabels', () => {

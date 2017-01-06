@@ -45,7 +45,7 @@ import _ from 'lodash';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
-import BackgroundWithTargetRange from '../../components/trends/common/BackgroundWithTargetRange';
+import Background from '../../components/trends/common/Background';
 import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
 import SMBGsByDateContainer from './SMBGsByDateContainer';
 import SMBGRangeAvgAnimationContainer from './SMBGRangeAvgAnimationContainer';
@@ -186,14 +186,12 @@ export class TrendsSVGContainer extends React.Component {
     const { containerHeight: height, containerWidth: width } = this.props;
     return (
       <svg height={height} width={width}>
-        <BackgroundWithTargetRange
-          bgBounds={this.props.bgBounds}
+        <Background
           linesAtThreeHrs
           margins={this.props.margins}
           smbgOpts={this.props.smbgOpts}
           svgDimensions={{ height, width }}
           xScale={this.props.xScale}
-          yScale={this.props.yScale}
         />
         <XAxisLabels
           margins={this.props.margins}

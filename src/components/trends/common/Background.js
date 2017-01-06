@@ -21,12 +21,13 @@ import React, { PropTypes } from 'react';
 
 import * as datetime from '../../../utils/datetime';
 
-import styles from './BackgroundWithTargetRange.css';
+import styles from './Background.css';
 
-const BackgroundWithTargetRange = (props) => {
-  const { bgBounds, data, margins, svgDimensions, xScale, yScale } = props;
+const Background = (props) => {
+  const { data, margins, svgDimensions, xScale } = props;
 
   const width = svgDimensions.width - margins.left - margins.right;
+  const height = svgDimensions.height - margins.top - margins.bottom;
 
   const lines = props.linesAtThreeHrs ? _.map(data, (val, i) => (
     <line
@@ -42,43 +43,23 @@ const BackgroundWithTargetRange = (props) => {
   return (
     <g id="background">
       <rect
-        className={styles.nonTargetBackground}
+        className={styles.background}
         x={margins.left}
         y={margins.top}
         width={width}
-        height={yScale(bgBounds.targetUpperBound) - margins.top}
-      />
-      <rect
-        className={styles.targetBackground}
-        x={margins.left}
-        y={yScale(bgBounds.targetUpperBound)}
-        width={width}
-        height={yScale(bgBounds.targetLowerBound) - yScale(bgBounds.targetUpperBound)}
-      />
-      <rect
-        className={styles.nonTargetBackground}
-        x={margins.left}
-        y={yScale(bgBounds.targetLowerBound)}
-        width={width}
-        height={svgDimensions.height - margins.bottom - yScale(bgBounds.targetLowerBound)}
+        height={height}
       />
       {lines}
     </g>
   );
 };
 
-BackgroundWithTargetRange.defaultProps = {
+Background.defaultProps = {
   data: _.map(range(1, 8), (i) => (i * datetime.THREE_HRS)),
   linesAtThreeHrs: false,
 };
 
-BackgroundWithTargetRange.propTypes = {
-  bgBounds: PropTypes.shape({
-    veryHighThreshold: PropTypes.number.isRequired,
-    targetUpperBound: PropTypes.number.isRequired,
-    targetLowerBound: PropTypes.number.isRequired,
-    veryLowThreshold: PropTypes.number.isRequired,
-  }).isRequired,
+Background.propTypes = {
   data: PropTypes.arrayOf(PropTypes.number.isRequired).isRequired,
   linesAtThreeHrs: PropTypes.bool.isRequired,
   margins: PropTypes.shape({
@@ -92,7 +73,6 @@ BackgroundWithTargetRange.propTypes = {
     height: PropTypes.number.isRequired,
   }).isRequired,
   xScale: PropTypes.func.isRequired,
-  yScale: PropTypes.func.isRequired,
 };
 
-export default BackgroundWithTargetRange;
+export default Background;
