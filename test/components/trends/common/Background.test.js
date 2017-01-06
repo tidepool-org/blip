@@ -32,12 +32,12 @@ import SVGContainer from '../../../helpers/SVGContainer';
 
 import { TWENTY_FOUR_HRS } from '../../../../src/utils/datetime';
 
-import BackgroundWithTargetRange
-  from '../../../../src/components/trends/common/BackgroundWithTargetRange';
+import Background
+  from '../../../../src/components/trends/common/Background';
 import styles
-  from '../../../../src/components/trends/common/BackgroundWithTargetRange.css';
+  from '../../../../src/components/trends/common/Background.css';
 
-describe('BackgroundWithTargetRange', () => {
+describe('Background', () => {
   let wrapper;
   const props = {
     bgBounds: {
@@ -63,29 +63,14 @@ describe('BackgroundWithTargetRange', () => {
   before(() => {
     wrapper = mount(
       <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-        <BackgroundWithTargetRange {...props} />
+        <Background {...props} />
       </SVGContainer>
     );
   });
 
-  it('should render two rects above and below target range', () => {
-    const nonTargetRects = wrapper.find(formatClassesAsSelector(styles.nonTargetBackground));
-    expect(nonTargetRects).to.have.length(2);
-    // Enzyme forEach cannot be replaced by _.forEach
-    // eslint-disable-next-line lodash/prefer-lodash-method
-    nonTargetRects.forEach((rect) => {
-      expect(rect.is('rect')).to.be.true;
-    });
-  });
-
-  it('should render one rect for the target range', () => {
-    const { bgBounds: { targetUpperBound, targetLowerBound } } = props;
-    const targetRect = wrapper.find(formatClassesAsSelector(styles.targetBackground));
-    expect(targetRect).to.have.length(1);
-    expect(targetRect.is('rect')).to.be.true;
-    expect(targetRect.prop('y')).to.equal(yScale(targetUpperBound));
-    const expectedHeight = yScale(targetLowerBound) - yScale(targetUpperBound);
-    expect(targetRect.prop('height')).to.equal(expectedHeight);
+  it('should render one rect for the chart background', () => {
+    expect(wrapper.find('rect').length).to.equal(1);
+    expect(wrapper.find('rect').hasClass((styles.background))).to.be.true;
   });
 
   it('should NOT render 3-hr dividing lines by default', () => {
@@ -99,7 +84,7 @@ describe('BackgroundWithTargetRange', () => {
     before(() => {
       withLinesWrapper = mount(
         <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <BackgroundWithTargetRange {...props} linesAtThreeHrs />
+          <Background {...props} linesAtThreeHrs />
         </SVGContainer>
       );
     });

@@ -15,15 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-.nonTargetBackground {
-  fill: var(--bkgrnd-darkest);
-}
-
-.targetBackground {
-  fill: var(--bkgrnd-dark);
+.background {
+  fill: var(--bkgrnd);
 }
 
 .threeHrLine {
-  stroke: white;
+  stroke: var(--bkgrnd-lines);
   stroke-width: 1px;
 }
