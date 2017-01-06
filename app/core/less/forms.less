@@ -33,6 +33,26 @@ label,
 @form-control-border-color:  @gray-light;
 @form-control-height:        (2*@line-height-base);
 
+.form-control-border {
+  border: @form-control-border-size solid fade(@form-control-border-color, 50%);
+  border-radius: 0px;
+
+  &:hover {
+    border-color: @purple-light;
+  }
+
+  &:focus {
+    // Disable default WebKit focus style
+    outline: 0;
+    border-color: @purple-medium;
+  }
+
+  &:disabled {
+    border-color: fade(@form-control-border-color, 70%);
+    cursor: not-allowed;
+  }
+}
+
 .form-control {
   display: block;
   width: 100%;

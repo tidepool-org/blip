@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014, Tidepool Project
+ * Copyright (c) 2017, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -13,18 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@import "less/variables.less";
-@import "less/mixins.less";
-@import "less/fonts.less";
-
-@import "less/normalize.less";
-
-@import "less/containers.less";
-@import "less/scaffolding.less";
-@import "less/select.less";
-@import "less/forms.less";
-@import "less/buttons.less";
-@import "less/nav.less";
-@import "less/lists.less";
-@import "less/grid.less";
-@import "less/icons.less";
+module.exports = require('./peopleselect');

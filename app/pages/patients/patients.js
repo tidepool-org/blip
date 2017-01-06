@@ -28,6 +28,7 @@ import config from '../../config';
 
 import personUtils from '../../core/personutils';
 import PeopleList from '../../components/peoplelist';
+import PeopleSelect from '../../components/peopleselect';
 import Invitation from '../../components/invitation';
 import BrowserWarning from '../../components/browserwarning';
 
@@ -209,9 +210,8 @@ export let Patients = React.createClass({
         <div className="patients-section-content">
           {addDataStorage}
           <div className='clear'></div>
-          <PeopleList
+          <PeopleSelect
             people={patients}
-            uploadUrl={this.props.uploadUrl}
             onClickPerson={this.handleClickPatient}
             onRemovePatient= {this.props.onRemovePatient}
             trackMetric={this.props.trackMetric} />
