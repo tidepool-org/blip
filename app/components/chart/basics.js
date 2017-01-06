@@ -37,6 +37,7 @@ var Basics = React.createClass({
     chartPrefs: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
+    patientSettings: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
@@ -45,6 +46,7 @@ var Basics = React.createClass({
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
+    updateBasicsSettings: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
@@ -95,8 +97,10 @@ var Basics = React.createClass({
           bgUnits={this.props.bgPrefs.bgUnits}
           onSelectDay={this.handleSelectDay}
           patientData={this.props.patientData}
+          patientSettings={this.props.patientSettings}
           timePrefs={this.props.timePrefs}
           updateBasicsData={this.props.updateBasicsData}
+          updateBasicsSettings={this.props.updateBasicsSettings}
           ref="chart"
           trackMetric={this.props.trackMetric} />
       </div>
