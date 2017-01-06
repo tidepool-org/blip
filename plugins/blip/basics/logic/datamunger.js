@@ -174,10 +174,11 @@ module.exports = function(bgClasses) {
         averageDailyCarbs: sumCarbs/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
       };
     },
-    infusionSiteHistory: function(basicsData) {
-      var infusionSitesPerDay = basicsData.data.reservoirChange.dataByDate;
+    infusionSiteHistory: function(basicsData, type) {
+      var infusionSitesPerDay = basicsData.data[type].dataByDate;
       var allDays = basicsData.days;
       var infusionSiteHistory = {};
+      var hasChangeHistory = false;
       // daysSince does *not* start at zero because we have to look back to the
       // most recent infusion site change prior to the basics-restricted time domain
       var priorSiteChange = _.findLast(_.keys(infusionSitesPerDay), function(date) {
@@ -198,12 +199,14 @@ module.exports = function(bgClasses) {
               daysSince: daysSince
             };
             daysSince = 0;
+            hasChangeHistory = true;
           }
           else {
             infusionSiteHistory[day.date] = {type: constants.NO_SITE_CHANGE};
           }
         }
       });
+      infusionSiteHistory.hasChangeHistory = hasChangeHistory;
       return infusionSiteHistory;
     },
     _buildCrossfilterUtils: function(dataObj, type) {
@@ -348,7 +351,7 @@ module.exports = function(bgClasses) {
 
       for (var type in basicsData.data) {
         var typeObj = basicsData.data[type];
-        if (_.includes(['basal', 'bolus', 'reservoirChange'], type)) {
+        if (_.includes(['basal', 'bolus', 'reservoirChange', 'tubingPrime', 'cannulaPrime'], type)) {
           typeObj.cf = crossfilter(typeObj.data);
           this._buildCrossfilterUtils(typeObj, type);
         }

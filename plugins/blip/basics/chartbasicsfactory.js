@@ -31,6 +31,7 @@ var debug = bows('Basics Chart');
 var basicsState = require('./logic/state');
 var basicsActions = require('./logic/actions');
 var dataMungerMkr = require('./logic/datamunger');
+var constants = require('./logic/constants');
 
 var Section = require('./components/DashboardSection');
 var togglableState = require('./TogglableState');
@@ -43,14 +44,16 @@ var BasicsChart = React.createClass({
     bgUnits: React.PropTypes.string.isRequired,
     onSelectDay: React.PropTypes.func.isRequired,
     patientData: React.PropTypes.object.isRequired,
+    patientSettings: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
+    updateBasicsSettings: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
   },
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
-    if (_.isEmpty(basicsData.data.reservoirChange.data)) {
+    if (_.isEmpty(basicsData.data.reservoirChange.data) || _.isEmpty(basicsData.data.cannulaPrime.data) || _.isEmpty(basicsData.data.tubingPrime.data)) {
       var siteChangeSection = _.find(basicsData.sections, function(section) {
-        return section.type === 'reservoirChange';
+        return section.type === constants.SITE_CHANGE_RESERVOIR || section.type === constants.SITE_CHANGE_CANNULA || section.type === constants.SITE_CHANGE_TUBING;
       });
       siteChangeSection.active = false;
     }
@@ -89,7 +92,47 @@ var BasicsChart = React.createClass({
       basicsData = _.assign({}, basicsData, _.cloneDeep(basicsState));
       var dataMunger = dataMungerMkr(this.props.bgClasses);
       dataMunger.reduceByDay(basicsData);
-      basicsData.data.reservoirChange.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData);
+
+      // get site changes from three event types
+      basicsData.data.cannulaPrime.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
+      basicsData.data.tubingPrime.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
+      basicsData.data.reservoirChange.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData, constants.SITE_CHANGE_RESERVOIR);
+
+      var siteChangeEvents = [];
+
+      if (basicsData.data.tubingPrime.infusionSiteHistory.hasChangeHistory) {
+        siteChangeEvents.push(_.last(_.findLast(basicsData.data.tubingPrime.infusionSiteHistory, {type: constants.SITE_CHANGE}).data));
+      }
+      if (basicsData.data.cannulaPrime.infusionSiteHistory.hasChangeHistory) {
+        siteChangeEvents.push(_.last(_.findLast(basicsData.data.cannulaPrime.infusionSiteHistory, {type: constants.SITE_CHANGE}).data));
+      }
+      if (basicsData.data.reservoirChange.infusionSiteHistory.hasChangeHistory) {
+        siteChangeEvents.push(_.last(_.findLast(basicsData.data.reservoirChange.infusionSiteHistory, {type: constants.SITE_CHANGE}).data));
+      }
+
+      if (siteChangeEvents.length) {
+        // get latest pump upload:
+        var latestPump = _.last(_.sortBy(siteChangeEvents, 'time')).source;
+
+        // if latest pump is Animas, Medtronic, or Tandem, set site change to tubing or cannula (based on preference) or prompt for preference
+        if (latestPump === constants.ANIMAS || latestPump === constants.MEDTRONIC || latestPump === constants.TANDEM) {
+          if (this.props.patientSettings && this.props.patientSettings.siteChangeSource) {
+            basicsData.sections.siteChanges.type = this.props.patientSettings.siteChangeSource;
+            basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, this.props.patientSettings.siteChangeSource);
+          }
+          else {
+            basicsData.sections.siteChanges.type = constants.TYPE_UNDECLARED;
+            basicsData.sections.siteChanges.settingsTogglable = togglableState.open;
+          }
+        }
+        // if latest pump is OmniPod (or unsupported), set site changes to reservoirChange and hide options
+        else {
+          basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;
+          basicsData.sections.siteChanges.selector = null;
+          basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
+        }
+      }
+
       basicsData.data.bgDistribution = dataMunger.bgDistribution(basicsData);
       var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData);
       basicsData.data.basalBolusRatio = basalBolusStats.basalBolusRatio;
@@ -149,6 +192,8 @@ var BasicsChart = React.createClass({
           togglable={section.togglable}
           section={section}
           title={section.title}
+          settingsTogglable={section.settingsTogglable}
+          updateBasicsSettings={self.props.updateBasicsSettings}
           timezone={tz}
           trackMetric={self.props.trackMetric} />
       );

@@ -25,14 +25,16 @@ var NoChange = require('../sitechange/NoChange');
 var SiteChange = React.createClass({
   propTypes: {
     data: React.PropTypes.object.isRequired,
-    date: React.PropTypes.string.isRequired
+    date: React.PropTypes.string.isRequired,
+    subtotalType: React.PropTypes.string,
   },
   render: function() {
+    var type = this.props.subtotalType || constants.SITE_CHANGE_RESERVOIR;
     var value = this.getValue();
     value.count = value.count || 1; //default value
     var siteChangeComponent = 
       ( value.type === constants.SITE_CHANGE) ?
-        <Change daysSince={value.daysSince} count={value.count} /> :
+        <Change daysSince={value.daysSince} count={value.count} type={type} /> :
         <NoChange />;
     return (
       <div className='SiteChange'>

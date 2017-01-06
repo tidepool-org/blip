@@ -6,5 +6,13 @@ module.exports = {
   NO_CGM: 'noCGM',
   NO_SITE_CHANGE: 'noSiteChange',
   NOT_ENOUGH_CGM: 'notEnoughCGM',
-  SITE_CHANGE: 'siteChange'
+  SITE_CHANGE: 'siteChange',
+  SITE_CHANGE_RESERVOIR: 'reservoirChange',
+  SITE_CHANGE_TUBING: 'tubingPrime',
+  SITE_CHANGE_CANNULA: 'cannulaPrime',
+  TYPE_UNDECLARED: 'undeclared',
+  OMNIPOD: 'OmniPod',
+  TANDEM: 'Tandem',
+  ANIMAS: 'Animas',
+  MEDTRONIC: 'Medtronic',
 };

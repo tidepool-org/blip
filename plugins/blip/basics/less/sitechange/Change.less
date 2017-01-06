@@ -66,6 +66,20 @@
     left: @infusion-line-end-width - 2;
   }
 
+  &.Change--cannula .Change-line-stop {
+    background-image: url(../../components/sitechange/sitechange_cannula.png);
+  }
+
+  &.Change--tubing .Change-line-stop {
+    background-image: url(../../components/sitechange/sitechange_tubing.png);
+  }
+
+  &.Change--reservoir .Change-line-stop {
+    height: @infusion-line-stop-size + 9;
+    top: @infusion-line-y-base - (@infusion-line-stop-size/2) - 4;
+    background-image: url(../../components/sitechange/sitechange_omnipod.png);
+  }
+
   .Change-line-mark {
     top: @infusion-line-y-base - (@infusion-line-mark-size/2);
     border-radius: @infusion-line-mark-size/2;

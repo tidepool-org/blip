@@ -1,0 +1,39 @@
+.SiteChangeSelector {
+  margin-bottom: 15px;
+
+  .SiteChangeSelector-option {
+    display: inline-block;
+    margin-left: 10px;
+    margin-right: 10px;
+
+    input {
+      margin-right: 5px;
+    }
+
+    &::after {
+      display: block;
+      width: 20px;
+      height: 25px;
+      margin-left: 10px;
+      float: right;
+      content: "";
+      background-color: transparent;
+      background-size: 20px;
+      background-repeat: no-repeat;
+      background-position: top right;
+      opacity: 0.6;
+    }
+
+    &.SiteChangeSelector-option--selected::after {
+      opacity: 1;
+    }
+
+    &.SiteChangeSelector-option--cannula::after {
+      background-image: url(../../components/sitechange/sitechange_cannula.png);
+    }
+
+    &.SiteChangeSelector-option--tubing::after {
+      background-image: url(../../components/sitechange/sitechange_tubing.png);
+    }
+  }
+}

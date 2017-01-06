@@ -65,9 +65,11 @@ var DashboardSection = React.createClass({
             sectionId={section.id}
             selector={section.selector}
             selectorOptions={section.selectorOptions}
+            settingsTogglable={this.props.settingsTogglable}
             timezone={this.props.timezone}
             type={section.type}
             trackMetric={this.props.trackMetric}
+            updateBasicsSettings={this.props.updateBasicsSettings}
             title={section.title} />
         );
       }
@@ -88,6 +90,14 @@ var DashboardSection = React.createClass({
           title={this.props.title} />
       );
     }
+
+    var settingsToggle;
+    if (this.props.settingsTogglable !== togglableState.off) {
+      settingsToggle = (
+        <i className="icon-settings icon--toggle" onClick={this.handleToggleSettings}/>
+      );
+    }
+
     var iconClass = cx({
       'icon-down': this.props.togglable === togglableState.open,
       'icon-right': this.props.togglable === togglableState.closed
@@ -113,6 +123,7 @@ var DashboardSection = React.createClass({
       titleContainer = (
         <h3 className={headerClasses} onClick={this.handleToggleSection}>{this.props.title}
           <i className={iconClass}/>
+          {settingsToggle}
         </h3>
       );
     }
@@ -135,7 +146,13 @@ var DashboardSection = React.createClass({
     if (this.props.togglable !== togglableState.off) {
       basicsActions.toggleSection(this.props.name, this.props.trackMetric);
     }
-  }
+  },
+  handleToggleSettings: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    basicsActions.toggleSectionSettings(this.props.name, this.props.trackMetric);
+  },
 });
 
 module.exports = DashboardSection;

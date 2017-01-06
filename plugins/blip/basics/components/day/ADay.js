@@ -52,7 +52,7 @@ var ADay = React.createClass({
       return;
     }
     // We do not want a hover effect on infusion site days that were not site changes
-    if (this.isAReservoirChange() && !this.isASiteChangeDay()) {
+    if (!this.isASiteChangeDay()) {
       return;
     }
     this.props.onHover(this.props.date);

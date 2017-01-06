@@ -28,6 +28,9 @@ var BasicsUtils = require('./BasicsUtils');
 var ADay = require('./day/ADay');
 var HoverDay = require('./day/HoverDay');
 
+var constants = require('../logic/constants');
+var togglableState = require('../TogglableState');
+
 var CalendarContainer = React.createClass({
   mixins: [BasicsUtils],
   propTypes: {
@@ -42,6 +45,11 @@ var CalendarContainer = React.createClass({
     sectionId: React.PropTypes.string.isRequired,
     selector: React.PropTypes.func,
     selectorOptions: React.PropTypes.object,
+    settingsTogglable: React.PropTypes.oneOf([
+      togglableState.open,
+      togglableState.closed,
+      togglableState.off,
+    ]).isRequired,
     timezone: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -76,12 +84,16 @@ var CalendarContainer = React.createClass({
       'Calendar-container': true
     });
 
-    var days = this.renderDays();
-    var dayLabels = this.renderDayLabels();
+    var days;
+    var dayLabels;
+    if (this.props.type !== constants.TYPE_UNDECLARED) {
+      days = this.renderDays();
+      dayLabels = this.renderDayLabels();
+    }
 
     var selector = null;
 
-    if (this.props.selector && this.props.selectorOptions) {
+    if (this.props.selector && this.props.selectorOptions && this.props.settingsTogglable !== togglableState.closed) {
       selector = this.renderSelector();
     }
 
@@ -101,9 +113,10 @@ var CalendarContainer = React.createClass({
     return this.props.selector({
       bgClasses: this.props.bgClasses,
       bgUnits: this.props.bgUnits,
-      data: this.props.data[this.props.type].summary,
+      data: (this.props.type !== constants.TYPE_UNDECLARED) ? this.props.data[this.props.type].summary : null,
       selectedSubtotal: this._getSelectedSubtotal(),
       selectorOptions: this.props.selectorOptions,
+      updateBasicsSettings: this.props.updateBasicsSettings,
       sectionId: this.props.sectionId,
       trackMetric: this.props.trackMetric,
     });

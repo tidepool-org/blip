@@ -21,6 +21,7 @@ var React = require('react');
 var BasicContainer = require('../components/BasicContainer');
 var CalendarContainer = require('../components/CalendarContainer');
 var SummaryGroup = React.createFactory(require('../components/misc/SummaryGroup'));
+var SiteChangeSelector = React.createFactory(require('../components/sitechange/Selector'));
 var DailyDoseTitle = React.createFactory(require('../components/misc/DailyDoseTitle'));
 
 var BasalBolusRatio = React.createFactory(require('../components/chart/BasalBolusRatio'));
@@ -58,6 +59,7 @@ var basicsState = {
           ]
         ]
       },
+      settingsTogglable: togglableState.off,
       title: 'Basals',
       type: 'basal'
     },
@@ -107,6 +109,7 @@ var basicsState = {
           ]
         ]
       },
+      settingsTogglable: togglableState.off,
       title: 'Bolusing',
       type: 'bolus'
     },
@@ -134,6 +137,7 @@ var basicsState = {
           ]
         ]
       },
+      settingsTogglable: togglableState.off,
       title: 'BG readings',
       type: 'fingerstick'
     },
@@ -148,6 +152,17 @@ var basicsState = {
       index: 3,
       noDataMessage: 'Infusion site changes are not yet available for all pumps. Coming soon!',
       togglable: togglableState.off,
+      selector: SiteChangeSelector,
+      selectorOptions: {
+        primary: { key: 'reservoirChange', label: 'Reservoir Change' },
+        rows: [
+          [
+            { key: 'tubingPrime', label: 'Tube Primes' },
+            { key: 'cannulaPrime', label: 'Cannula Fills' }
+          ]
+        ]
+      },
+      settingsTogglable: togglableState.closed,
       title: 'Infusion site changes',
       type: 'reservoirChange'
     },

@@ -505,6 +505,9 @@ function TidelineData(data, opts) {
           if (d.subType === 'reservoirChange') {
             return true;
           }
+          if (d.subType === 'prime') {
+            return true;
+          }
           return false;
         case 'wizard':
           return true;
@@ -557,6 +560,18 @@ function TidelineData(data, opts) {
             this.grouped[aType] || [],
             function(d) {
               return d.subType === 'reservoirChange';
+            }
+          )};
+          this.basicsData.data.cannulaPrime = {data: _.filter(
+            this.grouped[aType] || [],
+            function(d) {
+              return (d.subType === 'prime') && (d.primeTarget === 'cannula');
+            }
+          )};
+          this.basicsData.data.tubingPrime = {data: _.filter(
+            this.grouped[aType] || [],
+            function(d) {
+              return (d.subType === 'prime') && (d.primeTarget === 'tubing');
             }
           )};
           this.basicsData.data.calibration = {data: _.filter(

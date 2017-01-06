@@ -44,6 +44,39 @@ basicsActions.toggleSection = function(sectionName, metricsFunc) {
   this.app.setState({sections: sections});
 };
 
+basicsActions.toggleSectionSettings = function(sectionName, metricsFunc) {
+  var sections = _.cloneDeep(this.app.state.sections);
+  if (sections[sectionName].settingsTogglable === togglableState.closed) {
+    sections[sectionName].settingsTogglable = togglableState.open;
+    metricsFunc(sections[sectionName].id + ' settings was opened');
+  }
+  else {
+    sections[sectionName].settingsTogglable = togglableState.closed;
+    metricsFunc(sections[sectionName].id + ' settings was closed');
+  }
+  this.app.setState({sections: sections});
+};
+
+basicsActions.setSiteChangeEvent = function(sectionName, selectedKey, selectedLabel, metricsFunc, updateBasicsSettingsFunc) {
+  var sections = _.cloneDeep(this.app.state.sections);
+  var selectorOptions = sections[sectionName].selectorOptions;
+  selectorOptions = clearSelected(selectorOptions);
+  sections[sectionName].selectorOptions = basicsActions.setSelected(selectorOptions, selectedKey);
+  sections.siteChanges.type = selectedKey;
+
+  metricsFunc('Selected ' + selectedLabel);
+
+  updateBasicsSettingsFunc({
+    profile: {
+      settings: {
+        siteChangeSource: selectedKey
+      }
+    }
+  });
+
+  this.app.setState({sections: sections});
+};
+
 basicsActions.selectSubtotal = function(sectionName, selectedKey, metricsFunc) {
   var sections = _.cloneDeep(this.app.state.sections);
   var selectorOptions = sections[sectionName].selectorOptions;
@@ -51,7 +84,7 @@ basicsActions.selectSubtotal = function(sectionName, selectedKey, metricsFunc) {
   metricsFunc('filtered on ' + selectedKey);
 
   selectorOptions = clearSelected(selectorOptions);
-  sections[sectionName].selectorOptions = setSelected(selectorOptions, selectedKey);
+  sections[sectionName].selectorOptions = basicsActions.setSelected(selectorOptions, selectedKey);
   this.app.setState({sections: sections});
 };
 
@@ -72,7 +105,7 @@ function clearSelected(opts) {
   return opts;
 }
 
-function setSelected(opts, selectedKey) {
+basicsActions.setSelected = function(opts, selectedKey) {
   if (selectedKey === opts.primary.key) {
     opts.primary.selected = true;
   } else {
@@ -87,6 +120,6 @@ function setSelected(opts, selectedKey) {
   }
 
   return opts;
-}
+};
 
 module.exports = basicsActions;
