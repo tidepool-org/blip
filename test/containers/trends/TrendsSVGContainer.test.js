@@ -25,8 +25,8 @@ import bgBounds from '../../helpers/bgBounds';
 import { TrendsSVGContainer } from '../../../src/containers/trends/TrendsSVGContainer';
 
 import { MGDL_UNITS } from '../../../src/utils/constants';
-import BackgroundWithTargetRange
-  from '../../../src/components/trends/common/BackgroundWithTargetRange';
+import Background
+  from '../../../src/components/trends/common/Background';
 import CBGSlicesContainer
   from '../../../src/containers/trends/CBGSlicesContainer';
 import SMBGRangeAvgAnimationContainer
@@ -109,8 +109,8 @@ describe('TrendsSVGContainer', () => {
       wrapper = shallow(<TrendsSVGContainer {...props} />);
     });
 
-    it('should render a BackgroundWithTargetRange', () => {
-      expect(wrapper.find(BackgroundWithTargetRange)).to.have.length(1);
+    it('should render a Background', () => {
+      expect(wrapper.find(Background)).to.have.length(1);
     });
 
     it('should render a XAxisLabels', () => {

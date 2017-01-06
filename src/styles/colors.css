@@ -31,14 +31,10 @@
   --cbg-trends-segment--80: #D0D0D0;
   --cbg-trends-segment--50: #BCBCBC;
 
-  --axis-tick: #B9C8D0;
+  --axis-tick: #E7E7E7;
 
-  --bkgrnd-darkest: #D3DBDD;
-  --bkgrnd-darker: #DCE4E7;
-  --bkgrnd-dark: #E3EAED;
-  --bkgrnd-light: #F2F4F6;
-  --bkgrnd-lighter: #E9EFF1;
-  --bkgrnd-lightest: #F8F9FA;
+  --bkgrnd: #F8F8F8;
+  --bkgrnd-lines: #E7E7E7;
 
   --tooltip-title-bg: #EAEAEE;
 
