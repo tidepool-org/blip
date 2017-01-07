@@ -204,7 +204,9 @@ class CBGSliceAnimated extends Component {
             [segment.height]: segment.key === 'median' ?
               spring(medianHeight) :
               spring(yScale(datum[segment.heightKeys[0]]) - yScale(datum[segment.heightKeys[1]])),
-            [segment.y]: spring(yScale(datum[segment.y])),
+            [segment.y]: segment.key === 'median' ?
+              spring(yScale(datum.median) - medianHeight / 2) :
+              spring(yScale(datum[segment.y])),
           },
         })) : []}
         willEnter={this.willEnter}
