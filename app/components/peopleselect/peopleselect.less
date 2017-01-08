@@ -13,6 +13,9 @@
 * not, you can obtain one from Tidepool Project at tidepool.org.
 */
 
+@import '../../core/less/forms.less';
+@import '../../../node_modules/react-select/less/select.less';
+
 .wrap {
   display: flex;
   flex-direction: row;
@@ -78,7 +81,31 @@
 }
 
 .Select {
-  composes: Select from '../../core/select.less';
+
+  // mixin overrides
+  .Select-focus-state(@color) {
+    box-shadow: none;
+  }
+  .Select-focus-state-classic() {
+    box-shadow: none;
+  }
+
+  .Select-control {
+    // for hover, focus and disabled styles
+    .form-control-border()
+  }
+
+  .is-open > .Select-control {
+    border-color: @purple-medium;
+  }
+
+  // disabled option cursor override
+  .Select-option {
+    &.is-disabled {
+      cursor: not-allowed;
+    }
+  }
+
   :global .Select-control {
     height: 50px;
   }
@@ -131,4 +158,12 @@
     height: 28px;
   }
 }
+
+@select-primary-color:             @purple-medium;
+@select-input-bg-disabled:         @gray-background;
+@select-input-border-color:        fade(@form-control-border-color, 50%);
+@select-input-border-radius:       0px;
+@select-input-border-width:        @form-control-border-size;
+@select-input-height:              @form-control-height;
+@select-input-internal-height:     @form-control-height;
 
