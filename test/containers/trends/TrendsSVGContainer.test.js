@@ -29,8 +29,8 @@ import Background
   from '../../../src/components/trends/common/Background';
 import CBGSlicesContainer
   from '../../../src/containers/trends/CBGSlicesContainer';
-import SMBGRangeAvgAnimationContainer
-  from '../../../src/containers/trends/SMBGRangeAvgAnimationContainer';
+import SMBGRangeAvgContainer
+  from '../../../src/containers/trends/SMBGRangeAvgContainer';
 import NoData from '../../../src/components/trends/common/NoData';
 import TargetRangeLines from '../../../src/components/trends/common/TargetRangeLines';
 import XAxisLabels from '../../../src/components/trends/common/XAxisLabels';
@@ -143,8 +143,8 @@ describe('TrendsSVGContainer', () => {
       });
 
       describe('when showingSmbg is false', () => {
-        it('should not render an SMBGRangeAvgAnimationContainer', () => {
-          expect(wrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(0);
+        it('should not render an SMBGRangeAvgContainer', () => {
+          expect(wrapper.find(SMBGRangeAvgContainer)).to.have.length(0);
         });
       });
 
@@ -158,22 +158,22 @@ describe('TrendsSVGContainer', () => {
 
     describe('showing BGM data', () => {
       describe('when smbgRangeOverlay is true', () => {
-        it('should render an SMBGRangeAvgAnimationContainer each for average and range', () => {
+        it('should render an SMBGRangeAvgContainer each for average and range', () => {
           const smbgRangeProps = _.assign(
             {}, props, { showingSmbg: true, smbgRangeOverlay: true }
           );
           const smbgRangeWrapper = shallow(<TrendsSVGContainer {...smbgRangeProps} />);
-          expect(smbgRangeWrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(2);
+          expect(smbgRangeWrapper.find(SMBGRangeAvgContainer)).to.have.length(2);
         });
       });
 
       describe('when smbgRangeOverlay is false', () => {
-        it('should not render an SMBGRangeAvgAnimationContainer', () => {
+        it('should not render an SMBGRangeAvgContainer', () => {
           const smbgRangeProps = _.assign(
             {}, props, { showingSmbg: true, smbgRangeOverlay: false }
           );
           const smbgRangeWrapper = shallow(<TrendsSVGContainer {...smbgRangeProps} />);
-          expect(smbgRangeWrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(0);
+          expect(smbgRangeWrapper.find(SMBGRangeAvgContainer)).to.have.length(0);
         });
       });
 
@@ -182,7 +182,7 @@ describe('TrendsSVGContainer', () => {
           const noCbgProps = _.assign({}, props, { showingCbg: false, showingSmbg: true });
           const noCbgWrapper = shallow(<TrendsSVGContainer {...noCbgProps} />);
           expect(noCbgWrapper.find(CBGSlicesContainer)).to.have.length(0);
-          expect(noCbgWrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(2);
+          expect(noCbgWrapper.find(SMBGRangeAvgContainer)).to.have.length(2);
         });
       });
 

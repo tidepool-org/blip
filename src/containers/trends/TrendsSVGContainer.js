@@ -48,7 +48,7 @@ import { THREE_HRS } from '../../utils/datetime';
 import Background from '../../components/trends/common/Background';
 import CBGSlicesContainer from './CBGSlicesContainer';
 import SMBGsByDateContainer from './SMBGsByDateContainer';
-import SMBGRangeAvgAnimationContainer from './SMBGRangeAvgAnimationContainer';
+import SMBGRangeAvgContainer from './SMBGRangeAvgContainer';
 import SMBGAvg from '../../components/trends/smbg/SMBGAvg';
 import SMBGRange from '../../components/trends/smbg/SMBGRange';
 
@@ -92,7 +92,7 @@ export class TrendsSVGContainer extends React.Component {
   renderOverlay(smbgComponent, componentKey) {
     if (this.props.smbgRangeOverlay) {
       return (
-        <SMBGRangeAvgAnimationContainer
+        <SMBGRangeAvgContainer
           data={this.props.smbgData}
           focus={this.props.focusRange}
           key={componentKey}
