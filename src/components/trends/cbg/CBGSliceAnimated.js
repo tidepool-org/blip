@@ -130,8 +130,8 @@ class CBGSliceAnimated extends Component {
     const medianClasses = cx({
       [styles.median]: true,
       [styles.medianTransparent]: isFocused,
-      [styles[classifyBgValue(bgBounds, datum.median)]]: !isFocused,
-    });
+      // you can mix and match objects and params that are string classnames with cx/classnames
+    }, ((datum.median && !isFocused) ? styles[classifyBgValue(bgBounds, datum.median)] : null));
 
     const renderPieces = {
       top10: {

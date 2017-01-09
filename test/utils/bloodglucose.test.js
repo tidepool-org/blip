@@ -53,6 +53,33 @@ describe('blood glucose utilities', () => {
       );
     });
 
+    it('should error if no `bgValue` or non-numerical `bgValue`', () => {
+      const fn0 = () => { bgUtils.classifyBgValue(bgBounds); };
+      expect(fn0).to.throw(
+        'You must provide a positive, numerical blood glucose value to categorize!'
+      );
+      const fn1 = () => { bgUtils.classifyBgValue(bgBounds, null); };
+      expect(fn1).to.throw(
+        'You must provide a positive, numerical blood glucose value to categorize!'
+      );
+      const fn2 = () => { bgUtils.classifyBgValue(bgBounds, undefined); };
+      expect(fn2).to.throw(
+        'You must provide a positive, numerical blood glucose value to categorize!'
+      );
+      const fn3 = () => { bgUtils.classifyBgValue(bgBounds, {}); };
+      expect(fn3).to.throw(
+        'You must provide a positive, numerical blood glucose value to categorize!'
+      );
+      const fn4 = () => { bgUtils.classifyBgValue(bgBounds, -100); };
+      expect(fn4).to.throw(
+        'You must provide a positive, numerical blood glucose value to categorize!'
+      );
+      const fn5 = () => { bgUtils.classifyBgValue(bgBounds, 4.4); };
+      expect(fn5).to.not.throw;
+      const fn6 = () => { bgUtils.classifyBgValue(bgBounds, 100); };
+      expect(fn6).to.not.throw;
+    });
+
     it('should return `low` for a value < the `targetLowerBound`', () => {
       expect(bgUtils.classifyBgValue(bgBounds, 69)).to.equal('low');
     });

@@ -32,6 +32,9 @@ export function classifyBgValue(bgBounds, bgValue) {
       'You must provide a `bgBounds` object with a `targetLowerBound` and a `targetUpperBound`!'
     );
   }
+  if (!_.isNumber(bgValue) || !_.gt(bgValue, 0)) {
+    throw new Error('You must provide a positive, numerical blood glucose value to categorize!');
+  }
   const { targetLowerBound, targetUpperBound } = bgBounds;
   if (bgValue < targetLowerBound) {
     return 'low';
