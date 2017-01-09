@@ -87,7 +87,6 @@ describe('CBGSliceAnimated', () => {
     });
 
     it('should vertically center the median rect on the value', () => {
-      const medianRect = wrapper.find('rect').last();
       const slice = wrapper.find(CBGSliceAnimated);
       expect(wrapper.find(TransitionMotion).prop('styles')[5].style.median.val)
         .to.equal(yScale(slice.prop('datum').median) - slice.prop('medianHeight') / 2);
