@@ -26,12 +26,12 @@ const {
 } = scales.trends;
 
 import { THREE_HRS } from '../../../src/utils/datetime';
-import SMBGRangeAvgAnimationContainer
-  from '../../../src/containers/trends/SMBGRangeAvgAnimationContainer';
+import SMBGRangeAvgContainer
+  from '../../../src/containers/trends/SMBGRangeAvgContainer';
 import SMBGAvg
   from '../../../src/components/trends/smbg/SMBGAvg';
 
-describe('SMBGRangeAvgAnimationContainer', () => {
+describe('SMBGRangeAvgContainer', () => {
   let wrapper;
 
   // six-hour bins for testing
@@ -50,20 +50,54 @@ describe('SMBGRangeAvgAnimationContainer', () => {
   };
 
   before(() => {
-    wrapper = mount(<SMBGRangeAvgAnimationContainer {...props} />);
+    wrapper = mount(<SMBGRangeAvgContainer {...props} />);
   });
 
   describe('componentWillMount', () => {
     it('sets mungedData in state', () => {
-      sinon.spy(SMBGRangeAvgAnimationContainer.prototype, 'componentWillMount');
-      sinon.spy(SMBGRangeAvgAnimationContainer.prototype, 'setState');
-      expect(SMBGRangeAvgAnimationContainer.prototype.componentWillMount.callCount).to.equal(0);
-      expect(SMBGRangeAvgAnimationContainer.prototype.setState.callCount).to.equal(0);
-      mount(<SMBGRangeAvgAnimationContainer {...props} />);
-      expect(SMBGRangeAvgAnimationContainer.prototype.componentWillMount.callCount).to.equal(1);
-      expect(SMBGRangeAvgAnimationContainer.prototype.setState.callCount).to.equal(1);
-      expect(SMBGRangeAvgAnimationContainer.prototype.setState.firstCall.args[0])
-        .to.deep.equal({ mungedData: [] });
+      sinon.spy(SMBGRangeAvgContainer.prototype, 'componentWillMount');
+      sinon.spy(SMBGRangeAvgContainer.prototype, 'setState');
+      expect(SMBGRangeAvgContainer.prototype.componentWillMount.callCount).to.equal(0);
+      expect(SMBGRangeAvgContainer.prototype.setState.callCount).to.equal(0);
+      mount(<SMBGRangeAvgContainer {...props} />);
+      expect(SMBGRangeAvgContainer.prototype.componentWillMount.callCount).to.equal(1);
+      expect(SMBGRangeAvgContainer.prototype.setState.callCount).to.equal(1);
+      expect(SMBGRangeAvgContainer.prototype.setState.firstCall.args[0])
+        .to.deep.equal({ mungedData:
+          [{
+            id: '10800000',
+            max: undefined,
+            mean: undefined,
+            min: undefined,
+            msX: 10800000,
+            msFrom: 0,
+            msTo: 21600000,
+          }, {
+            id: '32400000',
+            max: undefined,
+            mean: undefined,
+            min: undefined,
+            msX: 32400000,
+            msFrom: 21600000,
+            msTo: 43200000,
+          }, {
+            id: '54000000',
+            max: undefined,
+            mean: undefined,
+            min: undefined,
+            msX: 54000000,
+            msFrom: 43200000,
+            msTo: 64800000,
+          }, {
+            id: '75600000',
+            max: undefined,
+            mean: undefined,
+            min: undefined,
+            msX: 75600000,
+            msFrom: 64800000,
+            msTo: 86400000,
+          }],
+      });
     });
   });
 
@@ -93,8 +127,8 @@ describe('SMBGRangeAvgAnimationContainer', () => {
   });
 
   describe('render', () => {
-    it('renders a <g> with id #smbgRangeAvgAnimationContainer', () => {
-      expect(wrapper.find('#smbgRangeAvgAnimationContainer').length).to.equal(1);
+    it('renders a <g> with id #smbgAggContainer-SMBGAvgs', () => {
+      expect(wrapper.find('#smbgAggContainer-SMBGAvgs').length).to.equal(1);
     });
   });
 });
