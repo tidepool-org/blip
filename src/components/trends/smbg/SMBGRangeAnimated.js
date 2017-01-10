@@ -36,9 +36,9 @@ export class SMBGRangeAnimated extends Component {
     }).isRequired,
     datum: PropTypes.shape({
       id: PropTypes.string.isRequired,
-      max: PropTypes.number.isRequired,
-      mean: PropTypes.number.isRequired,
-      min: PropTypes.number.isRequired,
+      max: PropTypes.number,
+      mean: PropTypes.number,
+      min: PropTypes.number,
       msX: PropTypes.number.isRequired,
       msFrom: PropTypes.number.isRequired,
       msTo: PropTypes.number.isRequired,

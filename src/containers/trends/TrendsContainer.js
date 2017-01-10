@@ -166,6 +166,7 @@ export class TrendsContainer extends React.Component {
       currentSmbgData: [],
       dateDomain: null,
       mostRecent: null,
+      previousDateDomain: null,
       xScale: null,
       yScale: null,
     };
@@ -239,7 +240,7 @@ export class TrendsContainer extends React.Component {
     ).toISOString();
   }
 
-  setExtent(newDomain) {
+  setExtent(newDomain, oldDomain) {
     const { cbgByDate, smbgByDate } = this.props;
     const { mostRecent } = this.state;
     this.refilterByDate(cbgByDate, newDomain);
@@ -248,6 +249,7 @@ export class TrendsContainer extends React.Component {
       currentCbgData: cbgByDate.top(Infinity).reverse(),
       currentSmbgData: smbgByDate.top(Infinity).reverse(),
       dateDomain: { start: newDomain[0], end: newDomain[1] },
+      previousDateDomain: oldDomain || null,
     });
     this.props.onDatetimeLocationChange(newDomain, newDomain[1] >= mostRecent);
   }
@@ -257,6 +259,7 @@ export class TrendsContainer extends React.Component {
   }
 
   goBack() {
+    const oldDomain = _.clone(this.state.dateDomain);
     const { dateDomain: { start: newEnd } } = this.state;
     const { timePrefs } = this.props;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
@@ -266,14 +269,15 @@ export class TrendsContainer extends React.Component {
       units: 'days',
     }).toISOString();
     const newDomain = [start, newEnd];
-    this.setExtent(newDomain);
+    this.setExtent(newDomain, oldDomain);
   }
 
   goForward() {
+    const oldDomain = _.clone(this.state.dateDomain);
     const { dateDomain: { end: newStart } } = this.state;
     const end = utcDay.offset(new Date(newStart), this.props.extentSize).toISOString();
     const newDomain = [newStart, end];
-    this.setExtent(newDomain);
+    this.setExtent(newDomain, oldDomain);
   }
 
   goToMostRecent() {
@@ -325,7 +329,18 @@ export class TrendsContainer extends React.Component {
 
   render() {
     const timezone = datetime.getTimezoneFromTimePrefs(this.props.timePrefs);
-    const { start, end } = this.state.dateDomain;
+    const { start: currentStart, end: currentEnd } = this.state.dateDomain;
+    const prevStart = _.get(this.state, ['previousDateDomain', 'start']);
+    const prevEnd = _.get(this.state, ['previousDateDomain', 'end']);
+    let start = currentStart;
+    let end = currentEnd;
+    if (prevStart && prevEnd) {
+      if (currentStart < prevStart) {
+        end = prevEnd;
+      } else if (prevStart < currentStart) {
+        start = prevStart;
+      }
+    }
     return (
       <TrendsSVGContainer
         bgBounds={this.props.bgBounds}

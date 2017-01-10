@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -28,130 +28,159 @@ import withDefaultYPosition from '../common/withDefaultYPosition';
 
 import styles from './SMBGDatePointsAnimated.css';
 
-export const SMBGDatePointsAnimated = (props) => {
-  const {
-    bgBounds,
-    data,
-    date,
-    defaultY,
-    focusSmbg,
-    grouped,
-    isFocused,
-    nonInteractive,
-    onSelectDay,
-    smbgOpts,
-    tooltipLeftThreshold,
-    unfocusSmbg,
-    xScale,
-    yScale,
-  } = props;
-  const radius = isFocused ? smbgOpts.maxR : smbgOpts.r;
-  const xPosition = (msPer24) => {
-    if (grouped) {
-      return xScale(findBinForTimeOfDay(THREE_HRS, msPer24));
-    }
-    return xScale(msPer24);
+export class SMBGDatePointsAnimated extends Component {
+  static defaultProps = {
+    radiusAnimationConfig: { stiffness: 60, damping: 15 },
   };
-  const positions = _.map(data, (smbg) => ({
-    left: xPosition(smbg.msPer24),
-    top: yScale(smbg.value),
-    tooltipLeft: smbg.msPer24 > tooltipLeftThreshold,
-  }));
 
-  return (
-    <TransitionMotion
-      defaultStyles={(data.length || !nonInteractive) ? _.map(data, (smbg, i) => {
-        const position = positions[i];
-        return {
-          key: smbg.id,
-          style: {
-            cx: position.left,
-            cy: defaultY,
-            r: 0,
-          },
-        };
-      }) : []}
-      styles={data.length ? _.map(data, (smbg, i) => {
-        const position = positions[i];
-        return {
-          key: smbg.id,
-          data: {
-            classes: cx({
-              [styles.smbg]: !isFocused,
-              [styles.solid]: isFocused,
-              [styles[classifyBgValue(bgBounds, smbg.value)]]: true,
-            }),
-            position,
-            smbg,
-          },
-          style: {
-            cx: spring(position.left),
-            cy: spring(position.top),
-            // slow down the radius animation a bit
-            r: spring(radius, { stiffness: 60, damping: 15 }),
-          },
-        };
-      }) : []}
-    >
-      {(interpolateds) => {
-        if (interpolateds.length === 0) {
-          return null;
-        }
-        return (
-          <g id={`smbgDatePoints-${date}`}>
-            {_.map(interpolateds, (smbg) => {
-              const { key, style } = smbg;
-              return (
-                <circle
-                  className={smbg.data.classes}
-                  id={`smbg-${key}`}
-                  key={key}
-                  onMouseOver={
-                    () => focusSmbg(smbg.data.smbg, smbg.data.position, data, positions, date)
-                  }
-                  onMouseOut={unfocusSmbg}
-                  onClick={() => onSelectDay(date)}
-                  cx={style.cx}
-                  cy={style.cy}
-                  r={style.r}
-                  pointerEvents={nonInteractive ? 'none' : 'all'}
-                />
-              );
-            })}
-          </g>
-        );
-      }}
-    </TransitionMotion>
-  );
-};
+  static propTypes = {
+    bgBounds: PropTypes.shape({
+      veryHighThreshold: PropTypes.number.isRequired,
+      targetUpperBound: PropTypes.number.isRequired,
+      targetLowerBound: PropTypes.number.isRequired,
+      veryLowThreshold: PropTypes.number.isRequired,
+    }).isRequired,
+    data: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      msPer24: PropTypes.number.isRequired,
+      value: PropTypes.number.isRequired,
+    })).isRequired,
+    date: PropTypes.string.isRequired,
+    defaultY: PropTypes.number.isRequired,
+    focusSmbg: PropTypes.func.isRequired,
+    grouped: PropTypes.bool.isRequired,
+    isFocused: PropTypes.bool.isRequired,
+    nonInteractive: PropTypes.bool,
+    onSelectDay: PropTypes.func.isRequired,
+    radiusAnimationConfig: PropTypes.shape({
+      stiffness: PropTypes.number.isRequired,
+      damping: PropTypes.number.isRequired,
+    }).isRequired,
+    smbgOpts: PropTypes.shape({
+      maxR: PropTypes.number.isRequired,
+      r: PropTypes.number.isRequired,
+    }).isRequired,
+    tooltipLeftThreshold: PropTypes.number.isRequired,
+    unfocusSmbg: PropTypes.func.isRequired,
+    xScale: PropTypes.func.isRequired,
+    yScale: PropTypes.func.isRequired,
+  };
 
-SMBGDatePointsAnimated.propTypes = {
-  bgBounds: PropTypes.shape({
-    veryHighThreshold: PropTypes.number.isRequired,
-    targetUpperBound: PropTypes.number.isRequired,
-    targetLowerBound: PropTypes.number.isRequired,
-    veryLowThreshold: PropTypes.number.isRequired,
-  }).isRequired,
-  data: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    msPer24: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired,
-  })).isRequired,
-  date: PropTypes.string.isRequired,
-  defaultY: PropTypes.number.isRequired,
-  focusSmbg: PropTypes.func.isRequired,
-  grouped: PropTypes.bool.isRequired,
-  isFocused: PropTypes.bool.isRequired,
-  nonInteractive: PropTypes.bool,
-  onSelectDay: PropTypes.func.isRequired,
-  smbgOpts: PropTypes.shape({
-    maxR: PropTypes.number.isRequired,
-    r: PropTypes.number.isRequired,
-  }).isRequired,
-  tooltipLeftThreshold: PropTypes.number.isRequired,
-  unfocusSmbg: PropTypes.func.isRequired,
-  xScale: PropTypes.func.isRequired,
-  yScale: PropTypes.func.isRequired,
-};
+  constructor(props) {
+    super(props);
+    this.willLeave = this.willLeave.bind(this);
+  }
+
+  willLeave(exited) {
+    const { style } = exited;
+    const { defaultY, radiusAnimationConfig } = this.props;
+    return {
+      cx: style.cx,
+      cy: spring(defaultY),
+      // slow down the radius animation a bit
+      r: spring(0, radiusAnimationConfig),
+    };
+  }
+
+
+  render() {
+    const {
+      bgBounds,
+      data,
+      date,
+      defaultY,
+      focusSmbg,
+      grouped,
+      isFocused,
+      nonInteractive,
+      onSelectDay,
+      radiusAnimationConfig,
+      smbgOpts,
+      tooltipLeftThreshold,
+      unfocusSmbg,
+      xScale,
+      yScale,
+    } = this.props;
+    const radius = isFocused ? smbgOpts.maxR : smbgOpts.r;
+    const xPosition = (msPer24) => {
+      if (grouped) {
+        return xScale(findBinForTimeOfDay(THREE_HRS, msPer24));
+      }
+      return xScale(msPer24);
+    };
+    const positions = _.map(data, (smbg) => ({
+      left: xPosition(smbg.msPer24),
+      top: yScale(smbg.value),
+      tooltipLeft: smbg.msPer24 > tooltipLeftThreshold,
+    }));
+
+    return (
+      <TransitionMotion
+        defaultStyles={(data.length || !nonInteractive) ? _.map(data, (smbg, i) => {
+          const position = positions[i];
+          return {
+            key: smbg.id,
+            style: {
+              cx: position.left,
+              cy: defaultY,
+              r: 0,
+            },
+          };
+        }) : []}
+        styles={data.length ? _.map(data, (smbg, i) => {
+          const position = positions[i];
+          return {
+            key: smbg.id,
+            data: {
+              classes: cx({
+                [styles.smbg]: !isFocused,
+                [styles.solid]: isFocused,
+                [styles[classifyBgValue(bgBounds, smbg.value)]]: true,
+              }),
+              position,
+              smbg,
+            },
+            style: {
+              cx: spring(position.left),
+              cy: spring(position.top),
+              // slow down the radius animation a bit
+              r: spring(radius, radiusAnimationConfig),
+            },
+          };
+        }) : []}
+        willLeave={this.willLeave}
+      >
+        {(interpolateds) => {
+          if (interpolateds.length === 0) {
+            return null;
+          }
+          return (
+            <g id={`smbgDatePoints-${date}`}>
+              {_.map(interpolateds, (smbg) => {
+                const { key, style } = smbg;
+                return (
+                  <circle
+                    className={smbg.data.classes}
+                    id={`smbg-${key}`}
+                    key={key}
+                    onMouseOver={
+                      () => focusSmbg(smbg.data.smbg, smbg.data.position, data, positions, date)
+                    }
+                    onMouseOut={unfocusSmbg}
+                    onClick={() => onSelectDay(date)}
+                    cx={style.cx}
+                    cy={style.cy}
+                    r={style.r}
+                    pointerEvents={nonInteractive ? 'none' : 'all'}
+                  />
+                );
+              })}
+            </g>
+          );
+        }}
+      </TransitionMotion>
+    );
+  }
+}
 
 export default withDefaultYPosition(SMBGDatePointsAnimated);
