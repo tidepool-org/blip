@@ -18,7 +18,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
-import SMBGDayPointsAnimated from '../../components/trends/smbg/SMBGDayPointsAnimated';
+import SMBGDatePointsAnimated from '../../components/trends/smbg/SMBGDatePointsAnimated';
 import SMBGDayLineAnimated from '../../components/trends/smbg/SMBGDayLineAnimated';
 
 const SMBGsByDateContainer = (props) => {
@@ -27,19 +27,29 @@ const SMBGsByDateContainer = (props) => {
     return null;
   }
 
-  const { xScale,
-    yScale,
-    grouped,
-    lines,
+  const {
+    bgBounds,
     focusedSmbg,
     focusSmbg,
-    unfocusSmbg,
+    grouped,
+    lines,
+    nonInteractive,
+    onSelectDay,
     smbgOpts,
     tooltipLeftThreshold,
-    onSelectDay,
-    nonInteractive } = props;
+    unfocusSmbg,
+    xScale,
+    yScale,
+  } = props;
+
+
   const focusedDay = focusedSmbg ? focusedSmbg.date : '';
   const smbgsByDate = _.groupBy(data, 'localDate');
+  _.each(props.dates, (date) => {
+    if (!smbgsByDate[date]) {
+      smbgsByDate[date] = [];
+    }
+  });
 
   function getLines() {
     if (!lines) {
@@ -82,20 +92,21 @@ const SMBGsByDateContainer = (props) => {
 
   function getPoints() {
     return _.map(smbgsByDate, (smbgs, date) => (
-      <SMBGDayPointsAnimated
-        key={date}
-        date={date}
-        focusedDay={focusedDay}
+      <SMBGDatePointsAnimated
+        bgBounds={bgBounds}
         data={smbgs}
-        xScale={xScale}
-        yScale={yScale}
+        date={date}
         focusSmbg={focusSmbg}
-        unfocusSmbg={unfocusSmbg}
-        onSelectDay={onSelectDay}
         grouped={grouped}
+        isFocused={focusedDay === date}
+        key={date}
+        nonInteractive={nonInteractive}
+        onSelectDay={onSelectDay}
         smbgOpts={smbgOpts}
         tooltipLeftThreshold={tooltipLeftThreshold}
-        nonInteractive={nonInteractive}
+        unfocusSmbg={unfocusSmbg}
+        xScale={xScale}
+        yScale={yScale}
       />
     ));
   }
@@ -109,6 +120,12 @@ const SMBGsByDateContainer = (props) => {
 };
 
 SMBGsByDateContainer.propTypes = {
+  bgBounds: PropTypes.shape({
+    veryHighThreshold: PropTypes.number.isRequired,
+    targetUpperBound: PropTypes.number.isRequired,
+    targetLowerBound: PropTypes.number.isRequired,
+    veryLowThreshold: PropTypes.number.isRequired,
+  }).isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
     // here only documenting the properties we actually use rather than the *whole* data model!
     id: PropTypes.string.isRequired,
@@ -116,42 +133,37 @@ SMBGsByDateContainer.propTypes = {
     msPer24: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
   })).isRequired,
-  grouped: PropTypes.bool.isRequired,
-  lines: PropTypes.bool.isRequired,
-  tooltipLeftThreshold: PropTypes.number.isRequired,
+  dates: PropTypes.arrayOf(PropTypes.string).isRequired,
   focusedSmbg: PropTypes.shape({
-    dayPoints: PropTypes.arrayOf(PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      msPer24: PropTypes.number.isRequired,
-      value: PropTypes.number.isRequired,
-      localDate: PropTypes.string.isRequired,
-    })).isRequired,
-    smbgData: PropTypes.shape({
-      value: PropTypes.number.isRequired,
-    }),
-    smbgPosition: PropTypes.shape({
+    allPositions: PropTypes.arrayOf(PropTypes.shape({
       top: PropTypes.number.isRequired,
       left: PropTypes.number.isRequired,
-    }),
+    })),
+    allSmbgsOnDate: PropTypes.arrayOf(PropTypes.shape({
+      value: PropTypes.number.isRequired,
+    })),
     date: PropTypes.string.isRequired,
-    smbgDay: PropTypes.arrayOf(PropTypes.shape({
+    datum: PropTypes.shape({
       value: PropTypes.number.isRequired,
-    })),
-    smbgPositions: PropTypes.arrayOf(PropTypes.shape({
+    }),
+    position: PropTypes.shape({
       top: PropTypes.number.isRequired,
       left: PropTypes.number.isRequired,
-    })),
+    }),
   }),
   focusSmbg: PropTypes.func.isRequired,
+  grouped: PropTypes.bool.isRequired,
+  lines: PropTypes.bool.isRequired,
+  nonInteractive: PropTypes.bool,
   onSelectDay: PropTypes.func.isRequired,
   smbgOpts: PropTypes.shape({
     maxR: PropTypes.number.isRequired,
     r: PropTypes.number.isRequired,
   }).isRequired,
+  tooltipLeftThreshold: PropTypes.number.isRequired,
   unfocusSmbg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
-  nonInteractive: PropTypes.bool,
 };
 
 export default SMBGsByDateContainer;

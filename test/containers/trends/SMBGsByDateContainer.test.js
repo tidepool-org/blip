@@ -22,6 +22,7 @@ import { mount } from 'enzyme';
 
 import { THREE_HRS } from '../../../src/utils/datetime';
 
+import bgBounds from '../../helpers/bgBounds';
 import * as scales from '../../helpers/scales';
 const {
   trendsXScale: xScale,
@@ -35,6 +36,7 @@ describe('SMBGsByDateContainer', () => {
   let wrapper;
 
   const props = {
+    bgBounds,
     data: [
       { id: '0', value: 120, msPer24: 0, localDate: '2016-08-28' },
       { id: '1', value: 90, msPer24: 9000000, localDate: '2016-08-28' },

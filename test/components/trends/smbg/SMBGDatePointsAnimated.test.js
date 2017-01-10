@@ -17,11 +17,13 @@
 
 import _ from 'lodash';
 import React from 'react';
+import { TransitionMotion } from 'react-motion';
 
 import { mount } from 'enzyme';
 
 import { THREE_HRS } from '../../../../src/utils/datetime';
 
+import bgBounds from '../../../helpers/bgBounds';
 import * as scales from '../../../helpers/scales';
 const {
   trendsHeight,
@@ -31,9 +33,9 @@ const {
 } = scales.trends;
 
 import SVGContainer from '../../../helpers/SVGContainer';
-import SMBGDayPointsAnimated from '../../../../src/components/trends/smbg/SMBGDayPointsAnimated';
+import SMBGDatePointsAnimated from '../../../../src/components/trends/smbg/SMBGDatePointsAnimated';
 
-describe('SMBGDayPointsAnimated', () => {
+describe('SMBGDatePointsAnimated', () => {
   let wrapper;
   const focusSmbg = sinon.spy();
   const unfocusSmbg = sinon.spy();
@@ -52,6 +54,7 @@ describe('SMBGDayPointsAnimated', () => {
   };
 
   const props = {
+    bgBounds,
     date,
     data,
     xScale,
@@ -67,31 +70,34 @@ describe('SMBGDayPointsAnimated', () => {
   before(() => {
     wrapper = mount(
       <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-        <SMBGDayPointsAnimated {...props} />
+        <SMBGDatePointsAnimated {...props} />
       </SVGContainer>
     );
   });
 
-  describe('when no data is provided', () => {
+  describe('when an empty array of data is provided', () => {
     let noDataWrapper;
     before(() => {
-      const noDataProps = _.omit(props, 'data');
+      const noDataProps = _.assign({}, props, { data: [] });
 
       noDataWrapper = mount(
         <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <SMBGDayPointsAnimated {...noDataProps} />
+          <SMBGDatePointsAnimated {...noDataProps} />
         </SVGContainer>
       );
     });
 
-    it('should render nothing', () => {
-      expect(noDataWrapper.find(`#smbgDayPoints-${date}`).length).to.equal(0);
+    it('should render a TransitionMotion component but no <g> or <circle>s', () => {
+      expect(noDataWrapper.find(TransitionMotion).length).to.equal(1);
+      expect(noDataWrapper.find(`#smbgDatePoints-${date}`).length).to.equal(0);
+      expect(noDataWrapper.find('g').length).to.equal(0);
+      expect(noDataWrapper.find('circle').length).to.equal(0);
     });
   });
 
-  describe('when a data is provided', () => {
-    it('should render a smbgDayPoints <circle>', () => {
-      expect(wrapper.find(`#smbgDayPoints-${date} circle`).length).to.equal(3);
+  describe('when data is provided', () => {
+    it('should render the appropriate number of smbgDatePoints <circle>s', () => {
+      expect(wrapper.find(`#smbgDatePoints-${date} circle`).length).to.equal(3);
     });
   });
 
@@ -118,11 +124,11 @@ describe('SMBGDayPointsAnimated', () => {
       expect(unfocusSmbg.callCount).to.equal(1);
     });
 
-    it('should call onSelectDay on double click of smbg circle', () => {
+    it('should call onSelectDay on click of smbg circle', () => {
       const smbgCircle = wrapper
         .find(`#smbg-${data[0].id}`);
       expect(onSelectDay.callCount).to.equal(0);
-      smbgCircle.simulate('doubleClick');
+      smbgCircle.simulate('click');
       expect(onSelectDay.callCount).to.equal(1);
     });
   });

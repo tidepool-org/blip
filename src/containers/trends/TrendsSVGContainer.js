@@ -128,20 +128,22 @@ export class TrendsSVGContainer extends React.Component {
   }
 
   renderSmbg() {
-    if (this.props.showingSmbg && !_.isEmpty(this.props.smbgData)) {
+    if (this.props.showingSmbg) {
       const days = (
         <SMBGsByDateContainer
-          key="smbgDaysContainer"
+          bgBounds={this.props.bgBounds}
           data={this.props.smbgData}
-          xScale={this.props.xScale}
-          yScale={this.props.yScale}
+          dates={this.props.dates}
           focusSmbg={this.props.focusSmbg}
-          unfocusSmbg={this.props.unfocusSmbg}
-          lines={this.props.smbgLines}
           grouped={this.props.smbgGrouped}
+          key="smbgDaysContainer"
+          lines={this.props.smbgLines}
           onSelectDay={this.props.onSelectDay}
           smbgOpts={this.props.smbgOpts}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+          unfocusSmbg={this.props.unfocusSmbg}
+          xScale={this.props.xScale}
+          yScale={this.props.yScale}
         />
       );
       // Focused day will be rendered last, on top of everything else but flagged
@@ -149,19 +151,21 @@ export class TrendsSVGContainer extends React.Component {
       // rendered points and lines
       const focusedDay = this.props.focusedSmbg ? (
         <SMBGsByDateContainer
-          key="focusedSmbgDayContainer"
-          data={this.props.focusedSmbg.dayPoints}
-          xScale={this.props.xScale}
-          yScale={this.props.yScale}
+          bgBounds={this.props.bgBounds}
+          data={this.props.focusedSmbg.allSmbgsOnDate}
+          dates={[this.props.focusedSmbg.date]}
           focusedSmbg={this.props.focusedSmbg}
           focusSmbg={() => {}}
-          unfocusSmbg={() => {}}
-          lines={this.props.smbgLines}
           grouped={this.props.smbgGrouped}
+          key="focusedSmbgDayContainer"
+          lines={this.props.smbgLines}
+          nonInteractive
           onSelectDay={this.props.onSelectDay}
           smbgOpts={this.props.smbgOpts}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-          nonInteractive
+          unfocusSmbg={() => {}}
+          xScale={this.props.xScale}
+          yScale={this.props.yScale}
         />
       ) : null;
 
@@ -247,6 +251,7 @@ TrendsSVGContainer.propTypes = {
     msPer24: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
   })).isRequired,
+  dates: PropTypes.arrayOf(PropTypes.string).isRequired,
   displayFlags: PropTypes.shape({
     cbg100Enabled: PropTypes.bool.isRequired,
     cbg80Enabled: PropTypes.bool.isRequired,
@@ -278,21 +283,21 @@ TrendsSVGContainer.propTypes = {
     }).isRequired,
   }),
   focusedSmbg: PropTypes.shape({
-    data: PropTypes.shape({
+    allPositions: PropTypes.arrayOf(PropTypes.shape({
+      top: PropTypes.number.isRequired,
+      left: PropTypes.number.isRequired,
+    })),
+    allSmbgsOnDate: PropTypes.arrayOf(PropTypes.shape({
+      value: PropTypes.number.isRequired,
+    })),
+    date: PropTypes.string.isRequired,
+    datum: PropTypes.shape({
       value: PropTypes.number.isRequired,
     }),
     position: PropTypes.shape({
       top: PropTypes.number.isRequired,
       left: PropTypes.number.isRequired,
     }),
-    date: PropTypes.string.isRequired,
-    dayPoints: PropTypes.arrayOf(PropTypes.shape({
-      value: PropTypes.number.isRequired,
-    })),
-    positions: PropTypes.arrayOf(PropTypes.shape({
-      top: PropTypes.number.isRequired,
-      left: PropTypes.number.isRequired,
-    })),
   }),
   focusRange: PropTypes.func.isRequired,
   focusSmbg: PropTypes.func.isRequired,

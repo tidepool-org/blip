@@ -40,25 +40,25 @@ const FocusedSMBGPointLabel = (props) => {
 
   const {
     bgUnits,
-    focusedPoint: { data, position, dayPoints, positions },
+    focusedPoint: { datum, position, allSmbgsOnDate, allPositions },
     timePrefs,
     lines,
   } = props;
 
-  const parsedTime = getParsedTime(data, timePrefs);
+  const parsedTime = getParsedTime(datum, timePrefs);
   const lineDate = formatDisplayDate(parsedTime, timePrefs, 'dddd MMM D');
   const shortDate = formatDisplayDate(parsedTime, timePrefs, 'MMM D');
   const side = position.tooltipLeft ? 'left' : 'right';
   if (!lines) {
-    const focusedPointIndex = _.indexOf(dayPoints, data);
-    _.pullAt(dayPoints, focusedPointIndex);
-    _.pullAt(positions, focusedPointIndex);
+    const focusedPointIndex = _.indexOf(allSmbgsOnDate, datum);
+    _.pullAt(allSmbgsOnDate, focusedPointIndex);
+    _.pullAt(allPositions, focusedPointIndex);
   }
-  const pointTooltips = _.map(dayPoints, (smbg, i) => (
+  const pointTooltips = _.map(allSmbgsOnDate, (smbg, i) => (
     <Tooltip
       key={i}
       content={<span className={styles.number}>{displayBgValue(smbg.value, bgUnits)}</span>}
-      position={positions[i]}
+      position={allPositions[i]}
       side={'bottom'}
       tail={false}
       offset={{ top: SIMPLE_VALUE_TOP_OFFSET, left: 0 }}
@@ -82,12 +82,12 @@ const FocusedSMBGPointLabel = (props) => {
       <Tooltip
         title={<span className={styles.tipWrapper}>
           <span className={styles.shortDate}>{shortDate}</span>
-          <span className={styles.shortTime}>{millisecondsAsTimeOfDay(data.msPer24)}</span>
+          <span className={styles.shortTime}>{millisecondsAsTimeOfDay(datum.msPer24)}</span>
         </span>
         }
         content={<span className={styles.tipWrapper}>
-          <span className={styles.detailNumber}>{displayBgValue(data.value, bgUnits)}</span>
-          <span className={styles.subType}>{categorizeSmbgSubtype(data)}</span>
+          <span className={styles.detailNumber}>{displayBgValue(datum.value, bgUnits)}</span>
+          <span className={styles.subType}>{categorizeSmbgSubtype(datum)}</span>
         </span>
         }
         position={position}
@@ -110,25 +110,26 @@ const FocusedSMBGPointLabel = (props) => {
 FocusedSMBGPointLabel.propTypes = {
   bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   focusedPoint: PropTypes.shape({
-    data: PropTypes.shape({
+    allPositions: PropTypes.arrayOf(PropTypes.shape({
+      tooltipLeft: PropTypes.bool.isRequired,
+      top: PropTypes.number.isRequired,
+      left: PropTypes.number.isRequired,
+    })),
+    allSmbgsOnDate: PropTypes.arrayOf(PropTypes.shape({
+      value: PropTypes.number.isRequired,
+    })),
+    date: PropTypes.string.isRequired,
+    datum: PropTypes.shape({
       deviceTime: PropTypes.string,
       msPer24: PropTypes.number.isRequired,
       subType: PropTypes.string,
       time: PropTypes.string,
       value: PropTypes.number.isRequired,
-    }).isRequired,
-    dayPoints: PropTypes.arrayOf(PropTypes.shape({
-      value: PropTypes.number.isRequired,
-    })).isRequired,
+    }),
     position: PropTypes.shape({
-      left: PropTypes.number.isRequired,
       top: PropTypes.number.isRequired,
-    }).isRequired,
-    positions: PropTypes.arrayOf(PropTypes.shape({
-      tooltipLeft: PropTypes.bool.isRequired,
       left: PropTypes.number.isRequired,
-      top: PropTypes.number.isRequired,
-    })).isRequired,
+    }),
   }),
   grouped: React.PropTypes.bool.isRequired,
   lines: React.PropTypes.bool.isRequired,

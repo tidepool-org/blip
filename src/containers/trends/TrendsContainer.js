@@ -117,21 +117,21 @@ export class TrendsContainer extends React.Component {
         'thirdQuartile',
       ])),
       focusedSmbg: PropTypes.shape({
-        data: PropTypes.shape({
+        allPositions: PropTypes.arrayOf(PropTypes.shape({
+          top: PropTypes.number.isRequired,
+          left: PropTypes.number.isRequired,
+        })),
+        allSmbgsOnDate: PropTypes.arrayOf(PropTypes.shape({
+          value: PropTypes.number.isRequired,
+        })),
+        date: PropTypes.string.isRequired,
+        datum: PropTypes.shape({
           value: PropTypes.number.isRequired,
         }),
         position: PropTypes.shape({
           top: PropTypes.number.isRequired,
           left: PropTypes.number.isRequired,
         }),
-        date: PropTypes.string.isRequired,
-        dayPoints: PropTypes.arrayOf(PropTypes.shape({
-          value: PropTypes.number.isRequired,
-        })),
-        positions: PropTypes.arrayOf(PropTypes.shape({
-          top: PropTypes.number.isRequired,
-          left: PropTypes.number.isRequired,
-        })),
       }),
       touched: PropTypes.bool.isRequired,
       cbgFlags: PropTypes.shape({
@@ -324,12 +324,15 @@ export class TrendsContainer extends React.Component {
   }
 
   render() {
+    const timezone = datetime.getTimezoneFromTimePrefs(this.props.timePrefs);
+    const { start, end } = this.state.dateDomain;
     return (
       <TrendsSVGContainer
         bgBounds={this.props.bgBounds}
         bgUnits={this.props.bgUnits}
         smbgData={this.state.currentSmbgData}
         cbgData={this.state.currentCbgData}
+        dates={datetime.getAllDatesInRange(start, end, timezone)}
         focusedSlice={this.props.trendsState.focusedCbgSlice}
         focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
         focusedSmbg={this.props.trendsState.focusedSmbg}
