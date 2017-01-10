@@ -97,6 +97,24 @@ describe('[trends] data utils', () => {
       assert.isFunction(utils.calculateCbgStatsForBin);
     });
 
+    it('should produce result full of `undefined`s on empty values array', () => {
+      const emptyValsRes = utils.calculateCbgStatsForBin(binKey, binSize, []);
+      assert.isObject(emptyValsRes);
+      expect(emptyValsRes).to.deep.equal({
+        id: binKey,
+        min: undefined,
+        tenthQuantile: undefined,
+        firstQuartile: undefined,
+        median: undefined,
+        thirdQuartile: undefined,
+        ninetiethQuantile: undefined,
+        max: undefined,
+        msX: bin,
+        msFrom: 0,
+        msTo: bin * 2,
+      });
+    });
+
     it('should add the `binKey` as the `id` on the resulting object', () => {
       assert.isString(res.id);
       expect(res.id).to.equal(binKey);

@@ -18,15 +18,17 @@
 import _ from 'lodash';
 import React from 'react';
 
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
+
+import bgBounds from '../../helpers/bgBounds';
 
 import { TrendsSVGContainer } from '../../../src/containers/trends/TrendsSVGContainer';
 
 import { MGDL_UNITS } from '../../../src/utils/constants';
 import Background
   from '../../../src/components/trends/common/Background';
-import CBGSlicesAnimationContainer
-  from '../../../src/containers/trends/CBGSlicesAnimationContainer';
+import CBGSlicesContainer
+  from '../../../src/containers/trends/CBGSlicesContainer';
 import SMBGRangeAvgAnimationContainer
   from '../../../src/containers/trends/SMBGRangeAvgAnimationContainer';
 import NoData from '../../../src/components/trends/common/NoData';
@@ -43,19 +45,14 @@ function makeScale(scale) {
 
 describe('TrendsSVGContainer', () => {
   const props = {
-    bgBounds: {
-      veryHighThreshold: 300,
-      targetUpperBound: 180,
-      targetLowerBound: 80,
-      veryLowThreshold: 60,
-    },
+    bgBounds,
     bgUnits: MGDL_UNITS,
     // normally provided by react-dimensions wrapper but we test w/o that
     containerHeight: 520,
     // normally provided by react-dimensions wrapper but we test w/o that
     containerWidth: 960,
     cbgData: [{ id: 'a2b3c4', msPer24: 6000, value: 180 }],
-    smbgData: [{ id: 'a2b3c4', msPer24: 6000, value: 180 }],
+    smbgData: [{ id: 'a2b3c4', localDate: '2016-07-04', msPer24: 6000, value: 180 }],
     displayFlags: {
       cbg100Enabled: false,
       cbg80Enabled: true,
@@ -64,12 +61,17 @@ describe('TrendsSVGContainer', () => {
     },
     focusRange: () => {},
     focusSlice: () => {},
+    focusSmbg: () => {},
+    onSelectDay: () => {},
     showingCbg: true,
     showingSmbg: false,
+    smbgGrouped: true,
+    smbgLines: true,
     smbgRangeOverlay: true,
     timezone: 'UTC',
     unfocusRange: () => {},
     unfocusSlice: () => {},
+    unfocusSmbg: () => {},
     xScale: makeScale(() => {}),
     yScale: makeScale(() => {}),
   };
@@ -83,20 +85,17 @@ describe('TrendsSVGContainer', () => {
     it('should set the range of the xScale', () => {
       sinon.spy(TrendsSVGContainer.prototype, 'componentWillMount');
       expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(0);
-      mount(<TrendsSVGContainer {...props} />);
+      shallow(<TrendsSVGContainer {...props} />);
       expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(1);
-      expect(props.xScale.range.callCount).to.equal(3);
+      expect(props.xScale.range.callCount).to.equal(1);
       expect(props.xScale.range.firstCall.args[0]).to.deep.equal([48, 942]);
-      // called twice as getter in TargetRangeLines
-      expect(props.xScale.range.secondCall.args[0]).to.be.undefined;
-      expect(props.xScale.range.thirdCall.args[0]).to.be.undefined;
       TrendsSVGContainer.prototype.componentWillMount.restore();
     });
 
     it('should set the range of the yScale', () => {
       sinon.spy(TrendsSVGContainer.prototype, 'componentWillMount');
       expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(0);
-      mount(<TrendsSVGContainer {...props} />);
+      shallow(<TrendsSVGContainer {...props} />);
       expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(1);
       expect(props.yScale.range.callCount).to.equal(1);
       expect(props.yScale.range.firstCall.args[0]).to.deep.equal([480, 80]);
@@ -107,7 +106,7 @@ describe('TrendsSVGContainer', () => {
   describe('render', () => {
     let wrapper;
     before(() => {
-      wrapper = mount(<TrendsSVGContainer {...props} />);
+      wrapper = shallow(<TrendsSVGContainer {...props} />);
     });
 
     it('should render a Background', () => {
@@ -126,8 +125,8 @@ describe('TrendsSVGContainer', () => {
       expect(wrapper.find(YAxisLabelsAndTicks)).to.have.length(1);
     });
 
-    it('should render a CBGSlicesAnimationContainer', () => {
-      expect(wrapper.find(CBGSlicesAnimationContainer)).to.have.length(1);
+    it('should render a CBGSlicesContainer', () => {
+      expect(wrapper.find(CBGSlicesContainer)).to.have.length(1);
     });
 
     it('should render a TargetRangeLines', () => {
@@ -139,32 +138,31 @@ describe('TrendsSVGContainer', () => {
     });
 
     describe('showing CGM data', () => {
-      it('should render a CBGSlicesAnimationContainer', () => {
-        expect(wrapper.find(CBGSlicesAnimationContainer)).to.have.length(1);
+      it('should render a CBGSlicesContainer', () => {
+        expect(wrapper.find(CBGSlicesContainer)).to.have.length(1);
       });
 
       describe('when showingSmbg is false', () => {
         it('should not render an SMBGRangeAvgAnimationContainer', () => {
-          expect(wrapper.prop('showingSmbg')).to.be.false;
           expect(wrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(0);
         });
       });
+
       it('should render a no data message when there are no cbg values', () => {
         const noCBGDataProps = _.assign({}, props, { cbgData: [] });
-        const noDataWrapper = mount(<TrendsSVGContainer {...noCBGDataProps} />);
+        const noDataWrapper = shallow(<TrendsSVGContainer {...noCBGDataProps} />);
         expect(noDataWrapper.find(NoData)).to.have.length(1);
-        expect(noDataWrapper.find('text #noDataMsg').text())
-          .to.equal('There is no CGM data for this time period :(');
+        expect(noDataWrapper.find(NoData).prop('dataType')).to.equal('cbg');
       });
     });
 
     describe('showing BGM data', () => {
       describe('when smbgRangeOverlay is true', () => {
-        it('should render an SMBGRangeAvgAnimationContainer for average and range', () => {
+        it('should render an SMBGRangeAvgAnimationContainer each for average and range', () => {
           const smbgRangeProps = _.assign(
             {}, props, { showingSmbg: true, smbgRangeOverlay: true }
           );
-          const smbgRangeWrapper = mount(<TrendsSVGContainer {...smbgRangeProps} />);
+          const smbgRangeWrapper = shallow(<TrendsSVGContainer {...smbgRangeProps} />);
           expect(smbgRangeWrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(2);
         });
       });
@@ -174,26 +172,27 @@ describe('TrendsSVGContainer', () => {
           const smbgRangeProps = _.assign(
             {}, props, { showingSmbg: true, smbgRangeOverlay: false }
           );
-          const smbgRangeWrapper = mount(<TrendsSVGContainer {...smbgRangeProps} />);
+          const smbgRangeWrapper = shallow(<TrendsSVGContainer {...smbgRangeProps} />);
           expect(smbgRangeWrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(0);
         });
       });
 
       describe('when showingCbg is false', () => {
-        it('should not render a CBGSlicesAnimationContainer', () => {
+        it('should not render a CBGSlicesContainer', () => {
           const noCbgProps = _.assign({}, props, { showingCbg: false, showingSmbg: true });
-          const noCbgWrapper = mount(<TrendsSVGContainer {...noCbgProps} />);
-          expect(noCbgWrapper.prop('showingCbg')).to.be.false;
-          expect(noCbgWrapper.find(CBGSlicesAnimationContainer)).to.have.length(0);
+          const noCbgWrapper = shallow(<TrendsSVGContainer {...noCbgProps} />);
+          expect(noCbgWrapper.find(CBGSlicesContainer)).to.have.length(0);
           expect(noCbgWrapper.find(SMBGRangeAvgAnimationContainer)).to.have.length(2);
         });
       });
+
       it('should render a no data message when there are no smbg values', () => {
-        const noSMBGDataProps = _.assign({}, props, { showingSmbg: true, smbgData: [] });
-        const noDataWrapper = mount(<TrendsSVGContainer {...noSMBGDataProps} />);
+        const noSMBGDataProps = _.assign(
+          {}, props, { showingCbg: false, showingSmbg: true, smbgData: [] }
+        );
+        const noDataWrapper = shallow(<TrendsSVGContainer {...noSMBGDataProps} />);
         expect(noDataWrapper.find(NoData)).to.have.length(1);
-        expect(noDataWrapper.find('text #noDataMsg').text())
-          .to.equal('There is no fingerstick data for this time period :(');
+        expect(noDataWrapper.find(NoData).prop('dataType')).to.equal('smbg');
       });
     });
   });

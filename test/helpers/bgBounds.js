@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2016, Tidepool Project
+ * Copyright (c) 2017, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,17 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import * as constants from '../../src/utils/constants';
-
-describe('constants', () => {
-  describe('MMOLL_UNITS', () => {
-    it('should be mmol/L', () => {
-      expect(constants.MMOLL_UNITS).to.equal('mmol/L');
-    });
-  });
-  describe('MGDL_UNITS', () => {
-    it('should be mg/dL', () => {
-      expect(constants.MGDL_UNITS).to.equal('mg/dL');
-    });
-  });
-});
+export default {
+  veryHighThreshold: 300,
+  targetUpperBound: 180,
+  targetLowerBound: 70,
+  veryLowThreshold: 55,
+};

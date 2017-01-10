@@ -48,7 +48,7 @@ describe('trendsStateByUser', () => {
           focusedSmbgRangeAvg: null,
           touched: false,
           cbgFlags: {
-            cbg100Enabled: false,
+            cbg100Enabled: true,
             cbg80Enabled: true,
             cbg50Enabled: true,
             cbgMedianEnabled: true,
@@ -123,7 +123,7 @@ describe('trendsStateByUser', () => {
           focusedSmbgRangeAvg: null,
           touched: false,
           cbgFlags: {
-            cbg100Enabled: false,
+            cbg100Enabled: true,
             cbg80Enabled: true,
             cbg50Enabled: true,
             cbgMedianEnabled: true,

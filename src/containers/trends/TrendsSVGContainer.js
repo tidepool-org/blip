@@ -46,7 +46,7 @@ import _ from 'lodash';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
 import Background from '../../components/trends/common/Background';
-import CBGSlicesAnimationContainer from './CBGSlicesAnimationContainer';
+import CBGSlicesContainer from './CBGSlicesContainer';
 import SMBGsByDateContainer from './SMBGsByDateContainer';
 import SMBGRangeAvgAnimationContainer from './SMBGRangeAvgAnimationContainer';
 import SMBGAvg from '../../components/trends/smbg/SMBGAvg';
@@ -77,12 +77,16 @@ export class TrendsSVGContainer extends React.Component {
     const xPos = (width / 2) + margins.right;
     const yPos = (height / 2) + margins.bottom;
     const messagePosition = { x: xPos, y: yPos };
-    return (
-      <NoData
-        dataType={dataType}
-        position={messagePosition}
-      />
-    );
+    if ((this.props.showingCbg && _.isEmpty(this.props.cbgData)) ||
+      (this.props.showingSmbg && _.isEmpty(this.props.smbgData))) {
+      return (
+        <NoData
+          dataType={dataType}
+          position={messagePosition}
+        />
+      );
+    }
+    return null;
   }
 
   renderOverlay(smbgComponent, componentKey) {
@@ -105,20 +109,13 @@ export class TrendsSVGContainer extends React.Component {
 
   renderCbg() {
     if (this.props.showingCbg) {
-      if (_.isEmpty(this.props.cbgData)) {
-        return this.renderNoDataMessage('cbg');
-      }
-
-      const { containerHeight: height, containerWidth: width } = this.props;
-
       return (
-        <CBGSlicesAnimationContainer
+        <CBGSlicesContainer
+          bgBounds={this.props.bgBounds}
           data={this.props.cbgData}
-          focusedSlice={this.props.focusedSlice}
           displayFlags={this.props.displayFlags}
+          focusedSliceKey={_.get(this.props.focusedSlice, ['data', 'id'], null)}
           focusSlice={this.props.focusSlice}
-          margins={this.props.margins}
-          svgDimensions={{ height, width }}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
           unfocusSlice={this.props.unfocusSlice}
           xScale={this.props.xScale}
@@ -130,10 +127,7 @@ export class TrendsSVGContainer extends React.Component {
   }
 
   renderSmbg() {
-    if (this.props.showingSmbg) {
-      if (_.isEmpty(this.props.smbgData)) {
-        return this.renderNoDataMessage('smbg');
-      }
+    if (this.props.showingSmbg && !_.isEmpty(this.props.smbgData)) {
       const days = (
         <SMBGsByDateContainer
           key="smbgDaysContainer"
@@ -216,6 +210,7 @@ export class TrendsSVGContainer extends React.Component {
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
+        {this.renderNoDataMessage(this.props.showingCbg ? 'cbg' : 'smbg')}
       </svg>
     );
   }
@@ -241,6 +236,7 @@ TrendsSVGContainer.propTypes = {
   smbgData: PropTypes.arrayOf(PropTypes.shape({
     // here only documenting the properties we actually use rather than the *whole* data model!
     id: PropTypes.string.isRequired,
+    localDate: PropTypes.string.isRequired,
     msPer24: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
   })).isRequired,

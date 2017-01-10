@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2016, Tidepool Project
+ * Copyright (c) 2017, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import React from 'react';
 
 import { mount } from 'enzyme';
@@ -26,18 +27,21 @@ const {
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
+import bgBounds from '../../helpers/bgBounds';
 
-import { THREE_HRS } from '../../../src/utils/datetime';
-import CBGSlicesAnimationContainer
-  from '../../../src/containers/trends/CBGSlicesAnimationContainer';
+import { THREE_HRS, TWENTY_FOUR_HRS } from '../../../src/utils/datetime';
+import CBGSlicesContainer
+  from '../../../src/containers/trends/CBGSlicesContainer';
+import CBGSliceAnimated from '../../../src/components/trends/cbg/CBGSliceAnimated';
 
-describe('CBGSlicesAnimationContainer', () => {
+describe('CBGSlicesContainer', () => {
   let wrapper;
 
   // six-hour bins for testing
   const binSize = THREE_HRS * 2;
 
   const props = {
+    bgBounds,
     binSize,
     data: [],
     displayFlags: {},
@@ -51,20 +55,34 @@ describe('CBGSlicesAnimationContainer', () => {
   };
 
   before(() => {
-    wrapper = mount(<CBGSlicesAnimationContainer {...props} />);
+    wrapper = mount(<CBGSlicesContainer {...props} />);
   });
 
   describe('componentWillMount', () => {
     it('sets mungedData in state', () => {
-      sinon.spy(CBGSlicesAnimationContainer.prototype, 'componentWillMount');
-      sinon.spy(CBGSlicesAnimationContainer.prototype, 'setState');
-      expect(CBGSlicesAnimationContainer.prototype.componentWillMount.callCount).to.equal(0);
-      expect(CBGSlicesAnimationContainer.prototype.setState.callCount).to.equal(0);
-      mount(<CBGSlicesAnimationContainer {...props} />);
-      expect(CBGSlicesAnimationContainer.prototype.componentWillMount.callCount).to.equal(1);
-      expect(CBGSlicesAnimationContainer.prototype.setState.callCount).to.equal(1);
-      expect(CBGSlicesAnimationContainer.prototype.setState.firstCall.args[0])
-        .to.deep.equal({ mungedData: [] });
+      sinon.spy(CBGSlicesContainer.prototype, 'componentWillMount');
+      sinon.spy(CBGSlicesContainer.prototype, 'setState');
+      expect(CBGSlicesContainer.prototype.componentWillMount.callCount).to.equal(0);
+      expect(CBGSlicesContainer.prototype.setState.callCount).to.equal(0);
+      mount(<CBGSlicesContainer {...props} />);
+      expect(CBGSlicesContainer.prototype.componentWillMount.callCount).to.equal(1);
+      expect(CBGSlicesContainer.prototype.setState.callCount).to.equal(1);
+      const undefineds = {
+        firstQuartile: undefined,
+        max: undefined,
+        median: undefined,
+        min: undefined,
+        ninetiethQuantile: undefined,
+        tenthQuantile: undefined,
+        thirdQuartile: undefined,
+      };
+      expect(CBGSlicesContainer.prototype.setState.firstCall.args[0])
+        .to.deep.equal({ mungedData: [
+          _.assign({ id: '10800000', msFrom: 0, msTo: 21600000, msX: 10800000 }, undefineds),
+          _.assign({ id: '32400000', msFrom: 21600000, msTo: 43200000, msX: 32400000 }, undefineds),
+          _.assign({ id: '54000000', msFrom: 43200000, msTo: 64800000, msX: 54000000 }, undefineds),
+          _.assign({ id: '75600000', msFrom: 64800000, msTo: 86400000, msX: 75600000 }, undefineds),
+        ] });
     });
   });
 
@@ -73,7 +91,7 @@ describe('CBGSlicesAnimationContainer', () => {
       const instance = wrapper.instance();
       sinon.spy(instance, 'mungeData');
       expect(instance.mungeData.callCount).to.equal(0);
-      wrapper.setProps({ binSize: 1000 * 60 * 60 * 3 });
+      wrapper.setProps({ binSize: THREE_HRS });
       expect(instance.mungeData.callCount).to.equal(1);
       instance.mungeData.restore();
     });
@@ -85,6 +103,13 @@ describe('CBGSlicesAnimationContainer', () => {
       wrapper.setProps({ data: [{ id: 'a2b3c4', msPer24: 6000, value: 180 }] });
       expect(instance.mungeData.callCount).to.equal(1);
       instance.mungeData.restore();
+    });
+  });
+
+  describe('render', () => {
+    it('should render proper number of CBGSliceAnimated components for the `binSize`', () => {
+      expect(wrapper.find(CBGSliceAnimated).length)
+        .to.equal(TWENTY_FOUR_HRS / wrapper.prop('binSize'));
     });
   });
 });
