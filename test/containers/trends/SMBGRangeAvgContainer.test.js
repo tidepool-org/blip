@@ -24,12 +24,12 @@ const {
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
-
+import bgBounds from '../../helpers/bgBounds';
 import { THREE_HRS } from '../../../src/utils/datetime';
 import SMBGRangeAvgContainer
   from '../../../src/containers/trends/SMBGRangeAvgContainer';
-import SMBGAvg
-  from '../../../src/components/trends/smbg/SMBGAvg';
+import SMBGAvgAnimated
+  from '../../../src/components/trends/smbg/SMBGAvgAnimated';
 
 describe('SMBGRangeAvgContainer', () => {
   let wrapper;
@@ -38,6 +38,7 @@ describe('SMBGRangeAvgContainer', () => {
   const binSize = THREE_HRS * 2;
 
   const props = {
+    bgBounds,
     binSize,
     data: [],
     focusRange: () => {},
@@ -46,7 +47,7 @@ describe('SMBGRangeAvgContainer', () => {
     unfocusRange: () => {},
     xScale,
     yScale,
-    smbgComponent: SMBGAvg,
+    smbgComponent: SMBGAvgAnimated,
   };
 
   before(() => {
@@ -127,8 +128,8 @@ describe('SMBGRangeAvgContainer', () => {
   });
 
   describe('render', () => {
-    it('renders a <g> with id #smbgAggContainer-SMBGAvgs', () => {
-      expect(wrapper.find('#smbgAggContainer-SMBGAvgs').length).to.equal(1);
+    it('renders a <g> with class smbgAggContainer', () => {
+      expect(wrapper.find('.smbgAggContainer').length).to.equal(1);
     });
   });
 });

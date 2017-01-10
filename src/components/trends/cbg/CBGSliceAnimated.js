@@ -21,10 +21,11 @@ import React, { Component, PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
 import { classifyBgValue } from '../../../utils/bloodglucose';
+import withDefaultYPosition from '../common/withDefaultYPosition';
 
 import styles from './CBGSliceAnimated.css';
 
-class CBGSliceAnimated extends Component {
+export class CBGSliceAnimated extends Component {
   static defaultProps = {
     medianHeight: 10,
     sliceWidth: 16,
@@ -50,6 +51,7 @@ class CBGSliceAnimated extends Component {
       tenthQuantile: PropTypes.number,
       thirdQuartile: PropTypes.number,
     }).isRequired,
+    defaultY: PropTypes.number.isRequired,
     displayFlags: PropTypes.shape({
       cbg100Enabled: PropTypes.bool.isRequired,
       cbg80Enabled: PropTypes.bool.isRequired,
@@ -72,17 +74,9 @@ class CBGSliceAnimated extends Component {
     this.willLeave = this.willLeave.bind(this);
   }
 
-  getDefaultYPosition(bgBounds, yScale) {
-    const { targetLowerBound, targetUpperBound } = bgBounds;
-    // default Y position is the center of the target range
-    // i.e., 100 mg/dL if target range is 80-120 mg/dL
-    return yScale(targetUpperBound - (targetUpperBound - targetLowerBound) / 2);
-  }
-
   willEnter(entered) {
     const { style } = entered;
-    const { bgBounds, yScale } = this.props;
-    const defaultY = this.getDefaultYPosition(bgBounds, yScale);
+    const { defaultY } = this.props;
 
     return {
       binLeftX: style.binLeftX,
@@ -103,8 +97,8 @@ class CBGSliceAnimated extends Component {
 
   willLeave(exited) {
     const { style } = exited;
-    const { bgBounds, yScale } = this.props;
-    const defaultYSpring = spring(this.getDefaultYPosition(bgBounds, yScale));
+    const { defaultY } = this.props;
+    const defaultYSpring = spring(defaultY);
     const shrinkOut = spring(0);
     return {
       binLeftX: style.binLeftX,
@@ -125,7 +119,7 @@ class CBGSliceAnimated extends Component {
 
   render() {
     const { displayFlags, medianHeight, sliceWidth } = this.props;
-    const { bgBounds, datum, isFocused, xScale, yScale } = this.props;
+    const { bgBounds, datum, defaultY, isFocused, xScale, yScale } = this.props;
 
     const medianClasses = cx({
       [styles.median]: true,
@@ -184,7 +178,6 @@ class CBGSliceAnimated extends Component {
     };
     const toRender = _.filter(renderPieces, (piece) => (displayFlags[piece.displayFlag]));
 
-    const defaultY = this.getDefaultYPosition(bgBounds, yScale);
     const binLeftX = xScale(datum.msX) - sliceWidth / 2 + styles.stroke / 2;
     const widthWidthStroke = sliceWidth - styles.stroke;
     return (
@@ -241,4 +234,4 @@ class CBGSliceAnimated extends Component {
   }
 }
 
-export default CBGSliceAnimated;
+export default withDefaultYPosition(CBGSliceAnimated);

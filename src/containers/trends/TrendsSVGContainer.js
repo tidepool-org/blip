@@ -49,8 +49,8 @@ import Background from '../../components/trends/common/Background';
 import CBGSlicesContainer from './CBGSlicesContainer';
 import SMBGsByDateContainer from './SMBGsByDateContainer';
 import SMBGRangeAvgContainer from './SMBGRangeAvgContainer';
-import SMBGAvg from '../../components/trends/smbg/SMBGAvg';
-import SMBGRange from '../../components/trends/smbg/SMBGRange';
+import SMBGAvgAnimated from '../../components/trends/smbg/SMBGAvgAnimated';
+import SMBGRangeAnimated from '../../components/trends/smbg/SMBGRangeAnimated';
 
 import NoData from '../../components/trends/common/NoData';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
@@ -93,6 +93,7 @@ export class TrendsSVGContainer extends React.Component {
     if (this.props.smbgRangeOverlay) {
       return (
         <SMBGRangeAvgContainer
+          bgBounds={this.props.bgBounds}
           data={this.props.smbgData}
           focus={this.props.focusRange}
           key={componentKey}
@@ -166,9 +167,9 @@ export class TrendsSVGContainer extends React.Component {
 
       return (
         <g id="smbgTrends">
-        {this.renderOverlay(SMBGRange, 'SMBGRangeAnimationContainer')}
+        {this.renderOverlay(SMBGRangeAnimated, 'SMBGRangeContainer')}
         {days}
-        {this.renderOverlay(SMBGAvg, 'SMBGAvgAnimationContainer')}
+        {this.renderOverlay(SMBGAvgAnimated, 'SMBGAvgContainer')}
         {focusedDay}
         </g>
       );

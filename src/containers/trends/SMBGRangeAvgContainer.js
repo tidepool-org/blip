@@ -22,8 +22,14 @@ import { range } from 'd3-array';
 import { THREE_HRS, TWENTY_FOUR_HRS } from '../../utils/datetime';
 import { calculateSmbgStatsForBin, findBinForTimeOfDay } from '../../utils/trends/data';
 
-export default class SMBGRangeAvgAnimationContainer extends React.Component {
+export default class SMBGRangeAvgContainer extends React.Component {
   static propTypes = {
+    bgBounds: PropTypes.shape({
+      veryHighThreshold: PropTypes.number.isRequired,
+      targetUpperBound: PropTypes.number.isRequired,
+      targetLowerBound: PropTypes.number.isRequired,
+      veryLowThreshold: PropTypes.number.isRequired,
+    }).isRequired,
     binSize: PropTypes.number.isRequired,
     data: PropTypes.arrayOf(PropTypes.shape({
       // here only documenting the properties we actually use rather than the *whole* data model!
@@ -75,7 +81,19 @@ export default class SMBGRangeAvgAnimationContainer extends React.Component {
     const { smbgComponent: SMBGComponent } = this.props;
 
     return (
-      <g id={`smbgAggContainer-${SMBGComponent.name}s`}>
+      <g className="smbgAggContainer">
+        {_.map(mungedData, (datum) => (
+          <SMBGComponent
+            bgBounds={this.props.bgBounds}
+            datum={datum}
+            key={datum.id}
+            focus={this.props.focus}
+            tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+            unfocus={this.props.unfocus}
+            xScale={this.props.xScale}
+            yScale={this.props.yScale}
+          />
+        ))}
       </g>
     );
   }

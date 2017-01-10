@@ -32,7 +32,7 @@ import bgBounds from '../../../helpers/bgBounds';
 import SVGContainer from '../../../helpers/SVGContainer';
 
 import { THREE_HRS } from '../../../../src/utils/datetime';
-import CBGSliceAnimated from '../../../../src/components/trends/cbg/CBGSliceAnimated';
+import { CBGSliceAnimated } from '../../../../src/components/trends/cbg/CBGSliceAnimated';
 
 describe('CBGSliceAnimated', () => {
   let wrapper;
@@ -54,6 +54,7 @@ describe('CBGSliceAnimated', () => {
   const props = {
     bgBounds,
     datum,
+    defaultY: 100,
     displayFlags: {
       cbg100Enabled: true,
       cbg80Enabled: true,
