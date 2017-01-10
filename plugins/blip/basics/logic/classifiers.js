@@ -71,14 +71,14 @@ module.exports = function(bgClasses) {
         return 'low';
       }
       else if (d.value >= bgClasses.low.boundary &&
-        d.value < bgClasses.target.boundary) {
+        d.value <= bgClasses.target.boundary) {
         return 'target';
       }
-      else if (d.value >= bgClasses.target.boundary &&
-        d.value < bgClasses.high.boundary) {
+      else if (d.value > bgClasses.target.boundary &&
+        d.value <= bgClasses.high.boundary) {
         return 'high';
       }
-      else if (d.value >= bgClasses.high.boundary) {
+      else if (d.value > bgClasses.high.boundary) {
         return 'veryhigh';
       }
     },
