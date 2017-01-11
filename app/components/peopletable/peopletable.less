@@ -1,0 +1,48 @@
+/**
+* Copyright (c) 2017, Tidepool Project
+*
+* This program is free software; you can redistribute it and/or modify it under
+* the terms of the associated License, which is identical to the BSD 2-Clause
+* License as published by the Open Source Initiative at opensource.org.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+* FOR A PARTICULAR PURPOSE. See the License for more details.
+*
+* You should have received a copy of the License along with this program; if
+* not, you can obtain one from Tidepool Project at tidepool.org.
+*/
+
+@import '../../../node_modules/fixed-data-table/dist/fixed-data-table.css';
+
+.peopletable-names-toggle {
+  display: flex;
+  flex-direction: row-reverse;
+  padding-bottom: @spacing-tiny;
+}
+
+.peopletable-search {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.peopletable-search-label {
+  font-size: @font-size-base;
+  width: 40%;
+}
+
+.peopletable-search-box {
+  background-image: url(/app/components/peopletable/images/search_icon_2x.png);
+  background-size: 25px 25px;
+  background-repeat: no-repeat;
+  background-color: #ffffff;
+  background-position: left center;
+  font-size: @font-size-base;
+  height: @spacing-large;
+  border: solid 2px #bcbec0;
+  margin-bottom: @spacing-small;
+  padding-left: 55px;
+  width: 60%;
+}
+

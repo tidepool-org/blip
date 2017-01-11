@@ -28,7 +28,7 @@ import config from '../../config';
 
 import personUtils from '../../core/personutils';
 import PeopleList from '../../components/peoplelist';
-import PeopleSelect from '../../components/peopleselect';
+import PeopleTable from '../../components/peopletable';
 import Invitation from '../../components/invitation';
 import BrowserWarning from '../../components/browserwarning';
 
@@ -132,7 +132,7 @@ export let Patients = React.createClass({
   },
 
   renderInvitation: function(invitation, index) {
-    
+
     return (
       <Invitation
         key={invitation.key}
@@ -141,7 +141,7 @@ export let Patients = React.createClass({
         onDismissInvitation={this.props.onDismissInvitation}
         trackMetric={this.props.trackMetric}
       ></Invitation>);
-    
+
   },
   renderInvitations: function() {
     if (!this.hasInvites()) {
@@ -150,13 +150,13 @@ export let Patients = React.createClass({
 
     var invitations = _.map(this.props.invites, this.renderInvitation);
 
-    
+
     return (
       <ul className='invitations'>
         {invitations}
       </ul>
     );
-    
+
   },
 
   renderNoPatientsOrInvitationsMessage: function() {
@@ -210,11 +210,8 @@ export let Patients = React.createClass({
         <div className="patients-section-content">
           {addDataStorage}
           <div className='clear'></div>
-          <PeopleSelect
-            people={patients}
-            onClickPerson={this.handleClickPatient}
-            onRemovePatient= {this.props.onRemovePatient}
-            trackMetric={this.props.trackMetric} />
+          <PeopleTable
+            people={patients} />
         </div>
       </div>
     );
@@ -273,6 +270,7 @@ export let Patients = React.createClass({
   },
 
   handleClickPatient: function(patient) {
+    console.log('clicked', patient);
     if (personUtils.isSame(this.props.user, patient)) {
       this.props.trackMetric('Clicked Own Care Team');
     }
@@ -303,7 +301,7 @@ export let Patients = React.createClass({
       return
     }
 
-    nextProps.fetchers.forEach(fetcher => { 
+    nextProps.fetchers.forEach(fetcher => {
       fetcher();
     });
   },
@@ -321,13 +319,13 @@ export let Patients = React.createClass({
     if (this.props.trackMetric) {
       this.props.trackMetric('Viewed Care Team List');
     }
-    
+
     this.doFetching(this.props);
   },
 
   componentWillReceiveProps: function(nextProps) {
     let { loading, loggedInUserId, patients, invites, location, showingWelcomeMessage } = nextProps;
-    
+
     if (!loading && loggedInUserId && location.query.justLoggedIn) {
       if (patients.length === 1 && invites.length === 0) {
         let patient = patients[0];
@@ -386,7 +384,7 @@ export function mapStateToProps(state) {
     }
   }
 
-  let { 
+  let {
     fetchingUser: { inProgress: fetchingUser },
     fetchingPatients: { inProgress: fetchingPatients },
     fetchingPendingReceivedInvites: { inProgress: fetchingInvites },
