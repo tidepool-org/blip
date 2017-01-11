@@ -72,7 +72,8 @@ var basicsState = {
       index: 3,
       noData: false,
       title: 'Insulin ratio',
-      togglable: togglableState.off
+      togglable: togglableState.off,
+      settingsTogglable: togglableState.off,
     },
     bgDistribution: {
       active: true,
@@ -82,7 +83,8 @@ var basicsState = {
       id: 'bgDistribution',
       index: 1,
       title: 'BG distribution',
-      togglable: togglableState.off
+      togglable: togglableState.off,
+      settingsTogglable: togglableState.off,
     },
     boluses: {
       active: true,
@@ -175,7 +177,8 @@ var basicsState = {
       index: 4,
       noData: false,
       title: DailyDoseTitle,
-      togglable: togglableState.closed
+      togglable: togglableState.closed,
+      settingsTogglable: togglableState.off,
     },
     averageDailyCarbs: {
       active: true,
@@ -186,7 +189,8 @@ var basicsState = {
       index: 2,
       noData: false,
       title: '',
-      togglable: togglableState.off
+      togglable: togglableState.off,
+      settingsTogglable: togglableState.off,
     }
   }
 };
