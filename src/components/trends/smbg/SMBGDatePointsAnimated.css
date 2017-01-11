@@ -26,11 +26,3 @@
 .high {
   composes: bgHigh from '../../../styles/diabetes.css';
 }
-
-.smbg {
-  opacity: 0.75;
-}
-
-.solid {
-  opacity: 1;
-}

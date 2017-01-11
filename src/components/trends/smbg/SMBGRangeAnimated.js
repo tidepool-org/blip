@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import cx from 'classnames';
 import React, { Component, PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
@@ -45,6 +46,7 @@ export class SMBGRangeAnimated extends Component {
     }),
     defaultY: PropTypes.number.isRequired,
     focus: PropTypes.func.isRequired,
+    isFocused: PropTypes.bool.isRequired,
     rectWidth: PropTypes.number.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     unfocus: PropTypes.func.isRequired,
@@ -81,7 +83,7 @@ export class SMBGRangeAnimated extends Component {
   }
 
   render() {
-    const { datum, defaultY, focus, rectWidth, unfocus, xScale, yScale } = this.props;
+    const { datum, defaultY, focus, isFocused, rectWidth, unfocus, xScale, yScale } = this.props;
     const xPos = xScale(datum.msX);
     const yPositions = {
       min: yScale(datum.min),
@@ -96,7 +98,7 @@ export class SMBGRangeAnimated extends Component {
       });
     };
 
-    const rectLeftEdge = xPos - rectWidth / 2;
+    const rectLeftEdge = xPos - rectWidth / 2 - styles.stroke / 2;
 
     return (
       <TransitionMotion
@@ -128,7 +130,10 @@ export class SMBGRangeAnimated extends Component {
         const { style } = interpolated[0];
         return (
           <rect
-            className={styles.smbgRange}
+            className={cx({
+              [styles.smbgRange]: true,
+              [styles.smbgRangeTransparent]: isFocused,
+            })}
             id={`smbgRange-${datum.id}`}
             onMouseOver={focusRange}
             onMouseOut={unfocus}

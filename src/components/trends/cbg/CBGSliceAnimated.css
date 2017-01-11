@@ -42,15 +42,15 @@
 }
 
 .rangeSegment {
-  stroke: var(--cbg-trends-segment--100--stroke);
+  stroke: var(--trends--light);
   stroke-width: 1px;
   fill: transparent;
 }
 
 .outerSegment {
-  stroke: var(--cbg-trends-segment--80);
+  stroke: var(--trends--light);
   stroke-width: 1px;
-  fill: var(--cbg-trends-segment--80);
+  fill: var(--trends--light);
 }
 
 .outerSegment:hover {
@@ -58,9 +58,9 @@
 }
 
 .innerQuartilesSegment {
-  stroke: var(--cbg-trends-segment--50);
+  stroke: var(--trends--dark);
   stroke-width: 1px;
-  fill: var(--cbg-trends-segment--50);
+  fill: var(--trends--dark);
 }
 
 .innerQuartilesSegment:hover {

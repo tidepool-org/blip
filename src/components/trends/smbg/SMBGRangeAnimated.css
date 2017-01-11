@@ -16,9 +16,15 @@
  */
 
 .smbgRange {
-  fill: var(--data-purple--lightest);
-  opacity: 0.5;
+  fill: var(--trends--light);
+  stroke: var(--trends--light);
+  stroke-width: 1px;
 }
-.smbgRange:hover {
-  opacity: 0.8;
+
+.smbgRangeTransparent {
+  fill: transparent;
+}
+
+:export {
+  stroke: 1;
 }

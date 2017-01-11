@@ -18,7 +18,7 @@
 .smbgPath {
   fill: none;
   opacity: 0.75;
-  stroke: var(--data-purple--medium);
+  stroke: var(--trends--dark);
   stroke-dasharray: 4, 4;
 }
 

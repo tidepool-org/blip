@@ -18,7 +18,6 @@
 import React, { Component, PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 import _ from 'lodash';
-import cx from 'classnames';
 
 import { classifyBgValue } from '../../../utils/bloodglucose';
 import { THREE_HRS } from '../../../utils/datetime';
@@ -34,6 +33,7 @@ export class SMBGDatePointsAnimated extends Component {
   };
 
   static propTypes = {
+    anSmbgRangeAvgIsFocused: PropTypes.bool.isRequired,
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,
       targetUpperBound: PropTypes.number.isRequired,
@@ -60,6 +60,7 @@ export class SMBGDatePointsAnimated extends Component {
       maxR: PropTypes.number.isRequired,
       r: PropTypes.number.isRequired,
     }).isRequired,
+    someSmbgDataIsFocused: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     unfocusSmbg: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
@@ -85,10 +86,10 @@ export class SMBGDatePointsAnimated extends Component {
 
   render() {
     const {
+      anSmbgRangeAvgIsFocused,
       bgBounds,
       data,
       date,
-      defaultY,
       focusSmbg,
       grouped,
       isFocused,
@@ -96,6 +97,7 @@ export class SMBGDatePointsAnimated extends Component {
       onSelectDay,
       radiusAnimationConfig,
       smbgOpts,
+      someSmbgDataIsFocused,
       tooltipLeftThreshold,
       unfocusSmbg,
       xScale,
@@ -122,7 +124,8 @@ export class SMBGDatePointsAnimated extends Component {
             key: smbg.id,
             style: {
               cx: position.left,
-              cy: defaultY,
+              cy: position.top,
+              opacity: 0.5,
               r: 0,
             },
           };
@@ -132,17 +135,15 @@ export class SMBGDatePointsAnimated extends Component {
           return {
             key: smbg.id,
             data: {
-              classes: cx({
-                [styles.smbg]: !isFocused,
-                [styles.solid]: isFocused,
-                [styles[classifyBgValue(bgBounds, smbg.value)]]: true,
-              }),
+              classes: styles[classifyBgValue(bgBounds, smbg.value)],
               position,
               smbg,
             },
             style: {
               cx: spring(position.left),
               cy: spring(position.top),
+              opacity: (anSmbgRangeAvgIsFocused || someSmbgDataIsFocused) ?
+                spring(0.35) : spring(0.8, radiusAnimationConfig),
               // slow down the radius animation a bit
               r: spring(radius, radiusAnimationConfig),
             },
@@ -171,6 +172,7 @@ export class SMBGDatePointsAnimated extends Component {
                     cx={style.cx}
                     cy={style.cy}
                     r={style.r}
+                    fillOpacity={style.opacity}
                     pointerEvents={nonInteractive ? 'none' : 'all'}
                   />
                 );

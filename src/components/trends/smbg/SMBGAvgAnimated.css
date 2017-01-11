@@ -15,7 +15,23 @@
  * == BSD2 LICENSE ==
  */
 
+.low {
+  composes: bgLow from '../../../styles/diabetes.css';
+}
+
+.target {
+  composes: bgTarget from '../../../styles/diabetes.css';
+}
+
+.high {
+  composes: bgHigh from '../../../styles/diabetes.css';
+}
+
 .smbgAvg {
-  fill: var(--data-purple--dark);
-  stroke: none;
+  stroke: white;
+  stroke-width: 1px;
+}
+
+:export {
+  stroke: 1;
 }

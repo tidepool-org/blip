@@ -15,16 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
+import cx from 'classnames';
 import React, { Component, PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
+import { classifyBgValue } from '../../../utils/bloodglucose';
 import withDefaultYPosition from '../common/withDefaultYPosition';
 
 import styles from './SMBGAvgAnimated.css';
 
 export class SMBGAvgAnimated extends Component {
   static defaultProps = {
-    avgRadius: 7,
+    cornerRadius: 2,
+    meanHeight: 10,
+    rectWidth: 16,
   };
 
   static propTypes = {
@@ -34,6 +38,7 @@ export class SMBGAvgAnimated extends Component {
       targetLowerBound: PropTypes.number.isRequired,
       veryLowThreshold: PropTypes.number.isRequired,
     }).isRequired,
+    cornerRadius: PropTypes.number.isRequired,
     datum: PropTypes.shape({
       id: PropTypes.string.isRequired,
       max: PropTypes.number,
@@ -45,7 +50,9 @@ export class SMBGAvgAnimated extends Component {
     }),
     defaultY: PropTypes.number.isRequired,
     focus: PropTypes.func.isRequired,
-    avgRadius: PropTypes.number.isRequired,
+    meanHeight: PropTypes.number.isRequired,
+    rectWidth: PropTypes.number.isRequired,
+    someSmbgDataIsFocused: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     unfocus: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
@@ -79,8 +86,21 @@ export class SMBGAvgAnimated extends Component {
   }
 
   render() {
-    const { datum, defaultY, focus, avgRadius, unfocus, xScale, yScale } = this.props;
-    const xPos = xScale(datum.msX);
+    const {
+      bgBounds,
+      cornerRadius,
+      datum,
+      defaultY,
+      focus,
+      meanHeight,
+      rectWidth,
+      someSmbgDataIsFocused,
+      tooltipLeftThreshold,
+      unfocus,
+      xScale,
+      yScale,
+    } = this.props;
+    const xPos = xScale(datum.msX) - rectWidth / 2 - styles.stroke / 2;
     const yPositions = {
       min: yScale(datum.min),
       mean: yScale(datum.mean),
@@ -88,28 +108,30 @@ export class SMBGAvgAnimated extends Component {
     };
     const focusAvg = () => {
       focus(datum, {
-        left: xPos,
-        tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
+        left: xScale(datum.msX),
+        tooltipLeft: datum.msX > tooltipLeftThreshold,
         yPositions,
       });
     };
 
     return (
       <TransitionMotion
-        defaultStyles={[{
+        defaultStyles={datum.mean ? [{
           key: datum.id,
           style: {
-            cx: xPos,
-            cy: defaultY,
-            r: 0,
+            x: xPos,
+            y: defaultY,
+            height: 0,
+            opacity: 0.5,
           },
-        }]}
+        }] : []}
         styles={datum.mean ? [{
           key: datum.id,
           style: {
-            cx: xPos,
-            cy: spring(yPositions.mean),
-            r: spring(avgRadius),
+            x: xPos,
+            y: spring(yPositions.mean - meanHeight / 2),
+            height: spring(meanHeight),
+            opacity: someSmbgDataIsFocused ? spring(0.0) : spring(1.0),
           },
         }] : []}
       >
@@ -119,14 +141,24 @@ export class SMBGAvgAnimated extends Component {
           }
           const { style } = interpolated[0];
           return (
-            <circle
-              className={styles.smbgAvg}
+            <rect
+              className={cx({
+                [styles.smbgAvg]: true,
+              },
+                (datum.mean) ?
+                  styles[classifyBgValue(bgBounds, datum.mean)] :
+                  styles.smbgAvgTransparent
+              )}
               id={`smbgAvg-${datum.id}`}
               onMouseOver={focusAvg}
               onMouseOut={unfocus}
-              cx={style.cx}
-              cy={style.cy}
-              r={style.r}
+              x={style.x}
+              y={style.y}
+              rx={cornerRadius}
+              ry={cornerRadius}
+              width={rectWidth}
+              height={style.height}
+              fillOpacity={style.opacity}
             />
           );
         }}

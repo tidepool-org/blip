@@ -33,6 +33,7 @@ import SVGContainer from '../../../helpers/SVGContainer';
 
 import { THREE_HRS } from '../../../../src/utils/datetime';
 import { SMBGAvgAnimated } from '../../../../src/components/trends/smbg/SMBGAvgAnimated';
+import styles from '../../../../src/components/trends/smbg/SMBGAvgAnimated.css';
 
 describe('SMBGAvgAnimated', () => {
   let wrapper;
@@ -83,23 +84,25 @@ describe('SMBGAvgAnimated', () => {
       );
     });
 
-    it('should render a TransitionMotion component but no <circle>', () => {
+    it('should render a TransitionMotion component but no <rect>', () => {
       expect(noDatumWrapper.find(TransitionMotion).length).to.equal(1);
       expect(noDatumWrapper.find(`#smbgAvg-${datum.id}`).length).to.equal(0);
     });
   });
 
   describe('when a datum (overlay data) is provided', () => {
-    it('should render a smbgAvg <circle>', () => {
-      expect(wrapper.find(`#smbgAvg-${datum.id} circle`).length).to.equal(1);
+    it('should render an smbgAvg <rect>', () => {
+      expect(wrapper.find(`#smbgAvg-${datum.id} rect`).length).to.equal(1);
     });
 
-    it('should render a median <circle>', () => {
-      const medianCircle = wrapper
+    it('should render a mean <rect>', () => {
+      const meanRect = wrapper
         .find(`#smbgAvg-${datum.id}`).props();
+      const smbgAvgAnimated = wrapper.find(SMBGAvgAnimated);
+      expect(meanRect.x)
+        .to.equal(xScale(datum.msX) - smbgAvgAnimated.prop('rectWidth') / 2 - styles.stroke / 2);
       const style = wrapper.find(TransitionMotion).prop('styles')[0].style;
-      expect(medianCircle.cx).to.equal(54);
-      expect(style.cy.val).to.equal(260);
+      expect(style.y.val).to.equal(yScale(datum.mean) - smbgAvgAnimated.prop('meanHeight') / 2);
     });
   });
 
@@ -109,7 +112,7 @@ describe('SMBGAvgAnimated', () => {
       props.unfocus.reset();
     });
 
-    it('should call focus on mouseover of circle', () => {
+    it('should call focus on mouseover of mean rect', () => {
       const avgCircle = wrapper
         .find(`#smbgAvg-${datum.id}`);
       expect(focus.callCount).to.equal(0);
@@ -127,7 +130,7 @@ describe('SMBGAvgAnimated', () => {
       expect(focus.callCount).to.equal(1);
     });
 
-    it('should call unfocus on mouseout of min/max rect', () => {
+    it('should call unfocus on mouseout of mean rect', () => {
       const avgCircle = wrapper
         .find(`#smbgAvg-${datum.id}`);
       expect(unfocus.callCount).to.equal(0);

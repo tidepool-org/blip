@@ -28,6 +28,7 @@ const SMBGsByDateContainer = (props) => {
   }
 
   const {
+    anSmbgRangeAvgIsFocused,
     bgBounds,
     focusedSmbg,
     focusSmbg,
@@ -36,6 +37,7 @@ const SMBGsByDateContainer = (props) => {
     nonInteractive,
     onSelectDay,
     smbgOpts,
+    someSmbgDataIsFocused,
     tooltipLeftThreshold,
     unfocusSmbg,
     xScale,
@@ -58,34 +60,34 @@ const SMBGsByDateContainer = (props) => {
       }
       return (
         <SMBGDayLineAnimated
+          data={focusedSmbg.allSmbgsOnDate}
           date={focusedDay}
           focusedDay={focusedDay}
-          data={focusedSmbg.dayPoints}
+          focusLine={focusSmbg}
+          grouped={grouped}
+          onSelectDay={onSelectDay}
+          nonInteractive={nonInteractive}
+          tooltipLeftThreshold={tooltipLeftThreshold}
+          unfocusLine={unfocusSmbg}
           xScale={xScale}
           yScale={yScale}
-          focusLine={focusSmbg}
-          unfocusLine={unfocusSmbg}
-          onSelectDay={onSelectDay}
-          grouped={grouped}
-          tooltipLeftThreshold={tooltipLeftThreshold}
-          nonInteractive={nonInteractive}
         />
       );
     }
     return _.map(smbgsByDate, (smbgs, date) => (
       <SMBGDayLineAnimated
-        key={date}
+        data={smbgs}
         date={date}
         focusedDay={focusedDay}
-        data={smbgs}
+        focusLine={focusSmbg}
+        grouped={grouped}
+        key={date}
+        onSelectDay={onSelectDay}
+        nonInteractive={nonInteractive}
+        tooltipLeftThreshold={tooltipLeftThreshold}
+        unfocusLine={unfocusSmbg}
         xScale={xScale}
         yScale={yScale}
-        focusLine={focusSmbg}
-        unfocusLine={unfocusSmbg}
-        onSelectDay={onSelectDay}
-        grouped={grouped}
-        tooltipLeftThreshold={tooltipLeftThreshold}
-        nonInteractive={nonInteractive}
       />
     ));
   }
@@ -93,6 +95,7 @@ const SMBGsByDateContainer = (props) => {
   function getPoints() {
     return _.map(smbgsByDate, (smbgs, date) => (
       <SMBGDatePointsAnimated
+        anSmbgRangeAvgIsFocused={anSmbgRangeAvgIsFocused}
         bgBounds={bgBounds}
         data={smbgs}
         date={date}
@@ -103,6 +106,7 @@ const SMBGsByDateContainer = (props) => {
         nonInteractive={nonInteractive}
         onSelectDay={onSelectDay}
         smbgOpts={smbgOpts}
+        someSmbgDataIsFocused={someSmbgDataIsFocused}
         tooltipLeftThreshold={tooltipLeftThreshold}
         unfocusSmbg={unfocusSmbg}
         xScale={xScale}
@@ -120,6 +124,7 @@ const SMBGsByDateContainer = (props) => {
 };
 
 SMBGsByDateContainer.propTypes = {
+  anSmbgRangeAvgIsFocused: PropTypes.bool.isRequired,
   bgBounds: PropTypes.shape({
     veryHighThreshold: PropTypes.number.isRequired,
     targetUpperBound: PropTypes.number.isRequired,
@@ -160,6 +165,7 @@ SMBGsByDateContainer.propTypes = {
     maxR: PropTypes.number.isRequired,
     r: PropTypes.number.isRequired,
   }).isRequired,
+  someSmbgDataIsFocused: PropTypes.bool.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
   unfocusSmbg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,

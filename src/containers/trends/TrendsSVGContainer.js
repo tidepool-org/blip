@@ -96,12 +96,14 @@ export class TrendsSVGContainer extends React.Component {
           bgBounds={this.props.bgBounds}
           data={this.props.smbgData}
           focus={this.props.focusRange}
+          focusedSmbgRangeAvgKey={this.props.focusedSmbgRangeAvgKey}
           key={componentKey}
+          smbgComponent={smbgComponent}
+          someSmbgDataIsFocused={this.props.focusedSmbg !== null}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
           unfocus={this.props.unfocusRange}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
-          smbgComponent={smbgComponent}
         />
       );
     }
@@ -131,6 +133,7 @@ export class TrendsSVGContainer extends React.Component {
     if (this.props.showingSmbg) {
       const days = (
         <SMBGsByDateContainer
+          anSmbgRangeAvgIsFocused={this.props.focusedSmbgRangeAvgKey !== null}
           bgBounds={this.props.bgBounds}
           data={this.props.smbgData}
           dates={this.props.dates}
@@ -140,6 +143,7 @@ export class TrendsSVGContainer extends React.Component {
           lines={this.props.smbgLines}
           onSelectDay={this.props.onSelectDay}
           smbgOpts={this.props.smbgOpts}
+          someSmbgDataIsFocused={this.props.focusedSmbg !== null}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
           unfocusSmbg={this.props.unfocusSmbg}
           xScale={this.props.xScale}
@@ -151,6 +155,7 @@ export class TrendsSVGContainer extends React.Component {
       // rendered points and lines
       const focusedDay = this.props.focusedSmbg ? (
         <SMBGsByDateContainer
+          anSmbgRangeAvgIsFocused={false}
           bgBounds={this.props.bgBounds}
           data={this.props.focusedSmbg.allSmbgsOnDate}
           dates={[this.props.focusedSmbg.date]}
@@ -162,6 +167,7 @@ export class TrendsSVGContainer extends React.Component {
           nonInteractive
           onSelectDay={this.props.onSelectDay}
           smbgOpts={this.props.smbgOpts}
+          someSmbgDataIsFocused={false}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
           unfocusSmbg={() => {}}
           xScale={this.props.xScale}
@@ -299,6 +305,7 @@ TrendsSVGContainer.propTypes = {
       left: PropTypes.number.isRequired,
     }),
   }),
+  focusedSmbgRangeAvgKey: PropTypes.string,
   focusRange: PropTypes.func.isRequired,
   focusSmbg: PropTypes.func.isRequired,
   focusSlice: PropTypes.func.isRequired,

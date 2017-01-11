@@ -22,14 +22,8 @@
   --table-stripe--light: #F7F7F7;
   --table-stripe--dark: #ECECEC;
 
-  --data-purple--lightest: #B6C1E3;
-  --data-purple--light: #96A6E9;
-  --data-purple--medium: #617CFC; /* was #627CFF */
-  --data-purple--dark: #291A45; /* was #281746 */
-
-  --cbg-trends-segment--100--stroke: #D0D0D0;
-  --cbg-trends-segment--80: #D0D0D0;
-  --cbg-trends-segment--50: #BCBCBC;
+  --trends--light: #D0D0D0;
+  --trends--dark: #BCBCBC;
 
   --axis-tick: #E7E7E7;
 

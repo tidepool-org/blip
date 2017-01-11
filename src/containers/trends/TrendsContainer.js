@@ -79,6 +79,12 @@ export class TrendsContainer extends React.Component {
     onSwitchBgDataSource: PropTypes.func.isRequired,
     // viz state
     trendsState: PropTypes.shape({
+      cbgFlags: PropTypes.shape({
+        cbg100Enabled: PropTypes.bool.isRequired,
+        cbg80Enabled: PropTypes.bool.isRequired,
+        cbg50Enabled: PropTypes.bool.isRequired,
+        cbgMedianEnabled: PropTypes.bool.isRequired,
+      }).isRequired,
       focusedCbgSlice: PropTypes.shape({
         data: PropTypes.shape({
           firstQuartile: PropTypes.number.isRequired,
@@ -133,13 +139,27 @@ export class TrendsContainer extends React.Component {
           left: PropTypes.number.isRequired,
         }),
       }),
+      focusedSmbgRangeAvg: PropTypes.shape({
+        data: PropTypes.shape({
+          id: PropTypes.string.isRequired,
+          max: PropTypes.number.isRequired,
+          mean: PropTypes.number.isRequired,
+          min: PropTypes.number.isRequired,
+          msX: PropTypes.number.isRequired,
+          msFrom: PropTypes.number.isRequired,
+          msTo: PropTypes.number.isRequired,
+        }).isRequired,
+        position: PropTypes.shape({
+          left: PropTypes.number.isRequired,
+          tooltipLeft: PropTypes.bool.isRequired,
+          yPositions: PropTypes.shape({
+            max: PropTypes.number.isRequired,
+            mean: PropTypes.number.isRequired,
+            min: PropTypes.number.isRequired,
+          }).isRequired,
+        }).isRequired,
+      }),
       touched: PropTypes.bool.isRequired,
-      cbgFlags: PropTypes.shape({
-        cbg100Enabled: PropTypes.bool.isRequired,
-        cbg80Enabled: PropTypes.bool.isRequired,
-        cbg50Enabled: PropTypes.bool.isRequired,
-        cbgMedianEnabled: PropTypes.bool.isRequired,
-      }).isRequired,
     }).isRequired,
     // actions
     focusTrendsCbgSlice: PropTypes.func.isRequired,
@@ -350,6 +370,9 @@ export class TrendsContainer extends React.Component {
         dates={datetime.getAllDatesInRange(start, end, timezone)}
         focusedSlice={this.props.trendsState.focusedCbgSlice}
         focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
+        focusedSmbgRangeAvgKey={_.get(
+          this.props, ['trendsState', 'focusedSmbgRangeAvg', 'data', 'id'], null
+        )}
         focusedSmbg={this.props.trendsState.focusedSmbg}
         displayFlags={this.props.trendsState.cbgFlags}
         focusRange={this.props.focusTrendsSmbgRangeAvg}

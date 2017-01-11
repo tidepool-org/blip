@@ -38,7 +38,9 @@ export default class SMBGRangeAvgContainer extends React.Component {
       value: PropTypes.number.isRequired,
     })).isRequired,
     focus: PropTypes.func.isRequired,
+    focusedSmbgRangeAvgKey: PropTypes.string,
     smbgComponent: PropTypes.func.isRequired,
+    someSmbgDataIsFocused: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     unfocus: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
@@ -88,6 +90,8 @@ export default class SMBGRangeAvgContainer extends React.Component {
             datum={datum}
             key={datum.id}
             focus={this.props.focus}
+            isFocused={this.props.focusedSmbgRangeAvgKey === datum.id}
+            someSmbgDataIsFocused={this.props.someSmbgDataIsFocused}
             tooltipLeftThreshold={this.props.tooltipLeftThreshold}
             unfocus={this.props.unfocus}
             xScale={this.props.xScale}

@@ -111,21 +111,21 @@ const SMBGDayLineAnimated = (props) => {
 };
 
 SMBGDayLineAnimated.propTypes = {
-  date: PropTypes.string.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     msPer24: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
   })).isRequired,
+  date: PropTypes.string.isRequired,
+  focusedDay: PropTypes.string.isRequired,
+  focusLine: PropTypes.func.isRequired,
+  grouped: PropTypes.bool.isRequired,
+  onSelectDay: PropTypes.func.isRequired,
+  nonInteractive: PropTypes.bool,
+  tooltipLeftThreshold: PropTypes.number.isRequired,
+  unfocusLine: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
-  focusLine: PropTypes.func.isRequired,
-  unfocusLine: PropTypes.func.isRequired,
-  grouped: PropTypes.bool.isRequired,
-  focusedDay: PropTypes.string.isRequired,
-  onSelectDay: PropTypes.func.isRequired,
-  tooltipLeftThreshold: PropTypes.number.isRequired,
-  nonInteractive: PropTypes.bool,
 };
 
 export default SMBGDayLineAnimated;

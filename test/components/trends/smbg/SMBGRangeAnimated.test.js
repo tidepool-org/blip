@@ -33,6 +33,7 @@ import SVGContainer from '../../../helpers/SVGContainer';
 
 import { THREE_HRS } from '../../../../src/utils/datetime';
 import { SMBGRangeAnimated } from '../../../../src/components/trends/smbg/SMBGRangeAnimated';
+import styles from '../../../../src/components/trends/smbg/SMBGRangeAnimated.css';
 
 describe('SMBGRangeAnimated', () => {
   let wrapper;
@@ -97,9 +98,11 @@ describe('SMBGRangeAnimated', () => {
     it('should render a min/max rect covering the whole yScale range', () => {
       const rangeRect = wrapper
         .find(`#smbgRange-${datum.id}`).props();
+      const smbgRangeAnimated = wrapper.find(SMBGRangeAnimated);
+      expect(rangeRect.x)
+        .to.equal(xScale(datum.msX) - smbgRangeAnimated.prop('rectWidth') / 2 - styles.stroke / 2);
+      expect(rangeRect.width).to.equal(smbgRangeAnimated.prop('rectWidth'));
       const style = wrapper.find(TransitionMotion).prop('styles')[0].style;
-      expect(rangeRect.x).to.equal(45);
-      expect(rangeRect.width).to.equal(18);
       expect(style.y.val).to.equal(0);
       expect(style.height.val).to.equal(trendsHeight);
     });

@@ -92,11 +92,11 @@ describe('SMBGsByDateContainer', () => {
         props.lines = false;
 
         props.focusedSmbg = {
-          dayPoints: props.data,
-          smbgPosition: { top: 0, left: 0 },
+          allPositions: [{ top: 0, left: 10 }, { top: 10, left: 50 }],
+          allSmbgsOnDate: props.data,
           date: '2016-08-28',
-          smbgDay: [{ value: 200 }],
-          smbgPositions: [{ top: 0, left: 10 }, { top: 10, left: 50 }],
+          smbgDatum: [{ value: 200 }],
+          smbgPosition: { top: 0, left: 0 },
         };
         wrapper = mount(<SMBGsByDateContainer {...props} />);
         expect(wrapper.find('#smbgsByDateContainer path').length).to.equal(1);
