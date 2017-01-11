@@ -21,6 +21,7 @@ var _ = require('lodash');
 var log = require('bows')('CBG');
 var bgBoundaryClass = require('./util/bgboundary');
 var format = require('../data/util/format');
+var categorizer = require('../../js/data/util/categorize');
 
 module.exports = function(pool, opts) {
 
@@ -29,9 +30,9 @@ module.exports = function(pool, opts) {
   var defaults = {
     bgUnits: 'mg/dL',
     classes: {
-      low: {boundary: 80},
-      target: {boundary: 180},
-      high: {boundary: 200}
+      low: { boundary: 70 },
+      target: { boundary: 180 },
+      high: { boundary: 300 },
     },
     radius: 2.5,
   };
@@ -41,6 +42,7 @@ module.exports = function(pool, opts) {
   opts.classes = classes;
   _.defaults(opts, defaults);
 
+  var categorize = categorizer(opts.classes);
   var mainGroup = pool.parent();
 
   function cbg(selection) {
@@ -65,17 +67,19 @@ module.exports = function(pool, opts) {
           }
         });
       var cbgLow = cbgGroups.filter(function(d) {
-        if (d.value < opts.classes.low.boundary) {
+        var category = categorize(d);
+        if (category === "low" || category === "verylow") {
           return d;
         }
       });
       var cbgTarget = cbgGroups.filter(function(d) {
-        if ((d.value >= opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
+        if (categorize(d) === "target") {
           return d;
         }
       });
       var cbgHigh = cbgGroups.filter(function(d) {
-        if (d.value > opts.classes.target.boundary) {
+        var category = categorize(d);
+        if (category === "high" || category === "veryhigh") {
           return d;
         }
       });
@@ -105,8 +109,8 @@ module.exports = function(pool, opts) {
     return opts.yScale(d.value);
   };
 
-  cbg.orientation = function(cssClass) {
-    if (cssClass === 'd3-bg-high') {
+  cbg.orientation = function(category) {
+    if (category === 'high' || category ==='veryhigh') {
       return 'leftAndDown';
     }
     else {
@@ -118,13 +122,14 @@ module.exports = function(pool, opts) {
     var tooltips = pool.tooltips();
     var getBgBoundaryClass = bgBoundaryClass(opts.classes);
     var cssClass = getBgBoundaryClass(d);
+    var category = categorize(d);
     tooltips.addFixedTooltip({
       cssClass: cssClass,
       datum: d,
       orientation: {
-        'default': cbg.orientation(cssClass),
-        leftEdge: cbg.orientation(cssClass) === 'leftAndDown' ? 'rightAndDown': 'normal',
-        rightEdge: cbg.orientation(cssClass) === 'normal' ? 'leftAndUp': 'leftAndDown'
+        'default': cbg.orientation(category),
+        leftEdge: cbg.orientation(category) === 'leftAndDown' ? 'rightAndDown': 'normal',
+        rightEdge: cbg.orientation(category) === 'normal' ? 'leftAndUp': 'leftAndDown'
       },
       shape: 'cbg',
       xPosition: cbg.xPosition,

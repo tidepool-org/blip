@@ -19,14 +19,17 @@ var _ = require('lodash');
 var crossfilter = require('crossfilter');
 
 var datetime = require('./util/datetime');
+var categorizer = require('./util/categorize');
 
 function BGUtil(data, opts) {
 
   opts = opts || {};
   var defaults = {
     bgClasses: {
-      low: {boundary: 80},
-      target: {boundary: 180}
+      'very-low': { boundary: 55 },
+      low: { boundary: 70 },
+      target: { boundary: 180 },
+      high: { boundary: 300 },
     },
     bgUnits: 'mg/dL'
   };
@@ -53,11 +56,15 @@ function BGUtil(data, opts) {
     total: NaN
   };
 
+  var categorize = categorizer(opts.bgClasses);
+
   function getCategory (n) {
-    if (n <= opts.bgClasses.low.boundary) {
+    var datum = {value:n};
+    var category = categorize(datum);
+    if (category === "verylow" || category === "low") {
       return 'low';
     }
-    else if ((n > opts.bgClasses.low.boundary) && (n <= opts.bgClasses.target.boundary)) {
+    else if (category === "target") {
       return 'target';
     }
     else {
