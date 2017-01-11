@@ -34,7 +34,8 @@ module.exports = {
     BGUtil: require('./data/bgutil'),
     util: {
       datetime: require('./data/util/datetime'),
-      format: require('./data/util/format')
+      format: require('./data/util/format'),
+      categorize: require('./data/util/categorize')
     }
   },
 
