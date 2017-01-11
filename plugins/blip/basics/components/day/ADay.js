@@ -36,8 +36,8 @@ var ADay = React.createClass({
     }
     return false;
   },
-  isAReservoirChange: function() {
-    return (this.props.type === 'reservoirChange');
+  isASiteChangeEvent: function() {
+    return (this.props.type === constants.SITE_CHANGE_CANNULA) || (this.props.type === constants.SITE_CHANGE_TUBING) || (this.props.type === constants.SITE_CHANGE_RESERVOIR);
   },
   isASiteChangeDay: function() {
     if (!this.props.data || !this.props.data.infusionSiteHistory) {
@@ -52,7 +52,7 @@ var ADay = React.createClass({
       return;
     }
     // We do not want a hover effect on infusion site days that were not site changes
-    if (!this.isASiteChangeDay()) {
+    if (this.isASiteChangeEvent() && !this.isASiteChangeDay()) {
       return;
     }
     this.props.onHover(this.props.date);
