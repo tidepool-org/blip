@@ -45,7 +45,7 @@ var Categorization = function(bgClasses){
     else if (d.value > classes.high.boundary) {
       return 'veryhigh';
     }
-  }
-}
+  };
+};
 
 module.exports = Categorization;
