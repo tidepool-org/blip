@@ -315,15 +315,16 @@ var Modal = React.createClass({
     }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     // no change, return early
-    if (prefs.activeDomain === '1 week' && prefs.extentSize === 7) {
+    if (prefs.modal.activeDomain === '1 week' && prefs.modal.extentSize === 7) {
       return;
     }
+    var current = new Date(this.chart.getCurrentDay());
+    var oldDomain = this.getNewDomain(current, prefs.modal.extentSize);
     prefs.modal.activeDomain = '1 week';
     prefs.modal.extentSize = 7;
     this.props.updateChartPrefs(prefs);
-    var current = new Date(this.chart.getCurrentDay());
     var newDomain = this.getNewDomain(current, 7);
-    this.chart.setExtent(newDomain);
+    this.chart.setExtent(newDomain, oldDomain);
   },
   handleClickTwoWeeks: function(e) {
     if (e) {
@@ -331,15 +332,16 @@ var Modal = React.createClass({
     }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     // no change, return early
-    if (prefs.activeDomain === '2 weeks' && prefs.extentSize === 14) {
+    if (prefs.modal.activeDomain === '2 weeks' && prefs.modal.extentSize === 14) {
       return;
     }
+    var current = new Date(this.chart.getCurrentDay());
+    var oldDomain = this.getNewDomain(current, prefs.modal.extentSize);
     prefs.modal.activeDomain = '2 weeks';
     prefs.modal.extentSize = 14;
     this.props.updateChartPrefs(prefs);
-    var current = new Date(this.chart.getCurrentDay());
     var newDomain = this.getNewDomain(current, 14);
-    this.chart.setExtent(newDomain);
+    this.chart.setExtent(newDomain, oldDomain);
   },
   handleClickFourWeeks: function(e) {
     if (e) {
@@ -347,15 +349,16 @@ var Modal = React.createClass({
     }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     // no change, return early
-    if (prefs.activeDomain === '4 weeks' && prefs.extentSize === 28) {
+    if (prefs.modal.activeDomain === '4 weeks' && prefs.modal.extentSize === 28) {
       return;
     }
+    var current = new Date(this.chart.getCurrentDay());
+    var oldDomain = this.getNewDomain(current, prefs.modal.extentSize);
     prefs.modal.activeDomain = '4 weeks';
     prefs.modal.extentSize = 28;
     this.props.updateChartPrefs(prefs);
-    var current = new Date(this.chart.getCurrentDay());
     var newDomain = this.getNewDomain(current, 28);
-    this.chart.setExtent(newDomain);
+    this.chart.setExtent(newDomain, oldDomain);
   },
   handleClickWeekly: function(e) {
     if (e) {
