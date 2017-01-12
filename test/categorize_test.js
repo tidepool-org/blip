@@ -34,16 +34,12 @@ var alternateBgClasses = {
 };
 
 describe('Categorize', function() {
-  var defaultCategorizer = new categorizer(defaultBgClasses);
-  var alternateCategorizer = new categorizer(alternateBgClasses);
-  var noConfigCategorizer = new categorizer({});
+  var defaultCategorizer = categorizer(defaultBgClasses);
+  var alternateCategorizer = categorizer(alternateBgClasses);
+  var noConfigCategorizer = categorizer({});
 
   it('should be a function', function() {
     assert.isFunction(categorizer);
-  });
-
-  it('should be a (newable) constructor', function() {
-    expect(defaultCategorizer).to.exist;
   });
 
   describe('categorization', function(){
