@@ -69,7 +69,18 @@ export class SMBGDatePointsAnimated extends Component {
 
   constructor(props) {
     super(props);
+    this.willEnter = this.willEnter.bind(this);
     this.willLeave = this.willLeave.bind(this);
+  }
+
+  willEnter(entered) {
+    const { style } = entered;
+    const { defaultY } = this.props;
+    return {
+      cx: style.cx.val,
+      cy: defaultY,
+      r: 0,
+    };
   }
 
   willLeave(exited) {
@@ -82,7 +93,6 @@ export class SMBGDatePointsAnimated extends Component {
       r: spring(0, radiusAnimationConfig),
     };
   }
-
 
   render() {
     const {
@@ -149,6 +159,7 @@ export class SMBGDatePointsAnimated extends Component {
             },
           };
         }) : []}
+        willEnter={this.willEnter}
         willLeave={this.willLeave}
       >
         {(interpolateds) => {
