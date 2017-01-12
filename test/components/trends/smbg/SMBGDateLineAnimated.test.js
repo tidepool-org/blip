@@ -17,9 +17,11 @@
 
 import _ from 'lodash';
 import React from 'react';
+import { TransitionMotion } from 'react-motion';
 
 import { mount } from 'enzyme';
 
+import bgBounds from '../../../helpers/bgBounds';
 import * as scales from '../../../helpers/scales';
 const {
   trendsHeight,
@@ -46,16 +48,18 @@ describe('SMBGDateLineAnimated', () => {
   ];
 
   const props = {
+    bgBounds,
     date,
     data,
+    focusedDay,
+    focusLine,
+    grouped,
+    onSelectDay,
+    unfocusLine,
     xScale,
     yScale,
-    focusLine,
-    unfocusLine,
-    grouped,
-    focusedDay,
-    onSelectDay,
   };
+
   before(() => {
     wrapper = mount(
       <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
@@ -64,7 +68,7 @@ describe('SMBGDateLineAnimated', () => {
     );
   });
 
-  describe('when no data is provided', () => {
+  describe('when an empty array of data is provided', () => {
     let noDataWrapper;
     before(() => {
       const noDataProps = _.omit(props, 'data');
@@ -76,14 +80,16 @@ describe('SMBGDateLineAnimated', () => {
       );
     });
 
-    it('should render nothing', () => {
-      expect(noDataWrapper.find(`#smbgDayLine-${date}`).length).to.equal(0);
+    it('should render a TransitionMotion component but no <path>', () => {
+      expect(noDataWrapper.find(`#smbgDateLine-${date}`).length).to.equal(1);
+      expect(noDataWrapper.find(TransitionMotion).length).to.equal(1);
+      expect(noDataWrapper.find('path').length).to.equal(0);
     });
   });
 
   describe('when a data is provided', () => {
-    it('should render a smbgDayLine <path>', () => {
-      expect(wrapper.find(`#smbgDayLine-${date} path`).length).to.equal(1);
+    it('should render a smbgDateLine <path>', () => {
+      expect(wrapper.find(`#smbgDateLine-${date} path`).length).to.equal(1);
     });
   });
 
@@ -94,26 +100,26 @@ describe('SMBGDateLineAnimated', () => {
     });
 
     it('should call focusLine on mouseover of smbg line', () => {
-      const smbgDayLine = wrapper
-        .find(`#smbgDayLine-${date} path`);
+      const smbgDateLine = wrapper
+        .find(`#smbgDateLine-${date} path`);
       expect(focusLine.callCount).to.equal(0);
-      smbgDayLine.simulate('mouseover');
+      smbgDateLine.simulate('mouseover');
       expect(focusLine.callCount).to.equal(1);
     });
 
     it('should call unfocusLine on mouseout of smbg line', () => {
-      const smbgDayLine = wrapper
-        .find(`#smbgDayLine-${date} path`);
+      const smbgDateLine = wrapper
+        .find(`#smbgDateLine-${date} path`);
       expect(unfocusLine.callCount).to.equal(0);
-      smbgDayLine.simulate('mouseout');
+      smbgDateLine.simulate('mouseout');
       expect(unfocusLine.callCount).to.equal(1);
     });
 
-    it('should call onSelectDay on double click of smbg line', () => {
-      const smbgDayLine = wrapper
-        .find(`#smbgDayLine-${date} path`);
+    it('should call onSelectDay on click of smbg line', () => {
+      const smbgDateLine = wrapper
+        .find(`#smbgDateLine-${date} path`);
       expect(onSelectDay.callCount).to.equal(0);
-      smbgDayLine.simulate('doubleClick');
+      smbgDateLine.simulate('click');
       expect(onSelectDay.callCount).to.equal(1);
     });
   });

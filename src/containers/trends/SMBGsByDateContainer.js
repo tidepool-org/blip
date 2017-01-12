@@ -60,6 +60,7 @@ const SMBGsByDateContainer = (props) => {
       }
       return (
         <SMBGDateLineAnimated
+          bgBounds={bgBounds}
           data={focusedSmbg.allSmbgsOnDate}
           date={focusedDay}
           focusedDay={focusedDay}
@@ -76,6 +77,7 @@ const SMBGsByDateContainer = (props) => {
     }
     return _.map(smbgsByDate, (smbgs, date) => (
       <SMBGDateLineAnimated
+        bgBounds={bgBounds}
         data={smbgs}
         date={date}
         focusedDay={focusedDay}

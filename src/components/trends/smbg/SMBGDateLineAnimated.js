@@ -27,7 +27,7 @@
 // - date is focused (through hover) fatter & solid line connecting the dots
 //   this style also applies when a single smbg is focused
 
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 import { line } from 'd3-shape';
 import _ from 'lodash';
@@ -36,96 +36,162 @@ import cx from 'classnames';
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
+import withDefaultYPosition from '../common/withDefaultYPosition';
+
 import styles from './SMBGDateLineAnimated.css';
 
-const SMBGDateLineAnimated = (props) => {
-  const { data } = props;
-  if (!data) {
-    return null;
-  }
-
-  const { date,
-    xScale,
-    yScale,
-    grouped,
-    focusLine,
-    unfocusLine,
-    focusedDay,
-    onSelectDay,
-    nonInteractive } = props;
-
-  const xPosition = (msPer24) => {
-    if (grouped) {
-      return findBinForTimeOfDay(THREE_HRS, msPer24);
-    }
-    return msPer24;
+class SMBGDateLineAnimated extends Component {
+  static propTypes = {
+    bgBounds: PropTypes.shape({
+      veryHighThreshold: PropTypes.number.isRequired,
+      targetUpperBound: PropTypes.number.isRequired,
+      targetLowerBound: PropTypes.number.isRequired,
+      veryLowThreshold: PropTypes.number.isRequired,
+    }).isRequired,
+    data: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      msPer24: PropTypes.number.isRequired,
+      value: PropTypes.number.isRequired,
+    })).isRequired,
+    date: PropTypes.string.isRequired,
+    defaultY: PropTypes.number.isRequired,
+    focusedDay: PropTypes.string.isRequired,
+    focusLine: PropTypes.func.isRequired,
+    grouped: PropTypes.bool.isRequired,
+    onSelectDay: PropTypes.func.isRequired,
+    nonInteractive: PropTypes.bool,
+    tooltipLeftThreshold: PropTypes.number.isRequired,
+    unfocusLine: PropTypes.func.isRequired,
+    xScale: PropTypes.func.isRequired,
+    yScale: PropTypes.func.isRequired,
   };
 
-  const positions = _.map(data, (smbg) => ({
-    tooltipLeft: smbg.msPer24 > props.tooltipLeftThreshold,
-    left: xScale(xPosition(smbg.msPer24)),
-    top: yScale(smbg.value),
-  }));
+  constructor(props) {
+    super(props);
+    this.getDefaultPoints = this.getDefaultPoints.bind(this);
+    this.getPoints = this.getPoints.bind(this);
+    this.willEnter = this.willEnter.bind(this);
+    this.willLeave = this.willLeave.bind(this);
+  }
 
-  const getPoints = (smbgs) => {
+  getDefaultPoints() {
+    const { data, grouped, xScale, yScale } = this.props;
     const points = [];
-    _.map(smbgs, (d) => {
+    _.map(data, (d) => {
       points.push({
         key: d.id,
         style: {
-          x: spring(xScale(xPosition(d.msPer24))),
+          opacity: 0,
+          x: xScale(this.xPosition(d.msPer24, grouped)),
+          y: yScale(d.value),
+        } },
+      );
+    });
+    return points;
+  }
+
+  getPoints() {
+    const { data, grouped, xScale, yScale } = this.props;
+    const points = [];
+    _.map(data, (d) => {
+      points.push({
+        key: d.id,
+        style: {
+          opacity: spring(1),
+          x: spring(xScale(this.xPosition(d.msPer24, grouped))),
           y: spring(yScale(d.value)),
         } },
       );
     });
     return points;
-  };
+  }
 
-  const classes = cx({
-    [styles.smbgPath]: true,
-    [styles.highlightPath]: focusedDay === date,
-  });
+  willEnter(entered) {
+    const { style } = entered;
+    const { defaultY } = this.props;
+    return {
+      opacity: 0,
+      x: style.x.val,
+      y: defaultY,
+    };
+  }
 
-  // NOTE: This mapping is required due to the differing
-  // expectations of TransitionMotion and d3 line
-  const mapObject = (obj, fn) => _.map(_.keys(obj), (key) => fn(obj[key], key, obj));
+  willLeave(exited) {
+    const { style } = exited;
+    const { defaultY } = this.props;
+    return {
+      opacity: spring(0),
+      x: style.x,
+      y: spring(defaultY),
+    };
+  }
 
-  return (
-    <g id={`smbgDayLine-${date}`}>
-      <TransitionMotion styles={getPoints(data)}>
-        {(interpolated) => (
-          <path
-            d={line()(mapObject(_.pluck(interpolated, 'style'), ({ x, y }) => [x, y]))}
-            className={classes}
-            onMouseOver={() => { focusLine(data[0], positions[0], data, positions, date); }}
-            onMouseOut={() => { unfocusLine(); }}
-            onDoubleClick={() => {
-              onSelectDay(date);
-            }}
-            pointerEvents={nonInteractive ? 'none' : 'stroke'}
-          />
-        )}
-      </TransitionMotion>
-    </g>
-  );
-};
+  xPosition(msPer24, grouped) {
+    if (grouped) {
+      return findBinForTimeOfDay(THREE_HRS, msPer24);
+    }
+    return msPer24;
+  }
 
-SMBGDateLineAnimated.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    msPer24: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired,
-  })).isRequired,
-  date: PropTypes.string.isRequired,
-  focusedDay: PropTypes.string.isRequired,
-  focusLine: PropTypes.func.isRequired,
-  grouped: PropTypes.bool.isRequired,
-  onSelectDay: PropTypes.func.isRequired,
-  nonInteractive: PropTypes.bool,
-  tooltipLeftThreshold: PropTypes.number.isRequired,
-  unfocusLine: PropTypes.func.isRequired,
-  xScale: PropTypes.func.isRequired,
-  yScale: PropTypes.func.isRequired,
-};
+  render() {
+    const {
+      data,
+      date,
+      focusedDay,
+      focusLine,
+      onSelectDay,
+      nonInteractive,
+      tooltipLeftThreshold,
+      unfocusLine,
+      xScale,
+      yScale,
+    } = this.props;
 
-export default SMBGDateLineAnimated;
+    const positions = _.map(data, (smbg) => ({
+      tooltipLeft: smbg.msPer24 > tooltipLeftThreshold,
+      left: xScale(this.xPosition(smbg.msPer24)),
+      top: yScale(smbg.value),
+    }));
+
+    const classes = cx({
+      [styles.smbgPath]: true,
+      [styles.highlightPath]: focusedDay === date,
+    });
+
+    // NOTE: This mapping is required due to the differing
+    // expectations of TransitionMotion and d3 line
+    const mapObject = (obj, fn) => _.map(_.keys(obj), (key) => fn(obj[key], key, obj));
+
+    return (
+      <g id={`smbgDateLine-${date}`}>
+        <TransitionMotion
+          defaultStyles={this.getDefaultPoints(data)}
+          styles={this.getPoints(data)}
+          willEnter={this.willEnter}
+          willLeave={this.willLeave}
+        >
+          {(interpolated) => {
+            if (_.isEmpty(data)) {
+              return null;
+            }
+            return (
+              <path
+                d={line()(mapObject(_.pluck(interpolated, 'style'), ({ x, y }) => [x, y]))}
+                className={classes}
+                onMouseOver={() => { focusLine(data[0], positions[0], data, positions, date); }}
+                onMouseOut={() => { unfocusLine(); }}
+                onClick={() => {
+                  onSelectDay(date);
+                }}
+                pointerEvents={nonInteractive ? 'none' : 'stroke'}
+                strokeOpacity={_.get(interpolated[0], ['style', 'opacity'])}
+              />
+            );
+          }}
+        </TransitionMotion>
+      </g>
+    );
+  }
+}
+
+export default withDefaultYPosition(SMBGDateLineAnimated);
