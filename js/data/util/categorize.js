@@ -17,7 +17,7 @@
 
 var _ = require('lodash');
 
-var Categorization = function(bgClasses){
+var Categorizer = function(bgClasses){
   var classes = _.cloneDeep(bgClasses);
   var defaults = {
     'very-low': { boundary: 55 },
@@ -48,4 +48,4 @@ var Categorization = function(bgClasses){
   };
 };
 
-module.exports = Categorization;
+module.exports = Categorizer;
