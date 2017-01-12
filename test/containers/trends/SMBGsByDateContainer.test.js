@@ -17,6 +17,7 @@
 
 import _ from 'lodash';
 import React from 'react';
+import { TransitionMotion } from 'react-motion';
 
 import { mount } from 'enzyme';
 
@@ -42,18 +43,19 @@ describe('SMBGsByDateContainer', () => {
       { id: '1', value: 90, msPer24: 9000000, localDate: '2016-08-28' },
       { id: '2', value: 180, msPer24: 21600000, localDate: '2016-08-28' },
     ],
-    grouped: true,
-    lines: true,
+    dates: ['2016-08-28'],
     focusedSmbg: {},
     focusSmbg: () => {},
-    unfocusSmbg: () => {},
-    xScale,
-    yScale,
+    grouped: true,
+    lines: true,
     smbgOpts: {
       maxR: 7.5,
       r: 6,
     },
     tooltipLeftThreshold: THREE_HRS * 6,
+    unfocusSmbg: () => {},
+    xScale,
+    yScale,
   };
 
   before(() => {
@@ -63,13 +65,17 @@ describe('SMBGsByDateContainer', () => {
   describe('when no data is provided', () => {
     let noDataWrapper;
     before(() => {
-      const noDataProps = _.omit(props, 'data');
+      const noDataProps = _.assign({}, props, { data: [] });
       noDataWrapper = mount(<SMBGsByDateContainer {...noDataProps} />);
     });
 
-    it('should render nothing', () => {
-      expect(noDataWrapper.find('#smbgsByDateContainer circle').length).to.equal(0);
-      expect(noDataWrapper.find('#smbgsByDateContainer path').length).to.equal(0);
+    it('should render no SVG elements', () => {
+      expect(noDataWrapper.find('circle').length).to.equal(0);
+      expect(noDataWrapper.find('path').length).to.equal(0);
+    });
+
+    it('should render 2x TransitionMotion (for dots & line) for each date in dates', () => {
+      expect(noDataWrapper.find(TransitionMotion).length).to.equal(2 * props.dates.length);
     });
   });
 

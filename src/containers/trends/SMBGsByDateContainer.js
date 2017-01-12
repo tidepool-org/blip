@@ -30,6 +30,7 @@ const SMBGsByDateContainer = (props) => {
   const {
     anSmbgRangeAvgIsFocused,
     bgBounds,
+    dates,
     focusedSmbg,
     focusSmbg,
     grouped,
@@ -47,7 +48,7 @@ const SMBGsByDateContainer = (props) => {
 
   const focusedDay = focusedSmbg ? focusedSmbg.date : '';
   const smbgsByDate = _.groupBy(data, 'localDate');
-  _.each(props.dates, (date) => {
+  _.each(dates, (date) => {
     if (!smbgsByDate[date]) {
       smbgsByDate[date] = [];
     }
