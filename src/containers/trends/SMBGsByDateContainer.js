@@ -54,15 +54,34 @@ const SMBGsByDateContainer = (props) => {
   });
 
   function getLines() {
-    if (!lines) {
-      if (!focusedDay) {
-        return null;
-      }
-      return (
+    const allDateLines = [];
+    _.each(smbgsByDate, (smbgs, date) => {
+      const dateData = lines ? smbgs : [];
+      allDateLines.push((
+        <SMBGDateLineAnimated
+          bgBounds={bgBounds}
+          data={dateData}
+          date={date}
+          focusedDay={focusedDay}
+          focusLine={focusSmbg}
+          grouped={grouped}
+          key={date}
+          onSelectDay={onSelectDay}
+          nonInteractive={nonInteractive}
+          tooltipLeftThreshold={tooltipLeftThreshold}
+          unfocusLine={unfocusSmbg}
+          xScale={xScale}
+          yScale={yScale}
+        />
+      ));
+    });
+    if (focusedDay) {
+      allDateLines.push((
         <SMBGDateLineAnimated
           bgBounds={bgBounds}
           data={focusedSmbg.allSmbgsOnDate}
           date={focusedDay}
+          key={`${focusedDay}-focused`}
           focusedDay={focusedDay}
           focusLine={focusSmbg}
           grouped={grouped}
@@ -73,25 +92,9 @@ const SMBGsByDateContainer = (props) => {
           xScale={xScale}
           yScale={yScale}
         />
-      );
+      ));
     }
-    return _.map(smbgsByDate, (smbgs, date) => (
-      <SMBGDateLineAnimated
-        bgBounds={bgBounds}
-        data={smbgs}
-        date={date}
-        focusedDay={focusedDay}
-        focusLine={focusSmbg}
-        grouped={grouped}
-        key={date}
-        onSelectDay={onSelectDay}
-        nonInteractive={nonInteractive}
-        tooltipLeftThreshold={tooltipLeftThreshold}
-        unfocusLine={unfocusSmbg}
-        xScale={xScale}
-        yScale={yScale}
-      />
-    ));
+    return allDateLines;
   }
 
   function getPoints() {

@@ -90,24 +90,22 @@ export class TrendsSVGContainer extends React.Component {
   }
 
   renderOverlay(smbgComponent, componentKey) {
-    if (this.props.smbgRangeOverlay) {
-      return (
-        <SMBGRangeAvgContainer
-          bgBounds={this.props.bgBounds}
-          data={this.props.smbgData}
-          focus={this.props.focusRange}
-          focusedSmbgRangeAvgKey={this.props.focusedSmbgRangeAvgKey}
-          key={componentKey}
-          smbgComponent={smbgComponent}
-          someSmbgDataIsFocused={this.props.focusedSmbg !== null}
-          tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-          unfocus={this.props.unfocusRange}
-          xScale={this.props.xScale}
-          yScale={this.props.yScale}
-        />
-      );
-    }
-    return null;
+    const data = this.props.smbgRangeOverlay ? this.props.smbgData : [];
+    return (
+      <SMBGRangeAvgContainer
+        bgBounds={this.props.bgBounds}
+        data={data}
+        focus={this.props.focusRange}
+        focusedSmbgRangeAvgKey={this.props.focusedSmbgRangeAvgKey}
+        key={componentKey}
+        smbgComponent={smbgComponent}
+        someSmbgDataIsFocused={this.props.focusedSmbg !== null}
+        tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+        unfocus={this.props.unfocusRange}
+        xScale={this.props.xScale}
+        yScale={this.props.yScale}
+      />
+    );
   }
 
   renderCbg() {

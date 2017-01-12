@@ -121,7 +121,7 @@ class SMBGDateLineAnimated extends Component {
     const { defaultY } = this.props;
     return {
       opacity: spring(0),
-      x: style.x,
+      x: style.x.val || style.x,
       y: spring(defaultY),
     };
   }
@@ -171,7 +171,7 @@ class SMBGDateLineAnimated extends Component {
           willLeave={this.willLeave}
         >
           {(interpolated) => {
-            if (_.isEmpty(data)) {
+            if (interpolated.length === 0) {
               return null;
             }
             return (

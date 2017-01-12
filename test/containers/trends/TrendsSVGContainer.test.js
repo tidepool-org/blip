@@ -168,12 +168,17 @@ describe('TrendsSVGContainer', () => {
       });
 
       describe('when smbgRangeOverlay is false', () => {
-        it('should not render an SMBGRangeAvgContainer', () => {
+        it('should render an SMBGRangeAvgContainer with empty data (to get exit animation)', () => {
           const smbgRangeProps = _.assign(
             {}, props, { showingSmbg: true, smbgRangeOverlay: false }
           );
           const smbgRangeWrapper = shallow(<TrendsSVGContainer {...smbgRangeProps} />);
-          expect(smbgRangeWrapper.find(SMBGRangeAvgContainer)).to.have.length(0);
+          const rangeAvgContainer = smbgRangeWrapper.find(SMBGRangeAvgContainer);
+          expect(rangeAvgContainer).to.have.length(2);
+          // eslint-disable-next-line lodash/prefer-lodash-method
+          rangeAvgContainer.forEach((container) => {
+            expect(container.prop('data')).to.deep.equal([]);
+          });
         });
       });
 

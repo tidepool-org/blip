@@ -269,7 +269,9 @@ export class TrendsContainer extends React.Component {
       currentCbgData: cbgByDate.top(Infinity).reverse(),
       currentSmbgData: smbgByDate.top(Infinity).reverse(),
       dateDomain: { start: newDomain[0], end: newDomain[1] },
-      previousDateDomain: oldDomain || null,
+      previousDateDomain: oldDomain ?
+        { start: oldDomain[0], end: oldDomain[1] } :
+        null,
     });
     this.props.onDatetimeLocationChange(newDomain, newDomain[1] >= mostRecent);
   }
