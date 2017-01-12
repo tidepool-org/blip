@@ -19,7 +19,7 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
 import SMBGDatePointsAnimated from '../../components/trends/smbg/SMBGDatePointsAnimated';
-import SMBGDayLineAnimated from '../../components/trends/smbg/SMBGDayLineAnimated';
+import SMBGDateLineAnimated from '../../components/trends/smbg/SMBGDateLineAnimated';
 
 const SMBGsByDateContainer = (props) => {
   const { data } = props;
@@ -59,7 +59,7 @@ const SMBGsByDateContainer = (props) => {
         return null;
       }
       return (
-        <SMBGDayLineAnimated
+        <SMBGDateLineAnimated
           data={focusedSmbg.allSmbgsOnDate}
           date={focusedDay}
           focusedDay={focusedDay}
@@ -75,7 +75,7 @@ const SMBGsByDateContainer = (props) => {
       );
     }
     return _.map(smbgsByDate, (smbgs, date) => (
-      <SMBGDayLineAnimated
+      <SMBGDateLineAnimated
         data={smbgs}
         date={date}
         focusedDay={focusedDay}

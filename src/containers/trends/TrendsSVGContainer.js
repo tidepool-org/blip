@@ -131,7 +131,7 @@ export class TrendsSVGContainer extends React.Component {
 
   renderSmbg() {
     if (this.props.showingSmbg) {
-      const days = (
+      const allSmbgsByDate = (
         <SMBGsByDateContainer
           anSmbgRangeAvgIsFocused={this.props.focusedSmbgRangeAvgKey !== null}
           bgBounds={this.props.bgBounds}
@@ -150,10 +150,10 @@ export class TrendsSVGContainer extends React.Component {
           yScale={this.props.yScale}
         />
       );
-      // Focused day will be rendered last, on top of everything else but flagged
+      // Focused date will be rendered last, on top of everything else but flagged
       // as nonInteractive to allow mouse events to be handled exclusively by normally
       // rendered points and lines
-      const focusedDay = this.props.focusedSmbg ? (
+      const focusedSmbgDate = this.props.focusedSmbg ? (
         <SMBGsByDateContainer
           anSmbgRangeAvgIsFocused={false}
           bgBounds={this.props.bgBounds}
@@ -178,9 +178,9 @@ export class TrendsSVGContainer extends React.Component {
       return (
         <g id="smbgTrends">
         {this.renderOverlay(SMBGRangeAnimated, 'SMBGRangeContainer')}
-        {days}
+        {allSmbgsByDate}
         {this.renderOverlay(SMBGAvgAnimated, 'SMBGAvgContainer')}
-        {focusedDay}
+        {focusedSmbgDate}
         </g>
       );
     }

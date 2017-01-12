@@ -29,9 +29,9 @@ const {
 } = scales.trends;
 
 import SVGContainer from '../../../helpers/SVGContainer';
-import SMBGDayLineAnimated from '../../../../src/components/trends/smbg/SMBGDayLineAnimated';
+import SMBGDateLineAnimated from '../../../../src/components/trends/smbg/SMBGDateLineAnimated';
 
-describe('SMBGDayLineAnimated', () => {
+describe('SMBGDateLineAnimated', () => {
   let wrapper;
   const focusLine = sinon.spy();
   const unfocusLine = sinon.spy();
@@ -59,7 +59,7 @@ describe('SMBGDayLineAnimated', () => {
   before(() => {
     wrapper = mount(
       <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-        <SMBGDayLineAnimated {...props} />
+        <SMBGDateLineAnimated {...props} />
       </SVGContainer>
     );
   });
@@ -71,7 +71,7 @@ describe('SMBGDayLineAnimated', () => {
 
       noDataWrapper = mount(
         <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <SMBGDayLineAnimated {...noDataProps} />
+          <SMBGDateLineAnimated {...noDataProps} />
         </SVGContainer>
       );
     });

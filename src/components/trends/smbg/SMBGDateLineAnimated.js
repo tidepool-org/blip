@@ -15,16 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
-// TODO: this component should render a line connecting the smbgs from a single day
+// this component renders a line connecting the smbgs from a single date
 // it has two or three potential states:
 // - grouping on: the y-position of each point on the line segment
 //   is the average of all the smbgs in the group
 //   NB: when grouping is on, no line hover interaction
 // - grouping off: just connect the dots!
 //   but also include a 2nd, fatter invisible line with onMouseOver & onMouseOut handlers
-//   for the line to "focus" the whole day
+//   for the line to "focus" the whole date
 //   (there seems to be a regression on prod re: the rendering of the fatter invisible lines)
-// - [maybe] day is focused (through hover) fatter & solid line connecting the dots
+// - date is focused (through hover) fatter & solid line connecting the dots
 //   this style also applies when a single smbg is focused
 
 import React, { PropTypes } from 'react';
@@ -36,9 +36,9 @@ import cx from 'classnames';
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
-import styles from './SMBGDayLineAnimated.css';
+import styles from './SMBGDateLineAnimated.css';
 
-const SMBGDayLineAnimated = (props) => {
+const SMBGDateLineAnimated = (props) => {
   const { data } = props;
   if (!data) {
     return null;
@@ -110,7 +110,7 @@ const SMBGDayLineAnimated = (props) => {
   );
 };
 
-SMBGDayLineAnimated.propTypes = {
+SMBGDateLineAnimated.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     msPer24: PropTypes.number.isRequired,
@@ -128,4 +128,4 @@ SMBGDayLineAnimated.propTypes = {
   yScale: PropTypes.func.isRequired,
 };
 
-export default SMBGDayLineAnimated;
+export default SMBGDateLineAnimated;
