@@ -36,6 +36,7 @@ var alternateBgClasses = {
 describe('Categorize', function() {
   var defaultCategorizer = new categorizer(defaultBgClasses);
   var alternateCategorizer = new categorizer(alternateBgClasses);
+  var noConfigCategorizer = new categorizer({});
 
   it('should be a function', function() {
     assert.isFunction(categorizer);
@@ -102,6 +103,35 @@ describe('Categorize', function() {
       });
       it('should categorize 270 as "veryhigh"', function(){
         expect(alternateCategorizer({value:270})).to.equal("veryhigh");
+      });
+    });
+    describe('with no classes', function(){
+      it('should categorize 54 as "verylow"', function(){
+        expect(noConfigCategorizer({value:54})).to.equal("verylow");
+      });
+      it('should categorize 55 as "low"', function(){
+        expect(noConfigCategorizer({value:55})).to.equal("low");
+      });
+      it('should categorize 60 as "low"', function(){
+        expect(noConfigCategorizer({value:60})).to.equal("low");
+      });
+      it('should categorize 70 as "target"', function(){
+        expect(noConfigCategorizer({value:70})).to.equal("target");
+      });
+      it('should categorize 100 as "target"', function(){
+        expect(noConfigCategorizer({value:100})).to.equal("target");
+      });
+      it('should categorize 180 as "target"', function(){
+        expect(noConfigCategorizer({value:180})).to.equal("target");
+      });
+      it('should categorize 250 as "high"', function(){
+        expect(noConfigCategorizer({value:250})).to.equal("high");
+      });
+      it('should categorize 300 as "high"', function(){
+        expect(noConfigCategorizer({value:300})).to.equal("high");
+      });
+      it('should categorize 350 as "veryhigh"', function(){
+        expect(noConfigCategorizer({value:350})).to.equal("veryhigh");
       });
     });
   });
