@@ -99,7 +99,6 @@ export class CBGSliceAnimated extends Component {
     return {
       binLeftX: style.binLeftX,
       bottom10Height: 0,
-      cornerRadius: style.cornerRadius,
       firstQuartile: defaultY,
       innerQuartilesHeight: 0,
       lower15Height: 0,
@@ -122,7 +121,6 @@ export class CBGSliceAnimated extends Component {
     const shrinkOut = spring(0);
     return {
       binLeftX: style.binLeftX,
-      cornerRadius: style.cornerRadius,
       bottom10Height: shrinkOut,
       firstQuartile: defaultYSpring,
       innerQuartilesHeight: shrinkOut,
