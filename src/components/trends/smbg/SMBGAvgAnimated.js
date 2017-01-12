@@ -69,9 +69,10 @@ export class SMBGAvgAnimated extends Component {
     const { style } = entered;
     const { defaultY } = this.props;
     return {
-      cx: style.cx,
-      cy: defaultY,
-      r: 0,
+      x: style.x,
+      y: defaultY,
+      height: 0,
+      opacity: 0,
     };
   }
 
@@ -79,9 +80,10 @@ export class SMBGAvgAnimated extends Component {
     const { style } = exited;
     const { defaultY } = this.props;
     return {
-      cx: style.cx,
-      cy: spring(defaultY),
-      r: spring(0),
+      x: style.x,
+      y: spring(defaultY),
+      height: spring(0),
+      opacity: spring(0.0),
     };
   }
 
@@ -134,6 +136,8 @@ export class SMBGAvgAnimated extends Component {
             opacity: someSmbgDataIsFocused ? spring(0.0) : spring(1.0),
           },
         }] : []}
+        willEnter={this.willEnter}
+        willLeave={this.willLeave}
       >
         {(interpolated) => {
           if (interpolated.length === 0) {
@@ -146,7 +150,7 @@ export class SMBGAvgAnimated extends Component {
                 [styles.smbgAvg]: true,
               },
                 (datum.mean) ?
-                  styles[classifyBgValue(bgBounds, datum.mean)] :
+                  [styles[classifyBgValue(bgBounds, datum.mean)]] :
                   styles.smbgAvgTransparent
               )}
               id={`smbgAvg-${datum.id}`}

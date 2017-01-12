@@ -291,7 +291,7 @@ export class TrendsContainer extends React.Component {
       units: 'days',
     }).toISOString();
     const newDomain = [start, newEnd];
-    this.setExtent(newDomain, oldDomain);
+    this.setExtent(newDomain, [oldDomain.start, oldDomain.end]);
   }
 
   goForward() {
@@ -299,7 +299,7 @@ export class TrendsContainer extends React.Component {
     const { dateDomain: { end: newStart } } = this.state;
     const end = utcDay.offset(new Date(newStart), this.props.extentSize).toISOString();
     const newDomain = [newStart, end];
-    this.setExtent(newDomain, oldDomain);
+    this.setExtent(newDomain, [oldDomain.start, oldDomain.end]);
   }
 
   goToMostRecent() {

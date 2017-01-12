@@ -32,6 +32,10 @@
   stroke-width: 1px;
 }
 
+.smbgAvgTransparent {
+  fill: transparent;
+}
+
 :export {
   stroke: 1;
 }
