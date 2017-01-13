@@ -15,18 +15,22 @@
  * == BSD2 LICENSE ==
  */
 
+:export {
+  stroke: 2;
+}
+
+.thickStroke {
+  stroke-width: 2;
+}
+
 .median {
   stroke: white;
-  stroke-width: 1px;
+  composes: thickStroke;
   pointer-events: none;
 }
 
 .medianTransparent {
   fill: transparent;
-}
-
-:export {
-  stroke: 1;
 }
 
 .low {
@@ -43,13 +47,13 @@
 
 .rangeSegment {
   stroke: var(--trends--light);
-  stroke-width: 1px;
+  composes: thickStroke;
   fill: transparent;
 }
 
 .outerSegment {
   stroke: var(--trends--light);
-  stroke-width: 1px;
+  composes: thickStroke;
   fill: var(--trends--light);
 }
 
@@ -59,7 +63,7 @@
 
 .innerQuartilesSegment {
   stroke: var(--trends--dark);
-  stroke-width: 1px;
+  composes: thickStroke;
   fill: var(--trends--dark);
 }
 

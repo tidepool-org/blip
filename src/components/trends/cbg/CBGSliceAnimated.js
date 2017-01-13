@@ -27,7 +27,6 @@ import styles from './CBGSliceAnimated.css';
 
 export class CBGSliceAnimated extends Component {
   static defaultProps = {
-    cornerRadius: 2,
     medianHeight: 10,
     medianWidth: 14,
     sliceWidth: 16,
@@ -40,7 +39,6 @@ export class CBGSliceAnimated extends Component {
       targetLowerBound: PropTypes.number.isRequired,
       veryLowThreshold: PropTypes.number.isRequired,
     }).isRequired,
-    cornerRadius: PropTypes.number.isRequired,
     datum: PropTypes.shape({
       firstQuartile: PropTypes.number,
       id: PropTypes.string.isRequired,
@@ -140,7 +138,6 @@ export class CBGSliceAnimated extends Component {
   render() {
     const {
       bgBounds,
-      cornerRadius,
       datum,
       defaultY,
       displayFlags,
@@ -164,7 +161,6 @@ export class CBGSliceAnimated extends Component {
     const renderPieces = {
       top10: {
         className: styles.rangeSegment,
-        cornerRadius: 0,
         displayFlag: 'cbg100Enabled',
         height: 'top10Height',
         heightKeys: ['ninetiethQuantile', 'max'],
@@ -173,7 +169,6 @@ export class CBGSliceAnimated extends Component {
       },
       bottom10: {
         className: styles.rangeSegment,
-        cornerRadius: 0,
         displayFlag: 'cbg100Enabled',
         height: 'bottom10Height',
         heightKeys: ['min', 'tenthQuantile'],
@@ -182,7 +177,6 @@ export class CBGSliceAnimated extends Component {
       },
       upper15: {
         className: styles.outerSegment,
-        cornerRadius: 0,
         displayFlag: 'cbg80Enabled',
         height: 'upper15Height',
         heightKeys: ['thirdQuartile', 'ninetiethQuantile'],
@@ -191,7 +185,6 @@ export class CBGSliceAnimated extends Component {
       },
       lower15: {
         className: styles.outerSegment,
-        cornerRadius: 0,
         displayFlag: 'cbg80Enabled',
         height: 'lower15Height',
         heightKeys: ['tenthQuantile', 'firstQuartile'],
@@ -200,7 +193,6 @@ export class CBGSliceAnimated extends Component {
       },
       innerQuartiles: {
         className: styles.innerQuartilesSegment,
-        cornerRadius: 0,
         displayFlag: 'cbg50Enabled',
         height: 'innerQuartilesHeight',
         heightKeys: ['firstQuartile', 'thirdQuartile'],
@@ -209,7 +201,6 @@ export class CBGSliceAnimated extends Component {
       },
       median: {
         className: medianClasses,
-        cornerRadius,
         displayFlag: 'cbgMedianEnabled',
         height: 'medianHeight',
         key: 'median',
@@ -269,8 +260,6 @@ export class CBGSliceAnimated extends Component {
                     height={style[renderPieces[key].height]}
                     x={style.binLeftX}
                     y={style[renderPieces[key].y]}
-                    rx={segment.cornerRadius}
-                    ry={segment.cornerRadius}
                   />
                 );
               })}
