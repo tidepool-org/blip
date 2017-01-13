@@ -156,6 +156,7 @@ var CalendarContainer = React.createClass({
             timezone={self.props.timezone}
             type={self.props.type}
             title={self.props.title}
+            trackMetric={self.props.trackMetric}
           />
         );
       } else {
