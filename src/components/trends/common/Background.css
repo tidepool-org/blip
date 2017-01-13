@@ -16,6 +16,8 @@
  */
 
 .background {
+  stroke: var(--bkgrnd-lines);
+  stroke-width: 1px;
   fill: var(--bkgrnd);
 }
 
