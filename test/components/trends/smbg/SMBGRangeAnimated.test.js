@@ -33,7 +33,6 @@ import SVGContainer from '../../../helpers/SVGContainer';
 
 import { THREE_HRS } from '../../../../src/utils/datetime';
 import { SMBGRangeAnimated } from '../../../../src/components/trends/smbg/SMBGRangeAnimated';
-import styles from '../../../../src/components/trends/smbg/SMBGRangeAnimated.css';
 
 describe('SMBGRangeAnimated', () => {
   let wrapper;
@@ -100,7 +99,7 @@ describe('SMBGRangeAnimated', () => {
         .find(`#smbgRange-${datum.id}`).props();
       const smbgRangeAnimated = wrapper.find(SMBGRangeAnimated);
       expect(rangeRect.x)
-        .to.equal(xScale(datum.msX) - smbgRangeAnimated.prop('rectWidth') / 2 - styles.stroke / 2);
+        .to.equal(xScale(datum.msX) - smbgRangeAnimated.prop('rectWidth') / 2);
       expect(rangeRect.width).to.equal(smbgRangeAnimated.prop('rectWidth'));
       const style = wrapper.find(TransitionMotion).prop('styles')[0].style;
       expect(style.y.val).to.equal(0);

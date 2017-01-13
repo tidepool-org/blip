@@ -16,15 +16,7 @@
  */
 
 .smbgRange {
-  fill: var(--trends--light);
-  stroke: var(--trends--light);
-  stroke-width: 1px;
-}
-
-.smbgRangeTransparent {
   fill: transparent;
-}
-
-:export {
-  stroke: 1;
+  stroke: var(--trends--light);
+  stroke-width: 2px;
 }

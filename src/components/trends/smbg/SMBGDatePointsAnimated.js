@@ -23,11 +23,9 @@ import { classifyBgValue } from '../../../utils/bloodglucose';
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
-import withDefaultYPosition from '../common/withDefaultYPosition';
-
 import styles from './SMBGDatePointsAnimated.css';
 
-export class SMBGDatePointsAnimated extends Component {
+class SMBGDatePointsAnimated extends Component {
   static defaultProps = {
     radiusAnimationConfig: { stiffness: 60, damping: 15 },
   };
@@ -46,7 +44,6 @@ export class SMBGDatePointsAnimated extends Component {
       value: PropTypes.number.isRequired,
     })).isRequired,
     date: PropTypes.string.isRequired,
-    defaultY: PropTypes.number.isRequired,
     focusSmbg: PropTypes.func.isRequired,
     grouped: PropTypes.bool.isRequired,
     isFocused: PropTypes.bool.isRequired,
@@ -75,20 +72,19 @@ export class SMBGDatePointsAnimated extends Component {
 
   willEnter(entered) {
     const { style } = entered;
-    const { defaultY } = this.props;
     return {
       cx: style.cx.val,
-      cy: defaultY,
+      cy: style.cy,
       r: 0,
     };
   }
 
   willLeave(exited) {
     const { style } = exited;
-    const { defaultY, radiusAnimationConfig } = this.props;
+    const { radiusAnimationConfig } = this.props;
     return {
       cx: style.cx,
-      cy: spring(defaultY),
+      cy: style.cy,
       // slow down the radius animation a bit
       r: spring(0, radiusAnimationConfig),
     };
@@ -151,7 +147,7 @@ export class SMBGDatePointsAnimated extends Component {
             },
             style: {
               cx: spring(position.left),
-              cy: spring(position.top),
+              cy: position.top,
               opacity: (anSmbgRangeAvgIsFocused || someSmbgDataIsFocused) ?
                 spring(0.35) : spring(0.8, radiusAnimationConfig),
               // slow down the radius animation a bit
@@ -196,4 +192,4 @@ export class SMBGDatePointsAnimated extends Component {
   }
 }
 
-export default withDefaultYPosition(SMBGDatePointsAnimated);
+export default SMBGDatePointsAnimated;

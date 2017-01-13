@@ -95,7 +95,6 @@ export class TrendsSVGContainer extends React.Component {
         bgBounds={this.props.bgBounds}
         data={data}
         focus={this.props.focusRange}
-        focusedSmbgRangeAvgKey={this.props.focusedSmbgRangeAvgKey}
         key={componentKey}
         smbgComponent={smbgComponent}
         someSmbgDataIsFocused={this.props.focusedSmbg !== null}

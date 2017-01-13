@@ -36,8 +36,6 @@ import cx from 'classnames';
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
-import withDefaultYPosition from '../common/withDefaultYPosition';
-
 import styles from './SMBGDateLineAnimated.css';
 
 class SMBGDateLineAnimated extends Component {
@@ -54,7 +52,6 @@ class SMBGDateLineAnimated extends Component {
       value: PropTypes.number.isRequired,
     })).isRequired,
     date: PropTypes.string.isRequired,
-    defaultY: PropTypes.number.isRequired,
     focusedDay: PropTypes.string.isRequired,
     focusLine: PropTypes.func.isRequired,
     grouped: PropTypes.bool.isRequired,
@@ -99,7 +96,7 @@ class SMBGDateLineAnimated extends Component {
         style: {
           opacity: spring(1),
           x: spring(xScale(this.xPosition(d.msPer24, grouped))),
-          y: spring(yScale(d.value)),
+          y: yScale(d.value),
         } },
       );
     });
@@ -108,21 +105,19 @@ class SMBGDateLineAnimated extends Component {
 
   willEnter(entered) {
     const { style } = entered;
-    const { defaultY } = this.props;
     return {
       opacity: 0,
       x: style.x.val,
-      y: defaultY,
+      y: style.y,
     };
   }
 
   willLeave(exited) {
     const { style } = exited;
-    const { defaultY } = this.props;
     return {
       opacity: spring(0),
       x: style.x.val || style.x,
-      y: spring(defaultY),
+      y: style.y,
     };
   }
 
@@ -194,4 +189,4 @@ class SMBGDateLineAnimated extends Component {
   }
 }
 
-export default withDefaultYPosition(SMBGDateLineAnimated);
+export default SMBGDateLineAnimated;
