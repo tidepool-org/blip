@@ -33,6 +33,7 @@ import { line } from 'd3-shape';
 import _ from 'lodash';
 import cx from 'classnames';
 
+import { springConfig } from '../../../utils/constants';
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
@@ -94,8 +95,8 @@ class SMBGDateLineAnimated extends Component {
       points.push({
         key: d.id,
         style: {
-          opacity: spring(1),
-          x: spring(xScale(this.xPosition(d.msPer24, grouped))),
+          opacity: spring(1, springConfig),
+          x: spring(xScale(this.xPosition(d.msPer24, grouped)), springConfig),
           y: yScale(d.value),
         } },
       );
@@ -115,7 +116,7 @@ class SMBGDateLineAnimated extends Component {
   willLeave(exited) {
     const { style } = exited;
     return {
-      opacity: spring(0),
+      opacity: spring(0, springConfig),
       x: style.x.val || style.x,
       y: style.y,
     };

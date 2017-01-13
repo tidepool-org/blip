@@ -21,6 +21,7 @@ import React, { Component, PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
 import { classifyBgValue } from '../../../utils/bloodglucose';
+import { springConfig } from '../../../utils/constants';
 import withDefaultYPosition from '../common/withDefaultYPosition';
 
 import styles from './CBGSliceAnimated.css';
@@ -104,6 +105,7 @@ export class CBGSliceAnimated extends Component {
       medianHeight: 0,
       median: defaultY,
       ninetiethQuantile: defaultY,
+      opacity: 0,
       tenthQuantile: defaultY,
       thirdQuartile: defaultY,
       top10Height: 0,
@@ -115,8 +117,8 @@ export class CBGSliceAnimated extends Component {
   willLeave(exited) {
     const { style } = exited;
     const { defaultY } = this.props;
-    const defaultYSpring = spring(defaultY);
-    const shrinkOut = spring(0);
+    const defaultYSpring = spring(defaultY, springConfig);
+    const shrinkOut = spring(0, springConfig);
     return {
       binLeftX: style.binLeftX,
       bottom10Height: shrinkOut,
@@ -127,6 +129,7 @@ export class CBGSliceAnimated extends Component {
       medianHeight: shrinkOut,
       median: defaultYSpring,
       ninetiethQuantile: defaultYSpring,
+      opacity: shrinkOut,
       tenthQuantile: defaultYSpring,
       thirdQuartile: defaultYSpring,
       top10Height: shrinkOut,
@@ -220,6 +223,7 @@ export class CBGSliceAnimated extends Component {
               [segment.y]: defaultY,
               width: this.getWidth(baseWidth),
               [segment.height]: 0,
+              opacity: 0,
             },
           };
         }) : []}
@@ -230,12 +234,16 @@ export class CBGSliceAnimated extends Component {
             style: {
               binLeftX: this.getBinLeftX(baseWidth),
               [segment.y]: this.isMedian(segment) ?
-                spring(yScale(datum.median) - medianHeight / 2) :
-                spring(yScale(datum[segment.y])),
+                spring(yScale(datum.median) - medianHeight / 2, springConfig) :
+                spring(yScale(datum[segment.y]), springConfig),
               width: this.getWidth(baseWidth),
               [segment.height]: this.isMedian(segment) ?
-                spring(medianHeight) :
-                spring(yScale(datum[segment.heightKeys[0]]) - yScale(datum[segment.heightKeys[1]])),
+                spring(medianHeight, springConfig) :
+                spring(
+                  yScale(datum[segment.heightKeys[0]]) - yScale(datum[segment.heightKeys[1]]),
+                  springConfig
+                ),
+              opacity: spring(1.0, springConfig),
             },
           };
         }) : []}
@@ -260,6 +268,7 @@ export class CBGSliceAnimated extends Component {
                     height={style[renderPieces[key].height]}
                     x={style.binLeftX}
                     y={style[renderPieces[key].y]}
+                    opacity={style.opacity}
                   />
                 );
               })}

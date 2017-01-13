@@ -18,6 +18,7 @@
 import React, { Component, PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
+import { springConfig } from '../../../utils/constants';
 import withDefaultYPosition from '../common/withDefaultYPosition';
 
 import styles from './SMBGRangeAnimated.css';
@@ -66,17 +67,20 @@ export class SMBGRangeAnimated extends Component {
       y: defaultY,
       width: style.width,
       height: 0,
+      opacity: 0,
     };
   }
 
   willLeave(exited) {
     const { style } = exited;
     const { defaultY } = this.props;
+    const shrinkOut = spring(0, springConfig);
     return {
       x: style.x,
-      y: spring(defaultY),
+      y: spring(defaultY, springConfig),
       width: style.width,
-      height: spring(0),
+      height: shrinkOut,
+      opacity: shrinkOut,
     };
   }
 
@@ -107,15 +111,17 @@ export class SMBGRangeAnimated extends Component {
             y: defaultY,
             width: rectWidth,
             height: 0,
+            opacity: 0,
           },
         }]}
         styles={datum.min ? [{
           key: datum.id,
           style: {
             x: rectLeftEdge,
-            y: spring(yPositions.max),
+            y: spring(yPositions.max, springConfig),
             width: rectWidth,
-            height: spring(yPositions.min - yPositions.max),
+            height: spring(yPositions.min - yPositions.max, springConfig),
+            opacity: spring(1.0, springConfig),
           },
         }] : []}
         willEnter={this.willEnter}
@@ -136,6 +142,7 @@ export class SMBGRangeAnimated extends Component {
             y={style.y}
             width={style.width}
             height={style.height}
+            opacity={style.opacity}
           />
         );
       }}

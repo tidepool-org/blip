@@ -20,16 +20,13 @@ import { TransitionMotion, spring } from 'react-motion';
 import _ from 'lodash';
 
 import { classifyBgValue } from '../../../utils/bloodglucose';
+import { springConfig } from '../../../utils/constants';
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
 import styles from './SMBGDatePointsAnimated.css';
 
 class SMBGDatePointsAnimated extends Component {
-  static defaultProps = {
-    radiusAnimationConfig: { stiffness: 60, damping: 15 },
-  };
-
   static propTypes = {
     anSmbgRangeAvgIsFocused: PropTypes.bool.isRequired,
     bgBounds: PropTypes.shape({
@@ -49,10 +46,6 @@ class SMBGDatePointsAnimated extends Component {
     isFocused: PropTypes.bool.isRequired,
     nonInteractive: PropTypes.bool,
     onSelectDay: PropTypes.func.isRequired,
-    radiusAnimationConfig: PropTypes.shape({
-      stiffness: PropTypes.number.isRequired,
-      damping: PropTypes.number.isRequired,
-    }).isRequired,
     smbgOpts: PropTypes.shape({
       maxR: PropTypes.number.isRequired,
       r: PropTypes.number.isRequired,
@@ -81,12 +74,11 @@ class SMBGDatePointsAnimated extends Component {
 
   willLeave(exited) {
     const { style } = exited;
-    const { radiusAnimationConfig } = this.props;
     return {
       cx: style.cx,
       cy: style.cy,
       // slow down the radius animation a bit
-      r: spring(0, radiusAnimationConfig),
+      r: spring(0, springConfig),
     };
   }
 
@@ -101,7 +93,6 @@ class SMBGDatePointsAnimated extends Component {
       isFocused,
       nonInteractive,
       onSelectDay,
-      radiusAnimationConfig,
       smbgOpts,
       someSmbgDataIsFocused,
       tooltipLeftThreshold,
@@ -146,12 +137,12 @@ class SMBGDatePointsAnimated extends Component {
               smbg,
             },
             style: {
-              cx: spring(position.left),
+              cx: spring(position.left, springConfig),
               cy: position.top,
               opacity: (anSmbgRangeAvgIsFocused || someSmbgDataIsFocused) ?
-                spring(0.35) : spring(0.8, radiusAnimationConfig),
+                spring(0.35, springConfig) : spring(0.8, springConfig),
               // slow down the radius animation a bit
-              r: spring(radius, radiusAnimationConfig),
+              r: spring(radius, springConfig),
             },
           };
         }) : []}
