@@ -28,8 +28,8 @@ import bgBounds from '../../helpers/bgBounds';
 import { THREE_HRS } from '../../../src/utils/datetime';
 import SMBGRangeAvgContainer
   from '../../../src/containers/trends/SMBGRangeAvgContainer';
-import SMBGAvgAnimated
-  from '../../../src/components/trends/smbg/SMBGAvgAnimated';
+import SMBGRangeAnimated
+  from '../../../src/components/trends/smbg/SMBGRangeAnimated';
 
 describe('SMBGRangeAvgContainer', () => {
   let wrapper;
@@ -47,7 +47,7 @@ describe('SMBGRangeAvgContainer', () => {
     unfocusRange: () => {},
     xScale,
     yScale,
-    smbgComponent: SMBGAvgAnimated,
+    smbgComponent: SMBGRangeAnimated,
   };
 
   before(() => {

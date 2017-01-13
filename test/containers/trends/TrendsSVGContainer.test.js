@@ -158,12 +158,12 @@ describe('TrendsSVGContainer', () => {
 
     describe('showing BGM data', () => {
       describe('when smbgRangeOverlay is true', () => {
-        it('should render an SMBGRangeAvgContainer each for average and range', () => {
+        it('should render an SMBGRangeAvgContainer for range', () => {
           const smbgRangeProps = _.assign(
             {}, props, { showingSmbg: true, smbgRangeOverlay: true }
           );
           const smbgRangeWrapper = shallow(<TrendsSVGContainer {...smbgRangeProps} />);
-          expect(smbgRangeWrapper.find(SMBGRangeAvgContainer)).to.have.length(2);
+          expect(smbgRangeWrapper.find(SMBGRangeAvgContainer)).to.have.length(1);
         });
       });
 
@@ -174,7 +174,7 @@ describe('TrendsSVGContainer', () => {
           );
           const smbgRangeWrapper = shallow(<TrendsSVGContainer {...smbgRangeProps} />);
           const rangeAvgContainer = smbgRangeWrapper.find(SMBGRangeAvgContainer);
-          expect(rangeAvgContainer).to.have.length(2);
+          expect(rangeAvgContainer).to.have.length(1);
           // eslint-disable-next-line lodash/prefer-lodash-method
           rangeAvgContainer.forEach((container) => {
             expect(container.prop('data')).to.deep.equal([]);
@@ -187,7 +187,7 @@ describe('TrendsSVGContainer', () => {
           const noCbgProps = _.assign({}, props, { showingCbg: false, showingSmbg: true });
           const noCbgWrapper = shallow(<TrendsSVGContainer {...noCbgProps} />);
           expect(noCbgWrapper.find(CBGSlicesContainer)).to.have.length(0);
-          expect(noCbgWrapper.find(SMBGRangeAvgContainer)).to.have.length(2);
+          expect(noCbgWrapper.find(SMBGRangeAvgContainer)).to.have.length(1);
         });
       });
 

@@ -49,7 +49,6 @@ import Background from '../../components/trends/common/Background';
 import CBGSlicesContainer from './CBGSlicesContainer';
 import SMBGsByDateContainer from './SMBGsByDateContainer';
 import SMBGRangeAvgContainer from './SMBGRangeAvgContainer';
-import SMBGAvgAnimated from '../../components/trends/smbg/SMBGAvgAnimated';
 import SMBGRangeAnimated from '../../components/trends/smbg/SMBGRangeAnimated';
 
 import NoData from '../../components/trends/common/NoData';
@@ -177,7 +176,6 @@ export class TrendsSVGContainer extends React.Component {
         <g id="smbgTrends">
         {this.renderOverlay(SMBGRangeAnimated, 'SMBGRangeContainer')}
         {allSmbgsByDate}
-        {this.renderOverlay(SMBGAvgAnimated, 'SMBGAvgContainer')}
         {focusedSmbgDate}
         </g>
       );
