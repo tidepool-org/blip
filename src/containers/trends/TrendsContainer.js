@@ -365,6 +365,7 @@ export class TrendsContainer extends React.Component {
     }
     return (
       <TrendsSVGContainer
+        activeDays={this.props.activeDays}
         bgBounds={this.props.bgBounds}
         bgUnits={this.props.bgUnits}
         smbgData={this.state.currentSmbgData}

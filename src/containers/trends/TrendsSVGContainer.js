@@ -72,16 +72,18 @@ export class TrendsSVGContainer extends React.Component {
   }
 
   renderNoDataMessage(dataType) {
-    const { containerHeight: height, containerWidth: width, margins } = this.props;
+    const { activeDays, containerHeight: height, containerWidth: width, margins } = this.props;
     const xPos = (width / 2) + margins.right;
     const yPos = (height / 2) + margins.bottom;
     const messagePosition = { x: xPos, y: yPos };
+    const unselectedAll = _.every(activeDays, (flag) => (!flag));
     if ((this.props.showingCbg && _.isEmpty(this.props.cbgData)) ||
       (this.props.showingSmbg && _.isEmpty(this.props.smbgData))) {
       return (
         <NoData
           dataType={dataType}
           position={messagePosition}
+          unselectedAllData={unselectedAll}
         />
       );
     }
@@ -230,6 +232,15 @@ TrendsSVGContainer.defaultProps = {
 };
 
 TrendsSVGContainer.propTypes = {
+  activeDays: PropTypes.shape({
+    monday: PropTypes.bool.isRequired,
+    tuesday: PropTypes.bool.isRequired,
+    wednesday: PropTypes.bool.isRequired,
+    thursday: PropTypes.bool.isRequired,
+    friday: PropTypes.bool.isRequired,
+    saturday: PropTypes.bool.isRequired,
+    sunday: PropTypes.bool.isRequired,
+  }).isRequired,
   bgBounds: PropTypes.shape({
     veryHighThreshold: PropTypes.number.isRequired,
     targetUpperBound: PropTypes.number.isRequired,
