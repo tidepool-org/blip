@@ -45,6 +45,15 @@ function makeScale(scale) {
 
 describe('TrendsSVGContainer', () => {
   const props = {
+    activeDays: {
+      monday: true,
+      tuesday: true,
+      wednesday: true,
+      thursday: true,
+      friday: true,
+      saturday: false,
+      sunday: false,
+    },
     bgBounds,
     bgUnits: MGDL_UNITS,
     // normally provided by react-dimensions wrapper but we test w/o that
@@ -142,6 +151,13 @@ describe('TrendsSVGContainer', () => {
         expect(wrapper.find(CBGSlicesContainer)).to.have.length(1);
       });
 
+      it('should render a unselected all data message when all days unselected', () => {
+        const unselectedProps = _.assign({}, props, { cbgData: [], activeDays: { monday: false } });
+        const unselectedWrapper = shallow(<TrendsSVGContainer {...unselectedProps} />);
+        expect(unselectedWrapper.find(NoData)).to.have.length(1);
+        expect(unselectedWrapper.find(NoData).prop('unselectedAllData')).to.be.true;
+      });
+
       describe('when showingSmbg is false', () => {
         it('should not render an SMBGRangeAvgContainer', () => {
           expect(wrapper.find(SMBGRangeAvgContainer)).to.have.length(0);
@@ -157,6 +173,17 @@ describe('TrendsSVGContainer', () => {
     });
 
     describe('showing BGM data', () => {
+      it('should render a unselected all data message when all days unselected', () => {
+        const unselectedProps = _.assign(
+          {},
+          props,
+          { showingCbg: false, showingSmbg: true, smbgData: [], activeDays: { monday: false } }
+        );
+        const unselectedWrapper = shallow(<TrendsSVGContainer {...unselectedProps} />);
+        expect(unselectedWrapper.find(NoData)).to.have.length(1);
+        expect(unselectedWrapper.find(NoData).prop('unselectedAllData')).to.be.true;
+      });
+
       describe('when smbgRangeOverlay is true', () => {
         it('should render an SMBGRangeAvgContainer for range', () => {
           const smbgRangeProps = _.assign(
