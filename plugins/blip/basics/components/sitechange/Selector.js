@@ -62,9 +62,30 @@ var Selector = React.createClass({
 
     return (
       <div className="SiteChangeSelector">
+        {this.renderMessage()}
         {others}
       </div>
     );
+  },
+  renderMessage: function() {
+    if (!this.props.data || !this.props.data.latestPump) {
+      return;
+    }
+
+    var latestPump = this.props.data.latestPump;
+
+    var message = ['We do not have enough information to visualize your infusion site changes. Choose ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' or ', this.subAction(latestPump, constants.SITE_CHANGE_CANNULA), ' to indicate your infusion site changes.'];
+
+    if (this.props.selectedSubtotal === constants.SITE_CHANGE_TUBING) {
+      message = ['We are using ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' to visualize your infusion site changes.'];
+    }
+    else if (this.props.selectedSubtotal === constants.SITE_CHANGE_CANNULA) {
+      message = ['We are using ', this.subAction(latestPump, constants.SITE_CHANGE_CANNULA), ' to visualize your infusion site changes. Choose ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' if those are better indicators.'];
+    }
+
+    return (
+      <p>{message}</p>
+    )
   },
   renderOption: function(option) {
     var optionClass = cx({
@@ -74,12 +95,53 @@ var Selector = React.createClass({
       'SiteChangeSelector-option--selected': (option.key === this.props.selectedSubtotal),
     });
 
+    var latestPump = this.props.data.latestPump;
+
     return (
       <label key={option.key} className={optionClass}>
         <input type="radio" name="site_change_event" value={option.key} onChange={this.handleSelectSubtotal.bind(null, option.key, option.label)} checked={option.key === this.props.selectedSubtotal} />
-        {option.label}
+        {this.subAction(latestPump, option.key)}
       </label>
     );
+  },
+  subAction: function(pump, action) {
+    var pump_vocabulary = {
+      [constants.ANIMAS]: {
+        [constants.SITE_CHANGE_RESERVOIR]: 'Go Rewind',
+        [constants.SITE_CHANGE_TUBING]: 'Go Prime',
+        [constants.SITE_CHANGE_CANNULA]: 'Fill Cannula',
+      },
+      [constants.OMNIPOD]: {
+        [constants.SITE_CHANGE_RESERVOIR]: 'Change Pod',
+        [constants.SITE_CHANGE_TUBING]: 'Activate Pod',
+        [constants.SITE_CHANGE_CANNULA]: 'Prime',
+      },
+      [constants.MEDTRONIC]: {
+        [constants.SITE_CHANGE_RESERVOIR]: 'Rewind',
+        [constants.SITE_CHANGE_TUBING]: 'Prime',
+        [constants.SITE_CHANGE_CANNULA]: 'Prime Cannula',
+      },
+      [constants.TANDEM]: {
+        [constants.SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
+        [constants.SITE_CHANGE_TUBING]: 'Fill Tubing',
+        [constants.SITE_CHANGE_CANNULA]: 'Fill Cannula',
+      },
+      default: {
+        [constants.SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
+        [constants.SITE_CHANGE_TUBING]: 'Fill Tubing',
+        [constants.SITE_CHANGE_CANNULA]: 'Fill Cannula',
+      }
+    };
+
+    if (pump_vocabulary.hasOwnProperty(pump)) {
+      return (
+        <strong>{pump_vocabulary[pump][action]}</strong>
+      )
+    }
+
+    return (
+      <strong>{pump_vocabulary.default[action]}</strong>
+    )
   },
   handleSelectSubtotal: function(selectedSubtotal, optionLabel) {
     basicsActions.setSiteChangeEvent(this.props.sectionId, selectedSubtotal, optionLabel, this.props.trackMetric, this.props.updateBasicsSettings);
