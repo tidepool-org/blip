@@ -86,7 +86,7 @@ var scales = function(opts) {
       if ((!data) || (data.length === 0)) {
         return [];
       }
-      var defaultTicks = _.map(_.values(_.omit(opts.bgClasses, 'very-high')), function(n) {
+      var defaultTicks = _.map(_.values(_.omit(opts.bgClasses, ['very-high', 'very-low'])), function(n) {
         return _.get(n, 'boundary');
       }).sort(function (a, b) { return a - b; });
 
