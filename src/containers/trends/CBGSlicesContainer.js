@@ -48,6 +48,7 @@ export default class CBGSlicesContainer extends React.Component {
     focusedSliceKey: PropTypes.string,
     focusSlice: PropTypes.func.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
+    topMargin: PropTypes.number.isRequired,
     unfocusSlice: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
@@ -106,6 +107,7 @@ export default class CBGSlicesContainer extends React.Component {
             isFocused={bin.id === focusedSliceKey}
             key={bin.id}
             tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+            topMargin={this.props.topMargin}
             unfocusSlice={this.props.unfocusSlice}
             xScale={xScale}
             yScale={yScale}

@@ -66,6 +66,7 @@ export class CBGSliceAnimated extends Component {
     medianWidth: PropTypes.number.isRequired,
     sliceWidth: PropTypes.number.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
+    topMargin: PropTypes.number.isRequired,
     unfocusSlice: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
@@ -144,10 +145,15 @@ export class CBGSliceAnimated extends Component {
       datum,
       defaultY,
       displayFlags,
+      focusSlice,
       isFocused,
       medianHeight,
       medianWidth,
       sliceWidth,
+      tooltipLeftThreshold,
+      topMargin,
+      unfocusSlice,
+      xScale,
       yScale,
     } = this.props;
 
@@ -211,6 +217,16 @@ export class CBGSliceAnimated extends Component {
       },
     };
     const toRender = _.filter(renderPieces, (piece) => (displayFlags[piece.displayFlag]));
+    const yPositions = {
+      firstQuartile: yScale(datum.firstQuartile),
+      max: yScale(datum.max),
+      median: yScale(datum.median),
+      min: yScale(datum.min),
+      ninetiethQuantile: yScale(datum.ninetiethQuantile),
+      tenthQuantile: yScale(datum.tenthQuantile),
+      thirdQuartile: yScale(datum.thirdQuartile),
+      topMargin,
+    };
 
     return (
       <TransitionMotion
@@ -269,6 +285,14 @@ export class CBGSliceAnimated extends Component {
                     x={style.binLeftX}
                     y={style[renderPieces[key].y]}
                     opacity={style.opacity}
+                    onMouseOver={() => {
+                      focusSlice(datum, {
+                        left: xScale(datum.msX),
+                        tooltipLeft: datum.msX > tooltipLeftThreshold,
+                        yPositions,
+                      }, segment.key === 'median' ? ['median'] : segment.heightKeys);
+                    }}
+                    onMouseOut={unfocusSlice}
                   />
                 );
               })}
