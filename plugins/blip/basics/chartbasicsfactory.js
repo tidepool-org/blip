@@ -93,45 +93,8 @@ var BasicsChart = React.createClass({
       var dataMunger = dataMungerMkr(this.props.bgClasses);
       dataMunger.reduceByDay(basicsData);
 
-      // get site changes from three event types
-      basicsData.data.cannulaPrime.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
-      basicsData.data.tubingPrime.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
-      basicsData.data.reservoirChange.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData, constants.SITE_CHANGE_RESERVOIR);
-
-      var siteChangeEvents = [];
-
-      if (basicsData.data.tubingPrime.infusionSiteHistory.hasChangeHistory) {
-        siteChangeEvents.push(_.last(_.findLast(basicsData.data.tubingPrime.infusionSiteHistory, {type: constants.SITE_CHANGE}).data));
-      }
-      if (basicsData.data.cannulaPrime.infusionSiteHistory.hasChangeHistory) {
-        siteChangeEvents.push(_.last(_.findLast(basicsData.data.cannulaPrime.infusionSiteHistory, {type: constants.SITE_CHANGE}).data));
-      }
-      if (basicsData.data.reservoirChange.infusionSiteHistory.hasChangeHistory) {
-        siteChangeEvents.push(_.last(_.findLast(basicsData.data.reservoirChange.infusionSiteHistory, {type: constants.SITE_CHANGE}).data));
-      }
-
-      if (siteChangeEvents.length) {
-        // get latest pump upload:
-        var latestPump = _.last(_.sortBy(siteChangeEvents, 'time')).source;
-
-        // if latest pump is Animas, Medtronic, or Tandem, set site change to tubing or cannula (based on preference) or prompt for preference
-        if (latestPump === constants.ANIMAS || latestPump === constants.MEDTRONIC || latestPump === constants.TANDEM) {
-          if (this.props.patientSettings && this.props.patientSettings.siteChangeSource) {
-            basicsData.sections.siteChanges.type = this.props.patientSettings.siteChangeSource;
-            basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, this.props.patientSettings.siteChangeSource);
-          }
-          else {
-            basicsData.sections.siteChanges.type = constants.TYPE_UNDECLARED;
-            basicsData.sections.siteChanges.settingsTogglable = togglableState.open;
-          }
-        }
-        // if latest pump is OmniPod (or unsupported), set site changes to reservoirChange and hide options
-        else {
-          basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;
-          basicsData.sections.siteChanges.selector = null;
-          basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
-        }
-      }
+      var latestPump = dataMunger.getLatestPumpUploaded(this.props.patientData);
+      dataMunger.processInfusionSiteHistory(basicsData, latestPump, this.props.patientSettings);
 
       basicsData.data.bgDistribution = dataMunger.bgDistribution(basicsData);
       var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData);

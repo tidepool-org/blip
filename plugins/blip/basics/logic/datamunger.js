@@ -23,6 +23,9 @@ var sundial = require('sundial');
 var classifiersMkr = require('./classifiers');
 var constants = require('./constants');
 
+var basicsActions = require('./actions');
+var togglableState = require('../TogglableState');
+
 module.exports = function(bgClasses) {
 
   var classifiers = classifiersMkr(bgClasses);
@@ -173,6 +176,54 @@ module.exports = function(bgClasses) {
         totalDailyDose: totalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY),
         averageDailyCarbs: sumCarbs/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
       };
+    },
+    getLatestPumpUploaded: function(patientData) {
+      var latestPump = _.last(patientData.grouped.pumpSettings);
+
+      if (latestPump && latestPump.hasOwnProperty('source')) {
+        return latestPump.source;
+      }
+
+      return null;
+    },
+    processInfusionSiteHistory: function(basicsData, latestPump, patientSettings) {
+      if (!latestPump) {
+        return;
+      }
+
+      if (latestPump === constants.ANIMAS || latestPump === constants.TANDEM) {
+          basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
+          basicsData.data.cannulaPrime.summary = {
+            latestPump: latestPump,
+          };
+          basicsData.data.tubingPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
+          basicsData.data.tubingPrime.summary = {
+            latestPump: latestPump,
+          };
+
+          if (patientSettings && patientSettings.siteChangeSource) {
+            basicsData.sections.siteChanges.type = patientSettings.siteChangeSource;
+            basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, patientSettings.siteChangeSource);
+          }
+          else {
+            basicsData.sections.siteChanges.type = constants.TYPE_UNDECLARED;
+            basicsData.sections.siteChanges.settingsTogglable = togglableState.open;
+          }
+      }
+      else if (latestPump === constants.OMNIPOD) {
+        basicsData.data.reservoirChange.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_RESERVOIR);
+        basicsData.data.reservoirChange.summary = {
+          latestPump: latestPump,
+        };
+
+        basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;
+        basicsData.sections.siteChanges.selector = null;
+        basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
+      }
+      // i.e., latestPump === constants.MEDTRONIC, since site changes are currently unsupported
+      else {
+        return;
+      }
     },
     infusionSiteHistory: function(basicsData, type) {
       var infusionSitesPerDay = basicsData.data[type].dataByDate;
