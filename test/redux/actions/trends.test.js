@@ -42,17 +42,17 @@ describe('trends action creators', () => {
   });
 
   describe('focusTrendsSmbg', () => {
-    const smbgData = {};
+    const smbgDatum = {};
     const smbgPosition = {};
-    const smbgPositions = [];
-    const smbgDay = [];
+    const allPositions = [];
+    const allSmbgsOnDate = [];
     const date = {};
     const action = actions.focusTrendsSmbg(
       userId,
-      smbgData,
+      smbgDatum,
       smbgPosition,
-      smbgDay,
-      smbgPositions,
+      allSmbgsOnDate,
+      allPositions,
       date,
     );
 
@@ -63,7 +63,7 @@ describe('trends action creators', () => {
     it('should create an action to focus a trends smbg', () => {
       expect(action).to.deep.equal({
         type: actionTypes.FOCUS_TRENDS_SMBG,
-        payload: { smbgData, smbgPosition, smbgDay, smbgPositions, userId, date },
+        payload: { smbgDatum, smbgPosition, allSmbgsOnDate, allPositions, userId, date },
       });
     });
   });

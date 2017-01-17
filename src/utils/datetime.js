@@ -23,6 +23,26 @@ export const THREE_HRS = 10800000;
 export const TWENTY_FOUR_HRS = 86400000;
 
 /**
+ * getAllDatesInRange
+ * @param {String} start - Zulu timestamp (Integer hammertime also OK)
+ * @param {String} end - Zulu timestamp (Integer hammertime also OK)
+ * @param {String} timezone - named timezone
+ *
+ * @return {Array} dates - array of YYYY-MM-DD String dates
+ */
+export function getAllDatesInRange(start, end, timezoneName) {
+  const dates = [];
+  const current = moment.utc(start)
+    .tz(timezoneName);
+  const excludedBoundary = moment.utc(end);
+  while (current.isBefore(excludedBoundary)) {
+    dates.push(current.format('YYYY-MM-DD'));
+    current.add(1, 'day');
+  }
+  return dates;
+}
+
+/**
  * getTimezoneFromTimePrefs
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *

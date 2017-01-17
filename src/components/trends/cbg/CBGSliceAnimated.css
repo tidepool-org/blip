@@ -15,18 +15,22 @@
  * == BSD2 LICENSE ==
  */
 
+:export {
+  stroke: 2;
+}
+
+.thickStroke {
+  stroke-width: 2;
+}
+
 .median {
   stroke: white;
-  stroke-width: 1px;
+  composes: thickStroke;
   pointer-events: none;
 }
 
 .medianTransparent {
   fill: transparent;
-}
-
-:export {
-  stroke: 1;
 }
 
 .low {
@@ -42,15 +46,15 @@
 }
 
 .rangeSegment {
-  stroke: var(--cbg-trends-segment--100--stroke);
-  stroke-width: 1px;
+  stroke: var(--trends--light);
+  composes: thickStroke;
   fill: transparent;
 }
 
 .outerSegment {
-  stroke: var(--cbg-trends-segment--80);
-  stroke-width: 1px;
-  fill: var(--cbg-trends-segment--80);
+  stroke: var(--trends--light);
+  composes: thickStroke;
+  fill: var(--trends--light);
 }
 
 .outerSegment:hover {
@@ -58,9 +62,9 @@
 }
 
 .innerQuartilesSegment {
-  stroke: var(--cbg-trends-segment--50);
-  stroke-width: 1px;
-  fill: var(--cbg-trends-segment--50);
+  stroke: var(--trends--dark);
+  composes: thickStroke;
+  fill: var(--trends--dark);
 }
 
 .innerQuartilesSegment:hover {

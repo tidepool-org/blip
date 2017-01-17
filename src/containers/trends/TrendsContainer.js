@@ -79,6 +79,12 @@ export class TrendsContainer extends React.Component {
     onSwitchBgDataSource: PropTypes.func.isRequired,
     // viz state
     trendsState: PropTypes.shape({
+      cbgFlags: PropTypes.shape({
+        cbg100Enabled: PropTypes.bool.isRequired,
+        cbg80Enabled: PropTypes.bool.isRequired,
+        cbg50Enabled: PropTypes.bool.isRequired,
+        cbgMedianEnabled: PropTypes.bool.isRequired,
+      }).isRequired,
       focusedCbgSlice: PropTypes.shape({
         data: PropTypes.shape({
           firstQuartile: PropTypes.number.isRequired,
@@ -117,29 +123,43 @@ export class TrendsContainer extends React.Component {
         'thirdQuartile',
       ])),
       focusedSmbg: PropTypes.shape({
-        data: PropTypes.shape({
+        allPositions: PropTypes.arrayOf(PropTypes.shape({
+          top: PropTypes.number.isRequired,
+          left: PropTypes.number.isRequired,
+        })),
+        allSmbgsOnDate: PropTypes.arrayOf(PropTypes.shape({
+          value: PropTypes.number.isRequired,
+        })),
+        date: PropTypes.string.isRequired,
+        datum: PropTypes.shape({
           value: PropTypes.number.isRequired,
         }),
         position: PropTypes.shape({
           top: PropTypes.number.isRequired,
           left: PropTypes.number.isRequired,
         }),
-        date: PropTypes.string.isRequired,
-        dayPoints: PropTypes.arrayOf(PropTypes.shape({
-          value: PropTypes.number.isRequired,
-        })),
-        positions: PropTypes.arrayOf(PropTypes.shape({
-          top: PropTypes.number.isRequired,
+      }),
+      focusedSmbgRangeAvg: PropTypes.shape({
+        data: PropTypes.shape({
+          id: PropTypes.string.isRequired,
+          max: PropTypes.number.isRequired,
+          mean: PropTypes.number.isRequired,
+          min: PropTypes.number.isRequired,
+          msX: PropTypes.number.isRequired,
+          msFrom: PropTypes.number.isRequired,
+          msTo: PropTypes.number.isRequired,
+        }).isRequired,
+        position: PropTypes.shape({
           left: PropTypes.number.isRequired,
-        })),
+          tooltipLeft: PropTypes.bool.isRequired,
+          yPositions: PropTypes.shape({
+            max: PropTypes.number.isRequired,
+            mean: PropTypes.number.isRequired,
+            min: PropTypes.number.isRequired,
+          }).isRequired,
+        }).isRequired,
       }),
       touched: PropTypes.bool.isRequired,
-      cbgFlags: PropTypes.shape({
-        cbg100Enabled: PropTypes.bool.isRequired,
-        cbg80Enabled: PropTypes.bool.isRequired,
-        cbg50Enabled: PropTypes.bool.isRequired,
-        cbgMedianEnabled: PropTypes.bool.isRequired,
-      }).isRequired,
     }).isRequired,
     // actions
     focusTrendsCbgSlice: PropTypes.func.isRequired,
@@ -166,6 +186,7 @@ export class TrendsContainer extends React.Component {
       currentSmbgData: [],
       dateDomain: null,
       mostRecent: null,
+      previousDateDomain: null,
       xScale: null,
       yScale: null,
     };
@@ -239,7 +260,7 @@ export class TrendsContainer extends React.Component {
     ).toISOString();
   }
 
-  setExtent(newDomain) {
+  setExtent(newDomain, oldDomain) {
     const { cbgByDate, smbgByDate } = this.props;
     const { mostRecent } = this.state;
     this.refilterByDate(cbgByDate, newDomain);
@@ -248,6 +269,9 @@ export class TrendsContainer extends React.Component {
       currentCbgData: cbgByDate.top(Infinity).reverse(),
       currentSmbgData: smbgByDate.top(Infinity).reverse(),
       dateDomain: { start: newDomain[0], end: newDomain[1] },
+      previousDateDomain: oldDomain ?
+        { start: oldDomain[0], end: oldDomain[1] } :
+        null,
     });
     this.props.onDatetimeLocationChange(newDomain, newDomain[1] >= mostRecent);
   }
@@ -257,6 +281,7 @@ export class TrendsContainer extends React.Component {
   }
 
   goBack() {
+    const oldDomain = _.clone(this.state.dateDomain);
     const { dateDomain: { start: newEnd } } = this.state;
     const { timePrefs } = this.props;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
@@ -266,14 +291,15 @@ export class TrendsContainer extends React.Component {
       units: 'days',
     }).toISOString();
     const newDomain = [start, newEnd];
-    this.setExtent(newDomain);
+    this.setExtent(newDomain, [oldDomain.start, oldDomain.end]);
   }
 
   goForward() {
+    const oldDomain = _.clone(this.state.dateDomain);
     const { dateDomain: { end: newStart } } = this.state;
     const end = utcDay.offset(new Date(newStart), this.props.extentSize).toISOString();
     const newDomain = [newStart, end];
-    this.setExtent(newDomain);
+    this.setExtent(newDomain, [oldDomain.start, oldDomain.end]);
   }
 
   goToMostRecent() {
@@ -324,14 +350,32 @@ export class TrendsContainer extends React.Component {
   }
 
   render() {
+    const timezone = datetime.getTimezoneFromTimePrefs(this.props.timePrefs);
+    const { start: currentStart, end: currentEnd } = this.state.dateDomain;
+    const prevStart = _.get(this.state, ['previousDateDomain', 'start']);
+    const prevEnd = _.get(this.state, ['previousDateDomain', 'end']);
+    let start = currentStart;
+    let end = currentEnd;
+    if (prevStart && prevEnd) {
+      if (currentStart < prevStart) {
+        end = prevEnd;
+      } else if (prevStart < currentStart) {
+        start = prevStart;
+      }
+    }
     return (
       <TrendsSVGContainer
+        activeDays={this.props.activeDays}
         bgBounds={this.props.bgBounds}
         bgUnits={this.props.bgUnits}
         smbgData={this.state.currentSmbgData}
         cbgData={this.state.currentCbgData}
+        dates={datetime.getAllDatesInRange(start, end, timezone)}
         focusedSlice={this.props.trendsState.focusedCbgSlice}
         focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
+        focusedSmbgRangeAvgKey={_.get(
+          this.props, ['trendsState', 'focusedSmbgRangeAvg', 'data', 'id'], null
+        )}
         focusedSmbg={this.props.trendsState.focusedSmbg}
         displayFlags={this.props.trendsState.cbgFlags}
         focusRange={this.props.focusTrendsSmbgRangeAvg}

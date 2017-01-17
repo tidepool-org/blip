@@ -15,6 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
+const STIFFNESS = 180;
+const DAMPING = 40;
+const PRECISION = 0.1;
+
+export const springConfig = { stiffness: STIFFNESS, damping: DAMPING, precision: PRECISION };
+
 export const MGDL_CLAMP_TOP = 400;
 export const MMOLL_CLAMP_TOP = 22.5;
 

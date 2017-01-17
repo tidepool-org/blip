@@ -21,12 +21,15 @@ import React, { Component, PropTypes } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
 import { classifyBgValue } from '../../../utils/bloodglucose';
+import { springConfig } from '../../../utils/constants';
+import withDefaultYPosition from '../common/withDefaultYPosition';
 
 import styles from './CBGSliceAnimated.css';
 
-class CBGSliceAnimated extends Component {
+export class CBGSliceAnimated extends Component {
   static defaultProps = {
     medianHeight: 10,
+    medianWidth: 14,
     sliceWidth: 16,
   };
 
@@ -50,6 +53,7 @@ class CBGSliceAnimated extends Component {
       tenthQuantile: PropTypes.number,
       thirdQuartile: PropTypes.number,
     }).isRequired,
+    defaultY: PropTypes.number.isRequired,
     displayFlags: PropTypes.shape({
       cbg100Enabled: PropTypes.bool.isRequired,
       cbg80Enabled: PropTypes.bool.isRequired,
@@ -59,6 +63,7 @@ class CBGSliceAnimated extends Component {
     focusSlice: PropTypes.func.isRequired,
     isFocused: PropTypes.bool.isRequired,
     medianHeight: PropTypes.number.isRequired,
+    medianWidth: PropTypes.number.isRequired,
     sliceWidth: PropTypes.number.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     unfocusSlice: PropTypes.func.isRequired,
@@ -68,21 +73,27 @@ class CBGSliceAnimated extends Component {
 
   constructor(props) {
     super(props);
+    this.getBinLeftX = this.getBinLeftX.bind(this);
     this.willEnter = this.willEnter.bind(this);
     this.willLeave = this.willLeave.bind(this);
   }
 
-  getDefaultYPosition(bgBounds, yScale) {
-    const { targetLowerBound, targetUpperBound } = bgBounds;
-    // default Y position is the center of the target range
-    // i.e., 100 mg/dL if target range is 80-120 mg/dL
-    return yScale(targetUpperBound - (targetUpperBound - targetLowerBound) / 2);
+  getBinLeftX(width) {
+    const { datum, xScale } = this.props;
+    return xScale(datum.msX) - width / 2 + styles.stroke / 2;
+  }
+
+  getWidth(width) {
+    return width - styles.stroke;
+  }
+
+  isMedian(segment) {
+    return segment.key === 'median';
   }
 
   willEnter(entered) {
     const { style } = entered;
-    const { bgBounds, yScale } = this.props;
-    const defaultY = this.getDefaultYPosition(bgBounds, yScale);
+    const { defaultY } = this.props;
 
     return {
       binLeftX: style.binLeftX,
@@ -94,18 +105,20 @@ class CBGSliceAnimated extends Component {
       medianHeight: 0,
       median: defaultY,
       ninetiethQuantile: defaultY,
+      opacity: 0,
       tenthQuantile: defaultY,
       thirdQuartile: defaultY,
       top10Height: 0,
       upper15Height: 0,
+      width: style.width,
     };
   }
 
   willLeave(exited) {
     const { style } = exited;
-    const { bgBounds, yScale } = this.props;
-    const defaultYSpring = spring(this.getDefaultYPosition(bgBounds, yScale));
-    const shrinkOut = spring(0);
+    const { defaultY } = this.props;
+    const defaultYSpring = spring(defaultY, springConfig);
+    const shrinkOut = spring(0, springConfig);
     return {
       binLeftX: style.binLeftX,
       bottom10Height: shrinkOut,
@@ -116,22 +129,37 @@ class CBGSliceAnimated extends Component {
       medianHeight: shrinkOut,
       median: defaultYSpring,
       ninetiethQuantile: defaultYSpring,
+      opacity: shrinkOut,
       tenthQuantile: defaultYSpring,
       thirdQuartile: defaultYSpring,
       top10Height: shrinkOut,
       upper15Height: shrinkOut,
+      width: style.width,
     };
   }
 
   render() {
-    const { displayFlags, medianHeight, sliceWidth } = this.props;
-    const { bgBounds, datum, isFocused, xScale, yScale } = this.props;
+    const {
+      bgBounds,
+      datum,
+      defaultY,
+      displayFlags,
+      isFocused,
+      medianHeight,
+      medianWidth,
+      sliceWidth,
+      yScale,
+    } = this.props;
 
     const medianClasses = cx({
       [styles.median]: true,
       [styles.medianTransparent]: isFocused,
       // you can mix and match objects and params that are string classnames with cx/classnames
-    }, ((datum.median && !isFocused) ? styles[classifyBgValue(bgBounds, datum.median)] : null));
+    }, (
+      (datum.median && !isFocused) ?
+        styles[classifyBgValue(bgBounds, datum.median)] :
+        styles.medianTransparent)
+    );
 
     const renderPieces = {
       top10: {
@@ -184,31 +212,41 @@ class CBGSliceAnimated extends Component {
     };
     const toRender = _.filter(renderPieces, (piece) => (displayFlags[piece.displayFlag]));
 
-    const defaultY = this.getDefaultYPosition(bgBounds, yScale);
-    const binLeftX = xScale(datum.msX) - sliceWidth / 2 + styles.stroke / 2;
-    const widthWidthStroke = sliceWidth - styles.stroke;
     return (
       <TransitionMotion
-        defaultStyles={_.get(datum, 'min') !== undefined ? _.map(toRender, (segment) => ({
-          key: segment.key,
-          style: {
-            binLeftX,
-            [segment.height]: 0,
-            [segment.y]: defaultY,
-          },
-        })) : []}
-        styles={_.get(datum, 'min') !== undefined ? _.map(toRender, (segment) => ({
-          key: segment.key,
-          style: {
-            binLeftX,
-            [segment.height]: segment.key === 'median' ?
-              spring(medianHeight) :
-              spring(yScale(datum[segment.heightKeys[0]]) - yScale(datum[segment.heightKeys[1]])),
-            [segment.y]: segment.key === 'median' ?
-              spring(yScale(datum.median) - medianHeight / 2) :
-              spring(yScale(datum[segment.y])),
-          },
-        })) : []}
+        defaultStyles={_.get(datum, 'min') !== undefined ? _.map(toRender, (segment) => {
+          const baseWidth = this.isMedian(segment) ? medianWidth : sliceWidth;
+          return {
+            key: segment.key,
+            style: {
+              binLeftX: this.getBinLeftX(baseWidth),
+              [segment.y]: defaultY,
+              width: this.getWidth(baseWidth),
+              [segment.height]: 0,
+              opacity: 0,
+            },
+          };
+        }) : []}
+        styles={_.get(datum, 'min') !== undefined ? _.map(toRender, (segment) => {
+          const baseWidth = this.isMedian(segment) ? medianWidth : sliceWidth;
+          return {
+            key: segment.key,
+            style: {
+              binLeftX: this.getBinLeftX(baseWidth),
+              [segment.y]: this.isMedian(segment) ?
+                spring(yScale(datum.median) - medianHeight / 2, springConfig) :
+                spring(yScale(datum[segment.y]), springConfig),
+              width: this.getWidth(baseWidth),
+              [segment.height]: this.isMedian(segment) ?
+                spring(medianHeight, springConfig) :
+                spring(
+                  yScale(datum[segment.heightKeys[0]]) - yScale(datum[segment.heightKeys[1]]),
+                  springConfig
+                ),
+              opacity: spring(1.0, springConfig),
+            },
+          };
+        }) : []}
         willEnter={this.willEnter}
         willLeave={this.willLeave}
       >
@@ -226,10 +264,11 @@ class CBGSliceAnimated extends Component {
                     className={segment.className}
                     key={key}
                     id={key}
-                    width={widthWidthStroke}
+                    width={style.width}
                     height={style[renderPieces[key].height]}
-                    x={binLeftX}
+                    x={style.binLeftX}
                     y={style[renderPieces[key].y]}
+                    opacity={style.opacity}
                   />
                 );
               })}
@@ -241,4 +280,4 @@ class CBGSliceAnimated extends Component {
   }
 }
 
-export default CBGSliceAnimated;
+export default withDefaultYPosition(CBGSliceAnimated);

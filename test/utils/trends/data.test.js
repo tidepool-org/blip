@@ -162,7 +162,7 @@ describe('[trends] data utils', () => {
   });
 
   describe('calculateSmbgStatsForBin', () => {
-    const bin = 1800000;
+    const bin = 5400000;
     const binKey = bin.toString();
     const binSize = 1000 * 60 * 60 * 3;
     const min = 0;
@@ -173,6 +173,20 @@ describe('[trends] data utils', () => {
 
     it('should be a function', () => {
       assert.isFunction(utils.calculateSmbgStatsForBin);
+    });
+
+    it('should produce result full of `undefined`s on empty values array', () => {
+      const emptyValsRes = utils.calculateSmbgStatsForBin(binKey, binSize, []);
+      assert.isObject(emptyValsRes);
+      expect(emptyValsRes).to.deep.equal({
+        id: binKey,
+        min: undefined,
+        mean: undefined,
+        max: undefined,
+        msX: bin,
+        msFrom: 0,
+        msTo: bin * 2,
+      });
     });
 
     it('should add the `binKey` as the `id` on the resulting object', () => {

@@ -32,35 +32,35 @@ import styles
 
 describe('FocusedSMBGPointLabel', () => {
   const focusedPoint = {
-    data: {
+    allPositions: [
+      { left: 215.625, top: 200 },
+      { left: 327.375, top: 190 },
+      { left: 550.875, top: 180 },
+    ],
+    allSmbgsOnDate: [
+      { value: 180 },
+      { value: 190 },
+      { value: 200 },
+    ],
+    date: '2016-09-28',
+    datum: {
       deviceTime: '2016-09-28T14:47:06',
       msPer24: 53226000,
       subType: 'manual',
       time: '2016-09-28T18:47:06.000Z',
       value: 200,
     },
-    date: '2016-09-28',
-    dayPoints: [
-      { value: 180 },
-      { value: 190 },
-      { value: 200 },
-    ],
     position: {
       left: 550.875,
       top: 180,
     },
-    positions: [
-      { left: 215.625, top: 200 },
-      { left: 327.375, top: 190 },
-      { left: 550.875, top: 180 },
-    ],
   };
   const timePrefs = {
     timezoneAware: false,
     timezoneName: null,
   };
 
-  describe('when no focused data', () => {
+  describe('when no focused datum', () => {
     it('should render nothing', () => {
       const minimalProps = {
         bgUnits: MMOLL_UNITS,

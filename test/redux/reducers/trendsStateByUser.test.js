@@ -24,10 +24,10 @@ describe('trendsStateByUser', () => {
   const USER_1 = 'a1b2c3';
   const USER_2 = 'd4e5f6';
 
-  const data = { median: 100 };
+  const datum = { median: 100 };
   const position = { median: 10 };
-  const positions = [{ median: 10 }, { median: 10 }];
-  const dayPoints = [{ id: 8, value: 200, msPer24: 10000 }];
+  const allPositions = [{ median: 10 }, { median: 10 }];
+  const allSmbgsOnDate = [{ id: 8, value: 200, msPer24: 10000 }];
 
   it('should return the initial state of {}', () => {
     expect(trendsStateByUser(undefined, {})).to.deep.equal({});
@@ -156,9 +156,9 @@ describe('trendsStateByUser', () => {
       const tracked = mutationTracker.trackObj(initialState);
       expect(trendsStateByUser(initialState, {
         type: actionTypes.FOCUS_TRENDS_CBG_SLICE,
-        payload: { focusedKeys, sliceData: data, slicePosition: position, userId: USER_1 },
+        payload: { focusedKeys, sliceData: datum, slicePosition: position, userId: USER_1 },
       })[USER_1]).to.deep.equal({
-        focusedCbgSlice: { data, position },
+        focusedCbgSlice: { data: datum, position },
         focusedCbgSliceKeys: focusedKeys,
         focusedSmbg: null,
         focusedSmbgRangeAvg: null,
@@ -175,7 +175,7 @@ describe('trendsStateByUser', () => {
   });
 
   describe('FOCUS_TRENDS_SMBG', () => {
-    it('should store focused data and the data\'s position', () => {
+    it('should store focused datum and the datum\'s position', () => {
       const initialState = {
         [USER_1]: {
           focusedCbgSlice: null,
@@ -197,17 +197,17 @@ describe('trendsStateByUser', () => {
       expect(trendsStateByUser(initialState, {
         type: actionTypes.FOCUS_TRENDS_SMBG,
         payload: {
-          smbgData: data,
+          smbgDatum: datum,
           smbgPosition: position,
-          smbgDay: dayPoints,
-          smbgPositions: positions,
+          allSmbgsOnDate,
+          allPositions,
           date,
           userId: USER_1,
         },
       })[USER_1]).to.deep.equal({
         focusedCbgSlice: null,
         focusedCbgSliceKeys: null,
-        focusedSmbg: { data, position, dayPoints, positions, date },
+        focusedSmbg: { date, datum, position, allSmbgsOnDate, allPositions },
         focusedSmbgRangeAvg: null,
         touched: true,
         cbgFlags: {
@@ -222,7 +222,7 @@ describe('trendsStateByUser', () => {
   });
 
   describe('FOCUS_TRENDS_SMBG_RANGE_AVG', () => {
-    it('should store focused data and the data\'s position', () => {
+    it('should store focused datum and the datum\'s position', () => {
       const initialState = {
         [USER_1]: {
           focusedCbgSlice: null,
@@ -241,12 +241,12 @@ describe('trendsStateByUser', () => {
       const tracked = mutationTracker.trackObj(initialState);
       expect(trendsStateByUser(initialState, {
         type: actionTypes.FOCUS_TRENDS_SMBG_RANGE_AVG,
-        payload: { rangeAvgData: data, rangeAvgPosition: position, userId: USER_1 },
+        payload: { rangeAvgData: datum, rangeAvgPosition: position, userId: USER_1 },
       })[USER_1]).to.deep.equal({
         focusedCbgSlice: null,
         focusedCbgSliceKeys: null,
         focusedSmbg: null,
-        focusedSmbgRangeAvg: { data, position },
+        focusedSmbgRangeAvg: { data: datum, position },
         touched: true,
         cbgFlags: {
           cbg100Enabled: false,
@@ -263,7 +263,7 @@ describe('trendsStateByUser', () => {
     it('should reset to the initial state of {}', () => {
       const initialState = {
         [USER_1]: {
-          focusedCbgSlice: { data, position },
+          focusedCbgSlice: { datum, position },
           focusedCbgSliceKeys: ['median'],
           focusedSmbg: null,
           focusedSmbgRangeAvg: null,
@@ -354,7 +354,7 @@ describe('trendsStateByUser', () => {
     it('should reset the focusedCbgSlice and focusedCbgSliceKeys state to `null`', () => {
       const initialState = {
         [USER_1]: {
-          focusedCbgSlice: { data, position },
+          focusedCbgSlice: { datum, position },
           focusedCbgSliceKeys: ['median'],
           focusedSmbg: null,
           focusedSmbgRangeAvg: null,
@@ -393,7 +393,7 @@ describe('trendsStateByUser', () => {
         [USER_1]: {
           focusedCbgSlice: null,
           focusedCbgSliceKeys: null,
-          focusedSmbg: { data, position },
+          focusedSmbg: { datum, position },
           focusedSmbgRangeAvg: null,
           touched: true,
         },
@@ -419,7 +419,7 @@ describe('trendsStateByUser', () => {
           focusedCbgSlice: null,
           focusedCbgSliceKeys: null,
           focusedSmbg: null,
-          focusedSmbgRangeAvg: { data, position },
+          focusedSmbgRangeAvg: { datum, position },
           touched: true,
           cbgFlags: {
             cbg100Enabled: false,
