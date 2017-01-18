@@ -40,11 +40,11 @@ class SortHeaderCell extends React.Component {
 
   render() {
     const {sortDir, children, ...props} = this.props;
-    let sortDirectionClass = "peopletable-search-icon";
+    let sortDirectionClass = 'peopletable-search-icon';
     if (sortDir === SortTypes.DESC) {
-      sortDirectionClass += " icon-arrow-down";
+      sortDirectionClass += ' icon-arrow-down';
     } else if (sortDir === SortTypes.ASC) {
-      sortDirectionClass += " icon-arrow-up";
+      sortDirectionClass += ' icon-arrow-up';
     }
 
     return (
