@@ -23,7 +23,7 @@ import { TwoOptionToggle } from '@tidepool/viz';
 
 import personUtils from '../../core/personutils';
 
-var SortTypes = {
+const SortTypes = {
   ASC: 'asc',
   DESC: 'desc',
 };
@@ -39,11 +39,18 @@ class SortHeaderCell extends React.Component {
   }
 
   render() {
-    var {sortDir, children, ...props} = this.props;
+    const {sortDir, children, ...props} = this.props;
+    let sortDirectionClass = "peopletable-search-icon";
+    if (sortDir === SortTypes.DESC) {
+      sortDirectionClass += " icon-arrow-down";
+    } else if (sortDir === SortTypes.ASC) {
+      sortDirectionClass += " icon-arrow-up";
+    }
+
     return (
       <Cell {...props}>
         <a onClick={this._onSortChange}>
-          {children} {sortDir ? (sortDir === SortTypes.DESC ? '↓' : '↑') : ''}
+          {children} <i className={sortDirectionClass}></i>
         </a>
       </Cell>
     );
@@ -81,17 +88,10 @@ class PeopleTable extends React.Component {
   constructor(props) {
     super(props);
 
-    this._dataList = this.buildDataList();
-
-    this._defaultSortIndexes = [];
-    for (var index = 0; index < this._dataList.length; index++) {
-      this._defaultSortIndexes.push(index);
-    }
-
     this.state = {
       searching: false,
       showNames: true,
-      dataList: this._dataList,
+      dataList: this.buildDataList(),
       colSortDirs: {},
     };
 
@@ -124,16 +124,17 @@ class PeopleTable extends React.Component {
   }
 
   _onFilterChange(e) {
-    if (!e.target.value) {
+    if (_.isEmpty(e.target.value)) {
       this.setState({
         searching: false,
-        dataList: this._dataList,
+        dataList: this.buildDataList(),
       });
+      return;
     }
 
     const filterBy = e.target.value.toLowerCase();
 
-    const filtered = _.filter(this._dataList, function(o) {
+    const filtered = _.filter(this.state.dataList, function(o) {
       return o.fullName.toLowerCase().indexOf(filterBy) !== -1;
     });
 
@@ -144,8 +145,11 @@ class PeopleTable extends React.Component {
   }
 
   _onSortChange(columnKey, sortDir) {
+
+    const sorted = _.sortByOrder(this.state.dataList, [columnKey], [sortDir])
+
     this.setState({
-      dataList: _.sortByOrder(this._dataList, [columnKey], [sortDir]),
+      dataList: sorted,
       colSortDirs: {
         [columnKey]: sortDir,
       },
@@ -168,7 +172,6 @@ class PeopleTable extends React.Component {
   }
 
   _onToggleShowNames() {
-    console.log('show? ',!this.state.showNames);
     this.setState({
       showNames: !this.state.showNames,
     });
@@ -192,10 +195,8 @@ class PeopleTable extends React.Component {
   }
 
   render() {
-    let {dataList, colSortDirs, showNames, searching} = this.state;
-
-    console.log('searching? ',searching);
-    console.log('showNames? ',showNames);
+    const {colSortDirs, showNames, searching} = this.state;
+    let {dataList} = this.state;
 
     if (!showNames && !searching) {
       dataList = [];
@@ -218,7 +219,7 @@ class PeopleTable extends React.Component {
               <SortHeaderCell
                 onSortChange={this._onSortChange}
                 sortDir={colSortDirs.fullName}>
-                Name
+                NAME
               </SortHeaderCell>
             }
             cell={<LinkCell data={dataList} col="fullName" href="link" />}
@@ -231,7 +232,7 @@ class PeopleTable extends React.Component {
               <SortHeaderCell
                 onSortChange={this._onSortChange}
                 sortDir={colSortDirs.birthdayDate}>
-                Birthday
+                BIRTHDAY
               </SortHeaderCell>
             }
             cell={<TextCell data={dataList} col="birthday" />}
@@ -244,7 +245,7 @@ class PeopleTable extends React.Component {
               <SortHeaderCell
                 onSortChange={this._onSortChange}
                 sortDir={colSortDirs.lastUpload}>
-                Last Upload
+                LAST UPLOAD
               </SortHeaderCell>
             }
             cell={<TextCell data={dataList} col="lastUpload" />}
