@@ -38,9 +38,11 @@ class SortHeaderCell extends React.Component {
   }
 
   render() {
-    const {onSortChange, sortDir, children, ...props} = this.props;
+    const {onSortChange, defaultDir, children, ...props} = this.props;
+    let {sortDir} = this.props;
     let sortDirectionClass = 'peopletable-search-icon';
-    if (sortDir === SortTypes.DESC) {
+
+    if (sortDir === SortTypes.DESC ) {
       sortDirectionClass += ' icon-arrow-down';
     } else if (sortDir === SortTypes.ASC) {
       sortDirectionClass += ' icon-arrow-up';
@@ -237,11 +239,11 @@ class PeopleTable extends React.Component {
         {this.renderShowNamesToggle()}
         <Table
           rowHeight={50}
-          rowsCount={dataList.length}
-          rowClassNameGetter={this._rowClassNameGetter}
           headerHeight={50}
           width={700}
           height={300}
+          rowsCount={dataList.length}
+          rowClassNameGetter={this._rowClassNameGetter}
           onRowClick={this._onRowClick}
           onRowMouseEnter={this._onRowMouseEnter}
           onRowMouseLeave={this._onRowMouseLeave}
@@ -251,13 +253,14 @@ class PeopleTable extends React.Component {
             header={
               <SortHeaderCell
                 onSortChange={this._onSortChange}
-                sortDir={colSortDirs.fullName}>
+                sortDir={colSortDirs.fullName}
+                defaultDir={SortTypes.DESC}>
                 NAME
               </SortHeaderCell>
             }
             cell={<TextCell data={dataList} col='fullName' />}
             fixed={true}
-            width={300}
+            width={375}
           />
           <Column
             columnKey='birthdayDate'
@@ -282,7 +285,7 @@ class PeopleTable extends React.Component {
               </SortHeaderCell>
             }
             cell={<TextCell data={dataList} col='lastUpload' />}
-            width={200}
+            width={125}
           />
         </Table>
       </div>
