@@ -144,17 +144,17 @@ class PeopleTable extends React.Component {
 
     const sorted = _.sortByOrder(this.state.dataList, [columnKey], [sortDir])
 
-    let metricMessage = "Sort by ";
+    let metricMessage = 'Sort by ';
 
-    if (columnKey === "fullName"){
-      metricMessage += "Name";
-    } else if (columnKey === "birthdayDate"){
-      metricMessage += "Birthday";
+    if (columnKey === 'fullName'){
+      metricMessage += 'Name';
+    } else if (columnKey === 'birthdayDate'){
+      metricMessage += 'Birthday';
     } else {
-      metricMessage += "Last Upload";
+      metricMessage += 'Last Upload';
     }
 
-    metricMessage += " "+sortDir;
+    metricMessage += ' '+sortDir;
 
     this.props.trackMetric(metricMessage);
 
@@ -168,14 +168,14 @@ class PeopleTable extends React.Component {
 
   renderSearchBar() {
     return (
-      <div className="peopletable-search">
-        <div className="peopletable-search-label">
+      <div className='peopletable-search'>
+        <div className='peopletable-search-label'>
           Patient List
         </div>
         <input
-          className="peopletable-search-box"
+          className='peopletable-search-box'
           onChange={this._onFilterChange}
-          placeholder="Search"
+          placeholder='Search'
         />
       </div>
     );
@@ -193,10 +193,10 @@ class PeopleTable extends React.Component {
       toggleLabel = 'Show All';
     }
 
-    this.props.trackMetric("Clicked "+toggleLabel);
+    this.props.trackMetric('Clicked '+toggleLabel);
 
     return (
-      <div className="peopletable-names-toggle">
+      <div className='peopletable-names-toggle'>
         <a onClick={this._onToggleShowNames}>
           {toggleLabel}
         </a>
@@ -247,7 +247,7 @@ class PeopleTable extends React.Component {
           onRowMouseLeave={this._onRowMouseLeave}
           {...this.props}>
           <Column
-            columnKey="fullName"
+            columnKey='fullName'
             header={
               <SortHeaderCell
                 onSortChange={this._onSortChange}
@@ -255,12 +255,12 @@ class PeopleTable extends React.Component {
                 NAME
               </SortHeaderCell>
             }
-            cell={<TextCell data={dataList} col="fullName" />}
+            cell={<TextCell data={dataList} col='fullName' />}
             fixed={true}
             width={300}
           />
           <Column
-            columnKey="birthdayDate"
+            columnKey='birthdayDate'
             header={
               <SortHeaderCell
                 onSortChange={this._onSortChange}
@@ -268,12 +268,12 @@ class PeopleTable extends React.Component {
                 BIRTHDAY
               </SortHeaderCell>
             }
-            cell={<TextCell data={dataList} col="birthday" />}
+            cell={<TextCell data={dataList} col='birthday' />}
             fixed={true}
             width={200}
           />
           <Column
-            columnKey="lastUpload"
+            columnKey='lastUpload'
             header={
               <SortHeaderCell
                 onSortChange={this._onSortChange}
@@ -281,7 +281,7 @@ class PeopleTable extends React.Component {
                 LAST UPLOAD
               </SortHeaderCell>
             }
-            cell={<TextCell data={dataList} col="lastUpload" />}
+            cell={<TextCell data={dataList} col='lastUpload' />}
             width={200}
           />
         </Table>
