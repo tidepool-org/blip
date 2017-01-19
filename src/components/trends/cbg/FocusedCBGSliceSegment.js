@@ -20,6 +20,9 @@ import React, { PropTypes } from 'react';
 import styles from './FocusedCBGSliceSegment.css';
 
 const FocusedCBGSliceSegment = (props) => {
+  if (!props.focusedSlice || !props.focusedSliceKeys) {
+    return null;
+  }
   const { focusedSlice: { position }, focusedSliceKeys, sliceWidth } = props;
   return (
     <rect
