@@ -23,6 +23,10 @@
   stroke-width: 2;
 }
 
+.pointAll {
+  pointer-events: all;
+}
+
 .median {
   stroke: white;
   composes: thickStroke;
@@ -47,26 +51,30 @@
 
 .rangeSegment {
   stroke: var(--trends--light);
-  composes: thickStroke;
+  composes: pointAll thickStroke;
   fill: transparent;
+}
+
+.rangeSegment:hover {
+  opacity: 0;
 }
 
 .outerSegment {
   stroke: var(--trends--light);
-  composes: thickStroke;
+  composes: pointAll thickStroke;
   fill: var(--trends--light);
 }
 
 .outerSegment:hover {
-  fill: transparent;
+  opacity: 0;
 }
 
 .innerQuartilesSegment {
   stroke: var(--trends--dark);
-  composes: thickStroke;
+  composes: pointAll thickStroke;
   fill: var(--trends--dark);
 }
 
 .innerQuartilesSegment:hover {
-  fill: transparent;
+  opacity: 0;
 }
