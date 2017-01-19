@@ -45,6 +45,7 @@ import _ from 'lodash';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
+import { findDatesIntersectingWithCbgSliceSegment } from '../../utils/trends/data';
 import Background from '../../components/trends/common/Background';
 import CBGDateTracesAnimationContainer from './CBGDateTracesAnimationContainer';
 import CBGSlicesContainer from './CBGSlicesContainer';
@@ -84,8 +85,9 @@ export class TrendsSVGContainer extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { cbgData, focusedSlice, focusedSliceKeys } = nextProps;
     if (focusedSlice) {
-      const filterFn = this.getFilterFnForFocusedCbgSegment(focusedSliceKeys, focusedSlice.data);
-      const intersectingDates = _.uniq(_.pluck(_.filter(cbgData, filterFn), 'localDate'));
+      const intersectingDates = findDatesIntersectingWithCbgSliceSegment(
+        cbgData, focusedSlice, focusedSliceKeys
+      );
       const focusedSegmentDataGroupedByDate = _.groupBy(
         _.filter(cbgData, (d) => (_.includes(intersectingDates, d.localDate))),
         (d) => (d.localDate)
@@ -94,21 +96,14 @@ export class TrendsSVGContainer extends React.Component {
         focusedSegmentDataGroupedByDate,
       });
     } else {
+      // only reset focusedSegmentDataGroupedByDate to null if previous props had a focused slice
+      // but nextProps do not! (i.e., you've just rolled off a segment and not onto another one)
       if (this.props.focusedSlice) {
         this.setState({
           focusedSegmentDataGroupedByDate: null,
         });
       }
     }
-  }
-
-  getFilterFnForFocusedCbgSegment(focusedSliceKeys, datum) {
-    return (d) => {
-      if (d.msPer24 >= datum.msFrom && d.msPer24 < datum.msTo) {
-        return (d.value >= datum[focusedSliceKeys[0]] && d.value <= datum[focusedSliceKeys[1]]);
-      }
-      return false;
-    };
   }
 
   renderNoDataMessage(dataType) {
@@ -331,6 +326,7 @@ TrendsSVGContainer.propTypes = {
   cbgData: PropTypes.arrayOf(PropTypes.shape({
     // here only documenting the properties we actually use rather than the *whole* data model!
     id: PropTypes.string.isRequired,
+    localDate: PropTypes.string.isRequired,
     msPer24: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
   })).isRequired,
