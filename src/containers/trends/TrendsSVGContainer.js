@@ -47,6 +47,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
 import Background from '../../components/trends/common/Background';
 import CBGSlicesContainer from './CBGSlicesContainer';
+import FocusedCBGSliceSegment from '../../components/trends/cbg/FocusedCBGSliceSegment';
 import SMBGsByDateContainer from './SMBGsByDateContainer';
 import SMBGRangeAvgContainer from './SMBGRangeAvgContainer';
 import SMBGRangeAnimated from '../../components/trends/smbg/SMBGRangeAnimated';
@@ -110,7 +111,7 @@ export class TrendsSVGContainer extends React.Component {
 
   renderCbg() {
     if (this.props.showingCbg) {
-      return (
+      const slices = (
         <CBGSlicesContainer
           bgBounds={this.props.bgBounds}
           data={this.props.cbgData}
@@ -123,6 +124,24 @@ export class TrendsSVGContainer extends React.Component {
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
+      );
+
+      let focused = null;
+      const { focusedSlice, focusedSliceKeys } = this.props;
+      if (!_.isEmpty(focusedSlice) && !_.isEmpty(focusedSliceKeys)) {
+        focused = (
+          <FocusedCBGSliceSegment
+            focusedSlice={focusedSlice}
+            focusedSliceKeys={focusedSliceKeys}
+          />
+        );
+      }
+
+      return (
+        <g id="cbgTrends">
+          {slices}
+          {focused}
+        </g>
       );
     }
     return null;
@@ -295,6 +314,15 @@ TrendsSVGContainer.propTypes = {
       }).isRequired,
     }).isRequired,
   }),
+  focusedSliceKeys: PropTypes.arrayOf(PropTypes.oneOf([
+    'firstQuartile',
+    'max',
+    'median',
+    'min',
+    'ninetiethQuantile',
+    'tenthQuantile',
+    'thirdQuartile',
+  ])),
   focusedSmbg: PropTypes.shape({
     allPositions: PropTypes.arrayOf(PropTypes.shape({
       top: PropTypes.number.isRequired,
