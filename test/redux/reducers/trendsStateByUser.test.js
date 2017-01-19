@@ -42,17 +42,18 @@ describe('trendsStateByUser', () => {
         payload: { patientId: USER_1 },
       })).to.deep.equal({
         [USER_1]: {
-          focusedCbgSlice: null,
-          focusedCbgSliceKeys: null,
-          focusedSmbg: null,
-          focusedSmbgRangeAvg: null,
-          touched: false,
           cbgFlags: {
             cbg100Enabled: true,
             cbg80Enabled: true,
             cbg50Enabled: true,
             cbgMedianEnabled: true,
           },
+          focusedCbgSlice: null,
+          focusedCbgSliceKeys: null,
+          focusedSmbg: null,
+          focusedSmbgRangeAvg: null,
+          showingCbgSliceLabels: true,
+          touched: false,
         },
       });
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
@@ -85,17 +86,18 @@ describe('trendsStateByUser', () => {
     it('should set up the default trends state for an additional user w/o wiping first', () => {
       const initialState = {
         [USER_1]: {
-          focusedCbgSlice: null,
-          focusedCbgSliceKeys: null,
-          focusedSmbg: null,
-          focusedSmbgRangeAvg: null,
-          touched: true,
           cbgFlags: {
             cbg100Enabled: false,
             cbg80Enabled: true,
             cbg50Enabled: true,
             cbgMedianEnabled: true,
           },
+          focusedCbgSlice: null,
+          focusedCbgSliceKeys: null,
+          focusedSmbg: null,
+          focusedSmbgRangeAvg: null,
+          showingCbgSliceLabels: false,
+          touched: true,
         },
       };
       const tracked = mutationTracker.trackObj(initialState);
@@ -104,30 +106,32 @@ describe('trendsStateByUser', () => {
         payload: { patientId: USER_2 },
       })).to.deep.equal({
         [USER_1]: {
-          focusedCbgSlice: null,
-          focusedCbgSliceKeys: null,
-          focusedSmbg: null,
-          focusedSmbgRangeAvg: null,
-          touched: true,
           cbgFlags: {
             cbg100Enabled: false,
             cbg80Enabled: true,
             cbg50Enabled: true,
             cbgMedianEnabled: true,
           },
-        },
-        [USER_2]: {
           focusedCbgSlice: null,
           focusedCbgSliceKeys: null,
           focusedSmbg: null,
           focusedSmbgRangeAvg: null,
-          touched: false,
+          showingCbgSliceLabels: false,
+          touched: true,
+        },
+        [USER_2]: {
           cbgFlags: {
             cbg100Enabled: true,
             cbg80Enabled: true,
             cbg50Enabled: true,
             cbgMedianEnabled: true,
           },
+          focusedCbgSlice: null,
+          focusedCbgSliceKeys: null,
+          focusedSmbg: null,
+          focusedSmbgRangeAvg: null,
+          showingCbgSliceLabels: true,
+          touched: false,
         },
       });
       expect(mutationTracker.hasMutated(tracked)).to.be.false;

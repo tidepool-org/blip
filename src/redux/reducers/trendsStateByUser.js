@@ -20,16 +20,17 @@ import update from 'react-addons-update';
 
 import * as actionTypes from '../constants/actionTypes';
 
-const FOCUSED_CBG_SLICE = 'focusedCbgSlice';
-const FOCUSED_CBG_KEYS = 'focusedCbgSliceKeys';
-const FOCUSED_SMBG = 'focusedSmbg';
-const FOCUSED_SMBG_RANGE_AVG = 'focusedSmbgRangeAvg';
-const TOUCHED = 'touched';
 const CBG_FLAGS = 'cbgFlags';
 const CBG_100_ENABLED = 'cbg100Enabled';
 const CBG_80_ENABLED = 'cbg80Enabled';
 const CBG_50_ENABLED = 'cbg50Enabled';
 const CBG_MEDIAN_ENABLED = 'cbgMedianEnabled';
+const FOCUSED_CBG_SLICE = 'focusedCbgSlice';
+const FOCUSED_CBG_KEYS = 'focusedCbgSliceKeys';
+const FOCUSED_SMBG = 'focusedSmbg';
+const FOCUSED_SMBG_RANGE_AVG = 'focusedSmbgRangeAvg';
+const SHOW_CBG_SLICE_LABELS = 'showingCbgSliceLabels';
+const TOUCHED = 'touched';
 
 const CBG_FLAG_MAP = {
   100: CBG_100_ENABLED,
@@ -39,17 +40,18 @@ const CBG_FLAG_MAP = {
 };
 
 const initialState = {
-  [FOCUSED_CBG_SLICE]: null,
-  [FOCUSED_CBG_KEYS]: null,
-  [FOCUSED_SMBG]: null,
-  [FOCUSED_SMBG_RANGE_AVG]: null,
-  [TOUCHED]: false,
   [CBG_FLAGS]: {
     [CBG_100_ENABLED]: true,
     [CBG_80_ENABLED]: true,
     [CBG_50_ENABLED]: true,
     [CBG_MEDIAN_ENABLED]: true,
   },
+  [FOCUSED_CBG_SLICE]: null,
+  [FOCUSED_CBG_KEYS]: null,
+  [FOCUSED_SMBG]: null,
+  [FOCUSED_SMBG_RANGE_AVG]: null,
+  [SHOW_CBG_SLICE_LABELS]: true,
+  [TOUCHED]: false,
 };
 
 const trendsStateByUser = (state = {}, action) => {

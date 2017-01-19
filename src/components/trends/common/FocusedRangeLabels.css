@@ -27,5 +27,8 @@
 .explainerText {
   composes: highContrastText noWrap from '../../../styles/typography.css';
   display: block;
-  padding: 5px;
+}
+
+.timeLabel {
+  composes: highContrastText noWrap defaultSize from '../../../styles/typography.css';
 }
