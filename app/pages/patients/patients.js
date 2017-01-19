@@ -200,6 +200,25 @@ export let Patients = React.createClass({
     var patients = this.props.patients;
     patients = this.addLinkToPatients(patients);
 
+    var showPatients = (
+      <PeopleList
+        people={patients}
+        trackMetric={this.props.trackMetric}
+        uploadUrl={this.props.uploadUrl}
+        onClickPerson={this.handleClickPatient}
+        onRemovePatient= {this.props.onRemovePatient}
+      />
+    );
+
+    if (personUtils.isClinic(this.props.user)) {
+      showPatients = (
+        <PeopleTable
+          people={patients}
+          trackMetric={this.props.trackMetric}
+        />
+      );
+    }
+
     var addDataStorage = this.renderAddDataStorage();
 
     return (
@@ -210,8 +229,7 @@ export let Patients = React.createClass({
         <div className="patients-section-content">
           {addDataStorage}
           <div className='clear'></div>
-          <PeopleTable
-            people={patients} />
+          {showPatients}
         </div>
       </div>
     );

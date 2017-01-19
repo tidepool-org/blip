@@ -82,7 +82,7 @@ class PeopleTable extends React.Component {
     this.state = {
       currentIndex: -1,
       searching: false,
-      showNames: true,
+      showNames: false,
       dataList: this.buildDataList(),
       colSortDirs: {},
     };
@@ -144,6 +144,20 @@ class PeopleTable extends React.Component {
 
     const sorted = _.sortByOrder(this.state.dataList, [columnKey], [sortDir])
 
+    let metricMessage = "Sort by ";
+
+    if (columnKey === "fullName"){
+      metricMessage += "Name";
+    } else if (columnKey === "birthdayDate"){
+      metricMessage += "Birthday";
+    } else {
+      metricMessage += "Last Upload";
+    }
+
+    metricMessage += " "+sortDir;
+
+    this.props.trackMetric(metricMessage);
+
     this.setState({
       dataList: sorted,
       colSortDirs: {
@@ -173,11 +187,13 @@ class PeopleTable extends React.Component {
 
   renderShowNamesToggle() {
 
-    let toggleLabel = 'Hide Names';
+    let toggleLabel = 'Hide All';
 
     if (!this.state.showNames){
-      toggleLabel = 'Show Names';
+      toggleLabel = 'Show All';
     }
+
+    this.props.trackMetric("Clicked "+toggleLabel);
 
     return (
       <div className="peopletable-names-toggle">
@@ -195,16 +211,15 @@ class PeopleTable extends React.Component {
   }
 
   _onRowClick(e, rowIndex){
+    this.props.trackMetric('Selected PwD');
     browserHistory.push(this.state.dataList[rowIndex].link);
   }
 
   _onRowMouseEnter(e, rowIndex){
-    console.log('_onRowMouseEnter', rowIndex);
     this.setState({ currentRow: rowIndex });
   }
 
   _onRowMouseLeave(e, rowIndex){
-    console.log('_onRowMouseLeave', rowIndex);
     this.setState({ currentRow: -1 });
   }
 
@@ -277,6 +292,7 @@ class PeopleTable extends React.Component {
 
 PeopleTable.propTypes = {
     people: React.PropTypes.array,
+    trackMetric: React.PropTypes.func.isRequired,
 };
 
 module.exports = PeopleTable;
