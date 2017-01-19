@@ -35,7 +35,7 @@
     "express": "4.14.0",
     "extract-text-webpack-plugin": "1.0.1",
     "file-loader": "0.9.0",
-    "fixed-data-table": "0.6.3",
+    "fixed-data-table-2": "0.7.10",
     "hakken": "0.1.8",
     "history": "2.1.2",
     "json-loader": "0.5.4",

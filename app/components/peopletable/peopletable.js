@@ -16,10 +16,9 @@
 */
 import React from 'react';
 import _ from 'lodash';
-import { Table, Column, Cell } from 'fixed-data-table';
+import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
-import { Link } from 'react-router';
-import { TwoOptionToggle } from '@tidepool/viz';
+import { browserHistory } from 'react-router';
 
 import personUtils from '../../core/personutils';
 
@@ -39,7 +38,7 @@ class SortHeaderCell extends React.Component {
   }
 
   render() {
-    const {sortDir, children, ...props} = this.props;
+    const {onSortChange, sortDir, children, ...props} = this.props;
     let sortDirectionClass = 'peopletable-search-icon';
     if (sortDir === SortTypes.DESC) {
       sortDirectionClass += ' icon-arrow-down';
@@ -76,19 +75,12 @@ const TextCell = ({rowIndex, data, col, ...props}) => (
   </Cell>
 );
 
-const LinkCell = ({rowIndex, data, col, href, ...props}) => (
-  <Cell {...props}>
-    <Link className="peopletable-link" to={data[rowIndex][href]} >
-      <div className="peopletable-fullname" title={data[rowIndex][col]}>{data[rowIndex][col]}</div>
-    </Link>
-  </Cell>
-);
-
 class PeopleTable extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      currentIndex: -1,
       searching: false,
       showNames: true,
       dataList: this.buildDataList(),
@@ -98,6 +90,10 @@ class PeopleTable extends React.Component {
     this._onSortChange = this._onSortChange.bind(this);
     this._onFilterChange = this._onFilterChange.bind(this);
     this._onToggleShowNames = this._onToggleShowNames.bind(this);
+    this._onRowClick = this._onRowClick.bind(this);
+    this._rowClassNameGetter = this._rowClassNameGetter.bind(this);
+    this._onRowMouseEnter = this._onRowMouseEnter.bind(this);
+    this._onRowMouseLeave = this._onRowMouseLeave.bind(this);
   }
 
   buildDataList(){
@@ -172,9 +168,7 @@ class PeopleTable extends React.Component {
   }
 
   _onToggleShowNames() {
-    this.setState({
-      showNames: !this.state.showNames,
-    });
+    this.setState({ showNames: !this.state.showNames });
   }
 
   renderShowNamesToggle() {
@@ -194,6 +188,26 @@ class PeopleTable extends React.Component {
     );
   }
 
+  _rowClassNameGetter(rowIndex) {
+    if (rowIndex === this.state.currentRow) {
+      return 'peopletable-active-row';
+    }
+  }
+
+  _onRowClick(e, rowIndex){
+    browserHistory.push(this.state.dataList[rowIndex].link);
+  }
+
+  _onRowMouseEnter(e, rowIndex){
+    console.log('_onRowMouseEnter', rowIndex);
+    this.setState({ currentRow: rowIndex });
+  }
+
+  _onRowMouseLeave(e, rowIndex){
+    console.log('_onRowMouseLeave', rowIndex);
+    this.setState({ currentRow: -1 });
+  }
+
   render() {
     const {colSortDirs, showNames, searching} = this.state;
     let {dataList} = this.state;
@@ -209,9 +223,13 @@ class PeopleTable extends React.Component {
         <Table
           rowHeight={50}
           rowsCount={dataList.length}
+          rowClassNameGetter={this._rowClassNameGetter}
           headerHeight={50}
           width={700}
           height={300}
+          onRowClick={this._onRowClick}
+          onRowMouseEnter={this._onRowMouseEnter}
+          onRowMouseLeave={this._onRowMouseLeave}
           {...this.props}>
           <Column
             columnKey="fullName"
@@ -222,7 +240,7 @@ class PeopleTable extends React.Component {
                 NAME
               </SortHeaderCell>
             }
-            cell={<LinkCell data={dataList} col="fullName" href="link" />}
+            cell={<TextCell data={dataList} col="fullName" />}
             fixed={true}
             width={300}
           />
