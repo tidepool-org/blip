@@ -86,7 +86,10 @@ var scales = function(opts) {
       if ((!data) || (data.length === 0)) {
         return [];
       }
-      var defaultTicks = opts.bgUnits === 'mg/dL' ? [40, 80, 120, 180, 300] : [2.0, 4.5, 7.0, 10.0, 16.0];
+      var defaultTicks = _.map(_.values(_.omit(opts.bgClasses, ['very-high', 'very-low'])), function(n) {
+        return _.get(n, 'boundary');
+      }).sort(function (a, b) { return a - b; });
+
       var ext = d3.extent(data, function(d) { return d.value; });
       if (ext[0] === ext[1]) {
         return defaultTicks;

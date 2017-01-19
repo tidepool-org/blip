@@ -17,6 +17,7 @@
 
 var _ = require('lodash');
 var commonbolus = require('../../../../js/plot/util/commonbolus');
+var categorizer = require('../../../../js/data/util/categorize');
 
 module.exports = function(bgClasses) {
   var classifers = {
@@ -62,26 +63,7 @@ module.exports = function(bgClasses) {
       }
       return tags;
     },
-    categorizeBg: function(d) {
-      if (d.value < bgClasses['very-low'].boundary) {
-        return 'verylow';
-      }
-      else if (d.value >= bgClasses['very-low'].boundary &&
-        d.value < bgClasses.low.boundary) {
-        return 'low';
-      }
-      else if (d.value >= bgClasses.low.boundary &&
-        d.value < bgClasses.target.boundary) {
-        return 'target';
-      }
-      else if (d.value >= bgClasses.target.boundary &&
-        d.value < bgClasses.high.boundary) {
-        return 'high';
-      }
-      else if (d.value >= bgClasses.high.boundary) {
-        return 'veryhigh';
-      }
-    },
+    categorizeBg: categorizer(bgClasses),
     smbg: function(d) {
       var tags = [];
       if (d.subType && d.subType === 'manual') {

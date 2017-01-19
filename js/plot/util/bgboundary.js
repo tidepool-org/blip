@@ -16,36 +16,40 @@
  */
 
 var _ = require('lodash');
+var categorizer = require('../../../js/data/util/categorize');
 
 module.exports = function(classes) {
+  var categorizeBg = categorizer(classes);
   if (Object.keys(classes).length > 3) {
     return function(datum) {
-      if (datum.value < classes['very-low'].boundary) {
+      var category = categorizeBg(datum);
+      if (category === "verylow") {
         return 'd3-bg-low';
       }
-      else if ((datum.value >= classes['very-low'].boundary) && (datum.value < classes.low.boundary)) {
+      else if (category === "low") {
         return 'd3-bg-low d3-circle-open';
       }
-      else if ((datum.value >= classes.low.boundary) && (datum.value <= classes.target.boundary)) {
+      else if (category === "target") {
         return 'd3-bg-target';
       }
-      else if ((datum.value > classes.target.boundary) && (datum.value <= classes.high.boundary)) {
+      else if (category === "high") {
         return 'd3-bg-high d3-circle-open';
       }
-      else if (datum.value > classes.high.boundary) {
+      else if (category === "veryhigh") {
         return 'd3-bg-high';
       }
     };
   }
   else {
     return function(datum) {
-      if (datum.value < classes.low.boundary) {
+      var category = categorizeBg(datum);
+      if (category === "low" || category === "verylow") {
         return 'd3-bg-low';
       }
-      else if ((datum.value >= classes.low.boundary) && (datum.value <= classes.target.boundary)) {
+      else if (category === "target") {
         return 'd3-bg-target';
       }
-      else if (datum.value > classes.target.boundary) {
+      else if (category === "high" || category === "veryhigh") {
         return 'd3-bg-high';
       }
     };

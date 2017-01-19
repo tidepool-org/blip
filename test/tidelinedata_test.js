@@ -31,11 +31,11 @@ var TidelineData = require('../js/tidelinedata');
 describe('TidelineData', function() {
   var td = new TidelineData([]);
   var bgClasses = {
-    'very-low': {boundary: 60},
-    low: {boundary: 80},
-    target: {boundary: 180},
-    high: {boundary: 300},
-    'very-high': {boundary: 600}
+    'very-low': { boundary: 55 },
+    low: { boundary: 70 },
+    target: { boundary: 180 },
+    high: { boundary: 300 },
+    'very-high': { boundary: 600 }
   };
   it('should be a function', function() {
     assert.isFunction(TidelineData);

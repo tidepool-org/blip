@@ -36,6 +36,7 @@ require('./datetime_test');
 require('./basalutil_test');
 require('./bgutil_test');
 require('./bolusutil_test');
+require('./categorize_test');
 
 /* js/plot/ */
 require('./annotations_test');
