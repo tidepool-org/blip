@@ -46,6 +46,7 @@ import _ from 'lodash';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import { THREE_HRS } from '../../utils/datetime';
 import Background from '../../components/trends/common/Background';
+import CBGDateTracesAnimationContainer from './CBGDateTracesAnimationContainer';
 import CBGSlicesContainer from './CBGSlicesContainer';
 import FocusedCBGSliceSegment from '../../components/trends/cbg/FocusedCBGSliceSegment';
 import SMBGsByDateContainer from './SMBGsByDateContainer';
@@ -59,6 +60,14 @@ import XAxisTicks from '../../components/trends/common/XAxisTicks';
 import YAxisLabelsAndTicks from '../../components/trends/common/YAxisLabelsAndTicks';
 
 export class TrendsSVGContainer extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      focusedSegmentDataGroupedByDate: null,
+    };
+  }
+
   componentWillMount() {
     const { containerHeight: height, containerWidth: width } = this.props;
     const { margins, smbgOpts, xScale, yScale } = this.props;
@@ -70,6 +79,36 @@ export class TrendsSVGContainer extends React.Component {
       height - margins.bottom - BUMPERS.bottom,
       margins.top + BUMPERS.top,
     ]);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { cbgData, focusedSlice, focusedSliceKeys } = nextProps;
+    if (focusedSlice) {
+      const filterFn = this.getFilterFnForFocusedCbgSegment(focusedSliceKeys, focusedSlice.data);
+      const intersectingDates = _.uniq(_.pluck(_.filter(cbgData, filterFn), 'localDate'));
+      const focusedSegmentDataGroupedByDate = _.groupBy(
+        _.filter(cbgData, (d) => (_.includes(intersectingDates, d.localDate))),
+        (d) => (d.localDate)
+      );
+      this.setState({
+        focusedSegmentDataGroupedByDate,
+      });
+    } else {
+      if (this.props.focusedSlice) {
+        this.setState({
+          focusedSegmentDataGroupedByDate: null,
+        });
+      }
+    }
+  }
+
+  getFilterFnForFocusedCbgSegment(focusedSliceKeys, datum) {
+    return (d) => {
+      if (d.msPer24 >= datum.msFrom && d.msPer24 < datum.msTo) {
+        return (d.value >= datum[focusedSliceKeys[0]] && d.value <= datum[focusedSliceKeys[1]]);
+      }
+      return false;
+    };
   }
 
   renderNoDataMessage(dataType) {
@@ -126,6 +165,17 @@ export class TrendsSVGContainer extends React.Component {
         />
       );
 
+      const { focusedSegmentDataGroupedByDate } = this.state;
+      const dateTraces = (
+        <CBGDateTracesAnimationContainer
+          bgBounds={this.props.bgBounds}
+          data={focusedSegmentDataGroupedByDate}
+          dates={_.keys(focusedSegmentDataGroupedByDate) || []}
+          xScale={this.props.xScale}
+          yScale={this.props.yScale}
+        />
+      );
+
       let focused = null;
       const { focusedSlice, focusedSliceKeys } = this.props;
       if (!_.isEmpty(focusedSlice) && !_.isEmpty(focusedSliceKeys)) {
@@ -140,6 +190,7 @@ export class TrendsSVGContainer extends React.Component {
       return (
         <g id="cbgTrends">
           {slices}
+          {dateTraces}
           {focused}
         </g>
       );
