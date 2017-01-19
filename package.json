@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.14.43",
+  "version": "0.14.47",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -19,7 +19,7 @@
     "serve-docs": "./node_modules/.bin/gitbook serve"
   },
   "dependencies": {
-    "@tidepool/viz": "0.3.3",
+    "@tidepool/viz": "0.3.4",
     "async": "1.5.2",
     "babel-core": "6.13.2",
     "babel-loader": "6.2.5",
@@ -59,7 +59,7 @@
     "shelljs": "0.7.3",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "0.5.14",
+    "tideline": "0.5.17",
     "tidepool-platform-client": "0.27.0",
     "url-loader": "0.5.7",
     "webpack": "1.13.2"
