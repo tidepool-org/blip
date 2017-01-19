@@ -28,24 +28,26 @@ const YAxisLabels = (props) => {
 
   return (
     <g id="yAxisLabels">
-      {_.map(['targetLowerBound', 'targetUpperBound', 'veryHighThreshold'], (boundKey) => (
-        <g id="yAxisLabel" key={boundKey}>
-          <text
-            className={styles.text}
-            x={margins.left - tickWidth - textToTickGap}
-            y={yScale(bgBounds[boundKey])}
-          >
-            {displayBgValue(bgBounds[boundKey], bgUnits)}
-          </text>
-          <line
-            className={styles.tick}
-            x1={margins.left - tickWidth}
-            x2={margins.left}
-            y1={yScale(bgBounds[boundKey])}
-            y2={yScale(bgBounds[boundKey])}
-          />
-        </g>
-      ))}
+      {_.map(['targetLowerBound', 'targetUpperBound', 'veryHighThreshold', 'veryLowThreshold'],
+        (boundKey) => (
+          <g id="yAxisLabel" key={boundKey}>
+            <text
+              className={styles.text}
+              x={margins.left - tickWidth - textToTickGap}
+              y={yScale(bgBounds[boundKey])}
+            >
+              {displayBgValue(bgBounds[boundKey], bgUnits)}
+            </text>
+            <line
+              className={styles.tick}
+              x1={margins.left - tickWidth}
+              x2={margins.left}
+              y1={yScale(bgBounds[boundKey])}
+              y2={yScale(bgBounds[boundKey])}
+            />
+          </g>
+        ))
+      }
     </g>
   );
 };
