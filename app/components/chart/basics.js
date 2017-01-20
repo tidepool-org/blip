@@ -37,7 +37,7 @@ var Basics = React.createClass({
     chartPrefs: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
-    patientSettings: React.PropTypes.object.isRequired,
+    patientSettings: React.PropTypes.object,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
