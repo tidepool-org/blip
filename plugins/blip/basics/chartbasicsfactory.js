@@ -94,7 +94,7 @@ var BasicsChart = React.createClass({
       dataMunger.reduceByDay(basicsData);
 
       var latestPump = dataMunger.getLatestPumpUploaded(this.props.patientData);
-      dataMunger.processInfusionSiteHistory(basicsData, latestPump, this.props);
+      dataMunger.processInfusionSiteHistory(basicsData, latestPump, this.props.patient);
 
       basicsData.data.bgDistribution = dataMunger.bgDistribution(basicsData);
       var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData);

@@ -186,7 +186,7 @@ module.exports = function(bgClasses) {
 
       return null;
     },
-    processInfusionSiteHistory: function(basicsData, latestPump, props) {
+    processInfusionSiteHistory: function(basicsData, latestPump, patient) {
       if (!latestPump) {
         return;
       }
@@ -197,7 +197,7 @@ module.exports = function(bgClasses) {
           fullName,
           settings,
         },
-      } = props.patient;
+      } = patient;
 
       var hasUploadPermission = permissions.hasOwnProperty('admin') || permissions.hasOwnProperty('root');
 
