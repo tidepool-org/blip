@@ -16,13 +16,13 @@
  */
 
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import { range } from 'd3-array';
 
 import { THREE_HRS, TWENTY_FOUR_HRS } from '../../utils/datetime';
 import { calculateSmbgStatsForBin, findBinForTimeOfDay } from '../../utils/trends/data';
 
-export default class SMBGRangeAvgContainer extends React.Component {
+export default class SMBGRangeAvgContainer extends PureComponent {
   static propTypes = {
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,

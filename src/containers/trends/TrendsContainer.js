@@ -22,7 +22,7 @@ import bows from 'bows';
 import { extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { utcDay } from 'd3-time';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -34,7 +34,7 @@ import {
 const { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } } = trends;
 import * as datetime from '../../utils/datetime';
 
-export class TrendsContainer extends React.Component {
+export class TrendsContainer extends PureComponent {
   static propTypes = {
     activeDays: PropTypes.shape({
       monday: PropTypes.bool.isRequired,

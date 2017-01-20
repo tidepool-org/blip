@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
 import { springConfig } from '../../../utils/constants';
@@ -23,7 +23,7 @@ import withDefaultYPosition from '../common/withDefaultYPosition';
 
 import styles from './SMBGRangeAnimated.css';
 
-export class SMBGRangeAnimated extends Component {
+export class SMBGRangeAnimated extends PureComponent {
   static defaultProps = {
     rectWidth: 18,
   };

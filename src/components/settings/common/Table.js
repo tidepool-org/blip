@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import _ from 'lodash';
 
 import styles from './Table.css';
 
-class Table extends React.Component {
+class Table extends PureComponent {
 
   getItemField(item, field) {
     return item[field];

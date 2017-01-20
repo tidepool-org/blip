@@ -39,7 +39,7 @@ const SMBG_OPTS = {
   r: 6,
 };
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import dimensions from 'react-dimensions';
 import _ from 'lodash';
 
@@ -60,7 +60,7 @@ import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import XAxisTicks from '../../components/trends/common/XAxisTicks';
 import YAxisLabelsAndTicks from '../../components/trends/common/YAxisLabelsAndTicks';
 
-export class TrendsSVGContainer extends React.Component {
+export class TrendsSVGContainer extends PureComponent {
   constructor(props) {
     super(props);
 

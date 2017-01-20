@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 import _ from 'lodash';
 
@@ -26,7 +26,7 @@ import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
 import styles from './SMBGDatePointsAnimated.css';
 
-class SMBGDatePointsAnimated extends Component {
+class SMBGDatePointsAnimated extends PureComponent {
   static propTypes = {
     anSmbgRangeAvgIsFocused: PropTypes.bool.isRequired,
     bgBounds: PropTypes.shape({

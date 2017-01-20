@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import { range } from 'd3-array';
 
 import { THIRTY_MINS, TWENTY_FOUR_HRS } from '../../utils/datetime';
@@ -24,7 +24,7 @@ import { findBinForTimeOfDay, calculateCbgStatsForBin } from '../../utils/trends
 
 import CBGSliceAnimated from '../../components/trends/cbg/CBGSliceAnimated';
 
-export default class CBGSlicesContainer extends React.Component {
+export default class CBGSlicesContainer extends PureComponent {
   static propTypes = {
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,

@@ -27,7 +27,7 @@
 // - date is focused (through hover) fatter & solid line connecting the dots
 //   this style also applies when a single smbg is focused
 
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 import { line } from 'd3-shape';
 import _ from 'lodash';
@@ -39,7 +39,7 @@ import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
 import styles from './SMBGDateLineAnimated.css';
 
-class SMBGDateLineAnimated extends Component {
+class SMBGDateLineAnimated extends PureComponent {
   static propTypes = {
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,
