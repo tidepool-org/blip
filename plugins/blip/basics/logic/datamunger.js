@@ -186,24 +186,38 @@ module.exports = function(bgClasses) {
 
       return null;
     },
-    processInfusionSiteHistory: function(basicsData, latestPump, patientSettings) {
+    processInfusionSiteHistory: function(basicsData, latestPump, props) {
       if (!latestPump) {
         return;
       }
+
+      var {
+        patientPermissions,
+        patientProfile: {
+          fullName,
+          settings,
+        },
+      } = props;
+
+      var hasUploadPermission = patientPermissions.hasOwnProperty('upload') || patientPermissions.hasOwnProperty('root');
 
       if (latestPump === constants.ANIMAS || latestPump === constants.TANDEM) {
           basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
           basicsData.data.cannulaPrime.summary = {
             latestPump: latestPump,
+            canUpdateSettings: hasUploadPermission,
+            patientName: fullName,
           };
           basicsData.data.tubingPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
           basicsData.data.tubingPrime.summary = {
             latestPump: latestPump,
+            canUpdateSettings: hasUploadPermission,
+            patientName: fullName,
           };
 
-          if (patientSettings && patientSettings.siteChangeSource) {
-            basicsData.sections.siteChanges.type = patientSettings.siteChangeSource;
-            basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, patientSettings.siteChangeSource);
+          if (settings && settings.siteChangeSource) {
+            basicsData.sections.siteChanges.type = settings.siteChangeSource;
+            basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, settings.siteChangeSource);
           }
           else {
             basicsData.sections.siteChanges.type = constants.TYPE_UNDECLARED;
@@ -214,6 +228,8 @@ module.exports = function(bgClasses) {
         basicsData.data.reservoirChange.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_RESERVOIR);
         basicsData.data.reservoirChange.summary = {
           latestPump: latestPump,
+          canUpdateSettings: hasUploadPermission,
+          patientName: fullName,
         };
 
         basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;

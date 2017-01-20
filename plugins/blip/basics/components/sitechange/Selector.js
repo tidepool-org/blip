@@ -27,8 +27,6 @@ var constants = require('../../logic/constants');
 var Selector = React.createClass({
   mixins: [BasicsUtils],
   propTypes: {
-    bgClasses: React.PropTypes.object.isRequired,
-    bgUnits: React.PropTypes.string.isRequired,
     data: React.PropTypes.object,
     selectedSubtotal: React.PropTypes.string.isRequired,
     selectorOptions: React.PropTypes.object.isRequired,
@@ -49,21 +47,10 @@ var Selector = React.createClass({
       }
     }
 
-    var optionRows = self.props.selectorOptions.rows;
-
-    var others = optionRows.map(function(row, id) {
-      var options = row.map(self.renderOption);
-      return (
-        <div key={'row-'+id} className="SummaryGroup-row">
-          {options}
-        </div>
-      );
-    });
-
     return (
       <div className="SiteChangeSelector">
         {this.renderMessage()}
-        {others}
+        {this.renderOptions()}
       </div>
     );
   },
@@ -72,20 +59,69 @@ var Selector = React.createClass({
       return;
     }
 
-    var latestPump = this.props.data.latestPump;
+    var message;
+    var type = this.props.selectedSubtotal;
+    var {
+      latestPump,
+      canUpdateSettings,
+      patientName,
+    } = this.props.data;
 
-    var message = ['We do not have enough information to visualize your infusion site changes. Choose ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' or ', this.subAction(latestPump, constants.SITE_CHANGE_CANNULA), ' to indicate your infusion site changes.'];
+    if (canUpdateSettings) {
+      switch(type) {
+        case constants.SITE_CHANGE_TUBING:
+          message = ['We are using ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' to visualize your infusion site changes.'];
+          break;
+        case constants.SITE_CHANGE_CANNULA:
+          message = ['We are using ', this.subAction(latestPump, constants.SITE_CHANGE_CANNULA), ' to visualize your infusion site changes. Choose ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' if those are better indicators.'];
+          break;
+        default:
+          message = ['We do not have enough information to visualize your infusion site changes. Choose ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' or ', this.subAction(latestPump, constants.SITE_CHANGE_CANNULA), ' to indicate your infusion site changes.'];
+          break;
+      }
+    }
+    else {
+      switch(type) {
+        case constants.SITE_CHANGE_TUBING:
+          message = [patientName, ' is using ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' to visualize infusion site changes.'];
+          break;
+        case constants.SITE_CHANGE_CANNULA:
+          message = [patientName, ' is using ', this.subAction(latestPump, constants.SITE_CHANGE_CANNULA), ' to visualize infusion site changes.'];
+          break;
+        default:
+          message = ['We do not have enough information to visualize infusion site changes. Ask ', patientName, ' to choose ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' or ', this.subAction(latestPump, constants.SITE_CHANGE_CANNULA), ' to indicate infusion site changes.'];
+          break;
+        }
+    }
 
-    if (this.props.selectedSubtotal === constants.SITE_CHANGE_TUBING) {
-      message = ['We are using ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' to visualize your infusion site changes.'];
-    }
-    else if (this.props.selectedSubtotal === constants.SITE_CHANGE_CANNULA) {
-      message = ['We are using ', this.subAction(latestPump, constants.SITE_CHANGE_CANNULA), ' to visualize your infusion site changes. Choose ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' if those are better indicators.'];
-    }
+    var messageClass = cx({
+      'SiteChangeSelector-message': true,
+      'SiteChangeSelector-message--disabled': (!canUpdateSettings),
+      'SiteChangeSelector-message--cannula': (type === constants.SITE_CHANGE_CANNULA),
+      'SiteChangeSelector-message--tubing': (type === constants.SITE_CHANGE_TUBING),
+    });
 
     return (
-      <p>{message}</p>
+      <p className={messageClass}>{message}</p>
     )
+  },
+  renderOptions: function() {
+    var self = this;
+
+    if (!self.props.data.canUpdateSettings) {
+      return;
+    }
+
+    var optionRows = self.props.selectorOptions.rows;
+
+    return optionRows.map(function(row, id) {
+      var options = row.map(self.renderOption);
+      return (
+        <div key={'row-'+id} className="SummaryGroup-row">
+          {options}
+        </div>
+      );
+    });
   },
   renderOption: function(option) {
     var optionClass = cx({

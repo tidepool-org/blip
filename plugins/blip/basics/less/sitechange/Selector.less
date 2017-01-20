@@ -1,9 +1,30 @@
 .SiteChangeSelector {
   margin-bottom: 15px;
 
-  p {
+  .SiteChangeSelector-message {
     margin-top: 0;
     margin-left: 5px;
+
+    &.SiteChangeSelector-message--disabled::before {
+      display: block;
+      width: 20px;
+      height: 25px;
+      margin-right: 5px;
+      float: left;
+      content: "";
+      background-color: transparent;
+      background-size: 20px;
+      background-repeat: no-repeat;
+      background-position: top left;
+    }
+
+    &.SiteChangeSelector-message--cannula::before {
+      background-image: url(../../components/sitechange/sitechange_cannula.png);
+    }
+
+    &.SiteChangeSelector-message--tubing::before {
+      background-image: url(../../components/sitechange/sitechange_tubing.png);
+    }
   }
 
   .SiteChangeSelector-option {
