@@ -95,7 +95,10 @@ var Selector = React.createClass({
       'SiteChangeSelector-option--selected': (option.key === this.props.selectedSubtotal),
     });
 
-    var latestPump = this.props.data.latestPump;
+    var latestPump = 'default';
+    if (this.props.data && this.props.data.hasOwnProperty('latestPump')) {
+      latestPump = this.props.data.latestPump;
+    }
 
     return (
       <label key={option.key} className={optionClass}>

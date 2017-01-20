@@ -220,9 +220,8 @@ module.exports = function(bgClasses) {
         basicsData.sections.siteChanges.selector = null;
         basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
       }
-      // i.e., latestPump === constants.MEDTRONIC, since site changes are currently unsupported
       else {
-        return;
+        // i.e., latestPump === constants.MEDTRONIC, since site changes are currently unsupported
       }
     },
     infusionSiteHistory: function(basicsData, type) {

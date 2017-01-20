@@ -44,7 +44,7 @@ var BasicsChart = React.createClass({
     bgUnits: React.PropTypes.string.isRequired,
     onSelectDay: React.PropTypes.func.isRequired,
     patientData: React.PropTypes.object.isRequired,
-    patientSettings: React.PropTypes.object.isRequired,
+    patientSettings: React.PropTypes.object,
     timePrefs: React.PropTypes.object.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
