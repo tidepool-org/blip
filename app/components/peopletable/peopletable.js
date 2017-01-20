@@ -38,8 +38,7 @@ class SortHeaderCell extends React.Component {
   }
 
   render() {
-    const {onSortChange, defaultDir, children, ...props} = this.props;
-    let {sortDir} = this.props;
+    const {onSortChange, sortDir, defaultDir, children, ...props} = this.props;
     let sortDirectionClass = 'peopletable-search-icon';
 
     if (sortDir === SortTypes.DESC ) {
@@ -71,9 +70,10 @@ class SortHeaderCell extends React.Component {
   }
 }
 
-const TextCell = ({rowIndex, data, col, ...props}) => (
+const TextCell = ({rowIndex, data, col, icon, ...props}) => (
   <Cell {...props}>
     {data[rowIndex][col]}
+    {icon}
   </Cell>
 );
 
@@ -82,7 +82,7 @@ class PeopleTable extends React.Component {
     super(props);
 
     this.state = {
-      currentIndex: -1,
+      currentRowIndex: -1,
       searching: false,
       showNames: false,
       dataList: this.buildDataList(),
@@ -207,7 +207,7 @@ class PeopleTable extends React.Component {
   }
 
   _rowClassNameGetter(rowIndex) {
-    if (rowIndex === this.state.currentRow) {
+    if (rowIndex === this.state.currentRowIndex) {
       return 'peopletable-active-row';
     }
   }
@@ -218,11 +218,11 @@ class PeopleTable extends React.Component {
   }
 
   _onRowMouseEnter(e, rowIndex){
-    this.setState({ currentRow: rowIndex });
+    this.setState({ currentRowIndex: rowIndex });
   }
 
   _onRowMouseLeave(e, rowIndex){
-    this.setState({ currentRow: -1 });
+    this.setState({ currentRowIndex: -1 });
   }
 
   render() {
@@ -238,10 +238,10 @@ class PeopleTable extends React.Component {
         {this.renderSearchBar()}
         {this.renderShowNamesToggle()}
         <Table
-          rowHeight={50}
+          rowHeight={40}
           headerHeight={50}
-          width={700}
-          height={300}
+          width={880}
+          height={590}
           rowsCount={dataList.length}
           rowClassNameGetter={this._rowClassNameGetter}
           onRowClick={this._onRowClick}
@@ -258,9 +258,8 @@ class PeopleTable extends React.Component {
                 NAME
               </SortHeaderCell>
             }
-            cell={<TextCell data={dataList} col='fullName' />}
-            fixed={true}
-            width={375}
+            cell={<TextCell data={dataList} col='fullName' icon={<i className="peopletable-icon-profile icon-profile"></i>} />}
+            width={540}
           />
           <Column
             columnKey='birthdayDate'
@@ -272,8 +271,7 @@ class PeopleTable extends React.Component {
               </SortHeaderCell>
             }
             cell={<TextCell data={dataList} col='birthday' />}
-            fixed={true}
-            width={200}
+            width={220}
           />
           <Column
             columnKey='lastUpload'
@@ -285,7 +283,7 @@ class PeopleTable extends React.Component {
               </SortHeaderCell>
             }
             cell={<TextCell data={dataList} col='lastUpload' />}
-            width={125}
+            width={120}
           />
         </Table>
       </div>

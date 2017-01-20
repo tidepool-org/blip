@@ -132,38 +132,34 @@ export let Patients = React.createClass({
   },
 
   renderInvitation: function(invitation, index) {
-
     return (
       <Invitation
         key={invitation.key}
         invitation={invitation}
         onAcceptInvitation={this.props.onAcceptInvitation}
         onDismissInvitation={this.props.onDismissInvitation}
-        trackMetric={this.props.trackMetric}
-      ></Invitation>);
-
+        trackMetric={this.props.trackMetric}>
+      </Invitation>
+    );
   },
+
   renderInvitations: function() {
     if (!this.hasInvites()) {
       return null;
     }
-
     var invitations = _.map(this.props.invites, this.renderInvitation);
-
 
     return (
       <ul className='invitations'>
         {invitations}
       </ul>
     );
-
   },
 
   renderNoPatientsOrInvitationsMessage: function() {
     if (this.isShowingWelcomeSetup() || this.hasPatients() || this.hasInvites()) {
       return null;
     }
-
     return (
       <div className="patients-message">
         {"Looks like you don’t have access to any data yet."}
@@ -174,10 +170,9 @@ export let Patients = React.createClass({
   },
 
   renderNoPatientsSetupStorageLink: function() {
-    if (this.isShowingWelcomeSetup() || this.hasPatients()) {
+    if (this.isShowingWelcomeSetup() || this.hasPatients() || personUtils.isClinic(this.props.user)) {
       return null;
     }
-
     return (
       <div className="patients-message">
         {"You can also "}
@@ -200,26 +195,18 @@ export let Patients = React.createClass({
     var patients = this.props.patients;
     patients = this.addLinkToPatients(patients);
 
-    var showPatients = (
-      <PeopleList
-        people={patients}
-        trackMetric={this.props.trackMetric}
-        uploadUrl={this.props.uploadUrl}
-        onClickPerson={this.handleClickPatient}
-        onRemovePatient= {this.props.onRemovePatient}
-      />
-    );
-
     if (personUtils.isClinic(this.props.user)) {
-      showPatients = (
-        <PeopleTable
-          people={patients}
-          trackMetric={this.props.trackMetric}
-        />
+      return (
+        <div className="container-box-inner patients-section js-patients-shared">
+          <div className="patients-vca-section-content">
+            <PeopleTable
+              people={patients}
+              trackMetric={this.props.trackMetric}
+            />
+          </div>
+        </div>
       );
     }
-
-    var addDataStorage = this.renderAddDataStorage();
 
     return (
       <div className="container-box-inner patients-section js-patients-shared">
@@ -227,9 +214,15 @@ export let Patients = React.createClass({
           <div className="patients-section-title">{"View data for:"}</div>
         </div>
         <div className="patients-section-content">
-          {addDataStorage}
+          {this.renderAddDataStorage()}
           <div className='clear'></div>
-          {showPatients}
+          <PeopleList
+            people={patients}
+            trackMetric={this.props.trackMetric}
+            uploadUrl={this.props.uploadUrl}
+            onClickPerson={this.handleClickPatient}
+            onRemovePatient= {this.props.onRemovePatient}
+          />
         </div>
       </div>
     );
@@ -314,11 +307,9 @@ export let Patients = React.createClass({
   },
 
   doFetching: function(nextProps) {
-
     if (!nextProps.fetchers) {
       return
     }
-
     nextProps.fetchers.forEach(fetcher => {
       fetcher();
     });
