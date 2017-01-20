@@ -36,9 +36,8 @@ var Basics = React.createClass({
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
+    patient: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
-    patientProfile: React.PropTypes.object,
-    patientPermissions: React.PropTypes.object,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
@@ -97,9 +96,8 @@ var Basics = React.createClass({
           bgClasses={this.props.bgPrefs.bgClasses}
           bgUnits={this.props.bgPrefs.bgUnits}
           onSelectDay={this.handleSelectDay}
+          patient={this.props.patient}
           patientData={this.props.patientData}
-          patientProfile={this.props.patientProfile}
-          patientPermissions={this.props.patientPermissions}
           timePrefs={this.props.timePrefs}
           updateBasicsData={this.props.updateBasicsData}
           updateBasicsSettings={this.props.updateBasicsSettings}
