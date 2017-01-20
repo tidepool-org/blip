@@ -192,14 +192,14 @@ module.exports = function(bgClasses) {
       }
 
       var {
-        patientPermissions,
-        patientProfile: {
+        permissions,
+        profile: {
           fullName,
           settings,
         },
-      } = props;
+      } = props.patient;
 
-      var hasUploadPermission = patientPermissions.hasOwnProperty('upload') || patientPermissions.hasOwnProperty('root');
+      var hasUploadPermission = permissions.hasOwnProperty('admin') || permissions.hasOwnProperty('root');
 
       if (latestPump === constants.ANIMAS || latestPump === constants.TANDEM) {
           basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);

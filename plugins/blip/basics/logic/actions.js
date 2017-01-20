@@ -67,9 +67,12 @@ basicsActions.setSiteChangeEvent = function(sectionName, selectedKey, selectedLa
   metricsFunc('Selected ' + selectedLabel);
 
   updateBasicsSettingsFunc({
+    userid: this.app.props.patient.userid,
     profile: {
-      settings: {
-        siteChangeSource: selectedKey
+      patient: {
+        settings: {
+          siteChangeSource: selectedKey
+        }
       }
     }
   });
