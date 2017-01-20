@@ -55,7 +55,6 @@ class CBGDateTraceAnimated extends Component {
     t.staggerTo(targets, 0.2, { opacity: 1 }, 0.0015);
   }
 
-  // TransitionGroupPlus gets mad if this isn't defined :(
   componentDidEnter() {}
 
   componentWillLeave(cb) {
