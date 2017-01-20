@@ -38,7 +38,7 @@ class SortHeaderCell extends React.Component {
   }
 
   render() {
-    const {onSortChange, sortDir, defaultDir, children, ...props} = this.props;
+    const {onSortChange, sortDir, children, ...props} = this.props;
     let sortDirectionClass = 'peopletable-search-icon';
 
     if (sortDir === SortTypes.DESC ) {
@@ -81,14 +81,6 @@ class PeopleTable extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      currentRowIndex: -1,
-      searching: false,
-      showNames: false,
-      dataList: this.buildDataList(),
-      colSortDirs: {},
-    };
-
     this._onSortChange = this._onSortChange.bind(this);
     this._onFilterChange = this._onFilterChange.bind(this);
     this._onToggleShowNames = this._onToggleShowNames.bind(this);
@@ -96,22 +88,27 @@ class PeopleTable extends React.Component {
     this._rowClassNameGetter = this._rowClassNameGetter.bind(this);
     this._onRowMouseEnter = this._onRowMouseEnter.bind(this);
     this._onRowMouseLeave = this._onRowMouseLeave.bind(this);
+
+    this.state = {
+      currentRowIndex: -1,
+      searching: false,
+      showNames: false,
+      dataList: this.buildDataList(),
+      colSortDirs: {
+        'fullName': SortTypes.DESC,
+      },
+    };
+
+    this._onSortChange('fullName',SortTypes.DESC);
   }
 
   buildDataList(){
-    const sorted = _.sortBy(this.props.people, function(person) {
-      const patient = _.get(person, 'profile.patient', null);
-      return (patient && patient.isOtherPerson && patient.fullName) ?
-        patient.fullName.toLowerCase() : person.profile.fullName.toLowerCase();
-    });
-
-    return _.map(sorted, function(person) {
+    const list = _.map(this.props.people, function(person) {
       let bday = _.get(person, ['profile', 'patient', 'birthday'], '');
       if(bday){
         bday = ' ' + sundial.translateMask(bday, 'YYYY-MM-DD', 'M/D/YYYY');
       }
       return {
-        person: person,
         fullName: personUtils.patientFullName(person),
         link: person.link,
         birthday: bday,
@@ -119,6 +116,7 @@ class PeopleTable extends React.Component {
         lastUpload: 'last upload',
       };
     });
+    return _.sortByOrder(list, 'fullName', SortTypes.DESC);
   }
 
   _onFilterChange(e) {
@@ -132,8 +130,8 @@ class PeopleTable extends React.Component {
 
     const filterBy = e.target.value.toLowerCase();
 
-    const filtered = _.filter(this.state.dataList, function(o) {
-      return o.fullName.toLowerCase().indexOf(filterBy) !== -1;
+    const filtered = _.filter(this.state.dataList, function(person) {
+      return person.fullName.toLowerCase().indexOf(filterBy) !== -1;
     });
 
     this.setState({
@@ -144,7 +142,7 @@ class PeopleTable extends React.Component {
 
   _onSortChange(columnKey, sortDir) {
 
-    const sorted = _.sortByOrder(this.state.dataList, [columnKey], [sortDir])
+    const sorted = _.sortByOrder(this.state.dataList, columnKey, sortDir);
 
     let metricMessage = 'Sort by ';
 
@@ -188,7 +186,6 @@ class PeopleTable extends React.Component {
   }
 
   renderShowNamesToggle() {
-
     let toggleLabel = 'Hide All';
 
     if (!this.state.showNames){
@@ -253,8 +250,7 @@ class PeopleTable extends React.Component {
             header={
               <SortHeaderCell
                 onSortChange={this._onSortChange}
-                sortDir={colSortDirs.fullName}
-                defaultDir={SortTypes.DESC}>
+                sortDir={colSortDirs.fullName}>
                 NAME
               </SortHeaderCell>
             }
