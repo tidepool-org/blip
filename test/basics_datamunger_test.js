@@ -22,6 +22,9 @@ var expect = chai.expect;
 var _ = require('lodash');
 var d3 = require('d3');
 
+var constants = require('../plugins/blip/basics/logic/constants');
+var togglableState = require('../plugins/blip/basics/TogglableState');
+
 var bgClasses = {
   'very-low': {boundary: 10},
   low: {boundary: 20},
@@ -29,6 +32,51 @@ var bgClasses = {
   high: {boundary: 40},
   'very-high': {boundary: 50}
 };
+var oneWeekDates = [{
+  date: '2015-09-07',
+  type: 'past'
+}, {
+  date: '2015-09-08',
+  type: 'past'
+}, {
+  date: '2015-09-09',
+  type: 'past'
+}, {
+  date: '2015-09-10',
+  type: 'past'
+}, {
+  date: '2015-09-11',
+  type: 'past'
+}, {
+  date: '2015-09-12',
+  type: 'dayOfUpload'
+}, {
+  date: '2015-09-13',
+  type: 'future'
+}];
+var countSiteChangesByDay = {
+  '2015-09-05': {count: 1},
+  '2015-09-08': {count: 1, data: 'a'},
+  '2015-09-12': {count: 2, data: 'b'}
+};
+var siteChangeSections = {
+  'siteChanges': {
+    id: 'siteChanges',
+    togglable: togglableState.off,
+    settingsTogglable: togglableState.closed,
+    selectorOptions: {
+      primary: { key: constants.SITE_CHANGE_RESERVOIR, label: 'Reservoir Change' },
+      rows: [
+        [
+          { key: constants.SITE_CHANGE_TUBING, label: 'Tube Primes' },
+          { key: constants.SITE_CHANGE_CANNULA, label: 'Cannula Fills' },
+        ],
+      ],
+    },
+    type: constants.SITE_CHANGE_RESERVOIR,
+  },
+};
+
 var dm = require('../plugins/blip/basics/logic/datamunger')(bgClasses);
 
 var types = require('../dev/testpage/types');
@@ -391,34 +439,212 @@ describe('basics datamunger', function() {
     });
   });
 
+  describe('getLatestPumpUploaded', function() {
+    it('should be a function', function() {
+      assert.isFunction(dm.getLatestPumpUploaded);
+    });
+
+    it('should return a pump with proper data', function() {
+      var patientData = {
+        grouped: {
+          pumpSettings: [
+            {
+              source: constants.TANDEM,
+            },
+          ],
+        },
+      };
+      expect(dm.getLatestPumpUploaded(patientData)).to.equal(constants.TANDEM);
+    });
+
+    it('should return null without proper data', function() {
+      var patientData = {
+        grouped: {
+          pumpSettings: [],
+        },
+      };
+      expect(dm.getLatestPumpUploaded(patientData)).to.equal(null);
+    });
+  });
+
+  describe('processInfusionSiteHistory', function() {
+    it('should be a function', function() {
+      assert.isFunction(dm.processInfusionSiteHistory);
+    });
+
+    it('should return null without latest pump', function() {
+      var basicsData = {
+        data: {},
+        sections: siteChangeSections,
+      };
+
+      var patient = {
+        permissions: {
+          'root': {},
+        },
+        profile: {
+          fullName: 'Jill Jellyfish',
+          settings: {
+            siteChangeSource: constants.SITE_CHANGE_CANNULA,
+          },
+        },
+      };
+
+      expect(dm.processInfusionSiteHistory(basicsData, null, patient)).to.equal(null);
+    });
+
+    it('should return upload permission true', function() {
+      var basicsData = {
+        data: {
+          [constants.SITE_CHANGE_RESERVOIR]: {dataByDate: countSiteChangesByDay},
+        },
+        days: oneWeekDates,
+        sections: siteChangeSections,
+      };
+
+      var patient = {
+        permissions: {
+          'root': {},
+        },
+        profile: {
+          fullName: 'Jill Jellyfish',
+          settings: {
+            siteChangeSource: constants.SITE_CHANGE_CANNULA,
+          },
+        },
+      };
+
+      dm.processInfusionSiteHistory(basicsData, constants.OMNIPOD, patient);
+      expect(basicsData.data.reservoirChange.summary.canUpdateSettings).to.equal(true);
+    });
+
+    it('should return upload permission false', function() {
+      var basicsData = {
+        data: {
+          [constants.SITE_CHANGE_RESERVOIR]: {dataByDate: countSiteChangesByDay}
+        },
+        days: oneWeekDates,
+        sections: siteChangeSections,
+      };
+
+      var patient = {
+        permissions: {},
+        profile: {
+          fullName: 'Jill Jellyfish',
+          settings: {
+            siteChangeSource: constants.SITE_CHANGE_CANNULA,
+          },
+        },
+      };
+
+      dm.processInfusionSiteHistory(basicsData, constants.OMNIPOD, patient);
+      expect(basicsData.data.reservoirChange.summary.canUpdateSettings).to.equal(false);
+    });
+
+    it('should set siteChanges type to cannulaPrime', function() {
+      var basicsData = {
+        data: {
+          [constants.SITE_CHANGE_CANNULA]: {dataByDate: countSiteChangesByDay},
+          [constants.SITE_CHANGE_TUBING]: {dataByDate: countSiteChangesByDay},
+        },
+        days: oneWeekDates,
+        sections: siteChangeSections,
+      };
+
+      var patient = {
+        permissions: {
+          'root': {},
+        },
+        profile: {
+          fullName: 'Jill Jellyfish',
+          settings: {
+            siteChangeSource: constants.SITE_CHANGE_CANNULA,
+          },
+        },
+      };
+
+      dm.processInfusionSiteHistory(basicsData, constants.TANDEM, patient);
+      expect(basicsData.sections.siteChanges.type).to.equal(constants.SITE_CHANGE_CANNULA);
+    });
+
+    it('should set siteChanges type to tubingPrime', function() {
+      var basicsData = {
+        data: {
+          [constants.SITE_CHANGE_CANNULA]: {dataByDate: countSiteChangesByDay},
+          [constants.SITE_CHANGE_TUBING]: {dataByDate: countSiteChangesByDay},
+        },
+        days: oneWeekDates,
+        sections: siteChangeSections,
+      };
+
+      var patient = {
+        permissions: {
+          'root': {},
+        },
+        profile: {
+          fullName: 'Jill Jellyfish',
+          settings: {
+            siteChangeSource: constants.SITE_CHANGE_TUBING,
+          },
+        },
+      };
+
+      dm.processInfusionSiteHistory(basicsData, constants.TANDEM, patient);
+      expect(basicsData.sections.siteChanges.type).to.equal(constants.SITE_CHANGE_TUBING);
+    });
+
+    it('should set siteChanges type to reservoirChange', function() {
+      var basicsData = {
+        data: {
+          [constants.SITE_CHANGE_RESERVOIR]: {dataByDate: countSiteChangesByDay}
+        },
+        days: oneWeekDates,
+        sections: siteChangeSections,
+      };
+
+      var patient = {
+        permissions: {
+          'root': {},
+        },
+        profile: {
+          fullName: 'Jill Jellyfish',
+          settings: {
+            siteChangeSource: constants.SITE_CHANGE_TUBING,
+          },
+        },
+      };
+
+      dm.processInfusionSiteHistory(basicsData, constants.OMNIPOD, patient);
+      expect(basicsData.sections.siteChanges.type).to.equal(constants.SITE_CHANGE_RESERVOIR);
+    });
+
+    it('should set siteChanges type to undeclared, and settings to be open', function() {
+      var basicsData = {
+        data: {
+          [constants.SITE_CHANGE_CANNULA]: {dataByDate: countSiteChangesByDay},
+          [constants.SITE_CHANGE_TUBING]: {dataByDate: countSiteChangesByDay},
+        },
+        days: oneWeekDates,
+        sections: siteChangeSections,
+      };
+
+      var patient = {
+        permissions: {
+          'root': {},
+        },
+        profile: {
+          fullName: 'Jill Jellyfish',
+          settings: {},
+        },
+      };
+
+      dm.processInfusionSiteHistory(basicsData, constants.TANDEM, patient);
+      expect(basicsData.sections.siteChanges.type).to.equal(constants.TYPE_UNDECLARED);
+      expect(basicsData.sections.siteChanges.settingsTogglable).to.equal(togglableState.open);
+    });
+  });
+
   describe('infusionSiteHistory', function() {
-    var oneWeekDates = [{
-      date: '2015-09-07',
-      type: 'past'
-    }, {
-      date: '2015-09-08',
-      type: 'past'
-    }, {
-      date: '2015-09-09',
-      type: 'past'
-    }, {
-      date: '2015-09-10',
-      type: 'past'
-    }, {
-      date: '2015-09-11',
-      type: 'past'
-    }, {
-      date: '2015-09-12',
-      type: 'dayOfUpload'
-    }, {
-      date: '2015-09-13',
-      type: 'future'
-    }];
-    var countSiteChangesByDay = {
-      '2015-09-05': {count: 1},
-      '2015-09-08': {count: 1, data: 'a'},
-      '2015-09-12': {count: 2, data: 'b'}
-    };
     var bd = {
       data: {reservoirChange: {dataByDate: countSiteChangesByDay}},
       days: oneWeekDates
@@ -434,7 +660,8 @@ describe('basics datamunger', function() {
       });
       res['2015-09-08'] = {type: 'siteChange', count: 1, daysSince: 3, data: 'a'};
       res['2015-09-12'] = {type: 'siteChange', count: 2, daysSince: 4, data: 'b'};
-      expect(dm.infusionSiteHistory(bd)).to.deep.equal(res);
+      res['hasChangeHistory'] = true;
+      expect(dm.infusionSiteHistory(bd, 'reservoirChange')).to.deep.equal(res);
     });
 
     it('should properly calculate the daysSince for the first infusion site change', function() {
@@ -444,6 +671,7 @@ describe('basics datamunger', function() {
       });
       res2['2015-09-08'] = {type: 'siteChange', count: 1, daysSince: 7, data: 'a'};
       res2['2015-09-12'] = {type: 'siteChange', count: 1, daysSince: 4, data: 'b'};
+      res2['hasChangeHistory'] = true;
       var countSiteChangesByDay2 = {
         '2015-09-01': {count: 1},
         '2015-09-08': {count: 1, data: 'a'},
@@ -453,7 +681,7 @@ describe('basics datamunger', function() {
         data: {reservoirChange: {dataByDate: countSiteChangesByDay2}},
         days: oneWeekDates
       };
-      expect(dm.infusionSiteHistory(bd2)).to.deep.equal(res2);
+      expect(dm.infusionSiteHistory(bd2, 'reservoirChange')).to.deep.equal(res2);
     });
   });
 

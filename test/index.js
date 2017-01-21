@@ -49,5 +49,7 @@ require('./nurseshark_test');
 
 require('./blip/components/chart/DailyCarbs.test.js');
 require('./blip/components/chart/DailyDose.test.js');
+require('./blip/components/day/hover/InfusionHoverDisplay.test.js');
 require('./blip/components/logic/actions.test.js');
 require('./blip/components/misc/DailyDoseTitle.test.js');
+require('./blip/components/sitechange/Selector.test.js');

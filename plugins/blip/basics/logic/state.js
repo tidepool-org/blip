@@ -33,7 +33,7 @@ var DailyCarbs = React.createFactory(require('../components/chart/DailyCarbs'));
 var InfusionHoverDisplay = React.createFactory(require('../components/day/hover/InfusionHoverDisplay'));
 
 var basicsActions = require('./actions');
-
+var constants = require('./constants');
 var togglableState = require('../TogglableState');
 
 var basicsState = {
@@ -156,17 +156,17 @@ var basicsState = {
       togglable: togglableState.off,
       selector: SiteChangeSelector,
       selectorOptions: {
-        primary: { key: 'reservoirChange', label: 'Reservoir Change' },
+        primary: { key: constants.SITE_CHANGE_RESERVOIR, label: 'Reservoir Change' },
         rows: [
           [
-            { key: 'tubingPrime', label: 'Tube Primes' },
-            { key: 'cannulaPrime', label: 'Cannula Fills' }
+            { key: constants.SITE_CHANGE_TUBING, label: 'Tube Primes' },
+            { key: constants.SITE_CHANGE_CANNULA, label: 'Cannula Fills' }
           ]
         ]
       },
       settingsTogglable: togglableState.closed,
       title: 'Infusion site changes',
-      type: 'reservoirChange'
+      type: constants.SITE_CHANGE_RESERVOIR
     },
     totalDailyDose: {
       active: true,

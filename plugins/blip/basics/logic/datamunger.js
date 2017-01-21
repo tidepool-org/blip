@@ -188,7 +188,7 @@ module.exports = function(bgClasses) {
     },
     processInfusionSiteHistory: function(basicsData, latestPump, patient) {
       if (!latestPump) {
-        return;
+        return null;
       }
 
       var {
@@ -417,7 +417,7 @@ module.exports = function(bgClasses) {
 
       for (var type in basicsData.data) {
         var typeObj = basicsData.data[type];
-        if (_.includes(['basal', 'bolus', 'reservoirChange', 'tubingPrime', 'cannulaPrime'], type)) {
+        if (_.includes(['basal', 'bolus', constants.SITE_CHANGE_RESERVOIR, constants.SITE_CHANGE_TUBING, constants.SITE_CHANGE_CANNULA], type)) {
           typeObj.cf = crossfilter(typeObj.data);
           this._buildCrossfilterUtils(typeObj, type);
         }

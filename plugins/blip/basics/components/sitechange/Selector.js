@@ -36,16 +36,6 @@ var Selector = React.createClass({
   },
   render: function() {
     var self = this;
-    var primaryOption = self.props.selectorOptions.primary;
-    var primaryElem = null;
-    if (primaryOption) {
-      primaryOption.primary = true; //need to have property present indicating option is primary
-      primaryElem = this.renderOption(primaryOption);
-
-      if (!self.props.selectedSubtotal) {
-        self.props.selectedSubtotal = primaryOption.key;
-      }
-    }
 
     return (
       <div className="SiteChangeSelector">
