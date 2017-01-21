@@ -40,6 +40,10 @@ personUtils.isPatient = function(person) {
   return Boolean(personUtils.patientInfo(person));
 };
 
+personUtils.isClinic = function(user) {
+  return _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1;
+};
+
 personUtils.patientFullName = function(person) {
   var profile = utils.getIn(person, ['profile'], {});
   var patientInfo = profile.patient || {};

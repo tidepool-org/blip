@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import Perf from 'react-addons-perf';
+window.Perf = Perf;
 import { Provider } from 'react-redux';
 import { Router, browserHistory } from 'react-router';
 
