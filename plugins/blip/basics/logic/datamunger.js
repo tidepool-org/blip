@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
 

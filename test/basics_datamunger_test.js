@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
@@ -660,7 +662,7 @@ describe('basics datamunger', function() {
       });
       res['2015-09-08'] = {type: 'siteChange', count: 1, daysSince: 3, data: 'a'};
       res['2015-09-12'] = {type: 'siteChange', count: 2, daysSince: 4, data: 'b'};
-      res['hasChangeHistory'] = true;
+      res.hasChangeHistory = true;
       expect(dm.infusionSiteHistory(bd, 'reservoirChange')).to.deep.equal(res);
     });
 
@@ -671,7 +673,7 @@ describe('basics datamunger', function() {
       });
       res2['2015-09-08'] = {type: 'siteChange', count: 1, daysSince: 7, data: 'a'};
       res2['2015-09-12'] = {type: 'siteChange', count: 1, daysSince: 4, data: 'b'};
-      res2['hasChangeHistory'] = true;
+      res2.hasChangeHistory = true;
       var countSiteChangesByDay2 = {
         '2015-09-01': {count: 1},
         '2015-09-08': {count: 1, data: 'a'},

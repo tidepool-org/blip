@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var _ = require('lodash');
 var React = require('react');
 var cx = require('classnames');
@@ -93,7 +95,7 @@ var Selector = React.createClass({
 
     return (
       <p className={messageClass}>{message}</p>
-    )
+    );
   },
   renderOptions: function() {
     var self = this;
@@ -134,7 +136,7 @@ var Selector = React.createClass({
     );
   },
   subAction: function(pump, action) {
-    var pump_vocabulary = {
+    var pumpVocabulary = {
       [constants.ANIMAS]: {
         [constants.SITE_CHANGE_RESERVOIR]: 'Go Rewind',
         [constants.SITE_CHANGE_TUBING]: 'Go Prime',
@@ -162,15 +164,15 @@ var Selector = React.createClass({
       }
     };
 
-    if (pump_vocabulary.hasOwnProperty(pump)) {
+    if (pumpVocabulary.hasOwnProperty(pump)) {
       return (
-        <strong>{pump_vocabulary[pump][action]}</strong>
-      )
+        <strong>{pumpVocabulary[pump][action]}</strong>
+      );
     }
 
     return (
-      <strong>{pump_vocabulary.default[action]}</strong>
-    )
+      <strong>{pumpVocabulary.default[action]}</strong>
+    );
   },
   handleSelectSubtotal: function(selectedSubtotal, optionLabel) {
     basicsActions.setSiteChangeEvent(this.props.sectionId, selectedSubtotal, optionLabel, this.props.trackMetric, this.props.updateBasicsSettings);
