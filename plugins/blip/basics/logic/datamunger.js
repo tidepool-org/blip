@@ -228,7 +228,7 @@ module.exports = function(bgClasses) {
             basicsData.sections.siteChanges.settingsTogglable = togglableState.open;
           }
       }
-      else if (latestPump === constants.OMNIPOD) {
+      else if (latestPump === constants.INSULET) {
         basicsData.data.reservoirChange.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_RESERVOIR);
         basicsData.data.reservoirChange.summary = {
           latestPump: latestPump,

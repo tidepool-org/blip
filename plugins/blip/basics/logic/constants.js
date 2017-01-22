@@ -11,7 +11,7 @@ module.exports = {
   SITE_CHANGE_TUBING: 'tubingPrime',
   SITE_CHANGE_CANNULA: 'cannulaPrime',
   TYPE_UNDECLARED: 'undeclared',
-  OMNIPOD: 'OmniPod',
+  INSULET: 'Insulet',
   TANDEM: 'Tandem',
   ANIMAS: 'Animas',
   MEDTRONIC: 'Medtronic',

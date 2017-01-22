@@ -516,7 +516,7 @@ describe('basics datamunger', function() {
         },
       };
 
-      dm.processInfusionSiteHistory(basicsData, constants.OMNIPOD, patient);
+      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient);
       expect(basicsData.data.reservoirChange.summary.canUpdateSettings).to.equal(true);
     });
 
@@ -539,7 +539,7 @@ describe('basics datamunger', function() {
         },
       };
 
-      dm.processInfusionSiteHistory(basicsData, constants.OMNIPOD, patient);
+      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient);
       expect(basicsData.data.reservoirChange.summary.canUpdateSettings).to.equal(false);
     });
 
@@ -616,7 +616,7 @@ describe('basics datamunger', function() {
         },
       };
 
-      dm.processInfusionSiteHistory(basicsData, constants.OMNIPOD, patient);
+      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient);
       expect(basicsData.sections.siteChanges.type).to.equal(constants.SITE_CHANGE_RESERVOIR);
     });
 

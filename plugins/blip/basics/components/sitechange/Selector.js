@@ -142,7 +142,7 @@ var Selector = React.createClass({
         [constants.SITE_CHANGE_TUBING]: 'Go Prime',
         [constants.SITE_CHANGE_CANNULA]: 'Fill Cannula',
       },
-      [constants.OMNIPOD]: {
+      [constants.INSULET]: {
         [constants.SITE_CHANGE_RESERVOIR]: 'Change Pod',
         [constants.SITE_CHANGE_TUBING]: 'Activate Pod',
         [constants.SITE_CHANGE_CANNULA]: 'Prime',
