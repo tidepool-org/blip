@@ -65,6 +65,7 @@ var DashboardSection = React.createClass({
             sectionId={section.id}
             selector={section.selector}
             selectorOptions={section.selectorOptions}
+            selectorMetaData={section.selectorMetaData}
             settingsTogglable={this.props.settingsTogglable}
             timezone={this.props.timezone}
             type={section.type}

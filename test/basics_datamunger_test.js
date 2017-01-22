@@ -525,7 +525,7 @@ describe('basics datamunger', function() {
       };
 
       dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient);
-      expect(basicsData.data.reservoirChange.summary.canUpdateSettings).to.equal(true);
+      expect(basicsData.sections.siteChanges.selectorMetaData.canUpdateSettings).to.equal(true);
     });
 
     it('should return upload permission false', function() {
@@ -552,7 +552,7 @@ describe('basics datamunger', function() {
       };
 
       dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient);
-      expect(basicsData.data.reservoirChange.summary.canUpdateSettings).to.equal(false);
+      expect(basicsData.sections.siteChanges.selectorMetaData.canUpdateSettings).to.equal(false);
     });
 
     it('should set siteChanges type to cannulaPrime', function() {

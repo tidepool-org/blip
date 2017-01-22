@@ -38,11 +38,6 @@ describe('SiteChangeSelector', function () {
   beforeEach(function() {
     basicsActions.setSiteChangeEvent = sinon.stub();
     this.props = {
-      data: {
-        latestPump: 'Tandem',
-        canUpdateSettings: true,
-        patientName: 'Jill Jellyfish',
-      },
       selectedSubtotal: '',
       selectorOptions: {
         primary: { key: constants.SITE_CHANGE_RESERVOIR, label: 'Reservoir Change' },
@@ -52,6 +47,11 @@ describe('SiteChangeSelector', function () {
             { key: constants.SITE_CHANGE_CANNULA, label: 'Cannula Fills' },
           ],
         ],
+      },
+      selectorMetaData: {
+        latestPump: 'Tandem',
+        canUpdateSettings: true,
+        patientName: 'Jill Jellyfish',
       },
       updateBasicsSettings: sinon.stub(),
       sectionId: 'siteChanges',
@@ -108,7 +108,7 @@ describe('SiteChangeSelector', function () {
     });
 
     it('should render with message disabled when canUpdateSettings is false', function () {
-      this.props.data.canUpdateSettings = false;
+      this.props.selectorMetaData.canUpdateSettings = false;
 
       var elem = React.createElement(Selector, this.props);
       var renderedElem = TestUtils.renderIntoDocument(elem);
@@ -117,7 +117,7 @@ describe('SiteChangeSelector', function () {
       expect(compElem).to.be.ok;
   
       var messageElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector-message--disabled');
-      expect(ReactDOM.findDOMNode(messageElem).textContent).to.equal('We do not have enough information to visualize infusion site changes. Ask ' + this.props.data.patientName + ' to choose Fill Tubing or Fill Cannula to indicate infusion site changes.');
+      expect(ReactDOM.findDOMNode(messageElem).textContent).to.equal('We do not have enough information to visualize infusion site changes. Ask ' + this.props.selectorMetaData.patientName + ' to choose Fill Tubing or Fill Cannula to indicate infusion site changes.');
     });
   });
 

@@ -45,6 +45,7 @@ var CalendarContainer = React.createClass({
     sectionId: React.PropTypes.string.isRequired,
     selector: React.PropTypes.func,
     selectorOptions: React.PropTypes.object,
+    selectorMetaData: React.PropTypes.object,
     settingsTogglable: React.PropTypes.oneOf([
       togglableState.open,
       togglableState.closed,
@@ -113,9 +114,10 @@ var CalendarContainer = React.createClass({
     return this.props.selector({
       bgClasses: this.props.bgClasses,
       bgUnits: this.props.bgUnits,
-      data: (this.props.type !== constants.TYPE_UNDECLARED) ? this.props.data[this.props.type].summary : null,
+      data: (this.props.type !== constants.SECTION_TYPE_UNDECLARED) ? this.props.data[this.props.type].summary : null,
       selectedSubtotal: this._getSelectedSubtotal(),
       selectorOptions: this.props.selectorOptions,
+      selectorMetaData: this.props.selectorMetaData,
       updateBasicsSettings: this.props.updateBasicsSettings,
       sectionId: this.props.sectionId,
       trackMetric: this.props.trackMetric,

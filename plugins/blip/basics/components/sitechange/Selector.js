@@ -32,6 +32,7 @@ var Selector = React.createClass({
     data: React.PropTypes.object,
     selectedSubtotal: React.PropTypes.string.isRequired,
     selectorOptions: React.PropTypes.object.isRequired,
+    selectorMetaData: React.PropTypes.object.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
     sectionId: React.PropTypes.string.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -47,7 +48,7 @@ var Selector = React.createClass({
     );
   },
   renderMessage: function() {
-    if (!this.props.data || !this.props.data.latestPump) {
+    if (!this.props.selectorMetaData.hasOwnProperty('latestPump')) {
       return;
     }
 
@@ -57,7 +58,7 @@ var Selector = React.createClass({
       latestPump,
       canUpdateSettings,
       patientName,
-    } = this.props.data;
+    } = this.props.selectorMetaData;
 
     if (canUpdateSettings) {
       switch(type) {
@@ -100,7 +101,7 @@ var Selector = React.createClass({
   renderOptions: function() {
     var self = this;
 
-    if (!self.props.data.canUpdateSettings) {
+    if (!self.props.selectorMetaData.hasOwnProperty('canUpdateSettings')) {
       return;
     }
 
@@ -124,8 +125,8 @@ var Selector = React.createClass({
     });
 
     var latestPump = 'default';
-    if (this.props.data && this.props.data.hasOwnProperty('latestPump')) {
-      latestPump = this.props.data.latestPump;
+    if (this.props.selectorMetaData.hasOwnProperty('latestPump')) {
+      latestPump = this.props.selectorMetaData.latestPump;
     }
 
     return (

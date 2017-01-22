@@ -205,36 +205,27 @@ module.exports = function(bgClasses) {
 
       var hasUploadPermission = permissions.hasOwnProperty('admin') || permissions.hasOwnProperty('root');
 
-      if (latestPump === constants.ANIMAS || latestPump === constants.TANDEM) {
-          basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
-          basicsData.data.cannulaPrime.summary = {
-            latestPump: latestPump,
-            canUpdateSettings: hasUploadPermission,
-            patientName: fullName,
-          };
-          basicsData.data.tubingPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
-          basicsData.data.tubingPrime.summary = {
-            latestPump: latestPump,
-            canUpdateSettings: hasUploadPermission,
-            patientName: fullName,
-          };
+      basicsData.sections.siteChanges.selectorMetaData = {
+        latestPump: latestPump,
+        canUpdateSettings: hasUploadPermission,
+        patientName: fullName,
+      };
 
-          if (settings && settings.siteChangeSource) {
-            basicsData.sections.siteChanges.type = settings.siteChangeSource;
-            basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, settings.siteChangeSource);
-          }
-          else {
-            basicsData.sections.siteChanges.type = constants.SECTION_TYPE_UNDECLARED;
-            basicsData.sections.siteChanges.settingsTogglable = togglableState.open;
-          }
+      if (latestPump === constants.ANIMAS || latestPump === constants.TANDEM) {
+        if (settings && settings.hasOwnProperty('siteChangeSource')) {
+          basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
+          basicsData.data.tubingPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
+
+          basicsData.sections.siteChanges.type = settings.siteChangeSource;
+          basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, settings.siteChangeSource);
+        }
+        else {
+          basicsData.sections.siteChanges.type = constants.SECTION_TYPE_UNDECLARED;
+          basicsData.sections.siteChanges.settingsTogglable = togglableState.open;
+        }
       }
       else if (latestPump === constants.INSULET) {
         basicsData.data.reservoirChange.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_RESERVOIR);
-        basicsData.data.reservoirChange.summary = {
-          latestPump: latestPump,
-          canUpdateSettings: hasUploadPermission,
-          patientName: fullName,
-        };
 
         basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;
         basicsData.sections.siteChanges.selector = null;
