@@ -19,6 +19,7 @@ import _ from 'lodash';
 import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
 import { browserHistory } from 'react-router';
+import Dimensions from 'react-dimensions';
 
 import personUtils from '../../core/personutils';
 
@@ -224,6 +225,7 @@ class PeopleTable extends React.Component {
 
   render() {
     const {colSortDirs, showNames, searching} = this.state;
+    const {containerHeight, containerWidth, ...props} = this.props;
     let {dataList} = this.state;
 
     if (!showNames && !searching) {
@@ -237,8 +239,8 @@ class PeopleTable extends React.Component {
         <Table
           rowHeight={40}
           headerHeight={50}
-          width={880}
-          height={590}
+          width={containerWidth}
+          height={containerHeight}
           rowsCount={dataList.length}
           rowClassNameGetter={this._rowClassNameGetter}
           onRowClick={this._onRowClick}
@@ -256,6 +258,7 @@ class PeopleTable extends React.Component {
             }
             cell={<TextCell data={dataList} col='fullName' icon={<i className="peopletable-icon-profile icon-profile"></i>} />}
             width={540}
+            flexGrow={1}
           />
           <Column
             columnKey='birthdayDate'
@@ -268,6 +271,7 @@ class PeopleTable extends React.Component {
             }
             cell={<TextCell data={dataList} col='birthday' />}
             width={220}
+            flexGrow={1}
           />
           <Column
             columnKey='lastUpload'
@@ -280,6 +284,7 @@ class PeopleTable extends React.Component {
             }
             cell={<TextCell data={dataList} col='lastUpload' />}
             width={120}
+            flexGrow={1}
           />
         </Table>
       </div>
@@ -290,7 +295,9 @@ class PeopleTable extends React.Component {
 PeopleTable.propTypes = {
     people: React.PropTypes.array,
     trackMetric: React.PropTypes.func.isRequired,
+    containerWidth: React.PropTypes.number.isRequired,
+    containerHeight: React.PropTypes.number.isRequired,
 };
 
-module.exports = PeopleTable;
+module.exports = Dimensions()(PeopleTable);
  

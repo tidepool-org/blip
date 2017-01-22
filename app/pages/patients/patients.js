@@ -202,6 +202,8 @@ export let Patients = React.createClass({
             <PeopleTable
               people={patients}
               trackMetric={this.props.trackMetric}
+              containerWidth={880}
+              containerHeight={590}
             />
           </div>
         </div>
