@@ -86,7 +86,7 @@ var CalendarContainer = React.createClass({
 
     var days;
     var dayLabels;
-    if (this.props.type !== constants.TYPE_UNDECLARED) {
+    if (this.props.type !== constants.SECTION_TYPE_UNDECLARED) {
       days = this.renderDays();
       dayLabels = this.renderDayLabels();
     }

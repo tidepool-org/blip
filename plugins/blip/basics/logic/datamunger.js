@@ -224,7 +224,7 @@ module.exports = function(bgClasses) {
             basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, settings.siteChangeSource);
           }
           else {
-            basicsData.sections.siteChanges.type = constants.TYPE_UNDECLARED;
+            basicsData.sections.siteChanges.type = constants.SECTION_TYPE_UNDECLARED;
             basicsData.sections.siteChanges.settingsTogglable = togglableState.open;
           }
       }

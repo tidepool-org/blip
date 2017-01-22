@@ -663,7 +663,7 @@ describe('basics datamunger', function() {
       };
 
       dm.processInfusionSiteHistory(basicsData, constants.TANDEM, patient);
-      expect(basicsData.sections.siteChanges.type).to.equal(constants.TYPE_UNDECLARED);
+      expect(basicsData.sections.siteChanges.type).to.equal(constants.SECTION_TYPE_UNDECLARED);
       expect(basicsData.sections.siteChanges.settingsTogglable).to.equal(togglableState.open);
     });
   });

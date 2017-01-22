@@ -10,7 +10,7 @@ module.exports = {
   SITE_CHANGE_RESERVOIR: 'reservoirChange',
   SITE_CHANGE_TUBING: 'tubingPrime',
   SITE_CHANGE_CANNULA: 'cannulaPrime',
-  TYPE_UNDECLARED: 'undeclared',
+  SECTION_TYPE_UNDECLARED: 'undeclared',
   INSULET: 'Insulet',
   TANDEM: 'Tandem',
   ANIMAS: 'Animas',
