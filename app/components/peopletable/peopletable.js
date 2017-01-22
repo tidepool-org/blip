@@ -35,7 +35,7 @@ function reverseSortDirection(sortDir) {
 class SortHeaderCell extends React.Component {
   constructor(props) {
     super(props);
-    this._onSortChange = this._onSortChange.bind(this);
+    this.handleSortChange = this.handleSortChange.bind(this);
   }
 
   render() {
@@ -50,14 +50,14 @@ class SortHeaderCell extends React.Component {
 
     return (
       <Cell {...props}>
-        <a onClick={this._onSortChange}>
+        <a onClick={this.handleSortChange}>
           {children} <i className={sortDirectionClass}></i>
         </a>
       </Cell>
     );
   }
 
-  _onSortChange(e) {
+  handleSortChange(e) {
     e.preventDefault();
 
     if (this.props.onSortChange) {
@@ -82,13 +82,13 @@ class PeopleTable extends React.Component {
   constructor(props) {
     super(props);
 
-    this._onSortChange = this._onSortChange.bind(this);
-    this._onFilterChange = this._onFilterChange.bind(this);
-    this._onToggleShowNames = this._onToggleShowNames.bind(this);
-    this._onRowClick = this._onRowClick.bind(this);
-    this._rowClassNameGetter = this._rowClassNameGetter.bind(this);
-    this._onRowMouseEnter = this._onRowMouseEnter.bind(this);
-    this._onRowMouseLeave = this._onRowMouseLeave.bind(this);
+    this.handleSortChange = this.handleSortChange.bind(this);
+    this.handleFilterChange = this.handleFilterChange.bind(this);
+    this.handleToggleShowNames = this.handleToggleShowNames.bind(this);
+    this.handleRowClick = this.handleRowClick.bind(this);
+    this.getRowClassName = this.getRowClassName.bind(this);
+    this.handleRowMouseEnter = this.handleRowMouseEnter.bind(this);
+    this.handleRowMouseLeave = this.handleRowMouseLeave.bind(this);
 
     this.state = {
       currentRowIndex: -1,
@@ -100,7 +100,7 @@ class PeopleTable extends React.Component {
       },
     };
 
-    this._onSortChange('fullName',SortTypes.DESC);
+    this.handleSortChange('fullName',SortTypes.DESC);
   }
 
   buildDataList(){
@@ -117,10 +117,13 @@ class PeopleTable extends React.Component {
         lastUpload: 'last upload',
       };
     });
-    return _.sortByOrder(list, 'fullName', SortTypes.DESC);
+
+
+
+    return _.sortByOrder(list, ['fullName'], [SortTypes.DESC]);
   }
 
-  _onFilterChange(e) {
+  handleFilterChange(e) {
     if (_.isEmpty(e.target.value)) {
       this.setState({
         searching: false,
@@ -141,9 +144,9 @@ class PeopleTable extends React.Component {
     });
   }
 
-  _onSortChange(columnKey, sortDir) {
+  handleSortChange(columnKey, sortDir) {
 
-    const sorted = _.sortByOrder(this.state.dataList, columnKey, sortDir);
+    const sorted = _.sortByOrder(this.state.dataList, [columnKey], [sortDir]);
 
     let metricMessage = 'Sort by ';
 
@@ -175,14 +178,14 @@ class PeopleTable extends React.Component {
         </div>
         <input
           className='peopletable-search-box'
-          onChange={this._onFilterChange}
+          onChange={this.handleFilterChange}
           placeholder='Search'
         />
       </div>
     );
   }
 
-  _onToggleShowNames() {
+  handleToggleShowNames() {
     this.setState({ showNames: !this.state.showNames });
   }
 
@@ -197,29 +200,29 @@ class PeopleTable extends React.Component {
 
     return (
       <div className='peopletable-names-toggle'>
-        <a onClick={this._onToggleShowNames}>
+        <a onClick={this.handleToggleShowNames}>
           {toggleLabel}
         </a>
       </div>
     );
   }
 
-  _rowClassNameGetter(rowIndex) {
+  getRowClassName(rowIndex) {
     if (rowIndex === this.state.currentRowIndex) {
       return 'peopletable-active-row';
     }
   }
 
-  _onRowClick(e, rowIndex){
+  handleRowClick(e, rowIndex){
     this.props.trackMetric('Selected PwD');
     browserHistory.push(this.state.dataList[rowIndex].link);
   }
 
-  _onRowMouseEnter(e, rowIndex){
+  handleRowMouseEnter(e, rowIndex){
     this.setState({ currentRowIndex: rowIndex });
   }
 
-  _onRowMouseLeave(e, rowIndex){
+  handleRowMouseLeave(e, rowIndex){
     this.setState({ currentRowIndex: -1 });
   }
 
@@ -242,16 +245,16 @@ class PeopleTable extends React.Component {
           width={containerWidth}
           height={containerHeight}
           rowsCount={dataList.length}
-          rowClassNameGetter={this._rowClassNameGetter}
-          onRowClick={this._onRowClick}
-          onRowMouseEnter={this._onRowMouseEnter}
-          onRowMouseLeave={this._onRowMouseLeave}
+          rowClassNameGetter={this.getRowClassName}
+          onRowClick={this.handleRowClick}
+          onRowMouseEnter={this.handleRowMouseEnter}
+          onRowMouseLeave={this.handleRowMouseLeave}
           {...this.props}>
           <Column
             columnKey='fullName'
             header={
               <SortHeaderCell
-                onSortChange={this._onSortChange}
+                onSortChange={this.handleSortChange}
                 sortDir={colSortDirs.fullName}>
                 NAME
               </SortHeaderCell>
@@ -264,7 +267,7 @@ class PeopleTable extends React.Component {
             columnKey='birthdayDate'
             header={
               <SortHeaderCell
-                onSortChange={this._onSortChange}
+                onSortChange={this.handleSortChange}
                 sortDir={colSortDirs.birthdayDate}>
                 BIRTHDAY
               </SortHeaderCell>
@@ -277,7 +280,7 @@ class PeopleTable extends React.Component {
             columnKey='lastUpload'
             header={
               <SortHeaderCell
-                onSortChange={this._onSortChange}
+                onSortChange={this.handleSortChange}
                 sortDir={colSortDirs.lastUpload}>
                 LAST UPLOAD
               </SortHeaderCell>
