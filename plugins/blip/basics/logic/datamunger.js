@@ -197,7 +197,9 @@ module.exports = function(bgClasses) {
         permissions,
         profile: {
           fullName,
-          settings,
+          patient: {
+            settings
+          },
         },
       } = patient;
 

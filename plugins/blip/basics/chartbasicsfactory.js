@@ -51,11 +51,8 @@ var BasicsChart = React.createClass({
     trackMetric: React.PropTypes.func.isRequired,
   },
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
-    if (_.isEmpty(basicsData.data.reservoirChange.data) || _.isEmpty(basicsData.data.cannulaPrime.data) || _.isEmpty(basicsData.data.tubingPrime.data)) {
-      var siteChangeSection = _.find(basicsData.sections, function(section) {
-        return section.type === constants.SITE_CHANGE_RESERVOIR || section.type === constants.SITE_CHANGE_CANNULA || section.type === constants.SITE_CHANGE_TUBING;
-      });
-      siteChangeSection.active = false;
+    if (_.isEmpty(basicsData.data.reservoirChange.data) && _.isEmpty(basicsData.data.cannulaPrime.data) && _.isEmpty(basicsData.data.tubingPrime.data)) {
+      basicsData.sections.siteChanges.active = false;
     }
     if (_.isEmpty(basicsData.data.calibration.data)) {
       var fingerstickSection = _.find(basicsData.sections, function(section) {
