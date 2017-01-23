@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2017, Tidepool Project
+ * Copyright (c) 2016, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,66 +15,22 @@
  * == BSD2 LICENSE ==
  */
 
-:export {
-  stroke: 2;
-}
-
-.thickStroke {
-  stroke-width: 2;
-}
-
-.pointAll {
-  pointer-events: all;
-}
-
-.median {
+.border {
   stroke: white;
-  composes: thickStroke;
-  pointer-events: none;
-}
-
-.medianTransparent {
-  fill: transparent;
+  stroke-width: 0.5px;
 }
 
 .low {
+  composes: border;
   composes: bgLow from '../../../styles/diabetes.css';
 }
 
 .target {
+  composes: border;
   composes: bgTarget from '../../../styles/diabetes.css';
 }
 
 .high {
+  composes: border;
   composes: bgHigh from '../../../styles/diabetes.css';
-}
-
-.rangeSegment {
-  stroke: var(--trends--light);
-  composes: pointAll thickStroke;
-  fill: transparent;
-}
-
-.rangeSegment:hover {
-  opacity: 0;
-}
-
-.outerSegment {
-  stroke: var(--trends--light);
-  composes: pointAll thickStroke;
-  fill: var(--trends--light);
-}
-
-.outerSegment:hover {
-  opacity: 0;
-}
-
-.innerQuartilesSegment {
-  stroke: var(--trends--dark);
-  composes: pointAll thickStroke;
-  fill: var(--trends--dark);
-}
-
-.innerQuartilesSegment:hover {
-  opacity: 0;
 }
