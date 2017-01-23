@@ -20,62 +20,23 @@ import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
 import { browserHistory } from 'react-router';
 
+import { SortHeaderCell, SortTypes } from './sortheadercell';
+
 import personUtils from '../../core/personutils';
 
-const SortTypes = {
-  ASC: 'asc',
-  DESC: 'desc',
-};
-
-function reverseSortDirection(sortDir) {
-  return sortDir === SortTypes.DESC ? SortTypes.ASC : SortTypes.DESC;
-}
-
-class SortHeaderCell extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleSortChange = this.handleSortChange.bind(this);
-  }
-
-  render() {
-    const {onSortChange, sortDir, children, ...props} = this.props;
-    let sortDirectionClass = 'peopletable-search-icon';
-
-    if (sortDir === SortTypes.DESC ) {
-      sortDirectionClass += ' icon-arrow-down';
-    } else if (sortDir === SortTypes.ASC) {
-      sortDirectionClass += ' icon-arrow-up';
-    }
-
-    return (
-      <Cell {...props}>
-        <a onClick={this.handleSortChange}>
-          {children} <i className={sortDirectionClass}></i>
-        </a>
-      </Cell>
-    );
-  }
-
-  handleSortChange(e) {
-    e.preventDefault();
-
-    if (this.props.onSortChange) {
-      this.props.onSortChange(
-        this.props.columnKey,
-        this.props.sortDir ?
-          reverseSortDirection(this.props.sortDir) :
-          SortTypes.DESC
-      );
-    }
-  }
-}
-
-const TextCell = ({rowIndex, data, col, icon, ...props}) => (
+const TextCell = ({ rowIndex, data, col, icon, ...props }) => (
   <Cell {...props}>
     {data[rowIndex][col]}
     {icon}
   </Cell>
 );
+
+TextCell.propTypes = {
+  data: React.PropTypes.array,
+  rowIndex: React.PropTypes.number,
+  col: React.PropTypes.string,
+  icon: React.PropTypes.string,
+};
 
 class PeopleTable extends React.Component {
   constructor(props) {
@@ -95,20 +56,20 @@ class PeopleTable extends React.Component {
       showNames: false,
       dataList: this.buildDataList(),
       colSortDirs: {
-        'fullNameOrderable': SortTypes.DESC,
+        fullNameOrderable: SortTypes.DESC,
       },
     };
   }
 
   componentDidMount() {
-    this.handleSortChange('fullNameOrderable',SortTypes.DESC);
+    this.handleSortChange('fullNameOrderable', SortTypes.DESC);
   }
 
-  buildDataList(){
-    const list = _.map(this.props.people, function(person) {
+  buildDataList() {
+    const list = _.map(this.props.people, (person) => {
       let bday = _.get(person, ['profile', 'patient', 'birthday'], '');
-      if(bday){
-        bday = ' ' + sundial.translateMask(bday, 'YYYY-MM-DD', 'M/D/YYYY');
+      if (bday) {
+        bday = ` ${sundial.translateMask(bday, 'YYYY-MM-DD', 'M/D/YYYY')}`;
       }
       return {
         fullName: personUtils.fullName(person),
@@ -120,7 +81,7 @@ class PeopleTable extends React.Component {
       };
     });
 
-    return _.sortByOrder(list, ['fullNameOrderable'],[SortTypes.DESC]);
+    return _.sortByOrder(list, ['fullNameOrderable'], [SortTypes.DESC]);
   }
 
   handleFilterChange(e) {
@@ -134,7 +95,7 @@ class PeopleTable extends React.Component {
 
     const filterBy = e.target.value.toLowerCase();
 
-    const filtered = _.filter(this.state.dataList, function(person) {
+    const filtered = _.filter(this.state.dataList, (person) => {
       return person.fullName.toLowerCase().indexOf(filterBy) !== -1;
     });
 
@@ -145,20 +106,19 @@ class PeopleTable extends React.Component {
   }
 
   handleSortChange(columnKey, sortDir) {
-
     const sorted = _.sortByOrder(this.state.dataList, [columnKey], [sortDir]);
 
     let metricMessage = 'Sort by ';
 
-    if (columnKey === 'fullNameOrderable'){
+    if (columnKey === 'fullNameOrderable') {
       metricMessage += 'Name';
-    } else if (columnKey === 'birthdayOrderable'){
+    } else if (columnKey === 'birthdayOrderable') {
       metricMessage += 'Birthday';
     } else {
       metricMessage += 'Last Upload';
     }
 
-    metricMessage += ' '+sortDir;
+    metricMessage += ` ${sortDir}`;
 
     this.props.trackMetric(metricMessage);
 
@@ -172,14 +132,14 @@ class PeopleTable extends React.Component {
 
   renderSearchBar() {
     return (
-      <div className='peopletable-search'>
-        <div className='peopletable-search-label'>
+      <div className="peopletable-search">
+        <div className="peopletable-search-label">
           Patient List
         </div>
         <input
-          className='peopletable-search-box'
+          className="peopletable-search-box"
           onChange={this.handleFilterChange}
-          placeholder='Search'
+          placeholder="Search"
         />
       </div>
     );
@@ -192,14 +152,14 @@ class PeopleTable extends React.Component {
   renderShowNamesToggle() {
     let toggleLabel = 'Hide All';
 
-    if (!this.state.showNames){
+    if (!this.state.showNames) {
       toggleLabel = 'Show All';
     }
 
-    this.props.trackMetric('Clicked '+toggleLabel);
+    this.props.trackMetric(`Clicked ${toggleLabel}`);
 
     return (
-      <div className='peopletable-names-toggle'>
+      <div className="peopletable-names-toggle">
         <a onClick={this.handleToggleShowNames}>
           {toggleLabel}
         </a>
@@ -211,25 +171,26 @@ class PeopleTable extends React.Component {
     if (rowIndex === this.state.currentRowIndex) {
       return 'peopletable-active-row';
     }
+    return '';
   }
 
-  handleRowClick(e, rowIndex){
+  handleRowClick(e, rowIndex) {
     this.props.trackMetric('Selected PwD');
     browserHistory.push(this.state.dataList[rowIndex].link);
   }
 
-  handleRowMouseEnter(e, rowIndex){
+  handleRowMouseEnter(e, rowIndex) {
     this.setState({ currentRowIndex: rowIndex });
   }
 
-  handleRowMouseLeave(e, rowIndex){
+  handleRowMouseLeave() {
     this.setState({ currentRowIndex: -1 });
   }
 
   render() {
-    const {colSortDirs, showNames, searching} = this.state;
-    const {containerHeight, containerWidth, ...props} = this.props;
-    let {dataList} = this.state;
+    const { colSortDirs, showNames, searching } = this.state;
+    const { containerHeight, containerWidth } = this.props;
+    let { dataList } = this.state;
 
     if (!showNames && !searching) {
       dataList = [];
@@ -249,41 +210,49 @@ class PeopleTable extends React.Component {
           onRowClick={this.handleRowClick}
           onRowMouseEnter={this.handleRowMouseEnter}
           onRowMouseLeave={this.handleRowMouseLeave}
-          {...this.props}>
+          {...this.props}
+        >
           <Column
-            columnKey='fullNameOrderable'
+            columnKey="fullNameOrderable"
             header={
               <SortHeaderCell
                 onSortChange={this.handleSortChange}
-                sortDir={colSortDirs.fullNameOrderable}>
+                sortDir={colSortDirs.fullNameOrderable}
+              >
                 NAME
               </SortHeaderCell>
             }
-            cell={<TextCell data={dataList} col='fullName' icon={<i className="peopletable-icon-profile icon-profile"></i>} />}
+            cell={<TextCell
+              data={dataList}
+              col="fullName"
+              icon={<i className="peopletable-icon-profile icon-profile"></i>}
+            />}
             width={540}
           />
           <Column
-            columnKey='birthdayOrderable'
+            columnKey="birthdayOrderable"
             header={
               <SortHeaderCell
                 onSortChange={this.handleSortChange}
-                sortDir={colSortDirs.birthdayOrderable}>
+                sortDir={colSortDirs.birthdayOrderable}
+              >
                 BIRTHDAY
               </SortHeaderCell>
             }
-            cell={<TextCell data={dataList} col='birthday' />}
+            cell={<TextCell data={dataList} col="birthday" />}
             width={220}
           />
           <Column
-            columnKey='lastUpload'
+            columnKey="lastUpload"
             header={
               <SortHeaderCell
                 onSortChange={this.handleSortChange}
-                sortDir={colSortDirs.lastUpload}>
+                sortDir={colSortDirs.lastUpload}
+              >
                 LAST UPLOAD
               </SortHeaderCell>
             }
-            cell={<TextCell data={dataList} col='lastUpload' />}
+            cell={<TextCell data={dataList} col="lastUpload" />}
             width={120}
           />
         </Table>
@@ -293,11 +262,10 @@ class PeopleTable extends React.Component {
 }
 
 PeopleTable.propTypes = {
-    people: React.PropTypes.array,
-    trackMetric: React.PropTypes.func.isRequired,
-    containerWidth: React.PropTypes.number.isRequired,
-    containerHeight: React.PropTypes.number.isRequired,
+  people: React.PropTypes.array,
+  trackMetric: React.PropTypes.func.isRequired,
+  containerWidth: React.PropTypes.number.isRequired,
+  containerHeight: React.PropTypes.number.isRequired,
 };
 
 module.exports = PeopleTable;
- 
