@@ -167,12 +167,12 @@ var Selector = React.createClass({
 
     if (pumpVocabulary.hasOwnProperty(pump)) {
       return (
-        <strong>{pumpVocabulary[pump][action]}</strong>
+        <strong key={action}>{pumpVocabulary[pump][action]}</strong>
       );
     }
 
     return (
-      <strong>{pumpVocabulary.default[action]}</strong>
+      <strong key={action}>{pumpVocabulary.default[action]}</strong>
     );
   },
   handleSelectSubtotal: function(selectedSubtotal, optionLabel) {

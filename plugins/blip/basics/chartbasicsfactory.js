@@ -51,7 +51,7 @@ var BasicsChart = React.createClass({
     trackMetric: React.PropTypes.func.isRequired,
   },
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
-    if (_.isEmpty(basicsData.data.reservoirChange.data) && _.isEmpty(basicsData.data.cannulaPrime.data) && _.isEmpty(basicsData.data.tubingPrime.data)) {
+    if (basicsData.sections.siteChanges.type !== constants.SECTION_TYPE_UNDECLARED && _.isEmpty(basicsData.data[basicsData.sections.siteChanges.type].data)) {
       basicsData.sections.siteChanges.active = false;
     }
     if (_.isEmpty(basicsData.data.calibration.data)) {

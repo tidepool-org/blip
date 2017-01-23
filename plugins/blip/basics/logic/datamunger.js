@@ -211,11 +211,11 @@ module.exports = function(bgClasses) {
         patientName: fullName,
       };
 
-      if (latestPump === constants.ANIMAS || latestPump === constants.TANDEM) {
-        if (settings && settings.hasOwnProperty('siteChangeSource')) {
-          basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
-          basicsData.data.tubingPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
+      if (latestPump === constants.ANIMAS || latestPump === constants.MEDTRONIC || latestPump === constants.TANDEM) {
+        basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
+        basicsData.data.tubingPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
 
+        if (settings && settings.hasOwnProperty('siteChangeSource')) {
           basicsData.sections.siteChanges.type = settings.siteChangeSource;
           basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, settings.siteChangeSource);
         }
@@ -231,8 +231,12 @@ module.exports = function(bgClasses) {
         basicsData.sections.siteChanges.selector = null;
         basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
       }
+      // Medtronic (CareLink) or other unsupported pump
       else {
-        // i.e., latestPump === constants.MEDTRONIC, since site changes are currently unsupported
+        basicsData.data.reservoirChange = {};
+        basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;
+        basicsData.sections.siteChanges.selector = null;
+        basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
       }
     },
     infusionSiteHistory: function(basicsData, type) {
