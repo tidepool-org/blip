@@ -19,7 +19,6 @@ import _ from 'lodash';
 import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
 import { browserHistory } from 'react-router';
-import Dimensions from 'react-dimensions';
 
 import personUtils from '../../core/personutils';
 
@@ -96,11 +95,13 @@ class PeopleTable extends React.Component {
       showNames: false,
       dataList: this.buildDataList(),
       colSortDirs: {
-        'fullName': SortTypes.DESC,
+        'fullNameOrderable': SortTypes.DESC,
       },
     };
+  }
 
-    this.handleSortChange('fullName',SortTypes.DESC);
+  componentDidMount() {
+    this.handleSortChange('fullNameOrderable',SortTypes.DESC);
   }
 
   buildDataList(){
@@ -110,17 +111,16 @@ class PeopleTable extends React.Component {
         bday = ' ' + sundial.translateMask(bday, 'YYYY-MM-DD', 'M/D/YYYY');
       }
       return {
-        fullName: personUtils.patientFullName(person),
+        fullName: personUtils.fullName(person),
+        fullNameOrderable: personUtils.fullName(person).toLowerCase(),
         link: person.link,
         birthday: bday,
-        birthdayDate: new Date(bday),
-        lastUpload: 'last upload',
+        birthdayOrderable: new Date(bday),
+        lastUpload: 'None',
       };
     });
 
-
-
-    return _.sortByOrder(list, ['fullName'], [SortTypes.DESC]);
+    return _.sortByOrder(list, ['fullNameOrderable'],[SortTypes.DESC]);
   }
 
   handleFilterChange(e) {
@@ -150,9 +150,9 @@ class PeopleTable extends React.Component {
 
     let metricMessage = 'Sort by ';
 
-    if (columnKey === 'fullName'){
+    if (columnKey === 'fullNameOrderable'){
       metricMessage += 'Name';
-    } else if (columnKey === 'birthdayDate'){
+    } else if (columnKey === 'birthdayOrderable'){
       metricMessage += 'Birthday';
     } else {
       metricMessage += 'Last Upload';
@@ -251,30 +251,28 @@ class PeopleTable extends React.Component {
           onRowMouseLeave={this.handleRowMouseLeave}
           {...this.props}>
           <Column
-            columnKey='fullName'
+            columnKey='fullNameOrderable'
             header={
               <SortHeaderCell
                 onSortChange={this.handleSortChange}
-                sortDir={colSortDirs.fullName}>
+                sortDir={colSortDirs.fullNameOrderable}>
                 NAME
               </SortHeaderCell>
             }
             cell={<TextCell data={dataList} col='fullName' icon={<i className="peopletable-icon-profile icon-profile"></i>} />}
             width={540}
-            flexGrow={1}
           />
           <Column
-            columnKey='birthdayDate'
+            columnKey='birthdayOrderable'
             header={
               <SortHeaderCell
                 onSortChange={this.handleSortChange}
-                sortDir={colSortDirs.birthdayDate}>
+                sortDir={colSortDirs.birthdayOrderable}>
                 BIRTHDAY
               </SortHeaderCell>
             }
             cell={<TextCell data={dataList} col='birthday' />}
             width={220}
-            flexGrow={1}
           />
           <Column
             columnKey='lastUpload'
@@ -287,7 +285,6 @@ class PeopleTable extends React.Component {
             }
             cell={<TextCell data={dataList} col='lastUpload' />}
             width={120}
-            flexGrow={1}
           />
         </Table>
       </div>
@@ -302,5 +299,5 @@ PeopleTable.propTypes = {
     containerHeight: React.PropTypes.number.isRequired,
 };
 
-module.exports = Dimensions()(PeopleTable);
+module.exports = PeopleTable;
  
