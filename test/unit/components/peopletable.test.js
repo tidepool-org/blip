@@ -23,7 +23,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import PeopleTable from '../../../app/components/peopletable/PeopleTable';
+import PeopleTable from '../../../app/components/peopletable';
 
 const expect = chai.expect;
 
