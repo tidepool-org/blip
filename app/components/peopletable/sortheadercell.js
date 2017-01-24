@@ -68,10 +68,10 @@ class SortHeaderCell extends React.Component {
 }
 
 SortHeaderCell.propTypes = {
+  columnKey: React.PropTypes.string.isRequired,
+  onSortChange: React.PropTypes.func.isRequired,
+  sortDir: React.PropTypes.string.isRequired,
   children: React.PropTypes.element,
-  onSortChange: React.PropTypes.func,
-  sortDir: React.PropTypes.string,
-  columnKey: React.PropTypes.string,
 };
 
 export { SortHeaderCell, SortTypes };

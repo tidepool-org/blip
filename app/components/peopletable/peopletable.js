@@ -21,7 +21,6 @@ import sundial from 'sundial';
 import { browserHistory } from 'react-router';
 
 import { SortHeaderCell, SortTypes } from './sortheadercell';
-
 import personUtils from '../../core/personutils';
 
 const TextCell = ({ rowIndex, data, col, icon, ...props }) => (
@@ -32,9 +31,9 @@ const TextCell = ({ rowIndex, data, col, icon, ...props }) => (
 );
 
 TextCell.propTypes = {
-  data: React.PropTypes.array,
+  col: React.PropTypes.string.isRequired,
+  data: React.PropTypes.array.isRequired,
   rowIndex: React.PropTypes.number,
-  col: React.PropTypes.string,
   icon: React.PropTypes.string,
 };
 
@@ -137,7 +136,8 @@ class PeopleTable extends React.Component {
           Patient List
         </div>
         <input
-          className="peopletable-search-box"
+          type="search"
+          className="peopletable-search-box form-control-border"
           onChange={this.handleFilterChange}
           placeholder="Search"
         />
