@@ -25,6 +25,7 @@ const CBG_100_ENABLED = 'cbg100Enabled';
 const CBG_80_ENABLED = 'cbg80Enabled';
 const CBG_50_ENABLED = 'cbg50Enabled';
 const CBG_MEDIAN_ENABLED = 'cbgMedianEnabled';
+const FOCUSED_CBG_DATE_TRACE = 'focusedCbgDateTrace';
 const FOCUSED_CBG_SLICE = 'focusedCbgSlice';
 const FOCUSED_CBG_KEYS = 'focusedCbgSliceKeys';
 const FOCUSED_SMBG = 'focusedSmbg';
@@ -46,6 +47,7 @@ const initialState = {
     [CBG_50_ENABLED]: true,
     [CBG_MEDIAN_ENABLED]: true,
   },
+  [FOCUSED_CBG_DATE_TRACE]: null,
   [FOCUSED_CBG_SLICE]: null,
   [FOCUSED_CBG_KEYS]: null,
   [FOCUSED_SMBG]: null,
@@ -64,6 +66,15 @@ const trendsStateByUser = (state = {}, action) => {
       return update(
         state,
         { [userId]: { $set: _.assign({}, initialState) } }
+      );
+    }
+    case actionTypes.FOCUS_TRENDS_CBG_DATE_TRACE: {
+      const { userId, cbgDatum: data, cbgPosition: position } = action.payload;
+      return update(
+        state,
+        { [userId]: {
+          [FOCUSED_CBG_DATE_TRACE]: { $set: { data, position } },
+        } }
       );
     }
     case actionTypes.FOCUS_TRENDS_CBG_SLICE: {
@@ -133,6 +144,15 @@ const trendsStateByUser = (state = {}, action) => {
         state,
         { [userId]: {
           [CBG_FLAGS]: { [key]: { $set: true } },
+        } }
+      );
+    }
+    case actionTypes.UNFOCUS_TRENDS_CBG_DATE_TRACE: {
+      const { userId } = action.payload;
+      return update(
+        state,
+        { [userId]: {
+          [FOCUSED_CBG_DATE_TRACE]: { $set: null },
         } }
       );
     }

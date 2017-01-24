@@ -17,6 +17,13 @@
 
 import * as actionTypes from '../constants/actionTypes';
 
+export function focusTrendsCbgDateTrace(userId, cbgDatum, cbgPosition) {
+  return {
+    type: actionTypes.FOCUS_TRENDS_CBG_DATE_TRACE,
+    payload: { userId, cbgDatum, cbgPosition },
+  };
+}
+
 export function focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKeys) {
   return {
     type: actionTypes.FOCUS_TRENDS_CBG_SLICE,
@@ -58,6 +65,13 @@ export function turnOnCbgRange(userId, range) {
   return {
     type: actionTypes.TURN_ON_CBG_RANGE,
     payload: { userId, range },
+  };
+}
+
+export function unfocusTrendsCbgDateTrace(userId) {
+  return {
+    type: actionTypes.UNFOCUS_TRENDS_CBG_DATE_TRACE,
+    payload: { userId },
   };
 }
 
