@@ -56,7 +56,7 @@ class SMBGDateLineAnimated extends Component {
     focusedDay: PropTypes.string.isRequired,
     focusLine: PropTypes.func.isRequired,
     grouped: PropTypes.bool.isRequired,
-    onSelectDay: PropTypes.func.isRequired,
+    onSelectDate: PropTypes.func.isRequired,
     nonInteractive: PropTypes.bool,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     unfocusLine: PropTypes.func.isRequired,
@@ -135,7 +135,7 @@ class SMBGDateLineAnimated extends Component {
       date,
       focusedDay,
       focusLine,
-      onSelectDay,
+      onSelectDate,
       nonInteractive,
       tooltipLeftThreshold,
       unfocusLine,
@@ -177,7 +177,7 @@ class SMBGDateLineAnimated extends Component {
                 onMouseOver={() => { focusLine(data[0], positions[0], data, positions, date); }}
                 onMouseOut={() => { unfocusLine(); }}
                 onClick={() => {
-                  onSelectDay(date);
+                  onSelectDate(date);
                 }}
                 pointerEvents={nonInteractive ? 'none' : 'stroke'}
                 strokeOpacity={_.get(interpolated[0], ['style', 'opacity'])}

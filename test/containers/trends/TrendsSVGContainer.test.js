@@ -72,7 +72,7 @@ describe('TrendsSVGContainer', () => {
     focusRange: () => {},
     focusSlice: () => {},
     focusSmbg: () => {},
-    onSelectDay: () => {},
+    onSelectDate: () => {},
     showingCbg: true,
     showingSmbg: false,
     smbgGrouped: true,
