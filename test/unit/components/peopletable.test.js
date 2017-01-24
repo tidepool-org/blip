@@ -14,6 +14,11 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+/* global chai */
+/* global describe */
+/* global sinon */
+/* global it */
+/* global beforeEach */
 
 import React from 'react';
 import { mount } from 'enzyme';
