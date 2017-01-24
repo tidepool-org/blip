@@ -76,7 +76,6 @@ class PeopleTable extends React.Component {
         link: person.link,
         birthday: bday,
         birthdayOrderable: new Date(bday),
-        lastUpload: 'None',
       };
     });
 
@@ -113,8 +112,6 @@ class PeopleTable extends React.Component {
       metricMessage += 'Name';
     } else if (columnKey === 'birthdayOrderable') {
       metricMessage += 'Birthday';
-    } else {
-      metricMessage += 'Last Upload';
     }
 
     metricMessage += ` ${sortDir}`;
@@ -227,7 +224,7 @@ class PeopleTable extends React.Component {
               col="fullName"
               icon={<i className="peopletable-icon-profile icon-profile"></i>}
             />}
-            width={540}
+            width={660}
           />
           <Column
             columnKey="birthdayOrderable"
@@ -241,19 +238,6 @@ class PeopleTable extends React.Component {
             }
             cell={<TextCell data={dataList} col="birthday" />}
             width={220}
-          />
-          <Column
-            columnKey="lastUpload"
-            header={
-              <SortHeaderCell
-                onSortChange={this.handleSortChange}
-                sortDir={colSortDirs.lastUpload}
-              >
-                LAST UPLOAD
-              </SortHeaderCell>
-            }
-            cell={<TextCell data={dataList} col="lastUpload" />}
-            width={120}
           />
         </Table>
       </div>
