@@ -19,8 +19,9 @@ import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
+import createSagaMiddleware from 'redux-saga';
 
-import { vizReducer } from '@tidepool/viz';
+import { rootSaga, vizReducer } from '@tidepool/viz';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
@@ -29,6 +30,8 @@ import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
 
 const reduxRouterMiddleware = syncHistory(browserHistory);
+
+const sagaMiddleware = createSagaMiddleware();
 
 const reducer = combineReducers({
   blip: reducers,
@@ -39,14 +42,16 @@ const reducer = combineReducers({
 let initialState = { blip: blipState };
 
 function _createStore(api) {
-  const createStoreWithMiddleware = applyMiddleware(
+  let store = createStore(reducer, initialState, applyMiddleware(
     thunkMiddleware,
+    sagaMiddleware,
     reduxRouterMiddleware,
     createErrorLogger(api),
-    trackingMiddleware(api)
-  )(createStore);
+    trackingMiddleware(api),
+  ));
+  sagaMiddleware.run(rootSaga);
 
-  return createStoreWithMiddleware(reducer, initialState);
+  return store;
 }
 
 export default (api) => {

@@ -23,8 +23,9 @@ import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
+import createSagaMiddleware from 'redux-saga';
 
-import { vizReducer } from '@tidepool/viz';
+import { rootSaga, vizReducer } from '@tidepool/viz';
 
 import DevTools from '../containers/DevTools';
 
@@ -40,6 +41,8 @@ function getDebugSessionKey() {
 }
 
 const reduxRouterMiddleware = syncHistory(browserHistory);
+
+const sagaMiddleware = createSagaMiddleware();
 
 const reducer = combineReducers({
   blip: reducers,
@@ -58,6 +61,7 @@ if (!__DEV_TOOLS__) {
     return compose(
       applyMiddleware(
         thunkMiddleware,
+        sagaMiddleware,
         reduxRouterMiddleware,
         createErrorLogger(api),
         trackingMiddleware(api)
@@ -70,6 +74,7 @@ if (!__DEV_TOOLS__) {
     return compose(
       applyMiddleware(
         thunkMiddleware,
+        sagaMiddleware,
         loggerMiddleware,
         reduxRouterMiddleware,
         createErrorLogger(api),
@@ -86,6 +91,7 @@ let initialState = { blip: blipState };
 
 function _createStore(api) {
   let store = createStore(reducer, initialState, enhancer(api));
+  sagaMiddleware.run(rootSaga);
 
   if (module.hot) {
     module.hot.accept('../reducers', () =>

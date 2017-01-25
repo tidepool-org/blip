@@ -19,7 +19,7 @@
     "serve-docs": "./node_modules/.bin/gitbook serve"
   },
   "dependencies": {
-    "@tidepool/viz": "0.4.4-alpha",
+    "@tidepool/viz": "0.4.5-alpha",
     "async": "1.5.2",
     "babel-core": "6.13.2",
     "babel-loader": "6.2.5",
@@ -53,6 +53,7 @@
     "react-router-redux": "3.0.0",
     "redux": "3.5.2",
     "redux-logger": "2.6.1",
+    "redux-saga": "0.14.3",
     "redux-thunk": "2.1.0",
     "script-loader": "0.7.0",
     "serve-static": "1.11.1",

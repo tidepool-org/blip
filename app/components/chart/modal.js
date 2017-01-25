@@ -171,7 +171,7 @@ var Modal = React.createClass({
         smbgByDayOfWeek={this.props.patientData.smbgByDayOfWeek}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
-        onSelectDate={this.handleSelectDate}
+        onSelectDay={this.handleSelectDate}
         onSwitchBgDataSource={this.toggleBgDataSource}
       ref="chart" />
     );
