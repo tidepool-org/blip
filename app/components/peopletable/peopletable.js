@@ -61,7 +61,8 @@ class PeopleTable extends React.Component {
   }
 
   componentDidMount() {
-    this.handleSortChange('fullNameOrderable', SortTypes.DESC);
+    //setup default sorting but don't track via metrics
+    this.handleSortChange('fullNameOrderable', SortTypes.DESC, false);
   }
 
   buildDataList() {
@@ -103,20 +104,20 @@ class PeopleTable extends React.Component {
     });
   }
 
-  handleSortChange(columnKey, sortDir) {
+  handleSortChange(columnKey, sortDir, track) {
     const sorted = _.sortByOrder(this.state.dataList, [columnKey], [sortDir]);
 
-    let metricMessage = 'Sort by ';
+    if (track) {
+      let metricMessage = 'Sort by ';
 
-    if (columnKey === 'fullNameOrderable') {
-      metricMessage += 'Name';
-    } else if (columnKey === 'birthdayOrderable') {
-      metricMessage += 'Birthday';
+      if (columnKey === 'fullNameOrderable') {
+        metricMessage += 'Name';
+      } else if (columnKey === 'birthdayOrderable') {
+        metricMessage += 'Birthday';
+      }
+      metricMessage += ` ${sortDir}`;
+      this.props.trackMetric(metricMessage);
     }
-
-    metricMessage += ` ${sortDir}`;
-
-    this.props.trackMetric(metricMessage);
 
     this.setState({
       dataList: sorted,
@@ -143,6 +144,13 @@ class PeopleTable extends React.Component {
   }
 
   handleToggleShowNames() {
+
+    let toggleLabel = 'Clicked Hide All';
+    if ( !this.state.showNames ){
+      toggleLabel = 'Clicked Show All';
+    }
+
+    this.props.trackMetric(toggleLabel);
     this.setState({ showNames: !this.state.showNames });
   }
 
@@ -153,11 +161,9 @@ class PeopleTable extends React.Component {
       toggleLabel = 'Show All';
     }
 
-    this.props.trackMetric(`Clicked ${toggleLabel}`);
-
     return (
-      <div className="peopletable-names-toggle">
-        <a onClick={this.handleToggleShowNames}>
+      <div>
+        <a className="peopletable-names-toggle" onClick={this.handleToggleShowNames}>
           {toggleLabel}
         </a>
       </div>

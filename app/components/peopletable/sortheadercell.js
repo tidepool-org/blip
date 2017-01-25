@@ -42,7 +42,8 @@ class SortHeaderCell extends React.Component {
         columnKey,
         sortDir ?
           reverseSortDirection(sortDir) :
-          SortTypes.DESC
+          SortTypes.DESC,
+        true
       );
     }
   }
