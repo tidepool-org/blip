@@ -139,6 +139,52 @@ describe('trendsStateByUser', () => {
     });
   });
 
+  describe('FOCUS_TRENDS_CBG_DATE_TRACE', () => {
+    const cbgDatum = { value: 100 };
+    const cbgPosition = { left: 10, yPositions: { top: 50 } };
+
+    it('should store the hovered cbg and associated scaled position data', () => {
+      const initialState = {
+        [USER_1]: {
+          cbgFlags: {
+            cbg100Enabled: false,
+            cbg80Enabled: true,
+            cbg50Enabled: true,
+            cbgMedianEnabled: true,
+          },
+          focusedCbgDateTrace: null,
+          focusedCbgSlice: null,
+          focusedCbgSliceKeys: ['median'],
+          focusedSmbg: null,
+          focusedSmbgRangeAvg: null,
+          touched: true,
+        },
+      };
+      const tracked = mutationTracker.trackObj(initialState);
+      expect(trendsStateByUser(initialState, {
+        type: actionTypes.FOCUS_TRENDS_CBG_DATE_TRACE,
+        payload: { userId: USER_1, cbgDatum, cbgPosition },
+      })[USER_1]).to.deep.equal({
+        cbgFlags: {
+          cbg100Enabled: false,
+          cbg80Enabled: true,
+          cbg50Enabled: true,
+          cbgMedianEnabled: true,
+        },
+        focusedCbgDateTrace: {
+          data: cbgDatum,
+          position: cbgPosition,
+        },
+        focusedCbgSlice: null,
+        focusedCbgSliceKeys: ['median'],
+        focusedSmbg: null,
+        focusedSmbgRangeAvg: null,
+        touched: true,
+      });
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
   describe('FOCUS_TRENDS_CBG_SLICE', () => {
     const focusedKeys = ['min', 'max'];
 
@@ -431,6 +477,52 @@ describe('trendsStateByUser', () => {
       })[USER_1]).to.deep.equal({
         cbgFlags: {
           cbg100Enabled: true,
+          cbg80Enabled: true,
+          cbg50Enabled: true,
+          cbgMedianEnabled: true,
+        },
+        focusedCbgDateTrace: null,
+        focusedCbgSlice: null,
+        focusedCbgSliceKeys: null,
+        focusedSmbg: null,
+        focusedSmbgRangeAvg: null,
+        touched: true,
+      });
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
+  describe('UNFOCUS_TRENDS_CBG_DATE_TRACE', () => {
+    const cbgDatum = { value: 100 };
+    const cbgPosition = { left: 10, yPositions: { top: 50 } };
+
+    it('should reset the focusedCbgDateTrace state to `null`', () => {
+      const initialState = {
+        [USER_1]: {
+          cbgFlags: {
+            cbg100Enabled: false,
+            cbg80Enabled: true,
+            cbg50Enabled: true,
+            cbgMedianEnabled: true,
+          },
+          focusedCbgDateTrace: {
+            data: cbgDatum,
+            position: cbgPosition,
+          },
+          focusedCbgSlice: null,
+          focusedCbgSliceKeys: null,
+          focusedSmbg: null,
+          focusedSmbgRangeAvg: null,
+          touched: true,
+        },
+      };
+      const tracked = mutationTracker.trackObj(initialState);
+      expect(trendsStateByUser(initialState, {
+        type: actionTypes.UNFOCUS_TRENDS_CBG_DATE_TRACE,
+        payload: { userId: USER_1 },
+      })[USER_1]).to.deep.equal({
+        cbgFlags: {
+          cbg100Enabled: false,
           cbg80Enabled: true,
           cbg50Enabled: true,
           cbgMedianEnabled: true,
