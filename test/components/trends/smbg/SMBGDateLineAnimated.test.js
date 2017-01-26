@@ -37,7 +37,7 @@ describe('SMBGDateLineAnimated', () => {
   let wrapper;
   const focusLine = sinon.spy();
   const unfocusLine = sinon.spy();
-  const onSelectDay = sinon.spy();
+  const onSelectDate = sinon.spy();
   const grouped = true;
   const focusedDay = [];
   const date = '2016-08-14';
@@ -54,7 +54,7 @@ describe('SMBGDateLineAnimated', () => {
     focusedDay,
     focusLine,
     grouped,
-    onSelectDay,
+    onSelectDate,
     unfocusLine,
     xScale,
     yScale,
@@ -115,12 +115,12 @@ describe('SMBGDateLineAnimated', () => {
       expect(unfocusLine.callCount).to.equal(1);
     });
 
-    it('should call onSelectDay on click of smbg line', () => {
+    it('should call onSelectDate on click of smbg line', () => {
       const smbgDateLine = wrapper
         .find(`#smbgDateLine-${date} path`);
-      expect(onSelectDay.callCount).to.equal(0);
+      expect(onSelectDate.callCount).to.equal(0);
       smbgDateLine.simulate('click');
-      expect(onSelectDay.callCount).to.equal(1);
+      expect(onSelectDate.callCount).to.equal(1);
     });
   });
 });

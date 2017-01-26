@@ -45,7 +45,7 @@ class SMBGDatePointsAnimated extends Component {
     grouped: PropTypes.bool.isRequired,
     isFocused: PropTypes.bool.isRequired,
     nonInteractive: PropTypes.bool,
-    onSelectDay: PropTypes.func.isRequired,
+    onSelectDate: PropTypes.func.isRequired,
     smbgOpts: PropTypes.shape({
       maxR: PropTypes.number.isRequired,
       r: PropTypes.number.isRequired,
@@ -92,7 +92,7 @@ class SMBGDatePointsAnimated extends Component {
       grouped,
       isFocused,
       nonInteractive,
-      onSelectDay,
+      onSelectDate,
       smbgOpts,
       someSmbgDataIsFocused,
       tooltipLeftThreshold,
@@ -166,7 +166,7 @@ class SMBGDatePointsAnimated extends Component {
                       () => focusSmbg(smbg.data.smbg, smbg.data.position, data, positions, date)
                     }
                     onMouseOut={unfocusSmbg}
-                    onClick={() => onSelectDay(date)}
+                    onClick={() => onSelectDate(date)}
                     cx={style.cx}
                     cy={style.cy}
                     r={style.r}

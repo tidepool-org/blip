@@ -126,7 +126,7 @@ describe('TrendsContainer', () => {
         [MMOLL_UNITS]: 25,
       },
       onDatetimeLocationChange,
-      onSelectDay: sinon.stub(),
+      onSelectDate: sinon.stub(),
       onSwitchBgDataSource,
       trendsState: {
         touched: false,
