@@ -189,27 +189,23 @@ var Modal = React.createClass({
   renderFocusedRangeLabels: function() {
     const { currentPatientInViewId, trendsState } = this.props;
     const { chartPrefs: { modal: { showingCbg, showingSmbg } } } = this.props;
-    const showingCbgWithLabels = showingCbg && _.get(trendsState, [currentPatientInViewId, 'showingCbgSliceLabels']);
-    // exclusive or!
-    if ((showingCbgWithLabels && !showingSmbg) || (!showingCbgWithLabels && showingSmbg)) {
-      if (showingCbg) {
-        return (
-          <FocusedRangeLabels
-            bgUnits={this.props.bgPrefs.bgUnits}
-            dataType={'cbg'}
-            focusedKeys={trendsState[currentPatientInViewId].focusedCbgSliceKeys}
-            focusedSlice={trendsState[currentPatientInViewId].focusedCbgSlice}
-            timePrefs={this.props.timePrefs} />
-        );
-      } else if (showingSmbg) {
-        return (
-          <FocusedRangeLabels
-            bgUnits={this.props.bgPrefs.bgUnits}
-            dataType={'smbg'}
-            focusedRange={trendsState[currentPatientInViewId].focusedSmbgRangeAvg}
-            timePrefs={this.props.timePrefs} />
-        );
-      }
+    if (showingCbg) {
+      return (
+        <FocusedRangeLabels
+          bgUnits={this.props.bgPrefs.bgUnits}
+          dataType={'cbg'}
+          focusedKeys={trendsState[currentPatientInViewId].focusedCbgSliceKeys}
+          focusedSlice={trendsState[currentPatientInViewId].focusedCbgSlice}
+          timePrefs={this.props.timePrefs} />
+      );
+    } else if (showingSmbg) {
+      return (
+        <FocusedRangeLabels
+          bgUnits={this.props.bgPrefs.bgUnits}
+          dataType={'smbg'}
+          focusedRange={trendsState[currentPatientInViewId].focusedSmbgRangeAvg}
+          timePrefs={this.props.timePrefs} />
+      );
     }
     return null;
   },
