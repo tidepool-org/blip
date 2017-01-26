@@ -39,7 +39,7 @@ describe('SMBGDatePointsAnimated', () => {
   let wrapper;
   const focusSmbg = sinon.spy();
   const unfocusSmbg = sinon.spy();
-  const onSelectDay = sinon.spy();
+  const onSelectDate = sinon.spy();
   const grouped = true;
   const focusedDay = [];
   const date = '2016-08-14';
@@ -61,7 +61,7 @@ describe('SMBGDatePointsAnimated', () => {
     yScale,
     focusSmbg,
     unfocusSmbg,
-    onSelectDay,
+    onSelectDate,
     grouped,
     focusedDay,
     smbgOpts,
@@ -124,12 +124,12 @@ describe('SMBGDatePointsAnimated', () => {
       expect(unfocusSmbg.callCount).to.equal(1);
     });
 
-    it('should call onSelectDay on click of smbg circle', () => {
+    it('should call onSelectDate on click of smbg circle', () => {
       const smbgCircle = wrapper
         .find(`#smbg-${data[0].id}`);
-      expect(onSelectDay.callCount).to.equal(0);
+      expect(onSelectDate.callCount).to.equal(0);
       smbgCircle.simulate('click');
-      expect(onSelectDay.callCount).to.equal(1);
+      expect(onSelectDate.callCount).to.equal(1);
     });
   });
 });
