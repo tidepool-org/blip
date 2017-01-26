@@ -48,6 +48,7 @@ describe('trendsStateByUser', () => {
             cbg50Enabled: true,
             cbgMedianEnabled: true,
           },
+          focusedCbgDateTrace: null,
           focusedCbgSlice: null,
           focusedCbgSliceKeys: null,
           focusedSmbg: null,
@@ -62,17 +63,18 @@ describe('trendsStateByUser', () => {
     it('should not change anything if the user is in tree already', () => {
       const initialState = {
         [USER_1]: {
-          focusedCbgSlice: null,
-          focusedCbgSliceKeys: null,
-          focusedSmbg: null,
-          focusedSmbgRangeAvg: null,
-          touched: true,
           cbgFlags: {
             cbg100Enabled: false,
             cbg80Enabled: true,
             cbg50Enabled: true,
             cbgMedianEnabled: true,
           },
+          focusedCbgDateTrace: null,
+          focusedCbgSlice: null,
+          focusedCbgSliceKeys: null,
+          focusedSmbg: null,
+          focusedSmbgRangeAvg: null,
+          touched: true,
         },
       };
       const tracked = mutationTracker.trackObj(initialState);
@@ -92,6 +94,7 @@ describe('trendsStateByUser', () => {
             cbg50Enabled: true,
             cbgMedianEnabled: true,
           },
+          focusedCbgDateTrace: null,
           focusedCbgSlice: null,
           focusedCbgSliceKeys: null,
           focusedSmbg: null,
@@ -112,6 +115,7 @@ describe('trendsStateByUser', () => {
             cbg50Enabled: true,
             cbgMedianEnabled: true,
           },
+          focusedCbgDateTrace: null,
           focusedCbgSlice: null,
           focusedCbgSliceKeys: null,
           focusedSmbg: null,
@@ -126,6 +130,7 @@ describe('trendsStateByUser', () => {
             cbg50Enabled: true,
             cbgMedianEnabled: true,
           },
+          focusedCbgDateTrace: null,
           focusedCbgSlice: null,
           focusedCbgSliceKeys: null,
           focusedSmbg: null,

@@ -135,7 +135,7 @@ export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
 /**
  * formatDisplayDate
  * @param  {(string|number)} utc Zulu timestamp (Integer hammertime also OK)
- * @param  {Object} timePrefs object containing timezone preferences
+ * @param  {Object} (optional) timePrefs object containing timezone preferences
  * @param  {boolean} timePrefs.timezoneAware boolean to indicate timezone awareness
  * @param  {(string|null)} timePrefs.timezoneName name of timezone or null
  * @param  {string} [format] optional moment display format string; default is 'MMM D, YYYY'
@@ -146,7 +146,7 @@ export function formatDisplayDate(utc, timePrefs, format = 'dddd, MMMM D') {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
-  return moment.utc(utc).tz(getTimezoneFromTimePrefs(timePrefs)).format(format);
+  return moment.utc(utc).tz(getTimezoneFromTimePrefs(timePrefs || {})).format(format);
 }
 
 /**
