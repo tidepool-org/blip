@@ -283,7 +283,6 @@ export let Patients = React.createClass({
   },
 
   handleClickPatient: function(patient) {
-    console.log('clicked', patient);
     if (personUtils.isSame(this.props.user, patient)) {
       this.props.trackMetric('Clicked Own Care Team');
     }
