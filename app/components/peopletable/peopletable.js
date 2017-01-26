@@ -31,10 +31,10 @@ const TextCell = ({ rowIndex, data, col, icon, ...props }) => (
 );
 
 TextCell.propTypes = {
-  col: React.PropTypes.string.isRequired,
-  data: React.PropTypes.array.isRequired,
+  col: React.PropTypes.string,
+  data: React.PropTypes.array,
   rowIndex: React.PropTypes.number,
-  icon: React.PropTypes.string,
+  icon: React.PropTypes.object,
 };
 
 class PeopleTable extends React.Component {
@@ -230,7 +230,7 @@ class PeopleTable extends React.Component {
               col="fullName"
               icon={<i className="peopletable-icon-profile icon-profile"></i>}
             />}
-            width={660}
+            width={780}
           />
           <Column
             columnKey="birthdayOrderable"
@@ -243,7 +243,7 @@ class PeopleTable extends React.Component {
               </SortHeaderCell>
             }
             cell={<TextCell data={dataList} col="birthday" />}
-            width={220}
+            width={100}
           />
         </Table>
       </div>
