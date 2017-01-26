@@ -166,6 +166,10 @@ export class TrendsSVGContainer extends React.Component {
           bgBounds={this.props.bgBounds}
           data={focusedSegmentDataGroupedByDate}
           dates={_.keys(focusedSegmentDataGroupedByDate) || []}
+          focusDateTrace={this.props.focusDateTrace}
+          onSelectDate={this.props.onSelectDate}
+          topMargin={this.props.margins.top}
+          unfocusDateTrace={this.props.unfocusDateTrace}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />

@@ -15,10 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-import moment from 'moment-timezone';
 import React, { PropTypes } from 'react';
 
 import Tooltip from '../../common/tooltips/Tooltip';
+
+import { formatDisplayDate } from '../../../utils/datetime';
 
 import styles from './CBGDateTraceLabel.css';
 
@@ -30,7 +31,7 @@ const CBGDateTraceLabel = (props) => {
   return (
     <div className={styles.container}>
       <Tooltip
-        title={<span className={styles.dateLabel}>{moment(date).format('MMM D')}</span>}
+        title={<span className={styles.dateLabel}>{formatDisplayDate(date, {})}</span>}
         borderWidth={0}
         position={{ left: position.left, top: 2.25 * position.yPositions.topMargin }}
         side={'bottom'}

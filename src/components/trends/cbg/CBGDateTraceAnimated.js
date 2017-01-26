@@ -83,7 +83,7 @@ class CBGDateTraceAnimated extends Component {
             onClick={() => {
               this.props.onSelectDate(d.localDate);
             }}
-            onMouseOver={(e) => {
+            onMouseOver={() => {
               this.props.focusDateTrace(d, {
                 left: xScale(d.msPer24),
                 yPositions: {

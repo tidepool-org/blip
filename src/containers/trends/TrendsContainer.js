@@ -278,7 +278,7 @@ export class TrendsContainer extends React.Component {
     this.props.onDatetimeLocationChange(newDomain, newDomain[1] >= mostRecent);
   }
 
-  selectDay() {
+  selectDate() {
     return (date) => this.props.onSelectDate(datetime.midDayForDate(date, this.props.timePrefs));
   }
 
@@ -389,7 +389,7 @@ export class TrendsContainer extends React.Component {
         smbgGrouped={this.props.smbgGrouped}
         smbgLines={this.props.smbgLines}
         smbgRangeOverlay={this.props.smbgRangeOverlay}
-        onSelectDate={this.selectDay()}
+        onSelectDate={this.selectDate()}
         xScale={this.state.xScale}
         yScale={this.state.yScale}
         unfocusDateTrace={this.props.unfocusTrendsCbgDateTrace}

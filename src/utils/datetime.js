@@ -142,7 +142,7 @@ export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
  *
  * @return {string}           formatted timezoneAware date string
  */
-export function formatDisplayDate(utc, timePrefs, format = 'MMM D, YYYY') {
+export function formatDisplayDate(utc, timePrefs, format = 'dddd, MMMM D') {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
