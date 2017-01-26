@@ -76,15 +76,6 @@ const trendsStateByUser = (state = {}, action) => {
         } }
       );
     }
-    case actionTypes.FOCUS_TRENDS_SMBG_RANGE_AVG: {
-      const { rangeAvgData: data, rangeAvgPosition: position, userId } = action.payload;
-      return update(
-        state,
-        { [userId]: {
-          [FOCUSED_SMBG_RANGE_AVG]: { $set: { data, position } },
-        } }
-      );
-    }
     case actionTypes.FOCUS_TRENDS_SMBG: {
       const {
         smbgDatum: datum,
@@ -101,6 +92,15 @@ const trendsStateByUser = (state = {}, action) => {
         } }
       );
     }
+    case actionTypes.FOCUS_TRENDS_SMBG_RANGE_AVG: {
+      const { rangeAvgData: data, rangeAvgPosition: position, userId } = action.payload;
+      return update(
+        state,
+        { [userId]: {
+          [FOCUSED_SMBG_RANGE_AVG]: { $set: { data, position } },
+        } }
+      );
+    }
     case actionTypes.LOGOUT_REQUEST:
       return {};
     case actionTypes.MARK_TRENDS_VIEWED: {
@@ -108,6 +108,32 @@ const trendsStateByUser = (state = {}, action) => {
       return update(
         state,
         { [userId]: { [TOUCHED]: { $set: true } } }
+      );
+    }
+    case actionTypes.TURN_OFF_CBG_RANGE: {
+      const { userId, range } = action.payload;
+      const key = _.get(CBG_FLAG_MAP, range);
+      if (!key) {
+        return state;
+      }
+      return update(
+        state,
+        { [userId]: {
+          [CBG_FLAGS]: { [key]: { $set: false } },
+        } }
+      );
+    }
+    case actionTypes.TURN_ON_CBG_RANGE: {
+      const { userId, range } = action.payload;
+      const key = _.get(CBG_FLAG_MAP, range);
+      if (!key) {
+        return state;
+      }
+      return update(
+        state,
+        { [userId]: {
+          [CBG_FLAGS]: { [key]: { $set: true } },
+        } }
       );
     }
     case actionTypes.UNFOCUS_TRENDS_CBG_SLICE: {
@@ -135,32 +161,6 @@ const trendsStateByUser = (state = {}, action) => {
         state,
         { [userId]: {
           [FOCUSED_SMBG_RANGE_AVG]: { $set: null },
-        } }
-      );
-    }
-    case actionTypes.TURN_ON_CBG_RANGE: {
-      const { userId, range } = action.payload;
-      const key = _.get(CBG_FLAG_MAP, range);
-      if (!key) {
-        return state;
-      }
-      return update(
-        state,
-        { [userId]: {
-          [CBG_FLAGS]: { [key]: { $set: true } },
-        } }
-      );
-    }
-    case actionTypes.TURN_OFF_CBG_RANGE: {
-      const { userId, range } = action.payload;
-      const key = _.get(CBG_FLAG_MAP, range);
-      if (!key) {
-        return state;
-      }
-      return update(
-        state,
-        { [userId]: {
-          [CBG_FLAGS]: { [key]: { $set: false } },
         } }
       );
     }
