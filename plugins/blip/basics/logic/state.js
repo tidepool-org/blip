@@ -156,11 +156,11 @@ var basicsState = {
       togglable: togglableState.off,
       selector: SiteChangeSelector,
       selectorOptions: {
-        primary: { key: constants.SITE_CHANGE_RESERVOIR, label: 'Reservoir Change' },
+        primary: { key: constants.SITE_CHANGE_RESERVOIR, label: 'Reservoir Changes' },
         rows: [
           [
+            { key: constants.SITE_CHANGE_CANNULA, label: 'Cannula Fills' },
             { key: constants.SITE_CHANGE_TUBING, label: 'Tube Primes' },
-            { key: constants.SITE_CHANGE_CANNULA, label: 'Cannula Fills' }
           ]
         ]
       },

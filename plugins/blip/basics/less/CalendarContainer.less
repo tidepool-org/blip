@@ -1,4 +1,4 @@
-@calendar-label-color: #BCBEC0;
+@calendar-label-color: @light-gray-color;
 
 .corner-dates {
 	position: absolute;
@@ -161,6 +161,11 @@
 					align-items: flex-start;
 				}
 			}
+		}
+
+		.Calendar-day--disabled {
+			background-color: @white-color;
+			border: 1px solid @light-gray-color;
 		}
 	}
 }

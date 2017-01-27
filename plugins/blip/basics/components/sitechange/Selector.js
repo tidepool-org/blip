@@ -63,26 +63,48 @@ var Selector = React.createClass({
     if (canUpdateSettings) {
       switch(type) {
         case constants.SITE_CHANGE_TUBING:
-          message = ['We are using ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' to visualize your infusion site changes.'];
+          message = [
+            'We are using ',
+            this.subAction(latestPump, constants.SITE_CHANGE_TUBING),
+            ' to visualize your infusion site changes.'
+          ];
           break;
         case constants.SITE_CHANGE_CANNULA:
-          message = ['We are using ', this.subAction(latestPump, constants.SITE_CHANGE_CANNULA), ' to visualize your infusion site changes. Choose ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' if those are better indicators.'];
+          message = [
+            'We are using ',
+            this.subAction(latestPump, constants.SITE_CHANGE_CANNULA),
+            ' to visualize your infusion site changes.'
+          ];
           break;
         default:
-          message = ['We do not have enough information to visualize your infusion site changes. Choose ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' or ', this.subAction(latestPump, constants.SITE_CHANGE_CANNULA), ' to indicate your infusion site changes.'];
+          message = ['Please select how you would like to see infusion site changes:'];
           break;
       }
     }
     else {
       switch(type) {
         case constants.SITE_CHANGE_TUBING:
-          message = [patientName, ' is using ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' to visualize infusion site changes.'];
+          message = [
+            patientName,
+            ' is using ',
+            this.subAction(latestPump, constants.SITE_CHANGE_TUBING),
+            ' to see infusion site changes.'
+          ];
           break;
         case constants.SITE_CHANGE_CANNULA:
-          message = [patientName, ' is using ', this.subAction(latestPump, constants.SITE_CHANGE_CANNULA), ' to visualize infusion site changes.'];
+          message = [
+            patientName,
+            ' is using ',
+            this.subAction(latestPump, constants.SITE_CHANGE_CANNULA),
+            ' to see infusion site changes.'
+          ];
           break;
         default:
-          message = ['We do not have enough information to visualize infusion site changes. Ask ', patientName, ' to choose ', this.subAction(latestPump, constants.SITE_CHANGE_TUBING), ' or ', this.subAction(latestPump, constants.SITE_CHANGE_CANNULA), ' to indicate infusion site changes.'];
+          message = [
+            'Please ask ',
+            patientName,
+            ' to select how they would like to see infusion site changes.'
+          ];
           break;
         }
     }

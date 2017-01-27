@@ -215,13 +215,14 @@ module.exports = function(bgClasses) {
         basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
         basicsData.data.tubingPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
 
-        if (settings && settings.hasOwnProperty('siteChangeSource')) {
+        if (settings && settings.hasOwnProperty('siteChangeSource') && settings.siteChangeSource !== constants.SITE_CHANGE_RESERVOIR) {
           basicsData.sections.siteChanges.type = settings.siteChangeSource;
           basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, settings.siteChangeSource);
         }
         else {
           basicsData.sections.siteChanges.type = constants.SECTION_TYPE_UNDECLARED;
           basicsData.sections.siteChanges.settingsTogglable = togglableState.open;
+          basicsData.sections.siteChanges.hasHover = false;
         }
       }
       else if (latestPump === constants.INSULET) {
@@ -231,7 +232,7 @@ module.exports = function(bgClasses) {
         basicsData.sections.siteChanges.selector = null;
         basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
       }
-      // Medtronic (CareLink) or other unsupported pump
+      // CareLink (Medtronic) or other unsupported pump
       else {
         basicsData.data.reservoirChange = {};
         basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;

@@ -499,7 +499,7 @@ describe('basics datamunger', function() {
       expect(dm.processInfusionSiteHistory(basicsData, null, patient)).to.equal(null);
     });
 
-    it('should return upload permission true', function() {
+    it('should return that logged in user has permission to update patient settings', function() {
       var basicsData = {
         data: {
           [constants.SITE_CHANGE_RESERVOIR]: {dataByDate: countSiteChangesByDay},
@@ -528,7 +528,7 @@ describe('basics datamunger', function() {
       expect(basicsData.sections.siteChanges.selectorMetaData.canUpdateSettings).to.equal(true);
     });
 
-    it('should return upload permission false', function() {
+    it('should return that logged in user does not have permission to update patient settings', function() {
       var basicsData = {
         data: {
           [constants.SITE_CHANGE_RESERVOIR]: {dataByDate: countSiteChangesByDay}
@@ -638,11 +638,73 @@ describe('basics datamunger', function() {
       expect(basicsData.sections.siteChanges.type).to.equal(constants.SITE_CHANGE_RESERVOIR);
     });
 
-    it('should set siteChanges type to undeclared, and settings to be open', function() {
+    var pumps = [constants.ANIMAS, constants.MEDTRONIC, constants.TANDEM];
+    pumps.forEach(function(pump) {
+      it('should set siteChanges type to undeclared, and settings to be open, when no preference has been saved and pump is ' + pump, function() {
+        var basicsData = {
+          data: {
+            [constants.SITE_CHANGE_CANNULA]: {dataByDate: countSiteChangesByDay},
+            [constants.SITE_CHANGE_TUBING]: {dataByDate: countSiteChangesByDay},
+          },
+          days: oneWeekDates,
+          sections: siteChangeSections,
+        };
+
+        var patient = {
+          permissions: {
+            'root': {},
+          },
+          profile: {
+            fullName: 'Jill Jellyfish',
+            patient: {
+              profile: {
+                settings: {},
+              },
+            }
+          },
+        };
+
+        dm.processInfusionSiteHistory(basicsData, pump, patient);
+        expect(basicsData.sections.siteChanges.type).to.equal(constants.SECTION_TYPE_UNDECLARED);
+        expect(basicsData.sections.siteChanges.settingsTogglable).to.equal(togglableState.open);
+      });
+
+      it('should set siteChanges type to undeclared, and settings to be open, when saved preference is not allowed for ' + pump, function() {
+        var basicsData = {
+          data: {
+            [constants.SITE_CHANGE_CANNULA]: {dataByDate: countSiteChangesByDay},
+            [constants.SITE_CHANGE_TUBING]: {dataByDate: countSiteChangesByDay},
+          },
+          days: oneWeekDates,
+          sections: siteChangeSections,
+        };
+
+        var patient = {
+          permissions: {
+            'root': {},
+          },
+          profile: {
+            fullName: 'Jill Jellyfish',
+            patient: {
+              profile: {
+                settings: {
+                  siteChangeSource: constants.SITE_CHANGE_RESERVOIR,
+                },
+              },
+            }
+          },
+        };
+
+        dm.processInfusionSiteHistory(basicsData, pump, patient);
+        expect(basicsData.sections.siteChanges.type).to.equal(constants.SECTION_TYPE_UNDECLARED);
+        expect(basicsData.sections.siteChanges.settingsTogglable).to.equal(togglableState.open);
+      });
+    });
+
+    it('should set siteChanges type to reservoirChange, and settings to be off, when saved preference is ' + constants.SITE_CHANGE_CANNULA + ' and pump is ' + constants.INSULET, function() {
       var basicsData = {
         data: {
-          [constants.SITE_CHANGE_CANNULA]: {dataByDate: countSiteChangesByDay},
-          [constants.SITE_CHANGE_TUBING]: {dataByDate: countSiteChangesByDay},
+          [constants.SITE_CHANGE_RESERVOIR]: {dataByDate: countSiteChangesByDay}
         },
         days: oneWeekDates,
         sections: siteChangeSections,
@@ -656,15 +718,17 @@ describe('basics datamunger', function() {
           fullName: 'Jill Jellyfish',
           patient: {
             profile: {
-              settings: {},
+              settings: {
+                siteChangeSource: constants.SITE_CHANGE_CANNULA,
+              },
             },
           }
         },
       };
 
-      dm.processInfusionSiteHistory(basicsData, constants.TANDEM, patient);
-      expect(basicsData.sections.siteChanges.type).to.equal(constants.SECTION_TYPE_UNDECLARED);
-      expect(basicsData.sections.siteChanges.settingsTogglable).to.equal(togglableState.open);
+      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient);
+      expect(basicsData.sections.siteChanges.type).to.equal(constants.SITE_CHANGE_RESERVOIR);
+      expect(basicsData.sections.siteChanges.settingsTogglable).to.equal(togglableState.off);
     });
   });
 
