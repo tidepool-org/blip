@@ -287,7 +287,7 @@ export class CBGSliceAnimated extends Component {
                   <rect
                     className={segment.className}
                     key={key}
-                    id={key}
+                    id={`cbgSlice-${datum.id}-${key}`}
                     width={style.width}
                     height={style[renderPieces[key].height]}
                     x={style.binLeftX}
