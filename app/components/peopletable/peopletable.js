@@ -16,6 +16,7 @@
 */
 import React from 'react';
 import _ from 'lodash';
+import cx from 'classnames';
 import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
 import { browserHistory } from 'react-router';
@@ -171,10 +172,9 @@ class PeopleTable extends React.Component {
   }
 
   getRowClassName(rowIndex) {
-    if (rowIndex === this.state.currentRowIndex) {
-      return 'peopletable-active-row';
-    }
-    return '';
+    return cx({
+      'peopletable-active-row': rowIndex === this.state.currentRowIndex,
+    });
   }
 
   handleRowClick(e, rowIndex) {
