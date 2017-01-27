@@ -230,7 +230,7 @@ class PeopleTable extends React.Component {
               col="fullName"
               icon={<i className="peopletable-icon-profile icon-profile"></i>}
             />}
-            width={780}
+            width={320}
           />
           <Column
             columnKey="birthdayOrderable"
@@ -243,7 +243,7 @@ class PeopleTable extends React.Component {
               </SortHeaderCell>
             }
             cell={<TextCell data={dataList} col="birthday" />}
-            width={100}
+            width={560}
           />
         </Table>
       </div>
