@@ -36,14 +36,19 @@ describe('CBGDateTraceAnimated', () => {
     bgBounds,
     data: [{
       id: 'a1b2c3',
+      localDate: '2017-01-01',
       msPer24: 0,
       value: 100,
     }, {
       id: 'd4e5f6',
+      localDate: '2017-01-05',
       msPer24: 43200000,
       value: 200,
     }],
     date: '2016-12-25',
+    focusDateTrace: sinon.spy(),
+    onSelectDate: sinon.spy(),
+    unfocusDateTrace: sinon.spy(),
     xScale,
     yScale,
   };
@@ -88,7 +93,37 @@ describe('CBGDateTraceAnimated', () => {
         expect(circle.prop('cy')).to.equal(yScale(data[i].value));
       });
     });
-  });
 
-  // TODO: should we test anything re: the GSAP work in the lifecycle methods?
+    describe('interactions', () => {
+      describe('onClick', () => {
+        it('should fire the onSelectDate function', () => {
+          const circle = wrapper.find('circle').first();
+          expect(props.onSelectDate.callCount).to.equal(0);
+          circle.simulate('click');
+          expect(props.onSelectDate.callCount).to.equal(1);
+          expect(props.onSelectDate.args[0][0]).to.equal(props.data[0].localDate);
+        });
+      });
+
+      describe('onMouseOver', () => {
+        it('should fire the onFocusDate function', () => {
+          const circle = wrapper.find('circle').first();
+          expect(props.focusDateTrace.callCount).to.equal(0);
+          circle.simulate('mouseover');
+          expect(props.focusDateTrace.callCount).to.equal(1);
+          expect(props.focusDateTrace.args[0][0]).to.exist;
+          expect(props.focusDateTrace.args[0][1]).to.exist;
+        });
+      });
+
+      describe('onMouseOut', () => {
+        it('should fire the unfocusDateTrace function', () => {
+          const circle = wrapper.find('circle').first();
+          expect(props.unfocusDateTrace.callCount).to.equal(0);
+          circle.simulate('mouseout');
+          expect(props.unfocusDateTrace.callCount).to.equal(1);
+        });
+      });
+    });
+  });
 });

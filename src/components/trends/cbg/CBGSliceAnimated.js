@@ -75,6 +75,7 @@ export class CBGSliceAnimated extends Component {
   constructor(props) {
     super(props);
     this.getBinLeftX = this.getBinLeftX.bind(this);
+    this.handleMouseOut = this.handleMouseOut.bind(this);
     this.willEnter = this.willEnter.bind(this);
     this.willLeave = this.willLeave.bind(this);
   }
@@ -86,6 +87,14 @@ export class CBGSliceAnimated extends Component {
 
   getWidth(width) {
     return width - styles.stroke;
+  }
+
+  handleMouseOut(e) {
+    // we don't want to unfocus the slice if the user just rolled over a cbg inside it
+    if (e.relatedTarget && e.relatedTarget.id.search('cbgCircle') !== -1) {
+      return;
+    }
+    this.props.unfocusSlice();
   }
 
   isMedian(segment) {
@@ -152,7 +161,6 @@ export class CBGSliceAnimated extends Component {
       sliceWidth,
       tooltipLeftThreshold,
       topMargin,
-      unfocusSlice,
       xScale,
       yScale,
     } = this.props;
@@ -279,7 +287,7 @@ export class CBGSliceAnimated extends Component {
                   <rect
                     className={segment.className}
                     key={key}
-                    id={key}
+                    id={`cbgSlice-${datum.id}-${key}`}
                     width={style.width}
                     height={style[renderPieces[key].height]}
                     x={style.binLeftX}
@@ -292,7 +300,7 @@ export class CBGSliceAnimated extends Component {
                         yPositions,
                       }, segment.key === 'median' ? ['median'] : segment.heightKeys);
                     }}
-                    onMouseOut={unfocusSlice}
+                    onMouseOut={this.handleMouseOut}
                   />
                 );
               })}

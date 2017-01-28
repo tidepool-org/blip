@@ -43,6 +43,10 @@ class CBGDateTraceAnimated extends Component {
       value: PropTypes.number.isRequired,
     })).isRequired,
     date: PropTypes.string.isRequired,
+    focusDateTrace: PropTypes.func.isRequired,
+    onSelectDate: PropTypes.func.isRequired,
+    topMargin: PropTypes.number.isRequired,
+    unfocusDateTrace: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
@@ -66,17 +70,30 @@ class CBGDateTraceAnimated extends Component {
   }
 
   render() {
-    const { bgBounds, cbgRadius, data, date, xScale, yScale } = this.props;
+    const { bgBounds, cbgRadius, data, date, topMargin, xScale, yScale } = this.props;
     return (
       <g id={`cbgDateTrace-${date}`}>
         {_.map(data, (d) => (
           <circle
-            className={`cbgCircle ${styles[classifyBgValue(bgBounds, d.value)]}`}
+            className={styles[classifyBgValue(bgBounds, d.value)]}
             cx={xScale(d.msPer24)}
             cy={yScale(d.value)}
+            id={`cbgCircle-${d.id}`}
             key={d.id}
+            onClick={() => {
+              this.props.onSelectDate(d.localDate);
+            }}
+            onMouseOver={() => {
+              this.props.focusDateTrace(d, {
+                left: xScale(d.msPer24),
+                yPositions: {
+                  top: yScale(d.value),
+                  topMargin,
+                },
+              });
+            }}
+            onMouseOut={this.props.unfocusDateTrace}
             opacity={0}
-            pointerEvents="none"
             r={cbgRadius}
             ref={(node) => { this[d.id] = node; }}
           />

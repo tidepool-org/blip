@@ -166,6 +166,10 @@ export class TrendsSVGContainer extends React.Component {
           bgBounds={this.props.bgBounds}
           data={focusedSegmentDataGroupedByDate}
           dates={_.keys(focusedSegmentDataGroupedByDate) || []}
+          focusDateTrace={this.props.focusDateTrace}
+          onSelectDate={this.props.onSelectDate}
+          topMargin={this.props.margins.top}
+          unfocusDateTrace={this.props.unfocusDateTrace}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
@@ -388,9 +392,10 @@ TrendsSVGContainer.propTypes = {
     }),
   }),
   focusedSmbgRangeAvgKey: PropTypes.string,
+  focusDateTrace: PropTypes.func.isRequired,
   focusRange: PropTypes.func.isRequired,
-  focusSmbg: PropTypes.func.isRequired,
   focusSlice: PropTypes.func.isRequired,
+  focusSmbg: PropTypes.func.isRequired,
   margins: PropTypes.shape({
     top: PropTypes.number.isRequired,
     right: PropTypes.number.isRequired,
@@ -408,9 +413,10 @@ TrendsSVGContainer.propTypes = {
   }).isRequired,
   smbgRangeOverlay: PropTypes.bool.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
+  unfocusDateTrace: PropTypes.func.isRequired,
   unfocusRange: PropTypes.func.isRequired,
-  unfocusSmbg: PropTypes.func.isRequired,
   unfocusSlice: PropTypes.func.isRequired,
+  unfocusSmbg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
 };

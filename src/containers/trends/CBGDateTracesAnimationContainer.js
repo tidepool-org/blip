@@ -22,7 +22,7 @@ import TransitionGroupPlus from 'react-transition-group-plus';
 import CBGDateTraceAnimated from '../../components/trends/cbg/CBGDateTraceAnimated';
 
 const CBGDateTracesAnimationContainer = (props) => {
-  const { bgBounds, data, dates, xScale, yScale } = props;
+  const { bgBounds, data, dates, topMargin, xScale, yScale } = props;
   return (
     <TransitionGroupPlus component="g" id="cbgDateTraces" transitionMode="simultaneous">
       {_.map(dates, (localDate) => (
@@ -30,7 +30,11 @@ const CBGDateTracesAnimationContainer = (props) => {
           bgBounds={bgBounds}
           data={data[localDate]}
           date={localDate}
+          focusDateTrace={props.focusDateTrace}
           key={localDate}
+          onSelectDate={props.onSelectDate}
+          topMargin={topMargin}
+          unfocusDateTrace={props.unfocusDateTrace}
           xScale={xScale}
           yScale={yScale}
         />
@@ -48,6 +52,10 @@ CBGDateTracesAnimationContainer.propTypes = {
   }).isRequired,
   data: PropTypes.object,
   dates: PropTypes.arrayOf(PropTypes.string),
+  focusDateTrace: PropTypes.func.isRequired,
+  onSelectDate: PropTypes.func.isRequired,
+  topMargin: PropTypes.number.isRequired,
+  unfocusDateTrace: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
 };

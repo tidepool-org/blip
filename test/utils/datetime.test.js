@@ -248,34 +248,34 @@ describe('datetime', () => {
       assert.isFunction(datetime.formatDisplayDate);
     });
 
-    it('should return "Sep 4, 2016" for hammertime tzAware LA', () => {
+    it('should return "Sunday, September 4" for hammertime tzAware LA', () => {
       expect(datetime.formatDisplayDate(hammertime, tzAwareLA))
-        .to.equal('Sep 4, 2016');
+        .to.equal('Sunday, September 4');
     });
 
-    it('should return "Sep 4, 2016" for utcString tzAware LA', () => {
+    it('should return "Sunday, September 4" for utcString tzAware LA', () => {
       expect(datetime.formatDisplayDate(utcString, tzAwareLA))
-        .to.equal('Sep 4, 2016');
+        .to.equal('Sunday, September 4');
     });
 
-    it('should return "Sep 5, 2016" for hammertime tzAware NY', () => {
+    it('should return "Monday, September 5" for hammertime tzAware NY', () => {
       expect(datetime.formatDisplayDate(hammertime, tzAwareNY))
-        .to.equal('Sep 5, 2016');
+        .to.equal('Monday, September 5');
     });
 
-    it('should return "Sep 5, 2016" for utcString tzAware NY', () => {
+    it('should return "Monday, September 5" for utcString tzAware NY', () => {
       expect(datetime.formatDisplayDate(utcString, tzAwareNY))
-        .to.equal('Sep 5, 2016');
+        .to.equal('Monday, September 5');
     });
 
-    it('should return "Sep 5, 2016" for hammertime tzUnaware', () => {
+    it('should return "Monday, September 5" for hammertime tzUnaware', () => {
       expect(datetime.formatDisplayDate(hammertime, tzUnaware))
-        .to.equal('Sep 5, 2016');
+        .to.equal('Monday, September 5');
     });
 
-    it('should return "Sep 5, 2016" for utcString tzUnaware', () => {
+    it('should return "Monday, September 5" for utcString tzUnaware', () => {
       expect(datetime.formatDisplayDate(utcString, tzUnaware))
-        .to.equal('Sep 5, 2016');
+        .to.equal('Monday, September 5');
     });
 
     it('should return "Sep 4" for hammertime tzAware LA "MMM D"', () => {

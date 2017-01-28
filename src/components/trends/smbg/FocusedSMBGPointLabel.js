@@ -46,7 +46,7 @@ const FocusedSMBGPointLabel = (props) => {
   } = props;
 
   const parsedTime = getParsedTime(datum, timePrefs);
-  const lineDate = formatDisplayDate(parsedTime, timePrefs, 'dddd MMM D');
+  const lineDate = formatDisplayDate(parsedTime, timePrefs);
   const shortDate = formatDisplayDate(parsedTime, timePrefs, 'MMM D');
   const side = position.tooltipLeft ? 'left' : 'right';
   if (!lines) {
