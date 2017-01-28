@@ -26,6 +26,7 @@ var SubNav = require('./modalsubnav');
 var Footer = require('./footer');
 
 import * as viz from '@tidepool/viz';
+const CBGDateTraceLabel = viz.components.CBGDateTraceLabel;
 const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
 const TrendsContainer = viz.containers.TrendsContainer;
@@ -79,6 +80,7 @@ var Modal = React.createClass({
               <div id="tidelineContainer" className="patient-data-chart-modal">
                 {this.renderChart()}
               </div>
+              {this.renderFocusedCbgDateTraceLabel()}
               {this.renderFocusedSMBGPointLabel()}
               {this.renderFocusedRangeLabels()}
             </div>
@@ -174,30 +176,36 @@ var Modal = React.createClass({
       ref="chart" />
     );
   },
+  renderFocusedCbgDateTraceLabel: function() {
+    const { currentPatientInViewId, trendsState } = this.props;
+    const focusedCbgDateTrace = _.get(trendsState, [currentPatientInViewId, 'focusedCbgDateTrace']);
+    if (focusedCbgDateTrace) {
+      return (
+        <CBGDateTraceLabel focusedDateTrace={focusedCbgDateTrace} />
+      );
+    }
+    return null;
+  },
   renderFocusedRangeLabels: function() {
     const { currentPatientInViewId, trendsState } = this.props;
     const { chartPrefs: { modal: { showingCbg, showingSmbg } } } = this.props;
-    const showingCbgWithLabels = showingCbg && _.get(trendsState, [currentPatientInViewId, 'showingCbgSliceLabels']);
-    // exclusive or!
-    if ((showingCbgWithLabels && !showingSmbg) || (!showingCbgWithLabels && showingSmbg)) {
-      if (showingCbg) {
-        return (
-          <FocusedRangeLabels
-            bgUnits={this.props.bgPrefs.bgUnits}
-            dataType={'cbg'}
-            focusedKeys={trendsState[currentPatientInViewId].focusedCbgSliceKeys}
-            focusedSlice={trendsState[currentPatientInViewId].focusedCbgSlice}
-            timePrefs={this.props.timePrefs} />
-        );
-      } else if (showingSmbg) {
-        return (
-          <FocusedRangeLabels
-            bgUnits={this.props.bgPrefs.bgUnits}
-            dataType={'smbg'}
-            focusedRange={trendsState[currentPatientInViewId].focusedSmbgRangeAvg}
-            timePrefs={this.props.timePrefs} />
-        );
-      }
+    if (showingCbg) {
+      return (
+        <FocusedRangeLabels
+          bgUnits={this.props.bgPrefs.bgUnits}
+          dataType={'cbg'}
+          focusedKeys={trendsState[currentPatientInViewId].focusedCbgSliceKeys}
+          focusedSlice={trendsState[currentPatientInViewId].focusedCbgSlice}
+          timePrefs={this.props.timePrefs} />
+      );
+    } else if (showingSmbg) {
+      return (
+        <FocusedRangeLabels
+          bgUnits={this.props.bgPrefs.bgUnits}
+          dataType={'smbg'}
+          focusedRange={trendsState[currentPatientInViewId].focusedSmbgRangeAvg}
+          timePrefs={this.props.timePrefs} />
+      );
     }
     return null;
   },
