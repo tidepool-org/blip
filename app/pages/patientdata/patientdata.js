@@ -70,7 +70,7 @@ export let PatientData = React.createClass({
   getInitialState: function() {
     var state = {
       chartPrefs: {
-        modal: {
+        trends: {
           activeDays: {
             monday: true,
             tuesday: true,
@@ -267,7 +267,7 @@ export let PatientData = React.createClass({
             ref="tideline" />
           );
 
-      case 'modal':
+      case 'trends':
 
         return (
           <Trends
@@ -446,7 +446,7 @@ export let PatientData = React.createClass({
       fromChart: this.state.chartType
     });
     this.setState({
-      chartType: 'modal',
+      chartType: 'trends',
       initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
   },

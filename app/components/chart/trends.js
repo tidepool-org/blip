@@ -65,7 +65,7 @@ class Trends extends PureComponent {
       targetLowerBound: bgClasses.low.boundary,
       veryLowThreshold: bgClasses['very-low'].boundary,
     };
-    this.chartType = 'modal';
+    this.chartType = 'trends';
     this.log = bows('Trends');
 
     this.state = {
@@ -153,13 +153,13 @@ class Trends extends PureComponent {
     }
     const prefs = _.cloneDeep(this.props.chartPrefs);
     // no change, return early
-    if (prefs.modal.activeDomain === '4 weeks' && prefs.modal.extentSize === 28) {
+    if (prefs.trends.activeDomain === '4 weeks' && prefs.trends.extentSize === 28) {
       return;
     }
     const current = new Date(this.chart.getCurrentDay());
-    const oldDomain = this.getNewDomain(current, prefs.modal.extentSize);
-    prefs.modal.activeDomain = '4 weeks';
-    prefs.modal.extentSize = 28;
+    const oldDomain = this.getNewDomain(current, prefs.trends.extentSize);
+    prefs.trends.activeDomain = '4 weeks';
+    prefs.trends.extentSize = 28;
     this.props.updateChartPrefs(prefs);
     const newDomain = this.getNewDomain(current, 28);
     this.chart.setExtent(newDomain, oldDomain);
@@ -181,13 +181,13 @@ class Trends extends PureComponent {
     }
     const prefs = _.cloneDeep(this.props.chartPrefs);
     // no change, return early
-    if (prefs.modal.activeDomain === '1 week' && prefs.modal.extentSize === 7) {
+    if (prefs.trends.activeDomain === '1 week' && prefs.trends.extentSize === 7) {
       return;
     }
     const current = new Date(this.chart.getCurrentDay());
-    const oldDomain = this.getNewDomain(current, prefs.modal.extentSize);
-    prefs.modal.activeDomain = '1 week';
-    prefs.modal.extentSize = 7;
+    const oldDomain = this.getNewDomain(current, prefs.trends.extentSize);
+    prefs.trends.activeDomain = '1 week';
+    prefs.trends.extentSize = 7;
     this.props.updateChartPrefs(prefs);
     const newDomain = this.getNewDomain(current, 7);
     this.chart.setExtent(newDomain, oldDomain);
@@ -214,13 +214,13 @@ class Trends extends PureComponent {
     }
     const prefs = _.cloneDeep(this.props.chartPrefs);
     // no change, return early
-    if (prefs.modal.activeDomain === '2 weeks' && prefs.modal.extentSize === 14) {
+    if (prefs.trends.activeDomain === '2 weeks' && prefs.trends.extentSize === 14) {
       return;
     }
     const current = new Date(this.chart.getCurrentDay());
-    const oldDomain = this.getNewDomain(current, prefs.modal.extentSize);
-    prefs.modal.activeDomain = '2 weeks';
-    prefs.modal.extentSize = 14;
+    const oldDomain = this.getNewDomain(current, prefs.trends.extentSize);
+    prefs.trends.activeDomain = '2 weeks';
+    prefs.trends.extentSize = 14;
     this.props.updateChartPrefs(prefs);
     const newDomain = this.getNewDomain(current, 14);
     this.chart.setExtent(newDomain, oldDomain);
@@ -249,21 +249,21 @@ class Trends extends PureComponent {
   toggleBgDataSource(e) {
     if (e) {
       e.preventDefault();
-      if (this.props.chartPrefs.modal.showingCbg) {
+      if (this.props.chartPrefs.trends.showingCbg) {
         this.props.trackMetric('Trends Click to BGM');
       } else {
         this.props.trackMetric('Trends Click to CGM');
       }
     }
     const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.modal.showingCbg = !prefs.modal.showingCbg;
-    prefs.modal.showingSmbg = !prefs.modal.showingSmbg;
+    prefs.trends.showingCbg = !prefs.trends.showingCbg;
+    prefs.trends.showingSmbg = !prefs.trends.showingSmbg;
     this.props.updateChartPrefs(prefs);
   }
 
   toggleBoxOverlay() {
     const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.modal.smbgRangeOverlay = prefs.modal.smbgRangeOverlay ? false : true;
+    prefs.trends.smbgRangeOverlay = prefs.trends.smbgRangeOverlay ? false : true;
     this.props.updateChartPrefs(prefs);
   }
 
@@ -272,45 +272,45 @@ class Trends extends PureComponent {
     return function(e) {
       e.stopPropagation();
       const prefs = _.cloneDeep(self.props.chartPrefs);
-      prefs.modal.activeDays[day] = prefs.modal.activeDays[day] ? false : true;
+      prefs.trends.activeDays[day] = prefs.trends.activeDays[day] ? false : true;
       self.props.updateChartPrefs(prefs);
     };
   }
 
   toggleGrouping() {
     const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.modal.smbgGrouped = prefs.modal.smbgGrouped ? false : true;
+    prefs.trends.smbgGrouped = prefs.trends.smbgGrouped ? false : true;
     this.props.updateChartPrefs(prefs);
   }
 
   toggleLines() {
     const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.modal.smbgLines = prefs.modal.smbgLines ? false : true;
+    prefs.trends.smbgLines = prefs.trends.smbgLines ? false : true;
     this.props.updateChartPrefs(prefs);
   }
 
   toggleWeekdays(allActive) {
     const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.modal.activeDays = {
+    prefs.trends.activeDays = {
       'monday': !allActive,
       'tuesday': !allActive,
       'wednesday': !allActive,
       'thursday': !allActive,
       'friday': !allActive,
-      'saturday': prefs.modal.activeDays.saturday,
-      'sunday': prefs.modal.activeDays.sunday
+      'saturday': prefs.trends.activeDays.saturday,
+      'sunday': prefs.trends.activeDays.sunday
     };
     this.props.updateChartPrefs(prefs);
   }
 
   toggleWeekends(allActive) {
     const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.modal.activeDays = {
-      'monday': prefs.modal.activeDays.monday,
-      'tuesday': prefs.modal.activeDays.tuesday,
-      'wednesday': prefs.modal.activeDays.wednesday,
-      'thursday': prefs.modal.activeDays.thursday,
-      'friday': prefs.modal.activeDays.friday,
+    prefs.trends.activeDays = {
+      'monday': prefs.trends.activeDays.monday,
+      'tuesday': prefs.trends.activeDays.tuesday,
+      'wednesday': prefs.trends.activeDays.wednesday,
+      'thursday': prefs.trends.activeDays.thursday,
+      'friday': prefs.trends.activeDays.friday,
       'saturday': !allActive,
       'sunday': !allActive
     };
@@ -326,7 +326,7 @@ class Trends extends PureComponent {
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <div id="tidelineContainer" className="patient-data-chart-modal">
+              <div id="tidelineContainer" className="patient-data-chart-trends">
                 {this.renderChart()}
               </div>
               {this.renderFocusedCbgDateTraceLabel()}
@@ -342,11 +342,11 @@ class Trends extends PureComponent {
          onClickLines={this.toggleLines}
          onClickRefresh={this.props.onClickRefresh}
          onClickBgDataToggle={this.toggleBgDataSource}
-         boxOverlay={this.props.chartPrefs.modal.smbgRangeOverlay}
-         grouped={this.props.chartPrefs.modal.smbgGrouped}
-         showingLines={this.props.chartPrefs.modal.smbgLines}
-         showingCbg={this.props.chartPrefs.modal.showingCbg}
-         showingSmbg={this.props.chartPrefs.modal.showingSmbg}
+         boxOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}
+         grouped={this.props.chartPrefs.trends.smbgGrouped}
+         showingLines={this.props.chartPrefs.trends.smbgLines}
+         showingCbg={this.props.chartPrefs.trends.showingCbg}
+         showingSmbg={this.props.chartPrefs.trends.showingSmbg}
          displayFlags={this.props.trendsState[currentPatientInViewId].cbgFlags}
          currentPatientInViewId={currentPatientInViewId}
          ref="footer" />
@@ -379,9 +379,9 @@ class Trends extends PureComponent {
   renderSubNav() {
     return (
       <SubNav
-       activeDays={this.props.chartPrefs.modal.activeDays}
-       activeDomain={this.props.chartPrefs.modal.activeDomain}
-       extentSize={this.props.chartPrefs.modal.extentSize}
+       activeDays={this.props.chartPrefs.trends.activeDays}
+       activeDomain={this.props.chartPrefs.trends.activeDomain}
+       extentSize={this.props.chartPrefs.trends.extentSize}
        domainClickHandlers={{
         '1 week': this.handleClickOneWeek,
         '2 weeks': this.handleClickTwoWeeks,
@@ -397,17 +397,17 @@ class Trends extends PureComponent {
   renderChart() {
     return (
       <TrendsContainer
-        activeDays={this.props.chartPrefs.modal.activeDays}
+        activeDays={this.props.chartPrefs.trends.activeDays}
         bgBounds={this.bgBounds}
         bgUnits={this.props.bgPrefs.bgUnits}
         currentPatientInViewId={this.props.currentPatientInViewId}
-        extentSize={this.props.chartPrefs.modal.extentSize}
+        extentSize={this.props.chartPrefs.trends.extentSize}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
-        showingSmbg={this.props.chartPrefs.modal.showingSmbg}
-        showingCbg={this.props.chartPrefs.modal.showingCbg}
-        smbgRangeOverlay={this.props.chartPrefs.modal.smbgRangeOverlay}
-        smbgGrouped={this.props.chartPrefs.modal.smbgGrouped}
-        smbgLines={this.props.chartPrefs.modal.smbgLines}
+        showingSmbg={this.props.chartPrefs.trends.showingSmbg}
+        showingCbg={this.props.chartPrefs.trends.showingCbg}
+        smbgRangeOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}
+        smbgGrouped={this.props.chartPrefs.trends.smbgGrouped}
+        smbgLines={this.props.chartPrefs.trends.smbgLines}
         timePrefs={this.props.timePrefs}
         // data
         cbgByDate={this.props.patientData.cbgByDate}
@@ -435,7 +435,7 @@ class Trends extends PureComponent {
 
   renderFocusedRangeLabels() {
     const { currentPatientInViewId, trendsState } = this.props;
-    const { chartPrefs: { modal: { showingCbg, showingSmbg } } } = this.props;
+    const { chartPrefs: { trends: { showingCbg, showingSmbg } } } = this.props;
     if (showingCbg) {
       return (
         <FocusedRangeLabels
@@ -458,7 +458,7 @@ class Trends extends PureComponent {
   }
 
   renderFocusedSMBGPointLabel() {
-    if (!this.props.chartPrefs.modal.showingSmbg) {
+    if (!this.props.chartPrefs.trends.showingSmbg) {
       return null;
     }
     const { currentPatientInViewId } = this.props;
@@ -466,8 +466,8 @@ class Trends extends PureComponent {
       <FocusedSMBGPointLabel
         bgUnits={this.props.bgPrefs.bgUnits}
         timePrefs={this.props.timePrefs}
-        grouped={this.props.chartPrefs.modal.smbgGrouped}
-        lines={this.props.chartPrefs.modal.smbgLines}
+        grouped={this.props.chartPrefs.trends.smbgGrouped}
+        lines={this.props.chartPrefs.trends.smbgLines}
         focusedPoint={this.props.trendsState[currentPatientInViewId].focusedSmbg} />
     );
   }
