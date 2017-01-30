@@ -85,7 +85,7 @@ const FocusedRangeLabels = (props) => {
               {`Average ${displayBgValue(data[center], bgUnits)}`}
             </span>
           }
-          offset={{ top: 0, horizontal: position.tooltipLeft }}
+          offset={{ top: 0, horizontal: props.numberOffsets.horizontal }}
           position={centerPosition}
           side={centerSide}
         />
@@ -105,8 +105,9 @@ const FocusedRangeLabels = (props) => {
 
 FocusedRangeLabels.defaultProps = {
   numberOffsets: {
-    top: 7.5,
     bottom: -7.5,
+    horizontal: 10,
+    top: 7.5,
   },
 };
 
@@ -172,8 +173,9 @@ FocusedRangeLabels.propTypes = {
     }).isRequired,
   }),
   numberOffsets: PropTypes.shape({
-    top: PropTypes.number.isRequired,
     bottom: PropTypes.number.isRequired,
+    horizontal: PropTypes.number.isRequired,
+    top: PropTypes.number.isRequired,
   }).isRequired,
   timePrefs: PropTypes.shape({
     timezoneAware: React.PropTypes.bool.isRequired,
