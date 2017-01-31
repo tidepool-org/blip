@@ -28,6 +28,8 @@
 //   this style also applies when a single smbg is focused
 
 import React, { PropTypes, PureComponent } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { TransitionMotion, spring } from 'react-motion';
 import { line } from 'd3-shape';
 import _ from 'lodash';
@@ -37,9 +39,11 @@ import { springConfig } from '../../../utils/constants';
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
+import { focusTrendsSmbg, unfocusTrendsSmbg } from '../../../redux/actions/trends';
+
 import styles from './SMBGDateLineAnimated.css';
 
-class SMBGDateLineAnimated extends PureComponent {
+export class SMBGDateLineAnimated extends PureComponent {
   static propTypes = {
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,
@@ -60,14 +64,23 @@ class SMBGDateLineAnimated extends PureComponent {
     nonInteractive: PropTypes.bool,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     unfocusLine: PropTypes.func.isRequired,
+    userId: PropTypes.string.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
 
   constructor(props) {
     super(props);
+
     this.getDefaultPoints = this.getDefaultPoints.bind(this);
     this.getPoints = this.getPoints.bind(this);
+
+    this.getPositions = this.getPositions.bind(this);
+
+    this.handleClick = this.handleClick.bind(this);
+    this.handleMouseOut = this.handleMouseOut.bind(this);
+    this.handleMouseOver = this.handleMouseOver.bind(this);
+
     this.willEnter = this.willEnter.bind(this);
     this.willLeave = this.willLeave.bind(this);
   }
@@ -80,7 +93,7 @@ class SMBGDateLineAnimated extends PureComponent {
         key: d.id,
         style: {
           opacity: 0,
-          x: xScale(this.xPosition(d.msPer24, grouped)),
+          x: xScale(this.getXPosition(d.msPer24, grouped)),
           y: yScale(d.value),
         } },
       );
@@ -96,7 +109,7 @@ class SMBGDateLineAnimated extends PureComponent {
         key: d.id,
         style: {
           opacity: spring(1, springConfig),
-          x: spring(xScale(this.xPosition(d.msPer24, grouped)), springConfig),
+          x: spring(xScale(this.getXPosition(d.msPer24, grouped)), springConfig),
           y: yScale(d.value),
         } },
       );
@@ -104,29 +117,48 @@ class SMBGDateLineAnimated extends PureComponent {
     return points;
   }
 
-  willEnter(entered) {
-    const { style } = entered;
-    return {
-      opacity: 0,
-      x: style.x.val,
-      y: style.y,
-    };
+  getPositions() {
+    const { data, tooltipLeftThreshold, xScale, yScale } = this.props;
+    return _.map(data, (d) => ({
+      tooltipLeft: d.msPer24 > tooltipLeftThreshold,
+      left: xScale(this.getXPosition(d.msPer24)),
+      top: yScale(d.value),
+    }));
   }
 
-  willLeave(exited) {
-    const { style } = exited;
-    return {
-      opacity: spring(0, springConfig),
-      x: style.x.val || style.x,
-      y: style.y,
-    };
-  }
-
-  xPosition(msPer24, grouped) {
+  getXPosition(msPer24, grouped) {
     if (grouped) {
       return findBinForTimeOfDay(THREE_HRS, msPer24);
     }
     return msPer24;
+  }
+
+  handleClick() {
+    const { date, onSelectDate } = this.props;
+    onSelectDate(date);
+  }
+
+  handleMouseOut() {
+    const { unfocusLine, userId } = this.props;
+    unfocusLine(userId);
+  }
+
+  handleMouseOver() {
+    const { data, date, focusLine, userId } = this.props;
+    const positions = this.getPositions();
+    focusLine(userId, data[0], positions[0], data, positions, date);
+  }
+
+  willEnter() {
+    return {
+      opacity: 0,
+    };
+  }
+
+  willLeave() {
+    return {
+      opacity: spring(0, springConfig),
+    };
   }
 
   render() {
@@ -134,20 +166,8 @@ class SMBGDateLineAnimated extends PureComponent {
       data,
       date,
       focusedDay,
-      focusLine,
-      onSelectDate,
       nonInteractive,
-      tooltipLeftThreshold,
-      unfocusLine,
-      xScale,
-      yScale,
     } = this.props;
-
-    const positions = _.map(data, (smbg) => ({
-      tooltipLeft: smbg.msPer24 > tooltipLeftThreshold,
-      left: xScale(this.xPosition(smbg.msPer24)),
-      top: yScale(smbg.value),
-    }));
 
     const classes = cx({
       [styles.smbgPath]: true,
@@ -174,11 +194,9 @@ class SMBGDateLineAnimated extends PureComponent {
               <path
                 d={line()(mapObject(_.pluck(interpolated, 'style'), ({ x, y }) => [x, y]))}
                 className={classes}
-                onMouseOver={() => { focusLine(data[0], positions[0], data, positions, date); }}
-                onMouseOut={() => { unfocusLine(); }}
-                onClick={() => {
-                  onSelectDate(date);
-                }}
+                onMouseOver={this.handleMouseOver}
+                onMouseOut={this.handleMouseOut}
+                onClick={this.handleClick}
                 pointerEvents={nonInteractive ? 'none' : 'stroke'}
                 strokeOpacity={_.get(interpolated[0], ['style', 'opacity'])}
               />
@@ -190,4 +208,18 @@ class SMBGDateLineAnimated extends PureComponent {
   }
 }
 
-export default SMBGDateLineAnimated;
+export function mapStateToProps(state) {
+  const { blip: { currentPatientInViewId } } = state;
+  return {
+    userId: currentPatientInViewId,
+  };
+}
+
+export function mapDispatchToProps(dispatch) {
+  return bindActionCreators({
+    focusLine: focusTrendsSmbg,
+    unfocusLine: unfocusTrendsSmbg,
+  }, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SMBGDateLineAnimated);
