@@ -18,7 +18,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { CBGSliceSegment } from '../../../../src/components/trends/cbg/CBGSliceSegment';
+import {
+  CBGSliceSegment, mapDispatchToProps, mapStateToProps,
+} from '../../../../src/components/trends/cbg/CBGSliceSegment';
 
 describe('CBGSliceSegment', () => {
   let wrapper;
@@ -108,6 +110,26 @@ describe('CBGSliceSegment', () => {
           expect(props.unfocusSlice.callCount).to.equal(0);
         });
       });
+    });
+  });
+
+  describe('mapStateToProps', () => {
+    const state = {
+      blip: { currentPatientInViewId: 'a1b2c3' },
+    };
+
+    it('should map blip.currentPatientInViewId to `userId`', () => {
+      expect(mapStateToProps(state).userId).to.equal(state.blip.currentPatientInViewId);
+    });
+  });
+
+  describe('mapDispatchToProps', () => {
+    it('should return an object with a `focusSlice` key', () => {
+      expect(mapDispatchToProps(sinon.stub())).to.have.property('focusSlice');
+    });
+
+    it('should return an object with a `unfocusSlice` key', () => {
+      expect(mapDispatchToProps(sinon.stub())).to.have.property('unfocusSlice');
     });
   });
 });
