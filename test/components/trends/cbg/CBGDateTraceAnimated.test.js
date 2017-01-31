@@ -29,19 +29,19 @@ const {
 import bgBounds from '../../../helpers/bgBounds';
 import SVGContainer from '../../../helpers/SVGContainer';
 
-import CBGDateTraceAnimated from '../../../../src/components/trends/cbg/CBGDateTraceAnimated';
+import { CBGDateTraceAnimated } from '../../../../src/components/trends/cbg/CBGDateTraceAnimated';
 
 describe('CBGDateTraceAnimated', () => {
   const props = {
     bgBounds,
     data: [{
       id: 'a1b2c3',
-      localDate: '2017-01-01',
+      localDate: '2016-12-25',
       msPer24: 0,
       value: 100,
     }, {
       id: 'd4e5f6',
-      localDate: '2017-01-05',
+      localDate: '2016-12-25',
       msPer24: 43200000,
       value: 200,
     }],
@@ -49,6 +49,7 @@ describe('CBGDateTraceAnimated', () => {
     focusDateTrace: sinon.spy(),
     onSelectDate: sinon.spy(),
     unfocusDateTrace: sinon.spy(),
+    userId: 'z1y2x3',
     xScale,
     yScale,
   };
@@ -111,8 +112,9 @@ describe('CBGDateTraceAnimated', () => {
           expect(props.focusDateTrace.callCount).to.equal(0);
           circle.simulate('mouseover');
           expect(props.focusDateTrace.callCount).to.equal(1);
-          expect(props.focusDateTrace.args[0][0]).to.exist;
+          expect(props.focusDateTrace.args[0][0]).to.equal(props.userId);
           expect(props.focusDateTrace.args[0][1]).to.exist;
+          expect(props.focusDateTrace.args[0][2]).to.exist;
         });
       });
 

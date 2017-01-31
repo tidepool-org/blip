@@ -66,7 +66,6 @@ export class CBGSliceSegment extends PureComponent {
   }
 
   handleMouseOut(e) {
-    console.log(e);
     // we don't want to unfocus the slice if the user just rolled over a cbg inside it
     if (e.relatedTarget && e.relatedTarget.id.search('cbgCircle') !== -1) {
       return;

@@ -30,11 +30,9 @@ const CBGDateTracesAnimationContainer = (props) => {
           bgBounds={bgBounds}
           data={data[localDate]}
           date={localDate}
-          focusDateTrace={props.focusDateTrace}
           key={localDate}
           onSelectDate={props.onSelectDate}
           topMargin={topMargin}
-          unfocusDateTrace={props.unfocusDateTrace}
           xScale={xScale}
           yScale={yScale}
         />
@@ -52,10 +50,8 @@ CBGDateTracesAnimationContainer.propTypes = {
   }).isRequired,
   data: PropTypes.object,
   dates: PropTypes.arrayOf(PropTypes.string),
-  focusDateTrace: PropTypes.func.isRequired,
   onSelectDate: PropTypes.func.isRequired,
   topMargin: PropTypes.number.isRequired,
-  unfocusDateTrace: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
 };

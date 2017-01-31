@@ -164,10 +164,8 @@ export class TrendsSVGContainer extends PureComponent {
           bgBounds={this.props.bgBounds}
           data={focusedSegmentDataGroupedByDate}
           dates={_.keys(focusedSegmentDataGroupedByDate) || []}
-          focusDateTrace={this.props.focusDateTrace}
           onSelectDate={this.props.onSelectDate}
           topMargin={this.props.margins.top}
-          unfocusDateTrace={this.props.unfocusDateTrace}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
@@ -390,7 +388,6 @@ TrendsSVGContainer.propTypes = {
     }),
   }),
   focusedSmbgRangeAvgKey: PropTypes.string,
-  focusDateTrace: PropTypes.func.isRequired,
   focusRange: PropTypes.func.isRequired,
   focusSmbg: PropTypes.func.isRequired,
   margins: PropTypes.shape({
@@ -410,7 +407,6 @@ TrendsSVGContainer.propTypes = {
   }).isRequired,
   smbgRangeOverlay: PropTypes.bool.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
-  unfocusDateTrace: PropTypes.func.isRequired,
   unfocusRange: PropTypes.func.isRequired,
   unfocusSmbg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,

@@ -162,11 +162,9 @@ export class TrendsContainer extends PureComponent {
       touched: PropTypes.bool.isRequired,
     }).isRequired,
     // actions
-    focusTrendsCbgDateTrace: PropTypes.func.isRequired,
     focusTrendsSmbgRangeAvg: PropTypes.func.isRequired,
     focusTrendsSmbg: PropTypes.func.isRequired,
     markTrendsViewed: PropTypes.func.isRequired,
-    unfocusTrendsCbgDateTrace: PropTypes.func.isRequired,
     unfocusTrendsSmbgRangeAvg: PropTypes.func.isRequired,
     unfocusTrendsSmbg: PropTypes.func.isRequired,
   };
@@ -408,9 +406,6 @@ export function mapStateToProps(state, ownProps) {
 
 export function mapDispatchToProps(dispatch, ownProps) {
   return bindActionCreators({
-    focusTrendsCbgDateTrace: _.partial(
-      actions.focusTrendsCbgDateTrace, ownProps.currentPatientInViewId
-    ),
     focusTrendsSmbgRangeAvg: _.partial(
       actions.focusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
     ),
@@ -419,9 +414,6 @@ export function mapDispatchToProps(dispatch, ownProps) {
     ),
     markTrendsViewed: _.partial(
       actions.markTrendsViewed, ownProps.currentPatientInViewId
-    ),
-    unfocusTrendsCbgDateTrace: _.partial(
-      actions.unfocusTrendsCbgDateTrace, ownProps.currentPatientInViewId
     ),
     unfocusTrendsSmbgRangeAvg: _.partial(
       actions.unfocusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
