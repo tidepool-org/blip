@@ -33,11 +33,11 @@ module.exports = function(pool, opts) {
 
   var defaults = {
     classes: {
-      'very-low': {boundary: 60},
-      low: {boundary: 80},
-      target: {boundary: 180},
-      high: {boundary: 200},
-      'very-high': {boundary: 300}
+      'very-low': { boundary: 55 },
+      low: { boundary: 70 },
+      target: { boundary: 180 },
+      high: { boundary: 300 },
+      'very-high': { boundary: 600 },
     },
     twoWeekOptions: {
       exclusionThreshold: 7
