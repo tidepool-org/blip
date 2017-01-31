@@ -17,13 +17,15 @@
 
 var _ = require('lodash');
 var React = require('react');
+var cx = require('classnames');
 
-var siteChangeImg = require('./sitechange.png');
+var constants = require('../../logic/constants');
 
 var Change = React.createClass({
   propTypes: {
     daysSince: React.PropTypes.number.isRequired,
-    count: React.PropTypes.number
+    count: React.PropTypes.number,
+    type: React.PropTypes.string.isRequired,
   },
   render: function() {
     var daysText = (this.props.daysSince === 1) ? 'day' : 'days';
@@ -35,8 +37,15 @@ var Change = React.createClass({
       </div>;
     }
 
+    var changeClass = cx({
+      'Change': true,
+      'Change--cannula': (this.props.type === constants.SITE_CHANGE_CANNULA),
+      'Change--tubing': (this.props.type === constants.SITE_CHANGE_TUBING),
+      'Change--reservoir': (this.props.type === constants.SITE_CHANGE_RESERVOIR),
+    });
+
     return (
-      <div className='Change'>
+      <div className={changeClass}>
         <div className='Change-daysSince-text'>
           <span className='Change-daysSince-count'>{this.props.daysSince}</span>
           {daysText}

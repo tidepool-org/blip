@@ -31,6 +31,7 @@ var debug = bows('Basics Chart');
 var basicsState = require('./logic/state');
 var basicsActions = require('./logic/actions');
 var dataMungerMkr = require('./logic/datamunger');
+var constants = require('./logic/constants');
 
 var Section = require('./components/DashboardSection');
 var togglableState = require('./TogglableState');
@@ -42,17 +43,23 @@ var BasicsChart = React.createClass({
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     onSelectDay: React.PropTypes.func.isRequired,
+    patient: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
+    updateBasicsSettings: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
   },
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
-    if (_.isEmpty(basicsData.data.reservoirChange.data)) {
-      var siteChangeSection = _.find(basicsData.sections, function(section) {
-        return section.type === 'reservoirChange';
+    if (basicsData.sections.siteChanges.type !== constants.SECTION_TYPE_UNDECLARED) {
+      // check that site change section has data within range of current view
+      var hasSiteChangeData = _.some(basicsData.data[basicsData.sections.siteChanges.type].data, function(datum) {
+        return (datum.time >= basicsData.dateRange[0]);
       });
-      siteChangeSection.active = false;
+
+      if (!hasSiteChangeData) {
+        basicsData.sections.siteChanges.active = false;
+      }
     }
     if (_.isEmpty(basicsData.data.calibration.data)) {
       var fingerstickSection = _.find(basicsData.sections, function(section) {
@@ -89,7 +96,10 @@ var BasicsChart = React.createClass({
       basicsData = _.assign({}, basicsData, _.cloneDeep(basicsState));
       var dataMunger = dataMungerMkr(this.props.bgClasses);
       dataMunger.reduceByDay(basicsData);
-      basicsData.data.reservoirChange.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData);
+
+      var latestPump = dataMunger.getLatestPumpUploaded(this.props.patientData);
+      dataMunger.processInfusionSiteHistory(basicsData, latestPump, this.props.patient);
+
       basicsData.data.bgDistribution = dataMunger.bgDistribution(basicsData);
       var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData);
       basicsData.data.basalBolusRatio = basalBolusStats.basalBolusRatio;
@@ -149,6 +159,8 @@ var BasicsChart = React.createClass({
           togglable={section.togglable}
           section={section}
           title={section.title}
+          settingsTogglable={section.settingsTogglable}
+          updateBasicsSettings={self.props.updateBasicsSettings}
           timezone={tz}
           trackMetric={self.props.trackMetric} />
       );

@@ -36,8 +36,10 @@ var ADay = React.createClass({
     }
     return false;
   },
-  isAReservoirChange: function() {
-    return (this.props.type === 'reservoirChange');
+  isASiteChangeEvent: function() {
+    return (this.props.type === constants.SITE_CHANGE_CANNULA) ||
+      (this.props.type === constants.SITE_CHANGE_TUBING) ||
+      (this.props.type === constants.SITE_CHANGE_RESERVOIR);
   },
   isASiteChangeDay: function() {
     if (!this.props.data || !this.props.data.infusionSiteHistory) {
@@ -52,7 +54,7 @@ var ADay = React.createClass({
       return;
     }
     // We do not want a hover effect on infusion site days that were not site changes
-    if (this.isAReservoirChange() && !this.isASiteChangeDay()) {
+    if (this.isASiteChangeEvent() && !this.isASiteChangeDay()) {
       return;
     }
     this.props.onHover(this.props.date);
@@ -64,17 +66,15 @@ var ADay = React.createClass({
     this.props.onHover(null);
   },
   render: function() {
-    var chart = this.props.chart({
-      data: this.props.data,
-      date: this.props.date,
-      subtotalType: this.props.subtotalType
-    });
     var date = moment(this.props.date);
+
+    var isDisabled = (this.props.type === constants.SECTION_TYPE_UNDECLARED);
 
     var containerClass = cx('Calendar-day--' + this.props.type, {
       'Calendar-day': !this.props.future,
       'Calendar-day-future': this.props.future,
-      'Calendar-day-most-recent': this.props.mostRecent
+      'Calendar-day-most-recent': this.props.mostRecent,
+      'Calendar-day--disabled': isDisabled,
     });
 
     var drawMonthLabel = (date.date() === 1 || this.props.isFirst);
@@ -85,10 +85,20 @@ var ADay = React.createClass({
         <span className='Calendar-monthlabel'>{date.format(this.props.monthAbbrevMask)}</span>
       );
     }
-    
+
     var mask = (date.date() === 1 || this.props.isFirst) ?
       this.props.firstDayAbbrevMask :
       this.props.dayAbbrevMask;
+
+    var chart;
+    if (!isDisabled) {
+      chart = this.props.chart({
+        data: this.props.data,
+        date: this.props.date,
+        subtotalType: this.props.subtotalType
+      });
+    }
+
     return (
       <div className={containerClass} onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
         <p className='Calendar-weekday'>

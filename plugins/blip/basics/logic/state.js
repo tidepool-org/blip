@@ -21,6 +21,7 @@ var React = require('react');
 var BasicContainer = require('../components/BasicContainer');
 var CalendarContainer = require('../components/CalendarContainer');
 var SummaryGroup = React.createFactory(require('../components/misc/SummaryGroup'));
+var SiteChangeSelector = React.createFactory(require('../components/sitechange/Selector'));
 var DailyDoseTitle = React.createFactory(require('../components/misc/DailyDoseTitle'));
 
 var BasalBolusRatio = React.createFactory(require('../components/chart/BasalBolusRatio'));
@@ -32,7 +33,7 @@ var DailyCarbs = React.createFactory(require('../components/chart/DailyCarbs'));
 var InfusionHoverDisplay = React.createFactory(require('../components/day/hover/InfusionHoverDisplay'));
 
 var basicsActions = require('./actions');
-
+var constants = require('./constants');
 var togglableState = require('../TogglableState');
 
 var basicsState = {
@@ -58,6 +59,7 @@ var basicsState = {
           ]
         ]
       },
+      settingsTogglable: togglableState.off,
       title: 'Basals',
       type: 'basal'
     },
@@ -70,7 +72,8 @@ var basicsState = {
       index: 3,
       noData: false,
       title: 'Insulin ratio',
-      togglable: togglableState.off
+      togglable: togglableState.off,
+      settingsTogglable: togglableState.off,
     },
     bgDistribution: {
       active: true,
@@ -80,7 +83,8 @@ var basicsState = {
       id: 'bgDistribution',
       index: 1,
       title: 'BG distribution',
-      togglable: togglableState.off
+      togglable: togglableState.off,
+      settingsTogglable: togglableState.off,
     },
     boluses: {
       active: true,
@@ -107,6 +111,7 @@ var basicsState = {
           ]
         ]
       },
+      settingsTogglable: togglableState.off,
       title: 'Bolusing',
       type: 'bolus'
     },
@@ -134,6 +139,7 @@ var basicsState = {
           ]
         ]
       },
+      settingsTogglable: togglableState.off,
       title: 'BG readings',
       type: 'fingerstick'
     },
@@ -148,8 +154,19 @@ var basicsState = {
       index: 3,
       noDataMessage: 'Infusion site changes are not yet available for all pumps. Coming soon!',
       togglable: togglableState.off,
+      selector: SiteChangeSelector,
+      selectorOptions: {
+        primary: { key: constants.SITE_CHANGE_RESERVOIR, label: 'Reservoir Changes' },
+        rows: [
+          [
+            { key: constants.SITE_CHANGE_CANNULA, label: 'Cannula Fills' },
+            { key: constants.SITE_CHANGE_TUBING, label: 'Tube Primes' },
+          ]
+        ]
+      },
+      settingsTogglable: togglableState.closed,
       title: 'Infusion site changes',
-      type: 'reservoirChange'
+      type: constants.SITE_CHANGE_RESERVOIR
     },
     totalDailyDose: {
       active: true,
@@ -160,7 +177,8 @@ var basicsState = {
       index: 4,
       noData: false,
       title: DailyDoseTitle,
-      togglable: togglableState.closed
+      togglable: togglableState.closed,
+      settingsTogglable: togglableState.off,
     },
     averageDailyCarbs: {
       active: true,
@@ -171,7 +189,8 @@ var basicsState = {
       index: 2,
       noData: false,
       title: '',
-      togglable: togglableState.off
+      togglable: togglableState.off,
+      settingsTogglable: togglableState.off,
     }
   }
 };

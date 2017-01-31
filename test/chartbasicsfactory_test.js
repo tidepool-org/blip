@@ -38,9 +38,11 @@ describe('BasicsChart', function() {
       bgUnits: 'mg/dL',
       bgClasses: td.bgClasses,
       onSelectDay: sinon.stub(),
+      patient: {},
       patientData: td,
       timePrefs: {},
       updateBasicsData: sinon.stub(),
+      updateBasicsSettings: sinon.stub(),
       trackMetric: sinon.stub()
     };
     var elem = React.createElement(BasicsChart, props);
@@ -58,7 +60,7 @@ describe('BasicsChart', function() {
       TestUtils.renderIntoDocument(elem);
     }
     catch(e) {
-      expect(console.error.callCount).to.equal(7);
+      expect(console.error.callCount).to.equal(9);
     }
   });
 

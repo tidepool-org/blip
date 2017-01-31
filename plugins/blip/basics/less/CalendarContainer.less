@@ -1,4 +1,4 @@
-@calendar-label-color: #BCBEC0;
+@calendar-label-color: @light-gray-color;
 
 .corner-dates {
 	position: absolute;
@@ -90,7 +90,7 @@
 			}
 		}
 
-		.Calendar-day--reservoirChange {
+		.Calendar-day--reservoirChange, .Calendar-day--tubingPrime, .Calendar-day--cannulaPrime {
 			&.Calendar-day--HOVER {
 				background-color: @infusion-day-color;
 			}
@@ -101,7 +101,7 @@
 				.corner-dates();
 				font-weight: bold;
 			}
-			&.Calendar-day--reservoirChange {
+			&.Calendar-day--reservoirChange, &.Calendar-day--tubingPrime, &.Calendar-day--cannulaPrime,  {
 				color: @text;
 			}
 			.Calendar-day-text {
@@ -161,6 +161,11 @@
 					align-items: flex-start;
 				}
 			}
+		}
+
+		.Calendar-day--disabled {
+			background-color: @white-color;
+			border: 1px solid @light-gray-color;
 		}
 	}
 }

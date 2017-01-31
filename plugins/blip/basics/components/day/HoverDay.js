@@ -18,7 +18,8 @@ var HoverDay = React.createClass({
     subtotalType: React.PropTypes.string,
     timezone: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired,
-    title: React.PropTypes.string.isRequired
+    title: React.PropTypes.string.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
   },
   getDefaultProps: function() {
     return {
@@ -55,7 +56,7 @@ var HoverDay = React.createClass({
     );
 
     if (this.props.hoverDisplay) {
-      display = this.props.hoverDisplay({data: this.props.data, date: this.props.date});
+      display = this.props.hoverDisplay({data: this.props.data, date: this.props.date, trackMetric: this.props.trackMetric});
     }
 
     return (

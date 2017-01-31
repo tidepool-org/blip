@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
 
@@ -22,6 +24,9 @@ var sundial = require('sundial');
 
 var classifiersMkr = require('./classifiers');
 var constants = require('./constants');
+
+var basicsActions = require('./actions');
+var togglableState = require('../TogglableState');
 
 module.exports = function(bgClasses) {
 
@@ -174,10 +179,72 @@ module.exports = function(bgClasses) {
         averageDailyCarbs: sumCarbs/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
       };
     },
-    infusionSiteHistory: function(basicsData) {
-      var infusionSitesPerDay = basicsData.data.reservoirChange.dataByDate;
+    getLatestPumpUploaded: function(patientData) {
+      var latestPump = _.last(patientData.grouped.pumpSettings);
+
+      if (latestPump && latestPump.hasOwnProperty('source')) {
+        return latestPump.source;
+      }
+
+      return null;
+    },
+    processInfusionSiteHistory: function(basicsData, latestPump, patient) {
+      if (!latestPump) {
+        return null;
+      }
+
+      var {
+        permissions,
+        profile: {
+          fullName,
+          patient: {
+            settings
+          },
+        },
+      } = patient;
+
+      var hasUploadPermission = permissions.hasOwnProperty('admin') || permissions.hasOwnProperty('root');
+
+      basicsData.sections.siteChanges.selectorMetaData = {
+        latestPump: latestPump,
+        canUpdateSettings: hasUploadPermission,
+        patientName: fullName,
+      };
+
+      if (latestPump === constants.ANIMAS || latestPump === constants.MEDTRONIC || latestPump === constants.TANDEM) {
+        basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
+        basicsData.data.tubingPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
+
+        if (settings && settings.hasOwnProperty('siteChangeSource') && ([constants.SITE_CHANGE_CANNULA, constants.SITE_CHANGE_TUBING].indexOf(settings.siteChangeSource) >= 0)) {
+          basicsData.sections.siteChanges.type = settings.siteChangeSource;
+          basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, settings.siteChangeSource);
+        }
+        else {
+          basicsData.sections.siteChanges.type = constants.SECTION_TYPE_UNDECLARED;
+          basicsData.sections.siteChanges.settingsTogglable = togglableState.open;
+          basicsData.sections.siteChanges.hasHover = false;
+        }
+      }
+      else if (latestPump === constants.INSULET) {
+        basicsData.data.reservoirChange.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_RESERVOIR);
+
+        basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;
+        basicsData.sections.siteChanges.selector = null;
+        basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
+      }
+      // CareLink (Medtronic) or other unsupported pump
+      else {
+        basicsData.data.reservoirChange = {};
+        basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;
+        basicsData.sections.siteChanges.selector = null;
+        basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
+      }
+    },
+    infusionSiteHistory: function(basicsData, type) {
+      var infusionSitesPerDay = basicsData.data[type].dataByDate;
       var allDays = basicsData.days;
       var infusionSiteHistory = {};
+      var hasChangeHistory = false;
       // daysSince does *not* start at zero because we have to look back to the
       // most recent infusion site change prior to the basics-restricted time domain
       var priorSiteChange = _.findLast(_.keys(infusionSitesPerDay), function(date) {
@@ -198,12 +265,14 @@ module.exports = function(bgClasses) {
               daysSince: daysSince
             };
             daysSince = 0;
+            hasChangeHistory = true;
           }
           else {
             infusionSiteHistory[day.date] = {type: constants.NO_SITE_CHANGE};
           }
         }
       });
+      infusionSiteHistory.hasChangeHistory = hasChangeHistory;
       return infusionSiteHistory;
     },
     _buildCrossfilterUtils: function(dataObj, type) {
@@ -348,7 +417,7 @@ module.exports = function(bgClasses) {
 
       for (var type in basicsData.data) {
         var typeObj = basicsData.data[type];
-        if (_.includes(['basal', 'bolus', 'reservoirChange'], type)) {
+        if (_.includes(['basal', 'bolus', constants.SITE_CHANGE_RESERVOIR, constants.SITE_CHANGE_TUBING, constants.SITE_CHANGE_CANNULA], type)) {
           typeObj.cf = crossfilter(typeObj.data);
           this._buildCrossfilterUtils(typeObj, type);
         }
