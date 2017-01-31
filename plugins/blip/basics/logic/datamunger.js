@@ -215,7 +215,7 @@ module.exports = function(bgClasses) {
         basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
         basicsData.data.tubingPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
 
-        if (settings && settings.hasOwnProperty('siteChangeSource') && settings.siteChangeSource !== constants.SITE_CHANGE_RESERVOIR) {
+        if (settings && settings.hasOwnProperty('siteChangeSource') && ([constants.SITE_CHANGE_CANNULA, constants.SITE_CHANGE_TUBING].indexOf(settings.siteChangeSource) >= 0)) {
           basicsData.sections.siteChanges.type = settings.siteChangeSource;
           basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, settings.siteChangeSource);
         }

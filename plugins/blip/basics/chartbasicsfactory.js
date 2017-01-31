@@ -51,8 +51,15 @@ var BasicsChart = React.createClass({
     trackMetric: React.PropTypes.func.isRequired,
   },
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
-    if (basicsData.sections.siteChanges.type !== constants.SECTION_TYPE_UNDECLARED && _.isEmpty(basicsData.data[basicsData.sections.siteChanges.type].data)) {
-      basicsData.sections.siteChanges.active = false;
+    if (basicsData.sections.siteChanges.type !== constants.SECTION_TYPE_UNDECLARED) {
+      // check that site change section has data within range of current view
+      var hasSiteChangeData = _.some(basicsData.data[basicsData.sections.siteChanges.type].data, function(datum) {
+        return (datum.time >= basicsData.dateRange[0]);
+      });
+
+      if (!hasSiteChangeData) {
+        basicsData.sections.siteChanges.active = false;
+      }
     }
     if (_.isEmpty(basicsData.data.calibration.data)) {
       var fingerstickSection = _.find(basicsData.sections, function(section) {
