@@ -1,0 +1,233 @@
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+// -------------------------
+//    General Purpose
+//    (pages & sections)
+// -------------------------
+
+// For gaps between elements
+@smallestgap: 10px;
+@smallgap: 14px;
+@largegap: 30px;
+
+.print-view-page {
+  page-break-after: always;
+}
+
+.print-view-section {
+  overflow: hidden;
+  border-bottom: thin solid #979797;
+  padding: 0 0 @largegap;
+  margin: 0 0 @smallgap;
+}
+
+.print-view-section-last {
+  border-bottom: none;
+}
+
+.print-view-header {
+  margin: 0 0 @smallgap;
+  background-color: #D8D8D8;
+}
+
+.print-view-header-title {
+  font-size: 20px;
+  font-weight: normal;
+  color: #000000;
+  display: inline-block;
+  padding-right: @smallgap;
+}
+
+.print-view-header-name {
+  font-size: 24px;
+  font-weight: normal;
+  color: #000000;  
+  display: inline-block;
+  padding: 0 @smallgap;
+}
+
+.print-view-header-logos {
+  margin: @smallestgap @smallgap 0 0;
+  vertical-align: middle;
+  display: inline-block;
+  float: right; 
+}
+
+.print-view-logo {
+  display: inline-block;
+}
+
+.print-view-logo:first-child {
+  padding-right: @smallgap;
+}
+
+.print-view-section-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000000;
+  margin: 0 0 16px;
+}
+
+.print-view-table {
+  margin-bottom: @smallgap;
+  border-collapse: collapse;
+  border: 1px solid #D8D8D8;
+}
+
+.print-view-table th, td {
+  text-align: right;
+}
+
+.print-view-table th {
+  padding: 14px;
+  font-weight: normal;
+  font-size: 16px;
+}
+
+.print-view-table td {
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.print-view-table tbody {
+  background-color: #D8D8D8;
+}
+
+.print-view-table tbody tr {
+  border-bottom: 1px solid #FFFFFF;
+}
+
+.print-view-table tbody tr:last-child {
+  border-bottom: 1px solid #D8D8D8;
+}
+
+// -------------------------
+//    Basal Rates
+// -------------------------
+
+.print-view-basal-rates-schedules {
+  margin: 0 @smallgap;
+}
+
+.print-view-basal-rates-schedule {
+  display: inline-block;
+  margin-right: @largegap;
+  margin-bottom: @largegap;
+}
+
+.print-view-basal-rates-schedule:last-child {
+  margin-bottom: 0;
+}
+
+.print-view-basal-rates-schedule-name {
+  font-size: 16px;
+  font-weight: normal;
+  color: #000000;
+  margin: 0 @smallestgap @smallestgap 0;
+  display: inline-block;
+}
+
+.print-view-basal-rates-schedule-date {
+  font-size: 14px;
+  font-weight: normal;
+  color: #000000;
+  margin-right: @smallestgap;
+  display: inline-block;
+}
+
+.print-view-basal-rates-schedule-diagram {
+  display: inline-block;
+  margin-bottom: 66px;
+}
+
+.print-view-basal-rates-schedule-diagram-section {
+  display: inline-block;
+}
+
+.print-view-basal-rates-schedule-diagram-divider {
+  width: 2px;
+  background-color: #858585;
+  vertical-align: bottom;
+  display: inline-block;
+  position: relative;
+}
+
+.print-view-basal-rates-schedule-diagram-time {
+  position: absolute;
+  transform: rotate(90deg);
+  transform-origin: left top 0;
+  display: inline-block;
+  margin-left: 16px;
+  font-size: 14px;
+  font-weight: normal;
+  color: #000000;
+}
+
+.print-view-basal-rates-schedule-diagram-rate {
+  background-color: #D8D8D8;
+  text-align: center;
+  vertical-align: bottom;
+  display: inline-block;
+}
+
+// ------------------------------
+//    Bolus Calculator Settings
+// ------------------------------
+
+.print-view-calc-settings-content {
+  margin: 0 @smallgap;
+}
+
+.print-view-calc-settings-block {
+  margin: 0 @largegap @largegap 0;
+  display: inline-block;
+}
+
+.print-view-calc-settings-table-title {
+  font-size: 16px;
+  color: #000000;
+  margin: 0 0 @smallestgap;
+}
+
+.print-view-calc-settings-table {
+  margin-bottom: 0;
+}
+
+// ------------------------------
+//    Week View
+// ------------------------------
+
+.print-view-week-chart .axis path {
+  display: none;
+}
+
+.print-view-week-chart .axis line {
+  fill: none;
+  stroke: #000000;
+  stroke-width: 1px;
+}
+
+.print-view-week-stats .axis path {
+  display: none;
+}
+
+.print-view-week-stats .axis line {
+  fill: none;
+  stroke: #000000;
+  stroke-width: 1px;
+}
