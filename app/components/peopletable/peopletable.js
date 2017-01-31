@@ -56,14 +56,14 @@ class PeopleTable extends React.Component {
       showNames: false,
       dataList: this.buildDataList(),
       colSortDirs: {
-        fullNameOrderable: SortTypes.DESC,
+        fullNameOrderable: SortTypes.ASC,
       },
     };
   }
 
   componentDidMount() {
     //setup default sorting but don't track via metrics
-    this.handleSortChange('fullNameOrderable', SortTypes.DESC, false);
+    this.handleSortChange('fullNameOrderable', SortTypes.ASC, false);
   }
 
   buildDataList() {
