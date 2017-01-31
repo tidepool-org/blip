@@ -22,6 +22,7 @@ import { range } from 'd3-array';
 import { THIRTY_MINS, TWENTY_FOUR_HRS } from '../../utils/datetime';
 import { findBinForTimeOfDay, calculateCbgStatsForBin } from '../../utils/trends/data';
 
+import CBGMedianAnimated from '../../components/trends/cbg/CBGMedianAnimated';
 import CBGSliceAnimated from '../../components/trends/cbg/CBGSliceAnimated';
 
 export default class CBGSlicesContainer extends PureComponent {
@@ -46,10 +47,8 @@ export default class CBGSlicesContainer extends PureComponent {
       cbgMedianEnabled: PropTypes.bool.isRequired,
     }).isRequired,
     focusedSliceKey: PropTypes.string,
-    focusSlice: PropTypes.func.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     topMargin: PropTypes.number.isRequired,
-    unfocusSlice: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
@@ -99,19 +98,28 @@ export default class CBGSlicesContainer extends PureComponent {
     return (
       <g id="cbgSlices">
         {_.map(mungedData, (bin) => (
-          <CBGSliceAnimated
-            bgBounds={this.props.bgBounds}
-            datum={bin}
-            displayFlags={this.props.displayFlags}
-            focusSlice={this.props.focusSlice}
-            isFocused={bin.id === focusedSliceKey}
-            key={bin.id}
-            tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-            topMargin={this.props.topMargin}
-            unfocusSlice={this.props.unfocusSlice}
-            xScale={xScale}
-            yScale={yScale}
-          />
+          <g id={`cbgBin-${bin.id}`} key={bin.id}>
+            <CBGSliceAnimated
+              bgBounds={this.props.bgBounds}
+              datum={bin}
+              displayFlags={this.props.displayFlags}
+              focusSlice={this.props.focusSlice}
+              showingCbgDateTraces={Boolean(focusedSliceKey)}
+              tooltipLeftThreshold={this.props.tooltipLeftThreshold}
+              topMargin={this.props.topMargin}
+              unfocusSlice={this.props.unfocusSlice}
+              xScale={xScale}
+              yScale={yScale}
+            />
+            <CBGMedianAnimated
+              bgBounds={this.props.bgBounds}
+              datum={bin}
+              displayingMedian={this.props.displayFlags.cbgMedianEnabled}
+              showingCbgDateTraces={Boolean(focusedSliceKey)}
+              xScale={xScale}
+              yScale={yScale}
+            />
+          </g>
         ))}
       </g>
     );

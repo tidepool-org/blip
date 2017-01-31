@@ -151,10 +151,8 @@ export class TrendsSVGContainer extends PureComponent {
           data={this.props.cbgData}
           displayFlags={this.props.displayFlags}
           focusedSliceKey={_.get(this.props.focusedSlice, ['data', 'id'], null)}
-          focusSlice={this.props.focusSlice}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
           topMargin={this.props.margins.top}
-          unfocusSlice={this.props.unfocusSlice}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
@@ -394,7 +392,6 @@ TrendsSVGContainer.propTypes = {
   focusedSmbgRangeAvgKey: PropTypes.string,
   focusDateTrace: PropTypes.func.isRequired,
   focusRange: PropTypes.func.isRequired,
-  focusSlice: PropTypes.func.isRequired,
   focusSmbg: PropTypes.func.isRequired,
   margins: PropTypes.shape({
     top: PropTypes.number.isRequired,
@@ -415,7 +412,6 @@ TrendsSVGContainer.propTypes = {
   tooltipLeftThreshold: PropTypes.number.isRequired,
   unfocusDateTrace: PropTypes.func.isRequired,
   unfocusRange: PropTypes.func.isRequired,
-  unfocusSlice: PropTypes.func.isRequired,
   unfocusSmbg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,

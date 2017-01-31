@@ -163,11 +163,9 @@ export class TrendsContainer extends PureComponent {
     }).isRequired,
     // actions
     focusTrendsCbgDateTrace: PropTypes.func.isRequired,
-    focusTrendsCbgSlice: PropTypes.func.isRequired,
     focusTrendsSmbgRangeAvg: PropTypes.func.isRequired,
     focusTrendsSmbg: PropTypes.func.isRequired,
     markTrendsViewed: PropTypes.func.isRequired,
-    unfocusTrendsCbgSlice: PropTypes.func.isRequired,
     unfocusTrendsCbgDateTrace: PropTypes.func.isRequired,
     unfocusTrendsSmbgRangeAvg: PropTypes.func.isRequired,
     unfocusTrendsSmbg: PropTypes.func.isRequired,
@@ -413,9 +411,6 @@ export function mapDispatchToProps(dispatch, ownProps) {
     focusTrendsCbgDateTrace: _.partial(
       actions.focusTrendsCbgDateTrace, ownProps.currentPatientInViewId
     ),
-    focusTrendsCbgSlice: _.partial(
-      actions.focusTrendsCbgSlice, ownProps.currentPatientInViewId
-    ),
     focusTrendsSmbgRangeAvg: _.partial(
       actions.focusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
     ),
@@ -427,9 +422,6 @@ export function mapDispatchToProps(dispatch, ownProps) {
     ),
     unfocusTrendsCbgDateTrace: _.partial(
       actions.unfocusTrendsCbgDateTrace, ownProps.currentPatientInViewId
-    ),
-    unfocusTrendsCbgSlice: _.partial(
-      actions.unfocusTrendsCbgSlice, ownProps.currentPatientInViewId
     ),
     unfocusTrendsSmbgRangeAvg: _.partial(
       actions.unfocusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
