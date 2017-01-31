@@ -19,39 +19,18 @@
   stroke: 2;
 }
 
-.thickStroke {
+.segment {
   stroke-width: 2;
-}
-
-.pointAll {
   pointer-events: all;
-}
-
-.median {
-  stroke: white;
-  composes: thickStroke;
-  pointer-events: none;
-}
-
-.medianTransparent {
-  fill: transparent;
-}
-
-.low {
-  composes: bgLow from '../../../styles/diabetes.css';
-}
-
-.target {
-  composes: bgTarget from '../../../styles/diabetes.css';
-}
-
-.high {
-  composes: bgHigh from '../../../styles/diabetes.css';
 }
 
 .rangeSegment {
   stroke: var(--trends--light);
-  composes: pointAll thickStroke;
+  fill: transparent;
+}
+
+.rangeSegmentFaded {
+  stroke: var(--trends--light--faded);
   fill: transparent;
 }
 
@@ -61,8 +40,12 @@
 
 .outerSegment {
   stroke: var(--trends--light);
-  composes: pointAll thickStroke;
   fill: var(--trends--light);
+}
+
+.outerSegmentFaded {
+  stroke: var(--trends--light--faded);
+  fill: var(--trends--light--faded);
 }
 
 .outerSegment:hover {
@@ -71,8 +54,12 @@
 
 .innerQuartilesSegment {
   stroke: var(--trends--dark);
-  composes: pointAll thickStroke;
   fill: var(--trends--dark);
+}
+
+.innerQuartilesSegmentFaded {
+  stroke: var(--trends--dark--faded);
+  fill: var(--trends--dark--faded);
 }
 
 .innerQuartilesSegment:hover {
