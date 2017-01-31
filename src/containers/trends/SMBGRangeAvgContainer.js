@@ -37,11 +37,9 @@ export default class SMBGRangeAvgContainer extends PureComponent {
       msPer24: PropTypes.number.isRequired,
       value: PropTypes.number.isRequired,
     })).isRequired,
-    focus: PropTypes.func.isRequired,
     smbgComponent: PropTypes.func.isRequired,
     someSmbgDataIsFocused: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
-    unfocus: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
@@ -88,10 +86,8 @@ export default class SMBGRangeAvgContainer extends PureComponent {
             bgBounds={this.props.bgBounds}
             datum={datum}
             key={datum.id}
-            focus={this.props.focus}
             someSmbgDataIsFocused={this.props.someSmbgDataIsFocused}
             tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-            unfocus={this.props.unfocus}
             xScale={this.props.xScale}
             yScale={this.props.yScale}
           />

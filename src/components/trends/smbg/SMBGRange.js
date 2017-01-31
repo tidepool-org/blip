@@ -19,43 +19,43 @@ import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { focusTrendsCbgSlice, unfocusTrendsCbgSlice } from '../../../redux/actions/trends';
+import { focusTrendsSmbgRangeAvg, unfocusTrendsSmbgRangeAvg } from '../../../redux/actions/trends';
 
-export class CBGSliceSegment extends PureComponent {
+export class SMBGRange extends PureComponent {
   static propTypes = {
     classes: PropTypes.string.isRequired,
     datum: PropTypes.shape({
       id: PropTypes.string.isRequired,
+      max: PropTypes.number,
+      mean: PropTypes.number,
+      min: PropTypes.number,
+      msX: PropTypes.number.isRequired,
+      msFrom: PropTypes.number.isRequired,
+      msTo: PropTypes.number.isRequired,
     }),
-    focusSlice: PropTypes.func.isRequired,
+    focusRange: PropTypes.func.isRequired,
     interpolated: PropTypes.shape({
       key: PropTypes.string.isRequired,
-      style: PropTypes.object.isRequired,
-    }),
+      style: PropTypes.shape({
+        height: PropTypes.number.isRequired,
+        opacity: PropTypes.number.isRequired,
+        width: PropTypes.number.isRequired,
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+      }).isRequired,
+    }).isRequired,
     positionData: PropTypes.shape({
       left: PropTypes.number.isRequired,
       tooltipLeft: PropTypes.bool.isRequired,
       yPositions: PropTypes.shape({
-        firstQuartile: PropTypes.number.isRequired,
         max: PropTypes.number.isRequired,
-        median: PropTypes.number.isRequired,
+        mean: PropTypes.number.isRequired,
         min: PropTypes.number.isRequired,
-        ninetiethQuantile: PropTypes.number.isRequired,
-        tenthQuantile: PropTypes.number.isRequired,
-        thirdQuartile: PropTypes.number.isRequired,
-        topMargin: PropTypes.number.isRequired,
       }).isRequired,
     }),
-    segment: PropTypes.shape({
-      height: PropTypes.string.isRequired,
-      heightKeys: PropTypes.arrayOf(PropTypes.string).isRequired,
-      y: PropTypes.string.isRequired,
-    }),
-    unfocusSlice: PropTypes.func.isRequired,
+    unfocusRange: PropTypes.func.isRequired,
     userId: PropTypes.string.isRequired,
-    width: PropTypes.number.isRequired,
-    x: PropTypes.number.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -64,41 +64,29 @@ export class CBGSliceSegment extends PureComponent {
     this.handleMouseOver = this.handleMouseOver.bind(this);
   }
 
-  handleMouseOut(e) {
-    // we don't want to unfocus the slice if the user just rolled over a cbg inside it
-    if (e.relatedTarget && e.relatedTarget.id.search('cbgCircle') !== -1) {
-      return;
-    }
-    this.props.unfocusSlice(this.props.userId);
+  handleMouseOut() {
+    const { unfocusRange, userId } = this.props;
+    unfocusRange(userId);
   }
 
   handleMouseOver() {
-    const {
-      datum, focusSlice, positionData, segment: { heightKeys: focusedKeys }, userId,
-    } = this.props;
-
-    focusSlice(
-      userId,
-      datum,
-      positionData,
-      focusedKeys,
-    );
+    const { datum, focusRange, positionData, userId } = this.props;
+    focusRange(userId, datum, positionData);
   }
 
   render() {
-    const { classes, datum, interpolated: { key, style }, segment, width, x } = this.props;
+    const { classes, interpolated: { key, style } } = this.props;
     return (
       <rect
         className={classes}
-        key={key}
-        id={`cbgSlice-${datum.id}-${key}`}
-        width={width}
-        height={style[segment.height]}
-        x={x}
-        y={style[segment.y]}
-        opacity={style.opacity}
+        id={`smbgRange-${key}`}
         onMouseOver={this.handleMouseOver}
         onMouseOut={this.handleMouseOut}
+        x={style.x}
+        y={style.y}
+        width={style.width}
+        height={style.height}
+        opacity={style.opacity}
       />
     );
   }
@@ -113,9 +101,9 @@ export function mapStateToProps(state) {
 
 export function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    focusSlice: focusTrendsCbgSlice,
-    unfocusSlice: unfocusTrendsCbgSlice,
+    focusRange: focusTrendsSmbgRangeAvg,
+    unfocusRange: unfocusTrendsSmbgRangeAvg,
   }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CBGSliceSegment);
+export default connect(mapStateToProps, mapDispatchToProps)(SMBGRange);

@@ -21,6 +21,8 @@ import { TransitionMotion, spring } from 'react-motion';
 import { springConfig } from '../../../utils/constants';
 import withDefaultYPosition from '../common/withDefaultYPosition';
 
+import SMBGRange from './SMBGRange';
+
 import styles from './SMBGRangeAnimated.css';
 
 export class SMBGRangeAnimated extends PureComponent {
@@ -45,10 +47,8 @@ export class SMBGRangeAnimated extends PureComponent {
       msTo: PropTypes.number.isRequired,
     }),
     defaultY: PropTypes.number.isRequired,
-    focus: PropTypes.func.isRequired,
     rectWidth: PropTypes.number.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
-    unfocus: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
@@ -85,21 +85,14 @@ export class SMBGRangeAnimated extends PureComponent {
   }
 
   render() {
-    const { datum, defaultY, focus, rectWidth, unfocus, xScale, yScale } = this.props;
+    const { datum, defaultY, rectWidth, xScale, yScale } = this.props;
+
     const xPos = xScale(datum.msX);
     const yPositions = {
       min: yScale(datum.min),
       mean: yScale(datum.mean),
       max: yScale(datum.max),
     };
-    const focusRange = () => {
-      focus(datum, {
-        left: xPos,
-        tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
-        yPositions,
-      });
-    };
-
     const rectLeftEdge = xPos - rectWidth / 2;
 
     return (
@@ -131,18 +124,16 @@ export class SMBGRangeAnimated extends PureComponent {
         if (interpolated.length === 0) {
           return null;
         }
-        const { style } = interpolated[0];
         return (
-          <rect
-            className={styles.smbgRange}
-            id={`smbgRange-${datum.id}`}
-            onMouseOver={focusRange}
-            onMouseOut={unfocus}
-            x={style.x}
-            y={style.y}
-            width={style.width}
-            height={style.height}
-            opacity={style.opacity}
+          <SMBGRange
+            classes={styles.smbgRange}
+            datum={datum}
+            interpolated={interpolated[0]}
+            positionData={{
+              left: xPos,
+              tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
+              yPositions,
+            }}
           />
         );
       }}

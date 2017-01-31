@@ -131,12 +131,10 @@ export class TrendsSVGContainer extends PureComponent {
       <SMBGRangeAvgContainer
         bgBounds={this.props.bgBounds}
         data={data}
-        focus={this.props.focusRange}
         key={componentKey}
         smbgComponent={smbgComponent}
         someSmbgDataIsFocused={this.props.focusedSmbg !== null}
         tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-        unfocus={this.props.unfocusRange}
         xScale={this.props.xScale}
         yScale={this.props.yScale}
       />
@@ -388,7 +386,6 @@ TrendsSVGContainer.propTypes = {
     }),
   }),
   focusedSmbgRangeAvgKey: PropTypes.string,
-  focusRange: PropTypes.func.isRequired,
   focusSmbg: PropTypes.func.isRequired,
   margins: PropTypes.shape({
     top: PropTypes.number.isRequired,
@@ -407,7 +404,6 @@ TrendsSVGContainer.propTypes = {
   }).isRequired,
   smbgRangeOverlay: PropTypes.bool.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
-  unfocusRange: PropTypes.func.isRequired,
   unfocusSmbg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,

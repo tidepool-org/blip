@@ -17,7 +17,7 @@
 
 import React from 'react';
 
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 import * as scales from '../../helpers/scales';
 const {
@@ -41,17 +41,15 @@ describe('SMBGRangeAvgContainer', () => {
     bgBounds,
     binSize,
     data: [],
-    focusRange: () => {},
     smbgRangeOverlay: true,
     tooltipLeftThreshold: 0,
-    unfocusRange: () => {},
     xScale,
     yScale,
     smbgComponent: SMBGRangeAnimated,
   };
 
   before(() => {
-    wrapper = mount(<SMBGRangeAvgContainer {...props} />);
+    wrapper = shallow(<SMBGRangeAvgContainer {...props} />);
   });
 
   describe('componentWillMount', () => {
@@ -60,7 +58,7 @@ describe('SMBGRangeAvgContainer', () => {
       sinon.spy(SMBGRangeAvgContainer.prototype, 'setState');
       expect(SMBGRangeAvgContainer.prototype.componentWillMount.callCount).to.equal(0);
       expect(SMBGRangeAvgContainer.prototype.setState.callCount).to.equal(0);
-      mount(<SMBGRangeAvgContainer {...props} />);
+      shallow(<SMBGRangeAvgContainer {...props} />);
       expect(SMBGRangeAvgContainer.prototype.componentWillMount.callCount).to.equal(1);
       expect(SMBGRangeAvgContainer.prototype.setState.callCount).to.equal(1);
       expect(SMBGRangeAvgContainer.prototype.setState.firstCall.args[0])
