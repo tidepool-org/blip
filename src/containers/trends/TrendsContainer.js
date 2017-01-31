@@ -334,7 +334,7 @@ export class TrendsContainer extends PureComponent {
   }
 
   determineDataToShow() {
-    const { trendsState: { touched } } = this.props;
+    const { currentPatientInViewId, trendsState: { touched } } = this.props;
     if (touched) {
       return;
     }
@@ -344,7 +344,7 @@ export class TrendsContainer extends PureComponent {
     if (showingCbg && currentCbgData.length < minimumCbgs) {
       this.props.onSwitchBgDataSource();
     }
-    this.props.markTrendsViewed();
+    this.props.markTrendsViewed(currentPatientInViewId);
   }
 
   render() {
@@ -412,9 +412,7 @@ export function mapDispatchToProps(dispatch, ownProps) {
     focusTrendsSmbg: _.partial(
       actions.focusTrendsSmbg, ownProps.currentPatientInViewId
     ),
-    markTrendsViewed: _.partial(
-      actions.markTrendsViewed, ownProps.currentPatientInViewId
-    ),
+    markTrendsViewed: actions.markTrendsViewed,
     unfocusTrendsSmbgRangeAvg: _.partial(
       actions.unfocusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
     ),
