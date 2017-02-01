@@ -23,15 +23,16 @@
   padding-bottom: @spacing-small;
   padding-right: @spacing-small + @spacing-base;
 
+  color: @link-alternative-color;
+
   a {
     cursor: pointer;
     color: @black-color;
     font-size: @font-size-base;
     text-decoration: none;
     &:hover,
-    &:focus,
     &:active {
-      color: @blue-green-light;
+      color: @link-alternative-hover-color;
     }
   }
 }
@@ -56,7 +57,7 @@
 }
 
 .peopletable-search-box {
-  background-image: url(/app/components/peopletable/images/search_icon_2x.png);
+  background-image: url('images/search_icon_2x.png');
   background-size: 25px 25px;
   background-repeat: no-repeat;
   background-color: @white-color;
@@ -73,6 +74,25 @@
   font-size: 20px;
   vertical-align: middle;
   float: left;
+}
+
+.peopletable-cell {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  box-sizing: border-box;
+  display: block;
+  padding: 8px;
+  width: 100%;
+}
+
+.peopletable-cell-content {
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /**
@@ -117,10 +137,8 @@
   border: none;
   background-image: none;
   color: @gray-dark;
-  text-decoration: none;
   cursor: pointer;
   &:hover,
-  &:focus,
   &:active {
     color: @blue-green-light;
   }

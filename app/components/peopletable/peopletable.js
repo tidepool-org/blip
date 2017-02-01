@@ -26,8 +26,12 @@ import personUtils from '../../core/personutils';
 
 const TextCell = ({ rowIndex, data, col, icon, ...props }) => (
   <Cell {...props}>
-    {data[rowIndex][col]}
-    {icon}
+    <div className="peopletable-cell">
+      {icon}
+      <div className="peopletable-cell-content">
+        {data[rowIndex][col]}
+      </div>
+    </div>
   </Cell>
 );
 
@@ -242,7 +246,10 @@ class PeopleTable extends React.Component {
                 BIRTHDAY
               </SortHeaderCell>
             }
-            cell={<TextCell data={dataList} col="birthday" />}
+            cell={<TextCell
+              data={dataList}
+              col="birthday"
+            />}
             width={560}
           />
         </Table>
