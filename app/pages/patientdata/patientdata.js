@@ -36,6 +36,7 @@ import { daily as Daily } from '../../components/chart';
 import { modal as Modal } from '../../components/chart';
 import { weekly as Weekly } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
+import SettingsPrintView from '../../components/printview';
 
 import nurseShark from 'tideline/plugins/nurseshark/';
 
@@ -330,11 +331,23 @@ export let PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
+            onSwitchToPrint={this.handleSwitchToSettingsPrintView}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
 
+      case 'settingsprintview':
+
+        return (
+          <SettingsPrintView
+            bgPrefs={this.state.bgPrefs}
+            currentPatientInViewId={this.props.currentPatientInViewId}
+            timePrefs={this.state.timePrefs}
+            patientData={this.state.processedPatientData}
+            trackMetric={this.props.trackMetric}
+            ref="tideline" />
+          );
     }
   },
 
@@ -483,6 +496,18 @@ export let PatientData = React.createClass({
     }
     this.setState({
       chartType: 'settings'
+    });
+  },
+
+  handleSwitchToSettingsPrintView: function(e) {
+    this.props.trackMetric('Clicked Switch To Settings Print View', {
+      fromChart: this.state.chartType
+    });
+    if (e) {
+      e.preventDefault();
+    }
+    this.setState({
+      chartType: 'settingsprintview'
     });
   },
 

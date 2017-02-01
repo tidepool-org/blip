@@ -39,7 +39,8 @@ var TidelineHeader = React.createClass({
     onClickNext: React.PropTypes.func,
     onClickOneDay: React.PropTypes.func,
     onClickTwoWeeks: React.PropTypes.func,
-    onClickSettings: React.PropTypes.func
+    onClickSettings: React.PropTypes.func,
+    onClickPrint: React.PropTypes.func
   },
   render: function() {
     var basicsLinkClass = cx({
@@ -68,8 +69,8 @@ var TidelineHeader = React.createClass({
 
     var dateLinkClass = cx({
       'js-date': true,
-      'patient-data-subnav-text' : this.props.chartType === 'basics' || 
-        this.props.chartType === 'daily' || 
+      'patient-data-subnav-text' : this.props.chartType === 'basics' ||
+        this.props.chartType === 'daily' ||
         this.props.chartType === 'weekly' ||
         this.props.chartType === 'modal',
       'patient-data-subnav-dates-basics': this.props.chartType === 'basics',
@@ -112,7 +113,14 @@ var TidelineHeader = React.createClass({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
-    
+    var printLinkClass = cx({
+      'js-settings': true,
+      'patient-data-subnav-right': true,
+      'patient-data-subnav-right-label': true,
+      'patient-data-subnav-active': this.props.chartType === 'settings',
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
+    });
+
     return (
       <div className="container-box-outer patient-data-subnav-outer">
         <div className="container-box-inner patient-data-subnav-inner">
@@ -132,6 +140,7 @@ var TidelineHeader = React.createClass({
               {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
             </div>
             <div className="grid-item one-whole large-one-third">
+              <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>Print</a>
               <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
             </div>
           </div>
@@ -143,11 +152,11 @@ var TidelineHeader = React.createClass({
   /**
    * Helper function for rendering the various navigation buttons in the header.
    * It accounts for the transition state and disables the button if it is currently processing.
-   * 
+   *
    * @param  {String} buttonClass
    * @param  {Function} clickAction
    * @param  {String} icon
-   * 
+   *
    * @return {ReactElement}
    */
   renderNavButton: function(buttonClass, clickAction, icon) {

@@ -47,6 +47,7 @@ var Settings = React.createClass({
     onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
+    onSwitchToPrint: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
   },
@@ -73,6 +74,7 @@ var Settings = React.createClass({
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.handleClickSettings}
           onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickPrint={this.handleClickPrint}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
@@ -162,6 +164,12 @@ var Settings = React.createClass({
       e.preventDefault();
     }
     return;
+  },
+  handleClickPrint: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    this.props.onSwitchToPrint();
   },
   handleClickTwoWeeks: function(e) {
     if (e) {
