@@ -26,10 +26,6 @@ import SMBGRange from './SMBGRange';
 import styles from './SMBGRangeAnimated.css';
 
 export class SMBGRangeAnimated extends PureComponent {
-  static defaultProps = {
-    rectWidth: 18,
-  };
-
   static propTypes = {
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,
@@ -47,7 +43,6 @@ export class SMBGRangeAnimated extends PureComponent {
       msTo: PropTypes.number.isRequired,
     }),
     defaultY: PropTypes.number.isRequired,
-    rectWidth: PropTypes.number.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
@@ -59,33 +54,27 @@ export class SMBGRangeAnimated extends PureComponent {
     this.willLeave = this.willLeave.bind(this);
   }
 
-  willEnter(entered) {
-    const { style } = entered;
+  willEnter() {
     const { defaultY } = this.props;
     return {
-      x: style.x,
       y: defaultY,
-      width: style.width,
       height: 0,
       opacity: 0,
     };
   }
 
-  willLeave(exited) {
-    const { style } = exited;
+  willLeave() {
     const { defaultY } = this.props;
     const shrinkOut = spring(0, springConfig);
     return {
-      x: style.x,
       y: spring(defaultY, springConfig),
-      width: style.width,
       height: shrinkOut,
       opacity: shrinkOut,
     };
   }
 
   render() {
-    const { datum, defaultY, rectWidth, xScale, yScale } = this.props;
+    const { datum, defaultY, xScale, yScale } = this.props;
 
     const xPos = xScale(datum.msX);
     const yPositions = {
@@ -93,16 +82,13 @@ export class SMBGRangeAnimated extends PureComponent {
       mean: yScale(datum.mean),
       max: yScale(datum.max),
     };
-    const rectLeftEdge = xPos - rectWidth / 2;
 
     return (
       <TransitionMotion
         defaultStyles={[{
           key: datum.id,
           style: {
-            x: rectLeftEdge,
             y: defaultY,
-            width: rectWidth,
             height: 0,
             opacity: 0,
           },
@@ -110,9 +96,7 @@ export class SMBGRangeAnimated extends PureComponent {
         styles={datum.min ? [{
           key: datum.id,
           style: {
-            x: rectLeftEdge,
             y: spring(yPositions.max, springConfig),
-            width: rectWidth,
             height: spring(yPositions.min - yPositions.max, springConfig),
             opacity: spring(1.0, springConfig),
           },

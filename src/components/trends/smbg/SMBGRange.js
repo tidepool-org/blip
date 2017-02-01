@@ -22,6 +22,10 @@ import { bindActionCreators } from 'redux';
 import { focusTrendsSmbgRangeAvg, unfocusTrendsSmbgRangeAvg } from '../../../redux/actions/trends';
 
 export class SMBGRange extends PureComponent {
+  static defaultProps = {
+    rectWidth: 18,
+  };
+
   static propTypes = {
     classes: PropTypes.string.isRequired,
     datum: PropTypes.shape({
@@ -39,8 +43,6 @@ export class SMBGRange extends PureComponent {
       style: PropTypes.shape({
         height: PropTypes.number.isRequired,
         opacity: PropTypes.number.isRequired,
-        width: PropTypes.number.isRequired,
-        x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
       }).isRequired,
     }).isRequired,
@@ -53,6 +55,7 @@ export class SMBGRange extends PureComponent {
         min: PropTypes.number.isRequired,
       }).isRequired,
     }),
+    rectWidth: PropTypes.number.isRequired,
     unfocusRange: PropTypes.func.isRequired,
     userId: PropTypes.string.isRequired,
   };
@@ -75,16 +78,16 @@ export class SMBGRange extends PureComponent {
   }
 
   render() {
-    const { classes, interpolated: { key, style } } = this.props;
+    const { classes, interpolated: { key, style }, positionData, rectWidth } = this.props;
     return (
       <rect
         className={classes}
         id={`smbgRange-${key}`}
         onMouseOver={this.handleMouseOver}
         onMouseOut={this.handleMouseOut}
-        x={style.x}
+        x={positionData.left - rectWidth / 2}
         y={style.y}
-        width={style.width}
+        width={rectWidth}
         height={style.height}
         opacity={style.opacity}
       />
