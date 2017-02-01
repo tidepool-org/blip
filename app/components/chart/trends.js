@@ -76,6 +76,7 @@ class Trends extends PureComponent {
     };
 
     this.formatDate = this.formatDate.bind(this);
+    this.getNewDomain = this.getNewDomain.bind(this);
     this.getTitle = this.getTitle.bind(this);
     this.handleClickBack = this.handleClickBack.bind(this);
     this.handleClickDaily = this.handleClickDaily.bind(this);
@@ -85,6 +86,7 @@ class Trends extends PureComponent {
     this.handleClickOneWeek = this.handleClickOneWeek.bind(this);
     this.handleClickSettings = this.handleClickSettings.bind(this);
     this.handleClickTrends = this.handleClickTrends.bind(this);
+    this.handleClickTwoWeeks = this.handleClickTwoWeeks.bind(this);
     this.handleClickWeekly = this.handleClickWeekly.bind(this);
     this.handleDatetimeLocationChange = this.handleDatetimeLocationChange.bind(this);
     this.handleSelectDate = this.handleSelectDate.bind(this);
