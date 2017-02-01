@@ -47,7 +47,6 @@ describe('SMBGsByDateContainer', () => {
     ],
     dates: ['2016-08-28'],
     focusedSmbg: {},
-    focusSmbg: () => {},
     grouped: true,
     lines: true,
     smbgOpts: {
@@ -55,7 +54,6 @@ describe('SMBGsByDateContainer', () => {
       r: 6,
     },
     tooltipLeftThreshold: THREE_HRS * 6,
-    unfocusSmbg: () => {},
     xScale,
     yScale,
   };

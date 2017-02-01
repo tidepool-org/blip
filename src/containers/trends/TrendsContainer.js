@@ -74,6 +74,7 @@ export class TrendsContainer extends PureComponent {
     smbgByDate: PropTypes.object.isRequired,
     smbgByDayOfWeek: PropTypes.object.isRequired,
     // handlers
+    markTrendsViewed: PropTypes.func.isRequired,
     onDatetimeLocationChange: PropTypes.func.isRequired,
     onSelectDate: PropTypes.func.isRequired,
     onSwitchBgDataSource: PropTypes.func.isRequired,
@@ -161,10 +162,6 @@ export class TrendsContainer extends PureComponent {
       }),
       touched: PropTypes.bool.isRequired,
     }).isRequired,
-    // actions
-    focusTrendsSmbg: PropTypes.func.isRequired,
-    markTrendsViewed: PropTypes.func.isRequired,
-    unfocusTrendsSmbg: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -374,7 +371,6 @@ export class TrendsContainer extends PureComponent {
         )}
         focusedSmbg={this.props.trendsState.focusedSmbg}
         displayFlags={this.props.trendsState.cbgFlags}
-        focusSmbg={this.props.focusTrendsSmbg}
         showingCbg={this.props.showingCbg}
         showingSmbg={this.props.showingSmbg}
         smbgGrouped={this.props.smbgGrouped}
@@ -383,7 +379,6 @@ export class TrendsContainer extends PureComponent {
         onSelectDate={this.selectDate()}
         xScale={this.state.xScale}
         yScale={this.state.yScale}
-        unfocusSmbg={this.props.unfocusTrendsSmbg}
       />
     );
   }
@@ -396,15 +391,9 @@ export function mapStateToProps(state, ownProps) {
   };
 }
 
-export function mapDispatchToProps(dispatch, ownProps) {
+export function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    focusTrendsSmbg: _.partial(
-      actions.focusTrendsSmbg, ownProps.currentPatientInViewId
-    ),
     markTrendsViewed: actions.markTrendsViewed,
-    unfocusTrendsSmbg: _.partial(
-      actions.unfocusTrendsSmbg, ownProps.currentPatientInViewId
-    ),
   }, dispatch);
 }
 

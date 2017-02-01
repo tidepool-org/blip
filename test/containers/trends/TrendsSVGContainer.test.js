@@ -69,7 +69,6 @@ describe('TrendsSVGContainer', () => {
       cbg50Enabled: true,
       cbgMedianEnabled: true,
     },
-    focusSmbg: () => {},
     onSelectDate: () => {},
     showingCbg: true,
     showingSmbg: false,
@@ -77,7 +76,6 @@ describe('TrendsSVGContainer', () => {
     smbgLines: true,
     smbgRangeOverlay: true,
     timezone: 'UTC',
-    unfocusSmbg: () => {},
     xScale: makeScale(() => {}),
     yScale: makeScale(() => {}),
   };

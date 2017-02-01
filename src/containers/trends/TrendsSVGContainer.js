@@ -199,7 +199,6 @@ export class TrendsSVGContainer extends PureComponent {
           bgBounds={this.props.bgBounds}
           data={this.props.smbgData}
           dates={this.props.dates}
-          focusSmbg={this.props.focusSmbg}
           grouped={this.props.smbgGrouped}
           key="smbgDaysContainer"
           lines={this.props.smbgLines}
@@ -207,7 +206,6 @@ export class TrendsSVGContainer extends PureComponent {
           smbgOpts={this.props.smbgOpts}
           someSmbgDataIsFocused={this.props.focusedSmbg !== null}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-          unfocusSmbg={this.props.unfocusSmbg}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
@@ -222,7 +220,6 @@ export class TrendsSVGContainer extends PureComponent {
           data={this.props.focusedSmbg.allSmbgsOnDate}
           dates={[this.props.focusedSmbg.date]}
           focusedSmbg={this.props.focusedSmbg}
-          focusSmbg={() => {}}
           grouped={this.props.smbgGrouped}
           key="focusedSmbgDayContainer"
           lines={this.props.smbgLines}
@@ -231,7 +228,6 @@ export class TrendsSVGContainer extends PureComponent {
           smbgOpts={this.props.smbgOpts}
           someSmbgDataIsFocused={false}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-          unfocusSmbg={() => {}}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
@@ -386,7 +382,6 @@ TrendsSVGContainer.propTypes = {
     }),
   }),
   focusedSmbgRangeAvgKey: PropTypes.string,
-  focusSmbg: PropTypes.func.isRequired,
   margins: PropTypes.shape({
     top: PropTypes.number.isRequired,
     right: PropTypes.number.isRequired,
@@ -404,7 +399,6 @@ TrendsSVGContainer.propTypes = {
   }).isRequired,
   smbgRangeOverlay: PropTypes.bool.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
-  unfocusSmbg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
 };

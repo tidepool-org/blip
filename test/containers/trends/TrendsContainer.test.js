@@ -137,9 +137,7 @@ describe('TrendsContainer', () => {
           cbgMedianEnabled: true,
         },
       },
-      focusTrendsSmbg: sinon.stub(),
       markTrendsViewed,
-      unfocusTrendsSmbg: sinon.stub(),
     };
 
     const mgdl = {
@@ -569,18 +567,8 @@ describe('TrendsContainer', () => {
   });
 
   describe('mapDispatchToProps', () => {
-    const ownProps = { currentPatientInViewId: 'a1b2c3' };
-
-    it('should return an object with a `focusTrendsSmbg` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('focusTrendsSmbg');
-    });
-
     it('should return an object with a `markTrendsViewed` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('markTrendsViewed');
-    });
-
-    it('should return an object with a `unfocusTrendsSmbg` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('unfocusTrendsSmbg');
+      expect(mapDispatchToProps(sinon.stub())).to.have.property('markTrendsViewed');
     });
   });
 });

@@ -16,6 +16,8 @@
  */
 
 import React, { PropTypes, PureComponent } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { TransitionMotion, spring } from 'react-motion';
 import _ from 'lodash';
 
@@ -24,9 +26,11 @@ import { springConfig } from '../../../utils/constants';
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
+import { focusTrendsSmbg, unfocusTrendsSmbg } from '../../../redux/actions/trends';
+
 import styles from './SMBGDatePointsAnimated.css';
 
-class SMBGDatePointsAnimated extends PureComponent {
+export class SMBGDatePointsAnimated extends PureComponent {
   static propTypes = {
     anSmbgRangeAvgIsFocused: PropTypes.bool.isRequired,
     bgBounds: PropTypes.shape({
@@ -53,31 +57,68 @@ class SMBGDatePointsAnimated extends PureComponent {
     someSmbgDataIsFocused: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     unfocusSmbg: PropTypes.func.isRequired,
+    userId: PropTypes.string.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
 
   constructor(props) {
     super(props);
+
+    this.getPositions = this.getPositions.bind(this);
+    this.getXPosition = this.getXPosition.bind(this);
+
+    this.handleClick = this.handleClick.bind(this);
+    this.handleMouseOut = this.handleMouseOut.bind(this);
+
     this.willEnter = this.willEnter.bind(this);
     this.willLeave = this.willLeave.bind(this);
   }
 
+  getPositions() {
+    const { data, tooltipLeftThreshold, yScale } = this.props;
+    return _.map(data, (d) => ({
+      left: this.getXPosition(d.msPer24),
+      top: yScale(d.value),
+      tooltipLeft: d.msPer24 > tooltipLeftThreshold,
+    }));
+  }
+
+  getXPosition(msPer24) {
+    const { grouped, xScale } = this.props;
+    if (grouped) {
+      return xScale(findBinForTimeOfDay(THREE_HRS, msPer24));
+    }
+    return xScale(msPer24);
+  }
+
+  handleClick() {
+    const { date, onSelectDate } = this.props;
+    onSelectDate(date);
+  }
+
+  handleMouseOut() {
+    const { unfocusSmbg, userId } = this.props;
+    unfocusSmbg(userId);
+  }
+
   willEnter(entered) {
-    const { style } = entered;
+    const { data } = entered;
+    const { xScale } = this.props;
     return {
-      cx: style.cx.val,
-      cy: style.cy,
+      cx: xScale(data.smbg.msPer24),
+      opacity: 0.5,
       r: 0,
     };
   }
 
   willLeave(exited) {
-    const { style } = exited;
+    const { data } = exited;
+    const { anSmbgRangeAvgIsFocused, someSmbgDataIsFocused, xScale } = this.props;
     return {
-      cx: style.cx,
-      cy: style.cy,
-      // slow down the radius animation a bit
+      cx: spring(xScale(data.smbg.msPer24), springConfig),
+      opacity: (anSmbgRangeAvgIsFocused || someSmbgDataIsFocused) ?
+        spring(0.35, springConfig) : spring(0.8, springConfig),
       r: spring(0, springConfig),
     };
   }
@@ -89,29 +130,14 @@ class SMBGDatePointsAnimated extends PureComponent {
       data,
       date,
       focusSmbg,
-      grouped,
       isFocused,
       nonInteractive,
-      onSelectDate,
       smbgOpts,
       someSmbgDataIsFocused,
-      tooltipLeftThreshold,
-      unfocusSmbg,
-      xScale,
-      yScale,
+      userId,
     } = this.props;
     const radius = isFocused ? smbgOpts.maxR : smbgOpts.r;
-    const xPosition = (msPer24) => {
-      if (grouped) {
-        return xScale(findBinForTimeOfDay(THREE_HRS, msPer24));
-      }
-      return xScale(msPer24);
-    };
-    const positions = _.map(data, (smbg) => ({
-      left: xPosition(smbg.msPer24),
-      top: yScale(smbg.value),
-      tooltipLeft: smbg.msPer24 > tooltipLeftThreshold,
-    }));
+    const positions = this.getPositions();
 
     return (
       <TransitionMotion
@@ -121,7 +147,6 @@ class SMBGDatePointsAnimated extends PureComponent {
             key: smbg.id,
             style: {
               cx: position.left,
-              cy: position.top,
               opacity: 0.5,
               r: 0,
             },
@@ -138,10 +163,8 @@ class SMBGDatePointsAnimated extends PureComponent {
             },
             style: {
               cx: spring(position.left, springConfig),
-              cy: position.top,
               opacity: (anSmbgRangeAvgIsFocused || someSmbgDataIsFocused) ?
                 spring(0.35, springConfig) : spring(0.8, springConfig),
-              // slow down the radius animation a bit
               r: spring(radius, springConfig),
             },
           };
@@ -162,13 +185,13 @@ class SMBGDatePointsAnimated extends PureComponent {
                     className={smbg.data.classes}
                     id={`smbg-${key}`}
                     key={key}
-                    onMouseOver={
-                      () => focusSmbg(smbg.data.smbg, smbg.data.position, data, positions, date)
-                    }
-                    onMouseOut={unfocusSmbg}
-                    onClick={() => onSelectDate(date)}
+                    onMouseOver={() => focusSmbg(
+                      userId, smbg.data.smbg, smbg.data.position, data, positions, date
+                    )}
+                    onMouseOut={this.handleMouseOut}
+                    onClick={this.handleClick}
                     cx={style.cx}
-                    cy={style.cy}
+                    cy={smbg.data.position.top}
                     r={style.r}
                     fillOpacity={style.opacity}
                     pointerEvents={nonInteractive ? 'none' : 'all'}
@@ -183,4 +206,18 @@ class SMBGDatePointsAnimated extends PureComponent {
   }
 }
 
-export default SMBGDatePointsAnimated;
+export function mapStateToProps(state) {
+  const { blip: { currentPatientInViewId } } = state;
+  return {
+    userId: currentPatientInViewId,
+  };
+}
+
+export function mapDispatchToProps(dispatch) {
+  return bindActionCreators({
+    focusSmbg: focusTrendsSmbg,
+    unfocusSmbg: unfocusTrendsSmbg,
+  }, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SMBGDatePointsAnimated);
