@@ -49,7 +49,7 @@ var PeopleList = React.createClass({
       // first sort by fullName
       var sortedPeople = _.sortBy(this.props.people, function(person) {
         var patient = _.get(person, 'profile.patient', null);
-        return (patient && patient.isOtherPerson && patient.fullName) ? 
+        return (patient && patient.isOtherPerson && patient.fullName) ?
           patient.fullName.toLowerCase() : person.profile.fullName.toLowerCase();
       });
 
@@ -86,7 +86,7 @@ var PeopleList = React.createClass({
         {removeControls}
       </div>
     );
-    
+
   },
 
   removeablePersonExists: function(patients) {

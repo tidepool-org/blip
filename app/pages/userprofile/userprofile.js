@@ -42,8 +42,8 @@ export var UserProfile = React.createClass({
   formInputs: [
     {name: 'fullName', label: 'Full name'},
     {name: 'username', label: 'Email', type: 'email'},
-    {name: 'password', label: 'Password', type: 'password', placeholder: '******'},
-    {name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '******'}
+    {name: 'password', label: 'Password', type: 'password'},
+    {name: 'passwordConfirm', label: 'Confirm password', type: 'password'}
   ],
 
   MESSAGE_TIMEOUT: 2000,
