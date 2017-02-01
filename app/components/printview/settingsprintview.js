@@ -24,7 +24,8 @@ import personUtils from '../../core/personutils';
 
 import tidepoolpng from './img/bw-tidepool-logo.png';
 
-import { PumpSettingsContainer } from '@tidepool/viz';
+import * as viz from '@tidepool/viz';
+const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 
 var tideline = {
   log: bows('SettingsPrintView')
@@ -37,13 +38,13 @@ var SettingsPrintView = React.createClass({
     bgPrefs: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
+    patient: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired,
   },
   render: function() {
     return (
       <div className="print-view-content">
         <div className="print-view-page print-view-page-title">
-          { null }
         </div>
         <div className="print-view-page print-view-page-device-settings">
           {this.renderHeader()}

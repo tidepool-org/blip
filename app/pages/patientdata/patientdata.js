@@ -345,6 +345,7 @@ export let PatientData = React.createClass({
             currentPatientInViewId={this.props.currentPatientInViewId}
             timePrefs={this.state.timePrefs}
             patientData={this.state.processedPatientData}
+            patient={this.props.patient}
             trackMetric={this.props.trackMetric}
             ref="tideline" />
           );
