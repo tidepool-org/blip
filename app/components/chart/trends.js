@@ -116,6 +116,19 @@ class Trends extends PureComponent {
     return sundial.formatInTimezone(datetime, timezone, 'MMM D, YYYY');
   }
 
+  getNewDomain(current, extent) {
+    const { timePrefs } = this.props;
+    let timezone;
+    if (!timePrefs.timezoneAware) {
+      timezone = 'UTC';
+    }
+    else {
+      timezone = timePrefs.timezoneName || 'UTC';
+    }
+    current = sundial.ceil(current, 'day', timezone);
+    return [d3.time.day.utc.offset(current, -extent).toISOString(), current.toISOString()];
+  }
+
   getTitle(datetimeLocationEndpoints) {
     // endpoint is exclusive, so need to subtract a day
     const end = d3.time.day.utc.offset(new Date(datetimeLocationEndpoints[1]), -1);
