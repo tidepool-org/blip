@@ -28,6 +28,7 @@ import config from '../../config';
 
 import personUtils from '../../core/personutils';
 import PeopleList from '../../components/peoplelist';
+import PeopleTable from '../../components/peopletable';
 import Invitation from '../../components/invitation';
 import BrowserWarning from '../../components/browserwarning';
 
@@ -131,38 +132,34 @@ export let Patients = React.createClass({
   },
 
   renderInvitation: function(invitation, index) {
-    
     return (
       <Invitation
         key={invitation.key}
         invitation={invitation}
         onAcceptInvitation={this.props.onAcceptInvitation}
         onDismissInvitation={this.props.onDismissInvitation}
-        trackMetric={this.props.trackMetric}
-      ></Invitation>);
-    
+        trackMetric={this.props.trackMetric}>
+      </Invitation>
+    );
   },
+
   renderInvitations: function() {
     if (!this.hasInvites()) {
       return null;
     }
-
     var invitations = _.map(this.props.invites, this.renderInvitation);
 
-    
     return (
       <ul className='invitations'>
         {invitations}
       </ul>
     );
-    
   },
 
   renderNoPatientsOrInvitationsMessage: function() {
     if (this.isShowingWelcomeSetup() || this.hasPatients() || this.hasInvites()) {
       return null;
     }
-
     return (
       <div className="patients-message">
         {"Looks like you don’t have access to any data yet."}
@@ -173,10 +170,9 @@ export let Patients = React.createClass({
   },
 
   renderNoPatientsSetupStorageLink: function() {
-    if (this.isShowingWelcomeSetup() || this.hasPatients()) {
+    if (this.isShowingWelcomeSetup() || this.hasPatients() || personUtils.isClinic(this.props.user)) {
       return null;
     }
-
     return (
       <div className="patients-message">
         {"You can also "}
@@ -199,7 +195,20 @@ export let Patients = React.createClass({
     var patients = this.props.patients;
     patients = this.addLinkToPatients(patients);
 
-    var addDataStorage = this.renderAddDataStorage();
+    if (personUtils.isClinic(this.props.user)) {
+      return (
+        <div className="container-box-inner patients-section js-patients-shared">
+          <div className="patients-vca-section-content">
+            <PeopleTable
+              people={patients}
+              trackMetric={this.props.trackMetric}
+              containerWidth={880}
+              containerHeight={590}
+            />
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="container-box-inner patients-section js-patients-shared">
@@ -207,14 +216,15 @@ export let Patients = React.createClass({
           <div className="patients-section-title">{"View data for:"}</div>
         </div>
         <div className="patients-section-content">
-          {addDataStorage}
+          {this.renderAddDataStorage()}
           <div className='clear'></div>
           <PeopleList
             people={patients}
+            trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             onClickPerson={this.handleClickPatient}
             onRemovePatient= {this.props.onRemovePatient}
-            trackMetric={this.props.trackMetric} />
+          />
         </div>
       </div>
     );
@@ -298,12 +308,10 @@ export let Patients = React.createClass({
   },
 
   doFetching: function(nextProps) {
-
     if (!nextProps.fetchers) {
       return
     }
-
-    nextProps.fetchers.forEach(fetcher => { 
+    nextProps.fetchers.forEach(fetcher => {
       fetcher();
     });
   },
@@ -321,13 +329,13 @@ export let Patients = React.createClass({
     if (this.props.trackMetric) {
       this.props.trackMetric('Viewed Care Team List');
     }
-    
+
     this.doFetching(this.props);
   },
 
   componentWillReceiveProps: function(nextProps) {
     let { loading, loggedInUserId, patients, invites, location, showingWelcomeMessage } = nextProps;
-    
+
     if (!loading && loggedInUserId && location.query.justLoggedIn) {
       if (patients.length === 1 && invites.length === 0) {
         let patient = patients[0];
@@ -386,7 +394,7 @@ export function mapStateToProps(state) {
     }
   }
 
-  let { 
+  let {
     fetchingUser: { inProgress: fetchingUser },
     fetchingPatients: { inProgress: fetchingPatients },
     fetchingPendingReceivedInvites: { inProgress: fetchingInvites },
