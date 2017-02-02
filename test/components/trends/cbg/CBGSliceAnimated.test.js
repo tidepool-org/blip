@@ -19,17 +19,14 @@ import _ from 'lodash';
 import React from 'react';
 import { TransitionMotion } from 'react-motion';
 
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 import * as scales from '../../../helpers/scales';
 const {
-  trendsHeight,
-  trendsWidth,
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
 import bgBounds from '../../../helpers/bgBounds';
-import SVGContainer from '../../../helpers/SVGContainer';
 
 import { THREE_HRS } from '../../../../src/utils/datetime';
 import { CBGSliceAnimated } from '../../../../src/components/trends/cbg/CBGSliceAnimated';
@@ -71,26 +68,12 @@ describe('CBGSliceAnimated', () => {
 
   describe('when full datum and all `displayFlags` enabled', () => {
     before(() => {
-      wrapper = mount(
-        <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...props} />
-        </SVGContainer>
-      );
+      wrapper = shallow(<CBGSliceAnimated {...props} />);
     });
 
-    it('should render a cbgSlice <g> with six <rect>s', () => {
-      expect(wrapper.find(`#cbgSlice-${datum.id}`).length).to.equal(1);
-      expect(wrapper.find('rect').length).to.equal(6);
-    });
-
-    it('should render the #median rect on top (i.e., last)', () => {
-      expect(wrapper.find('rect').last().prop('id')).to.equal(`cbgSlice-${datum.id}-median`);
-    });
-
-    it('should vertically center the median rect on the value', () => {
-      const slice = wrapper.find(CBGSliceAnimated);
-      expect(wrapper.find(TransitionMotion).prop('styles')[5].style.median.val)
-        .to.equal(yScale(slice.prop('datum').median) - slice.prop('medianHeight') / 2);
+    it('should create an array of 5 `styles` to render on the TransitionMotion', () => {
+      const TM = wrapper.find(TransitionMotion);
+      expect(TM.prop('styles').length).to.equal(5);
     });
 
     describe('animation', () => {
@@ -110,26 +93,6 @@ describe('CBGSliceAnimated', () => {
         expect(CBGSliceAnimated.prototype.willLeave).to.exist;
       });
     });
-
-    describe('interactions', () => {
-      describe('onMouseOver', () => {
-        it('should fire the `focusSlice` function', () => {
-          const top10 = wrapper.find(`#cbgSlice-${datum.id}-top10`);
-          expect(props.focusSlice.callCount).to.equal(0);
-          top10.simulate('mouseover');
-          expect(props.focusSlice.callCount).to.equal(1);
-        });
-      });
-
-      describe('onMouseOut', () => {
-        it('should fire the `unfocusSlice` function', () => {
-          const top10 = wrapper.find(`#cbgSlice-${datum.id}-top10`);
-          expect(props.unfocusSlice.callCount).to.equal(0);
-          top10.simulate('mouseout');
-          expect(props.unfocusSlice.callCount).to.equal(1);
-        });
-      });
-    });
   });
 
   describe('when only `cbg100Enabled`', () => {
@@ -142,17 +105,14 @@ describe('CBGSliceAnimated', () => {
       },
     });
     before(() => {
-      wrapper = mount(
-        <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...cbg100EnabledProps} />
-        </SVGContainer>
-      );
+      wrapper = shallow(<CBGSliceAnimated {...cbg100EnabledProps} />);
     });
 
-    it('should render top10 and bottom10 <rect>s only', () => {
-      expect(wrapper.find('rect').length).to.equal(2);
-      expect(wrapper.find(`#cbgSlice-${datum.id}-top10`).length).to.equal(1);
-      expect(wrapper.find(`#cbgSlice-${datum.id}-bottom10`).length).to.equal(1);
+    it('should create an array of 2 `styles` to render on the TransitionMotion', () => {
+      const styles = wrapper.find(TransitionMotion).prop('styles');
+      expect(styles.length).to.equal(2);
+      expect(styles[0].key).to.equal('top10');
+      expect(styles[1].key).to.equal('bottom10');
     });
   });
 
@@ -166,17 +126,14 @@ describe('CBGSliceAnimated', () => {
       },
     });
     before(() => {
-      wrapper = mount(
-        <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...cbg80EnabledProps} />
-        </SVGContainer>
-      );
+      wrapper = shallow(<CBGSliceAnimated {...cbg80EnabledProps} />);
     });
 
-    it('should render upper15 and lower15 <rect>s only', () => {
-      expect(wrapper.find('rect').length).to.equal(2);
-      expect(wrapper.find(`#cbgSlice-${datum.id}-upper15`).length).to.equal(1);
-      expect(wrapper.find(`#cbgSlice-${datum.id}-lower15`).length).to.equal(1);
+    it('should create an array of 2 `styles` to render on the TransitionMotion', () => {
+      const styles = wrapper.find(TransitionMotion).prop('styles');
+      expect(styles.length).to.equal(2);
+      expect(styles[0].key).to.equal('upper15');
+      expect(styles[1].key).to.equal('lower15');
     });
   });
 
@@ -190,16 +147,13 @@ describe('CBGSliceAnimated', () => {
       },
     });
     before(() => {
-      wrapper = mount(
-        <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...cbg50EnabledProps} />
-        </SVGContainer>
-      );
+      wrapper = shallow(<CBGSliceAnimated {...cbg50EnabledProps} />);
     });
 
-    it('should render an innerQuartiles <rect> only', () => {
-      expect(wrapper.find('rect').length).to.equal(1);
-      expect(wrapper.find(`#cbgSlice-${datum.id}-innerQuartiles`).length).to.equal(1);
+    it('should create an array of 1 `styles` to render on the TransitionMotion', () => {
+      const styles = wrapper.find(TransitionMotion).prop('styles');
+      expect(styles.length).to.equal(1);
+      expect(styles[0].key).to.equal('innerQuartiles');
     });
   });
 
@@ -213,21 +167,17 @@ describe('CBGSliceAnimated', () => {
       },
     });
     before(() => {
-      wrapper = mount(
-        <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...cbgMedianEnabledProps} />
-        </SVGContainer>
-      );
+      wrapper = shallow(<CBGSliceAnimated {...cbgMedianEnabledProps} />);
     });
 
-    it('should render a median <rect> only', () => {
-      expect(wrapper.find('rect').length).to.equal(1);
-      expect(wrapper.find(`#cbgSlice-${datum.id}-median`).length).to.equal(1);
+    it('should create an array of 0 `styles` to render on the TransitionMotion', () => {
+      const styles = wrapper.find(TransitionMotion).prop('styles');
+      expect(styles.length).to.equal(0);
     });
   });
 
   describe('when full datum and no `displayFlags` enabled', () => {
-    const allUncheckedProps = _.assign({}, props, {
+    const cbgMedianEnabledProps = _.assign({}, props, {
       displayFlags: {
         cbg100Enabled: false,
         cbg80Enabled: false,
@@ -236,17 +186,12 @@ describe('CBGSliceAnimated', () => {
       },
     });
     before(() => {
-      wrapper = mount(
-        <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...allUncheckedProps} />
-        </SVGContainer>
-      );
+      wrapper = shallow(<CBGSliceAnimated {...cbgMedianEnabledProps} />);
     });
 
-    it('should render a TransitionMotion component but no <g> or <rect>s', () => {
-      expect(wrapper.find(TransitionMotion).length).to.equal(1);
-      expect(wrapper.find(`#cbgSlice-${datum.id}`).length).to.equal(0);
-      expect(wrapper.find('rect').length).to.equal(0);
+    it('should create an array of 0 `styles` to render on the TransitionMotion', () => {
+      const styles = wrapper.find(TransitionMotion).prop('styles');
+      expect(styles.length).to.equal(0);
     });
   });
 
@@ -267,17 +212,13 @@ describe('CBGSliceAnimated', () => {
       },
     });
     before(() => {
-      wrapper = mount(
-        <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <CBGSliceAnimated {...gapInDataProps} />
-        </SVGContainer>
-      );
+      wrapper = shallow(<CBGSliceAnimated {...gapInDataProps} />);
     });
 
-    it('should render a TransitionMotion component but no <g> or <rect>s', () => {
+    it('should create an array of 0 `styles` to render on the TransitionMotion', () => {
       expect(wrapper.find(TransitionMotion).length).to.equal(1);
-      expect(wrapper.find(`#cbgSlice-${datum.id}`).length).to.equal(0);
-      expect(wrapper.find('rect').length).to.equal(0);
+      const styles = wrapper.find(TransitionMotion).prop('styles');
+      expect(styles.length).to.equal(0);
     });
   });
 });

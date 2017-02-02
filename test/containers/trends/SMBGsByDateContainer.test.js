@@ -17,9 +17,8 @@
 
 import _ from 'lodash';
 import React from 'react';
-import { TransitionMotion } from 'react-motion';
 
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 import { THREE_HRS } from '../../../src/utils/datetime';
 
@@ -29,6 +28,9 @@ const {
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
+
+import SMBGDateLineAnimated from '../../../src/components/trends/smbg/SMBGDateLineAnimated';
+import SMBGDatePointsAnimated from '../../../src/components/trends/smbg/SMBGDatePointsAnimated';
 
 import SMBGsByDateContainer
   from '../../../src/containers/trends/SMBGsByDateContainer';
@@ -45,7 +47,6 @@ describe('SMBGsByDateContainer', () => {
     ],
     dates: ['2016-08-28'],
     focusedSmbg: {},
-    focusSmbg: () => {},
     grouped: true,
     lines: true,
     smbgOpts: {
@@ -53,65 +54,37 @@ describe('SMBGsByDateContainer', () => {
       r: 6,
     },
     tooltipLeftThreshold: THREE_HRS * 6,
-    unfocusSmbg: () => {},
     xScale,
     yScale,
   };
 
   before(() => {
-    wrapper = mount(<SMBGsByDateContainer {...props} />);
+    wrapper = shallow(<SMBGsByDateContainer {...props} />);
+  });
+
+  describe('when data is provided', () => {
+    it('should render an SMBGLineAnimated for each date in dates', () => {
+      expect(wrapper.find(SMBGDateLineAnimated).length).to.equal(props.dates.length);
+    });
+
+    it('should render an SMBGDatePointsAnimated for each date in dates', () => {
+      expect(wrapper.find(SMBGDatePointsAnimated).length).to.equal(props.dates.length);
+    });
   });
 
   describe('when no data is provided', () => {
     let noDataWrapper;
     before(() => {
       const noDataProps = _.assign({}, props, { data: [] });
-      noDataWrapper = mount(<SMBGsByDateContainer {...noDataProps} />);
+      noDataWrapper = shallow(<SMBGsByDateContainer {...noDataProps} />);
     });
 
-    it('should render no SVG elements', () => {
-      expect(noDataWrapper.find('circle').length).to.equal(0);
-      expect(noDataWrapper.find('path').length).to.equal(0);
+    it('should (still) render an SMBGLineAnimated for each date in dates', () => {
+      expect(noDataWrapper.find(SMBGDateLineAnimated).length).to.equal(props.dates.length);
     });
 
-    it('should render 2x TransitionMotion (for dots & line) for each date in dates', () => {
-      expect(noDataWrapper.find(TransitionMotion).length).to.equal(2 * props.dates.length);
-    });
-  });
-
-  describe('with data provided should render', () => {
-    it('renders a <g> with id #smbgsByDateContainer', () => {
-      expect(wrapper.find('#smbgsByDateContainer').length).to.equal(1);
-    });
-    describe('smbg day line', () => {
-      it('is shown when lines option is true', () => {
-        expect(wrapper.find('#smbgsByDateContainer path').length).to.equal(1);
-      });
-      it('is not shown when lines option is false', () => {
-        props.lines = false;
-        wrapper = mount(<SMBGsByDateContainer {...props} />);
-        expect(wrapper.find('#smbgsByDateContainer path').length).to.equal(0);
-      });
-    });
-    describe('focused smbg line', () => {
-      it('is shown when lines option is false but we have a focusedSmbg', () => {
-        props.lines = false;
-
-        props.focusedSmbg = {
-          allPositions: [{ top: 0, left: 10 }, { top: 10, left: 50 }],
-          allSmbgsOnDate: props.data,
-          date: '2016-08-28',
-          smbgDatum: [{ value: 200 }],
-          smbgPosition: { top: 0, left: 0 },
-        };
-        wrapper = mount(<SMBGsByDateContainer {...props} />);
-        expect(wrapper.find('#smbgsByDateContainer path').length).to.equal(1);
-      });
-    });
-    describe('smbg day points', () => {
-      it('are shown', () => {
-        expect(wrapper.find('#smbgsByDateContainer circle').length).to.equal(3);
-      });
+    it('should (still) render an SMBGDatePointsAnimated for each date in dates', () => {
+      expect(noDataWrapper.find(SMBGDatePointsAnimated).length).to.equal(props.dates.length);
     });
   });
 });

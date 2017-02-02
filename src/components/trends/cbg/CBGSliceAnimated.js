@@ -17,19 +17,18 @@
 
 import _ from 'lodash';
 import cx from 'classnames';
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
-import { classifyBgValue } from '../../../utils/bloodglucose';
 import { springConfig } from '../../../utils/constants';
 import withDefaultYPosition from '../common/withDefaultYPosition';
 
+import CBGSliceSegment from './CBGSliceSegment';
+
 import styles from './CBGSliceAnimated.css';
 
-export class CBGSliceAnimated extends Component {
+export class CBGSliceAnimated extends PureComponent {
   static defaultProps = {
-    medianHeight: 10,
-    medianWidth: 14,
     sliceWidth: 16,
   };
 
@@ -60,124 +59,65 @@ export class CBGSliceAnimated extends Component {
       cbg50Enabled: PropTypes.bool.isRequired,
       cbgMedianEnabled: PropTypes.bool.isRequired,
     }).isRequired,
-    focusSlice: PropTypes.func.isRequired,
-    isFocused: PropTypes.bool.isRequired,
-    medianHeight: PropTypes.number.isRequired,
-    medianWidth: PropTypes.number.isRequired,
+    showingCbgDateTraces: PropTypes.bool.isRequired,
     sliceWidth: PropTypes.number.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     topMargin: PropTypes.number.isRequired,
-    unfocusSlice: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
 
   constructor(props) {
     super(props);
-    this.getBinLeftX = this.getBinLeftX.bind(this);
-    this.handleMouseOut = this.handleMouseOut.bind(this);
+
     this.willEnter = this.willEnter.bind(this);
     this.willLeave = this.willLeave.bind(this);
-  }
-
-  getBinLeftX(width) {
-    const { datum, xScale } = this.props;
-    return xScale(datum.msX) - width / 2 + styles.stroke / 2;
-  }
-
-  getWidth(width) {
-    return width - styles.stroke;
-  }
-
-  handleMouseOut(e) {
-    // we don't want to unfocus the slice if the user just rolled over a cbg inside it
-    if (e.relatedTarget && e.relatedTarget.id.search('cbgCircle') !== -1) {
-      return;
-    }
-    this.props.unfocusSlice();
-  }
-
-  isMedian(segment) {
-    return segment.key === 'median';
   }
 
   willEnter(entered) {
     const { style } = entered;
     const { defaultY } = this.props;
 
-    return {
-      binLeftX: style.binLeftX,
-      bottom10Height: 0,
-      firstQuartile: defaultY,
-      innerQuartilesHeight: 0,
-      lower15Height: 0,
-      max: defaultY,
-      medianHeight: 0,
-      median: defaultY,
-      ninetiethQuantile: defaultY,
-      opacity: 0,
-      tenthQuantile: defaultY,
-      thirdQuartile: defaultY,
-      top10Height: 0,
-      upper15Height: 0,
-      width: style.width,
-    };
+    return _.mapValues(style, (val, key) => {
+      if (key === 'opacity') {
+        return 0;
+      } else if (key.search('Height') !== -1) {
+        return 0;
+      }
+      return defaultY;
+    });
   }
 
   willLeave(exited) {
     const { style } = exited;
     const { defaultY } = this.props;
-    const defaultYSpring = spring(defaultY, springConfig);
     const shrinkOut = spring(0, springConfig);
-    return {
-      binLeftX: style.binLeftX,
-      bottom10Height: shrinkOut,
-      firstQuartile: defaultYSpring,
-      innerQuartilesHeight: shrinkOut,
-      lower15Height: shrinkOut,
-      max: defaultYSpring,
-      medianHeight: shrinkOut,
-      median: defaultYSpring,
-      ninetiethQuantile: defaultYSpring,
-      opacity: shrinkOut,
-      tenthQuantile: defaultYSpring,
-      thirdQuartile: defaultYSpring,
-      top10Height: shrinkOut,
-      upper15Height: shrinkOut,
-      width: style.width,
-    };
+    return _.mapValues(style, (val, key) => {
+      if (key === 'opacity') {
+        return shrinkOut;
+      } else if (key.search('Height') !== -1) {
+        return shrinkOut;
+      }
+      return spring(defaultY, springConfig);
+    });
   }
 
   render() {
     const {
-      bgBounds,
       datum,
       defaultY,
       displayFlags,
-      focusSlice,
-      isFocused,
-      medianHeight,
-      medianWidth,
       sliceWidth,
+      showingCbgDateTraces,
       tooltipLeftThreshold,
       topMargin,
       xScale,
       yScale,
     } = this.props;
 
-    const medianClasses = cx({
-      [styles.median]: true,
-      [styles.medianTransparent]: isFocused,
-      // you can mix and match objects and params that are string classnames with cx/classnames
-    }, (
-      (datum.median && !isFocused) ?
-        styles[classifyBgValue(bgBounds, datum.median)] :
-        styles.medianTransparent)
-    );
-
     const renderPieces = {
       top10: {
-        className: styles.rangeSegment,
+        classKey: 'rangeSegment',
         displayFlag: 'cbg100Enabled',
         height: 'top10Height',
         heightKeys: ['ninetiethQuantile', 'max'],
@@ -185,7 +125,7 @@ export class CBGSliceAnimated extends Component {
         y: 'max',
       },
       bottom10: {
-        className: styles.rangeSegment,
+        classKey: 'rangeSegment',
         displayFlag: 'cbg100Enabled',
         height: 'bottom10Height',
         heightKeys: ['min', 'tenthQuantile'],
@@ -193,7 +133,7 @@ export class CBGSliceAnimated extends Component {
         y: 'tenthQuantile',
       },
       upper15: {
-        className: styles.outerSegment,
+        classKey: 'outerSegment',
         displayFlag: 'cbg80Enabled',
         height: 'upper15Height',
         heightKeys: ['thirdQuartile', 'ninetiethQuantile'],
@@ -201,7 +141,7 @@ export class CBGSliceAnimated extends Component {
         y: 'ninetiethQuantile',
       },
       lower15: {
-        className: styles.outerSegment,
+        classKey: 'outerSegment',
         displayFlag: 'cbg80Enabled',
         height: 'lower15Height',
         heightKeys: ['tenthQuantile', 'firstQuartile'],
@@ -209,19 +149,12 @@ export class CBGSliceAnimated extends Component {
         y: 'firstQuartile',
       },
       innerQuartiles: {
-        className: styles.innerQuartilesSegment,
+        classKey: 'innerQuartilesSegment',
         displayFlag: 'cbg50Enabled',
         height: 'innerQuartilesHeight',
         heightKeys: ['firstQuartile', 'thirdQuartile'],
         key: 'innerQuartiles',
         y: 'thirdQuartile',
-      },
-      median: {
-        className: medianClasses,
-        displayFlag: 'cbgMedianEnabled',
-        height: 'medianHeight',
-        key: 'median',
-        y: 'median',
       },
     };
     const toRender = _.filter(renderPieces, (piece) => (displayFlags[piece.displayFlag]));
@@ -236,41 +169,30 @@ export class CBGSliceAnimated extends Component {
       topMargin,
     };
 
+    const binLeftX = xScale(datum.msX) - sliceWidth / 2 + styles.stroke / 2;
+    const width = sliceWidth - styles.stroke;
+
     return (
       <TransitionMotion
-        defaultStyles={_.get(datum, 'min') !== undefined ? _.map(toRender, (segment) => {
-          const baseWidth = this.isMedian(segment) ? medianWidth : sliceWidth;
-          return {
-            key: segment.key,
-            style: {
-              binLeftX: this.getBinLeftX(baseWidth),
-              [segment.y]: defaultY,
-              width: this.getWidth(baseWidth),
-              [segment.height]: 0,
-              opacity: 0,
-            },
-          };
-        }) : []}
-        styles={_.get(datum, 'min') !== undefined ? _.map(toRender, (segment) => {
-          const baseWidth = this.isMedian(segment) ? medianWidth : sliceWidth;
-          return {
-            key: segment.key,
-            style: {
-              binLeftX: this.getBinLeftX(baseWidth),
-              [segment.y]: this.isMedian(segment) ?
-                spring(yScale(datum.median) - medianHeight / 2, springConfig) :
-                spring(yScale(datum[segment.y]), springConfig),
-              width: this.getWidth(baseWidth),
-              [segment.height]: this.isMedian(segment) ?
-                spring(medianHeight, springConfig) :
-                spring(
-                  yScale(datum[segment.heightKeys[0]]) - yScale(datum[segment.heightKeys[1]]),
-                  springConfig
-                ),
-              opacity: spring(1.0, springConfig),
-            },
-          };
-        }) : []}
+        defaultStyles={_.get(datum, 'min') !== undefined ? _.map(toRender, (segment) => ({
+          key: segment.key,
+          style: {
+            [segment.y]: defaultY,
+            [segment.height]: 0,
+            opacity: 0,
+          },
+        })) : []}
+        styles={_.get(datum, 'min') !== undefined ? _.map(toRender, (segment) => ({
+          key: segment.key,
+          style: {
+            [segment.y]: spring(yScale(datum[segment.y]), springConfig),
+            [segment.height]: spring(
+              yScale(datum[segment.heightKeys[0]]) - yScale(datum[segment.heightKeys[1]]),
+              springConfig
+            ),
+            opacity: spring(1.0, springConfig),
+          },
+        })) : []}
         willEnter={this.willEnter}
         willLeave={this.willLeave}
       >
@@ -280,27 +202,27 @@ export class CBGSliceAnimated extends Component {
           }
           return (
             <g id={`cbgSlice-${datum.id}`}>
-              {_.map(interpolateds, (piece) => {
-                const { key, style } = piece;
-                const segment = renderPieces[key];
+              {_.map(interpolateds, (interpolated) => {
+                const segment = renderPieces[interpolated.key];
+                const classes = cx({
+                  [styles.segment]: true,
+                  [styles[segment.classKey]]: !showingCbgDateTraces,
+                  [styles[`${segment.classKey}Faded`]]: showingCbgDateTraces,
+                });
                 return (
-                  <rect
-                    className={segment.className}
-                    key={key}
-                    id={`cbgSlice-${datum.id}-${key}`}
-                    width={style.width}
-                    height={style[renderPieces[key].height]}
-                    x={style.binLeftX}
-                    y={style[renderPieces[key].y]}
-                    opacity={style.opacity}
-                    onMouseOver={() => {
-                      focusSlice(datum, {
-                        left: xScale(datum.msX),
-                        tooltipLeft: datum.msX > tooltipLeftThreshold,
-                        yPositions,
-                      }, segment.key === 'median' ? ['median'] : segment.heightKeys);
+                  <CBGSliceSegment
+                    classes={classes}
+                    datum={datum}
+                    interpolated={interpolated}
+                    key={interpolated.key}
+                    positionData={{
+                      left: xScale(datum.msX),
+                      tooltipLeft: datum.msX > tooltipLeftThreshold,
+                      yPositions,
                     }}
-                    onMouseOut={this.handleMouseOut}
+                    segment={segment}
+                    width={width}
+                    x={binLeftX}
                   />
                 );
               })}

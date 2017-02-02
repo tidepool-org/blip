@@ -27,7 +27,9 @@
 // - date is focused (through hover) fatter & solid line connecting the dots
 //   this style also applies when a single smbg is focused
 
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { TransitionMotion, spring } from 'react-motion';
 import { line } from 'd3-shape';
 import _ from 'lodash';
@@ -37,9 +39,11 @@ import { springConfig } from '../../../utils/constants';
 import { THREE_HRS } from '../../../utils/datetime';
 import { findBinForTimeOfDay } from '../../../utils/trends/data';
 
+import { focusTrendsSmbg, unfocusTrendsSmbg } from '../../../redux/actions/trends';
+
 import styles from './SMBGDateLineAnimated.css';
 
-class SMBGDateLineAnimated extends Component {
+export class SMBGDateLineAnimated extends PureComponent {
   static propTypes = {
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,
@@ -60,14 +64,23 @@ class SMBGDateLineAnimated extends Component {
     nonInteractive: PropTypes.bool,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     unfocusLine: PropTypes.func.isRequired,
+    userId: PropTypes.string.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
 
   constructor(props) {
     super(props);
+
     this.getDefaultPoints = this.getDefaultPoints.bind(this);
     this.getPoints = this.getPoints.bind(this);
+
+    this.getPositions = this.getPositions.bind(this);
+
+    this.handleClick = this.handleClick.bind(this);
+    this.handleMouseOut = this.handleMouseOut.bind(this);
+    this.handleMouseOver = this.handleMouseOver.bind(this);
+
     this.willEnter = this.willEnter.bind(this);
     this.willLeave = this.willLeave.bind(this);
   }
@@ -80,7 +93,7 @@ class SMBGDateLineAnimated extends Component {
         key: d.id,
         style: {
           opacity: 0,
-          x: xScale(this.xPosition(d.msPer24, grouped)),
+          x: xScale(this.getXPosition(d.msPer24, grouped)),
           y: yScale(d.value),
         } },
       );
@@ -96,20 +109,54 @@ class SMBGDateLineAnimated extends Component {
         key: d.id,
         style: {
           opacity: spring(1, springConfig),
-          x: spring(xScale(this.xPosition(d.msPer24, grouped)), springConfig),
-          y: yScale(d.value),
+          x: spring(xScale(this.getXPosition(d.msPer24, grouped)), springConfig),
+          // basically a no-op animation but the data reshaping below for the d3 line() fn
+          // seems to require us to animate all properties we want to reshape there
+          y: spring(yScale(d.value), springConfig),
         } },
       );
     });
     return points;
   }
 
+  getPositions() {
+    const { data, grouped, tooltipLeftThreshold, xScale, yScale } = this.props;
+    return _.map(data, (d) => ({
+      tooltipLeft: d.msPer24 > tooltipLeftThreshold,
+      left: xScale(this.getXPosition(d.msPer24, grouped)),
+      top: yScale(d.value),
+    }));
+  }
+
+  getXPosition(msPer24, grouped) {
+    if (grouped) {
+      return findBinForTimeOfDay(THREE_HRS, msPer24);
+    }
+    return msPer24;
+  }
+
+  handleClick() {
+    const { date, onSelectDate } = this.props;
+    onSelectDate(date);
+  }
+
+  handleMouseOut() {
+    const { unfocusLine, userId } = this.props;
+    unfocusLine(userId);
+  }
+
+  handleMouseOver() {
+    const { data, date, focusLine, userId } = this.props;
+    const positions = this.getPositions();
+    focusLine(userId, data[0], positions[0], data, positions, date);
+  }
+
   willEnter(entered) {
     const { style } = entered;
     return {
       opacity: 0,
-      x: style.x.val,
-      y: style.y,
+      x: _.get(style, ['x', 'val'], style.x),
+      y: _.get(style, ['y', 'val'], style.y),
     };
   }
 
@@ -117,16 +164,9 @@ class SMBGDateLineAnimated extends Component {
     const { style } = exited;
     return {
       opacity: spring(0, springConfig),
-      x: style.x.val || style.x,
-      y: style.y,
+      x: spring(_.get(style, ['x', 'val'], style.x), springConfig),
+      y: spring(_.get(style, ['y', 'val'], style.y), springConfig),
     };
-  }
-
-  xPosition(msPer24, grouped) {
-    if (grouped) {
-      return findBinForTimeOfDay(THREE_HRS, msPer24);
-    }
-    return msPer24;
   }
 
   render() {
@@ -134,29 +174,13 @@ class SMBGDateLineAnimated extends Component {
       data,
       date,
       focusedDay,
-      focusLine,
-      onSelectDate,
       nonInteractive,
-      tooltipLeftThreshold,
-      unfocusLine,
-      xScale,
-      yScale,
     } = this.props;
-
-    const positions = _.map(data, (smbg) => ({
-      tooltipLeft: smbg.msPer24 > tooltipLeftThreshold,
-      left: xScale(this.xPosition(smbg.msPer24)),
-      top: yScale(smbg.value),
-    }));
 
     const classes = cx({
       [styles.smbgPath]: true,
       [styles.highlightPath]: focusedDay === date,
     });
-
-    // NOTE: This mapping is required due to the differing
-    // expectations of TransitionMotion and d3 line
-    const mapObject = (obj, fn) => _.map(_.keys(obj), (key) => fn(obj[key], key, obj));
 
     return (
       <g id={`smbgDateLine-${date}`}>
@@ -172,13 +196,14 @@ class SMBGDateLineAnimated extends Component {
             }
             return (
               <path
-                d={line()(mapObject(_.pluck(interpolated, 'style'), ({ x, y }) => [x, y]))}
+                // d3 line() expects an array of 2-member arrays of x, y coordinates
+                d={line()(_.map(_.pluck(interpolated, 'style'), (style) => (
+                  [_.get(style, ['x', 'val'], style.x), _.get(style, ['y', 'val'], style.y)]
+                )))}
                 className={classes}
-                onMouseOver={() => { focusLine(data[0], positions[0], data, positions, date); }}
-                onMouseOut={() => { unfocusLine(); }}
-                onClick={() => {
-                  onSelectDate(date);
-                }}
+                onMouseOver={this.handleMouseOver}
+                onMouseOut={this.handleMouseOut}
+                onClick={this.handleClick}
                 pointerEvents={nonInteractive ? 'none' : 'stroke'}
                 strokeOpacity={_.get(interpolated[0], ['style', 'opacity'])}
               />
@@ -190,4 +215,18 @@ class SMBGDateLineAnimated extends Component {
   }
 }
 
-export default SMBGDateLineAnimated;
+export function mapStateToProps(state) {
+  const { blip: { currentPatientInViewId } } = state;
+  return {
+    userId: currentPatientInViewId,
+  };
+}
+
+export function mapDispatchToProps(dispatch) {
+  return bindActionCreators({
+    focusLine: focusTrendsSmbg,
+    unfocusLine: unfocusTrendsSmbg,
+  }, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SMBGDateLineAnimated);

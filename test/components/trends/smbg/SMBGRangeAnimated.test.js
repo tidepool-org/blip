@@ -19,17 +19,15 @@ import _ from 'lodash';
 import React from 'react';
 import { TransitionMotion } from 'react-motion';
 
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 import * as scales from '../../../helpers/scales';
 const {
   trendsHeight,
-  trendsWidth,
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
 import bgBounds from '../../../helpers/bgBounds';
-import SVGContainer from '../../../helpers/SVGContainer';
 
 import { THREE_HRS } from '../../../../src/utils/datetime';
 import { SMBGRangeAnimated } from '../../../../src/components/trends/smbg/SMBGRangeAnimated';
@@ -55,12 +53,22 @@ describe('SMBGRangeAnimated', () => {
     xScale,
     yScale,
   };
+
   before(() => {
-    wrapper = mount(
-      <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-        <SMBGRangeAnimated {...props} />
-      </SVGContainer>
-    );
+    wrapper = shallow(<SMBGRangeAnimated {...props} />);
+  });
+
+  describe('when a datum (overlay data) is provided', () => {
+    it('should create an array of 1 `styles` to render on the TransitionMotion', () => {
+      const styles = wrapper.find(TransitionMotion).prop('styles');
+      expect(styles.length).to.equal(1);
+    });
+
+    it('should create `styles` for a <rect> covering the whole yScale range', () => {
+      const { style } = wrapper.find(TransitionMotion).prop('styles')[0];
+      expect(style.height.val).to.equal(trendsHeight);
+      expect(style.y.val).to.equal(0);
+    });
   });
 
   describe('when datum with `undefined` statistics (i.e., gap in data)', () => {
@@ -76,67 +84,13 @@ describe('SMBGRangeAnimated', () => {
         },
       });
 
-      noDatumWrapper = mount(
-        <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <SMBGRangeAnimated {...noDatumProps} />
-        </SVGContainer>
-      );
+      noDatumWrapper = shallow(<SMBGRangeAnimated {...noDatumProps} />);
     });
 
-    it('should render a TransitionMotion component but no <rect>', () => {
+    it('should create an array of 0 `styles` to render on the TransitionMotion', () => {
       expect(noDatumWrapper.find(TransitionMotion).length).to.equal(1);
-      expect(noDatumWrapper.find(`#smbgRange-${datum.id}`).length).to.equal(0);
-    });
-  });
-
-  describe('when a datum (overlay data) is provided', () => {
-    it('should render a SMBGRangeAnimated <rect>', () => {
-      expect(wrapper.find(`#smbgRange-${datum.id} rect`).length).to.equal(1);
-    });
-
-    it('should render a min/max rect covering the whole yScale range', () => {
-      const rangeRect = wrapper
-        .find(`#smbgRange-${datum.id}`).props();
-      const smbgRangeAnimated = wrapper.find(SMBGRangeAnimated);
-      expect(rangeRect.x)
-        .to.equal(xScale(datum.msX) - smbgRangeAnimated.prop('rectWidth') / 2);
-      expect(rangeRect.width).to.equal(smbgRangeAnimated.prop('rectWidth'));
-      const style = wrapper.find(TransitionMotion).prop('styles')[0].style;
-      expect(style.y.val).to.equal(0);
-      expect(style.height.val).to.equal(trendsHeight);
-    });
-  });
-
-  describe('interactions', () => {
-    afterEach(() => {
-      props.focus.reset();
-      props.unfocus.reset();
-    });
-
-    it('should call focus on mouseover of min/max rect', () => {
-      const rangeRect = wrapper
-        .find(`#smbgRange-${datum.id}`);
-      expect(focus.callCount).to.equal(0);
-      rangeRect.simulate('mouseover');
-      expect(focus.args[0][0]).to.deep.equal(datum);
-      expect(focus.args[0][1]).to.deep.equal({
-        left: 54,
-        tooltipLeft: false,
-        yPositions: {
-          max: yScale(datum.max),
-          mean: yScale(datum.mean),
-          min: yScale(datum.min),
-        },
-      });
-      expect(focus.callCount).to.equal(1);
-    });
-
-    it('should call unfocus on mouseout of min/max rect', () => {
-      const rangeRect = wrapper
-        .find(`#smbgRange-${datum.id}`);
-      expect(unfocus.callCount).to.equal(0);
-      rangeRect.simulate('mouseout');
-      expect(unfocus.callCount).to.equal(1);
+      const styles = noDatumWrapper.find(TransitionMotion).prop('styles');
+      expect(styles.length).to.equal(0);
     });
   });
 });

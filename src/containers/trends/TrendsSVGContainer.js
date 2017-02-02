@@ -39,7 +39,7 @@ const SMBG_OPTS = {
   r: 6,
 };
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import dimensions from 'react-dimensions';
 import _ from 'lodash';
 
@@ -60,7 +60,7 @@ import XAxisLabels from '../../components/trends/common/XAxisLabels';
 import XAxisTicks from '../../components/trends/common/XAxisTicks';
 import YAxisLabelsAndTicks from '../../components/trends/common/YAxisLabelsAndTicks';
 
-export class TrendsSVGContainer extends React.Component {
+export class TrendsSVGContainer extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -131,12 +131,10 @@ export class TrendsSVGContainer extends React.Component {
       <SMBGRangeAvgContainer
         bgBounds={this.props.bgBounds}
         data={data}
-        focus={this.props.focusRange}
         key={componentKey}
         smbgComponent={smbgComponent}
         someSmbgDataIsFocused={this.props.focusedSmbg !== null}
         tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-        unfocus={this.props.unfocusRange}
         xScale={this.props.xScale}
         yScale={this.props.yScale}
       />
@@ -151,10 +149,8 @@ export class TrendsSVGContainer extends React.Component {
           data={this.props.cbgData}
           displayFlags={this.props.displayFlags}
           focusedSliceKey={_.get(this.props.focusedSlice, ['data', 'id'], null)}
-          focusSlice={this.props.focusSlice}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
           topMargin={this.props.margins.top}
-          unfocusSlice={this.props.unfocusSlice}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
@@ -166,10 +162,8 @@ export class TrendsSVGContainer extends React.Component {
           bgBounds={this.props.bgBounds}
           data={focusedSegmentDataGroupedByDate}
           dates={_.keys(focusedSegmentDataGroupedByDate) || []}
-          focusDateTrace={this.props.focusDateTrace}
           onSelectDate={this.props.onSelectDate}
           topMargin={this.props.margins.top}
-          unfocusDateTrace={this.props.unfocusDateTrace}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
@@ -205,7 +199,6 @@ export class TrendsSVGContainer extends React.Component {
           bgBounds={this.props.bgBounds}
           data={this.props.smbgData}
           dates={this.props.dates}
-          focusSmbg={this.props.focusSmbg}
           grouped={this.props.smbgGrouped}
           key="smbgDaysContainer"
           lines={this.props.smbgLines}
@@ -213,7 +206,6 @@ export class TrendsSVGContainer extends React.Component {
           smbgOpts={this.props.smbgOpts}
           someSmbgDataIsFocused={this.props.focusedSmbg !== null}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-          unfocusSmbg={this.props.unfocusSmbg}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
@@ -228,7 +220,6 @@ export class TrendsSVGContainer extends React.Component {
           data={this.props.focusedSmbg.allSmbgsOnDate}
           dates={[this.props.focusedSmbg.date]}
           focusedSmbg={this.props.focusedSmbg}
-          focusSmbg={() => {}}
           grouped={this.props.smbgGrouped}
           key="focusedSmbgDayContainer"
           lines={this.props.smbgLines}
@@ -237,7 +228,6 @@ export class TrendsSVGContainer extends React.Component {
           smbgOpts={this.props.smbgOpts}
           someSmbgDataIsFocused={false}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-          unfocusSmbg={() => {}}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
         />
@@ -392,10 +382,6 @@ TrendsSVGContainer.propTypes = {
     }),
   }),
   focusedSmbgRangeAvgKey: PropTypes.string,
-  focusDateTrace: PropTypes.func.isRequired,
-  focusRange: PropTypes.func.isRequired,
-  focusSlice: PropTypes.func.isRequired,
-  focusSmbg: PropTypes.func.isRequired,
   margins: PropTypes.shape({
     top: PropTypes.number.isRequired,
     right: PropTypes.number.isRequired,
@@ -413,10 +399,6 @@ TrendsSVGContainer.propTypes = {
   }).isRequired,
   smbgRangeOverlay: PropTypes.bool.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
-  unfocusDateTrace: PropTypes.func.isRequired,
-  unfocusRange: PropTypes.func.isRequired,
-  unfocusSlice: PropTypes.func.isRequired,
-  unfocusSmbg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
 };

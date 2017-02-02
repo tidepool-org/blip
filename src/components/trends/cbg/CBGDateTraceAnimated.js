@@ -16,14 +16,18 @@
  */
 
 import _ from 'lodash';
-import { TimelineMax } from 'gsap';
-import React, { Component, PropTypes } from 'react';
+import { TweenMax } from 'gsap';
+import React, { PropTypes, PureComponent } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
+import connectWithTransitionGroup from '../../common/connectWithTransitionGroup';
+import { focusTrendsCbgDateTrace, unfocusTrendsCbgDateTrace } from '../../../redux/actions/trends';
 import { classifyBgValue } from '../../../utils/bloodglucose';
 
 import styles from './CBGDateTraceAnimated.css';
 
-class CBGDateTraceAnimated extends Component {
+export class CBGDateTraceAnimated extends PureComponent {
   static defaultProps = {
     cbgRadius: 2.5,
   };
@@ -51,26 +55,37 @@ class CBGDateTraceAnimated extends Component {
     yScale: PropTypes.func.isRequired,
   };
 
+  constructor(props) {
+    super(props);
+
+    this.handleClick = this.handleClick.bind(this);
+    this.handleMouseOut = this.handleMouseOut.bind(this);
+  }
+
   componentWillEnter(cb) {
     const { data } = this.props;
     const targets = _.map(data, (d) => (this[d.id]));
-    const t = new TimelineMax({ onComplete: cb });
-
-    t.staggerTo(targets, 0.2, { opacity: 1 }, 0.0015);
+    TweenMax.staggerTo(targets, 0.2, { opacity: 1, onComplete: cb }, 0.0015);
   }
-
-  componentDidEnter() {}
 
   componentWillLeave(cb) {
     const { data } = this.props;
     const targets = _.map(data, (d) => (this[d.id]));
-    const t = new TimelineMax({ onComplete: cb });
+    TweenMax.staggerTo(targets, 0.2, { opacity: 0, onComplete: cb }, 0.0015);
+  }
 
-    t.staggerTo(targets, 0.2, { opacity: 0 }, 0.0015);
+  handleClick() {
+    const { date, onSelectDate } = this.props;
+    onSelectDate(date);
+  }
+
+  handleMouseOut() {
+    const { unfocusDateTrace, userId } = this.props;
+    unfocusDateTrace(userId);
   }
 
   render() {
-    const { bgBounds, cbgRadius, data, date, topMargin, xScale, yScale } = this.props;
+    const { bgBounds, cbgRadius, data, date, topMargin, userId, xScale, yScale } = this.props;
     return (
       <g id={`cbgDateTrace-${date}`}>
         {_.map(data, (d) => (
@@ -80,11 +95,9 @@ class CBGDateTraceAnimated extends Component {
             cy={yScale(d.value)}
             id={`cbgCircle-${d.id}`}
             key={d.id}
-            onClick={() => {
-              this.props.onSelectDate(d.localDate);
-            }}
+            onClick={this.handleClick}
             onMouseOver={() => {
-              this.props.focusDateTrace(d, {
+              this.props.focusDateTrace(userId, d, {
                 left: xScale(d.msPer24),
                 yPositions: {
                   top: yScale(d.value),
@@ -92,7 +105,7 @@ class CBGDateTraceAnimated extends Component {
                 },
               });
             }}
-            onMouseOut={this.props.unfocusDateTrace}
+            onMouseOut={this.handleMouseOut}
             opacity={0}
             r={cbgRadius}
             ref={(node) => { this[d.id] = node; }}
@@ -103,4 +116,20 @@ class CBGDateTraceAnimated extends Component {
   }
 }
 
-export default CBGDateTraceAnimated;
+export function mapStateToProps(state) {
+  const { blip: { currentPatientInViewId } } = state;
+  return {
+    userId: currentPatientInViewId,
+  };
+}
+
+export function mapDispatchToProps(dispatch) {
+  return bindActionCreators({
+    focusDateTrace: focusTrendsCbgDateTrace,
+    unfocusDateTrace: unfocusTrendsCbgDateTrace,
+  }, dispatch);
+}
+
+export default connectWithTransitionGroup(
+  connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(CBGDateTraceAnimated)
+);

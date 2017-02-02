@@ -33,7 +33,8 @@ const {
 } = scales.trends;
 
 import SVGContainer from '../../../helpers/SVGContainer';
-import SMBGDatePointsAnimated from '../../../../src/components/trends/smbg/SMBGDatePointsAnimated';
+import { SMBGDatePointsAnimated }
+  from '../../../../src/components/trends/smbg/SMBGDatePointsAnimated';
 
 describe('SMBGDatePointsAnimated', () => {
   let wrapper;
@@ -55,17 +56,18 @@ describe('SMBGDatePointsAnimated', () => {
 
   const props = {
     bgBounds,
-    date,
     data,
-    xScale,
-    yScale,
-    focusSmbg,
-    unfocusSmbg,
-    onSelectDate,
-    grouped,
+    date,
     focusedDay,
+    focusSmbg,
+    grouped,
+    onSelectDate,
     smbgOpts,
     tooltipLeftThreshold: THREE_HRS * 6,
+    unfocusSmbg,
+    userId: 'a1b2c3',
+    xScale,
+    yScale,
   };
   before(() => {
     wrapper = mount(
@@ -112,7 +114,8 @@ describe('SMBGDatePointsAnimated', () => {
         .find(`#smbg-${data[0].id}`);
       expect(focusSmbg.callCount).to.equal(0);
       smbgCircle.simulate('mouseover');
-      expect(focusSmbg.args[0][0]).to.deep.equal(data[0]);
+      expect(focusSmbg.args[0][0]).to.equal(props.userId);
+      expect(focusSmbg.args[0][1]).to.deep.equal(data[0]);
       expect(focusSmbg.callCount).to.equal(1);
     });
 

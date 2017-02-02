@@ -22,7 +22,7 @@ import bows from 'bows';
 import { extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { utcDay } from 'd3-time';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -34,7 +34,7 @@ import {
 const { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } } = trends;
 import * as datetime from '../../utils/datetime';
 
-export class TrendsContainer extends React.Component {
+export class TrendsContainer extends PureComponent {
   static propTypes = {
     activeDays: PropTypes.shape({
       monday: PropTypes.bool.isRequired,
@@ -74,6 +74,7 @@ export class TrendsContainer extends React.Component {
     smbgByDate: PropTypes.object.isRequired,
     smbgByDayOfWeek: PropTypes.object.isRequired,
     // handlers
+    markTrendsViewed: PropTypes.func.isRequired,
     onDatetimeLocationChange: PropTypes.func.isRequired,
     onSelectDate: PropTypes.func.isRequired,
     onSwitchBgDataSource: PropTypes.func.isRequired,
@@ -161,16 +162,6 @@ export class TrendsContainer extends React.Component {
       }),
       touched: PropTypes.bool.isRequired,
     }).isRequired,
-    // actions
-    focusTrendsCbgDateTrace: PropTypes.func.isRequired,
-    focusTrendsCbgSlice: PropTypes.func.isRequired,
-    focusTrendsSmbgRangeAvg: PropTypes.func.isRequired,
-    focusTrendsSmbg: PropTypes.func.isRequired,
-    markTrendsViewed: PropTypes.func.isRequired,
-    unfocusTrendsCbgSlice: PropTypes.func.isRequired,
-    unfocusTrendsCbgDateTrace: PropTypes.func.isRequired,
-    unfocusTrendsSmbgRangeAvg: PropTypes.func.isRequired,
-    unfocusTrendsSmbg: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -338,7 +329,7 @@ export class TrendsContainer extends React.Component {
   }
 
   determineDataToShow() {
-    const { trendsState: { touched } } = this.props;
+    const { currentPatientInViewId, trendsState: { touched } } = this.props;
     if (touched) {
       return;
     }
@@ -348,7 +339,7 @@ export class TrendsContainer extends React.Component {
     if (showingCbg && currentCbgData.length < minimumCbgs) {
       this.props.onSwitchBgDataSource();
     }
-    this.props.markTrendsViewed();
+    this.props.markTrendsViewed(currentPatientInViewId);
   }
 
   render() {
@@ -380,10 +371,6 @@ export class TrendsContainer extends React.Component {
         )}
         focusedSmbg={this.props.trendsState.focusedSmbg}
         displayFlags={this.props.trendsState.cbgFlags}
-        focusDateTrace={this.props.focusTrendsCbgDateTrace}
-        focusRange={this.props.focusTrendsSmbgRangeAvg}
-        focusSlice={this.props.focusTrendsCbgSlice}
-        focusSmbg={this.props.focusTrendsSmbg}
         showingCbg={this.props.showingCbg}
         showingSmbg={this.props.showingSmbg}
         smbgGrouped={this.props.smbgGrouped}
@@ -392,10 +379,6 @@ export class TrendsContainer extends React.Component {
         onSelectDate={this.selectDate()}
         xScale={this.state.xScale}
         yScale={this.state.yScale}
-        unfocusDateTrace={this.props.unfocusTrendsCbgDateTrace}
-        unfocusRange={this.props.unfocusTrendsSmbgRangeAvg}
-        unfocusSlice={this.props.unfocusTrendsCbgSlice}
-        unfocusSmbg={this.props.unfocusTrendsSmbg}
       />
     );
   }
@@ -408,35 +391,9 @@ export function mapStateToProps(state, ownProps) {
   };
 }
 
-export function mapDispatchToProps(dispatch, ownProps) {
+export function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    focusTrendsCbgDateTrace: _.partial(
-      actions.focusTrendsCbgDateTrace, ownProps.currentPatientInViewId
-    ),
-    focusTrendsCbgSlice: _.partial(
-      actions.focusTrendsCbgSlice, ownProps.currentPatientInViewId
-    ),
-    focusTrendsSmbgRangeAvg: _.partial(
-      actions.focusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
-    ),
-    focusTrendsSmbg: _.partial(
-      actions.focusTrendsSmbg, ownProps.currentPatientInViewId
-    ),
-    markTrendsViewed: _.partial(
-      actions.markTrendsViewed, ownProps.currentPatientInViewId
-    ),
-    unfocusTrendsCbgDateTrace: _.partial(
-      actions.unfocusTrendsCbgDateTrace, ownProps.currentPatientInViewId
-    ),
-    unfocusTrendsCbgSlice: _.partial(
-      actions.unfocusTrendsCbgSlice, ownProps.currentPatientInViewId
-    ),
-    unfocusTrendsSmbgRangeAvg: _.partial(
-      actions.unfocusTrendsSmbgRangeAvg, ownProps.currentPatientInViewId
-    ),
-    unfocusTrendsSmbg: _.partial(
-      actions.unfocusTrendsSmbg, ownProps.currentPatientInViewId
-    ),
+    markTrendsViewed: actions.markTrendsViewed,
   }, dispatch);
 }
 

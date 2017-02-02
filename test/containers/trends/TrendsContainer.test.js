@@ -137,13 +137,7 @@ describe('TrendsContainer', () => {
           cbgMedianEnabled: true,
         },
       },
-      focusTrendsCbgSlice: sinon.stub(),
-      focusTrendsSmbg: sinon.stub(),
-      focusTrendsSmbgRangeAvg: sinon.stub(),
       markTrendsViewed,
-      unfocusTrendsCbgSlice: sinon.stub(),
-      unfocusTrendsSmbg: sinon.stub(),
-      unfocusTrendsSmbgRangeAvg: sinon.stub(),
     };
 
     const mgdl = {
@@ -168,15 +162,6 @@ describe('TrendsContainer', () => {
     before(() => {
       minimalData = mount(
         <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum)} />
-      );
-      enoughCbgData = mount(
-        <TrendsContainer {...props} {...mgdl} {...makeDataStubs(sevenDaysData)} />
-      );
-      minimalDataMmol = mount(
-        <TrendsContainer {...props} {...mmoll} {...makeDataStubs(justOneDatumMmol)} />
-      );
-      enoughCbgDataMmol = mount(
-        <TrendsContainer {...props} {...mmoll} {...makeDataStubs(sevenDaysDataMmol)} />
       );
     });
 
@@ -321,6 +306,12 @@ describe('TrendsContainer', () => {
 
     describe('yScale', () => {
       describe('mg/dL blood glucose units', () => {
+        before(() => {
+          enoughCbgData = mount(
+            <TrendsContainer {...props} {...mgdl} {...makeDataStubs(sevenDaysData)} />
+          );
+        });
+
         it('should have `clamp` set to true', () => {
           const { yScale } = minimalData.state();
           expect(yScale.clamp()).to.be.true;
@@ -340,6 +331,15 @@ describe('TrendsContainer', () => {
       });
 
       describe('mmol/L blood glucose units', () => {
+        before(() => {
+          enoughCbgDataMmol = mount(
+            <TrendsContainer {...props} {...mmoll} {...makeDataStubs(sevenDaysDataMmol)} />
+          );
+          minimalDataMmol = mount(
+            <TrendsContainer {...props} {...mmoll} {...makeDataStubs(justOneDatumMmol)} />
+          );
+        });
+
         it('should have `clamp` set to true', () => {
           const { yScale } = minimalDataMmol.state();
           expect(yScale.clamp()).to.be.true;
@@ -567,36 +567,8 @@ describe('TrendsContainer', () => {
   });
 
   describe('mapDispatchToProps', () => {
-    const ownProps = { currentPatientInViewId: 'a1b2c3' };
-
-    it('should return an object with a `focusTrendsCbgSlice` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('focusTrendsCbgSlice');
-    });
-
-    it('should return an object with a `focusTrendsSmbgRangeAvg` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps))
-        .to.have.property('focusTrendsSmbgRangeAvg');
-    });
-
-    it('should return an object with a `focusTrendsSmbg` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('focusTrendsSmbg');
-    });
-
     it('should return an object with a `markTrendsViewed` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('markTrendsViewed');
-    });
-
-    it('should return an object with an `unfocusTrendsCbgSlice` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('unfocusTrendsCbgSlice');
-    });
-
-    it('should return an object with a `unfocusTrendsSmbgRangeAvg` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps))
-        .to.have.property('unfocusTrendsSmbgRangeAvg');
-    });
-
-    it('should return an object with a `unfocusTrendsSmbg` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('unfocusTrendsSmbg');
+      expect(mapDispatchToProps(sinon.stub())).to.have.property('markTrendsViewed');
     });
   });
 });

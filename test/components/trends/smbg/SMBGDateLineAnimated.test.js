@@ -31,7 +31,7 @@ const {
 } = scales.trends;
 
 import SVGContainer from '../../../helpers/SVGContainer';
-import SMBGDateLineAnimated from '../../../../src/components/trends/smbg/SMBGDateLineAnimated';
+import { SMBGDateLineAnimated } from '../../../../src/components/trends/smbg/SMBGDateLineAnimated';
 
 describe('SMBGDateLineAnimated', () => {
   let wrapper;

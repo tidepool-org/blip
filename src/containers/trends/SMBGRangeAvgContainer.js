@@ -16,13 +16,13 @@
  */
 
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import { range } from 'd3-array';
 
 import { THREE_HRS, TWENTY_FOUR_HRS } from '../../utils/datetime';
 import { calculateSmbgStatsForBin, findBinForTimeOfDay } from '../../utils/trends/data';
 
-export default class SMBGRangeAvgContainer extends React.Component {
+export default class SMBGRangeAvgContainer extends PureComponent {
   static propTypes = {
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,
@@ -37,11 +37,9 @@ export default class SMBGRangeAvgContainer extends React.Component {
       msPer24: PropTypes.number.isRequired,
       value: PropTypes.number.isRequired,
     })).isRequired,
-    focus: PropTypes.func.isRequired,
     smbgComponent: PropTypes.func.isRequired,
     someSmbgDataIsFocused: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
-    unfocus: PropTypes.func.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
@@ -88,10 +86,8 @@ export default class SMBGRangeAvgContainer extends React.Component {
             bgBounds={this.props.bgBounds}
             datum={datum}
             key={datum.id}
-            focus={this.props.focus}
             someSmbgDataIsFocused={this.props.someSmbgDataIsFocused}
             tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-            unfocus={this.props.unfocus}
             xScale={this.props.xScale}
             yScale={this.props.yScale}
           />

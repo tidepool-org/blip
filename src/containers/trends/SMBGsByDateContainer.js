@@ -32,7 +32,6 @@ const SMBGsByDateContainer = (props) => {
     bgBounds,
     dates,
     focusedSmbg,
-    focusSmbg,
     grouped,
     lines,
     nonInteractive,
@@ -40,7 +39,6 @@ const SMBGsByDateContainer = (props) => {
     smbgOpts,
     someSmbgDataIsFocused,
     tooltipLeftThreshold,
-    unfocusSmbg,
     xScale,
     yScale,
   } = props;
@@ -64,13 +62,11 @@ const SMBGsByDateContainer = (props) => {
           data={dateData}
           date={date}
           focusedDay={focusedDay}
-          focusLine={focusSmbg}
           grouped={grouped}
           key={date}
           onSelectDate={onSelectDate}
           nonInteractive={nonInteractive}
           tooltipLeftThreshold={tooltipLeftThreshold}
-          unfocusLine={unfocusSmbg}
           xScale={xScale}
           yScale={yScale}
         />
@@ -84,12 +80,10 @@ const SMBGsByDateContainer = (props) => {
           date={focusedDay}
           key={`${focusedDay}-focused`}
           focusedDay={focusedDay}
-          focusLine={focusSmbg}
           grouped={grouped}
           onSelectDate={onSelectDate}
           nonInteractive={nonInteractive}
           tooltipLeftThreshold={tooltipLeftThreshold}
-          unfocusLine={unfocusSmbg}
           xScale={xScale}
           yScale={yScale}
         />
@@ -105,7 +99,6 @@ const SMBGsByDateContainer = (props) => {
         bgBounds={bgBounds}
         data={smbgs}
         date={date}
-        focusSmbg={focusSmbg}
         grouped={grouped}
         isFocused={focusedDay === date}
         key={date}
@@ -114,7 +107,6 @@ const SMBGsByDateContainer = (props) => {
         smbgOpts={smbgOpts}
         someSmbgDataIsFocused={someSmbgDataIsFocused}
         tooltipLeftThreshold={tooltipLeftThreshold}
-        unfocusSmbg={unfocusSmbg}
         xScale={xScale}
         yScale={yScale}
       />
@@ -162,7 +154,6 @@ SMBGsByDateContainer.propTypes = {
       left: PropTypes.number.isRequired,
     }),
   }),
-  focusSmbg: PropTypes.func.isRequired,
   grouped: PropTypes.bool.isRequired,
   lines: PropTypes.bool.isRequired,
   nonInteractive: PropTypes.bool,
@@ -173,7 +164,6 @@ SMBGsByDateContainer.propTypes = {
   }).isRequired,
   someSmbgDataIsFocused: PropTypes.bool.isRequired,
   tooltipLeftThreshold: PropTypes.number.isRequired,
-  unfocusSmbg: PropTypes.func.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
 };
