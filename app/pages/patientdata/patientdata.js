@@ -33,7 +33,7 @@ import { URL_UPLOADER_CHROME_STORE, URL_BLIP_NOTES_APP_STORE } from '../../core/
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
-import { modal as Modal } from '../../components/chart';
+import Trends from '../../components/chart/trends';
 import { weekly as Weekly } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 
@@ -70,7 +70,7 @@ export let PatientData = React.createClass({
   getInitialState: function() {
     var state = {
       chartPrefs: {
-        modal: {
+        trends: {
           activeDays: {
             monday: true,
             tuesday: true,
@@ -267,10 +267,10 @@ export let PatientData = React.createClass({
             ref="tideline" />
           );
 
-      case 'modal':
+      case 'trends':
 
         return (
-          <Modal
+          <Trends
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
@@ -446,7 +446,7 @@ export let PatientData = React.createClass({
       fromChart: this.state.chartType
     });
     this.setState({
-      chartType: 'modal',
+      chartType: 'trends',
       initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
   },
