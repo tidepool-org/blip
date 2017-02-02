@@ -449,9 +449,18 @@ describe('basics datamunger', function() {
     it('should return a pump with proper data', function() {
       var patientData = {
         grouped: {
-          pumpSettings: [
+          upload: [
             {
+              deviceTags: ['bgm'],
+              source: 'BGM',
+            },
+            {
+              deviceTags: ['insulin-pump'],
               source: constants.TANDEM,
+            },
+            {
+              deviceTags: ['cgm'],
+              source: 'CGM',
             },
           ],
         },
