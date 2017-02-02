@@ -110,7 +110,9 @@ export class SMBGDateLineAnimated extends PureComponent {
         style: {
           opacity: spring(1, springConfig),
           x: spring(xScale(this.getXPosition(d.msPer24, grouped)), springConfig),
-          y: yScale(d.value),
+          // basically a no-op animation but the data reshaping below for the d3 line() fn
+          // seems to require us to animate all properties we want to reshape there
+          y: spring(yScale(d.value), springConfig),
         } },
       );
     });
@@ -118,10 +120,10 @@ export class SMBGDateLineAnimated extends PureComponent {
   }
 
   getPositions() {
-    const { data, tooltipLeftThreshold, xScale, yScale } = this.props;
+    const { data, grouped, tooltipLeftThreshold, xScale, yScale } = this.props;
     return _.map(data, (d) => ({
       tooltipLeft: d.msPer24 > tooltipLeftThreshold,
-      left: xScale(this.getXPosition(d.msPer24)),
+      left: xScale(this.getXPosition(d.msPer24, grouped)),
       top: yScale(d.value),
     }));
   }
@@ -149,15 +151,21 @@ export class SMBGDateLineAnimated extends PureComponent {
     focusLine(userId, data[0], positions[0], data, positions, date);
   }
 
-  willEnter() {
+  willEnter(entered) {
+    const { style } = entered;
     return {
       opacity: 0,
+      x: _.get(style, ['x', 'val'], style.x),
+      y: _.get(style, ['y', 'val'], style.y),
     };
   }
 
-  willLeave() {
+  willLeave(exited) {
+    const { style } = exited;
     return {
       opacity: spring(0, springConfig),
+      x: spring(_.get(style, ['x', 'val'], style.x), springConfig),
+      y: spring(_.get(style, ['y', 'val'], style.y), springConfig),
     };
   }
 
@@ -176,7 +184,7 @@ export class SMBGDateLineAnimated extends PureComponent {
 
     // NOTE: This mapping is required due to the differing
     // expectations of TransitionMotion and d3 line
-    const mapObject = (obj, fn) => _.map(_.keys(obj), (key) => fn(obj[key], key, obj));
+    // const mapObject = (obj, fn) => _.map(_.keys(obj), (key) => fn(obj[key], key, obj));
 
     return (
       <g id={`smbgDateLine-${date}`}>
@@ -192,7 +200,10 @@ export class SMBGDateLineAnimated extends PureComponent {
             }
             return (
               <path
-                d={line()(mapObject(_.pluck(interpolated, 'style'), ({ x, y }) => [x, y]))}
+                // d3 line() expects an array of 2-member arrays of x, y coordinates
+                d={line()(_.map(_.pluck(interpolated, 'style'), (style) => (
+                  [_.get(style, ['x', 'val'], style.x), _.get(style, ['y', 'val'], style.y)]
+                )))}
                 className={classes}
                 onMouseOver={this.handleMouseOver}
                 onMouseOut={this.handleMouseOut}
