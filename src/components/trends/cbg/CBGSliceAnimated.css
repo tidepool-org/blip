@@ -24,13 +24,31 @@
   pointer-events: all;
 }
 
+@keyframes fadeRangeOut {
+  from {
+    stroke: var(--trends--light);
+  }
+  to {
+    stroke: var(--trends--light--faded);
+  }
+}
+
+@keyframes fadeRangeIn {
+  from {
+    stroke: var(--trends--light--faded);
+  }
+  to {
+    stroke: var(--trends--light);
+  }
+}
+
 .rangeSegment {
-  stroke: var(--trends--light);
+  animation: fadeRangeIn 0.25s forwards ease-in-out;
   fill: transparent;
 }
 
 .rangeSegmentFaded {
-  stroke: var(--trends--light--faded);
+  animation: fadeRangeOut 0.25s forwards ease-in-out;
   fill: transparent;
 }
 
@@ -38,28 +56,68 @@
   opacity: 0;
 }
 
+@keyframes fadeOuterOut {
+  from {
+    fill: var(--trends--light);
+    stroke: var(--trends--light);
+  }
+  to {
+    fill: var(--trends--light--faded);
+    stroke: var(--trends--light--faded);
+  }
+}
+
+@keyframes fadeOuterIn {
+  from {
+    fill: var(--trends--light--faded);
+    stroke: var(--trends--light--faded);
+  }
+  to {
+    fill: var(--trends--light);
+    stroke: var(--trends--light);
+  }
+}
+
 .outerSegment {
-  stroke: var(--trends--light);
-  fill: var(--trends--light);
+  animation: fadeOuterIn 0.25s forwards ease-in-out;
 }
 
 .outerSegmentFaded {
-  stroke: var(--trends--light--faded);
-  fill: var(--trends--light--faded);
+  animation: fadeOuterOut 0.25s forwards ease-in-out;
 }
 
 .outerSegment:hover {
   opacity: 0;
 }
 
+@keyframes fadeInnerOut {
+  from {
+    fill: var(--trends--dark);
+    stroke: var(--trends--dark);
+  }
+  to {
+    fill: var(--trends--dark--faded);
+    stroke: var(--trends--dark--faded);
+  }
+}
+
+@keyframes fadeInnerIn {
+  from {
+    fill: var(--trends--dark--faded);
+    stroke: var(--trends--dark--faded);
+  }
+  to {
+    fill: var(--trends--dark);
+    stroke: var(--trends--dark);
+  }
+}
+
 .innerQuartilesSegment {
-  stroke: var(--trends--dark);
-  fill: var(--trends--dark);
+  animation: fadeInnerIn 0.25s forwards ease-in-out;
 }
 
 .innerQuartilesSegmentFaded {
-  stroke: var(--trends--dark--faded);
-  fill: var(--trends--dark--faded);
+  animation: fadeInnerOut 0.25s forwards ease-in-out;
 }
 
 .innerQuartilesSegment:hover {
