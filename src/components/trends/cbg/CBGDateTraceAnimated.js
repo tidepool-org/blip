@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash';
-import { TimelineMax } from 'gsap';
+import { TweenMax } from 'gsap';
 import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -65,17 +65,13 @@ export class CBGDateTraceAnimated extends PureComponent {
   componentWillEnter(cb) {
     const { data } = this.props;
     const targets = _.map(data, (d) => (this[d.id]));
-    const t = new TimelineMax({ onComplete: cb });
-
-    t.staggerTo(targets, 0.2, { opacity: 1 }, 0.0015);
+    TweenMax.staggerTo(targets, 0.2, { opacity: 1, onComplete: cb }, 0.0015);
   }
 
   componentWillLeave(cb) {
     const { data } = this.props;
     const targets = _.map(data, (d) => (this[d.id]));
-    const t = new TimelineMax({ onComplete: cb });
-
-    t.staggerTo(targets, 0.2, { opacity: 0 }, 0.0015);
+    TweenMax.staggerTo(targets, 0.2, { opacity: 0, onComplete: cb }, 0.0015);
   }
 
   handleClick() {
