@@ -55,17 +55,20 @@ describe('YAxisLabelsAndTicks', () => {
 
   it('should render three tick lines and three text labels', () => {
     const lines = wrapper.find('line');
-    expect(lines).to.have.length(3);
+    expect(lines).to.have.length(4);
     expect(lines.at(0).prop('y1')).to.equal(yScale(props.bgBounds.targetLowerBound));
     expect(lines.at(0).prop('y2')).to.equal(yScale(props.bgBounds.targetLowerBound));
     expect(lines.at(1).prop('y1')).to.equal(yScale(props.bgBounds.targetUpperBound));
     expect(lines.at(1).prop('y2')).to.equal(yScale(props.bgBounds.targetUpperBound));
     expect(lines.at(2).prop('y1')).to.equal(yScale(props.bgBounds.veryHighThreshold));
     expect(lines.at(2).prop('y2')).to.equal(yScale(props.bgBounds.veryHighThreshold));
+    expect(lines.at(3).prop('y1')).to.equal(yScale(props.bgBounds.veryLowThreshold));
+    expect(lines.at(3).prop('y2')).to.equal(yScale(props.bgBounds.veryLowThreshold));
     const labels = wrapper.find('text');
-    expect(labels).to.have.length(3);
+    expect(labels).to.have.length(4);
     expect(labels.at(0).prop('y')).to.equal(yScale(props.bgBounds.targetLowerBound));
     expect(labels.at(1).prop('y')).to.equal(yScale(props.bgBounds.targetUpperBound));
     expect(labels.at(2).prop('y')).to.equal(yScale(props.bgBounds.veryHighThreshold));
+    expect(labels.at(3).prop('y')).to.equal(yScale(props.bgBounds.veryLowThreshold));
   });
 });
