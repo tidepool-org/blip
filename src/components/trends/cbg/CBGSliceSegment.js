@@ -19,7 +19,8 @@ import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { focusTrendsCbgSlice, unfocusTrendsCbgSlice } from '../../../redux/actions/trends';
+import { delayShowCbgTracesOnFocus } from '../../../redux/actions/thunks';
+import { unfocusTrendsCbgSlice } from '../../../redux/actions/trends';
 
 export class CBGSliceSegment extends PureComponent {
   static propTypes = {
@@ -113,7 +114,7 @@ export function mapStateToProps(state) {
 
 export function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    focusSlice: focusTrendsCbgSlice,
+    focusSlice: delayShowCbgTracesOnFocus,
     unfocusSlice: unfocusTrendsCbgSlice,
   }, dispatch);
 }
