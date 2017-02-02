@@ -122,21 +122,17 @@ export class CBGMedianAnimated extends PureComponent {
         defaultStyles={shouldRender ? [{
           key: 'median',
           style: {
-            binLeftX,
             height: 0,
             median: defaultY,
             opacity: 0,
-            width,
           },
         }] : []}
         styles={shouldRender ? [{
           key: 'median',
           style: {
-            binLeftX,
             height: spring(medianHeight, springConfig),
             median: spring(yScale(datum.median) - medianHeight / 2, springConfig),
             opacity: spring(1.0, springConfig),
-            width,
           },
         }] : []}
         willEnter={this.willEnter}
@@ -151,9 +147,9 @@ export class CBGMedianAnimated extends PureComponent {
             <rect
               className={medianClasses}
               id={`cbgMedian-${key}`}
-              width={style.width}
+              width={width}
               height={style.height}
-              x={style.binLeftX}
+              x={binLeftX}
               y={style.median}
               opacity={style.opacity}
             />
