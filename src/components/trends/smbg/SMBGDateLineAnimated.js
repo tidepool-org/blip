@@ -182,10 +182,6 @@ export class SMBGDateLineAnimated extends PureComponent {
       [styles.highlightPath]: focusedDay === date,
     });
 
-    // NOTE: This mapping is required due to the differing
-    // expectations of TransitionMotion and d3 line
-    // const mapObject = (obj, fn) => _.map(_.keys(obj), (key) => fn(obj[key], key, obj));
-
     return (
       <g id={`smbgDateLine-${date}`}>
         <TransitionMotion
