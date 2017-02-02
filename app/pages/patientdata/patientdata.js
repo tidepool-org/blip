@@ -86,7 +86,7 @@ export let PatientData = React.createClass({
           // in case we decide to layer BGM & CGM data, as has been discussed/prototyped
           showingCbg: true,
           showingSmbg: false,
-          smbgGrouped: true,
+          smbgGrouped: false,
           smbgLines: false,
           smbgRangeOverlay: true,
         }
