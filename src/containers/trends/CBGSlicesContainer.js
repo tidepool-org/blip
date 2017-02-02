@@ -46,7 +46,7 @@ export default class CBGSlicesContainer extends PureComponent {
       cbg50Enabled: PropTypes.bool.isRequired,
       cbgMedianEnabled: PropTypes.bool.isRequired,
     }).isRequired,
-    focusedSliceKey: PropTypes.string,
+    showingCbgDateTraces: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     topMargin: PropTypes.number.isRequired,
     xScale: PropTypes.func.isRequired,
@@ -93,7 +93,7 @@ export default class CBGSlicesContainer extends PureComponent {
 
   render() {
     const { mungedData } = this.state;
-    const { focusedSliceKey, xScale, yScale } = this.props;
+    const { xScale, yScale } = this.props;
 
     return (
       <g id="cbgSlices">
@@ -104,7 +104,7 @@ export default class CBGSlicesContainer extends PureComponent {
               datum={bin}
               displayFlags={this.props.displayFlags}
               focusSlice={this.props.focusSlice}
-              showingCbgDateTraces={Boolean(focusedSliceKey)}
+              showingCbgDateTraces={this.props.showingCbgDateTraces}
               tooltipLeftThreshold={this.props.tooltipLeftThreshold}
               topMargin={this.props.topMargin}
               unfocusSlice={this.props.unfocusSlice}
@@ -115,7 +115,7 @@ export default class CBGSlicesContainer extends PureComponent {
               bgBounds={this.props.bgBounds}
               datum={bin}
               displayingMedian={this.props.displayFlags.cbgMedianEnabled}
-              showingCbgDateTraces={Boolean(focusedSliceKey)}
+              showingCbgDateTraces={this.props.showingCbgDateTraces}
               xScale={xScale}
               yScale={yScale}
             />

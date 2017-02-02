@@ -372,6 +372,9 @@ export class TrendsContainer extends PureComponent {
         focusedSmbg={this.props.trendsState.focusedSmbg}
         displayFlags={this.props.trendsState.cbgFlags}
         showingCbg={this.props.showingCbg}
+        showingCbgDateTraces={_.get(
+          this.props, ['trendsState', 'showingCbgDateTraces'], false
+        )}
         showingSmbg={this.props.showingSmbg}
         smbgGrouped={this.props.smbgGrouped}
         smbgLines={this.props.smbgLines}
