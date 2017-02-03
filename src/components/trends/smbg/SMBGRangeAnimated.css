@@ -15,8 +15,33 @@
  * == BSD2 LICENSE ==
  */
 
+@keyframes fadein {
+  from {
+    fill-opacity: 0.3;
+  }
+  to {
+    fill-opacity: 0.4;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    fill-opacity: 0.4;
+  }
+  to {
+    fill-opacity: 0.3;
+  }
+}
+
 .smbgRange {
-  fill: transparent;
-  stroke: var(--trends--light);
-  stroke-width: 2px;
+  fill: var(--trends--light);
+  stroke: none;
+}
+
+.fadeIn {
+  animation: fadein 0.25s forwards ease-in-out;
+}
+
+.fadeOut {
+  animation: fadeout 0.25s forwards ease-in-out;
 }
