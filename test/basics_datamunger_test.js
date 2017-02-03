@@ -449,14 +449,27 @@ describe('basics datamunger', function() {
     it('should return a pump with proper data', function() {
       var patientData = {
         grouped: {
-          pumpSettings: [
+          upload: [
             {
+              deviceTags: ['bgm'],
+              source: 'BGM',
+            },
+            {
+              deviceTags: ['insulin-pump'],
               source: constants.TANDEM,
+            },
+            {
+              deviceTags: ['insulin-pump', 'bgm'],
+              source: constants.INSULET,
+            },
+            {
+              deviceTags: ['cgm'],
+              source: 'CGM',
             },
           ],
         },
       };
-      expect(dm.getLatestPumpUploaded(patientData)).to.equal(constants.TANDEM);
+      expect(dm.getLatestPumpUploaded(patientData)).to.equal(constants.INSULET);
     });
 
     it('should return null without proper data', function() {

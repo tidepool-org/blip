@@ -63,6 +63,7 @@ basicsActions.setSiteChangeEvent = function(sectionName, selectedKey, selectedLa
   selectorOptions = clearSelected(selectorOptions);
   sections[sectionName].selectorOptions = basicsActions.setSelected(selectorOptions, selectedKey);
   sections.siteChanges.type = selectedKey;
+  sections.siteChanges.hasHover = true;
 
   metricsFunc('Selected ' + selectedLabel);
 

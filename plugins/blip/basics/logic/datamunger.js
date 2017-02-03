@@ -180,7 +180,7 @@ module.exports = function(bgClasses) {
       };
     },
     getLatestPumpUploaded: function(patientData) {
-      var latestPump = _.last(patientData.grouped.pumpSettings);
+      var latestPump = _.findLast(patientData.grouped.upload, {deviceTags: ['insulin-pump']});
 
       if (latestPump && latestPump.hasOwnProperty('source')) {
         return latestPump.source;
