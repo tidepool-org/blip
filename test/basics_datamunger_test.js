@@ -459,13 +459,17 @@ describe('basics datamunger', function() {
               source: constants.TANDEM,
             },
             {
+              deviceTags: ['insulin-pump', 'bgm'],
+              source: constants.INSULET,
+            },
+            {
               deviceTags: ['cgm'],
               source: 'CGM',
             },
           ],
         },
       };
-      expect(dm.getLatestPumpUploaded(patientData)).to.equal(constants.TANDEM);
+      expect(dm.getLatestPumpUploaded(patientData)).to.equal(constants.INSULET);
     });
 
     it('should return null without proper data', function() {
