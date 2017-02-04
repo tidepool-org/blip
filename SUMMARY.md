@@ -10,6 +10,7 @@
     + [D3](docs/D3.md)
     + [Moment](docs/Moment.md)
     + [React](docs/React.md)
+    + [React Motion](docs/ReactMotion.md)
     + [Redux](docs/Redux.md)
     + [webpack](docs/Webpack.md)
 + [misc](docs/Misc.md)
