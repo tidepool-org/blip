@@ -37,6 +37,7 @@ import { modal as Modal } from '../../components/chart';
 import { weekly as Weekly } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import SettingsPrintView from '../../components/printview';
+import PrintTemplate from 'react-print';
 
 import nurseShark from 'tideline/plugins/nurseshark/';
 
@@ -225,6 +226,43 @@ export let PatientData = React.createClass({
     return false;
   },
 
+  renderSettings: function(){
+    return (
+      <div>
+        <div id="react-no-print">
+          <Settings
+            bgPrefs={this.state.bgPrefs}
+            chartPrefs={this.state.chartPrefs}
+            currentPatientInViewId={this.props.currentPatientInViewId}
+            timePrefs={this.state.timePrefs}
+            patientData={this.state.processedPatientData}
+            onClickRefresh={this.handleClickRefresh}
+            onClickNoDataRefresh={this.handleClickNoDataRefresh}
+            onSwitchToBasics={this.handleSwitchToBasics}
+            onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToModal={this.handleSwitchToModal}
+            onSwitchToSettings={this.handleSwitchToSettings}
+            onSwitchToWeekly={this.handleSwitchToWeekly}
+            onSwitchToPrint={this.handleSwitchToSettingsPrintView}
+            trackMetric={this.props.trackMetric}
+            uploadUrl={this.props.uploadUrl}
+            ref="tideline" />
+        </div>
+        <div id="print-mount">
+          <PrintTemplate>
+            <SettingsPrintView
+              bgPrefs={this.state.bgPrefs}
+              currentPatientInViewId={this.props.currentPatientInViewId}
+              timePrefs={this.state.timePrefs}
+              patientData={this.state.processedPatientData}
+              patient={this.props.patient}
+              trackMetric={this.props.trackMetric}
+              ref="tideline" />
+          </PrintTemplate>
+        </div>
+      </div>
+    );
+  },
   renderChart: function() {
     switch (this.state.chartType) {
       case 'basics':
@@ -316,39 +354,11 @@ export let PatientData = React.createClass({
           );
 
       case 'settings':
-
-        return (
-          <Settings
-            bgPrefs={this.state.bgPrefs}
-            chartPrefs={this.state.chartPrefs}
-            currentPatientInViewId={this.props.currentPatientInViewId}
-            timePrefs={this.state.timePrefs}
-            patientData={this.state.processedPatientData}
-            onClickRefresh={this.handleClickRefresh}
-            onClickNoDataRefresh={this.handleClickNoDataRefresh}
-            onSwitchToBasics={this.handleSwitchToBasics}
-            onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToModal={this.handleSwitchToModal}
-            onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToWeekly={this.handleSwitchToWeekly}
-            onSwitchToPrint={this.handleSwitchToSettingsPrintView}
-            trackMetric={this.props.trackMetric}
-            uploadUrl={this.props.uploadUrl}
-            ref="tideline" />
-          );
+        return this.renderSettings();
 
       case 'settingsprintview':
-
-        return (
-          <SettingsPrintView
-            bgPrefs={this.state.bgPrefs}
-            currentPatientInViewId={this.props.currentPatientInViewId}
-            timePrefs={this.state.timePrefs}
-            patientData={this.state.processedPatientData}
-            patient={this.props.patient}
-            trackMetric={this.props.trackMetric}
-            ref="tideline" />
-          );
+        window.print();
+        return this.renderSettings();
     }
   },
 

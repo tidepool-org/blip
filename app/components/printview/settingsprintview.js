@@ -43,12 +43,18 @@ var SettingsPrintView = React.createClass({
   },
   render: function() {
     return (
-      <div className="print-view-content">
-        <div className="print-view-page print-view-page-title">
-        </div>
-        <div className="print-view-page print-view-page-device-settings">
-          {this.renderHeader()}
-          {this.isMissingSettings() ? null : this.renderChart()}
+      <div className="container-box-outer patient-data-content-outer">
+        <div className="container-box-inner patient-data-content-inner">
+          <div className="patient-data-content">
+            <div className="print-view-content">
+              <div className="print-view-page print-view-page-title">
+                <div className="print-view-page print-view-page-device-settings">
+                  {this.renderHeader()}
+                  {this.renderChart()}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -58,7 +64,7 @@ var SettingsPrintView = React.createClass({
     return (
       <div className="print-view-header">
         <p className="print-view-header-name">{ patientName }</p>
-        <p className="print-view-header-title">'Device Settings'</p>
+        <p className="print-view-header-title">Device Settings</p>
         <div className="print-view-header-logos">
           <img className='print-view-logo' src={tidepoolpng} alt="Tidepool logo" />
         </div>
@@ -67,28 +73,18 @@ var SettingsPrintView = React.createClass({
   },
   renderChart: function() {
     const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
+    const manufacturer = _.get(mostRecentSettings, 'source').toLowerCase();
+
     return (
       <PumpSettingsContainer
         currentPatientInViewId={this.props.currentPatientInViewId}
         bgUnits={this.props.bgPrefs.bgUnits}
-        manufacturerKey={_.get(mostRecentSettings, 'source').toLowerCase()}
+        manufacturerKey={manufacturer}
         pumpSettings={mostRecentSettings}
         timePrefs={this.props.timePrefs}
+        printView={true}
       />
     );
-  },
-  isMissingSettings: function() {
-    var data = this.props.patientData;
-    var pumpSettings = utils.getIn(data, ['grouped', 'pumpSettings'], false);
-    if (pumpSettings === false) {
-      return true;
-    }
-    // the TidelineData constructor currently replaces missing data with
-    // an empty array, so we also have to check for content
-    else if (_.isEmpty(pumpSettings)) {
-      return true;
-    }
-    return false;
   }
 });
 

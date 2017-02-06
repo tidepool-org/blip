@@ -118,7 +118,7 @@ var TidelineHeader = React.createClass({
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
       'patient-data-subnav-active': this.props.chartType === 'settings',
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
+      'patient-data-subnav-hidden': this.props.chartType !== 'settings'
     });
 
     return (
