@@ -271,6 +271,7 @@ export let PatientData = React.createClass({
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.state.timePrefs}
+            patient={this.props.patient}
             patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -280,6 +281,7 @@ export let PatientData = React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateBasicsData={this.updateBasicsData}
+            updateBasicsSettings={this.props.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
@@ -680,6 +682,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   clearPatientData: actions.sync.clearPatientData,
   fetchMessageThread: actions.async.fetchMessageThread,
   closeMessageThread: actions.sync.closeMessageThread,
+  updatePatient: actions.async.updatePatient,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -695,7 +698,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onEditMessage: api.team.editMessage.bind(api),
     trackMetric: ownProps.routes[0].trackMetric,
     queryParams: ownProps.location.query,
-    currentPatientInViewId: ownProps.routeParams.id
+    currentPatientInViewId: ownProps.routeParams.id,
+    updateBasicsSettings: dispatchProps.updatePatient.bind(null, api),
   });
 };
 
