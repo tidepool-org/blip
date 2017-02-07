@@ -35,6 +35,7 @@ const Tandem = (props) => {
     pumpSettings,
     timePrefs,
     toggleProfileExpansion,
+    printView,
   } = props;
 
   const schedules = data.getTimedSchedules(pumpSettings.basalSchedules);
@@ -73,7 +74,7 @@ const Tandem = (props) => {
       <CollapsibleContainer
         label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, deviceKey, true)}
         labelClass={styles.collapsibleLabel}
-        opened={_.get(openedSections, schedule.name, false)}
+        opened={_.get(openedSections, schedule.name, printView)}
         toggleExpansion={_.partial(toggleProfileExpansion, schedule.name)}
         twoLineLabel={false}
       >
@@ -90,6 +91,7 @@ const Tandem = (props) => {
       <Header
         deviceDisplayName="Tandem"
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
+        printView={printView}
       />
       <div>
         <span className={styles.title}>Profile Settings</span>
@@ -148,11 +150,13 @@ Tandem.propTypes = {
     timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
   }).isRequired,
   toggleProfileExpansion: PropTypes.func.isRequired,
+  printView: React.PropTypes.bool.isRequired,
 };
 
 Tandem.defaultProps = {
   deviceDisplayName: 'Tandem',
   deviceKey: 'tandem',
+  printView: false,
 };
 
 export default Tandem;

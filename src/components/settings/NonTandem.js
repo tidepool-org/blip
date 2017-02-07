@@ -89,6 +89,7 @@ const NonTandem = (props) => {
     pumpSettings,
     timePrefs,
     toggleBasalScheduleExpansion,
+    printView,
   } = props;
 
   let lookupKey = deviceKey;
@@ -107,7 +108,7 @@ const NonTandem = (props) => {
         pumpSettings.activeSchedule,
         deviceKey
       );
-      const scheduledIsExpanded = _.get(openedSections, scheduleName, false);
+      const scheduledIsExpanded = _.get(openedSections, scheduleName, printView);
       const toggleFn = _.partial(toggleBasalScheduleExpansion, scheduleName);
 
       if (scheduleName === pumpSettings.activeSchedule) {
@@ -233,6 +234,7 @@ const NonTandem = (props) => {
       <Header
         deviceDisplayName={DEVICE_DISPLAY_NAME_BY_MANUFACTURER[lookupKey]}
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
+        printView={printView}
       />
       <div className={styles.settingsContainer}>
         <div className={styles.basalSettingsContainer}>
@@ -298,6 +300,7 @@ NonTandem.propTypes = {
     timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
   }).isRequired,
   toggleBasalScheduleExpansion: PropTypes.func.isRequired,
+  printView: React.PropTypes.bool.isRequired,
 };
 
 export default NonTandem;

@@ -23,7 +23,7 @@ class Header extends React.Component {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
-    this.state = { serialNumberExpanded: false };
+    this.state = { serialNumberExpanded: this.props.printView };
   }
 
   handleClick() {
@@ -57,6 +57,7 @@ class Header extends React.Component {
 Header.propTypes = {
   deviceDisplayName: React.PropTypes.string.isRequired,
   deviceMeta: React.PropTypes.object.isRequired,
+  printView: React.PropTypes.bool.isRequired,
 };
 
 export default Header;

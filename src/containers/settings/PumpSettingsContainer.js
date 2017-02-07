@@ -43,6 +43,7 @@ export class PumpSettingsContainer extends React.Component {
     }).isRequired,
     settingsState: PropTypes.object.isRequired,
     toggleSettingsSection: PropTypes.func.isRequired,
+    printView: PropTypes.bool,
   }
 
   componentWillMount() {
@@ -60,7 +61,14 @@ export class PumpSettingsContainer extends React.Component {
     if (_.isEmpty(settingsState)) {
       return null;
     }
-    const { bgUnits, manufacturerKey, pumpSettings, timePrefs, toggleSettingsSection } = this.props;
+    const {
+      bgUnits,
+      manufacturerKey,
+      pumpSettings,
+      timePrefs,
+      toggleSettingsSection,
+      printView,
+    } = this.props;
     const supportedNonTandemPumps = ['animas', 'carelink', 'insulet', 'medtronic'];
     const toggleFn = _.partial(toggleSettingsSection, manufacturerKey);
     if (manufacturerKey === 'tandem') {
@@ -72,6 +80,7 @@ export class PumpSettingsContainer extends React.Component {
           pumpSettings={pumpSettings}
           timePrefs={timePrefs}
           toggleProfileExpansion={toggleFn}
+          printView={printView}
         />
       );
     } else if (_.includes(supportedNonTandemPumps, manufacturerKey)) {
@@ -83,6 +92,7 @@ export class PumpSettingsContainer extends React.Component {
           pumpSettings={pumpSettings}
           timePrefs={timePrefs}
           toggleBasalScheduleExpansion={toggleFn}
+          printView={printView}
         />
       );
     }
