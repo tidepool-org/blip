@@ -52,7 +52,7 @@
   fill: transparent;
 }
 
-.rangeSegment:hover {
+.rangeSegment:hover, .rangeSegmentFaded:hover {
   opacity: 0;
 }
 
@@ -86,7 +86,7 @@
   animation: fadeOuterOut 0.25s forwards ease-in-out;
 }
 
-.outerSegment:hover {
+.outerSegment:hover, .outerSegmentFaded:hover {
   opacity: 0;
 }
 
@@ -120,6 +120,6 @@
   animation: fadeInnerOut 0.25s forwards ease-in-out;
 }
 
-.innerQuartilesSegment:hover {
+.innerQuartilesSegment:hover, .innerQuartilesSegmentFaded:hover {
   opacity: 0;
 }
