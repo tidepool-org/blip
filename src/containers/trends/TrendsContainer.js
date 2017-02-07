@@ -162,6 +162,9 @@ export class TrendsContainer extends PureComponent {
       }),
       touched: PropTypes.bool.isRequired,
     }).isRequired,
+    unfocusCbgSlice: PropTypes.func.isRequired,
+    unfocusSmbg: PropTypes.func.isRequired,
+    unfocusSmbgRangeAvg: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -241,6 +244,25 @@ export class TrendsContainer extends PureComponent {
         currentCbgData: cbgByDate.top(Infinity).reverse(),
         currentSmbgData: smbgByDate.top(Infinity).reverse(),
       });
+    }
+  }
+
+  componentWillUnmount() {
+    const {
+      currentPatientInViewId,
+      trendsState,
+      unfocusCbgSlice,
+      unfocusSmbg,
+      unfocusSmbgRangeAvg,
+    } = this.props;
+    if (_.get(trendsState, 'focusedCbgSlice') !== null) {
+      unfocusCbgSlice(currentPatientInViewId);
+    }
+    if (_.get(trendsState, 'focusedSmbg') !== null) {
+      unfocusSmbg(currentPatientInViewId);
+    }
+    if (_.get(trendsState, 'focusedSmbgRangeAvg') !== null) {
+      unfocusSmbgRangeAvg(currentPatientInViewId);
     }
   }
 
@@ -397,6 +419,9 @@ export function mapStateToProps(state, ownProps) {
 export function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     markTrendsViewed: actions.markTrendsViewed,
+    unfocusCbgSlice: actions.unfocusTrendsCbgSlice,
+    unfocusSmbg: actions.unfocusTrendsSmbg,
+    unfocusSmbgRangeAvg: actions.unfocusTrendsSmbgRangeAvg,
   }, dispatch);
 }
 

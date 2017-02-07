@@ -98,6 +98,9 @@ describe('TrendsContainer', () => {
     const onDatetimeLocationChange = sinon.spy();
     const onSwitchBgDataSource = sinon.spy();
     const markTrendsViewed = sinon.spy();
+    const unfocusCbgSlice = sinon.spy();
+    const unfocusSmbg = sinon.spy();
+    const unfocusSmbgRangeAvg = sinon.spy();
 
     const props = {
       activeDays: {
@@ -138,6 +141,9 @@ describe('TrendsContainer', () => {
         },
       },
       markTrendsViewed,
+      unfocusCbgSlice,
+      unfocusSmbg,
+      unfocusSmbgRangeAvg,
     };
 
     const mgdl = {
@@ -301,6 +307,58 @@ describe('TrendsContainer', () => {
         expect(stateSpy.callCount).to.equal(0);
         instance.refilterByDayOfWeek.restore();
         instance.setState.restore();
+      });
+    });
+
+    describe('componentWillUnmount', () => {
+      let toBeUnmounted;
+
+      beforeEach(() => {
+        toBeUnmounted = mount(
+          <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum)} />
+        );
+      });
+
+      afterEach(() => {
+        unfocusCbgSlice.reset();
+        unfocusSmbg.reset();
+        unfocusSmbgRangeAvg.reset();
+      });
+
+      describe('when a cbg slice segment is focused', () => {
+        it('should fire unfocusCbgSlice', () => {
+          expect(unfocusCbgSlice.callCount).to.equal(0);
+          toBeUnmounted.setProps({ trendsState: _.assign(
+            {}, props.trendsState, { focusedCbgSlice: {} }
+          ) });
+          toBeUnmounted.unmount();
+          expect(unfocusCbgSlice.callCount).to.equal(1);
+          expect(unfocusCbgSlice.args[0][0]).to.equal(props.currentPatientInViewId);
+        });
+      });
+
+      describe('when an smbg is focused', () => {
+        it('should fire unfocusSmbg', () => {
+          expect(unfocusSmbg.callCount).to.equal(0);
+          toBeUnmounted.setProps({ trendsState: _.assign(
+            {}, props.trendsState, { focusedSmbg: {} }
+          ) });
+          toBeUnmounted.unmount();
+          expect(unfocusSmbg.callCount).to.equal(1);
+          expect(unfocusSmbg.args[0][0]).to.equal(props.currentPatientInViewId);
+        });
+      });
+
+      describe('when an smbg range+avg is focused', () => {
+        it('should fire unfocusSmbgRangeAvg', () => {
+          expect(unfocusSmbgRangeAvg.callCount).to.equal(0);
+          toBeUnmounted.setProps({ trendsState: _.assign(
+            {}, props.trendsState, { focusedSmbgRangeAvg: {} }
+          ) });
+          toBeUnmounted.unmount();
+          expect(unfocusSmbgRangeAvg.callCount).to.equal(1);
+          expect(unfocusSmbgRangeAvg.args[0][0]).to.equal(props.currentPatientInViewId);
+        });
       });
     });
 
