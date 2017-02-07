@@ -168,6 +168,7 @@ const trendsStateByUser = (state = {}, action) => {
       return update(
         state,
         { [userId]: {
+          [FOCUSED_CBG_DATE_TRACE]: { $set: null },
           [FOCUSED_CBG_SLICE]: { $set: null },
           [FOCUSED_CBG_KEYS]: { $set: null },
           [SHOW_CBG_DATE_TRACES]: { $set: false },
