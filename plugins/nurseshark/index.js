@@ -199,9 +199,22 @@ var nurseshark = {
     function createUploadIDsMap() {
       var uploads = _.where(data, {type: 'upload'});
       _.each(uploads, function(upload) {
-        uploadIDSources[upload.uploadId] = upload.source ||
-          ((upload.deviceManufacturers && Array.isArray(upload.deviceManufacturers) && upload.deviceManufacturers.length > 0) ?
-            upload.deviceManufacturers[0] : 'Unknown');
+        var source = 'Unknown';
+        if (upload.hasOwnProperty('source')) {
+          source = upload.source;
+        }
+        else if(upload.hasOwnProperty('deviceManufacturers') && Array.isArray(upload.deviceManufacturers) && upload.deviceManufacturers.length) {
+          // Uploader does not specify `source` for CareLink uploads, so they incorrectly get set to `Medtronic`, which should only be used for Medtronic Direct uploads.
+          // Check if manufacturer equals Medtronic, then check pumpSettings array for uploads with that upload ID and a source of `carelink`, then override appropriately.
+          if (upload.deviceManufacturers[0] === 'Medtronic' && _.filter(data, {type: 'pumpSettings', uploadId: upload.uploadId, source: 'carelink'}).length) {
+            source = 'carelink';
+          }
+          else {
+            source = upload.deviceManufacturers[0];
+          }
+        }
+
+        uploadIDSources[upload.uploadId] = source;
         uploadIDSerials[upload.uploadId] = upload.deviceSerialNumber ? upload.deviceSerialNumber : 'Unknown';
       });
     }
