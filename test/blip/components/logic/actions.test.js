@@ -52,6 +52,14 @@ describe('actions', function() {
     props: {
       patient: {
         userid: 1,
+        profile: {
+          fullName: 'Test Patient',
+          patient: {
+            about: 'Testing Patient Update',
+            birthday: '2000-01-01',
+            diagnosisDate: '2010-01-01',
+          },
+        },
       },
     },
   };
@@ -112,7 +120,11 @@ describe('actions', function() {
       expect(updateBasicsSettings.calledWith({
         userid: app.props.patient.userid,
         profile: {
+          fullName: 'Test Patient',
           patient: {
+            about: 'Testing Patient Update',
+            birthday: '2000-01-01',
+            diagnosisDate: '2010-01-01',
             settings: {
               siteChangeSource: constants.SITE_CHANGE_CANNULA
             }
