@@ -67,15 +67,17 @@ basicsActions.setSiteChangeEvent = function(sectionName, selectedKey, selectedLa
 
   metricsFunc('Selected ' + selectedLabel);
 
+  var newProfile = _.merge(this.app.props.patient.profile, {
+    patient: {
+      settings: {
+        siteChangeSource: selectedKey,
+      },
+    },
+  });
+
   updateBasicsSettingsFunc({
     userid: this.app.props.patient.userid,
-    profile: {
-      patient: {
-        settings: {
-          siteChangeSource: selectedKey
-        }
-      }
-    }
+    profile: newProfile,
   });
 
   this.app.setState({sections: sections});
