@@ -314,6 +314,30 @@ describe('[trends] data utils', () => {
     it('should add a `msTo` to the resulting object half a bin later', () => {
       expect(res.msTo).to.equal(1800000);
     });
+
+    describe('when an array of out-of-range annotations is provided', () => {
+      const outOfRange = [{
+        value: 'low',
+        threshold: 25,
+      }, {
+        value: 'low',
+        threshold: 40,
+      }, {
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'high',
+        threshold: 400,
+      }];
+      const resWithOutOfRange = utils.calculateCbgStatsForBin(binKey, binSize, data, outOfRange);
+
+      it('should add `outOfRangeThresholds` to the resulting object', () => {
+        expect(resWithOutOfRange.outOfRangeThresholds).to.deep.equal({
+          low: 40,
+          high: 400,
+        });
+      });
+    });
   });
 
   describe('calculateSmbgStatsForBin', () => {
@@ -363,6 +387,30 @@ describe('[trends] data utils', () => {
 
     it('should add the bin as `msX` on the resulting object', () => {
       expect(res.msX).to.equal(bin);
+    });
+
+    describe('when an array of out-of-range annotations is provided', () => {
+      const outOfRange = [{
+        value: 'low',
+        threshold: 25,
+      }, {
+        value: 'low',
+        threshold: 40,
+      }, {
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'high',
+        threshold: 400,
+      }];
+      const resWithOutOfRange = utils.calculateSmbgStatsForBin(binKey, binSize, data, outOfRange);
+
+      it('should add `outOfRangeThresholds` to the resulting object', () => {
+        expect(resWithOutOfRange.outOfRangeThresholds).to.deep.equal({
+          low: 40,
+          high: 400,
+        });
+      });
     });
   });
 

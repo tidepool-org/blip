@@ -111,13 +111,14 @@ export function findOutOfRangeAnnotations(data) {
  * @param {String} binKey - String of natural number milliseconds bin
  * @param {Number} binSize - natural number duration in milliseconds
  * @param {Array} data - Array of cbg values in mg/dL or mmol/L
+ * @param {Array} outOfRange - Array of out-of-range objects w/threshold and value
  *
  * @return {Object} calculatedCbgStats
  */
-export function calculateCbgStatsForBin(binKey, binSize, data) {
+export function calculateCbgStatsForBin(binKey, binSize, data, outOfRange) {
   const sorted = _.sortBy(data, d => d);
   const centerOfBinMs = parseInt(binKey, 10);
-  return {
+  const stats = {
     id: binKey,
     min: min(sorted),
     tenthQuantile: quantile(sorted, 0.1),
@@ -130,6 +131,11 @@ export function calculateCbgStatsForBin(binKey, binSize, data) {
     msFrom: centerOfBinMs - (binSize / 2),
     msTo: centerOfBinMs + (binSize / 2),
   };
+  if (!_.isEmpty(outOfRange)) {
+    const thresholds = determineRangeBoundaries(outOfRange);
+    stats.outOfRangeThresholds = thresholds;
+  }
+  return stats;
 }
 
 /**
@@ -137,12 +143,13 @@ export function calculateCbgStatsForBin(binKey, binSize, data) {
  * @param {String} binKey - String of natural number milliseconds bin
  * @param {Number} binSize - natural number duration in milliseconds
  * @param {Array} data - Array of smbg values in mg/dL or mmol/L
+ * @param {Array} outOfRange - Array of out-of-range objects w/threshold and value
  *
  * @return {Object} calculatedSmbgStats
  */
-export function calculateSmbgStatsForBin(binKey, binSize, data) {
+export function calculateSmbgStatsForBin(binKey, binSize, data, outOfRange) {
   const centerOfBinMs = parseInt(binKey, 10);
-  return {
+  const stats = {
     id: binKey,
     min: min(data),
     mean: mean(data),
@@ -151,6 +158,11 @@ export function calculateSmbgStatsForBin(binKey, binSize, data) {
     msFrom: centerOfBinMs - (binSize / 2),
     msTo: centerOfBinMs + (binSize / 2),
   };
+  if (!_.isEmpty(outOfRange)) {
+    const thresholds = determineRangeBoundaries(outOfRange);
+    stats.outOfRangeThresholds = thresholds;
+  }
+  return stats;
 }
 
 /**
