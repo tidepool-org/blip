@@ -23,13 +23,10 @@ export function delayShowCbgTracesOnFocus(userId, sliceData, slicePosition, focu
   return (dispatch, getState) => {
     dispatch(focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKeys));
     setTimeout(() => {
+      const currentTrendsStateForUser = _.get(getState(), ['viz', 'trends', userId], {});
       const {
-        focusedCbgSlice: currentFocusedSlice,
-        focusedCbgSliceKeys: currentFocusedKeys,
-      } = _.pick(
-        _.get(getState(), ['viz', 'trends', userId], {}),
-        ['focusedCbgSlice', 'focusedCbgSliceKeys']
-      );
+        focusedCbgSlice: currentFocusedSlice, focusedCbgSliceKeys: currentFocusedKeys,
+      } = currentTrendsStateForUser;
       const { id: sliceId } = sliceData;
       if (sliceId === _.get(currentFocusedSlice, ['data', 'id']) &&
           _.isEqual(focusedKeys, currentFocusedKeys)) {
