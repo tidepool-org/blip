@@ -20,7 +20,9 @@ import React, { PropTypes, PureComponent } from 'react';
 import { range } from 'd3-array';
 
 import { THIRTY_MINS, TWENTY_FOUR_HRS } from '../../utils/datetime';
-import { findBinForTimeOfDay, calculateCbgStatsForBin } from '../../utils/trends/data';
+import {
+  findBinForTimeOfDay, findOutOfRangeAnnotations, calculateCbgStatsForBin,
+} from '../../utils/trends/data';
 
 import CBGMedianAnimated from '../../components/trends/cbg/CBGMedianAnimated';
 import CBGSliceAnimated from '../../components/trends/cbg/CBGSliceAnimated';
@@ -78,6 +80,7 @@ export default class CBGSlicesContainer extends PureComponent {
 
   mungeData(binSize, data) {
     const binned = _.groupBy(data, (d) => (findBinForTimeOfDay(binSize, d.msPer24)));
+    const outOfRanges = findOutOfRangeAnnotations(data);
     // we need *all* possible keys for TransitionMotion to work on enter/exit
     // and the range starts with binSize/2 because the keys are centered in each bin
     const binKeys = _.map(range(binSize / 2, TWENTY_FOUR_HRS, binSize), (d) => String(d));
@@ -86,7 +89,7 @@ export default class CBGSlicesContainer extends PureComponent {
     const mungedData = [];
     for (let i = 0; i < binKeys.length; ++i) {
       const values = _.map(_.get(binned, binKeys[i], []), valueExtractor);
-      mungedData.push(calculateCbgStatsForBin(binKeys[i], binSize, values));
+      mungedData.push(calculateCbgStatsForBin(binKeys[i], binSize, values, outOfRanges));
     }
     return mungedData;
   }

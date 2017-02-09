@@ -20,7 +20,9 @@ import React, { PropTypes, PureComponent } from 'react';
 import { range } from 'd3-array';
 
 import { THREE_HRS, TWENTY_FOUR_HRS } from '../../utils/datetime';
-import { calculateSmbgStatsForBin, findBinForTimeOfDay } from '../../utils/trends/data';
+import {
+  findBinForTimeOfDay, findOutOfRangeAnnotations, calculateSmbgStatsForBin,
+} from '../../utils/trends/data';
 
 export default class SMBGRangeAvgContainer extends PureComponent {
   static propTypes = {
@@ -62,6 +64,7 @@ export default class SMBGRangeAvgContainer extends PureComponent {
 
   mungeData(binSize, data) {
     const binned = _.groupBy(data, (d) => (findBinForTimeOfDay(binSize, d.msPer24)));
+    const outOfRanges = findOutOfRangeAnnotations(data);
     // we need *all* possible keys for TransitionMotion to work on enter/exit
     // and the range starts with binSize/2 because the keys are centered in each bin
     const binKeys = _.map(range(binSize / 2, TWENTY_FOUR_HRS, binSize), (d) => String(d));
@@ -70,7 +73,7 @@ export default class SMBGRangeAvgContainer extends PureComponent {
     const mungedData = [];
     for (let i = 0; i < binKeys.length; ++i) {
       const values = _.map(binned[binKeys[i]], valueExtractor);
-      mungedData.push(calculateSmbgStatsForBin(binKeys[i], binSize, values));
+      mungedData.push(calculateSmbgStatsForBin(binKeys[i], binSize, values, outOfRanges));
     }
     return mungedData;
   }
