@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import bows from 'bows';
 import React from 'react';
+import sundial from 'sundial';
 
 import utils from '../../core/utils';
 import personUtils from '../../core/personutils';
@@ -43,17 +44,11 @@ var SettingsPrintView = React.createClass({
   },
   render: function() {
     return (
-      <div className="container-box-outer patient-data-content-outer">
-        <div className="container-box-inner patient-data-content-inner">
-          <div className="patient-data-content">
-            <div className="print-view-content">
-              <div className="print-view-page print-view-page-title">
-                <div className="print-view-page print-view-page-device-settings">
-                  {this.renderHeader()}
-                  {this.renderChart()}
-                </div>
-              </div>
-            </div>
+      <div className="print-view-content">
+        <div className="print-view-page print-view-page-title">
+          <div className="print-view-page print-view-page-device-settings">
+            {this.renderHeader()}
+            {this.renderChart()}
           </div>
         </div>
       </div>
@@ -63,10 +58,13 @@ var SettingsPrintView = React.createClass({
     var patientName = personUtils.patientFullName(this.props.patient);
     return (
       <div className="print-view-header">
+        <p className="print-view-header-title">Pump Settings</p>
         <p className="print-view-header-name">{ patientName }</p>
-        <p className="print-view-header-title">Device Settings</p>
+        <p className="print-view-header-date">
+          { sundial.formatInTimezone(Date.now(), 'UTC', 'MMM D, YYYY') }
+        </p>
         <div className="print-view-header-logos">
-          <img className='print-view-logo' src={tidepoolpng} alt="Tidepool logo" />
+          <img className='print-view-logo' src={ tidepoolpng } alt="Tidepool logo" />
         </div>
       </div>
     );
