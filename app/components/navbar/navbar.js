@@ -24,7 +24,7 @@ var cx = require('classnames');
 var personUtils = require('../../core/personutils');
 var NavbarPatientCard = require('../../components/navbarpatientcard');
 
-var logoSrc = require('./images/blip-logo-80x80.png');
+require('./images/tidepool-logo-408x46.png');
 
 var Navbar = React.createClass({
   propTypes: {

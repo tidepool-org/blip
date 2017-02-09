@@ -17,17 +17,18 @@
 // ====================================
 
 @Navbar-height: 60px;
+@Navbar-logoHeight: 23px;
 
 .Navbar {
   display: flex;
   height: @Navbar-height;
+
+  background-image: url('images/tidepool-logo-408x46.png');
+  background-position: 0 8px;
+  background-repeat: no-repeat;
+  background-size: auto @Navbar-logoHeight;
 }
 
-@Navbar-logoHeight: 40px;
-
-.Navbar-logoSection {
-  width: @Navbar-logoHeight;
-}
 
 .Navbar-menuSection {
   // Magic number width: should contain whole menu,
@@ -58,17 +59,6 @@
       color: @gray-darker;
     }
   }
-}
-
-// Logo section
-// ====================================
-
-.Navbar-logo {
-  display: block;
-  background-image: url('images/blip-logo-80x80.png');
-  background-repeat: no-repeat;
-  background-size: @Navbar-logoHeight;
-  height: @Navbar-logoHeight;
 }
 
 // Buttons, icons, labels
