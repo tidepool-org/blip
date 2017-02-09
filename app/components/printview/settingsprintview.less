@@ -66,6 +66,9 @@
     border-top: none;
   }
 
+  /*
+   * where to break when printing the settings
+   */
   .settings-table-container,
   [class*='NonTandem--basalSettingsContainer'],
   [class*='NonTandem--bolusSettingsContainer--'] {
@@ -73,25 +76,30 @@
     page-break-inside: avoid;
   }
 
-  table {
-    padding-bottom: 0;
-    border-collapse: none;
-  }
-
-  [class*='Tandem--title--'] {
+  /*
+   * title
+   */
+  [class*='Tandem--title'] {
     color: @black-color;
     font-weight: normal;
     font-size: 20px;
   }
 
-  [class*='Header--header--'],
+  /*
+   * labels
+   */
+  [class*='Header--header'],
   [class*='NonTandem--categoryTitle'],
+  [class*='typography--boldText'],
   .label {
     color: @black-color;
     font-weight: normal;
     font-size: @font-size-base;
   }
 
+  /*
+   * table header, first row styling
+   */
   [class*='settings--bolusHeaderBackground'],
   [class*='settings--basalHeaderBackground'],
   [class*='settings--settingsHeaderLayout'],
@@ -105,6 +113,9 @@
     color: @black-color;
   }
 
+  /*
+   * table content
+   */
   [class*='Tandem--profileTable'] tbody tr,
   [class*='Tandem--profileTable'] thead tr,
   [class*='Tandem--profileTable'] tbody tr:nth-child(even),
@@ -116,9 +127,7 @@
   [class*='NonTandem--settingsTable'] thead tr,
   [class*='NonTandem--settingsTable'] tbody tr:nth-child(even),
   [class*='NonTandem--settingsTable'] tbody tr:nth-child(odd),
-  [class*='NonTandem--settingsTable']:last-child,
-  thead,
-  tr {
+  [class*='NonTandem--settingsTable']:last-child {
     color: @black-color;
     font-weight: bold;
     font-size: @font-size-base;
@@ -127,6 +136,9 @@
     border-bottom: solid 1px #cbcbcb;
   }
 
+  /*
+   * last row styling
+   */
   [class*='NonTandem--basalTable'] tbody tr:last-child,
   [class*='Tandem--profileTable'] tbody tr:last-child {
     border-bottom: none;
@@ -137,25 +149,14 @@
     color: @black-color;
   }
 
-  thead:last-child,
-  tr:last-child {
-    border-bottom: none;
-  }
-
+  /*
+   * over all table
+   */
   [class*='NonTandem--basalTable'],
   [class*='NonTandem--settingsTable'],
   [class*='Tandem--profileTable'] {
     border: solid 1px @black-color;
     padding-bottom: 0;
-  }
-
-  thead tr {
-    background-color: @white-color;
-    background-image: none;
-    font-size: @font-size-small;
-    font-weight: normal;
-    color: @black-color;
-    border-bottom: solid 1px #cbcbcb;
   }
 
   @page {
