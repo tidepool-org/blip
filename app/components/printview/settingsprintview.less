@@ -105,13 +105,17 @@
     color: @black-color;
   }
 
-  [class*='settings--settingsTable'] tbody tr,
-  [class*='settings--settingsTable'] thead tr,
-  [class*='settings--settingsTable'] tbody tr:nth-child(even),
   [class*='Tandem--profileTable'] tbody tr,
   [class*='Tandem--profileTable'] thead tr,
   [class*='Tandem--profileTable'] tbody tr:nth-child(even),
-  [class*='NonTandem--settingsTable'] tbody tr,
+  [class*='Tandem--profileTable'] tbody tr:nth-child(odd),
+  [class*='NonTandem--basalTable'] thead tr,
+  [class*='NonTandem--basalTable'] tbody tr:nth-child(even),
+  [class*='NonTandem--basalTable'] tbody tr:nth-child(odd),
+  [class*='NonTandem--basalTable']:last-child,
+  [class*='NonTandem--settingsTable'] thead tr,
+  [class*='NonTandem--settingsTable'] tbody tr:nth-child(even),
+  [class*='NonTandem--settingsTable'] tbody tr:nth-child(odd),
   [class*='NonTandem--settingsTable']:last-child,
   thead,
   tr {
@@ -123,6 +127,7 @@
     border-bottom: solid 1px #cbcbcb;
   }
 
+  [class*='NonTandem--basalTable'] tbody tr:last-child,
   [class*='Tandem--profileTable'] tbody tr:last-child {
     border-bottom: none;
     font-weight: normal;
