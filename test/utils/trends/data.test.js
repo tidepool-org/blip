@@ -20,6 +20,51 @@ import { range, shuffle } from 'd3-array';
 import * as utils from '../../../src/utils/trends/data';
 
 describe('[trends] data utils', () => {
+  describe('determineRangeBoundaries', () => {
+    it('should be a function', () => {
+      assert.isFunction(utils.determineRangeBoundaries);
+    });
+
+    it('should return the max of all provided `low` thresholds', () => {
+      expect(utils.determineRangeBoundaries([{
+        value: 'low',
+        threshold: 20,
+      }, {
+        value: 'low',
+        threshold: 25,
+      }, {
+        value: 'low',
+        threshold: 15,
+      }])).to.deep.equal({ low: 25 });
+    });
+
+    it('should return the min of all provided `high` thresholds', () => {
+      expect(utils.determineRangeBoundaries([{
+        value: 'high',
+        threshold: 650,
+      }, {
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'high',
+        threshold: 600,
+      }])).to.deep.equal({ high: 500 });
+    });
+
+    it('should return both boundaries when a mix of out-of-range objects is provided', () => {
+      expect(utils.determineRangeBoundaries([{
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'low',
+        threshold: 20,
+      }, {
+        value: 'low',
+        threshold: 40,
+      }])).to.deep.equal({ low: 40, high: 500 });
+    });
+  });
+
   describe('findBinForTimeOfDay', () => {
     it('should be a function', () => {
       assert.isFunction(utils.findBinForTimeOfDay);

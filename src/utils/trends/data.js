@@ -21,6 +21,29 @@ import { max, mean, median, min, quantile } from 'd3-array';
 import { TWENTY_FOUR_HRS } from '../datetime';
 
 /**
+ * determineRangeBoundaries
+ * @param {Array} outOfRange - Array of out-of-range objects w/threshold and value
+ *
+ * @return {Object} highAndLowThresholds - Object with high and low keys
+ */
+export function determineRangeBoundaries(outOfRange) {
+  const lowThresholds = _.filter(outOfRange, { value: 'low' });
+  const highThresholds = _.filter(outOfRange, { value: 'high' });
+  const boundaries = {};
+  if (!_.isEmpty(lowThresholds)) {
+    // if there is data from multiple devices present with different thresholds
+    // we want to use the more conservative (= higher) threshold for lows
+    boundaries.low = max(lowThresholds, (d) => (d.threshold));
+  }
+  if (!_.isEmpty(highThresholds)) {
+    // if there is data from multiple devices present with different thresholds
+    // we want to use the more conservative (= lower) threshold for highs
+    boundaries.high = min(highThresholds, (d) => (d.threshold));
+  }
+  return boundaries;
+}
+
+/**
  * findBinForTimeOfDay
  * @param {Number} binSize - natural number duration in milliseconds
  * @param {Number} msPer24 - natural number milliseconds into a twenty-four hour day
