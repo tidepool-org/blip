@@ -86,6 +86,27 @@ export function findDatesIntersectingWithCbgSliceSegment(cbgData, focusedSlice, 
 }
 
 /**
+ * findOutOfRangeAnnotations
+ * @param {Array} data - Array of `cbg` or `smbg` events
+ *
+ * @return {Array} thresholds - Array of objects with unique `threshold`
+ *                              (and `value` of 'low' or 'high')
+ */
+export function findOutOfRangeAnnotations(data) {
+  const isOutOfRangeAnnotation = (annotation) => (annotation.code === 'bg/out-of-range');
+  const eventsAnnotatedAsOutOfRange = _.filter(
+    data,
+    (d) => (_.some(d.annotations || [], isOutOfRangeAnnotation))
+  );
+  const annotations = _.map(eventsAnnotatedAsOutOfRange, (d) => (_.pick(
+    _.find(d.annotations || [], isOutOfRangeAnnotation),
+    ['threshold', 'value'],
+  )));
+  // the numerical `threshold` is our determiner of uniqueness
+  return _.uniq(annotations, (d) => (d.threshold));
+}
+
+/**
  * calculateCbgStatsForBin
  * @param {String} binKey - String of natural number milliseconds bin
  * @param {Number} binSize - natural number duration in milliseconds

@@ -197,6 +197,47 @@ describe('[trends] data utils', () => {
     });
   });
 
+  describe('findOutOfRangeAnnotations', () => {
+    it('should be a function', () => {
+      assert.isFunction(utils.findOutOfRangeAnnotations);
+    });
+
+    it('should return an empty array if none of the data is annotated `bg/out-of-range`', () => {
+      expect(utils.findOutOfRangeAnnotations([])).to.deep.equal([]);
+      expect(utils.findOutOfRangeAnnotations([{}, {}, {}])).to.deep.equal([]);
+      expect(utils.findOutOfRangeAnnotations([{}, { annotations: [{ code: 'foo' }] }]))
+        .to.deep.equal([]);
+    });
+
+    it('should return an array of the annotations w/unique thresholds', () => {
+      expect(utils.findOutOfRangeAnnotations([{
+        annotations: [{
+          code: 'bg/out-of-range',
+          value: 'high',
+          threshold: 500,
+        }],
+      }, {
+        annotations: [{
+          code: 'bg/out-of-range',
+          value: 'low',
+          threshold: 25,
+        }],
+      }, {
+        annotations: [{
+          code: 'bg/out-of-range',
+          value: 'high',
+          threshold: 500,
+        }],
+      }])).to.deep.equal([{
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'low',
+        threshold: 25,
+      }]);
+    });
+  });
+
   describe('calculateCbgStatsForBin', () => {
     const bin = 900000;
     const binKey = bin.toString();
