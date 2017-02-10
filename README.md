@@ -72,7 +72,7 @@ If you want to run the example with real data to view instead of the demo data g
 
 ### Testing
 
-To run the tests in Chrome using [Mocha](http://visionmedia.github.io/mocha/ 'Mocha') and the [testem](https://github.com/airportyh/testem 'Test'em') test runner:
+To run the tests in Chrome using [Mocha](http://mochajs.org/ 'Mocha') and the [testem](https://github.com/airportyh/testem 'Test'em') test runner:
 
 ```bash
 $ npm test
