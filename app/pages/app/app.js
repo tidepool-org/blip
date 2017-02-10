@@ -87,7 +87,7 @@ export class AppComponent extends React.Component {
    *  - patients/:id/data
    *  - patients/:id/share
    *  - patients/:id/profile
-   *  
+   *
    * @return {Boolean}
    */
   isPatientVisibleInNavbar() {
@@ -121,7 +121,7 @@ export class AppComponent extends React.Component {
   }
 
   /**
-   * Before any subsequent re-rendering 
+   * Before any subsequent re-rendering
    * begin fetching any required data
    */
   componentWillReceiveProps(nextProps) {
@@ -326,7 +326,7 @@ export function mapStateToProps(state) {
         case 500:
           displayMessage = ErrorMessages.ERR_SERVICE_DOWN;
           break;
-        case 503: 
+        case 503:
           displayMessage = ErrorMessages.ERR_OFFLINE;
           break;
       }
