@@ -89,7 +89,7 @@ describe('App',  () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : 1.4 };
       var elem = TestUtils.renderIntoDocument(<App {...props} />);
-      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Navbar-version');
+      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
       expect(versionElems.length).to.equal(1);
     });
   });
