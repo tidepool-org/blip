@@ -70,7 +70,7 @@ const Tandem = (props) => {
   ];
 
   const tables = _.map(schedules, (schedule) => (
-    <div key={schedule.name}>
+    <div className="settings-table-container" key={schedule.name}>
       <CollapsibleContainer
         label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, deviceKey, true)}
         labelClass={styles.collapsibleLabel}
