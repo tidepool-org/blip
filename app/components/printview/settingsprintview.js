@@ -28,11 +28,11 @@ import tidepoolpng from './img/bw-tidepool-logo.png';
 import * as viz from '@tidepool/viz';
 const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 
-var tideline = {
+const tideline = {
   log: bows('SettingsPrintView')
 };
 
-var SettingsPrintView = React.createClass({
+const SettingsPrintView = React.createClass({
   chartType: 'settings',
   log: bows('Settings View'),
   propTypes: {
@@ -55,7 +55,7 @@ var SettingsPrintView = React.createClass({
     );
   },
   renderHeader: function() {
-    var patientName = personUtils.patientFullName(this.props.patient);
+    const patientName = personUtils.patientFullName(this.props.patient);
     return (
       <div className="print-view-header">
         <p className="print-view-header-title">Pump Settings</p>

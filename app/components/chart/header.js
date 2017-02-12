@@ -114,7 +114,7 @@ var TidelineHeader = React.createClass({
     });
 
     var printLinkClass = cx({
-      'js-settings': true,
+      'js-print-settings': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
       'patient-data-subnav-active': this.props.chartType === 'settings',

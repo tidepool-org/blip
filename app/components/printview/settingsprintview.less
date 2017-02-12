@@ -15,65 +15,78 @@
  * == BSD2 LICENSE ==
  */
 
-@smallgap: 14px;
+@media print {
 
-.print-view-header {
-  margin: 0 0 @smallgap;
-  background-color: #D8D8D8;
-  font-size: 20px;
-  font-weight: normal;
-  color: @black-color;
-  display: flex;
-  justify-content: space-between;
-}
+  @smallgap: 14px;
 
-.print-view-header-title {
-  padding-right: @smallgap;
-}
+  .App-navbar,
+  .container-nav-inner {
+    display: none;
+  }
 
-.print-view-header-name {
-  padding: 0 @smallgap;
-  text-overflow: ellipsis;
-}
+  .print-view-header {
+    margin: 0 0 @smallgap;
+    background-color: #D8D8D8;
+    font-size: 20px;
+    font-weight: normal;
+    color: @black-color;
+    display: flex;
+    justify-content: space-between;
+  }
 
-.print-view-header-date {
-  padding: 0 @smallgap;
-}
+  .print-view-header-title {
+    padding-right: @smallgap;
+  }
 
-.print-view-header-logos {
-  margin: @spacing-small @smallgap 0 0;
-  vertical-align: middle;
-  display: inline-block;
-}
+  .print-view-header-name {
+    padding: 0 @smallgap;
+    text-overflow: ellipsis;
+  }
 
-.print-view-logo {
-  display: inline-block;
-}
+  .print-view-header-date {
+    padding: 0 @smallgap;
+  }
 
-.print-view-logo:first-child {
-  padding-right: @smallgap;
-}
+  .print-view-header-logos {
+    margin: @spacing-small @smallgap 0 0;
+    vertical-align: middle;
+    display: inline-block;
+  }
 
+  .print-view-logo {
+    display: inline-block;
+  }
 
-// @media print {
-
-  // .App-navbar,
-  // .footer {
-  //  display: none;
-  // }
+  .print-view-logo:first-child {
+    padding-right: @smallgap;
+  }
 
   .label {
     border-top: none;
   }
 
   /*
-   * where to break when printing the settings
+   * page layout when printing the settings
    */
-  .settings-table-container,
-  [class*='NonTandem--basalSettingsContainer'],
-  [class*='NonTandem--bolusSettingsContainer--'] {
+  .settings-table-container {
     padding-bottom: @spacing-large;
     page-break-inside: avoid;
+  }
+
+  [class*='NonTandem--settingsContainer'] {
+    display: block;
+  }
+
+  [class*='NonTandem--basalSettingsContainer'] [class*='NonTandem--categoryContainer'] {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+  }
+
+  [class*='NonTandem--bolusSettingsContainer'] {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
   }
 
   /*
@@ -162,5 +175,4 @@
   @page {
     size: portrait;
   }
-
-// }
+}
