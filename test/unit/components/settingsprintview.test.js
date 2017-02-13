@@ -33,12 +33,12 @@ const expect = chai.expect;
 
 describe('SettingsPrintView', () => {
   const pumpSettingsData = {
-    source: "animas",
-    type: "pumpSettings",
-    activeSchedule: "normal",
+    source: 'animas',
+    type: 'pumpSettings',
+    activeSchedule: 'normal',
     basalSchedules: [
       {
-        name: "normal",
+        name: 'normal',
         value: [
           {
             start: 0,
@@ -48,8 +48,8 @@ describe('SettingsPrintView', () => {
       }
     ],
     units: {
-      carbs: "grams",
-      bg: "mmol/L"
+      carbs: 'grams',
+      bg: 'mmol/L'
     },
     bgTarget: [
       {
@@ -72,13 +72,13 @@ describe('SettingsPrintView', () => {
     ],
     clockDriftOffset: 0,
     conversionOffset: 0,
-    deviceId: "DevId0987654321",
-    deviceTime: "2016-08-22T13:31:55",
-    guid: "5886768b-012e-453d-8e3e-2c5280995c47",
-    id: "8372053933d14de3974c8d183c2a433d",
-    time: "2016-08-22T01:31:55.605Z",
+    deviceId: 'DevId0987654321',
+    deviceTime: '2016-08-22T13:31:55',
+    guid: '5886768b-012e-453d-8e3e-2c5280995c47',
+    id: '8372053933d14de3974c8d183c2a433d',
+    time: '2016-08-22T01:31:55.605Z',
     timezoneOffset: 720,
-    uploadId: "SampleUploadId"
+    uploadId: 'SampleUploadId'
   };
   const props = {
     bgPrefs: {},
