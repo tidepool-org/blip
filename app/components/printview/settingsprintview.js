@@ -37,6 +37,7 @@ const SettingsPrintView = React.createClass({
   log: bows('Settings View'),
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
+    currentPatientInViewId: React.PropTypes.string.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
