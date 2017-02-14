@@ -73,7 +73,6 @@ export let Login = React.createClass({
     var forgotPassword = this.renderForgotPassword();
     var inviteIntro = this.renderInviteIntroduction();
 
-    
     return (
       <div className="login">
         <LoginNav
@@ -90,7 +89,6 @@ export let Login = React.createClass({
         </div>
       </div>
     );
-    
   },
 
   renderInviteIntroduction: function() {
@@ -118,7 +116,6 @@ export let Login = React.createClass({
         onSubmit={this.handleSubmit}
         notification={this.state.notification || this.props.notification} />
     );
-    
   },
 
   logPasswordReset : function() {
@@ -194,8 +191,7 @@ export let Login = React.createClass({
     if (!nextProps.fetchers) {
       return;
     }
-    
-    nextProps.fetchers.forEach(fetcher => { 
+    nextProps.fetchers.forEach(fetcher => {
       fetcher();
     });
   },
