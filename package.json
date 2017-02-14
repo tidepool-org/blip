@@ -21,6 +21,7 @@
   "dependencies": {
     "@tidepool/viz": "0.3.4",
     "async": "1.5.2",
+    "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
     "babel-loader": "6.2.5",
     "babel-polyfill": "6.13.0",
@@ -43,6 +44,7 @@
     "less-loader": "2.2.3",
     "lodash": "3.10.1",
     "ms": "0.7.1",
+    "postcss-loader": "1.3.0",
     "qs": "6.2.1",
     "react": "15.2.1",
     "react-addons-pure-render-mixin": "15.2.1",

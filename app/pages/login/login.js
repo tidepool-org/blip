@@ -47,8 +47,8 @@ export let Login = React.createClass({
 
   formInputs: function() {
     return [
-      { name: 'username', label: 'Email', type: 'email', disabled: !!this.props.seedEmail },
-      { name: 'password', label: 'Password', type: 'password' },
+      { name: 'username', placeholder: 'Email', type: 'email', disabled: !!this.props.seedEmail },
+      { name: 'password', placeholder: 'Password', type: 'password' },
       { name: 'remember', label: 'Remember me', type: 'checkbox' }
     ];
   },
