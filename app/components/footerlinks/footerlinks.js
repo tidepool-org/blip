@@ -21,36 +21,70 @@ const twitter = require('./images/twitter.png');
 const facebook = require('./images/facebook.png');
 const jdrf = require('./images/jdrf.png');
 
-const FooterLinks = () => {
+const FooterLinks = (props) => {
+  const metricFnMkr = (link) => {
+    return () => { props.trackMetric(`Clicked Footer ${link}`); };
+  }
   return (
     <div className='footer-section footer-section-top'>
       <div className='footer-link'>
-        <a className='footer-twitter' href="https://twitter.com/tidepool_org" target="_blank">
+        <a
+          className='footer-twitter'
+          href="https://twitter.com/tidepool_org"
+          id='twitter'
+          onClick={metricFnMkr('Twitter')}
+          target="_blank"
+        >
           <img src={twitter}/>
         </a>
-        <a className='footer-facebook' href="https://www.facebook.com/TidepoolOrg" target="_blank">
+        <a
+          className='footer-facebook'
+          href="https://www.facebook.com/TidepoolOrg"
+          id='facebook'
+          onClick={metricFnMkr('Facebook')}
+          target="_blank"
+        >
           <img src={facebook}/>
         </a>
       </div>
-      <div className='footer-link social-media footer-facebook'>
+      <div className='footer-link'>
+        <a
+          href="http://tidepool.org/products/blip-notes/"
+          id='mobile'
+          onClick={metricFnMkr('Mobile App')}
+          target="_blank"
+        >Get Mobile App</a>
       </div>
       <div className='footer-link'>
-        <a href="http://tidepool.org/products/blip-notes/" target="_blank">Get Mobile App</a>
+        <a
+          href="http://support.tidepool.org/"
+          id='support'
+          onClick={metricFnMkr('Support')}
+          target="_blank">Get Support</a>
       </div>
       <div className='footer-link'>
-        <a href="http://support.tidepool.org/" target="_blank">Get Support</a>
-      </div>
-      <div className='footer-link'>
-        <a href='http://tidepool.org/legal/' target='_blank'>Privacy and Terms of Use</a>
+        <a
+          href='http://tidepool.org/legal/'
+          id='legal'
+          onClick={metricFnMkr('PP and TOU')}
+          target='_blank'>Privacy and Terms of Use</a>
       </div>
       <div className='footer-link footer-jdrf'>
-        <a href='http://jdrf.org/' target='_blank'>
+        <a
+          href='http://jdrf.org/'
+          id='jdrf'
+          onClick={metricFnMkr('JDRF')}
+          target='_blank'>
           Made possible by
           <img src={jdrf}/>
         </a>
       </div>
     </div>
   );
+};
+
+FooterLinks.propTypes = {
+  trackMetric: React.PropTypes.func.isRequired,
 };
 
 export default FooterLinks;
