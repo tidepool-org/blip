@@ -65,7 +65,7 @@ var TidelineFooter = React.createClass({
         <label htmlFor="overlayCheckbox">
           <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox"
             checked={this.props.boxOverlay}
-            onChange={this.props.onClickBoxOverlay} /> Range
+            onChange={this.props.onClickBoxOverlay} /> Range &amp; Average
         </label>
 
         <label htmlFor="groupCheckbox">
