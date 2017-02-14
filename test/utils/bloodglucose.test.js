@@ -100,4 +100,18 @@ describe('blood glucose utilities', () => {
       expect(bgUtils.classifyBgValue(bgBounds, 181)).to.equal('high');
     });
   });
+
+  describe('convertToMmolL', () => {
+    it('should be a function', () => {
+      assert.isFunction(bgUtils.convertToMmolL);
+    });
+
+    it('should return 2.2202991964182135 when given 40', () => {
+      expect(bgUtils.convertToMmolL(40)).to.equal(2.2202991964182135);
+    });
+
+    it('should return 22.202991964182132 when given 400', () => {
+      expect(bgUtils.convertToMmolL(400)).to.equal(22.202991964182132);
+    });
+  });
 });

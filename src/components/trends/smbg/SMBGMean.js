@@ -21,11 +21,7 @@ import { bindActionCreators } from 'redux';
 
 import { focusTrendsSmbgRangeAvg, unfocusTrendsSmbgRangeAvg } from '../../../redux/actions/trends';
 
-export class SMBGRange extends PureComponent {
-  static defaultProps = {
-    rectWidth: 108,
-  };
-
+export class SMBGMean extends PureComponent {
   static propTypes = {
     classes: PropTypes.string.isRequired,
     datum: PropTypes.shape({
@@ -55,9 +51,10 @@ export class SMBGRange extends PureComponent {
         min: PropTypes.number.isRequired,
       }).isRequired,
     }),
-    rectWidth: PropTypes.number.isRequired,
     unfocusRange: PropTypes.func.isRequired,
     userId: PropTypes.string.isRequired,
+    width: PropTypes.number.isRequired,
+    x: PropTypes.number.isRequired,
   };
 
   constructor(props) {
@@ -78,16 +75,17 @@ export class SMBGRange extends PureComponent {
   }
 
   render() {
-    const { classes, interpolated: { key, style }, positionData, rectWidth } = this.props;
+    const { classes, interpolated: { key, style }, width, x } = this.props;
+
     return (
       <rect
         className={classes}
         id={`smbgRange-${key}`}
         onMouseOver={this.handleMouseOver}
         onMouseOut={this.handleMouseOut}
-        x={positionData.left - rectWidth / 2}
+        x={x}
         y={style.y}
-        width={rectWidth}
+        width={width}
         height={style.height}
         opacity={style.opacity}
       />
@@ -109,4 +107,4 @@ export function mapDispatchToProps(dispatch) {
   }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SMBGRange);
+export default connect(mapStateToProps, mapDispatchToProps)(SMBGMean);

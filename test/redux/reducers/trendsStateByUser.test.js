@@ -605,7 +605,7 @@ describe('trendsStateByUser', () => {
   });
 
   describe('UNFOCUS_TRENDS_CBG_SLICE', () => {
-    it('should reset focusedCbgSlice, focusedCbgSliceKeys, and showingCbgDateTraces', () => {
+    it('should reset all focusedCbg* props and showingCbgDateTraces', () => {
       const initialState = {
         [USER_1]: {
           cbgFlags: {
@@ -614,7 +614,7 @@ describe('trendsStateByUser', () => {
             cbg50Enabled: true,
             cbgMedianEnabled: true,
           },
-          focusedCbgDateTrace: null,
+          focusedCbgDateTrace: {},
           focusedCbgSlice: { datum, position },
           focusedCbgSliceKeys: ['median'],
           focusedSmbg: null,

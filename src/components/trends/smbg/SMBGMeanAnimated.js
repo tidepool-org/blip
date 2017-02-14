@@ -19,14 +19,20 @@ import cx from 'classnames';
 import React, { PropTypes, PureComponent } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
+import { classifyBgValue } from '../../../utils/bloodglucose';
 import { springConfig } from '../../../utils/constants';
 import withDefaultYPosition from '../common/withDefaultYPosition';
 
-import SMBGRange from './SMBGRange';
+import SMBGMean from './SMBGMean';
 
-import styles from './SMBGRangeAnimated.css';
+import styles from './SMBGMeanAnimated.css';
 
-export class SMBGRangeAnimated extends PureComponent {
+export class SMBGMeanAnimated extends PureComponent {
+  static defaultProps = {
+    meanHeight: 10,
+    meanWidth: 108,
+  };
+
   static propTypes = {
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,
@@ -44,6 +50,8 @@ export class SMBGRangeAnimated extends PureComponent {
       msTo: PropTypes.number.isRequired,
     }),
     defaultY: PropTypes.number.isRequired,
+    meanHeight: PropTypes.number.isRequired,
+    meanWidth: PropTypes.number.isRequired,
     someSmbgDataIsFocused: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     xScale: PropTypes.func.isRequired,
@@ -66,17 +74,19 @@ export class SMBGRangeAnimated extends PureComponent {
   }
 
   willLeave() {
-    const { defaultY } = this.props;
+    const { defaultY, meanHeight } = this.props;
     const shrinkOut = spring(0, springConfig);
     return {
       y: spring(defaultY, springConfig),
-      height: shrinkOut,
+      height: spring(meanHeight, springConfig),
       opacity: shrinkOut,
     };
   }
 
   render() {
-    const { datum, defaultY, someSmbgDataIsFocused, xScale, yScale } = this.props;
+    const {
+      bgBounds, datum, defaultY, meanHeight, meanWidth, someSmbgDataIsFocused, xScale, yScale,
+    } = this.props;
 
     const xPos = xScale(datum.msX);
     const yPositions = {
@@ -85,11 +95,19 @@ export class SMBGRangeAnimated extends PureComponent {
       max: yScale(datum.max),
     };
 
-    const rangeClasses = cx({
-      [styles.smbgRange]: true,
-      [styles.fadeIn]: !someSmbgDataIsFocused,
-      [styles.fadeOut]: someSmbgDataIsFocused,
-    });
+    const meanClasses = datum.mean ?
+      cx({
+        [styles.smbgMean]: true,
+        [styles[`${classifyBgValue(bgBounds, datum.mean)}FadeIn`]]: !someSmbgDataIsFocused,
+        [styles[`${classifyBgValue(bgBounds, datum.mean)}FadeOut`]]: someSmbgDataIsFocused,
+      }) :
+      cx({
+        [styles.smbgMean]: true,
+        [styles.transparent]: true,
+      });
+
+    const binLeftX = xScale(datum.msX) - meanWidth / 2 + styles.stroke / 2;
+    const width = meanWidth - styles.stroke;
 
     return (
       <TransitionMotion
@@ -104,8 +122,8 @@ export class SMBGRangeAnimated extends PureComponent {
         styles={datum.min ? [{
           key: datum.id,
           style: {
-            y: spring(yPositions.max, springConfig),
-            height: spring(yPositions.min - yPositions.max, springConfig),
+            y: spring(yPositions.mean - meanHeight / 2, springConfig),
+            height: spring(meanHeight, springConfig),
             opacity: spring(1.0, springConfig),
           },
         }] : []}
@@ -117,8 +135,8 @@ export class SMBGRangeAnimated extends PureComponent {
           return null;
         }
         return (
-          <SMBGRange
-            classes={rangeClasses}
+          <SMBGMean
+            classes={meanClasses}
             datum={datum}
             interpolated={interpolated[0]}
             positionData={{
@@ -126,6 +144,8 @@ export class SMBGRangeAnimated extends PureComponent {
               tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
               yPositions,
             }}
+            width={width}
+            x={binLeftX}
           />
         );
       }}
@@ -134,4 +154,4 @@ export class SMBGRangeAnimated extends PureComponent {
   }
 }
 
-export default withDefaultYPosition(SMBGRangeAnimated);
+export default withDefaultYPosition(SMBGMeanAnimated);

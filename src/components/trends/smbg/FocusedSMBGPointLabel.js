@@ -38,6 +38,14 @@ const FocusedSMBGPointLabel = (props) => {
     return null;
   }
 
+  function getOutOfRangeThreshold(smbg) {
+    const outOfRangeAnnotation = _.find(
+      smbg.annotations || [], (annotation) => (annotation.code === 'bg/out-of-range')
+    );
+    return outOfRangeAnnotation ?
+      { [outOfRangeAnnotation.value]: outOfRangeAnnotation.threshold } : null;
+  }
+
   const {
     bgUnits,
     focusedPoint: { datum, position, allSmbgsOnDate, allPositions },
@@ -57,7 +65,11 @@ const FocusedSMBGPointLabel = (props) => {
   const pointTooltips = _.map(allSmbgsOnDate, (smbg, i) => (
     <Tooltip
       key={i}
-      content={<span className={styles.number}>{displayBgValue(smbg.value, bgUnits)}</span>}
+      content={
+        <span className={styles.number}>
+          {displayBgValue(smbg.value, bgUnits, getOutOfRangeThreshold(smbg))}
+        </span>
+      }
       position={allPositions[i]}
       side={'bottom'}
       tail={false}
@@ -86,7 +98,9 @@ const FocusedSMBGPointLabel = (props) => {
         </span>
         }
         content={<span className={styles.tipWrapper}>
-          <span className={styles.detailNumber}>{displayBgValue(datum.value, bgUnits)}</span>
+          <span className={styles.detailNumber}>
+            {displayBgValue(datum.value, bgUnits, getOutOfRangeThreshold(datum))}
+          </span>
           <span className={styles.subType}>{categorizeSmbgSubtype(datum)}</span>
         </span>
         }

@@ -53,6 +53,7 @@ import FocusedCBGSliceSegment from '../../components/trends/cbg/FocusedCBGSliceS
 import SMBGsByDateContainer from './SMBGsByDateContainer';
 import SMBGRangeAvgContainer from './SMBGRangeAvgContainer';
 import SMBGRangeAnimated from '../../components/trends/smbg/SMBGRangeAnimated';
+import SMBGMeanAnimated from '../../components/trends/smbg/SMBGMeanAnimated';
 
 import NoData from '../../components/trends/common/NoData';
 import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
@@ -248,6 +249,7 @@ export class TrendsSVGContainer extends PureComponent {
         <g id="smbgTrends">
         {this.renderOverlay(SMBGRangeAnimated, 'SMBGRangeContainer')}
         {allSmbgsByDate}
+        {this.renderOverlay(SMBGMeanAnimated, 'SMBGMeanContainer')}
         {focusedSmbgDate}
         </g>
       );
