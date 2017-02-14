@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
+import { BG_HIGH, BG_LOW, MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
 import * as format from '../../src/utils/format';
 
@@ -24,42 +24,90 @@ describe('format', () => {
     it('should give no places when none specified', () => {
       expect(format.displayDecimal(9.3328)).to.equal('9');
     });
+
     it('should give no places when zero specified', () => {
       expect(format.displayDecimal(9.3328, 0)).to.equal('9');
     });
+
     it('should give the number of places when they are specified', () => {
       expect(format.displayDecimal(9.3328, 1)).to.equal('9.3');
     });
   });
+
   describe('displayBgValue', () => {
     it('should be a function', () => {
       assert.isFunction(format.displayBgValue);
     });
 
-    it('should return a String integer by default (no recogizable `units` provided)', () => {
-      expect(format.displayBgValue(120.5)).to.equal('121');
-      expect(format.displayBgValue(120.5, 'foo')).to.equal('121');
+    describe('no recogizable units provided', () => {
+      it('should return a String integer by default (no recogizable `units` provided)', () => {
+        expect(format.displayBgValue(120.5)).to.equal('121');
+        expect(format.displayBgValue(120.5, 'foo')).to.equal('121');
+      });
     });
 
-    it('should return a String integer if `units` are `mg/dL`', () => {
-      expect(format.displayBgValue(120.5, MGDL_UNITS)).to.equal('121');
+    describe('when units are `mg/dL`', () => {
+      it('should return a String integer', () => {
+        expect(format.displayBgValue(120.5, MGDL_UNITS)).to.equal('121');
+      });
+
+      it('should give no decimals', () => {
+        expect(format.displayBgValue(352, MGDL_UNITS)).to.equal('352');
+      });
+
+      it('should round', () => {
+        expect(format.displayBgValue(352.77, MGDL_UNITS)).to.equal('353');
+      });
+
+      describe('when `outOfRangeThresholds` provided', () => {
+        it('should return the String High if value over the high threshold', () => {
+          expect(format.displayBgValue(401, MGDL_UNITS, { high: 400 })).to.equal(BG_HIGH);
+        });
+
+        it('should return normal String integer if value NOT over the high threshold', () => {
+          expect(format.displayBgValue(399, MGDL_UNITS, { high: 400 })).to.equal('399');
+        });
+
+        it('should return the String Low if value under the low threshold', () => {
+          expect(format.displayBgValue(39, MGDL_UNITS, { low: 40 })).to.equal(BG_LOW);
+        });
+
+        it('should return normal String integer if value NOT under the low threshold', () => {
+          expect(format.displayBgValue(41, MGDL_UNITS, { low: 40 })).to.equal('41');
+        });
+      });
     });
 
-    it('should return a String number w/one decimal point precision (`units` are `mmol/L`)', () => {
-      expect(format.displayBgValue(6.6886513292098675, MMOLL_UNITS)).to.equal('6.7');
-    });
-    it('should give no decimals when mg/dl units', () => {
-      expect(format.displayBgValue(352, 'mg/dL')).to.equal('352');
-    });
-    it('should round when mg/dl units', () => {
-      expect(format.displayBgValue(352.77, 'mg/dL')).to.equal('353');
-    });
-    it('should give one decimal place when mmol/L', () => {
-      expect(format.displayBgValue(12.52, 'mmol/L')).to.equal('12.5');
-    });
+    describe('when units are `mmol/L`', () => {
+      it('should return a String number', () => {
+        expect(format.displayBgValue(6.6886513292098675, MMOLL_UNITS)).to.equal('6.7');
+      });
 
-    it('should round when mmol/L', () => {
-      expect(format.displayBgValue(12.77, 'mmol/L')).to.equal('12.8');
+      it('should give one decimal place', () => {
+        expect(format.displayBgValue(12.52, MMOLL_UNITS)).to.equal('12.5');
+      });
+
+      it('should round', () => {
+        expect(format.displayBgValue(12.77, MMOLL_UNITS)).to.equal('12.8');
+      });
+
+      describe('when `outOfRangeThresholds` provided', () => {
+        it('should return the String High if value over the high threshold', () => {
+          expect(format.displayBgValue(23.1, MMOLL_UNITS, { high: 400 })).to.equal(BG_HIGH);
+        });
+
+        it('should return normal String number if value NOT over the high threshold', () => {
+          expect(format.displayBgValue(22.0, MMOLL_UNITS, { high: 400 })).to.equal('22.0');
+        });
+
+        it('should return the String Low if value under the low threshold', () => {
+          expect(format.displayBgValue(2.1, MMOLL_UNITS, { low: 40 })).to.equal(BG_LOW);
+        });
+
+        it('should return normal String number if value NOT under the low threshold', () => {
+          expect(format.displayBgValue(3.36, MMOLL_UNITS, { low: 40 })).to.equal('3.4');
+        });
+      });
     });
   });
 });

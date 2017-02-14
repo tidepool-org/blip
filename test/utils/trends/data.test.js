@@ -20,6 +20,51 @@ import { range, shuffle } from 'd3-array';
 import * as utils from '../../../src/utils/trends/data';
 
 describe('[trends] data utils', () => {
+  describe('determineRangeBoundaries', () => {
+    it('should be a function', () => {
+      assert.isFunction(utils.determineRangeBoundaries);
+    });
+
+    it('should return the max of all provided `low` thresholds', () => {
+      expect(utils.determineRangeBoundaries([{
+        value: 'low',
+        threshold: 20,
+      }, {
+        value: 'low',
+        threshold: 25,
+      }, {
+        value: 'low',
+        threshold: 15,
+      }])).to.deep.equal({ low: 25 });
+    });
+
+    it('should return the min of all provided `high` thresholds', () => {
+      expect(utils.determineRangeBoundaries([{
+        value: 'high',
+        threshold: 650,
+      }, {
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'high',
+        threshold: 600,
+      }])).to.deep.equal({ high: 500 });
+    });
+
+    it('should return both boundaries when a mix of out-of-range objects is provided', () => {
+      expect(utils.determineRangeBoundaries([{
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'low',
+        threshold: 20,
+      }, {
+        value: 'low',
+        threshold: 40,
+      }])).to.deep.equal({ low: 40, high: 500 });
+    });
+  });
+
   describe('findBinForTimeOfDay', () => {
     it('should be a function', () => {
       assert.isFunction(utils.findBinForTimeOfDay);
@@ -152,6 +197,47 @@ describe('[trends] data utils', () => {
     });
   });
 
+  describe('findOutOfRangeAnnotations', () => {
+    it('should be a function', () => {
+      assert.isFunction(utils.findOutOfRangeAnnotations);
+    });
+
+    it('should return an empty array if none of the data is annotated `bg/out-of-range`', () => {
+      expect(utils.findOutOfRangeAnnotations([])).to.deep.equal([]);
+      expect(utils.findOutOfRangeAnnotations([{}, {}, {}])).to.deep.equal([]);
+      expect(utils.findOutOfRangeAnnotations([{}, { annotations: [{ code: 'foo' }] }]))
+        .to.deep.equal([]);
+    });
+
+    it('should return an array of the annotations w/unique thresholds', () => {
+      expect(utils.findOutOfRangeAnnotations([{
+        annotations: [{
+          code: 'bg/out-of-range',
+          value: 'high',
+          threshold: 500,
+        }],
+      }, {
+        annotations: [{
+          code: 'bg/out-of-range',
+          value: 'low',
+          threshold: 25,
+        }],
+      }, {
+        annotations: [{
+          code: 'bg/out-of-range',
+          value: 'high',
+          threshold: 500,
+        }],
+      }])).to.deep.equal([{
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'low',
+        threshold: 25,
+      }]);
+    });
+  });
+
   describe('calculateCbgStatsForBin', () => {
     const bin = 900000;
     const binKey = bin.toString();
@@ -228,6 +314,30 @@ describe('[trends] data utils', () => {
     it('should add a `msTo` to the resulting object half a bin later', () => {
       expect(res.msTo).to.equal(1800000);
     });
+
+    describe('when an array of out-of-range annotations is provided', () => {
+      const outOfRange = [{
+        value: 'low',
+        threshold: 25,
+      }, {
+        value: 'low',
+        threshold: 40,
+      }, {
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'high',
+        threshold: 400,
+      }];
+      const resWithOutOfRange = utils.calculateCbgStatsForBin(binKey, binSize, data, outOfRange);
+
+      it('should add `outOfRangeThresholds` to the resulting object', () => {
+        expect(resWithOutOfRange.outOfRangeThresholds).to.deep.equal({
+          low: 40,
+          high: 400,
+        });
+      });
+    });
   });
 
   describe('calculateSmbgStatsForBin', () => {
@@ -277,6 +387,30 @@ describe('[trends] data utils', () => {
 
     it('should add the bin as `msX` on the resulting object', () => {
       expect(res.msX).to.equal(bin);
+    });
+
+    describe('when an array of out-of-range annotations is provided', () => {
+      const outOfRange = [{
+        value: 'low',
+        threshold: 25,
+      }, {
+        value: 'low',
+        threshold: 40,
+      }, {
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'high',
+        threshold: 400,
+      }];
+      const resWithOutOfRange = utils.calculateSmbgStatsForBin(binKey, binSize, data, outOfRange);
+
+      it('should add `outOfRangeThresholds` to the resulting object', () => {
+        expect(resWithOutOfRange.outOfRangeThresholds).to.deep.equal({
+          low: 40,
+          high: 400,
+        });
+      });
     });
   });
 

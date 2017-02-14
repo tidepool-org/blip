@@ -69,7 +69,11 @@ const FocusedRangeLabels = (props) => {
         />
       ) : null}
       <Tooltip
-        content={<span className={styles.number}>{displayBgValue(data[top], bgUnits)}</span>}
+        content={
+          <span className={styles.number}>
+            {displayBgValue(data[top], bgUnits, data.outOfRangeThresholds)}
+          </span>
+        }
         backgroundColor={'transparent'}
         borderColor={'transparent'}
         offset={{ left: 0, top: isCbg ? props.numberOffsets.top : 0 }}
@@ -82,7 +86,7 @@ const FocusedRangeLabels = (props) => {
           title={<span className={styles.explainerText}>{timeFrom} - {timeTo}</span>}
           content={
             <span className={styles.number}>
-              {`Average ${displayBgValue(data[center], bgUnits)}`}
+              {`Average ${displayBgValue(data[center], bgUnits, data.outOfRangeThresholds)}`}
             </span>
           }
           offset={{ top: 0, horizontal: props.numberOffsets.horizontal }}
@@ -91,7 +95,11 @@ const FocusedRangeLabels = (props) => {
         />
       )}
       <Tooltip
-        content={<span className={styles.number}>{displayBgValue(data[bottom], bgUnits)}</span>}
+        content={
+          <span className={styles.number}>
+            {displayBgValue(data[bottom], bgUnits, data.outOfRangeThresholds)}
+          </span>
+        }
         backgroundColor={'transparent'}
         borderColor={'transparent'}
         offset={{ left: 0, top: isCbg ? props.numberOffsets.bottom : 0 }}
@@ -105,9 +113,9 @@ const FocusedRangeLabels = (props) => {
 
 FocusedRangeLabels.defaultProps = {
   numberOffsets: {
-    bottom: -7.5,
+    bottom: -5,
     horizontal: 10,
-    top: 7.5,
+    top: 5,
   },
 };
 
@@ -132,6 +140,10 @@ FocusedRangeLabels.propTypes = {
       msX: PropTypes.number.isRequired,
       msFrom: PropTypes.number.isRequired,
       msTo: PropTypes.number.isRequired,
+      outOfRangeThresholds: PropTypes.shape({
+        low: PropTypes.number,
+        high: PropTypes.number,
+      }),
     }).isRequired,
     position: PropTypes.shape({
       left: PropTypes.number.isRequired,
@@ -154,6 +166,10 @@ FocusedRangeLabels.propTypes = {
       msTo: PropTypes.number.isRequired,
       msX: PropTypes.number.isRequired,
       ninetiethQuantile: PropTypes.number.isRequired,
+      outOfRangeThresholds: PropTypes.shape({
+        low: PropTypes.number,
+        high: PropTypes.number,
+      }),
       tenthQuantile: PropTypes.number.isRequired,
       thirdQuartile: PropTypes.number.isRequired,
     }).isRequired,
