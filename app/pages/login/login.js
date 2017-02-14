@@ -70,7 +70,6 @@ export let Login = React.createClass({
 
   render: function() {
     var form = this.renderForm();
-    var forgotPassword = this.renderForgotPassword();
     var inviteIntro = this.renderInviteIntroduction();
 
     return (
@@ -84,7 +83,6 @@ export let Login = React.createClass({
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
             <div className="login-simpleform">{form}</div>
-            <div className="login-forgotpassword">{forgotPassword}</div>
           </div>
         </div>
       </div>
@@ -105,6 +103,7 @@ export let Login = React.createClass({
 
   renderForm: function() {
     var submitButtonText = this.props.working ? 'Logging in...' : 'Log in';
+    var forgotPassword = this.renderForgotPassword();
 
     return (
       <SimpleForm
@@ -114,7 +113,9 @@ export let Login = React.createClass({
         submitButtonText={submitButtonText}
         submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification || this.props.notification} />
+        notification={this.state.notification || this.props.notification}>
+        {<div className="login-forgotpassword">{forgotPassword}</div>}
+      </SimpleForm>
     );
   },
 
@@ -123,7 +124,7 @@ export let Login = React.createClass({
   },
 
   renderForgotPassword: function() {
-    return <Link to="/request-password-reset">{'I forgot my password'}</Link>;
+    return <Link to="/request-password-reset">Forgot your password?</Link>;
   },
 
   handleSubmit: function(formValues) {
