@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import cx from 'classnames';
 import React, { PropTypes, PureComponent } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
@@ -43,6 +44,7 @@ export class SMBGRangeAnimated extends PureComponent {
       msTo: PropTypes.number.isRequired,
     }),
     defaultY: PropTypes.number.isRequired,
+    someSmbgDataIsFocused: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
@@ -74,7 +76,7 @@ export class SMBGRangeAnimated extends PureComponent {
   }
 
   render() {
-    const { datum, defaultY, xScale, yScale } = this.props;
+    const { datum, defaultY, someSmbgDataIsFocused, xScale, yScale } = this.props;
 
     const xPos = xScale(datum.msX);
     const yPositions = {
@@ -82,6 +84,12 @@ export class SMBGRangeAnimated extends PureComponent {
       mean: yScale(datum.mean),
       max: yScale(datum.max),
     };
+
+    const rangeClasses = cx({
+      [styles.smbgRange]: true,
+      [styles.fadeIn]: !someSmbgDataIsFocused,
+      [styles.fadeOut]: someSmbgDataIsFocused,
+    });
 
     return (
       <TransitionMotion
@@ -110,7 +118,7 @@ export class SMBGRangeAnimated extends PureComponent {
         }
         return (
           <SMBGRange
-            classes={styles.smbgRange}
+            classes={rangeClasses}
             datum={datum}
             interpolated={interpolated[0]}
             positionData={{

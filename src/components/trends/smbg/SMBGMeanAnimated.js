@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2017, Tidepool Project
+ * Copyright (c) 2016, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,7 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
 import cx from 'classnames';
 import React, { PropTypes, PureComponent } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
@@ -24,12 +23,14 @@ import { classifyBgValue } from '../../../utils/bloodglucose';
 import { springConfig } from '../../../utils/constants';
 import withDefaultYPosition from '../common/withDefaultYPosition';
 
-import styles from './CBGMedianAnimated.css';
+import SMBGMean from './SMBGMean';
 
-export class CBGMedianAnimated extends PureComponent {
+import styles from './SMBGMeanAnimated.css';
+
+export class SMBGMeanAnimated extends PureComponent {
   static defaultProps = {
-    medianHeight: 10,
-    medianWidth: 14,
+    meanHeight: 10,
+    meanWidth: 108,
   };
 
   static propTypes = {
@@ -40,124 +41,117 @@ export class CBGMedianAnimated extends PureComponent {
       veryLowThreshold: PropTypes.number.isRequired,
     }).isRequired,
     datum: PropTypes.shape({
-      firstQuartile: PropTypes.number,
       id: PropTypes.string.isRequired,
       max: PropTypes.number,
-      median: PropTypes.number,
+      mean: PropTypes.number,
       min: PropTypes.number,
+      msX: PropTypes.number.isRequired,
       msFrom: PropTypes.number.isRequired,
       msTo: PropTypes.number.isRequired,
-      msX: PropTypes.number.isRequired,
-      ninetiethQuantile: PropTypes.number,
-      tenthQuantile: PropTypes.number,
-      thirdQuartile: PropTypes.number,
-    }).isRequired,
+    }),
     defaultY: PropTypes.number.isRequired,
-    displayingMedian: PropTypes.bool.isRequired,
-    medianHeight: PropTypes.number.isRequired,
-    medianWidth: PropTypes.number.isRequired,
-    showingCbgDateTraces: PropTypes.bool.isRequired,
+    meanHeight: PropTypes.number.isRequired,
+    meanWidth: PropTypes.number.isRequired,
+    someSmbgDataIsFocused: PropTypes.bool.isRequired,
+    tooltipLeftThreshold: PropTypes.number.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
 
   constructor(props) {
     super(props);
-
     this.willEnter = this.willEnter.bind(this);
     this.willLeave = this.willLeave.bind(this);
   }
 
   willEnter() {
     const { defaultY } = this.props;
-
     return {
+      y: defaultY,
       height: 0,
-      median: defaultY,
       opacity: 0,
     };
   }
 
   willLeave() {
-    const { defaultY } = this.props;
+    const { defaultY, meanHeight } = this.props;
     const shrinkOut = spring(0, springConfig);
     return {
-      height: shrinkOut,
-      median: spring(defaultY, springConfig),
+      y: spring(defaultY, springConfig),
+      height: spring(meanHeight, springConfig),
       opacity: shrinkOut,
     };
   }
 
   render() {
     const {
-      bgBounds,
-      datum,
-      defaultY,
-      displayingMedian,
-      medianHeight,
-      medianWidth,
-      showingCbgDateTraces,
-      xScale,
-      yScale,
+      bgBounds, datum, defaultY, meanHeight, meanWidth, someSmbgDataIsFocused, xScale, yScale,
     } = this.props;
 
-    const medianClasses = datum.median ?
+    const xPos = xScale(datum.msX);
+    const yPositions = {
+      min: yScale(datum.min),
+      mean: yScale(datum.mean),
+      max: yScale(datum.max),
+    };
+
+    const meanClasses = datum.mean ?
       cx({
-        [styles.median]: true,
-        [styles[`${classifyBgValue(bgBounds, datum.median)}FadeIn`]]: !showingCbgDateTraces,
-        [styles[`${classifyBgValue(bgBounds, datum.median)}FadeOut`]]: showingCbgDateTraces,
+        [styles.smbgMean]: true,
+        [styles[`${classifyBgValue(bgBounds, datum.mean)}FadeIn`]]: !someSmbgDataIsFocused,
+        [styles[`${classifyBgValue(bgBounds, datum.mean)}FadeOut`]]: someSmbgDataIsFocused,
       }) :
       cx({
-        [styles.median]: true,
+        [styles.smbgMean]: true,
         [styles.transparent]: true,
       });
 
-    const binLeftX = xScale(datum.msX) - medianWidth / 2 + styles.stroke / 2;
-    const width = medianWidth - styles.stroke;
-
-    const shouldRender = displayingMedian && (_.get(datum, 'median') !== undefined);
+    const binLeftX = xScale(datum.msX) - meanWidth / 2 + styles.stroke / 2;
+    const width = meanWidth - styles.stroke;
 
     return (
       <TransitionMotion
-        defaultStyles={shouldRender ? [{
-          key: 'median',
+        defaultStyles={[{
+          key: datum.id,
           style: {
+            y: defaultY,
             height: 0,
-            median: defaultY,
             opacity: 0,
           },
-        }] : []}
-        styles={shouldRender ? [{
-          key: 'median',
+        }]}
+        styles={datum.min ? [{
+          key: datum.id,
           style: {
-            height: spring(medianHeight, springConfig),
-            median: spring(yScale(datum.median) - medianHeight / 2, springConfig),
+            y: spring(yPositions.mean - meanHeight / 2, springConfig),
+            height: spring(meanHeight, springConfig),
             opacity: spring(1.0, springConfig),
           },
         }] : []}
         willEnter={this.willEnter}
         willLeave={this.willLeave}
       >
-        {(interpolateds) => {
-          if (interpolateds.length === 0) {
-            return null;
-          }
-          const { key, style } = interpolateds[0];
-          return (
-            <rect
-              className={medianClasses}
-              id={`cbgMedian-${key}`}
-              width={width}
-              height={style.height}
-              x={binLeftX}
-              y={style.median}
-              opacity={style.opacity}
-            />
-          );
-        }}
+      {(interpolated) => {
+        if (interpolated.length === 0) {
+          return null;
+        }
+        return (
+          <SMBGMean
+            classes={meanClasses}
+            datum={datum}
+            interpolated={interpolated[0]}
+            positionData={{
+              left: xPos,
+              tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
+              yPositions,
+            }}
+            width={width}
+            x={binLeftX}
+          />
+        );
+      }}
       </TransitionMotion>
     );
   }
 }
 
-export default withDefaultYPosition(CBGMedianAnimated);
+export default withDefaultYPosition(SMBGMeanAnimated);

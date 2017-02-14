@@ -29,10 +29,12 @@ import styles from './CBGDateTraceAnimated.css';
 
 export class CBGDateTraceAnimated extends PureComponent {
   static defaultProps = {
+    animationDuration: 0.2,
     cbgRadius: 2.5,
   };
 
   static propTypes = {
+    animationDuration: PropTypes.number.isRequired,
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,
       targetUpperBound: PropTypes.number.isRequired,
@@ -63,15 +65,19 @@ export class CBGDateTraceAnimated extends PureComponent {
   }
 
   componentWillEnter(cb) {
-    const { data } = this.props;
+    const { animationDuration, data } = this.props;
     const targets = _.map(data, (d) => (this[d.id]));
-    TweenMax.staggerTo(targets, 0.2, { opacity: 1, onComplete: cb }, 0.0015);
+    TweenMax.staggerTo(
+      targets, animationDuration, { opacity: 1, onComplete: cb }, animationDuration / targets.length
+    );
   }
 
   componentWillLeave(cb) {
-    const { data } = this.props;
+    const { animationDuration, data } = this.props;
     const targets = _.map(data, (d) => (this[d.id]));
-    TweenMax.staggerTo(targets, 0.2, { opacity: 0, onComplete: cb }, 0.0015);
+    TweenMax.staggerTo(
+      targets, animationDuration, { opacity: 0, onComplete: cb }, animationDuration / targets.length
+    );
   }
 
   handleClick() {

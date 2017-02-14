@@ -15,5 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
+export * from './thunks';
 export * from './trends';
 export * from './settings';

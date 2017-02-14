@@ -18,11 +18,24 @@
 import * as constants from '../../src/utils/constants';
 
 describe('constants', () => {
+  describe('BG_HIGH', () => {
+    it('should be High', () => {
+      expect(constants.BG_HIGH).to.equal('High');
+    });
+  });
+
+  describe('BG_LOW', () => {
+    it('should be Low', () => {
+      expect(constants.BG_LOW).to.equal('Low');
+    });
+  });
+
   describe('MMOLL_UNITS', () => {
     it('should be mmol/L', () => {
       expect(constants.MMOLL_UNITS).to.equal('mmol/L');
     });
   });
+
   describe('MGDL_UNITS', () => {
     it('should be mg/dL', () => {
       expect(constants.MGDL_UNITS).to.equal('mg/dL');

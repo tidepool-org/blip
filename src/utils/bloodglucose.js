@@ -43,3 +43,13 @@ export function classifyBgValue(bgBounds, bgValue) {
   }
   return 'target';
 }
+
+/**
+ * convertToMmolL
+ * @param {Number} bgVal - blood glucose value in mg/dL
+ *
+ * @return {Number} convertedBgVal - blood glucose value in mmol/L, unrounded
+ */
+export function convertToMmolL(val) {
+  return (val / 18.01559);
+}

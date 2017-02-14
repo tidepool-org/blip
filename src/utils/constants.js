@@ -15,6 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
+export const BG_HIGH = 'High';
+export const BG_LOW = 'Low';
+
 const STIFFNESS = 180;
 const DAMPING = 40;
 const PRECISION = 0.1;

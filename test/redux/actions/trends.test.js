@@ -117,6 +117,21 @@ describe('trends action creators', () => {
     });
   });
 
+  describe('showCbgDateTraces', () => {
+    const action = actions.showCbgDateTraces(userId);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to toggle cbg traces on for the user', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.SHOW_CBG_DATE_TRACES,
+        payload: { userId },
+      });
+    });
+  });
+
   describe('turnOffCbgRange', () => {
     const range = '100';
     const action = actions.turnOffCbgRange(userId, range);
