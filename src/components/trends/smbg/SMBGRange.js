@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2016, Tidepool Project
+ * Copyright (c) 2017, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,63 +15,98 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-import styles from './SMBGRange.css';
+import { focusTrendsSmbgRangeAvg, unfocusTrendsSmbgRangeAvg } from '../../../redux/actions/trends';
 
-const SMBGRange = (props) => {
-  const { datum } = props;
-  if (!datum) {
-    return null;
-  }
-
-  const { focus, rectWidth, unfocus, xScale, yPositions } = props;
-  const xPos = xScale(datum.msX);
-  const focusRange = () => {
-    focus(datum, {
-      left: xPos,
-      tooltipLeft: datum.msX > props.tooltipLeftThreshold,
-      yPositions,
-    });
+export class SMBGRange extends PureComponent {
+  static defaultProps = {
+    rectWidth: 108,
   };
 
-  return (
-    <rect
-      className={styles.smbgRange}
-      id={`smbgRange-${datum.id}`}
-      onMouseOver={focusRange}
-      onMouseOut={unfocus}
-      x={xPos - rectWidth / 2}
-      y={yPositions.max}
-      width={rectWidth}
-      height={yPositions.min - yPositions.max}
-    />
-  );
-};
+  static propTypes = {
+    classes: PropTypes.string.isRequired,
+    datum: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      max: PropTypes.number,
+      mean: PropTypes.number,
+      min: PropTypes.number,
+      msX: PropTypes.number.isRequired,
+      msFrom: PropTypes.number.isRequired,
+      msTo: PropTypes.number.isRequired,
+    }),
+    focusRange: PropTypes.func.isRequired,
+    interpolated: PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      style: PropTypes.shape({
+        height: PropTypes.number.isRequired,
+        opacity: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+      }).isRequired,
+    }).isRequired,
+    positionData: PropTypes.shape({
+      left: PropTypes.number.isRequired,
+      tooltipLeft: PropTypes.bool.isRequired,
+      yPositions: PropTypes.shape({
+        max: PropTypes.number.isRequired,
+        mean: PropTypes.number.isRequired,
+        min: PropTypes.number.isRequired,
+      }).isRequired,
+    }),
+    rectWidth: PropTypes.number.isRequired,
+    unfocusRange: PropTypes.func.isRequired,
+    userId: PropTypes.string.isRequired,
+  };
 
-SMBGRange.defaultProps = {
-  rectWidth: 18,
-};
+  constructor(props) {
+    super(props);
 
-SMBGRange.propTypes = {
-  // if there's a gap in data, a `datum` may not exist, so not required
-  datum: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    max: PropTypes.number.isRequired,
-    mean: PropTypes.number.isRequired,
-    min: PropTypes.number.isRequired,
-    msX: PropTypes.number.isRequired,
-  }),
-  focus: PropTypes.func.isRequired,
-  rectWidth: PropTypes.number.isRequired,
-  tooltipLeftThreshold: PropTypes.number.isRequired,
-  unfocus: PropTypes.func.isRequired,
-  xScale: PropTypes.func.isRequired,
-  yPositions: PropTypes.shape({
-    min: PropTypes.number.isRequired,
-    mean: PropTypes.number.isRequired,
-    max: PropTypes.number.isRequired,
-  }).isRequired,
-};
+    this.handleMouseOut = this.handleMouseOut.bind(this);
+    this.handleMouseOver = this.handleMouseOver.bind(this);
+  }
 
-export default SMBGRange;
+  handleMouseOut() {
+    const { unfocusRange, userId } = this.props;
+    unfocusRange(userId);
+  }
+
+  handleMouseOver() {
+    const { datum, focusRange, positionData, userId } = this.props;
+    focusRange(userId, datum, positionData);
+  }
+
+  render() {
+    const { classes, interpolated: { key, style }, positionData, rectWidth } = this.props;
+    return (
+      <rect
+        className={classes}
+        id={`smbgRange-${key}`}
+        onMouseOver={this.handleMouseOver}
+        onMouseOut={this.handleMouseOut}
+        x={positionData.left - rectWidth / 2}
+        y={style.y}
+        width={rectWidth}
+        height={style.height}
+        opacity={style.opacity}
+      />
+    );
+  }
+}
+
+export function mapStateToProps(state) {
+  const { blip: { currentPatientInViewId } } = state;
+  return {
+    userId: currentPatientInViewId,
+  };
+}
+
+export function mapDispatchToProps(dispatch) {
+  return bindActionCreators({
+    focusRange: focusTrendsSmbgRangeAvg,
+    unfocusRange: unfocusTrendsSmbgRangeAvg,
+  }, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SMBGRange);

@@ -26,6 +26,7 @@ const {
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
+import bgBounds from '../../../helpers/bgBounds';
 import SVGContainer from '../../../helpers/SVGContainer';
 
 import TargetRangeLines from '../../../../src/components/trends/common/TargetRangeLines';
@@ -33,12 +34,7 @@ import TargetRangeLines from '../../../../src/components/trends/common/TargetRan
 describe('TargetRangeLines', () => {
   let wrapper;
   const props = {
-    bgBounds: {
-      veryHighThreshold: 300,
-      targetUpperBound: 180,
-      targetLowerBound: 80,
-      veryLowThreshold: 55,
-    },
+    bgBounds,
     smbgOpts: {
       maxR: 0,
       r: 3,

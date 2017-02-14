@@ -20,6 +20,51 @@ import { range, shuffle } from 'd3-array';
 import * as utils from '../../../src/utils/trends/data';
 
 describe('[trends] data utils', () => {
+  describe('determineRangeBoundaries', () => {
+    it('should be a function', () => {
+      assert.isFunction(utils.determineRangeBoundaries);
+    });
+
+    it('should return the max of all provided `low` thresholds', () => {
+      expect(utils.determineRangeBoundaries([{
+        value: 'low',
+        threshold: 20,
+      }, {
+        value: 'low',
+        threshold: 25,
+      }, {
+        value: 'low',
+        threshold: 15,
+      }])).to.deep.equal({ low: 25 });
+    });
+
+    it('should return the min of all provided `high` thresholds', () => {
+      expect(utils.determineRangeBoundaries([{
+        value: 'high',
+        threshold: 650,
+      }, {
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'high',
+        threshold: 600,
+      }])).to.deep.equal({ high: 500 });
+    });
+
+    it('should return both boundaries when a mix of out-of-range objects is provided', () => {
+      expect(utils.determineRangeBoundaries([{
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'low',
+        threshold: 20,
+      }, {
+        value: 'low',
+        threshold: 40,
+      }])).to.deep.equal({ low: 40, high: 500 });
+    });
+  });
+
   describe('findBinForTimeOfDay', () => {
     it('should be a function', () => {
       assert.isFunction(utils.findBinForTimeOfDay);
@@ -83,6 +128,116 @@ describe('[trends] data utils', () => {
     });
   });
 
+  describe('findDatesIntersectingWithCbgSliceSegment', () => {
+    const focusedSlice = {
+      data: {
+        msFrom: 0,
+        msTo: 10,
+        ninetiethQuantile: 90,
+        thirdQuartile: 75,
+      },
+    };
+    const focusedSliceKeys = ['thirdQuartile', 'ninetiethQuantile'];
+    const cbgData = [{
+      // ms in range, value = bottom of range
+      localDate: '2016-12-31',
+      msPer24: 5,
+      value: 75,
+    }, {
+      // ms in range, value = top of range
+      localDate: '2016-12-25',
+      msPer24: 5,
+      value: 90,
+    }, {
+      // ms in range, value in range
+      localDate: '2016-12-30',
+      msPer24: 5,
+      value: 80,
+    }, {
+      // ms at bottom (= in range), value in range
+      localDate: '2016-12-26',
+      msPer24: 0,
+      value: 80,
+    }, {
+      // ms at top (out of range), value in range
+      localDate: '2017-01-05',
+      msPer24: 10,
+      value: 80,
+    }, {
+      // ms in range, value below range
+      localDate: '2017-01-01',
+      msPer24: 5,
+      value: 10,
+    }, {
+      // ms in range, value above range
+      localDate: '2017-01-02',
+      msPer24: 5,
+      value: 95,
+    }];
+
+    it('should be a function', () => {
+      assert.isFunction(utils.findDatesIntersectingWithCbgSliceSegment);
+    });
+
+    it('returns an empty array on empty data', () => {
+      expect(utils.findDatesIntersectingWithCbgSliceSegment(
+        [], focusedSlice, focusedSliceKeys
+      )).to.deep.equal([]);
+    });
+
+    it('should find four intersecting 2016 dates', () => {
+      expect(utils.findDatesIntersectingWithCbgSliceSegment(
+        cbgData, focusedSlice, focusedSliceKeys
+      )).to.deep.equal([
+        '2016-12-25',
+        '2016-12-26',
+        '2016-12-30',
+        '2016-12-31',
+      ]);
+    });
+  });
+
+  describe('findOutOfRangeAnnotations', () => {
+    it('should be a function', () => {
+      assert.isFunction(utils.findOutOfRangeAnnotations);
+    });
+
+    it('should return an empty array if none of the data is annotated `bg/out-of-range`', () => {
+      expect(utils.findOutOfRangeAnnotations([])).to.deep.equal([]);
+      expect(utils.findOutOfRangeAnnotations([{}, {}, {}])).to.deep.equal([]);
+      expect(utils.findOutOfRangeAnnotations([{}, { annotations: [{ code: 'foo' }] }]))
+        .to.deep.equal([]);
+    });
+
+    it('should return an array of the annotations w/unique thresholds', () => {
+      expect(utils.findOutOfRangeAnnotations([{
+        annotations: [{
+          code: 'bg/out-of-range',
+          value: 'high',
+          threshold: 500,
+        }],
+      }, {
+        annotations: [{
+          code: 'bg/out-of-range',
+          value: 'low',
+          threshold: 25,
+        }],
+      }, {
+        annotations: [{
+          code: 'bg/out-of-range',
+          value: 'high',
+          threshold: 500,
+        }],
+      }])).to.deep.equal([{
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'low',
+        threshold: 25,
+      }]);
+    });
+  });
+
   describe('calculateCbgStatsForBin', () => {
     const bin = 900000;
     const binKey = bin.toString();
@@ -95,6 +250,24 @@ describe('[trends] data utils', () => {
 
     it('should be a function', () => {
       assert.isFunction(utils.calculateCbgStatsForBin);
+    });
+
+    it('should produce result full of `undefined`s on empty values array', () => {
+      const emptyValsRes = utils.calculateCbgStatsForBin(binKey, binSize, []);
+      assert.isObject(emptyValsRes);
+      expect(emptyValsRes).to.deep.equal({
+        id: binKey,
+        min: undefined,
+        tenthQuantile: undefined,
+        firstQuartile: undefined,
+        median: undefined,
+        thirdQuartile: undefined,
+        ninetiethQuantile: undefined,
+        max: undefined,
+        msX: bin,
+        msFrom: 0,
+        msTo: bin * 2,
+      });
     });
 
     it('should add the `binKey` as the `id` on the resulting object', () => {
@@ -141,10 +314,34 @@ describe('[trends] data utils', () => {
     it('should add a `msTo` to the resulting object half a bin later', () => {
       expect(res.msTo).to.equal(1800000);
     });
+
+    describe('when an array of out-of-range annotations is provided', () => {
+      const outOfRange = [{
+        value: 'low',
+        threshold: 25,
+      }, {
+        value: 'low',
+        threshold: 40,
+      }, {
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'high',
+        threshold: 400,
+      }];
+      const resWithOutOfRange = utils.calculateCbgStatsForBin(binKey, binSize, data, outOfRange);
+
+      it('should add `outOfRangeThresholds` to the resulting object', () => {
+        expect(resWithOutOfRange.outOfRangeThresholds).to.deep.equal({
+          low: 40,
+          high: 400,
+        });
+      });
+    });
   });
 
   describe('calculateSmbgStatsForBin', () => {
-    const bin = 1800000;
+    const bin = 5400000;
     const binKey = bin.toString();
     const binSize = 1000 * 60 * 60 * 3;
     const min = 0;
@@ -155,6 +352,20 @@ describe('[trends] data utils', () => {
 
     it('should be a function', () => {
       assert.isFunction(utils.calculateSmbgStatsForBin);
+    });
+
+    it('should produce result full of `undefined`s on empty values array', () => {
+      const emptyValsRes = utils.calculateSmbgStatsForBin(binKey, binSize, []);
+      assert.isObject(emptyValsRes);
+      expect(emptyValsRes).to.deep.equal({
+        id: binKey,
+        min: undefined,
+        mean: undefined,
+        max: undefined,
+        msX: bin,
+        msFrom: 0,
+        msTo: bin * 2,
+      });
     });
 
     it('should add the `binKey` as the `id` on the resulting object', () => {
@@ -176,6 +387,30 @@ describe('[trends] data utils', () => {
 
     it('should add the bin as `msX` on the resulting object', () => {
       expect(res.msX).to.equal(bin);
+    });
+
+    describe('when an array of out-of-range annotations is provided', () => {
+      const outOfRange = [{
+        value: 'low',
+        threshold: 25,
+      }, {
+        value: 'low',
+        threshold: 40,
+      }, {
+        value: 'high',
+        threshold: 500,
+      }, {
+        value: 'high',
+        threshold: 400,
+      }];
+      const resWithOutOfRange = utils.calculateSmbgStatsForBin(binKey, binSize, data, outOfRange);
+
+      it('should add `outOfRangeThresholds` to the resulting object', () => {
+        expect(resWithOutOfRange.outOfRangeThresholds).to.deep.equal({
+          low: 40,
+          high: 400,
+        });
+      });
     });
   });
 

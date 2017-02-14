@@ -32,6 +32,7 @@ describe('NoData', () => {
     );
     expect(wrapper.find('text')).to.have.length(1);
   });
+
   it('should render given with x and y position', () => {
     const wrapper = shallow(
       <NoData
@@ -41,12 +42,14 @@ describe('NoData', () => {
     expect(wrapper.find('text[x=10]')).to.have.length(1);
     expect(wrapper.find('text[y=50]')).to.have.length(1);
   });
+
   it('should not render when position not provided', () => {
     const wrapper = shallow(
       <NoData />
     );
     expect(wrapper.find('text')).to.have.length(0);
   });
+
   it('should render with the provided data type in the message', () => {
     const wrapper = shallow(
       <NoData
@@ -57,6 +60,7 @@ describe('NoData', () => {
     expect(wrapper.find('text').text())
       .to.equal('There is no fingerstick data for this time period :(');
   });
+
   it('should not specify a default data type', () => {
     const wrapper = shallow(
       <NoData
@@ -66,6 +70,7 @@ describe('NoData', () => {
     expect(wrapper.find('text').text())
       .to.equal('There is no  data for this time period :(');
   });
+
   it('should be able to override the message with a templated string', () => {
     const wrapper = shallow(
       <NoData
@@ -77,6 +82,7 @@ describe('NoData', () => {
     );
     expect(wrapper.find('text').text()).to.equal('Whoops no fingerstick data!');
   });
+
   it('should be able to override the message with own displayTypes', () => {
     const wrapper = shallow(
       <NoData
@@ -88,6 +94,7 @@ describe('NoData', () => {
     );
     expect(wrapper.find('text').text()).to.equal('Whoops no BGM data!');
   });
+
   it('should be able to override the message and without a templated string', () => {
     const wrapper = shallow(
       <NoData
@@ -96,5 +103,29 @@ describe('NoData', () => {
       />
     );
     expect(wrapper.find('text').text()).to.equal('Whoops no data!');
+  });
+
+  it('should render the unselected all data msg if unselectedAllData prop is true', () => {
+    const wrapper = shallow(
+      <NoData
+        position={position}
+        unselectedAllData
+      />
+    );
+    expect(wrapper.find('text').text())
+      .to.equal('Hang on there, skippy! You unselected all of the data!');
+  });
+
+  it('should be able to override the unselected all data message string', () => {
+    const customized = 'Dude, you unselected everything!';
+    const wrapper = shallow(
+      <NoData
+        position={position}
+        unselectedAllData
+        unselectedAllDataString={customized}
+      />
+    );
+    expect(wrapper.find('text').text())
+      .to.equal(customized);
   });
 });
