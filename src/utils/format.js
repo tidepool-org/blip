@@ -15,8 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import { format } from 'd3-format';
-import { MMOLL_UNITS } from './constants';
+import { convertToMmolL } from './bloodglucose';
+import { BG_HIGH, BG_LOW, MMOLL_UNITS } from './constants';
 
 /**
  * displayDecimal
@@ -35,10 +37,29 @@ export function displayDecimal(val, places) {
  * displayBgValue
  * @param {Number} val - integer or float blood glucose value in either mg/dL or mmol/L
  * @param {String} units - 'mg/dL' or 'mmol/L'
+ * @param {Object} outOfRangeThresholds - specifies thresholds for `low` and `high` values
  *
  * @return {String} stringBgValue
  */
-export function displayBgValue(val, units) {
+export function displayBgValue(val, units, outOfRangeThresholds) {
+  if (!_.isEmpty(outOfRangeThresholds)) {
+    let lowThreshold = outOfRangeThresholds.low;
+    let highThreshold = outOfRangeThresholds.high;
+    if (units === MMOLL_UNITS) {
+      if (lowThreshold) {
+        lowThreshold = convertToMmolL(lowThreshold);
+      }
+      if (highThreshold) {
+        highThreshold = convertToMmolL(highThreshold);
+      }
+    }
+    if (lowThreshold && val < lowThreshold) {
+      return BG_LOW;
+    }
+    if (highThreshold && val > highThreshold) {
+      return BG_HIGH;
+    }
+  }
   if (units === MMOLL_UNITS) {
     return format('.1f')(val);
   }
