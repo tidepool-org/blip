@@ -17,18 +17,23 @@
 // ====================================
 
 @Navbar-height: 60px;
-@Navbar-logoHeight: 23px;
 
 .Navbar {
   display: flex;
   height: @Navbar-height;
 
-  background-image: url('images/tidepool-logo-408x46.png');
-  background-position: 0 8px;
-  background-repeat: no-repeat;
-  background-size: auto @Navbar-logoHeight;
 }
 
+.Navbar-logoSection {
+  .Navbar-logo {
+    display: block;
+
+    img {
+      width: 204px;
+      margin-top: 8px;
+    }
+  }
+}
 
 .Navbar-menuSection {
   // Magic number width: should contain whole menu,

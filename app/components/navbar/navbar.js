@@ -24,7 +24,7 @@ var cx = require('classnames');
 var personUtils = require('../../core/personutils');
 var NavbarPatientCard = require('../../components/navbarpatientcard');
 
-require('./images/tidepool-logo-408x46.png');
+var logoSrc = require('./images/tidepool-logo-408x46.png');
 
 var Navbar = React.createClass({
   propTypes: {
@@ -73,6 +73,7 @@ var Navbar = React.createClass({
         to="/"
         className="Navbar-logo"
         onClick={handleClick}>
+        <img src={logoSrc}/>
       </IndexLink>
     );
   },
