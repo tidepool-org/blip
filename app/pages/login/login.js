@@ -102,7 +102,7 @@ export let Login = React.createClass({
   },
 
   renderForm: function() {
-    var submitButtonText = this.props.working ? 'Logging in...' : 'Log in';
+    var submitButtonText = this.props.working ? 'Logging in...' : 'Login';
     var forgotPassword = this.renderForgotPassword();
 
     return (
