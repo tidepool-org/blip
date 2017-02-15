@@ -98,10 +98,21 @@ const NonTandem = (props) => {
     lookupKey = 'medtronic';
   }
 
+  function renderPrintNotes() {
+    if (printView) {
+      return (
+        <div className={styles.printNotes}>
+          <hr/>
+          <hr/>
+        </div>
+      );
+    }
+  }
+
   function renderBasalsData() {
     const schedules = data.getScheduleNames(pumpSettings.basalSchedules);
 
-    const tables = _.map(schedules, (schedule) => {
+    return _.map(schedules, (schedule) => {
       const scheduleName = pumpSettings.basalSchedules[schedule].name;
       const label = data.getScheduleLabel(
         scheduleName,
@@ -129,6 +140,7 @@ const NonTandem = (props) => {
                 tableStyle={styles.basalTable}
               />
             </CollapsibleContainer>
+            {renderPrintNotes()}
           </div>
         );
       }
@@ -151,7 +163,6 @@ const NonTandem = (props) => {
         </div>
       );
     });
-    return (<div className={styles.categoryContainer}>{tables}</div>);
   }
 
   function renderSensitivityData() {
@@ -175,6 +186,7 @@ const NonTandem = (props) => {
           columns={data.startTimeAndValue('amount')}
           tableStyle={styles.settingsTable}
         />
+        {renderPrintNotes()}
       </div>
     );
   }
@@ -199,6 +211,7 @@ const NonTandem = (props) => {
           columns={data.startTimeAndValue('amount')}
           tableStyle={styles.settingsTable}
         />
+        {renderPrintNotes()}
       </div>
     );
   }
@@ -225,6 +238,7 @@ const NonTandem = (props) => {
           columns={BG_TARGET_COLS_BY_MANUFACTURER[lookupKey]}
           tableStyle={styles.settingsTable}
         />
+        {renderPrintNotes()}
       </div>
     );
   }
@@ -237,9 +251,11 @@ const NonTandem = (props) => {
         printView={printView}
       />
       <div className={styles.settingsContainer}>
-        <div className={styles.basalSettingsContainer}>
+        <div>
           <div className={styles.categoryTitle}>Basal Rates</div>
-          {renderBasalsData()}
+          <div className={styles.basalSettingsContainer}>
+            {renderBasalsData()}
+          </div>
         </div>
         <div>
           <div className={styles.categoryTitle}>

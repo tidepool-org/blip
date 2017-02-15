@@ -36,12 +36,15 @@
   --bkgrnd-lighter: #E9EFF1;
   --bkgrnd-lightest: #F8F9FA;
 
+  --bkgrnd-white: #ffffff;
+
   --tooltip-title-bg: #EAEAEE;
 
   --chrome: #989897;
 
   --text-medium-contrast: #727375;
   --text-high-contrast: #281946;
+  --text-black: #000;
 
   --bg-low: #FF8B7C;
   --bg-target: #76D3A6;

@@ -69,6 +69,17 @@ const Tandem = (props) => {
       className: styles.bolusSettingsHeader },
   ];
 
+  function renderPrintNotes() {
+    if (printView) {
+      return (
+        <div className={styles.printNotes}>
+          <hr/>
+          <hr/>
+        </div>
+      );
+    }
+  }
+
   const tables = _.map(schedules, (schedule) => (
     <div className="settings-table-container" key={schedule.name}>
       <CollapsibleContainer
@@ -84,6 +95,7 @@ const Tandem = (props) => {
           tableStyle={styles.profileTable}
         />
       </CollapsibleContainer>
+      {renderPrintNotes()}
     </div>
   ));
   return (
