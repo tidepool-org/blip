@@ -50,30 +50,33 @@
   text-align: center;
 }
 
-/*.profileTable th:first-of-type {
+.profileTable th:first-of-type {
   font-weight: bold;
-}*/
+}
 
-/*.title {
+.title {
   composes: boldText defaultSize mediumContrastText from '../../styles/typography.css';
   display: inline-block;
   padding-bottom: 10px;
-}*/
-
-
-.title {
-  font-weight: normal;
-  font-size: 20px;
-  color: var(--text-black);
-  display: inline-block;
-  padding-bottom: 10px;
 }
 
-.profileTable th {
-  font-weight: normal;
-  color: #000;
-}
+@media print {
 
-.printNotes {
-  composes: printNotes from './settings.css';
+  .title {
+    font-weight: normal;
+    font-size: 20px;
+    color: var(--text-black);
+    display: inline-block;
+    padding-bottom: 10px;
+  }
+
+  .profileTable th {
+    font-weight: normal;
+    color: #000;
+  }
+
+  .printNotes {
+    composes: printNotes from './settings.css';
+  }
+
 }
