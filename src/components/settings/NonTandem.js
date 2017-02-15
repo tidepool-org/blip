@@ -102,11 +102,12 @@ const NonTandem = (props) => {
     if (printView) {
       return (
         <div className={styles.printNotes}>
-          <hr/>
-          <hr/>
+          <hr />
+          <hr />
         </div>
       );
     }
+    return null;
   }
 
   function renderBasalsData() {

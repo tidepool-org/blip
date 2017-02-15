@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import _ from 'lodash';
 
 import styles from './Tooltip.css';
 
-class Tooltip extends React.Component {
+class Tooltip extends PureComponent {
   constructor(props) {
     super(props);
     this.state = { offset: { top: 0, left: 0 } };

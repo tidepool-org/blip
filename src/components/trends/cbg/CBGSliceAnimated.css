@@ -1,0 +1,125 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2017, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+:export {
+  stroke: 2;
+}
+
+.segment {
+  stroke-width: 2;
+  pointer-events: all;
+}
+
+@keyframes fadeRangeOut {
+  from {
+    stroke: var(--trends--light);
+  }
+  to {
+    stroke: var(--trends--light--faded);
+  }
+}
+
+@keyframes fadeRangeIn {
+  from {
+    stroke: var(--trends--light--faded);
+  }
+  to {
+    stroke: var(--trends--light);
+  }
+}
+
+.rangeSegment {
+  animation: fadeRangeIn 0.25s forwards ease-in-out;
+  fill: transparent;
+}
+
+.rangeSegmentFaded {
+  animation: fadeRangeOut 0.25s forwards ease-in-out;
+  fill: transparent;
+}
+
+.rangeSegment:hover, .rangeSegmentFaded:hover {
+  opacity: 0;
+}
+
+@keyframes fadeOuterOut {
+  from {
+    fill: var(--trends--light);
+    stroke: var(--trends--light);
+  }
+  to {
+    fill: var(--trends--light--faded);
+    stroke: var(--trends--light--faded);
+  }
+}
+
+@keyframes fadeOuterIn {
+  from {
+    fill: var(--trends--light--faded);
+    stroke: var(--trends--light--faded);
+  }
+  to {
+    fill: var(--trends--light);
+    stroke: var(--trends--light);
+  }
+}
+
+.outerSegment {
+  animation: fadeOuterIn 0.25s forwards ease-in-out;
+}
+
+.outerSegmentFaded {
+  animation: fadeOuterOut 0.25s forwards ease-in-out;
+}
+
+.outerSegment:hover, .outerSegmentFaded:hover {
+  opacity: 0;
+}
+
+@keyframes fadeInnerOut {
+  from {
+    fill: var(--trends--dark);
+    stroke: var(--trends--dark);
+  }
+  to {
+    fill: var(--trends--dark--faded);
+    stroke: var(--trends--dark--faded);
+  }
+}
+
+@keyframes fadeInnerIn {
+  from {
+    fill: var(--trends--dark--faded);
+    stroke: var(--trends--dark--faded);
+  }
+  to {
+    fill: var(--trends--dark);
+    stroke: var(--trends--dark);
+  }
+}
+
+.innerQuartilesSegment {
+  animation: fadeInnerIn 0.25s forwards ease-in-out;
+}
+
+.innerQuartilesSegmentFaded {
+  animation: fadeInnerOut 0.25s forwards ease-in-out;
+}
+
+.innerQuartilesSegment:hover, .innerQuartilesSegmentFaded:hover {
+  opacity: 0;
+}

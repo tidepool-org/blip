@@ -15,11 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 
 import styles from './Header.css';
 
-class Header extends React.Component {
+class Header extends PureComponent {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
@@ -55,9 +55,9 @@ class Header extends React.Component {
 }
 
 Header.propTypes = {
-  deviceDisplayName: React.PropTypes.string.isRequired,
-  deviceMeta: React.PropTypes.object.isRequired,
-  printView: React.PropTypes.bool.isRequired,
+  deviceDisplayName: PropTypes.string.isRequired,
+  deviceMeta: PropTypes.object.isRequired,
+  printView: PropTypes.bool.isRequired,
 };
 
 export default Header;

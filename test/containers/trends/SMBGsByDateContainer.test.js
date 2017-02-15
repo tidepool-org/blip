@@ -18,15 +18,19 @@
 import _ from 'lodash';
 import React from 'react';
 
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 import { THREE_HRS } from '../../../src/utils/datetime';
 
+import bgBounds from '../../helpers/bgBounds';
 import * as scales from '../../helpers/scales';
 const {
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
+
+import SMBGDateLineAnimated from '../../../src/components/trends/smbg/SMBGDateLineAnimated';
+import SMBGDatePointsAnimated from '../../../src/components/trends/smbg/SMBGDatePointsAnimated';
 
 import SMBGsByDateContainer
   from '../../../src/containers/trends/SMBGsByDateContainer';
@@ -35,75 +39,52 @@ describe('SMBGsByDateContainer', () => {
   let wrapper;
 
   const props = {
+    bgBounds,
     data: [
       { id: '0', value: 120, msPer24: 0, localDate: '2016-08-28' },
       { id: '1', value: 90, msPer24: 9000000, localDate: '2016-08-28' },
       { id: '2', value: 180, msPer24: 21600000, localDate: '2016-08-28' },
     ],
+    dates: ['2016-08-28'],
+    focusedSmbg: {},
     grouped: true,
     lines: true,
-    focusedSmbg: {},
-    focusSmbg: () => {},
-    unfocusSmbg: () => {},
-    xScale,
-    yScale,
     smbgOpts: {
       maxR: 7.5,
       r: 6,
     },
     tooltipLeftThreshold: THREE_HRS * 6,
+    xScale,
+    yScale,
   };
 
   before(() => {
-    wrapper = mount(<SMBGsByDateContainer {...props} />);
+    wrapper = shallow(<SMBGsByDateContainer {...props} />);
+  });
+
+  describe('when data is provided', () => {
+    it('should render an SMBGLineAnimated for each date in dates', () => {
+      expect(wrapper.find(SMBGDateLineAnimated).length).to.equal(props.dates.length);
+    });
+
+    it('should render an SMBGDatePointsAnimated for each date in dates', () => {
+      expect(wrapper.find(SMBGDatePointsAnimated).length).to.equal(props.dates.length);
+    });
   });
 
   describe('when no data is provided', () => {
     let noDataWrapper;
     before(() => {
-      const noDataProps = _.omit(props, 'data');
-      noDataWrapper = mount(<SMBGsByDateContainer {...noDataProps} />);
+      const noDataProps = _.assign({}, props, { data: [] });
+      noDataWrapper = shallow(<SMBGsByDateContainer {...noDataProps} />);
     });
 
-    it('should render nothing', () => {
-      expect(noDataWrapper.find('#smbgsByDateContainer circle').length).to.equal(0);
-      expect(noDataWrapper.find('#smbgsByDateContainer path').length).to.equal(0);
+    it('should (still) render an SMBGLineAnimated for each date in dates', () => {
+      expect(noDataWrapper.find(SMBGDateLineAnimated).length).to.equal(props.dates.length);
     });
-  });
 
-  describe('with data provided should render', () => {
-    it('renders a <g> with id #smbgsByDateContainer', () => {
-      expect(wrapper.find('#smbgsByDateContainer').length).to.equal(1);
-    });
-    describe('smbg day line', () => {
-      it('is shown when lines option is true', () => {
-        expect(wrapper.find('#smbgsByDateContainer path').length).to.equal(1);
-      });
-      it('is not shown when lines option is false', () => {
-        props.lines = false;
-        wrapper = mount(<SMBGsByDateContainer {...props} />);
-        expect(wrapper.find('#smbgsByDateContainer path').length).to.equal(0);
-      });
-    });
-    describe('focused smbg line', () => {
-      it('is shown when lines option is false but we have a focusedSmbg', () => {
-        props.lines = false;
-
-        props.focusedSmbg = {
-          dayPoints: props.data,
-          smbgPosition: { top: 0, left: 0 },
-          date: '2016-08-28',
-          smbgDay: [{ value: 200 }],
-          smbgPositions: [{ top: 0, left: 10 }, { top: 10, left: 50 }],
-        };
-        wrapper = mount(<SMBGsByDateContainer {...props} />);
-        expect(wrapper.find('#smbgsByDateContainer path').length).to.equal(1);
-      });
-    });
-    describe('smbg day points', () => {
-      it('are shown', () => {
-        expect(wrapper.find('#smbgsByDateContainer circle').length).to.equal(3);
-      });
+    it('should (still) render an SMBGDatePointsAnimated for each date in dates', () => {
+      expect(noDataWrapper.find(SMBGDatePointsAnimated).length).to.equal(props.dates.length);
     });
   });
 });

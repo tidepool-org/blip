@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -26,7 +26,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import NonTandem from '../../components/settings/NonTandem';
 import Tandem from '../../components/settings/Tandem';
 
-export class PumpSettingsContainer extends React.Component {
+export class PumpSettingsContainer extends PureComponent {
   static propTypes = {
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
     manufacturerKey: PropTypes.oneOf(

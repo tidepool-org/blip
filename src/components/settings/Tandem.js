@@ -73,11 +73,12 @@ const Tandem = (props) => {
     if (printView) {
       return (
         <div className={styles.printNotes}>
-          <hr/>
-          <hr/>
+          <hr />
+          <hr />
         </div>
       );
     }
+    return null;
   }
 
   const tables = _.map(schedules, (schedule) => (

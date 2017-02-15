@@ -22,19 +22,15 @@
   --table-stripe--light: #F7F7F7;
   --table-stripe--dark: #ECECEC;
 
-  --data-purple--lightest: #B6C1E3;
-  --data-purple--light: #96A6E9;
-  --data-purple--medium: #617CFC; /* was #627CFF */
-  --data-purple--dark: #291A45; /* was #281746 */
+  --trends--light: #D0D0D0;
+  --trends--light--faded: #F0F0F0;
+  --trends--dark: #BCBCBC;
+  --trends--dark--faded: #E3E3E3;
 
-  --axis-tick: #B9C8D0;
+  --axis-tick: #E7E7E7;
 
-  --bkgrnd-darkest: #D3DBDD;
-  --bkgrnd-darker: #DCE4E7;
-  --bkgrnd-dark: #E3EAED;
-  --bkgrnd-light: #F2F4F6;
-  --bkgrnd-lighter: #E9EFF1;
-  --bkgrnd-lightest: #F8F9FA;
+  --bkgrnd: #F8F8F8;
+  --bkgrnd-lines: #E7E7E7;
 
   --bkgrnd-white: #ffffff;
 

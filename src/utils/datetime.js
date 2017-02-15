@@ -23,6 +23,26 @@ export const THREE_HRS = 10800000;
 export const TWENTY_FOUR_HRS = 86400000;
 
 /**
+ * getAllDatesInRange
+ * @param {String} start - Zulu timestamp (Integer hammertime also OK)
+ * @param {String} end - Zulu timestamp (Integer hammertime also OK)
+ * @param {String} timezone - named timezone
+ *
+ * @return {Array} dates - array of YYYY-MM-DD String dates
+ */
+export function getAllDatesInRange(start, end, timezoneName) {
+  const dates = [];
+  const current = moment.utc(start)
+    .tz(timezoneName);
+  const excludedBoundary = moment.utc(end);
+  while (current.isBefore(excludedBoundary)) {
+    dates.push(current.format('YYYY-MM-DD'));
+    current.add(1, 'day');
+  }
+  return dates;
+}
+
+/**
  * getTimezoneFromTimePrefs
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *
@@ -115,18 +135,18 @@ export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
 /**
  * formatDisplayDate
  * @param  {(string|number)} utc Zulu timestamp (Integer hammertime also OK)
- * @param  {Object} timePrefs object containing timezone preferences
+ * @param  {Object} (optional) timePrefs object containing timezone preferences
  * @param  {boolean} timePrefs.timezoneAware boolean to indicate timezone awareness
  * @param  {(string|null)} timePrefs.timezoneName name of timezone or null
  * @param  {string} [format] optional moment display format string; default is 'MMM D, YYYY'
  *
  * @return {string}           formatted timezoneAware date string
  */
-export function formatDisplayDate(utc, timePrefs, format = 'MMM D, YYYY') {
+export function formatDisplayDate(utc, timePrefs, format = 'dddd, MMMM D') {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
-  return moment.utc(utc).tz(getTimezoneFromTimePrefs(timePrefs)).format(format);
+  return moment.utc(utc).tz(getTimezoneFromTimePrefs(timePrefs || {})).format(format);
 }
 
 /**

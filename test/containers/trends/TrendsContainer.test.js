@@ -98,6 +98,9 @@ describe('TrendsContainer', () => {
     const onDatetimeLocationChange = sinon.spy();
     const onSwitchBgDataSource = sinon.spy();
     const markTrendsViewed = sinon.spy();
+    const unfocusCbgSlice = sinon.spy();
+    const unfocusSmbg = sinon.spy();
+    const unfocusSmbgRangeAvg = sinon.spy();
 
     const props = {
       activeDays: {
@@ -126,17 +129,21 @@ describe('TrendsContainer', () => {
         [MMOLL_UNITS]: 25,
       },
       onDatetimeLocationChange,
-      onSelectDay: sinon.stub(),
+      onSelectDate: sinon.stub(),
       onSwitchBgDataSource,
       trendsState: {
         touched: false,
-        cbgFlags: {},
+        cbgFlags: {
+          cbg50Enabled: true,
+          cbg80Enabled: true,
+          cbg100Enabled: true,
+          cbgMedianEnabled: true,
+        },
       },
-      focusTrendsCbgSlice: sinon.stub(),
-      focusTrendsSmbgRangeAvg: sinon.stub(),
       markTrendsViewed,
-      unfocusTrendsCbgSlice: sinon.stub(),
-      unfocusTrendsSmbgRangeAvg: sinon.stub(),
+      unfocusCbgSlice,
+      unfocusSmbg,
+      unfocusSmbgRangeAvg,
     };
 
     const mgdl = {
@@ -147,13 +154,6 @@ describe('TrendsContainer', () => {
         targetLowerBound: 80,
         veryLowThreshold: 60,
       },
-      bgClasses: {
-        'very-high': { boundary: 600 },
-        high: { boundary: 300 },
-        target: { boundary: 180 },
-        low: { boundary: 80 },
-        'very-low': { boundary: 60 },
-      },
     };
     const mmoll = {
       bgUnits: MMOLL_UNITS,
@@ -163,27 +163,11 @@ describe('TrendsContainer', () => {
         targetLowerBound: 4.4,
         veryLowThreshold: 3.5,
       },
-      bgClasses: {
-        'very-high': { boundary: 40 },
-        high: { boundary: 30 },
-        target: { boundary: 10 },
-        low: { boundary: 4.4 },
-        'very-low': { boundary: 3.5 },
-      },
     };
 
     before(() => {
       minimalData = mount(
         <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum)} />
-      );
-      enoughCbgData = mount(
-        <TrendsContainer {...props} {...mgdl} {...makeDataStubs(sevenDaysData)} />
-      );
-      minimalDataMmol = mount(
-        <TrendsContainer {...props} {...mmoll} {...makeDataStubs(justOneDatumMmol)} />
-      );
-      enoughCbgDataMmol = mount(
-        <TrendsContainer {...props} {...mmoll} {...makeDataStubs(sevenDaysDataMmol)} />
       );
     });
 
@@ -326,8 +310,66 @@ describe('TrendsContainer', () => {
       });
     });
 
+    describe('componentWillUnmount', () => {
+      let toBeUnmounted;
+
+      beforeEach(() => {
+        toBeUnmounted = mount(
+          <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum)} />
+        );
+      });
+
+      afterEach(() => {
+        unfocusCbgSlice.reset();
+        unfocusSmbg.reset();
+        unfocusSmbgRangeAvg.reset();
+      });
+
+      describe('when a cbg slice segment is focused', () => {
+        it('should fire unfocusCbgSlice', () => {
+          expect(unfocusCbgSlice.callCount).to.equal(0);
+          toBeUnmounted.setProps({ trendsState: _.assign(
+            {}, props.trendsState, { focusedCbgSlice: {} }
+          ) });
+          toBeUnmounted.unmount();
+          expect(unfocusCbgSlice.callCount).to.equal(1);
+          expect(unfocusCbgSlice.args[0][0]).to.equal(props.currentPatientInViewId);
+        });
+      });
+
+      describe('when an smbg is focused', () => {
+        it('should fire unfocusSmbg', () => {
+          expect(unfocusSmbg.callCount).to.equal(0);
+          toBeUnmounted.setProps({ trendsState: _.assign(
+            {}, props.trendsState, { focusedSmbg: {} }
+          ) });
+          toBeUnmounted.unmount();
+          expect(unfocusSmbg.callCount).to.equal(1);
+          expect(unfocusSmbg.args[0][0]).to.equal(props.currentPatientInViewId);
+        });
+      });
+
+      describe('when an smbg range+avg is focused', () => {
+        it('should fire unfocusSmbgRangeAvg', () => {
+          expect(unfocusSmbgRangeAvg.callCount).to.equal(0);
+          toBeUnmounted.setProps({ trendsState: _.assign(
+            {}, props.trendsState, { focusedSmbgRangeAvg: {} }
+          ) });
+          toBeUnmounted.unmount();
+          expect(unfocusSmbgRangeAvg.callCount).to.equal(1);
+          expect(unfocusSmbgRangeAvg.args[0][0]).to.equal(props.currentPatientInViewId);
+        });
+      });
+    });
+
     describe('yScale', () => {
       describe('mg/dL blood glucose units', () => {
+        before(() => {
+          enoughCbgData = mount(
+            <TrendsContainer {...props} {...mgdl} {...makeDataStubs(sevenDaysData)} />
+          );
+        });
+
         it('should have `clamp` set to true', () => {
           const { yScale } = minimalData.state();
           expect(yScale.clamp()).to.be.true;
@@ -347,6 +389,15 @@ describe('TrendsContainer', () => {
       });
 
       describe('mmol/L blood glucose units', () => {
+        before(() => {
+          enoughCbgDataMmol = mount(
+            <TrendsContainer {...props} {...mmoll} {...makeDataStubs(sevenDaysDataMmol)} />
+          );
+          minimalDataMmol = mount(
+            <TrendsContainer {...props} {...mmoll} {...makeDataStubs(justOneDatumMmol)} />
+          );
+        });
+
         it('should have `clamp` set to true', () => {
           const { yScale } = minimalDataMmol.state();
           expect(yScale.clamp()).to.be.true;
@@ -574,18 +625,8 @@ describe('TrendsContainer', () => {
   });
 
   describe('mapDispatchToProps', () => {
-    const ownProps = { currentPatientInViewId: 'a1b2c3' };
-
-    it('should return an object with a `focusTrendsCbgSlice` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('focusTrendsCbgSlice');
-    });
-
     it('should return an object with a `markTrendsViewed` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('markTrendsViewed');
-    });
-
-    it('should return an object with an `unfocusTrendsCbgSlice` key', () => {
-      expect(mapDispatchToProps(sinon.stub(), ownProps)).to.have.property('unfocusTrendsCbgSlice');
+      expect(mapDispatchToProps(sinon.stub())).to.have.property('markTrendsViewed');
     });
   });
 });

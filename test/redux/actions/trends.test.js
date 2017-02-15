@@ -23,6 +23,23 @@ import * as actions from '../../../src/redux/actions/';
 describe('trends action creators', () => {
   const userId = 'a1b2c3';
 
+  describe('focusTrendsCbgDateTrace', () => {
+    const cbgDatum = {};
+    const cbgPosition = {};
+    const action = actions.focusTrendsCbgDateTrace(userId, cbgDatum, cbgPosition);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to focus a cbg date trace', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.FOCUS_TRENDS_CBG_DATE_TRACE,
+        payload: { cbgDatum, cbgPosition, userId },
+      });
+    });
+  });
+
   describe('focusTrendsCbgSlice', () => {
     const sliceData = {};
     const slicePosition = {};
@@ -42,17 +59,17 @@ describe('trends action creators', () => {
   });
 
   describe('focusTrendsSmbg', () => {
-    const smbgData = {};
+    const smbgDatum = {};
     const smbgPosition = {};
-    const smbgPositions = [];
-    const smbgDay = [];
+    const allPositions = [];
+    const allSmbgsOnDate = [];
     const date = {};
     const action = actions.focusTrendsSmbg(
       userId,
-      smbgData,
+      smbgDatum,
       smbgPosition,
-      smbgDay,
-      smbgPositions,
+      allSmbgsOnDate,
+      allPositions,
       date,
     );
 
@@ -63,7 +80,7 @@ describe('trends action creators', () => {
     it('should create an action to focus a trends smbg', () => {
       expect(action).to.deep.equal({
         type: actionTypes.FOCUS_TRENDS_SMBG,
-        payload: { smbgData, smbgPosition, smbgDay, smbgPositions, userId, date },
+        payload: { smbgDatum, smbgPosition, allSmbgsOnDate, allPositions, userId, date },
       });
     });
   });
@@ -100,18 +117,17 @@ describe('trends action creators', () => {
     });
   });
 
-  describe('turnOnCbgRange', () => {
-    const range = '100';
-    const action = actions.turnOnCbgRange(userId, range);
+  describe('showCbgDateTraces', () => {
+    const action = actions.showCbgDateTraces(userId);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to turn on cbg range', () => {
+    it('should create an action to toggle cbg traces on for the user', () => {
       expect(action).to.deep.equal({
-        type: actionTypes.TURN_ON_CBG_RANGE,
-        payload: { userId, range },
+        type: actionTypes.SHOW_CBG_DATE_TRACES,
+        payload: { userId },
       });
     });
   });
@@ -128,6 +144,37 @@ describe('trends action creators', () => {
       expect(action).to.deep.equal({
         type: actionTypes.TURN_OFF_CBG_RANGE,
         payload: { userId, range },
+      });
+    });
+  });
+
+  describe('turnOnCbgRange', () => {
+    const range = '100';
+    const action = actions.turnOnCbgRange(userId, range);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to turn on cbg range', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.TURN_ON_CBG_RANGE,
+        payload: { userId, range },
+      });
+    });
+  });
+
+  describe('unfocusTrendsCbgDateTrace', () => {
+    const action = actions.unfocusTrendsCbgDateTrace(userId);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to unfocus a cbg date trace', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.UNFOCUS_TRENDS_CBG_DATE_TRACE,
+        payload: { userId },
       });
     });
   });
