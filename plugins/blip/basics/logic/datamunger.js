@@ -197,13 +197,11 @@ module.exports = function(bgClasses) {
         permissions,
         profile: {
           fullName,
-          patient: {
-            settings
-          },
         },
+        settings,
       } = patient;
 
-      var hasUploadPermission = permissions.hasOwnProperty('admin') || permissions.hasOwnProperty('root');
+      var hasUploadPermission = permissions.hasOwnProperty('admin') || permissions.hasOwnProperty('custodian') || permissions.hasOwnProperty('root');
 
       basicsData.sections.siteChanges.selectorMetaData = {
         latestPump: latestPump,

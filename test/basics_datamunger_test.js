@@ -499,13 +499,9 @@ describe('basics datamunger', function() {
         },
         profile: {
           fullName: 'Jill Jellyfish',
-          patient: {
-            profile: {
-              settings: {
-                siteChangeSource: constants.SITE_CHANGE_CANNULA,
-              },
-            },
-          },
+        },
+        settings: {
+          siteChangeSource: constants.SITE_CHANGE_CANNULA,
         },
       };
 
@@ -527,13 +523,9 @@ describe('basics datamunger', function() {
         },
         profile: {
           fullName: 'Jill Jellyfish',
-          patient: {
-            profile: {
-              settings: {
-                siteChangeSource: constants.SITE_CHANGE_CANNULA,
-              },
-            },
-          },
+        },
+        settings: {
+          siteChangeSource: constants.SITE_CHANGE_CANNULA,
         },
       };
 
@@ -554,13 +546,9 @@ describe('basics datamunger', function() {
         permissions: {},
         profile: {
           fullName: 'Jill Jellyfish',
-          patient: {
-            profile: {
-              settings: {
-                siteChangeSource: constants.SITE_CHANGE_CANNULA,
-              },
-            },
-          },
+        },
+        settings: {
+          siteChangeSource: constants.SITE_CHANGE_CANNULA,
         },
       };
 
@@ -584,11 +572,9 @@ describe('basics datamunger', function() {
         },
         profile: {
           fullName: 'Jill Jellyfish',
-          patient: {
-              settings: {
-                siteChangeSource: constants.SITE_CHANGE_CANNULA,
-              },
-          },
+        },
+        settings: {
+          siteChangeSource: constants.SITE_CHANGE_CANNULA,
         },
       };
 
@@ -612,11 +598,9 @@ describe('basics datamunger', function() {
         },
         profile: {
           fullName: 'Jill Jellyfish',
-          patient: {
-            settings: {
-              siteChangeSource: constants.SITE_CHANGE_TUBING,
-            },
-          },
+        },
+        settings: {
+          siteChangeSource: constants.SITE_CHANGE_TUBING,
         },
       };
 
@@ -639,11 +623,9 @@ describe('basics datamunger', function() {
         },
         profile: {
           fullName: 'Jill Jellyfish',
-          patient: {
-            settings: {
-              siteChangeSource: constants.SITE_CHANGE_TUBING,
-            },
-          },
+        },
+        settings: {
+          siteChangeSource: constants.SITE_CHANGE_TUBING,
         },
       };
 
@@ -669,12 +651,8 @@ describe('basics datamunger', function() {
           },
           profile: {
             fullName: 'Jill Jellyfish',
-            patient: {
-              profile: {
-                settings: {},
-              },
-            }
           },
+          settings: {},
         };
 
         dm.processInfusionSiteHistory(basicsData, pump, patient);
@@ -698,13 +676,9 @@ describe('basics datamunger', function() {
           },
           profile: {
             fullName: 'Jill Jellyfish',
-            patient: {
-              profile: {
-                settings: {
-                  siteChangeSource: constants.SITE_CHANGE_RESERVOIR,
-                },
-              },
-            }
+          },
+          settings: {
+            siteChangeSource: constants.SITE_CHANGE_RESERVOIR,
           },
         };
 
@@ -729,13 +703,9 @@ describe('basics datamunger', function() {
         },
         profile: {
           fullName: 'Jill Jellyfish',
-          patient: {
-            profile: {
-              settings: {
-                siteChangeSource: constants.SITE_CHANGE_CANNULA,
-              },
-            },
-          }
+        },
+        settings: {
+          siteChangeSource: constants.SITE_CHANGE_CANNULA,
         },
       };
 

@@ -123,7 +123,7 @@ var Selector = React.createClass({
   renderOptions: function() {
     var self = this;
 
-    if (!self.props.selectorMetaData.hasOwnProperty('canUpdateSettings')) {
+    if (!self.props.selectorMetaData.hasOwnProperty('canUpdateSettings') || !self.props.selectorMetaData.canUpdateSettings) {
       return;
     }
 
