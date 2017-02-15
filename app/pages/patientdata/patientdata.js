@@ -357,12 +357,6 @@ export let PatientData = React.createClass({
 
       case 'settings':
         return this.renderSettings();
-
-      case 'settingsprintview':
-        // set here so that we default back settings and not print
-        this.setState({ chartType: 'settings' });
-        window.print();
-        return this.renderSettings();
     }
   },
 
@@ -521,8 +515,9 @@ export let PatientData = React.createClass({
     if (e) {
       e.preventDefault();
     }
+    window.print();
     this.setState({
-      chartType: 'settingsprintview'
+      chartType: 'settings'
     });
   },
 

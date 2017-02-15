@@ -30,7 +30,7 @@ var LoginNav = React.createClass({
     var logo = this.renderLogo();
     var link = this.renderLink();
 
-    
+
     return (
       <div className="container-nav-outer login-nav">
         <div className="container-nav-inner nav-wrapper">
@@ -47,11 +47,11 @@ var LoginNav = React.createClass({
         </div>
       </div>
     );
-    
+
   },
 
   renderLogo: function() {
-    
+
     return (
       <a
         href="http://tidepool.org/"
@@ -60,7 +60,7 @@ var LoginNav = React.createClass({
         <img src={logoSrc} alt="Tidepool"/>
       </a>
     );
-    
+
   },
 
   renderLink: function() {
@@ -89,11 +89,11 @@ var LoginNav = React.createClass({
     }
 
     return (
-      
+
       <Link
         to={href}
         className={className}><i className={icon}></i>{' ' + text}</Link>
-      
+
     );
   }
 });
