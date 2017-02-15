@@ -45,15 +45,47 @@ module.exports = function (config, deps) {
   config.metricsSource = config.metricsSource.replace(/-/g, ' ');
 
   var common = require('./lib/common.js')(config, deps);
-  var confirm = require('./confirm.js')( common, {superagent:superagent, findProfile: findProfile});
+  var confirm = require('./confirm.js')( common, {superagent:superagent, findProfile: function (userId, cb) {
+    findMetadata(userId, 'profile', cb);
+  }});
   var user = require('./user.js')( common, config, deps);
 
-  function findProfile(userId, cb) {
+  /**
+   * Add a new or update an existing metadata for a user
+   *
+   * @param {String} userId id of the user you are updating the profile of
+   * @param {Object} payload object
+   * @param {String} type the type of metadata collection (e.g., preferences, profile, or settings)
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
+  function addOrUpdateMetadata(userId, payload, type, cb) {
     if (userId == null) {
       return cb({ status : common.STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
     }
-    common.assertArgumentsSize(arguments, 2);
-    common.doGetWithToken('/metadata/' + userId + '/profile', cb);
+
+    common.assertArgumentsSize(arguments, 4);
+    common.doPutWithToken(
+      '/metadata/' + userId + '/' + type,
+      payload,
+      cb
+    );
+  }
+
+  /**
+   * Find a user's metadata collection
+   *
+   * @param {String} userId id of the user you are finding the preferences of
+   * @param {String} type the type of metadata collection (e.g., preferences, profile, or settings)
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
+  function findMetadata(userId, type, cb) {
+    if (userId == null) {
+      return cb({ status : common.STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
+    }
+    common.assertArgumentsSize(arguments, 3);
+    common.doGetWithToken('/metadata/' + userId + '/' + type, cb);
   }
 
   return {
@@ -155,6 +187,17 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Add a new or update an existing preferences for a user
+     *
+     * @param {String} userId id of the user you are updating the preferences of
+     * @param {Object} preferences object
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    addOrUpdatePreferences: function (userId, preferences, cb) {
+      addOrUpdateMetadata(userId, preferences, 'preferences', cb);
+    },
+    /**
      * Add a new or update an existing profile for a user
      *
      * @param {String} userId id of the user you are updating the profile of
@@ -163,22 +206,49 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     addOrUpdateProfile: function (userId, profile, cb) {
-      common.assertArgumentsSize(arguments, 3);
-
-      common.doPutWithToken(
-        '/metadata/' + userId + '/profile',
-        profile,
-        cb
-      );
+      addOrUpdateMetadata(userId, profile, 'profile', cb);
     },
     /**
-     * Find a users profile
+     * Add a new or update an existing settings for a user
+     *
+     * @param {String} userId id of the user you are updating the settings of
+     * @param {Object} settings object
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    addOrUpdateSettings: function (userId, settings, cb) {
+      addOrUpdateMetadata(userId, settings, 'settings', cb);
+    },
+    /**
+     * Find a user's preferences
+     *
+     * @param {String} userId id of the user you are finding the preferences of
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    findPreferences: function (userId, cb) {
+      findMetadata(userId, 'preferences', cb);
+    },
+    /**
+     * Find a user's profile
      *
      * @param {String} userId id of the user you are finding the profile of
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    findProfile: findProfile,
+    findProfile: function (userId, cb) {
+      findMetadata(userId, 'profile', cb);
+    },
+    /**
+     * Find a user's settings
+     *
+     * @param {String} userId id of the user you are finding the settings of
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    findSettings: function (userId, cb) {
+      findMetadata(userId, 'settings', cb);
+    },
     /**
      * Get the users 'team'
      *

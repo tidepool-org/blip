@@ -45,7 +45,13 @@ describe('platform client', function () {
     username: 'a_PWD@user.com',
     password: 'a_PWD',
     emails: ['a_PWD@user.com'],
-    profile: {fullName: 'Jamie'}
+    profile: {fullName: 'Jamie'},
+    preferences: {
+      display: 'some',
+    },
+    settings: {
+      siteChangeSource: 'cannulaPrime',
+    },
   };
 
   /*
@@ -63,7 +69,13 @@ describe('platform client', function () {
     username: 'team@member.com',
     password: 'teammember',
     emails: ['team@member.com'],
-    profile: {fullName: 'Dr Doogie'}
+    profile: {fullName: 'Dr Doogie'},
+    preferences: {
+      display: 'all',
+    },
+    settings: {
+      siteChangeSource: 'tubingPrime',
+    },
   };
 
   function createClient(localStore, cb) {
@@ -249,6 +261,64 @@ describe('platform client', function () {
         expect(profile.fullName).to.equal(a_Member.profile.fullName);
         expect(profile).to.not.have.property('password');
         expect(profile).to.not.have.property('username');
+        done();
+      });
+    });
+  });
+  describe('handles user preferences', function () {
+    it('so we can add or update the logged in user\'s preferences', function (done) {
+    //add or update for both our users
+      async.parallel(
+        [pwdClient.addOrUpdatePreferences.bind(null, a_PWD.id, a_PWD.preferences), memberClient.addOrUpdatePreferences.bind(null, a_Member.id, a_Member.preferences)],
+        function(err, preferences) {
+          expect(err).to.not.exist;
+          done();
+        }
+      );
+    });
+    it('get another user\'s public preferences', function (done) {
+      //logged in as a_PWD you can get the profile for a_Member
+      pwdClient.findPreferences(a_Member.id, function (error, settings) {
+        expect(error).to.deep.equal({ status: 401, body: 'Unauthorized' });
+        done();
+      });
+    });
+    it('get the logged in user\'s preferences', function (done) {
+      //logged in as a_Member you can get your profile
+      memberClient.findPreferences(a_Member.id, function (error, preferences) {
+        expect(error).to.not.exist;
+
+        expect(preferences).to.be.exist;
+        expect(preferences.display).to.equal(a_Member.preferences.display);
+        done();
+      });
+    });
+  });
+  describe('handles user settings', function () {
+    it('so we can add or update the logged in user\'s settings', function (done) {
+    //add or update for both our users
+      async.parallel(
+        [pwdClient.addOrUpdateSettings.bind(null, a_PWD.id, a_PWD.settings), memberClient.addOrUpdateSettings.bind(null, a_Member.id, a_Member.settings)],
+        function(err, settings) {
+          expect(err).to.not.exist;
+          done();
+        }
+      );
+    });
+    it('get another user\'s public settings', function (done) {
+      //logged in as a_PWD you can get the profile for a_Member
+      pwdClient.findSettings(a_Member.id, function (error, settings) {
+        expect(error).to.deep.equal({ status: 401, body: 'Unauthorized' });
+        done();
+      });
+    });
+    it('get the logged in user\'s settings', function (done) {
+      //logged in as a_Member you can get your profile
+      memberClient.findSettings(a_Member.id, function (error, settings) {
+        expect(error).to.not.exist;
+
+        expect(settings).to.be.exist;
+        expect(settings.siteChangeSource).to.equal(a_Member.settings.siteChangeSource);
         done();
       });
     });
