@@ -242,7 +242,7 @@ export let PatientData = React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateBasicsData={this.updateBasicsData}
-            updateBasicsSettings={_.noop}
+            updateBasicsSettings={this.props.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
@@ -646,7 +646,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   clearPatientData: actions.sync.clearPatientData,
   fetchMessageThread: actions.async.fetchMessageThread,
   closeMessageThread: actions.sync.closeMessageThread,
-  updatePatient: actions.async.updatePatient,
+  updateSettings: actions.async.updateSettings,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -663,7 +663,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     trackMetric: ownProps.routes[0].trackMetric,
     queryParams: ownProps.location.query,
     currentPatientInViewId: ownProps.routeParams.id,
-    updateBasicsSettings: dispatchProps.updatePatient.bind(null, api),
+    updateBasicsSettings: dispatchProps.updateSettings.bind(null, api),
   });
 };
 
