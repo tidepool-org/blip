@@ -45,9 +45,7 @@ module.exports = function (config, deps) {
   config.metricsSource = config.metricsSource.replace(/-/g, ' ');
 
   var common = require('./lib/common.js')(config, deps);
-  var confirm = require('./confirm.js')( common, {superagent:superagent, findProfile: function (userId, cb) {
-    findMetadata(userId, 'profile', cb);
-  }});
+  var confirm = require('./confirm.js')( common, {superagent:superagent, findProfile: findProfile});
   var user = require('./user.js')( common, config, deps);
 
   /**
@@ -86,6 +84,17 @@ module.exports = function (config, deps) {
     }
     common.assertArgumentsSize(arguments, 3);
     common.doGetWithToken('/metadata/' + userId + '/' + type, cb);
+  }
+
+  /**
+   * Find a user's profile
+   *
+   * @param {String} userId id of the user you are finding the profile of
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
+  function findProfile (userId, cb) {
+    findMetadata(userId, 'profile', cb);
   }
 
   return {
@@ -236,9 +245,7 @@ module.exports = function (config, deps) {
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    findProfile: function (userId, cb) {
-      findMetadata(userId, 'profile', cb);
-    },
+    findProfile: findProfile,
     /**
      * Find a user's settings
      *
