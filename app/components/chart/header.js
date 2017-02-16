@@ -19,6 +19,8 @@ var bows = require('bows');
 var React = require('react');
 var cx = require('classnames');
 
+var printPng = require('./img/print-icon-2x.png');
+
 var tideline = {
   log: bows('Header')
 };
@@ -115,7 +117,7 @@ var TidelineHeader = React.createClass({
 
     var printLinkClass = cx({
       'js-print-settings': true,
-      'print-icon': true,
+      'printview-print-icon': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
       'patient-data-subnav-active': this.props.chartType === 'settings',
@@ -141,8 +143,11 @@ var TidelineHeader = React.createClass({
               {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
             </div>
             <div className="grid-item one-whole large-one-third">
-              <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>Print</a>
               <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
+              <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
+                <img src={printPng} alt="Print" />
+                Print
+              </a>
             </div>
           </div>
         </div>
