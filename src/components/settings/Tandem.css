@@ -47,6 +47,7 @@
 }
 
 .profileTable td, .profileTable th {
+  font-size: 14px;
   text-align: center;
 }
 
@@ -75,7 +76,12 @@
     color: #000;
   }
 
+  .profileTable th:first-of-type {
+    font-weight: normal;
+  }
+
   .printNotes {
+    margin-left: 40px;
     composes: printNotes from './settings.css';
   }
 
