@@ -21,28 +21,43 @@
 
   a {
     &:extend(.link-secondary all);
+
+    svg {
+      fill: @gray-dark;
+      &:hover {
+        fill: @blue-green-light;
+      }
+    }
   }
 
   img {
     margin: 0 12px;
   }
+
+  &.social-media {
+    display: flex;
+  }
 }
 
 .footer-twitter {
-  img {
-    width: 34px;
-  }
+  width: 39px;
+  height: 34px;
 }
 
 .footer-facebook {
-  img {
-    width: 16px;
-  }
+  width: 32px;
+  height: 32px;
+
+  margin-left: 20px;
 }
 
 .footer-jdrf {
   img {
+    content: url(./images/jdrf.png);
     padding-left: @spacing-tiny;
     width: 121px;
+    &:hover {
+      content: url(./images/jdrf_hover.png);
+    }
   }
 }
