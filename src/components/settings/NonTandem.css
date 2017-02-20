@@ -87,12 +87,14 @@
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
+    page-break-inside: avoid;
   }
 
   .bolusSettingsContainer {
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
+    page-break-inside: avoid;
   }
 
   .categoryTitle {

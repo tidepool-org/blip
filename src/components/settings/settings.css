@@ -104,10 +104,13 @@
     min-width: 230px;
     width: 100%;
     border: solid 1px #000;
+    border-collapse: collapse;
     padding-bottom: 0;
   }
 
-  .settingsTable tbody tr, .settingsTable thead {
+  .settingsTable tbody tr,
+  .settingsTable tbody tr:nth-child(odd),
+  .settingsTable thead  {
     background-color: var(--bkgrnd-white);
     border-bottom: solid 1px #cbcbcb;
     font-weight: bold;
@@ -135,6 +138,7 @@
     color: var(--text-black);
     font-weight: normal;
     composes: largeSize from '../../styles/typography.css';
+    padding-left: 0px;
   }
 
 }

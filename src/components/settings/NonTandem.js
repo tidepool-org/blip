@@ -161,6 +161,7 @@ const NonTandem = (props) => {
               tableStyle={styles.basalTable}
             />
           </CollapsibleContainer>
+          {renderPrintNotes()}
         </div>
       );
     });
