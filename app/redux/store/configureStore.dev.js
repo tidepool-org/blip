@@ -23,6 +23,7 @@ import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
+import mutationTracker from 'redux-immutable-state-invariant';
 
 import { vizReducer } from '@tidepool/viz';
 
@@ -73,7 +74,8 @@ if (!__DEV_TOOLS__) {
         loggerMiddleware,
         reduxRouterMiddleware,
         createErrorLogger(api),
-        trackingMiddleware(api)
+        trackingMiddleware(api),
+        mutationTracker()
       ),
       DevTools.instrument(),
       // We can persist debug sessions this way

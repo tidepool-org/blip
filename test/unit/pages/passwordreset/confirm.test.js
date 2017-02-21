@@ -7,6 +7,7 @@ window.config = {};
 
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
+import mutationTracker from 'object-invariant-test-helper';
 
 import { ConfirmPasswordReset } from '../../../../app/pages/passwordreset/confirm';
 import { mapStateToProps } from '../../../../app/pages/passwordreset/confirm';
@@ -122,7 +123,14 @@ describe('ConfirmPasswordReset', function () {
         confirmingPasswordReset: {inProgress: true, notification: null}
       }
     };
+
+    const tracked = mutationTracker.trackObj(state);
     const result = mapStateToProps({blip: state});
+
+    it('should not mutate the state', () => {
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
     it('should be a function', () => {
       assert.isFunction(mapStateToProps);
     });
