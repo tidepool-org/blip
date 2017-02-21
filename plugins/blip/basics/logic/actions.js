@@ -67,7 +67,7 @@ basicsActions.setSiteChangeEvent = function(sectionName, selectedKey, selectedLa
 
   metricsFunc('Selected ' + selectedLabel);
 
-  var newSettings = _.merge(this.app.props.patient.settings, {
+  var newSettings = _.assign({}, this.app.props.patient.settings, {
     siteChangeSource: selectedKey,
   });
 
