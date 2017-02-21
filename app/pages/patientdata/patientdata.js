@@ -49,6 +49,7 @@ export let PatientData = React.createClass({
     fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingPatientData: React.PropTypes.bool.isRequired,
+    fetchingUser: React.PropTypes.bool.isRequired,
     isUserPatient: React.PropTypes.bool.isRequired,
     messageThread: React.PropTypes.array,
     onCloseMessageThread: React.PropTypes.func.isRequired,
@@ -122,7 +123,7 @@ export let PatientData = React.createClass({
   },
 
   renderPatientData: function() {
-    if (this.props.fetchingPatient || this.props.fetchingPatientData || this.state.processingData) {
+    if (this.props.fetchingUser || this.props.fetchingPatient || this.props.fetchingPatientData || this.state.processingData) {
       return this.renderLoading();
     }
 
@@ -636,6 +637,7 @@ export function mapStateToProps(state) {
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
+    fetchingUser: state.blip.working.fetchingUser.inProgress,
     viz: state.viz,
   };
 }
