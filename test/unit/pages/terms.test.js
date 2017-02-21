@@ -6,9 +6,12 @@
 
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
+import mutationTracker from 'object-invariant-test-helper';
+
+var assert = chai.assert;
 var expect = chai.expect;
 
-import { Terms } from '../../../app/pages/terms';
+import { Terms, mapStateToProps } from '../../../app/pages/terms';
 
 describe('Terms', () => {
 
@@ -249,6 +252,37 @@ describe('Terms', () => {
         // still not accepted
         expect(termsElem.state.agreed).to.equal(false);
       });
+    });
+  });
+
+  describe('mapStateToProps', () => {
+    const state = {
+      allUsersMap: {
+        a1b2c3: {
+          termsAccepted: '2017-01-01T00:00:00.000Z',
+        },
+      },
+      isLoggedIn: true,
+      loggedInUserId: 'a1b2c3',
+    };
+
+    const tracked = mutationTracker.trackObj(state);
+    const result = mapStateToProps({blip: state});
+
+    it('should be a function', () => {
+      assert.isFunction(mapStateToProps);
+    });
+
+    it('should not mutate the state', () => {
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
+    it('should map allUsersMap.a1b2c3.termsAccepted to termsAccepted', () => {
+      expect(result.termsAccepted).to.equal(state.allUsersMap.a1b2c3.termsAccepted);
+    });
+
+    it('should map isLoggedIn to authenticated', () => {
+      expect(result.authenticated).to.equal(state.isLoggedIn);
     });
   });
 });
