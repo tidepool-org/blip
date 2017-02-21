@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import update from 'react-addons-update';
 
 import * as actions from '../../redux/actions';
 
@@ -40,10 +41,12 @@ export function mapStateToProps(state) {
       patient = allUsersMap[currentPatientInViewId];
 
       if (currentPatientInViewId === targetUserId && membersOfTargetCareTeam) {
-        patient.team = [];
+        patient = update(patient, { team: { $set: [] } });
         membersOfTargetCareTeam.forEach((memberId) => {
           let member = allUsersMap[memberId];
-          member.permissions = permissionsOfMembersInTargetCareTeam[memberId];
+          member = update(member, {
+            permissions: { $set: permissionsOfMembersInTargetCareTeam[memberId] },
+          });
           patient.team.push(member);
         });
       }

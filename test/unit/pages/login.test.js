@@ -7,6 +7,7 @@ window.config = {};
 
 import React from'react';
 import TestUtils from'react-addons-test-utils';
+import mutationTracker from 'object-invariant-test-helper';
 
 import { Login } from'../../../app/pages/login/login.js';
 import { mapStateToProps } from'../../../app/pages/login/login.js';
@@ -44,7 +45,14 @@ describe('Login', function () {
         loggingIn: {inProgress: false, notification: {type: 'alert', message: 'Hi!'}}
       }
     };
+
+    const tracked = mutationTracker.trackObj(state);
     const result = mapStateToProps({blip: state});
+
+    it('should not mutate the state', () => {
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
     it('should be a function', () => {
       assert.isFunction(mapStateToProps);
     });
@@ -75,7 +83,13 @@ describe('Login', function () {
           loggingIn: {inProgress: false, notification: null}
         }
       };
+
+      const tracked = mutationTracker.trackObj(state);
       const result = mapStateToProps({blip: state});
+
+      it('should not mutate the state', () => {
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
 
       it('should map working.loggingIn.notification to notification', () => {
         expect(result.notification).to.be.null;
