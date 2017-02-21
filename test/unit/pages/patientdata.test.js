@@ -8,6 +8,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
+import mutationTracker from 'object-invariant-test-helper';
 
 
 var assert = chai.assert;
@@ -524,7 +525,13 @@ describe('PatientData', function () {
           fetchingUser: {inProgress: false, notification: null}
         }
       };
+
+      const tracked = mutationTracker.trackObj(state);
       const result = mapStateToProps({blip: state});
+
+      it('should not mutate the state', () => {
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
 
       it('should map allUsersMap.a1b2c3 to user', () => {
         expect(result.user).to.deep.equal(state.allUsersMap.a1b2c3);
@@ -587,7 +594,13 @@ describe('PatientData', function () {
           fetchingUser: {inProgress: false, notification: null}
         }
       };
+
+      const tracked = mutationTracker.trackObj(state);
       const result = mapStateToProps({blip: state});
+
+      it('should not mutate the state', () => {
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
 
       it('should map allUsersMap.a1b2c3 to user', () => {
         expect(result.user).to.deep.equal(state.allUsersMap.a1b2c3);
