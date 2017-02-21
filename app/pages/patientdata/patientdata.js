@@ -616,22 +616,33 @@ let getFetchers = (dispatchProps, ownProps, api) => {
 };
 
 export function mapStateToProps(state) {
-  var user = null;
-  var patient = null;
+  let user = null;
+  let patient = null;
+  let permissions = {};
+
   if (state.blip.allUsersMap){
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
     }
 
     if (state.blip.currentPatientInViewId){
-      patient = state.blip.allUsersMap[state.blip.currentPatientInViewId];
+      patient = _.get(
+        state.blip.allUsersMap,
+        state.blip.currentPatientInViewId,
+        null
+      );
+      permissions = _.get(
+        state.blip.permissionsOfMembersInTargetCareTeam,
+        state.blip.currentPatientInViewId,
+        {}
+      );
     }
   }
 
   return {
     user: user,
     isUserPatient: personUtils.isSame(user, patient),
-    patient: patient,
+    patient: { permissions, ...patient },
     patientDataMap: state.blip.patientDataMap,
     patientNotesMap: state.blip.patientNotesMap,
     messageThread: state.blip.messageThread,
