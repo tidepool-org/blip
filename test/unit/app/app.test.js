@@ -225,8 +225,8 @@ describe('App',  () => {
         expect(result.user).to.equal(loggedIn.allUsersMap.a1b2c3);
       });
 
-      it('should retun the current patient in view as patient', () => {
-        expect(result.patient).to.equal(loggedIn.allUsersMap.d4e5f6);
+      it('should retun the current patient in view as patient and empty permissions', () => {
+        expect(result.patient).to.deep.equal(Object.assign({}, loggedIn.allUsersMap.d4e5f6, { permissions: {} }));
       });
     });
   });

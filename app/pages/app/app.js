@@ -353,7 +353,7 @@ export function mapStateToProps(state) {
     notification: displayNotification,
     termsAccepted: _.get(user, 'termsAccepted', null),
     user: user,
-    patient: { permissions, ...patient }
+    patient: patient ? { permissions, ...patient } : null,
   };
 
 };

@@ -482,6 +482,7 @@ describe('PatientData', function () {
             },
             fetchingPatient: false,
             fetchingPatientData: false,
+            fetchingUser: false,
             trackMetric: sinon.stub()
           };
 
@@ -514,9 +515,13 @@ describe('PatientData', function () {
           a1b2c3: [{type: 'message'}]
         },
         messageThread: [{type: 'message'}],
+        permissionsOfMembersInTargetCareTeam: {
+          a1b2c3: { root: { } },
+        },
         working: {
           fetchingPatient: {inProgress: false, notification: null},
-          fetchingPatientData: {inProgress: false, notification: null}
+          fetchingPatientData: {inProgress: false, notification: null},
+          fetchingUser: {inProgress: false, notification: null}
         }
       };
       const result = mapStateToProps({blip: state});
@@ -529,8 +534,8 @@ describe('PatientData', function () {
         expect(result.isUserPatient).to.be.true;
       });
 
-      it('should map allUsersMap.a1b2c3 to patient', () => {
-        expect(result.patient).to.deep.equal(state.allUsersMap.a1b2c3);
+      it('should map allUsersMap.a1b2c3 and permissionsOfMembersInTargetCareTeam.a1b2c3 to patient', () => {
+        expect(result.patient).to.deep.equal(Object.assign({}, state.allUsersMap.a1b2c3, { permissions: state.permissionsOfMembersInTargetCareTeam.a1b2c3 }));
       });
 
       it('should pass through patientDataMap', () => {
@@ -572,10 +577,14 @@ describe('PatientData', function () {
         patientNotesMap: {
           d4e5f6: [{type: 'message'}]
         },
+        permissionsOfMembersInTargetCareTeam: {
+          a1b2c3: { root: { } },
+        },
         messageThread: [{type: 'message'}],
         working: {
           fetchingPatient: {inProgress: false, notification: null},
-          fetchingPatientData: {inProgress: false, notification: null}
+          fetchingPatientData: {inProgress: false, notification: null},
+          fetchingUser: {inProgress: false, notification: null}
         }
       };
       const result = mapStateToProps({blip: state});
@@ -588,8 +597,8 @@ describe('PatientData', function () {
         expect(result.isUserPatient).to.be.false;
       });
 
-      it('should map allUsersMap.d4e5f6 to patient', () => {
-        expect(result.patient).to.deep.equal(state.allUsersMap.d4e5f6);
+      it('should map allUsersMap.d4e5f6 and empty permissions to patient', () => {
+        expect(result.patient).to.deep.equal(Object.assign({}, state.allUsersMap.d4e5f6, { permissions: {} }));
       });
 
       it('should pass through patientDataMap', () => {

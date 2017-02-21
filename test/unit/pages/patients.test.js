@@ -238,7 +238,7 @@ describe('Patients', () => {
         );
 
         expect(result.patients).to.deep.equal([
-          state.allUsersMap.a1b2c3,
+          Object.assign({}, state.allUsersMap.a1b2c3, { permissions: { root: {} } }),
           u1,
           u2
         ]);
