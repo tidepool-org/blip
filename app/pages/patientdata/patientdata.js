@@ -235,6 +235,7 @@ export let PatientData = React.createClass({
             timePrefs={this.state.timePrefs}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
+            permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -619,6 +620,7 @@ export function mapStateToProps(state) {
   let user = null;
   let patient = null;
   let permissions = {};
+  let permsOfLoggedInUser = {};
 
   if (state.blip.allUsersMap){
     if (state.blip.loggedInUserId) {
@@ -636,6 +638,7 @@ export function mapStateToProps(state) {
         state.blip.currentPatientInViewId,
         {}
       );
+      permsOfLoggedInUser = state.blip.permissionsOfMembersInTargetCareTeam[state.blip.loggedInUserId];
     }
   }
 
@@ -645,6 +648,7 @@ export function mapStateToProps(state) {
     patient: { permissions, ...patient },
     patientDataMap: state.blip.patientDataMap,
     patientNotesMap: state.blip.patientNotesMap,
+    permsOfLoggedInUser: permsOfLoggedInUser,
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
