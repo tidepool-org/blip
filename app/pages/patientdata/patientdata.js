@@ -638,7 +638,16 @@ export function mapStateToProps(state) {
         state.blip.currentPatientInViewId,
         {}
       );
-      permsOfLoggedInUser = state.blip.permissionsOfMembersInTargetCareTeam[state.blip.loggedInUserId];
+      // if the logged-in user is viewing own data, we pass through their own permissions as permsOfLoggedInUser
+      if (state.blip.currentPatientInViewId === state.blip.loggedInUserId) {
+        permsOfLoggedInUser = permissions;
+      }
+      // otherwise, we need to pull the perms of the loggedInUser wrt the patient in view from membershipPermissionsInOtherCareTeams
+      else {
+        if (!_.isEmpty(state.blip.membershipPermissionsInOtherCareTeams)) {
+          permsOfLoggedInUser = state.blip.membershipPermissionsInOtherCareTeams[state.blip.currentPatientInViewId];
+        }
+      }
     }
   }
 

@@ -553,6 +553,10 @@ describe('PatientData', function () {
         expect(result.patientNotesMap).to.deep.equal(state.patientNotesMap);
       });
 
+      it('should pass through the logged-in user\'s permissions on self as permsOfLoggedInUser', () => {
+        expect(result.permsOfLoggedInUser).to.deep.equal(state.permissionsOfMembersInTargetCareTeam[state.currentPatientInViewId]);
+      });
+
       it('should pass through messageThread', () => {
         expect(result.messageThread).to.deep.equal(state.messageThread);
       });
@@ -583,6 +587,12 @@ describe('PatientData', function () {
         },
         patientNotesMap: {
           d4e5f6: [{type: 'message'}]
+        },
+        membershipPermissionsInOtherCareTeams: {
+          d4e5f6: {
+            note: {},
+            view: {},
+          },
         },
         permissionsOfMembersInTargetCareTeam: {
           a1b2c3: { root: { } },
@@ -620,6 +630,10 @@ describe('PatientData', function () {
 
       it('should pass through patientNotesMap', () => {
         expect(result.patientNotesMap).to.deep.equal(state.patientNotesMap);
+      });
+
+      it('should pass through logged-in user\'s permissions as permsOfLoggedInUser', () => {
+        expect(result.permsOfLoggedInUser).to.deep.equal(state.membershipPermissionsInOtherCareTeams[state.currentPatientInViewId]);
       });
 
       it('should pass through messageThread', () => {
