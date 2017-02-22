@@ -340,6 +340,10 @@ function getPatient(patientId, cb) {
       person.permissions = permissions;
 
       api.metadata.settings.get(patientId, function(err, settings) {
+        if (err) {
+          return cb(err);
+        }
+
         person.settings = settings || {};
 
         return cb(null, person);
@@ -417,6 +421,10 @@ api.patient.get = function(patientId, cb) {
         patient.team = members;
 
         api.metadata.settings.get(userId, function(err, settings) {
+          if (err) {
+            return cb(err);
+          }
+
           patient.settings = settings;
 
           return cb(null, patient);
@@ -482,6 +490,8 @@ api.metadata.preferences = {};
 
 api.metadata.preferences.get = function(patientId, cb) {
   tidepool.findPreferences(patientId, function(err, payload) {
+    // We don't want to fire an error if the patient has no preferences saved yet,
+    // so we check if the error status is not 404 first.
     if (err && err.status !== 404) {
       return cb(err);
     }
@@ -505,6 +515,8 @@ api.metadata.preferences.put = function(patientId, preferences, cb) {
 api.metadata.settings = {};
 
 api.metadata.settings.get = function(patientId, cb) {
+  // We don't want to fire an error if the patient has no settings saved yet,
+  // so we check if the error status is not 404 first.
   tidepool.findSettings(patientId, function(err, payload) {
     if (err && err.status !== 404) {
       return cb(err);
