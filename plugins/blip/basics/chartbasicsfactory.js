@@ -45,6 +45,7 @@ var BasicsChart = React.createClass({
     onSelectDay: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
+    permsOfLoggedInUser: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
@@ -98,7 +99,7 @@ var BasicsChart = React.createClass({
       dataMunger.reduceByDay(basicsData);
 
       var latestPump = dataMunger.getLatestPumpUploaded(this.props.patientData);
-      dataMunger.processInfusionSiteHistory(basicsData, latestPump, this.props.patient);
+      dataMunger.processInfusionSiteHistory(basicsData, latestPump, this.props.patient, this.props.permsOfLoggedInUser);
 
       basicsData.data.bgDistribution = dataMunger.bgDistribution(basicsData);
       var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData);

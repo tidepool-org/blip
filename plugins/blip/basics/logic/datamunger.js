@@ -188,24 +188,23 @@ module.exports = function(bgClasses) {
 
       return null;
     },
-    processInfusionSiteHistory: function(basicsData, latestPump, patient) {
+    processInfusionSiteHistory: function(basicsData, latestPump, patient, permissions) {
       if (!latestPump) {
         return null;
       }
 
       var {
-        permissions,
         profile: {
           fullName,
         },
         settings,
       } = patient;
 
-      var hasUploadPermission = permissions.hasOwnProperty('admin') || permissions.hasOwnProperty('custodian') || permissions.hasOwnProperty('root');
+      var canUpdateSettings = permissions.hasOwnProperty('admin') || permissions.hasOwnProperty('custodian') || permissions.hasOwnProperty('root');
 
       basicsData.sections.siteChanges.selectorMetaData = {
         latestPump: latestPump,
-        canUpdateSettings: hasUploadPermission,
+        canUpdateSettings,
         patientName: fullName,
       };
 
