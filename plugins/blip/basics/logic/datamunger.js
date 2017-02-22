@@ -200,7 +200,7 @@ module.exports = function(bgClasses) {
         settings,
       } = patient;
 
-      var canUpdateSettings = permissions.hasOwnProperty('admin') || permissions.hasOwnProperty('custodian') || permissions.hasOwnProperty('root');
+      var canUpdateSettings = permissions.hasOwnProperty('custodian') || permissions.hasOwnProperty('root');
 
       basicsData.sections.siteChanges.selectorMetaData = {
         latestPump: latestPump,
