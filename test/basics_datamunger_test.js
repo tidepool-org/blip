@@ -493,10 +493,9 @@ describe('basics datamunger', function() {
         sections: siteChangeSections,
       };
 
+      var perms = { root: { } };
+
       var patient = {
-        permissions: {
-          'root': {},
-        },
         profile: {
           fullName: 'Jill Jellyfish',
         },
@@ -505,7 +504,7 @@ describe('basics datamunger', function() {
         },
       };
 
-      expect(dm.processInfusionSiteHistory(basicsData, null, patient)).to.equal(null);
+      expect(dm.processInfusionSiteHistory(basicsData, null, patient, perms)).to.equal(null);
     });
 
     it('should return that logged in user has permission to update patient settings', function() {
@@ -517,10 +516,9 @@ describe('basics datamunger', function() {
         sections: siteChangeSections,
       };
 
+      var perms = { root: { } };
+
       var patient = {
-        permissions: {
-          'root': {},
-        },
         profile: {
           fullName: 'Jill Jellyfish',
         },
@@ -529,7 +527,7 @@ describe('basics datamunger', function() {
         },
       };
 
-      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient);
+      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient, perms);
       expect(basicsData.sections.siteChanges.selectorMetaData.canUpdateSettings).to.equal(true);
     });
 
@@ -542,8 +540,9 @@ describe('basics datamunger', function() {
         sections: siteChangeSections,
       };
 
+      var perms = {};
+
       var patient = {
-        permissions: {},
         profile: {
           fullName: 'Jill Jellyfish',
         },
@@ -552,7 +551,7 @@ describe('basics datamunger', function() {
         },
       };
 
-      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient);
+      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient, perms);
       expect(basicsData.sections.siteChanges.selectorMetaData.canUpdateSettings).to.equal(false);
     });
 
@@ -566,10 +565,9 @@ describe('basics datamunger', function() {
         sections: siteChangeSections,
       };
 
+      var perms = { root: { } };
+
       var patient = {
-        permissions: {
-          'root': {},
-        },
         profile: {
           fullName: 'Jill Jellyfish',
         },
@@ -578,7 +576,7 @@ describe('basics datamunger', function() {
         },
       };
 
-      dm.processInfusionSiteHistory(basicsData, constants.TANDEM, patient);
+      dm.processInfusionSiteHistory(basicsData, constants.TANDEM, patient, perms);
       expect(basicsData.sections.siteChanges.type).to.equal(constants.SITE_CHANGE_CANNULA);
     });
 
@@ -592,10 +590,9 @@ describe('basics datamunger', function() {
         sections: siteChangeSections,
       };
 
+      var perms = { root: { } };
+
       var patient = {
-        permissions: {
-          'root': {},
-        },
         profile: {
           fullName: 'Jill Jellyfish',
         },
@@ -604,7 +601,7 @@ describe('basics datamunger', function() {
         },
       };
 
-      dm.processInfusionSiteHistory(basicsData, constants.TANDEM, patient);
+      dm.processInfusionSiteHistory(basicsData, constants.TANDEM, patient, perms);
       expect(basicsData.sections.siteChanges.type).to.equal(constants.SITE_CHANGE_TUBING);
     });
 
@@ -617,10 +614,9 @@ describe('basics datamunger', function() {
         sections: siteChangeSections,
       };
 
+      var perms = { root: { } };
+
       var patient = {
-        permissions: {
-          'root': {},
-        },
         profile: {
           fullName: 'Jill Jellyfish',
         },
@@ -629,7 +625,7 @@ describe('basics datamunger', function() {
         },
       };
 
-      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient);
+      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient, perms);
       expect(basicsData.sections.siteChanges.type).to.equal(constants.SITE_CHANGE_RESERVOIR);
     });
 
@@ -645,17 +641,16 @@ describe('basics datamunger', function() {
           sections: siteChangeSections,
         };
 
+        var perms = { root: { } };
+
         var patient = {
-          permissions: {
-            'root': {},
-          },
           profile: {
             fullName: 'Jill Jellyfish',
           },
           settings: {},
         };
 
-        dm.processInfusionSiteHistory(basicsData, pump, patient);
+        dm.processInfusionSiteHistory(basicsData, pump, patient, perms);
         expect(basicsData.sections.siteChanges.type).to.equal(constants.SECTION_TYPE_UNDECLARED);
         expect(basicsData.sections.siteChanges.settingsTogglable).to.equal(togglableState.open);
       });
@@ -670,10 +665,9 @@ describe('basics datamunger', function() {
           sections: siteChangeSections,
         };
 
+        var perms = { root: { } };
+
         var patient = {
-          permissions: {
-            'root': {},
-          },
           profile: {
             fullName: 'Jill Jellyfish',
           },
@@ -682,7 +676,7 @@ describe('basics datamunger', function() {
           },
         };
 
-        dm.processInfusionSiteHistory(basicsData, pump, patient);
+        dm.processInfusionSiteHistory(basicsData, pump, patient, perms);
         expect(basicsData.sections.siteChanges.type).to.equal(constants.SECTION_TYPE_UNDECLARED);
         expect(basicsData.sections.siteChanges.settingsTogglable).to.equal(togglableState.open);
       });
@@ -697,10 +691,9 @@ describe('basics datamunger', function() {
         sections: siteChangeSections,
       };
 
+      var perms = { root: { } };
+
       var patient = {
-        permissions: {
-          'root': {},
-        },
         profile: {
           fullName: 'Jill Jellyfish',
         },
@@ -709,7 +702,7 @@ describe('basics datamunger', function() {
         },
       };
 
-      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient);
+      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient, perms);
       expect(basicsData.sections.siteChanges.type).to.equal(constants.SITE_CHANGE_RESERVOIR);
       expect(basicsData.sections.siteChanges.settingsTogglable).to.equal(togglableState.off);
     });

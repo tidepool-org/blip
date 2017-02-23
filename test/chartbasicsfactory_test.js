@@ -40,6 +40,9 @@ describe('BasicsChart', function() {
       onSelectDay: sinon.stub(),
       patient: {},
       patientData: td,
+      permsOfLoggedInUser: {
+        view: {},
+      },
       timePrefs: {},
       updateBasicsData: sinon.stub(),
       updateBasicsSettings: sinon.stub(),
@@ -60,7 +63,7 @@ describe('BasicsChart', function() {
       TestUtils.renderIntoDocument(elem);
     }
     catch(e) {
-      expect(console.error.callCount).to.equal(9);
+      expect(console.error.callCount).to.equal(10);
     }
   });
 
