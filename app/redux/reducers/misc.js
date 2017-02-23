@@ -322,6 +322,10 @@ export const membershipPermissionsInOtherCareTeams = (state = initialState.membe
       const { context } = action.payload.acceptedReceivedInvite;
       return update(state, { $merge: { [creatorId]: context }});
     }
+    case types.FETCH_PATIENT_SUCCESS: {
+      const { patient } = action.payload;
+      return update(state, { $set: { [patient.userid]: patient.permissions } });
+    }
     case types.FETCH_PATIENTS_SUCCESS: {
       let permissions = {};
       action.payload.patients.forEach((p) => permissions[p.userid] = p.permissions);
