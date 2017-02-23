@@ -17,6 +17,7 @@ import React from 'react';
 import { browserHistory, Link } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import update from 'react-addons-update';
 
 import * as actions from '../../redux/actions';
 import utils from '../../core/utils';
@@ -372,7 +373,9 @@ export function mapStateToProps(state) {
       patientMap[state.blip.targetUserId] = state.blip.allUsersMap[state.blip.targetUserId];
       // to pass through the permissions of the logged-in user on the target (usually self)
       if (state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId]) {
-        patientMap[state.blip.targetUserId].permissions = state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId];
+        patientMap = update(patientMap, {
+          [state.blip.targetUserId]: { $merge: { permissions: state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId] } }
+        });
       }
     }
 
@@ -383,13 +386,15 @@ export function mapStateToProps(state) {
     }
 
     if (state.blip.membershipPermissionsInOtherCareTeams) {
-      var permissions = state.blip.membershipPermissionsInOtherCareTeams;
-      var keys = Object.keys(state.blip.membershipPermissionsInOtherCareTeams);
+      const permissions = state.blip.membershipPermissionsInOtherCareTeams;
+      const keys = Object.keys(state.blip.membershipPermissionsInOtherCareTeams);
       keys.forEach((key) => {
         if (!patientMap[key]) {
           patientMap[key] = state.blip.allUsersMap[key];
         }
-        patientMap[key].permissions = permissions[key];
+        patientMap = update(patientMap, {
+          [key]: { $merge: { permissions: permissions[key] } }
+        });
       });
     }
   }

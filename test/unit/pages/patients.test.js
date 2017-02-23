@@ -9,6 +9,8 @@ import React from 'react';
 import { browserHistory } from 'react-router';
 import TestUtils from 'react-addons-test-utils';
 
+import mutationTracker from 'object-invariant-test-helper';
+
 var assert = chai.assert;
 var expect = chai.expect;
 
@@ -213,7 +215,13 @@ describe('Patients', () => {
         }
       };
 
+      const tracked = mutationTracker.trackObj(state);
       const result = mapStateToProps({blip: state});
+
+      it('should not mutate the state', () => {
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
       it('should map loggedInUserId to loggedInUserId', () => {
         expect(result.loggedInUserId).to.equal(state.loggedInUserId);
       });
@@ -238,7 +246,7 @@ describe('Patients', () => {
         );
 
         expect(result.patients).to.deep.equal([
-          state.allUsersMap.a1b2c3,
+          Object.assign({}, state.allUsersMap.a1b2c3, { permissions: { root: {} } }),
           u1,
           u2
         ]);
@@ -281,8 +289,13 @@ describe('Patients', () => {
           fetchingUser: {inProgress: false}
         }
       };
-
+      const tracked = mutationTracker.trackObj(state);
       const result = mapStateToProps({blip: state});
+
+      it('should not mutate the state', () => {
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
       it('should map loggedInUserId to loggedInUserId', () => {
         expect(result.loggedInUserId).to.equal(state.loggedInUserId);
       });
