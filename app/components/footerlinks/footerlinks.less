@@ -19,6 +19,16 @@
   display: inline-block;
   font-size: 14px;
 
+  &.social-media {
+    display: flex;
+  }
+
+  &.large-format-only {
+    @media(max-width: @screen-md-max) {
+      display: none;
+    }
+  }
+
   a {
     &:extend(.link-secondary all);
 
@@ -32,10 +42,6 @@
 
   img {
     margin: 0 12px;
-  }
-
-  &.social-media {
-    display: flex;
   }
 }
 

@@ -26,7 +26,7 @@ const FooterLinks = (props) => {
   }
   return (
     <div className='footer-section footer-section-top'>
-      <div className='footer-link social-media'>
+      <div className='footer-link social-media large-format-only'>
         <a
           className='footer-twitter'
           href="https://twitter.com/tidepool_org"
@@ -50,7 +50,7 @@ const FooterLinks = (props) => {
           </svg>
         </a>
       </div>
-      <div className='footer-link'>
+      <div className='footer-link large-format-only'>
         <a
           href="http://tidepool.org/products/blip-notes/"
           id='mobile'
@@ -58,14 +58,14 @@ const FooterLinks = (props) => {
           target="_blank"
         >Get Mobile App</a>
       </div>
-      <div className='footer-link'>
+      <div className='footer-link large-format-only'>
         <a
           href="http://support.tidepool.org/"
           id='support'
           onClick={metricFnMkr('Support')}
           target="_blank">Get Support</a>
       </div>
-      <div className='footer-link'>
+      <div className='footer-link large-format-only'>
         <a
           href='http://tidepool.org/legal/'
           id='legal'
