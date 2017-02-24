@@ -2,11 +2,14 @@
 /* global sinon */
 /* global describe */
 /* global it */
+/* global beforeEach */
 
 var React = require('react');
 var createFragment = require('react-addons-create-fragment');
 var _ = require('lodash');
 var TestUtils = require('react-addons-test-utils');
+
+import mutationTracker from 'object-invariant-test-helper';
 
 // Need to add this line as app.js includes config
 // which errors if window.config does not exist
@@ -128,12 +131,22 @@ describe('App',  () => {
   });
 
   describe('mapStateToProps', () => {
+    let tracked;
+
+    beforeEach(() => {
+      tracked = mutationTracker.trackObj(initialState);
+    });
+
     it('should be a function', () => {
       assert.isFunction(mapStateToProps);
     });
 
     describe('initialState [not logged in]', () => {
       const result = mapStateToProps({blip: initialState});
+
+      it('should not mutate state', () => {
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
 
       it('should map isLoggedIn to authenticated', () => {
         expect(result.authenticated).to.equal(initialState.isLoggedIn);
@@ -184,6 +197,11 @@ describe('App',  () => {
           },
           status: 405
         },
+        permissionsOfMembersInTargetCareTeam: {
+          a1b2c3: {
+            view: {},
+          },
+        },
         working: {
           fetchingUser: {inProgress: false},
           fetchingPatient: {inProgress: false, notification: {type: 'error'}},
@@ -191,6 +209,10 @@ describe('App',  () => {
         }
       };
       const result = mapStateToProps({blip: loggedIn});
+
+      it('should not mutate state', () => {
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
 
       it('should map isLoggedIn to authenticated', () => {
         expect(result.authenticated).to.equal(loggedIn.isLoggedIn);
@@ -225,8 +247,8 @@ describe('App',  () => {
         expect(result.user).to.equal(loggedIn.allUsersMap.a1b2c3);
       });
 
-      it('should retun the current patient in view as patient', () => {
-        expect(result.patient).to.equal(loggedIn.allUsersMap.d4e5f6);
+      it('should return the current patient in view as patient and empty permissions', () => {
+        expect(result.patient).to.deep.equal(Object.assign({}, loggedIn.allUsersMap.d4e5f6, { permissions: {} }));
       });
     });
   });

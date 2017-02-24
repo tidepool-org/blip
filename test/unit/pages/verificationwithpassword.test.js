@@ -5,6 +5,8 @@
 
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
+import mutationTracker from 'object-invariant-test-helper';
+
 var assert = chai.assert;
 var expect = chai.expect;
 import * as errorMessages from '../../../app/redux/constants/errorMessages';
@@ -188,15 +190,20 @@ describe('VerificationWithPassword', () => {
       }
     };
 
+    const tracked = mutationTracker.trackObj(state);
+    const result = mapStateToProps(state);
+
+    it('should not mutate the state', () => {
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
     it('should be a function', () => {
       assert.isFunction(mapStateToProps);
     });
 
     it('should return object with notification and working populated', () => {
-      let mapped = mapStateToProps(state);
-
-      expect(mapped.notification).to.equal(state.blip.working.verifyingCustodial.notification);
-      expect(mapped.working).to.equal(state.blip.working.verifyingCustodial.inProgress);
+      expect(result.notification).to.equal(state.blip.working.verifyingCustodial.notification);
+      expect(result.working).to.equal(state.blip.working.verifyingCustodial.inProgress);
     });
   });
 

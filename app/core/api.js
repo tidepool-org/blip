@@ -208,9 +208,14 @@ api.user.get = function(cb) {
     });
   };
 
+  var getPreferences = function(cb) {
+    api.metadata.preferences.get(userId, cb);
+  };
+
   async.parallel({
     account: getAccount,
-    profile: getProfile
+    profile: getProfile,
+    preferences: getPreferences,
   },
   function(err, results) {
     if (err) {
@@ -256,6 +261,7 @@ function userFromAccountAndProfile(results) {
 
   var user = account;
   user.profile = profile;
+  user.preferences = results.preferences;
 
   return user;
 }
@@ -332,7 +338,16 @@ function getPatient(patientId, cb) {
       }
 
       person.permissions = permissions;
-      return cb(null, person);
+
+      api.metadata.settings.get(patientId, function(err, settings) {
+        if (err) {
+          return cb(err);
+        }
+
+        person.settings = settings || {};
+
+        return cb(null, person);
+      });
     });
 
   });
@@ -404,7 +419,16 @@ api.patient.get = function(patientId, cb) {
           return member;
         });
         patient.team = members;
-        return cb(null, patient);
+
+        api.metadata.settings.get(userId, function(err, settings) {
+          if (err) {
+            return cb(err);
+          }
+
+          patient.settings = settings;
+
+          return cb(null, patient);
+        });
       });
     });
   });
@@ -455,6 +479,62 @@ api.patient.getAll = function(cb) {
       patients = _.filter(patients);
       return cb(null, patients);
     });
+  });
+};
+
+// ----- Metadata -----
+
+api.metadata = {};
+
+api.metadata.preferences = {};
+
+api.metadata.preferences.get = function(patientId, cb) {
+  tidepool.findPreferences(patientId, function(err, payload) {
+    // We don't want to fire an error if the patient has no preferences saved yet,
+    // so we check if the error status is not 404 first.
+    if (err && err.status !== 404) {
+      return cb(err);
+    }
+
+    var preferences = payload || {};
+
+    return cb(null, preferences);
+  });
+};
+
+api.metadata.preferences.put = function(patientId, preferences, cb) {
+  tidepool.addOrUpdatePreferences(patientId, preferences, function(err, payload) {
+    if (err) {
+      return cb(err);
+    }
+
+    return cb(null, preferences);
+  });
+};
+
+api.metadata.settings = {};
+
+api.metadata.settings.get = function(patientId, cb) {
+  // We don't want to fire an error if the patient has no settings saved yet,
+  // so we check if the error status is not 404 first.
+  tidepool.findSettings(patientId, function(err, payload) {
+    if (err && err.status !== 404) {
+      return cb(err);
+    }
+
+    var settings = payload || {};
+
+    return cb(null, settings);
+  });
+};
+
+api.metadata.settings.put = function(patientId, settings, cb) {
+  tidepool.addOrUpdateSettings(patientId, settings, function(err, payload) {
+    if (err) {
+      return cb(err);
+    }
+
+    return cb(null, settings);
   });
 };
 

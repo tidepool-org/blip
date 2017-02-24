@@ -60,8 +60,8 @@
     "shelljs": "0.7.3",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "0.5.24",
-    "tidepool-platform-client": "0.27.0",
+    "tideline": "0.5.26",
+    "tidepool-platform-client": "0.29.0",
     "url-loader": "0.5.7",
     "webpack": "1.13.2"
   },
@@ -94,6 +94,7 @@
     "redux-devtools": "3.3.1",
     "redux-devtools-dock-monitor": "1.1.1",
     "redux-devtools-log-monitor": "1.0.11",
+    "redux-immutable-state-invariant": "1.2.4",
     "redux-mock-store": "1.1.4",
     "salinity": "0.0.8",
     "selenium-standalone": "5.5.0",

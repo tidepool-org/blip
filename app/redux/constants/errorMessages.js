@@ -45,6 +45,10 @@ export const ERR_RESENDING_EMAIL_VERIFICATION = 'Something went wrong trying to 
 export const ERR_SENDING_INVITE = 'Something went wrong sending an outgoing invitation to a care team.';
 export const ERR_SIGNUP = 'Something went wrong trying to sign you up.';
 export const ERR_UPDATING_PATIENT = 'Something went wrong while saving patient profile.';
+export const ERR_FETCHING_PREFERENCES = 'Something went wrong while fetching patient preferences.';
+export const ERR_UPDATING_PREFERENCES = 'Something went wrong while saving patient preferences.';
+export const ERR_FETCHING_SETTINGS = 'Something went wrong while fetching patient settings.';
+export const ERR_UPDATING_SETTINGS = 'Something went wrong while saving patient settings.';
 export const ERR_UPDATING_USER = 'Something went wrong while updating user account.';
 export const ERR_YOUR_ACCOUNT_NOT_CONFIGURED = 'Sorry! It appears that your account hasn\'t been fully set up.';
 
