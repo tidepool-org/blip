@@ -60,6 +60,9 @@ describe('actions', function() {
             diagnosisDate: '2010-01-01',
           },
         },
+        settings: {
+          previousSetting: true,
+        },
       },
     },
   };
@@ -117,20 +120,13 @@ describe('actions', function() {
       expect(updateBasicsSettings.callCount).to.equal(0);
       basicsActions.setSiteChangeEvent('siteChanges', constants.SITE_CHANGE_CANNULA, 'Cannula Prime', trackMetric, updateBasicsSettings);
       expect(updateBasicsSettings.callCount).to.equal(1);
-      expect(updateBasicsSettings.calledWith({
-        userid: app.props.patient.userid,
-        profile: {
-          fullName: 'Test Patient',
-          patient: {
-            about: 'Testing Patient Update',
-            birthday: '2000-01-01',
-            diagnosisDate: '2010-01-01',
-            settings: {
-              siteChangeSource: constants.SITE_CHANGE_CANNULA
-            }
-          }
+      expect(updateBasicsSettings.calledWith(
+        app.props.patient.userid,
+        {
+          previousSetting: true,
+          siteChangeSource: constants.SITE_CHANGE_CANNULA,
         }
-      })).to.be.true;
+      )).to.be.true;
     });
   });
 });
