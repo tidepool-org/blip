@@ -135,7 +135,7 @@ var PatientCard = React.createClass({
       'patientcard-actions--highlight': this.state.highlight === 'remove'
     });
 
-    if (_.isEmpty(patient.permissions) === false && (!patient.permissions.admin && !patient.permissions.root)) {
+    if (_.isEmpty(patient.permissions) === false && !patient.permissions.root) {
       var title = 'Remove yourself from ' + this.getFullName() + '\'s care team.';
 
       return (
