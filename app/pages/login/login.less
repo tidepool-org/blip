@@ -13,14 +13,17 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+// TODO if we keep these styles w/new sign-up flow
+// DRY out this and the very similar styles in signup.less
 .login {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-around;
 
-  min-height: 500px;
+  min-height: 575px;
 
   @media(min-width: @screen-lg-min) {
+    justify-content: space-between;
     min-height: 550px;
     .login-logo {
       flex-grow: 2;
@@ -29,6 +32,13 @@
 }
 
 .login-form {
+  margin-bottom: @spacing-large;
+  @media(max-width: @screen-md-max) {
+    // a ✨magic✨ number matching the signup-form's size to get the logo to stay in the same place
+    // when clicking from root and/or /login to /signup
+    min-height: 358px;
+  }
+
   .form-group:nth-child(3) {
     margin-bottom: 0px;
   }
