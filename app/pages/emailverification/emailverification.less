@@ -16,6 +16,27 @@
 @breakWidth: 1000px;
 @sideMargin: 50px;
 
+// TODO if we keep these styles w/new sign-up flow
+// DRY out this and the very similar styles in login.less and signup.less
+.EmailVerification {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+
+  min-height: 575px;
+
+  @media(min-width: @screen-lg-min) {
+    justify-content: space-between;
+    .login-logo {
+      flex-grow: 2;
+    }
+  }
+}
+
+.EmailVerification-content {
+  margin-bottom: 6px;
+}
+
 .EmailVerification-intro {
   margin: 0 auto;
   width: @breakWidth;
@@ -26,6 +47,7 @@
 }
 
 .EmailVerification-title {
+  margin-top: @spacing-large;
   margin-bottom: 20px;
   font-size: 20px;
   line-height: 1;
