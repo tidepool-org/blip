@@ -18,10 +18,13 @@
   flex-direction: column;
   justify-content: space-between;
 
-  min-height: 550px;
+  min-height: 500px;
 
-  .login-logo {
-    flex-grow: 2;
+  @media(min-width: @screen-lg-min) {
+    min-height: 550px;
+    .login-logo {
+      flex-grow: 2;
+    }
   }
 }
 
