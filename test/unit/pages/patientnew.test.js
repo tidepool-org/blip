@@ -5,7 +5,7 @@
 
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-
+import mutationTracker from 'object-invariant-test-helper';
 
 import { PatientNew } from '../../../app/pages/patientnew';
 import { mapStateToProps } from '../../../app/pages/patientnew';
@@ -87,7 +87,14 @@ describe('PatientNew', function () {
         fetchingUser: {inProgress: false}
       }
     };
+
+    const tracked = mutationTracker.trackObj(state);
     const result = mapStateToProps({blip: state});
+
+    it('should not mutate the state', () => {
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
     it('should be a function', () => {
       assert.isFunction(mapStateToProps);
     });

@@ -78,7 +78,7 @@ personUtils.hasEditPermissions = function(person) {
   return (
     person &&
     !_.isEmpty(person.permissions) &&
-    (person.permissions.admin || person.permissions.root)
+    person.permissions.root
   );
 };
 
@@ -86,7 +86,6 @@ personUtils.isRemoveable = function(person) {
   return (
     person &&
     !_.isEmpty(person.permissions) &&
-    !person.permissions.admin &&
     !person.permissions.root
   );
 };

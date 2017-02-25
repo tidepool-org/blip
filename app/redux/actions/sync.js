@@ -506,6 +506,106 @@ export function updatePatientFailure(error, apiError) {
   };
 }
 
+export function fetchPreferencesRequest() {
+  return {
+    type: ActionTypes.FETCH_PREFERENCES_REQUEST,
+  };
+}
+
+export function fetchPreferencesSuccess(preferences) {
+  return {
+    type: ActionTypes.FETCH_PREFERENCES_SUCCESS,
+    payload: {
+      preferences: preferences,
+    },
+  };
+}
+
+export function fetchPreferencesFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_PREFERENCES_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function updatePreferencesRequest() {
+  return {
+    type: ActionTypes.UPDATE_PREFERENCES_REQUEST,
+  };
+}
+
+export function updatePreferencesSuccess(preferences) {
+  return {
+    type: ActionTypes.UPDATE_PREFERENCES_SUCCESS,
+    payload: {
+      updatedPreferences: preferences,
+    },
+  };
+}
+
+export function updatePreferencesFailure(error, apiError) {
+  return {
+    type: ActionTypes.UPDATE_PREFERENCES_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchSettingsRequest() {
+  return {
+    type: ActionTypes.FETCH_SETTINGS_REQUEST,
+  };
+}
+
+export function fetchSettingsSuccess(settings) {
+  return {
+    type: ActionTypes.FETCH_SETTINGS_SUCCESS,
+    payload: {
+      settings: settings,
+    },
+  };
+}
+
+export function fetchSettingsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_SETTINGS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function updateSettingsRequest() {
+  return {
+    type: ActionTypes.UPDATE_SETTINGS_REQUEST,
+  };
+}
+
+export function updateSettingsSuccess(settings) {
+  return {
+    type: ActionTypes.UPDATE_SETTINGS_SUCCESS,
+    payload: {
+      updatedSettings: settings,
+    },
+  };
+}
+
+export function updateSettingsFailure(error, apiError) {
+  return {
+    type: ActionTypes.UPDATE_SETTINGS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function updateUserRequest(userId, user) {
   return {
     type: ActionTypes.UPDATE_USER_REQUEST,

@@ -281,6 +281,7 @@ let getFetchers = (dispatchProps, ownProps, api) => {
 export function mapStateToProps(state) {
   let user = null;
   let patient = null;
+  let permissions = null;
 
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
@@ -288,17 +289,16 @@ export function mapStateToProps(state) {
     }
 
     if (state.blip.currentPatientInViewId) {
-      patient = state.blip.allUsersMap[state.blip.currentPatientInViewId];
-      if (state.blip.targetUserId && state.blip.currentPatientInViewId === state.blip.targetUserId) {
-        const permsOfTargetOnTarget = _.get(
-          state.blip.permissionsOfMembersInTargetCareTeam,
-          state.blip.currentPatientInViewId,
-          null
-        );
-        if (permsOfTargetOnTarget) {
-          patient.permissions = permsOfTargetOnTarget;
-        }
-      }
+      patient = _.get(
+        state.blip.allUsersMap,
+        state.blip.currentPatientInViewId,
+        null
+      );
+      permissions = _.get(
+        state.blip.permissionsOfMembersInTargetCareTeam,
+        state.blip.currentPatientInViewId,
+        {}
+      );
     }
   }
 
@@ -351,7 +351,7 @@ export function mapStateToProps(state) {
     notification: displayNotification,
     termsAccepted: _.get(user, 'termsAccepted', null),
     user: user,
-    patient: patient
+    patient: patient ? { permissions, ...patient } : null,
   };
 
 };

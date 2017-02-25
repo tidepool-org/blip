@@ -953,6 +953,108 @@ describe('Actions', () => {
       });
     });
 
+    describe('updatePreferencesRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.updatePreferencesRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_PREFERENCES_REQUEST', () => {
+        let action = sync.updatePreferencesRequest();
+        expect(action.type).to.equal('UPDATE_PREFERENCES_REQUEST');
+      });
+    });
+
+    describe('updatePreferencesSuccess', () => {
+      it('should be a TSA', () => {
+        let preference = {
+          display: 'all'
+        };
+        let action = sync.updatePreferencesSuccess(preference);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_PREFERENCES_SUCCESS', () => {
+        let preference = {
+          display: 'all'
+        };
+        let action = sync.updatePreferencesSuccess(preference);
+
+        expect(action.type).to.equal('UPDATE_PREFERENCES_SUCCESS');
+        expect(action.payload.updatedPreferences).to.equal(preference);
+      });
+    });
+
+    describe('updatePreferencesFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.updatePreferencesFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_PREFERENCES_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.updatePreferencesFailure(error);
+
+        expect(action.type).to.equal('UPDATE_PREFERENCES_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('updateSettingsRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.updateSettingsRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_SETTINGS_REQUEST', () => {
+        let action = sync.updateSettingsRequest();
+        expect(action.type).to.equal('UPDATE_SETTINGS_REQUEST');
+      });
+    });
+
+    describe('updateSettingsSuccess', () => {
+      it('should be a TSA', () => {
+        let settings = {
+          siteChangeSource: 'cannulaPrime'
+        };
+        let action = sync.updateSettingsSuccess(settings);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_SETTINGS_SUCCESS', () => {
+        let settings = {
+          siteChangeSource: 'cannulaPrime'
+        };
+        let action = sync.updateSettingsSuccess(settings);
+
+        expect(action.type).to.equal('UPDATE_SETTINGS_SUCCESS');
+        expect(action.payload.updatedSettings).to.equal(settings);
+      });
+    });
+
+    describe('updateSettingsFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.updateSettingsFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_SETTINGS_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.updateSettingsFailure(error);
+
+        expect(action.type).to.equal('UPDATE_SETTINGS_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
     describe('updateUserRequest', () => {
       it('should be a TSA', () => {
         let action = sync.updateUserRequest();
@@ -1352,6 +1454,108 @@ describe('Actions', () => {
         let action = sync.fetchPatientDataFailure(error);
 
         expect(action.type).to.equal('FETCH_PATIENT_DATA_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchPreferencesRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchPreferencesRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PREFERENCES_REQUEST', () => {
+        let action = sync.fetchPreferencesRequest();
+        expect(action.type).to.equal('FETCH_PREFERENCES_REQUEST');
+      });
+    });
+
+    describe('fetchPreferencesSuccess', () => {
+      it('should be a TSA', () => {
+        let preference = {
+          display: 'all'
+        };
+        let action = sync.fetchPreferencesSuccess(preference);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PREFERENCES_SUCCESS', () => {
+        let preference = {
+          display: 'all'
+        };
+        let action = sync.fetchPreferencesSuccess(preference);
+
+        expect(action.type).to.equal('FETCH_PREFERENCES_SUCCESS');
+        expect(action.payload.preferences).to.equal(preference);
+      });
+    });
+
+    describe('fetchPreferencesFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.fetchPreferencesFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PREFERENCES_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.fetchPreferencesFailure(error);
+
+        expect(action.type).to.equal('FETCH_PREFERENCES_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchSettingsRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchSettingsRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_SETTINGS_REQUEST', () => {
+        let action = sync.fetchSettingsRequest();
+        expect(action.type).to.equal('FETCH_SETTINGS_REQUEST');
+      });
+    });
+
+    describe('fetchSettingsSuccess', () => {
+      it('should be a TSA', () => {
+        let settings = {
+          siteChangeSource: 'cannulaPrime'
+        };
+        let action = sync.fetchSettingsSuccess(settings);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_SETTINGS_SUCCESS', () => {
+        let settings = {
+          siteChangeSource: 'cannulaPrime'
+        };
+        let action = sync.fetchSettingsSuccess(settings);
+
+        expect(action.type).to.equal('FETCH_SETTINGS_SUCCESS');
+        expect(action.payload.settings).to.equal(settings);
+      });
+    });
+
+    describe('fetchSettingsFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.fetchSettingsFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_SETTINGS_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.fetchSettingsFailure(error);
+
+        expect(action.type).to.equal('FETCH_SETTINGS_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
