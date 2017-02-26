@@ -212,7 +212,7 @@ api.user.get = function(cb) {
     api.metadata.preferences.get(userId, cb);
   };
 
-  async.parallel({
+  async.series({
     account: getAccount,
     profile: getProfile,
     preferences: getPreferences,
