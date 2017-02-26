@@ -282,10 +282,7 @@ var PatientTeam = React.createClass({
     if(_.isEmpty(member.permissions)){
       return null;
     } else {
-      if(member.permissions.admin) {
-        classes['icon-permissions-own'] = true;
-        allowUpload = true;
-      } else if(member.permissions.upload) {
+      if(member.permissions.upload) {
         classes['icon-permissions-upload'] = true;
         allowUpload = true;
       } else if(member.permissions.view) {

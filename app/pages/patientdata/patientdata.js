@@ -274,6 +274,7 @@ export let PatientData = React.createClass({
             timePrefs={this.state.timePrefs}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
+            permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -282,7 +283,7 @@ export let PatientData = React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateBasicsData={this.updateBasicsData}
-            updateBasicsSettings={_.noop}
+            updateBasicsSettings={this.props.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
@@ -652,6 +653,7 @@ export function mapStateToProps(state) {
   let user = null;
   let patient = null;
   let permissions = {};
+  let permsOfLoggedInUser = {};
 
   if (state.blip.allUsersMap){
     if (state.blip.loggedInUserId) {
@@ -669,6 +671,16 @@ export function mapStateToProps(state) {
         state.blip.currentPatientInViewId,
         {}
       );
+      // if the logged-in user is viewing own data, we pass through their own permissions as permsOfLoggedInUser
+      if (state.blip.currentPatientInViewId === state.blip.loggedInUserId) {
+        permsOfLoggedInUser = permissions;
+      }
+      // otherwise, we need to pull the perms of the loggedInUser wrt the patient in view from membershipPermissionsInOtherCareTeams
+      else {
+        if (!_.isEmpty(state.blip.membershipPermissionsInOtherCareTeams)) {
+          permsOfLoggedInUser = state.blip.membershipPermissionsInOtherCareTeams[state.blip.currentPatientInViewId];
+        }
+      }
     }
   }
 
@@ -678,6 +690,7 @@ export function mapStateToProps(state) {
     patient: { permissions, ...patient },
     patientDataMap: state.blip.patientDataMap,
     patientNotesMap: state.blip.patientNotesMap,
+    permsOfLoggedInUser: permsOfLoggedInUser,
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
@@ -692,7 +705,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   clearPatientData: actions.sync.clearPatientData,
   fetchMessageThread: actions.async.fetchMessageThread,
   closeMessageThread: actions.sync.closeMessageThread,
-  updatePatient: actions.async.updatePatient,
+  updateSettings: actions.async.updateSettings,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -709,7 +722,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     trackMetric: ownProps.routes[0].trackMetric,
     queryParams: ownProps.location.query,
     currentPatientInViewId: ownProps.routeParams.id,
-    updateBasicsSettings: dispatchProps.updatePatient.bind(null, api),
+    updateBasicsSettings: dispatchProps.updateSettings.bind(null, api),
   });
 };
 

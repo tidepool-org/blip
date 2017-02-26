@@ -1206,6 +1206,122 @@ describe('Actions', () => {
       });
     });
 
+    describe('updatePreferences', () => {
+      it('should trigger UPDATE_PREFERENCES_SUCCESS and it should call updatePreferences once for a successful request', () => {
+        let patientId = 1234;
+        let preferences = { display: 'all' };
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, null, preferences)
+            }
+          }
+        };
+
+        let expectedActions = [
+          { type: 'UPDATE_PREFERENCES_REQUEST' },
+          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: preferences } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore(initialState);
+        store.dispatch(async.updatePreferences(api, patientId, preferences));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.metadata.preferences.put.calledWith(patientId, preferences)).to.be.true;
+      });
+
+      it('should trigger UPDATE_PREFERENCES_FAILURE and it should call updatePreferences once for a failed request', () => {
+        let patientId = 1234;
+        let preferences = { display: 'all' };
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'})
+            }
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_UPDATING_PREFERENCES);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'UPDATE_PREFERENCES_REQUEST' },
+          { type: 'UPDATE_PREFERENCES_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(initialState);
+        store.dispatch(async.updatePreferences(api, patientId, preferences));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.metadata.preferences.put.calledWith(patientId, preferences)).to.be.true;
+      });
+    });
+
+    describe('updateSettings', () => {
+      it('should trigger UPDATE_SETTINGS_SUCCESS and it should call updateSettings once for a successful request', () => {
+        let patientId = 1234;
+        let settings = { siteChangeSource: 'cannulaPrime' };
+        let api = {
+          metadata: {
+            settings: {
+              put: sinon.stub().callsArgWith(2, null, settings)
+            }
+          }
+        };
+
+        let expectedActions = [
+          { type: 'UPDATE_SETTINGS_REQUEST' },
+          { type: 'UPDATE_SETTINGS_SUCCESS', payload: { updatedSettings: settings } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore(initialState);
+        store.dispatch(async.updateSettings(api, patientId, settings));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.metadata.settings.put.calledWith(patientId, settings)).to.be.true;
+      });
+
+      it('should trigger UPDATE_SETTINGS_FAILURE and it should call updateSettings once for a failed request', () => {
+        let patientId = 1234;
+        let settings = { siteChangeSource: 'cannulaPrime' };
+        let api = {
+          metadata: {
+            settings: {
+              put: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'})
+            }
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_UPDATING_SETTINGS);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'UPDATE_SETTINGS_REQUEST' },
+          { type: 'UPDATE_SETTINGS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(initialState);
+        store.dispatch(async.updateSettings(api, patientId, settings));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.metadata.settings.put.calledWith(patientId, settings)).to.be.true;
+      });
+    });
+
     describe('updateUser', () => {
       it('should trigger UPDATE_USER_SUCCESS and it should call updateUser once for a successful request', () => {
         let loggedInUserId = 400;
@@ -1989,6 +2105,121 @@ describe('Actions', () => {
         expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
     });
+
+    describe('fetchPreferences', () => {
+      it('should trigger FETCH_PREFERENCES_SUCCESS and it should call fetchPreferences once for a successful request', () => {
+        let patientId = 1234;
+        let preferences = { display: 'all' };
+        let api = {
+          metadata: {
+            preferences: {
+              get: sinon.stub().callsArgWith(1, null, preferences)
+            }
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PREFERENCES_REQUEST' },
+          { type: 'FETCH_PREFERENCES_SUCCESS', payload: { preferences: preferences } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore(initialState);
+        store.dispatch(async.fetchPreferences(api, patientId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.metadata.preferences.get.calledWith(patientId)).to.be.true;
+      });
+
+      it('should trigger FETCH_PREFERENCES_FAILURE and it should call fetchPreferences once for a failed request', () => {
+        let patientId = 1234;
+        let api = {
+          metadata: {
+            preferences: {
+              get: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'})
+            }
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_PREFERENCES);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_PREFERENCES_REQUEST' },
+          { type: 'FETCH_PREFERENCES_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(initialState);
+        store.dispatch(async.fetchPreferences(api, patientId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.metadata.preferences.get.calledWith(patientId)).to.be.true;
+      });
+    });
+
+    describe('fetchSettings', () => {
+      it('should trigger FETCH_SETTINGS_SUCCESS and it should call fetchSettings once for a successful request', () => {
+        let patientId = 1234;
+        let settings = { siteChangeSource: 'cannulaPrime' };
+        let api = {
+          metadata: {
+            settings: {
+              get: sinon.stub().callsArgWith(1, null, settings)
+            }
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_SETTINGS_REQUEST' },
+          { type: 'FETCH_SETTINGS_SUCCESS', payload: { settings: settings } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore(initialState);
+        store.dispatch(async.fetchSettings(api, patientId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.metadata.settings.get.calledWith(patientId)).to.be.true;
+      });
+
+      it('should trigger FETCH_SETTINGS_FAILURE and it should call fetchSettings once for a failed request', () => {
+        let patientId = 1234;
+        let api = {
+          metadata: {
+            settings: {
+              get: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'})
+            }
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_SETTINGS);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_SETTINGS_REQUEST' },
+          { type: 'FETCH_SETTINGS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(initialState);
+        store.dispatch(async.fetchSettings(api, patientId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.metadata.settings.get.calledWith(patientId)).to.be.true;
+      });
+    });
+
 
     describe('fetchMessageThread', () => {
       it('should trigger FETCH_MESSAGE_THREAD_SUCCESS and it should call error once for a successful request', () => {

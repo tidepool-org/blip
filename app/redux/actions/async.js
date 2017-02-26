@@ -466,6 +466,96 @@ export function updatePatient(api, patient) {
 }
 
 /**
+ * Fetch Preferences Data Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {Object} patientId
+ */
+export function fetchPreferences(api, patientId) {
+  return (dispatch) => {
+    dispatch(sync.fetchPreferencesRequest());
+
+    api.metadata.preferences.get(patientId, (err, preferences) => {
+      if (err) {
+        dispatch(sync.fetchPreferencesFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PREFERENCES, err), err
+        ));
+      } else {
+        dispatch(sync.fetchPreferencesSuccess(preferences));
+      }
+    });
+  };
+}
+
+/**
+ * Update Preferences Data Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {Object} patientId
+ * @param  {Object} preferences
+ */
+export function updatePreferences(api, patientId, preferences) {
+  return (dispatch) => {
+    dispatch(sync.updatePreferencesRequest());
+
+    api.metadata.preferences.put(patientId, preferences, (err, updatedPreferences) => {
+      if (err) {
+        dispatch(sync.updatePreferencesFailure(
+          createActionError(ErrorMessages.ERR_UPDATING_PREFERENCES, err), err
+        ));
+      } else {
+        dispatch(sync.updatePreferencesSuccess(updatedPreferences));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Settings Data Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {Object} patientId
+ */
+export function fetchSettings(api, patientId) {
+  return (dispatch) => {
+    dispatch(sync.fetchSettingsRequest());
+
+    api.metadata.settings.get(patientId, (err, settings) => {
+      if (err) {
+        dispatch(sync.fetchSettingsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_SETTINGS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchSettingsSuccess(settings));
+      }
+    });
+  };
+}
+
+/**
+ * Update Settings Data Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {Object} patientId
+ * @param  {Object} settings
+ */
+export function updateSettings(api, patientId, settings) {
+  return (dispatch) => {
+    dispatch(sync.updateSettingsRequest());
+
+    api.metadata.settings.put(patientId, settings, (err, updatedSettings) => {
+      if (err) {
+        dispatch(sync.updateSettingsFailure(
+          createActionError(ErrorMessages.ERR_UPDATING_SETTINGS, err), err
+        ));
+      } else {
+        dispatch(sync.updateSettingsSuccess(updatedSettings));
+      }
+    });
+  };
+}
+
+/**
  * Update User Data Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
