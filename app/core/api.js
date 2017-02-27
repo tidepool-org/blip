@@ -208,14 +208,9 @@ api.user.get = function(cb) {
     });
   };
 
-  var getPreferences = function(cb) {
-    api.metadata.preferences.get(userId, cb);
-  };
-
   async.series({
     account: getAccount,
     profile: getProfile,
-    preferences: getPreferences,
   },
   function(err, results) {
     if (err) {
