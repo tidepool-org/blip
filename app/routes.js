@@ -159,7 +159,7 @@ export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
       if (err) {
         // we expect a 401 Unauthorized when navigating to /email-verification
         // when not logged in (e.g., in a new tab after initial sign-up)
-        if (err.status === 401 || err.status === 404) {
+        if (err.status === 401) {
           return cb();
         }
         throw new Error('Error getting user at /email-verification');
