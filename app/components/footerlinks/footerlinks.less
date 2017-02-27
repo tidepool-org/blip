@@ -45,14 +45,16 @@
   }
 }
 
+@imgHeight: 32px;
+
 .footer-twitter {
-  width: 39px;
-  height: 34px;
+  width: 44.8px;
+  height: @imgHeight;
 }
 
 .footer-facebook {
   width: 32px;
-  height: 32px;
+  height: @imgHeight;
 
   margin-left: 20px;
 }
@@ -62,8 +64,9 @@
     content: url(./images/jdrf.png);
     padding-left: @spacing-tiny;
     width: 121px;
-    &:hover {
-      content: url(./images/jdrf_hover.png);
-    }
+  }
+
+  &:hover img {
+    content: url(./images/jdrf_hover.png);
   }
 }
