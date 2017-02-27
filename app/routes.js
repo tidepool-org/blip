@@ -18,7 +18,6 @@ import BrowserWarning from './pages/browserwarning';
 import Terms from './pages/terms';
 import VerificationWithPassword from './pages/verificationwithpassword';
 
-
 import utils from './core/utils';
 import personUtils from './core/personutils';
 
@@ -27,7 +26,7 @@ import actions from './redux/actions';
 /**
  * This function checks if the user is using chrome - if they are not it will redirect
  * the user to a browser warning page
- * 
+ *
  * @param  {Object} nextState
  * @param  {Function} replace
  */
@@ -39,7 +38,6 @@ export const requiresChrome = (utils, next) => (nextState, replace, cb)  => {
     if (next) {
       next(nextState, replace, cb);
     }
-    
   }
 }
 
@@ -161,7 +159,7 @@ export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
       if (err) {
         // we expect a 401 Unauthorized when navigating to /email-verification
         // when not logged in (e.g., in a new tab after initial sign-up)
-        if (err.status === 401) {
+        if (err.status === 401 || err.status === 404) {
           return cb();
         }
         throw new Error('Error getting user at /email-verification');
