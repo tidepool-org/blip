@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2016, Tidepool Project
+ * Copyright (c) 2017, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,112 +15,102 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
 import React from 'react';
+import { shallow } from 'enzyme';
 
-import { mount } from 'enzyme';
-
-import * as scales from '../../../helpers/scales';
-const {
-  trendsHeight,
-  trendsWidth,
-  trendsXScale: xScale,
-  trendsYScale: yScale,
-} = scales.trends;
-import SVGContainer from '../../../helpers/SVGContainer';
-
-import { THREE_HRS } from '../../../../src/utils/datetime';
-import SMBGRange from '../../../../src/components/trends/smbg/SMBGRange';
+import {
+  SMBGRange, mapDispatchToProps, mapStateToProps,
+} from '../../../../src/components/trends/smbg/SMBGRange';
 
 describe('SMBGRange', () => {
   let wrapper;
-  const focus = sinon.spy();
-  const unfocus = sinon.spy();
-  const datum = {
-    id: '5400000',
-    max: 521,
-    mean: 140,
-    min: 22,
-    msX: 5400000,
-  };
   const props = {
-    datum,
-    focus,
-    tooltipLeftThreshold: THREE_HRS * 6,
-    unfocus,
-    xScale,
-    yPositions: {
-      min: yScale(datum.min),
-      mean: yScale(datum.mean),
-      max: yScale(datum.max),
+    classes: 'foo bar baz',
+    datum: {
+      id: '5400000',
+      max: 521,
+      mean: 140,
+      min: 22,
+      msX: 5400000,
     },
+    focusRange: sinon.spy(),
+    interpolated: {
+      key: '5400000',
+      style: {
+        height: 120,
+        opacity: 0.5,
+        width: 15,
+        x: 10,
+        y: 25,
+      },
+    },
+    positionData: {
+      left: 8,
+      tooltipLeft: false,
+      yPositions: {
+        max: 150,
+        mean: 80,
+        min: 25,
+      },
+    },
+    unfocusRange: sinon.spy(),
+    userId: 'a1b2c3',
   };
+
   before(() => {
-    wrapper = mount(
-      <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-        <SMBGRange {...props} />
-      </SVGContainer>
-    );
+    wrapper = shallow(<SMBGRange {...props} />);
   });
 
-  describe('when a datum (overlay data) is not provided', () => {
-    let noDatumWrapper;
-    before(() => {
-      const noDatumProps = _.omit(props, 'datum');
-
-      noDatumWrapper = mount(
-        <SVGContainer dimensions={{ width: trendsWidth, height: trendsHeight }}>
-          <SMBGRange {...noDatumProps} />
-        </SVGContainer>
-      );
-    });
-
-    it('should render nothing', () => {
-      expect(noDatumWrapper.find(`#smbgRange-${datum.id}`).length).to.equal(0);
-    });
-  });
-
-  describe('when a datum (overlay data) is provided', () => {
-    it('should render a SMBGRange <rect>', () => {
-      expect(wrapper.find(`#smbgRange-${datum.id} rect`).length).to.equal(1);
-    });
-
-    it('should render a min/max rect covering the whole yScale range', () => {
-      const rangeRect = wrapper
-        .find(`#smbgRange-${datum.id}`).props();
-      expect(rangeRect.x).to.equal(45);
-      expect(rangeRect.width).to.equal(18);
-      expect(rangeRect.y).to.equal(0);
-      expect(rangeRect.height).to.equal(trendsHeight);
-    });
+  it('should render a single <rect>', () => {
+    expect(wrapper.find('rect').length).to.equal(1);
   });
 
   describe('interactions', () => {
     afterEach(() => {
-      props.focus.reset();
-      props.unfocus.reset();
+      props.focusRange.reset();
+      props.unfocusRange.reset();
     });
 
-    it('should call focus on mouseover of min/max rect', () => {
-      const rangeRect = wrapper
-        .find(`#smbgRange-${datum.id}`);
-      expect(focus.callCount).to.equal(0);
-      rangeRect.simulate('mouseover');
-      expect(focus.args[0][0]).to.deep.equal(datum);
-      expect(focus.args[0][1]).to.deep.equal({
-        left: 54,
-        tooltipLeft: false,
-        yPositions: props.yPositions,
+    describe('onMouseOver', () => {
+      it('should fire the `focusRange` function', () => {
+        const rect = wrapper.find('rect');
+        expect(props.focusRange.callCount).to.equal(0);
+        rect.simulate('mouseover');
+        expect(props.focusRange.callCount).to.equal(1);
+        expect(props.focusRange.args[0][0]).to.equal(props.userId);
+        expect(props.focusRange.args[0][1]).to.deep.equal(props.datum);
+        expect(props.focusRange.args[0][2]).to.deep.equal(props.positionData);
       });
-      expect(focus.callCount).to.equal(1);
     });
 
-    it('should call unfocus on mouseout of min/max rect', () => {
-      const rangeRect = wrapper
-        .find(`#smbgRange-${datum.id}`);
-      expect(unfocus.callCount).to.equal(0);
-      rangeRect.simulate('mouseout');
-      expect(unfocus.callCount).to.equal(1);
+    describe('onMouseOut', () => {
+      it('should fire the `unfocusRange` function', () => {
+        const rect = wrapper.find('rect');
+        expect(props.unfocusRange.callCount).to.equal(0);
+        rect.simulate('mouseout');
+        expect(props.unfocusRange.callCount).to.equal(1);
+        expect(props.unfocusRange.args[0][0]).to.equal(props.userId);
+      });
+    });
+  });
+
+  describe('mapStateToProps', () => {
+    const state = {
+      blip: { currentPatientInViewId: 'a1b2c3' },
+    };
+
+    it('should map blip.currentPatientInViewId to `userId`', () => {
+      expect(mapStateToProps(state).userId).to.equal(state.blip.currentPatientInViewId);
+    });
+  });
+
+  describe('mapDispatchToProps', () => {
+    it('should return an object with a `focusRange` key', () => {
+      expect(mapDispatchToProps(sinon.stub())).to.have.property('focusRange');
+    });
+
+    it('should return an object with a `unfocusRange` key', () => {
+      expect(mapDispatchToProps(sinon.stub())).to.have.property('unfocusRange');
     });
   });
 });

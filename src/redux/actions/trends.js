@@ -17,6 +17,13 @@
 
 import * as actionTypes from '../constants/actionTypes';
 
+export function focusTrendsCbgDateTrace(userId, cbgDatum, cbgPosition) {
+  return {
+    type: actionTypes.FOCUS_TRENDS_CBG_DATE_TRACE,
+    payload: { userId, cbgDatum, cbgPosition },
+  };
+}
+
 export function focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKeys) {
   return {
     type: actionTypes.FOCUS_TRENDS_CBG_SLICE,
@@ -24,10 +31,12 @@ export function focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKey
   };
 }
 
-export function focusTrendsSmbg(userId, smbgData, smbgPosition, smbgDay, smbgPositions, date) {
+export function focusTrendsSmbg(
+  userId, smbgDatum, smbgPosition, allSmbgsOnDate, allPositions, date
+) {
   return {
     type: actionTypes.FOCUS_TRENDS_SMBG,
-    payload: { smbgData, smbgPosition, smbgDay, smbgPositions, userId, date },
+    payload: { userId, smbgDatum, smbgPosition, allSmbgsOnDate, allPositions, date },
   };
 }
 
@@ -41,6 +50,34 @@ export function focusTrendsSmbgRangeAvg(userId, rangeAvgData, rangeAvgPosition) 
 export function markTrendsViewed(userId) {
   return {
     type: actionTypes.MARK_TRENDS_VIEWED,
+    payload: { userId },
+  };
+}
+
+export function showCbgDateTraces(userId) {
+  return {
+    type: actionTypes.SHOW_CBG_DATE_TRACES,
+    payload: { userId },
+  };
+}
+
+export function turnOffCbgRange(userId, range) {
+  return {
+    type: actionTypes.TURN_OFF_CBG_RANGE,
+    payload: { userId, range },
+  };
+}
+
+export function turnOnCbgRange(userId, range) {
+  return {
+    type: actionTypes.TURN_ON_CBG_RANGE,
+    payload: { userId, range },
+  };
+}
+
+export function unfocusTrendsCbgDateTrace(userId) {
+  return {
+    type: actionTypes.UNFOCUS_TRENDS_CBG_DATE_TRACE,
     payload: { userId },
   };
 }
@@ -63,19 +100,5 @@ export function unfocusTrendsSmbgRangeAvg(userId) {
   return {
     type: actionTypes.UNFOCUS_TRENDS_SMBG_RANGE_AVG,
     payload: { userId },
-  };
-}
-
-export function turnOnCbgRange(userId, range) {
-  return {
-    type: actionTypes.TURN_ON_CBG_RANGE,
-    payload: { userId, range },
-  };
-}
-
-export function turnOffCbgRange(userId, range) {
-  return {
-    type: actionTypes.TURN_OFF_CBG_RANGE,
-    payload: { userId, range },
   };
 }
