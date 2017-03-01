@@ -8,6 +8,7 @@
     + [code style](docs/CodeStyle.md)
 + [usage of dependencies](docs/Dependencies.md)
     + [D3](docs/D3.md)
+    + [GSAP](docs/GSAP.md)
     + [Moment](docs/Moment.md)
     + [React](docs/React.md)
     + [React Motion](docs/ReactMotion.md)

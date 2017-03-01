@@ -1,6 +1,6 @@
 ## @tidepool/viz's usage of React Motion
 
-The history of React and animation is not an untroubled one. Tools for even simple CSS3-based animations on mounting and unmounting components—a very common use case—didn't even exist (in the form of the `React(CSS)TransitionGroup` addons) until version <!-- TODO: version number -->. And even the `ReactCSSTransitionGrouup` and `ReactTransitionGroup` solutions are not *great*, as their requirements for successful usage are rather unintuitive.
+The history of React and animation is not an untroubled one. Tools for even simple CSS3-based animations on mounting and unmounting components—a very common use case—didn't even exist (in the form of the `React(CSS)TransitionGroup` addons) until version [0.5.0](https://github.com/facebook/react/blob/master/CHANGELOG.md#react-with-addons-new 'React CHANGELOG') (released in October of 2013). And even the `ReactCSSTransitionGroup` and `ReactTransitionGroup` solutions are not *great*, as their requirements for successful usage are rather unintuitive.
 
 A  number of additional libraries have tried to solve various pieces of the React & animation problem, and [React motion](https://github.com/chenglou/react-motion 'GitHub: react-motion') is perhaps the most popular. Because its `TransitionMotion` API suits *most* of our use cases and because it's a popular project with a reasonably large community behind it, we have chosen it as our default replacement for D3's `transition` API for animating transitions in our data visualizations.
 
@@ -29,11 +29,15 @@ More complex example: "`TransitionMotion` for grow-in, shrink-out of stacked `<r
 <p data-height="265" data-theme-id="0" data-slug-hash="QdwBBz" data-default-tab="js" data-user="jebeck" data-embed-version="2" data-pen-title="TransitionMotion for grow-in, shrink-out of stacked <rect>s" class="codepen">See the Pen <a href="http://codepen.io/jebeck/pen/QdwBBz/">TransitionMotion for grow-in, shrink-out of stacked <rect>s</a> by Jana Beck (<a href="http://codepen.io/jebeck">@jebeck</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 <script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 
-Most complex example:"Dataviz in React with React Motion for transition animations"
+<!-- TODO: add links/embeds
 
-<!-- TODO: embed once finished & non-private Pen -->
+Most complex example TBA: "Dataviz in React with React Motion for transition animations"
+
+TODO: embed
 
 @jebeck's [detailed tutorial](http://todo.com 'TODO: link') walks through all these examples progressively.
+
+-->
 
 -----
 
