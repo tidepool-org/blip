@@ -60,7 +60,7 @@ var TidelineFooter = React.createClass({
       </div>
     );
 
-    var modalOpts = (
+    var trendsOpts = (
       <div className="footer-right-options">
         <label htmlFor="overlayCheckbox">
           <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox"
@@ -88,9 +88,9 @@ var TidelineFooter = React.createClass({
     if (this.props.chartType === 'weekly') {
       rightSide = showValues;
     }
-    if (this.props.chartType === 'modal') {
+    if (this.props.chartType === 'trends') {
       if (this.props.showingSmbg) {
-        rightSide = modalOpts;
+        rightSide = trendsOpts;
       } else {
         rightSide = <RangeSelect
           displayFlags={this.props.displayFlags}

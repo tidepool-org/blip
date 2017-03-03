@@ -86,7 +86,7 @@ describe('Header', function () {
       expect(props.onClickBack.callCount).to.equal(0);
     });
 
-    it('should trigger onClickModal when modal button is clicked', function () {
+    it('should trigger onClickModal when trends button is clicked', function () {
       var props = {
         chartType: 'Awesome',
         inTransition: false,
@@ -105,10 +105,10 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
 
-      var modalButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-modal');
+      var trendsButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-trends');
 
       expect(props.onClickModal.callCount).to.equal(0);
-      TestUtils.Simulate.click(modalButton);
+      TestUtils.Simulate.click(trendsButton);
       expect(props.onClickModal.callCount).to.equal(1);
     });
 

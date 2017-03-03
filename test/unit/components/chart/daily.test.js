@@ -55,7 +55,7 @@ describe('Daily', function () {
           bgUnits: 'mg/dL'
         },
         chartPrefs: {
-          modal: {
+          trends: {
             activeDays: {
               monday: true,
               tuesday: true,

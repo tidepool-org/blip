@@ -57,9 +57,9 @@ var TidelineHeader = React.createClass({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
-    var modalLinkClass = cx({
-      'js-modal': true,
-      'patient-data-subnav-active': this.props.chartType === 'modal',
+    var trendsLinkClass = cx({
+      'js-trends': true,
+      'patient-data-subnav-active': this.props.chartType === 'trends',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
@@ -74,11 +74,11 @@ var TidelineHeader = React.createClass({
       'patient-data-subnav-text' : this.props.chartType === 'basics' ||
         this.props.chartType === 'daily' ||
         this.props.chartType === 'weekly' ||
-        this.props.chartType === 'modal',
+        this.props.chartType === 'trends',
       'patient-data-subnav-dates-basics': this.props.chartType === 'basics',
       'patient-data-subnav-dates-daily': this.props.chartType === 'daily',
       'patient-data-subnav-dates-weekly': this.props.chartType === 'weekly',
-      'patient-data-subnav-dates-modal': this.props.chartType === 'modal'
+      'patient-data-subnav-dates-trends': this.props.chartType === 'trends'
     });
 
     var mostRecentClass = cx({
@@ -132,7 +132,7 @@ var TidelineHeader = React.createClass({
                 <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>Basics</a>
                 <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>Daily</a>
                 <a href="" className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>Weekly</a>
-                <a href="" className={modalLinkClass} onClick={this.props.onClickModal}>Trends</a>
+                <a href="" className={trendsLinkClass} onClick={this.props.onClickModal}>Trends</a>
             </div>
             <div className="grid-item one-whole large-one-third patient-data-subnav-center" id="tidelineLabel">
               {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
