@@ -38,3 +38,10 @@
 .secondaryText {
   composes: secondaryText from '../settings.css';
 }
+
+@media print {
+  .labelContainer {
+    align-items: flex-end;
+    height: 66px;
+  }
+}
