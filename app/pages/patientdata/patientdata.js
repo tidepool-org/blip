@@ -511,7 +511,7 @@ export let PatientData = React.createClass({
   },
 
   handleSwitchToSettingsPrintView: function(e) {
-    this.props.trackMetric('Clicked Switch To Settings Print View', {
+    this.props.trackMetric('Clicked Print', {
       fromChart: this.state.chartType
     });
     if (e) {
