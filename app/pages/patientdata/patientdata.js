@@ -592,7 +592,7 @@ export let PatientData = React.createClass({
 
   doFetching: function(nextProps) {
     if (this.props.trackMetric) {
-      this.props.trackMetric('Viewed Data');
+      this.props.trackMetric('Viewed Data', { userid: this.props.currentPatientInViewId });
     }
 
     if (!nextProps.fetchers) {
