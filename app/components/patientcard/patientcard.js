@@ -287,7 +287,7 @@ var PatientCard = React.createClass({
   },
 
   handleViewClick: function() {
-    this.props.trackMetric('Clicked VDF View Data');
+    this.props.trackMetric('Clicked VDF View Data', { userid: _.get(this.props, ['patient', 'userid']) });
   },
 });
 
