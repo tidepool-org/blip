@@ -82,6 +82,7 @@ class PeopleTable extends React.Component {
         link: person.link,
         birthday: bday,
         birthdayOrderable: new Date(bday),
+        userid: _.get(person, 'userid'),
       };
     });
 
@@ -182,8 +183,9 @@ class PeopleTable extends React.Component {
   }
 
   handleRowClick(e, rowIndex) {
-    this.props.trackMetric('Selected PwD');
-    browserHistory.push(this.state.dataList[rowIndex].link);
+    const person = this.state.dataList[rowIndex];
+    this.props.trackMetric('Selected PwD', { userid: person.userid });
+    browserHistory.push(person.link);
   }
 
   handleRowMouseEnter(e, rowIndex) {
