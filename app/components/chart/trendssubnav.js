@@ -49,7 +49,7 @@ var DaysGroup = React.createClass({
   }
 });
 
-var ModalSubNav = React.createClass({
+var TrendsSubNav = React.createClass({
   propTypes: {
     activeDays: React.PropTypes.object.isRequired,
     activeDomain: React.PropTypes.string.isRequired,
@@ -81,10 +81,10 @@ var ModalSubNav = React.createClass({
     var dayFilters = this.renderDayFilters();
     
     return (
-      <div id="modalSubNav">
-        <div className="modalSubNavContainer">
+      <div id="trendsSubNav">
+        <div className="trendsSubNavContainer">
           <div>{domainLinks}</div>
-          <div className="flexed" id="modalScroll"></div>
+          <div className="flexed" id="trendsScroll"></div>
           <div className="dayFilters">{dayFilters}</div>
         </div>
       </div>
@@ -199,4 +199,4 @@ var ModalSubNav = React.createClass({
   }
 });
 
-module.exports = ModalSubNav;
+module.exports = TrendsSubNav;

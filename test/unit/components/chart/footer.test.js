@@ -44,9 +44,9 @@ describe('Footer', function () {
       expect(console.error.callCount).to.equal(0);
     });
 
-    it('should trigger onClickBoxOverlay when modal, showingSmbg and overlayCheckbox changed', function () {
+    it('should trigger onClickBoxOverlay when trends, showingSmbg and overlayCheckbox changed', function () {
       var props = {
-        chartType: 'modal',
+        chartType: 'trends',
         onClickBoxOverlay: sinon.stub(),
         onClickGroup: sinon.stub(),
         onClickLines: sinon.stub(),
@@ -71,9 +71,9 @@ describe('Footer', function () {
       expect(props.onClickBoxOverlay.callCount).to.equal(1);
     });
 
-    it('should trigger onClickGroup when modal, showingSmbg and groupCheckbox changed', function () {
+    it('should trigger onClickGroup when trends, showingSmbg and groupCheckbox changed', function () {
       var props = {
-        chartType: 'modal',
+        chartType: 'trends',
         onClickBoxOverlay: sinon.stub(),
         onClickGroup: sinon.stub(),
         onClickLines: sinon.stub(),
@@ -98,9 +98,9 @@ describe('Footer', function () {
       expect(props.onClickGroup.callCount).to.equal(1);
     });
 
-    it('should trigger onClickLines when modal, showingSmbg and linesCheckbox changed', function () {
+    it('should trigger onClickLines when trends, showingSmbg and linesCheckbox changed', function () {
       var props = {
-        chartType: 'modal',
+        chartType: 'trends',
         onClickBoxOverlay: sinon.stub(),
         onClickGroup: sinon.stub(),
         onClickLines: sinon.stub(),
@@ -178,9 +178,9 @@ describe('Footer', function () {
       expect(props.onClickRefresh.callCount).to.equal(1);
     });
 
-    it('should render a TwoOptionToggle when modal', function () {
+    it('should render a TwoOptionToggle when trends', function () {
       var props = {
-        chartType: 'modal',
+        chartType: 'trends',
         onClickBoxOverlay: sinon.stub(),
         onClickGroup: sinon.stub(),
         onClickLines: sinon.stub(),
@@ -201,9 +201,9 @@ describe('Footer', function () {
       expect(footer.find(TwoOptionToggle).length).to.equal(1);
     });
 
-    it('should render a RangeSelect when modal, showingCbg', function () {
+    it('should render a RangeSelect when trends, showingCbg', function () {
       var props = {
-        chartType: 'modal',
+        chartType: 'trends',
         onClickBoxOverlay: sinon.stub(),
         onClickGroup: sinon.stub(),
         onClickLines: sinon.stub(),
