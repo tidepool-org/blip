@@ -125,7 +125,7 @@ describe('PumpSettingsContainer', () => {
             settingsState={touched(animasSettings, manufacturerKey)}
           />
         );
-        expect(wrapper.find(NonTandem)).to.have.length(1);
+        expect(wrapper.find(NonTandem)).to.have.length(2);
         expect(wrapper.find(NonTandem).prop('deviceKey')).to.equal('animas');
       });
 
@@ -139,7 +139,7 @@ describe('PumpSettingsContainer', () => {
             settingsState={touched(medtronicSettings, manufacturerKey)}
           />
         );
-        expect(wrapper.find(NonTandem)).to.have.length(1);
+        expect(wrapper.find(NonTandem)).to.have.length(2);
         expect(wrapper.find(NonTandem).prop('deviceKey')).to.equal('carelink');
       });
 
@@ -153,7 +153,7 @@ describe('PumpSettingsContainer', () => {
             settingsState={touched(omnipodSettings, manufacturerKey)}
           />
         );
-        expect(wrapper.find(NonTandem)).to.have.length(1);
+        expect(wrapper.find(NonTandem)).to.have.length(2);
         expect(wrapper.find(NonTandem).prop('deviceKey')).to.equal('insulet');
       });
 
@@ -167,7 +167,7 @@ describe('PumpSettingsContainer', () => {
             settingsState={touched(medtronicSettings, manufacturerKey)}
           />
         );
-        expect(wrapper.find(NonTandem)).to.have.length(1);
+        expect(wrapper.find(NonTandem)).to.have.length(2);
         expect(wrapper.find(NonTandem).prop('deviceKey')).to.equal('medtronic');
       });
 
@@ -181,7 +181,7 @@ describe('PumpSettingsContainer', () => {
             settingsState={touched(tandemSettings, manufacturerKey)}
           />
         );
-        expect(wrapper.find(Tandem)).to.have.length(1);
+        expect(wrapper.find(Tandem)).to.have.length(2);
       });
 
       it('should console.warn and render `null` if unknown manufacturerKey provided', () => {

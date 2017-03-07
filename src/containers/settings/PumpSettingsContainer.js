@@ -19,12 +19,14 @@ import _ from 'lodash';
 import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import ClipboardButton from 'react-clipboard.js';
 
 import * as actions from '../../redux/actions/';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 
 import NonTandem from '../../components/settings/NonTandem';
 import Tandem from '../../components/settings/Tandem';
+import styles from './PumpSettingsContainer.css';
 
 export class PumpSettingsContainer extends PureComponent {
   static propTypes = {
@@ -43,7 +45,7 @@ export class PumpSettingsContainer extends PureComponent {
     }).isRequired,
     settingsState: PropTypes.object.isRequired,
     toggleSettingsSection: PropTypes.func.isRequired,
-    printView: PropTypes.bool,
+    view: PropTypes.oneOf(['display', 'print', 'copy']).isRequired,
   }
 
   componentWillMount() {
@@ -67,12 +69,12 @@ export class PumpSettingsContainer extends PureComponent {
       pumpSettings,
       timePrefs,
       toggleSettingsSection,
-      printView,
+      view,
     } = this.props;
     const supportedNonTandemPumps = ['animas', 'carelink', 'insulet', 'medtronic'];
     const toggleFn = _.partial(toggleSettingsSection, manufacturerKey);
     if (manufacturerKey === 'tandem') {
-      return (
+      const settings = (
         <Tandem
           bgUnits={bgUnits}
           deviceKey={manufacturerKey}
@@ -80,11 +82,45 @@ export class PumpSettingsContainer extends PureComponent {
           pumpSettings={pumpSettings}
           timePrefs={timePrefs}
           toggleProfileExpansion={toggleFn}
-          printView={printView}
+          view={view}
         />
       );
-    } else if (_.includes(supportedNonTandemPumps, manufacturerKey)) {
+      if (view === 'print') {
+        return (
+          <div>
+            {settings}
+          </div>
+        );
+      }
+
+      const copy = (
+        <div className={styles.copySchedule} id="copySchedule">
+          <Tandem
+            bgUnits={bgUnits}
+            deviceKey={manufacturerKey}
+            openedSections={settingsState[manufacturerKey]}
+            pumpSettings={pumpSettings}
+            timePrefs={timePrefs}
+            toggleProfileExpansion={toggleFn}
+            view="copy"
+          />
+        </div>
+      );
+
       return (
+        <div>
+          <ClipboardButton
+            button-title="Copy settings"
+            data-clipboard-target="#copySchedule"
+          >
+            <p>Copy Settings</p>
+          </ClipboardButton>
+          {settings}
+          {copy}
+        </div>
+      );
+    } else if (_.includes(supportedNonTandemPumps, manufacturerKey)) {
+      const settings = (
         <NonTandem
           bgUnits={bgUnits}
           deviceKey={manufacturerKey}
@@ -92,8 +128,42 @@ export class PumpSettingsContainer extends PureComponent {
           pumpSettings={pumpSettings}
           timePrefs={timePrefs}
           toggleBasalScheduleExpansion={toggleFn}
-          printView={printView}
+          view={view}
         />
+      );
+      if (view === 'print') {
+        return (
+          <div>
+            {settings}
+          </div>
+        );
+      }
+
+      const copy = (
+        <div className={styles.copySchedule} id="copySchedule">
+          <NonTandem
+            bgUnits={bgUnits}
+            deviceKey={manufacturerKey}
+            openedSections={settingsState[manufacturerKey]}
+            pumpSettings={pumpSettings}
+            timePrefs={timePrefs}
+            toggleBasalScheduleExpansion={toggleFn}
+            view="copy"
+          />
+        </div>
+      );
+
+      return (
+        <div>
+          <ClipboardButton
+            button-title="Copy settings"
+            data-clipboard-target="#copySchedule"
+          >
+            <p>Copy Settings</p>
+          </ClipboardButton>
+          {settings}
+          {copy}
+        </div>
       );
     }
     // eslint-disable-next-line no-console

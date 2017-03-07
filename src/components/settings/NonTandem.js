@@ -89,7 +89,7 @@ const NonTandem = (props) => {
     pumpSettings,
     timePrefs,
     toggleBasalScheduleExpansion,
-    printView,
+    view,
   } = props;
 
   let lookupKey = deviceKey;
@@ -99,7 +99,7 @@ const NonTandem = (props) => {
   }
 
   function renderPrintNotes() {
-    if (printView) {
+    if (view === 'print') {
       return (
         <div className={styles.printNotes}>
           <hr />
@@ -108,6 +108,10 @@ const NonTandem = (props) => {
       );
     }
     return null;
+  }
+
+  function shouldOpenSection() {
+    return view === 'print' || view === 'copy';
   }
 
   function renderBasalsData() {
@@ -120,7 +124,7 @@ const NonTandem = (props) => {
         pumpSettings.activeSchedule,
         deviceKey
       );
-      const scheduledIsExpanded = _.get(openedSections, scheduleName, printView);
+      const scheduledIsExpanded = _.get(openedSections, scheduleName, shouldOpenSection());
       const toggleFn = _.partial(toggleBasalScheduleExpansion, scheduleName);
 
       if (scheduleName === pumpSettings.activeSchedule) {
@@ -250,7 +254,7 @@ const NonTandem = (props) => {
       <Header
         deviceDisplayName={DEVICE_DISPLAY_NAME_BY_MANUFACTURER[lookupKey]}
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
-        printView={printView}
+        printView={shouldOpenSection()}
       />
       <div className={styles.settingsContainer}>
         <div>
@@ -318,7 +322,7 @@ NonTandem.propTypes = {
     timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
   }).isRequired,
   toggleBasalScheduleExpansion: PropTypes.func.isRequired,
-  printView: React.PropTypes.bool.isRequired,
+  view: PropTypes.oneOf(['display', 'print', 'copy']).isRequired,
 };
 
 export default NonTandem;

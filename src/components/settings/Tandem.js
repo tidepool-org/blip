@@ -35,7 +35,7 @@ const Tandem = (props) => {
     pumpSettings,
     timePrefs,
     toggleProfileExpansion,
-    printView,
+    view,
   } = props;
 
   const schedules = data.getTimedSchedules(pumpSettings.basalSchedules);
@@ -70,7 +70,7 @@ const Tandem = (props) => {
   ];
 
   function renderPrintNotes() {
-    if (printView) {
+    if (view === 'print') {
       return (
         <div className={styles.printNotes}>
           <hr />
@@ -81,12 +81,16 @@ const Tandem = (props) => {
     return null;
   }
 
+  function shouldOpenSection() {
+    return view === 'print' || view === 'copy';
+  }
+
   const tables = _.map(schedules, (schedule) => (
     <div className="settings-table-container" key={schedule.name}>
       <CollapsibleContainer
         label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, deviceKey, true)}
         labelClass={styles.collapsibleLabel}
-        opened={_.get(openedSections, schedule.name, printView)}
+        opened={_.get(openedSections, schedule.name, shouldOpenSection())}
         toggleExpansion={_.partial(toggleProfileExpansion, schedule.name)}
         twoLineLabel={false}
       >
@@ -104,7 +108,7 @@ const Tandem = (props) => {
       <Header
         deviceDisplayName="Tandem"
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
-        printView={printView}
+        printView={shouldOpenSection()}
       />
       <div>
         <span className={styles.title}>Profile Settings</span>
@@ -163,13 +167,13 @@ Tandem.propTypes = {
     timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
   }).isRequired,
   toggleProfileExpansion: PropTypes.func.isRequired,
-  printView: React.PropTypes.bool.isRequired,
+  view: React.PropTypes.oneOf(['display', 'print', 'copy']).isRequired,
 };
 
 Tandem.defaultProps = {
   deviceDisplayName: 'Tandem',
   deviceKey: 'tandem',
-  printView: false,
+  view: 'display',
 };
 
 export default Tandem;

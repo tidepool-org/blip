@@ -102,6 +102,7 @@
     "d3-shape": "1.0.3",
     "d3-time": "1.0.2",
     "gsap": "1.19.0",
+    "react-clipboard.js": "1.0.1",
     "react-collapse": "2.3.1",
     "react-dimensions": "2.0.0-alpha1",
     "react-height": "2.1.1",
