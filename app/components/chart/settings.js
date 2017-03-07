@@ -110,8 +110,8 @@ var Settings = React.createClass({
 
     return (
       <div className="patient-data-message patient-data-message-loading">
-        <p>{'Blip\'s Device Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like you haven\'t uploaded pump data yet.'}</p>
-        <p>{'To see your Device Settings in Blip,  '}
+        <p>{'The Device Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like you haven\'t uploaded pump data yet.'}</p>
+        <p>{'To see your Device Settings,  '}
           <a
             href={this.props.uploadUrl}
             target="_blank"
