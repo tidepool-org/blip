@@ -81,7 +81,7 @@ const SettingsPrintView = React.createClass({
         manufacturerKey={manufacturer}
         pumpSettings={mostRecentSettings}
         timePrefs={this.props.timePrefs}
-        printView={true}
+        view='print'
       />
     );
   }
