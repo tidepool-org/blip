@@ -165,7 +165,7 @@ export let Patients = React.createClass({
       <div className="patients-message">
         {"Looks like you don’t have access to any data yet."}
         <br />
-        {"Please ask people to invite you to see their data in Blip."}
+        {"Please ask someone to invite you to see their data."}
       </div>
     );
   },
@@ -256,7 +256,7 @@ export let Patients = React.createClass({
 
     return (
       <div className="patients-welcome-title">
-        {'Welcome to Blip!'}
+        {'Welcome!'}
       </div>
     );
   },

@@ -21,12 +21,18 @@
 .Navbar {
   display: flex;
   height: @Navbar-height;
+
 }
 
-@Navbar-logoHeight: 40px;
-
 .Navbar-logoSection {
-  width: @Navbar-logoHeight;
+  .Navbar-logo {
+    display: block;
+
+    img {
+      width: 204px;
+      margin-top: 8px;
+    }
+  }
 }
 
 .Navbar-menuSection {
@@ -58,17 +64,6 @@
       color: @gray-darker;
     }
   }
-}
-
-// Logo section
-// ====================================
-
-.Navbar-logo {
-  display: block;
-  background-image: url('images/blip-logo-80x80.png');
-  background-repeat: no-repeat;
-  background-size: @Navbar-logoHeight;
-  height: @Navbar-logoHeight;
 }
 
 // Buttons, icons, labels

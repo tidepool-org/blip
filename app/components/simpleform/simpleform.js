@@ -76,6 +76,7 @@ var SimpleForm = React.createClass({
           <div className="simple-form-inputs" ref="inputs" key="inputs">
             {inputs}
           </div>
+            {this.props.children}
           <div className="simple-form-action-group">
             {submitButton}
             {notification}

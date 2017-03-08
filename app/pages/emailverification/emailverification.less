@@ -16,6 +16,14 @@
 @breakWidth: 1000px;
 @sideMargin: 50px;
 
+.EmailVerification {
+  .flex-layout-for-logged-out-routes(575px, 0px);
+}
+
+.EmailVerification-content {
+  margin-bottom: 6px;
+}
+
 .EmailVerification-intro {
   margin: 0 auto;
   width: @breakWidth;
@@ -26,7 +34,8 @@
 }
 
 .EmailVerification-title {
-  margin-bottom: 20px;
+  margin-top: @spacing-large;
+  margin-bottom: @spacing-base;
   font-size: 20px;
   line-height: 1;
   text-align: center;
