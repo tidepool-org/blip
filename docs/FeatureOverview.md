@@ -74,13 +74,7 @@ The Weekly view shows two weeks of a PwD's fingerstick blood glucose readings at
 
 #### Trends
 
-There are two versions of the Trends view, one for displaying trend information based on fingerstick blood glucose data and the other for displaying trend information based on CGM data. The BGM version was developed first, and the CGM version is a recent addition. A 14-day span of data is the default for this view, although the user can toggle to 7 days or 28 days using selectors displayed in the upper left corner of the display. (In the upper right of the display, the user can toggle days of the week such as Monday, Tuesday, etc. or weekdays vs. weekends off and on.) Both the CGM and CGM versions group all data in the selected span of time by time of day in an effort to show how blood glucose varies for the PwD by time of day. On the BGM version where the data is quite sparse, the data is grouped into three-hour "bins," and on the CGM version thirty-minute bins are used.
-
-Like on the Daily view, hovering over various items in the display will produce a tooltip with more information. As of mid-November, 2016, we are getting ready to release the reimplemented BGM version of the Trends views alongside the new CGM version with new hover tooltips that were developed with the idea that this tooltip component be used for *all* the views as they are reimplemented in this repository.
-
-Currently only the data visualization itself for the BGM and CGM versions of the Trends view are implemented in this repository: code in blip is still being used for the 7, 14, and 28 days domain size selectors, the day of the week selectors, and of course the visualization sub-header that provides navigation between the views and along the datetime dimension. This makes the interface(s) between the blip and viz code a bit messier than they should be.
-
-[💣 tech debt 💣] For example, because of where they need to be rendered in the component hierarchy, the hover tooltip component(s) are currently being rendered in blip, and so as an expedient way to share the hover state between the viz code and the blip code, we are using Redux actions to represent the hover focus on element(s). Since hover state is **not** the kind of state that it makes sense to persist when a user navigates away from the visualization part of the app before coming back, the Redux store is not the appropriate place to store this state. Rather, this state should probably be contained in the React component state of a high-level container component in Trends.
+See the [Trends view documentation](views/Trends.md 'Per-view Documentation: Trends').
 
 #### Device Settings
 

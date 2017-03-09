@@ -6,6 +6,8 @@
     + [planned architecture](docs/Architecture.md)
     + [app & directory structure](docs/DirectoryStructure.md)
     + [code style](docs/CodeStyle.md)
++ [per-view documentation](docs/views/README.md)
+    + [Trends view](docs/views/Trends.md)
 + [usage of dependencies](docs/Dependencies.md)
     + [D3](docs/D3.md)
     + [GSAP](docs/GSAP.md)
