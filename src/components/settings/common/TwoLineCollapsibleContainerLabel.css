@@ -54,3 +54,31 @@
 .secondaryLabel {
   composes: lightText from '../../../styles/typography.css';
 }
+
+@media print {
+
+  /*.labelContainer {
+    composes: defaultSize mediumContrastText from '../../../styles/typography.css';
+    cursor: pointer;
+    padding-left: 10px;
+  }*/
+
+  .labelContainer {
+    composes: defaultSize mediumContrastText from '../../../styles/typography.css';
+    cursor: pointer;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row-reverse;
+    text-overflow: ellipsis;
+    min-width: 200px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    height: auto;
+  }
+
+  .mainText,
+  .secondaryText,
+  .secondaryLabel {
+    font-weight: normal;
+  }
+}

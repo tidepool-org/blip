@@ -40,8 +40,14 @@
 }
 
 @media print {
+
   .labelContainer {
     align-items: flex-end;
-    height: 66px;
   }
+
+  .mainText,
+  .secondaryText {
+    font-weight: normal;
+  }
+
 }

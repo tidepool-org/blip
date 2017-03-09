@@ -79,10 +79,10 @@
     display: block;
   }
 
-  .categoryContainer {
+  /*.categoryContainer {
     margin-bottom: 10px;
     margin-right: 10px;
-  }
+  }*/
 
   .basalSettingsContainer {
     display: flex;
@@ -108,5 +108,16 @@
 
   .printNotes {
     composes: printNotes from './settings.css';
+  }
+
+  /*
+  TBD
+  */
+
+  .categoryContainer {
+    max-width: 280px;
+    min-width: 200px;
+    margin-bottom: 10px;
+    margin-right: 10px;
   }
 }

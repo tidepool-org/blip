@@ -24,3 +24,11 @@
   composes: lightText from '../../../styles/typography.css';
   composes: secondaryLeftPadding from '../settings.css';
 }
+
+@media print {
+
+  .secondaryLabelWithMain {
+    font-weight: normal;
+  	composes: secondaryLeftPadding from '../settings.css';
+  }
+}
