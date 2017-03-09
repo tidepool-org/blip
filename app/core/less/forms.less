@@ -92,6 +92,10 @@ label,
   textarea& {
     height: auto;
   }
+
+  &::placeholder {
+    font-size: @font-size-small;
+  }
 }
 
 // Special styles for iOS date input
@@ -119,4 +123,7 @@ input[type="checkbox"] {
 
 .form-group {
   margin-bottom: @spacing-small;
+  @media(max-width: @screen-md-max) {
+    min-width: 275px;
+  }
 }

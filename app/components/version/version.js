@@ -1,44 +1,30 @@
-/**
- * Copyright (c) 2014, Tidepool Project
- * 
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2017, Tidepool Project
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
  */
 
-.login-nav {
-  margin-top: @spacing-base;
-  margin-bottom: @spacing-base;
+import React, { PropTypes } from 'react';
 
-  min-height: 40px;
+const Version = (props) => {
+  return (
+    <div className="Version">{`v${props.version}`}</div>
+  );
+};
 
-  @media(min-width: @screen-md-min) {
-    margin-bottom: @spacing-large;
-  }
-  @media(max-width: @screen-lg-min) {
-    width: 100%;
-  }
-}
+Version.propTypes = {
+  version: PropTypes.string.isRequired,
+};
 
-.login-nav a {
-  font-weight: bold;
-  color: @gray-dark;
-  text-decoration: none;
-
-  &:hover,
-  &:focus {
-    color: @gray-darkest;
-    text-decoration: none;
-  }
-
-  &:active {
-    color: @gray;
-  }
-}
+export default Version;

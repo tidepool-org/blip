@@ -13,9 +13,21 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+.login {
+  .flex-layout-for-logged-out-routes(575px, 550px);
+}
+
 .login-form {
   margin-bottom: @spacing-large;
+  @media(max-width: @screen-md-max) {
+    // a ✨magic✨ number matching the signup-form's size to get the logo to stay in the same place
+    // when clicking from root and/or /login to /signup
+    min-height: 358px;
+  }
 
+  .form-group:nth-child(3) {
+    margin-bottom: 0px;
+  }
   .input-group-checkbox-label {
     font-size: 14px;
     color: @gray-dark;
@@ -32,13 +44,8 @@
   }
 }
 
-.login-simpleform {
-  margin-bottom: @spacing-small;
-}
-
 .login-forgotpassword {
-  font-size: 14px;
-  text-align: right;
+  font-size: @font-size-tiny;
 
   a {
     &:extend(.link-secondary all);

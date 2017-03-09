@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -69,14 +68,14 @@ export var EmailVerification = React.createClass({
     else {
       loginPage = 'login';
       content = (
-        <div>
+        <div className="EmailVerification-content">
           <div className="EmailVerification-intro">
             <div className="EmailVerification-title">{'Hey, you\'re not verified yet.'}</div>
               <div className="EmailVerification-instructions">
                 <p>{'Check your email and follow the link there. (We need to confirm that you are really you.)'}</p>
               </div>
           </div>
-          <div className="container-small-outer login-form">
+          <div className="container-small-outer">
             <div className="EmailVerification-resend-note">
               <p>{'Do you want us to resend the email? Enter the address you used to signup below.'}</p>
             </div>

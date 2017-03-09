@@ -79,3 +79,22 @@
        -o-transition: -o-transform @transition;
           transition: transform @transition;
 }
+
+// Layout
+// ====================================
+
+.flex-layout-for-logged-out-routes(@smScreenMinHeight, @lgScreenMinHeight) {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+
+  min-height: @smScreenMinHeight;
+
+  @media(min-width: @screen-lg-min) {
+    justify-content: space-between;
+    min-height: @lgScreenMinHeight;
+    .login-logo {
+      flex-grow: 2;
+    }
+  }
+}

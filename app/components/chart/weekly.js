@@ -246,8 +246,8 @@ var Weekly = React.createClass({
 
     return (
       <div className="patient-data-message patient-data-message-loading">
-        <p>{'Blip\'s Weekly view shows a history of your finger stick BG data, but it looks like you haven\'t uploaded finger stick data yet.'}</p>
-        <p>{'To see your data in Blip\'s Weekly view, '}
+        <p>{'The Weekly view shows a history of your finger stick BG data, but it looks like you haven\'t uploaded finger stick data yet.'}</p>
+        <p>{'To see your data in the Weekly view, '}
           <a
             href={this.props.uploadUrl}
             target="_blank"

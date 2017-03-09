@@ -1,31 +1,52 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
+/* global after, before, chai, describe, it, sinon */
 
 window.config = {};
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
-var expect = chai.expect;
+import React from 'react';
+import { shallow } from 'enzyme';
 
-var Navbar = require('../../../app/components/navbar');
+import Navbar from '../../../app/components/navbar';
 
-describe('Navbar', function () {
+const expect = chai.expect;
+
+describe('Navbar', ()  => {
+  let wrapper;
+  const props = { trackMetric: sinon.spy() };
+  before(() => {
+    console.error = sinon.spy();
+    // we have to rewire IndexLink because React Router throws an error
+    // when rendering a IndexLink or Link out of the routing context :(
+    Navbar.__Rewire__('IndexLink', (props) => {
+      return (
+        <div>
+          {props.children}
+        </div>
+      );
+    });
+    wrapper = shallow(<Navbar {...props} />);
+  });
+
+  after(() => {
+    Navbar.__ResetDependency__('IndexLink');
+  });
+
   it('should be exposed as a module and be of type function', function() {
     expect(Navbar).to.be.a('function');
   });
 
-  describe('render', function() {
-    it('should render without problems when required props present', function () {
-      console.error = sinon.stub();
-      var props = {
-        trackMetric: sinon.stub()
-      };
-      var elem = React.createElement(Navbar, props);
-      var render = TestUtils.renderIntoDocument(elem);
+  describe('render', () => {
+    it('should render without problems when required props present', () => {
       expect(console.error.callCount).to.equal(0);
-      expect(render).to.be.ok;
+    });
+  });
+
+  describe('interactions', () => {
+    it('should fire trackMetric when the logo is clicked', () => {
+      const logo = wrapper.find('.Navbar-logo');
+      expect(props.trackMetric.callCount).to.equal(0);
+      logo.simulate('click');
+      expect(props.trackMetric.callCount).to.equal(1);
+      expect(props.trackMetric.firstCall.args[0]).to.equal('Clicked Navbar Logo');
     });
   });
 });
