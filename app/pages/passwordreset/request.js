@@ -88,7 +88,7 @@ export let RequestPasswordReset = React.createClass({
           hideLinks={true}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
-        <div className="container-small-outer login-form">
+        <div className="container-small-outer PasswordReset-form-container">
           <div className="container-small-inner login-form-box">
             {content}
             <div className="PasswordReset-link">

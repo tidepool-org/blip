@@ -34,6 +34,9 @@ import LogoutOverlay from '../../components/logoutoverlay';
 import TidepoolNotification from '../../components/notification';
 import MailTo from '../../components/mailto';
 
+import FooterLinks from '../../components/footerlinks';
+import Version from '../../components/version';
+
 // Styles
 require('tideline/css/tideline.less');
 require('../../style.less');
@@ -84,7 +87,7 @@ export class AppComponent extends React.Component {
    *  - patients/:id/data
    *  - patients/:id/share
    *  - patients/:id/profile
-   *  
+   *
    * @return {Boolean}
    */
   isPatientVisibleInNavbar() {
@@ -118,7 +121,7 @@ export class AppComponent extends React.Component {
   }
 
   /**
-   * Before any subsequent re-rendering 
+   * Before any subsequent re-rendering
    * begin fetching any required data
    */
   componentWillReceiveProps(nextProps) {
@@ -217,20 +220,16 @@ export class AppComponent extends React.Component {
     var title ='Send us feedback';
     var subject = 'Feedback on Blip';
 
+    var shouldDisplayFooterLinks = !_.includes(
+      ['/signup', '/email-verification', '/terms', '/patients/new'],
+      this.props.location
+    );
+
     return (
       <div className='container-nav-outer footer'>
         <div className='container-nav-inner'>
-          <div className='footer-section footer-section-top'>
-            <div className='footer-link'>
-              <a href="http://tidepool.org/notes" target="_blank">Get Blip Notes App</a>
-            </div>
-            <div className='footer-link'>
-              <a href="http://support.tidepool.org" target="_blank">Get Support</a>
-            </div>
-            <div className='footer-link'>
-              <a href='https://tidepool.org/terms-of-use' target='_blank'>Privacy and Terms of Use</a>
-            </div>
-          </div>
+          {shouldDisplayFooterLinks ?
+              <FooterLinks trackMetric={this.props.context.trackMetric} /> : null}
           <div className='footer-section'>
             {this.renderVersion()}
           </div>
@@ -243,9 +242,8 @@ export class AppComponent extends React.Component {
   renderVersion() {
     var version = this.props.context.config.VERSION;
     if (version) {
-      version = 'v' + version + ' beta';
       return (
-        <div className="Navbar-version" ref="version">{version}</div>
+        <Version version={version} />
       );
     }
     return null;
@@ -329,7 +327,7 @@ export function mapStateToProps(state) {
         case 500:
           displayMessage = ErrorMessages.ERR_SERVICE_DOWN;
           break;
-        case 503: 
+        case 503:
           displayMessage = ErrorMessages.ERR_OFFLINE;
           break;
       }

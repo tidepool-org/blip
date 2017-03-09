@@ -32,5 +32,11 @@ module.exports = {
     module: 'empty'
   },
   resolve: { fallback: path.join(__dirname, 'node_modules') },
-  resolveLoader: { fallback: path.join(__dirname, 'node_modules') }
+  resolveLoader: { fallback: path.join(__dirname, 'node_modules') },
+  externals: {
+    cheerio: 'window',
+    'react/addons': true,
+    'react/lib/ExecutionEnvironment': true,
+    'react/lib/ReactContext': true,
+  },
 };

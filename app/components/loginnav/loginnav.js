@@ -17,8 +17,6 @@
 var React = require('react');
 var Link = require('react-router').Link;
 
-var logoSrc = require('./images/tidepool-logo-370x40.png');
-
 var LoginNav = React.createClass({
   propTypes: {
     page: React.PropTypes.string,
@@ -27,18 +25,11 @@ var LoginNav = React.createClass({
   },
 
   render: function() {
-    var logo = this.renderLogo();
     var link = this.renderLink();
-
 
     return (
       <div className="container-nav-outer login-nav">
         <div className="container-nav-inner nav-wrapper">
-          <ul className="nav nav-left">
-            <li>
-              {logo}
-            </li>
-          </ul>
           <ul className="nav nav-right">
             <li>
               {link}
@@ -47,20 +38,6 @@ var LoginNav = React.createClass({
         </div>
       </div>
     );
-
-  },
-
-  renderLogo: function() {
-
-    return (
-      <a
-        href="http://tidepool.org/"
-        target="_blank"
-        className="login-nav-tidepool-logo" >
-        <img src={logoSrc} alt="Tidepool"/>
-      </a>
-    );
-
   },
 
   renderLink: function() {
@@ -89,11 +66,9 @@ var LoginNav = React.createClass({
     }
 
     return (
-
       <Link
         to={href}
         className={className}><i className={icon}></i>{' ' + text}</Link>
-
     );
   }
 });

@@ -117,8 +117,8 @@ var Basics = React.createClass({
 
     return (
       <div className="patient-data-message patient-data-message-loading">
-        <p>{'Blip\'s Basics view shows a summary of your recent pump activity, but it looks like you haven\'t uploaded pump data yet.'}</p>
-        <p>{'To see your Basics in Blip,  '}
+        <p>{'The Basics view shows a summary of your recent pump activity, but it looks like you haven\'t uploaded pump data yet.'}</p>
+        <p>{'To see the Basics,  '}
           <a
             href={this.props.uploadUrl}
             target="_blank"

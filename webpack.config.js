@@ -51,10 +51,10 @@ if (isDev) {
     'webpack/hot/only-dev-server',
     './app/main.js'
   ];
-  loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader', 'less-loader']});
+  loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader', 'postcss-loader', 'less-loader']});
   loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
 } else {
-  loaders.push({test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!less-loader')});
+  loaders.push({test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')});
   loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
 }
 

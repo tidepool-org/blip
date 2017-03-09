@@ -33,7 +33,7 @@ import { validateForm } from '../../core/validation';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
-var formText = 'Welcome to Blip!';
+var formText = 'Welcome!';
 
 export let VerificationWithPassword = React.createClass({
   propTypes: {
