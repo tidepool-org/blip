@@ -57,12 +57,6 @@
 
 @media print {
 
-  /*.labelContainer {
-    composes: defaultSize mediumContrastText from '../../../styles/typography.css';
-    cursor: pointer;
-    padding-left: 10px;
-  }*/
-
   .labelContainer {
     composes: defaultSize mediumContrastText from '../../../styles/typography.css';
     cursor: pointer;
@@ -70,15 +64,20 @@
     display: flex;
     flex-direction: row-reverse;
     text-overflow: ellipsis;
+    max-width: 280px;
     min-width: 200px;
     padding-top: 10px;
     padding-bottom: 10px;
     height: auto;
   }
 
-  .mainText,
+  .mainText{
+    composes: mainHeaderText from '../settings.css';
+  }
+
   .secondaryText,
   .secondaryLabel {
-    font-weight: normal;
+    composes: secondaryText from '../settings.css';
   }
+
 }

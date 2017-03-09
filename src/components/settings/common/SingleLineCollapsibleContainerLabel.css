@@ -45,9 +45,12 @@
     align-items: flex-end;
   }
 
-  .mainText,
+  .mainText {
+    composes: mainHeaderText from '../settings.css';
+  }
+
   .secondaryText {
-    font-weight: normal;
+    composes: secondaryText from '../settings.css';
   }
 
 }

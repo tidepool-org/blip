@@ -95,18 +95,16 @@
 
   .printNotes hr {
     padding-top: 30px;
-    border: 1px var(--text-black);
-    border-style: none none solid none;
+    border: none;
   }
 
-  /*.settingsTable {
+  .settingsTable {
     composes: defaultSize mediumContrastText from '../../styles/typography.css';
     min-width: 200px;
-    width: 100%;
     border: solid 1px #000;
     border-collapse: collapse;
     padding-bottom: 0;
-  }*/
+  }
 
   .settingsTable tbody tr,
   .settingsTable tbody tr:nth-child(odd),
@@ -133,24 +131,24 @@
     font-weight: normal;
   }
 
+  .mainHeaderText {
+    color: var(--text-black);
+    font-weight: normal;
+    composes: largeSize from '../../styles/typography.css';
+  }
+
   .basalHeaderBackground, .bolusHeaderBackground {
     background-image: none;
     color: var(--text-black);
     font-weight: normal;
-    composes: largeSize from '../../styles/typography.css';
+    composes: mainHeaderText;
     padding-left: 0px;
   }
 
-  /*
-   * TBD
-   */
-
-  .settingsTable {
-    composes: defaultSize mediumContrastText from '../../styles/typography.css';
-    min-width: 200px;
-    border: solid 1px #000;
-    border-collapse: collapse;
-    padding-bottom: 0;
+  .secondaryText {
+    composes: lightText largeSize from '../../styles/typography.css';
+    color: var(--text-black);
+    padding-left: 8px;
   }
 
 }

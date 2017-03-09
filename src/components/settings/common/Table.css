@@ -28,7 +28,8 @@
 @media print {
 
   .secondaryLabelWithMain {
-    font-weight: normal;
+    composes: lightText largeSize from '../../../styles/typography.css';
+    color: var(--text-black);
   	composes: secondaryLeftPadding from '../settings.css';
   }
 }

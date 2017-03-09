@@ -75,14 +75,16 @@
 
 @media print {
 
+  .categoryContainer {
+    max-width: 280px;
+    min-width: 200px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+  }
+
   .settingsContainer {
     display: block;
   }
-
-  /*.categoryContainer {
-    margin-bottom: 10px;
-    margin-right: 10px;
-  }*/
 
   .basalSettingsContainer {
     display: flex;
@@ -110,14 +112,4 @@
     composes: printNotes from './settings.css';
   }
 
-  /*
-  TBD
-  */
-
-  .categoryContainer {
-    max-width: 280px;
-    min-width: 200px;
-    margin-bottom: 10px;
-    margin-right: 10px;
-  }
 }
