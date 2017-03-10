@@ -20,7 +20,7 @@
 
 .settingsTable {
   composes: defaultSize mediumContrastText from '../../styles/typography.css';
-  min-width: 230px;
+  min-width: 250px;
   width: 100%;
   border-spacing: 1px 0px;
   border-collapse: separate;
@@ -100,7 +100,9 @@
 
   .settingsTable {
     composes: defaultSize mediumContrastText from '../../styles/typography.css';
-    min-width: 200px;
+    min-width: 250px;
+    max-width: 280px;
+    width: 100%;
     border: solid 1px #000;
     border-collapse: collapse;
     padding-bottom: 0;
