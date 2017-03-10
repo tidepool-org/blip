@@ -101,7 +101,6 @@
   .settingsTable {
     composes: defaultSize mediumContrastText from '../../styles/typography.css';
     min-width: 250px;
-    max-width: 280px;
     width: 100%;
     border: solid 1px #000;
     border-collapse: collapse;
