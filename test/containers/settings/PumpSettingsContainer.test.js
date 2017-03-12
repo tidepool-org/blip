@@ -126,7 +126,7 @@ describe('PumpSettingsContainer', () => {
           />
         );
         expect(wrapper.find(NonTandem)).to.have.length(2);
-        expect(wrapper.find(NonTandem).prop('deviceKey')).to.equal('animas');
+        expect(wrapper.find(NonTandem).first().prop('deviceKey')).to.equal('animas');
       });
 
       it('should render `NonTandem` for manufacturerKey of `carelink`', () => {
@@ -140,7 +140,7 @@ describe('PumpSettingsContainer', () => {
           />
         );
         expect(wrapper.find(NonTandem)).to.have.length(2);
-        expect(wrapper.find(NonTandem).prop('deviceKey')).to.equal('carelink');
+        expect(wrapper.find(NonTandem).first().prop('deviceKey')).to.equal('carelink');
       });
 
       it('should render `NonTandem` for manufacturerKey of `insulet`', () => {
@@ -154,7 +154,7 @@ describe('PumpSettingsContainer', () => {
           />
         );
         expect(wrapper.find(NonTandem)).to.have.length(2);
-        expect(wrapper.find(NonTandem).prop('deviceKey')).to.equal('insulet');
+        expect(wrapper.find(NonTandem).first().prop('deviceKey')).to.equal('insulet');
       });
 
       it('should render `NonTandem` for manufacturerKey of `medtronic`', () => {
@@ -168,7 +168,7 @@ describe('PumpSettingsContainer', () => {
           />
         );
         expect(wrapper.find(NonTandem)).to.have.length(2);
-        expect(wrapper.find(NonTandem).prop('deviceKey')).to.equal('medtronic');
+        expect(wrapper.find(NonTandem).first().prop('deviceKey')).to.equal('medtronic');
       });
 
       it('should render `Tandem` for manufacturerKey of `tandem`', () => {
