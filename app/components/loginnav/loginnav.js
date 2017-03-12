@@ -26,6 +26,7 @@ var LoginNav = React.createClass({
 
   render: function() {
     var link = this.renderLink();
+
     return (
       <div className="container-nav-outer login-nav">
         <div className="container-nav-inner nav-wrapper">
