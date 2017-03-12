@@ -47,8 +47,8 @@ export let Login = React.createClass({
 
   formInputs: function() {
     return [
-      { name: 'username', label: 'Email', type: 'email', disabled: !!this.props.seedEmail },
-      { name: 'password', label: 'Password', type: 'password' },
+      { name: 'username', placeholder: 'Email', type: 'email', disabled: !!this.props.seedEmail },
+      { name: 'password', placeholder: 'Password', type: 'password' },
       { name: 'remember', label: 'Remember me', type: 'checkbox' }
     ];
   },
@@ -70,10 +70,8 @@ export let Login = React.createClass({
 
   render: function() {
     var form = this.renderForm();
-    var forgotPassword = this.renderForgotPassword();
     var inviteIntro = this.renderInviteIntroduction();
 
-    
     return (
       <div className="login">
         <LoginNav
@@ -85,12 +83,10 @@ export let Login = React.createClass({
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
             <div className="login-simpleform">{form}</div>
-            <div className="login-forgotpassword">{forgotPassword}</div>
           </div>
         </div>
       </div>
     );
-    
   },
 
   renderInviteIntroduction: function() {
@@ -106,7 +102,8 @@ export let Login = React.createClass({
   },
 
   renderForm: function() {
-    var submitButtonText = this.props.working ? 'Logging in...' : 'Log in';
+    var submitButtonText = this.props.working ? 'Logging in...' : 'Login';
+    var forgotPassword = this.renderForgotPassword();
 
     return (
       <SimpleForm
@@ -116,9 +113,10 @@ export let Login = React.createClass({
         submitButtonText={submitButtonText}
         submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification || this.props.notification} />
+        notification={this.state.notification || this.props.notification}>
+        {<div className="login-forgotpassword">{forgotPassword}</div>}
+      </SimpleForm>
     );
-    
   },
 
   logPasswordReset : function() {
@@ -126,7 +124,7 @@ export let Login = React.createClass({
   },
 
   renderForgotPassword: function() {
-    return <Link to="/request-password-reset">{'I forgot my password'}</Link>;
+    return <Link to="/request-password-reset">Forgot your password?</Link>;
   },
 
   handleSubmit: function(formValues) {
@@ -194,8 +192,7 @@ export let Login = React.createClass({
     if (!nextProps.fetchers) {
       return;
     }
-    
-    nextProps.fetchers.forEach(fetcher => { 
+    nextProps.fetchers.forEach(fetcher => {
       fetcher();
     });
   },

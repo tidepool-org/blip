@@ -8,28 +8,20 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@login-logo-width:        145px;
-@login-logo-height:       145px;
+@login-logo-height:       45px;
 
 .login-logo {
   text-align: center;
-  margin-bottom: @spacing-base;
-
-  @media(min-width: @screen-md-min) {
-    margin-bottom: @spacing-large;
-  }
 
   > img {
-    width: (@login-logo-width*3/5);
     height: (@login-logo-height*3/5);
 
     @media(min-width: @screen-md-min) {
-      width: @login-logo-width;
       height: @login-logo-height;
     }
   }
