@@ -39,6 +39,7 @@
 
 .categoryContainer {
   max-width: 300px;
+  min-width: 240px;
   margin-bottom: 10px;
   margin-right: 10px;
 }
@@ -74,26 +75,29 @@
 
 @media print {
 
-  .settingsContainer {
-    display: block;
-  }
-
   .categoryContainer {
+    max-width: 280px;
+    min-width: 250px;
+    width: 100%;
     margin-bottom: 10px;
     margin-right: 10px;
+  }
+
+  .settingsContainer {
+    display: block;
   }
 
   .basalSettingsContainer {
     display: flex;
     flex-flow: row wrap;
-    justify-content: space-around;
-    page-break-inside: avoid;
+    justify-content: flex-start;
+    page-break-after: left;
   }
 
   .bolusSettingsContainer {
     display: flex;
     flex-flow: row wrap;
-    justify-content: space-around;
+    justify-content: flex-start;
     page-break-inside: avoid;
   }
 
@@ -108,4 +112,5 @@
   .printNotes {
     composes: printNotes from './settings.css';
   }
+
 }

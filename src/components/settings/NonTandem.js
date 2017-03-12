@@ -258,8 +258,8 @@ const NonTandem = (props) => {
       />
       <div className={styles.settingsContainer}>
         <div>
-          <div className={styles.categoryTitle}>Basal Rates</div>
           <div className={styles.basalSettingsContainer}>
+            <div className={styles.categoryTitle}>Basal Rates</div>
             {renderBasalsData()}
           </div>
         </div>

@@ -38,3 +38,19 @@
 .secondaryText {
   composes: secondaryText from '../settings.css';
 }
+
+@media print {
+
+  .labelContainer {
+    align-items: flex-end;
+  }
+
+  .mainText {
+    composes: mainHeaderText from '../settings.css';
+  }
+
+  .secondaryText {
+    composes: secondaryText from '../settings.css';
+  }
+
+}
