@@ -97,12 +97,14 @@ Currently only the data visualization itself for the BGM and CGM versions of the
         │   │           ├── XAxisLabels
         │   │           ├── XAxisTicks
         │   │           ├── YAxisLabels
-        │   │           ├── <g id="">
-        │   │           │   ├── 
-        │   │           │   │   └── 
-        │   │           │   └── 
-        │   │           │       └── 
-        │   │           │           └── <g id="">
+        │   │           ├── <g id="smbgTrends">
+        │   │           │   ├── SMBGRangeAvgContainer (for range behind smbgs)
+        │   │           │   │   └── <g className="smbgAggContainer">{up to 8 SMBGRangeAnimated (per default 3-hr binning), each wrapped in WithDefault}</g>
+        │   │           │   ├── SMBGsByDateContainer
+        │   │           │   │   └── <g id="smbgsByDateContainer">{up to n each of SMBGDateLineAnimated and SMBGDatePointsAnimated where n is # of days in view; all of these components are Redux-connected}</g>
+        │   │           │   │       └── <g id="">
+        │   │           │   └── SMBGRangeAvgContainer (for avg in front of smbgs)
+        │   │           │   │   └── <g className="smbgAggContainer">{up to 8 SMBGMeanAnimated (per default 3-hr binning), each wrapped in WithDefault}</g>
         │   │           └── TargetRangeLines
         │   └── FocusedRangeLabels
         └── TidelineFooter
