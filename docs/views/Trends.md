@@ -16,7 +16,6 @@ There are two versions of the Trends view, one for displaying trend information 
 
 ![CGM Trends](./images/cgm_trends.png)
 
-
 **BGM Trends as of March, 2017**
 
 ![BGM Trends](./images/bgm_trends.png)
@@ -112,6 +111,21 @@ Currently only the data visualization itself for the BGM and CGM versions of the
 
 ### 📐 Layout
 
+The variables involved in the layout of the data display inside the Trends view—that is, the code for Trends view contained in this repository—are as follows, all originating in the `TrendsSVGContainer`:
+
+- `containerHeight` and `containerWidth` are the dimensions of the `<div id="tidelineContainer">` that the data portion of every view is rendered within. These are provided on `TrendsSVGContainer` as props via the `Dimensions` higher-order component (HOC) that wraps the SVG container. This `Dimensions` HOC is an external dependency from the [`react-dimensions`](https://github.com/digidem/react-dimensions 'GitHub: react-dimensions').
+- The `MARGINS` (a constant of `top`, `bottom`, `left`, and `right` properties) are the space outside the data display area (gray box) that provide padding around the data display area and space for the x- and y-axis ticks and labels.
+- The `BUMPERS` (a constant of `top` and `bottom` properties) are the internal padding in the data display area.
+
+Altogether, in diagram form (though **not to scale**):
+
+![Trends layout](./images/tidelineContainer@2x.png 'Trends layout')
+
 ### 💣 Tech Debt
 
 - Because of where they need to be rendered in the component hierarchy, the hover tooltip component(s) are currently being rendered in blip, and so as an expedient way to share the hover state between the viz code and the blip code, we are using Redux actions to represent the hover focus on element(s). Since hover state is **not** the kind of state that it makes sense to persist when a user navigates away from the visualization part of the app before coming back, the Redux store is not the appropriate place to store this state. Rather, this state should probably be contained in the React component state of a high-level container component in Trends.
+- When you hover a date line on the smbg side of Trends, instead of properly pulling the line to the top we just render a second version of the line on top.
+
+### 🚀 The Future
+
+At present the `<div id="tidelineContainer">` is given a fixed size via blip's styling, but as we introduce responsiveness in blip, we will be able to leverage the behavior of the `Dimensions` HOC to make the dataviz responsive. `Dimensions` will update the `containerHeight` and `containerWidth` props on `TrendsSVGContainer` on window resize, and then by implementing a `componentWillReceiveProps` on `TrendsSVGContainer` we will be able to adjust the dimensions of the rendered SVG and the ranges of the x and y scales created with D3 to respond to the new viewport size.
