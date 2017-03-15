@@ -18,9 +18,9 @@
 import React, { PropTypes, PureComponent } from 'react';
 import _ from 'lodash';
 
-import styles from './Table.css';
+import styles from './CopyTable.css';
 
-class Table extends PureComponent {
+class CopyTable extends PureComponent {
 
   getItemField(item, field) {
     return item[field];
@@ -42,35 +42,27 @@ class Table extends PureComponent {
     const cells = _.map(normalizedColumns,
       (column, key) => {
         const { label } = column;
-        if (typeof label === 'object' && _.isEqual(_.keys(label), ['main', 'secondary'])) {
-          return (
-            <th key={key} className={column.className}>
-              {label.main}<span className={styles.secondaryLabelWithMain}>{label.secondary}</span>
-            </th>
-          );
-        }
         return (
-          <th key={key} className={styles.secondaryLabelAlone}>
+          <div key={key} className={styles.cell}>
             {label}
-          </th>
+          </div>
         );
       }
     );
-    return (<thead key={`thead_${cells.length}`}><tr>{cells}</tr></thead>);
+    return (<div className={styles.row}>{cells}</div>);
   }
 
   renderRow(normalizedColumns, rowKey, rowData) {
     const cells = _.map(normalizedColumns,
-      (column) => <td key={column.key}>{column.cell(rowData, column.key)}</td>
+      (column) => <div className={styles.cell}>{column.cell(rowData, column.key)}</div>
     );
-    return (<tr key={rowKey}>{cells}</tr>);
+    return (<div className={styles.row} key={rowKey}>{cells}</div>);
   }
 
   renderRows(normalizedColumns) {
-    const rowData = _.map(this.props.rows, (row, key) => (
+    return _.map(this.props.rows, (row, key) => (
       this.renderRow(normalizedColumns, key, row)
     ));
-    return (<tbody key={`tbody_${rowData.length}`}>{rowData}</tbody>);
   }
 
   render() {
@@ -79,14 +71,11 @@ class Table extends PureComponent {
     let tableContents = [];
 
     if (!_.isEmpty(this.props.title)) {
-      const { className, label: { main, secondary } } = this.props.title;
+      const { label: { main, secondary } } = this.props.title;
       const title = (
-        <caption
-          key={main}
-          className={className}
-        >
-          {main}<span className={styles.secondaryLabelWithMain}>{secondary}</span>
-        </caption>
+        <div className={styles.title}>
+          {`${main} ${secondary}`}
+        </div>
       );
       tableContents = [
         title,
@@ -101,21 +90,20 @@ class Table extends PureComponent {
     }
 
     return (
-      <table className={this.props.tableStyle}>
+      <div className={styles.table}>
         {tableContents}
-      </table>
+      </div>
     );
   }
 }
 
-Table.propTypes = {
+CopyTable.propTypes = {
   title: React.PropTypes.shape({
     className: React.PropTypes.string.isRequired,
     label: React.PropTypes.object.isRequired,
   }),
   rows: PropTypes.array.isRequired,
   columns: PropTypes.array.isRequired,
-  tableStyle: PropTypes.string.isRequired,
 };
 
-export default Table;
+export default CopyTable;

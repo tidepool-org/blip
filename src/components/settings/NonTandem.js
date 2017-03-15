@@ -20,6 +20,7 @@ import _ from 'lodash';
 
 import Header from './common/Header';
 import Table from './common/Table';
+import CopyTable from './common/CopyTable';
 import CollapsibleContainer from './common/CollapsibleContainer';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
@@ -99,6 +100,26 @@ const NonTandem = (props) => {
     lookupKey = 'medtronic';
   }
 
+  function buildTable(rows, columns, title, tableStyle) {
+    if (view === COPY_VIEW) {
+      return (
+        <CopyTable
+          title={title}
+          rows={rows}
+          columns={columns}
+        />
+      );
+    }
+    return (
+      <Table
+        title={title}
+        rows={rows}
+        columns={columns}
+        tableStyle={tableStyle}
+      />
+    );
+  }
+
   function renderBreathingSpace() {
     if (view === COPY_VIEW) {
       return (
@@ -155,13 +176,12 @@ const NonTandem = (props) => {
             toggleExpansion={toggleFn}
             twoLineLabel
           >
-            <Table
-              rows={
-                data.processBasalRateData(pumpSettings.basalSchedules[schedule])
-              }
-              columns={data.startTimeAndValue('rate')}
-              tableStyle={styles.basalTable}
-            />
+            {buildTable(
+              data.processBasalRateData(pumpSettings.basalSchedules[schedule]),
+              data.startTimeAndValue('rate'),
+              {},
+              styles.basalTable,
+            )}
           </CollapsibleContainer>
           {renderBreathingSpace()}
         </div>
@@ -179,17 +199,15 @@ const NonTandem = (props) => {
     };
     return (
       <div className={styles.categoryContainer}>
-        <Table
-          title={title}
-          rows={
-            data.processSensitivityData(
-              pumpSettings.insulinSensitivity,
-              bgUnits,
-            )
-          }
-          columns={data.startTimeAndValue('amount')}
-          tableStyle={styles.settingsTable}
-        />
+        {buildTable(
+          data.processSensitivityData(
+            pumpSettings.insulinSensitivity,
+            bgUnits,
+          ),
+          data.startTimeAndValue('amount'),
+          title,
+          styles.settingsTable,
+        )}
         {renderBreathingSpace()}
       </div>
     );
@@ -205,16 +223,14 @@ const NonTandem = (props) => {
     };
     return (
       <div className={styles.categoryContainer}>
-        <Table
-          title={title}
-          rows={
-            data.processCarbRatioData(
-              pumpSettings.carbRatio,
-            )
-          }
-          columns={data.startTimeAndValue('amount')}
-          tableStyle={styles.settingsTable}
-        />
+        {buildTable(
+          data.processCarbRatioData(
+            pumpSettings.carbRatio,
+          ),
+          data.startTimeAndValue('amount'),
+          title,
+          styles.settingsTable,
+        )}
         {renderBreathingSpace()}
       </div>
     );
@@ -230,18 +246,16 @@ const NonTandem = (props) => {
     };
     return (
       <div className={styles.categoryContainer}>
-        <Table
-          title={title}
-          rows={
-            data.processBgTargetData(
-              pumpSettings.bgTarget,
-              bgUnits,
-              BG_TARGET_ACCESSORS_BY_MANUFACTURER[lookupKey],
-            )
-          }
-          columns={BG_TARGET_COLS_BY_MANUFACTURER[lookupKey]}
-          tableStyle={styles.settingsTable}
-        />
+        {buildTable(
+          data.processBgTargetData(
+            pumpSettings.bgTarget,
+            bgUnits,
+            BG_TARGET_ACCESSORS_BY_MANUFACTURER[lookupKey],
+          ),
+          BG_TARGET_COLS_BY_MANUFACTURER[lookupKey],
+          title,
+          styles.settingsTable,
+        )}
         {renderBreathingSpace()}
       </div>
     );
