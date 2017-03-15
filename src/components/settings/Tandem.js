@@ -72,42 +72,58 @@ const Tandem = (props) => {
   ];
 
   function renderBreathingSpace() {
-    if (view === COPY_VIEW || view === PRINT_VIEW) {
+    if (view === COPY_VIEW) {
       return (
-        <div><br /><br /></div>
+        <div><br /></div>
+      );
+    }
+    if (view === PRINT_VIEW) {
+      return (
+        <div className={styles.printNotes}>
+          <hr />
+          <hr />
+        </div>
       );
     }
     return null;
   }
 
-  function shouldOpenSection() {
-    return view === PRINT_VIEW;
+  function openSection(sectionName) {
+    if (view === PRINT_VIEW) {
+      return true;
+    }
+    return _.get(openedSections, sectionName, false);
   }
 
-  const tables = _.map(schedules, (schedule) => (
-    <div className="settings-table-container" key={schedule.name}>
-      <CollapsibleContainer
-        label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, deviceKey, true)}
-        labelClass={styles.collapsibleLabel}
-        opened={_.get(openedSections, schedule.name, shouldOpenSection())}
-        toggleExpansion={_.partial(toggleProfileExpansion, schedule.name)}
-        twoLineLabel={false}
-      >
-        <Table
-          rows={data.processTimedSettings(pumpSettings, schedule, bgUnits)}
-          columns={COLUMNS}
-          tableStyle={styles.profileTable}
-        />
-      </CollapsibleContainer>
-      {renderBreathingSpace()}
-    </div>
-  ));
+  const tables = _.map(schedules, (schedule) => {
+    if (view === COPY_VIEW && !openSection(schedule.name)) {
+      return null;
+    }
+    return (
+      <div className="settings-table-container" key={schedule.name}>
+        <CollapsibleContainer
+          label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, deviceKey, true)}
+          labelClass={styles.collapsibleLabel}
+          opened={openSection(schedule.name)}
+          toggleExpansion={_.partial(toggleProfileExpansion, schedule.name)}
+          twoLineLabel={false}
+        >
+          <Table
+            rows={data.processTimedSettings(pumpSettings, schedule, bgUnits)}
+            columns={COLUMNS}
+            tableStyle={styles.profileTable}
+          />
+        </CollapsibleContainer>
+        {renderBreathingSpace()}
+      </div>
+    );
+  });
   return (
     <div>
       <Header
         deviceDisplayName="Tandem"
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
-        printView={shouldOpenSection()}
+        printView={view === PRINT_VIEW}
       />
       <div>
         <span className={styles.title}>Profile Settings</span>

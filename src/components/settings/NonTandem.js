@@ -100,16 +100,27 @@ const NonTandem = (props) => {
   }
 
   function renderBreathingSpace() {
-    if (view === COPY_VIEW || view === PRINT_VIEW) {
+    if (view === COPY_VIEW) {
       return (
-        <div><br /><br /></div>
+        <div><br /></div>
+      );
+    }
+    if (view === PRINT_VIEW) {
+      return (
+        <div className={styles.printNotes}>
+          <hr />
+          <hr />
+        </div>
       );
     }
     return null;
   }
 
-  function shouldOpenSection() {
-    return view === PRINT_VIEW;
+  function openSection(sectionName) {
+    if (view === PRINT_VIEW) {
+      return true;
+    }
+    return _.get(openedSections, sectionName, false);
   }
 
   function renderBasalsData() {
@@ -117,7 +128,7 @@ const NonTandem = (props) => {
 
     return _.map(schedules, (schedule) => {
       const scheduleName = pumpSettings.basalSchedules[schedule].name;
-      const scheduledIsExpanded = _.get(openedSections, scheduleName, shouldOpenSection());
+      const scheduledIsExpanded = openSection(scheduleName);
 
       if (view === COPY_VIEW && !scheduledIsExpanded) {
         return null;
@@ -236,12 +247,18 @@ const NonTandem = (props) => {
     );
   }
 
+  function renderBolusTitle() {
+    return (
+      BOLUS_SETTINGS_LABEL_BY_MANUFACTURER[lookupKey]
+    );
+  }
+
   return (
     <div>
       <Header
         deviceDisplayName={DEVICE_DISPLAY_NAME_BY_MANUFACTURER[lookupKey]}
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
-        printView={shouldOpenSection()}
+        printView={view === PRINT_VIEW}
       />
       {renderBreathingSpace()}
       <div className={styles.settingsContainer}>
@@ -251,15 +268,11 @@ const NonTandem = (props) => {
             {renderBasalsData()}
           </div>
         </div>
-        <div>
-          <div className={styles.categoryTitle}>
-            {BOLUS_SETTINGS_LABEL_BY_MANUFACTURER[lookupKey]}
-          </div>
-          <div className={styles.bolusSettingsContainer}>
-            {renderSensitivityData()}
-            {renderTargetData()}
-            {renderRatioData()}
-          </div>
+        <div className={styles.bolusSettingsContainer}>
+          <div className={styles.categoryTitle}>{renderBolusTitle()}</div>
+          {renderSensitivityData()}
+          {renderTargetData()}
+          {renderRatioData()}
         </div>
       </div>
     </div>

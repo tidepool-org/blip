@@ -91,7 +91,7 @@
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-start;
-    page-break-after: left;
+    page-break-after: auto;
   }
 
   .bolusSettingsContainer {
