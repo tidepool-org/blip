@@ -35,6 +35,7 @@ const Tandem = (props) => {
     pumpSettings,
     timePrefs,
     toggleProfileExpansion,
+    printView,
   } = props;
 
   const schedules = data.getTimedSchedules(pumpSettings.basalSchedules);
@@ -68,12 +69,31 @@ const Tandem = (props) => {
       className: styles.bolusSettingsHeader },
   ];
 
+  function renderPrintNotes() {
+    if (printView) {
+      return (
+        <div className={styles.printNotes}>
+          <hr />
+          <hr />
+        </div>
+      );
+    }
+    return null;
+  }
+
+  function openSection(sectionName) {
+    if (printView) {
+      return true;
+    }
+    return _.get(openedSections, sectionName, false);
+  }
+
   const tables = _.map(schedules, (schedule) => (
-    <div key={schedule.name}>
+    <div className="settings-table-container" key={schedule.name}>
       <CollapsibleContainer
         label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, deviceKey, true)}
         labelClass={styles.collapsibleLabel}
-        opened={_.get(openedSections, schedule.name, false)}
+        opened={openSection(schedule.name)}
         toggleExpansion={_.partial(toggleProfileExpansion, schedule.name)}
         twoLineLabel={false}
       >
@@ -83,6 +103,7 @@ const Tandem = (props) => {
           tableStyle={styles.profileTable}
         />
       </CollapsibleContainer>
+      {renderPrintNotes()}
     </div>
   ));
   return (
@@ -90,6 +111,7 @@ const Tandem = (props) => {
       <Header
         deviceDisplayName="Tandem"
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
+        printView={printView}
       />
       <div>
         <span className={styles.title}>Profile Settings</span>
@@ -148,11 +170,13 @@ Tandem.propTypes = {
     timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
   }).isRequired,
   toggleProfileExpansion: PropTypes.func.isRequired,
+  printView: React.PropTypes.bool.isRequired,
 };
 
 Tandem.defaultProps = {
   deviceDisplayName: 'Tandem',
   deviceKey: 'tandem',
+  printView: false,
 };
 
 export default Tandem;

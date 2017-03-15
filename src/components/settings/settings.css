@@ -17,9 +17,10 @@
 
 @import '../../styles/colors.css';
 
+
 .settingsTable {
   composes: defaultSize mediumContrastText from '../../styles/typography.css';
-  min-width: 230px;
+  min-width: 250px;
   width: 100%;
   border-spacing: 1px 0px;
   border-collapse: separate;
@@ -89,3 +90,68 @@
   composes: lightText from '../../styles/typography.css';
   padding-left: 8px;
 }
+
+@media print {
+
+  .printNotes hr {
+    padding-top: 30px;
+    border: none;
+  }
+
+  .settingsTable {
+    composes: defaultSize mediumContrastText from '../../styles/typography.css';
+    min-width: 250px;
+    width: 100%;
+    border: solid 1px #000;
+    border-collapse: collapse;
+    padding-bottom: 0;
+  }
+
+  .settingsTable tbody tr,
+  .settingsTable tbody tr:nth-child(odd),
+  .settingsTable thead  {
+    background-color: var(--bkgrnd-white);
+    border-bottom: solid 1px #cbcbcb;
+    font-weight: bold;
+    color: var(--text-black);
+  }
+
+  .settingsTable tbody tr:last-of-type, .settingsTable thead tr:last-of-type {
+    border-bottom: none;
+  }
+
+  .settingsHeaderText {
+    composes: defaultSize mediumContrastText from '../../styles/typography.css';
+  }
+
+  .basalTable {
+    composes: settingsTable;
+  }
+
+  .basalTable tbody tr:last-of-type {
+    font-weight: normal;
+  }
+
+  .mainHeaderText {
+    color: var(--text-black);
+    font-weight: normal;
+    composes: largeSize from '../../styles/typography.css';
+  }
+
+  .basalHeaderBackground, .bolusHeaderBackground {
+    background-image: none;
+    color: var(--text-black);
+    font-weight: normal;
+    composes: mainHeaderText;
+    padding-left: 0px;
+  }
+
+  .secondaryText {
+    composes: lightText largeSize from '../../styles/typography.css';
+    color: var(--text-black);
+    padding-left: 8px;
+  }
+
+}
+
+

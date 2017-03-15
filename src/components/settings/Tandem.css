@@ -47,6 +47,7 @@
 }
 
 .profileTable td, .profileTable th {
+  font-size: 14px;
   text-align: center;
 }
 
@@ -58,4 +59,30 @@
   composes: boldText defaultSize mediumContrastText from '../../styles/typography.css';
   display: inline-block;
   padding-bottom: 10px;
+}
+
+@media print {
+
+  .title {
+    font-weight: normal;
+    font-size: 20px;
+    color: var(--text-black);
+    display: inline-block;
+    padding-bottom: 10px;
+  }
+
+  .profileTable th {
+    font-weight: normal;
+    color: #000;
+  }
+
+  .profileTable th:first-of-type {
+    font-weight: normal;
+  }
+
+  .printNotes {
+    margin-left: 40px;
+    composes: printNotes from './settings.css';
+  }
+
 }

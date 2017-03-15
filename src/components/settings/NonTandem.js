@@ -89,6 +89,7 @@ const NonTandem = (props) => {
     pumpSettings,
     timePrefs,
     toggleBasalScheduleExpansion,
+    printView,
   } = props;
 
   let lookupKey = deviceKey;
@@ -97,17 +98,36 @@ const NonTandem = (props) => {
     lookupKey = 'medtronic';
   }
 
+  function renderPrintNotes() {
+    if (printView) {
+      return (
+        <div className={styles.printNotes}>
+          <hr />
+          <hr />
+        </div>
+      );
+    }
+    return null;
+  }
+
+  function openSection(sectionName) {
+    if (printView) {
+      return true;
+    }
+    return _.get(openedSections, sectionName, false);
+  }
+
   function renderBasalsData() {
     const schedules = data.getScheduleNames(pumpSettings.basalSchedules);
 
-    const tables = _.map(schedules, (schedule) => {
+    return _.map(schedules, (schedule) => {
       const scheduleName = pumpSettings.basalSchedules[schedule].name;
       const label = data.getScheduleLabel(
         scheduleName,
         pumpSettings.activeSchedule,
         deviceKey
       );
-      const scheduledIsExpanded = _.get(openedSections, scheduleName, false);
+
       const toggleFn = _.partial(toggleBasalScheduleExpansion, scheduleName);
 
       if (scheduleName === pumpSettings.activeSchedule) {
@@ -116,7 +136,7 @@ const NonTandem = (props) => {
             <CollapsibleContainer
               label={label}
               labelClass={styles.twoLineBasalScheduleHeader}
-              opened={scheduledIsExpanded}
+              opened={openSection(scheduleName)}
               toggleExpansion={toggleFn}
               twoLineLabel
             >
@@ -128,6 +148,7 @@ const NonTandem = (props) => {
                 tableStyle={styles.basalTable}
               />
             </CollapsibleContainer>
+            {renderPrintNotes()}
           </div>
         );
       }
@@ -136,7 +157,7 @@ const NonTandem = (props) => {
           <CollapsibleContainer
             label={label}
             labelClass={styles.singleLineBasalScheduleHeader}
-            opened={scheduledIsExpanded}
+            opened={openSection(scheduleName)}
             toggleExpansion={toggleFn}
           >
             <Table
@@ -147,10 +168,10 @@ const NonTandem = (props) => {
               tableStyle={styles.basalTable}
             />
           </CollapsibleContainer>
+          {renderPrintNotes()}
         </div>
       );
     });
-    return (<div className={styles.categoryContainer}>{tables}</div>);
   }
 
   function renderSensitivityData() {
@@ -174,6 +195,7 @@ const NonTandem = (props) => {
           columns={data.startTimeAndValue('amount')}
           tableStyle={styles.settingsTable}
         />
+        {renderPrintNotes()}
       </div>
     );
   }
@@ -198,6 +220,7 @@ const NonTandem = (props) => {
           columns={data.startTimeAndValue('amount')}
           tableStyle={styles.settingsTable}
         />
+        {renderPrintNotes()}
       </div>
     );
   }
@@ -224,7 +247,14 @@ const NonTandem = (props) => {
           columns={BG_TARGET_COLS_BY_MANUFACTURER[lookupKey]}
           tableStyle={styles.settingsTable}
         />
+        {renderPrintNotes()}
       </div>
+    );
+  }
+
+  function renderBolusTitle() {
+    return (
+      BOLUS_SETTINGS_LABEL_BY_MANUFACTURER[lookupKey]
     );
   }
 
@@ -233,21 +263,18 @@ const NonTandem = (props) => {
       <Header
         deviceDisplayName={DEVICE_DISPLAY_NAME_BY_MANUFACTURER[lookupKey]}
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
+        printView={printView}
       />
       <div className={styles.settingsContainer}>
         <div className={styles.basalSettingsContainer}>
           <div className={styles.categoryTitle}>Basal Rates</div>
           {renderBasalsData()}
         </div>
-        <div>
-          <div className={styles.categoryTitle}>
-            {BOLUS_SETTINGS_LABEL_BY_MANUFACTURER[lookupKey]}
-          </div>
-          <div className={styles.bolusSettingsContainer}>
-            {renderSensitivityData()}
-            {renderTargetData()}
-            {renderRatioData()}
-          </div>
+        <div className={styles.bolusSettingsContainer}>
+          <div className={styles.categoryTitle}>{renderBolusTitle()}</div>
+          {renderSensitivityData()}
+          {renderTargetData()}
+          {renderRatioData()}
         </div>
       </div>
     </div>
@@ -298,6 +325,7 @@ NonTandem.propTypes = {
     timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
   }).isRequired,
   toggleBasalScheduleExpansion: PropTypes.func.isRequired,
+  printView: React.PropTypes.bool.isRequired,
 };
 
 export default NonTandem;

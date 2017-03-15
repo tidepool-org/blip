@@ -73,3 +73,18 @@
   top: 55%;
   transform: rotate(180deg) translateY(50%);
 }
+
+@media print {
+
+  .headerOuter {
+    composes: lightText largeSize from '../../../styles/typography.css';
+    color: var(--text-black);
+  }
+
+  .headerOuter:first-of-type {
+    color: var(--text-black);
+    font-weight: normal;
+    font-size: 16px;
+  }
+
+}
