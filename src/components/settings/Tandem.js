@@ -27,6 +27,8 @@ import CollapsibleContainer from './common/CollapsibleContainer';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import * as data from '../../utils/settings/data';
 
+import { COPY_VIEW, DISPLAY_VIEW, PRINT_VIEW } from './constants';
+
 const Tandem = (props) => {
   const {
     bgUnits,
@@ -69,20 +71,17 @@ const Tandem = (props) => {
       className: styles.bolusSettingsHeader },
   ];
 
-  function renderPrintNotes() {
-    if (view === 'print') {
+  function renderBreathingSpace() {
+    if (view === COPY_VIEW || view === PRINT_VIEW) {
       return (
-        <div className={styles.printNotes}>
-          <hr />
-          <hr />
-        </div>
+        <div><br /><br /></div>
       );
     }
     return null;
   }
 
   function shouldOpenSection() {
-    return view === 'print' || view === 'copy';
+    return view === PRINT_VIEW;
   }
 
   const tables = _.map(schedules, (schedule) => (
@@ -100,7 +99,7 @@ const Tandem = (props) => {
           tableStyle={styles.profileTable}
         />
       </CollapsibleContainer>
-      {renderPrintNotes()}
+      {renderBreathingSpace()}
     </div>
   ));
   return (
@@ -167,13 +166,13 @@ Tandem.propTypes = {
     timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
   }).isRequired,
   toggleProfileExpansion: PropTypes.func.isRequired,
-  view: React.PropTypes.oneOf(['display', 'print', 'copy']).isRequired,
+  view: React.PropTypes.oneOf([COPY_VIEW, DISPLAY_VIEW, PRINT_VIEW]).isRequired,
 };
 
 Tandem.defaultProps = {
   deviceDisplayName: 'Tandem',
   deviceKey: 'tandem',
-  view: 'display',
+  view: DISPLAY_VIEW,
 };
 
 export default Tandem;

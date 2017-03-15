@@ -26,6 +26,8 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 
 import NonTandem from '../../components/settings/NonTandem';
 import Tandem from '../../components/settings/Tandem';
+import { COPY_VIEW, DISPLAY_VIEW, PRINT_VIEW } from '../../components/settings/constants';
+
 import styles from './PumpSettingsContainer.css';
 
 export class PumpSettingsContainer extends PureComponent {
@@ -45,7 +47,7 @@ export class PumpSettingsContainer extends PureComponent {
     }).isRequired,
     settingsState: PropTypes.object.isRequired,
     toggleSettingsSection: PropTypes.func.isRequired,
-    view: PropTypes.oneOf(['display', 'print', 'copy']).isRequired,
+    view: PropTypes.oneOf([COPY_VIEW, DISPLAY_VIEW, PRINT_VIEW]).isRequired,
   }
 
   componentWillMount() {
@@ -85,7 +87,7 @@ export class PumpSettingsContainer extends PureComponent {
           view={view}
         />
       );
-      if (view === 'print') {
+      if (view === PRINT_VIEW) {
         return (
           <div>
             {settings}
@@ -102,7 +104,7 @@ export class PumpSettingsContainer extends PureComponent {
             pumpSettings={pumpSettings}
             timePrefs={timePrefs}
             toggleProfileExpansion={toggleFn}
-            view="copy"
+            view={COPY_VIEW}
           />
         </div>
       );
@@ -110,10 +112,11 @@ export class PumpSettingsContainer extends PureComponent {
       return (
         <div>
           <ClipboardButton
-            button-title="Copy settings"
+            className={styles.copyButton}
+            button-title="For email or notes"
             data-clipboard-target="#copySchedule"
           >
-            <p>Copy Settings</p>
+            <p>Copy as text</p>
           </ClipboardButton>
           {settings}
           {copy}
@@ -131,7 +134,7 @@ export class PumpSettingsContainer extends PureComponent {
           view={view}
         />
       );
-      if (view === 'print') {
+      if (view === PRINT_VIEW) {
         return (
           <div>
             {settings}
@@ -148,7 +151,7 @@ export class PumpSettingsContainer extends PureComponent {
             pumpSettings={pumpSettings}
             timePrefs={timePrefs}
             toggleBasalScheduleExpansion={toggleFn}
-            view="copy"
+            view={COPY_VIEW}
           />
         </div>
       );
@@ -156,10 +159,11 @@ export class PumpSettingsContainer extends PureComponent {
       return (
         <div>
           <ClipboardButton
-            button-title="Copy settings"
+            className={styles.copyButton}
+            button-title="For email or notes"
             data-clipboard-target="#copySchedule"
           >
-            <p>Copy Settings</p>
+            <p>Copy as text</p>
           </ClipboardButton>
           {settings}
           {copy}

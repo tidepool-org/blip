@@ -15,19 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-.copySchedule {
-  position: absolute;
-  left: -5000px;
-  top: 10px;
-}
-
-.copyButton {
-	float: right;
-	font-weight: normal;
-	font-size: 14px;
-	color: var(--chrome);
-	background-color: #fff;
-	border: solid 1px #e5e5e5;
-	line-height: 0px;
-  padding: 5px;
-}
+export const COPY_VIEW = 'copy';
+export const DISPLAY_VIEW = 'display';
+export const PRINT_VIEW = 'print';

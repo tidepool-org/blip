@@ -25,6 +25,7 @@ import CollapsibleContainer from './common/CollapsibleContainer';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import * as data from '../../utils/settings/data';
 
+import { COPY_VIEW, DISPLAY_VIEW, PRINT_VIEW } from './constants';
 import styles from './NonTandem.css';
 
 const BG_TARGET_ACCESSORS_BY_MANUFACTURER = {
@@ -98,20 +99,17 @@ const NonTandem = (props) => {
     lookupKey = 'medtronic';
   }
 
-  function renderPrintNotes() {
-    if (view === 'print') {
+  function renderBreathingSpace() {
+    if (view === COPY_VIEW || view === PRINT_VIEW) {
       return (
-        <div className={styles.printNotes}>
-          <hr />
-          <hr />
-        </div>
+        <div><br /><br /></div>
       );
     }
     return null;
   }
 
   function shouldOpenSection() {
-    return view === 'print' || view === 'copy';
+    return view === PRINT_VIEW;
   }
 
   function renderBasalsData() {
@@ -119,43 +117,32 @@ const NonTandem = (props) => {
 
     return _.map(schedules, (schedule) => {
       const scheduleName = pumpSettings.basalSchedules[schedule].name;
+      const scheduledIsExpanded = _.get(openedSections, scheduleName, shouldOpenSection());
+
+      if (view === COPY_VIEW && !scheduledIsExpanded) {
+        return null;
+      }
+
       const label = data.getScheduleLabel(
         scheduleName,
         pumpSettings.activeSchedule,
         deviceKey
       );
-      const scheduledIsExpanded = _.get(openedSections, scheduleName, shouldOpenSection());
+
       const toggleFn = _.partial(toggleBasalScheduleExpansion, scheduleName);
+      let labelClass = styles.singleLineBasalScheduleHeader;
 
       if (scheduleName === pumpSettings.activeSchedule) {
-        return (
-          <div className={styles.categoryContainer} key={schedule}>
-            <CollapsibleContainer
-              label={label}
-              labelClass={styles.twoLineBasalScheduleHeader}
-              opened={scheduledIsExpanded}
-              toggleExpansion={toggleFn}
-              twoLineLabel
-            >
-              <Table
-                rows={
-                  data.processBasalRateData(pumpSettings.basalSchedules[schedule])
-                }
-                columns={data.startTimeAndValue('rate')}
-                tableStyle={styles.basalTable}
-              />
-            </CollapsibleContainer>
-            {renderPrintNotes()}
-          </div>
-        );
+        labelClass = styles.twoLineBasalScheduleHeader;
       }
       return (
         <div className={styles.categoryContainer} key={schedule}>
           <CollapsibleContainer
             label={label}
-            labelClass={styles.singleLineBasalScheduleHeader}
+            labelClass={labelClass}
             opened={scheduledIsExpanded}
             toggleExpansion={toggleFn}
+            twoLineLabel
           >
             <Table
               rows={
@@ -165,7 +152,7 @@ const NonTandem = (props) => {
               tableStyle={styles.basalTable}
             />
           </CollapsibleContainer>
-          {renderPrintNotes()}
+          {renderBreathingSpace()}
         </div>
       );
     });
@@ -192,7 +179,7 @@ const NonTandem = (props) => {
           columns={data.startTimeAndValue('amount')}
           tableStyle={styles.settingsTable}
         />
-        {renderPrintNotes()}
+        {renderBreathingSpace()}
       </div>
     );
   }
@@ -217,7 +204,7 @@ const NonTandem = (props) => {
           columns={data.startTimeAndValue('amount')}
           tableStyle={styles.settingsTable}
         />
-        {renderPrintNotes()}
+        {renderBreathingSpace()}
       </div>
     );
   }
@@ -244,7 +231,7 @@ const NonTandem = (props) => {
           columns={BG_TARGET_COLS_BY_MANUFACTURER[lookupKey]}
           tableStyle={styles.settingsTable}
         />
-        {renderPrintNotes()}
+        {renderBreathingSpace()}
       </div>
     );
   }
@@ -256,6 +243,7 @@ const NonTandem = (props) => {
         deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
         printView={shouldOpenSection()}
       />
+      {renderBreathingSpace()}
       <div className={styles.settingsContainer}>
         <div>
           <div className={styles.basalSettingsContainer}>
@@ -322,7 +310,7 @@ NonTandem.propTypes = {
     timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
   }).isRequired,
   toggleBasalScheduleExpansion: PropTypes.func.isRequired,
-  view: PropTypes.oneOf(['display', 'print', 'copy']).isRequired,
+  view: PropTypes.oneOf([COPY_VIEW, DISPLAY_VIEW, PRINT_VIEW]).isRequired,
 };
 
 export default NonTandem;
