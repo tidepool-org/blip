@@ -20,7 +20,6 @@ import _ from 'lodash';
 
 import Header from './common/Header';
 import Table from './common/Table';
-import CopyTable from './common/CopyTable';
 import CollapsibleContainer from './common/CollapsibleContainer';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
@@ -101,15 +100,6 @@ const NonTandem = (props) => {
   }
 
   function buildTable(rows, columns, title, tableStyle) {
-    if (view === COPY_VIEW) {
-      return (
-        <CopyTable
-          title={title}
-          rows={rows}
-          columns={columns}
-        />
-      );
-    }
     return (
       <Table
         title={title}
@@ -121,11 +111,6 @@ const NonTandem = (props) => {
   }
 
   function renderBreathingSpace() {
-    if (view === COPY_VIEW) {
-      return (
-        <div><br /></div>
-      );
-    }
     if (view === PRINT_VIEW) {
       return (
         <div className={styles.printNotes}>
@@ -150,10 +135,6 @@ const NonTandem = (props) => {
     return _.map(schedules, (schedule) => {
       const scheduleName = pumpSettings.basalSchedules[schedule].name;
       const scheduledIsExpanded = openSection(scheduleName);
-
-      if (view === COPY_VIEW && !scheduledIsExpanded) {
-        return null;
-      }
 
       const label = data.getScheduleLabel(
         scheduleName,
