@@ -55,17 +55,15 @@ const SettingsPrintView = React.createClass({
     return (
       <div id="app-print" className="print-view-content">
         {this.renderHeader()}
-        <div className="print-view-page print-view-page-title">
-          <div className="print-view-page print-view-page-device-settings">
-            <PumpSettingsContainer
-              currentPatientInViewId={this.props.currentPatientInViewId}
-              bgUnits={this.props.bgPrefs.bgUnits}
-              manufacturerKey={manufacturer}
-              pumpSettings={mostRecentSettings}
-              timePrefs={this.props.timePrefs}
-              printView={true}
-            />
-          </div>
+        <div className="print-view-page print-view-page-device-settings">
+          <PumpSettingsContainer
+            currentPatientInViewId={this.props.currentPatientInViewId}
+            bgUnits={this.props.bgPrefs.bgUnits}
+            manufacturerKey={manufacturer}
+            pumpSettings={mostRecentSettings}
+            timePrefs={this.props.timePrefs}
+            printView={true}
+          />
         </div>
       </div>
     );

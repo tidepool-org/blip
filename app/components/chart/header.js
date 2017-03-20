@@ -34,7 +34,6 @@ var TidelineHeader = React.createClass({
     chartType: React.PropTypes.string.isRequired,
     inTransition: React.PropTypes.bool.isRequired,
     atMostRecent: React.PropTypes.bool.isRequired,
-    title: React.PropTypes.string.isRequired,
     iconBack: React.PropTypes.string,
     iconNext: React.PropTypes.string,
     iconMostRecent: React.PropTypes.string,
@@ -157,15 +156,15 @@ var TidelineHeader = React.createClass({
   printTitle: function() {
     switch (this.props.chartType) {
       case 'basics':
-        return "Basics";
+        return 'Basics';
       case 'daily':
-        return "Daily";
+        return 'Daily';
       case 'weekly':
-        return "Weekly";
+        return 'Weekly';
       case 'trends':
-        return "Trends";
+        return 'Trends';
       case 'settings':
-        return "Pump Settings";
+        return 'Pump Settings';
     }
   },
   renderPrint: function() {
