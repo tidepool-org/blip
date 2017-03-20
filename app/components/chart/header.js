@@ -19,6 +19,8 @@ var bows = require('bows');
 var React = require('react');
 var cx = require('classnames');
 
+var PrintHeader = require('../printheader');
+
 var printPng = require('./img/print-icon-2x.png');
 
 var tideline = {
@@ -27,6 +29,8 @@ var tideline = {
 
 var TidelineHeader = React.createClass({
   propTypes: {
+    patient: React.PropTypes.object,
+    title: React.PropTypes.string.isRequired,
     chartType: React.PropTypes.string.isRequired,
     inTransition: React.PropTypes.bool.isRequired,
     atMostRecent: React.PropTypes.bool.isRequired,
@@ -44,7 +48,7 @@ var TidelineHeader = React.createClass({
     onClickSettings: React.PropTypes.func,
     onClickPrint: React.PropTypes.func
   },
-  render: function() {
+  renderStandard: function() {
     var basicsLinkClass = cx({
       'js-basics': true,
       'patient-data-subnav-active': this.props.chartType === 'basics',
@@ -125,36 +129,66 @@ var TidelineHeader = React.createClass({
     });
 
     return (
-      <div className="container-box-outer patient-data-subnav-outer">
-        <div className="container-box-inner patient-data-subnav-inner">
-          <div className="grid patient-data-subnav">
-            <div className="grid-item one-whole large-one-third">
-                <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>Basics</a>
-                <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>Daily</a>
-                <a href="" className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>Weekly</a>
-                <a href="" className={trendsLinkClass} onClick={this.props.onClickModal}>Trends</a>
-            </div>
-            <div className="grid-item one-whole large-one-third patient-data-subnav-center" id="tidelineLabel">
-              {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
-              <div className={dateLinkClass}>
-                {this.props.title}
-              </div>
-              {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
-              {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
-            </div>
-            <div className="grid-item one-whole large-one-third">
-              <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
-              <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
-                <img src={printPng} alt="Print" />
-                Print
-              </a>
-            </div>
+      <div id="app-no-print" className="grid patient-data-subnav">
+        <div className="grid-item one-whole large-one-third">
+            <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>Basics</a>
+            <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>Daily</a>
+            <a href="" className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>Weekly</a>
+            <a href="" className={trendsLinkClass} onClick={this.props.onClickModal}>Trends</a>
+        </div>
+        <div className="grid-item one-whole large-one-third patient-data-subnav-center" id="tidelineLabel">
+          {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
+          <div className={dateLinkClass}>
+            {this.props.title}
           </div>
+          {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
+          {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
+        </div>
+        <div className="grid-item one-whole large-one-third">
+          <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
+          <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
+            <img src={printPng} alt="Print" />
+            Print
+          </a>
         </div>
       </div>
-      );
+    );
   },
-
+  printTitle: function() {
+    switch (this.props.chartType) {
+      case 'basics':
+        return "Basics";
+      case 'daily':
+        return "Daily";
+      case 'weekly':
+        return "Weekly";
+      case 'trends':
+        return "Trends";
+      case 'settings':
+        return "Pump Settings";
+    }
+  },
+  renderPrint: function() {
+    return (
+      <div id="app-print">
+        <PrintHeader
+          title={this.printTitle()}
+          dateLink={this.props.title}
+          patient={this.props.patient}
+        />
+      </div>
+    );
+  },
+  render: function() {
+    return (
+      <div className="container-box-outer patient-data-subnav-outer">
+        <div className="container-box-inner patient-data-subnav-inner">
+          {this.renderStandard()}
+          {this.renderPrint()}
+        </div>
+      </div>
+    );
+  },
   /**
    * Helper function for rendering the various navigation buttons in the header.
    * It accounts for the transition state and disables the button if it is currently processing.
