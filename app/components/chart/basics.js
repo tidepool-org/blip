@@ -36,7 +36,7 @@ var Basics = React.createClass({
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
-    patient: React.PropTypes.object.isRequired,
+    patient: React.PropTypes.object,
     patientData: React.PropTypes.object.isRequired,
     permsOfLoggedInUser: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
@@ -63,6 +63,7 @@ var Basics = React.createClass({
       <div id="tidelineMain">
         <Header
           chartType={this.chartType}
+          patient={this.props.patient}
           atMostRecent={true}
           inTransition={this.state.inTransition}
           title={this.state.title}

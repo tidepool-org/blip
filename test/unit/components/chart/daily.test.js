@@ -88,6 +88,15 @@ describe('Daily', function () {
         onSwitchToSettings: function() {},
         onSwitchToWeekly: function() {},
         updateDatetimeLocation: function() {},
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
       };
       var dailyElem = React.createElement(Daily, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);

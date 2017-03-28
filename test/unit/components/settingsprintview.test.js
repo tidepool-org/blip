@@ -114,20 +114,7 @@ describe('SettingsPrintView', () => {
   });
 
   describe('render', function() {
-    it('provided a header', function () {
-      expect(wrapper.find('.print-view-header')).to.have.length(1);
-    });
-    it('provided a title', function () {
-      expect(wrapper.find('.print-view-header-title').text()).to.equal('Pump Settings');
-    });
-    it('provided a name', function () {
-      expect(wrapper.find('.print-view-header-name').text()).to.equal('Jane Doe');
-    });
-    it('provided a date', function () {
-      const formattedDate = sundial.formatInTimezone(Date.now(), 'UTC', 'MMM D, YYYY');
-      expect(wrapper.find('.print-view-header-date').text()).to.equal(formattedDate);
-    });
-    it('provided settings container', function () {
+    it('provids a settings container', function () {
       expect(wrapper.find(PumpSettingsContainer)).to.have.length(1);
     });
   });
