@@ -23,7 +23,7 @@ import CustomizedTrendsChart from './customizedtrendschart';
 
 import personUtils from '../../core/personutils';
 
-const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS = {
   bgTarget: {
     low: 70,
     high: 180,
