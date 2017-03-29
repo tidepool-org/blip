@@ -92,7 +92,7 @@ function TidelineData(data, opts) {
     }
   };
 
-  _.defaults(opts, defaults);
+  _.defaultsDeep(opts, defaults);
   var that = this;
 
   var MS_IN_MIN = 60000, MS_IN_DAY = 864e5;
