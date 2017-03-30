@@ -23,13 +23,13 @@ import { mount } from 'enzyme';
 
 import { PumpSettingsContainer, mapStateToProps, mapDispatchToProps }
   from '../../../src/containers/settings/PumpSettingsContainer';
-// import NonTandem from '../../../src/components/settings/NonTandem';
+import NonTandem from '../../../src/components/settings/NonTandem';
 import Tandem from '../../../src/components/settings/Tandem';
 import { MGDL_UNITS } from '../../../src/utils/constants';
 
 const animasSettings = require('../../../data/pumpSettings/animas/multirate.json');
-// const medtronicSettings = require('../../../data/pumpSettings/medtronic/multirate.json');
-// const omnipodSettings = require('../../../data/pumpSettings/omnipod/multirate.json');
+const medtronicSettings = require('../../../data/pumpSettings/medtronic/multirate.json');
+const omnipodSettings = require('../../../data/pumpSettings/omnipod/multirate.json');
 const tandemSettings = require('../../../data/pumpSettings/tandem/multirate.json');
 
 describe('PumpSettingsContainer', () => {
@@ -67,41 +67,41 @@ describe('PumpSettingsContainer', () => {
       toggleSettingsSection.reset();
     });
 
-    // describe('componentWillMount', () => {
-    //   it('should mark device settings view as `touched` & set opened section state', () => {
-    //     expect(markSettingsViewed.callCount).to.equal(0);
-    //     expect(toggleSettingsSection.callCount).to.equal(0);
-    //     const manufacturerKey = 'animas';
-    //     mount(
-    //       <PumpSettingsContainer
-    //         {...props}
-    //         manufacturerKey={manufacturerKey}
-    //         pumpSettings={animasSettings}
-    //         settingsState={untouched(animasSettings, manufacturerKey)}
-    //       />
-    //     );
-    //     expect(markSettingsViewed.callCount).to.equal(1);
-    //     expect(toggleSettingsSection.callCount).to.equal(1);
-    //     expect(toggleSettingsSection.args[0][0]).to.equal(manufacturerKey);
-    //     expect(toggleSettingsSection.args[0][1]).to.equal(animasSettings.activeSchedule);
-    //   });
+    describe('componentWillMount', () => {
+      it('should mark device settings view as `touched` & set opened section state', () => {
+        expect(markSettingsViewed.callCount).to.equal(0);
+        expect(toggleSettingsSection.callCount).to.equal(0);
+        const manufacturerKey = 'animas';
+        mount(
+          <PumpSettingsContainer
+            {...props}
+            manufacturerKey={manufacturerKey}
+            pumpSettings={animasSettings}
+            settingsState={untouched(animasSettings, manufacturerKey)}
+          />
+        );
+        expect(markSettingsViewed.callCount).to.equal(1);
+        expect(toggleSettingsSection.callCount).to.equal(1);
+        expect(toggleSettingsSection.args[0][0]).to.equal(manufacturerKey);
+        expect(toggleSettingsSection.args[0][1]).to.equal(animasSettings.activeSchedule);
+      });
 
-    //   it('should not mark device settings as `touched`, etc. if already `touched`', () => {
-    //     expect(markSettingsViewed.callCount).to.equal(0);
-    //     expect(toggleSettingsSection.callCount).to.equal(0);
-    //     const manufacturerKey = 'animas';
-    //     mount(
-    //       <PumpSettingsContainer
-    //         {...props}
-    //         manufacturerKey={manufacturerKey}
-    //         pumpSettings={animasSettings}
-    //         settingsState={touched(animasSettings, manufacturerKey)}
-    //       />
-    //     );
-    //     expect(markSettingsViewed.callCount).to.equal(0);
-    //     expect(toggleSettingsSection.callCount).to.equal(0);
-    //   });
-    // });
+      it('should not mark device settings as `touched`, etc. if already `touched`', () => {
+        expect(markSettingsViewed.callCount).to.equal(0);
+        expect(toggleSettingsSection.callCount).to.equal(0);
+        const manufacturerKey = 'animas';
+        mount(
+          <PumpSettingsContainer
+            {...props}
+            manufacturerKey={manufacturerKey}
+            pumpSettings={animasSettings}
+            settingsState={touched(animasSettings, manufacturerKey)}
+          />
+        );
+        expect(markSettingsViewed.callCount).to.equal(0);
+        expect(toggleSettingsSection.callCount).to.equal(0);
+      });
+    });
 
     describe('render', () => {
       it('should render nothing if `settingsState` is empty', () => {
@@ -115,61 +115,61 @@ describe('PumpSettingsContainer', () => {
         expect(wrapper.html()).to.be.null;
       });
 
-      // it('should render `NonTandem` for manufacturerKey of `animas`', () => {
-      //   const manufacturerKey = 'animas';
-      //   const wrapper = mount(
-      //     <PumpSettingsContainer
-      //       {...props}
-      //       manufacturerKey={manufacturerKey}
-      //       pumpSettings={animasSettings}
-      //       settingsState={touched(animasSettings, manufacturerKey)}
-      //     />
-      //   );
-      //   expect(wrapper.find(NonTandem)).to.have.length(2);
-      //   expect(wrapper.find(NonTandem).first().prop('deviceKey')).to.equal('animas');
-      // });
+      it('should render `NonTandem` for manufacturerKey of `animas`', () => {
+        const manufacturerKey = 'animas';
+        const wrapper = mount(
+          <PumpSettingsContainer
+            {...props}
+            manufacturerKey={manufacturerKey}
+            pumpSettings={animasSettings}
+            settingsState={touched(animasSettings, manufacturerKey)}
+          />
+        );
+        expect(wrapper.find(NonTandem)).to.have.length(1);
+        expect(wrapper.find(NonTandem).prop('deviceKey')).to.equal('animas');
+      });
 
-      // it('should render `NonTandem` for manufacturerKey of `carelink`', () => {
-      //   const manufacturerKey = 'carelink';
-      //   const wrapper = mount(
-      //     <PumpSettingsContainer
-      //       {...props}
-      //       manufacturerKey={manufacturerKey}
-      //       pumpSettings={medtronicSettings}
-      //       settingsState={touched(medtronicSettings, manufacturerKey)}
-      //     />
-      //   );
-      //   expect(wrapper.find(NonTandem)).to.have.length(2);
-      //   expect(wrapper.find(NonTandem).first().prop('deviceKey')).to.equal('carelink');
-      // });
+      it('should render `NonTandem` for manufacturerKey of `carelink`', () => {
+        const manufacturerKey = 'carelink';
+        const wrapper = mount(
+          <PumpSettingsContainer
+            {...props}
+            manufacturerKey={manufacturerKey}
+            pumpSettings={medtronicSettings}
+            settingsState={touched(medtronicSettings, manufacturerKey)}
+          />
+        );
+        expect(wrapper.find(NonTandem)).to.have.length(1);
+        expect(wrapper.find(NonTandem).prop('deviceKey')).to.equal('carelink');
+      });
 
-      // it('should render `NonTandem` for manufacturerKey of `insulet`', () => {
-      //   const manufacturerKey = 'insulet';
-      //   const wrapper = mount(
-      //     <PumpSettingsContainer
-      //       {...props}
-      //       manufacturerKey={manufacturerKey}
-      //       pumpSettings={omnipodSettings}
-      //       settingsState={touched(omnipodSettings, manufacturerKey)}
-      //     />
-      //   );
-      //   expect(wrapper.find(NonTandem)).to.have.length(2);
-      //   expect(wrapper.find(NonTandem).first().prop('deviceKey')).to.equal('insulet');
-      // });
+      it('should render `NonTandem` for manufacturerKey of `insulet`', () => {
+        const manufacturerKey = 'insulet';
+        const wrapper = mount(
+          <PumpSettingsContainer
+            {...props}
+            manufacturerKey={manufacturerKey}
+            pumpSettings={omnipodSettings}
+            settingsState={touched(omnipodSettings, manufacturerKey)}
+          />
+        );
+        expect(wrapper.find(NonTandem)).to.have.length(1);
+        expect(wrapper.find(NonTandem).prop('deviceKey')).to.equal('insulet');
+      });
 
-      // it('should render `NonTandem` for manufacturerKey of `medtronic`', () => {
-      //   const manufacturerKey = 'medtronic';
-      //   const wrapper = mount(
-      //     <PumpSettingsContainer
-      //       {...props}
-      //       manufacturerKey={manufacturerKey}
-      //       pumpSettings={medtronicSettings}
-      //       settingsState={touched(medtronicSettings, manufacturerKey)}
-      //     />
-      //   );
-      //   expect(wrapper.find(NonTandem)).to.have.length(2);
-      //   expect(wrapper.find(NonTandem).first().prop('deviceKey')).to.equal('medtronic');
-      // });
+      it('should render `NonTandem` for manufacturerKey of `medtronic`', () => {
+        const manufacturerKey = 'medtronic';
+        const wrapper = mount(
+          <PumpSettingsContainer
+            {...props}
+            manufacturerKey={manufacturerKey}
+            pumpSettings={medtronicSettings}
+            settingsState={touched(medtronicSettings, manufacturerKey)}
+          />
+        );
+        expect(wrapper.find(NonTandem)).to.have.length(1);
+        expect(wrapper.find(NonTandem).prop('deviceKey')).to.equal('medtronic');
+      });
 
       it('should render `Tandem` for manufacturerKey of `tandem`', () => {
         const manufacturerKey = 'tandem';
@@ -181,7 +181,7 @@ describe('PumpSettingsContainer', () => {
             settingsState={touched(tandemSettings, manufacturerKey)}
           />
         );
-        expect(wrapper.find(Tandem)).to.have.length(2);
+        expect(wrapper.find(Tandem)).to.have.length(1);
       });
 
       it('should console.warn and render `null` if unknown manufacturerKey provided', () => {
