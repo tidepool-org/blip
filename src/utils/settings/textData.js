@@ -21,10 +21,18 @@ import table from 'text-table';
 import * as tandemData from './tandemData';
 import * as nonTandemData from './nonTandemData';
 
+/**
+ * getItemField
+ * @private
+ */
 function getItemField(item, field) {
   return item[field];
 }
 
+/**
+ * normalizeColumns
+ * @private
+ */
 function normalizeColumns(columns) {
   return _.map(columns, (column) => ({
     cell: getItemField,
@@ -33,37 +41,65 @@ function normalizeColumns(columns) {
   }));
 }
 
+/**
+ * getRow
+ * @private
+ */
 function getRow(normalizedColumns, rowKey, rowData) {
   return _.map(normalizedColumns,
     (column) => column.cell(rowData, column.key)
   );
 }
 
+/**
+ * getHeader
+ * @private
+ */
 function getHeader(normalizedColumns) {
   return _.map(normalizedColumns, (column) => {
     if (typeof column.label === 'object') {
-      return column.label.main + ' ' + column.label.secondary;
+      return `${column.label.main} ${column.label.secondary}`;
     }
     return column.label;
   });
 }
 
+/**
+ * getRows
+ * @private
+ */
 function getRows(rows, columns) {
   return _.map(rows, (row, key) => (
     getRow(normalizeColumns(columns), key, row)
   ));
 }
 
+/**
+ * toTextTable
+ * @private
+ */
 function toTextTable(rows, columns) {
   const header = [getHeader(normalizeColumns(columns))];
   const content = getRows(rows, columns);
   return table(header.concat(content));
 }
 
+/**
+ * buildTextTable
+ * @private
+ */
 function buildTextTable(name, rows, columns) {
   return `\n${name}\n${toTextTable(rows, columns)}\n`;
 }
 
+/**
+ * nonTandemText
+ * @param  {Object} settings      all settings data
+ * @param  {String} manufacturer  one of: animas, carelink, insulet, medtronic
+ * @param  {String} units         MGDL_UNITS or MMOLL_UNITS
+ *
+ * @return {String}               non tandem settings as a string table
+ */
 export function nonTandemText(settings, manufacturer, units) {
   let tablesString = '';
   _.map(nonTandemData.basalSchedules(settings), (schedule) => {
@@ -75,7 +111,7 @@ export function nonTandemText(settings, manufacturer, units) {
     );
   });
 
-  const sensitivity = nonTandemData.sensitivity(settings, manufacturer ,units);
+  const sensitivity = nonTandemData.sensitivity(settings, manufacturer, units);
   tablesString += buildTextTable(
     `${sensitivity.title} ${units}/U`,
     sensitivity.rows,
@@ -99,6 +135,14 @@ export function nonTandemText(settings, manufacturer, units) {
   return tablesString;
 }
 
+/**
+ * tandemText
+ * @param  {Object} settings    all settings data
+ * @param  {String} units       MGDL_UNITS or MMOLL_UNITS
+ * @param  {Object} styles      styles applied
+ *
+ * @return {String}             tandem settings as a string table
+ */
 export function tandemText(settings, units, styles) {
   let tablesString = '';
   _.map(tandemData.basalSchedules(settings), (schedule) => {

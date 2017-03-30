@@ -27,7 +27,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import * as nonTandemData from '../../utils/settings/nonTandemData';
 import { nonTandemText } from '../../utils/settings/textData';
 
-import { COPY_VIEW, DISPLAY_VIEW, PRINT_VIEW } from './constants';
+import { DISPLAY_VIEW, PRINT_VIEW } from './constants';
 import styles from './NonTandem.css';
 
 const NonTandem = (props) => {
@@ -79,7 +79,6 @@ const NonTandem = (props) => {
 
   function renderBasalsData() {
     return _.map(nonTandemData.basalSchedules(pumpSettings), (schedule) => {
-
       const basal = nonTandemData.basal(schedule, pumpSettings, deviceKey);
       const toggleFn = _.partial(toggleBasalScheduleExpansion, basal.scheduleName);
 
@@ -111,7 +110,7 @@ const NonTandem = (props) => {
   }
 
   function renderSensitivityData() {
-    const sensitivity = nonTandemData.sensitivity(pumpSettings, lookupKey ,bgUnits);
+    const sensitivity = nonTandemData.sensitivity(pumpSettings, lookupKey, bgUnits);
     const title = {
       label: {
         main: sensitivity.title,
@@ -207,7 +206,9 @@ const NonTandem = (props) => {
           {renderRatioData()}
         </div>
       </div>
-      <pre className={styles.copyText} id="copySettingsText">{nonTandemText(pumpSettings, lookupKey, bgUnits)}</pre>
+      <pre className={styles.copyText} id="copySettingsText">
+        {nonTandemText(pumpSettings, lookupKey, bgUnits)}
+      </pre>
     </div>
   );
 };

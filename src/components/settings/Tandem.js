@@ -33,7 +33,6 @@ import { DISPLAY_VIEW, PRINT_VIEW } from './constants';
 const Tandem = (props) => {
   const {
     bgUnits,
-    deviceKey,
     openedSections,
     pumpSettings,
     timePrefs,
@@ -101,7 +100,9 @@ const Tandem = (props) => {
         <span className={styles.title}>Profile Settings</span>
         {tables}
       </div>
-      <pre className={styles.copyText} id="copySettingsText">{tandemText(pumpSettings, bgUnits, styles)}</pre>
+      <pre className={styles.copyText} id="copySettingsText">
+        {tandemText(pumpSettings, bgUnits, styles)}
+      </pre>
     </div>
   );
 };

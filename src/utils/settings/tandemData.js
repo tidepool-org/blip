@@ -14,41 +14,41 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import _ from 'lodash';
-
 import * as data from './data';
 
+/**
+ * basalSchedules
+ * @param  {Object} settings    object with basal schedule properties
+ *
+ * @return {Array}              array of basal schedule names
+ */
 export function basalSchedules(settings) {
   return data.getTimedSchedules(settings.basalSchedules);
 }
 
+/**
+ * deviceMeta
+ * @param  {Object} settingsData all settings data
+ * @param  {Object} timePrefs    timezone preferences object
+ *
+ * @return {Object}              filtered meta data
+ */
 export function deviceMeta(settings, timePrefs) {
   return data.getDeviceMeta(settings, timePrefs);
 }
 
 /**
- * basal
- *
- * @param  {Object} schedule       object schedule to build basal data from
- * @param  {Object} settings       object with pump settings data
- * @param  {String} units          MGDL_UNITS or MMOLL_UNITS
- * @param  {String} styles         object with applicable styles
- * @return {Object}                object with basal title, columns and rows
+ * scheduleLabel
+ * @private
  */
-export function basal(schedule, settings, units, styles) {
-  return {
-    scheduleName: schedule.name,
-    activeAtUpload: (schedule.name === settings.activeSchedule),
-    title: scheduleLabel(schedule.name, settings.activeSchedule),
-    columns: basalColumns(styles, units),
-    rows: basalRows(schedule, settings, units),
-  };
-}
-
 function scheduleLabel(scheduleName, activeScheduleName) {
   return data.getScheduleLabel(scheduleName, activeScheduleName, 'tandem', true);
 }
 
+/**
+ * basalRows
+ * @private
+ */
 function basalRows(schedule, settings, units) {
   return data.processTimedSettings(
     settings,
@@ -57,6 +57,10 @@ function basalRows(schedule, settings, units) {
   );
 }
 
+/**
+ * basalColumns
+ * @private
+ */
 function basalColumns(styles, units) {
   return [
     { key: 'start',
@@ -86,4 +90,23 @@ function basalColumns(styles, units) {
       },
       className: styles.bolusSettingsHeader },
   ];
+}
+
+/**
+ * basal
+ *
+ * @param  {Object} schedule       object schedule to build basal data from
+ * @param  {Object} settings       object with pump settings data
+ * @param  {String} units          MGDL_UNITS or MMOLL_UNITS
+ * @param  {String} styles         object with applicable styles
+ * @return {Object}                object with basal title, columns and rows
+ */
+export function basal(schedule, settings, units, styles) {
+  return {
+    scheduleName: schedule.name,
+    activeAtUpload: (schedule.name === settings.activeSchedule),
+    title: scheduleLabel(schedule.name, settings.activeSchedule),
+    columns: basalColumns(styles, units),
+    rows: basalRows(schedule, settings, units),
+  };
 }

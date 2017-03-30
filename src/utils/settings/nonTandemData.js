@@ -14,18 +14,35 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import _ from 'lodash';
-
 import * as data from './data';
 
+/**
+ * basalSchedules
+ * @param  {Object} settings    object with basal schedule properties
+ *
+ * @return {Array}              array of basal schedule names
+ */
 export function basalSchedules(settings) {
   return data.getScheduleNames(settings.basalSchedules);
 }
 
+/**
+ * deviceMeta
+ * @param  {Object} settingsData all settings data
+ * @param  {Object} timePrefs    timezone preferences object
+ *
+ * @return {Object}              filtered meta data
+ */
 export function deviceMeta(settings, timePrefs) {
   return data.getDeviceMeta(settings, timePrefs);
 }
 
+/**
+ * bolusTitle
+ * @param  {String} manufacturer one of: animas, carelink, insulet, medtronic
+ *
+ * @return {String}              bolus title for given manufacturer
+ */
 export function bolusTitle(manufacturer) {
   const BOLUS_SETTINGS_LABEL_BY_MANUFACTURER = {
     animas: 'ezCarb ezBG',
@@ -35,6 +52,12 @@ export function bolusTitle(manufacturer) {
   return BOLUS_SETTINGS_LABEL_BY_MANUFACTURER[manufacturer];
 }
 
+/**
+ * deviceName
+ * @param  {String} manufacturer one of: animas, insulet, medtronic
+ *
+ * @return {String}              name for given manufacturer
+ */
 export function deviceName(manufacturer) {
   const DEVICE_DISPLAY_NAME_BY_MANUFACTURER = {
     animas: 'Animas',
@@ -45,6 +68,30 @@ export function deviceName(manufacturer) {
 }
 
 /**
+ * scheduleLabel
+ * @private
+ */
+function scheduleLabel(scheduleName, activeScheduleName, manufacturer) {
+  return data.getScheduleLabel(scheduleName, activeScheduleName, manufacturer, false);
+}
+
+/**
+ * basalRows
+ * @private
+ */
+function basalRows(schedule, settings) {
+  return data.processBasalRateData(settings.basalSchedules[schedule]);
+}
+
+/**
+ * basalColumns
+ * @private
+ */
+function basalColumns() {
+  return data.startTimeAndValue('rate');
+}
+
+/**
  * basal
  *
  * @param  {Object} settings       object with pump settings data
@@ -52,26 +99,46 @@ export function deviceName(manufacturer) {
  * @return {Object}                object with basal title, columns and rows
  */
 export function basal(schedule, settings, manufacturer) {
-  const scheduleName = settings.basalSchedules[schedule].name;
+  const name = settings.basalSchedules[schedule].name;
   return {
-    scheduleName: scheduleName,
-    activeAtUpload: (scheduleName === settings.activeSchedule),
-    title: scheduleLabel(scheduleName, settings.activeSchedule, manufacturer),
+    scheduleName: name,
+    activeAtUpload: (name === settings.activeSchedule),
+    title: scheduleLabel(name, settings.activeSchedule, manufacturer),
     columns: basalColumns(),
     rows: basalRows(schedule, settings),
   };
 }
 
-function scheduleLabel(scheduleName, activeScheduleName, manufacturer) {
-  return data.getScheduleLabel(scheduleName, activeScheduleName, manufacturer, false);
+/**
+ * sensitivityTitle
+ * @private
+ */
+function sensitivityTitle(manufacturer) {
+  const ISF_BY_MANUFACTURER = {
+    animas: 'ISF',
+    insulet: 'Correction factor',
+    medtronic: 'Sensitivity',
+  };
+  return ISF_BY_MANUFACTURER[manufacturer];
 }
 
-function basalRows(schedule, settings) {
-  return data.processBasalRateData(settings.basalSchedules[schedule]);
+/**
+ * sensitivityColumns
+ * @private
+ */
+function sensitivityColumns() {
+  return data.startTimeAndValue('amount');
 }
 
-function basalColumns() {
-  return data.startTimeAndValue('rate');
+/**
+ * sensitivityRows
+ * @private
+ */
+function sensitivityRows(settings, units) {
+  return data.processSensitivityData(
+    settings.insulinSensitivity,
+    units,
+  );
 }
 
 /**
@@ -90,24 +157,33 @@ export function sensitivity(settings, manufacturer, units) {
   };
 }
 
-function sensitivityTitle(manufacturer) {
-  const ISF_BY_MANUFACTURER = {
-    animas: 'ISF',
-    insulet: 'Correction factor',
-    medtronic: 'Sensitivity',
+/**
+ * ratioTitle
+ * @private
+ */
+function ratioTitle(manufacturer) {
+  const CARB_RATIO_BY_MANUFACTURER = {
+    animas: 'I:C Ratio',
+    insulet: 'IC ratio',
+    medtronic: 'Carb Ratios',
   };
-  return ISF_BY_MANUFACTURER[manufacturer];
+  return CARB_RATIO_BY_MANUFACTURER[manufacturer];
 }
 
-function sensitivityColumns() {
+/**
+ * ratioColumns
+ * @private
+ */
+function ratioColumns() {
   return data.startTimeAndValue('amount');
 }
 
-function sensitivityRows(settings, units) {
-  return data.processSensitivityData(
-    settings.insulinSensitivity,
-    units,
-  );
+/**
+ * ratioRows
+ * @private
+ */
+function ratioRows(settings) {
+  return data.processCarbRatioData(settings.carbRatio);
 }
 
 /**
@@ -125,39 +201,10 @@ export function ratio(settings, manufacturer) {
   };
 }
 
-function ratioTitle(manufacturer) {
-  const CARB_RATIO_BY_MANUFACTURER = {
-    animas: 'I:C Ratio',
-    insulet: 'IC ratio',
-    medtronic: 'Carb Ratios',
-  };
-  return CARB_RATIO_BY_MANUFACTURER[manufacturer];
-}
-
-function ratioColumns() {
-  return data.startTimeAndValue('amount');
-}
-
-function ratioRows(settings) {
-  return data.processCarbRatioData(settings.carbRatio);
-}
-
 /**
- * target
- *
- * @param  {Object} settings       object with pump settings data
- * @param  {String} manufacturer   one of: animas, carelink, insulet, medtronic
- * @param  {String} units          MGDL_UNITS or MMOLL_UNITS
- * @return {Object}                object with target title, columns and rows
+ * targetTitle
+ * @private
  */
-export function target(settings, manufacturer, units) {
-  return {
-    title: targetTitle(manufacturer),
-    columns: targetColumns(manufacturer),
-    rows: targetRows(settings, units, manufacturer),
-  };
-}
-
 function targetTitle(manufacturer) {
   const BG_TARGET_BY_MANUFACTURER = {
     animas: 'BG Target',
@@ -167,6 +214,10 @@ function targetTitle(manufacturer) {
   return BG_TARGET_BY_MANUFACTURER[manufacturer];
 }
 
+/**
+ * targetColumns
+ * @private
+ */
 function targetColumns(manufacturer) {
   const BG_TARGET_COLS_BY_MANUFACTURER = {
     animas: [
@@ -188,6 +239,10 @@ function targetColumns(manufacturer) {
   return BG_TARGET_COLS_BY_MANUFACTURER[manufacturer];
 }
 
+/**
+ * targetRows
+ * @private
+ */
 function targetRows(settings, units, manufacturer) {
   const BG_TARGET_ACCESSORS_BY_MANUFACTURER = {
     animas: { columnTwo: 'target', columnThree: 'range' },
@@ -199,4 +254,20 @@ function targetRows(settings, units, manufacturer) {
     units,
     BG_TARGET_ACCESSORS_BY_MANUFACTURER[manufacturer],
   );
+}
+
+/**
+ * target
+ *
+ * @param  {Object} settings       object with pump settings data
+ * @param  {String} manufacturer   one of: animas, carelink, insulet, medtronic
+ * @param  {String} units          MGDL_UNITS or MMOLL_UNITS
+ * @return {Object}                object with target title, columns and rows
+ */
+export function target(settings, manufacturer, units) {
+  return {
+    title: targetTitle(manufacturer),
+    columns: targetColumns(manufacturer),
+    rows: targetRows(settings, units, manufacturer),
+  };
 }
