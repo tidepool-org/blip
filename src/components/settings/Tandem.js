@@ -41,8 +41,6 @@ const Tandem = (props) => {
     view,
   } = props;
 
-  let copyText = '';
-
   function renderBreathingSpace() {
     if (view === PRINT_VIEW) {
       return (
@@ -90,7 +88,7 @@ const Tandem = (props) => {
       <ClipboardButton
         className={styles.copyButton}
         button-title="For email or notes"
-        data-clipboard-text={tandemText(pumpSettings, bgUnits, styles)}
+        data-clipboard-target="#copySettingsText"
       >
         <p>Copy as text</p>
       </ClipboardButton>
@@ -103,6 +101,7 @@ const Tandem = (props) => {
         <span className={styles.title}>Profile Settings</span>
         {tables}
       </div>
+      <pre className={styles.copyText} id="copySettingsText">{tandemText(pumpSettings, bgUnits, styles)}</pre>
     </div>
   );
 };
@@ -111,52 +110,52 @@ Tandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
   deviceKey: PropTypes.oneOf(['tandem']).isRequired,
   openedSections: PropTypes.object.isRequired,
-  pumpSettings: React.PropTypes.shape({
-    activeSchedule: React.PropTypes.string.isRequired,
-    units: React.PropTypes.object.isRequired,
-    deviceId: React.PropTypes.string.isRequired,
-    basalSchedules: React.PropTypes.arrayOf(
-      React.PropTypes.shape({
-        name: React.PropTypes.string.isRequired,
-        value: React.PropTypes.arrayOf(
-          React.PropTypes.shape({
-            start: React.PropTypes.number.isRequired,
-            rate: React.PropTypes.number.isRequired,
+  pumpSettings: PropTypes.shape({
+    activeSchedule: PropTypes.string.isRequired,
+    units: PropTypes.object.isRequired,
+    deviceId: PropTypes.string.isRequired,
+    basalSchedules: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        value: PropTypes.arrayOf(
+          PropTypes.shape({
+            start: PropTypes.number.isRequired,
+            rate: PropTypes.number.isRequired,
           }),
         ),
       }).isRequired,
     ).isRequired,
-    bgTargets: React.PropTypes.objectOf(
-      React.PropTypes.arrayOf(
-        React.PropTypes.shape({
-          start: React.PropTypes.number.isRequired,
-          target: React.PropTypes.number.isRequired,
+    bgTargets: PropTypes.objectOf(
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          start: PropTypes.number.isRequired,
+          target: PropTypes.number.isRequired,
         })
       ).isRequired,
     ).isRequired,
-    carbRatios: React.PropTypes.objectOf(
-      React.PropTypes.arrayOf(
-        React.PropTypes.shape({
-          start: React.PropTypes.number.isRequired,
-          amount: React.PropTypes.number.isRequired,
+    carbRatios: PropTypes.objectOf(
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          start: PropTypes.number.isRequired,
+          amount: PropTypes.number.isRequired,
         })
       ).isRequired,
     ).isRequired,
-    insulinSensitivities: React.PropTypes.objectOf(
-      React.PropTypes.arrayOf(
-        React.PropTypes.shape({
-          start: React.PropTypes.number.isRequired,
-          amount: React.PropTypes.number.isRequired,
+    insulinSensitivities: PropTypes.objectOf(
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          start: PropTypes.number.isRequired,
+          amount: PropTypes.number.isRequired,
         })
       ).isRequired,
     ).isRequired,
   }).isRequired,
   timePrefs: PropTypes.shape({
-    timezoneAware: React.PropTypes.bool.isRequired,
-    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
+    timezoneAware: PropTypes.bool.isRequired,
+    timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
   }).isRequired,
   toggleProfileExpansion: PropTypes.func.isRequired,
-  view: React.PropTypes.oneOf([DISPLAY_VIEW, PRINT_VIEW]).isRequired,
+  view: PropTypes.oneOf([DISPLAY_VIEW, PRINT_VIEW]).isRequired,
 };
 
 Tandem.defaultProps = {

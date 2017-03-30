@@ -41,7 +41,6 @@ const NonTandem = (props) => {
     view,
   } = props;
 
-  let copyText = '';
   let lookupKey = deviceKey;
 
   if (deviceKey === 'carelink') {
@@ -184,7 +183,7 @@ const NonTandem = (props) => {
       <ClipboardButton
         className={styles.copyButton}
         button-title="For email or notes"
-        data-clipboard-text={nonTandemText(pumpSettings, lookupKey, bgUnits)}
+        data-clipboard-target="#copySettingsText"
       >
         <p>Copy as text</p>
       </ClipboardButton>
@@ -208,6 +207,7 @@ const NonTandem = (props) => {
           {renderRatioData()}
         </div>
       </div>
+      <pre className={styles.copyText} id="copySettingsText">{nonTandemText(pumpSettings, lookupKey, bgUnits)}</pre>
     </div>
   );
 };

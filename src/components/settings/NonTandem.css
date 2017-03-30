@@ -19,6 +19,10 @@
   composes: copyButton from './settings.css';
 }
 
+.copyText {
+  composes: copyText from './settings.css';
+}
+
 .settingsContainer {
   align-items: flex-start;
   display: flex;

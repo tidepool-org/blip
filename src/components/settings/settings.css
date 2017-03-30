@@ -28,6 +28,12 @@
   padding: 5px;
 }
 
+.copyText {
+  position: absolute;
+  left: -5000px;
+  top: 10px;
+}
+
 .settingsTable {
   composes: defaultSize mediumContrastText from '../../styles/typography.css';
   min-width: 250px;
