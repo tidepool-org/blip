@@ -44,6 +44,8 @@ import nurseShark from 'tideline/plugins/nurseshark/';
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 
+import { DEFAULT_SETTINGS } from '../patient/patientsettings';
+
 export let PatientData = React.createClass({
   propTypes: {
     clearPatientData: React.PropTypes.func.isRequired,
@@ -590,11 +592,12 @@ export let PatientData = React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     var userId = this.props.currentPatientInViewId;
-    var currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
-
     var nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
 
-    if (!currentPatientData && nextPatientData) {
+    // Hold processing until patient is fetched (ensuring settings are accessible), AND
+    // processing hasn't already taken place (this should be cleared already when switching patients), AND
+    // nextProps patient data exists
+    if (!nextProps.fetchingPatient && !this.state.processedPatientData && nextPatientData) {
       this.doProcessing(nextProps);
     }
   },
@@ -602,6 +605,9 @@ export let PatientData = React.createClass({
   doProcessing: function(nextProps) {
     var userId = this.props.currentPatientInViewId;
     var patientData = _.get(nextProps, ['patientDataMap', userId], null);
+    var patientSettings = _.cloneDeep(_.get(nextProps, ['patient', 'settings'], null));
+    _.defaultsDeep(patientSettings, DEFAULT_SETTINGS);
+
     if (patientData) {
       let combinedData = patientData.concat(nextProps.patientNotesMap[userId]);
       window.downloadInputData = () => {
@@ -610,7 +616,8 @@ export let PatientData = React.createClass({
       let processedData = utils.processPatientData(
         this,
         combinedData,
-        this.props.queryParams
+        this.props.queryParams,
+        patientSettings,
       );
       this.setState({
         processedPatientData: processedData,

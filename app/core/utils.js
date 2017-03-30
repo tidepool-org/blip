@@ -196,7 +196,7 @@ utils.getInviteKey = function(location) {
   return '';
 }
 
-utils.processPatientData = (comp, data, queryParams) => {
+utils.processPatientData = (comp, data, queryParams, settings) => {
   if (!(data && data.length >= 0)) {
     return null;
   }
@@ -242,7 +242,7 @@ utils.processPatientData = (comp, data, queryParams) => {
   }
 
   console.time('Nurseshark Total');
-  var bgUnits = 'mg/dL';
+  var bgUnits = settings.units.bg;
   if (!_.isEmpty(queryParams.units) && queryParams.units === 'mmoll') {
     bgUnits = 'mmol/L';
     console.log('Displaying BG in mmol/L from query params');
@@ -252,7 +252,11 @@ utils.processPatientData = (comp, data, queryParams) => {
   console.time('TidelineData Total');
   var tidelineData = new TidelineData(res.processedData, {
     timePrefs: timePrefsForTideline,
-    bgUnits: bgUnits
+    bgUnits: bgUnits,
+    bgClasses: {
+      low: { boundary: settings.bgTarget.low },
+      target: { boundary: settings.bgTarget.high },
+    },
   });
   console.timeEnd('TidelineData Total');
 
