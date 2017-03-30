@@ -17,17 +17,18 @@
 
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
+import ClipboardButton from 'react-clipboard.js';
 
 import styles from './Tandem.css';
 
 import Header from './common/Header';
 import Table from './common/Table';
 import CollapsibleContainer from './common/CollapsibleContainer';
-
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
-import * as data from '../../utils/settings/data';
+import * as tandemData from '../../utils/settings/tandemData';
+import { tandemText } from '../../utils/settings/textData';
 
-import { COPY_VIEW, DISPLAY_VIEW, PRINT_VIEW } from './constants';
+import { DISPLAY_VIEW, PRINT_VIEW } from './constants';
 
 const Tandem = (props) => {
   const {
@@ -40,43 +41,9 @@ const Tandem = (props) => {
     view,
   } = props;
 
-  const schedules = data.getTimedSchedules(pumpSettings.basalSchedules);
-
-  const COLUMNS = [
-    { key: 'start',
-      label: 'Start time' },
-    { key: 'rate',
-      label: {
-        main: 'Basal Rates',
-        secondary: 'U/hr',
-      },
-      className: styles.basalScheduleHeader },
-    { key: 'bgTarget',
-      label: {
-        main: 'Target BG',
-        secondary: bgUnits,
-      },
-      className: styles.bolusSettingsHeader },
-    { key: 'carbRatio',
-      label: {
-        main: 'Carb Ratio',
-        secondary: 'g/U',
-      },
-      className: styles.bolusSettingsHeader },
-    { key: 'insulinSensitivity',
-      label: {
-        main: 'Correction Factor',
-        secondary: `${bgUnits}/U`,
-      },
-      className: styles.bolusSettingsHeader },
-  ];
+  let copyText = '';
 
   function renderBreathingSpace() {
-    if (view === COPY_VIEW) {
-      return (
-        <div><br /></div>
-      );
-    }
     if (view === PRINT_VIEW) {
       return (
         <div className={styles.printNotes}>
@@ -95,22 +62,21 @@ const Tandem = (props) => {
     return _.get(openedSections, sectionName, false);
   }
 
-  const tables = _.map(schedules, (schedule) => {
-    if (view === COPY_VIEW && !openSection(schedule.name)) {
-      return null;
-    }
+  const tables = _.map(tandemData.basalSchedules(pumpSettings), (schedule) => {
+    const basal = tandemData.basal(schedule, pumpSettings, bgUnits, styles);
+
     return (
-      <div className="settings-table-container" key={schedule.name}>
+      <div className="settings-table-container" key={basal.scheduleName}>
         <CollapsibleContainer
-          label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, deviceKey, true)}
+          label={basal.title}
           labelClass={styles.collapsibleLabel}
-          opened={openSection(schedule.name)}
-          toggleExpansion={_.partial(toggleProfileExpansion, schedule.name)}
+          opened={openSection(basal.scheduleName)}
+          toggleExpansion={_.partial(toggleProfileExpansion, basal.scheduleName)}
           twoLineLabel={false}
         >
           <Table
-            rows={data.processTimedSettings(pumpSettings, schedule, bgUnits)}
-            columns={COLUMNS}
+            rows={basal.rows}
+            columns={basal.columns}
             tableStyle={styles.profileTable}
           />
         </CollapsibleContainer>
@@ -118,11 +84,19 @@ const Tandem = (props) => {
       </div>
     );
   });
+
   return (
     <div>
+      <ClipboardButton
+        className={styles.copyButton}
+        button-title="For email or notes"
+        data-clipboard-text={tandemText(pumpSettings, bgUnits, styles)}
+      >
+        <p>Copy as text</p>
+      </ClipboardButton>
       <Header
         deviceDisplayName="Tandem"
-        deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
+        deviceMeta={tandemData.deviceMeta(pumpSettings, timePrefs)}
         printView={view === PRINT_VIEW}
       />
       <div>
@@ -182,7 +156,7 @@ Tandem.propTypes = {
     timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
   }).isRequired,
   toggleProfileExpansion: PropTypes.func.isRequired,
-  view: React.PropTypes.oneOf([COPY_VIEW, DISPLAY_VIEW, PRINT_VIEW]).isRequired,
+  view: React.PropTypes.oneOf([DISPLAY_VIEW, PRINT_VIEW]).isRequired,
 };
 
 Tandem.defaultProps = {

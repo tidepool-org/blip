@@ -19,7 +19,6 @@ import _ from 'lodash';
 import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import ClipboardButton from 'react-clipboard.js';
 
 import * as actions from '../../redux/actions/';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
@@ -27,8 +26,6 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import NonTandem from '../../components/settings/NonTandem';
 import Tandem from '../../components/settings/Tandem';
 import { COPY_VIEW, DISPLAY_VIEW, PRINT_VIEW } from '../../components/settings/constants';
-
-import styles from './PumpSettingsContainer.css';
 
 export class PumpSettingsContainer extends PureComponent {
   static propTypes = {
@@ -75,8 +72,9 @@ export class PumpSettingsContainer extends PureComponent {
     } = this.props;
     const supportedNonTandemPumps = ['animas', 'carelink', 'insulet', 'medtronic'];
     const toggleFn = _.partial(toggleSettingsSection, manufacturerKey);
+
     if (manufacturerKey === 'tandem') {
-      const settings = (
+      return (
         <Tandem
           bgUnits={bgUnits}
           deviceKey={manufacturerKey}
@@ -87,43 +85,8 @@ export class PumpSettingsContainer extends PureComponent {
           view={view}
         />
       );
-      if (view === PRINT_VIEW) {
-        return (
-          <div>
-            {settings}
-          </div>
-        );
-      }
-
-      const copy = (
-        <div className={styles.copySchedule} id="copySchedule">
-          <Tandem
-            bgUnits={bgUnits}
-            deviceKey={manufacturerKey}
-            openedSections={settingsState[manufacturerKey]}
-            pumpSettings={pumpSettings}
-            timePrefs={timePrefs}
-            toggleProfileExpansion={toggleFn}
-            view={COPY_VIEW}
-          />
-        </div>
-      );
-
-      return (
-        <div>
-          <ClipboardButton
-            className={styles.copyButton}
-            button-title="For email or notes"
-            data-clipboard-target="#copySchedule"
-          >
-            <p>Copy as text</p>
-          </ClipboardButton>
-          {settings}
-          {copy}
-        </div>
-      );
     } else if (_.includes(supportedNonTandemPumps, manufacturerKey)) {
-      const settings = (
+      return (
         <NonTandem
           bgUnits={bgUnits}
           deviceKey={manufacturerKey}
@@ -133,41 +96,6 @@ export class PumpSettingsContainer extends PureComponent {
           toggleBasalScheduleExpansion={toggleFn}
           view={view}
         />
-      );
-      if (view === PRINT_VIEW) {
-        return (
-          <div>
-            {settings}
-          </div>
-        );
-      }
-
-      const copy = (
-        <div className={styles.copySchedule} id="copySchedule">
-          <NonTandem
-            bgUnits={bgUnits}
-            deviceKey={manufacturerKey}
-            openedSections={settingsState[manufacturerKey]}
-            pumpSettings={pumpSettings}
-            timePrefs={timePrefs}
-            toggleBasalScheduleExpansion={toggleFn}
-            view={COPY_VIEW}
-          />
-        </div>
-      );
-
-      return (
-        <div>
-          <ClipboardButton
-            className={styles.copyButton}
-            button-title="For email or notes"
-            data-clipboard-target="#copySchedule"
-          >
-            <p>Copy as text</p>
-          </ClipboardButton>
-          {settings}
-          {copy}
-        </div>
       );
     }
     // eslint-disable-next-line no-console

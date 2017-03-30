@@ -17,6 +17,10 @@
 
 @import '../../styles/colors.css';
 
+.copyButton {
+  composes: copyButton from './settings.css';
+}
+
 .headerCommon {
   line-height: 20px;
 }
@@ -62,6 +66,10 @@
 }
 
 @media print {
+
+  .copyButton {
+    composes: copyButton from './settings.css';
+  }
 
   .title {
     font-weight: normal;

@@ -17,6 +17,16 @@
 
 @import '../../styles/colors.css';
 
+.copyButton {
+  float: right;
+  font-weight: normal;
+  font-size: 14px;
+  color: var(--chrome);
+  background-color: #fff;
+  border: solid 1px #e5e5e5;
+  line-height: 0px;
+  padding: 5px;
+}
 
 .settingsTable {
   composes: defaultSize mediumContrastText from '../../styles/typography.css';
@@ -92,6 +102,10 @@
 }
 
 @media print {
+
+  .copyButton {
+    display: none;
+  }
 
   .printNotes hr {
     padding-top: 30px;
