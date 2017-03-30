@@ -605,7 +605,7 @@ export let PatientData = React.createClass({
   doProcessing: function(nextProps) {
     var userId = this.props.currentPatientInViewId;
     var patientData = _.get(nextProps, ['patientDataMap', userId], null);
-    var patientSettings = _.get(nextProps, ['patient', 'settings'], null);
+    var patientSettings = _.cloneDeep(_.get(nextProps, ['patient', 'settings'], null));
     _.defaultsDeep(patientSettings, DEFAULT_SETTINGS);
 
     if (patientData) {
