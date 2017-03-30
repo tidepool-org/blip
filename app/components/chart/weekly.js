@@ -39,6 +39,7 @@ var WeeklyChart = React.createClass({
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
+    patient: React.PropTypes.object,
     patientData: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     // handlers
@@ -204,6 +205,7 @@ var Weekly = React.createClass({
     return (
       <Header
         chartType={this.chartType}
+        patient={this.props.patient}
         atMostRecent={this.state.atMostRecent}
         inTransition={this.state.inTransition}
         title={this.state.title}

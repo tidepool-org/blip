@@ -37,7 +37,6 @@ import Trends from '../../components/chart/trends';
 import { weekly as Weekly } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import SettingsPrintView from '../../components/printview';
-import PrintTemplate from 'react-print';
 
 import nurseShark from 'tideline/plugins/nurseshark/';
 
@@ -211,7 +210,6 @@ export let PatientData = React.createClass({
         </div>
       </div>
     );
-
   },
 
   isEmptyPatientData: function() {
@@ -232,12 +230,13 @@ export let PatientData = React.createClass({
   renderSettings: function(){
     return (
       <div>
-        <div id="react-no-print">
+        <div id="app-no-print">
           <Settings
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
             timePrefs={this.state.timePrefs}
+            patient={this.props.patient}
             patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -250,22 +249,22 @@ export let PatientData = React.createClass({
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
+        );
         </div>
-        <div id="print-mount">
-          <PrintTemplate>
-            <SettingsPrintView
-              bgPrefs={this.state.bgPrefs}
-              currentPatientInViewId={this.props.currentPatientInViewId}
-              timePrefs={this.state.timePrefs}
-              patientData={this.state.processedPatientData}
-              patient={this.props.patient}
-              trackMetric={this.props.trackMetric}
-              ref="tideline" />
-          </PrintTemplate>
+        <div id="app-print">
+          <SettingsPrintView
+            bgPrefs={this.state.bgPrefs}
+            currentPatientInViewId={this.props.currentPatientInViewId}
+            timePrefs={this.state.timePrefs}
+            patientData={this.state.processedPatientData}
+            patient={this.props.patient}
+            trackMetric={this.props.trackMetric}
+            ref="tideline" />
         </div>
       </div>
     );
   },
+
   renderChart: function() {
     switch (this.state.chartType) {
       case 'basics':
@@ -290,15 +289,14 @@ export let PatientData = React.createClass({
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
-
       case 'daily':
-
         return (
           <Daily
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
+            patient={this.props.patient}
             patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
@@ -311,9 +309,7 @@ export let PatientData = React.createClass({
             updateDatetimeLocation={this.updateDatetimeLocation}
             ref="tideline" />
           );
-
       case 'trends':
-
         return (
           <Trends
             bgPrefs={this.state.bgPrefs}
@@ -321,6 +317,7 @@ export let PatientData = React.createClass({
             currentPatientInViewId={this.props.currentPatientInViewId}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
+            patient={this.props.patient}
             patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -335,15 +332,14 @@ export let PatientData = React.createClass({
             trendsState={this.props.viz.trends}
             ref="tideline" />
           );
-
       case 'weekly':
-
         return (
           <Weekly
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
+            patient={this.props.patient}
             patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -358,7 +354,6 @@ export let PatientData = React.createClass({
             ref="tideline"
             isClinicAccount={personUtils.isClinic(this.props.user)} />
           );
-
       case 'settings':
         return this.renderSettings();
     }

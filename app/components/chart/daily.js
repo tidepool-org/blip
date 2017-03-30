@@ -37,6 +37,7 @@ var DailyChart = React.createClass({
     bolusRatio: React.PropTypes.number,
     dynamicCarbs: React.PropTypes.bool,
     initialDatetimeLocation: React.PropTypes.string,
+    patient: React.PropTypes.object,
     patientData: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     // message handlers
@@ -171,6 +172,7 @@ var Daily = React.createClass({
       <div id="tidelineMain">
         <Header
           chartType={this.chartType}
+          patient={this.props.patient}
           inTransition={this.state.inTransition}
           atMostRecent={this.state.atMostRecent}
           title={this.state.title}

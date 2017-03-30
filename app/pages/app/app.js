@@ -167,24 +167,22 @@ export class AppComponent extends React.Component {
           patient = this.props.patient;
           getUploadUrl = this.props.context.api.getUploadUrl.bind(this.props.context.api);
         }
-
         return (
-          <div className="App-navbar">
-            <Navbar
-              user={this.props.user}
-              fetchingUser={this.props.fetchingUser}
-              patient={patient}
-              fetchingPatient={this.props.fetchingPatient}
-              currentPage={this.props.location}
-              getUploadUrl={getUploadUrl}
-              onLogout={this.props.onLogout}
-              trackMetric={this.props.context.trackMetric}
-              ref="navbar"/>
+         <div className="App-navbar">
+          <Navbar
+            user={this.props.user}
+            fetchingUser={this.props.fetchingUser}
+            patient={patient}
+            fetchingPatient={this.props.fetchingPatient}
+            currentPage={this.props.location}
+            getUploadUrl={getUploadUrl}
+            onLogout={this.props.onLogout}
+            trackMetric={this.props.context.trackMetric}
+            ref="navbar"/>
           </div>
         );
       }
     }
-
     return null;
   }
 
@@ -202,7 +200,6 @@ export class AppComponent extends React.Component {
       if (notification.isDismissible) {
         handleClose = this.props.onCloseNotification.bind(this);
       }
-
       return (
         <TidepoolNotification
           type={notification.type}
