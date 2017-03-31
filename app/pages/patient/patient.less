@@ -25,12 +25,6 @@
   }
 }
 
-.PatientPage-layer {
-  @media(min-width: @screen-lg-min) {
-    box-shadow: -5px 5px 0 0 #b3b3b3;
-  }
-}
-
 // Subnav
 // ====================================
 
@@ -74,8 +68,8 @@
 .PatientPage-content {
   padding-top: 30px;
   padding-bottom: 140px;
-  padding-left: 150px;
-  padding-right: 150px;
+  padding-left: 125px;
+  padding-right: 125px;
 
   background-color: @gray-background;
 }
@@ -85,6 +79,10 @@
   text-transform: uppercase;
   float: left;
   padding-bottom: 15px;
+
+  .PatientPage-sectionTitle--lowercase {
+    text-transform: none;
+  }
 }
 
 // Footer

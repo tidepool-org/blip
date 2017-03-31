@@ -587,10 +587,11 @@ export function updateSettingsRequest() {
   };
 }
 
-export function updateSettingsSuccess(settings) {
+export function updateSettingsSuccess(userId, settings) {
   return {
     type: ActionTypes.UPDATE_SETTINGS_SUCCESS,
     payload: {
+      userId: userId,
       updatedSettings: settings,
     },
   };

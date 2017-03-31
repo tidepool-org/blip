@@ -20,6 +20,8 @@ let getFetchers = (dispatchProps, ownProps, api) => {
 export function mapStateToProps(state) {
   let user = null;
   let patient = null;
+  let permissions = {};
+  let permsOfLoggedInUser = {};
 
   let { 
     allUsersMap, 
@@ -34,13 +36,30 @@ export function mapStateToProps(state) {
 
     if (currentPatientInViewId){
       patient = allUsersMap[currentPatientInViewId];
+
+      permissions = _.get(
+        state.blip.permissionsOfMembersInTargetCareTeam,
+        state.blip.currentPatientInViewId,
+        {}
+      );
+      // if the logged-in user is viewing own data, we pass through their own permissions as permsOfLoggedInUser
+      if (state.blip.currentPatientInViewId === state.blip.loggedInUserId) {
+        permsOfLoggedInUser = permissions;
+      }
+      // otherwise, we need to pull the perms of the loggedInUser wrt the patient in view from membershipPermissionsInOtherCareTeams
+      else {
+        if (!_.isEmpty(state.blip.membershipPermissionsInOtherCareTeams)) {
+          permsOfLoggedInUser = state.blip.membershipPermissionsInOtherCareTeams[state.blip.currentPatientInViewId];
+        }
+      }
     }
   }
 
   return {
     user: user,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
-    patient: patient,
+    patient: { permissions, ...patient },
+    permsOfLoggedInUser: permsOfLoggedInUser,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress
   };
 }
@@ -48,7 +67,8 @@ export function mapStateToProps(state) {
 let mapDispatchToProps = dispatch => bindActionCreators({
   acknowledgeNotification: actions.sync.acknowledgeNotification,
   fetchPatient: actions.async.fetchPatient,
-  updatePatient: actions.async.updatePatient
+  updatePatient: actions.async.updatePatient,
+  updatePatientSettings: actions.async.updateSettings,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -56,6 +76,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return Object.assign({}, stateProps, _.pick(dispatchProps, 'acknowledgeNotification'), {
     fetchers: getFetchers(dispatchProps, ownProps, api),
     onUpdatePatient: dispatchProps.updatePatient.bind(null, api),
+    onUpdatePatientSettings: dispatchProps.updatePatientSettings.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });
 };

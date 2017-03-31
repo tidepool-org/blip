@@ -18,6 +18,8 @@ describe('PatientInfo', function () {
         fetchingPatient: false,
         fetchingUser: false,
         onUpdatePatient: sinon.stub(),
+        onUpdatePatientSettings: sinon.stub(),
+        permsOfLoggedInUser: {},
         trackMetric: sinon.stub()
       };
 

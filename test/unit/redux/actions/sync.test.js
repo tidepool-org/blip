@@ -1031,7 +1031,7 @@ describe('Actions', () => {
         let settings = {
           siteChangeSource: 'cannulaPrime'
         };
-        let action = sync.updateSettingsSuccess(settings);
+        let action = sync.updateSettingsSuccess(1234, settings);
 
         expect(action.type).to.equal('UPDATE_SETTINGS_SUCCESS');
         expect(action.payload.updatedSettings).to.equal(settings);
