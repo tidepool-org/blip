@@ -249,7 +249,6 @@ export let PatientData = React.createClass({
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
-        );
         </div>
         <div id="app-print">
           <SettingsPrintView
