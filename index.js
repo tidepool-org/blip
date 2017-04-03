@@ -295,6 +295,25 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Get the users 'patients' and thier associated data
+     *
+     * @param {String} userId id of the user
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getAllUsersInfo: function (userId, cb) {
+      if (userId == null) {
+        return cb({ status : common.STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
+      }
+      common.assertArgumentsSize(arguments, 2);
+
+      common.doGetWithToken(
+        '/metadata/users/' + userId + '/users',
+        { 200: function(res){ return res.body; }, 404: null },
+        cb
+      );
+    },
+    /**
      * Get the users 'patients' to whom they can upload for.
      *
      * @param {String} userId of the user
