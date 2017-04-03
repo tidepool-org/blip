@@ -451,34 +451,21 @@ api.patient.put = function(patient, cb) {
 // Get all patients in current user's "patients" group
 api.patient.getAll = function(cb) {
   api.log('GET /patients');
-
-  var userId = tidepool.getUserId();
-
-  // First, get a list of of patient ids in user's "patients" group
-  tidepool.getViewableUsers(userId, function(err, permissions) {
+  tidepool.getAllUsersInfo(tidepool.getUserId(), function(err, users) {
     if (err) {
       return cb(err);
     }
-
-    if (_.isEmpty(permissions)) {
+    if (_.isEmpty(users)) {
       return cb(null, []);
     }
-
-    // A user is always able to view her own data:
-    // filter her id from set of permissions
-    permissions = _.omit(permissions, userId);
-    // Convert to array of user ids
-    var patientIds = Object.keys(permissions);
-
-    // Second, get the patient object for each patient id
-    async.map(patientIds, getPatient, function(err, patients) {
-      if (err) {
-        return cb(err);
-      }
-      // Filter any patient ids that returned nothing
-      patients = _.filter(patients);
-      return cb(null, patients);
+    //match existing expectations
+    users = _.map(users, function(user) {
+      user.permissions = user.trustorPermissions
+      delete user.trustorPermissions
+      return user;
     });
+
+    return cb(null, users);
   });
 };
 
