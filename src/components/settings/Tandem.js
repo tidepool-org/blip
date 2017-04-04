@@ -101,7 +101,7 @@ const Tandem = (props) => {
         {tables}
       </div>
       <pre className={styles.copyText} id="copySettingsText">
-        {tandemText(pumpSettings, bgUnits, styles)}
+        {tandemText(pumpSettings, bgUnits)}
       </pre>
     </div>
   );

@@ -95,12 +95,12 @@ function buildTextTable(name, rows, columns) {
 /**
  * nonTandemText
  * @param  {Object} settings      all settings data
- * @param  {String} manufacturer  one of: animas, carelink, insulet, medtronic
  * @param  {String} units         MGDL_UNITS or MMOLL_UNITS
+ * @param  {String} manufacturer  one of: animas, carelink, insulet, medtronic
  *
  * @return {String}               non tandem settings as a string table
  */
-export function nonTandemText(settings, manufacturer, units) {
+export function nonTandemText(settings, units, manufacturer) {
   let tablesString = '';
   _.map(nonTandemData.basalSchedules(settings), (schedule) => {
     const basal = nonTandemData.basal(schedule, settings, manufacturer);
@@ -139,11 +139,15 @@ export function nonTandemText(settings, manufacturer, units) {
  * tandemText
  * @param  {Object} settings    all settings data
  * @param  {String} units       MGDL_UNITS or MMOLL_UNITS
- * @param  {Object} styles      styles applied
  *
  * @return {String}             tandem settings as a string table
  */
-export function tandemText(settings, units, styles) {
+export function tandemText(settings, units) {
+  const styles = {
+    bolusSettingsHeader: '',
+    basalScheduleHeader: '',
+  };
+
   let tablesString = '';
   _.map(tandemData.basalSchedules(settings), (schedule) => {
     const basal = tandemData.basal(schedule, settings, units, styles);

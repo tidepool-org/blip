@@ -25,7 +25,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 
 import NonTandem from '../../components/settings/NonTandem';
 import Tandem from '../../components/settings/Tandem';
-import { COPY_VIEW, DISPLAY_VIEW, PRINT_VIEW } from '../../components/settings/constants';
+import { DISPLAY_VIEW, PRINT_VIEW } from '../../components/settings/constants';
 
 export class PumpSettingsContainer extends PureComponent {
   static propTypes = {
@@ -44,7 +44,7 @@ export class PumpSettingsContainer extends PureComponent {
     }).isRequired,
     settingsState: PropTypes.object.isRequired,
     toggleSettingsSection: PropTypes.func.isRequired,
-    view: PropTypes.oneOf([COPY_VIEW, DISPLAY_VIEW, PRINT_VIEW]).isRequired,
+    view: PropTypes.oneOf([DISPLAY_VIEW, PRINT_VIEW]).isRequired,
   }
 
   componentWillMount() {

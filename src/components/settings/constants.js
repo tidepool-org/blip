@@ -15,6 +15,5 @@
  * == BSD2 LICENSE ==
  */
 
-export const COPY_VIEW = 'copy';
 export const DISPLAY_VIEW = 'display';
 export const PRINT_VIEW = 'print';
