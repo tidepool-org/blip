@@ -17,7 +17,7 @@ describe('PatientProfile', () => {
     describe('logged-in user is PWD viewing own profile', () => {
       const state = {
         allUsersMap: {
-          a1b2c3: {userid: 'a1b2c3'}
+          a1b2c3: {userid: 'a1b2c3', permissions: {root: {}}}
         },
         currentPatientInViewId: 'a1b2c3',
         loggedInUserId: 'a1b2c3',
@@ -54,8 +54,8 @@ describe('PatientProfile', () => {
     describe('logged-in user is viewing a different PWD\'s profile', () => {
       const state = {
         allUsersMap: {
-          a1b2c3: {userid: 'a1b2c3'},
-          d4e5f6: {userid: 'd4e5f6'}
+          a1b2c3: {userid: 'a1b2c3', permissions: {root: {}}},
+          d4e5f6: {userid: 'd4e5f6', permissions: {}}
         },
         currentPatientInViewId: 'd4e5f6',
         loggedInUserId: 'a1b2c3',

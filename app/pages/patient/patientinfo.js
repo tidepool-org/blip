@@ -20,6 +20,7 @@ var _ = require('lodash');
 var sundial = require('sundial');
 
 var personUtils = require('../../core/personutils');
+import PatientSettings from './patientsettings';
 
 //date masks we use
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
@@ -30,6 +31,8 @@ var PatientInfo = React.createClass({
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
     onUpdatePatient: React.PropTypes.func.isRequired,
+    onUpdatePatientSettings: React.PropTypes.func.isRequired,
+    permsOfLoggedInUser: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired,
     user: React.PropTypes.object
@@ -122,6 +125,12 @@ var PatientInfo = React.createClass({
             {this.getAboutText(patient)}
           </div>
         </div>
+        <PatientSettings
+          editingAllowed={this.isEditingAllowed(this.props.permsOfLoggedInUser)}
+          patient={this.props.patient}
+          onUpdatePatientSettings={this.props.onUpdatePatientSettings}
+          trackMetric={this.props.trackMetric}
+          />
       </div>
     );
   },
@@ -208,6 +217,12 @@ var PatientInfo = React.createClass({
           </div>
           {this.renderAboutInput(formValues)}
         </div>
+        <PatientSettings
+          editingAllowed={this.isEditingAllowed(this.props.permsOfLoggedInUser)}
+          patient={this.props.patient}
+          onUpdatePatientSettings={this.props.onUpdatePatientSettings}
+          trackMetric={this.props.trackMetric}
+          />
       </div>
     );
   },
@@ -307,6 +322,14 @@ var PatientInfo = React.createClass({
 
   isSamePersonUserAndPatient: function() {
     return personUtils.isSame(this.props.user, this.props.patient);
+  },
+
+  isEditingAllowed: function(permissions) {
+    if (_.isPlainObject(permissions)) {
+      return permissions.hasOwnProperty('custodian') || permissions.hasOwnProperty('root');
+    }
+
+    return false;
   },
 
   getDisplayName: function(patient) {

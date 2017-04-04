@@ -18,12 +18,10 @@
 import _ from 'lodash';
 import bows from 'bows';
 import React from 'react';
-import sundial from 'sundial';
+
+import PrintHeader from '../printheader';
 
 import utils from '../../core/utils';
-import personUtils from '../../core/personutils';
-
-import tidepoolpng from './img/bw-tidepool-logo.png';
 
 import * as viz from '@tidepool/viz';
 const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
@@ -43,38 +41,19 @@ const SettingsPrintView = React.createClass({
     patient: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired,
   },
-  render: function() {
-    return (
-      <div className="print-view-content">
-        <div className="print-view-page print-view-page-title">
-          <div className="print-view-page print-view-page-device-settings">
-            {this.renderHeader()}
-            {this.renderChart()}
-          </div>
-        </div>
-      </div>
-    );
-  },
   renderHeader: function() {
-    const patientName = personUtils.patientFullName(this.props.patient);
     return (
-      <div className="print-view-header">
-        <p className="print-view-header-title">Pump Settings</p>
-        <p className="print-view-header-name">{ patientName }</p>
-        <p className="print-view-header-date">
-          { sundial.formatInTimezone(Date.now(), 'UTC', 'MMM D, YYYY') }
-        </p>
-        <div className="print-view-header-logos">
-          <img className='print-view-logo' src={ tidepoolpng } alt="Tidepool logo" />
-        </div>
-      </div>
+      <PrintHeader
+        title="Pump Settings"
+        patient={this.props.patient}
+      />
     );
   },
-  renderChart: function() {
+  render: function() {
     const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
     const manufacturer = _.get(mostRecentSettings, 'source').toLowerCase();
-
     return (
+<<<<<<< HEAD
       <PumpSettingsContainer
         currentPatientInViewId={this.props.currentPatientInViewId}
         bgUnits={this.props.bgPrefs.bgUnits}
@@ -83,6 +62,21 @@ const SettingsPrintView = React.createClass({
         timePrefs={this.props.timePrefs}
         view='print'
       />
+=======
+      <div id="app-print" className="print-view-content">
+        {this.renderHeader()}
+        <div className="print-view-page print-view-page-device-settings">
+          <PumpSettingsContainer
+            currentPatientInViewId={this.props.currentPatientInViewId}
+            bgUnits={this.props.bgPrefs.bgUnits}
+            manufacturerKey={manufacturer}
+            pumpSettings={mostRecentSettings}
+            timePrefs={this.props.timePrefs}
+            printView={true}
+          />
+        </div>
+      </div>
+>>>>>>> master
     );
   }
 });

@@ -1,0 +1,56 @@
+/**
+ * Copyright (c) 2017, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+.IncrementalInputArrow {
+  display: block;
+  line-height: 100%;
+  font-size: 10px;
+
+  path {
+    fill: @gray-light;
+  }
+}
+
+.IncrementalInputArrows {
+  float: right;
+  margin-left: @spacing-small;
+}
+
+.IncrementalInput {
+  display: inline-block;
+  padding: @spacing-tiny @spacing-tiny @spacing-tiny @spacing-small;
+  border: solid 1px #bcbec0;
+  margin: 0 @spacing-small;
+  color: #58595b;
+  background-color: #ffffff;
+  user-select: none;
+
+  &.IncrementalInput--error {
+    border-color: @state-error-border;
+  }
+
+  &:hover {
+    color: @purple-highcontrast;
+    border-color: @blue-green-light;
+
+    .IncrementalInputArrow path {
+      fill: #089eb3;
+
+      &:hover {
+        fill: @blue-green-light;
+      }
+    }
+  }
+}

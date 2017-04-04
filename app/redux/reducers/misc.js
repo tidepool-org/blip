@@ -184,6 +184,8 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       return update(state, { [action.payload.userId]: { $merge: action.payload.updatedUser }});
     case types.UPDATE_PATIENT_SUCCESS:
       return update(state, { [action.payload.updatedPatient.userid]: { $merge: _.omit(action.payload.updatedPatient, ['permissions', 'team']) }});
+    case types.UPDATE_SETTINGS_SUCCESS:
+      return update(state, { [action.payload.userId]: { settings: { $merge: action.payload.updatedSettings }}});
     case types.LOGOUT_REQUEST:
       return {};
     default:

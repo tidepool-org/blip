@@ -15,6 +15,15 @@ describe('Header', function () {
     it('should render without problems', function () {
       console.error = sinon.stub();
       var props = {
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
         chartType: 'Awesome',
         inTransition: false,
         atMostRecent: false,
@@ -26,16 +35,24 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickTwoWeeks: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
     });
 
     it('should trigger onClickBack when inTransition is false and back button is clicked', function () {
       var props = {
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
         chartType: 'Awesome',
         inTransition: false,
         atMostRecent: false,
@@ -62,6 +79,15 @@ describe('Header', function () {
 
     it('should not trigger onClickBack when inTransition is true and back button is clicked', function () {
       var props = {
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
         chartType: 'Awesome',
         inTransition: true,
         atMostRecent: false,
@@ -88,6 +114,15 @@ describe('Header', function () {
 
     it('should trigger onClickModal when trends button is clicked', function () {
       var props = {
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
         chartType: 'Awesome',
         inTransition: false,
         atMostRecent: false,
@@ -114,6 +149,15 @@ describe('Header', function () {
 
     it('should trigger onClickMostRecent when inTransition is false and mostRecent button is clicked', function () {
       var props = {
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
         chartType: 'Awesome',
         inTransition: false,
         atMostRecent: false,
@@ -140,6 +184,15 @@ describe('Header', function () {
 
     it('should not trigger onClickMostRecent when inTransition is true and mostRecent button is clicked', function () {
       var props = {
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
         chartType: 'Awesome',
         inTransition: true,
         atMostRecent: false,
@@ -166,6 +219,15 @@ describe('Header', function () {
 
     it('should trigger onClickNext when inTransition is false and next button is clicked', function () {
       var props = {
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
         chartType: 'Awesome',
         inTransition: false,
         atMostRecent: false,
@@ -192,6 +254,15 @@ describe('Header', function () {
 
     it('should not trigger onClickNext when inTransition is true and next button is clicked', function () {
       var props = {
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
         chartType: 'Awesome',
         inTransition: true,
         atMostRecent: false,
@@ -218,6 +289,15 @@ describe('Header', function () {
 
     it('should trigger onClickBasics when basics button is clicked', function () {
       var props = {
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
         chartType: 'Awesome',
         inTransition: false,
         atMostRecent: false,
@@ -244,6 +324,15 @@ describe('Header', function () {
 
     it('should trigger onClickOneDay when daily button is clicked', function () {
       var props = {
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
         chartType: 'Awesome',
         inTransition: false,
         atMostRecent: false,
@@ -270,6 +359,15 @@ describe('Header', function () {
 
     it('should trigger onClickTwoWeeks when weekly button is clicked', function () {
       var props = {
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
         chartType: 'Awesome',
         inTransition: false,
         atMostRecent: false,
@@ -296,6 +394,15 @@ describe('Header', function () {
 
     it('should trigger onClickSettings when settings button is clicked', function () {
       var props = {
+        patient: {
+          profile: {
+            fullName: 'Jane Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        },
         chartType: 'Awesome',
         inTransition: false,
         atMostRecent: false,

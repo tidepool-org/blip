@@ -1,40 +1,18 @@
-/*
- * == BSD2 LICENSE ==
+/**
  * Copyright (c) 2017, Tidepool Project
- *
+ * 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- *
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
+ * 
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
  */
 
-.printview-print-icon img {
-  padding-right: 5px;
-  height: 16px;
-}
+import IncrementalInput from  './incrementalinput';
 
-@media print {
-
-  @smallgap: 14px;
-
-  .App-navbar,
-  .container-nav-inner {
-    display: none;
-  }
-
-  .label {
-    border-top: none;
-  }
-
-  .settings-table-container {
-    padding-bottom: @spacing-large;
-    page-break-inside: avoid;
-  }
-}
+export default IncrementalInput;

@@ -549,7 +549,7 @@ export function updateSettings(api, patientId, settings) {
           createActionError(ErrorMessages.ERR_UPDATING_SETTINGS, err), err
         ));
       } else {
-        dispatch(sync.updateSettingsSuccess(updatedSettings));
+        dispatch(sync.updateSettingsSuccess(patientId, updatedSettings));
       }
     });
   };

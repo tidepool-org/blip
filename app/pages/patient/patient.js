@@ -43,6 +43,7 @@ const Patient = React.createClass({
     onInviteMember: React.PropTypes.func,
     onRemoveMember: React.PropTypes.func,
     onUpdatePatient: React.PropTypes.func,
+    onUpdatePatientSettings: React.PropTypes.func,
     patient: React.PropTypes.object,
     pendingSentInvites: React.PropTypes.array,
     removingMember: React.PropTypes.bool,
@@ -110,6 +111,8 @@ const Patient = React.createClass({
           patient={this.props.patient}
           fetchingPatient={this.props.fetchingPatient}
           onUpdatePatient={this.props.onUpdatePatient}
+          onUpdatePatientSettings={this.props.onUpdatePatientSettings}
+          permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           trackMetric={this.props.trackMetric} />
       </div>
     );

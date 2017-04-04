@@ -40,6 +40,7 @@ class Trends extends PureComponent {
     currentPatientInViewId: PropTypes.string.isRequired,
     timePrefs: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
+    patient: React.PropTypes.object,
     patientData: PropTypes.object.isRequired,
     trendsState: PropTypes.object.isRequired,
     // refresh handler
@@ -373,6 +374,7 @@ class Trends extends PureComponent {
     return (
       <Header
         chartType={this.chartType}
+        patient={this.props.patient}
         inTransition={this.state.inTransition}
         atMostRecent={this.state.atMostRecent}
         title={this.state.title}
