@@ -451,7 +451,7 @@ api.patient.put = function(patient, cb) {
 // Get all patients in current user's "patients" group
 api.patient.getAll = function(cb) {
   api.log('GET /patients');
-  tidepool.getAllUsersInfo(tidepool.getUserId(), function(err, users) {
+  tidepool.getAssociatedUsersDetails(tidepool.getUserId(), function(err, users) {
     if (err) {
       return cb(err);
     }
