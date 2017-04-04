@@ -295,13 +295,14 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * Get the users 'patients' and thier associated data
+     * Get the users 'patients' and their associated data
+     * includes profile, permissions and metadata
      *
      * @param {String} userId id of the user
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    getAllUsersInfo: function (userId, cb) {
+    getAssociatedUsersDetails: function (userId, cb) {
       if (userId == null) {
         return cb({ status : common.STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
       }
