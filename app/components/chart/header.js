@@ -15,6 +15,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
 var cx = require('classnames');
@@ -119,12 +120,12 @@ var TidelineHeader = React.createClass({
     });
 
     var printLinkClass = cx({
-      'js-print-settings': true,
+      'js-print-settings': this.props.chartType === 'settings',
       'printview-print-icon': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
-      'patient-data-subnav-active': this.props.chartType === 'settings',
-      'patient-data-subnav-hidden': this.props.chartType !== 'settings'
+      'patient-data-subnav-active': _.includes(['daily', 'settings'], this.props.chartType),
+      'patient-data-subnav-hidden': !_.includes(['daily', 'settings'], this.props.chartType)
     });
 
     return (

@@ -302,6 +302,7 @@ export let PatientData = React.createClass({
             onShowMessageThread={this.handleShowMessageThread}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToPrint={this.handleSwitchToDailyPrintView}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
@@ -458,6 +459,12 @@ export let PatientData = React.createClass({
     this.setState({
       chartType: 'daily',
       initialDatetimeLocation: datetime || this.state.datetimeLocation
+    });
+  },
+
+  handleSwitchToDailyPrintView: function() {
+    this.props.trackMetric('Clicked Print', {
+      fromChart: this.state.chartType
     });
   },
 

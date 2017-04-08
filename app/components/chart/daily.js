@@ -28,6 +28,8 @@ var chartDailyFactory = tidelineBlip.oneday;
 var Header = require('./header');
 var Footer = require('./footer');
 
+import { openDailyPrintView } from '@tidepool/viz';
+
 var DailyChart = React.createClass({
   chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs'],
   log: bows('Daily Chart'),
@@ -154,6 +156,7 @@ var Daily = React.createClass({
     // navigation handlers
     onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
+    onSwitchToPrint: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     // PatientData state updaters
@@ -187,6 +190,7 @@ var Daily = React.createClass({
           onClickOneDay={this.handleClickOneDay}
           onClickSettings={this.props.onSwitchToSettings}
           onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickPrint={this.handleClickPrint}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
@@ -249,6 +253,13 @@ var Daily = React.createClass({
       e.preventDefault();
     }
     return;
+  },
+  handleClickPrint: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    openDailyPrintView();
+    this.props.onSwitchToPrint();
   },
   handleClickTwoWeeks: function(e) {
     if (e) {
