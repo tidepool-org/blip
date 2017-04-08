@@ -6,6 +6,7 @@ const packageConfig = _.cloneDeep(baseConfig);
 packageConfig.output.libraryTarget = 'commonjs';
 
 packageConfig.externals = {
+  'blob-stream': 'blob-stream',
   classnames: 'classnames',
   'd3-array': 'd3-array',
   'd3-format': 'd3-format',
@@ -14,6 +15,7 @@ packageConfig.externals = {
   'd3-time': 'd3-time',
   lodash: 'lodash',
   'moment-timezone': 'moment-timezone',
+  pdfkit: 'pdfkit',
   react: 'react',
   'react-addons-update': 'react-addons-update',
   'react-collapse': 'react-collapse',
