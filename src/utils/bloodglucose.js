@@ -35,13 +35,33 @@ export function classifyBgValue(bgBounds, bgValue) {
   if (!_.isNumber(bgValue) || !_.gt(bgValue, 0)) {
     throw new Error('You must provide a positive, numerical blood glucose value to categorize!');
   }
-  const { targetLowerBound, targetUpperBound } = bgBounds;
-  if (bgValue < targetLowerBound) {
+  const { veryLowThreshold, targetLowerBound, targetUpperBound, veryHighThreshold } = bgBounds;
+  if (bgValue < veryLowThreshold) {
+    return 'veryLow';
+  } else if (bgValue >= veryLowThreshold && bgValue < targetLowerBound) {
     return 'low';
-  } else if (bgValue > targetUpperBound) {
+  } else if (bgValue > targetUpperBound && bgValue <= veryHighThreshold) {
     return 'high';
+  } else if (bgValue > veryHighThreshold) {
+    return 'veryHigh';
   }
   return 'target';
+}
+
+/**
+ * cbgTimeInCategories
+ * @param {Array} data - cbg data objects
+ * @param {Object} bgBounds - object defining PwD's BG targets & thresholds
+ *
+ * @return {Object} cbgTimeInCategories - keys veryLow, low, target, high, veryHigh
+ */
+export function calcCbgTimeInCategories(data, bgBounds) {
+  const cbgTimeInCategories = {};
+  const grouped = _.groupBy(data, (d) => (classifyBgValue(bgBounds, d.value)));
+  _.each(['veryLow', 'low', 'target', 'high', 'veryHigh'], (key) => {
+    cbgTimeInCategories[key] = ((grouped[key] && grouped[key].length) || 0) / data.length;
+  });
+  return cbgTimeInCategories;
 }
 
 /**

@@ -109,3 +109,13 @@ export function diagnosisDate(patient) {
   }
   return '';
 }
+
+/**
+ * displayPercentage
+ * @param {Number} val - raw decimal proportion, range of 0.0 to 1.0
+ *
+ * @return {String} percentage
+ */
+export function displayPercentage(val) {
+  return format('.0%')(val);
+}
