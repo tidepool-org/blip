@@ -258,7 +258,12 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    openDailyPrintView();
+    const dData = this.props.patientData.diabetesData;
+    openDailyPrintView(
+      dData[dData.length - 1].normalTime,
+      this.props.patientData.dataByDate,
+      { bgPrefs: this.props.bgPrefs, numDays: 6, timePrefs: this.props.timePrefs }
+    );
     this.props.onSwitchToPrint();
   },
   handleClickTwoWeeks: function(e) {
