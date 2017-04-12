@@ -451,21 +451,29 @@ api.patient.put = function(patient, cb) {
 // Get all patients in current user's "patients" group
 api.patient.getAll = function(cb) {
   api.log('GET /patients');
+
   tidepool.getAssociatedUsersDetails(tidepool.getUserId(), function(err, users) {
     if (err) {
       return cb(err);
     }
-    if (_.isEmpty(users)) {
-      return cb(null, []);
-    }
-    //match existing expectations
-    users = _.map(users, function(user) {
+
+    //these are the accounts that have shared their data
+    //with a given set of permissions.
+    var viewableUsers = _.filter(users, function(user) {
+      return !_.isEmpty(user.trustorPermissions);
+    });
+
+    viewableUsers = _.map(viewableUsers, function(user) {
       user.permissions = user.trustorPermissions
       delete user.trustorPermissions
       return user;
     });
 
-    return cb(null, users);
+    if (_.isEmpty(viewableUsers)) {
+      return cb(null, []);
+    }
+
+    return cb(null, viewableUsers);
   });
 };
 
