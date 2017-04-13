@@ -328,4 +328,8 @@ NonTandem.propTypes = {
   printView: React.PropTypes.bool.isRequired,
 };
 
+NonTandem.defaultProps = {
+  printView: false,
+};
+
 export default NonTandem;
