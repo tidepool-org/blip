@@ -76,9 +76,10 @@ class PeopleTable extends React.Component {
       if (bday) {
         bday = ` ${sundial.translateMask(bday, 'YYYY-MM-DD', 'M/D/YYYY')}`;
       }
+
       return {
-        fullName: personUtils.fullName(person),
-        fullNameOrderable: personUtils.fullName(person).toLowerCase(),
+        fullName: personUtils.patientFullName(person),
+        fullNameOrderable: personUtils.patientFullName(person).toLowerCase(),
         link: person.link,
         birthday: bday,
         birthdayOrderable: new Date(bday),
