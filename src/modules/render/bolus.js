@@ -28,12 +28,14 @@ export function makeBolusRectanglePath(bolusWidth, bolusCenter, bolusBottom, bol
   const leftX = bolusCenter - halfWidth;
   const rightX = bolusCenter + halfWidth;
 
+  // PDFKit will not render path definitions with line breaks properly
+  // do NOT forget to remove the newlines!
   return `
     M ${leftX},${bolusBottom}
     L ${leftX},${bolusHeight}
     L ${rightX},${bolusHeight}
     L ${rightX},${bolusBottom} Z
-  `;
+  `.replace('\n', '');
 }
 
 /**
@@ -51,7 +53,7 @@ export default function getBolusPaths(bolus, xScale, yScale, {
   const paths = [];
 
   const bolusBottom = yScale.range()[0];
-  const bolusCenter = xScale(bolus.msPer24);
+  const bolusCenter = xScale(Date.parse(bolus.normalTime));
 
   // the backmost layer is any undelivered bolus insulin (in the case of interruption or underride)
   if (isInterruptedBolus(bolus)) {

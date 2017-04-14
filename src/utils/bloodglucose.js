@@ -21,10 +21,11 @@ import _ from 'lodash';
  * classifyBgValue
  * @param {Object} bgBounds - object describing boundaries for blood glucose categories
  * @param {Number} bgValue - integer or float blood glucose value in either mg/dL or mmol/L
+ * @param {String} classificationType - 'threeWay' or 'fiveWay'
  *
  * @return {String} bgClassification - low, target, high
  */
-export function classifyBgValue(bgBounds, bgValue) {
+export function classifyBgValue(bgBounds, bgValue, classificationType = 'threeWay') {
   if (_.isEmpty(bgBounds) ||
     !_.isNumber(_.get(bgBounds, 'targetLowerBound')) ||
     !_.isNumber(_.get(bgBounds, 'targetUpperBound'))) {
@@ -36,14 +37,22 @@ export function classifyBgValue(bgBounds, bgValue) {
     throw new Error('You must provide a positive, numerical blood glucose value to categorize!');
   }
   const { veryLowThreshold, targetLowerBound, targetUpperBound, veryHighThreshold } = bgBounds;
-  if (bgValue < veryLowThreshold) {
-    return 'veryLow';
-  } else if (bgValue >= veryLowThreshold && bgValue < targetLowerBound) {
+  if (classificationType === 'fiveWay') {
+    if (bgValue < veryLowThreshold) {
+      return 'veryLow';
+    } else if (bgValue >= veryLowThreshold && bgValue < targetLowerBound) {
+      return 'low';
+    } else if (bgValue > targetUpperBound && bgValue <= veryHighThreshold) {
+      return 'high';
+    } else if (bgValue > veryHighThreshold) {
+      return 'veryHigh';
+    }
+    return 'target';
+  }
+  if (bgValue < targetLowerBound) {
     return 'low';
-  } else if (bgValue > targetUpperBound && bgValue <= veryHighThreshold) {
+  } else if (bgValue > targetUpperBound) {
     return 'high';
-  } else if (bgValue > veryHighThreshold) {
-    return 'veryHigh';
   }
   return 'target';
 }
@@ -57,7 +66,7 @@ export function classifyBgValue(bgBounds, bgValue) {
  */
 export function calcCbgTimeInCategories(data, bgBounds) {
   const cbgTimeInCategories = {};
-  const grouped = _.groupBy(data, (d) => (classifyBgValue(bgBounds, d.value)));
+  const grouped = _.groupBy(data, (d) => (classifyBgValue(bgBounds, d.value, 'fiveWay')));
   _.each(['veryLow', 'low', 'target', 'high', 'veryHigh'], (key) => {
     cbgTimeInCategories[key] = ((grouped[key] && grouped[key].length) || 0) / data.length;
   });

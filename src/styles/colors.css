@@ -54,3 +54,9 @@
   --gray-dark: #989897;
   --white: #ffffff;
 }
+
+:export {
+  low: #FF8B7C;
+  target: #76D3A6;
+  high: #BB9AE7;
+}

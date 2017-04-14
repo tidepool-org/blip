@@ -24,13 +24,14 @@ import moment from 'moment-timezone';
 import { extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 
-import { calcCbgTimeInCategories } from '../../utils/bloodglucose';
+import { calcCbgTimeInCategories, classifyBgValue } from '../../utils/bloodglucose';
 import {
   getTimezoneFromTimePrefs,
   timezoneAwareCeiling,
-  TWENTY_FOUR_HRS,
 } from '../../utils/datetime';
 import { displayPercentage } from '../../utils/format';
+
+import styles from '../../styles/colors.css';
 
 import getBolusPaths from '../render/bolus';
 
@@ -78,6 +79,7 @@ export function selectData(mostRecent, dataByDate, numDays, timePrefs) {
       .tz(timezone)
       .format('YYYY-MM-DD');
     selected[date] = {
+      bounds: [start, dateBoundaries[i + 1]],
       date,
       data: _.groupBy(dataByDate.filterRange([start, dateBoundaries[i + 1]]).top(Infinity), 'type'),
     };
@@ -95,8 +97,7 @@ export function selectData(mostRecent, dataByDate, numDays, timePrefs) {
         return wizardsMap;
       }, {});
     }
-    // TODO: add msPer24 to datatypes that don't have it, like boluses, basals, &c
-    // TODO: select out just infusion site changes from deviceEvent array
+    // TODO: select out infusion site changes, calibrations from deviceEvent array
   }
   // TODO: properly factor out into own utility? API needs thinking about
   const bgs = _.reduce(
@@ -140,6 +141,7 @@ export function renderDateSummary(doc, yPos, { date, data }, { bgBounds }) {
   doc.moveTo(MARGIN, separatorHeight)
     .lineTo(MARGIN + SUMMARY_WIDTH, separatorHeight)
     .strokeColor('#D8D8D8')
+    .lineWidth(0.25)
     .stroke();
 
   doc.fontSize(8)
@@ -166,7 +168,6 @@ export function renderDateChart(doc, yPos, selectedData, { bgBounds, chartHeight
   const chartLeft = MARGIN + SUMMARY_WIDTH + MARGIN;
   const chartRight = MARGIN + DIMS.WIDTH;
   const chartTop = yPos;
-  const chartBottom = yPos + chartHeight;
   // draw the x- and y- axis frames
   doc.moveTo(chartLeft, yPos)
     .lineTo(chartLeft, yPos + chartHeight)
@@ -186,18 +187,30 @@ export function renderDateChart(doc, yPos, selectedData, { bgBounds, chartHeight
     .lineTo(chartRight, bottomPoolTopEdge)
     .stroke();
 
+  const { bounds } = selectedData[date];
+
   const xScale = scaleLinear()
-    .domain([0, TWENTY_FOUR_HRS])
+    .domain([Date.parse(bounds[0]), Date.parse(bounds[1])])
     .range([chartLeft, chartRight]);
-  const yScale = scaleLinear()
+  const bgScale = scaleLinear()
+    .domain([0, selectedData.bgRange[1]])
+    .range([firstPoolHeight, chartTop]);
+  const bolusScale = scaleLinear()
     .domain([0, selectedData.bolusRange[1]])
     .range([firstPoolHeight, firstPoolHeight - ((firstPoolHeight - chartTop) / 2)]);
+
+  // render cbg
+  _.each(selectedData[date].data.cbg, (cbg) => {
+    console.log(styles[classifyBgValue(bgBounds, cbg.value)]);
+    // eslint-disable-next-line lodash/prefer-lodash-method
+    doc.circle(xScale(Date.parse(cbg.normalTime)), bgScale(cbg.value), 1)
+      .fill(styles[classifyBgValue(bgBounds, cbg.value)]);
+  });
 
   // render boluses
   _.each(selectedData[date].data.bolus, (bolus) => {
     if (bolus.normal) {
-      const paths = getBolusPaths(bolus, xScale, yScale, { bolusWidth: 4 });
-      console.log(paths);
+      const paths = getBolusPaths(bolus, xScale, bolusScale, { bolusWidth: 3 });
       _.each(paths, (path) => {
         doc.path(path.d).fill('black'); // eslint-disable-line lodash/prefer-lodash-method
       });
@@ -214,7 +227,9 @@ export function renderDateChart(doc, yPos, selectedData, { bgBounds, chartHeight
  * @return {String} url - the PDF file blog URL for opening in a new tab & printing
  */
 // opts will be { bgPrefs, dateTitle, patientName, numDays, timePrefs }
-export default function openDailyPrintView(mostRecent, dataByDate, { bgPrefs, numDays, timePrefs }) {
+export default function openDailyPrintView(mostRecent, dataByDate, {
+  bgPrefs, numDays, timePrefs,
+}) {
   // TODO: refactor this from where it was c&p-ed from (blip's trends.js)
   // repeating this logic here long-term would be super dumb and non-DRY
   const { bgClasses } = bgPrefs;
