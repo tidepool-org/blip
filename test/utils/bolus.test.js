@@ -73,6 +73,13 @@ const cancelledInExtendedCombo = {
   expectedDuration: 36e5,
 };
 
+const doesNotExist = {
+  normal: 0.2,
+  expectedNormal: 1,
+  extended: 2,
+  duration: 36e5,
+};
+
 const comboOverride = {
   type: 'wizard',
   bolus: {
@@ -171,7 +178,7 @@ describe('bolus utilities', () => {
     });
 
     it('should return NaN if type `wizard` and no bolus attached', () => {
-      expect(bolusUtils.getDelivered({ type: 'wizard' })).to.be.NaN;
+      expect(Number.isNaN(bolusUtils.getDelivered({ type: 'wizard' }))).to.be.true;
     });
 
     it('should return the value of a no-frills `normal` bolus', () => {
@@ -236,7 +243,7 @@ describe('bolus utilities', () => {
     });
 
     it('should return NaN if type `wizard` and no bolus attached', () => {
-      expect(bolusUtils.getProgrammed({ type: 'wizard' })).to.be.NaN;
+      expect(Number.isNaN(bolusUtils.getProgrammed({ type: 'wizard' }))).to.be.true;
     });
 
     it('should return the value of a no-frills `normal` bolus', () => {
@@ -273,6 +280,14 @@ describe('bolus utilities', () => {
       );
     });
 
+    it(`should throw an error on a \`normal\`-cancelled \`combo\` bolus
+        with no \`expectedExtended\``, () => {
+      const fn = () => { bolusUtils.getProgrammed(doesNotExist); };
+      expect(fn).to.throw(
+        'Combo bolus found with a cancelled `normal` portion and non-cancelled `extended`!'
+      );
+    });
+
     it('should return the `normal` of an underride', () => {
       expect(bolusUtils.getProgrammed(underride)).to.equal(underride.bolus.normal);
     });
@@ -306,7 +321,7 @@ describe('bolus utilities', () => {
     });
 
     it('should return NaN when no recommended exists (i.e., "quick" or manual bolus)', () => {
-      expect(bolusUtils.getRecommended(normal)).to.be.NaN;
+      expect(Number.isNaN(bolusUtils.getRecommended(normal))).to.be.true;
     });
 
     it('should return total when both `carb` and `correction` recs exist', () => {
@@ -340,11 +355,11 @@ describe('bolus utilities', () => {
     });
 
     it('should return NaN if type `wizard` and no bolus attached', () => {
-      expect(bolusUtils.getMaxDuration({ type: 'wizard' })).to.be.NaN;
+      expect(Number.isNaN(bolusUtils.getMaxDuration({ type: 'wizard' }))).to.be.true;
     });
 
-    it('should return NaN on an non-`extended` bolus', () => {
-      expect(bolusUtils.getMaxDuration(normal)).to.be.NaN;
+    it('should return NaN on a non-`extended` bolus', () => {
+      expect(Number.isNaN(bolusUtils.getMaxDuration(normal))).to.be.true;
     });
 
     it('should return `duration` of an `extended` bolus', () => {
@@ -373,7 +388,7 @@ describe('bolus utilities', () => {
     });
 
     it('should return NaN if type `wizard` and no bolus attached', () => {
-      expect(bolusUtils.getMaxValue({ type: 'wizard' })).to.be.NaN;
+      expect(Number.isNaN(bolusUtils.getMaxValue({ type: 'wizard' }))).to.be.true;
     });
 
     it('should return the value of a no-frills `normal` bolus', () => {

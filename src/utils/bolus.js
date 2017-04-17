@@ -56,7 +56,7 @@ export function getDelivered(insulinEvent) {
   let bolus = insulinEvent;
   if (_.get(insulinEvent, 'type') === 'wizard') {
     bolus = getBolusFromInsulinEvent(insulinEvent);
-    if (!bolus) {
+    if (!bolus.normal && !bolus.extended) {
       return NaN;
     }
   }
@@ -79,7 +79,7 @@ export function getProgrammed(insulinEvent) {
   let bolus = insulinEvent;
   if (_.get(insulinEvent, 'type') === 'wizard') {
     bolus = getBolusFromInsulinEvent(insulinEvent);
-    if (!bolus) {
+    if (!bolus.normal && !bolus.extended) {
       return NaN;
     }
   }
@@ -94,7 +94,10 @@ export function getProgrammed(insulinEvent) {
   } else if (bolus.extended != null) {
     if (bolus.normal != null) {
       if (bolus.expectedNormal != null) {
-        return fixFloatingPoint(bolus.expectedNormal + bolus.extended);
+        // this situation should not exist!
+        throw new Error(
+          'Combo bolus found with a cancelled `normal` portion and non-cancelled `extended`!'
+        );
       }
       return fixFloatingPoint(bolus.normal + bolus.extended);
     }
@@ -135,9 +138,6 @@ export function getMaxDuration(insulinEvent) {
   let bolus = insulinEvent;
   if (_.get(insulinEvent, 'type') === 'wizard') {
     bolus = getBolusFromInsulinEvent(insulinEvent);
-    if (!bolus) {
-      return NaN;
-    }
   }
   // don't want truthiness here because want to return expectedDuration
   // from a bolus interrupted immediately (duration = 0)
@@ -157,7 +157,7 @@ export function getMaxValue(insulinEvent) {
   let bolus = insulinEvent;
   if (_.get(insulinEvent, 'type') === 'wizard') {
     bolus = getBolusFromInsulinEvent(insulinEvent);
-    if (!bolus) {
+    if (!bolus.normal && !bolus.extended) {
       return NaN;
     }
   }
