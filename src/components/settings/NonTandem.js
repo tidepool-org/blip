@@ -261,7 +261,7 @@ NonTandem.propTypes = {
 };
 
 NonTandem.defaultProps = {
-  printView: false,
+  view: DISPLAY_VIEW,
 };
 
 export default NonTandem;
