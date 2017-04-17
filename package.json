@@ -34,7 +34,8 @@
   },
   "homepage": "https://github.com/tidepool-org/viz#readme",
   "devDependencies": {
-    "@kadira/storybook": "2.3.0",
+    "@kadira/storybook": "2.35.3",
+    "@kadira/storybook-addon-notes": "1.0.1",
     "babel-cli": "6.11.4",
     "babel-core": "6.13.2",
     "babel-eslint": "6.1.2",

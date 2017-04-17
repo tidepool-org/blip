@@ -17,6 +17,7 @@ storiesOf('Device Settings [Animas]', module)
       bgUnits={MMOLL_UNITS}
       deviceKey={'animas'}
       openedSections={{ [animasFlatRateData.activeSchedule]: true }}
+      printView={false}
       pumpSettings={animasFlatRateData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
@@ -27,6 +28,7 @@ storiesOf('Device Settings [Animas]', module)
       bgUnits={MMOLL_UNITS}
       deviceKey={'animas'}
       openedSections={{ [animasMultiRateData.activeSchedule]: true }}
+      printView={false}
       pumpSettings={animasMultiRateData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
@@ -42,6 +44,7 @@ storiesOf('Device Settings [Medtronic]', module)
       bgUnits={MMOLL_UNITS}
       deviceKey={'medtronic'}
       openedSections={{ [medtronicFlatRateData.activeSchedule]: true }}
+      printView={false}
       pumpSettings={medtronicFlatRateData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
@@ -52,6 +55,7 @@ storiesOf('Device Settings [Medtronic]', module)
       bgUnits={MMOLL_UNITS}
       deviceKey={'medtronic'}
       openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
+      printView={false}
       pumpSettings={medtronicMultiRateData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
@@ -67,6 +71,7 @@ storiesOf('Device Settings [OmniPod]', module)
       bgUnits={MMOLL_UNITS}
       deviceKey={'insulet'}
       openedSections={{ [omnipodFlatRateData.activeSchedule]: true }}
+      printView={false}
       pumpSettings={omnipodFlatRateData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
@@ -77,6 +82,7 @@ storiesOf('Device Settings [OmniPod]', module)
       bgUnits={MMOLL_UNITS}
       deviceKey={'insulet'}
       openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
+      printView={false}
       pumpSettings={omnipodMultiRateData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
@@ -91,6 +97,7 @@ storiesOf('Device Settings [Tandem]', module)
     <Tandem
       bgUnits={MMOLL_UNITS}
       openedSections={{ [tandemFlatRateData.activeSchedule]: true }}
+      printView={false}
       pumpSettings={tandemFlatRateData}
       timePrefs={timePrefs}
       toggleProfileExpansion={() => {}}
@@ -100,6 +107,7 @@ storiesOf('Device Settings [Tandem]', module)
     <Tandem
       bgUnits={MMOLL_UNITS}
       openedSections={{ [tandemMultiRateData.activeSchedule]: true }}
+      printView={false}
       pumpSettings={tandemMultiRateData}
       timePrefs={timePrefs}
       toggleProfileExpansion={() => {}}
