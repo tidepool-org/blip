@@ -16,6 +16,8 @@
 window.onerror = require('./onerror');
 window.config = require('../config.app.js');
 
+require('babel-core/polyfill');
+
 var app = window.app = require('./bootstrap');
 
 app.start();
