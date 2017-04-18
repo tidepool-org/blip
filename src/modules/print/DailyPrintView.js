@@ -35,6 +35,8 @@ class DailyPrintView {
       topEdge: opts.margins.top,
       bottomEdge: opts.margins.top + opts.height,
     };
+
+    this.pages = 1;
   }
 
   renderDebugGrid() {
@@ -75,23 +77,45 @@ class DailyPrintView {
       }
       thisLineXPos += this.dpi;
     }
+
+    return this;
   }
 
-  renderHeader(fontSize) {
+  renderHeader() {
     this.doc.lineWidth(1);
-    this.doc.fontSize(fontSize).text('Daily View', this.margins.left, this.margins.top)
+    this.doc.fontSize(14).text('Daily View', this.margins.left, this.margins.top)
       .moveDown();
     const lineHeight = this.doc.currentLineHeight();
     const height = lineHeight * 2 + this.margins.top;
     this.doc.moveTo(this.margins.left, height)
       .lineTo(this.margins.left + this.width, height)
       .stroke('black');
-    this.chartArea.topEdge = this.chartArea.topEdge + lineHeight * 4;
+    this.chartArea.topEdge = this.chartArea.topEdge + lineHeight * 3;
     // TODO: remove this; it is just for exposing/debugging the chartArea.topEdge adjustment
     // eslint-disable-next-line lodash/prefer-lodash-method
     this.doc.fillColor('#E8E8E8', 0.3333333333)
-      .rect(this.margins.left, this.margins.top, this.width, lineHeight * 4)
+      .rect(this.margins.left, this.margins.top, this.width, lineHeight * 3)
       .fill();
+
+    return this;
+  }
+
+  renderFooter() {
+    this.doc.fontSize(9);
+    const lineHeight = this.doc.currentLineHeight();
+    this.doc.fillColor('black').fillOpacity(1)
+      .text('Legend', this.margins.left, this.bottomEdge - lineHeight * 8);
+    this.doc.lineWidth(1)
+      .rect(this.margins.left, this.bottomEdge - lineHeight * 6, this.width, lineHeight * 4)
+      .stroke('black');
+    this.chartArea.bottomEdge = this.chartArea.bottomEdge - lineHeight * 9;
+    // TODO: remove this; it is just for exposing/debugging the chartArea.bottomEdge adjustment
+    // eslint-disable-next-line lodash/prefer-lodash-method
+    this.doc.fillColor('#E8E8E8', 0.3333333333)
+      .rect(this.margins.left, this.bottomEdge - lineHeight * 9, this.width, lineHeight * 9)
+      .fill();
+
+    return this;
   }
 }
 

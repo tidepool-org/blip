@@ -31,6 +31,8 @@ import vizReducer from './redux/reducers/';
 
 import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
 import createAndOpenPrintPDFPackage from './modules/print/index.js';
+// a temporary(?) export to enable "snapshot"-ing of data from blip console
+import { selectDailyViewData } from './modules/print/data';
 
 const components = {
   CBGDateTraceLabel,
@@ -49,4 +51,11 @@ const utils = {
   reshapeBgClassesToBgBounds,
 };
 
-export { components, containers, createAndOpenPrintPDFPackage, utils, vizReducer };
+export {
+  components,
+  containers,
+  createAndOpenPrintPDFPackage,
+  selectDailyViewData,
+  utils,
+  vizReducer,
+};

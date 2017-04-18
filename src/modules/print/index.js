@@ -23,6 +23,29 @@ import { renderDateChart, renderDateSummary } from './daily';
 import DailyPrintView from './DailyPrintView';
 import { selectDailyViewData as selectData } from './data';
 
+// DPI here is the coordinate system, not the resolution; sub-dot precision renders crisply!
+const DPI = 72;
+const MARGIN = DPI / 2;
+
+export function createDailyPrintView(doc, data) {
+  const DATES_PER_PAGE = 3;
+  const dailyPrintView = new DailyPrintView(doc, { daily: data }, {
+    dpi: DPI,
+    margins: {
+      left: MARGIN,
+      top: MARGIN,
+      right: MARGIN,
+      bottom: MARGIN,
+    },
+    width: 8.5 * DPI - (2 * MARGIN),
+    height: 11 * DPI - (2 * MARGIN),
+  });
+
+  dailyPrintView.renderDebugGrid()
+    .renderHeader()
+    .renderFooter();
+}
+
 /**
  * createAndOpenPrintPDFPackage
  * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
@@ -35,11 +58,6 @@ import { selectDailyViewData as selectData } from './data';
 export default function createAndOpenPrintPDFPackage(mostRecent, dataByDate, {
   bgPrefs, numDays, timePrefs,
 }) {
-  const DATES_PER_PAGE = 3;
-
-  // DPI here is the coordinate system, not the resolution; sub-dot precision renders crisply!
-  const DPI = 72;
-  const MARGIN = DPI / 2;
 
   // TODO: refactor this from where it was c&p-ed from (blip's trends.js)
   // repeating this logic here long-term would be super dumb and non-DRY
@@ -52,22 +70,13 @@ export default function createAndOpenPrintPDFPackage(mostRecent, dataByDate, {
   };
 
   const data = selectData(mostRecent, dataByDate, numDays, timePrefs);
-  const doc = new PDFDocument;
-  const dailyPrintView = new DailyPrintView(doc, { daily: data }, {
-    dpi: DPI,
-    margins: {
-      left: MARGIN,
-      top: MARGIN,
-      right: MARGIN,
-      bottom: MARGIN,
-    },
-    width: 8.5 * DPI - (2 * MARGIN),
-    height: 11 * DPI - (2 * MARGIN),
-  });
+  /* NB: if you don't see the `margin` (or `margins` if not all are the same)
+     then when you are using the .text() command a new page will be added if you specify
+     coordinates outside of the default margin (or outside of the margins you've specified)
+   */
+  const doc = new PDFDocument({ bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
-
-  dailyPrintView.renderDebugGrid();
-  dailyPrintView.renderHeader(14);
+  createDailyPrintView(doc, data);
 
   // const poolHeights = [lineHeight * 4 + MARGIN];
   // const chartHeight = (DIMS.HEIGHT - poolHeights[0]) / 4;
