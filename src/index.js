@@ -30,7 +30,7 @@ import TrendsContainer from './containers/trends/TrendsContainer';
 import vizReducer from './redux/reducers/';
 
 import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
-import openDailyPrintView from './modules/print/daily.js';
+import createAndOpenPrintPDFPackage from './modules/print/index.js';
 
 const components = {
   CBGDateTraceLabel,
@@ -49,4 +49,4 @@ const utils = {
   reshapeBgClassesToBgBounds,
 };
 
-export { components, containers, openDailyPrintView, utils, vizReducer };
+export { components, containers, createAndOpenPrintPDFPackage, utils, vizReducer };
