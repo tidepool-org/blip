@@ -17,7 +17,7 @@
     "pretest": "npm run lint",
     "serve-docs": "./node_modules/.bin/gitbook serve",
     "start": "./node_modules/.bin/webpack --config package.config.js --watch",
-    "storybook": "./node_modules/.bin/start-storybook -c storybook -p 8081",
+    "storybook": "./node_modules/.bin/start-storybook -c storybook -p 8081 -s ./static",
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start"
   },
   "repository": {
