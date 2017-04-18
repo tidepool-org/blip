@@ -28,7 +28,7 @@ var chartDailyFactory = tidelineBlip.oneday;
 var Header = require('./header');
 var Footer = require('./footer');
 
-import { openDailyPrintView } from '@tidepool/viz';
+import { createAndOpenPrintPDFPackage, selectDailyViewData } from '@tidepool/viz';
 
 var DailyChart = React.createClass({
   chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs'],
@@ -162,6 +162,17 @@ var Daily = React.createClass({
     // PatientData state updaters
     updateDatetimeLocation: React.PropTypes.func.isRequired
   },
+  componentDidMount: function() {
+    const dData = this.props.patientData.diabetesData;
+    window.downloadDailyPrintViewData = () => {
+      console.save(selectDailyViewData(
+        dData[dData.length - 1].normalTime,
+        this.props.patientData.dataByDate,
+        6,
+        this.props.timePrefs,
+      ), 'daily-print-view.json');
+    };
+  },
   getInitialState: function() {
     return {
       atMostRecent: false,
@@ -259,7 +270,7 @@ var Daily = React.createClass({
       e.preventDefault();
     }
     const dData = this.props.patientData.diabetesData;
-    openDailyPrintView(
+    createAndOpenPrintPDFPackage(
       dData[dData.length - 1].normalTime,
       this.props.patientData.dataByDate,
       { bgPrefs: this.props.bgPrefs, numDays: 6, timePrefs: this.props.timePrefs }
