@@ -58,7 +58,7 @@ export class PumpSettingsContainer extends PureComponent {
   }
 
   render() {
-    const { settingsState } = this.props;
+    const { settingsState, user } = this.props;
     if (_.isEmpty(settingsState)) {
       return null;
     }
@@ -82,7 +82,7 @@ export class PumpSettingsContainer extends PureComponent {
           pumpSettings={pumpSettings}
           timePrefs={timePrefs}
           toggleProfileExpansion={toggleFn}
-          user={settingsState.user}
+          user={user}
           view={view}
         />
       );
@@ -95,7 +95,7 @@ export class PumpSettingsContainer extends PureComponent {
           pumpSettings={pumpSettings}
           timePrefs={timePrefs}
           toggleBasalScheduleExpansion={toggleFn}
-          user={settingsState.user}
+          user={user}
           view={view}
         />
       );
