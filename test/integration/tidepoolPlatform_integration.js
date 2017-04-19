@@ -66,9 +66,9 @@ describe('platform client', function () {
   var a_Member = {
     id: null,
     token: null,
-    username: 'team@member.com',
+    username: 'test+platform-client+integration@tidepool.org',
     password: 'teammember',
-    emails: ['team@member.com'],
+    emails: ['test+platform-client+integration@tidepool.org'],
     profile: {fullName: 'Dr Doogie'},
     preferences: {
       display: 'all',
