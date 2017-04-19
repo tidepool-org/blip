@@ -19,6 +19,7 @@ import _ from 'lodash';
 import { format } from 'd3-format';
 import { convertToMmolL } from './bloodglucose';
 import { BG_HIGH, BG_LOW, MMOLL_UNITS } from './constants';
+import { formatDisplayDate } from './datetime';
 
 /**
  * displayDecimal
@@ -64,4 +65,47 @@ export function displayBgValue(val, units, outOfRangeThresholds) {
     return format('.1f')(val);
   }
   return format('d')(val);
+}
+
+/**
+ * patientFullName
+ * @param  {Object} patient   the patient object that contains the profile
+ * @return {String}           fullName of patient or empty if there is none
+ */
+export function patientFullName(patient) {
+  const profile = _.get(patient, ['profile'], {});
+  const patientInfo = profile.patient || {};
+
+  if (patientInfo.isOtherPerson) {
+    return patientInfo.fullName;
+  }
+  return profile.fullName;
+}
+
+/**
+ * birthday
+ * @param  {Object} patient   the patient object that contains the profile
+ * @param  {Object} timePrefs timePrefs object containing timezone preferences
+ * @return {String}           formated birthday or empty if none
+ */
+export function birthday(patient, timePrefs) {
+  const bday = _.get(patient, ['profile', 'patient', 'birthday'], '');
+  if (bday) {
+    return formatDisplayDate(bday, timePrefs);
+  }
+  return '';
+}
+
+/**
+ * diagnosisDate
+ * @param  {Object} patient   the patient object that contains the profile
+ * @param  {Object} timePrefs timePrefs object containing timezone preferences
+ * @return {String}           formated diagnosisDate or empty if none
+ */
+export function diagnosisDate(patient, timePrefs) {
+  const diagnosis = _.get(patient, ['profile', 'patient', 'diagnosisDate'], '');
+  if (diagnosis) {
+    return formatDisplayDate(diagnosis, timePrefs);
+  }
+  return '';
 }

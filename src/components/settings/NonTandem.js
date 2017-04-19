@@ -38,6 +38,7 @@ const NonTandem = (props) => {
     pumpSettings,
     timePrefs,
     toggleBasalScheduleExpansion,
+    user,
     view,
   } = props;
 
@@ -207,7 +208,7 @@ const NonTandem = (props) => {
         </div>
       </div>
       <pre className={styles.copyText} id="copySettingsText">
-        {nonTandemText(pumpSettings, bgUnits, lookupKey)}
+        {nonTandemText(user, timePrefs, pumpSettings, bgUnits, lookupKey)}
       </pre>
     </div>
   );
@@ -257,6 +258,7 @@ NonTandem.propTypes = {
     timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
   }).isRequired,
   toggleBasalScheduleExpansion: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
   view: PropTypes.oneOf([DISPLAY_VIEW, PRINT_VIEW]).isRequired,
 };
 

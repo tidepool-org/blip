@@ -37,6 +37,7 @@ const Tandem = (props) => {
     pumpSettings,
     timePrefs,
     toggleProfileExpansion,
+    user,
     view,
   } = props;
 
@@ -101,7 +102,7 @@ const Tandem = (props) => {
         {tables}
       </div>
       <pre className={styles.copyText} id="copySettingsText">
-        {tandemText(pumpSettings, bgUnits)}
+        {tandemText(user, timePrefs, pumpSettings, bgUnits)}
       </pre>
     </div>
   );
@@ -156,6 +157,7 @@ Tandem.propTypes = {
     timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
   }).isRequired,
   toggleProfileExpansion: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
   view: PropTypes.oneOf([DISPLAY_VIEW, PRINT_VIEW]).isRequired,
 };
 

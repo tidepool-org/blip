@@ -82,6 +82,7 @@ export class PumpSettingsContainer extends PureComponent {
           pumpSettings={pumpSettings}
           timePrefs={timePrefs}
           toggleProfileExpansion={toggleFn}
+          user={settingsState.user}
           view={view}
         />
       );
@@ -94,6 +95,7 @@ export class PumpSettingsContainer extends PureComponent {
           pumpSettings={pumpSettings}
           timePrefs={timePrefs}
           toggleBasalScheduleExpansion={toggleFn}
+          user={settingsState.user}
           view={view}
         />
       );
@@ -106,8 +108,14 @@ export class PumpSettingsContainer extends PureComponent {
 
 export function mapStateToProps(state, ownProps) {
   const userId = _.get(ownProps, 'currentPatientInViewId');
+  const user = _.get(
+    state.blip.allUsersMap,
+    userId,
+    {},
+  );
   return {
     settingsState: _.get(state, ['viz', 'settings', userId], {}),
+    user,
   };
 }
 

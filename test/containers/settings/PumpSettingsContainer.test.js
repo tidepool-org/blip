@@ -33,6 +33,16 @@ const omnipodSettings = require('../../../data/pumpSettings/omnipod/multirate.js
 const tandemSettings = require('../../../data/pumpSettings/tandem/multirate.json');
 
 describe('PumpSettingsContainer', () => {
+  const user = {
+    profile: {
+      fullName: 'Mary Smith',
+      patient: {
+        diagnosisDate: '1990-01-31',
+        birthday: '1983-01-31',
+      },
+    },
+  };
+
   describe('PumpSettingsContainer (w/o redux connect()ion)', () => {
     const markSettingsViewed = sinon.spy();
     const toggleSettingsSection = sinon.spy();
@@ -218,11 +228,20 @@ describe('PumpSettingsContainer', () => {
           },
         },
       },
+      blip: {
+        allUsersMap: {
+          [userId]: { user },
+        },
+      },
     };
 
     it('should map state.viz.settings[currentPatientInViewId] to `settingsState`', () => {
       expect(mapStateToProps(state, { currentPatientInViewId: userId }).settingsState)
         .to.deep.equal(state.viz.settings[userId]);
+    });
+    it('should map state.blip.allUsersMap[currentPatientInViewId] to `user`', () => {
+      expect(mapStateToProps(state, { currentPatientInViewId: userId }).user)
+        .to.deep.equal(state.blip.allUsersMap[userId]);
     });
   });
 

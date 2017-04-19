@@ -21,6 +21,10 @@ import table from 'text-table';
 import * as tandemData from './tandemData';
 import * as nonTandemData from './nonTandemData';
 
+import { patientFullName, birthday, diagnosisDate } from '../format';
+import { formatDisplayDate } from '../datetime';
+
+
 /**
  * getItemField
  * @private
@@ -93,15 +97,31 @@ function buildTextTable(name, rows, columns) {
 }
 
 /**
+ * formatTitle
+ * @private
+ */
+function formatTitle(patient, timePrefs) {
+  const exported = `Exported from Tidepool, ${formatDisplayDate(Date.now(), timePrefs)}`;
+  const bday = `Date of birth: ${birthday(patient, timePrefs)}`;
+  let diagnosis = diagnosisDate(patient, timePrefs);
+  if (diagnosis) {
+    diagnosis = `Date of diagnosis: ${diagnosis}`;
+  }
+  const fullname = patientFullName(patient);
+  return `${fullname}\n${bday}\n${diagnosis}\n${exported}`;
+}
+
+/**
  * nonTandemText
- * @param  {Object} settings      all settings data
+ * @param  {Object} patient     the patient object that contains the profile
+ * @param  {Object} timePrefs   timePrefs object containing timezone preferences
  * @param  {String} units         MGDL_UNITS or MMOLL_UNITS
  * @param  {String} manufacturer  one of: animas, carelink, insulet, medtronic
  *
  * @return {String}               non tandem settings as a string table
  */
-export function nonTandemText(settings, units, manufacturer) {
-  let tablesString = '';
+export function nonTandemText(patient, timePrefs, settings, units, manufacturer) {
+  let tablesString = formatTitle(patient, timePrefs);
   _.map(nonTandemData.basalSchedules(settings), (schedule) => {
     const basal = nonTandemData.basal(schedule, settings, manufacturer);
     tablesString += buildTextTable(
@@ -137,18 +157,20 @@ export function nonTandemText(settings, units, manufacturer) {
 
 /**
  * tandemText
+ * @param  {Object} patient     the patient object that contains the profile
+ * @param  {Object} timePrefs   timePrefs object containing timezone preferences
  * @param  {Object} settings    all settings data
  * @param  {String} units       MGDL_UNITS or MMOLL_UNITS
  *
  * @return {String}             tandem settings as a string table
  */
-export function tandemText(settings, units) {
+export function tandemText(patient, timePrefs, settings, units) {
   const styles = {
     bolusSettingsHeader: '',
     basalScheduleHeader: '',
   };
 
-  let tablesString = '';
+  let tablesString = formatTitle(patient, timePrefs);
   _.map(tandemData.basalSchedules(settings), (schedule) => {
     const basal = tandemData.basal(schedule, settings, units, styles);
     tablesString += buildTextTable(
