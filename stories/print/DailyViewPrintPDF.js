@@ -30,7 +30,7 @@ function openPDF() {
   const doc = new PDFDocument({ bufferPages: true, margin: 36 });
   const stream = doc.pipe(blobStream());
 
-  createDailyPrintView(doc, data);
+  createDailyPrintView(doc, data, 6);
 
   doc.end();
 

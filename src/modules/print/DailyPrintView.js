@@ -15,6 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
+
+import { THREE_HRS } from '../../utils/datetime';
+
 class DailyPrintView {
   constructor(doc, data, opts) {
     this.doc = doc;
@@ -28,6 +32,9 @@ class DailyPrintView {
     this.width = opts.width;
     this.height = opts.height;
 
+    this.chartsPerPage = opts.chartsPerPage;
+    this.numDays = opts.numDays;
+
     this.rightEdge = this.margins.left + this.width;
     this.bottomEdge = this.margins.top + this.height;
 
@@ -36,7 +43,103 @@ class DailyPrintView {
       bottomEdge: opts.margins.top + opts.height,
     };
 
-    this.pages = 1;
+    this.chartsByDate = {};
+    _.each(_.keys(data).slice(0, opts.numDays), (date) => {
+      this.chartsByDate[date] = { date };
+    });
+
+    this.pages = Math.ceil(opts.numDays / opts.chartsPerPage);
+
+    this.chartIndex = 0;
+  }
+
+  calculateChartMinimums() {
+    this.doc.fontSize(10);
+    const { topEdge, bottomEdge } = this.chartArea;
+    const totalHeight = bottomEdge - topEdge;
+    const perChart = totalHeight / 3.5;
+    this.chartMinimums = {
+      notes: 0,
+      bgEtcChart: perChart * (5 / 12),
+      bolusDetails: perChart * (4 / 12),
+      basalChart: perChart * (3 / 12),
+      paddingBelow: (totalHeight * (1 / 7)) / 3,
+      total: perChart,
+    };
+
+    return this;
+  }
+
+  calculateDateChartHeight({ bounds, data, date }) {
+    this.doc.fontSize(10);
+    const lineHeight = this.doc.currentLineHeight();
+
+    const start = Date.parse(bounds[0]);
+    const threeHrBinnedBoluses = _.groupBy(
+      data.bolus,
+      (d) => (Math.floor((Date.parse(d.normalTime) - start) / THREE_HRS)),
+    );
+    const maxBolusStack = _.max(_.map(
+      _.keys(threeHrBinnedBoluses),
+      (key) => (threeHrBinnedBoluses[key].length),
+    ));
+
+    const { bgEtcChart, basalChart, total } = this.chartMinimums;
+    const totalGivenMaxBolusStack = (lineHeight * maxBolusStack) + bgEtcChart + basalChart;
+
+    this.chartsByDate[date].bolusDetailsHeight = lineHeight * maxBolusStack;
+    this.chartsByDate[date].chartHeight = (totalGivenMaxBolusStack > total) ?
+      totalGivenMaxBolusStack : total;
+
+    return this;
+  }
+
+  placeChartsOnPage(pageNumber) {
+    if (pageNumber > 1 && pageNumber <= this.pages) {
+      this.doc.addPage();
+      this.renderDebugGrid()
+        .renderHeader()
+        .renderFooter();
+    }
+    const { topEdge, bottomEdge } = this.chartArea;
+    let totalChartHeight = 0;
+    const dates = _.keys(this.chartsByDate);
+    const startingIndexThisPage = this.chartIndex;
+    let chartsOnThisPage = 0;
+    const limit = _.min([dates.length, startingIndexThisPage + this.chartsPerPage]);
+    for (let i = startingIndexThisPage; i < limit; ++i) {
+      const thisChartHeight = this.chartsByDate[dates[i]].chartHeight;
+      const nextTotalHeight = totalChartHeight + thisChartHeight + this.chartMinimums.paddingBelow;
+      if (nextTotalHeight > (bottomEdge - topEdge)) {
+        this.chartIndex = i;
+        if (startingIndexThisPage !== 0) {
+          this.pages += 1;
+        }
+        break;
+      }
+      this.chartIndex = i + 1;
+      totalChartHeight += thisChartHeight + this.chartMinimums.paddingBelow;
+      chartsOnThisPage += 1;
+    }
+    for (let i = startingIndexThisPage; i < startingIndexThisPage + chartsOnThisPage; ++i) {
+      const chart = this.chartsByDate[dates[i]];
+      chart.page = pageNumber;
+      if (i === startingIndexThisPage) {
+        chart.topEdge = this.chartArea.topEdge;
+        chart.bottomEdge = this.chartArea.topEdge + chart.chartHeight;
+      } else {
+        chart.topEdge =
+          this.chartsByDate[dates[i - 1]].bottomEdge + this.chartMinimums.paddingBelow;
+        chart.bottomEdge = chart.topEdge + chart.chartHeight;
+      }
+      // TODO: remove this; it is just for exposing/debugging the chart placement
+      // eslint-disable-next-line lodash/prefer-lodash-method
+      this.doc.fillColor('blue', 0.1)
+        .rect(this.margins.left, chart.topEdge, this.width, chart.chartHeight)
+        .fill();
+    }
+
+    return this;
   }
 
   renderDebugGrid() {
@@ -81,7 +184,27 @@ class DailyPrintView {
     return this;
   }
 
-  renderHeader() {
+  renderFooter(firstPage) {
+    this.doc.fontSize(9);
+    const lineHeight = this.doc.currentLineHeight();
+    this.doc.fillColor('black').fillOpacity(1)
+      .text('Legend', this.margins.left, this.bottomEdge - lineHeight * 8);
+    this.doc.lineWidth(1)
+      .rect(this.margins.left, this.bottomEdge - lineHeight * 6, this.width, lineHeight * 4)
+      .stroke('black');
+    if (firstPage) {
+      this.chartArea.bottomEdge = this.chartArea.bottomEdge - lineHeight * 9;
+    }
+    // TODO: remove this; it is just for exposing/debugging the chartArea.bottomEdge adjustment
+    // eslint-disable-next-line lodash/prefer-lodash-method
+    this.doc.fillColor('#E8E8E8', 0.3333333333)
+      .rect(this.margins.left, this.bottomEdge - lineHeight * 9, this.width, lineHeight * 9)
+      .fill();
+
+    return this;
+  }
+
+  renderHeader(firstPage) {
     this.doc.lineWidth(1);
     this.doc.fontSize(14).text('Daily View', this.margins.left, this.margins.top)
       .moveDown();
@@ -90,29 +213,13 @@ class DailyPrintView {
     this.doc.moveTo(this.margins.left, height)
       .lineTo(this.margins.left + this.width, height)
       .stroke('black');
-    this.chartArea.topEdge = this.chartArea.topEdge + lineHeight * 3;
+    if (firstPage) {
+      this.chartArea.topEdge = this.chartArea.topEdge + lineHeight * 4;
+    }
     // TODO: remove this; it is just for exposing/debugging the chartArea.topEdge adjustment
     // eslint-disable-next-line lodash/prefer-lodash-method
     this.doc.fillColor('#E8E8E8', 0.3333333333)
-      .rect(this.margins.left, this.margins.top, this.width, lineHeight * 3)
-      .fill();
-
-    return this;
-  }
-
-  renderFooter() {
-    this.doc.fontSize(9);
-    const lineHeight = this.doc.currentLineHeight();
-    this.doc.fillColor('black').fillOpacity(1)
-      .text('Legend', this.margins.left, this.bottomEdge - lineHeight * 8);
-    this.doc.lineWidth(1)
-      .rect(this.margins.left, this.bottomEdge - lineHeight * 6, this.width, lineHeight * 4)
-      .stroke('black');
-    this.chartArea.bottomEdge = this.chartArea.bottomEdge - lineHeight * 9;
-    // TODO: remove this; it is just for exposing/debugging the chartArea.bottomEdge adjustment
-    // eslint-disable-next-line lodash/prefer-lodash-method
-    this.doc.fillColor('#E8E8E8', 0.3333333333)
-      .rect(this.margins.left, this.bottomEdge - lineHeight * 9, this.width, lineHeight * 9)
+      .rect(this.margins.left, this.margins.top, this.width, lineHeight * 4)
       .fill();
 
     return this;

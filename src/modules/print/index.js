@@ -27,23 +27,39 @@ import { selectDailyViewData as selectData } from './data';
 const DPI = 72;
 const MARGIN = DPI / 2;
 
-export function createDailyPrintView(doc, data) {
+export function createDailyPrintView(doc, data, numDays) {
   const DATES_PER_PAGE = 3;
-  const dailyPrintView = new DailyPrintView(doc, { daily: data }, {
+  const dailyPrintView = new DailyPrintView(doc, data, {
+    chartsPerPage: DATES_PER_PAGE,
     dpi: DPI,
+    height: 11 * DPI - (2 * MARGIN),
     margins: {
       left: MARGIN,
       top: MARGIN,
       right: MARGIN,
       bottom: MARGIN,
     },
+    numDays,
     width: 8.5 * DPI - (2 * MARGIN),
-    height: 11 * DPI - (2 * MARGIN),
   });
 
   dailyPrintView.renderDebugGrid()
-    .renderHeader()
-    .renderFooter();
+    .renderHeader(true)
+    .renderFooter(true)
+    .calculateChartMinimums();
+
+  const dates = _.keys(data).slice(0, numDays);
+  for (let i = 0; i < numDays; ++i) {
+    const dateData = data[dates[i]];
+    dailyPrintView.calculateDateChartHeight(dateData);
+  }
+  let page = 1;
+  while (page <= dailyPrintView.pages) {
+    console.log('Placing charts on page', page);
+    dailyPrintView.placeChartsOnPage(page);
+    ++page;
+  }
+  console.log(dailyPrintView.chartsByDate);
 }
 
 /**
@@ -58,7 +74,6 @@ export function createDailyPrintView(doc, data) {
 export default function createAndOpenPrintPDFPackage(mostRecent, dataByDate, {
   bgPrefs, numDays, timePrefs,
 }) {
-
   // TODO: refactor this from where it was c&p-ed from (blip's trends.js)
   // repeating this logic here long-term would be super dumb and non-DRY
   const { bgClasses } = bgPrefs;
@@ -76,7 +91,7 @@ export default function createAndOpenPrintPDFPackage(mostRecent, dataByDate, {
    */
   const doc = new PDFDocument({ bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
-  createDailyPrintView(doc, data);
+  createDailyPrintView(doc, data, numDays);
 
   // const poolHeights = [lineHeight * 4 + MARGIN];
   // const chartHeight = (DIMS.HEIGHT - poolHeights[0]) / 4;
