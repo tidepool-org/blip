@@ -86,12 +86,12 @@ export function patientFullName(patient) {
  * birthday
  * @param  {Object} patient   the patient object that contains the profile
  * @param  {Object} timePrefs timePrefs object containing timezone preferences
- * @return {String}           formated birthday or empty if none
+ * @return {String}           MMM D, YYYY formated birthday or empty if none
  */
 export function birthday(patient, timePrefs) {
   const bday = _.get(patient, ['profile', 'patient', 'birthday'], '');
   if (bday) {
-    return formatDisplayDate(bday, timePrefs);
+    return formatDisplayDate(bday, timePrefs, 'MMM D, YYYY');
   }
   return '';
 }
@@ -100,12 +100,12 @@ export function birthday(patient, timePrefs) {
  * diagnosisDate
  * @param  {Object} patient   the patient object that contains the profile
  * @param  {Object} timePrefs timePrefs object containing timezone preferences
- * @return {String}           formated diagnosisDate or empty if none
+ * @return {String}           MMM D, YYYY formated diagnosisDate or empty if none
  */
 export function diagnosisDate(patient, timePrefs) {
   const diagnosis = _.get(patient, ['profile', 'patient', 'diagnosisDate'], '');
   if (diagnosis) {
-    return formatDisplayDate(diagnosis, timePrefs);
+    return formatDisplayDate(diagnosis, timePrefs, 'MMM D, YYYY');
   }
   return '';
 }
