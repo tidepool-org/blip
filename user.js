@@ -292,7 +292,7 @@ module.exports = function (common, config, deps) {
       return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
     }
 
-    var newUser = _.pick(user, 'username', 'password', 'emails');
+    var newUser = _.pick(user, 'username', 'password', 'emails', 'roles');
 
     superagent
       .post(common.makeAPIUrl('/auth/user'))

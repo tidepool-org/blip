@@ -768,6 +768,7 @@ describe('platform client', function () {
       username: 'noreply+signup@tidepool.org',
       password: 'noreply',
       emails: ['noreply+signup@tidepool.org'],
+      roles: ['clinic'],
       profile: {fullName: 'Platform Client Signup'}
     };
 
