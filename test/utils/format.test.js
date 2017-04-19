@@ -110,4 +110,64 @@ describe('format', () => {
       });
     });
   });
+
+  const patient = {
+    profile: {
+      fullName: 'Mary Smith',
+      patient: {
+        diagnosisDate: '1990-01-31',
+        birthday: '1983-01-31',
+      },
+    },
+  };
+
+  const patientKid = {
+    profile: {
+      fullName: 'Mary Smith',
+      patient: {
+        isOtherPerson: true,
+        fullName: 'My Kid',
+        diagnosisDate: '1990-01-31',
+        birthday: '1983-01-31',
+      },
+    },
+  };
+
+  describe('patientFullName', () => {
+    it('should be a function', () => {
+      assert.isFunction(format.patientFullName);
+    });
+
+    it('returns patient name', () => {
+      expect(format.patientFullName(patient)).to.equal(patient.profile.fullName);
+    });
+
+    it('returns child name when isOtherPerson', () => {
+      expect(format.patientFullName(patientKid)).to.equal(patientKid.profile.patient.fullName);
+    });
+  });
+
+  describe('birthday', () => {
+    it('should be a function', () => {
+      assert.isFunction(format.birthday);
+    });
+    it('returns child name when isOtherPerson', () => {
+      expect(format.birthday(patientKid)).to.equal('Jan 31, 1983');
+    });
+    it('returns child name when isOtherPerson', () => {
+      expect(format.birthday(patientKid)).to.equal('Jan 31, 1983');
+    });
+  });
+
+  describe('diagnosisDate', () => {
+    it('should be a function', () => {
+      assert.isFunction(format.diagnosisDate);
+    });
+    it('returns child name when isOtherPerson', () => {
+      expect(format.diagnosisDate(patient)).to.equal('Jan 31, 1990');
+    });
+    it('returns child name when isOtherPerson', () => {
+      expect(format.diagnosisDate(patient)).to.equal('Jan 31, 1990');
+    });
+  });
 });
