@@ -452,33 +452,28 @@ api.patient.put = function(patient, cb) {
 api.patient.getAll = function(cb) {
   api.log('GET /patients');
 
-  var userId = tidepool.getUserId();
-
-  // First, get a list of of patient ids in user's "patients" group
-  tidepool.getViewableUsers(userId, function(err, permissions) {
+  tidepool.getAssociatedUsersDetails(tidepool.getUserId(), function(err, users) {
     if (err) {
       return cb(err);
     }
 
-    if (_.isEmpty(permissions)) {
+    //these are the accounts that have shared their data
+    //with a given set of permissions.
+    var viewableUsers = _.filter(users, function(user) {
+      return !_.isEmpty(user.trustorPermissions);
+    });
+
+    viewableUsers = _.map(viewableUsers, function(user) {
+      user.permissions = user.trustorPermissions
+      delete user.trustorPermissions
+      return user;
+    });
+
+    if (_.isEmpty(viewableUsers)) {
       return cb(null, []);
     }
 
-    // A user is always able to view her own data:
-    // filter her id from set of permissions
-    permissions = _.omit(permissions, userId);
-    // Convert to array of user ids
-    var patientIds = Object.keys(permissions);
-
-    // Second, get the patient object for each patient id
-    async.map(patientIds, getPatient, function(err, patients) {
-      if (err) {
-        return cb(err);
-      }
-      // Filter any patient ids that returned nothing
-      patients = _.filter(patients);
-      return cb(null, patients);
-    });
+    return cb(null, viewableUsers);
   });
 };
 
