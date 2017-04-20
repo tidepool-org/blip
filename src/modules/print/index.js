@@ -20,13 +20,23 @@
 import _ from 'lodash';
 
 import DailyPrintView from './DailyPrintView';
+import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
 import { selectDailyViewData as selectData } from './data';
 
 // DPI here is the coordinate system, not the resolution; sub-dot precision renders crisply!
 const DPI = 72;
 const MARGIN = DPI / 2;
 
-export function createDailyPrintView(doc, data, numDays) {
+/**
+ * createDailyPrintView
+ * @param {Object} doc - PDFKit document instance
+ * @param {Object} data - pre-munged data for the daily print view
+ * @param {Object} bgBounds - user's blood glucose thresholds & targets
+ * @param {Number} numDays - number of days of daily view to include in printout
+ *
+ * @return {Void}
+ */
+export function createDailyPrintView(doc, data, bgBounds, numDays) {
   const CHARTS_PER_PAGE = 3;
   const dailyPrintView = new DailyPrintView(doc, data, {
     chartsPerPage: CHARTS_PER_PAGE,
@@ -73,15 +83,7 @@ export default function createAndOpenPrintPDFPackage(mostRecent, dataByDate, {
   // full opts will be { bgPrefs, dateTitle, patientName, numDays, timePrefs }
   bgPrefs, numDays, timePrefs,
 }) {
-  // TODO: refactor this from where it was c&p-ed from (blip's trends.js)
-  // repeating this logic here long-term would be super dumb and non-DRY
-  const { bgClasses } = bgPrefs;
-  const bgBounds = {
-    veryHighThreshold: bgClasses.high.boundary,
-    targetUpperBound: bgClasses.target.boundary,
-    targetLowerBound: bgClasses.low.boundary,
-    veryLowThreshold: bgClasses['very-low'].boundary,
-  };
+  const bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
 
   const data = selectData(mostRecent, dataByDate, numDays, timePrefs);
   /* NB: if you don't set the `margin` (or `margins` if not all are the same)
@@ -90,7 +92,7 @@ export default function createAndOpenPrintPDFPackage(mostRecent, dataByDate, {
    */
   const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
-  createDailyPrintView(doc, data, numDays);
+  createDailyPrintView(doc, data, bgBounds, numDays);
 
   doc.end();
 
