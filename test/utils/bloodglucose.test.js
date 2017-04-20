@@ -114,4 +114,30 @@ describe('blood glucose utilities', () => {
       expect(bgUtils.convertToMmolL(400)).to.equal(22.202991964182132);
     });
   });
+
+  describe('reshapeBgClassesToBgBounds', () => {
+    const bgPrefs = {
+      bgClasses: {
+        'very-high': { boundary: 600 },
+        high: { boundary: 300 },
+        target: { boundary: 180 },
+        low: { boundary: 70 },
+        'very-low': { boundary: 54 },
+      },
+      bgUnits: 'mg/dL',
+    };
+
+    it('should be a function', () => {
+      assert.isFunction(bgUtils.reshapeBgClassesToBgBounds);
+    });
+
+    it('should extract and reshape `bgClasses` to `bgBounds`', () => {
+      expect(bgUtils.reshapeBgClassesToBgBounds(bgPrefs)).to.deep.equal({
+        veryHighThreshold: 300,
+        targetUpperBound: 180,
+        targetLowerBound: 70,
+        veryLowThreshold: 54,
+      });
+    });
+  });
 });

@@ -29,6 +29,8 @@ import TrendsContainer from './containers/trends/TrendsContainer';
 
 import vizReducer from './redux/reducers/';
 
+import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
+
 const components = {
   CBGDateTraceLabel,
   FocusedRangeLabels,
@@ -42,4 +44,8 @@ const containers = {
   TrendsContainer,
 };
 
-export { components, containers, vizReducer };
+const utils = {
+  reshapeBgClassesToBgBounds,
+};
+
+export { components, containers, vizReducer, utils };
