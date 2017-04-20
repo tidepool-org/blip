@@ -36,6 +36,7 @@ export let Signup = React.createClass({
     configuredInviteKey: React.PropTypes.string.isRequired,
     inviteEmail: React.PropTypes.string,
     inviteKey: React.PropTypes.string,
+    roles: React.PropTypes.array,
     notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -226,6 +227,7 @@ export let Signup = React.createClass({
       username: formValues.username,
       emails: [formValues.username],
       password: formValues.password,
+      roles: this.props.roles,
       profile: {
         fullName: formValues.fullName
       }
@@ -254,6 +256,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     configuredInviteKey: config.INVITE_KEY,
     inviteKey: utils.getInviteKey(ownProps.location),
     inviteEmail: utils.getInviteEmail(ownProps.location),
+    roles: utils.getRoles(ownProps.location),
     trackMetric: ownProps.routes[0].trackMetric,
     api: ownProps.routes[0].api,
   });
