@@ -27,7 +27,7 @@ import { createDailyPrintView } from '../../src/modules/print/index';
 const data = require('../../local/daily-print-view.json');
 
 function openPDF() {
-  const doc = new PDFDocument({ bufferPages: true, margin: 36 });
+  const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: 36 });
   const stream = doc.pipe(blobStream());
 
   createDailyPrintView(doc, data, 6);

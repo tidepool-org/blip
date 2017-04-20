@@ -29,8 +29,9 @@ import {
  * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
  * @param {Object} dataByDate - a Crossfilter dimension for querying diabetes data by normalTime
  * @param {Number} numDays - number of days of data to select
+ * @param {Object} timePrefs - object with `timezoneAware` and `timezoneName` properties
  *
- * @return {TYPE} NAME
+ * @return {Object} selected data for daily print view
  */
 export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) {
   const timezone = getTimezoneFromTimePrefs(timePrefs);

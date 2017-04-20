@@ -23,11 +23,17 @@ class DailyPrintView {
   constructor(doc, data, opts) {
     this.doc = doc;
 
+    this.debug = opts.debug || false;
+
     this.data = data;
 
     this.dpi = opts.dpi;
 
     this.margins = opts.margins;
+
+    this.defaultFontSize = opts.defaultFontSize;
+    this.footerFontSize = opts.footerFontSize;
+    this.headerFontSize = opts.headerFontSize;
 
     this.width = opts.width;
     this.height = opts.height;
@@ -51,6 +57,13 @@ class DailyPrintView {
     this.pages = Math.ceil(opts.numDays / opts.chartsPerPage);
 
     this.chartIndex = 0;
+
+    // kick off the dynamic calculation of chart area based on font sizes for header and footer
+    this.setHeaderSize().setFooterSize().calculateChartMinimums();
+
+    // no auto-binding :/
+    this.newPage = this.newPage.bind(this);
+    this.doc.on('pageAdded', this.newPage);
   }
 
   calculateChartMinimums() {
@@ -71,7 +84,7 @@ class DailyPrintView {
   }
 
   calculateDateChartHeight({ bounds, data, date }) {
-    this.doc.fontSize(10);
+    this.doc.fontSize(this.defaultFontSize);
     const lineHeight = this.doc.currentLineHeight();
 
     const start = Date.parse(bounds[0]);
@@ -94,12 +107,16 @@ class DailyPrintView {
     return this;
   }
 
+  newPage() {
+    if (this.debug) {
+      this.renderDebugGrid();
+    }
+    this.renderHeader().renderFooter();
+  }
+
   placeChartsOnPage(pageNumber) {
-    if (pageNumber > 1 && pageNumber <= this.pages) {
+    if (pageNumber <= this.pages) {
       this.doc.addPage();
-      this.renderDebugGrid()
-        .renderHeader()
-        .renderFooter();
     }
     const { topEdge, bottomEdge } = this.chartArea;
     let totalChartHeight = 0;
@@ -133,10 +150,12 @@ class DailyPrintView {
         chart.bottomEdge = chart.topEdge + chart.chartHeight;
       }
       // TODO: remove this; it is just for exposing/debugging the chart placement
-      // eslint-disable-next-line lodash/prefer-lodash-method
-      this.doc.fillColor('blue', 0.1)
-        .rect(this.margins.left, chart.topEdge, this.width, chart.chartHeight)
-        .fill();
+      if (this.debug) {
+        // eslint-disable-next-line lodash/prefer-lodash-method
+        this.doc.fillColor('blue', 0.1)
+          .rect(this.margins.left, chart.topEdge, this.width, chart.chartHeight)
+          .fill();
+      }
     }
 
     return this;
@@ -184,7 +203,7 @@ class DailyPrintView {
     return this;
   }
 
-  renderFooter(firstPage) {
+  renderFooter() {
     this.doc.fontSize(9);
     const lineHeight = this.doc.currentLineHeight();
     this.doc.fillColor('black').fillOpacity(1)
@@ -192,19 +211,18 @@ class DailyPrintView {
     this.doc.lineWidth(1)
       .rect(this.margins.left, this.bottomEdge - lineHeight * 6, this.width, lineHeight * 4)
       .stroke('black');
-    if (firstPage) {
-      this.chartArea.bottomEdge = this.chartArea.bottomEdge - lineHeight * 9;
-    }
     // TODO: remove this; it is just for exposing/debugging the chartArea.bottomEdge adjustment
-    // eslint-disable-next-line lodash/prefer-lodash-method
-    this.doc.fillColor('#E8E8E8', 0.3333333333)
-      .rect(this.margins.left, this.bottomEdge - lineHeight * 9, this.width, lineHeight * 9)
-      .fill();
+    if (this.debug) {
+      // eslint-disable-next-line lodash/prefer-lodash-method
+      this.doc.fillColor('#E8E8E8', 0.3333333333)
+        .rect(this.margins.left, this.bottomEdge - lineHeight * 9, this.width, lineHeight * 9)
+        .fill();
+    }
 
     return this;
   }
 
-  renderHeader(firstPage) {
+  renderHeader() {
     this.doc.lineWidth(1);
     this.doc.fontSize(14).text('Daily View', this.margins.left, this.margins.top)
       .moveDown();
@@ -213,14 +231,29 @@ class DailyPrintView {
     this.doc.moveTo(this.margins.left, height)
       .lineTo(this.margins.left + this.width, height)
       .stroke('black');
-    if (firstPage) {
-      this.chartArea.topEdge = this.chartArea.topEdge + lineHeight * 4;
-    }
     // TODO: remove this; it is just for exposing/debugging the chartArea.topEdge adjustment
-    // eslint-disable-next-line lodash/prefer-lodash-method
-    this.doc.fillColor('#E8E8E8', 0.3333333333)
-      .rect(this.margins.left, this.margins.top, this.width, lineHeight * 4)
-      .fill();
+    if (this.debug) {
+      // eslint-disable-next-line lodash/prefer-lodash-method
+      this.doc.fillColor('#E8E8E8', 0.3333333333)
+        .rect(this.margins.left, this.margins.top, this.width, lineHeight * 4)
+        .fill();
+    }
+
+    return this;
+  }
+
+  setFooterSize() {
+    this.doc.fontSize(this.footerFontSize);
+    const lineHeight = this.doc.currentLineHeight();
+    this.chartArea.bottomEdge = this.chartArea.bottomEdge - lineHeight * 9;
+
+    return this;
+  }
+
+  setHeaderSize() {
+    this.doc.fontSize(this.headerFontSize);
+    const lineHeight = this.doc.currentLineHeight();
+    this.chartArea.topEdge = this.chartArea.topEdge + lineHeight * 4;
 
     return this;
   }

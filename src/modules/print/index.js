@@ -19,7 +19,6 @@
 
 import _ from 'lodash';
 
-import { renderDateChart, renderDateSummary } from './daily';
 import DailyPrintView from './DailyPrintView';
 import { selectDailyViewData as selectData } from './data';
 
@@ -28,10 +27,15 @@ const DPI = 72;
 const MARGIN = DPI / 2;
 
 export function createDailyPrintView(doc, data, numDays) {
-  const DATES_PER_PAGE = 3;
+  const CHARTS_PER_PAGE = 3;
   const dailyPrintView = new DailyPrintView(doc, data, {
-    chartsPerPage: DATES_PER_PAGE,
+    chartsPerPage: CHARTS_PER_PAGE,
+    // TODO: set this up as a Webpack Define plugin to pull from env variable
+    // maybe that'll be tricky through React Storybook?
+    debug: true,
     dpi: DPI,
+    footerFontSize: 9,
+    headerFontSize: 14,
     height: 11 * DPI - (2 * MARGIN),
     margins: {
       left: MARGIN,
@@ -42,11 +46,6 @@ export function createDailyPrintView(doc, data, numDays) {
     numDays,
     width: 8.5 * DPI - (2 * MARGIN),
   });
-
-  dailyPrintView.renderDebugGrid()
-    .renderHeader(true)
-    .renderFooter(true)
-    .calculateChartMinimums();
 
   const dates = _.keys(data).slice(0, numDays);
   for (let i = 0; i < numDays; ++i) {
@@ -68,10 +67,10 @@ export function createDailyPrintView(doc, data, numDays) {
  * @param {Object} dataByDate - a Crossfilter dimension for querying diabetes data by normalTime
  * @param {Object} opts - an object of print options (see destructured param below)
  *
- * @return {String} url - the PDF file blog URL for opening in a new tab & printing
+ * @return {Void} [side effect function creates and opens PDF in new tab]
  */
-// opts will be { bgPrefs, dateTitle, patientName, numDays, timePrefs }
 export default function createAndOpenPrintPDFPackage(mostRecent, dataByDate, {
+  // full opts will be { bgPrefs, dateTitle, patientName, numDays, timePrefs }
   bgPrefs, numDays, timePrefs,
 }) {
   // TODO: refactor this from where it was c&p-ed from (blip's trends.js)
@@ -85,32 +84,13 @@ export default function createAndOpenPrintPDFPackage(mostRecent, dataByDate, {
   };
 
   const data = selectData(mostRecent, dataByDate, numDays, timePrefs);
-  /* NB: if you don't see the `margin` (or `margins` if not all are the same)
+  /* NB: if you don't set the `margin` (or `margins` if not all are the same)
      then when you are using the .text() command a new page will be added if you specify
      coordinates outside of the default margin (or outside of the margins you've specified)
    */
-  const doc = new PDFDocument({ bufferPages: true, margin: MARGIN });
+  const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
   createDailyPrintView(doc, data, numDays);
-
-  // const poolHeights = [lineHeight * 4 + MARGIN];
-  // const chartHeight = (DIMS.HEIGHT - poolHeights[0]) / 4;
-  // // TODO: don't hardcode like this!
-  // // make dependent on DATES_PER_PAGE
-  // poolHeights.push(poolHeights[0] + chartHeight);
-  // poolHeights.push(poolHeights[1] + chartHeight);
-
-  // const dates = _.keys(data);
-
-  // for (let i = 0; i < DATES_PER_PAGE; ++i) {
-  //   renderDateSummary(doc, poolHeights[i], data[dates[i]], { bgBounds });
-  //   renderDateChart(
-  //     doc,
-  //     poolHeights[i],
-  //     data,
-  //     { bgBounds, chartHeight: chartHeight * 0.75, date: dates[i] },
-  //   );
-  // }
 
   doc.end();
 
