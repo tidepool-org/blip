@@ -2,10 +2,8 @@ sudo: false
 
 language: node_js
 node_js:
-  - "0.12.7"
+  - "6.10.2"
   - "stable"
-
-before_install: if [[ `npm -v` != 3* ]]; then npm i -g npm@3; fi
 
 script:
   - "npm run lint"
