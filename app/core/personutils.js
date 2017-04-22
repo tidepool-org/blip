@@ -13,8 +13,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var _ = require('lodash');
-var sundial = require('sundial');
+import _ from 'lodash';
+import sundial from 'sundial';
+
+import config from '../config';
 
 //date masks we use
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
@@ -33,7 +35,10 @@ personUtils.patientInfo = function(person) {
 };
 
 personUtils.hasAcceptedTerms = function(person) {
-  return !_.isEmpty(_.get(person, 'termsAccepted', null));
+  var latestTermsDate = new Date(config.LATEST_TERMS);
+  // A `null` is fine here, because `new Date(null).valueOf() === 0`
+  var acceptDate = new Date(_.get(person, 'termsAccepted', null));
+  return acceptDate >= latestTermsDate;
 };
 
 personUtils.isPatient = function(person) {

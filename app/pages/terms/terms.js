@@ -16,15 +16,15 @@
 import React  from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import _ from 'lodash';
 
+import config from '../../config';
 import LoginNav from '../../components/loginnav';
 import utils  from '../../core/utils';
 import * as actions from '../../redux/actions';
 
 const TERMS_OF_USE_FULL_LINK = 'https://tidepool.org/terms-of-use';
-const TERMS_OF_USE_SUMMARY_LINK = 'https://tidepool.org/terms-of-use-summary';
 const PRIVACY_POLICY_FULL_LINK = 'https://tidepool.org/privacy-policy';
-const PRIVACY_POLICY_SUMMARY_LINK = 'https://tidepool.org/privacy-policy-summary';
 
 const ACCEPT_OF_AGE = <span>
   I am 18 or older and I accept the terms of the <a href={TERMS_OF_USE_FULL_LINK} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={PRIVACY_POLICY_FULL_LINK} target='_blank'>Privacy Policy</a>
@@ -34,13 +34,19 @@ const ACCEPT_ON_BEHALF = <span>
   I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the <a href={TERMS_OF_USE_FULL_LINK} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={PRIVACY_POLICY_FULL_LINK} target='_blank'>Privacy Policy</a>
 </span>;
 
+const TERMS_OF_USE_UPDATED = <p>
+  The Terms of Use have changed since you last used Tidepool.<br/>
+  You need to accept the changes to continue.
+</p>;
+
 export class Terms extends React.Component {
   static propTypes = {
     ages: React.PropTypes.object.isRequired,
     authenticated: React.PropTypes.bool.isRequired,
     messages: React.PropTypes.object.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
-    termsAccepted: React.PropTypes.string,
+    termsAccepted: React.PropTypes.bool.isRequired,
+    acceptedLatestTerms: React.PropTypes.bool.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   };
 
@@ -53,7 +59,8 @@ export class Terms extends React.Component {
     messages: {
       ACCEPT_OF_AGE: ACCEPT_OF_AGE,
       ACCEPT_ON_BEHALF:  ACCEPT_ON_BEHALF,
-      SORRY_NOT_OF_AGE: 'We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.'
+      TERMS_OF_USE_UPDATED: TERMS_OF_USE_UPDATED,
+      SORRY_NOT_OF_AGE: 'We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.',
     }
   };
 
@@ -64,7 +71,6 @@ export class Terms extends React.Component {
       return {
         agreed: false,
         agreedOnBehalf: false,
-        ageConfirmed: false,
         ageSelected: props.ages.OF_AGE.value // default
       }
     }
@@ -75,42 +81,51 @@ export class Terms extends React.Component {
 
   renderAgeConsentStep() {
     return (
-      <form ref='confirmAgeStep' className='terms-age-form'>
-        <div className='terms-age-radio'>
-          <label>
-            <input type='radio' name='age'
-              key={this.props.ages.OF_AGE.value}
-              value={this.props.ages.OF_AGE.value}
-              onChange={this.handleAgeChange.bind(this)}
-              defaultChecked={true} />
-            {this.props.ages.OF_AGE.label}
-          </label>
-          <label>
-            <input type='radio' name='age'
-              key={this.props.ages.WITH_CONSENT.value}
-              value={this.props.ages.WITH_CONSENT.value}
-              onChange={this.handleAgeChange.bind(this)} />
-            {this.props.ages.WITH_CONSENT.label}
-          </label>
-          <label>
-            <input type='radio' name='age'
-              key={this.props.ages.NOT_OF_AGE.value}
-              value={this.props.ages.NOT_OF_AGE.value}
-              onChange={this.handleAgeChange.bind(this)} />
-            {this.props.ages.NOT_OF_AGE.label}
-          </label>
-        </div>
-        <button
-          className='btn btn-primary js-terms-submit'
-          onClick={this.handleAgeSubmit.bind(this)}>Continue</button>
-      </form>
+      <div className='terms-age-radio'>
+        <label>
+          <input type='radio' name='age'
+            key={this.props.ages.OF_AGE.value}
+            value={this.props.ages.OF_AGE.value}
+            onChange={this.handleAgeChange.bind(this)}
+            defaultChecked={true} />
+          {this.props.ages.OF_AGE.label}
+        </label>
+        <label>
+          <input type='radio' name='age'
+            key={this.props.ages.WITH_CONSENT.value}
+            value={this.props.ages.WITH_CONSENT.value}
+            onChange={this.handleAgeChange.bind(this)} />
+          {this.props.ages.WITH_CONSENT.label}
+        </label>
+        <label>
+          <input type='radio' name='age'
+            key={this.props.ages.NOT_OF_AGE.value}
+            value={this.props.ages.NOT_OF_AGE.value}
+            onChange={this.handleAgeChange.bind(this)} />
+          {this.props.ages.NOT_OF_AGE.label}
+        </label>
+      </div>
+    );
+  }
+
+  renderTermsUpdated() {
+    if (!this.props.termsAccepted) {
+      return null;
+    }
+
+    return (
+      <div className='terms-title'>
+        <p>{this.props.messages.TERMS_OF_USE_UPDATED}</p>
+      </div>
     );
   }
 
   getTermsAndPrivacyButtonState() {
     var isDisabled = !this.state.agreed;
 
-    if (this.state.ageSelected === this.props.ages.WITH_CONSENT.value) {
+    if (this.state.ageSelected === this.props.ages.NOT_OF_AGE.value) {
+      isDisabled = true;
+    } else if (this.state.ageSelected === this.props.ages.WITH_CONSENT.value) {
       if (this.state.agreed && this.state.agreedOnBehalf) {
         isDisabled = false;
       }
@@ -121,58 +136,32 @@ export class Terms extends React.Component {
     return isDisabled;
   }
 
-  renderTermsAndPrivacyStep() {
-    var title = this.renderTitle();
-    var terms = this.renderWebsiteTerms();
-    var privacy = this.renderWebsitePrivacy();
-    var termsForm = this.renderTermsForm();
-
-    return (
-      <div ref='acceptTermsStep'>
-        {title}
-        {terms}
-        {privacy}
-        {termsForm}
-      </div>
-    );
-  }
-
-  renderTitle() {
-    if (!utils.isMobile() || !this.props.authenticated || this.props.termsAccepted) {
-      return null;
-    }
-
-    return <div className='terms-title'>
-      Tidepool Applications Terms of Use and Privacy Policy
-    </div>;
-  }
-
-  renderTermsForm() {
+  renderForm() {
+    var termsUpdated = this.renderTermsUpdated();
+    var ageConsent = this.renderAgeConsentStep();
     var agreeConfirmation = this.renderAgreeCheckboxes();
-    var backBtn = this.renderBackBtn();
     var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
+    var continueBtnClass = (this.state.ageSelected === this.props.ages.NOT_OF_AGE.value)
+      ? 'terms-button-hidden' : 'terms-button';
 
     var termsForm;
-    if (this.props.authenticated && !this.props.termsAccepted) {
+    if (this.props.authenticated && !this.props.acceptedLatestTerms) {
       termsForm = (
         <form className='terms-form'>
+          {termsUpdated}
+          {ageConsent}
           {agreeConfirmation}
-          {backBtn}
           <button
-            className='terms-button terms-button-submit'
+            className={continueBtnClass}
             onClick={this.handleTermsAndPrivacySubmit.bind(this)}
             disabled={continueBtnDisabled}>Continue</button>
         </form>
       );
     }
-    return termsForm;
-  }
-
-  renderBackBtn() {
     return (
-      <button
-        className='terms-button terms-button-back'
-        onClick={this.handleBack.bind(this)}>Back</button>
+      <div>
+        {termsForm}
+      </div>
     );
   }
 
@@ -192,8 +181,9 @@ export class Terms extends React.Component {
       );
     }
 
-    return (
-      <div className='terms-accept-checkbox'>
+    var acceptTerms;
+    if (this.state.ageSelected !== this.props.ages.NOT_OF_AGE.value) {
+      acceptTerms = (
         <label htmlFor='agreed'>
           <input
             id='agreed'
@@ -203,39 +193,31 @@ export class Terms extends React.Component {
             onChange={this.handleAgreementChange.bind(this)} />
           {this.props.messages.ACCEPT_OF_AGE}
         </label>
-        {onBehalf}
-      </div>
-    );
-  }
+      );
+    }
 
-  renderSorryMessage() {
-    var backBtn = this.renderBackBtn();
+    var sorryMessage;
+    if (this.state.ageSelected === this.props.ages.NOT_OF_AGE.value) {
+      sorryMessage = (
+        <div ref='sorryMsg'>
+          <p className='terms-sorry-message'>{this.props.messages.SORRY_NOT_OF_AGE}</p>
+        </div>
+    );
+    }
+
     return (
-      <div ref='sorryMsg'>
-        <p className='terms-sorry-message'>{this.props.messages.SORRY_NOT_OF_AGE}</p>
-        {backBtn}
+      <div className='terms-accept-checkbox'>
+        {acceptTerms}
+        {onBehalf}
+        {sorryMessage}
       </div>
     );
   }
 
   render() {
     var content = '';
-    if (!this.props.authenticated || (this.props.authenticated && this.props.termsAccepted)) {
-      content = this.renderTermsAndPrivacyStep();
-    }
-
-    if (this.props.authenticated && !this.props.termsAccepted) {
-      content = this.renderAgeConsentStep();
-    }
-
-    if (this.state.ageConfirmed) {
-      // assume we are good to go
-      content = this.renderTermsAndPrivacyStep();
-
-      if (this.state.ageSelected === this.props.ages.NOT_OF_AGE.value) {
-        // unless they are NOT_OF_AGE
-        content = this.renderSorryMessage();
-      }
+    if (this.props.authenticated && !this.props.acceptedLatestTerms) {
+      content = this.renderForm();
     }
 
     return (
@@ -249,64 +231,8 @@ export class Terms extends React.Component {
 
   }
 
-  renderWebsiteTerms() {
-    if (utils.isMobile()) {
-      if (this.props.authenticated && !this.props.termsAccepted) {
-        return null;
-      }
-      return <a className='terms-link' href={TERMS_OF_USE_FULL_LINK} target='_blank'>Tidepool Application Terms of Use</a>
-    }
-
-    var iframe = React.DOM.iframe({
-      className         : 'terms-iframe-terms',
-      src               : TERMS_OF_USE_SUMMARY_LINK,
-      frameBorder       : '0',
-      allowTransparency : 'true'
-    });
-
-    return <div className='iframe-holder'>
-      {iframe}
-    </div>;
-  }
-
-  renderWebsitePrivacy() {
-    if (utils.isMobile()) {
-      if (this.props.authenticated && !this.props.termsAccepted) {
-        return null;
-      }
-      return <a className='terms-link' href={PRIVACY_POLICY_FULL_LINK} target='_blank'>Privacy</a>
-    }
-
-    var iframe = React.DOM.iframe({
-      className         : 'terms-iframe-privacy',
-      src               : PRIVACY_POLICY_SUMMARY_LINK,
-      frameBorder       : '0',
-      allowTransparency : 'true'
-    });
-
-    return <div className='iframe-holder'>
-      {iframe}
-    </div>;
-  }
-
-  handleBack(e) {
-    if (e) {
-      e.preventDefault();
-    }
-    this.setState(this.getDefaultState());
-    this.props.trackMetric('Back');
-  }
-
-  handleAgeSubmit(e) {
-    if (e) {
-      e.preventDefault();
-    }
-    this.setState({ageConfirmed: true });
-    this.props.trackMetric('Confirmed age');
-  }
-
   handleAgeChange(e) {
-    this.setState({ageSelected: e.target.value});
+    this.setState({ageSelected: e.target.value, agreed: false, agreedOnBehalf: false});
   }
 
   handleAgreementChange() {
@@ -333,6 +259,7 @@ export class Terms extends React.Component {
 
 export function mapStateToProps(state) {
   var termsAccepted = null;
+  var latestTerms = new Date(config.LATEST_TERMS);
 
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
@@ -342,7 +269,8 @@ export function mapStateToProps(state) {
 
   return {
     authenticated: state.blip.isLoggedIn,
-    termsAccepted: termsAccepted
+    termsAccepted: !_.isEmpty(termsAccepted),
+    acceptedLatestTerms: new Date(latestTerms) < new Date(termsAccepted),
   };
 };
 

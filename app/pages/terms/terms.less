@@ -52,7 +52,7 @@
   }
 }
 
-.terms-title .privacy-title{
+.terms-title {
   font-size: 18px;
   line-height: 20px;
   font-weight: bold;
@@ -61,12 +61,8 @@
 }
 
 .iframe-holder {
-  overflow: scroll-y !important; 
+  overflow: scroll-y !important;
   -webkit-overflow-scrolling: touch !important;
-}
-
-.terms-title {
-  margin-bottom: 15px;
 }
 
 .terms-link {
@@ -181,14 +177,7 @@
   margin-top: 5px;
 }
 
-.terms-button-submit {
-  padding-left: 5px;
-  padding-right: 5px;
-  float: right;
-}
-
-.terms-button-back {
-  margin-right: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
+.terms-button-hidden {
+  &:extend(.terms-button all);
+  display: none;
 }
