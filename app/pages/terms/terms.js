@@ -35,7 +35,7 @@ const ACCEPT_ON_BEHALF = <span>
 </span>;
 
 const TERMS_OF_USE_UPDATED = <p>
-  The Terms of Use have changed since you last used Tidepool.<br/>
+  The Terms of Use and Privacy Policy have changed since you last used Tidepool.<br/>
   You need to accept the changes to continue.
 </p>;
 

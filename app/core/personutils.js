@@ -13,12 +13,12 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import _ from 'lodash';
-import sundial from 'sundial';
+var _ = require('lodash');
+var sundial = require('sundial');
 
-import config from '../config';
+var config = require('../config');
 
-//date masks we use
+// date masks we use
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
 var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
@@ -36,9 +36,17 @@ personUtils.patientInfo = function(person) {
 
 personUtils.hasAcceptedTerms = function(person) {
   var latestTermsDate = new Date(config.LATEST_TERMS);
+  if (isNaN(latestTermsDate.getTime())) {
+    // Set an invalid latestTermsDate to be Epoch 0
+    latestTermsDate = new Date(0);
+  }
   // A `null` is fine here, because `new Date(null).valueOf() === 0`
   var acceptDate = new Date(_.get(person, 'termsAccepted', null));
-  return acceptDate >= latestTermsDate;
+  if (isNaN(acceptDate.getTime())) {
+    // if acceptDate is not a valid formatted date string, get user to re-accept terms
+    acceptDate = new Date(0);
+  }
+  return (acceptDate.valueOf() > 0 && acceptDate >= latestTermsDate);
 };
 
 personUtils.isPatient = function(person) {
@@ -80,19 +88,11 @@ personUtils.isSame = function(first, second) {
 };
 
 personUtils.hasEditPermissions = function(person) {
-  return (
-    person &&
-    !_.isEmpty(person.permissions) &&
-    person.permissions.root
-  );
+  return (person && !_.isEmpty(person.permissions) && person.permissions.root);
 };
 
 personUtils.isRemoveable = function(person) {
-  return (
-    person &&
-    !_.isEmpty(person.permissions) &&
-    !person.permissions.root
-  );
+  return (person && !_.isEmpty(person.permissions) && !person.permissions.root);
 };
 
 /**
@@ -115,8 +115,7 @@ personUtils.validateFormValues = function(formValues, isNameRequired, dateFormat
   var OUT_OF_ORDER_TEXT = 'Hmm, diagnosis date usually comes after birthday';
 
   // Legacy: revisit when proper "child accounts" are implemented
-  if (isNameRequired &&
-      !formValues.fullName) {
+  if (isNameRequired && !formValues.fullName) {
     validationErrors.fullName = 'Full name is required';
   }
 
