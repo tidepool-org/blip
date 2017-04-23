@@ -1,16 +1,22 @@
-sudo: required
+sudo: false
 language: node_js
 
 node_js:
-  - "0.12.7"
+  - "6.10.2"
   - "stable"
 
-before_install:
-  - if [[ `npm -v` != 3* ]]; then npm i -g npm@3; fi
+addons:
+  artifacts:
+    s3_region: "us-west-2"
+    paths:
+    - $(git ls-files -o deploy/*/*-*.tar.gz | tr "\n" ":")
+    target_paths:
+    - /
 
 script:
   - "npm run lint"
   - "npm test"
+  - "./deploy.sh"
 
 matrix:
   allow_failures:

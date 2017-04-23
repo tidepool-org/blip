@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.23.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -106,6 +106,6 @@
     "webpack-dev-server": "1.15.0"
   },
   "engines": {
-    "node": "0.12.x"
+    "node": "6.x"
   }
 }
