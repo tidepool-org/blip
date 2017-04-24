@@ -3,8 +3,6 @@
 /* global sinon */
 /* global it */
 
-window.config = {};
-
 import React from 'react';
 import { browserHistory } from 'react-router';
 import TestUtils from 'react-addons-test-utils';
@@ -27,7 +25,7 @@ describe('Patients', () => {
       var props = {};
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
-      
+
       var nextProps = Object.assign({}, props, {
         invites: [1],
         loading: false,
