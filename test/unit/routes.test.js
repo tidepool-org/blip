@@ -20,7 +20,7 @@ import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 import createHistory from 'history/lib/createMemoryHistory';
 import { Router } from 'react-router'
-
+import config from '../../app/config';
 
 var expect = chai.expect;
 
@@ -87,7 +87,8 @@ describe('routes', () => {
       });
     });
 
-    it('should not update route if user is authenticated and has accepted the terms', (done) => {
+    it('should not update route if user is authenticated and has accepted the latest terms', (done) => {
+      config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
       let api = {
         user: {
           isAuthenticated: sinon.stub().returns(true),
@@ -123,6 +124,7 @@ describe('routes', () => {
     });
 
     it('[ditto &] should use state from the store instead of calling the API when available', (done) => {
+      config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
       let api = {
         user: {
           isAuthenticated: sinon.stub().returns(true),
@@ -158,7 +160,8 @@ describe('routes', () => {
       });
     });
 
-    it('should update route to /terms if user is authenticated and has not accepted the terms', (done) => {
+    it('should update route to /terms if user is authenticated and has not ever accepted the terms', (done) => {
+      config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
       let api = {
         user: {
           isAuthenticated: sinon.stub().returns(true),
@@ -171,6 +174,42 @@ describe('routes', () => {
                   patient: {}
                 },
                 termsAccepted: ''
+              }
+            );
+          }
+        }
+      };
+
+      let store = {
+        getState: () => ({
+          blip: {}
+        })
+      };
+
+      let replace = sinon.stub();
+
+      expect(replace.callCount).to.equal(0);
+
+      requireAuth(api, store)({location: {pathname: 'test'}}, replace, () => {
+        expect(replace.withArgs('/terms').callCount).to.equal(1);
+        done();
+      });
+    });
+
+    it('should update route to /terms if user is authenticated and has not accepted the latest terms', (done) => {
+      config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(true),
+          get: (cb) => {
+            cb(
+              null,
+              {
+                userid: 'a1b2c3',
+                profile: {
+                  patient: {}
+                },
+                termsAccepted: '2013-12-30T00:00:00-08:00'
               }
             );
           }
@@ -432,7 +471,7 @@ describe('routes', () => {
       };
 
       let cb = sinon.stub();
-      
+
       ensureNoAuth(api)(null, null, cb);
 
       expect(api.user.logout.callCount).to.equal(1);
@@ -451,7 +490,7 @@ describe('routes', () => {
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
-      
+
       requireNoAuth(api)(null, replace);
 
       expect(replace.withArgs('/patients').callCount).to.equal(1);
@@ -503,7 +542,8 @@ describe('routes', () => {
       });
     });
 
-    it('should update the route to /patients if user has already verified e-mail and accepted terms', (done) => {
+    it('should update the route to /patients if user has already verified e-mail and accepted the most recent terms', (done) => {
+      config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
       let api = {
         user: {
           get: (cb) => {

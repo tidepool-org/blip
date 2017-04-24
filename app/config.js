@@ -15,9 +15,13 @@
 
 /* global __TEST__ */
 
+if (__TEST__ && (window === undefined || window.config === undefined)) {
+  window.config = {};
+}
+
 var config = window.config;
 
-if (!config && !__TEST__) {
+if (!config) {
   throw new Error('Expected `config` on the global `window` object');
 }
 
