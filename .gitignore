@@ -19,6 +19,7 @@ _book
 node_modules
 npm-debug.log
 tmp
+deploy
 dist
 config/*
 !config/local.sh

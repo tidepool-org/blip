@@ -3,8 +3,6 @@
 /* global sinon */
 /* global it */
 
-window.config = {};
-
 var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
