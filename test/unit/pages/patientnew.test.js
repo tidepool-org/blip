@@ -13,11 +13,6 @@ import { mapStateToProps } from '../../../app/pages/patientnew';
 var assert = chai.assert;
 var expect = chai.expect;
 
-/**
- * Need to set window.config for config module
- */
-window.config = {};
-
 describe('PatientNew', function () {
   it('should be exposed as a module and be of type function', function() {
     expect(PatientNew).to.be.a('function');

@@ -3,8 +3,6 @@
 /* global sinon */
 /* global it */
 
-window.config = {};
-
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 import mutationTracker from 'object-invariant-test-helper';
