@@ -19,7 +19,8 @@
     "console": false,
     "__UPLOAD_API__": false,
     "__API_HOST__": false,
-    "__INVITE_KEY__": false
+    "__INVITE_KEY__": false,
+    "__LATEST_TERMS__": false
   },
   // To give you an idea how to override rule options:
   "rules": {
@@ -34,7 +35,7 @@
     "wrap-iife": [2, "inside"],
     "no-use-before-define": [2, "nofunc"],
     "no-caller": 2,
-    "no-undef": 2, 
+    "no-undef": 2,
     "new-cap": 2,
     "react/jsx-uses-react": 2,
     "react/jsx-uses-vars": 2,

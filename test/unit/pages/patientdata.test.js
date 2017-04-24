@@ -19,11 +19,6 @@ var expect = chai.expect;
 import PD, { PatientData } from '../../../app/pages/patientdata/patientdata.js';
 import { mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 
-/**
- * Need to set window.config for config module
- */
-window.config = {};
-
 describe('PatientData', function () {
   before(() => {
     PD.__Rewire__('Basics', React.createClass({

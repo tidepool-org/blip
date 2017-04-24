@@ -1,7 +1,5 @@
 /* global after, before, chai, describe, it, sinon */
 
-window.config = {};
-
 import React from 'react';
 import { shallow } from 'enzyme';
 

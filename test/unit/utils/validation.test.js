@@ -466,7 +466,7 @@ describe('validation', () => {
         expect(response.message).to.equal('Hmm, diagnosis date usually comes after birthday.');
       });
 
-      it('should return valif object when fieldValue and prerequisite birthday are valid and in order', () => {
+      it('should return valid object when fieldValue and prerequisite birthday are valid and in order', () => {
         var diagnosis = { day: '21', month: '2', year: '2004' };
         var birthday = { day: '22', month: '3', year: '1984' };
         var response = validation.typeValidators.diagnosisDate('diagnosis date', diagnosis, { birthday : birthday });
@@ -566,7 +566,7 @@ describe('validation', () => {
         { type: 'date', name: 'birthday', label: 'Birthday', value: birthday },
         { type: 'diagnosisDate', name: 'diagnosisDate', label: 'diagnosis date', value: diagnosisDate, prerequisites: { birthday: birthday } },
       ];
-      
+
       var result = validation.validateForm(formEntries);
       expect(result).to.be.an.object;
       expect(Object.keys(result).length).to.equal(2);
