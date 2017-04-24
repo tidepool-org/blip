@@ -3,6 +3,8 @@
 /* global it */
 
 var personUtils = require('../../../app/core/personutils');
+var config = require('../../../app/config');
+
 var expect = chai.expect;
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
 
@@ -33,27 +35,59 @@ describe('personutils', function() {
   });
 
   describe('hasAcceptedTerms', function() {
-    it('should return true if the user has a string in the `termsAccepted` field', function() {
-      var person = {termsAccepted: 'foo'};
+    it('should return true if the user has a valid date string in the `termsAccepted` field more recent than LATEST_TERMS', function() {
+      var person = {termsAccepted: '2017-04-22T23:30:00+10:00'};
 
+      config.LATEST_TERMS = '2017-04-22T23:00:00+10:00';
       expect(personUtils.hasAcceptedTerms(person)).to.be.true;
     });
 
-    it('should return true if the user has a date in the `termsAccepted` field', function() {
-      var person = {termsAccepted: '2015-01-01'};
+    it('should return false if the user has a valid date string in the `termsAccepted` field less recent than LATEST_TERMS', function() {
+      var person = {termsAccepted: '2017-04-22T23:00:00+10:00'};
 
-      expect(personUtils.hasAcceptedTerms(person)).to.be.true;
-    });
-
-    it('should return false if `termsAccepted` is an empty string', function() {
-      var person = {termsAccepted: ''};
-
+      config.LATEST_TERMS = '2017-04-22T23:30:00+10:00';
       expect(personUtils.hasAcceptedTerms(person)).to.be.false;
     });
 
-    it('should return false if `termsAccepted` does not exist', function() {
+    it('should return true if the user has a valid date string in the `termsAccepted` field and LATEST_TERMS is null', function() {
+      var person = {termsAccepted: '2015-01-01'};
+
+      config.LATEST_TERMS = null;
+      expect(personUtils.hasAcceptedTerms(person)).to.be.true;
+    });
+
+    it('should return true if the user has a valid date string in the `termsAccepted` field and LATEST_TERMS is invalid', function() {
+      var person = {termsAccepted: '2015-01-01'};
+
+      config.LATEST_TERMS = 'WHARRRRGARBLLL';
+      expect(personUtils.hasAcceptedTerms(person)).to.be.true;
+    });
+
+    it('should return false if `termsAccepted` is an empty string and LATEST_TERMS is unset', function() {
+      var person = {termsAccepted: ''};
+
+      config.LATEST_TERMS = null;
+      expect(personUtils.hasAcceptedTerms(person)).to.be.false;
+    });
+
+    it('should return false if `termsAccepted` does not exist and LATEST_TERMS is unset', function() {
       var person = {};
 
+      config.LATEST_TERMS = null;
+      expect(personUtils.hasAcceptedTerms(person)).to.be.false;
+    });
+
+    it('should return false if `termsAccepted` is an empty string and LATEST_TERMS is invalid', function() {
+      var person = {termsAccepted: ''};
+
+      config.LATEST_TERMS = 'WHARRRRGARBLLL';
+      expect(personUtils.hasAcceptedTerms(person)).to.be.false;
+    });
+
+    it('should return false if `termsAccepted` does not exist and LATEST_TERMS is invalid', function() {
+      var person = {};
+
+      config.LATEST_TERMS = 'WHARRRRGARBLLL';
       expect(personUtils.hasAcceptedTerms(person)).to.be.false;
     });
   });
