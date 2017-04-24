@@ -32,6 +32,7 @@ const CBGDateTraceLabel = viz.components.CBGDateTraceLabel;
 const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
 const TrendsContainer = viz.containers.TrendsContainer;
+const reshapeBgClassesToBgBounds = viz.utils.reshapeBgClassesToBgBounds;
 
 class Trends extends PureComponent {
   static propTypes = {
@@ -59,13 +60,7 @@ class Trends extends PureComponent {
   constructor(props) {
     super(props);
 
-    const { bgPrefs: { bgClasses } } = props;
-    this.bgBounds = {
-      veryHighThreshold: bgClasses.high.boundary,
-      targetUpperBound: bgClasses.target.boundary,
-      targetLowerBound: bgClasses.low.boundary,
-      veryLowThreshold: bgClasses['very-low'].boundary,
-    };
+    this.bgBounds = reshapeBgClassesToBgBounds(props.bgPrefs);
     this.chartType = 'trends';
     this.log = bows('Trends');
 
