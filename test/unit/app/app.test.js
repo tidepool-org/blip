@@ -10,11 +10,6 @@ var _ = require('lodash');
 var TestUtils = require('react-addons-test-utils');
 
 import mutationTracker from 'object-invariant-test-helper';
-
-// Need to add this line as app.js includes config
-// which errors if window.config does not exist
-window.config = {};
-
 import { mapStateToProps } from '../../../app/pages/app/app.js';
 import initialState from '../../../app/redux/reducers/initialState';
 
