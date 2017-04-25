@@ -31,7 +31,7 @@ const trackMetricMap = {
 const interpretMetricMap = {
   SIGNUP_SUCCESS: function(action) {
     let roles = _.get(action, 'payload.user.roles');
-    return { eventName: `Signed Up`, properties: roles ? { roles: roles } : null };
+    return { eventName: 'Signed Up', properties: roles ? { roles: roles } : null };
   },
   TURN_ON_CBG_RANGE: function(action) {
     return { eventName: `Turn on ${action.payload.range}${!_.isNaN(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}` };
