@@ -35,6 +35,9 @@ class DailyPrintView {
 
     this.margins = opts.margins;
 
+    this.font = 'Helvetica';
+    this.boldFont = 'Helvetica-Bold';
+
     this.defaultFontSize = opts.defaultFontSize;
     this.footerFontSize = opts.footerFontSize;
     this.headerFontSize = opts.headerFontSize;
@@ -255,7 +258,7 @@ class DailyPrintView {
 
     this.doc.fillColor('black')
       .fillOpacity(1)
-      .font('Helvetica-Bold')
+      .font(this.boldFont)
       .fontSize(this.summaryHeaderFontSize)
       .text(moment(date, 'YYYY-MM-DD').format('dddd M/D'), this.margins.left, topEdge);
 
@@ -283,7 +286,7 @@ class DailyPrintView {
 
     const { targetUpperBound, targetLowerBound, veryLowThreshold } = this.bgBounds;
     const cbgTimeInCategories = calcCbgTimeInCategories(data.cbg, this.bgBounds);
-    this.doc.font('Helvetica')
+    this.doc.font(this.font)
       .text(
         `${targetLowerBound} - ${targetUpperBound}`,
         { indent: 8, continued: true, width: this.summaryArea.width },
@@ -304,7 +307,7 @@ class DailyPrintView {
       .lineTo(this.summaryArea.rightEdge, yPos.current())
       .stroke(this.colors.lightDividers);
 
-    this.doc.font('Helvetica-Bold')
+    this.doc.font(this.boldFont)
       .text('Basal:Bolus Ratio', smallIndent, yPos.update());
 
     return this;
