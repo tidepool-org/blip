@@ -84,6 +84,10 @@ export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) 
   const boluses = _.reduce(
     selectedDataByDate, (all, date) => (all.concat(_.get(date, ['data', 'bolus'], []))), []
   );
+  _.each(boluses, (bolus) => {
+    // eslint-disable-next-line no-param-reassign
+    bolus.threeHrBin = Math.floor(moment.utc(bolus.normalTime).tz(timezone).hours() / 3) * 3;
+  });
   selected.bolusRange = extent(boluses, (d) => (d.normal + (d.extended || 0)));
 
   const basals = _.reduce(

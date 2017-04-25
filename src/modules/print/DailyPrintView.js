@@ -20,7 +20,6 @@ import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
 
 import { calcCbgTimeInCategories } from '../../utils/bloodglucose';
-import { THREE_HRS } from '../../utils/datetime';
 import { displayPercentage } from '../../utils/format';
 
 class DailyPrintView {
@@ -129,15 +128,11 @@ class DailyPrintView {
     return this;
   }
 
-  calculateDateChartHeight({ bounds, data, date }) {
+  calculateDateChartHeight({ data, date }) {
     this.doc.fontSize(this.defaultFontSize);
     const lineHeight = this.doc.currentLineHeight();
 
-    const start = Date.parse(bounds[0]);
-    const threeHrBinnedBoluses = _.groupBy(
-      data.bolus,
-      (d) => (Math.floor((Date.parse(d.normalTime) - start) / THREE_HRS)),
-    );
+    const threeHrBinnedBoluses = _.groupBy(data.bolus, (d) => (d.threeHrBin));
     const maxBolusStack = _.max(_.map(
       _.keys(threeHrBinnedBoluses),
       (key) => (threeHrBinnedBoluses[key].length),
