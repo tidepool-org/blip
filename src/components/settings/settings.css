@@ -27,10 +27,10 @@
   color: var(--text-high-contrast);
   background-color: #f7fafa;
   border: solid 1px #dbdee0;
+  outline: none;
 }
 
 .copyButton:hover, .copyButton:active {
-  outline: 0;
   background-image: none;
   color: var(--white);
   background-color: #627cff;
