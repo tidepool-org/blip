@@ -19,17 +19,20 @@
 
 .copyButton {
   composes: defaultSize from '../../styles/typography.css';
-  cursor: pointer;
   float: right;
   line-height: 0px;
   padding: 5px;
   border-radius: 0px;
   cursor: pointer;
+  color: var(--text-high-contrast);
   background-color: #f7fafa;
   border: solid 1px #dbdee0;
 }
 
-.copyButton:hover {
+.copyButton:hover, .copyButton:active {
+  outline: 0;
+  background-image: none;
+  color: var(--white);
   background-color: #627cff;
 }
 
