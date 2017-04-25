@@ -24,7 +24,7 @@ var utils = {};
 
 /**
  * Convenience function for capitalizing a string
- * 
+ *
  * @param  {String} str
  * @return {String}
  */
@@ -104,10 +104,10 @@ utils.objectDifference = (destination, source) => {
 
 /**
  * Utility function to get whether page has changed or not
- * 
+ *
  * @param  {Object} oldProps
  * @param  {[type]} newProps
- * 
+ *
  * @return {Boolean}
  */
 utils.isOnSamePage = (oldProps, newProps) => {
@@ -194,6 +194,21 @@ utils.getInviteKey = function(location) {
     }
   }
   return '';
+}
+
+utils.getRoles = function(location) {
+  if (location && location.query) {
+    let { roles } = location.query;
+
+    if(!_.isEmpty(roles)){
+      let rolesFiltered = _.reject(_.map(roles.split(','), _.trim), _.isEmpty);
+
+      if(!_.isEmpty(rolesFiltered)){
+        return rolesFiltered;
+      }
+    }
+  }
+  return [];
 }
 
 utils.processPatientData = (comp, data, queryParams, settings) => {
