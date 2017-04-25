@@ -19,6 +19,7 @@ import _ from 'lodash';
 import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
 
+import getBolusPaths from '../render/bolus';
 import { calcCbgTimeInCategories, classifyBgValue } from '../../utils/bloodglucose';
 import { displayPercentage } from '../../utils/format';
 
@@ -58,8 +59,12 @@ class DailyPrintView {
     this.cbgRadius = 1;
 
     this.colors = {
-      lightDividers: '#D8D8D8',
       axes: '#858585',
+      bolus: {
+        normal: 'black',
+        undelivered: '#B2B2B2',
+      },
+      lightDividers: '#D8D8D8',
     };
 
     this.rightEdge = this.margins.left + this.width;
@@ -253,7 +258,8 @@ class DailyPrintView {
       this.renderSummary(dateChart)
         .renderXAxes(dateChart)
         .renderYAxes(dateChart)
-        .renderCbg(dateChart);
+        .renderCbgs(dateChart)
+        .renderBolusPaths(dateChart);
     });
   }
 
@@ -395,11 +401,27 @@ class DailyPrintView {
     return this;
   }
 
-  renderCbg({ bgScale, data: { cbg: cbgs }, xScale }) {
+  renderCbgs({ bgScale, data: { cbg: cbgs }, xScale }) {
     _.each(cbgs, (cbg) => {
       // eslint-disable-next-line lodash/prefer-lodash-method
       this.doc.circle(xScale(Date.parse(cbg.normalTime)), bgScale(cbg.value), 1)
         .fill(styles[classifyBgValue(this.bgBounds, cbg.value)]);
+    });
+
+    return this;
+  }
+
+  renderBolusPaths({ bolusScale, data: { bolus: boluses }, xScale }) {
+    const pathsNotToRender = ['interrupted'];
+    _.each(boluses, (bolus) => {
+      const paths = getBolusPaths(bolus, xScale, bolusScale, { bolusWidth: 3 });
+      _.each(paths, (path) => {
+        if (_.includes(pathsNotToRender, path.type)) {
+          return;
+        }
+        // eslint-disable-next-line lodash/prefer-lodash-method
+        this.doc.path(path.d).fill(this.colors.bolus[path.type]);
+      });
     });
 
     return this;
