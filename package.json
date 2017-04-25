@@ -19,7 +19,7 @@
     "serve-docs": "./node_modules/.bin/gitbook serve"
   },
   "dependencies": {
-    "@tidepool/viz": "0.5.6",
+    "@tidepool/viz": "0.5.8",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
@@ -62,8 +62,8 @@
     "shelljs": "0.7.3",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "0.5.27",
-    "tidepool-platform-client": "0.30.0",
+    "tideline": "0.5.28",
+    "tidepool-platform-client": "0.31.0",
     "url-loader": "0.5.7",
     "webpack": "1.13.2"
   },

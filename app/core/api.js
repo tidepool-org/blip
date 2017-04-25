@@ -246,7 +246,7 @@ api.user.put = function(user, cb) {
 };
 
 function accountFromUser(user) {
-  var account = _.pick(user, 'username', 'password', 'emails');
+  var account = _.pick(user, 'username', 'password', 'emails', 'roles');
   return account;
 }
 
