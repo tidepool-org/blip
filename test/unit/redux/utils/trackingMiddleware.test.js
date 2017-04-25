@@ -55,6 +55,24 @@ describe('trackingMiddleware', () => {
     expect(api.metrics.track.calledWith('Signed Up')).to.be.true;
   });
 
+  it('should call the metrics api for SIGNUP_SUCCESS with roles', () => {
+    const signupSuccess = {
+      type: ActionTypes.SIGNUP_SUCCESS,
+      payload: {
+        user: {
+          roles: ['clinic'],
+          ignored: true
+        },
+        ignored: true
+      },
+      ignored: true
+    };
+    expect(api.metrics.track.callCount).to.equal(0);
+    trackingMiddleware(api)(getStateObj)(next)(signupSuccess);
+    expect(api.metrics.track.callCount).to.equal(1);
+    expect(api.metrics.track.calledWith('Signed Up', { roles: ['clinic'] })).to.be.true;
+  });
+
   it('should call the metrics api for LOGIN_SUCCESS', () => {
     const loginSuccess = {
       type: ActionTypes.LOGIN_SUCCESS

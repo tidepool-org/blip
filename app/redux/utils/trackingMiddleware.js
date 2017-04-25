@@ -20,7 +20,6 @@ import _ from 'lodash';
 import * as ActionTypes from '../constants/actionTypes';
 
 const trackMetricMap = {
-  SIGNUP_SUCCESS: 'Signed Up',
   LOGIN_SUCCESS: 'Logged In',
   SETUP_DATA_STORAGE_SUCCESS: 'Created Profile',
   UPDATE_PATIENT_SUCCESS: 'Updated Profile',
@@ -30,11 +29,15 @@ const trackMetricMap = {
 };
 
 const interpretMetricMap = {
+  SIGNUP_SUCCESS: function(action) {
+    let roles = _.get(action, 'payload.user.roles');
+    return { eventName: `Signed Up`, properties: roles ? { roles: roles } : null };
+  },
   TURN_ON_CBG_RANGE: function(action) {
-    return `Turn on ${action.payload.range}${!_.isNaN(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}`;
+    return { eventName: `Turn on ${action.payload.range}${!_.isNaN(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}` };
   },
   TURN_OFF_CBG_RANGE: function(action) {
-    return `Turn off ${action.payload.range}${!_.isNaN(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}`;
+    return { eventName: `Turn off ${action.payload.range}${!_.isNaN(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}` };
   }
 }
 
@@ -44,7 +47,8 @@ export default (api) => {
       api.metrics.track(trackMetricMap[action.type]);
     }
     if (interpretMetricMap[action.type]) {
-      api.metrics.track(interpretMetricMap[action.type](action));
+      let { eventName, properties } = interpretMetricMap[action.type](action)
+      api.metrics.track(eventName, properties);
     }
     return next(action);
   };
