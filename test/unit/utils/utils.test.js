@@ -155,6 +155,97 @@ describe('utils', function() {
       };
       expect(utils.getSignupEmail(location)).to.equal(null);
     });
-    
+  });
+
+  describe('getInviteKey', function(){
+    it('should return invite key from query property of location object', function(){
+      var location = {
+        query: {
+          inviteKey: '1234567890abcdef'
+        }
+      };
+      expect(utils.getInviteKey(location)).to.equal('1234567890abcdef');
+    });
+
+    it('should return empty string if no location object', function(){
+      expect(utils.getInviteKey()).to.equal('');
+    });
+
+    it('should return empty string if no query property of location object', function(){
+      expect(utils.getInviteKey({})).to.equal('');
+    });
+
+    it('should return empty string if no inviteKey in query property of location object', function(){
+      var location = {
+        query: {
+          signupEmail: 'jane@tidepool.org'
+        }
+      };
+      expect(utils.getInviteKey(location)).to.equal('');
+    });
+  });
+
+  describe('getRoles', function(){
+    it('should return roles from query property of location object', function(){
+      var location = {
+        query: {
+          roles: 'zero'
+        }
+      };
+      expect(utils.getRoles(location)).to.deep.equal(['zero']);
+    });
+
+    it('should return multiple roles from query property of location object', function(){
+      var location = {
+        query: {
+          roles: 'one,two,three'
+        }
+      };
+      expect(utils.getRoles(location)).to.deep.equal(['one', 'two', 'three']);
+    });
+
+    it('should return multiple roles from query property of location object with whitespace removed', function(){
+      var location = {
+        query: {
+          roles: ' ,  ,, four, ,  , five ,,  , ,six,, ,'
+        }
+      };
+      expect(utils.getRoles(location)).to.deep.equal(['four', 'five', 'six']);
+    });
+
+    it('should return empty array if no usable roles in query property of location object', function(){
+      var location = {
+        query: {
+          roles: ' ,  ,,,  , '
+        }
+      };
+      expect(utils.getRoles(location)).to.deep.equal([]);
+    });
+
+    it('should return empty array if empty roles in query property of location object', function(){
+      var location = {
+        query: {
+          roles: ''
+        }
+      };
+      expect(utils.getRoles(location)).to.deep.equal([]);
+    });
+
+    it('should return empty array if no location object', function(){
+      expect(utils.getRoles()).to.deep.equal([]);
+    });
+
+    it('should return empty array if no query property of location object', function(){
+      expect(utils.getRoles({})).to.deep.equal([]);
+    });
+
+    it('should return empty array if no roles in query property of location object', function(){
+      var location = {
+        query: {
+          signupEmail: 'jane@tidepool.org'
+        }
+      };
+      expect(utils.getRoles(location)).to.deep.equal([]);
+    });
   });
 });
