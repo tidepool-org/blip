@@ -85,6 +85,7 @@ describe('Daily', function () {
         onShowMessageThread: function() {},
         onSwitchToBasics: function() {},
         onSwitchToDaily: function() {},
+        onSwitchToPrint: function() {},
         onSwitchToSettings: function() {},
         onSwitchToWeekly: function() {},
         updateDatetimeLocation: function() {},
