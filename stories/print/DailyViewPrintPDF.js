@@ -35,7 +35,7 @@ function openPDF() {
     targetUpperBound: 180,
     targetLowerBound: 70,
     veryLowThreshold: 54,
-  }, 6);
+  }, 'US/Pacific', 6);
 
   dailyPrintView.render();
 

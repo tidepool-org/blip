@@ -19,6 +19,7 @@
 
 import DailyPrintView from './DailyPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
+import { getTimezoneFromTimePrefs } from '../../utils/datetime';
 import { selectDailyViewData as selectData } from './data';
 
 // DPI here is the coordinate system, not the resolution; sub-dot precision renders crisply!
@@ -30,11 +31,12 @@ const MARGIN = DPI / 2;
  * @param {Object} doc - PDFKit document instance
  * @param {Object} data - pre-munged data for the daily print view
  * @param {Object} bgBounds - user's blood glucose thresholds & targets
+ * @param {String} timezone - user's configured named timezone
  * @param {Number} numDays - number of days of daily view to include in printout
  *
  * @return {Object} dailyPrintView instance
  */
-export function createDailyPrintView(doc, data, bgBounds, numDays) {
+export function createDailyPrintView(doc, data, bgBounds, timezone, numDays) {
   const CHARTS_PER_PAGE = 3;
   return new DailyPrintView(doc, data, {
     bgBounds,
@@ -56,6 +58,7 @@ export function createDailyPrintView(doc, data, bgBounds, numDays) {
     numDays,
     summaryHeaderFontSize: 10,
     summaryWidthAsPercentage: 0.23,
+    timezone,
     width: 8.5 * DPI - (2 * MARGIN),
   });
 }
@@ -73,15 +76,15 @@ export default function createAndOpenPrintPDFPackage(mostRecent, dataByDate, {
   bgPrefs, numDays, timePrefs,
 }) {
   const bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
-
-  const data = selectData(mostRecent, dataByDate, numDays, timePrefs);
+  const timezone = getTimezoneFromTimePrefs(timePrefs);
+  const data = selectData(mostRecent, dataByDate, numDays, timezone);
   /* NB: if you don't set the `margin` (or `margins` if not all are the same)
      then when you are using the .text() command a new page will be added if you specify
      coordinates outside of the default margin (or outside of the margins you've specified)
    */
   const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
-  const dailyPrintView = createDailyPrintView(doc, data, bgBounds, numDays);
+  const dailyPrintView = createDailyPrintView(doc, data, bgBounds, timezone, numDays);
   dailyPrintView.render();
 
   doc.end();

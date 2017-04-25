@@ -19,8 +19,10 @@ import _ from 'lodash';
 import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
 
-import { calcCbgTimeInCategories } from '../../utils/bloodglucose';
+import { calcCbgTimeInCategories, classifyBgValue } from '../../utils/bloodglucose';
 import { displayPercentage } from '../../utils/format';
+
+import styles from '../../styles/colors.css';
 
 class DailyPrintView {
   constructor(doc, data, opts) {
@@ -37,12 +39,14 @@ class DailyPrintView {
     this.font = 'Helvetica';
     this.boldFont = 'Helvetica-Bold';
 
+    this.bgAxisFontSize = 5;
     this.defaultFontSize = opts.defaultFontSize;
     this.footerFontSize = opts.footerFontSize;
     this.headerFontSize = opts.headerFontSize;
     this.summaryHeaderFontSize = opts.summaryHeaderFontSize;
 
     this.bgBounds = opts.bgBounds;
+    this.timezone = opts.timezone;
 
     this.width = opts.width;
     this.height = opts.height;
@@ -55,12 +59,13 @@ class DailyPrintView {
 
     this.colors = {
       lightDividers: '#D8D8D8',
+      axes: '#858585',
     };
 
     this.rightEdge = this.margins.left + this.width;
     this.bottomEdge = this.margins.top + this.height;
 
-    const gapBtwnSummaryAndChartAsPercentage = 0.02;
+    const gapBtwnSummaryAndChartAsPercentage = 0.07;
 
     this.chartArea = {
       bottomEdge: opts.margins.top + opts.height,
@@ -80,7 +85,8 @@ class DailyPrintView {
     const dates = _.keys(data.dataByDate);
     this.chartsByDate = {};
     _.each(dates, (date) => {
-      this.chartsByDate[date] = { data: data.dataByDate[date].data, date };
+      const dateData = data.dataByDate[date];
+      this.chartsByDate[date] = { ...dateData };
     });
 
     this.pages = Math.ceil(opts.numDays / opts.chartsPerPage);
@@ -158,11 +164,9 @@ class DailyPrintView {
       basalChart,
       belowBasal,
     } = this.chartMinimums;
+
     dateChart.bgScale = scaleLinear() // eslint-disable-line no-param-reassign
-      .domain([
-        _.min([this.bgBounds.veryLowThreshold, this.data.bgRange[0]],
-        _.min([this.bgBounds.veryHighThreshold, this.data.bgRange[1]])),
-      ])
+      .domain([0, _.min([this.bgBounds.veryHighThreshold, this.data.bgRange[1]])])
       .range([
         dateChart.topEdge + notesEtc + bgEtcChart + this.cbgRadius,
         dateChart.topEdge + notesEtc - this.cbgRadius,
@@ -179,6 +183,12 @@ class DailyPrintView {
         dateChart.bottomEdge - belowBasal,
         dateChart.bottomEdge - belowBasal - basalChart,
       ]);
+    dateChart.xScale = scaleLinear() // eslint-disable-line no-param-reassign
+      .domain([Date.parse(dateChart.bounds[0]), Date.parse(dateChart.bounds[1])])
+      // TODO: change to this.bolusWidth / 2 assuming boluses will be wider than cbgs
+      .range([this.chartArea.leftEdge + this.cbgRadius, this.rightEdge - this.cbgRadius]);
+
+    return this;
   }
 
   newPage() {
@@ -241,15 +251,15 @@ class DailyPrintView {
       // console.log('Rendering', dateChart);
       this.doc.switchToPage(dateChart.page);
       this.renderSummary(dateChart)
-        .renderXAxes(
-          { bottomEdge: dateChart.bottomEdge, topEdge: dateChart.topEdge },
-          dateChart.bolusDetailsHeight,
-        );
+        .renderXAxes(dateChart)
+        .renderYAxes(dateChart)
+        .renderCbg(dateChart);
     });
   }
 
   renderSummary({ data, date, topEdge }) {
     const smallIndent = this.margins.left + 4;
+    const statsIndent = 8;
 
     this.doc.fillColor('black')
       .fillOpacity(1)
@@ -284,7 +294,7 @@ class DailyPrintView {
     this.doc.font(this.font)
       .text(
         `${targetLowerBound} - ${targetUpperBound}`,
-        { indent: 8, continued: true, width: this.summaryArea.width },
+        { indent: statsIndent, continued: true, width: this.summaryArea.width - statsIndent },
       )
       .text(`${displayPercentage(cbgTimeInCategories.target)}`, { align: 'right' });
 
@@ -292,7 +302,7 @@ class DailyPrintView {
 
     this.doc.text(
         `Below ${veryLowThreshold}`,
-        { indent: 8, continued: true, width: this.summaryArea.width },
+        { indent: statsIndent, continued: true, width: this.summaryArea.width - statsIndent },
       )
       .text(`${displayPercentage(cbgTimeInCategories.veryLow)}`, { align: 'right' });
 
@@ -308,7 +318,7 @@ class DailyPrintView {
     return this;
   }
 
-  renderXAxes({ bottomEdge, topEdge }, bolusDetails) {
+  renderXAxes({ bolusDetailsHeight, topEdge }) {
     const {
       notesEtc,
       bgEtcChart,
@@ -321,19 +331,76 @@ class DailyPrintView {
     const bottomOfBgEtcChart = topEdge + notesEtc + bgEtcChart;
     this.doc.moveTo(this.chartArea.leftEdge, bottomOfBgEtcChart)
       .lineTo(this.rightEdge, bottomOfBgEtcChart)
-      .stroke('black');
+      .stroke(this.colors.axes);
 
     // render bottom border of bolusDetails
-    const bottomOfBolusDetails = bottomOfBgEtcChart + bolusDetails;
+    const bottomOfBolusDetails = bottomOfBgEtcChart + bolusDetailsHeight;
     this.doc.moveTo(this.chartArea.leftEdge, bottomOfBolusDetails)
       .lineTo(this.rightEdge, bottomOfBolusDetails)
-      .stroke('black');
+      .stroke(this.colors.axes);
 
     // render x-axis for basalChart
     const bottomOfBasalChart = bottomOfBolusDetails + basalChart;
     this.doc.moveTo(this.chartArea.leftEdge, bottomOfBasalChart)
       .lineTo(this.rightEdge, bottomOfBasalChart)
-      .stroke('black');
+      .stroke(this.colors.axes);
+
+    return this;
+  }
+
+  renderYAxes({ bgScale, bottomEdge, bounds, topEdge, xScale }) {
+    const end = bounds[1];
+    let current = bounds[0];
+    const threeHrLocs = [current];
+    while (current < end) {
+      current = moment.utc(current)
+        .tz(this.timezone)
+        .add(3, 'h')
+        .toISOString();
+      threeHrLocs.push(current);
+    }
+
+    // render the vertical lines at three-hr intervals
+    _.each(threeHrLocs, (loc, i) => {
+      let xPos = xScale(Date.parse(loc));
+      if (i === 0) {
+        xPos = this.chartArea.leftEdge;
+      }
+      if (i === 8) {
+        xPos = this.rightEdge;
+      }
+      this.doc.moveTo(xPos, topEdge)
+        .lineTo(xPos, bottomEdge)
+        .lineWidth(0.25)
+        .stroke(this.colors.axes);
+    });
+
+    // render the BG axis labels
+    const opts = {
+      align: 'right',
+      width: this.chartArea.leftEdge - this.summaryArea.rightEdge - 3,
+    };
+    _.each(this.bgBounds, (bound) => {
+      this.doc.font(this.font)
+        .fontSize(this.bgAxisFontSize)
+        .fillColor(this.colors.axis)
+        .text(
+          `${bound}`,
+          this.summaryArea.rightEdge,
+          bgScale(bound) - this.doc.currentLineHeight() / 2,
+          opts,
+        );
+    });
+
+    return this;
+  }
+
+  renderCbg({ bgScale, data: { cbg: cbgs }, xScale }) {
+    _.each(cbgs, (cbg) => {
+      // eslint-disable-next-line lodash/prefer-lodash-method
+      this.doc.circle(xScale(Date.parse(cbg.normalTime)), bgScale(cbg.value), 1)
+        .fill(styles[classifyBgValue(this.bgBounds, cbg.value)]);
+    });
 
     return this;
   }
