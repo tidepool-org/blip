@@ -49,36 +49,31 @@ export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) 
     last = startOfDate;
   }
   dateBoundaries.reverse();
-  const selected = {};
+  const selected = { dataByDate: {} };
+  const { dataByDate: selectedDataByDate } = selected;
   for (let i = 0; i < numDays; ++i) {
     const start = dateBoundaries[i];
     const date = moment.utc(Date.parse(start))
       .tz(timezone)
       .format('YYYY-MM-DD');
-    selected[date] = {
+    selected.dataByDate[date] = {
       bounds: [start, dateBoundaries[i + 1]],
       date,
       data: _.groupBy(dataByDate.filterRange([start, dateBoundaries[i + 1]]).top(Infinity), 'type'),
     };
+    // NB: this assumes wizards are embedded into boluses as whole objects, not IDs
+    const typesToDelete = ['fill', 'pumpSettings', 'wizard'];
     // get rid of irrelevant data types for...neatness?
-    if (selected[date].data.fill) {
-      delete selected[date].data.fill;
-    }
-    if (selected[date].data.pumpSettings) {
-      delete selected[date].data.pumpSettings;
-    }
-    if (selected[date].data.wizard) {
-      const wizards = selected[date].data.wizard;
-      selected[date].data.wizard = _.reduce(wizards, (wizardsMap, wiz) => {
-        wizardsMap[wiz.bolus.id] = wiz; // eslint-disable-line no-param-reassign
-        return wizardsMap;
-      }, {});
-    }
+    _.each(typesToDelete, (type) => {
+      if (selectedDataByDate[date].data[type]) {
+        delete selectedDataByDate[date].data[type];
+      }
+    });
     // TODO: select out infusion site changes, calibrations from deviceEvent array
   }
   // TODO: properly factor out into own utility? API needs thinking about
   const bgs = _.reduce(
-    selected,
+    selectedDataByDate,
     (all, date) => (
       all.concat(_.get(date, ['data', 'cbg'], [])).concat(_.get(date, ['data', 'smbg'], []))
     ),
@@ -87,12 +82,12 @@ export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) 
   selected.bgRange = extent(bgs, (d) => (d.value));
 
   const boluses = _.reduce(
-    selected, (all, date) => (all.concat(_.get(date, ['data', 'bolus'], []))), []
+    selectedDataByDate, (all, date) => (all.concat(_.get(date, ['data', 'bolus'], []))), []
   );
   selected.bolusRange = extent(boluses, (d) => (d.normal + (d.extended || 0)));
 
   const basals = _.reduce(
-    selected, (all, date) => (all.concat(_.get(date, ['data', 'basal'], []))), []
+    selectedDataByDate, (all, date) => (all.concat(_.get(date, ['data', 'basal'], []))), []
   );
   selected.basalRange = extent(basals, (d) => (d.rate));
 

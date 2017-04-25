@@ -30,12 +30,14 @@ function openPDF() {
   const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: 36 });
   const stream = doc.pipe(blobStream());
 
-  createDailyPrintView(doc, data, {
+  const dailyPrintView = createDailyPrintView(doc, data, {
     veryHighThreshold: 300,
     targetUpperBound: 180,
     targetLowerBound: 70,
     veryLowThreshold: 54,
   }, 6);
+
+  dailyPrintView.render();
 
   doc.end();
 

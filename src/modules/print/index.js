@@ -17,8 +17,6 @@
 
 /* global PDFDocument, blobStream */
 
-import _ from 'lodash';
-
 import DailyPrintView from './DailyPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
 import { selectDailyViewData as selectData } from './data';
@@ -34,17 +32,19 @@ const MARGIN = DPI / 2;
  * @param {Object} bgBounds - user's blood glucose thresholds & targets
  * @param {Number} numDays - number of days of daily view to include in printout
  *
- * @return {Void}
+ * @return {Object} dailyPrintView instance
  */
 export function createDailyPrintView(doc, data, bgBounds, numDays) {
   const CHARTS_PER_PAGE = 3;
-  const dailyPrintView = new DailyPrintView(doc, data, {
+  return new DailyPrintView(doc, data, {
+    bgBounds,
     chartsPerPage: CHARTS_PER_PAGE,
     // TODO: set this up as a Webpack Define plugin to pull from env variable
     // maybe that'll be tricky through React Storybook?
-    debug: true,
+    debug: false,
+    defaultFontSize: 8,
     dpi: DPI,
-    footerFontSize: 9,
+    footerFontSize: 8,
     headerFontSize: 14,
     height: 11 * DPI - (2 * MARGIN),
     margins: {
@@ -54,21 +54,10 @@ export function createDailyPrintView(doc, data, bgBounds, numDays) {
       bottom: MARGIN,
     },
     numDays,
+    summaryHeaderFontSize: 10,
+    summaryWidthAsPercentage: 0.23,
     width: 8.5 * DPI - (2 * MARGIN),
   });
-
-  const dates = _.keys(data).slice(0, numDays);
-  for (let i = 0; i < numDays; ++i) {
-    const dateData = data[dates[i]];
-    dailyPrintView.calculateDateChartHeight(dateData);
-  }
-  let page = 1;
-  while (page <= dailyPrintView.pages) {
-    console.log('Placing charts on page', page);
-    dailyPrintView.placeChartsOnPage(page);
-    ++page;
-  }
-  console.log(dailyPrintView.chartsByDate);
 }
 
 /**
@@ -92,7 +81,8 @@ export default function createAndOpenPrintPDFPackage(mostRecent, dataByDate, {
    */
   const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
-  createDailyPrintView(doc, data, bgBounds, numDays);
+  const dailyPrintView = createDailyPrintView(doc, data, bgBounds, numDays);
+  dailyPrintView.render();
 
   doc.end();
 
