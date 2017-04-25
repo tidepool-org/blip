@@ -18,11 +18,19 @@
 @import '../../styles/colors.css';
 
 .copyButton {
-  composes: btn btnSecondary from '../../styles/buttons.css';
   composes: defaultSize from '../../styles/typography.css';
+  cursor: pointer;
   float: right;
   line-height: 0px;
   padding: 5px;
+  border-radius: 0px;
+  cursor: pointer;
+  background-color: #f7fafa;
+  border: solid 1px #dbdee0;
+}
+
+.copyButton:hover {
+  background-color: #627cff;
 }
 
 .copyText {
