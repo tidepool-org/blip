@@ -18,7 +18,11 @@
 @import '../../styles/colors.css';
 
 .copyButton {
-  composes: btn btn-secondary from '../../styles/buttons.css';
+  composes: btn btnSecondary from '../../styles/buttons.css';
+  composes: defaultSize from '../../styles/typography.css';
+  float: right;
+  line-height: 0px;
+  padding: 5px;
 }
 
 .copyText {

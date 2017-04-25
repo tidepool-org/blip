@@ -62,12 +62,12 @@
 // Button styles
 // ====================================
 
-.btn-secondary {
+.btnSecondary {
   font-weight: normal;
   color: var(--gray-dark);
   background: none;
 
-  border: solid 1px #dbdee0;
+  border: solid 1px #e5e5e5;
 
   &:hover,
   &:focus,
