@@ -57,7 +57,7 @@ export function createDailyPrintView(doc, data, bgBounds, timezone, numDays) {
     },
     numDays,
     summaryHeaderFontSize: 10,
-    summaryWidthAsPercentage: 0.23,
+    summaryWidthAsPercentage: 0.15,
     timezone,
     width: 8.5 * DPI - (2 * MARGIN),
   });

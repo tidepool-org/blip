@@ -21,7 +21,13 @@ import moment from 'moment-timezone';
 
 import getBolusPaths from '../render/bolus';
 import { calcCbgTimeInCategories, classifyBgValue } from '../../utils/bloodglucose';
-import { displayPercentage } from '../../utils/format';
+import {
+  getDelivered, getExtendedPercentage, getMaxDuration, getNormalPercentage,
+} from '../../utils/bolus';
+import { formatDuration } from '../../utils/datetime';
+import {
+  displayDecimal, displayPercentage, removeTrailingZeroes,
+} from '../../utils/format';
 
 import styles from '../../styles/colors.css';
 
@@ -70,7 +76,7 @@ class DailyPrintView {
     this.rightEdge = this.margins.left + this.width;
     this.bottomEdge = this.margins.top + this.height;
 
-    const gapBtwnSummaryAndChartAsPercentage = 0.07;
+    const gapBtwnSummaryAndChartAsPercentage = 0.04;
 
     this.chartArea = {
       bottomEdge: opts.margins.top + opts.height,
@@ -125,14 +131,14 @@ class DailyPrintView {
     this.doc.fontSize(10);
     const { topEdge, bottomEdge } = this.chartArea;
     const totalHeight = bottomEdge - topEdge;
-    const perChart = totalHeight / 3.5;
+    const perChart = totalHeight / 3.25;
     this.chartMinimums = {
       notesEtc: perChart * (3 / 20),
       bgEtcChart: perChart * (9 / 20),
       bolusDetails: perChart * (4 / 20),
       basalChart: perChart * (3 / 20),
       belowBasal: perChart * (1 / 20),
-      paddingBelow: (totalHeight * (1 / 7)) / 3,
+      paddingBelow: (totalHeight * (1 / 13)) / 3,
       total: perChart,
     };
 
@@ -141,12 +147,23 @@ class DailyPrintView {
 
   calculateDateChartHeight({ data, date }) {
     this.doc.fontSize(this.defaultFontSize);
-    const lineHeight = this.doc.currentLineHeight();
+    const lineHeight = this.doc.currentLineHeight() * 1.25;
 
     const threeHrBinnedBoluses = _.groupBy(data.bolus, (d) => (d.threeHrBin));
     const maxBolusStack = _.max(_.map(
       _.keys(threeHrBinnedBoluses),
-      (key) => (threeHrBinnedBoluses[key].length),
+      (key) => {
+        const totalLines = _.reduce(threeHrBinnedBoluses[key], (lines, bolus) => {
+          if (bolus.extended) {
+            if (bolus.normal) {
+              return lines + 3;
+            }
+            return lines + 2;
+          }
+          return lines + 1;
+        }, 0);
+        return totalLines;
+      },
     ));
 
     const { notesEtc, bgEtcChart, basalChart, belowBasal, total } = this.chartMinimums;
@@ -259,7 +276,8 @@ class DailyPrintView {
         .renderXAxes(dateChart)
         .renderYAxes(dateChart)
         .renderCbgs(dateChart)
-        .renderBolusPaths(dateChart);
+        .renderBolusPaths(dateChart)
+        .renderBolusDetails(dateChart);
     });
   }
 
@@ -354,7 +372,7 @@ class DailyPrintView {
     return this;
   }
 
-  renderYAxes({ bgScale, bottomEdge, bounds, topEdge, xScale }) {
+  renderYAxes({ bgScale, bottomEdge, bounds, date, topEdge, xScale }) {
     const end = bounds[1];
     let current = bounds[0];
     const threeHrLocs = [current];
@@ -365,6 +383,9 @@ class DailyPrintView {
         .toISOString();
       threeHrLocs.push(current);
     }
+    const chart = this.chartsByDate[date];
+    chart.bolusDetailPositions = Array(8);
+    chart.bolusDetailWidths = Array(8);
 
     // render the vertical lines at three-hr intervals
     _.each(threeHrLocs, (loc, i) => {
@@ -375,6 +396,24 @@ class DailyPrintView {
       if (i === 8) {
         xPos = this.rightEdge;
       }
+      if (i > 0) {
+        chart.bolusDetailWidths[i - 1] = xPos - chart.bolusDetailPositions[i - 1];
+      }
+      if (i < 8) {
+        chart.bolusDetailPositions[i] = xPos;
+
+        this.doc.font(this.font).fontSize(this.defaultFontSize)
+          .text(
+          moment.utc(loc)
+            .tz(this.timezone)
+            .format('ha')
+            .slice(0, -1),
+          xPos,
+          topEdge,
+          { indent: 3 },
+        );
+      }
+
       this.doc.moveTo(xPos, topEdge)
         .lineTo(xPos, bottomEdge)
         .lineWidth(0.25)
@@ -425,6 +464,70 @@ class DailyPrintView {
     });
 
     return this;
+  }
+
+  renderBolusDetails({
+    bolusDetailPositions,
+    bolusDetailWidths,
+    bolusScale,
+    data: { bolus: boluses },
+  }) {
+    this.doc.font(this.font)
+      .fontSize(this.defaultFontSize)
+      .fillColor('black');
+
+    const topOfBolusDetails = bolusScale.range()[0] + 2;
+    const grouped = _.groupBy(boluses, (bolus) => (bolus.threeHrBin / 3));
+
+    _.each(grouped, (binOfBoluses, i) => {
+      const groupWidth = bolusDetailWidths[i] - 2;
+      const groupXPos = bolusDetailPositions[i];
+      const yPos = (function (doc) { // eslint-disable-line func-names
+        let value = topOfBolusDetails;
+        return {
+          current: () => (value),
+          update: () => {
+            value += (doc.currentLineHeight() * 1.2);
+            return value;
+          },
+        };
+      }(this.doc));
+      _.each(_.sortBy(binOfBoluses, 'normalTime'), (bolus) => {
+        const displayTime = moment.utc(bolus.normalTime)
+          .tz(this.timezone)
+          .format('h:mma')
+          .slice(0, -1);
+        this.doc.text(
+            displayTime,
+            groupXPos,
+            yPos.current(),
+            { continued: true, indent: 2, width: groupWidth },
+          )
+          .text(removeTrailingZeroes(displayDecimal(getDelivered(bolus), 2)), { align: 'right' });
+        if (bolus.extended != null) {
+          const normalPercentage = getNormalPercentage(bolus);
+          if (bolus.normal != null) {
+            this.doc.text(
+              `${normalPercentage} now`,
+              groupXPos,
+              yPos.update(),
+              { indent: 2, width: groupWidth },
+            );
+          }
+          const extendedPercentage = getExtendedPercentage(bolus);
+          const durationText = `${formatDuration(getMaxDuration(bolus))}`;
+          const percentagesText = Number.isNaN(normalPercentage) ?
+            `over ${durationText}` : `${extendedPercentage} ${durationText}`;
+          this.doc.text(
+            percentagesText,
+            groupXPos,
+            yPos.update(),
+            { indent: 2, width: groupWidth },
+          );
+        }
+        yPos.update();
+      });
+    });
   }
 
   renderDebugGrid() {
