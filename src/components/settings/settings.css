@@ -30,10 +30,17 @@
   outline: none;
 }
 
-.copyButton:hover, .copyButton:active {
+.copyButton:hover {
   background-image: none;
   color: var(--white);
   background-color: #627cff;
+}
+
+.copyButton:focus {
+  background-image: none;
+  color: var(--white);
+  background-color: #627cff;
+  opacity: 0.62;
 }
 
 .copyText {

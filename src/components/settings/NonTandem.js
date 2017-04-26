@@ -208,7 +208,7 @@ const NonTandem = (props) => {
         </div>
       </div>
       <pre className={styles.copyText} id="copySettingsText">
-        {nonTandemText(user, timePrefs, pumpSettings, bgUnits, lookupKey)}
+        {nonTandemText(user, {}, pumpSettings, bgUnits, lookupKey)}
       </pre>
     </div>
   );
