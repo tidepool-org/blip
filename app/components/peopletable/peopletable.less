@@ -16,13 +16,7 @@
 @import '../../../node_modules/fixed-data-table-2/dist/fixed-data-table.css';
 
 
-.peopletable-names-toggle {
-  display: flex;
-  flex-direction: row-reverse;
-  border-bottom: 1px solid @gray-light;
-  padding-bottom: @spacing-small;
-  padding-right: @spacing-small + @spacing-base;
-
+.peopletable-names {
   color: @link-alternative-color;
 
   a {
@@ -35,6 +29,20 @@
       color: @link-alternative-hover-color;
     }
   }
+}
+
+.peopletable-names-toggle {
+  &:extend(.peopletable-names);
+
+  display: flex;
+  flex-direction: row-reverse;
+  border-bottom: 1px solid @gray-light;
+  padding-bottom: @spacing-small;
+  padding-right: @spacing-small + @spacing-base;
+}
+
+.peopletable-names-showall {
+  &:extend(.peopletable-names);
 }
 
 .peopletable-search {
@@ -67,6 +75,12 @@
   margin-bottom: @spacing-small;
   padding-left: 55px;
   width: 60%;
+}
+
+.peopletable-instructions {
+  width: 100%;
+  padding-top: 80px;
+  text-align: center;
 }
 
 .peopletable-icon-profile {
