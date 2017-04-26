@@ -24,19 +24,6 @@ import { convertToMmolL } from './bloodglucose';
 import { BG_HIGH, BG_LOW, MMOLL_UNITS } from './constants';
 
 /**
- * displayDecimal
- * @param  {Number} val    numeric value to format
- * @param  {Number} places number of decimal places to displayDecimal
- * @return {String}        val formatted to places decimal places
- */
-export function displayDecimal(val, places) {
-  if (places === null || places === undefined) {
-    return format('d')(val);
-  }
-  return format(`.${places}f`)(val);
-}
-
-/**
  * displayBgValue
  * @param {Number} val - integer or float blood glucose value in either mg/dL or mmol/L
  * @param {String} units - 'mg/dL' or 'mmol/L'
@@ -111,6 +98,19 @@ export function diagnosisDate(patient) {
 }
 
 /**
+ * displayDecimal
+ * @param  {Number} val    numeric value to format
+ * @param  {Number} places number of decimal places to displayDecimal
+ * @return {String}        val formatted to places decimal places
+ */
+export function displayDecimal(val, places) {
+  if (places === null || places === undefined) {
+    return format('d')(val);
+  }
+  return format(`.${places}f`)(val);
+}
+
+/**
  * displayPercentage
  * @param {Number} val - raw decimal proportion, range of 0.0 to 1.0
  *
@@ -118,4 +118,14 @@ export function diagnosisDate(patient) {
  */
 export function displayPercentage(val) {
   return format('.0%')(val);
+}
+
+/**
+ * removeTrailingZeroes
+ * @param {String} - formatted decimal value, may have trailing zeroes
+ *
+ * @return {String} - formatted decimal value w/o trailing zero-indexes
+ */
+export function removeTrailingZeroes(val) {
+  return val.replace(/\.0+$/, '');
 }
