@@ -53,19 +53,14 @@ const SettingsPrintView = React.createClass({
     const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
     const manufacturer = _.get(mostRecentSettings, 'source').toLowerCase();
     return (
-      <div id="app-print" className="print-view-content">
-        {this.renderHeader()}
-        <div className="print-view-page print-view-page-device-settings">
-          <PumpSettingsContainer
-            currentPatientInViewId={this.props.currentPatientInViewId}
-            bgUnits={this.props.bgPrefs.bgUnits}
-            manufacturerKey={manufacturer}
-            pumpSettings={mostRecentSettings}
-            timePrefs={this.props.timePrefs}
-            printView={true}
-          />
-        </div>
-      </div>
+      <PumpSettingsContainer
+        currentPatientInViewId={this.props.currentPatientInViewId}
+        bgUnits={this.props.bgPrefs.bgUnits}
+        manufacturerKey={manufacturer}
+        pumpSettings={mostRecentSettings}
+        timePrefs={this.props.timePrefs}
+        view='print'
+      />
     );
   }
 });

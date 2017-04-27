@@ -103,7 +103,7 @@ var Settings = React.createClass({
         manufacturerKey={_.get(mostRecentSettings, 'source').toLowerCase()}
         pumpSettings={mostRecentSettings}
         timePrefs={this.props.timePrefs}
-        printView={false}
+        view='display'
       />
     );
   },
