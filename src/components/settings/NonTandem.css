@@ -15,6 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
+.copyButton {
+  composes: copyButton from './settings.css';
+}
+
+.copyText {
+  composes: copyText from './settings.css';
+}
 
 .settingsContainer {
   align-items: flex-start;
@@ -74,6 +81,10 @@
 }
 
 @media print {
+
+  .copyButton {
+    composes: copyButton from './settings.css';
+  }
 
   .categoryContainer {
     max-width: 280px;

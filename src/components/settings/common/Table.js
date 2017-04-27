@@ -78,7 +78,7 @@ class Table extends PureComponent {
 
     let tableContents = [];
 
-    if (this.props.title) {
+    if (!_.isEmpty(this.props.title)) {
       const { className, label: { main, secondary } } = this.props.title;
       const title = (
         <caption

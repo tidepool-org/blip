@@ -33,6 +33,15 @@ const omnipodMultiRateData = require('../../../data/pumpSettings/omnipod/multira
 const medtronicMultiRateData = require('../../../data/pumpSettings/medtronic/multirate.json');
 
 const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
+const user = {
+  profile: {
+    fullName: 'Mary Smith',
+    patient: {
+      diagnosisDate: '1990-01-31',
+      birthday: '1983-01-31',
+    },
+  },
+};
 
 describe('NonTandem', () => {
   const activeAtUploadText = 'Active at upload';
@@ -46,6 +55,7 @@ describe('NonTandem', () => {
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -60,6 +70,7 @@ describe('NonTandem', () => {
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -75,6 +86,7 @@ describe('NonTandem', () => {
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -90,6 +102,7 @@ describe('NonTandem', () => {
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -104,6 +117,7 @@ describe('NonTandem', () => {
           openedSections={{ [animasFlatRateData.activeSchedule]: true }}
           pumpSettings={animasFlatRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -121,6 +135,7 @@ describe('NonTandem', () => {
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -137,6 +152,7 @@ describe('NonTandem', () => {
             openedSections={{ [animasMultiRateData.activeSchedule]: true }}
             pumpSettings={animasMultiRateData}
             timePrefs={timePrefs}
+            user={user}
             toggleBasalScheduleExpansion={() => {}}
           />
         );
@@ -156,16 +172,17 @@ describe('NonTandem', () => {
             openedSections={{ [animasMultiRateData.activeSchedule]: true }}
             pumpSettings={animasMultiRateData}
             timePrefs={timePrefs}
+            user={user}
             toggleBasalScheduleExpansion={() => {}}
           />
         );
         const bgTargetTable = wrapper.find('table')
           .filterWhere(n => (n.text().search('BG Target') !== -1));
         expect(bgTargetTable.someWhere(
-          n => (n.text().search(displayDecimal(animasMultiRateData.bgTarget[0].target, 1)) !== -1)
+          n => (n.text().search(displayDecimal(animasMultiRateData.bgTarget[0].target), 1) !== -1)
         )).to.be.true;
         expect(bgTargetTable.someWhere(
-          n => (n.text().search(displayDecimal(animasMultiRateData.bgTarget[0].range, 1)) !== -1)
+          n => (n.text().search(displayDecimal(animasMultiRateData.bgTarget[0].range), 1) !== -1)
         )).to.be.true;
       });
 
@@ -177,6 +194,7 @@ describe('NonTandem', () => {
             openedSections={{ [animasMultiRateData.activeSchedule]: true }}
             pumpSettings={animasMultiRateData}
             timePrefs={timePrefs}
+            user={user}
             toggleBasalScheduleExpansion={() => {}}
           />
         );
@@ -198,6 +216,7 @@ describe('NonTandem', () => {
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -212,6 +231,7 @@ describe('NonTandem', () => {
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -227,6 +247,7 @@ describe('NonTandem', () => {
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -242,6 +263,7 @@ describe('NonTandem', () => {
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -256,6 +278,7 @@ describe('NonTandem', () => {
           openedSections={{ [omnipodFlatRateData.activeSchedule]: true }}
           pumpSettings={omnipodFlatRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -271,6 +294,7 @@ describe('NonTandem', () => {
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -287,6 +311,7 @@ describe('NonTandem', () => {
             openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
             pumpSettings={omnipodMultiRateData}
             timePrefs={timePrefs}
+            user={user}
             toggleBasalScheduleExpansion={() => {}}
           />
         );
@@ -307,16 +332,20 @@ describe('NonTandem', () => {
             openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
             pumpSettings={omnipodMultiRateData}
             timePrefs={timePrefs}
+            user={user}
             toggleBasalScheduleExpansion={() => {}}
           />
         );
         const bgTargetTable = wrapper.find('table')
           .filterWhere(n => (n.text().search('Target BG') !== -1));
+
         expect(bgTargetTable.someWhere(
-          n => (n.text().search(displayDecimal(omnipodMultiRateData.bgTarget[0].target), 1) !== -1)
+          n => (n.text().search(
+            displayDecimal(omnipodMultiRateData.bgTarget[0].target), 1) !== -1)
         )).to.be.true;
         expect(bgTargetTable.someWhere(
-          n => (n.text().search(displayDecimal(omnipodMultiRateData.bgTarget[0].high, 1)) !== -1)
+          n => (n.text().search(
+            displayDecimal(omnipodMultiRateData.bgTarget[0].high), 1) !== -1)
         )).to.be.true;
       });
 
@@ -328,6 +357,7 @@ describe('NonTandem', () => {
             openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
             pumpSettings={omnipodMultiRateData}
             timePrefs={timePrefs}
+            user={user}
             toggleBasalScheduleExpansion={() => {}}
           />
         );
@@ -349,6 +379,7 @@ describe('NonTandem', () => {
           openedSections={{}}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -363,6 +394,7 @@ describe('NonTandem', () => {
           openedSections={{}}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -378,6 +410,7 @@ describe('NonTandem', () => {
           openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -393,6 +426,7 @@ describe('NonTandem', () => {
           openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -407,6 +441,7 @@ describe('NonTandem', () => {
           openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -426,6 +461,7 @@ describe('NonTandem', () => {
           openedSections={{}}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -443,6 +479,7 @@ describe('NonTandem', () => {
           openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
           pumpSettings={medtronicMultiRateData}
           timePrefs={timePrefs}
+          user={user}
           toggleBasalScheduleExpansion={() => {}}
         />
       );
@@ -458,6 +495,7 @@ describe('NonTandem', () => {
             openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
             pumpSettings={medtronicMultiRateData}
             timePrefs={timePrefs}
+            user={user}
             toggleBasalScheduleExpansion={() => {}}
           />
         );
@@ -478,41 +516,44 @@ describe('NonTandem', () => {
             openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
             pumpSettings={medtronicMultiRateData}
             timePrefs={timePrefs}
+            user={user}
             toggleBasalScheduleExpansion={() => {}}
           />
         );
         const bgTargetTable = wrapper.find('table')
           .filterWhere(n => (n.text().search('BG Target') !== -1));
+
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.bgTarget[0].low, 1)
+            displayDecimal(medtronicMultiRateData.bgTarget[0].low), 1)
           ) !== -1)
-        )).to.be.true;
+        ).to.be.true;
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.bgTarget[0].high, 1)
+            displayDecimal(medtronicMultiRateData.bgTarget[0].high), 1)
           ) !== -1)
-        )).to.be.true;
+        ).to.be.true;
+
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.bgTarget[1].low, 1)
+            displayDecimal(medtronicMultiRateData.bgTarget[1].low), 1)
           ) !== -1)
-        )).to.be.true;
+        ).to.be.true;
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.bgTarget[1].high, 1)
+            displayDecimal(medtronicMultiRateData.bgTarget[1].high), 1)
           ) !== -1)
-        )).to.be.true;
+        ).to.be.true;
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.bgTarget[2].low, 1)
+            displayDecimal(medtronicMultiRateData.bgTarget[2].low), 1)
           ) !== -1)
-        )).to.be.true;
+        ).to.be.true;
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.bgTarget[2].high, 1)
+            displayDecimal(medtronicMultiRateData.bgTarget[2].high), 1)
           ) !== -1)
-        )).to.be.true;
+        ).to.be.true;
       });
 
       it('should surface the expected values for Carb Ratios', () => {
@@ -528,6 +569,8 @@ describe('NonTandem', () => {
         );
         const carbRatioTable = wrapper.find('table')
           .filterWhere(n => (n.text().search('Carb Ratios') !== -1));
+
+
         expect(carbRatioTable.someWhere(
           n => (n.text().search(medtronicMultiRateData.carbRatio[0].amount) !== -1)
         )).to.be.true;

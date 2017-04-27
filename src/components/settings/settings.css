@@ -17,6 +17,37 @@
 
 @import '../../styles/colors.css';
 
+.copyButton {
+  composes: defaultSize from '../../styles/typography.css';
+  float: right;
+  line-height: 0px;
+  padding: 5px;
+  border-radius: 0px;
+  cursor: pointer;
+  color: var(--text-high-contrast);
+  background-color: #f7fafa;
+  border: solid 1px #dbdee0;
+  outline: none;
+}
+
+.copyButton:hover {
+  background-image: none;
+  color: var(--white);
+  background-color: #627cff;
+}
+
+.copyButton:active {
+  background-image: none;
+  color: var(--white);
+  background-color: #627cff;
+  opacity: 0.62;
+}
+
+.copyText {
+  position: absolute;
+  left: -5000px;
+  top: 10px;
+}
 
 .settingsTable {
   composes: defaultSize mediumContrastText from '../../styles/typography.css';
@@ -92,6 +123,10 @@
 }
 
 @media print {
+
+  .copyButton {
+    display: none;
+  }
 
   .printNotes hr {
     padding-top: 30px;

@@ -17,69 +17,18 @@
 
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
+import ClipboardButton from 'react-clipboard.js';
 
 import Header from './common/Header';
 import Table from './common/Table';
 import CollapsibleContainer from './common/CollapsibleContainer';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
-import * as data from '../../utils/settings/data';
+import * as nonTandemData from '../../utils/settings/nonTandemData';
+import { nonTandemText } from '../../utils/settings/textData';
 
+import { DISPLAY_VIEW, PRINT_VIEW } from './constants';
 import styles from './NonTandem.css';
-
-const BG_TARGET_ACCESSORS_BY_MANUFACTURER = {
-  animas: { columnTwo: 'target', columnThree: 'range' },
-  insulet: { columnTwo: 'target', columnThree: 'high' },
-  medtronic: { columnTwo: 'low', columnThree: 'high' },
-};
-
-const BG_TARGET_COLS_BY_MANUFACTURER = {
-  animas: [
-    { key: 'start', label: 'Start time' },
-    { key: 'columnTwo', label: 'Target' },
-    { key: 'columnThree', label: 'Range' },
-  ],
-  insulet: [
-    { key: 'start', label: 'Start time' },
-    { key: 'columnTwo', label: 'Target' },
-    { key: 'columnThree', label: 'Correct Above' },
-  ],
-  medtronic: [
-    { key: 'start', label: 'Start time' },
-    { key: 'columnTwo', label: 'Low' },
-    { key: 'columnThree', label: 'High' },
-  ],
-};
-
-const BG_TARGET_BY_MANUFACTURER = {
-  animas: 'BG Target',
-  insulet: 'Target BG',
-  medtronic: 'BG Target',
-};
-
-const ISF_BY_MANUFACTURER = {
-  animas: 'ISF',
-  insulet: 'Correction factor',
-  medtronic: 'Sensitivity',
-};
-
-const CARB_RATIO_BY_MANUFACTURER = {
-  animas: 'I:C Ratio',
-  insulet: 'IC ratio',
-  medtronic: 'Carb Ratios',
-};
-
-const BOLUS_SETTINGS_LABEL_BY_MANUFACTURER = {
-  animas: 'ezCarb ezBG',
-  insulet: 'Bolus Calculator',
-  medtronic: 'Bolus Wizard',
-};
-
-const DEVICE_DISPLAY_NAME_BY_MANUFACTURER = {
-  animas: 'Animas',
-  insulet: 'OmniPod',
-  medtronic: 'Medtronic',
-};
 
 const NonTandem = (props) => {
   const {
@@ -89,7 +38,8 @@ const NonTandem = (props) => {
     pumpSettings,
     timePrefs,
     toggleBasalScheduleExpansion,
-    printView,
+    user,
+    view,
   } = props;
 
   let lookupKey = deviceKey;
@@ -98,8 +48,19 @@ const NonTandem = (props) => {
     lookupKey = 'medtronic';
   }
 
-  function renderPrintNotes() {
-    if (printView) {
+  function buildTable(rows, columns, title, tableStyle) {
+    return (
+      <Table
+        title={title}
+        rows={rows}
+        columns={columns}
+        tableStyle={tableStyle}
+      />
+    );
+  }
+
+  function renderBreathingSpace() {
+    if (view === PRINT_VIEW) {
       return (
         <div className={styles.printNotes}>
           <hr />
@@ -111,172 +72,144 @@ const NonTandem = (props) => {
   }
 
   function openSection(sectionName) {
-    if (printView) {
+    if (view === PRINT_VIEW) {
       return true;
     }
     return _.get(openedSections, sectionName, false);
   }
 
   function renderBasalsData() {
-    const schedules = data.getScheduleNames(pumpSettings.basalSchedules);
+    return _.map(nonTandemData.basalSchedules(pumpSettings), (schedule) => {
+      const basal = nonTandemData.basal(schedule, pumpSettings, deviceKey);
+      const toggleFn = _.partial(toggleBasalScheduleExpansion, basal.scheduleName);
 
-    return _.map(schedules, (schedule) => {
-      const scheduleName = pumpSettings.basalSchedules[schedule].name;
-      const label = data.getScheduleLabel(
-        scheduleName,
-        pumpSettings.activeSchedule,
-        deviceKey
-      );
-
-      const toggleFn = _.partial(toggleBasalScheduleExpansion, scheduleName);
-
-      if (scheduleName === pumpSettings.activeSchedule) {
-        return (
-          <div className={styles.categoryContainer} key={schedule}>
-            <CollapsibleContainer
-              label={label}
-              labelClass={styles.twoLineBasalScheduleHeader}
-              opened={openSection(scheduleName)}
-              toggleExpansion={toggleFn}
-              twoLineLabel
-            >
-              <Table
-                rows={
-                  data.processBasalRateData(pumpSettings.basalSchedules[schedule])
-                }
-                columns={data.startTimeAndValue('rate')}
-                tableStyle={styles.basalTable}
-              />
-            </CollapsibleContainer>
-            {renderPrintNotes()}
-          </div>
-        );
+      let labelClass = styles.singleLineBasalScheduleHeader;
+      if (basal.activeAtUpload) {
+        labelClass = styles.twoLineBasalScheduleHeader;
       }
+
       return (
         <div className={styles.categoryContainer} key={schedule}>
           <CollapsibleContainer
-            label={label}
-            labelClass={styles.singleLineBasalScheduleHeader}
-            opened={openSection(scheduleName)}
+            label={basal.title}
+            labelClass={labelClass}
+            opened={openSection(basal.scheduleName)}
             toggleExpansion={toggleFn}
+            twoLineLabel
           >
-            <Table
-              rows={
-                data.processBasalRateData(pumpSettings.basalSchedules[schedule])
-              }
-              columns={data.startTimeAndValue('rate')}
-              tableStyle={styles.basalTable}
-            />
+            {buildTable(
+              basal.rows,
+              basal.columns,
+              {},
+              styles.basalTable,
+            )}
           </CollapsibleContainer>
-          {renderPrintNotes()}
+          {renderBreathingSpace()}
         </div>
       );
     });
   }
 
   function renderSensitivityData() {
+    const sensitivity = nonTandemData.sensitivity(pumpSettings, lookupKey, bgUnits);
     const title = {
       label: {
-        main: ISF_BY_MANUFACTURER[lookupKey],
+        main: sensitivity.title,
         secondary: `${bgUnits}/U`,
       },
       className: styles.bolusSettingsHeader,
     };
     return (
       <div className={styles.categoryContainer}>
-        <Table
-          title={title}
-          rows={
-            data.processSensitivityData(
-              pumpSettings.insulinSensitivity,
-              bgUnits,
-            )
-          }
-          columns={data.startTimeAndValue('amount')}
-          tableStyle={styles.settingsTable}
-        />
-        {renderPrintNotes()}
+        {buildTable(
+          sensitivity.rows,
+          sensitivity.columns,
+          title,
+          styles.settingsTable,
+        )}
+        {renderBreathingSpace()}
       </div>
     );
   }
 
   function renderRatioData() {
+    const ratio = nonTandemData.ratio(pumpSettings, lookupKey);
     const title = {
       label: {
-        main: CARB_RATIO_BY_MANUFACTURER[lookupKey],
+        main: ratio.title,
         secondary: 'g/U',
       },
       className: styles.bolusSettingsHeader,
     };
+
     return (
       <div className={styles.categoryContainer}>
-        <Table
-          title={title}
-          rows={
-            data.processCarbRatioData(
-              pumpSettings.carbRatio,
-            )
-          }
-          columns={data.startTimeAndValue('amount')}
-          tableStyle={styles.settingsTable}
-        />
-        {renderPrintNotes()}
+        {buildTable(
+          ratio.rows,
+          ratio.columns,
+          title,
+          styles.settingsTable,
+        )}
+        {renderBreathingSpace()}
       </div>
     );
   }
 
   function renderTargetData() {
+    const target = nonTandemData.target(pumpSettings, lookupKey);
     const title = {
       label: {
-        main: BG_TARGET_BY_MANUFACTURER[lookupKey],
+        main: target.title,
         secondary: bgUnits,
       },
       className: styles.bolusSettingsHeader,
     };
+
     return (
       <div className={styles.categoryContainer}>
-        <Table
-          title={title}
-          rows={
-            data.processBgTargetData(
-              pumpSettings.bgTarget,
-              bgUnits,
-              BG_TARGET_ACCESSORS_BY_MANUFACTURER[lookupKey],
-            )
-          }
-          columns={BG_TARGET_COLS_BY_MANUFACTURER[lookupKey]}
-          tableStyle={styles.settingsTable}
-        />
-        {renderPrintNotes()}
+        {buildTable(
+          target.rows,
+          target.columns,
+          title,
+          styles.settingsTable,
+        )}
+        {renderBreathingSpace()}
       </div>
-    );
-  }
-
-  function renderBolusTitle() {
-    return (
-      BOLUS_SETTINGS_LABEL_BY_MANUFACTURER[lookupKey]
     );
   }
 
   return (
     <div>
+      <ClipboardButton
+        className={styles.copyButton}
+        button-title="For email or notes"
+        data-clipboard-target="#copySettingsText"
+      >
+        <p>Copy as text</p>
+      </ClipboardButton>
       <Header
-        deviceDisplayName={DEVICE_DISPLAY_NAME_BY_MANUFACTURER[lookupKey]}
-        deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
-        printView={printView}
+        deviceDisplayName={nonTandemData.deviceName(lookupKey)}
+        deviceMeta={nonTandemData.deviceMeta(pumpSettings, timePrefs)}
+        printView={view === PRINT_VIEW}
       />
+      {renderBreathingSpace()}
       <div className={styles.settingsContainer}>
-        <div className={styles.basalSettingsContainer}>
-          <div className={styles.categoryTitle}>Basal Rates</div>
-          {renderBasalsData()}
+        <div>
+          <div className={styles.basalSettingsContainer}>
+            <div className={styles.categoryTitle}>Basal Rates</div>
+            {renderBasalsData()}
+          </div>
         </div>
         <div className={styles.bolusSettingsContainer}>
-          <div className={styles.categoryTitle}>{renderBolusTitle()}</div>
+          <div className={styles.categoryTitle}>{nonTandemData.bolusTitle(lookupKey)}</div>
           {renderSensitivityData()}
           {renderTargetData()}
           {renderRatioData()}
         </div>
       </div>
+      <pre className={styles.copyText} id="copySettingsText">
+        {nonTandemText(user, pumpSettings, bgUnits, lookupKey)}
+      </pre>
     </div>
   );
 };
@@ -325,11 +258,12 @@ NonTandem.propTypes = {
     timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
   }).isRequired,
   toggleBasalScheduleExpansion: PropTypes.func.isRequired,
-  printView: React.PropTypes.bool.isRequired,
+  user: PropTypes.object.isRequired,
+  view: PropTypes.oneOf([DISPLAY_VIEW, PRINT_VIEW]).isRequired,
 };
 
 NonTandem.defaultProps = {
-  printView: false,
+  view: DISPLAY_VIEW,
 };
 
 export default NonTandem;
