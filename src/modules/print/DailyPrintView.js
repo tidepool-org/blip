@@ -28,7 +28,7 @@ import {
   getMaxDuration,
   getNormalPercentage,
 } from '../../utils/bolus';
-import { formatDuration } from '../../utils/datetime';
+import { getTimezoneFromTimePrefs, formatDisplayDate, formatDuration } from '../../utils/datetime';
 import {
   displayDecimal, displayPercentage, removeTrailingZeroes,
 } from '../../utils/format';
@@ -57,7 +57,8 @@ class DailyPrintView {
     this.summaryHeaderFontSize = opts.summaryHeaderFontSize;
 
     this.bgBounds = opts.bgBounds;
-    this.timezone = opts.timezone;
+    this.timePrefs = opts.timePrefs;
+    this.timezone = getTimezoneFromTimePrefs(opts.timePrefs);
 
     this.width = opts.width;
     this.height = opts.height;
@@ -412,14 +413,11 @@ class DailyPrintView {
 
         this.doc.font(this.font).fontSize(this.defaultFontSize)
           .text(
-          moment.utc(loc)
-            .tz(this.timezone)
-            .format('ha')
-            .slice(0, -1),
-          xPos,
-          topEdge,
-          { indent: 3 },
-        );
+            formatDisplayDate(loc, this.timePrefs, 'ha').slice(0, -1),
+            xPos,
+            topEdge,
+            { indent: 3 },
+          );
       }
 
       this.doc.moveTo(xPos, topEdge)
@@ -505,9 +503,7 @@ class DailyPrintView {
         };
       }(this.doc));
       _.each(_.sortBy(binOfBoluses, 'normalTime'), (bolus) => {
-        const displayTime = moment.utc(bolus.normalTime)
-          .tz(this.timezone)
-          .format('h:mma')
+        const displayTime = formatDisplayDate(bolus.normalTime, this.timePrefs, 'h:mma')
           .slice(0, -1);
         this.doc.text(
             displayTime,

@@ -65,7 +65,7 @@ export function timezoneAwareCeiling(utc, timezone) {
  * @param {Object} timePrefs - object containing timezoneAware Boolean, timezoneName String or null
  * @param {String} [format] - optional moment display format string; default is 'Sunday, January 1'
  *
- * @return {String} formatted date string
+ * @return {String} formatted datetime string
  */
 export function formatDisplayDate(utc, timePrefs, format = 'dddd, MMMM D') {
   if (utc instanceof Date) {

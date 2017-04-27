@@ -19,18 +19,19 @@ import _ from 'lodash';
 import moment from 'moment-timezone';
 import { extent } from 'd3-array';
 
-import { timezoneAwareCeiling } from '../../utils/datetime';
+import { getTimezoneFromTimePrefs, timezoneAwareCeiling } from '../../utils/datetime';
 
 /**
  * selectData
  * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
  * @param {Object} dataByDate - a Crossfilter dimension for querying diabetes data by normalTime
  * @param {Number} numDays - number of days of data to select
- * @param {String} timezone - named timezone; UTC if timezone-naive rendering is on
+ * @param {Object} timePrefs - object containing timezoneAware Boolean, timezoneName String or null
  *
  * @return {Object} selected data for daily print view
  */
-export function selectDailyViewData(mostRecent, dataByDate, numDays, timezone) {
+export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) {
+  const timezone = getTimezoneFromTimePrefs(timePrefs);
   const end = timezoneAwareCeiling(mostRecent, timezone);
   const dateBoundaries = [end.toISOString()];
   let last = end;
