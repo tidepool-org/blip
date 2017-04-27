@@ -30,16 +30,16 @@ These views *share* some common state, including:
 - timezone for display
 - current datetime location
 
-Three of these are not yet user-configurable, although we plan to surface them soon in a user display preferences page and then persist them to Tidepool's servers as part of the data stored for each user. These are:
+The blood glucose units and timezone for display are not yet user-configuarable[^a], although we plan to surface them soon in a user display preferences page and then persist them to Tidepool's servers as part of the data stored for each user. The defaults for these are:
 
-- blood glucose units = mg/dL but can be switched to mmol/L with `?units=mmoll` in a query parameter (as long as "Remember Me" is used on login)
-- blood glucose target range[^a]:
-    + very low: < 60 mg/dL
-    + low: >= 60 mg/dL and < 80 mg/dL
-    + target: >= 80 mg/dL and < 180 mg/dL
-    + high: >= 180 mg/dL and < 300 mg/dL
-    + very high: >= 300 mg/dL
-- timezone for display = defaulted to timezone from most recent [upload metadata](http://developer.tidepool.io/data-model/device-data/types/upload.html 'Tidepool data model docs: upload') object in the PwD's data; this defaulting happens in [blip's processPatientData utility function](https://github.com/tidepool-org/blip/blob/master/app/core/utils.js#L224 'GitHub: blip app/core/utils.js')[^b], which is called from [`<PatientData/>`](https://github.com/tidepool-org/blip/blob/master/app/pages/patientdata/patientdata.js#L578 'GitHub: blip app/pages/patientdata/patientdata.js')
+- blood glucose units = mg/dL
+- timezone for display = defaulted to timezone from most recent [upload metadata](http://developer.tidepool.io/data-model/device-data/types/upload.html 'Tidepool data model docs: upload') object in the PwD's data; this defaulting happens in [blip's processPatientData utility function](https://github.com/tidepool-org/blip/blob/master/app/core/utils.js#L224 'GitHub: blip app/core/utils.js')[^c], which is called from [`<PatientData/>`](https://github.com/tidepool-org/blip/blob/master/app/pages/patientdata/patientdata.js#L578 'GitHub: blip app/pages/patientdata/patientdata.js')
+
+The target-related fields in the blood glucose target range, however, *are* configurable at /patient/:id/profile in blip. The entire specification for blood glucose thresholds and target range consists of four things, with the following defaults[^b]:
+    + very low threshold: < 55 mg/dL
+    + lower bound of target range: >= 70 mg/dL
+    + upper bound of target range: <= 180 mg/dL
+    + very high threshold: > 300 mg/dL
 
 Aside from these three things, the remaining state—the current PwD's data and the current datetime location—is all ephemeral, relevant only to the current *patient data viewing session*.
 
@@ -102,5 +102,6 @@ Blip currently renders [the component](https://github.com/tidepool-org/blip/blob
 
 * * * * *
 
-[^a]: @jebeck is about 90% confident that [this location in the TidelineData constructor](https://github.com/tidepool-org/tideline/blob/master/js/tidelinedata.js#L61 'GitHub: tideline js/tidelinedata.js') is the ultimate source of the hard-coding for the current blood glucose target range.
-[^b]: Display timezone can also currently be configured via query parameter (again, as long as "Remember Me" is used on login)—e.g., `?timezone=Europe-Paris`. The `/` found in most [IANA](https://www.iana.org/time-zones 'IANA Time Zone Database') timezones must be replaced with `-` in the query parameter value: `US-Pacific` instead of `US/Pacific`.
+[^a]: Via the user interface in blip. When logged in with "Remember Me" checked, blood glucose units may be switched from mg/dL to mmol/L via the query parameter `?units=mmoll`, and the timezone may be configured with the query parameter `?timezone=US-Pacific` (or `?timezone=None` for timezone-naïve rendering). Use timezone names from the [IANA Time Zone Database](https://www.iana.org/time-zones 'IANA Time Zone Database'), replacing any `/` (e.g., in 'US/Pacific') with `-`, resulting in 'US-Pacific'.
+[^b]: @jebeck is about 90% confident that [this location in the TidelineData constructor](https://github.com/tidepool-org/tideline/blob/master/js/tidelinedata.js#L61 'GitHub: tideline js/tidelinedata.js') is the ultimate source of the hard-coding for the current blood glucose target range.
+[^c]: Display timezone can also currently be configured via query parameter (again, as long as "Remember Me" is used on login)—e.g., `?timezone=Europe-Paris`. The `/` found in most [IANA](https://www.iana.org/time-zones 'IANA Time Zone Database') timezones must be replaced with `-` in the query parameter value: `US-Pacific` instead of `US/Pacific`.
