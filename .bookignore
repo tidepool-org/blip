@@ -1,6 +1,8 @@
+**/*.sketch
 coverage/
 data/
 dist/
+local/
 node_modules/
 src/
 stories/
@@ -21,3 +23,4 @@ package.config.js
 package.json
 update-gh-pages.sh
 webpack.config.js
+yarn.lock
