@@ -1,4 +1,4 @@
-/* global rm, mkdir, exec, ls*/
+/* global rm, mkdir, exec, ls, cp */
 require('shelljs/global');
 var fs = require('fs');
 var ms = require('ms');
@@ -8,6 +8,10 @@ var start = new Date();
 console.log('Cleaning output directory "dist/"...');
 rm('-rf', 'dist');
 mkdir('-p', 'dist');
+
+console.log('Copying pdfkit.js and blob-stream.js static files...');
+cp('pdfkit.js', 'dist/');
+cp('blob-stream.js', 'dist/');
 
 var entry = './app/main.prod.js';
 
