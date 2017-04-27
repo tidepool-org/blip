@@ -22,13 +22,17 @@ This README is focused on just the nuts & bolts of getting the code in this repo
 
 ## Getting started
 
-After cloning this repository to your local machine, first make sure that you have a version of `npm` that is recent enough - at least `3.x`. We are still using node `0.12.x` for our engine, and a `3.x` version of `npm` does **not** get installed by default if you are installing node `0.12.x` through a mechanism like [`nvm`](https://github.com/creationix/nvm 'nvm'). In this case, you will need to manually update with:
+After cloning this repository to your local machine, first make sure that you have node `6.x` and npm `3.x` installed. If you have a different major version of node installed, consider using [nvm](https://github.com/creationix/nvm 'GitHub: Node Version Manager') to manage and switch between multiple node (& npm) installations.
+
+It's not an absolute requirement, but it is preferable to have [Yarn](https://yarnpkg.com 'Yarn') installed, as it provides dependency management features above and beyond what npm provides. Just follow [Yarn's installation instructions](https://yarnpkg.com/en/docs/install 'Yarn installation instructions') (hint: for Mac users with Homebrew installed, it's just `brew install yarn`).
+
+Once your environment is setup with node `6.x` and npm `3.x` install the dependencies with Yarn:
 
 ```bash
-$ npm install -g npm
+$ yarn install
 ```
 
-Then, install the dependencies:
+Or with npm if you're choosing not to use Yarn:
 
 ```bash
 $ npm install
@@ -87,6 +91,8 @@ To run the code linter from the command line:
 ```bash
 $ npm run lint
 ```
+
+Generally speaking, Tidepool developers configure linting to run continuously in their text editor of choice, and we recommend this approach for development. You can easily find instructions online for running ESLint continuously in all of the popular text editors—SublimeText, Atom, Visual Studio Code, etc.
 
 ## Production
 
