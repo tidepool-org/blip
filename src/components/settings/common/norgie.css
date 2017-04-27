@@ -35,3 +35,9 @@
 .opened::after {
   transform: rotate(90deg) translate(-20%, -15%);
 }
+
+@media print {
+  .norgie::after {
+    content: '';
+  }
+}

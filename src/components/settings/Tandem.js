@@ -17,84 +17,93 @@
 
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
+import ClipboardButton from 'react-clipboard.js';
 
 import styles from './Tandem.css';
 
 import Header from './common/Header';
 import Table from './common/Table';
 import CollapsibleContainer from './common/CollapsibleContainer';
-
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
-import * as data from '../../utils/settings/data';
+import * as tandemData from '../../utils/settings/tandemData';
+import { tandemText } from '../../utils/settings/textData';
+
+import { DISPLAY_VIEW, PRINT_VIEW } from './constants';
 
 const Tandem = (props) => {
   const {
     bgUnits,
-    deviceKey,
     openedSections,
     pumpSettings,
     timePrefs,
     toggleProfileExpansion,
+    user,
+    view,
   } = props;
 
-  const schedules = data.getTimedSchedules(pumpSettings.basalSchedules);
+  function renderBreathingSpace() {
+    if (view === PRINT_VIEW) {
+      return (
+        <div className={styles.printNotes}>
+          <hr />
+          <hr />
+        </div>
+      );
+    }
+    return null;
+  }
 
-  const COLUMNS = [
-    { key: 'start',
-      label: 'Start time' },
-    { key: 'rate',
-      label: {
-        main: 'Basal Rates',
-        secondary: 'U/hr',
-      },
-      className: styles.basalScheduleHeader },
-    { key: 'bgTarget',
-      label: {
-        main: 'Target BG',
-        secondary: bgUnits,
-      },
-      className: styles.bolusSettingsHeader },
-    { key: 'carbRatio',
-      label: {
-        main: 'Carb Ratio',
-        secondary: 'g/U',
-      },
-      className: styles.bolusSettingsHeader },
-    { key: 'insulinSensitivity',
-      label: {
-        main: 'Correction Factor',
-        secondary: `${bgUnits}/U`,
-      },
-      className: styles.bolusSettingsHeader },
-  ];
+  function openSection(sectionName) {
+    if (view === PRINT_VIEW) {
+      return true;
+    }
+    return _.get(openedSections, sectionName, false);
+  }
 
-  const tables = _.map(schedules, (schedule) => (
-    <div key={schedule.name}>
-      <CollapsibleContainer
-        label={data.getScheduleLabel(schedule.name, pumpSettings.activeSchedule, deviceKey, true)}
-        labelClass={styles.collapsibleLabel}
-        opened={_.get(openedSections, schedule.name, false)}
-        toggleExpansion={_.partial(toggleProfileExpansion, schedule.name)}
-        twoLineLabel={false}
-      >
-        <Table
-          rows={data.processTimedSettings(pumpSettings, schedule, bgUnits)}
-          columns={COLUMNS}
-          tableStyle={styles.profileTable}
-        />
-      </CollapsibleContainer>
-    </div>
-  ));
+  const tables = _.map(tandemData.basalSchedules(pumpSettings), (schedule) => {
+    const basal = tandemData.basal(schedule, pumpSettings, bgUnits, styles);
+
+    return (
+      <div className="settings-table-container" key={basal.scheduleName}>
+        <CollapsibleContainer
+          label={basal.title}
+          labelClass={styles.collapsibleLabel}
+          opened={openSection(basal.scheduleName)}
+          toggleExpansion={_.partial(toggleProfileExpansion, basal.scheduleName)}
+          twoLineLabel={false}
+        >
+          <Table
+            rows={basal.rows}
+            columns={basal.columns}
+            tableStyle={styles.profileTable}
+          />
+        </CollapsibleContainer>
+        {renderBreathingSpace()}
+      </div>
+    );
+  });
+
   return (
     <div>
+      <ClipboardButton
+        className={styles.copyButton}
+        button-title="For email or notes"
+        data-clipboard-target="#copySettingsText"
+      >
+        <p>Copy as text</p>
+      </ClipboardButton>
       <Header
         deviceDisplayName="Tandem"
-        deviceMeta={data.getDeviceMeta(pumpSettings, timePrefs)}
+        deviceMeta={tandemData.deviceMeta(pumpSettings, timePrefs)}
+        printView={view === PRINT_VIEW}
       />
       <div>
         <span className={styles.title}>Profile Settings</span>
         {tables}
       </div>
+      <pre className={styles.copyText} id="copySettingsText">
+        {tandemText(user, pumpSettings, bgUnits)}
+      </pre>
     </div>
   );
 };
@@ -103,56 +112,59 @@ Tandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
   deviceKey: PropTypes.oneOf(['tandem']).isRequired,
   openedSections: PropTypes.object.isRequired,
-  pumpSettings: React.PropTypes.shape({
-    activeSchedule: React.PropTypes.string.isRequired,
-    units: React.PropTypes.object.isRequired,
-    deviceId: React.PropTypes.string.isRequired,
-    basalSchedules: React.PropTypes.arrayOf(
-      React.PropTypes.shape({
-        name: React.PropTypes.string.isRequired,
-        value: React.PropTypes.arrayOf(
-          React.PropTypes.shape({
-            start: React.PropTypes.number.isRequired,
-            rate: React.PropTypes.number.isRequired,
+  pumpSettings: PropTypes.shape({
+    activeSchedule: PropTypes.string.isRequired,
+    units: PropTypes.object.isRequired,
+    deviceId: PropTypes.string.isRequired,
+    basalSchedules: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        value: PropTypes.arrayOf(
+          PropTypes.shape({
+            start: PropTypes.number.isRequired,
+            rate: PropTypes.number.isRequired,
           }),
         ),
       }).isRequired,
     ).isRequired,
-    bgTargets: React.PropTypes.objectOf(
-      React.PropTypes.arrayOf(
-        React.PropTypes.shape({
-          start: React.PropTypes.number.isRequired,
-          target: React.PropTypes.number.isRequired,
+    bgTargets: PropTypes.objectOf(
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          start: PropTypes.number.isRequired,
+          target: PropTypes.number.isRequired,
         })
       ).isRequired,
     ).isRequired,
-    carbRatios: React.PropTypes.objectOf(
-      React.PropTypes.arrayOf(
-        React.PropTypes.shape({
-          start: React.PropTypes.number.isRequired,
-          amount: React.PropTypes.number.isRequired,
+    carbRatios: PropTypes.objectOf(
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          start: PropTypes.number.isRequired,
+          amount: PropTypes.number.isRequired,
         })
       ).isRequired,
     ).isRequired,
-    insulinSensitivities: React.PropTypes.objectOf(
-      React.PropTypes.arrayOf(
-        React.PropTypes.shape({
-          start: React.PropTypes.number.isRequired,
-          amount: React.PropTypes.number.isRequired,
+    insulinSensitivities: PropTypes.objectOf(
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          start: PropTypes.number.isRequired,
+          amount: PropTypes.number.isRequired,
         })
       ).isRequired,
     ).isRequired,
   }).isRequired,
   timePrefs: PropTypes.shape({
-    timezoneAware: React.PropTypes.bool.isRequired,
-    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
+    timezoneAware: PropTypes.bool.isRequired,
+    timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
   }).isRequired,
   toggleProfileExpansion: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
+  view: PropTypes.oneOf([DISPLAY_VIEW, PRINT_VIEW]).isRequired,
 };
 
 Tandem.defaultProps = {
   deviceDisplayName: 'Tandem',
   deviceKey: 'tandem',
+  view: DISPLAY_VIEW,
 };
 
 export default Tandem;

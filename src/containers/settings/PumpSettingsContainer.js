@@ -25,6 +25,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 
 import NonTandem from '../../components/settings/NonTandem';
 import Tandem from '../../components/settings/Tandem';
+import { DISPLAY_VIEW, PRINT_VIEW } from '../../components/settings/constants';
 
 export class PumpSettingsContainer extends PureComponent {
   static propTypes = {
@@ -43,6 +44,7 @@ export class PumpSettingsContainer extends PureComponent {
     }).isRequired,
     settingsState: PropTypes.object.isRequired,
     toggleSettingsSection: PropTypes.func.isRequired,
+    view: PropTypes.oneOf([DISPLAY_VIEW, PRINT_VIEW]).isRequired,
   }
 
   componentWillMount() {
@@ -56,13 +58,21 @@ export class PumpSettingsContainer extends PureComponent {
   }
 
   render() {
-    const { settingsState } = this.props;
+    const { settingsState, user } = this.props;
     if (_.isEmpty(settingsState)) {
       return null;
     }
-    const { bgUnits, manufacturerKey, pumpSettings, timePrefs, toggleSettingsSection } = this.props;
+    const {
+      bgUnits,
+      manufacturerKey,
+      pumpSettings,
+      timePrefs,
+      toggleSettingsSection,
+      view,
+    } = this.props;
     const supportedNonTandemPumps = ['animas', 'carelink', 'insulet', 'medtronic'];
     const toggleFn = _.partial(toggleSettingsSection, manufacturerKey);
+
     if (manufacturerKey === 'tandem') {
       return (
         <Tandem
@@ -72,6 +82,8 @@ export class PumpSettingsContainer extends PureComponent {
           pumpSettings={pumpSettings}
           timePrefs={timePrefs}
           toggleProfileExpansion={toggleFn}
+          user={user}
+          view={view}
         />
       );
     } else if (_.includes(supportedNonTandemPumps, manufacturerKey)) {
@@ -83,6 +95,8 @@ export class PumpSettingsContainer extends PureComponent {
           pumpSettings={pumpSettings}
           timePrefs={timePrefs}
           toggleBasalScheduleExpansion={toggleFn}
+          user={user}
+          view={view}
         />
       );
     }
@@ -94,8 +108,14 @@ export class PumpSettingsContainer extends PureComponent {
 
 export function mapStateToProps(state, ownProps) {
   const userId = _.get(ownProps, 'currentPatientInViewId');
+  const user = _.get(
+    state.blip.allUsersMap,
+    userId,
+    {},
+  );
   return {
     settingsState: _.get(state, ['viz', 'settings', userId], {}),
+    user,
   };
 }
 

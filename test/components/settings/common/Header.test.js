@@ -26,6 +26,7 @@ describe('Header', () => {
       <Header
         deviceDisplayName="Testing"
         deviceMeta={{ name: 'SN123', uploaded: 'Jul 12th 2016' }}
+        printView={false}
       />
     );
     expect(wrapper.state().serialNumberExpanded).to.be.false;

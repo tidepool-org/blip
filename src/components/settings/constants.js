@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2016, Tidepool Project
+ * Copyright (c) 2017, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,21 +15,5 @@
  * == BSD2 LICENSE ==
  */
 
-.secondaryLabelAlone {
-  composes: secondaryLeftPadding from '../settings.css';
-  font-weight: normal;
-}
-
-.secondaryLabelWithMain {
-  composes: lightText from '../../../styles/typography.css';
-  composes: secondaryLeftPadding from '../settings.css';
-}
-
-@media print {
-
-  .secondaryLabelWithMain {
-    composes: lightText largeSize from '../../../styles/typography.css';
-    color: var(--text-black);
-  	composes: secondaryLeftPadding from '../settings.css';
-  }
-}
+export const DISPLAY_VIEW = 'display';
+export const PRINT_VIEW = 'print';

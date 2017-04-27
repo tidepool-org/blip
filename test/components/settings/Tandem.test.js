@@ -29,6 +29,15 @@ const flatrateData = require('../../../data/pumpSettings/tandem/flatrate.json');
 const multirateData = require('../../../data/pumpSettings/tandem/multirate.json');
 
 const timePrefs = { timezoneAware: false, timezoneName: null };
+const user = {
+  profile: {
+    fullName: 'Mary Smith',
+    patient: {
+      diagnosisDate: '1990-01-31',
+      birthday: '1983-01-31',
+    },
+  },
+};
 
 describe('Tandem', () => {
   it('should render without problems when required props provided', () => {
@@ -40,6 +49,7 @@ describe('Tandem', () => {
         openedSections={{ [multirateData.activeSchedule]: true }}
         pumpSettings={multirateData}
         timePrefs={timePrefs}
+        user={user}
         toggleProfileExpansion={() => {}}
       />
     );
@@ -53,6 +63,7 @@ describe('Tandem', () => {
         openedSections={{ [multirateData.activeSchedule]: true }}
         pumpSettings={multirateData}
         timePrefs={timePrefs}
+        user={user}
         toggleProfileExpansion={() => {}}
       />
     );
@@ -66,6 +77,7 @@ describe('Tandem', () => {
         openedSections={{ [multirateData.activeSchedule]: true }}
         pumpSettings={multirateData}
         timePrefs={timePrefs}
+        user={user}
         toggleProfileExpansion={() => {}}
       />
     );
@@ -79,6 +91,7 @@ describe('Tandem', () => {
         openedSections={{ [multirateData.activeSchedule]: true }}
         pumpSettings={multirateData}
         timePrefs={timePrefs}
+        user={user}
         toggleProfileExpansion={() => {}}
       />
     );
@@ -92,6 +105,7 @@ describe('Tandem', () => {
         openedSections={{ [multirateData.activeSchedule]: true }}
         pumpSettings={multirateData}
         timePrefs={timePrefs}
+        user={user}
         toggleProfileExpansion={() => {}}
       />
     );
@@ -106,6 +120,7 @@ describe('Tandem', () => {
         openedSections={{ [flatrateData.activeSchedule]: true }}
         pumpSettings={flatrateData}
         timePrefs={timePrefs}
+        user={user}
         toggleProfileExpansion={() => {}}
       />
     );
@@ -124,6 +139,7 @@ describe('Tandem', () => {
         openedSections={{ [multirateData.activeSchedule]: true }}
         pumpSettings={multirateData}
         timePrefs={timePrefs}
+        user={user}
         toggleProfileExpansion={() => {}}
       />
     );
@@ -143,6 +159,7 @@ describe('Tandem', () => {
           openedSections={{ [flatrateData.activeSchedule]: true }}
           pumpSettings={flatrateData}
           timePrefs={timePrefs}
+          user={user}
           toggleProfileExpansion={() => {}}
         />
       );
