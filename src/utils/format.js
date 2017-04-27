@@ -17,9 +17,11 @@
 
 import _ from 'lodash';
 import { format } from 'd3-format';
+// using d3-time-format because time is time of data access in
+// user’s browser time, not PwD’s configured timezone
+import { utcFormat } from 'd3-time-format';
 import { convertToMmolL } from './bloodglucose';
 import { BG_HIGH, BG_LOW, MMOLL_UNITS } from './constants';
-import { formatDisplayDate } from './datetime';
 
 /**
  * displayDecimal
@@ -90,7 +92,7 @@ export function patientFullName(patient) {
 export function birthday(patient) {
   const bday = _.get(patient, ['profile', 'patient', 'birthday'], '');
   if (bday) {
-    return formatDisplayDate(bday, {}, 'MMM D, YYYY');
+    return utcFormat('%b %-d, %Y')(Date.parse(bday));
   }
   return '';
 }
@@ -103,7 +105,7 @@ export function birthday(patient) {
 export function diagnosisDate(patient) {
   const diagnosis = _.get(patient, ['profile', 'patient', 'diagnosisDate'], '');
   if (diagnosis) {
-    return formatDisplayDate(diagnosis, {}, 'MMM D, YYYY');
+    return utcFormat('%b %-d, %Y')(Date.parse(diagnosis));
   }
   return '';
 }
