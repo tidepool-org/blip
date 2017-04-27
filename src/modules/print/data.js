@@ -86,6 +86,18 @@ export function selectDailyViewData(mostRecent, dataByDate, numDays, timezone) {
   });
   selected.bolusRange = extent(boluses, (d) => (d.normal + (d.extended || 0)));
 
+  _.each(selectedDataByDate, (dateObj) => {
+    const { data: { bolus: bolusesForDate } } = dateObj;
+    selectedDataByDate[dateObj.date].data.bolus = _.map(bolusesForDate, (bolus) => {
+      if (bolus.wizard) {
+        const reversed = _.cloneDeep(bolus.wizard);
+        reversed.bolus = _.omit(bolus, 'wizard');
+        return reversed;
+      }
+      return bolus;
+    });
+  });
+
   const basals = _.reduce(
     selectedDataByDate, (all, date) => (all.concat(_.get(date, ['data', 'basal'], []))), []
   );

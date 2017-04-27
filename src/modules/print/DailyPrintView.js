@@ -22,7 +22,11 @@ import moment from 'moment-timezone';
 import getBolusPaths from '../render/bolus';
 import { calcCbgTimeInCategories, classifyBgValue } from '../../utils/bloodglucose';
 import {
-  getDelivered, getExtendedPercentage, getMaxDuration, getNormalPercentage,
+  getBolusFromInsulinEvent,
+  getDelivered,
+  getExtendedPercentage,
+  getMaxDuration,
+  getNormalPercentage,
 } from '../../utils/bolus';
 import { formatDuration } from '../../utils/datetime';
 import {
@@ -149,11 +153,15 @@ class DailyPrintView {
     this.doc.fontSize(this.defaultFontSize);
     const lineHeight = this.doc.currentLineHeight() * 1.25;
 
-    const threeHrBinnedBoluses = _.groupBy(data.bolus, (d) => (d.threeHrBin));
+    const threeHrBinnedBoluses = _.groupBy(data.bolus, (d) => {
+      const bolus = getBolusFromInsulinEvent(d);
+      return bolus.threeHrBin;
+    });
     const maxBolusStack = _.max(_.map(
       _.keys(threeHrBinnedBoluses),
       (key) => {
-        const totalLines = _.reduce(threeHrBinnedBoluses[key], (lines, bolus) => {
+        const totalLines = _.reduce(threeHrBinnedBoluses[key], (lines, insulinEvent) => {
+          const bolus = getBolusFromInsulinEvent(insulinEvent);
           if (bolus.extended) {
             if (bolus.normal) {
               return lines + 3;
@@ -470,14 +478,18 @@ class DailyPrintView {
     bolusDetailPositions,
     bolusDetailWidths,
     bolusScale,
-    data: { bolus: boluses },
+    data: { bolus: insulinEvents },
   }) {
     this.doc.font(this.font)
       .fontSize(this.defaultFontSize)
       .fillColor('black');
 
     const topOfBolusDetails = bolusScale.range()[0] + 2;
-    const grouped = _.groupBy(boluses, (bolus) => (bolus.threeHrBin / 3));
+
+    const grouped = _.groupBy(
+      _.map(insulinEvents, (d) => (getBolusFromInsulinEvent(d))),
+      (d) => (d.threeHrBin / 3),
+    );
 
     _.each(grouped, (binOfBoluses, i) => {
       const groupWidth = bolusDetailWidths[i] - 2;

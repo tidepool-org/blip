@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+import { getBolusFromInsulinEvent } from '../../utils/bolus';
+
 export function isInterruptedBolus(bolus) {
   return bolus.normal &&
     bolus.expectedNormal &&
@@ -40,16 +42,17 @@ export function makeBolusRectanglePath(bolusWidth, bolusCenter, bolusBottom, bol
 
 /**
  * getBolusPaths
- * @param {Object} bolus - Tidepool bolus datum
+ * @param {Object} insulinEvent - a Tidepool wizard (with embedded bolus) or bolus datum
  * @param {Function} xScale - xScale preconfigured with domain & range
  * @param {Function} yScale - yScale preconfigured with domain & range
  * @param {Object} opts - bolus rendering options such as width
  *
  * @return {Array} paths - Object of component paths to draw a bolus
  */
-export default function getBolusPaths(bolus, xScale, yScale, {
+export default function getBolusPaths(insulinEvent, xScale, yScale, {
   bolusWidth, interruptedLineThickness,
 }) {
+  const bolus = getBolusFromInsulinEvent(insulinEvent);
   const paths = [];
 
   const bolusBottom = yScale.range()[0];
