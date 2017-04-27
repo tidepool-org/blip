@@ -12,3 +12,5 @@ As you're getting ready to develop code in this repository, we recommend startin
 - [dependencies](./Dependencies.md)
 
 The root-level [README]('../README.md') contains the nuts & bolts of installing, configuring, and commands to accomplish various tasks.
+
+Finally, the [per-view documentation](./views/README.md) is the place to look for details on the implementation of each major data "view" implemented in this repository for inclusion in blip.
