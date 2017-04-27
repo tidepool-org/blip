@@ -103,8 +103,8 @@ function buildTextTable(name, rows, columns) {
 function formatTitle(patient, timePrefs) {
   const exported =
   `Exported from Tidepool: ${formatDisplayDate(Date.now(), timePrefs, 'MMM D, YYYY')}`;
-  const bday = `Date of birth: ${birthday(patient, timePrefs)}`;
-  const diagnosis = `Date of diagnosis: ${diagnosisDate(patient, timePrefs)}`;
+  const bday = `Date of birth: ${birthday(patient)}`;
+  const diagnosis = `Date of diagnosis: ${diagnosisDate(patient)}`;
   const fullname = patientFullName(patient);
   return `${fullname}\n${bday}\n${diagnosis}\n${exported}\n`;
 }
