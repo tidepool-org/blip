@@ -32,7 +32,7 @@ Blip itself handles:
 - most of the visualization state management (e.g., checkbox options for BGM version of Trends view)
 - navigation from view to view and along the time dimension
 
-The eventual goal is for *everything* listed above to be handled by code in this repository. That is, eventually all code for all the data views as well as for the data preprocessing and visualization state management, including the navigation from view to view and along the time dimension will live this repository.
+The eventual goal is for *everything* listed above to be handled by code in this repository. That is, eventually all code for all the data views as well as for the data preprocessing and visualization state management, including the navigation from view to view and along the time dimension will live in this repository.
 
 * * * * *
 
