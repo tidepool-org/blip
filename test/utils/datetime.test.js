@@ -34,19 +34,6 @@ describe('datetime', () => {
     });
   });
 
-  describe('getAllDatesInRange', () => {
-    it('should be a function', () => {
-      assert.isFunction(datetime.getAllDatesInRange);
-    });
-
-    it('should return an array containing the date `2016-11-06`', () => {
-      const start = '2016-11-06T05:00:00.000Z';
-      const end = '2016-11-07T06:00:00.000Z';
-      expect(datetime.getAllDatesInRange(start, end, 'US/Central'))
-        .to.deep.equal(['2016-11-06']);
-    });
-  });
-
   describe('getTimezoneFromTimePrefs', () => {
     it('should be a function', () => {
       assert.isFunction(datetime.getTimezoneFromTimePrefs);

@@ -28,7 +28,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
 import { timezoneAwareCeiling } from '../../../src/utils/datetime';
 import DummyComponent from '../../helpers/DummyComponent';
 
-import { TrendsContainer, mapStateToProps, mapDispatchToProps }
+import { TrendsContainer, getAllDatesInRange, mapStateToProps, mapDispatchToProps }
   from '../../../src/containers/trends/TrendsContainer';
 import TrendsSVGContainer from '../../../src/containers/trends/TrendsSVGContainer';
 
@@ -37,6 +37,21 @@ describe('TrendsContainer', () => {
   // due to not rendering TrendsContainer within a real app like blip
   // eslint-disable-next-line no-console
   console.warn = sinon.stub();
+
+  describe('getAllDatesInRange', () => {
+    it('should be a function', () => {
+      assert.isFunction(getAllDatesInRange);
+    });
+
+    it('should return an array containing the date `2016-11-06`', () => {
+      const start = '2016-11-06T05:00:00.000Z';
+      const end = '2016-11-07T06:00:00.000Z';
+      expect(getAllDatesInRange(start, end, {
+        timezoneAware: true,
+        timezoneName: 'US/Central',
+      })).to.deep.equal(['2016-11-06']);
+    });
+  });
 
   describe('TrendsContainer (w/o redux connect()ion)', () => {
     let minimalData;

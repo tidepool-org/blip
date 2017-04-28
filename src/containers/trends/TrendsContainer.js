@@ -22,6 +22,7 @@ import bows from 'bows';
 import { extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { utcDay } from 'd3-time';
+import moment from 'moment-timezone';
 import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -33,6 +34,27 @@ import {
 } from '../../utils/constants';
 const { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } } = trends;
 import * as datetime from '../../utils/datetime';
+
+/**
+ * getAllDatesInRange
+ * @param {String} start - Zulu timestamp (Integer hammertime also OK)
+ * @param {String} end - Zulu timestamp (Integer hammertime also OK)
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ *
+ * @return {Array} dates - array of YYYY-MM-DD String dates
+ */
+export function getAllDatesInRange(start, end, timePrefs) {
+  const timezoneName = datetime.getTimezoneFromTimePrefs(timePrefs);
+  const dates = [];
+  const current = moment.utc(start)
+    .tz(timezoneName);
+  const excludedBoundary = moment.utc(end);
+  while (current.isBefore(excludedBoundary)) {
+    dates.push(current.format('YYYY-MM-DD'));
+    current.add(1, 'day');
+  }
+  return dates;
+}
 
 export class TrendsContainer extends PureComponent {
   static propTypes = {
@@ -365,7 +387,6 @@ export class TrendsContainer extends PureComponent {
   }
 
   render() {
-    const timezone = datetime.getTimezoneFromTimePrefs(this.props.timePrefs);
     const { start: currentStart, end: currentEnd } = this.state.dateDomain;
     const prevStart = _.get(this.state, ['previousDateDomain', 'start']);
     const prevEnd = _.get(this.state, ['previousDateDomain', 'end']);
@@ -385,7 +406,7 @@ export class TrendsContainer extends PureComponent {
         bgUnits={this.props.bgUnits}
         smbgData={this.state.currentSmbgData}
         cbgData={this.state.currentCbgData}
-        dates={datetime.getAllDatesInRange(start, end, timezone)}
+        dates={getAllDatesInRange(start, end, this.props.timePrefs)}
         focusedSlice={this.props.trendsState.focusedCbgSlice}
         focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
         focusedSmbgRangeAvgKey={_.get(
