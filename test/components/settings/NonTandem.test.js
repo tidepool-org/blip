@@ -32,6 +32,7 @@ const omnipodFlatRateData = require('../../../data/pumpSettings/omnipod/flatrate
 const omnipodMultiRateData = require('../../../data/pumpSettings/omnipod/multirate.json');
 const medtronicMultiRateData = require('../../../data/pumpSettings/medtronic/multirate.json');
 
+const copySettingsClicked = sinon.spy();
 const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
 const user = {
   profile: {
@@ -51,6 +52,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'animas'}
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
@@ -66,6 +68,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'animas'}
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
@@ -82,6 +85,7 @@ describe('NonTandem', () => {
       const wrapper = shallow(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'animas'}
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
@@ -98,6 +102,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'animas'}
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
@@ -113,6 +118,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'animas'}
           openedSections={{ [animasFlatRateData.activeSchedule]: true }}
           pumpSettings={animasFlatRateData}
@@ -131,6 +137,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'animas'}
           openedSections={{ [animasMultiRateData.activeSchedule]: true }}
           pumpSettings={animasMultiRateData}
@@ -148,6 +155,7 @@ describe('NonTandem', () => {
         const wrapper = mount(
           <NonTandem
             bgUnits={MMOLL_UNITS}
+            copySettingsClicked={copySettingsClicked}
             deviceKey={'animas'}
             openedSections={{ [animasMultiRateData.activeSchedule]: true }}
             pumpSettings={animasMultiRateData}
@@ -168,6 +176,7 @@ describe('NonTandem', () => {
         const wrapper = mount(
           <NonTandem
             bgUnits={MMOLL_UNITS}
+            copySettingsClicked={copySettingsClicked}
             deviceKey={'animas'}
             openedSections={{ [animasMultiRateData.activeSchedule]: true }}
             pumpSettings={animasMultiRateData}
@@ -190,6 +199,7 @@ describe('NonTandem', () => {
         const wrapper = mount(
           <NonTandem
             bgUnits={MMOLL_UNITS}
+            copySettingsClicked={copySettingsClicked}
             deviceKey={'animas'}
             openedSections={{ [animasMultiRateData.activeSchedule]: true }}
             pumpSettings={animasMultiRateData}
@@ -212,6 +222,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'insulet'}
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
@@ -227,6 +238,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'insulet'}
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
@@ -243,6 +255,7 @@ describe('NonTandem', () => {
       const wrapper = shallow(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'insulet'}
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
@@ -259,6 +272,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'insulet'}
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
@@ -274,6 +288,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'insulet'}
           openedSections={{ [omnipodFlatRateData.activeSchedule]: true }}
           pumpSettings={omnipodFlatRateData}
@@ -290,6 +305,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'insulet'}
           openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
           pumpSettings={omnipodMultiRateData}
@@ -307,6 +323,7 @@ describe('NonTandem', () => {
         const wrapper = mount(
           <NonTandem
             bgUnits={MMOLL_UNITS}
+            copySettingsClicked={copySettingsClicked}
             deviceKey={'insulet'}
             openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
             pumpSettings={omnipodMultiRateData}
@@ -328,6 +345,7 @@ describe('NonTandem', () => {
         const wrapper = mount(
           <NonTandem
             bgUnits={MMOLL_UNITS}
+            copySettingsClicked={copySettingsClicked}
             deviceKey={'insulet'}
             openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
             pumpSettings={omnipodMultiRateData}
@@ -353,6 +371,7 @@ describe('NonTandem', () => {
         const wrapper = mount(
           <NonTandem
             bgUnits={MMOLL_UNITS}
+            copySettingsClicked={copySettingsClicked}
             deviceKey={'insulet'}
             openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
             pumpSettings={omnipodMultiRateData}
@@ -375,6 +394,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'carelink'}
           openedSections={{}}
           pumpSettings={medtronicMultiRateData}
@@ -390,6 +410,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'carelink'}
           openedSections={{}}
           pumpSettings={medtronicMultiRateData}
@@ -406,6 +427,7 @@ describe('NonTandem', () => {
       const wrapper = shallow(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'carelink'}
           openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
           pumpSettings={medtronicMultiRateData}
@@ -422,6 +444,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'carelink'}
           openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
           pumpSettings={medtronicMultiRateData}
@@ -437,6 +460,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'carelink'}
           openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
           pumpSettings={medtronicMultiRateData}
@@ -457,6 +481,7 @@ describe('NonTandem', () => {
       const wrapper = mount(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'carelink'}
           openedSections={{}}
           pumpSettings={medtronicMultiRateData}
@@ -475,6 +500,7 @@ describe('NonTandem', () => {
       shallow(
         <NonTandem
           bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={'medtronic'}
           openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
           pumpSettings={medtronicMultiRateData}
@@ -491,6 +517,7 @@ describe('NonTandem', () => {
         const wrapper = mount(
           <NonTandem
             bgUnits={MMOLL_UNITS}
+            copySettingsClicked={copySettingsClicked}
             deviceKey={'medtronic'}
             openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
             pumpSettings={medtronicMultiRateData}
@@ -512,6 +539,7 @@ describe('NonTandem', () => {
         const wrapper = mount(
           <NonTandem
             bgUnits={MMOLL_UNITS}
+            copySettingsClicked={copySettingsClicked}
             deviceKey={'medtronic'}
             openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
             pumpSettings={medtronicMultiRateData}
@@ -560,6 +588,7 @@ describe('NonTandem', () => {
         const wrapper = mount(
           <NonTandem
             bgUnits={MMOLL_UNITS}
+            copySettingsClicked={copySettingsClicked}
             deviceKey={'medtronic'}
             openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
             pumpSettings={medtronicMultiRateData}
