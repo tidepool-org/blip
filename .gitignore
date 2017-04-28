@@ -2,6 +2,7 @@
 _book/
 coverage/
 dist/
+local/
 node_modules/
 web/
 *.log
