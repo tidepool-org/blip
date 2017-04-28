@@ -88,29 +88,30 @@ describe('datetime', () => {
     });
   });
 
-  describe('timezoneAwareCeiling', () => {
+  describe('getTimezoneAwareCeiling', () => {
+    const timePrefs = { timezoneAware: true, timezoneName: 'US/Pacific' };
     it('should be a function', () => {
-      assert.isFunction(datetime.timezoneAwareCeiling);
+      assert.isFunction(datetime.getTimezoneAwareCeiling);
     });
 
     it('should error if passed a JavaScript Date for the `utc` param', () => {
-      const fn = () => { datetime.timezoneAwareCeiling(new Date()); };
+      const fn = () => { datetime.getTimezoneAwareCeiling(new Date()); };
       expect(fn)
         .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
     });
 
     it('should return the ceiling (= next midnight) for a datetime in a given timezone', () => {
       const dt = '2016-03-15T14:25:00.000Z';
-      expect(datetime.timezoneAwareCeiling(dt, 'US/Pacific').toISOString())
+      expect(datetime.getTimezoneAwareCeiling(dt, timePrefs).toISOString())
         .to.equal('2016-03-16T07:00:00.000Z');
       const asInteger = Date.parse(dt);
-      expect(datetime.timezoneAwareCeiling(asInteger, 'US/Pacific').toISOString())
+      expect(datetime.getTimezoneAwareCeiling(asInteger, timePrefs).toISOString())
         .to.equal('2016-03-16T07:00:00.000Z');
     });
 
     it('should return the same datetime if it already is a midnight in given timezone', () => {
       const dt = '2016-03-15T07:00:00.000Z';
-      expect(datetime.timezoneAwareCeiling(dt, 'US/Pacific').toISOString())
+      expect(datetime.getTimezoneAwareCeiling(dt, timePrefs).toISOString())
         .to.equal(dt);
     });
   });
@@ -148,28 +149,29 @@ describe('datetime', () => {
 
     it('[UTC, midnight input] should return the timestamp for the noon prior', () => {
       const dt = '2016-03-15T00:00:00.000Z';
-      expect(datetime.localNoonBeforeTimestamp(dt, 'UTC').toISOString())
+      expect(datetime.localNoonBeforeTimestamp(dt, { timezoneAware: false }).toISOString())
         .to.equal('2016-03-14T12:00:00.000Z');
       const asInteger = Date.parse(dt);
-      expect(datetime.localNoonBeforeTimestamp(asInteger, 'UTC').toISOString())
+      expect(datetime.localNoonBeforeTimestamp(asInteger, { timezoneAware: false }).toISOString())
         .to.equal('2016-03-14T12:00:00.000Z');
     });
 
     it('[UTC, anytime input] should return the timestamp for the noon prior', () => {
       const dt = '2016-03-14T02:36:25.342Z';
-      expect(datetime.localNoonBeforeTimestamp(dt, 'UTC').toISOString())
+      expect(datetime.localNoonBeforeTimestamp(dt, { timezoneAware: false }).toISOString())
         .to.equal('2016-03-14T12:00:00.000Z');
       const asInteger = Date.parse(dt);
-      expect(datetime.localNoonBeforeTimestamp(asInteger, 'UTC').toISOString())
+      expect(datetime.localNoonBeforeTimestamp(asInteger, { timezoneAware: false }).toISOString())
         .to.equal('2016-03-14T12:00:00.000Z');
     });
 
     it('[across DST] should return the timestamp for the noon prior', () => {
       const dt = '2016-03-14T05:00:00.000Z';
-      expect(datetime.localNoonBeforeTimestamp(dt, 'US/Central').toISOString())
+      const timePrefs = { timezoneAware: true, timezoneName: 'US/Central' };
+      expect(datetime.localNoonBeforeTimestamp(dt, timePrefs).toISOString())
         .to.equal('2016-03-13T17:00:00.000Z');
       const asInteger = Date.parse(dt);
-      expect(datetime.localNoonBeforeTimestamp(asInteger, 'US/Central').toISOString())
+      expect(datetime.localNoonBeforeTimestamp(asInteger, timePrefs).toISOString())
         .to.equal('2016-03-13T17:00:00.000Z');
     });
   });

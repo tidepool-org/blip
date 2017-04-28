@@ -25,7 +25,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
-import { timezoneAwareCeiling } from '../../../src/utils/datetime';
+import { getTimezoneAwareCeiling } from '../../../src/utils/datetime';
 import DummyComponent from '../../helpers/DummyComponent';
 
 import { TrendsContainer, getAllDatesInRange, mapStateToProps, mapDispatchToProps }
@@ -207,7 +207,7 @@ describe('TrendsContainer', () => {
       });
 
       it('should set dateDomain based on current datetime if no initialDatetimeLocation', () => {
-        const ceil = timezoneAwareCeiling(new Date().valueOf(), 'UTC').toISOString();
+        const ceil = getTimezoneAwareCeiling(new Date().valueOf(), 'UTC').toISOString();
         const { dateDomain } = minimalData.state();
         expect(dateDomain.end).to.equal(ceil);
       });

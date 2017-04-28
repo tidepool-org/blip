@@ -38,21 +38,23 @@ export function getTimezoneFromTimePrefs(timePrefs) {
 }
 
 /**
- * timezoneAwareCeiling
+ * getTimezoneAwareCeiling
  * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
- * @param {String} timezone - named timezone
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *
- * @return {JavaScript Date} datetime
+ * @return {JavaScript Date} the closest (future) midnight according to timePrefs;
+ *                           if utc is already local midnight, returns utc
  */
-export function timezoneAwareCeiling(utc, timezone) {
+export function getTimezoneAwareCeiling(utc, timePrefs) {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
+  const timezone = getTimezoneFromTimePrefs(timePrefs);
   const startOfDay = moment.utc(utc)
     .tz(timezone)
     .startOf('day');
 
-  const utcHammertime = typeof utc === 'string' ? Date.parse(utc) : utc;
+  const utcHammertime = (typeof utc === 'string') ? Date.parse(utc) : utc;
   if (startOfDay.valueOf() === utcHammertime) {
     return startOfDay.toDate();
   }
@@ -84,11 +86,12 @@ export function timezoneAwareOffset(utc, timezone, offset) {
  *
  * @return {JavaScript Date} datetime
  */
-export function localNoonBeforeTimestamp(utc, timezone) {
+export function localNoonBeforeTimestamp(utc, timePrefs) {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
-  const ceil = timezoneAwareCeiling(utc, timezone);
+  const timezone = getTimezoneFromTimePrefs(timePrefs);
+  const ceil = getTimezoneAwareCeiling(utc, timePrefs);
   return moment.utc(ceil.valueOf())
     .tz(timezone)
     .subtract(1, 'day')
