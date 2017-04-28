@@ -1,5 +1,7 @@
+**/*.sketch
 coverage/
 data/
+local/
 src/
 stories/
 storybook/
@@ -13,3 +15,4 @@ karma.conf.js
 loadtests.js
 package.config.js
 webpack.config.js
+yarn.lock
