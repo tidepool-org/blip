@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.1.0",
+  "version": "1.2.5",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -8,7 +8,7 @@
     "nightwatch-single": "./node_modules/nightwatch/bin/nightwatch",
     "browser-tests": "NODE_ENV=test ./node_modules/karma/bin/karma start --browsers Chrome",
     "test-watch": "NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run --reporters=mocha,notification",
-    "start": "NODE_ENV=development webpack-dev-server --devtool eval-source-map --cache --colors --progress --host 0.0.0.0 --port 3000",
+    "start": "NODE_ENV=development webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
     "build": "NODE_ENV=production npm run build-app && npm run build-config",
     "build-app": "NODE_ENV=production node buildapp",
     "build-config": "NODE_ENV=production node buildconfig",
@@ -19,7 +19,7 @@
     "serve-docs": "./node_modules/.bin/gitbook serve"
   },
   "dependencies": {
-    "@tidepool/viz": "0.5.8",
+    "@tidepool/viz": "0.7.13",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
@@ -73,7 +73,7 @@
     "chai": "3.5.0",
     "chromedriver": "2.23.1",
     "eslint": "2.13.1",
-    "eslint-plugin-react": "6.1.2",
+    "eslint-plugin-react": "5.2.2",
     "gitbook-cli": "2.3.0",
     "karma": "1.2.0",
     "karma-chai": "0.1.0",
