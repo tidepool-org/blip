@@ -49,6 +49,7 @@ describe('PumpSettingsContainer', () => {
 
     const props = {
       bgUnits: MGDL_UNITS,
+      copySettingsClicked: sinon.spy(),
       currentPatientInViewId: 'a1b2c3',
       markSettingsViewed,
       timePrefs: {
