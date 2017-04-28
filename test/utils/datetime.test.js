@@ -116,26 +116,6 @@ describe('datetime', () => {
     });
   });
 
-  describe('timezoneAwareOffset', () => {
-    it('should be a function', () => {
-      assert.isFunction(datetime.timezoneAwareOffset);
-    });
-
-    it('should error if passed a JavaScript Date for the `utc` param', () => {
-      const fn = () => { datetime.timezoneAwareOffset(new Date()); };
-      expect(fn)
-        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
-    });
-
-    it('should offset from noon to noon across DST', () => {
-      const dt = '2016-03-13T17:00:00.000Z';
-      expect(datetime.timezoneAwareOffset(dt, 'US/Central', {
-        amount: -10,
-        units: 'days',
-      }).toISOString()).to.equal('2016-03-03T18:00:00.000Z');
-    });
-  });
-
   describe('localNoonBeforeTimestamp', () => {
     it('should be a function', () => {
       assert.isFunction(datetime.localNoonBeforeTimestamp);

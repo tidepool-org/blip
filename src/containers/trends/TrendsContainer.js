@@ -56,6 +56,27 @@ export function getAllDatesInRange(start, end, timePrefs) {
   return dates;
 }
 
+/**
+ * getTimezoneAwareOffset
+ * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
+ * @param {Object} offset - { amount: integer (+/-), units: 'hour', 'day', &c }
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ *
+ * @return {JavaScript Date} datetime at the specified +/- offset from the input datetime
+ *                           inspired by d3-time's offset function: https://github.com/d3/d3-time#interval_offset
+ *                           but able to work with an arbitrary timezone
+ */
+export function getTimezoneAwareOffset(utc, offset, timePrefs) {
+  if (utc instanceof Date) {
+    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+  }
+  const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+  return moment.utc(utc)
+    .tz(timezone)
+    .add(offset.amount, offset.units)
+    .toDate();
+}
+
 export class TrendsContainer extends PureComponent {
   static propTypes = {
     activeDays: PropTypes.shape({
@@ -320,13 +341,11 @@ export class TrendsContainer extends PureComponent {
   goBack() {
     const oldDomain = _.clone(this.state.dateDomain);
     const { dateDomain: { start: newEnd } } = this.state;
-    const { timePrefs } = this.props;
-    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    const start = datetime.timezoneAwareOffset(newEnd, timezone, {
+    const start = getTimezoneAwareOffset(newEnd, {
       // negative because we are moving backward in time
       amount: -this.props.extentSize,
       units: 'days',
-    }).toISOString();
+    }, this.props.timePrefs).toISOString();
     const newDomain = [start, newEnd];
     this.setExtent(newDomain, [oldDomain.start, oldDomain.end]);
   }

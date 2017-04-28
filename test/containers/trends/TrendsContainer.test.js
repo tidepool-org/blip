@@ -28,8 +28,13 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
 import { getTimezoneAwareCeiling } from '../../../src/utils/datetime';
 import DummyComponent from '../../helpers/DummyComponent';
 
-import { TrendsContainer, getAllDatesInRange, mapStateToProps, mapDispatchToProps }
-  from '../../../src/containers/trends/TrendsContainer';
+import {
+  TrendsContainer,
+  getAllDatesInRange,
+  getTimezoneAwareOffset,
+  mapStateToProps,
+  mapDispatchToProps,
+} from '../../../src/containers/trends/TrendsContainer';
 import TrendsSVGContainer from '../../../src/containers/trends/TrendsSVGContainer';
 
 describe('TrendsContainer', () => {
@@ -50,6 +55,29 @@ describe('TrendsContainer', () => {
         timezoneAware: true,
         timezoneName: 'US/Central',
       })).to.deep.equal(['2016-11-06']);
+    });
+  });
+
+  describe('getTimezoneAwareOffset', () => {
+    it('should be a function', () => {
+      assert.isFunction(getTimezoneAwareOffset);
+    });
+
+    it('should error if passed a JavaScript Date for the `utc` param', () => {
+      const fn = () => { getTimezoneAwareOffset(new Date()); };
+      expect(fn)
+        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+    });
+
+    it('should offset from noon to noon across DST', () => {
+      const dt = '2016-03-13T17:00:00.000Z';
+      expect(getTimezoneAwareOffset(dt, {
+        amount: -10,
+        units: 'days',
+      }, {
+        timezoneAware: true,
+        timezoneName: 'US/Central',
+      }).toISOString()).to.equal('2016-03-03T18:00:00.000Z');
     });
   });
 
