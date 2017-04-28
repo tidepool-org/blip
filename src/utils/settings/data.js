@@ -209,7 +209,7 @@ export function processBasalRateData(scheduleData) {
   }
 
   const data = _.map(starts, (startTime) => ({
-    start: datetime.millisecondsAsTimeOfDay(
+    start: datetime.formatClocktimeFromMsPer24(
       startTime
     ),
     rate: getBasalRate(
@@ -235,7 +235,7 @@ export function processBasalRateData(scheduleData) {
  */
 export function processBgTargetData(targetsData, bgUnits, keys) {
   return _.map(getStarts(targetsData), (startTime) => ({
-    start: datetime.millisecondsAsTimeOfDay(
+    start: datetime.formatClocktimeFromMsPer24(
       startTime
     ),
     columnTwo: getBloodGlucoseValue(
@@ -261,7 +261,7 @@ export function processBgTargetData(targetsData, bgUnits, keys) {
  */
 export function processCarbRatioData(carbRatioData) {
   return _.map(getStarts(carbRatioData), (startTime) => ({
-    start: datetime.millisecondsAsTimeOfDay(
+    start: datetime.formatClocktimeFromMsPer24(
       startTime
     ),
     amount: getValue(
@@ -281,7 +281,7 @@ export function processCarbRatioData(carbRatioData) {
  */
 export function processSensitivityData(sensitivityData, bgUnits) {
   return _.map(getStarts(sensitivityData), (startTime) => ({
-    start: datetime.millisecondsAsTimeOfDay(
+    start: datetime.formatClocktimeFromMsPer24(
       startTime
     ),
     amount: getBloodGlucoseValue(
@@ -304,7 +304,7 @@ export function processSensitivityData(sensitivityData, bgUnits) {
  */
 export function processTimedSettings(pumpSettings, schedule, bgUnits) {
   const data = _.map(getStarts(pumpSettings.bgTargets[schedule.name]), (startTime) => ({
-    start: datetime.millisecondsAsTimeOfDay(
+    start: datetime.formatClocktimeFromMsPer24(
       startTime,
     ),
     rate: getBasalRate(

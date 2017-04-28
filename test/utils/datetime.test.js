@@ -116,43 +116,43 @@ describe('datetime', () => {
     });
   });
 
-  describe('millisecondsAsTimeOfDay', () => {
+  describe('formatClocktimeFromMsPer24', () => {
     const twoTwentyAfternoonMs = 1000 * 60 * 60 * 14 + 1000 * 60 * 20;
     const errorMsg = 'First argument must be a value in milliseconds per twenty-four hour day!';
 
     it('should be a function', () => {
-      assert.isFunction(datetime.millisecondsAsTimeOfDay);
+      assert.isFunction(datetime.formatClocktimeFromMsPer24);
     });
 
     it('should error if no `milliseconds` provided', () => {
-      const fn = () => { datetime.millisecondsAsTimeOfDay(); };
+      const fn = () => { datetime.formatClocktimeFromMsPer24(); };
       expect(fn).throw(errorMsg);
     });
 
     it('should error if milliseconds < 0 or >= 864e5', () => {
-      const fn0 = () => { datetime.millisecondsAsTimeOfDay(-1); };
+      const fn0 = () => { datetime.formatClocktimeFromMsPer24(-1); };
       expect(fn0).to.throw(errorMsg);
-      const fn1 = () => { datetime.millisecondsAsTimeOfDay(864e5 + 1); };
+      const fn1 = () => { datetime.formatClocktimeFromMsPer24(864e5 + 1); };
       expect(fn1).throw(errorMsg);
     });
 
     it('should error if JavaScript Date provided', () => {
-      const fn = () => { datetime.millisecondsAsTimeOfDay(new Date()); };
+      const fn = () => { datetime.formatClocktimeFromMsPer24(new Date()); };
       expect(fn).throw(errorMsg);
     });
 
     it('should translate durations of 0 and 864e5 to `12:00 am`', () => {
-      expect(datetime.millisecondsAsTimeOfDay(0)).to.equal('12:00 am');
-      expect(datetime.millisecondsAsTimeOfDay(864e5)).to.equal('12:00 am');
+      expect(datetime.formatClocktimeFromMsPer24(0)).to.equal('12:00 am');
+      expect(datetime.formatClocktimeFromMsPer24(864e5)).to.equal('12:00 am');
     });
 
     it('should translate duration of 1000 * 60 * 60 * 14 ⅓ to `2:20 pm`', () => {
-      expect(datetime.millisecondsAsTimeOfDay(twoTwentyAfternoonMs))
+      expect(datetime.formatClocktimeFromMsPer24(twoTwentyAfternoonMs))
         .to.equal('2:20 pm');
     });
 
     it('should use a custom format string passed as second arg', () => {
-      expect(datetime.millisecondsAsTimeOfDay(twoTwentyAfternoonMs, 'kk🙃mm'))
+      expect(datetime.formatClocktimeFromMsPer24(twoTwentyAfternoonMs, 'kk🙃mm'))
         .to.equal('14🙃20');
     });
   });

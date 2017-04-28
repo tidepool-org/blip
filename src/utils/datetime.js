@@ -62,14 +62,14 @@ export function getTimezoneAwareCeiling(utc, timePrefs) {
 }
 
 /**
- * millisecondsAsTimeOfDay
+ * formatClocktimeFromMsPer24
  * @param {Number} duration - positive integer representing a time of day
  *                            in milliseconds within a 24-hr day
  * @param {String} [format] - optional moment display format string; default is 'h:mm a'
  *
- * @return {String} formatted clocktime
+ * @return {String} formatted clocktime, e.g., '12:05 pm'
  */
-export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
+export function formatClocktimeFromMsPer24(milliseconds, format = 'h:mm a') {
   if (_.isNull(milliseconds) || _.isUndefined(milliseconds) ||
     milliseconds < 0 || milliseconds > TWENTY_FOUR_HRS || milliseconds instanceof Date) {
     throw new Error('First argument must be a value in milliseconds per twenty-four hour day!');
