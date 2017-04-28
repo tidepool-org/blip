@@ -6,6 +6,8 @@ node_js:
   - "6.10.2"
   - "stable"
 
+cache: yarn
+
 script:
   - npm test
 
