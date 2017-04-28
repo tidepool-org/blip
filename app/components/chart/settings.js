@@ -28,11 +28,11 @@ const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 import Header from './header';
 import Footer from './footer';
 
-var tideline = {
+const tideline = {
   log: bows('Settings')
 };
 
-var Settings = React.createClass({
+const Settings = React.createClass({
   chartType: 'settings',
   log: bows('Settings View'),
   propTypes: {
@@ -96,9 +96,15 @@ var Settings = React.createClass({
   renderChart: function() {
     const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
 
+    const self = this;
+    const handleCopySettings = function() {
+      self.props.trackMetric('Clicked Copy Settings');
+    };
+
     return (
       <PumpSettingsContainer
         currentPatientInViewId={this.props.currentPatientInViewId}
+        copySettingsClicked={handleCopySettings}
         bgUnits={this.props.bgPrefs.bgUnits}
         manufacturerKey={_.get(mostRecentSettings, 'source').toLowerCase()}
         pumpSettings={mostRecentSettings}
@@ -108,8 +114,8 @@ var Settings = React.createClass({
     );
   },
   renderMissingSettingsMessage: function() {
-    var self = this;
-    var handleClickUpload = function() {
+    const self = this;
+    const handleClickUpload = function() {
       self.props.trackMetric('Clicked Partial Data Upload, No Settings');
     };
 
@@ -131,8 +137,8 @@ var Settings = React.createClass({
 
   },
   isMissingSettings: function() {
-    var data = this.props.patientData;
-    var pumpSettings = utils.getIn(data, ['grouped', 'pumpSettings'], false);
+    const data = this.props.patientData;
+    const pumpSettings = utils.getIn(data, ['grouped', 'pumpSettings'], false);
     if (pumpSettings === false) {
       return true;
     }
