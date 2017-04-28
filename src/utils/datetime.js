@@ -94,34 +94,33 @@ export function formatTimezoneAwareFromUTC(utc, timePrefs, format = 'dddd, MMMM 
 }
 
 /**
- * Parse time for a datum based on timezone awareness
- * @param  {Object} data            data point to parse a time for
- * @param  {string} data.time       utc Zulu timestamp
- * @param  {string} data.deviceTime utc Zulu timestamp
- * @param  {Object} timePrefs       object containing timezone preferences
- * @param  {boolean} timePrefs.timezoneAware boolean to indicate timezone awareness
+ * getHammertimeFromDatumWithTimePrefs
+ * @param {Object} datum - a Tidepool datum with a time (required) and deviceTime (optional)
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *
- * @return {number|false}           hammertime or Bool false for missing properties
+ * @return {Number} Integer hammertime (i.e., UTC time in milliseconds)
  */
-export function getParsedTime(data, timePrefs) {
-  let parsedTime;
+export function getHammertimeFromDatumWithTimePrefs(datum, timePrefs) {
+  let hammertime;
   if (timePrefs.timezoneAware) {
-    if (!_.isUndefined(data.time)) {
-      parsedTime = Date.parse(data.time);
+    if (!_.isUndefined(datum.time)) {
+      hammertime = Date.parse(datum.time);
     } else {
-      parsedTime = false;
+      hammertime = null;
     }
   } else {
-    if (!_.isUndefined(data.deviceTime)) {
-      parsedTime = Date.parse(data.deviceTime);
+    if (!_.isUndefined(datum.deviceTime)) {
+      hammertime = Date.parse(datum.deviceTime);
     } else {
-      parsedTime = false;
+      hammertime = null;
     }
   }
-  if (_.isNaN(parsedTime)) {
-    throw new Error('time and deviceTime must be a ISO-formatted String timestamp');
+  if (_.isNaN(hammertime)) {
+    throw new Error(
+      'Check your input datum; could not parse `time` or `deviceTime` with Date.parse.'
+    );
   }
-  return parsedTime;
+  return hammertime;
 }
 
 /**
