@@ -195,65 +195,90 @@ class PeopleTable extends React.Component {
     this.setState({ currentRowIndex: -1 });
   }
 
-  render() {
-    const { colSortDirs, showNames, searching } = this.state;
+  renderPeopleInstructions() {
     const { containerHeight, containerWidth } = this.props;
-    let { dataList } = this.state;
+
+    return (
+      <div style={{width: containerWidth, height: containerHeight}}>
+        <div>
+          <div className="peopletable-instructions">
+            Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={this.handleToggleShowNames}>Show All</a> to display all patients.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderPeopleTable() {
+    const { colSortDirs, dataList } = this.state;
+    const { containerHeight, containerWidth } = this.props;
+
+    return (
+      <Table
+        rowHeight={40}
+        headerHeight={50}
+        width={containerWidth}
+        height={containerHeight}
+        rowsCount={dataList.length}
+        rowClassNameGetter={this.getRowClassName}
+        onRowClick={this.handleRowClick}
+        onRowMouseEnter={this.handleRowMouseEnter}
+        onRowMouseLeave={this.handleRowMouseLeave}
+        {...this.props}
+      >
+        <Column
+          columnKey="fullNameOrderable"
+          header={
+            <SortHeaderCell
+              onSortChange={this.handleSortChange}
+              sortDir={colSortDirs.fullNameOrderable}
+            >
+              NAME
+            </SortHeaderCell>
+          }
+          cell={<TextCell
+            data={dataList}
+            col="fullName"
+            icon={<i className="peopletable-icon-profile icon-profile"></i>}
+          />}
+          width={320}
+        />
+        <Column
+          columnKey="birthdayOrderable"
+          header={
+            <SortHeaderCell
+              onSortChange={this.handleSortChange}
+              sortDir={colSortDirs.birthdayOrderable}
+            >
+              BIRTHDAY
+            </SortHeaderCell>
+          }
+          cell={<TextCell
+            data={dataList}
+            col="birthday"
+          />}
+          width={560}
+        />
+      </Table>
+    )
+  }
+
+  renderPeopleArea() {
+    const { showNames, searching } = this.state;
 
     if (!showNames && !searching) {
-      dataList = [];
+      return this.renderPeopleInstructions();
+    } else {
+      return this.renderPeopleTable();
     }
+  }
 
+  render() {
     return (
       <div>
         {this.renderSearchBar()}
         {this.renderShowNamesToggle()}
-        <Table
-          rowHeight={40}
-          headerHeight={50}
-          width={containerWidth}
-          height={containerHeight}
-          rowsCount={dataList.length}
-          rowClassNameGetter={this.getRowClassName}
-          onRowClick={this.handleRowClick}
-          onRowMouseEnter={this.handleRowMouseEnter}
-          onRowMouseLeave={this.handleRowMouseLeave}
-          {...this.props}
-        >
-          <Column
-            columnKey="fullNameOrderable"
-            header={
-              <SortHeaderCell
-                onSortChange={this.handleSortChange}
-                sortDir={colSortDirs.fullNameOrderable}
-              >
-                NAME
-              </SortHeaderCell>
-            }
-            cell={<TextCell
-              data={dataList}
-              col="fullName"
-              icon={<i className="peopletable-icon-profile icon-profile"></i>}
-            />}
-            width={320}
-          />
-          <Column
-            columnKey="birthdayOrderable"
-            header={
-              <SortHeaderCell
-                onSortChange={this.handleSortChange}
-                sortDir={colSortDirs.birthdayOrderable}
-              >
-                BIRTHDAY
-              </SortHeaderCell>
-            }
-            cell={<TextCell
-              data={dataList}
-              col="birthday"
-            />}
-            width={560}
-          />
-        </Table>
+        {this.renderPeopleArea()}
       </div>
     );
   }

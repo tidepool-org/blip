@@ -154,6 +154,30 @@ describe('Patients', () => {
       expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
     });
 
+    it('should not redirect to patient data when justLogged query param is set and only one patient available and no invites, but user is a clinic', () => {
+      var props = {};
+      var elem = React.createElement(Patients, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      var nextProps = Object.assign({}, props, {
+        invites: [],
+        loading: false,
+        location: { query: {
+            justLoggedIn: true
+          }
+        },
+        loggedInUserId: 20,
+        patients: [ { userid: 1 } ],
+        showingWelcomeMessage: null,
+        user: {
+          roles: ['clinic']
+        }
+      });
+
+      render.componentWillReceiveProps(nextProps);
+      expect(window.location.pathname).to.not.equal('/patients/1/data');
+    });
+
     // NB: this test has to go last since it affects the global window.location.pathname!
     it('should redirect to patient data when justLogged query param is set and only one patient available and no invites', () => {
       var props = {};

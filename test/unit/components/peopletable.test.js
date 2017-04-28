@@ -98,9 +98,8 @@ describe('PeopleTable', () => {
       expect(wrapper.find('.peopletable-names-toggle')).to.have.length(1);
     });
 
-    it('should have one row of data in the table by default ', function () {
-      //only one row for the header
-      expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(1);
+    it('should have instructions displayed by default', function () {
+      expect(wrapper.find('.peopletable-instructions')).to.have.length(1);
     });
 
     it('should default searching and showNames to be false', function () {
@@ -108,6 +107,7 @@ describe('PeopleTable', () => {
       expect(wrapper.state().showNames).to.equal(false);
     });
   });
+
   describe('showNames', function() {
     it('should show a row of data for each person', function () {
       wrapper.find('.peopletable-names-toggle').simulate('click');
@@ -115,18 +115,26 @@ describe('PeopleTable', () => {
       // 5 people plus one row for the header
       expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(6);
     });
+
     it('should trigger a call to trackMetric', function () {
       wrapper.find('.peopletable-names-toggle').simulate('click');
       expect(props.trackMetric.calledWith('Clicked Show All')).to.be.true;
       expect(props.trackMetric.callCount).to.equal(1);
     });
+
+    it('should not have instructions displayed', function () {
+      wrapper.find('.peopletable-names-toggle').simulate('click');
+      expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
+    });
   });
+
   describe('searching', function() {
     it('should show a row of data for each person', function () {
       wrapper.setState({ searching: true });
       // 5 people plus one row for the header
       expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(6);
     });
+
     it('should show a row of data for each person that matches the search value', function () {
       // showing `amanda` or `Anna`
       wrapper.find('input').simulate('change', {target: {value: 'a'}});
@@ -137,9 +145,15 @@ describe('PeopleTable', () => {
       expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(2);
       expect(wrapper.state().searching).to.equal(true);
     });
+
     it('should NOT trigger a call to trackMetric', function () {
       wrapper.find('input').simulate('change', {target: {value: 'am'}});
       expect(props.trackMetric.callCount).to.equal(0);
+    });
+
+    it('should not have instructions displayed', function () {
+      wrapper.find('input').simulate('change', {target: {value: 'a'}});
+      expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
     });
   });
 });
