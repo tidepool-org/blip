@@ -62,26 +62,6 @@ export function getTimezoneAwareCeiling(utc, timePrefs) {
 }
 
 /**
- * localNoonBeforeTimestamp
- * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
- * @param {String} timezone - named timezone
- *
- * @return {JavaScript Date} datetime
- */
-export function localNoonBeforeTimestamp(utc, timePrefs) {
-  if (utc instanceof Date) {
-    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
-  }
-  const timezone = getTimezoneFromTimePrefs(timePrefs);
-  const ceil = getTimezoneAwareCeiling(utc, timePrefs);
-  return moment.utc(ceil.valueOf())
-    .tz(timezone)
-    .subtract(1, 'day')
-    .hours(12)
-    .toDate();
-}
-
-/**
  * millisecondsAsTimeOfDay
  * @param {Number} duration - positive integer representing a time of day
  *                            in milliseconds within a 24-hr day

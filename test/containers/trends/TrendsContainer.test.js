@@ -31,6 +31,7 @@ import DummyComponent from '../../helpers/DummyComponent';
 import {
   TrendsContainer,
   getAllDatesInRange,
+  getTimezoneAwareNoonBeforeUTC,
   getTimezoneAwareOffset,
   mapStateToProps,
   mapDispatchToProps,
@@ -55,6 +56,46 @@ describe('TrendsContainer', () => {
         timezoneAware: true,
         timezoneName: 'US/Central',
       })).to.deep.equal(['2016-11-06']);
+    });
+  });
+
+  describe('getTimezoneAwareNoonBeforeUTC', () => {
+    it('should be a function', () => {
+      assert.isFunction(getTimezoneAwareNoonBeforeUTC);
+    });
+
+    it('should error if passed a JavaScript Date for the `utc` param', () => {
+      const fn = () => { getTimezoneAwareNoonBeforeUTC(new Date()); };
+      expect(fn)
+        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+    });
+
+    it('[UTC, midnight input] should return the timestamp for the noon prior', () => {
+      const dt = '2016-03-15T00:00:00.000Z';
+      expect(getTimezoneAwareNoonBeforeUTC(dt, { timezoneAware: false }).toISOString())
+        .to.equal('2016-03-14T12:00:00.000Z');
+      const asInteger = Date.parse(dt);
+      expect(getTimezoneAwareNoonBeforeUTC(asInteger, { timezoneAware: false }).toISOString())
+        .to.equal('2016-03-14T12:00:00.000Z');
+    });
+
+    it('[UTC, anytime input] should return the timestamp for the noon prior', () => {
+      const dt = '2016-03-14T02:36:25.342Z';
+      expect(getTimezoneAwareNoonBeforeUTC(dt, { timezoneAware: false }).toISOString())
+        .to.equal('2016-03-14T12:00:00.000Z');
+      const asInteger = Date.parse(dt);
+      expect(getTimezoneAwareNoonBeforeUTC(asInteger, { timezoneAware: false }).toISOString())
+        .to.equal('2016-03-14T12:00:00.000Z');
+    });
+
+    it('[across DST] should return the timestamp for the noon prior', () => {
+      const dt = '2016-03-14T05:00:00.000Z';
+      const timePrefs = { timezoneAware: true, timezoneName: 'US/Central' };
+      expect(getTimezoneAwareNoonBeforeUTC(dt, timePrefs).toISOString())
+        .to.equal('2016-03-13T17:00:00.000Z');
+      const asInteger = Date.parse(dt);
+      expect(getTimezoneAwareNoonBeforeUTC(asInteger, timePrefs).toISOString())
+        .to.equal('2016-03-13T17:00:00.000Z');
     });
   });
 

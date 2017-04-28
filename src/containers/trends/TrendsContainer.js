@@ -57,6 +57,26 @@ export function getAllDatesInRange(start, end, timePrefs) {
 }
 
 /**
+ * getTimezoneAwareNoonBeforeUTC
+ * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ *
+ * @return {JavaScript Date} the closet noon before the input datetime in the given timezone
+ */
+export function getTimezoneAwareNoonBeforeUTC(utc, timePrefs) {
+  if (utc instanceof Date) {
+    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+  }
+  const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+  const ceil = datetime.getTimezoneAwareCeiling(utc, timePrefs);
+  return moment.utc(ceil.valueOf())
+    .tz(timezone)
+    .subtract(1, 'day')
+    .hours(12)
+    .toDate();
+}
+
+/**
  * getTimezoneAwareOffset
  * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
  * @param {Object} offset - { amount: integer (+/-), units: 'hour', 'day', &c }
@@ -310,12 +330,8 @@ export class TrendsContainer extends PureComponent {
   }
 
   getCurrentDay() {
-    const { timePrefs } = this.props;
     const { dateDomain: { end } } = this.state;
-    return datetime.localNoonBeforeTimestamp(
-      end,
-      datetime.getTimezoneFromTimePrefs(timePrefs)
-    ).toISOString();
+    return getTimezoneAwareNoonBeforeUTC(end, this.props.timePrefs).toISOString();
   }
 
   setExtent(newDomain, oldDomain) {
