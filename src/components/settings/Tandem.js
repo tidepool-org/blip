@@ -33,6 +33,7 @@ import { DISPLAY_VIEW, PRINT_VIEW } from './constants';
 const Tandem = (props) => {
   const {
     bgUnits,
+    copySettingsClicked,
     openedSections,
     pumpSettings,
     timePrefs,
@@ -89,6 +90,7 @@ const Tandem = (props) => {
         className={styles.copyButton}
         button-title="For email or notes"
         data-clipboard-target="#copySettingsText"
+        onSuccess={copySettingsClicked()}
       >
         <p>Copy as text</p>
       </ClipboardButton>
@@ -110,6 +112,7 @@ const Tandem = (props) => {
 
 Tandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
+  copySettingsClicked: PropTypes.func.isRequired,
   deviceKey: PropTypes.oneOf(['tandem']).isRequired,
   openedSections: PropTypes.object.isRequired,
   pumpSettings: PropTypes.shape({

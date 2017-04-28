@@ -33,6 +33,7 @@ import styles from './NonTandem.css';
 const NonTandem = (props) => {
   const {
     bgUnits,
+    copySettingsClicked,
     deviceKey,
     openedSections,
     pumpSettings,
@@ -184,6 +185,7 @@ const NonTandem = (props) => {
         className={styles.copyButton}
         button-title="For email or notes"
         data-clipboard-target="#copySettingsText"
+        onSuccess={copySettingsClicked}
       >
         <p>Copy as text</p>
       </ClipboardButton>
@@ -216,6 +218,7 @@ const NonTandem = (props) => {
 
 NonTandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
+  copySettingsClicked: PropTypes.func.isRequired,
   deviceKey: PropTypes.oneOf(['animas', 'carelink', 'insulet', 'medtronic']).isRequired,
   openedSections: PropTypes.object.isRequired,
   pumpSettings: PropTypes.shape({

@@ -29,6 +29,7 @@ const flatrateData = require('../../../data/pumpSettings/tandem/flatrate.json');
 const multirateData = require('../../../data/pumpSettings/tandem/multirate.json');
 
 const timePrefs = { timezoneAware: false, timezoneName: null };
+const copySettingsClicked = sinon.spy();
 const user = {
   profile: {
     fullName: 'Mary Smith',
@@ -46,6 +47,7 @@ describe('Tandem', () => {
     shallow(
       <Tandem
         bgUnits={MGDL_UNITS}
+        copySettingsClicked={copySettingsClicked}
         openedSections={{ [multirateData.activeSchedule]: true }}
         pumpSettings={multirateData}
         timePrefs={timePrefs}
@@ -60,6 +62,7 @@ describe('Tandem', () => {
     const wrapper = shallow(
       <Tandem
         bgUnits={MGDL_UNITS}
+        copySettingsClicked={copySettingsClicked}
         openedSections={{ [multirateData.activeSchedule]: true }}
         pumpSettings={multirateData}
         timePrefs={timePrefs}
@@ -74,6 +77,7 @@ describe('Tandem', () => {
     const wrapper = shallow(
       <Tandem
         bgUnits={MGDL_UNITS}
+        copySettingsClicked={copySettingsClicked}
         openedSections={{ [multirateData.activeSchedule]: true }}
         pumpSettings={multirateData}
         timePrefs={timePrefs}
@@ -88,6 +92,7 @@ describe('Tandem', () => {
     const wrapper = shallow(
       <Tandem
         bgUnits={MGDL_UNITS}
+        copySettingsClicked={copySettingsClicked}
         openedSections={{ [multirateData.activeSchedule]: true }}
         pumpSettings={multirateData}
         timePrefs={timePrefs}
@@ -102,6 +107,7 @@ describe('Tandem', () => {
     const wrapper = mount(
       <Tandem
         bgUnits={MGDL_UNITS}
+        copySettingsClicked={copySettingsClicked}
         openedSections={{ [multirateData.activeSchedule]: true }}
         pumpSettings={multirateData}
         timePrefs={timePrefs}
@@ -117,6 +123,7 @@ describe('Tandem', () => {
     const mounted = mount(
       <Tandem
         bgUnits={MGDL_UNITS}
+        copySettingsClicked={copySettingsClicked}
         openedSections={{ [flatrateData.activeSchedule]: true }}
         pumpSettings={flatrateData}
         timePrefs={timePrefs}
@@ -136,6 +143,7 @@ describe('Tandem', () => {
     const wrapper = mount(
       <Tandem
         bgUnits={MGDL_UNITS}
+        copySettingsClicked={copySettingsClicked}
         openedSections={{ [multirateData.activeSchedule]: true }}
         pumpSettings={multirateData}
         timePrefs={timePrefs}
@@ -156,6 +164,7 @@ describe('Tandem', () => {
       wrapper = mount(
         <Tandem
           bgUnits={MMOLL_UNITS}
+          copySettingsClicked={copySettingsClicked}
           openedSections={{ [flatrateData.activeSchedule]: true }}
           pumpSettings={flatrateData}
           timePrefs={timePrefs}

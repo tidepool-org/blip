@@ -30,6 +30,7 @@ import { DISPLAY_VIEW, PRINT_VIEW } from '../../components/settings/constants';
 export class PumpSettingsContainer extends PureComponent {
   static propTypes = {
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
+    copySettingsClicked: PropTypes.func.isRequired,
     manufacturerKey: PropTypes.oneOf(
       ['animas', 'carelink', 'insulet', 'medtronic', 'tandem']
     ).isRequired,
@@ -64,6 +65,7 @@ export class PumpSettingsContainer extends PureComponent {
     }
     const {
       bgUnits,
+      copySettingsClicked,
       manufacturerKey,
       pumpSettings,
       timePrefs,
@@ -77,6 +79,7 @@ export class PumpSettingsContainer extends PureComponent {
       return (
         <Tandem
           bgUnits={bgUnits}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={manufacturerKey}
           openedSections={settingsState[manufacturerKey]}
           pumpSettings={pumpSettings}
@@ -90,6 +93,7 @@ export class PumpSettingsContainer extends PureComponent {
       return (
         <NonTandem
           bgUnits={bgUnits}
+          copySettingsClicked={copySettingsClicked}
           deviceKey={manufacturerKey}
           openedSections={settingsState[manufacturerKey]}
           pumpSettings={pumpSettings}
