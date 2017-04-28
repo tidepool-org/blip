@@ -335,10 +335,10 @@ export let Patients = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    let { loading, loggedInUserId, patients, invites, location, showingWelcomeMessage } = nextProps;
+    let { loading, loggedInUserId, patients, invites, location, showingWelcomeMessage, user } = nextProps;
 
     if (!loading && loggedInUserId && location.query.justLoggedIn) {
-      if (patients.length === 1 && invites.length === 0) {
+      if (!personUtils.isClinic(user) && patients.length === 1 && invites.length === 0) {
         let patient = patients[0];
         browserHistory.push(`/patients/${patient.userid}/data`);
       } else if (patients.length === 0 && invites.length === 0 && showingWelcomeMessage === null) {
