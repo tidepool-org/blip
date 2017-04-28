@@ -157,7 +157,7 @@ describe('datetime', () => {
     });
   });
 
-  describe('formatDisplayDate', () => {
+  describe('formatTimezoneAwareFromUTC', () => {
     const tzAwareLA = {
       timezoneAware: true,
       timezoneName: 'America/Los_Angeles',
@@ -174,71 +174,71 @@ describe('datetime', () => {
     const hammertime = Date.parse(utcString);
 
     it('should be a function', () => {
-      assert.isFunction(datetime.formatDisplayDate);
+      assert.isFunction(datetime.formatTimezoneAwareFromUTC);
     });
 
     it('should return "Sunday, September 4" for hammertime tzAware LA', () => {
-      expect(datetime.formatDisplayDate(hammertime, tzAwareLA))
+      expect(datetime.formatTimezoneAwareFromUTC(hammertime, tzAwareLA))
         .to.equal('Sunday, September 4');
     });
 
     it('should return "Sunday, September 4" for utcString tzAware LA', () => {
-      expect(datetime.formatDisplayDate(utcString, tzAwareLA))
+      expect(datetime.formatTimezoneAwareFromUTC(utcString, tzAwareLA))
         .to.equal('Sunday, September 4');
     });
 
     it('should return "Monday, September 5" for hammertime tzAware NY', () => {
-      expect(datetime.formatDisplayDate(hammertime, tzAwareNY))
+      expect(datetime.formatTimezoneAwareFromUTC(hammertime, tzAwareNY))
         .to.equal('Monday, September 5');
     });
 
     it('should return "Monday, September 5" for utcString tzAware NY', () => {
-      expect(datetime.formatDisplayDate(utcString, tzAwareNY))
+      expect(datetime.formatTimezoneAwareFromUTC(utcString, tzAwareNY))
         .to.equal('Monday, September 5');
     });
 
     it('should return "Monday, September 5" for hammertime tzUnaware', () => {
-      expect(datetime.formatDisplayDate(hammertime, tzUnaware))
+      expect(datetime.formatTimezoneAwareFromUTC(hammertime, tzUnaware))
         .to.equal('Monday, September 5');
     });
 
     it('should return "Monday, September 5" for utcString tzUnaware', () => {
-      expect(datetime.formatDisplayDate(utcString, tzUnaware))
+      expect(datetime.formatTimezoneAwareFromUTC(utcString, tzUnaware))
         .to.equal('Monday, September 5');
     });
 
     it('should return "Sep 4" for hammertime tzAware LA "MMM D"', () => {
-      expect(datetime.formatDisplayDate(hammertime, tzAwareLA, 'MMM D'))
+      expect(datetime.formatTimezoneAwareFromUTC(hammertime, tzAwareLA, 'MMM D'))
         .to.equal('Sep 4');
     });
 
     it('should return "Sep 4" for utcString tzAware LA "MMM D"', () => {
-      expect(datetime.formatDisplayDate(utcString, tzAwareLA, 'MMM D'))
+      expect(datetime.formatTimezoneAwareFromUTC(utcString, tzAwareLA, 'MMM D'))
         .to.equal('Sep 4');
     });
 
     it('should return "Sep 5" for hammertime tzAware NY "MMM D"', () => {
-      expect(datetime.formatDisplayDate(hammertime, tzAwareNY, 'MMM D'))
+      expect(datetime.formatTimezoneAwareFromUTC(hammertime, tzAwareNY, 'MMM D'))
         .to.equal('Sep 5');
     });
 
     it('should return "Sep 5" for utcString tzAware NY "MMM D"', () => {
-      expect(datetime.formatDisplayDate(utcString, tzAwareNY, 'MMM D'))
+      expect(datetime.formatTimezoneAwareFromUTC(utcString, tzAwareNY, 'MMM D'))
         .to.equal('Sep 5');
     });
 
     it('should return "Sep 5" for hammertime tzUnaware "MMM D"', () => {
-      expect(datetime.formatDisplayDate(hammertime, tzUnaware, 'MMM D'))
+      expect(datetime.formatTimezoneAwareFromUTC(hammertime, tzUnaware, 'MMM D'))
         .to.equal('Sep 5');
     });
 
     it('should return "Sep 5" for utcString tzUnaware "MMM D"', () => {
-      expect(datetime.formatDisplayDate(utcString, tzUnaware, 'MMM D'))
+      expect(datetime.formatTimezoneAwareFromUTC(utcString, tzUnaware, 'MMM D'))
         .to.equal('Sep 5');
     });
 
     it('should error if passed a JavaScript Date for the `utc` param', () => {
-      const fn = () => { datetime.formatDisplayDate(new Date(), tzAwareLA); };
+      const fn = () => { datetime.formatTimezoneAwareFromUTC(new Date(), tzAwareLA); };
       expect(fn)
         .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
     });
