@@ -676,6 +676,30 @@ describe('TrendsContainer', () => {
             instance.setExtent.restore();
           });
         });
+
+        describe('selectDate', () => {
+          it('should exist and be a function', () => {
+            assert.isFunction(minimalData.instance().selectDate);
+          });
+          const localDate = '2016-09-23';
+          const dstBegin = '2016-03-13';
+          const dstEnd = '2016-11-06';
+
+          it('should return `2016-09-23T19:00:00.000Z` given `2016-09-23`', () => {
+            const midDayForDate = minimalData.instance().selectDate();
+            expect(midDayForDate(localDate)).to.equal('2016-09-23T19:00:00.000Z');
+          });
+
+          it('should return `2016-03-13T20:00:00.000Z` given `2016-03-13`', () => {
+            const midDayForDate = minimalData.instance().selectDate();
+            expect(midDayForDate(dstBegin)).to.equal('2016-03-13T20:00:00.000Z');
+          });
+
+          it('should return `2016-11-06T19:00:00.000Z` given `2016-11-06`', () => {
+            const midDayForDate = minimalData.instance().selectDate();
+            expect(midDayForDate(dstEnd)).to.equal('2016-11-06T19:00:00.000Z');
+          });
+        });
       });
     });
 

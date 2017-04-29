@@ -249,6 +249,8 @@ export class TrendsContainer extends PureComponent {
       xScale: null,
       yScale: null,
     };
+
+    this.selectDate = this.selectDate.bind(this);
   }
 
   componentWillMount() {
@@ -351,7 +353,15 @@ export class TrendsContainer extends PureComponent {
   }
 
   selectDate() {
-    return (date) => this.props.onSelectDate(datetime.midDayForDate(date, this.props.timePrefs));
+    const { timePrefs } = this.props;
+    return (date) => {
+      console.log(timePrefs);
+      const noonOnDate = moment.tz(date, datetime.getTimezoneFromTimePrefs(timePrefs))
+        .startOf('day')
+        .add(12, 'hours')
+        .toISOString();
+      return noonOnDate;
+    };
   }
 
   goBack() {
