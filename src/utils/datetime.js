@@ -15,6 +15,27 @@
  * == BSD2 LICENSE ==
  */
 
+/*
+ * Guidelines for these utilities:
+ *
+ * 1. Only "workhorse" functions used in 2+ places should be here.
+ * 1a. A function used in multiple components for one view should live
+ * in view-specific utils: src/utils/[view]/datetime.js
+ * 1b. A function used in only one component should just be part of that component,
+ * potentially as a named export if tests are deemed important to have.
+ *
+ * 2. Function naming scheme: the two main verbs here are `get` and `format`.
+ * 2a. If the function returns any kind of datetime (JavaScript Date, hammertime, ISO 8601 String),
+ * then the function name should start with `get`.
+ * 2b. If the function returns a _formatted_ String that will be **surfaced to the end user**,
+ * then the function name should start with `format`.
+ *
+ * 3. Try to be consistent in how params are used:
+ * (e.g., always pass in `timePrefs`) rather than a named timezone
+ * and try to copy & paste JSDoc @param descriptions for common params.
+ *
+ */
+
 import _ from 'lodash';
 import moment from 'moment-timezone';
 
