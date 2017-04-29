@@ -355,7 +355,6 @@ export class TrendsContainer extends PureComponent {
   selectDate() {
     const { timePrefs } = this.props;
     return (date) => {
-      console.log(timePrefs);
       const noonOnDate = moment.tz(date, datetime.getTimezoneFromTimePrefs(timePrefs))
         .startOf('day')
         .add(12, 'hours')

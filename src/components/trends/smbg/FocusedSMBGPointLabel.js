@@ -21,7 +21,11 @@ import Tooltip from '../../common/tooltips/Tooltip';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { displayBgValue } from '../../../utils/format';
-import { formatClocktimeFromMsPer24, formatTimezoneAwareFromUTC, getHammertimeFromDatumWithTimePrefs } from '../../../utils/datetime';
+import {
+  formatClocktimeFromMsPer24,
+  formatTimezoneAwareFromUTC,
+  getHammertimeFromDatumWithTimePrefs,
+} from '../../../utils/datetime';
 import { categorizeSmbgSubtype } from '../../../utils/trends/data';
 
 import styles from './FocusedSMBGPointLabel.css';

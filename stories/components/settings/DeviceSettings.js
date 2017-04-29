@@ -11,27 +11,41 @@ const animasMultiRateData = require('../../../data/pumpSettings/animas/multirate
 
 const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
 
+const user = {
+  profile: {
+    fullName: 'Mary Smith',
+    patient: {
+      diagnosisDate: '1990-01-31',
+      birthday: '1983-01-31',
+    },
+  },
+};
+
 storiesOf('Device Settings [Animas]', module)
   .add('flat rate', () => (
     <NonTandem
       bgUnits={MMOLL_UNITS}
+      copySettingsClicked={() => {}}
       deviceKey={'animas'}
       openedSections={{ [animasFlatRateData.activeSchedule]: true }}
       view={'display'}
       pumpSettings={animasFlatRateData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
+      user={user}
     />
   ))
   .add('multi rate', () => (
     <NonTandem
       bgUnits={MMOLL_UNITS}
+      copySettingsClicked={() => {}}
       deviceKey={'animas'}
       openedSections={{ [animasMultiRateData.activeSchedule]: true }}
       view={'display'}
       pumpSettings={animasMultiRateData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
+      user={user}
     />
   ));
 
@@ -42,23 +56,27 @@ storiesOf('Device Settings [Medtronic]', module)
   .add('flat rate', () => (
     <NonTandem
       bgUnits={MMOLL_UNITS}
+      copySettingsClicked={() => {}}
       deviceKey={'medtronic'}
       openedSections={{ [medtronicFlatRateData.activeSchedule]: true }}
       view={'display'}
       pumpSettings={medtronicFlatRateData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
+      user={user}
     />
   ))
   .add('multi rate', () => (
     <NonTandem
       bgUnits={MMOLL_UNITS}
+      copySettingsClicked={() => {}}
       deviceKey={'medtronic'}
       openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
       view={'display'}
       pumpSettings={medtronicMultiRateData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
+      user={user}
     />
   ));
 
@@ -69,23 +87,27 @@ storiesOf('Device Settings [OmniPod]', module)
   .add('flat rate', () => (
     <NonTandem
       bgUnits={MMOLL_UNITS}
+      copySettingsClicked={() => {}}
       deviceKey={'insulet'}
       openedSections={{ [omnipodFlatRateData.activeSchedule]: true }}
       view={'display'}
       pumpSettings={omnipodFlatRateData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
+      user={user}
     />
   ))
   .add('multi rate', () => (
     <NonTandem
       bgUnits={MMOLL_UNITS}
+      copySettingsClicked={() => {}}
       deviceKey={'insulet'}
       openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
       view={'display'}
       pumpSettings={omnipodMultiRateData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
+      user={user}
     />
   ));
 
@@ -96,20 +118,24 @@ storiesOf('Device Settings [Tandem]', module)
   .add('flat rate', () => (
     <Tandem
       bgUnits={MMOLL_UNITS}
+      copySettingsClicked={() => {}}
       openedSections={{ [tandemFlatRateData.activeSchedule]: true }}
       view={'display'}
       pumpSettings={tandemFlatRateData}
       timePrefs={timePrefs}
       toggleProfileExpansion={() => {}}
+      user={user}
     />
   ))
   .add('multi rate', () => (
     <Tandem
       bgUnits={MMOLL_UNITS}
+      copySettingsClicked={() => {}}
       openedSections={{ [tandemMultiRateData.activeSchedule]: true }}
       view={'display'}
       pumpSettings={tandemMultiRateData}
       timePrefs={timePrefs}
       toggleProfileExpansion={() => {}}
+      user={user}
     />
   ));
