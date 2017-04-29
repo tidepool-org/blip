@@ -72,8 +72,8 @@ export function getHammertimeFromDatumWithTimePrefs(datum, timePrefs) {
  * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *
- * @return {JavaScript Date} the closest (future) midnight according to timePrefs;
- *                           if utc is already local midnight, returns utc
+ * @return {Object} a JavaScript Date, the closest (future) midnight according to timePrefs;
+ *                  if utc is already local midnight, returns utc
  */
 export function getTimezoneAwareCeiling(utc, timePrefs) {
   if (utc instanceof Date) {
@@ -111,9 +111,9 @@ export function formatClocktimeFromMsPer24(milliseconds, format = 'h:mm a') {
  * formatTimezoneAwareFromUTC
  * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
- * @param  {string} [format] - optional moment display format string; default is 'dddd, MMMM D'
+ * @param  {String} [format] - optional moment display format string; default is 'dddd, MMMM D'
  *
- * @return {string} formatted datetime, e.g., 'Sunday, January 1'
+ * @return {String} formatted datetime, e.g., 'Sunday, January 1'
  */
 export function formatTimezoneAwareFromUTC(utc, timePrefs, format = 'dddd, MMMM D') {
   if (utc instanceof Date) {
