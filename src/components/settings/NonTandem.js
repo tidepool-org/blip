@@ -101,7 +101,7 @@ const NonTandem = (props) => {
             {buildTable(
               basal.rows,
               basal.columns,
-              {},
+              null,
               styles.basalTable,
             )}
           </CollapsibleContainer>

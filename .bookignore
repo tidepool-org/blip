@@ -1,10 +1,11 @@
+**/*.css
+**/*.js
 **/*.sketch
 coverage/
 data/
 dist/
 local/
 node_modules/
-src/
 stories/
 storybook/
 test/

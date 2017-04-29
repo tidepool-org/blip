@@ -19,7 +19,7 @@ import React, { PropTypes } from 'react';
 
 import Tooltip from '../../common/tooltips/Tooltip';
 
-import { formatDisplayDate } from '../../../utils/datetime';
+import { utcFormat } from 'd3-time-format';
 
 import styles from './CBGDateTraceLabel.css';
 
@@ -28,10 +28,11 @@ const CBGDateTraceLabel = (props) => {
     return null;
   }
   const { focusedDateTrace: { data: { localDate: date }, position } } = props;
+  const formattedDate = utcFormat('%A, %B %-d')(Date.parse(date));
   return (
     <div className={styles.container}>
       <Tooltip
-        title={<span className={styles.dateLabel}>{formatDisplayDate(date, {})}</span>}
+        title={<span className={styles.dateLabel}>{formattedDate}</span>}
         borderWidth={0}
         position={{ left: position.left, top: 2.25 * position.yPositions.topMargin }}
         side={'bottom'}
