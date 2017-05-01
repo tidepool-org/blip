@@ -23,7 +23,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { displayBgValue } from '../../../utils/format';
 import {
   formatClocktimeFromMsPer24,
-  formatTimezoneAwareFromUTC,
+  formatLocalizedFromUTC,
   getHammertimeFromDatumWithTimePrefs,
 } from '../../../utils/datetime';
 import { categorizeSmbgSubtype } from '../../../utils/trends/data';
@@ -57,9 +57,9 @@ const FocusedSMBGPointLabel = (props) => {
     lines,
   } = props;
 
-  const parsedTime = getHammertimeFromDatumWithTimePrefs(datum, timePrefs);
-  const lineDate = formatTimezoneAwareFromUTC(parsedTime, timePrefs);
-  const shortDate = formatTimezoneAwareFromUTC(parsedTime, timePrefs, 'MMM D');
+  const hammertime = getHammertimeFromDatumWithTimePrefs(datum, timePrefs);
+  const lineDate = formatLocalizedFromUTC(hammertime, timePrefs);
+  const shortDate = formatLocalizedFromUTC(hammertime, timePrefs, 'MMM D');
   const side = position.tooltipLeft ? 'left' : 'right';
   if (!lines) {
     const focusedPointIndex = _.indexOf(allSmbgsOnDate, datum);

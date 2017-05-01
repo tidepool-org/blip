@@ -16,8 +16,6 @@ For example:
 npm run apidocs src/utils/datetime.js > src/utils/apidocs/datetime.md
 ```
 
-If someone has hand-edited one of these auto-generated API docs to add additional commentary, you'll want to be careful when staging your updates to avoid wiping out previous additions if they are still relevant. We recommend using `git add -p` to select individual chunks of your changes to stage.
-
 ### use of ES6 `import` and `export`
 
 - `export` each function individually:
