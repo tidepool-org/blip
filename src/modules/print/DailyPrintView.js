@@ -28,7 +28,11 @@ import {
   getMaxDuration,
   getNormalPercentage,
 } from '../../utils/bolus';
-import { getTimezoneFromTimePrefs, formatTimezoneAwareFromUTC, formatDuration } from '../../utils/datetime';
+import {
+  getTimezoneFromTimePrefs,
+  formatLocalizedFromUTC,
+  formatDuration,
+} from '../../utils/datetime';
 import {
   displayDecimal, displayPercentage, removeTrailingZeroes,
 } from '../../utils/format';
@@ -413,7 +417,7 @@ class DailyPrintView {
 
         this.doc.font(this.font).fontSize(this.defaultFontSize)
           .text(
-            formatTimezoneAwareFromUTC(loc, this.timePrefs, 'ha').slice(0, -1),
+            formatLocalizedFromUTC(loc, this.timePrefs, 'ha').slice(0, -1),
             xPos,
             topEdge,
             { indent: 3 },
@@ -503,7 +507,7 @@ class DailyPrintView {
         };
       }(this.doc));
       _.each(_.sortBy(binOfBoluses, 'normalTime'), (bolus) => {
-        const displayTime = formatTimezoneAwareFromUTC(bolus.normalTime, this.timePrefs, 'h:mma')
+        const displayTime = formatLocalizedFromUTC(bolus.normalTime, this.timePrefs, 'h:mma')
           .slice(0, -1);
         this.doc.text(
             displayTime,
