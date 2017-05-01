@@ -11,14 +11,14 @@
 <dt><a href="#getHammertimeFromDatumWithTimePrefs">getHammertimeFromDatumWithTimePrefs(datum, timePrefs)</a> ⇒ <code>Number</code></dt>
 <dd><p>getHammertimeFromDatumWithTimePrefs</p>
 </dd>
-<dt><a href="#getTimezoneAwareCeiling">getTimezoneAwareCeiling(utc, timePrefs)</a> ⇒ <code>Object</code></dt>
-<dd><p>getTimezoneAwareCeiling</p>
+<dt><a href="#getLocalizedCeiling">getLocalizedCeiling(utc, timePrefs)</a> ⇒ <code>Object</code></dt>
+<dd><p>getLocalizedCeiling</p>
 </dd>
 <dt><a href="#formatClocktimeFromMsPer24">formatClocktimeFromMsPer24(duration, [format])</a> ⇒ <code>String</code></dt>
 <dd><p>formatClocktimeFromMsPer24</p>
 </dd>
-<dt><a href="#formatTimezoneAwareFromUTC">formatTimezoneAwareFromUTC(utc, timePrefs, [format])</a> ⇒ <code>String</code></dt>
-<dd><p>formatTimezoneAwareFromUTC</p>
+<dt><a href="#formatLocalizedFromUTC">formatLocalizedFromUTC(utc, timePrefs, [format])</a> ⇒ <code>String</code></dt>
+<dd><p>formatLocalizedFromUTC</p>
 </dd>
 </dl>
 
@@ -47,10 +47,10 @@ getHammertimeFromDatumWithTimePrefs
 | datum | <code>Object</code> | a Tidepool datum with a time (required) and deviceTime (optional) |
 | timePrefs | <code>Object</code> | object containing timezoneAware Boolean and timezoneName String |
 
-<a name="getTimezoneAwareCeiling"></a>
+<a name="getLocalizedCeiling"></a>
 
-## getTimezoneAwareCeiling(utc, timePrefs) ⇒ <code>Object</code>
-getTimezoneAwareCeiling
+## getLocalizedCeiling(utc, timePrefs) ⇒ <code>Object</code>
+getLocalizedCeiling
 
 **Kind**: global function  
 **Returns**: <code>Object</code> - a JavaScript Date, the closest (future) midnight according to timePrefs;
@@ -74,10 +74,10 @@ formatClocktimeFromMsPer24
 | duration | <code>Number</code> | positive integer representing a time of day                            in milliseconds within a 24-hr day |
 | [format] | <code>String</code> | optional moment display format string; default is 'h:mm a' |
 
-<a name="formatTimezoneAwareFromUTC"></a>
+<a name="formatLocalizedFromUTC"></a>
 
-## formatTimezoneAwareFromUTC(utc, timePrefs, [format]) ⇒ <code>String</code>
-formatTimezoneAwareFromUTC
+## formatLocalizedFromUTC(utc, timePrefs, [format]) ⇒ <code>String</code>
+formatLocalizedFromUTC
 
 **Kind**: global function  
 **Returns**: <code>String</code> - formatted datetime, e.g., 'Sunday, January 1'  
