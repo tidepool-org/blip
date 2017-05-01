@@ -25,6 +25,9 @@ import Tandem from '../../../src/components/settings/Tandem';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
 import { displayDecimal } from '../../../src/utils/format';
 
+import { formatClassesAsSelector } from '../../helpers/cssmodules';
+import styles from '../../../src/components/settings/Tandem.css';
+
 const flatrateData = require('../../../data/pumpSettings/tandem/flatrate.json');
 const multirateData = require('../../../data/pumpSettings/tandem/multirate.json');
 
@@ -39,97 +42,57 @@ const user = {
     },
   },
 };
+let wrapper;
+let props;
 
 describe('Tandem', () => {
+  beforeEach(() => {
+    props = {
+      bgUnits: MGDL_UNITS,
+      copySettingsClicked: sinon.spy(),
+      openedSections: { [multirateData.activeSchedule]: true },
+      pumpSettings: multirateData,
+      timePrefs,
+      user,
+      toggleProfileExpansion: () => {},
+    };
+
+    wrapper = shallow(
+      <Tandem {...props} />
+    );
+  });
+
   it('should render without problems when required props provided', () => {
     console.error = sinon.spy();
     expect(console.error.callCount).to.equal(0);
-    shallow(
-      <Tandem
-        bgUnits={MGDL_UNITS}
-        copySettingsClicked={copySettingsClicked}
-        openedSections={{ [multirateData.activeSchedule]: true }}
-        pumpSettings={multirateData}
-        timePrefs={timePrefs}
-        user={user}
-        toggleProfileExpansion={() => {}}
-      />
+    wrapper = shallow(
+      <Tandem {...props} />
     );
     expect(console.error.callCount).to.equal(0);
   });
 
   it('should have a header', () => {
-    const wrapper = shallow(
-      <Tandem
-        bgUnits={MGDL_UNITS}
-        copySettingsClicked={copySettingsClicked}
-        openedSections={{ [multirateData.activeSchedule]: true }}
-        pumpSettings={multirateData}
-        timePrefs={timePrefs}
-        user={user}
-        toggleProfileExpansion={() => {}}
-      />
-    );
     expect(wrapper.find('Header')).to.have.length(1);
   });
 
   it('should have Tandem as the Header deviceDisplayName', () => {
-    const wrapper = shallow(
-      <Tandem
-        bgUnits={MGDL_UNITS}
-        copySettingsClicked={copySettingsClicked}
-        openedSections={{ [multirateData.activeSchedule]: true }}
-        pumpSettings={multirateData}
-        timePrefs={timePrefs}
-        user={user}
-        toggleProfileExpansion={() => {}}
-      />
-    );
     expect(wrapper.find('Header').props().deviceDisplayName).to.equal('Tandem');
   });
 
   it('should have three Tables', () => {
-    const wrapper = shallow(
-      <Tandem
-        bgUnits={MGDL_UNITS}
-        copySettingsClicked={copySettingsClicked}
-        openedSections={{ [multirateData.activeSchedule]: true }}
-        pumpSettings={multirateData}
-        timePrefs={timePrefs}
-        user={user}
-        toggleProfileExpansion={() => {}}
-      />
-    );
     expect(wrapper.find('Table')).to.have.length(3);
   });
 
   it('should have three CollapsibleContainers', () => {
-    const wrapper = mount(
-      <Tandem
-        bgUnits={MGDL_UNITS}
-        copySettingsClicked={copySettingsClicked}
-        openedSections={{ [multirateData.activeSchedule]: true }}
-        pumpSettings={multirateData}
-        timePrefs={timePrefs}
-        user={user}
-        toggleProfileExpansion={() => {}}
-      />
-    );
     expect(wrapper.find(CollapsibleContainer)).to.have.length(3);
   });
 
   it('should preserve user capitalization of profile names', () => {
     // must use mount to search far enough down in tree!
+    props.pumpSettings = flatrateData;
+    props.openedSections = { [flatrateData.activeSchedule]: true };
     const mounted = mount(
-      <Tandem
-        bgUnits={MGDL_UNITS}
-        copySettingsClicked={copySettingsClicked}
-        openedSections={{ [flatrateData.activeSchedule]: true }}
-        pumpSettings={flatrateData}
-        timePrefs={timePrefs}
-        user={user}
-        toggleProfileExpansion={() => {}}
-      />
+      <Tandem {...props} />
     );
     expect(mounted.find('.label').someWhere(n => (n.text().search('Normal') !== -1)))
       .to.be.true;
@@ -138,42 +101,33 @@ describe('Tandem', () => {
   });
 
   it('should have `Active at Upload` text somewhere', () => {
-    const activeAtUploadText = 'Active at upload';
-    // must use mount to search far enough down in tree!
-    const wrapper = mount(
-      <Tandem
-        bgUnits={MGDL_UNITS}
-        copySettingsClicked={copySettingsClicked}
-        openedSections={{ [multirateData.activeSchedule]: true }}
-        pumpSettings={multirateData}
-        timePrefs={timePrefs}
-        user={user}
-        toggleProfileExpansion={() => {}}
-      />
+    const mounted = mount(
+      <Tandem {...props} />
     );
-    expect(wrapper.find('.label').someWhere(n => (n.text().search(activeAtUploadText) !== -1)))
+    expect(mounted.find('.label').someWhere(n => (n.text().search('Active at upload') !== -1)))
       .to.be.true;
   });
 
+  it('should have a button to copy settings', () => {
+    const mounted = mount(<Tandem {...props} />);
+    expect(copySettingsClicked.callCount).to.equal(0);
+    mounted.find(formatClassesAsSelector(styles.copyButton)).simulate('click');
+    expect(copySettingsClicked).to.be.called;
+  });
+
   describe('timed settings', () => {
-    let wrapper;
+    let mounted;
     let sickProfileTable;
 
     before(() => {
-      // must use mount to search far enough down in tree!
-      wrapper = mount(
-        <Tandem
-          bgUnits={MMOLL_UNITS}
-          copySettingsClicked={copySettingsClicked}
-          openedSections={{ [flatrateData.activeSchedule]: true }}
-          pumpSettings={flatrateData}
-          timePrefs={timePrefs}
-          user={user}
-          toggleProfileExpansion={() => {}}
-        />
+      props.pumpSettings = flatrateData;
+      props.bgUnits = MMOLL_UNITS;
+      props.openedSections = { [flatrateData.activeSchedule]: true };
+      mounted = mount(
+        <Tandem {...props} />
       );
 
-      sickProfileTable = wrapper.find('table').filterWhere(
+      sickProfileTable = mounted.find('table').filterWhere(
         n => (n.text().search('Basal Rates') !== -1)
       );
     });
