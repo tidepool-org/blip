@@ -90,7 +90,7 @@ const Tandem = (props) => {
         className={styles.copyButton}
         button-title="For email or notes"
         data-clipboard-target="#copySettingsText"
-        onSuccess={copySettingsClicked()}
+        onSuccess={copySettingsClicked}
       >
         <p>Copy as text</p>
       </ClipboardButton>
