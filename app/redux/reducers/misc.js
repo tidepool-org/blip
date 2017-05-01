@@ -150,10 +150,9 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
         });
       } else {
         newState = update(state, {
-          [patient.userid]: { $set: _.omit(patient, ['permissions', 'team'])}
+          [patient.userid]: { $set: _.omit(patient, ['team'])}
         });
       }
-
       const { team } = patient;
       if (team) {
         let others = {};
