@@ -26,6 +26,9 @@ import NonTandem from '../../../src/components/settings/NonTandem';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
 import { displayDecimal } from '../../../src/utils/format';
 
+import { formatClassesAsSelector } from '../../helpers/cssmodules';
+import styles from '../../../src/components/settings/NonTandem.css';
+
 const animasFlatRateData = require('../../../data/pumpSettings/animas/flatrate.json');
 const animasMultiRateData = require('../../../data/pumpSettings/animas/multirate.json');
 const omnipodFlatRateData = require('../../../data/pumpSettings/omnipod/flatrate.json');
@@ -150,6 +153,23 @@ describe('NonTandem', () => {
         .to.be.true;
     });
 
+    it('should have a button to copy settings', () => {
+      const mounted = mount(
+        <NonTandem
+          bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
+          deviceKey={'animas'}
+          openedSections={{ [animasMultiRateData.activeSchedule]: true }}
+          pumpSettings={animasMultiRateData}
+          timePrefs={timePrefs}
+          user={user}
+          toggleBasalScheduleExpansion={() => {}}
+        />
+      );
+      expect(copySettingsClicked.callCount).to.equal(0);
+      mounted.find(formatClassesAsSelector(styles.copyButton)).simulate('click');
+      expect(copySettingsClicked).to.be.called;
+    });
     describe('bolus settings', () => {
       it('should surface the expected value for ISF', () => {
         const wrapper = mount(
@@ -386,6 +406,24 @@ describe('NonTandem', () => {
           n => (n.text().search(omnipodMultiRateData.carbRatio[0].amount) !== -1)
         )).to.be.true;
       });
+
+      it('should have a button to copy settings', () => {
+        const mounted = mount(
+          <NonTandem
+            bgUnits={MMOLL_UNITS}
+            copySettingsClicked={copySettingsClicked}
+            deviceKey={'insulet'}
+            openedSections={{ [omnipodMultiRateData.activeSchedule]: true }}
+            pumpSettings={omnipodMultiRateData}
+            timePrefs={timePrefs}
+            user={user}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+        expect(copySettingsClicked.callCount).to.equal(0);
+        mounted.find(formatClassesAsSelector(styles.copyButton)).simulate('click');
+        expect(copySettingsClicked).to.be.called;
+      });
     });
   });
 
@@ -510,6 +548,24 @@ describe('NonTandem', () => {
         />
       );
       expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should have a button to copy settings', () => {
+      const mounted = mount(
+        <NonTandem
+          bgUnits={MGDL_UNITS}
+          copySettingsClicked={copySettingsClicked}
+          deviceKey={'carelink'}
+          openedSections={{}}
+          pumpSettings={medtronicMultiRateData}
+          timePrefs={timePrefs}
+          user={user}
+          toggleBasalScheduleExpansion={() => {}}
+        />
+      );
+      expect(copySettingsClicked.callCount).to.equal(0);
+      mounted.find(formatClassesAsSelector(styles.copyButton)).simulate('click');
+      expect(copySettingsClicked).to.be.called;
     });
 
     describe('bolus settings', () => {
