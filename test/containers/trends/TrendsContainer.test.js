@@ -25,14 +25,14 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
-import { getTimezoneAwareCeiling } from '../../../src/utils/datetime';
+import { getLocalizedCeiling } from '../../../src/utils/datetime';
 import DummyComponent from '../../helpers/DummyComponent';
 
 import {
   TrendsContainer,
   getAllDatesInRange,
-  getTimezoneAwareNoonBeforeUTC,
-  getTimezoneAwareOffset,
+  getLocalizedNoonBeforeUTC,
+  getLocalizedOffset,
   mapStateToProps,
   mapDispatchToProps,
 } from '../../../src/containers/trends/TrendsContainer';
@@ -59,60 +59,60 @@ describe('TrendsContainer', () => {
     });
   });
 
-  describe('getTimezoneAwareNoonBeforeUTC', () => {
+  describe('getLocalizedNoonBeforeUTC', () => {
     it('should be a function', () => {
-      assert.isFunction(getTimezoneAwareNoonBeforeUTC);
+      assert.isFunction(getLocalizedNoonBeforeUTC);
     });
 
     it('should error if passed a JavaScript Date for the `utc` param', () => {
-      const fn = () => { getTimezoneAwareNoonBeforeUTC(new Date()); };
+      const fn = () => { getLocalizedNoonBeforeUTC(new Date()); };
       expect(fn)
         .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
     });
 
     it('[UTC, midnight input] should return the timestamp for the noon prior', () => {
       const dt = '2016-03-15T00:00:00.000Z';
-      expect(getTimezoneAwareNoonBeforeUTC(dt, { timezoneAware: false }).toISOString())
+      expect(getLocalizedNoonBeforeUTC(dt, { timezoneAware: false }).toISOString())
         .to.equal('2016-03-14T12:00:00.000Z');
       const asInteger = Date.parse(dt);
-      expect(getTimezoneAwareNoonBeforeUTC(asInteger, { timezoneAware: false }).toISOString())
+      expect(getLocalizedNoonBeforeUTC(asInteger, { timezoneAware: false }).toISOString())
         .to.equal('2016-03-14T12:00:00.000Z');
     });
 
     it('[UTC, anytime input] should return the timestamp for the noon prior', () => {
       const dt = '2016-03-14T02:36:25.342Z';
-      expect(getTimezoneAwareNoonBeforeUTC(dt, { timezoneAware: false }).toISOString())
+      expect(getLocalizedNoonBeforeUTC(dt, { timezoneAware: false }).toISOString())
         .to.equal('2016-03-14T12:00:00.000Z');
       const asInteger = Date.parse(dt);
-      expect(getTimezoneAwareNoonBeforeUTC(asInteger, { timezoneAware: false }).toISOString())
+      expect(getLocalizedNoonBeforeUTC(asInteger, { timezoneAware: false }).toISOString())
         .to.equal('2016-03-14T12:00:00.000Z');
     });
 
     it('[across DST] should return the timestamp for the noon prior', () => {
       const dt = '2016-03-14T05:00:00.000Z';
       const timePrefs = { timezoneAware: true, timezoneName: 'US/Central' };
-      expect(getTimezoneAwareNoonBeforeUTC(dt, timePrefs).toISOString())
+      expect(getLocalizedNoonBeforeUTC(dt, timePrefs).toISOString())
         .to.equal('2016-03-13T17:00:00.000Z');
       const asInteger = Date.parse(dt);
-      expect(getTimezoneAwareNoonBeforeUTC(asInteger, timePrefs).toISOString())
+      expect(getLocalizedNoonBeforeUTC(asInteger, timePrefs).toISOString())
         .to.equal('2016-03-13T17:00:00.000Z');
     });
   });
 
-  describe('getTimezoneAwareOffset', () => {
+  describe('getLocalizedOffset', () => {
     it('should be a function', () => {
-      assert.isFunction(getTimezoneAwareOffset);
+      assert.isFunction(getLocalizedOffset);
     });
 
     it('should error if passed a JavaScript Date for the `utc` param', () => {
-      const fn = () => { getTimezoneAwareOffset(new Date()); };
+      const fn = () => { getLocalizedOffset(new Date()); };
       expect(fn)
         .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
     });
 
     it('should offset from noon to noon across DST', () => {
       const dt = '2016-03-13T17:00:00.000Z';
-      expect(getTimezoneAwareOffset(dt, {
+      expect(getLocalizedOffset(dt, {
         amount: -10,
         units: 'days',
       }, {
@@ -276,7 +276,7 @@ describe('TrendsContainer', () => {
       });
 
       it('should set dateDomain based on current datetime if no initialDatetimeLocation', () => {
-        const ceil = getTimezoneAwareCeiling(new Date().valueOf(), 'UTC').toISOString();
+        const ceil = getLocalizedCeiling(new Date().valueOf(), 'UTC').toISOString();
         const { dateDomain } = minimalData.state();
         expect(dateDomain.end).to.equal(ceil);
       });

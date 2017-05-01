@@ -88,30 +88,30 @@ describe('datetime', () => {
     });
   });
 
-  describe('getTimezoneAwareCeiling', () => {
+  describe('getLocalizedCeiling', () => {
     const timePrefs = { timezoneAware: true, timezoneName: 'US/Pacific' };
     it('should be a function', () => {
-      assert.isFunction(datetime.getTimezoneAwareCeiling);
+      assert.isFunction(datetime.getLocalizedCeiling);
     });
 
     it('should error if passed a JavaScript Date for the `utc` param', () => {
-      const fn = () => { datetime.getTimezoneAwareCeiling(new Date()); };
+      const fn = () => { datetime.getLocalizedCeiling(new Date()); };
       expect(fn)
         .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
     });
 
     it('should return the ceiling (= next midnight) for a datetime in a given timezone', () => {
       const dt = '2016-03-15T14:25:00.000Z';
-      expect(datetime.getTimezoneAwareCeiling(dt, timePrefs).toISOString())
+      expect(datetime.getLocalizedCeiling(dt, timePrefs).toISOString())
         .to.equal('2016-03-16T07:00:00.000Z');
       const asInteger = Date.parse(dt);
-      expect(datetime.getTimezoneAwareCeiling(asInteger, timePrefs).toISOString())
+      expect(datetime.getLocalizedCeiling(asInteger, timePrefs).toISOString())
         .to.equal('2016-03-16T07:00:00.000Z');
     });
 
     it('should return the same datetime if it already is a midnight in given timezone', () => {
       const dt = '2016-03-15T07:00:00.000Z';
-      expect(datetime.getTimezoneAwareCeiling(dt, timePrefs).toISOString())
+      expect(datetime.getLocalizedCeiling(dt, timePrefs).toISOString())
         .to.equal(dt);
     });
   });
@@ -157,7 +157,7 @@ describe('datetime', () => {
     });
   });
 
-  describe('formatTimezoneAwareFromUTC', () => {
+  describe('formatLocalizedFromUTC', () => {
     const tzAwareLA = {
       timezoneAware: true,
       timezoneName: 'America/Los_Angeles',
@@ -174,71 +174,71 @@ describe('datetime', () => {
     const hammertime = Date.parse(utcString);
 
     it('should be a function', () => {
-      assert.isFunction(datetime.formatTimezoneAwareFromUTC);
+      assert.isFunction(datetime.formatLocalizedFromUTC);
     });
 
     it('should return "Sunday, September 4" for hammertime tzAware LA', () => {
-      expect(datetime.formatTimezoneAwareFromUTC(hammertime, tzAwareLA))
+      expect(datetime.formatLocalizedFromUTC(hammertime, tzAwareLA))
         .to.equal('Sunday, September 4');
     });
 
     it('should return "Sunday, September 4" for utcString tzAware LA', () => {
-      expect(datetime.formatTimezoneAwareFromUTC(utcString, tzAwareLA))
+      expect(datetime.formatLocalizedFromUTC(utcString, tzAwareLA))
         .to.equal('Sunday, September 4');
     });
 
     it('should return "Monday, September 5" for hammertime tzAware NY', () => {
-      expect(datetime.formatTimezoneAwareFromUTC(hammertime, tzAwareNY))
+      expect(datetime.formatLocalizedFromUTC(hammertime, tzAwareNY))
         .to.equal('Monday, September 5');
     });
 
     it('should return "Monday, September 5" for utcString tzAware NY', () => {
-      expect(datetime.formatTimezoneAwareFromUTC(utcString, tzAwareNY))
+      expect(datetime.formatLocalizedFromUTC(utcString, tzAwareNY))
         .to.equal('Monday, September 5');
     });
 
     it('should return "Monday, September 5" for hammertime tzUnaware', () => {
-      expect(datetime.formatTimezoneAwareFromUTC(hammertime, tzUnaware))
+      expect(datetime.formatLocalizedFromUTC(hammertime, tzUnaware))
         .to.equal('Monday, September 5');
     });
 
     it('should return "Monday, September 5" for utcString tzUnaware', () => {
-      expect(datetime.formatTimezoneAwareFromUTC(utcString, tzUnaware))
+      expect(datetime.formatLocalizedFromUTC(utcString, tzUnaware))
         .to.equal('Monday, September 5');
     });
 
     it('should return "Sep 4" for hammertime tzAware LA "MMM D"', () => {
-      expect(datetime.formatTimezoneAwareFromUTC(hammertime, tzAwareLA, 'MMM D'))
+      expect(datetime.formatLocalizedFromUTC(hammertime, tzAwareLA, 'MMM D'))
         .to.equal('Sep 4');
     });
 
     it('should return "Sep 4" for utcString tzAware LA "MMM D"', () => {
-      expect(datetime.formatTimezoneAwareFromUTC(utcString, tzAwareLA, 'MMM D'))
+      expect(datetime.formatLocalizedFromUTC(utcString, tzAwareLA, 'MMM D'))
         .to.equal('Sep 4');
     });
 
     it('should return "Sep 5" for hammertime tzAware NY "MMM D"', () => {
-      expect(datetime.formatTimezoneAwareFromUTC(hammertime, tzAwareNY, 'MMM D'))
+      expect(datetime.formatLocalizedFromUTC(hammertime, tzAwareNY, 'MMM D'))
         .to.equal('Sep 5');
     });
 
     it('should return "Sep 5" for utcString tzAware NY "MMM D"', () => {
-      expect(datetime.formatTimezoneAwareFromUTC(utcString, tzAwareNY, 'MMM D'))
+      expect(datetime.formatLocalizedFromUTC(utcString, tzAwareNY, 'MMM D'))
         .to.equal('Sep 5');
     });
 
     it('should return "Sep 5" for hammertime tzUnaware "MMM D"', () => {
-      expect(datetime.formatTimezoneAwareFromUTC(hammertime, tzUnaware, 'MMM D'))
+      expect(datetime.formatLocalizedFromUTC(hammertime, tzUnaware, 'MMM D'))
         .to.equal('Sep 5');
     });
 
     it('should return "Sep 5" for utcString tzUnaware "MMM D"', () => {
-      expect(datetime.formatTimezoneAwareFromUTC(utcString, tzUnaware, 'MMM D'))
+      expect(datetime.formatLocalizedFromUTC(utcString, tzUnaware, 'MMM D'))
         .to.equal('Sep 5');
     });
 
     it('should error if passed a JavaScript Date for the `utc` param', () => {
-      const fn = () => { datetime.formatTimezoneAwareFromUTC(new Date(), tzAwareLA); };
+      const fn = () => { datetime.formatLocalizedFromUTC(new Date(), tzAwareLA); };
       expect(fn)
         .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
     });

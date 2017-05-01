@@ -181,7 +181,7 @@ export function getTimedSchedules(settingsData) {
 export function getDeviceMeta(settingsData, timePrefs) {
   const utc = datetime.getHammertimeFromDatumWithTimePrefs(settingsData, timePrefs);
   const uploadedTime = utc ?
-    datetime.formatTimezoneAwareFromUTC(utc, timePrefs, 'MMM D, YYYY') :
+    datetime.formatLocalizedFromUTC(utc, timePrefs, 'MMM D, YYYY') :
     false;
   return {
     schedule: settingsData.activeSchedule || 'unknown',

@@ -57,18 +57,18 @@ export function getAllDatesInRange(start, end, timePrefs) {
 }
 
 /**
- * getTimezoneAwareNoonBeforeUTC
+ * getLocalizedNoonBeforeUTC
  * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *
  * @return {JavaScript Date} the closet noon before the input datetime in the given timezone
  */
-export function getTimezoneAwareNoonBeforeUTC(utc, timePrefs) {
+export function getLocalizedNoonBeforeUTC(utc, timePrefs) {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
   const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-  const ceil = datetime.getTimezoneAwareCeiling(utc, timePrefs);
+  const ceil = datetime.getLocalizedCeiling(utc, timePrefs);
   return moment.utc(ceil.valueOf())
     .tz(timezone)
     .subtract(1, 'day')
@@ -77,7 +77,7 @@ export function getTimezoneAwareNoonBeforeUTC(utc, timePrefs) {
 }
 
 /**
- * getTimezoneAwareOffset
+ * getLocalizedOffset
  * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
  * @param {Object} offset - { amount: integer (+/-), units: 'hour', 'day', &c }
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
@@ -86,7 +86,7 @@ export function getTimezoneAwareNoonBeforeUTC(utc, timePrefs) {
  *                           inspired by d3-time's offset function: https://github.com/d3/d3-time#interval_offset
  *                           but able to work with an arbitrary timezone
  */
-export function getTimezoneAwareOffset(utc, offset, timePrefs) {
+export function getLocalizedOffset(utc, offset, timePrefs) {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
@@ -270,9 +270,9 @@ export class TrendsContainer extends PureComponent {
     // find initial date domain (based on initialDatetimeLocation or current time)
     const { extentSize, initialDatetimeLocation, timePrefs } = this.props;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    const mostRecent = datetime.getTimezoneAwareCeiling(new Date().valueOf(), timezone);
+    const mostRecent = datetime.getLocalizedCeiling(new Date().valueOf(), timezone);
     const end = initialDatetimeLocation ?
-      datetime.getTimezoneAwareCeiling(initialDatetimeLocation, timezone) : mostRecent;
+      datetime.getLocalizedCeiling(initialDatetimeLocation, timezone) : mostRecent;
     const start = utcDay.offset(end, -extentSize);
     const dateDomain = [start.toISOString(), end.toISOString()];
 
@@ -333,7 +333,7 @@ export class TrendsContainer extends PureComponent {
 
   getCurrentDay() {
     const { dateDomain: { end } } = this.state;
-    return getTimezoneAwareNoonBeforeUTC(end, this.props.timePrefs).toISOString();
+    return getLocalizedNoonBeforeUTC(end, this.props.timePrefs).toISOString();
   }
 
   setExtent(newDomain, oldDomain) {
@@ -366,7 +366,7 @@ export class TrendsContainer extends PureComponent {
   goBack() {
     const oldDomain = _.clone(this.state.dateDomain);
     const { dateDomain: { start: newEnd } } = this.state;
-    const start = getTimezoneAwareOffset(newEnd, {
+    const start = getLocalizedOffset(newEnd, {
       // negative because we are moving backward in time
       amount: -this.props.extentSize,
       units: 'days',

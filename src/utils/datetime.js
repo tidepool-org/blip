@@ -89,14 +89,14 @@ export function getHammertimeFromDatumWithTimePrefs(datum, timePrefs) {
 }
 
 /**
- * getTimezoneAwareCeiling
+ * getLocalizedCeiling
  * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *
  * @return {Object} a JavaScript Date, the closest (future) midnight according to timePrefs;
  *                  if utc is already local midnight, returns utc
  */
-export function getTimezoneAwareCeiling(utc, timePrefs) {
+export function getLocalizedCeiling(utc, timePrefs) {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
@@ -129,14 +129,14 @@ export function formatClocktimeFromMsPer24(milliseconds, format = 'h:mm a') {
 }
 
 /**
- * formatTimezoneAwareFromUTC
+ * formatLocalizedFromUTC
  * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  * @param  {String} [format] - optional moment display format string; default is 'dddd, MMMM D'
  *
  * @return {String} formatted datetime, e.g., 'Sunday, January 1'
  */
-export function formatTimezoneAwareFromUTC(utc, timePrefs, format = 'dddd, MMMM D') {
+export function formatLocalizedFromUTC(utc, timePrefs, format = 'dddd, MMMM D') {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
