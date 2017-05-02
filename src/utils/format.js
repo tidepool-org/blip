@@ -43,12 +43,14 @@ import { convertToMmolL } from './bloodglucose';
 import { BG_HIGH, BG_LOW, MMOLL_UNITS } from './constants';
 
 /**
- * displayDecimal
- * @param  {Number} val    numeric value to format
- * @param  {Number} places number of decimal places to displayDecimal
- * @return {String}        val formatted to places decimal places
+ * formatDecimalNumber
+ * @param {Number} val - numeric value to format
+ * @param {Number} [places] - optional number of decimal places to display;
+ *                            if not provided, will display as integer (0 decimal places)
+ *
+ * @return {String} numeric value rounded to the desired number of decimal places
  */
-export function displayDecimal(val, places) {
+export function formatDecimalNumber(val, places) {
   if (places === null || places === undefined) {
     return format('d')(val);
   }

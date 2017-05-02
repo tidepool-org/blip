@@ -47,7 +47,7 @@ function getBasalRate(scheduleData, startTime) {
   if (noData(rate)) {
     return '';
   }
-  return format.displayDecimal(rate, DISPLAY_PRECISION_PLACES);
+  return format.formatDecimalNumber(rate, DISPLAY_PRECISION_PLACES);
 }
 
 /**
@@ -121,7 +121,7 @@ export function getTotalBasalRates(scheduleData) {
     const amount = parseFloat(scheduleData[i].rate.toFixed(DISPLAY_PRECISION_PLACES)) * hrs;
     total += parseFloat(amount.toFixed(DISPLAY_PRECISION_PLACES));
   }
-  return format.displayDecimal(total, DISPLAY_PRECISION_PLACES);
+  return format.formatDecimalNumber(total, DISPLAY_PRECISION_PLACES);
 }
 
 /**

@@ -24,7 +24,7 @@ import { mount, shallow } from 'enzyme';
 import CollapsibleContainer from '../../../src/components/settings/common/CollapsibleContainer';
 import NonTandem from '../../../src/components/settings/NonTandem';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
-import { displayDecimal } from '../../../src/utils/format';
+import { formatDecimalNumber } from '../../../src/utils/format';
 
 import { formatClassesAsSelector } from '../../helpers/cssmodules';
 import styles from '../../../src/components/settings/NonTandem.css';
@@ -187,7 +187,7 @@ describe('NonTandem', () => {
         const isfTable = wrapper.find('table').filterWhere(n => (n.text().search('ISF') !== -1));
         expect(isfTable.someWhere(
           n => (n.text().search(
-            displayDecimal(animasMultiRateData.insulinSensitivity[0].amount, 1)
+            formatDecimalNumber(animasMultiRateData.insulinSensitivity[0].amount, 1)
           ) !== -1)
         )).to.be.true;
       });
@@ -208,10 +208,10 @@ describe('NonTandem', () => {
         const bgTargetTable = wrapper.find('table')
           .filterWhere(n => (n.text().search('BG Target') !== -1));
         expect(bgTargetTable.someWhere(
-          n => (n.text().search(displayDecimal(animasMultiRateData.bgTarget[0].target), 1) !== -1)
+          n => (n.text().search(formatDecimalNumber(animasMultiRateData.bgTarget[0].target), 1) !== -1)
         )).to.be.true;
         expect(bgTargetTable.someWhere(
-          n => (n.text().search(displayDecimal(animasMultiRateData.bgTarget[0].range), 1) !== -1)
+          n => (n.text().search(formatDecimalNumber(animasMultiRateData.bgTarget[0].range), 1) !== -1)
         )).to.be.true;
       });
 
@@ -356,7 +356,7 @@ describe('NonTandem', () => {
           .filterWhere(n => (n.text().search('Correction factor') !== -1));
         expect(isfTable.someWhere(
           n => (n.text().search(
-            displayDecimal(omnipodMultiRateData.insulinSensitivity[0].amount, 1)
+            formatDecimalNumber(omnipodMultiRateData.insulinSensitivity[0].amount, 1)
           ) !== -1)
         )).to.be.true;
       });
@@ -379,11 +379,11 @@ describe('NonTandem', () => {
 
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(omnipodMultiRateData.bgTarget[0].target), 1) !== -1)
+            formatDecimalNumber(omnipodMultiRateData.bgTarget[0].target), 1) !== -1)
         )).to.be.true;
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(omnipodMultiRateData.bgTarget[0].high), 1) !== -1)
+            formatDecimalNumber(omnipodMultiRateData.bgTarget[0].high), 1) !== -1)
         )).to.be.true;
       });
 
@@ -586,7 +586,7 @@ describe('NonTandem', () => {
           .filterWhere(n => (n.text().search('Sensitivity') !== -1));
         expect(isfTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.insulinSensitivity[0].amount, 1)
+            formatDecimalNumber(medtronicMultiRateData.insulinSensitivity[0].amount, 1)
           ) !== -1)
         )).to.be.true;
       });
@@ -609,33 +609,33 @@ describe('NonTandem', () => {
 
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.bgTarget[0].low), 1)
+            formatDecimalNumber(medtronicMultiRateData.bgTarget[0].low), 1)
           ) !== -1)
         ).to.be.true;
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.bgTarget[0].high), 1)
+            formatDecimalNumber(medtronicMultiRateData.bgTarget[0].high), 1)
           ) !== -1)
         ).to.be.true;
 
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.bgTarget[1].low), 1)
+            formatDecimalNumber(medtronicMultiRateData.bgTarget[1].low), 1)
           ) !== -1)
         ).to.be.true;
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.bgTarget[1].high), 1)
+            formatDecimalNumber(medtronicMultiRateData.bgTarget[1].high), 1)
           ) !== -1)
         ).to.be.true;
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.bgTarget[2].low), 1)
+            formatDecimalNumber(medtronicMultiRateData.bgTarget[2].low), 1)
           ) !== -1)
         ).to.be.true;
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            displayDecimal(medtronicMultiRateData.bgTarget[2].high), 1)
+            formatDecimalNumber(medtronicMultiRateData.bgTarget[2].high), 1)
           ) !== -1)
         ).to.be.true;
       });
