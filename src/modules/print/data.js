@@ -19,7 +19,7 @@ import _ from 'lodash';
 import moment from 'moment-timezone';
 import { extent } from 'd3-array';
 
-import { getTimezoneFromTimePrefs, timezoneAwareCeiling } from '../../utils/datetime';
+import { getTimezoneFromTimePrefs, getLocalizedCeiling } from '../../utils/datetime';
 
 /**
  * selectData
@@ -32,7 +32,7 @@ import { getTimezoneFromTimePrefs, timezoneAwareCeiling } from '../../utils/date
  */
 export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) {
   const timezone = getTimezoneFromTimePrefs(timePrefs);
-  const end = timezoneAwareCeiling(mostRecent, timezone);
+  const end = getLocalizedCeiling(mostRecent, timezone);
   const dateBoundaries = [end.toISOString()];
   let last = end;
   for (let i = 0; i < numDays; ++i) {
