@@ -21,7 +21,7 @@ import _ from 'lodash';
  * getPatientFullName
  * @param {Object} patient - Tidepool patient object containing profile
  *
- * @return {String} PwD's full name
+ * @return {String} PwD's full name (first & last)
  */
 export function getPatientFullName(patient) {
   const profile = _.get(patient, ['profile'], {});

@@ -66,8 +66,9 @@ export function getTimezoneFromTimePrefs(timePrefs) {
 
 /**
  * formatBirthdate
- * @param  {Object} patient   the patient object that contains the profile
- * @return {String}           MMM D, YYYY formated birthday or empty if none
+ * @param {Object} patient - Tidepool patient object containing profile
+ *
+ * @return {String} formatted birthdate, e.g., 'Jul 4, 1975'; empty String if none found
  */
 export function formatBirthdate(patient) {
   const bday = _.get(patient, ['profile', 'patient', 'birthday'], '');
@@ -95,8 +96,9 @@ export function formatClocktimeFromMsPer24(milliseconds, format = 'h:mm a') {
 
 /**
  * formatDiagnosisDate
- * @param  {Object} patient   the patient object that contains the profile
- * @return {String}           MMM D, YYYY formated diagnosisDate or empty if none
+ * @param {Object} patient - Tidepool patient object containing profile
+ *
+ * @return {String} formatted diagnosis date, e.g., 'Jul 4, 1975'; empty String if none found
  */
 export function formatDiagnosisDate(patient) {
   const diagnosis = _.get(patient, ['profile', 'patient', 'diagnosisDate'], '');
