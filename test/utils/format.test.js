@@ -124,7 +124,7 @@ describe('format', () => {
     },
   };
 
-  const patientKid = {
+  const fakeChildAcct = {
     profile: {
       fullName: 'Mary Smith',
       patient: {
@@ -136,29 +136,15 @@ describe('format', () => {
     },
   };
 
-  describe('patientFullName', () => {
-    it('should be a function', () => {
-      assert.isFunction(format.patientFullName);
-    });
-
-    it('returns patient name', () => {
-      expect(format.patientFullName(patient)).to.equal(patient.profile.fullName);
-    });
-
-    it('returns child name when isOtherPerson', () => {
-      expect(format.patientFullName(patientKid)).to.equal(patientKid.profile.patient.fullName);
-    });
-  });
-
   describe('birthday', () => {
     it('should be a function', () => {
       assert.isFunction(format.birthday);
     });
     it('returns child name when isOtherPerson', () => {
-      expect(format.birthday(patientKid)).to.equal('Jan 31, 1983');
+      expect(format.birthday(fakeChildAcct)).to.equal('Jan 31, 1983');
     });
     it('returns child name when isOtherPerson', () => {
-      expect(format.birthday(patientKid)).to.equal('Jan 31, 1983');
+      expect(format.birthday(fakeChildAcct)).to.equal('Jan 31, 1983');
     });
   });
 

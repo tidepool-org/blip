@@ -93,21 +93,6 @@ export function formatBgValue(val, bgPrefs, outOfRangeThresholds) {
 }
 
 /**
- * patientFullName
- * @param  {Object} patient   the patient object that contains the profile
- * @return {String}           fullName of patient or empty if there is none
- */
-export function patientFullName(patient) {
-  const profile = _.get(patient, ['profile'], {});
-  const patientInfo = profile.patient || {};
-
-  if (patientInfo.isOtherPerson) {
-    return patientInfo.fullName;
-  }
-  return profile.fullName;
-}
-
-/**
  * birthday
  * @param  {Object} patient   the patient object that contains the profile
  * @return {String}           MMM D, YYYY formated birthday or empty if none

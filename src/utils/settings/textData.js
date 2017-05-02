@@ -24,7 +24,8 @@ import { timeFormat } from 'd3-time-format';
 import * as tandemData from './tandemData';
 import * as nonTandemData from './nonTandemData';
 
-import { patientFullName, birthday, diagnosisDate } from '../format';
+import { birthday, diagnosisDate } from '../format';
+import { getPatientFullName } from '../misc';
 
 
 /**
@@ -107,7 +108,7 @@ function formatTitle(patient) {
   `Exported from Tidepool: ${timeFormat('%b %-d, %Y')(new Date())}`;
   const bday = `Date of birth: ${birthday(patient)}`;
   const diagnosis = `Date of diagnosis: ${diagnosisDate(patient)}`;
-  const fullname = patientFullName(patient);
+  const fullname = getPatientFullName(patient);
   return `${fullname}\n${bday}\n${diagnosis}\n${exported}\n`;
 }
 
