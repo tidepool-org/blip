@@ -20,20 +20,6 @@ import { BG_HIGH, BG_LOW, MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/consta
 import * as format from '../../src/utils/format';
 
 describe('format', () => {
-  describe('formatDecimalNumber', () => {
-    it('should give no places when none specified', () => {
-      expect(format.formatDecimalNumber(9.3328)).to.equal('9');
-    });
-
-    it('should give no places when zero specified', () => {
-      expect(format.formatDecimalNumber(9.3328, 0)).to.equal('9');
-    });
-
-    it('should give the number of places when they are specified', () => {
-      expect(format.formatDecimalNumber(9.3328, 1)).to.equal('9.3');
-    });
-  });
-
   describe('formatBgValue', () => {
     it('should be a function', () => {
       assert.isFunction(format.formatBgValue);
@@ -114,49 +100,17 @@ describe('format', () => {
     });
   });
 
-  const patient = {
-    profile: {
-      fullName: 'Mary Smith',
-      patient: {
-        diagnosisDate: '1990-01-31',
-        birthday: '1983-01-31',
-      },
-    },
-  };
+  describe('formatDecimalNumber', () => {
+    it('should give no places when none specified', () => {
+      expect(format.formatDecimalNumber(9.3328)).to.equal('9');
+    });
 
-  const fakeChildAcct = {
-    profile: {
-      fullName: 'Mary Smith',
-      patient: {
-        isOtherPerson: true,
-        fullName: 'My Kid',
-        diagnosisDate: '1990-01-31',
-        birthday: '1983-01-31',
-      },
-    },
-  };
+    it('should give no places when zero specified', () => {
+      expect(format.formatDecimalNumber(9.3328, 0)).to.equal('9');
+    });
 
-  describe('birthday', () => {
-    it('should be a function', () => {
-      assert.isFunction(format.birthday);
-    });
-    it('returns child name when isOtherPerson', () => {
-      expect(format.birthday(fakeChildAcct)).to.equal('Jan 31, 1983');
-    });
-    it('returns child name when isOtherPerson', () => {
-      expect(format.birthday(fakeChildAcct)).to.equal('Jan 31, 1983');
-    });
-  });
-
-  describe('diagnosisDate', () => {
-    it('should be a function', () => {
-      assert.isFunction(format.diagnosisDate);
-    });
-    it('returns child name when isOtherPerson', () => {
-      expect(format.diagnosisDate(patient)).to.equal('Jan 31, 1990');
-    });
-    it('returns child name when isOtherPerson', () => {
-      expect(format.diagnosisDate(patient)).to.equal('Jan 31, 1990');
+    it('should give the number of places when they are specified', () => {
+      expect(format.formatDecimalNumber(9.3328, 1)).to.equal('9.3');
     });
   });
 });

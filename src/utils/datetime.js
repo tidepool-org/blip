@@ -30,13 +30,19 @@
  * 2b. If the function returns a _formatted_ String that will be **surfaced to the end user**,
  * then the function name should start with `format`.
  *
- * 3. Try to be consistent in how params are used:
+ * 3. Function organizational scheme in this file and tests file: alphabetical plz, unless ESLint
+ * complains about an undefined (e.g., getTimezoneFromTimePrefs must be at the top).
+ *
+ * 4. Try to be consistent in how params are used:
  * (e.g., always pass in `timePrefs`) rather than a named timezone
  * and try to copy & paste JSDoc @param descriptions for common params.
  *
  */
 
 import _ from 'lodash';
+// using d3-time-format because time is time of data access in
+// user’s browser time, not PwD’s configured timezone
+import { utcFormat } from 'd3-time-format';
 import moment from 'moment-timezone';
 
 export const THIRTY_MINS = 1800000;
@@ -56,6 +62,64 @@ export function getTimezoneFromTimePrefs(timePrefs) {
     timezone = timezoneName || 'UTC';
   }
   return timezone;
+}
+
+/**
+ * formatBirthdate
+ * @param  {Object} patient   the patient object that contains the profile
+ * @return {String}           MMM D, YYYY formated birthday or empty if none
+ */
+export function formatBirthdate(patient) {
+  const bday = _.get(patient, ['profile', 'patient', 'birthday'], '');
+  if (bday) {
+    return utcFormat('%b %-d, %Y')(Date.parse(bday));
+  }
+  return '';
+}
+
+/**
+ * formatClocktimeFromMsPer24
+ * @param {Number} duration - positive integer representing a time of day
+ *                            in milliseconds within a 24-hr day
+ * @param {String} [format] - optional moment display format string; default is 'h:mm a'
+ *
+ * @return {String} formatted clocktime, e.g., '12:05 pm'
+ */
+export function formatClocktimeFromMsPer24(milliseconds, format = 'h:mm a') {
+  if (_.isNull(milliseconds) || _.isUndefined(milliseconds) ||
+    milliseconds < 0 || milliseconds > TWENTY_FOUR_HRS || milliseconds instanceof Date) {
+    throw new Error('First argument must be a value in milliseconds per twenty-four hour day!');
+  }
+  return moment.utc(milliseconds).format(format);
+}
+
+/**
+ * formatDiagnosisDate
+ * @param  {Object} patient   the patient object that contains the profile
+ * @return {String}           MMM D, YYYY formated diagnosisDate or empty if none
+ */
+export function formatDiagnosisDate(patient) {
+  const diagnosis = _.get(patient, ['profile', 'patient', 'diagnosisDate'], '');
+  if (diagnosis) {
+    return utcFormat('%b %-d, %Y')(Date.parse(diagnosis));
+  }
+  return '';
+}
+
+/**
+ * formatLocalizedFromUTC
+ * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ * @param  {String} [format] - optional moment display format string; default is 'dddd, MMMM D'
+ *
+ * @return {String} formatted datetime, e.g., 'Sunday, January 1'
+ */
+export function formatLocalizedFromUTC(utc, timePrefs, format = 'dddd, MMMM D') {
+  if (utc instanceof Date) {
+    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+  }
+  const timezone = getTimezoneFromTimePrefs(timePrefs);
+  return moment.utc(utc).tz(timezone).format(format);
 }
 
 /**
@@ -110,36 +174,4 @@ export function getLocalizedCeiling(utc, timePrefs) {
     return startOfDay.toDate();
   }
   return startOfDay.add(1, 'day').toDate();
-}
-
-/**
- * formatClocktimeFromMsPer24
- * @param {Number} duration - positive integer representing a time of day
- *                            in milliseconds within a 24-hr day
- * @param {String} [format] - optional moment display format string; default is 'h:mm a'
- *
- * @return {String} formatted clocktime, e.g., '12:05 pm'
- */
-export function formatClocktimeFromMsPer24(milliseconds, format = 'h:mm a') {
-  if (_.isNull(milliseconds) || _.isUndefined(milliseconds) ||
-    milliseconds < 0 || milliseconds > TWENTY_FOUR_HRS || milliseconds instanceof Date) {
-    throw new Error('First argument must be a value in milliseconds per twenty-four hour day!');
-  }
-  return moment.utc(milliseconds).format(format);
-}
-
-/**
- * formatLocalizedFromUTC
- * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
- * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
- * @param  {String} [format] - optional moment display format string; default is 'dddd, MMMM D'
- *
- * @return {String} formatted datetime, e.g., 'Sunday, January 1'
- */
-export function formatLocalizedFromUTC(utc, timePrefs, format = 'dddd, MMMM D') {
-  if (utc instanceof Date) {
-    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
-  }
-  const timezone = getTimezoneFromTimePrefs(timePrefs);
-  return moment.utc(utc).tz(timezone).format(format);
 }

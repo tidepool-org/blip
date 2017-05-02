@@ -18,6 +18,28 @@
 import * as datetime from '../../src/utils/datetime';
 
 describe('datetime', () => {
+  const patient = {
+    profile: {
+      fullName: 'Mary Smith',
+      patient: {
+        diagnosisDate: '1990-01-31',
+        birthday: '1983-01-31',
+      },
+    },
+  };
+
+  const fakeChildAcct = {
+    profile: {
+      fullName: 'Mary Smith',
+      patient: {
+        isOtherPerson: true,
+        fullName: 'My Kid',
+        diagnosisDate: '1990-01-31',
+        birthday: '1983-01-31',
+      },
+    },
+  };
+
   describe('THIRTY_MINS', () => {
     assert.isNumber(datetime.THIRTY_MINS);
   });
@@ -88,31 +110,15 @@ describe('datetime', () => {
     });
   });
 
-  describe('getLocalizedCeiling', () => {
-    const timePrefs = { timezoneAware: true, timezoneName: 'US/Pacific' };
+  describe('formatBirthdate', () => {
     it('should be a function', () => {
-      assert.isFunction(datetime.getLocalizedCeiling);
+      assert.isFunction(datetime.formatBirthdate);
     });
-
-    it('should error if passed a JavaScript Date for the `utc` param', () => {
-      const fn = () => { datetime.getLocalizedCeiling(new Date()); };
-      expect(fn)
-        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+    it('returns child name when isOtherPerson', () => {
+      expect(datetime.formatBirthdate(fakeChildAcct)).to.equal('Jan 31, 1983');
     });
-
-    it('should return the ceiling (= next midnight) for a datetime in a given timezone', () => {
-      const dt = '2016-03-15T14:25:00.000Z';
-      expect(datetime.getLocalizedCeiling(dt, timePrefs).toISOString())
-        .to.equal('2016-03-16T07:00:00.000Z');
-      const asInteger = Date.parse(dt);
-      expect(datetime.getLocalizedCeiling(asInteger, timePrefs).toISOString())
-        .to.equal('2016-03-16T07:00:00.000Z');
-    });
-
-    it('should return the same datetime if it already is a midnight in given timezone', () => {
-      const dt = '2016-03-15T07:00:00.000Z';
-      expect(datetime.getLocalizedCeiling(dt, timePrefs).toISOString())
-        .to.equal(dt);
+    it('returns child name when isOtherPerson', () => {
+      expect(datetime.formatBirthdate(fakeChildAcct)).to.equal('Jan 31, 1983');
     });
   });
 
@@ -154,6 +160,18 @@ describe('datetime', () => {
     it('should use a custom format string passed as second arg', () => {
       expect(datetime.formatClocktimeFromMsPer24(twoTwentyAfternoonMs, 'kk🙃mm'))
         .to.equal('14🙃20');
+    });
+  });
+
+  describe('formatDiagnosisDate', () => {
+    it('should be a function', () => {
+      assert.isFunction(datetime.formatDiagnosisDate);
+    });
+    it('returns child name when isOtherPerson', () => {
+      expect(datetime.formatDiagnosisDate(patient)).to.equal('Jan 31, 1990');
+    });
+    it('returns child name when isOtherPerson', () => {
+      expect(datetime.formatDiagnosisDate(patient)).to.equal('Jan 31, 1990');
     });
   });
 
@@ -281,6 +299,34 @@ describe('datetime', () => {
       expect(fn).to.throw(
         'Check your input datum; could not parse `time` or `deviceTime` with Date.parse.'
       );
+    });
+  });
+
+  describe('getLocalizedCeiling', () => {
+    const timePrefs = { timezoneAware: true, timezoneName: 'US/Pacific' };
+    it('should be a function', () => {
+      assert.isFunction(datetime.getLocalizedCeiling);
+    });
+
+    it('should error if passed a JavaScript Date for the `utc` param', () => {
+      const fn = () => { datetime.getLocalizedCeiling(new Date()); };
+      expect(fn)
+        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+    });
+
+    it('should return the ceiling (= next midnight) for a datetime in a given timezone', () => {
+      const dt = '2016-03-15T14:25:00.000Z';
+      expect(datetime.getLocalizedCeiling(dt, timePrefs).toISOString())
+        .to.equal('2016-03-16T07:00:00.000Z');
+      const asInteger = Date.parse(dt);
+      expect(datetime.getLocalizedCeiling(asInteger, timePrefs).toISOString())
+        .to.equal('2016-03-16T07:00:00.000Z');
+    });
+
+    it('should return the same datetime if it already is a midnight in given timezone', () => {
+      const dt = '2016-03-15T07:00:00.000Z';
+      expect(datetime.getLocalizedCeiling(dt, timePrefs).toISOString())
+        .to.equal(dt);
     });
   });
 });
