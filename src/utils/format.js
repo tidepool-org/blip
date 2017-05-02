@@ -15,6 +15,25 @@
  * == BSD2 LICENSE ==
  */
 
+/*
+ * Guidelines for these utilities:
+ *
+ * 1. Only "workhorse" functions used in 2+ places should be here.
+ * 1a. A function used in multiple components for one view should live
+ * in view-specific utils: src/utils/[view]/format.js
+ * 1b. A function used in only one component should just be part of that component,
+ * potentially as a named export if tests are deemed important to have.
+ * 1c. This set of utilities is ONLY for NON-datetime related formatting. Any functions
+ * used for formatting dates and/or times should go in src/utils/datetime.js
+ *
+ * 2. Function naming scheme: the main verb here is `format`. Start all function names with that.
+ *
+ * 3. Try to be consistent in how params are used:
+ * (e.g., always pass in `bgPrefs`) rather than some (subset) of bgUnits and/or bgBounds
+ * and try to copy & paste JSDoc @param descriptions for common params.
+ *
+ */
+
 import _ from 'lodash';
 import { format } from 'd3-format';
 // using d3-time-format because time is time of data access in
