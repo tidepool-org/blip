@@ -24,7 +24,7 @@ import RangeSelect from './components/trends/cbg/RangeSelect';
 
 import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
 
-import PumpSettingsContainer from './containers/settings/PumpSettingsContainer';
+import PumpSettingsContainer from './components/settings/common/PumpSettingsContainer';
 import TrendsContainer from './components/trends/common/TrendsContainer';
 
 import vizReducer from './redux/reducers/';
