@@ -9,7 +9,7 @@ As you're getting ready to develop code in this repository, we recommend startin
 - [planned architecture](./Architecture.md)
 - [app & directory structure](./DirectoryStructure.md)
 - [code style](./CodeStyle.md)
-- [dependencies](./Dependencies.md)
+- [dependencies](./deps/README.md)
 
 The root-level [README]('../README.md') contains the nuts & bolts of installing, configuring, and commands to accomplish various tasks.
 
