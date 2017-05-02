@@ -28,7 +28,7 @@ import SixHrScaleSVGDecorator, { HEIGHT, xScale } from '../../../helpers/SixHrSc
 
 const yScale = scaleLinear().domain([0, 10]).range([HEIGHT, 0]);
 
-const ONE_AM = '2017-03-06T09:00:00.000Z';
+const ONE_AM = Date.parse('2017-03-06T09:00:00.000Z');
 
 const BOLUS_OPTS = { bolusWidth: 12, interruptedLineThickness: 2 };
 
@@ -39,7 +39,7 @@ storiesOf('Bolus', module)
       type: 'bolus',
       subType: 'normal',
       normal: 6.25,
-      normalTime: ONE_AM,
+      utc: ONE_AM,
       id: '61b4d2ffc5a74d2b80b5a9ef44bf5c35',
     };
     const paths = getBolusPaths(bolus, xScale, yScale, BOLUS_OPTS);
@@ -55,7 +55,7 @@ storiesOf('Bolus', module)
       subType: 'normal',
       normal: 5,
       expectedNormal: 6.25,
-      normalTime: ONE_AM,
+      utc: ONE_AM,
       id: 'a30ebc79aab0453097182cb0b456f511',
     };
     const paths = getBolusPaths(bolus, xScale, yScale, BOLUS_OPTS);

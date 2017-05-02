@@ -56,7 +56,15 @@ export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) 
     selected.dataByDate[date] = {
       bounds: [start, dateBoundaries[i + 1]],
       date,
-      data: _.groupBy(dataByDate.filterRange([start, dateBoundaries[i + 1]]).top(Infinity), 'type'),
+      data: _.groupBy(
+        _.map(
+          dataByDate.filterRange([start, dateBoundaries[i + 1]]).top(Infinity),
+          // we don't want to carry forward the tech debt of using String `normalTime` for everything
+          // so pre-parse into a hammertime and store as `utc`
+          (d) => { d.utc = Date.parse(d.normalTime); delete d.normalTime; return d; }
+        ),
+        'type',
+      ),
     };
     // NB: this assumes wizards are embedded into boluses as whole objects, not IDs
     const typesToDelete = ['fill', 'pumpSettings', 'wizard'];
@@ -83,7 +91,7 @@ export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) 
   );
   _.each(boluses, (bolus) => {
     // eslint-disable-next-line no-param-reassign
-    bolus.threeHrBin = Math.floor(moment.utc(bolus.normalTime).tz(timezone).hours() / 3) * 3;
+    bolus.threeHrBin = Math.floor(moment.utc(bolus.utc).tz(timezone).hours() / 3) * 3;
   });
   selected.bolusRange = extent(boluses, (d) => (d.normal + (d.extended || 0)));
 

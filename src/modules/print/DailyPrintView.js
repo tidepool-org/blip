@@ -453,7 +453,7 @@ class DailyPrintView {
   renderCbgs({ bgScale, data: { cbg: cbgs }, xScale }) {
     _.each(cbgs, (cbg) => {
       // eslint-disable-next-line lodash/prefer-lodash-method
-      this.doc.circle(xScale(Date.parse(cbg.normalTime)), bgScale(cbg.value), 1)
+      this.doc.circle(xScale(cbg.utc), bgScale(cbg.value), 1)
         .fill(styles[classifyBgValue(this.bgBounds, cbg.value)]);
     });
 
@@ -506,8 +506,8 @@ class DailyPrintView {
           },
         };
       }(this.doc));
-      _.each(_.sortBy(binOfBoluses, 'normalTime'), (bolus) => {
-        const displayTime = formatLocalizedFromUTC(bolus.normalTime, this.timePrefs, 'h:mma')
+      _.each(_.sortBy(binOfBoluses, 'utc'), (bolus) => {
+        const displayTime = formatLocalizedFromUTC(bolus.utc, this.timePrefs, 'h:mma')
           .slice(0, -1);
         this.doc.text(
             displayTime,

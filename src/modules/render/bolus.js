@@ -56,7 +56,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
   const paths = [];
 
   const bolusBottom = yScale.range()[0];
-  const bolusCenter = xScale(Date.parse(bolus.normalTime));
+  const bolusCenter = xScale(bolus.utc);
 
   // the backmost layer is any undelivered bolus insulin (in the case of interruption or underride)
   if (isInterruptedBolus(bolus)) {
