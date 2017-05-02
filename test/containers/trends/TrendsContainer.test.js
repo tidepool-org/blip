@@ -25,11 +25,17 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
-import { timezoneAwareCeiling } from '../../../src/utils/datetime';
+import { getLocalizedCeiling } from '../../../src/utils/datetime';
 import DummyComponent from '../../helpers/DummyComponent';
 
-import { TrendsContainer, mapStateToProps, mapDispatchToProps }
-  from '../../../src/containers/trends/TrendsContainer';
+import {
+  TrendsContainer,
+  getAllDatesInRange,
+  getLocalizedNoonBeforeUTC,
+  getLocalizedOffset,
+  mapStateToProps,
+  mapDispatchToProps,
+} from '../../../src/containers/trends/TrendsContainer';
 import TrendsSVGContainer from '../../../src/containers/trends/TrendsSVGContainer';
 
 describe('TrendsContainer', () => {
@@ -37,6 +43,84 @@ describe('TrendsContainer', () => {
   // due to not rendering TrendsContainer within a real app like blip
   // eslint-disable-next-line no-console
   console.warn = sinon.stub();
+
+  describe('getAllDatesInRange', () => {
+    it('should be a function', () => {
+      assert.isFunction(getAllDatesInRange);
+    });
+
+    it('should return an array containing the date `2016-11-06`', () => {
+      const start = '2016-11-06T05:00:00.000Z';
+      const end = '2016-11-07T06:00:00.000Z';
+      expect(getAllDatesInRange(start, end, {
+        timezoneAware: true,
+        timezoneName: 'US/Central',
+      })).to.deep.equal(['2016-11-06']);
+    });
+  });
+
+  describe('getLocalizedNoonBeforeUTC', () => {
+    it('should be a function', () => {
+      assert.isFunction(getLocalizedNoonBeforeUTC);
+    });
+
+    it('should error if passed a JavaScript Date for the `utc` param', () => {
+      const fn = () => { getLocalizedNoonBeforeUTC(new Date()); };
+      expect(fn)
+        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+    });
+
+    it('[UTC, midnight input] should return the timestamp for the noon prior', () => {
+      const dt = '2016-03-15T00:00:00.000Z';
+      expect(getLocalizedNoonBeforeUTC(dt, { timezoneAware: false }).toISOString())
+        .to.equal('2016-03-14T12:00:00.000Z');
+      const asInteger = Date.parse(dt);
+      expect(getLocalizedNoonBeforeUTC(asInteger, { timezoneAware: false }).toISOString())
+        .to.equal('2016-03-14T12:00:00.000Z');
+    });
+
+    it('[UTC, anytime input] should return the timestamp for the noon prior', () => {
+      const dt = '2016-03-14T02:36:25.342Z';
+      expect(getLocalizedNoonBeforeUTC(dt, { timezoneAware: false }).toISOString())
+        .to.equal('2016-03-14T12:00:00.000Z');
+      const asInteger = Date.parse(dt);
+      expect(getLocalizedNoonBeforeUTC(asInteger, { timezoneAware: false }).toISOString())
+        .to.equal('2016-03-14T12:00:00.000Z');
+    });
+
+    it('[across DST] should return the timestamp for the noon prior', () => {
+      const dt = '2016-03-14T05:00:00.000Z';
+      const timePrefs = { timezoneAware: true, timezoneName: 'US/Central' };
+      expect(getLocalizedNoonBeforeUTC(dt, timePrefs).toISOString())
+        .to.equal('2016-03-13T17:00:00.000Z');
+      const asInteger = Date.parse(dt);
+      expect(getLocalizedNoonBeforeUTC(asInteger, timePrefs).toISOString())
+        .to.equal('2016-03-13T17:00:00.000Z');
+    });
+  });
+
+  describe('getLocalizedOffset', () => {
+    it('should be a function', () => {
+      assert.isFunction(getLocalizedOffset);
+    });
+
+    it('should error if passed a JavaScript Date for the `utc` param', () => {
+      const fn = () => { getLocalizedOffset(new Date()); };
+      expect(fn)
+        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+    });
+
+    it('should offset from noon to noon across DST', () => {
+      const dt = '2016-03-13T17:00:00.000Z';
+      expect(getLocalizedOffset(dt, {
+        amount: -10,
+        units: 'days',
+      }, {
+        timezoneAware: true,
+        timezoneName: 'US/Central',
+      }).toISOString()).to.equal('2016-03-03T18:00:00.000Z');
+    });
+  });
 
   describe('TrendsContainer (w/o redux connect()ion)', () => {
     let minimalData;
@@ -192,7 +276,7 @@ describe('TrendsContainer', () => {
       });
 
       it('should set dateDomain based on current datetime if no initialDatetimeLocation', () => {
-        const ceil = timezoneAwareCeiling(new Date().valueOf(), 'UTC').toISOString();
+        const ceil = getLocalizedCeiling(new Date().valueOf(), 'UTC').toISOString();
         const { dateDomain } = minimalData.state();
         expect(dateDomain.end).to.equal(ceil);
       });
@@ -590,6 +674,30 @@ describe('TrendsContainer', () => {
             expect(newDomain.end).to.equal(mostRecent);
 
             instance.setExtent.restore();
+          });
+        });
+
+        describe('selectDate', () => {
+          it('should exist and be a function', () => {
+            assert.isFunction(minimalData.instance().selectDate);
+          });
+          const localDate = '2016-09-23';
+          const dstBegin = '2016-03-13';
+          const dstEnd = '2016-11-06';
+
+          it('should return `2016-09-23T19:00:00.000Z` given `2016-09-23`', () => {
+            const midDayForDate = minimalData.instance().selectDate();
+            expect(midDayForDate(localDate)).to.equal('2016-09-23T19:00:00.000Z');
+          });
+
+          it('should return `2016-03-13T20:00:00.000Z` given `2016-03-13`', () => {
+            const midDayForDate = minimalData.instance().selectDate();
+            expect(midDayForDate(dstBegin)).to.equal('2016-03-13T20:00:00.000Z');
+          });
+
+          it('should return `2016-11-06T19:00:00.000Z` given `2016-11-06`', () => {
+            const midDayForDate = minimalData.instance().selectDate();
+            expect(midDayForDate(dstEnd)).to.equal('2016-11-06T19:00:00.000Z');
           });
         });
       });

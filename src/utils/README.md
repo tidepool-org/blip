@@ -2,6 +2,20 @@
 
 This directory contains pure JavaScript utilities for data munging, datetime manipulation, and data display formatting. This document describes our coding standards for these utilities.
 
+### auto-generating API docs
+
+We enforce the use of [JSDoc](http://usejsdoc.org/ '@use JSDoc') comments within the `src/utils/` directory with the `require-jsdoc` ESLint rule. To generate or update the Markdown file of auto-generated API documentation using [jsdoc2md](https://github.com/jsdoc2md/jsdoc-to-markdown 'GitHub: jsdoc2md'), run the following:
+
+```bash
+npm run apidocs src/utils/utilsfile.js > src/utils/apidocs/utilsfile.md
+```
+
+For example:
+
+```bash
+npm run apidocs src/utils/datetime.js > src/utils/apidocs/datetime.md
+```
+
 ### use of ES6 `import` and `export`
 
 - `export` each function individually:

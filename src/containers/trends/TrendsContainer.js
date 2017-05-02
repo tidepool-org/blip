@@ -22,6 +22,7 @@ import bows from 'bows';
 import { extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { utcDay } from 'd3-time';
+import moment from 'moment-timezone';
 import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -33,6 +34,68 @@ import {
 } from '../../utils/constants';
 const { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } } = trends;
 import * as datetime from '../../utils/datetime';
+
+/**
+ * getAllDatesInRange
+ * @param {String} start - Zulu timestamp (Integer hammertime also OK)
+ * @param {String} end - Zulu timestamp (Integer hammertime also OK)
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ *
+ * @return {Array} dates - array of YYYY-MM-DD String dates
+ */
+export function getAllDatesInRange(start, end, timePrefs) {
+  const timezoneName = datetime.getTimezoneFromTimePrefs(timePrefs);
+  const dates = [];
+  const current = moment.utc(start)
+    .tz(timezoneName);
+  const excludedBoundary = moment.utc(end);
+  while (current.isBefore(excludedBoundary)) {
+    dates.push(current.format('YYYY-MM-DD'));
+    current.add(1, 'day');
+  }
+  return dates;
+}
+
+/**
+ * getLocalizedNoonBeforeUTC
+ * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ *
+ * @return {JavaScript Date} the closet noon before the input datetime in the given timezone
+ */
+export function getLocalizedNoonBeforeUTC(utc, timePrefs) {
+  if (utc instanceof Date) {
+    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+  }
+  const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+  const ceil = datetime.getLocalizedCeiling(utc, timePrefs);
+  return moment.utc(ceil.valueOf())
+    .tz(timezone)
+    .subtract(1, 'day')
+    .hours(12)
+    .toDate();
+}
+
+/**
+ * getLocalizedOffset
+ * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
+ * @param {Object} offset - { amount: integer (+/-), units: 'hour', 'day', &c }
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ *
+ * @return {JavaScript Date} datetime at the specified +/- offset from the input datetime
+ *                           inspired by d3-time's offset function: https://github.com/d3/d3-time#interval_offset
+ *                           but able to work with an arbitrary timezone
+ */
+export function getLocalizedOffset(utc, offset, timePrefs) {
+  if (utc instanceof Date) {
+    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+  }
+  const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+  return moment.utc(utc)
+    .tz(timezone)
+    .add(offset.amount, offset.units)
+    .toDate();
+}
 
 export class TrendsContainer extends PureComponent {
   static propTypes = {
@@ -186,6 +249,8 @@ export class TrendsContainer extends PureComponent {
       xScale: null,
       yScale: null,
     };
+
+    this.selectDate = this.selectDate.bind(this);
   }
 
   componentWillMount() {
@@ -205,9 +270,9 @@ export class TrendsContainer extends PureComponent {
     // find initial date domain (based on initialDatetimeLocation or current time)
     const { extentSize, initialDatetimeLocation, timePrefs } = this.props;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    const mostRecent = datetime.timezoneAwareCeiling(new Date().valueOf(), timezone);
+    const mostRecent = datetime.getLocalizedCeiling(new Date().valueOf(), timezone);
     const end = initialDatetimeLocation ?
-      datetime.timezoneAwareCeiling(initialDatetimeLocation, timezone) : mostRecent;
+      datetime.getLocalizedCeiling(initialDatetimeLocation, timezone) : mostRecent;
     const start = utcDay.offset(end, -extentSize);
     const dateDomain = [start.toISOString(), end.toISOString()];
 
@@ -267,12 +332,8 @@ export class TrendsContainer extends PureComponent {
   }
 
   getCurrentDay() {
-    const { timePrefs } = this.props;
     const { dateDomain: { end } } = this.state;
-    return datetime.localNoonBeforeTimestamp(
-      end,
-      datetime.getTimezoneFromTimePrefs(timePrefs)
-    ).toISOString();
+    return getLocalizedNoonBeforeUTC(end, this.props.timePrefs).toISOString();
   }
 
   setExtent(newDomain, oldDomain) {
@@ -292,19 +353,24 @@ export class TrendsContainer extends PureComponent {
   }
 
   selectDate() {
-    return (date) => this.props.onSelectDate(datetime.midDayForDate(date, this.props.timePrefs));
+    const { timePrefs } = this.props;
+    return (date) => {
+      const noonOnDate = moment.tz(date, datetime.getTimezoneFromTimePrefs(timePrefs))
+        .startOf('day')
+        .add(12, 'hours')
+        .toISOString();
+      return noonOnDate;
+    };
   }
 
   goBack() {
     const oldDomain = _.clone(this.state.dateDomain);
     const { dateDomain: { start: newEnd } } = this.state;
-    const { timePrefs } = this.props;
-    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    const start = datetime.timezoneAwareOffset(newEnd, timezone, {
+    const start = getLocalizedOffset(newEnd, {
       // negative because we are moving backward in time
       amount: -this.props.extentSize,
       units: 'days',
-    }).toISOString();
+    }, this.props.timePrefs).toISOString();
     const newDomain = [start, newEnd];
     this.setExtent(newDomain, [oldDomain.start, oldDomain.end]);
   }
@@ -365,7 +431,6 @@ export class TrendsContainer extends PureComponent {
   }
 
   render() {
-    const timezone = datetime.getTimezoneFromTimePrefs(this.props.timePrefs);
     const { start: currentStart, end: currentEnd } = this.state.dateDomain;
     const prevStart = _.get(this.state, ['previousDateDomain', 'start']);
     const prevEnd = _.get(this.state, ['previousDateDomain', 'end']);
@@ -385,7 +450,7 @@ export class TrendsContainer extends PureComponent {
         bgUnits={this.props.bgUnits}
         smbgData={this.state.currentSmbgData}
         cbgData={this.state.currentCbgData}
-        dates={datetime.getAllDatesInRange(start, end, timezone)}
+        dates={getAllDatesInRange(start, end, this.props.timePrefs)}
         focusedSlice={this.props.trendsState.focusedCbgSlice}
         focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
         focusedSmbgRangeAvgKey={_.get(

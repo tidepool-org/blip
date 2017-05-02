@@ -15,32 +15,33 @@
  * == BSD2 LICENSE ==
  */
 
+/*
+ * Guidelines for these utilities:
+ *
+ * 1. Only "workhorse" functions used in 2+ places should be here.
+ * 1a. A function used in multiple components for one view should live
+ * in view-specific utils: src/utils/[view]/datetime.js
+ * 1b. A function used in only one component should just be part of that component,
+ * potentially as a named export if tests are deemed important to have.
+ *
+ * 2. Function naming scheme: the two main verbs here are `get` and `format`.
+ * 2a. If the function returns any kind of datetime (JavaScript Date, hammertime, ISO 8601 String),
+ * then the function name should start with `get`.
+ * 2b. If the function returns a _formatted_ String that will be **surfaced to the end user**,
+ * then the function name should start with `format`.
+ *
+ * 3. Try to be consistent in how params are used:
+ * (e.g., always pass in `timePrefs`) rather than a named timezone
+ * and try to copy & paste JSDoc @param descriptions for common params.
+ *
+ */
+
 import _ from 'lodash';
 import moment from 'moment-timezone';
 
 export const THIRTY_MINS = 1800000;
 export const THREE_HRS = 10800000;
 export const TWENTY_FOUR_HRS = 86400000;
-
-/**
- * getAllDatesInRange
- * @param {String} start - Zulu timestamp (Integer hammertime also OK)
- * @param {String} end - Zulu timestamp (Integer hammertime also OK)
- * @param {String} timezone - named timezone
- *
- * @return {Array} dates - array of YYYY-MM-DD String dates
- */
-export function getAllDatesInRange(start, end, timezoneName) {
-  const dates = [];
-  const current = moment.utc(start)
-    .tz(timezoneName);
-  const excludedBoundary = moment.utc(end);
-  while (current.isBefore(excludedBoundary)) {
-    dates.push(current.format('YYYY-MM-DD'));
-    current.add(1, 'day');
-  }
-  return dates;
-}
 
 /**
  * getTimezoneFromTimePrefs
@@ -58,21 +59,53 @@ export function getTimezoneFromTimePrefs(timePrefs) {
 }
 
 /**
- * timezoneAwareCeiling
- * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
- * @param {String} timezone - named timezone
+ * getHammertimeFromDatumWithTimePrefs
+ * @param {Object} datum - a Tidepool datum with a time (required) and deviceTime (optional)
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *
- * @return {JavaScript Date} datetime
+ * @return {Number} Integer hammertime (i.e., UTC time in milliseconds)
  */
-export function timezoneAwareCeiling(utc, timezone) {
+export function getHammertimeFromDatumWithTimePrefs(datum, timePrefs) {
+  let hammertime;
+  if (timePrefs.timezoneAware) {
+    if (!_.isUndefined(datum.time)) {
+      hammertime = Date.parse(datum.time);
+    } else {
+      hammertime = null;
+    }
+  } else {
+    if (!_.isUndefined(datum.deviceTime)) {
+      hammertime = Date.parse(datum.deviceTime);
+    } else {
+      hammertime = null;
+    }
+  }
+  if (_.isNaN(hammertime)) {
+    throw new Error(
+      'Check your input datum; could not parse `time` or `deviceTime` with Date.parse.'
+    );
+  }
+  return hammertime;
+}
+
+/**
+ * getLocalizedCeiling
+ * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ *
+ * @return {Object} a JavaScript Date, the closest (future) midnight according to timePrefs;
+ *                  if utc is already local midnight, returns utc
+ */
+export function getLocalizedCeiling(utc, timePrefs) {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
+  const timezone = getTimezoneFromTimePrefs(timePrefs);
   const startOfDay = moment.utc(utc)
     .tz(timezone)
     .startOf('day');
 
-  const utcHammertime = typeof utc === 'string' ? Date.parse(utc) : utc;
+  const utcHammertime = (typeof utc === 'string') ? Date.parse(utc) : utc;
   if (startOfDay.valueOf() === utcHammertime) {
     return startOfDay.toDate();
   }
@@ -80,51 +113,14 @@ export function timezoneAwareCeiling(utc, timezone) {
 }
 
 /**
- * timezoneAwareOffset
- * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
- * @param {String} timezone - named timezone
- * @param {Object} offset - { amount: integer (+/-), units: 'hour', 'day', &c }
- *
- * @return {JavaScript Date} datetime
- */
-export function timezoneAwareOffset(utc, timezone, offset) {
-  if (utc instanceof Date) {
-    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
-  }
-  return moment.utc(utc)
-    .tz(timezone)
-    .add(offset.amount, offset.units)
-    .toDate();
-}
-
-/**
- * localNoonBeforeTimestamp
- * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
- * @param {String} timezone - named timezone
- *
- * @return {JavaScript Date} datetime
- */
-export function localNoonBeforeTimestamp(utc, timezone) {
-  if (utc instanceof Date) {
-    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
-  }
-  const ceil = timezoneAwareCeiling(utc, timezone);
-  return moment.utc(ceil.valueOf())
-    .tz(timezone)
-    .subtract(1, 'day')
-    .hours(12)
-    .toDate();
-}
-
-/**
- * millisecondsAsTimeOfDay
+ * formatClocktimeFromMsPer24
  * @param {Number} duration - positive integer representing a time of day
  *                            in milliseconds within a 24-hr day
  * @param {String} [format] - optional moment display format string; default is 'h:mm a'
  *
- * @return {String} formatted clocktime
+ * @return {String} formatted clocktime, e.g., '12:05 pm'
  */
-export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
+export function formatClocktimeFromMsPer24(milliseconds, format = 'h:mm a') {
   if (_.isNull(milliseconds) || _.isUndefined(milliseconds) ||
     milliseconds < 0 || milliseconds > TWENTY_FOUR_HRS || milliseconds instanceof Date) {
     throw new Error('First argument must be a value in milliseconds per twenty-four hour day!');
@@ -133,64 +129,17 @@ export function millisecondsAsTimeOfDay(milliseconds, format = 'h:mm a') {
 }
 
 /**
- * formatDisplayDate
- * @param  {(string|number)} utc Zulu timestamp (Integer hammertime also OK)
- * @param  {Object} (optional) timePrefs object containing timezone preferences
- * @param  {boolean} timePrefs.timezoneAware boolean to indicate timezone awareness
- * @param  {(string|null)} timePrefs.timezoneName name of timezone or null
- * @param  {string} [format] optional moment display format string; default is 'MMM D, YYYY'
+ * formatLocalizedFromUTC
+ * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ * @param  {String} [format] - optional moment display format string; default is 'dddd, MMMM D'
  *
- * @return {string}           formatted timezoneAware date string
+ * @return {String} formatted datetime, e.g., 'Sunday, January 1'
  */
-export function formatDisplayDate(utc, timePrefs, format = 'dddd, MMMM D') {
+export function formatLocalizedFromUTC(utc, timePrefs, format = 'dddd, MMMM D') {
   if (utc instanceof Date) {
     throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
   }
-  return moment.utc(utc).tz(getTimezoneFromTimePrefs(timePrefs || {})).format(format);
-}
-
-/**
- * Parse time for a datum based on timezone awareness
- * @param  {Object} data            data point to parse a time for
- * @param  {string} data.time       utc Zulu timestamp
- * @param  {string} data.deviceTime utc Zulu timestamp
- * @param  {Object} timePrefs       object containing timezone preferences
- * @param  {boolean} timePrefs.timezoneAware boolean to indicate timezone awareness
- *
- * @return {number|false}           hammertime or Bool false for missing properties
- */
-export function getParsedTime(data, timePrefs) {
-  let parsedTime;
-  if (timePrefs.timezoneAware) {
-    if (!_.isUndefined(data.time)) {
-      parsedTime = Date.parse(data.time);
-    } else {
-      parsedTime = false;
-    }
-  } else {
-    if (!_.isUndefined(data.deviceTime)) {
-      parsedTime = Date.parse(data.deviceTime);
-    } else {
-      parsedTime = false;
-    }
-  }
-  if (_.isNaN(parsedTime)) {
-    throw new Error('time and deviceTime must be a ISO-formatted String timestamp');
-  }
-  return parsedTime;
-}
-
-/**
- * Get an ISO formatted string representing noon for a given (pre-TZ adjusted) date
- * @param  {String} localDate date already adjusted for timeZone
- * @param  {Object} timePrefs object containing timezone preferences
- * @param  {boolean} timePrefs.timezoneAware boolean to indicate timezone awareness
- * @param  {(string|null)} timePrefs.timezoneName name of timezone or null
- * @return {String}           ISO-formatted string
- */
-export function midDayForDate(localDate, timePrefs) {
-  return moment.tz(localDate, getTimezoneFromTimePrefs(timePrefs))
-    .startOf('day')
-    .add(12, 'hours')
-    .toISOString();
+  const timezone = getTimezoneFromTimePrefs(timePrefs);
+  return moment.utc(utc).tz(timezone).format(format);
 }
