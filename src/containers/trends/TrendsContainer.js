@@ -361,7 +361,7 @@ export class TrendsContainer extends PureComponent {
         .startOf('day')
         .add(12, 'hours')
         .toISOString();
-      return noonOnDate;
+      this.props.onSelectDate(noonOnDate);
     };
   }
 

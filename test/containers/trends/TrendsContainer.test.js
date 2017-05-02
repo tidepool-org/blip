@@ -686,6 +686,10 @@ describe('TrendsContainer', () => {
         });
 
         describe('selectDate', () => {
+          afterEach(() => {
+            props.onSelectDate.reset();
+          });
+
           it('should exist and be a function', () => {
             assert.isFunction(minimalData.instance().selectDate);
           });
@@ -693,19 +697,22 @@ describe('TrendsContainer', () => {
           const dstBegin = '2016-03-13';
           const dstEnd = '2016-11-06';
 
-          it('should return `2016-09-23T19:00:00.000Z` given `2016-09-23`', () => {
+          it('should call `onSelectDate` with `2016-09-23T19:00:00.000Z` on `2016-09-23`', () => {
             const midDayForDate = minimalData.instance().selectDate();
-            expect(midDayForDate(localDate)).to.equal('2016-09-23T19:00:00.000Z');
+            midDayForDate(localDate);
+            expect(props.onSelectDate.firstCall.args[0]).to.equal('2016-09-23T19:00:00.000Z');
           });
 
-          it('should return `2016-03-13T20:00:00.000Z` given `2016-03-13`', () => {
+          it('should call `onSelectDate` with `2016-03-13T20:00:00.000Z` on `2016-03-13`', () => {
             const midDayForDate = minimalData.instance().selectDate();
-            expect(midDayForDate(dstBegin)).to.equal('2016-03-13T20:00:00.000Z');
+            midDayForDate(dstBegin);
+            expect(props.onSelectDate.firstCall.args[0]).to.equal('2016-03-13T20:00:00.000Z');
           });
 
-          it('should return `2016-11-06T19:00:00.000Z` given `2016-11-06`', () => {
+          it('should call `onSelectDate` with `2016-11-06T19:00:00.000Z` on `2016-11-06`', () => {
             const midDayForDate = minimalData.instance().selectDate();
-            expect(midDayForDate(dstEnd)).to.equal('2016-11-06T19:00:00.000Z');
+            midDayForDate(dstEnd);
+            expect(props.onSelectDate.firstCall.args[0]).to.equal('2016-11-06T19:00:00.000Z');
           });
         });
       });
