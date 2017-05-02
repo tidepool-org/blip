@@ -20,11 +20,11 @@ import React from 'react';
 import TransitionGroupPlus from 'react-transition-group-plus';
 import { shallow } from 'enzyme';
 
-import bgBounds from '../../helpers/bgBounds';
-import CBGDateTraceAnimated from '../../../src/components/trends/cbg/CBGDateTraceAnimated';
+import bgBounds from '../../../helpers/bgBounds';
+import CBGDateTraceAnimated from '../../../../src/components/trends/cbg/CBGDateTraceAnimated';
 
 import CBGDateTracesAnimationContainer
-  from '../../../src/containers/trends/CBGDateTracesAnimationContainer';
+  from '../../../../src/components/trends/cbg/CBGDateTracesAnimationContainer';
 
 describe('CBGDateTracesAnimationContainer', () => {
   const props = {

@@ -19,17 +19,17 @@ import React from 'react';
 
 import { shallow } from 'enzyme';
 
-import * as scales from '../../helpers/scales';
+import * as scales from '../../../helpers/scales';
 const {
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
-import bgBounds from '../../helpers/bgBounds';
-import { THREE_HRS } from '../../../src/utils/datetime';
+import bgBounds from '../../../helpers/bgBounds';
+import { THREE_HRS } from '../../../../src/utils/datetime';
 import SMBGRangeAvgContainer
-  from '../../../src/containers/trends/SMBGRangeAvgContainer';
+  from '../../../../src/components/trends/smbg/SMBGRangeAvgContainer';
 import SMBGRangeAnimated
-  from '../../../src/components/trends/smbg/SMBGRangeAnimated';
+  from '../../../../src/components/trends/smbg/SMBGRangeAnimated';
 
 describe('SMBGRangeAvgContainer', () => {
   let wrapper;

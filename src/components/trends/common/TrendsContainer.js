@@ -27,13 +27,13 @@ import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import * as actions from '../../redux/actions/';
+import * as actions from '../../../redux/actions/';
 import TrendsSVGContainer from './TrendsSVGContainer';
 import {
   MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP, MGDL_UNITS, MMOLL_UNITS, trends,
-} from '../../utils/constants';
+} from '../../../utils/constants';
 const { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } } = trends;
-import * as datetime from '../../utils/datetime';
+import * as datetime from '../../../utils/datetime';
 
 /**
  * getAllDatesInRange
