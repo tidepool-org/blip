@@ -27,7 +27,9 @@ import styles from '../../../../src/components/trends/common/FocusedRangeLabels.
 
 describe('FocusedRangeLabels', () => {
   const props = {
-    bgUnits: MGDL_UNITS,
+    bgPrefs: {
+      bgUnits: MGDL_UNITS,
+    },
     focusedKeys: null,
     focusedRange: null,
     focusedSlice: null,

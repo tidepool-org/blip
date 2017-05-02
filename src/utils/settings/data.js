@@ -85,7 +85,7 @@ function getBloodGlucoseValue(scheduleData, fieldName, startTime, units) {
   if (noData(bgValue)) {
     return '';
   }
-  return format.displayBgValue(bgValue, units);
+  return format.formatBgValue(bgValue, { bgUnits: units });
 }
 
 /**

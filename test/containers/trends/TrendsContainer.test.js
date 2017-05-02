@@ -231,21 +231,25 @@ describe('TrendsContainer', () => {
     };
 
     const mgdl = {
-      bgUnits: MGDL_UNITS,
-      bgBounds: {
-        veryHighThreshold: 300,
-        targetUpperBound: 180,
-        targetLowerBound: 80,
-        veryLowThreshold: 60,
+      bgPrefs: {
+        bgUnits: MGDL_UNITS,
+        bgBounds: {
+          veryHighThreshold: 300,
+          targetUpperBound: 180,
+          targetLowerBound: 80,
+          veryLowThreshold: 60,
+        },
       },
     };
     const mmoll = {
-      bgUnits: MMOLL_UNITS,
-      bgBounds: {
-        veryHighThreshold: 30,
-        targetUpperBound: 10,
-        targetLowerBound: 4.4,
-        veryLowThreshold: 3.5,
+      bgPrefs: {
+        bgUnits: MMOLL_UNITS,
+        bgBounds: {
+          veryHighThreshold: 30,
+          targetUpperBound: 10,
+          targetLowerBound: 4.4,
+          veryLowThreshold: 3.5,
+        },
       },
     };
 
@@ -462,7 +466,9 @@ describe('TrendsContainer', () => {
         it('should have a minimum yScale domain: [targetLowerBound, yScaleClampTop]', () => {
           const { yScale } = minimalData.state();
           expect(yScale.domain())
-            .to.deep.equal([mgdl.bgBounds.targetLowerBound, props.yScaleClampTop[MGDL_UNITS]]);
+            .to.deep.equal(
+              [mgdl.bgPrefs.bgBounds.targetLowerBound, props.yScaleClampTop[MGDL_UNITS]]
+            );
         });
 
         it('should have a maximum yScale domain: [lowest generated value, yScaleClampTop]', () => {
@@ -490,7 +496,9 @@ describe('TrendsContainer', () => {
         it('should have a minimum yScale domain: [targetLowerBound, yScaleClampTop]', () => {
           const { yScale } = minimalDataMmol.state();
           expect(yScale.domain())
-            .to.deep.equal([mmoll.bgBounds.targetLowerBound, props.yScaleClampTop[MMOLL_UNITS]]);
+            .to.deep.equal(
+              [mmoll.bgPrefs.bgBounds.targetLowerBound, props.yScaleClampTop[MMOLL_UNITS]]
+            );
         });
 
         it('should have a maximum yScale domain: [lowest generated value, yScaleClampTop]', () => {

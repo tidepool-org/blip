@@ -141,7 +141,7 @@ export class TrendsSVGContainer extends PureComponent {
     const data = this.props.smbgRangeOverlay ? this.props.smbgData : [];
     return (
       <SMBGRangeAvgContainer
-        bgBounds={this.props.bgBounds}
+        bgBounds={this.props.bgPrefs.bgBounds}
         data={data}
         key={componentKey}
         smbgComponent={smbgComponent}
@@ -157,7 +157,7 @@ export class TrendsSVGContainer extends PureComponent {
     if (this.props.showingCbg) {
       const slices = (
         <CBGSlicesContainer
-          bgBounds={this.props.bgBounds}
+          bgBounds={this.props.bgPrefs.bgBounds}
           data={this.props.cbgData}
           displayFlags={this.props.displayFlags}
           showingCbgDateTraces={this.props.showingCbgDateTraces}
@@ -171,7 +171,7 @@ export class TrendsSVGContainer extends PureComponent {
       const { focusedSegmentDataGroupedByDate } = this.state;
       const dateTraces = (
         <CBGDateTracesAnimationContainer
-          bgBounds={this.props.bgBounds}
+          bgBounds={this.props.bgPrefs.bgBounds}
           data={focusedSegmentDataGroupedByDate}
           dates={_.keys(focusedSegmentDataGroupedByDate) || []}
           onSelectDate={this.props.onSelectDate}
@@ -208,7 +208,7 @@ export class TrendsSVGContainer extends PureComponent {
       const allSmbgsByDate = (
         <SMBGsByDateContainer
           anSmbgRangeAvgIsFocused={this.props.focusedSmbgRangeAvgKey !== null}
-          bgBounds={this.props.bgBounds}
+          bgBounds={this.props.bgPrefs.bgBounds}
           data={this.props.smbgData}
           dates={this.props.dates}
           grouped={this.props.smbgGrouped}
@@ -228,7 +228,7 @@ export class TrendsSVGContainer extends PureComponent {
       const focusedSmbgDate = this.props.focusedSmbg ? (
         <SMBGsByDateContainer
           anSmbgRangeAvgIsFocused={false}
-          bgBounds={this.props.bgBounds}
+          bgBounds={this.props.bgPrefs.bgBounds}
           data={this.props.focusedSmbg.allSmbgsOnDate}
           dates={[this.props.focusedSmbg.date]}
           focusedSmbg={this.props.focusedSmbg}
@@ -278,7 +278,7 @@ export class TrendsSVGContainer extends PureComponent {
           xScale={this.props.xScale}
         />
         <YAxisLabelsAndTicks
-          bgBounds={this.props.bgBounds}
+          bgPrefs={this.props.bgPrefs}
           bgUnits={this.props.bgUnits}
           margins={this.props.margins}
           yScale={this.props.yScale}
@@ -286,7 +286,7 @@ export class TrendsSVGContainer extends PureComponent {
         {this.renderCbg()}
         {this.renderSmbg()}
         <TargetRangeLines
-          bgBounds={this.props.bgBounds}
+          bgBounds={this.props.bgPrefs.bgBounds}
           smbgOpts={this.props.smbgOpts}
           xScale={this.props.xScale}
           yScale={this.props.yScale}
@@ -314,13 +314,15 @@ TrendsSVGContainer.propTypes = {
     saturday: PropTypes.bool.isRequired,
     sunday: PropTypes.bool.isRequired,
   }).isRequired,
-  bgBounds: PropTypes.shape({
-    veryHighThreshold: PropTypes.number.isRequired,
-    targetUpperBound: PropTypes.number.isRequired,
-    targetLowerBound: PropTypes.number.isRequired,
-    veryLowThreshold: PropTypes.number.isRequired,
+  bgPrefs: PropTypes.shape({
+    bgBounds: PropTypes.shape({
+      veryHighThreshold: PropTypes.number.isRequired,
+      targetUpperBound: PropTypes.number.isRequired,
+      targetLowerBound: PropTypes.number.isRequired,
+      veryLowThreshold: PropTypes.number.isRequired,
+    }).isRequired,
+    bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   }).isRequired,
-  bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   containerHeight: PropTypes.number.isRequired,
   containerWidth: PropTypes.number.isRequired,
   smbgData: PropTypes.arrayOf(PropTypes.shape({

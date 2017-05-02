@@ -58,14 +58,16 @@ export function formatDecimalNumber(val, places) {
 }
 
 /**
- * displayBgValue
+ * formatBgValue
  * @param {Number} val - integer or float blood glucose value in either mg/dL or mmol/L
- * @param {String} units - 'mg/dL' or 'mmol/L'
- * @param {Object} outOfRangeThresholds - specifies thresholds for `low` and `high` values
+ * @param {Object} bgPrefs - object containing bgUnits String and bgBounds Object
+ * @param {Object} [outOfRangeThresholds] - optional thresholds for `low` and `high` values;
+ *                                          derived from annotations in PwD's data, so may not exist
  *
- * @return {String} stringBgValue
+ * @return {String} formatted blood glucose value
  */
-export function displayBgValue(val, units, outOfRangeThresholds) {
+export function formatBgValue(val, bgPrefs, outOfRangeThresholds) {
+  const units = _.get(bgPrefs, 'bgUnits', '');
   if (!_.isEmpty(outOfRangeThresholds)) {
     let lowThreshold = outOfRangeThresholds.low;
     let highThreshold = outOfRangeThresholds.high;

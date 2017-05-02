@@ -208,10 +208,12 @@ describe('NonTandem', () => {
         const bgTargetTable = wrapper.find('table')
           .filterWhere(n => (n.text().search('BG Target') !== -1));
         expect(bgTargetTable.someWhere(
-          n => (n.text().search(formatDecimalNumber(animasMultiRateData.bgTarget[0].target), 1) !== -1)
+          n => (n.text()
+            .search(formatDecimalNumber(animasMultiRateData.bgTarget[0].target), 1) !== -1)
         )).to.be.true;
         expect(bgTargetTable.someWhere(
-          n => (n.text().search(formatDecimalNumber(animasMultiRateData.bgTarget[0].range), 1) !== -1)
+          n => (n.text()
+            .search(formatDecimalNumber(animasMultiRateData.bgTarget[0].range), 1) !== -1)
         )).to.be.true;
       });
 

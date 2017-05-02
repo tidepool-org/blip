@@ -54,8 +54,10 @@ describe('TrendsSVGContainer', () => {
       saturday: false,
       sunday: false,
     },
-    bgBounds,
-    bgUnits: MGDL_UNITS,
+    bgPrefs: {
+      bgBounds,
+      bgUnits: MGDL_UNITS,
+    },
     // normally provided by react-dimensions wrapper but we test w/o that
     containerHeight: 520,
     // normally provided by react-dimensions wrapper but we test w/o that
