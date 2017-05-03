@@ -167,7 +167,7 @@ class DailyPrintView {
       (key) => {
         const totalLines = _.reduce(threeHrBinnedBoluses[key], (lines, insulinEvent) => {
           const bolus = getBolusFromInsulinEvent(insulinEvent);
-          if (bolus.extended) {
+          if (bolus.extended || bolus.expectedExtended) {
             if (bolus.normal) {
               return lines + 3;
             }
@@ -391,7 +391,6 @@ class DailyPrintView {
     const threeHrLocs = [current];
     while (current < end) {
       current = moment.utc(current)
-        .tz(this.timezone)
         .add(3, 'h')
         .toISOString();
       threeHrLocs.push(current);

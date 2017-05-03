@@ -19,7 +19,7 @@
 
 import DailyPrintView from './DailyPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
-import { selectDailyViewData as selectData } from './data';
+import { selectDailyViewData } from '../../utils/print/data';
 
 // DPI here is the coordinate system, not the resolution; sub-dot precision renders crisply!
 const DPI = 72;
@@ -75,14 +75,14 @@ export default function createAndOpenPrintPDFPackage(mostRecent, dataByDate, {
   bgPrefs, numDays, timePrefs,
 }) {
   const bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
-  const data = selectData(mostRecent, dataByDate, numDays, timePrefs);
+  const dailyViewData = selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs);
   /* NB: if you don't set the `margin` (or `margins` if not all are the same)
      then when you are using the .text() command a new page will be added if you specify
      coordinates outside of the default margin (or outside of the margins you've specified)
    */
   const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
-  const dailyPrintView = createDailyPrintView(doc, data, bgBounds, timePrefs, numDays);
+  const dailyPrintView = createDailyPrintView(doc, dailyViewData, bgBounds, timePrefs, numDays);
   dailyPrintView.render();
 
   doc.end();

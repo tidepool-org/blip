@@ -32,7 +32,7 @@ import { getTimezoneFromTimePrefs, getLocalizedCeiling } from '../../utils/datet
  */
 export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) {
   const timezone = getTimezoneFromTimePrefs(timePrefs);
-  const end = getLocalizedCeiling(mostRecent, timezone);
+  const end = getLocalizedCeiling(mostRecent, timePrefs);
   const dateBoundaries = [end.toISOString()];
   let last = end;
   for (let i = 0; i < numDays; ++i) {
@@ -59,8 +59,9 @@ export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) 
       data: _.groupBy(
         _.map(
           dataByDate.filterRange([start, dateBoundaries[i + 1]]).top(Infinity),
-          // we don't want to carry forward the tech debt of using String `normalTime` for everything
+          // we don't want to carry forward the tech debt of using String `normalTime`
           // so pre-parse into a hammertime and store as `utc`
+          // eslint-disable-next-line no-param-reassign
           (d) => { d.utc = Date.parse(d.normalTime); delete d.normalTime; return d; }
         ),
         'type',
@@ -112,6 +113,5 @@ export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) 
   );
   selected.basalRange = extent(basals, (d) => (d.rate));
 
-  console.log('DAILY PRINT VIEW DATA', selected);
   return selected;
 }
