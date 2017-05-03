@@ -15,32 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-.bgLow {
-  color: var(--bg-low);
-  fill: var(--bg-low);
+.interrupted {
+  composes: bolusInterrupted from '../../../styles/diabetes.css';
 }
 
-.bgTarget {
-  color: var(--bg-target);
-  fill: var(--bg-target);
+.normal {
+  composes: bolus from '../../../styles/diabetes.css';
 }
 
-.bgHigh {
-  color: var(--bg-high);
-  fill: var(--bg-high);
-}
-
-.bolus {
-  color: var(--bolus);
-  fill: var(--bolus);
-}
-
-.bolusInterrupted {
-  color: var(--bolus--interrupted);
-  fill: var(--bolus--interrupted);
-}
-
-.bolusUndelivered {
-  color: var(--bolus--undelivered);
-  fill: var(--bolus--undelivered);
+.undelivered {
+  composes: bolusUndelivered from '../../../styles/diabetes.css';
 }

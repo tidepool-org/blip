@@ -15,32 +15,28 @@
  * == BSD2 LICENSE ==
  */
 
-.bgLow {
-  color: var(--bg-low);
-  fill: var(--bg-low);
-}
+import _ from 'lodash';
+import React, { PropTypes } from 'react';
 
-.bgTarget {
-  color: var(--bg-target);
-  fill: var(--bg-target);
-}
+import styles from './Bolus.css';
 
-.bgHigh {
-  color: var(--bg-high);
-  fill: var(--bg-high);
-}
+const Bolus = (props) => {
+  const { bolus, paths } = props;
+  return (
+    <g id={`bolus-${bolus.id}`}>
+      {_.map(paths, (path) => (<path className={styles[path.type]} d={path.d} key={path.key} />))}
+    </g>
+  );
+};
 
-.bolus {
-  color: var(--bolus);
-  fill: var(--bolus);
-}
+Bolus.propTypes = {
+  bolus: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+  }).isRequired,
+  paths: PropTypes.arrayOf(PropTypes.shape({
+    d: PropTypes.string.isRequired,
+    key: PropTypes.string.isRequired,
+  })).isRequired,
+};
 
-.bolusInterrupted {
-  color: var(--bolus--interrupted);
-  fill: var(--bolus--interrupted);
-}
-
-.bolusUndelivered {
-  color: var(--bolus--undelivered);
-  fill: var(--bolus--undelivered);
-}
+export default Bolus;
