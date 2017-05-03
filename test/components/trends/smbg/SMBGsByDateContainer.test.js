@@ -20,20 +20,20 @@ import React from 'react';
 
 import { shallow } from 'enzyme';
 
-import { THREE_HRS } from '../../../src/utils/datetime';
+import { THREE_HRS } from '../../../../src/utils/datetime';
 
-import bgBounds from '../../helpers/bgBounds';
-import * as scales from '../../helpers/scales';
+import bgBounds from '../../../helpers/bgBounds';
+import * as scales from '../../../helpers/scales';
 const {
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
 
-import SMBGDateLineAnimated from '../../../src/components/trends/smbg/SMBGDateLineAnimated';
-import SMBGDatePointsAnimated from '../../../src/components/trends/smbg/SMBGDatePointsAnimated';
+import SMBGDateLineAnimated from '../../../../src/components/trends/smbg/SMBGDateLineAnimated';
+import SMBGDatePointsAnimated from '../../../../src/components/trends/smbg/SMBGDatePointsAnimated';
 
 import SMBGsByDateContainer
-  from '../../../src/containers/trends/SMBGsByDateContainer';
+  from '../../../../src/components/trends/smbg/SMBGsByDateContainer';
 
 describe('SMBGsByDateContainer', () => {
   let wrapper;

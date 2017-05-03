@@ -20,5 +20,7 @@
 + [utilities](src/utils/README.md)
     + [API docs for utilities](src/utils/apidocs/README.md)
         + [datetime](src/utils/apidocs/datetime.md)
+        + [format](src/utils/apidocs/format.md)
+        + [misc](src/utils/apidocs/misc.md)
 + [misc](docs/misc/README.md)
     + [Time-rendering modes](docs/misc/TimeRenderingModes.md)

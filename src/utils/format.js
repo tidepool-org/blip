@@ -15,36 +15,43 @@
  * == BSD2 LICENSE ==
  */
 
+/*
+ * Guidelines for these utilities:
+ *
+ * 1. Only "workhorse" functions used in 2+ places should be here.
+ * 1a. A function used in multiple components for one view should live
+ * in view-specific utils: src/utils/[view]/format.js
+ * 1b. A function used in only one component should just be part of that component,
+ * potentially as a named export if tests are deemed important to have.
+ * 1c. This set of utilities is ONLY for NON-datetime related formatting. Any functions
+ * used for formatting dates and/or times should go in src/utils/datetime.js
+ *
+ * 2. Function naming scheme: the main verb here is `format`. Start all function names with that.
+ *
+ * 3. Function organizational scheme in this file and tests file: alphabetical plz
+ *
+ * 4. Try to be consistent in how params are used:
+ * (e.g., always pass in `bgPrefs`) rather than some (subset) of bgUnits and/or bgBounds
+ * and try to copy & paste JSDoc @param descriptions for common params.
+ *
+ */
+
 import _ from 'lodash';
 import { format } from 'd3-format';
-// using d3-time-format because time is time of data access in
-// user’s browser time, not PwD’s configured timezone
-import { utcFormat } from 'd3-time-format';
 import { convertToMmolL } from './bloodglucose';
 import { BG_HIGH, BG_LOW, MMOLL_UNITS } from './constants';
 
 /**
- * displayDecimal
- * @param  {Number} val    numeric value to format
- * @param  {Number} places number of decimal places to displayDecimal
- * @return {String}        val formatted to places decimal places
- */
-export function displayDecimal(val, places) {
-  if (places === null || places === undefined) {
-    return format('d')(val);
-  }
-  return format(`.${places}f`)(val);
-}
-
-/**
- * displayBgValue
+ * formatBgValue
  * @param {Number} val - integer or float blood glucose value in either mg/dL or mmol/L
- * @param {String} units - 'mg/dL' or 'mmol/L'
- * @param {Object} outOfRangeThresholds - specifies thresholds for `low` and `high` values
+ * @param {Object} bgPrefs - object containing bgUnits String and bgBounds Object
+ * @param {Object} [outOfRangeThresholds] - optional thresholds for `low` and `high` values;
+ *                                          derived from annotations in PwD's data, so may not exist
  *
- * @return {String} stringBgValue
+ * @return {String} formatted blood glucose value
  */
-export function displayBgValue(val, units, outOfRangeThresholds) {
+export function formatBgValue(val, bgPrefs, outOfRangeThresholds) {
+  const units = _.get(bgPrefs, 'bgUnits', '');
   if (!_.isEmpty(outOfRangeThresholds)) {
     let lowThreshold = outOfRangeThresholds.low;
     let highThreshold = outOfRangeThresholds.high;
@@ -70,42 +77,16 @@ export function displayBgValue(val, units, outOfRangeThresholds) {
 }
 
 /**
- * patientFullName
- * @param  {Object} patient   the patient object that contains the profile
- * @return {String}           fullName of patient or empty if there is none
+ * formatDecimalNumber
+ * @param {Number} val - numeric value to format
+ * @param {Number} [places] - optional number of decimal places to display;
+ *                            if not provided, will display as integer (0 decimal places)
+ *
+ * @return {String} numeric value rounded to the desired number of decimal places
  */
-export function patientFullName(patient) {
-  const profile = _.get(patient, ['profile'], {});
-  const patientInfo = profile.patient || {};
-
-  if (patientInfo.isOtherPerson) {
-    return patientInfo.fullName;
+export function formatDecimalNumber(val, places) {
+  if (places === null || places === undefined) {
+    return format('d')(val);
   }
-  return profile.fullName;
-}
-
-/**
- * birthday
- * @param  {Object} patient   the patient object that contains the profile
- * @return {String}           MMM D, YYYY formated birthday or empty if none
- */
-export function birthday(patient) {
-  const bday = _.get(patient, ['profile', 'patient', 'birthday'], '');
-  if (bday) {
-    return utcFormat('%b %-d, %Y')(Date.parse(bday));
-  }
-  return '';
-}
-
-/**
- * diagnosisDate
- * @param  {Object} patient   the patient object that contains the profile
- * @return {String}           MMM D, YYYY formated diagnosisDate or empty if none
- */
-export function diagnosisDate(patient) {
-  const diagnosis = _.get(patient, ['profile', 'patient', 'diagnosisDate'], '');
-  if (diagnosis) {
-    return utcFormat('%b %-d, %Y')(Date.parse(diagnosis));
-  }
-  return '';
+  return format(`.${places}f`)(val);
 }

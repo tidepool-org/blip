@@ -63,7 +63,9 @@ describe('FocusedSMBGPointLabel', () => {
   describe('when no focused datum', () => {
     it('should render nothing', () => {
       const minimalProps = {
-        bgUnits: MMOLL_UNITS,
+        bgPrefs: {
+          bgUnits: MMOLL_UNITS,
+        },
       };
       const wrapper = mount(
         <FocusedSMBGPointLabel {...minimalProps} />
@@ -78,7 +80,7 @@ describe('FocusedSMBGPointLabel', () => {
     before(() => {
       wrapper = mount(
         <FocusedSMBGPointLabel
-          bgUnits={MGDL_UNITS}
+          bgPrefs={{ bgUnits: MGDL_UNITS }}
           focusedPoint={focusedPoint}
           lines={false}
           grouped
@@ -101,7 +103,7 @@ describe('FocusedSMBGPointLabel', () => {
     before(() => {
       wrapper = mount(
         <FocusedSMBGPointLabel
-          bgUnits={MGDL_UNITS}
+          bgPrefs={{ bgUnits: MGDL_UNITS }}
           focusedPoint={focusedPoint}
           lines={false}
           grouped={false}
@@ -124,7 +126,7 @@ describe('FocusedSMBGPointLabel', () => {
     before(() => {
       wrapper = mount(
         <FocusedSMBGPointLabel
-          bgUnits={MGDL_UNITS}
+          bgPrefs={{ bgUnits: MGDL_UNITS }}
           focusedPoint={focusedPoint}
           lines
           grouped
@@ -147,7 +149,7 @@ describe('FocusedSMBGPointLabel', () => {
     before(() => {
       wrapper = mount(
         <FocusedSMBGPointLabel
-          bgUnits={MGDL_UNITS}
+          bgPrefs={{ bgUnits: MGDL_UNITS }}
           focusedPoint={focusedPoint}
           lines
           grouped={false}

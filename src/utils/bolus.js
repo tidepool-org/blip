@@ -20,7 +20,7 @@
 
 import _ from 'lodash';
 
-import { displayDecimal } from './format';
+import { formatDecimalNumber } from './format';
 
 /**
  * fixFloatingPoint
@@ -29,7 +29,7 @@ import { displayDecimal } from './format';
  * @return {Number} numeric value rounded to 3 decimal places
  */
 function fixFloatingPoint(n) {
-  return parseFloat(displayDecimal(n, 3));
+  return parseFloat(formatDecimalNumber(n, 3));
 }
 
 /**

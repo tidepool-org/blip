@@ -18,8 +18,8 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
-import SMBGDatePointsAnimated from '../../components/trends/smbg/SMBGDatePointsAnimated';
-import SMBGDateLineAnimated from '../../components/trends/smbg/SMBGDateLineAnimated';
+import SMBGDatePointsAnimated from './SMBGDatePointsAnimated';
+import SMBGDateLineAnimated from './SMBGDateLineAnimated';
 
 const SMBGsByDateContainer = (props) => {
   const { data } = props;

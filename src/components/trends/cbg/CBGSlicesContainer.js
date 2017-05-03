@@ -19,13 +19,13 @@ import _ from 'lodash';
 import React, { PropTypes, PureComponent } from 'react';
 import { range } from 'd3-array';
 
-import { THIRTY_MINS, TWENTY_FOUR_HRS } from '../../utils/datetime';
+import { THIRTY_MINS, TWENTY_FOUR_HRS } from '../../../utils/datetime';
 import {
   findBinForTimeOfDay, findOutOfRangeAnnotations, calculateCbgStatsForBin,
-} from '../../utils/trends/data';
+} from '../../../utils/trends/data';
 
-import CBGMedianAnimated from '../../components/trends/cbg/CBGMedianAnimated';
-import CBGSliceAnimated from '../../components/trends/cbg/CBGSliceAnimated';
+import CBGMedianAnimated from './CBGMedianAnimated';
+import CBGSliceAnimated from './CBGSliceAnimated';
 
 export default class CBGSlicesContainer extends PureComponent {
   static propTypes = {

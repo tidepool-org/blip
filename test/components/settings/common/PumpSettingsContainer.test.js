@@ -22,15 +22,15 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import { PumpSettingsContainer, mapStateToProps, mapDispatchToProps }
-  from '../../../src/containers/settings/PumpSettingsContainer';
-import NonTandem from '../../../src/components/settings/NonTandem';
-import Tandem from '../../../src/components/settings/Tandem';
-import { MGDL_UNITS } from '../../../src/utils/constants';
+  from '../../../../src/components/settings/common/PumpSettingsContainer';
+import NonTandem from '../../../../src/components/settings/NonTandem';
+import Tandem from '../../../../src/components/settings/Tandem';
+import { MGDL_UNITS } from '../../../../src/utils/constants';
 
-const animasSettings = require('../../../data/pumpSettings/animas/multirate.json');
-const medtronicSettings = require('../../../data/pumpSettings/medtronic/multirate.json');
-const omnipodSettings = require('../../../data/pumpSettings/omnipod/multirate.json');
-const tandemSettings = require('../../../data/pumpSettings/tandem/multirate.json');
+const animasSettings = require('../../../../data/pumpSettings/animas/multirate.json');
+const medtronicSettings = require('../../../../data/pumpSettings/medtronic/multirate.json');
+const omnipodSettings = require('../../../../data/pumpSettings/omnipod/multirate.json');
+const tandemSettings = require('../../../../data/pumpSettings/tandem/multirate.json');
 
 describe('PumpSettingsContainer', () => {
   const user = {

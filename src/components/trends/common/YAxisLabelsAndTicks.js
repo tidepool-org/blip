@@ -19,12 +19,13 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
-import { displayBgValue } from '../../../utils/format';
+import { formatBgValue } from '../../../utils/format';
 
 import styles from './YAxisLabelsAndTicks.css';
 
 const YAxisLabels = (props) => {
-  const { bgBounds, bgUnits, margins, textToTickGap, tickWidth, yScale } = props;
+  const { bgPrefs, margins, textToTickGap, tickWidth, yScale } = props;
+  const { bgBounds } = bgPrefs;
 
   return (
     <g id="yAxisLabels">
@@ -36,7 +37,7 @@ const YAxisLabels = (props) => {
               x={margins.left - tickWidth - textToTickGap}
               y={yScale(bgBounds[boundKey])}
             >
-              {displayBgValue(bgBounds[boundKey], bgUnits)}
+              {formatBgValue(bgBounds[boundKey], bgPrefs)}
             </text>
             <line
               className={styles.tick}
@@ -58,13 +59,15 @@ YAxisLabels.defaultProps = {
 };
 
 YAxisLabels.propTypes = {
-  bgBounds: PropTypes.shape({
-    veryHighThreshold: PropTypes.number.isRequired,
-    targetUpperBound: PropTypes.number.isRequired,
-    targetLowerBound: PropTypes.number.isRequired,
-    veryLowThreshold: PropTypes.number.isRequired,
+  bgPrefs: PropTypes.shape({
+    bgBounds: PropTypes.shape({
+      veryHighThreshold: PropTypes.number.isRequired,
+      targetUpperBound: PropTypes.number.isRequired,
+      targetLowerBound: PropTypes.number.isRequired,
+      veryLowThreshold: PropTypes.number.isRequired,
+    }),
+    bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   }),
-  bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   margins: PropTypes.shape({
     top: PropTypes.number.isRequired,
     right: PropTypes.number.isRequired,

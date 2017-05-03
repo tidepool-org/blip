@@ -23,7 +23,7 @@ import { mount, shallow } from 'enzyme';
 import CollapsibleContainer from '../../../src/components/settings/common/CollapsibleContainer';
 import Tandem from '../../../src/components/settings/Tandem';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
-import { displayDecimal } from '../../../src/utils/format';
+import { formatDecimalNumber } from '../../../src/utils/format';
 
 import { formatClassesAsSelector } from '../../helpers/cssmodules';
 import styles from '../../../src/components/settings/Tandem.css';
@@ -134,25 +134,27 @@ describe('Tandem', () => {
 
     it('should surface the expected basal rate value', () => {
       expect(sickProfileTable.someWhere(
-        n => (n.text().search(displayDecimal(flatrateData.basalSchedules[1].value[0].rate, 1)))
+        n => (n.text().search(formatDecimalNumber(flatrateData.basalSchedules[1].value[0].rate, 1)))
       )).to.be.true;
     });
 
     it('should surface the expected target BG value', () => {
       expect(sickProfileTable.someWhere(
-        n => (n.text().search(displayDecimal(flatrateData.bgTargets.sick[0].target, 1)))
+        n => (n.text().search(formatDecimalNumber(flatrateData.bgTargets.sick[0].target, 1)))
       )).to.be.true;
     });
 
     it('should surface the expected carb ratio value', () => {
       expect(sickProfileTable.someWhere(
-        n => (n.text().search(displayDecimal(flatrateData.carbRatios.sick[0].target, 1)))
+        n => (n.text().search(formatDecimalNumber(flatrateData.carbRatios.sick[0].target, 1)))
       )).to.be.true;
     });
 
     it('should surface the expected correction factor value', () => {
       expect(sickProfileTable.someWhere(
-        n => (n.text().search(displayDecimal(flatrateData.insulinSensitivities.sick[0].target, 1)))
+        n => (n.text().search(
+          formatDecimalNumber(flatrateData.insulinSensitivities.sick[0].target, 1),
+        ))
       )).to.be.true;
     });
   });
