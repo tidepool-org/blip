@@ -20,22 +20,22 @@ import React from 'react';
 
 import { shallow } from 'enzyme';
 
-import bgBounds from '../../helpers/bgBounds';
+import bgBounds from '../../../helpers/bgBounds';
 
-import { TrendsSVGContainer } from '../../../src/containers/trends/TrendsSVGContainer';
+import { TrendsSVGContainer } from '../../../../src/components/trends/common/TrendsSVGContainer';
 
-import { MGDL_UNITS } from '../../../src/utils/constants';
+import { MGDL_UNITS } from '../../../../src/utils/constants';
 import Background
-  from '../../../src/components/trends/common/Background';
+  from '../../../../src/components/trends/common/Background';
 import CBGSlicesContainer
-  from '../../../src/containers/trends/CBGSlicesContainer';
+  from '../../../../src/components/trends/cbg/CBGSlicesContainer';
 import SMBGRangeAvgContainer
-  from '../../../src/containers/trends/SMBGRangeAvgContainer';
-import NoData from '../../../src/components/trends/common/NoData';
-import TargetRangeLines from '../../../src/components/trends/common/TargetRangeLines';
-import XAxisLabels from '../../../src/components/trends/common/XAxisLabels';
-import XAxisTicks from '../../../src/components/trends/common/XAxisTicks';
-import YAxisLabelsAndTicks from '../../../src/components/trends/common/YAxisLabelsAndTicks';
+  from '../../../../src/components/trends/smbg/SMBGRangeAvgContainer';
+import NoData from '../../../../src/components/trends/common/NoData';
+import TargetRangeLines from '../../../../src/components/trends/common/TargetRangeLines';
+import XAxisLabels from '../../../../src/components/trends/common/XAxisLabels';
+import XAxisTicks from '../../../../src/components/trends/common/XAxisTicks';
+import YAxisLabelsAndTicks from '../../../../src/components/trends/common/YAxisLabelsAndTicks';
 
 function makeScale(scale) {
   // eslint-disable-next-line no-param-reassign
@@ -54,8 +54,10 @@ describe('TrendsSVGContainer', () => {
       saturday: false,
       sunday: false,
     },
-    bgBounds,
-    bgUnits: MGDL_UNITS,
+    bgPrefs: {
+      bgBounds,
+      bgUnits: MGDL_UNITS,
+    },
     // normally provided by react-dimensions wrapper but we test w/o that
     containerHeight: 520,
     // normally provided by react-dimensions wrapper but we test w/o that

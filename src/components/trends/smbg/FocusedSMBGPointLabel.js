@@ -20,7 +20,7 @@ import _ from 'lodash';
 import Tooltip from '../../common/tooltips/Tooltip';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
-import { displayBgValue } from '../../../utils/format';
+import { formatBgValue } from '../../../utils/format';
 import {
   formatClocktimeFromMsPer24,
   formatLocalizedFromUTC,
@@ -51,7 +51,7 @@ const FocusedSMBGPointLabel = (props) => {
   }
 
   const {
-    bgUnits,
+    bgPrefs,
     focusedPoint: { datum, position, allSmbgsOnDate, allPositions },
     timePrefs,
     lines,
@@ -71,7 +71,7 @@ const FocusedSMBGPointLabel = (props) => {
       key={i}
       content={
         <span className={styles.number}>
-          {displayBgValue(smbg.value, bgUnits, getOutOfRangeThreshold(smbg))}
+          {formatBgValue(smbg.value, bgPrefs, getOutOfRangeThreshold(smbg))}
         </span>
       }
       position={allPositions[i]}
@@ -103,7 +103,7 @@ const FocusedSMBGPointLabel = (props) => {
         }
         content={<span className={styles.tipWrapper}>
           <span className={styles.detailNumber}>
-            {displayBgValue(datum.value, bgUnits, getOutOfRangeThreshold(datum))}
+            {formatBgValue(datum.value, bgPrefs, getOutOfRangeThreshold(datum))}
           </span>
           <span className={styles.subType}>{categorizeSmbgSubtype(datum)}</span>
         </span>
@@ -126,7 +126,11 @@ const FocusedSMBGPointLabel = (props) => {
 };
 
 FocusedSMBGPointLabel.propTypes = {
-  bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
+  bgPrefs: PropTypes.shape({
+    bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
+    // only the bgUnits required in this component
+    // so leaving off specification of bgBounds shape
+  }).isRequired,
   focusedPoint: PropTypes.shape({
     allPositions: PropTypes.arrayOf(PropTypes.shape({
       tooltipLeft: PropTypes.bool.isRequired,

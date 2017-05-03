@@ -30,13 +30,19 @@
  * 2b. If the function returns a _formatted_ String that will be **surfaced to the end user**,
  * then the function name should start with `format`.
  *
- * 3. Try to be consistent in how params are used:
+ * 3. Function organizational scheme in this file and tests file: alphabetical plz, unless ESLint
+ * complains about an undefined (e.g., getTimezoneFromTimePrefs must be at the top).
+ *
+ * 4. Try to be consistent in how params are used:
  * (e.g., always pass in `timePrefs`) rather than a named timezone
  * and try to copy & paste JSDoc @param descriptions for common params.
  *
  */
 
 import _ from 'lodash';
+// using d3-time-format because time is time of data access in
+// user’s browser time, not PwD’s configured timezone
+import { utcFormat } from 'd3-time-format';
 import moment from 'moment-timezone';
 
 export const THIRTY_MINS = 1800000;
@@ -59,57 +65,17 @@ export function getTimezoneFromTimePrefs(timePrefs) {
 }
 
 /**
- * getHammertimeFromDatumWithTimePrefs
- * @param {Object} datum - a Tidepool datum with a time (required) and deviceTime (optional)
- * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ * formatBirthdate
+ * @param {Object} patient - Tidepool patient object containing profile
  *
- * @return {Number} Integer hammertime (i.e., UTC time in milliseconds)
+ * @return {String} formatted birthdate, e.g., 'Jul 4, 1975'; empty String if none found
  */
-export function getHammertimeFromDatumWithTimePrefs(datum, timePrefs) {
-  let hammertime;
-  if (timePrefs.timezoneAware) {
-    if (!_.isUndefined(datum.time)) {
-      hammertime = Date.parse(datum.time);
-    } else {
-      hammertime = null;
-    }
-  } else {
-    if (!_.isUndefined(datum.deviceTime)) {
-      hammertime = Date.parse(datum.deviceTime);
-    } else {
-      hammertime = null;
-    }
+export function formatBirthdate(patient) {
+  const bday = _.get(patient, ['profile', 'patient', 'birthday'], '');
+  if (bday) {
+    return utcFormat('%b %-d, %Y')(Date.parse(bday));
   }
-  if (_.isNaN(hammertime)) {
-    throw new Error(
-      'Check your input datum; could not parse `time` or `deviceTime` with Date.parse.'
-    );
-  }
-  return hammertime;
-}
-
-/**
- * getLocalizedCeiling
- * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
- * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
- *
- * @return {Object} a JavaScript Date, the closest (future) midnight according to timePrefs;
- *                  if utc is already local midnight, returns utc
- */
-export function getLocalizedCeiling(utc, timePrefs) {
-  if (utc instanceof Date) {
-    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
-  }
-  const timezone = getTimezoneFromTimePrefs(timePrefs);
-  const startOfDay = moment.utc(utc)
-    .tz(timezone)
-    .startOf('day');
-
-  const utcHammertime = (typeof utc === 'string') ? Date.parse(utc) : utc;
-  if (startOfDay.valueOf() === utcHammertime) {
-    return startOfDay.toDate();
-  }
-  return startOfDay.add(1, 'day').toDate();
+  return '';
 }
 
 /**
@@ -126,6 +92,20 @@ export function formatClocktimeFromMsPer24(milliseconds, format = 'h:mm a') {
     throw new Error('First argument must be a value in milliseconds per twenty-four hour day!');
   }
   return moment.utc(milliseconds).format(format);
+}
+
+/**
+ * formatDiagnosisDate
+ * @param {Object} patient - Tidepool patient object containing profile
+ *
+ * @return {String} formatted diagnosis date, e.g., 'Jul 4, 1975'; empty String if none found
+ */
+export function formatDiagnosisDate(patient) {
+  const diagnosis = _.get(patient, ['profile', 'patient', 'diagnosisDate'], '');
+  if (diagnosis) {
+    return utcFormat('%b %-d, %Y')(Date.parse(diagnosis));
+  }
+  return '';
 }
 
 /**
@@ -181,4 +161,58 @@ export function formatLocalizedFromUTC(utc, timePrefs, format = 'dddd, MMMM D') 
   }
   const timezone = getTimezoneFromTimePrefs(timePrefs);
   return moment.utc(utc).tz(timezone).format(format);
+}
+
+/**
+ * getHammertimeFromDatumWithTimePrefs
+ * @param {Object} datum - a Tidepool datum with a time (required) and deviceTime (optional)
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ *
+ * @return {Number} Integer hammertime (i.e., UTC time in milliseconds)
+ */
+export function getHammertimeFromDatumWithTimePrefs(datum, timePrefs) {
+  let hammertime;
+  if (timePrefs.timezoneAware) {
+    if (!_.isUndefined(datum.time)) {
+      hammertime = Date.parse(datum.time);
+    } else {
+      hammertime = null;
+    }
+  } else {
+    if (!_.isUndefined(datum.deviceTime)) {
+      hammertime = Date.parse(datum.deviceTime);
+    } else {
+      hammertime = null;
+    }
+  }
+  if (_.isNaN(hammertime)) {
+    throw new Error(
+      'Check your input datum; could not parse `time` or `deviceTime` with Date.parse.'
+    );
+  }
+  return hammertime;
+}
+
+/**
+ * getLocalizedCeiling
+ * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
+ * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ *
+ * @return {Object} a JavaScript Date, the closest (future) midnight according to timePrefs;
+ *                  if utc is already local midnight, returns utc
+ */
+export function getLocalizedCeiling(utc, timePrefs) {
+  if (utc instanceof Date) {
+    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+  }
+  const timezone = getTimezoneFromTimePrefs(timePrefs);
+  const startOfDay = moment.utc(utc)
+    .tz(timezone)
+    .startOf('day');
+
+  const utcHammertime = (typeof utc === 'string') ? Date.parse(utc) : utc;
+  if (startOfDay.valueOf() === utcHammertime) {
+    return startOfDay.toDate();
+  }
+  return startOfDay.add(1, 'day').toDate();
 }

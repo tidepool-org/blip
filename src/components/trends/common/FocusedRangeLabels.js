@@ -20,7 +20,7 @@ import React, { PropTypes } from 'react';
 import Tooltip from '../../common/tooltips/Tooltip';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
-import { displayBgValue } from '../../../utils/format';
+import { formatBgValue } from '../../../utils/format';
 import { formatClocktimeFromMsPer24 } from '../../../utils/datetime';
 
 import styles from './FocusedRangeLabels.css';
@@ -35,7 +35,7 @@ const FocusedRangeLabels = (props) => {
     return null;
   }
 
-  const { bgUnits, dataType } = props;
+  const { bgPrefs, dataType } = props;
   const isCbg = dataType === 'cbg';
   const dataBucket = isCbg ? 'focusedSlice' : 'focusedRange';
   const { [dataBucket]: { data, position } } = props;
@@ -71,7 +71,7 @@ const FocusedRangeLabels = (props) => {
       <Tooltip
         content={
           <span className={styles.number}>
-            {displayBgValue(data[top], bgUnits, data.outOfRangeThresholds)}
+            {formatBgValue(data[top], bgPrefs, data.outOfRangeThresholds)}
           </span>
         }
         backgroundColor={'transparent'}
@@ -86,7 +86,7 @@ const FocusedRangeLabels = (props) => {
           title={<span className={styles.explainerText}>{timeFrom} - {timeTo}</span>}
           content={
             <span className={styles.number}>
-              {`Average ${displayBgValue(data[center], bgUnits, data.outOfRangeThresholds)}`}
+              {`Average ${formatBgValue(data[center], bgPrefs, data.outOfRangeThresholds)}`}
             </span>
           }
           offset={{ top: 0, horizontal: props.numberOffsets.horizontal }}
@@ -97,7 +97,7 @@ const FocusedRangeLabels = (props) => {
       <Tooltip
         content={
           <span className={styles.number}>
-            {displayBgValue(data[bottom], bgUnits, data.outOfRangeThresholds)}
+            {formatBgValue(data[bottom], bgPrefs, data.outOfRangeThresholds)}
           </span>
         }
         backgroundColor={'transparent'}
@@ -120,7 +120,11 @@ FocusedRangeLabels.defaultProps = {
 };
 
 FocusedRangeLabels.propTypes = {
-  bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
+  bgPrefs: PropTypes.shape({
+    bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
+    // only the bgUnits required in this component
+    // so leaving off specification of bgBounds shape
+  }).isRequired,
   dataType: PropTypes.oneOf(['cbg', 'smbg']).isRequired,
   focusedKeys: PropTypes.arrayOf(PropTypes.oneOf([
     'firstQuartile',

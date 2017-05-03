@@ -27,13 +27,13 @@ import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import * as actions from '../../redux/actions/';
+import * as actions from '../../../redux/actions/';
 import TrendsSVGContainer from './TrendsSVGContainer';
 import {
   MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP, MGDL_UNITS, MMOLL_UNITS, trends,
-} from '../../utils/constants';
+} from '../../../utils/constants';
 const { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } } = trends;
-import * as datetime from '../../utils/datetime';
+import * as datetime from '../../../utils/datetime';
 
 /**
  * getAllDatesInRange
@@ -108,13 +108,15 @@ export class TrendsContainer extends PureComponent {
       saturday: PropTypes.bool.isRequired,
       sunday: PropTypes.bool.isRequired,
     }).isRequired,
-    bgBounds: PropTypes.shape({
-      veryHighThreshold: PropTypes.number.isRequired,
-      targetUpperBound: PropTypes.number.isRequired,
-      targetLowerBound: PropTypes.number.isRequired,
-      veryLowThreshold: PropTypes.number.isRequired,
+    bgPrefs: PropTypes.shape({
+      bgBounds: PropTypes.shape({
+        veryHighThreshold: PropTypes.number.isRequired,
+        targetUpperBound: PropTypes.number.isRequired,
+        targetLowerBound: PropTypes.number.isRequired,
+        veryLowThreshold: PropTypes.number.isRequired,
+      }).isRequired,
+      bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
     }).isRequired,
-    bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
     extentSize: PropTypes.oneOf([ONE_WEEK, TWO_WEEKS, FOUR_WEEKS]).isRequired,
     initialDatetimeLocation: PropTypes.string,
@@ -259,7 +261,7 @@ export class TrendsContainer extends PureComponent {
     const allBg = cbgByDate.filterAll().top(Infinity).concat(smbgByDate.filterAll().top(Infinity));
     const bgDomain = extent(allBg, d => d.value);
 
-    const { bgBounds, bgUnits, yScaleClampTop } = this.props;
+    const { bgPrefs: { bgBounds, bgUnits }, yScaleClampTop } = this.props;
     const upperBound = yScaleClampTop[bgUnits];
     const yScaleDomain = [bgDomain[0], upperBound];
     if (bgDomain[0] > bgBounds.targetLowerBound) {
@@ -359,7 +361,7 @@ export class TrendsContainer extends PureComponent {
         .startOf('day')
         .add(12, 'hours')
         .toISOString();
-      return noonOnDate;
+      this.props.onSelectDate(noonOnDate);
     };
   }
 
@@ -446,8 +448,7 @@ export class TrendsContainer extends PureComponent {
     return (
       <TrendsSVGContainer
         activeDays={this.props.activeDays}
-        bgBounds={this.props.bgBounds}
-        bgUnits={this.props.bgUnits}
+        bgPrefs={this.props.bgPrefs}
         smbgData={this.state.currentSmbgData}
         cbgData={this.state.currentCbgData}
         dates={getAllDatesInRange(start, end, this.props.timePrefs)}

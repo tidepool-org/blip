@@ -24,9 +24,9 @@ import React from 'react';
 
 import { mount } from 'enzyme';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
-import { getLocalizedCeiling } from '../../../src/utils/datetime';
-import DummyComponent from '../../helpers/DummyComponent';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../../src/utils/constants';
+import { getLocalizedCeiling } from '../../../../src/utils/datetime';
+import DummyComponent from '../../../helpers/DummyComponent';
 
 import {
   TrendsContainer,
@@ -35,8 +35,8 @@ import {
   getLocalizedOffset,
   mapStateToProps,
   mapDispatchToProps,
-} from '../../../src/containers/trends/TrendsContainer';
-import TrendsSVGContainer from '../../../src/containers/trends/TrendsSVGContainer';
+} from '../../../../src/components/trends/common/TrendsContainer';
+import TrendsSVGContainer from '../../../../src/components/trends/common/TrendsSVGContainer';
 
 describe('TrendsContainer', () => {
   // stubbing console.warn gets rid of the annoying warnings from react-dimensions
@@ -231,21 +231,25 @@ describe('TrendsContainer', () => {
     };
 
     const mgdl = {
-      bgUnits: MGDL_UNITS,
-      bgBounds: {
-        veryHighThreshold: 300,
-        targetUpperBound: 180,
-        targetLowerBound: 80,
-        veryLowThreshold: 60,
+      bgPrefs: {
+        bgUnits: MGDL_UNITS,
+        bgBounds: {
+          veryHighThreshold: 300,
+          targetUpperBound: 180,
+          targetLowerBound: 80,
+          veryLowThreshold: 60,
+        },
       },
     };
     const mmoll = {
-      bgUnits: MMOLL_UNITS,
-      bgBounds: {
-        veryHighThreshold: 30,
-        targetUpperBound: 10,
-        targetLowerBound: 4.4,
-        veryLowThreshold: 3.5,
+      bgPrefs: {
+        bgUnits: MMOLL_UNITS,
+        bgBounds: {
+          veryHighThreshold: 30,
+          targetUpperBound: 10,
+          targetLowerBound: 4.4,
+          veryLowThreshold: 3.5,
+        },
       },
     };
 
@@ -462,7 +466,9 @@ describe('TrendsContainer', () => {
         it('should have a minimum yScale domain: [targetLowerBound, yScaleClampTop]', () => {
           const { yScale } = minimalData.state();
           expect(yScale.domain())
-            .to.deep.equal([mgdl.bgBounds.targetLowerBound, props.yScaleClampTop[MGDL_UNITS]]);
+            .to.deep.equal(
+              [mgdl.bgPrefs.bgBounds.targetLowerBound, props.yScaleClampTop[MGDL_UNITS]]
+            );
         });
 
         it('should have a maximum yScale domain: [lowest generated value, yScaleClampTop]', () => {
@@ -490,7 +496,9 @@ describe('TrendsContainer', () => {
         it('should have a minimum yScale domain: [targetLowerBound, yScaleClampTop]', () => {
           const { yScale } = minimalDataMmol.state();
           expect(yScale.domain())
-            .to.deep.equal([mmoll.bgBounds.targetLowerBound, props.yScaleClampTop[MMOLL_UNITS]]);
+            .to.deep.equal(
+              [mmoll.bgPrefs.bgBounds.targetLowerBound, props.yScaleClampTop[MMOLL_UNITS]]
+            );
         });
 
         it('should have a maximum yScale domain: [lowest generated value, yScaleClampTop]', () => {
@@ -678,6 +686,10 @@ describe('TrendsContainer', () => {
         });
 
         describe('selectDate', () => {
+          afterEach(() => {
+            props.onSelectDate.reset();
+          });
+
           it('should exist and be a function', () => {
             assert.isFunction(minimalData.instance().selectDate);
           });
@@ -685,19 +697,22 @@ describe('TrendsContainer', () => {
           const dstBegin = '2016-03-13';
           const dstEnd = '2016-11-06';
 
-          it('should return `2016-09-23T19:00:00.000Z` given `2016-09-23`', () => {
+          it('should call `onSelectDate` with `2016-09-23T19:00:00.000Z` on `2016-09-23`', () => {
             const midDayForDate = minimalData.instance().selectDate();
-            expect(midDayForDate(localDate)).to.equal('2016-09-23T19:00:00.000Z');
+            midDayForDate(localDate);
+            expect(props.onSelectDate.firstCall.args[0]).to.equal('2016-09-23T19:00:00.000Z');
           });
 
-          it('should return `2016-03-13T20:00:00.000Z` given `2016-03-13`', () => {
+          it('should call `onSelectDate` with `2016-03-13T20:00:00.000Z` on `2016-03-13`', () => {
             const midDayForDate = minimalData.instance().selectDate();
-            expect(midDayForDate(dstBegin)).to.equal('2016-03-13T20:00:00.000Z');
+            midDayForDate(dstBegin);
+            expect(props.onSelectDate.firstCall.args[0]).to.equal('2016-03-13T20:00:00.000Z');
           });
 
-          it('should return `2016-11-06T19:00:00.000Z` given `2016-11-06`', () => {
+          it('should call `onSelectDate` with `2016-11-06T19:00:00.000Z` on `2016-11-06`', () => {
             const midDayForDate = minimalData.instance().selectDate();
-            expect(midDayForDate(dstEnd)).to.equal('2016-11-06T19:00:00.000Z');
+            midDayForDate(dstEnd);
+            expect(props.onSelectDate.firstCall.args[0]).to.equal('2016-11-06T19:00:00.000Z');
           });
         });
       });

@@ -34,7 +34,7 @@ import {
   formatDuration,
 } from '../../utils/datetime';
 import {
-  displayDecimal, displayPercentage, removeTrailingZeroes,
+  formatDecimalNumber, formatPercentage, removeTrailingZeroes,
 } from '../../utils/format';
 
 import styles from '../../styles/colors.css';
@@ -333,7 +333,7 @@ class DailyPrintView {
         `${targetLowerBound} - ${targetUpperBound}`,
         { indent: statsIndent, continued: true, width: this.summaryArea.width - statsIndent },
       )
-      .text(`${displayPercentage(cbgTimeInCategories.target)}`, { align: 'right' });
+      .text(`${formatPercentage(cbgTimeInCategories.target)}`, { align: 'right' });
 
     yPos.update();
 
@@ -341,7 +341,7 @@ class DailyPrintView {
         `Below ${veryLowThreshold}`,
         { indent: statsIndent, continued: true, width: this.summaryArea.width - statsIndent },
       )
-      .text(`${displayPercentage(cbgTimeInCategories.veryLow)}`, { align: 'right' });
+      .text(`${formatPercentage(cbgTimeInCategories.veryLow)}`, { align: 'right' });
 
     yPos.update();
 
@@ -514,7 +514,10 @@ class DailyPrintView {
             yPos.current(),
             { continued: true, indent: 2, width: groupWidth },
           )
-          .text(removeTrailingZeroes(displayDecimal(getDelivered(bolus), 2)), { align: 'right' });
+          .text(
+            removeTrailingZeroes(formatDecimalNumber(getDelivered(bolus), 2)),
+            { align: 'right' }
+          );
         if (bolus.extended != null) {
           const normalPercentage = getNormalPercentage(bolus);
           if (bolus.normal != null) {

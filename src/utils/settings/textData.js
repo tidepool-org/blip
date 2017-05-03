@@ -24,7 +24,8 @@ import { timeFormat } from 'd3-time-format';
 import * as tandemData from './tandemData';
 import * as nonTandemData from './nonTandemData';
 
-import { patientFullName, birthday, diagnosisDate } from '../format';
+import { formatBirthdate, formatDiagnosisDate } from '../datetime';
+import { getPatientFullName } from '../misc';
 
 
 /**
@@ -105,9 +106,9 @@ function buildTextTable(name, rows, columns) {
 function formatTitle(patient) {
   const exported =
   `Exported from Tidepool: ${timeFormat('%b %-d, %Y')(new Date())}`;
-  const bday = `Date of birth: ${birthday(patient)}`;
-  const diagnosis = `Date of diagnosis: ${diagnosisDate(patient)}`;
-  const fullname = patientFullName(patient);
+  const bday = `Date of birth: ${formatBirthdate(patient)}`;
+  const diagnosis = `Date of diagnosis: ${formatDiagnosisDate(patient)}`;
+  const fullname = getPatientFullName(patient);
   return `${fullname}\n${bday}\n${diagnosis}\n${exported}\n`;
 }
 

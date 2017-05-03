@@ -20,7 +20,7 @@
 
 import _ from 'lodash';
 
-import { displayDecimal, displayPercentage } from './format';
+import { formatDecimalNumber, formatPercentage } from './format';
 
 /**
  * fixFloatingPoint
@@ -29,7 +29,7 @@ import { displayDecimal, displayPercentage } from './format';
  * @return {Number} numeric value rounded to 3 decimal places
  */
 function fixFloatingPoint(n) {
-  return parseFloat(displayDecimal(n, 3));
+  return parseFloat(formatDecimalNumber(n, 3));
 }
 
 /**
@@ -182,7 +182,7 @@ export function getNormalPercentage(insulinEvent) {
   }
   const normal = bolus.expectedNormal || bolus.normal;
   const programmed = getProgrammed(bolus);
-  return displayPercentage(normal / programmed);
+  return formatPercentage(normal / programmed);
 }
 
 /**
@@ -201,5 +201,5 @@ export function getExtendedPercentage(insulinEvent) {
   }
   const extended = bolus.expectedExtended || bolus.extended;
   const programmed = getProgrammed(bolus);
-  return displayPercentage(extended / programmed);
+  return formatPercentage(extended / programmed);
 }

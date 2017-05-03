@@ -19,10 +19,10 @@ import _ from 'lodash';
 import React, { PropTypes, PureComponent } from 'react';
 import { range } from 'd3-array';
 
-import { THREE_HRS, TWENTY_FOUR_HRS } from '../../utils/datetime';
+import { THREE_HRS, TWENTY_FOUR_HRS } from '../../../utils/datetime';
 import {
   findBinForTimeOfDay, findOutOfRangeAnnotations, calculateSmbgStatsForBin,
-} from '../../utils/trends/data';
+} from '../../../utils/trends/data';
 
 export default class SMBGRangeAvgContainer extends PureComponent {
   static propTypes = {

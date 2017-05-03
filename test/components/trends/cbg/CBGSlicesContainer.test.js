@@ -20,19 +20,19 @@ import React from 'react';
 
 import { mount } from 'enzyme';
 
-import * as scales from '../../helpers/scales';
+import * as scales from '../../../helpers/scales';
 const {
   trendsWidth: width,
   trendsHeight: height,
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
-import bgBounds from '../../helpers/bgBounds';
+import bgBounds from '../../../helpers/bgBounds';
 
-import { THREE_HRS, TWENTY_FOUR_HRS } from '../../../src/utils/datetime';
+import { THREE_HRS, TWENTY_FOUR_HRS } from '../../../../src/utils/datetime';
 import CBGSlicesContainer
-  from '../../../src/containers/trends/CBGSlicesContainer';
-import CBGSliceAnimated from '../../../src/components/trends/cbg/CBGSliceAnimated';
+  from '../../../../src/components/trends/cbg/CBGSlicesContainer';
+import CBGSliceAnimated from '../../../../src/components/trends/cbg/CBGSliceAnimated';
 
 describe('CBGSlicesContainer', () => {
   let wrapper;
