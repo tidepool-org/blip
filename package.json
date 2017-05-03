@@ -26,7 +26,7 @@
     "url": "git+https://github.com/tidepool-org/viz.git"
   },
   "engines": {
-    "node": "6.x",
+    "node": ">=6.x",
     "npm": "3.x"
   },
   "license": "BSD-2-Clause",
