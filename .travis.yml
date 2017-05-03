@@ -5,6 +5,8 @@ node_js:
   - "6.10.2"
   - "stable"
 
+cache: yarn
+
 addons:
   artifacts:
     s3_region: "us-west-2"
