@@ -24,9 +24,9 @@ import React from 'react';
 
 import { mount } from 'enzyme';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../src/utils/constants';
-import { getLocalizedCeiling } from '../../../src/utils/datetime';
-import DummyComponent from '../../helpers/DummyComponent';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../../src/utils/constants';
+import { getLocalizedCeiling } from '../../../../src/utils/datetime';
+import DummyComponent from '../../../helpers/DummyComponent';
 
 import {
   TrendsContainer,
@@ -35,8 +35,8 @@ import {
   getLocalizedOffset,
   mapStateToProps,
   mapDispatchToProps,
-} from '../../../src/containers/trends/TrendsContainer';
-import TrendsSVGContainer from '../../../src/containers/trends/TrendsSVGContainer';
+} from '../../../../src/components/trends/common/TrendsContainer';
+import TrendsSVGContainer from '../../../../src/components/trends/common/TrendsSVGContainer';
 
 describe('TrendsContainer', () => {
   // stubbing console.warn gets rid of the annoying warnings from react-dimensions

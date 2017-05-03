@@ -20,12 +20,12 @@ import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import * as actions from '../../redux/actions/';
-import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
+import * as actions from '../../../redux/actions/';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 
-import NonTandem from '../../components/settings/NonTandem';
-import Tandem from '../../components/settings/Tandem';
-import { DISPLAY_VIEW, PRINT_VIEW } from '../../components/settings/constants';
+import NonTandem from '../NonTandem';
+import Tandem from '../Tandem';
+import { DISPLAY_VIEW, PRINT_VIEW } from '../../../components/settings/constants';
 
 export class PumpSettingsContainer extends PureComponent {
   static propTypes = {

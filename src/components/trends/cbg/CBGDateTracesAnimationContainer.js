@@ -19,7 +19,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import TransitionGroupPlus from 'react-transition-group-plus';
 
-import CBGDateTraceAnimated from '../../components/trends/cbg/CBGDateTraceAnimated';
+import CBGDateTraceAnimated from './CBGDateTraceAnimated';
 
 const CBGDateTracesAnimationContainer = (props) => {
   const { bgBounds, data, dates, topMargin, xScale, yScale } = props;

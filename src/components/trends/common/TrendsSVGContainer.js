@@ -43,23 +43,23 @@ import React, { PropTypes, PureComponent } from 'react';
 import dimensions from 'react-dimensions';
 import _ from 'lodash';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
-import { THREE_HRS } from '../../utils/datetime';
-import { findDatesIntersectingWithCbgSliceSegment } from '../../utils/trends/data';
-import Background from '../../components/trends/common/Background';
-import CBGDateTracesAnimationContainer from './CBGDateTracesAnimationContainer';
-import CBGSlicesContainer from './CBGSlicesContainer';
-import FocusedCBGSliceSegment from '../../components/trends/cbg/FocusedCBGSliceSegment';
-import SMBGsByDateContainer from './SMBGsByDateContainer';
-import SMBGRangeAvgContainer from './SMBGRangeAvgContainer';
-import SMBGRangeAnimated from '../../components/trends/smbg/SMBGRangeAnimated';
-import SMBGMeanAnimated from '../../components/trends/smbg/SMBGMeanAnimated';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
+import { THREE_HRS } from '../../../utils/datetime';
+import { findDatesIntersectingWithCbgSliceSegment } from '../../../utils/trends/data';
+import Background from './Background';
+import CBGDateTracesAnimationContainer from '../cbg/CBGDateTracesAnimationContainer';
+import CBGSlicesContainer from '../cbg/CBGSlicesContainer';
+import FocusedCBGSliceSegment from '../cbg/FocusedCBGSliceSegment';
+import SMBGsByDateContainer from '../smbg/SMBGsByDateContainer';
+import SMBGRangeAvgContainer from '../smbg/SMBGRangeAvgContainer';
+import SMBGRangeAnimated from '../smbg/SMBGRangeAnimated';
+import SMBGMeanAnimated from '../smbg/SMBGMeanAnimated';
 
-import NoData from '../../components/trends/common/NoData';
-import TargetRangeLines from '../../components/trends/common/TargetRangeLines';
-import XAxisLabels from '../../components/trends/common/XAxisLabels';
-import XAxisTicks from '../../components/trends/common/XAxisTicks';
-import YAxisLabelsAndTicks from '../../components/trends/common/YAxisLabelsAndTicks';
+import NoData from './NoData';
+import TargetRangeLines from './TargetRangeLines';
+import XAxisLabels from './XAxisLabels';
+import XAxisTicks from './XAxisTicks';
+import YAxisLabelsAndTicks from './YAxisLabelsAndTicks';
 
 export class TrendsSVGContainer extends PureComponent {
   constructor(props) {
