@@ -410,8 +410,10 @@ class Trends extends PureComponent {
     return (
       <TrendsContainer
         activeDays={this.props.chartPrefs.trends.activeDays}
-        bgBounds={this.bgBounds}
-        bgUnits={this.props.bgPrefs.bgUnits}
+        bgPrefs={{
+          bgBounds: this.bgBounds,
+          bgUnits: this.props.bgPrefs.bgUnits,
+        }}
         currentPatientInViewId={this.props.currentPatientInViewId}
         extentSize={this.props.chartPrefs.trends.extentSize}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
@@ -451,7 +453,7 @@ class Trends extends PureComponent {
     if (showingCbg) {
       return (
         <FocusedRangeLabels
-          bgUnits={this.props.bgPrefs.bgUnits}
+          bgPrefs={this.props.bgPrefs}
           dataType={'cbg'}
           focusedKeys={trendsState[currentPatientInViewId].focusedCbgSliceKeys}
           focusedSlice={trendsState[currentPatientInViewId].focusedCbgSlice}
@@ -460,7 +462,7 @@ class Trends extends PureComponent {
     } else if (showingSmbg) {
       return (
         <FocusedRangeLabels
-          bgUnits={this.props.bgPrefs.bgUnits}
+          bgPrefs={this.props.bgPrefs}
           dataType={'smbg'}
           focusedRange={trendsState[currentPatientInViewId].focusedSmbgRangeAvg}
           timePrefs={this.props.timePrefs} />
@@ -476,7 +478,7 @@ class Trends extends PureComponent {
     const { currentPatientInViewId } = this.props;
     return (
       <FocusedSMBGPointLabel
-        bgUnits={this.props.bgPrefs.bgUnits}
+        bgPrefs={this.props.bgPrefs}
         timePrefs={this.props.timePrefs}
         grouped={this.props.chartPrefs.trends.smbgGrouped}
         lines={this.props.chartPrefs.trends.smbgLines}

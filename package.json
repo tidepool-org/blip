@@ -19,7 +19,7 @@
     "serve-docs": "./node_modules/.bin/gitbook serve"
   },
   "dependencies": {
-    "@tidepool/viz": "0.6.0-alpha",
+    "@tidepool/viz": "0.7.18",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
