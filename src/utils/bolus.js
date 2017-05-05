@@ -47,29 +47,6 @@ export function getBolusFromInsulinEvent(insulinEvent) {
 }
 
 /**
- * getDelivered
- * @param {Object} insulinEvent - a Tidepool bolus or wizard object
- *
- * @return {Number} units of insulin delivered in this insulinEvent
- */
-export function getDelivered(insulinEvent) {
-  let bolus = insulinEvent;
-  if (_.get(insulinEvent, 'type') === 'wizard') {
-    bolus = getBolusFromInsulinEvent(insulinEvent);
-    if (!bolus.normal && !bolus.extended) {
-      return NaN;
-    }
-  }
-  if (bolus.extended != null) {
-    if (bolus.normal != null) {
-      return fixFloatingPoint(bolus.extended + bolus.normal);
-    }
-    return bolus.extended;
-  }
-  return bolus.normal;
-}
-
-/**
  * getProgrammed
  * @param {Object} insulinEvent - a Tidepool bolus or wizard object
  *
@@ -126,6 +103,29 @@ export function getRecommended(insulinEvent) {
   rec += _.get(insulinEvent, ['recommended', 'correction'], 0);
 
   return fixFloatingPoint(rec);
+}
+
+/**
+ * getDelivered
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {Number} units of insulin delivered in this insulinEvent
+ */
+export function getDelivered(insulinEvent) {
+  let bolus = insulinEvent;
+  if (_.get(insulinEvent, 'type') === 'wizard') {
+    bolus = getBolusFromInsulinEvent(insulinEvent);
+    if (!bolus.normal && !bolus.extended) {
+      return NaN;
+    }
+  }
+  if (bolus.extended != null) {
+    if (bolus.normal != null) {
+      return fixFloatingPoint(bolus.extended + bolus.normal);
+    }
+    return bolus.extended;
+  }
+  return bolus.normal;
 }
 
 /**
