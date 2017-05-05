@@ -446,4 +446,45 @@ describe('bolus utilities', () => {
       expect(bolusUtils.getMaxValue(comboUnderrideCancelled)).to.equal(5);
     });
   });
+
+  describe('isInterruptedBolus', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.isInterruptedBolus);
+    });
+
+    it('should return `false` on a no-frills `normal` bolus', () => {
+      expect(bolusUtils.isInterruptedBolus(normal)).to.be.false;
+      expect(bolusUtils.isInterruptedBolus(withNetRec)).to.be.false;
+    });
+
+    it('should return `false` on a no-frills `extended` bolus', () => {
+      expect(bolusUtils.isInterruptedBolus(extended)).to.be.false;
+    });
+
+    it('should return `false` on a no-frills `combo` bolus', () => {
+      expect(bolusUtils.isInterruptedBolus(combo)).to.be.false;
+    });
+
+    it('should return `true` on a cancelled `normal` bolus', () => {
+      expect(bolusUtils.isInterruptedBolus(cancelled)).to.be.true;
+    });
+
+    it('should return `true` on all types of cancelled `extended` bolus', () => {
+      expect(bolusUtils.isInterruptedBolus(immediatelyCancelledExtended)).to.be.true;
+      expect(bolusUtils.isInterruptedBolus(cancelledExtended)).to.be.true;
+    });
+
+    it('should return `true` on all types of cancelled `combo` boluses', () => {
+      expect(bolusUtils.isInterruptedBolus(cancelledInNormalCombo)).to.be.true;
+      expect(bolusUtils.isInterruptedBolus(cancelledInExtendedCombo)).to.be.true;
+      expect(bolusUtils.isInterruptedBolus(comboUnderrideCancelled)).to.be.true;
+    });
+
+    it('should return `false` on an override or underride', () => {
+      expect(bolusUtils.isInterruptedBolus(override)).to.be.false;
+      expect(bolusUtils.isInterruptedBolus(underride)).to.be.false;
+      expect(bolusUtils.isInterruptedBolus(comboOverride)).to.be.false;
+      expect(bolusUtils.isInterruptedBolus(extendedUnderride)).to.be.false;
+    });
+  });
 });

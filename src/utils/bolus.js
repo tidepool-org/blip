@@ -175,8 +175,23 @@ export function getMaxValue(insulinEvent) {
 export function isInterruptedBolus(insulinEvent) {
   const bolus = getBolusFromInsulinEvent(insulinEvent);
 
-  return bolus.normal &&
+  const cancelledDuringNormal = Boolean(
+    bolus.normal != null &&
     bolus.expectedNormal &&
-    bolus.expectedNormal > 0 &&
-    bolus.normal !== bolus.expectedNormal;
+    bolus.normal !== bolus.expectedNormal
+  );
+
+  const cancelledDuringExtended = Boolean(
+    bolus.extended != null &&
+    bolus.expectedExtended &&
+    bolus.extended !== bolus.expectedExtended
+  );
+
+  if (bolus.normal) {
+    if (!bolus.extended) {
+      return cancelledDuringNormal;
+    }
+    return cancelledDuringNormal || cancelledDuringExtended;
+  }
+  return cancelledDuringExtended;
 }
