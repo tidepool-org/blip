@@ -165,3 +165,18 @@ export function getMaxValue(insulinEvent) {
   const recommended = getRecommended(insulinEvent) || 0;
   return (recommended > programmed) ? recommended : programmed;
 }
+
+/**
+ * isInterruptedBolus
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {Boolean} whether the bolus was interrupted or not
+ */
+export function isInterruptedBolus(insulinEvent) {
+  const bolus = getBolusFromInsulinEvent(insulinEvent);
+
+  return bolus.normal &&
+    bolus.expectedNormal &&
+    bolus.expectedNormal > 0 &&
+    bolus.normal !== bolus.expectedNormal;
+}
