@@ -195,3 +195,23 @@ export function isInterruptedBolus(insulinEvent) {
   }
   return cancelledDuringExtended;
 }
+
+/**
+ * isOverride
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {Boolean} whether the bolus programmed was larger than the calculated recommendation
+ */
+export function isOverride(insulinEvent) {
+  return getRecommended(insulinEvent) < getProgrammed(insulinEvent);
+}
+
+/**
+ * isUnderride
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {Boolean} whether the bolus programmed was smaller than the calculated recommendation
+ */
+export function isUnderride(insulinEvent) {
+  return getRecommended(insulinEvent) > getProgrammed(insulinEvent);
+}

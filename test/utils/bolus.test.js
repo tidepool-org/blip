@@ -487,4 +487,56 @@ describe('bolus utilities', () => {
       expect(bolusUtils.isInterruptedBolus(extendedUnderride)).to.be.false;
     });
   });
+
+  describe('isOverride', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.isOverride);
+    });
+
+    it('should return `false` on all non-override boluses', () => {
+      expect(bolusUtils.isOverride(normal)).to.be.false;
+      expect(bolusUtils.isOverride(cancelled)).to.be.false;
+      expect(bolusUtils.isOverride(underride)).to.be.false;
+      expect(bolusUtils.isOverride(combo)).to.be.false;
+      expect(bolusUtils.isOverride(cancelledInNormalCombo)).to.be.false;
+      expect(bolusUtils.isOverride(cancelledInExtendedCombo)).to.be.false;
+      expect(bolusUtils.isOverride(comboUnderrideCancelled)).to.be.false;
+      expect(bolusUtils.isOverride(extended)).to.be.false;
+      expect(bolusUtils.isOverride(cancelledExtended)).to.be.false;
+      expect(bolusUtils.isOverride(immediatelyCancelledExtended)).to.be.false;
+      expect(bolusUtils.isOverride(extendedUnderride)).to.be.false;
+      expect(bolusUtils.isOverride(withNetRec)).to.be.false;
+    });
+
+    it('should return `true` on all overridden boluses', () => {
+      expect(bolusUtils.isOverride(override)).to.be.true;
+      expect(bolusUtils.isOverride(comboOverride)).to.be.true;
+    });
+  });
+
+  describe('isUnderride', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.isUnderride);
+    });
+
+    it('should return `false` on all non-underride boluses', () => {
+      expect(bolusUtils.isOverride(normal)).to.be.false;
+      expect(bolusUtils.isOverride(cancelled)).to.be.false;
+      expect(bolusUtils.isOverride(override)).to.be.true;
+      expect(bolusUtils.isOverride(combo)).to.be.false;
+      expect(bolusUtils.isOverride(cancelledInNormalCombo)).to.be.false;
+      expect(bolusUtils.isOverride(cancelledInExtendedCombo)).to.be.false;
+      expect(bolusUtils.isOverride(comboOverride)).to.be.true;
+      expect(bolusUtils.isOverride(comboUnderrideCancelled)).to.be.false;
+      expect(bolusUtils.isOverride(extended)).to.be.false;
+      expect(bolusUtils.isOverride(cancelledExtended)).to.be.false;
+      expect(bolusUtils.isOverride(immediatelyCancelledExtended)).to.be.false;
+      expect(bolusUtils.isOverride(withNetRec)).to.be.false;
+    });
+
+    it('should return `true` on all underridden boluses', () => {
+      expect(bolusUtils.isOverride(underride)).to.be.false;
+      expect(bolusUtils.isOverride(extendedUnderride)).to.be.false;
+    });
+  });
 });
