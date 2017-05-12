@@ -18,10 +18,29 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
+import { getBolusFromInsulinEvent } from '../../../utils/bolus';
+import getBolusPaths from '../../../modules/render/bolus';
+
 import styles from './Bolus.css';
 
 const Bolus = (props) => {
-  const { bolus, paths } = props;
+  const {
+    insulinEvent,
+    bolusWidth,
+    extendedLineThickness,
+    interruptedLineThickness,
+    triangleHeight,
+    xScale,
+    yScale,
+  } = props;
+  const bolus = getBolusFromInsulinEvent(insulinEvent);
+  const paths = getBolusPaths(insulinEvent, xScale, yScale, {
+    bolusWidth, extendedLineThickness, interruptedLineThickness, triangleHeight,
+  });
+  if (_.isEmpty(paths)) {
+    return null;
+  }
+
   return (
     <g id={`bolus-${bolus.id}`}>
       {_.map(paths, (path) => (<path className={styles[path.type]} d={path.d} key={path.key} />))}
@@ -29,14 +48,53 @@ const Bolus = (props) => {
   );
 };
 
+Bolus.defaultProps = {
+  bolusWidth: 12,
+  extendedLineThickness: 2,
+  interruptedLineThickness: 2,
+  triangleHeight: 5,
+};
+
 Bolus.propTypes = {
-  bolus: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-  }).isRequired,
-  paths: PropTypes.arrayOf(PropTypes.shape({
-    d: PropTypes.string.isRequired,
-    key: PropTypes.string.isRequired,
-  })).isRequired,
+  insulinEvent: PropTypes.oneOfType([
+    PropTypes.shape({
+      normal: PropTypes.number,
+      expectedNormal: PropTypes.number,
+      extended: PropTypes.number,
+      expectedExtended: PropTypes.number,
+      duration: PropTypes.number,
+      expectedDuration: PropTypes.number,
+      id: PropTypes.string.isRequired,
+      type: PropTypes.oneOf(['bolus']).isRequired,
+      utc: PropTypes.number.isRequired,
+    }).isRequired,
+    PropTypes.shape({
+      bolus: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        normal: PropTypes.number,
+        expectedNormal: PropTypes.number,
+        extended: PropTypes.number,
+        expectedExtended: PropTypes.number,
+        duration: PropTypes.number,
+        expectedDuration: PropTypes.number,
+        type: PropTypes.oneOf(['bolus']).isRequired,
+        utc: PropTypes.number.isRequired,
+      }).isRequired,
+      recommended: PropTypes.shape({
+        carb: PropTypes.number,
+        correction: PropTypes.number,
+        net: PropTypes.number,
+      }).isRequired,
+      id: PropTypes.string.isRequired,
+      type: PropTypes.oneOf(['wizard']).isRequired,
+    }).isRequired,
+  ]).isRequired,
+  bolusWidth: PropTypes.number.isRequired,
+  extendedLineThickness: PropTypes.number.isRequired,
+  interruptedLineThickness: PropTypes.number.isRequired,
+  triangleHeight: PropTypes.number.isRequired,
+  xScale: PropTypes.func.isRequired,
+  yScale: PropTypes.func.isRequired,
 };
 
 export default Bolus;
