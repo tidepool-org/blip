@@ -7,6 +7,9 @@ node_js:
 
 cache: yarn
 
+install:
+  - yarn install --frozen-lockfile
+
 addons:
   artifacts:
     s3_region: "us-west-2"
