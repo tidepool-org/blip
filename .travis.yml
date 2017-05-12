@@ -7,6 +7,9 @@ node_js:
 
 cache: yarn
 
+before_install:
+  - if [[ `npm -v` != 4* ]]; then npm i -g npm@4; fi
+
 install:
   - yarn install --frozen-lockfile
 
