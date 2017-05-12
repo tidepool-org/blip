@@ -24,6 +24,7 @@ import { createDailyPrintView } from '../../src/modules/print/index';
 
 /* global PDFDocument, blobStream */
 
+// eslint-disable-next-line import/no-unresolved
 const data = require('../../local/daily-print-view.json');
 
 function openPDF() {

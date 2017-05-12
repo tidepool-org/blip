@@ -248,9 +248,7 @@ class DailyPrintView {
       const nextTotalHeight = totalChartHeight + thisChartHeight + this.chartMinimums.paddingBelow;
       if (nextTotalHeight > (bottomEdge - topEdge)) {
         this.chartIndex = i;
-        if (startingIndexThisPage !== 0) {
-          this.pages += 1;
-        }
+        this.pages += 1;
         break;
       }
       this.chartIndex = i + 1;

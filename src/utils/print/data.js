@@ -22,6 +22,35 @@ import { extent } from 'd3-array';
 import { getTimezoneFromTimePrefs, getLocalizedCeiling } from '../../utils/datetime';
 
 /**
+ * stripDatum
+ * @param {Object} d - a Tidepool datum
+ *
+ * @return {Object} Tidepool datum stripped of all fields not needed client-side
+ */
+function stripDatum(d) {
+  return _.assign({}, _.omit(
+    d,
+    [
+      'clockDriftOffset',
+      'conversionOffset',
+      'deviceId',
+      'deviceSerialNumber',
+      'deviceTime',
+      'displayOffset',
+      'guid',
+      'localDayOfWeek',
+      'localDate',
+      'normalTime',
+      'payload',
+      'source',
+      'time',
+      'timezoneOffset',
+      'uploadId',
+    ]
+  ));
+}
+
+/**
  * selectData
  * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
  * @param {Object} dataByDate - a Crossfilter dimension for querying diabetes data by normalTime
@@ -62,7 +91,11 @@ export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) 
           // we don't want to carry forward the tech debt of using String `normalTime`
           // so pre-parse into a hammertime and store as `utc`
           // eslint-disable-next-line no-param-reassign
-          (d) => { d.utc = Date.parse(d.normalTime); delete d.normalTime; return d; }
+          (d) => {
+            const reshaped = stripDatum(d);
+            reshaped.utc = Date.parse(d.normalTime);
+            return reshaped;
+          }
         ),
         'type',
       ),
@@ -100,7 +133,7 @@ export function selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs) 
     const { data: { bolus: bolusesForDate } } = dateObj;
     selectedDataByDate[dateObj.date].data.bolus = _.map(bolusesForDate, (bolus) => {
       if (bolus.wizard) {
-        const reversed = _.cloneDeep(bolus.wizard);
+        const reversed = stripDatum(bolus.wizard);
         reversed.bolus = _.omit(bolus, 'wizard');
         return reversed;
       }
