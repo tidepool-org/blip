@@ -129,6 +129,43 @@ export function getDelivered(insulinEvent) {
 }
 
 /**
+ * getDuration
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {Number} duration value in milliseconds
+ */
+export function getDuration(insulinEvent) {
+  let bolus = insulinEvent;
+  if (_.get(insulinEvent, 'type') === 'wizard') {
+    bolus = getBolusFromInsulinEvent(insulinEvent);
+  }
+  // don't want truthiness here because want to return duration
+  // from a bolus interrupted immediately (duration = 0)
+  if (bolus.duration == null) {
+    return NaN;
+  }
+  return bolus.duration;
+}
+
+/**
+ * getExtended
+ * @param {Object} insulinEvent - a Tidepool wizard or bolus object
+ *
+ * @return {Number} units of insulin delivered over an extended duration
+ */
+export function getExtended(insulinEvent) {
+  const bolus = getBolusFromInsulinEvent(insulinEvent);
+
+  // don't want truthiness here because want to return expectedExtended
+  // from a bolus interrupted immediately (extended = 0)
+  if (bolus.extended == null) {
+    return NaN;
+  }
+
+  return bolus.extended;
+}
+
+/**
  * getMaxDuration
  * @param {Object} insulinEvent - a Tidepool bolus or wizard object
  *
@@ -164,6 +201,20 @@ export function getMaxValue(insulinEvent) {
   const programmed = getProgrammed(bolus);
   const recommended = getRecommended(insulinEvent) || 0;
   return (recommended > programmed) ? recommended : programmed;
+}
+
+/**
+ * hasExtended
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {Boolean} whether the bolus has an extended delivery portion
+ */
+export function hasExtended(insulinEvent) {
+  const bolus = getBolusFromInsulinEvent(insulinEvent);
+
+  // NB: intentionally invoking truthiness here
+  // a bolus with `extended` value 0 and `expectedExtended` value 0 is pointless to render
+  return Boolean(bolus.extended || bolus.expectedExtended) || false;
 }
 
 /**
