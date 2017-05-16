@@ -29,8 +29,8 @@ const PrintHeader = React.createClass({
     dateLink: React.PropTypes.string,
   },
   render: function() {
-    let patientName = '';
-    let title = '';
+    let patientName;
+    let title;
     let dateLink = sundial.formatInTimezone(Date.now(), 'UTC', 'MMM D, YYYY');
     if (this.props.patient) {
       patientName = personUtils.patientFullName(this.props.patient);

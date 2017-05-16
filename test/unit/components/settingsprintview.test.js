@@ -28,6 +28,7 @@ import * as viz from '@tidepool/viz';
 const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 
 import SettingsPrintView from '../../../app/components/printview';
+import PrintHeader from '../../../app/components/printheader';
 
 const expect = chai.expect;
 
@@ -86,7 +87,7 @@ describe('SettingsPrintView', () => {
     timePrefs: {},
     patient: {
       profile: {
-        fullName: 'Jane Doe'
+        fullName: 'Aaradhya Agarwal'
       },
       permissions: {
         note: {},
@@ -96,26 +97,20 @@ describe('SettingsPrintView', () => {
     patientData: {
       grouped: { pumpSettings: [pumpSettingsData]}
     },
-    trackMetric: sinon.stub(),
   };
-
-  let wrapper;
-  beforeEach(() => {
-    props.trackMetric.reset();
-    wrapper = shallow(
-      <SettingsPrintView
-        {...props}
-      />
-    );
-  });
 
   it('should be a function', function() {
     expect(SettingsPrintView).to.be.a('function');
   });
 
   describe('render', function() {
-    it('provids a settings container', function () {
+    it('provides a settings container', function () {
+      const wrapper = shallow(<SettingsPrintView {...props}/>);
       expect(wrapper.find(PumpSettingsContainer)).to.have.length(1);
+    });
+    it('provides a print header', function () {
+      const wrapper = shallow(<SettingsPrintView {...props}/>);
+      expect(wrapper.find(PrintHeader)).to.have.length(1);
     });
   });
 });
