@@ -39,7 +39,6 @@ const SettingsPrintView = React.createClass({
     timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
-    trackMetric: React.PropTypes.func.isRequired,
   },
   renderHeader: function() {
     return (
@@ -52,15 +51,21 @@ const SettingsPrintView = React.createClass({
   render: function() {
     const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
     const manufacturer = _.get(mostRecentSettings, 'source').toLowerCase();
+
     return (
-      <PumpSettingsContainer
-        currentPatientInViewId={this.props.currentPatientInViewId}
-        bgUnits={this.props.bgPrefs.bgUnits}
-        manufacturerKey={manufacturer}
-        pumpSettings={mostRecentSettings}
-        timePrefs={this.props.timePrefs}
-        view='print'
-      />
+      <div id="app-print" className="print-view-content">
+        {this.renderHeader()}
+        <div className="print-view-page print-view-page-device-settings">
+          <PumpSettingsContainer
+            currentPatientInViewId={this.props.currentPatientInViewId}
+            bgUnits={this.props.bgPrefs.bgUnits}
+            manufacturerKey={manufacturer}
+            pumpSettings={mostRecentSettings}
+            timePrefs={this.props.timePrefs}
+            view='print'
+          />
+        </div>
+      </div>
     );
   }
 });
