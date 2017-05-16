@@ -26,10 +26,22 @@ This README is focused on just the details of getting blip running locally. For 
 
 Requirements:
 
-- [Node.js](http://nodejs.org/ 'Node.js')
-- [npm](https://www.npmjs.com/ 'npm') version 3.x or higher
+- [Node.js](http://nodejs.org/ 'Node.js') version 6.x
+- [npm](https://www.npmjs.com/ 'npm') version 4.x or higher
 
 Clone this repo [from GitHub](https://github.com/tidepool-org/blip 'GitHub: blip'), then install the dependencies:
+
+After cloning this repository to your local machine, first make sure that you have node `6.x` and npm `4.x` installed. If you have a different major version of node installed, consider using [nvm](https://github.com/creationix/nvm 'GitHub: Node Version Manager') to manage and switch between multiple node (& npm) installations. If you have npm `3.x` installed (as it is by default with node `6.x`), then you can update to the latest npm `4.x` with `npm install -g npm@4`.
+
+It's not an absolute requirement, but it is preferable to have [Yarn](https://yarnpkg.com 'Yarn') installed, as it provides dependency management features above and beyond what npm provides. Just follow [Yarn's installation instructions](https://yarnpkg.com/en/docs/install 'Yarn installation instructions') (hint: for Mac users with Homebrew installed, it's just `brew install yarn`).
+
+Once your environment is setup with node `6.x` and npm `3.x` install the dependencies with Yarn:
+
+```bash
+$ yarn install
+```
+
+Or with npm if you're choosing not to use Yarn:
 
 ```bash
 $ npm install
