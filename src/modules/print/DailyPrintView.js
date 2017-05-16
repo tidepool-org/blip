@@ -468,13 +468,14 @@ class DailyPrintView {
   }
 
   renderBolusPaths({ bolusScale, data: { bolus: boluses }, xScale }) {
-    const pathsNotToRender = ['interrupted'];
     _.each(boluses, (bolus) => {
-      const paths = getBolusPaths(bolus, xScale, bolusScale, { bolusWidth: 3 });
+      const paths = getBolusPaths(bolus, xScale, bolusScale, {
+        bolusWidth: 3,
+        extendedLineThickness: 0.75,
+        interruptedLineThickness: 0.5,
+        triangleHeight: 1.25,
+      });
       _.each(paths, (path) => {
-        if (_.includes(pathsNotToRender, path.type)) {
-          return;
-        }
         // eslint-disable-next-line lodash/prefer-lodash-method
         this.doc.path(path.d).fill(this.colors.bolus[path.type]);
       });
