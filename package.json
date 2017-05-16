@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "0.7.18",
+  "version": "0.8.1",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
@@ -9,11 +9,12 @@
   "scripts": {
     "apidocs": "./node_modules/.bin/jsdoc2md",
     "browser-tests": "NODE_ENV=test ./node_modules/.bin/karma start --browsers Chrome",
-    "build": "NODE_ENV=production npm test && npm run clean && ./node_modules/.bin/webpack --config package.config.js --optimize-minimize",
+    "build": "NODE_ENV=production npm run clean && ./node_modules/.bin/webpack --config package.config.js --optimize-minimize",
     "build-docs": "./update-gh-pages.sh",
     "clean": "./node_modules/.bin/rimraf ./dist/*",
     "lint": "./node_modules/.bin/eslint .storybook/ src/ stories/ test/ *.js",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
+    "prepublishOnly": "./node_modules/.bin/rimraf ./node_modules && yarn install --frozen-lockfile && npm test && npm run build",
     "pretest": "npm run lint",
     "serve-docs": "./node_modules/.bin/gitbook serve",
     "start": "./node_modules/.bin/webpack --config package.config.js --watch",
@@ -26,8 +27,8 @@
     "url": "git+https://github.com/tidepool-org/viz.git"
   },
   "engines": {
-    "node": "6.x",
-    "npm": "3.x"
+    "node": ">=6.x",
+    "npm": "4.x"
   },
   "license": "BSD-2-Clause",
   "bugs": {
