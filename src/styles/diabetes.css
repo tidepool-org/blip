@@ -16,7 +16,23 @@
  */
 
 :root {
+  --basal-stroke: 1.5;
   --bolus-stroke: 1;
+}
+
+.basalScheduledFill {
+  fill: var(--basal);
+  fill-opacity: 0.4;
+}
+
+.basalScheduledPath {
+  stroke: var(--basal);
+  stroke-width: var(--basal-stroke);
+}
+
+.basalUndeliveredPath {
+  composes: basalScheduledPath;
+  stroke-dasharray: 1.5,3;
 }
 
 .bgLow {
