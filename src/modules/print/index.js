@@ -65,17 +65,18 @@ export function createDailyPrintView(doc, data, bgBounds, timePrefs, numDays) {
 /**
  * createAndOpenPrintPDFPackage
  * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
- * @param {Object} dataByDate - a Crossfilter dimension for querying diabetes data by normalTime
+ * @param {Array} groupedData - Object of tideline-preprocessed Tidepool diabetes data & notes;
+ *                       grouped by type
  * @param {Object} opts - an object of print options (see destructured param below)
  *
  * @return {Void} [side effect function creates and opens PDF in new tab]
  */
-export default function createAndOpenPrintPDFPackage(mostRecent, dataByDate, {
+export default function createAndOpenPrintPDFPackage(mostRecent, groupedData, {
   // full opts will be { bgPrefs, dateTitle, patientName, numDays, timePrefs }
   bgPrefs, numDays, timePrefs,
 }) {
   const bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
-  const dailyViewData = selectDailyViewData(mostRecent, dataByDate, numDays, timePrefs);
+  const dailyViewData = selectDailyViewData(mostRecent, groupedData, numDays, timePrefs);
   /* NB: if you don't set the `margin` (or `margins` if not all are the same)
      then when you are using the .text() command a new page will be added if you specify
      coordinates outside of the default margin (or outside of the margins you've specified)
