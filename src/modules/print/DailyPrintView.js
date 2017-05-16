@@ -119,7 +119,9 @@ class DailyPrintView {
       this.chartsByDate[date] = { ...dateData };
     });
 
-    this.pages = Math.ceil(opts.numDays / opts.chartsPerPage);
+    this.startingPageIndex = opts.startingPageIndex || 0;
+    this.highestPageIndex = 0;
+    this.chartsPlaced = 0;
 
     this.chartIndex = 0;
 
@@ -136,10 +138,8 @@ class DailyPrintView {
       this.calculateDateChartHeight(dateData);
     }
 
-    let page = 1;
-    while (page <= this.pages) {
-      this.placeChartsOnPage(page);
-      ++page;
+    while (this.chartsPlaced < this.numDays) {
+      this.placeChartsOnPage(this.highestPageIndex);
     }
     _.each(this.chartsByDate, (dateChart) => {
       this.makeScales(dateChart);
@@ -243,10 +243,8 @@ class DailyPrintView {
     this.renderHeader().renderFooter();
   }
 
-  placeChartsOnPage(pageNumber) {
-    if (pageNumber <= this.pages) {
-      this.doc.addPage();
-    }
+  placeChartsOnPage(pageIndex) {
+    this.doc.addPage();
     const { topEdge, bottomEdge } = this.chartArea;
     let totalChartHeight = 0;
     const dates = _.keys(this.chartsByDate);
@@ -258,17 +256,16 @@ class DailyPrintView {
       const nextTotalHeight = totalChartHeight + thisChartHeight + this.chartMinimums.paddingBelow;
       if (nextTotalHeight > (bottomEdge - topEdge)) {
         this.chartIndex = i;
-        this.pages += 1;
         break;
       }
       this.chartIndex = i + 1;
       totalChartHeight += thisChartHeight + this.chartMinimums.paddingBelow;
       chartsOnThisPage += 1;
+      this.chartsPlaced += 1;
     }
     for (let i = startingIndexThisPage; i < startingIndexThisPage + chartsOnThisPage; ++i) {
       const chart = this.chartsByDate[dates[i]];
-      // NB: subtract one because PDFKit zero-indexes the buffered pages
-      chart.page = pageNumber - 1;
+      chart.page = pageIndex;
       if (i === startingIndexThisPage) {
         chart.topEdge = this.chartArea.topEdge;
         chart.bottomEdge = this.chartArea.topEdge + chart.chartHeight;
@@ -286,6 +283,7 @@ class DailyPrintView {
       }
     }
 
+    this.highestPageIndex += 1;
     return this;
   }
 
