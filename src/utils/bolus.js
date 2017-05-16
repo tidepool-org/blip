@@ -47,29 +47,6 @@ export function getBolusFromInsulinEvent(insulinEvent) {
 }
 
 /**
- * getDelivered
- * @param {Object} insulinEvent - a Tidepool bolus or wizard object
- *
- * @return {Number} units of insulin delivered in this insulinEvent
- */
-export function getDelivered(insulinEvent) {
-  let bolus = insulinEvent;
-  if (_.get(insulinEvent, 'type') === 'wizard') {
-    bolus = getBolusFromInsulinEvent(insulinEvent);
-    if (!bolus.normal && !bolus.extended) {
-      return NaN;
-    }
-  }
-  if (bolus.extended != null) {
-    if (bolus.normal != null) {
-      return fixFloatingPoint(bolus.extended + bolus.normal);
-    }
-    return bolus.extended;
-  }
-  return bolus.normal;
-}
-
-/**
  * getProgrammed
  * @param {Object} insulinEvent - a Tidepool bolus or wizard object
  *
@@ -129,6 +106,66 @@ export function getRecommended(insulinEvent) {
 }
 
 /**
+ * getDelivered
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {Number} units of insulin delivered in this insulinEvent
+ */
+export function getDelivered(insulinEvent) {
+  let bolus = insulinEvent;
+  if (_.get(insulinEvent, 'type') === 'wizard') {
+    bolus = getBolusFromInsulinEvent(insulinEvent);
+    if (!bolus.normal && !bolus.extended) {
+      return NaN;
+    }
+  }
+  if (bolus.extended != null) {
+    if (bolus.normal != null) {
+      return fixFloatingPoint(bolus.extended + bolus.normal);
+    }
+    return bolus.extended;
+  }
+  return bolus.normal;
+}
+
+/**
+ * getDuration
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {Number} duration value in milliseconds
+ */
+export function getDuration(insulinEvent) {
+  let bolus = insulinEvent;
+  if (_.get(insulinEvent, 'type') === 'wizard') {
+    bolus = getBolusFromInsulinEvent(insulinEvent);
+  }
+  // don't want truthiness here because want to return duration
+  // from a bolus interrupted immediately (duration = 0)
+  if (!_.inRange(bolus.duration, Infinity)) {
+    return NaN;
+  }
+  return bolus.duration;
+}
+
+/**
+ * getExtended
+ * @param {Object} insulinEvent - a Tidepool wizard or bolus object
+ *
+ * @return {Number} units of insulin delivered over an extended duration
+ */
+export function getExtended(insulinEvent) {
+  const bolus = getBolusFromInsulinEvent(insulinEvent);
+
+  // don't want truthiness here because want to return expectedExtended
+  // from a bolus interrupted immediately (extended = 0)
+  if (!_.inRange(bolus.extended, Infinity)) {
+    return NaN;
+  }
+
+  return bolus.extended;
+}
+
+/**
  * getMaxDuration
  * @param {Object} insulinEvent - a Tidepool bolus or wizard object
  *
@@ -141,7 +178,7 @@ export function getMaxDuration(insulinEvent) {
   }
   // don't want truthiness here because want to return expectedDuration
   // from a bolus interrupted immediately (duration = 0)
-  if (bolus.duration == null) {
+  if (!_.inRange(bolus.duration, Infinity)) {
     return NaN;
   }
   return bolus.expectedDuration || bolus.duration;
@@ -202,4 +239,68 @@ export function getExtendedPercentage(insulinEvent) {
   const extended = bolus.expectedExtended || bolus.extended;
   const programmed = getProgrammed(bolus);
   return formatPercentage(extended / programmed);
+}
+
+/**
+ * hasExtended
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {Boolean} whether the bolus has an extended delivery portion
+ */
+export function hasExtended(insulinEvent) {
+  const bolus = getBolusFromInsulinEvent(insulinEvent);
+
+  // NB: intentionally invoking truthiness here
+  // a bolus with `extended` value 0 and `expectedExtended` value 0 is pointless to render
+  return Boolean(bolus.extended || bolus.expectedExtended) || false;
+}
+
+/**
+ * isInterruptedBolus
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {Boolean} whether the bolus was interrupted or not
+ */
+export function isInterruptedBolus(insulinEvent) {
+  const bolus = getBolusFromInsulinEvent(insulinEvent);
+
+  const cancelledDuringNormal = Boolean(
+    bolus.normal != null &&
+    bolus.expectedNormal &&
+    bolus.normal !== bolus.expectedNormal
+  );
+
+  const cancelledDuringExtended = Boolean(
+    bolus.extended != null &&
+    bolus.expectedExtended &&
+    bolus.extended !== bolus.expectedExtended
+  );
+
+  if (bolus.normal) {
+    if (!bolus.extended) {
+      return cancelledDuringNormal;
+    }
+    return cancelledDuringNormal || cancelledDuringExtended;
+  }
+  return cancelledDuringExtended;
+}
+
+/**
+ * isOverride
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {Boolean} whether the bolus programmed was larger than the calculated recommendation
+ */
+export function isOverride(insulinEvent) {
+  return getRecommended(insulinEvent) < getProgrammed(insulinEvent);
+}
+
+/**
+ * isUnderride
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {Boolean} whether the bolus programmed was smaller than the calculated recommendation
+ */
+export function isUnderride(insulinEvent) {
+  return getRecommended(insulinEvent) > getProgrammed(insulinEvent);
 }

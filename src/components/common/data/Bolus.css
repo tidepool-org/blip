@@ -15,14 +15,57 @@
  * == BSD2 LICENSE ==
  */
 
+.noStroke {
+  stroke: none;
+  stroke-width: 0;
+}
+
+.delivered {
+  composes: noStroke;
+  composes: bolusDelivered from '../../../styles/diabetes.css';
+}
+
+.extendedExpectationPath {
+  composes: bolusExtendedPath bolusUndelivered from '../../../styles/diabetes.css';
+}
+
+.extendedInterrupted {
+  composes: bolusInterrupted from '../../../styles/diabetes.css';
+}
+
+.extendedPath {
+  composes: bolusDelivered bolusExtendedPath from '../../../styles/diabetes.css';
+}
+
+.extendedTriangle {
+  composes: noStroke;
+  composes: bolusDelivered from '../../../styles/diabetes.css';
+}
+
+.extendedTriangleInterrupted {
+  composes: noStroke;
+  composes: bolusUndelivered from '../../../styles/diabetes.css';
+}
+
 .interrupted {
   composes: bolusInterrupted from '../../../styles/diabetes.css';
 }
 
-.normal {
-  composes: bolus from '../../../styles/diabetes.css';
+.programmed {
+  composes: bolusProgrammed from '../../../styles/diabetes.css';
+}
+
+.triangle {
+  composes: noStroke;
+  composes: bolusRideTriangle from '../../../styles/diabetes.css';
 }
 
 .undelivered {
+  composes: noStroke;
   composes: bolusUndelivered from '../../../styles/diabetes.css';
+}
+
+.underride {
+  composes: noStroke;
+  composes: bolusUnderride from '../../../styles/diabetes.css';
 }

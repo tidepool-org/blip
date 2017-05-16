@@ -73,11 +73,21 @@ class DailyPrintView {
     // render options
     this.cbgRadius = 1;
 
+    const undelivered = '#B2B2B2';
+
     this.colors = {
       axes: '#858585',
       bolus: {
-        normal: 'black',
-        undelivered: '#B2B2B2',
+        delivered: 'black',
+        extendedPath: 'black',
+        extendedExpectationPath: undelivered,
+        extendedTriangle: 'black',
+        extendedTriangleInterrupted: undelivered,
+        overrideTriangle: 'white',
+        programmed: undelivered,
+        undelivered,
+        underride: undelivered,
+        underrideTriangle: 'white',
       },
       lightDividers: '#D8D8D8',
     };

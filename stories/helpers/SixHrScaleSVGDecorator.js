@@ -50,8 +50,6 @@ const SixHrScaleSVGDecorator = (story) => (
   </svg>
 );
 
-export const xScale = scaleLinear()
-  .domain([Date.parse('2017-03-06T08:00:00.000Z'), Date.parse('2017-03-06T14:00:00.000Z')])
-  .range([115, WIDTH]);
+export const xScale = scaleLinear().domain([0, 216e5]).range([115, WIDTH]);
 
 export default SixHrScaleSVGDecorator;
