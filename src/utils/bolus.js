@@ -141,7 +141,7 @@ export function getDuration(insulinEvent) {
   }
   // don't want truthiness here because want to return duration
   // from a bolus interrupted immediately (duration = 0)
-  if (bolus.duration == null) {
+  if (!_.inRange(bolus.duration, Infinity)) {
     return NaN;
   }
   return bolus.duration;
@@ -158,7 +158,7 @@ export function getExtended(insulinEvent) {
 
   // don't want truthiness here because want to return expectedExtended
   // from a bolus interrupted immediately (extended = 0)
-  if (bolus.extended == null) {
+  if (!_.inRange(bolus.extended, Infinity)) {
     return NaN;
   }
 
@@ -178,7 +178,7 @@ export function getMaxDuration(insulinEvent) {
   }
   // don't want truthiness here because want to return expectedDuration
   // from a bolus interrupted immediately (duration = 0)
-  if (bolus.duration == null) {
+  if (!_.inRange(bolus.duration, Infinity)) {
     return NaN;
   }
   return bolus.expectedDuration || bolus.duration;
