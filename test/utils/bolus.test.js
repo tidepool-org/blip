@@ -172,71 +172,6 @@ describe('bolus utilities', () => {
     });
   });
 
-  describe('getDelivered', () => {
-    it('should be a function', () => {
-      assert.isFunction(bolusUtils.getDelivered);
-    });
-
-    it('should return NaN if type `wizard` and no bolus attached', () => {
-      expect(Number.isNaN(bolusUtils.getDelivered({ type: 'wizard' }))).to.be.true;
-    });
-
-    it('should return the value of a no-frills `normal` bolus', () => {
-      expect(bolusUtils.getDelivered(normal)).to.equal(normal.normal);
-    });
-
-    it('should return the value of a no-frills `extended` bolus', () => {
-      expect(bolusUtils.getDelivered(extended)).to.equal(extended.extended);
-    });
-
-    it('should return the combined `normal` and `extended` of a no-frills `combo` bolus', () => {
-      expect(bolusUtils.getDelivered(combo)).to.equal(combo.normal + combo.extended);
-    });
-
-    it('should return the delivered of a cancelled `normal` bolus', () => {
-      expect(bolusUtils.getDelivered(cancelled)).to.equal(cancelled.normal);
-    });
-
-    it('should return the delivered of a cancelled `extended` bolus', () => {
-      expect(bolusUtils.getDelivered(cancelledExtended)).to.equal(cancelledExtended.extended);
-    });
-
-    it('should return the `normal` of a `normal`-cancelled `combo` bolus', () => {
-      expect(bolusUtils.getDelivered(cancelledInNormalCombo))
-        .to.equal(cancelledInNormalCombo.normal);
-    });
-
-    it('should return the `normal` & `extended` of an `extended`-cancelled `combo` bolus', () => {
-      expect(bolusUtils.getDelivered(cancelledInExtendedCombo)).to.equal(
-        cancelledInExtendedCombo.normal + cancelledInExtendedCombo.extended
-      );
-    });
-
-    it('should return the programmed & delivered of an underride', () => {
-      expect(bolusUtils.getDelivered(underride)).to.equal(underride.bolus.normal);
-    });
-
-    it('should return the programmed & delivered of an override', () => {
-      expect(bolusUtils.getDelivered(override)).to.equal(override.bolus.normal);
-    });
-
-    it('should return the programmed & delivered of an `extended` underride', () => {
-      expect(bolusUtils.getDelivered(extendedUnderride)).to.equal(extendedUnderride.bolus.extended);
-    });
-
-    it('should return the the `normal` & `extended` of a `combo` override', () => {
-      expect(bolusUtils.getDelivered(comboOverride)).to.equal(
-        comboOverride.bolus.normal + comboOverride.bolus.extended
-      );
-    });
-
-    it('should return the `normal` & `extended` of a cancelled `combo` underride', () => {
-      expect(bolusUtils.getDelivered(comboUnderrideCancelled)).to.equal(
-        comboUnderrideCancelled.bolus.normal + comboUnderrideCancelled.bolus.extended
-      );
-    });
-  });
-
   describe('getProgrammed', () => {
     it('should be a function', () => {
       assert.isFunction(bolusUtils.getProgrammed);
@@ -349,6 +284,133 @@ describe('bolus utilities', () => {
     });
   });
 
+  describe('getDelivered', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.getDelivered);
+    });
+
+    it('should return NaN if type `wizard` and no bolus attached', () => {
+      expect(Number.isNaN(bolusUtils.getDelivered({ type: 'wizard' }))).to.be.true;
+    });
+
+    it('should return the value of a no-frills `normal` bolus', () => {
+      expect(bolusUtils.getDelivered(normal)).to.equal(normal.normal);
+    });
+
+    it('should return the value of a no-frills `extended` bolus', () => {
+      expect(bolusUtils.getDelivered(extended)).to.equal(extended.extended);
+    });
+
+    it('should return the combined `normal` and `extended` of a no-frills `combo` bolus', () => {
+      expect(bolusUtils.getDelivered(combo)).to.equal(combo.normal + combo.extended);
+    });
+
+    it('should return the delivered of a cancelled `normal` bolus', () => {
+      expect(bolusUtils.getDelivered(cancelled)).to.equal(cancelled.normal);
+    });
+
+    it('should return the delivered of a cancelled `extended` bolus', () => {
+      expect(bolusUtils.getDelivered(cancelledExtended)).to.equal(cancelledExtended.extended);
+    });
+
+    it('should return the `normal` of a `normal`-cancelled `combo` bolus', () => {
+      expect(bolusUtils.getDelivered(cancelledInNormalCombo))
+        .to.equal(cancelledInNormalCombo.normal);
+    });
+
+    it('should return the `normal` & `extended` of an `extended`-cancelled `combo` bolus', () => {
+      expect(bolusUtils.getDelivered(cancelledInExtendedCombo)).to.equal(
+        cancelledInExtendedCombo.normal + cancelledInExtendedCombo.extended
+      );
+    });
+
+    it('should return the programmed & delivered of an underride', () => {
+      expect(bolusUtils.getDelivered(underride)).to.equal(underride.bolus.normal);
+    });
+
+    it('should return the programmed & delivered of an override', () => {
+      expect(bolusUtils.getDelivered(override)).to.equal(override.bolus.normal);
+    });
+
+    it('should return the programmed & delivered of an `extended` underride', () => {
+      expect(bolusUtils.getDelivered(extendedUnderride)).to.equal(extendedUnderride.bolus.extended);
+    });
+
+    it('should return the the `normal` & `extended` of a `combo` override', () => {
+      expect(bolusUtils.getDelivered(comboOverride)).to.equal(
+        comboOverride.bolus.normal + comboOverride.bolus.extended
+      );
+    });
+
+    it('should return the `normal` & `extended` of a cancelled `combo` underride', () => {
+      expect(bolusUtils.getDelivered(comboUnderrideCancelled)).to.equal(
+        comboUnderrideCancelled.bolus.normal + comboUnderrideCancelled.bolus.extended
+      );
+    });
+  });
+
+  describe('getDuration', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.getDuration);
+    });
+
+    it('should return `NaN` on any bolus that only has `normal` delivery', () => {
+      expect(Number.isNaN(bolusUtils.getDuration(normal))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getDuration(cancelled))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getDuration(override))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getDuration(underride))).to.be.true;
+    });
+
+    it('should return the `duration` of any bolus with a `duration`', () => {
+      expect(bolusUtils.getDuration(combo)).to.equal(combo.duration);
+      expect(bolusUtils.getDuration(cancelledInExtendedCombo))
+        .to.equal(cancelledInExtendedCombo.duration);
+      expect(bolusUtils.getDuration(comboUnderrideCancelled))
+        .to.equal(comboUnderrideCancelled.bolus.duration);
+      expect(bolusUtils.getDuration(extended)).to.equal(extended.duration);
+      expect(bolusUtils.getDuration(cancelledExtended)).to.equal(cancelledExtended.duration);
+    });
+
+    it('should return a `duration` that is 0', () => {
+      expect(bolusUtils.getDuration(cancelledInNormalCombo))
+        .to.equal(0);
+      expect(bolusUtils.getDuration(immediatelyCancelledExtended))
+        .to.equal(0);
+    });
+  });
+
+  describe('getExtended', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.getExtended);
+    });
+
+    it('should return `NaN` on any bolus that only has `normal` delivery', () => {
+      expect(Number.isNaN(bolusUtils.getExtended(normal))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getExtended(cancelled))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getExtended(override))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getExtended(underride))).to.be.true;
+    });
+
+    it('should return the `extended` or any bolus with an `extended` portion', () => {
+      expect(bolusUtils.getExtended(combo)).to.equal(combo.extended);
+      expect(bolusUtils.getExtended(cancelledInExtendedCombo))
+        .to.equal(cancelledInExtendedCombo.extended);
+      expect(bolusUtils.getExtended(comboOverride)).to.equal(comboOverride.bolus.extended);
+      expect(bolusUtils.getExtended(comboUnderrideCancelled))
+        .to.equal(comboUnderrideCancelled.bolus.extended);
+      expect(bolusUtils.getExtended(extended)).to.equal(extended.extended);
+      expect(bolusUtils.getExtended(cancelledExtended)).to.equal(cancelledExtended.extended);
+      expect(bolusUtils.getExtended(extendedUnderride)).to.equal(extendedUnderride.bolus.extended);
+    });
+
+    it('should return an `extended` value that is 0', () => {
+      expect(bolusUtils.getExtended(cancelledInNormalCombo))
+        .to.equal(0);
+      expect(bolusUtils.getExtended(immediatelyCancelledExtended))
+        .to.equal(0);
+    });
+  });
+
   describe('getMaxDuration', () => {
     it('should be a function', () => {
       assert.isFunction(bolusUtils.getMaxDuration);
@@ -444,6 +506,128 @@ describe('bolus utilities', () => {
 
     it('should return the net recommendation in the case of a cancelled `combo` underride', () => {
       expect(bolusUtils.getMaxValue(comboUnderrideCancelled)).to.equal(5);
+    });
+  });
+
+  describe('hasExtended', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.hasExtended);
+    });
+
+    it('should return `false` on any bolus that only has `normal` delivery', () => {
+      expect(bolusUtils.hasExtended(normal)).to.be.false;
+      expect(bolusUtils.hasExtended(cancelled)).to.be.false;
+      expect(bolusUtils.hasExtended(override)).to.be.false;
+      expect(bolusUtils.hasExtended(underride)).to.be.false;
+      expect(bolusUtils.hasExtended(withNetRec)).to.be.false;
+    });
+
+    it('should return `true` on any bolus that has non-zero `extended` delivery', () => {
+      expect(bolusUtils.hasExtended(combo)).to.be.true;
+      expect(bolusUtils.hasExtended(cancelledInExtendedCombo)).to.be.true;
+      expect(bolusUtils.hasExtended(comboOverride)).to.be.true;
+      expect(bolusUtils.hasExtended(comboUnderrideCancelled)).to.be.true;
+      expect(bolusUtils.hasExtended(extended)).to.be.true;
+      expect(bolusUtils.hasExtended(cancelledExtended)).to.be.true;
+      expect(bolusUtils.hasExtended(extendedUnderride)).to.be.true;
+    });
+
+    it('should return `true` on a bolus with zero `extended`, non-zero `expectedExtended`', () => {
+      expect(bolusUtils.hasExtended(cancelledInNormalCombo)).to.be.true;
+      expect(bolusUtils.hasExtended(immediatelyCancelledExtended)).to.be.true;
+    });
+  });
+
+  describe('isInterruptedBolus', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.isInterruptedBolus);
+    });
+
+    it('should return `false` on a no-frills `normal` bolus', () => {
+      expect(bolusUtils.isInterruptedBolus(normal)).to.be.false;
+      expect(bolusUtils.isInterruptedBolus(withNetRec)).to.be.false;
+    });
+
+    it('should return `false` on a no-frills `extended` bolus', () => {
+      expect(bolusUtils.isInterruptedBolus(extended)).to.be.false;
+    });
+
+    it('should return `false` on a no-frills `combo` bolus', () => {
+      expect(bolusUtils.isInterruptedBolus(combo)).to.be.false;
+    });
+
+    it('should return `true` on a cancelled `normal` bolus', () => {
+      expect(bolusUtils.isInterruptedBolus(cancelled)).to.be.true;
+    });
+
+    it('should return `true` on all types of cancelled `extended` bolus', () => {
+      expect(bolusUtils.isInterruptedBolus(immediatelyCancelledExtended)).to.be.true;
+      expect(bolusUtils.isInterruptedBolus(cancelledExtended)).to.be.true;
+    });
+
+    it('should return `true` on all types of cancelled `combo` boluses', () => {
+      expect(bolusUtils.isInterruptedBolus(cancelledInNormalCombo)).to.be.true;
+      expect(bolusUtils.isInterruptedBolus(cancelledInExtendedCombo)).to.be.true;
+      expect(bolusUtils.isInterruptedBolus(comboUnderrideCancelled)).to.be.true;
+    });
+
+    it('should return `false` on an override or underride', () => {
+      expect(bolusUtils.isInterruptedBolus(override)).to.be.false;
+      expect(bolusUtils.isInterruptedBolus(underride)).to.be.false;
+      expect(bolusUtils.isInterruptedBolus(comboOverride)).to.be.false;
+      expect(bolusUtils.isInterruptedBolus(extendedUnderride)).to.be.false;
+    });
+  });
+
+  describe('isOverride', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.isOverride);
+    });
+
+    it('should return `false` on all non-override boluses', () => {
+      expect(bolusUtils.isOverride(normal)).to.be.false;
+      expect(bolusUtils.isOverride(cancelled)).to.be.false;
+      expect(bolusUtils.isOverride(underride)).to.be.false;
+      expect(bolusUtils.isOverride(combo)).to.be.false;
+      expect(bolusUtils.isOverride(cancelledInNormalCombo)).to.be.false;
+      expect(bolusUtils.isOverride(cancelledInExtendedCombo)).to.be.false;
+      expect(bolusUtils.isOverride(comboUnderrideCancelled)).to.be.false;
+      expect(bolusUtils.isOverride(extended)).to.be.false;
+      expect(bolusUtils.isOverride(cancelledExtended)).to.be.false;
+      expect(bolusUtils.isOverride(immediatelyCancelledExtended)).to.be.false;
+      expect(bolusUtils.isOverride(extendedUnderride)).to.be.false;
+      expect(bolusUtils.isOverride(withNetRec)).to.be.false;
+    });
+
+    it('should return `true` on all overridden boluses', () => {
+      expect(bolusUtils.isOverride(override)).to.be.true;
+      expect(bolusUtils.isOverride(comboOverride)).to.be.true;
+    });
+  });
+
+  describe('isUnderride', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.isUnderride);
+    });
+
+    it('should return `false` on all non-underride boluses', () => {
+      expect(bolusUtils.isOverride(normal)).to.be.false;
+      expect(bolusUtils.isOverride(cancelled)).to.be.false;
+      expect(bolusUtils.isOverride(override)).to.be.true;
+      expect(bolusUtils.isOverride(combo)).to.be.false;
+      expect(bolusUtils.isOverride(cancelledInNormalCombo)).to.be.false;
+      expect(bolusUtils.isOverride(cancelledInExtendedCombo)).to.be.false;
+      expect(bolusUtils.isOverride(comboOverride)).to.be.true;
+      expect(bolusUtils.isOverride(comboUnderrideCancelled)).to.be.false;
+      expect(bolusUtils.isOverride(extended)).to.be.false;
+      expect(bolusUtils.isOverride(cancelledExtended)).to.be.false;
+      expect(bolusUtils.isOverride(immediatelyCancelledExtended)).to.be.false;
+      expect(bolusUtils.isOverride(withNetRec)).to.be.false;
+    });
+
+    it('should return `true` on all underridden boluses', () => {
+      expect(bolusUtils.isOverride(underride)).to.be.false;
+      expect(bolusUtils.isOverride(extendedUnderride)).to.be.false;
     });
   });
 });

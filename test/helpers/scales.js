@@ -31,4 +31,17 @@ const trendsYScale = scaleLinear()
 
 const trends = { trendsWidth, trendsHeight, trendsXScale, trendsYScale };
 
-export { trends };
+const detailWidth = 864;
+const detailHeight = 100;
+
+const detailXScale = scaleLinear()
+  .domain([0, 864e5])
+  .range([0, detailWidth]);
+
+const detailBolusScale = scaleLinear()
+  .domain([0, 15])
+  .range([detailHeight, 0]);
+
+const detail = { detailWidth, detailHeight, detailXScale, detailBolusScale };
+
+export { detail, trends };

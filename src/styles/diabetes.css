@@ -15,6 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
+:root {
+  --bolus-stroke: 1;
+}
+
 .bgLow {
   color: var(--bg-low);
   fill: var(--bg-low);
@@ -28,4 +32,42 @@
 .bgHigh {
   color: var(--bg-high);
   fill: var(--bg-high);
+}
+
+.bolusDelivered {
+  color: var(--bolus);
+  fill: var(--bolus);
+  stroke: var(--bolus);
+}
+
+.bolusExtendedPath {
+  stroke-width: 2;
+}
+
+.bolusInterrupted {
+  color: var(--bolus--interrupted);
+  fill: var(--bolus--interrupted);
+}
+
+.bolusProgrammed {
+  fill: none;
+  stroke: var(--bolus);
+  stroke-dasharray: 3, 2;
+  stroke-width: var(--bolus-stroke);
+}
+
+.bolusRideTriangle {
+  fill: var(--bolus--override);
+}
+
+.bolusUndelivered {
+  color: var(--bolus--undelivered);
+  fill: var(--bolus--undelivered);
+  stroke: var(--bolus--undelivered);
+}
+
+.bolusUnderride {
+  color: var(--bolus--undelivered);
+  fill: var(--bolus--undelivered);
+  stroke: var(--bolus--undelivered);
 }
