@@ -167,7 +167,11 @@ var Daily = React.createClass({
     window.downloadDailyPrintViewData = () => {
       console.save(selectDailyViewData(
         dData[dData.length - 1].normalTime,
-        this.props.patientData.dataByDate,
+        _.pick(
+          this.props.patientData.grouped,
+          // TODO: add back deviceEvent later (not in first prod release)
+          ['basal', 'bolus', 'cbg', 'message', 'smbg']
+        ),
         6,
         this.props.timePrefs,
       ), 'daily-print-view.json');
@@ -181,7 +185,7 @@ var Daily = React.createClass({
     };
   },
   render: function() {
-    
+
     return (
       <div id="tidelineMain">
         <Header
@@ -233,7 +237,7 @@ var Daily = React.createClass({
         ref="footer" />
       </div>
       );
-    
+
   },
   getTitle: function(datetime) {
     var timePrefs = this.props.timePrefs, timezone;
@@ -272,7 +276,11 @@ var Daily = React.createClass({
     const dData = this.props.patientData.diabetesData;
     createAndOpenPrintPDFPackage(
       dData[dData.length - 1].normalTime,
-      this.props.patientData.dataByDate,
+      _.pick(
+        this.props.patientData.grouped,
+        // TODO: add back deviceEvent later (not in first prod release)
+        ['basal', 'bolus', 'cbg', 'message', 'smbg']
+      ),
       { bgPrefs: this.props.bgPrefs, numDays: 6, timePrefs: this.props.timePrefs }
     );
     this.props.onSwitchToPrint();
