@@ -18,14 +18,14 @@
 import * as bgUtils from '../../src/utils/bloodglucose';
 
 describe('blood glucose utilities', () => {
-  describe('classifyBgValue', () => {
-    const bgBounds = {
-      veryHighThreshold: 300,
-      targetUpperBound: 180,
-      targetLowerBound: 70,
-      veryLowThreshold: 55,
-    };
+  const bgBounds = {
+    veryHighThreshold: 300,
+    targetUpperBound: 180,
+    targetLowerBound: 70,
+    veryLowThreshold: 55,
+  };
 
+  describe('classifyBgValue', () => {
     it('should be a function', () => {
       assert.isFunction(bgUtils.classifyBgValue);
     });
@@ -139,6 +139,54 @@ describe('blood glucose utilities', () => {
 
       it('should return `veryHigh` for a value > the `veryHighThreshold`', () => {
         expect(bgUtils.classifyBgValue(bgBounds, 301, 'fiveWay')).to.equal('veryHigh');
+      });
+    });
+  });
+
+  describe('calcBgPercentInCategories', () => {
+    it('should be a function', () => {
+      assert.isFunction(bgUtils.calcBgPercentInCategories);
+    });
+
+    it('should calculate the percentage of values in each bg category', () => {
+      const data = [{
+        value: 54,
+      }, {
+        value: 69,
+      }, {
+        value: 100,
+      }, {
+        value: 181,
+      }, {
+        value: 301,
+      }];
+      expect(bgUtils.calcBgPercentInCategories(data, bgBounds)).to.deep.equal({
+        veryLow: 0.2,
+        low: 0.2,
+        target: 0.2,
+        high: 0.2,
+        veryHigh: 0.2,
+      });
+    });
+
+    it('should not error if there are zero values in one or more categories', () => {
+      const data = [{
+        value: 100,
+      }, {
+        value: 100,
+      }, {
+        value: 100,
+      }, {
+        value: 100,
+      }, {
+        value: 100,
+      }];
+      expect(bgUtils.calcBgPercentInCategories(data, bgBounds)).to.deep.equal({
+        veryLow: 0,
+        low: 0,
+        target: 1,
+        high: 0,
+        veryHigh: 0,
       });
     });
   });
