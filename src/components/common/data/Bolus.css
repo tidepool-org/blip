@@ -26,7 +26,7 @@
 }
 
 .extendedExpectationPath {
-  composes: bolusExtendedPath bolusUndelivered from '../../../styles/diabetes.css';
+  composes: bolusUndelivered from '../../../styles/diabetes.css';
 }
 
 .extendedInterrupted {
@@ -34,7 +34,8 @@
 }
 
 .extendedPath {
-  composes: bolusDelivered bolusExtendedPath from '../../../styles/diabetes.css';
+  composes: noStroke;
+  composes: bolusDelivered from '../../../styles/diabetes.css';
 }
 
 .extendedTriangle {

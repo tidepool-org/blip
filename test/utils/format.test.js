@@ -113,4 +113,33 @@ describe('format', () => {
       expect(format.formatDecimalNumber(9.3328, 1)).to.equal('9.3');
     });
   });
+
+  describe('formatPercentage', () => {
+    it('should be a function', () => {
+      assert.isFunction(format.formatPercentage);
+    });
+
+    it('should return a String percentage including `%` suffix', () => {
+      expect(format.formatPercentage(0.5)).to.equal('50%');
+    });
+
+    it('should round to zero decimal places', () => {
+      expect(format.formatPercentage(0.732)).to.equal('73%');
+      expect(format.formatPercentage(0.736)).to.equal('74%');
+    });
+  });
+
+  describe('removeTrailingZeroes', () => {
+    it('should be a function', () => {
+      assert.isFunction(format.removeTrailingZeroes);
+    });
+
+    it('should return a String integer if only zeroes follow the decimal point', () => {
+      expect(format.removeTrailingZeroes('2.000')).to.equal('2');
+    });
+
+    it('should preserve everything non-zero right of the decimal point', () => {
+      expect(format.removeTrailingZeroes('2.100')).to.equal('2.100');
+    });
+  });
 });
