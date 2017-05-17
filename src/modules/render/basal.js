@@ -17,6 +17,16 @@
 
 import _ from 'lodash';
 
+/**
+ * calculateBasalPath
+ * @param {Array} basalSequence - an array of Tidepool basal events to be rendered as one
+ * @param {Function} xScale - xScale preconfigured with domain & range
+ * @param {Function} yScale - yScale preconfigured with domain & range
+ * @param {Object} opts - basal sequence rendering options such as whether filled
+ *
+ * @return {String} path - basal sequence SVG path
+ */
+
 export function calculateBasalPath(basalSequence, xScale, yScale, {
   endAtZero,
   isFilled,
@@ -63,7 +73,7 @@ export function calculateBasalPath(basalSequence, xScale, yScale, {
 }
 
  /**
-  * functionName
+  * getBasalPaths
   * @param {Array} basalSequence - an array of Tidepool basal events to be rendered as one
   * @param {Function} xScale - xScale preconfigured with domain & range
   * @param {Function} yScale - yScale preconfigured with domain & range
@@ -76,7 +86,14 @@ export default function getBasalPaths(basalSequence, xScale, yScale) {
   const paths = [];
   let type;
 
-  const types = _.uniq(_.pluck(basalSequence, 'subType'));
+  const types = _.uniq(
+    _.reject(
+      _.pluck(
+        basalSequence, 'subType'
+      ),
+      (d) => (!_.isString(d))
+    )
+  );
   if (types.length === 0) {
     throw new Error('Cannot determine `subType` of basal sequence!');
   } else if (types.length > 1) {

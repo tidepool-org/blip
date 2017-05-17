@@ -16,8 +16,8 @@
  */
 
 // import * as basals from '../../../data/basal/fixtures';
-// import { detail } from '../../helpers/scales';
-// const { detailXScale, detailBasalScale } = detail;
+import { detail } from '../../helpers/scales';
+const { detailXScale, detailBasalScale } = detail;
 
 import getBasalPaths, { calculateBasalPath } from '../../../src/modules/render/basal';
 
@@ -31,6 +31,24 @@ describe('basal path generators', () => {
   describe('getBasalPaths', () => {
     it('should be a function', () => {
       assert.isFunction(getBasalPaths);
+    });
+
+    it('should error if basalSequence provided without a consistent `subType`', () => {
+      const seq1 = [{
+        type: 'basal',
+        deliveryType: 'temp',
+      }];
+      const fn1 = () => { getBasalPaths(seq1, detailXScale, detailBasalScale); };
+      expect(fn1).to.throw('Cannot determine `subType` of basal sequence!');
+      const seq2 = [{
+        type: 'basal',
+        subType: 'temp',
+      }, {
+        type: 'basal',
+        subType: 'scheduled',
+      }];
+      const fn2 = () => { getBasalPaths(seq2, detailXScale, detailBasalScale); };
+      expect(fn2).to.throw('A basal sequence may contain only *one* `subType` of basal event.');
     });
   });
 });
