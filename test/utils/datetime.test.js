@@ -114,10 +114,12 @@ describe('datetime', () => {
     it('should be a function', () => {
       assert.isFunction(datetime.formatBirthdate);
     });
-    it('returns child name when isOtherPerson', () => {
-      expect(datetime.formatBirthdate(fakeChildAcct)).to.equal('Jan 31, 1983');
+
+    it('should format birthdate extracted from normal patient object', () => {
+      expect(datetime.formatBirthdate(patient)).to.equal('Jan 31, 1983');
     });
-    it('returns child name when isOtherPerson', () => {
+
+    it('should format birthdate extracted from fake child account patient object', () => {
       expect(datetime.formatBirthdate(fakeChildAcct)).to.equal('Jan 31, 1983');
     });
   });
@@ -167,11 +169,13 @@ describe('datetime', () => {
     it('should be a function', () => {
       assert.isFunction(datetime.formatDiagnosisDate);
     });
-    it('returns child name when isOtherPerson', () => {
+
+    it('should format diagnosisDate extracted from patient object', () => {
       expect(datetime.formatDiagnosisDate(patient)).to.equal('Jan 31, 1990');
     });
-    it('returns child name when isOtherPerson', () => {
-      expect(datetime.formatDiagnosisDate(patient)).to.equal('Jan 31, 1990');
+
+    it('should format diagnosisDate extracted from fake child account patient object', () => {
+      expect(datetime.formatDiagnosisDate(fakeChildAcct)).to.equal('Jan 31, 1990');
     });
   });
 
