@@ -18,12 +18,14 @@
 import * as bgUtils from '../../src/utils/bloodglucose';
 
 describe('blood glucose utilities', () => {
-  describe('classifyBgValue', () => {
-    const bgBounds = {
-      targetUpperBound: 180,
-      targetLowerBound: 70,
-    };
+  const bgBounds = {
+    veryHighThreshold: 300,
+    targetUpperBound: 180,
+    targetLowerBound: 70,
+    veryLowThreshold: 55,
+  };
 
+  describe('classifyBgValue', () => {
     it('should be a function', () => {
       assert.isFunction(bgUtils.classifyBgValue);
     });
@@ -80,24 +82,112 @@ describe('blood glucose utilities', () => {
       expect(fn6).to.not.throw;
     });
 
-    it('should return `low` for a value < the `targetLowerBound`', () => {
-      expect(bgUtils.classifyBgValue(bgBounds, 69)).to.equal('low');
+    describe('three-way classification (low, target, high)', () => {
+      it('should return `low` for a value < the `targetLowerBound`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 69)).to.equal('low');
+      });
+
+      it('should return `target` for a value equal to the `targetLowerBound`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 70)).to.equal('target');
+      });
+
+      it('should return `target` for a value > `targetLowerBound` and < `targetUpperBound`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 100)).to.equal('target');
+      });
+
+      it('should return `target` for a value equal to the `targetUpperBound`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 180)).to.equal('target');
+      });
+
+      it('should return `high` for a value > the `targetUpperBound`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 181)).to.equal('high');
+      });
     });
 
-    it('should return `target` for a value equal to the `targetLowerBound`', () => {
-      expect(bgUtils.classifyBgValue(bgBounds, 70)).to.equal('target');
+    describe('five-way classification (veryLow, low, target, high, veryHigh)', () => {
+      it('should return `veryLow` for a value < the `veryLowThreshold`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 54, 'fiveWay')).to.equal('veryLow');
+      });
+
+      it('should return `low` for a value equal to the `veryLowThreshold`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 55, 'fiveWay')).to.equal('low');
+      });
+
+      it('should return `low` for a value < the `targetLowerBound`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 69, 'fiveWay')).to.equal('low');
+      });
+
+      it('should return `target` for a value equal to the `targetLowerBound`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 70, 'fiveWay')).to.equal('target');
+      });
+
+      it('should return `target` for a value > `targetLowerBound` and < `targetUpperBound`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 100, 'fiveWay')).to.equal('target');
+      });
+
+      it('should return `target` for a value equal to the `targetUpperBound`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 180, 'fiveWay')).to.equal('target');
+      });
+
+      it('should return `high` for a value > the `targetUpperBound`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 181, 'fiveWay')).to.equal('high');
+      });
+
+      it('should return `high` for a value equal to the `veryHighThreshold`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 300, 'fiveWay')).to.equal('high');
+      });
+
+      it('should return `veryHigh` for a value > the `veryHighThreshold`', () => {
+        expect(bgUtils.classifyBgValue(bgBounds, 301, 'fiveWay')).to.equal('veryHigh');
+      });
+    });
+  });
+
+  describe('calcBgPercentInCategories', () => {
+    it('should be a function', () => {
+      assert.isFunction(bgUtils.calcBgPercentInCategories);
     });
 
-    it('should return `target` for a value > `targetLowerBound` and < `targetUpperBound`', () => {
-      expect(bgUtils.classifyBgValue(bgBounds, 100)).to.equal('target');
+    it('should calculate the percentage of values in each bg category', () => {
+      const data = [{
+        value: 54,
+      }, {
+        value: 69,
+      }, {
+        value: 100,
+      }, {
+        value: 181,
+      }, {
+        value: 301,
+      }];
+      expect(bgUtils.calcBgPercentInCategories(data, bgBounds)).to.deep.equal({
+        veryLow: 0.2,
+        low: 0.2,
+        target: 0.2,
+        high: 0.2,
+        veryHigh: 0.2,
+      });
     });
 
-    it('should return `target` for a value equal to the `targetUpperBound`', () => {
-      expect(bgUtils.classifyBgValue(bgBounds, 180)).to.equal('target');
-    });
-
-    it('should return `high` for a value > the `targetUpperBound`', () => {
-      expect(bgUtils.classifyBgValue(bgBounds, 181)).to.equal('high');
+    it('should not error if there are zero values in one or more categories', () => {
+      const data = [{
+        value: 100,
+      }, {
+        value: 100,
+      }, {
+        value: 100,
+      }, {
+        value: 100,
+      }, {
+        value: 100,
+      }];
+      expect(bgUtils.calcBgPercentInCategories(data, bgBounds)).to.deep.equal({
+        veryLow: 0,
+        low: 0,
+        target: 1,
+        high: 0,
+        veryHigh: 0,
+      });
     });
   });
 

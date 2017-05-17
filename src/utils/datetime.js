@@ -109,6 +109,45 @@ export function formatDiagnosisDate(patient) {
 }
 
 /**
+ * formatDuration
+ * @param {Number} duration - positive integer duration in milliseconds
+ *
+ * @return {String} formatted duration, e.g., '1¼ hr'
+ */
+export function formatDuration(duration) {
+  const momentDuration = moment.duration(duration);
+  const QUARTER = '¼';
+  const THIRD = '⅓';
+  const HALF = '½';
+  const TWO_THIRDS = '⅔';
+  const THREE_QUARTERS = '¾';
+  const hours = momentDuration.hours();
+  const minutes = momentDuration.minutes();
+
+  if (hours !== 0) {
+    const suffix = (hours === 1) ? 'hr' : 'hrs';
+    switch (minutes) {
+      case 0:
+        return `${hours} ${suffix}`;
+      case 15:
+        return `${hours}${QUARTER} ${suffix}`;
+      case 20:
+        return `${hours}${THIRD} ${suffix}`;
+      case 30:
+        return `${hours}${HALF} ${suffix}`;
+      case 40:
+        return `${hours}${TWO_THIRDS} ${suffix}`;
+      case 45:
+        return `${hours}${THREE_QUARTERS} ${suffix}`;
+      default:
+        return `${hours} ${suffix} ${minutes} min`;
+    }
+  } else {
+    return `${minutes} min`;
+  }
+}
+
+/**
  * formatLocalizedFromUTC
  * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String

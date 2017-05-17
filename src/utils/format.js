@@ -90,3 +90,23 @@ export function formatDecimalNumber(val, places) {
   }
   return format(`.${places}f`)(val);
 }
+
+/**
+ * formatPercentage
+ * @param {Number} val - raw decimal proportion, range of 0.0 to 1.0
+ *
+ * @return {String} percentage
+ */
+export function formatPercentage(val) {
+  return format('.0%')(val);
+}
+
+/**
+ * removeTrailingZeroes
+ * @param {String} - formatted decimal value, may have trailing zeroes
+ *
+ * @return {String} - formatted decimal value w/o trailing zero-indexes
+ */
+export function removeTrailingZeroes(val) {
+  return val.replace(/\.0+$/, '');
+}
