@@ -34,7 +34,11 @@
   composes: basalUndeliveredPath from '../../../styles/diabetes.css';
 }
 
-.fill--scheduled, .fill--suspend, .fill--temp {
+.fill--scheduled {
   composes: noStroke;
   composes: basalScheduledFill from '../../../styles/diabetes.css';
+}
+
+.fill--temp {
+  composes: basalTempFill from '../../../styles/diabetes.css';
 }
