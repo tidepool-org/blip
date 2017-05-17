@@ -21,10 +21,11 @@ import _ from 'lodash';
  * classifyBgValue
  * @param {Object} bgBounds - object describing boundaries for blood glucose categories
  * @param {Number} bgValue - integer or float blood glucose value in either mg/dL or mmol/L
+ * @param {String} classificationType - 'threeWay' or 'fiveWay'
  *
  * @return {String} bgClassification - low, target, high
  */
-export function classifyBgValue(bgBounds, bgValue) {
+export function classifyBgValue(bgBounds, bgValue, classificationType = 'threeWay') {
   if (_.isEmpty(bgBounds) ||
     !_.isNumber(_.get(bgBounds, 'targetLowerBound')) ||
     !_.isNumber(_.get(bgBounds, 'targetUpperBound'))) {
@@ -35,7 +36,19 @@ export function classifyBgValue(bgBounds, bgValue) {
   if (!_.isNumber(bgValue) || !_.gt(bgValue, 0)) {
     throw new Error('You must provide a positive, numerical blood glucose value to categorize!');
   }
-  const { targetLowerBound, targetUpperBound } = bgBounds;
+  const { veryLowThreshold, targetLowerBound, targetUpperBound, veryHighThreshold } = bgBounds;
+  if (classificationType === 'fiveWay') {
+    if (bgValue < veryLowThreshold) {
+      return 'veryLow';
+    } else if (bgValue >= veryLowThreshold && bgValue < targetLowerBound) {
+      return 'low';
+    } else if (bgValue > targetUpperBound && bgValue <= veryHighThreshold) {
+      return 'high';
+    } else if (bgValue > veryHighThreshold) {
+      return 'veryHigh';
+    }
+    return 'target';
+  }
   if (bgValue < targetLowerBound) {
     return 'low';
   } else if (bgValue > targetUpperBound) {
