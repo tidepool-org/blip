@@ -5,6 +5,7 @@ node_modules/
 test/
 web/
 .babelrc
+.bookignore
 .eslintrc
 .gitignore
 .travis.yml
@@ -14,6 +15,8 @@ buildconfig.js
 config.app.js
 config.server.js
 config.webpack.js
+deploy-env.sh
+deploy.sh
 docker-compose.yml
 favicon.ico
 index.html
@@ -23,8 +26,10 @@ loadtests.js
 nightwatch-globals.js
 nightwatch.json
 package.json
+postcss.config.js
 server.js
 start.sh
 test.config.js
 update-gh-pages.sh
 webpack.config.js
+yarn.lock
