@@ -179,6 +179,72 @@ describe('datetime', () => {
     });
   });
 
+  describe('formatDuration', () => {
+    it('should be a function', () => {
+      assert.isFunction(datetime.formatDuration);
+    });
+
+    it('should properly format a 30 minute duration', () => {
+      expect(datetime.formatDuration(36e5 / 2)).to.equal('30 min');
+    });
+
+    it('should properly format a 1 hr duration', () => {
+      expect(datetime.formatDuration(36e5)).to.equal('1 hr');
+    });
+
+    it('should properly format a 1.25 hr duration', () => {
+      expect(datetime.formatDuration(36e5 + 36e5 / 4)).to.equal('1¼ hr');
+    });
+
+    it('should properly format a 1.33333 hr duration', () => {
+      expect(datetime.formatDuration(36e5 + 36e5 / 3)).to.equal('1⅓ hr');
+    });
+
+    it('should properly format a 1.5 hr duration', () => {
+      expect(datetime.formatDuration(36e5 + 36e5 / 2)).to.equal('1½ hr');
+    });
+
+    it('should properly format a 1.66667 hr duration', () => {
+      expect(datetime.formatDuration(36e5 + 36e5 * (2 / 3))).to.equal('1⅔ hr');
+    });
+
+    it('should properly format a 1.75 hr duration', () => {
+      expect(datetime.formatDuration(36e5 + 36e5 * (3 / 4))).to.equal('1¾ hr');
+    });
+
+    it('should properly format a 1.1 hr duration', () => {
+      expect(datetime.formatDuration(36e5 + 36e5 / 10)).to.equal('1 hr 6 min');
+    });
+
+    it('should properly format a 2 hr duration', () => {
+      expect(datetime.formatDuration(2 * 36e5)).to.equal('2 hrs');
+    });
+
+    it('should properly format a 2.25 hr duration', () => {
+      expect(datetime.formatDuration(2 * 36e5 + 36e5 / 4)).to.equal('2¼ hrs');
+    });
+
+    it('should properly format a 2.33333 hr duration', () => {
+      expect(datetime.formatDuration(2 * 36e5 + 36e5 / 3)).to.equal('2⅓ hrs');
+    });
+
+    it('should properly format a 2.5 hr duration', () => {
+      expect(datetime.formatDuration(2 * 36e5 + 36e5 / 2)).to.equal('2½ hrs');
+    });
+
+    it('should properly format a 2.66667 hr duration', () => {
+      expect(datetime.formatDuration(2 * 36e5 + 36e5 * (2 / 3))).to.equal('2⅔ hrs');
+    });
+
+    it('should properly format a 2.75 hr duration', () => {
+      expect(datetime.formatDuration(2 * 36e5 + 36e5 * (3 / 4))).to.equal('2¾ hrs');
+    });
+
+    it('should properly format a 2.1 hr duration', () => {
+      expect(datetime.formatDuration(2 * 36e5 + 36e5 / 10)).to.equal('2 hrs 6 min');
+    });
+  });
+
   describe('formatLocalizedFromUTC', () => {
     const tzAwareLA = {
       timezoneAware: true,
