@@ -51,6 +51,7 @@ export const underrideNormal = {
   },
   id: 'bbb9b4f9b58040e48c685066b0a28ec0',
   bolus: {
+    type: 'bolus',
     normal: 8,
     utc: ONE_AM,
     id: '9ebaa1c5ecc44e96be0abd20a213ae33',
