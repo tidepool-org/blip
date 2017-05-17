@@ -16,7 +16,6 @@
  */
 
 :root {
-  --basal-stroke: 1.5;
   --bolus-stroke: 1;
 }
 
@@ -32,7 +31,6 @@
 
 .basalScheduledPath {
   stroke: var(--basal);
-  stroke-width: var(--basal-stroke);
 }
 
 .basalUndeliveredPath {

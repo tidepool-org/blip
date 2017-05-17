@@ -22,17 +22,27 @@ import { detail } from '../../../helpers/scales';
 const { detailXScale, detailBasalScale } = detail;
 
 import Basal from '../../../../src/components/common/data/Basal';
-import getBasalPaths from '../../../../src/modules/render/basal';
+import { getBasalSequencePaths } from '../../../../src/modules/render/basal';
+import { getBasalSequences } from '../../../../src/utils/basal';
 
 import { scheduledFlat } from '../../../../data/basal/fixtures';
 
 describe('Basal', () => {
-  it('should return a `<g>` with as many `<path>s` as are calculated for the basalSequence', () => {
-    const paths = getBasalPaths([scheduledFlat], detailXScale, detailBasalScale);
+  it('should return `null` if input `basals` prop is empty', () => {
     const wrapper = shallow(
-      <Basal basalSequence={[scheduledFlat]} xScale={detailXScale} yScale={detailBasalScale} />
+      <Basal basals={[]} xScale={detailXScale} yScale={detailBasalScale} />
     );
-    expect(wrapper.find(`#basalSequence-${scheduledFlat.id}`).length).to.equal(1);
-    expect(wrapper.find('path').length).to.equal(paths.length);
+    expect(wrapper.html()).to.be.null;
+  });
+
+  it('should return a `<g>` with as many `<path>s` as are calculated for the input basals', () => {
+    const sequences = getBasalSequences(scheduledFlat);
+    const paths = getBasalSequencePaths(sequences[0], detailXScale, detailBasalScale);
+    const wrapper = shallow(
+      <Basal basals={scheduledFlat} xScale={detailXScale} yScale={detailBasalScale} />
+    );
+    expect(wrapper.find(`#basals-${scheduledFlat[0].id}-thru-${scheduledFlat[1].id}`).length)
+      .to.equal(1);
+    expect(wrapper.find('path').length).to.equal(paths.length + 1);
   });
 });

@@ -29,13 +29,23 @@ import _ from 'lodash';
 
 export function calculateBasalPath(basalSequence, xScale, yScale, {
   endAtZero,
+  flushBottomOffset,
   isFilled,
   startAtZero,
 }) {
   let path = '';
   const zeroBasal = yScale.range()[0];
-  // TODO: figure out how to make this agnostic to browser and render target
-  const flushWithBottomOfScale = zeroBasal - 0.75;
+  const flushWithBottomOfScale = zeroBasal + flushBottomOffset;
+
+  function handleDiscontinuousEnd(basal) {
+    path += `L ${xScale(basal.utc + basal.duration)},${flushWithBottomOfScale} `;
+  }
+
+  function handleDiscontinuousStart(basal) {
+    path += `M ${xScale(basal.utc)},${flushWithBottomOfScale} `;
+  }
+
+
   const first = basalSequence[0];
   const startX = xScale(first.utc);
   const startY = _.every(basalSequence, (d) => (d.rate === 0)) ?
@@ -49,10 +59,22 @@ export function calculateBasalPath(basalSequence, xScale, yScale, {
   path += `${startX},${startY}
     L ${xScale(first.utc + first.duration)},${startY} `;
 
+  if (!isFilled && first.discontinuousEnd) {
+    handleDiscontinuousEnd(first);
+  }
+
   _.each(basalSequence.slice(1), (basal) => {
     const thisBasalY = (basal.rate > 0) ? yScale(basal.rate) : flushWithBottomOfScale;
+    if (!isFilled && basal.discontinuousStart) {
+      handleDiscontinuousStart(basal);
+    }
+
     path += `L ${xScale(basal.utc)},${thisBasalY}
       L ${xScale(basal.utc + basal.duration)},${thisBasalY} `;
+
+    if (!isFilled && basal.discontinuousEnd) {
+      handleDiscontinuousEnd(basal);
+    }
   });
 
   const last = basalSequence[basalSequence.length - 1];
@@ -73,14 +95,14 @@ export function calculateBasalPath(basalSequence, xScale, yScale, {
 }
 
  /**
-  * getBasalPaths
+  * getBasalSequencePaths
   * @param {Array} basalSequence - an array of Tidepool basal events to be rendered as one
   * @param {Function} xScale - xScale preconfigured with domain & range
   * @param {Function} yScale - yScale preconfigured with domain & range
   *
   * @return {Array} paths - Array of Objects, each specifying component paths to draw a bolus
   */
-export default function getBasalPaths(basalSequence, xScale, yScale) {
+export function getBasalSequencePaths(basalSequence, xScale, yScale) {
   const first = basalSequence[0];
   const last = basalSequence[basalSequence.length - 1];
   const paths = [];
@@ -102,18 +124,6 @@ export default function getBasalPaths(basalSequence, xScale, yScale) {
     type = types[0];
   }
 
-  paths.push({
-    d: calculateBasalPath(
-      basalSequence, xScale, yScale, {
-        endAtZero: last.discontinuousEnd,
-        isFilled: false,
-        startAtZero: first.discontinuousStart,
-      },
-    ),
-    key: `basalBorder-${first.id}`,
-    type: `border--${type}`,
-  });
-
   if (_.some(basalSequence, (d) => (d.rate > 0))) {
     paths.push({
       d: calculateBasalPath(
@@ -123,14 +133,19 @@ export default function getBasalPaths(basalSequence, xScale, yScale) {
           startAtZero: first.discontinuousStart,
         },
       ),
+      basalType: type,
       key: `basalFill-${first.id}`,
+      renderType: 'fill',
       type: `fill--${type}`,
     });
   }
 
-  const suppresseds = _.map(basalSequence, (basal) => (
-    _.assign({}, basal.suppressed, _.pick(basal, ['duration', 'utc']))
-  ));
+  const suppresseds = [];
+  _.each(basalSequence, (basal) => {
+    if (basal.suppressed) {
+      suppresseds.push(_.assign({}, basal.suppressed, _.pick(basal, ['duration', 'utc'])));
+    }
+  });
 
   if (!_.isEmpty(suppresseds)) {
     paths.push({
@@ -141,7 +156,9 @@ export default function getBasalPaths(basalSequence, xScale, yScale) {
           startAtZero: false,
         },
       ),
+      basalType: type,
       key: `basalPathUndelivered-${first.id}`,
+      renderType: 'stroke',
       type: 'border--undelivered',
     });
   }

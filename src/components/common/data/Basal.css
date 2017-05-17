@@ -24,9 +24,10 @@
   stroke-width: 0;
 }
 
-.border--scheduled, .border--suspend, .border--temp {
+.border--delivered {
   composes: noFill;
   composes: basalScheduledPath from '../../../styles/diabetes.css';
+  stroke-width: 1.5;
 }
 
 .border--undelivered {
@@ -41,4 +42,8 @@
 
 .fill--temp {
   composes: basalTempFill from '../../../styles/diabetes.css';
+}
+
+:export {
+  strokeWidth: 1.5;
 }

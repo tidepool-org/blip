@@ -18,29 +18,64 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
-import getBasalPaths from '../../../modules/render/basal';
+import { calculateBasalPath, getBasalSequencePaths } from '../../../modules/render/basal';
+import { getBasalSequences } from '../../../utils/basal';
 
 import styles from './Basal.css';
 
 const Basal = (props) => {
-  const { basalSequence, xScale, yScale } = props;
-  const paths = getBasalPaths(basalSequence, xScale, yScale);
+  const { basals, flushBottomOffset, xScale, yScale } = props;
 
-  if (_.isEmpty(paths)) {
+  if (_.isEmpty(basals)) {
     return null;
   }
 
+  const sequences = getBasalSequences(basals);
+  const pathSets = _.map(sequences, (seq) => (getBasalSequencePaths(seq, xScale, yScale)));
+  const deliveredPath = calculateBasalPath(basals, xScale, yScale, {
+    endAtZero: false,
+    flushBottomOffset,
+    isFilled: false,
+    startAtZero: false,
+  });
+
+  const pathsToRender = [];
+
+  _.each(pathSets, (paths) => {
+    _.each(paths, (path) => {
+      pathsToRender.push((<path className={styles[path.type]} d={path.d} key={path.key} />));
+    });
+  });
+
+  pathsToRender.push(
+    <path
+      className={styles['border--delivered']}
+      d={deliveredPath}
+      key={`basalPathDelivered-${basals[0].id}`}
+    />
+  );
+
   return (
-    <g id={`basalSequence-${basalSequence[0].id}`}>
-      {_.map(paths, (path) => (<path className={styles[path.type]} d={path.d} key={path.key} />))}
+    <g id={`basals-${basals[0].id}-thru-${basals[basals.length - 1].id}`}>
+      {pathsToRender}
     </g>
   );
 };
 
+Basal.defaultProps = {
+  flushBottomOffset: -(parseFloat(styles.strokeWidth) / 2),
+};
+
 Basal.propTypes = {
-  basalSequence: PropTypes.arrayOf(PropTypes.shape({
-    type: 'basal',
+  basals: PropTypes.arrayOf(PropTypes.shape({
+    type: PropTypes.oneOf(['basal']).isRequired,
+    subType: PropTypes.oneOf(['scheduled', 'temp', 'suspend']).isRequired,
+    duration: PropTypes.number.isRequired,
+    rate: PropTypes.number.isRequired,
+    utc: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
   }).isRequired).isRequired,
+  flushBottomOffset: PropTypes.number.isRequired,
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
 };

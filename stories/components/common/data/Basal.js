@@ -32,140 +32,80 @@ import * as basals from '../../../../data/basal/fixtures';
 storiesOf('Basal', module)
   .addDecorator(SixHrScaleSVGDecorator)
   .add('scheduled flat rate basal', () => {
-    const notes = 'A twenty-four hour flat rate scheduled basal.';
-    return (
-      <WithNotes notes={notes}>
-        <Basal basalSequence={[basals.scheduledFlat]} xScale={xScale} yScale={yScale} />
-      </WithNotes>
-    );
-  })
-  .add('scheduled flat rate basal that is at the beginning of a basal series', () => {
-    const notes = `A twenty-four hour flat rate scheduled basal that begins a basal series
-     (i.e., there is no data or a gap between previous basal and start of the basal sequence).`;
+    const notes = `A twenty-four hour flat rate scheduled basal in two segments
+     (because crosses midnight).`;
     return (
       <WithNotes notes={notes.replace('\n', '')}>
-        <Basal
-          basalSequence={[basals.scheduledFlatDiscontinuousStart]}
-          xScale={xScale}
-          yScale={yScale}
-        />
+        <Basal basals={basals.scheduledFlat} xScale={xScale} yScale={yScale} />
       </WithNotes>
     );
   })
-  .add('scheduled flat rate basal that is at the end of a basal series', () => {
-    const notes = `A five hour flat rate scheduled basal that concludes a basal series
-     (i.e., there is no data or a gap between the end of this sequence and the next).`;
+  .add('scheduled basals', () => {
+    const notes = 'A set of scheduled basal segments, uninterrupted.';
     return (
       <WithNotes notes={notes.replace('\n', '')}>
-        <Basal
-          basalSequence={[basals.scheduledFlatDiscontinuousEnd]}
-          xScale={xScale}
-          yScale={yScale}
-        />
+        <Basal basals={basals.scheduledNonFlat} xScale={xScale} yScale={yScale} />
       </WithNotes>
     );
   })
-  .add('scheduled flat rate basal that is isolated', () => {
-    const notes = `A five hour flat rate scheduled basal that both begins and ends a basal series
-     (i.e., there is no data or a gap between the beginning of this sequence and the previous
-     as well as between the end of this sequence and the next).`;
+  .add('simple negative temp basal', () => {
+    const notes = `A negative temp basal entirely contained within one scheduled
+     basal segment.`;
     return (
       <WithNotes notes={notes.replace('\n', '')}>
-        <Basal basalSequence={[basals.isolatedFlatScheduled]} xScale={xScale} yScale={yScale} />
+        <Basal basals={basals.simpleNegativeTemp} xScale={xScale} yScale={yScale} />
       </WithNotes>
     );
   })
-  .add('sequence of three scheduled basal rates', () => {
-    const notes = `A four and a half hour sequence of three scheduled basal intervals
-     at different rates.`;
+  .add('simple positive temp basal', () => {
+    const notes = `A positive temp basal entirely contained within one scheduled
+     basal segment.`;
     return (
-      <WithNotes notes={notes}>
-        <Basal basalSequence={basals.scheduledNonFlat} xScale={xScale} yScale={yScale} />
+      <WithNotes notes={notes.replace('\n', '')}>
+        <Basal basals={basals.simplePositiveTemp} xScale={xScale} yScale={yScale} />
       </WithNotes>
     );
   })
-  .add('sequence of three scheduled basal rates at the beginning of a basal series', () => {
-    const notes = `A four and a half hour sequence of three scheduled basal intervals
-     at different rates that begins a basal series (i.e., there is no data
-     or a gap between previous basal and start of the basal sequence).`;
+  .add('simple suspend basal', () => {
+    const notes = `A suspend basal entirely contained within one scheduled
+     basal segment.`;
     return (
-      <WithNotes notes={notes}>
-        <Basal basalSequence={basals.scheduledDiscontinuousStart} xScale={xScale} yScale={yScale} />
+      <WithNotes notes={notes.replace('\n', '')}>
+        <Basal basals={basals.simpleSuspend} xScale={xScale} yScale={yScale} />
       </WithNotes>
     );
   })
-  .add('sequence of three scheduled basal rates at the end of a basal series', () => {
-    const notes = `A four and a half hour sequence of three scheduled basal intervals
-     at different rates that concludes a basal series (i.e., there is no data
-     or a gap between the end of this sequence and the next).`;
+  .add('negative temp basal across schedule boundary', () => {
+    const notes = 'A negative temp basal that cross a basal schedule boundary.';
     return (
-      <WithNotes notes={notes}>
-        <Basal basalSequence={basals.scheduledDiscontinuousEnd} xScale={xScale} yScale={yScale} />
+      <WithNotes notes={notes.replace('\n', '')}>
+        <Basal basals={basals.negativeTempAcrossScheduled} xScale={xScale} yScale={yScale} />
       </WithNotes>
     );
   })
-  .add('sequence of three scheduled basal rates that is isolated', () => {
-    const notes = `A four and a half hour sequence of three scheduled basal intervals
-     at different rates that both begins and ends a basal series (i.e., there is no data
-     or a gap between the beginning of this sequence and the previous
-     as well as between the end of this sequence and the next).`;
+  .add('positive temp basal across schedule boundary', () => {
+    const notes = 'A positive temp basal that cross a basal schedule boundary.';
     return (
-      <WithNotes notes={notes}>
-        <Basal basalSequence={basals.isolatedScheduled} xScale={xScale} yScale={yScale} />
+      <WithNotes notes={notes.replace('\n', '')}>
+        <Basal basals={basals.positiveTempAcrossScheduled} xScale={xScale} yScale={yScale} />
       </WithNotes>
     );
   })
-  .add('negative temp basal entirely contained within a scheduled basal segment', () => {
-    const notes = `A negative temp basal entirely contained within a scheduled basal
-     segment (i.e., the temp basal does not cross any schedule boundaries).`;
+  .add('suspend basal across schedule boundary', () => {
+    const notes = 'A suspend basal that cross a basal schedule boundary.';
     return (
-      <WithNotes notes={notes}>
-        <Basal basalSequence={[basals.simpleNegativeTemp]} xScale={xScale} yScale={yScale} />
+      <WithNotes notes={notes.replace('\n', '')}>
+        <Basal basals={basals.suspendAcrossScheduled} xScale={xScale} yScale={yScale} />
       </WithNotes>
     );
   })
-  .add('positive temp basal entirely contained within a scheduled basal segment', () => {
-    const notes = `A positive temp basal entirely contained within a scheduled basal
-     segment (i.e., the temp basal does not cross any schedule boundaries).`;
+  .add('scheduled flat rate basal with two discontinuities', () => {
+    const notes = `A twenty-four hour flat rate scheduled basal in two segments
+     (because crosses midnight), but with two discontinuities of five minutes just
+     before midnight and at one a.m..`;
     return (
-      <WithNotes notes={notes}>
-        <Basal basalSequence={[basals.simplePositiveTemp]} xScale={xScale} yScale={yScale} />
-      </WithNotes>
-    );
-  })
-  .add('negative temp basal crossing two scheduled basal boundaries', () => {
-    const notes = `A negative temp basal that crosses two scheduled basal boundaries over
-     the course of its duration.`;
-    return (
-      <WithNotes notes={notes}>
-        <Basal basalSequence={basals.negativeTempAcrossScheduled} xScale={xScale} yScale={yScale} />
-      </WithNotes>
-    );
-  })
-  .add('positive temp basal crossing two scheduled basal boundaries', () => {
-    const notes = `A negative temp basal that crosses two scheduled basal boundaries over
-     the course of its duration.`;
-    return (
-      <WithNotes notes={notes}>
-        <Basal basalSequence={basals.positiveTempAcrossScheduled} xScale={xScale} yScale={yScale} />
-      </WithNotes>
-    );
-  })
-  .add('suspend basal entirely contained within a scheduled basal segment', () => {
-    const notes = `A suspend basal entirely contained within a scheduled basal segment
-     (i.e., the suspend basal does not cross any schedule boundaries).`;
-    return (
-      <WithNotes notes={notes}>
-        <Basal basalSequence={[basals.simpleSuspend]} xScale={xScale} yScale={yScale} />
-      </WithNotes>
-    );
-  })
-  .add('suspend basal crossing two scheduled basal boundaries', () => {
-    const notes = `A suspend basal that crosses two scheduled basal boundaries over
-     the course of its duration.`;
-    return (
-      <WithNotes notes={notes}>
-        <Basal basalSequence={basals.suspendAcrossScheduled} xScale={xScale} yScale={yScale} />
+      <WithNotes notes={notes.replace('\n', '')}>
+        <Basal basals={basals.discontinuous} xScale={xScale} yScale={yScale} />
       </WithNotes>
     );
   });
