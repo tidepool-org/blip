@@ -119,6 +119,10 @@ describe('format', () => {
       assert.isFunction(format.formatPercentage);
     });
 
+    it('should return `--%` on `NaN` input', () => {
+      expect(format.formatPercentage(NaN)).to.equal('--%');
+    });
+
     it('should return a String percentage including `%` suffix', () => {
       expect(format.formatPercentage(0.5)).to.equal('50%');
     });
