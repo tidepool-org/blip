@@ -179,9 +179,6 @@ class DailyPrintView {
         const totalLines = _.reduce(threeHrBinnedBoluses[key], (lines, insulinEvent) => {
           const bolus = getBolusFromInsulinEvent(insulinEvent);
           if (bolus.extended || bolus.expectedExtended) {
-            if (bolus.normal) {
-              return lines + 3;
-            }
             return lines + 2;
           }
           return lines + 1;
@@ -537,14 +534,6 @@ class DailyPrintView {
           );
         if (bolus.extended != null) {
           const normalPercentage = getNormalPercentage(bolus);
-          if (bolus.normal != null) {
-            this.doc.text(
-              `${normalPercentage} now`,
-              groupXPos,
-              yPos.update(),
-              { indent: 2, width: groupWidth },
-            );
-          }
           const extendedPercentage = getExtendedPercentage(bolus);
           const durationText = `${formatDuration(getMaxDuration(bolus))}`;
           const percentagesText = Number.isNaN(normalPercentage) ?
