@@ -655,9 +655,9 @@ describe('bolus utilities', () => {
 
     it('should return the total carbs input on an assortment of insulin events', () => {
       expect(bolusUtils.getTotalCarbs([
+        withCarbInput,
         normal,
         comboOverride,
-        withCarbInput,
       ])).to.equal(75);
     });
   });

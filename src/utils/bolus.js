@@ -276,7 +276,7 @@ export function getTotalBolus(insulinEvents) {
 export function getTotalCarbs(insulinEvents) {
   return _.reduce(insulinEvents, (result, insulinEvent) => {
     const carbs = getCarbs(insulinEvent);
-    return result + _.inRange(carbs, Infinity) ? carbs : 0;
+    return result + (_.inRange(carbs, Infinity) ? carbs : 0);
   }, 0);
 }
 
