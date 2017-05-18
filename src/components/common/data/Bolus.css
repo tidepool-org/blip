@@ -20,6 +20,15 @@
   stroke-width: 0;
 }
 
+.carbCircle {
+  composes: noStroke;
+  composes: carbs from '../../../styles/diabetes.css';
+}
+
+.carbText {
+  composes: mediumContrastText smallSize svgMiddleAnchored svgVerticalCentered from '../../../styles/typography.css';
+}
+
 .delivered {
   composes: noStroke;
   composes: bolusDelivered from '../../../styles/diabetes.css';

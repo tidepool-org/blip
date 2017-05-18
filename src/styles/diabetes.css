@@ -83,3 +83,8 @@
   color: var(--bolus--undelivered);
   fill: var(--bolus--undelivered);
 }
+
+.carbs {
+  color: var(--carbs);
+  fill: var(--carbs);
+}
