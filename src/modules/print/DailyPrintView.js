@@ -85,7 +85,7 @@ class DailyPrintView {
         extendedTriangle: 'black',
         extendedTriangleInterrupted: undelivered,
         overrideTriangle: 'white',
-        programmed: undelivered,
+        programmed: 'black',
         undelivered,
         underride: undelivered,
         underrideTriangle: 'white',
@@ -476,8 +476,16 @@ class DailyPrintView {
         triangleHeight: 1.25,
       });
       _.each(paths, (path) => {
-        // eslint-disable-next-line lodash/prefer-lodash-method
-        this.doc.path(path.d).fill(this.colors.bolus[path.type]);
+        if (path.type === 'programmed') {
+          this.doc.path(path.d)
+            .lineWidth(0.5)
+            .dash(0.5, { space: 1 })
+            .stroke(this.colors.bolus[path.type]);
+        } else {
+          // eslint-disable-next-line lodash/prefer-lodash-method
+          this.doc.path(path.d)
+            .fill(this.colors.bolus[path.type]);
+        }
       });
     });
 
