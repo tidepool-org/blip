@@ -64,7 +64,7 @@ export function getBolusEdges(bolusWidth, bolusCenter, bolusBottom, bolusHeight)
  * @param {Function} yScale - yScale preconfigured with domain & range
  * @param {Object} opts - bolus rendering options such as width
  *
- * @return {Array} paths - Object of component paths to draw a bolus
+ * @return {Array} paths - Array of Objects, each specifying component paths to draw a bolus
  */
 export default function getBolusPaths(insulinEvent, xScale, yScale, {
   bolusWidth,
