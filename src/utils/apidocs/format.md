@@ -1,5 +1,5 @@
 
-> @tidepool/viz@0.7.16 apidocs /Volumes/Tidepool/viz
+> @tidepool/viz@0.8.1 apidocs /Users/jebeck/Tidepool/viz
 > jsdoc2md "src/utils/format.js"
 
 ## Functions
