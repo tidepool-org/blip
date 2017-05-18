@@ -24,9 +24,11 @@ import getBolusPaths from '../render/bolus';
 import { calcBgPercentInCategories, classifyBgValue } from '../../utils/bloodglucose';
 import {
   getBolusFromInsulinEvent,
+  getCarbs,
   getDelivered,
   getExtendedPercentage,
   getMaxDuration,
+  getMaxValue,
   getNormalPercentage,
 } from '../../utils/bolus';
 import {
@@ -92,6 +94,7 @@ class DailyPrintView {
         underride: undelivered,
         underrideTriangle: 'white',
       },
+      carbs: '#CFCFCF',
       lightDividers: '#D8D8D8',
     };
 
@@ -296,7 +299,7 @@ class DailyPrintView {
         .renderYAxes(dateChart)
         .renderCbgs(dateChart)
         .renderSmbgs(dateChart)
-        .renderBolusPaths(dateChart)
+        .renderInsulinEvents(dateChart)
         .renderBolusDetails(dateChart)
         .renderBasalPaths(dateChart);
     });
@@ -487,9 +490,9 @@ class DailyPrintView {
     return this;
   }
 
-  renderBolusPaths({ bolusScale, data: { bolus: boluses }, xScale }) {
-    _.each(boluses, (bolus) => {
-      const paths = getBolusPaths(bolus, xScale, bolusScale, {
+  renderInsulinEvents({ bolusScale, data: { bolus: insulinEvents }, xScale }) {
+    _.each(insulinEvents, (insulinEvent) => {
+      const paths = getBolusPaths(insulinEvent, xScale, bolusScale, {
         bolusWidth: 3,
         extendedLineThickness: 0.75,
         interruptedLineThickness: 0.5,
@@ -507,6 +510,26 @@ class DailyPrintView {
             .fill(this.colors.bolus[path.type]);
         }
       });
+      const carbs = getCarbs(insulinEvent);
+      const carbRadius = 4.25;
+      const circleOffset = 1;
+      const textOffset = 1.75;
+      if (carbs) {
+        const carbsX = xScale(getBolusFromInsulinEvent(insulinEvent).utc);
+        const carbsY = bolusScale(getMaxValue(insulinEvent)) - carbRadius - circleOffset;
+          // eslint-disable-next-line lodash/prefer-lodash-method
+        this.doc.circle(carbsX, carbsY, carbRadius)
+          .fill(this.colors.carbs);
+        this.doc.font(this.font)
+          .fontSize(5.5)
+          .fillColor('black')
+          .text(
+            carbs,
+            carbsX - carbRadius,
+            carbsY - textOffset,
+            { align: 'center', width: carbRadius * 2 }
+          );
+      }
     });
 
     return this;
