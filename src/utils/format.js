@@ -98,6 +98,9 @@ export function formatDecimalNumber(val, places) {
  * @return {String} percentage
  */
 export function formatPercentage(val) {
+  if (Number.isNaN(val)) {
+    return '--%';
+  }
   return format('.0%')(val);
 }
 

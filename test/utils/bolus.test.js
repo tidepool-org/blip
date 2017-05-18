@@ -14,6 +14,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+import _ from 'lodash';
 
 import * as bolusUtils from '../../src/utils/bolus';
 
@@ -144,6 +145,19 @@ const withNetRec = {
   },
 };
 
+const withCarbInput = {
+  type: 'wizard',
+  bolus: {
+    normal: 5,
+  },
+  recommended: {
+    carb: 5,
+    correction: 0,
+    net: 5,
+  },
+  carbInput: 75,
+};
+
 describe('bolus utilities', () => {
   describe('getBolusFromInsulinEvent', () => {
     it('should be a function', () => {
@@ -169,6 +183,26 @@ describe('bolus utilities', () => {
       expect(bolusUtils.getBolusFromInsulinEvent(obj)).to.equal(obj.bolus);
       const obj2 = { bolus: { type: 'bolus', normal: 5 } };
       expect(bolusUtils.getBolusFromInsulinEvent(obj2)).to.equal(obj2.bolus);
+    });
+  });
+
+  describe('getCarbs', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.getCarbs);
+    });
+
+    it('should return NaN on a bolus (rather than wizard) event', () => {
+      expect(Number.isNaN(bolusUtils.getCarbs(normal))).to.be.true;
+    });
+
+    it('should return `null` on a wizard that lacks `carbInput`', () => {
+      expect(bolusUtils.getCarbs(override)).to.be.null;
+      const overrideNullCarbInput = _.assign({}, override, { carbInput: null });
+      expect(bolusUtils.getCarbs(overrideNullCarbInput)).to.be.null;
+    });
+
+    it('should return the `carbInput` from a wizard', () => {
+      expect(bolusUtils.getCarbs(withCarbInput)).to.equal(withCarbInput.carbInput);
     });
   });
 
@@ -588,6 +622,43 @@ describe('bolus utilities', () => {
       expect(fn).to.throw(
         'Combo bolus found with a cancelled `normal` portion and non-cancelled `extended`!'
       );
+    });
+  });
+
+  describe('getTotalBolus', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.getTotalBolus);
+    });
+
+    it('should return 0 on an empty array', () => {
+      expect(bolusUtils.getTotalBolus([])).to.equal(0);
+    });
+
+    it('should return the total actual delivered insulin on an assortment of boluses', () => {
+      expect(bolusUtils.getTotalBolus([
+        cancelled, // 2,
+        cancelledInExtendedCombo, // 1.5,
+        extendedUnderride, // 3,
+        comboOverride, // 4
+      ])).to.equal(10.5);
+    });
+  });
+
+  describe('getTotalCarbs', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.getTotalCarbs);
+    });
+
+    it('should return 0 on an empty array', () => {
+      expect(bolusUtils.getTotalCarbs([])).to.equal(0);
+    });
+
+    it('should return the total carbs input on an assortment of insulin events', () => {
+      expect(bolusUtils.getTotalCarbs([
+        normal,
+        comboOverride,
+        withCarbInput,
+      ])).to.equal(75);
     });
   });
 
