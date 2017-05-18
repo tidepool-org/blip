@@ -15,6 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
+
+import { ONE_HR } from './datetime';
+
 /**
 * getBasalSequences
 * @param {Array} basals - Array of preprocessed Tidepool basal objects
@@ -41,4 +45,18 @@ export function getBasalSequences(basals) {
   basalSequences.push(seq);
 
   return basalSequences;
+}
+
+/**
+ * getTotalBasal
+ * @param {Array} basals - Array of preprocessed Tidepool basal objects
+ *                         trimmed to fit within the timespan the total basal
+ *                         is being calculated over
+ *
+ * @return {Number} total basal insulin in units
+ */
+export function getTotalBasal(basals) {
+  return _.reduce(basals, (result, basal) => (
+    result + basal.rate * (basal.duration / ONE_HR)
+  ), 0);
 }
