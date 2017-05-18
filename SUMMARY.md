@@ -19,6 +19,8 @@
     + [webpack](docs/deps/Webpack.md)
 + [utilities](src/utils/README.md)
     + [API docs for utilities](src/utils/apidocs/README.md)
+        + [blood glucose](src/utils/apidocs/bloodglucose.md)
+        + [bolus](src/utils/apidocs/bolus.md)
         + [datetime](src/utils/apidocs/datetime.md)
         + [format](src/utils/apidocs/format.md)
         + [misc](src/utils/apidocs/misc.md)
