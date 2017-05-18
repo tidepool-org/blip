@@ -242,6 +242,18 @@ export function getNormalPercentage(insulinEvent) {
 }
 
 /**
+ * getTotalBolus
+ * @param {Array} insulinEvents - Array of Tidepool bolus or wizard objects
+ *
+ * @return {Number} total bolus insulin in units
+ */
+export function getTotalBolus(insulinEvents) {
+  return _.reduce(insulinEvents, (result, insulinEvent) => (
+    result + getDelivered(insulinEvent)
+  ), 0);
+}
+
+/**
  * hasExtended
  * @param {Object} insulinEvent - a Tidepool bolus or wizard object
  *

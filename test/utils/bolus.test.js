@@ -591,6 +591,25 @@ describe('bolus utilities', () => {
     });
   });
 
+  describe('getTotalBolus', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.getTotalBolus);
+    });
+
+    it('should return 0 on an empty array', () => {
+      expect(bolusUtils.getTotalBolus([])).to.equal(0);
+    });
+
+    it('should return the total actual delivered insulin on an assortment of boluses', () => {
+      expect(bolusUtils.getTotalBolus([
+        cancelled, // 2,
+        cancelledInExtendedCombo, // 1.5,
+        extendedUnderride, // 3,
+        comboOverride, // 4
+      ])).to.equal(10.5);
+    });
+  });
+
   describe('hasExtended', () => {
     it('should be a function', () => {
       assert.isFunction(bolusUtils.hasExtended);
