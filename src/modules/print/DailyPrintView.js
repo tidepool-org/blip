@@ -16,11 +16,13 @@
  */
 
 import _ from 'lodash';
+import { mean, median } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
 
 import { calculateBasalPath, getBasalSequencePaths } from '../render/basal';
 import getBolusPaths from '../render/bolus';
+import { getTotalBasal } from '../../utils/basal';
 import { calcBgPercentInCategories, classifyBgValue } from '../../utils/bloodglucose';
 import {
   getBolusFromInsulinEvent,
@@ -30,6 +32,8 @@ import {
   getMaxDuration,
   getMaxValue,
   getNormalPercentage,
+  getTotalBolus,
+  getTotalCarbs,
 } from '../../utils/bolus';
 import {
   getTimezoneFromTimePrefs,
@@ -308,6 +312,12 @@ class DailyPrintView {
   renderSummary({ data, date, topEdge }) {
     const smallIndent = this.margins.left + 4;
     const statsIndent = 8;
+    const widthWithoutIndent = this.summaryArea.width - statsIndent;
+    let first = true;
+
+    const totalBasal = getTotalBasal(data.basal);
+    const totalBolus = getTotalBolus(data.bolus);
+    const totalInsulin = totalBasal + totalBolus;
 
     this.doc.fillColor('black')
       .fillOpacity(1)
@@ -319,6 +329,10 @@ class DailyPrintView {
       let value = topEdge + doc.currentLineHeight() * 1.5;
       return {
         current: () => (value),
+        small: () => {
+          value += (doc.currentLineHeight() * 0.75);
+          return value;
+        },
         update: () => {
           value += (doc.currentLineHeight() * 1.25);
           return value;
@@ -331,37 +345,171 @@ class DailyPrintView {
       .lineWidth(0.5)
       .stroke(this.colors.lightDividers);
 
-    this.doc.fontSize(this.defaultFontSize)
-      .lineGap(this.doc.currentLineHeight() * 0.25)
-      .text('Time in Target', smallIndent, yPos.update());
+    if (!_.isEmpty(data.cbg)) {
+      first = false;
+      this.doc.fontSize(this.defaultFontSize)
+        .lineGap(this.doc.currentLineHeight() * 0.25)
+        .text('Time in Target', smallIndent, yPos.update());
 
-    yPos.update();
+      yPos.update();
 
-    const { targetUpperBound, targetLowerBound, veryLowThreshold } = this.bgBounds;
-    const cbgTimeInCategories = calcBgPercentInCategories(data.cbg, this.bgBounds);
-    this.doc.font(this.font)
-      .text(
-        `${targetLowerBound} - ${targetUpperBound}`,
-        { indent: statsIndent, continued: true, width: this.summaryArea.width - statsIndent },
-      )
-      .text(`${formatPercentage(cbgTimeInCategories.target)}`, { align: 'right' });
+      const { targetUpperBound, targetLowerBound, veryLowThreshold } = this.bgBounds;
+      const cbgTimeInCategories = calcBgPercentInCategories(data.cbg, this.bgBounds);
+      this.doc.font(this.font)
+        .text(
+          `${targetLowerBound} - ${targetUpperBound}`,
+          { indent: statsIndent, continued: true, width: widthWithoutIndent },
+        )
+        .text(`${formatPercentage(cbgTimeInCategories.target)}`, { align: 'right' });
 
-    yPos.update();
+      yPos.update();
 
-    this.doc.text(
-        `Below ${veryLowThreshold}`,
-        { indent: statsIndent, continued: true, width: this.summaryArea.width - statsIndent },
-      )
-      .text(`${formatPercentage(cbgTimeInCategories.veryLow)}`, { align: 'right' });
+      this.doc.text(
+          `Below ${veryLowThreshold}`,
+          { indent: statsIndent, continued: true, width: widthWithoutIndent },
+        )
+        .text(`${formatPercentage(cbgTimeInCategories.veryLow)}`, { align: 'right' });
 
-    yPos.update();
+      yPos.update();
+    }
 
-    this.doc.moveTo(this.margins.left, yPos.update())
-      .lineTo(this.summaryArea.rightEdge, yPos.current())
-      .stroke(this.colors.lightDividers);
+    if (!_.isEmpty(data.basal)) {
+      if (!first) {
+        this.doc.moveTo(this.margins.left, yPos.update())
+          .lineTo(this.summaryArea.rightEdge, yPos.current())
+          .stroke(this.colors.lightDividers);
+      } else {
+        first = false;
+      }
 
-    this.doc.font(this.boldFont)
-      .text('Basal:Bolus Ratio', smallIndent, yPos.update());
+      this.doc.fontSize(this.defaultFontSize).font(this.boldFont)
+        .text('Basal:Bolus Ratio', smallIndent, yPos.update());
+
+      yPos.update();
+
+      const basalPercent = formatPercentage(totalBasal / totalInsulin);
+      const bolusPercent = formatPercentage(totalBolus / totalInsulin);
+
+      this.doc.font(this.font)
+        .text(
+          'Basal',
+          { indent: statsIndent, continued: true, width: widthWithoutIndent },
+        )
+        .text(
+          `${basalPercent}, ~${formatDecimalNumber(totalBasal, 0)} U`,
+          { align: 'right' }
+        );
+
+      yPos.update();
+
+      this.doc.font(this.font)
+        .text(
+          'Bolus',
+          { indent: statsIndent, continued: true, width: widthWithoutIndent },
+        )
+        .text(
+          `${bolusPercent}, ~${formatDecimalNumber(totalBolus, 0)} U`,
+          { align: 'right' }
+        );
+
+      yPos.update();
+    }
+
+    if (!_.isEmpty(data.cbg)) {
+      if (!first) {
+        this.doc.moveTo(this.margins.left, yPos.update())
+          .lineTo(this.summaryArea.rightEdge, yPos.current())
+          .stroke(this.colors.lightDividers);
+      } else {
+        first = false;
+      }
+
+      this.doc.fontSize(this.defaultFontSize).font(this.boldFont)
+        .text(
+          'Median BG',
+          smallIndent,
+          yPos.update(),
+          { continued: true, width: widthWithoutIndent }
+        )
+        .font(this.font)
+        .text(
+          `${formatDecimalNumber(median(data.cbg, (d) => (d.value)), 0)} ${this.bgUnits}`,
+          { align: 'right' }
+        );
+
+      yPos.small();
+    } else if (!_.isEmpty(data.smbg)) {
+      if (!first) {
+        this.doc.moveTo(this.margins.left, yPos.update())
+          .lineTo(this.summaryArea.rightEdge, yPos.current())
+          .stroke(this.colors.lightDividers);
+      } else {
+        first = false;
+      }
+
+      this.doc.fontSize(this.defaultFontSize).font(this.boldFont)
+        .text(
+          'Mean BG',
+          smallIndent,
+          yPos.update(),
+          { continued: true, width: widthWithoutIndent }
+        )
+        .font(this.font)
+        .text(
+          `${formatDecimalNumber(mean(data.smbg, (d) => (d.value)), 0)} ${this.bgUnits}`,
+          { align: 'right' }
+        );
+
+      yPos.small();
+    }
+
+    if (!_.isEmpty(data.basal)) {
+      if (!first) {
+        this.doc.moveTo(this.margins.left, yPos.update())
+          .lineTo(this.summaryArea.rightEdge, yPos.current())
+          .stroke(this.colors.lightDividers);
+      } else {
+        first = false;
+      }
+
+      this.doc.fontSize(this.defaultFontSize).font(this.boldFont)
+        .text(
+          'Total Insulin',
+          smallIndent,
+          yPos.update(),
+          { continued: true, width: widthWithoutIndent }
+        )
+        .font(this.font)
+        .text(
+          `${formatDecimalNumber(totalInsulin, 2)} U`,
+          { align: 'right' }
+        );
+
+      yPos.small();
+    }
+
+    if (!_.isEmpty(data.bolus)) {
+      if (!first) {
+        this.doc.moveTo(this.margins.left, yPos.update())
+          .lineTo(this.summaryArea.rightEdge, yPos.current())
+          .stroke(this.colors.lightDividers);
+      } else {
+        first = false;
+      }
+
+      this.doc.fontSize(this.defaultFontSize).font(this.boldFont)
+        .text(
+          'Total Carbs',
+          smallIndent,
+          yPos.update(),
+          { continued: true, width: widthWithoutIndent }
+        )
+        .font(this.font)
+        .text(
+          `${formatDecimalNumber(getTotalCarbs(data.bolus), 0)} g`,
+          { align: 'right' }
+        );
+    }
 
     return this;
   }
