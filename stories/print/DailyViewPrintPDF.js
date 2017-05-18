@@ -32,10 +32,13 @@ function openPDF() {
   const stream = doc.pipe(blobStream());
 
   const dailyPrintView = createDailyPrintView(doc, data, {
-    veryHighThreshold: 300,
-    targetUpperBound: 180,
-    targetLowerBound: 70,
-    veryLowThreshold: 54,
+    bgBounds: {
+      veryHighThreshold: 300,
+      targetUpperBound: 180,
+      targetLowerBound: 70,
+      veryLowThreshold: 54,
+    },
+    bgUnits: 'mg/dL',
   }, {
     timezoneAware: true,
     timezoneName: 'US/Pacific',

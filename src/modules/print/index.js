@@ -35,10 +35,10 @@ const MARGIN = DPI / 2;
  *
  * @return {Object} dailyPrintView instance
  */
-export function createDailyPrintView(doc, data, bgBounds, timePrefs, numDays) {
+export function createDailyPrintView(doc, data, bgPrefs, timePrefs, numDays) {
   const CHARTS_PER_PAGE = 3;
   return new DailyPrintView(doc, data, {
-    bgBounds,
+    bgPrefs,
     chartsPerPage: CHARTS_PER_PAGE,
     // TODO: set this up as a Webpack Define plugin to pull from env variable
     // maybe that'll be tricky through React Storybook?
@@ -83,7 +83,10 @@ export default function createAndOpenPrintPDFPackage(mostRecent, groupedData, {
    */
   const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
-  const dailyPrintView = createDailyPrintView(doc, dailyViewData, bgBounds, timePrefs, numDays);
+  const dailyPrintView = createDailyPrintView(doc, dailyViewData, {
+    bgBounds,
+    bgUnits: bgPrefs.bgUnits,
+  }, timePrefs, numDays);
   dailyPrintView.render();
 
   doc.end();

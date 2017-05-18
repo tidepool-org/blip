@@ -35,7 +35,7 @@ import {
   formatDuration,
 } from '../../utils/datetime';
 import {
-  formatDecimalNumber, formatPercentage, removeTrailingZeroes,
+  formatBgValue, formatDecimalNumber, formatPercentage, removeTrailingZeroes,
 } from '../../utils/format';
 
 import styles from '../../styles/colors.css';
@@ -61,7 +61,9 @@ class DailyPrintView {
     this.headerFontSize = opts.headerFontSize;
     this.summaryHeaderFontSize = opts.summaryHeaderFontSize;
 
-    this.bgBounds = opts.bgBounds;
+    this.bgPrefs = opts.bgPrefs;
+    this.bgUnits = opts.bgPrefs.bgUnits;
+    this.bgBounds = opts.bgPrefs.bgBounds;
     this.timePrefs = opts.timePrefs;
     this.timezone = getTimezoneFromTimePrefs(opts.timePrefs);
 
@@ -293,6 +295,7 @@ class DailyPrintView {
         .renderXAxes(dateChart)
         .renderYAxes(dateChart)
         .renderCbgs(dateChart)
+        .renderSmbgs(dateChart)
         .renderBolusPaths(dateChart)
         .renderBolusDetails(dateChart)
         .renderBasalPaths(dateChart);
@@ -459,6 +462,26 @@ class DailyPrintView {
       // eslint-disable-next-line lodash/prefer-lodash-method
       this.doc.circle(xScale(cbg.utc), bgScale(cbg.value), 1)
         .fill(styles[classifyBgValue(this.bgBounds, cbg.value)]);
+    });
+
+    return this;
+  }
+
+  renderSmbgs({ bgScale, data: { smbg: smbgs }, xScale }) {
+    _.each(smbgs, (smbg) => {
+      // eslint-disable-next-line lodash/prefer-lodash-method
+      this.doc.circle(xScale(smbg.utc), bgScale(smbg.value), 3)
+        .fill(styles[classifyBgValue(this.bgBounds, smbg.value)]);
+      const smbgLabel = formatBgValue(smbg.value, this.bgPrefs);
+      const labelWidth = this.doc.widthOfString(smbgLabel);
+      this.doc.font(this.boldFont)
+        .fontSize(this.defaultFontSize)
+        .fillColor('black')
+        .text(
+          smbgLabel,
+          xScale(smbg.utc) - labelWidth / 2,
+          bgScale(smbg.value) - 12.5,
+        );
     });
 
     return this;
