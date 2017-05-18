@@ -19,6 +19,7 @@ import _ from 'lodash';
 import moment from 'moment-timezone';
 import { extent } from 'd3-array';
 
+import { getBasalSequences } from '../../utils/basal';
 import { getTimezoneFromTimePrefs, getLocalizedCeiling } from '../../utils/datetime';
 
 /**
@@ -206,29 +207,7 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
       }
     }
     // eslint-disable-next-line no-param-reassign
-    dateData.data.basalSequences = [];
-    const basalSequences = dateData.data.basalSequences;
-    let idx = 0;
-    let currentBasal = basals[0];
-    let seq = [basals[0]];
-    while (idx < basals.length - 1) {
-      const nextBasal = basals[idx + 1];
-      if (nextBasal.subType !== currentBasal.subType || currentBasal.discontinuousEnd) {
-        basalSequences.push(seq);
-        seq = [];
-      }
-      seq.push(nextBasal);
-      currentBasal = nextBasal;
-      ++idx;
-    }
-    const finalBasal = basals[basals.length - 1];
-    if (!finalBasal.discontinuousStart) {
-      seq.push(finalBasal);
-      basalSequences.push(seq);
-    } else {
-      basalSequences.push(seq);
-      basalSequences.push([finalBasal]);
-    }
+    dateData.data.basalSequences = getBasalSequences(basals);
   });
 
   return selected;

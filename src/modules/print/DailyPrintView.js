@@ -19,6 +19,7 @@ import _ from 'lodash';
 import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
 
+import { calculateBasalPath, getBasalSequencePaths } from '../render/basal';
 import getBolusPaths from '../render/bolus';
 import { calcBgPercentInCategories, classifyBgValue } from '../../utils/bloodglucose';
 import {
@@ -296,7 +297,8 @@ class DailyPrintView {
         .renderYAxes(dateChart)
         .renderCbgs(dateChart)
         .renderBolusPaths(dateChart)
-        .renderBolusDetails(dateChart);
+        .renderBolusDetails(dateChart)
+        .renderBasalPaths(dateChart);
     });
   }
 
@@ -549,6 +551,41 @@ class DailyPrintView {
         yPos.update();
       });
     });
+
+    return this;
+  }
+
+  renderBasalPaths({ basalScale, data: { basal, basalSequences: sequences }, xScale }) {
+    _.each(sequences, (sequence) => {
+      const paths = getBasalSequencePaths(sequence, xScale, basalScale);
+      _.each(paths, (path) => {
+        const opacity = path.basalType === 'scheduled' ? 0.4 : 0.2;
+        if (path.renderType === 'fill') {
+          // eslint-disable-next-line lodash/prefer-lodash-method
+          this.doc.path(path.d)
+            .fillColor(styles.basal)
+            .fillOpacity(opacity)
+            .fill();
+        } else if (path.renderType === 'stroke') {
+          this.doc.path(path.d)
+            .lineWidth(0.5)
+            .dash(1, { space: 2 })
+            .stroke(styles.basal);
+        }
+      });
+      const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
+        endAtZero: false,
+        flushBottomOffset: -0.25,
+        isFilled: false,
+        startAtZero: false,
+      });
+      this.doc.path(wholeDateDeliveredPath)
+        .lineWidth(0.5)
+        .dash(0)
+        .stroke(styles.basal);
+    });
+
+    return this;
   }
 
   renderDebugGrid() {
