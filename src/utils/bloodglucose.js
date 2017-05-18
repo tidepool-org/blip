@@ -58,19 +58,20 @@ export function classifyBgValue(bgBounds, bgValue, classificationType = 'threeWa
 }
 
 /**
- * cbgTimeInCategories
- * @param {Array} data - cbg data objects
- * @param {Object} bgBounds - object defining PwD's BG targets & thresholds
+ * calcBgPercentInCategories
+ * @param {Array} data - Array of Tidepool cbg or smbg data
+ * @param {Object} bgBounds - object describing boundaries for blood glucose categories
  *
- * @return {Object} cbgTimeInCategories - keys veryLow, low, target, high, veryHigh
+ * @return {Object} bgPercentInCategories - object w/keys veryLow, low, target, high, veryHigh
+ *                  and 0.0 to 1.0 percentage values
  */
-export function calcCbgTimeInCategories(data, bgBounds) {
-  const cbgTimeInCategories = {};
+export function calcBgPercentInCategories(data, bgBounds) {
+  const bgPercentInCategories = {};
   const grouped = _.groupBy(data, (d) => (classifyBgValue(bgBounds, d.value, 'fiveWay')));
   _.each(['veryLow', 'low', 'target', 'high', 'veryHigh'], (key) => {
-    cbgTimeInCategories[key] = ((grouped[key] && grouped[key].length) || 0) / data.length;
+    bgPercentInCategories[key] = ((grouped[key] && grouped[key].length) || 0) / data.length;
   });
-  return cbgTimeInCategories;
+  return bgPercentInCategories;
 }
 
 /**

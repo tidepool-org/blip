@@ -37,11 +37,6 @@
 .bolusDelivered {
   color: var(--bolus);
   fill: var(--bolus);
-  stroke: var(--bolus);
-}
-
-.bolusExtendedPath {
-  stroke-width: 2;
 }
 
 .bolusInterrupted {
@@ -57,17 +52,15 @@
 }
 
 .bolusRideTriangle {
-  fill: var(--bolus--override);
+  fill: var(--bolus--ride);
 }
 
 .bolusUndelivered {
   color: var(--bolus--undelivered);
   fill: var(--bolus--undelivered);
-  stroke: var(--bolus--undelivered);
 }
 
 .bolusUnderride {
   color: var(--bolus--undelivered);
   fill: var(--bolus--undelivered);
-  stroke: var(--bolus--undelivered);
 }

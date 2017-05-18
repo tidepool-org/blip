@@ -20,7 +20,7 @@ import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
 
 import getBolusPaths from '../render/bolus';
-import { calcCbgTimeInCategories, classifyBgValue } from '../../utils/bloodglucose';
+import { calcBgPercentInCategories, classifyBgValue } from '../../utils/bloodglucose';
 import {
   getBolusFromInsulinEvent,
   getDelivered,
@@ -229,7 +229,7 @@ class DailyPrintView {
         dateChart.bottomEdge - belowBasal - basalChart,
       ]);
     dateChart.xScale = scaleLinear() // eslint-disable-line no-param-reassign
-      .domain([Date.parse(dateChart.bounds[0]), Date.parse(dateChart.bounds[1])])
+      .domain([dateChart.bounds[0], dateChart.bounds[1]])
       // TODO: change to this.bolusWidth / 2 assuming boluses will be wider than cbgs
       .range([this.chartArea.leftEdge + this.cbgRadius, this.rightEdge - this.cbgRadius]);
 
@@ -333,7 +333,7 @@ class DailyPrintView {
     yPos.update();
 
     const { targetUpperBound, targetLowerBound, veryLowThreshold } = this.bgBounds;
-    const cbgTimeInCategories = calcCbgTimeInCategories(data.cbg, this.bgBounds);
+    const cbgTimeInCategories = calcBgPercentInCategories(data.cbg, this.bgBounds);
     this.doc.font(this.font)
       .text(
         `${targetLowerBound} - ${targetUpperBound}`,
@@ -398,7 +398,7 @@ class DailyPrintView {
     while (current < end) {
       current = moment.utc(current)
         .add(3, 'h')
-        .toISOString();
+        .valueOf();
       threeHrLocs.push(current);
     }
     const chart = this.chartsByDate[date];
@@ -407,7 +407,7 @@ class DailyPrintView {
 
     // render the vertical lines at three-hr intervals
     _.each(threeHrLocs, (loc, i) => {
-      let xPos = xScale(Date.parse(loc));
+      let xPos = xScale(loc);
       if (i === 0) {
         xPos = this.chartArea.leftEdge;
       }

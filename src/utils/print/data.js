@@ -31,8 +31,10 @@ function stripDatum(d) {
   return _.assign({}, _.omit(
     d,
     [
+      'annotations',
       'clockDriftOffset',
       'conversionOffset',
+      'createdUserId',
       'deviceId',
       'deviceSerialNumber',
       'deviceTime',
@@ -40,6 +42,7 @@ function stripDatum(d) {
       'guid',
       'localDayOfWeek',
       'localDate',
+      'modifiedUserId',
       'normalEnd',
       'normalTime',
       'payload',
@@ -112,7 +115,7 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
       .tz(timezone)
       .format('YYYY-MM-DD');
     selected.dataByDate[date] = {
-      bounds: [thisDateStart, thisDateEnd],
+      bounds: [Date.parse(thisDateStart), Date.parse(thisDateEnd)],
       date,
       data: _.mapValues(groupedData, (dataForType) => {
         if (_.isEmpty(dataForType)) {
@@ -171,15 +174,26 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
   const allBasals = _.reduce(
     selectedDataByDate, (all, date) => (all.concat(_.get(date, ['data', 'basal'], []))), []
   );
-  selected.basalRange = extent(
+  const rawBasalRange = extent(
     allBasals,
     (d) => (_.max([_.get(d, ['suppressed', 'rate'], 0), d.rate]))
   );
+  // multiply the max rate by 1.1 to add a little buffer so the highest basals
+  // don't sit at the very top of the basal rendering area and bump into boluses
+  selected.basalRange = [0, rawBasalRange[1] * 1.1];
 
   _.each(selected.dataByDate, (dateData) => {
-    const { data: { basal: basals } } = dateData;
+    const { bounds, data: { basal: basals } } = dateData;
     for (let i = 0; i < basals.length; ++i) {
       const basal = basals[i];
+      // trim the first and last basals to fit within the date's bounds
+      if (i === 0) {
+        basal.duration = basal.duration - (bounds[0] - basal.utc);
+        basal.utc = bounds[0];
+      }
+      if (i === basals.length - 1) {
+        basal.duration = bounds[1] - basal.utc;
+      }
       let nextBasal;
       basal.subType = basal.deliveryType;
       delete basal.deliveryType;

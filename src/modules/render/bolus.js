@@ -164,8 +164,10 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
     if (extendedVal > 0) {
       paths.push({
         d: `
-          M ${bolusCenter},${extendedY}
-          L ${startOfTriangle + extendedLineThickness},${extendedY}
+          M ${bolusCenter},${extendedY + extendedLineThickness / 2}
+          L ${bolusCenter},${extendedY - extendedLineThickness / 2}
+          L ${startOfTriangle + extendedLineThickness},${extendedY - extendedLineThickness / 2}
+          L ${startOfTriangle + extendedLineThickness},${extendedY + extendedLineThickness / 2} Z
         `.replace('\n', ''),
         key: `extendedPath-${bolus.id}`,
         type: 'extendedPath',
@@ -179,8 +181,10 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
 
       paths.push({
         d: `
-          M ${startOfInterrupted},${extendedY}
-          L ${startOfTriangle + extendedLineThickness},${extendedY}
+          M ${startOfInterrupted},${extendedY + extendedLineThickness / 2}
+          L ${startOfInterrupted},${extendedY - extendedLineThickness / 2}
+          L ${startOfTriangle + extendedLineThickness},${extendedY - extendedLineThickness / 2}
+          L ${startOfTriangle + extendedLineThickness},${extendedY + extendedLineThickness / 2} Z
         `.replace('\n', ''),
         key: `extendedExpectationPath-${bolus.id}`,
         type: 'extendedExpectationPath',

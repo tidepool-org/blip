@@ -166,6 +166,25 @@ export function getExtended(insulinEvent) {
 }
 
 /**
+ * getExtendedPercentage
+ * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ *
+ * @return {String} percentage of combo bolus delivered later
+ */
+export function getExtendedPercentage(insulinEvent) {
+  let bolus = insulinEvent;
+  if (_.get(insulinEvent, 'type') === 'wizard') {
+    bolus = getBolusFromInsulinEvent(insulinEvent);
+  }
+  if (!bolus.normal || !(bolus.extended || bolus.expectedExtended)) {
+    return NaN;
+  }
+  const extended = bolus.expectedExtended || bolus.extended;
+  const programmed = getProgrammed(bolus);
+  return formatPercentage(extended / programmed);
+}
+
+/**
  * getMaxDuration
  * @param {Object} insulinEvent - a Tidepool bolus or wizard object
  *
@@ -220,25 +239,6 @@ export function getNormalPercentage(insulinEvent) {
   const normal = bolus.expectedNormal || bolus.normal;
   const programmed = getProgrammed(bolus);
   return formatPercentage(normal / programmed);
-}
-
-/**
- * getExtendedPercentage
- * @param {Object} insulinEvent - a Tidepool bolus or wizard object
- *
- * @return {String} percentage of combo bolus delivered later
- */
-export function getExtendedPercentage(insulinEvent) {
-  let bolus = insulinEvent;
-  if (_.get(insulinEvent, 'type') === 'wizard') {
-    bolus = getBolusFromInsulinEvent(insulinEvent);
-  }
-  if (!bolus.normal || !(bolus.extended || bolus.expectedExtended)) {
-    return NaN;
-  }
-  const extended = bolus.expectedExtended || bolus.extended;
-  const programmed = getProgrammed(bolus);
-  return formatPercentage(extended / programmed);
 }
 
 /**

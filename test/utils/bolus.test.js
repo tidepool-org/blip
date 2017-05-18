@@ -411,6 +411,47 @@ describe('bolus utilities', () => {
     });
   });
 
+  describe('getExtendedPercentage', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.getExtendedPercentage);
+    });
+
+    it('should return NaN on a non-combo bolus', () => {
+      expect(Number.isNaN(bolusUtils.getExtendedPercentage(normal))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getExtendedPercentage(cancelled))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getExtendedPercentage(override))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getExtendedPercentage(underride))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getExtendedPercentage(withNetRec))).to.be.true;
+    });
+
+    it('should return the extended percentage as a String with `%` suffix', () => {
+      expect(bolusUtils.getExtendedPercentage(combo)).to.equal('67%');
+      expect(bolusUtils.getExtendedPercentage(comboOverride)).to.equal('63%');
+    });
+
+    it('should calculate the extended percentage based on programmed values', () => {
+      expect(bolusUtils.getExtendedPercentage(cancelledInNormalCombo)).to.equal('67%');
+      expect(bolusUtils.getExtendedPercentage(cancelledInExtendedCombo)).to.equal('67%');
+      expect(bolusUtils.getExtendedPercentage(comboUnderrideCancelled)).to.equal('75%');
+    });
+
+    it('should return NaN for an extended-only ("square") bolus', () => {
+      expect(Number.isNaN(bolusUtils.getExtendedPercentage(extended))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getExtendedPercentage(cancelledExtended))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getExtendedPercentage(immediatelyCancelledExtended)))
+        .to.be.true;
+      expect(Number.isNaN(bolusUtils.getExtendedPercentage(extendedUnderride))).to.be.true;
+    });
+
+    it(`should throw an error on a \`normal\`-cancelled \`combo\` bolus
+        with no \`expectedExtended\``, () => {
+      const fn = () => { bolusUtils.getExtendedPercentage(doesNotExist); };
+      expect(fn).to.throw(
+        'Combo bolus found with a cancelled `normal` portion and non-cancelled `extended`!'
+      );
+    });
+  });
+
   describe('getMaxDuration', () => {
     it('should be a function', () => {
       assert.isFunction(bolusUtils.getMaxDuration);
@@ -506,6 +547,47 @@ describe('bolus utilities', () => {
 
     it('should return the net recommendation in the case of a cancelled `combo` underride', () => {
       expect(bolusUtils.getMaxValue(comboUnderrideCancelled)).to.equal(5);
+    });
+  });
+
+  describe('getNormalPercentage', () => {
+    it('should be a function', () => {
+      assert.isFunction(bolusUtils.getNormalPercentage);
+    });
+
+    it('should return NaN on a non-combo bolus', () => {
+      expect(Number.isNaN(bolusUtils.getNormalPercentage(normal))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getNormalPercentage(cancelled))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getNormalPercentage(override))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getNormalPercentage(underride))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getNormalPercentage(withNetRec))).to.be.true;
+    });
+
+    it('should return the extended percentage as a String with `%` suffix', () => {
+      expect(bolusUtils.getNormalPercentage(combo)).to.equal('33%');
+      expect(bolusUtils.getNormalPercentage(comboOverride)).to.equal('38%');
+    });
+
+    it('should calculate the extended percentage based on programmed values', () => {
+      expect(bolusUtils.getNormalPercentage(cancelledInNormalCombo)).to.equal('33%');
+      expect(bolusUtils.getNormalPercentage(cancelledInExtendedCombo)).to.equal('33%');
+      expect(bolusUtils.getNormalPercentage(comboUnderrideCancelled)).to.equal('25%');
+    });
+
+    it('should return NaN for an extended-only ("square") bolus', () => {
+      expect(Number.isNaN(bolusUtils.getNormalPercentage(extended))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getNormalPercentage(cancelledExtended))).to.be.true;
+      expect(Number.isNaN(bolusUtils.getNormalPercentage(immediatelyCancelledExtended)))
+        .to.be.true;
+      expect(Number.isNaN(bolusUtils.getNormalPercentage(extendedUnderride))).to.be.true;
+    });
+
+    it(`should throw an error on a \`normal\`-cancelled \`combo\` bolus
+        with no \`expectedExtended\``, () => {
+      const fn = () => { bolusUtils.getNormalPercentage(doesNotExist); };
+      expect(fn).to.throw(
+        'Combo bolus found with a cancelled `normal` portion and non-cancelled `extended`!'
+      );
     });
   });
 
