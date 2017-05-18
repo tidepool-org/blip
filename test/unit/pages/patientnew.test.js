@@ -23,6 +23,7 @@ describe('PatientNew', function () {
       console.error = sinon.spy();
       var props = {
         fetchingUser: false,
+        onInviteMember: sinon.stub(),
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
         working: false

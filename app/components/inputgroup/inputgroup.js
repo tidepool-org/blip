@@ -16,6 +16,7 @@
 
 var React = require('react');
 var _ = require('lodash');
+var cx = require('classnames');
 
 var DatePicker = require('../datepicker');
 
@@ -25,7 +26,7 @@ var InputGroup = React.createClass({
     name: React.PropTypes.string,
     label: React.PropTypes.string,
     items: React.PropTypes.array,
-    text: React.PropTypes.string,
+    text: React.PropTypes.node,
     value: React.PropTypes.oneOfType([
       React.PropTypes.string,
       React.PropTypes.bool,
@@ -93,6 +94,10 @@ var InputGroup = React.createClass({
 
     if (type === 'radios') {
       return this.renderRadios();
+    }
+
+    if (type === 'select') {
+      return this.renderSelect();
     }
 
     if (type === 'datepicker') {
@@ -187,6 +192,42 @@ var InputGroup = React.createClass({
     return (
       <div className="input-group-radios">
         {radios}
+      </div>
+    );
+  },
+
+  renderSelect: function() {
+    var self = this;
+    var placeholder = this.props.value === this.props.placeholder;
+    var classNames = cx({
+      'input-group-control': true,
+      'form-control': true,
+      placeholder: placeholder
+    });
+    var options = _.map(this.props.items, function(option, index) {
+      return (
+        <option
+          key={option.value}
+          label={option.label}
+          value={option.value}
+          disabled={option.disabled}
+          ref={'control' + index}>
+            {option.label}
+        </option>
+      );
+    });
+
+    return (
+      <div className="input-group-select">
+        <select
+          className={classNames}
+          name={this.props.name}
+          value={this.props.value}
+          id={this.props.name}
+          onChange={self.handleChange}
+          disabled={this.props.disabled}>
+            {options}
+        </select>
       </div>
     );
   },
