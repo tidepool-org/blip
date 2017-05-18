@@ -188,7 +188,7 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
     for (let i = 0; i < basals.length; ++i) {
       const basal = basals[i];
       // trim the first and last basals to fit within the date's bounds
-      if (i === 0) {
+      if (basal.utc < bounds[0]) {
         basal.duration = basal.duration - (bounds[0] - basal.utc);
         basal.utc = bounds[0];
       }
