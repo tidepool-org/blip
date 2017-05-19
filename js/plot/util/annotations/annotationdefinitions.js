@@ -90,6 +90,11 @@ var definitions = {
       var b = ' represents extended boluses that cross midnight as two boluses, this bolus could be part of a dual-wave bolus, not an independent square-wave bolus as represented here.';
       return defs.stitch(a, b, source);
     },
+    'medtronic/basal/fabricated-from-schedule': function(source, defs) {
+      var a = 'We are calculating the basal rates here using the active basal schedule in your pump settings (and applying the percentage of an active temp basal where applicable), but ';
+      var b = ' did not directly provide us with these rate changes.';
+      return defs.stitch(a, b, source);
+    },
     'tandem/basal/fabricated-from-new-day': function(source, defs) {
       var a = 'We have fabricated this basal segment from a ';
       var b = ' new day event; it was not provided directly as basal data';
