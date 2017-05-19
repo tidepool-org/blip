@@ -97,8 +97,8 @@ export let PatientNew = React.createClass({
         {value: 'CWD', label: 'Children with Diabetes'},
         {value: 'CDN', label: 'College Diabetes Network'},
         {value: 'DHF', label: 'Diabetes Hands Foundation'},
-        {value: 'JDRF', label: 'JDRF'},
         {value: 'DIATRIBE', label: 'The diaTribe Foundation'},
+        {value: 'JDRF', label: 'JDRF'},
         {value: 'NSF', label: 'Nightscout Foundation'},
         {value: 'T1DX', label: 'T1D Exchange'}
       ]
