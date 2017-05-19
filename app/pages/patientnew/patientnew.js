@@ -93,11 +93,12 @@ export let PatientNew = React.createClass({
       items: [
         {value: '', label: 'Choose a diabetes organization', 'disabled':'true'},
         {value: 'BT1', label: 'Beyond Type 1'},
+        {value: 'CARBDM', label: 'CarbDM'},
         {value: 'CWD', label: 'Children with Diabetes'},
         {value: 'CDN', label: 'College Diabetes Network'},
         {value: 'DHF', label: 'Diabetes Hands Foundation'},
         {value: 'JDRF', label: 'JDRF'},
-        {value: 'DIATRIBE', label: 'The Diatribe Foundation'},
+        {value: 'DIATRIBE', label: 'The diaTribe Foundation'},
         {value: 'NSF', label: 'Nightscout Foundation'},
         {value: 'T1DX', label: 'T1D Exchange'}
       ]
