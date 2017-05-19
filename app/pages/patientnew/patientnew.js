@@ -209,9 +209,9 @@ export let PatientNew = React.createClass({
 
   getSubmitButtonText: function() {
     if (this.props.working) {
-      return 'Setting up...';
+      return 'Saving...';
     }
-    return 'Set up';
+    return 'Save';
   },
 
   isFormDisabled: function() {
