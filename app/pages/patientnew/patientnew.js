@@ -78,12 +78,20 @@ export let PatientNew = React.createClass({
       type: 'checkbox'
     },
     {
+      name: 'dataDonateExplainer',
+      type: 'explanation',
+      text: (<div style={{'textAlign':'left'}}>
+        You own your data. Read all the details about Tidepool's Big Data
+        Donation project <a href="http://tidepool.org/blog">here</a>.
+      </div>)
+    },
+    {
       name: 'dataDonateDestination',
       type: 'select',
       value: '',
       placeholder: '',
       items: [
-        {value: '', label: 'Share Proceeds with', 'disabled':'true'},
+        {value: '', label: 'Choose a diabetes organization', 'disabled':'true'},
         {value: 'BT1', label: 'Beyond Type 1'},
         {value: 'CWD', label: 'Children with Diabetes'},
         {value: 'CDN', label: 'College Diabetes Network'},
@@ -98,9 +106,8 @@ export let PatientNew = React.createClass({
       name: 'donateExplainer',
       type: 'explanation',
       text: (<div style={{'textAlign':'left'}}>
-        By securely and anonymously donating your diabetes data you are helping
-        researchers, device makers, and other innovators. Read everything about
-        this project <a href="http://tidepool.org/blog">here</a>.
+        Tidepool will share 10% of the proceeds with a diabetes organization of
+        your choice.
       </div>)
     }
   ],
