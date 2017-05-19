@@ -211,6 +211,17 @@ utils.getRoles = function(location) {
   return [];
 }
 
+utils.getCarelink = function(location) {
+  if (location && location.query) {
+    let { carelink } = location.query;
+
+    if (!_.isUndefined(carelink)) {
+      return carelink;
+    }
+  }
+  return null;
+}
+
 utils.processPatientData = (comp, data, queryParams, settings) => {
   if (!(data && data.length >= 0)) {
     return null;

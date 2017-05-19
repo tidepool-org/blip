@@ -805,15 +805,15 @@ export function fetchPatients(api) {
  * Fetch Patient Data Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
+ * @param {Object} options
  * @param {String|Number} id
- * @param {Object} queryParams
  */
-export function fetchPatientData(api, id) {
+export function fetchPatientData(api, options, id) {
   return (dispatch) => {
     dispatch(sync.fetchPatientDataRequest());
 
     async.parallel({
-      patientData: api.patientData.get.bind(api, id),
+      patientData: api.patientData.get.bind(api, id, options),
       teamNotes: api.team.getNotes.bind(api, id)
     }, (err, results) => {
       if (err) {

@@ -31,10 +31,10 @@ let getFetchers = (dispatchProps, ownProps, api) => {
 and [sometimes other function arguments](https://github.com/tidepool-org/blip/blob/master/app/pages/patientdata/patientdata.js#L613 'GitHub: blip app/pages/patientdata/patientdata.js getFetchers example'):
 
 ```js
-let getFetchers = (dispatchProps, ownProps, api) => {
+let getFetchers = (dispatchProps, ownProps, api, options) => {
   return [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchPatientData.bind(null, api, ownProps.routeParams.id)
+    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id)
   ];
 };
 ```

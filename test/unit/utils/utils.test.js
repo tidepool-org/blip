@@ -248,4 +248,41 @@ describe('utils', function() {
       expect(utils.getRoles(location)).to.deep.equal([]);
     });
   });
+
+  describe('getCarelink', function(){
+    it('should return carelink from query property of location object', function(){
+      var location = {
+        query: {
+          carelink: 'true'
+        }
+      };
+      expect(utils.getCarelink(location)).to.equal('true');
+    });
+
+    it('should return empty string if empty carelink in query property of location object', function(){
+      var location = {
+        query: {
+          carelink: ''
+        }
+      };
+      expect(utils.getCarelink(location)).to.equal('');
+    });
+
+    it('should return null if no location object', function(){
+      expect(utils.getCarelink()).to.equal(null);
+    });
+
+    it('should return null if no query property of location object', function(){
+      expect(utils.getCarelink({})).to.equal(null);
+    });
+
+    it('should return null if no carelink in query property of location object', function(){
+      var location = {
+        query: {
+          signupEmail: 'jane@tidepool.org'
+        }
+      };
+      expect(utils.getCarelink(location)).to.equal(null);
+    });
+  });
 });

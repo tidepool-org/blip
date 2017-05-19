@@ -643,10 +643,10 @@ export let PatientData = React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let getFetchers = (dispatchProps, ownProps, api) => {
+let getFetchers = (dispatchProps, ownProps, api, options) => {
   return [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchPatientData.bind(null, api, ownProps.routeParams.id)
+    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id)
   ];
 };
 
@@ -710,11 +710,12 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  let carelink = utils.getCarelink(ownProps.location);
   var api = ownProps.routes[0].api;
   return Object.assign({}, _.pick(dispatchProps, ['clearPatientData']), stateProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, api),
+    fetchers: getFetchers(dispatchProps, ownProps, api, { carelink }),
     uploadUrl: api.getUploadUrl(),
-    onRefresh: dispatchProps.fetchPatientData.bind(null, api),
+    onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink }),
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
     onCloseMessageThread: dispatchProps.closeMessageThread,
     onSaveComment: api.team.replyToMessageThread.bind(api),
