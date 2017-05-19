@@ -197,7 +197,6 @@ var InputGroup = React.createClass({
   },
 
   renderSelect: function() {
-    var self = this;
     var placeholder = this.props.value === this.props.placeholder;
     var classNames = cx({
       'input-group-control': true,
@@ -224,7 +223,7 @@ var InputGroup = React.createClass({
           name={this.props.name}
           value={this.props.value}
           id={this.props.name}
-          onChange={self.handleChange}
+          onChange={this.handleChange}
           disabled={this.props.disabled}>
             {options}
         </select>
