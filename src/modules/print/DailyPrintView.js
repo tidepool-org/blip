@@ -15,8 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
+/* eslint-disable lodash/prefer-lodash-method */
+
 import _ from 'lodash';
-import { mean, median } from 'd3-array';
+import { mean, median, range } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
 
@@ -62,6 +64,7 @@ class DailyPrintView {
     this.boldFont = 'Helvetica-Bold';
 
     this.bgAxisFontSize = 5;
+    this.carbsFontSize = 5.5;
     this.defaultFontSize = opts.defaultFontSize;
     this.footerFontSize = opts.footerFontSize;
     this.headerFontSize = opts.headerFontSize;
@@ -80,7 +83,13 @@ class DailyPrintView {
     this.numDays = opts.numDays;
 
     // render options
+    this.bolusWidth = 3;
+    this.carbRadius = 4.25;
     this.cbgRadius = 1;
+    this.extendedLineThickness = 0.75;
+    this.interruptedLineThickness = 0.5;
+    this.smbgRadius = 3;
+    this.triangleHeight = 1.25;
 
     const undelivered = '#B2B2B2';
 
@@ -92,6 +101,7 @@ class DailyPrintView {
         extendedExpectationPath: undelivered,
         extendedTriangle: 'black',
         extendedTriangleInterrupted: undelivered,
+        interrupted: 'white',
         overrideTriangle: 'white',
         programmed: 'black',
         undelivered,
@@ -130,7 +140,7 @@ class DailyPrintView {
     });
 
     this.startingPageIndex = opts.startingPageIndex || 0;
-    this.highestPageIndex = 0;
+    this.totalPages = 0;
     this.chartsPlaced = 0;
 
     this.chartIndex = 0;
@@ -149,7 +159,7 @@ class DailyPrintView {
     }
 
     while (this.chartsPlaced < this.numDays) {
-      this.placeChartsOnPage(this.highestPageIndex);
+      this.placeChartsOnPage(this.totalPages);
     }
     _.each(this.chartsByDate, (dateChart) => {
       this.makeScales(dateChart);
@@ -283,18 +293,33 @@ class DailyPrintView {
       }
       // TODO: remove this; it is just for exposing/debugging the chart placement
       if (this.debug) {
-        // eslint-disable-next-line lodash/prefer-lodash-method
         this.doc.fillColor('blue', 0.1)
           .rect(this.chartArea.leftEdge, chart.topEdge, this.chartArea.width, chart.chartHeight)
           .fill();
       }
     }
 
-    this.highestPageIndex += 1;
+    this.totalPages += 1;
     return this;
   }
 
+  renderEventPath(path) {
+    if (path.type === 'programmed') {
+      this.doc.path(path.d)
+        .lineWidth(0.5)
+        .dash(0.5, { space: 1 })
+        .stroke(this.colors.bolus[path.type]);
+    } else {
+      this.doc.path(path.d)
+        .fill(this.colors.bolus[path.type]);
+    }
+  }
+
   render() {
+    _.each(_.uniq(_.pluck(this.chartsByDate, 'page')), (page) => {
+      this.doc.switchToPage(page);
+      this.renderPageNumber(page + 1);
+    });
     _.each(this.chartsByDate, (dateChart) => {
       // console.log('Rendering', dateChart);
       this.doc.switchToPage(dateChart.page);
@@ -307,6 +332,17 @@ class DailyPrintView {
         .renderBolusDetails(dateChart)
         .renderBasalPaths(dateChart);
     });
+  }
+
+  renderPageNumber(page) {
+    this.doc.fontSize(this.defaultFontSize);
+    const pageNumberY = this.bottomEdge - this.doc.currentLineHeight() * 1.5;
+    this.doc.text(
+      `page ${page} of ${this.totalPages}`,
+      this.margins.left,
+      pageNumberY,
+      { align: 'right' }
+    );
   }
 
   renderSummary({ data, date, topEdge }) {
@@ -610,7 +646,6 @@ class DailyPrintView {
 
   renderCbgs({ bgScale, data: { cbg: cbgs }, xScale }) {
     _.each(cbgs, (cbg) => {
-      // eslint-disable-next-line lodash/prefer-lodash-method
       this.doc.circle(xScale(cbg.utc), bgScale(cbg.value), 1)
         .fill(styles[classifyBgValue(this.bgBounds, cbg.value)]);
     });
@@ -620,8 +655,7 @@ class DailyPrintView {
 
   renderSmbgs({ bgScale, data: { smbg: smbgs }, xScale }) {
     _.each(smbgs, (smbg) => {
-      // eslint-disable-next-line lodash/prefer-lodash-method
-      this.doc.circle(xScale(smbg.utc), bgScale(smbg.value), 3)
+      this.doc.circle(xScale(smbg.utc), bgScale(smbg.value), this.smbgRadius)
         .fill(styles[classifyBgValue(this.bgBounds, smbg.value)]);
       const smbgLabel = formatBgValue(smbg.value, this.bgPrefs);
       const labelWidth = this.doc.widthOfString(smbgLabel);
@@ -641,41 +675,30 @@ class DailyPrintView {
   renderInsulinEvents({ bolusScale, data: { bolus: insulinEvents }, xScale }) {
     _.each(insulinEvents, (insulinEvent) => {
       const paths = getBolusPaths(insulinEvent, xScale, bolusScale, {
-        bolusWidth: 3,
-        extendedLineThickness: 0.75,
-        interruptedLineThickness: 0.5,
-        triangleHeight: 1.25,
+        bolusWidth: this.bolusWidth,
+        extendedLineThickness: this.extendedLineThickness,
+        interruptedLineThickness: this.interruptedLineThickness,
+        triangleHeight: this.triangleHeight,
       });
       _.each(paths, (path) => {
-        if (path.type === 'programmed') {
-          this.doc.path(path.d)
-            .lineWidth(0.5)
-            .dash(0.5, { space: 1 })
-            .stroke(this.colors.bolus[path.type]);
-        } else {
-          // eslint-disable-next-line lodash/prefer-lodash-method
-          this.doc.path(path.d)
-            .fill(this.colors.bolus[path.type]);
-        }
+        this.renderEventPath(path);
       });
       const carbs = getCarbs(insulinEvent);
-      const carbRadius = 4.25;
       const circleOffset = 1;
       const textOffset = 1.75;
       if (carbs) {
         const carbsX = xScale(getBolusFromInsulinEvent(insulinEvent).utc);
-        const carbsY = bolusScale(getMaxValue(insulinEvent)) - carbRadius - circleOffset;
-          // eslint-disable-next-line lodash/prefer-lodash-method
-        this.doc.circle(carbsX, carbsY, carbRadius)
+        const carbsY = bolusScale(getMaxValue(insulinEvent)) - this.carbRadius - circleOffset;
+        this.doc.circle(carbsX, carbsY, this.carbRadius)
           .fill(this.colors.carbs);
         this.doc.font(this.font)
-          .fontSize(5.5)
+          .fontSize(this.carbsFontSize)
           .fillColor('black')
           .text(
             carbs,
-            carbsX - carbRadius,
+            carbsX - this.carbRadius,
             carbsY - textOffset,
-            { align: 'center', width: carbRadius * 2 }
+            { align: 'center', width: this.carbRadius * 2 }
           );
       }
     });
@@ -752,7 +775,6 @@ class DailyPrintView {
       _.each(paths, (path) => {
         const opacity = path.basalType === 'scheduled' ? 0.4 : 0.2;
         if (path.renderType === 'fill') {
-          // eslint-disable-next-line lodash/prefer-lodash-method
           this.doc.path(path.d)
             .fillColor(styles.basal)
             .fillOpacity(opacity)
@@ -821,25 +843,6 @@ class DailyPrintView {
     return this;
   }
 
-  renderFooter() {
-    this.doc.fontSize(9);
-    const lineHeight = this.doc.currentLineHeight();
-    this.doc.fillColor('black').fillOpacity(1)
-      .text('Legend', this.margins.left, this.bottomEdge - lineHeight * 8);
-    this.doc.lineWidth(1)
-      .rect(this.margins.left, this.bottomEdge - lineHeight * 6, this.width, lineHeight * 4)
-      .stroke('black');
-    // TODO: remove this; it is just for exposing/debugging the chartArea.bottomEdge adjustment
-    if (this.debug) {
-      // eslint-disable-next-line lodash/prefer-lodash-method
-      this.doc.fillColor('#E8E8E8', 0.3333333333)
-        .rect(this.margins.left, this.bottomEdge - lineHeight * 9, this.width, lineHeight * 9)
-        .fill();
-    }
-
-    return this;
-  }
-
   renderHeader() {
     this.doc.lineWidth(1);
     this.doc.fontSize(14).text('Daily View', this.margins.left, this.margins.top)
@@ -851,9 +854,282 @@ class DailyPrintView {
       .stroke('black');
     // TODO: remove this; it is just for exposing/debugging the chartArea.topEdge adjustment
     if (this.debug) {
-      // eslint-disable-next-line lodash/prefer-lodash-method
       this.doc.fillColor('#E8E8E8', 0.3333333333)
         .rect(this.margins.left, this.margins.top, this.width, lineHeight * 4)
+        .fill();
+    }
+
+    return this;
+  }
+
+  renderFooter() {
+    this.doc.fontSize(9);
+    const lineHeight = this.doc.currentLineHeight();
+    this.doc.fillColor('black').fillOpacity(1)
+      .text('Legend', this.margins.left, this.bottomEdge - lineHeight * 8);
+
+    const legendHeight = lineHeight * 4;
+    const legendTop = this.bottomEdge - lineHeight * 6;
+
+    this.doc.lineWidth(1)
+      .rect(this.margins.left, legendTop, this.width, legendHeight)
+      .stroke('black');
+
+    this.doc.fontSize(this.defaultFontSize);
+
+    const legendVerticalMiddle = legendTop + lineHeight * 2;
+    const legendTextMiddle = legendVerticalMiddle - this.doc.currentLineHeight() / 2;
+    const legendItemLeftOffset = 9;
+    const legendItemLabelOffset = 6;
+
+    let cursor = this.margins.left + legendItemLeftOffset;
+
+    // rendering the items in the legend
+    // cbg
+    _.each(_.map(range(0, 16, 2), (d) => ([d, d - 8])), (pair) => {
+      const [horizOffset, vertOffset] = pair;
+      let fill;
+      if (horizOffset < 4) {
+        fill = 'high';
+      } else if (horizOffset < 12) {
+        fill = 'target';
+      } else {
+        fill = 'low';
+      }
+      this.doc.circle(cursor + horizOffset, legendVerticalMiddle + vertOffset, this.cbgRadius)
+        .fill(styles[fill]);
+    });
+    cursor += 16 + legendItemLabelOffset;
+    this.doc.fillColor('black').text('CGM', cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString('CGM') + legendItemLeftOffset * 2;
+
+    // smbg
+    const smbgPositions = {
+      target: [cursor, legendVerticalMiddle],
+      high: [cursor + this.smbgRadius * 2, legendVerticalMiddle - this.smbgRadius * 2],
+      low: [cursor + this.smbgRadius * 2, legendVerticalMiddle + this.smbgRadius * 2],
+    };
+    this.doc.circle(cursor, legendVerticalMiddle, this.smbgRadius)
+      .fill(styles.target);
+    this.doc.circle(smbgPositions.high[0], smbgPositions.high[1], this.smbgRadius)
+      .fill(styles.high);
+    this.doc.circle(smbgPositions.low[0], smbgPositions.low[1], this.smbgRadius)
+      .fill(styles.low);
+    cursor += this.smbgRadius * 3 + legendItemLabelOffset;
+    this.doc.fillColor('black').text('BGM', cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString('BGM') + legendItemLeftOffset * 2;
+
+    /* boluses */
+    const bolusOpts = {
+      bolusWidth: this.bolusWidth,
+      extendedLineThickness: this.extendedLineThickness,
+      interruptedLineThickness: this.interruptedLineThickness,
+      triangleHeight: this.triangleHeight,
+    };
+    const legendBolusYScale = scaleLinear()
+      .domain([0, 10])
+      .range([legendTop + legendHeight - legendHeight / 4, legendTop + legendHeight / 4]);
+
+    // (normal) bolus
+    const normalBolusXScale = scaleLinear()
+      .domain([0, 10])
+      .range([cursor, cursor + 10]);
+    const normalPaths = getBolusPaths(
+      { normal: 10, utc: 0 },
+      normalBolusXScale,
+      legendBolusYScale,
+      bolusOpts
+    );
+    _.each(normalPaths, (path) => {
+      this.renderEventPath(path);
+    });
+    cursor += this.bolusWidth + legendItemLabelOffset;
+    this.doc.fillColor('black').text('Bolus', cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString('Bolus') + legendItemLeftOffset * 2;
+
+    // underride & override boluses
+    const rideBolusXScale = scaleLinear()
+      .domain([0, 10])
+      .range([cursor, cursor + 10]);
+    const overridePaths = getBolusPaths(
+      {
+        type: 'wizard',
+        recommended: {
+          net: 8,
+          carb: 8,
+          correction: 0,
+        },
+        bolus: {
+          normal: 10,
+          utc: 0,
+        },
+      },
+      rideBolusXScale,
+      legendBolusYScale,
+      bolusOpts
+    );
+    _.each(overridePaths, (path) => {
+      this.renderEventPath(path);
+    });
+    const underridePaths = getBolusPaths(
+      {
+        type: 'wizard',
+        recommended: {
+          net: 10,
+          carb: 8,
+          correction: 2,
+        },
+        bolus: {
+          normal: 5,
+          utc: 5,
+        },
+      },
+      rideBolusXScale,
+      legendBolusYScale,
+      bolusOpts
+    );
+    _.each(underridePaths, (path) => {
+      this.renderEventPath(path);
+    });
+    cursor += this.bolusWidth * 3 + legendItemLabelOffset;
+    this.doc.fillColor('black').text('Override up & down', cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString('Override up & down') + legendItemLeftOffset * 2;
+
+    // interrupted bolus
+    const interruptedBolusXScale = scaleLinear()
+      .domain([0, 10])
+      .range([cursor, cursor + 10]);
+    const interruptedPaths = getBolusPaths(
+      {
+        normal: 6,
+        expectedNormal: 10,
+        utc: 0,
+      },
+      interruptedBolusXScale,
+      legendBolusYScale,
+      bolusOpts
+    );
+    _.each(interruptedPaths, (path) => {
+      this.renderEventPath(path);
+    });
+    cursor += this.bolusWidth + legendItemLabelOffset;
+    this.doc.fillColor('black').text('Interrupted', cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString('Interrupted') + legendItemLeftOffset * 2;
+
+    // extended bolus
+    const extendedBolusXScale = scaleLinear()
+      .domain([0, 10])
+      .range([cursor, cursor + 10]);
+    const extendedPaths = getBolusPaths(
+      {
+        normal: 5,
+        extended: 5,
+        duration: 10,
+        utc: 0,
+      },
+      extendedBolusXScale,
+      legendBolusYScale,
+      bolusOpts
+    );
+    _.each(extendedPaths, (path) => {
+      this.renderEventPath(path);
+    });
+    cursor += this.bolusWidth / 2 + 10 + legendItemLabelOffset;
+    this.doc.fillColor('black').text('Combo', cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString('Combo') + legendItemLeftOffset * 2;
+
+    // carbohydrates
+    this.doc.circle(cursor, legendVerticalMiddle, this.carbRadius)
+      .fill(this.colors.carbs);
+    this.doc.fillColor('black')
+      .fontSize(this.carbsFontSize)
+      .text(
+        '25',
+        cursor - this.carbRadius,
+        legendVerticalMiddle - this.carbRadius / 2,
+        { align: 'center', width: this.carbRadius * 2 }
+      );
+    this.doc.fontSize(this.defaultFontSize);
+    cursor += this.carbRadius + legendItemLabelOffset;
+    this.doc.fillColor('black').text('Carbs', cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString('Carbs') + legendItemLeftOffset * 2;
+
+    /* basals */
+    const legendBasalYScale = scaleLinear()
+      .domain([0, 2])
+      .range([legendTop + legendHeight - legendHeight / 4, legendTop + legendHeight / 4]);
+
+    const legendBasalXScale = scaleLinear()
+      .domain([0, 10])
+      .range([cursor, cursor + 50]);
+
+    const scheduled1 = {
+      subType: 'scheduled',
+      rate: 1.5,
+      duration: 2,
+      utc: 0,
+    };
+    const negTemp = {
+      subType: 'temp',
+      rate: 0.5,
+      duration: 2.5,
+      utc: 2,
+      suppressed: {
+        rate: 1.5,
+      },
+    };
+    const scheduled2 = {
+      subType: 'scheduled',
+      rate: 1.75,
+      duration: 1.5,
+      utc: 4.5,
+    };
+    const posTemp = {
+      subType: 'temp',
+      rate: 2,
+      duration: 2,
+      utc: 6,
+      suppressed: {
+        rate: 1.75,
+      },
+    };
+    const suspend = {
+      subType: 'suspend',
+      rate: 0,
+      duration: 2,
+      utc: 8,
+      suppressed: {
+        rate: 1.75,
+      },
+    };
+    const data = {
+      basal: [
+        scheduled1,
+        negTemp,
+        scheduled2,
+        posTemp,
+        suspend,
+      ],
+      basalSequences: [
+        [scheduled1],
+        [negTemp],
+        [scheduled2],
+        [posTemp],
+        [suspend],
+      ],
+    };
+    this.renderBasalPaths({
+      basalScale: legendBasalYScale,
+      data,
+      xScale: legendBasalXScale,
+    });
+    cursor += 50 + legendItemLabelOffset;
+    this.doc.fillColor('black').text('Basals', cursor, legendTextMiddle);
+
+    // TODO: remove this; it is just for exposing/debugging the chartArea.bottomEdge adjustment
+    if (this.debug) {
+      this.doc.fillColor('#E8E8E8', 0.3333333333)
+        .rect(this.margins.left, this.bottomEdge - lineHeight * 9, this.width, lineHeight * 9)
         .fill();
     }
 
