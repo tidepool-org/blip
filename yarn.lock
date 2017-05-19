@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@0.8.1":
-  version "0.8.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.8.1.tgz#2036b3c126bef8d929809a8d0ac95a677c830dd8"
+"@tidepool/viz@0.8.2-alpha":
+  version "0.8.2-alpha"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.8.2-alpha.tgz#911d8dea8842e2093a358539ef4619d20689329a"
   dependencies:
     d3-array "1.0.1"
     d3-format "1.0.2"
