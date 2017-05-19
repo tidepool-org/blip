@@ -626,6 +626,11 @@ export let PatientData = React.createClass({
 
   doFetching: function(nextProps) {
     if (this.props.trackMetric) {
+      let carelink = nextProps.carelink;
+      if (!_.isEmpty(carelink)) {
+        this.props.trackMetric('Web - CareLink Import URL Param', { carelink });
+      }
+
       this.props.trackMetric('Viewed Data');
     }
 
@@ -725,6 +730,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     queryParams: ownProps.location.query,
     currentPatientInViewId: ownProps.routeParams.id,
     updateBasicsSettings: dispatchProps.updateSettings.bind(null, api),
+    carelink: carelink,
   });
 };
 
