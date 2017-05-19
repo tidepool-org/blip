@@ -418,14 +418,20 @@ module.exports = function (config, deps) {
      * Get raw device data for the user
      *
      * @param {String} userId of the user to get the device data for
+     * @param {Object} options for the query
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    getDeviceDataForUser: function (userId, cb) {
-      common.assertArgumentsSize(arguments, 2);
+    getDeviceDataForUser: function (userId, options, cb) {
+      common.assertArgumentsSize(arguments, 3);
+
+      var url = '/data/' + userId;
+      if (!_.isUndefined(options.carelink) && !_.isNull(options.carelink)) {
+        url += '?carelink=' + options.carelink;
+      }
 
       common.doGetWithToken(
-        '/data/' + userId,
+        url,
         { 200: function(res){ return res.body; }, 404: [] },
         cb
       );
