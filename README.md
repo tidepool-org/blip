@@ -64,6 +64,8 @@ If you're working at the component or view level outside of blip, you can work o
 $ npm run storybook
 ```
 
+For more about the use of React Storybook in this repo, see [use of React Storybook](http://developer.tidepool.io/viz/Storybook.html '@tidepool/viz docs: React Storybook').
+
 ### Running the tests
 
 To run the unit tests in [PhantomJS](http://phantomjs.org/ 'PhantomJS') (as they run on [Travis CI](https://travis-ci.org/ 'Travis CI')):
