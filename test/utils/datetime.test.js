@@ -44,6 +44,10 @@ describe('datetime', () => {
     assert.isNumber(datetime.THIRTY_MINS);
   });
 
+  describe('ONE_HR', () => {
+    assert.isNumber(datetime.ONE_HR);
+  });
+
   describe('THREE_HRS', () => {
     it('should be an integer', () => {
       assert.isNumber(datetime.THREE_HRS);

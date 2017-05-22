@@ -38,10 +38,14 @@ const detailXScale = scaleLinear()
   .domain([0, 864e5])
   .range([0, detailWidth]);
 
+const detailBasalScale = scaleLinear()
+  .domain([0, 5])
+  .range([detailHeight, 0]);
+
 const detailBolusScale = scaleLinear()
   .domain([0, 15])
   .range([detailHeight, 0]);
 
-const detail = { detailWidth, detailHeight, detailXScale, detailBolusScale };
+const detail = { detailWidth, detailHeight, detailXScale, detailBasalScale, detailBolusScale };
 
 export { detail, trends };

@@ -19,6 +19,25 @@
   --bolus-stroke: 1;
 }
 
+.basalScheduledFill {
+  fill: var(--basal);
+  fill-opacity: 0.4;
+}
+
+.basalTempFill {
+  fill: var(--basal);
+  fill-opacity: 0.2;
+}
+
+.basalScheduledPath {
+  stroke: var(--basal);
+}
+
+.basalUndeliveredPath {
+  composes: basalScheduledPath;
+  stroke-dasharray: 1.5,3;
+}
+
 .bgLow {
   color: var(--bg-low);
   fill: var(--bg-low);
@@ -63,4 +82,9 @@
 .bolusUnderride {
   color: var(--bolus--undelivered);
   fill: var(--bolus--undelivered);
+}
+
+.carbs {
+  color: var(--carbs);
+  fill: var(--carbs);
 }

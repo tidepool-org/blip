@@ -44,6 +44,7 @@ export const interruptedNormal = {
 
 export const underrideNormal = {
   type: 'wizard',
+  carbInput: 80,
   recommended: {
     net: 10,
     carb: 8,
@@ -51,6 +52,7 @@ export const underrideNormal = {
   },
   id: 'bbb9b4f9b58040e48c685066b0a28ec0',
   bolus: {
+    type: 'bolus',
     normal: 8,
     utc: ONE_AM,
     id: '9ebaa1c5ecc44e96be0abd20a213ae33',
@@ -59,6 +61,7 @@ export const underrideNormal = {
 
 export const zeroUnderride = {
   type: 'wizard',
+  carbInput: 20,
   recommended: {
     net: 2,
     carb: 2,
@@ -75,6 +78,7 @@ export const zeroUnderride = {
 
 export const overrideNormal = {
   type: 'wizard',
+  carbInput: 20,
   recommended: {
     net: 0.5,
     carb: 2,
@@ -91,6 +95,7 @@ export const overrideNormal = {
 
 export const zeroOverride = {
   type: 'wizard',
+  carbInput: 20,
   recommended: {
     net: 0,
     carb: 2,
@@ -107,6 +112,7 @@ export const zeroOverride = {
 
 export const underrideAndInterruptedNormal = {
   type: 'wizard',
+  carbInput: 80,
   recommended: {
     net: 10,
     carb: 8,
@@ -124,6 +130,7 @@ export const underrideAndInterruptedNormal = {
 
 export const overrideAndInterruptedNormal = {
   type: 'wizard',
+  carbInput: 60,
   recommended: {
     net: 5,
     carb: 6,
@@ -173,6 +180,7 @@ export const interruptedExtended = {
 
 export const overrideExtended = {
   type: 'wizard',
+  carbInput: 40,
   recommended: {
     carb: 4,
     correction: 0,
@@ -190,6 +198,7 @@ export const overrideExtended = {
 
 export const underrideExtended = {
   type: 'wizard',
+  carbInput: 40,
   recommended: {
     carb: 4,
     correction: 0,
@@ -207,6 +216,7 @@ export const underrideExtended = {
 
 export const interruptedUnderrideExtended = {
   type: 'wizard',
+  carbInput: 40,
   recommended: {
     carb: 4,
     correction: 0,
@@ -258,6 +268,7 @@ export const interruptedDuringExtendedCombo = {
 
 export const underrideCombo = {
   type: 'wizard',
+  carbInput: 80,
   recommended: {
     carb: 8,
     correction: 1.25,
@@ -276,6 +287,7 @@ export const underrideCombo = {
 
 export const overrideCombo = {
   type: 'wizard',
+  carbInput: 80,
   recommended: {
     carb: 8,
     correction: 1.25,
@@ -294,6 +306,7 @@ export const overrideCombo = {
 
 export const interruptedOverrideCombo = {
   type: 'wizard',
+  carbInput: 80,
   recommended: {
     carb: 8,
     correction: 1.25,
