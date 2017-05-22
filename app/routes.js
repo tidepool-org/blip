@@ -27,7 +27,7 @@ import actions from './redux/actions';
 /**
  * This function checks if the user is using chrome - if they are not it will redirect
  * the user to a browser warning page
- * 
+ *
  * @param  {Object} nextState
  * @param  {Function} replace
  */
@@ -39,7 +39,7 @@ export const requiresChrome = (utils, next) => (nextState, replace, cb)  => {
     if (next) {
       next(nextState, replace, cb);
     }
-    
+
   }
 }
 
@@ -280,6 +280,8 @@ export const getRoutes = (appContext, store) => {
       <Route path='login' component={Login} onEnter={requireNoAuth(api)} />
       <Route path='terms' components={Terms} />
       <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />
+      <Route path='signup/personal' component={Signup} onEnter={requireNoAuth(api)} />
+      <Route path='signup/clinician' component={Signup} onEnter={requireNoAuth(api)} />
       <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api, store)} />
       <Route path='profile' component={UserProfile} onEnter={requireAuth(api, store)} />
       <Route path='patients' component={Patients} onEnter={requireAuth(api, store)} />
