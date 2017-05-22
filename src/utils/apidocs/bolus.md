@@ -11,6 +11,9 @@
 <dt><a href="#getBolusFromInsulinEvent">getBolusFromInsulinEvent(insulinEvent)</a> ⇒ <code>Object</code></dt>
 <dd><p>getBolusFromInsulinEvent</p>
 </dd>
+<dt><a href="#getCarbs">getCarbs(insulinEvent)</a> ⇒ <code>Number</code></dt>
+<dd><p>getCarbs</p>
+</dd>
 <dt><a href="#getProgrammed">getProgrammed(insulinEvent)</a> ⇒ <code>Number</code></dt>
 <dd><p>getProgrammed</p>
 </dd>
@@ -26,11 +29,23 @@
 <dt><a href="#getExtended">getExtended(insulinEvent)</a> ⇒ <code>Number</code></dt>
 <dd><p>getExtended</p>
 </dd>
+<dt><a href="#getExtendedPercentage">getExtendedPercentage(insulinEvent)</a> ⇒ <code>String</code></dt>
+<dd><p>getExtendedPercentage</p>
+</dd>
 <dt><a href="#getMaxDuration">getMaxDuration(insulinEvent)</a> ⇒ <code>Number</code></dt>
 <dd><p>getMaxDuration</p>
 </dd>
 <dt><a href="#getMaxValue">getMaxValue(insulinEvent)</a> ⇒ <code>Number</code></dt>
 <dd><p>getMaxValue</p>
+</dd>
+<dt><a href="#getNormalPercentage">getNormalPercentage(insulinEvent)</a> ⇒ <code>String</code></dt>
+<dd><p>getNormalPercentage</p>
+</dd>
+<dt><a href="#getTotalBolus">getTotalBolus(insulinEvents)</a> ⇒ <code>Number</code></dt>
+<dd><p>getTotalBolus</p>
+</dd>
+<dt><a href="#getTotalCarbs">getTotalCarbs(insulinEvents)</a> ⇒ <code>Number</code></dt>
+<dd><p>getTotalCarbs</p>
 </dd>
 <dt><a href="#hasExtended">hasExtended(insulinEvent)</a> ⇒ <code>Boolean</code></dt>
 <dd><p>hasExtended</p>
@@ -65,6 +80,19 @@ getBolusFromInsulinEvent
 
 **Kind**: global function  
 **Returns**: <code>Object</code> - a Tidepool bolus object  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| insulinEvent | <code>Object</code> | a Tidepool wizard or bolus object |
+
+<a name="getCarbs"></a>
+
+## getCarbs(insulinEvent) ⇒ <code>Number</code>
+getCarbs
+
+**Kind**: global function  
+**Returns**: <code>Number</code> - grams of carbs input into bolus calculator
+                 NaN if bolus calculator not used; null if no carbInput  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -130,6 +158,18 @@ getExtended
 | --- | --- | --- |
 | insulinEvent | <code>Object</code> | a Tidepool wizard or bolus object |
 
+<a name="getExtendedPercentage"></a>
+
+## getExtendedPercentage(insulinEvent) ⇒ <code>String</code>
+getExtendedPercentage
+
+**Kind**: global function  
+**Returns**: <code>String</code> - percentage of combo bolus delivered later  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| insulinEvent | <code>Object</code> | a Tidepool bolus or wizard object |
+
 <a name="getMaxDuration"></a>
 
 ## getMaxDuration(insulinEvent) ⇒ <code>Number</code>
@@ -153,6 +193,42 @@ getMaxValue
 | Param | Type | Description |
 | --- | --- | --- |
 | insulinEvent | <code>Object</code> | a Tidepool bolus or wizard object |
+
+<a name="getNormalPercentage"></a>
+
+## getNormalPercentage(insulinEvent) ⇒ <code>String</code>
+getNormalPercentage
+
+**Kind**: global function  
+**Returns**: <code>String</code> - percentage of combo bolus delivered immediately  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| insulinEvent | <code>Object</code> | a Tidepool bolus or wizard object |
+
+<a name="getTotalBolus"></a>
+
+## getTotalBolus(insulinEvents) ⇒ <code>Number</code>
+getTotalBolus
+
+**Kind**: global function  
+**Returns**: <code>Number</code> - total bolus insulin in units  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| insulinEvents | <code>Array</code> | Array of Tidepool bolus or wizard objects |
+
+<a name="getTotalCarbs"></a>
+
+## getTotalCarbs(insulinEvents) ⇒ <code>Number</code>
+getTotalCarbs
+
+**Kind**: global function  
+**Returns**: <code>Number</code> - total of carbs input into bolus calculator  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| insulinEvents | <code>Array</code> | Array of Tidepool bolus or wizard objects |
 
 <a name="hasExtended"></a>
 
