@@ -11,6 +11,7 @@
     "browser-tests": "NODE_ENV=test ./node_modules/.bin/karma start --browsers Chrome",
     "build": "NODE_ENV=production npm run clean && ./node_modules/.bin/webpack --config package.config.js --optimize-minimize",
     "build-docs": "./update-gh-pages.sh",
+    "build-storybooks": "./node_modules/.bin/build-storybook -c storybook -o web/stories && ./node_modules/.bin/build-storybook -c storybookDatatypes -o web/diabetes-data-stories",
     "clean": "./node_modules/.bin/rimraf ./dist/*",
     "lint": "./node_modules/.bin/eslint .storybook/ src/ stories/ test/ *.js",
     "prepare": "npm run build",
@@ -18,9 +19,10 @@
     "pretest": "npm run lint",
     "serve-docs": "./node_modules/.bin/gitbook serve",
     "start": "./node_modules/.bin/webpack --config package.config.js --watch",
-    "storybook": "./node_modules/.bin/start-storybook -c storybook -p 8081",
+    "stories": "./node_modules/.bin/start-storybook -c storybook -p 8081",
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
-    "test-watch": "NODE_ENV=test ./node_modules/.bin/karma start --no-single-run --reporters=mocha,notification"
+    "test-watch": "NODE_ENV=test ./node_modules/.bin/karma start --no-single-run --reporters=mocha,notification",
+    "typestories": "./node_modules/.bin/start-storybook -c storybookDatatypes -p 8081"
   },
   "repository": {
     "type": "git",
