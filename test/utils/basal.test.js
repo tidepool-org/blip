@@ -54,4 +54,34 @@ describe('basal utilties', () => {
         ]);
     });
   });
+
+  describe('getTotalBasal', () => {
+    it('should be a function', () => {
+      assert.isFunction(basalUtils.getTotalBasal);
+    });
+
+    it('should return 0 on an empty array', () => {
+      expect(basalUtils.getTotalBasal([])).to.equal(0);
+    });
+
+    it('should return 0 on an array consisting of only 0 basals', () => {
+      expect(basalUtils.getTotalBasal([{
+        duration: 36e5,
+        rate: 0,
+      }, {
+        duration: 23 * 36e5,
+        rate: 0,
+      }])).to.equal(0);
+    });
+
+    it('should return 11.25 on 3 hrs of 0.25 U/hr basal and 21 hrs of 0.5 U/hr', () => {
+      expect(basalUtils.getTotalBasal([{
+        duration: 36e5 * 3,
+        rate: 0.25,
+      }, {
+        duration: 21 * 36e5,
+        rate: 0.5,
+      }])).to.equal(11.25);
+    });
+  });
 });

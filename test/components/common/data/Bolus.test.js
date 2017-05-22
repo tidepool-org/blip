@@ -24,7 +24,7 @@ const { detailXScale, detailBolusScale } = detail;
 import Bolus from '../../../../src/components/common/data/Bolus';
 import getBolusPaths from '../../../../src/modules/render/bolus';
 
-import { normal, zeroUnderride } from '../../../../data/bolus/fixtures';
+import { normal, underrideNormal, zeroUnderride } from '../../../../data/bolus/fixtures';
 
 const BOLUS_OPTS = {
   bolusWidth: 12,
@@ -48,5 +48,15 @@ describe('Bolus', () => {
     );
     expect(wrapper.find(`#bolus-${normal.id}`).length).to.equal(1);
     expect(wrapper.find('path').length).to.equal(paths.length);
+    expect(wrapper.find('circle').length).to.equal(0);
+    expect(wrapper.find('text').length).to.equal(0);
+  });
+
+  it('should include a <circle> and <text> for carbs if insulinEvent has `carbInput`', () => {
+    const wrapper = shallow(
+      <Bolus insulinEvent={underrideNormal} xScale={detailXScale} yScale={detailBolusScale} />
+    );
+    expect(wrapper.find('circle').length).to.equal(1);
+    expect(wrapper.find('text').length).to.equal(1);
   });
 });

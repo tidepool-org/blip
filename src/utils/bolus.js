@@ -47,6 +47,20 @@ export function getBolusFromInsulinEvent(insulinEvent) {
 }
 
 /**
+ * getCarbs
+ * @param {Object} insulinEvent - a Tidepool wizard or bolus object
+ *
+ * @return {Number} grams of carbs input into bolus calculator
+ *                  NaN if bolus calculator not used; null if no carbInput
+ */
+export function getCarbs(insulinEvent) {
+  if (insulinEvent.type !== 'wizard') {
+    return NaN;
+  }
+  return _.get(insulinEvent, 'carbInput', null);
+}
+
+/**
  * getProgrammed
  * @param {Object} insulinEvent - a Tidepool bolus or wizard object
  *
@@ -239,6 +253,31 @@ export function getNormalPercentage(insulinEvent) {
   const normal = bolus.expectedNormal || bolus.normal;
   const programmed = getProgrammed(bolus);
   return formatPercentage(normal / programmed);
+}
+
+/**
+ * getTotalBolus
+ * @param {Array} insulinEvents - Array of Tidepool bolus or wizard objects
+ *
+ * @return {Number} total bolus insulin in units
+ */
+export function getTotalBolus(insulinEvents) {
+  return _.reduce(insulinEvents, (result, insulinEvent) => (
+    result + getDelivered(insulinEvent)
+  ), 0);
+}
+
+/**
+ * getTotalCarbs
+ * @param {Array} insulinEvents - Array of Tidepool bolus or wizard objects
+ *
+ * @return {Number} total of carbs input into bolus calculator
+ */
+export function getTotalCarbs(insulinEvents) {
+  return _.reduce(insulinEvents, (result, insulinEvent) => {
+    const carbs = getCarbs(insulinEvent);
+    return result + (_.inRange(carbs, Infinity) ? carbs : 0);
+  }, 0);
 }
 
 /**
