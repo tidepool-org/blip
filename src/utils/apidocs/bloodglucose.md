@@ -5,8 +5,11 @@
 ## Functions
 
 <dl>
-<dt><a href="#classifyBgValue">classifyBgValue(bgBounds, bgValue)</a> ⇒ <code>String</code></dt>
+<dt><a href="#classifyBgValue">classifyBgValue(bgBounds, bgValue, classificationType)</a> ⇒ <code>String</code></dt>
 <dd><p>classifyBgValue</p>
+</dd>
+<dt><a href="#calcBgPercentInCategories">calcBgPercentInCategories(data, bgBounds)</a> ⇒ <code>Object</code></dt>
+<dd><p>calcBgPercentInCategories</p>
 </dd>
 <dt><a href="#convertToMmolL">convertToMmolL(bgVal)</a> ⇒ <code>Number</code></dt>
 <dd><p>convertToMmolL</p>
@@ -18,7 +21,7 @@
 
 <a name="classifyBgValue"></a>
 
-## classifyBgValue(bgBounds, bgValue) ⇒ <code>String</code>
+## classifyBgValue(bgBounds, bgValue, classificationType) ⇒ <code>String</code>
 classifyBgValue
 
 **Kind**: global function  
@@ -28,6 +31,21 @@ classifyBgValue
 | --- | --- | --- |
 | bgBounds | <code>Object</code> | object describing boundaries for blood glucose categories |
 | bgValue | <code>Number</code> | integer or float blood glucose value in either mg/dL or mmol/L |
+| classificationType | <code>String</code> | 'threeWay' or 'fiveWay' |
+
+<a name="calcBgPercentInCategories"></a>
+
+## calcBgPercentInCategories(data, bgBounds) ⇒ <code>Object</code>
+calcBgPercentInCategories
+
+**Kind**: global function  
+**Returns**: <code>Object</code> - bgPercentInCategories - object w/keys veryLow, low, target, high, veryHigh
+                 and 0.0 to 1.0 percentage values  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>Array</code> | Array of Tidepool cbg or smbg data |
+| bgBounds | <code>Object</code> | object describing boundaries for blood glucose categories |
 
 <a name="convertToMmolL"></a>
 

@@ -11,6 +11,12 @@
 <dt><a href="#formatDecimalNumber">formatDecimalNumber(val, [places])</a> ⇒ <code>String</code></dt>
 <dd><p>formatDecimalNumber</p>
 </dd>
+<dt><a href="#formatPercentage">formatPercentage(val)</a> ⇒ <code>String</code></dt>
+<dd><p>formatPercentage</p>
+</dd>
+<dt><a href="#removeTrailingZeroes">removeTrailingZeroes(val)</a> ⇒ <code>String</code></dt>
+<dd><p>removeTrailingZeroes</p>
+</dd>
 </dl>
 
 <a name="formatBgValue"></a>
@@ -39,4 +45,28 @@ formatDecimalNumber
 | --- | --- | --- |
 | val | <code>Number</code> | numeric value to format |
 | [places] | <code>Number</code> | optional number of decimal places to display;                            if not provided, will display as integer (0 decimal places) |
+
+<a name="formatPercentage"></a>
+
+## formatPercentage(val) ⇒ <code>String</code>
+formatPercentage
+
+**Kind**: global function  
+**Returns**: <code>String</code> - percentage  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| val | <code>Number</code> | raw decimal proportion, range of 0.0 to 1.0 |
+
+<a name="removeTrailingZeroes"></a>
+
+## removeTrailingZeroes(val) ⇒ <code>String</code>
+removeTrailingZeroes
+
+**Kind**: global function  
+**Returns**: <code>String</code> - - formatted decimal value w/o trailing zero-indexes  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| val | <code>String</code> | formatted decimal value, may have trailing zeroes |
 
