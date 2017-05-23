@@ -82,7 +82,7 @@ export let PatientNew = React.createClass({
       type: 'explanation',
       text: (<div style={{'textAlign':'left'}}>
         You own your data. Read all the details about Tidepool's Big Data
-        Donation project <a href="http://tidepool.org/all/announcing-the-tidepool-big-data-donation-project">here</a>.
+        Donation project <a target="_blank" href="http://tidepool.org/all/announcing-the-tidepool-big-data-donation-project">here</a>.
       </div>)
     },
     {
