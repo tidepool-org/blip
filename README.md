@@ -58,10 +58,18 @@ Finally, back in your local blip repository, follow [the instructions for starti
 
 ### Running locally in React Storybook
 
-If you're working at the component or view level outside of blip, you can work on component and view rendering code with [React Storybook](https://github.com/kadirahq/react-storybook 'GitHub: react-storybook'). Just start up the storybook with:
+If you're working at the component or view level outside of blip, you can work on component and view rendering code with [React Storybook](https://github.com/kadirahq/react-storybook 'GitHub: react-storybook').
+
+If you're working on the diabetes data model rendering components, run:
 
 ```bash
-$ npm run storybook
+$ npm run typestories
+```
+
+If you're working on any other components or views, run:
+
+```bash
+$ npm run stories
 ```
 
 For more about the use of React Storybook in this repo, see [use of React Storybook](http://developer.tidepool.io/viz/Storybook.html '@tidepool/viz docs: React Storybook').
