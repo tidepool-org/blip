@@ -1,11 +1,14 @@
+/* global beforeEach */
 /* global chai */
 /* global describe */
 /* global sinon */
 /* global it */
 
+import _ from 'lodash';
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 import mutationTracker from 'object-invariant-test-helper';
+import { mount } from 'enzyme';
 
 import { PatientNew } from '../../../app/pages/patientnew';
 import { mapStateToProps } from '../../../app/pages/patientnew';
@@ -18,15 +21,17 @@ describe('PatientNew', function () {
     expect(PatientNew).to.be.a('function');
   });
 
+  var props = {
+    fetchingUser: false,
+    onInviteMember: sinon.stub(),
+    onSubmit: sinon.stub(),
+    trackMetric: sinon.stub(),
+    working: false
+  };
+
   describe('render', function() {
     it('should not warn when required props are set', function() {
       console.error = sinon.spy();
-      var props = {
-        fetchingUser: false,
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false
-      };
       var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
@@ -43,6 +48,56 @@ describe('PatientNew', function () {
       expect(initialState.formValues.fullName).to.equal('');
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);
       expect(initialState.notification).to.equal(null);
+    });
+  });
+
+  describe('handleSubmit', function(){
+    let wrapper = mount(
+      <PatientNew {...props}/>
+    );
+
+    let formValues = {
+      birthday: {
+        day: '1',
+        month: '0',
+        year: '1990'
+      },
+      diagnosisDate: {
+        day: '2',
+        month: '1',
+        year: '1995'
+      },
+      fullName: 'John Doh',
+      isOtherPerson: false
+    };
+
+    beforeEach(function() {
+      props.onSubmit.reset();
+      props.onInviteMember.reset();
+      props.trackMetric.reset();
+    });
+
+    it('should call onSubmit with valid form values', function(){
+      wrapper.instance().handleSubmit(formValues);
+      expect(props.onSubmit.callCount).to.equal(1);
+      expect(props.onInviteMember.callCount).to.equal(0);
+      expect(props.trackMetric.callCount).to.equal(0);
+    });
+
+    it('should call onSubmit and onInviteMember with data donation values', function(){
+      wrapper.instance().handleSubmit(_.assign({}, formValues, { dataDonate: true }));
+      expect(props.onSubmit.callCount).to.equal(1);
+      expect(props.onInviteMember.callCount).to.equal(1);
+      expect(props.onInviteMember.calledWith('bigdata@tidepool.org')).to.be.true;
+      expect(props.trackMetric.callCount).to.equal(1);
+    });
+
+    it('should call onSubmit and onInviteMember with specific values', function(){
+      wrapper.instance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: 'JDRF' }));
+      expect(props.onSubmit.callCount).to.equal(1);
+      expect(props.onInviteMember.callCount).to.equal(1);
+      expect(props.onInviteMember.calledWith('bigdata+JDRF@tidepool.org')).to.be.true;
+      expect(props.trackMetric.callCount).to.equal(1);
     });
   });
 
