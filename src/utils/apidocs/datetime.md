@@ -17,6 +17,9 @@
 <dt><a href="#formatDiagnosisDate">formatDiagnosisDate(patient)</a> ⇒ <code>String</code></dt>
 <dd><p>formatDiagnosisDate</p>
 </dd>
+<dt><a href="#formatDuration">formatDuration(duration)</a> ⇒ <code>String</code></dt>
+<dd><p>formatDuration</p>
+</dd>
 <dt><a href="#formatLocalizedFromUTC">formatLocalizedFromUTC(utc, timePrefs, [format])</a> ⇒ <code>String</code></dt>
 <dd><p>formatLocalizedFromUTC</p>
 </dd>
@@ -76,6 +79,18 @@ formatDiagnosisDate
 | Param | Type | Description |
 | --- | --- | --- |
 | patient | <code>Object</code> | Tidepool patient object containing profile |
+
+<a name="formatDuration"></a>
+
+## formatDuration(duration) ⇒ <code>String</code>
+formatDuration
+
+**Kind**: global function  
+**Returns**: <code>String</code> - formatted duration, e.g., '1¼ hr'  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| duration | <code>Number</code> | positive integer duration in milliseconds |
 
 <a name="formatLocalizedFromUTC"></a>
 
