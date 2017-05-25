@@ -58,7 +58,13 @@ $ npm start
 
 Open your web browser and navigate to `http://localhost:3000/`.
 
-(See also: [recipe for running blip locally with hot module replacement](http://developer.tidepool.io/docs/recipes/index.html#a-running-the-platform-locally-with-runservers-but-blip-with-hot-module-replacement-hmr-via-webpack 'Tidepool developer portal: front end recipes').)
+(See also: [recipe for running blip locally with hot module replacement](http://developer.tidepool.io/docs/front-end/recipes.html#a-running-the-platform-locally-with-runservers-but-blip-with-hot-module-replacement-hmr-via-webpack 'Tidepool developer portal: front end recipes').)
+
+### Redux dev tools
+
+Blip includes several Redux developer tools: the original time-travel dev tools UI, a console action logger, and a mutation tracker for catching mutations to the state tree (which should be immutable). The last of these in particular is performance killer (though *none* of them could even be said to have a minimal effect on performance). By default when running for local development with `npm start` (which means `NODE_ENV` is `development`), the `DEV_TOOLS` flag will be `true`, and all of these dev tools will be active. Because they affect performance profoundly, this may not always be desirable. To turn *off* the dev tools in development, kill the Webpack HMR build, run `export DEV_TOOLS=false`, then start up blip again with `npm start`.
+
+**NB:** Due to differences in the `development` versus `production` builds of React itself, performance of the app whenever `NODE_ENV` is `development` will *never* be as good as it is in the production build under a `NODE_ENV` of `production`. If you're concerned about the performance of a particular feature, the only way to test with good fidelity is with the production build, which you can do locally according to [these instructions below](#testing-the-production-build-locally).
 
 ### Getting past e-mail verification for a user created locally
 
@@ -150,6 +156,8 @@ After that, the app is ready to be served using the static web server included i
 ```bash
 $ npm run server
 ```
+
+### Testing the production build locally
 
 You can also build everything at once locally to test the production build by simply running:
 
