@@ -281,7 +281,7 @@ var Daily = React.createClass({
         // TODO: add back deviceEvent later (not in first prod release)
         ['basal', 'bolus', 'cbg', 'message', 'smbg']
       ),
-      { bgPrefs: this.props.bgPrefs, numDays: 6, timePrefs: this.props.timePrefs }
+      { bgPrefs: this.props.bgPrefs, numDays: 6, patient: this.props.patient, timePrefs: this.props.timePrefs }
     );
     this.props.onSwitchToPrint();
   },
