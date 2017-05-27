@@ -21,16 +21,18 @@ import { storiesOf } from '@kadira/storybook';
 import { WithNotes } from '@kadira/storybook-addon-notes';
 
 import { createDailyPrintView } from '../../src/modules/print/index';
+import * as patients from '../../data/patient/fixtures';
 
 /* global PDFDocument, blobStream */
 
 // eslint-disable-next-line import/no-unresolved
 const data = require('../../local/daily-print-view.json');
 
-function openPDF() {
+function openPDF({ patient }) {
   const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: 36 });
   const stream = doc.pipe(blobStream());
 
+  // We need to preload images as an arraybuffer to use browser-side and draw synchronously
   const dailyPrintView = createDailyPrintView(doc, data, {
     bgBounds: {
       veryHighThreshold: 300,
@@ -42,10 +44,9 @@ function openPDF() {
   }, {
     timezoneAware: true,
     timezoneName: 'US/Pacific',
-  }, 6);
+  }, 6, patient);
 
   dailyPrintView.render();
-
   doc.end();
 
   stream.on('finish', () => {
@@ -53,13 +54,23 @@ function openPDF() {
   });
 }
 
+const notes = `Use \`window.downloadDailyPrintViewData()\` to get daily view munged data,
+  save it in local/ directory of viz as \`daily-print-view.json\`,
+  then use this story to iterate on the Daily Print PDF outside of blip!`;
+
 storiesOf('DailyViewPrintPDF', module)
-  .add('default', () => (
-    <WithNotes
-      notes={`Use \`window.downloadDailyPrintViewData()\` to get daily view munged data,
-      save it in local/ directory of viz as \`daily-print-view.json\`,
-      then use this story to iterate on the Daily Print PDF outside of blip!`}
-    >
-      <button onClick={openPDF}>Open PDF in new tab plz</button>
+  .add('standard account', () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: patients.standard })}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
+
+  .add('fake child account', () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: patients.fakeChildAcct })}>
+        Open PDF in new tab
+      </button>
     </WithNotes>
   ));

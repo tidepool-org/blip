@@ -17,14 +17,11 @@
 
 import _ from 'lodash';
 import table from 'text-table';
-// using d3-time-format because time is time of data access in
-// user’s browser time, not PwD’s configured timezone
-import { timeFormat } from 'd3-time-format';
 
 import * as tandemData from './tandemData';
 import * as nonTandemData from './nonTandemData';
 
-import { formatBirthdate, formatDiagnosisDate } from '../datetime';
+import { formatBirthdate, formatCurrentDate, formatDiagnosisDate } from '../datetime';
 import { getPatientFullName } from '../misc';
 
 
@@ -104,8 +101,7 @@ function buildTextTable(name, rows, columns) {
  * @private
  */
 function formatTitle(patient) {
-  const exported =
-  `Exported from Tidepool: ${timeFormat('%b %-d, %Y')(new Date())}`;
+  const exported = `Exported from Tidepool: ${formatCurrentDate()}`;
   const bday = `Date of birth: ${formatBirthdate(patient)}`;
   const diagnosis = `Date of diagnosis: ${formatDiagnosisDate(patient)}`;
   const fullname = getPatientFullName(patient);
