@@ -36,6 +36,7 @@ export let PatientNew = React.createClass({
   propTypes: {
     fetchingUser: React.PropTypes.bool.isRequired,
     notification: React.PropTypes.object,
+    onInviteMember: React.PropTypes.func.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     user: React.PropTypes.object,
@@ -70,6 +71,45 @@ export let PatientNew = React.createClass({
       name: 'diagnosisDate',
       label: 'Diagnosis date',
       type: 'datepicker'
+    },
+    {
+      name: 'dataDonate',
+      label: 'Donate your anonymized data',
+      type: 'checkbox'
+    },
+    {
+      name: 'dataDonateExplainer',
+      type: 'explanation',
+      text: (<div style={{'textAlign':'left'}}>
+        You own your data. Read all the details about Tidepool's Big Data
+        Donation project <a target="_blank" href="http://tidepool.org/all/announcing-the-tidepool-big-data-donation-project">here</a>.
+      </div>)
+    },
+    {
+      name: 'dataDonateDestination',
+      type: 'select',
+      value: '',
+      placeholder: '',
+      items: [
+        {value: '', label: 'Choose a diabetes organization', 'disabled':'true'},
+        {value: 'BT1', label: 'Beyond Type 1'},
+        {value: 'CARBDM', label: 'CarbDM'},
+        {value: 'CWD', label: 'Children with Diabetes'},
+        {value: 'CDN', label: 'College Diabetes Network'},
+        {value: 'DHF', label: 'Diabetes Hands Foundation'},
+        {value: 'DIATRIBE', label: 'The diaTribe Foundation'},
+        {value: 'JDRF', label: 'JDRF'},
+        {value: 'NSF', label: 'Nightscout Foundation'},
+        {value: 'T1DX', label: 'T1D Exchange'}
+      ]
+    },
+    {
+      name: 'donateExplainer',
+      type: 'explanation',
+      text: (<div style={{'textAlign':'left'}}>
+        Tidepool will share 10% of the proceeds with a diabetes organization of
+        your choice.
+      </div>)
     }
   ],
 
@@ -78,7 +118,8 @@ export let PatientNew = React.createClass({
       working: false,
       formValues: {
         isOtherPerson: false,
-        fullName: this.getUserFullName()
+        fullName: this.getUserFullName(),
+        dataDonateDestination: ''
       },
       validationErrors: {},
       notification: null
@@ -168,9 +209,9 @@ export let PatientNew = React.createClass({
 
   getSubmitButtonText: function() {
     if (this.props.working) {
-      return 'Setting up...';
+      return 'Saving...';
     }
-    return 'Set up';
+    return 'Save';
   },
 
   isFormDisabled: function() {
@@ -210,8 +251,26 @@ export let PatientNew = React.createClass({
       return;
     }
 
+    var origFormValues = _.clone(formValues);
+
     formValues = this.prepareFormValuesForSubmit(formValues);
     this.props.onSubmit(formValues);
+
+    if(origFormValues.dataDonate) {
+      var permissions = {
+        view: {},
+        note: {}
+      };
+      var address = 'bigdata';
+      if(origFormValues.dataDonateDestination) {
+        address += `+${origFormValues.dataDonateDestination}`;
+      }
+      address += '@tidepool.org';
+      this.props.onInviteMember(address, permissions);
+      if (this.props.trackMetric) {
+        this.props.trackMetric('web - big data sign up', { source: origFormValues.dataDonateDestination || 'none'});
+      }
+    }
   },
 
   validateFormValues: function(formValues) {
@@ -308,6 +367,7 @@ export function mapStateToProps(state) {
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
+  inviteMember: actions.async.sendInvite,
   setupDataStorage: actions.async.setupDataStorage
 }, dispatch);
 
@@ -315,6 +375,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, {
     onSubmit: dispatchProps.setupDataStorage.bind(null, api),
+    onInviteMember: dispatchProps.inviteMember.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });
 };
