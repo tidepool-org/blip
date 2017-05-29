@@ -36,7 +36,7 @@ const MARGIN = DPI / 2;
  *
  * @return {Object} dailyPrintView instance
  */
-export function createDailyPrintView(doc, data, bgPrefs, timePrefs, numDays, patient, images) {
+export function createDailyPrintView(doc, data, bgPrefs, timePrefs, numDays, patient) {
   const CHARTS_PER_PAGE = 3;
   return new DailyPrintView(doc, data, {
     bgPrefs,
@@ -49,7 +49,6 @@ export function createDailyPrintView(doc, data, bgPrefs, timePrefs, numDays, pat
     footerFontSize: 8,
     headerFontSize: 14,
     height: 11 * DPI - (2 * MARGIN),
-    images,
     margins: {
       left: MARGIN,
       top: MARGIN,
