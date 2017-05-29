@@ -96,9 +96,9 @@ export default function createAndOpenPrintPDFPackage(mostRecent, groupedData, {
   doc.end();
 
   stream.on('finish', () => {
-    window.open(stream.toBlobURL('application/pdf'));
-    // const printWindow = window.open(stream.toBlobURL('application/pdf'));
-    // printWindow.focus();
-    // printWindow.print();
+    // window.open(stream.toBlobURL('application/pdf'));
+    const printWindow = window.open(stream.toBlobURL('application/pdf'));
+    printWindow.focus();
+    printWindow.print();
   });
 }
