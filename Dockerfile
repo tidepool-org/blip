@@ -13,6 +13,7 @@ ENV API_SECRET="This is a local API secret for everyone. BsscSHqSHiwrBMJsEGqbvXi
 # Container specific ENV
     PORT=3000 \
     MOCK=false \
+    DEV_TOOLS=true \
     API_HOST="http://localhost:8009" \
     UPLOAD_API="http://localhost/uploader"
 
