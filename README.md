@@ -58,11 +58,21 @@ Finally, back in your local blip repository, follow [the instructions for starti
 
 ### Running locally in React Storybook
 
-If you're working at the component or view level outside of blip, you can work on component and view rendering code with [React Storybook](https://github.com/kadirahq/react-storybook 'GitHub: react-storybook'). Just start up the storybook with:
+If you're working at the component or view level outside of blip, you can work on component and view rendering code with [React Storybook](https://github.com/kadirahq/react-storybook 'GitHub: react-storybook').
+
+If you're working on the diabetes data model rendering components, run:
 
 ```bash
-$ npm run storybook
+$ npm run typestories
 ```
+
+If you're working on any other components or views, run:
+
+```bash
+$ npm run stories
+```
+
+For more about the use of React Storybook in this repo, see [use of React Storybook](http://developer.tidepool.io/viz/Storybook.html '@tidepool/viz docs: React Storybook').
 
 ### Running the tests
 
@@ -98,7 +108,7 @@ Generally speaking, Tidepool developers configure linting to run continuously in
 
 ### Publishing examples to GitHub Pages with React Storybook
 
-Coming soon!
+See [the publishing section](docs/misc/Docs.md#publishing) of the docs on docs.
 
 ### Building and publishing to `npm`
 
@@ -107,9 +117,9 @@ When a new feature(s) is/are complete (i.e., branch is synchronized with master,
 1. create a tag on the approved pull request using the `mversion` tool with the `-m` option to auto-commit the version bump and tag (e.g., `$ mversion patch -m` for a patch version bump)
 1. push the new commit and tag to the GitHub remote with `$ git push origin <branch-name>` and `$ git push origin --tags`
 1. check that the tag build has passed on [TravisCI](https://travis-ci.org/tidepool-org/viz)
-1. `$ npm whoami` to check if you are logged in as yourself; if you are, skip to 8.
+1. `$ npm whoami` to check if you are logged in as yourself; if you are, skip to 7.
 1. if you are logged in as `tidepool-robot`, log out with `$ npm logout`
 1. then log in as yourself with `$ npm login`
-1. publish the new version with `$ npm publish`; before the *actual* publish happens, the linter, tests, and packaging webpack build will run since we have set those up through the `prepublish` npm hook in the package.json
+1. publish the new version with `$ npm publish`; before the *actual* publish happens, the `yarn` install, linter, tests, and packaging webpack build will run since we have set those up through the `prepare` and `prepublishOnly` npm hooks in the package.json
 1. merge the approved pull request to master
 1. remember to bump the version appropriately in the package.json for the app (e.g., blip) requiring `@tidepool/viz` as a dependency!
