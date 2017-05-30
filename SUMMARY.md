@@ -27,5 +27,6 @@
         + [format](src/utils/apidocs/format.md)
         + [misc](src/utils/apidocs/misc.md)
 + [misc](docs/misc/README.md)
+    + [Common props](docs/misc/CommonProps.md)
     + [Docs setup & publishing](docs/misc/Docs.md)
     + [Time-rendering modes](docs/misc/TimeRenderingModes.md)
