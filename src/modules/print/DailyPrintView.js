@@ -442,7 +442,7 @@ class DailyPrintView {
 
     this.doc.image(logo, xOffset, yOffset, { width: this.logoWidth });
   }
-  
+
   renderSummary({ data, date, topEdge }) {
     const smallIndent = this.margins.left + 4;
     const statsIndent = 8;
@@ -958,7 +958,7 @@ class DailyPrintView {
       .moveTo(this.margins.left, height)
       .lineTo(this.margins.left + this.width, height)
       .stroke('black');
-    
+
     // TODO: remove this; it is just for exposing/debugging the chartArea.topEdge adjustment
     if (this.debug) {
       this.doc
