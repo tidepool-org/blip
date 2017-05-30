@@ -1,3 +1,5 @@
 ## Miscellaneous documents
 
-+ [time-rendering modes](./TimeRenderingModes.md)
++ [common props](./CommonProps.md)
++ [this repo's documentation](./Docs.md)
++ [time rendering modes](./TimeRenderingModes.md)

@@ -32,7 +32,6 @@ function openPDF({ patient }) {
   const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: 36 });
   const stream = doc.pipe(blobStream());
 
-  // We need to preload images as an arraybuffer to use browser-side and draw synchronously
   const dailyPrintView = createDailyPrintView(doc, data, {
     bgBounds: {
       veryHighThreshold: 300,
