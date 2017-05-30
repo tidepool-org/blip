@@ -67,9 +67,19 @@
 }
 
 .PatientNew-content {
-    margin-left: auto;
-    margin-right: auto;
-    width: @PatientNew-contentWidth;
+  margin-left: auto;
+  margin-right: auto;
+  width: @PatientNew-contentWidth;
+  .input-group:nth-of-type(6) {
+    padding-top: 15px;
+  }
+  .input-group-explanation {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0px;
+    color: @gray-dark;
+    font-size: 14px;
+  }
 }
 
 // Form
