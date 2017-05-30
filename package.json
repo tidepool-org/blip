@@ -72,9 +72,12 @@
     "babel-plugin-rewire": "1.0.0-rc-6",
     "chai": "3.5.0",
     "chromedriver": "2.23.1",
+    "copy-webpack-plugin": "4.0.1",
     "eslint": "2.13.1",
     "eslint-plugin-react": "5.2.2",
     "gitbook-cli": "2.3.0",
+    "html-webpack-include-assets-plugin": "0.0.5",
+    "html-webpack-plugin": "2.28.0",
     "karma": "1.2.0",
     "karma-chai": "0.1.0",
     "karma-chrome-launcher": "2.0.0",
@@ -103,6 +106,7 @@
     "sinon": "1.17.5",
     "sinon-chai": "2.8.0",
     "tidepool-standard-action": "0.1.1",
+    "uglify-es": "3.0.13",
     "webpack-dev-server": "1.15.0"
   },
   "engines": {
