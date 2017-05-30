@@ -869,31 +869,35 @@ class DailyPrintView {
 
   renderBasalPaths({ basalScale, data: { basal, basalSequences: sequences }, xScale }) {
     _.each(sequences, (sequence) => {
-      const paths = getBasalSequencePaths(sequence, xScale, basalScale);
-      _.each(paths, (path) => {
-        const opacity = path.basalType === 'scheduled' ? 0.4 : 0.2;
-        if (path.renderType === 'fill') {
-          this.doc.path(path.d)
-            .fillColor(styles.basal)
-            .fillOpacity(opacity)
-            .fill();
-        } else if (path.renderType === 'stroke') {
-          this.doc.path(path.d)
-            .lineWidth(0.5)
-            .dash(1, { space: 2 })
-            .stroke(styles.basal);
-        }
-      });
-      const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
-        endAtZero: false,
-        flushBottomOffset: -0.25,
-        isFilled: false,
-        startAtZero: false,
-      });
-      this.doc.path(wholeDateDeliveredPath)
-        .lineWidth(0.5)
-        .dash(0)
-        .stroke(styles.basal);
+      // Skip empty basal sequences -- otherwise getBasalSequencePaths throws error
+      if (_.filter(sequence).length) {
+        const paths = getBasalSequencePaths(sequence, xScale, basalScale);
+
+        _.each(paths, (path) => {
+          const opacity = path.basalType === 'scheduled' ? 0.4 : 0.2;
+          if (path.renderType === 'fill') {
+            this.doc.path(path.d)
+              .fillColor(styles.basal)
+              .fillOpacity(opacity)
+              .fill();
+          } else if (path.renderType === 'stroke') {
+            this.doc.path(path.d)
+              .lineWidth(0.5)
+              .dash(1, { space: 2 })
+              .stroke(styles.basal);
+          }
+        });
+        const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
+          endAtZero: false,
+          flushBottomOffset: -0.25,
+          isFilled: false,
+          startAtZero: false,
+        });
+        this.doc.path(wholeDateDeliveredPath)
+          .lineWidth(0.5)
+          .dash(0)
+          .stroke(styles.basal);
+      }
     });
 
     return this;
