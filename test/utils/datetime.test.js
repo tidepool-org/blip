@@ -15,30 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
+import { timeParse } from 'd3-time-format';
+
+import * as patients from '../../data/patient/fixtures';
 import * as datetime from '../../src/utils/datetime';
 
 describe('datetime', () => {
-  const patient = {
-    profile: {
-      fullName: 'Mary Smith',
-      patient: {
-        diagnosisDate: '1990-01-31',
-        birthday: '1983-01-31',
-      },
-    },
-  };
-
-  const fakeChildAcct = {
-    profile: {
-      fullName: 'Mary Smith',
-      patient: {
-        isOtherPerson: true,
-        fullName: 'My Kid',
-        diagnosisDate: '1990-01-31',
-        birthday: '1983-01-31',
-      },
-    },
-  };
+  const {
+    standard,
+    fakeChildAcct,
+  } = patients;
 
   describe('THIRTY_MINS', () => {
     assert.isNumber(datetime.THIRTY_MINS);
@@ -120,7 +106,7 @@ describe('datetime', () => {
     });
 
     it('should format birthdate extracted from normal patient object', () => {
-      expect(datetime.formatBirthdate(patient)).to.equal('Jan 31, 1983');
+      expect(datetime.formatBirthdate(standard)).to.equal('Jan 31, 1983');
     });
 
     it('should format birthdate extracted from fake child account patient object', () => {
@@ -175,11 +161,21 @@ describe('datetime', () => {
     });
 
     it('should format diagnosisDate extracted from patient object', () => {
-      expect(datetime.formatDiagnosisDate(patient)).to.equal('Jan 31, 1990');
+      expect(datetime.formatDiagnosisDate(standard)).to.equal('Jan 31, 1990');
     });
 
     it('should format diagnosisDate extracted from fake child account patient object', () => {
       expect(datetime.formatDiagnosisDate(fakeChildAcct)).to.equal('Jan 31, 1990');
+    });
+  });
+
+  describe('formatCurrentDate', () => {
+    it('should be a function', () => {
+      assert.isFunction(datetime.formatCurrentDate);
+    });
+
+    it('should properly format the current date', () => {
+      expect(timeParse('%b %-d, %Y')(datetime.formatCurrentDate())).to.not.be.null;
     });
   });
 

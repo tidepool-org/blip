@@ -41,12 +41,17 @@ import {
   getTimezoneFromTimePrefs,
   formatLocalizedFromUTC,
   formatDuration,
+  formatBirthdate,
+  formatCurrentDate,
 } from '../../utils/datetime';
 import {
   formatBgValue, formatDecimalNumber, formatPercentage, removeTrailingZeroes,
 } from '../../utils/format';
+import { getPatientFullName } from '../../utils/misc';
 
 import styles from '../../styles/colors.css';
+
+const logo = require('./images/tidepool-logo-408x46.png');
 
 class DailyPrintView {
   constructor(doc, data, opts) {
@@ -81,6 +86,13 @@ class DailyPrintView {
 
     this.chartsPerPage = opts.chartsPerPage;
     this.numDays = opts.numDays;
+
+    this.patient = opts.patient;
+    this.patientInfoBox = {
+      width: 0,
+      height: 0,
+    };
+
 
     // render options
     this.bolusWidth = 3;
@@ -343,6 +355,92 @@ class DailyPrintView {
       pageNumberY,
       { align: 'right' }
     );
+  }
+
+  renderPatientInfo() {
+    const patientName = getPatientFullName(this.patient);
+    const patientBirthdate = formatBirthdate(this.patient);
+    const xOffset = this.margins.left;
+    const yOffset = this.margins.top;
+
+    this.doc
+      .lineWidth(1)
+      .fontSize(10)
+      .text(patientName, xOffset, yOffset, {
+        lineGap: 2,
+      });
+
+    const patientNameWidth = this.patientInfoBox.width = this.doc.widthOfString(patientName);
+
+    this.doc
+      .fontSize(10)
+      .text(patientBirthdate);
+
+    const patientBirthdayWidth = this.doc.widthOfString(patientBirthdate);
+    this.patientInfoBox.height = this.doc.y;
+
+    if (patientNameWidth < patientBirthdayWidth) {
+      this.patientInfoBox.width = patientBirthdayWidth;
+    }
+
+    // Render the divider between the patient info and title
+    const padding = 10;
+
+    this.doc
+      .moveTo(this.margins.left + this.patientInfoBox.width + padding, this.margins.top)
+      .lineTo(this.margins.left + this.patientInfoBox.width + padding, this.patientInfoBox.height)
+      .stroke('black');
+
+    this.dividerWidth = padding * 2 + 1;
+  }
+
+  renderTitle() {
+    const title = 'Daily View';
+    const lineHeight = this.doc.fontSize(14).currentLineHeight();
+    const xOffset = this.margins.left + this.patientInfoBox.width + 21;
+    const yOffset = (
+      this.margins.top + ((this.patientInfoBox.height - this.margins.top) / 2 - (lineHeight / 2))
+    );
+
+    this.doc.text(title, xOffset, yOffset);
+    this.titleWidth = this.doc.widthOfString(title);
+  }
+
+  renderPrintDate() {
+    const lineHeight = this.doc.fontSize(14).currentLineHeight();
+
+    // Calculate the remaining available width so we can
+    // center the print text between the patient/title text and the logo
+    const availableWidth = this.doc.page.width - _.reduce([
+      this.patientInfoBox.width,
+      this.dividerWidth,
+      this.titleWidth,
+      this.logoWidth,
+      this.margins.left,
+      this.margins.right,
+    ], (a, b) => (a + b), 0);
+
+    const xOffset = (
+      this.margins.left + this.patientInfoBox.width + this.dividerWidth + this.titleWidth
+    );
+    const yOffset = (
+      this.margins.top + ((this.patientInfoBox.height - this.margins.top) / 2 - (lineHeight / 2))
+    );
+
+    this.doc
+      .fontSize(10)
+      .text(`Printed from Tidepool: ${formatCurrentDate()}`, xOffset, yOffset + 4, {
+        width: availableWidth,
+        align: 'center',
+      });
+  }
+
+  renderLogo() {
+    this.logoWidth = 100;
+    const xOffset = this.doc.page.width - this.logoWidth - this.margins.right;
+    const yOffset = this.margins.top + 6;
+
+    this.doc.image(logo, xOffset, yOffset, { width: this.logoWidth });
   }
 
   renderSummary({ data, date, topEdge }) {
@@ -771,31 +869,35 @@ class DailyPrintView {
 
   renderBasalPaths({ basalScale, data: { basal, basalSequences: sequences }, xScale }) {
     _.each(sequences, (sequence) => {
-      const paths = getBasalSequencePaths(sequence, xScale, basalScale);
-      _.each(paths, (path) => {
-        const opacity = path.basalType === 'scheduled' ? 0.4 : 0.2;
-        if (path.renderType === 'fill') {
-          this.doc.path(path.d)
-            .fillColor(styles.basal)
-            .fillOpacity(opacity)
-            .fill();
-        } else if (path.renderType === 'stroke') {
-          this.doc.path(path.d)
-            .lineWidth(0.5)
-            .dash(1, { space: 2 })
-            .stroke(styles.basal);
-        }
-      });
-      const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
-        endAtZero: false,
-        flushBottomOffset: -0.25,
-        isFilled: false,
-        startAtZero: false,
-      });
-      this.doc.path(wholeDateDeliveredPath)
-        .lineWidth(0.5)
-        .dash(0)
-        .stroke(styles.basal);
+      // Skip empty basal sequences -- otherwise getBasalSequencePaths throws error
+      if (_.filter(sequence).length) {
+        const paths = getBasalSequencePaths(sequence, xScale, basalScale);
+
+        _.each(paths, (path) => {
+          const opacity = path.basalType === 'scheduled' ? 0.4 : 0.2;
+          if (path.renderType === 'fill') {
+            this.doc.path(path.d)
+              .fillColor(styles.basal)
+              .fillOpacity(opacity)
+              .fill();
+          } else if (path.renderType === 'stroke') {
+            this.doc.path(path.d)
+              .lineWidth(0.5)
+              .dash(1, { space: 2 })
+              .stroke(styles.basal);
+          }
+        });
+        const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
+          endAtZero: false,
+          flushBottomOffset: -0.25,
+          isFilled: false,
+          startAtZero: false,
+        });
+        this.doc.path(wholeDateDeliveredPath)
+          .lineWidth(0.5)
+          .dash(0)
+          .stroke(styles.basal);
+      }
     });
 
     return this;
@@ -844,17 +946,27 @@ class DailyPrintView {
   }
 
   renderHeader() {
-    this.doc.lineWidth(1);
-    this.doc.fontSize(14).text('Daily View', this.margins.left, this.margins.top)
-      .moveDown();
-    const lineHeight = this.doc.currentLineHeight();
-    const height = lineHeight * 2 + this.margins.top;
-    this.doc.moveTo(this.margins.left, height)
+    this.renderPatientInfo();
+
+    this.renderTitle();
+
+    this.renderLogo();
+
+    this.renderPrintDate();
+
+    this.doc.moveDown();
+
+    const lineHeight = this.doc.fontSize(14).currentLineHeight();
+    const height = lineHeight * 2.25 + this.margins.top;
+    this.doc
+      .moveTo(this.margins.left, height)
       .lineTo(this.margins.left + this.width, height)
       .stroke('black');
+
     // TODO: remove this; it is just for exposing/debugging the chartArea.topEdge adjustment
     if (this.debug) {
-      this.doc.fillColor('#E8E8E8', 0.3333333333)
+      this.doc
+        .fillColor('#E8E8E8', 0.3333333333)
         .rect(this.margins.left, this.margins.top, this.width, lineHeight * 4)
         .fill();
     }

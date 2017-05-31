@@ -15,38 +15,22 @@
  * == BSD2 LICENSE ==
  */
 
+import * as patients from '../../data/patient/fixtures';
 import * as misc from '../../src/utils/misc';
 
 describe('misc utility functions', () => {
   describe('getPatientFullName', () => {
-    const patient = {
-      profile: {
-        fullName: 'Mary Smith',
-        patient: {
-          diagnosisDate: '1990-01-31',
-          birthday: '1983-01-31',
-        },
-      },
-    };
-
-    const fakeChildAcct = {
-      profile: {
-        fullName: 'Mary Smith',
-        patient: {
-          isOtherPerson: true,
-          fullName: 'My Kid',
-          diagnosisDate: '1990-01-31',
-          birthday: '1983-01-31',
-        },
-      },
-    };
+    const {
+      standard,
+      fakeChildAcct,
+    } = patients;
 
     it('should be a function', () => {
       assert.isFunction(misc.getPatientFullName);
     });
 
     it('returns patient name', () => {
-      expect(misc.getPatientFullName(patient)).to.equal(patient.profile.fullName);
+      expect(misc.getPatientFullName(standard)).to.equal(standard.profile.fullName);
     });
 
     it('returns child name when isOtherPerson', () => {

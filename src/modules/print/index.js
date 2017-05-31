@@ -32,10 +32,11 @@ const MARGIN = DPI / 2;
  * @param {Object} bgBounds - user's blood glucose thresholds & targets
  * @param {Object} timePrefs - object containing timezoneAware Boolean, timezoneName String or null
  * @param {Number} numDays - number of days of daily view to include in printout
+ * @param {Object} patient - full tidepool patient object
  *
  * @return {Object} dailyPrintView instance
  */
-export function createDailyPrintView(doc, data, bgPrefs, timePrefs, numDays) {
+export function createDailyPrintView(doc, data, bgPrefs, timePrefs, numDays, patient) {
   const CHARTS_PER_PAGE = 3;
   return new DailyPrintView(doc, data, {
     bgPrefs,
@@ -55,6 +56,7 @@ export function createDailyPrintView(doc, data, bgPrefs, timePrefs, numDays) {
       bottom: MARGIN,
     },
     numDays,
+    patient,
     summaryHeaderFontSize: 10,
     summaryWidthAsPercentage: 0.18,
     timePrefs,
@@ -72,8 +74,8 @@ export function createDailyPrintView(doc, data, bgPrefs, timePrefs, numDays) {
  * @return {Void} [side effect function creates and opens PDF in new tab]
  */
 export default function createAndOpenPrintPDFPackage(mostRecent, groupedData, {
-  // full opts will be { bgPrefs, dateTitle, patientName, numDays, timePrefs }
-  bgPrefs, numDays, timePrefs,
+  // full opts will be { bgPrefs, dateTitle, patient, numDays, timePrefs }
+  bgPrefs, numDays, patient, timePrefs,
 }) {
   const bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
   const dailyViewData = selectDailyViewData(mostRecent, groupedData, numDays, timePrefs);
@@ -83,18 +85,19 @@ export default function createAndOpenPrintPDFPackage(mostRecent, groupedData, {
    */
   const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
+
   const dailyPrintView = createDailyPrintView(doc, dailyViewData, {
     bgBounds,
     bgUnits: bgPrefs.bgUnits,
-  }, timePrefs, numDays);
-  dailyPrintView.render();
+  }, timePrefs, numDays, patient);
 
+  dailyPrintView.render();
   doc.end();
 
   stream.on('finish', () => {
-    window.open(stream.toBlobURL('application/pdf'));
-    // const printWindow = window.open(stream.toBlobURL('application/pdf'));
-    // printWindow.focus();
-    // printWindow.print();
+    // window.open(stream.toBlobURL('application/pdf'));
+    const printWindow = window.open(stream.toBlobURL('application/pdf'));
+    printWindow.focus();
+    printWindow.print();
   });
 }
