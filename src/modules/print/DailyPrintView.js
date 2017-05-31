@@ -418,7 +418,7 @@ class DailyPrintView {
       this.logoWidth,
       this.margins.left,
       this.margins.right,
-    ], (a, b) => a + b, 0);
+    ], (a, b) => (a + b), 0);
 
     const xOffset = (
       this.margins.left + this.patientInfoBox.width + this.dividerWidth + this.titleWidth
