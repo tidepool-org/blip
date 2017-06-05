@@ -318,12 +318,6 @@ function getHandlers(bgUnits) {
       d = cloneDeep(d);
       lastEnd = lastEnd || null;
       lastBasal = lastBasal || {};
-      if (lastEnd > d.time) {
-        var err = new Error('Basal overlaps with previous.');
-        d.errorMessage = err.message;
-        d.overlapsWith = lastBasal;
-        return d;
-      }
       // NB: truthiness warranted here
       // basals with duration of 0 are *not* legitimate targets for visualization
       if (!d.duration) {

@@ -111,26 +111,6 @@ describe('nurseshark', function() {
       expect(input[1].d[0] === output[1].d[0]).to.be.false;
     });
 
-    it('should return overlapping basals in the erroredData', function() {
-      var now = new Date();
-      var plusTen = new Date(now.valueOf() + 600000);
-      var overlapping = [{
-        type: 'basal',
-        time: now.toISOString(),
-        duration: 1200000,
-        timezoneOffset: 0
-      }, {
-        type: 'basal',
-        time: plusTen.toISOString(),
-        duration: 1200000,
-        timezoneOffset: 0
-      }];
-      var res = nurseshark.processData(overlapping).erroredData;
-      expect(res.length).to.equal(1);
-      expect(_.omit(res[0].overlapsWith, ['normalTime', 'normalEnd', 'source'])).to.eql(overlapping[0]);
-      expect(res[0].errorMessage).to.equal('Basal overlaps with previous.');
-    });
-
     it('should return off-schedule-rate and null-duration basals in the erroredData', function() {
       var now = new Date();
       var dummyDT = '2014-01-01T12:00:00';
