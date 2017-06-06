@@ -1,31 +1,37 @@
 sudo: false
+
 language: node_js
 
 node_js:
-  - "6.10.2"
-  - "stable"
+  - 6.10.2
+  - node
 
 cache: yarn
 
 before_install:
-  - if [[ `npm -v` != 4* ]]; then npm i -g npm@4; fi
+  - if [[ `npm -v` != 4* ]]; then npm install -g npm@4; fi
 
 install:
   - yarn install --frozen-lockfile
 
 addons:
   artifacts:
-    s3_region: "us-west-2"
+    s3_region: us-west-2
     paths:
-    - $(git ls-files -o deploy/*/*-*.tar.gz | tr "\n" ":")
+      - $(git ls-files -o deploy/*/*-*.tar.gz | tr "\n" ":")
     target_paths:
-    - /
+      - /
 
 script:
-  - "npm run lint"
-  - "npm test"
-  - "./deploy.sh"
+  - npm run lint
+  - npm test
+  - ./artifact.sh
 
 matrix:
   allow_failures:
-    - node_js: "stable"
+    - node_js: node
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
