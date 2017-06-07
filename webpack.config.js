@@ -78,7 +78,7 @@ if (isDev) {
     'babel-polyfill',
     'webpack-dev-server/client?http://localhost:3000',
     'webpack/hot/only-dev-server',
-    './app/main.js'
+    './app/main.js',
   ];
   loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader', 'postcss-loader', 'less-loader']});
   loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});

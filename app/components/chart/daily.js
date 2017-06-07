@@ -28,7 +28,7 @@ var chartDailyFactory = tidelineBlip.oneday;
 var Header = require('./header');
 var Footer = require('./footer');
 
-import { createAndOpenPrintPDFPackage, selectDailyViewData } from '@tidepool/viz';
+import { selectDailyViewData } from '@tidepool/viz';
 
 var DailyChart = React.createClass({
   chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs'],
@@ -181,7 +181,7 @@ var Daily = React.createClass({
     return {
       atMostRecent: false,
       inTransition: false,
-      title: ''
+      title: '',
     };
   },
   render: function() {
@@ -191,6 +191,7 @@ var Daily = React.createClass({
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
+          printReady={!!this.props.pdf.url}
           inTransition={this.state.inTransition}
           atMostRecent={this.state.atMostRecent}
           title={this.state.title}
@@ -273,16 +274,14 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    const dData = this.props.patientData.diabetesData;
-    createAndOpenPrintPDFPackage(
-      dData[dData.length - 1].normalTime,
-      _.pick(
-        this.props.patientData.grouped,
-        // TODO: add back deviceEvent later (not in first prod release)
-        ['basal', 'bolus', 'cbg', 'message', 'smbg']
-      ),
-      { bgPrefs: this.props.bgPrefs, numDays: 6, patient: this.props.patient, timePrefs: this.props.timePrefs }
-    );
+
+    if (this.props.pdf.url) {
+      const printWindow = window.open(this.props.pdf.url);
+      printWindow.focus();
+      printWindow.print();
+    }
+
+    // Send tracking metric
     this.props.onSwitchToPrint();
   },
   handleClickTwoWeeks: function(e) {

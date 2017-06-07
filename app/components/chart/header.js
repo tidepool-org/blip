@@ -31,6 +31,7 @@ var tideline = {
 var TidelineHeader = React.createClass({
   propTypes: {
     patient: React.PropTypes.object,
+    printReady: React.PropTypes.bool,
     title: React.PropTypes.string.isRequired,
     chartType: React.PropTypes.string.isRequired,
     inTransition: React.PropTypes.bool.isRequired,
@@ -124,8 +125,8 @@ var TidelineHeader = React.createClass({
       'printview-print-icon': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
-      'patient-data-subnav-active': _.includes(['daily', 'settings'], this.props.chartType),
-      'patient-data-subnav-hidden': !_.includes(['daily', 'settings'], this.props.chartType)
+      'patient-data-subnav-active': this.props.printReady && _.includes(['daily', 'settings'], this.props.chartType),
+      'patient-data-subnav-hidden': !this.props.printReady || !_.includes(['daily', 'settings'], this.props.chartType)
     });
 
     return (

@@ -107,7 +107,7 @@ export class AppComponent extends React.Component {
       return
     }
 
-    nextProps.fetchers.forEach(fetcher => { 
+    nextProps.fetchers.forEach(fetcher => {
       fetcher();
     });
   }
