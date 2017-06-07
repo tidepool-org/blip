@@ -670,6 +670,11 @@ export let PatientData = React.createClass({
 
   doFetching: function(nextProps) {
     if (this.props.trackMetric) {
+      let carelink = nextProps.carelink;
+      if (!_.isEmpty(carelink)) {
+        this.props.trackMetric('Web - CareLink Import URL Param', { carelink });
+      }
+
       this.props.trackMetric('Viewed Data');
     }
 
@@ -687,10 +692,10 @@ export let PatientData = React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let getFetchers = (dispatchProps, ownProps, api) => {
+let getFetchers = (dispatchProps, ownProps, api, options) => {
   return [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchPatientData.bind(null, api, ownProps.routeParams.id)
+    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id)
   ];
 };
 
@@ -757,13 +762,14 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  let carelink = utils.getCarelink(ownProps.location);
   const api = ownProps.routes[0].api;
   const assignedDispatchProps = ['clearPatientData', 'generatePDFRequest', 'removeGeneratedPDFS'];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, api),
+    fetchers: getFetchers(dispatchProps, ownProps, api, { carelink }),
     uploadUrl: api.getUploadUrl(),
-    onRefresh: dispatchProps.fetchPatientData.bind(null, api),
+    onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink }),
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
     onCloseMessageThread: dispatchProps.closeMessageThread,
     onSaveComment: api.team.replyToMessageThread.bind(api),
@@ -773,6 +779,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     queryParams: ownProps.location.query,
     currentPatientInViewId: ownProps.routeParams.id,
     updateBasicsSettings: dispatchProps.updateSettings.bind(null, api),
+    carelink: carelink,
   });
 };
 

@@ -7436,9 +7436,9 @@ tideline@0.5.29:
     moment-timezone "0.5.5"
     sundial "1.5.0"
 
-tidepool-platform-client@0.31.0:
-  version "0.31.0"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.31.0.tgz#a86a14beccb6bea71e13a579428db44bd6a1a79b"
+tidepool-platform-client@0.31.1:
+  version "0.31.1"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.31.1.tgz#67419ba5f92984a777472be0444436fd94816583"
   dependencies:
     async "0.9.0"
     crypto "0.0.3"
