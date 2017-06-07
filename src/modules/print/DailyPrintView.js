@@ -49,7 +49,14 @@ import {
 } from '../../utils/format';
 import { getPatientFullName } from '../../utils/misc';
 
-import styles from '../../styles/colors.css';
+// N.B. We can't import styles from the css files here
+// because webpack style-loader doesn't work in a web worker
+const styles = {
+  low: '#FF8B7C',
+  target: '#76D3A6',
+  basal: '#19A0D7',
+  high: '#BB9AE7',
+};
 
 const logo = require('./images/tidepool-logo-408x46.png');
 

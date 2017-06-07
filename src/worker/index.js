@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2016, Tidepool Project
+ * Copyright (c) 2017, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,7 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-export * from './thunks';
-export * from './trends';
-export * from './settings';
-export * from './worker';
+/* global onmessage */
+
+import PDFWorker from './PDFWorker';
+
+const worker = new PDFWorker();
+
+// eslint-disable-next-line no-native-reassign
+onmessage = (msg) => {
+  worker.handleMessage(msg, postMessage);
+};

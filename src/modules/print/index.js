@@ -16,7 +16,7 @@
  */
 
 /* global PDFDocument, blobStream */
-
+import Promise from 'bluebird';
 import DailyPrintView from './DailyPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
 import { selectDailyViewData } from '../../utils/print/data';
@@ -65,39 +65,53 @@ export function createDailyPrintView(doc, data, bgPrefs, timePrefs, numDays, pat
 }
 
 /**
- * createAndOpenPrintPDFPackage
+ * createPrintPDFPackage
  * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
  * @param {Array} groupedData - Object of tideline-preprocessed Tidepool diabetes data & notes;
  *                       grouped by type
  * @param {Object} opts - an object of print options (see destructured param below)
  *
- * @return {Void} [side effect function creates and opens PDF in new tab]
+ * @return {Promise} - Promise that resolves with an object containing the pdf blob and url
  */
-export default function createAndOpenPrintPDFPackage(mostRecent, groupedData, {
-  // full opts will be { bgPrefs, dateTitle, patient, numDays, timePrefs }
-  bgPrefs, numDays, patient, timePrefs,
-}) {
-  const bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
-  const dailyViewData = selectDailyViewData(mostRecent, groupedData, numDays, timePrefs);
-  /* NB: if you don't set the `margin` (or `margins` if not all are the same)
-     then when you are using the .text() command a new page will be added if you specify
-     coordinates outside of the default margin (or outside of the margins you've specified)
-   */
-  const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
-  const stream = doc.pipe(blobStream());
+export function createPrintPDFPackage(mostRecent, groupedData, opts) {
+  const {
+    bgPrefs,
+    numDays,
+    patient,
+    timePrefs,
+  } = opts;
 
-  const dailyPrintView = createDailyPrintView(doc, dailyViewData, {
-    bgBounds,
-    bgUnits: bgPrefs.bgUnits,
-  }, timePrefs, numDays, patient);
+  return new Promise((resolve, reject) => {
+    const bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
+    const dailyViewData = selectDailyViewData(mostRecent, groupedData, numDays, timePrefs);
+    /* NB: if you don't set the `margin` (or `margins` if not all are the same)
+      then when you are using the .text() command a new page will be added if you specify
+      coordinates outside of the default margin (or outside of the margins you've specified)
+    */
+    const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
+    const stream = doc.pipe(blobStream());
 
-  dailyPrintView.render();
-  doc.end();
+    const dailyPrintView = createDailyPrintView(doc, dailyViewData, {
+      bgBounds,
+      bgUnits: bgPrefs.bgUnits,
+    }, timePrefs, numDays, patient);
 
-  stream.on('finish', () => {
-    // window.open(stream.toBlobURL('application/pdf'));
-    const printWindow = window.open(stream.toBlobURL('application/pdf'));
-    printWindow.focus();
-    printWindow.print();
+    dailyPrintView.render();
+    doc.end();
+
+    stream.on('finish', () => {
+      const pdf = {
+        blob: stream.toBlob(),
+        url: stream.toBlobURL('application/pdf'),
+      };
+      return resolve(pdf);
+    });
+
+    stream.on('error', (error) => {
+      stream.end();
+      return reject(error);
+    });
   });
 }
+
+export default createPrintPDFPackage;

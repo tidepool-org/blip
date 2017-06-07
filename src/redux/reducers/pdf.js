@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2016, Tidepool Project
+ * Copyright (c) 2017, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,7 +15,21 @@
  * == BSD2 LICENSE ==
  */
 
-export * from './thunks';
-export * from './trends';
-export * from './settings';
-export * from './worker';
+import update from 'react-addons-update';
+
+import * as actionTypes from '../constants/actionTypes';
+
+const pdf = (state = {}, action) => {
+  switch (action.type) {
+    case actionTypes.GENERATE_PDF_SUCCESS:
+      return update(state, { $merge: action.payload.pdf });
+
+    case actionTypes.REMOVE_GENERATED_PDFS:
+      return update(state, { $set: {} });
+
+    default:
+      return state;
+  }
+};
+
+export default pdf;
