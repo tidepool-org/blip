@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@tidepool-org/viz#clintb/daily-print-view.web-worker":
+"@tidepool/viz@git+https://github.com/tidepool-org/viz#clintb/daily-print-view.web-worker":
   version "0.8.2-alpha"
-  resolved "https://codeload.github.com/tidepool-org/viz/tar.gz/70835a90de3ee9b89f1d3b83015ffae75f88cde5"
+  resolved "git+https://github.com/tidepool-org/viz#70835a90de3ee9b89f1d3b83015ffae75f88cde5"
   dependencies:
     bluebird "3.5.0"
     d3-array "1.0.1"
