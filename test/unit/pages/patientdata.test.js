@@ -44,6 +44,8 @@ describe('PatientData', function () {
         fetchers: [],
         fetchingPatient: false,
         fetchingPatientData: false,
+        generatePDFRequest: sinon.stub(),
+        generatingPDF: false,
         isUserPatient: false,
         onCloseMessageThread: sinon.stub(),
         onCreateMessage: sinon.stub(),
@@ -54,6 +56,7 @@ describe('PatientData', function () {
         patientDataMap: {},
         patientNotesMap: {},
         queryParams: {},
+        removeGeneratedPDFS: sinon.stub(),
         trackMetric: sinon.stub(),
         uploadUrl: 'http://foo.com',
         viz: {},
@@ -517,8 +520,9 @@ describe('PatientData', function () {
         working: {
           fetchingPatient: {inProgress: false, notification: null},
           fetchingPatientData: {inProgress: false, notification: null},
-          fetchingUser: {inProgress: false, notification: null}
-        }
+          fetchingUser: { inProgress: false, notification: null },
+          generatingPDF: { inProgress: false, notification: null },
+        },
       };
 
       const tracked = mutationTracker.trackObj(state);
@@ -596,8 +600,9 @@ describe('PatientData', function () {
         working: {
           fetchingPatient: {inProgress: false, notification: null},
           fetchingPatientData: {inProgress: false, notification: null},
-          fetchingUser: {inProgress: false, notification: null}
-        }
+          fetchingUser: {inProgress: false, notification: null},
+          generatingPDF: {inProgress: false, notification: null},
+        },
       };
 
       const tracked = mutationTracker.trackObj(state);

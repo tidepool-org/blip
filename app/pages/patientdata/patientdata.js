@@ -629,7 +629,7 @@ export let PatientData = React.createClass({
   componentWillUpdate: function(nextProps, nextState) {
     const pdfEnabled = _.indexOf(['daily'], this.state.chartType) >= 0;
     const pdfGenerating = nextProps.generatingPDF;
-    const pdfGenerated = nextProps.viz.pdf[this.state.chartType];
+    const pdfGenerated = nextProps.viz && nextProps.viz.pdf && nextProps.viz.pdf[this.state.chartType];
     const patientDataProcessed = !this.state.processingData && !!this.state.processedPatientData && !!nextState.processedPatientData;
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.

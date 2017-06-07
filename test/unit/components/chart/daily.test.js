@@ -80,6 +80,7 @@ describe('Daily', function () {
         patientData: {
           grouped: { foo: 'bar' }
         },
+        pdf: {},
         onClickRefresh: function() {},
         onCreateMessage: function() {},
         onShowMessageThread: function() {},
@@ -111,8 +112,8 @@ describe('Daily', function () {
         chartPrefs: {},
         timePrefs: {},
         initialDateTimeLocation: 'foo',
-        patientData: {
-        },
+        patientData: {},
+        pdf: {},
         onClickRefresh: sinon.spy(),
         onCreateMessage: function() {},
         onShowMessageThread: function() {},
