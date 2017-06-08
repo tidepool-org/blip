@@ -19,7 +19,7 @@
     "serve-docs": "./node_modules/.bin/gitbook serve"
   },
   "dependencies": {
-    "@tidepool/viz": "git+https://github.com/tidepool-org/viz#clintb\/daily-print-view.web-worker",
+    "@tidepool/viz": "0.8.2-alpha.1",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
