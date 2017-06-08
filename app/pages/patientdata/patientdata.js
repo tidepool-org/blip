@@ -612,6 +612,7 @@ export let PatientData = React.createClass({
 
   componentWillUnmount: function() {
     this.props.clearPatientData(this.props.currentPatientInViewId);
+    this.props.removeGeneratedPDFS();
   },
 
   componentWillReceiveProps: function(nextProps) {
