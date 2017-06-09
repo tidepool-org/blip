@@ -1,4 +1,6 @@
 var webpackConf = require('./test.config.js');
+var optional = require('optional');
+var mochaConf = optional('./config/mocha.opts.json') || {};
 
 module.exports = function (config) {
   config.set({
@@ -6,6 +8,9 @@ module.exports = function (config) {
     captureTimeout: 60000,
     browserNoActivityTimeout: 60000, // We need to accept that Webpack may take a while to build!
     singleRun: true,
+    client: {
+      mocha: mochaConf,
+    },
     colors: true,
     frameworks: [ 'mocha', 'sinon', 'chai' ], // Mocha is our testing framework of choice
     files: [

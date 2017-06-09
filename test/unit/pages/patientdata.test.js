@@ -9,7 +9,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 import mutationTracker from 'object-invariant-test-helper';
-
+import { mount } from 'enzyme';
 
 var assert = chai.assert;
 var expect = chai.expect;
@@ -468,30 +468,164 @@ describe('PatientData', function () {
     });
   });
 
+  describe('componentWillUpdate', function() {
+    it('should generate a pdf when view is daily and patient data is processed', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: false,
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      var callCount = elem.generatePDF.callCount;
+
+      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: true });
+      wrapper.update();
+
+      expect(elem.generatePDF.callCount).to.equal(callCount + 1);
+    });
+
+    it('should not generate a pdf when one is currently generating', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: true,
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      var callCount = elem.generatePDF.callCount;
+
+      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: true });
+      wrapper.update();
+
+      expect(elem.generatePDF.callCount).to.equal(0);
+    });
+
+    it('should not generate a pdf when patient data is not yet processed', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: false,
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      var callCount = elem.generatePDF.callCount;
+
+      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: false });
+      wrapper.update();
+
+      expect(elem.generatePDF.callCount).to.equal(0);
+    });
+
+    it('should not generate a pdf when patient data exists, but new patient data is processing', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: false,
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      var callCount = elem.generatePDF.callCount;
+
+      wrapper.setState({ chartType: 'daily', processingData: true, processedPatientData: true });
+      wrapper.update();
+
+      expect(elem.generatePDF.callCount).to.equal(0);
+    });
+
+    it('should not generate a pdf when one already exists for the current view', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: false,
+        viz: {
+          pdf: {
+            daily: {
+              url: 'someUrl'
+            }
+          }
+        }
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      var callCount = elem.generatePDF.callCount;
+
+      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: true });
+      wrapper.update();
+
+      expect(elem.generatePDF.callCount).to.equal(0);
+    });
+  });
+
   describe('handleSwitchToDaily', function() {
     it('should track metric for calender', function() {
-          var props = {
-            currentPatientInViewId: 40,
-            isUserPatient: true,
-            patient: {
-              userid: 40,
-              profile: {
-                fullName: 'Fooey McBar'
-              }
-            },
-            fetchingPatient: false,
-            fetchingPatientData: false,
-            fetchingUser: false,
-            trackMetric: sinon.stub()
-          };
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        fetchingUser: false,
+        trackMetric: sinon.stub()
+      };
 
-          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
 
-          var callCount = props.trackMetric.callCount;
-          elem.handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
-          expect(props.trackMetric.callCount).to.equal(callCount + 1);
-          expect(props.trackMetric.calledWith('Clicked Basics testing calendar')).to.be.true;
-        });
+      var callCount = props.trackMetric.callCount;
+      elem.handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
+      expect(props.trackMetric.callCount).to.equal(callCount + 1);
+      expect(props.trackMetric.calledWith('Clicked Basics testing calendar')).to.be.true;
+    });
   });
 
   describe('mapStateToProps', () => {

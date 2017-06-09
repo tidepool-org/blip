@@ -405,8 +405,8 @@ export let PatientData = React.createClass({
     this.props.trackMetric('Closed New Message Modal');
   },
 
-  generatePDF: function () {
-    const dData = this.state.processedPatientData.diabetesData;
+  generatePDF: function (data) {
+    const dData = data.diabetesData;
 
     this.props.generatePDFRequest(
       this.state.chartType,
@@ -637,7 +637,7 @@ export let PatientData = React.createClass({
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
     if (pdfEnabled && !pdfGenerating && !pdfGenerated && patientDataProcessed) {
-      this.generatePDF();
+      this.generatePDF(this.state.processedPatientData);
     }
   },
 

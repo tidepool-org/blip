@@ -131,5 +131,40 @@ describe('Daily', function () {
       TestUtils.Simulate.click(refreshButton);
       expect(props.onClickRefresh.callCount).to.equal(1);
     });
+
+    it('should not have a print button when a pdf is not ready to print', function () {
+      var props = {
+        bgPrefs: {},
+        chartPrefs: {},
+        patientData: {},
+        printReady: false,
+        pdf: {},
+      };
+
+      var dailyElem = React.createElement(Daily, props);
+      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var printButton = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-hidden', 'printview-print-icon']);
+    });
+
+    it('should have a print button when a pdf is ready and call onSwitchToPrint when clicked', function () {
+      var props = {
+        bgPrefs: {},
+        chartPrefs: {},
+        patientData: {},
+        printReady: true,
+        pdf: {
+          url: 'blobURL',
+        },
+        onSwitchToPrint: sinon.spy(),
+      };
+
+      var dailyElem = React.createElement(Daily, props);
+      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var printButton = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-active', 'printview-print-icon']);
+
+      expect(props.onSwitchToPrint.callCount).to.equal(0);
+      TestUtils.Simulate.click(printButton);
+      expect(props.onSwitchToPrint.callCount).to.equal(1);
+    });
   });
 });
