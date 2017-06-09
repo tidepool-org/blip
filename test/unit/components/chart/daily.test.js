@@ -132,7 +132,7 @@ describe('Daily', function () {
       expect(props.onClickRefresh.callCount).to.equal(1);
     });
 
-    it('should not have a print button when a pdf is not ready to print', function () {
+    it('should have a disabled print button and spinner when a pdf is not ready to print', function () {
       var props = {
         bgPrefs: {},
         chartPrefs: {},
@@ -143,10 +143,12 @@ describe('Daily', function () {
 
       var dailyElem = React.createElement(Daily, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
-      var printButton = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-hidden', 'printview-print-icon']);
+
+      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-disabled', 'printview-print-icon']);
+      var spinner = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-loading-spinner');
     });
 
-    it('should have a print button when a pdf is ready and call onSwitchToPrint when clicked', function () {
+    it('should have an enabled print button and icon when a pdf is ready and call onSwitchToPrint when clicked', function () {
       var props = {
         bgPrefs: {},
         chartPrefs: {},
@@ -160,10 +162,11 @@ describe('Daily', function () {
 
       var dailyElem = React.createElement(Daily, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
-      var printButton = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-active', 'printview-print-icon']);
+      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-active', 'printview-print-icon']);
+      var printIcon = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-icon');
 
       expect(props.onSwitchToPrint.callCount).to.equal(0);
-      TestUtils.Simulate.click(printButton);
+      TestUtils.Simulate.click(printLink);
       expect(props.onSwitchToPrint.callCount).to.equal(1);
     });
   });

@@ -6134,6 +6134,10 @@ react-json-tree@^0.6.6:
     react-mixin "^1.7.0"
     react-pure-render "^1.0.2"
 
+react-loading@0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/react-loading/-/react-loading-0.1.2.tgz#4da95b3d4b55904fd8294c1eb40f8512a6ca04f6"
+
 react-mixin@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/react-mixin/-/react-mixin-1.7.0.tgz#38c22c3eb02064f08f2c25878a60dac3e956f44c"
