@@ -567,14 +567,14 @@ class DailyPrintView {
 
       this.doc.fontSize(this.defaultFontSize).font(this.boldFont)
         .text(
-          'Median BG',
+          'Average BG',
           smallIndent,
           yPos.update(),
           { continued: true, width: widthWithoutIndent }
         )
         .font(this.font)
         .text(
-          `${formatDecimalNumber(median(data.cbg, (d) => (d.value)), 0)} ${this.bgUnits}`,
+          `${formatDecimalNumber(mean(data.cbg, (d) => (d.value)), 0)} ${this.bgUnits}`,
           { align: 'right' }
         );
 
@@ -590,7 +590,7 @@ class DailyPrintView {
 
       this.doc.fontSize(this.defaultFontSize).font(this.boldFont)
         .text(
-          'Mean BG',
+          'Average BG',
           smallIndent,
           yPos.update(),
           { continued: true, width: widthWithoutIndent }
@@ -622,7 +622,7 @@ class DailyPrintView {
         )
         .font(this.font)
         .text(
-          `${formatDecimalNumber(totalInsulin, 2)} U`,
+          `${formatDecimalNumber(totalInsulin, 0)} U`,
           { align: 'right' }
         );
 
