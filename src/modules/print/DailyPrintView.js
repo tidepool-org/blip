@@ -18,7 +18,7 @@
 /* eslint-disable lodash/prefer-lodash-method */
 
 import _ from 'lodash';
-import { mean, median, range } from 'd3-array';
+import { mean, range } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
 
