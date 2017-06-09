@@ -468,6 +468,51 @@ describe('PatientData', function () {
     });
   });
 
+  describe('handleRefresh', function() {
+    const props = {
+      onRefresh: sinon.stub(),
+      clearPatientData: sinon.stub(),
+      removeGeneratedPDFS: sinon.stub(),
+    };
+
+    it('should clear patient data upon refresh', function() {
+      const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+      const callCount = props.clearPatientData.callCount;
+      elem.handleRefresh();
+
+      expect(props.clearPatientData.callCount).to.equal(callCount + 1);
+    });
+
+    it('should clear generated pdfs upon refresh', function() {
+      const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+      const callCount = props.removeGeneratedPDFS.callCount;
+      elem.handleRefresh();
+      expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
+    });
+  });
+
+  describe('componentWillUnmount', function() {
+    const props = {
+      clearPatientData: sinon.stub(),
+      removeGeneratedPDFS: sinon.stub(),
+    };
+
+    it('should clear patient data upon refresh', function() {
+      const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+      const callCount = props.clearPatientData.callCount;
+      elem.componentWillUnmount();
+
+      expect(props.clearPatientData.callCount).to.equal(callCount + 1);
+    });
+
+    it('should clear generated pdfs upon refresh', function() {
+      const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+      const callCount = props.removeGeneratedPDFS.callCount;
+      elem.componentWillUnmount();
+      expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
+    });
+  });
+
   describe('componentWillUpdate', function() {
     it('should generate a pdf when view is daily and patient data is processed', function () {
       var props = {
