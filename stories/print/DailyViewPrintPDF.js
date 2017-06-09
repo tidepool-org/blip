@@ -16,6 +16,7 @@
  */
 
 import React from 'react';
+import _ from 'lodash';
 
 import { storiesOf } from '@kadira/storybook';
 import { WithNotes } from '@kadira/storybook-addon-notes';
@@ -57,6 +58,9 @@ const notes = `Use \`window.downloadDailyPrintViewData()\` to get daily view mun
   save it in local/ directory of viz as \`daily-print-view.json\`,
   then use this story to iterate on the Daily Print PDF outside of blip!`;
 
+patients.longName = _.cloneDeep(patients.standard);
+patients.longName.profile.fullName = 'Super Duper Long Patient Name';
+
 storiesOf('DailyViewPrintPDF', module)
   .add('standard account', () => (
     <WithNotes notes={notes}>
@@ -69,6 +73,14 @@ storiesOf('DailyViewPrintPDF', module)
   .add('fake child account', () => (
     <WithNotes notes={notes}>
       <button onClick={() => openPDF({ patient: patients.fakeChildAcct })}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
+
+  .add('long patient name', () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: patients.longName })}>
         Open PDF in new tab
       </button>
     </WithNotes>
