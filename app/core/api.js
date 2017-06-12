@@ -615,11 +615,11 @@ api.team.editMessage = function(message,cb){
 
 api.patientData = {};
 
-api.patientData.get = function(patientId, cb) {
+api.patientData.get = function(patientId, options, cb) {
   api.log('GET /data/' + patientId);
 
   var now = Date.now();
-  tidepool.getDeviceDataForUser(patientId, function(err, data) {
+  tidepool.getDeviceDataForUser(patientId, options, function (err, data) {
     if (err) {
       return cb(err);
     }

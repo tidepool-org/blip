@@ -1,11 +1,12 @@
-#! /bin/bash -eu
+#!/bin/bash -eu
 
-source "${NVM_DIR}/nvm.sh"
-source "deploy-env.sh"
+. "${NVM_DIR}/nvm.sh"
+. version.sh
 
-nvm ls "${DEPLOY_NODE_VERSION}" > /dev/null || { echo "ERROR: Node version ${DEPLOY_NODE_VERSION} not installed"; exit 1; }
-nvm use --delete-prefix "${DEPLOY_NODE_VERSION}"
+nvm ls "${START_NODE_VERSION}" > /dev/null || { echo "ERROR: Node version ${START_NODE_VERSION} not installed"; exit 1; }
+nvm use --delete-prefix "${START_NODE_VERSION}"
 
 . config/env.sh
+
 npm run build-config
 exec node server

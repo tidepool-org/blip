@@ -1,9 +1,12 @@
-#! /bin/bash -eu
+#!/bin/sh -eu
 
 rm -rf node_modules
-T="$(date +%s)"
+
+TIME="$(date +%s)"
 npm install --production
-T="$(($(date +%s)-T))"
-echo "npm install completed in ${T} seconds"
+TIME="$(($(date +%s)-TIME))"
+
+echo "npm install completed in ${TIME} seconds"
+
 npm dedupe
 npm run build-app

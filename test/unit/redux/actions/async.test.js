@@ -1993,7 +1993,7 @@ describe('Actions', () => {
 
         let api = {
           patientData: {
-            get: sinon.stub().callsArgWith(1, null, patientData),
+            get: sinon.stub().callsArgWith(2, null, patientData),
           },
           team: {
             getNotes: sinon.stub().callsArgWith(1, null, teamNotes)
@@ -2009,11 +2009,11 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPatientData(api, patientId));
+        store.dispatch(async.fetchPatientData(api, {clinic: 'true'}, patientId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId).callCount).to.equal(1);
+        expect(api.patientData.get.withArgs(patientId, {clinic: 'true'}).callCount).to.equal(1);
         expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
 
@@ -2034,7 +2034,7 @@ describe('Actions', () => {
 
         let api = {
           patientData: {
-            get: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+            get: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
           },
           team: {
             getNotes: sinon.stub().callsArgWith(1, null, teamNotes)
@@ -2052,11 +2052,11 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPatientData(api, patientId));
+        store.dispatch(async.fetchPatientData(api, {clinic: 'true'}, patientId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId).callCount).to.equal(1);
+        expect(api.patientData.get.withArgs(patientId, {clinic: 'true'}).callCount).to.equal(1);
         expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
 
@@ -2078,7 +2078,7 @@ describe('Actions', () => {
 
         let api = {
           patientData: {
-            get: sinon.stub().callsArgWith(1, null, patientData),
+            get: sinon.stub().callsArgWith(2, null, patientData),
           },
           team: {
             getNotes: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null)
@@ -2097,11 +2097,11 @@ describe('Actions', () => {
         });
 
         let store = mockStore(initialState);
-        store.dispatch(async.fetchPatientData(api, patientId));
+        store.dispatch(async.fetchPatientData(api, {clinic: 'true'}, patientId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId).callCount).to.equal(1);
+        expect(api.patientData.get.withArgs(patientId, {clinic: 'true'}).callCount).to.equal(1);
         expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
     });
