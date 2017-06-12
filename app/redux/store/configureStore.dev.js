@@ -27,8 +27,6 @@ import mutationTracker from 'redux-immutable-state-invariant';
 
 import { vizReducer } from '@tidepool/viz';
 
-import DevTools from '../containers/DevTools';
-
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
 
@@ -68,7 +66,8 @@ if (!__DEV_TOOLS__) {
   }
 } else {
   enhancer = (api) => {
-    return compose(
+    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+    return composeEnhancers(
       applyMiddleware(
         thunkMiddleware,
         loggerMiddleware,
@@ -77,7 +76,6 @@ if (!__DEV_TOOLS__) {
         trackingMiddleware(api),
         mutationTracker()
       ),
-      DevTools.instrument(),
       // We can persist debug sessions this way
       persistState(getDebugSessionKey())
     );
