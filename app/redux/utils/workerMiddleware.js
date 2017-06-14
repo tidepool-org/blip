@@ -52,7 +52,9 @@ const createWorkerMiddleware = (worker, errActionCreators) => {
         worker.postMessage(action);
 
         worker.onerror = (e) => { // eslint-disable-line no-param-reassign
-          dispatch(errActionCreators[action.type](action.payload.userId, e));
+          console.error(e);
+          // TODO: dispatch worker errors back to main thread
+          // dispatch(errActionCreators[action.type](action.payload.userId, e));
         };
 
         worker.onmessage = ({ data: successAction }) => { // eslint-disable-line no-param-reassign
