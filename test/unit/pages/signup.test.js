@@ -34,14 +34,15 @@ describe('Signup', function () {
       expect(console.error.callCount).to.equal(0);
     });
 
-    it('should render signup-form when no key is set and no key is configured', function () {
+    it('should render signup-selection when no key is set and no key is configured', function () {
       var props = {
         configuredInviteKey: '',
         inviteKey: ''
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
+      var signupSelection = TestUtils.scryRenderedDOMComponentsWithClass(render, 'signup-selection');
+      expect(signupSelection.length).to.equal(2);
     });
 
     it('should render waitlist form when key is set but is not valid', function () {
@@ -54,17 +55,18 @@ describe('Signup', function () {
       var waitlist = TestUtils.findRenderedDOMComponentWithClass(render, 'waitlist');
     });
 
-    it('should render signup-form when key is set and validates', function () {
+    it('should render signup-selection when key is set and validates', function () {
       var props = {
         configuredInviteKey: 'foobar',
         inviteKey: 'foobar'
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
+      var signupSelection = TestUtils.scryRenderedDOMComponentsWithClass(render, 'signup-selection');
+      expect(signupSelection.length).to.equal(2);
     });
 
-    it('should render signup-form when both key and email are set, even if key doesn\'t match configured key', function () {
+    it('should render signup-selection when both key and email are set, even if key doesn\'t match configured key', function () {
       var props = {
         configuredInviteKey: 'foobar',
         inviteKey: 'wrong-key',
@@ -72,10 +74,11 @@ describe('Signup', function () {
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
+      var signupSelection = TestUtils.scryRenderedDOMComponentsWithClass(render, 'signup-selection');
+      expect(signupSelection.length).to.equal(2);
     });
 
-    it('should render signup-form when key is valid and email is empty', function () {
+    it('should render signup-selection when key is valid and email is empty', function () {
       var props = {
         configuredInviteKey: 'foobar',
         inviteKey: 'foobar',
@@ -83,8 +86,20 @@ describe('Signup', function () {
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
+      var signupSelection = TestUtils.scryRenderedDOMComponentsWithClass(render, 'signup-selection');
+      expect(signupSelection.length).to.equal(2);
     });
+
+    it('should render signup-form when selection has been made', function () {
+      var props = {
+        configuredInviteKey: '',
+        inviteKey: ''
+      };
+      var elem = React.createElement(Signup, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      render.setState({madeSelection:true});
+      var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
+    })
   });
 
   describe('getInitialState', function() {

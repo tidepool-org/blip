@@ -3,19 +3,20 @@ import React from 'react';
 import { Route, IndexRoute } from 'react-router';
 
 import AppComponent from './pages/app';
-import Patients from './pages/patients';
-import Login from './pages/login';
-import Signup from './pages/signup';
-import UserProfile from './pages/userprofile';
-import PatientProfile from './pages/patientprofile/patientprofile';
-import Share from './pages/share/share';
-import PatientNew from './pages/patientnew';
-import PatientData from './pages/patientdata';
-import RequestPasswordReset from './pages/passwordreset/request';
+import BrowserWarning from './pages/browserwarning';
+import ClinicianDetails from './pages/cliniciandetails';
 import ConfirmPasswordReset from './pages/passwordreset/confirm';
 import EmailVerification from './pages/emailverification';
-import BrowserWarning from './pages/browserwarning';
+import Login from './pages/login';
+import PatientData from './pages/patientdata';
+import PatientNew from './pages/patientnew';
+import PatientProfile from './pages/patientprofile/patientprofile';
+import Patients from './pages/patients';
+import RequestPasswordReset from './pages/passwordreset/request';
+import Share from './pages/share/share';
+import Signup from './pages/signup';
 import Terms from './pages/terms';
+import UserProfile from './pages/userprofile';
 import VerificationWithPassword from './pages/verificationwithpassword';
 
 
@@ -282,6 +283,7 @@ export const getRoutes = (appContext, store) => {
       <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />
       <Route path='signup/personal' component={Signup} onEnter={requireNoAuth(api)} />
       <Route path='signup/clinician' component={Signup} onEnter={requireNoAuth(api)} />
+      <Route path='clinician-details' component={ClinicianDetails} onEnter={requireAuth(api, store)} />
       <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api, store)} />
       <Route path='profile' component={UserProfile} onEnter={requireAuth(api, store)} />
       <Route path='patients' component={Patients} onEnter={requireAuth(api, store)} />

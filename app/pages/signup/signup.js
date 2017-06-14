@@ -98,6 +98,12 @@ export let Signup = React.createClass({
     this.setState({loading: false, showWaitList: this.isWaitListed() });
   },
 
+  componentWillReceiveProps: function(nextProps){
+    if(nextProps.location.pathname === '/signup'){
+      this.setState({madeSelection:false});
+    }
+  },
+
   getInitialState: function() {
     var formValues = {};
 
@@ -325,6 +331,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     roles: utils.getRoles(ownProps.location),
     trackMetric: ownProps.routes[0].trackMetric,
     api: ownProps.routes[0].api,
+    location: ownProps.location
   });
 };
 
