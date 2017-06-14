@@ -1,5 +1,7 @@
 const path = require('path');
 const webpackConf = require('./webpack.config.js');
+const optional = require('optional');
+const mochaConf = optional('./local/mocha.opts.json') || {};
 
 webpackConf.module.preLoaders = [
   {
@@ -26,6 +28,9 @@ module.exports = function karmaConfig(config) {
     singleRun: true,
     colors: true,
     frameworks: ['mocha', 'chai', 'sinon'],
+    client: {
+      mocha: mochaConf,
+    },
     files: [
       'loadtests.js',
     ],

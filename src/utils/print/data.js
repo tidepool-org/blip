@@ -28,7 +28,7 @@ import { getTimezoneFromTimePrefs, getLocalizedCeiling } from '../../utils/datet
  *
  * @return {Object} Tidepool datum stripped of all fields not needed client-side
  */
-function stripDatum(d) {
+export function stripDatum(d) {
   return _.assign({}, _.omit(
     d,
     [
@@ -57,6 +57,29 @@ function stripDatum(d) {
   ));
 }
 
+// eslint-disable-next-line require-jsdoc
+export function filterWithDurationFnMaker(dateStart, dateEnd) {
+  return (d) => {
+    if (d.normalTime && d.normalEnd) {
+      if (d.normalTime === dateStart) {
+        return true;
+      } else if (d.normalTime < dateStart &&
+        (d.normalEnd > dateStart && d.normalEnd <= dateEnd)) {
+        return true;
+      } else if (d.normalTime > dateStart && d.normalTime < dateEnd) {
+        return true;
+      }
+      return false;
+    }
+    return (d.normalTime >= dateStart) && (d.normalTime < dateEnd);
+  };
+}
+
+// eslint-disable-next-line require-jsdoc
+export function filterPointInTimeFnMaker(dateStart, dateEnd) {
+  return (d) => ((d.normalTime >= dateStart) && (d.normalTime < dateEnd));
+}
+
 /**
  * selectData
  * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
@@ -70,6 +93,7 @@ function stripDatum(d) {
 export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs) {
   const timezone = getTimezoneFromTimePrefs(timePrefs);
   const end = getLocalizedCeiling(mostRecent, timePrefs);
+
   const dateBoundaries = [end.toISOString()];
   let last = end;
   for (let i = 0; i < numDays; ++i) {
@@ -83,31 +107,9 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
     last = startOfDate;
   }
   dateBoundaries.reverse();
+
   const selected = { dataByDate: {} };
   const { dataByDate: selectedDataByDate } = selected;
-
-  // eslint-disable-next-line require-jsdoc
-  function filterWithDurationFnMaker(dateStart, dateEnd) {
-    return (d) => {
-      if (d.normalTime && d.normalEnd) {
-        if (d.normalTime === dateStart) {
-          return true;
-        } else if (d.normalTime < dateStart &&
-          (d.normalEnd > dateStart && d.normalEnd <= dateEnd)) {
-          return true;
-        } else if (d.normalTime > dateStart && d.normalTime < dateEnd) {
-          return true;
-        }
-        return false;
-      }
-      return (d.normalTime >= dateStart) && (d.normalTime < dateEnd);
-    };
-  }
-
-  // eslint-disable-next-line require-jsdoc
-  function filterPointInTimeFnMaker(dateStart, dateEnd) {
-    return (d) => ((d.normalTime >= dateStart) && (d.normalTime < dateEnd));
-  }
 
   for (let i = 0; i < numDays; ++i) {
     const thisDateStart = dateBoundaries[i];
@@ -141,6 +143,7 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
     // TODO: select out infusion site changes, calibrations from deviceEvent array
     // (NB: deviceEvent not being passed through via blip yet!!)
   }
+
   // TODO: properly factor out into own utility? API needs thinking about
   const bgs = _.reduce(
     selectedDataByDate,

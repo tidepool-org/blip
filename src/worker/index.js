@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-/* global onmessage */
+/* global onmessage, postMessage */
 
 import PDFWorker from './PDFWorker';
 

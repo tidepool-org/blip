@@ -14,38 +14,3 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-
-import * as actionTypes from '../constants/actionTypes';
-
-export function generatePDFRequest(type, mostRecent, groupedData, opts) {
-  return {
-    type: actionTypes.GENERATE_PDF_REQUEST,
-    meta: { WebWorker: true, origin: document.location.origin },
-    payload: {
-      type,
-      mostRecent,
-      groupedData,
-      opts,
-    },
-  };
-}
-
-export function generatePDFSuccess(pdf) {
-  return {
-    type: actionTypes.GENERATE_PDF_SUCCESS,
-    payload: { pdf },
-  };
-}
-
-export function generatePDFFailure(error) {
-  return {
-    type: actionTypes.GENERATE_PDF_FAILURE,
-    error,
-  };
-}
-
-export function removeGeneratedPDFS() {
-  return {
-    type: actionTypes.REMOVE_GENERATED_PDFS,
-  };
-}

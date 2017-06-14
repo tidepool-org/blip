@@ -21,6 +21,15 @@ import DailyPrintView from './DailyPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
 import { selectDailyViewData } from '../../utils/print/data';
 
+// Exporting utils for easy stubbing in tests
+export const utils = {
+  reshapeBgClassesToBgBounds,
+  selectDailyViewData,
+  PDFDocument: class PDFDocumentStub {},
+  blobStream: function blobStreamStub() {},
+  DailyPrintView,
+};
+
 // DPI here is the coordinate system, not the resolution; sub-dot precision renders crisply!
 const DPI = 72;
 const MARGIN = DPI / 2;
@@ -29,7 +38,7 @@ const MARGIN = DPI / 2;
  * createDailyPrintView
  * @param {Object} doc - PDFKit document instance
  * @param {Object} data - pre-munged data for the daily print view
- * @param {Object} bgBounds - user's blood glucose thresholds & targets
+ * @param {Object} bgPrefs - user's blood glucose thresholds & targets
  * @param {Object} timePrefs - object containing timezoneAware Boolean, timezoneName String or null
  * @param {Number} numDays - number of days of daily view to include in printout
  * @param {Object} patient - full tidepool patient object
@@ -38,7 +47,7 @@ const MARGIN = DPI / 2;
  */
 export function createDailyPrintView(doc, data, bgPrefs, timePrefs, numDays, patient) {
   const CHARTS_PER_PAGE = 3;
-  return new DailyPrintView(doc, data, {
+  return new utils.DailyPrintView(doc, data, {
     bgPrefs,
     chartsPerPage: CHARTS_PER_PAGE,
     // TODO: set this up as a Webpack Define plugin to pull from env variable
@@ -82,14 +91,17 @@ export function createPrintPDFPackage(mostRecent, groupedData, opts) {
   } = opts;
 
   return new Promise((resolve, reject) => {
-    const bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
-    const dailyViewData = selectDailyViewData(mostRecent, groupedData, numDays, timePrefs);
+    const bgBounds = utils.reshapeBgClassesToBgBounds(bgPrefs);
+    const dailyViewData = utils.selectDailyViewData(mostRecent, groupedData, numDays, timePrefs);
     /* NB: if you don't set the `margin` (or `margins` if not all are the same)
       then when you are using the .text() command a new page will be added if you specify
       coordinates outside of the default margin (or outside of the margins you've specified)
     */
-    const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
-    const stream = doc.pipe(blobStream());
+    const DocLib = typeof PDFDocument !== 'undefined' ? PDFDocument : utils.PDFDocument;
+    const streamLib = typeof blobStream !== 'undefined' ? blobStream : utils.blobStream;
+
+    const doc = new DocLib({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
+    const stream = doc.pipe(streamLib());
 
     const dailyPrintView = createDailyPrintView(doc, dailyViewData, {
       bgBounds,
