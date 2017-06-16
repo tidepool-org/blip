@@ -21,7 +21,6 @@ import * as actionTypes from '../../../src/redux/constants/actionTypes';
 import pdf from '../../../src/redux/reducers/pdf';
 
 describe('pdf reducer', () => {
-
   it('should return the initial state of {}', () => {
     expect(pdf(undefined, {})).to.deep.equal({});
   });

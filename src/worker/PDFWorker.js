@@ -43,11 +43,11 @@ export default class PDFWorker {
 
         importLib(`${origin}/pdfkit.js`, `${origin}/blob-stream.js`);
 
-        renderLib(mostRecent, groupedData, opts).then(pdf => {
-          return postMessage(actions.generatePDFSuccess({ [type]: pdf }));
-        }).catch(error => {
-          return postMessage(actions.generatePDFFailure(error));
-        });
+        renderLib(mostRecent, groupedData, opts).then(pdf =>
+          postMessage(actions.generatePDFSuccess({ [type]: pdf }))
+        ).catch(error =>
+          postMessage(actions.generatePDFFailure(error))
+        );
         break;
       }
 

@@ -21,7 +21,6 @@ import * as actionTypes from '../../../src/redux/constants/actionTypes';
 import * as actions from '../../../src/redux/actions/';
 
 describe('worker action creators', () => {
-
   describe('generatePDFRequest', () => {
     const payload = {
       type: 'daily',

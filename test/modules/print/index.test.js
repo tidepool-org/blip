@@ -20,8 +20,6 @@ import MemoryStream from 'memorystream';
 import * as Module from '../../../src/modules/print';
 
 describe('print module', () => {
-  let stream;
-
   const pdf = {
     url: 'someURL',
     blob: 'someBlob',
@@ -36,7 +34,7 @@ describe('print module', () => {
     timePrefs: {},
   };
 
-  stream = new MemoryStream();
+  let stream = new MemoryStream();
 
   class Doc {
     pipe() {

@@ -53,6 +53,10 @@ describe('PDFWorker', () => {
     renderer.reset();
   });
 
+  it('should instantiate without errors', () => {
+    expect(Worker).to.be.an('object');
+  });
+
   it('should have a handleMessage method', () => {
     expect(Worker.handleMessage).to.be.a('function');
   });

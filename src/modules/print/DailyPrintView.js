@@ -49,15 +49,6 @@ import {
 } from '../../utils/format';
 import { getPatientFullName } from '../../utils/misc';
 
-// N.B. We can't import styles from the css files here
-// because webpack style-loader doesn't work in a web worker
-const styles = {
-  low: '#FF8B7C',
-  target: '#76D3A6',
-  basal: '#19A0D7',
-  high: '#BB9AE7',
-};
-
 const logo = require('./images/tidepool-logo-408x46.png');
 
 class DailyPrintView {
@@ -129,21 +120,25 @@ class DailyPrintView {
       },
       carbs: '#CFCFCF',
       lightDividers: '#D8D8D8',
+      low: '#FF8B7C',
+      target: '#76D3A6',
+      basal: '#19A0D7',
+      high: '#BB9AE7',
     };
 
     this.rightEdge = this.margins.left + this.width;
     this.bottomEdge = this.margins.top + this.height;
 
-    const gapBtwnSummaryAndChartAsPercentage = 0.04;
-
+    this.gapBtwnSummaryAndChartAsPercentage = 0.04;
     this.chartArea = {
       bottomEdge: opts.margins.top + opts.height,
       leftEdge: opts.margins.left +
-        (opts.summaryWidthAsPercentage + gapBtwnSummaryAndChartAsPercentage) * this.width,
+        (opts.summaryWidthAsPercentage + this.gapBtwnSummaryAndChartAsPercentage) * this.width,
       topEdge: opts.margins.top,
     };
 
     this.chartArea.width = this.rightEdge - this.chartArea.leftEdge;
+    this.initialChartArea = _.clone(this.chartArea);
 
     this.summaryArea = {
       rightEdge: opts.margins.left + opts.summaryWidthAsPercentage * this.width,
@@ -153,9 +148,11 @@ class DailyPrintView {
 
     const dates = _.keys(data.dataByDate);
     this.chartsByDate = {};
+    this.initialChartsByDate = {};
     _.each(dates, (date) => {
       const dateData = data.dataByDate[date];
       this.chartsByDate[date] = { ...dateData };
+      this.initialChartsByDate[date] = { ...dateData };
     });
 
     this.startingPageIndex = opts.startingPageIndex || 0;
@@ -165,7 +162,7 @@ class DailyPrintView {
     this.chartIndex = 0;
 
     // kick off the dynamic calculation of chart area based on font sizes for header and footer
-    this.setHeaderSize().setFooterSize().calculateChartMinimums();
+    this.setHeaderSize().setFooterSize().calculateChartMinimums(this.chartArea);
 
     // no auto-binding :/
     this.newPage = this.newPage.bind(this);
@@ -185,9 +182,9 @@ class DailyPrintView {
     });
   }
 
-  calculateChartMinimums() {
+  calculateChartMinimums(chartArea) {
     this.doc.fontSize(10);
-    const { topEdge, bottomEdge } = this.chartArea;
+    const { topEdge, bottomEdge } = chartArea;
     const totalHeight = bottomEdge - topEdge;
     const perChart = totalHeight / 3.25;
     this.chartMinimums = {
@@ -752,7 +749,7 @@ class DailyPrintView {
   renderCbgs({ bgScale, data: { cbg: cbgs }, xScale }) {
     _.each(cbgs, (cbg) => {
       this.doc.circle(xScale(cbg.utc), bgScale(cbg.value), 1)
-        .fill(styles[classifyBgValue(this.bgBounds, cbg.value)]);
+        .fill(this.colors[classifyBgValue(this.bgBounds, cbg.value)]);
     });
 
     return this;
@@ -761,7 +758,7 @@ class DailyPrintView {
   renderSmbgs({ bgScale, data: { smbg: smbgs }, xScale }) {
     _.each(smbgs, (smbg) => {
       this.doc.circle(xScale(smbg.utc), bgScale(smbg.value), this.smbgRadius)
-        .fill(styles[classifyBgValue(this.bgBounds, smbg.value)]);
+        .fill(this.colors[classifyBgValue(this.bgBounds, smbg.value)]);
       const smbgLabel = formatBgValue(smbg.value, this.bgPrefs);
       const labelWidth = this.doc.widthOfString(smbgLabel);
       this.doc.font(this.boldFont)
@@ -884,14 +881,14 @@ class DailyPrintView {
           const opacity = path.basalType === 'scheduled' ? 0.4 : 0.2;
           if (path.renderType === 'fill') {
             this.doc.path(path.d)
-              .fillColor(styles.basal)
+              .fillColor(this.colors.basal)
               .fillOpacity(opacity)
               .fill();
           } else if (path.renderType === 'stroke') {
             this.doc.path(path.d)
               .lineWidth(0.5)
               .dash(1, { space: 2 })
-              .stroke(styles.basal);
+              .stroke(this.colors.basal);
           }
         });
         const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
@@ -903,7 +900,7 @@ class DailyPrintView {
         this.doc.path(wholeDateDeliveredPath)
           .lineWidth(0.5)
           .dash(0)
-          .stroke(styles.basal);
+          .stroke(this.colors.basal);
       }
     });
 
@@ -1016,7 +1013,7 @@ class DailyPrintView {
         fill = 'low';
       }
       this.doc.circle(cursor + horizOffset, legendVerticalMiddle + vertOffset, this.cbgRadius)
-        .fill(styles[fill]);
+        .fill(this.colors[fill]);
     });
     cursor += 16 + legendItemLabelOffset;
     this.doc.fillColor('black').text('CGM', cursor, legendTextMiddle);
@@ -1029,11 +1026,11 @@ class DailyPrintView {
       low: [cursor + this.smbgRadius * 2, legendVerticalMiddle + this.smbgRadius * 2],
     };
     this.doc.circle(cursor, legendVerticalMiddle, this.smbgRadius)
-      .fill(styles.target);
+      .fill(this.colors.target);
     this.doc.circle(smbgPositions.high[0], smbgPositions.high[1], this.smbgRadius)
-      .fill(styles.high);
+      .fill(this.colors.high);
     this.doc.circle(smbgPositions.low[0], smbgPositions.low[1], this.smbgRadius)
-      .fill(styles.low);
+      .fill(this.colors.low);
     cursor += this.smbgRadius * 3 + legendItemLabelOffset;
     this.doc.fillColor('black').text('BGM', cursor, legendTextMiddle);
     cursor += this.doc.widthOfString('BGM') + legendItemLeftOffset * 2;
