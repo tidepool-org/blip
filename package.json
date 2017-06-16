@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "0.8.2-alpha.4",
+  "version": "0.8.2-alpha.5",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
