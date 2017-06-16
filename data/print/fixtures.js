@@ -73,37 +73,64 @@ export const data = {
         basal: [
           {
             type: 'basal',
-            utc: NaN,
-            duration: NaN,
-            subType: undefined,
+            utc: 1483313400000,
+            duration: 1483314400000,
+            rate: 0.6,
+            subType: 'scheduled',
+          },
+          {
+            type: 'basal',
+            utc: 1483314400000,
+            duration: 1483315400000,
+            rate: 0.7,
+            subType: 'scheduled',
           },
         ],
         bolus: [
           {
             type: 'bolus',
+            subType: 'normal',
+            normal: 0.925,
             utc: 1483313400000,
             threeHrBin: 21,
           },
           {
             type: 'bolus',
+            normal: 0.925,
+            subType: 'normal',
             utc: 1483315200000,
             threeHrBin: 0,
           },
           {
-            type: 'bolus',
-            utc: NaN,
-            threeHrBin: NaN,
+            type: 'wizard',
+            carbInput: 80,
+            recommended: {
+              carb: 8,
+              correction: 1.25,
+              net: 8.75,
+            },
+            bolus: {
+              type: 'bolus',
+              normal: 5.75,
+              extended: 2.5,
+              expectedExtended: 5,
+              duration: 3600 * 2,
+              expectedDuration: 3600 * 4,
+              utc: 1483315200000,
+            },
           },
         ],
         cbg: [
           {
             type: 'cbg',
+            value: 75,
             utc: 1483353000000,
           },
         ],
         smbg: [
           {
             type: 'smbg',
+            value: 92,
             utc: 1483353000000,
           },
         ],
@@ -111,9 +138,17 @@ export const data = {
           [
             {
               type: 'basal',
-              utc: NaN,
-              duration: NaN,
-              subType: undefined,
+              utc: 1483313400000,
+              duration: 1483314400000,
+              rate: 0.6,
+              subType: 'scheduled',
+            },
+            {
+              type: 'basal',
+              utc: 1483314400000,
+              duration: 1483315400000,
+              rate: 0.7,
+              subType: 'scheduled',
             },
           ],
         ],
