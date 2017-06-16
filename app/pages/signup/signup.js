@@ -210,7 +210,7 @@ export let Signup = React.createClass({
             </div>
           </div>
           <div className="signup-selectionDescription">You want to manage
-            your diabetes data. You are a caring for or supporting someone
+            your diabetes data. You are caring for or supporting someone
             with diabetes.
           </div>
         </div>
