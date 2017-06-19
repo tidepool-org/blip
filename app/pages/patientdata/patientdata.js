@@ -95,7 +95,6 @@ export let PatientData = React.createClass({
           smbgRangeOverlay: true,
         }
       },
-      chartType: 'basics',
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -596,6 +595,75 @@ export let PatientData = React.createClass({
     }
   },
 
+  deriveChartTypeFromLatestData: function(latestData, uploads) {
+    let chartType = 'basics'; // Default to 'basics'
+
+    if (latestData && uploads) {
+      // Ideally, we determine the default view based on the device type
+      // so that, for instance, if the latest data type is cgm, but comes from
+      // an insulin-pump, we still direct them to the basics view
+      const deviceMap = _.indexBy(uploads, 'deviceId');
+      const latestDataDevice = deviceMap[latestData.deviceId];
+
+      if (latestDataDevice) {
+        const tags = deviceMap[latestData.deviceId].deviceTags;
+
+        switch(true) {
+          case (_.includes(tags, 'insulin-pump')):
+            chartType = 'basics';
+            break;
+
+          case (_.includes(tags, 'cgm')):
+            chartType = 'trends';
+            break;
+
+          case (_.includes(tags, 'bgm')):
+            chartType = 'weekly';
+            break;
+        }
+      }
+      else {
+        // If we were unable, for some reason, to get the device tags for the
+        // latest upload, we can fall back to setting the default view by the data type
+        const type = latestData.type;
+
+        switch(type) {
+          case 'bolus':
+          case 'basal':
+          case 'wizard':
+            chartType = 'basics';
+            break;
+
+          case 'cbg':
+            chartType = 'trends';
+            break;
+
+          case 'smbg':
+            chartType = 'weekly';
+            break;
+        }
+      }
+    }
+
+    return chartType;
+  },
+
+  setDefaultChartType: function(processedData) {
+    // Determine default chart type and date from latest data
+    const uploads = processedData.grouped.upload;
+    const latestData = _.last(processedData.diabetesData);
+    const chartType = this.deriveChartTypeFromLatestData(latestData, uploads);
+
+    let state = {
+      chartType,
+      initialDatetimeLocation: latestData.time,
+    };
+
+    this.setState(state);
+
+    this.props.trackMetric(`web - default to ${chartType}`);
+  },
+
   doProcessing: function(nextProps) {
     var userId = this.props.currentPatientInViewId;
     var patientData = _.get(nextProps, ['patientDataMap', userId], null);
@@ -613,14 +681,17 @@ export let PatientData = React.createClass({
         this.props.queryParams,
         patientSettings,
       );
+
       this.setState({
         processedPatientData: processedData,
         bgPrefs: {
           bgClasses: processedData.bgClasses,
           bgUnits: processedData.bgUnits
         },
-        processingData: false
+        processingData: false,
       });
+
+      this.setDefaultChartType(processedData);
     }
   },
 
