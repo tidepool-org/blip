@@ -399,7 +399,7 @@ describe('PatientData', function () {
       });
     });
 
-    describe.only('default view based on lastest data upload', () => {
+    describe('default view based on lastest data upload', () => {
       let elem;
       let kickOffProcessing;
 
