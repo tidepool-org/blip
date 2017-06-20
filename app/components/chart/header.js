@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import bows from 'bows';
-import React from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
 import Loading from 'react-loading';
 
@@ -29,8 +29,8 @@ const tideline = {
   log: bows('Header'),
 };
 
-const TidelineHeader = React.createClass({
-  propTypes: {
+class TidelineHeader extends Component {
+  static propTypes = {
     patient: React.PropTypes.object,
     printReady: React.PropTypes.bool,
     title: React.PropTypes.string.isRequired,
@@ -49,13 +49,13 @@ const TidelineHeader = React.createClass({
     onClickTwoWeeks: React.PropTypes.func,
     onClickSettings: React.PropTypes.func,
     onClickPrint: React.PropTypes.func,
-  },
-  getDefaultProps: function () {
-    return {
-      printReady: true,
-    };
-  },
-  renderStandard: function() {
+  };
+
+  static defaultProps = {
+    printReady: true,
+  };
+
+  renderStandard = () => {
     const basicsLinkClass = cx({
       'js-basics': true,
       'patient-data-subnav-active': this.props.chartType === 'basics',
@@ -156,14 +156,15 @@ const TidelineHeader = React.createClass({
           <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
           <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
             {this.props.printReady && <img className="print-icon" src={printPng} alt="Print" />}
-            {!this.props.printReady && <Loading className="print-loading-spinner" delay={0} type="spin" color="#fff" />}
+            {!this.props.printReady && <Loading className="print-loading-spinner" width={16} height={16} delay={0} type="spin" color="#fff" />}
             Print
           </a>
         </div>
       </div>
     );
-  },
-  printTitle: function() {
+  };
+
+  printTitle = () => {
     switch (this.props.chartType) {
       case 'basics':
         return 'Basics';
@@ -176,8 +177,9 @@ const TidelineHeader = React.createClass({
       case 'settings':
         return 'Pump Settings';
     }
-  },
-  renderPrint: function() {
+  };
+
+  renderPrint = () => {
     return (
       <div id="app-print">
         <PrintHeader
@@ -187,8 +189,9 @@ const TidelineHeader = React.createClass({
         />
       </div>
     );
-  },
-  render: function() {
+  };
+
+  render = () => {
     return (
       <div className="container-box-outer patient-data-subnav-outer">
         <div className="container-box-inner patient-data-subnav-inner">
@@ -197,7 +200,8 @@ const TidelineHeader = React.createClass({
         </div>
       </div>
     );
-  },
+  };
+
   /**
    * Helper function for rendering the various navigation buttons in the header.
    * It accounts for the transition state and disables the button if it is currently processing.
@@ -208,7 +212,7 @@ const TidelineHeader = React.createClass({
    *
    * @return {ReactElement}
    */
-  renderNavButton: function(buttonClass, clickAction, icon) {
+  renderNavButton = (buttonClass, clickAction, icon) => {
     const nullAction = function(e) {
       if (e) {
         e.preventDefault();
@@ -219,7 +223,7 @@ const TidelineHeader = React.createClass({
     } else {
       return (<a href="" className={buttonClass} onClick={clickAction}><i className={icon}/></a>);
     }
-  }
-});
+  };
+};
 
 module.exports = TidelineHeader;

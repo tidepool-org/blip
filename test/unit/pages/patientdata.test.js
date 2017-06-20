@@ -556,8 +556,6 @@ describe('PatientData', function () {
       const elem = wrapper.instance();
       sinon.stub(elem, 'generatePDF');
 
-      var callCount = elem.generatePDF.callCount;
-
       wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: true });
       wrapper.update();
 
