@@ -229,8 +229,6 @@ utils.processPatientData = (comp, data, queryParams, settings) => {
 
   var timePrefsForTideline;
   function setNewTimePrefs(timezoneName) {
-    // have to replace - from queryParams set timezone with /
-    timezoneName = timezoneName.replace('-', '/');
     try {
       sundial.checkTimezoneName(timezoneName);
       timePrefsForTideline = {
