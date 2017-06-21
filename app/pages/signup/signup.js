@@ -16,6 +16,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { browserHistory } from 'react-router'
 
 import * as actions from '../../redux/actions';
 
@@ -24,10 +25,11 @@ import config from '../../config';
 import { validateForm } from '../../core/validation';
 
 import utils from '../../core/utils';
-import WaitList from '../../components/waitlist';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
+
+import check from './images/check.svg';
 
 export let Signup = React.createClass({
   propTypes: {
@@ -45,7 +47,11 @@ export let Signup = React.createClass({
 
   formInputs: function() {
     return [
-      {name: 'fullName', label: 'Full name'},
+      {
+        name: 'fullName',
+        label: 'Full name',
+        type: 'text'
+      },
       {
         name: 'username',
         label: 'Email',
@@ -66,30 +72,14 @@ export let Signup = React.createClass({
     ];
   },
 
-  isWaitListed: function() {
-
-    var hasInviteKey = !_.isEmpty(this.props.inviteKey) || this.props.inviteKey === '';
-    var hasInviteEmail = !_.isEmpty(this.props.inviteEmail);
-
-    if (hasInviteKey && hasInviteEmail) {
-      // don't show waitlist if invited user to create account and join careteam
-      return false;
-    }
-    else if (hasInviteKey) {
-      // do we have a valid waitlist key?
-      if (_.isEmpty(this.props.configuredInviteKey) ||
-        this.props.inviteKey === this.props.configuredInviteKey) {
-        return false;
-      }
-      else {
-        return true;
-      }
-    }
-    return true;
+  componentWillMount: function() {
+    this.setState({loading: false});
   },
 
-  componentWillMount: function() {
-    this.setState({loading: false, showWaitList: this.isWaitListed() });
+  componentWillReceiveProps: function(nextProps){
+    if(nextProps.location.pathname === '/signup'){
+      this.setState({madeSelection:false});
+    }
   },
 
   getInitialState: function() {
@@ -101,40 +91,35 @@ export let Signup = React.createClass({
 
     return {
       loading: true,
-      showWaitList: false,
       formValues: formValues,
       validationErrors: {},
-      notification: null
+      notification: null,
+      selected: null,
+      madeSelection: false
     };
   },
 
+  handleSelectionClick: function(option){
+    this.setState({selected: option})
+  },
+
   render: function() {
-    var form = this.renderForm();
-    var inviteIntro = this.renderInviteIntroduction();
+    let form = this.renderForm();
+    let inviteIntro = this.renderInviteIntroduction();
+    let typeSelection = this.renderTypeSelection();
     if (!this.state.loading) {
-      if (this.state.showWaitList) {
-        return (
-          <div className="waitlist">
-            <WaitList />
-          </div>
-        );
-      } else {
-        return (
-          <div className="signup">
-            <LoginNav
-              page="signup"
-              hideLinks={Boolean(this.props.inviteEmail)}
-              trackMetric={this.props.trackMetric} />
-            <LoginLogo />
-            {inviteIntro}
-            <div className="container-small-outer signup-form">
-              <div className="container-small-inner signup-form-box">
-                {form}
-              </div>
-            </div>
-          </div>
-        );
-      }
+      return (
+        <div className="signup">
+          <LoginNav
+            page="signup"
+            hideLinks={Boolean(this.props.inviteEmail)}
+            trackMetric={this.props.trackMetric} />
+          <LoginLogo />
+          {inviteIntro}
+          {typeSelection}
+          {form}
+        </div>
+      );
     }
   },
 
@@ -155,18 +140,71 @@ export let Signup = React.createClass({
     if (this.props.working) {
       submitButtonText = 'Signing up...';
     }
+    if(!this.state.madeSelection){
+      return null;
+    }
 
     return (
-      <SimpleForm
-        inputs={this.formInputs()}
-        formValues={this.state.formValues}
-        validationErrors={this.state.validationErrors}
-        submitButtonText={submitButtonText}
-        submitDisabled={this.props.working}
-        onSubmit={this.handleSubmit}
-        notification={this.state.notification || this.props.notification}/>
+      <div className="container-small-outer signup-form">
+        <div className="container-small-inner signup-form-box">
+          <SimpleForm
+            inputs={this.formInputs()}
+            formValues={this.state.formValues}
+            validationErrors={this.state.validationErrors}
+            submitButtonText={submitButtonText}
+            submitDisabled={this.props.working}
+            onSubmit={this.handleSubmit}
+            notification={this.state.notification || this.props.notification}/>
+        </div>
+      </div>
     );
 
+  },
+
+  renderTypeSelection: function() {
+    if(this.state.madeSelection){
+      return null;
+    }
+    let personalClass = 'signup-selection' + (this.state.selected === 'personal' ? ' selected' : '');
+    let clinicanClass = 'signup-selection' + (this.state.selected === 'clinician' ? ' selected' : '');
+    return (
+      <div className="signup-container container-small-outer">
+        <div className="signup-title">Sign Up for Tidepool</div>
+        <div className="signup-subtitle">Which kind of account do you need?</div>
+        <div className={personalClass} onClick={_.partial(this.handleSelectionClick, 'personal')}>
+          <div className="signup-selectionHeader">
+            <div className="signup-selectionTitle">Personal Account</div>
+            <div className="signup-selectionCheck">
+              <img src={check} />
+            </div>
+          </div>
+          <div className="signup-selectionDescription">You want to manage
+            your diabetes data. You are caring for or supporting someone
+            with diabetes.
+          </div>
+        </div>
+        <div className={clinicanClass} onClick={_.partial(this.handleSelectionClick, 'clinician')}>
+          <div className="signup-selectionHeader">
+            <div className="signup-selectionTitle">Clinician Account</div>
+            <div className="signup-selectionCheck">
+              <img src={check} />
+            </div>
+          </div>
+          <div className="signup-selectionDescription">You are a doctor, a
+            clinic or other healthcare provider that wants to use Tidepool to
+            help people in your care.
+          </div>
+        </div>
+        <div className="signup-continue">
+          <button className="btn btn-primary" disabled={!this.state.selected} onClick={this.handleContinueClick}>Continue</button>
+        </div>
+      </div>
+    );
+  },
+
+  handleContinueClick: function(e){
+    this.setState({madeSelection:true});
+    browserHistory.push(`/signup/${this.state.selected}`);
   },
 
   handleSubmit: function(formValues) {
@@ -223,18 +261,21 @@ export let Signup = React.createClass({
   },
 
   prepareFormValuesForSubmit: function(formValues) {
+    let roles = this.props.roles ? this.props.roles : [];
+    if(this.state.selected === 'clinician' && _.indexOf(roles, 'clinic') === -1){
+      roles.push('clinic');
+    }
     return {
       username: formValues.username,
       emails: [formValues.username],
       password: formValues.password,
-      roles: this.props.roles,
+      roles: roles,
       profile: {
         fullName: formValues.fullName
       }
     };
-  },
+  }
 });
-
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
@@ -259,6 +300,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     roles: utils.getRoles(ownProps.location),
     trackMetric: ownProps.routes[0].trackMetric,
     api: ownProps.routes[0].api,
+    location: ownProps.location
   });
 };
 

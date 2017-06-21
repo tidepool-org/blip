@@ -40,7 +40,7 @@ export var UserProfile = React.createClass({
   },
 
   formInputs: [
-    {name: 'fullName', label: 'Full name'},
+    {name: 'fullName', label: 'Full name', type: 'text'},
     {name: 'username', label: 'Email', type: 'email'},
     {name: 'password', label: 'Password', type: 'password'},
     {name: 'passwordConfirm', label: 'Confirm password', type: 'password'}
@@ -92,7 +92,7 @@ export var UserProfile = React.createClass({
       return false;
     };
 
-    
+
     return (
       <div className="profile">
         <div className="container-box-outer profile-subnav">
@@ -117,13 +117,13 @@ export var UserProfile = React.createClass({
         </div>
       </div>
     );
-    
+
   },
 
   renderForm: function() {
     var disabled = this.isResettingUserData();
 
-    
+
     return (
       <SimpleForm
         inputs={this.formInputs}
@@ -134,7 +134,7 @@ export var UserProfile = React.createClass({
         notification={this.state.notification}
         disabled={disabled}/>
     );
-    
+
   },
 
   isResettingUserData: function() {
