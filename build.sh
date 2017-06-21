@@ -1,9 +1,11 @@
-#! /bin/bash -eu
+#!/bin/sh -eu
 
 rm -rf node_modules
-T="$(date +%s)"
-npm install --production
-T="$(($(date +%s)-T))"
-echo "npm install completed in ${T} seconds"
-npm dedupe
-npm run build-app
+
+TIME="$(date +%s)"
+yarn --production
+TIME="$(($(date +%s)-TIME))"
+
+echo "yarn install completed in ${TIME} seconds"
+
+yarn build-app

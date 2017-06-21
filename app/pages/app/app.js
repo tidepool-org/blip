@@ -157,6 +157,8 @@ export class AppComponent extends React.Component {
       '/request-password-reset',
       '/request-password-from-uploader',
       '/signup',
+      '/signup/personal',
+      '/signup/clinician',
       '/terms'
     ];
     if (!_.includes(LOGIN_NAV_ROUTES, this.props.location)) {
@@ -218,7 +220,7 @@ export class AppComponent extends React.Component {
     var subject = 'Feedback on Blip';
 
     var shouldDisplayFooterLinks = !_.includes(
-      ['/signup', '/email-verification', '/terms', '/patients/new'],
+      ['/signup', '/signup/personal', '/signup/clinician', '/email-verification', '/terms', '/patients/new'],
       this.props.location
     );
 

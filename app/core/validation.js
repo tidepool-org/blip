@@ -26,10 +26,12 @@ import config from '../config';
 export const ABOUT_MAX_LENGTH = config.ABOUT_MAX_LENGTH || 256;
 export const PASSWORD_MIN_LENGTH = config.PASSWORD_MIN_LENGTH || 8;
 export const PASSWORD_MAX_LENGTH = config.PASSWORD_MAX_LENGTH  || 72;
+export const CLINICIAN_NAME_MAX_LENGTH = config.CLINICIAN_NAME_MAX_LENGTH || 140;
+export const CLINICIAN_PHONE_MAX_LENGTH = config.CLINICIAN_PHONE_MAX_LENGTH || 30;
 
 /**
  * Validation response when a field passes the validation checks
- * 
+ *
  * @return {Object}
  */
 export const valid = () => ({
@@ -39,9 +41,9 @@ export const valid = () => ({
 
 /**
  * Validation response when a field fails the validation checks
- * 
+ *
  * @param  {String} message error message that will be displayed in the form
- * 
+ *
  * @return {Object}
  */
 export const invalid = (message) => ({
@@ -52,7 +54,7 @@ export const invalid = (message) => ({
 /**
  * The date type validator. N.B It is has been extracted from inline definition in type
  * validators due to it being used inside of another.
- * 
+ *
  * @param  {String} fieldLabel
  * @param  {Object} fieldValue
  * @param  {Object} currentDateObj for testing purposes
@@ -89,7 +91,7 @@ const dateValidator = (fieldLabel, fieldValue, currentDateObj) => {
 
 /**
  * Map of type validators for use in validateField()
- * 
+ *
  * @type {Object}
  */
 export const typeValidators = {
@@ -176,13 +178,35 @@ export const typeValidators = {
     }
 
     return valid();
+  },
+  clinicName: (fieldLabel, fieldValue) => {
+    if (!fieldValue || fieldValue.length === 0) {
+      return invalid(errors.isRequired(fieldLabel));
+    }
+
+    if (fieldValue.length > CLINICIAN_NAME_MAX_LENGTH) {
+      return invalid(errors.isTooLong(CLINICIAN_NAME_MAX_LENGTH, fieldLabel));
+    }
+    return valid();
+  },
+  clinicPhone: (fieldLabel, fieldValue) => {
+    if (fieldValue && fieldValue.length > CLINICIAN_PHONE_MAX_LENGTH) {
+      return invalid(errors.isTooLong(CLINICIAN_PHONE_MAX_LENGTH, fieldLabel));
+    }
+    return valid();
+  },
+  clinicalRole: (fieldLabel, fieldValue) => {
+    if (!fieldValue || fieldValue.length === 0) {
+      return invalid(errors.isRequired(fieldLabel));
+    }
+    return valid();
   }
 };
 
 /**
  * Validates a single form field
- * 
- * @param  {String} type          
+ *
+ * @param  {String} type
  * @param  {String} fieldLabel
  * @param  {String|Number|Object} fieldValue
  * @param  {Object|null} prerequisites
@@ -197,9 +221,9 @@ export const validateField = (type, fieldLabel, fieldValue, prerequisites) => {
 
 /**
  * Validates an array of fields
- * 
- * @param  {Array} form 
- * 
+ *
+ * @param  {Array} form
+ *
  * @return {Object} an object which is either empty (valid form) or contains entries for field names with error messages
  */
 export const validateForm = (form) => {
