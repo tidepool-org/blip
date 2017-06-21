@@ -349,8 +349,6 @@ function TidelineData(data, opts) {
     else {
       watson = function(d) {
         if (d.type !== 'fill') {
-          // displayOffset always 0 when not timezoneAware
-          d.displayOffset = 0 ;
           if (d.timezoneOffset != null && d.conversionOffset != null) {
             d.normalTime = dt.addDuration(d.time, d.timezoneOffset * MS_IN_MIN + d.conversionOffset);
           }
@@ -371,6 +369,8 @@ function TidelineData(data, opts) {
                d.normalTime = d.deviceTime + '.000Z';
             }
           }
+          // displayOffset always 0 when not timezoneAware
+          d.displayOffset = 0 ;
           if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
             d.warning = 'Combining `time` and `timezoneOffset` does not yield `deviceTime`.';
           }
