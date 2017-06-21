@@ -364,7 +364,12 @@ function TidelineData(data, opts) {
           }
           // timezoneOffset is an optional attribute according to the Tidepool data model
           else {
-            d.normalTime = d.deviceTime + '.000Z';
+            if (_.isEmpty(d.deviceTime)) { 
+               d.normalTime = d.time;
+            }
+            else {
+               d.normalTime = d.deviceTime + '.000Z';
+            }
             d.displayOffset = 0;
           }
           if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
