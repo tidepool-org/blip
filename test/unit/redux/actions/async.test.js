@@ -357,6 +357,39 @@ describe('Actions', () => {
         expect(api.user.acceptTerms.callCount).to.equal(1);
       });
 
+      it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to clinic info for clinician', () => {
+        let acceptedDate = new Date();
+        let loggedInUserId = 500;
+        let termsData = { termsAccepted: new Date() };
+        let user = {
+          roles: ['clinic']
+        };
+        let api = {
+          user: {
+            acceptTerms: sinon.stub().callsArgWith(1, null, user)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'ACCEPT_TERMS_REQUEST' },
+          { type: 'ACCEPT_TERMS_SUCCESS', payload: { userId: loggedInUserId, acceptedDate: acceptedDate } },
+          { type: '@@router/TRANSITION', payload: { args: [ '/clinician-details' ], method: 'push' } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+
+        let store = mockStore(initialStateForTest);
+        store.dispatch(async.acceptTerms(api, acceptedDate));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
+        expect(api.user.acceptTerms.callCount).to.equal(1);
+      });
+
       it('should trigger ACCEPT_TERMS_FAILURE and it should call acceptTerms once for a failed request', () => {
         let acceptedDate = new Date();
         let termsData = { termsAccepted: acceptedDate };
@@ -1460,6 +1493,152 @@ describe('Actions', () => {
 
         let store = mockStore({ blip : initialStateForTest });
         store.dispatch(async.updateUser(api, formValues));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.put.calledWith(userUpdates)).to.be.true;
+      });
+    });
+
+    describe('updateClinicianProfile', () => {
+      it('should trigger UPDATE_USER_SUCCESS and it should call updateClinicianProfile once for a successful request and route user', () => {
+        let loggedInUserId = 400;
+        let currentUser = {
+          profile: {
+            name: 'Joe Bloggs',
+            age: 29
+          },
+          password: 'foo',
+          emails: [
+            'joe@bloggs.com'
+          ],
+          username: 'Joe'
+        };
+
+        let formValues = {
+          profile: {
+            name: 'Joe Steven Bloggs',
+            age: 30
+          },
+        };
+
+        let updatingUser = {
+          profile: {
+            name: 'Joe Steven Bloggs',
+            age: 30
+          },
+          emails: [
+            'joe@bloggs.com'
+          ],
+          username: 'Joe'
+        };
+
+        let userUpdates = {
+          profile: {
+            name: 'Joe Steven Bloggs',
+            age: 30
+          },
+          password: 'foo'
+        };
+
+        let updatedUser = {
+          profile: {
+            name: 'Joe Steven Bloggs',
+            age: 30
+          },
+          emails: [
+            'joe@bloggs.com'
+          ],
+          username: 'Joe',
+          password: 'foo'
+        };
+
+        let api = {
+          user: {
+            put: sinon.stub().callsArgWith(1, null, updatedUser)
+          }
+        };
+
+        let initialStateForTest = _.merge({}, initialState, { allUsersMap: { [loggedInUserId] : currentUser }, loggedInUserId: loggedInUserId });
+
+        let expectedActions = [
+          { type: 'UPDATE_USER_REQUEST', payload: { userId: loggedInUserId, updatingUser: updatingUser} },
+          { type: 'UPDATE_USER_SUCCESS', payload: { userId: loggedInUserId, updatedUser: updatedUser } },
+          { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip : initialStateForTest });
+        store.dispatch(async.updateClinicianProfile(api, formValues));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.put.calledWith(userUpdates)).to.be.true;
+        expect(trackMetric.calledWith('Updated Account')).to.be.true;
+      });
+
+      it('should trigger UPDATE_USER_FAILURE and it should call updateClinicianProfile once for a failed request', () => {
+        let loggedInUserId = 400;
+        let currentUser = {
+          profile: {
+            name: 'Joe Bloggs',
+            age: 29
+          },
+          password: 'foo',
+          emails: [
+            'joe@bloggs.com'
+          ],
+          username: 'Joe'
+        };
+
+        let formValues = {
+          profile: {
+            name: 'Joe Steven Bloggs',
+            age: 30
+          }
+        };
+
+        let updatingUser = {
+          profile: {
+            name: 'Joe Steven Bloggs',
+            age: 30
+          },
+          emails: [
+            'joe@bloggs.com'
+          ],
+          username: 'Joe'
+        };
+
+        let userUpdates = {
+          profile: {
+            name: 'Joe Steven Bloggs',
+            age: 30
+          },
+          password: 'foo'
+        };
+        let api = {
+          user: {
+            put: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'})
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_UPDATING_USER);
+        err.status = 500;
+
+        let initialStateForTest = _.merge({}, initialState, { allUsersMap: { [loggedInUserId] : currentUser }, loggedInUserId: loggedInUserId });
+
+        let expectedActions = [
+          { type: 'UPDATE_USER_REQUEST', payload: { userId: loggedInUserId, updatingUser: updatingUser} },
+          { type: 'UPDATE_USER_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'}} }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip : initialStateForTest });
+        store.dispatch(async.updateClinicianProfile(api, formValues));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);

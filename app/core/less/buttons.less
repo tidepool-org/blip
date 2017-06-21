@@ -28,14 +28,14 @@ a.btn {
   white-space: nowrap;
   background-image: none;
 
-  border: 1px solid @gray-dark;
-  border-radius: 0px;
+  border: 0px solid @gray-dark;
+  border-radius: 4px;
 
-  font-size: inherit;
+  font-size: @font-size-small;
   line-height: (1.5*@spacing-base) - 2*@btn-border-size;
-  padding: 0 (@spacing-base - 2*@btn-border-size);
+  padding: 5px (1.5*@spacing-base - 2*@btn-border-size);
 
-  font-weight: bold;
+  //font-weight: bold;
 
   &:hover,
   &:focus {
@@ -64,15 +64,15 @@ a.btn {
 // Main action button style
 .btn-primary,
 a.btn-primary {
-  background-color: @blue-green;
-  border-color: @blue-green;
+  background-color: @purple;
+  //border-color: @purple;
   color: #fff;
 
   &:hover,
   &:focus,
   &:active {
-    background-color: @blue-green-light;
-    border-color: @blue-green-light;
+    background-color: @purple-dark;
+    //border-color: @purple-dark;
   }
 }
 
@@ -87,7 +87,7 @@ a.btn-secondary {
   &:focus,
   &:active {
     text-decoration: underline;
-    color: @blue-green-light;
+    color: @purple;
   }
 }
 
