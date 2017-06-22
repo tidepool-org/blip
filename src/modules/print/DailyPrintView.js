@@ -156,10 +156,10 @@ class DailyPrintView {
     });
 
     this.startingPageIndex = opts.startingPageIndex || 0;
-    this.totalPages = 0;
-    this.chartsPlaced = 0;
+    this.totalPages = this.initialTotalPages = 0;
+    this.chartsPlaced = this.initialChartsPlaced = 0;
 
-    this.chartIndex = 0;
+    this.chartIndex = this.initialChartIndex = 0;
 
     // kick off the dynamic calculation of chart area based on font sizes for header and footer
     this.setHeaderSize().setFooterSize().calculateChartMinimums(this.chartArea);

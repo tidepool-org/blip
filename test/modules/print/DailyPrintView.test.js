@@ -167,9 +167,9 @@ describe('DailyPrintView', () => {
         { prop: 'smbgRadius', type: 'number' },
         { prop: 'triangleHeight', type: 'number' },
         { prop: 'startingPageIndex', type: 'number', value: opts.startingPageIndex || 0 },
-        { prop: 'totalPages', type: 'number', value: 0 },
-        { prop: 'chartsPlaced', type: 'number', value: 0 },
-        { prop: 'chartIndex', type: 'number', value: 0 },
+        { prop: 'initialTotalPages', type: 'number', value: 0 },
+        { prop: 'initialChartsPlaced', type: 'number', value: 0 },
+        { prop: 'initialChartIndex', type: 'number', value: 0 },
         { prop: 'colors', type: 'object' },
         { prop: 'gapBtwnSummaryAndChartAsPercentage', type: 'number' },
         { prop: 'rightEdge', type: 'number', value: Renderer.margins.left + Renderer.width },
@@ -193,7 +193,7 @@ describe('DailyPrintView', () => {
 
       _.each(requiredProps, item => {
         expect(Renderer[item.prop]).to.be.a(item.type);
-        item.value && expect(Renderer[item.prop]).to.eql(item.value);
+        item.hasOwnProperty('value') && expect(Renderer[item.prop]).to.eql(item.value);
       });
 
       _.each(_.keys(data.dataByDate), date => {

@@ -57,7 +57,15 @@ export function stripDatum(d) {
   ));
 }
 
-// eslint-disable-next-line require-jsdoc
+/**
+ * filterWithDurationFnMaker
+ *
+ * @param {String} dateStart - an ISO 8601-formatted timestamp of the most recent diabetes datum
+ * @param {String} dateEnd - an ISO 8601-formatted timestamp of the most recent diabetes datum
+ *
+ * @returns {Function} Function that recieves a Tidepool datum with an extended duration
+ *                     to determine if it falls into the given range
+ */
 export function filterWithDurationFnMaker(dateStart, dateEnd) {
   return (d) => {
     if (d.normalTime && d.normalEnd) {
@@ -75,16 +83,24 @@ export function filterWithDurationFnMaker(dateStart, dateEnd) {
   };
 }
 
-// eslint-disable-next-line require-jsdoc
+/**
+ * filterPointInTimeFnMaker
+ *
+ * @param {String} dateStart - an ISO 8601-formatted timestamp of the most recent diabetes datum
+ * @param {String} dateEnd - an ISO 8601-formatted timestamp of the most recent diabetes datum
+ *
+ * @returns {Function} Function that recieves a Tidepool datum to determine if it falls into
+ *                     the given range
+ */
 export function filterPointInTimeFnMaker(dateStart, dateEnd) {
   return (d) => ((d.normalTime >= dateStart) && (d.normalTime < dateEnd));
 }
 
 /**
- * selectData
+ * selectDailyViewData
  * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
  * @param {Array} groupedData - Object of tideline-preprocessed Tidepool diabetes data & notes;
- *                       grouped by type
+ *                              grouped by type
  * @param {Number} numDays - number of days of data to select
  * @param {Object} timePrefs - object containing timezoneAware Boolean, timezoneName String or null
  *
