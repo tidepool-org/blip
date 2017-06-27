@@ -222,6 +222,10 @@ utils.getCarelink = function(location) {
   return null;
 }
 
+utils.getMostRecentUploadData = (data) => {
+  return _.sortBy(_.filter(data, { type: 'upload' }), (d) => Date.parse(d.time)).reverse()[0];
+};
+
 utils.processPatientData = (comp, data, queryParams, settings) => {
   if (!(data && data.length >= 0)) {
     return null;
@@ -243,7 +247,7 @@ utils.processPatientData = (comp, data, queryParams, settings) => {
     }
   }
 
-  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
+  var mostRecentUpload = utils.getMostRecentUploadData(data);
   if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
     setNewTimePrefs(mostRecentUpload.timezone);
   }

@@ -779,9 +779,12 @@ export function fetchPatientsFailure(error, apiError) {
   };
 }
 
-export function fetchPatientDataRequest() {
+export function fetchPatientDataRequest(patientId) {
   return {
-    type: ActionTypes.FETCH_PATIENT_DATA_REQUEST
+    type: ActionTypes.FETCH_PATIENT_DATA_REQUEST,
+    meta: {
+      patientId: patientId,
+    },
   };
 }
 
@@ -796,12 +799,13 @@ export function fetchPatientDataSuccess(patientId, patientData, patientNotes) {
   };
 }
 
-export function fetchPatientDataFailure(error, apiError) {
+export function fetchPatientDataFailure(error, apiError, patientId) {
   return {
     type: ActionTypes.FETCH_PATIENT_DATA_FAILURE,
     error: error,
     meta: {
-      apiError: apiError || null
+      apiError: apiError || null,
+      patientId: patientId,
     }
   };
 }

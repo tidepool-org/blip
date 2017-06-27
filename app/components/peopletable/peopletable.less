@@ -31,18 +31,26 @@
   }
 }
 
+.peopletable-names-toggle-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  border-bottom: 1px solid @gray-light;
+}
+
 .peopletable-names-toggle {
   &:extend(.peopletable-names);
 
-  display: flex;
+  display: inline-block;
+  float: right;
   flex-direction: row-reverse;
-  border-bottom: 1px solid @gray-light;
   padding-bottom: @spacing-small;
   padding-right: @spacing-small + @spacing-base;
+  cursor: pointer;
 }
 
 .peopletable-names-showall {
   &:extend(.peopletable-names);
+  cursor: pointer;
 }
 
 .peopletable-search {
@@ -60,21 +68,31 @@
 
 .peopletable-search-label {
   font-size: @font-size-large;
-  color: @black-color;
+  color: @purple-dark;
   width: 40%;
 }
 
 .peopletable-search-box {
-  background-image: url('images/search_icon_2x.png');
+  background-image: url('images/search_icon_2x_gray.png');
   background-size: 25px 25px;
   background-repeat: no-repeat;
   background-color: @white-color;
-  background-position: @spacing-tiny center;
-  font-size: @font-size-base;
+  background-position: 7px center;
+  border: 1px solid @gray-dark;
+  font-size: 18px;
   height: @spacing-large;
   margin-bottom: @spacing-small;
   padding-left: 55px;
   width: 60%;
+
+  &:hover, &:active {
+    border-color: @purple;
+  }
+
+  &::placeholder {
+    font-style: italic;
+    color: @gray-dark;
+  }
 }
 
 .peopletable-instructions {
@@ -84,10 +102,17 @@
 }
 
 .peopletable-icon-profile {
-  width: 38px;
-  font-size: 20px;
+  width: 60px;
+  font-size: 44px;
   vertical-align: middle;
   float: left;
+  position: relative;
+  top: -8px;
+
+  &:before {
+    font-size: 100%;
+    margin: 0;
+  }
 }
 
 .peopletable-cell {
@@ -98,7 +123,7 @@
   left: 0;
   box-sizing: border-box;
   display: block;
-  padding: 8px;
+  padding: 20px 8px 8px;
   width: 100%;
 }
 
@@ -107,11 +132,22 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 18px;
+  line-height: 1.5em;
 }
+
+.fullname .peopletable-cell-content {
+  font-size: 22px;
+}
+
 
 /**
 * Overrides from fixed-data-table-2 component css
 */
+
+.public_fixedDataTable_main {
+  margin-top: 20px;
+}
 
 .public_fixedDataTableRow_main {
   font-size: @font-size-base;
@@ -125,10 +161,53 @@
   background: @white-color;
 }
 
-.peopletable-active-row .public_fixedDataTableCell_main {
-  background: @purple-medium;
-  cursor: pointer;
-  color: @white-color;
+.public_fixedDataTableCell_main {
+  background: @white-color;
+
+  &:first-child {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+  }
+
+  &:nth-child(3) {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+  }
+
+  .remove {
+    display: none;
+
+    i {
+      color: @brand-coral;
+      position: relative;
+      top: -20px;
+
+      &:hover {
+        color: @brand-orange;
+      }
+    }
+  }
+}
+
+.public_fixedDataTable_bodyRow :hover,
+.peopletable-active-row {
+
+  .peopletable-cell {
+    background: @purple-medium;
+    cursor: pointer;
+    color: @white-color;
+
+    &.remove {
+      background: @white-color;
+      color: @gray-text;
+      display: inline-block;
+      cursor: default;
+
+      i {
+        cursor: pointer;
+      }
+    }
+  }
 }
 
 .public_fixedDataTable_main,

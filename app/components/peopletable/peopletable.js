@@ -19,10 +19,12 @@ import _ from 'lodash';
 import cx from 'classnames';
 import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
+import moment from 'moment';
 import { browserHistory } from 'react-router';
 
 import { SortHeaderCell, SortTypes } from './sortheadercell';
 import personUtils from '../../core/personutils';
+import ModalOverlay from '../modaloverlay';
 
 const TextCell = ({ rowIndex, data, col, icon, ...props }) => (
   <Cell {...props}>
@@ -42,17 +44,32 @@ TextCell.propTypes = {
   icon: React.PropTypes.object,
 };
 
+const RemoveLinkCell = ({ rowIndex, data, onClick, ...props }) => (
+  <Cell {...props}>
+    <a onClick={(e) => e.stopPropagation()} className="peopletable-cell remove">
+      <i onClick={onClick(data[rowIndex], rowIndex)} className="peopletable-icon-remove icon-delete"></i>
+    </a>
+  </Cell>
+);
+
+RemoveLinkCell.propTypes = {
+  data: React.PropTypes.array,
+  rowIndex: React.PropTypes.number,
+  onClick: React.PropTypes.func,
+};
+
 class PeopleTable extends React.Component {
   constructor(props) {
     super(props);
 
+    this.getRowClassName = this.getRowClassName.bind(this);
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
-    this.handleToggleShowNames = this.handleToggleShowNames.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
+    this.handleRemovePatient = this.handleRemovePatient.bind(this);
     this.handleRowClick = this.handleRowClick.bind(this);
-    this.getRowClassName = this.getRowClassName.bind(this);
-    this.handleRowMouseEnter = this.handleRowMouseEnter.bind(this);
-    this.handleRowMouseLeave = this.handleRowMouseLeave.bind(this);
+    this.handleToggleShowNames = this.handleToggleShowNames.bind(this);
+    this.overlayClickHandler = this.overlayClickHandler.bind(this);
 
     this.state = {
       currentRowIndex: -1,
@@ -62,7 +79,12 @@ class PeopleTable extends React.Component {
       colSortDirs: {
         fullNameOrderable: SortTypes.ASC,
       },
+      showModalOverlay: false,
+      dialog: '',
     };
+
+    // Override moment's `seconds ago` for relative time for recent uploads
+    moment.localeData('en')._relativeTime.s = 'Just Now';
   }
 
   componentDidMount() {
@@ -70,11 +92,38 @@ class PeopleTable extends React.Component {
     this.handleSortChange('fullNameOrderable', SortTypes.ASC, false);
   }
 
-  buildDataList() {
-    const list = _.map(this.props.people, (person) => {
+  componentWillReceiveProps(nextProps) {
+    this.setState({ dataList: this.buildDataList(nextProps.people) });
+  }
+
+  componentWillUnmount() {
+    // Reset moment's `seconds ago` for relative time for recent uploads
+    moment.localeData('en')._relativeTime.s = 'seconds';
+  }
+
+  buildDataList(people = this.props.people) {
+    const list = _.map(people, (person) => {
       let bday = _.get(person, ['profile', 'patient', 'birthday'], '');
+      let lastUpload = null;
+      let timezone = null;
+      let relativeLastUpload = '';
+
       if (bday) {
         bday = ` ${sundial.translateMask(bday, 'YYYY-MM-DD', 'M/D/YYYY')}`;
+      }
+
+      if (person.hasOwnProperty('lastUpload')) {
+        lastUpload = _.get(person.lastUpload, ['time'], null);
+        timezone = _.get(person.lastUpload, ['timezone'], null);
+
+        if (lastUpload) {
+          const now = moment.utc().tz(timezone);
+          const uploadMoment = moment.utc(lastUpload).tz(timezone);
+          const hideSuffix = now.diff(uploadMoment, 'seconds') < 44;
+          relativeLastUpload = uploadMoment.fromNow(hideSuffix);
+        } else {
+          relativeLastUpload = 'Never'
+        }
       }
 
       return {
@@ -83,6 +132,9 @@ class PeopleTable extends React.Component {
         link: person.link,
         birthday: bday,
         birthdayOrderable: new Date(bday),
+        lastUpload: relativeLastUpload,
+        lastUploadOrderable: lastUpload ? new Date(lastUpload) : new Date(),
+        userid: person.userid,
       };
     });
 
@@ -120,7 +172,10 @@ class PeopleTable extends React.Component {
         metricMessage += 'Name';
       } else if (columnKey === 'birthdayOrderable') {
         metricMessage += 'Birthday';
+      } else if (columnKey === 'lastUploadOrderable') {
+        metricMessage += 'Last Upload';
       }
+
       metricMessage += ` ${sortDir}`;
       this.props.trackMetric(metricMessage);
     }
@@ -143,7 +198,7 @@ class PeopleTable extends React.Component {
           type="search"
           className="peopletable-search-box form-control-border"
           onChange={this.handleFilterChange}
-          placeholder="Search"
+          placeholder="Search by Name"
         />
       </div>
     );
@@ -161,14 +216,14 @@ class PeopleTable extends React.Component {
   }
 
   renderShowNamesToggle() {
-    let toggleLabel = 'Hide All';
+    let toggleLabel = 'Hide Names';
 
     if (!this.state.showNames) {
-      toggleLabel = 'Show All';
+      toggleLabel = 'Show Names';
     }
 
     return (
-      <div>
+      <div className="peopletable-names-toggle-wrapper">
         <a className="peopletable-names-toggle" onClick={this.handleToggleShowNames}>
           {toggleLabel}
         </a>
@@ -187,14 +242,6 @@ class PeopleTable extends React.Component {
     browserHistory.push(this.state.dataList[rowIndex].link);
   }
 
-  handleRowMouseEnter(e, rowIndex) {
-    this.setState({ currentRowIndex: rowIndex });
-  }
-
-  handleRowMouseLeave() {
-    this.setState({ currentRowIndex: -1 });
-  }
-
   renderPeopleInstructions() {
     const { containerHeight, containerWidth } = this.props;
 
@@ -202,11 +249,85 @@ class PeopleTable extends React.Component {
       <div style={{width: containerWidth, height: containerHeight}}>
         <div>
           <div className="peopletable-instructions">
-            Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={this.handleToggleShowNames}>Show All</a> to display all patients.
+            Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={this.handleToggleShowNames}>Show Names</a> to display all patients.
           </div>
         </div>
       </div>
     );
+  }
+
+  renderRemoveDialog(patient) {
+    return (
+      <div>
+        <div className="ModalOverlay-content">
+          <p>
+            Are you sure you want to remove this patient from your list?
+          </p>
+          <p>
+            You will no longer be able to see or comment on thier data.
+          </p>
+        </div>
+        <div className="ModalOverlay-controls">
+          <button className="btn-secondary" type="button" onClick={this.overlayClickHandler}>
+            Cancel
+          </button>
+          <button className="btn btn-danger" type="submit" onClick={this.handleRemovePatient(patient)}>
+            Remove
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  renderModalOverlay() {
+    return (
+      <ModalOverlay
+        show={this.state.showModalOverlay}
+        dialog={this.state.dialog}
+        overlayClickHandler={this.overlayClickHandler} />
+    );
+  }
+
+  handleRemovePatient(patient) {
+    var self = this;
+
+    return function () {
+      self.props.onRemovePatient(patient.userid, function (err) {
+        self.setState({
+          currentRowIndex: -1,
+          showModalOverlay: false,
+        });
+      });
+
+      self.props.trackMetric('Web - clinician removed patient account');
+    };
+
+  }
+
+  handleRemove(patient, rowIndex) {
+    var self = this;
+
+    return function (e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      self.setState({
+        currentRowIndex: rowIndex,
+        showModalOverlay: true,
+        dialog: self.renderRemoveDialog(patient)
+      });
+
+      return false;
+    };
+  }
+
+  overlayClickHandler() {
+    this.setState({
+      showModalOverlay: false,
+      currentRowIndex: -1,
+    });
   }
 
   renderPeopleTable() {
@@ -215,15 +336,13 @@ class PeopleTable extends React.Component {
 
     return (
       <Table
-        rowHeight={40}
+        rowHeight={65}
         headerHeight={50}
         width={containerWidth}
         height={containerHeight}
         rowsCount={dataList.length}
         rowClassNameGetter={this.getRowClassName}
         onRowClick={this.handleRowClick}
-        onRowMouseEnter={this.handleRowMouseEnter}
-        onRowMouseLeave={this.handleRowMouseLeave}
         {...this.props}
       >
         <Column
@@ -237,12 +356,14 @@ class PeopleTable extends React.Component {
             </SortHeaderCell>
           }
           cell={<TextCell
+            className="fullName"
             data={dataList}
             col="fullName"
             icon={<i className="peopletable-icon-profile icon-profile"></i>}
           />}
-          width={320}
+          width={375}
         />
+
         <Column
           columnKey="birthdayOrderable"
           header={
@@ -257,7 +378,33 @@ class PeopleTable extends React.Component {
             data={dataList}
             col="birthday"
           />}
-          width={560}
+          width={350}
+        />
+
+        <Column
+          columnKey="lastUploadOrderable"
+          header={
+            <SortHeaderCell
+              onSortChange={this.handleSortChange}
+              sortDir={colSortDirs.lastUploadOrderable}
+            >
+              LAST UPLOAD
+            </SortHeaderCell>
+          }
+          cell={<TextCell
+            data={dataList}
+            col="lastUpload"
+          />}
+          width={125}
+        />
+
+        <Column
+          columnKey="remove"
+          cell={<RemoveLinkCell
+            data={dataList}
+            onClick={this.handleRemove.bind(this)}
+          />}
+          width={30}
         />
       </Table>
     )
@@ -279,6 +426,7 @@ class PeopleTable extends React.Component {
         {this.renderSearchBar()}
         {this.renderShowNamesToggle()}
         {this.renderPeopleArea()}
+        {this.renderModalOverlay()}
       </div>
     );
   }
@@ -287,6 +435,7 @@ class PeopleTable extends React.Component {
 PeopleTable.propTypes = {
   people: React.PropTypes.array,
   trackMetric: React.PropTypes.func.isRequired,
+  onRemovePatient: React.PropTypes.func.isRequired,
   containerWidth: React.PropTypes.number.isRequired,
   containerHeight: React.PropTypes.number.isRequired,
 };
