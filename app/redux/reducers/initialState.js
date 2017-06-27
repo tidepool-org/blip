@@ -38,6 +38,7 @@ const initialState = {
   membershipPermissionsInOtherCareTeams: {},
   allUsersMap: {},
   patientDataMap: {},
+  fetchingPatientDataMap: {},
   patientNotesMap: {},
   pendingReceivedInvites: [],
   pendingSentInvites: [],

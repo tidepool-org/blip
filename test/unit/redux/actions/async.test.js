@@ -2180,7 +2180,7 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
+          { type: 'FETCH_PATIENT_DATA_REQUEST', meta: { patientId: patientId } },
           { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientData : patientData, patientNotes: teamNotes, patientId: patientId } }
         ];
         _.each(expectedActions, (action) => {
@@ -2224,8 +2224,8 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'FETCH_PATIENT_DATA_REQUEST', meta: { patientId: patientId } },
+          { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: { status: 500, body: 'Error!' }, patientId: patientId } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -2268,8 +2268,8 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'FETCH_PATIENT_DATA_REQUEST', meta: { patientId: patientId } },
+          { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: { status: 500, body: 'Error!' }, patientId: patientId } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

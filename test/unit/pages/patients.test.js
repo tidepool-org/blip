@@ -22,7 +22,9 @@ describe('Patients', () => {
 
   describe('componentWillReceiveProps', () => {
     it('should not redirect to patient data when justLogged query param is set and only one patient if invites present', () => {
-      var props = {};
+      var props = {
+        fetchPatientData: sinon.stub(),
+      };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
 
@@ -35,6 +37,7 @@ describe('Patients', () => {
         },
         loggedInUserId: 20,
         patients: [ { userid: 1 } ],
+        patientDataMap: {},
         showingWelcomeMessage: null
       });
 
@@ -43,19 +46,22 @@ describe('Patients', () => {
     });
 
     it('should not redirect to patient data when justLogged query param is set and more than one patient available', () => {
-      var props = {};
+      var props = {
+        fetchPatientData: sinon.stub(),
+      };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
-          loading: false,
-          location: { query: {
-              justLoggedIn: true
-            }
-          },
-          loggedInUserId: 20,
-          patients: [ { userid: 1 }, { userid: 2 } ],
-          showingWelcomeMessage: null
+        loading: false,
+        location: { query: {
+            justLoggedIn: true
+          }
+        },
+        loggedInUserId: 20,
+        patients: [ { userid: 1 }, { userid: 2 } ],
+        patientDataMap: {},
+        showingWelcomeMessage: null
       });
 
       render.componentWillReceiveProps(nextProps);
@@ -110,7 +116,8 @@ describe('Patients', () => {
 
     it('should not trigger showWelcomeMessage to patient data when justLogged query param is set and one patient and one invite available', () => {
       var props = {
-        showWelcomeMessage: sinon.stub()
+        showWelcomeMessage: sinon.stub(),
+        fetchPatientData: sinon.stub(),
       };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -123,6 +130,7 @@ describe('Patients', () => {
           },
           loggedInUserId: 20,
           patients: [ { userId: 244 } ],
+          patientDataMap: {},
           invites: [ { userId: 222 } ],
           showingWelcomeMessage: null
       });
@@ -155,7 +163,9 @@ describe('Patients', () => {
     });
 
     it('should not redirect to patient data when justLogged query param is set and only one patient available and no invites, but user is a clinic', () => {
-      var props = {};
+      var props = {
+        fetchPatientData: sinon.stub(),
+      };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
 
@@ -168,6 +178,7 @@ describe('Patients', () => {
         },
         loggedInUserId: 20,
         patients: [ { userid: 1 } ],
+        patientDataMap: {},
         showingWelcomeMessage: null,
         user: {
           roles: ['clinic']
@@ -180,7 +191,9 @@ describe('Patients', () => {
 
     // NB: this test has to go last since it affects the global window.location.pathname!
     it('should redirect to patient data when justLogged query param is set and only one patient available and no invites', () => {
-      var props = {};
+      var props = {
+        fetchPatientData: sinon.stub(),
+      };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
 
@@ -193,6 +206,7 @@ describe('Patients', () => {
         },
         loggedInUserId: 20,
         patients: [ { userid: 1 } ],
+        patientDataMap: {},
         showingWelcomeMessage: null
       });
 
@@ -232,6 +246,7 @@ describe('Patients', () => {
         targetUserId: 'a1b2c3',
         working: {
           fetchingPatients: {inProgress: false},
+          fetchingPatientData: {inProgress: false},
           fetchingPendingReceivedInvites: {inProgress: true},
           fetchingUser: {inProgress: false}
         }
@@ -306,7 +321,8 @@ describe('Patients', () => {
         showingWelcomeMessage: true,
         targetUserId: null,
         working: {
-          fetchingPatients: {inProgress: false},
+          fetchingPatients: { inProgress: false },
+          fetchingPatientData: { inProgress: false },
           fetchingPendingReceivedInvites: {inProgress: false},
           fetchingUser: {inProgress: false}
         }

@@ -37,6 +37,7 @@ export let Patients = React.createClass({
   propTypes: {
     clearPatientInView: React.PropTypes.func.isRequired,
     fetchers: React.PropTypes.array.isRequired,
+    fetchingPatientDataMap: React.PropTypes.object.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
     invites: React.PropTypes.array.isRequired,
     loading: React.PropTypes.bool.isRequired,
@@ -47,6 +48,7 @@ export let Patients = React.createClass({
     onHideWelcomeSetup: React.PropTypes.func.isRequired,
     onRemovePatient: React.PropTypes.func.isRequired,
     patients: React.PropTypes.array.isRequired,
+    patientDataMap: React.PropTypes.object.isRequired,
     showWelcomeMessage: React.PropTypes.func.isRequired,
     showingWelcomeMessage: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired,
@@ -194,18 +196,19 @@ export let Patients = React.createClass({
     }
 
     var patients = this.props.patients;
-    patients = this.addLinkToPatients(patients);
+    patients = this.extendPatientData(patients);
 
     if (personUtils.isClinic(this.props.user)) {
       return (
         <div className="container-box-inner patients-section js-patients-shared">
           <div className="patients-vca-section-content">
-            <PeopleTable
-              people={patients}
-              trackMetric={this.props.trackMetric}
-              containerWidth={880}
-              containerHeight={590}
-            />
+            <div>
+              <PeopleTable
+                people={patients}
+                trackMetric={this.props.trackMetric}
+                onRemovePatient={this.props.onRemovePatient}
+              />
+            </div>
           </div>
         </div>
       );
@@ -224,7 +227,7 @@ export let Patients = React.createClass({
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             onClickPerson={this.handleClickPatient}
-            onRemovePatient= {this.props.onRemovePatient}
+            onRemovePatient={this.props.onRemovePatient}
           />
         </div>
       </div>
@@ -273,12 +276,24 @@ export let Patients = React.createClass({
     this.props.trackMetric('Clicked Create Profile');
   },
 
-  addLinkToPatients: function(patients) {
+  extendPatientData: function(patients) {
+    const { patientDataMap } = this.props;
+    const patientsWithData = _.filter(patients, patient => _.isArray(patientDataMap[patient.userid]));
+    const allPatientDataFetched = patientsWithData.length === patients.length;
+
     return _.map(patients, function(patient) {
       patient = _.cloneDeep(patient);
+
       if (patient.userid) {
         patient.link = '/patients/' + patient.userid + '/data';
+
+        // We only want to grab the latest upload data once all the patient data is fetched.
+        // Otherwise, this will get called for each patient each time data is loaded for one of them.
+        if (allPatientDataFetched) {
+          patient.lastUpload = utils.getMostRecentUploadData(patientDataMap[patient.userid]);
+        }
       }
+
       return patient;
     });
   },
@@ -312,7 +327,7 @@ export let Patients = React.createClass({
     if (!nextProps.fetchers) {
       return
     }
-    nextProps.fetchers.forEach(fetcher => {
+    _.forEach(nextProps.fetchers, fetcher => {
       fetcher();
     });
   },
@@ -335,7 +350,26 @@ export let Patients = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    let { loading, loggedInUserId, patients, invites, location, showingWelcomeMessage, user } = nextProps;
+    let {
+      loading,
+      loggedInUserId,
+      patients,
+      invites,
+      location,
+      showingWelcomeMessage,
+      user,
+      patientDataMap,
+      fetchingPatientDataMap ,
+    } = nextProps;
+
+    _.forEach(patients, patient => {
+      const needsData = !_.isArray(patientDataMap[patient.userid]);
+      const fetchingData = _.get(fetchingPatientDataMap, [ patient.userid, 'inProgress' ], false);
+
+      if (needsData && !fetchingData) {
+        this.props.fetchPatientData(patient.userid);
+      }
+    });
 
     if (!loading && loggedInUserId && location.query.justLoggedIn) {
       if (!personUtils.isClinic(user) && patients.length === 1 && invites.length === 0) {
@@ -380,15 +414,15 @@ export function mapStateToProps(state) {
     }
 
     if (state.blip.membershipInOtherCareTeams) {
-      state.blip.membershipInOtherCareTeams.forEach((key) => {
+      _.forEach(state.blip.membershipInOtherCareTeams, (key) => {
         patientMap[key] = state.blip.allUsersMap[key];
       });
     }
 
     if (state.blip.membershipPermissionsInOtherCareTeams) {
       const permissions = state.blip.membershipPermissionsInOtherCareTeams;
-      const keys = Object.keys(state.blip.membershipPermissionsInOtherCareTeams);
-      keys.forEach((key) => {
+      const keys = _.keys(state.blip.membershipPermissionsInOtherCareTeams);
+      _.forEach(keys, (key) => {
         if (!patientMap[key]) {
           patientMap[key] = state.blip.allUsersMap[key];
         }
@@ -409,8 +443,10 @@ export function mapStateToProps(state) {
     user: user,
     loading: fetchingUser || fetchingPatients || fetchingInvites,
     loggedInUserId: state.blip.loggedInUserId,
+    fetchingPatientDataMap: state.blip.fetchingPatientDataMap,
     fetchingUser: fetchingUser,
-    patients: Object.keys(patientMap).map((key) => patientMap[key]),
+    patients: _.keys(patientMap).map((key) => patientMap[key]),
+    patientDataMap: state.blip.patientDataMap,
     invites: state.blip.pendingReceivedInvites,
     showingWelcomeMessage: state.blip.showingWelcomeMessage
   }
@@ -422,6 +458,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   removePatient: actions.async.removeMembershipInOtherCareTeam,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchPatients: actions.async.fetchPatients,
+  fetchPatientData: actions.async.fetchPatientData,
   clearPatientInView: actions.sync.clearPatientInView,
   showWelcomeMessage: actions.sync.showWelcomeMessage,
   onHideWelcomeSetup: actions.sync.hideWelcomeMessage
@@ -429,7 +466,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign(
+  return _.assign(
     {},
     _.pick(dispatchProps, ['clearPatientInView', 'showWelcomeMessage', 'onHideWelcomeSetup']),
     stateProps,
@@ -439,6 +476,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       uploadUrl: api.getUploadUrl(),
       onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
       onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
+      fetchPatientData: dispatchProps.fetchPatientData.bind(null, api, {}),
       onRemovePatient: dispatchProps.removePatient.bind(null, api),
       trackMetric: ownProps.routes[0].trackMetric
     }
