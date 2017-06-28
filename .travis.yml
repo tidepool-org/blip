@@ -9,10 +9,10 @@ node_js:
 cache: yarn
 
 before_install:
-  - if [[ `npm -v` != 4* ]]; then npm install -g npm@4; fi
+  - if [[ `npm -v` != 4* ]]; then node ./yarn-0.25.3.js global add npm@4; fi
 
 install:
-  - yarn install --frozen-lockfile
+  - node ./yarn-0.25.3.js install --frozen-lockfile
 
 addons:
   artifacts:
@@ -23,8 +23,8 @@ addons:
       - /
 
 script:
-  - npm run lint
-  - npm test
+  - node ./yarn-0.25.3.js lint
+  - node ./yarn-0.25.3.js test
   - ./artifact.sh
 
 matrix:

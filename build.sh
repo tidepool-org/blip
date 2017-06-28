@@ -1,11 +1,9 @@
 #!/bin/sh -eu
 
-rm -rf node_modules
-
 TIME="$(date +%s)"
-yarn --production
+node ./yarn-0.25.3.js --production
 TIME="$(($(date +%s)-TIME))"
 
 echo "yarn install completed in ${TIME} seconds"
 
-yarn build-app
+node ./yarn-0.25.3.js build-app
