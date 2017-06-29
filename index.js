@@ -16,7 +16,7 @@
 'use strict';
 
 var _ = require('lodash');
-var uuid = require('node-uuid');
+var uuidv4 = require('uuid/v4');
 
 var id = require('./lib/id.js');
 
@@ -148,6 +148,7 @@ module.exports = function (config, deps) {
           superagent
             .get(common.makeAPIUrl('/metrics/thisuser/' + config.metricsSource + ' - ' + eventname))
             .set(common.SESSION_TOKEN_HEADER, token)
+            .set(common.TRACE_SESSION_HEADER, common.getSessionTrace())
             .query(properties)
             .end(doNothingCB);
         }
@@ -190,6 +191,7 @@ module.exports = function (config, deps) {
           superagent
             .get(common.makeAPIUrl('/metrics/thisuser/' + config.metricsSource + ' - ' + eventname))
             .set(common.SESSION_TOKEN_HEADER, token)
+            .set(common.TRACE_SESSION_HEADER, common.getSessionTrace())
             .query(properties)
             .end(doNothingCB);
         }
@@ -474,6 +476,7 @@ module.exports = function (config, deps) {
         .post(common.makeDataUrl('/v1/users/' + userId + '/datasets'))
         .send(info)
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
+        .set(common.TRACE_SESSION_HEADER, common.getSessionTrace())
         .end(
         function (err, res) {
           if (err != null) {
@@ -509,6 +512,7 @@ module.exports = function (config, deps) {
         .put(common.makeDataUrl('/v1/datasets/' + datasetId))
         .send({dataState: 'closed'})
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
+        .set(common.TRACE_SESSION_HEADER, common.getSessionTrace())
         .end(
         function (err, res) {
 
@@ -540,6 +544,7 @@ module.exports = function (config, deps) {
         .post(common.makeDataUrl('/v1/datasets/' + datasetId + '/data'))
         .send(data)
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
+        .set(common.TRACE_SESSION_HEADER, common.getSessionTrace())
         .end(
         function (err, res) {
 
@@ -572,6 +577,7 @@ module.exports = function (config, deps) {
         .post(common.makeUploadUrl('/data/'+userId))
         .send(data)
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
+        .set(common.TRACE_SESSION_HEADER, common.getSessionTrace())
         .end(
         function (err, res) {
 
@@ -659,6 +665,7 @@ module.exports = function (config, deps) {
             superagent
               .get(common.makeUploadUrl('/v1/synctasks/' + syncTaskId))
               .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
+              .set(common.TRACE_SESSION_HEADER, common.getSessionTrace())
               .end(
                 function (err, res) {
                   if (!_.isEmpty(err)) {
@@ -693,6 +700,7 @@ module.exports = function (config, deps) {
         .send(formData)
         .type('form')
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
+        .set(common.TRACE_SESSION_HEADER, common.getSessionTrace())
         .end(
         function (err, res) {
           if (!_.isEmpty(err)) {
@@ -737,6 +745,7 @@ module.exports = function (config, deps) {
        superagent
         .get(common.makeUploadUrl('/v1/device/data/' + dataId))
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
+        .set(common.TRACE_SESSION_HEADER, common.getSessionTrace())
         .end(
         function (err, res) {
           if (err) {
@@ -813,7 +822,7 @@ module.exports = function (config, deps) {
 
       common.doPostWithToken(
         '/message/reply/' + comment.parentmessage,
-        { message: _.assign(comment, {guid: uuid.v4()}) },
+        { message: _.assign(comment, {guid: uuidv4()}) },
         { 201: function(res){ return res.body.id; }},
         cb
       );
@@ -834,7 +843,7 @@ module.exports = function (config, deps) {
 
       common.doPostWithToken(
         '/message/send/' + message.groupid,
-        { message: _.assign(message, {guid: uuid.v4()}) },
+        { message: _.assign(message, {guid: uuidv4()}) },
         { 201: function(res){ return res.body.id; }},
         cb
       );
