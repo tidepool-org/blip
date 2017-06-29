@@ -19,9 +19,8 @@ import _ from 'lodash';
 import cx from 'classnames';
 import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
-import moment from 'moment';
 import { browserHistory } from 'react-router';
-import dimensions from 'react-dimensions';
+import { WindowResizeListener } from 'react-window-resize-listener'
 
 import { SortHeaderCell, SortTypes } from './sortheadercell';
 import personUtils from '../../core/personutils';
@@ -70,7 +69,8 @@ class PeopleTable extends React.Component {
     this.handleRemovePatient = this.handleRemovePatient.bind(this);
     this.handleRowClick = this.handleRowClick.bind(this);
     this.handleToggleShowNames = this.handleToggleShowNames.bind(this);
-    this.overlayClickHandler = this.overlayClickHandler.bind(this);
+    this.handleWindowResize = this.handleWindowResize.bind(this);
+    this.handleOverlayClick = this.handleOverlayClick.bind(this);
 
     this.state = {
       currentRowIndex: -1,
@@ -82,10 +82,10 @@ class PeopleTable extends React.Component {
       },
       showModalOverlay: false,
       dialog: '',
+      tableHeight: 400,
     };
 
-    // Override moment's `seconds ago` for relative time for recent uploads
-    moment.localeData('en')._relativeTime.s = 'Just Now';
+    WindowResizeListener.DEBOUNCE_TIME = 50;
   }
 
   componentDidMount() {
@@ -93,38 +93,12 @@ class PeopleTable extends React.Component {
     this.handleSortChange('fullNameOrderable', SortTypes.ASC, false);
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({ dataList: this.buildDataList(nextProps.people) });
-  }
-
-  componentWillUnmount() {
-    // Reset moment's `seconds ago` for relative time for recent uploads
-    moment.localeData('en')._relativeTime.s = 'seconds';
-  }
-
   buildDataList(people = this.props.people) {
     const list = _.map(people, (person) => {
       let bday = _.get(person, ['profile', 'patient', 'birthday'], '');
-      let lastUpload = null;
-      let timezone = null;
-      let relativeLastUpload = '';
 
       if (bday) {
         bday = ` ${sundial.translateMask(bday, 'YYYY-MM-DD', 'M/D/YYYY')}`;
-      }
-
-      if (person.hasOwnProperty('lastUpload')) {
-        lastUpload = _.get(person.lastUpload, ['time'], null);
-        timezone = _.get(person.lastUpload, ['timezone'], null);
-
-        if (lastUpload) {
-          const now = moment.utc().tz(timezone);
-          const uploadMoment = moment.utc(lastUpload).tz(timezone);
-          const hideSuffix = now.diff(uploadMoment, 'seconds') < 44;
-          relativeLastUpload = uploadMoment.fromNow(hideSuffix);
-        } else {
-          relativeLastUpload = 'Never'
-        }
       }
 
       return {
@@ -133,8 +107,6 @@ class PeopleTable extends React.Component {
         link: person.link,
         birthday: bday,
         birthdayOrderable: new Date(bday),
-        lastUpload: relativeLastUpload,
-        lastUploadOrderable: lastUpload ? new Date(lastUpload) : new Date(),
         userid: person.userid,
       };
     });
@@ -173,8 +145,6 @@ class PeopleTable extends React.Component {
         metricMessage += 'Name';
       } else if (columnKey === 'birthdayOrderable') {
         metricMessage += 'Birthday';
-      } else if (columnKey === 'lastUploadOrderable') {
-        metricMessage += 'Last Upload';
       }
 
       metricMessage += ` ${sortDir}`;
@@ -217,19 +187,15 @@ class PeopleTable extends React.Component {
   }
 
   renderShowNamesToggle() {
-    let toggleLabel = 'Hide Names';
+    let toggleLabel = 'Hide All';
 
     if (!this.state.showNames) {
-      toggleLabel = 'Show Names';
+      toggleLabel = 'Show All';
     }
 
     return (
       <div className="peopletable-names-toggle-wrapper">
-<<<<<<< HEAD
-        <a className="peopletable-names-toggle" onClick={this.handleToggleShowNames}>
-=======
         <a className="peopletable-names-toggle" disabled={this.state.searching} onClick={this.handleToggleShowNames}>
->>>>>>> save/vca-patient-removal-last-upload
           {toggleLabel}
         </a>
       </div>
@@ -252,7 +218,7 @@ class PeopleTable extends React.Component {
       <div>
         <div>
           <div className="peopletable-instructions">
-            Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={this.handleToggleShowNames}>Show Names</a> to display all patients.
+            Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={this.handleToggleShowNames}>Show All</a> to display all patients.
           </div>
         </div>
       </div>
@@ -261,7 +227,7 @@ class PeopleTable extends React.Component {
 
   renderRemoveDialog(patient) {
     return (
-      <div>
+      <div className="patient-remove-dialog">
         <div className="ModalOverlay-content">
           <p>
             Are you sure you want to remove this patient from your list?
@@ -271,7 +237,7 @@ class PeopleTable extends React.Component {
           </p>
         </div>
         <div className="ModalOverlay-controls">
-          <button className="btn-secondary" type="button" onClick={this.overlayClickHandler}>
+          <button className="btn-secondary" type="button" onClick={this.handleOverlayClick}>
             Cancel
           </button>
           <button className="btn btn-danger" type="submit" onClick={this.handleRemovePatient(patient)}>
@@ -285,9 +251,10 @@ class PeopleTable extends React.Component {
   renderModalOverlay() {
     return (
       <ModalOverlay
+        className="peopletable-modal"
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
-        overlayClickHandler={this.overlayClickHandler} />
+        overlayClickHandler={this.handleOverlayClick} />
     );
   }
 
@@ -326,25 +293,40 @@ class PeopleTable extends React.Component {
     };
   }
 
-  overlayClickHandler() {
+  handleOverlayClick() {
     this.setState({
       showModalOverlay: false,
       currentRowIndex: -1,
     });
   }
 
-  renderPeopleTable() {
-    const { colSortDirs, dataList } = this.state;
-    const { containerHeight, containerWidth } = this.props;
+  handleWindowResize(windowSize) {
+    let tableWidth = 880;
 
-    console.log(containerWidth, containerHeight);
+    switch (true) {
+      case (windowSize.windowWidth < 650):
+        tableWidth = windowSize.windowWidth - 23;
+        break;
+
+      case (windowSize.windowWidth < 1020):
+        tableWidth = 610;
+        break;
+    }
+
+    this.setState({
+      tableWidth,
+    });
+  }
+
+  renderPeopleTable() {
+    const { colSortDirs, dataList, tableWidth, tableHeight } = this.state;
 
     return (
       <Table
         rowHeight={65}
         headerHeight={50}
-        width={containerWidth}
-        height={containerHeight}
+        width={tableWidth}
+        height={tableHeight}
         rowsCount={dataList.length}
         rowClassNameGetter={this.getRowClassName}
         onRowClick={this.handleRowClick}
@@ -366,12 +348,8 @@ class PeopleTable extends React.Component {
             col="fullName"
             icon={<i className="peopletable-icon-profile icon-profile"></i>}
           />}
-<<<<<<< HEAD
-          width={375}
-=======
           width={20}
           flexGrow={1}
->>>>>>> save/vca-patient-removal-last-upload
         />
 
         <Column
@@ -388,33 +366,8 @@ class PeopleTable extends React.Component {
             data={dataList}
             col="birthday"
           />}
-<<<<<<< HEAD
-          width={350}
-=======
-          width={20}
-          flexGrow={1}
->>>>>>> save/vca-patient-removal-last-upload
-        />
-
-        <Column
-          columnKey="lastUploadOrderable"
-          header={
-            <SortHeaderCell
-              onSortChange={this.handleSortChange}
-              sortDir={colSortDirs.lastUploadOrderable}
-            >
-              LAST UPLOAD
-            </SortHeaderCell>
-          }
-          cell={<TextCell
-            data={dataList}
-            col="lastUpload"
-          />}
-          width={125}
-<<<<<<< HEAD
-=======
+          width={120}
           flexGrow={0}
->>>>>>> save/vca-patient-removal-last-upload
         />
 
         <Column
@@ -424,10 +377,7 @@ class PeopleTable extends React.Component {
             onClick={this.handleRemove.bind(this)}
           />}
           width={30}
-<<<<<<< HEAD
-=======
           flexGrow={0}
->>>>>>> save/vca-patient-removal-last-upload
         />
       </Table>
     )
@@ -450,6 +400,7 @@ class PeopleTable extends React.Component {
         {this.renderShowNamesToggle()}
         {this.renderPeopleArea()}
         {this.renderModalOverlay()}
+        <WindowResizeListener onResize={this.handleWindowResize} />
       </div>
     );
   }
@@ -459,15 +410,6 @@ PeopleTable.propTypes = {
   people: React.PropTypes.array,
   trackMetric: React.PropTypes.func.isRequired,
   onRemovePatient: React.PropTypes.func.isRequired,
-  containerWidth: React.PropTypes.number.isRequired,
-  containerHeight: React.PropTypes.number.isRequired,
 };
 
-module.exports = dimensions({
-  getHeight: function () {
-    const min = 200;
-    const calculated = window.innerHeight - 232;
-    return (calculated < min) ? min : calculated;
-  },
-})(PeopleTable);
-// module.exports = PeopleTable;
+module.exports = PeopleTable;

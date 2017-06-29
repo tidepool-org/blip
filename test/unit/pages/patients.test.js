@@ -22,9 +22,7 @@ describe('Patients', () => {
 
   describe('componentWillReceiveProps', () => {
     it('should not redirect to patient data when justLogged query param is set and only one patient if invites present', () => {
-      var props = {
-        fetchPatientData: sinon.stub(),
-      };
+      var props = {};
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
 
@@ -37,7 +35,6 @@ describe('Patients', () => {
         },
         loggedInUserId: 20,
         patients: [ { userid: 1 } ],
-        patientDataMap: {},
         showingWelcomeMessage: null
       });
 
@@ -46,9 +43,7 @@ describe('Patients', () => {
     });
 
     it('should not redirect to patient data when justLogged query param is set and more than one patient available', () => {
-      var props = {
-        fetchPatientData: sinon.stub(),
-      };
+      var props = {};
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
       var currentPath = window.location.pathname;
@@ -60,7 +55,6 @@ describe('Patients', () => {
         },
         loggedInUserId: 20,
         patients: [ { userid: 1 }, { userid: 2 } ],
-        patientDataMap: {},
         showingWelcomeMessage: null
       });
 
@@ -117,7 +111,6 @@ describe('Patients', () => {
     it('should not trigger showWelcomeMessage to patient data when justLogged query param is set and one patient and one invite available', () => {
       var props = {
         showWelcomeMessage: sinon.stub(),
-        fetchPatientData: sinon.stub(),
       };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -130,7 +123,6 @@ describe('Patients', () => {
           },
           loggedInUserId: 20,
           patients: [ { userId: 244 } ],
-          patientDataMap: {},
           invites: [ { userId: 222 } ],
           showingWelcomeMessage: null
       });
@@ -163,9 +155,7 @@ describe('Patients', () => {
     });
 
     it('should not redirect to patient data when justLogged query param is set and only one patient available and no invites, but user is a clinic', () => {
-      var props = {
-        fetchPatientData: sinon.stub(),
-      };
+      var props = {};
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
 
@@ -178,7 +168,6 @@ describe('Patients', () => {
         },
         loggedInUserId: 20,
         patients: [ { userid: 1 } ],
-        patientDataMap: {},
         showingWelcomeMessage: null,
         user: {
           roles: ['clinic']
@@ -191,9 +180,7 @@ describe('Patients', () => {
 
     // NB: this test has to go last since it affects the global window.location.pathname!
     it('should redirect to patient data when justLogged query param is set and only one patient available and no invites', () => {
-      var props = {
-        fetchPatientData: sinon.stub(),
-      };
+      var props = {};
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
 
@@ -206,7 +193,6 @@ describe('Patients', () => {
         },
         loggedInUserId: 20,
         patients: [ { userid: 1 } ],
-        patientDataMap: {},
         showingWelcomeMessage: null
       });
 
@@ -246,7 +232,6 @@ describe('Patients', () => {
         targetUserId: 'a1b2c3',
         working: {
           fetchingPatients: {inProgress: false},
-          fetchingPatientData: {inProgress: false},
           fetchingPendingReceivedInvites: {inProgress: true},
           fetchingUser: {inProgress: false}
         }

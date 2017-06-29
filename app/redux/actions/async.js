@@ -853,7 +853,7 @@ export function fetchPatients(api) {
  */
 export function fetchPatientData(api, options, id) {
   return (dispatch) => {
-    dispatch(sync.fetchPatientDataRequest(id));
+    dispatch(sync.fetchPatientDataRequest());
 
     async.parallel({
       patientData: api.patientData.get.bind(api, id, options),
@@ -861,7 +861,7 @@ export function fetchPatientData(api, options, id) {
     }, (err, results) => {
       if (err) {
         dispatch(sync.fetchPatientDataFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err, id
+          createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
         ));
       } else {
         let patientData = results.patientData || [];

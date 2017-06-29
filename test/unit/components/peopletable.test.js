@@ -67,11 +67,14 @@ describe('PeopleTable', () => {
       }
     ],
     trackMetric: sinon.stub(),
-    containerWidth: 500,
-    containerHeight: 300,
+    size: {
+      width: 880,
+      height: 400,
+    },
   };
 
   let wrapper;
+
   beforeEach(() => {
     props.trackMetric.reset();
     wrapper = mount(

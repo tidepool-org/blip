@@ -54,9 +54,17 @@
 
 .patients-vca-section-content {
   padding-top: @spacing-large;
-  // width: 880px;
-  // margin: 0 auto;
+  width: 100%;
+  margin: 0 auto;
   padding-bottom: @spacing-base;
+
+  @media (min-width: 650px) {
+    width: 610px;
+  }
+
+  @media (min-width: @screen-lg-min) {
+    width: 880px;
+  }
 }
 
 .patients-new-account {

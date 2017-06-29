@@ -375,49 +375,6 @@ export const messageThread = (state = initialState.messageThread, action) => {
   }
 };
 
-export const fetchingPatientDataMap = (state = initialState.fetchingPatientDataMap, action) => {
-  switch(action.type) {
-    case types.FETCH_PATIENT_DATA_REQUEST: {
-      const { patientId } = action.meta;
-      return update(state, {
-        [patientId]: { $set: {
-          inProgress: true,
-          completed: false,
-        } }
-      });
-    }
-    case types.FETCH_PATIENT_DATA_SUCCESS: {
-      const { patientId } = action.payload;
-      return update(state, {
-        [patientId]: { $set: {
-          inProgress: false,
-          completed: true,
-        } }
-      });
-    }
-    case types.FETCH_PATIENT_DATA_FAILURE: {
-      const { patientId } = action.meta;
-      return update(state, {
-        [patientId]: { $set: {
-          inProgress: false,
-          completed: true,
-        } }
-      });
-    }
-    case types.CLEAR_PATIENT_DATA: {
-      const { patientId } = action.payload;
-      return update(state, {
-        [patientId]: { $set: {
-          inProgress: false,
-          completed: false,
-        } }
-      });
-    }
-    default:
-      return state;
-  }
-};
-
 export const patientDataMap = (state = initialState.patientDataMap, action) => {
   switch(action.type) {
     case types.FETCH_PATIENT_DATA_SUCCESS: {
