@@ -5953,6 +5953,12 @@ react-deep-force-update@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/react-deep-force-update/-/react-deep-force-update-2.0.1.tgz#4f7f6c12c3e7de42f345992a3c518236fa1ecad3"
 
+react-dimensions@1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/react-dimensions/-/react-dimensions-1.3.0.tgz#f5dec8e7b84644a605a900cae0f4a6654acf4e9f"
+  dependencies:
+    element-resize-event "^2.0.4"
+
 react-dimensions@2.0.0-alpha1:
   version "2.0.0-alpha1"
   resolved "https://registry.yarnpkg.com/react-dimensions/-/react-dimensions-2.0.0-alpha1.tgz#03c1a5265f0786311547954674379da90749d001"

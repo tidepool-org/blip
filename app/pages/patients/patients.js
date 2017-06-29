@@ -202,13 +202,13 @@ export let Patients = React.createClass({
       return (
         <div className="container-box-inner patients-section js-patients-shared">
           <div className="patients-vca-section-content">
-            <PeopleTable
-              people={patients}
-              trackMetric={this.props.trackMetric}
-              containerWidth={880}
-              containerHeight={590}
-              onRemovePatient={this.props.onRemovePatient}
-            />
+            <div>
+              <PeopleTable
+                people={patients}
+                trackMetric={this.props.trackMetric}
+                onRemovePatient={this.props.onRemovePatient}
+              />
+            </div>
           </div>
         </div>
       );

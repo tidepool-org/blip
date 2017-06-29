@@ -21,6 +21,7 @@ import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
 import moment from 'moment';
 import { browserHistory } from 'react-router';
+import dimensions from 'react-dimensions';
 
 import { SortHeaderCell, SortTypes } from './sortheadercell';
 import personUtils from '../../core/personutils';
@@ -224,7 +225,11 @@ class PeopleTable extends React.Component {
 
     return (
       <div className="peopletable-names-toggle-wrapper">
+<<<<<<< HEAD
         <a className="peopletable-names-toggle" onClick={this.handleToggleShowNames}>
+=======
+        <a className="peopletable-names-toggle" disabled={this.state.searching} onClick={this.handleToggleShowNames}>
+>>>>>>> save/vca-patient-removal-last-upload
           {toggleLabel}
         </a>
       </div>
@@ -243,10 +248,8 @@ class PeopleTable extends React.Component {
   }
 
   renderPeopleInstructions() {
-    const { containerHeight, containerWidth } = this.props;
-
     return (
-      <div style={{width: containerWidth, height: containerHeight}}>
+      <div>
         <div>
           <div className="peopletable-instructions">
             Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={this.handleToggleShowNames}>Show Names</a> to display all patients.
@@ -334,6 +337,8 @@ class PeopleTable extends React.Component {
     const { colSortDirs, dataList } = this.state;
     const { containerHeight, containerWidth } = this.props;
 
+    console.log(containerWidth, containerHeight);
+
     return (
       <Table
         rowHeight={65}
@@ -361,7 +366,12 @@ class PeopleTable extends React.Component {
             col="fullName"
             icon={<i className="peopletable-icon-profile icon-profile"></i>}
           />}
+<<<<<<< HEAD
           width={375}
+=======
+          width={20}
+          flexGrow={1}
+>>>>>>> save/vca-patient-removal-last-upload
         />
 
         <Column
@@ -378,7 +388,12 @@ class PeopleTable extends React.Component {
             data={dataList}
             col="birthday"
           />}
+<<<<<<< HEAD
           width={350}
+=======
+          width={20}
+          flexGrow={1}
+>>>>>>> save/vca-patient-removal-last-upload
         />
 
         <Column
@@ -396,6 +411,10 @@ class PeopleTable extends React.Component {
             col="lastUpload"
           />}
           width={125}
+<<<<<<< HEAD
+=======
+          flexGrow={0}
+>>>>>>> save/vca-patient-removal-last-upload
         />
 
         <Column
@@ -405,6 +424,10 @@ class PeopleTable extends React.Component {
             onClick={this.handleRemove.bind(this)}
           />}
           width={30}
+<<<<<<< HEAD
+=======
+          flexGrow={0}
+>>>>>>> save/vca-patient-removal-last-upload
         />
       </Table>
     )
@@ -440,4 +463,11 @@ PeopleTable.propTypes = {
   containerHeight: React.PropTypes.number.isRequired,
 };
 
-module.exports = PeopleTable;
+module.exports = dimensions({
+  getHeight: function () {
+    const min = 200;
+    const calculated = window.innerHeight - 232;
+    return (calculated < min) ? min : calculated;
+  },
+})(PeopleTable);
+// module.exports = PeopleTable;

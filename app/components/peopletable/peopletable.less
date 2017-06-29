@@ -15,20 +15,10 @@
 
 @import '../../../node_modules/fixed-data-table-2/dist/fixed-data-table.css';
 
-
-.peopletable-names {
-  color: @link-alternative-color;
-
-  a {
-    cursor: pointer;
-    color: @black-color;
-    font-size: @font-size-base;
-    text-decoration: none;
-    &:hover,
-    &:active {
-      color: @link-alternative-hover-color;
-    }
-  }
+.peopletable-names-toggle-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  border-bottom: 1px solid @gray-light;
 }
 
 .peopletable-names-toggle-wrapper {
@@ -38,19 +28,44 @@
 }
 
 .peopletable-names-toggle {
+<<<<<<< HEAD
   &:extend(.peopletable-names);
 
+=======
+  color: @gray-darkest;
+>>>>>>> save/vca-patient-removal-last-upload
   display: inline-block;
   float: right;
   flex-direction: row-reverse;
   padding-bottom: @spacing-small;
   padding-right: @spacing-small + @spacing-base;
   cursor: pointer;
+<<<<<<< HEAD
 }
 
 .peopletable-names-showall {
   &:extend(.peopletable-names);
   cursor: pointer;
+=======
+
+  &:hover {
+    color: @purple;
+  }
+
+  &[disabled] {
+    color: @gray-dark;
+    pointer-events: none;
+  }
+}
+
+.peopletable-names-showall {
+  color: @purple;
+  cursor: pointer;
+
+  &:hover {
+    color: @purple-dark,
+  }
+>>>>>>> save/vca-patient-removal-last-upload
 }
 
 .peopletable-search {
