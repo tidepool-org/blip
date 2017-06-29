@@ -67,10 +67,6 @@ describe('PeopleTable', () => {
       }
     ],
     trackMetric: sinon.stub(),
-    size: {
-      width: 880,
-      height: 400,
-    },
   };
 
   let wrapper;

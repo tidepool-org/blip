@@ -63,14 +63,14 @@ class PeopleTable extends React.Component {
     super(props);
 
     this.getRowClassName = this.getRowClassName.bind(this);
-    this.handleSortChange = this.handleSortChange.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
+    this.handleOverlayClick = this.handleOverlayClick.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
     this.handleRemovePatient = this.handleRemovePatient.bind(this);
     this.handleRowClick = this.handleRowClick.bind(this);
+    this.handleSortChange = this.handleSortChange.bind(this);
     this.handleToggleShowNames = this.handleToggleShowNames.bind(this);
     this.handleWindowResize = this.handleWindowResize.bind(this);
-    this.handleOverlayClick = this.handleOverlayClick.bind(this);
 
     this.state = {
       currentRowIndex: -1,
@@ -82,7 +82,7 @@ class PeopleTable extends React.Component {
       },
       showModalOverlay: false,
       dialog: '',
-      tableHeight: 400,
+      tableHeight: 590,
     };
 
     WindowResizeListener.DEBOUNCE_TIME = 50;
@@ -93,8 +93,8 @@ class PeopleTable extends React.Component {
     this.handleSortChange('fullNameOrderable', SortTypes.ASC, false);
   }
 
-  buildDataList(people = this.props.people) {
-    const list = _.map(people, (person) => {
+  buildDataList() {
+    const list = _.map(this.props.people, (person) => {
       let bday = _.get(person, ['profile', 'patient', 'birthday'], '');
 
       if (bday) {
@@ -146,7 +146,6 @@ class PeopleTable extends React.Component {
       } else if (columnKey === 'birthdayOrderable') {
         metricMessage += 'Birthday';
       }
-
       metricMessage += ` ${sortDir}`;
       this.props.trackMetric(metricMessage);
     }
@@ -215,12 +214,8 @@ class PeopleTable extends React.Component {
 
   renderPeopleInstructions() {
     return (
-      <div>
-        <div>
-          <div className="peopletable-instructions">
-            Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={this.handleToggleShowNames}>Show All</a> to display all patients.
-          </div>
-        </div>
+      <div className="peopletable-instructions">
+        Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={this.handleToggleShowNames}>Show All</a> to display all patients.
       </div>
     );
   }
@@ -251,7 +246,6 @@ class PeopleTable extends React.Component {
   renderModalOverlay() {
     return (
       <ModalOverlay
-        className="peopletable-modal"
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.handleOverlayClick} />
@@ -271,7 +265,6 @@ class PeopleTable extends React.Component {
 
       self.props.trackMetric('Web - clinician removed patient account');
     };
-
   }
 
   handleRemove(patient, rowIndex) {

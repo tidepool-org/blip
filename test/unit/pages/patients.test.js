@@ -110,7 +110,7 @@ describe('Patients', () => {
 
     it('should not trigger showWelcomeMessage to patient data when justLogged query param is set and one patient and one invite available', () => {
       var props = {
-        showWelcomeMessage: sinon.stub(),
+        showWelcomeMessage: sinon.stub()
       };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -306,8 +306,7 @@ describe('Patients', () => {
         showingWelcomeMessage: true,
         targetUserId: null,
         working: {
-          fetchingPatients: { inProgress: false },
-          fetchingPatientData: { inProgress: false },
+          fetchingPatients: {inProgress: false},
           fetchingPendingReceivedInvites: {inProgress: false},
           fetchingUser: {inProgress: false}
         }
