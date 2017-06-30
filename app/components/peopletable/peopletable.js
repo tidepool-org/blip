@@ -44,19 +44,21 @@ TextCell.propTypes = {
   icon: React.PropTypes.object,
 };
 
-const RemoveLinkCell = ({ rowIndex, data, onClick, ...props }) => (
+const RemoveLinkCell = ({ rowIndex, data, handleClick, ...props }) => (
   <Cell {...props}>
-    <a onClick={(e) => e.stopPropagation()} className="peopletable-cell remove">
-      <i onClick={onClick(data[rowIndex], rowIndex)} className="peopletable-icon-remove icon-delete"></i>
-    </a>
+    <div onClick={(e) => e.stopPropagation()} className="peopletable-cell remove">
+      <i onClick={handleClick(data[rowIndex], rowIndex)} className="peopletable-icon-remove icon-delete"></i>
+    </div>
   </Cell>
 );
 
 RemoveLinkCell.propTypes = {
   data: React.PropTypes.array,
   rowIndex: React.PropTypes.number,
-  onClick: React.PropTypes.func,
+  handleClick: React.PropTypes.func,
 };
+
+RemoveLinkCell.displayName = 'RemoveLinkCell';
 
 class PeopleTable extends React.Component {
   constructor(props) {
@@ -253,36 +255,25 @@ class PeopleTable extends React.Component {
   }
 
   handleRemovePatient(patient) {
-    var self = this;
-
-    return function () {
-      self.props.onRemovePatient(patient.userid, function (err) {
-        self.setState({
+    return () => {
+      this.props.onRemovePatient(patient.userid, function (err) {
+        this.setState({
           currentRowIndex: -1,
           showModalOverlay: false,
         });
       });
 
-      self.props.trackMetric('Web - clinician removed patient account');
+      this.props.trackMetric('Web - clinician removed patient account');
     };
   }
 
   handleRemove(patient, rowIndex) {
-    var self = this;
-
-    return function (e) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-
-      self.setState({
+    return () => {
+      this.setState({
         currentRowIndex: rowIndex,
         showModalOverlay: true,
-        dialog: self.renderRemoveDialog(patient)
+        dialog: this.renderRemoveDialog(patient)
       });
-
-      return false;
     };
   }
 
@@ -367,7 +358,7 @@ class PeopleTable extends React.Component {
           columnKey="remove"
           cell={<RemoveLinkCell
             data={dataList}
-            onClick={this.handleRemove.bind(this)}
+            handleClick={this.handleRemove.bind(this)}
           />}
           width={30}
           flexGrow={0}
