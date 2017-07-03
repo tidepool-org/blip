@@ -20,7 +20,7 @@ import cx from 'classnames';
 import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
 import { browserHistory } from 'react-router';
-import { WindowResizeListener } from 'react-window-resize-listener'
+import WindowSizeListener from 'react-window-size-listener'
 
 import { SortHeaderCell, SortTypes } from './sortheadercell';
 import personUtils from '../../core/personutils';
@@ -87,7 +87,7 @@ class PeopleTable extends React.Component {
       tableHeight: 590,
     };
 
-    WindowResizeListener.DEBOUNCE_TIME = 50;
+    WindowSizeListener.DEBOUNCE_TIME = 50;
   }
 
   componentDidMount() {
@@ -384,7 +384,7 @@ class PeopleTable extends React.Component {
         {this.renderShowNamesToggle()}
         {this.renderPeopleArea()}
         {this.renderModalOverlay()}
-        <WindowResizeListener onResize={this.handleWindowResize} />
+        <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );
   }
