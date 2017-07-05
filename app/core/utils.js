@@ -114,6 +114,17 @@ utils.isOnSamePage = (oldProps, newProps) => {
   return oldProps.location === newProps.location;
 }
 
+/**
+ * Utility function to strip trailing slashes from a string
+ *
+ * @param  {str} string
+ *
+ * @return {String}
+ */
+utils.stripTrailingSlash = (str) => {
+  return str.replace(/\/$/, '');
+}
+
 utils.buildExceptionDetails = () =>{
   return {
     href: window.location.href,

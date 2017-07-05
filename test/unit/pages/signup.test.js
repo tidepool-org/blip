@@ -27,7 +27,8 @@ describe('Signup', function () {
         configuredInviteKey: '',
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
-        working: false
+        working: false,
+        location: { pathname: 'signup' },
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -37,7 +38,8 @@ describe('Signup', function () {
     it('should render signup-selection when no key is set and no key is configured', function () {
       var props = {
         configuredInviteKey: '',
-        inviteKey: ''
+        inviteKey: '',
+        location: { pathname: 'signup' },
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -48,7 +50,8 @@ describe('Signup', function () {
     it('should render signup-selection when key is set and validates', function () {
       var props = {
         configuredInviteKey: 'foobar',
-        inviteKey: 'foobar'
+        inviteKey: 'foobar',
+        location: { pathname: 'signup' },
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -60,7 +63,8 @@ describe('Signup', function () {
       var props = {
         configuredInviteKey: 'foobar',
         inviteKey: 'wrong-key',
-        inviteEmail: 'gordonmdent@gmail.com'
+        inviteEmail: 'gordonmdent@gmail.com',
+        location: { pathname: 'signup' },
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -72,7 +76,8 @@ describe('Signup', function () {
       var props = {
         configuredInviteKey: 'foobar',
         inviteKey: 'foobar',
-        inviteEmail: ''
+        inviteEmail: '',
+        location: { pathname: 'signup' },
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -83,7 +88,8 @@ describe('Signup', function () {
     it('should render signup-form when selection has been made', function () {
       var props = {
         configuredInviteKey: '',
-        inviteKey: ''
+        inviteKey: '',
+        location: { pathname: 'signup' },
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -95,7 +101,8 @@ describe('Signup', function () {
   describe('getInitialState', function() {
     it('should return expected initial state', function() {
       var props = {
-        inviteEmail: 'gordonmdent@gmail.com'
+        inviteEmail: 'gordonmdent@gmail.com',
+        location: { pathname: 'signup' },
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);

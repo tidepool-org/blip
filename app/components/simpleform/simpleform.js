@@ -28,7 +28,7 @@ var SimpleForm = React.createClass({
     submitButtonText: React.PropTypes.string,
     submitDisabled: React.PropTypes.bool,
     onSubmit: React.PropTypes.func,
-    onChnage: React.PropTypes.func,
+    onChange: React.PropTypes.func,
     notification: React.PropTypes.object,
     disabled: React.PropTypes.bool
   },
