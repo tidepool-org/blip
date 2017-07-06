@@ -477,6 +477,9 @@ module.exports = function (config, deps) {
         .end(
         function (err, res) {
           if (err != null) {
+            if (err.status !== 201) {
+              return cb(new Error('Unexpected HTTP response: ' + err.status));
+            }
             return cb(err);
           } else if (res.error === true) {
             if(_.isObject(res.body)) {
@@ -513,6 +516,9 @@ module.exports = function (config, deps) {
         function (err, res) {
 
           if (err != null) {
+            if (err.status !== 200) {
+              return cb((err.response && err.response.body) || err);
+            }
             return cb(err);
           } else if (res.status !== 200) {
             return cb(res.body);
@@ -544,6 +550,9 @@ module.exports = function (config, deps) {
         function (err, res) {
 
           if (err != null) {
+            if (err.status !== 200) {
+              return cb((err.response && err.response.body) || err);
+            }
             return cb(err);
           } else if (res.status !== 200) {
             return cb(res.body);
@@ -576,6 +585,9 @@ module.exports = function (config, deps) {
         function (err, res) {
 
           if (err != null) {
+            if (err.status !== 200) {
+              return cb((err.response && err.response.body) || err);
+            }
             return cb(err);
           } else if (res.status !== 200) {
             return cb(res.body);
@@ -662,6 +674,7 @@ module.exports = function (config, deps) {
               .end(
                 function (err, res) {
                   if (!_.isEmpty(err)) {
+                    err.body = (err.response && err.response.body) || '';
                     log.info('Sync failed', JSON.stringify(err));
                     return done(err);
                   }
@@ -696,6 +709,7 @@ module.exports = function (config, deps) {
         .end(
         function (err, res) {
           if (!_.isEmpty(err)) {
+            err.body = (err.response && err.response.body) || '';
             log.info('Upload Failed');
             return cb(err);
           }
@@ -740,6 +754,7 @@ module.exports = function (config, deps) {
         .end(
         function (err, res) {
           if (err) {
+            err.body = (err.response && err.response.body) || '';
             return cb(err);
           }
 
