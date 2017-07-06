@@ -15,27 +15,37 @@
  * == BSD2 LICENSE ==
  */
 
-import * as patients from '../../data/patient/fixtures';
-import * as misc from '../../src/utils/misc';
+import * as actionTypes from '../constants/actionTypes';
 
-describe('misc utility functions', () => {
-  describe('getPatientFullName', () => {
-    const {
-      standard,
-      fakeChildAcct,
-    } = patients;
+export function generatePDFRequest(type, mostRecent, groupedData, opts) {
+  return {
+    type: actionTypes.GENERATE_PDF_REQUEST,
+    meta: { WebWorker: true, origin: document.location.origin },
+    payload: {
+      type,
+      mostRecent,
+      groupedData,
+      opts,
+    },
+  };
+}
 
-    it('should be a function', () => {
-      assert.isFunction(misc.getPatientFullName);
-    });
+export function generatePDFSuccess(pdf) {
+  return {
+    type: actionTypes.GENERATE_PDF_SUCCESS,
+    payload: { pdf },
+  };
+}
 
-    it('returns patient name', () => {
-      expect(misc.getPatientFullName(standard)).to.equal(standard.profile.fullName);
-    });
+export function generatePDFFailure(error) {
+  return {
+    type: actionTypes.GENERATE_PDF_FAILURE,
+    error,
+  };
+}
 
-    it('returns child name when isOtherPerson', () => {
-      expect(misc.getPatientFullName(fakeChildAcct))
-        .to.equal(fakeChildAcct.profile.patient.fullName);
-    });
-  });
-});
+export function removeGeneratedPDFS() {
+  return {
+    type: actionTypes.REMOVE_GENERATED_PDFS,
+  };
+}

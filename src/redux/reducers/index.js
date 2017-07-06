@@ -19,5 +19,6 @@ import { combineReducers } from 'redux';
 
 import trends from './trendsStateByUser';
 import settings from './settingsStateByUser';
+import pdf from './pdf';
 
-export default combineReducers({ settings, trends });
+export default combineReducers({ settings, trends, pdf });

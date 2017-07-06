@@ -1,5 +1,5 @@
 
-> @tidepool/viz@0.8.1 apidocs /Users/jebeck/Tidepool/viz
+> @tidepool/viz@0.8.2-alpha apidocs /Users/clintbeacock/Sites/tidepool/viz
 > jsdoc2md "src/utils/datetime.js"
 
 ## Functions
@@ -13,6 +13,9 @@
 </dd>
 <dt><a href="#formatClocktimeFromMsPer24">formatClocktimeFromMsPer24(duration, [format])</a> ⇒ <code>String</code></dt>
 <dd><p>formatClocktimeFromMsPer24</p>
+</dd>
+<dt><a href="#formatCurrentDate">formatCurrentDate()</a> ⇒ <code>String</code></dt>
+<dd><p>formatCurrentDate</p>
 </dd>
 <dt><a href="#formatDiagnosisDate">formatDiagnosisDate(patient)</a> ⇒ <code>String</code></dt>
 <dd><p>formatDiagnosisDate</p>
@@ -68,6 +71,13 @@ formatClocktimeFromMsPer24
 | duration | <code>Number</code> | positive integer representing a time of day                            in milliseconds within a 24-hr day |
 | [format] | <code>String</code> | optional moment display format string; default is 'h:mm a' |
 
+<a name="formatCurrentDate"></a>
+
+## formatCurrentDate() ⇒ <code>String</code>
+formatCurrentDate
+
+**Kind**: global function  
+**Returns**: <code>String</code> - formatted current date, e.g., 'Jul 4, 2017';  
 <a name="formatDiagnosisDate"></a>
 
 ## formatDiagnosisDate(patient) ⇒ <code>String</code>

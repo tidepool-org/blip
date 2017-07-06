@@ -42,7 +42,7 @@
 import _ from 'lodash';
 // using d3-time-format because time is time of data access in
 // user’s browser time, not PwD’s configured timezone
-import { utcFormat } from 'd3-time-format';
+import { utcFormat, timeFormat } from 'd3-time-format';
 import moment from 'moment-timezone';
 
 export const THIRTY_MINS = 1800000;
@@ -93,6 +93,14 @@ export function formatClocktimeFromMsPer24(milliseconds, format = 'h:mm a') {
     throw new Error('First argument must be a value in milliseconds per twenty-four hour day!');
   }
   return moment.utc(milliseconds).format(format);
+}
+
+/**
+ * formatCurrentDate
+ * @return {String} formatted current date, e.g., 'Jul 4, 2017';
+ */
+export function formatCurrentDate() {
+  return timeFormat('%b %-d, %Y')(new Date());
 }
 
 /**
