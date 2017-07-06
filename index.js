@@ -480,7 +480,7 @@ module.exports = function (config, deps) {
         .end(
         function (err, res) {
           if (err != null) {
-            return cb(err);
+            return cb(err, res);
           } else if (res.error === true) {
             if(_.isObject(res.body)) {
               return cb(res.body); // for our custom error arrays
@@ -517,7 +517,7 @@ module.exports = function (config, deps) {
         function (err, res) {
 
           if (err != null) {
-            return cb(err);
+            return cb(err, res);
           } else if (res.status !== 200) {
             return cb(res.body);
           }
@@ -549,7 +549,7 @@ module.exports = function (config, deps) {
         function (err, res) {
 
           if (err != null) {
-            return cb(err);
+            return cb(err, res);
           } else if (res.status !== 200) {
             return cb(res.body);
           }
