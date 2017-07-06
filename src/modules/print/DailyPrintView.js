@@ -757,17 +757,34 @@ class DailyPrintView {
 
   renderSmbgs({ bgScale, data: { smbg: smbgs }, xScale }) {
     _.each(smbgs, (smbg) => {
-      this.doc.circle(xScale(smbg.utc), bgScale(smbg.value), this.smbgRadius)
-        .fill(this.colors[classifyBgValue(this.bgBounds, smbg.value)]);
+      const xPos = xScale(smbg.utc);
+      const yPos = bgScale(smbg.value);
       const smbgLabel = formatBgValue(smbg.value, this.bgPrefs);
       const labelWidth = this.doc.widthOfString(smbgLabel);
+      const labelOffsetX = labelWidth / 2;
+      let labelStartX = xPos - labelOffsetX;
+      const labelEndX = labelStartX + labelWidth;
+
+      this.doc.circle(xPos, yPos, this.smbgRadius)
+        .fill(this.colors[classifyBgValue(this.bgBounds, smbg.value)]);
+
+      // Ensure label is printed within chart area for the x-axis
+      if (labelStartX <= this.chartArea.leftEdge) {
+        labelStartX = labelStartX + (this.chartArea.leftEdge - labelStartX) + 1;
+      }
+      if (labelEndX >= this.rightEdge) {
+        labelStartX = labelStartX - (labelEndX - this.rightEdge) - 1;
+      }
+
       this.doc.font(this.boldFont)
         .fontSize(this.defaultFontSize)
         .fillColor('black')
         .text(
           smbgLabel,
-          xScale(smbg.utc) - labelWidth / 2,
-          bgScale(smbg.value) - 12.5,
+          labelStartX,
+          yPos - 12.5, {
+            lineBreak: false,
+          },
         );
     });
 
