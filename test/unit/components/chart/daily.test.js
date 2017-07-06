@@ -80,11 +80,13 @@ describe('Daily', function () {
         patientData: {
           grouped: { foo: 'bar' }
         },
+        pdf: {},
         onClickRefresh: function() {},
         onCreateMessage: function() {},
         onShowMessageThread: function() {},
         onSwitchToBasics: function() {},
         onSwitchToDaily: function() {},
+        onSwitchToPrint: function() {},
         onSwitchToSettings: function() {},
         onSwitchToWeekly: function() {},
         updateDatetimeLocation: function() {},
@@ -110,8 +112,8 @@ describe('Daily', function () {
         chartPrefs: {},
         timePrefs: {},
         initialDateTimeLocation: 'foo',
-        patientData: {
-        },
+        patientData: {},
+        pdf: {},
         onClickRefresh: sinon.spy(),
         onCreateMessage: function() {},
         onShowMessageThread: function() {},
@@ -128,6 +130,44 @@ describe('Daily', function () {
       expect(props.onClickRefresh.callCount).to.equal(0);
       TestUtils.Simulate.click(refreshButton);
       expect(props.onClickRefresh.callCount).to.equal(1);
+    });
+
+    it('should have a disabled print button and spinner when a pdf is not ready to print', function () {
+      var props = {
+        bgPrefs: {},
+        chartPrefs: {},
+        patientData: {},
+        printReady: false,
+        pdf: {},
+      };
+
+      var dailyElem = React.createElement(Daily, props);
+      var elem = TestUtils.renderIntoDocument(dailyElem);
+
+      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-disabled', 'printview-print-icon']);
+      var spinner = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-loading-spinner');
+    });
+
+    it('should have an enabled print button and icon when a pdf is ready and call onSwitchToPrint when clicked', function () {
+      var props = {
+        bgPrefs: {},
+        chartPrefs: {},
+        patientData: {},
+        printReady: true,
+        pdf: {
+          url: 'blobURL',
+        },
+        onSwitchToPrint: sinon.spy(),
+      };
+
+      var dailyElem = React.createElement(Daily, props);
+      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-active', 'printview-print-icon']);
+      var printIcon = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-icon');
+
+      expect(props.onSwitchToPrint.callCount).to.equal(0);
+      TestUtils.Simulate.click(printLink);
+      expect(props.onSwitchToPrint.callCount).to.equal(1);
     });
   });
 });

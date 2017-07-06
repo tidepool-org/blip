@@ -26,6 +26,7 @@ import mutationTracker from 'object-invariant-test-helper';
 
 import reducer from '../../../../app/redux/reducers/working';
 import * as actions from '../../../../app/redux/actions/index';
+import { actions as workerActions } from '@tidepool/viz';
 
 import initialAll from '../../../../app/redux/reducers/initialState';
 const { working: initialState } = initialAll;
@@ -179,7 +180,7 @@ describe('working', () => {
         let user = 'user';
 
         let requestAction = actions.sync.signupRequest();
-        
+
         expect(initialState.signingUp.inProgress).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
@@ -230,7 +231,7 @@ describe('working', () => {
         let user = 'user';
 
         let requestAction = actions.sync.confirmSignupRequest();
-        
+
         expect(initialState.confirmingSignup.inProgress).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
@@ -282,7 +283,7 @@ describe('working', () => {
         let user = 'user';
 
         let requestAction = actions.sync.requestPasswordResetRequest();
-        
+
         expect(initialState.requestingPasswordReset.inProgress).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
@@ -333,7 +334,7 @@ describe('working', () => {
         let user = 'user';
 
         let requestAction = actions.sync.confirmPasswordResetRequest();
-        
+
         expect(initialState.confirmingPasswordReset.inProgress).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
@@ -351,7 +352,7 @@ describe('working', () => {
   describe('acceptTerms', () => {
     describe('request', () => {
       it('should set working.acceptingTerms.inProgress to be true', () => {
-        let action = actions.sync.acceptTermsRequest(); 
+        let action = actions.sync.acceptTermsRequest();
 
         expect(initialState.acceptingTerms.inProgress).to.be.false;
 
@@ -387,7 +388,7 @@ describe('working', () => {
         let user = { termsAccepted: false };
 
         let requestAction = actions.sync.acceptTermsRequest();
-        
+
         expect(initialState.acceptingTerms.inProgress).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
@@ -408,7 +409,7 @@ describe('working', () => {
         let action = actions.sync.resendEmailVerificationRequest();
 
         expect(initialState.resendingEmailVerification.inProgress).to.be.false;
-        
+
         let state = reducer(initialState, action);
         expect(state.resendingEmailVerification.inProgress).to.be.true;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
@@ -456,7 +457,7 @@ describe('working', () => {
     describe('fetchUser', () => {
       describe('request', () => {
         it('should set fetchingUser to be true', () => {
-          let action = actions.sync.fetchUserRequest(); 
+          let action = actions.sync.fetchUserRequest();
 
           expect(initialState.fetchingUser.inProgress).to.be.false;
 
@@ -493,7 +494,7 @@ describe('working', () => {
           expect(initialStateForTest.fetchingUser.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.fetchingUser.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -503,7 +504,7 @@ describe('working', () => {
     describe('fetchPatient', () => {
       describe('request', () => {
         it('should set fetchingPatient to be true', () => {
-          let action = actions.sync.fetchPatientRequest(); 
+          let action = actions.sync.fetchPatientRequest();
 
           expect(initialState.fetchingPatient.inProgress).to.be.false;
 
@@ -540,9 +541,9 @@ describe('working', () => {
           let action = actions.sync.fetchPatientSuccess(patient);
 
           expect(initialStateForTest.fetchingPatient.inProgress).to.be.true;
-          
+
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.fetchingPatient.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -552,7 +553,7 @@ describe('working', () => {
     describe('fetchPatients', () => {
       describe('request', () => {
         it('should set fetchingPatients to be true', () => {
-          let action = actions.sync.fetchPatientsRequest(); 
+          let action = actions.sync.fetchPatientsRequest();
 
           expect(initialState.fetchingPatients.inProgress).to.be.false;
 
@@ -594,7 +595,7 @@ describe('working', () => {
           expect(initialStateForTest.fetchingPatients.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.fetchingPatients.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -604,7 +605,7 @@ describe('working', () => {
     describe('fetchPatientData', () => {
       describe('request', () => {
         it('should set fetchingPatientData to be true', () => {
-          let action = actions.sync.fetchPatientDataRequest(); 
+          let action = actions.sync.fetchPatientDataRequest();
 
           expect(initialState.fetchingPatientData.inProgress).to.be.false;
 
@@ -647,7 +648,7 @@ describe('working', () => {
           expect(initialStateForTest.fetchingPatientData.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.fetchingPatientData.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -657,7 +658,7 @@ describe('working', () => {
     describe('fetchPendingSentInvites', () => {
       describe('request', () => {
         it('should set fetchingPendingSentInvites to be true', () => {
-          let action = actions.sync.fetchPendingSentInvitesRequest(); 
+          let action = actions.sync.fetchPendingSentInvitesRequest();
 
           expect(initialState.fetchingPendingSentInvites.inProgress).to.be.false;
 
@@ -699,7 +700,7 @@ describe('working', () => {
           expect(initialStateForTest.fetchingPendingSentInvites.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.fetchingPendingSentInvites.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -709,7 +710,7 @@ describe('working', () => {
     describe('fetchPendingReceivedInvites', () => {
       describe('request', () => {
         it('should set fetchingPendingReceivedInvites to be true', () => {
-          let action = actions.sync.fetchPendingReceivedInvitesRequest(); 
+          let action = actions.sync.fetchPendingReceivedInvitesRequest();
 
           expect(initialState.fetchingPendingReceivedInvites.inProgress).to.be.false;
 
@@ -751,7 +752,7 @@ describe('working', () => {
           expect(initialStateForTest.fetchingPendingReceivedInvites.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.fetchingPendingReceivedInvites.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -761,7 +762,7 @@ describe('working', () => {
     describe('fetchMessageThread', () => {
       describe('request', () => {
         it('should set fetchingMessageThread to be true', () => {
-          let action = actions.sync.fetchMessageThreadRequest(); 
+          let action = actions.sync.fetchMessageThreadRequest();
 
           expect(initialState.fetchingMessageThread.inProgress).to.be.false;
 
@@ -777,12 +778,12 @@ describe('working', () => {
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
           let action = actions.sync.fetchMessageThreadFailure(error);
-          
+
           expect(initialStateForTest.fetchingMessageThread.inProgress).to.be.true;
           expect(initialStateForTest.fetchingMessageThread.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.fetchingMessageThread.inProgress).to.be.false;
           expect(state.fetchingMessageThread.notification.type).to.equal('error');
           expect(state.fetchingMessageThread.notification.message).to.equal(error.message);
@@ -800,8 +801,58 @@ describe('working', () => {
           expect(initialStateForTest.fetchingMessageThread.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.fetchingMessageThread.inProgress).to.be.false;
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+    });
+
+    describe('generatePDF', () => {
+      describe('request', () => {
+        it('should set generatingPDF to be true', () => {
+          let action = workerActions.generatePDFRequest();
+
+          expect(initialState.generatingPDF.inProgress).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.generatingPDF.inProgress).to.be.true;
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set generatingPDF to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { generatingPDF: { inProgress: true, notification: null } });
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+          let error = new Error('Something bad happened :(');
+          let action = workerActions.generatePDFFailure(error);
+
+          expect(initialStateForTest.generatingPDF.inProgress).to.be.true;
+          expect(initialStateForTest.generatingPDF.notification).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+
+          expect(state.generatingPDF.inProgress).to.be.false;
+          expect(state.generatingPDF.notification.type).to.equal('error');
+          expect(state.generatingPDF.notification.message).to.equal(error.message);
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+
+      describe('success', () => {
+        it('should set generatingPDF from true to false', () => {
+          let initialStateForTest = _.merge({}, initialState, { generatingPDF: { inProgress: true, notification: null } });
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+          let pdf = {};
+
+          let action = workerActions.generatePDFSuccess({ pdf });
+
+          expect(initialStateForTest.generatingPDF.inProgress).to.be.true;
+
+          let state = reducer(initialStateForTest, action);
+
+          expect(state.generatingPDF.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });
@@ -810,7 +861,7 @@ describe('working', () => {
     describe('setupDataStorage', () => {
       describe('request', () => {
         it('should set settingUpDataStorage to be true', () => {
-          let action = actions.sync.setupDataStorageRequest(); 
+          let action = actions.sync.setupDataStorageRequest();
 
           expect(initialState.settingUpDataStorage.inProgress).to.be.false;
 
@@ -831,12 +882,12 @@ describe('working', () => {
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
           let action = actions.sync.setupDataStorageFailure(error);
-          
+
           expect(initialStateForTest.settingUpDataStorage.inProgress).to.be.true;
           expect(initialStateForTest.settingUpDataStorage.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.settingUpDataStorage.inProgress).to.be.false;
           expect(state.settingUpDataStorage.notification.type).to.equal('error');
           expect(state.settingUpDataStorage.notification.message).to.equal(error.message);
@@ -859,7 +910,7 @@ describe('working', () => {
           expect(initialStateForTest.settingUpDataStorage.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.settingUpDataStorage.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -869,7 +920,7 @@ describe('working', () => {
     describe('removeMembershipInOtherCareTeam', () => {
       describe('request', () => {
         it('should set removingMembershipInOtherCareTeam to be true', () => {
-          let action = actions.sync.removeMembershipInOtherCareTeamRequest(); 
+          let action = actions.sync.removeMembershipInOtherCareTeamRequest();
 
           expect(initialState.removingMembershipInOtherCareTeam.inProgress).to.be.false;
 
@@ -885,12 +936,12 @@ describe('working', () => {
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
           let action = actions.sync.removeMembershipInOtherCareTeamFailure(error);
-          
+
           expect(initialStateForTest.removingMembershipInOtherCareTeam.inProgress).to.be.true;
           expect(initialStateForTest.removingMembershipInOtherCareTeam.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.removingMembershipInOtherCareTeam.inProgress).to.be.false;
           expect(state.removingMembershipInOtherCareTeam.notification.type).to.equal('error');
           expect(state.removingMembershipInOtherCareTeam.notification.message).to.equal(error.message);
@@ -908,7 +959,7 @@ describe('working', () => {
           expect(initialStateForTest.removingMembershipInOtherCareTeam.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.removingMembershipInOtherCareTeam.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -918,7 +969,7 @@ describe('working', () => {
     describe('removeMemberFromTargetCareTeam', () => {
       describe('request', () => {
         it('should set removingMemberFromTargetCareTeam to be true', () => {
-          let action = actions.sync.removeMemberFromTargetCareTeamRequest(); 
+          let action = actions.sync.removeMemberFromTargetCareTeamRequest();
 
           expect(initialState.removingMemberFromTargetCareTeam.inProgress).to.be.false;
 
@@ -930,21 +981,21 @@ describe('working', () => {
 
       describe('failure', () => {
         it('should set removingMemberFromTargetCareTeam to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { 
-            removingMemberFromTargetCareTeam: { 
-              inProgress: true, 
+          let initialStateForTest = _.merge({}, initialState, {
+            removingMemberFromTargetCareTeam: {
+              inProgress: true,
               notification: null
             }
           });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
           let action = actions.sync.removeMemberFromTargetCareTeamFailure(error);
-          
+
           expect(initialStateForTest.removingMemberFromTargetCareTeam.inProgress).to.be.true;
           expect(initialStateForTest.removingMemberFromTargetCareTeam.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.removingMemberFromTargetCareTeam.inProgress).to.be.false;
           expect(state.removingMemberFromTargetCareTeam.notification.type).to.equal('error');
           expect(state.removingMemberFromTargetCareTeam.notification.message).to.equal(error.message);
@@ -954,9 +1005,9 @@ describe('working', () => {
 
       describe('success', () => {
         it('should set removingMemberFromTargetCareTeam to be false', () => {
-          let initialStateForTest = _.merge({}, initialState, { 
-            removingMemberFromTargetCareTeam: { 
-              inProgress: true, 
+          let initialStateForTest = _.merge({}, initialState, {
+            removingMemberFromTargetCareTeam: {
+              inProgress: true,
               notification: null
             }
           });
@@ -967,7 +1018,7 @@ describe('working', () => {
           expect(initialStateForTest.removingMemberFromTargetCareTeam.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.removingMemberFromTargetCareTeam.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -977,7 +1028,7 @@ describe('working', () => {
     describe('sendInvite', () => {
       describe('request', () => {
         it('should set sendingInvite to be true', () => {
-          let action = actions.sync.sendInviteRequest(); 
+          let action = actions.sync.sendInviteRequest();
 
           expect(initialState.sendingInvite.inProgress).to.be.false;
 
@@ -989,7 +1040,7 @@ describe('working', () => {
 
       describe('failure', () => {
         it('should set sendingInvite to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { 
+          let initialStateForTest = _.merge({}, initialState, {
             sendingInvite: {
               inProgress: true,
               notification: null
@@ -999,12 +1050,12 @@ describe('working', () => {
           let error = new Error('Something bad happened :(');
 
           let action = actions.sync.sendInviteFailure(error);
-          
+
           expect(initialStateForTest.sendingInvite.inProgress).to.be.true;
           expect(initialStateForTest.sendingInvite.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.sendingInvite.inProgress).to.be.false;
           expect(state.sendingInvite.notification.type).to.equal('error');
           expect(state.sendingInvite.notification.message).to.equal(error.message);
@@ -1019,23 +1070,23 @@ describe('working', () => {
           ];
 
           let initialStateForTest = _.merge(
-            {}, 
-            initialState, 
-            { 
+            {},
+            initialState,
+            {
               sendingInvite: {
                 inProgress: true,
                 notification: false
               }
           });
           let tracked = mutationTracker.trackObj(initialStateForTest);
-          
+
           let invitation = { email: 'f@f.com', permissions: 'foo' };
           let action = actions.sync.sendInviteSuccess(invitation);
 
           expect(initialStateForTest.sendingInvite.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.sendingInvite.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -1045,7 +1096,7 @@ describe('working', () => {
     describe('cancelSentInvite', () => {
       describe('request', () => {
         it('should set cancellingSentInvite to be true', () => {
-          let action = actions.sync.cancelSentInviteRequest(); 
+          let action = actions.sync.cancelSentInviteRequest();
 
           expect(initialState.cancellingSentInvite.inProgress).to.be.false;
 
@@ -1057,21 +1108,21 @@ describe('working', () => {
 
       describe('failure', () => {
         it('should set cancellingSentInvite to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { 
-            cancellingSentInvite: { 
-              inProgress: true, 
+          let initialStateForTest = _.merge({}, initialState, {
+            cancellingSentInvite: {
+              inProgress: true,
               notification: null
             }
           });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
           let action = actions.sync.cancelSentInviteFailure(error);
-          
+
           expect(initialStateForTest.cancellingSentInvite.inProgress).to.be.true;
           expect(initialStateForTest.cancellingSentInvite.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.cancellingSentInvite.inProgress).to.be.false;
           expect(state.cancellingSentInvite.notification.type).to.equal('error');
           expect(state.cancellingSentInvite.notification.message).to.equal(error.message);
@@ -1087,23 +1138,23 @@ describe('working', () => {
           ];
 
           let initialStateForTest = _.merge(
-            {}, 
-            initialState, 
-            { 
-              cancellingSentInvite: { 
-                inProgress: true, 
+            {},
+            initialState,
+            {
+              cancellingSentInvite: {
+                inProgress: true,
                 notification: null
               }
           });
           let tracked = mutationTracker.trackObj(initialStateForTest);
-          
+
           let invitation = { email: 'f@f.com', permissions: 'foo' };
           let action = actions.sync.cancelSentInviteSuccess(invitation.email);
 
           expect(initialStateForTest.cancellingSentInvite.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.cancellingSentInvite.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -1113,7 +1164,7 @@ describe('working', () => {
     describe('setMemberPermissions', () => {
       describe('request', () => {
         it('should set settingMemberPermissions to be true', () => {
-          let action = actions.sync.setMemberPermissionsRequest(); 
+          let action = actions.sync.setMemberPermissionsRequest();
 
           expect(initialState.settingMemberPermissions.inProgress).to.be.false;
 
@@ -1125,23 +1176,23 @@ describe('working', () => {
 
       describe('failure', () => {
         it('should set settingMemberPermissions to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, 
-            { 
+          let initialStateForTest = _.merge({}, initialState,
+            {
               settingMemberPermissions: {
                 inProgress: true,
                 notification: null
               }
-            } 
+            }
           );
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
           let action = actions.sync.setMemberPermissionsFailure(error);
-          
+
           expect(initialStateForTest.settingMemberPermissions.inProgress).to.be.true;
           expect(initialStateForTest.settingMemberPermissions.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.settingMemberPermissions.inProgress).to.be.false;
           expect(state.settingMemberPermissions.notification.type).to.equal('error');
           expect(state.settingMemberPermissions.notification.message).to.equal(error.message);
@@ -1157,9 +1208,9 @@ describe('working', () => {
           ];
 
           let initialStateForTest = _.merge(
-            {}, 
-            initialState, 
-            { 
+            {},
+            initialState,
+            {
               settingMemberPermissions: {
                 inProgress: true,
                 notification: null
@@ -1167,13 +1218,13 @@ describe('working', () => {
             }
           );
           let tracked = mutationTracker.trackObj(initialStateForTest);
-          
+
           let action = actions.sync.setMemberPermissionsSuccess(pendingReceivedInvites[0]);
 
           expect(initialStateForTest.settingMemberPermissions.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.settingMemberPermissions.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -1183,7 +1234,7 @@ describe('working', () => {
     describe('acceptReceivedInvite', () => {
       describe('request', () => {
         it('should set acceptingReceivedInvite to be true', () => {
-          let action = actions.sync.acceptReceivedInviteRequest(); 
+          let action = actions.sync.acceptReceivedInviteRequest();
 
           expect(initialState.acceptingReceivedInvite.inProgress).to.be.false;
 
@@ -1199,12 +1250,12 @@ describe('working', () => {
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
           let action = actions.sync.acceptReceivedInviteFailure(error);
-          
+
           expect(initialStateForTest.acceptingReceivedInvite.inProgress).to.be.true;
           expect(initialStateForTest.acceptingReceivedInvite.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.acceptingReceivedInvite.inProgress).to.be.false;
           expect(state.acceptingReceivedInvite.notification.type).to.equal('error');
           expect(state.acceptingReceivedInvite.notification.message).to.equal(error.message);
@@ -1220,18 +1271,18 @@ describe('working', () => {
           ];
 
           let initialStateForTest = _.merge(
-            {}, 
-            initialState, 
+            {},
+            initialState,
             { acceptingReceivedInvite: { inProgress : true, notification: null }
           });
           let tracked = mutationTracker.trackObj(initialStateForTest);
-          
+
           let action = actions.sync.acceptReceivedInviteSuccess(pendingReceivedInvites[0]);
 
           expect(initialStateForTest.acceptingReceivedInvite.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.acceptingReceivedInvite.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -1241,7 +1292,7 @@ describe('working', () => {
     describe('rejectReceivedInvite', () => {
       describe('request', () => {
         it('should set rejectingReceivedInvite to be true', () => {
-          let action = actions.sync.rejectReceivedInviteRequest(); 
+          let action = actions.sync.rejectReceivedInviteRequest();
 
           expect(initialState.rejectingReceivedInvite.inProgress).to.be.false;
 
@@ -1257,12 +1308,12 @@ describe('working', () => {
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
           let action = actions.sync.rejectReceivedInviteFailure(error);
-          
+
           expect(initialStateForTest.rejectingReceivedInvite.inProgress).to.be.true;
           expect(initialStateForTest.rejectingReceivedInvite.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.rejectingReceivedInvite.inProgress).to.be.false;
           expect(state.rejectingReceivedInvite.notification.type).to.equal('error');
           expect(state.rejectingReceivedInvite.notification.message).to.equal(error.message);
@@ -1278,18 +1329,18 @@ describe('working', () => {
           ];
 
           let initialStateForTest = _.merge(
-            {}, 
-            initialState, 
+            {},
+            initialState,
             { rejectingReceivedInvite: { inProgress : true, notification: null }
           });
           let tracked = mutationTracker.trackObj(initialStateForTest);
-          
+
           let action = actions.sync.rejectReceivedInviteSuccess(pendingReceivedInvites[0]);
 
           expect(initialStateForTest.rejectingReceivedInvite.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.rejectingReceivedInvite.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -1299,7 +1350,7 @@ describe('working', () => {
     describe('updatePatient', () => {
       describe('request', () => {
         it('should set updatingPatient to be true', () => {
-          let action = actions.sync.updatePatientRequest(); 
+          let action = actions.sync.updatePatientRequest();
 
           expect(initialState.updatingPatient.inProgress).to.be.false;
 
@@ -1315,12 +1366,12 @@ describe('working', () => {
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
           let action = actions.sync.updatePatientFailure(error);
-          
+
           expect(initialStateForTest.updatingPatient.inProgress).to.be.true;
           expect(initialStateForTest.updatingPatient.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.updatingPatient.inProgress).to.be.false;
           expect(state.updatingPatient.notification.type).to.equal('error');
           expect(state.updatingPatient.notification.message).to.equal(error.message);
@@ -1334,18 +1385,18 @@ describe('working', () => {
           let updatedPatient = { userid: 506, name: 'Alice Cooper' };
 
           let initialStateForTest = _.merge(
-            {}, 
-            initialState, 
+            {},
+            initialState,
             { updatingPatient: { inProgress : true, notification: null }
           });
           let tracked = mutationTracker.trackObj(initialStateForTest);
-          
+
           let action = actions.sync.updatePatientSuccess(updatedPatient);
 
           expect(initialStateForTest.updatingPatient.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.updatingPatient.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
@@ -1361,7 +1412,7 @@ describe('working', () => {
 
           let initialStateForTest = _.merge({}, initialState, { loggedInUser:  user });
           let tracked = mutationTracker.trackObj(initialStateForTest);
-          let action = actions.sync.updateUserRequest(updatingUser); 
+          let action = actions.sync.updateUserRequest(updatingUser);
 
           expect(initialStateForTest.updatingUser.inProgress).to.be.false;
 
@@ -1373,17 +1424,17 @@ describe('working', () => {
 
       describe('failure', () => {
         it('should set updatingUser to be false and set error', () => {
-          
+
           let initialStateForTest = _.merge({}, initialState, { updatingUser: { inProgress : true, notification: null } });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
           let action = actions.sync.updateUserFailure(error);
-          
+
           expect(initialStateForTest.updatingUser.inProgress).to.be.true;
           expect(initialStateForTest.updatingUser.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.updatingUser.inProgress).to.be.false;
           expect(state.updatingUser.notification.type).to.equal('error');
           expect(state.updatingUser.notification.message).to.equal(error.message);
@@ -1397,18 +1448,18 @@ describe('working', () => {
           let updatedUser = { id: 506, name: 'Jimmy Hendrix' };
 
           let initialStateForTest = _.merge(
-            {}, 
-            initialState, 
+            {},
+            initialState,
             { updatingUser: { inProgress : true, notification: null }
           });
           let tracked = mutationTracker.trackObj(initialStateForTest);
-          
+
           let action = actions.sync.updateUserSuccess(updatedUser);
 
           expect(initialStateForTest.updatingUser.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
-          
+
           expect(state.updatingUser.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });

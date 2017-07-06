@@ -33,7 +33,7 @@ export const CLOSE_MESSAGE_THREAD = 'CLOSE_MESSAGE_THREAD';
 
 /*
  * Asyncronous action types
- */ 
+ */
 
 // user.get
 export const FETCH_USER_REQUEST = 'FETCH_USER_REQUEST';
@@ -194,3 +194,12 @@ export const UPDATE_USER_FAILURE = 'UPDATE_USER_FAILURE';
 export const LOG_ERROR_REQUEST = 'LOG_ERROR_REQUEST';
 export const LOG_ERROR_SUCCESS = 'LOG_ERROR_SUCCESS';
 // no such thing as LOG_ERROR_FAILURE
+
+/**
+ * Web Worker action types
+ */
+
+// pdf generation
+export const GENERATE_PDF_REQUEST = 'GENERATE_PDF_REQUEST';
+export const GENERATE_PDF_SUCCESS = 'GENERATE_PDF_SUCCESS';
+export const GENERATE_PDF_FAILURE = 'GENERATE_PDF_FAILURE';
