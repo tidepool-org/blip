@@ -480,6 +480,7 @@ module.exports = function (config, deps) {
         .end(
         function (err, res) {
           if (err != null) {
+            res.sessionToken = user.getUserToken();
             return cb(err, res);
           } else if (res.error === true) {
             if(_.isObject(res.body)) {
@@ -517,6 +518,7 @@ module.exports = function (config, deps) {
         function (err, res) {
 
           if (err != null) {
+            res.sessionToken = user.getUserToken();
             return cb(err, res);
           } else if (res.status !== 200) {
             return cb(res.body);
@@ -549,6 +551,7 @@ module.exports = function (config, deps) {
         function (err, res) {
 
           if (err != null) {
+            res.sessionToken = user.getUserToken();
             return cb(err, res);
           } else if (res.status !== 200) {
             return cb(res.body);
