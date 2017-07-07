@@ -16,7 +16,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { browserHistory, Link } from 'react-router';
+import { browserHistory } from 'react-router';
 import sundial from 'sundial';
 
 import * as actions from '../../redux/actions';
@@ -51,11 +51,6 @@ export let Signup = React.createClass({
   formInputs: function() {
     let inputs = [
       {
-        name: 'fullName',
-        label: 'Full name',
-        type: 'text',
-      },
-      {
         name: 'username',
         label: 'Email',
         type: 'email',
@@ -73,6 +68,14 @@ export let Signup = React.createClass({
         type: 'password',
       },
     ];
+
+    if (this.state.selected === 'personal') {
+      inputs.unshift({
+        name: 'fullName',
+        label: 'Full name',
+        type: 'text',
+      });
+    }
 
     if (this.state.selected === 'clinician') {
       inputs.push({
@@ -205,7 +208,7 @@ export let Signup = React.createClass({
       case 'personal':
         content = (
           <p>
-            If you are a Healthcare Provider and want to create an account, please <Link to="/signup/clinician" children="click here" />.
+            If you are a Healthcare Provider and want to create an account, please <a className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'clinician')} children="click here" />.
           </p>
         );
         break;
@@ -214,7 +217,7 @@ export let Signup = React.createClass({
         content = (
           <p>
             If you are a provider who lives with diabetes and wants to track and manage your personal diabetes data,
-            please create a separate <Link to="/signup/personal" children="personal account" />.
+            please create a separate <a className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'personal')} children="personal account" />.
           </p>
         );
         break;
@@ -329,9 +332,14 @@ export let Signup = React.createClass({
     );
   },
 
-  handleContinueClick: function(e){
-    this.setState({madeSelection:true});
+  handleContinueClick: function(e) {
+    this.setState({madeSelection: true});
     browserHistory.push(`/signup/${this.state.selected}`);
+  },
+
+  handleTypeSwitchClick: function(type) {
+    this.setState({selected: type});
+    browserHistory.push(`/signup/${type}`);
   },
 
   handleChange: function(attributes) {
