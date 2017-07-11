@@ -25,6 +25,7 @@ import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
 import * as sync from './sync.js';
 import update from 'react-addons-update';
+import personUtils from '../../core/personutils';
 
 import { routeActions } from 'react-router-redux';
 
@@ -161,7 +162,11 @@ export function acceptTerms(api, acceptedDate) {
         ));
       } else {
         dispatch(sync.acceptTermsSuccess(loggedInUserId, acceptedDate));
-        dispatch(routeActions.push('/patients?justLoggedIn=true'));
+        if(personUtils.isClinic(user)){
+          dispatch(routeActions.push('/clinician-details'))
+        } else {
+          dispatch(routeActions.push('/patients?justLoggedIn=true'));
+        }
       }
     })
   };
@@ -587,6 +592,44 @@ export function updateUser(api, formValues) {
         ));
       } else {
         dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
+      }
+    });
+  };
+}
+
+/**
+ * Update Clinician Profile Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param {userId} userId
+ * @param  {Object} formValues
+ */
+export function updateClinicianProfile(api, formValues) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId, allUsersMap } } = getState();
+    const loggedInUser = allUsersMap[loggedInUserId];
+
+    const newUser = _.assign({},
+      _.omit(loggedInUser, 'profile'),
+      _.omit(formValues, 'profile'),
+      { profile: _.assign({}, loggedInUser.profile, formValues.profile) }
+    );
+
+    dispatch(sync.updateUserRequest(loggedInUserId, _.omit(newUser, 'password')));
+
+    var userUpdates = _.cloneDeep(newUser);
+    if (userUpdates.username === loggedInUser.username) {
+      userUpdates = _.omit(userUpdates, 'username', 'emails');
+    }
+
+    api.user.put(userUpdates, (err, updatedUser) => {
+      if (err) {
+        dispatch(sync.updateUserFailure(
+          createActionError(ErrorMessages.ERR_UPDATING_USER, err), err
+        ));
+      } else {
+        dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
+        dispatch(routeActions.push('/patients?justLoggedIn=true'));
       }
     });
   };

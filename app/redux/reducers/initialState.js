@@ -57,6 +57,7 @@ const initialState = {
     fetchingPendingReceivedInvites: Object.assign({}, working),
     fetchingPendingSentInvites: Object.assign({}, working),
     fetchingUser: Object.assign({}, working),
+    generatingPDF: Object.assign({}, working),
     loggingIn: Object.assign({}, working),
     loggingOut: Object.assign({}, working),
     removingMembershipInOtherCareTeam: Object.assign({}, working),
@@ -77,7 +78,7 @@ const initialState = {
   },
   bgPrefs: {
     bgUnits: 'mg/dL'
-  }
+  },
 };
 
 export default initialState;

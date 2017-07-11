@@ -1,6 +1,11 @@
 var path = require('path');
 var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
+var uglifyJS = require('uglify-es');
+var fs = require('fs');
 
 var isDev = (process.env.NODE_ENV === 'development');
 // these values are required in the config.app.js file -- we can't use
@@ -19,10 +24,32 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __ABOUT_MAX_LENGTH__: JSON.stringify(process.env.ABOUT_MAX_LENGTH || null),
   __DEV__: isDev,
   __TEST__: false,
-  __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false)
+  __DEV_TOOLS__: (process.env.DEV_TOOLS !== null) ? process.env.DEV_TOOLS : (isDev ? true : false)
 });
 
-var plugins = [ defineEnvPlugin, new ExtractTextPlugin('style.[contenthash].css') ];
+var plugins = [
+  defineEnvPlugin,
+  new ExtractTextPlugin('style.[contenthash].css'),
+  new CopyWebpackPlugin([
+    {
+      from: 'static',
+      transform: (content, path) => {
+        var code = fs.readFileSync(path, 'utf8');
+        var result = uglifyJS.minify(code);
+        return result.code;
+      }
+    }
+  ]),
+  new HtmlWebpackPlugin({
+    template: 'index.ejs',
+  }),
+  new HtmlWebpackIncludeAssetsPlugin({
+    assets: ['pdfkit.js', 'blob-stream.js'],
+    hash: true,
+    append: true,
+  })
+];
+
 var entryScripts = ['babel-polyfill', './app/main.prod.js'];
 var loaders = [
   // the JSX in tideline needs transpiling
@@ -40,7 +67,8 @@ var loaders = [
 
 var output = {
   path: path.join(__dirname, '/dist'),
-  filename: 'bundle.js'
+  filename: 'bundle.js',
+  publicPath: '/',
 }
 
 if (isDev) {
@@ -50,7 +78,7 @@ if (isDev) {
     'babel-polyfill',
     'webpack-dev-server/client?http://localhost:3000',
     'webpack/hot/only-dev-server',
-    './app/main.js'
+    './app/main.js',
   ];
   loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader', 'postcss-loader', 'less-loader']});
   loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});

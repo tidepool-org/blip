@@ -25,7 +25,6 @@ import _ from 'lodash';
 import config from '../../config';
 
 import utils from '../../core/utils';
-import WaitList from '../../components/waitlist';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';

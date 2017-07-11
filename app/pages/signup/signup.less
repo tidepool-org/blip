@@ -17,8 +17,11 @@
   .flex-layout-for-logged-out-routes(575px, 650px);
 }
 
-.signup-form {
-  margin-bottom: @spacing-large;
+.signup-container {
+  align-self: center;
+  padding-top: @spacing-base;
+  display: flex;
+  flex-direction: column;
 }
 
 .signup-form-box {
@@ -39,4 +42,77 @@
   > p {
     margin: 5px 0;
   }
+}
+
+.signup-title {
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  color: @purple-dark;
+  margin-bottom: 15px;
+}
+
+.signup-subtitle {
+  font-size: 20px;
+  text-align: center;
+  color: @purple-dark;
+  margin-bottom: 25px;
+}
+
+.signup-selection {
+  padding: 15px;
+  border-radius: 4px;
+  border: solid 1px #979797;
+  margin-bottom: 20px;
+
+  @media(max-width: @screen-lg-min) {
+    margin-left: @spacing-base;
+    margin-right: @spacing-base;
+  }
+
+}
+
+.signup-selection:hover {
+  background-color: white;
+  border-color: #6078ff;
+  cursor: pointer;
+}
+
+.signup-selection.selected {
+  background-color: white;
+  border-color: #6078ff;
+  .signup-selectionCheck {
+    display: block;
+  }
+}
+
+.signup-selectionHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.signup-selectionCheck {
+  width: 30px;
+  height: 20px;
+  display: none;
+  margin-top: -5px;
+}
+
+.signup-selectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #6078ff;
+}
+
+.signup-selectionDescription {
+  font-size: 18px;
+  color: #8c8c8c;
+  margin-bottom: 10px;
+}
+
+.signup-continue {
+  display: flex;
+  flex-direction: row-reverse;
 }

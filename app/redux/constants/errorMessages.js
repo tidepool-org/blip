@@ -51,6 +51,7 @@ export const ERR_FETCHING_SETTINGS = 'Something went wrong while fetching patien
 export const ERR_UPDATING_SETTINGS = 'Something went wrong while saving patient settings.';
 export const ERR_UPDATING_USER = 'Something went wrong while updating user account.';
 export const ERR_YOUR_ACCOUNT_NOT_CONFIGURED = 'Sorry! It appears that your account hasn\'t been fully set up.';
+export const ERR_GENERATING_PDF = 'Something went wrong while generating your report.';
 
 export const ERR_BIRTHDAY_INVALID = 'Birthday is invalid.';
 export const ERR_BIRTHDAY_MISSING = 'Birthday is required.';
