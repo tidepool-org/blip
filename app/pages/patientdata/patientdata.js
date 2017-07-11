@@ -577,9 +577,12 @@ export let PatientData = React.createClass({
   },
 
   updateBasicsData: function(data) {
-    this.setState({
-      processedPatientData: data
-    });
+    // only attempt to update data if there's already data present to update
+    if(this.state.processedPatientData){
+      this.setState({
+        processedPatientData: data
+      });
+    }
   },
 
   updateChartPrefs: function(newChartPrefs) {
