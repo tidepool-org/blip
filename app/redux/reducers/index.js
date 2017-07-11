@@ -41,6 +41,7 @@ import {
   showingWelcomeMessage,
   timePrefs,
   signupKey,
+  dataDonationAccounts,
 } from './misc';
 
 export default combineReducers({
@@ -66,5 +67,6 @@ export default combineReducers({
   showingWelcomeMessage,
   timePrefs,
   signupKey,
+  dataDonationAccounts,
   working,
 });

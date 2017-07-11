@@ -30,6 +30,8 @@ import DatePicker from '../../components/datepicker';
 import SimpleForm from '../../components/simpleform';
 import personUtils from '../../core/personutils';
 
+import { DATA_DONATION_NONPROFITS } from '../../core/constants';
+
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
 export let PatientNew = React.createClass({
@@ -92,16 +94,7 @@ export let PatientNew = React.createClass({
       placeholder: '',
       items: [
         {value: '', label: 'Choose a diabetes organization', 'disabled':'true'},
-        {value: 'BT1', label: 'Beyond Type 1'},
-        {value: 'CARBDM', label: 'CarbDM'},
-        {value: 'CWD', label: 'Children with Diabetes'},
-        {value: 'CDN', label: 'College Diabetes Network'},
-        {value: 'DHF', label: 'Diabetes Hands Foundation'},
-        {value: 'DIATRIBE', label: 'The diaTribe Foundation'},
-        {value: 'JDRF', label: 'JDRF'},
-        {value: 'NSF', label: 'Nightscout Foundation'},
-        {value: 'T1DX', label: 'T1D Exchange'}
-      ]
+      ].concat(DATA_DONATION_NONPROFITS)
     },
     {
       name: 'donateExplainer',

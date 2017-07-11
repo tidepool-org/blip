@@ -830,3 +830,28 @@ export function fetchMessageThreadFailure(error, apiError) {
     }
   };
 }
+
+export function fetchDataDonationAccountsRequest() {
+  return {
+    type: ActionTypes.FETCH_DATA_DONATION_ACCOUNTS_REQUEST
+  };
+}
+
+export function fetchDataDonationAccountsSuccess(accounts) {
+  return {
+    type: ActionTypes.FETCH_DATA_DONATION_ACCOUNTS_SUCCESS,
+    payload: {
+      accounts
+    }
+  };
+}
+
+export function fetchDataDonationAccountsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_DATA_DONATION_ACCOUNTS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
+  };
+}

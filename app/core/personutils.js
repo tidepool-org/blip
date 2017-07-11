@@ -57,6 +57,11 @@ personUtils.isClinic = function(user) {
   return _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1;
 };
 
+personUtils.isDataDonationAccount = function(account) {
+  const username = account.username || '';
+  return username.match(/^bigdata(.+)?@tidepool\.org$/);
+};
+
 personUtils.patientFullName = function(person) {
   var profile = utils.getIn(person, ['profile'], {});
   var patientInfo = profile.patient || {};

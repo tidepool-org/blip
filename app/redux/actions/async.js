@@ -893,3 +893,24 @@ export function fetchMessageThread(api, id ) {
     });
   };
 }
+
+/**
+ * Fetch Patients Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchDataDonationAccounts(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchDataDonationAccountsRequest());
+
+    api.user.getDataDonationAccounts((err, accounts) => {
+      if (err) {
+        dispatch(sync.fetchDataDonationAccountsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_DATA_DONATION_ACCOUNTS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchDataDonationAccountsSuccess(accounts));
+      }
+    });
+  };
+}

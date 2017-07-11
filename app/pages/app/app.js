@@ -30,12 +30,15 @@ import * as UserMessages from '../../redux/constants/usrMessages';
 
 // Components
 import Navbar from '../../components/navbar';
+import DonateBanner from '../../components/donatebanner';
 import LogoutOverlay from '../../components/logoutoverlay';
 import TidepoolNotification from '../../components/notification';
 import MailTo from '../../components/mailto';
 
 import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
+
+import { DATA_DONATION_NONPROFITS } from '../../core/constants';
 
 // Styles
 require('tideline/css/tideline.less');
@@ -188,6 +191,56 @@ export class AppComponent extends React.Component {
     return null;
   }
 
+  renderDonateBanner() {
+    this.props.context.log('Rendering donation banner');
+
+    const {
+      userHasUploadedData,
+      userIsDonor,
+      userIsSupportingNonprofit,
+      location,
+    } = this.props;
+
+    const isBannerRoute = /^\/patients\/\S+\/data/.test(this.props.location);
+    const showBanner = isBannerRoute && userHasUploadedData && !userIsSupportingNonprofit;
+
+    console.log('isBannerRoute', isBannerRoute);
+    console.log('userHasUploadedData', userHasUploadedData);
+    console.log('!userIsSupportingNonprofit', !userIsSupportingNonprofit);
+    console.log('showBanner', showBanner);
+
+    const link = {
+      href: 'https://tidepool.org/announcing-the-tidepool-big-data-donation-project/',
+      text: 'Learn More',
+      target: '_blank',
+    };
+
+    let message = '';
+    let confirmButtonText = '';
+
+    switch (userIsDonor) {
+      case false:
+        message = 'Donate your data. Contribute to tesearch.';
+        confirmButtonText = 'Donate my anonymized data';
+
+      case true:
+        message = 'Thanks for contributing! Donate proceeds to a diabetes nonprofit.';
+        confirmButtonText = 'Choose a diabetes nonprofit';
+    }
+
+    return showBanner ? (
+      <div className="App-donatebanner">
+        <DonateBanner
+          trackMetric={this.props.context.trackMetric}
+          message={message}
+          link={link}
+          confirmButtonText={confirmButtonText}
+          onConfirm={() => {}}
+          onClose={() => {}} />
+      </div>
+    ) : null;
+  }
+
   renderNotification() {
     var notification = this.props.notification;
     var handleClose;
@@ -253,6 +306,7 @@ export class AppComponent extends React.Component {
     var overlay = this.renderOverlay();
     var navbar = this.renderNavbar();
     var notification = this.renderNotification();
+    var donatebanner = this.renderDonateBanner();
     var footer = this.renderFooter();
 
     return (
@@ -260,6 +314,7 @@ export class AppComponent extends React.Component {
         {overlay}
         {navbar}
         {notification}
+        {donatebanner}
         {this.props.children}
         {footer}
       </div>
@@ -281,10 +336,15 @@ export function mapStateToProps(state) {
   let user = null;
   let patient = null;
   let permissions = null;
+  let userIsDonor = !!state.blip.dataDonationAccounts.length;
+  let userIsSupportingNonprofit = false;
+  let userHasUploadedData = false;
 
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
+      let data = _.get(state.blip.patientDataMap, state.blip.loggedInUserId, null);
+      userHasUploadedData = data && !!data.length;
     }
 
     if (state.blip.currentPatientInViewId) {
@@ -298,6 +358,13 @@ export function mapStateToProps(state) {
         state.blip.currentPatientInViewId,
         {}
       );
+    }
+
+    // Check to see if a data-donating patient has selected a nonprofit to support
+    if (userIsDonor) {
+      let allDonationAccountEmails = _.map(DATA_DONATION_NONPROFITS, nonprofit => `bigdata+${nonprofit.value}@tidepool.org`);
+      let userDonationAccountEmails = _.pluck(state.blip.dataDonationAccounts, 'email');
+      userIsSupportingNonprofit = _.intersection(allDonationAccountEmails, userDonationAccountEmails).length > 0;
     }
   }
 
@@ -351,8 +418,10 @@ export function mapStateToProps(state) {
     termsAccepted: _.get(user, 'termsAccepted', null),
     user: user,
     patient: patient ? { permissions, ...patient } : null,
+    userHasUploadedData,
+    userIsDonor,
+    userIsSupportingNonprofit,
   };
-
 };
 
 let mapDispatchToProps = dispatch => bindActionCreators({

@@ -23,9 +23,9 @@ export function mapStateToProps(state) {
   let user = null;
   let patient = null;
 
-  let { 
-    allUsersMap, 
-    loggedInUserId, 
+  let {
+    allUsersMap,
+    loggedInUserId,
     targetUserId,
     currentPatientInViewId,
     membersOfTargetCareTeam,

@@ -48,6 +48,7 @@ export const notification = (state = initialState.notification, action) => {
     case types.SET_MEMBER_PERMISSIONS_FAILURE:
     case types.UPDATE_PATIENT_FAILURE:
     case types.UPDATE_USER_FAILURE:
+    case types.FETCH_DATA_DONATION_ACCOUNTS_FAILURE:
       const err = _.get(action, 'error', null);
       if (err) {
         return {
@@ -457,6 +458,36 @@ export const pendingReceivedInvites = (state = initialState.pendingReceivedInvit
       });
     case types.LOGOUT_REQUEST:
       return [];
+    default:
+      return state;
+  }
+};
+
+export const dataDonationAccounts = (state = initialState.dataDonationAccounts, action) => {
+  let accounts;
+  switch(action.type) {
+    case types.FETCH_DATA_DONATION_ACCOUNTS_SUCCESS:
+      accounts = state.concat(_.get(action.payload, 'accounts', []));
+      return update(state, { $set: _.uniq(accounts, 'email') });
+
+    case types.FETCH_PENDING_SENT_INVITES_SUCCESS:
+      accounts = state.concat(_.get(action.payload, 'pendingSentInvites', []).map(invite => {
+        return {
+          email: invite.email,
+          status: 'pending',
+        };
+      }));
+      return update(state, { $set: _.uniq(accounts, 'email') });
+
+    case types.CANCEL_SENT_INVITE_SUCCESS:
+      return _.reject(state, 'email', _.get(action.payload, 'removedEmail', null));
+
+    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
+      return _.reject(state, 'userid', _.get(action.payload, 'removedMemberId', null));
+
+    case types.LOGOUT_REQUEST:
+      return [];
+
     default:
       return state;
   }

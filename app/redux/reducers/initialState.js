@@ -79,6 +79,7 @@ const initialState = {
   bgPrefs: {
     bgUnits: 'mg/dL'
   },
+  dataDonationAccounts: [],
 };
 
 export default initialState;

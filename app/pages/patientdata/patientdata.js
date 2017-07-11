@@ -696,7 +696,9 @@ export let PatientData = React.createClass({
 let getFetchers = (dispatchProps, ownProps, api, options) => {
   return [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id)
+    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id),
+    dispatchProps.fetchDataDonationAccounts.bind(null, api),
+    dispatchProps.fetchPendingSentInvites.bind(null, api),
   ];
 };
 
@@ -760,6 +762,8 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   updateSettings: actions.async.updateSettings,
   generatePDFRequest: workerActions.generatePDFRequest,
   removeGeneratedPDFS: workerActions.removeGeneratedPDFS,
+  fetchDataDonationAccounts: actions.async.fetchDataDonationAccounts,
+  fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {

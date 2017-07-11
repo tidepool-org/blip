@@ -17,3 +17,15 @@
 
 export const URL_UPLOADER_CHROME_STORE = 'http://chrome.google.com/webstore/detail/tidepool-uploader/cabklgajffclbljkhmjphejemhpbghfb';
 export const URL_BLIP_NOTES_APP_STORE = 'https://itunes.apple.com/us/app/blip-notes/id1026395200?mt=8';
+
+export const DATA_DONATION_NONPROFITS = [
+  { value: 'BT1', label: 'Beyond Type 1' },
+  { value: 'CARBDM', label: 'CarbDM' },
+  { value: 'CWD', label: 'Children with Diabetes' },
+  { value: 'CDN', label: 'College Diabetes Network' },
+  { value: 'DHF', label: 'Diabetes Hands Foundation' },
+  { value: 'DIATRIBE', label: 'The diaTribe Foundation' },
+  { value: 'JDRF', label: 'JDRF' },
+  { value: 'NSF', label: 'Nightscout Foundation' },
+  { value: 'T1DX', label: 'T1D Exchange' },
+];
