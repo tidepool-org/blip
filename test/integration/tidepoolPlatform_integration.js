@@ -248,7 +248,7 @@ describe('platform client', function () {
     it('get another users public profile', function (done) {
       //logged in as a_PWD you can get the profile for a_Member
       pwdClient.findProfile(a_Member.id, function (error, profile) {
-        expect(error).to.deep.equal({ status: 401, body: 'Unauthorized' });
+        expect(error).to.include({ status: 401, body: 'Unauthorized' });
         done();
       });
     });
@@ -279,7 +279,7 @@ describe('platform client', function () {
     it('get another user\'s public preferences', function (done) {
       //logged in as a_PWD you can get the profile for a_Member
       pwdClient.findPreferences(a_Member.id, function (error, settings) {
-        expect(error).to.deep.equal({ status: 401, body: 'Unauthorized' });
+        expect(error).to.include({ status: 401, body: 'Unauthorized' });
         done();
       });
     });
@@ -308,7 +308,7 @@ describe('platform client', function () {
     it('get another user\'s public settings', function (done) {
       //logged in as a_PWD you can get the profile for a_Member
       pwdClient.findSettings(a_Member.id, function (error, settings) {
-        expect(error).to.deep.equal({ status: 401, body: 'Unauthorized' });
+        expect(error).to.include({ status: 401, body: 'Unauthorized' });
         done();
       });
     });
@@ -545,7 +545,7 @@ describe('platform client', function () {
 
     it('but a_Member cannot see the other team members for a_PWD', function (done) {
       memberClient.getTeamMembers(a_PWD.id, function (error, patientsTeam) {
-        expect(error).to.deep.equal({ status: 401, body: 'Unauthorized' });
+        expect(error).to.include({ status: 401, body: 'Unauthorized' });
         done();
       });
     });

@@ -53,6 +53,8 @@ module.exports = function (common, deps) {
        .put(common.makeAPIUrl('/confirm/accept/signup/'+signupId))
        .end(function (err, res) {
         if (err != null) {
+          // TODO: update version of lodash so we can use _.get
+          err.message = (err.response && err.response.body && err.response.body.reason) || '';
           return cb(err);
         }
         if (res.status !== 200) {
@@ -77,6 +79,8 @@ module.exports = function (common, deps) {
        .send({birthday: birthday, password: password})
        .end(function (err, res) {
         if (err != null) {
+          err.error = (err.response && err.response.body && err.response.body.error) || '';
+          err.message = (err.response && err.response.body && err.response.body.reason) || '';
           return cb(err);
         }
         if (res.status !== 200) {
@@ -98,6 +102,7 @@ module.exports = function (common, deps) {
        .post(common.makeAPIUrl('/confirm/resend/signup/' + email))
        .end(function (err, res) {
         if (err != null) {
+          err.message = (err.response && err.response.error) || '';
           return cb(err);
         }
         if (res.status !== 200) {
@@ -154,7 +159,10 @@ module.exports = function (common, deps) {
         .end(
         function (err, res) {
           if (err != null) {
-            return cb(err);
+            if(err.status === 404) {
+              return cb(null,[]);
+            }
+            return cb( (err.response && err.response.body) || [] );
           }
           if (res.status === 200) {
             return cb(null,res.body);
@@ -253,6 +261,7 @@ module.exports = function (common, deps) {
        .post(common.makeAPIUrl('/confirm/send/forgot/' + email))
        .end(function (err, res) {
         if (err != null) {
+          err.message = (err.response && err.response.error) || '';
           return cb(err);
         }
         if (res.status !== 200) {
@@ -280,6 +289,7 @@ module.exports = function (common, deps) {
        .send(payload)
        .end(function (err, res) {
         if (err != null) {
+          err.message = (err.response && err.response.error) || '';
           return cb(err);
         }
         if (res.status !== 200) {
