@@ -89,6 +89,7 @@ module.exports = function (common, config, deps) {
       .end(
       function (err, res) {
         if (err) {
+          err.body = (err.response && err.response.body) || '';
           return cb(err, null);
         }
         if (res.status !== 200) {
@@ -190,6 +191,7 @@ module.exports = function (common, config, deps) {
       function (err, res) {
 
         if (err != null) {
+          err.body = (err.response && err.response.body) || '';
           return cb(err, null);
         }
 
@@ -232,6 +234,7 @@ module.exports = function (common, config, deps) {
       .end(
       function (err, res) {
         if (err != null) {
+          err.body = (err.response && err.response.body) || '';
           return cb(err, null);
         }
 
@@ -300,6 +303,7 @@ module.exports = function (common, config, deps) {
       .end(
       function (err, res) {
         if (err != null) {
+          err.body = (err.response && err.response.body) || '';
           return cb(err);
         }
         var theUserId = res.body.userid;
@@ -337,6 +341,8 @@ module.exports = function (common, config, deps) {
        .end(
        function (err, res) {
         if (err != null) {
+          err.body = (err.response && err.response.body) || '';
+          err.message = (err.response && err.response.error) || '';
           return next(err);
         }
         if(res.status === 201){
@@ -355,6 +361,8 @@ module.exports = function (common, config, deps) {
         .end(
           function (err, res) {
             if (err != null) {
+              err.body = (err.response && err.response.body) || '';
+              err.message = (err.response && err.response.error) || '';
               return next(err);
             }
             if(res.status === 200){
@@ -375,6 +383,8 @@ module.exports = function (common, config, deps) {
         .end(
           function (err, res) {
             if (err != null) {
+              err.body = (err.response && err.response.body) || '';
+              err.message = (err.response && err.response.error) || '';
               return next(err);
             }
             if(res.status === 200){
