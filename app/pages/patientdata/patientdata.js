@@ -700,16 +700,19 @@ export let PatientData = React.createClass({
     // Determine default chart type and date from latest data
     const uploads = processedData.grouped.upload;
     const latestData = _.last(processedData.diabetesData);
-    const chartType = this.deriveChartTypeFromLatestData(latestData, uploads);
 
-    let state = {
-      chartType,
-      initialDatetimeLocation: latestData.time,
-    };
+    if (uploads && latestData) {
+      const chartType = this.deriveChartTypeFromLatestData(latestData, uploads);
 
-    this.setState(state);
+      let state = {
+        chartType,
+        initialDatetimeLocation: latestData.time,
+      };
 
-    this.props.trackMetric(`web - default to ${chartType}`);
+      this.setState(state);
+
+      this.props.trackMetric(`web - default to ${chartType}`);
+    }
   },
 
   doProcessing: function(nextProps) {
