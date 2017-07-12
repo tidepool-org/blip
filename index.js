@@ -97,6 +97,21 @@ module.exports = function (config, deps) {
     findMetadata(userId, 'profile', cb);
   }
 
+  /**
+   * format error with response body and session token
+   *
+   * @param {Error} err with the response body
+   * @returns {Error}
+   */
+  function formatError (err) {
+    if (err.response && err.response.body) {
+      var error = err.response.body;
+      error.sessionToken = user.getUserToken();
+      return error;
+    }
+    return err;
+  }
+
   return {
     /**
      * Do any requied initialization
@@ -480,7 +495,9 @@ module.exports = function (config, deps) {
         .end(
         function (err, res) {
           if (err != null) {
-            err.sessionToken = user.getUserToken();
+            if (err.status !== 201) {
+              return cb(formatError(err));
+            }
             return cb(err);
           } else if (res.error === true) {
             if(_.isObject(res.body)) {
@@ -518,9 +535,8 @@ module.exports = function (config, deps) {
         function (err, res) {
 
           if (err != null) {
-            err.sessionToken = user.getUserToken();
             if (err.status !== 200) {
-              return cb((err.response && err.response.body) || err);
+              return cb(formatError(err));
             }
             return cb(err);
           } else if (res.status !== 200) {
@@ -554,9 +570,8 @@ module.exports = function (config, deps) {
         function (err, res) {
 
           if (err != null) {
-            err.sessionToken = user.getUserToken();
             if (err.status !== 200) {
-              return cb((err.response && err.response.body) || err);
+              return cb(formatError(err));
             }
             return cb(err);
           } else if (res.status !== 200) {
