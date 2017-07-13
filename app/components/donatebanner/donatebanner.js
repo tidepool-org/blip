@@ -19,36 +19,57 @@ import React, { PropTypes } from 'react';
 
 const DonateBanner = (props) => {
   const {
-    message,
-    link,
-    confirmButtonText,
     onConfirm,
     onClose,
     trackMetric,
+    userIsDonor,
   } = props;
 
-  const renderLink = () => {
-    if (link) {
-      return (
-        <a className="message-link" href={link.href} target={link.target}>
-          {link.text}
-        </a>
-      );
+  const getMessageText = () => {
+    if (userIsDonor) {
+      return 'Thanks for contributing! Donate proceeds to a diabetes nonprofit.';
+    } else {
+      return 'Donate your data. Contribute to tesearch.';
     }
-
-    return null;
   };
+
+  const renderLink = () => {
+    const link = {
+      href: 'https://tidepool.org/announcing-the-tidepool-big-data-donation-project/',
+      text: 'Learn More',
+      target: '_blank',
+    };
+
+    return (
+      <a
+        className="message-link" href={link.href} target={link.target}>
+        {link.text}
+      </a>
+    );
+  };
+
+  const getButtonText = () => {
+    if (userIsDonor) {
+      return 'Choose a diabetes nonprofit';
+    } else {
+      return 'Donate my anonymized data';
+    }
+  };
+
+  const onSubmit = () => {
+
+  }
 
   return (
     <div className='donate-banner container-box-outer'>
       <div className="container-box-inner">
         <div className="donate-banner-message">
-          {message}
+          {getMessageText()}
           {renderLink()}
         </div>
 
         <div className="donate-banner-action">
-          <button onClick={onConfirm}>{confirmButtonText}</button>
+          <button onClick={onConfirm}>{getButtonText()}</button>
         </div>
 
         <div className="donate-banner-close">
@@ -60,16 +81,10 @@ const DonateBanner = (props) => {
 };
 
 DonateBanner.propTypes = {
-  trackMetric: React.PropTypes.func.isRequired,
-  message: React.PropTypes.string.isRequired,
-  link: React.PropTypes.shape({
-    href: React.PropTypes.string.isRequired,
-    text: React.PropTypes.string.isRequired,
-    target: React.PropTypes.string.isRequired,
-  }),
-  confirmButtonText: React.PropTypes.string.isRequired,
   onConfirm: React.PropTypes.func.isRequired,
   onClose: React.PropTypes.func.isRequired,
+  trackMetric: React.PropTypes.func.isRequired,
+  userIsDonor: React.PropTypes.bool.isRequired,
 };
 
 export default DonateBanner;

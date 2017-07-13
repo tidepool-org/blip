@@ -32,6 +32,24 @@ export function hideWelcomeMessage() {
   };
 }
 
+export function showDonateBanner() {
+  return {
+    type: ActionTypes.SHOW_DONATE_BANNER
+  };
+}
+
+export function hideDonateBanner() {
+  return {
+    type: ActionTypes.HIDE_DONATE_BANNER
+  };
+}
+
+export function dismissDonateBanner() {
+  return {
+    type: ActionTypes.DISMISS_DONATE_BANNER
+  };
+}
+
 export function acknowledgeNotification(acknowledgedNotification) {
   return {
     type: ActionTypes.ACKNOWLEDGE_NOTIFICATION,

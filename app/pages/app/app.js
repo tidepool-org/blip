@@ -128,8 +128,28 @@ export class AppComponent extends React.Component {
    * begin fetching any required data
    */
   componentWillReceiveProps(nextProps) {
+    const {
+      showingDonateBanner,
+      location,
+      userHasUploadedData,
+      userIsSupportingNonprofit
+    } = nextProps;
+
     if (!utils.isOnSamePage(this.props, nextProps)) {
       this.doFetching(nextProps);
+    }
+
+    // Determine whether or not to show the donate banner.
+    // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
+    if (showingDonateBanner !== false) {
+      const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
+      const showBanner = isBannerRoute && userHasUploadedData && !userIsSupportingNonprofit;
+
+      if (showBanner) {
+        this.props.showDonateBanner();
+      } else {
+        this.props.hideDonateBanner();
+      }
     }
   }
 
@@ -195,50 +215,22 @@ export class AppComponent extends React.Component {
     this.props.context.log('Rendering donation banner');
 
     const {
-      userHasUploadedData,
+      showingDonateBanner,
+      onDismissDonateBanner,
       userIsDonor,
-      userIsSupportingNonprofit,
-      location,
     } = this.props;
 
-    const isBannerRoute = /^\/patients\/\S+\/data/.test(this.props.location);
-    const showBanner = isBannerRoute && userHasUploadedData && !userIsSupportingNonprofit;
+    if (!showingDonateBanner) return null;
 
-    console.log('isBannerRoute', isBannerRoute);
-    console.log('userHasUploadedData', userHasUploadedData);
-    console.log('!userIsSupportingNonprofit', !userIsSupportingNonprofit);
-    console.log('showBanner', showBanner);
-
-    const link = {
-      href: 'https://tidepool.org/announcing-the-tidepool-big-data-donation-project/',
-      text: 'Learn More',
-      target: '_blank',
-    };
-
-    let message = '';
-    let confirmButtonText = '';
-
-    switch (userIsDonor) {
-      case false:
-        message = 'Donate your data. Contribute to tesearch.';
-        confirmButtonText = 'Donate my anonymized data';
-
-      case true:
-        message = 'Thanks for contributing! Donate proceeds to a diabetes nonprofit.';
-        confirmButtonText = 'Choose a diabetes nonprofit';
-    }
-
-    return showBanner ? (
+    return (
       <div className="App-donatebanner">
         <DonateBanner
           trackMetric={this.props.context.trackMetric}
-          message={message}
-          link={link}
-          confirmButtonText={confirmButtonText}
+          userIsDonor={userIsDonor}
           onConfirm={() => {}}
-          onClose={() => {}} />
+          onClose={onDismissDonateBanner} />
       </div>
-    ) : null;
+    );
   }
 
   renderNotification() {
@@ -343,8 +335,11 @@ export function mapStateToProps(state) {
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
-      let data = _.get(state.blip.patientDataMap, state.blip.loggedInUserId, null);
-      userHasUploadedData = data && !!data.length;
+
+      if (state.blip.loggedInUserId === state.blip.currentPatientInViewId) {
+        let data = _.get(state.blip.patientDataMap, state.blip.loggedInUserId, null);
+        userHasUploadedData = data && !!data.length;
+      }
     }
 
     if (state.blip.currentPatientInViewId) {
@@ -418,6 +413,7 @@ export function mapStateToProps(state) {
     termsAccepted: _.get(user, 'termsAccepted', null),
     user: user,
     patient: patient ? { permissions, ...patient } : null,
+    showingDonateBanner: state.blip.showingDonateBanner,
     userHasUploadedData,
     userIsDonor,
     userIsSupportingNonprofit,
@@ -428,7 +424,10 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchUser: actions.async.fetchUser,
   acceptTerms: actions.async.acceptTerms,
   logout: actions.async.logout,
-  onCloseNotification: actions.sync.acknowledgeNotification
+  onCloseNotification: actions.sync.acknowledgeNotification,
+  onDismissDonateBanner: actions.sync.dismissDonateBanner,
+  showDonateBanner: actions.sync.showDonateBanner,
+  hideDonateBanner: actions.sync.hideDonateBanner,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -439,6 +438,9 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     location: ownProps.location.pathname,
     onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
     onCloseNotification: dispatchProps.onCloseNotification,
+    onDismissDonateBanner: dispatchProps.onDismissDonateBanner,
+    showDonateBanner: dispatchProps.showDonateBanner,
+    hideDonateBanner: dispatchProps.hideDonateBanner,
     onLogout: dispatchProps.logout.bind(null, api)
   });
 };

@@ -90,6 +90,20 @@ export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage
   }
 };
 
+export const showingDonateBanner = (state = initialState.showingDonateBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_DONATE_BANNER:
+      return true;
+    case types.DISMISS_DONATE_BANNER:
+      return false;
+    case types.HIDE_DONATE_BANNER:
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
 export const signupKey = (state = initialState.signupKey, action) => {
   switch(action.type) {
     case types.CONFIRM_SIGNUP_FAILURE:

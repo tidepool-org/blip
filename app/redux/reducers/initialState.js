@@ -25,6 +25,7 @@ const working = {
 const initialState = {
   passwordResetConfirmed: false,
   showingWelcomeMessage: null,
+  showingDonateBanner: null,
   signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,
