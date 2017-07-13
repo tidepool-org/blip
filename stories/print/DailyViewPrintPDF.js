@@ -43,7 +43,7 @@ function openPDF({ patient }) {
     bgUnits: 'mg/dL',
   }, {
     timezoneAware: true,
-    timezoneName: 'US/Pacific',
+    timezoneName: 'US/Eastern',
   }, 6, patient);
 
   dailyPrintView.render();

@@ -908,18 +908,20 @@ class DailyPrintView {
               .stroke(this.colors.basal);
           }
         });
-        const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
-          endAtZero: false,
-          flushBottomOffset: -0.25,
-          isFilled: false,
-          startAtZero: false,
-        });
-        this.doc.path(wholeDateDeliveredPath)
-          .lineWidth(0.5)
-          .dash(0)
-          .stroke(this.colors.basal);
       }
     });
+
+    const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
+      endAtZero: false,
+      flushBottomOffset: -0.25,
+      isFilled: false,
+      startAtZero: false,
+    });
+    // console.log(wholeDateDeliveredPath);
+    this.doc.path(wholeDateDeliveredPath)
+      .lineWidth(0.5)
+      .undash()
+      .stroke(this.colors.basal);
 
     return this;
   }
