@@ -44,12 +44,13 @@ describe('basal utilties', () => {
         ]);
     });
 
-    it(`should return three sequences for scheduled basals interrupted by
+    it(`should return four sequences for scheduled basals interrupted by
       a schedule-crossing temp basal (or suspend)`, () => {
       expect(basalUtils.getBasalSequences(basals.suspendAcrossScheduled))
         .to.deep.equal([
           basals.suspendAcrossScheduled.slice(0, 3),
-          basals.suspendAcrossScheduled.slice(3, 5),
+          basals.suspendAcrossScheduled.slice(3, 4),
+          basals.suspendAcrossScheduled.slice(4, 5),
           basals.suspendAcrossScheduled.slice(5),
         ]);
     });
