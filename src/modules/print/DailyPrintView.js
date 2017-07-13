@@ -337,7 +337,6 @@ class DailyPrintView {
       this.renderPageNumber(page + 1);
     });
     _.each(this.chartsByDate, (dateChart) => {
-      // console.log('Rendering', dateChart);
       this.doc.switchToPage(dateChart.page);
       this.renderSummary(dateChart)
         .renderXAxes(dateChart)
@@ -917,7 +916,7 @@ class DailyPrintView {
       isFilled: false,
       startAtZero: false,
     });
-    // console.log(wholeDateDeliveredPath);
+
     this.doc.path(wholeDateDeliveredPath)
       .lineWidth(0.5)
       .undash()
