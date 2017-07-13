@@ -24,10 +24,7 @@ var DatePicker = require('../datepicker');
 var InputGroup = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
-    label: React.PropTypes.oneOfType([
-      React.PropTypes.string,
-      React.PropTypes.object // allow markup in labels - i.e. Terms of Use links
-    ]),
+    label: React.PropTypes.node,
     items: React.PropTypes.array,
     text: React.PropTypes.node,
     value: React.PropTypes.oneOfType([
