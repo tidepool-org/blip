@@ -340,6 +340,9 @@ export function sendInvite(api, email, permissions) {
           ));
         }
       } else {
+        if (personUtils.isDataDonationAccount(invite)) {
+          dispatch(fetchPendingSentInvites(api));
+        }
         dispatch(sync.sendInviteSuccess(invite));
       }
     });

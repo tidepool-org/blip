@@ -16,11 +16,16 @@
  */
 
 import React, { PropTypes } from 'react';
+import { browserHistory } from 'react-router'
+
+import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL } from '../../core/constants';
 
 const DonateBanner = (props) => {
   const {
-    onConfirm,
     onClose,
+    onConfirm,
+    patient,
+    processingDonation,
     trackMetric,
     userIsDonor,
   } = props;
@@ -29,7 +34,7 @@ const DonateBanner = (props) => {
     if (userIsDonor) {
       return 'Thanks for contributing! Donate proceeds to a diabetes nonprofit.';
     } else {
-      return 'Donate your data. Contribute to tesearch.';
+      return 'Donate your data. Contribute to research.';
     }
   };
 
@@ -49,6 +54,10 @@ const DonateBanner = (props) => {
   };
 
   const getButtonText = () => {
+    if (processingDonation) {
+      return 'Donating anonymized data...';
+    }
+
     if (userIsDonor) {
       return 'Choose a diabetes nonprofit';
     } else {
@@ -57,7 +66,23 @@ const DonateBanner = (props) => {
   };
 
   const onSubmit = () => {
+    if (processingDonation) {
+      return;
+    }
 
+    if (userIsDonor) {
+      // If user is donor, we redirect to settings page
+      // so they can choose a nonprofit to share proceeds with
+      browserHistory.push(`/patients/${patient.userid}/profile`);
+      return;
+    }
+
+    const permissions = {
+      view: {},
+      note: {}
+    };
+
+    onConfirm(TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, permissions);
   }
 
   return (
@@ -69,7 +94,7 @@ const DonateBanner = (props) => {
         </div>
 
         <div className="donate-banner-action">
-          <button onClick={onConfirm}>{getButtonText()}</button>
+          <button disabled={processingDonation} onClick={onSubmit}>{getButtonText()}</button>
         </div>
 
         <div className="donate-banner-close">
@@ -81,9 +106,11 @@ const DonateBanner = (props) => {
 };
 
 DonateBanner.propTypes = {
-  onConfirm: React.PropTypes.func.isRequired,
   onClose: React.PropTypes.func.isRequired,
+  onConfirm: React.PropTypes.func.isRequired,
+  processingDonation: React.PropTypes.bool.isRequired,
   trackMetric: React.PropTypes.func.isRequired,
+  patient: React.PropTypes.object,
   userIsDonor: React.PropTypes.bool.isRequired,
 };
 

@@ -53,12 +53,16 @@ export class AppComponent extends React.Component {
     children: React.PropTypes.object.isRequired,
     fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
+    fetchingPendingSentInvites: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
     location: React.PropTypes.string.isRequired,
     loggingOut: React.PropTypes.bool.isRequired,
+    sendingInvite: React.PropTypes.bool.isRequired,
     notification: React.PropTypes.object,
     onAcceptTerms: React.PropTypes.func.isRequired,
     onCloseNotification: React.PropTypes.func.isRequired,
+    onDismissDonateBanner: React.PropTypes.func.isRequired,
+    onInviteMember: React.PropTypes.func.isRequired,
     onLogout: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object,
     context: React.PropTypes.shape({
@@ -69,8 +73,14 @@ export class AppComponent extends React.Component {
       personUtils: React.PropTypes.object.isRequired,
       trackMetric: React.PropTypes.func.isRequired,
     }).isRequired,
+    showingDonateBanner: React.PropTypes.bool.isRequired,
+    showDonateBanner: React.PropTypes.func.isRequired,
+    hideDonateBanner: React.PropTypes.func.isRequired,
     termsAccepted: React.PropTypes.string,
-    user: React.PropTypes.object
+    user: React.PropTypes.object,
+    userHasUploadedData: React.PropTypes.bool.isRequired,
+    userIsDonor: React.PropTypes.bool.isRequired,
+    userIsSupportingNonprofit: React.PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -217,20 +227,26 @@ export class AppComponent extends React.Component {
     const {
       showingDonateBanner,
       onDismissDonateBanner,
+      onInviteMember,
+      patient,
       userIsDonor,
     } = this.props;
 
-    if (!showingDonateBanner) return null;
+    if (showingDonateBanner) {
+      return (
+        <div className="App-donatebanner">
+          <DonateBanner
+            onClose={onDismissDonateBanner}
+            onConfirm={onInviteMember}
+            processingDonation={this.props.sendingInvite || this.props.fetchingPendingSentInvites}
+            trackMetric={this.props.context.trackMetric}
+            patient={patient}
+            userIsDonor={userIsDonor} />
+        </div>
+      );
+    }
 
-    return (
-      <div className="App-donatebanner">
-        <DonateBanner
-          trackMetric={this.props.context.trackMetric}
-          userIsDonor={userIsDonor}
-          onConfirm={() => {}}
-          onClose={onDismissDonateBanner} />
-      </div>
-    );
+    return null;
   }
 
   renderNotification() {
@@ -408,7 +424,9 @@ export function mapStateToProps(state) {
     authenticated: state.blip.isLoggedIn,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
+    fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites.inProgress,
     loggingOut: state.blip.working.loggingOut.inProgress,
+    sendingInvite: state.blip.working.sendingInvite.inProgress,
     notification: displayNotification,
     termsAccepted: _.get(user, 'termsAccepted', null),
     user: user,
@@ -426,6 +444,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   logout: actions.async.logout,
   onCloseNotification: actions.sync.acknowledgeNotification,
   onDismissDonateBanner: actions.sync.dismissDonateBanner,
+  inviteMember: actions.async.sendInvite,
   showDonateBanner: actions.sync.showDonateBanner,
   hideDonateBanner: actions.sync.hideDonateBanner,
 }, dispatch);
@@ -439,6 +458,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
     onCloseNotification: dispatchProps.onCloseNotification,
     onDismissDonateBanner: dispatchProps.onDismissDonateBanner,
+    onInviteMember: dispatchProps.inviteMember.bind(null, api),
     showDonateBanner: dispatchProps.showDonateBanner,
     hideDonateBanner: dispatchProps.hideDonateBanner,
     onLogout: dispatchProps.logout.bind(null, api)

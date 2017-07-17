@@ -18,6 +18,8 @@
 export const URL_UPLOADER_CHROME_STORE = 'http://chrome.google.com/webstore/detail/tidepool-uploader/cabklgajffclbljkhmjphejemhpbghfb';
 export const URL_BLIP_NOTES_APP_STORE = 'https://itunes.apple.com/us/app/blip-notes/id1026395200?mt=8';
 
+export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
+
 export const DATA_DONATION_NONPROFITS = [
   { value: 'BT1', label: 'Beyond Type 1' },
   { value: 'CARBDM', label: 'CarbDM' },

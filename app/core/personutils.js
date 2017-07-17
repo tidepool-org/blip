@@ -58,7 +58,7 @@ personUtils.isClinic = function(user) {
 };
 
 personUtils.isDataDonationAccount = function(account) {
-  const username = account.username || '';
+  const username = account.username || account.email || '';
   return username.match(/^bigdata(.+)?@tidepool\.org$/);
 };
 
