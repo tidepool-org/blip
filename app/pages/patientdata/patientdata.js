@@ -706,7 +706,7 @@ export let PatientData = React.createClass({
 
       let state = {
         chartType,
-        initialDatetimeLocation: latestData.time,
+        initialDatetimeLocation: chartType === 'trends' ? latestData.time : null,
       };
 
       this.setState(state);
