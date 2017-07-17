@@ -49,8 +49,8 @@ const SettingsPrintView = React.createClass({
     );
   },
   render: function() {
-    const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
-    const manufacturer = _.get(mostRecentSettings, 'source').toLowerCase();
+    const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings) || {};
+    const manufacturer = _.get(mostRecentSettings, 'source', '').toLowerCase();
 
     return (
       <div id="app-print" className="print-view-content">
