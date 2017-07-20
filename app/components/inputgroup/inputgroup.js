@@ -17,6 +17,7 @@
 var React = require('react');
 var _ = require('lodash');
 var cx = require('classnames');
+var Select = require('react-select');
 
 var DatePicker = require('../datepicker');
 
@@ -29,6 +30,7 @@ var InputGroup = React.createClass({
     text: React.PropTypes.node,
     value: React.PropTypes.oneOfType([
       React.PropTypes.string,
+      React.PropTypes.array,
       React.PropTypes.bool,
       React.PropTypes.object // dates for datepicker input type are objects
     ]),
@@ -37,6 +39,7 @@ var InputGroup = React.createClass({
     placeholder: React.PropTypes.string,
     rows: React.PropTypes.number,
     disabled: React.PropTypes.bool,
+    multi: React.PropTypes.bool,
     onChange: React.PropTypes.func
   },
 
@@ -197,37 +200,23 @@ var InputGroup = React.createClass({
   },
 
   renderSelect: function() {
-    var placeholder = this.props.value === this.props.placeholder;
     var classNames = cx({
       'input-group-control': true,
       'form-control': true,
-      placeholder: placeholder
-    });
-    var options = _.map(this.props.items, function(option, index) {
-      return (
-        <option
-          key={option.value}
-          label={option.label}
-          value={option.value}
-          disabled={option.disabled}
-          ref={'control' + index}>
-            {option.label}
-        </option>
-      );
     });
 
     return (
-      <div className="input-group-select">
-        <select
-          className={classNames}
-          name={this.props.name}
-          value={this.props.value}
-          id={this.props.name}
-          onChange={this.handleChange}
-          disabled={this.props.disabled}>
-            {options}
-        </select>
-      </div>
+      <Select className={classNames}
+        name={this.props.name}
+        id={this.props.name}
+        multi={this.props.multi}
+        simpleValue={this.props.multi}
+        placeholder={this.props.placeholder}
+        value={this.props.value}
+        onChange={this.handleChange}
+        disabled={this.props.disabled}
+        options={this.props.items}
+      />
     );
   },
 
@@ -268,16 +257,21 @@ var InputGroup = React.createClass({
   },
 
   handleChange: function(e) {
-    var target = e.target || e;
+    var target = (e !== null) ? e.target || e : {};
 
     var attributes = {
-      name: target.name,
-      value: target.value
+      name: target.name || this.props.name,
+      value: target.value || null,
     };
 
     if (this.props.type === 'checkbox') {
       // "Normalize" checkbox change events to use `value` like other inputs
       attributes.value = target.checked;
+    }
+
+    if (this.props.type === 'select' && this.props.multi) {
+      // Target comes in as simple string when using react-select's 'multi' attribute
+      attributes.value = target;
     }
 
     var changeCallback = this.props.onChange;

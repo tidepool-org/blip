@@ -96,6 +96,8 @@ export const showingDonateBanner = (state = initialState.showingDonateBanner, ac
       return true;
     case types.DISMISS_DONATE_BANNER:
       return false;
+    case types.FETCH_USER_SUCCESS:
+      return _.get(action.payload, 'user.preferences.dismissedDonateYourDataBannerTime') ? false : state;
     case types.HIDE_DONATE_BANNER:
     case types.LOGOUT_REQUEST:
       return null;

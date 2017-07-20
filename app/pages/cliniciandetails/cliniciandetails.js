@@ -55,7 +55,7 @@ export let ClinicianDetails = React.createClass({
       value: '',
       placeholder: '',
       items: [
-        {value: '', label: 'Select Role....', 'disabled':'true'},
+        {value: '', label: 'Select Role....', disabled: true},
         {value: 'clinic_manager', label: 'Clinic Manager'},
         {value: 'diabetes_educator', label: 'Diabetes Educator'},
         {value: 'endocrinologist', label: 'Endocrinologist'},

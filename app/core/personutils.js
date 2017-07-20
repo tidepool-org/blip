@@ -59,7 +59,7 @@ personUtils.isClinic = function(user) {
 
 personUtils.isDataDonationAccount = function(account) {
   const username = account.username || account.email || '';
-  return username.match(/^bigdata(.+)?@tidepool\.org$/);
+  return /^bigdata(.+)?@tidepool\.org$/.test(username);
 };
 
 personUtils.patientFullName = function(person) {

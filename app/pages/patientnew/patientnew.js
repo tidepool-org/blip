@@ -30,7 +30,7 @@ import DatePicker from '../../components/datepicker';
 import SimpleForm from '../../components/simpleform';
 import personUtils from '../../core/personutils';
 
-import { DATA_DONATION_NONPROFITS } from '../../core/constants';
+import { DATA_DONATION_NONPROFITS, URL_BIG_DATA_DONATION_INFO } from '../../core/constants';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
@@ -76,7 +76,7 @@ export let PatientNew = React.createClass({
     },
     {
       name: 'dataDonate',
-      label: 'Donate your anonymized data',
+      label: 'Donate my anonymized data',
       type: 'checkbox'
     },
     {
@@ -84,7 +84,7 @@ export let PatientNew = React.createClass({
       type: 'explanation',
       text: (<div style={{'textAlign':'left'}}>
         You own your data. Read all the details about Tidepool's Big Data
-        Donation project <a target="_blank" href="http://tidepool.org/all/announcing-the-tidepool-big-data-donation-project">here</a>.
+        Donation project <a target="_blank" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
       </div>)
     },
     {
@@ -93,8 +93,8 @@ export let PatientNew = React.createClass({
       value: '',
       placeholder: '',
       items: [
-        {value: '', label: 'Choose a diabetes organization', 'disabled':'true'},
-      ].concat(DATA_DONATION_NONPROFITS)
+        {value: '', label: 'Choose a diabetes organization', disabled: true},
+      ].concat(DATA_DONATION_NONPROFITS),
     },
     {
       name: 'donateExplainer',

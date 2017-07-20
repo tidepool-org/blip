@@ -754,16 +754,16 @@ export function mapStateToProps(state) {
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
+  clearPatientData: actions.sync.clearPatientData,
+  closeMessageThread: actions.sync.closeMessageThread,
+  fetchDataDonationAccounts: actions.async.fetchDataDonationAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
-  clearPatientData: actions.sync.clearPatientData,
-  fetchMessageThread: actions.async.fetchMessageThread,
-  closeMessageThread: actions.sync.closeMessageThread,
-  updateSettings: actions.async.updateSettings,
-  generatePDFRequest: workerActions.generatePDFRequest,
-  removeGeneratedPDFS: workerActions.removeGeneratedPDFS,
-  fetchDataDonationAccounts: actions.async.fetchDataDonationAccounts,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
+  generatePDFRequest: workerActions.generatePDFRequest,
+  fetchMessageThread: actions.async.fetchMessageThread,
+  removeGeneratedPDFS: workerActions.removeGeneratedPDFS,
+  updateSettings: actions.async.updateSettings,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {

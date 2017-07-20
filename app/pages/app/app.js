@@ -41,6 +41,7 @@ import Version from '../../components/version';
 import { DATA_DONATION_NONPROFITS } from '../../core/constants';
 
 // Styles
+import 'react-select/dist/react-select.css';
 require('tideline/css/tideline.less');
 require('../../style.less');
 
@@ -73,14 +74,14 @@ export class AppComponent extends React.Component {
       personUtils: React.PropTypes.object.isRequired,
       trackMetric: React.PropTypes.func.isRequired,
     }).isRequired,
-    showingDonateBanner: React.PropTypes.bool.isRequired,
+    showingDonateBanner: React.PropTypes.bool,
     showDonateBanner: React.PropTypes.func.isRequired,
     hideDonateBanner: React.PropTypes.func.isRequired,
     termsAccepted: React.PropTypes.string,
     user: React.PropTypes.object,
     userHasUploadedData: React.PropTypes.bool.isRequired,
-    userIsDonor: React.PropTypes.bool.isRequired,
-    userIsSupportingNonprofit: React.PropTypes.bool.isRequired,
+    userIsDonor: React.PropTypes.bool,
+    userIsSupportingNonprofit: React.PropTypes.bool,
   };
 
   constructor(props) {
@@ -157,7 +158,7 @@ export class AppComponent extends React.Component {
 
       if (showBanner) {
         this.props.showDonateBanner();
-      } else {
+      } else if (showingDonateBanner) {
         this.props.hideDonateBanner();
       }
     }
@@ -354,7 +355,7 @@ export function mapStateToProps(state) {
 
       if (state.blip.loggedInUserId === state.blip.currentPatientInViewId) {
         let data = _.get(state.blip.patientDataMap, state.blip.loggedInUserId, null);
-        userHasUploadedData = data && !!data.length;
+        userHasUploadedData = !!(data && !!data.length);
       }
     }
 
@@ -443,7 +444,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   acceptTerms: actions.async.acceptTerms,
   logout: actions.async.logout,
   onCloseNotification: actions.sync.acknowledgeNotification,
-  onDismissDonateBanner: actions.sync.dismissDonateBanner,
+  onDismissDonateBanner: actions.async.dismissDonateBanner,
   inviteMember: actions.async.sendInvite,
   showDonateBanner: actions.sync.showDonateBanner,
   hideDonateBanner: actions.sync.hideDonateBanner,
@@ -457,7 +458,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     location: ownProps.location.pathname,
     onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
     onCloseNotification: dispatchProps.onCloseNotification,
-    onDismissDonateBanner: dispatchProps.onDismissDonateBanner,
+    onDismissDonateBanner: dispatchProps.onDismissDonateBanner.bind(null, api),
     onInviteMember: dispatchProps.inviteMember.bind(null, api),
     showDonateBanner: dispatchProps.showDonateBanner,
     hideDonateBanner: dispatchProps.hideDonateBanner,

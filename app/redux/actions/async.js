@@ -898,7 +898,7 @@ export function fetchMessageThread(api, id ) {
 }
 
 /**
- * Fetch Patients Action Creator
+ * Fetch Data Donation Accounts Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
  */
@@ -915,5 +915,69 @@ export function fetchDataDonationAccounts(api) {
         dispatch(sync.fetchDataDonationAccountsSuccess(accounts));
       }
     });
+  };
+}
+
+/**
+ * Update Data Donation Accounts Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function updateDataDonationAccounts(api, addAccounts, removeAccounts) {
+  return (dispatch, getState) => {
+    dispatch(sync.updateDataDonationAccountsRequest());
+
+    const { blip: { loggedInUserId } } = getState();
+
+    const addAccount = (email) => {
+      const permissions = {
+        view: {},
+        note: {},
+      };
+
+      dispatch(sendInvite(api, email, permissions));
+    }
+
+    const removeAccount = (account) => {
+      if (account.userid) {
+        dispatch(removeMemberFromTargetCareTeam(api, loggedInUserId, account.userid));
+      } else {
+        dispatch(cancelSentInvite(api, account.email));
+      }
+    }
+
+    // const tasks =
+
+    async.parallel({
+      addAccounts: async.map(addAccounts, addAccount),
+      removeAccounts: async.map(removeAccounts, removeAccount),
+    }, (err, results) => {
+      if (err) {
+        dispatch(sync.updateDataDonationAccountsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_DATA_DONATION_ACCOUNTS, err), err
+        ));
+      } else {
+        dispatch(sync.updateDataDonationAccountsSuccess(results));
+      }
+    });
+  };
+}
+
+/**
+ * Dismiss Donate Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function dismissDonateBanner(api, patientId, dismissedDate) {
+  dismissedDate = dismissedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissDonateBanner());
+
+    const preferences = {
+      dismissedDonateYourDataBannerTime: dismissedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences))
   };
 }

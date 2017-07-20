@@ -873,3 +873,28 @@ export function fetchDataDonationAccountsFailure(error, apiError) {
     }
   };
 }
+
+export function updateDataDonationAccountsRequest() {
+  return {
+    type: ActionTypes.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST
+  };
+}
+
+export function updateDataDonationAccountsSuccess(accounts) {
+  return {
+    type: ActionTypes.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS,
+    payload: {
+      accounts
+    }
+  };
+}
+
+export function updateDataDonationAccountsFailure(error, apiError) {
+  return {
+    type: ActionTypes.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
+  };
+}

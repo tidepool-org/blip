@@ -28,11 +28,12 @@ import PatientInfo from './patientinfo';
 import { PatientTeam } from './patientteam';
 
 const Patient = React.createClass({
-  // many things *not* required here because they aren't needed for 
+  // many things *not* required here because they aren't needed for
   // /patients/:id/profile although they are for /patients/:id/share
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
     cancellingInvite: React.PropTypes.bool,
+    dataDonationAccounts: React.PropTypes.array,
     changingMemberPermissions: React.PropTypes.bool,
     fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
@@ -42,6 +43,7 @@ const Patient = React.createClass({
     onChangeMemberPermissions: React.PropTypes.func,
     onInviteMember: React.PropTypes.func,
     onRemoveMember: React.PropTypes.func,
+    onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
     onUpdatePatient: React.PropTypes.func,
     onUpdatePatientSettings: React.PropTypes.func,
     patient: React.PropTypes.object,
@@ -49,7 +51,7 @@ const Patient = React.createClass({
     removingMember: React.PropTypes.bool,
     shareOnly: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired,
-    user: React.PropTypes.object
+    user: React.PropTypes.object,
   },
 
   getInitialState: function() {
@@ -112,7 +114,9 @@ const Patient = React.createClass({
           fetchingPatient={this.props.fetchingPatient}
           onUpdatePatient={this.props.onUpdatePatient}
           onUpdatePatientSettings={this.props.onUpdatePatientSettings}
+          onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
+          dataDonationAccounts={this.props.dataDonationAccounts}
           trackMetric={this.props.trackMetric} />
       </div>
     );
@@ -152,14 +156,14 @@ const Patient = React.createClass({
     this.setState(this.getInitialState());
   },
   renderModalOverlay: function() {
-    
+
     return (
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.overlayClickHandler}/>
     );
-    
+
   },
 
   renderAccess: function() {
@@ -195,7 +199,7 @@ const Patient = React.createClass({
   },
 
   componentDidMount: function() {
-    if (this.props.trackMetric) { 
+    if (this.props.trackMetric) {
       if (this.props.shareOnly) {
         this.props.trackMetric('Viewed Share');
       } else {
@@ -209,7 +213,7 @@ const Patient = React.createClass({
       return
     }
 
-    nextProps.fetchers.forEach(fetcher => { 
+    nextProps.fetchers.forEach(fetcher => {
       fetcher();
     });
   },

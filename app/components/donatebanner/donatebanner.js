@@ -18,7 +18,7 @@
 import React, { PropTypes } from 'react';
 import { browserHistory } from 'react-router'
 
-import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL } from '../../core/constants';
+import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, URL_BIG_DATA_DONATION_INFO } from '../../core/constants';
 
 const DonateBanner = (props) => {
   const {
@@ -40,7 +40,7 @@ const DonateBanner = (props) => {
 
   const renderLink = () => {
     const link = {
-      href: 'https://tidepool.org/announcing-the-tidepool-big-data-donation-project/',
+      href: URL_BIG_DATA_DONATION_INFO,
       text: 'Learn More',
       target: '_blank',
     };
@@ -65,7 +65,11 @@ const DonateBanner = (props) => {
     }
   };
 
-  const onSubmit = () => {
+  const handleDismiss = () => {
+    onClose(patient.userid);
+  };
+
+  const handleSubmit = () => {
     if (processingDonation) {
       return;
     }
@@ -79,7 +83,7 @@ const DonateBanner = (props) => {
 
     const permissions = {
       view: {},
-      note: {}
+      note: {},
     };
 
     onConfirm(TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, permissions);
@@ -94,11 +98,11 @@ const DonateBanner = (props) => {
         </div>
 
         <div className="donate-banner-action">
-          <button disabled={processingDonation} onClick={onSubmit}>{getButtonText()}</button>
+          <button disabled={processingDonation} onClick={handleSubmit}>{getButtonText()}</button>
         </div>
 
         <div className="donate-banner-close">
-          <a href="#" className="close" onClick={onClose}>&times;</a>
+          <a href="#" className="close" onClick={handleDismiss}>&times;</a>
         </div>
       </div>
     </div>

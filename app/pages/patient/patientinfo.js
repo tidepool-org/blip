@@ -21,6 +21,7 @@ var sundial = require('sundial');
 
 var personUtils = require('../../core/personutils');
 import PatientSettings from './patientsettings';
+import DonateForm from '../../components/donateform';
 
 //date masks we use
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
@@ -28,14 +29,16 @@ var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
 var PatientInfo = React.createClass({
   propTypes: {
+    dataDonationAccounts: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
+    onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
     onUpdatePatient: React.PropTypes.func.isRequired,
     onUpdatePatientSettings: React.PropTypes.func.isRequired,
     permsOfLoggedInUser: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired,
-    user: React.PropTypes.object
+    user: React.PropTypes.object,
   },
 
   getInitialState: function() {
@@ -125,12 +128,8 @@ var PatientInfo = React.createClass({
             {this.getAboutText(patient)}
           </div>
         </div>
-        <PatientSettings
-          editingAllowed={this.isEditingAllowed(this.props.permsOfLoggedInUser)}
-          patient={this.props.patient}
-          onUpdatePatientSettings={this.props.onUpdatePatientSettings}
-          trackMetric={this.props.trackMetric}
-          />
+        {this.renderPatientSettings()}
+        {this.renderDonateForm()}
       </div>
     );
   },
@@ -217,18 +216,14 @@ var PatientInfo = React.createClass({
           </div>
           {this.renderAboutInput(formValues)}
         </div>
-        <PatientSettings
-          editingAllowed={this.isEditingAllowed(this.props.permsOfLoggedInUser)}
-          patient={this.props.patient}
-          onUpdatePatientSettings={this.props.onUpdatePatientSettings}
-          trackMetric={this.props.trackMetric}
-          />
+        {this.renderPatientSettings()}
+        {this.renderDonateForm()}
       </div>
     );
   },
 
   renderFullNameInput: function(formValues) {
-    
+
     var fullNameNode, errorElem, classes;
     var error = this.state.validationErrors.fullName;
     // Legacy: revisit when proper "child accounts" are implemented
@@ -320,6 +315,37 @@ var PatientInfo = React.createClass({
     );
   },
 
+  renderPatientSettings: function() {
+    return (
+      <PatientSettings
+        editingAllowed={this.isEditingAllowed(this.props.permsOfLoggedInUser)}
+        patient={this.props.patient}
+        onUpdatePatientSettings={this.props.onUpdatePatientSettings}
+        trackMetric={this.props.trackMetric}
+      />
+    );
+  },
+
+  renderDonateForm: function() {
+    if (this.isSamePersonUserAndPatient()) {
+      return (
+        <div className="PatientPage-donateForm">
+          <div className="PatientPage-sectionTitle">Donate my data?</div>
+          <div className="PatientInfo-content">
+            <DonateForm
+              patient={this.props.patient}
+              dataDonationAccounts={this.props.dataDonationAccounts}
+              onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
+              trackMetric={this.props.trackMetric}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  },
+
   isSamePersonUserAndPatient: function() {
     return personUtils.isSame(this.props.user, this.props.patient);
   },
@@ -343,11 +369,11 @@ var PatientInfo = React.createClass({
     if (!birthday) {
       return;
     }
-    
+
     var now = new Date();
     currentDate = currentDate || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
     var yrsAgo = sundial.dateDifference(currentDate, birthday, 'years');
-    
+
     if (yrsAgo === 1) {
       return '1 year old';
     } else if (yrsAgo > 1) {
@@ -368,7 +394,7 @@ var PatientInfo = React.createClass({
       return;
     }
 
-    
+
     var now = new Date();
     currentDate = currentDate || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
     var yrsAgo = sundial.dateDifference(currentDate, diagnosisDate, 'years');
@@ -392,11 +418,11 @@ var PatientInfo = React.createClass({
   },
 
   /**
-   * Given a patient object, extract the values from it 
+   * Given a patient object, extract the values from it
    * that needs to be displayed on the patientinfo form
-   * 
+   *
    * @param  {Object} patient
-   * @return {Object} 
+   * @return {Object}
    */
   formValuesFromPatient: function(patient) {
     if (!_.isPlainObject(patient) || _.isEmpty(patient)) {
@@ -433,10 +459,10 @@ var PatientInfo = React.createClass({
     var formValues = this.getFormValues();
 
     this.setState({validationErrors: {}});
-   
+
     var isNameRequired = personUtils.patientIsOtherPerson(this.props.patient);
     var validationErrors = personUtils.validateFormValues(formValues, isNameRequired,  FORM_DATE_FORMAT);
-    
+
     if (!_.isEmpty(validationErrors)) {
       this.setState({
         validationErrors: validationErrors
