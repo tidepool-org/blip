@@ -910,17 +910,19 @@ class DailyPrintView {
       }
     });
 
-    const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
-      endAtZero: false,
-      flushBottomOffset: -0.25,
-      isFilled: false,
-      startAtZero: false,
-    });
+    if (!_.isEmpty(basal)) {
+      const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
+        endAtZero: false,
+        flushBottomOffset: -0.25,
+        isFilled: false,
+        startAtZero: false,
+      });
 
-    this.doc.path(wholeDateDeliveredPath)
-      .lineWidth(0.5)
-      .undash()
-      .stroke(this.colors.basal);
+      this.doc.path(wholeDateDeliveredPath)
+        .lineWidth(0.5)
+        .undash()
+        .stroke(this.colors.basal);
+    }
 
     return this;
   }
