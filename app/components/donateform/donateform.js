@@ -31,6 +31,7 @@ export default class DonateForm extends Component {
     dataDonationAccounts: React.PropTypes.array.isRequired,
     onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object.isRequired,
+    working: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired,
   };
 

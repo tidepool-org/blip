@@ -67,6 +67,7 @@ const initialState = {
     resendingEmailVerification: Object.assign({}, working),
     sendingInvite: Object.assign({}, working),
     settingMemberPermissions: Object.assign({}, working),
+    updatingDataDonationAccounts: Object.assign({}, working),
     updatingPatient: Object.assign({}, working),
     updatingUser: Object.assign({}, working),
     verifyingCustodial: Object.assign({}, working),

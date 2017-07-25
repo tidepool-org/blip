@@ -51,6 +51,7 @@ const Patient = React.createClass({
     removingMember: React.PropTypes.bool,
     shareOnly: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired,
+    updatingDataDonationAccounts: React.PropTypes.bool,
     user: React.PropTypes.object,
   },
 
@@ -117,6 +118,7 @@ const Patient = React.createClass({
           onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           dataDonationAccounts={this.props.dataDonationAccounts}
+          updatingDataDonationAccounts={this.props.updatingDataDonationAccounts}
           trackMetric={this.props.trackMetric} />
       </div>
     );

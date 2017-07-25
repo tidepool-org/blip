@@ -38,6 +38,7 @@ var PatientInfo = React.createClass({
     permsOfLoggedInUser: React.PropTypes.object,
     patient: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired,
+    updatingDataDonationAccounts: React.PropTypes.bool,
     user: React.PropTypes.object,
   },
 
@@ -336,6 +337,7 @@ var PatientInfo = React.createClass({
               patient={this.props.patient}
               dataDonationAccounts={this.props.dataDonationAccounts}
               onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
+              working={this.props.updatingDataDonationAccounts}
               trackMetric={this.props.trackMetric}
             />
           </div>

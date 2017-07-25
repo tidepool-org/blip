@@ -64,6 +64,7 @@ export function mapStateToProps(state) {
     permsOfLoggedInUser: permsOfLoggedInUser,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     dataDonationAccounts: state.blip.dataDonationAccounts,
+    updatingDataDonationAccounts: state.blip.working.updatingDataDonationAccounts.inProgress,
   };
 }
 

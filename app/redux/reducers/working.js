@@ -71,6 +71,7 @@ export default (state = initialWorkingState, action) => {
     case types.VERIFY_CUSTODIAL_REQUEST:
     case types.GENERATE_PDF_REQUEST:
     case types.FETCH_DATA_DONATION_ACCOUNTS_REQUEST:
+    case types.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {
@@ -118,6 +119,7 @@ export default (state = initialWorkingState, action) => {
     case types.VERIFY_CUSTODIAL_SUCCESS:
     case types.GENERATE_PDF_SUCCESS:
     case types.FETCH_DATA_DONATION_ACCOUNTS_SUCCESS:
+    case types.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {
@@ -164,6 +166,7 @@ export default (state = initialWorkingState, action) => {
     case types.VERIFY_CUSTODIAL_FAILURE:
     case types.GENERATE_PDF_FAILURE:
     case types.FETCH_DATA_DONATION_ACCOUNTS_FAILURE:
+    case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {

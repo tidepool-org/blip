@@ -142,6 +142,11 @@ export default (type) => {
     case types.FETCH_DATA_DONATION_ACCOUNTS_FAILURE:
       return 'fetchingDataDonationAccounts';
 
+    case types.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST:
+    case types.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS:
+    case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
+      return 'updatingDataDonationAccounts';
+
     default:
       return null;
   }
