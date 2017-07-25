@@ -90,18 +90,18 @@ const DonateBanner = (props) => {
   }
 
   return (
-    <div className='donate-banner container-box-outer'>
+    <div className='donateBanner container-box-outer'>
       <div className="container-box-inner">
-        <div className="donate-banner-message">
-          {getMessageText()}
+        <div className="donateBanner-message">
+          <div className="message-text" children={getMessageText()} />
           {renderLink()}
         </div>
 
-        <div className="donate-banner-action">
+        <div className="donateBanner-action">
           <button disabled={processingDonation} onClick={handleSubmit}>{getButtonText()}</button>
         </div>
 
-        <div className="donate-banner-close">
+        <div className="donateBanner-close">
           <a href="#" className="close" onClick={handleDismiss}>&times;</a>
         </div>
       </div>

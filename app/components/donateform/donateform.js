@@ -42,7 +42,6 @@ export default class DonateForm extends Component {
     const initialFormValues = this.getInitialFormValues();
 
     this.state = {
-      working: false,
       formValues: initialFormValues,
       initialFormValues: initialFormValues,
       validationErrors: {},
@@ -134,7 +133,7 @@ export default class DonateForm extends Component {
   }
 
   getSubmitButtonText = () => {
-    if (this.state.working) {
+    if (this.props.working) {
       return 'Saving...';
     }
     return 'Save';
