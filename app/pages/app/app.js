@@ -58,12 +58,12 @@ export class AppComponent extends React.Component {
     fetchingUser: React.PropTypes.bool.isRequired,
     location: React.PropTypes.string.isRequired,
     loggingOut: React.PropTypes.bool.isRequired,
-    sendingInvite: React.PropTypes.bool.isRequired,
+    updatingDataDonationAccounts: React.PropTypes.bool.isRequired,
     notification: React.PropTypes.object,
     onAcceptTerms: React.PropTypes.func.isRequired,
     onCloseNotification: React.PropTypes.func.isRequired,
     onDismissDonateBanner: React.PropTypes.func.isRequired,
-    onInviteMember: React.PropTypes.func.isRequired,
+    onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
     onLogout: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object,
     context: React.PropTypes.shape({
@@ -228,7 +228,7 @@ export class AppComponent extends React.Component {
     const {
       showingDonateBanner,
       onDismissDonateBanner,
-      onInviteMember,
+      onUpdateDataDonationAccounts,
       patient,
       userIsDonor,
     } = this.props;
@@ -238,8 +238,8 @@ export class AppComponent extends React.Component {
         <div className="App-donatebanner">
           <DonateBanner
             onClose={onDismissDonateBanner}
-            onConfirm={onInviteMember}
-            processingDonation={this.props.sendingInvite || this.props.fetchingPendingSentInvites}
+            onConfirm={onUpdateDataDonationAccounts}
+            processingDonation={this.props.updatingDataDonationAccounts || this.props.fetchingPendingSentInvites}
             trackMetric={this.props.context.trackMetric}
             patient={patient}
             userIsDonor={userIsDonor} />
@@ -427,7 +427,7 @@ export function mapStateToProps(state) {
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites.inProgress,
     loggingOut: state.blip.working.loggingOut.inProgress,
-    sendingInvite: state.blip.working.sendingInvite.inProgress,
+    updatingDataDonationAccounts: state.blip.working.updatingDataDonationAccounts.inProgress,
     notification: displayNotification,
     termsAccepted: _.get(user, 'termsAccepted', null),
     user: user,
@@ -445,7 +445,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   logout: actions.async.logout,
   onCloseNotification: actions.sync.acknowledgeNotification,
   onDismissDonateBanner: actions.async.dismissDonateBanner,
-  inviteMember: actions.async.sendInvite,
+  updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   showDonateBanner: actions.sync.showDonateBanner,
   hideDonateBanner: actions.sync.hideDonateBanner,
 }, dispatch);
@@ -459,7 +459,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
     onCloseNotification: dispatchProps.onCloseNotification,
     onDismissDonateBanner: dispatchProps.onDismissDonateBanner.bind(null, api),
-    onInviteMember: dispatchProps.inviteMember.bind(null, api),
+    onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     showDonateBanner: dispatchProps.showDonateBanner,
     hideDonateBanner: dispatchProps.hideDonateBanner,
     onLogout: dispatchProps.logout.bind(null, api)

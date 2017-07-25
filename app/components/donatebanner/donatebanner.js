@@ -81,12 +81,7 @@ const DonateBanner = (props) => {
       return;
     }
 
-    const permissions = {
-      view: {},
-      note: {},
-    };
-
-    onConfirm(TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, permissions);
+    onConfirm([TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL]);
   }
 
   return (

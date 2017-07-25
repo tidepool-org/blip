@@ -930,7 +930,7 @@ export function fetchDataDonationAccounts(api) {
  *
  * @param  {Object} api an instance of the API wrapper
  */
-export function updateDataDonationAccounts(api, addAccounts, removeAccounts) {
+export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts = []) {
   return (dispatch, getState) => {
     dispatch(sync.updateDataDonationAccountsRequest());
 
