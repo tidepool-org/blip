@@ -29,13 +29,13 @@ var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
 var PatientInfo = React.createClass({
   propTypes: {
-    dataDonationAccounts: React.PropTypes.array.isRequired,
+    dataDonationAccounts: React.PropTypes.array,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
-    onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
+    onUpdateDataDonationAccounts: React.PropTypes.func,
     onUpdatePatient: React.PropTypes.func.isRequired,
-    onUpdatePatientSettings: React.PropTypes.func.isRequired,
-    permsOfLoggedInUser: React.PropTypes.object.isRequired,
+    onUpdatePatientSettings: React.PropTypes.func,
+    permsOfLoggedInUser: React.PropTypes.object,
     patient: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired,
     user: React.PropTypes.object,

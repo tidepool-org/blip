@@ -38,11 +38,12 @@ export default class DonateForm extends Component {
     super(props);
 
     this.nonprofitAccounts = _.reject(props.dataDonationAccounts, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL });
-    this.initialFormValues = this.getInitialFormValues();
+    const initialFormValues = this.getInitialFormValues();
 
     this.state = {
       working: false,
-      formValues: this.initialFormValues,
+      formValues: initialFormValues,
+      initialFormValues: initialFormValues,
       validationErrors: {},
       notification: null,
     };
@@ -107,11 +108,23 @@ export default class DonateForm extends Component {
   }
 
   getInitialFormValues = () => {
+    let selectedNonprofits = '';
+
     // Extract nonprofit account identifiers from email addresses,
     // and format as comma-separated string for the multi-select input
-    const selectedNonprofits = _.map(this.nonprofitAccounts, account => {
-      return account.email.match(/\+(.*)@/)[1];
-    }).sort().join(',');
+    if (this.nonprofitAccounts.length) {
+      selectedNonprofits = [];
+
+      _.forEach(this.nonprofitAccounts, account => {
+        let matches = account.email.match(/\+(.*)@/) || [];
+
+        if (matches[1]) {
+          selectedNonprofits.push(matches[1]);
+        }
+      });
+
+      selectedNonprofits = selectedNonprofits.sort().join(',');
+    }
 
     return {
       dataDonate: !_.isEmpty(this.props.dataDonationAccounts),
@@ -127,7 +140,9 @@ export default class DonateForm extends Component {
   }
 
   submitIsDisabled = () => {
-    return this.props.working || _.isEqual(this.state.formValues, this.initialFormValues);
+    const formValues = _.pick(this.state.formValues, ['dataDonate', 'dataDonateDestination']);
+    const initialFormValues = _.pick(this.state.initialFormValues, ['dataDonate', 'dataDonateDestination']);
+    return this.props.working || _.isEqual(formValues, initialFormValues);
   }
 
   handleChange = (attributes) => {
@@ -165,7 +180,7 @@ export default class DonateForm extends Component {
       addAccounts.push(TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL);
 
       _.forEach(selectedAccounts, accountId => {
-        addAccounts.push(`bigdata+${accountId}@tidepool.org`);
+        accountId && addAccounts.push(`bigdata+${accountId}@tidepool.org`);
       })
     }
 
@@ -180,6 +195,11 @@ export default class DonateForm extends Component {
     })
 
     this.props.onUpdateDataDonationAccounts(filteredAddAccounts, removeAccounts);
+
+    // Reset the initial form values state to the submitted form values for subsequent equality comparisons
+    this.setState({
+      initialFormValues: formValues,
+    });
 
     // if (this.props.trackMetric) {
     //   this.props.trackMetric('web - big data sign up', { source: formValues.dataDonateDestination || 'none' });

@@ -20,6 +20,7 @@ import update from 'react-addons-update';
 import initialState from './initialState';
 import * as types from '../constants/actionTypes';
 import actionWorkingMap from '../constants/actionWorkingMap';
+import { isDataDonationAccount } from '../../core/personutils';
 
 export const notification = (state = initialState.notification, action) => {
   switch (action.type) {
@@ -493,7 +494,7 @@ export const dataDonationAccounts = (state = initialState.dataDonationAccounts, 
           status: 'pending',
         };
       }));
-      return update(state, { $set: _.uniq(accounts, 'email') });
+      return update(state, { $set: _.uniq(_.filter(accounts, isDataDonationAccount), 'email') });
 
     case types.CANCEL_SENT_INVITE_SUCCESS:
       return _.reject(state, 'email', _.get(action.payload, 'removedEmail', null));

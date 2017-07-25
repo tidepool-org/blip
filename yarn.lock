@@ -4913,6 +4913,10 @@ node-libs-browser@^0.6.0:
     util "~0.10.3"
     vm-browserify "0.0.4"
 
+node-noop@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/node-noop/-/node-noop-1.0.0.tgz#47a3e7d80cffaa6458364bd22ed85cab3307be79"
+
 "node-osx-notifier@>= 0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/node-osx-notifier/-/node-osx-notifier-0.1.0.tgz#fce01fb577a9cf8aa8ba72ec600a47363b0ccdeb"

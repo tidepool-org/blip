@@ -29,7 +29,7 @@ import { PatientTeam } from './patientteam';
 
 const Patient = React.createClass({
   // many things *not* required here because they aren't needed for
-  // /patients/:id/profile although they are for /patients/:id/share
+  // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
     cancellingInvite: React.PropTypes.bool,
@@ -43,7 +43,7 @@ const Patient = React.createClass({
     onChangeMemberPermissions: React.PropTypes.func,
     onInviteMember: React.PropTypes.func,
     onRemoveMember: React.PropTypes.func,
-    onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
+    onUpdateDataDonationAccounts: React.PropTypes.func,
     onUpdatePatient: React.PropTypes.func,
     onUpdatePatientSettings: React.PropTypes.func,
     patient: React.PropTypes.object,

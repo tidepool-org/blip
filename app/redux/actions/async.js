@@ -20,6 +20,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import sundial from 'sundial';
 import async from 'async';
+import { noop } from 'node-noop';
 import * as ActionTypes from '../constants/actionTypes';
 import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
@@ -300,11 +301,13 @@ export function removeMembershipInOtherCareTeam(api, patientId) {
  * @param  {String|Number} patientId
  * @param  {String|Number} memberId
  */
-export function removeMemberFromTargetCareTeam(api, patientId, memberId) {
+export function removeMemberFromTargetCareTeam(api, patientId, memberId, cb = noop) {
   return (dispatch) => {
     dispatch(sync.removeMemberFromTargetCareTeamRequest());
 
     api.access.removeMember(memberId, (err) => {
+      cb(err, memberId);
+
       if (err) {
         dispatch(sync.removeMemberFromTargetCareTeamFailure(
           createActionError(ErrorMessages.ERR_REMOVING_MEMBER, err), err
@@ -324,11 +327,13 @@ export function removeMemberFromTargetCareTeam(api, patientId, memberId) {
  * @param  {String} email
  * @param  {Object} permissions
  */
-export function sendInvite(api, email, permissions) {
+export function sendInvite(api, email, permissions, cb = noop) {
   return (dispatch) => {
     dispatch(sync.sendInviteRequest());
 
     api.invitation.send(email, permissions, (err, invite) => {
+      cb(err, invite);
+
       if (err) {
         if (err.status === 409) {
           dispatch(sync.sendInviteFailure(
@@ -355,11 +360,13 @@ export function sendInvite(api, email, permissions) {
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} email
  */
-export function cancelSentInvite(api, email) {
+export function cancelSentInvite(api, email, cb = noop) {
   return (dispatch) => {
     dispatch(sync.cancelSentInviteRequest());
 
     api.invitation.cancel(email, (err) => {
+      cb(err, email);
+
       if (err) {
         dispatch(sync.cancelSentInviteFailure(
           createActionError(ErrorMessages.ERR_CANCELLING_INVITE, err), err
@@ -929,28 +936,26 @@ export function updateDataDonationAccounts(api, addAccounts, removeAccounts) {
 
     const { blip: { loggedInUserId } } = getState();
 
-    const addAccount = (email) => {
+    const addAccount = (email, cb) => {
       const permissions = {
         view: {},
         note: {},
       };
 
-      dispatch(sendInvite(api, email, permissions));
+      dispatch(sendInvite(api, email, permissions, cb));
     }
 
-    const removeAccount = (account) => {
+    const removeAccount = (account, cb) => {
       if (account.userid) {
-        dispatch(removeMemberFromTargetCareTeam(api, loggedInUserId, account.userid));
+        dispatch(removeMemberFromTargetCareTeam(api, loggedInUserId, account.userid, cb));
       } else {
-        dispatch(cancelSentInvite(api, account.email));
+        dispatch(cancelSentInvite(api, account.email, cb));
       }
     }
 
-    // const tasks =
-
     async.parallel({
-      addAccounts: async.map(addAccounts, addAccount),
-      removeAccounts: async.map(removeAccounts, removeAccount),
+      addAccounts:  cb => { async.map(addAccounts, addAccount, (err, results) => cb(err, results)) },
+      removeAccounts: cb => { async.map(removeAccounts, removeAccount, (err, results) => cb(err, results)) },
     }, (err, results) => {
       if (err) {
         dispatch(sync.updateDataDonationAccountsFailure(
