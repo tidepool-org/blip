@@ -54,3 +54,29 @@
 .input-group-control.placeholder {
   color: @gray-dark;
 }
+
+.input-group .Select {
+  padding: 0;
+  border: 0;
+
+
+  .Select-control {
+    height: 40px;
+    border-radius: 0;
+    float: left;
+  }
+
+  .Select-value {
+    margin-top: 6px;
+  }
+
+  &.Select--single {
+    .Select-value {
+      margin-top: 2px;
+    }
+  }
+
+  .Select-placeholder {
+    margin-top: 2px;
+  }
+}

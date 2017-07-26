@@ -50,6 +50,7 @@ export const notification = (state = initialState.notification, action) => {
     case types.UPDATE_PATIENT_FAILURE:
     case types.UPDATE_USER_FAILURE:
     case types.FETCH_DATA_DONATION_ACCOUNTS_FAILURE:
+    case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
       const err = _.get(action, 'error', null);
       if (err) {
         return {

@@ -29,8 +29,13 @@ import InputGroup from '../../components/inputgroup';
 import DatePicker from '../../components/datepicker';
 import SimpleForm from '../../components/simpleform';
 import personUtils from '../../core/personutils';
+import { getDonationAccountCodeFromEmail } from '../../core/utils';
 
-import { DATA_DONATION_NONPROFITS, URL_BIG_DATA_DONATION_INFO } from '../../core/constants';
+import {
+  DATA_DONATION_NONPROFITS,
+  URL_BIG_DATA_DONATION_INFO,
+  TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
+} from '../../core/constants';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
@@ -38,73 +43,79 @@ export let PatientNew = React.createClass({
   propTypes: {
     fetchingUser: React.PropTypes.bool.isRequired,
     notification: React.PropTypes.object,
-    onInviteMember: React.PropTypes.func.isRequired,
+    onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     user: React.PropTypes.object,
     working: React.PropTypes.bool.isRequired
   },
 
-  formInputs: [
-    {
-      name: 'isOtherPerson',
-      type: 'radios',
-      items: [
-        {value: false, label: 'This is for me, I have type 1 diabetes'},
-        {value: true, label: 'This is for someone I care for who has type 1 diabetes'}
-      ]
-    },
-    {
-      name: 'fullName',
-      type: 'text',
-      placeholder: 'Full name'
-    },
-    {
-      name: 'about',
-      type: 'textarea',
-      placeholder: 'Share a bit about yourself or this person.'
-    },
-    {
-      name: 'birthday',
-      label: 'Birthday',
-      type: 'datepicker'
-    },
-    {
-      name: 'diagnosisDate',
-      label: 'Diagnosis date',
-      type: 'datepicker'
-    },
-    {
-      name: 'dataDonate',
-      label: 'Donate my anonymized data',
-      type: 'checkbox'
-    },
-    {
-      name: 'dataDonateExplainer',
-      type: 'explanation',
-      text: (<div style={{'textAlign':'left'}}>
-        You own your data. Read all the details about Tidepool's Big Data
-        Donation project <a target="_blank" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
-      </div>)
-    },
-    {
-      name: 'dataDonateDestination',
-      type: 'select',
-      value: '',
-      placeholder: '',
-      items: [
-        {value: '', label: 'Choose a diabetes organization', disabled: true},
-      ].concat(DATA_DONATION_NONPROFITS),
-    },
-    {
-      name: 'donateExplainer',
-      type: 'explanation',
-      text: (<div style={{'textAlign':'left'}}>
-        Tidepool will share 10% of the proceeds with a diabetes organization of
-        your choice.
-      </div>)
-    }
-  ],
+  getFormInputs: function() {
+    return [
+      {
+        name: 'isOtherPerson',
+        type: 'radios',
+        items: [
+          {value: false, label: 'This is for me, I have type 1 diabetes'},
+          {value: true, label: 'This is for someone I care for who has type 1 diabetes'}
+        ]
+      },
+      {
+        name: 'fullName',
+        type: 'text',
+        placeholder: 'Full name'
+      },
+      {
+        name: 'about',
+        type: 'textarea',
+        placeholder: 'Share a bit about yourself or this person.'
+      },
+      {
+        name: 'birthday',
+        label: 'Birthday',
+        type: 'datepicker'
+      },
+      {
+        name: 'diagnosisDate',
+        label: 'Diagnosis date',
+        type: 'datepicker'
+      },
+      {
+        name: 'dataDonate',
+        label: 'Donate my anonymized data',
+        disabled: !_.isEmpty(this.state.formValues.dataDonateDestination),
+        value: this.state.formValues.dataDonate,
+        type: 'checkbox'
+      },
+      {
+        name: 'dataDonateExplainer',
+        type: 'explanation',
+        text: (
+          <div>
+            You own your data. Read all the details about Tidepool's Big Data
+            Donation project <a target="_blank" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
+          </div>
+        ),
+      },
+      {
+        name: 'dataDonateDestination',
+        type: 'select',
+        multi: true,
+        value: this.state.formValues.dataDonateDestination,
+        placeholder: 'Choose which diabetes organization(s) to support',
+        items: DATA_DONATION_NONPROFITS,
+      },
+      {
+        name: 'donateExplainer',
+        type: 'explanation',
+        text: (
+          <div>
+            Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.
+          </div>
+        ),
+      }
+    ];
+  },
 
   getInitialState: function() {
     return {
@@ -115,7 +126,6 @@ export let PatientNew = React.createClass({
         dataDonateDestination: ''
       },
       validationErrors: {},
-      notification: null
     };
   },
 
@@ -175,29 +185,16 @@ export let PatientNew = React.createClass({
   renderForm: function() {
     return (
       <SimpleForm
-        inputs={this.formInputs}
+        inputs={this.getFormInputs()}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={this.getSubmitButtonText()}
         submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
         onChange={this.handleInputChange}
-        notification={this.state.notification || this.props.notification}/>
+        notification={this.props.notification}
+      />
     );
-
-  },
-
-  renderNotification: function() {
-    var notification = this.props.notification;
-    if (notification && notification.message) {
-      var type = notification.type || 'alert';
-      return (
-        <div className={'PatientNew-notification PatientNew-notification--' + type}>
-          {notification.message}
-        </div>
-      );
-    }
-    return null;
   },
 
   getSubmitButtonText: function() {
@@ -228,6 +225,13 @@ export let PatientNew = React.createClass({
         fullName: fullName
       });
     }
+    else if (key === 'dataDonateDestination' && !_.isEmpty(value)) {
+      // Ensure that the donate checkbox is checked if there are nonprofits selected
+      if (!formValues.dataDonate) {
+        formValues.dataDonate = true;
+      }
+      formValues[key] = value;
+    }
     else {
       formValues[key] = value;
     }
@@ -250,18 +254,20 @@ export let PatientNew = React.createClass({
     this.props.onSubmit(formValues);
 
     if(origFormValues.dataDonate) {
-      var permissions = {
-        view: {},
-        note: {}
-      };
-      var address = 'bigdata';
-      if(origFormValues.dataDonateDestination) {
-        address += `+${origFormValues.dataDonateDestination}`;
-      }
-      address += '@tidepool.org';
-      this.props.onInviteMember(address, permissions);
+      const addAccounts = [ TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL ];
+      const selectedAccounts = origFormValues.dataDonateDestination.split(',');
+
+      _.forEach(selectedAccounts, accountId => {
+        accountId && addAccounts.push(`bigdata+${accountId}@tidepool.org`);
+      })
+
+      this.props.onUpdateDataDonationAccounts(addAccounts);
+
       if (this.props.trackMetric) {
-        this.props.trackMetric('web - big data sign up', { source: origFormValues.dataDonateDestination || 'none'});
+        _.forEach(addAccounts, email => {
+          const source = getDonationAccountCodeFromEmail(email) || 'none';
+          this.props.trackMetric('web - big data sign up', { source });
+        });
       }
     }
   },
@@ -296,7 +302,6 @@ export let PatientNew = React.createClass({
   // no opportunity for exposing the error to the user
   // i.e., mis-typing 02/31/2014 instead of 03/31/2014 will be saved as 03/03/2014!
   makeRawDateString: function(dateObj){
-
     var mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
     mm = (mm.length === 1) ? '0'+ mm : mm;
     var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
@@ -360,7 +365,7 @@ export function mapStateToProps(state) {
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  inviteMember: actions.async.sendInvite,
+  updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   setupDataStorage: actions.async.setupDataStorage
 }, dispatch);
 
@@ -368,7 +373,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, {
     onSubmit: dispatchProps.setupDataStorage.bind(null, api),
-    onInviteMember: dispatchProps.inviteMember.bind(null, api),
+    onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });
 };

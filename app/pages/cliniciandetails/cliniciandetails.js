@@ -53,9 +53,8 @@ export let ClinicianDetails = React.createClass({
       label: 'Clinical Role',
       type: 'select',
       value: '',
-      placeholder: '',
+      placeholder: 'Select Role....',
       items: [
-        {value: '', label: 'Select Role....', disabled: true},
         {value: 'clinic_manager', label: 'Clinic Manager'},
         {value: 'diabetes_educator', label: 'Diabetes Educator'},
         {value: 'endocrinologist', label: 'Endocrinologist'},
@@ -88,7 +87,6 @@ export let ClinicianDetails = React.createClass({
         clinicalRole: ''
       },
       validationErrors: {},
-      notification: null
     };
   },
 
@@ -159,22 +157,9 @@ export let ClinicianDetails = React.createClass({
         submitDisabled={this.props.working || !this.canSubmit()}
         onSubmit={this.handleSubmit}
         onChange={this.handleInputChange}
-        notification={this.state.notification || this.props.notification}/>
+        notification={this.props.notification}
+      />
     );
-
-  },
-
-  renderNotification: function() {
-    var notification = this.props.notification;
-    if (notification && notification.message) {
-      var type = notification.type || 'alert';
-      return (
-        <div className={'ClinicianDetails-notification ClinicianDetails-notification--' + type}>
-          {notification.message}
-        </div>
-      );
-    }
-    return null;
   },
 
   getSubmitButtonText: function() {

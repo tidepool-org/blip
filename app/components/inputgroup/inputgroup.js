@@ -200,6 +200,8 @@ var InputGroup = React.createClass({
   },
 
   renderSelect: function() {
+    var isMultiSelect = this.props.multi || false;
+
     var classNames = cx({
       'input-group-control': true,
       'form-control': true,
@@ -209,8 +211,9 @@ var InputGroup = React.createClass({
       <Select className={classNames}
         name={this.props.name}
         id={this.props.name}
-        multi={this.props.multi}
-        simpleValue={this.props.multi}
+        multi={isMultiSelect}
+        simpleValue={isMultiSelect}
+        clearable={isMultiSelect}
         placeholder={this.props.placeholder}
         value={this.props.value}
         onChange={this.handleChange}

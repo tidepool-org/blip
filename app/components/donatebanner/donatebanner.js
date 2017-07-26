@@ -81,7 +81,12 @@ const DonateBanner = (props) => {
       return;
     }
 
-    onConfirm([TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL]);
+    onConfirm([ TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL ]);
+
+    if (this.props.trackMetric) {
+      const source = 'none';
+      this.props.trackMetric('web - big data sign up', { source });
+    }
   }
 
   return (

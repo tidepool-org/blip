@@ -26,11 +26,12 @@ import {
   TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
 } from '../../core/constants';
 
+import { getDonationAccountCodeFromEmail } from '../../core/utils';
+
 export default class DonateForm extends Component {
   static propTypes = {
     dataDonationAccounts: React.PropTypes.array.isRequired,
     onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
-    patient: React.PropTypes.object.isRequired,
     working: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired,
   };
@@ -45,7 +46,6 @@ export default class DonateForm extends Component {
       formValues: initialFormValues,
       initialFormValues: initialFormValues,
       validationErrors: {},
-      notification: null,
     };
   }
 
@@ -67,7 +67,7 @@ export default class DonateForm extends Component {
         submitDisabled={this.submitIsDisabled()}
         onSubmit={this.handleSubmit}
         onChange={this.handleChange}
-        notification={this.state.notification || this.props.notification} />
+      />
     );
   }
 
@@ -83,10 +83,12 @@ export default class DonateForm extends Component {
       {
         name: 'dataDonateExplainer',
         type: 'explanation',
-        text: (<div style={{ 'textAlign': 'left' }}>
-          You own your data. Read all the details about Tidepool's Big Data
-          Donation project < a target="_blank" href={URL_BIG_DATA_DONATION_INFO}> here</a>.
-        </div>)
+        text: (
+          <div>
+            You own your data. Read all the details about Tidepool's Big Data
+            Donation project <a target="_blank" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
+          </div>
+        ),
       },
       {
         name: 'dataDonateDestination',
@@ -99,10 +101,11 @@ export default class DonateForm extends Component {
       {
         name: 'donateExplainer',
         type: 'explanation',
-        text: (<div style={{ 'textAlign': 'left' }}>
-          Tidepool will share 10% of the proceeds with the diabetes organization(s) of
-          your choice.
-        </div>)
+        text: (
+          <div>
+            Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.
+          </div>
+        ),
       }
     ];
   }
@@ -116,11 +119,8 @@ export default class DonateForm extends Component {
       selectedNonprofits = [];
 
       _.forEach(this.nonprofitAccounts, account => {
-        let matches = account.email.match(/\+(.*)@/) || [];
-
-        if (matches[1]) {
-          selectedNonprofits.push(matches[1]);
-        }
+        let code = getDonationAccountCodeFromEmail(account.email);
+        code && selectedNonprofits.push(code);
       });
 
       selectedNonprofits = selectedNonprofits.sort().join(',');
@@ -201,8 +201,16 @@ export default class DonateForm extends Component {
       initialFormValues: formValues,
     });
 
-    // if (this.props.trackMetric) {
-    //   this.props.trackMetric('web - big data sign up', { source: formValues.dataDonateDestination || 'none' });
-    // }
+    if (this.props.trackMetric) {
+      _.forEach(filteredAddAccounts, email => {
+        const source = getDonationAccountCodeFromEmail(email) || 'none';
+        this.props.trackMetric('web - big data sign up', { source });
+      });
+
+      _.forEach(removeAccounts, account => {
+        const source = getDonationAccountCodeFromEmail(account.email) || 'none';
+        this.props.trackMetric('web - big data cancellation', { source });
+      });
+    }
   }
 }

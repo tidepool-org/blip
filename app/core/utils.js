@@ -153,6 +153,11 @@ utils.getInviteEmail = function(location) {
   return null;
 }
 
+utils.getDonationAccountCodeFromEmail = function(email) {
+  let matches = email.match(/\+(.*)@/) || [];
+  return matches[1] || null;
+}
+
 utils.hasVerifiedEmail = function(user) {
   return (user.emailVerified);
 }
