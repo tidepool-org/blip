@@ -959,7 +959,7 @@ export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts
     }, (err, results) => {
       if (err) {
         dispatch(sync.updateDataDonationAccountsFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_DATA_DONATION_ACCOUNTS, err), err
+          createActionError(ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS, err), err
         ));
       } else {
         dispatch(sync.updateDataDonationAccountsSuccess(results));

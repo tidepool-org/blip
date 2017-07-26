@@ -108,14 +108,6 @@ export class AppComponent extends React.Component {
     return /^\/patients\/\S+/.test(this.props.location);
   }
 
-  logSupportContact() {
-    this.props.context.trackMetric('Clicked Give Feedback');
-  }
-
-  closeNotification() {
-    this.props.acknowledgeNotification();
-  }
-
   doFetching(nextProps) {
     if (!nextProps.fetchers) {
       return
@@ -254,8 +246,10 @@ export class AppComponent extends React.Component {
     var notification = this.props.notification;
     var handleClose;
 
+    // On these paths, we only display the notifications inline under the forms,
+    // rather than in a modal that requires the user to dismiss it.
     var shouldDisplayNotification = !_.includes(
-      ['/login', '/email-verification', '/signup'],
+      ['/login', '/email-verification', '/signup', '/signup/personal', '/signup/clinician'],
       this.props.location
     );
 

@@ -34,7 +34,6 @@ var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 export let ClinicianDetails = React.createClass({
   propTypes: {
     fetchingUser: React.PropTypes.bool.isRequired,
-    notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     user: React.PropTypes.object,
@@ -157,7 +156,6 @@ export let ClinicianDetails = React.createClass({
         submitDisabled={this.props.working || !this.canSubmit()}
         onSubmit={this.handleSubmit}
         onChange={this.handleInputChange}
-        notification={this.props.notification}
       />
     );
   },
@@ -253,7 +251,6 @@ export function mapStateToProps(state) {
     user: user,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     working: state.blip.working.updatingUser.inProgress,
-    notification: state.blip.working.updatingUser.notification
   };
 }
 
