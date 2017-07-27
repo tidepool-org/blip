@@ -80,7 +80,6 @@ if (isDev) {
     'webpack/hot/only-dev-server',
     './app/main.js',
   ];
-  loaders.push({test: /\.css$/, loaders: ['style-loader', 'css-loader']});
   loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader', 'postcss-loader', 'less-loader']});
   loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
 } else {

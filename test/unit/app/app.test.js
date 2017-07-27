@@ -173,7 +173,7 @@ describe('App',  () => {
     });
 
     describe('logged-in state', () => {
-      // this is the absolute minimum state that the mapStateToProps function needs 
+      // this is the absolute minimum state that the mapStateToProps function needs
       const loggedIn = {
         allUsersMap: {
           a1b2c3: {
@@ -197,8 +197,11 @@ describe('App',  () => {
             view: {},
           },
         },
+        dataDonationAccounts: [],
         working: {
           fetchingUser: {inProgress: false},
+          fetchingPendingSentInvites: {inProgress: false},
+          updatingDataDonationAccounts: {inProgress: false},
           fetchingPatient: {inProgress: false, notification: {type: 'error'}},
           loggingOut: {inProgress: false}
         }

@@ -41,7 +41,7 @@ import Version from '../../components/version';
 import { DATA_DONATION_NONPROFITS } from '../../core/constants';
 
 // Styles
-import 'react-select/dist/react-select.css';
+require('react-select/less/default.less');
 require('tideline/css/tideline.less');
 require('../../style.less');
 
@@ -80,8 +80,8 @@ export class AppComponent extends React.Component {
     termsAccepted: React.PropTypes.string,
     user: React.PropTypes.object,
     userHasUploadedData: React.PropTypes.bool.isRequired,
-    userIsDonor: React.PropTypes.bool,
-    userIsSupportingNonprofit: React.PropTypes.bool,
+    userIsDonor: React.PropTypes.bool.isRequired,
+    userIsSupportingNonprofit: React.PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -339,7 +339,7 @@ export function mapStateToProps(state) {
   let user = null;
   let patient = null;
   let permissions = null;
-  let userIsDonor = !!state.blip.dataDonationAccounts.length;
+  let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
   let userIsSupportingNonprofit = false;
   let userHasUploadedData = false;
 

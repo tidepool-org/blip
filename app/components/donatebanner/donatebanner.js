@@ -83,9 +83,9 @@ const DonateBanner = (props) => {
 
     onConfirm([ TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL ]);
 
-    if (this.props.trackMetric) {
+    if (trackMetric) {
       const source = 'none';
-      this.props.trackMetric('web - big data sign up', { source });
+      trackMetric('web - big data sign up', { source });
     }
   }
 
