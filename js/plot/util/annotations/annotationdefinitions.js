@@ -95,6 +95,14 @@ var definitions = {
       var b = ' did not directly provide us with these rate changes.';
       return defs.stitch(a, b, source);
     },
+    'medtronic/basal/time-change': function(source, defs) {
+      return 'Because there was a time change during this basal, we split the basal into two segments.';
+    },
+    'medtronic/basal/one-second-gap': function(source, defs) {
+      var a = 'This basal was extended by one second because the duration and time reported by ';
+      var b = ' do not match up exactly.';
+      return defs.stitch(a, b, source);
+    },
     'tandem/basal/fabricated-from-new-day': function(source, defs) {
       var a = 'We have fabricated this basal segment from a ';
       var b = ' new day event; it was not provided directly as basal data';
