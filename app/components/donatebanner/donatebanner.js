@@ -93,7 +93,8 @@ const DonateBanner = (props) => {
 
     if (trackMetric) {
       const source = 'none';
-      trackMetric('web - big data sign up', { source });
+      const location = 'banner';
+      trackMetric('web - big data sign up', { source, location });
     }
   }
 

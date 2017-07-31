@@ -264,7 +264,8 @@ export let PatientNew = React.createClass({
       if (this.props.trackMetric) {
         _.forEach(addAccounts, email => {
           const source = getDonationAccountCodeFromEmail(email) || 'none';
-          this.props.trackMetric('web - big data sign up', { source });
+          const location = 'sign-up';
+          this.props.trackMetric('web - big data sign up', { source, location });
         });
       }
     }

@@ -307,6 +307,8 @@ describe('DonateForm', () => {
         'bigdata+CWD@tidepool.org',
       ];
 
+      const location = 'settings';
+
       wrapper.setState({ formValues });
 
       wrapper.instance().handleSubmit(formValues);
@@ -314,9 +316,9 @@ describe('DonateForm', () => {
       sinon.assert.calledWith(props.onUpdateDataDonationAccounts, expectedAddAccounts);
 
       sinon.assert.calledThrice(props.trackMetric);
-      expect(props.trackMetric.getCall(0).args).to.eql(['web - big data sign up', { source: 'none' }]);
-      expect(props.trackMetric.getCall(1).args).to.eql(['web - big data sign up', { source: 'CARBDM' }]);
-      expect(props.trackMetric.getCall(2).args).to.eql(['web - big data sign up', { source: 'CWD' }]);
+      expect(props.trackMetric.getCall(0).args).to.eql(['web - big data sign up', { source: 'none', location }]);
+      expect(props.trackMetric.getCall(1).args).to.eql(['web - big data sign up', { source: 'CARBDM', location }]);
+      expect(props.trackMetric.getCall(2).args).to.eql(['web - big data sign up', { source: 'CWD', location }]);
     });
 
     it('should not re-add accounts that are already added', () => {

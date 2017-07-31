@@ -202,7 +202,7 @@ export default class DonateForm extends Component {
     if (this.props.trackMetric) {
       _.forEach(filteredAddAccounts, email => {
         const source = getDonationAccountCodeFromEmail(email) || 'none';
-        this.props.trackMetric('web - big data sign up', { source });
+        this.props.trackMetric('web - big data sign up', { source, location: 'settings' });
       });
 
       _.forEach(removeAccounts, account => {

@@ -89,6 +89,7 @@ describe('PatientNew', function () {
       expect(props.onUpdateDataDonationAccounts.callCount).to.equal(1);
       expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org'])).to.be.true;
       expect(props.trackMetric.callCount).to.equal(1);
+      expect(props.trackMetric.getCall(0).args).to.eql(['web - big data sign up', { source: 'none', location: 'sign-up' }]);
     });
 
     it('should call onSubmit and onUpdateDataDonationAccounts with specific values', function(){

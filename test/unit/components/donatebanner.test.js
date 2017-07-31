@@ -132,7 +132,7 @@ describe('DonateBanner', () => {
         const button = wrapper.find('button');
         button.simulate('click');
         sinon.assert.calledOnce(props.trackMetric);
-        sinon.assert.calledWith(props.trackMetric, 'web - big data sign up', { source: 'none' });
+        sinon.assert.calledWith(props.trackMetric, 'web - big data sign up', { source: 'none', location: 'banner' });
       });
 
       it('should not call the submit handler when the donate button is clicked while the submission is processing', () => {
