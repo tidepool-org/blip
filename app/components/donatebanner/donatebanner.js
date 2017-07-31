@@ -70,14 +70,14 @@ const DonateBanner = (props) => {
   };
 
   const handleSubmit = () => {
-    if (processingDonation) {
-      return;
-    }
-
     if (userIsDonor) {
       // If user is donor, we redirect to settings page
       // so they can choose a nonprofit to share proceeds with
       browserHistory.push(`/patients/${patient.userid}/profile`);
+      return;
+    }
+
+    if (processingDonation) {
       return;
     }
 
@@ -114,7 +114,7 @@ DonateBanner.propTypes = {
   onConfirm: React.PropTypes.func.isRequired,
   processingDonation: React.PropTypes.bool.isRequired,
   trackMetric: React.PropTypes.func.isRequired,
-  patient: React.PropTypes.object,
+  patient: React.PropTypes.object.isRequired,
   userIsDonor: React.PropTypes.bool.isRequired,
 };
 

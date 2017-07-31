@@ -92,11 +92,11 @@ describe('PatientNew', function () {
     });
 
     it('should call onSubmit and onUpdateDataDonationAccounts with specific values', function(){
-      wrapper.instance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: 'JDRF' }));
+      wrapper.instance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: 'JDRF,ZZZ' }));
       expect(props.onSubmit.callCount).to.equal(1);
       expect(props.onUpdateDataDonationAccounts.callCount).to.equal(1);
-      expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org', 'bigdata+JDRF@tidepool.org'])).to.be.true;
-      expect(props.trackMetric.callCount).to.equal(2);
+      expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org', 'bigdata+JDRF@tidepool.org', 'bigdata+ZZZ@tidepool.org'])).to.be.true;
+      expect(props.trackMetric.callCount).to.equal(3);
     });
   });
 

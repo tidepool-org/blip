@@ -45,7 +45,6 @@ export default class DonateForm extends Component {
     this.state = {
       formValues: initialFormValues,
       initialFormValues: initialFormValues,
-      validationErrors: {},
     };
   }
 
@@ -62,7 +61,6 @@ export default class DonateForm extends Component {
       <SimpleForm
         inputs={this.getFormInputs()}
         formValues={this.state.formValues}
-        validationErrors={this.state.validationErrors}
         submitButtonText={this.getSubmitButtonText()}
         submitDisabled={this.submitIsDisabled()}
         onSubmit={this.handleSubmit}

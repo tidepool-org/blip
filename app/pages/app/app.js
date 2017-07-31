@@ -79,7 +79,8 @@ export class AppComponent extends React.Component {
     hideDonateBanner: React.PropTypes.func.isRequired,
     termsAccepted: React.PropTypes.string,
     user: React.PropTypes.object,
-    userHasUploadedData: React.PropTypes.bool.isRequired,
+    userHasData: React.PropTypes.bool.isRequired,
+    userIsCurrentPatient: React.PropTypes.bool.isRequired,
     userIsDonor: React.PropTypes.bool.isRequired,
     userIsSupportingNonprofit: React.PropTypes.bool.isRequired,
   };
@@ -134,7 +135,8 @@ export class AppComponent extends React.Component {
     const {
       showingDonateBanner,
       location,
-      userHasUploadedData,
+      userHasData,
+      userIsCurrentPatient,
       userIsSupportingNonprofit
     } = nextProps;
 
@@ -146,7 +148,7 @@ export class AppComponent extends React.Component {
     // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
     if (showingDonateBanner !== false) {
       const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
-      const showBanner = isBannerRoute && userHasUploadedData && !userIsSupportingNonprofit;
+      const showBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
 
       if (showBanner) {
         this.props.showDonateBanner();
@@ -341,15 +343,18 @@ export function mapStateToProps(state) {
   let permissions = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
   let userIsSupportingNonprofit = false;
-  let userHasUploadedData = false;
+  let userIsCurrentPatient = false;
+  let userHasData = false;
 
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
 
+      let data = _.get(state.blip.patientDataMap, state.blip.loggedInUserId, null);
+      userHasData = !!(data && !!data.length); // convert null or empty array val to boolean
+
       if (state.blip.loggedInUserId === state.blip.currentPatientInViewId) {
-        let data = _.get(state.blip.patientDataMap, state.blip.loggedInUserId, null);
-        userHasUploadedData = !!(data && !!data.length);
+        userIsCurrentPatient = true;
       }
     }
 
@@ -427,7 +432,8 @@ export function mapStateToProps(state) {
     user: user,
     patient: patient ? { permissions, ...patient } : null,
     showingDonateBanner: state.blip.showingDonateBanner,
-    userHasUploadedData,
+    userIsCurrentPatient,
+    userHasData,
     userIsDonor,
     userIsSupportingNonprofit,
   };

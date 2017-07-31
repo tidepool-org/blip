@@ -114,4 +114,18 @@ describe('MemberInviteForm', function () {
       expect(props.trackMetric.calledWith('Clicked Invite')).to.be.true;
     });
   });
+
+  describe('render', () => {
+    it('should not render data donation accounts', () => {
+      wrapper.setProps({
+        pendingSentInvites: [
+          { email: 'user@gmail.com' },
+          { email: 'bigdata@tidepool.org' },
+          { email: 'bigdata+ZZZ@tidepool.org' },
+        ],
+      });
+
+      expect(wrapper.find('.PatientTeam-member')).to.have.length(1);
+    });
+  });
 });

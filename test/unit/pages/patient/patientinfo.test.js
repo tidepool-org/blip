@@ -2,12 +2,14 @@
 /* global describe */
 /* global sinon */
 /* global it */
+/* global beforeEach */
 
 var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
-
 var PatientInfo = require('../../../../app/pages/patient/patientinfo');
+
+import { mount } from 'enzyme';
 
 describe('PatientInfo', function () {
 
@@ -60,7 +62,7 @@ describe('PatientInfo', function () {
       expect(elem.state.editing).to.equal(false);
     });
   });
-  
+
   describe('isSamePersonUserAndPatient', function() {
     it('should return false when both userids are the different', function() {
       var props = {
@@ -130,8 +132,8 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
       // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
-      // 
-      // Edge cases to do with how moment.dff behaves around dtes with diff between >1 and 1, 
+      //
+      // Edge cases to do with how moment.dff behaves around dtes with diff between >1 and 1,
       // the range for 0 spans between these values
       expect(elem.getAgeText(elem.props.patient, Date.UTC(1983, 4, 20))).to.equal('Born this year');
       expect(elem.getAgeText(elem.props.patient, Date.UTC(1983, 4, 19))).to.equal('Born this year');
@@ -440,7 +442,7 @@ describe('PatientInfo', function () {
       expect(formValues.about).to.equal('I have a wonderful coffee mug.');
     });
   });
-  
+
   describe('prepareFormValuesForSubmit', function() {
 
     it('should throw an error with invalid birthday - non-leap year 29th Feb', function() {
@@ -506,7 +508,7 @@ describe('PatientInfo', function () {
       var result = elem.prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.birthday).to.equal('1984-07-01');
-      
+
       formValues.birthday = '08/02/1984';
       result = elem.prepareFormValuesForSubmit(formValues);
       expect(result.profile.patient.birthday).to.equal('1984-08-02');
@@ -584,7 +586,7 @@ describe('PatientInfo', function () {
       var result = elem.prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.diagnosisDate).to.equal('1984-07-01');
-      
+
       formValues.diagnosisDate = '08/02/1984';
       result = elem.prepareFormValuesForSubmit(formValues);
       expect(result.profile.patient.diagnosisDate).to.equal('1984-08-02');
@@ -635,6 +637,28 @@ describe('PatientInfo', function () {
       expect(result.profile.patient.about).to.equal('I am a testing developer.');
       expect(result.profile.patient.birthday).to.equal('1990-02-02');
       expect(result.profile.patient.diagnosisDate).to.equal('2001-04-05');
+    });
+  });
+
+  describe('renderDonateForm', function() {
+    let props = {
+      user: { userid: 5678 },
+      patient: { userid: 1234 }
+    };
+
+    let wrapper;
+    beforeEach(() => {
+      wrapper = mount(<PatientInfo {...props} />);
+    });
+
+    it('should render the donation form, but only if the patient is the logged in user', function() {
+      expect(wrapper.find('.PatientPage-donateForm')).to.have.length(0);
+
+      wrapper.setProps({
+        user: { userid: 1234 }
+      });
+
+      expect(wrapper.find('.PatientPage-donateForm')).to.have.length(1);
     });
   });
 });

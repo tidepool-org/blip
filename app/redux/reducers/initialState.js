@@ -51,6 +51,7 @@ const initialState = {
     confirmingSignup: Object.assign({}, working),
     settingUpDataStorage: Object.assign({}, working),
     rejectingReceivedInvite: Object.assign({}, working),
+    fetchingDataDonationAccounts: Object.assign({}, working),
     fetchingMessageThread: Object.assign({}, working),
     fetchingPatient: Object.assign({}, working),
     fetchingPatientData: Object.assign({}, working),
