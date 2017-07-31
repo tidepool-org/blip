@@ -351,7 +351,6 @@ function TidelineData(data, opts) {
         if (d.type !== 'fill') {
           if (d.timezoneOffset != null && d.conversionOffset != null) {
             d.normalTime = dt.addDuration(d.time, d.timezoneOffset * MS_IN_MIN + d.conversionOffset);
-            d.displayOffset = 0;
           }
           else if (d.type === 'message') {
             if (dt.isATimestamp(d.time)) {
@@ -359,14 +358,19 @@ function TidelineData(data, opts) {
               var offsetMinutes = datumDt.getTimezoneOffset();
               datumDt.setUTCMinutes(datumDt.getUTCMinutes() - offsetMinutes);
               d.normalTime = datumDt.toISOString();
-              d.displayOffset = 0;
             }
           }
           // timezoneOffset is an optional attribute according to the Tidepool data model
           else {
-            d.normalTime = d.deviceTime + '.000Z';
-            d.displayOffset = 0;
+            if (_.isEmpty(d.deviceTime)) { 
+               d.normalTime = d.time;
+            }
+            else {
+               d.normalTime = d.deviceTime + '.000Z';
+            }
           }
+          // displayOffset always 0 when not timezoneAware
+          d.displayOffset = 0 ;
           if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
             d.warning = 'Combining `time` and `timezoneOffset` does not yield `deviceTime`.';
           }
