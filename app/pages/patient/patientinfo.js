@@ -28,6 +28,8 @@ var FORM_DATE_FORMAT = 'MM/DD/YYYY';
 var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
 var PatientInfo = React.createClass({
+  // many things *not* required here because they aren't needed for
+  // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
   propTypes: {
     dataDonationAccounts: React.PropTypes.array,
     fetchingPatient: React.PropTypes.bool.isRequired,
@@ -224,7 +226,6 @@ var PatientInfo = React.createClass({
   },
 
   renderFullNameInput: function(formValues) {
-
     var fullNameNode, errorElem, classes;
     var error = this.state.validationErrors.fullName;
     // Legacy: revisit when proper "child accounts" are implemented
@@ -384,7 +385,6 @@ var PatientInfo = React.createClass({
     } else {
       return 'Birthdate not known';
     }
-
   },
 
   getDiagnosisText: function(patient, currentDate) {
@@ -394,7 +394,6 @@ var PatientInfo = React.createClass({
     if (!diagnosisDate) {
       return;
     }
-
 
     var now = new Date();
     currentDate = currentDate || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());

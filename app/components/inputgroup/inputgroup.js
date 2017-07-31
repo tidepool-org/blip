@@ -30,7 +30,6 @@ var InputGroup = React.createClass({
     text: React.PropTypes.node,
     value: React.PropTypes.oneOfType([
       React.PropTypes.string,
-      React.PropTypes.array,
       React.PropTypes.bool,
       React.PropTypes.object // dates for datepicker input type are objects
     ]),

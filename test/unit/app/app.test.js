@@ -459,7 +459,7 @@ describe('App',  () => {
               currentPatientInViewId: '5678',
               patientDataMap: {
                 '1234': [ 'one', 'two' ],
-              }
+              },
             });
 
             const result = mapStateToProps({ blip: state });
@@ -476,7 +476,7 @@ describe('App',  () => {
               currentPatientInViewId: '1234',
               patientDataMap: {
                 '1234': [ 'one', 'two' ],
-              }
+              },
             });
 
             const result = mapStateToProps({ blip: state });

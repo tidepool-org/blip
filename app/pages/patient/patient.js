@@ -154,18 +154,18 @@ const Patient = React.createClass({
       </div>
     );
   },
+
   overlayClickHandler: function() {
     this.setState(this.getInitialState());
   },
-  renderModalOverlay: function() {
 
+  renderModalOverlay: function() {
     return (
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.overlayClickHandler}/>
     );
-
   },
 
   renderAccess: function() {

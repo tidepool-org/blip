@@ -81,7 +81,7 @@ describe('DonateForm', () => {
       initialFormValues: expectedInitialFormValues,
     };
 
-    expect(wrapper.state()).to.eql(expectedInitialState)
+    expect(wrapper.state()).to.eql(expectedInitialState);
   });
 
   describe('render', () => {
@@ -90,7 +90,7 @@ describe('DonateForm', () => {
       const checkbox = wrapper.find('input#dataDonate[type="checkbox"]');
 
       expect(label).to.have.length(1);
-      expect(label.text()).contains('Donate my anonymized data')
+      expect(label.text()).contains('Donate my anonymized data');
 
       expect(checkbox).to.have.length(1);
     });
@@ -125,7 +125,7 @@ describe('DonateForm', () => {
         dataDonate: true,
       });
 
-      const element = mount(<DonateForm {...newProps} />)
+      const element = mount(<DonateForm {...newProps} />);
       expect(element.state('formValues')).to.eql(expectedFormValues);
     });
 
@@ -162,7 +162,7 @@ describe('DonateForm', () => {
         dataDonateDestination: 'CARBDM,CWD,ZZZ',
       });
 
-      const element = mount(<DonateForm {...newProps} />)
+      const element = mount(<DonateForm {...newProps} />);
       expect(element.state('formValues')).to.eql(expectedFormValues);
     });
   });
@@ -213,7 +213,7 @@ describe('DonateForm', () => {
 
     beforeEach(() => {
       spy = sinon.spy(wrapper.instance(), 'handleChange');
-      wrapper.update()
+      wrapper.update();
 
       checkbox = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
       select = wrapper.find('.simple-form').first().find('.input-group').at(2).find('.Select').first().find('input');
@@ -229,7 +229,7 @@ describe('DonateForm', () => {
     });
 
     it('should ensure that the dataDonate form value is true if recipients are added from the dropdown', () => {
-      expect(wrapper.state('formValues').dataDonateDestination).to.be.empty
+      expect(wrapper.state('formValues').dataDonateDestination).to.be.empty;
       expect(wrapper.state('formValues').dataDonate).to.be.false;
 
       // Only way I could find of triggering change in React-Select element
@@ -243,14 +243,14 @@ describe('DonateForm', () => {
     });
 
     it('should ensure that the dataDonate form value string is sorted alphabetically', () => {
-      expect(wrapper.state('formValues').dataDonateDestination).to.be.empty
+      expect(wrapper.state('formValues').dataDonateDestination).to.be.empty;
 
       wrapper.instance().handleChange({
         name: 'dataDonateDestination',
         value: 'CWD,ZZZ,CARBDM',
-      })
+      });
 
-      expect(wrapper.state('formValues').dataDonateDestination).to.equal('CARBDM,CWD,ZZZ')
+      expect(wrapper.state('formValues').dataDonateDestination).to.equal('CARBDM,CWD,ZZZ');
     });
   });
 
@@ -259,7 +259,7 @@ describe('DonateForm', () => {
 
     beforeEach(() => {
       spy = sinon.spy(wrapper.instance(), 'handleSubmit');
-      wrapper.update()
+      wrapper.update();
 
       checkbox = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
       button = wrapper.find('.simple-form').first().find('button.simple-form-submit[disabled]');

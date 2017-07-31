@@ -16,7 +16,7 @@
  */
 
 import React, { PropTypes } from 'react';
-import { browserHistory } from 'react-router'
+import { browserHistory } from 'react-router';
 
 import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, URL_BIG_DATA_DONATION_INFO } from '../../core/constants';
 

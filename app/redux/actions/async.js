@@ -983,6 +983,6 @@ export function dismissDonateBanner(api, patientId, dismissedDate) {
       dismissedDonateYourDataBannerTime: dismissedDate,
     };
 
-    dispatch(updatePreferences(api, patientId, preferences))
+    dispatch(updatePreferences(api, patientId, preferences));
   };
 }

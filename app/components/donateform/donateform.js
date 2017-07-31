@@ -104,7 +104,7 @@ export default class DonateForm extends Component {
             Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.
           </div>
         ),
-      }
+      },
     ];
   }
 
@@ -179,7 +179,7 @@ export default class DonateForm extends Component {
 
       _.forEach(selectedAccounts, accountId => {
         accountId && addAccounts.push(`bigdata+${accountId}@tidepool.org`);
-      })
+      });
     }
 
     // Filter out any accounts that are already shared with
@@ -190,7 +190,7 @@ export default class DonateForm extends Component {
       if (!_.includes(addAccounts, account.email)) {
         removeAccounts.push(account);
       }
-    })
+    });
 
     this.props.onUpdateDataDonationAccounts(filteredAddAccounts, removeAccounts);
 

@@ -57,34 +57,34 @@ export let PatientNew = React.createClass({
         items: [
           {value: false, label: 'This is for me, I have type 1 diabetes'},
           {value: true, label: 'This is for someone I care for who has type 1 diabetes'}
-        ]
+        ],
       },
       {
         name: 'fullName',
         type: 'text',
-        placeholder: 'Full name'
+        placeholder: 'Full name',
       },
       {
         name: 'about',
         type: 'textarea',
-        placeholder: 'Share a bit about yourself or this person.'
+        placeholder: 'Share a bit about yourself or this person.',
       },
       {
         name: 'birthday',
         label: 'Birthday',
-        type: 'datepicker'
+        type: 'datepicker',
       },
       {
         name: 'diagnosisDate',
         label: 'Diagnosis date',
-        type: 'datepicker'
+        type: 'datepicker',
       },
       {
         name: 'dataDonate',
         label: 'Donate my anonymized data',
         disabled: !_.isEmpty(this.state.formValues.dataDonateDestination),
         value: this.state.formValues.dataDonate,
-        type: 'checkbox'
+        type: 'checkbox',
       },
       {
         name: 'dataDonateExplainer',
@@ -220,7 +220,7 @@ export let PatientNew = React.createClass({
       var fullName = isOtherPerson ? '' : this.getUserFullName();
       formValues = _.assign(formValues, {
         isOtherPerson: isOtherPerson,
-        fullName: fullName
+        fullName: fullName,
       });
     }
     else if (key === 'dataDonateDestination' && !_.isEmpty(value)) {
@@ -275,13 +275,13 @@ export let PatientNew = React.createClass({
       { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
       { type: 'date', name: 'birthday', label: 'birthday', value: formValues.birthday },
       { type: 'diagnosisDate', name: 'diagnosisDate', label: 'diagnosis date', value: formValues.diagnosisDate, prerequisites: { birthday: formValues.birthday } },
-      { type: 'about', name: 'about', label: 'about', value: formValues.about}
+      { type: 'about', name: 'about', label: 'about', value: formValues.about},
     ];
     var validationErrors = validateForm(form);
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
-        validationErrors: validationErrors
+        validationErrors: validationErrors,
       });
     }
 
@@ -292,7 +292,7 @@ export let PatientNew = React.createClass({
     this.setState({
       working: true,
       formValues: formValues,
-      validationErrors: {}
+      validationErrors: {},
     });
   },
 
@@ -318,7 +318,7 @@ export let PatientNew = React.createClass({
     var profile = {};
     var patient = {
       birthday: this.makeRawDateString(formValues.birthday),
-      diagnosisDate: this.makeRawDateString(formValues.diagnosisDate)
+      diagnosisDate: this.makeRawDateString(formValues.diagnosisDate),
     };
 
     if (formValues.about) {
@@ -337,7 +337,7 @@ export let PatientNew = React.createClass({
     profile.patient = patient;
 
     return {
-      profile: profile
+      profile: profile,
     };
   }
 });
@@ -363,7 +363,7 @@ export function mapStateToProps(state) {
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
-  setupDataStorage: actions.async.setupDataStorage
+  setupDataStorage: actions.async.setupDataStorage,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -371,7 +371,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return Object.assign({}, stateProps, {
     onSubmit: dispatchProps.setupDataStorage.bind(null, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric
+    trackMetric: ownProps.routes[0].trackMetric,
   });
 };
 

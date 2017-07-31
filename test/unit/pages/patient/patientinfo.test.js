@@ -643,7 +643,7 @@ describe('PatientInfo', function () {
   describe('renderDonateForm', function() {
     let props = {
       user: { userid: 5678 },
-      patient: { userid: 1234 }
+      patient: { userid: 1234 },
     };
 
     let wrapper;
@@ -655,7 +655,7 @@ describe('PatientInfo', function () {
       expect(wrapper.find('.PatientPage-donateForm')).to.have.length(0);
 
       wrapper.setProps({
-        user: { userid: 1234 }
+        user: { userid: 1234 },
       });
 
       expect(wrapper.find('.PatientPage-donateForm')).to.have.length(1);
