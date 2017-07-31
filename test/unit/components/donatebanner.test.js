@@ -88,6 +88,21 @@ describe('DonateBanner', () => {
     sinon.assert.calledWith(props.onClose, props.patient.userid);
   });
 
+  it('should track the appropriate metric when the close link is clicked for the signup banner', () => {
+    const closeLink = wrapper.find('a.close');
+    closeLink.simulate('click');
+    sinon.assert.calledOnce(props.trackMetric);
+    sinon.assert.calledWith(props.trackMetric, 'web - dismiss big data sign up banner');
+  });
+
+  it('should track the appropriate metric when the close link is clicked for the share proceeds banner', () => {
+    wrapper.setProps({ userIsDonor: true });
+    const closeLink = wrapper.find('a.close');
+    closeLink.simulate('click');
+    sinon.assert.calledOnce(props.trackMetric);
+    sinon.assert.calledWith(props.trackMetric, 'web - dismiss big data share proceeds banner');
+  });
+
   describe('render', function () {
     context('User is not yet a donor', () => {
       it('should render a donate message', () => {

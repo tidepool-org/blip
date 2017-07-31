@@ -67,6 +67,14 @@ const DonateBanner = (props) => {
 
   const handleDismiss = () => {
     onClose(patient.userid);
+
+    if (trackMetric) {
+      if (userIsDonor) {
+        trackMetric('web - dismiss big data share proceeds banner');
+      } else {
+        trackMetric('web - dismiss big data sign up banner');
+      }
+    }
   };
 
   const handleSubmit = () => {
