@@ -69,6 +69,7 @@ export default (state = initialWorkingState, action) => {
     case types.UPDATE_PATIENT_REQUEST:
     case types.UPDATE_USER_REQUEST:
     case types.VERIFY_CUSTODIAL_REQUEST:
+    case types.GENERATE_PDF_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {
@@ -114,6 +115,7 @@ export default (state = initialWorkingState, action) => {
     case types.UPDATE_PATIENT_SUCCESS:
     case types.UPDATE_USER_SUCCESS:
     case types.VERIFY_CUSTODIAL_SUCCESS:
+    case types.GENERATE_PDF_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {
@@ -158,6 +160,7 @@ export default (state = initialWorkingState, action) => {
     case types.UPDATE_PATIENT_FAILURE:
     case types.UPDATE_USER_FAILURE:
     case types.VERIFY_CUSTODIAL_FAILURE:
+    case types.GENERATE_PDF_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {

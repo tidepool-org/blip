@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.4.7",
+  "version": "1.5.7",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -19,7 +19,7 @@
     "serve-docs": "./node_modules/.bin/gitbook serve"
   },
   "dependencies": {
-    "@tidepool/viz": "0.8.1",
+    "@tidepool/viz": "0.8.8",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
@@ -31,6 +31,7 @@
     "babel-preset-stage-2": "6.13.0",
     "bows": "1.6.0",
     "classnames": "2.2.5",
+    "copy-webpack-plugin": "4.0.1",
     "css-loader": "0.23.1",
     "enzyme": "2.4.1",
     "express": "4.14.0",
@@ -39,6 +40,8 @@
     "fixed-data-table-2": "0.7.10",
     "hakken": "0.1.8",
     "history": "2.1.2",
+    "html-webpack-include-assets-plugin": "0.0.5",
+    "html-webpack-plugin": "2.28.0",
     "json-loader": "0.5.4",
     "less": "2.7.1",
     "less-loader": "2.2.3",
@@ -51,6 +54,7 @@
     "react-addons-update": "15.4.2",
     "react-dom": "15.4.2",
     "react-hot-loader": "3.0.0-beta.2",
+    "react-loading": "0.1.2",
     "react-redux": "4.4.5",
     "react-router": "2.7.0",
     "react-router-redux": "3.0.0",
@@ -65,6 +69,7 @@
     "sundial": "1.5.1",
     "tideline": "0.5.33",
     "tidepool-platform-client": "0.31.1",
+    "uglify-es": "3.0.13",
     "url-loader": "0.5.7",
     "webpack": "1.13.2"
   },
@@ -90,6 +95,7 @@
     "moment": "2.14.1",
     "nightwatch": "0.9.7",
     "object-invariant-test-helper": "0.1.1",
+    "optional": "0.1.3",
     "phantomjs-prebuilt": "2.1.12",
     "react-addons-create-fragment": "15.4.2",
     "react-addons-perf": "15.4.2",
@@ -101,7 +107,7 @@
     "redux-mock-store": "1.1.4",
     "salinity": "0.0.8",
     "selenium-standalone": "5.5.0",
-    "sinon": "1.17.5",
+    "sinon": "2.3.4",
     "sinon-chai": "2.8.0",
     "tidepool-standard-action": "0.1.1",
     "webpack-dev-server": "1.15.0"

@@ -25,13 +25,14 @@ import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
 import mutationTracker from 'redux-immutable-state-invariant';
 
-import { vizReducer } from '@tidepool/viz';
+import { vizReducer, Worker } from '@tidepool/viz';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
+import createWorkerMiddleware from '../utils/workerMiddleware';
 
 function getDebugSessionKey() {
   const matches = window.location.href.match(/[?&]debug_session=([^&]+)\b/);
@@ -51,17 +52,21 @@ const loggerMiddleware = createLogger({
   collapsed: true,
 });
 
+const worker = new Worker;
+const workerMiddleware = createWorkerMiddleware(worker);
+
 let enhancer;
 if (!__DEV_TOOLS__) {
   enhancer = (api) => {
     return compose(
       applyMiddleware(
+        workerMiddleware,
         thunkMiddleware,
         reduxRouterMiddleware,
         createErrorLogger(api),
-        trackingMiddleware(api)
+        trackingMiddleware(api),
       ),
-      persistState(getDebugSessionKey())
+      persistState(getDebugSessionKey()),
     );
   }
 } else {
@@ -69,15 +74,16 @@ if (!__DEV_TOOLS__) {
     const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
     return composeEnhancers(
       applyMiddleware(
+        workerMiddleware,
         thunkMiddleware,
         loggerMiddleware,
         reduxRouterMiddleware,
         createErrorLogger(api),
         trackingMiddleware(api),
-        mutationTracker()
+        mutationTracker(),
       ),
       // We can persist debug sessions this way
-      persistState(getDebugSessionKey())
+      persistState(getDebugSessionKey()),
     );
   }
 }
