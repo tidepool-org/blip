@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@0.8.3":
-  version "0.8.3"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.8.3.tgz#173718024abbcb4681775715c82cc73346e5701e"
+"@tidepool/viz@0.8.8":
+  version "0.8.8"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.8.8.tgz#1895286791e6174a7098f5cb422660efeae7c2ff"
   dependencies:
     bluebird "3.5.0"
     d3-array "1.0.1"
