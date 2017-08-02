@@ -49,7 +49,7 @@ describe('showingDonateBanner', () => {
   });
 
   describe('hideDonateBanner', () => {
-    it('should set state to false', () => {
+    it('should set state to null', () => {
       let initialStateForTest = true;
 
       let action = actions.sync.hideDonateBanner();
