@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.5.1",
+  "version": "1.5.10",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -19,7 +19,7 @@
     "serve-docs": "./node_modules/.bin/gitbook serve"
   },
   "dependencies": {
-    "@tidepool/viz": "0.8.3",
+    "@tidepool/viz": "0.8.8",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
@@ -60,6 +60,7 @@
     "react-router": "2.7.0",
     "react-router-redux": "3.0.0",
     "react-select": "1.0.0-rc.5",
+    "react-window-size-listener": "1.0.8",
     "redux": "3.5.2",
     "redux-logger": "2.6.1",
     "redux-thunk": "2.1.0",

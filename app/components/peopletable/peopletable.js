@@ -20,9 +20,11 @@ import cx from 'classnames';
 import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
 import { browserHistory } from 'react-router';
+import WindowSizeListener from 'react-window-size-listener'
 
 import { SortHeaderCell, SortTypes } from './sortheadercell';
 import personUtils from '../../core/personutils';
+import ModalOverlay from '../modaloverlay';
 
 const TextCell = ({ rowIndex, data, col, icon, ...props }) => (
   <Cell {...props}>
@@ -42,17 +44,35 @@ TextCell.propTypes = {
   icon: React.PropTypes.object,
 };
 
+const RemoveLinkCell = ({ rowIndex, data, handleClick, ...props }) => (
+  <Cell {...props}>
+    <div onClick={(e) => e.stopPropagation()} className="peopletable-cell remove">
+      <i onClick={handleClick(data[rowIndex], rowIndex)} className="peopletable-icon-remove icon-delete"></i>
+    </div>
+  </Cell>
+);
+
+RemoveLinkCell.propTypes = {
+  data: React.PropTypes.array,
+  rowIndex: React.PropTypes.number,
+  handleClick: React.PropTypes.func,
+};
+
+RemoveLinkCell.displayName = 'RemoveLinkCell';
+
 class PeopleTable extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleSortChange = this.handleSortChange.bind(this);
-    this.handleFilterChange = this.handleFilterChange.bind(this);
-    this.handleToggleShowNames = this.handleToggleShowNames.bind(this);
-    this.handleRowClick = this.handleRowClick.bind(this);
     this.getRowClassName = this.getRowClassName.bind(this);
-    this.handleRowMouseEnter = this.handleRowMouseEnter.bind(this);
-    this.handleRowMouseLeave = this.handleRowMouseLeave.bind(this);
+    this.handleFilterChange = this.handleFilterChange.bind(this);
+    this.handleOverlayClick = this.handleOverlayClick.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
+    this.handleRemovePatient = this.handleRemovePatient.bind(this);
+    this.handleRowClick = this.handleRowClick.bind(this);
+    this.handleSortChange = this.handleSortChange.bind(this);
+    this.handleToggleShowNames = this.handleToggleShowNames.bind(this);
+    this.handleWindowResize = this.handleWindowResize.bind(this);
 
     this.state = {
       currentRowIndex: -1,
@@ -62,7 +82,12 @@ class PeopleTable extends React.Component {
       colSortDirs: {
         fullNameOrderable: SortTypes.ASC,
       },
+      showModalOverlay: false,
+      dialog: '',
+      tableHeight: 590,
     };
+
+    WindowSizeListener.DEBOUNCE_TIME = 50;
   }
 
   componentDidMount() {
@@ -73,6 +98,7 @@ class PeopleTable extends React.Component {
   buildDataList() {
     const list = _.map(this.props.people, (person) => {
       let bday = _.get(person, ['profile', 'patient', 'birthday'], '');
+
       if (bday) {
         bday = ` ${sundial.translateMask(bday, 'YYYY-MM-DD', 'M/D/YYYY')}`;
       }
@@ -83,6 +109,7 @@ class PeopleTable extends React.Component {
         link: person.link,
         birthday: bday,
         birthdayOrderable: new Date(bday),
+        userid: person.userid,
       };
     });
 
@@ -143,7 +170,7 @@ class PeopleTable extends React.Component {
           type="search"
           className="peopletable-search-box form-control-border"
           onChange={this.handleFilterChange}
-          placeholder="Search"
+          placeholder="Search by Name"
         />
       </div>
     );
@@ -168,8 +195,8 @@ class PeopleTable extends React.Component {
     }
 
     return (
-      <div>
-        <a className="peopletable-names-toggle" onClick={this.handleToggleShowNames}>
+      <div className="peopletable-names-toggle-wrapper">
+        <a className="peopletable-names-toggle" disabled={this.state.searching} onClick={this.handleToggleShowNames}>
           {toggleLabel}
         </a>
       </div>
@@ -187,43 +214,106 @@ class PeopleTable extends React.Component {
     browserHistory.push(this.state.dataList[rowIndex].link);
   }
 
-  handleRowMouseEnter(e, rowIndex) {
-    this.setState({ currentRowIndex: rowIndex });
-  }
-
-  handleRowMouseLeave() {
-    this.setState({ currentRowIndex: -1 });
-  }
-
   renderPeopleInstructions() {
-    const { containerHeight, containerWidth } = this.props;
-
     return (
-      <div style={{width: containerWidth, height: containerHeight}}>
-        <div>
-          <div className="peopletable-instructions">
-            Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={this.handleToggleShowNames}>Show All</a> to display all patients.
-          </div>
+      <div className="peopletable-instructions">
+        Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={this.handleToggleShowNames}>Show All</a> to display all patients.
+      </div>
+    );
+  }
+
+  renderRemoveDialog(patient) {
+    return (
+      <div className="patient-remove-dialog">
+        <div className="ModalOverlay-content">
+          <p>
+            Are you sure you want to remove this patient from your list?
+          </p>
+          <p>
+            You will no longer be able to see or comment on their data.
+          </p>
+        </div>
+        <div className="ModalOverlay-controls">
+          <button className="btn-secondary" type="button" onClick={this.handleOverlayClick}>
+            Cancel
+          </button>
+          <button className="btn btn-danger" type="submit" onClick={this.handleRemovePatient(patient)}>
+            Remove
+          </button>
         </div>
       </div>
     );
   }
 
+  renderModalOverlay() {
+    return (
+      <ModalOverlay
+        show={this.state.showModalOverlay}
+        dialog={this.state.dialog}
+        overlayClickHandler={this.handleOverlayClick} />
+    );
+  }
+
+  handleRemovePatient(patient) {
+    return () => {
+      this.props.onRemovePatient(patient.userid, function (err) {
+        this.setState({
+          currentRowIndex: -1,
+          showModalOverlay: false,
+        });
+      });
+
+      this.props.trackMetric('Web - clinician removed patient account');
+    };
+  }
+
+  handleRemove(patient, rowIndex) {
+    return () => {
+      this.setState({
+        currentRowIndex: rowIndex,
+        showModalOverlay: true,
+        dialog: this.renderRemoveDialog(patient)
+      });
+    };
+  }
+
+  handleOverlayClick() {
+    this.setState({
+      showModalOverlay: false,
+      currentRowIndex: -1,
+    });
+  }
+
+  handleWindowResize(windowSize) {
+    let tableWidth = 880;
+
+    switch (true) {
+      case (windowSize.windowWidth < 650):
+        tableWidth = windowSize.windowWidth - 23;
+        break;
+
+      case (windowSize.windowWidth < 1020):
+        tableWidth = 610;
+        break;
+    }
+
+    this.setState({
+      tableWidth,
+    });
+  }
+
   renderPeopleTable() {
-    const { colSortDirs, dataList } = this.state;
-    const { containerHeight, containerWidth } = this.props;
+    const { colSortDirs, dataList, tableWidth, tableHeight } = this.state;
 
     return (
       <Table
-        rowHeight={40}
+        rowHeight={65}
         headerHeight={50}
-        width={containerWidth}
-        height={containerHeight}
+        width={tableWidth}
+        height={tableHeight}
         rowsCount={dataList.length}
         rowClassNameGetter={this.getRowClassName}
         onRowClick={this.handleRowClick}
-        onRowMouseEnter={this.handleRowMouseEnter}
-        onRowMouseLeave={this.handleRowMouseLeave}
         {...this.props}
       >
         <Column
@@ -237,12 +327,15 @@ class PeopleTable extends React.Component {
             </SortHeaderCell>
           }
           cell={<TextCell
+            className="fullName"
             data={dataList}
             col="fullName"
             icon={<i className="peopletable-icon-profile icon-profile"></i>}
           />}
-          width={320}
+          width={20}
+          flexGrow={1}
         />
+
         <Column
           columnKey="birthdayOrderable"
           header={
@@ -257,7 +350,18 @@ class PeopleTable extends React.Component {
             data={dataList}
             col="birthday"
           />}
-          width={560}
+          width={120}
+          flexGrow={0}
+        />
+
+        <Column
+          columnKey="remove"
+          cell={<RemoveLinkCell
+            data={dataList}
+            handleClick={this.handleRemove.bind(this)}
+          />}
+          width={30}
+          flexGrow={0}
         />
       </Table>
     )
@@ -279,6 +383,8 @@ class PeopleTable extends React.Component {
         {this.renderSearchBar()}
         {this.renderShowNamesToggle()}
         {this.renderPeopleArea()}
+        {this.renderModalOverlay()}
+        <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );
   }
@@ -287,8 +393,7 @@ class PeopleTable extends React.Component {
 PeopleTable.propTypes = {
   people: React.PropTypes.array,
   trackMetric: React.PropTypes.func.isRequired,
-  containerWidth: React.PropTypes.number.isRequired,
-  containerHeight: React.PropTypes.number.isRequired,
+  onRemovePatient: React.PropTypes.func.isRequired,
 };
 
 module.exports = PeopleTable;
