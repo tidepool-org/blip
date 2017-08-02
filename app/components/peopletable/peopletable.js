@@ -230,7 +230,7 @@ class PeopleTable extends React.Component {
             Are you sure you want to remove this patient from your list?
           </p>
           <p>
-            You will no longer be able to see or comment on thier data.
+            You will no longer be able to see or comment on their data.
           </p>
         </div>
         <div className="ModalOverlay-controls">
