@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.5.7",
+  "version": "1.5.10",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -58,6 +58,7 @@
     "react-redux": "4.4.5",
     "react-router": "2.7.0",
     "react-router-redux": "3.0.0",
+    "react-window-size-listener": "1.0.8",
     "redux": "3.5.2",
     "redux-logger": "2.6.1",
     "redux-thunk": "2.1.0",

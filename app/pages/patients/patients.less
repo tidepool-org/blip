@@ -13,8 +13,6 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@patients-box-max-width: 680px;
-
 .patients,
 .patients-welcome {
   margin-right: auto;
@@ -56,9 +54,25 @@
 
 .patients-vca-section-content {
   padding-top: @spacing-large;
-  width: 880px;
+  width: 100%;
   margin: 0 auto;
   padding-bottom: @spacing-base;
+
+  @media (min-width: 650px) {
+    width: 610px;
+  }
+
+  @media (min-width: @screen-lg-min) {
+    width: 880px;
+  }
+
+  .ModalOverlay-target {
+    z-index: 101;
+  }
+
+  .ModalOverlay-dialog {
+    z-index: 102;
+  }
 }
 
 .patients-new-account {
