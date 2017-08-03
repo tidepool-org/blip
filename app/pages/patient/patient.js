@@ -117,7 +117,7 @@ const Patient = React.createClass({
           onUpdatePatientSettings={this.props.onUpdatePatientSettings}
           onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
-          dataDonationAccounts={this.props.dataDonationAccounts}
+          dataDonationAccounts={this.props.dataDonationAccounts || []}
           updatingDataDonationAccounts={this.props.updatingDataDonationAccounts}
           trackMetric={this.props.trackMetric} />
       </div>

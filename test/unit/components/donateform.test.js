@@ -79,6 +79,7 @@ describe('DonateForm', () => {
     const expectedInitialState = {
       formValues: expectedInitialFormValues,
       initialFormValues: expectedInitialFormValues,
+      formSubmitted: false,
     };
 
     expect(wrapper.state()).to.eql(expectedInitialState);
@@ -175,7 +176,37 @@ describe('DonateForm', () => {
       wrapper.setProps({ working: true });
       expect(button.text()).to.equal('Saving...');
     });
+
+    it('should display the appropriate text depending on whether or not the form has been submitted', () => {
+      const button = wrapper.find('button.simple-form-submit');
+      expect(button.text()).to.equal('Save');
+
+      wrapper.setState({ formSubmitted: true });
+      expect(button.text()).to.equal('Saved');
+    });
+
+    it('should display the appropriate initial text depending on whether or not the user has donated', () => {
+      const button = wrapper.find('button.simple-form-submit');
+      expect(button.text()).to.equal('Save');
+
+      wrapper.setProps({ dataDonationAccounts: [TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL] });
+      expect(button.text()).to.equal('Saved');
+    });
   });
+
+  describe('formIsUpdated', () => {
+    it('should return true if the form has been updated', () => {
+      wrapper.setState({ formValues: {
+        dataDonate: true,
+        dataDonateDestination: 'CARBDM,CWD',
+      }})
+      expect(wrapper.instance().formIsUpdated()).to.be.true;
+    });
+
+    it('should return false if the form has not been updated', () => {
+      expect(wrapper.instance().formIsUpdated()).to.be.false;
+    });
+  })
 
   describe('submitIsDisabled', () => {
     let checkbox, button;

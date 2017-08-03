@@ -45,6 +45,7 @@ export default class DonateForm extends Component {
     this.state = {
       formValues: initialFormValues,
       initialFormValues: initialFormValues,
+      formSubmitted: false,
     };
   }
 
@@ -134,13 +135,21 @@ export default class DonateForm extends Component {
     if (this.props.working) {
       return 'Saving...';
     }
-    return 'Save';
+    if (this.formIsUpdated()) {
+      return 'Save';
+    }
+
+    return this.props.dataDonationAccounts.length || this.state.formSubmitted ? 'Saved' : 'Save';
+  }
+
+  formIsUpdated = () => {
+    const formValues = _.pick(this.state.formValues, ['dataDonate', 'dataDonateDestination']);
+    const initialFormValues = _.pick(this.state.initialFormValues, ['dataDonate', 'dataDonateDestination']);
+    return !_.isEqual(formValues, initialFormValues);
   }
 
   submitIsDisabled = () => {
-    const formValues = _.pick(this.state.formValues, ['dataDonate', 'dataDonateDestination']);
-    const initialFormValues = _.pick(this.state.initialFormValues, ['dataDonate', 'dataDonateDestination']);
-    return this.props.working || _.isEqual(formValues, initialFormValues);
+    return this.props.working || !this.formIsUpdated();
   }
 
   handleChange = (attributes) => {
@@ -197,6 +206,7 @@ export default class DonateForm extends Component {
     // Reset the initial form values state to the submitted form values for subsequent equality comparisons
     this.setState({
       initialFormValues: formValues,
+      formSubmitted: true,
     });
 
     if (this.props.trackMetric) {

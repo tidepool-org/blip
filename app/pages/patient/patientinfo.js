@@ -335,7 +335,7 @@ var PatientInfo = React.createClass({
           <div className="PatientPage-sectionTitle">Donate my data?</div>
           <div className="PatientInfo-content">
             <DonateForm
-              dataDonationAccounts={this.props.dataDonationAccounts}
+              dataDonationAccounts={this.props.dataDonationAccounts || []}
               onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
               working={this.props.updatingDataDonationAccounts}
               trackMetric={this.props.trackMetric}
