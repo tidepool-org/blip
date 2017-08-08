@@ -773,7 +773,9 @@ export let PatientData = React.createClass({
 let getFetchers = (dispatchProps, ownProps, api, options) => {
   return [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id)
+    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id),
+    dispatchProps.fetchDataDonationAccounts.bind(null, api),
+    dispatchProps.fetchPendingSentInvites.bind(null, api),
   ];
 };
 
@@ -829,14 +831,16 @@ export function mapStateToProps(state) {
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
+  clearPatientData: actions.sync.clearPatientData,
+  closeMessageThread: actions.sync.closeMessageThread,
+  fetchDataDonationAccounts: actions.async.fetchDataDonationAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
-  clearPatientData: actions.sync.clearPatientData,
-  fetchMessageThread: actions.async.fetchMessageThread,
-  closeMessageThread: actions.sync.closeMessageThread,
-  updateSettings: actions.async.updateSettings,
+  fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   generatePDFRequest: workerActions.generatePDFRequest,
+  fetchMessageThread: actions.async.fetchMessageThread,
   removeGeneratedPDFS: workerActions.removeGeneratedPDFS,
+  updateSettings: actions.async.updateSettings,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {

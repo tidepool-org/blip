@@ -20,6 +20,7 @@ import update from 'react-addons-update';
 import initialState from './initialState';
 import * as types from '../constants/actionTypes';
 import actionWorkingMap from '../constants/actionWorkingMap';
+import { isDataDonationAccount } from '../../core/personutils';
 
 export const notification = (state = initialState.notification, action) => {
   switch (action.type) {
@@ -48,6 +49,8 @@ export const notification = (state = initialState.notification, action) => {
     case types.SET_MEMBER_PERMISSIONS_FAILURE:
     case types.UPDATE_PATIENT_FAILURE:
     case types.UPDATE_USER_FAILURE:
+    case types.FETCH_DATA_DONATION_ACCOUNTS_FAILURE:
+    case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
       const err = _.get(action, 'error', null);
       if (err) {
         return {
@@ -82,6 +85,22 @@ export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage
       return true;
     case types.HIDE_WELCOME_MESSAGE:
       return false;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const showingDonateBanner = (state = initialState.showingDonateBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_DONATE_BANNER:
+      return true;
+    case types.DISMISS_DONATE_BANNER:
+      return false;
+    case types.FETCH_USER_SUCCESS:
+      return _.get(action.payload, 'user.preferences.dismissedDonateYourDataBannerTime') ? false : state;
+    case types.HIDE_DONATE_BANNER:
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -457,6 +476,36 @@ export const pendingReceivedInvites = (state = initialState.pendingReceivedInvit
       });
     case types.LOGOUT_REQUEST:
       return [];
+    default:
+      return state;
+  }
+};
+
+export const dataDonationAccounts = (state = initialState.dataDonationAccounts, action) => {
+  let accounts;
+  switch(action.type) {
+    case types.FETCH_DATA_DONATION_ACCOUNTS_SUCCESS:
+      accounts = state.concat(_.get(action.payload, 'accounts', []));
+      return update(state, { $set: _.uniq(accounts, 'email') });
+
+    case types.FETCH_PENDING_SENT_INVITES_SUCCESS:
+      accounts = state.concat(_.get(action.payload, 'pendingSentInvites', []).map(invite => {
+        return {
+          email: invite.email,
+          status: 'pending',
+        };
+      }));
+      return update(state, { $set: _.uniq(_.filter(accounts, isDataDonationAccount), 'email') });
+
+    case types.CANCEL_SENT_INVITE_SUCCESS:
+      return _.reject(state, 'email', _.get(action.payload, 'removedEmail', null));
+
+    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
+      return _.reject(state, 'userid', _.get(action.payload, 'removedMemberId', null));
+
+    case types.LOGOUT_REQUEST:
+      return [];
+
     default:
       return state;
   }

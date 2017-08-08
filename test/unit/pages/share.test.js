@@ -19,11 +19,15 @@ describe('PatientCareTeam', () => {
         a1b2c3: {userid: 'a1b2c3'},
         d4e5f6: {userid: 'd4e5f6'},
         foo: {userid: 'foo'},
-        bar: {userid: 'bar'}
+        bar: {userid: 'bar'},
+        bigdata: {userid: 'bigdata'},
       },
+      dataDonationAccounts: [
+        { userid: 'bigdata'},
+      ],
       currentPatientInViewId: 'a1b2c3',
       loggedInUserId: 'a1b2c3',
-      membersOfTargetCareTeam: ['foo', 'bar'],
+      membersOfTargetCareTeam: ['foo', 'bar', 'bigdata'],
       pendingSentInvites: [2,4,6,8, 'who do we appreciate'],
       permissionsOfMembersInTargetCareTeam: {
         foo: {view: {}, note: {}},
@@ -60,6 +64,7 @@ describe('PatientCareTeam', () => {
     });
 
     it('should extract the currentPatientInViewId\'s info from allUsersMap and membersOfTargetCareTeam and permissionsOfMembersInTargetCareTeam', () => {
+      // note that bigdata user has been stripped, which is correct
       expect(result.patient).to.deep.equal({
         userid: 'a1b2c3',
         team: [

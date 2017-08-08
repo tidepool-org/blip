@@ -1465,5 +1465,133 @@ describe('working', () => {
         });
       });
     });
+
+    describe('fetchDataDonationAccounts', () => {
+      describe('request', () => {
+        it('should set fetchingDataDonationAccounts to be true', () => {
+          let initialStateForTest = _.merge({}, initialState);
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+          let action = actions.sync.fetchDataDonationAccountsRequest();
+
+          expect(initialStateForTest.fetchingDataDonationAccounts.inProgress).to.be.false;
+
+          let state = reducer(initialStateForTest, action);
+          expect(state.fetchingDataDonationAccounts.inProgress).to.be.true;
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set updatingUser to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, {
+            fetchingDataDonationAccounts: { inProgress: true, notification: null },
+          });
+
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+          let error = new Error('Something bad happened :(');
+          let action = actions.sync.fetchDataDonationAccountsFailure(error);
+
+          expect(initialStateForTest.fetchingDataDonationAccounts.inProgress).to.be.true;
+          expect(initialStateForTest.fetchingDataDonationAccounts.notification).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+
+          expect(state.fetchingDataDonationAccounts.inProgress).to.be.false;
+          expect(state.fetchingDataDonationAccounts.notification.type).to.equal('error');
+          expect(state.fetchingDataDonationAccounts.notification.message).to.equal(error.message);
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+
+      describe('success', () => {
+        it('should set updatingUser to be false', () => {
+          let accounts = [
+            { email: 'bigdata@tidepool.org' },
+            { email: 'bigdata+ZZZ@tidepool.org' },
+          ];
+
+          let initialStateForTest = _.merge({}, initialState, {
+            fetchingDataDonationAccounts: { inProgress: true, notification: null },
+          });
+
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+
+          let action = actions.sync.fetchDataDonationAccountsSuccess(accounts);
+
+          expect(initialStateForTest.fetchingDataDonationAccounts.inProgress).to.be.true;
+
+          let state = reducer(initialStateForTest, action);
+
+          expect(state.fetchingDataDonationAccounts.inProgress).to.be.false;
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+    });
+
+    describe('updateDataDonationAccounts', () => {
+      describe('request', () => {
+        it('should set updateingDataDonationAccounts to be true', () => {
+          let initialStateForTest = _.merge({}, initialState);
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+          let action = actions.sync.updateDataDonationAccountsRequest();
+
+          expect(initialStateForTest.updatingDataDonationAccounts.inProgress).to.be.false;
+
+          let state = reducer(initialStateForTest, action);
+          expect(state.updatingDataDonationAccounts.inProgress).to.be.true;
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set updatingUser to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, {
+            updatingDataDonationAccounts: { inProgress: true, notification: null },
+          });
+
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+          let error = new Error('Something bad happened :(');
+          let action = actions.sync.updateDataDonationAccountsFailure(error);
+
+          expect(initialStateForTest.updatingDataDonationAccounts.inProgress).to.be.true;
+          expect(initialStateForTest.updatingDataDonationAccounts.notification).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+
+          expect(state.updatingDataDonationAccounts.inProgress).to.be.false;
+          expect(state.updatingDataDonationAccounts.notification.type).to.equal('error');
+          expect(state.updatingDataDonationAccounts.notification.message).to.equal(error.message);
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+
+      describe('success', () => {
+        it('should set updatingUser to be false', () => {
+          let accounts = {
+            addAccounts: [
+              { email: 'bigdata+YYY@tidepool.org' },
+            ],
+            removeAccounts: [
+              { email: 'bigdata+ZZZ@tidepool.org' },
+            ],
+          };
+
+          let initialStateForTest = _.merge({}, initialState, {
+            updatingDataDonationAccounts: { inProgress: true, notification: null },
+          });
+
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+
+          let action = actions.sync.updateDataDonationAccountsSuccess(accounts);
+
+          expect(initialStateForTest.updatingDataDonationAccounts.inProgress).to.be.true;
+
+          let state = reducer(initialStateForTest, action);
+
+          expect(state.updatingDataDonationAccounts.inProgress).to.be.false;
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+    });
   });
 });

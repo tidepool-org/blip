@@ -23,7 +23,7 @@ describe('PatientNew', function () {
 
   var props = {
     fetchingUser: false,
-    onInviteMember: sinon.stub(),
+    onUpdateDataDonationAccounts: sinon.stub(),
     onSubmit: sinon.stub(),
     trackMetric: sinon.stub(),
     working: false
@@ -47,7 +47,6 @@ describe('PatientNew', function () {
       expect(initialState.formValues.isOtherPerson).to.equal(false);
       expect(initialState.formValues.fullName).to.equal('');
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);
-      expect(initialState.notification).to.equal(null);
     });
   });
 
@@ -73,31 +72,32 @@ describe('PatientNew', function () {
 
     beforeEach(function() {
       props.onSubmit.reset();
-      props.onInviteMember.reset();
+      props.onUpdateDataDonationAccounts.reset();
       props.trackMetric.reset();
     });
 
     it('should call onSubmit with valid form values', function(){
       wrapper.instance().handleSubmit(formValues);
       expect(props.onSubmit.callCount).to.equal(1);
-      expect(props.onInviteMember.callCount).to.equal(0);
+      expect(props.onUpdateDataDonationAccounts.callCount).to.equal(0);
       expect(props.trackMetric.callCount).to.equal(0);
     });
 
-    it('should call onSubmit and onInviteMember with data donation values', function(){
-      wrapper.instance().handleSubmit(_.assign({}, formValues, { dataDonate: true }));
+    it('should call onSubmit and onUpdateDataDonationAccounts with data donation values', function(){
+      wrapper.instance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: '' }));
       expect(props.onSubmit.callCount).to.equal(1);
-      expect(props.onInviteMember.callCount).to.equal(1);
-      expect(props.onInviteMember.calledWith('bigdata@tidepool.org')).to.be.true;
+      expect(props.onUpdateDataDonationAccounts.callCount).to.equal(1);
+      expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org'])).to.be.true;
       expect(props.trackMetric.callCount).to.equal(1);
+      expect(props.trackMetric.getCall(0).args).to.eql(['web - big data sign up', { source: 'none', location: 'sign-up' }]);
     });
 
-    it('should call onSubmit and onInviteMember with specific values', function(){
-      wrapper.instance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: 'JDRF' }));
+    it('should call onSubmit and onUpdateDataDonationAccounts with specific values', function(){
+      wrapper.instance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: 'JDRF,ZZZ' }));
       expect(props.onSubmit.callCount).to.equal(1);
-      expect(props.onInviteMember.callCount).to.equal(1);
-      expect(props.onInviteMember.calledWith('bigdata+JDRF@tidepool.org')).to.be.true;
-      expect(props.trackMetric.callCount).to.equal(1);
+      expect(props.onUpdateDataDonationAccounts.callCount).to.equal(1);
+      expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org', 'bigdata+JDRF@tidepool.org', 'bigdata+ZZZ@tidepool.org'])).to.be.true;
+      expect(props.trackMetric.callCount).to.equal(3);
     });
   });
 
@@ -133,7 +133,7 @@ describe('PatientNew', function () {
       },
       loggedInUserId: 'a1b2c3',
       working: {
-        settingUpDataStorage: {inProgress: true, notification: 'Hi :)'},
+        settingUpDataStorage: {inProgress: true},
         fetchingUser: {inProgress: false}
       }
     };
@@ -159,10 +159,6 @@ describe('PatientNew', function () {
 
     it('should map working.settingUpDataStorage.inProgress to working', () => {
       expect(result.working).to.equal(state.working.settingUpDataStorage.inProgress);
-    });
-
-    it('should map working.settingUpDataStorage.notification to notification', () => {
-      expect(result.notification).to.deep.equal(state.working.settingUpDataStorage.notification);
     });
   });
 });

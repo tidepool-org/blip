@@ -25,6 +25,7 @@ const working = {
 const initialState = {
   passwordResetConfirmed: false,
   showingWelcomeMessage: null,
+  showingDonateBanner: null,
   signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,
@@ -50,6 +51,7 @@ const initialState = {
     confirmingSignup: Object.assign({}, working),
     settingUpDataStorage: Object.assign({}, working),
     rejectingReceivedInvite: Object.assign({}, working),
+    fetchingDataDonationAccounts: Object.assign({}, working),
     fetchingMessageThread: Object.assign({}, working),
     fetchingPatient: Object.assign({}, working),
     fetchingPatientData: Object.assign({}, working),
@@ -66,6 +68,7 @@ const initialState = {
     resendingEmailVerification: Object.assign({}, working),
     sendingInvite: Object.assign({}, working),
     settingMemberPermissions: Object.assign({}, working),
+    updatingDataDonationAccounts: Object.assign({}, working),
     updatingPatient: Object.assign({}, working),
     updatingUser: Object.assign({}, working),
     verifyingCustodial: Object.assign({}, working),
@@ -79,6 +82,7 @@ const initialState = {
   bgPrefs: {
     bgUnits: 'mg/dL'
   },
+  dataDonationAccounts: [],
 };
 
 export default initialState;

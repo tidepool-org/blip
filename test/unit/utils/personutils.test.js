@@ -139,6 +139,33 @@ describe('personutils', function() {
     });
   });
 
+  describe('isDataDonationAccount', function() {
+    it('should return true if the account username or email matches the donation account format', function () {
+      var account1 = { email: 'bigdata+CARBDM@tidepool.org' };
+      var account2 = { email: 'bigdata+ZZZ@tidepool.org' };
+      var account3 = { username: 'bigdata@tidepool.org' };
+
+      var result1 = personUtils.isDataDonationAccount(account1);
+      var result2 = personUtils.isDataDonationAccount(account2);
+      var result3 = personUtils.isDataDonationAccount(account3);
+
+      expect(result1).to.be.true;
+      expect(result2).to.be.true;
+      expect(result3).to.be.true;
+    });
+
+    it('should return false if the account username or email does not match the donation account format', function () {
+      var account1 = { email: 'user@tidepool.org' };
+      var account2 = { username: 'user@gmail.com' };
+
+      var result1 = personUtils.isDataDonationAccount(account1);
+      var result2 = personUtils.isDataDonationAccount(account2);
+
+      expect(result1).to.be.false;
+      expect(result2).to.be.false;
+    });
+  });
+
   describe('patientFullName', function() {
     it('should return profile name if same person', function() {
       var person = {

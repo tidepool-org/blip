@@ -15,7 +15,8 @@ import Patient from '../patient';
 let getFetchers = (dispatchProps, ownProps, api) => {
   return [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchPendingSentInvites.bind(null, api)
+    dispatchProps.fetchDataDonationAccounts.bind(null, api),
+    dispatchProps.fetchPendingSentInvites.bind(null, api),
   ];
 };
 
@@ -23,9 +24,9 @@ export function mapStateToProps(state) {
   let user = null;
   let patient = null;
 
-  let { 
-    allUsersMap, 
-    loggedInUserId, 
+  let {
+    allUsersMap,
+    loggedInUserId,
     targetUserId,
     currentPatientInViewId,
     membersOfTargetCareTeam,
@@ -42,12 +43,18 @@ export function mapStateToProps(state) {
 
       if (currentPatientInViewId === targetUserId && membersOfTargetCareTeam) {
         patient = update(patient, { team: { $set: [] } });
+        const sharedDonationAccountIds = _.pluck(state.blip.dataDonationAccounts, 'userid');
+
         membersOfTargetCareTeam.forEach((memberId) => {
           let member = allUsersMap[memberId];
-          member = update(member, {
-            permissions: { $set: permissionsOfMembersInTargetCareTeam[memberId] },
-          });
-          patient.team.push(member);
+
+          // We don't want to include data donation accounts here, as they are managed in the settings page
+          if (_.indexOf(sharedDonationAccountIds, member.userid) < 0) {
+            member = update(member, {
+              permissions: { $set: permissionsOfMembersInTargetCareTeam[memberId] },
+            });
+            patient.team.push(member);
+          }
         });
       }
     }
@@ -74,7 +81,8 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   inviteMember: actions.async.sendInvite,
   cancelInvite: actions.async.cancelSentInvite,
   fetchPatient: actions.async.fetchPatient,
-  fetchPendingSentInvites: actions.async.fetchPendingSentInvites
+  fetchDataDonationAccounts: actions.async.fetchDataDonationAccounts,
+  fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {

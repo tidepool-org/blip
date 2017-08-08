@@ -20,6 +20,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import sundial from 'sundial';
 import async from 'async';
+import { noop } from 'node-noop';
 import * as ActionTypes from '../constants/actionTypes';
 import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
@@ -300,11 +301,13 @@ export function removeMembershipInOtherCareTeam(api, patientId) {
  * @param  {String|Number} patientId
  * @param  {String|Number} memberId
  */
-export function removeMemberFromTargetCareTeam(api, patientId, memberId) {
+export function removeMemberFromTargetCareTeam(api, patientId, memberId, cb = noop) {
   return (dispatch) => {
     dispatch(sync.removeMemberFromTargetCareTeamRequest());
 
     api.access.removeMember(memberId, (err) => {
+      cb(err, memberId);
+
       if (err) {
         dispatch(sync.removeMemberFromTargetCareTeamFailure(
           createActionError(ErrorMessages.ERR_REMOVING_MEMBER, err), err
@@ -324,11 +327,13 @@ export function removeMemberFromTargetCareTeam(api, patientId, memberId) {
  * @param  {String} email
  * @param  {Object} permissions
  */
-export function sendInvite(api, email, permissions) {
+export function sendInvite(api, email, permissions, cb = noop) {
   return (dispatch) => {
     dispatch(sync.sendInviteRequest());
 
     api.invitation.send(email, permissions, (err, invite) => {
+      cb(err, invite);
+
       if (err) {
         if (err.status === 409) {
           dispatch(sync.sendInviteFailure(
@@ -340,6 +345,9 @@ export function sendInvite(api, email, permissions) {
           ));
         }
       } else {
+        if (personUtils.isDataDonationAccount(invite)) {
+          dispatch(fetchPendingSentInvites(api));
+        }
         dispatch(sync.sendInviteSuccess(invite));
       }
     });
@@ -352,11 +360,13 @@ export function sendInvite(api, email, permissions) {
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} email
  */
-export function cancelSentInvite(api, email) {
+export function cancelSentInvite(api, email, cb = noop) {
   return (dispatch) => {
     dispatch(sync.cancelSentInviteRequest());
 
     api.invitation.cancel(email, (err) => {
+      cb(err, email);
+
       if (err) {
         dispatch(sync.cancelSentInviteFailure(
           createActionError(ErrorMessages.ERR_CANCELLING_INVITE, err), err
@@ -891,5 +901,88 @@ export function fetchMessageThread(api, id ) {
         dispatch(sync.fetchMessageThreadSuccess(messageThread));
       }
     });
+  };
+}
+
+/**
+ * Fetch Data Donation Accounts Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchDataDonationAccounts(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchDataDonationAccountsRequest());
+
+    api.user.getDataDonationAccounts((err, accounts) => {
+      if (err) {
+        dispatch(sync.fetchDataDonationAccountsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_DATA_DONATION_ACCOUNTS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchDataDonationAccountsSuccess(accounts));
+      }
+    });
+  };
+}
+
+/**
+ * Update Data Donation Accounts Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts = []) {
+  return (dispatch, getState) => {
+    dispatch(sync.updateDataDonationAccountsRequest());
+
+    const { blip: { loggedInUserId } } = getState();
+
+    const addAccount = (email, cb) => {
+      const permissions = {
+        view: {},
+        note: {},
+      };
+
+      dispatch(sendInvite(api, email, permissions, cb));
+    }
+
+    const removeAccount = (account, cb) => {
+      if (account.userid) {
+        dispatch(removeMemberFromTargetCareTeam(api, loggedInUserId, account.userid, cb));
+      } else {
+        dispatch(cancelSentInvite(api, account.email, cb));
+      }
+    }
+
+    async.parallel({
+      addAccounts:  cb => { async.map(addAccounts, addAccount, (err, results) => cb(err, results)) },
+      removeAccounts: cb => { async.map(removeAccounts, removeAccount, (err, results) => cb(err, results)) },
+    }, (err, results) => {
+      if (err) {
+        dispatch(sync.updateDataDonationAccountsFailure(
+          createActionError(ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS, err), err
+        ));
+      } else {
+        dispatch(sync.updateDataDonationAccountsSuccess(results));
+      }
+    });
+  };
+}
+
+/**
+ * Dismiss Donate Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function dismissDonateBanner(api, patientId, dismissedDate) {
+  dismissedDate = dismissedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissDonateBanner());
+
+    const preferences = {
+      dismissedDonateYourDataBannerTime: dismissedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
   };
 }
