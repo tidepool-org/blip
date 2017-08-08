@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 // in order to get d3.chart dependency
 var tideline = require('../../../js/');
 
@@ -127,7 +129,7 @@ var BasicsChart = React.createClass({
   componentDidMount: function() {
     if (this._aggregatedDataEmpty() && this.props.trackMetric) {
       this.props.trackMetric('web - pump vacation message displayed');
-    };
+    }
   },
   componentWillUnmount: function() {
     var patientData = _.clone(this.props.patientData);
