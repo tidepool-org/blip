@@ -30,7 +30,7 @@ import { actions as workerActions} from '@tidepool/viz';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
-import { URL_UPLOADER_CHROME_STORE, URL_BLIP_NOTES_APP_STORE } from '../../core/constants';
+import { URL_UPLOADER_DOWNLOAD_PAGE, URL_BLIP_NOTES_APP_STORE } from '../../core/constants';
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
@@ -187,7 +187,7 @@ export let PatientData = React.createClass({
         <div className="patient-data-uploader-message">
           <h1>To see your data, you’ll need to upload it!</h1>
           <UploaderButton
-            buttonUrl={URL_UPLOADER_CHROME_STORE}
+            buttonUrl={URL_UPLOADER_DOWNLOAD_PAGE}
             onClick={handleClickUpload}
             buttonText='Get the Tidepool Uploader' />
           <p>To upload Dexcom with iPhone get <a href={URL_BLIP_NOTES_APP_STORE} className="uploader-color-override" target="_blank" onClick={handleClickBlipNotes}>Blip Notes</a></p>

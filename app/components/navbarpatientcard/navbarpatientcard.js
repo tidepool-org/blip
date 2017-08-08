@@ -18,6 +18,8 @@ var React = require('react');
 var Link = require('react-router').Link;
 var _ = require('lodash');
 var cx = require('classnames');
+var protocolDetect = require('custom-protocol-detection');
+var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
 var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
@@ -29,6 +31,12 @@ var NavbarPatientCard = React.createClass({
     uploadUrl: React.PropTypes.string,
     patient: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired
+  },
+
+  getInitialState: function() {
+    return {
+      showUploadOverlay: false
+    };
   },
 
   render: function() {
@@ -43,8 +51,8 @@ var NavbarPatientCard = React.createClass({
     var upload = this.renderUpload(patient);
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
+    var overlay = this.state.showUploadOverlay ? this.renderOverlay() : null;
 
-    
     return (
       <div className={classes}>
         <i className="Navbar-icon icon-face-standin"></i>
@@ -57,9 +65,9 @@ var NavbarPatientCard = React.createClass({
           </div>
         </div>
         <div className="clear"></div>
+        {overlay}
       </div>
     );
-    
   },
 
   renderView: function() {
@@ -74,9 +82,7 @@ var NavbarPatientCard = React.createClass({
     };
 
     return (
-      
       <Link className={classes} onClick={handleClick} to={this.props.href}>View</Link>
-      
     );
   },
 
@@ -98,14 +104,12 @@ var NavbarPatientCard = React.createClass({
     };
 
     return (
-      
       <Link className={classes} to={url} onClick={handleClick} title="Profile">
         <div className="patientcard-fullname" title={this.getFullName()}>
           {this.getFullName()}
           <i className="patientcard-icon icon-settings"></i>
         </div>
       </Link>
-      
     );
   },
 
@@ -118,16 +122,19 @@ var NavbarPatientCard = React.createClass({
     var handleClick = function(e) {
       if (e) {
         e.preventDefault();
+        e.stopPropagation();
       }
-      window.open(self.props.uploadUrl, '_blank');
+      self.setState({showUploadOverlay: true});
+      protocolDetect('tidepoolupload://open',
+        () => { /* error callback */ },
+        () => { /* success callback */ }
+      );
       self.props.trackMetric('Clicked Navbar Upload Data');
     };
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        
         <a href="" onClick={handleClick} className={classes} title="Upload data">Upload</a>
-        
       );
     }
 
@@ -152,13 +159,15 @@ var NavbarPatientCard = React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        
         <Link className={classes} onClick={handleClick} to={shareUrl} title="Share data">Share</Link>
-        
       );
     }
 
     return null;
+  },
+
+  renderOverlay: function() {
+    return <UploadLaunchOverlay overlayClickHandler={()=>{this.setState({showUploadOverlay: false})}}/>
   },
 
   getFullName: function() {

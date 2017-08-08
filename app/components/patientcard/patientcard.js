@@ -18,9 +18,11 @@ var React = require('react');
 var Link = require('react-router').Link;
 var _ = require('lodash');
 var cx = require('classnames');
+var protocolDetect = require('custom-protocol-detection');
 
 var personUtils = require('../../core/personutils');
 var ModalOverlay = require('../modaloverlay');
+var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
 var PatientCard = React.createClass({
   propTypes: {
@@ -38,7 +40,8 @@ var PatientCard = React.createClass({
   getInitialState: function() {
     return {
       showModalOverlay: false,
-      dialog: ''
+      dialog: '',
+      showUploadOverlay: false
     };
   },
 
@@ -56,6 +59,7 @@ var PatientCard = React.createClass({
     var upload = this.renderUpload(patient);
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
+    var uploadLaunchOverlay = this.state.showUploadOverlay ? this.renderUploadOverlay() : null;
 
     return (
       <div>
@@ -79,6 +83,7 @@ var PatientCard = React.createClass({
           <div className="clear"></div>
         </div>
         {this.renderModalOverlay()}
+        {uploadLaunchOverlay}
       </div>
     );
 
@@ -93,9 +98,7 @@ var PatientCard = React.createClass({
     var self = this;
 
     return (
-
       <Link className={classes} to={this.props.href} onClick={self.handleViewClick}>View</Link>
-
     );
   },
 
@@ -121,11 +124,9 @@ var PatientCard = React.createClass({
     });
 
     return (
-
       <Link className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('profile')} onMouseLeave={this.setHighlight('view')} to={url} title="Profile">
         <i className={iconClass}></i>
       </Link>
-
     );
   },
 
@@ -139,11 +140,9 @@ var PatientCard = React.createClass({
       var title = 'Remove yourself from ' + this.getFullName() + '\'s care team.';
 
       return (
-
         <a className={classes} href="" onMouseEnter={this.setHighlight('remove')} onMouseLeave={this.setHighlight('view')} onClick={this.handleRemove(patient)} title={title}>
           <i className="Navbar-icon icon-delete"></i>
         </a>
-
       );
     }
   },
@@ -160,15 +159,17 @@ var PatientCard = React.createClass({
         e.preventDefault();
         e.stopPropagation();
       }
-      window.open(self.props.uploadUrl, '_blank');
+      self.setState({showUploadOverlay: true});
+      protocolDetect('tidepoolupload://open',
+        () => { /* error callback */ },
+        () => { /* success callback */ }
+      );
       self.props.trackMetric('Clicked VDF Upload Data');
     };
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-
         <a className={classes} href='' onClick={handleClick} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} title="Upload data">Upload</a>
-
       );
     }
 
@@ -193,9 +194,7 @@ var PatientCard = React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-
         <Link className={classes} onClick={handleClick} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} to={shareUrl} title="Share data">Share</Link>
-
       );
     }
 
@@ -204,7 +203,6 @@ var PatientCard = React.createClass({
 
   renderRemoveDialog: function(patient) {
     return (
-
       <div>
         <div className="ModalOverlay-content">{"Are you sure you want to leave this person's Care Team? You will no longer be able to view their data."}</div>
         <div className="ModalOverlay-controls">
@@ -212,20 +210,20 @@ var PatientCard = React.createClass({
           <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient(patient)}>{"I'm sure, remove me."}</button>
         </div>
       </div>
-
     );
   },
 
   renderModalOverlay: function() {
     return (
-
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.overlayClickHandler}/>
-
     );
+  },
 
+  renderUploadOverlay: function() {
+    return <UploadLaunchOverlay overlayClickHandler={()=>{this.setState({showUploadOverlay: false})}}/>
   },
 
   handleRemovePatient: function(patient) {
@@ -240,7 +238,6 @@ var PatientCard = React.createClass({
       );
     };
   },
-
 
   handleRemove: function(patient) {
     var self = this;
