@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -52,7 +52,6 @@ describe('BasicsChart', function() {
     var render = TestUtils.renderIntoDocument(elem);
     expect(elem).to.be.ok;
     expect(console.error.callCount).to.equal(0);
-
   });
 
   it('should console.error when required props are missing', function() {
@@ -87,5 +86,102 @@ describe('BasicsChart', function() {
     // calibration selector in fingerstick section gets active: false added in componentWillMount when no data
     expect(render.state.sections.fingersticks.selectorOptions.rows[0][2].active).to.be.false;
     expect(basicsState.sections.fingersticks.selectorOptions.rows[0][2].active).to.be.undefined;
+  });
+
+  describe('_aggregatedDataEmpty', function() {
+    it('should return true if aggregated data is empty', function() {
+      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
+      var props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patientData: td,
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      expect(render._aggregatedDataEmpty()).to.be.true;
+    });
+
+    it('should return false if aggregated data is present', function() {
+      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
+      var props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patientData: _.assign({}, td, {
+          basicsData: _.assign({}, td.basicsData, {
+            data: _.assign({}, td.basicsData.data, {
+              basalBolusRatio: {
+                basal: 25,
+                bolus: 75,
+              },
+              averageDailyDose: '10',
+              averageDailyCarbs: '80',
+            }),
+            sections: [],
+          }),
+        }),
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      expect(render._aggregatedDataEmpty()).to.be.false;
+    });
+  });
+
+  describe('componentDidMount', function() {
+    it('should track pump vacation message metric if aggregated data is missing', function() {
+      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
+      var props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patientData: td,
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      sinon.assert.callCount(props.trackMetric, 1);
+      sinon.assert.calledWith(props.trackMetric, 'web - pump vacation message displayed');
+    });
+
+    it('should not track pump vacation message metric if aggregated data is present', function() {
+      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
+      var props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patientData: _.assign({}, td, {
+          basicsData: _.assign({}, td.basicsData, {
+            data: _.assign({}, td.basicsData.data, {
+              basalBolusRatio: {
+                basal: 25,
+                bolus: 75,
+              },
+              averageDailyDose: '10',
+              averageDailyCarbs: '80',
+            }),
+            sections: [],
+          }),
+        }),
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      sinon.assert.callCount(props.trackMetric, 0);
+    });
   });
 });

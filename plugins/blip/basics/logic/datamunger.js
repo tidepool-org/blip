@@ -76,9 +76,6 @@ module.exports = function(bgClasses) {
     },
     calculateBasalBolusStats: function(basicsData) {
       var pastDays = _.filter(basicsData.days, {type: 'past'});
-      // if one or more of the days (excepting most recent) don't have any boluses
-      // then don't calculate these stats at all, since may be inaccurate if
-      // long-running basals exist
       var mostRecent = _.get(
         _.filter(basicsData.days, {type: 'mostRecent'}),
         [0, 'date'],
@@ -88,7 +85,11 @@ module.exports = function(bgClasses) {
         Object.keys(basicsData.data.bolus.dataByDate),
         function(date) { return date === mostRecent; }
       );
-      if (pastBolusDays.length < pastDays.length) {
+
+      // if three or more of the days (excepting most recent) don't have any boluses
+      // then don't calculate these stats at all, since may be inaccurate if
+      // long-running basals exist
+      if (pastDays.length - pastBolusDays.length >= 3) {
         return {
           basalBolusRatio: null,
           averageDailyDose: null,
@@ -96,6 +97,7 @@ module.exports = function(bgClasses) {
           averageDailyCarbs: null,
         };
       }
+
       var boluses = basicsData.data.bolus.data;
       var basals = basicsData.data.basal.data;
       var carbs =  _.filter(basicsData.data.wizard.data, function(wizardEvent) {
