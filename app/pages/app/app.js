@@ -30,6 +30,7 @@ import * as UserMessages from '../../redux/constants/usrMessages';
 
 // Components
 import Navbar from '../../components/navbar';
+import DonateBanner from '../../components/donatebanner';
 import LogoutOverlay from '../../components/logoutoverlay';
 import TidepoolNotification from '../../components/notification';
 import MailTo from '../../components/mailto';
@@ -37,7 +38,10 @@ import MailTo from '../../components/mailto';
 import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
 
+import { DATA_DONATION_NONPROFITS } from '../../core/constants';
+
 // Styles
+require('react-select/less/default.less');
 require('tideline/css/tideline.less');
 require('../../style.less');
 
@@ -50,12 +54,16 @@ export class AppComponent extends React.Component {
     children: React.PropTypes.object.isRequired,
     fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
+    fetchingPendingSentInvites: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
     location: React.PropTypes.string.isRequired,
     loggingOut: React.PropTypes.bool.isRequired,
+    updatingDataDonationAccounts: React.PropTypes.bool.isRequired,
     notification: React.PropTypes.object,
     onAcceptTerms: React.PropTypes.func.isRequired,
     onCloseNotification: React.PropTypes.func.isRequired,
+    onDismissDonateBanner: React.PropTypes.func.isRequired,
+    onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
     onLogout: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object,
     context: React.PropTypes.shape({
@@ -66,8 +74,15 @@ export class AppComponent extends React.Component {
       personUtils: React.PropTypes.object.isRequired,
       trackMetric: React.PropTypes.func.isRequired,
     }).isRequired,
+    showingDonateBanner: React.PropTypes.bool,
+    showDonateBanner: React.PropTypes.func.isRequired,
+    hideDonateBanner: React.PropTypes.func.isRequired,
     termsAccepted: React.PropTypes.string,
-    user: React.PropTypes.object
+    user: React.PropTypes.object,
+    userHasData: React.PropTypes.bool.isRequired,
+    userIsCurrentPatient: React.PropTypes.bool.isRequired,
+    userIsDonor: React.PropTypes.bool.isRequired,
+    userIsSupportingNonprofit: React.PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -94,14 +109,6 @@ export class AppComponent extends React.Component {
     return /^\/patients\/\S+/.test(this.props.location);
   }
 
-  logSupportContact() {
-    this.props.context.trackMetric('Clicked Give Feedback');
-  }
-
-  closeNotification() {
-    this.props.acknowledgeNotification();
-  }
-
   doFetching(nextProps) {
     if (!nextProps.fetchers) {
       return
@@ -125,8 +132,29 @@ export class AppComponent extends React.Component {
    * begin fetching any required data
    */
   componentWillReceiveProps(nextProps) {
+    const {
+      showingDonateBanner,
+      location,
+      userHasData,
+      userIsCurrentPatient,
+      userIsSupportingNonprofit
+    } = nextProps;
+
     if (!utils.isOnSamePage(this.props, nextProps)) {
       this.doFetching(nextProps);
+    }
+
+    // Determine whether or not to show the donate banner.
+    // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
+    if (showingDonateBanner !== false) {
+      const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
+      const showBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
+
+      if (showBanner) {
+        this.props.showDonateBanner();
+      } else if (showingDonateBanner) {
+        this.props.hideDonateBanner();
+      }
     }
   }
 
@@ -188,12 +216,42 @@ export class AppComponent extends React.Component {
     return null;
   }
 
+  renderDonateBanner() {
+    this.props.context.log('Rendering donation banner');
+
+    const {
+      showingDonateBanner,
+      onDismissDonateBanner,
+      onUpdateDataDonationAccounts,
+      patient,
+      userIsDonor,
+    } = this.props;
+
+    if (showingDonateBanner) {
+      return (
+        <div className="App-donatebanner">
+          <DonateBanner
+            onClose={onDismissDonateBanner}
+            onConfirm={onUpdateDataDonationAccounts}
+            processingDonation={this.props.updatingDataDonationAccounts || this.props.fetchingPendingSentInvites}
+            trackMetric={this.props.context.trackMetric}
+            patient={patient}
+            userIsDonor={userIsDonor} />
+        </div>
+      );
+    }
+
+    return null;
+  }
+
   renderNotification() {
     var notification = this.props.notification;
     var handleClose;
 
+    // On these paths, we only display the notifications inline under the forms,
+    // rather than in a modal that requires the user to dismiss it.
     var shouldDisplayNotification = !_.includes(
-      ['/login', '/email-verification', '/signup'],
+      ['/login', '/email-verification', '/signup', '/signup/personal', '/signup/clinician'],
       this.props.location
     );
 
@@ -253,6 +311,7 @@ export class AppComponent extends React.Component {
     var overlay = this.renderOverlay();
     var navbar = this.renderNavbar();
     var notification = this.renderNotification();
+    var donatebanner = this.renderDonateBanner();
     var footer = this.renderFooter();
 
     return (
@@ -260,6 +319,7 @@ export class AppComponent extends React.Component {
         {overlay}
         {navbar}
         {notification}
+        {donatebanner}
         {this.props.children}
         {footer}
       </div>
@@ -281,10 +341,21 @@ export function mapStateToProps(state) {
   let user = null;
   let patient = null;
   let permissions = null;
+  let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
+  let userIsSupportingNonprofit = false;
+  let userIsCurrentPatient = false;
+  let userHasData = false;
 
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
+
+      let data = _.get(state.blip.patientDataMap, state.blip.loggedInUserId, null);
+      userHasData = !!(data && !!data.length); // convert null or empty array val to boolean
+
+      if (state.blip.loggedInUserId === state.blip.currentPatientInViewId) {
+        userIsCurrentPatient = true;
+      }
     }
 
     if (state.blip.currentPatientInViewId) {
@@ -298,6 +369,13 @@ export function mapStateToProps(state) {
         state.blip.currentPatientInViewId,
         {}
       );
+    }
+
+    // Check to see if a data-donating patient has selected a nonprofit to support
+    if (userIsDonor) {
+      let allDonationAccountEmails = _.map(DATA_DONATION_NONPROFITS, nonprofit => `bigdata+${nonprofit.value}@tidepool.org`);
+      let userDonationAccountEmails = _.pluck(state.blip.dataDonationAccounts, 'email');
+      userIsSupportingNonprofit = _.intersection(allDonationAccountEmails, userDonationAccountEmails).length > 0;
     }
   }
 
@@ -346,20 +424,30 @@ export function mapStateToProps(state) {
     authenticated: state.blip.isLoggedIn,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
+    fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites.inProgress,
     loggingOut: state.blip.working.loggingOut.inProgress,
+    updatingDataDonationAccounts: state.blip.working.updatingDataDonationAccounts.inProgress,
     notification: displayNotification,
     termsAccepted: _.get(user, 'termsAccepted', null),
     user: user,
     patient: patient ? { permissions, ...patient } : null,
+    showingDonateBanner: state.blip.showingDonateBanner,
+    userIsCurrentPatient,
+    userHasData,
+    userIsDonor,
+    userIsSupportingNonprofit,
   };
-
 };
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   fetchUser: actions.async.fetchUser,
   acceptTerms: actions.async.acceptTerms,
   logout: actions.async.logout,
-  onCloseNotification: actions.sync.acknowledgeNotification
+  onCloseNotification: actions.sync.acknowledgeNotification,
+  onDismissDonateBanner: actions.async.dismissDonateBanner,
+  updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
+  showDonateBanner: actions.sync.showDonateBanner,
+  hideDonateBanner: actions.sync.hideDonateBanner,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -370,6 +458,10 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     location: ownProps.location.pathname,
     onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
     onCloseNotification: dispatchProps.onCloseNotification,
+    onDismissDonateBanner: dispatchProps.onDismissDonateBanner.bind(null, api),
+    onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
+    showDonateBanner: dispatchProps.showDonateBanner,
+    hideDonateBanner: dispatchProps.hideDonateBanner,
     onLogout: dispatchProps.logout.bind(null, api)
   });
 };

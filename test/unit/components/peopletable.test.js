@@ -35,14 +35,16 @@ describe('PeopleTable', () => {
           patient: { birthday: '1969-08-19T01:51:55.000Z' },
           link: 'http://localhost:3000/patients/0cc2aad188/data',
         },
-        permissions: { root: {} }
+        permissions: { root: {} },
+        userid: 10,
       },
       {
         profile: {
           fullName: 'Tucker Doe',
           patient: { birthday: '1977-08-19T01:51:55.000Z' },
           link: 'http://localhost:3000/patients/0cc2bbd188/data',
-        }
+        },
+        userid: 20,
       },
       {
         profile: {
@@ -50,30 +52,35 @@ describe('PeopleTable', () => {
           patient: { birthday: '2000-08-19T01:51:55.000Z' },
           link: 'http://localhost:3000/patients/0cc2ccd188/data',
         },
+        userid: 30,
       },
       {
         profile: {
           fullName: 'amanda jones',
           patient: { birthday: '1989-08-19T01:51:55.000Z' },
           link: 'http://localhost:3000/patients/0cc2ddd188/data',
-        }
+        },
+        userid: 40,
       },
       {
         profile: {
           fullName: 'Anna Zork',
           patient: { birthday: '2010-08-19T01:51:55.000Z' },
           link: 'http://localhost:3000/patients/0cc2eed188/data',
-        }
+        },
+        userid: 50,
       }
     ],
     trackMetric: sinon.stub(),
-    containerWidth: 500,
-    containerHeight: 300,
+    onRemovePatient: sinon.stub(),
   };
 
   let wrapper;
+
   beforeEach(() => {
     props.trackMetric.reset();
+    props.onRemovePatient.reset();
+
     wrapper = mount(
       <PeopleTable
         {...props}
@@ -81,11 +88,11 @@ describe('PeopleTable', () => {
     );
   });
 
-  it('should be a function', function() {
+  it('should be a function', function () {
     expect(PeopleTable).to.be.a('function');
   });
 
-  describe('render', function() {
+  describe('render', function () {
     it('should render without problems', function () {
       expect(wrapper.find(PeopleTable)).to.have.length(1);
     });
@@ -108,7 +115,7 @@ describe('PeopleTable', () => {
     });
   });
 
-  describe('showNames', function() {
+  describe('showNames', function () {
     it('should show a row of data for each person', function () {
       wrapper.find('.peopletable-names-toggle').simulate('click');
       wrapper.setState({ showNames: true });
@@ -128,7 +135,7 @@ describe('PeopleTable', () => {
     });
   });
 
-  describe('searching', function() {
+  describe('searching', function () {
     it('should show a row of data for each person', function () {
       wrapper.setState({ searching: true });
       // 5 people plus one row for the header
@@ -156,4 +163,142 @@ describe('PeopleTable', () => {
       expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
     });
   });
+
+  describe('patient removal link', function () {
+    beforeEach(() => {
+      wrapper.find('.peopletable-names-toggle').simulate('click');
+    });
+
+    it('should have a remove icon for each patient', function () {
+      expect(wrapper.find('.peopletable-icon-remove')).to.have.length(5);
+    });
+
+    it('should show open a modal for removing a patient when their remove icon is clicked', function () {
+      const renderRemoveDialog = sinon.spy(wrapper.instance(), 'renderRemoveDialog');
+
+      // Modal should be hidden
+      const overlay = wrapper.find('.ModalOverlay');
+      expect(overlay).to.have.length(1);
+      expect(overlay.is('.ModalOverlay--show')).to.be.false;
+
+      // Click the remove link for the last patient
+      const removeLink = wrapper.find('RemoveLinkCell').last().find('i.peopletable-icon-remove');
+      expect(wrapper.instance().handleRemove).to.have.beenCalled;
+      removeLink.simulate('click');
+
+      // Ensure the currentRowIndex is set to highlight the proper patient
+      const currentRow = wrapper.state('currentRowIndex');
+      expect(currentRow).to.equal(4);
+      expect(removeLink.closest('.peopletable-active-row')).to.have.length(1);
+
+      // Ensure the renderRemoveDialog method is called with the correct patient
+      // Since we've clicked the last one, and the default sort is fullName alphabetically,
+      // it should be 'Zoe Doe'
+      sinon.assert.callCount(renderRemoveDialog, 1);
+      sinon.assert.calledWith(renderRemoveDialog, wrapper.state('dataList')[currentRow]);
+      expect(wrapper.state('dataList')[currentRow].fullName).to.equal('Zoe Doe');
+
+      // Ensure the modal is showing
+      expect(overlay.is('.ModalOverlay--show')).to.be.true;
+      expect(wrapper.state('showModalOverlay')).to.equal(true);
+    });
+  });
+
+  describe('patient removal modal', function () {
+    let removeLink;
+    let overlay;
+
+    beforeEach(() => {
+
+      wrapper.find('.peopletable-names-toggle').simulate('click');
+      overlay = wrapper.find('.ModalOverlay');
+
+      removeLink = wrapper.find('RemoveLinkCell').last().find('i.peopletable-icon-remove');
+      removeLink.simulate('click');
+    });
+
+    it('should close the modal when the background overlay is clicked', function () {
+      const overlayBackdrop = wrapper.find('.ModalOverlay-target');
+
+      expect(overlay.is('.ModalOverlay--show')).to.be.true;
+      overlayBackdrop.simulate('click');
+
+      expect(overlay.is('.ModalOverlay--show')).to.be.false;
+    });
+
+    it('should close the modal when the cancel link is clicked', function () {
+      const cancelButton = overlay.find('.btn-secondary');
+
+      expect(overlay.is('.ModalOverlay--show')).to.be.true;
+      cancelButton.simulate('click')
+
+      expect(overlay.is('.ModalOverlay--show')).to.be.false;
+    });
+
+    it('should remove the patient when the remove button is clicked', function () {
+      const removeButton = overlay.first().find('.btn-danger');
+
+      expect(overlay.is('.ModalOverlay--show')).to.be.true;
+
+      // Ensure that onRemovePatient is called with the proper userid
+      removeButton.simulate('click')
+      sinon.assert.callCount(props.onRemovePatient, 1);
+      sinon.assert.calledWith(props.onRemovePatient, 10);
+    })
+  });
+
+  describe('handleRemove', function (){
+    let patient;
+    let rowIndex;
+    let proxy;
+
+    beforeEach(function () {
+      patient = wrapper.state('dataList')[0];
+      rowIndex = 4;
+      proxy = wrapper.instance().handleRemove(patient, rowIndex);
+    });
+
+    it('should return a proxy function', function () {
+      expect(proxy).to.be.a('function');
+    });
+
+    it('should set the modal and currentRowIndex state appropriately when called', function () {
+      expect(wrapper.state('currentRowIndex')).to.equal(-1);
+      expect(wrapper.state('showModalOverlay')).to.be.false;
+      expect(wrapper.state('dialog')).to.equal('');
+
+      proxy();
+
+      expect(wrapper.state('currentRowIndex')).to.equal(rowIndex);
+      expect(wrapper.state('showModalOverlay')).to.be.true;
+      expect(wrapper.state('dialog')).to.be.an('object');
+    });
+  })
+
+  describe('handleRemovePatient', function () {
+    let patient;
+    let proxy;
+
+    beforeEach(function () {
+      patient = { userid: 40 };
+      proxy = wrapper.instance().handleRemovePatient(patient);
+    });
+
+    it('should return a proxy function', function () {
+      expect(proxy).to.be.a('function');
+    });
+
+    it('should call the appropriate handlers when called', function () {
+      sinon.assert.callCount(props.onRemovePatient, 0);
+      sinon.assert.callCount(props.trackMetric, 0);
+
+      proxy();
+
+      sinon.assert.callCount(props.onRemovePatient, 1);
+      sinon.assert.calledWith(props.onRemovePatient, 40);
+
+      sinon.assert.callCount(props.trackMetric, 1);
+      sinon.assert.calledWith(props.trackMetric, 'Web - clinician removed patient account');
+    });
+  })
 });

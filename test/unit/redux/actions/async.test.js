@@ -8,7 +8,7 @@
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
-
+import util from 'util';
 import _ from 'lodash';
 
 import isTSA from 'tidepool-standard-action';
@@ -17,6 +17,8 @@ import initialState from '../../../../app/redux/reducers/initialState';
 
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
+
+import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL } from '../../../../app/core/constants';
 
 // need to require() async in order to rewire utils inside
 const async = require('../../../../app/redux/actions/async');
@@ -798,7 +800,7 @@ describe('Actions', () => {
     });
 
     describe('removeMemberFromTargetCareTeam', () => {
-      it('should trigger REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS and it should call removeMemberFromTargetCareTeam once for a successful request', () => {
+      it('should trigger REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS and it should call api.access.removeMember and callback once for a successful request', () => {
         let memberId = 27;
         let patientId = 456;
         let patient = { id: 546, name: 'Frank' };
@@ -822,21 +824,27 @@ describe('Actions', () => {
         });
 
         let store = mockStore(initialState);
+        const callback = sinon.stub();
 
-        store.dispatch(async.removeMemberFromTargetCareTeam(api, patientId, memberId));
+        store.dispatch(async.removeMemberFromTargetCareTeam(api, patientId, memberId, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.access.removeMember.withArgs(memberId).callCount).to.equal(1);
         expect(api.patient.get.withArgs(patientId).callCount).to.equal(1);
+
+        // assert callback contains no error, and the memberId
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, null, memberId);
       });
 
-      it('should trigger REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE and it should call removeMemberFromTargetCareTeam once for a failed request', () => {
+      it('should trigger REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE and it should call api.access.removeMember and callback once with error for a failed request', () => {
         let memberId = 27;
         let patientId = 420;
+        const error = { status: 500, body: 'Error!' };
         let api = {
           access: {
-            removeMember: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'})
+            removeMember: sinon.stub().callsArgWith(1, error)
           }
         };
 
@@ -852,16 +860,22 @@ describe('Actions', () => {
         });
 
         let store = mockStore(initialState);
-        store.dispatch(async.removeMemberFromTargetCareTeam(api, patientId, memberId));
+        const callback = sinon.stub();
+
+        store.dispatch(async.removeMemberFromTargetCareTeam(api, patientId, memberId, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.access.removeMember.calledWith(memberId)).to.be.true;
+
+        // assert callback contains the error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, error, memberId);
       });
     });
 
     describe('sendInvite', () => {
-      it('should trigger SEND_INVITE_SUCCESS and it should call sendInvite once for a successful request', () => {
+      it('should trigger SEND_INVITE_SUCCESS and it should call api.invitation.send and callback once for a successful request', () => {
         let email = 'a@b.com';
         let permissions = {
           view: true
@@ -881,11 +895,52 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore(initialState);
-        store.dispatch(async.sendInvite(api, email, permissions));
+        const callback = sinon.stub();
+
+        store.dispatch(async.sendInvite(api, email, permissions, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
+
+        // assert callback contains no error, and the invite
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, null, invite);
+      });
+
+      it('should trigger FETCH_PENDING_SENT_INVITES_REQUEST once for a successful request for a data donation account', () => {
+        let email = 'a@b.com';
+        let permissions = {
+          view: true
+        };
+        let invite = { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL };
+        let api = {
+          invitation: {
+            send: sinon.stub().callsArgWith(2, null, invite),
+            getSent: sinon.stub(),
+          }
+        };
+
+        let expectedActions = [
+          { type: 'SEND_INVITE_REQUEST' },
+          { type: 'FETCH_PENDING_SENT_INVITES_REQUEST' },
+          { type: 'SEND_INVITE_SUCCESS', payload: { invite: invite } },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore(initialState);
+        const callback = sinon.stub();
+
+        store.dispatch(async.sendInvite(api, email, permissions, callback));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
+
+        // assert callback contains no error, and the invite
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, null, invite);
       });
 
       it('should trigger SEND_INVITE_FAILURE when invite has already been sent to the e-mail', () => {
@@ -894,9 +949,10 @@ describe('Actions', () => {
           view: true
         };
         let invitation = { foo: 'bar' };
+        const error = { status: 409, body: 'Error!' };
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(2, {status: 409, body: 'Error!'})
+            send: sinon.stub().callsArgWith(2, error)
           }
         };
 
@@ -912,22 +968,29 @@ describe('Actions', () => {
         });
 
         let store = mockStore(initialState);
-        store.dispatch(async.sendInvite(api, email, permissions));
+        const callback = sinon.stub();
+
+        store.dispatch(async.sendInvite(api, email, permissions, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
+
+        // assert callback contains the error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, error, undefined);
       });
 
-      it('should trigger SEND_INVITE_FAILURE and it should call sendInvite once for a failed request', () => {
+      it('should trigger SEND_INVITE_FAILURE and it should call api.invitation.send and callback once with error for a failed request', () => {
         let email = 'a@b.com';
         let permissions = {
           view: true
         };
         let invitation = { foo: 'bar' };
+        const error = { status: 500, body: 'Error!' };
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'})
+            send: sinon.stub().callsArgWith(2, error)
           }
         };
 
@@ -943,16 +1006,22 @@ describe('Actions', () => {
         });
 
         let store = mockStore(initialState);
-        store.dispatch(async.sendInvite(api, email, permissions));
+        const callback = sinon.stub();
+
+        store.dispatch(async.sendInvite(api, email, permissions, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
+
+        // assert callback contains the error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, error, undefined);
       });
     });
 
     describe('cancelSentInvite', () => {
-      it('should trigger CANCEL_SENT_INVITE_SUCCESS and it should call cancelSentInvite once for a successful request', () => {
+      it('should trigger CANCEL_SENT_INVITE_SUCCESS and it should call api.invitation.cancel and callback once for a successful request', () => {
         let email = 'a@b.com';
         let api = {
           invitation: {
@@ -968,18 +1037,25 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore(initialState);
-        store.dispatch(async.cancelSentInvite(api, email));
+        const callback = sinon.stub();
+
+        store.dispatch(async.cancelSentInvite(api, email, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.cancel.calledWith(email)).to.be.true;
+
+        // assert callback contains no error, and the email
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, null, email);
       });
 
-      it('should trigger CANCEL_SENT_INVITE_FAILURE and it should call cancelSentInvite once for a failed request', () => {
+      it('should trigger CANCEL_SENT_INVITE_FAILURE and it should call api.invitation.send and callback once with error for a failed request', () => {
         let email = 'a@b.com';
+        const error = { status: 500, body: 'Error!' };
         let api = {
           invitation: {
-            cancel: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'})
+            cancel: sinon.stub().callsArgWith(1, error)
           }
         };
 
@@ -995,11 +1071,167 @@ describe('Actions', () => {
         });
 
         let store = mockStore(initialState);
-        store.dispatch(async.cancelSentInvite(api, email));
+        const callback = sinon.stub();
+
+        store.dispatch(async.cancelSentInvite(api, email, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.cancel.calledWith(email)).to.be.true;
+
+        // assert callback contains the error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, error, email);
+      });
+    });
+
+    describe('fetchDataDonationAccounts', () => {
+      it('should trigger FETCH_DATA_DONATION_ACCOUNTS_SUCCESS and it should call api.user.getDataDonationAccounts once for a successful request', () => {
+        let dataDonationAccounts = [
+          { email: 'bigdata@tidepool.org' },
+          { email: 'bigdata+ZZZ@tidepool.org' },
+        ];
+
+        let api = {
+          user: {
+            getDataDonationAccounts: sinon.stub().callsArgWith(0, null, dataDonationAccounts)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_DATA_DONATION_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_DATA_DONATION_ACCOUNTS_SUCCESS', payload: { accounts: dataDonationAccounts } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore(initialState);
+        store.dispatch(async.fetchDataDonationAccounts(api));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.getDataDonationAccounts.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_DATA_DONATION_ACCOUNTS_FAILURE and it should call error once for a failed request', () => {
+        let dataDonationAccounts = [
+          { email: 'bigdata@tidepool.org' },
+          { email: 'bigdata+ZZZ@tidepool.org' },
+        ];
+
+        let api = {
+          user: {
+            getDataDonationAccounts: sinon.stub().callsArgWith(0, { status: 500, body: 'Error!' }, null)
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_DATA_DONATION_ACCOUNTS);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_DATA_DONATION_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_DATA_DONATION_ACCOUNTS_FAILURE', error: err, meta: { apiError: { status: 500, body: 'Error!' } } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore(initialState);
+        store.dispatch(async.fetchDataDonationAccounts(api));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.getDataDonationAccounts.callCount).to.equal(1);
+      });
+    });
+
+    describe('updateDataDonationAccounts', () => {
+      it('should trigger UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS and it should add and remove accounts for a successful request', () => {
+        let addAccounts = [
+          TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
+        ];
+
+        let removeAccounts = [
+          { email: 'bigdata+ZZZ@tidepool.org' },
+        ];
+
+        let api = {
+          invitation: {
+            send: sinon.stub().callsArgWith(2, null, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL }),
+            cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+ZZZ@tidepool.org' }),
+            getSent: sinon.stub(),
+          }
+        };
+
+        let expectedActions = [
+          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_REQUEST' },
+          { type: 'SEND_INVITE_REQUEST'},
+          { type: 'FETCH_PENDING_SENT_INVITES_REQUEST'},
+          { type: 'SEND_INVITE_SUCCESS', payload: { invite: { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL } } },
+          { type: 'CANCEL_SENT_INVITE_REQUEST' },
+          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+ZZZ@tidepool.org' } },
+          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS', payload: { accounts: {
+            addAccounts: _.map(addAccounts, email => ({ email: email })),
+            removeAccounts: _.map(removeAccounts, account => account.email),
+          }}}
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(_.assign({}, initialState, {
+          blip: { loggedInUserId: 1234 },
+        }));
+
+        store.dispatch(async.updateDataDonationAccounts(api, addAccounts, removeAccounts));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
+
+      it('should trigger FETCH_DATA_DONATION_ACCOUNTS_FAILURE and it should call error once for a failed add account request', () => {
+        let addAccounts = [
+          TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
+        ];
+
+        let removeAccounts = [
+          { email: 'bigdata+ZZZ@tidepool.org' },
+        ];
+
+        let err = new Error(ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS);
+        err.status = 500;
+
+        let sendErr = new Error(ErrorMessages.ERR_SENDING_INVITE);
+        sendErr.status = 500;
+
+        let api = {
+          invitation: {
+            send: sinon.stub().callsArgWith(2, { status: 500, body: 'Error!' } , null),
+            cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+ZZZ@tidepool.org' }),
+            getSent: sinon.stub(),
+          }
+        };
+
+        let expectedActions = [
+          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_REQUEST' },
+          { type: 'SEND_INVITE_REQUEST' },
+          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_FAILURE', error: err, meta: { apiError: { status: 500, body: 'Error!' } } },
+          { type: 'SEND_INVITE_FAILURE', error: sendErr, meta: { apiError: { status: 500, body: 'Error!' } } },
+          { type: 'CANCEL_SENT_INVITE_REQUEST' },
+          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+ZZZ@tidepool.org' } },
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(_.assign({}, initialState, {
+          blip: { loggedInUserId: 1234 },
+        }));
+
+        store.dispatch(async.updateDataDonationAccounts(api, addAccounts, removeAccounts));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
       });
     });
 

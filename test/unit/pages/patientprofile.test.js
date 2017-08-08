@@ -23,8 +23,9 @@ describe('PatientProfile', () => {
         loggedInUserId: 'a1b2c3',
         working: {
           fetchingPatient: {inProgress: false, notification: null},
-          fetchingUser: {inProgress: false, notification: null}
-        }
+          fetchingUser: {inProgress: false, notification: null},
+          updatingDataDonationAccounts: { inProgress: false },
+        },
       };
 
       const tracked = mutationTracker.trackObj(state);
@@ -61,8 +62,9 @@ describe('PatientProfile', () => {
         loggedInUserId: 'a1b2c3',
         working: {
           fetchingPatient: {inProgress: true, notification: null},
-          fetchingUser: {inProgress: false, notification: null}
-        }
+          fetchingUser: { inProgress: false, notification: null },
+          updatingDataDonationAccounts: { inProgress: false },
+        },
       };
 
       const tracked = mutationTracker.trackObj(state);

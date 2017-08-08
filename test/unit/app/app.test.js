@@ -2,13 +2,16 @@
 /* global sinon */
 /* global describe */
 /* global it */
+/* global context */
 /* global beforeEach */
+/* global afterEach */
 
 var React = require('react');
 var createFragment = require('react-addons-create-fragment');
 var _ = require('lodash');
 var TestUtils = require('react-addons-test-utils');
 
+import { mount } from 'enzyme';
 import mutationTracker from 'object-invariant-test-helper';
 import { mapStateToProps } from '../../../app/pages/app/app.js';
 import initialState from '../../../app/redux/reducers/initialState';
@@ -89,6 +92,137 @@ describe('App',  () => {
       var elem = TestUtils.renderIntoDocument(<App {...props} />);
       var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
       expect(versionElems.length).to.equal(1);
+    });
+  });
+
+  describe('renderDonateBanner', () => {
+    let props = _.assign({}, baseProps, {
+      showingDonateBanner: null,
+      onDismissDonateBanner: sinon.stub(),
+      onUpdateDataDonationAccounts: sinon.stub(),
+      showDonateBanner: sinon.stub(),
+      hideDonateBanner: sinon.stub(),
+      patient: {},
+      userIsDonor: true,
+    });
+
+    let wrapper;
+    beforeEach(() => {
+      wrapper = mount(<App {...props} />);
+    });
+
+    it('should render the banner or not based on the `showingDonateBanner` prop value', () => {
+      wrapper.setProps({ showingDonateBanner: true });
+      expect(wrapper.find('.App-donatebanner').length).to.equal(1);
+
+      wrapper.setProps({ showingDonateBanner: null });
+      expect(wrapper.find('.App-donatebanner').length).to.equal(0);
+
+      wrapper.setProps({ showingDonateBanner: false });
+      expect(wrapper.find('.App-donatebanner').length).to.equal(0);
+    });
+  });
+
+  describe('componentWillReceiveProps', () => {
+    let props = _.assign({}, baseProps, {
+      showDonateBanner: sinon.stub(),
+      hideDonateBanner: sinon.stub(),
+    });
+
+    let wrapper;
+    beforeEach(() => {
+      wrapper = mount(<App {...props} />);
+    });
+
+    afterEach(() => {
+      props.showDonateBanner.reset();
+      props.hideDonateBanner.reset();
+    });
+
+    context('user has uploaded data and has not donated data', () => {
+      it('should show the banner, but only if user is on a patient data view', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+        });
+
+        sinon.assert.callCount(props.showDonateBanner, 0);
+
+        wrapper.setProps({ location: '/patients/1234/data' })
+        sinon.assert.callCount(props.showDonateBanner, 1);
+      });
+
+      it('should not show the banner if user has dismissed the banner', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+        });
+
+        sinon.assert.callCount(props.showDonateBanner, 1);
+        props.showDonateBanner.reset();
+
+        wrapper.setProps({
+          showingDonateBanner: false,
+        });
+
+        sinon.assert.callCount(props.showDonateBanner, 0);
+      });
+    });
+
+    context('user has not uploaded data and has not donated data', () => {
+      it('should not show the banner', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: false,
+          showingDonateBanner: true,
+          location: '/patients/1234/data',
+        });
+
+        sinon.assert.callCount(props.showDonateBanner, 0);
+        sinon.assert.callCount(props.hideDonateBanner, 1);
+      });
+    });
+
+    context('user has uploaded data but is not the current patient in view', () => {
+      it('should not show the banner', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: false,
+          userHasData: true,
+          showingDonateBanner: true,
+          location: '/patients/1234/data',
+        });
+
+        sinon.assert.callCount(props.showDonateBanner, 0);
+        sinon.assert.callCount(props.hideDonateBanner, 1);
+      });
+    });
+
+    context('user has uploaded data and has donated data, but not chosen a nonprofit to share proceeds with', () => {
+      it('should show the banner', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          showingDonateBanner: true,
+          userIsSupportingNonprofit: false,
+          location: '/patients/1234/data',
+        });
+
+        sinon.assert.callCount(props.showDonateBanner, 1);
+      });
+    });
+
+    context('user has uploaded data and has donated data and has chosen a nonprofit to share proceeds with', () => {
+      it('should hide the banner', () => {
+        wrapper.setProps({
+          userHasUploadedData: true,
+          showingDonateBanner: true,
+          userIsSupportingNonprofit: true,
+          location: '/patients/1234/data',
+        });
+
+        sinon.assert.callCount(props.hideDonateBanner, 1);
+      });
     });
   });
 
@@ -173,7 +307,7 @@ describe('App',  () => {
     });
 
     describe('logged-in state', () => {
-      // this is the absolute minimum state that the mapStateToProps function needs 
+      // this is the absolute minimum state that the mapStateToProps function needs
       const loggedIn = {
         allUsersMap: {
           a1b2c3: {
@@ -197,8 +331,12 @@ describe('App',  () => {
             view: {},
           },
         },
+        dataDonationAccounts: [],
+        showingDonateBanner: null,
         working: {
           fetchingUser: {inProgress: false},
+          fetchingPendingSentInvites: {inProgress: false},
+          updatingDataDonationAccounts: {inProgress: false},
           fetchingPatient: {inProgress: false, notification: {type: 'error'}},
           loggingOut: {inProgress: false}
         }
@@ -244,6 +382,109 @@ describe('App',  () => {
 
       it('should return the current patient in view as patient and empty permissions', () => {
         expect(result.patient).to.deep.equal(Object.assign({}, loggedIn.allUsersMap.d4e5f6, { permissions: {} }));
+      });
+
+      describe('Data donation props', () => {
+        context('User has donated data but is not the current patient in view', () => {
+          it('should set props appropriately', () => {
+            const state = _.assign({}, loggedIn, {
+              dataDonationAccounts: [
+                { email: 'bigdata@tidepool.org' },
+                { email: 'bigdata+CWD@tidepool.org' },
+              ],
+            });
+
+            const result = mapStateToProps({ blip: state });
+
+            expect(result.userIsCurrentPatient).to.be.false;
+            expect(result.userIsDonor).to.be.true;
+          });
+        });
+
+        context('User has donated data and is the current patient in view, and has supported a nonprofit', () => {
+          it('should set props appropriately', () => {
+            const state = _.assign({}, loggedIn, {
+              loggedInUserId: '1234',
+              currentPatientInViewId: '1234',
+              dataDonationAccounts: [
+                { email: 'bigdata@tidepool.org' },
+                { email: 'bigdata+CWD@tidepool.org' },
+              ],
+            });
+
+            const result = mapStateToProps({ blip: state });
+
+            expect(result.userIsDonor).to.be.true;
+            expect(result.userIsSupportingNonprofit).to.be.true;
+            expect(result.userIsCurrentPatient).to.be.true;
+          });
+        });
+
+        context('User has donated data and is the current patient in view, and has not supported a nonprofit', () => {
+          it('should set props appropriately', () => {
+            const state = _.assign({}, loggedIn, {
+              loggedInUserId: '1234',
+              currentPatientInViewId: '1234',
+              dataDonationAccounts: [
+                { email: 'bigdata@tidepool.org' },
+              ],
+            });
+
+            const result = mapStateToProps({ blip: state });
+
+            expect(result.userIsDonor).to.be.true;
+            expect(result.userIsSupportingNonprofit).to.be.false;
+            expect(result.userIsCurrentPatient).to.be.true;
+          });
+        });
+
+        context('User is current patient and has not uploaded data', () => {
+          it('should set props appropriately', () => {
+            const state = _.assign({}, loggedIn, {
+              loggedInUserId: '1234',
+              currentPatientInViewId: '1234',
+            });
+
+            const result = mapStateToProps({ blip: state });
+
+            expect(result.userHasData).to.be.false;
+            expect(result.userIsCurrentPatient).to.be.true;
+          });
+        });
+
+        context('User is not current patient and has uploaded data', () => {
+          it('should set props appropriately', () => {
+            const state = _.assign({}, loggedIn, {
+              loggedInUserId: '1234',
+              currentPatientInViewId: '5678',
+              patientDataMap: {
+                '1234': [ 'one', 'two' ],
+              },
+            });
+
+            const result = mapStateToProps({ blip: state });
+
+            expect(result.userHasData).to.be.true;
+            expect(result.userIsCurrentPatient).to.be.false;
+          });
+        });
+
+        context('User is current patient and has uploaded data', () => {
+          it('should set props appropriately', () => {
+            const state = _.assign({}, loggedIn, {
+              loggedInUserId: '1234',
+              currentPatientInViewId: '1234',
+              patientDataMap: {
+                '1234': [ 'one', 'two' ],
+              },
+            });
+
+            const result = mapStateToProps({ blip: state });
+
+            expect(result.userHasData).to.be.true;
+            expect(result.userIsCurrentPatient).to.be.true;
+          });
+        });
       });
     });
   });

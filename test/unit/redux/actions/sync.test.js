@@ -10,6 +10,8 @@ import isTSA from 'tidepool-standard-action';
 import * as sync from '../../../../app/redux/actions/sync';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
+import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL } from '../../../../app/core/constants';
+
 describe('Actions', () => {
 
   describe('Synchronous Actions', () => {
@@ -36,6 +38,45 @@ describe('Actions', () => {
       it('type should equal HIDE_WELCOME_MESSAGE', () => {
         let action = sync.hideWelcomeMessage();
         expect(action.type).to.equal('HIDE_WELCOME_MESSAGE');
+      });
+    });
+
+    describe('showDonateBanner', () => {
+      it('should be a TSA', () => {
+        let action = sync.showDonateBanner();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal SHOW_DONATE_BANNER', () => {
+        let action = sync.showDonateBanner();
+        expect(action.type).to.equal('SHOW_DONATE_BANNER');
+      });
+    });
+
+    describe('hideDonateBanner', () => {
+      it('should be a TSA', () => {
+        let action = sync.hideDonateBanner();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal HIDE_DONATE_BANNER', () => {
+        let action = sync.hideDonateBanner();
+        expect(action.type).to.equal('HIDE_DONATE_BANNER');
+      });
+    });
+
+    describe('dismissDonateBanner', () => {
+      it('should be a TSA', () => {
+        let action = sync.dismissDonateBanner();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DISMISS_DONATE_BANNER', () => {
+        let action = sync.dismissDonateBanner();
+        expect(action.type).to.equal('DISMISS_DONATE_BANNER');
       });
     });
 
@@ -1621,6 +1662,124 @@ describe('Actions', () => {
         let action = sync.fetchMessageThreadFailure(error);
 
         expect(action.type).to.equal('FETCH_MESSAGE_THREAD_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchDataDonationAccountsRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchDataDonationAccountsRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_DATA_DONATION_ACCOUNTS_REQUEST', () => {
+        let action = sync.fetchDataDonationAccountsRequest();
+        expect(action.type).to.equal('FETCH_DATA_DONATION_ACCOUNTS_REQUEST');
+      });
+    });
+
+    describe('fetchDataDonationAccountsSuccess', () => {
+      it('should be a TSA', () => {
+        let dataDonationAccounts = [
+          { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
+          { email: 'bigdata+ZZZ@tidepool.org' },
+        ];
+
+        let action = sync.fetchDataDonationAccountsSuccess(dataDonationAccounts);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_DATA_DONATION_ACCOUNTS_SUCCESS', () => {
+        let dataDonationAccounts = [
+          { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
+          { email: 'bigdata+ZZZ@tidepool.org' },
+        ];
+
+        let action = sync.fetchDataDonationAccountsSuccess(dataDonationAccounts);
+
+        expect(action.type).to.equal('FETCH_DATA_DONATION_ACCOUNTS_SUCCESS');
+        expect(action.payload.accounts).to.equal(dataDonationAccounts);
+      });
+    });
+
+    describe('fetchDataDonationAccountsFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.fetchDataDonationAccountsFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_DATA_DONATION_ACCOUNTS_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.fetchDataDonationAccountsFailure(error);
+
+        expect(action.type).to.equal('FETCH_DATA_DONATION_ACCOUNTS_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('updateDataDonationAccountsRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.updateDataDonationAccountsRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_DATA_DONATION_ACCOUNTS_REQUEST', () => {
+        let action = sync.updateDataDonationAccountsRequest();
+        expect(action.type).to.equal('UPDATE_DATA_DONATION_ACCOUNTS_REQUEST');
+      });
+    });
+
+    describe('updateDataDonationAccountsSuccess', () => {
+      it('should be a TSA', () => {
+        let dataDonationAccounts = {
+          addAccounts: [
+            { email: 'bigdata+YYY@tidepool.org' },
+          ],
+          removeAccounts: [
+            { removedEmail: 'bigdata+ZZZ@tidepool.org' },
+          ],
+        };
+
+        let action = sync.updateDataDonationAccountsSuccess(dataDonationAccounts);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS', () => {
+        let dataDonationAccounts = {
+          addAccounts: [
+            { email: 'bigdata+YYY@tidepool.org' },
+          ],
+          removeAccounts: [
+            { removedEmail: 'bigdata+ZZZ@tidepool.org' },
+          ],
+        };
+
+        let action = sync.updateDataDonationAccountsSuccess(dataDonationAccounts);
+
+        expect(action.type).to.equal('UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS');
+        expect(action.payload.accounts).to.equal(dataDonationAccounts);
+      });
+    });
+
+    describe('updateDataDonationAccountsFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.updateDataDonationAccountsFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_DATA_DONATION_ACCOUNTS_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.updateDataDonationAccountsFailure(error);
+
+        expect(action.type).to.equal('UPDATE_DATA_DONATION_ACCOUNTS_FAILURE');
         expect(action.error).to.equal(error);
       });
     });

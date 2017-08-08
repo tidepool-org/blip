@@ -203,8 +203,7 @@ export let Patients = React.createClass({
             <PeopleTable
               people={patients}
               trackMetric={this.props.trackMetric}
-              containerWidth={880}
-              containerHeight={590}
+              onRemovePatient={this.props.onRemovePatient}
             />
           </div>
         </div>
@@ -224,7 +223,7 @@ export let Patients = React.createClass({
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             onClickPerson={this.handleClickPatient}
-            onRemovePatient= {this.props.onRemovePatient}
+            onRemovePatient={this.props.onRemovePatient}
           />
         </div>
       </div>
@@ -312,7 +311,7 @@ export let Patients = React.createClass({
     if (!nextProps.fetchers) {
       return
     }
-    nextProps.fetchers.forEach(fetcher => {
+    _.forEach(nextProps.fetchers, fetcher => {
       fetcher();
     });
   },
@@ -380,15 +379,15 @@ export function mapStateToProps(state) {
     }
 
     if (state.blip.membershipInOtherCareTeams) {
-      state.blip.membershipInOtherCareTeams.forEach((key) => {
+      _.forEach(state.blip.membershipInOtherCareTeams, (key) => {
         patientMap[key] = state.blip.allUsersMap[key];
       });
     }
 
     if (state.blip.membershipPermissionsInOtherCareTeams) {
       const permissions = state.blip.membershipPermissionsInOtherCareTeams;
-      const keys = Object.keys(state.blip.membershipPermissionsInOtherCareTeams);
-      keys.forEach((key) => {
+      const keys = _.keys(state.blip.membershipPermissionsInOtherCareTeams);
+      _.forEach(keys, (key) => {
         if (!patientMap[key]) {
           patientMap[key] = state.blip.allUsersMap[key];
         }
@@ -410,7 +409,7 @@ export function mapStateToProps(state) {
     loading: fetchingUser || fetchingPatients || fetchingInvites,
     loggedInUserId: state.blip.loggedInUserId,
     fetchingUser: fetchingUser,
-    patients: Object.keys(patientMap).map((key) => patientMap[key]),
+    patients: _.keys(patientMap).map((key) => patientMap[key]),
     invites: state.blip.pendingReceivedInvites,
     showingWelcomeMessage: state.blip.showingWelcomeMessage
   }
@@ -429,7 +428,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign(
+  return _.assign(
     {},
     _.pick(dispatchProps, ['clearPatientInView', 'showWelcomeMessage', 'onHideWelcomeSetup']),
     stateProps,
