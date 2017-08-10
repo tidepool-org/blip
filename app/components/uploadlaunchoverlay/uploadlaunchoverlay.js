@@ -29,12 +29,12 @@ class UploadLaunchOverlay extends Component {
     this.state = {
       latestWinRelease: null,
       latestMacRelease: null,
-      error: null
+      error: null,
     };
   }
 
   static propTypes = {
-    overlayClickHandler: React.PropTypes.func.isRequired
+    overlayClickHandler: React.PropTypes.func.isRequired,
   };
 
   componentWillMount = () => {
@@ -56,7 +56,7 @@ class UploadLaunchOverlay extends Component {
     const latestMacRelease = `${urlBase}/tidepool-uploader-${latestTag}.pkg`;
     return {
       latestWinRelease: latestWinRelease,
-      latestMacRelease: latestMacRelease
+      latestMacRelease: latestMacRelease,
     };
   }
 
@@ -72,12 +72,12 @@ class UploadLaunchOverlay extends Component {
     const winReleaseClasses = cx({
       btn: true,
       'btn-primary': true,
-      disabled: !this.state.latestWinRelease
+      disabled: !this.state.latestWinRelease,
     });
     const macReleaseClasses = cx({
       btn: true,
       'btn-primary': true,
-      disabled: !this.state.latestMacRelease
+      disabled: !this.state.latestMacRelease,
     });
     let content;
 
@@ -99,7 +99,7 @@ class UploadLaunchOverlay extends Component {
         <div className='ModalOverlay-controls' key={'div2'}>
           <a className={winReleaseClasses} href={`${this.state.latestWinRelease}`} disabled={!this.state.latestWinRelease}>Download for PC</a>
           <a className={macReleaseClasses} href={`${this.state.latestMacRelease}`} disabled={!this.state.latestMacRelease}>Download for Mac</a>
-        </div>
+        </div>,
       ]
     }
 

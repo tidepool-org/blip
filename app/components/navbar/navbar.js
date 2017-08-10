@@ -35,12 +35,12 @@ var Navbar = React.createClass({
     fetchingPatient: React.PropTypes.bool,
     getUploadUrl: React.PropTypes.func,
     onLogout: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
   },
 
   getInitialState: function() {
     return {
-      showDropdown: false
+      showDropdown: false,
     };
   },
 
@@ -146,7 +146,7 @@ var Navbar = React.createClass({
     };
     var patientsClasses = cx({
       'Navbar-button': true,
-      'Navbar-selected': currentPage && currentPage === 'patients'
+      'Navbar-selected': currentPage && currentPage === 'patients',
     });
 
     var accountSettingsClasses = cx({
@@ -156,19 +156,19 @@ var Navbar = React.createClass({
 
     var dropdownClasses = cx({
       'Navbar-menuDropdown': true,
-      'Navbar-menuDropdown-hide': !self.state.showDropdown
+      'Navbar-menuDropdown-hide': !self.state.showDropdown,
     });
 
     var dropdownIconClasses = cx({
       'Navbar-dropdownIcon': true,
       'Navbar-dropdownIcon-show': self.state.showDropdown,
-      'Navbar-dropdownIcon-current': currentPage && currentPage === 'profile'
+      'Navbar-dropdownIcon-current': currentPage && currentPage === 'profile',
     });
 
     var dropdownIconIClasses = cx({
       'Navbar-icon': true,
       'icon-account--down': !self.state.showDropdown,
-      'icon-account--up': self.state.showDropdown
+      'icon-account--up': self.state.showDropdown,
     });
 
     return (

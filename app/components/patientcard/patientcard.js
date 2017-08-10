@@ -18,7 +18,7 @@ var React = require('react');
 var Link = require('react-router').Link;
 var _ = require('lodash');
 var cx = require('classnames');
-var protocolDetect = require('custom-protocol-detection');
+var launchCustomProtocol = require('custom-protocol-detection');
 
 var personUtils = require('../../core/personutils');
 var ModalOverlay = require('../modaloverlay');
@@ -34,14 +34,14 @@ var PatientCard = React.createClass({
     onRemovePatient: React.PropTypes.func,
     uploadUrl: React.PropTypes.string,
     patient: React.PropTypes.object.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
   },
 
   getInitialState: function() {
     return {
       showModalOverlay: false,
       dialog: '',
-      showUploadOverlay: false
+      showUploadOverlay: false,
     };
   },
 
@@ -51,7 +51,7 @@ var PatientCard = React.createClass({
     var classes = cx({
       'patientcard': true,
       'isEditing': this.props.isEditing,
-      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'view')
+      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'view'),
     });
 
     var view = this.renderView(patient);
@@ -92,7 +92,7 @@ var PatientCard = React.createClass({
   renderView: function() {
     var classes = cx({
       'patientcard-actions-view': true,
-      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'view') || this.props.currentPage && this.props.currentPage.match(/(data)$/i)
+      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'view') || this.props.currentPage && this.props.currentPage.match(/(data)$/i),
     });
 
     var self = this;
@@ -114,13 +114,13 @@ var PatientCard = React.createClass({
 
     var classes = cx({
       'patientcard-actions-profile': true,
-      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'profile') || this.props.currentPage && this.props.currentPage.match(/(profile)$/i)
+      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'profile') || this.props.currentPage && this.props.currentPage.match(/(profile)$/i),
     });
 
     var iconClass = cx({
       'patientcard-icon': true,
       'icon-settings': true,
-      'patientcard-icon--highlight': this.props.currentPage && this.props.currentPage.match(/(profile)$/i)
+      'patientcard-icon--highlight': this.props.currentPage && this.props.currentPage.match(/(profile)$/i),
     });
 
     return (
@@ -133,7 +133,7 @@ var PatientCard = React.createClass({
   renderRemove: function(patient) {
     var classes = cx({
       'patientcard-actions-remove': true,
-      'patientcard-actions--highlight': this.state.highlight === 'remove'
+      'patientcard-actions--highlight': this.state.highlight === 'remove',
     });
 
     if (_.isEmpty(patient.permissions) === false && !patient.permissions.root) {
@@ -150,7 +150,7 @@ var PatientCard = React.createClass({
   renderUpload: function(patient) {
     var classes = cx({
       'patientcard-actions-upload': true,
-      'patientcard-actions--highlight': this.state.highlight === 'upload'
+      'patientcard-actions--highlight': this.state.highlight === 'upload',
     });
 
     var self = this;
@@ -160,10 +160,7 @@ var PatientCard = React.createClass({
         e.stopPropagation();
       }
       self.setState({showUploadOverlay: true});
-      protocolDetect('tidepoolupload://open',
-        () => { /* error callback */ },
-        () => { /* success callback */ }
-      );
+      launchCustomProtocol('tidepoolupload://open');
       self.props.trackMetric('Clicked VDF Upload Data');
     };
 
@@ -184,7 +181,7 @@ var PatientCard = React.createClass({
 
     var classes = cx({
       'patientcard-actions-share': true,
-      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'share')  || this.props.currentPage && this.props.currentPage.match(/(share)$/i)
+      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'share')  || this.props.currentPage && this.props.currentPage.match(/(share)$/i),
     });
 
     var self = this;
@@ -249,7 +246,7 @@ var PatientCard = React.createClass({
       }
       self.setState({
         showModalOverlay: true,
-        dialog: self.renderRemoveDialog(patient)
+        dialog: self.renderRemoveDialog(patient),
       });
 
       return false;
@@ -258,7 +255,7 @@ var PatientCard = React.createClass({
 
   overlayClickHandler: function() {
     this.setState({
-      showModalOverlay: false
+      showModalOverlay: false,
     });
   },
 
@@ -270,7 +267,7 @@ var PatientCard = React.createClass({
     var self = this;
     return function() {
       self.setState({
-        highlight: highlight
+        highlight: highlight,
       });
     };
   },

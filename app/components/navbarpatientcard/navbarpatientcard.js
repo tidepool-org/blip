@@ -18,7 +18,7 @@ var React = require('react');
 var Link = require('react-router').Link;
 var _ = require('lodash');
 var cx = require('classnames');
-var protocolDetect = require('custom-protocol-detection');
+var launchCustomProtocol = require('custom-protocol-detection');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
 var personUtils = require('../../core/personutils');
@@ -30,12 +30,12 @@ var NavbarPatientCard = React.createClass({
     currentPage: React.PropTypes.string,
     uploadUrl: React.PropTypes.string,
     patient: React.PropTypes.object,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
   },
 
   getInitialState: function() {
     return {
-      showUploadOverlay: false
+      showUploadOverlay: false,
     };
   },
 
@@ -44,7 +44,7 @@ var NavbarPatientCard = React.createClass({
     var self = this;
 
     var classes = cx({
-      'patientcard': true
+      'patientcard': true,
     });
 
     var view = this.renderView(patient);
@@ -73,7 +73,7 @@ var NavbarPatientCard = React.createClass({
   renderView: function() {
     var classes = cx({
       'patientcard-actions-view': true,
-      'patientcard-actions--highlight': this.props.currentPage && this.props.currentPage.match(/(data)$/i)
+      'patientcard-actions--highlight': this.props.currentPage && this.props.currentPage.match(/(data)$/i),
     });
 
     var self = this;
@@ -95,7 +95,7 @@ var NavbarPatientCard = React.createClass({
     var classes = cx({
       'patientcard-actions-profile': true,
       'navbarpatientcard-profile': true,
-      'patientcard-actions--highlight': this.props.currentPage && this.props.currentPage.match(/(profile)$/i)
+      'patientcard-actions--highlight': this.props.currentPage && this.props.currentPage.match(/(profile)$/i),
     });
 
     var self = this;
@@ -115,7 +115,7 @@ var NavbarPatientCard = React.createClass({
 
   renderUpload: function(patient) {
     var classes = cx({
-      'patientcard-actions-upload': true
+      'patientcard-actions-upload': true,
     });
 
     var self = this;
@@ -125,10 +125,7 @@ var NavbarPatientCard = React.createClass({
         e.stopPropagation();
       }
       self.setState({showUploadOverlay: true});
-      protocolDetect('tidepoolupload://open',
-        () => { /* error callback */ },
-        () => { /* success callback */ }
-      );
+      launchCustomProtocol('tidepoolupload://open');
       self.props.trackMetric('Clicked Navbar Upload Data');
     };
 
@@ -149,7 +146,7 @@ var NavbarPatientCard = React.createClass({
 
     var classes = cx({
       'patientcard-actions-share': true,
-      'patientcard-actions--highlight': this.props.currentPage && this.props.currentPage.match(/(share)$/i)
+      'patientcard-actions--highlight': this.props.currentPage && this.props.currentPage.match(/(share)$/i),
     });
 
     var self = this;
@@ -172,7 +169,7 @@ var NavbarPatientCard = React.createClass({
 
   getFullName: function() {
     return personUtils.patientFullName(this.props.patient);
-  }
+  },
 });
 
 module.exports = NavbarPatientCard;

@@ -31,7 +31,7 @@ import releases from '../../fixtures/githubreleasefixture';
 
 describe('UploadLaunchOverlay', function () {
   const props = {
-    overlayClickHandler: sinon.spy()
+    overlayClickHandler: sinon.spy(),
   };
 
   let wrapper;
@@ -47,7 +47,7 @@ describe('UploadLaunchOverlay', function () {
     it('should return the latest github release from a list of releases', function() {
       expect(wrapper.instance().getLatestGithubRelease(releases)).to.deep.equal({
         latestWinRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v0.309.0/tidepool-uploader-setup-0.309.0.exe',
-        latestMacRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v0.309.0/tidepool-uploader-0.309.0.pkg'
+        latestMacRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v0.309.0/tidepool-uploader-0.309.0.pkg',
       });
     });
   });
@@ -67,7 +67,7 @@ describe('UploadLaunchOverlay', function () {
     it('should have disabled download buttons if no URLs have been set', () => {
       wrapper.setState({
         latestWinRelease: null,
-        latestMacRelease: null
+        latestMacRelease: null,
       });
       expect(wrapper.find('a.disabled')).to.have.length(2);
     });
@@ -75,7 +75,7 @@ describe('UploadLaunchOverlay', function () {
     it('should have active buttons if URLs have been set', () => {
       wrapper.setState({
         latestMacRelease: 'test',
-        latestWinRelease: 'test'
+        latestWinRelease: 'test',
       });
       expect(wrapper.find('a')).to.have.length(2);
       expect(wrapper.find('a.disabled')).to.have.length(0);
@@ -83,9 +83,9 @@ describe('UploadLaunchOverlay', function () {
 
     it('should display download link if error retrieving github releases', () => {
       wrapper.setState({
-        error: 'some error'
+        error: 'some error',
       });
-      expect(wrapper.find(`a[href=${URL_UPLOADER_DOWNLOAD_PAGE}]`)).to.have.length(0);
+      expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
     });
   });
 });
