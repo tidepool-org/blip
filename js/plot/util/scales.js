@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -19,11 +19,10 @@ var d3 = require('d3');
 var _ = require('lodash');
 
 var commonbolus = require('./commonbolus');
+var { GLUCOSE_MM } = require('../../data/util/constants');
 
 var scales = function(opts) {
   opts = _.assign({}, opts) || {};
-
-  var GLUCOSE_MM = 18.01559;
 
   var defaults = {
     bgUnits: 'mg/dL',
@@ -87,7 +86,8 @@ var scales = function(opts) {
         return [];
       }
       var defaultTicks = _.map(_.values(_.omit(opts.bgClasses, ['very-high', 'very-low'])), function(n) {
-        return _.get(n, 'boundary');
+        var boundary = _.get(n, 'boundary');
+        return opts.bgUnits === 'mmol/L' ? boundary.toFixed(1) : boundary;
       }).sort(function (a, b) { return a - b; });
 
       var ext = d3.extent(data, function(d) { return d.value; });

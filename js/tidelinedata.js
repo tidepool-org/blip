@@ -27,7 +27,7 @@ var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
-var constants = require('./data/util/constants');
+var { GLUCOSE_MM } = require('./data/util/constants');
 
 var log;
 if (typeof window !== 'undefined' && __DEV__ === true) {
@@ -321,7 +321,7 @@ function TidelineData(data, opts) {
     this.bgUnits = opts.bgUnits;
     if (this.bgUnits === 'mmol/L') {
       for (var key in opts.bgClasses) {
-        opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/constants.GLUCOSE_MM;
+        opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/GLUCOSE_MM;
       }
     }
     endTimer('setBGPrefs');
@@ -362,7 +362,7 @@ function TidelineData(data, opts) {
           }
           // timezoneOffset is an optional attribute according to the Tidepool data model
           else {
-            if (_.isEmpty(d.deviceTime)) { 
+            if (_.isEmpty(d.deviceTime)) {
                d.normalTime = d.time;
             }
             else {
