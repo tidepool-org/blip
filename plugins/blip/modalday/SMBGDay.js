@@ -260,10 +260,10 @@ d3.chart('SMBGDay', {
       }
     });
   },
-  bgClasses: function(bgClasses) {
+  bgClasses: function(bgClasses, bgUnits) {
     if (!arguments.length) { return this._bgClasses; }
     this._bgClasses = bgClasses;
-    this.getBgBoundaryClass = bgBoundaryClass(bgClasses);
+    this.getBgBoundaryClass = bgBoundaryClass(bgClasses, bgUnits);
     return this;
   },
   grouped: function(grouped) {
@@ -315,7 +315,7 @@ module.exports = function() {
 
       chart = d3.select(el)
         .chart('SMBGDay')
-        .bgClasses(opts.bgClasses)
+        .bgClasses(opts.bgClasses, opts.smbg.units)
         .smbgOpts(opts.smbg)
         .timezone(opts.timezone)
         .xScale(scales.x)

@@ -95,7 +95,7 @@ var BasicsChart = React.createClass({
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
       basicsData = _.assign({}, basicsData, _.cloneDeep(basicsState));
-      var dataMunger = dataMungerMkr(this.props.bgClasses);
+      var dataMunger = dataMungerMkr(this.props.bgClasses, this.props.bgUnits);
       dataMunger.reduceByDay(basicsData);
 
       var latestPump = dataMunger.getLatestPumpUploaded(this.props.patientData);

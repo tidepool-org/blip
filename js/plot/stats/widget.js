@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -75,7 +75,7 @@ module.exports = function(pool, opts) {
     stats.draw();
   });
 
-  var getBgBoundaryClass = bgBoundaryClass(opts.classes);
+  var getBgBoundaryClass = bgBoundaryClass(opts.classes, opts.bgUnits);
   var widgetGroup, rectScale;
 
   var puddles = [];
@@ -92,7 +92,7 @@ module.exports = function(pool, opts) {
     });
 
     var pw = opts.puddleWeights;
-    var lowBound = opts.bgUnits === 'mg/dL' ? opts.classes.low.boundary : opts.classes.low.boundary.toFixed(1); 
+    var lowBound = opts.bgUnits === 'mg/dL' ? opts.classes.low.boundary : opts.classes.low.boundary.toFixed(1);
     var highBound = opts.bgUnits === 'mg/dL' ? opts.classes.target.boundary : opts.classes.target.boundary.toFixed(1);
     var targetRangeString = 'Target range: ' + lowBound + ' - ' + highBound + ' ';
 
@@ -152,7 +152,7 @@ module.exports = function(pool, opts) {
           class: 'd3-stats',
           id: 'puddle_' + puddle.id
         })
-        // This is needed to capture hover events from the hidden 
+        // This is needed to capture hover events from the hidden
         // rectangle in the puddle.
         .style('pointer-events', 'all');
       puddle.xPosition(currX);

@@ -16,8 +16,9 @@
  */
 
 var _ = require('lodash');
+var { GLUCOSE_MM } = require('../../data/util/constants');
 
-var Categorizer = function(bgClasses){
+var Categorizer = function(bgClasses, bgUnits = 'mg/dL'){
   var classes = _.cloneDeep(bgClasses);
   var defaults = {
     'very-low': { boundary: 55 },
@@ -25,7 +26,15 @@ var Categorizer = function(bgClasses){
     target: { boundary: 180 },
     high: { boundary: 300 },
   };
+
+  if (bgUnits === 'mmol/L') {
+    _.forOwn(defaults, function(value, key) {
+      defaults[key].boundary = value.boundary/GLUCOSE_MM;
+    });
+  }
+
   _.defaults(classes, defaults);
+
   return function(d) {
     if (d.value < classes['very-low'].boundary) {
       return 'verylow';

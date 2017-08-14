@@ -28,9 +28,9 @@ var constants = require('./constants');
 var basicsActions = require('./actions');
 var togglableState = require('../TogglableState');
 
-module.exports = function(bgClasses) {
+module.exports = function(bgClasses, bgUnits = 'mg/dL') {
 
-  var classifiers = classifiersMkr(bgClasses);
+  var classifiers = classifiersMkr(bgClasses, bgUnits);
 
   return {
     bgDistribution: function(basicsData) {
