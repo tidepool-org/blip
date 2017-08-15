@@ -34,6 +34,10 @@ var plugins = [
     {
       from: 'static',
       transform: (content, path) => {
+        if (isDev) {
+         return content;
+        }
+
         var code = fs.readFileSync(path, 'utf8');
         var result = uglifyJS.minify(code);
         return result.code;
