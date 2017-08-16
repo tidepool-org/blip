@@ -18,6 +18,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import GitHub from 'github-api';
 import ModalOverlay from '../modaloverlay';
+import utils from '../../core/utils';
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 import logoSrc from '../uploaderbutton/images/T-logo-dark-512x512.png';
 
@@ -43,21 +44,8 @@ class UploadLaunchOverlay extends Component {
       if(err){
         this.setState({error: true});
       }
-      this.setState(this.getLatestGithubRelease(releases));
+      this.setState(utils.getLatestGithubRelease(releases));
     });
-  }
-
-  getLatestGithubRelease = (releases) => {
-    const latestRelease = _.filter(releases, {prerelease: false})[0];
-    let latestTag = latestRelease.tag_name;
-    const urlBase = `https://github.com/tidepool-org/chrome-uploader/releases/download/${latestTag}`;
-    latestTag = latestTag.substr(1);
-    const latestWinRelease = `${urlBase}/tidepool-uploader-setup-${latestTag}.exe`;
-    const latestMacRelease = `${urlBase}/tidepool-uploader-${latestTag}.pkg`;
-    return {
-      latestWinRelease: latestWinRelease,
-      latestMacRelease: latestMacRelease,
-    };
   }
 
   renderErrorText = () => {

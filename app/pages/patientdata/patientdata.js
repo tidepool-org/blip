@@ -197,9 +197,8 @@ export let PatientData = React.createClass({
     if (this.props.isUserPatient) {
       content = (
         <div className="patient-data-uploader-message">
-          <h1>To see your data, you’ll need to upload it!</h1>
+          <h1>To see your data, you’ll need the Tidepool Uploader</h1>
           <UploaderButton
-            buttonUrl={URL_UPLOADER_DOWNLOAD_PAGE}
             onClick={handleClickUpload}
             buttonText='Get the Tidepool Uploader' />
           <p>Already have the Tidepool Uploader? Launch it <a className="uploader-color-override" href='' onClick={handleClickLaunch} title="Upload data">here</a></p>

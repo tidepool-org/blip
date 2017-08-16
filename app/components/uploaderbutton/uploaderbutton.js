@@ -14,31 +14,100 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import GitHub from 'github-api';
+import _ from 'lodash';
+import cx from 'classnames';
+import utils from '../../core/utils';
+
+import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 
 import logoSrc from './images/T-logo-dark-512x512.png';
 
-const UploaderButton = (props) => {
-  return (
-    <div>
+const github = new GitHub();
+
+class UploaderButton extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      latestWinRelease: null,
+      latestMacRelease: null,
+      error: null,
+    };
+  }
+
+  static propTypes = {
+    onClick: React.PropTypes.func.isRequired,
+    buttonText: React.PropTypes.string.isRequired
+  };
+
+  componentWillMount = () => {
+    const uploaderRepo = github.getRepo('tidepool-org/chrome-uploader');
+    uploaderRepo.listReleases((err, releases, request) => {
+      if(err){
+        this.setState({error: true});
+      }
+      this.setState(utils.getLatestGithubRelease(releases));
+    });
+  }
+
+  renderErrorText = () => {
+    return (
       <a
         className="btn btn-uploader"
-        href={props.buttonUrl}
+        href={URL_UPLOADER_DOWNLOAD_PAGE}
         target="_blank"
-        onClick={props.onClick}>
+        onClick={this.props.onClick}>
           <div className="uploader-logo">
             <img src={logoSrc} alt="Tidepool Uploader" />
           </div>
-          {props.buttonText}
+          {this.props.buttonText}
         </a>
-    </div>
-  );
-}
+    )
+  }
 
-UploaderButton.propTypes = {
-  buttonUrl: React.PropTypes.string.isRequired,
-  onClick: React.PropTypes.func.isRequired,
-  buttonText: React.PropTypes.string.isRequired
-};
+  render = () => {
+    const winReleaseClasses = cx({
+      btn: true,
+      'btn-uploader': true,
+      disabled: !this.state.latestWinRelease,
+    });
+    const macReleaseClasses = cx({
+      btn: true,
+      'btn-uploader': true,
+      disabled: !this.state.latestMacRelease,
+    });
+
+    let content;
+    if(this.state.error) {
+      content = this.renderErrorText();
+    } else {
+      content = [
+        <a
+          key={'pc'}
+          className={winReleaseClasses}
+          href={`${this.state.latestWinRelease}`}
+          disabled={!this.state.latestWinRelease}
+          onClick={this.props.onClick}>
+          Download for PC
+        </a>,
+        <a
+          key={'mac'}
+          className={macReleaseClasses}
+          href={`${this.state.latestMacRelease}`}
+          disabled={!this.state.latestMacRelease}
+          onClick={this.props.onClick}>
+          Download for Mac
+        </a>
+      ]
+    }
+
+    return (
+      <div className='uploaderbutton-wrap'>
+        {content}
+      </div>
+    );
+  }
+}
 
 export default UploaderButton;

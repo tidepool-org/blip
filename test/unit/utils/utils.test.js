@@ -4,6 +4,7 @@
 
 var utils = require('../../../app/core/utils');
 var expect = chai.expect;
+var releases = require('../../fixtures/githubreleasefixture');
 
 describe('utils', function() {
 
@@ -293,6 +294,15 @@ describe('utils', function() {
         }
       };
       expect(utils.getCarelink(location)).to.equal(null);
+    });
+  });
+
+  describe('getLatestGithubRelease', function() {
+    it('should return the latest github release from a list of releases', function() {
+      expect(utils.getLatestGithubRelease(releases)).to.deep.equal({
+        latestWinRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v0.309.0/tidepool-uploader-setup-0.309.0.exe',
+        latestMacRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v0.309.0/tidepool-uploader-0.309.0.pkg',
+      });
     });
   });
 });

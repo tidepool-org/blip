@@ -43,15 +43,6 @@ describe('UploadLaunchOverlay', function () {
     expect(UploadLaunchOverlay).to.be.a('function');
   });
 
-  describe('getLatestGithubRelease', function() {
-    it('should return the latest github release from a list of releases', function() {
-      expect(wrapper.instance().getLatestGithubRelease(releases)).to.deep.equal({
-        latestWinRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v0.309.0/tidepool-uploader-setup-0.309.0.exe',
-        latestMacRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v0.309.0/tidepool-uploader-0.309.0.pkg',
-      });
-    });
-  });
-
   describe('render', function() {
     it('should render without problems', function () {
       expect(wrapper.find(UploadLaunchOverlay)).to.have.length(1);
