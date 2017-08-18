@@ -53,6 +53,11 @@ const Patient = React.createClass({
     trackMetric: React.PropTypes.func.isRequired,
     updatingDataDonationAccounts: React.PropTypes.bool,
     user: React.PropTypes.object,
+    dataSources: React.PropTypes.array.isRequired,
+    fetchDataSources: React.PropTypes.func.isRequired,
+    connectDataSource: React.PropTypes.func.isRequired,
+    disconnectDataSource: React.PropTypes.func.isRequired,
+    authorizedDataSource: React.PropTypes.object,
   },
 
   getInitialState: function() {
@@ -119,6 +124,11 @@ const Patient = React.createClass({
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           dataDonationAccounts={this.props.dataDonationAccounts || []}
           updatingDataDonationAccounts={this.props.updatingDataDonationAccounts}
+          dataSources={this.props.dataSources}
+          fetchDataSources={this.props.fetchDataSources}
+          connectDataSource={this.props.connectDataSource}
+          disconnectDataSource={this.props.disconnectDataSource}
+          authorizedDataSource={this.props.authorizedDataSource}
           trackMetric={this.props.trackMetric} />
       </div>
     );

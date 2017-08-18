@@ -49,9 +49,12 @@ const initialState = {
     cancellingSentInvite: Object.assign({}, working),
     confirmingPasswordReset: Object.assign({}, working),
     confirmingSignup: Object.assign({}, working),
+    connectingDataSource: Object.assign({}, working),
+    disconnectingDataSource: Object.assign({}, working),
     settingUpDataStorage: Object.assign({}, working),
     rejectingReceivedInvite: Object.assign({}, working),
     fetchingDataDonationAccounts: Object.assign({}, working),
+    fetchingDataSources: Object.assign({}, working),
     fetchingMessageThread: Object.assign({}, working),
     fetchingPatient: Object.assign({}, working),
     fetchingPatientData: Object.assign({}, working),
@@ -83,6 +86,8 @@ const initialState = {
     bgUnits: 'mg/dL'
   },
   dataDonationAccounts: [],
+  dataSources: [],
+  authorizedDataSource: null,
 };
 
 export default initialState;

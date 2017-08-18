@@ -43,6 +43,8 @@ import {
   timePrefs,
   signupKey,
   dataDonationAccounts,
+  dataSources,
+  authorizedDataSource,
 } from './misc';
 
 export default combineReducers({
@@ -70,5 +72,7 @@ export default combineReducers({
   timePrefs,
   signupKey,
   dataDonationAccounts,
+  dataSources,
+  authorizedDataSource,
   working,
 });

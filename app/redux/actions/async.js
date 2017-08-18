@@ -986,3 +986,94 @@ export function dismissDonateBanner(api, patientId, dismissedDate) {
     dispatch(updatePreferences(api, patientId, preferences));
   };
 }
+
+/**
+ * Fetch Data Sources
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchDataSources(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchDataSourcesRequest());
+
+    api.user.getDataSources((err, dataSources) => {
+      if (err) {
+        dispatch(sync.fetchDataSourcesFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_DATA_SOURCES, err), err
+        ));
+      } else {
+        dispatch(sync.fetchDataSourcesSuccess(dataSources));
+      }
+    });
+  };
+}
+
+/**
+ * Connect Data Source
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} id the internal provider id
+ * @param  {Object} filter the data source filter use for the restricted token
+ */
+export function connectDataSource(api, id, filter) {
+  return (dispatch) => {
+    dispatch(sync.connectDataSourceRequest());
+
+    if (filter.type !== 'oauth') {
+      let err = 'Unknown data source type';
+      dispatch(sync.connectDataSourceFailure(
+        createActionError(ErrorMessages.ERR_CONNECTING_DATA_SOURCE, err), err
+      ));
+    } else {
+      api.user.createRestrictedToken(filter, (err, restrictedToken) => {
+        if (err) {
+          dispatch(sync.connectDataSourceFailure(
+            createActionError(ErrorMessages.ERR_CONNECTING_DATA_SOURCE, err), err
+          ));
+        } else {
+          restrictedToken = _.get(restrictedToken, 'id');
+          api.user.createOAuthProviderAuthorization(filter.name, restrictedToken, (err, url) => {
+            if (err) {
+              dispatch(sync.connectDataSourceFailure(
+                createActionError(ErrorMessages.ERR_CONNECTING_DATA_SOURCE, err), err
+              ));
+              return
+            } else {
+              dispatch(sync.connectDataSourceSuccess(id, url));
+            }
+          });
+        }
+      });
+    }
+  };
+}
+
+/**
+ * Disconnect Data Source
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} id the internal provider id
+ * @param  {Object} filter the data source filter use for oauth provider
+ */
+export function disconnectDataSource(api, id, filter) {
+  return (dispatch) => {
+    dispatch(sync.disconnectDataSourceRequest());
+
+    if (filter.type !== 'oauth') {
+      let err = 'Unknown data source type';
+      dispatch(sync.disconnectDataSourceFailure(
+        createActionError(ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE, err), err
+      ));
+    } else {
+      api.user.deleteOAuthProviderAuthorization(filter.name, (err, restrictedToken) => {
+        if (err) {
+          dispatch(sync.disconnectDataSourceFailure(
+            createActionError(ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE, err), err
+          ));
+        } else {
+          dispatch(sync.disconnectDataSourceSuccess());
+        }
+      });
+    }
+  };
+}
