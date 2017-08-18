@@ -14,6 +14,7 @@ ENV API_SECRET="This is a local API secret for everyone. BsscSHqSHiwrBMJsEGqbvXi
     PORT=3000 \
     MOCK=false \
     DEV_TOOLS=true \
+    WEBPACK_DEVTOOL="cheap-module-eval-source-map" \
     API_HOST="http://localhost:8009" \
     UPLOAD_API="http://localhost/uploader"
 

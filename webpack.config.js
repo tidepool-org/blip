@@ -108,6 +108,7 @@ module.exports = {
     root: path.resolve('./node_modules'),
     fallback: path.join(__dirname, 'node_modules'),
   },
+  devtool: process.env.WEBPACK_DEVTOOL || 'eval-source-map',
   devServer: {
     publicPath: output.publicPath,
     hot: true,
