@@ -34,10 +34,13 @@ export function getBasalSequences(basals) {
   let idx = 1;
   while (idx <= basals.length - 1) {
     const nextBasal = basals[idx];
-    if (nextBasal.subType !== currentBasal.subType || currentBasal.discontinuousEnd) {
+    const basalTypeChange = nextBasal.subType !== currentBasal.subType;
+
+    if (basalTypeChange || currentBasal.discontinuousEnd || nextBasal.rate === 0) {
       basalSequences.push(seq);
       seq = [];
     }
+
     seq.push(nextBasal);
     currentBasal = nextBasal;
     ++idx;

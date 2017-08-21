@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import * as bolusUtils from '../../utils/bolus';
 
 /**
@@ -31,7 +32,7 @@ function formatBolusRectPath({ left, right, top, bottom }) {
     L ${left},${top}
     L ${right},${top}
     L ${right},${bottom} Z
-  `.replace('\n', '');
+  `;
 }
 
 /**
@@ -111,7 +112,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
         L ${left + fractionStroke},${programmedY + fractionStroke}
         L ${right - fractionStroke},${programmedY + fractionStroke}
         L ${right - fractionStroke},${deliveredY}
-      `.replace('\n', ''),
+      `,
       key: `programmed-${bolus.id}`,
       type: 'programmed',
     });
@@ -168,7 +169,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
           L ${bolusCenter},${extendedY - extendedLineThickness / 2}
           L ${startOfTriangle + extendedLineThickness},${extendedY - extendedLineThickness / 2}
           L ${startOfTriangle + extendedLineThickness},${extendedY + extendedLineThickness / 2} Z
-        `.replace('\n', ''),
+        `,
         key: `extendedPath-${bolus.id}`,
         type: 'extendedPath',
       });
@@ -185,7 +186,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
           L ${startOfInterrupted},${extendedY - extendedLineThickness / 2}
           L ${startOfTriangle + extendedLineThickness},${extendedY - extendedLineThickness / 2}
           L ${startOfTriangle + extendedLineThickness},${extendedY + extendedLineThickness / 2} Z
-        `.replace('\n', ''),
+        `,
         key: `extendedExpectationPath-${bolus.id}`,
         type: 'extendedExpectationPath',
       });
@@ -198,7 +199,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
           L ${startOfInterrupted - interruptedLineThickness * 2},${extendedY - halfInterrupted}
           L ${startOfInterrupted - interruptedLineThickness * 2},${extendedY + halfInterrupted}
           L ${startOfInterrupted},${extendedY + halfInterrupted} Z
-        `.replace('\n', ''),
+        `,
         key: `extendedInterrupted-${bolus.id}`,
         type: 'extendedInterrupted',
       });
@@ -210,7 +211,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
           M ${startOfTriangle + triangleSize},${extendedY - halfTriangle}
           L ${startOfTriangle + triangleSize},${extendedY + halfTriangle}
           L ${startOfTriangle},${extendedY} Z
-        `.replace('\n', ''),
+        `,
         key: `extendedTriangle-${bolus.id}`,
         type: `extendedTriangle${interruptedExtended ? 'Interrupted' : ''}`,
       });
@@ -231,7 +232,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
         M ${left},${programmedY}
         L ${left + bolusWidth / 2},${programmedY + triangleHeight}
         L ${right},${programmedY} Z
-      `.replace('\n', ''),
+      `,
       key: `underrideTriangle-${insulinEvent.id}`,
       type: 'underrideTriangle',
     });
@@ -251,7 +252,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
         M ${left},${recommendedY}
         L ${left + bolusWidth / 2},${recommendedY - triangleHeight}
         L ${right},${recommendedY} Z
-      `.replace('\n', ''),
+      `,
       key: `overrideTriangle-${insulinEvent.id}`,
       type: 'overrideTriangle',
     });
@@ -276,5 +277,11 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
     });
   }
 
-  return paths;
+  const formattedPaths = _.forEach(paths, (path) => {
+    const pathCopy = path;
+    pathCopy.d = path.d.replace(/\n/g, '').replace(/\s\s+/g, ' ');
+    return pathCopy;
+  });
+
+  return formattedPaths;
 }

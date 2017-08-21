@@ -337,7 +337,6 @@ class DailyPrintView {
       this.renderPageNumber(page + 1);
     });
     _.each(this.chartsByDate, (dateChart) => {
-      // console.log('Rendering', dateChart);
       this.doc.switchToPage(dateChart.page);
       this.renderSummary(dateChart)
         .renderXAxes(dateChart)
@@ -908,18 +907,22 @@ class DailyPrintView {
               .stroke(this.colors.basal);
           }
         });
-        const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
-          endAtZero: false,
-          flushBottomOffset: -0.25,
-          isFilled: false,
-          startAtZero: false,
-        });
-        this.doc.path(wholeDateDeliveredPath)
-          .lineWidth(0.5)
-          .dash(0)
-          .stroke(this.colors.basal);
       }
     });
+
+    if (!_.isEmpty(basal)) {
+      const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
+        endAtZero: false,
+        flushBottomOffset: -0.25,
+        isFilled: false,
+        startAtZero: false,
+      });
+
+      this.doc.path(wholeDateDeliveredPath)
+        .lineWidth(0.5)
+        .undash()
+        .stroke(this.colors.basal);
+    }
 
     return this;
   }

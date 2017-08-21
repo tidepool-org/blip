@@ -109,6 +109,7 @@ export function filterPointInTimeFnMaker(dateStart, dateEnd) {
 export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs) {
   const timezone = getTimezoneFromTimePrefs(timePrefs);
   const end = getLocalizedCeiling(mostRecent, timePrefs);
+  let lastDate;
 
   const dateBoundaries = [end.toISOString()];
   let last = end;
@@ -156,6 +157,10 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
         ), 'utc');
       }),
     };
+
+    if (i === numDays - 1) {
+      lastDate = date;
+    }
     // TODO: select out infusion site changes, calibrations from deviceEvent array
     // (NB: deviceEvent not being passed through via blip yet!!)
   }
@@ -211,7 +216,7 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
         basal.duration = basal.duration - (bounds[0] - basal.utc);
         basal.utc = bounds[0];
       }
-      if (i === basals.length - 1) {
+      if (i === basals.length - 1 && dateData.date !== lastDate) {
         basal.duration = bounds[1] - basal.utc;
       }
       let nextBasal;

@@ -82,7 +82,7 @@ export function calculateBasalPath(basalSequence, xScale, yScale, {
   path += `L ${endX},${yScale(last.rate)}`;
 
   if (endAtZero || isFilled) {
-    path += `L ${endX},${zeroBasal}`;
+    path += ` L ${endX},${zeroBasal}`;
   }
 
   if (isFilled) {
@@ -91,7 +91,7 @@ export function calculateBasalPath(basalSequence, xScale, yScale, {
 
   // PDFKit will not render path definitions with line breaks properly
   // do NOT forget to remove the newlines!
-  return path.replace('\n', '').replace(/\s\s+/g, ' ');
+  return path.replace(/\n/g, '').replace(/\s\s+/g, ' ');
 }
 
  /**
