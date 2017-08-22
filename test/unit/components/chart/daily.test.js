@@ -11,6 +11,7 @@ var _ = require('lodash');
 var expect = chai.expect;
 
 import Daily from '../../../../app/components/chart/daily';
+import { MGDL, MMOLL } from '../../../../app/core/constants';
 
 require('tideline/css/tideline.less');
 require('../../../../app/core/less/fonts.less');
@@ -52,7 +53,7 @@ describe('Daily', function () {
               boundary: 300
             }
           },
-          bgUnits: 'mg/dL'
+          bgUnits: MGDL
         },
         chartPrefs: {
           trends: {

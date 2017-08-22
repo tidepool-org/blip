@@ -9,6 +9,7 @@ import TestUtils from 'react-addons-test-utils';
 import { shallow } from 'enzyme';
 
 import PatientSettings from '../../../../app/pages/patient/patientsettings';
+import { MGDL, MMOLL } from '../../../../app/core/constants';
 
 const expect = chai.expect;
 
@@ -77,12 +78,12 @@ describe('PatientSettings', function () {
       TestUtils.Simulate.click(resetRangeLink);
       expect(props.onUpdatePatientSettings.callCount).to.equal(1);
       expect(props.onUpdatePatientSettings.calledWith(1234, {
-        bgTarget: {      
+        bgTarget: {
           low: 70,
           high: 180,
         },
         units: {
-          bg: 'mg/dL',
+          bg: MGDL,
         },
       })).to.be.true;
     });
@@ -110,43 +111,43 @@ describe('PatientSettings', function () {
     });
 
     it('should update state with an error when lower bound is greater than upper bound', function() {
-      wrapper.instance().onIncrementChange('high', 65, 'mg/dL');
+      wrapper.instance().onIncrementChange('high', 65, MGDL);
       expect(wrapper.state().error.low).to.equal(true);
       expect(wrapper.state().error.high).to.equal(false);
     });
 
     it('should update state with no error when lower bound is less than upper bound', function() {
-      wrapper.instance().onIncrementChange('high', 65, 'mg/dL');
+      wrapper.instance().onIncrementChange('high', 65, MGDL);
       expect(wrapper.state().error.low).to.equal(true);
       expect(wrapper.state().error.high).to.equal(false);
-      wrapper.instance().onIncrementChange('high', 80, 'mg/dL');
+      wrapper.instance().onIncrementChange('high', 80, MGDL);
       expect(wrapper.state().error.low).to.equal(false);
       expect(wrapper.state().error.high).to.equal(false);
     });
 
     it('should track metric for lower bound change only once', function() {
       expect(props.trackMetric.callCount).to.equal(0);
-      wrapper.instance().onIncrementChange('low', 90, 'mg/dL');
-      wrapper.instance().onIncrementChange('low', 95, 'mg/dL');
+      wrapper.instance().onIncrementChange('low', 90, MGDL);
+      wrapper.instance().onIncrementChange('low', 95, MGDL);
       expect(props.trackMetric.callCount).to.equal(1);
     });
 
     it('should track metric for upper bound change only once', function() {
       expect(props.trackMetric.callCount).to.equal(0);
-      wrapper.instance().onIncrementChange('high', 150, 'mg/dL');
-      wrapper.instance().onIncrementChange('high', 155, 'mg/dL');
+      wrapper.instance().onIncrementChange('high', 150, MGDL);
+      wrapper.instance().onIncrementChange('high', 155, MGDL);
       expect(props.trackMetric.callCount).to.equal(1);
     });
 
     it('should call onUpdatePatientSettings with new settings', function() {
-      wrapper.instance().onIncrementChange('high', 165, 'mg/dL');
+      wrapper.instance().onIncrementChange('high', 165, MGDL);
       expect(props.onUpdatePatientSettings.calledWith(1234, {
-        bgTarget: {      
+        bgTarget: {
           low: 70,
           high: 165,
         },
         units: {
-          bg: 'mg/dL',
+          bg: MGDL,
         },
       })).to.be.true;
     });

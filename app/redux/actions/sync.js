@@ -625,6 +625,31 @@ export function updateSettingsFailure(error, apiError) {
   };
 }
 
+// export function updatePatientBGunitsRequest() {
+//   return {
+//     type: ActionTypes.UPDATE_PATIENT_BG_UNITS_REQUEST,
+//   };
+// }
+
+// export function updatePatientBGunitsSuccess(accounts) {
+//   return {
+//     type: ActionTypes.UPDATE_PATIENT_BG_UNITS_SUCCESS,
+//     payload: {
+//       accounts,
+//     },
+//   };
+// }
+
+// export function updatePatientBGunitsFailure(error, apiError) {
+//   return {
+//     type: ActionTypes.UPDATE_PATIENT_BG_UNITS_FAILURE,
+//     error: error,
+//     meta: {
+//       apiError: apiError || null,
+//     },
+//   };
+// }
+
 export function updateUserRequest(userId, user) {
   return {
     type: ActionTypes.UPDATE_USER_REQUEST,

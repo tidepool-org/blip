@@ -22,7 +22,7 @@ describe('PatientInfo', function () {
         onUpdatePatient: sinon.stub(),
         onUpdatePatientSettings: sinon.stub(),
         permsOfLoggedInUser: {},
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);

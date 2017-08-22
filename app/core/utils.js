@@ -19,6 +19,7 @@ import _  from 'lodash';
 import sundial from 'sundial';
 import TidelineData from 'tideline/js/tidelinedata';
 import nurseShark from 'tideline/plugins/nurseshark';
+import { MGDL, MMOLL } from './constants';
 
 var utils = {};
 
@@ -273,8 +274,8 @@ utils.processPatientData = (comp, data, queryParams, settings) => {
   console.time('Nurseshark Total');
   var bgUnits = settings.units.bg;
   if (!_.isEmpty(queryParams.units) && queryParams.units === 'mmoll') {
-    bgUnits = 'mmol/L';
-    console.log('Displaying BG in mmol/L from query params');
+    bgUnits = MMOLL;
+    console.log(`Displaying BG in ${MMOLL} from query params`);
   }
   var res = nurseShark.processData(data, bgUnits);
   console.timeEnd('Nurseshark Total');

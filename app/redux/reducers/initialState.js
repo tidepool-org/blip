@@ -17,6 +17,8 @@
 
 import _ from 'lodash';
 
+import { MGDL, MMOLL } from '../../core/constants';
+
 const working = {
   inProgress: false,
   notification: null
@@ -70,6 +72,7 @@ const initialState = {
     settingMemberPermissions: Object.assign({}, working),
     updatingDataDonationAccounts: Object.assign({}, working),
     updatingPatient: Object.assign({}, working),
+    updatingPatientBGUnits: Object.assign({}, working),
     updatingUser: Object.assign({}, working),
     verifyingCustodial: Object.assign({}, working),
     signingUp: Object.assign({}, working),
@@ -80,7 +83,7 @@ const initialState = {
     timezoneName: null
   },
   bgPrefs: {
-    bgUnits: 'mg/dL'
+    bgUnits: MGDL
   },
   dataDonationAccounts: [],
 };

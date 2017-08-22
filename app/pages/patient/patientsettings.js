@@ -23,18 +23,21 @@ import CustomizedTrendsChart from './customizedtrendschart';
 
 import personUtils from '../../core/personutils';
 
-export const DEFAULT_SETTINGS = {
-  bgTarget: {
+import { MGDL, MMOLL } from '../../core/constants';
+
+const DEFAULT_BG_TARGETS = {
+  [MGDL]: {
     low: 70,
     high: 180,
   },
-  units: {
-    bg: 'mg/dL',
+  [MMOLL]: {
+    low: 3.9,
+    high: 10.0,
   },
 };
 
 const VALUES_MIN_MAX = {
-  'mg/dL': {
+  [MGDL]: {
     low: {
       min: 60,
       max: 180,
@@ -44,8 +47,22 @@ const VALUES_MIN_MAX = {
       max: 250,
     },
   },
-  'mmol': {
-    // to be defined at a later date, once unit switching is implemented
+  [MMOLL]: {
+    low: {
+      min: 3.3,
+      max: 10.0,
+    },
+    high: {
+      min: 4.4,
+      max: 13.9,
+    },
+  },
+};
+
+export const DEFAULT_SETTINGS = {
+  bgTarget: DEFAULT_BG_TARGETS[MGDL],
+  units: {
+    bg: MGDL,
   },
 };
 
@@ -77,7 +94,7 @@ export default class PatientSettings extends Component {
     const self = this;
     const patient = self.props.patient;
     let settings = {};
-  
+
     if (!patient) {
       return (<div></div>);
     }

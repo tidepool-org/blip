@@ -32,3 +32,6 @@ export const DATA_DONATION_NONPROFITS = [
   { value: 'NSF', label: 'Nightscout Foundation' },
   { value: 'T1DX', label: 'T1D Exchange' },
 ];
+
+export const MGDL = 'mg/dL';
+export const MMOLL = 'mmol/L';

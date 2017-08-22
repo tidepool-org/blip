@@ -25,6 +25,7 @@ describe('PatientProfile', () => {
           fetchingPatient: {inProgress: false, notification: null},
           fetchingUser: {inProgress: false, notification: null},
           updatingDataDonationAccounts: { inProgress: false },
+          updatingPatientBGUnits: { inProgress: false },
         },
       };
 
@@ -64,6 +65,7 @@ describe('PatientProfile', () => {
           fetchingPatient: {inProgress: true, notification: null},
           fetchingUser: { inProgress: false, notification: null },
           updatingDataDonationAccounts: { inProgress: false },
+          updatingPatientBGUnits: { inProgress: false },
         },
       };
 
