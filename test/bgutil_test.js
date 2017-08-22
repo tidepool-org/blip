@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -176,6 +176,23 @@ describe('BGUtil', function() {
       expect(bg.average(cbgData)).to.eql(expected);
     });
 
+    it('(on cbg data) should return a mmol/L number value, rounded to 1 decimal place, when passed a valid, long enough date range with enough data', function() {
+      var bgMmoll = new BGUtil([], {
+        DAILY_MIN: 10,
+        bgUnits: 'mmol/L',
+        bgClasses: {
+          low: { boundary: 5.5 },
+          target: { boundary: 10 },
+        }
+      });
+      var cbgData = patterns.cbg.constantJustEnoughMmoll();
+      var expected = {
+        value: 8.6,
+        category: 'target'
+      };
+      expect(bgMmoll.average(cbgData)).to.eql(expected);
+    });
+
     it('(on smbg data) should return a number value when passed a valid, long enough date range with enough data', function() {
       var smbgData = patterns.smbg.constantJustEnough();
       var expected = {
@@ -183,6 +200,23 @@ describe('BGUtil', function() {
         category: 'target'
       };
       expect(bg.average(smbgData)).to.eql(expected);
+    });
+
+    it('(on smbg data) should return a mmol/L number value, rounded to 1 decimal place, when passed a valid, long enough date range with enough data', function() {
+      var bgMmoll = new BGUtil([], {
+        DAILY_MIN: 10,
+        bgUnits: 'mmol/L',
+        bgClasses: {
+          low: { boundary: 5.5 },
+          target: { boundary: 10 },
+        }
+      });
+      var smbgData = patterns.smbg.constantJustEnoughMmoll();
+      var expected = {
+        value: 8.6,
+        category: 'target'
+      };
+      expect(bgMmoll.average(smbgData)).to.eql(expected);
     });
 
     it('should return same average for date range including and excluding a day of incomplete data', function() {

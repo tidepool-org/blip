@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+ /* jshint esversion:6 */
+
 var _ = require('lodash');
 var commonbolus = require('../../../../js/plot/util/commonbolus');
 var categorizer = require('../../../../js/data/util/categorize');

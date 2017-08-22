@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -33,6 +33,13 @@ var bgClasses = {
   target: {boundary: 30},
   high: {boundary: 40},
   'very-high': {boundary: 50}
+};
+var bgClassesMmoll = {
+  'very-low': {boundary: 2},
+  low: {boundary: 3},
+  target: {boundary: 4},
+  high: {boundary: 10},
+  'very-high': {boundary: 20}
 };
 var oneWeekDates = [{
   date: '2015-09-07',
@@ -80,6 +87,7 @@ var siteChangeSections = {
 };
 
 var dm = require('../plugins/blip/basics/logic/datamunger')(bgClasses);
+var dmMmol = require('../plugins/blip/basics/logic/datamunger')(bgClassesMmoll, 'mmol/L');
 
 var types = require('../dev/testpage/types');
 
@@ -165,6 +173,27 @@ describe('basics datamunger', function() {
         new types.SMBG({value: bgClasses['very-high'].boundary - 1})
       ];
       expect(dm.bgDistribution({
+        data: {smbg: {data: smbg}},
+        dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
+      }).smbg).to.deep.equal({
+          verylow: 0.2,
+          low: 0.2,
+          target: 0.2,
+          high: 0.2,
+          veryhigh: 0.2
+      });
+    });
+
+    it('should categorize all mmmol/L BG values correctly!', function() {
+      var now = new Date();
+      var smbg = [
+        new types.SMBG({value: bgClassesMmoll['very-low'].boundary - 1}),
+        new types.SMBG({value: bgClassesMmoll.low.boundary - 1}),
+        new types.SMBG({value: bgClassesMmoll.target.boundary - 1}),
+        new types.SMBG({value: bgClassesMmoll.high.boundary - 1}),
+        new types.SMBG({value: bgClassesMmoll['very-high'].boundary - 1})
+      ];
+      expect(dmMmol.bgDistribution({
         data: {smbg: {data: smbg}},
         dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
       }).smbg).to.deep.equal({

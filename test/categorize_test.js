@@ -15,9 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
+ /* jshint esversion:6 */
+
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
+var { GLUCOSE_MM } = require('../js/data/util/constants');
 
 var categorizer = require('../js/data/util/categorize');
 var defaultBgClasses = {
@@ -32,11 +35,18 @@ var alternateBgClasses = {
   target: { boundary: 150 },
   high: { boundary: 250 },
 };
+var mmollBgClasses = {
+  'very-low': { boundary: 55/GLUCOSE_MM },
+  low: { boundary: 70/GLUCOSE_MM },
+  target: { boundary: 180/GLUCOSE_MM },
+  high: { boundary: 300/GLUCOSE_MM },
+};
 
 describe('Categorize', function() {
   var defaultCategorizer = categorizer(defaultBgClasses);
   var alternateCategorizer = categorizer(alternateBgClasses);
   var noConfigCategorizer = categorizer({});
+  var mmollCategorizer = categorizer(mmollBgClasses);
 
   it('should be a function', function() {
     assert.isFunction(categorizer);
@@ -128,6 +138,35 @@ describe('Categorize', function() {
       });
       it('should categorize 350 as "veryhigh"', function(){
         expect(noConfigCategorizer({value:350})).to.equal("veryhigh");
+      });
+    });
+    describe('with mmoll values', function(){
+      it('should categorize 2.5 as "verylow"', function(){
+        expect(mmollCategorizer({value:2.8})).to.equal("verylow");
+      });
+      it('should categorize 3.2 as "low"', function(){
+        expect(mmollCategorizer({value:3.2})).to.equal("low");
+      });
+      it('should categorize 3.7 as "low"', function(){
+        expect(mmollCategorizer({value:3.7})).to.equal("low");
+      });
+      it('should categorize 6.5 as "target"', function(){
+        expect(mmollCategorizer({value:6.5})).to.equal("target");
+      });
+      it('should categorize 8.0 as "target"', function(){
+        expect(mmollCategorizer({value:8.0})).to.equal("target");
+      });
+      it('should categorize 9.9 as "target"', function(){
+        expect(mmollCategorizer({value:9.9})).to.equal("target");
+      });
+      it('should categorize 12.2 as "high"', function(){
+        expect(mmollCategorizer({value:12.2})).to.equal("high");
+      });
+      it('should categorize 15.8 as "high"', function(){
+        expect(mmollCategorizer({value:15.8})).to.equal("high");
+      });
+      it('should categorize 22.0 as "veryhigh"', function(){
+        expect(mmollCategorizer({value:22.0})).to.equal("veryhigh");
       });
     });
   });

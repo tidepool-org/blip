@@ -156,7 +156,7 @@ function BGUtil(data, opts) {
       }, 0);
       var average;
       if (opts.bgUnits === 'mmol/L') {
-        average = (sum/filtered.length).toFixed(1);
+        average = parseFloat((sum/filtered.length).toFixed(1));
       }
       else {
         average = parseInt((sum/filtered.length).toFixed(0), 10);

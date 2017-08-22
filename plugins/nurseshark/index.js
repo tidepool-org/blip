@@ -16,6 +16,7 @@
  */
 
 /* global __DEV__,__TEST__ */
+/* jshint esversion:6 */
 
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
