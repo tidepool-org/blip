@@ -93,6 +93,12 @@ function TidelineData(data, opts) {
     }
   };
 
+  if (opts.bgUnits === 'mmol/L') {
+    _.forOwn(defaults.bgClasses, function(value, key) {
+      defaults.bgClasses[key].boundary = value.boundary/GLUCOSE_MM;
+    });
+  }
+
   _.defaultsDeep(opts, defaults);
   var that = this;
 
@@ -320,11 +326,6 @@ function TidelineData(data, opts) {
     startTimer('setBGPrefs');
     this.bgClasses = opts.bgClasses;
     this.bgUnits = opts.bgUnits;
-    if (this.bgUnits === 'mmol/L') {
-      for (var key in opts.bgClasses) {
-        opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/GLUCOSE_MM;
-      }
-    }
     endTimer('setBGPrefs');
   };
 

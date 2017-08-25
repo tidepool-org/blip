@@ -187,7 +187,7 @@ describe('BGUtil', function() {
       });
       var cbgData = patterns.cbg.constantJustEnoughMmoll();
       var expected = {
-        value: 8.6,
+        value: '8.6',
         category: 'target'
       };
       expect(bgMmoll.average(cbgData)).to.eql(expected);
@@ -213,7 +213,7 @@ describe('BGUtil', function() {
       });
       var smbgData = patterns.smbg.constantJustEnoughMmoll();
       var expected = {
-        value: 8.6,
+        value: '8.6',
         category: 'target'
       };
       expect(bgMmoll.average(smbgData)).to.eql(expected);

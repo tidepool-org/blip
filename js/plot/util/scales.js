@@ -89,7 +89,7 @@ var scales = function(opts) {
       }
       var defaultTicks = _.map(_.values(_.omit(opts.bgClasses, ['very-high', 'very-low'])), function(n) {
         var boundary = _.get(n, 'boundary');
-        return opts.bgUnits === 'mmol/L' ? boundary.toFixed(1) : boundary;
+        return boundary;
       }).sort(function (a, b) { return a - b; });
 
       var ext = d3.extent(data, function(d) { return d.value; });
