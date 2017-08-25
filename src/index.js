@@ -32,6 +32,7 @@ import * as actions from './redux/actions/worker';
 import Worker from 'worker-loader?inline!./worker/index';
 
 import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
+import { formatBgValue } from './utils/format';
 // a temporary(?) export to enable "snapshot"-ing of data from blip console
 import { selectDailyViewData } from './utils/print/data';
 
@@ -50,6 +51,7 @@ const containers = {
 
 const utils = {
   reshapeBgClassesToBgBounds,
+  formatBgValue,
 };
 
 export {
