@@ -82,9 +82,6 @@ describe('PatientSettings', function () {
           low: 70,
           high: 180,
         },
-        units: {
-          bg: MGDL_UNITS,
-        },
       })).to.be.true;
     });
   });
@@ -145,9 +142,6 @@ describe('PatientSettings', function () {
         bgTarget: {
           low: 70,
           high: 165,
-        },
-        units: {
-          bg: MGDL_UNITS,
         },
       })).to.be.true;
     });
