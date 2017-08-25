@@ -28,8 +28,12 @@ describe('constants', function() {
   });
 
   it('should define correct labels for BG unit types', function() {
-    expect(Constants.MGDL).to.equal('mg/dL');
-    expect(Constants.MMOLL).to.equal('mmol/L');
+    expect(Constants.MGDL_UNITS).to.equal('mg/dL');
+    expect(Constants.MMOLL_UNITS).to.equal('mmol/L');
+  });
+
+  it('should define the glucose mmoll conversion factor to 18.01559', function() {
+    expect(Constants.GLUCOSE_MM).to.equal(18.01559);
   });
 
   it('should define the tidepool big data donation account email', function() {

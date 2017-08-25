@@ -17,27 +17,33 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import sundial from 'sundial';
+import { utils } from '@tidepool/viz';
 
 import IncrementalInput from '../../components/incrementalinput';
 import CustomizedTrendsChart from './customizedtrendschart';
 
-import personUtils from '../../core/personutils';
+import { roundBGTargets } from '../../core/utils';
 
-import { MGDL, MMOLL } from '../../core/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 
 const DEFAULT_BG_TARGETS = {
-  [MGDL]: {
+  [MGDL_UNITS]: {
     low: 70,
     high: 180,
   },
-  [MMOLL]: {
+  [MMOLL_UNITS]: {
     low: 3.9,
     high: 10.0,
   },
 };
 
+const BG_INCREMENT_STEPS = {
+  [MGDL_UNITS]: 5,
+  [MMOLL_UNITS]: 0.1,
+};
+
 const VALUES_MIN_MAX = {
-  [MGDL]: {
+  [MGDL_UNITS]: {
     low: {
       min: 60,
       max: 180,
@@ -47,7 +53,7 @@ const VALUES_MIN_MAX = {
       max: 250,
     },
   },
-  [MMOLL]: {
+  [MMOLL_UNITS]: {
     low: {
       min: 3.3,
       max: 10.0,
@@ -59,10 +65,10 @@ const VALUES_MIN_MAX = {
   },
 };
 
-export const DEFAULT_SETTINGS = {
-  bgTarget: DEFAULT_BG_TARGETS[MGDL],
+export const DEFAULT_BG_SETTINGS = {
+  bgTarget: DEFAULT_BG_TARGETS[MGDL_UNITS],
   units: {
-    bg: MGDL,
+    bg: MGDL_UNITS,
   },
 };
 
@@ -100,10 +106,10 @@ export default class PatientSettings extends Component {
     }
 
     if (!patient.settings) {
-      settings = DEFAULT_SETTINGS;
+      settings = DEFAULT_BG_SETTINGS;
     }
     else {
-      settings = _.defaultsDeep({}, patient.settings, DEFAULT_SETTINGS);
+      settings = _.defaultsDeep({}, patient.settings, DEFAULT_BG_SETTINGS);
     }
 
     const lowNode = (self.props.editingAllowed) ? self.renderIncrementalInput('low', settings) : self.renderValueNode('low', settings);
@@ -111,6 +117,11 @@ export default class PatientSettings extends Component {
     const resetNode = (self.props.editingAllowed) ? (<a href="#" className="PatientSettings-reset" onClick={self.resetRange}>Reset to default</a>) : null;
 
     const errorNode = (self.state.error.low || self.state.error.high) ? self.renderErrorNode() : null;
+
+    let chartTargets = {
+      high: utils.formatBgValue(roundBGTargets(settings.bgTarget.high, settings.units.bg), { bgUnits: settings.units.bg }),
+      low: utils.formatBgValue(roundBGTargets(settings.bgTarget.low, settings.units.bg), { bgUnits: settings.units.bg }),
+    };
 
     return (
       <div className="PatientSettings">
@@ -129,8 +140,8 @@ export default class PatientSettings extends Component {
             {errorNode}
             <div className="PatientSettings-blocks">
               <CustomizedTrendsChart
-                max={settings.bgTarget.high}
-                min={settings.bgTarget.low}
+                max={chartTargets.high}
+                min={chartTargets.low}
                 />
             </div>
           </div>
@@ -144,14 +155,16 @@ export default class PatientSettings extends Component {
   }
 
   renderIncrementalInput(bound, settings) {
+    let value = roundBGTargets(settings.bgTarget[bound], settings.units.bg);
+
     return (<IncrementalInput
       name={bound}
       error={this.state.error[bound]}
-      value={settings.bgTarget[bound]}
+      value={value}
       unit={settings.units.bg}
       minValue={VALUES_MIN_MAX[settings.units.bg][bound].min}
       maxValue={VALUES_MIN_MAX[settings.units.bg][bound].max}
-      step={5}
+      step={BG_INCREMENT_STEPS[settings.units.bg]}
       onChange={this.onIncrementChange}
       />);
   }
@@ -175,21 +188,29 @@ export default class PatientSettings extends Component {
       },
     });
 
-    this.props.onUpdatePatientSettings(this.props.patient.userid, DEFAULT_SETTINGS);
+    const targetUnits = _.get(this.props.patient, 'settings.units.bg', MGDL_UNITS);
+
+    const defaultSettings = {
+      bgTarget: DEFAULT_BG_TARGETS[targetUnits],
+    };
+
+    this.props.onUpdatePatientSettings(this.props.patient.userid, defaultSettings);
   }
 
   onIncrementChange(inputName, newValue, newUnit) {
+    const value = parseFloat(utils.formatBgValue(newValue, { bgUnits: newUnit }))
+
     let lowError = false;
     let highError = false;
 
-    const newSettings = _.defaultsDeep({}, {
+    let newSettings = _.defaultsDeep({}, {
       bgTarget: {
-        [inputName]: newValue,
+        [inputName]: value,
       },
-      units: {
-        bg: newUnit,
-      }
-    }, this.props.patient.settings, DEFAULT_SETTINGS);
+    }, this.props.patient.settings, DEFAULT_BG_SETTINGS);
+
+    // We never change the patient bg units here
+    delete newSettings.units;
 
     if (!this.validateBounds(newSettings.bgTarget)) {
       switch(inputName) {

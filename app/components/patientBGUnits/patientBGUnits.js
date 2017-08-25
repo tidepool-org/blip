@@ -21,7 +21,9 @@ import _ from 'lodash';
 import InputGroup from '../../components/inputgroup';
 import SimpleForm from '../../components/simpleform';
 
-import { MGDL, MMOLL } from '../../core/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
+import { DEFAULT_BG_SETTINGS } from '../../pages/patient/patientsettings';
+import { togglePatientBGUnits } from '../../core/personutils';
 
 export default class PatientBGUnits extends Component {
   static propTypes = {
@@ -40,6 +42,7 @@ export default class PatientBGUnits extends Component {
     this.state = {
       formValues: initialFormValues,
       initialFormValues: initialFormValues,
+      updatingUnits: false,
     };
   }
 
@@ -79,14 +82,15 @@ export default class PatientBGUnits extends Component {
       {
         name: 'bgUnits',
         type: 'radios',
+        disabled: this.state.updatingUnits,
         items: [
           {
-            label: MGDL,
-            value: MGDL,
+            label: MGDL_UNITS,
+            value: MGDL_UNITS,
           },
           {
-            label: MMOLL,
-            value: MMOLL,
+            label: MMOLL_UNITS,
+            value: MMOLL_UNITS,
           },
         ],
       },
@@ -96,7 +100,7 @@ export default class PatientBGUnits extends Component {
   getInitialFormValues = () => {
     if (this.props.patient) {
       return {
-        bgUnits: _.get(this.props.patient, 'settings.units.bg', MGDL),
+        bgUnits: _.get(this.props.patient, 'settings.units.bg', MGDL_UNITS),
       };
     }
 
@@ -104,27 +108,38 @@ export default class PatientBGUnits extends Component {
   }
 
   handleChange = (attributes) => {
-    if (this.props.working) {
+    const patientSettings = _.defaultsDeep({}, _.get(this.props, 'patient.settings', {}), DEFAULT_BG_SETTINGS);
+    const targetUnits = attributes.value;
+    const unitsChanged = targetUnits !== patientSettings.units.bg;
+
+    if (!unitsChanged || this.props.working || this.state.updatingUnits) {
       return;
     }
 
+    this.setState({ updatingUnits: true });
 
-    const settings = {
-      units: {
-        bg: attributes.value,
-      },
-    };
+    const newSettings = togglePatientBGUnits(patientSettings);
 
-    this.props.onUpdatePatientSettings(this.props.patient.userid, settings);
+    if (newSettings) {
+      this.props.onUpdatePatientSettings(this.props.patient.userid, newSettings);
 
-    let formValues = _.merge({}, this.state.formValues, {
-      [attributes.name]: attributes.value,
-    });
+      let formValues = _.merge({}, this.state.formValues, {
+        [attributes.name]: attributes.value,
+      });
 
-    this.setState({ formValues });
+      this.setState({
+        formValues,
+        updatingUnits: false,
+      });
 
-    if (this.props.trackMetric) {
-      this.props.trackMetric(`web - switched to ${settings.units.bg}`);
+      if (this.props.trackMetric) {
+        const units = newSettings.units.bg.replace('/', '').toLowerCase();
+        this.props.trackMetric(`web - switched to ${units}`);
+      }
+    } else {
+      this.setState({
+        updatingUnits: false,
+      });
     }
   }
 }

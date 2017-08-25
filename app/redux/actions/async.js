@@ -556,62 +556,26 @@ export function fetchSettings(api, patientId) {
  */
 export function updateSettings(api, patientId, settings) {
   return (dispatch) => {
+    const updatingBgUnits = !!_.get(settings, 'units.bg');
+
     dispatch(sync.updateSettingsRequest());
+    updatingBgUnits && dispatch(sync.updatePatientBgUnitsRequest());
 
     api.metadata.settings.put(patientId, settings, (err, updatedSettings) => {
       if (err) {
         dispatch(sync.updateSettingsFailure(
           createActionError(ErrorMessages.ERR_UPDATING_SETTINGS, err), err
         ));
+        updatingBgUnits && dispatch(sync.updatePatientBgUnits(
+          createActionError(ErrorMessages.ERR_UPDATING_PATIENT_BG_UNITS, err), err
+        ));
       } else {
         dispatch(sync.updateSettingsSuccess(patientId, updatedSettings));
+        updatingBgUnits && dispatch(sync.updatePatientBgUnitsSuccess(patientId, updatedSettings));
       }
     });
   };
 }
-
-// /**
-//  * Update Data Donation Accounts Action Creator
-//  *
-//  * @param  {Object} api an instance of the API wrapper
-//  */
-// export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts = []) {
-//   return (dispatch, getState) => {
-//     dispatch(sync.updateDataDonationAccountsRequest());
-
-//     const { blip: { loggedInUserId } } = getState();
-
-//     const addAccount = (email, cb) => {
-//       const permissions = {
-//         view: {},
-//         note: {},
-//       };
-
-//       dispatch(sendInvite(api, email, permissions, cb));
-//     }
-
-//     const removeAccount = (account, cb) => {
-//       if (account.userid) {
-//         dispatch(removeMemberFromTargetCareTeam(api, loggedInUserId, account.userid, cb));
-//       } else {
-//         dispatch(cancelSentInvite(api, account.email, cb));
-//       }
-//     }
-
-//     async.parallel({
-//       addAccounts:  cb => { async.map(addAccounts, addAccount, (err, results) => cb(err, results)) },
-//       removeAccounts: cb => { async.map(removeAccounts, removeAccount, (err, results) => cb(err, results)) },
-//     }, (err, results) => {
-//       if (err) {
-//         dispatch(sync.updateDataDonationAccountsFailure(
-//           createActionError(ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS, err), err
-//         ));
-//       } else {
-//         dispatch(sync.updateDataDonationAccountsSuccess(results));
-//       }
-//     });
-//   };
-// }
 
 /**
  * Update User Data Action Creator

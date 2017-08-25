@@ -70,8 +70,15 @@ const CustomizedTrendsChart = (props) => {
 }
 
 CustomizedTrendsChart.propTypes = {
-  max: React.PropTypes.number.isRequired,
-  min: React.PropTypes.number.isRequired
+  max: React.PropTypes.oneOfType([
+    React.PropTypes.number,
+    React.PropTypes.string, // mmol/L values need to be a string to display as 'trailing zero' floats
+  ]).isRequired,
+
+  min: React.PropTypes.oneOfType([
+    React.PropTypes.number,
+    React.PropTypes.string, // mmol/L values need to be a string to display as 'trailing zero' floats
+  ]).isRequired,
 };
 
 export default CustomizedTrendsChart;

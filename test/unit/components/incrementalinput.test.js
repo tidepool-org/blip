@@ -8,7 +8,7 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 
 import IncrementalInput from '../../../app/components/incrementalinput';
-import { MGDL, MMOLL } from '../../../app/core/constants';
+import { MGDL_UNITS } from '../../../app/core/constants';
 
 const expect = chai.expect;
 
@@ -17,7 +17,7 @@ describe('IncrementalInput', function () {
     name: 'high',
     error: false,
     value: 180,
-    unit: MGDL,
+    unit: MGDL_UNITS,
     minValue: 80,
     maxValue: 250,
     step: 5,

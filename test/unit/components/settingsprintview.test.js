@@ -29,7 +29,7 @@ const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 
 import SettingsPrintView from '../../../app/components/printview';
 import PrintHeader from '../../../app/components/printheader';
-import { MGDL, MMOLL } from '../../../app/core/constants';
+import { MMOLL_UNITS } from '../../../app/core/constants';
 
 const expect = chai.expect;
 
@@ -51,7 +51,7 @@ describe('SettingsPrintView', () => {
     ],
     units: {
       carbs: 'grams',
-      bg: MMOLL,
+      bg: MMOLL_UNITS,
     },
     bgTarget: [
       {

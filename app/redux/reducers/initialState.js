@@ -17,7 +17,7 @@
 
 import _ from 'lodash';
 
-import { MGDL, MMOLL } from '../../core/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 
 const working = {
   inProgress: false,
@@ -83,7 +83,7 @@ const initialState = {
     timezoneName: null
   },
   bgPrefs: {
-    bgUnits: MGDL
+    bgUnits: MGDL_UNITS
   },
   dataDonationAccounts: [],
 };

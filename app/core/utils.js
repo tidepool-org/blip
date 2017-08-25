@@ -19,7 +19,7 @@ import _  from 'lodash';
 import sundial from 'sundial';
 import TidelineData from 'tideline/js/tidelinedata';
 import nurseShark from 'tideline/plugins/nurseshark';
-import { MGDL, MMOLL } from './constants';
+import { MGDL_UNITS, MMOLL_UNITS, GLUCOSE_MM } from './constants';
 
 var utils = {};
 
@@ -228,6 +228,36 @@ utils.getCarelink = function(location) {
   return null;
 }
 
+/**
+ * Translate a BG value to the desired target unit
+ *
+ * @param {Number} a bg value
+ * @param {String} one of [mg/dL, mmol/L] the units to convert to
+ *
+ * @return {Number} the converted value
+ */
+utils.translateBG = (value, targetUnits) => {
+  if (targetUnits === MGDL_UNITS) {
+    return parseInt(Math.round(value * GLUCOSE_MM), 10);
+  }
+  return parseFloat((value / GLUCOSE_MM).toFixed(1));
+}
+
+/**
+ * Round a target BG value as appropriate
+ * mg/dL - to the nearest 5
+ * mmol/L - to the nearest .1
+ *
+ * @param {Number} a bg value
+ * @param {String} one of [mg/dL, mmol/L] the units to convert to
+ *
+ * @return {Number} the converted value
+ */
+utils.roundBGTargets = (value, units) => {
+  const nearest = units === MGDL_UNITS ? 5 : 0.1;
+  return nearest * Math.round(value / nearest);
+}
+
 utils.processPatientData = (comp, data, queryParams, settings) => {
   if (!(data && data.length >= 0)) {
     return null;
@@ -272,21 +302,29 @@ utils.processPatientData = (comp, data, queryParams, settings) => {
   }
 
   console.time('Nurseshark Total');
-  var bgUnits = settings.units.bg;
-  if (!_.isEmpty(queryParams.units) && queryParams.units === 'mmoll') {
-    bgUnits = MMOLL;
-    console.log(`Displaying BG in ${MMOLL} from query params`);
+  var bgUnits = settings.units.bg || MGDL_UNITS;
+  var bgClasses = {
+    low: { boundary: utils.roundBGTargets(settings.bgTarget.low, bgUnits) },
+    target: { boundary: utils.roundBGTargets(settings.bgTarget.high, bgUnits) },
+  };
+
+  // Allow overriding stored BG Unit preferences via query param
+  const bgUnitsFormatted = bgUnits.replace('/', '').toLowerCase();
+  if (!_.isEmpty(queryParams.units) && queryParams.units !== bgUnitsFormatted && _.includes([ 'mgdl', 'mmoll' ], queryParams.units)) {
+    bgUnits = queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
+    bgClasses.low.boundary = utils.roundBGTargets(utils.translateBG(settings.bgTarget.low, bgUnits), bgUnits);
+    bgClasses.target.boundary = utils.roundBGTargets(utils.translateBG(settings.bgTarget.high, bgUnits), bgUnits);
+    console.log(`Displaying BG in ${bgUnits} from query params`);
   }
+
+
   var res = nurseShark.processData(data, bgUnits);
   console.timeEnd('Nurseshark Total');
   console.time('TidelineData Total');
   var tidelineData = new TidelineData(res.processedData, {
     timePrefs: timePrefsForTideline,
-    bgUnits: bgUnits,
-    bgClasses: {
-      low: { boundary: settings.bgTarget.low },
-      target: { boundary: settings.bgTarget.high },
-    },
+    bgUnits,
+    bgClasses,
   });
   console.timeEnd('TidelineData Total');
 
@@ -319,9 +357,9 @@ utils.processPatientData = (comp, data, queryParams, settings) => {
       data = JSON.stringify(data, undefined, 4);
     }
 
-    var blob = new Blob([data], {type: 'text/json'}),
-      e    = document.createEvent('MouseEvents'),
-      a    = document.createElement('a');
+    var blob = new Blob([data], {type: 'text/json'});
+    var e = document.createEvent('MouseEvents');
+    var a = document.createElement('a');
 
     a.download = filename;
     a.href = window.URL.createObjectURL(blob);

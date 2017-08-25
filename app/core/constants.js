@@ -33,5 +33,6 @@ export const DATA_DONATION_NONPROFITS = [
   { value: 'T1DX', label: 'T1D Exchange' },
 ];
 
-export const MGDL = 'mg/dL';
-export const MMOLL = 'mmol/L';
+export const MGDL_UNITS = 'mg/dL';
+export const MMOLL_UNITS = 'mmol/L';
+export const GLUCOSE_MM = 18.01559;
