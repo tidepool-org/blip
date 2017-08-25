@@ -134,7 +134,7 @@ export function nonTandemText(patient, settings, units, manufacturer) {
     sensitivity.columns,
   );
 
-  const target = nonTandemData.target(settings, manufacturer);
+  const target = nonTandemData.target(settings, manufacturer, units);
   tablesString += buildTextTable(
     `${target.title} ${units}`,
     target.rows,

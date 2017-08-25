@@ -381,11 +381,13 @@ describe('NonTandem', () => {
 
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            formatDecimalNumber(omnipodMultiRateData.bgTarget[0].target), 1) !== -1)
+            formatDecimalNumber(omnipodMultiRateData.bgTarget[0].target, 1)
+          ) !== -1)
         )).to.be.true;
         expect(bgTargetTable.someWhere(
           n => (n.text().search(
-            formatDecimalNumber(omnipodMultiRateData.bgTarget[0].high), 1) !== -1)
+            formatDecimalNumber(omnipodMultiRateData.bgTarget[0].high, 1)
+          ) !== -1)
         )).to.be.true;
       });
 

@@ -24,23 +24,43 @@ import { WithNotes } from '@kadira/storybook-addon-notes';
 import { createDailyPrintView } from '../../src/modules/print/index';
 import * as patients from '../../data/patient/fixtures';
 
+import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
+
 /* global PDFDocument, blobStream */
 
 // eslint-disable-next-line import/no-unresolved
-const data = require('../../local/daily-print-view.json');
+import dataMGDL from '../../local/daily-print-view-mgdl.json';
 
-function openPDF({ patient }) {
+// eslint-disable-next-line import/no-unresolved
+import dataMMOLL from '../../local/daily-print-view-mmoll.json';
+
+const data = {
+  [MGDL_UNITS]: dataMGDL,
+  [MMOLL_UNITS]: dataMMOLL,
+};
+
+const bgBounds = {
+  [MGDL_UNITS]: {
+    veryHighThreshold: 300,
+    targetUpperBound: 180,
+    targetLowerBound: 70,
+    veryLowThreshold: 54,
+  },
+  [MMOLL_UNITS]: {
+    veryHighThreshold: 16.7,
+    targetUpperBound: 10,
+    targetLowerBound: 3.9,
+    veryLowThreshold: 3.12345,
+  },
+};
+
+function openPDF({ patient, bgUnits = MGDL_UNITS }) {
   const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: 36 });
   const stream = doc.pipe(blobStream());
 
-  const dailyPrintView = createDailyPrintView(doc, data, {
-    bgBounds: {
-      veryHighThreshold: 300,
-      targetUpperBound: 180,
-      targetLowerBound: 70,
-      veryLowThreshold: 54,
-    },
-    bgUnits: 'mg/dL',
+  const dailyPrintView = createDailyPrintView(doc, data[bgUnits], {
+    bgBounds: bgBounds[bgUnits],
+    bgUnits,
   }, {
     timezoneAware: true,
     timezoneName: 'US/Eastern',
@@ -62,9 +82,17 @@ patients.longName = _.cloneDeep(patients.standard);
 patients.longName.profile.fullName = 'Super Duper Long Patient Name';
 
 storiesOf('DailyViewPrintPDF', module)
-  .add('standard account', () => (
+  .add(`standard account (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
       <button onClick={() => openPDF({ patient: patients.standard })}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
+
+  .add(`standard account (${MMOLL_UNITS})`, () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: patients.standard, bgUnits: MMOLL_UNITS })}>
         Open PDF in new tab
       </button>
     </WithNotes>

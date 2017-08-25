@@ -157,7 +157,7 @@ const NonTandem = (props) => {
   }
 
   function renderTargetData() {
-    const target = nonTandemData.target(pumpSettings, lookupKey);
+    const target = nonTandemData.target(pumpSettings, lookupKey, bgUnits);
     const title = {
       label: {
         main: target.title,
