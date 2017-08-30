@@ -114,6 +114,18 @@ describe('DailyPrintView', () => {
     width: 8.5 * DPI - (2 * MARGIN),
   };
 
+  const mmollOpts = _.assign({}, opts, {
+    bgPrefs: {
+      bgBounds: {
+        veryHighThreshold: 16.7,
+        targetUpperBound: 10,
+        targetLowerBound: 3.9,
+        veryLowThreshold: 3.1,
+      },
+      bgUnits: 'mmol/L',
+    },
+  });
+
   beforeEach(() => {
     doc = new Doc();
     Renderer = new DailyPrintView(doc, data, opts);
@@ -431,13 +443,14 @@ describe('DailyPrintView', () => {
   describe('renderSummary', () => {
     let args;
 
-    beforeEach(() => {
-      args = {
-        date: sampleDate,
-        data: Renderer.chartsByDate[sampleDate].data,
-        topEdge: 100,
-      };
+    const setArgs = (renderer) => ({
+      date: sampleDate,
+      data: renderer.chartsByDate[sampleDate].data,
+      topEdge: 100,
+    });
 
+    beforeEach(() => {
+      args = setArgs(Renderer);
       Renderer.renderSummary(args);
     });
 
@@ -486,9 +499,10 @@ describe('DailyPrintView', () => {
     });
 
     it('should render the Average BG with smbg data if available', () => {
-      args.data.cbg = [];
-      Renderer.renderSummary(args);
-      const averageBG = formatDecimalNumber(mean(args.data.smbg, (d) => (d.value)), 0);
+      const noCbgArgs = _.cloneDeep(args);
+      noCbgArgs.data.cbg = [];
+      Renderer.renderSummary(noCbgArgs);
+      const averageBG = formatDecimalNumber(mean(noCbgArgs.data.smbg, (d) => (d.value)), 0);
       const averageBGText = `${averageBG} ${Renderer.bgUnits}`;
 
       sinon.assert.calledWith(Renderer.doc.text, 'Average BG');
@@ -511,6 +525,34 @@ describe('DailyPrintView', () => {
 
       sinon.assert.calledWith(Renderer.doc.text, 'Total Carbs');
       sinon.assert.calledWith(Renderer.doc.text, totalCarbsText);
+    });
+
+    context('mmol/L support', () => {
+      beforeEach(() => {
+        Renderer = new DailyPrintView(doc, data, mmollOpts);
+        args = setArgs(Renderer);
+        Renderer.renderSummary(args);
+      });
+
+      it('should render the time in target in mmol/L with correct formatting', () => {
+        const { targetUpperBound, targetLowerBound, veryLowThreshold } = Renderer.bgBounds;
+        const text = {
+          targetUpper: formatDecimalNumber(targetUpperBound, 1),
+          targetLower: formatDecimalNumber(targetLowerBound, 1),
+          veryLow: formatDecimalNumber(veryLowThreshold, 1),
+        };
+        sinon.assert.calledWith(Renderer.doc.text, 'Time in Target');
+        sinon.assert.calledWith(Renderer.doc.text, `${text.targetLower} - ${text.targetUpper}`);
+        sinon.assert.calledWith(Renderer.doc.text, `Below ${text.veryLow}`);
+      });
+
+      it('should render the Average BG in mmol/L with correct formatting', () => {
+        const averageBG = formatDecimalNumber(mean(args.data.cbg, (d) => (d.value)), 1);
+        const averageBGText = `${averageBG} mmol/L`;
+
+        sinon.assert.calledWith(Renderer.doc.text, 'Average BG');
+        sinon.assert.calledWith(Renderer.doc.text, averageBGText);
+      });
     });
   });
 
@@ -549,20 +591,21 @@ describe('DailyPrintView', () => {
   });
 
   describe('renderYAxes', () => {
+    const setArgs = (renderer) => ({
+      bgScale: sinon.stub().returns(100),
+      bottomEdge: 150,
+      bounds: renderer.chartsByDate[sampleDate].bounds,
+      date: sampleDate,
+      topEdge: 350,
+      xScale: sinon.stub().returns(100),
+    });
+
     it('should be a function', () => {
       expect(Renderer.renderYAxes).to.be.a('function');
     });
 
     it('should render Y axis lines, times and bg bounds', () => {
-      const args = {
-        bgScale: sinon.stub().returns(100),
-        bottomEdge: 150,
-        bounds: Renderer.chartsByDate[sampleDate].bounds,
-        date: sampleDate,
-        topEdge: 350,
-        xScale: sinon.stub().returns(100),
-      };
-
+      const args = setArgs(Renderer);
       Renderer.renderYAxes(args);
 
       // Should draw a vertical line for every 3hr slot, plus a final one to close the chart
@@ -572,6 +615,21 @@ describe('DailyPrintView', () => {
 
       // Should render the timeslot time in the format 9a or 12p
       sinon.assert.calledWith(Renderer.doc.text, sinon.match(/\d?(\d)[a|p]/));
+    });
+
+    context('mmol/L support', () => {
+      beforeEach(() => {
+        Renderer = new DailyPrintView(doc, data, mmollOpts);
+
+        Renderer.renderYAxes(setArgs(Renderer));
+      });
+
+      it('should render bg bounds in mmol/L with proper formatting', () => {
+        sinon.assert.calledWith(Renderer.doc.text, '16.7');
+        sinon.assert.calledWith(Renderer.doc.text, '10.0');
+        sinon.assert.calledWith(Renderer.doc.text, '3.9');
+        sinon.assert.calledWith(Renderer.doc.text, '3.1');
+      });
     });
   });
 
@@ -602,6 +660,25 @@ describe('DailyPrintView', () => {
       _.each(Renderer.chartsByDate[sampleDate].data.smbg, smbg => {
         const smbgLabel = formatBgValue(smbg.value, Renderer.bgPrefs);
         sinon.assert.calledWith(Renderer.doc.text, smbgLabel);
+      });
+    });
+
+    context('mmol/L support', () => {
+      beforeEach(() => {
+        Renderer = new DailyPrintView(doc, data, mmollOpts);
+        Renderer.renderSmbgs(Renderer.chartsByDate[sampleDate]);
+      });
+
+      it('should render smbg data in mmol/L with proper formatting', () => {
+        const smbgCount = Renderer.chartsByDate[sampleDate].data.smbg.length;
+
+        sinon.assert.callCount(Renderer.doc.circle, smbgCount);
+
+        _.each(Renderer.chartsByDate[sampleDate].data.smbg, smbg => {
+          const smbgLabel = formatBgValue(smbg.value, Renderer.bgPrefs);
+          expect(smbgLabel.indexOf('.')).to.equal(smbgLabel.length - 2);
+          sinon.assert.calledWith(Renderer.doc.text, smbgLabel);
+        });
       });
     });
   });
