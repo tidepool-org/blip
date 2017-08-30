@@ -19,9 +19,9 @@ var bows = require('bows');
 var React = require('react');
 var cx = require('classnames');
 
-import * as viz from '@tidepool/viz';
-const TwoOptionToggle = viz.components.TwoOptionToggle;
-const RangeSelect = viz.components.RangeSelect;
+import { components } from '@tidepool/viz';
+const TwoOptionToggle = components.TwoOptionToggle;
+const RangeSelect = components.RangeSelect;
 
 var tideline = {
   log: bows('Footer')

@@ -164,6 +164,11 @@ utils.getInviteEmail = function(location) {
   return null;
 }
 
+utils.getDonationAccountCodeFromEmail = function(email) {
+  let matches = email.match(/\+(.*)@/) || [];
+  return matches[1] || null;
+}
+
 utils.hasVerifiedEmail = function(user) {
   return (user.emailVerified);
 }
@@ -254,7 +259,7 @@ utils.processPatientData = (comp, data, queryParams, settings) => {
     }
   }
 
-  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
+  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
   if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
     setNewTimePrefs(mostRecentUpload.timezone);
   }

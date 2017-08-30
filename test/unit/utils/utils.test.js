@@ -111,6 +111,16 @@ describe('utils', function() {
     });
   });
 
+  describe('getDonationAccountCodeFromEmail', function() {
+    it('should return a data donation code from an matching email', function() {
+      expect(utils.getDonationAccountCodeFromEmail('bigdata+ZZZ@tidepool.org')).to.equal('ZZZ');
+    });
+
+    it('should return a null from a non matching email', function() {
+      expect(utils.getDonationAccountCodeFromEmail('user@tidepool.org')).to.be.null;
+    });
+  });
+
   describe('getSignupEmail', function(){
     it('should return email from location object', function(){
       var location = {

@@ -15,21 +15,24 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-var bows = require('bows');
-var React = require('react');
-var cx = require('classnames');
+import _ from 'lodash';
+import bows from 'bows';
+import React, { Component } from 'react';
+import cx from 'classnames';
+import Loading from 'react-loading';
 
-var PrintHeader = require('../printheader');
+import PrintHeader from '../printheader';
 
-var printPng = require('./img/print-icon-2x.png');
+import printPng from './img/print-icon-2x.png';
 
-var tideline = {
-  log: bows('Header')
+const tideline = {
+  log: bows('Header'),
 };
 
-var TidelineHeader = React.createClass({
-  propTypes: {
+class TidelineHeader extends Component {
+  static propTypes = {
     patient: React.PropTypes.object,
+    printReady: React.PropTypes.bool,
     title: React.PropTypes.string.isRequired,
     chartType: React.PropTypes.string.isRequired,
     inTransition: React.PropTypes.bool.isRequired,
@@ -45,34 +48,39 @@ var TidelineHeader = React.createClass({
     onClickOneDay: React.PropTypes.func,
     onClickTwoWeeks: React.PropTypes.func,
     onClickSettings: React.PropTypes.func,
-    onClickPrint: React.PropTypes.func
-  },
-  renderStandard: function() {
-    var basicsLinkClass = cx({
+    onClickPrint: React.PropTypes.func,
+  };
+
+  static defaultProps = {
+    printReady: true,
+  };
+
+  renderStandard = () => {
+    const basicsLinkClass = cx({
       'js-basics': true,
       'patient-data-subnav-active': this.props.chartType === 'basics',
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
-    var dayLinkClass = cx({
+    const dayLinkClass = cx({
       'js-daily': true,
       'patient-data-subnav-active': this.props.chartType === 'daily',
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
-    var trendsLinkClass = cx({
+    const trendsLinkClass = cx({
       'js-trends': true,
       'patient-data-subnav-active': this.props.chartType === 'trends',
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
-    var weekLinkClass = cx({
+    const weekLinkClass = cx({
       'js-weekly': true,
       'patient-data-subnav-active': this.props.chartType === 'weekly',
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
-    var dateLinkClass = cx({
+    const dateLinkClass = cx({
       'js-date': true,
       'patient-data-subnav-text' : this.props.chartType === 'basics' ||
         this.props.chartType === 'daily' ||
@@ -81,50 +89,51 @@ var TidelineHeader = React.createClass({
       'patient-data-subnav-dates-basics': this.props.chartType === 'basics',
       'patient-data-subnav-dates-daily': this.props.chartType === 'daily',
       'patient-data-subnav-dates-weekly': this.props.chartType === 'weekly',
-      'patient-data-subnav-dates-trends': this.props.chartType === 'trends'
+      'patient-data-subnav-dates-trends': this.props.chartType === 'trends',
     });
 
-    var mostRecentClass = cx({
+    const mostRecentClass = cx({
       'js-most-recent': true,
       'patient-data-icon': true,
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
-    var backClass = cx({
+    const backClass = cx({
       'js-back': true,
       'patient-data-icon': true,
       'patient-data-subnav-active': !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
-        this.props.chartType === 'no-data'
+        this.props.chartType === 'no-data',
     });
 
-    var nextClass = cx({
+    const nextClass = cx({
       'js-next': true,
       'patient-data-icon': true,
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
-        this.props.chartType === 'no-data'
+        this.props.chartType === 'no-data',
     });
 
-    var settingsLinkClass = cx({
+    const settingsLinkClass = cx({
       'js-settings': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
       'patient-data-subnav-active': this.props.chartType === 'settings',
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
-    var printLinkClass = cx({
-      'js-print-settings': true,
+    const printLinkClass = cx({
+      'js-print-settings': this.props.chartType === 'settings',
       'printview-print-icon': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
-      'patient-data-subnav-active': this.props.chartType === 'settings',
-      'patient-data-subnav-hidden': this.props.chartType !== 'settings'
+      'patient-data-subnav-active': _.includes(['daily', 'settings'], this.props.chartType),
+      'patient-data-subnav-hidden': !_.includes(['daily', 'settings'], this.props.chartType),
+      'patient-data-subnav-disabled': !this.props.printReady,
     });
 
     return (
@@ -146,14 +155,16 @@ var TidelineHeader = React.createClass({
         <div className="grid-item one-whole large-one-third">
           <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
           <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
-            <img src={printPng} alt="Print" />
+            {this.props.printReady && <img className="print-icon" src={printPng} alt="Print" />}
+            {!this.props.printReady && <Loading className="print-loading-spinner" width={16} height={16} delay={0} type="spin" color="#fff" />}
             Print
           </a>
         </div>
       </div>
     );
-  },
-  printTitle: function() {
+  };
+
+  printTitle = () => {
     switch (this.props.chartType) {
       case 'basics':
         return 'Basics';
@@ -166,8 +177,9 @@ var TidelineHeader = React.createClass({
       case 'settings':
         return 'Pump Settings';
     }
-  },
-  renderPrint: function() {
+  };
+
+  renderPrint = () => {
     return (
       <div id="app-print">
         <PrintHeader
@@ -177,8 +189,9 @@ var TidelineHeader = React.createClass({
         />
       </div>
     );
-  },
-  render: function() {
+  };
+
+  render = () => {
     return (
       <div className="container-box-outer patient-data-subnav-outer">
         <div className="container-box-inner patient-data-subnav-inner">
@@ -187,7 +200,8 @@ var TidelineHeader = React.createClass({
         </div>
       </div>
     );
-  },
+  };
+
   /**
    * Helper function for rendering the various navigation buttons in the header.
    * It accounts for the transition state and disables the button if it is currently processing.
@@ -198,8 +212,8 @@ var TidelineHeader = React.createClass({
    *
    * @return {ReactElement}
    */
-  renderNavButton: function(buttonClass, clickAction, icon) {
-    var nullAction = function(e) {
+  renderNavButton = (buttonClass, clickAction, icon) => {
+    const nullAction = function(e) {
       if (e) {
         e.preventDefault();
       }
@@ -209,7 +223,7 @@ var TidelineHeader = React.createClass({
     } else {
       return (<a href="" className={buttonClass} onClick={clickAction}><i className={icon}/></a>);
     }
-  }
-});
+  };
+};
 
 module.exports = TidelineHeader;

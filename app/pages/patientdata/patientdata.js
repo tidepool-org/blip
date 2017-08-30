@@ -26,6 +26,7 @@ import config from '../../config';
 import loadingGif from './loading.gif';
 
 import * as actions from '../../redux/actions';
+import { actions as workerActions} from '@tidepool/viz';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
@@ -53,6 +54,8 @@ export let PatientData = React.createClass({
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingPatientData: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
+    generatePDFRequest: React.PropTypes.func.isRequired,
+    generatingPDF: React.PropTypes.bool.isRequired,
     isUserPatient: React.PropTypes.bool.isRequired,
     messageThread: React.PropTypes.array,
     onCloseMessageThread: React.PropTypes.func.isRequired,
@@ -65,6 +68,7 @@ export let PatientData = React.createClass({
     patientDataMap: React.PropTypes.object.isRequired,
     patientNotesMap: React.PropTypes.object.isRequired,
     queryParams: React.PropTypes.object.isRequired,
+    removeGeneratedPDFS: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
     user: React.PropTypes.object,
@@ -95,7 +99,6 @@ export let PatientData = React.createClass({
           smbgRangeOverlay: true,
         }
       },
-      chartType: 'basics',
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -105,7 +108,7 @@ export let PatientData = React.createClass({
       timePrefs: {
         timezoneAware: false,
         timezoneName: null
-      }
+      },
     };
 
     return state;
@@ -302,10 +305,12 @@ export let PatientData = React.createClass({
             onShowMessageThread={this.handleShowMessageThread}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToPrint={this.handleSwitchToDailyPrintView}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateDatetimeLocation={this.updateDatetimeLocation}
+            pdf={this.props.viz.pdf.daily || {}}
             ref="tideline" />
           );
       case 'trends':
@@ -399,6 +404,21 @@ export let PatientData = React.createClass({
     this.props.trackMetric('Closed New Message Modal');
   },
 
+  generatePDF: function (data) {
+    const dData = data.diabetesData;
+
+    this.props.generatePDFRequest(
+      this.state.chartType,
+      dData[dData.length - 1].normalTime,
+      _.pick(
+        this.state.processedPatientData.grouped,
+        // TODO: add back deviceEvent later (not in first prod release)
+        ['basal', 'bolus', 'cbg', 'message', 'smbg']
+      ),
+      { bgPrefs: this.state.bgPrefs, numDays: 6, patient: this.props.patient, timePrefs: this.state.timePrefs }
+    );
+  },
+
   handleMessageCreation: function(message){
     var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
     this.updateBasicsData(data);
@@ -458,6 +478,12 @@ export let PatientData = React.createClass({
     this.setState({
       chartType: 'daily',
       initialDatetimeLocation: datetime || this.state.datetimeLocation
+    });
+  },
+
+  handleSwitchToDailyPrintView: function() {
+    this.props.trackMetric('Clicked Print', {
+      fromChart: this.state.chartType
     });
   },
 
@@ -537,19 +563,25 @@ export let PatientData = React.createClass({
     var refresh = this.props.onRefresh;
     if (refresh) {
       this.props.clearPatientData(this.props.currentPatientInViewId);
+      this.props.removeGeneratedPDFS();
+
       this.setState({
         title: this.DEFAULT_TITLE,
         processingData: true,
         processedPatientData: null
       });
+
       refresh(this.props.currentPatientInViewId);
     }
   },
 
   updateBasicsData: function(data) {
-    this.setState({
-      processedPatientData: data
-    });
+    // only attempt to update data if there's already data present to update
+    if(this.state.processedPatientData){
+      this.setState({
+        processedPatientData: data
+      });
+    }
   },
 
   updateChartPrefs: function(newChartPrefs) {
@@ -582,6 +614,7 @@ export let PatientData = React.createClass({
 
   componentWillUnmount: function() {
     this.props.clearPatientData(this.props.currentPatientInViewId);
+    this.props.removeGeneratedPDFS();
   },
 
   componentWillReceiveProps: function(nextProps) {
@@ -593,6 +626,92 @@ export let PatientData = React.createClass({
     // nextProps patient data exists
     if (!nextProps.fetchingPatient && !this.state.processedPatientData && nextPatientData) {
       this.doProcessing(nextProps);
+    }
+  },
+
+  componentWillUpdate: function (nextProps, nextState) {
+    const pdfEnabled = _.indexOf(['daily'], this.state.chartType) >= 0;
+    const pdfGenerating = nextProps.generatingPDF;
+    const pdfGenerated = _.get(nextProps, `viz.pdf[${this.state.chartType}]`, false);
+    const patientDataProcessed = (!this.state.processingData && !!this.state.processedPatientData && !!nextState.processedPatientData);
+
+    // Ahead-Of-Time pdf generation for non-blocked print popup.
+    // Whenever patientData is processed or the chartType changes, such as after a refresh
+    // we check to see if we need to generate a new pdf to avoid stale data
+    if (pdfEnabled && !pdfGenerating && !pdfGenerated && patientDataProcessed) {
+      this.generatePDF(this.state.processedPatientData);
+    }
+  },
+
+  deriveChartTypeFromLatestData: function(latestData, uploads) {
+    let chartType = 'basics'; // Default to 'basics'
+
+    if (latestData && uploads) {
+      // Ideally, we determine the default view based on the device type
+      // so that, for instance, if the latest data type is cgm, but comes from
+      // an insulin-pump, we still direct them to the basics view
+      const deviceMap = _.indexBy(uploads, 'deviceId');
+      const latestDataDevice = deviceMap[latestData.deviceId];
+
+      if (latestDataDevice) {
+        const tags = deviceMap[latestData.deviceId].deviceTags;
+
+        switch(true) {
+          case (_.includes(tags, 'insulin-pump')):
+            chartType = 'basics';
+            break;
+
+          case (_.includes(tags, 'cgm')):
+            chartType = 'trends';
+            break;
+
+          case (_.includes(tags, 'bgm')):
+            chartType = 'weekly';
+            break;
+        }
+      }
+      else {
+        // If we were unable, for some reason, to get the device tags for the
+        // latest upload, we can fall back to setting the default view by the data type
+        const type = latestData.type;
+
+        switch(type) {
+          case 'bolus':
+          case 'basal':
+          case 'wizard':
+            chartType = 'basics';
+            break;
+
+          case 'cbg':
+            chartType = 'trends';
+            break;
+
+          case 'smbg':
+            chartType = 'weekly';
+            break;
+        }
+      }
+    }
+
+    return chartType;
+  },
+
+  setDefaultChartType: function(processedData) {
+    // Determine default chart type and date from latest data
+    const uploads = processedData.grouped.upload;
+    const latestData = _.last(processedData.diabetesData);
+
+    if (uploads && latestData) {
+      const chartType = this.deriveChartTypeFromLatestData(latestData, uploads);
+
+      let state = {
+        chartType,
+        initialDatetimeLocation: chartType === 'trends' ? latestData.time : null,
+      };
+
+      this.setState(state);
+
+      this.props.trackMetric(`web - default to ${chartType}`);
     }
   },
 
@@ -613,14 +732,17 @@ export let PatientData = React.createClass({
         this.props.queryParams,
         patientSettings,
       );
+
       this.setState({
         processedPatientData: processedData,
         bgPrefs: {
           bgClasses: processedData.bgClasses,
           bgUnits: processedData.bgUnits
         },
-        processingData: false
+        processingData: false,
       });
+
+      this.setDefaultChartType(processedData);
     }
   },
 
@@ -651,7 +773,9 @@ export let PatientData = React.createClass({
 let getFetchers = (dispatchProps, ownProps, api, options) => {
   return [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id)
+    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id),
+    dispatchProps.fetchDataDonationAccounts.bind(null, api),
+    dispatchProps.fetchPendingSentInvites.bind(null, api),
   ];
 };
 
@@ -701,23 +825,30 @@ export function mapStateToProps(state) {
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
+    generatingPDF: state.blip.working.generatingPDF.inProgress,
     viz: state.viz,
   };
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
+  clearPatientData: actions.sync.clearPatientData,
+  closeMessageThread: actions.sync.closeMessageThread,
+  fetchDataDonationAccounts: actions.async.fetchDataDonationAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
-  clearPatientData: actions.sync.clearPatientData,
+  fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
+  generatePDFRequest: workerActions.generatePDFRequest,
   fetchMessageThread: actions.async.fetchMessageThread,
-  closeMessageThread: actions.sync.closeMessageThread,
+  removeGeneratedPDFS: workerActions.removeGeneratedPDFS,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let carelink = utils.getCarelink(ownProps.location);
-  var api = ownProps.routes[0].api;
-  return Object.assign({}, _.pick(dispatchProps, ['clearPatientData']), stateProps, {
+  const api = ownProps.routes[0].api;
+  const assignedDispatchProps = ['clearPatientData', 'generatePDFRequest', 'removeGeneratedPDFS'];
+
+  return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
     fetchers: getFetchers(dispatchProps, ownProps, api, { carelink }),
     uploadUrl: api.getUploadUrl(),
     onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink }),

@@ -28,6 +28,8 @@ var chartDailyFactory = tidelineBlip.oneday;
 var Header = require('./header');
 var Footer = require('./footer');
 
+import { selectDailyViewData } from '@tidepool/viz';
+
 var DailyChart = React.createClass({
   chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs'],
   log: bows('Daily Chart'),
@@ -146,6 +148,7 @@ var Daily = React.createClass({
     timePrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
+    pdf: React.PropTypes.object.isRequired,
     // refresh handler
     onClickRefresh: React.PropTypes.func.isRequired,
     // message handlers
@@ -154,25 +157,42 @@ var Daily = React.createClass({
     // navigation handlers
     onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
+    onSwitchToPrint: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     // PatientData state updaters
     updateDatetimeLocation: React.PropTypes.func.isRequired
   },
+  componentDidMount: function() {
+    const dData = this.props.patientData.diabetesData;
+    window.downloadDailyPrintViewData = () => {
+      console.save(selectDailyViewData(
+        dData[dData.length - 1].normalTime,
+        _.pick(
+          this.props.patientData.grouped,
+          // TODO: add back deviceEvent later (not in first prod release)
+          ['basal', 'bolus', 'cbg', 'message', 'smbg']
+        ),
+        6,
+        this.props.timePrefs,
+      ), 'daily-print-view.json');
+    };
+  },
   getInitialState: function() {
     return {
       atMostRecent: false,
       inTransition: false,
-      title: ''
+      title: '',
     };
   },
   render: function() {
-    
+
     return (
       <div id="tidelineMain">
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
+          printReady={!!this.props.pdf.url}
           inTransition={this.state.inTransition}
           atMostRecent={this.state.atMostRecent}
           title={this.state.title}
@@ -187,6 +207,7 @@ var Daily = React.createClass({
           onClickOneDay={this.handleClickOneDay}
           onClickSettings={this.props.onSwitchToSettings}
           onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickPrint={this.handleClickPrint}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
@@ -218,7 +239,7 @@ var Daily = React.createClass({
         ref="footer" />
       </div>
       );
-    
+
   },
   getTitle: function(datetime) {
     var timePrefs = this.props.timePrefs, timezone;
@@ -249,6 +270,20 @@ var Daily = React.createClass({
       e.preventDefault();
     }
     return;
+  },
+  handleClickPrint: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    if (this.props.pdf.url) {
+      const printWindow = window.open(this.props.pdf.url);
+      printWindow.focus();
+      printWindow.print();
+    }
+
+    // Send tracking metric
+    this.props.onSwitchToPrint();
   },
   handleClickTwoWeeks: function(e) {
     if (e) {

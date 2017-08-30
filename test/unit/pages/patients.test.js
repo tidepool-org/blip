@@ -48,14 +48,14 @@ describe('Patients', () => {
       var render = TestUtils.renderIntoDocument(elem);
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
-          loading: false,
-          location: { query: {
-              justLoggedIn: true
-            }
-          },
-          loggedInUserId: 20,
-          patients: [ { userid: 1 }, { userid: 2 } ],
-          showingWelcomeMessage: null
+        loading: false,
+        location: { query: {
+            justLoggedIn: true
+          }
+        },
+        loggedInUserId: 20,
+        patients: [ { userid: 1 }, { userid: 2 } ],
+        showingWelcomeMessage: null
       });
 
       render.componentWillReceiveProps(nextProps);

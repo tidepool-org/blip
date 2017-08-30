@@ -3,13 +3,16 @@
 /* global sinon */
 /* global it */
 /* global before */
+/* global beforeEach */
+/* global context */
 /* global after */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 import mutationTracker from 'object-invariant-test-helper';
-
+import _ from 'lodash';
+import { mount } from 'enzyme';
 
 var assert = chai.assert;
 var expect = chai.expect;
@@ -26,10 +29,22 @@ describe('PatientData', function () {
         return (<div className='fake-basics-view'></div>);
       }
     }));
+    PD.__Rewire__('Trends', React.createClass({
+      render: function() {
+        return (<div className='fake-trends-view'></div>);
+      }
+    }));
+    PD.__Rewire__('Weekly', React.createClass({
+      render: function() {
+        return (<div className='fake-weekly-view'></div>);
+      }
+    }));
   });
 
   after(() => {
     PD.__ResetDependency__('Basics');
+    PD.__ResetDependency__('Daily');
+    PD.__ResetDependency__('Weekly');
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -44,6 +59,8 @@ describe('PatientData', function () {
         fetchers: [],
         fetchingPatient: false,
         fetchingPatientData: false,
+        generatePDFRequest: sinon.stub(),
+        generatingPDF: false,
         isUserPatient: false,
         onCloseMessageThread: sinon.stub(),
         onCreateMessage: sinon.stub(),
@@ -54,6 +71,7 @@ describe('PatientData', function () {
         patientDataMap: {},
         patientNotesMap: {},
         queryParams: {},
+        removeGeneratedPDFS: sinon.stub(),
         trackMetric: sinon.stub(),
         uploadUrl: 'http://foo.com',
         viz: {},
@@ -385,11 +403,228 @@ describe('PatientData', function () {
       });
     });
 
+    describe('default view based on lastest data upload', () => {
+      let elem;
+      let kickOffProcessing;
 
+      const time = '2017-06-08T14:16:12.000Z';
+
+      const uploads = [
+        {
+          deviceId: 'pump',
+          deviceTags: ['insulin-pump'],
+        },
+        {
+          deviceId: 'cgm',
+          deviceTags: ['cgm'],
+        },
+        {
+          deviceId: 'bgm',
+          deviceTags: ['bgm'],
+        },
+        {
+          deviceId: 'pump-cgm',
+          deviceTags: ['insulin-pump', 'cgm'],
+        },
+      ];
+
+      const props = {
+        currentPatientInViewId: 40,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        trackMetric: sinon.stub(),
+        viz: {
+          trends: {},
+        },
+      };
+
+      beforeEach(() => {
+        elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+        sinon.spy(elem, 'deriveChartTypeFromLatestData');
+
+        kickOffProcessing = (data) => {
+          let processedData;
+
+          // bypass the actual processing function since that's not what we're testing here!
+          elem.doProcessing = () => {
+            let diabetesData = _.map(data, datum => {
+              datum.time = time;
+              return datum;
+            });
+
+            processedData = {
+              grouped: {
+                upload: uploads,
+              },
+              diabetesData,
+            }
+
+            elem.setState({
+              processedPatientData: { data: diabetesData },
+              processingData: false,
+            });
+
+            elem.setDefaultChartType(processedData);
+          };
+
+          elem.componentWillReceiveProps({
+            patientDataMap: {
+              40: []
+            },
+          });
+        };
+      });
+
+      context('setting default view based on device type of last upload', () => {
+        it('should set the default view to <Basics /> when latest data is from a pump', () => {
+          const data = [{
+            type: 'bolus',
+            deviceId: 'pump',
+          }];
+
+          kickOffProcessing(data);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+        });
+
+        it('should set the default view to <Trends /> with CGM selected when latest data is from a cgm', () => {
+          const data = [{
+            type: 'cbg',
+            deviceId: 'cgm',
+          }];
+
+          kickOffProcessing(data);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-trends-view');
+          expect(elem.state.chartPrefs.trends.showingCbg).to.be.true;
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to trends');
+        });
+
+        it('should set the default view to <Weekly /> when latest data is from a bgm', () => {
+          const data = [{
+            type: 'smbg',
+            deviceId: 'bgm',
+          }];
+
+          kickOffProcessing(data);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-weekly-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to weekly');
+        });
+
+        it('should set the default view to <Basics /> when latest data type is cbg but came from a pump', () => {
+          const data = [{
+            type: 'cbg',
+            deviceId: 'pump-cgm',
+          }];
+
+          kickOffProcessing(data);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+        });
+      });
+
+      context('unable to determine device, falling back to data.type', () => {
+        it('should set the default view to <Basics /> when type is bolus', () => {
+          const data = [{
+            type: 'bolus',
+            deviceId: 'unknown',
+          }];
+
+          kickOffProcessing(data);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+        });
+
+        it('should set the default view to <Basics /> when type is basal', () => {
+          const data = [{
+            type: 'basal',
+            deviceId: 'unknown',
+          }];
+
+          kickOffProcessing(data);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+        });
+
+        it('should set the default view to <Basics /> when type is wizard', () => {
+          const data = [{
+            type: 'wizard',
+            deviceId: 'unknown',
+          }];
+
+          kickOffProcessing(data);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+        });
+
+        it('should set the default view to <Trends /> when type is cbg', () => {
+          const data = [{
+            type: 'cbg',
+            deviceId: 'unknown',
+          }];
+
+          kickOffProcessing(data);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-trends-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to trends');
+        });
+
+        it('should set the default view to <Weekly /> when type is smbg', () => {
+          const data = [{
+            type: 'smbg',
+            deviceId: 'unknown',
+          }];
+
+          kickOffProcessing(data);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-weekly-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to weekly');
+        });
+      });
+    });
 
     describe('render data (finally!)', () => {
       describe('logged-in user is not current patient targeted for viewing', () => {
-        it ('should render the default <Basics> when data is present for current patient', function() {
+        it ('should render the correct view when data is present for current patient', function() {
           var props = {
             currentPatientInViewId: 40,
             patient: {
@@ -399,16 +634,24 @@ describe('PatientData', function () {
               }
             },
             fetchingPatient: false,
-            fetchingPatientData: false
+            fetchingPatientData: false,
+            viz: {
+              trends: {},
+            },
           };
 
           // Try out using the spread props syntax in JSX
           var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
+          // Setting data.type to 'cbg' should result in <Trends /> view rendering
+          const data = [{ type: 'cbg' }];
+
           // bypass the actual processing function since that's not what we're testing here!
           elem.doProcessing = () => {
             elem.setState({
-              processedPatientData: {data: [{type: 'cbg'}]},
-              processingData: false
+              processedPatientData: { data },
+              processingData: false,
+              chartType: elem.deriveChartTypeFromLatestData(data[0], []),
             });
           }
           elem.componentWillReceiveProps({
@@ -420,13 +663,13 @@ describe('PatientData', function () {
             }
           });
 
-          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
+          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-trends-view');
           expect(x).to.be.ok;
         });
       });
 
       describe('logged-in user is viewing own data', () => {
-        it ('should render the default <Basics> when data is present for current patient', function() {
+        it ('should render the correct view when data is present for current patient', function() {
           var props = {
             currentPatientInViewId: 40,
             isUserPatient: true,
@@ -442,11 +685,16 @@ describe('PatientData', function () {
 
           // Try out using the spread props syntax in JSX
           var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
+          // Setting data.type to 'basal' should result in <Basics /> view rendering
+          const data = [{ type: 'basal' }];
+
           // bypass the actual processing function since that's not what we're testing here!
           elem.doProcessing = () => {
             elem.setState({
-              processedPatientData: {data: [{type: 'cbg'}]},
-              processingData: false
+              processedPatientData: { data },
+              processingData: false,
+              chartType: elem.deriveChartTypeFromLatestData(data[0]),
             });
           }
           elem.componentWillReceiveProps({
@@ -465,30 +713,207 @@ describe('PatientData', function () {
     });
   });
 
+  describe('handleRefresh', function() {
+    const props = {
+      onRefresh: sinon.stub(),
+      clearPatientData: sinon.stub(),
+      removeGeneratedPDFS: sinon.stub(),
+    };
+
+    it('should clear patient data upon refresh', function() {
+      const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+      const callCount = props.clearPatientData.callCount;
+      elem.handleRefresh();
+
+      expect(props.clearPatientData.callCount).to.equal(callCount + 1);
+    });
+
+    it('should clear generated pdfs upon refresh', function() {
+      const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+      const callCount = props.removeGeneratedPDFS.callCount;
+      elem.handleRefresh();
+      expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
+    });
+  });
+
+  describe('componentWillUnmount', function() {
+    const props = {
+      clearPatientData: sinon.stub(),
+      removeGeneratedPDFS: sinon.stub(),
+    };
+
+    it('should clear patient data upon refresh', function() {
+      const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+      const callCount = props.clearPatientData.callCount;
+      elem.componentWillUnmount();
+
+      expect(props.clearPatientData.callCount).to.equal(callCount + 1);
+    });
+
+    it('should clear generated pdfs upon refresh', function() {
+      const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+      const callCount = props.removeGeneratedPDFS.callCount;
+      elem.componentWillUnmount();
+      expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
+    });
+  });
+
+  describe('componentWillUpdate', function() {
+    it('should generate a pdf when view is daily and patient data is processed', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: false,
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      var callCount = elem.generatePDF.callCount;
+
+      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: true });
+      wrapper.update();
+
+      expect(elem.generatePDF.callCount).to.equal(callCount + 1);
+    });
+
+    it('should not generate a pdf when one is currently generating', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: true,
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: true });
+      wrapper.update();
+
+      expect(elem.generatePDF.callCount).to.equal(0);
+    });
+
+    it('should not generate a pdf when patient data is not yet processed', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: false,
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      var callCount = elem.generatePDF.callCount;
+
+      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: false });
+      wrapper.update();
+
+      expect(elem.generatePDF.callCount).to.equal(0);
+    });
+
+    it('should not generate a pdf when patient data exists, but new patient data is processing', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: false,
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      var callCount = elem.generatePDF.callCount;
+
+      wrapper.setState({ chartType: 'daily', processingData: true, processedPatientData: true });
+      wrapper.update();
+
+      expect(elem.generatePDF.callCount).to.equal(0);
+    });
+
+    it('should not generate a pdf when one already exists for the current view', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: false,
+        viz: {
+          pdf: {
+            daily: {
+              url: 'someUrl'
+            }
+          }
+        }
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      var callCount = elem.generatePDF.callCount;
+
+      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: true });
+      wrapper.update();
+
+      expect(elem.generatePDF.callCount).to.equal(0);
+    });
+  });
+
   describe('handleSwitchToDaily', function() {
     it('should track metric for calender', function() {
-          var props = {
-            currentPatientInViewId: 40,
-            isUserPatient: true,
-            patient: {
-              userid: 40,
-              profile: {
-                fullName: 'Fooey McBar'
-              }
-            },
-            fetchingPatient: false,
-            fetchingPatientData: false,
-            fetchingUser: false,
-            trackMetric: sinon.stub()
-          };
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        fetchingUser: false,
+        trackMetric: sinon.stub()
+      };
 
-          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
 
-          var callCount = props.trackMetric.callCount;
-          elem.handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
-          expect(props.trackMetric.callCount).to.equal(callCount + 1);
-          expect(props.trackMetric.calledWith('Clicked Basics testing calendar')).to.be.true;
-        });
+      var callCount = props.trackMetric.callCount;
+      elem.handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
+      expect(props.trackMetric.callCount).to.equal(callCount + 1);
+      expect(props.trackMetric.calledWith('Clicked Basics testing calendar')).to.be.true;
+    });
   });
 
   describe('mapStateToProps', () => {
@@ -517,8 +942,9 @@ describe('PatientData', function () {
         working: {
           fetchingPatient: {inProgress: false, notification: null},
           fetchingPatientData: {inProgress: false, notification: null},
-          fetchingUser: {inProgress: false, notification: null}
-        }
+          fetchingUser: { inProgress: false, notification: null },
+          generatingPDF: { inProgress: false, notification: null },
+        },
       };
 
       const tracked = mutationTracker.trackObj(state);
@@ -596,8 +1022,9 @@ describe('PatientData', function () {
         working: {
           fetchingPatient: {inProgress: false, notification: null},
           fetchingPatientData: {inProgress: false, notification: null},
-          fetchingUser: {inProgress: false, notification: null}
-        }
+          fetchingUser: {inProgress: false, notification: null},
+          generatingPDF: {inProgress: false, notification: null},
+        },
       };
 
       const tracked = mutationTracker.trackObj(state);

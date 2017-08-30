@@ -58,3 +58,40 @@
 .input-group-control.placeholder {
   color: @gray-dark;
 }
+
+.input-group .Select {
+  padding: 0;
+  border: 0;
+
+
+  .Select-control {
+    height: 40px;
+    border-radius: 0;
+    float: left;
+  }
+
+  .Select-value {
+    margin-top: 6px;
+  }
+
+  &.Select--single {
+    .Select-value {
+      margin-top: 2px;
+    }
+  }
+
+  &.Select--multi {
+    .Select-value {
+      border: 1px solid @blue-green;
+      background-color: rgba(11, 158, 179, 0.08);
+      color: @blue-green;
+    }
+    .Select-value-icon {
+      border-right: 1px solid @blue-green;
+    }
+  }
+
+  .Select-placeholder {
+    margin-top: 2px;
+  }
+}

@@ -492,7 +492,9 @@ var PatientTeam = React.createClass({
 
     var pendingSentInvites = [];
     if (utils.getIn(this.props, ['pendingSentInvites'])) {
-      pendingSentInvites = _.map(this.props.pendingSentInvites, this.renderPendingInvite);
+      // We don't want to render data donation accounts here, as they are managed in the settings page
+      const filteredInvites = _.reject(this.props.pendingSentInvites, personUtils.isDataDonationAccount);
+      pendingSentInvites = _.map(filteredInvites, this.renderPendingInvite);
     }
 
     var inviteInProgress = _.get(this.props.invitingMemberInfo, 'inProgress', false);

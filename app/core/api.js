@@ -301,6 +301,38 @@ api.user.custodialConfirmSignUp = function(key, birthday, password, callback) {
   return tidepool.custodialSignupConfirm(key, birthday, password, callback);
 };
 
+
+// Get all patients in current user's "patients" group
+api.user.getDataDonationAccounts = function (cb) {
+  api.log('GET /patients');
+
+  tidepool.getAssociatedUsersDetails(tidepool.getUserId(), function (err, users) {
+    if (err) {
+      return cb(err);
+    }
+
+    //these are the accounts that have shared their data
+    //with a given set of permissions.
+    let dataDonationAccounts = _.filter(users, function (user) {
+      return personUtils.isDataDonationAccount(user);
+    });
+
+    dataDonationAccounts = _.map(dataDonationAccounts, function (user) {
+      return {
+        userid: user.userid,
+        email: user.username,
+        status: 'confirmed',
+      };
+    });
+
+    if (_.isEmpty(dataDonationAccounts)) {
+      return cb(null, []);
+    }
+
+    return cb(null, dataDonationAccounts);
+  });
+};
+
 // ----- Patient -----
 
 api.patient = {};
