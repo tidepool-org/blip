@@ -1,19 +1,21 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+/* jshint esversion:6 */
 
 // in order to get d3.chart dependency
 var tideline = require('../../../js/');
@@ -91,6 +93,18 @@ var BasicsChart = React.createClass({
       totalDailyDoseSection.togglable = togglableState.closed;
     }
   },
+  _aggregatedDataEmpty: function() {
+    var {
+      basalBolusRatio,
+      averageDailyDose,
+      averageDailyCarbs,
+    } = this.state.data;
+
+    if (basalBolusRatio === null || averageDailyDose === null || averageDailyCarbs === null) {
+      return true;
+    }
+    return false;
+  },
   componentWillMount: function() {
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
@@ -111,6 +125,11 @@ var BasicsChart = React.createClass({
     }
     this.setState(basicsData);
     basicsActions.bindApp(this);
+  },
+  componentDidMount: function() {
+    if (this._aggregatedDataEmpty() && this.props.trackMetric) {
+      this.props.trackMetric('web - pump vacation message displayed');
+    }
   },
   componentWillUnmount: function() {
     var patientData = _.clone(this.props.patientData);
