@@ -1,4 +1,9 @@
 node_modules
-npm-debug.log
 .git
 .gitignore
+dist
+local
+_book
+coverage
+web
+*.log
