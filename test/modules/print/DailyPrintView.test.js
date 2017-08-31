@@ -59,6 +59,7 @@ describe('DailyPrintView', () => {
       this.fill = sinon.stub().returns(this);
       this.stub = sinon.stub().returns(this);
       this.dash = sinon.stub().returns(this);
+      this.undash = sinon.stub().returns(this);
       this.stroke = sinon.stub().returns(this);
       this.circle = sinon.stub().returns(this);
       this.lineWidth = sinon.stub().returns(this);
