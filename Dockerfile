@@ -14,15 +14,21 @@ ENV API_SECRET="This is a local API secret for everyone. BsscSHqSHiwrBMJsEGqbvXi
     PORT=3000 \
     MOCK=false \
     DEV_TOOLS=true \
+    WEBPACK_DEVTOOL="cheap-module-eval-source-map" \
     API_HOST="http://localhost:8009" \
     UPLOAD_API="http://localhost/uploader"
 
 WORKDIR /app
 
 COPY package.json /app/package.json
-RUN apk --no-cache add git \
+RUN apk add --no-cache fontconfig \
+ && apk add --no-cache --virtual .build-deps curl git \
+ && echo "Fixing PhantomJS to run on alpine" \
+ && curl -Ls "https://github.com/tidepool-org/tools/raw/master/alpine_phantomjs_dependencies/dockerized-phantomjs.tar.xz" | tar xJ -C / \
  && yarn install \
- && apk del git
+ && apk del .build-deps \
+ && rm -rf /usr/share/man /tmp/* /var/tmp/* /root/.npm /root/.node-gyp
+
 COPY . /app
 
 USER node

@@ -1,4 +1,13 @@
 node_modules
-npm-debug.log
 .git
 .gitignore
+*.log
+_book
+tmp
+deploy
+dist
+config/*
+!config/local.sh
+test/bin
+web
+artifact_node.sh
