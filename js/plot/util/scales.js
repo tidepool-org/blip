@@ -88,8 +88,7 @@ var scales = function(opts) {
         return [];
       }
       var defaultTicks = _.map(_.values(_.omit(opts.bgClasses, ['very-high', 'very-low'])), function(n) {
-        var boundary = _.get(n, 'boundary');
-        return boundary;
+        return _.get(n, 'boundary');
       }).sort(function (a, b) { return a - b; });
 
       var ext = d3.extent(data, function(d) { return d.value; });

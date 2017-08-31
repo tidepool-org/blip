@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -52,7 +52,6 @@ describe('BasicsChart', function() {
     var render = TestUtils.renderIntoDocument(elem);
     expect(elem).to.be.ok;
     expect(console.error.callCount).to.equal(0);
-
   });
 
   it('should console.error when required props are missing', function() {
@@ -87,5 +86,21 @@ describe('BasicsChart', function() {
     // calibration selector in fingerstick section gets active: false added in componentWillMount when no data
     expect(render.state.sections.fingersticks.selectorOptions.rows[0][2].active).to.be.false;
     expect(basicsState.sections.fingersticks.selectorOptions.rows[0][2].active).to.be.undefined;
+  });
+
+  it('should calculate bgDistribution for mmol/L data', function() {
+    var td = new TidelineData([new types.Bolus(), new types.Basal(), new types.SMBG({ units: 'mmol/L' })]);
+    var props = {
+      bgUnits: 'mmol/L',
+      bgClasses: td.bgClasses,
+      onSelectDay: sinon.stub(),
+      patientData: td,
+      timePrefs: {},
+      updateBasicsData: sinon.stub(),
+      trackMetric: sinon.stub()
+    };
+    var elem = React.createElement(BasicsChart, props);
+    var render = TestUtils.renderIntoDocument(elem);
+    expect(render.state.data.bgDistribution.smbg.target).to.equal(1);
   });
 });
