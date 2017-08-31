@@ -255,7 +255,8 @@ utils.translateBG = (value, targetUnits) => {
  */
 utils.roundBGTargets = (value, units) => {
   const nearest = units === MGDL_UNITS ? 5 : 0.1;
-  return nearest * Math.round(value / nearest);
+  const precision = units === MGDL_UNITS ? 0 : 1;
+  return parseFloat((nearest * Math.round(value / nearest)).toFixed(precision));
 }
 
 utils.processPatientData = (comp, data, queryParams, settings) => {

@@ -109,7 +109,13 @@ export default class PatientSettings extends Component {
       settings = DEFAULT_BG_SETTINGS;
     }
     else {
-      settings = _.defaultsDeep({}, patient.settings, DEFAULT_BG_SETTINGS);
+      const patientBgUnits = _.get(patient, 'settings.units.bg');
+      if (patientBgUnits) {
+        settings = _.defaultsDeep({}, patient.settings, { bgTarget: DEFAULT_BG_TARGETS[patientBgUnits] });
+      }
+      else {
+        settings = _.defaultsDeep({}, patient.settings, DEFAULT_BG_SETTINGS);
+      }
     }
 
     const lowNode = (self.props.editingAllowed) ? self.renderIncrementalInput('low', settings) : self.renderValueNode('low', settings);
