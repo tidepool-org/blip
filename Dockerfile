@@ -2,9 +2,7 @@ FROM node:6.10.3-alpine
 
 WORKDIR /app
 
-COPY package.json /app/package.json
-COPY package.config.js /app/package.config.js
-COPY webpack.config.js /app/webpack.config.js
+COPY package.json package.config.js webpack.config.js /app/
 
 RUN apk add --no-cache fontconfig \
  && apk add --no-cache --virtual .build-deps curl git \
