@@ -566,7 +566,7 @@ export function updateSettings(api, patientId, settings) {
         dispatch(sync.updateSettingsFailure(
           createActionError(ErrorMessages.ERR_UPDATING_SETTINGS, err), err
         ));
-        updatingBgUnits && dispatch(sync.updatePatientBgUnits(
+        updatingBgUnits && dispatch(sync.updatePatientBgUnitsFailure(
           createActionError(ErrorMessages.ERR_UPDATING_PATIENT_BG_UNITS, err), err
         ));
       } else {

@@ -276,7 +276,7 @@ describe('personutils', () => {
     });
   });
 
-  describe('togglePatientBGUnits', () => {
+  describe('togglePatientBgUnits', () => {
     it('should toggle from mmol/L to mg/dL', () => {
       const settings = {
         bgTarget: {
@@ -288,7 +288,7 @@ describe('personutils', () => {
         },
       };
 
-      const toggled = personUtils.togglePatientBGUnits(settings);
+      const toggled = personUtils.togglePatientBgUnits(settings);
       expect(toggled.units.bg).to.equal(MMOLL_UNITS);
       expect(toggled.bgTarget.high).to.equal(10);
       expect(toggled.bgTarget.low).to.equal(3.9);
@@ -305,7 +305,7 @@ describe('personutils', () => {
         },
       };
 
-      const toggled = personUtils.togglePatientBGUnits(settings);
+      const toggled = personUtils.togglePatientBgUnits(settings);
       expect(toggled.units.bg).to.equal(MGDL_UNITS);
       expect(toggled.bgTarget.high).to.equal(180);
       expect(toggled.bgTarget.low).to.equal(70);
@@ -326,9 +326,9 @@ describe('personutils', () => {
       const withoutLowTarget = _.assign({ bgTarget: { high: 10 } }, _.omit(settings, 'bgTarget'));
       const withoutUnits =  _.assign({ units: {} }, _.omit(settings, 'units'));
 
-      expect(personUtils.togglePatientBGUnits(withoutHighTarget)).to.be.false;
-      expect(personUtils.togglePatientBGUnits(withoutLowTarget)).to.be.false;
-      expect(personUtils.togglePatientBGUnits(withoutUnits)).to.be.false;
+      expect(personUtils.togglePatientBgUnits(withoutHighTarget)).to.be.false;
+      expect(personUtils.togglePatientBgUnits(withoutLowTarget)).to.be.false;
+      expect(personUtils.togglePatientBgUnits(withoutUnits)).to.be.false;
     });
   })
 

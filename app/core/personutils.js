@@ -109,7 +109,7 @@ personUtils.isRemoveable = (person) => {
  * @return {Object} translated settings object if successful
  * @return {Boolean} false if unsuccessful
  */
-personUtils.togglePatientBGUnits = (settings) => {
+personUtils.togglePatientBgUnits = (settings) => {
   const bgTargetHigh = _.get(settings, 'bgTarget.high');
   const bgTargetLow = _.get(settings, 'bgTarget.low');
   const bgUnits = _.get(settings, 'units.bg');
@@ -122,8 +122,8 @@ personUtils.togglePatientBGUnits = (settings) => {
 
   return {
     bgTarget: {
-      high: utils.translateBG(bgTargetHigh, targetUnits),
-      low: utils.translateBG(bgTargetLow, targetUnits),
+      high: utils.translateBg(bgTargetHigh, targetUnits),
+      low: utils.translateBg(bgTargetLow, targetUnits),
     },
     units: {
       bg: targetUnits,

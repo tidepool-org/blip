@@ -297,22 +297,22 @@ describe('utils', () => {
     });
   });
 
-  describe('translateBG', () => {
+  describe('translateBg', () => {
     it('should translate a BG value to the desired target unit', () => {
-      expect(utils.translateBG(180, MMOLL_UNITS)).to.equal(10);
-      expect(utils.translateBG(10, MGDL_UNITS)).to.equal(180);
+      expect(utils.translateBg(180, MMOLL_UNITS)).to.equal(10);
+      expect(utils.translateBg(10, MGDL_UNITS)).to.equal(180);
     });
   });
 
-  describe('roundBGTargets', () => {
+  describe('roundBgTargets', () => {
     it('should round a target BG value as appropriate', () => {
       // to the nearest 5 for mg/dL
-      expect(utils.roundBGTargets(178.15, MGDL_UNITS)).to.equal(180);
-      expect(utils.roundBGTargets(172, MGDL_UNITS)).to.equal(170);
+      expect(utils.roundBgTargets(178.15, MGDL_UNITS)).to.equal(180);
+      expect(utils.roundBgTargets(172, MGDL_UNITS)).to.equal(170);
 
       // to the nearest .1 for mmol/L
-      expect(utils.roundBGTargets(3.91, MMOLL_UNITS)).to.equal(3.9);
-      expect(utils.roundBGTargets(3.96, MMOLL_UNITS)).to.equal(4);
+      expect(utils.roundBgTargets(3.91, MMOLL_UNITS)).to.equal(3.9);
+      expect(utils.roundBgTargets(3.96, MMOLL_UNITS)).to.equal(4);
     });
   });
 });

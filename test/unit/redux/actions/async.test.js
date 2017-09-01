@@ -18,7 +18,7 @@ import initialState from '../../../../app/redux/reducers/initialState';
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
-import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL } from '../../../../app/core/constants';
+import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS } from '../../../../app/core/constants';
 
 // need to require() async in order to rewire utils inside
 const async = require('../../../../app/redux/actions/async');
@@ -1556,6 +1556,36 @@ describe('Actions', () => {
         expect(api.metadata.settings.put.calledWith(patientId, settings)).to.be.true;
       });
 
+      it('should trigger UPDATE_PATIENT_BG_UNITS_REQUEST when bg units are being updated', () => {
+          let patientId = 1234;
+          let settings = { units: { bg: MMOLL_UNITS} };
+          let api = {
+            metadata: {
+              settings: {
+                put: sinon.stub().callsArgWith(2, null, settings)
+              }
+            }
+          };
+
+          let expectedActions = [
+            { type: 'UPDATE_SETTINGS_REQUEST' },
+            { type: 'UPDATE_PATIENT_BG_UNITS_REQUEST' },
+            { type: 'UPDATE_SETTINGS_SUCCESS', payload: { userId: patientId, updatedSettings: settings } },
+            { type: 'UPDATE_PATIENT_BG_UNITS_SUCCESS', payload: { userId: patientId, updatedSettings: settings } },
+          ];
+
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+
+          let store = mockStore(initialState);
+          store.dispatch(async.updateSettings(api, patientId, settings));
+
+          const actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
+          expect(api.metadata.settings.put.calledWith(patientId, settings)).to.be.true;
+      });
+
       it('should trigger UPDATE_SETTINGS_FAILURE and it should call updateSettings once for a failed request', () => {
         let patientId = 1234;
         let settings = { siteChangeSource: 'cannulaPrime' };
@@ -1574,6 +1604,39 @@ describe('Actions', () => {
           { type: 'UPDATE_SETTINGS_REQUEST' },
           { type: 'UPDATE_SETTINGS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(initialState);
+        store.dispatch(async.updateSettings(api, patientId, settings));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.metadata.settings.put.calledWith(patientId, settings)).to.be.true;
+      });
+
+      it('should trigger UPDATE_PATIENT_BG_UNITS_FAILURE and it should call updateSettings once for a failed request', () => {
+        let patientId = 1234;
+        let settings = { units: { bg: MMOLL_UNITS} };
+        let api = {
+          metadata: {
+            settings: {
+              put: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'})
+            }
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_UPDATING_SETTINGS);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'UPDATE_SETTINGS_REQUEST' },
+          { type: 'UPDATE_PATIENT_BG_UNITS_REQUEST' },
+          { type: 'UPDATE_SETTINGS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
+          { type: 'UPDATE_PATIENT_BG_UNITS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
+        ];
+
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });

@@ -662,7 +662,7 @@ describe('PatientInfo', function () {
     });
   });
 
-  describe('renderBGUnitSettings', function() {
+  describe('renderBgUnitSettings', function() {
     let props = {
       user: { userid: 5678 },
       patient: { userid: 1234 },

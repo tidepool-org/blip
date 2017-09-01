@@ -72,7 +72,7 @@ const initialState = {
     settingMemberPermissions: Object.assign({}, working),
     updatingDataDonationAccounts: Object.assign({}, working),
     updatingPatient: Object.assign({}, working),
-    updatingPatientBGUnits: Object.assign({}, working),
+    updatingPatientBgUnits: Object.assign({}, working),
     updatingUser: Object.assign({}, working),
     verifyingCustodial: Object.assign({}, working),
     signingUp: Object.assign({}, working),

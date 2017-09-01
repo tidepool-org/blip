@@ -23,9 +23,9 @@ import SimpleForm from '../../components/simpleform';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import { DEFAULT_BG_SETTINGS } from '../../pages/patient/patientsettings';
-import { togglePatientBGUnits } from '../../core/personutils';
+import { togglePatientBgUnits } from '../../core/personutils';
 
-export default class PatientBGUnits extends Component {
+export default class PatientBgUnits extends Component {
   static propTypes = {
     editingAllowed: React.PropTypes.bool.isRequired,
     onUpdatePatientSettings: React.PropTypes.func.isRequired,
@@ -41,7 +41,6 @@ export default class PatientBGUnits extends Component {
 
     this.state = {
       formValues: initialFormValues,
-      initialFormValues: initialFormValues,
       updatingUnits: false,
     };
   }
@@ -51,16 +50,16 @@ export default class PatientBGUnits extends Component {
       return null;
     }
 
-    const content = this.props.editingAllowed ? this.renderForm : this.renderBGPref;
+    const content = this.props.editingAllowed ? this.renderForm : this.renderBgPref;
 
     return (
-      <div className="PatientBGUnits">
+      <div className="PatientBgUnits">
         {content()}
       </div>
     );
   }
 
-  renderBGPref = () => {
+  renderBgPref = () => {
     return (
       <div className="bgUnits" children={this.state.formValues.bgUnits} />
     );
@@ -118,7 +117,7 @@ export default class PatientBGUnits extends Component {
 
     this.setState({ updatingUnits: true });
 
-    const newSettings = togglePatientBGUnits(patientSettings);
+    const newSettings = togglePatientBgUnits(patientSettings);
 
     if (newSettings) {
       this.props.onUpdatePatientSettings(this.props.patient.userid, newSettings);

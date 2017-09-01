@@ -21,7 +21,7 @@ var sundial = require('sundial');
 
 var personUtils = require('../../core/personutils');
 import PatientSettings from './patientsettings';
-import PatientBGUnits from '../../components/patientBGUnits';
+import PatientBgUnits from '../../components/patientBgUnits';
 import DonateForm from '../../components/donateform';
 
 //date masks we use
@@ -42,7 +42,7 @@ var PatientInfo = React.createClass({
     patient: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired,
     updatingDataDonationAccounts: React.PropTypes.bool,
-    updatingPatientBGUnits: React.PropTypes.bool,
+    updatingPatientBgUnits: React.PropTypes.bool,
     user: React.PropTypes.object,
   },
 
@@ -134,7 +134,7 @@ var PatientInfo = React.createClass({
           </div>
         </div>
         {this.renderPatientSettings()}
-        {this.renderBGUnitSettings()}
+        {this.renderBgUnitSettings()}
         {this.renderDonateForm()}
       </div>
     );
@@ -223,7 +223,7 @@ var PatientInfo = React.createClass({
           {this.renderAboutInput(formValues)}
         </div>
         {this.renderPatientSettings()}
-        {this.renderBGUnitSettings()}
+        {this.renderBgUnitSettings()}
         {this.renderDonateForm()}
       </div>
     );
@@ -332,17 +332,17 @@ var PatientInfo = React.createClass({
     );
   },
 
-  renderBGUnitSettings: function() {
+  renderBgUnitSettings: function() {
     return (
       <div className="PatientPage-bgUnitSettings">
         <div className="PatientPage-sectionTitle">The units I use are</div>
         <div className="PatientInfo-content">
-          <PatientBGUnits
+          <PatientBgUnits
             editingAllowed={this.isEditingAllowed(this.props.permsOfLoggedInUser)}
             onUpdatePatientSettings={this.props.onUpdatePatientSettings}
             patient={this.props.patient}
             trackMetric={this.props.trackMetric}
-            working={this.props.updatingPatientBGUnits || false}
+            working={this.props.updatingPatientBgUnits || false}
           />
         </div>
       </div>

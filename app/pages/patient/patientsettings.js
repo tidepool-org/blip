@@ -22,7 +22,7 @@ import { utils } from '@tidepool/viz';
 import IncrementalInput from '../../components/incrementalinput';
 import CustomizedTrendsChart from './customizedtrendschart';
 
-import { roundBGTargets } from '../../core/utils';
+import { roundBgTargets } from '../../core/utils';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 
@@ -125,8 +125,8 @@ export default class PatientSettings extends Component {
     const errorNode = (self.state.error.low || self.state.error.high) ? self.renderErrorNode() : null;
 
     let chartTargets = {
-      high: utils.formatBgValue(roundBGTargets(settings.bgTarget.high, settings.units.bg), { bgUnits: settings.units.bg }),
-      low: utils.formatBgValue(roundBGTargets(settings.bgTarget.low, settings.units.bg), { bgUnits: settings.units.bg }),
+      high: utils.formatBgValue(roundBgTargets(settings.bgTarget.high, settings.units.bg), { bgUnits: settings.units.bg }),
+      low: utils.formatBgValue(roundBgTargets(settings.bgTarget.low, settings.units.bg), { bgUnits: settings.units.bg }),
     };
 
     return (
@@ -161,7 +161,7 @@ export default class PatientSettings extends Component {
   }
 
   renderIncrementalInput(bound, settings) {
-    let value = roundBGTargets(settings.bgTarget[bound], settings.units.bg);
+    let value = roundBgTargets(settings.bgTarget[bound], settings.units.bg);
 
     return (<IncrementalInput
       name={bound}
