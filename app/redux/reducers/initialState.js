@@ -17,7 +17,7 @@
 
 import _ from 'lodash';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
+import { MGDL_UNITS } from '../../core/constants';
 
 const working = {
   inProgress: false,

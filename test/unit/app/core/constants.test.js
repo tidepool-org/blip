@@ -32,7 +32,7 @@ describe('constants', function() {
     expect(Constants.MMOLL_UNITS).to.equal('mmol/L');
   });
 
-  it('should define the glucose mmoll conversion factor to 18.01559', function() {
+  it('should define the glucose mmoll conversion factor as 18.01559', function() {
     expect(Constants.GLUCOSE_MM).to.equal(18.01559);
   });
 

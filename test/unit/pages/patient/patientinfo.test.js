@@ -675,7 +675,7 @@ describe('PatientInfo', function () {
       wrapper = mount(<PatientInfo {...props} />);
     });
 
-    it('should render the bg unit settings if editing is not allowed', function() {
+    it('should render the bg unit settings value if editing is not allowed', function() {
       const bgUnitSettings = wrapper.find('.PatientPage-bgUnitSettings');
 
       expect(bgUnitSettings).to.have.length(1);

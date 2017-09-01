@@ -37,7 +37,7 @@ describe('SimpleForm',  () => {
       expect (wrapper.find('button.simple-form-submit').length).to.equal(1);
     });
 
-    it('should render a submit button by default if renderSubmit prop is true', () => {
+    it('should render a submit button if renderSubmit prop is true', () => {
       const props = { renderSubmit: true };
       const wrapper = shallow(<SimpleForm {...props} />);
 

@@ -118,9 +118,9 @@ describe('PatientBgUnits', () => {
         },
       });
 
-      const expectedFormValues = _.assign({}, expectedInitialFormValues, {
+      const expectedFormValues = {
         bgUnits: MMOLL_UNITS,
-      });
+      };
 
       const element = mount(<PatientBgUnits {...newProps} />)
       expect(element.state('formValues')).to.eql(expectedFormValues);
@@ -154,6 +154,8 @@ describe('PatientBgUnits', () => {
     });
 
     it('should return without doing anything if the units selected match the current patient bg unit settings', () => {
+      expect(wrapper.state('formValues').bgUnits).to.equal(MGDL_UNITS);
+
       radio1.simulate('change', { target: { name: 'bgUnits', value: MGDL_UNITS } });
 
       sinon.assert.callCount(props.onUpdatePatientSettings, 0);
@@ -162,6 +164,8 @@ describe('PatientBgUnits', () => {
     });
 
     it('should return without doing anything if the working prop is set to true', () => {
+      expect(wrapper.state('formValues').bgUnits).to.equal(MGDL_UNITS);
+
       wrapper.setProps({ working: true });
       radio2.simulate('change', { target: { name: 'bgUnits', value: MMOLL_UNITS } });
 
@@ -171,6 +175,8 @@ describe('PatientBgUnits', () => {
     });
 
     it('should return without doing anything if the updatingUnits state property is set to true', () => {
+      expect(wrapper.state('formValues').bgUnits).to.equal(MGDL_UNITS);
+
       wrapper.setState({ updatingUnits: true });
       radio2.simulate('change', { target: { name: 'bgUnits', value: MMOLL_UNITS } });
 

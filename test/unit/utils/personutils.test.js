@@ -277,7 +277,7 @@ describe('personutils', () => {
   });
 
   describe('togglePatientBgUnits', () => {
-    it('should toggle from mmol/L to mg/dL', () => {
+    it('should toggle from mg/dL to mmol/L', () => {
       const settings = {
         bgTarget: {
           high: 180,
@@ -294,7 +294,7 @@ describe('personutils', () => {
       expect(toggled.bgTarget.low).to.equal(3.9);
     });
 
-    it('should toggle from mg/dL to mmol/L', () => {
+    it('should toggle from mmol/L to mg/dL', () => {
       const settings = {
         bgTarget: {
           high: 10,
@@ -330,7 +330,7 @@ describe('personutils', () => {
       expect(personUtils.togglePatientBgUnits(withoutLowTarget)).to.be.false;
       expect(personUtils.togglePatientBgUnits(withoutUnits)).to.be.false;
     });
-  })
+  });
 
   describe('validateFormValues', () => {
     var INVALID_DATE_TEXT = 'Hmm, this date doesn’t look right';

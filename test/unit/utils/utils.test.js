@@ -304,15 +304,15 @@ describe('utils', () => {
     });
   });
 
-  describe('roundBgTargets', () => {
+  describe('roundBgTarget', () => {
     it('should round a target BG value as appropriate', () => {
       // to the nearest 5 for mg/dL
-      expect(utils.roundBgTargets(178.15, MGDL_UNITS)).to.equal(180);
-      expect(utils.roundBgTargets(172, MGDL_UNITS)).to.equal(170);
+      expect(utils.roundBgTarget(178.15, MGDL_UNITS)).to.equal(180);
+      expect(utils.roundBgTarget(172, MGDL_UNITS)).to.equal(170);
 
       // to the nearest .1 for mmol/L
-      expect(utils.roundBgTargets(3.91, MMOLL_UNITS)).to.equal(3.9);
-      expect(utils.roundBgTargets(3.96, MMOLL_UNITS)).to.equal(4);
+      expect(utils.roundBgTarget(3.91, MMOLL_UNITS)).to.equal(3.9);
+      expect(utils.roundBgTarget(3.96, MMOLL_UNITS)).to.equal(4);
     });
   });
 });

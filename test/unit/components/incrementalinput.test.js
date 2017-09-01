@@ -54,7 +54,7 @@ describe('IncrementalInput', function () {
     it('should render without problems', function () {
       const wrapper = shallow(
         <IncrementalInput
-          {...props.mgdl}
+          {...props}
         />
       );
       expect(wrapper.find(IncrementalInput)).to.have.length(0);
