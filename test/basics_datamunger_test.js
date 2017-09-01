@@ -211,6 +211,12 @@ describe('basics datamunger', function() {
       { type: 'wizard', carbInput: 100, normalTime: '2015-09-01T07:00:00Z' },
       { type: 'wizard', carbInput: 77, normalTime: '2015-09-01T10:30:00Z' },
       { type: 'wizard', carbInput: 33, normalTime: '2015-09-01T13:00:00Z' },
+      { type: 'wizard', carbInput: 100, normalTime: '2015-09-02T07:00:00Z' },
+      { type: 'wizard', carbInput: 77, normalTime: '2015-09-02T10:30:00Z' },
+      { type: 'wizard', carbInput: 33, normalTime: '2015-09-02T13:00:00Z' },
+      { type: 'wizard', carbInput: 100, normalTime: '2015-09-03T07:00:00Z' },
+      { type: 'wizard', carbInput: 77, normalTime: '2015-09-03T10:30:00Z' },
+      { type: 'wizard', carbInput: 33, normalTime: '2015-09-03T13:00:00Z' },
     ];
     var basal = [new types.Basal({
       duration: 864e5,
@@ -218,24 +224,36 @@ describe('basics datamunger', function() {
     }), new types.Basal({
       duration: 864e5,
       deviceTime: '2015-09-02T00:00:00'
+    }), new types.Basal({
+      duration: 864e5,
+      deviceTime: '2015-09-03T00:00:00'
+    }), new types.Basal({
+      duration: 864e5,
+      deviceTime: '2015-09-04T00:00:00'
     })];
     var bolus = [new types.Bolus({
       value: 4.0,
       deviceTime: '2015-09-01T12:00:00'
+    }), new types.Bolus({
+      value: 4.0,
+      deviceTime: '2015-09-02T12:00:00'
+    }), new types.Bolus({
+      value: 4.0,
+      deviceTime: '2015-09-03T12:00:00'
     })];
     var anotherBolus = new types.Bolus({
       value: 2.0,
-      deviceTime: '2015-09-02T12:00:00'
+      deviceTime: '2015-09-04T12:00:00'
     });
     var bd = {
       data: {
         basal: {data: basal},
-        bolus: {data: bolus, dataByDate: {'2015-09-01': [], '2015-09-02': []}},
+        bolus: {data: bolus, dataByDate: {'2015-09-01': [], '2015-09-02': [], '2015-09-03': [], '2015-09-04': []}},
         wizard: {data: wizard}
       },
       dateRange: [
         '2015-09-01T00:00:00.000Z',
-        '2015-09-02T00:00:00.000Z'
+        '2015-09-04T00:00:00.000Z'
       ],
       days: [{
         date: '2015-09-01',
@@ -245,6 +263,12 @@ describe('basics datamunger', function() {
         type: 'past',
       }, {
         date: '2015-09-03',
+        type: 'past',
+      }, {
+        date: '2015-09-04',
+        type: 'past',
+      }, {
+        date: '2015-09-05',
         type: 'mostRecent',
       }]
     };
@@ -309,11 +333,13 @@ describe('basics datamunger', function() {
         expect(dm.calculateBasalBolusStats(bd3).basalBolusRatio.bolus).to.equal(0.4);
       });
 
-      it('should not calculate a statistic if there are `past` days with no boluses', function() {
+      it('should not calculate a statistic if there are 3 or more `past` days with no boluses', function() {
         var bd4 = _.cloneDeep(bd);
         delete bd4.data.bolus.dataByDate['2015-09-02'];
-        bd4.data.bolus.dataByDate['2015-09-03'] = [];
-        bd4.days.push({date: '2015-09-03', type: 'mostRecent'});
+        delete bd4.data.bolus.dataByDate['2015-09-03'];
+        delete bd4.data.bolus.dataByDate['2015-09-04'];
+        bd4.data.bolus.dataByDate['2015-09-05'] = [];
+        bd4.days.push({date: '2015-09-05', type: 'mostRecent'});
         expect(dm.calculateBasalBolusStats(bd4).basalBolusRatio).to.be.null;
       });
     });
@@ -374,11 +400,13 @@ describe('basics datamunger', function() {
         expect(dm.calculateBasalBolusStats(bd3).averageDailyDose.bolus).to.equal(8.0);
       });
 
-      it('should not calculate a statistic if there are `past` days with no boluses', function() {
+      it('should not calculate a statistic if there are 3 or more `past` days with no boluses', function() {
         var bd4 = _.cloneDeep(bd);
         delete bd4.data.bolus.dataByDate['2015-09-02'];
-        bd4.data.bolus.dataByDate['2015-09-03'] = [];
-        bd4.days.push({date: '2015-09-03', type: 'mostRecent'});
+        delete bd4.data.bolus.dataByDate['2015-09-03'];
+        delete bd4.data.bolus.dataByDate['2015-09-04'];
+        bd4.data.bolus.dataByDate['2015-09-05'] = [];
+        bd4.days.push({date: '2015-09-05', type: 'mostRecent'});
         expect(dm.calculateBasalBolusStats(bd4).averageDailyDose).to.be.null;
       });
     });
@@ -433,11 +461,13 @@ describe('basics datamunger', function() {
         expect(dm.calculateBasalBolusStats(bd3).totalDailyDose).to.equal(20.0);
       });
 
-      it('should not calculate a statistic if there are `past` days with no boluses', function() {
+      it('should not calculate a statistic if there are 3 or more `past` days with no boluses', function() {
         var bd4 = _.cloneDeep(bd);
         delete bd4.data.bolus.dataByDate['2015-09-01'];
-        bd4.data.bolus.dataByDate['2015-09-03'] = [];
-        bd4.days.push({date: '2015-09-03', type: 'mostRecent'});
+        delete bd4.data.bolus.dataByDate['2015-09-02'];
+        delete bd4.data.bolus.dataByDate['2015-09-03'];
+        bd4.data.bolus.dataByDate['2015-09-05'] = [];
+        bd4.days.push({date: '2015-09-05', type: 'mostRecent'});
         expect(dm.calculateBasalBolusStats(bd4).totalDailyDose).to.be.null;
       });
     });
@@ -447,24 +477,31 @@ describe('basics datamunger', function() {
       });
       it('should exclude any carbs falling outside the date range', function() {
         var wizardMore = [
+          // in data range
           { type: 'wizard', carbInput: 100, normalTime: '2015-09-01T07:00:00Z' },
           { type: 'wizard', carbInput: 20, normalTime: '2015-09-01T10:30:00Z' },
-          { type: 'wizard', carbInput: 15, normalTime: '2015-09-01T13:00:00Z' },
-          { type: 'wizard', carbInput: 50, normalTime: '2015-09-02T07:00:00Z' },
-          { type: 'wizard', carbInput: 50, normalTime: '2015-09-02T10:00:00Z' }
+          { type: 'wizard', carbInput: 100, normalTime: '2015-09-02T07:00:00Z' },
+          { type: 'wizard', carbInput: 20, normalTime: '2015-09-02T10:30:00Z' },
+          { type: 'wizard', carbInput: 100, normalTime: '2015-09-03T07:00:00Z' },
+          { type: 'wizard', carbInput: 20, normalTime: '2015-09-03T10:30:00Z' },
+          // out of data range
+          { type: 'wizard', carbInput: 50, normalTime: '2015-09-04T07:00:00Z' },
+          { type: 'wizard', carbInput: 50, normalTime: '2015-09-04T10:00:00Z' },
         ];
 
         var bdCarbs = _.cloneDeep(bd);
         delete bdCarbs.data.wizard;
         bdCarbs.data.wizard = { data: wizardMore };
 
-        expect(dm.calculateBasalBolusStats(bdCarbs).averageDailyCarbs).to.equal(135);
+        expect(dm.calculateBasalBolusStats(bdCarbs).averageDailyCarbs).to.equal(120);
       });
-      it('should not calculate a statistic if there are `past` days with no carbs', function() {
+      it('should not calculate a statistic if there are 3 or more `past` days with no carbs', function() {
         var bdCarbs = _.cloneDeep(bd);
         delete bdCarbs.data.bolus.dataByDate['2015-09-02'];
-        bdCarbs.data.bolus.dataByDate['2015-09-03'] = [];
-        bdCarbs.days.push({date: '2015-09-03', type: 'mostRecent'});
+        delete bdCarbs.data.bolus.dataByDate['2015-09-03'];
+        delete bdCarbs.data.bolus.dataByDate['2015-09-04'];
+        bdCarbs.data.bolus.dataByDate['2015-09-05'] = [];
+        bdCarbs.days.push({date: '2015-09-05', type: 'mostRecent'});
          expect(dm.calculateBasalBolusStats(bdCarbs).averageDailyCarbs).to.be.null;
       });
     });

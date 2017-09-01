@@ -103,4 +103,101 @@ describe('BasicsChart', function() {
     var render = TestUtils.renderIntoDocument(elem);
     expect(render.state.data.bgDistribution.smbg.target).to.equal(1);
   });
+
+  describe('_aggregatedDataEmpty', function() {
+    it('should return true if aggregated data is empty', function() {
+      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
+      var props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patientData: td,
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      expect(render._aggregatedDataEmpty()).to.be.true;
+    });
+
+    it('should return false if aggregated data is present', function() {
+      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
+      var props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patientData: _.assign({}, td, {
+          basicsData: _.assign({}, td.basicsData, {
+            data: _.assign({}, td.basicsData.data, {
+              basalBolusRatio: {
+                basal: 25,
+                bolus: 75,
+              },
+              averageDailyDose: '10',
+              averageDailyCarbs: '80',
+            }),
+            sections: [],
+          }),
+        }),
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      expect(render._aggregatedDataEmpty()).to.be.false;
+    });
+  });
+
+  describe('componentDidMount', function() {
+    it('should track pump vacation message metric if aggregated data is missing', function() {
+      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
+      var props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patientData: td,
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      sinon.assert.callCount(props.trackMetric, 1);
+      sinon.assert.calledWith(props.trackMetric, 'web - pump vacation message displayed');
+    });
+
+    it('should not track pump vacation message metric if aggregated data is present', function() {
+      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
+      var props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patientData: _.assign({}, td, {
+          basicsData: _.assign({}, td.basicsData, {
+            data: _.assign({}, td.basicsData.data, {
+              basalBolusRatio: {
+                basal: 25,
+                bolus: 75,
+              },
+              averageDailyDose: '10',
+              averageDailyCarbs: '80',
+            }),
+            sections: [],
+          }),
+        }),
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      sinon.assert.callCount(props.trackMetric, 0);
+    });
+  });
 });
