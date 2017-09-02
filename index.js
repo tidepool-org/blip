@@ -473,6 +473,22 @@ module.exports = function (config, deps) {
         });
     },
     /**
+     * Get the data sources for a given user
+     *
+     * @param {String} userId of the user to get the data sources for
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getDataSourcesForUser: function(userId, cb) {
+      common.assertArgumentsSize(arguments, 2);
+
+      common.doGetWithToken(
+        '/v1/users/' + userId + '/data_sources',
+        { 200: function(res) { return res.body; } },
+        cb
+      );
+    },
+    /**
      * Create a dataset for the given user
      *
      * @param {String} userId of the user to create the dataset for
@@ -936,6 +952,9 @@ module.exports = function (config, deps) {
     signup: user.signup,
     updateCurrentUser: user.updateCurrentUser,
     updateCustodialUser: user.updateCustodialUser,
+    createRestrictedTokenForUser: user.createRestrictedTokenForUser,
+    createOAuthProviderAuthorization: user.createOAuthProviderAuthorization,
+    deleteOAuthProviderAuthorization: user.deleteOAuthProviderAuthorization,
     /**
      * Signup
      */

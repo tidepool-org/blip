@@ -469,6 +469,68 @@ module.exports = function (common, config, deps) {
     common.assertArgumentsSize(arguments, 1);
     common.doGetWithToken('/auth/user', cb);
   }
+  /**
+   * Create a restricted token for a given user. One that is only usable for a limited
+   * period of time to a limited set of APIs.
+   *
+   * @param {String} userId of the user to create a restricted token for
+   * @param {String} restrictedTokenRequest the restricted token requested access
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
+  function createRestrictedTokenForUser(userId, restrictedTokenRequest, cb) {
+    common.assertArgumentsSize(arguments, 3);
+
+    common.doPostWithToken(
+      '/v1/users/' + userId + '/restricted_tokens',
+      restrictedTokenRequest,
+      { 201: function(res) { return res.body; } },
+      cb
+    );
+  }
+  /**
+   * Create the OAuth provider authorization for the specified provider and restricted token.
+   *
+   * @param {String} provider the provider
+   * @param {String} restrictedToken the restricted token
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
+  function createOAuthProviderAuthorization(provider, restrictedToken, cb) {
+    common.assertArgumentsSize(arguments, 3);
+
+    var authorizationURL = common.makeAPIUrl('/v1/oauth/' + provider + '/authorize');
+    authorizationURL += '?restricted_token=' + restrictedToken;
+
+    cb(null, authorizationURL);
+  }
+  /**
+   * Delete the OAuth provider authorization for the specified provider.
+   *
+   * @param {String} provider the provider
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
+  function deleteOAuthProviderAuthorization(provider, cb) {
+    common.assertArgumentsSize(arguments, 2);
+
+    superagent
+      .del(common.makeAPIUrl('/v1/oauth/' + provider + '/authorize'))
+      .set(common.SESSION_TOKEN_HEADER, getUserToken())
+      .end(
+      function(err, res) {
+        if (err != null) {
+          err.body = (err.response && err.response.body) || '';
+          err.message = (err.response && err.response.error) || '';
+          return cb(err);
+        }
+        if (res.status === 200) {
+          return cb(null, res.body);
+        }
+        return cb({ status: res.status, message: res.error });
+      });
+  }
+
   return {
     acceptTerms : acceptTerms,
     createCustodialAccount : createCustodialAccount,
@@ -483,6 +545,9 @@ module.exports = function (common, config, deps) {
     signup : signup,
     initialize : initialize,
     updateCurrentUser : updateCurrentUser,
-    updateCustodialUser : updateCustodialUser
+    updateCustodialUser: updateCustodialUser,
+    createRestrictedTokenForUser: createRestrictedTokenForUser,
+    createOAuthProviderAuthorization: createOAuthProviderAuthorization,
+    deleteOAuthProviderAuthorization: deleteOAuthProviderAuthorization
   };
 };
