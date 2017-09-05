@@ -15,4 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-export const toMmolL = (val) => (val / 18.01559);
+import { MGDL_PER_MMOLL } from '../../src/utils/constants';
+
+export const toMmolL = (val) => (val / MGDL_PER_MMOLL);

@@ -16,6 +16,7 @@
  */
 
 import _ from 'lodash';
+import { MGDL_PER_MMOLL } from './constants';
 
 /**
  * classifyBgValue
@@ -81,7 +82,7 @@ export function calcBgPercentInCategories(data, bgBounds) {
  * @return {Number} convertedBgVal - blood glucose value in mmol/L, unrounded
  */
 export function convertToMmolL(val) {
-  return (val / 18.01559);
+  return (val / MGDL_PER_MMOLL);
 }
 
 /**
