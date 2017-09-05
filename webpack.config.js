@@ -34,6 +34,10 @@ var plugins = [
     {
       from: 'static',
       transform: (content, path) => {
+        if (isDev) {
+         return content;
+        }
+
         var code = fs.readFileSync(path, 'utf8');
         var result = uglifyJS.minify(code);
         return result.code;
@@ -104,6 +108,7 @@ module.exports = {
     root: path.resolve('./node_modules'),
     fallback: path.join(__dirname, 'node_modules'),
   },
+  devtool: process.env.WEBPACK_DEVTOOL || 'eval-source-map',
   devServer: {
     publicPath: output.publicPath,
     hot: true,

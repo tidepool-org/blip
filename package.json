@@ -1,14 +1,14 @@
 {
   "name": "blip",
-  "version": "1.5.13",
+  "version": "1.5.17",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
     "nightwatch": "export API_HOST='http://localhost:8009' && npm run build && npm run install-selenium && ./node_modules/nightwatch/bin/nightwatch",
     "nightwatch-single": "./node_modules/nightwatch/bin/nightwatch",
     "browser-tests": "NODE_ENV=test ./node_modules/karma/bin/karma start --browsers Chrome",
-    "test-watch": "NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run --reporters=mocha",
-    "start": "NODE_ENV=development webpack-dev-server --devtool cheap-module-eval-source-map --cache --colors --progress --port 3000 --host 0.0.0.0",
+    "test-watch": "NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run",
+    "start": "NODE_ENV=development webpack-dev-server --cache --colors --progress --port 3000 --host 0.0.0.0",
     "build": "NODE_ENV=production npm run build-app && npm run build-config",
     "build-app": "NODE_ENV=production node buildapp",
     "build-config": "NODE_ENV=production node buildconfig",
