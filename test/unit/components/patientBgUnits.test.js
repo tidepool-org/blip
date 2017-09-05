@@ -75,7 +75,6 @@ describe('PatientBgUnits', () => {
   it('should set the initial state', () => {
     const expectedInitialState = {
       formValues: expectedInitialFormValues,
-      updatingUnits: false,
     };
 
     expect(wrapper.state()).to.eql(expectedInitialState);
@@ -146,7 +145,12 @@ describe('PatientBgUnits', () => {
       sinon.assert.calledOnce(spy);
       expect(wrapper.state('formValues').bgUnits).to.equal(MMOLL_UNITS);
 
-      wrapper.setProps({ patient: { settings: { units: { bg: MMOLL_UNITS } } } });
+      wrapper.setProps({
+        patient: {
+          userid: 1234,
+          settings: { units: { bg: MMOLL_UNITS } }
+        }
+      });
       radio1.simulate('change', { target: { name: 'bgUnits', value: MGDL_UNITS } });
 
       sinon.assert.calledTwice(spy);
@@ -174,17 +178,6 @@ describe('PatientBgUnits', () => {
       expect(wrapper.state('formValues').bgUnits).to.equal(MGDL_UNITS);
     });
 
-    it('should return without doing anything if the updatingUnits state property is set to true', () => {
-      expect(wrapper.state('formValues').bgUnits).to.equal(MGDL_UNITS);
-
-      wrapper.setState({ updatingUnits: true });
-      radio2.simulate('change', { target: { name: 'bgUnits', value: MMOLL_UNITS } });
-
-      sinon.assert.callCount(props.onUpdatePatientSettings, 0);
-      sinon.assert.callCount(props.trackMetric, 0);
-      expect(wrapper.state('formValues').bgUnits).to.equal(MGDL_UNITS);
-    });
-
     it('should set the patient BG units', () => {
       radio2.simulate('change', { target: { name: 'bgUnits', value: MMOLL_UNITS } });
 
@@ -201,7 +194,12 @@ describe('PatientBgUnits', () => {
       sinon.assert.calledOnce(props.trackMetric);
       sinon.assert.calledWith(props.trackMetric, 'web - switched to mmoll');
 
-      wrapper.setProps({ patient: { settings: { units: { bg: MMOLL_UNITS } } } });
+      wrapper.setProps({
+        patient: {
+          userid: 1234,
+          settings: { units: { bg: MMOLL_UNITS } }
+        }
+      });
       radio1.simulate('change', { target: { name: 'bgUnits', value: MGDL_UNITS } });
 
       sinon.assert.calledTwice(props.trackMetric);

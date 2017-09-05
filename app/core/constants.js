@@ -35,4 +35,4 @@ export const DATA_DONATION_NONPROFITS = [
 
 export const MGDL_UNITS = 'mg/dL';
 export const MMOLL_UNITS = 'mmol/L';
-export const GLUCOSE_MM = 18.01559;
+export const MGDL_PER_MMOLL = 18.01559;

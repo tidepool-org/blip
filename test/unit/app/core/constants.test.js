@@ -33,7 +33,7 @@ describe('constants', function() {
   });
 
   it('should define the glucose mmoll conversion factor as 18.01559', function() {
-    expect(Constants.GLUCOSE_MM).to.equal(18.01559);
+    expect(Constants.MGDL_PER_MMOLL).to.equal(18.01559);
   });
 
   it('should define the tidepool big data donation account email', function() {

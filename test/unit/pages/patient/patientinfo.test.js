@@ -19,6 +19,7 @@ describe('PatientInfo', function () {
       var props = {
         fetchingPatient: false,
         fetchingUser: false,
+        patient: {},
         onUpdatePatient: sinon.stub(),
         onUpdatePatientSettings: sinon.stub(),
         permsOfLoggedInUser: {},

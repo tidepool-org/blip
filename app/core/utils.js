@@ -19,7 +19,7 @@ import _  from 'lodash';
 import sundial from 'sundial';
 import TidelineData from 'tideline/js/tidelinedata';
 import nurseShark from 'tideline/plugins/nurseshark';
-import { MGDL_UNITS, MMOLL_UNITS, GLUCOSE_MM } from './constants';
+import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
 
 var utils = {};
 
@@ -238,9 +238,9 @@ utils.getCarelink = function(location) {
  */
 utils.translateBg = (value, targetUnits) => {
   if (targetUnits === MGDL_UNITS) {
-    return parseInt(Math.round(value * GLUCOSE_MM), 10);
+    return parseInt(Math.round(value * MGDL_PER_MMOLL), 10);
   }
-  return parseFloat((value / GLUCOSE_MM).toFixed(1));
+  return parseFloat((value / MGDL_PER_MMOLL).toFixed(1));
 }
 
 /**

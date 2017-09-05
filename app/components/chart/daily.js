@@ -165,7 +165,7 @@ var Daily = React.createClass({
   },
   componentDidMount: function() {
     const dData = this.props.patientData.diabetesData;
-    const fNameUnits = this.props.bgPrefs.bgUnits.replace('/', '').toLowerCase();
+    const bgUnits = this.props.bgPrefs.bgUnits.replace('/', '').toLowerCase();
     window.downloadDailyPrintViewData = () => {
       console.save(selectDailyViewData(
         dData[dData.length - 1].normalTime,
@@ -176,7 +176,7 @@ var Daily = React.createClass({
         ),
         6,
         this.props.timePrefs,
-      ), `daily-print-view-${fNameUnits}.json`);
+      ), `daily-print-view-${bgUnits}.json`);
     };
   },
   getInitialState: function() {

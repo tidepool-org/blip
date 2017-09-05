@@ -29,7 +29,7 @@ export default class PatientBgUnits extends Component {
   static propTypes = {
     editingAllowed: React.PropTypes.bool.isRequired,
     onUpdatePatientSettings: React.PropTypes.func.isRequired,
-    patient: React.PropTypes.object,
+    patient: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     working: React.PropTypes.bool.isRequired,
   };
@@ -41,12 +41,11 @@ export default class PatientBgUnits extends Component {
 
     this.state = {
       formValues: initialFormValues,
-      updatingUnits: false,
     };
   }
 
   render() {
-    if (!this.props.patient) {
+    if (!_.get(this.props, 'patient.userid')) {
       return null;
     }
 
@@ -81,7 +80,7 @@ export default class PatientBgUnits extends Component {
       {
         name: 'bgUnits',
         type: 'radios',
-        disabled: this.state.updatingUnits,
+        disabled: this.props.working,
         items: [
           {
             label: MGDL_UNITS,
@@ -111,11 +110,9 @@ export default class PatientBgUnits extends Component {
     const targetUnits = attributes.value;
     const unitsChanged = targetUnits !== patientSettings.units.bg;
 
-    if (!unitsChanged || this.props.working || this.state.updatingUnits) {
+    if (!unitsChanged || this.props.working) {
       return;
     }
-
-    this.setState({ updatingUnits: true });
 
     const newSettings = togglePatientBgUnits(patientSettings);
 
@@ -128,17 +125,12 @@ export default class PatientBgUnits extends Component {
 
       this.setState({
         formValues,
-        updatingUnits: false,
       });
 
       if (this.props.trackMetric) {
         const units = newSettings.units.bg.replace('/', '').toLowerCase();
         this.props.trackMetric(`web - switched to ${units}`);
       }
-    } else {
-      this.setState({
-        updatingUnits: false,
-      });
     }
   }
 }
