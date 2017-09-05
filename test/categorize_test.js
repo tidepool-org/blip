@@ -20,7 +20,7 @@
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
-var { GLUCOSE_MM } = require('../js/data/util/constants');
+var { MGDL_PER_MMOLL } = require('../js/data/util/constants');
 
 var categorizer = require('../js/data/util/categorize');
 var defaultBgClasses = {
@@ -36,10 +36,10 @@ var alternateBgClasses = {
   high: { boundary: 250 },
 };
 var mmollBgClasses = {
-  'very-low': { boundary: 55/GLUCOSE_MM },
-  low: { boundary: 70/GLUCOSE_MM },
-  target: { boundary: 180/GLUCOSE_MM },
-  high: { boundary: 300/GLUCOSE_MM },
+  'very-low': { boundary: 55/MGDL_PER_MMOLL },
+  low: { boundary: 70/MGDL_PER_MMOLL },
+  target: { boundary: 180/MGDL_PER_MMOLL },
+  high: { boundary: 300/MGDL_PER_MMOLL },
 };
 
 describe('Categorize', function() {

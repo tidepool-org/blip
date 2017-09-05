@@ -184,7 +184,7 @@ describe('basics datamunger', function() {
       });
     });
 
-    it('should categorize all mmmol/L BG values correctly!', function() {
+    it('should categorize all mmol/L BG values correctly!', function() {
       var now = new Date();
       var smbg = [
         new types.SMBG({value: bgClassesMmoll['very-low'].boundary - 1}),

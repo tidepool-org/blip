@@ -18,7 +18,7 @@
  /* jshint esversion:6 */
 
 var _ = require('lodash');
-var { GLUCOSE_MM } = require('../../data/util/constants');
+var { MGDL_PER_MMOLL } = require('../../data/util/constants');
 
 var Categorizer = function(bgClasses, bgUnits = 'mg/dL'){
   var classes = _.cloneDeep(bgClasses);
@@ -31,7 +31,7 @@ var Categorizer = function(bgClasses, bgUnits = 'mg/dL'){
 
   if (bgUnits === 'mmol/L') {
     _.forOwn(defaults, function(value, key) {
-      defaults[key].boundary = value.boundary/GLUCOSE_MM;
+      defaults[key].boundary = value.boundary/MGDL_PER_MMOLL;
     });
   }
 

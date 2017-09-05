@@ -22,7 +22,7 @@ var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var util = require('util');
 
-var { GLUCOSE_MM } = require('../../js/data/util/constants');
+var { MGDL_PER_MMOLL } = require('../../js/data/util/constants');
 var dt = require('../../js/data/util/datetime');
 
 var log;
@@ -34,7 +34,7 @@ else {
 }
 
 function translateBg(value) {
-  return Math.round(GLUCOSE_MM * value);
+  return Math.round(MGDL_PER_MMOLL * value);
 }
 
 function isBadStatus(d) {

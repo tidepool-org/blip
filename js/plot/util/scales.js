@@ -21,7 +21,7 @@ var d3 = require('d3');
 var _ = require('lodash');
 
 var commonbolus = require('./commonbolus');
-var { GLUCOSE_MM } = require('../../data/util/constants');
+var { MGDL_PER_MMOLL } = require('../../data/util/constants');
 
 var scales = function(opts) {
   opts = _.assign({}, opts) || {};
@@ -36,8 +36,8 @@ var scales = function(opts) {
   _.defaults(opts, defaults);
 
   if (opts.bgUnits === 'mmol/L') {
-    opts.MIN_CBG = opts.MIN_CBG/GLUCOSE_MM;
-    opts.MAX_CBG = opts.MAX_CBG/GLUCOSE_MM;
+    opts.MIN_CBG = opts.MIN_CBG/MGDL_PER_MMOLL;
+    opts.MAX_CBG = opts.MAX_CBG/MGDL_PER_MMOLL;
   }
 
   return {

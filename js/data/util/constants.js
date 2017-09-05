@@ -1,3 +1,3 @@
 module.exports = {
-  GLUCOSE_MM: 18.01559,
+  MGDL_PER_MMOLL: 18.01559,
 };
