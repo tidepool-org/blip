@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var d3 = require('d3');
 var _ = require('lodash');
 
@@ -24,6 +26,7 @@ var dt = require('../../data/util/datetime');
 var format = require('../../data/util/format');
 var Puddle = require('./puddle');
 var bgBoundaryClass = require('../util/bgboundary');
+var { MGDL_UNITS } = require('../../data/util/constants');
 
 module.exports = function(pool, opts) {
 
@@ -44,7 +47,7 @@ module.exports = function(pool, opts) {
     },
     size: 16,
     pieRadius: pool.height() * 0.5,
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     PTiRLabels: {
       cbg: 'Time in Target Range',
       smbg: 'Readings in Range'
@@ -92,8 +95,8 @@ module.exports = function(pool, opts) {
     });
 
     var pw = opts.puddleWeights;
-    var lowBound = opts.bgUnits === 'mg/dL' ? opts.classes.low.boundary : opts.classes.low.boundary.toFixed(1);
-    var highBound = opts.bgUnits === 'mg/dL' ? opts.classes.target.boundary : opts.classes.target.boundary.toFixed(1);
+    var lowBound = opts.bgUnits === MGDL_UNITS ? opts.classes.low.boundary : opts.classes.low.boundary.toFixed(1);
+    var highBound = opts.bgUnits === MGDL_UNITS ? opts.classes.target.boundary : opts.classes.target.boundary.toFixed(1);
     var targetRangeString = 'Target range: ' + lowBound + ' - ' + highBound + ' ';
 
     // create basal-to-bolus ratio puddle

@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
 /* global sinon */
 
 var _ = require('lodash');
@@ -30,12 +31,14 @@ var BasicsChart = require('../plugins/blip/basics/chartbasicsfactory');
 var TidelineData = require('../js/tidelinedata');
 var types = require('../dev/testpage/types');
 
+var { MGDL_UNITS, MMOLL_UNITS } = require('../js/data/util/constants');
+
 describe('BasicsChart', function() {
   it('should render', function() {
     console.error = sinon.stub();
     var td = new TidelineData([new types.Bolus(), new types.Basal()]);
     var props = {
-      bgUnits: 'mg/dL',
+      bgUnits: MGDL_UNITS,
       bgClasses: td.bgClasses,
       onSelectDay: sinon.stub(),
       patient: {},
@@ -69,7 +72,7 @@ describe('BasicsChart', function() {
   it('should not mutate basics state', function() {
     var td = new TidelineData([new types.Bolus(), new types.Basal()]);
     var props = {
-      bgUnits: 'mg/dL',
+      bgUnits: MGDL_UNITS,
       bgClasses: td.bgClasses,
       onSelectDay: sinon.stub(),
       patientData: td,
@@ -89,9 +92,9 @@ describe('BasicsChart', function() {
   });
 
   it('should calculate bgDistribution for mmol/L data', function() {
-    var td = new TidelineData([new types.Bolus(), new types.Basal(), new types.SMBG({ units: 'mmol/L' })]);
+    var td = new TidelineData([new types.Bolus(), new types.Basal(), new types.SMBG({ units: MMOLL_UNITS })]);
     var props = {
-      bgUnits: 'mmol/L',
+      bgUnits: MMOLL_UNITS,
       bgClasses: td.bgClasses,
       onSelectDay: sinon.stub(),
       patientData: td,
@@ -108,7 +111,7 @@ describe('BasicsChart', function() {
     it('should return true if aggregated data is empty', function() {
       var td = new TidelineData([new types.Bolus(), new types.Basal()]);
       var props = {
-        bgUnits: 'mg/dL',
+        bgUnits: MGDL_UNITS,
         bgClasses: td.bgClasses,
         onSelectDay: sinon.stub(),
         patientData: td,
@@ -125,7 +128,7 @@ describe('BasicsChart', function() {
     it('should return false if aggregated data is present', function() {
       var td = new TidelineData([new types.Bolus(), new types.Basal()]);
       var props = {
-        bgUnits: 'mg/dL',
+        bgUnits: MGDL_UNITS,
         bgClasses: td.bgClasses,
         onSelectDay: sinon.stub(),
         patientData: _.assign({}, td, {
@@ -156,7 +159,7 @@ describe('BasicsChart', function() {
     it('should track pump vacation message metric if aggregated data is missing', function() {
       var td = new TidelineData([new types.Bolus(), new types.Basal()]);
       var props = {
-        bgUnits: 'mg/dL',
+        bgUnits: MGDL_UNITS,
         bgClasses: td.bgClasses,
         onSelectDay: sinon.stub(),
         patientData: td,
@@ -174,7 +177,7 @@ describe('BasicsChart', function() {
     it('should not track pump vacation message metric if aggregated data is present', function() {
       var td = new TidelineData([new types.Bolus(), new types.Basal()]);
       var props = {
-        bgUnits: 'mg/dL',
+        bgUnits: MGDL_UNITS,
         bgClasses: td.bgClasses,
         onSelectDay: sinon.stub(),
         patientData: _.assign({}, td, {

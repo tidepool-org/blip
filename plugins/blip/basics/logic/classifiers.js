@@ -15,13 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
- /* jshint esversion:6 */
+/* jshint esversion:6 */
 
 var _ = require('lodash');
 var commonbolus = require('../../../../js/plot/util/commonbolus');
 var categorizer = require('../../../../js/data/util/categorize');
+var { MGDL_UNITS } = require('../../../../js/data/util/constants');
 
-module.exports = function(bgClasses, bgUnits = 'mg/dL') {
+module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
   var classifers = {
     basal: function(d) {
       if (d.deliveryType === 'scheduled') {

@@ -22,7 +22,7 @@ var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var util = require('util');
 
-var { MGDL_PER_MMOLL } = require('../../js/data/util/constants');
+var { MGDL_PER_MMOLL, MGDL_UNITS } = require('../../js/data/util/constants');
 var dt = require('../../js/data/util/datetime');
 
 var log;
@@ -343,7 +343,7 @@ function getHandlers(bgUnits) {
     },
     cbg: function(d) {
       d = cloneDeep(d);
-      if (bgUnits === 'mg/dL') {
+      if (bgUnits === MGDL_UNITS) {
         d.value = translateBg(d.value);
       }
       return d;
@@ -361,14 +361,14 @@ function getHandlers(bgUnits) {
     },
     smbg: function(d) {
       d = cloneDeep(d);
-      if (bgUnits === 'mg/dL') {
+      if (bgUnits === MGDL_UNITS) {
         d.value = translateBg(d.value);
       }
       return d;
     },
     pumpSettings: function(d) {
       d = cloneDeep(d);
-      if (bgUnits === 'mg/dL') {
+      if (bgUnits === MGDL_UNITS) {
         if (d.bgTarget) {
           for (var j = 0; j < d.bgTarget.length; ++j) {
             var current = d.bgTarget[j];
@@ -432,7 +432,7 @@ function getHandlers(bgUnits) {
     },
     wizard: function(d, collections) {
       d = cloneDeep(d);
-      if (bgUnits === 'mg/dL') {
+      if (bgUnits === MGDL_UNITS) {
         if (d.bgInput) {
           d.bgInput = translateBg(d.bgInput);
         }

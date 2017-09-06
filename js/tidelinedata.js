@@ -28,7 +28,7 @@ var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
-var { MGDL_PER_MMOLL } = require('./data/util/constants');
+var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('./data/util/constants');
 
 var log;
 if (typeof window !== 'undefined' && __DEV__ === true) {
@@ -66,7 +66,7 @@ function TidelineData(data, opts) {
       high: { boundary: 300 },
       'very-high': { boundary: 600 }
     },
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     fillOpts: {
       classes: {
         0: 'darkest',
@@ -93,7 +93,7 @@ function TidelineData(data, opts) {
     }
   };
 
-  if (opts.bgUnits === 'mmol/L') {
+  if (opts.bgUnits === MMOLL_UNITS) {
     _.forOwn(defaults.bgClasses, function(value, key) {
       defaults.bgClasses[key].boundary = value.boundary/MGDL_PER_MMOLL;
     });

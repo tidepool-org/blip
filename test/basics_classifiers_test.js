@@ -15,6 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
+ /* jshint esversion:6 */
+
+var { MMOLL_UNITS } = require('../js/data/util/constants');
+
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
@@ -127,7 +131,7 @@ describe('basics classifiers', function() {
 
   describe('smbg', function() {
     var classifier = classifiers(bgClasses).smbg;
-    var classifierMmoll = classifiers(bgClassesMmoll, 'mmol/L').smbg;
+    var classifierMmoll = classifiers(bgClassesMmoll, MMOLL_UNITS).smbg;
     it('should classify a non-subTyped smbg as `meter`', function() {
       expect(classifier({value: 25})).to.deep.equal(['meter']);
     });

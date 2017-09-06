@@ -15,19 +15,19 @@
  * == BSD2 LICENSE ==
  */
 
- /* jshint esversion:6 */
+/* jshint esversion:6 */
 
 var d3 = require('d3');
 var _ = require('lodash');
 
 var commonbolus = require('./commonbolus');
-var { MGDL_PER_MMOLL } = require('../../data/util/constants');
+var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('../../data/util/constants');
 
 var scales = function(opts) {
   opts = _.assign({}, opts) || {};
 
   var defaults = {
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     bolusRatio: 0.35,
     MIN_CBG: 39,
     MAX_CBG: 401,
@@ -35,7 +35,7 @@ var scales = function(opts) {
   };
   _.defaults(opts, defaults);
 
-  if (opts.bgUnits === 'mmol/L') {
+  if (opts.bgUnits === MMOLL_UNITS) {
     opts.MIN_CBG = opts.MIN_CBG/MGDL_PER_MMOLL;
     opts.MAX_CBG = opts.MAX_CBG/MGDL_PER_MMOLL;
   }

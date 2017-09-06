@@ -15,12 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
- /* jshint esversion:6 */
+/* jshint esversion:6 */
 
 var _ = require('lodash');
 var categorizer = require('../../../js/data/util/categorize');
+var { MGDL_UNITS } = require('../../../js/data/util/constants');
 
-module.exports = function(bgClasses, bgUnits = 'mg/dL') {
+module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
   var categorizeBg = categorizer(bgClasses, bgUnits);
   if (Object.keys(bgClasses).length > 3) {
     return function(datum) {

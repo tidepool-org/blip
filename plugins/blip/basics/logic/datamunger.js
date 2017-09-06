@@ -24,11 +24,12 @@ var sundial = require('sundial');
 
 var classifiersMkr = require('./classifiers');
 var constants = require('./constants');
+var { MGDL_UNITS } = require('../../../../js/data/util/constants');
 
 var basicsActions = require('./actions');
 var togglableState = require('../TogglableState');
 
-module.exports = function(bgClasses, bgUnits = 'mg/dL') {
+module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
 
   var classifiers = classifiersMkr(bgClasses, bgUnits);
 

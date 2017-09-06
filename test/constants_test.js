@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var chai = require('chai');
 var expect = chai.expect;
 
@@ -25,7 +27,15 @@ describe('constants', function() {
     expect(typeof constants).to.equal('object');
   });
 
-  it('should have 18.01559 for the MGDL_PER_MMOLL conversion', function() {
+  it('should define the MGDL_PER_MMOLL conversion as 18.01559', function() {
     expect(constants.MGDL_PER_MMOLL).to.equal(18.01559);
+  });
+
+  it('should define the MGDL_UNITS conversion as mg/dL', function() {
+    expect(constants.MGDL_UNITS).to.equal('mg/dL');
+  });
+
+  it('should define the MMOLL_UNITS conversion as mmol/L', function() {
+    expect(constants.MMOLL_UNITS).to.equal('mmol/L');
   });
 });

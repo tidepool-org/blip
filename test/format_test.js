@@ -15,11 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
 
 var fmt = require('../js/data/util/format');
+var { MGDL_UNITS, MMOLL_UNITS } = require('../js/data/util/constants');
 
 describe('format utility', function() {
   describe('tooltipBG', function() {
@@ -28,17 +31,17 @@ describe('format utility', function() {
     });
 
     it('should always return a string', function() {
-      assert.isString(fmt.tooltipBG({value: 0.9999999999999999999999999}, 'mg/dL'));
-      assert.isString(fmt.tooltipBG({value: 0.9999999999999999999999999}, 'mmol/L'));
+      assert.isString(fmt.tooltipBG({value: 0.9999999999999999999999999}, MGDL_UNITS));
+      assert.isString(fmt.tooltipBG({value: 0.9999999999999999999999999}, MMOLL_UNITS));
     });
 
     it('should return an integer string when units are mg/dL', function() {
-      expect(fmt.tooltipBG({value: 0.9999999999999999999999999}, 'mg/dL')).to.equal('1');
+      expect(fmt.tooltipBG({value: 0.9999999999999999999999999}, MGDL_UNITS)).to.equal('1');
     });
 
     it('should return a float string with one decimal place when units are mmol/L', function() {
-      expect(fmt.tooltipBG({value: 0.9999999999999999999999999}, 'mmol/L')).to.equal('1.0');
-      expect(fmt.tooltipBG({value: 4.2222222222222222222222222}, 'mmol/L')).to.equal('4.2');
+      expect(fmt.tooltipBG({value: 0.9999999999999999999999999}, MMOLL_UNITS)).to.equal('1.0');
+      expect(fmt.tooltipBG({value: 4.2222222222222222222222222}, MMOLL_UNITS)).to.equal('4.2');
     });
 
     it('should return a float string with one decimal place when no units', function() {

@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
@@ -23,6 +25,8 @@ var BGUtil = require('../js/data/bgutil');
 
 var dt = require('../js/data/util/datetime');
 var patterns = require('../dev/testpage/patterns');
+
+var { MMOLL_UNITS } = require('../js/data/util/constants');
 
 var MS_IN_DAY = 86400000;
 
@@ -179,7 +183,7 @@ describe('BGUtil', function() {
     it('(on cbg data) should return a mmol/L number value, rounded to 1 decimal place, when passed a valid, long enough date range with enough data', function() {
       var bgMmoll = new BGUtil([], {
         DAILY_MIN: 10,
-        bgUnits: 'mmol/L',
+        bgUnits: MMOLL_UNITS,
         bgClasses: {
           low: { boundary: 5.5 },
           target: { boundary: 10 },
@@ -205,7 +209,7 @@ describe('BGUtil', function() {
     it('(on smbg data) should return a mmol/L number value, rounded to 1 decimal place, when passed a valid, long enough date range with enough data', function() {
       var bgMmoll = new BGUtil([], {
         DAILY_MIN: 10,
-        bgUnits: 'mmol/L',
+        bgUnits: MMOLL_UNITS,
         bgClasses: {
           low: { boundary: 5.5 },
           target: { boundary: 10 },

@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var d3 = require('d3');
 var _ = require('lodash');
 
@@ -22,12 +24,13 @@ var log = require('bows')('SMBG');
 var format = require('../data/util/format');
 var scales = require('./util/scales')();
 var bgBoundaryClass = require('./util/bgboundary');
+var { MGDL_UNITS } = require('../data/util/constants');
 
 module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     classes: {
       'very-low': { boundary: 55 },
       low: { boundary: 70 },

@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var d3 = require('d3');
 var _ = require('lodash');
 
@@ -22,6 +24,7 @@ var log = require('bows')('Two-Week SMBG');
 var dt = require('../data/util/datetime');
 var format = require('../data/util/format');
 var bgBoundaryClass = require('./util/bgboundary');
+var { MGDL_UNITS } = require('../data/util/constants');
 
 function SMBGTime (opts) {
   var MS_IN_HOUR = 3600000;
@@ -31,7 +34,7 @@ function SMBGTime (opts) {
   opts = opts || {};
 
   var defaults = {
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     classes: {
       'very-low': { boundary: 55 },
       low: { boundary: 70 },

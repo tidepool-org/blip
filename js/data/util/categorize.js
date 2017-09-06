@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
- /* jshint esversion:6 */
+/* jshint esversion:6 */
 
 var _ = require('lodash');
-var { MGDL_PER_MMOLL } = require('../../data/util/constants');
+var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('../../data/util/constants');
 
-var Categorizer = function(bgClasses, bgUnits = 'mg/dL'){
+var Categorizer = function(bgClasses, bgUnits = MGDL_UNITS){
   var classes = _.cloneDeep(bgClasses);
   var defaults = {
     'very-low': { boundary: 55 },
@@ -29,7 +29,7 @@ var Categorizer = function(bgClasses, bgUnits = 'mg/dL'){
     high: { boundary: 300 },
   };
 
-  if (bgUnits === 'mmol/L') {
+  if (bgUnits === MMOLL_UNITS) {
     _.forOwn(defaults, function(value, key) {
       defaults[key].boundary = value.boundary/MGDL_PER_MMOLL;
     });

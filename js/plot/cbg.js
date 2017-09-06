@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var d3 = require('d3');
 var _ = require('lodash');
 
@@ -22,13 +24,14 @@ var log = require('bows')('CBG');
 var bgBoundaryClass = require('./util/bgboundary');
 var format = require('../data/util/format');
 var categorizer = require('../../js/data/util/categorize');
+var { MGDL_UNITS } = require('../../js/data/util/constants');
 
 module.exports = function(pool, opts) {
 
   opts = opts || {};
 
   var defaults = {
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     classes: {
       low: { boundary: 70 },
       target: { boundary: 180 },

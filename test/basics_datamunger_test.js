@@ -27,6 +27,8 @@ var d3 = require('d3');
 var constants = require('../plugins/blip/basics/logic/constants');
 var togglableState = require('../plugins/blip/basics/TogglableState');
 
+var { MMOLL_UNITS } = require('../js/data/util/constants');
+
 var bgClasses = {
   'very-low': {boundary: 10},
   low: {boundary: 20},
@@ -87,7 +89,7 @@ var siteChangeSections = {
 };
 
 var dm = require('../plugins/blip/basics/logic/datamunger')(bgClasses);
-var dmMmol = require('../plugins/blip/basics/logic/datamunger')(bgClassesMmoll, 'mmol/L');
+var dmMmol = require('../plugins/blip/basics/logic/datamunger')(bgClassesMmoll, MMOLL_UNITS);
 
 var types = require('../dev/testpage/types');
 

@@ -15,11 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
 
 var datetime = require('./util/datetime');
 var categorizer = require('./util/categorize');
+
+var { MGDL_UNITS, MMOLL_UNITS } = require('../data/util/constants');
 
 function BGUtil(data, opts) {
 
@@ -31,7 +35,7 @@ function BGUtil(data, opts) {
       target: { boundary: 180 },
       high: { boundary: 300 },
     },
-    bgUnits: 'mg/dL'
+    bgUnits: MGDL_UNITS
   };
   _.defaults(opts, defaults);
 
@@ -155,7 +159,7 @@ function BGUtil(data, opts) {
         return memo + d.value;
       }, 0);
       var average;
-      if (opts.bgUnits === 'mmol/L') {
+      if (opts.bgUnits === MMOLL_UNITS) {
         average = parseFloat((sum/filtered.length)).toFixed(1);
       }
       else {

@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var _ = require('lodash');
 var bows = require('bows');
 var d3 = require('d3');
@@ -24,13 +26,14 @@ var EventEmitter = require('events').EventEmitter;
 var tideline = require('../../js/index');
 var fill = tideline.plot.util.fill;
 var scalesutil = tideline.plot.util.scales;
+var { MGDL_UNITS } = require('../../js/data/util/constants');
 
 // Create a 'One Day' chart object that is a wrapper around Tideline components
 function chartDailyFactory(el, options) {
   var log = bows('Daily Factory');
   options = options || {};
   var defaults = {
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     bolusRatio: 0.35,
     dynamicCarbs: false,
     labelBaseline: 4,
@@ -212,7 +215,7 @@ function chartDailyFactory(el, options) {
       }
     });
     var scaleBG = scales.bg(allBG, poolBG, SMBG_SIZE/2);
-    var bgTickFormat = options.bgUnits === 'mg/dL' ? 'd' : '.1f';
+    var bgTickFormat = options.bgUnits === MGDL_UNITS ? 'd' : '.1f';
 
     // set up y-axis
     poolBG.yAxis(d3.svg.axis()
