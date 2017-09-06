@@ -15,17 +15,15 @@ Thumbs.db
 .Trashes
 
 # Application specific files
+*.log
 _book
 node_modules
-npm-debug.log
 tmp
 deploy/
 dist/
 config/*
 !config/local.sh
 test/bin
-sauce_connect.log
-selenium-debug.log
 web/
 artifact_node.sh
 
