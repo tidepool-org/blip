@@ -202,22 +202,26 @@ export let Signup = React.createClass({
   },
 
   renderFormTypeSwitch: function() {
-    let content;
+    let content, href;
 
     switch (this.state.selected) {
       case 'personal':
+        href = '/signup/clinician';
+
         content = (
           <p>
-            If you are a Healthcare Provider and want to create an account, please <a className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'clinician')} children="click here" />.
+            If you are a Healthcare Provider and want to create an account, please <a href={href} className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'clinician')} children="click here" />.
           </p>
         );
         break;
 
-      case 'clinician':
+        case 'clinician':
+        href = '/signup/personal';
+
         content = (
           <p>
             If you are a provider who lives with diabetes and wants to track and manage your personal diabetes data,
-            please create a separate <a className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'personal')} children="personal account" />.
+            please create a separate <a href={href} className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'personal')} children="personal account" />.
           </p>
         );
         break;
@@ -337,7 +341,8 @@ export let Signup = React.createClass({
     browserHistory.push(`/signup/${this.state.selected}`);
   },
 
-  handleTypeSwitchClick: function(type) {
+  handleTypeSwitchClick: function(type, e) {
+    e.preventDefault();
     this.setState({selected: type});
     browserHistory.push(`/signup/${type}`);
   },
