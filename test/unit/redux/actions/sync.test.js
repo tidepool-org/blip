@@ -1783,5 +1783,143 @@ describe('Actions', () => {
         expect(action.error).to.equal(error);
       });
     });
+
+    describe('fetchDataSourcesRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchDataSourcesRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_DATA_SOURCES_REQUEST', () => {
+        let action = sync.fetchDataSourcesRequest();
+        expect(action.type).to.equal('FETCH_DATA_SOURCES_REQUEST');
+      });
+    });
+
+    describe('fetchDataSourcesSuccess', () => {
+      it('should be a TSA', () => {
+        let dataSources = [
+          { id: 'strava', url: 'blah' },
+          { name: 'fitbit', url: 'blah' },
+        ];
+
+        let action = sync.fetchDataSourcesSuccess(dataSources);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_DATA_SOURCES_SUCCESS', () => {
+        let dataSources = [
+          { id: 'strava', url: 'blah' },
+          { name: 'fitbit', url: 'blah' },
+        ];
+
+        let action = sync.fetchDataSourcesSuccess(dataSources);
+
+        expect(action.type).to.equal('FETCH_DATA_SOURCES_SUCCESS');
+        expect(action.payload.dataSources).to.equal(dataSources);
+      });
+    });
+
+    describe('fetchDataSourcesFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.fetchDataSourcesFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_DATA_SOURCES_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.fetchDataSourcesFailure(error);
+
+        expect(action.type).to.equal('FETCH_DATA_SOURCES_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('connectDataSourceRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.connectDataSourceRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CONNECT_DATA_SOURCE_REQUEST', () => {
+        let action = sync.connectDataSourceRequest();
+        expect(action.type).to.equal('CONNECT_DATA_SOURCE_REQUEST');
+      });
+    });
+
+    describe('connectDataSourceSuccess', () => {
+      it('should be a TSA', () => {
+        let action = sync.connectDataSourceSuccess('dataSources', 'stuff');
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CONNECT_DATA_SOURCE_SUCCESS', () => {
+        let source = { id: 'dataSources', url: 'stuff' };
+        let action = sync.connectDataSourceSuccess(source.id, source.url);
+        expect(action.type).to.equal('CONNECT_DATA_SOURCE_SUCCESS');
+        expect(action.payload.authorizedDataSource.id).to.equal(source.id);
+        expect(action.payload.authorizedDataSource.url).to.equal(source.url);
+      });
+    });
+
+    describe('connectDataSourceFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('failed :(');
+        let action = sync.connectDataSourceFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CONNECT_DATA_SOURCE_FAILURE and error should equal passed error', () => {
+        let error = new Error('opps :(');
+        let action = sync.connectDataSourceFailure(error);
+
+        expect(action.type).to.equal('CONNECT_DATA_SOURCE_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('disconnectDataSourceRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.disconnectDataSourceRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DISCONNECT_DATA_SOURCE_REQUEST', () => {
+        let action = sync.disconnectDataSourceRequest();
+        expect(action.type).to.equal('DISCONNECT_DATA_SOURCE_REQUEST');
+      });
+    });
+
+    describe('disconnectDataSourceSuccess', () => {
+      it('should be a TSA', () => {
+        let action = sync.disconnectDataSourceSuccess();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DISCONNECT_DATA_SOURCE_SUCCESS', () => {
+        let action = sync.disconnectDataSourceSuccess();
+        expect(action.type).to.equal('DISCONNECT_DATA_SOURCE_SUCCESS');
+        expect(action.payload).to.be.empty;
+      });
+    });
+
+    describe('disconnectDataSourceFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('disconnecting failed :(');
+        let action = sync.disconnectDataSourceFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DISCONNECT_DATA_SOURCE_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.disconnectDataSourceFailure(error);
+        expect(action.type).to.equal('DISCONNECT_DATA_SOURCE_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
   });
 });
