@@ -3,6 +3,7 @@
 /* global sinon */
 /* global it */
 /* global beforeEach */
+/* global afterEach */
 
 var React = require('react');
 var TestUtils = require('react-addons-test-utils');
