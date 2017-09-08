@@ -16,13 +16,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { browserHistory } from 'react-router'
+import { browserHistory } from 'react-router';
+import sundial from 'sundial';
 
 import * as actions from '../../redux/actions';
 
 import _ from 'lodash';
 import config from '../../config';
 import { validateForm } from '../../core/validation';
+import { URL_TERMS_OF_USE, URL_PRIVACY_POLICY } from '../../core/constants';
 
 import utils from '../../core/utils';
 import LoginNav from '../../components/loginnav';
@@ -42,43 +44,58 @@ export let Signup = React.createClass({
     notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool.isRequired
+    working: React.PropTypes.bool.isRequired,
+    location: React.PropTypes.object.isRequired,
   },
 
   formInputs: function() {
-    return [
-      {
-        name: 'fullName',
-        label: 'Full name',
-        type: 'text'
-      },
+    let inputs = [
       {
         name: 'username',
         label: 'Email',
         type: 'email',
         placeholder: '',
-        disabled: !!this.props.inviteEmail
+        disabled: !!this.props.inviteEmail,
       },
       {
         name: 'password',
         label: 'Password',
-        type: 'password'
+        type: 'password',
       },
       {
         name: 'passwordConfirm',
         label: 'Confirm password',
-        type: 'password'
-      }
+        type: 'password',
+      },
     ];
+
+    if (this.state.selected === 'personal') {
+      inputs.unshift({
+        name: 'fullName',
+        label: 'Full name',
+        type: 'text',
+      });
+    }
+
+    if (this.state.selected === 'clinician') {
+      inputs.push({
+        name: 'termsAccepted',
+        label: this.renderAcceptTermsLabel(),
+        type: 'checkbox',
+      });
+    }
+
+    return inputs;
   },
 
   componentWillMount: function() {
     this.setState({loading: false});
   },
 
-  componentWillReceiveProps: function(nextProps){
-    if(nextProps.location.pathname === '/signup'){
-      this.setState({madeSelection:false});
+  componentWillReceiveProps: function(nextProps) {
+    if (!utils.isOnSamePage(this.props, nextProps)) {
+      const state = this.getFormStateFromPath(nextProps.location.pathname)
+      this.setState(state);
     }
   },
 
@@ -89,14 +106,42 @@ export let Signup = React.createClass({
       formValues.username = this.props.inviteEmail;
     }
 
-    return {
+    return _.assign({
       loading: true,
       formValues: formValues,
       validationErrors: {},
       notification: null,
       selected: null,
       madeSelection: false
-    };
+    }, this.getFormStateFromPath(this.props.location.pathname));
+  },
+
+  getFormStateFromPath: function(pathname) {
+    let state = {}
+
+    switch (utils.stripTrailingSlash(pathname)) {
+      case '/signup':
+        state = {
+          madeSelection: false,
+        };
+        break;
+
+      case '/signup/personal':
+        state = {
+          madeSelection: true,
+          selected: 'personal',
+        };
+        break;
+
+      case '/signup/clinician':
+        state = {
+          madeSelection: true,
+          selected: 'clinician',
+        };
+        break;
+    }
+
+    return state;
   },
 
   handleSelectionClick: function(option){
@@ -135,30 +180,111 @@ export let Signup = React.createClass({
     );
   },
 
-  renderForm: function() {
-    var submitButtonText = 'Sign up';
-    if (this.props.working) {
-      submitButtonText = 'Signing up...';
+  renderFormIntroduction: function() {
+    const type = this.state.selected;
+
+    const heading = {
+      personal: 'Create Tidepool Account',
+      clinician: 'Create Clinician Account',
+    };
+
+    const subHeading = {
+      personal: 'See all your diabetes data in one place. Finally.',
+      clinician: 'See all your patients and all their device data in one place.'
+    };
+
+    return (
+      <div className="signup-formIntro">
+        <div className="signup-title-condensed">{heading[type]}</div>
+        <div className="signup-subtitle">{subHeading[type]}</div>
+      </div>
+    );
+  },
+
+  renderFormTypeSwitch: function() {
+    let content, href;
+
+    switch (this.state.selected) {
+      case 'personal':
+        href = '/signup/clinician';
+
+        content = (
+          <p>
+            If you are a Healthcare Provider and want to create an account, please <a href={href} className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'clinician')} children="click here" />.
+          </p>
+        );
+        break;
+
+        case 'clinician':
+        href = '/signup/personal';
+
+        content = (
+          <p>
+            If you are a provider who lives with diabetes and wants to track and manage your personal diabetes data,
+            please create a separate <a href={href} className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'personal')} children="personal account" />.
+          </p>
+        );
+        break;
     }
+
+    return (
+      <div className="signup-formTypeSwitch">
+        {content}
+      </div>
+    );
+  },
+
+  renderForm: function() {
+    let submitButtonText;
+    let submitButtonWorkingText;
+    let submitButtonDisabled = false;
+
+    // Disable the submit button if any inputs are empty
+    _.forEach(this.formInputs(), input => {
+      if (!this.state.formValues[input.name]) {
+        submitButtonDisabled = true;
+      }
+    })
+
+    switch (this.state.selected) {
+      case 'personal':
+        submitButtonText = 'Create Personal Account';
+        submitButtonWorkingText = 'Creating Personal Account...';
+        break;
+
+      case 'clinician':
+        submitButtonText = 'Create Clinician Account';
+        submitButtonWorkingText = 'Creating Clinician Account...';
+        break;
+    }
+
+    if (this.props.working) {
+      submitButtonText = submitButtonWorkingText;
+    }
+
     if(!this.state.madeSelection){
       return null;
     }
 
     return (
       <div className="container-small-outer signup-form">
+        {this.renderFormIntroduction()}
+
         <div className="container-small-inner signup-form-box">
           <SimpleForm
             inputs={this.formInputs()}
             formValues={this.state.formValues}
             validationErrors={this.state.validationErrors}
             submitButtonText={submitButtonText}
-            submitDisabled={this.props.working}
+            submitDisabled={this.props.working || submitButtonDisabled}
             onSubmit={this.handleSubmit}
+            onChange={this.handleChange}
             notification={this.state.notification || this.props.notification}/>
+
+          {this.renderFormTypeSwitch()}
         </div>
       </div>
     );
-
   },
 
   renderTypeSelection: function() {
@@ -202,9 +328,31 @@ export let Signup = React.createClass({
     );
   },
 
-  handleContinueClick: function(e){
-    this.setState({madeSelection:true});
+  renderAcceptTermsLabel: function() {
+    return (
+      <span>
+        I accept the terms of the Tidepool Applications <a href={URL_TERMS_OF_USE} target='_blank'>Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
+      </span>
+    );
+  },
+
+  handleContinueClick: function(e) {
+    this.setState({madeSelection: true});
     browserHistory.push(`/signup/${this.state.selected}`);
+  },
+
+  handleTypeSwitchClick: function(type, e) {
+    e.preventDefault();
+    this.setState({selected: type});
+    browserHistory.push(`/signup/${type}`);
+  },
+
+  handleChange: function(attributes) {
+    let formValues = _.merge({}, this.state.formValues, {
+      [attributes.name]: attributes.value,
+    });
+
+    this.setState({formValues});
   },
 
   handleSubmit: function(formValues) {
@@ -239,10 +387,9 @@ export let Signup = React.createClass({
 
   validateFormValues: function(formValues) {
     var form = [
-      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
       { type: 'email', name: 'username', label: 'email address', value: formValues.username },
       { type: 'password', name: 'password', label: 'password', value: formValues.password },
-      { type: 'confirmPassword', name: 'passwordConfirm', label: 'confirm password', value: formValues.passwordConfirm, prerequisites: { password: formValues.password }  }
+      { type: 'confirmPassword', name: 'passwordConfirm', label: 'confirm password', value: formValues.passwordConfirm, prerequisites: { password: formValues.password } },
     ];
 
     var validationErrors = validateForm(form);
@@ -262,18 +409,31 @@ export let Signup = React.createClass({
 
   prepareFormValuesForSubmit: function(formValues) {
     let roles = this.props.roles ? this.props.roles : [];
-    if(this.state.selected === 'clinician' && _.indexOf(roles, 'clinic') === -1){
-      roles.push('clinic');
-    }
-    return {
+
+    let values = {
       username: formValues.username,
       emails: [formValues.username],
       password: formValues.password,
       roles: roles,
-      profile: {
-        fullName: formValues.fullName
-      }
     };
+
+    if(this.state.selected === 'personal') {
+      values.profile = {
+        fullName: formValues.fullName,
+      };
+    }
+
+    if(this.state.selected === 'clinician') {
+      if (formValues.termsAccepted) {
+        values.termsAccepted = sundial.utcDateString();
+      }
+
+      if (_.indexOf(roles, 'clinic') === -1) {
+        values.roles.push('clinic');
+      }
+    }
+
+    return values;
   }
 });
 /**

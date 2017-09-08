@@ -64,6 +64,36 @@ describe('Actions', () => {
         expect(trackMetric.calledWith('Signed Up')).to.be.true;
       });
 
+      it('should trigger ACCEPT_TERMS_REQUEST if the user user accepted terms in the signup form', () => {
+        const acceptedDate = new Date().toISOString();
+        const loggedInUserId = false;
+        const termsData = { termsAccepted: acceptedDate };
+        const user = {
+          id: 27,
+        };
+
+        const initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId } });
+
+        const api = {
+          user: {
+            signup: sinon.stub().callsArgWith(1, null, user),
+            acceptTerms: sinon.stub().callsArgWith(1, null, user),
+          }
+        };
+
+        const accountDetails = {
+          termsAccepted: acceptedDate,
+        }
+
+        const store = mockStore(initialStateForTest);
+        store.dispatch(async.signup(api, accountDetails));
+
+        const actions = store.getActions();
+
+        const action = _.find(actions, { type: 'ACCEPT_TERMS_REQUEST' });
+        expect(isTSA(action)).to.be.true;
+      });
+
       it('[409] should trigger SIGNUP_FAILURE and it should call signup once and get zero times for a failed signup request', () => {
         let user = { id: 27 };
         let api = {
@@ -392,6 +422,42 @@ describe('Actions', () => {
         expect(api.user.acceptTerms.callCount).to.equal(1);
       });
 
+      it('should trigger ACCEPT_TERMS_SUCCESS and should not trigger a route transition if the user is not logged in', () => {
+        let acceptedDate = new Date();
+        let loggedInUserId = false;
+        let termsData = { termsAccepted: new Date() };
+        let user = {
+          id: 27,
+          roles: ['clinic'],
+        };
+        let api = {
+          user: {
+            acceptTerms: sinon.stub().callsArgWith(1, null, user)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'ACCEPT_TERMS_REQUEST' },
+          { type: 'ACCEPT_TERMS_SUCCESS', payload: { userId: user.id, acceptedDate: acceptedDate } },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+
+        let store = mockStore(initialStateForTest);
+        store.dispatch(async.acceptTerms(api, acceptedDate, user.id));
+
+        const actions = store.getActions();
+
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
+        expect(api.user.acceptTerms.callCount).to.equal(1);
+
+        expect(_.findWhere(actions, { type: '@@router/TRANSITION' })).to.be.undefined;
+      });
+
       it('should trigger ACCEPT_TERMS_FAILURE and it should call acceptTerms once for a failed request', () => {
         let acceptedDate = new Date();
         let termsData = { termsAccepted: acceptedDate };
@@ -487,6 +553,79 @@ describe('Actions', () => {
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.get.callCount).to.equal(1);
         expect(api.patient.get.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Logged In')).to.be.true;
+      });
+
+      it('should trigger LOGIN_SUCCESS and it should redirect a clinician with no clinic profile to the clinician details form', () => {
+        const creds = { username: 'bruce', password: 'wayne' };
+        const user = { id: 27, roles: [ 'clinic' ], profile: {} };
+        const patient = { foo: 'bar' };
+
+        const api = {
+          user: {
+            login: sinon.stub().callsArgWith(2, null),
+            get: sinon.stub().callsArgWith(0, null, user)
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          }
+        };
+
+        const expectedActions = [
+          { type: 'LOGIN_REQUEST' },
+          { type: 'LOGIN_SUCCESS', payload: { user } },
+          { type: '@@router/TRANSITION', payload: { method: 'push', args: [ '/clinician-details' ] } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore(initialState);
+
+        store.dispatch(async.login(api, creds));
+
+        const actions = store.getActions();
+
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
+        expect(api.user.get.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Logged In')).to.be.true;
+      });
+
+
+      it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a clinic profile to the patients view', () => {
+        const creds = { username: 'bruce', password: 'wayne' };
+        const user = { id: 27, roles: ['clinic'], profile: { clinic: true } };
+        const patient = { foo: 'bar' };
+
+        const api = {
+          user: {
+            login: sinon.stub().callsArgWith(2, null),
+            get: sinon.stub().callsArgWith(0, null, user)
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          }
+        };
+
+        const expectedActions = [
+          { type: 'LOGIN_REQUEST' },
+          { type: 'LOGIN_SUCCESS', payload: { user } },
+          { type: '@@router/TRANSITION', payload: { method: 'push', args: ['/patients?justLoggedIn=true'] } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore(initialState);
+
+        store.dispatch(async.login(api, creds));
+
+        const actions = store.getActions();
+
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
+        expect(api.user.get.callCount).to.equal(1);
         expect(trackMetric.calledWith('Logged In')).to.be.true;
       });
 

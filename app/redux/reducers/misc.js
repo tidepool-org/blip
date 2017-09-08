@@ -154,6 +154,7 @@ export const resentEmailVerification = (state = initialState.resentEmailVerifica
 export const allUsersMap = (state = initialState.allUsersMap, action) => {
   switch(action.type) {
     case types.FETCH_USER_SUCCESS:
+    case types.SIGNUP_SUCCESS:
     case types.LOGIN_SUCCESS: {
       const { user } = action.payload;
       return update(state, {

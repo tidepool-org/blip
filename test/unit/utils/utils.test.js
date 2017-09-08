@@ -315,4 +315,11 @@ describe('utils', () => {
       expect(utils.roundBgTarget(3.96, MMOLL_UNITS)).to.equal(4);
     });
   });
+
+  describe('stripTrailingSlash', function() {
+    it('should strip a trailing forward slash from a string', function() {
+      const url = '/my-path/sub-path/';
+      expect(utils.stripTrailingSlash(url)).to.equal('/my-path/sub-path');
+    });
+  });
 });
