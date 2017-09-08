@@ -672,6 +672,48 @@ describe('platform client', function () {
       });
     });
   });
+  describe.skip('handles connections to OAuth providers for the user', function () {
+    var dataSourceFilter = {
+      type: 'oauth',
+      name: 'dexcom',
+    };
+    it('using a restricted token', function (done) {
+      pwdClient.createRestrictedTokenForUser(
+        a_PWD.id, 
+        dataSourceFilter, function(error, restrictedToken){
+          expect(error).to.not.exist;
+          expect(restrictedToken).to.exist;
+        }
+      );
+    });
+
+    it('adding an OAuth provider authorization', function (done) {
+      pwdClient.createRestrictedTokenForUser(
+        a_PWD.id, 
+        dataSourceFilter, function(error, restrictedToken){
+          expect(error).to.not.exist;
+          expect(restrictedToken).to.exist;
+          pwdClient.createOAuthProviderAuthorization(
+            dataSourceFilter.name, 
+            restrictedToken, function(error, authorizationURL){
+              expect(error).to.not.exist;
+              expect(authorizationURL).to.exist;
+            }
+          );
+        }
+      );
+    });
+
+    it('removing an OAuth provider authorization', function (done) {
+      pwdClient.deleteOAuthProviderAuthorization(
+        dataSourceFilter.name, function(error, details){
+          expect(error).to.not.exist;
+          expect(details).to.exist;
+        }
+      );
+    });
+  
+  });
   describe.skip('handles invites', function () {
     /*
      * For the tests we are donig this one way
