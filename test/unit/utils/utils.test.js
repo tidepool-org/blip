@@ -295,4 +295,11 @@ describe('utils', function() {
       expect(utils.getCarelink(location)).to.equal(null);
     });
   });
+
+  describe('stripTrailingSlash', function() {
+    it('should strip a trailing forward slash from a string', function() {
+      const url = '/my-path/sub-path/';
+      expect(utils.stripTrailingSlash(url)).to.equal('/my-path/sub-path');
+    });
+  });
 });

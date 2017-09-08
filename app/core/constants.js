@@ -17,6 +17,8 @@
 
 export const URL_UPLOADER_CHROME_STORE = 'http://chrome.google.com/webstore/detail/tidepool-uploader/cabklgajffclbljkhmjphejemhpbghfb';
 export const URL_BLIP_NOTES_APP_STORE = 'https://itunes.apple.com/us/app/blip-notes/id1026395200?mt=8';
+export const URL_TERMS_OF_USE = 'https://tidepool.org/terms-of-use';
+export const URL_PRIVACY_POLICY = 'https://tidepool.org/privacy-policy';
 export const URL_BIG_DATA_DONATION_INFO = 'http://tidepool.org/announcing-the-tidepool-big-data-donation-project';
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';

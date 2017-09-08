@@ -47,12 +47,16 @@ describe('trackingMiddleware', () => {
 
   it('should call the metrics api for SIGNUP_SUCCESS', () => {
     const signupSuccess = {
-      type: ActionTypes.SIGNUP_SUCCESS
+      type: ActionTypes.SIGNUP_SUCCESS,
+      payload: {
+        user: {},
+      },
     };
     expect(api.metrics.track.callCount).to.equal(0);
     trackingMiddleware(api)(getStateObj)(next)(signupSuccess);
-    expect(api.metrics.track.callCount).to.equal(1);
     expect(api.metrics.track.calledWith('Signed Up')).to.be.true;
+    expect(api.metrics.track.calledWith('Web - Personal Account Created')).to.be.true;
+    expect(api.metrics.track.callCount).to.equal(2);
   });
 
   it('should call the metrics api for SIGNUP_SUCCESS with roles', () => {
@@ -69,8 +73,9 @@ describe('trackingMiddleware', () => {
     };
     expect(api.metrics.track.callCount).to.equal(0);
     trackingMiddleware(api)(getStateObj)(next)(signupSuccess);
-    expect(api.metrics.track.callCount).to.equal(1);
     expect(api.metrics.track.calledWith('Signed Up', { roles: ['clinic'] })).to.be.true;
+    expect(api.metrics.track.calledWith('Web - Clinician Account Created')).to.be.true;
+    expect(api.metrics.track.callCount).to.equal(2);
   });
 
   it('should call the metrics api for LOGIN_SUCCESS', () => {

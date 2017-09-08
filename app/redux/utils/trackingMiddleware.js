@@ -17,6 +17,7 @@
 
 import _ from 'lodash';
 
+import { isClinic } from '../../core/personutils';
 import * as ActionTypes from '../constants/actionTypes';
 
 const trackMetricMap = {
@@ -30,8 +31,13 @@ const trackMetricMap = {
 
 const interpretMetricMap = {
   SIGNUP_SUCCESS: function(action) {
-    let roles = _.get(action, 'payload.user.roles');
-    return { eventName: 'Signed Up', properties: roles ? { roles: roles } : null };
+    const user = _.get(action, 'payload.user');
+    const roles = _.get(user, 'roles');
+    const type = isClinic(user) ? 'Clinician' : 'Personal';
+    return [
+      { eventName: 'Signed Up', properties: roles ? { roles: roles } : null },
+      { eventName: `Web - ${type} Account Created` },
+    ];
   },
   TURN_ON_CBG_RANGE: function(action) {
     return { eventName: `Turn on ${action.payload.range}${!_.isNaN(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}` };
@@ -47,8 +53,13 @@ export default (api) => {
       api.metrics.track(trackMetricMap[action.type]);
     }
     if (interpretMetricMap[action.type]) {
-      let { eventName, properties } = interpretMetricMap[action.type](action)
-      api.metrics.track(eventName, properties);
+      let metrics = interpretMetricMap[action.type](action);
+      if (!_.isArray(metrics)) {
+        metrics = [metrics];
+      }
+      _.forEach(metrics, ({ eventName, properties }) => {
+        api.metrics.track(eventName, properties);
+      });
     }
     return next(action);
   };

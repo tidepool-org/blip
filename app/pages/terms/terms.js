@@ -21,17 +21,16 @@ import _ from 'lodash';
 import config from '../../config';
 import LoginNav from '../../components/loginnav';
 import utils  from '../../core/utils';
+import { URL_TERMS_OF_USE, URL_PRIVACY_POLICY } from '../../core/constants';
+
 import * as actions from '../../redux/actions';
 
-const TERMS_OF_USE_FULL_LINK = 'https://tidepool.org/terms-of-use';
-const PRIVACY_POLICY_FULL_LINK = 'https://tidepool.org/privacy-policy';
-
 const ACCEPT_OF_AGE = <span>
-  I am 18 or older and I accept the terms of the <a href={TERMS_OF_USE_FULL_LINK} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={PRIVACY_POLICY_FULL_LINK} target='_blank'>Privacy Policy</a>
+  I am 18 or older and I accept the terms of the <a href={URL_TERMS_OF_USE} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
 </span>;
 
 const ACCEPT_ON_BEHALF = <span>
-  I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the <a href={TERMS_OF_USE_FULL_LINK} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={PRIVACY_POLICY_FULL_LINK} target='_blank'>Privacy Policy</a>
+  I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the <a href={URL_TERMS_OF_USE} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
 </span>;
 
 const TERMS_OF_USE_UPDATED = <p>
