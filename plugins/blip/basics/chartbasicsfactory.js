@@ -36,6 +36,9 @@ var dataMungerMkr = require('./logic/datamunger');
 var constants = require('./logic/constants');
 
 var Section = require('./components/DashboardSection');
+var UnknownStatistic = React.createFactory(require('./components/misc/UnknownStatistic'));
+var DailyCarbsTitle = React.createFactory(require('./components/misc/DailyCarbsTitle'));
+
 var togglableState = require('./TogglableState');
 
 var dataUrl = 'data/blip-input.json';
@@ -53,21 +56,37 @@ var BasicsChart = React.createClass({
     updateBasicsSettings: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
   },
+
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
-    if (basicsData.sections.siteChanges.type !== constants.SECTION_TYPE_UNDECLARED) {
-      // check that site change section has data within range of current view
-      var hasSiteChangeData = _.some(basicsData.data[basicsData.sections.siteChanges.type].data, function(datum) {
+    var insulinDataAvailable = this._insulinDataAvailable();
+
+    function hasSectionData(section) {
+      // check that section has data within range of current view
+      return _.some(basicsData.data[section].data, function(datum) {
         return (datum.time >= basicsData.dateRange[0]);
       });
+    }
 
-      if (!hasSiteChangeData) {
+    if (basicsData.sections.siteChanges.type !== constants.SECTION_TYPE_UNDECLARED) {
+      if (!hasSectionData(basicsData.sections.siteChanges.type)) {
         basicsData.sections.siteChanges.active = false;
+        basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
+        if (!insulinDataAvailable) {
+          basicsData.sections.siteChanges.noDataMessage = null;
+        }
       }
     }
+
+    if (!hasSectionData(basicsData.sections.boluses.type)) {
+      basicsData.sections.boluses.active = false;
+    }
+
+    if (!hasSectionData(basicsData.sections.basals.type)) {
+      basicsData.sections.basals.active = false;
+    }
+
     if (_.isEmpty(basicsData.data.calibration.data)) {
-      var fingerstickSection = _.find(basicsData.sections, function(section) {
-        return section.type === 'fingerstick';
-      });
+      var fingerstickSection = _.find(basicsData.sections, {type: 'fingerstick'});
 
       fingerstickSection.selectorOptions.rows.forEach(function(row) {
         var calibrationSelector = _.find(row, function(option) {
@@ -78,21 +97,41 @@ var BasicsChart = React.createClass({
         }
       });
     }
-    if (_.isEmpty(basicsData.data.basalBolusRatio)) {
-      var basalBolusRatioSection = _.find(basicsData.sections, function(section) {
-        return section.id === 'basalBolusRatio';
-      });
-      basalBolusRatioSection.noData = true;
-      basalBolusRatioSection.togglable = togglableState.off;
+
+    if (basicsData.data.averageDailyCarbs === null) {
+      var averageDailyCarbsSection = _.find(basicsData.sections, {id: 'averageDailyCarbs'});
+      averageDailyCarbsSection.noData = true;
+      averageDailyCarbsSection.togglable = insulinDataAvailable ? togglableState.off : togglableState.closed;
+      averageDailyCarbsSection.title = DailyCarbsTitle;
+      averageDailyCarbsSection.chart = UnknownStatistic;
     }
-    if (basicsData.data.totalDailyDose == null) {
-      var totalDailyDoseSection = _.find(basicsData.sections, function(section) {
-        return section.id === 'totalDailyDose';
-      });
+
+    if (_.isEmpty(basicsData.data.basalBolusRatio)) {
+      var basalBolusRatioSection = _.find(basicsData.sections, {id: 'basalBolusRatio'});
+      basalBolusRatioSection.noData = true;
+      basalBolusRatioSection.togglable = insulinDataAvailable ? togglableState.off : togglableState.closed;
+    }
+
+    if (basicsData.data.totalDailyDose === null) {
+      var totalDailyDoseSection = _.find(basicsData.sections, {id: 'totalDailyDose'});
       totalDailyDoseSection.noData = true;
       totalDailyDoseSection.togglable = togglableState.closed;
     }
   },
+
+  _insulinDataAvailable: function() {
+    var {
+      basal,
+      bolus,
+      wizard,
+    } = _.get(this.props, 'patientData.basicsData.data', {});
+
+    if (_.get(basal, 'data.length') || _.get(bolus, 'data.length') || _.get(wizard, 'data.length')) {
+      return true;
+    }
+    return false;
+  },
+
   _aggregatedDataEmpty: function() {
     var {
       basalBolusRatio,
@@ -105,6 +144,7 @@ var BasicsChart = React.createClass({
     }
     return false;
   },
+
   componentWillMount: function() {
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
@@ -126,16 +166,19 @@ var BasicsChart = React.createClass({
     this.setState(basicsData);
     basicsActions.bindApp(this);
   },
+
   componentDidMount: function() {
     if (this._aggregatedDataEmpty() && this.props.trackMetric) {
       this.props.trackMetric('web - pump vacation message displayed');
     }
   },
+
   componentWillUnmount: function() {
     var patientData = _.clone(this.props.patientData);
     patientData.basicsData = this.state;
     this.props.updateBasicsData(patientData);
   },
+
   render: function() {
     var leftColumn = this.renderColumn('left');
     var rightColumn = this.renderColumn('right');
@@ -150,6 +193,7 @@ var BasicsChart = React.createClass({
       </div>
     );
   },
+
   renderColumn: function(columnSide) {
     var self = this;
     var timePrefs = this.props.timePrefs;

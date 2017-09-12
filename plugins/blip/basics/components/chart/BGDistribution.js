@@ -1,19 +1,22 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+ /* jshint esversion:6 */
+
 var _ = require('lodash');
 var cx = require('classnames');
 var d3 = require('d3');
@@ -29,19 +32,21 @@ var BGDistribution = React.createClass({
     bgUnits: React.PropTypes.string.isRequired,
     data: React.PropTypes.object.isRequired
   },
+
   componentWillMount: function() {
     var data = this.props.data;
 
     if (!_.isEmpty(data.bgDistribution)) {
       var distributionType = data.bgDistribution.cbg ? 'cbg' : 'smbg';
       this.setState({
-        bothAvailable: !_.isEmpty(data.bgDistribution.cbg) &&
-          !_.isEmpty(data.bgDistribution.smbg),
+        bothAvailable: !_.isEmpty(_.filter(data.bgDistribution.cbg, item => item > 0)) &&
+          !_.isEmpty(_.filter(data.bgDistribution.smbg, item => item > 0)),
         data: data.bgDistribution[distributionType],
         showingCbg: distributionType === 'cbg'
       });
     }
   },
+
   componentDidMount: function() {
     var data = this.props.data;
     var bgClasses = this.props.bgClasses;
@@ -55,10 +60,12 @@ var BGDistribution = React.createClass({
         });
     }
   },
+
   componentDidUpdate: function() {
     var showingCbg = this.state.showingCbg;
     this.chart.update(this.props.data.bgDistribution[showingCbg ? 'cbg' : 'smbg']);
   },
+
   render: function() {
     var data = this.props.data;
 
@@ -74,6 +81,7 @@ var BGDistribution = React.createClass({
     }
     return null;
   },
+
   renderCgmStatus: function() {
     if (this.state.bothAvailable) {
       return null;
@@ -90,6 +98,7 @@ var BGDistribution = React.createClass({
       </p>
     );
   },
+
   renderDataToggle: function() {
     var distribution = this.props.data.bgDistribution;
     if (this.state.bothAvailable) {
@@ -106,6 +115,7 @@ var BGDistribution = React.createClass({
     }
     return null;
   },
+
   handleDataToggle: function() {
     var showingCbg = this.state.showingCbg;
     this.setState({

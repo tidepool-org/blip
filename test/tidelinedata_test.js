@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -60,7 +60,7 @@ describe('TidelineData', function() {
   it('should have a `smbgData` attribute that is a crossfilter object', function() {
     assert.isObject(td.smbgData);
   });
-  
+
   it('should have `bgClasses` and `bgUnits` properties', function() {
     expect(td.bgClasses).to.exist;
     expect(td.bgUnits).to.exist;
@@ -282,8 +282,8 @@ describe('TidelineData', function() {
 
   describe('findBasicsData', function() {
     var smbg = new types.SMBG({deviceTime: '2015-08-31T00:01:00'});
-    var inBasicsCBG = new types.CBG({deviceTime: '2015-09-25T10:10:00'});
-    var inBasicsCalibration = {
+    var firstCBG = new types.CBG({deviceTime: '2015-09-25T10:10:00'});
+    var firstCalibration = {
       type: 'deviceEvent',
       subType: 'calibration',
       deviceTime: '2015-09-26T15:50:00',
@@ -292,8 +292,11 @@ describe('TidelineData', function() {
       timezoneOffset: -420
     };
     var bolus = new types.Bolus({deviceTime: '2015-09-28T14:05:00'});
-    var futureCBG = new types.CBG({deviceTime: '2015-10-01T14:22:00'});
-    var futureCalibration = {
+    var basal = new types.Basal({deviceTime: '2015-09-28T14:06:00'});
+    var secondCBG = new types.CBG({deviceTime: '2015-10-01T14:22:00'});
+    var message = new types.Message({deviceTime: '2015-10-01T16:30:00'});
+    var settings = new types.Settings({deviceTime: '2015-10-01T18:00:00'});
+    var secondCalibration = {
       type: 'deviceEvent',
       subType: 'calibration',
       deviceTime: '2015-10-02T09:35:00',
@@ -304,33 +307,37 @@ describe('TidelineData', function() {
     // defaults to timezoneAware: false
     var thisTd = new TidelineData([
       smbg,
-      inBasicsCBG,
-      inBasicsCalibration,
+      firstCBG,
+      firstCalibration,
       bolus,
-      futureCBG,
-      futureCalibration]
+      basal,
+      message,
+      settings,
+      secondCBG,
+      secondCalibration]
     );
-    it('should determine the date range for The Basics based on available pump data', function() {
+
+    it('should determine the date range for The Basics based on latest available device data', function() {
       var dateRange = thisTd.basicsData.dateRange;
       expect(dateRange[0]).to.equal('2015-09-14T00:00:00.000Z');
-      expect(dateRange[1]).to.equal(bolus.normalTime);
+      expect(dateRange[1]).to.equal(secondCalibration.normalTime);
       expect(thisTd.basicsData.data.bolus.data.length).to.equal(1);
       expect(thisTd.basicsData.data.bolus.data[0]).to.deep.equal(bolus);
-    });
-
-    it('should only include CGM data types within the pump-data determined date range', function() {
-      var basicsData = thisTd.basicsData.data;
-      expect(basicsData.cbg.data.length).to.equal(1);
-      expect(basicsData.calibration.data.length).to.equal(1);
     });
 
     it('should build a basicsData objects with all necessary attributes', function() {
       assert.isString(thisTd.basicsData.timezone);
       assert.isObject(thisTd.basicsData.data);
-      assert.isObject(thisTd.basicsData.data.bolus);
-      assert.isObject(thisTd.basicsData.data.smbg);
       assert.isArray(thisTd.basicsData.dateRange);
       assert.isArray(thisTd.basicsData.days);
+    });
+
+    it('should add all relevant data as provided', function() {
+      expect(thisTd.basicsData.data.bolus.data.length).to.equal(1);
+      expect(thisTd.basicsData.data.basal.data.length).to.equal(1);
+      expect(thisTd.basicsData.data.cbg.data.length).to.equal(2);
+      expect(thisTd.basicsData.data.calibration.data.length).to.equal(2);
+      expect(thisTd.basicsData.data.calibration.data[1]).to.deep.equal(secondCalibration);
     });
   });
 
