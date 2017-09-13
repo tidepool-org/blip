@@ -571,15 +571,22 @@ export function fetchSettings(api, patientId) {
  */
 export function updateSettings(api, patientId, settings) {
   return (dispatch) => {
+    const updatingBgUnits = !!_.get(settings, 'units.bg');
+
     dispatch(sync.updateSettingsRequest());
+    updatingBgUnits && dispatch(sync.updatePatientBgUnitsRequest());
 
     api.metadata.settings.put(patientId, settings, (err, updatedSettings) => {
       if (err) {
         dispatch(sync.updateSettingsFailure(
           createActionError(ErrorMessages.ERR_UPDATING_SETTINGS, err), err
         ));
+        updatingBgUnits && dispatch(sync.updatePatientBgUnitsFailure(
+          createActionError(ErrorMessages.ERR_UPDATING_PATIENT_BG_UNITS, err), err
+        ));
       } else {
         dispatch(sync.updateSettingsSuccess(patientId, updatedSettings));
+        updatingBgUnits && dispatch(sync.updatePatientBgUnitsSuccess(patientId, updatedSettings));
       }
     });
   };

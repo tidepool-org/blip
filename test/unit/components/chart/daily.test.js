@@ -11,12 +11,33 @@ var _ = require('lodash');
 var expect = chai.expect;
 
 import Daily from '../../../../app/components/chart/daily';
+import { MGDL_UNITS } from '../../../../app/core/constants';
 
 require('tideline/css/tideline.less');
 require('../../../../app/core/less/fonts.less');
 require('../../../../app/style.less');
 
 describe('Daily', function () {
+  const bgPrefs = {
+    bgClasses: {
+      'very-low': {
+        boundary: 60
+      },
+      'low': {
+        boundary: 80
+      },
+      'target': {
+        boundary: 180
+      },
+      'high': {
+        boundary: 200
+      },
+      'very-high': {
+        boundary: 300
+      }
+    },
+    bgUnits: MGDL_UNITS
+  };
 
   before(() => {
     Daily.__Rewire__('DailyChart', React.createClass({
@@ -34,26 +55,7 @@ describe('Daily', function () {
     it('should render without problems', function () {
       console.error = sinon.stub();
       var props = {
-        bgPrefs: {
-          bgClasses: {
-            'very-low': {
-              boundary: 60
-            },
-            'low': {
-              boundary: 80
-            },
-            'target': {
-              boundary: 180
-            },
-            'high': {
-              boundary: 200
-            },
-            'very-high': {
-              boundary: 300
-            }
-          },
-          bgUnits: 'mg/dL'
-        },
+        bgPrefs,
         chartPrefs: {
           trends: {
             activeDays: {
@@ -108,7 +110,7 @@ describe('Daily', function () {
 
     it('should have a refresh button which should call onClickRefresh when clicked', function () {
       var props = {
-        bgPrefs: {},
+        bgPrefs,
         chartPrefs: {},
         timePrefs: {},
         initialDateTimeLocation: 'foo',
@@ -134,7 +136,7 @@ describe('Daily', function () {
 
     it('should have a disabled print button and spinner when a pdf is not ready to print', function () {
       var props = {
-        bgPrefs: {},
+        bgPrefs,
         chartPrefs: {},
         patientData: {},
         printReady: false,
@@ -150,7 +152,7 @@ describe('Daily', function () {
 
     it('should have an enabled print button and icon when a pdf is ready and call onSwitchToPrint when clicked', function () {
       var props = {
-        bgPrefs: {},
+        bgPrefs,
         chartPrefs: {},
         patientData: {},
         printReady: true,

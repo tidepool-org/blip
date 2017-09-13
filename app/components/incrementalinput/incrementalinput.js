@@ -16,6 +16,8 @@
 
 import React from 'react'
 import cx from 'classnames';
+import { MMOLL_UNITS } from '../../core/constants';
+import { utils } from '@tidepool/viz';
 
 const IncrementalInput = (props) => {
   function calculate(e) {
@@ -51,9 +53,11 @@ const IncrementalInput = (props) => {
     [`IncrementalInput--${props.name}`]: true,
   });
 
+  let displayValue = utils.formatBgValue(props.value, { bgUnits: props.unit });
+
   return (
     <div className={classes}>
-      <span>{props.value} {props.unit}</span>
+      <span>{displayValue} {props.unit}</span>
       <div className="IncrementalInputArrows">
         <svg className="IncrementalInputArrow IncrementalInputArrow--increase" operator="+" width="16" height="10" viewBox="-1 -1 16 10">
           <path d="M7 0l7 8H0z" onClick={calculate} />
