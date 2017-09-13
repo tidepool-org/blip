@@ -1,25 +1,29 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+/* jshint esversion:6 */
 
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
 
 var datetime = require('./util/datetime');
 var categorizer = require('./util/categorize');
+
+var { MGDL_UNITS, MMOLL_UNITS } = require('../data/util/constants');
 
 function BGUtil(data, opts) {
 
@@ -31,7 +35,7 @@ function BGUtil(data, opts) {
       target: { boundary: 180 },
       high: { boundary: 300 },
     },
-    bgUnits: 'mg/dL'
+    bgUnits: MGDL_UNITS
   };
   _.defaults(opts, defaults);
 
@@ -56,7 +60,7 @@ function BGUtil(data, opts) {
     total: NaN
   };
 
-  var categorize = categorizer(opts.bgClasses);
+  var categorize = categorizer(opts.bgClasses, opts.bgUnits);
 
   function getCategory (n) {
     var datum = {value:n};
@@ -155,13 +159,13 @@ function BGUtil(data, opts) {
         return memo + d.value;
       }, 0);
       var average;
-      if (opts.bgUnits === 'mmol/L') {
-        average = (sum/filtered.length).toFixed(1);
+      if (opts.bgUnits === MMOLL_UNITS) {
+        average = parseFloat((sum/filtered.length)).toFixed(1);
       }
       else {
         average = parseInt((sum/filtered.length).toFixed(0), 10);
       }
-      
+
       return {value: average, category: getCategory(average)};
     }
     else {

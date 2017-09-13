@@ -15,9 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var d3 = require('d3');
 var Duration = require('duration-js');
 var moment = require('moment-timezone');
+var { MGDL_UNITS } = require('./constants');
 
 var format = {
 
@@ -39,7 +42,7 @@ var format = {
     return format.tooltipBGValue(d.value, units);
   },
   tooltipBGValue: function(value, units) {
-    return units === 'mg/dL' ? d3.format('g')(Math.round(value)) : d3.format('.1f')(value);
+    return units === MGDL_UNITS ? d3.format('g')(Math.round(value)) : d3.format('.1f')(value);
   },
   tooltipValue: function(x) {
     if (x === 0) {
@@ -61,8 +64,8 @@ var format = {
   nameForDisplay: function(name, maxWordLength) {
     maxWordLength = maxWordLength || 22;
     return name.split(' ').map(function(part) {
-      return (part.length <= maxWordLength) ? 
-        part : 
+      return (part.length <= maxWordLength) ?
+        part :
         [part.substring(0,maxWordLength), '...'].join('');
     }).join(' ');
   },
@@ -71,7 +74,7 @@ var format = {
    * Function for returning a preview of a text value followed by elipsis.
    * Will return a string of max length + 3 (for elipsis). Will end preview
    * at last completed word that fits into preview.
-   * 
+   *
    * @param  {String} text
    * @param  {Number} previewLength
    * @return {String}
@@ -93,7 +96,7 @@ var format = {
     return s[0].toUpperCase() + s.slice(1);
   },
 
-  
+
   dayAndDate: function(i, offset) {
     var d = new Date(i);
     if (offset) {
@@ -170,7 +173,7 @@ var format = {
   /**
    * Given a string timestamp, return a formatted date string
    * Optionally adjust the time if an offset is supplied.
-   * 
+   *
    * @param  {String} timestring
    * @param  {Number} offset
    * @return {String} [MMMM D] e.g. August 4
@@ -186,7 +189,7 @@ var format = {
   /**
    * Given a string timestamp, return a formatted time string.
    * Optionally adjust the time if an offset is supplied.
-   * 
+   *
    * @param  {String} timestring
    * @param  {Number} offset
    * @return {String} [%-I:%M %p] D e.g. 3:14 am
@@ -199,8 +202,8 @@ var format = {
     return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
   },
   /**
-   * Given two timestamps return an object containing a timechange 
-   * 
+   * Given two timestamps return an object containing a timechange
+   *
    * @param {String} from - date string
    * @param {String} to - date string
    * @return {Object} containing keys from, to, type, format

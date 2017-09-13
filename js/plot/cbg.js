@@ -1,19 +1,21 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+/* jshint esversion:6 */
 
 var d3 = require('d3');
 var _ = require('lodash');
@@ -22,13 +24,14 @@ var log = require('bows')('CBG');
 var bgBoundaryClass = require('./util/bgboundary');
 var format = require('../data/util/format');
 var categorizer = require('../../js/data/util/categorize');
+var { MGDL_UNITS } = require('../../js/data/util/constants');
 
 module.exports = function(pool, opts) {
 
   opts = opts || {};
 
   var defaults = {
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     classes: {
       low: { boundary: 70 },
       target: { boundary: 180 },
@@ -42,7 +45,7 @@ module.exports = function(pool, opts) {
   opts.classes = classes;
   _.defaults(opts, defaults);
 
-  var categorize = categorizer(opts.classes);
+  var categorize = categorizer(opts.classes, opts.bgUnits);
   var mainGroup = pool.parent();
 
   function cbg(selection) {
@@ -120,7 +123,7 @@ module.exports = function(pool, opts) {
 
   cbg.addTooltip = function(d) {
     var tooltips = pool.tooltips();
-    var getBgBoundaryClass = bgBoundaryClass(opts.classes);
+    var getBgBoundaryClass = bgBoundaryClass(opts.classes, opts.bgUnits);
     var cssClass = getBgBoundaryClass(d);
     var category = categorize(d);
     tooltips.addFixedTooltip({

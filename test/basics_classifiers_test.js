@@ -1,19 +1,23 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+ /* jshint esversion:6 */
+
+var { MMOLL_UNITS } = require('../js/data/util/constants');
 
 var chai = require('chai');
 var assert = chai.assert;
@@ -25,6 +29,14 @@ var bgClasses = {
   target: {boundary: 30},
   high: {boundary: 40},
   'very-high': {boundary: 50}
+};
+
+var bgClassesMmoll = {
+  'very-low': {boundary: 2},
+  low: {boundary: 3},
+  target: {boundary: 4},
+  high: {boundary: 10},
+  'very-high': {boundary: 20}
 };
 
 var classifiers = require('../plugins/blip/basics/logic/classifiers');
@@ -119,6 +131,7 @@ describe('basics classifiers', function() {
 
   describe('smbg', function() {
     var classifier = classifiers(bgClasses).smbg;
+    var classifierMmoll = classifiers(bgClassesMmoll, MMOLL_UNITS).smbg;
     it('should classify a non-subTyped smbg as `meter`', function() {
       expect(classifier({value: 25})).to.deep.equal(['meter']);
     });
@@ -135,13 +148,26 @@ describe('basics classifiers', function() {
       expect(classifier({value: 5})).to.deep.equal(['meter', 'verylow']);
     });
 
+    it('should classify an mmol/L smbg below the very-low threshold as `verylow`', function() {
+      expect(classifierMmoll({value: 1.3})).to.deep.equal(['meter', 'verylow']);
+    });
+
     it('should not return any category tags for an in-target value', function() {
       expect(classifier({value: 25})).to.deep.equal(['meter']);
+    });
+
+    it('should not return any category tags for an in-target mmol/L value', function() {
+      expect(classifierMmoll({value: 7.2})).to.deep.equal(['meter']);
     });
 
     it('should classify an smbg above the high threshold as `veryhigh`', function() {
       expect(classifier({value: 35})).to.deep.equal(['meter']);
       expect(classifier({value: 55})).to.deep.equal(['meter', 'veryhigh']);
+    });
+
+    it('should classify an mmol/L smbg above the high threshold as `veryhigh`', function() {
+      expect(classifierMmoll({value: 8})).to.deep.equal(['meter']);
+      expect(classifierMmoll({value: 22})).to.deep.equal(['meter', 'veryhigh']);
     });
   });
 });

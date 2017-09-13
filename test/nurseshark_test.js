@@ -1,19 +1,21 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+/* jshint esversion:6 */
 
 var chai = require('chai');
 var assert = chai.assert;
@@ -22,6 +24,7 @@ var expect = chai.expect;
 var _ = require('lodash');
 
 var dt = require('../js/data/util/datetime');
+var { MGDL_UNITS, MMOLL_UNITS } = require('../js/data/util/constants');
 
 var nurseshark = require('../plugins/nurseshark');
 
@@ -233,24 +236,24 @@ describe('nurseshark', function() {
       var now = new Date().toISOString();
       var bgs = [{
         type: 'cbg',
-        units: 'mmol/L',
+        units: MMOLL_UNITS,
         value: 14.211645580300173,
         time: now,
         timezoneOffset: 0
       }, {
         type: 'smbg',
-        units: 'mmol/L',
+        units: MMOLL_UNITS,
         value: 2.487452256628842,
         time: now,
         timezoneOffset: 0
       }, {
         type: 'cbg',
-        units: 'mmol/L',
+        units: MMOLL_UNITS,
         value: 7.048584587016023,
         time: now,
         timezoneOffset: 0
       }];
-      var res = nurseshark.processData(bgs, 'mg/dL').processedData;
+      var res = nurseshark.processData(bgs, MGDL_UNITS).processedData;
       expect(res[0].value).to.equal(256);
       expect(res[1].value).to.equal(45);
       expect(res[2].value).to.equal(127);
@@ -261,7 +264,7 @@ describe('nurseshark', function() {
       var datum = [{
         type: 'wizard',
         time: now,
-        units: 'mmol/L',
+        units: MMOLL_UNITS,
         bgInput: 15.1518112923307,
         bgTarget: {
           high: 5.550747991045533,
@@ -272,7 +275,7 @@ describe('nurseshark', function() {
         insulinSensitivity: 3.7753739955227665,
         timezoneOffset: 0
       }];
-      var res = nurseshark.processData(datum, 'mg/dL').processedData[0];
+      var res = nurseshark.processData(datum, MGDL_UNITS).processedData[0];
       expect(res.bgInput).to.equal(273);
       expect(res.bgTarget.low).to.equal(100);
       expect(res.bgTarget.high).to.equal(100);
@@ -287,7 +290,7 @@ describe('nurseshark', function() {
         type: 'pumpSettings',
         time: now,
         units: {
-          bg: 'mmol/L',
+          bg: MMOLL_UNITS,
           carb: 'grams'
         },
         bgTarget: [{
@@ -306,7 +309,7 @@ describe('nurseshark', function() {
         ],
         timezoneOffset: 0
       }];
-      var res = nurseshark.processData(settings, 'mg/dL').processedData[0];
+      var res = nurseshark.processData(settings, MGDL_UNITS).processedData[0];
       expect(res.bgTarget[0].target).to.equal(120);
       expect(res.bgTarget[0].range).to.equal(10);
       expect(res.insulinSensitivity[0].amount).to.equal(80);
@@ -322,7 +325,7 @@ describe('nurseshark', function() {
           bar: []
         },
         units: {
-          bg: 'mg/dL'
+          bg: MGDL_UNITS
         },
         time: now,
         timezoneOffset: 0
@@ -348,7 +351,7 @@ describe('nurseshark', function() {
           bar: []
         },
         units: {
-          bg: 'mg/dL'
+          bg: MGDL_UNITS
         },
         time: now,
         timezoneOffset: 0,
@@ -399,12 +402,12 @@ describe('nurseshark', function() {
       var APPEND = '.000Z';
       var data = [{
         type: 'smbg',
-        units: 'mmol/L',
+        units: MMOLL_UNITS,
         time: nextTime.toISOString(),
         timezoneOffset: 0
       }, {
         type: 'cbg',
-        units: 'mmol/L',
+        units: MMOLL_UNITS,
         time: now.toISOString(),
         timezoneOffset: 0
       }];

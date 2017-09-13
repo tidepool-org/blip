@@ -1,14 +1,14 @@
 # == BSD2 LICENSE ==
 # Copyright (c) 2014, Tidepool Project
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the associated License, which is identical to the BSD 2-Clause
 # License as published by the Open Source Initiative at opensource.org.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE. See the License for more details.
-# 
+#
 # You should have received a copy of the License along with this program; if
 # not, you can obtain one from Tidepool Project at tidepool.org.
 # == BSD2 LICENSE ==
@@ -150,7 +150,7 @@ class Basal:
         start = dt(d.year, d.month, d.day, d.hour, d.minute, d.second)
         end = dt(d.year, d.month, d.day, segment_start.hour, segment_start.minute, segment_start.second)
 
-        segment = {                
+        segment = {
                     'type': 'basal',
                     'rate': self.schedule[current_segment],
                     'deliveryType': 'scheduled',
@@ -219,7 +219,7 @@ class Basal:
         while current_datetime < end:
             try:
                 next_segment_start = self.segment_starts[index + 1]
-                index += 1            
+                index += 1
             except IndexError:
                 next_segment_start = midnight
                 index = 0
@@ -248,7 +248,7 @@ class Basal:
         original_length = len(self.segments)
 
         for i, segment in enumerate(self.segments):
-            
+
             percent = random.choice(percents)
             if percent == 1.0:
                 percent = 0.5
@@ -447,7 +447,7 @@ class Dexcom:
 
     def _stitch_segments(self):
         """Stitch together segments of Dexcom data."""
-        
+
         initial = random.choice(self.segments[random.choice(self.segments.keys())])
 
         start = self.start + td(hours=random.choice(range(-5,6)))
@@ -503,7 +503,7 @@ class Dexcom:
 
     def generate_JSON(self):
         """Generate a list ready to print to JSON of demo Dexcom data."""
-        
+
         self._stitch_segments()
 
         self.json = [{'id': str(uuid.uuid4()), 'type': 'cbg', 'value': reading['value'], 'deviceTime': reading['deviceTime'].isoformat()[:-7], 'source': 'demo', 'deviceId': 'Demo - 123', 'units': 'mg/dL'} for reading in self.readings if reading['deviceTime'] < self.final]
@@ -622,7 +622,7 @@ class Messages:
 
         print()
         print(dt.now(), 'Fetching some bacon ipsum...')
-        
+
         request = urlopen('https://baconipsum.com/api/?type=meat-and-filler&sentences=' + str(random.choice(range(1,4))))
 
         bacon_ipsum = json.loads(request.read())[0]
@@ -868,13 +868,13 @@ def _fix_floating_point(a):
 
 def translate_to_mmol(all_json, mmol):
 
-    GLUCOSE_MM = 18.01559
+    MGDL_PER_MMOLL = 18.01559
 
     def translate_bg(val):
         if mmol:
-            return round(float(val)/GLUCOSE_MM, 1)
+            return round(float(val)/MGDL_PER_MMOLL, 1)
         else:
-            return float(val)/GLUCOSE_MM
+            return float(val)/MGDL_PER_MMOLL
 
     for a in all_json:
         if a['type'] == 'cbg' or a['type'] == 'smbg':

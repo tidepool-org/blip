@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -127,6 +127,31 @@ module.exports = (function() {
         }
         return cbgs;
       },
+      constantJustEnoughMmoll: function(opts) {
+        opts = opts || {};
+        var defaults = {
+          days: 1,
+          value: 8.56,
+          start: naiveTimestamp()
+        };
+        _.defaults(opts, defaults);
+
+        var cbgs = [];
+        var start = opts.start;
+        for (var i = 0; i < opts.days; ++i) {
+          var j = 0;
+          var next = new utils.Intervaler(start, 1000*60*5);
+          while (j < CBGMIN) {
+            cbgs.push(new types.CBG({
+              value: opts.value,
+              deviceTime: next()
+            }));
+            j++;
+          }
+          start = dt.addDuration(start + APPEND, MS_IN_24HRS);
+        }
+        return cbgs;
+      },
       constantInadequate: function(opts) {
         opts = opts || {};
         var defaults = {
@@ -181,6 +206,31 @@ module.exports = (function() {
         var defaults = {
           days: 1,
           value: 100,
+          start: naiveTimestamp()
+        };
+        _.defaults(opts, defaults);
+
+        var smbgs = [];
+        var start = opts.start;
+        for (var i = 0; i < opts.days; ++i) {
+          var j = 0;
+          var next = new utils.Intervaler(start, MS_IN_24HRS/24);
+          while (j < SMBGMIN) {
+            smbgs.push(new types.SMBG({
+              value: opts.value,
+              deviceTime: next()
+            }));
+            j++;
+          }
+          start = dt.addDuration(start + APPEND, MS_IN_24HRS);
+        }
+        return smbgs;
+      },
+      constantJustEnoughMmoll: function(opts) {
+        opts = opts || {};
+        var defaults = {
+          days: 1,
+          value: 8.56,
           start: naiveTimestamp()
         };
         _.defaults(opts, defaults);

@@ -1,3 +1,23 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+
+/* jshint esversion:6 */
+
 require('script!d3/d3.min.js');
 require('script!d3.chart/d3.chart.min.js');
 
@@ -10,6 +30,7 @@ var dt = tideline.data.util.datetime;
 var format = tideline.data.util.format;
 var tooltips = tideline.plot.util.tooltips.generalized;
 var shapes = tideline.plot.util.tooltips.shapes;
+var { MGDL_UNITS } = require('../../../js/data/util/constants');
 
 var THREE_HRS = 10800000, NINE_HRS = 75600000;
 
@@ -260,10 +281,10 @@ d3.chart('SMBGDay', {
       }
     });
   },
-  bgClasses: function(bgClasses) {
+  bgClasses: function(bgClasses, bgUnits) {
     if (!arguments.length) { return this._bgClasses; }
     this._bgClasses = bgClasses;
-    this.getBgBoundaryClass = bgBoundaryClass(bgClasses);
+    this.getBgBoundaryClass = bgBoundaryClass(bgClasses, bgUnits);
     return this;
   },
   grouped: function(grouped) {
@@ -308,14 +329,14 @@ module.exports = function() {
         smbg: {
           r: 5,
           stroke: 1,
-          units: 'mg/dL'
+          units: MGDL_UNITS
         }
       };
       _.defaults(opts, defaults);
 
       chart = d3.select(el)
         .chart('SMBGDay')
-        .bgClasses(opts.bgClasses)
+        .bgClasses(opts.bgClasses, opts.smbg.units)
         .smbgOpts(opts.smbg)
         .timezone(opts.timezone)
         .xScale(scales.x)

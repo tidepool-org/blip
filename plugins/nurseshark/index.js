@@ -1,27 +1,28 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
 
 /* global __DEV__,__TEST__ */
+/* jshint esversion:6 */
 
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var util = require('util');
 
-var constants = require('../../js/data/util/constants');
+var { MGDL_PER_MMOLL, MGDL_UNITS } = require('../../js/data/util/constants');
 var dt = require('../../js/data/util/datetime');
 
 var log;
@@ -33,7 +34,7 @@ else {
 }
 
 function translateBg(value) {
-  return Math.round(constants.GLUCOSE_MM * value);
+  return Math.round(MGDL_PER_MMOLL * value);
 }
 
 function isBadStatus(d) {
@@ -342,7 +343,7 @@ function getHandlers(bgUnits) {
     },
     cbg: function(d) {
       d = cloneDeep(d);
-      if (bgUnits === 'mg/dL') {
+      if (bgUnits === MGDL_UNITS) {
         d.value = translateBg(d.value);
       }
       return d;
@@ -360,14 +361,14 @@ function getHandlers(bgUnits) {
     },
     smbg: function(d) {
       d = cloneDeep(d);
-      if (bgUnits === 'mg/dL') {
+      if (bgUnits === MGDL_UNITS) {
         d.value = translateBg(d.value);
       }
       return d;
     },
     pumpSettings: function(d) {
       d = cloneDeep(d);
-      if (bgUnits === 'mg/dL') {
+      if (bgUnits === MGDL_UNITS) {
         if (d.bgTarget) {
           for (var j = 0; j < d.bgTarget.length; ++j) {
             var current = d.bgTarget[j];
@@ -431,7 +432,7 @@ function getHandlers(bgUnits) {
     },
     wizard: function(d, collections) {
       d = cloneDeep(d);
-      if (bgUnits === 'mg/dL') {
+      if (bgUnits === MGDL_UNITS) {
         if (d.bgInput) {
           d.bgInput = translateBg(d.bgInput);
         }

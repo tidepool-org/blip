@@ -27,12 +27,21 @@ var d3 = require('d3');
 var constants = require('../plugins/blip/basics/logic/constants');
 var togglableState = require('../plugins/blip/basics/TogglableState');
 
+var { MMOLL_UNITS } = require('../js/data/util/constants');
+
 var bgClasses = {
   'very-low': {boundary: 10},
   low: {boundary: 20},
   target: {boundary: 30},
   high: {boundary: 40},
   'very-high': {boundary: 50}
+};
+var bgClassesMmoll = {
+  'very-low': {boundary: 2},
+  low: {boundary: 3},
+  target: {boundary: 4},
+  high: {boundary: 10},
+  'very-high': {boundary: 20}
 };
 var oneWeekDates = [{
   date: '2015-09-07',
@@ -80,6 +89,7 @@ var siteChangeSections = {
 };
 
 var dm = require('../plugins/blip/basics/logic/datamunger')(bgClasses);
+var dmMmol = require('../plugins/blip/basics/logic/datamunger')(bgClassesMmoll, MMOLL_UNITS);
 
 var types = require('../dev/testpage/types');
 
@@ -165,6 +175,27 @@ describe('basics datamunger', function() {
         new types.SMBG({value: bgClasses['very-high'].boundary - 1})
       ];
       expect(dm.bgDistribution({
+        data: {smbg: {data: smbg}},
+        dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
+      }).smbg).to.deep.equal({
+          verylow: 0.2,
+          low: 0.2,
+          target: 0.2,
+          high: 0.2,
+          veryhigh: 0.2
+      });
+    });
+
+    it('should categorize all mmol/L BG values correctly!', function() {
+      var now = new Date();
+      var smbg = [
+        new types.SMBG({value: bgClassesMmoll['very-low'].boundary - 1}),
+        new types.SMBG({value: bgClassesMmoll.low.boundary - 1}),
+        new types.SMBG({value: bgClassesMmoll.target.boundary - 1}),
+        new types.SMBG({value: bgClassesMmoll.high.boundary - 1}),
+        new types.SMBG({value: bgClassesMmoll['very-high'].boundary - 1})
+      ];
+      expect(dmMmol.bgDistribution({
         data: {smbg: {data: smbg}},
         dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
       }).smbg).to.deep.equal({
