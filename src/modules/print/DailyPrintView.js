@@ -49,6 +49,8 @@ import {
 } from '../../utils/format';
 import { getPatientFullName } from '../../utils/misc';
 
+import { MMOLL_UNITS } from '../../utils/constants';
+
 const logo = require('./images/tidepool-logo-408x46.png');
 
 class DailyPrintView {
@@ -448,13 +450,15 @@ class DailyPrintView {
 
   renderSummary({ data, date, topEdge }) {
     const smallIndent = this.margins.left + 4;
-    const statsIndent = 8;
+    const statsIndent = 6;
     const widthWithoutIndent = this.summaryArea.width - statsIndent;
     let first = true;
 
     const totalBasal = getTotalBasal(data.basal);
     const totalBolus = getTotalBolus(data.bolus);
     const totalInsulin = totalBasal + totalBolus;
+
+    const bgPrecision = this.bgUnits === MMOLL_UNITS ? 1 : 0;
 
     this.doc.fillColor('black')
       .fillOpacity(1)
@@ -491,10 +495,14 @@ class DailyPrintView {
       yPos.update();
 
       const { targetUpperBound, targetLowerBound, veryLowThreshold } = this.bgBounds;
+
       const cbgTimeInCategories = calcBgPercentInCategories(data.cbg, this.bgBounds);
+      const upperTarget = formatDecimalNumber(targetUpperBound, bgPrecision);
+      const lowerTarget = formatDecimalNumber(targetLowerBound, bgPrecision);
+
       this.doc.font(this.font)
         .text(
-          `${targetLowerBound} - ${targetUpperBound}`,
+          `${lowerTarget} - ${upperTarget}`,
           { indent: statsIndent, continued: true, width: widthWithoutIndent },
         )
         .text(`${formatPercentage(cbgTimeInCategories.target)}`, { align: 'right' });
@@ -502,7 +510,7 @@ class DailyPrintView {
       yPos.update();
 
       this.doc.text(
-          `Below ${veryLowThreshold}`,
+          `Below ${formatDecimalNumber(veryLowThreshold, bgPrecision)}`,
           { indent: statsIndent, continued: true, width: widthWithoutIndent },
         )
         .text(`${formatPercentage(cbgTimeInCategories.veryLow)}`, { align: 'right' });
@@ -570,7 +578,7 @@ class DailyPrintView {
         )
         .font(this.font)
         .text(
-          `${formatDecimalNumber(mean(data.cbg, (d) => (d.value)), 0)} ${this.bgUnits}`,
+          `${formatDecimalNumber(mean(data.cbg, (d) => (d.value)), bgPrecision)} ${this.bgUnits}`,
           { align: 'right' }
         );
 
@@ -593,7 +601,7 @@ class DailyPrintView {
         )
         .font(this.font)
         .text(
-          `${formatDecimalNumber(mean(data.smbg, (d) => (d.value)), 0)} ${this.bgUnits}`,
+          `${formatDecimalNumber(mean(data.smbg, (d) => (d.value)), bgPrecision)} ${this.bgUnits}`,
           { align: 'right' }
         );
 
@@ -731,11 +739,12 @@ class DailyPrintView {
       width: this.chartArea.leftEdge - this.summaryArea.rightEdge - 3,
     };
     _.each(this.bgBounds, (bound) => {
+      const bgTick = this.bgUnits === MMOLL_UNITS ? parseFloat(bound).toFixed(1) : bound;
       this.doc.font(this.font)
         .fontSize(this.bgAxisFontSize)
         .fillColor(this.colors.axis)
         .text(
-          `${bound}`,
+          `${bgTick}`,
           this.summaryArea.rightEdge,
           bgScale(bound) - this.doc.currentLineHeight() / 2,
           opts,

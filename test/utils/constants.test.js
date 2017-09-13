@@ -30,6 +30,18 @@ describe('constants', () => {
     });
   });
 
+  describe('MGDL_CLAMP_TOP', () => {
+    it('should be 400', () => {
+      expect(constants.MGDL_CLAMP_TOP).to.equal(400);
+    });
+  });
+
+  describe('MMOLL_CLAMP_TOP', () => {
+    it('should be 22.5', () => {
+      expect(constants.MMOLL_CLAMP_TOP).to.equal(22.5);
+    });
+  });
+
   describe('MMOLL_UNITS', () => {
     it('should be mmol/L', () => {
       expect(constants.MMOLL_UNITS).to.equal('mmol/L');
@@ -39,6 +51,12 @@ describe('constants', () => {
   describe('MGDL_UNITS', () => {
     it('should be mg/dL', () => {
       expect(constants.MGDL_UNITS).to.equal('mg/dL');
+    });
+  });
+
+  describe('MGDL_PER_MMOLL', () => {
+    it('should be 18.01559', () => {
+      expect(constants.MGDL_PER_MMOLL).to.equal(18.01559);
     });
   });
 });

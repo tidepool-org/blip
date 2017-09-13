@@ -29,6 +29,7 @@ export const MMOLL_CLAMP_TOP = 22.5;
 
 export const MGDL_UNITS = 'mg/dL';
 export const MMOLL_UNITS = 'mmol/L';
+export const MGDL_PER_MMOLL = 18.01559;
 
 const ONE_WEEK = 7;
 const TWO_WEEKS = 14;
