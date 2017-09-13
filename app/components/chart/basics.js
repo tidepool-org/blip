@@ -119,7 +119,7 @@ var Basics = React.createClass({
     return (
       <div className="patient-data-message patient-data-message-loading">
         <p>{'The Basics view shows a summary of your recent device activity, but it looks like you haven\'t uploaded device data yet.'}</p>
-        <p>{'To see the Basics,  '}
+        <p>{'To see the Basics, '}
           <a
             href={this.props.uploadUrl}
             target="_blank"
@@ -151,7 +151,7 @@ var Basics = React.createClass({
   },
 
   isMissingBasics: function() {
-    var basicsData = this.props.patientData.basicsData;
+    var basicsData = _.get(this.props, 'patientData.basicsData', {});
     var data;
 
     if (basicsData.data) {
