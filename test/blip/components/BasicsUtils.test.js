@@ -23,7 +23,7 @@
 /* global expect */
 /* global chai */
 
-const expect = chai.expect;
+var expect = chai.expect;
 
 const BasicsUtils = require('../../../plugins/blip/basics/components/BasicsUtils');
 

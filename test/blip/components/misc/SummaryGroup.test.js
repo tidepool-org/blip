@@ -25,12 +25,12 @@
 /* global sinon */
 /* global chai */
 
+var expect = chai.expect;
+
 const React = require('react');
 const _ = require('lodash');
 const { shallow } = require('enzyme');
 const SummaryGroup = require('../../../../plugins/blip/basics/components/misc/SummaryGroup');
-
-const expect = chai.expect;
 
 describe('SummaryGroup', () => {
   const data = {

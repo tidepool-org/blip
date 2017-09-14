@@ -23,12 +23,14 @@
 /* global expect */
 /* global beforeEach */
 /* global chai */
+/* global sinon */
+
+var expect = chai.expect;
 
 const React = require('react');
+const _ = require('lodash');
 const { mount } = require('enzyme');
 const CalendarContainer = require('../../../plugins/blip/basics/components/CalendarContainer');
-
-const expect = chai.expect;
 
 describe('CalendarContainer', () => {
   const data = {

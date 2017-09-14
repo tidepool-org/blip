@@ -24,11 +24,12 @@
 /* global beforeEach */
 /* global chai */
 
+var expect = chai.expect;
+
 const React = require('react');
+const _ = require('lodash');
 const { shallow } = require('enzyme');
 const BGDistribution = require('../../../../plugins/blip/basics/components/chart/BGDistribution');
-
-const expect = chai.expect;
 
 describe('BGDistribution', () => {
   const data = {
@@ -90,7 +91,6 @@ describe('BGDistribution', () => {
 
     context('only CBG data available', () => {
       beforeEach(() => {
-        let cbgOnlyProps = _.clone
         wrapper.setProps({
           data: _.assign({}, data, {
             smbg: {
@@ -115,7 +115,6 @@ describe('BGDistribution', () => {
 
     context('only SMBG data available', () => {
       beforeEach(() => {
-        let cbgOnlyProps = _.clone
         wrapper.setProps({
           data: _.assign({}, data, {
             cbg: {
