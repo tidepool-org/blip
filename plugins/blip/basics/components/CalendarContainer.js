@@ -59,6 +59,8 @@ var CalendarContainer = React.createClass({
     title: React.PropTypes.string.isRequired
   },
 
+  actions: _.clone(basicsActions),
+
   getInitialState: function() {
     return {
       hoverDate: null
@@ -100,7 +102,7 @@ var CalendarContainer = React.createClass({
           return self.getOptionValue(option, data) > 0;
         });
         var selected = _.get(selectedOption, 'key', null);
-        basicsActions.selectSubtotal(this.props.sectionId, selected);
+        this.actions.selectSubtotal(this.props.sectionId, selected);
       }
     }
   },

@@ -85,6 +85,10 @@ var BasicsChart = React.createClass({
       basicsData.sections.basals.active = false;
     }
 
+    if (!hasSectionData('smbg') && !hasSectionData('calibration')) {
+      basicsData.sections.fingersticks.active = false;
+    }
+
     if (_.isEmpty(basicsData.data.calibration.data)) {
       var fingerstickSection = _.find(basicsData.sections, {type: 'fingerstick'});
 

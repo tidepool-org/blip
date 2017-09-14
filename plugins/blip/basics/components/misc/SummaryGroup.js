@@ -36,6 +36,8 @@ var SummaryGroup = React.createClass({
     trackMetric: React.PropTypes.func.isRequired,
   },
 
+  actions: _.clone(basicsActions),
+
   render: function() {
     var self = this;
     var primaryOption = self.props.selectorOptions.primary;
@@ -87,6 +89,7 @@ var SummaryGroup = React.createClass({
     var path = option.path;
     var value = this.getOptionValue(option, this.props.data);
 
+    option.disabled = false;
     if (value === 0) {
       option.disabled = true;
       classes += ' SummaryGroup-info--disabled';
@@ -119,7 +122,7 @@ var SummaryGroup = React.createClass({
 
       return (
         <div key={option.key} className={classes}
-          onClick={this.handleSelectSubtotal.bind(null, option)}>
+          onClick={this.handleSelectSubtotal.bind(this, option)}>
           <span className="SummaryGroup-option-label">{option.label}</span>
           {averageElem}
           {totalElem}
@@ -166,7 +169,7 @@ var SummaryGroup = React.createClass({
 
       return (
         <div key={option.key} className={classes}
-          onClick={this.handleSelectSubtotal.bind(null, option)}>
+          onClick={this.handleSelectSubtotal.bind(this, option)}>
           {labelElem}
           {valueElem}
         </div>
@@ -178,7 +181,7 @@ var SummaryGroup = React.createClass({
     if (selected.disabled) {
       return;
     }
-    basicsActions.selectSubtotal(this.props.sectionId, selected.key, this.props.trackMetric);
+    this.actions.selectSubtotal(this.props.sectionId, selected.key, this.props.trackMetric);
   },
 });
 

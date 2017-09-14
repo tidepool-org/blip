@@ -320,6 +320,8 @@ describe('TidelineData', function() {
     it('should determine the date range for The Basics based on latest available device data', function() {
       var dateRange = thisTd.basicsData.dateRange;
       expect(dateRange[0]).to.equal('2015-09-14T00:00:00.000Z');
+
+      // in this case, the second calibration is the latest device data upload
       expect(dateRange[1]).to.equal(secondCalibration.normalTime);
       expect(thisTd.basicsData.data.bolus.data.length).to.equal(1);
       expect(thisTd.basicsData.data.bolus.data[0]).to.deep.equal(bolus);
@@ -338,6 +340,11 @@ describe('TidelineData', function() {
       expect(thisTd.basicsData.data.cbg.data.length).to.equal(2);
       expect(thisTd.basicsData.data.calibration.data.length).to.equal(2);
       expect(thisTd.basicsData.data.calibration.data[1]).to.deep.equal(secondCalibration);
+    });
+
+    it('should not add settings or message data', function() {
+      expect(thisTd.basicsData.data.settings).to.be.undefined;
+      expect(thisTd.basicsData.data.message).to.be.undefined;
     });
   });
 
