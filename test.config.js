@@ -10,6 +10,16 @@ var definePlugin = new webpack.DefinePlugin({
 
 module.exports = {
   entry: './test/index.js',
+  externals: {
+    jsdom: 'window',
+    cheerio: 'window',
+    'react/addons': true,
+    'react-dom/test-utils': true,
+    'react-test-renderer/shallow': true,
+    'react/lib/ExecutionEnvironment': true,
+    'react/lib/ReactContext': 'window',
+    'text-encoding': 'window'
+  },
   output: {
     path: path.join(__dirname, 'tmp'),
     filename: '_test.js'
