@@ -1,3 +1,22 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+/* jshint esversion:6 */
+
 require('script!d3/d3.min.js');
 require('script!d3.chart/d3.chart.min.js');
 
@@ -13,6 +32,8 @@ var format = tideline.data.util.format;
 var smbgBox = require('./SMBGBox');
 var smbgDay = require('./SMBGDay');
 var smbgInfo = require('./SMBGInfo');
+
+var { MGDL_UNITS, MMOLL_UNITS } = require('../../../js/data/util/constants');
 
 var THREE_HRS = 10800000;
 var chart;
@@ -222,8 +243,8 @@ d3.chart('ModalDay', {
               y: function(d) { return yScale(d); }
             })
             .text(function(d) {
-              if (chart.smbgOpts().units === 'mmol/L') {
-                return format.tooltipBG({value: d}, 'mmol/L');
+              if (chart.smbgOpts().units === MMOLL_UNITS) {
+                return format.tooltipBG({value: d}, MMOLL_UNITS);
               }
               return d;
             });
@@ -482,7 +503,7 @@ module.exports = {
         radiusMultiplier: 1.5,
         stroke: 1,
         strokeMultiplier: 2,
-        units: opts.bgUnits || 'mg/dL'
+        units: opts.bgUnits || MGDL_UNITS
       },
       statsHeight: 0,
       tickLength: {x: 15, y: 8},
@@ -512,19 +533,19 @@ module.exports = {
 
     // to prevent setting the lower bound of the domain below the lowest axis label at 80
     var lowerBound = opts.bgDomain[0];
-    if (opts.smbg.units === 'mg/dL' && lowerBound > 80) {
+    if (opts.smbg.units === MGDL_UNITS && lowerBound > 80) {
       lowerBound = 80;
     }
-    if (opts.smbg.units === 'mmol/L' && lowerBound > 4.4) {
+    if (opts.smbg.units === MMOLL_UNITS && lowerBound > 4.4) {
       lowerBound = 4.4;
     }
 
     var bgDomain = [lowerBound];
     if (opts.clampTop) {
-      if (opts.smbg.units === 'mg/dL') {
+      if (opts.smbg.units === MGDL_UNITS) {
         bgDomain.push(400);
       }
-      else if (opts.smbg.units === 'mmol/L') {
+      else if (opts.smbg.units === MMOLL_UNITS) {
         bgDomain.push(22.5);
       }
     }

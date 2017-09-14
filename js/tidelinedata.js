@@ -16,6 +16,7 @@
  */
 
 /* global __DEV__ */
+/* jshint esversion:6 */
 
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
@@ -27,7 +28,7 @@ var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
-var constants = require('./data/util/constants');
+var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('./data/util/constants');
 
 var log;
 if (typeof window !== 'undefined' && __DEV__ === true) {
@@ -64,7 +65,7 @@ function TidelineData(data, opts) {
       high: { boundary: 300 },
       'very-high': { boundary: 600 }
     },
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     fillOpts: {
       classes: {
         0: 'darkest',
@@ -90,6 +91,12 @@ function TidelineData(data, opts) {
       timezoneName: 'US/Pacific'
     }
   };
+
+  if (opts.bgUnits === MMOLL_UNITS) {
+    _.forOwn(defaults.bgClasses, function(value, key) {
+      defaults.bgClasses[key].boundary = value.boundary/MGDL_PER_MMOLL;
+    });
+  }
 
   _.defaultsDeep(opts, defaults);
   var that = this;
@@ -318,11 +325,6 @@ function TidelineData(data, opts) {
     startTimer('setBGPrefs');
     this.bgClasses = opts.bgClasses;
     this.bgUnits = opts.bgUnits;
-    if (this.bgUnits === 'mmol/L') {
-      for (var key in opts.bgClasses) {
-        opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/constants.GLUCOSE_MM;
-      }
-    }
     endTimer('setBGPrefs');
   };
 

@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var _ = require('lodash');
 
 var chai = require('chai');
@@ -25,6 +27,7 @@ var crossfilter = require('crossfilter');
 var moment = require('moment-timezone');
 
 var types = require('../dev/testpage/types');
+var { MGDL_UNITS, MMOLL_UNITS } = require('../js/data/util/constants');
 
 var TidelineData = require('../js/tidelinedata');
 
@@ -68,15 +71,15 @@ describe('TidelineData', function() {
 
   it('should default to mg/dL for `bgUnits` and `bgClasses`', function() {
     expect(td.bgClasses).to.eql(bgClasses);
-    expect(td.bgUnits).to.equal('mg/dL');
+    expect(td.bgUnits).to.equal(MGDL_UNITS);
   });
 
   it('should transform `bgClasses` when `bgUnits` are mmol/L', function() {
     var data = [new types.SMBG()];
-    data[0].units = 'mmol/L';
-    var thisTd = new TidelineData(data, {bgUnits: 'mmol/L'});
+    data[0].units = MMOLL_UNITS;
+    var thisTd = new TidelineData(data, {bgUnits: MMOLL_UNITS});
     expect(thisTd.bgClasses).to.not.eql(bgClasses);
-    expect(thisTd.bgUnits).to.equal('mmol/L');
+    expect(thisTd.bgUnits).to.equal(MMOLL_UNITS);
   });
 
   it('should contain sorted groups of data by normalTime', function() {
@@ -92,7 +95,7 @@ describe('TidelineData', function() {
         "time": "2015-06-03T20:04:01.000Z",
         "timezoneOffset": -1860,
         "type": "smbg",
-        "units": "mmol/L",
+        "units": MMOLL_UNITS,
         "value": 1
       },
       {
@@ -106,7 +109,7 @@ describe('TidelineData', function() {
         "time": "2014-04-03T20:04:01.000Z",
         "timezoneOffset": -1860,
         "type": "smbg",
-        "units": "mmol/L",
+        "units": MMOLL_UNITS,
         "value": 1
       },
       {
@@ -120,7 +123,7 @@ describe('TidelineData', function() {
         "time": "2016-10-03T20:04:01.000Z",
         "timezoneOffset": -1860,
         "type": "smbg",
-        "units": "mmol/L",
+        "units": MMOLL_UNITS,
         "value": 1
       },
       {
@@ -134,7 +137,7 @@ describe('TidelineData', function() {
         "time": "2013-02-03T20:04:01.000Z",
         "timezoneOffset": -1860,
         "type": "smbg",
-        "units": "mmol/L",
+        "units": MMOLL_UNITS,
         "value": 1
       }
     ];
@@ -383,7 +386,7 @@ describe('TidelineData', function() {
           time: '2014-03-08T20:00:00.000Z',
           timezoneOffset: -480,
           id: 'abcde',
-          units: 'mg/dL',
+          units: MGDL_UNITS,
           value: 100
         }, {
           type: 'smbg',
@@ -391,7 +394,7 @@ describe('TidelineData', function() {
           time: '2014-03-09T19:00:00.000Z',
           timezoneOffset: -420,
           id: 'abcde',
-          units: 'mg/dL',
+          units: MGDL_UNITS,
           value: 101
         }
       ], {timePrefs: {
@@ -462,7 +465,7 @@ describe('TidelineData', function() {
           time: '2014-12-19T16:28:00.000Z',
           timezoneOffset: -480,
           id: 'abcde',
-          units: 'mg/dL',
+          units: MGDL_UNITS,
           value: 100
         }, {
           type: 'smbg',
@@ -470,7 +473,7 @@ describe('TidelineData', function() {
           time: '2015-03-18T12:42:00.000Z',
           timezoneOffset: -420,
           id: 'abcde',
-          units: 'mg/dL',
+          units: MGDL_UNITS,
           value: 101
         }
       ], {timePrefs: {
@@ -492,7 +495,7 @@ describe('TidelineData', function() {
           time: '2014-12-19T16:28:00.000Z',
           timezoneOffset: -480,
           id: 'abcde',
-          units: 'mg/dL',
+          units: MGDL_UNITS,
           value: 100
         }, {
           type: 'smbg',
@@ -500,7 +503,7 @@ describe('TidelineData', function() {
           time: '2015-03-18T12:42:00.000Z',
           timezoneOffset: -420,
           id: 'abcde',
-          units: 'mg/dL',
+          units: MGDL_UNITS,
           value: 101
         }
       ], {timePrefs: {
@@ -531,20 +534,20 @@ describe('TidelineData', function() {
 
     it('should default bgUnits to mg/dL', function() {
       var mmolData = [
-        new types.SMBG({deviceTime: '2014-09-13T05:00:00', units: 'mmol/L'}),
-        new types.SMBG({deviceTime: '2014-09-14T19:00:00', units: 'mmol/L'})
+        new types.SMBG({deviceTime: '2014-09-13T05:00:00', units: MMOLL_UNITS}),
+        new types.SMBG({deviceTime: '2014-09-14T19:00:00', units: MMOLL_UNITS})
       ];
       var thisTd = new TidelineData(mmolData);
-      expect(thisTd.bgUnits).to.eql('mg/dL');
+      expect(thisTd.bgUnits).to.eql(MGDL_UNITS);
     });
 
     it('should set bgUnits to mmol/L when mmol/L opt is passed in', function() {
       var mmolData = [
-        new types.SMBG({deviceTime: '2014-09-13T05:00:00', units: 'mmol/L'}),
-        new types.SMBG({deviceTime: '2014-09-14T19:00:00', units: 'mmol/L'})
+        new types.SMBG({deviceTime: '2014-09-13T05:00:00', units: MMOLL_UNITS}),
+        new types.SMBG({deviceTime: '2014-09-14T19:00:00', units: MMOLL_UNITS})
       ];
-      var thisTd = new TidelineData(mmolData, {bgUnits: 'mmol/L'});
-      expect(thisTd.bgUnits).to.equal('mmol/L');
+      var thisTd = new TidelineData(mmolData, {bgUnits: MMOLL_UNITS});
+      expect(thisTd.bgUnits).to.equal(MMOLL_UNITS);
     });
   });
 

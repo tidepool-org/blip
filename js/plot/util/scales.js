@@ -1,32 +1,33 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var d3 = require('d3');
 var _ = require('lodash');
 
 var commonbolus = require('./commonbolus');
+var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('../../data/util/constants');
 
 var scales = function(opts) {
   opts = _.assign({}, opts) || {};
 
-  var GLUCOSE_MM = 18.01559;
-
   var defaults = {
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     bolusRatio: 0.35,
     MIN_CBG: 39,
     MAX_CBG: 401,
@@ -34,9 +35,9 @@ var scales = function(opts) {
   };
   _.defaults(opts, defaults);
 
-  if (opts.bgUnits === 'mmol/L') {
-    opts.MIN_CBG = opts.MIN_CBG/GLUCOSE_MM;
-    opts.MAX_CBG = opts.MAX_CBG/GLUCOSE_MM;
+  if (opts.bgUnits === MMOLL_UNITS) {
+    opts.MIN_CBG = opts.MIN_CBG/MGDL_PER_MMOLL;
+    opts.MAX_CBG = opts.MAX_CBG/MGDL_PER_MMOLL;
   }
 
   return {

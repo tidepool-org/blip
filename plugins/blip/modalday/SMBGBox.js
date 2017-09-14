@@ -26,7 +26,7 @@ d3.chart('SMBGBoxOverlay', {
 
     /**
      * Get the coordinates of the mean point given a record
-     * 
+     *
      * @param  {Object} d the record
      * @return {Array}   coordinates
      */
@@ -67,7 +67,7 @@ d3.chart('SMBGBoxOverlay', {
 
       /**
        * Add a label to either end of the range for min and max labels
-       * 
+       *
        * @param  {Object} elem  a d3 selection
        * @param  {Number} yRect
        * @param  {Number} yText
@@ -185,7 +185,7 @@ d3.chart('SMBGBoxOverlay', {
           this.remove();
         }
       }
-    }); 
+    });
 
     this.layer('meanCircles', meanCirclesGroup.append('g').attr('id', 'meanCircles'), {
       dataBind: function(data) {
@@ -268,7 +268,7 @@ d3.chart('SMBGBoxOverlay', {
   bgClasses: function(bgClasses) {
     if (!arguments.length) { return this._bgClasses; }
     this._bgClasses = bgClasses;
-    this.getBgBoundaryClass = bgBoundaryClass(bgClasses);
+    this.getBgBoundaryClass = bgBoundaryClass(bgClasses, this.bgUnits());
     return this;
   },
   timezone: function(timezone) {

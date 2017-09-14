@@ -15,12 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var _ = require('lodash');
 
 var guid = require('./guid');
 var dt = require('../../js/data/util/datetime');
 
 // constants
+var { MGDL_UNITS } = require('../../js/data/util/constants');
 var MS_IN_24HRS = 86400000;
 var APPEND = '.000Z';
 
@@ -114,7 +117,7 @@ var CBG = function(opts) {
   opts = opts || {};
   var defaults = {
     deviceTime: this.makeDeviceTime(),
-    units: 'mg/dL',
+    units: MGDL_UNITS,
     value: 100
   };
   _.defaults(opts, defaults);
@@ -184,7 +187,7 @@ var Settings = function(opts) {
     }],
     units: {
       carb: 'grams',
-      bg: 'mg/dL'
+      bg: MGDL_UNITS
     }
   };
   _.defaults(opts, defaults);
@@ -212,7 +215,7 @@ var SMBG = function(opts) {
   opts = opts || {};
   var defaults = {
     deviceTime: this.makeDeviceTime(),
-    units: 'mg/dL',
+    units: MGDL_UNITS,
     value: 100
   };
   _.defaults(opts, defaults);

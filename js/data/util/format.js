@@ -15,9 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var d3 = require('d3');
 var Duration = require('duration-js');
 var moment = require('moment-timezone');
+var { MGDL_UNITS } = require('./constants');
 
 var format = {
 
@@ -40,7 +43,7 @@ var format = {
   },
 
   tooltipBGValue: function(value, units) {
-    return units === 'mg/dL' ? d3.format('g')(Math.round(value)) : d3.format('.1f')(value);
+    return units === MGDL_UNITS ? d3.format('g')(Math.round(value)) : d3.format('.1f')(value);
   },
 
   tooltipValue: function(x) {

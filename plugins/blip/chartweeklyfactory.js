@@ -1,19 +1,21 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+/* jshint esversion:6 */
 
 var _ = require('lodash');
 var bows = require('bows');
@@ -24,13 +26,14 @@ var EventEmitter = require('events').EventEmitter;
 var tideline = require('../../js/index');
 var fill = tideline.plot.util.fill;
 var dt = tideline.data.util.datetime;
+var { MGDL_UNITS } = require('../../js/data/util/constants');
 
 // Create a 'Two Weeks' chart object that is a wrapper around Tideline components
 function chartWeeklyFactory(el, options) {
   var log = bows('Weekly Factory');
   options = options || {};
   var defaults = {
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     timePrefs: {
       timezoneAware: false,
       timezoneName: 'US/Pacific'

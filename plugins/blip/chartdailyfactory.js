@@ -1,19 +1,21 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+/* jshint esversion:6 */
 
 var _ = require('lodash');
 var bows = require('bows');
@@ -24,13 +26,14 @@ var EventEmitter = require('events').EventEmitter;
 var tideline = require('../../js/index');
 var fill = tideline.plot.util.fill;
 var scalesutil = tideline.plot.util.scales;
+var { MGDL_UNITS } = require('../../js/data/util/constants');
 
 // Create a 'One Day' chart object that is a wrapper around Tideline components
 function chartDailyFactory(el, options) {
   var log = bows('Daily Factory');
   options = options || {};
   var defaults = {
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     bolusRatio: 0.35,
     dynamicCarbs: false,
     labelBaseline: 4,
@@ -212,13 +215,15 @@ function chartDailyFactory(el, options) {
       }
     });
     var scaleBG = scales.bg(allBG, poolBG, SMBG_SIZE/2);
+    var bgTickFormat = options.bgUnits === MGDL_UNITS ? 'd' : '.1f';
+
     // set up y-axis
     poolBG.yAxis(d3.svg.axis()
       .scale(scaleBG)
       .orient('left')
       .outerTickSize(0)
       .tickValues(scales.bgTicks(allBG))
-      .tickFormat(d3.format('g')));
+      .tickFormat(d3.format(bgTickFormat)));
     // add background fill rectangles to BG pool
     poolBG.addPlotType('fill', fill(poolBG, {
       endpoints: chart.endpoints,

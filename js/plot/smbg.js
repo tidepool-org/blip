@@ -1,19 +1,21 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+/* jshint esversion:6 */
 
 var d3 = require('d3');
 var _ = require('lodash');
@@ -22,12 +24,13 @@ var log = require('bows')('SMBG');
 var format = require('../data/util/format');
 var scales = require('./util/scales')();
 var bgBoundaryClass = require('./util/bgboundary');
+var { MGDL_UNITS } = require('../data/util/constants');
 
 module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
-    bgUnits: 'mg/dL',
+    bgUnits: MGDL_UNITS,
     classes: {
       'very-low': { boundary: 55 },
       low: { boundary: 70 },
@@ -42,7 +45,7 @@ module.exports = function(pool, opts) {
   _.defaults(opts, defaults);
 
   var mainGroup = pool.parent();
-  var getBgBoundaryClass = bgBoundaryClass(opts.classes);
+  var getBgBoundaryClass = bgBoundaryClass(opts.classes, opts.bgUnits);
 
   function smbg(selection) {
     opts.xScale = pool.xScale().copy();
@@ -129,7 +132,7 @@ module.exports = function(pool, opts) {
 
   smbg.addTooltip = function(d) {
     var tooltips = pool.tooltips();
-    var getBgBoundaryClass = bgBoundaryClass(opts.classes);
+    var getBgBoundaryClass = bgBoundaryClass(opts.classes, opts.bgUnits);
     var cssClass = getBgBoundaryClass(d);
     var res = tooltips.addForeignObjTooltip({
       cssClass: cssClass,
