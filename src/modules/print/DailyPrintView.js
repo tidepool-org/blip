@@ -823,9 +823,9 @@ class DailyPrintView {
           .fillColor('black')
           .text(
             carbs,
-            carbsX - this.carbRadius,
+            carbsX - this.carbRadius * 2,
             carbsY - textOffset,
-            { align: 'center', width: this.carbRadius * 2 }
+            { align: 'center', width: this.carbRadius * 4 }
           );
       }
     });
