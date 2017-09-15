@@ -18,10 +18,12 @@
 /* jshint esversion:6 */
 
 /* global describe */
-/* global context */
 /* global it */
 /* global expect */
+/* global before */
 /* global beforeEach */
+/* global afterEach */
+/* global after */
 /* global sinon */
 /* global chai */
 
@@ -73,15 +75,23 @@ describe('SummaryGroup', () => {
     trackMetric: sinon.stub(),
   };
 
-  const selectSubtotalSpy = sinon.stub(SummaryGroup.prototype.actions, 'selectSubtotal');
-
   let wrapper;
+  let selectSubtotalSpy;
+
+  before(() => {
+    selectSubtotalSpy = sinon.stub(SummaryGroup.prototype.actions, 'selectSubtotal');
+  });
+
   beforeEach(() => {
     wrapper = shallow(<SummaryGroup {...props} />);
   });
 
   afterEach(() => {
     selectSubtotalSpy.reset();
+  });
+
+  after(() => {
+    selectSubtotalSpy.restore();
   });
 
   describe('render', () => {

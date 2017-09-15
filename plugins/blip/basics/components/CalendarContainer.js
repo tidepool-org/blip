@@ -59,7 +59,7 @@ var CalendarContainer = React.createClass({
     title: React.PropTypes.string.isRequired
   },
 
-  actions: _.clone(basicsActions),
+  actions: basicsActions,
 
   getInitialState: function() {
     return {

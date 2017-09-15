@@ -18,12 +18,14 @@
 /* jshint esversion:6 */
 
 /* global describe */
-/* global context */
 /* global it */
 /* global expect */
+/* global before */
 /* global beforeEach */
-/* global chai */
+/* global afterEach */
+/* global after */
 /* global sinon */
+/* global chai */
 
 var expect = chai.expect;
 
@@ -95,15 +97,23 @@ describe('CalendarContainer', () => {
     trackMetric: sinon.stub(),
   };
 
-  const selectSubtotalSpy = sinon.stub(CalendarContainer.prototype.actions, 'selectSubtotal');
-
   let wrapper;
+  let selectSubtotalSpy;
+
+  before(() => {
+    selectSubtotalSpy = sinon.stub(CalendarContainer.prototype.actions, 'selectSubtotal');
+  });
+
   beforeEach(() => {
     wrapper = mount(<CalendarContainer {...props} />);
   });
 
   afterEach(() => {
     selectSubtotalSpy.reset();
+  });
+
+  after(() => {
+    selectSubtotalSpy.restore();
   });
 
   describe('componentWillMount', () => {

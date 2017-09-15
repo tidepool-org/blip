@@ -36,7 +36,7 @@ var SummaryGroup = React.createClass({
     trackMetric: React.PropTypes.func.isRequired,
   },
 
-  actions: _.clone(basicsActions),
+  actions: basicsActions,
 
   render: function() {
     var self = this;
