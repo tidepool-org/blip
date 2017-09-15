@@ -16,7 +16,6 @@
 import _ from 'lodash';
 import React from 'react';
 import async from 'async';
-import sundial from 'sundial';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -33,7 +32,6 @@ import Navbar from '../../components/navbar';
 import DonateBanner from '../../components/donatebanner';
 import LogoutOverlay from '../../components/logoutoverlay';
 import TidepoolNotification from '../../components/notification';
-import MailTo from '../../components/mailto';
 
 import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
@@ -274,9 +272,6 @@ export class AppComponent extends React.Component {
   }
 
   renderFooter() {
-    var title ='Send us feedback';
-    var subject = 'Feedback on Blip';
-
     var shouldDisplayFooterLinks = !_.includes(
       ['/signup', '/signup/personal', '/signup/clinician', '/email-verification', '/terms', '/patients/new'],
       this.props.location
