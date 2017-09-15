@@ -13,35 +13,36 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var _ = require('lodash');
-var sundial = require('sundial');
+import _ from 'lodash';
+import sundial from 'sundial';
 
-var config = require('../config');
+import config from '../config';
+import utils from './utils';
 
 // date masks we use
-var FORM_DATE_FORMAT = 'MM/DD/YYYY';
-var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
+const FORM_DATE_FORMAT = 'MM/DD/YYYY';
+const SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
-var utils = require('./utils');
+import { MGDL_UNITS, MMOLL_UNITS } from './constants';
 
-var personUtils = {};
+let personUtils = {};
 
-personUtils.fullName = function(person) {
+personUtils.fullName = (person) => {
   return utils.getIn(person, ['profile', 'fullName']);
 };
 
-personUtils.patientInfo = function(person) {
+personUtils.patientInfo = (person) => {
   return utils.getIn(person, ['profile', 'patient']);
 };
 
-personUtils.hasAcceptedTerms = function(person) {
-  var latestTermsDate = new Date(config.LATEST_TERMS);
+personUtils.hasAcceptedTerms = (person) => {
+  let latestTermsDate = new Date(config.LATEST_TERMS);
   if (isNaN(latestTermsDate.getTime())) {
     // Set an invalid latestTermsDate to be Epoch 0
     latestTermsDate = new Date(0);
   }
   // A `null` is fine here, because `new Date(null).valueOf() === 0`
-  var acceptDate = new Date(_.get(person, 'termsAccepted', null));
+  let acceptDate = new Date(_.get(person, 'termsAccepted', null));
   if (isNaN(acceptDate.getTime())) {
     // if acceptDate is not a valid formatted date string, get user to re-accept terms
     acceptDate = new Date(0);
@@ -49,22 +50,22 @@ personUtils.hasAcceptedTerms = function(person) {
   return (acceptDate.valueOf() > 0 && acceptDate >= latestTermsDate);
 };
 
-personUtils.isPatient = function(person) {
+personUtils.isPatient = (person) => {
   return Boolean(personUtils.patientInfo(person));
 };
 
-personUtils.isClinic = function(user) {
+personUtils.isClinic = (user) => {
   return _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1;
 };
 
-personUtils.isDataDonationAccount = function(account) {
+personUtils.isDataDonationAccount = (account) => {
   const username = account.username || account.email || '';
   return /^bigdata(.+)?@tidepool\.org$/.test(username);
 };
 
-personUtils.patientFullName = function(person) {
-  var profile = utils.getIn(person, ['profile'], {});
-  var patientInfo = profile.patient || {};
+personUtils.patientFullName = (person) => {
+  const profile = utils.getIn(person, ['profile'], {});
+  const patientInfo = profile.patient || {};
 
   if (patientInfo.isOtherPerson) {
     return patientInfo.fullName;
@@ -73,15 +74,15 @@ personUtils.patientFullName = function(person) {
   return profile.fullName;
 };
 
-personUtils.patientIsOtherPerson = function(person) {
+personUtils.patientIsOtherPerson = (person) => {
   return Boolean(utils.getIn(person, ['profile', 'patient', 'isOtherPerson']));
 };
 
-personUtils.isOnlyCareGiver = function(person) {
+personUtils.isOnlyCareGiver = (person) => {
   return Boolean(utils.getIn(person, ['profile', 'isOnlyCareGiver']));
 };
 
-personUtils.isSame = function(first, second) {
+personUtils.isSame = (first, second) => {
   first = first || {};
   second = second || {};
 
@@ -92,12 +93,42 @@ personUtils.isSame = function(first, second) {
   return (first.userid === second.userid);
 };
 
-personUtils.hasEditPermissions = function(person) {
+personUtils.hasEditPermissions = (person) => {
   return (person && !_.isEmpty(person.permissions) && person.permissions.root);
 };
 
-personUtils.isRemoveable = function(person) {
+personUtils.isRemoveable = (person) => {
   return (person && !_.isEmpty(person.permissions) && !person.permissions.root);
+};
+
+/**
+ * Toggle a patient's BG settings between mgd/L and mmol/L
+ *
+ * @param {Object} settings
+ *
+ * @return {Object} translated settings object if successful
+ * @return {Boolean} false if unsuccessful
+ */
+personUtils.togglePatientBgUnits = (settings) => {
+  const bgTargetHigh = _.get(settings, 'bgTarget.high');
+  const bgTargetLow = _.get(settings, 'bgTarget.low');
+  const bgUnits = _.get(settings, 'units.bg');
+
+  if (!bgTargetHigh || !bgTargetLow || !bgUnits) {
+    return false;
+  }
+
+  const targetUnits = bgUnits === MGDL_UNITS ? MMOLL_UNITS : MGDL_UNITS;
+
+  return {
+    bgTarget: {
+      high: utils.translateBg(bgTargetHigh, targetUnits),
+      low: utils.translateBg(bgTargetLow, targetUnits),
+    },
+    units: {
+      bg: targetUnits,
+    },
+  };
 };
 
 /**
@@ -113,29 +144,29 @@ personUtils.isRemoveable = function(person) {
    *
    * @return {String|undefined} returns a string if there is an error
    */
-personUtils.validateFormValues = function(formValues, isNameRequired, dateFormat, currentDateObj) {
-  var validationErrors = {};
+personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, currentDateObj) => {
+  let validationErrors = {};
 
-  var INVALID_DATE_TEXT = 'Hmm, this date doesn’t look right';
-  var OUT_OF_ORDER_TEXT = 'Hmm, diagnosis date usually comes after birthday';
+  const INVALID_DATE_TEXT = 'Hmm, this date doesn’t look right';
+  const OUT_OF_ORDER_TEXT = 'Hmm, diagnosis date usually comes after birthday';
 
   // Legacy: revisit when proper "child accounts" are implemented
   if (isNameRequired && !formValues.fullName) {
     validationErrors.fullName = 'Full name is required';
   }
 
-  var birthday = formValues.birthday;
+  const birthday = formValues.birthday;
   if (!(birthday && sundial.isValidDateForMask(birthday, dateFormat))) {
     validationErrors.birthday = INVALID_DATE_TEXT;
   }
 
   // moving to make diagnosisDate optional so we can use this to verify custodial accounts
-  var diagnosisDate = formValues.diagnosisDate;
+  const diagnosisDate = formValues.diagnosisDate;
   if (diagnosisDate && !(diagnosisDate && sundial.isValidDateForMask(diagnosisDate, dateFormat))) {
     validationErrors.diagnosisDate = INVALID_DATE_TEXT;
   }
 
-  var now = new Date();
+  const now = new Date();
   currentDateObj = currentDateObj || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
   var birthdayDateObj = sundial.parseFromFormat(birthday, dateFormat);
   var diagnosisDateObj = sundial.parseFromFormat(diagnosisDate, dateFormat);
@@ -152,8 +183,8 @@ personUtils.validateFormValues = function(formValues, isNameRequired, dateFormat
     validationErrors.diagnosisDate = OUT_OF_ORDER_TEXT;
   }
 
-  var maxLength = 256;
-  var about = formValues.about;
+  const maxLength = 256;
+  const about = formValues.about;
   if (about && about.length > maxLength) {
     validationErrors.about = 'Please keep "about" text under ' + maxLength + ' characters';
   }

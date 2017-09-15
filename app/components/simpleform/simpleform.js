@@ -30,13 +30,15 @@ var SimpleForm = React.createClass({
     onSubmit: React.PropTypes.func,
     onChange: React.PropTypes.func,
     notification: React.PropTypes.object,
-    disabled: React.PropTypes.bool
+    disabled: React.PropTypes.bool,
+    renderSubmit: React.PropTypes.bool,
   },
 
   getDefaultProps: function() {
     return {
       formValues: {},
-      validationErrors: {}
+      validationErrors: {},
+      renderSubmit: true,
     };
   },
 
@@ -68,7 +70,7 @@ var SimpleForm = React.createClass({
 
   render: function() {
     var inputs = this.renderInputs();
-    var submitButton = this.renderSubmitButton();
+    var submitButton = this.props.renderSubmit ? this.renderSubmitButton() : null;
     var notification = this.renderNotification();
 
     return (

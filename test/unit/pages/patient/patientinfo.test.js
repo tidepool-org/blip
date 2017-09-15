@@ -19,10 +19,11 @@ describe('PatientInfo', function () {
       var props = {
         fetchingPatient: false,
         fetchingUser: false,
+        patient: {},
         onUpdatePatient: sinon.stub(),
         onUpdatePatientSettings: sinon.stub(),
         permsOfLoggedInUser: {},
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -651,7 +652,7 @@ describe('PatientInfo', function () {
       wrapper = mount(<PatientInfo {...props} />);
     });
 
-    it('should render the donation form, but only if the patient is the logged in user', function() {
+    it('should render the donation form, but only if the patient is the logged-in user', function() {
       expect(wrapper.find('.PatientPage-donateForm')).to.have.length(0);
 
       wrapper.setProps({
@@ -659,6 +660,38 @@ describe('PatientInfo', function () {
       });
 
       expect(wrapper.find('.PatientPage-donateForm')).to.have.length(1);
+    });
+  });
+
+  describe('renderBgUnitSettings', function() {
+    let props = {
+      user: { userid: 5678 },
+      patient: { userid: 1234 },
+      permsOfLoggedInUser: {},
+    };
+
+    let wrapper;
+
+    beforeEach(() => {
+      wrapper = mount(<PatientInfo {...props} />);
+    });
+
+    it('should render the bg unit settings value if editing is not allowed', function() {
+      const bgUnitSettings = wrapper.find('.PatientPage-bgUnitSettings');
+
+      expect(bgUnitSettings).to.have.length(1);
+      expect(bgUnitSettings.find('.bgUnits').text()).to.equal('mg/dL');
+      expect(bgUnitSettings.find('.simple-form').length).to.equal(0);
+    });
+
+    it('should render the bg unit settings form if editing is allowed', function() {
+      wrapper.setProps({
+        permsOfLoggedInUser: { root: true },
+      });
+
+      const bgUnitSettings = wrapper.find('.PatientPage-bgUnitSettings');
+      expect(bgUnitSettings).to.have.length(1);
+      expect(bgUnitSettings.find('.simple-form').length).to.equal(1);
     });
   });
 });

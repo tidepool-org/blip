@@ -122,6 +122,11 @@ export default (type) => {
     case types.UPDATE_PATIENT_FAILURE:
       return 'updatingPatient';
 
+    case types.UPDATE_PATIENT_BG_UNITS_REQUEST:
+    case types.UPDATE_PATIENT_BG_UNITS_SUCCESS:
+    case types.UPDATE_PATIENT_BG_UNITS_FAILURE:
+      return 'updatingPatientBgUnits';
+
     case types.UPDATE_USER_REQUEST:
     case types.UPDATE_USER_SUCCESS:
     case types.UPDATE_USER_FAILURE:
