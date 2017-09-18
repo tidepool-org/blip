@@ -3,15 +3,17 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
-var expect = chai.expect;
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+import { shallow } from 'enzyme';
 
-var SimpleForm = require('../../../app/components/simpleform');
+import SimpleForm from '../../../app/components/simpleform';
 
-describe('SimpleForm', function () {
-  describe('render', function() {
-    it('should not console.error on render', function() {
+const expect = chai.expect;
+
+describe('SimpleForm',  () => {
+  describe('render', () => {
+    it('should not console.error on render', () => {
       console.error = sinon.stub();
       var props = {};
       var navbarElem = React.createElement(SimpleForm, props);
@@ -19,6 +21,27 @@ describe('SimpleForm', function () {
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should not render a submit button when renderSubmit prop is false', () => {
+      const props = { renderSubmit: false };
+      const wrapper = shallow(<SimpleForm {...props} />);
+
+      expect (wrapper.find('button.simple-form-submit').length).to.equal(0);
+    });
+
+    it('should render a submit button by default if renderSubmit prop is unset', () => {
+      const props = {};
+      const wrapper = shallow(<SimpleForm {...props} />);
+
+      expect (wrapper.find('button.simple-form-submit').length).to.equal(1);
+    });
+
+    it('should render a submit button if renderSubmit prop is true', () => {
+      const props = { renderSubmit: true };
+      const wrapper = shallow(<SimpleForm {...props} />);
+
+      expect (wrapper.find('button.simple-form-submit').length).to.equal(1);
     });
   });
 });

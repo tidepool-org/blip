@@ -17,7 +17,6 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 
 import InputGroup from '../../components/inputgroup';
-import DatePicker from '../../components/datepicker';
 import SimpleForm from '../../components/simpleform';
 
 import {
@@ -32,7 +31,7 @@ export default class DonateForm extends Component {
   static propTypes = {
     dataDonationAccounts: React.PropTypes.array.isRequired,
     onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool,
+    working: React.PropTypes.bool.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
   };
 

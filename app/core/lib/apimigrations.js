@@ -21,14 +21,17 @@ var migrations = {};
 
 // Migrate from user profile `firstName`, `lastName` attributes to `fullName`
 migrations.profileFullName = {
-  isRequired: function(profile) {
+  isRequired: function(profile = {}) {
     if (!profile.fullName) {
-      return true;
+      // We only want to require a migration if first and/or last name attributes exist
+      // so that we don't attempt to perform it in situations where `fullName` is
+      // expected to be empty, such as immediately after signup.
+      return !!(profile.firstName || profile.lastName);
     }
     return false;
   },
 
-  migrate: function(profile) {
+  migrate: function(profile = {}) {
     profile.fullName = profile.firstName + ' ' + profile.lastName;
     profile = _.omit(profile, 'firstName', 'lastName');
     return profile;

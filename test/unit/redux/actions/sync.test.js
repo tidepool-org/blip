@@ -10,7 +10,7 @@ import isTSA from 'tidepool-standard-action';
 import * as sync from '../../../../app/redux/actions/sync';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
-import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL } from '../../../../app/core/constants';
+import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS } from '../../../../app/core/constants';
 
 describe('Actions', () => {
 
@@ -1092,6 +1092,53 @@ describe('Actions', () => {
         let action = sync.updateSettingsFailure(error);
 
         expect(action.type).to.equal('UPDATE_SETTINGS_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('updatePatientBgUnitsRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.updatePatientBgUnitsRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_PATIENT_BG_UNITS_REQUEST', () => {
+        let action = sync.updatePatientBgUnitsRequest();
+        expect(action.type).to.equal('UPDATE_PATIENT_BG_UNITS_REQUEST');
+      });
+    });
+
+    describe('updatePatientBgUnitsSuccess', () => {
+      it('should be a TSA', () => {
+        let settings = { units: { bg: MMOLL_UNITS } };
+        let action = sync.updatePatientBgUnitsSuccess(settings);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_PATIENT_BG_UNITS_SUCCESS', () => {
+        let settings = { units: { bg: MMOLL_UNITS } };
+        let action = sync.updatePatientBgUnitsSuccess(1234, settings);
+
+        expect(action.type).to.equal('UPDATE_PATIENT_BG_UNITS_SUCCESS');
+        expect(action.payload.updatedSettings).to.deep.equal(settings);
+      });
+    });
+
+    describe('updatePatientBgUnitsFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.updatePatientBgUnitsFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_PATIENT_BG_UNITS_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.updatePatientBgUnitsFailure(error);
+
+        expect(action.type).to.equal('UPDATE_PATIENT_BG_UNITS_FAILURE');
         expect(action.error).to.equal(error);
       });
     });

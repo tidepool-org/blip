@@ -46,7 +46,7 @@ import nurseShark from 'tideline/plugins/nurseshark/';
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 
-import { DEFAULT_SETTINGS } from '../patient/patientsettings';
+import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
 
 export let PatientData = React.createClass({
   propTypes: {
@@ -719,7 +719,11 @@ export let PatientData = React.createClass({
     const latestData = _.last(processedData.diabetesData);
 
     if (uploads && latestData) {
-      const chartType = this.deriveChartTypeFromLatestData(latestData, uploads);
+      // Allow overriding the default chart type via a query param (helps for development);
+      const chartType = _.get(
+        this.props, 'queryParams.chart',
+        this.deriveChartTypeFromLatestData(latestData, uploads)
+      );
 
       let state = {
         chartType,
@@ -736,7 +740,7 @@ export let PatientData = React.createClass({
     var userId = this.props.currentPatientInViewId;
     var patientData = _.get(nextProps, ['patientDataMap', userId], null);
     var patientSettings = _.cloneDeep(_.get(nextProps, ['patient', 'settings'], null));
-    _.defaultsDeep(patientSettings, DEFAULT_SETTINGS);
+    _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
 
     if (patientData) {
       let combinedData = patientData.concat(nextProps.patientNotesMap[userId]);
