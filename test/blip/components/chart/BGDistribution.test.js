@@ -28,7 +28,7 @@ var expect = chai.expect;
 
 const React = require('react');
 const _ = require('lodash');
-const { shallow } = require('enzyme');
+const { mount } = require('enzyme');
 const BGDistribution = require('../../../../plugins/blip/basics/components/chart/BGDistribution');
 
 describe('BGDistribution', () => {
@@ -75,7 +75,7 @@ describe('BGDistribution', () => {
 
   let wrapper;
   beforeEach(() => {
-    wrapper = shallow(<BGDistribution {...props} />);
+    wrapper = mount(<BGDistribution {...props} />);
   });
 
   describe('componentWillMount', () => {
@@ -90,18 +90,16 @@ describe('BGDistribution', () => {
     });
 
     context('only CBG data available', () => {
+      let cbgOnlyData =  _.cloneDeep(data);
+      delete cbgOnlyData.bgDistribution.smbg;
+
       beforeEach(() => {
-        wrapper.setProps({
-          data: _.assign({}, data, {
-            smbg: {
-              'very-low': 0,
-              'low': 0,
-              'target': 0,
-              'high': 0,
-              'very-high': 0,
-            },
-          }),
-        });
+        wrapper
+          .unmount()
+          .setProps({
+            data: cbgOnlyData,
+          })
+          .mount();
       });
 
       it('should set the showingCbg state to true', () => {
@@ -109,31 +107,29 @@ describe('BGDistribution', () => {
       });
 
       it('should set the bothAvailable state to false', () => {
-        expect(wrapper.state('bothAvailable')).to.be.true;
+        expect(wrapper.state('bothAvailable')).to.be.false;
       });
     });
 
     context('only SMBG data available', () => {
+      let smbgOnlyData =  _.cloneDeep(data);
+      delete smbgOnlyData.bgDistribution.cbg;
+
       beforeEach(() => {
-        wrapper.setProps({
-          data: _.assign({}, data, {
-            cbg: {
-              'very-low': 0,
-              'low': 0,
-              'target': 0,
-              'high': 0,
-              'very-high': 0,
-            },
-          }),
-        });
+        wrapper
+          .unmount()
+          .setProps({
+            data: smbgOnlyData,
+          })
+          .mount();
       });
 
       it('should set the showingCbg state to false', () => {
-        expect(wrapper.state('showingCbg')).to.be.true;
+        expect(wrapper.state('showingCbg')).to.be.false;
       });
 
       it('should set the bothAvailable state to false', () => {
-        expect(wrapper.state('bothAvailable')).to.be.true;
+        expect(wrapper.state('bothAvailable')).to.be.false;
       });
     });
   });
