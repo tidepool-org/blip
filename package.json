@@ -69,7 +69,7 @@
     "shelljs": "0.7.3",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "0.6.2",
+    "tideline": "0.6.4",
     "tidepool-platform-client": "0.31.1",
     "uglify-es": "3.0.13",
     "url-loader": "0.5.7",
