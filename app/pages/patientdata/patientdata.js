@@ -21,6 +21,7 @@ import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import bows from 'bows';
 import sundial from 'sundial';
+import launchCustomProtocol from 'custom-protocol-detection';
 
 import config from '../../config';
 import loadingGif from './loading.gif';
@@ -30,7 +31,7 @@ import { actions as workerActions} from '@tidepool/viz';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
-import { URL_UPLOADER_CHROME_STORE, URL_BLIP_NOTES_APP_STORE } from '../../core/constants';
+import { URL_UPLOADER_DOWNLOAD_PAGE, URL_BLIP_NOTES_APP_STORE } from '../../core/constants';
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
@@ -38,6 +39,7 @@ import Trends from '../../components/chart/trends';
 import { weekly as Weekly } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import SettingsPrintView from '../../components/printview';
+import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
 import nurseShark from 'tideline/plugins/nurseshark/';
 
@@ -109,6 +111,7 @@ export let PatientData = React.createClass({
         timezoneAware: false,
         timezoneName: null
       },
+      showUploadOverlay: false,
     };
 
     return state;
@@ -173,6 +176,7 @@ export let PatientData = React.createClass({
   renderNoData: function() {
     var content = personUtils.patientFullName(this.props.patient) + ' does not have any data yet.';
     var header = this.renderEmptyHeader();
+    var uploadLaunchOverlay = this.state.showUploadOverlay ? this.renderUploadOverlay() : null;
 
     var self = this;
     var handleClickUpload = function() {
@@ -181,15 +185,23 @@ export let PatientData = React.createClass({
     var handleClickBlipNotes = function() {
       self.props.trackMetric('Clicked No Data Get Blip Notes');
     };
+    var handleClickLaunch = function(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      self.setState({showUploadOverlay: true});
+      launchCustomProtocol('tidepoolupload://open');
+    }
 
     if (this.props.isUserPatient) {
       content = (
         <div className="patient-data-uploader-message">
-          <h1>To see your data, you’ll need to upload it!</h1>
+          <h1>To see your data, you’ll need the Tidepool Uploader</h1>
           <UploaderButton
-            buttonUrl={URL_UPLOADER_CHROME_STORE}
             onClick={handleClickUpload}
             buttonText='Get the Tidepool Uploader' />
+          <p>Already have the Tidepool Uploader? Launch it <a className="uploader-color-override" href='' onClick={handleClickLaunch} title="Upload data">here</a></p>
           <p>To upload Dexcom with iPhone get <a href={URL_BLIP_NOTES_APP_STORE} className="uploader-color-override" target="_blank" onClick={handleClickBlipNotes}>Blip Notes</a></p>
           <p className="patient-no-data-help">
             Already uploaded? <a href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</a><br />
@@ -211,8 +223,13 @@ export let PatientData = React.createClass({
             </div>
           </div>
         </div>
+        {uploadLaunchOverlay}
       </div>
     );
+  },
+
+  renderUploadOverlay: function() {
+    return <UploadLaunchOverlay overlayClickHandler={()=>{this.setState({showUploadOverlay: false})}}/>
   },
 
   isEmptyPatientData: function() {

@@ -35,12 +35,12 @@ var Navbar = React.createClass({
     fetchingPatient: React.PropTypes.bool,
     getUploadUrl: React.PropTypes.func,
     onLogout: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
   },
 
   getInitialState: function() {
     return {
-      showDropdown: false
+      showDropdown: false,
     };
   },
 
@@ -95,12 +95,6 @@ var Navbar = React.createClass({
 
     patient.link = this.getPatientLink(patient);
 
-    var displayName = this.getPatientDisplayName();
-    var patientUrl = this.getPatientUrl();
-    var uploadLink = this.renderUploadLink();
-    var shareLink = this.renderShareLink();
-    var self = this;
-
     return (
       <div className="Navbar-patientSection" ref="patient">
         <NavbarPatientCard
@@ -110,57 +104,6 @@ var Navbar = React.createClass({
           patient={patient}
           trackMetric={this.props.trackMetric} />
       </div>
-    );
-  },
-
-  renderUploadLink: function() {
-    var noLink = <div className="Navbar-uploadButton"></div>;
-
-    if (!this.isSamePersonUserAndPatient()) {
-      return noLink;
-    }
-
-    var uploadUrl = this.props.getUploadUrl();
-    if (!uploadUrl) {
-      return noLink;
-    }
-
-    var self = this;
-    var handleClick = function(e) {
-      if (e) {
-        e.preventDefault();
-      }
-      window.open(uploadUrl, '_blank');
-      self.props.trackMetric('Clicked Navbar Upload Data');
-    };
-
-    return (
-      <a href="" onClick={handleClick} className="Navbar-button Navbar-button--patient Navbar-button--blue Navbar-uploadButton">
-        <i className="Navbar-icon icon-upload-data"></i>
-        <span className="Navbar-uploadLabel">Upload</span>
-      </a>
-    );
-  },
-
-  renderShareLink: function() {
-    var noLink = <div className="Navbar-shareButton"></div>;
-    var self = this;
-
-    if (!this.isSamePersonUserAndPatient()) {
-      return noLink;
-    }
-
-    var patientUrl = this.getPatientUrl();
-
-    var handleClick = function() {
-      self.props.trackMetric('Clicked Navbar Share');
-    };
-
-    return (
-      <Link to={patientUrl} onClick={handleClick} className="Navbar-button Navbar-button--patient Navbar-button--blue Navbar-uploadButton">
-        <i className="Navbar-icon icon-share-data"></i>
-        <span className="Navbar-shareLabel">Share</span>
-      </Link>
     );
   },
 
@@ -203,7 +146,7 @@ var Navbar = React.createClass({
     };
     var patientsClasses = cx({
       'Navbar-button': true,
-      'Navbar-selected': currentPage && currentPage === 'patients'
+      'Navbar-selected': currentPage && currentPage === 'patients',
     });
 
     var accountSettingsClasses = cx({
@@ -213,19 +156,19 @@ var Navbar = React.createClass({
 
     var dropdownClasses = cx({
       'Navbar-menuDropdown': true,
-      'Navbar-menuDropdown-hide': !self.state.showDropdown
+      'Navbar-menuDropdown-hide': !self.state.showDropdown,
     });
 
     var dropdownIconClasses = cx({
       'Navbar-dropdownIcon': true,
       'Navbar-dropdownIcon-show': self.state.showDropdown,
-      'Navbar-dropdownIcon-current': currentPage && currentPage === 'profile'
+      'Navbar-dropdownIcon-current': currentPage && currentPage === 'profile',
     });
 
     var dropdownIconIClasses = cx({
       'Navbar-icon': true,
       'icon-account--down': !self.state.showDropdown,
-      'icon-account--up': self.state.showDropdown
+      'icon-account--up': self.state.showDropdown,
     });
 
     return (
@@ -264,18 +207,6 @@ var Navbar = React.createClass({
 
   getUserDisplayName: function() {
     return personUtils.fullName(this.props.user);
-  },
-
-  getPatientDisplayName: function() {
-    return personUtils.patientFullName(this.props.patient);
-  },
-
-  getPatientUrl: function() {
-    var patient = this.props.patient;
-    if (!patient) {
-      return;
-    }
-    return '/patients/' + patient.userid;
   },
 
   isSamePersonUserAndPatient: function() {
