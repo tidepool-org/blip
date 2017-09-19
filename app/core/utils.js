@@ -387,7 +387,7 @@ utils.getLatestGithubRelease = (releases) => {
   const urlBase = `https://github.com/tidepool-org/chrome-uploader/releases/download/${latestTag}`;
   latestTag = latestTag.substr(1);
   const latestWinRelease = `${urlBase}/tidepool-uploader-setup-${latestTag}.exe`;
-  const latestMacRelease = `${urlBase}/tidepool-uploader-${latestTag}.pkg`;
+  const latestMacRelease = `${urlBase}/tidepool-uploader-${latestTag}.dmg`;
   return {
     latestWinRelease: latestWinRelease,
     latestMacRelease: latestMacRelease,
