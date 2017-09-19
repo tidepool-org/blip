@@ -396,7 +396,7 @@ describe('PatientData', function () {
           var links = renderedDOMElem.querySelectorAll('.patient-data-uploader-message a');
 
           var callCount = props.trackMetric.callCount;
-          TestUtils.Simulate.click(links[1]);
+          TestUtils.Simulate.click(links[3]);
           expect(props.trackMetric.callCount).to.equal(callCount + 1);
           expect(props.trackMetric.calledWith('Clicked No Data Get Blip Notes')).to.be.true;
         });
