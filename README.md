@@ -114,7 +114,7 @@ app.foo = {
 
 ## Running the tests
 
-We use [Mocha](http://visionmedia.github.io/mocha/) with [Chai](http://chaijs.com/) for our test framework inside [Karma](https://karma-runner.github.io/) as our test runner, as well as [Sinon.JS](http://sinonjs.org/) and [Sinon-Chai](https://github.com/domenic/sinon-chai) for spies and stubs. Our tests currently run on [PhantomJS](http://phantomjs.org/), a headless WebKit browser, or Chrome (locally only).
+We use [Mocha](https://mochajs.org/) with [Chai](http://chaijs.com/) for our test framework inside [Karma](https://karma-runner.github.io/) as our test runner, as well as [Sinon.JS](http://sinonjs.org/) and [Sinon-Chai](https://github.com/domenic/sinon-chai) for spies and stubs. Our tests currently run on [PhantomJS](http://phantomjs.org/), a headless WebKit browser, or Chrome (locally only).
 
 To run the unit tests, use:
 
