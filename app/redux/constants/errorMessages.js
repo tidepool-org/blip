@@ -18,7 +18,7 @@ export const ERR_AUTHORIZATION = 'Something went wrong with your account authori
 // 500
 export const ERR_SERVICE_DOWN = 'Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to go investigate. Please try again in a few moments.';
 // 503
-export const ERR_OFFLINE = 'Sorry but it appears that you are offline. Blip requires that you be connected to the internet.';
+export const ERR_OFFLINE = 'Sorry but it appears that you are offline. Tidepool requires that you be connected to the internet.';
 
 // and fallbacks with some info about the step involved when the error happened (useful for debugging)
 export const ERR_ACCEPTING_INVITE = 'Something went wrong while accepting a received care team invitation.';

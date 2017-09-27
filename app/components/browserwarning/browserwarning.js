@@ -60,7 +60,7 @@ export default class BrowserWarning extends Component {
         </a>
         <div className="browser-warning-text">
           <span className="dark-text">Copy and paste</span>
-          <input type="text" className="blip-link-text" value="blip.tidepool.org" readOnly={true}></input>
+          <input type="text" className="blip-link-text" value="app.tidepool.org" readOnly={true}></input>
           <span className="dark-text">into Chrome.</span>
         </div>
         {copyButton}
