@@ -14,12 +14,12 @@
  */
 module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, colno, error) {
   var ERR_GENERIC_LIST = [
-    'Whoops! Blip\'s servers got clogged with glucose tabs.',
-    'Whoops! Blip ran out of test strips...',
-    'Whoa, sorry about that. Looks like Blip needs to change the battery on its pump.'
+    'Whoops! Tidepool\'s servers got clogged with glucose tabs.',
+    'Whoops! Tidepool ran out of test strips...',
+    'Whoa, sorry about that. Looks like Tidepool needs to change the battery on its pump.'
   ];
-  var ERR_GENERIC_HELP = 'Blip is stuck and isn\'t doing what you want it to do. We\'re sorry for the trouble.';
-  var ERR_SENT_TO_SERVER = 'Blip will attempt to send the details to our server.';
+  var ERR_GENERIC_HELP = 'Tidepool is stuck and isn\'t doing what you want it to do. We\'re sorry for the trouble.';
+  var ERR_SENT_TO_SERVER = 'Tidepool will attempt to send the details to our server.';
   var ERR_PLEASE_SEND_DETAIL = 'We were unable to log this error to our server so could you please send us a note at <a style="text-decoration: underline;" href="mailto:support@tidepool.org">support@tidepool.org</a> and we\'ll try to see what broke?';
   var html;
 

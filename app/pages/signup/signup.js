@@ -175,7 +175,7 @@ export let Signup = React.createClass({
 
     return (
       <div className='signup-inviteIntro'>
-        <p>{'You\'ve been invited to Blip.'}</p><p>{'Sign up to view the invitation.'}</p>
+        <p>{'You\'ve been invited to Tidepool.'}</p><p>{'Sign up to view the invitation.'}</p>
       </div>
     );
   },

@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.6.2",
+  "version": "1.6.8",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -33,11 +33,13 @@
     "classnames": "2.2.5",
     "copy-webpack-plugin": "4.0.1",
     "css-loader": "0.23.1",
+    "custom-protocol-detection": "1.0.0",
     "enzyme": "2.4.1",
     "express": "4.14.0",
     "extract-text-webpack-plugin": "1.0.1",
     "file-loader": "0.9.0",
     "fixed-data-table-2": "0.7.10",
+    "github-api": "3.0.0",
     "hakken": "0.1.8",
     "history": "2.1.2",
     "html-webpack-include-assets-plugin": "0.0.5",

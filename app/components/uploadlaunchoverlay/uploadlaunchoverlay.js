@@ -1,6 +1,5 @@
-
 /**
- * Copyright (c) 2016, Tidepool Project
+ * Copyright (c) 2017, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -14,19 +13,18 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import React, { Component } from 'react';
-import GitHub from 'github-api';
 import _ from 'lodash';
+import React, { Component } from 'react';
 import cx from 'classnames';
+import GitHub from 'github-api';
+import ModalOverlay from '../modaloverlay';
 import utils from '../../core/utils';
-
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
-
-import logoSrc from './images/T-logo-dark-512x512.png';
+import logoSrc from '../uploaderbutton/images/T-logo-dark-512x512.png';
 
 const github = new GitHub();
 
-class UploaderButton extends Component {
+class UploadLaunchOverlay extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -37,8 +35,7 @@ class UploaderButton extends Component {
   }
 
   static propTypes = {
-    onClick: React.PropTypes.func.isRequired,
-    buttonText: React.PropTypes.string.isRequired
+    overlayClickHandler: React.PropTypes.func.isRequired,
   };
 
   componentWillMount = () => {
@@ -53,61 +50,62 @@ class UploaderButton extends Component {
 
   renderErrorText = () => {
     return (
-      <a
-        className="btn btn-uploader"
-        href={URL_UPLOADER_DOWNLOAD_PAGE}
-        target="_blank"
-        onClick={this.props.onClick}>
-          <div className="uploader-logo">
-            <img src={logoSrc} alt="Tidepool Uploader" />
-          </div>
-          {this.props.buttonText}
-        </a>
+      <div>Error fetching release information, please go to our
+        <a href={URL_UPLOADER_DOWNLOAD_PAGE}> downloads page</a>.
+      </div>
     )
   }
 
   render = () => {
     const winReleaseClasses = cx({
       btn: true,
-      'btn-uploader': true,
+      'btn-primary': true,
       disabled: !this.state.latestWinRelease,
     });
     const macReleaseClasses = cx({
       btn: true,
-      'btn-uploader': true,
+      'btn-primary': true,
       disabled: !this.state.latestMacRelease,
     });
-
     let content;
+
     if(this.state.error) {
       content = this.renderErrorText();
     } else {
       content = [
-        <a
-          key={'pc'}
-          className={winReleaseClasses}
-          href={`${this.state.latestWinRelease}`}
-          disabled={!this.state.latestWinRelease}
-          onClick={this.props.onClick}>
-          Download for PC
-        </a>,
-        <a
-          key={'mac'}
-          className={macReleaseClasses}
-          href={`${this.state.latestMacRelease}`}
-          disabled={!this.state.latestMacRelease}
-          onClick={this.props.onClick}>
-          Download for Mac
-        </a>
+        <div className='ModalOverlay-content' key={'div1'}>
+          <div className='UploadLaunchOverlay-content'>
+            <div className='UploadLaunchOverlay-icon'>
+              <img src={logoSrc} />
+            </div>
+            <div>
+              <div className='UploadLaunchOverlay-title'>Launching Uploader</div>
+              <div className='UploadLaunchOverlay-text'>If you don't yet have the Tidepool Uploader, please install the appropriate version below</div>
+            </div>
+          </div>
+        </div>,
+        <div className='ModalOverlay-controls' key={'div2'}>
+          <a className={winReleaseClasses} href={`${this.state.latestWinRelease}`} disabled={!this.state.latestWinRelease}>Download for PC</a>
+          <a className={macReleaseClasses} href={`${this.state.latestMacRelease}`} disabled={!this.state.latestMacRelease}>Download for Mac</a>
+        </div>,
       ]
     }
 
-    return (
-      <div className='uploaderbutton-wrap'>
+    const dialog = (
+      <div className='UploadLaunchOverlay'>
         {content}
       </div>
     );
-  }
-}
 
-export default UploaderButton;
+    return (
+      <ModalOverlay
+        show={true}
+        dialog={dialog}
+        overlayClickHandler={this.props.overlayClickHandler}
+      />
+    );
+  };
+
+};
+
+module.exports = UploadLaunchOverlay;
