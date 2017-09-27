@@ -105,9 +105,9 @@ var basicsState = {
             { key: 'override', label: 'Override', percentage: true  }
           ],
           [
-            { key: 'manual', label: 'Manual', percentage: true  },
             { key: 'extended', label: 'Extended', percentage: true  },
-            { key: 'interrupted', label : 'Interrupted', percentage: true  }
+            { key: 'interrupted', label : 'Interrupted', percentage: true  },
+            { key: 'underride', label: 'Underride', percentage: true  }
           ]
         ]
       },
