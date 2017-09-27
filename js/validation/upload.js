@@ -20,7 +20,6 @@ var schema = require('./validator/schematron.js');
 module.exports = schema(
   {
     id: schema().isId(),
-    timezone: schema().string(),
     type: schema().string().in(['upload'])
   }
 );
