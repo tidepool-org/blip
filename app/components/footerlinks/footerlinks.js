@@ -52,7 +52,7 @@ const FooterLinks = (props) => {
       </div>
       <div className='footer-link large-format-only'>
         <a
-          href="http://tidepool.org/products/blip-notes/"
+          href="http://tidepool.org/products/tidepool-mobile/"
           id='mobile'
           onClick={metricFnMkr('Mobile App')}
           target="_blank"

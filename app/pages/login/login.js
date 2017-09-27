@@ -23,8 +23,6 @@ import * as actions from '../../redux/actions';
 import { Link } from 'react-router';
 import _ from 'lodash';
 
-import config from '../../config';
-
 import utils from '../../core/utils';
 import { validateForm } from '../../core/validation';
 
@@ -96,7 +94,7 @@ export let Login = React.createClass({
 
     return (
       <div className='login-inviteIntro'>
-        <p>{'You\'ve been invited to Blip.'}</p><p>{'Log in to view the invitation.'}</p>
+        <p>{'You\'ve been invited to Tidepool.'}</p><p>{'Log in to view the invitation.'}</p>
       </div>
     );
   },
