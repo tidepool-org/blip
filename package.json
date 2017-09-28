@@ -70,7 +70,7 @@
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
     "tideline": "0.6.5",
-    "tidepool-platform-client": "0.34.0",
+    "tidepool-platform-client": "0.34.1",
     "uglify-es": "3.0.13",
     "url-loader": "0.5.7",
     "webpack": "1.13.2"
