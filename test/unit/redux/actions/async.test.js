@@ -2693,8 +2693,8 @@ describe('Actions', () => {
     describe('fetchDataSources', () => {
       it('should trigger FETCH_DATA_SOURCES_SUCCESS and it should call error once for a successful request', () => {
         let dataSources = [
-          { id: 'strava', url: 'blah' },
-          { name: 'fitbit', url: 'blah' },
+          { id: 'strava' },
+          { id: 'fitbit' },
         ];
 
         let api = {
@@ -2720,11 +2720,6 @@ describe('Actions', () => {
       });
 
       it('should trigger FETCH_DATA_SOURCES_FAILURE and it should call error once for a failed request', () => {
-        let dataSources = [
-          { id: 'strava', url: 'blah' },
-          { name: 'fitbit', url: 'blah' },
-        ];
-
         let api = {
           user: {
             getDataSources: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null)
@@ -2752,7 +2747,7 @@ describe('Actions', () => {
 
     describe('connectDataSource', () => {
       it('should trigger CONNECT_DATA_SOURCE_SUCCESS and it should call error once for a successful request', () => {
-        let restrictedToken = { id:  'blah.blah.blah'};
+        let restrictedToken = { id: 'blah.blah.blah'};
         let url = 'fitbit.url';
         let api = {
           user: {
@@ -2763,7 +2758,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CONNECT_DATA_SOURCE_REQUEST' },
-          { type: 'CONNECT_DATA_SOURCE_SUCCESS', payload: { 
+          { type: 'CONNECT_DATA_SOURCE_SUCCESS', payload: {
             authorizedDataSource : { id: 'fitbit', url: url}}
           }
         ];
@@ -2772,21 +2767,19 @@ describe('Actions', () => {
         });
 
         let store = mockStore(initialState);
-        store.dispatch(async.connectDataSource(api, 'fitbit', { type: 'oauth', name: 'fitbit' }));
+        store.dispatch(async.connectDataSource(api, 'fitbit', { path: [ '/v1/oauth/fitbit' ] }, { providerType: 'oauth', providerName: 'fitbit' }));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.user.createRestrictedToken.withArgs({ type: 'oauth', name: 'fitbit' }).callCount).to.equal(1);
+        expect(api.user.createRestrictedToken.withArgs({ path: [ '/v1/oauth/fitbit' ] }).callCount).to.equal(1);
         expect(api.user.createOAuthProviderAuthorization.withArgs('fitbit', restrictedToken.id).callCount).to.equal(1);
       });
 
       it('should trigger CONNECT_DATA_SOURCE_FAILURE and it should call error once for a failed request', () => {
-        let restrictedToken =  'blah.blah.blah';
-        let url = 'strava.url';
         let api = {
           user: {
             createRestrictedToken: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
-            createOAuthProviderAuthorization: sinon.stub().callsArgWith(2, null, url),
+            createOAuthProviderAuthorization: sinon.stub(),
           }
         };
 
@@ -2801,19 +2794,18 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore(initialState);
-        store.dispatch(async.connectDataSource(api, 'strava', { type: 'oauth', name: 'strava' }));
+        store.dispatch(async.connectDataSource(api, 'strava', { path: [ '/v1/oauth/strava' ] }, { providerType: 'oauth', providerName: 'strava' }));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.user.createRestrictedToken.withArgs({ type: 'oauth', name: 'strava' }).callCount).to.equal(1);
-        expect(api.user.createOAuthProviderAuthorization.withArgs('strava', restrictedToken).callCount).to.equal(0);
+        expect(api.user.createRestrictedToken.withArgs({ path: [ '/v1/oauth/strava' ] }).callCount).to.equal(1);
+        expect(api.user.createOAuthProviderAuthorization.callCount).to.equal(0);
       });
     });
 
     describe('disconnectDataSource', () => {
       it('should trigger DISCONNECT_DATA_SOURCE_SUCCESS and it should call error once for a successful request', () => {
-        let restrictedToken = { id:  'blah.blah.blah'};
-        let url = 'fitbit.url';
+        let restrictedToken = { id: 'blah.blah.blah'};
         let api = {
           user: {
             deleteOAuthProviderAuthorization: sinon.stub().callsArgWith(1, null, restrictedToken),
@@ -2829,7 +2821,7 @@ describe('Actions', () => {
         });
 
         let store = mockStore(initialState);
-        store.dispatch(async.disconnectDataSource(api, 'fitbit', { type: 'oauth', name: 'fitbit' }));
+        store.dispatch(async.disconnectDataSource(api, 'fitbit', { providerType: 'oauth', providerName: 'fitbit' }));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -2837,8 +2829,6 @@ describe('Actions', () => {
       });
 
       it('should trigger DISCONNECT_DATA_SOURCE_FAILURE and it should call error once for a failed request', () => {
-        let restrictedToken =  'blah.blah.blah';
-        let url = 'strava.url';
         let api = {
           user: {
             deleteOAuthProviderAuthorization: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
@@ -2856,7 +2846,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore(initialState);
-        store.dispatch(async.disconnectDataSource(api, 'strava', { type: 'oauth', name: 'strava' }));
+        store.dispatch(async.disconnectDataSource(api, 'strava', { providerType: 'oauth', providerName: 'strava' }));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);

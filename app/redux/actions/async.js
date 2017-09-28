@@ -1013,26 +1013,27 @@ export function fetchDataSources(api) {
  *
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} id the internal provider id
- * @param  {Object} filter the data source filter use for the restricted token
+ * @param  {Object} restrictedTokenCreate the restricted token creation object
+ * @param  {Object} dataSourceFilter the filter for the data source
  */
-export function connectDataSource(api, id, filter) {
+export function connectDataSource(api, id, restrictedTokenCreate, dataSourceFilter) {
   return (dispatch) => {
     dispatch(sync.connectDataSourceRequest());
 
-    if (filter.type !== 'oauth') {
+    if (dataSourceFilter.providerType !== 'oauth') {
       let err = 'Unknown data source type';
       dispatch(sync.connectDataSourceFailure(
         createActionError(ErrorMessages.ERR_CONNECTING_DATA_SOURCE, err), err
       ));
     } else {
-      api.user.createRestrictedToken(filter, (err, restrictedToken) => {
+      api.user.createRestrictedToken(restrictedTokenCreate, (err, restrictedToken) => {
         if (err) {
           dispatch(sync.connectDataSourceFailure(
             createActionError(ErrorMessages.ERR_CONNECTING_DATA_SOURCE, err), err
           ));
         } else {
           restrictedToken = _.get(restrictedToken, 'id');
-          api.user.createOAuthProviderAuthorization(filter.name, restrictedToken, (err, url) => {
+          api.user.createOAuthProviderAuthorization(dataSourceFilter.providerName, restrictedToken, (err, url) => {
             if (err) {
               dispatch(sync.connectDataSourceFailure(
                 createActionError(ErrorMessages.ERR_CONNECTING_DATA_SOURCE, err), err
@@ -1053,19 +1054,19 @@ export function connectDataSource(api, id, filter) {
  *
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} id the internal provider id
- * @param  {Object} filter the data source filter use for oauth provider
+ * @param  {Object} dataSourceFilter the filter for the data source
  */
-export function disconnectDataSource(api, id, filter) {
+export function disconnectDataSource(api, id, dataSourceFilter) {
   return (dispatch) => {
     dispatch(sync.disconnectDataSourceRequest());
 
-    if (filter.type !== 'oauth') {
+    if (dataSourceFilter.providerType !== 'oauth') {
       let err = 'Unknown data source type';
       dispatch(sync.disconnectDataSourceFailure(
         createActionError(ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE, err), err
       ));
     } else {
-      api.user.deleteOAuthProviderAuthorization(filter.name, (err, restrictedToken) => {
+      api.user.deleteOAuthProviderAuthorization(dataSourceFilter.providerName, (err, restrictedToken) => {
         if (err) {
           dispatch(sync.disconnectDataSourceFailure(
             createActionError(ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE, err), err

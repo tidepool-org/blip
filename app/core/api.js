@@ -326,35 +326,13 @@ api.user.getDataDonationAccounts = function (cb) {
 api.user.getDataSources = function(cb) {
   api.log('GET /v1/users/:userId/data_sources');
 
-  tidepool.getDataSourcesForUser(tidepool.getUserId(), function(err, result) {
-    if (err) {
-      return cb(err);
-    }
-
-    let dataSources = _.get(result, 'data');
-    if (!dataSources) {
-      return cb('Unexpected response content')
-    }
-
-    return cb(null, dataSources);
-  });
+  tidepool.getDataSourcesForUser(tidepool.getUserId(), cb);
 };
 
 api.user.createRestrictedToken = function(request, cb) {
   api.log('POST /v1/users/:userId/restricted_tokens');
 
-  tidepool.createRestrictedTokenForUser(tidepool.getUserId(), request, function(err, result) {
-    if (err) {
-      return cb(err);
-    }
-
-    let restrictedToken = _.get(result, 'data');
-    if (!restrictedToken) {
-      return cb('Unexpected response content')
-    }
-
-    return cb(null, restrictedToken);
-  });
+  tidepool.createRestrictedTokenForUser(tidepool.getUserId(), request, cb);
 }
 
 api.user.createOAuthProviderAuthorization = function(provider, restrictedToken, cb) {

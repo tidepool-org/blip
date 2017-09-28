@@ -34,8 +34,8 @@ describe('DataSources', () => {
 
   let dataSources = [
     {
-      type: 'oauth',
-      name: 'dexcom',
+      providerType: 'oauth',
+      providerName: 'dexcom',
       state: 'connected',
       latestDataTime: '2017-09-08T02:30:32+00:00',
       error: 'an error occured'
@@ -101,10 +101,6 @@ describe('DataSources', () => {
     it('disconnectDataSource called',  () => {
       wrapper.find('.DataSource-action-button-disconnect-dexcom').simulate('click');
       expect(props.disconnectDataSource.callCount).to.equal(1);
-    });
-    it('fetchDataSources called',  () => {
-      wrapper.find('.DataSource-action-button-disconnect-dexcom').simulate('click');
-      expect(props.fetchDataSources.callCount).to.equal(1);
     });
   });
   describe('handleConnectDataSource when DataSource-action-button-connect clicked',  () => {

@@ -40,9 +40,14 @@ export default class DataSources extends Component {
     this.providers = [
       {
         id: 'oauth/dexcom',
+        restrictedTokenCreate: {
+            paths: [
+              '/v1/oauth/dexcom',
+            ],
+        },
         dataSourceFilter: {
-          type: 'oauth',
-          name: 'dexcom',
+          providerType: 'oauth',
+          providerName: 'dexcom',
         },
         content: {
           description: 'CGM data will be synced from Dexcom',
@@ -153,14 +158,15 @@ export default class DataSources extends Component {
 
   handleConnectDataSource(provider) {
     this.displayPopupForDataSource(provider)
-    this.props.connectDataSource(provider.id, provider.dataSourceFilter);
+    this.props.connectDataSource(provider.id, provider.restrictedTokenCreate, provider.dataSourceFilter);
     this.props.trackMetric('Web - data source connect clicked', provider.id);
   }
 
   handleDisconnectDataSource(provider) {
     this.props.disconnectDataSource(provider.id, provider.dataSourceFilter);
-    this.props.fetchDataSources();
     this.props.trackMetric('Web - data source disconnect clicked', provider.id);
+
+    this.setState({ fetchDataSourcesTimeoutId: setTimeout(this.fetchDataSourcesTimeout.bind(this), 1000) });
   }
 
   renderButton(provider, state) {
@@ -235,6 +241,12 @@ export default class DataSources extends Component {
   componentWillUnmount() {
     clearInterval(this.state.popupIntervalId);
     clearInterval(this.state.timeAgoIntervalId);
+    clearInterval(this.state.fetchDataSourcesTimeoutId);
+  }
+
+  fetchDataSourcesTimeout() {
+    this.setState({ fetchDataSourcesTimeoutId: null });
+    this.props.fetchDataSources();
   }
 
   timeAgoInterval() {
