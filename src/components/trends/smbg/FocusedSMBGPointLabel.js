@@ -21,6 +21,7 @@ import Tooltip from '../../common/tooltips/Tooltip';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { formatBgValue } from '../../../utils/format';
+import { getOutOfRangeThreshold } from '../../../utils/bloodglucose';
 import {
   formatClocktimeFromMsPer24,
   formatLocalizedFromUTC,
@@ -40,14 +41,6 @@ const FocusedSMBGPointLabel = (props) => {
   const { focusedPoint } = props;
   if (!focusedPoint) {
     return null;
-  }
-
-  function getOutOfRangeThreshold(smbg) {
-    const outOfRangeAnnotation = _.find(
-      smbg.annotations || [], (annotation) => (annotation.code === 'bg/out-of-range')
-    );
-    return outOfRangeAnnotation ?
-      { [outOfRangeAnnotation.value]: outOfRangeAnnotation.threshold } : null;
   }
 
   const {
