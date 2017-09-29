@@ -32,10 +32,10 @@ var format = {
       if (annotation.code && annotation.code === 'bg/out-of-range') {
         var value = annotation.value;
         if (value === 'low') {
-          d.tooltipText = 'Lo';
+          d.tooltipText = d.type === 'cbg' ? 'Lo' : 'Low';
         }
         else if (value === 'high') {
-          d.tooltipText = 'Hi';
+          d.tooltipText = d.type === 'cbg' ? 'Hi' : 'High';
         }
       }
     }
