@@ -176,6 +176,9 @@ class TidelineHeader extends Component {
         return 'Trends';
       case 'settings':
         return 'Pump Settings';
+      case 'no-data':
+      default:
+        return '';
     }
   };
 
@@ -185,7 +188,7 @@ class TidelineHeader extends Component {
         <PrintHeader
           title={this.printTitle()}
           dateLink={this.props.title}
-          patient={this.props.patient}
+          patient={this.props.patient || {}}
         />
       </div>
     );

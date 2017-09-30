@@ -52,6 +52,7 @@ const Patient = React.createClass({
     shareOnly: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired,
     updatingDataDonationAccounts: React.PropTypes.bool,
+    updatingPatientBgUnits: React.PropTypes.bool,
     user: React.PropTypes.object,
     dataSources: React.PropTypes.array.isRequired,
     fetchDataSources: React.PropTypes.func.isRequired,
@@ -124,6 +125,7 @@ const Patient = React.createClass({
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           dataDonationAccounts={this.props.dataDonationAccounts || []}
           updatingDataDonationAccounts={this.props.updatingDataDonationAccounts}
+          updatingPatientBgUnits={this.props.updatingPatientBgUnits}
           dataSources={this.props.dataSources}
           fetchDataSources={this.props.fetchDataSources}
           connectDataSource={this.props.connectDataSource}

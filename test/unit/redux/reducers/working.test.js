@@ -1403,6 +1403,62 @@ describe('working', () => {
       });
     });
 
+    describe('updatePatientBgUnits', () => {
+      describe('request', () => {
+        it('should set updatingPatientBgUnits to be true', () => {
+          let action = actions.sync.updatePatientBgUnitsRequest();
+
+          expect(initialState.updatingPatientBgUnits.inProgress).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.updatingPatientBgUnits.inProgress).to.be.true;
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set updatingPatientBgUnits to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { updatingPatientBgUnits: { inProgress : true, notification: null } });
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+          let error = new Error('Something bad happened :(');
+          let action = actions.sync.updatePatientBgUnitsFailure(error);
+
+          expect(initialStateForTest.updatingPatientBgUnits.inProgress).to.be.true;
+          expect(initialStateForTest.updatingPatientBgUnits.notification).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+
+          expect(state.updatingPatientBgUnits.inProgress).to.be.false;
+          expect(state.updatingPatientBgUnits.notification.type).to.equal('error');
+          expect(state.updatingPatientBgUnits.notification.message).to.equal(error.message);
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+
+      describe('success', () => {
+        it('should set updatingPatientBgUnits to be false', () => {
+          let currentPatient = { userid: 506, name: 'Alice' };
+          let updatedPatient = { userid: 506, name: 'Alice Cooper' };
+
+          let initialStateForTest = _.merge(
+            {},
+            initialState,
+            { updatingPatientBgUnits: { inProgress : true, notification: null }
+          });
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+
+          let action = actions.sync.updatePatientBgUnitsSuccess(updatedPatient);
+
+          expect(initialStateForTest.updatingPatientBgUnits.inProgress).to.be.true;
+
+          let state = reducer(initialStateForTest, action);
+
+          expect(state.updatingPatientBgUnits.inProgress).to.be.false;
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+    });
+
     describe('updateUser', () => {
       describe('request', () => {
         it('should set updatingUser to be true', () => {

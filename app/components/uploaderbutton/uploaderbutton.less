@@ -8,7 +8,7 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
@@ -16,12 +16,18 @@
 @uploader-logo-width:        55px;
 @uploader-logo-height:       55px;
 
+.uploaderbutton-wrap {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
 a.btn-uploader {
   background-color: @purple-medium;
   color: #fff;
   font-size: 22px;
   font-weight: normal;
-  padding: @spacing-base 50px;
+  padding: 30px 50px;
   border-radius: 15px;
   border: 0;
   margin-bottom: @spacing-tiny;

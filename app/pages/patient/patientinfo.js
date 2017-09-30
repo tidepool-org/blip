@@ -21,6 +21,7 @@ var sundial = require('sundial');
 
 var personUtils = require('../../core/personutils');
 import PatientSettings from './patientsettings';
+import PatientBgUnits from '../../components/patientBgUnits';
 import DonateForm from '../../components/donateform';
 import DataSources from '../../components/datasources';
 
@@ -42,6 +43,7 @@ var PatientInfo = React.createClass({
     patient: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired,
     updatingDataDonationAccounts: React.PropTypes.bool,
+    updatingPatientBgUnits: React.PropTypes.bool,
     user: React.PropTypes.object,
     dataSources: React.PropTypes.array.isRequired,
     fetchDataSources: React.PropTypes.func.isRequired,
@@ -138,6 +140,7 @@ var PatientInfo = React.createClass({
           </div>
         </div>
         {this.renderPatientSettings()}
+        {this.renderBgUnitSettings()}
         {this.renderDonateForm()}
         {this.renderDataSources()}
       </div>
@@ -227,6 +230,7 @@ var PatientInfo = React.createClass({
           {this.renderAboutInput(formValues)}
         </div>
         {this.renderPatientSettings()}
+        {this.renderBgUnitSettings()}
         {this.renderDonateForm()}
         {this.renderDataSources()}
       </div>
@@ -329,10 +333,27 @@ var PatientInfo = React.createClass({
     return (
       <PatientSettings
         editingAllowed={this.isEditingAllowed(this.props.permsOfLoggedInUser)}
-        patient={this.props.patient}
         onUpdatePatientSettings={this.props.onUpdatePatientSettings}
+        patient={this.props.patient}
         trackMetric={this.props.trackMetric}
       />
+    );
+  },
+
+  renderBgUnitSettings: function() {
+    return (
+      <div className="PatientPage-bgUnitSettings">
+        <div className="PatientPage-sectionTitle">The units I use are</div>
+        <div className="PatientInfo-content">
+          <PatientBgUnits
+            editingAllowed={this.isEditingAllowed(this.props.permsOfLoggedInUser)}
+            onUpdatePatientSettings={this.props.onUpdatePatientSettings}
+            patient={this.props.patient}
+            trackMetric={this.props.trackMetric}
+            working={this.props.updatingPatientBgUnits || false}
+          />
+        </div>
+      </div>
     );
   },
 
@@ -345,7 +366,7 @@ var PatientInfo = React.createClass({
             <DonateForm
               dataDonationAccounts={this.props.dataDonationAccounts || []}
               onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
-              working={this.props.updatingDataDonationAccounts}
+              working={this.props.updatingDataDonationAccounts || false}
               trackMetric={this.props.trackMetric}
             />
           </div>

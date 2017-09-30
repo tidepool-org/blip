@@ -59,6 +59,9 @@ export function signup(api, accountDetails) {
         let error = createActionError(errMsg, err);
         dispatch(sync.signupFailure(error, err));
       } else {
+        if (accountDetails.termsAccepted) {
+          dispatch(acceptTerms(api, accountDetails.termsAccepted, user.userid));
+        }
         dispatch(sync.signupSuccess(user));
         dispatch(routeActions.push('/email-verification'));
       }
@@ -149,8 +152,9 @@ export function resendEmailVerification(api, email) {
  *
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} acceptedDate
+ * @param  {String} userId - passed in when accepting terms from the clinician signup form
  */
-export function acceptTerms(api, acceptedDate) {
+export function acceptTerms(api, acceptedDate, userId) {
   acceptedDate = acceptedDate || sundial.utcDateString();
   return (dispatch, getState) => {
     const { blip: { loggedInUserId } } = getState();
@@ -162,11 +166,15 @@ export function acceptTerms(api, acceptedDate) {
           createActionError(ErrorMessages.ERR_ACCEPTING_TERMS, err), err
         ));
       } else {
-        dispatch(sync.acceptTermsSuccess(loggedInUserId, acceptedDate));
-        if(personUtils.isClinic(user)){
-          dispatch(routeActions.push('/clinician-details'))
+        if (loggedInUserId) {
+          dispatch(sync.acceptTermsSuccess(loggedInUserId, acceptedDate));
+          if(personUtils.isClinic(user)){
+            dispatch(routeActions.push('/clinician-details'));
+          } else {
+            dispatch(routeActions.push('/patients?justLoggedIn=true'));
+          }
         } else {
-          dispatch(routeActions.push('/patients?justLoggedIn=true'));
+          dispatch(sync.acceptTermsSuccess(userId, acceptedDate));
         }
       }
     })
@@ -198,6 +206,13 @@ export function login(api, credentials, options, postLoginAction) {
         }
       } else {
         api.user.get((err, user) => {
+          const isClinic = personUtils.isClinic(user);
+
+          let redirectRoute = '/patients?justLoggedIn=true';
+          if (isClinic && !_.get(user, ['profile', 'clinic'], false)) {
+            redirectRoute = '/clinician-details';
+          }
+
           if (err) {
             dispatch(sync.loginFailure(
               createActionError(ErrorMessages.ERR_FETCHING_USER, err), err
@@ -215,7 +230,7 @@ export function login(api, credentials, options, postLoginAction) {
                   if (postLoginAction) {
                     dispatch(postLoginAction());
                   }
-                  dispatch(routeActions.push('/patients?justLoggedIn=true'));
+                  dispatch(routeActions.push(redirectRoute));
                 }
               });
             } else {
@@ -223,7 +238,7 @@ export function login(api, credentials, options, postLoginAction) {
               if (postLoginAction) {
                 dispatch(postLoginAction());
               }
-              dispatch(routeActions.push('/patients?justLoggedIn=true'));
+              dispatch(routeActions.push(redirectRoute));
             }
           }
         });
@@ -556,15 +571,22 @@ export function fetchSettings(api, patientId) {
  */
 export function updateSettings(api, patientId, settings) {
   return (dispatch) => {
+    const updatingBgUnits = !!_.get(settings, 'units.bg');
+
     dispatch(sync.updateSettingsRequest());
+    updatingBgUnits && dispatch(sync.updatePatientBgUnitsRequest());
 
     api.metadata.settings.put(patientId, settings, (err, updatedSettings) => {
       if (err) {
         dispatch(sync.updateSettingsFailure(
           createActionError(ErrorMessages.ERR_UPDATING_SETTINGS, err), err
         ));
+        updatingBgUnits && dispatch(sync.updatePatientBgUnitsFailure(
+          createActionError(ErrorMessages.ERR_UPDATING_PATIENT_BG_UNITS, err), err
+        ));
       } else {
         dispatch(sync.updateSettingsSuccess(patientId, updatedSettings));
+        updatingBgUnits && dispatch(sync.updatePatientBgUnitsSuccess(patientId, updatedSettings));
       }
     });
   };

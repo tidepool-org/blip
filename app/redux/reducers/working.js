@@ -67,6 +67,7 @@ export default (state = initialWorkingState, action) => {
     case types.REJECT_RECEIVED_INVITE_REQUEST:
     case types.SET_MEMBER_PERMISSIONS_REQUEST:
     case types.UPDATE_PATIENT_REQUEST:
+    case types.UPDATE_PATIENT_BG_UNITS_REQUEST:
     case types.UPDATE_USER_REQUEST:
     case types.VERIFY_CUSTODIAL_REQUEST:
     case types.GENERATE_PDF_REQUEST:
@@ -118,6 +119,7 @@ export default (state = initialWorkingState, action) => {
     case types.REJECT_RECEIVED_INVITE_SUCCESS:
     case types.SET_MEMBER_PERMISSIONS_SUCCESS:
     case types.UPDATE_PATIENT_SUCCESS:
+    case types.UPDATE_PATIENT_BG_UNITS_SUCCESS:
     case types.UPDATE_USER_SUCCESS:
     case types.VERIFY_CUSTODIAL_SUCCESS:
     case types.GENERATE_PDF_SUCCESS:
@@ -168,6 +170,7 @@ export default (state = initialWorkingState, action) => {
     case types.REJECT_RECEIVED_INVITE_FAILURE:
     case types.SET_MEMBER_PERMISSIONS_FAILURE:
     case types.UPDATE_PATIENT_FAILURE:
+    case types.UPDATE_PATIENT_BG_UNITS_FAILURE:
     case types.UPDATE_USER_FAILURE:
     case types.VERIFY_CUSTODIAL_FAILURE:
     case types.GENERATE_PDF_FAILURE:
