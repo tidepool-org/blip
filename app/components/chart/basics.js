@@ -57,6 +57,12 @@ var Basics = React.createClass({
       title: this.getTitle()
     };
   },
+  componentDidMount: function() {
+    const bgUnits = this.props.bgPrefs.bgUnits.replace('/', '').toLowerCase();
+    window.downloadBasicsPrintViewData = () => {
+      console.save(this.props.patientData.basicsData, `basics-print-view-${bgUnits}.json`);
+    };
+  },
   render: function() {
 
     return (

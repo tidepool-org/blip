@@ -424,15 +424,25 @@ export let PatientData = React.createClass({
   generatePDF: function (data) {
     const dData = data.diabetesData;
 
+    const opts = {
+      bgPrefs: this.state.bgPrefs,
+      numDays: 6,
+      patient: this.props.patient,
+      timePrefs: this.state.timePrefs,
+      mostRecent: dData[dData.length - 1].normalTime,
+    };
+
+    const pdfData = {
+      daily: _.pick(this.state.processedPatientData.grouped, ['basal', 'bolus', 'cbg', 'message', 'smbg']),
+      basics: this.state.processedPatientData.basicsData,
+    }
+
+    console.log('huhs?');
+
     this.props.generatePDFRequest(
       this.state.chartType,
-      dData[dData.length - 1].normalTime,
-      _.pick(
-        this.state.processedPatientData.grouped,
-        // TODO: add back deviceEvent later (not in first prod release)
-        ['basal', 'bolus', 'cbg', 'message', 'smbg']
-      ),
-      { bgPrefs: this.state.bgPrefs, numDays: 6, patient: this.props.patient, timePrefs: this.state.timePrefs }
+      pdfData,
+      opts,
     );
   },
 
