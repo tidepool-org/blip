@@ -59,6 +59,8 @@ var BasicsChart = React.createClass({
 
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
     var insulinDataAvailable = this._insulinDataAvailable();
+    var noPumpDataMessage = 'This section requires data from an insulin pump, so there\'s nothing to display.';
+    var noSMBGDataMessage = 'This section requires data from a blood-glucose meter, so there\'s nothing to display.';
 
     function hasSectionData(section) {
       // check that section has data within range of current view
@@ -70,6 +72,7 @@ var BasicsChart = React.createClass({
     if (basicsData.sections.siteChanges.type !== constants.SECTION_TYPE_UNDECLARED) {
       if (!hasSectionData(basicsData.sections.siteChanges.type)) {
         basicsData.sections.siteChanges.active = false;
+        basicsData.sections.siteChanges.message = noPumpDataMessage;
         basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
         if (!insulinDataAvailable) {
           basicsData.sections.siteChanges.noDataMessage = null;
@@ -79,14 +82,17 @@ var BasicsChart = React.createClass({
 
     if (!hasSectionData(basicsData.sections.boluses.type)) {
       basicsData.sections.boluses.active = false;
+      basicsData.sections.boluses.message = noPumpDataMessage;
     }
 
     if (!hasSectionData(basicsData.sections.basals.type)) {
       basicsData.sections.basals.active = false;
+      basicsData.sections.basals.message = noPumpDataMessage;
     }
 
     if (!hasSectionData('smbg') && !hasSectionData('calibration')) {
       basicsData.sections.fingersticks.active = false;
+      basicsData.sections.fingersticks.message = noSMBGDataMessage;
     }
 
     if (_.isEmpty(basicsData.data.calibration.data)) {
