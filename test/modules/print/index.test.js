@@ -72,8 +72,8 @@ describe('print module', () => {
     expect(Module.createPrintPDFPackage).to.be.a('function');
   });
 
-  it('should export a createDailyPrintView method', () => {
-    expect(Module.createDailyPrintView).to.be.a('function');
+  it('should export a createPrintView method', () => {
+    expect(Module.createPrintView).to.be.a('function');
   });
 
   it('should properly set bg bounds', () => {

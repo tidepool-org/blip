@@ -157,8 +157,7 @@ class DailyPrintView {
       this.initialChartsByDate[date] = { ...dateData };
     });
 
-    this.startingPageIndex = opts.startingPageIndex || 0;
-    this.totalPages = this.initialTotalPages = 0;
+    this.totalPages = this.initialTotalPages = 1;
     this.chartsPlaced = this.initialChartsPlaced = 0;
 
     this.chartIndex = this.initialChartIndex = 0;
@@ -335,8 +334,9 @@ class DailyPrintView {
 
   render() {
     _.each(_.uniq(_.pluck(this.chartsByDate, 'page')), (page) => {
-      this.doc.switchToPage(page);
-      this.renderPageNumber(page + 1);
+      const currentPage = page + this.previousPageCount;
+      this.doc.switchToPage(currentPage);
+      this.renderPageNumber(currentPage + 1);
     });
     _.each(this.chartsByDate, (dateChart) => {
       this.doc.switchToPage(dateChart.page);

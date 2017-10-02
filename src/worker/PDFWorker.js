@@ -34,7 +34,7 @@ export default class PDFWorker {
     const { data: action } = msg;
     switch (action.type) {
       case actionTypes.GENERATE_PDF_REQUEST: {
-        const { type, mostRecent, groupedData, opts } = action.payload;
+        const { type, data, opts } = action.payload;
         const { origin } = action.meta;
 
         const importLib = typeof this.importer !== 'undefined' ? this.importer : importScripts;
@@ -43,7 +43,7 @@ export default class PDFWorker {
 
         importLib(`${origin}/pdfkit.js`, `${origin}/blob-stream.js`);
 
-        renderLib(mostRecent, groupedData, opts).then(pdf =>
+        renderLib(data, opts).then(pdf =>
           postMessage(actions.generatePDFSuccess({ [type]: pdf }))
         ).catch(error =>
           postMessage(actions.generatePDFFailure(error))

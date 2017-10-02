@@ -29,10 +29,10 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 /* global PDFDocument, blobStream */
 
 // eslint-disable-next-line import/no-unresolved
-import dataMGDL from '../../local/daily-print-view-mgdl.json';
+import dataMGDL from '../../local/basics-print-view-mgdl.json';
 
 // eslint-disable-next-line import/no-unresolved
-import dataMMOLL from '../../local/daily-print-view-mmoll.json';
+import dataMMOLL from '../../local/basics-print-view-mmoll.json';
 
 const data = {
   [MGDL_UNITS]: dataMGDL,
@@ -66,13 +66,12 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
       timezoneAware: true,
       timezoneName: 'US/Eastern',
     },
-    numDays: 6,
     patient,
   };
 
-  const dailyPrintView = createPrintView('daily', data[bgUnits], opts, doc);
+  const basicsPrintView = createPrintView('basics', data[bgUnits], opts, doc);
 
-  dailyPrintView.render();
+  basicsPrintView.render();
   doc.end();
 
   stream.on('finish', () => {
@@ -80,14 +79,14 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
   });
 }
 
-const notes = `Use \`window.downloadDailyPrintViewData()\` to get daily view munged data,
-  save it in local/ directory of viz as \`daily-print-view.json\`,
-  then use this story to iterate on the Daily Print PDF outside of blip!`;
+const notes = `Use \`window.downloadBasicsPrintViewData()\` to get basics view munged data,
+  save it in local/ directory of viz as \`basics-print-view.json\`,
+  then use this story to iterate on the Basics Print PDF outside of blip!`;
 
 patients.longName = _.cloneDeep(patients.standard);
 patients.longName.profile.fullName = 'Super Duper Long Patient Name';
 
-storiesOf('DailyViewPrintPDF', module)
+storiesOf('BasicsViewPrintPDF', module)
   .add(`standard account (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
       <button onClick={() => openPDF({ patient: patients.standard })}>
