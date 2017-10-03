@@ -62,15 +62,8 @@ var BasicsChart = React.createClass({
     var noPumpDataMessage = 'This section requires data from an insulin pump, so there\'s nothing to display.';
     var noSMBGDataMessage = 'This section requires data from a blood-glucose meter, so there\'s nothing to display.';
 
-    function hasSectionData(section) {
-      // check that section has data within range of current view
-      return _.some(basicsData.data[section].data, function(datum) {
-        return (datum.time >= basicsData.dateRange[0]);
-      });
-    }
-
     if (basicsData.sections.siteChanges.type !== constants.SECTION_TYPE_UNDECLARED) {
-      if (!hasSectionData(basicsData.sections.siteChanges.type)) {
+      if (!this._hasSectionData(basicsData.sections.siteChanges.type)) {
         basicsData.sections.siteChanges.active = false;
         basicsData.sections.siteChanges.message = noPumpDataMessage;
         basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
@@ -80,17 +73,17 @@ var BasicsChart = React.createClass({
       }
     }
 
-    if (!hasSectionData(basicsData.sections.boluses.type)) {
+    if (!this._hasSectionData(basicsData.sections.boluses.type)) {
       basicsData.sections.boluses.active = false;
       basicsData.sections.boluses.message = noPumpDataMessage;
     }
 
-    if (!hasSectionData(basicsData.sections.basals.type)) {
+    if (!this._hasSectionData(basicsData.sections.basals.type)) {
       basicsData.sections.basals.active = false;
       basicsData.sections.basals.message = noPumpDataMessage;
     }
 
-    if (!hasSectionData('smbg') && !hasSectionData('calibration')) {
+    if (!this._hasSectionData('smbg') && !this._hasSectionData('calibration')) {
       basicsData.sections.fingersticks.active = false;
       basicsData.sections.fingersticks.message = noSMBGDataMessage;
     }
@@ -155,6 +148,31 @@ var BasicsChart = React.createClass({
     return false;
   },
 
+  _hasSectionData: function (section) {
+    var basicsData = this.props.patientData.basicsData;
+
+    // check that section has data within range of current view
+    return _.some(basicsData.data[section].data, function(datum) {
+      return (datum.time >= basicsData.dateRange[0]);
+    });
+  },
+
+  _availableDeviceData: function () {
+    var deviceTypes = [];
+
+    if (this._hasSectionData('cbg')) {
+      deviceTypes.push('CGM');
+    }
+    if (this._hasSectionData('smbg')) {
+      deviceTypes.push('BGM');
+    }
+    if (this._insulinDataAvailable()) {
+      deviceTypes.push('Pump');
+    }
+
+    return deviceTypes;
+  },
+
   componentWillMount: function() {
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
@@ -178,6 +196,17 @@ var BasicsChart = React.createClass({
   },
 
   componentDidMount: function() {
+    var availableDeviceData = this._availableDeviceData();
+
+    if (availableDeviceData.length > 0) {
+      var device = availableDeviceData.sort().join('+');
+      if (availableDeviceData.length === 1) {
+        device += ' only';
+      }
+
+      this.props.trackMetric('web - viewed basics data', { device });
+    }
+
     if (this._aggregatedDataEmpty() && this.props.trackMetric) {
       this.props.trackMetric('web - pump vacation message displayed');
     }

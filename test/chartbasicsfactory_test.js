@@ -344,7 +344,6 @@ describe('BasicsChart', function() {
       var elem = React.createElement(BasicsChart, props);
       var render = TestUtils.renderIntoDocument(elem);
 
-      sinon.assert.callCount(props.trackMetric, 1);
       sinon.assert.calledWith(props.trackMetric, 'web - pump vacation message displayed');
     });
 
@@ -374,7 +373,61 @@ describe('BasicsChart', function() {
       var elem = React.createElement(BasicsChart, props);
       var render = TestUtils.renderIntoDocument(elem);
 
-      sinon.assert.callCount(props.trackMetric, 0);
+      sinon.assert.neverCalledWith(props.trackMetric, 'web - pump vacation message displayed');
+    });
+
+    it('should track metrics which device data was available to the user when viewing', function() {
+      var elem;
+      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
+      var props = {
+        bgUnits: MGDL_UNITS,
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub(),
+      };
+
+      props.patientData = td;
+      elem = React.createElement(BasicsChart, props);
+      TestUtils.renderIntoDocument(elem);
+      sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'Pump only'});
+
+      props.trackMetric.reset();
+      props.patientData = new TidelineData([new types.SMBG()]);
+      elem = React.createElement(BasicsChart, props);
+      TestUtils.renderIntoDocument(elem);
+      sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM only'});
+
+      props.trackMetric.reset();
+      props.patientData = new TidelineData([new types.CBG()]);
+      elem = React.createElement(BasicsChart, props);
+      TestUtils.renderIntoDocument(elem);
+      sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'CGM only'});
+
+      props.trackMetric.reset();
+      props.patientData = new TidelineData([new types.CBG(), new types.SMBG()]);
+      elem = React.createElement(BasicsChart, props);
+      TestUtils.renderIntoDocument(elem);
+      sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM+CGM'});
+
+      props.trackMetric.reset();
+      props.patientData = new TidelineData([new types.SMBG(), new types.Basal()]);
+      elem = React.createElement(BasicsChart, props);
+      TestUtils.renderIntoDocument(elem);
+      sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM+Pump'});
+
+      props.trackMetric.reset();
+      props.patientData = new TidelineData([new types.CBG(), new types.Basal()]);
+      elem = React.createElement(BasicsChart, props);
+      TestUtils.renderIntoDocument(elem);
+      sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'CGM+Pump'});
+
+      props.trackMetric.reset();
+      props.patientData = new TidelineData([new types.CBG(), new types.SMBG(), new types.Basal()]);
+      elem = React.createElement(BasicsChart, props);
+      TestUtils.renderIntoDocument(elem);
+      sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM+CGM+Pump'});
     });
   });
 });
