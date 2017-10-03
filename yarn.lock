@@ -5392,7 +5392,7 @@ optimist@0.6.1, optimist@>=0.3.5, optimist@^0.6.1, optimist@~0.6.0, optimist@~0.
     wordwrap "~0.0.2"
 
 optional@0.1.3:
-  version "0.1.3"
+  version v0.1.3
   resolved "https://registry.yarnpkg.com/optional/-/optional-0.1.3.tgz#f87537517b59a5e732cfd8f18e4f7eea7ab4761e"
 
 optionator@^0.8.1:
@@ -7529,9 +7529,9 @@ thunkify@~2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@0.6.4:
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.4.tgz#acd620918658f844326b9f571c6030c2ad41ca70"
+tideline@0.6.7:
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.7.tgz#9ad3afa0e12a0fb2be1fa8d73179b1c647a62564"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
