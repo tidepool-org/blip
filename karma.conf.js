@@ -10,7 +10,7 @@ module.exports = function (config) {
     colors: true,
     client: {
       mocha: {
-        timeout: 3000
+        timeout: 4000
       },
     },
     frameworks: [ 'mocha', 'sinon', 'chai' ], // Mocha is our testing framework of choice

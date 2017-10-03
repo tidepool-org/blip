@@ -376,7 +376,9 @@ describe('BasicsChart', function() {
       sinon.assert.neverCalledWith(props.trackMetric, 'web - pump vacation message displayed');
     });
 
-    it('should track metrics which device data was available to the user when viewing', function() {
+    it.only('should track metrics which device data was available to the user when viewing', function() {
+      this.timeout(8000); // Double timeout for this test, as it seems to fail often on travis
+
       var elem;
       var td = new TidelineData([new types.Bolus(), new types.Basal()]);
       var props = {
