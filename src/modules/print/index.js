@@ -36,6 +36,9 @@ export const utils = {
 // DPI here is the coordinate system, not the resolution; sub-dot precision renders crisply!
 const DPI = 72;
 const MARGIN = DPI / 2;
+const HEIGHT = 11 * DPI - (2 * MARGIN);
+const WIDTH = 8.5 * DPI - (2 * MARGIN);
+const DEFAULT_FONT_SIZE = 8;
 
 /**
  * createPrintView
@@ -74,23 +77,23 @@ export function createPrintView(type, data, opts, doc) {
         // TODO: set this up as a Webpack Define plugin to pull from env variable
         // maybe that'll be tricky through React Storybook?
         debug: false,
-        defaultFontSize: 8,
+        defaultFontSize: DEFAULT_FONT_SIZE,
         dpi: DPI,
         footerFontSize: 8,
         headerFontSize: 14,
-        height: 11 * DPI - (2 * MARGIN),
+        height: HEIGHT,
         margins: {
           left: MARGIN,
           top: MARGIN,
           right: MARGIN,
           bottom: MARGIN,
         },
-        numDays,
+        numDays: numDays.daily,
         patient,
         summaryHeaderFontSize: 10,
         summaryWidthAsPercentage: 0.18,
         timePrefs,
-        width: 8.5 * DPI - (2 * MARGIN),
+        width: WIDTH,
       };
       break;
     }
@@ -102,11 +105,11 @@ export function createPrintView(type, data, opts, doc) {
         // TODO: set this up as a Webpack Define plugin to pull from env variable
         // maybe that'll be tricky through React Storybook?
         debug: false,
-        defaultFontSize: 8,
+        defaultFontSize: DEFAULT_FONT_SIZE,
         dpi: DPI,
         footerFontSize: 8,
         headerFontSize: 14,
-        height: 11 * DPI - (2 * MARGIN),
+        height: HEIGHT,
         margins: {
           left: MARGIN,
           top: MARGIN,
@@ -117,7 +120,7 @@ export function createPrintView(type, data, opts, doc) {
         summaryHeaderFontSize: 10,
         summaryWidthAsPercentage: 0.18,
         timePrefs,
-        width: 8.5 * DPI - (2 * MARGIN),
+        width: WIDTH,
       };
       break;
     }
@@ -127,6 +130,22 @@ export function createPrintView(type, data, opts, doc) {
   }
 
   return new Renderer(doc, data, renderOpts);
+}
+
+export function renderPageNumbers(doc) {
+  const pageCount = doc.bufferedPageRange().count;
+  let page = 0;
+  while (page < pageCount) {
+    page++;
+    doc.switchToPage(page - 1);
+    doc.fontSize(DEFAULT_FONT_SIZE).fillColor('black').fillOpacity(1);
+    doc.text(
+      `page ${page} of ${pageCount}`,
+      MARGIN,
+      (HEIGHT + MARGIN) - doc.currentLineHeight() * 1.5,
+      { align: 'right' }
+    );
+  }
 }
 
 /**
@@ -161,15 +180,17 @@ export function createPrintPDFPackage(data, opts) {
     const stream = doc.pipe(streamLib());
 
     const basicsPrintView = createPrintView('basics', data.basics, pdfOpts, doc);
-
-    const dailyViewData = utils.selectDailyViewData(mostRecent, data.daily, numDays, timePrefs);
-    const dailyPrintView = createPrintView('daily', dailyViewData, pdfOpts, doc);
-
     basicsPrintView.render();
-    dailyPrintView.render();
-    doc.end();
 
-    console.log('whaaa');
+    doc.removeListener('pageAdded', basicsPrintView.newPage);
+
+    const dailyData = utils.selectDailyViewData(mostRecent, data.daily, numDays.daily, timePrefs);
+    const dailyPrintView = createPrintView('daily', dailyData, pdfOpts, doc);
+    dailyPrintView.render();
+
+    renderPageNumbers(doc);
+
+    doc.end();
 
     stream.on('finish', () => {
       const pdf = {

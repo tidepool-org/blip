@@ -52,6 +52,7 @@ describe('DailyPrintView', () => {
       };
 
       this.currentLineHeight = sinon.stub().returns(10);
+      this.bufferedPageRange = sinon.stub().returns({ start: 0, count: 0 });
       this.on = sinon.stub();
       this.fontSize = sinon.stub().returns(this);
       this.addPage = sinon.stub().returns(this);
@@ -179,7 +180,7 @@ describe('DailyPrintView', () => {
         { prop: 'interruptedLineThickness', type: 'number' },
         { prop: 'smbgRadius', type: 'number' },
         { prop: 'triangleHeight', type: 'number' },
-        { prop: 'startingPageIndex', type: 'number', value: opts.startingPageIndex || 0 },
+        // { prop: 'startingPageIndex', type: 'number', value: opts.startingPageIndex || 0 },
         { prop: 'initialTotalPages', type: 'number', value: 0 },
         { prop: 'initialChartsPlaced', type: 'number', value: 0 },
         { prop: 'initialChartIndex', type: 'number', value: 0 },
@@ -347,14 +348,11 @@ describe('DailyPrintView', () => {
       sinon.stub(Renderer, 'renderBolusDetails').returns(Renderer);
       sinon.stub(Renderer, 'renderBasalPaths').returns(Renderer);
 
-      const numPages = _.uniq(_.pluck(Renderer.chartsByDate, 'page')).length;
       const numCharts = _.keys(Renderer.chartsByDate).length;
 
       Renderer.render();
 
-      sinon.assert.callCount(Renderer.doc.switchToPage, (numPages + numCharts));
-
-      sinon.assert.callCount(Renderer.renderPageNumber, numPages);
+      sinon.assert.callCount(Renderer.doc.switchToPage, numCharts);
 
       sinon.assert.callCount(Renderer.renderSummary, numCharts);
       sinon.assert.callCount(Renderer.renderXAxes, numCharts);
@@ -364,19 +362,6 @@ describe('DailyPrintView', () => {
       sinon.assert.callCount(Renderer.renderInsulinEvents, numCharts);
       sinon.assert.callCount(Renderer.renderBolusDetails, numCharts);
       sinon.assert.callCount(Renderer.renderBasalPaths, numCharts);
-    });
-  });
-
-  describe('renderPageNumber', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderPageNumber).to.be.a('function');
-    });
-
-    it('should render the page number', () => {
-      const page = 1;
-
-      Renderer.renderPageNumber(page);
-      sinon.assert.calledWith(Renderer.doc.text, `page ${page} of ${Renderer.totalPages}`);
     });
   });
 

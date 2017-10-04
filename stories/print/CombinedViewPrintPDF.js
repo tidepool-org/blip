@@ -29,14 +29,26 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 /* global PDFDocument, blobStream */
 
 // eslint-disable-next-line import/no-unresolved
-import dataMGDL from '../../local/daily-print-view-mgdl.json';
+import dataBasicsMGDL from '../../local/basics-print-view-mgdl.json';
 
 // eslint-disable-next-line import/no-unresolved
-import dataMMOLL from '../../local/daily-print-view-mmoll.json';
+import dataBasicsMMOLL from '../../local/basics-print-view-mmoll.json';
+
+// eslint-disable-next-line import/no-unresolved
+import dataDailyMGDL from '../../local/daily-print-view-mgdl.json';
+
+// eslint-disable-next-line import/no-unresolved
+import dataDailyMMOLL from '../../local/daily-print-view-mmoll.json';
 
 const data = {
-  [MGDL_UNITS]: dataMGDL,
-  [MMOLL_UNITS]: dataMMOLL,
+  basics: {
+    [MGDL_UNITS]: dataBasicsMGDL,
+    [MMOLL_UNITS]: dataBasicsMMOLL,
+  },
+  daily: {
+    [MGDL_UNITS]: dataDailyMGDL,
+    [MMOLL_UNITS]: dataDailyMMOLL,
+  },
 };
 
 const bgBounds = {
@@ -72,9 +84,14 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
     patient,
   };
 
-  const dailyPrintView = createPrintView('daily', data[bgUnits], opts, doc);
+  const basicsPrintView = createPrintView('basics', data.basics[bgUnits], opts, doc);
+  basicsPrintView.render();
 
+  doc.removeListener('pageAdded', basicsPrintView.newPage);
+
+  const dailyPrintView = createPrintView('daily', data.daily[bgUnits], opts, doc);
   dailyPrintView.render();
+
   renderPageNumbers(doc);
 
   doc.end();
@@ -84,14 +101,14 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
   });
 }
 
-const notes = `Use \`window.downloadDailyPrintViewData()\` to get daily view munged data,
-  save it in local/ directory of viz as \`daily-print-view.json\`,
-  then use this story to iterate on the Daily Print PDF outside of blip!`;
+const notes = `Use \`window.downloadBasicsPrintViewData()\` to get basics view munged data,
+  save it in local/ directory of viz as \`basics-print-view.json\`,
+  then use this story to iterate on the Basics Print PDF outside of blip!`;
 
 patients.longName = _.cloneDeep(patients.standard);
 patients.longName.profile.fullName = 'Super Duper Long Patient Name';
 
-storiesOf('Daily View PDF', module)
+storiesOf('Combined Views PDF', module)
   .add(`standard account (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
       <button onClick={() => openPDF({ patient: patients.standard })}>

@@ -61,7 +61,6 @@ class BasicsPrintView {
     this.height = opts.height;
 
     this.chartsPerPage = opts.chartsPerPage;
-    this.numDays = opts.numDays;
 
     this.patient = opts.patient;
     this.patientInfoBox = {
@@ -104,7 +103,6 @@ class BasicsPrintView {
     if (this.debug) {
       this.renderDebugGrid();
     }
-    this.totalPages += 1;
     this.renderHeader().renderFooter();
   }
 
@@ -122,18 +120,6 @@ class BasicsPrintView {
 
   render() {
     this.doc.addPage();
-    console.log('render');
-  }
-
-  renderPageNumber(page) {
-    this.doc.fontSize(this.defaultFontSize);
-    const pageNumberY = this.bottomEdge - this.doc.currentLineHeight() * 1.5;
-    this.doc.text(
-      `page ${page} of ${this.totalPages}`,
-      this.margins.left,
-      pageNumberY,
-      { align: 'right' }
-    );
   }
 
   renderPatientInfo() {
@@ -142,7 +128,6 @@ class BasicsPrintView {
     const xOffset = this.margins.left;
     const yOffset = this.margins.top;
 
-    console.log(this.doc);
     this.doc
       .lineWidth(1)
       .fontSize(10)
@@ -295,7 +280,14 @@ class BasicsPrintView {
   }
 
   renderFooter() {
-    this.renderPageNumber();
+    const lineHeight = this.doc.fontSize(10).currentLineHeight();
+    const helpText = 'Questions or feedback please email support@tidepool.org ' +
+                     'or visit support.tidepool.org';
+
+    this.doc.fillColor('black').fillOpacity(1)
+      .text(helpText, this.margins.left, this.bottomEdge - lineHeight * 1.4, {
+        align: 'center',
+      });
 
     return this;
   }

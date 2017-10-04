@@ -25,13 +25,18 @@ describe('print module', () => {
     blob: 'someBlob',
   };
 
-  const mostRecent = 'mostRecent';
-  const groupedData = [];
+  const data = {
+    daily: {},
+    basics: {},
+  };
   const opts = {
     bgPrefs: {},
-    numDays: 6,
+    numDays: {
+      daily: 6,
+    },
     patient: {},
     timePrefs: {},
+    mostRecent: '',
   };
 
   let stream = new MemoryStream();
@@ -43,6 +48,12 @@ describe('print module', () => {
       Stream.toBlob = () => pdf.blob;
       return Stream;
     }
+    fontSize() {}
+    currentLineHeight() {}
+    on() {}
+    addPage() {}
+    removeListener() {}
+    bufferedPageRange() { return { start: 0, count: 0 }; }
     end() {}
   }
 
@@ -77,7 +88,7 @@ describe('print module', () => {
   });
 
   it('should properly set bg bounds', () => {
-    const result = Module.createPrintPDFPackage(mostRecent, groupedData, opts);
+    const result = Module.createPrintPDFPackage(data, opts);
     stream.end();
 
     return result.then(() => {
@@ -87,23 +98,23 @@ describe('print module', () => {
   });
 
   it('should fetch the daily view data', () => {
-    const result = Module.createPrintPDFPackage(mostRecent, groupedData, opts);
+    const result = Module.createPrintPDFPackage(data, opts);
     stream.end();
 
     return result.then(() => {
       sinon.assert.calledOnce(Module.utils.selectDailyViewData);
       sinon.assert.calledWithExactly(
         Module.utils.selectDailyViewData,
-        mostRecent,
-        groupedData,
-        opts.numDays,
+        opts.mostRecent,
+        data.daily,
+        opts.numDays.daily,
         opts.timePrefs
       );
     });
   });
 
   it('should render and return the pdf data', () => {
-    const result = Module.createPrintPDFPackage(mostRecent, groupedData, opts);
+    const result = Module.createPrintPDFPackage(data, opts);
     stream.end();
 
     return result.then(_result => {
@@ -113,7 +124,7 @@ describe('print module', () => {
         new Module.utils.PDFDocument(),
         Module.utils.selectDailyViewData(),
         {
-          numDays: opts.numDays,
+          numDays: opts.numDays.daily,
           patient: opts.patient,
           timePrefs: opts.timePrefs,
         },

@@ -21,7 +21,7 @@ import _ from 'lodash';
 import { storiesOf } from '@kadira/storybook';
 import { WithNotes } from '@kadira/storybook-addon-notes';
 
-import { createPrintView } from '../../src/modules/print/index';
+import { createPrintView, renderPageNumbers } from '../../src/modules/print/index';
 import * as patients from '../../data/patient/fixtures';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
@@ -72,6 +72,8 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
   const basicsPrintView = createPrintView('basics', data[bgUnits], opts, doc);
 
   basicsPrintView.render();
+  renderPageNumbers(doc);
+
   doc.end();
 
   stream.on('finish', () => {
@@ -86,7 +88,7 @@ const notes = `Use \`window.downloadBasicsPrintViewData()\` to get basics view m
 patients.longName = _.cloneDeep(patients.standard);
 patients.longName.profile.fullName = 'Super Duper Long Patient Name';
 
-storiesOf('BasicsViewPrintPDF', module)
+storiesOf('Basics View PDF', module)
   .add(`standard account (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
       <button onClick={() => openPDF({ patient: patients.standard })}>

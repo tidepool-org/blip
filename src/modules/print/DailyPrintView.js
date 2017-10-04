@@ -157,7 +157,7 @@ class DailyPrintView {
       this.initialChartsByDate[date] = { ...dateData };
     });
 
-    this.totalPages = this.initialTotalPages = 1;
+    this.totalPages = this.initialTotalPages = this.doc.bufferedPageRange().count || 0;
     this.chartsPlaced = this.initialChartsPlaced = 0;
 
     this.chartIndex = this.initialChartIndex = 0;
@@ -333,11 +333,6 @@ class DailyPrintView {
   }
 
   render() {
-    _.each(_.uniq(_.pluck(this.chartsByDate, 'page')), (page) => {
-      const currentPage = page + this.previousPageCount;
-      this.doc.switchToPage(currentPage);
-      this.renderPageNumber(currentPage + 1);
-    });
     _.each(this.chartsByDate, (dateChart) => {
       this.doc.switchToPage(dateChart.page);
       this.renderSummary(dateChart)
@@ -349,17 +344,6 @@ class DailyPrintView {
         .renderBolusDetails(dateChart)
         .renderBasalPaths(dateChart);
     });
-  }
-
-  renderPageNumber(page) {
-    this.doc.fontSize(this.defaultFontSize);
-    const pageNumberY = this.bottomEdge - this.doc.currentLineHeight() * 1.5;
-    this.doc.text(
-      `page ${page} of ${this.totalPages}`,
-      this.margins.left,
-      pageNumberY,
-      { align: 'right' }
-    );
   }
 
   renderPatientInfo() {
