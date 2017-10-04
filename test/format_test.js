@@ -87,11 +87,11 @@ describe('format utility', function() {
     it('should set the tooltip text to "Low" for smbg values below the device threshold', function() {
       var datum = {
         type: 'smbg',
-        value: 601,
+        value: 39,
         annotations: [
           {
             code: 'bg/out-of-range',
-            threshold: 600,
+            threshold: 40,
             value: 'low',
           },
         ],
@@ -105,11 +105,11 @@ describe('format utility', function() {
     it('should set the tooltip text to "Lo" for cbg values below the device threshold', function() {
       var datum = {
         type: 'cbg',
-        value: 601,
+        value: 39,
         annotations: [
           {
             code: 'bg/out-of-range',
-            threshold: 600,
+            threshold: 40,
             value: 'low',
           },
         ],
