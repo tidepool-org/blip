@@ -38,6 +38,7 @@ var Basics = React.createClass({
     timePrefs: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
     patientData: React.PropTypes.object.isRequired,
+    pdf: React.PropTypes.object.isRequired,
     permsOfLoggedInUser: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
@@ -70,6 +71,7 @@ var Basics = React.createClass({
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
+          printReady={!!this.props.pdf.url}
           atMostRecent={true}
           inTransition={this.state.inTransition}
           title={this.state.title}
@@ -79,6 +81,7 @@ var Basics = React.createClass({
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.props.onSwitchToSettings}
           onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickPrint={this.handleClickPrint}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
@@ -190,6 +193,20 @@ var Basics = React.createClass({
       e.preventDefault();
     }
     this.props.onSwitchToDaily();
+  },
+  handleClickPrint: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    if (this.props.pdf.url) {
+      const printWindow = window.open(this.props.pdf.url);
+      printWindow.focus();
+      printWindow.print();
+    }
+
+    // Send tracking metric
+    this.props.onSwitchToPrint();
   },
   handleClickTwoWeeks: function(e) {
     if (e) {

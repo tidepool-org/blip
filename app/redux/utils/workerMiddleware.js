@@ -49,6 +49,7 @@ const createWorkerMiddleware = (worker, errActionCreators) => {
 
     return (action) => {
       if (action.meta && action.meta.WebWorker) {
+        console.log('worker action', action)
         worker.postMessage(action);
 
         worker.onerror = (e) => { // eslint-disable-line no-param-reassign

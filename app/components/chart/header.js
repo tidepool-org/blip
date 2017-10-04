@@ -131,8 +131,8 @@ class TidelineHeader extends Component {
       'printview-print-icon': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
-      'patient-data-subnav-active': _.includes(['daily', 'settings'], this.props.chartType),
-      'patient-data-subnav-hidden': !_.includes(['daily', 'settings'], this.props.chartType),
+      'patient-data-subnav-active': _.includes(['daily', 'basics', 'settings'], this.props.chartType),
+      'patient-data-subnav-hidden': !_.includes(['daily', 'basics', 'settings'], this.props.chartType),
       'patient-data-subnav-disabled': !this.props.printReady,
     });
 

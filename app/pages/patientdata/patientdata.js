@@ -299,6 +299,7 @@ export let PatientData = React.createClass({
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToPrint={this.handleSwitchToPrintView}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
@@ -306,6 +307,7 @@ export let PatientData = React.createClass({
             updateBasicsSettings={this.props.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
+            pdf={this.props.viz.pdf.combined || {}}
             ref="tideline" />
           );
       case 'daily':
@@ -322,12 +324,12 @@ export let PatientData = React.createClass({
             onShowMessageThread={this.handleShowMessageThread}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToPrint={this.handleSwitchToDailyPrintView}
+            onSwitchToPrint={this.handleSwitchToPrintView}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateDatetimeLocation={this.updateDatetimeLocation}
-            pdf={this.props.viz.pdf.daily || {}}
+            pdf={this.props.viz.pdf.combined || {}}
             ref="tideline" />
           );
       case 'trends':
@@ -426,7 +428,9 @@ export let PatientData = React.createClass({
 
     const opts = {
       bgPrefs: this.state.bgPrefs,
-      numDays: 6,
+      numDays: {
+        daily: 6
+      },
       patient: this.props.patient,
       timePrefs: this.state.timePrefs,
       mostRecent: dData[dData.length - 1].normalTime,
@@ -437,10 +441,8 @@ export let PatientData = React.createClass({
       basics: this.state.processedPatientData.basicsData,
     }
 
-    console.log('huhs?');
-
     this.props.generatePDFRequest(
-      this.state.chartType,
+      'combined',
       pdfData,
       opts,
     );
@@ -508,7 +510,7 @@ export let PatientData = React.createClass({
     });
   },
 
-  handleSwitchToDailyPrintView: function() {
+  handleSwitchToPrintView: function() {
     this.props.trackMetric('Clicked Print', {
       fromChart: this.state.chartType
     });
@@ -657,9 +659,9 @@ export let PatientData = React.createClass({
   },
 
   componentWillUpdate: function (nextProps, nextState) {
-    const pdfEnabled = _.indexOf(['daily'], this.state.chartType) >= 0;
+    const pdfEnabled = _.indexOf(['daily', 'basics'], this.state.chartType) >= 0;
     const pdfGenerating = nextProps.generatingPDF;
-    const pdfGenerated = _.get(nextProps, `viz.pdf[${this.state.chartType}]`, false);
+    const pdfGenerated = _.get(nextProps, 'viz.pdf.combined', false);
     const patientDataProcessed = (!this.state.processingData && !!this.state.processedPatientData && !!nextState.processedPatientData);
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.

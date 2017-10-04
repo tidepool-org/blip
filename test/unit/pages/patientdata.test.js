@@ -441,6 +441,7 @@ describe('PatientData', function () {
         trackMetric: sinon.stub(),
         viz: {
           trends: {},
+          pdf: {},
         },
       };
 
@@ -637,6 +638,7 @@ describe('PatientData', function () {
             fetchingPatientData: false,
             viz: {
               trends: {},
+              pdf: {},
             },
           };
 
@@ -680,7 +682,10 @@ describe('PatientData', function () {
               }
             },
             fetchingPatient: false,
-            fetchingPatientData: false
+            fetchingPatientData: false,
+            viz: {
+              pdf: {},
+            }
           };
 
           // Try out using the spread props syntax in JSX
@@ -870,7 +875,7 @@ describe('PatientData', function () {
         generatingPDF: false,
         viz: {
           pdf: {
-            daily: {
+            combined: {
               url: 'someUrl'
             }
           }
