@@ -52,13 +52,14 @@ describe('PatientData', function () {
   });
 
   describe('render', function() {
-    it ('should not warn when required props are set', function() {
+    it('should not warn when required props are set', function() {
       var props = {
         clearPatientData: sinon.stub(),
         currentPatientInViewId: 'smestring',
         fetchers: [],
         fetchingPatient: false,
         fetchingPatientData: false,
+        fetchingUser: false,
         generatePDFRequest: sinon.stub(),
         generatingPDF: false,
         isUserPatient: false,
@@ -78,7 +79,6 @@ describe('PatientData', function () {
       };
 
       console.error = sinon.spy();
-      // Try out using the spread props syntax in JSX
       var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
@@ -471,7 +471,7 @@ describe('PatientData', function () {
               processingData: false,
             });
 
-            elem.setDefaultChartType(processedData);
+            elem.setInitialChartType(processedData);
           };
 
           elem.componentWillReceiveProps({
@@ -764,6 +764,32 @@ describe('PatientData', function () {
   });
 
   describe('componentWillUpdate', function() {
+    it('should generate a pdf when view is basics and patient data is processed', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: false,
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      wrapper.setState({ chartType: 'basics', processingData: false, processedPatientData: true });
+
+      elem.generatePDF.reset()
+      expect(elem.generatePDF.callCount).to.equal(0);
+
+      wrapper.update();
+      expect(elem.generatePDF.callCount).to.equal(1);
+    });
+
     it('should generate a pdf when view is daily and patient data is processed', function () {
       var props = {
         currentPatientInViewId: 40,
@@ -781,12 +807,47 @@ describe('PatientData', function () {
       const elem = wrapper.instance();
       sinon.stub(elem, 'generatePDF');
 
-      var callCount = elem.generatePDF.callCount;
-
       wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: true });
-      wrapper.update();
 
-      expect(elem.generatePDF.callCount).to.equal(callCount + 1);
+      elem.generatePDF.reset()
+      expect(elem.generatePDF.callCount).to.equal(0);
+
+      wrapper.update();
+      expect(elem.generatePDF.callCount).to.equal(1);
+    });
+
+    it('should not generate a pdf when view is weekly or trends and patient data is processed', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: false,
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      wrapper.setState({ chartType: 'weekly', processingData: false, processedPatientData: true });
+
+      elem.generatePDF.reset()
+      expect(elem.generatePDF.callCount).to.equal(0);
+
+      wrapper.update();
+      expect(elem.generatePDF.callCount).to.equal(0);
+
+      wrapper.setState({ chartType: 'trends', processingData: false, processedPatientData: true });
+
+      elem.generatePDF.reset()
+      expect(elem.generatePDF.callCount).to.equal(0);
+
+      wrapper.update();
+      expect(elem.generatePDF.callCount).to.equal(0);
     });
 
     it('should not generate a pdf when one is currently generating', function () {

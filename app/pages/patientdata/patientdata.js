@@ -423,29 +423,32 @@ export let PatientData = React.createClass({
     this.props.trackMetric('Closed New Message Modal');
   },
 
-  generatePDF: function (data) {
-    const dData = data.diabetesData;
+  generatePDF: function (props, state) {
+    const data = state.processedPatientData;
+    const diabetesData = data.diabetesData;
 
-    const opts = {
-      bgPrefs: this.state.bgPrefs,
-      numDays: {
-        daily: 6
-      },
-      patient: this.props.patient,
-      timePrefs: this.state.timePrefs,
-      mostRecent: dData[dData.length - 1].normalTime,
-    };
+    if (diabetesData) {
+      const opts = {
+        bgPrefs: state.bgPrefs,
+        numDays: {
+          daily: 6
+        },
+        patient: props.patient,
+        timePrefs: state.timePrefs,
+        mostRecent: diabetesData[diabetesData.length - 1].normalTime,
+      };
 
-    const pdfData = {
-      daily: _.pick(this.state.processedPatientData.grouped, ['basal', 'bolus', 'cbg', 'message', 'smbg']),
-      basics: this.state.processedPatientData.basicsData,
+      const pdfData = {
+        daily: _.pick(data.grouped, ['basal', 'bolus', 'cbg', 'message', 'smbg']),
+        basics: data.basicsData,
+      }
+
+      props.generatePDFRequest(
+        'combined',
+        pdfData,
+        opts,
+      );
     }
-
-    this.props.generatePDFRequest(
-      'combined',
-      pdfData,
-      opts,
-    );
   },
 
   handleMessageCreation: function(message){
@@ -597,7 +600,7 @@ export let PatientData = React.createClass({
       this.setState({
         title: this.DEFAULT_TITLE,
         processingData: true,
-        processedPatientData: null
+        processedPatientData: null,
       });
 
       refresh(this.props.currentPatientInViewId);
@@ -659,16 +662,16 @@ export let PatientData = React.createClass({
   },
 
   componentWillUpdate: function (nextProps, nextState) {
-    const pdfEnabled = _.indexOf(['daily', 'basics'], this.state.chartType) >= 0;
+    const pdfEnabled =  _.indexOf(['daily', 'basics'], nextState.chartType) >= 0;
     const pdfGenerating = nextProps.generatingPDF;
     const pdfGenerated = _.get(nextProps, 'viz.pdf.combined', false);
-    const patientDataProcessed = (!this.state.processingData && !!this.state.processedPatientData && !!nextState.processedPatientData);
+    const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
     if (pdfEnabled && !pdfGenerating && !pdfGenerated && patientDataProcessed) {
-      this.generatePDF(this.state.processedPatientData);
+      this.generatePDF(nextProps, nextState);
     }
   },
 
@@ -725,7 +728,7 @@ export let PatientData = React.createClass({
     return chartType;
   },
 
-  setDefaultChartType: function(processedData) {
+  setInitialChartType: function(processedData) {
     // Determine default chart type and date from latest data
     const uploads = processedData.grouped.upload;
     const latestData = _.last(processedData.diabetesData);
@@ -743,7 +746,6 @@ export let PatientData = React.createClass({
       };
 
       this.setState(state);
-
       this.props.trackMetric(`web - default to ${chartType}`);
     }
   },
@@ -775,7 +777,7 @@ export let PatientData = React.createClass({
         processingData: false,
       });
 
-      this.setDefaultChartType(processedData);
+      this.setInitialChartType(processedData);
     }
   },
 

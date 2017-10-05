@@ -44,6 +44,7 @@ var Basics = React.createClass({
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
+    onSwitchToPrint: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -51,6 +52,14 @@ var Basics = React.createClass({
     updateBasicsSettings: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
   },
+
+  componentDidMount: function() {
+    const bgUnits = this.props.bgPrefs.bgUnits.replace('/', '').toLowerCase();
+    window.downloadBasicsPrintViewData = () => {
+      console.save(this.props.patientData.basicsData, `basics-print-view-${bgUnits}.json`);
+    };
+  },
+
   getInitialState: function() {
     return {
       atMostRecent: true,
@@ -58,14 +67,8 @@ var Basics = React.createClass({
       title: this.getTitle()
     };
   },
-  componentDidMount: function() {
-    const bgUnits = this.props.bgPrefs.bgUnits.replace('/', '').toLowerCase();
-    window.downloadBasicsPrintViewData = () => {
-      console.save(this.props.patientData.basicsData, `basics-print-view-${bgUnits}.json`);
-    };
-  },
-  render: function() {
 
+  render: function() {
     return (
       <div id="tidelineMain">
         <Header
@@ -99,8 +102,8 @@ var Basics = React.createClass({
       );
 
   },
-  renderChart: function() {
 
+  renderChart: function() {
     return (
       <div id="tidelineContainer" className="patient-data-chart-growing">
         <BasicsChart
@@ -117,8 +120,8 @@ var Basics = React.createClass({
           trackMetric={this.props.trackMetric} />
       </div>
     );
-
   },
+
   renderMissingBasicsMessage: function() {
     var self = this;
     var handleClickUpload = function() {
@@ -140,8 +143,8 @@ var Basics = React.createClass({
         </p>
       </div>
     );
-
   },
+
   getTitle: function() {
     if (this.isMissingBasics()) {
       return '';
@@ -158,6 +161,7 @@ var Basics = React.createClass({
     return sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask) +
       ' - ' + sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask);
   },
+
   isMissingBasics: function() {
     var basicsData = this.props.patientData.basicsData;
     var data;
@@ -175,6 +179,7 @@ var Basics = React.createClass({
     }
     return false;
   },
+
   // handlers
   handleClickBasics: function(e) {
     if (e) {
@@ -182,18 +187,21 @@ var Basics = React.createClass({
     }
     return;
   },
+
   handleClickModal: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.props.onSwitchToModal();
   },
+
   handleClickOneDay: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.props.onSwitchToDaily();
   },
+
   handleClickPrint: function(e) {
     if (e) {
       e.preventDefault();
@@ -208,12 +216,14 @@ var Basics = React.createClass({
     // Send tracking metric
     this.props.onSwitchToPrint();
   },
+
   handleClickTwoWeeks: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.props.onSwitchToWeekly();
   },
+
   handleSelectDay: function(date, title) {
     this.props.onSwitchToDaily(date, title);
   }
