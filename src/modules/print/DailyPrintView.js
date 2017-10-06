@@ -1015,9 +1015,21 @@ class DailyPrintView {
 
     // rendering the items in the legend
     // cbg
-    _.each(_.map(range(0, 16, 2), (d) => ([d, d - 8])), (pair) => {
+    const vertOffsetAdjustments = [
+      2.25,
+      1,
+      0.25,
+      0,
+      0,
+      -0.25,
+      -1,
+      -2.25,
+    ];
+    _.each(_.map(range(0, 16, 2), (d) => ([d, d - 7])), (pair) => {
       const [horizOffset, vertOffset] = pair;
+      const adjustedVertOffset = vertOffset + vertOffsetAdjustments[horizOffset / 2];
       let fill;
+
       if (horizOffset < 4) {
         fill = 'high';
       } else if (horizOffset < 12) {
@@ -1025,7 +1037,9 @@ class DailyPrintView {
       } else {
         fill = 'low';
       }
-      this.doc.circle(cursor + horizOffset, legendVerticalMiddle + vertOffset, this.cbgRadius)
+
+      this.doc
+        .circle(cursor + horizOffset, legendVerticalMiddle + adjustedVertOffset, this.cbgRadius)
         .fill(this.colors[fill]);
     });
     cursor += 16 + legendItemLabelOffset;
