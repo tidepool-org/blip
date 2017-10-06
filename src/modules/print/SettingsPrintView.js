@@ -18,6 +18,8 @@
 /* eslint-disable lodash/prefer-lodash-method */
 
 import _ from 'lodash';
+import PdfTable from 'voilab-pdf-table';
+import PdfTableFitColumn from 'voilab-pdf-table/plugins/fitcolumn';
 
 import {
   getTimezoneFromTimePrefs,
@@ -60,8 +62,6 @@ class SettingsPrintView {
     this.width = opts.width;
     this.height = opts.height;
 
-    this.chartsPerPage = opts.chartsPerPage;
-
     this.patient = opts.patient;
     this.patientInfoBox = {
       width: 0,
@@ -81,8 +81,7 @@ class SettingsPrintView {
     this.gapBtwnSummaryAndChartAsPercentage = 0.04;
     this.chartArea = {
       bottomEdge: opts.margins.top + opts.height,
-      leftEdge: opts.margins.left +
-        (opts.summaryWidthAsPercentage + this.gapBtwnSummaryAndChartAsPercentage) * this.width,
+      leftEdge: opts.margins.left,
       topEdge: opts.margins.top,
     };
 
@@ -120,6 +119,120 @@ class SettingsPrintView {
 
   render() {
     this.doc.addPage();
+    this.renderOuterTable();
+  }
+
+  renderOuterTable() {
+    const table = new PdfTable(this.doc, {
+      bottomMargin: 30,
+    });
+
+    table.pdf.x = this.chartArea.leftEdge;
+    table.pdf.y = this.chartArea.topEdge;
+
+    table
+      // add some plugins (here, a 'fit-to-width' for a column)
+      .addPlugin(new PdfTableFitColumn({
+        column: 'description',
+      }))
+      // set defaults to your columns
+      .setColumnsDefaults({
+        headerBorder: 'B',
+        align: 'right',
+      })
+      // add table columns
+      .addColumns([
+        {
+          id: 'description',
+          header: 'Product',
+          align: 'left',
+          cache: false,
+        },
+        {
+          id: 'quantity',
+          header: 'Quantity',
+          width: 50,
+          cache: false,
+        },
+        {
+          id: 'price',
+          header: 'Price',
+          width: 40,
+          cache: false,
+        },
+        {
+          id: 'total',
+          header: 'Total',
+          width: 90,
+          height: this.renderInnerTable(),
+          cache: false,
+          renderer: (tb, data, draw, column, pos) => {
+            if (draw) {
+              this.renderInnerTable(data, pos);
+            }
+            return '';
+          },
+        },
+      ]);
+
+    table.addBody([
+      { description: 'Product 1', quantity: 1, price: 20.10, total: 20.10 },
+      { description: 'Product 2', quantity: 4, price: 4.00, total: 16.00 },
+      { description: 'Product 3', quantity: 2, price: 17.85, total: 35.70 },
+    ]);
+  }
+
+  renderInnerTable(data = {}, pos) {
+    const table = new PdfTable(this.doc, {
+      bottomMargin: 30,
+    });
+
+    if (pos) {
+      this.doc.x = pos.x;
+      this.doc.y = pos.y;
+    }
+
+    const initY = this.doc.y;
+
+    this.doc.text('whazzup?', this.doc.x, this.doc.y, {
+      align: 'right',
+    });
+    this.doc.moveDown(2);
+
+    table
+      .setShowHeaders(false)
+      .addPlugin(new PdfTableFitColumn({
+        column: 'price',
+      }))
+      // set defaults to your columns
+      .setColumnsDefaults({
+        align: 'right',
+      })
+      // add table columns
+      .addColumns([
+        {
+          id: 'spacer',
+          header: '',
+          width: this.doc.x - this.chartArea.leftEdge,
+        },
+        {
+          id: 'price',
+          header: 'Price',
+          // width: 30,
+        },
+        {
+          id: 'total',
+          header: 'Total',
+          width: 30,
+          renderer: (tb2, innerData) => `CHF ${innerData.total || ''}`,
+        },
+      ]);
+
+    table.addBody([
+      { price: data.price, total: data.total },
+    ]);
+
+    return this.doc.y - initY;
   }
 
   renderPatientInfo() {
@@ -160,7 +273,7 @@ class SettingsPrintView {
   }
 
   renderTitle() {
-    const title = 'The Settings';
+    const title = 'Pump Settings';
     const lineHeight = this.doc.fontSize(14).currentLineHeight();
     const xOffset = this.margins.left + this.patientInfoBox.width + 21;
     const yOffset = (

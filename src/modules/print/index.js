@@ -168,6 +168,11 @@ export function createPrintPDFPackage(data, opts) {
     const dailyPrintView = createPrintView('daily', dailyData, pdfOpts, doc);
     dailyPrintView.render();
 
+    doc.removeListener('pageAdded', dailyPrintView.newPage);
+
+    const settingsPrintView = createPrintView('settings', data.basics, pdfOpts, doc);
+    settingsPrintView.render();
+
     renderPageNumbers(doc);
 
     doc.end();

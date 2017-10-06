@@ -119,7 +119,8 @@
     "react-height": "2.1.1",
     "react-motion": "0.4.4",
     "react-transition-group-plus": "0.4.1",
-    "text-table": "0.2.0"
+    "text-table": "0.2.0",
+    "voilab-pdf-table": "0.3.0"
   },
   "peerDependencies": {
     "classnames": "2.x",
