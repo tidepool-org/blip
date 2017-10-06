@@ -29,26 +29,14 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 /* global PDFDocument, blobStream */
 
 // eslint-disable-next-line import/no-unresolved
-import dataBasicsMGDL from '../../local/basics-print-view-mgdl.json';
+import dataMGDL from '../../local/settings-print-view-mgdl.json';
 
 // eslint-disable-next-line import/no-unresolved
-import dataBasicsMMOLL from '../../local/basics-print-view-mmoll.json';
-
-// eslint-disable-next-line import/no-unresolved
-import dataDailyMGDL from '../../local/daily-print-view-mgdl.json';
-
-// eslint-disable-next-line import/no-unresolved
-import dataDailyMMOLL from '../../local/daily-print-view-mmoll.json';
+import dataMMOLL from '../../local/settings-print-view-mmoll.json';
 
 const data = {
-  basics: {
-    [MGDL_UNITS]: dataBasicsMGDL,
-    [MMOLL_UNITS]: dataBasicsMMOLL,
-  },
-  daily: {
-    [MGDL_UNITS]: dataDailyMGDL,
-    [MMOLL_UNITS]: dataDailyMMOLL,
-  },
+  [MGDL_UNITS]: dataMGDL,
+  [MMOLL_UNITS]: dataMMOLL,
 };
 
 const bgBounds = {
@@ -78,25 +66,12 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
       timezoneAware: true,
       timezoneName: 'US/Eastern',
     },
-    numDays: {
-      daily: 6,
-    },
     patient,
   };
 
-  const basicsPrintView = createPrintView('basics', data.basics[bgUnits], opts, doc);
-  basicsPrintView.render();
+  const settingsPrintView = createPrintView('settings', data[bgUnits], opts, doc);
 
-  doc.removeListener('pageAdded', basicsPrintView.newPage);
-
-  const dailyPrintView = createPrintView('daily', data.daily[bgUnits], opts, doc);
-  dailyPrintView.render();
-
-  doc.removeListener('pageAdded', dailyPrintView.newPage);
-
-  const settingsPrintView = createPrintView('settings', data.basics[bgUnits], opts, doc);
   settingsPrintView.render();
-
   renderPageNumbers(doc);
 
   doc.end();
@@ -106,14 +81,14 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
   });
 }
 
-const notes = `Use \`window.downloadBasicsPrintViewData()\` to get basics view munged data,
-  save it in local/ directory of viz as \`basics-print-view.json\`,
+const notes = `Use \`window.downloadSettingsPrintViewData()\` to get settings view munged data,
+  save it in local/ directory of viz as \`settings-print-view.json\`,
   then use this story to iterate on the Basics Print PDF outside of blip!`;
 
 patients.longName = _.cloneDeep(patients.standard);
 patients.longName.profile.fullName = 'Super Duper Long Patient Name';
 
-storiesOf('Combined Views PDF', module)
+storiesOf('Settings View PDF', module)
   .add(`standard account (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
       <button onClick={() => openPDF({ patient: patients.standard })}>

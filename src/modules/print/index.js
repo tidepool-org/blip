@@ -20,6 +20,7 @@ import Promise from 'bluebird';
 import _ from 'lodash';
 import DailyPrintView from './DailyPrintView';
 import BasicsPrintView from './BasicsPrintView';
+import SettingsPrintView from './SettingsPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
 import { selectDailyViewData } from '../../utils/print/data';
 
@@ -31,6 +32,7 @@ export const utils = {
   blobStream: function blobStreamStub() {},
   DailyPrintView,
   BasicsPrintView,
+  SettingsPrintView,
 };
 
 // DPI here is the coordinate system, not the resolution; sub-dot precision renders crisply!
@@ -56,74 +58,52 @@ export function createPrintView(type, data, opts, doc) {
     bgPrefs,
     patient,
     timePrefs,
+    numDays,
   } = opts;
 
   let Renderer;
-  let renderOpts;
+  let renderOpts = {
+    bgPrefs,
+    // TODO: set this up as a Webpack Define plugin to pull from env variable
+    // maybe that'll be tricky through React Storybook?
+    debug: false,
+    defaultFontSize: DEFAULT_FONT_SIZE,
+    dpi: DPI,
+    footerFontSize: 8,
+    headerFontSize: 14,
+    height: HEIGHT,
+    margins: {
+      left: MARGIN,
+      top: MARGIN,
+      right: MARGIN,
+      bottom: MARGIN,
+    },
+    patient,
+    summaryHeaderFontSize: 10,
+    summaryWidthAsPercentage: 0.18,
+    timePrefs,
+    width: WIDTH,
+  };
 
   switch (type) {
-    case 'daily': {
+    case 'daily':
       Renderer = utils.DailyPrintView;
 
-      const CHARTS_PER_PAGE = 3;
-
-      const {
-        numDays,
-      } = opts;
-
-      renderOpts = {
-        bgPrefs,
-        chartsPerPage: CHARTS_PER_PAGE,
-        // TODO: set this up as a Webpack Define plugin to pull from env variable
-        // maybe that'll be tricky through React Storybook?
-        debug: false,
-        defaultFontSize: DEFAULT_FONT_SIZE,
-        dpi: DPI,
-        footerFontSize: 8,
-        headerFontSize: 14,
-        height: HEIGHT,
-        margins: {
-          left: MARGIN,
-          top: MARGIN,
-          right: MARGIN,
-          bottom: MARGIN,
-        },
+      renderOpts = _.assign(renderOpts, {
+        chartsPerPage: 3,
         numDays: numDays.daily,
-        patient,
         summaryHeaderFontSize: 10,
         summaryWidthAsPercentage: 0.18,
-        timePrefs,
-        width: WIDTH,
-      };
+      });
       break;
-    }
-    case 'basics': {
-      Renderer = utils.BasicsPrintView;
 
-      renderOpts = {
-        bgPrefs,
-        // TODO: set this up as a Webpack Define plugin to pull from env variable
-        // maybe that'll be tricky through React Storybook?
-        debug: false,
-        defaultFontSize: DEFAULT_FONT_SIZE,
-        dpi: DPI,
-        footerFontSize: 8,
-        headerFontSize: 14,
-        height: HEIGHT,
-        margins: {
-          left: MARGIN,
-          top: MARGIN,
-          right: MARGIN,
-          bottom: MARGIN,
-        },
-        patient,
-        summaryHeaderFontSize: 10,
-        summaryWidthAsPercentage: 0.18,
-        timePrefs,
-        width: WIDTH,
-      };
+    case 'basics':
+      Renderer = utils.BasicsPrintView;
       break;
-    }
+
+    case 'settings':
+      Renderer = utils.SettingsPrintView;
+      break;
 
     default:
       return null;

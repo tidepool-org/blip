@@ -29,7 +29,7 @@ import { getPatientFullName } from '../../utils/misc';
 
 const logo = require('./images/tidepool-logo-408x46.png');
 
-class BasicsPrintView {
+class SettingsPrintView {
   constructor(doc, data, opts) {
     this.doc = doc;
 
@@ -160,7 +160,7 @@ class BasicsPrintView {
   }
 
   renderTitle() {
-    const title = 'The Basics';
+    const title = 'The Settings';
     const lineHeight = this.doc.fontSize(14).currentLineHeight();
     const xOffset = this.margins.left + this.patientInfoBox.width + 21;
     const yOffset = (
@@ -309,4 +309,4 @@ class BasicsPrintView {
   }
 }
 
-export default BasicsPrintView;
+export default SettingsPrintView;
