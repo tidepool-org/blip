@@ -37,11 +37,12 @@ describe('DataSources', () => {
       providerType: 'oauth',
       providerName: 'dexcom',
       state: 'connected',
+      lastImportTime: '2017-09-08T02:30:32+00:00',
       latestDataTime: '2017-09-08T02:30:32+00:00',
       error: 'an error occured'
     }
   ];
-  
+
   let props = {
     dataSources: dataSources,
     fetchDataSources: sinon.stub(),

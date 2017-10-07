@@ -95,7 +95,13 @@ export default class DataSources extends Component {
       case DATA_SOURCE_STATE_DISCONNECTED:
         return 'No data available - click Connect to enable';
       case DATA_SOURCE_STATE_CONNECTED:
-        return 'Last data ' + this.calculateTimeAgoMessage(dataSource.latestDataTime);
+        if (!dataSource.lastImportTime) {
+          return 'Waiting to import data';
+        } else if (!dataSource.latestDataTime) {
+          return 'No data found';
+        } else {
+          return 'Last data ' + this.calculateTimeAgoMessage(dataSource.latestDataTime);
+        }
       default:
         return this.calculateErrorMessage(dataSource.error);
     }
