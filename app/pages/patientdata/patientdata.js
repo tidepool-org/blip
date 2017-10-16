@@ -27,7 +27,7 @@ import config from '../../config';
 import loadingGif from './loading.gif';
 
 import * as actions from '../../redux/actions';
-import { actions as workerActions} from '@tidepool/viz';
+import { actions as workerActions, selectDailyViewData} from '@tidepool/viz';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
@@ -47,6 +47,8 @@ import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 
 import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
+
+import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from '../../core/constants';
 
 export let PatientData = React.createClass({
   propTypes: {
@@ -778,6 +780,73 @@ export let PatientData = React.createClass({
       });
 
       this.setInitialChartType(processedData);
+
+      window.downloadPrintViewData = () => {
+        const isMGDL = processedData.bgUnits === MGDL_UNITS;
+
+        const data =  {
+          [MGDL_UNITS]: isMGDL ? processedData : utils.processPatientData(
+            this,
+            combinedData,
+            this.props.queryParams,
+            _.assign({}, patientSettings, {
+              bgTarget: {
+                low: patientSettings.bgTarget.low * MGDL_PER_MMOLL,
+                high: patientSettings.bgTarget.high * MGDL_PER_MMOLL,
+              },
+              units: { bg: MGDL_UNITS }
+            }),
+          ),
+          [MMOLL_UNITS]: !isMGDL ? processedData : utils.processPatientData(
+            this,
+            combinedData,
+            this.props.queryParams,
+            _.assign({}, patientSettings, {
+              bgTarget: {
+                low: patientSettings.bgTarget.low / MGDL_PER_MMOLL,
+                high: patientSettings.bgTarget.high / MGDL_PER_MMOLL,
+              },
+              units: { bg: MMOLL_UNITS }
+            }),
+          ),
+        };
+
+        const dData = {
+          [MGDL_UNITS]: data[MGDL_UNITS].diabetesData,
+          [MMOLL_UNITS]: data[MMOLL_UNITS].diabetesData,
+        }
+
+        console.save({
+          [MGDL_UNITS]: {
+            daily: selectDailyViewData(
+              dData[MGDL_UNITS][dData[MGDL_UNITS].length - 1].normalTime,
+              _.pick(
+                data[MGDL_UNITS].grouped,
+                // TODO: add back deviceEvent later (not in first prod release)
+                ['basal', 'bolus', 'cbg', 'message', 'smbg']
+              ),
+              6,
+              this.state.timePrefs,
+            ),
+            basics: data[MGDL_UNITS].basicsData,
+            settings: data[MGDL_UNITS].grouped.pumpSettings,
+          },
+          [MMOLL_UNITS]: {
+            daily: selectDailyViewData(
+              dData[MMOLL_UNITS][dData[MMOLL_UNITS].length - 1].normalTime,
+              _.pick(
+                data[MMOLL_UNITS].grouped,
+                // TODO: add back deviceEvent later (not in first prod release)
+                ['basal', 'bolus', 'cbg', 'message', 'smbg']
+              ),
+              6,
+              this.state.timePrefs,
+            ),
+            basics: data[MMOLL_UNITS].basicsData,
+            settings: data[MMOLL_UNITS].grouped.pumpSettings,
+          },
+        }, 'print-view.json');
+      };
     }
   },
 

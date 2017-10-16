@@ -53,13 +53,6 @@ var Basics = React.createClass({
     uploadUrl: React.PropTypes.string.isRequired
   },
 
-  componentDidMount: function() {
-    const bgUnits = this.props.bgPrefs.bgUnits.replace('/', '').toLowerCase();
-    window.downloadBasicsPrintViewData = () => {
-      console.save(this.props.patientData.basicsData, `basics-print-view-${bgUnits}.json`);
-    };
-  },
-
   getInitialState: function() {
     return {
       atMostRecent: true,
