@@ -267,19 +267,10 @@ export let PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
-            onSwitchToPrint={this.handleSwitchToSettingsPrintView}
+            onSwitchToPrint={this.handleSwitchToPrintView}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
-            ref="tideline" />
-        </div>
-        <div id="app-print">
-          <SettingsPrintView
-            bgPrefs={this.state.bgPrefs}
-            currentPatientInViewId={this.props.currentPatientInViewId}
-            timePrefs={this.state.timePrefs}
-            patientData={this.state.processedPatientData}
-            patient={this.props.patient}
-            trackMetric={this.props.trackMetric}
+            pdf={this.props.viz.pdf.combined || {}}
             ref="tideline" />
         </div>
       </div>
@@ -443,6 +434,7 @@ export let PatientData = React.createClass({
       const pdfData = {
         daily: _.pick(data.grouped, ['basal', 'bolus', 'cbg', 'message', 'smbg']),
         basics: data.basicsData,
+        settings: _.last(data.grouped.pumpSettings),
       }
 
       props.generatePDFRequest(
@@ -664,7 +656,7 @@ export let PatientData = React.createClass({
   },
 
   componentWillUpdate: function (nextProps, nextState) {
-    const pdfEnabled =  _.indexOf(['daily', 'basics'], nextState.chartType) >= 0;
+    const pdfEnabled =  _.indexOf(['daily', 'basics', 'settings'], nextState.chartType) >= 0;
     const pdfGenerating = nextProps.generatingPDF;
     const pdfGenerated = _.get(nextProps, 'viz.pdf.combined', false);
     const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
@@ -782,8 +774,6 @@ export let PatientData = React.createClass({
       this.setInitialChartType(processedData);
 
       window.downloadPrintViewData = () => {
-        // const isMGDL = processedData.bgUnits === MGDL_UNITS;
-
         const prepareProcessedData = (bgUnits) => {
           const multiplier = bgUnits === MGDL_UNITS ? MGDL_PER_MMOLL : (1 / MGDL_PER_MMOLL);
 
@@ -800,33 +790,6 @@ export let PatientData = React.createClass({
             }),
           );
         };
-
-        // const data =  {
-        //   [MGDL_UNITS]: isMGDL ? processedData : utils.processPatientData(
-        //     this,
-        //     combinedData,
-        //     this.props.queryParams,
-        //     _.assign({}, patientSettings, {
-        //       bgTarget: {
-        //         low: patientSettings.bgTarget.low * MGDL_PER_MMOLL,
-        //         high: patientSettings.bgTarget.high * MGDL_PER_MMOLL,
-        //       },
-        //       units: { bg: MGDL_UNITS }
-        //     }),
-        //   ),
-        //   [MMOLL_UNITS]: !isMGDL ? processedData : utils.processPatientData(
-        //     this,
-        //     combinedData,
-        //     this.props.queryParams,
-        //     _.assign({}, patientSettings, {
-        //       bgTarget: {
-        //         low: patientSettings.bgTarget.low / MGDL_PER_MMOLL,
-        //         high: patientSettings.bgTarget.high / MGDL_PER_MMOLL,
-        //       },
-        //       units: { bg: MMOLL_UNITS }
-        //     }),
-        //   ),
-        // };
 
         const data = {
           [MGDL_UNITS]: prepareProcessedData(MGDL_UNITS),

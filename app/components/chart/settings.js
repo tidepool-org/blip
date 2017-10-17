@@ -41,6 +41,7 @@ const Settings = React.createClass({
     timePrefs: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
     patientData: React.PropTypes.object.isRequired,
+    pdf: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
@@ -52,6 +53,7 @@ const Settings = React.createClass({
     trackMetric: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
   },
+
   getInitialState: function() {
     return {
       atMostRecent: true,
@@ -59,13 +61,14 @@ const Settings = React.createClass({
       title: ''
     };
   },
-  render: function() {
 
+  render: function() {
     return (
       <div id="tidelineMain">
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
+          printReady={!!this.props.pdf.url}
           atMostRecent={true}
           inTransition={this.state.inTransition}
           title={this.state.title}
@@ -93,6 +96,7 @@ const Settings = React.createClass({
       </div>
       );
   },
+
   renderChart: function() {
     const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
 
@@ -113,6 +117,7 @@ const Settings = React.createClass({
       />
     );
   },
+
   renderMissingSettingsMessage: function() {
     const self = this;
     const handleClickUpload = function() {
@@ -136,6 +141,7 @@ const Settings = React.createClass({
     );
 
   },
+
   isMissingSettings: function() {
     const data = this.props.patientData;
     const pumpSettings = utils.getIn(data, ['grouped', 'pumpSettings'], false);
@@ -149,6 +155,7 @@ const Settings = React.createClass({
     }
     return false;
   },
+
   // handlers
   handleClickModal: function(e) {
     if (e) {
@@ -156,30 +163,43 @@ const Settings = React.createClass({
     }
     this.props.onSwitchToModal();
   },
+
   handleClickMostRecent: function(e) {
     if (e) {
       e.preventDefault();
     }
     return;
   },
+
   handleClickOneDay: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.props.onSwitchToDaily();
   },
+
   handleClickSettings: function(e) {
     if (e) {
       e.preventDefault();
     }
     return;
   },
+
   handleClickPrint: function(e) {
     if (e) {
       e.preventDefault();
     }
+
+    if (this.props.pdf.url) {
+      const printWindow = window.open(this.props.pdf.url);
+      printWindow.focus();
+      printWindow.print();
+    }
+
+    // Send tracking metric
     this.props.onSwitchToPrint();
   },
+
   handleClickTwoWeeks: function(e) {
     if (e) {
       e.preventDefault();

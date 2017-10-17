@@ -21,8 +21,6 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import Loading from 'react-loading';
 
-import PrintHeader from '../printheader';
-
 import printPng from './img/print-icon-2x.png';
 
 const tideline = {
@@ -182,24 +180,11 @@ class TidelineHeader extends Component {
     }
   };
 
-  renderPrint = () => {
-    return (
-      <div id="app-print">
-        <PrintHeader
-          title={this.printTitle()}
-          dateLink={this.props.title}
-          patient={this.props.patient || {}}
-        />
-      </div>
-    );
-  };
-
   render = () => {
     return (
       <div className="container-box-outer patient-data-subnav-outer">
         <div className="container-box-inner patient-data-subnav-inner">
           {this.renderStandard()}
-          {this.renderPrint()}
         </div>
       </div>
     );
