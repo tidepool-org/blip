@@ -128,11 +128,6 @@
     display: none;
   }
 
-  .printNotes hr {
-    padding-top: 30px;
-    border: none;
-  }
-
   .settingsTable {
     composes: defaultSize mediumContrastText from '../../styles/typography.css';
     min-width: 250px;

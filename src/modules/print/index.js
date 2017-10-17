@@ -147,7 +147,7 @@ export function createPrintPDFPackage(data, opts) {
 
     createPrintView('basics', data.basics, pdfOpts, doc).render();
     createPrintView('daily', dailyData, pdfOpts, doc).render();
-    createPrintView('settings', data.basics, pdfOpts, doc).render();
+    createPrintView('settings', data.settings, pdfOpts, doc).render();
 
     PrintView.renderPageNumbers(doc);
 

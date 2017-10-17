@@ -31,6 +31,7 @@ describe('print module', () => {
   const data = {
     daily: {},
     basics: {},
+    settings: {},
   };
   const opts = {
     bgPrefs: {},

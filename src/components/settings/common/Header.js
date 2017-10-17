@@ -23,7 +23,7 @@ class Header extends PureComponent {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
-    this.state = { serialNumberExpanded: this.props.printView };
+    this.state = { serialNumberExpanded: false };
   }
 
   handleClick() {
@@ -57,7 +57,6 @@ class Header extends PureComponent {
 Header.propTypes = {
   deviceDisplayName: PropTypes.string.isRequired,
   deviceMeta: PropTypes.object.isRequired,
-  printView: PropTypes.bool.isRequired,
 };
 
 export default Header;
