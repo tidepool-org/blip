@@ -21,7 +21,8 @@ import _ from 'lodash';
 import { storiesOf } from '@kadira/storybook';
 import { WithNotes } from '@kadira/storybook-addon-notes';
 
-import { createPrintView, MARGIN } from '../../src/modules/print/index';
+import { createPrintView } from '../../src/modules/print/index';
+import { MARGIN } from '../../src/modules/print/utils/constants';
 import PrintView from '../../src/modules/print/PrintView';
 
 import * as patients from '../../data/patient/fixtures';
