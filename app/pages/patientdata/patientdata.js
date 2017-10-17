@@ -782,69 +782,82 @@ export let PatientData = React.createClass({
       this.setInitialChartType(processedData);
 
       window.downloadPrintViewData = () => {
-        const isMGDL = processedData.bgUnits === MGDL_UNITS;
+        // const isMGDL = processedData.bgUnits === MGDL_UNITS;
 
-        const data =  {
-          [MGDL_UNITS]: isMGDL ? processedData : utils.processPatientData(
+        const prepareProcessedData = (bgUnits) => {
+          const multiplier = bgUnits === MGDL_UNITS ? MGDL_PER_MMOLL : (1 / MGDL_PER_MMOLL);
+
+          return (bgUnits === processedData.bgUnits) ? processedData : utils.processPatientData(
             this,
             combinedData,
             this.props.queryParams,
             _.assign({}, patientSettings, {
               bgTarget: {
-                low: patientSettings.bgTarget.low * MGDL_PER_MMOLL,
-                high: patientSettings.bgTarget.high * MGDL_PER_MMOLL,
+                low: patientSettings.bgTarget.low * multiplier,
+                high: patientSettings.bgTarget.high * multiplier,
               },
-              units: { bg: MGDL_UNITS }
+              units: { bg: bgUnits }
             }),
-          ),
-          [MMOLL_UNITS]: !isMGDL ? processedData : utils.processPatientData(
-            this,
-            combinedData,
-            this.props.queryParams,
-            _.assign({}, patientSettings, {
-              bgTarget: {
-                low: patientSettings.bgTarget.low / MGDL_PER_MMOLL,
-                high: patientSettings.bgTarget.high / MGDL_PER_MMOLL,
-              },
-              units: { bg: MMOLL_UNITS }
-            }),
-          ),
+          );
+        };
+
+        // const data =  {
+        //   [MGDL_UNITS]: isMGDL ? processedData : utils.processPatientData(
+        //     this,
+        //     combinedData,
+        //     this.props.queryParams,
+        //     _.assign({}, patientSettings, {
+        //       bgTarget: {
+        //         low: patientSettings.bgTarget.low * MGDL_PER_MMOLL,
+        //         high: patientSettings.bgTarget.high * MGDL_PER_MMOLL,
+        //       },
+        //       units: { bg: MGDL_UNITS }
+        //     }),
+        //   ),
+        //   [MMOLL_UNITS]: !isMGDL ? processedData : utils.processPatientData(
+        //     this,
+        //     combinedData,
+        //     this.props.queryParams,
+        //     _.assign({}, patientSettings, {
+        //       bgTarget: {
+        //         low: patientSettings.bgTarget.low / MGDL_PER_MMOLL,
+        //         high: patientSettings.bgTarget.high / MGDL_PER_MMOLL,
+        //       },
+        //       units: { bg: MMOLL_UNITS }
+        //     }),
+        //   ),
+        // };
+
+        const data = {
+          [MGDL_UNITS]: prepareProcessedData(MGDL_UNITS),
+          [MMOLL_UNITS]: prepareProcessedData(MMOLL_UNITS),
         };
 
         const dData = {
           [MGDL_UNITS]: data[MGDL_UNITS].diabetesData,
           [MMOLL_UNITS]: data[MMOLL_UNITS].diabetesData,
-        }
+        };
+
+        const preparePrintData = (bgUnits) => {
+          return {
+            daily: selectDailyViewData(
+              dData[bgUnits][dData[bgUnits].length - 1].normalTime,
+              _.pick(
+                data[bgUnits].grouped,
+                // TODO: add back deviceEvent later (not in first prod release)
+                ['basal', 'bolus', 'cbg', 'message', 'smbg']
+              ),
+              6,
+              this.state.timePrefs,
+            ),
+            basics: data[bgUnits].basicsData,
+            settings: _.last(data[bgUnits].grouped.pumpSettings),
+          };
+        };
 
         console.save({
-          [MGDL_UNITS]: {
-            daily: selectDailyViewData(
-              dData[MGDL_UNITS][dData[MGDL_UNITS].length - 1].normalTime,
-              _.pick(
-                data[MGDL_UNITS].grouped,
-                // TODO: add back deviceEvent later (not in first prod release)
-                ['basal', 'bolus', 'cbg', 'message', 'smbg']
-              ),
-              6,
-              this.state.timePrefs,
-            ),
-            basics: data[MGDL_UNITS].basicsData,
-            settings: data[MGDL_UNITS].grouped.pumpSettings,
-          },
-          [MMOLL_UNITS]: {
-            daily: selectDailyViewData(
-              dData[MMOLL_UNITS][dData[MMOLL_UNITS].length - 1].normalTime,
-              _.pick(
-                data[MMOLL_UNITS].grouped,
-                // TODO: add back deviceEvent later (not in first prod release)
-                ['basal', 'bolus', 'cbg', 'message', 'smbg']
-              ),
-              6,
-              this.state.timePrefs,
-            ),
-            basics: data[MMOLL_UNITS].basicsData,
-            settings: data[MMOLL_UNITS].grouped.pumpSettings,
-          },
+          [MGDL_UNITS]: preparePrintData(MGDL_UNITS),
+          [MMOLL_UNITS]: preparePrintData(MMOLL_UNITS),
         }, 'print-view.json');
       };
     }
