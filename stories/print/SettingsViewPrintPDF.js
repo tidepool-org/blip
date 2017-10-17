@@ -21,7 +21,9 @@ import _ from 'lodash';
 import { storiesOf } from '@kadira/storybook';
 import { WithNotes } from '@kadira/storybook-addon-notes';
 
-import { createPrintView, renderPageNumbers } from '../../src/modules/print/index';
+import { createPrintView, MARGIN } from '../../src/modules/print/index';
+import PrintView from '../../src/modules/print/PrintView';
+
 import * as patients from '../../data/patient/fixtures';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
@@ -29,15 +31,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 /* global PDFDocument, blobStream */
 
 // eslint-disable-next-line import/no-unresolved
-import dataMGDL from '../../local/settings-print-view-mgdl.json';
-
-// eslint-disable-next-line import/no-unresolved
-import dataMMOLL from '../../local/settings-print-view-mmoll.json';
-
-const data = {
-  [MGDL_UNITS]: dataMGDL,
-  [MMOLL_UNITS]: dataMMOLL,
-};
+import data from '../../local/print-view.json';
 
 const bgBounds = {
   [MGDL_UNITS]: {
@@ -55,7 +49,7 @@ const bgBounds = {
 };
 
 function openPDF({ patient, bgUnits = MGDL_UNITS }) {
-  const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: 36 });
+  const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
   const opts = {
     bgPrefs: {
@@ -69,10 +63,8 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
     patient,
   };
 
-  const settingsPrintView = createPrintView('settings', data[bgUnits], opts, doc);
-
-  settingsPrintView.render();
-  renderPageNumbers(doc);
+  createPrintView('settings', data[bgUnits].settings, opts, doc).render();
+  PrintView.renderPageNumbers(doc);
 
   doc.end();
 
@@ -81,9 +73,9 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
   });
 }
 
-const notes = `Use \`window.downloadSettingsPrintViewData()\` to get settings view munged data,
-  save it in local/ directory of viz as \`settings-print-view.json\`,
-  then use this story to iterate on the Basics Print PDF outside of blip!`;
+const notes = `Run \`window.downloadPrintViewData()\` from the console on a Tidepool Web data view.
+Save the resulting file to the \`local/\` directory of viz as \`print-view.json\`,
+and then use this story to iterate on the Settings Print PDF outside of Tidepool Web!`;
 
 patients.longName = _.cloneDeep(patients.standard);
 patients.longName.profile.fullName = 'Super Duper Long Patient Name';

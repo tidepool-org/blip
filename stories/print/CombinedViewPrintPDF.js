@@ -21,7 +21,9 @@ import _ from 'lodash';
 import { storiesOf } from '@kadira/storybook';
 import { WithNotes } from '@kadira/storybook-addon-notes';
 
-import { createPrintView, renderPageNumbers } from '../../src/modules/print/index';
+import { createPrintView, MARGIN } from '../../src/modules/print/index';
+import PrintView from '../../src/modules/print/PrintView';
+
 import * as patients from '../../data/patient/fixtures';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
@@ -29,27 +31,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 /* global PDFDocument, blobStream */
 
 // eslint-disable-next-line import/no-unresolved
-import dataBasicsMGDL from '../../local/basics-print-view-mgdl.json';
-
-// eslint-disable-next-line import/no-unresolved
-import dataBasicsMMOLL from '../../local/basics-print-view-mmoll.json';
-
-// eslint-disable-next-line import/no-unresolved
-import dataDailyMGDL from '../../local/daily-print-view-mgdl.json';
-
-// eslint-disable-next-line import/no-unresolved
-import dataDailyMMOLL from '../../local/daily-print-view-mmoll.json';
-
-const data = {
-  basics: {
-    [MGDL_UNITS]: dataBasicsMGDL,
-    [MMOLL_UNITS]: dataBasicsMMOLL,
-  },
-  daily: {
-    [MGDL_UNITS]: dataDailyMGDL,
-    [MMOLL_UNITS]: dataDailyMMOLL,
-  },
-};
+import data from '../../local/print-view.json';
 
 const bgBounds = {
   [MGDL_UNITS]: {
@@ -67,7 +49,7 @@ const bgBounds = {
 };
 
 function openPDF({ patient, bgUnits = MGDL_UNITS }) {
-  const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: 36 });
+  const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
   const opts = {
     bgPrefs: {
@@ -84,20 +66,11 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
     patient,
   };
 
-  const basicsPrintView = createPrintView('basics', data.basics[bgUnits], opts, doc);
-  basicsPrintView.render();
+  createPrintView('basics', data[bgUnits].basics, opts, doc).render();
+  createPrintView('daily', data[bgUnits].daily, opts, doc).render();
+  createPrintView('settings', data[bgUnits].settings, opts, doc).render();
 
-  doc.removeListener('pageAdded', basicsPrintView.newPage);
-
-  const dailyPrintView = createPrintView('daily', data.daily[bgUnits], opts, doc);
-  dailyPrintView.render();
-
-  doc.removeListener('pageAdded', dailyPrintView.newPage);
-
-  const settingsPrintView = createPrintView('settings', data.basics[bgUnits], opts, doc);
-  settingsPrintView.render();
-
-  renderPageNumbers(doc);
+  PrintView.renderPageNumbers(doc);
 
   doc.end();
 
@@ -106,9 +79,9 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
   });
 }
 
-const notes = `Use \`window.downloadBasicsPrintViewData()\` to get basics view munged data,
-  save it in local/ directory of viz as \`basics-print-view.json\`,
-  then use this story to iterate on the Basics Print PDF outside of blip!`;
+const notes = `Run \`window.downloadPrintViewData()\` from the console on a Tidepool Web data view.
+Save the resulting file to the \`local/\` directory of viz as \`print-view.json\`,
+and then use this story to iterate on the Combined Print PDF outside of Tidepool Web!`;
 
 patients.longName = _.cloneDeep(patients.standard);
 patients.longName.profile.fullName = 'Super Duper Long Patient Name';

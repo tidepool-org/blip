@@ -32,6 +32,7 @@ import {
   formatCurrentDate,
 } from '../../../src/utils/datetime';
 
+import Doc from '../../helpers/pdfDoc';
 import { getPatientFullName } from '../../../src/utils/misc';
 
 describe('DailyPrintView', () => {
@@ -40,44 +41,6 @@ describe('DailyPrintView', () => {
 
   const DPI = 72;
   const MARGIN = DPI / 2;
-
-  class Doc {
-    constructor() {
-      this.autoFirstPage = false;
-      this.bufferPages = true;
-      this.margin = MARGIN;
-
-      this.page = {
-        width: 300,
-      };
-
-      this.currentLineHeight = sinon.stub().returns(10);
-      this.bufferedPageRange = sinon.stub().returns({ start: 0, count: 0 });
-      this.on = sinon.stub();
-      this.fontSize = sinon.stub().returns(this);
-      this.addPage = sinon.stub().returns(this);
-      this.path = sinon.stub().returns(this);
-      this.fill = sinon.stub().returns(this);
-      this.stub = sinon.stub().returns(this);
-      this.dash = sinon.stub().returns(this);
-      this.undash = sinon.stub().returns(this);
-      this.stroke = sinon.stub().returns(this);
-      this.circle = sinon.stub().returns(this);
-      this.lineWidth = sinon.stub().returns(this);
-      this.rect = sinon.stub().returns(this);
-      this.switchToPage = sinon.stub().returns(this);
-      this.text = sinon.stub().returns(this);
-      this.image = sinon.stub().returns(this);
-      this.fillColor = sinon.stub().returns(this);
-      this.fillOpacity = sinon.stub().returns(this);
-      this.font = sinon.stub().returns(this);
-      this.moveTo = sinon.stub().returns(this);
-      this.moveDown = sinon.stub().returns(this);
-      this.lineTo = sinon.stub().returns(this);
-      this.lineGap = sinon.stub().returns(this);
-      this.widthOfString = sinon.stub().returns(20);
-    }
-  }
 
   let doc;
 
@@ -113,6 +76,7 @@ describe('DailyPrintView', () => {
       timezoneName: 'US/Pacific',
     },
     width: 8.5 * DPI - (2 * MARGIN),
+    title: 'Daily View',
   };
 
   const mmollOpts = _.assign({}, opts, {
@@ -128,7 +92,7 @@ describe('DailyPrintView', () => {
   });
 
   beforeEach(() => {
-    doc = new Doc();
+    doc = new Doc({ margin: MARGIN });
     Renderer = new DailyPrintView(doc, data, opts);
   });
 
@@ -748,16 +712,16 @@ describe('DailyPrintView', () => {
     });
   });
 
-  describe('renderFooter', () => {
+  describe('renderLegend', () => {
     it('should be a function', () => {
-      expect(Renderer.renderFooter).to.be.a('function');
+      expect(Renderer.renderLegend).to.be.a('function');
     });
 
-    it('should render the footer', () => {
+    it('should render the legend', () => {
       sinon.stub(Renderer, 'renderEventPath');
       sinon.stub(Renderer, 'renderBasalPaths');
 
-      Renderer.renderFooter();
+      Renderer.renderLegend();
 
       sinon.assert.calledWith(Renderer.doc.text, 'Legend');
       sinon.assert.calledWith(Renderer.doc.text, 'CGM');
@@ -777,6 +741,21 @@ describe('DailyPrintView', () => {
       sinon.assert.callCount(Renderer.doc.circle, 12);
 
       sinon.assert.callCount(Renderer.renderBasalPaths, 1);
+    });
+  });
+
+  describe('renderFooter', () => {
+    it('should be a function', () => {
+      expect(Renderer.renderFooter).to.be.a('function');
+    });
+
+    it('should render the footer', () => {
+      Renderer.renderFooter();
+
+      sinon.assert.calledWith(
+        Renderer.doc.text,
+        'Questions or feedback please email support@tidepool.org or visit support.tidepool.org'
+      );
     });
   });
 

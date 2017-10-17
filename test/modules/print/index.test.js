@@ -18,12 +18,15 @@
 import MemoryStream from 'memorystream';
 
 import * as Module from '../../../src/modules/print';
+import Doc from '../../helpers/pdfDoc';
 
 describe('print module', () => {
   const pdf = {
     url: 'someURL',
     blob: 'someBlob',
   };
+
+  const margin = 36;
 
   const data = {
     daily: {},
@@ -39,43 +42,32 @@ describe('print module', () => {
     mostRecent: '',
   };
 
-  let stream = new MemoryStream();
-
-  class Doc {
-    pipe() {
-      const Stream = stream;
-      Stream.toBlobURL = () => pdf.url;
-      Stream.toBlob = () => pdf.blob;
-      return Stream;
-    }
-    fontSize() {}
-    currentLineHeight() {}
-    on() {}
-    addPage() {}
-    removeListener() {}
-    bufferedPageRange() { return { start: 0, count: 0 }; }
-    end() {}
-  }
-
   class DailyPrintView {
     render() {}
   }
 
+  const sandbox = sinon.sandbox.create();
+
+  let doc;
+  let stream;
+
   sinon.stub(Module.utils, 'reshapeBgClassesToBgBounds');
   sinon.stub(Module.utils, 'selectDailyViewData').returns(undefined);
   sinon.stub(Module.utils, 'DailyPrintView').returns(new DailyPrintView());
-  sinon.stub(Module.utils, 'PDFDocument').returns(new Doc());
+  // sinon.stub(Module.utils, 'PDFDocument').returns(new Doc({ pdf, margin }, stream));
   sinon.stub(Module.utils, 'blobStream').returns(new MemoryStream());
 
   beforeEach(() => {
     stream = new MemoryStream();
+    doc = new Doc({ pdf, margin });
+    sandbox.stub(Module.utils, 'PDFDocument').returns(doc);
   });
 
   afterEach(() => {
+    sandbox.restore();
     Module.utils.reshapeBgClassesToBgBounds.resetHistory();
     Module.utils.selectDailyViewData.resetHistory();
     Module.utils.DailyPrintView.resetHistory();
-    Module.utils.PDFDocument.resetHistory();
     Module.utils.blobStream.resetHistory();
   });
 
@@ -88,8 +80,8 @@ describe('print module', () => {
   });
 
   it('should properly set bg bounds', () => {
-    const result = Module.createPrintPDFPackage(data, opts);
-    stream.end();
+    const result = Module.createPrintPDFPackage(data, opts, stream);
+    doc.stream.end();
 
     return result.then(() => {
       sinon.assert.calledOnce(Module.utils.reshapeBgClassesToBgBounds);
@@ -99,7 +91,7 @@ describe('print module', () => {
 
   it('should fetch the daily view data', () => {
     const result = Module.createPrintPDFPackage(data, opts);
-    stream.end();
+    doc.stream.end();
 
     return result.then(() => {
       sinon.assert.calledOnce(Module.utils.selectDailyViewData);
@@ -115,7 +107,7 @@ describe('print module', () => {
 
   it('should render and return the pdf data', () => {
     const result = Module.createPrintPDFPackage(data, opts);
-    stream.end();
+    doc.stream.end();
 
     return result.then(_result => {
       sinon.assert.calledOnce(Module.utils.DailyPrintView);

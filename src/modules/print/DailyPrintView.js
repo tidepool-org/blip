@@ -22,6 +22,8 @@ import { mean, range } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
 
+import PrintView from './PrintView';
+
 import { calculateBasalPath, getBasalSequencePaths } from '../render/basal';
 import getBolusPaths from '../render/bolus';
 import { getTotalBasal } from '../../utils/basal';
@@ -38,61 +40,26 @@ import {
   getTotalCarbs,
 } from '../../utils/bolus';
 import {
-  getTimezoneFromTimePrefs,
   formatLocalizedFromUTC,
   formatDuration,
-  formatBirthdate,
-  formatCurrentDate,
 } from '../../utils/datetime';
 import {
   formatBgValue, formatDecimalNumber, formatPercentage, removeTrailingZeroes,
 } from '../../utils/format';
-import { getPatientFullName } from '../../utils/misc';
 
 import { MMOLL_UNITS } from '../../utils/constants';
 
-const logo = require('./images/tidepool-logo-408x46.png');
-
-class DailyPrintView {
+class DailyPrintView extends PrintView {
   constructor(doc, data, opts) {
-    this.doc = doc;
-
-    this.debug = opts.debug || false;
-
-    this.data = data;
-
-    this.dpi = opts.dpi;
-
-    this.margins = opts.margins;
-
-    this.font = 'Helvetica';
-    this.boldFont = 'Helvetica-Bold';
+    super(doc, data, opts);
 
     this.bgAxisFontSize = 5;
     this.carbsFontSize = 5.5;
-    this.defaultFontSize = opts.defaultFontSize;
-    this.footerFontSize = opts.footerFontSize;
-    this.headerFontSize = opts.headerFontSize;
+
     this.summaryHeaderFontSize = opts.summaryHeaderFontSize;
-
-    this.bgPrefs = opts.bgPrefs;
-    this.bgUnits = opts.bgPrefs.bgUnits;
-    this.bgBounds = opts.bgPrefs.bgBounds;
-    this.timePrefs = opts.timePrefs;
-    this.timezone = getTimezoneFromTimePrefs(opts.timePrefs);
-
-    this.width = opts.width;
-    this.height = opts.height;
 
     this.chartsPerPage = opts.chartsPerPage;
     this.numDays = opts.numDays;
-
-    this.patient = opts.patient;
-    this.patientInfoBox = {
-      width: 0,
-      height: 0,
-    };
-
 
     // render options
     this.bolusWidth = 3;
@@ -157,17 +124,11 @@ class DailyPrintView {
       this.initialChartsByDate[date] = { ...dateData };
     });
 
-    this.totalPages = this.initialTotalPages = this.doc.bufferedPageRange().count || 0;
     this.chartsPlaced = this.initialChartsPlaced = 0;
-
     this.chartIndex = this.initialChartIndex = 0;
 
     // kick off the dynamic calculation of chart area based on font sizes for header and footer
     this.setHeaderSize().setFooterSize().calculateChartMinimums(this.chartArea);
-
-    // no auto-binding :/
-    this.newPage = this.newPage.bind(this);
-    this.doc.on('pageAdded', this.newPage);
 
     // calculate heights and place charts in preparation for rendering
     for (let i = 0; i < this.numDays; ++i) {
@@ -183,8 +144,13 @@ class DailyPrintView {
     });
   }
 
+  newPage() {
+    super.newPage();
+    this.renderLegend();
+  }
+
   calculateChartMinimums(chartArea) {
-    this.doc.fontSize(10);
+    this.doc.fontSize(this.defaultFontSize);
     const { topEdge, bottomEdge } = chartArea;
     const totalHeight = bottomEdge - topEdge;
     const perChart = totalHeight / 3.25;
@@ -202,7 +168,7 @@ class DailyPrintView {
   }
 
   calculateDateChartHeight({ data, date }) {
-    this.doc.fontSize(this.defaultFontSize);
+    this.doc.fontSize(this.smallFontSize);
     const lineHeight = this.doc.currentLineHeight() * 1.25;
 
     const threeHrBinnedBoluses = _.groupBy(data.bolus, (d) => {
@@ -268,13 +234,6 @@ class DailyPrintView {
       .range([this.chartArea.leftEdge + this.cbgRadius, this.rightEdge - this.cbgRadius]);
 
     return this;
-  }
-
-  newPage() {
-    if (this.debug) {
-      this.renderDebugGrid();
-    }
-    this.renderHeader().renderFooter();
   }
 
   placeChartsOnPage(pageIndex) {
@@ -346,92 +305,6 @@ class DailyPrintView {
     });
   }
 
-  renderPatientInfo() {
-    const patientName = getPatientFullName(this.patient);
-    const patientBirthdate = formatBirthdate(this.patient);
-    const xOffset = this.margins.left;
-    const yOffset = this.margins.top;
-
-    this.doc
-      .lineWidth(1)
-      .fontSize(10)
-      .text(patientName, xOffset, yOffset, {
-        lineGap: 2,
-      });
-
-    const patientNameWidth = this.patientInfoBox.width = this.doc.widthOfString(patientName);
-
-    this.doc
-      .fontSize(10)
-      .text(patientBirthdate);
-
-    const patientBirthdayWidth = this.doc.widthOfString(patientBirthdate);
-    this.patientInfoBox.height = this.doc.y;
-
-    if (patientNameWidth < patientBirthdayWidth) {
-      this.patientInfoBox.width = patientBirthdayWidth;
-    }
-
-    // Render the divider between the patient info and title
-    const padding = 10;
-
-    this.doc
-      .moveTo(this.margins.left + this.patientInfoBox.width + padding, this.margins.top)
-      .lineTo(this.margins.left + this.patientInfoBox.width + padding, this.patientInfoBox.height)
-      .stroke('black');
-
-    this.dividerWidth = padding * 2 + 1;
-  }
-
-  renderTitle() {
-    const title = 'Daily View';
-    const lineHeight = this.doc.fontSize(14).currentLineHeight();
-    const xOffset = this.margins.left + this.patientInfoBox.width + 21;
-    const yOffset = (
-      this.margins.top + ((this.patientInfoBox.height - this.margins.top) / 2 - (lineHeight / 2))
-    );
-
-    this.doc.text(title, xOffset, yOffset);
-    this.titleWidth = this.doc.widthOfString(title);
-  }
-
-  renderPrintDate() {
-    const lineHeight = this.doc.fontSize(14).currentLineHeight();
-
-    // Calculate the remaining available width so we can
-    // center the print text between the patient/title text and the logo
-    const availableWidth = this.doc.page.width - _.reduce([
-      this.patientInfoBox.width,
-      this.dividerWidth,
-      this.titleWidth,
-      this.logoWidth,
-      this.margins.left,
-      this.margins.right,
-    ], (a, b) => (a + b), 0);
-
-    const xOffset = (
-      this.margins.left + this.patientInfoBox.width + this.dividerWidth + this.titleWidth
-    );
-    const yOffset = (
-      this.margins.top + ((this.patientInfoBox.height - this.margins.top) / 2 - (lineHeight / 2))
-    );
-
-    this.doc
-      .fontSize(10)
-      .text(`Printed from Tidepool: ${formatCurrentDate()}`, xOffset, yOffset + 4, {
-        width: availableWidth,
-        align: 'center',
-      });
-  }
-
-  renderLogo() {
-    this.logoWidth = 100;
-    const xOffset = this.doc.page.width - this.logoWidth - this.margins.right;
-    const yOffset = this.margins.top + 6;
-
-    this.doc.image(logo, xOffset, yOffset, { width: this.logoWidth });
-  }
-
   renderSummary({ data, date, topEdge }) {
     const smallIndent = this.margins.left + 4;
     const statsIndent = 6;
@@ -472,7 +345,7 @@ class DailyPrintView {
 
     if (!_.isEmpty(data.cbg)) {
       first = false;
-      this.doc.fontSize(this.defaultFontSize)
+      this.doc.fontSize(this.smallFontSize)
         .lineGap(this.doc.currentLineHeight() * 0.25)
         .text('Time in Target', smallIndent, yPos.update());
 
@@ -511,7 +384,7 @@ class DailyPrintView {
         first = false;
       }
 
-      this.doc.fontSize(this.defaultFontSize).font(this.boldFont)
+      this.doc.fontSize(this.smallFontSize).font(this.boldFont)
         .text('Basal:Bolus Ratio', smallIndent, yPos.update());
 
       yPos.update();
@@ -553,7 +426,7 @@ class DailyPrintView {
         first = false;
       }
 
-      this.doc.fontSize(this.defaultFontSize).font(this.boldFont)
+      this.doc.fontSize(this.smallFontSize).font(this.boldFont)
         .text(
           'Average BG',
           smallIndent,
@@ -576,7 +449,7 @@ class DailyPrintView {
         first = false;
       }
 
-      this.doc.fontSize(this.defaultFontSize).font(this.boldFont)
+      this.doc.fontSize(this.smallFontSize).font(this.boldFont)
         .text(
           'Average BG',
           smallIndent,
@@ -601,7 +474,7 @@ class DailyPrintView {
         first = false;
       }
 
-      this.doc.fontSize(this.defaultFontSize).font(this.boldFont)
+      this.doc.fontSize(this.smallFontSize).font(this.boldFont)
         .text(
           'Total Insulin',
           smallIndent,
@@ -626,7 +499,7 @@ class DailyPrintView {
         first = false;
       }
 
-      this.doc.fontSize(this.defaultFontSize).font(this.boldFont)
+      this.doc.fontSize(this.smallFontSize).font(this.boldFont)
         .text(
           'Total Carbs',
           smallIndent,
@@ -702,7 +575,7 @@ class DailyPrintView {
       if (i < 8) {
         chart.bolusDetailPositions[i] = xPos;
 
-        this.doc.font(this.font).fontSize(this.defaultFontSize)
+        this.doc.font(this.font).fontSize(this.smallFontSize)
           .text(
             formatLocalizedFromUTC(loc, this.timePrefs, 'ha').slice(0, -1),
             xPos,
@@ -769,7 +642,7 @@ class DailyPrintView {
       }
 
       this.doc.font(this.boldFont)
-        .fontSize(this.defaultFontSize)
+        .fontSize(this.smallFontSize)
         .fillColor('black')
         .text(
           smbgLabel,
@@ -824,7 +697,7 @@ class DailyPrintView {
     data: { bolus: insulinEvents },
   }) {
     this.doc.font(this.font)
-      .fontSize(this.defaultFontSize)
+      .fontSize(this.smallFontSize)
       .fillColor('black');
 
     const topOfBolusDetails = bolusScale.range()[0] + 2;
@@ -920,78 +793,7 @@ class DailyPrintView {
     return this;
   }
 
-  renderDebugGrid() {
-    const minorLineColor = '#B8B8B8';
-    const numMinorLines = 5;
-    let thisLineYPos = this.margins.top;
-    while (thisLineYPos <= (this.bottomEdge)) {
-      this.doc.moveTo(this.margins.left, thisLineYPos)
-        .lineTo(this.rightEdge, thisLineYPos)
-        .lineWidth(0.25)
-        .stroke('red');
-      if (thisLineYPos !== this.bottomEdge) {
-        for (let i = 1; i < numMinorLines + 1; ++i) {
-          const innerLinePos = thisLineYPos + this.dpi * (i / (numMinorLines + 1));
-          this.doc.moveTo(this.margins.left, innerLinePos)
-            .lineTo(this.rightEdge, innerLinePos)
-            .lineWidth(0.05)
-            .stroke(minorLineColor);
-        }
-      }
-      thisLineYPos += this.dpi;
-    }
-
-    let thisLineXPos = this.margins.left;
-    while (thisLineXPos <= (this.rightEdge)) {
-      this.doc.moveTo(thisLineXPos, this.margins.top)
-        .lineTo(thisLineXPos, this.bottomEdge)
-        .lineWidth(0.25)
-        .stroke('red');
-      for (let i = 1; i < numMinorLines + 1; ++i) {
-        const innerLinePos = thisLineXPos + this.dpi * (i / (numMinorLines + 1));
-        if (innerLinePos <= this.rightEdge) {
-          this.doc.moveTo(innerLinePos, this.margins.top)
-            .lineTo(innerLinePos, this.bottomEdge)
-            .lineWidth(0.05)
-            .stroke(minorLineColor);
-        }
-      }
-      thisLineXPos += this.dpi;
-    }
-
-    return this;
-  }
-
-  renderHeader() {
-    this.renderPatientInfo();
-
-    this.renderTitle();
-
-    this.renderLogo();
-
-    this.renderPrintDate();
-
-    this.doc.moveDown();
-
-    const lineHeight = this.doc.fontSize(14).currentLineHeight();
-    const height = lineHeight * 2.25 + this.margins.top;
-    this.doc
-      .moveTo(this.margins.left, height)
-      .lineTo(this.margins.left + this.width, height)
-      .stroke('black');
-
-    // TODO: remove this; it is just for exposing/debugging the chartArea.topEdge adjustment
-    if (this.debug) {
-      this.doc
-        .fillColor('#E8E8E8', 0.3333333333)
-        .rect(this.margins.left, this.margins.top, this.width, lineHeight * 4)
-        .fill();
-    }
-
-    return this;
-  }
-
-  renderFooter() {
+  renderLegend() {
     this.doc.fontSize(9);
     const lineHeight = this.doc.currentLineHeight();
     this.doc.fillColor('black').fillOpacity(1)
@@ -1004,7 +806,7 @@ class DailyPrintView {
       .rect(this.margins.left, legendTop, this.width, legendHeight)
       .stroke('black');
 
-    this.doc.fontSize(this.defaultFontSize);
+    this.doc.fontSize(this.smallFontSize);
 
     const legendVerticalMiddle = legendTop + lineHeight * 2;
     const legendTextMiddle = legendVerticalMiddle - this.doc.currentLineHeight() / 2;
@@ -1192,7 +994,7 @@ class DailyPrintView {
         legendVerticalMiddle - this.carbRadius / 2,
         { align: 'center', width: this.carbRadius * 2 }
       );
-    this.doc.fontSize(this.defaultFontSize);
+    this.doc.fontSize(this.smallFontSize);
     cursor += this.carbRadius + legendItemLabelOffset;
     this.doc.fillColor('black').text('Carbs', cursor, legendTextMiddle);
     cursor += this.doc.widthOfString('Carbs') + legendItemLeftOffset * 2;
@@ -1275,22 +1077,6 @@ class DailyPrintView {
         .rect(this.margins.left, this.bottomEdge - lineHeight * 9, this.width, lineHeight * 9)
         .fill();
     }
-
-    return this;
-  }
-
-  setFooterSize() {
-    this.doc.fontSize(this.footerFontSize);
-    const lineHeight = this.doc.currentLineHeight();
-    this.chartArea.bottomEdge = this.chartArea.bottomEdge - lineHeight * 9;
-
-    return this;
-  }
-
-  setHeaderSize() {
-    this.doc.fontSize(this.headerFontSize);
-    const lineHeight = this.doc.currentLineHeight();
-    this.chartArea.topEdge = this.chartArea.topEdge + lineHeight * 4;
 
     return this;
   }

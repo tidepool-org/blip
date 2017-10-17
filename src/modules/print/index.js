@@ -18,11 +18,15 @@
 /* global PDFDocument, blobStream */
 import Promise from 'bluebird';
 import _ from 'lodash';
+
+import PrintView from './PrintView';
 import DailyPrintView from './DailyPrintView';
 import BasicsPrintView from './BasicsPrintView';
 import SettingsPrintView from './SettingsPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
 import { selectDailyViewData } from '../../utils/print/data';
+
+import * as constants from './utils/constants';
 
 // Exporting utils for easy stubbing in tests
 export const utils = {
@@ -34,13 +38,6 @@ export const utils = {
   BasicsPrintView,
   SettingsPrintView,
 };
-
-// DPI here is the coordinate system, not the resolution; sub-dot precision renders crisply!
-const DPI = 72;
-const MARGIN = DPI / 2;
-const HEIGHT = 11 * DPI - (2 * MARGIN);
-const WIDTH = 8.5 * DPI - (2 * MARGIN);
-const DEFAULT_FONT_SIZE = 8;
 
 /**
  * createPrintView
@@ -67,22 +64,16 @@ export function createPrintView(type, data, opts, doc) {
     // TODO: set this up as a Webpack Define plugin to pull from env variable
     // maybe that'll be tricky through React Storybook?
     debug: false,
-    defaultFontSize: DEFAULT_FONT_SIZE,
-    dpi: DPI,
-    footerFontSize: 8,
-    headerFontSize: 14,
-    height: HEIGHT,
-    margins: {
-      left: MARGIN,
-      top: MARGIN,
-      right: MARGIN,
-      bottom: MARGIN,
-    },
+    defaultFontSize: constants.DEFAULT_FONT_SIZE,
+    dpi: constants.DPI,
+    footerFontSize: constants.FOOTER_FONT_SIZE,
+    headerFontSize: constants.HEADER_FONT_SIZE,
+    height: constants.HEIGHT,
+    margins: constants.MARGINS,
     patient,
-    summaryHeaderFontSize: 10,
-    summaryWidthAsPercentage: 0.18,
+    smallFontSize: constants.SMALL_FONT_SIZE,
     timePrefs,
-    width: WIDTH,
+    width: constants.WIDTH,
   };
 
   switch (type) {
@@ -94,15 +85,24 @@ export function createPrintView(type, data, opts, doc) {
         numDays: numDays.daily,
         summaryHeaderFontSize: 10,
         summaryWidthAsPercentage: 0.18,
+        title: 'Daily View',
       });
       break;
 
     case 'basics':
       Renderer = utils.BasicsPrintView;
+
+      renderOpts = _.assign(renderOpts, {
+        title: 'The Basics',
+      });
       break;
 
     case 'settings':
       Renderer = utils.SettingsPrintView;
+
+      renderOpts = _.assign(renderOpts, {
+        title: 'Pump Settings',
+      });
       break;
 
     default:
@@ -110,22 +110,6 @@ export function createPrintView(type, data, opts, doc) {
   }
 
   return new Renderer(doc, data, renderOpts);
-}
-
-export function renderPageNumbers(doc) {
-  const pageCount = doc.bufferedPageRange().count;
-  let page = 0;
-  while (page < pageCount) {
-    page++;
-    doc.switchToPage(page - 1);
-    doc.fontSize(DEFAULT_FONT_SIZE).fillColor('black').fillOpacity(1);
-    doc.text(
-      `page ${page} of ${pageCount}`,
-      MARGIN,
-      (HEIGHT + MARGIN) - doc.currentLineHeight() * 1.5,
-      { align: 'right' }
-    );
-  }
 }
 
 /**
@@ -156,24 +140,16 @@ export function createPrintPDFPackage(data, opts) {
     then when you are using the .text() command a new page will be added if you specify
     coordinates outside of the default margin (or outside of the margins you've specified)
     */
-    const doc = new DocLib({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
+    const doc = new DocLib({ autoFirstPage: false, bufferPages: true, margin: constants.MARGIN });
     const stream = doc.pipe(streamLib());
 
-    const basicsPrintView = createPrintView('basics', data.basics, pdfOpts, doc);
-    basicsPrintView.render();
-
-    doc.removeListener('pageAdded', basicsPrintView.newPage);
-
     const dailyData = utils.selectDailyViewData(mostRecent, data.daily, numDays.daily, timePrefs);
-    const dailyPrintView = createPrintView('daily', dailyData, pdfOpts, doc);
-    dailyPrintView.render();
 
-    doc.removeListener('pageAdded', dailyPrintView.newPage);
+    createPrintView('basics', data.basics, pdfOpts, doc).render();
+    createPrintView('daily', dailyData, pdfOpts, doc).render();
+    createPrintView('settings', data.basics, pdfOpts, doc).render();
 
-    const settingsPrintView = createPrintView('settings', data.basics, pdfOpts, doc);
-    settingsPrintView.render();
-
-    renderPageNumbers(doc);
+    PrintView.renderPageNumbers(doc);
 
     doc.end();
 
