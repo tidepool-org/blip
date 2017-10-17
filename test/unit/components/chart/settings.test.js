@@ -33,7 +33,10 @@ describe('Settings', function () {
         onSwitchToSettings: function() {},
         onSwitchToWeekly: function() {},
         trackMetric: function() {},
-        uploadUrl: ''
+        uploadUrl: '',
+        pdf: {
+          url: 'blobURL',
+        },
       };
       var settingsElem = React.createElement(Settings, props);
       var elem = renderer.render(settingsElem);
@@ -54,7 +57,10 @@ describe('Settings', function () {
         onSwitchToSettings: sinon.spy(),
         onSwitchToWeekly: sinon.spy(),
         trackMetric: sinon.spy(),
-        uploadUrl: ''
+        uploadUrl: '',
+        pdf: {
+          url: 'blobURL',
+        },
       };
       var settingsElem = React.createElement(Settings, props);
       var elem = TestUtils.renderIntoDocument(settingsElem);
@@ -75,7 +81,10 @@ describe('Settings', function () {
         onSwitchToSettings: sinon.spy(),
         onSwitchToWeekly: sinon.spy(),
         trackMetric: sinon.spy(),
-        uploadUrl: ''
+        uploadUrl: '',
+        pdf: {
+          url: 'blobURL',
+        },
       };
       var settingsElem = React.createElement(Settings, props);
       var elem = TestUtils.renderIntoDocument(settingsElem);

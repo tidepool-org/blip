@@ -38,7 +38,6 @@ import { daily as Daily } from '../../components/chart';
 import Trends from '../../components/chart/trends';
 import { weekly as Weekly } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
-import SettingsPrintView from '../../components/printview';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
 import nurseShark from 'tideline/plugins/nurseshark/';
@@ -553,19 +552,6 @@ export let PatientData = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.setState({
-      chartType: 'settings'
-    });
-  },
-
-  handleSwitchToSettingsPrintView: function(e) {
-    this.props.trackMetric('Clicked Print', {
-      fromChart: this.state.chartType
-    });
-    if (e) {
-      e.preventDefault();
-    }
-    window.print();
     this.setState({
       chartType: 'settings'
     });
