@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -22,6 +22,7 @@ var React = require('react');
 
 var basicsActions = require('../../logic/actions');
 var BasicsUtils = require('../BasicsUtils');
+var format = require('../../../../../js/data/util/format');
 
 var SummaryGroup = React.createClass({
   mixins: [BasicsUtils],
@@ -34,6 +35,9 @@ var SummaryGroup = React.createClass({
     sectionId: React.PropTypes.string.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
   },
+
+  actions: basicsActions,
+
   render: function() {
     var self = this;
     var primaryOption = self.props.selectorOptions.primary;
@@ -67,6 +71,7 @@ var SummaryGroup = React.createClass({
       </div>
     );
   },
+
   renderOption: function(option) {
     if (typeof option.active !== 'undefined' && !option.active) {
       return null; //(<div key={option.key} className='SummaryGroup-info SummaryGroup-info-blank'></div>);
@@ -82,28 +87,14 @@ var SummaryGroup = React.createClass({
     });
 
     var path = option.path;
+    var value = this.getOptionValue(option, this.props.data);
 
-    var value;
-    if (option.key === 'total') {
-      if (path) {
-        value = this.props.data[path].total;
-      }
-      else {
-        value = this.props.data[option.key];
-      }
+    option.disabled = false;
+    if (value === 0) {
+      option.disabled = true;
+      classes += ' SummaryGroup-info--disabled';
     }
-    else {
-      if (path && path === option.key) {
-        value = this.props.data[path].total;
-      }
-      else if (path) {
-        value = this.props.data[path][option.key].count;
-      }
-      else {
-        value = this.props.data[option.key].count || 0;
-      }
-    }
-    
+
     if (option.primary && option.average) {
       var average;
       if (option.path) {
@@ -111,6 +102,9 @@ var SummaryGroup = React.createClass({
       }
       else {
         average = this.props.data.avgPerDay;
+      }
+      if (isNaN(average)) {
+        average = 0;
       }
       // currently rounding average to an integer
       var averageElem = (
@@ -126,10 +120,9 @@ var SummaryGroup = React.createClass({
         </span>
       );
 
-
       return (
         <div key={option.key} className={classes}
-          onClick={this.handleSelectSubtotal.bind(null, option.key)}>
+          onClick={this.handleSelectSubtotal.bind(this, option)}>
           <span className="SummaryGroup-option-label">{option.label}</span>
           {averageElem}
           {totalElem}
@@ -146,9 +139,10 @@ var SummaryGroup = React.createClass({
           percentage = this.props.data[option.key].percentage;
         }
       }
+
       var percentageElem = (option.percentage) ? (
         <span className="SummaryGroup-option-percentage">
-          ({d3.format('%')(percentage)})
+          ({format.percentage(percentage)})
         </span>
       ) : null;
 
@@ -175,16 +169,20 @@ var SummaryGroup = React.createClass({
 
       return (
         <div key={option.key} className={classes}
-          onClick={this.handleSelectSubtotal.bind(null, option.key)}>
+          onClick={this.handleSelectSubtotal.bind(this, option)}>
           {labelElem}
           {valueElem}
         </div>
       );
     }
   },
-  handleSelectSubtotal: function(selectedSubtotal) {
-    basicsActions.selectSubtotal(this.props.sectionId, selectedSubtotal, this.props.trackMetric);
-  }
+
+  handleSelectSubtotal: function(selected) {
+    if (selected.disabled) {
+      return;
+    }
+    this.actions.selectSubtotal(this.props.sectionId, selected.key, this.props.trackMetric);
+  },
 });
 
 module.exports = SummaryGroup;
