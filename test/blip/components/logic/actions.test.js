@@ -25,7 +25,6 @@ var constants = require('../../../../plugins/blip/basics/logic/constants');
 var togglableState = require('../../../../plugins/blip/basics/TogglableState');
 
 describe('actions', function() {
-
   var app = {
     state: {
       sections: {
@@ -41,6 +40,18 @@ describe('actions', function() {
               [
                 { key: constants.SITE_CHANGE_TUBING, label: 'Tube Primes' },
                 { key: constants.SITE_CHANGE_CANNULA, label: 'Cannula Fills' },
+              ],
+            ],
+          },
+        },
+        'fingersticks': {
+          id: 'fingersticks',
+          togglable: togglableState.off,
+          selectorOptions: {
+            primary: { key: 'total', label: 'Total' },
+            rows: [
+              [
+                { key: 'calibrations', label: 'Calibrations' },
               ],
             ],
           },
@@ -102,6 +113,16 @@ describe('actions', function() {
       basicsActions.toggleSectionSettings('siteChangesOpen', trackMetric);
       expect(trackMetric.callCount).to.equal(1);
       expect(trackMetric.calledWith('siteChangesOpen settings was closed')).to.be.true;
+    });
+  });
+
+  describe('selectSubtotal', function() {
+    it('should track filtered metric if metrics function is provided', function() {
+      var trackMetric = sinon.stub();
+      expect(trackMetric.callCount).to.equal(0);
+      basicsActions.selectSubtotal('fingersticks', 'calibrations', trackMetric);
+      expect(trackMetric.callCount).to.equal(1);
+      expect(trackMetric.calledWith('filtered on calibrations')).to.be.true;
     });
   });
 

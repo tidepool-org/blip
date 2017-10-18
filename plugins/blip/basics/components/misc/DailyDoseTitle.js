@@ -29,28 +29,33 @@ var DailyDoseTitle = React.createClass({
     sectionName: React.PropTypes.string.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
   },
+
   handleToggleSection: function(e) {
     if (e) {
       e.preventDefault();
     }
     basicsActions.toggleSection(this.props.sectionName, this.props.trackMetric);
   },
+
   render: function() {
     var weight = this.getUserWeight();
     var dose = _.get(this.props, ['data', 'totalDailyDose'], null);
     var displayDose = dose ? d3.format('.1f')(dose) : '--';
+
     var headerClasses = cx({
       DailyDoseTitle: true,
+      CollapsibleTitle: true,
       'SectionHeader--nodata': !dose,
       'selectable': true,
     });
+
     if (weight && dose) {
       var dosePerKg = dose / weight;
       return (
         <h3 className="DailyDoseTitle" onClick={this.handleToggleSection}>
-          <div className="DailyDoseTitle-content">
-            <span className="DailyDoseTitle-label">Total daily dose / kg</span>
-            <span className="DailyDoseTitle-value">{d3.format('.2f')(dosePerKg) + ' U'}</span>
+          <div className="DailyDoseTitle-content content">
+            <span className="DailyDoseTitle-label label">Total daily dose / kg</span>
+            <span className="DailyDoseTitle-value value">{d3.format('.2f')(dosePerKg) + ' U'}</span>
           </div>
           <i className={this.props.iconClass}/>
         </h3>
@@ -58,15 +63,16 @@ var DailyDoseTitle = React.createClass({
     } else {
       return (
         <h3 className={headerClasses} onClick={this.handleToggleSection}>
-          <div className="DailyDoseTitle-content">
-            <span className="DailyDoseTitle-label">Avg total daily dose</span>
-            <span className="DailyDoseTitle-value">{displayDose + ' U'}</span>
+          <div className="DailyDoseTitle-content content">
+            <span className="DailyDoseTitle-label label">Avg total daily dose</span>
+            <span className="DailyDoseTitle-value value">{displayDose + ' U'}</span>
           </div>
           <i className={this.props.iconClass}/>
         </h3>
       );
     }
   },
+
   getUserWeight: function() {
     if (!this.props.data) {
       return null;

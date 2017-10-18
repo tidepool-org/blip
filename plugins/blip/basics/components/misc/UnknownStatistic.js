@@ -16,12 +16,13 @@
  */
 
 var React = require('react');
+var annotations = require('../../../../../js/plot/util/annotations/annotationdefinitions');
 
 var UnknownStatistic = React.createClass({
   render: function() {
     return (
       <p className="UnknownStatistic">
-        <span className="UnknownStatistic-lead">Why is this grey? </span>
+        <span className="UnknownStatistic-lead">{annotations.LEAD_TEXT['stats-insufficient-data']()} </span>
         At least three days do not have boluses, so this statistic might not be right.
       </p>
     );
