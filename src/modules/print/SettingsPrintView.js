@@ -23,6 +23,7 @@ import PrintView from './PrintView';
 
 import {
   getDeviceMeta,
+  processBasalRateData,
 } from '../../utils/settings/data';
 
 class SettingsPrintView extends PrintView {
@@ -34,11 +35,11 @@ class SettingsPrintView extends PrintView {
   }
 
   render() {
-    // console.log('data', this.data);
+    console.log('data', this.data);
     // console.log('deviceMeta', this.deviceMeta);
     this.doc.addPage();
     this.renderDeviceMeta();
-    this.renderBasalSettings();
+    this.renderBasalSchedules();
   }
 
   renderDeviceMeta() {
@@ -54,8 +55,43 @@ class SettingsPrintView extends PrintView {
     this.resetText();
   }
 
-  renderBasalSettings() {
+  renderBasalSchedules() {
     this.renderSectionHeading('Basal Rates');
+
+    const {
+      activeSchedule,
+      basalSchedules,
+    } = this.data;
+
+    const columns = [
+      {
+        id: 'start',
+        header: 'Start time',
+        align: 'left',
+      },
+      {
+        id: 'rate',
+        header: 'Value',
+        align: 'right',
+        width: 50,
+      },
+    ];
+
+    _.each(basalSchedules, schedule => {
+      const note = schedule.name === activeSchedule ? 'Active at Upload' : null;
+
+      const data = processBasalRateData(schedule);
+
+      const heading = {
+        text: schedule.name,
+        subText: 'U/hr',
+        note,
+      };
+
+      this.renderTableHeading(heading);
+      this.renderTable(columns, data, { flexColumn: 'start' });
+      this.doc.moveTo(this.doc.x, this.doc.y + 60);
+    });
   }
 }
 

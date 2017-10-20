@@ -37,6 +37,7 @@ import {
   DEFAULT_FONT_SIZE,
   FOOTER_FONT_SIZE,
   HEADER_FONT_SIZE,
+  LARGE_FONT_SIZE,
   SMALL_FONT_SIZE,
 } from './utils/constants';
 
@@ -60,6 +61,7 @@ class PrintView {
     this.defaultFontSize = opts.defaultFontSize || DEFAULT_FONT_SIZE;
     this.footerFontSize = opts.footerFontSize || FOOTER_FONT_SIZE;
     this.headerFontSize = opts.headerFontSize || HEADER_FONT_SIZE;
+    this.largeFontSize = opts.largeFontSize || LARGE_FONT_SIZE;
     this.smallFontSize = opts.smallFontSize || SMALL_FONT_SIZE;
 
     this.bgPrefs = opts.bgPrefs;
@@ -124,35 +126,110 @@ class PrintView {
       .font(this.font);
   }
 
-  renderSectionHeading(text, x = this.doc.x, y = this.doc.y, opts = {}) {
+  renderSectionHeading(text, opts = {}) {
+    const {
+      x = this.doc.x,
+      y = this.doc.y,
+    } = opts;
+
     this.doc
       .fontSize(this.headerFontSize)
       .text(text, x, y, _.defaults(opts, {
         align: 'left',
-      }))
-      .moveDown();
+      }));
+
+    this.resetText();
+    this.doc.moveDown();
+  }
+
+  renderTableHeading(heading, opts = {}) {
+    this.doc
+      .font(this.font)
+      .fontSize(this.largeFontSize);
+
+    const columns = [
+      {
+        id: 'heading',
+        align: 'left',
+        cache: false,
+        renderer: (tb, data, draw, column, pos) => {
+          if (draw) {
+            const {
+              text,
+              subText,
+            } = data.heading;
+
+            this.doc
+              .font(this.boldFont)
+              .fontSize(this.largeFontSize)
+              .text(text, pos.x, pos.y, {
+                continued: !!subText,
+              });
+
+            this.doc.font(this.font);
+
+            if (subText) {
+              this.doc
+                .text(` ${subText}`, pos.x, pos.y);
+            }
+          }
+
+          return ' ';
+        },
+      },
+      {
+        id: 'note',
+        align: 'right',
+        width: heading.note ? this.doc.widthOfString(heading.note) : 0,
+      },
+    ];
+
+    const data = [
+      {
+        heading,
+        note: heading.note,
+      },
+    ];
+
+    this.renderTable(columns, data, {
+      flexColumn: 'heading',
+      columnDefaults: {
+        headerBorder: '',
+        align: 'left',
+      },
+      bottomMargin: 0,
+      showHeaders: false,
+    });
 
     this.resetText();
   }
 
-  renderTable(columns = [], columnData, flexColumn) {
-    const table = new PdfTable(this.doc, {
+  renderTable(columns = [], columnData = [], opts) {
+    _.defaultsDeep(opts, {
+      // columns,
+      columnDefaults: {
+        headerBorder: 'B',
+        align: 'left',
+      },
       bottomMargin: 30,
     });
 
-    table
-      // add some plugins (here, a 'fit-to-width' for a column)
-      .addPlugin(new PdfTableFitColumn({
-        column: flexColumn,
-      }))
-      // set defaults to your columns
-      .setColumnsDefaults({
-        headerBorder: 'B',
-        align: 'right',
-      })
-      .addColumns(columns);
+    const {
+      flexColumn,
+    } = opts;
 
-    table.addBody(columnData);
+    const table = new PdfTable(this.doc, opts);
+
+    if (flexColumn) {
+      table.addPlugin(new PdfTableFitColumn({
+        column: flexColumn,
+      }));
+    }
+
+    table
+      .setColumnsDefaults(opts.columnDefaults)
+      .addColumns(columns)
+      .addBody(columnData);
   }
 
   renderPatientInfo() {

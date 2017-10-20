@@ -10,6 +10,7 @@ export const MARGINS = {
   bottom: MARGIN,
 };
 export const DEFAULT_FONT_SIZE = 10;
+export const LARGE_FONT_SIZE = 12;
 export const FOOTER_FONT_SIZE = 8;
 export const HEADER_FONT_SIZE = 14;
 export const SMALL_FONT_SIZE = 8;
