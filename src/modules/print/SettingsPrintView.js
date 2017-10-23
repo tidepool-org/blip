@@ -42,7 +42,7 @@ class SettingsPrintView extends PrintView {
   render() {
     // console.log('doc', this.doc);
     console.log('data', this.data);
-    console.log('deviceMeta', this.deviceMeta);
+    // console.log('deviceMeta', this.deviceMeta);
     this.doc.addPage();
     this.renderDeviceMeta();
     this.renderBasalSchedules();
@@ -51,15 +51,16 @@ class SettingsPrintView extends PrintView {
 
   renderDeviceMeta() {
     this.doc
-      .font(this.boldFont)
-      .fontSize(this.defaultFontSize)
-      .text(this.data.source, { continued: true })
-      .font(this.font)
-      .text(` Uploaded on ${this.deviceMeta.uploaded}`, { continued: true })
-      .text(` › Serial Number: ${this.deviceMeta.serial}`)
-      .moveDown();
+    .font(this.boldFont)
+    .fontSize(this.defaultFontSize)
+    .text(this.data.source, { continued: true })
+    .font(this.font)
+    .text(` Uploaded on ${this.deviceMeta.uploaded}`, { continued: true })
+    .text(` › Serial Number: ${this.deviceMeta.serial}`)
+    .moveDown();
 
     this.resetText();
+    this.doc.moveDown();
   }
 
   renderBasalSchedules() {
@@ -138,13 +139,18 @@ class SettingsPrintView extends PrintView {
       this.updateLayoutColumnPosition(activeColumn);
     });
 
-    this.doc.moveDown();
+    this.resetText();
   }
 
   renderBolusDetails() {
     this.doc.x = this.chartArea.leftEdge;
     this.doc.y = this.layoutColumns.columns[this.getLongestLayoutColumn()].y;
+    this.doc.moveDown();
+
     this.renderSectionHeading(bolusTitle(this.manufacturer));
+
+    this.resetText();
+    this.doc.moveDown();
   }
 }
 
