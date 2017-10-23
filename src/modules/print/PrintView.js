@@ -18,8 +18,10 @@
 /* eslint-disable lodash/prefer-lodash-method */
 
 import _ from 'lodash';
-import PdfTable from 'voilab-pdf-table';
-import PdfTableFitColumn from 'voilab-pdf-table/plugins/fitcolumn';
+import PdfTable from './utils/pdfTable/pdfTable';
+// import PdfTable from 'voilab-pdf-table';
+import PdfTableFitColumn from './utils/pdfTable/plugins/fitColumn';
+// import PdfTableFitColumn from 'voilab-pdf-table/plugins/fitcolumn';
 
 import {
   getTimezoneFromTimePrefs,
@@ -84,6 +86,12 @@ class PrintView {
       target: '#76D3A6',
       basal: '#19A0D7',
       high: '#BB9AE7',
+      zebraHeader: '#EEEEEE',
+      zebraEven: '#FAFAFA',
+      zebraOdd: '#FFFFFF',
+      grey: '#6D6D6D',
+      lightGrey: '#979797',
+      lightestGrey: '#F7F7F8',
     };
 
     this.rightEdge = this.margins.left + this.width;
@@ -116,12 +124,97 @@ class PrintView {
     this.renderHeader().renderFooter();
     this.doc.x = this.chartArea.leftEdge;
     this.doc.y = this.chartArea.topEdge;
+
+    if (this.table) {
+      this.table.pos = {
+        x: this.layoutColumns.columns[this.layoutColumns.activeIndex].x,
+        y: this.chartArea.topEdge,
+      };
+    }
+
+    if (this.layoutColumns) {
+      this.setLayoutColumns(
+        this.layoutColumns.width,
+        this.layoutColumns.count,
+        this.layoutColumns.gutter,
+      );
+    }
+  }
+
+  setLayoutColumns(layoutWidth, count, gutter) {
+    const itemWidth = (layoutWidth - (gutter * (count - 1))) / count;
+    const columns = [];
+
+    let i = 0;
+    do {
+      columns.push({
+        x: this.chartArea.leftEdge + (gutter * i) + (itemWidth * i),
+        y: this.doc.y,
+      });
+      i++;
+    } while (i < count);
+
+    this.layoutColumns = {
+      columns,
+      width: layoutWidth,
+      count,
+      gutter,
+      itemWidth,
+    };
+  }
+
+  updateLayoutColumnPosition(index) {
+    this.layoutColumns.columns[index].x = this.doc.x;
+    this.layoutColumns.columns[index].y = this.doc.y;
+  }
+
+  gotoLayoutColumnPosition(index) {
+    this.doc.x = this.layoutColumns.columns[index].x;
+    this.doc.y = this.layoutColumns.columns[index].y;
+    this.layoutColumns.activeIndex = index;
+  }
+
+  getShortestLayoutColumn() {
+    let shortest;
+    let shortestIndex;
+    _.each(this.layoutColumns.columns, (column, colIndex) => {
+      if (!shortest || (shortest > column.y)) {
+        shortest = column.y;
+        shortestIndex = colIndex;
+      }
+    });
+
+    return shortestIndex;
+  }
+
+  getLongestLayoutColumn() {
+    let longest;
+    let longestIndex;
+    _.each(this.layoutColumns.columns, (column, colIndex) => {
+      if (!longest || (longest < column.y)) {
+        longest = column.y;
+        longestIndex = colIndex;
+      }
+    });
+
+    return longestIndex;
+  }
+
+  setFill(color = 'black', opacity = 1) {
+    this.doc
+      .fillColor(color)
+      .fillOpacity(opacity);
+  }
+
+  setStroke(color = 'black', opacity = 1) {
+    this.doc
+      .strokeColor(color)
+      .strokeOpacity(opacity);
   }
 
   resetText() {
+    this.setFill();
     this.doc
-      .fillColor('black')
-      .fillOpacity(1)
       .fontSize(this.defaultFontSize)
       .font(this.font);
   }
@@ -142,7 +235,7 @@ class PrintView {
     this.doc.moveDown();
   }
 
-  renderTableHeading(heading, opts = {}) {
+  renderTableHeading(heading = {}, opts = {}) {
     this.doc
       .font(this.font)
       .fontSize(this.largeFontSize);
@@ -151,36 +244,45 @@ class PrintView {
       {
         id: 'heading',
         align: 'left',
+        height: heading.note ? 37 : 24,
         cache: false,
         renderer: (tb, data, draw, column, pos) => {
+          const {
+            text = '',
+            subText = '',
+            note,
+          } = data.heading;
+
           if (draw) {
-            const {
-              text,
-              subText,
-            } = data.heading;
+            const padding = {
+              top: _.get(column.padding, 0, 0),
+              left: _.get(column.padding, 3, 0),
+            };
+
+            const xPos = pos.x + padding.left;
+            const yPos = pos.y + padding.top;
 
             this.doc
               .font(this.boldFont)
               .fontSize(this.largeFontSize)
-              .text(text, pos.x, pos.y, {
+              .text(text, xPos, yPos, {
                 continued: !!subText,
               });
 
             this.doc.font(this.font);
 
             if (subText) {
-              this.doc
-                .text(` ${subText}`, pos.x, pos.y);
+              this.doc.text(` ${subText}`, xPos, yPos);
+            }
+
+            if (note) {
+              this.resetText();
+              this.doc.text(note);
             }
           }
 
-          return ' ';
+          return '';
         },
-      },
-      {
-        id: 'note',
-        align: 'right',
-        width: heading.note ? this.doc.widthOfString(heading.note) : 0,
       },
     ];
 
@@ -191,40 +293,94 @@ class PrintView {
       },
     ];
 
-    this.renderTable(columns, data, {
-      flexColumn: 'heading',
+    this.renderTable(columns, data, _.defaultsDeep(opts, {
       columnDefaults: {
         headerBorder: '',
-        align: 'left',
       },
       bottomMargin: 0,
       showHeaders: false,
-    });
+    }));
 
     this.resetText();
   }
 
-  renderTable(columns = [], columnData = [], opts) {
+  renderTable(columns = [], columnData = [], opts = {}) {
     _.defaultsDeep(opts, {
-      // columns,
       columnDefaults: {
-        headerBorder: 'B',
+        borderColor: this.colors.grey,
+        headerBorder: 'TBLR',
+        border: 'TBLR',
         align: 'left',
+        padding: [7, 5, 3, 5],
+        headerPadding: [7, 5, 3, 5],
+        fill: opts.columnDefaults.zebra,
       },
-      bottomMargin: 30,
+      bottomMargin: 20,
+      pos: {
+        maxY: this.chartArea.bottomEdge,
+      },
     });
 
     const {
       flexColumn,
     } = opts;
 
-    const table = new PdfTable(this.doc, opts);
+    const table = this.table = new PdfTable(this.doc, opts);
 
     if (flexColumn) {
       table.addPlugin(new PdfTableFitColumn({
         column: flexColumn,
       }));
     }
+
+    table.onCellBackgroundAdd((tb, column, row, index, isHeader) => {
+      const {
+        fill,
+        headerFill,
+        zebra,
+      } = column;
+
+      const isEven = index % 2 === 0;
+
+      const fillKey = isHeader ? headerFill : fill;
+
+      if (fillKey) {
+        const fillDefined = typeof fillKey === 'object';
+        let color;
+        let opacity;
+
+        if (!fillDefined) {
+          opacity = 1
+
+          if (zebra) {
+            color = (isHeader)
+              ? this.colors.zebraHeader
+              : isEven ? this.colors.zebraEven : this.colors.zebraOdd;
+          }
+        } else {
+          const defaultOpacity = _.get(fillKey, 'opacity', 1);
+
+          color = _.get(fillKey, 'color', 'white') ;
+          opacity = zebra ? defaultOpacity / 2 : defaultOpacity;
+        }
+
+        tb.pdf
+          .fillColor(color)
+          .fillOpacity(opacity);
+      }
+    });
+
+    table.onCellBackgroundAdded(() => {
+      this.setFill();
+    });
+
+    table.onCellBorderAdd((tb, column) => {
+      this.setStroke(_.get(column, 'borderColor', 'black'), 1);
+    });
+
+    table.onCellBorderAdded(() => {
+      this.setStroke();
+    });
 
     table
       .setColumnsDefaults(opts.columnDefaults)
