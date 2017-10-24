@@ -32,7 +32,6 @@ export function stripDatum(d) {
   return _.assign({}, _.omit(
     d,
     [
-      'annotations',
       'clockDriftOffset',
       'conversionOffset',
       'createdUserId',

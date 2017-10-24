@@ -230,4 +230,51 @@ describe('blood glucose utilities', () => {
       });
     });
   });
+
+  describe('getOutOfRangeThreshold', () => {
+    it('should return a high out-of-range threshold for a high datum', () => {
+      const datum = {
+        type: 'smbg',
+        value: 601,
+        annotations: [
+          {
+            code: 'bg/out-of-range',
+            threshold: 600,
+            value: 'high',
+          },
+        ],
+      };
+
+      expect(bgUtils.getOutOfRangeThreshold(datum)).to.deep.equal({
+        high: 600,
+      });
+    });
+
+    it('should return a low out-of-range threshold for a low datum', () => {
+      const datum = {
+        type: 'smbg',
+        value: 32,
+        annotations: [
+          {
+            code: 'bg/out-of-range',
+            threshold: 40,
+            value: 'low',
+          },
+        ],
+      };
+
+      expect(bgUtils.getOutOfRangeThreshold(datum)).to.deep.equal({
+        low: 40,
+      });
+    });
+
+    it('should return null for an in-range datum', () => {
+      const datum = {
+        type: 'smbg',
+        value: 100,
+      };
+
+      expect(bgUtils.getOutOfRangeThreshold(datum)).to.equal(null);
+    });
+  });
 });
