@@ -23,11 +23,16 @@ import PrintView from './PrintView';
 
 import {
   getDeviceMeta,
+  getScheduleLabel,
   processBasalRateData,
+  startTimeAndValue,
 } from '../../utils/settings/data';
 
 import {
   bolusTitle,
+  ratio,
+  sensitivity,
+  target,
 } from '../../utils/settings/nonTandemData';
 
 class SettingsPrintView extends PrintView {
@@ -35,18 +40,19 @@ class SettingsPrintView extends PrintView {
     super(doc, data, opts);
 
     this.manufacturer = _.get(data, 'source', '').toLowerCase();
+    this.isTandem = this.manufacturer === 'tandem';
     this.deviceMeta = getDeviceMeta(data, opts.timePrefs);
     this.layoutColumns = {};
   }
 
   render() {
     // console.log('doc', this.doc);
-    console.log('data', this.data);
+    // console.log('data', this.data);
     // console.log('deviceMeta', this.deviceMeta);
     this.doc.addPage();
     this.renderDeviceMeta();
     this.renderBasalSchedules();
-    this.renderBolusDetails();
+    this.renderBolusSettings();
   }
 
   renderDeviceMeta() {
@@ -75,20 +81,17 @@ class SettingsPrintView extends PrintView {
 
     const tableWidth = this.layoutColumns.itemWidth;
 
-    const tableColumns = [
-      {
-        id: 'start',
-        header: 'Start time',
-        align: 'left',
-        width: tableWidth - 50,
-      },
-      {
-        id: 'rate',
-        header: 'Value',
-        align: 'right',
-        width: 50,
-      },
-    ];
+    const tableColumns = _.map(startTimeAndValue('rate'), (column, index) => {
+      const isValue = index === 1;
+      const valueWidth = 50;
+
+      return {
+        id: column.key,
+        header: column.label,
+        align: isValue ? 'right' : 'left',
+        width: isValue ? valueWidth : tableWidth - valueWidth,
+      };
+    });
 
     const sortedSchedules = _.sortByOrder(basalSchedules,
       [
@@ -107,14 +110,19 @@ class SettingsPrintView extends PrintView {
 
       this.gotoLayoutColumnPosition(activeColumn);
 
-      const note = schedule.name === activeSchedule ? 'Active at Upload' : null;
-
       const data = processBasalRateData(schedule);
 
+      const scheduleLabel = getScheduleLabel(
+        schedule.name,
+        activeSchedule,
+        this.manufacturer,
+        this.isTandem
+      );
+
       const heading = {
-        text: schedule.name,
-        subText: 'U/hr',
-        note,
+        text: scheduleLabel.main,
+        subText: scheduleLabel.units,
+        note: scheduleLabel.secondary,
       };
 
       this.renderTableHeading(heading, {
@@ -127,7 +135,7 @@ class SettingsPrintView extends PrintView {
         },
       });
 
-      this.updateLayoutColumnPosition(activeColumn);
+      this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
 
       this.renderTable(tableColumns, data, {
         columnDefaults: {
@@ -136,21 +144,86 @@ class SettingsPrintView extends PrintView {
         },
       });
 
-      this.updateLayoutColumnPosition(activeColumn);
+      this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
     });
 
     this.resetText();
   }
 
-  renderBolusDetails() {
+  renderBolusSettings() {
     this.doc.x = this.chartArea.leftEdge;
     this.doc.y = this.layoutColumns.columns[this.getLongestLayoutColumn()].y;
     this.doc.moveDown();
 
     this.renderSectionHeading(bolusTitle(this.manufacturer));
 
+    this.setLayoutColumns(this.chartArea.width, 3, 20);
+
+    this.renderSensitivity();
+
+    this.renderTarget();
+
+    this.renderRatio();
+
     this.resetText();
     this.doc.moveDown();
+  }
+
+  renderBolusSetting(settings, units = '') {
+    this.gotoLayoutColumnPosition(this.getShortestLayoutColumn());
+
+    const tableWidth = this.layoutColumns.itemWidth;
+
+    const tableColumns = _.map(settings.columns, (column, index) => {
+      const isValue = index > 0;
+      const valueWidth = 50;
+
+      return {
+        id: column.key,
+        header: column.label,
+        align: isValue ? 'right' : 'left',
+        width: isValue ? valueWidth : tableWidth - (valueWidth * (settings.columns.length - 1)),
+      };
+    });
+
+    const heading = {
+      text: settings.title,
+      subText: units,
+    };
+
+    this.renderTableHeading(heading, {
+      columnDefaults: {
+        fill: {
+          color: this.colors.bolus,
+          opacity: 0.4,
+        },
+        width: tableWidth,
+      },
+    });
+
+    this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
+
+    this.renderTable(tableColumns, settings.rows, {
+      columnDefaults: {
+        zebra: true,
+        headerFill: true,
+      },
+    });
+
+    this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
+  }
+
+
+  renderSensitivity() {
+    this.renderBolusSetting(sensitivity(this.data, this.manufacturer, this.bgUnits), `${this.bgUnits}/U`);
+  }
+
+  renderTarget() {
+    this.renderBolusSetting(target(this.data, this.manufacturer, this.bgUnits));
+  }
+
+  renderRatio() {
+    this.renderBolusSetting(ratio(this.data, this.manufacturer), 'g/U');
   }
 }
 

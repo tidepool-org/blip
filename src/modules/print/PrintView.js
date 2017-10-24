@@ -85,6 +85,7 @@ class PrintView {
       low: '#FF8B7C',
       target: '#76D3A6',
       basal: '#19A0D7',
+      bolus: '#7CD0F0',
       high: '#BB9AE7',
       zebraHeader: '#EEEEEE',
       zebraEven: '#FAFAFA',
