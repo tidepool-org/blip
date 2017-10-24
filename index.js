@@ -444,7 +444,10 @@ module.exports = function (config, deps) {
 
       var url = '/data/' + userId;
       if (!_.isUndefined(options.carelink) && !_.isNull(options.carelink)) {
-        url += '?carelink=' + options.carelink;
+        url += (url.includes('?') ? '&' : '?') + 'carelink=' + options.carelink;
+      }
+      if (!_.isUndefined(options.dexcom) && !_.isNull(options.dexcom)) {
+        url += (url.includes('?') ? '&' : '?') + 'dexcom=' + options.dexcom;
       }
 
       common.doGetWithToken(
