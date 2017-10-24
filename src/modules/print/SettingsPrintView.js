@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* eslint-disable lodash/prefer-lodash-method */
-
 import _ from 'lodash';
 
 import PrintView from './PrintView';
@@ -29,6 +27,7 @@ import {
 } from '../../utils/settings/data';
 
 import {
+  deviceName,
   bolusTitle,
   ratio,
   sensitivity,
@@ -51,15 +50,21 @@ class SettingsPrintView extends PrintView {
     // console.log('deviceMeta', this.deviceMeta);
     this.doc.addPage();
     this.renderDeviceMeta();
-    this.renderBasalSchedules();
-    this.renderBolusSettings();
+
+    if (this.isTandem) {
+      this.renderProfiles();
+    } else {
+      this.renderBasalSchedules();
+      this.renderWizardSettings();
+    }
   }
 
   renderDeviceMeta() {
+    const device = this.isTandem ? 'Tandem' : deviceName(this.manufacturer);
     this.doc
     .font(this.boldFont)
     .fontSize(this.defaultFontSize)
-    .text(this.data.source, { continued: true })
+    .text(device, { continued: true })
     .font(this.font)
     .text(` Uploaded on ${this.deviceMeta.uploaded}`, { continued: true })
     .text(` › Serial Number: ${this.deviceMeta.serial}`)
@@ -67,6 +72,10 @@ class SettingsPrintView extends PrintView {
 
     this.resetText();
     this.doc.moveDown();
+  }
+
+  renderProfiles() {
+
   }
 
   renderBasalSchedules() {
@@ -103,12 +112,11 @@ class SettingsPrintView extends PrintView {
     );
 
     _.each(sortedSchedules, (schedule, index) => {
-
       const activeColumn = index < this.layoutColumns.count
         ? index % this.layoutColumns.count
         : this.getShortestLayoutColumn();
 
-      this.gotoLayoutColumnPosition(activeColumn);
+      this.goToLayoutColumnPosition(activeColumn);
 
       const data = processBasalRateData(schedule);
 
@@ -150,7 +158,7 @@ class SettingsPrintView extends PrintView {
     this.resetText();
   }
 
-  renderBolusSettings() {
+  renderWizardSettings() {
     this.doc.x = this.chartArea.leftEdge;
     this.doc.y = this.layoutColumns.columns[this.getLongestLayoutColumn()].y;
     this.doc.moveDown();
@@ -166,11 +174,10 @@ class SettingsPrintView extends PrintView {
     this.renderRatio();
 
     this.resetText();
-    this.doc.moveDown();
   }
 
-  renderBolusSetting(settings, units = '') {
-    this.gotoLayoutColumnPosition(this.getShortestLayoutColumn());
+  renderWizardSetting(settings, units = '') {
+    this.goToLayoutColumnPosition(this.getShortestLayoutColumn());
 
     const tableWidth = this.layoutColumns.itemWidth;
 
@@ -213,17 +220,19 @@ class SettingsPrintView extends PrintView {
     this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
   }
 
-
   renderSensitivity() {
-    this.renderBolusSetting(sensitivity(this.data, this.manufacturer, this.bgUnits), `${this.bgUnits}/U`);
+    const units = `${this.bgUnits}/U`;
+    this.renderWizardSetting(sensitivity(this.data, this.manufacturer, this.bgUnits), units);
   }
 
   renderTarget() {
-    this.renderBolusSetting(target(this.data, this.manufacturer, this.bgUnits));
+    const units = this.bgUnits;
+    this.renderWizardSetting(target(this.data, this.manufacturer, units));
   }
 
   renderRatio() {
-    this.renderBolusSetting(ratio(this.data, this.manufacturer), 'g/U');
+    const units = 'g/U';
+    this.renderWizardSetting(ratio(this.data, this.manufacturer), units);
   }
 }
 

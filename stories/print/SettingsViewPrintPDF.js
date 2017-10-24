@@ -34,6 +34,15 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 // eslint-disable-next-line import/no-unresolved
 import data from '../../local/print-view.json';
 
+import animasDataMultiRate from '../../data/pumpSettings/animas/multirate.json';
+import animasDataFlatRate from '../../data/pumpSettings/animas/flatrate.json';
+import medtronicDataMultiRate from '../../data/pumpSettings/medtronic/multirate.json';
+import medtronicDataFlatRate from '../../data/pumpSettings/medtronic/flatrate.json';
+import omnipodDataMultiRate from '../../data/pumpSettings/omnipod/multirate.json';
+import omnipodDataFlatRate from '../../data/pumpSettings/omnipod/flatrate.json';
+import tandemDataMultiRate from '../../data/pumpSettings/tandem/multirate.json';
+import tandemDataFlatRate from '../../data/pumpSettings/tandem/flatrate.json';
+
 const bgBounds = {
   [MGDL_UNITS]: {
     veryHighThreshold: 300,
@@ -49,7 +58,7 @@ const bgBounds = {
   },
 };
 
-function openPDF({ patient, bgUnits = MGDL_UNITS }) {
+function openPDF({ patient, bgUnits = MGDL_UNITS }, dataFixture) {
   const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
   const opts = {
@@ -64,7 +73,9 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
     patient,
   };
 
-  createPrintView('settings', data[bgUnits].settings, opts, doc).render();
+  const viewData = dataFixture || data[bgUnits].settings;
+
+  createPrintView('settings', viewData, opts, doc).render();
   PrintView.renderPageNumbers(doc);
 
   doc.end();
@@ -109,6 +120,70 @@ storiesOf('Settings View PDF', module)
   .add('long patient name', () => (
     <WithNotes notes={notes}>
       <button onClick={() => openPDF({ patient: patients.longName })}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
+
+  .add('animas flat rate', () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: patients.longName }, animasDataFlatRate)}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
+
+  .add('animas multi rate', () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: patients.longName }, animasDataMultiRate)}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
+
+  .add('medtronic flat rate', () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: patients.longName }, medtronicDataFlatRate)}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
+
+  .add('medtronic multi rate', () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: patients.longName }, medtronicDataMultiRate)}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
+
+  .add('omnipod flat rate', () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: patients.longName }, omnipodDataFlatRate)}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
+
+  .add('omnipod multi rate', () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: patients.longName }, omnipodDataMultiRate)}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
+
+  .add('tandem flat rate', () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: patients.longName }, tandemDataFlatRate)}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
+
+  .add('tandem multi rate', () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: patients.longName }, tandemDataMultiRate)}>
         Open PDF in new tab
       </button>
     </WithNotes>

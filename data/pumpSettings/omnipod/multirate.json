@@ -76,5 +76,7 @@
   "id": "897a76c611234fb6a540af93325b6e31",
   "time": "2016-08-22T01:29:54.952Z",
   "timezoneOffset": 720,
+  "source": "Insulet",
+  "deviceSerialNumber": "123-45-678",
   "uploadId": "SampleUploadId"
 }

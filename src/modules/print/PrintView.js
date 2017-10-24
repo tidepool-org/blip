@@ -169,7 +169,7 @@ class PrintView {
     this.layoutColumns.columns[index].y = this.doc.y;
   }
 
-  gotoLayoutColumnPosition(index) {
+  goToLayoutColumnPosition(index) {
     this.doc.x = this.layoutColumns.columns[index].x;
     this.doc.y = this.layoutColumns.columns[index].y;
     this.layoutColumns.activeIndex = index;
@@ -351,17 +351,19 @@ class PrintView {
         let opacity;
 
         if (!fillDefined) {
-          opacity = 1
+          opacity = 1;
 
           if (zebra) {
-            color = (isHeader)
-              ? this.colors.zebraHeader
-              : isEven ? this.colors.zebraEven : this.colors.zebraOdd;
+            if (isHeader) {
+              color = this.colors.zebraHeader;
+            } else {
+              color = isEven ? this.colors.zebraEven : this.colors.zebraOdd;
+            }
           }
         } else {
           const defaultOpacity = _.get(fillKey, 'opacity', 1);
 
-          color = _.get(fillKey, 'color', 'white') ;
+          color = _.get(fillKey, 'color', 'white');
           opacity = zebra ? defaultOpacity / 2 : defaultOpacity;
         }
 
