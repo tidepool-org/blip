@@ -87,7 +87,7 @@ class PrintView {
       basal: '#19A0D7',
       bolus: '#7CD0F0',
       high: '#BB9AE7',
-      zebraHeader: '#EEEEEE',
+      zebraHeader: '#F0F0F0',
       zebraEven: '#FAFAFA',
       zebraOdd: '#FFFFFF',
       grey: '#6D6D6D',
@@ -260,7 +260,28 @@ class PrintView {
               left: _.get(column.padding, 3, 0),
             };
 
-            const xPos = pos.x + padding.left;
+            let stripeWidth = 0;
+
+            if (column.fillStripe) {
+              const stripeDefined = typeof column.fillStripe === 'object';
+
+              const stripeColor = stripeDefined
+                ? _.get(column, 'fillStripe.color', this.colors.grey)
+                : _.get(column, 'fill.color', this.colors.grey);
+
+              const stripeOpacity = stripeDefined ? _.get(column, 'fillStripe.opacity', 1) : 1;
+              stripeWidth = stripeDefined ? _.get(column, 'fillStripe.width', 6) : 6;
+
+              this.setFill(stripeColor, stripeOpacity);
+
+              this.doc
+                .rect(pos.x + 0.25, pos.y + 0.25, stripeWidth, column.height - 0.5)
+                .fill();
+
+              this.setFill();
+            }
+
+            const xPos = pos.x + padding.left + stripeWidth;
             const yPos = pos.y + padding.top;
 
             this.doc
@@ -306,6 +327,8 @@ class PrintView {
   }
 
   renderTable(columns = [], columnData = [], opts = {}) {
+    this.doc.lineWidth(0.5);
+
     _.defaultsDeep(opts, {
       columnDefaults: {
         borderColor: this.colors.grey,
@@ -367,9 +390,7 @@ class PrintView {
           opacity = zebra ? defaultOpacity / 2 : defaultOpacity;
         }
 
-        tb.pdf
-          .fillColor(color)
-          .fillOpacity(opacity);
+        this.setFill(color, opacity);
       }
     });
 

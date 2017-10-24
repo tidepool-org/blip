@@ -34,6 +34,11 @@ import {
   target,
 } from '../../utils/settings/nonTandemData';
 
+import {
+  basalSchedules as profileSchedules,
+  basal,
+} from '../../utils/settings/tandemData';
+
 class SettingsPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
@@ -52,7 +57,7 @@ class SettingsPrintView extends PrintView {
     this.renderDeviceMeta();
 
     if (this.isTandem) {
-      this.renderProfiles();
+      this.renderTandemProfiles();
     } else {
       this.renderBasalSchedules();
       this.renderWizardSettings();
@@ -74,19 +79,51 @@ class SettingsPrintView extends PrintView {
     this.doc.moveDown();
   }
 
-  renderProfiles() {
+  renderTandemProfiles() {
+    this.renderSectionHeading('Profile Settings');
 
+    const basalSchedules = profileSchedules(this.data);
+
+    const sortedSchedules = _.sortByOrder(basalSchedules,
+      [
+        schedule => (schedule.name === this.data.activeSchedule ? 1 : 0),
+        'position',
+      ],
+      ['desc', 'asc']
+    );
+
+    _.each(sortedSchedules, schedule => {
+      const profile = basal(schedule, this.data, this.bgUnits);
+      console.log('profile', profile);
+
+      const heading = {
+        text: profile.title.main,
+        subText: profile.title.units,
+        note: profile.title.secondary,
+      };
+
+      this.renderTableHeading(heading, {
+        columnDefaults: {
+          fill: {
+            color: this.colors.basal,
+            opacity: 0.2,
+          },
+          fillStripe: true,
+          width: this.chartArea.width,
+        },
+      });
+    });
   }
 
   renderBasalSchedules() {
     this.renderSectionHeading('Basal Rates');
 
+    this.setLayoutColumns(this.chartArea.width, 3, 20);
+
     const {
       activeSchedule,
       basalSchedules,
     } = this.data;
-
-    this.setLayoutColumns(this.chartArea.width, 3, 20);
 
     const tableWidth = this.layoutColumns.itemWidth;
 
@@ -137,8 +174,9 @@ class SettingsPrintView extends PrintView {
         columnDefaults: {
           fill: {
             color: this.colors.basal,
-            opacity: 0.4,
+            opacity: 0.2,
           },
+          fillStripe: true,
           width: tableWidth,
         },
       });
@@ -202,8 +240,9 @@ class SettingsPrintView extends PrintView {
       columnDefaults: {
         fill: {
           color: this.colors.bolus,
-          opacity: 0.4,
+          opacity: 0.2,
         },
+        fillStripe: true,
         width: tableWidth,
       },
     });
