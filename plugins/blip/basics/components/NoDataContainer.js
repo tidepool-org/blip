@@ -6,11 +6,13 @@ var NoDataContainer = React.createClass({
     message: React.PropTypes.string.isRequired,
     moreInfo: React.PropTypes.string
   },
+
   getDefaultProps: function() {
     return {
       message: 'No available data to display here, sorry!'
     };
   },
+
   render: function() {
     var moreInfo = null;
     if (!_.isEmpty(this.props.moreInfo)) {
@@ -19,7 +21,7 @@ var NoDataContainer = React.createClass({
       );
     }
     return (
-      <div>
+      <div className="NoDataContainer">
         <p>{this.props.message}</p>
         {moreInfo}
       </div>

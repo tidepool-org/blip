@@ -225,6 +225,8 @@ function SMBGTime (opts) {
   };
 
   this.tooltipHtml = function(group, datum) {
+    var value = format.tooltipBG(datum, opts.bgUnits);
+
     group.append('p')
       .append('span')
       .attr('class', 'secondary')
@@ -232,7 +234,7 @@ function SMBGTime (opts) {
     group.append('p')
       .attr('class', 'value')
       .append('span')
-      .html(format.tooltipBG(datum, opts.bgUnits));
+      .html(datum.tooltipText ? datum.tooltipText : value);
     if (!_.isEmpty(datum.subType)) {
       group.append('p')
         .append('span')

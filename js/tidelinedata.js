@@ -49,7 +49,6 @@ else {
 }
 
 function TidelineData(data, opts) {
-
   var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings'];
 
   opts = opts || {};
@@ -504,19 +503,21 @@ function TidelineData(data, opts) {
     var last = _.findLast(this.data, function(d) {
       switch (d.type) {
         case 'basal':
-          return true;
+        case 'wizard':
         case 'bolus':
+        case 'cbg':
+        case 'smbg':
           return true;
         case 'deviceEvent':
-          if (d.subType === 'reservoirChange') {
-            return true;
-          }
-          if (d.subType === 'prime') {
+          var includedSubtypes = [
+            'reservoirChange',
+            'prime',
+            'calibration',
+          ];
+          if (_.includes(includedSubtypes, d.subType)) {
             return true;
           }
           return false;
-        case 'wizard':
-          return true;
         default:
           return false;
       }
