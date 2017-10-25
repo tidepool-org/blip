@@ -5388,7 +5388,7 @@ optimist@0.6.1, optimist@>=0.3.5, optimist@^0.6.1, optimist@~0.6.0, optimist@~0.
     wordwrap "~0.0.2"
 
 optional@0.1.3:
-  version v0.1.3
+  version "0.1.3"
   resolved "https://registry.yarnpkg.com/optional/-/optional-0.1.3.tgz#f87537517b59a5e732cfd8f18e4f7eea7ab4761e"
 
 optionator@^0.8.1:
@@ -7541,9 +7541,9 @@ thunkify@~2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@0.6.8:
-  version "0.6.8"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.8.tgz#c9e209e3e56afee9ca83f7c5705b267fedb75de8"
+tideline@0.6.10-dexcom.1:
+  version "0.6.10-dexcom.1"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.10-dexcom.1.tgz#5ed25862726daf3453b738ab2360aa926edf4063"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
@@ -7554,9 +7554,9 @@ tideline@0.6.8:
     moment-timezone "0.5.5"
     sundial "1.5.0"
 
-tidepool-platform-client@0.34.2:
-  version "0.34.2"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.34.2.tgz#18c37c507a23a7a1b66386cbaa444f94b1ca88ee"
+tidepool-platform-client@0.34.3-dexcom.1:
+  version "0.34.3-dexcom.1"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.34.3-dexcom.1.tgz#74dab1b0788ba785007e7758fef3461ea20abdfa"
   dependencies:
     async "0.9.0"
     lodash "3.3.1"
