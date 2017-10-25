@@ -1,3 +1,20 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2017 Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
 var _ = require('lodash');
 
 var format = require('../../../../js/data/util/format');
@@ -7,7 +24,7 @@ module.exports = {
    * Get the count value associated with this day
    *
    * @param {String|null} selected subtotal type/tag
-   * 
+   *
    * @return {Number}
    */
   getCount: function(subtotalType) {
@@ -29,6 +46,44 @@ module.exports = {
     }
     return dateData.total || 0;
   },
+
+  /**
+   * Get the value for a SummaryGroup option
+   *
+   * @param {Object} option - The SummaryGroup option
+   * @param {Object} data - The data object to search
+   *
+   * @return {Number} The value, or 0 if not found
+   */
+  getOptionValue: function(option, data) {
+    var path = option.path;
+    var value = 0;
+
+    if (data) {
+      if (option.key === 'total') {
+        if (path) {
+          value = data[path].total;
+        }
+        else {
+          value = data[option.key];
+        }
+      }
+      else {
+        if (path && path === option.key) {
+          value = data[path].total;
+        }
+        else if (path) {
+          value = data[path][option.key].count;
+        }
+        else {
+          value = data[option.key].count || 0;
+        }
+      }
+    }
+
+    return value;
+  },
+
   /**
    * Get the `path` to the relevant sub-section of data, if any
    *

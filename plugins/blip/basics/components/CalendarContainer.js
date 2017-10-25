@@ -1,19 +1,21 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+ /* jshint esversion:6 */
 
 var _ = require('lodash');
 var bows = require('bows');
@@ -56,30 +58,55 @@ var CalendarContainer = React.createClass({
     trackMetric: React.PropTypes.func.isRequired,
     title: React.PropTypes.string.isRequired
   },
+
+  actions: basicsActions,
+
   getInitialState: function() {
     return {
       hoverDate: null
     };
   },
+
   /**
    * Function that is passed to children to update the state
    * to the current hover date, of which there can only be one
-   * 
+   *
    * @param  {String} date
    */
   onHover: function(date) {
     this.setState({hoverDate: date});
   },
+
   _getSelectedSubtotal: function() {
     var options = this.props.selectorOptions;
 
     if (options) {
-      return _.get(_.find(_.flatten(options.rows), {selected: true}), 'key', false) ||
-      options.primary.key;
+      return _.get(_.find(_.flatten(options.rows), {selected: true}), 'key', options.primary.key);
     }
 
     return null;
   },
+
+  componentWillMount() {
+    var self = this;
+    var options = this.props.selectorOptions;
+    var data = (this.props.type !== constants.SECTION_TYPE_UNDECLARED) ? this.props.data[this.props.type].summary : null;
+
+    if (options) {
+      var rows = _.flatten(options.rows);
+      var selectedOption = _.find(rows, {selected: true}) || options.primary;
+
+      // If the default selected option has no value, choose the first option that does
+      if (selectedOption.path && !this.getOptionValue(selectedOption, data)) {
+        selectedOption = _.find(_.reject(_.union(options.primary, rows), { key: selected }), function(option) {
+          return self.getOptionValue(option, data) > 0;
+        });
+        var selected = _.get(selectedOption, 'key', null);
+        this.actions.selectSubtotal(this.props.sectionId, selected);
+      }
+    }
+  },
+
   render: function() {
     var containerClass = cx('Calendar-container-' + this.props.type, {
       'Calendar-container': true
@@ -106,6 +133,7 @@ var CalendarContainer = React.createClass({
       </div>
     );
   },
+
   renderSelector: function() {
     return this.props.selector({
       bgClasses: this.props.bgClasses,
@@ -119,6 +147,7 @@ var CalendarContainer = React.createClass({
       trackMetric: this.props.trackMetric,
     });
   },
+
   renderDayLabels: function() {
     // Take the first day in the set and use this to set the day labels
     // Could be subject to change so I thought this was preferred over
@@ -135,6 +164,7 @@ var CalendarContainer = React.createClass({
       );
     });
   },
+
   renderDays: function() {
     var self = this;
     var path = this.getPathToSelected();
@@ -171,7 +201,7 @@ var CalendarContainer = React.createClass({
             subtotalType={self._getSelectedSubtotal()}
             type={self.props.type} />
         );
-      }  
+      }
     });
   }
 });

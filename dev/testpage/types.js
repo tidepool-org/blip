@@ -235,6 +235,51 @@ var SMBG = function(opts) {
 
 SMBG.prototype = common;
 
+var DeviceEvent = function(opts) {
+  opts = opts || {};
+  var defaults = {
+    deviceTime: this.makeDeviceTime(),
+    units: 'mg/dL',
+    value: 100
+  };
+  _.defaults(opts, defaults);
+
+  this.type = 'deviceEvent';
+  this.subType = opts.subType;
+
+  this.deviceTime = opts.deviceTime;
+
+  this.time = this.makeTime();
+  this.createdTime = this.makeTime();
+  this.timezoneOffset = this.makeTimezoneOffset();
+
+  this.id = this.makeId();
+};
+
+DeviceEvent.prototype = common;
+
+var Upload = function(opts) {
+  opts = opts || {};
+  var defaults = {
+      deviceTime: this.makeDeviceTime(),
+  };
+  _.defaults(opts, defaults);
+
+  this.type = 'upload';
+  this.deviceTags = opts.deviceTags;
+  this.deviceTime = opts.deviceTime;
+  this.source = opts.source;
+
+  this.time = this.makeTime();
+  this.createdTime = this.makeTime();
+  this.timezoneOffset = this.makeTimezoneOffset();
+
+  this.id = this.makeId();
+
+};
+
+Upload.prototype = common;
+
 var Wizard = function(opts) {
   opts = opts || {};
   if (opts.bolus) {
@@ -276,9 +321,11 @@ module.exports = (function() {
     Basal: Basal,
     Bolus: Bolus,
     CBG: CBG,
+    DeviceEvent: DeviceEvent,
     Message: Message,
     Settings: Settings,
     SMBG: SMBG,
-    Wizard: Wizard
+    Upload: Upload,
+    Wizard: Wizard,
   };
 }());

@@ -4,13 +4,11 @@
   width: 624px;
   font-size: 12px;
   line-height: 21px;
-
   display: flex;
   justify-content: flex-start;
 
   .SummaryGroup-info, .SummaryGroup-info-primary {
     align-self: flex-end;
-
     width: 160px;
     flex-grow: 1;
     padding-top: 5px;
@@ -21,7 +19,7 @@
     .SummaryGroup-option-label {
       float: left;
       padding-left: 15px;
-      
+
       &::first-letter {
         text-transform: capitalize;
       }
@@ -45,6 +43,15 @@
 
     &.SummaryGroup-info--selected, &:hover {
       color: white;
+    }
+
+    &.SummaryGroup-info--disabled,
+    &.SummaryGroup-info--disabled.SummaryGroup-info--selected,
+    &.SummaryGroup-info--disabled:hover {
+      background-color: @fill-lightest;
+      border-color: @stats-insufficient-data;
+      cursor: default;
+      color: @text-medium;
     }
 
     &.SummaryGroup-info-blank {
@@ -71,7 +78,6 @@
     justify-content: space-around;
     flex-flow: row wrap;
     flex-grow: 1;
-
     padding-top: 3px;
 
     .SummaryGroup-info {
@@ -140,7 +146,7 @@
 .Calendar-container-fingerstick {
   .SummaryGroup-info, .SummaryGroup-info-primary {
     border-bottom: 3px solid @fingerstick;
-    
+
     &.SummaryGroup-info--selected, &:hover {
       background-color: @fingerstick;
     }

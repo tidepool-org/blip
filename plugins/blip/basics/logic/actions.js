@@ -80,7 +80,9 @@ basicsActions.selectSubtotal = function(sectionName, selectedKey, metricsFunc) {
   var sections = _.cloneDeep(this.app.state.sections);
   var selectorOptions = sections[sectionName].selectorOptions;
 
-  metricsFunc('filtered on ' + selectedKey);
+  if (metricsFunc) {
+    metricsFunc('filtered on ' + selectedKey);
+  }
 
   selectorOptions = clearSelected(selectorOptions);
   sections[sectionName].selectorOptions = basicsActions.setSelected(selectorOptions, selectedKey);
