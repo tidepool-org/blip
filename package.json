@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "0.6.9-dexcom.1",
+  "version": "0.6.10-dexcom.1",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
