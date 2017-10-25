@@ -7541,9 +7541,9 @@ thunkify@~2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@0.6.10-dexcom.1:
-  version "0.6.10-dexcom.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.10-dexcom.1.tgz#5ed25862726daf3453b738ab2360aa926edf4063"
+tideline@0.6.10-dexcom.2:
+  version "0.6.10-dexcom.2"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.10-dexcom.2.tgz#a9fb160f94bf832ab29640b9f9c4918214c1a528"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
