@@ -54,8 +54,8 @@ const FocusedSMBGPointLabel = (props) => {
   const lineDate = formatLocalizedFromUTC(hammertime, timePrefs);
   const shortDate = formatLocalizedFromUTC(hammertime, timePrefs, 'MMM D');
   const side = position.tooltipLeft ? 'left' : 'right';
-  let smbgsOnDate = allSmbgsOnDate.slice();
-  let positions = allPositions.slice();
+  const smbgsOnDate = allSmbgsOnDate.slice();
+  const positions = allPositions.slice();
   if (!lines) {
     const focusedPointIndex = _.findIndex(allSmbgsOnDate, (d) => (d.value === datum.value));
     _.pullAt(smbgsOnDate, focusedPointIndex);
