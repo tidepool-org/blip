@@ -114,7 +114,7 @@ class PrintView {
 
     // Auto-bind callback methods
     this.newPage = this.newPage.bind(this);
-    this.renderCustomColumnHeader = this.renderCustomColumnHeader.bind(this);
+    this.renderCustomCell = this.renderCustomCell.bind(this);
 
     // Clear previous and set up pageAdded listeners :/
     this.doc.removeAllListeners('pageAdded');
@@ -243,45 +243,65 @@ class PrintView {
     this.doc.moveDown();
   }
 
-  renderCustomColumnHeader(tb, data, draw, column, pos, padding, isHeader) {
+  renderCellStripe(data, column, pos, isHeader) {
+    const fillStripeKey = isHeader ? 'headerFillStripe' : 'fillStripe';
+
+    // eslint-disable-next-line no-underscore-dangle
+    const height = column.height || data._renderedContent.height;
+
+    const stripe = {
+      width: 0,
+      height,
+      color: this.colors.grey,
+      opacity: 1,
+    };
+
+    if (column[fillStripeKey]) {
+      const stripeDefined = _.isPlainObject(column[fillStripeKey]);
+
+      stripe.color = stripeDefined
+        ? _.get(column, `${fillStripeKey}.color`, this.colors.grey)
+        : _.get(column, 'fill.color', this.colors.grey);
+
+      stripe.opacity = stripeDefined ? _.get(column, `${fillStripeKey}.opacity`, 1) : 1;
+      stripe.width = stripeDefined ? _.get(column, `${fillStripeKey}.width`, 6) : 6;
+
+      this.setFill(stripe.color, stripe.opacity);
+
+      this.doc
+        .rect(pos.x + 0.25, pos.y + 0.25, stripe.width, stripe.height - 0.5)
+        .fill();
+
+      this.setFill();
+    }
+
+    return stripe;
+  }
+
+  renderCustomCell(tb, data, draw, column, pos, padding, isHeader) {
     if (draw) {
-      const {
+      let {
         text = '',
         subText = '',
         note,
       } = _.get(data, 'heading', column.header || {});
 
-      let stripeWidth = 0;
-
-      const fillStripeKey = isHeader ? 'headerFillStripe' : 'fillStripe';
-      if (column[fillStripeKey]) {
-        const stripeDefined = typeof column[fillStripeKey] === 'object';
-
-        const stripeColor = stripeDefined
-          ? _.get(column, `${fillStripeKey}.color`, this.colors.grey)
-          : _.get(column, 'fill.color', this.colors.grey);
-
-        const stripeOpacity = stripeDefined ? _.get(column, `${fillStripeKey}.opacity`, 1) : 1;
-        stripeWidth = stripeDefined ? _.get(column, `${fillStripeKey}.width`, 6) : 6;
-
-        // eslint-disable-next-line no-underscore-dangle
-        const stripeHeight = column.height || data._renderedContent.height;
-
-        this.setFill(stripeColor, stripeOpacity);
-
-        this.doc
-          .rect(pos.x + 0.25, pos.y + 0.25, stripeWidth, stripeHeight - 0.5)
-          .fill();
-
-        this.setFill();
+      if (!isHeader && _.isString(data[column.id])) {
+        text = data[column.id];
+        subText = note = null;
       }
 
-      const xPos = pos.x + padding.left + stripeWidth;
+      const stripe = this.renderCellStripe(data, column, pos, isHeader);
+
+      const xPos = pos.x + padding.left + stripe.width;
       const yPos = pos.y + padding.top;
 
+      // eslint-disable-next-line no-underscore-dangle
+      const boldRow = data._bold;
+
       this.doc
-        .font(this.boldFont)
-        .fontSize(isHeader ? this.defaultFontSize : this.largeFontSize)
+        .font(_.get(column, 'font', isHeader || boldRow ? this.boldFont : this.font))
+        .fontSize(_.get(column, 'fontSize', this.defaultFontSize))
         .text(text, xPos, yPos, {
           continued: !!subText,
         });
@@ -292,8 +312,9 @@ class PrintView {
         this.doc.text(` ${subText}`, xPos, yPos);
       }
 
+      this.resetText();
+
       if (note) {
-        this.resetText();
         this.doc.text(note);
       }
     }
@@ -312,7 +333,9 @@ class PrintView {
         align: 'left',
         height: heading.note ? 37 : 24,
         cache: false,
-        renderer: this.renderCustomColumnHeader,
+        renderer: this.renderCustomCell,
+        font: this.boldFont,
+        fontSize: this.largeFontSize,
       },
     ];
 
@@ -377,7 +400,7 @@ class PrintView {
       const fillKey = isHeader ? headerFill : fill;
 
       if (fillKey) {
-        const fillDefined = typeof fillKey === 'object';
+        const fillDefined = _.isPlainObject(fillKey);
         let color;
         let opacity;
 

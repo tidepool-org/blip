@@ -106,9 +106,6 @@ class SettingsPrintView extends PrintView {
             color: this.colors.zebraHeader,
             opacity: 1,
           },
-          fillStripe: {
-            color: this.colors.grey,
-          },
           width: this.chartArea.width,
         },
       });
@@ -143,14 +140,13 @@ class SettingsPrintView extends PrintView {
         };
 
         const fillStripes = {
-          start: this.colors.grey,
           rate: this.colors.basal,
           bgTarget: this.colors.bolus,
           carbRatio: this.colors.bolus,
           insulinSensitivity: this.colors.bolus,
         };
 
-        const label = typeof column.label === 'object'
+        const label = _.isPlainObject(column.label)
           ? {
             text: column.label.main,
             subText: column.label.secondary,
@@ -163,15 +159,22 @@ class SettingsPrintView extends PrintView {
           header: label,
           align: isFirst ? 'left' : 'center',
           headerFill: headerFills[column.key],
-          headerFillStripe: {
+          headerFillStripe: !fillStripes[column.key] ? false : {
             color: fillStripes[column.key],
           },
           cache: false,
-          headerRenderer: this.renderCustomColumnHeader,
+          headerRenderer: this.renderCustomCell,
         };
 
         if (!isFirst) {
           columnDef.width = widths[column.key];
+
+          if (columnDef.id === 'rate') {
+            columnDef.renderer = this.renderCustomCell;
+          }
+        } else {
+          columnDef.cache = false;
+          columnDef.renderer = this.renderCustomCell;
         }
 
         return columnDef;
@@ -265,8 +268,8 @@ class SettingsPrintView extends PrintView {
       this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
 
       const sheduleRows = processBasalRateData(schedule);
-      const rows = _.map(sheduleRows, (row, index) => {
-        const isLast = index === sheduleRows.length - 1;
+      const rows = _.map(sheduleRows, (row, rowIndex) => {
+        const isLast = rowIndex === sheduleRows.length - 1;
 
         if (isLast) {
           // eslint-disable-next-line no-underscore-dangle, no-param-reassign
