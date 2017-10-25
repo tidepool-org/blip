@@ -113,7 +113,7 @@ lodash.assign(PdfTableFitColumn.prototype, {
         if (this.calculatedWidth === null) {
             var self = this,
                 content_width = this.maxWidth,
-                width = lodash.sumBy(table.getColumns(), function (column) {
+                width = lodash.sum(table.getColumns(), function (column) {
                     return column.id !== self.column ? column.width : 0;
                 });
 

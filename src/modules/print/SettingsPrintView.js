@@ -94,23 +94,106 @@ class SettingsPrintView extends PrintView {
 
     _.each(sortedSchedules, schedule => {
       const profile = basal(schedule, this.data, this.bgUnits);
-      console.log('profile', profile);
 
       const heading = {
         text: profile.title.main,
-        subText: profile.title.units,
-        note: profile.title.secondary,
+        subText: profile.title.secondary,
       };
 
       this.renderTableHeading(heading, {
         columnDefaults: {
           fill: {
-            color: this.colors.basal,
-            opacity: 0.2,
+            color: this.colors.zebraHeader,
+            opacity: 1,
           },
-          fillStripe: true,
+          fillStripe: {
+            color: this.colors.grey,
+          },
           width: this.chartArea.width,
         },
+      });
+
+      const tableColumns = _.map(profile.columns, (column, index) => {
+        const isFirst = index === 0;
+
+        const widths = {
+          rate: 105,
+          bgTarget: 105,
+          carbRatio: 105,
+          insulinSensitivity: 155,
+        };
+
+        const fills = {
+          grey: {
+            color: this.colors.zebraHeader,
+            opacity: 1,
+          },
+          basal: {
+            color: this.colors.basal,
+            opacity: 0.15,
+          },
+        };
+
+        const headerFills = {
+          start: fills.grey,
+          rate: fills.basal,
+          bgTarget: fills.basal,
+          carbRatio: fills.basal,
+          insulinSensitivity: fills.basal,
+        };
+
+        const fillStripes = {
+          start: this.colors.grey,
+          rate: this.colors.basal,
+          bgTarget: this.colors.bolus,
+          carbRatio: this.colors.bolus,
+          insulinSensitivity: this.colors.bolus,
+        };
+
+        const label = typeof column.label === 'object'
+          ? {
+            text: column.label.main,
+            subText: column.label.secondary,
+          } : {
+            text: column.label,
+          };
+
+        const columnDef = {
+          id: column.key,
+          header: label,
+          align: isFirst ? 'left' : 'center',
+          headerFill: headerFills[column.key],
+          headerFillStripe: {
+            color: fillStripes[column.key],
+          },
+          cache: false,
+          headerRenderer: this.renderCustomColumnHeader,
+        };
+
+        if (!isFirst) {
+          columnDef.width = widths[column.key];
+        }
+
+        return columnDef;
+      });
+
+      const rows = _.map(profile.rows, (row, index) => {
+        const isLast = index === profile.rows.length - 1;
+
+        if (isLast) {
+          // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+          row._bold = true;
+        }
+
+        return row;
+      });
+
+      this.renderTable(tableColumns, rows, {
+        columnDefaults: {
+          zebra: true,
+          headerFill: true,
+        },
+        flexColumn: 'start',
       });
     });
   }
@@ -155,8 +238,6 @@ class SettingsPrintView extends PrintView {
 
       this.goToLayoutColumnPosition(activeColumn);
 
-      const data = processBasalRateData(schedule);
-
       const scheduleLabel = getScheduleLabel(
         schedule.name,
         activeSchedule,
@@ -174,7 +255,7 @@ class SettingsPrintView extends PrintView {
         columnDefaults: {
           fill: {
             color: this.colors.basal,
-            opacity: 0.2,
+            opacity: 0.15,
           },
           fillStripe: true,
           width: tableWidth,
@@ -183,7 +264,19 @@ class SettingsPrintView extends PrintView {
 
       this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
 
-      this.renderTable(tableColumns, data, {
+      const sheduleRows = processBasalRateData(schedule);
+      const rows = _.map(sheduleRows, (row, index) => {
+        const isLast = index === sheduleRows.length - 1;
+
+        if (isLast) {
+          // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+          row._bold = true;
+        }
+
+        return row;
+      });
+
+      this.renderTable(tableColumns, rows, {
         columnDefaults: {
           zebra: true,
           headerFill: true,
@@ -239,10 +332,12 @@ class SettingsPrintView extends PrintView {
     this.renderTableHeading(heading, {
       columnDefaults: {
         fill: {
-          color: this.colors.bolus,
-          opacity: 0.2,
+          color: this.colors.basal,
+          opacity: 0.15,
         },
-        fillStripe: true,
+        fillStripe: {
+          color: this.colors.bolus,
+        },
         width: tableWidth,
       },
     });
@@ -266,7 +361,7 @@ class SettingsPrintView extends PrintView {
 
   renderTarget() {
     const units = this.bgUnits;
-    this.renderWizardSetting(target(this.data, this.manufacturer, units));
+    this.renderWizardSetting(target(this.data, this.manufacturer), units);
   }
 
   renderRatio() {

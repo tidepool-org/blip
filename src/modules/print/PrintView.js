@@ -87,7 +87,7 @@ class PrintView {
       basal: '#19A0D7',
       bolus: '#7CD0F0',
       high: '#BB9AE7',
-      zebraHeader: '#F0F0F0',
+      zebraHeader: '#FAFAFA',
       zebraEven: '#FAFAFA',
       zebraOdd: '#FFFFFF',
       grey: '#6D6D6D',
@@ -112,9 +112,12 @@ class PrintView {
     // kick off the dynamic calculation of chart area based on font sizes for header and footer
     this.setHeaderSize().setFooterSize();
 
+    // Auto-bind callback methods
+    this.newPage = this.newPage.bind(this);
+    this.renderCustomColumnHeader = this.renderCustomColumnHeader.bind(this);
+
     // Clear previous and set up pageAdded listeners :/
     this.doc.removeAllListeners('pageAdded');
-    this.newPage = this.newPage.bind(this);
     this.doc.on('pageAdded', this.newPage);
   }
 
@@ -127,8 +130,12 @@ class PrintView {
     this.doc.y = this.chartArea.topEdge;
 
     if (this.table) {
+      const xPos = this.layoutColumns
+        ? _.get(this, `layoutColumns.columns.${this.layoutColumns.activeIndex}.x`)
+        : this.chartArea.leftEdge;
+
       this.table.pos = {
-        x: this.layoutColumns.columns[this.layoutColumns.activeIndex].x,
+        x: xPos,
         y: this.chartArea.topEdge,
       };
     }
@@ -236,6 +243,64 @@ class PrintView {
     this.doc.moveDown();
   }
 
+  renderCustomColumnHeader(tb, data, draw, column, pos, padding, isHeader) {
+    if (draw) {
+      const {
+        text = '',
+        subText = '',
+        note,
+      } = _.get(data, 'heading', column.header || {});
+
+      let stripeWidth = 0;
+
+      const fillStripeKey = isHeader ? 'headerFillStripe' : 'fillStripe';
+      if (column[fillStripeKey]) {
+        const stripeDefined = typeof column[fillStripeKey] === 'object';
+
+        const stripeColor = stripeDefined
+          ? _.get(column, `${fillStripeKey}.color`, this.colors.grey)
+          : _.get(column, 'fill.color', this.colors.grey);
+
+        const stripeOpacity = stripeDefined ? _.get(column, `${fillStripeKey}.opacity`, 1) : 1;
+        stripeWidth = stripeDefined ? _.get(column, `${fillStripeKey}.width`, 6) : 6;
+
+        // eslint-disable-next-line no-underscore-dangle
+        const stripeHeight = column.height || data._renderedContent.height;
+
+        this.setFill(stripeColor, stripeOpacity);
+
+        this.doc
+          .rect(pos.x + 0.25, pos.y + 0.25, stripeWidth, stripeHeight - 0.5)
+          .fill();
+
+        this.setFill();
+      }
+
+      const xPos = pos.x + padding.left + stripeWidth;
+      const yPos = pos.y + padding.top;
+
+      this.doc
+        .font(this.boldFont)
+        .fontSize(isHeader ? this.defaultFontSize : this.largeFontSize)
+        .text(text, xPos, yPos, {
+          continued: !!subText,
+        });
+
+      this.doc.font(this.font);
+
+      if (subText) {
+        this.doc.text(` ${subText}`, xPos, yPos);
+      }
+
+      if (note) {
+        this.resetText();
+        this.doc.text(note);
+      }
+    }
+
+    return ' ';
+  }
+
   renderTableHeading(heading = {}, opts = {}) {
     this.doc
       .font(this.font)
@@ -247,64 +312,7 @@ class PrintView {
         align: 'left',
         height: heading.note ? 37 : 24,
         cache: false,
-        renderer: (tb, data, draw, column, pos) => {
-          const {
-            text = '',
-            subText = '',
-            note,
-          } = data.heading;
-
-          if (draw) {
-            const padding = {
-              top: _.get(column.padding, 0, 0),
-              left: _.get(column.padding, 3, 0),
-            };
-
-            let stripeWidth = 0;
-
-            if (column.fillStripe) {
-              const stripeDefined = typeof column.fillStripe === 'object';
-
-              const stripeColor = stripeDefined
-                ? _.get(column, 'fillStripe.color', this.colors.grey)
-                : _.get(column, 'fill.color', this.colors.grey);
-
-              const stripeOpacity = stripeDefined ? _.get(column, 'fillStripe.opacity', 1) : 1;
-              stripeWidth = stripeDefined ? _.get(column, 'fillStripe.width', 6) : 6;
-
-              this.setFill(stripeColor, stripeOpacity);
-
-              this.doc
-                .rect(pos.x + 0.25, pos.y + 0.25, stripeWidth, column.height - 0.5)
-                .fill();
-
-              this.setFill();
-            }
-
-            const xPos = pos.x + padding.left + stripeWidth;
-            const yPos = pos.y + padding.top;
-
-            this.doc
-              .font(this.boldFont)
-              .fontSize(this.largeFontSize)
-              .text(text, xPos, yPos, {
-                continued: !!subText,
-              });
-
-            this.doc.font(this.font);
-
-            if (subText) {
-              this.doc.text(` ${subText}`, xPos, yPos);
-            }
-
-            if (note) {
-              this.resetText();
-              this.doc.text(note);
-            }
-          }
-
-          return '';
-        },
+        renderer: this.renderCustomColumnHeader,
       },
     ];
 
@@ -326,7 +334,7 @@ class PrintView {
     this.resetText();
   }
 
-  renderTable(columns = [], columnData = [], opts = {}) {
+  renderTable(columns = [], rows = [], opts = {}) {
     this.doc.lineWidth(0.5);
 
     _.defaultsDeep(opts, {
@@ -337,7 +345,7 @@ class PrintView {
         align: 'left',
         padding: [7, 5, 3, 5],
         headerPadding: [7, 5, 3, 5],
-        fill: opts.columnDefaults.zebra,
+        fill: _.get(opts, 'columnDefaults.zebra', false),
       },
       bottomMargin: 20,
       pos: {
@@ -406,10 +414,21 @@ class PrintView {
       this.setStroke();
     });
 
+    table.onRowAdd((tb, row) => {
+      // eslint-disable-next-line no-underscore-dangle
+      if (row._bold) {
+        this.doc.font(this.boldFont);
+      }
+    });
+
+    table.onRowAdded(() => {
+      this.resetText();
+    });
+
     table
       .setColumnsDefaults(opts.columnDefaults)
       .addColumns(columns)
-      .addBody(columnData);
+      .addBody(rows);
   }
 
   renderPatientInfo() {

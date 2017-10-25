@@ -111,7 +111,7 @@ var lodash = require('lodash'),
 
         // if specified, cache is not used and renderer is called one more time
         if (renderer && column.cache === false) {
-            data = renderer(self, row, true, column, lodash.clone(pos), padding);
+            data = renderer(self, row, true, column, lodash.clone(pos), padding, isHeader);
         }
         // manage vertical alignement
         if (column.valign === 'center') {
