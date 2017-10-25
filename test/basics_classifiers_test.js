@@ -79,7 +79,7 @@ describe('basics classifiers', function() {
       expect(classifier({
         wizard: {recommended: {correction: 1.0, carb: 2.0, net: 3.0}},
         normal: 1.5
-      })).to.deep.equal(['wizard', 'override']);
+      })).to.deep.equal(['wizard', 'underride']);
     });
 
     it('should return `manual`, `extended`, and `interrupted` for an interrupted non-wizard extended bolus', function() {
@@ -94,7 +94,7 @@ describe('basics classifiers', function() {
         extended: 1.2,
         expectedExtended: 2.0,
         wizard: {recommended: {correction: 2.5, carb: 0, net: 2.5}}
-      })).to.deep.equal(['wizard', 'override', 'correction', 'interrupted', 'extended']);
+      })).to.deep.equal(['wizard', 'underride', 'correction', 'interrupted', 'extended']);
     });
 
     it('net recommendation is what counts for determining override', function() {
