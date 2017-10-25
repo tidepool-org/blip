@@ -57,9 +57,9 @@ const FocusedSMBGPointLabel = (props) => {
   let smbgsOnDate = allSmbgsOnDate.slice();
   let positions = allPositions.slice();
   if (!lines) {
-    const focusedPointIndex = _.indexOf(allSmbgsOnDate, datum);
-    smbgsOnDate = _.pullAt(smbgsOnDate, focusedPointIndex);
-    positions = _.pullAt(positions, focusedPointIndex);
+    const focusedPointIndex = _.findIndex(allSmbgsOnDate, (d) => (d.value === datum.value));
+    _.pullAt(smbgsOnDate, focusedPointIndex);
+    _.pullAt(positions, focusedPointIndex);
   }
   const pointTooltips = _.map(smbgsOnDate, (smbg, i) => (
     <Tooltip
