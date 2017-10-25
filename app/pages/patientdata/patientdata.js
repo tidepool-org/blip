@@ -774,6 +774,11 @@ export let PatientData = React.createClass({
         this.props.trackMetric('Web - CareLink Import URL Param', { carelink });
       }
 
+      let dexcom = nextProps.dexcom;
+      if (!_.isEmpty(dexcom)) {
+        this.props.trackMetric('Web - Dexcom Import URL Param', { dexcom });
+      }
+
       this.props.trackMetric('Viewed Data');
     }
 
@@ -866,13 +871,14 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let carelink = utils.getCarelink(ownProps.location);
+  let dexcom = utils.getDexcom(ownProps.location);
   const api = ownProps.routes[0].api;
   const assignedDispatchProps = ['clearPatientData', 'generatePDFRequest', 'removeGeneratedPDFS'];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, api, { carelink }),
+    fetchers: getFetchers(dispatchProps, ownProps, api, { carelink, dexcom }),
     uploadUrl: api.getUploadUrl(),
-    onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink }),
+    onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom }),
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
     onCloseMessageThread: dispatchProps.closeMessageThread,
     onSaveComment: api.team.replyToMessageThread.bind(api),
@@ -883,6 +889,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     currentPatientInViewId: ownProps.routeParams.id,
     updateBasicsSettings: dispatchProps.updateSettings.bind(null, api),
     carelink: carelink,
+    dexcom: dexcom,
   });
 };
 

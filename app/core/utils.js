@@ -239,6 +239,17 @@ utils.getCarelink = function(location) {
   return null;
 }
 
+utils.getDexcom = function(location) {
+  if (location && location.query) {
+    let { dexcom } = location.query;
+
+    if (!_.isUndefined(dexcom)) {
+      return dexcom;
+    }
+  }
+  return null;
+}
+
 /**
  * Translate a BG value to the desired target unit
  *

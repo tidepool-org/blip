@@ -298,6 +298,43 @@ describe('utils', () => {
     });
   });
 
+  describe('getDexcom', () => {
+    it('should return dexcom from query property of location object', () => {
+      var location = {
+        query: {
+          dexcom: 'true'
+        }
+      };
+      expect(utils.getDexcom(location)).to.equal('true');
+    });
+
+    it('should return empty string if empty dexcom in query property of location object', () => {
+      var location = {
+        query: {
+          dexcom: ''
+        }
+      };
+      expect(utils.getDexcom(location)).to.equal('');
+    });
+
+    it('should return null if no location object', () => {
+      expect(utils.getDexcom()).to.equal(null);
+    });
+
+    it('should return null if no query property of location object', () => {
+      expect(utils.getDexcom({})).to.equal(null);
+    });
+
+    it('should return null if no dexcom in query property of location object', () => {
+      var location = {
+        query: {
+          signupEmail: 'jane@tidepool.org'
+        }
+      };
+      expect(utils.getDexcom(location)).to.equal(null);
+    });
+  });
+
   describe('translateBg', () => {
     it('should translate a BG value to the desired target unit', () => {
       expect(utils.translateBg(180, MMOLL_UNITS)).to.equal(10);
