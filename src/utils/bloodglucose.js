@@ -16,7 +16,10 @@
  */
 
 import _ from 'lodash';
+
 import { MGDL_PER_MMOLL } from './constants';
+
+import { formatBgValue } from './format.js';
 
 /**
  * classifyBgValue
@@ -28,8 +31,8 @@ import { MGDL_PER_MMOLL } from './constants';
  */
 export function classifyBgValue(bgBounds, bgValue, classificationType = 'threeWay') {
   if (_.isEmpty(bgBounds) ||
-    !_.isNumber(_.get(bgBounds, 'targetLowerBound')) ||
-    !_.isNumber(_.get(bgBounds, 'targetUpperBound'))) {
+  !_.isNumber(_.get(bgBounds, 'targetLowerBound')) ||
+  !_.isNumber(_.get(bgBounds, 'targetUpperBound'))) {
     throw new Error(
       'You must provide a `bgBounds` object with a `targetLowerBound` and a `targetUpperBound`!'
     );
@@ -101,4 +104,24 @@ export function reshapeBgClassesToBgBounds(bgPrefs) {
   };
 
   return bgBounds;
+}
+
+/**
+ * Generate BG Range Labels for a given set of bg prefs
+ *
+ * @export
+ * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds
+ * @returns {Object} bgRangeLabels - map of labels keyed by bgClassification
+ */
+export function generateBgRangeLabels(bgPrefs) {
+  const { bgBounds, bgUnits } = bgPrefs;
+  const thresholds = _.mapValues(bgBounds, threshold => formatBgValue(threshold, bgPrefs));
+
+  return {
+    veryLow: `below ${thresholds.veryLowThreshold} ${bgUnits}`,
+    low: `between ${thresholds.veryLowThreshold} - ${thresholds.targetLowerBound} ${bgUnits}`,
+    target: `between ${thresholds.targetLowerBound} - ${thresholds.targetUpperBound} ${bgUnits}`,
+    high: `between ${thresholds.targetUpperBound} - ${thresholds.veryHighThreshold} ${bgUnits}`,
+    veryHigh: `above ${thresholds.veryHighThreshold} ${bgUnits}`,
+  };
 }

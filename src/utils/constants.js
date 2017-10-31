@@ -35,4 +35,20 @@ const ONE_WEEK = 7;
 const TWO_WEEKS = 14;
 const FOUR_WEEKS = 28;
 
+export const CGM_IN_DAY = 288;
+export const MS_IN_DAY = 864e5;
+export const MS_IN_HOUR = 864e5 / 24;
+
+export const CGM_DATA_KEY = 'cbg';
+export const BGM_DATA_KEY = 'smbg';
+export const NO_CGM = 'noCGM';
+export const CGM_CALCULATED = 'calculatedCGM';
+export const NOT_ENOUGH_CGM = 'notEnoughCGM';
+
+export const NO_SITE_CHANGE = 'noSiteChange';
+export const SITE_CHANGE = 'siteChange';
+export const SITE_CHANGE_RESERVOIR = 'reservoirChange';
+export const SITE_CHANGE_TUBING = 'tubingPrime';
+export const SITE_CHANGE_CANNULA = 'cannulaPrime';
+
 export const trends = { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } };

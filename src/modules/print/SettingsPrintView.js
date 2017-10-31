@@ -46,13 +46,9 @@ class SettingsPrintView extends PrintView {
     this.manufacturer = _.get(data, 'source', '').toLowerCase();
     this.isTandem = this.manufacturer === 'tandem';
     this.deviceMeta = getDeviceMeta(data, opts.timePrefs);
-    this.layoutColumns = {};
   }
 
   render() {
-    // console.log('doc', this.doc);
-    // console.log('data', this.data);
-    // console.log('deviceMeta', this.deviceMeta);
     this.doc.addPage();
     this.renderDeviceMeta();
 
@@ -103,7 +99,7 @@ class SettingsPrintView extends PrintView {
       this.renderTableHeading(heading, {
         columnDefaults: {
           fill: {
-            color: this.colors.zebraHeader,
+            color: this.tableSettings.colors.zebraHeader,
             opacity: 1,
           },
           width: this.chartArea.width,
@@ -122,7 +118,7 @@ class SettingsPrintView extends PrintView {
 
         const fills = {
           grey: {
-            color: this.colors.zebraHeader,
+            color: this.tableSettings.colors.zebraHeader,
             opacity: 1,
           },
           basal: {
@@ -204,14 +200,18 @@ class SettingsPrintView extends PrintView {
   renderBasalSchedules() {
     this.renderSectionHeading('Basal Rates');
 
-    this.setLayoutColumns(this.chartArea.width, 3, 20);
+    this.setLayoutColumns({
+      width: this.chartArea.width,
+      count: 3,
+      gutter: 20,
+    });
 
     const {
       activeSchedule,
       basalSchedules,
     } = this.data;
 
-    const tableWidth = this.layoutColumns.itemWidth;
+    const columnWidth = this.getActiveColumnWidth();
 
     const tableColumns = _.map(startTimeAndValue('rate'), (column, index) => {
       const isValue = index === 1;
@@ -221,7 +221,7 @@ class SettingsPrintView extends PrintView {
         id: column.key,
         header: column.label,
         align: isValue ? 'right' : 'left',
-        width: isValue ? valueWidth : tableWidth - valueWidth,
+        width: isValue ? valueWidth : columnWidth - valueWidth,
       };
     });
 
@@ -261,7 +261,7 @@ class SettingsPrintView extends PrintView {
             opacity: 0.15,
           },
           fillStripe: true,
-          width: tableWidth,
+          width: columnWidth,
         },
       });
 
@@ -299,7 +299,11 @@ class SettingsPrintView extends PrintView {
 
     this.renderSectionHeading(bolusTitle(this.manufacturer));
 
-    this.setLayoutColumns(this.chartArea.width, 3, 20);
+    this.setLayoutColumns({
+      width: this.chartArea.width,
+      count: 3,
+      gutter: 20,
+    });
 
     this.renderSensitivity();
 
@@ -313,7 +317,7 @@ class SettingsPrintView extends PrintView {
   renderWizardSetting(settings, units = '') {
     this.goToLayoutColumnPosition(this.getShortestLayoutColumn());
 
-    const tableWidth = this.layoutColumns.itemWidth;
+    const columnWidth = this.getActiveColumnWidth();
 
     const tableColumns = _.map(settings.columns, (column, index) => {
       const isValue = index > 0;
@@ -323,7 +327,7 @@ class SettingsPrintView extends PrintView {
         id: column.key,
         header: column.label,
         align: isValue ? 'right' : 'left',
-        width: isValue ? valueWidth : tableWidth - (valueWidth * (settings.columns.length - 1)),
+        width: isValue ? valueWidth : columnWidth - (valueWidth * (settings.columns.length - 1)),
       };
     });
 
@@ -341,7 +345,7 @@ class SettingsPrintView extends PrintView {
         fillStripe: {
           color: this.colors.bolus,
         },
-        width: tableWidth,
+        width: columnWidth,
       },
     });
 

@@ -87,12 +87,18 @@ class PrintView {
       basal: '#19A0D7',
       bolus: '#7CD0F0',
       high: '#BB9AE7',
-      zebraHeader: '#FAFAFA',
-      zebraEven: '#FAFAFA',
-      zebraOdd: '#FFFFFF',
       grey: '#6D6D6D',
-      lightGrey: '#979797',
-      lightestGrey: '#F7F7F8',
+    };
+
+    this.tableSettings = {
+      colors: {
+        border: this.colors.grey,
+        tableHeader: this.colors.basal,
+        zebraHeader: '#FAFAFA',
+        zebraEven: '#FAFAFA',
+        zebraOdd: '#FFFFFF',
+      },
+      borderWidth: 0.5,
     };
 
     this.rightEdge = this.margins.left + this.width;
@@ -138,36 +144,80 @@ class PrintView {
         x: xPos,
         y: this.chartArea.topEdge,
       };
+
+      this.table.pdf.lineWidth(this.tableSettings.borderWidth);
     }
 
     if (this.layoutColumns) {
-      this.setLayoutColumns(
-        this.layoutColumns.width,
-        this.layoutColumns.count,
-        this.layoutColumns.gutter,
-      );
+      this.setLayoutColumns({
+        count: this.layoutColumns.count,
+        gutter: this.layoutColumns.gutter,
+        type: this.layoutColumns.type,
+        width: this.layoutColumns.width,
+      });
     }
   }
 
-  setLayoutColumns(layoutWidth, count, gutter) {
-    const itemWidth = (layoutWidth - (gutter * (count - 1))) / count;
-    const columns = [];
+  setLayoutColumns(opts) {
+    const {
+      activeIndex = 0,
+      columns = [],
+      count = _.get(opts, 'widths.length', 0),
+      gutter,
+      type = 'equal',
+      width,
+      widths = [],
+    } = opts;
 
-    let i = 0;
-    do {
-      columns.push({
-        x: this.chartArea.leftEdge + (gutter * i) + (itemWidth * i),
-        y: this.doc.y,
-      });
-      i++;
-    } while (i < count);
+    const availableWidth = width - (gutter * (count - 1));
+
+    switch (type) {
+      case 'percentage': {
+        let combinedWidths = 0;
+        let i = 0;
+
+        do {
+          const columnWidth = availableWidth * widths[i] / 100;
+
+          columns.push({
+            x: this.chartArea.leftEdge + (gutter * i) + combinedWidths,
+            y: this.doc.y,
+            width: columnWidth,
+          });
+
+          i++;
+          combinedWidths += columnWidth;
+        } while (i < count);
+
+        break;
+      }
+
+      case 'equal':
+      default: {
+        const columnWidth = availableWidth / count;
+        let i = 0;
+
+        do {
+          columns.push({
+            x: this.chartArea.leftEdge + (gutter * i) + (columnWidth * i),
+            y: this.doc.y,
+            width: columnWidth,
+          });
+          i++;
+        } while (i < count);
+
+        break;
+      }
+    }
 
     this.layoutColumns = {
+      activeIndex,
       columns,
-      width: layoutWidth,
       count,
       gutter,
-      itemWidth,
+      type,
+      width,
+      widths,
     };
   }
 
@@ -208,6 +258,10 @@ class PrintView {
     return longestIndex;
   }
 
+  getActiveColumnWidth() {
+    return this.layoutColumns.columns[this.layoutColumns.activeIndex].width;
+  }
+
   setFill(color = 'black', opacity = 1) {
     this.doc
       .fillColor(color)
@@ -231,10 +285,13 @@ class PrintView {
     const {
       x = this.doc.x,
       y = this.doc.y,
+      fontSize = _.get(opts, 'fontSize', this.headerFontSize),
+      font = _.get(opts, 'font', this.font),
     } = opts;
 
     this.doc
-      .fontSize(this.headerFontSize)
+      .font(font)
+      .fontSize(fontSize)
       .text(text, x, y, _.defaults(opts, {
         align: 'left',
       }));
@@ -245,6 +302,7 @@ class PrintView {
 
   renderCellStripe(data, column, pos, isHeader) {
     const fillStripeKey = isHeader ? 'headerFillStripe' : 'fillStripe';
+    const fillKey = isHeader ? 'headerFill' : 'fill';
 
     // eslint-disable-next-line no-underscore-dangle
     const height = column.height || data._renderedContent.height;
@@ -254,23 +312,36 @@ class PrintView {
       height,
       color: this.colors.grey,
       opacity: 1,
+      background: false,
     };
 
-    if (column[fillStripeKey]) {
-      const stripeDefined = _.isPlainObject(column[fillStripeKey]);
+    const fillStripe = _.get(data, `_${fillStripeKey}`, column[fillStripeKey]);
+    const fill = _.get(data, `_${fillKey}`, column[fillKey]);
+
+    if (fillStripe) {
+      const stripeDefined = _.isPlainObject(fillStripe);
 
       stripe.color = stripeDefined
-        ? _.get(column, `${fillStripeKey}.color`, this.colors.grey)
-        : _.get(column, 'fill.color', this.colors.grey);
+        ? _.get(fillStripe, 'color', this.colors.grey)
+        : _.get(fill, 'color', this.colors.grey);
 
-      stripe.opacity = stripeDefined ? _.get(column, `${fillStripeKey}.opacity`, 1) : 1;
-      stripe.width = stripeDefined ? _.get(column, `${fillStripeKey}.width`, 6) : 6;
+      stripe.opacity = stripeDefined ? _.get(fillStripe, 'opacity', 1) : 1;
+      stripe.width = stripeDefined ? _.get(fillStripe, 'width', 6) : 6;
+      stripe.background = _.get(fillStripe, 'background', false);
+      stripe.padding = _.get(fillStripe, 'padding', 0);
 
       this.setFill(stripe.color, stripe.opacity);
 
-      this.doc
-        .rect(pos.x + 0.25, pos.y + 0.25, stripe.width, stripe.height - 0.5)
-        .fill();
+      const xPos = pos.x + 0.25 + stripe.padding;
+      const yPos = pos.y + 0.25 + stripe.padding;
+      const stripeWidth = stripe.width;
+      const stripeHeight = stripe.height - 0.5 - (2 * stripe.padding);
+
+      if (stripe.width > 0) {
+        this.doc
+          .rect(xPos, yPos, stripeWidth, stripeHeight)
+          .fill();
+      }
 
       this.setFill();
     }
@@ -284,38 +355,63 @@ class PrintView {
         text = '',
         subText = '',
         note,
-      } = _.get(data, 'heading', column.header || {});
+      } = _.get(data, column.id, column.header || {});
 
       if (!isHeader && _.isString(data[column.id])) {
         text = data[column.id];
         subText = note = null;
       }
 
-      const stripe = this.renderCellStripe(data, column, pos, isHeader);
+      const alignKey = isHeader ? 'headerAlign' : 'align';
+      const align = _.get(column, alignKey, 'left');
 
-      const xPos = pos.x + padding.left + stripe.width;
-      const yPos = pos.y + padding.top;
+      const stripe = this.renderCellStripe(data, column, pos, isHeader);
+      const stripeOffset = stripe.background ? 0 : stripe.width;
+
+      const xPos = pos.x + _.get(padding, 'left', 0) + stripeOffset;
+      let yPos = pos.y + padding.top;
 
       // eslint-disable-next-line no-underscore-dangle
       const boldRow = data._bold;
 
+      const width = column.width - _.get(padding, 'left', 0) - _.get(padding, 'right', 0);
+
+      // eslint-disable-next-line no-underscore-dangle
+      const height = column.height || data._renderedContent.height;
+
       this.doc
         .font(_.get(column, 'font', isHeader || boldRow ? this.boldFont : this.font))
-        .fontSize(_.get(column, 'fontSize', this.defaultFontSize))
-        .text(text, xPos, yPos, {
-          continued: !!subText,
-        });
+        .fontSize(_.get(column, 'fontSize', this.defaultFontSize));
+
+      if (column.valign === 'center') {
+        const textHeight = this.doc.heightOfString(text, { width });
+        yPos += (height - textHeight) / 2 + 1;
+      }
+
+      this.doc.text(text, xPos, yPos, {
+        continued: !!subText,
+        align,
+        width,
+      });
 
       this.doc.font(this.font);
 
       if (subText) {
-        this.doc.text(` ${subText}`, xPos, yPos);
+        this.doc.text(` ${subText}`, xPos, yPos, {
+          align,
+          width,
+        });
       }
 
       this.resetText();
 
       if (note) {
-        this.doc.text(note);
+        this.doc
+          .fontSize(_.get(column, 'noteFontSize', this.defaultFontSize))
+          .text(note, {
+            align,
+            width,
+          });
       }
     }
 
@@ -330,23 +426,23 @@ class PrintView {
     const columns = [
       {
         id: 'heading',
-        align: 'left',
-        height: heading.note ? 37 : 24,
+        align: _.get(opts, 'align', 'left'),
+        height: _.get(opts, 'height', heading.note ? 37 : 24),
         cache: false,
         renderer: this.renderCustomCell,
-        font: this.boldFont,
-        fontSize: this.largeFontSize,
+        font: _.get(opts, 'font', this.boldFont),
+        fontSize: _.get(opts, 'fontSize', this.largeFontSize),
       },
     ];
 
-    const data = [
+    const rows = [
       {
         heading,
         note: heading.note,
       },
     ];
 
-    this.renderTable(columns, data, _.defaultsDeep(opts, {
+    this.renderTable(columns, rows, _.defaultsDeep(opts, {
       columnDefaults: {
         headerBorder: '',
       },
@@ -358,11 +454,11 @@ class PrintView {
   }
 
   renderTable(columns = [], rows = [], opts = {}) {
-    this.doc.lineWidth(0.5);
+    this.doc.lineWidth(this.tableSettings.borderWidth);
 
     _.defaultsDeep(opts, {
       columnDefaults: {
-        borderColor: this.colors.grey,
+        borderColor: this.tableSettings.colors.border,
         headerBorder: 'TBLR',
         border: 'TBLR',
         align: 'left',
@@ -409,9 +505,11 @@ class PrintView {
 
           if (zebra) {
             if (isHeader) {
-              color = this.colors.zebraHeader;
+              color = this.tableSettings.colors.zebraHeader;
             } else {
-              color = isEven ? this.colors.zebraEven : this.colors.zebraOdd;
+              color = isEven
+                ? this.tableSettings.colors.zebraEven
+                : this.tableSettings.colors.zebraOdd;
             }
           }
         } else {

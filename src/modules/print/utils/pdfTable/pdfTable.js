@@ -101,10 +101,12 @@ var lodash = require('lodash'),
         // Left and right padding
         if (!isHeader) {
             padding.left = getPaddingValue('left', column.padding);
+            padding.right = getPaddingValue('right', column.padding);
             width -= getPaddingValue('horizontal', column.padding);
             x += padding.left;
         } else {
             padding.left = getPaddingValue('left', column.headerPadding);
+            padding.right = getPaddingValue('right', column.headerPadding);
             width -= getPaddingValue('horizontal', column.headerPadding);
             x += padding.left;
         }
@@ -168,7 +170,7 @@ var lodash = require('lodash'),
 
         lodash.forEach(self.getColumns(), function (column) {
             var renderer = isHeader ? column.headerRenderer : column.renderer,
-                content = renderer ? renderer(self, row, false) : row[column.id],
+            content = renderer ? renderer(self, row, false) : row[column.id],
                 // height = !content ? 1 : self.pdf.heightOfString(content, column),
                 height = !content ? 1 : self.pdf.heightOfString(content, lodash.assign(lodash.clone(column), {
                     width: column.width - getPaddingValue('horizontal', column.padding)
