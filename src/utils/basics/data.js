@@ -16,10 +16,12 @@
  */
 
 import _ from 'lodash';
+import moment from 'moment';
 import sundial from 'sundial';
 import crossfilter from 'crossfilter';
 
 import generateClassifiers from '../classifiers';
+import { generateBgRangeLabels } from '../bloodglucose';
 
 import {
   BGM_DATA_KEY,
@@ -369,6 +371,110 @@ function averageExcludingMostRecentDay(dataObj, total, mostRecentDay) {
 }
 
 /**
+ * Define sections and filters used in the basics view
+ *
+ * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds
+ * @returns {Object} sections
+ */
+function defineBasicsSections(bgPrefs) {
+  const bgLabels = generateBgRangeLabels(bgPrefs);
+  bgLabels.veryLow = _.capitalize(bgLabels.veryLow);
+  bgLabels.veryHigh = _.capitalize(bgLabels.veryHigh);
+
+  const sectionNames = [
+    'basals',
+    'basalBolusRatio',
+    'bgDistribution',
+    'boluses',
+    'fingersticks',
+    'siteChanges',
+    'totalDailyDose',
+    'averageDailyCarbs',
+  ];
+
+  const sections = {};
+
+  _.each(sectionNames, section => {
+    let type;
+    let filters;
+    let title = '';
+
+    switch (section) {
+      case 'basals':
+        type = 'basal';
+        title = 'Basals';
+        filters = [
+          { key: 'total', label: 'Basal Events', primary: true },
+          { key: 'temp', label: 'Temp Basals' },
+          { key: 'suspend', label: 'Suspends' },
+        ];
+        break;
+
+      case 'boluses':
+        type = 'bolus';
+        title = 'Bolusing';
+        filters = [
+          { key: 'total', label: 'Avg per day', average: true, primary: true },
+          { key: 'wizard', label: 'Calculator', percentage: true },
+          { key: 'correction', label: 'Correction', percentage: true },
+          { key: 'override', label: 'Override', percentage: true },
+          { key: 'manual', label: 'Manual', percentage: true },
+          { key: 'extended', label: 'Extended', percentage: true },
+          { key: 'interrupted', label: 'Interrupted', percentage: true },
+        ];
+        break;
+
+      case 'fingersticks':
+        type = 'fingerstick';
+        title = 'BG readings';
+        filters = [
+          { path: 'smbg', key: 'total', label: 'Avg per day', average: true, primary: true },
+          { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
+          { path: 'smbg', key: 'manual', label: 'Manual', percentage: true },
+          { path: 'calibration', key: 'calibration', label: 'Calibrations' },
+          { path: 'smbg', key: 'veryLow', label: bgLabels.veryLow, percentage: true },
+          { path: 'smbg', key: 'veryHigh', label: bgLabels.veryHigh, percentage: true },
+        ];
+        break;
+
+      case 'siteChanges':
+        type = SITE_CHANGE_RESERVOIR;
+        title = 'Infusion site changes';
+        break;
+
+      case 'bgDistribution':
+        title = 'BG distribution';
+        break;
+
+      case 'totalDailyDose':
+        title = 'Avg total daily dose';
+        break;
+
+      case 'basalBolusRatio':
+        title = 'Insulin ratio';
+        break;
+
+      case 'averageDailyCarbs':
+        title = 'Avg daily carbs';
+        break;
+
+      default:
+        type = false;
+        break;
+    }
+
+    sections[section] = {
+      active: true,
+      title,
+      type,
+      filters,
+    };
+  });
+
+  return sections;
+}
+
+/**
  *
  *
  * @export
@@ -376,7 +482,8 @@ function averageExcludingMostRecentDay(dataObj, total, mostRecentDay) {
  */
 export function reduceByDay(data, bgPrefs) {
   const basicsData = _.cloneDeep(data);
-  /* eslint-disable no-param-reassign */
+
+  basicsData.sections = defineBasicsSections(bgPrefs);
 
   const findSectionContainingType = type => section => {
     if (section.column === 'left') {
@@ -418,7 +525,7 @@ export function reduceByDay(data, bgPrefs) {
       const section = _.find(basicsData.sections, findSectionContainingType(type));
       // wrap this in an if mostly for testing convenience
       if (section) {
-        const tags = _.flatten(_.map(section.selectorOptions.rows, getRowKey));
+        const tags = _.map(_.filter(section.filters, f => !f.primary), row => row.key);
 
         const summary = {
           total: _.reduce(
@@ -463,11 +570,9 @@ export function reduceByDay(data, bgPrefs) {
 
     fingerstickData.summary = fsSummary;
 
-    const fsTags = _.flatten(_.map(fsSection.selectorOptions.rows, function(row) {
-      return _.pluck(_.filter(row, function(opt) {
-        return opt.path === 'smbg';
-      }), 'key');
-    }));
+    const filterTags = filter => (filter.path === 'smbg' && !filter.primary);
+
+    const fsTags = _.map(_.filter(fsSection.filters, filterTags), row => row.key);
 
     _.each(fsTags, summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
     const smbgSummary = fingerstickData.summary.smbg;
@@ -476,8 +581,25 @@ export function reduceByDay(data, bgPrefs) {
       smbgSummary.total,
       mostRecentDay,
     );
+
+    basicsData.data.fingerstick = fingerstickData;
+    basicsData.data.fingerstick.summary.smbg = smbgSummary;
   }
 
   return basicsData;
-  /* eslint-enable no-param-reassign */
+}
+
+/**
+ * Generate the day labels based on the days supplied by the processed basics view data
+ *
+ * @export
+ * @param {Array} days - supplied by the processed basics view data
+ * @returns {Array} labels - formatted day labels.  I.E. [Mon, Tues, Wed, ...]
+ */
+export function generateCalendarDayLabels(days) {
+  const firstDay = moment.utc(days[0].date).day();
+
+  return _.map(_.range(firstDay, firstDay + 7), dow => (
+    moment.utc().day(dow).format('ddd')
+  ));
 }

@@ -90,11 +90,11 @@ export default function generateClassifiers(bgPrefs) {
       }
 
       switch (bgCategory) {
-        case 'verylow':
-          tags.push('verylow');
+        case 'veryLow':
+          tags.push('veryLow');
           break;
-        case 'veryhigh':
-          tags.push('veryhigh');
+        case 'veryHigh':
+          tags.push('veryHigh');
           break;
         default:
           break;
