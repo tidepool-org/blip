@@ -37,6 +37,7 @@ import {
   WIDTH,
   HEIGHT,
   DEFAULT_FONT_SIZE,
+  EXTRA_SMALL_FONT_SIZE,
   FOOTER_FONT_SIZE,
   HEADER_FONT_SIZE,
   LARGE_FONT_SIZE,
@@ -65,6 +66,7 @@ class PrintView {
     this.headerFontSize = opts.headerFontSize || HEADER_FONT_SIZE;
     this.largeFontSize = opts.largeFontSize || LARGE_FONT_SIZE;
     this.smallFontSize = opts.smallFontSize || SMALL_FONT_SIZE;
+    this.extraSmallFontSize = opts.extraSmallFontSize - 1 || EXTRA_SMALL_FONT_SIZE - 1;
 
     this.bgPrefs = opts.bgPrefs;
     this.bgUnits = opts.bgPrefs.bgUnits;
@@ -82,10 +84,11 @@ class PrintView {
     };
 
     this.colors = {
-      low: '#FF8B7C',
-      target: '#76D3A6',
       basal: '#19A0D7',
       bolus: '#7CD0F0',
+      smbg: '#6480FB',
+      low: '#FF8B7C',
+      target: '#76D3A6',
       high: '#BB9AE7',
       grey: '#6D6D6D',
     };
@@ -120,7 +123,7 @@ class PrintView {
 
     // Auto-bind callback methods
     this.newPage = this.newPage.bind(this);
-    this.renderCustomCell = this.renderCustomCell.bind(this);
+    this.renderCustomTextCell = this.renderCustomTextCell.bind(this);
 
     // Clear previous and set up pageAdded listeners :/
     this.doc.removeAllListeners('pageAdded');
@@ -275,26 +278,52 @@ class PrintView {
   }
 
   resetText() {
+    this.setStroke();
     this.setFill();
     this.doc
       .fontSize(this.defaultFontSize)
       .font(this.font);
   }
 
-  renderSectionHeading(text, opts = {}) {
+  renderSectionHeading(heading, opts = {}) {
     const {
-      x = this.doc.x,
-      y = this.doc.y,
-      fontSize = _.get(opts, 'fontSize', this.headerFontSize),
+      xPos = this.doc.x,
+      yPos = this.doc.y,
       font = _.get(opts, 'font', this.font),
+      fontSize = _.get(opts, 'fontSize', this.headerFontSize),
+      subTextFont = _.get(opts, 'subTextFont', this.font),
+      subTextFontSize = _.get(opts, 'subTextFontSize', this.defaultFontSize),
     } = opts;
+
+    const text = _.isString(heading) ? heading : heading.text;
+    const subText = _.get(heading, 'subText', false);
+
+    const textHeight = this.doc
+      .font(font)
+      .fontSize(fontSize)
+      .heightOfString(' ');
+
+    const subTextHeight = this.doc
+      .font(subTextFont)
+      .fontSize(subTextFontSize)
+      .heightOfString(' ');
+
+    const subTextYOffset = (textHeight - subTextHeight) / 1.75;
 
     this.doc
       .font(font)
       .fontSize(fontSize)
-      .text(text, x, y, _.defaults(opts, {
+      .text(text, xPos, yPos, _.defaults(opts, {
         align: 'left',
+        continued: !!subText,
       }));
+
+    if (subText) {
+      this.doc
+        .font(subTextFont)
+        .fontSize(subTextFontSize)
+        .text(` ${subText}`, xPos, yPos + subTextYOffset);
+    }
 
     this.resetText();
     this.doc.moveDown();
@@ -349,7 +378,7 @@ class PrintView {
     return stripe;
   }
 
-  renderCustomCell(tb, data, draw, column, pos, padding, isHeader) {
+  renderCustomTextCell(tb, data, draw, column, pos, padding, isHeader) {
     if (draw) {
       let {
         text = '',
@@ -357,8 +386,8 @@ class PrintView {
         note,
       } = _.get(data, column.id, column.header || {});
 
-      if (!isHeader && _.isString(data[column.id])) {
-        text = data[column.id];
+      if ((!isHeader && _.isString(data[column.id])) || _.isString(column.header)) {
+        text = isHeader ? column.header : data[column.id];
         subText = note = null;
       }
 
@@ -429,7 +458,7 @@ class PrintView {
         align: _.get(opts, 'align', 'left'),
         height: _.get(opts, 'height', heading.note ? 37 : 24),
         cache: false,
-        renderer: this.renderCustomCell,
+        renderer: this.renderCustomTextCell,
         font: _.get(opts, 'font', this.boldFont),
         fontSize: _.get(opts, 'fontSize', this.largeFontSize),
       },

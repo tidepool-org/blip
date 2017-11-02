@@ -46,10 +46,11 @@ class SettingsPrintView extends PrintView {
     this.manufacturer = _.get(data, 'source', '').toLowerCase();
     this.isTandem = this.manufacturer === 'tandem';
     this.deviceMeta = getDeviceMeta(data, opts.timePrefs);
+
+    this.doc.addPage();
   }
 
   render() {
-    this.doc.addPage();
     this.renderDeviceMeta();
 
     if (this.isTandem) {
@@ -159,18 +160,18 @@ class SettingsPrintView extends PrintView {
             color: fillStripes[column.key],
           },
           cache: false,
-          headerRenderer: this.renderCustomCell,
+          headerRenderer: this.renderCustomTextCell,
         };
 
         if (!isFirst) {
           columnDef.width = widths[column.key];
 
           if (columnDef.id === 'rate') {
-            columnDef.renderer = this.renderCustomCell;
+            columnDef.renderer = this.renderCustomTextCell;
           }
         } else {
           columnDef.cache = false;
-          columnDef.renderer = this.renderCustomCell;
+          columnDef.renderer = this.renderCustomTextCell;
         }
 
         return columnDef;

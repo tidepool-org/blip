@@ -18,6 +18,7 @@
 /* eslint-disable lodash/prefer-lodash-method */
 
 import _ from 'lodash';
+import moment from 'moment';
 
 import PrintView from './PrintView';
 
@@ -26,6 +27,7 @@ import {
   cgmStatusMessage,
   determineBgDistributionSource,
   reduceByDay,
+  generateCalendarDayLabels,
 } from '../../utils/basics/data';
 
 import { calcBgPercentInCategories, generateBgRangeLabels } from '../../utils/bloodglucose';
@@ -45,55 +47,35 @@ class BasicsPrintView extends PrintView {
     // Auto-bind callback methods
     this.renderStackedStat = this.renderStackedStat.bind(this);
     this.renderPieChart = this.renderPieChart.bind(this);
-  }
+    this.renderCalendarCell = this.renderCalendarCell.bind(this);
 
-  render() {
-    console.log('data', this.data);
-    console.log('doc', this.doc);
     this.doc.addPage();
     this.initLayout();
-    this.renderLeftColumn();
-    this.renderCenterColumn();
-    this.renderRightColumn();
   }
 
-  renderLeftColumn() {
-    this.goToLayoutColumnPosition(0);
-    this.renderBgDistribution();
-    this.renderAggregatedStats();
-  }
+  initCalendar() {
+    const columnWidth = this.getActiveColumnWidth();
+    const calendar = {};
 
-  renderCenterColumn() {
-    this.renderCalendar({
-      title: 'BG readings',
-      data: this.data.data.smbg, // calibration
-      days: this.data.days,
-    });
+    calendar.labels = generateCalendarDayLabels(this.data.days);
 
-    this.renderCalendar({
-      title: 'Bolusing',
-      data: this.data.data.bolus,
-      days: this.data.days,
-    });
+    calendar.headerHeight = 15;
 
-    this.renderCalendar({
-      title: {
-        text: 'Infusion site changes',
-        subText: 'from cannula fills', // reservoirChange | tubingPrime
-      },
-      data: this.data.data.cannulaPrime, // reservoirChange | tubingPrime
-      days: this.data.days,
-    });
+    calendar.columns = _.map(calendar.labels, label => ({
+      id: label,
+      header: label,
+      width: columnWidth / 7,
+      height: columnWidth / 7,
+      cache: false,
+      renderer: this.renderCalendarCell,
+      headerBorder: '',
+      headerPadding: [4, 2, 0, 2],
+      padding: [3, 2, 3, 2],
+    }));
 
-    this.renderCalendar({
-      title: 'Basals',
-      data: this.data.data.basal, // reservoirChange | tubingPrime
-      days: this.data.days,
-    });
-  }
+    calendar.days = this.data.days;
 
-  renderRightColumn() {
-
+    this.calendar = calendar;
   }
 
   initLayout() {
@@ -103,6 +85,58 @@ class BasicsPrintView extends PrintView {
       type: 'percentage',
       widths: [25, 50, 25],
     });
+  }
+
+  render() {
+    console.log('data', this.data);
+    console.log('doc', this.doc);
+    // this.doc.addPage();
+    this.renderLeftColumn();
+    this.renderCenterColumn();
+    this.renderRightColumn();
+  }
+
+  renderLeftColumn() {
+    this.goToLayoutColumnPosition(0);
+
+    this.renderBgDistribution();
+    this.renderAggregatedStats();
+  }
+
+  renderCenterColumn() {
+    this.goToLayoutColumnPosition(1);
+
+    this.initCalendar();
+
+    this.renderCalendarSection({
+      title: this.data.sections.fingersticks.title,
+      data: this.data.data.fingerstick.smbg.dataByDate,
+      color: this.colors.smbg,
+    });
+
+    this.renderCalendarSection({
+      title: this.data.sections.boluses.title,
+      data: this.data.data.bolus.dataByDate,
+      color: this.colors.bolus,
+    });
+
+    // this.renderCalendarSection({
+    //   title: {
+    //     text: this.data.sections.siteChanges.title,
+    //     subText: 'from cannula fills', // reservoirChange | tubingPrime
+    //   },
+    //   data: this.data.data.cannulaPrime, // reservoirChange | tubingPrime
+    // });
+
+    this.renderCalendarSection({
+      title: this.data.sections.basals.title,
+      data: this.data.data.basal.dataByDate,
+      color: this.colors.basal,
+    });
+  }
+
+  renderRightColumn() {
+
   }
 
   renderBgDistribution() {
@@ -124,7 +158,7 @@ class BasicsPrintView extends PrintView {
         {
           id: 'value',
           cache: false,
-          renderer: this.renderCustomCell,
+          renderer: this.renderCustomTextCell,
           width: columnWidth,
           height: 35,
           fontSize: this.largeFontSize,
@@ -187,16 +221,25 @@ class BasicsPrintView extends PrintView {
       totalDailyDose,
     } = calculateBasalBolusStats(this.data);
 
-    this.renderSimpleStat('Avg daily carbs', formatDecimalNumber(averageDailyCarbs), ' g');
+    this.renderSimpleStat(
+      this.data.sections.averageDailyCarbs.title,
+      formatDecimalNumber(averageDailyCarbs),
+      ' g'
+    );
+
     this.renderBasalBolusRatio(averageDailyDose, basalBolusRatio);
-    this.renderSimpleStat('Avg total daily dose', formatDecimalNumber(totalDailyDose, 1), ' U');
+
+    this.renderSimpleStat(this.data.sections.totalDailyDose.title,
+      formatDecimalNumber(totalDailyDose, 1),
+      ' U'
+    );
   }
 
   renderBasalBolusRatio(averageDailyDose, basalBolusRatio) {
     const columnWidth = this.getActiveColumnWidth();
 
     const heading = {
-      text: 'Insulin ratio',
+      text: this.data.sections.basalBolusRatio.title,
     };
 
     this.renderTableHeading(heading, {
@@ -361,7 +404,7 @@ class BasicsPrintView extends PrintView {
       {
         id: 'stat',
         cache: false,
-        renderer: this.renderCustomCell,
+        renderer: this.renderCustomTextCell,
         width: columnWidth * 0.65,
         height: 35,
         fontSize: this.defaultFontSize,
@@ -373,7 +416,7 @@ class BasicsPrintView extends PrintView {
       {
         id: 'value',
         cache: false,
-        renderer: this.renderCustomCell,
+        renderer: this.renderCustomTextCell,
         width: columnWidth * 0.35,
         height: 35,
         fontSize: this.defaultFontSize,
@@ -397,8 +440,155 @@ class BasicsPrintView extends PrintView {
     });
   }
 
-  renderCalendar() {
+  renderCalendarSection(opts) {
+    const {
+      title,
+      data,
+      color,
+    } = opts;
 
+    const columnWidth = this.getActiveColumnWidth();
+
+    this.renderSectionHeading(title, {
+      width: columnWidth,
+      fontSize: this.largeFontSize,
+    });
+
+    const chunkedDayMap = _.chunk(_.map(this.calendar.days, (day, index) => {
+      const date = moment.utc(day.date);
+      const dateLabelMask = (index === 0 || date.date() === 1) ? 'MMM D' : 'D';
+
+      return {
+        dayOfWeek: date.format('ddd'),
+        color,
+        count: _.get(data, `${day.date}.total`, null),
+        isFuture: day.type === 'future',
+        label: date.format(dateLabelMask),
+      };
+    }), 7);
+
+    const rows = _.map(chunkedDayMap, week => {
+      const values = {};
+
+      _.each(week, day => {
+        values[day.dayOfWeek] = day;
+      });
+
+      return values;
+    });
+
+    this.doc.fontSize(this.smallFontSize);
+    this.doc.y = this.doc.y - Math.round(this.doc.currentLineHeight()) + 5;
+
+    this.renderTable(this.calendar.columns, rows, {
+
+    });
+  }
+
+  renderCalendarCell(tb, data, draw, column, pos, padding) {
+    if (draw) {
+      const {
+        color,
+        count,
+        isFuture,
+        label,
+      } = data[column.id];
+
+      const xPos = pos.x + padding.left;
+      const yPos = pos.y + padding.top;
+
+
+      this.setFill(isFuture ? this.colors.grey : 'black', 1);
+
+      this.doc
+        .fontSize(this.extraSmallFontSize)
+        .text(label, xPos, yPos);
+
+      const width = column.width - _.get(padding, 'left', 0) - _.get(padding, 'right', 0);
+      const height = column.height - _.get(padding, 'top', 0) - _.get(padding, 'bottom', 0);
+
+      const gridHeight = height - (this.doc.y - yPos);
+      const gridWidth = width > gridHeight ? gridHeight : width;
+
+      if (count > 0) {
+        const gridPos = {
+          x: pos.x + (column.width - gridWidth) / 2,
+          y: this.doc.y,
+        };
+
+        this.renderCountGrid(count, gridWidth, gridPos, color);
+      }
+
+      this.resetText();
+    }
+
+    return ' ';
+  }
+
+  renderCountGrid(count, width, pos, color) {
+    const colCount = 3;
+    const rowCount = 3;
+    const gridSpaces = colCount * rowCount;
+    const padding = 1.5;
+    const dots = [];
+
+    const {
+      x: xPos,
+      y: yPos,
+    } = pos;
+
+    const diameter = (width - padding * (colCount - 1)) / colCount;
+    const radius = diameter / 2;
+
+    const grid = _.times(rowCount, (row) => _.times(colCount, (col) => ({
+      x: xPos + (col * diameter) + (padding * col),
+      y: yPos + (row * diameter) + (padding * row),
+    })));
+
+    let currentGrid = [];
+    let availableSpaces = gridSpaces;
+    let remaining = count;
+
+    _.each(_.range(count).reverse(), (item) => {
+      if (remaining >= availableSpaces && remaining > 1) {
+        currentGrid.unshift(item);
+
+        if (currentGrid.length === gridSpaces) {
+          dots.unshift(_.clone(currentGrid));
+          currentGrid = [];
+          availableSpaces--;
+        }
+      } else {
+        if (currentGrid.length) {
+          dots.unshift(_.clone(currentGrid));
+          currentGrid = [];
+        }
+
+        dots.push(item);
+      }
+      remaining--;
+    });
+
+    console.log('dots', dots);
+    // console.log('dots', _.chunk(dots.reverse(), colCount));
+
+    this.setFill(color);
+
+    _.each(_.chunk(dots.reverse(), colCount), (row, rowIndex) => {
+      _.each(row, (col, colIndex) => {
+        const gridPos = grid[rowIndex][colIndex];
+        const dot = dots[rowIndex][colIndex];
+        if (_.isArray(dot)) {
+          this.renderCountGrid(dot.length, diameter, gridPos, color);
+        } else {
+          this.doc
+            .circle(gridPos.x + radius, gridPos.y + radius, radius)
+            .fill();
+        }
+      });
+    });
+
+    this.setFill();
   }
 }
 
