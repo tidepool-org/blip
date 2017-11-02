@@ -2977,6 +2977,32 @@ describe('Actions', () => {
         expect(api.user.createOAuthProviderAuthorization.withArgs('fitbit', restrictedToken.id).callCount).to.equal(1);
       });
 
+      it('should trigger CONNECT_DATA_SOURCE_FAILURE and it should call error once for an unexpected provider type', () => {
+        let api = {
+          user: {
+            createRestrictedToken: sinon.stub(),
+            createOAuthProviderAuthorization: sinon.stub(),
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_CONNECTING_DATA_SOURCE);
+
+        let expectedActions = [
+          { type: 'CONNECT_DATA_SOURCE_REQUEST' },
+          { type: 'CONNECT_DATA_SOURCE_FAILURE', error: err, meta: { apiError: 'Unknown data source type' } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore(initialState);
+        store.dispatch(async.connectDataSource(api, 'strava', { path: [ '/v1/oauth/strava' ] }, { providerType: 'unexpected', providerName: 'strava' }));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.createRestrictedToken.callCount).to.equal(0);
+        expect(api.user.createOAuthProviderAuthorization.callCount).to.equal(0);
+      });
+
       it('should trigger CONNECT_DATA_SOURCE_FAILURE and it should call error once for a failed request', () => {
         let api = {
           user: {
@@ -3030,6 +3056,30 @@ describe('Actions', () => {
         expect(api.user.deleteOAuthProviderAuthorization.withArgs('fitbit').callCount).to.equal(1);
       });
 
+      it('should trigger DISCONNECT_DATA_SOURCE_FAILURE and it should call error once for an unexpected provider type', () => {
+        let api = {
+          user: {
+            deleteOAuthProviderAuthorization: sinon.stub(),
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_CONNECTING_DATA_SOURCE);
+
+        let expectedActions = [
+          { type: 'DISCONNECT_DATA_SOURCE_REQUEST' },
+          { type: 'DISCONNECT_DATA_SOURCE_FAILURE', error: err, meta: { apiError: 'Unknown data source type' } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore(initialState);
+        store.dispatch(async.disconnectDataSource(api, 'strava', { providerType: 'unexpected', providerName: 'strava' }));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.deleteOAuthProviderAuthorization.callCount).to.equal(0);
+      });
+
       it('should trigger DISCONNECT_DATA_SOURCE_FAILURE and it should call error once for a failed request', () => {
         let api = {
           user: {
@@ -3055,6 +3105,5 @@ describe('Actions', () => {
         expect(api.user.deleteOAuthProviderAuthorization.withArgs('strava').callCount).to.equal(1);
       });
     });
-
   });
 });
