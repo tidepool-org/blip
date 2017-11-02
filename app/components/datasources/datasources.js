@@ -69,6 +69,7 @@ export default class DataSources extends Component {
     this.state = {
       now: sundial.utcDateString(),
       popups: {},
+      timeAgoIntervalId: setInterval(this.timeAgoInterval.bind(this), 60000),
     };
   }
 
@@ -240,14 +241,10 @@ export default class DataSources extends Component {
     }
   }
 
-  componentDidMount() {
-    this.setState({ timeAgoIntervalId: setInterval(this.timeAgoInterval.bind(this), 60000) });
-  }
-
   componentWillUnmount() {
     clearInterval(this.state.popupIntervalId);
     clearInterval(this.state.timeAgoIntervalId);
-    clearInterval(this.state.fetchDataSourcesTimeoutId);
+    clearTimeout(this.state.fetchDataSourcesTimeoutId);
   }
 
   fetchDataSourcesTimeout() {
