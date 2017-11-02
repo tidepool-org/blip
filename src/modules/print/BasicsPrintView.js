@@ -516,7 +516,9 @@ class BasicsPrintView extends PrintView {
           y: this.doc.y,
         };
 
+        this.setFill(color);
         this.renderCountGrid(count, gridWidth, gridPos, color);
+        this.setFill();
       }
 
       this.resetText();
@@ -529,8 +531,9 @@ class BasicsPrintView extends PrintView {
     const colCount = 3;
     const rowCount = 3;
     const gridSpaces = colCount * rowCount;
-    const padding = 1.5;
-    const dots = [];
+    const padding = width * 0.05;
+    const maxCount = gridSpaces * gridSpaces;
+    const renderCount = count > maxCount ? maxCount : count;
 
     const {
       x: xPos,
@@ -545,50 +548,41 @@ class BasicsPrintView extends PrintView {
       y: yPos + (row * diameter) + (padding * row),
     })));
 
-    let currentGrid = [];
-    let availableSpaces = gridSpaces;
-    let remaining = count;
+    const countArray = _.fill(Array(renderCount), 1);
+    const extrasArray = _.map(
+      _.chunk(countArray.splice(gridSpaces), gridSpaces - 1),
+      chunk => chunk.length
+    ).reverse();
 
-    _.each(_.range(count).reverse(), (item) => {
-      if (remaining >= availableSpaces && remaining > 1) {
-        currentGrid.unshift(item);
+    const gridValues = _.map(
+      _.fill(Array(gridSpaces), 0),
+      (space, index) => (_.get(countArray, index, 0) + _.get(extrasArray, index, 0)),
+    );
 
-        if (currentGrid.length === gridSpaces) {
-          dots.unshift(_.clone(currentGrid));
-          currentGrid = [];
-          availableSpaces--;
-        }
-      } else {
-        if (currentGrid.length) {
-          dots.unshift(_.clone(currentGrid));
-          currentGrid = [];
-        }
+    if (extrasArray.length) {
+      gridValues.reverse();
+    }
 
-        dots.push(item);
+    const chunkedGridValues = _.chunk(gridValues, colCount);
+
+    const renderColumn = rowIndex => (col, colIndex) => {
+      const gridPos = grid[rowIndex][colIndex];
+      const dot = chunkedGridValues[rowIndex][colIndex];
+
+      if (dot > 1) {
+        this.renderCountGrid(dot, diameter, gridPos, color);
+      } else if (dot === 1) {
+        this.doc
+          .circle(gridPos.x + radius, gridPos.y + radius, radius)
+          .fill();
       }
-      remaining--;
-    });
+    };
 
-    console.log('dots', dots);
-    // console.log('dots', _.chunk(dots.reverse(), colCount));
+    const renderRow = (row, rowIndex) => {
+      _.each(row, renderColumn(rowIndex));
+    };
 
-    this.setFill(color);
-
-    _.each(_.chunk(dots.reverse(), colCount), (row, rowIndex) => {
-      _.each(row, (col, colIndex) => {
-        const gridPos = grid[rowIndex][colIndex];
-        const dot = dots[rowIndex][colIndex];
-        if (_.isArray(dot)) {
-          this.renderCountGrid(dot.length, diameter, gridPos, color);
-        } else {
-          this.doc
-            .circle(gridPos.x + radius, gridPos.y + radius, radius)
-            .fill();
-        }
-      });
-    });
-
-    this.setFill();
+    _.each(chunkedGridValues, renderRow);
   }
 }
 
