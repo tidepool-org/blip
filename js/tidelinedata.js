@@ -57,7 +57,7 @@ function TidelineData(data, opts) {
     CBG_PERCENT_FOR_ENOUGH: 0.75,
     CBG_MAX_DAILY: 288,
     SMBG_DAILY_MIN: 4,
-    basicsTypes: ['basal', 'bolus', 'cbg', 'smbg', 'deviceEvent', 'wizard'],
+    basicsTypes: ['basal', 'bolus', 'cbg', 'smbg', 'deviceEvent', 'wizard', 'upload'],
     bgClasses: {
       'very-low': { boundary: 55 },
       low: { boundary: 70 },
@@ -507,6 +507,7 @@ function TidelineData(data, opts) {
         case 'bolus':
         case 'cbg':
         case 'smbg':
+        case 'upload':
           return true;
         case 'deviceEvent':
           var includedSubtypes = [
