@@ -32,9 +32,16 @@ import {
   NOT_ENOUGH_CGM,
   CGM_CALCULATED,
   NO_CGM,
+  NO_SITE_CHANGE,
+  SITE_CHANGE,
   SITE_CHANGE_RESERVOIR,
   SITE_CHANGE_TUBING,
   SITE_CHANGE_CANNULA,
+  INSULET,
+  TANDEM,
+  ANIMAS,
+  MEDTRONIC,
+  pumpVocabulary,
 } from '../constants';
 
 /**
@@ -222,6 +229,110 @@ export function getLatestPumpUploaded(basicsData) {
 }
 
 /**
+ *
+ *
+ * @param {Object} basicsData - the preprocessed basics data object
+ * @param {any} type
+ * @returns {Object} infusionSiteHistory
+ */
+function getInfusionSiteHistory(basicsData, type) {
+  const infusionSitesPerDay = basicsData.data[type].dataByDate;
+  const allDays = basicsData.days;
+  const infusionSiteHistory = {};
+  let hasChangeHistory = false;
+
+  // daysSince does *not* start at zero because we have to look back to the
+  // most recent infusion site change prior to the basics-restricted time domain
+  const priorSiteChange = _.findLast(_.keys(infusionSitesPerDay), date => date < allDays[0].date);
+
+  let daysSince = (Date.parse(allDays[0].date) - Date.parse(priorSiteChange)) / MS_IN_DAY - 1;
+  _.each(allDays, day => {
+    if (day.type === 'future') {
+      infusionSiteHistory[day.date] = { type: 'future' };
+    } else {
+      daysSince += 1;
+      if (infusionSitesPerDay[day.date] && infusionSitesPerDay[day.date].count >= 1) {
+        infusionSiteHistory[day.date] = {
+          type: SITE_CHANGE,
+          count: infusionSitesPerDay[day.date].count,
+          data: infusionSitesPerDay[day.date].data,
+          daysSince,
+        };
+        daysSince = 0;
+        hasChangeHistory = true;
+      } else {
+        infusionSiteHistory[day.date] = { type: NO_SITE_CHANGE };
+      }
+    }
+  });
+
+  infusionSiteHistory.hasChangeHistory = hasChangeHistory;
+  return infusionSiteHistory;
+}
+
+/**
+ *
+ *
+ * @export
+ * @param {Object} data - the preprocessed basics data object
+ * @param {any} latestPump
+ * @param {any} patient
+ * @param {any} permissions
+ */
+export function processInfusionSiteHistory(data, patient) {
+  const basicsData = _.cloneDeep(data);
+  const latestPump = getLatestPumpUploaded(basicsData);
+
+  if (!latestPump) {
+    return null;
+  }
+
+  const {
+    settings,
+  } = patient;
+
+  if (latestPump === ANIMAS || latestPump === MEDTRONIC || latestPump === TANDEM) {
+    basicsData.data.cannulaPrime.infusionSiteHistory = getInfusionSiteHistory(
+      basicsData,
+      SITE_CHANGE_CANNULA
+    );
+
+    basicsData.data.tubingPrime.infusionSiteHistory = getInfusionSiteHistory(
+      basicsData,
+      SITE_CHANGE_TUBING
+    );
+
+    const siteChangeSource = _.get(settings, 'siteChangeSource');
+    const allowedSources = [SITE_CHANGE_CANNULA, SITE_CHANGE_TUBING];
+
+    if (siteChangeSource && _.includes(allowedSources, siteChangeSource)) {
+      basicsData.sections.siteChanges.type = settings.siteChangeSource;
+    }
+  } else if (latestPump === INSULET) {
+    basicsData.data.reservoirChange.infusionSiteHistory = getInfusionSiteHistory(
+      basicsData,
+      SITE_CHANGE_RESERVOIR
+    );
+
+    basicsData.sections.siteChanges.type = SITE_CHANGE_RESERVOIR;
+    basicsData.sections.siteChanges.selector = null;
+  } else {
+    // CareLink (Medtronic) or other unsupported pump
+    basicsData.data.reservoirChange = {};
+    basicsData.sections.siteChanges.type = SITE_CHANGE_RESERVOIR;
+    basicsData.sections.siteChanges.selector = null;
+  }
+
+  basicsData.sections.siteChanges.subTitle = _.get(
+    pumpVocabulary,
+    [latestPump, basicsData.sections.siteChanges.type],
+    pumpVocabulary.default[SITE_CHANGE_RESERVOIR],
+  );
+
+  return basicsData;
+}
+
+/**
  * Generate crossfilter reducers for classifying data records
  *
  * @param {any} dataObj
@@ -343,16 +454,6 @@ function summarizeTagFn(dataObj, summary) {
 /**
  *
  *
- * @param {any} row
- * @returns
- */
-function getRowKey(row) {
-  return _.pluck(row, 'key');
-}
-
-/**
- *
- *
  * @param {any} dataObj
  * @param {any} total
  * @param {any} mostRecentDay
@@ -398,6 +499,7 @@ function defineBasicsSections(bgPrefs) {
     let type;
     let filters;
     let title = '';
+    let subTitle;
 
     switch (section) {
       case 'basals':
@@ -438,8 +540,9 @@ function defineBasicsSections(bgPrefs) {
         break;
 
       case 'siteChanges':
-        type = SITE_CHANGE_RESERVOIR;
+        type = undefined;
         title = 'Infusion site changes';
+        subTitle = 'from something....';
         break;
 
       case 'bgDistribution':
@@ -466,6 +569,7 @@ function defineBasicsSections(bgPrefs) {
     sections[section] = {
       active: true,
       title,
+      subTitle,
       type,
       filters,
     };
@@ -478,7 +582,7 @@ function defineBasicsSections(bgPrefs) {
  *
  *
  * @export
- * @param {any} basicsData
+ * @param {any} data
  */
 export function reduceByDay(data, bgPrefs) {
   const basicsData = _.cloneDeep(data);

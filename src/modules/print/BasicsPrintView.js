@@ -26,8 +26,9 @@ import {
   calculateBasalBolusStats,
   cgmStatusMessage,
   determineBgDistributionSource,
-  reduceByDay,
   generateCalendarDayLabels,
+  processInfusionSiteHistory,
+  reduceByDay,
 } from '../../utils/basics/data';
 
 import { calcBgPercentInCategories, generateBgRangeLabels } from '../../utils/bloodglucose';
@@ -38,11 +39,29 @@ import parse from 'parse-svg-path';
 import translate from 'translate-svg-path';
 import serialize from 'serialize-svg-path';
 
+import {
+  NO_SITE_CHANGE,
+  SITE_CHANGE,
+  SITE_CHANGE_CANNULA,
+  SITE_CHANGE_RESERVOIR,
+  SITE_CHANGE_TUBING,
+} from '../../utils/constants';
+
+const siteChangeCannulaImage = require('./images/sitechange-cannula.png');
+const siteChangeReservoirImage = require('./images/sitechange-reservoir.png');
+const siteChangeTubingImage = require('./images/sitechange-tubing.png');
+
+const siteChangeImages = {
+  [SITE_CHANGE_CANNULA]: siteChangeCannulaImage,
+  [SITE_CHANGE_RESERVOIR]: siteChangeReservoirImage,
+  [SITE_CHANGE_TUBING]: siteChangeTubingImage,
+};
+
 class BasicsPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
 
-    this.data = reduceByDay(this.data, this.bgPrefs);
+    this.data = processInfusionSiteHistory(reduceByDay(this.data, this.bgPrefs), this.patient);
 
     // Auto-bind callback methods
     this.renderStackedStat = this.renderStackedStat.bind(this);
@@ -111,27 +130,33 @@ class BasicsPrintView extends PrintView {
     this.renderCalendarSection({
       title: this.data.sections.fingersticks.title,
       data: this.data.data.fingerstick.smbg.dataByDate,
-      color: this.colors.smbg,
+      type: 'smbg',
     });
 
     this.renderCalendarSection({
       title: this.data.sections.boluses.title,
       data: this.data.data.bolus.dataByDate,
-      color: this.colors.bolus,
+      type: 'bolus',
     });
 
-    // this.renderCalendarSection({
-    //   title: {
-    //     text: this.data.sections.siteChanges.title,
-    //     subText: 'from cannula fills', // reservoirChange | tubingPrime
-    //   },
-    //   data: this.data.data.cannulaPrime, // reservoirChange | tubingPrime
-    // });
+    this.renderCalendarSection({
+      title: {
+        text: this.data.sections.siteChanges.title,
+        subText: `from '${this.data.sections.siteChanges.subTitle}'`,
+      },
+      data: _.get(
+        this.data.data,
+        [_.get(this.data.sections.siteChanges, 'type'), 'infusionSiteHistory']
+        , {}
+      ),
+      type: 'siteChange',
+    });
 
     this.renderCalendarSection({
       title: this.data.sections.basals.title,
       data: this.data.data.basal.dataByDate,
-      color: this.colors.basal,
+      type: 'basal',
+      bottomMargin: 0,
     });
   }
 
@@ -147,6 +172,7 @@ class BasicsPrintView extends PrintView {
     this.renderSectionHeading('BG Distribution', {
       width: columnWidth,
       fontSize: this.largeFontSize,
+      moveDown: 0.25,
     });
 
     if (source) {
@@ -444,7 +470,8 @@ class BasicsPrintView extends PrintView {
     const {
       title,
       data,
-      color,
+      type,
+      bottomMargin = 20,
     } = opts;
 
     const columnWidth = this.getActiveColumnWidth();
@@ -452,6 +479,7 @@ class BasicsPrintView extends PrintView {
     this.renderSectionHeading(title, {
       width: columnWidth,
       fontSize: this.largeFontSize,
+      moveDown: 0.25,
     });
 
     const chunkedDayMap = _.chunk(_.map(this.calendar.days, (day, index) => {
@@ -459,11 +487,12 @@ class BasicsPrintView extends PrintView {
       const dateLabelMask = (index === 0 || date.date() === 1) ? 'MMM D' : 'D';
 
       return {
+        color: this.colors[type],
+        count: _.get(data, `${day.date}.total`, _.get(data, `${day.date}.count`, 0)),
         dayOfWeek: date.format('ddd'),
-        color,
-        count: _.get(data, `${day.date}.total`, null),
-        isFuture: day.type === 'future',
+        daysSince: _.get(data, `${day.date}.daysSince`),
         label: date.format(dateLabelMask),
+        type: _.get(data, `${day.date}.type`, day.type),
       };
     }), 7);
 
@@ -481,7 +510,7 @@ class BasicsPrintView extends PrintView {
     this.doc.y = this.doc.y - Math.round(this.doc.currentLineHeight()) + 5;
 
     this.renderTable(this.calendar.columns, rows, {
-
+      bottomMargin,
     });
   }
 
@@ -490,15 +519,15 @@ class BasicsPrintView extends PrintView {
       const {
         color,
         count,
-        isFuture,
+        type,
+        daysSince,
         label,
       } = data[column.id];
 
       const xPos = pos.x + padding.left;
       const yPos = pos.y + padding.top;
 
-
-      this.setFill(isFuture ? this.colors.grey : 'black', 1);
+      this.setFill(type === 'future' ? this.colors.grey : 'black', 1);
 
       this.doc
         .fontSize(this.extraSmallFontSize)
@@ -510,7 +539,63 @@ class BasicsPrintView extends PrintView {
       const gridHeight = height - (this.doc.y - yPos);
       const gridWidth = width > gridHeight ? gridHeight : width;
 
-      if (count > 0) {
+      const siteChangeTypes = [NO_SITE_CHANGE, SITE_CHANGE]
+      const isSiteChange = _.includes(siteChangeTypes, type) ? type === SITE_CHANGE : null;
+
+      if (isSiteChange !== null) {
+        this.setStroke(this.colors.grey);
+        this.doc.lineWidth(1);
+
+        const linePos = {
+          x: pos.x,
+          y: pos.y + column.height / 2 - 1,
+        };
+
+        this.doc
+          .moveTo(linePos.x, linePos.y)
+          .lineTo(linePos.x + column.width, linePos.y)
+          .stroke();
+
+        if (isSiteChange) {
+          const daysSinceLabel = daysSince === 1 ? 'day' : 'days';
+
+          const siteChangeType = this.data.sections.siteChanges.type;
+          const imageWidth = width / 2.5;
+          const imagePadding = (width - imageWidth) / 2;
+
+          const dotPos = {
+            x: linePos.x + column.width - 6,
+            y: linePos.y,
+          };
+
+          this.setStroke('white');
+          this.doc.lineWidth(2);
+
+          this.doc
+            .moveTo(linePos.x + column.width / 2, linePos.y - 0.5)
+            .lineTo(dotPos.x, linePos.y)
+            .stroke();
+
+          this.setFill(color);
+          this.setStroke(this.colors.grey);
+
+          this.doc
+            .lineWidth(0.5)
+            .circle(dotPos.x, dotPos.y, 2.5)
+            .fillAndStroke();
+
+          this.setFill();
+
+          this.doc.image(siteChangeImages[siteChangeType], xPos + imagePadding, this.doc.y, {
+            width: imageWidth,
+          });
+
+          this.doc.text(`${daysSince} ${daysSinceLabel}`, this.doc.x, this.doc.y + 2, {
+            width,
+            align: 'center',
+          });
+        }
+      } else if (count > 0) {
         const gridPos = {
           x: pos.x + (column.width - gridWidth) / 2,
           y: this.doc.y,

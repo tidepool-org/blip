@@ -87,6 +87,7 @@ class PrintView {
       basal: '#19A0D7',
       bolus: '#7CD0F0',
       smbg: '#6480FB',
+      siteChange: '#fcd144',
       low: '#FF8B7C',
       target: '#76D3A6',
       high: '#BB9AE7',
@@ -278,7 +279,6 @@ class PrintView {
   }
 
   resetText() {
-    this.setStroke();
     this.setFill();
     this.doc
       .fontSize(this.defaultFontSize)
@@ -293,6 +293,7 @@ class PrintView {
       fontSize = _.get(opts, 'fontSize', this.headerFontSize),
       subTextFont = _.get(opts, 'subTextFont', this.font),
       subTextFontSize = _.get(opts, 'subTextFontSize', this.defaultFontSize),
+      moveDown = 1,
     } = opts;
 
     const text = _.isString(heading) ? heading : heading.text;
@@ -326,7 +327,7 @@ class PrintView {
     }
 
     this.resetText();
-    this.doc.moveDown();
+    this.doc.moveDown(moveDown);
   }
 
   renderCellStripe(data, column, pos, isHeader) {
@@ -557,6 +558,7 @@ class PrintView {
     });
 
     table.onCellBorderAdd((tb, column) => {
+      this.doc.lineWidth(this.tableSettings.borderWidth);
       this.setStroke(_.get(column, 'borderColor', 'black'), 1);
     });
 

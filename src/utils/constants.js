@@ -35,6 +35,8 @@ const ONE_WEEK = 7;
 const TWO_WEEKS = 14;
 const FOUR_WEEKS = 28;
 
+export const trends = { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } };
+
 export const CGM_IN_DAY = 288;
 export const MS_IN_DAY = 864e5;
 export const MS_IN_HOUR = 864e5 / 24;
@@ -51,4 +53,36 @@ export const SITE_CHANGE_RESERVOIR = 'reservoirChange';
 export const SITE_CHANGE_TUBING = 'tubingPrime';
 export const SITE_CHANGE_CANNULA = 'cannulaPrime';
 
-export const trends = { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } };
+export const INSULET = 'Insulet';
+export const TANDEM = 'Tandem';
+export const ANIMAS = 'Animas';
+export const MEDTRONIC = 'Medtronic';
+
+export const pumpVocabulary = {
+  [ANIMAS]: {
+    [SITE_CHANGE_RESERVOIR]: 'Go Rewind',
+    [SITE_CHANGE_TUBING]: 'Go Prime',
+    [SITE_CHANGE_CANNULA]: 'Fill Cannula',
+  },
+  [INSULET]: {
+    [SITE_CHANGE_RESERVOIR]: 'Change Pod',
+    [SITE_CHANGE_TUBING]: 'Activate Pod',
+    [SITE_CHANGE_CANNULA]: 'Prime',
+  },
+  [MEDTRONIC]: {
+    [SITE_CHANGE_RESERVOIR]: 'Rewind',
+    [SITE_CHANGE_TUBING]: 'Prime',
+    [SITE_CHANGE_CANNULA]: 'Prime Cannula',
+  },
+  [TANDEM]: {
+    [SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
+    [SITE_CHANGE_TUBING]: 'Fill Tubing',
+    [SITE_CHANGE_CANNULA]: 'Fill Cannula',
+  },
+  default: {
+    [SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
+    [SITE_CHANGE_TUBING]: 'Fill Tubing',
+    [SITE_CHANGE_CANNULA]: 'Fill Cannula',
+  },
+};
+
