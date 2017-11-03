@@ -25,7 +25,7 @@ import { createPrintView } from '../../src/modules/print/index';
 import { MARGIN } from '../../src/modules/print/utils/constants';
 import PrintView from '../../src/modules/print/PrintView';
 
-import * as patients from '../../data/patient/fixtures';
+import * as profiles from '../../data/patient/profiles';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
@@ -84,13 +84,13 @@ const notes = `Run \`window.downloadPrintViewData()\` from the console on a Tide
 Save the resulting file to the \`local/\` directory of viz as \`print-view.json\`,
 and then use this story to iterate on the Combined Print PDF outside of Tidepool Web!`;
 
-patients.longName = _.cloneDeep(patients.standard);
-patients.longName.profile.fullName = 'Super Duper Long Patient Name';
+profiles.longName = _.cloneDeep(profiles.standard);
+profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
 
 storiesOf('Combined Views PDF', module)
   .add(`standard account (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.standard })}>
+      <button onClick={() => openPDF({ patient: profiles.standard })}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -98,7 +98,7 @@ storiesOf('Combined Views PDF', module)
 
   .add(`standard account (${MMOLL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.standard, bgUnits: MMOLL_UNITS })}>
+      <button onClick={() => openPDF({ patient: profiles.standard, bgUnits: MMOLL_UNITS })}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -106,7 +106,7 @@ storiesOf('Combined Views PDF', module)
 
   .add('fake child account', () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.fakeChildAcct })}>
+      <button onClick={() => openPDF({ patient: profiles.fakeChildAcct })}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -114,7 +114,7 @@ storiesOf('Combined Views PDF', module)
 
   .add('long patient name', () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.longName })}>
+      <button onClick={() => openPDF({ patient: profiles.longName })}>
         Open PDF in new tab
       </button>
     </WithNotes>

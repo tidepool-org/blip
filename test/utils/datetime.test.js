@@ -17,7 +17,7 @@
 
 import { timeParse } from 'd3-time-format';
 
-import * as patients from '../../data/patient/fixtures';
+import * as patients from '../../data/patient/profiles';
 import * as datetime from '../../src/utils/datetime';
 
 describe('datetime', () => {

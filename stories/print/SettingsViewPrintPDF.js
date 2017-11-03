@@ -25,7 +25,7 @@ import { createPrintView } from '../../src/modules/print/index';
 import { MARGIN } from '../../src/modules/print/utils/constants';
 import PrintView from '../../src/modules/print/PrintView';
 
-import * as patients from '../../data/patient/fixtures';
+import * as profiles from '../../data/patient/profiles';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
@@ -89,13 +89,13 @@ const notes = `Run \`window.downloadPrintViewData()\` from the console on a Tide
 Save the resulting file to the \`local/\` directory of viz as \`print-view.json\`,
 and then use this story to iterate on the Settings Print PDF outside of Tidepool Web!`;
 
-patients.longName = _.cloneDeep(patients.standard);
-patients.longName.profile.fullName = 'Super Duper Long Patient Name';
+profiles.longName = _.cloneDeep(profiles.standard);
+profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
 
 storiesOf('Settings View PDF', module)
   .add(`standard account (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.standard })}>
+      <button onClick={() => openPDF({ patient: profiles.standard })}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -103,23 +103,7 @@ storiesOf('Settings View PDF', module)
 
   .add(`standard account (${MMOLL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.standard, bgUnits: MMOLL_UNITS })}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
-
-  .add('fake child account', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.fakeChildAcct })}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
-
-  .add('long patient name', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.longName })}>
+      <button onClick={() => openPDF({ patient: profiles.standard, bgUnits: MMOLL_UNITS })}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -127,7 +111,7 @@ storiesOf('Settings View PDF', module)
 
   .add('animas flat rate', () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.longName }, animasDataFlatRate)}>
+      <button onClick={() => openPDF({ patient: profiles.longName }, animasDataFlatRate)}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -135,7 +119,7 @@ storiesOf('Settings View PDF', module)
 
   .add('animas multi rate', () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.longName }, animasDataMultiRate)}>
+      <button onClick={() => openPDF({ patient: profiles.longName }, animasDataMultiRate)}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -143,7 +127,7 @@ storiesOf('Settings View PDF', module)
 
   .add('medtronic flat rate', () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.longName }, medtronicDataFlatRate)}>
+      <button onClick={() => openPDF({ patient: profiles.longName }, medtronicDataFlatRate)}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -151,7 +135,7 @@ storiesOf('Settings View PDF', module)
 
   .add('medtronic multi rate', () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.longName }, medtronicDataMultiRate)}>
+      <button onClick={() => openPDF({ patient: profiles.longName }, medtronicDataMultiRate)}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -159,7 +143,7 @@ storiesOf('Settings View PDF', module)
 
   .add('omnipod flat rate', () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.longName }, omnipodDataFlatRate)}>
+      <button onClick={() => openPDF({ patient: profiles.longName }, omnipodDataFlatRate)}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -167,7 +151,7 @@ storiesOf('Settings View PDF', module)
 
   .add('omnipod multi rate', () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.longName }, omnipodDataMultiRate)}>
+      <button onClick={() => openPDF({ patient: profiles.longName }, omnipodDataMultiRate)}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -175,7 +159,7 @@ storiesOf('Settings View PDF', module)
 
   .add('tandem flat rate', () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.longName }, tandemDataFlatRate)}>
+      <button onClick={() => openPDF({ patient: profiles.longName }, tandemDataFlatRate)}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -183,7 +167,7 @@ storiesOf('Settings View PDF', module)
 
   .add('tandem multi rate', () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.longName }, tandemDataMultiRate)}>
+      <button onClick={() => openPDF({ patient: profiles.longName }, tandemDataMultiRate)}>
         Open PDF in new tab
       </button>
     </WithNotes>

@@ -25,7 +25,8 @@ import { createPrintView } from '../../src/modules/print/index';
 import { MARGIN } from '../../src/modules/print/utils/constants';
 import PrintView from '../../src/modules/print/PrintView';
 
-import * as patients from '../../data/patient/fixtures';
+import * as profiles from '../../data/patient/profiles';
+import * as settings from '../../data/patient/settings';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
@@ -78,38 +79,61 @@ const notes = `Run \`window.downloadPrintViewData()\` from the console on a Tide
 Save the resulting file to the \`local/\` directory of viz as \`print-view.json\`,
 and then use this story to iterate on the Basics Print PDF outside of Tidepool Web!`;
 
-patients.longName = _.cloneDeep(patients.standard);
-patients.longName.profile.fullName = 'Super Duper Long Patient Name';
+profiles.longName = _.cloneDeep(profiles.standard);
+profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
 
 storiesOf('Basics View PDF', module)
-  .add(`standard account (${MGDL_UNITS})`, () => (
+  .add(`cannula prime (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.standard })}>
+      <button
+        onClick={() => openPDF({ patient: {
+          ...profiles.standard,
+          ...settings.cannulaPrimeSelected,
+        } })}
+      >
         Open PDF in new tab
       </button>
     </WithNotes>
   ))
 
-  .add(`standard account (${MMOLL_UNITS})`, () => (
+  .add(`tubing prime (${MMOLL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.standard, bgUnits: MMOLL_UNITS })}>
+      <button
+        onClick={() => openPDF({ patient: {
+          ...profiles.standard,
+          bgUnits: MMOLL_UNITS,
+          ...settings.tubingPrimeSelected,
+        } })}
+      >
         Open PDF in new tab
       </button>
     </WithNotes>
   ))
 
-  .add('fake child account', () => (
+  .add(`reservoir change (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.fakeChildAcct })}>
+      <button
+        onClick={() => openPDF({ patient: {
+          ...profiles.standard,
+          bgUnits: MGDL_UNITS,
+          ...settings.reservoirChangeSelected,
+        } })}
+      >
         Open PDF in new tab
       </button>
     </WithNotes>
   ))
 
-  .add('long patient name', () => (
+  .add(`site change source undefined (${MMOLL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.longName })}>
+      <button
+        onClick={() => openPDF({ patient: {
+          ...profiles.standard,
+          bgUnits: MMOLL_UNITS,
+          ...settings.siteChangeSourceUndefined,
+        } })}
+      >
         Open PDF in new tab
       </button>
     </WithNotes>
-  ));
+  ))

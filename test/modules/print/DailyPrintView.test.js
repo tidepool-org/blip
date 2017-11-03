@@ -20,7 +20,7 @@ import moment from 'moment';
 import { mean } from 'd3-array';
 
 import DailyPrintView from '../../../src/modules/print/DailyPrintView';
-import * as patients from '../../../data/patient/fixtures';
+import * as patients from '../../../data/patient/profiles';
 import { data } from '../../../data/print/fixtures';
 
 import { getTotalBasal } from '../../../src/utils/basal';
