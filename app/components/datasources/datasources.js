@@ -166,12 +166,12 @@ export default class DataSources extends Component {
   handleConnectDataSource(provider) {
     this.displayPopupForDataSource(provider)
     this.props.connectDataSource(provider.id, provider.restrictedTokenCreate, provider.dataSourceFilter);
-    this.props.trackMetric('Web - data source connect clicked', provider.id);
+    this.props.trackMetric('Web - data source connect clicked', { providerId: provider.id });
   }
 
   handleDisconnectDataSource(provider) {
     this.props.disconnectDataSource(provider.id, provider.dataSourceFilter);
-    this.props.trackMetric('Web - data source disconnect clicked', provider.id);
+    this.props.trackMetric('Web - data source disconnect clicked', { providerId: provider.id });
 
     this.setState({ fetchDataSourcesTimeoutId: setTimeout(this.fetchDataSourcesTimeout.bind(this), 1000) });
   }
