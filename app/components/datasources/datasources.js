@@ -22,7 +22,7 @@ const DATA_SOURCE_STATE_DISCONNECTED = 'disconnected';
 const DATA_SOURCE_STATE_CONNECTED = 'connected';
 const DATA_SOURCE_STATE_ERROR = 'error';
 
-const DATA_SOURCE_ERROR_UNAUTHORIZED = 'unauthorized';
+const DATA_SOURCE_ERROR_CODE_UNAUTHENTICATED = 'unauthenticated';
 
 export default class DataSources extends Component {
   static propTypes = {
@@ -109,12 +109,10 @@ export default class DataSources extends Component {
   }
 
   calculateErrorMessage(error) {
-    switch (error) {
-      case DATA_SOURCE_ERROR_UNAUTHORIZED:
-        return 'Login expired - try signing out & in again';
-      default:
-        return 'An unknown error occurred';
+    if (error.code && error.code === DATA_SOURCE_ERROR_CODE_UNAUTHENTICATED) {
+      return 'Login expired - try signing out & in again';
     }
+    return 'An unknown error occurred';
   }
 
   calculateTimeAgoMessage(timestamp) {
