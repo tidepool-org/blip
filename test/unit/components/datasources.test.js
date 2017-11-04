@@ -128,7 +128,7 @@ describe('DataSources', () => {
   describe('error message',  () => {
     it('when unauthorized',  () => {
       expect(
-        wrapper.instance().calculateErrorMessage('unauthorized')
+        wrapper.instance().calculateErrorMessage({ code: 'unauthenticated' })
       ).to.equal('Login expired - try signing out & in again');
     });
     it('when anything else',  () => {
