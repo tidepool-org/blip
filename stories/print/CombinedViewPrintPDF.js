@@ -105,11 +105,13 @@ storiesOf('Combined Views PDF', module)
   .add(`standard account (${MMOLL_UNITS})`, () => (
     <WithNotes notes={notes}>
       <button
-        onClick={() => openPDF({ patient: {
-          ...profiles.standard,
+        onClick={() => openPDF({
+          patient: {
+            ...profiles.standard,
+            ...settings.cannulaPrimeSelected,
+          },
           bgUnits: MMOLL_UNITS,
-          ...settings.cannulaPrimeSelected,
-        } })}
+        })}
       >
         Open PDF in new tab
       </button>

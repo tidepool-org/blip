@@ -102,9 +102,9 @@ class BasicsPrintView extends PrintView {
   initLayout() {
     this.setLayoutColumns({
       width: this.chartArea.width,
-      gutter: 20,
+      gutter: 15,
       type: 'percentage',
-      widths: [25, 50, 25],
+      widths: [25.5, 49, 25.5],
     });
   }
 
@@ -785,7 +785,7 @@ class BasicsPrintView extends PrintView {
           opacity: 0.15,
         },
         headerRenderer: this.renderCustomTextCell,
-        headerHeight: 30,
+        headerHeight: 28,
       },
       bottomMargin: 15,
     });

@@ -99,11 +99,13 @@ storiesOf('Basics View PDF', module)
   .add(`tubing prime (${MMOLL_UNITS})`, () => (
     <WithNotes notes={notes}>
       <button
-        onClick={() => openPDF({ patient: {
-          ...profiles.standard,
+        onClick={() => openPDF({
+          patient: {
+            ...profiles.standard,
+            ...settings.tubingPrimeSelected,
+          },
           bgUnits: MMOLL_UNITS,
-          ...settings.tubingPrimeSelected,
-        } })}
+        })}
       >
         Open PDF in new tab
       </button>
@@ -113,11 +115,13 @@ storiesOf('Basics View PDF', module)
   .add(`reservoir change (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
       <button
-        onClick={() => openPDF({ patient: {
-          ...profiles.standard,
+        onClick={() => openPDF({
+          patient: {
+            ...profiles.standard,
+            ...settings.reservoirChangeSelected,
+          },
           bgUnits: MGDL_UNITS,
-          ...settings.reservoirChangeSelected,
-        } })}
+        })}
       >
         Open PDF in new tab
       </button>
@@ -127,13 +131,15 @@ storiesOf('Basics View PDF', module)
   .add(`site change source undefined (${MMOLL_UNITS})`, () => (
     <WithNotes notes={notes}>
       <button
-        onClick={() => openPDF({ patient: {
-          ...profiles.standard,
+        onClick={() => openPDF({
+          patient: {
+            ...profiles.standard,
+            ...settings.siteChangeSourceUndefined,
+          },
           bgUnits: MMOLL_UNITS,
-          ...settings.siteChangeSourceUndefined,
-        } })}
+        })}
       >
         Open PDF in new tab
       </button>
     </WithNotes>
-  ))
+  ));

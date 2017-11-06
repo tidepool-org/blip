@@ -54,7 +54,7 @@ export default function generateClassifiers(bgPrefs) {
         tags.push('wizard');
         if (!isNaN(recommended)) {
           if (recommended > Math.max(delivered, programmed)) {
-            tags.push('override');
+            tags.push('underride');
           } else if (Math.max(delivered, programmed) > recommended) {
             tags.push('override');
           }

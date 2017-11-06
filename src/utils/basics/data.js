@@ -522,10 +522,10 @@ function defineBasicsSections(bgPrefs) {
           { key: 'total', label: 'Avg per day', average: true, primary: true },
           { key: 'wizard', label: 'Calculator', percentage: true },
           { key: 'correction', label: 'Correction', percentage: true },
-          { key: 'override', label: 'Override', percentage: true },
-          { key: 'manual', label: 'Manual', percentage: true },
           { key: 'extended', label: 'Extended', percentage: true },
           { key: 'interrupted', label: 'Interrupted', percentage: true },
+          { key: 'override', label: 'Override', percentage: true },
+          { key: 'underride', label: 'Underride', percentage: true },
         ];
         break;
 
