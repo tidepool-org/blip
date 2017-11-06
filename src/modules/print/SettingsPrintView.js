@@ -204,7 +204,7 @@ class SettingsPrintView extends PrintView {
     this.setLayoutColumns({
       width: this.chartArea.width,
       count: 3,
-      gutter: 20,
+      gutter: 15,
     });
 
     const {
@@ -285,6 +285,7 @@ class SettingsPrintView extends PrintView {
           zebra: true,
           headerFill: true,
         },
+        bottomMargin: 15,
       });
 
       this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
@@ -303,7 +304,7 @@ class SettingsPrintView extends PrintView {
     this.setLayoutColumns({
       width: this.chartArea.width,
       count: 3,
-      gutter: 20,
+      gutter: 15,
     });
 
     this.renderSensitivity();
