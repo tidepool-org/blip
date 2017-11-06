@@ -24,7 +24,7 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __ABOUT_MAX_LENGTH__: JSON.stringify(process.env.ABOUT_MAX_LENGTH || null),
   __DEV__: isDev,
   __TEST__: false,
-  __DEV_TOOLS__: (process.env.DEV_TOOLS !== null) ? process.env.DEV_TOOLS : (isDev ? true : false)
+  __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false)
 });
 
 var plugins = [

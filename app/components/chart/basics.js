@@ -50,14 +50,14 @@ var Basics = React.createClass({
     trackMetric: React.PropTypes.func.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
-    uploadUrl: React.PropTypes.string.isRequired
+    uploadUrl: React.PropTypes.string.isRequired,
   },
 
   getInitialState: function() {
     return {
       atMostRecent: true,
       inTransition: false,
-      title: this.getTitle()
+      title: this.getTitle(),
     };
   },
 
@@ -93,7 +93,6 @@ var Basics = React.createClass({
         ref="footer" />
       </div>
       );
-
   },
 
   renderChart: function() {
@@ -123,13 +122,13 @@ var Basics = React.createClass({
 
     return (
       <div className="patient-data-message patient-data-message-loading">
-        <p>{'The Basics view shows a summary of your recent pump activity, but it looks like you haven\'t uploaded pump data yet.'}</p>
-        <p>{'To see the Basics,  '}
+        <p>{'The Basics view shows a summary of your recent device activity, but it looks like you haven\'t uploaded device data yet.'}</p>
+        <p>{'To see the Basics, '}
           <a
             href={this.props.uploadUrl}
             target="_blank"
             onClick={handleClickUpload}>upload</a>
-          {' your pump.'}</p>
+          {' some device data.'}</p>
         <p>{'If you just uploaded, try '}
           <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>
           {'.'}
@@ -156,21 +155,19 @@ var Basics = React.createClass({
   },
 
   isMissingBasics: function() {
-    var basicsData = this.props.patientData.basicsData;
+    var basicsData = _.get(this.props, 'patientData.basicsData', {});
     var data;
+
     if (basicsData.data) {
       data = basicsData.data;
     }
     else {
       return true;
     }
-    // require basal, bolus, and smbg data to show The Basics
-    var hasBasicsData = !_.isEmpty(data.basal.data) &&
-      !_.isEmpty(data.bolus) && !_.isEmpty(data.smbg);
-    if (hasBasicsData === false) {
-      return true;
-    }
-    return false;
+
+    // require at least one relevant data point to show The Basics
+    var basicsDataLength = _.flatten(_.pluck(_.values(data), 'data')).length;
+    return basicsDataLength === 0;
   },
 
   // handlers
@@ -219,7 +216,7 @@ var Basics = React.createClass({
 
   handleSelectDay: function(date, title) {
     this.props.onSwitchToDaily(date, title);
-  }
+  },
 });
 
 module.exports = Basics;
