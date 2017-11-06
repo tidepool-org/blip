@@ -94,6 +94,8 @@ class BasicsPrintView extends PrintView {
 
     calendar.days = this.data.days;
 
+    calendar.pos = {};
+
     this.calendar = calendar;
   }
 
@@ -107,9 +109,8 @@ class BasicsPrintView extends PrintView {
   }
 
   render() {
-    console.log('data', this.data);
-    console.log('doc', this.doc);
-    // this.doc.addPage();
+    // console.log('data', this.data);
+    // console.log('doc', this.doc);
     this.renderLeftColumn();
     this.renderCenterColumn();
     this.renderRightColumn();
@@ -161,7 +162,28 @@ class BasicsPrintView extends PrintView {
   }
 
   renderRightColumn() {
+    this.goToLayoutColumnPosition(2);
 
+    this.renderCalendarSummary({
+      filters: this.data.sections.fingersticks.filters,
+      header: this.data.sections.fingersticks.summaryTitle,
+      data: this.data.data.fingerstick.summary,
+      type: 'smbg',
+    });
+
+    this.renderCalendarSummary({
+      filters: this.data.sections.boluses.filters,
+      header: this.data.sections.boluses.summaryTitle,
+      data: this.data.data.bolus.summary,
+      type: 'bolus',
+    });
+
+    this.renderCalendarSummary({
+      filters: this.data.sections.basals.filters,
+      header: this.data.sections.basals.summaryTitle,
+      data: this.data.data.basal.summary,
+      type: 'basal',
+    });
   }
 
   renderBgDistribution() {
@@ -423,35 +445,59 @@ class BasicsPrintView extends PrintView {
     return ' ';
   }
 
-  renderSimpleStat(stat, value, units) {
+  defineStatColumns(opts = {}) {
     const columnWidth = this.getActiveColumnWidth();
 
-    const tableColumns = [
+    const {
+      height = 35,
+      statWidth = columnWidth * 0.65,
+      valueWidth = columnWidth * 0.35,
+      statFont = this.font,
+      statFontSize = this.defaultFontSize,
+      valueFont = this.boldFont,
+      valueFontSize = this.defaultFontSize,
+      statHeader = false,
+      valueHeader = false,
+    } = opts;
+
+    const columns = [
       {
         id: 'stat',
         cache: false,
         renderer: this.renderCustomTextCell,
-        width: columnWidth * 0.65,
-        height: 35,
-        fontSize: this.defaultFontSize,
-        font: this.font,
+        width: statWidth,
+        height,
+        fontSize: statFontSize,
+        font: statFont,
         align: 'left',
+        headerAlign: 'left',
         border: 'TBL',
+        headerBorder: 'TBL',
         valign: 'center',
+        header: statHeader,
       },
       {
         id: 'value',
         cache: false,
         renderer: this.renderCustomTextCell,
-        width: columnWidth * 0.35,
-        height: 35,
-        fontSize: this.defaultFontSize,
-        font: this.boldFont,
+        width: valueWidth,
+        height,
+        fontSize: valueFontSize,
+        font: valueFont,
         align: 'right',
+        headerAlign: 'right',
         border: 'TBR',
+        headerBorder: 'TBR',
         valign: 'center',
+        header: valueHeader,
       },
     ];
+
+    return columns;
+  }
+
+  renderSimpleStat(stat, value, units) {
+    const tableColumns = this.defineStatColumns();
 
     const rows = [
       {
@@ -507,7 +553,16 @@ class BasicsPrintView extends PrintView {
     });
 
     this.doc.fontSize(this.smallFontSize);
-    this.doc.y = this.doc.y - Math.round(this.doc.currentLineHeight()) + 5;
+
+    const currentYPos = this.doc.y;
+    const headerHeight = this.doc.currentLineHeight();
+
+    this.doc.y = currentYPos + (headerHeight - 9.25);
+
+    this.calendar.pos[type] = {
+      y: currentYPos + headerHeight + 4,
+      pageIndex: this.currentPageIndex,
+    };
 
     this.renderTable(this.calendar.columns, rows, {
       bottomMargin,
@@ -539,7 +594,7 @@ class BasicsPrintView extends PrintView {
       const gridHeight = height - (this.doc.y - yPos);
       const gridWidth = width > gridHeight ? gridHeight : width;
 
-      const siteChangeTypes = [NO_SITE_CHANGE, SITE_CHANGE]
+      const siteChangeTypes = [NO_SITE_CHANGE, SITE_CHANGE];
       const isSiteChange = _.includes(siteChangeTypes, type) ? type === SITE_CHANGE : null;
 
       if (isSiteChange !== null) {
@@ -668,6 +723,72 @@ class BasicsPrintView extends PrintView {
     };
 
     _.each(chunkedGridValues, renderRow);
+  }
+
+  renderCalendarSummary(opts) {
+    const columnWidth = this.getActiveColumnWidth();
+
+    const {
+      filters,
+      data,
+      type,
+      header,
+    } = opts;
+
+    let primaryFilter;
+    const rows = [];
+
+    _.each(filters, filter => {
+      const valueObj = _.get(data, [filter.path, filter.key], _.get(data, filter.key, {}));
+      const isAverage = filter.average;
+
+      const value = isAverage
+        ? Math.round(_.get(data, [filter.path, 'avgPerDay'], data.avgPerDay))
+        : _.get(valueObj, 'count', valueObj);
+
+      const stat = {
+        stat: filter.label,
+        value: value.toString(),
+      };
+
+      if (filter.primary) {
+        stat.stat = header;
+        primaryFilter = stat;
+      } else {
+        rows.push(stat);
+      }
+    });
+
+    const tableColumns = this.defineStatColumns({
+      statWidth: columnWidth * 0.75,
+      valueWidth: columnWidth * 0.25,
+      height: 20,
+      statHeader: primaryFilter.stat,
+      valueHeader: primaryFilter.value,
+    });
+
+    tableColumns[0].headerFillStripe = {
+      color: this.colors[type],
+      opacity: 1,
+    };
+
+    tableColumns[0].headerFont = this.font;
+
+    this.doc.switchToPage(this.calendar.pos[type].pageIndex);
+    this.doc.y = this.calendar.pos[type].y;
+
+    this.renderTable(tableColumns, rows, {
+      columnDefaults: {
+        zebra: true,
+        headerFill: {
+          color: this.colors[type],
+          opacity: 0.15,
+        },
+        headerRenderer: this.renderCustomTextCell,
+        headerHeight: 30,
+      },
+      bottomMargin: 15,
+    });
   }
 }
 

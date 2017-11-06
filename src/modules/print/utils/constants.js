@@ -14,4 +14,4 @@ export const LARGE_FONT_SIZE = 12;
 export const FOOTER_FONT_SIZE = 8;
 export const HEADER_FONT_SIZE = 14;
 export const SMALL_FONT_SIZE = 8;
-export const EXTRA_SMALL_FONT_SIZE = 7;
+export const EXTRA_SMALL_FONT_SIZE = 6;

@@ -500,11 +500,13 @@ function defineBasicsSections(bgPrefs) {
     let filters;
     let title = '';
     let subTitle;
+    let summaryTitle;
 
     switch (section) {
       case 'basals':
         type = 'basal';
         title = 'Basals';
+        summaryTitle = 'Total basal events';
         filters = [
           { key: 'total', label: 'Basal Events', primary: true },
           { key: 'temp', label: 'Temp Basals' },
@@ -515,6 +517,7 @@ function defineBasicsSections(bgPrefs) {
       case 'boluses':
         type = 'bolus';
         title = 'Bolusing';
+        summaryTitle = 'Avg boluses / day';
         filters = [
           { key: 'total', label: 'Avg per day', average: true, primary: true },
           { key: 'wizard', label: 'Calculator', percentage: true },
@@ -529,11 +532,12 @@ function defineBasicsSections(bgPrefs) {
       case 'fingersticks':
         type = 'fingerstick';
         title = 'BG readings';
+        summaryTitle = 'Avg BG readings / day';
         filters = [
           { path: 'smbg', key: 'total', label: 'Avg per day', average: true, primary: true },
           { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
           { path: 'smbg', key: 'manual', label: 'Manual', percentage: true },
-          { path: 'calibration', key: 'calibration', label: 'Calibrations' },
+          { path: 'calibration', key: 'total', label: 'Calibrations' },
           { path: 'smbg', key: 'veryLow', label: bgLabels.veryLow, percentage: true },
           { path: 'smbg', key: 'veryHigh', label: bgLabels.veryHigh, percentage: true },
         ];
@@ -570,6 +574,7 @@ function defineBasicsSections(bgPrefs) {
       active: true,
       title,
       subTitle,
+      summaryTitle,
       type,
       filters,
     };

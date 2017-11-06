@@ -26,6 +26,7 @@ import { MARGIN } from '../../src/modules/print/utils/constants';
 import PrintView from '../../src/modules/print/PrintView';
 
 import * as profiles from '../../data/patient/profiles';
+import * as settings from '../../data/patient/settings';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
@@ -90,7 +91,12 @@ profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
 storiesOf('Combined Views PDF', module)
   .add(`standard account (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.standard })}>
+      <button
+        onClick={() => openPDF({ patient: {
+          ...profiles.standard,
+          ...settings.cannulaPrimeSelected,
+        } })}
+      >
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -98,7 +104,13 @@ storiesOf('Combined Views PDF', module)
 
   .add(`standard account (${MMOLL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.standard, bgUnits: MMOLL_UNITS })}>
+      <button
+        onClick={() => openPDF({ patient: {
+          ...profiles.standard,
+          bgUnits: MMOLL_UNITS,
+          ...settings.cannulaPrimeSelected,
+        } })}
+      >
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -106,7 +118,12 @@ storiesOf('Combined Views PDF', module)
 
   .add('fake child account', () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.fakeChildAcct })}>
+      <button
+        onClick={() => openPDF({ patient: {
+          ...profiles.fakeChildAcct,
+          ...settings.tubingPrimeSelected,
+        } })}
+      >
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -114,7 +131,12 @@ storiesOf('Combined Views PDF', module)
 
   .add('long patient name', () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.longName })}>
+      <button
+        onClick={() => openPDF({ patient: {
+          ...profiles.longName,
+          ...settings.tubingPrimeSelected,
+        } })}
+      >
         Open PDF in new tab
       </button>
     </WithNotes>

@@ -66,7 +66,7 @@ class PrintView {
     this.headerFontSize = opts.headerFontSize || HEADER_FONT_SIZE;
     this.largeFontSize = opts.largeFontSize || LARGE_FONT_SIZE;
     this.smallFontSize = opts.smallFontSize || SMALL_FONT_SIZE;
-    this.extraSmallFontSize = opts.extraSmallFontSize - 1 || EXTRA_SMALL_FONT_SIZE - 1;
+    this.extraSmallFontSize = opts.extraSmallFontSize || EXTRA_SMALL_FONT_SIZE;
 
     this.bgPrefs = opts.bgPrefs;
     this.bgUnits = opts.bgPrefs.bgUnits;
@@ -118,6 +118,7 @@ class PrintView {
     this.initialChartArea = _.clone(this.chartArea);
 
     this.totalPages = this.initialTotalPages = this.doc.bufferedPageRange().count || 0;
+    this.currentPageIndex = -1;
 
     // kick off the dynamic calculation of chart area based on font sizes for header and footer
     this.setHeaderSize().setFooterSize();
@@ -135,6 +136,9 @@ class PrintView {
     if (this.debug) {
       this.renderDebugGrid();
     }
+
+    this.currentPageIndex++;
+
     this.renderHeader().renderFooter();
     this.doc.x = this.chartArea.leftEdge;
     this.doc.y = this.chartArea.topEdge;
@@ -154,11 +158,15 @@ class PrintView {
 
     if (this.layoutColumns) {
       this.setLayoutColumns({
+        activeIndex: this.layoutColumns.activeIndex,
         count: this.layoutColumns.count,
         gutter: this.layoutColumns.gutter,
         type: this.layoutColumns.type,
         width: this.layoutColumns.width,
+        widths: this.layoutColumns.widths,
       });
+
+      this.goToLayoutColumnPosition(this.layoutColumns.activeIndex);
     }
   }
 
@@ -281,6 +289,7 @@ class PrintView {
   resetText() {
     this.setFill();
     this.doc
+      .lineGap(0)
       .fontSize(this.defaultFontSize)
       .font(this.font);
   }
@@ -333,9 +342,10 @@ class PrintView {
   renderCellStripe(data, column, pos, isHeader) {
     const fillStripeKey = isHeader ? 'headerFillStripe' : 'fillStripe';
     const fillKey = isHeader ? 'headerFill' : 'fill';
+    const heightKey = isHeader ? 'headerHeight' : 'height';
 
     // eslint-disable-next-line no-underscore-dangle
-    const height = column.height || data._renderedContent.height;
+    const height = _.get(column, heightKey, column.height) || data._renderedContent.height;
 
     const stripe = {
       width: 0,
@@ -402,15 +412,19 @@ class PrintView {
       let yPos = pos.y + padding.top;
 
       // eslint-disable-next-line no-underscore-dangle
-      const boldRow = data._bold;
+      const boldRow = data._bold || isHeader;
 
       const width = column.width - _.get(padding, 'left', 0) - _.get(padding, 'right', 0);
 
+      const heightKey = isHeader ? 'headerHeight' : 'height';
+
       // eslint-disable-next-line no-underscore-dangle
-      const height = column.height || data._renderedContent.height;
+      const height = _.get(column, heightKey, column.height) || data._renderedContent.height;
+
+      const fontKey = isHeader ? 'headerFont' : 'font';
 
       this.doc
-        .font(_.get(column, 'font', isHeader || boldRow ? this.boldFont : this.font))
+        .font(_.get(column, fontKey, boldRow ? this.boldFont : this.font))
         .fontSize(_.get(column, 'fontSize', this.defaultFontSize));
 
       if (column.valign === 'center') {
