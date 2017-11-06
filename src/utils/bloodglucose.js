@@ -125,3 +125,16 @@ export function generateBgRangeLabels(bgPrefs) {
     veryHigh: `above ${thresholds.veryHighThreshold} ${bgUnits}`,
   };
 }
+
+/**
+ * getOutOfRangeThreshold
+ * @param {Object} bgDatum
+ * @return Object containing out of range threshold or null
+ */
+export function getOutOfRangeThreshold(bgDatum) {
+  const outOfRangeAnnotation = _.find(
+    bgDatum.annotations || [], (annotation) => (annotation.code === 'bg/out-of-range')
+  );
+  return outOfRangeAnnotation ?
+    { [outOfRangeAnnotation.value]: outOfRangeAnnotation.threshold } : null;
+}
