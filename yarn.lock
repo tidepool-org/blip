@@ -7543,7 +7543,7 @@ thunkify@~2.1.1:
 
 tideline@0.6.10:
   version "0.6.10"
-  resolved "http://localhost:8999/tideline/-/tideline-0.6.10.tgz#30f03c2fb525385a582ec2b1b291922e0dfaa5ef"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.10.tgz#30f03c2fb525385a582ec2b1b291922e0dfaa5ef"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
@@ -7556,7 +7556,7 @@ tideline@0.6.10:
 
 tidepool-platform-client@0.34.3:
   version "0.34.3"
-  resolved "http://localhost:8999/tidepool-platform-client/-/tidepool-platform-client-0.34.3.tgz#1be1fddf4c8ef1ea5c37f3f2c04bd5bc557634ca"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.34.3.tgz#1be1fddf4c8ef1ea5c37f3f2c04bd5bc557634ca"
   dependencies:
     async "0.9.0"
     lodash "3.3.1"
