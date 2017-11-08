@@ -194,7 +194,7 @@ export function calculateBasalBolusStats(basicsData) {
 
   const totalInsulin = sumBasalInsulin + sumBolusInsulin;
 
-  return {
+  const stats = {
     basalBolusRatio: {
       basal: sumBasalInsulin / totalInsulin,
       bolus: sumBolusInsulin / totalInsulin,
@@ -206,6 +206,8 @@ export function calculateBasalBolusStats(basicsData) {
     totalDailyDose: totalInsulin / ((Date.parse(end) - Date.parse(start)) / MS_IN_DAY),
     averageDailyCarbs: sumCarbs / ((Date.parse(end) - Date.parse(start)) / MS_IN_DAY),
   };
+
+  return stats;
 }
 
 /**
@@ -284,7 +286,7 @@ export function processInfusionSiteHistory(data, patient) {
   const latestPump = getLatestPumpUploaded(basicsData);
 
   if (!latestPump) {
-    return null;
+    return basicsData;
   }
 
   const {
@@ -477,7 +479,7 @@ function averageExcludingMostRecentDay(dataObj, total, mostRecentDay) {
  * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds
  * @returns {Object} sections
  */
-function defineBasicsSections(bgPrefs) {
+export function defineBasicsSections(bgPrefs) {
   const bgLabels = generateBgRangeLabels(bgPrefs);
   bgLabels.veryLow = _.capitalize(bgLabels.veryLow);
   bgLabels.veryHigh = _.capitalize(bgLabels.veryHigh);
@@ -501,6 +503,7 @@ function defineBasicsSections(bgPrefs) {
     let title = '';
     let subTitle;
     let summaryTitle;
+    let emptyText;
 
     switch (section) {
       case 'basals':
@@ -546,7 +549,6 @@ function defineBasicsSections(bgPrefs) {
       case 'siteChanges':
         type = undefined;
         title = 'Infusion site changes';
-        subTitle = 'from something....';
         break;
 
       case 'bgDistribution':
@@ -575,6 +577,7 @@ function defineBasicsSections(bgPrefs) {
       title,
       subTitle,
       summaryTitle,
+      emptyText,
       type,
       filters,
     };
@@ -592,7 +595,7 @@ function defineBasicsSections(bgPrefs) {
 export function reduceByDay(data, bgPrefs) {
   const basicsData = _.cloneDeep(data);
 
-  basicsData.sections = defineBasicsSections(bgPrefs);
+  const sections = basicsData.sections;
 
   const findSectionContainingType = type => section => {
     if (section.column === 'left') {
@@ -631,7 +634,7 @@ export function reduceByDay(data, bgPrefs) {
     if (_.includes(['basal', 'bolus'], type)) {
       // NB: for basals, the totals and avgPerDay are basal *events*
       // that is, temps, suspends, & (not now, but someday) schedule changes
-      const section = _.find(basicsData.sections, findSectionContainingType(type));
+      const section = _.find(sections, findSectionContainingType(type));
       // wrap this in an if mostly for testing convenience
       if (section) {
         const tags = _.map(_.filter(section.filters, f => !f.primary), row => row.key);
@@ -656,7 +659,7 @@ export function reduceByDay(data, bgPrefs) {
     basicsData.data[type] = typeObj;
   });
 
-  const fsSection = _.find(basicsData.sections, findSectionContainingType('fingerstick'));
+  const fsSection = _.find(sections, findSectionContainingType('fingerstick'));
   // wrap this in an if mostly for testing convenience
   if (fsSection) {
     const fingerstickData = basicsData.data.fingerstick;
@@ -711,4 +714,102 @@ export function generateCalendarDayLabels(days) {
   return _.map(_.range(firstDay, firstDay + 7), dow => (
     moment.utc().day(dow).format('ddd')
   ));
+}
+
+/**
+ * Set the availability of basics sections
+ *
+ * @export
+ * @param {any} sections
+ */
+export function setBasicsSectionsAvailability(data) {
+  const basicsData = _.cloneDeep(data);
+
+  const {
+    sections,
+    data: typeData,
+  } = basicsData;
+
+  const hasDataInRange = processedData => (
+    processedData && (_.keys(processedData.dataByDate).length > 0)
+  );
+
+  const diabetesDataTypes = [
+    'basal',
+    'bolus',
+  ];
+
+  const aggregatedDataTypes = [
+    'averageDailyCarbs',
+    'basalBolusRatio',
+    'bgDistribution',
+    'totalDailyDose',
+  ];
+
+  const getEmptyText = sectionKey => {
+    /* eslint-disable max-len */
+    let emptyText;
+
+    switch (sectionKey) {
+      case 'basals':
+      case 'boluses':
+      case 'siteChanges':
+        emptyText = 'This section requires data from an insulin pump, so there\'s nothing to display';
+        break;
+
+      case 'fingersticks':
+        emptyText = 'This section requires data from a blood-glucose meter, so there\'s nothing to display.';
+        break;
+
+      case 'bgDistribution':
+        emptyText = 'No BG data available';
+        break;
+
+      case 'averageDailyCarbs':
+      case 'basalBolusRatio':
+      case 'totalDailyDose':
+        emptyText = 'Why is this grey? There is not enough data to show this statistic.';
+        break;
+
+      default:
+        emptyText = 'Why is this grey? There is not enough data to show this statistic.';
+        break;
+    }
+
+    return emptyText;
+    /* eslint-enable max-len */
+  };
+
+  _.each(sections, (section, key) => {
+    const type = section.type;
+    let active = section.active;
+
+    if (!type) active = false;
+
+    if (_.includes(diabetesDataTypes, type)) {
+      active = hasDataInRange(typeData[type]);
+    } else if (_.includes(aggregatedDataTypes, key)) {
+      active = !!typeData[key];
+    } else if (type === 'fingerstick') {
+      const hasSMBG = hasDataInRange(typeData[type].smbg);
+      const hasCalibrations = hasDataInRange(typeData[type].calibration);
+
+      if (!hasCalibrations) {
+        _.remove(basicsData.sections[key].filters, filter => filter.path === 'calibration');
+      }
+
+      active = hasSMBG || hasCalibrations;
+    }
+
+    if (!active) {
+      basicsData.sections[key].emptyText = getEmptyText(key);
+    }
+
+    basicsData.sections[key].active = active;
+  });
+
+  console.log('data', data);
+  console.log('sections', sections);
+
+  return basicsData;
 }

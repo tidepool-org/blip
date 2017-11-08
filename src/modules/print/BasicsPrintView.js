@@ -26,8 +26,10 @@ import {
   calculateBasalBolusStats,
   cgmStatusMessage,
   determineBgDistributionSource,
+  defineBasicsSections,
   generateCalendarDayLabels,
   processInfusionSiteHistory,
+  setBasicsSectionsAvailability,
   reduceByDay,
 } from '../../utils/basics/data';
 
@@ -61,7 +63,24 @@ class BasicsPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
 
-    this.data = processInfusionSiteHistory(reduceByDay(this.data, this.bgPrefs), this.patient);
+    // Process basics data
+    const { source: bgSource, cgmStatus } = determineBgDistributionSource(this.data);
+    _.assign(this, { bgSource, cgmStatus });
+
+    this.data.data.bgDistribution = calcBgPercentInCategories(
+      this.data.data[this.bgSource].data,
+      this.bgBounds
+    );
+
+    this.data.sections = defineBasicsSections(this.bgPrefs);
+
+    this.data = reduceByDay(this.data, this.bgPrefs);
+
+    _.assign(this.data.data, calculateBasalBolusStats(this.data));
+
+    this.data = processInfusionSiteHistory(this.data, this.patient);
+
+    this.data = setBasicsSectionsAvailability(this.data);
 
     // Auto-bind callback methods
     this.renderStackedStat = this.renderStackedStat.bind(this);
@@ -109,8 +128,6 @@ class BasicsPrintView extends PrintView {
   }
 
   render() {
-    // console.log('data', this.data);
-    // console.log('doc', this.doc);
     this.renderLeftColumn();
     this.renderCenterColumn();
     this.renderRightColumn();
@@ -132,18 +149,24 @@ class BasicsPrintView extends PrintView {
       title: this.data.sections.fingersticks.title,
       data: this.data.data.fingerstick.smbg.dataByDate,
       type: 'smbg',
+      active: this.data.sections.fingersticks.active,
+      emptyText: this.data.sections.fingersticks.emptyText,
     });
 
     this.renderCalendarSection({
       title: this.data.sections.boluses.title,
       data: this.data.data.bolus.dataByDate,
       type: 'bolus',
+      active: this.data.sections.boluses.active,
+      emptyText: this.data.sections.boluses.emptyText,
     });
+
+    const siteChangesSubTitle = this.data.sections.siteChanges.subTitle;
 
     this.renderCalendarSection({
       title: {
         text: this.data.sections.siteChanges.title,
-        subText: `from '${this.data.sections.siteChanges.subTitle}'`,
+        subText: siteChangesSubTitle ? `from '${this.data.sections.siteChanges.subTitle}'` : false,
       },
       data: _.get(
         this.data.data,
@@ -151,12 +174,16 @@ class BasicsPrintView extends PrintView {
         , {}
       ),
       type: 'siteChange',
+      active: this.data.sections.siteChanges.active,
+      emptyText: this.data.sections.siteChanges.emptyText,
     });
 
     this.renderCalendarSection({
       title: this.data.sections.basals.title,
       data: this.data.data.basal.dataByDate,
       type: 'basal',
+      active: this.data.sections.basals.active,
+      emptyText: this.data.sections.basals.emptyText,
       bottomMargin: 0,
     });
   }
@@ -169,6 +196,7 @@ class BasicsPrintView extends PrintView {
       header: this.data.sections.fingersticks.summaryTitle,
       data: this.data.data.fingerstick.summary,
       type: 'smbg',
+      active: this.data.sections.fingersticks.active,
     });
 
     this.renderCalendarSummary({
@@ -176,6 +204,7 @@ class BasicsPrintView extends PrintView {
       header: this.data.sections.boluses.summaryTitle,
       data: this.data.data.bolus.summary,
       type: 'bolus',
+      active: this.data.sections.boluses.active,
     });
 
     this.renderCalendarSummary({
@@ -183,24 +212,25 @@ class BasicsPrintView extends PrintView {
       header: this.data.sections.basals.summaryTitle,
       data: this.data.data.basal.summary,
       type: 'basal',
+      active: this.data.sections.basals.active,
     });
   }
 
   renderBgDistribution() {
-    const { source, cgmStatus } = determineBgDistributionSource(this.data);
-
     const columnWidth = this.getActiveColumnWidth();
 
     this.renderSectionHeading('BG Distribution', {
       width: columnWidth,
       fontSize: this.largeFontSize,
-      moveDown: 0.25,
+      moveDown: 0.435,
     });
 
-    if (source) {
-      const distribution = calcBgPercentInCategories(this.data.data[source].data, this.bgBounds);
+    this.doc.fontSize(this.smallFontSize);
 
-      this.doc.text(cgmStatusMessage(cgmStatus), { width: columnWidth });
+    if (this.bgSource) {
+      const distribution = this.data.data.bgDistribution;
+
+      this.doc.text(cgmStatusMessage(this.cgmStatus), { width: columnWidth });
 
       const tableColumns = [
         {
@@ -257,7 +287,15 @@ class BasicsPrintView extends PrintView {
         bottomMargin: 15,
       });
     } else {
-      this.doc.text('No BG data available', { width: columnWidth });
+      this.setFill(this.colors.lightGrey);
+
+      this.doc
+        .text(this.data.sections.bgDistribution.emptyText, {
+          width: columnWidth,
+        })
+        .moveDown();
+
+      this.setFill();
     }
   }
 
@@ -267,100 +305,120 @@ class BasicsPrintView extends PrintView {
       averageDailyDose,
       basalBolusRatio,
       totalDailyDose,
-    } = calculateBasalBolusStats(this.data);
+    } = this.data.data;
 
     this.renderSimpleStat(
       this.data.sections.averageDailyCarbs.title,
-      formatDecimalNumber(averageDailyCarbs),
-      ' g'
+      averageDailyCarbs ? formatDecimalNumber(averageDailyCarbs) : '--',
+      ' g',
+      !averageDailyCarbs,
     );
 
     this.renderBasalBolusRatio(averageDailyDose, basalBolusRatio);
 
     this.renderSimpleStat(this.data.sections.totalDailyDose.title,
-      formatDecimalNumber(totalDailyDose, 1),
-      ' U'
+      totalDailyDose ? formatDecimalNumber(totalDailyDose, 1) : '--',
+      ' U',
+      !totalDailyDose,
     );
   }
 
   renderBasalBolusRatio(averageDailyDose, basalBolusRatio) {
     const columnWidth = this.getActiveColumnWidth();
 
+    const {
+      basalBolusRatio: basalBolusRatioSection,
+    } = this.data.sections;
+
+    const disabled = !basalBolusRatioSection.active;
+
     const heading = {
       text: this.data.sections.basalBolusRatio.title,
     };
 
-    this.renderTableHeading(heading, {
-      font: this.font,
-      fontSize: this.defaultFontSize,
-      columnDefaults: {
-        width: columnWidth,
-        border: 'TLR',
-      },
-    });
-
-    const tableColumns = [
-      {
-        id: 'basal',
-        align: 'center',
-        width: columnWidth * 0.33,
-        height: 50,
-        cache: false,
-        renderer: this.renderStackedStat,
-        border: 'LB',
-      },
-      {
-        id: 'chart',
-        align: 'center',
-        width: columnWidth * 0.34,
-        height: 50,
-        cache: false,
-        renderer: this.renderPieChart,
-        padding: [0, 0, 0, 0],
-        border: 'B',
-      },
-      {
-        id: 'bolus',
-        align: 'center',
-        width: columnWidth * 0.33,
-        height: 50,
-        cache: false,
-        renderer: this.renderStackedStat,
-        border: 'RB',
-      },
-    ];
-
-    const rows = [
-      {
-        basal: {
-          stat: 'Basal',
-          value: formatPercentage(basalBolusRatio.basal),
-          summary: `${formatDecimalNumber(averageDailyDose.basal, 1)} U`,
+    if (disabled) {
+      this.renderSimpleStat(heading, '--', '', true);
+    } else {
+      this.renderTableHeading(heading, {
+        font: this.font,
+        fontSize: this.defaultFontSize,
+        columnDefaults: {
+          width: columnWidth,
+          border: 'TLR',
         },
-        chart: {
-          data: [
-            {
-              value: basalBolusRatio.basal,
-              color: this.colors.basal,
-            },
-            {
-              value: basalBolusRatio.bolus,
-              color: this.colors.bolus,
-            },
-          ],
-        },
-        bolus: {
-          stat: 'Bolus',
-          value: formatPercentage(basalBolusRatio.bolus),
-          summary: `${formatDecimalNumber(averageDailyDose.bolus, 1)} U`,
-        },
-      },
-    ];
+      });
 
-    this.renderTable(tableColumns, rows, {
-      showHeaders: false,
-      bottomMargin: 15,
-    });
+      const tableColumns = [
+        {
+          id: 'basal',
+          align: 'center',
+          width: columnWidth * 0.35,
+          height: 50,
+          cache: false,
+          renderer: this.renderStackedStat,
+          border: 'LB',
+          disabled,
+        },
+        {
+          id: 'chart',
+          align: 'center',
+          width: columnWidth * 0.3,
+          height: 50,
+          cache: false,
+          renderer: this.renderPieChart,
+          padding: [0, 0, 0, 0],
+          border: 'B',
+          disabled,
+        },
+        {
+          id: 'bolus',
+          align: 'center',
+          width: columnWidth * 0.35,
+          height: 50,
+          cache: false,
+          renderer: this.renderStackedStat,
+          border: 'RB',
+          disabled,
+        },
+      ];
+
+      const rows = [
+        {
+          basal: {
+            stat: 'Basal',
+            value: disabled ? '--' : formatPercentage(basalBolusRatio.basal),
+            summary: disabled ? '-- U' : `${formatDecimalNumber(averageDailyDose.basal, 1)} U`,
+          },
+          chart: {
+            data: disabled ? [
+              {
+                value: 1.0,
+                color: this.colors.lightGrey,
+              },
+            ] : [
+              {
+                value: basalBolusRatio.basal,
+                color: this.colors.basal,
+              },
+              {
+                value: basalBolusRatio.bolus,
+                color: this.colors.bolus,
+              },
+            ],
+          },
+          bolus: {
+            stat: 'Bolus',
+            value: disabled ? '--' : formatPercentage(basalBolusRatio.bolus),
+            summary: disabled ? '-- U' : `${formatDecimalNumber(averageDailyDose.bolus, 1)} U`,
+          },
+        },
+      ];
+
+      this.renderTable(tableColumns, rows, {
+        showHeaders: false,
+        bottomMargin: 15,
+      });
+    }
   }
 
   renderStackedStat(tb, data, draw, column, pos, padding) {
@@ -382,6 +440,8 @@ class BasicsPrintView extends PrintView {
         width,
         paragraphGap: 5,
       };
+
+      this.setFill(column.disabled ? this.colors.lightGrey : 'black', 1);
 
       this.doc
         .font(this.boldFont)
@@ -496,8 +556,10 @@ class BasicsPrintView extends PrintView {
     return columns;
   }
 
-  renderSimpleStat(stat, value, units) {
+  renderSimpleStat(stat, value, units, disabled) {
     const tableColumns = this.defineStatColumns();
+
+    this.setFill(disabled ? this.colors.lightGrey : 'black', 1);
 
     const rows = [
       {
@@ -510,6 +572,8 @@ class BasicsPrintView extends PrintView {
       showHeaders: false,
       bottomMargin: 15,
     });
+
+    this.setFill();
   }
 
   renderCalendarSection(opts) {
@@ -518,7 +582,11 @@ class BasicsPrintView extends PrintView {
       data,
       type,
       bottomMargin = 20,
+      active,
+      emptyText,
     } = opts;
+
+    const disabled = !active;
 
     const columnWidth = this.getActiveColumnWidth();
 
@@ -528,45 +596,49 @@ class BasicsPrintView extends PrintView {
       moveDown: 0.25,
     });
 
-    const chunkedDayMap = _.chunk(_.map(this.calendar.days, (day, index) => {
-      const date = moment.utc(day.date);
-      const dateLabelMask = (index === 0 || date.date() === 1) ? 'MMM D' : 'D';
+    if (disabled) {
+      this.renderEmptyText(emptyText);
+    } else {
+      const chunkedDayMap = _.chunk(_.map(this.calendar.days, (day, index) => {
+        const date = moment.utc(day.date);
+        const dateLabelMask = (index === 0 || date.date() === 1) ? 'MMM D' : 'D';
 
-      return {
-        color: this.colors[type],
-        count: _.get(data, `${day.date}.total`, _.get(data, `${day.date}.count`, 0)),
-        dayOfWeek: date.format('ddd'),
-        daysSince: _.get(data, `${day.date}.daysSince`),
-        label: date.format(dateLabelMask),
-        type: _.get(data, `${day.date}.type`, day.type),
-      };
-    }), 7);
+        return {
+          color: this.colors[type],
+          count: _.get(data, `${day.date}.total`, _.get(data, `${day.date}.count`, 0)),
+          dayOfWeek: date.format('ddd'),
+          daysSince: _.get(data, `${day.date}.daysSince`),
+          label: date.format(dateLabelMask),
+          type: _.get(data, `${day.date}.type`, day.type),
+        };
+      }), 7);
 
-    const rows = _.map(chunkedDayMap, week => {
-      const values = {};
+      const rows = _.map(chunkedDayMap, week => {
+        const values = {};
 
-      _.each(week, day => {
-        values[day.dayOfWeek] = day;
+        _.each(week, day => {
+          values[day.dayOfWeek] = day;
+        });
+
+        return values;
       });
 
-      return values;
-    });
+      this.doc.fontSize(this.smallFontSize);
 
-    this.doc.fontSize(this.smallFontSize);
+      const currentYPos = this.doc.y;
+      const headerHeight = this.doc.currentLineHeight();
 
-    const currentYPos = this.doc.y;
-    const headerHeight = this.doc.currentLineHeight();
+      this.doc.y = currentYPos + (headerHeight - 9.25);
 
-    this.doc.y = currentYPos + (headerHeight - 9.25);
+      this.calendar.pos[type] = {
+        y: currentYPos + headerHeight + 4,
+        pageIndex: this.currentPageIndex,
+      };
 
-    this.calendar.pos[type] = {
-      y: currentYPos + headerHeight + 4,
-      pageIndex: this.currentPageIndex,
-    };
-
-    this.renderTable(this.calendar.columns, rows, {
-      bottomMargin,
-    });
+      this.renderTable(this.calendar.columns, rows, {
+        bottomMargin,
+      });
+    }
   }
 
   renderCalendarCell(tb, data, draw, column, pos, padding) {
@@ -582,7 +654,7 @@ class BasicsPrintView extends PrintView {
       const xPos = pos.x + padding.left;
       const yPos = pos.y + padding.top;
 
-      this.setFill(type === 'future' ? this.colors.grey : 'black', 1);
+      this.setFill(type === 'future' ? this.colors.lightGrey : 'black', 1);
 
       this.doc
         .fontSize(this.extraSmallFontSize)
@@ -733,62 +805,80 @@ class BasicsPrintView extends PrintView {
       data,
       type,
       header,
+      active,
     } = opts;
 
-    let primaryFilter;
-    const rows = [];
+    if (active) {
+      let primaryFilter;
+      const rows = [];
 
-    _.each(filters, filter => {
-      const valueObj = _.get(data, [filter.path, filter.key], _.get(data, filter.key, {}));
-      const isAverage = filter.average;
+      _.each(filters, filter => {
+        const valueObj = _.get(data, [filter.path, filter.key], _.get(data, filter.key, {}));
+        const isAverage = filter.average;
 
-      const value = isAverage
-        ? Math.round(_.get(data, [filter.path, 'avgPerDay'], data.avgPerDay))
-        : _.get(valueObj, 'count', valueObj);
+        const value = isAverage
+          ? Math.round(_.get(data, [filter.path, 'avgPerDay'], data.avgPerDay))
+          : _.get(valueObj, 'count', valueObj);
 
-      const stat = {
-        stat: filter.label,
-        value: value.toString(),
+        const stat = {
+          stat: filter.label,
+          value: value.toString(),
+        };
+
+        if (filter.primary) {
+          stat.stat = header;
+          primaryFilter = stat;
+        } else {
+          rows.push(stat);
+        }
+      });
+
+      const tableColumns = this.defineStatColumns({
+        statWidth: columnWidth * 0.75,
+        valueWidth: columnWidth * 0.25,
+        height: 20,
+        statHeader: primaryFilter.stat,
+        valueHeader: primaryFilter.value,
+      });
+
+      tableColumns[0].headerFillStripe = {
+        color: this.colors[type],
+        opacity: 1,
       };
 
-      if (filter.primary) {
-        stat.stat = header;
-        primaryFilter = stat;
-      } else {
-        rows.push(stat);
+      tableColumns[0].headerFont = this.font;
+
+      if (_.get(this, `calendar.pos[${type}]`)) {
+        this.doc.switchToPage(this.calendar.pos[type].pageIndex);
+        this.doc.y = this.calendar.pos[type].y;
       }
-    });
 
-    const tableColumns = this.defineStatColumns({
-      statWidth: columnWidth * 0.75,
-      valueWidth: columnWidth * 0.25,
-      height: 20,
-      statHeader: primaryFilter.stat,
-      valueHeader: primaryFilter.value,
-    });
-
-    tableColumns[0].headerFillStripe = {
-      color: this.colors[type],
-      opacity: 1,
-    };
-
-    tableColumns[0].headerFont = this.font;
-
-    this.doc.switchToPage(this.calendar.pos[type].pageIndex);
-    this.doc.y = this.calendar.pos[type].y;
-
-    this.renderTable(tableColumns, rows, {
-      columnDefaults: {
-        zebra: true,
-        headerFill: {
-          color: this.colors[type],
-          opacity: 0.15,
+      this.renderTable(tableColumns, rows, {
+        columnDefaults: {
+          zebra: true,
+          headerFill: {
+            color: this.colors[type],
+            opacity: 0.15,
+          },
+          headerRenderer: this.renderCustomTextCell,
+          headerHeight: 28,
         },
-        headerRenderer: this.renderCustomTextCell,
-        headerHeight: 28,
-      },
-      bottomMargin: 15,
-    });
+        bottomMargin: 15,
+      });
+    }
+  }
+
+  renderEmptyText(text) {
+    this.setFill(this.colors.lightGrey);
+
+    this.doc
+      .fontSize(this.defaultFontSize)
+      .text(text, {
+        width: this.getActiveColumnWidth(),
+      })
+      .moveDown(1.5);
+
+    this.resetText();
   }
 }
 

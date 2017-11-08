@@ -143,11 +143,14 @@ export function createPrintPDFPackage(data, opts) {
     const doc = new DocLib({ autoFirstPage: false, bufferPages: true, margin: constants.MARGIN });
     const stream = doc.pipe(streamLib());
 
-    const dailyData = utils.selectDailyViewData(mostRecent, data.daily, numDays.daily, timePrefs);
+    if (data.basics) createPrintView('basics', data.basics, pdfOpts, doc).render();
 
-    createPrintView('basics', data.basics, pdfOpts, doc).render();
-    createPrintView('daily', dailyData, pdfOpts, doc).render();
-    createPrintView('settings', data.settings, pdfOpts, doc).render();
+    if (data.daily) {
+      const dailyData = utils.selectDailyViewData(mostRecent, data.daily, numDays.daily, timePrefs);
+      createPrintView('daily', dailyData, pdfOpts, doc).render();
+    }
+
+    if (data.settings) createPrintView('settings', data.settings, pdfOpts, doc).render();
 
     PrintView.renderPageNumbers(doc);
 
