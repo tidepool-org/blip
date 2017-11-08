@@ -92,6 +92,7 @@ class PrintView {
       target: '#76D3A6',
       high: '#BB9AE7',
       grey: '#6D6D6D',
+      lightGrey: '#979797',
     };
 
     this.tableSettings = {
@@ -447,8 +448,6 @@ class PrintView {
         });
       }
 
-      this.resetText();
-
       if (note) {
         this.doc
           .fontSize(_.get(column, 'noteFontSize', this.defaultFontSize))
@@ -611,12 +610,13 @@ class PrintView {
       });
 
     const patientNameWidth = this.patientInfoBox.width = this.doc.widthOfString(patientName);
+    const patientDOB = `DOB: ${patientBirthdate}`;
 
     this.doc
       .fontSize(10)
-      .text(patientBirthdate);
+      .text(patientDOB);
 
-    const patientBirthdayWidth = this.doc.widthOfString(patientBirthdate);
+    const patientBirthdayWidth = this.doc.widthOfString(patientDOB);
     this.patientInfoBox.height = this.doc.y;
 
     if (patientNameWidth < patientBirthdayWidth) {
@@ -668,7 +668,7 @@ class PrintView {
 
     this.doc
       .fontSize(10)
-      .text(`Printed from Tidepool: ${formatCurrentDate()}`, xOffset, yOffset + 4, {
+      .text(`Printed on: ${formatCurrentDate()}`, xOffset, yOffset + 4, {
         width: availableWidth,
         align: 'center',
       });
@@ -755,8 +755,8 @@ class PrintView {
 
   renderFooter() {
     const lineHeight = this.doc.fontSize(this.footerFontSize).currentLineHeight();
-    const helpText = 'Questions or feedback please email support@tidepool.org ' +
-                     'or visit support.tidepool.org';
+    const helpText = 'Questions or feedback? Please email support@tidepool.org ' +
+                     'or visit support.tidepool.org.';
 
     this.doc.fillColor('black').fillOpacity(1)
       .text(helpText, this.margins.left, this.bottomEdge - lineHeight * 1.5, {
