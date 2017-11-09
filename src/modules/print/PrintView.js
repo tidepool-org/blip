@@ -18,10 +18,8 @@
 /* eslint-disable lodash/prefer-lodash-method */
 
 import _ from 'lodash';
-import PdfTable from './utils/pdfTable/pdfTable';
-// import PdfTable from 'voilab-pdf-table';
-import PdfTableFitColumn from './utils/pdfTable/plugins/fitColumn';
-// import PdfTableFitColumn from 'voilab-pdf-table/plugins/fitcolumn';
+import PdfTable from 'voilab-pdf-table';
+import PdfTableFitColumn from 'voilab-pdf-table/plugins/fitcolumn';
 
 import {
   getTimezoneFromTimePrefs,

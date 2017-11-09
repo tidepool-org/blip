@@ -7701,9 +7701,9 @@ void-elements@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/void-elements/-/void-elements-2.0.1.tgz#c066afb582bb1cb4128d60ea92392e94d5e9dbec"
 
-voilab-pdf-table@0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/voilab-pdf-table/-/voilab-pdf-table-0.3.0.tgz#47ba4e9c9cd6f1e6eea425426f89aa9d2097ddea"
+voilab-pdf-table@cbwebdevelopment/voilab-pdf-table:
+  version "0.3.1"
+  resolved "https://codeload.github.com/cbwebdevelopment/voilab-pdf-table/tar.gz/358ee557fd753eedb186f3939487bb33af180929"
   dependencies:
     lodash "4.*"
 
