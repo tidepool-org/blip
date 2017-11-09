@@ -33,6 +33,7 @@ describe('print module', () => {
     basics: {},
     settings: {},
   };
+
   const opts = {
     bgPrefs: {},
     numDays: {
@@ -47,6 +48,14 @@ describe('print module', () => {
     render() {}
   }
 
+  class BasicsPrintView {
+    render() {}
+  }
+
+  class SettingsPrintView {
+    render() {}
+  }
+
   const sandbox = sinon.sandbox.create();
 
   let doc;
@@ -55,7 +64,8 @@ describe('print module', () => {
   sinon.stub(Module.utils, 'reshapeBgClassesToBgBounds');
   sinon.stub(Module.utils, 'selectDailyViewData').returns(undefined);
   sinon.stub(Module.utils, 'DailyPrintView').returns(new DailyPrintView());
-  // sinon.stub(Module.utils, 'PDFDocument').returns(new Doc({ pdf, margin }, stream));
+  sinon.stub(Module.utils, 'SettingsPrintView').returns(new SettingsPrintView());
+  sinon.stub(Module.utils, 'BasicsPrintView').returns(new BasicsPrintView());
   sinon.stub(Module.utils, 'blobStream').returns(new MemoryStream());
 
   beforeEach(() => {

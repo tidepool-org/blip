@@ -555,7 +555,7 @@ class DailyPrintView extends PrintView {
     return this;
   }
 
-  renderYAxes({ bgScale, bounds, date, topEdge, xScale }) {
+  renderYAxes({ bgScale, bottomOfBasalChart, bounds, date, topEdge, xScale }) {
     const end = bounds[1];
     let current = bounds[0];
     const threeHrLocs = [current];
@@ -594,7 +594,7 @@ class DailyPrintView extends PrintView {
       }
 
       this.doc.moveTo(xPos, topEdge)
-        .lineTo(xPos, chart.bottomOfBasalChart)
+        .lineTo(xPos, bottomOfBasalChart)
         .lineWidth(0.25)
         .stroke(this.colors.axes);
     });

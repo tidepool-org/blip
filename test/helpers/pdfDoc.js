@@ -46,6 +46,8 @@ export default class Doc {
     this.dash = sinon.stub().returns(this);
     this.undash = sinon.stub().returns(this);
     this.stroke = sinon.stub().returns(this);
+    this.strokeColor = sinon.stub().returns(this);
+    this.strokeOpacity = sinon.stub().returns(this);
     this.circle = sinon.stub().returns(this);
     this.lineWidth = sinon.stub().returns(this);
     this.rect = sinon.stub().returns(this);

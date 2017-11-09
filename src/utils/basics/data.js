@@ -808,8 +808,5 @@ export function setBasicsSectionsAvailability(data) {
     basicsData.sections[key].active = active;
   });
 
-  console.log('data', data);
-  console.log('sections', sections);
-
   return basicsData;
 }

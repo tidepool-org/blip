@@ -338,7 +338,7 @@ describe('DailyPrintView', () => {
       Renderer.doc.y = 32;
       Renderer.renderPatientInfo();
       sinon.assert.calledWith(Renderer.doc.text, getPatientFullName(opts.patient));
-      sinon.assert.calledWith(Renderer.doc.text, formatBirthdate(opts.patient));
+      sinon.assert.calledWith(Renderer.doc.text, `DOB: ${formatBirthdate(opts.patient)}`);
 
       expect(Renderer.patientInfoBox.width).to.be.a('number');
       expect(Renderer.patientInfoBox.width > 0).to.be.true;
@@ -374,7 +374,7 @@ describe('DailyPrintView', () => {
 
     it('should render the date printed', () => {
       Renderer.renderPrintDate();
-      sinon.assert.calledWith(Renderer.doc.text, `Printed from Tidepool: ${formatCurrentDate()}`);
+      sinon.assert.calledWith(Renderer.doc.text, `Printed on: ${formatCurrentDate()}`);
     });
   });
 
@@ -514,6 +514,7 @@ describe('DailyPrintView', () => {
       const args = {
         bolusDetailsHeight: 100,
         topEdge: 150,
+        date: sampleDate,
       };
 
       const {
@@ -542,7 +543,7 @@ describe('DailyPrintView', () => {
   describe('renderYAxes', () => {
     const setArgs = (renderer) => ({
       bgScale: sinon.stub().returns(100),
-      bottomEdge: 150,
+      bottomOfBasalChart: 150,
       bounds: renderer.chartsByDate[sampleDate].bounds,
       date: sampleDate,
       topEdge: 350,
@@ -557,10 +558,11 @@ describe('DailyPrintView', () => {
       const args = setArgs(Renderer);
       Renderer.renderYAxes(args);
 
-      // Should draw a vertical line for every 3hr slot, plus a final one to close the chart
-      sinon.assert.callCount(Renderer.doc.lineTo, 24 / 3 + 1);
+      // Should draw a vertical line for every 3hr slot,
+      // plus a final one to close the chart and the 2 BG target lines
+      sinon.assert.callCount(Renderer.doc.lineTo, 24 / 3 + 1 + 2);
       sinon.assert.calledWith(Renderer.doc.moveTo, sinon.match.number, args.topEdge);
-      sinon.assert.calledWith(Renderer.doc.lineTo, sinon.match.number, args.bottomEdge);
+      sinon.assert.calledWith(Renderer.doc.lineTo, sinon.match.number, args.bottomOfBasalChart);
 
       // Should render the timeslot time in the format 9a or 12p
       sinon.assert.calledWith(Renderer.doc.text, sinon.match(/\d?(\d)[a|p]/));
@@ -754,7 +756,7 @@ describe('DailyPrintView', () => {
 
       sinon.assert.calledWith(
         Renderer.doc.text,
-        'Questions or feedback please email support@tidepool.org or visit support.tidepool.org'
+        'Questions or feedback? Please email support@tidepool.org or visit support.tidepool.org.'
       );
     });
   });
