@@ -99,4 +99,4 @@ storiesOf('Daily View PDF', module)
         Open PDF in new tab
       </button>
     </WithNotes>
-  ))
+  ));
