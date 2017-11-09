@@ -51,7 +51,7 @@ import {
   formatBgValue, formatDecimalNumber, formatPercentage, removeTrailingZeroes,
 } from '../../utils/format';
 
-import { MMOLL_UNITS } from '../../utils/constants';
+import { MMOLL_UNITS, MS_IN_MIN } from '../../utils/constants';
 
 class DailyPrintView extends PrintView {
   constructor(doc, data, opts) {
@@ -76,7 +76,7 @@ class DailyPrintView extends PrintView {
 
     const undelivered = '#B2B2B2';
 
-    this.colors = {
+    this.colors = _.assign(this.colors, {
       axes: '#858585',
       bolus: {
         delivered: 'black',
@@ -97,7 +97,7 @@ class DailyPrintView extends PrintView {
       target: '#76D3A6',
       basal: '#19A0D7',
       high: '#BB9AE7',
-    };
+    });
 
     this.rightEdge = this.margins.left + this.width;
     this.bottomEdge = this.margins.top + this.height;
@@ -305,7 +305,9 @@ class DailyPrintView extends PrintView {
         .renderSmbgs(dateChart)
         .renderInsulinEvents(dateChart)
         .renderBolusDetails(dateChart)
-        .renderBasalPaths(dateChart);
+        .renderBasalPaths(dateChart)
+        .renderBasalRates(dateChart)
+        .renderChartDivider(dateChart);
     });
   }
 
@@ -520,7 +522,7 @@ class DailyPrintView extends PrintView {
     return this;
   }
 
-  renderXAxes({ bolusDetailsHeight, topEdge }) {
+  renderXAxes({ bolusDetailsHeight, topEdge, date }) {
     const {
       notesEtc,
       bgEtcChart,
@@ -537,12 +539,15 @@ class DailyPrintView extends PrintView {
 
     // render bottom border of bolusDetails
     const bottomOfBolusDetails = bottomOfBgEtcChart + bolusDetailsHeight;
+
     this.doc.moveTo(this.chartArea.leftEdge, bottomOfBolusDetails)
-      .lineTo(this.rightEdge, bottomOfBolusDetails)
-      .stroke(this.colors.axes);
+    .lineTo(this.rightEdge, bottomOfBolusDetails)
+    .stroke(this.colors.axes);
 
     // render x-axis for basalChart
     const bottomOfBasalChart = bottomOfBolusDetails + basalChart;
+    this.chartsByDate[date].bottomOfBasalChart = bottomOfBasalChart;
+
     this.doc.moveTo(this.chartArea.leftEdge, bottomOfBasalChart)
       .lineTo(this.rightEdge, bottomOfBasalChart)
       .stroke(this.colors.axes);
@@ -550,7 +555,7 @@ class DailyPrintView extends PrintView {
     return this;
   }
 
-  renderYAxes({ bgScale, bottomEdge, bounds, date, topEdge, xScale }) {
+  renderYAxes({ bgScale, bounds, date, topEdge, xScale }) {
     const end = bounds[1];
     let current = bounds[0];
     const threeHrLocs = [current];
@@ -589,25 +594,41 @@ class DailyPrintView extends PrintView {
       }
 
       this.doc.moveTo(xPos, topEdge)
-        .lineTo(xPos, bottomEdge)
+        .lineTo(xPos, chart.bottomOfBasalChart)
         .lineWidth(0.25)
         .stroke(this.colors.axes);
     });
 
-    // render the BG axis labels
+    // render the BG axis labels and guides
     const opts = {
       align: 'right',
       width: this.chartArea.leftEdge - this.summaryArea.rightEdge - 3,
     };
-    _.each(this.bgBounds, (bound) => {
+    _.each(this.bgBounds, (bound, key) => {
       const bgTick = this.bgUnits === MMOLL_UNITS ? parseFloat(bound).toFixed(1) : bound;
+
+      const xPos = this.chartArea.leftEdge;
+      const yPos = bgScale(bound);
+
+      if (key === 'targetUpperBound' || key === 'targetLowerBound') {
+        this.doc
+          .moveTo(xPos, yPos)
+          .lineTo(xPos + this.chartArea.width, yPos)
+          .lineWidth(0.25)
+          .dash(3, { space: 4 })
+          .stroke(this.colors.axes);
+
+        this.setStroke();
+        this.doc.undash();
+      }
+
       this.doc.font(this.font)
         .fontSize(this.bgAxisFontSize)
         .fillColor(this.colors.axis)
         .text(
           `${bgTick}`,
           this.summaryArea.rightEdge,
-          bgScale(bound) - this.doc.currentLineHeight() / 2,
+          yPos - this.doc.currentLineHeight() / 2,
           opts,
         );
     });
@@ -757,6 +778,59 @@ class DailyPrintView extends PrintView {
     return this;
   }
 
+  renderBasalRates(chart) {
+    const { bottomOfBasalChart, data: { basal }, xScale } = chart;
+
+    const currentSchedule = {
+      rate: 0,
+      duration: 0,
+      index: -1,
+    };
+
+    const labeledSchedules = [];
+
+    _.each(basal, (datum) => {
+      const showLabel = (
+        datum.subType === 'scheduled' &&
+        datum.rate > 0 &&
+        datum.duration >= 60 * MS_IN_MIN &&
+        currentSchedule.rate !== datum.rate
+      );
+
+      if (showLabel) {
+        labeledSchedules.push(_.assign({}, datum, {
+          duration: currentSchedule.duration + datum.duration,
+        }));
+
+        currentSchedule.rate = datum.rate;
+        currentSchedule.index ++;
+        currentSchedule.duration = 0;
+      } else if (labeledSchedules.length) {
+        labeledSchedules[currentSchedule.index].duration += datum.duration;
+      } else {
+        currentSchedule.duration += datum.duration;
+      }
+    });
+
+    this.setFill();
+
+    _.each(labeledSchedules, schedule => {
+      const start = xScale(schedule.utc);
+      const end = xScale(schedule.utc + schedule.duration);
+
+      this.doc.fontSize(this.extraSmallFontSize);
+      const labelWidth = this.doc.widthOfString(`${schedule.rate}`);
+      const xPos = (start + end) / 2 - (labelWidth / 2);
+      const yPos = bottomOfBasalChart - 10;
+
+      this.doc.text(schedule.rate, xPos, yPos);
+    });
+
+    this.resetText();
+
+    return this;
+  }
+
   renderBasalPaths({ basalScale, data: { basal, basalSequences: sequences }, xScale }) {
     _.each(sequences, (sequence) => {
       // Skip empty basal sequences -- otherwise getBasalSequencePaths throws error
@@ -795,6 +869,22 @@ class DailyPrintView extends PrintView {
     }
 
     return this;
+  }
+
+  renderChartDivider({ bottomEdge, bottomOfBasalChart }) {
+    const isLastChartOnPage = bottomEdge + this.chartMinimums.total > this.chartArea.bottomEdge;
+
+    const padding = (bottomEdge - bottomOfBasalChart) + this.chartMinimums.paddingBelow;
+
+    if (!isLastChartOnPage) {
+      const yPos = bottomOfBasalChart + padding / 2;
+
+      this.doc
+        .moveTo(this.leftEdge, yPos)
+        .lineWidth(1)
+        .lineTo(this.rightEdge, yPos)
+        .stroke(this.colors.lightGrey);
+    }
   }
 
   renderLegend() {

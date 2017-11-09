@@ -106,6 +106,7 @@ class PrintView {
       borderWidth: 0.5,
     };
 
+    this.leftEdge = this.margins.left;
     this.rightEdge = this.margins.left + this.width;
     this.bottomEdge = this.margins.top + this.height;
 

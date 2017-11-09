@@ -40,6 +40,7 @@ export const trends = { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } };
 export const CGM_IN_DAY = 288;
 export const MS_IN_DAY = 864e5;
 export const MS_IN_HOUR = 864e5 / 24;
+export const MS_IN_MIN = MS_IN_HOUR / 60;
 
 export const CGM_DATA_KEY = 'cbg';
 export const BGM_DATA_KEY = 'smbg';
