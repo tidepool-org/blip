@@ -816,6 +816,32 @@ describe('PatientData', function () {
       expect(elem.generatePDF.callCount).to.equal(1);
     });
 
+    it('should generate a pdf when view is settings and patient data is processed', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: false,
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance();
+      sinon.stub(elem, 'generatePDF');
+
+      wrapper.setState({ chartType: 'settings', processingData: false, processedPatientData: true });
+
+      elem.generatePDF.reset()
+      expect(elem.generatePDF.callCount).to.equal(0);
+
+      wrapper.update();
+      expect(elem.generatePDF.callCount).to.equal(1);
+    });
+
     it('should not generate a pdf when view is weekly or trends and patient data is processed', function () {
       var props = {
         currentPatientInViewId: 40,
