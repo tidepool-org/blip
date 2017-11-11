@@ -27,13 +27,19 @@ import PrintView from '../../src/modules/print/PrintView';
 
 import * as profiles from '../../data/patient/profiles';
 import * as settings from '../../data/patient/settings';
+import { data as dataStub } from '../../data/patient/data';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
 /* global PDFDocument, blobStream */
 
-// eslint-disable-next-line import/no-unresolved
-import data from '../../local/print-view.json';
+let data;
+try {
+  // eslint-disable-next-line global-require, import/no-unresolved
+  data = require('../../local/print-view.json');
+} catch (e) {
+  data = dataStub;
+}
 
 const bgBounds = {
   [MGDL_UNITS]: {

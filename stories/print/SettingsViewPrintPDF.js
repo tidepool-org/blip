@@ -26,13 +26,19 @@ import { MARGIN } from '../../src/modules/print/utils/constants';
 import PrintView from '../../src/modules/print/PrintView';
 
 import * as profiles from '../../data/patient/profiles';
+import { data as dataStub } from '../../data/patient/data';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
 /* global PDFDocument, blobStream */
 
-// eslint-disable-next-line import/no-unresolved
-import data from '../../local/print-view.json';
+let data;
+try {
+  // eslint-disable-next-line global-require, import/no-unresolved
+  data = require('../../local/print-view.json');
+} catch (e) {
+  data = dataStub;
+}
 
 import animasDataMultiRate from '../../data/pumpSettings/animas/multirate.json';
 import animasDataFlatRate from '../../data/pumpSettings/animas/flatrate.json';
