@@ -10,7 +10,6 @@ ENV API_SECRET="This is a local API secret for everyone. BsscSHqSHiwrBMJsEGqbvXi
     USER_API_SERVICE="{ \"type\": \"static\", \"hosts\": [{ \"protocol\": \"http\", \"host\": \"shoreline:9107\" }] }" \
     SEAGULL_SERVICE="{ \"type\": \"static\", \"hosts\": [{ \"protocol\": \"http\", \"host\": \"seagull:9120\" }] }" \
     GATEKEEPER_SERVICE="{ \"type\": \"static\", \"hosts\": [{ \"protocol\": \"http\", \"host\": \"gatekeeper:9123\" }] }" \
-# Container specific ENV
     PORT=3000 \
     MOCK=false \
     DEV_TOOLS=true \
@@ -21,17 +20,29 @@ ENV API_SECRET="This is a local API secret for everyone. BsscSHqSHiwrBMJsEGqbvXi
 WORKDIR /app
 
 COPY package.json /app/package.json
+
 RUN apk add --no-cache fontconfig \
  && apk add --no-cache --virtual .build-deps curl git \
  && echo "Fixing PhantomJS to run on alpine" \
  && curl -Ls "https://github.com/tidepool-org/tools/raw/master/alpine_phantomjs_dependencies/dockerized-phantomjs.tar.xz" | tar xJ -C / \
- && yarn install \
+ && mkdir /app/dist && chown node:node -R /app \
+ && mkdir -p /@tidepool/viz/node_modules && chown node:node -R /@tidepool/viz \
+ && mkdir -p /tideline/node_modules && chown node:node -R /tideline \
+ && mkdir -p /tidepool-platform-client/node_modules && chown node:node -R /tidepool-platform-client \
  && apk del .build-deps \
  && rm -rf /usr/share/man /tmp/* /var/tmp/* /root/.npm /root/.node-gyp
 
+USER node
+
+RUN yarn install
+
 COPY . /app
 
-USER node
+VOLUME /app
+VOLUME /app/node_modules
+VOLUME /@tidepool/viz/node_modules
+VOLUME /tideline/node_modules
+VOLUME /tidepool-platform-client/node_modules
 
 EXPOSE 3000
 
