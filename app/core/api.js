@@ -333,6 +333,26 @@ api.user.getDataDonationAccounts = function (cb) {
   });
 };
 
+api.user.getDataSources = function(cb) {
+  api.log('GET /v1/users/:userId/data_sources');
+
+  tidepool.getDataSourcesForUser(tidepool.getUserId(), cb);
+};
+
+api.user.createRestrictedToken = function(request, cb) {
+  api.log('POST /v1/users/:userId/restricted_tokens');
+
+  tidepool.createRestrictedTokenForUser(tidepool.getUserId(), request, cb);
+}
+
+api.user.createOAuthProviderAuthorization = function(provider, restrictedToken, cb) {
+  tidepool.createOAuthProviderAuthorization(provider, restrictedToken, cb);
+}
+
+api.user.deleteOAuthProviderAuthorization = function(provider, cb) {
+  tidepool.deleteOAuthProviderAuthorization(provider, cb);
+}
+
 // ----- Patient -----
 
 api.patient = {};

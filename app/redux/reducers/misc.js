@@ -51,6 +51,9 @@ export const notification = (state = initialState.notification, action) => {
     case types.UPDATE_USER_FAILURE:
     case types.FETCH_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
+    case types.FETCH_DATA_SOURCES_FAILURE:
+    case types.CONNECT_DATA_SOURCE_FAILURE:
+    case types.DISCONNECT_DATA_SOURCE_FAILURE:
       const err = _.get(action, 'error', null);
       if (err) {
         return {
@@ -507,6 +510,30 @@ export const dataDonationAccounts = (state = initialState.dataDonationAccounts, 
     case types.LOGOUT_REQUEST:
       return [];
 
+    default:
+      return state;
+  }
+};
+
+export const dataSources = (state = initialState.dataSources, action) => {
+  switch (action.type) {
+    case types.FETCH_DATA_SOURCES_SUCCESS:
+      let dataSources = _.get(action.payload, 'dataSources', []);
+      return update(state, { $set: dataSources });
+    case types.LOGOUT_REQUEST:
+      return [];
+    default:
+      return state;
+  }
+};
+
+export const authorizedDataSource = (state = initialState.authorizedDataSource, action) => {
+  switch (action.type) {
+    case types.CONNECT_DATA_SOURCE_SUCCESS:
+      let authorizedDataSource = _.get(action.payload, 'authorizedDataSource', {});
+      return update(state, { $set: authorizedDataSource });
+    case types.LOGOUT_REQUEST:
+      return {};
     default:
       return state;
   }

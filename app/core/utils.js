@@ -239,6 +239,17 @@ utils.getCarelink = function(location) {
   return null;
 }
 
+utils.getDexcom = function(location) {
+  if (location && location.query) {
+    let { dexcom } = location.query;
+
+    if (!_.isUndefined(dexcom)) {
+      return dexcom;
+    }
+  }
+  return null;
+}
+
 /**
  * Translate a BG value to the desired target unit
  *
@@ -294,6 +305,11 @@ utils.processPatientData = (comp, data, queryParams, settings) => {
   var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
   if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
     setNewTimePrefs(mostRecentUpload.timezone);
+  } else {
+    let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // eslint-disable-line new-cap
+    if (!_.isEmpty(timezone)) {
+      setNewTimePrefs(timezone);
+    }
   }
 
   // a timezone in the queryParams always overrides any other timePrefs
@@ -301,11 +317,11 @@ utils.processPatientData = (comp, data, queryParams, settings) => {
     setNewTimePrefs(queryParams.timezone);
     console.log('Displaying in timezone from query params:', queryParams.timezone);
   }
-  else if (!_.isEmpty(mostRecentUpload)) {
+  else if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
     console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
   }
   else {
-    console.log('Falling back to timezone-naive display.');
+    console.log('Falling back to display in browser timezone.');
   }
   if (!_.isEmpty(timePrefsForTideline)) {
     comp.setState({

@@ -34,7 +34,11 @@ describe('Patient', function () {
         fetchers: [],
         fetchingPatient: false,
         fetchingUser: false,
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        dataSources: [],
+        fetchDataSources: sinon.stub(),
+        connectDataSource: sinon.stub(),
+        disconnectDataSource: sinon.stub(),
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);

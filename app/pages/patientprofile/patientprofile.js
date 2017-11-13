@@ -16,6 +16,7 @@ let getFetchers = (dispatchProps, ownProps, api) => {
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
     dispatchProps.fetchDataDonationAccounts.bind(null, api),
     dispatchProps.fetchPendingSentInvites.bind(null, api),
+    dispatchProps.fetchDataSources.bind(null, api),
   ];
 };
 
@@ -66,6 +67,8 @@ export function mapStateToProps(state) {
     dataDonationAccounts: state.blip.dataDonationAccounts,
     updatingDataDonationAccounts: state.blip.working.updatingDataDonationAccounts.inProgress,
     updatingPatientBgUnits: state.blip.working.updatingPatientBgUnits.inProgress,
+    dataSources: state.blip.dataSources || [],
+    authorizedDataSource: state.blip.authorizedDataSource,
   };
 }
 
@@ -74,9 +77,13 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchDataDonationAccounts: actions.async.fetchDataDonationAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
+  fetchDataSources: actions.async.fetchDataSources,
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   updatePatient: actions.async.updatePatient,
   updatePatientSettings: actions.async.updateSettings,
+  fetchDataSources: actions.async.fetchDataSources,
+  connectDataSource: actions.async.connectDataSource,
+  disconnectDataSource: actions.async.disconnectDataSource,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -86,6 +93,9 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     onUpdatePatient: dispatchProps.updatePatient.bind(null, api),
     onUpdatePatientSettings: dispatchProps.updatePatientSettings.bind(null, api),
+    fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
+    connectDataSource: dispatchProps.connectDataSource.bind(null, api),
+    disconnectDataSource: dispatchProps.disconnectDataSource.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });
 };

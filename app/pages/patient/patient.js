@@ -54,6 +54,11 @@ const Patient = React.createClass({
     updatingDataDonationAccounts: React.PropTypes.bool,
     updatingPatientBgUnits: React.PropTypes.bool,
     user: React.PropTypes.object,
+    dataSources: React.PropTypes.array,
+    fetchDataSources: React.PropTypes.func,
+    connectDataSource: React.PropTypes.func,
+    disconnectDataSource: React.PropTypes.func,
+    authorizedDataSource: React.PropTypes.object,
   },
 
   getInitialState: function() {
@@ -121,6 +126,11 @@ const Patient = React.createClass({
           dataDonationAccounts={this.props.dataDonationAccounts || []}
           updatingDataDonationAccounts={this.props.updatingDataDonationAccounts}
           updatingPatientBgUnits={this.props.updatingPatientBgUnits}
+          dataSources={this.props.dataSources}
+          fetchDataSources={this.props.fetchDataSources}
+          connectDataSource={this.props.connectDataSource}
+          disconnectDataSource={this.props.disconnectDataSource}
+          authorizedDataSource={this.props.authorizedDataSource}
           trackMetric={this.props.trackMetric} />
       </div>
     );

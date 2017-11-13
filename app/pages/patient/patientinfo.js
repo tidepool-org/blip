@@ -23,6 +23,7 @@ var personUtils = require('../../core/personutils');
 import PatientSettings from './patientsettings';
 import PatientBgUnits from '../../components/patientBgUnits';
 import DonateForm from '../../components/donateform';
+import DataSources from '../../components/datasources';
 
 //date masks we use
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
@@ -44,6 +45,11 @@ var PatientInfo = React.createClass({
     updatingDataDonationAccounts: React.PropTypes.bool,
     updatingPatientBgUnits: React.PropTypes.bool,
     user: React.PropTypes.object,
+    dataSources: React.PropTypes.array,
+    fetchDataSources: React.PropTypes.func,
+    connectDataSource: React.PropTypes.func,
+    disconnectDataSource: React.PropTypes.func,
+    authorizedDataSource: React.PropTypes.object,
   },
 
   getInitialState: function() {
@@ -136,6 +142,7 @@ var PatientInfo = React.createClass({
         {this.renderPatientSettings()}
         {this.renderBgUnitSettings()}
         {this.renderDonateForm()}
+        {this.renderDataSources()}
       </div>
     );
   },
@@ -225,6 +232,7 @@ var PatientInfo = React.createClass({
         {this.renderPatientSettings()}
         {this.renderBgUnitSettings()}
         {this.renderDonateForm()}
+        {this.renderDataSources()}
       </div>
     );
   },
@@ -359,6 +367,28 @@ var PatientInfo = React.createClass({
               dataDonationAccounts={this.props.dataDonationAccounts || []}
               onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
               working={this.props.updatingDataDonationAccounts || false}
+              trackMetric={this.props.trackMetric}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  },
+
+  renderDataSources: function() {
+    if (this.isSamePersonUserAndPatient()) {
+      return (
+        <div className="PatientPage-dataSources">
+          <div className="PatientPage-sectionTitle">My Data Sources</div>
+          <div className="PatientInfo-content">
+            <DataSources
+              dataSources={this.props.dataSources}
+              fetchDataSources={this.props.fetchDataSources}
+              connectDataSource={this.props.connectDataSource}
+              disconnectDataSource={this.props.disconnectDataSource}
+              authorizedDataSource={this.props.authorizedDataSource}
               trackMetric={this.props.trackMetric}
             />
           </div>

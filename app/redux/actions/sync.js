@@ -924,3 +924,79 @@ export function updateDataDonationAccountsFailure(error, apiError) {
     },
   };
 }
+
+export function fetchDataSourcesRequest() {
+  return {
+    type: ActionTypes.FETCH_DATA_SOURCES_REQUEST,
+  };
+}
+
+export function fetchDataSourcesSuccess(dataSources) {
+  return {
+    type: ActionTypes.FETCH_DATA_SOURCES_SUCCESS,
+    payload: {
+      dataSources,
+    },
+  };
+}
+
+export function fetchDataSourcesFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_DATA_SOURCES_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function connectDataSourceRequest() {
+  return {
+    type: ActionTypes.CONNECT_DATA_SOURCE_REQUEST,
+  };
+}
+
+export function connectDataSourceSuccess(id, url) {
+  return {
+    type: ActionTypes.CONNECT_DATA_SOURCE_SUCCESS,
+    payload: {
+      authorizedDataSource: {
+        id,
+        url,
+      }
+    },
+  };
+}
+
+export function connectDataSourceFailure(error, apiError) {
+  return {
+    type: ActionTypes.CONNECT_DATA_SOURCE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function disconnectDataSourceRequest() {
+  return {
+    type: ActionTypes.DISCONNECT_DATA_SOURCE_REQUEST,
+  };
+}
+
+export function disconnectDataSourceSuccess() {
+  return {
+    type: ActionTypes.DISCONNECT_DATA_SOURCE_SUCCESS,
+    payload: {},
+  };
+}
+
+export function disconnectDataSourceFailure(error, apiError) {
+  return {
+    type: ActionTypes.DISCONNECT_DATA_SOURCE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}

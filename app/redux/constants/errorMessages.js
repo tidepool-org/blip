@@ -55,6 +55,9 @@ export const ERR_YOUR_ACCOUNT_NOT_CONFIGURED = 'Sorry! It appears that your acco
 export const ERR_GENERATING_PDF = 'Something went wrong while generating your report.';
 export const ERR_FETCHING_DATA_DONATION_ACCOUNTS = 'Something went wrong while fetching your data donation preferences.';
 export const ERR_UPDATING_DATA_DONATION_ACCOUNTS = 'Something went wrong while updating your data donation preferences.';
+export const ERR_FETCHING_DATA_SOURCES = 'Something went wrong while fetching your data sources.';
+export const ERR_CONNECTING_DATA_SOURCE = 'Something went wrong while connecting the data source.';
+export const ERR_DISCONNECTING_DATA_SOURCE = 'Something went wrong while disconnecting the data source.';
 
 export const ERR_BIRTHDAY_INVALID = 'Birthday is invalid.';
 export const ERR_BIRTHDAY_MISSING = 'Birthday is required.';

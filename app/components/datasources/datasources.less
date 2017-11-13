@@ -1,0 +1,107 @@
+/**
+ * Copyright (c) 2017, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+.DataSources {
+  .DataSource {
+    &:not(:first-child) {
+      padding-top: 20px;
+    }
+    &:not(:last-child) {
+      padding-bottom: 25px;
+      border-bottom: 1px solid @gray-rule;
+    }
+    &:last-child {
+      padding-bottom: 5px;
+    }
+  }
+
+  .DataSource-info {
+    display: inline-block;
+  }
+
+  .DataSource-description {
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  .DataSource-status {
+    padding-top: 2px;
+  }
+
+  .DataSource-status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 100%;
+    margin-right: 8px;
+  }
+
+  .DataSource-status-indicator-connected {
+    .DataSource-status-indicator();
+    background: green;
+  }
+
+  .DataSource-status-indicator-disconnected {
+    .DataSource-status-indicator();
+    background: gray;
+  }
+
+  .DataSource-status-indicator-error {
+    .DataSource-status-indicator();
+    background: red;
+  }
+
+  .DataSource-status-message {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 300;
+  }
+
+  .DataSource-action {
+    float: right;
+    margin: 13px 0px;
+  }
+
+  .DataSource-action-button {
+    float: left;
+    color: @white-color;
+    background-color: @gray-dark;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  // Provider specific
+
+  .DataSource-logo-dexcom {
+    content: url('images/dexcom-logo-163x32.png');
+    margin: -8px 0 4px -8px;
+  }
+
+  .DataSource-action-button-dexcom {
+    .DataSource-action-button();
+    width: 200px;
+    height: 45px;
+    background-size: 200px 45px;
+  }
+
+  .DataSource-action-button-connect-dexcom {
+    .DataSource-action-button-dexcom();
+    background-image: url('images/dexcom-connect-200x45.png');
+  }
+
+  .DataSource-action-button-disconnect-dexcom {
+    .DataSource-action-button-dexcom();
+  }
+}
