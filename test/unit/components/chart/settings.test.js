@@ -13,8 +13,29 @@ var expect = chai.expect;
 const renderer = TestUtils.createRenderer();
 
 import Settings from '../../../../app/components/chart/settings';
+import { MGDL_UNITS } from '../../../../app/core/constants';
 
 describe('Settings', function () {
+  const bgPrefs = {
+    bgClasses: {
+      'very-low': {
+        boundary: 60
+      },
+      'low': {
+        boundary: 80
+      },
+      'target': {
+        boundary: 180
+      },
+      'high': {
+        boundary: 200
+      },
+      'very-high': {
+        boundary: 300
+      }
+    },
+    bgUnits: MGDL_UNITS
+  };
 
   describe('render', function() {
     it('should render without problems', function () {
@@ -93,6 +114,44 @@ describe('Settings', function () {
       expect(props.onClickRefresh.callCount).to.equal(0);
       TestUtils.Simulate.click(refreshButton);
       expect(props.onClickRefresh.callCount).to.equal(1);
+    });
+
+    it('should have a disabled print button and spinner when a pdf is not ready to print', function () {
+      var props = {
+        bgPrefs,
+        chartPrefs: {},
+        patientData: {},
+        printReady: false,
+        pdf: {},
+      };
+
+      var dailyElem = React.createElement(Settings, props);
+      var elem = TestUtils.renderIntoDocument(dailyElem);
+
+      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-disabled', 'printview-print-icon']);
+      var spinner = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-loading-spinner');
+    });
+
+    it('should have an enabled print button and icon when a pdf is ready and call onSwitchToPrint when clicked', function () {
+      var props = {
+        bgPrefs,
+        chartPrefs: {},
+        patientData: {},
+        printReady: true,
+        pdf: {
+          url: 'blobURL',
+        },
+        onSwitchToPrint: sinon.spy(),
+      };
+
+      var dailyElem = React.createElement(Settings, props);
+      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-active', 'printview-print-icon']);
+      var printIcon = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-icon');
+
+      expect(props.onSwitchToPrint.callCount).to.equal(0);
+      TestUtils.Simulate.click(printLink);
+      expect(props.onSwitchToPrint.callCount).to.equal(1);
     });
   });
 });

@@ -19,13 +19,15 @@
 /* global describe */
 /* global it */
 /* global beforeEach */
+/* global sinon */
 
 var expect = chai.expect;
 
 import React from 'react';
 import _ from 'lodash';
 import Basics from '../../../../app/components/chart/basics';
-import { shallow } from 'enzyme';
+import { mount, shallow } from 'enzyme';
+import { MGDL_UNITS } from '../../../../app/core/constants';
 
 describe('Basics', () => {
   let baseProps = {
@@ -47,19 +49,20 @@ describe('Basics', () => {
           boundary: 300
         }
       },
-      bgUnits: 'mg/dL'
+      bgUnits: MGDL_UNITS
     },
     patientData: {
       basicsData: {
         data: {},
       },
     },
-    pdf: {}
+    pdf: {},
+    onSwitchToPrint: sinon.stub(),
   };
 
   let wrapper;
   beforeEach(() => {
-    wrapper = shallow(<Basics {...baseProps} />)
+    wrapper = shallow(<Basics {...baseProps} />);
   })
 
   describe('render', function() {
@@ -82,6 +85,9 @@ describe('Basics', () => {
                 ],
               },
             },
+            days: [{
+              type: 'mostRecent',
+            }],
           }),
         }
       });
@@ -89,6 +95,38 @@ describe('Basics', () => {
       const chart = wrapper.find('BasicsChart');
       expect(noDataMessage.length).to.equal(0);
       expect(chart.length).to.equal(1);
+    });
+
+    it('should have a disabled print button and spinner when a pdf is not ready to print', function () {
+      let mountedWrapper = mount(<Basics {...baseProps} />);
+
+      var printLink = mountedWrapper.find('.printview-print-icon');
+      expect(printLink.length).to.equal(1);
+      expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.true;
+
+      var spinner = mountedWrapper.find('.print-loading-spinner');
+      expect(spinner.length).to.equal(1);
+    });
+
+    it('should have an enabled print button and icon when a pdf is ready and call onSwitchToPrint when clicked', function () {
+      var props = _.assign({}, baseProps, {
+        pdf: {
+          url: 'blobURL',
+        },
+      });
+
+      let mountedWrapper = mount(<Basics {...props} />);
+
+      var printLink = mountedWrapper.find('.printview-print-icon');
+      expect(printLink.length).to.equal(1);
+      expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.false;
+
+      var spinner = mountedWrapper.find('.print-loading-spinner');
+      expect(spinner.length).to.equal(0);
+
+      expect(props.onSwitchToPrint.callCount).to.equal(0);
+      printLink.simulate('click');
+      expect(props.onSwitchToPrint.callCount).to.equal(1);
     });
   });
 });
