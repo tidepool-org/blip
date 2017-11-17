@@ -64,13 +64,13 @@ class SettingsPrintView extends PrintView {
   renderDeviceMeta() {
     const device = this.isTandem ? 'Tandem' : deviceName(this.manufacturer);
     this.doc
-    .font(this.boldFont)
-    .fontSize(this.defaultFontSize)
-    .text(device, { continued: true })
-    .font(this.font)
-    .text(` Uploaded on ${this.deviceMeta.uploaded}`, { continued: true })
-    .text(` › Serial Number: ${this.deviceMeta.serial}`)
-    .moveDown();
+      .font(this.boldFont)
+      .fontSize(this.defaultFontSize)
+      .text(device, { continued: true })
+      .font(this.font)
+      .text(` Uploaded on ${this.deviceMeta.uploaded}`, { continued: true })
+      .text(` › Serial Number: ${this.deviceMeta.serial}`)
+      .moveDown();
 
     this.resetText();
     this.doc.moveDown();
@@ -296,7 +296,7 @@ class SettingsPrintView extends PrintView {
 
   renderWizardSettings() {
     this.doc.x = this.chartArea.leftEdge;
-    this.doc.y = this.layoutColumns.columns[this.getLongestLayoutColumn()].y;
+    this.doc.y = _.get(this.layoutColumns, ['columns', this.getLongestLayoutColumn(), 'y']);
     this.doc.moveDown();
 
     this.renderSectionHeading(bolusTitle(this.manufacturer));

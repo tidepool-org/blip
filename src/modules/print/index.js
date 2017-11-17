@@ -34,6 +34,7 @@ export const utils = {
   selectDailyViewData,
   PDFDocument: class PDFDocumentStub {},
   blobStream: function blobStreamStub() {},
+  PrintView,
   DailyPrintView,
   BasicsPrintView,
   SettingsPrintView,

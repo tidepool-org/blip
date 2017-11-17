@@ -143,6 +143,57 @@ describe('blood glucose utilities', () => {
     });
   });
 
+  describe('generateBgRangeLabels', () => {
+    const bounds = {
+      mgdl: {
+        veryHighThreshold: 300.12345,
+        targetUpperBound: 180,
+        targetLowerBound: 70,
+        veryLowThreshold: 55,
+      },
+      mmoll: {
+        veryHighThreshold: 16.666667,
+        targetUpperBound: 10,
+        targetLowerBound: 3.9,
+        veryLowThreshold: 3.1,
+      },
+    };
+
+    it('should generate properly formatted range labels for mg/dL BG prefs', () => {
+      const bgPrefs = {
+        bgBounds: bounds.mgdl,
+        bgUnits: 'mg/dL',
+      };
+
+      const result = bgUtils.generateBgRangeLabels(bgPrefs);
+
+      expect(result).to.eql({
+        veryLow: 'below 55 mg/dL',
+        low: 'between 55 - 70 mg/dL',
+        target: 'between 70 - 180 mg/dL',
+        high: 'between 180 - 300 mg/dL',
+        veryHigh: 'above 300 mg/dL',
+      });
+    });
+
+    it('should generate properly formatted range labels for mmol/L BG prefs', () => {
+      const bgPrefs = {
+        bgBounds: bounds.mmoll,
+        bgUnits: 'mmol/L',
+      };
+
+      const result = bgUtils.generateBgRangeLabels(bgPrefs);
+
+      expect(result).to.eql({
+        veryLow: 'below 3.1 mmol/L',
+        low: 'between 3.1 - 3.9 mmol/L',
+        target: 'between 3.9 - 10.0 mmol/L',
+        high: 'between 10.0 - 16.7 mmol/L',
+        veryHigh: 'above 16.7 mmol/L',
+      });
+    });
+  });
+
   describe('calcBgPercentInCategories', () => {
     it('should be a function', () => {
       assert.isFunction(bgUtils.calcBgPercentInCategories);

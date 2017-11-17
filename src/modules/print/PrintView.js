@@ -109,9 +109,9 @@ class PrintView {
     this.bottomEdge = this.margins.top + this.height;
 
     this.chartArea = {
-      bottomEdge: opts.margins.top + opts.height,
-      leftEdge: opts.margins.left,
-      topEdge: opts.margins.top,
+      bottomEdge: this.margins.top + opts.height,
+      leftEdge: this.margins.left,
+      topEdge: this.margins.top,
     };
 
     this.chartArea.width = this.rightEdge - this.chartArea.leftEdge;
@@ -175,9 +175,9 @@ class PrintView {
       activeIndex = 0,
       columns = [],
       count = _.get(opts, 'widths.length', 0),
-      gutter,
+      gutter = 0,
       type = 'equal',
-      width,
+      width = this.chartArea.width,
       widths = [],
     } = opts;
 
@@ -260,7 +260,7 @@ class PrintView {
   getLongestLayoutColumn() {
     let longest;
     let longestIndex;
-    _.each(this.layoutColumns.columns, (column, colIndex) => {
+    _.each(_.get(this, 'layoutColumns.columns', []), (column, colIndex) => {
       if (!longest || (longest < column.y)) {
         longest = column.y;
         longestIndex = colIndex;
@@ -339,17 +339,18 @@ class PrintView {
     this.doc.moveDown(moveDown);
   }
 
-  renderCellStripe(data, column, pos, isHeader) {
+  renderCellStripe(data = {}, column = {}, pos = {}, isHeader = false) {
     const fillStripeKey = isHeader ? 'headerFillStripe' : 'fillStripe';
     const fillKey = isHeader ? 'headerFill' : 'fill';
     const heightKey = isHeader ? 'headerHeight' : 'height';
 
-    // eslint-disable-next-line no-underscore-dangle
-    const height = _.get(column, heightKey, column.height) || data._renderedContent.height;
+    const height = _.get(column, heightKey, column.height)
+                || _.get(data, '_renderedContent.height', 0);
 
     const stripe = {
       width: 0,
       height,
+      padding: 0,
       color: this.colors.grey,
       opacity: 1,
       background: false,
@@ -418,8 +419,8 @@ class PrintView {
 
       const heightKey = isHeader ? 'headerHeight' : 'height';
 
-      // eslint-disable-next-line no-underscore-dangle
-      const height = _.get(column, heightKey, column.height) || data._renderedContent.height;
+      const height = _.get(column, heightKey, column.height)
+                  || _.get(data, '_renderedContent.height', 0);
 
       const fontKey = isHeader ? 'headerFont' : 'font';
 
@@ -495,7 +496,7 @@ class PrintView {
     this.resetText();
   }
 
-  renderTable(columns = [], rows = [], opts = {}) {
+  renderTable(columns = [], rows = [], opts = {}, Table = PdfTable, FitColumn = PdfTableFitColumn) {
     this.doc.lineWidth(this.tableSettings.borderWidth);
 
     _.defaultsDeep(opts, {
@@ -518,81 +519,95 @@ class PrintView {
       flexColumn,
     } = opts;
 
-    const table = this.table = new PdfTable(this.doc, opts);
+    const table = this.table = new Table(this.doc, opts);
 
     if (flexColumn) {
-      table.addPlugin(new PdfTableFitColumn({
+      table.addPlugin(new FitColumn({
         column: flexColumn,
       }));
     }
 
-    table.onCellBackgroundAdd((tb, column, row, index, isHeader) => {
-      const {
-        fill,
-        headerFill,
-        zebra,
-      } = column;
+    table.onCellBackgroundAdd(this.onCellBackgroundAdd.bind(this));
 
-      const isEven = index % 2 === 0;
+    table.onCellBackgroundAdded(this.onCellBackgroundAdded.bind(this));
 
-      const fillKey = isHeader ? headerFill : fill;
+    table.onCellBorderAdd(this.onCellBorderAdd.bind(this));
 
-      if (fillKey) {
-        const fillDefined = _.isPlainObject(fillKey);
-        let color;
-        let opacity;
+    table.onCellBorderAdded(this.onCellBorderAdded.bind(this));
 
-        if (!fillDefined) {
-          opacity = 1;
+    table.onRowAdd(this.onRowAdd.bind(this));
 
-          if (zebra) {
-            if (isHeader) {
-              color = this.tableSettings.colors.zebraHeader;
-            } else {
-              color = isEven
-                ? this.tableSettings.colors.zebraEven
-                : this.tableSettings.colors.zebraOdd;
-            }
-          }
-        } else {
-          const defaultOpacity = _.get(fillKey, 'opacity', 1);
-
-          color = _.get(fillKey, 'color', 'white');
-          opacity = zebra ? defaultOpacity / 2 : defaultOpacity;
-        }
-
-        this.setFill(color, opacity);
-      }
-    });
-
-    table.onCellBackgroundAdded(() => {
-      this.setFill();
-    });
-
-    table.onCellBorderAdd((tb, column) => {
-      this.doc.lineWidth(this.tableSettings.borderWidth);
-      this.setStroke(_.get(column, 'borderColor', 'black'), 1);
-    });
-
-    table.onCellBorderAdded(() => {
-      this.setStroke();
-    });
-
-    table.onRowAdd((tb, row) => {
-      // eslint-disable-next-line no-underscore-dangle
-      if (row._bold) {
-        this.doc.font(this.boldFont);
-      }
-    });
-
-    table.onRowAdded(() => {
-      this.resetText();
-    });
+    table.onRowAdded(this.onRowAdded.bind(this));
 
     table
       .setColumnsDefaults(opts.columnDefaults)
       .addColumns(columns)
       .addBody(rows);
+  }
+
+  onCellBackgroundAdd(tb, column, row, index, isHeader) {
+    const {
+      fill,
+      headerFill,
+      zebra,
+    } = column;
+
+    const isEven = index % 2 === 0;
+
+    const fillKey = isHeader ? headerFill : fill;
+
+    if (fillKey) {
+      const fillDefined = _.isPlainObject(fillKey);
+      let color;
+      let opacity;
+
+      if (!fillDefined) {
+        opacity = 1;
+
+        if (zebra) {
+          if (isHeader) {
+            color = this.tableSettings.colors.zebraHeader;
+          } else {
+            color = isEven
+              ? this.tableSettings.colors.zebraEven
+              : this.tableSettings.colors.zebraOdd;
+          }
+        } else {
+          color = fillKey || 'white';
+        }
+      } else {
+        const defaultOpacity = _.get(fillKey, 'opacity', 1);
+
+        color = _.get(fillKey, 'color', 'white');
+        opacity = zebra && !isEven ? defaultOpacity / 2 : defaultOpacity;
+      }
+
+      this.setFill(color, opacity);
+    }
+  }
+
+  onCellBackgroundAdded() {
+    this.setFill();
+  }
+
+  onCellBorderAdd(tb, column) {
+    this.doc.lineWidth(this.tableSettings.borderWidth);
+    this.setStroke(_.get(column, 'borderColor', 'black'), 1);
+  }
+
+  onCellBorderAdded() {
+    this.setStroke();
+  }
+
+  onRowAdd(tb, row) {
+    // eslint-disable-next-line no-underscore-dangle
+    if (row._bold) {
+      this.doc.font(this.boldFont);
+    }
+  }
+
+  onRowAdded() {
+    this.resetText();
   }
 
   renderPatientInfo() {

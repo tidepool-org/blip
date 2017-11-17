@@ -18,7 +18,7 @@
 import MemoryStream from 'memorystream';
 
 export default class Doc {
-  constructor(opts) {
+  constructor(opts = {}) {
     this.stream = new MemoryStream();
     this.stream.toBlobURL = () => this.pdf.url;
     this.stream.toBlob = () => this.pdf.blob;
@@ -29,6 +29,12 @@ export default class Doc {
 
     this.page = {
       width: 300,
+      margins: {
+        left: 36,
+        right: 36,
+        top: 36,
+        bottom: 36,
+      },
     };
 
     this.pdf = opts.pdf;
@@ -61,7 +67,11 @@ export default class Doc {
     this.moveDown = sinon.stub().returns(this);
     this.lineTo = sinon.stub().returns(this);
     this.lineGap = sinon.stub().returns(this);
+    this.lineCap = sinon.stub().returns(this);
+    this.save = sinon.stub().returns(this);
+    this.restore = sinon.stub().returns(this);
     this.widthOfString = sinon.stub().returns(20);
+    this.heightOfString = sinon.stub().returns(10);
   }
 
   pipe() {

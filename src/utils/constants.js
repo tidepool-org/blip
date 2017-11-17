@@ -54,6 +54,8 @@ export const SITE_CHANGE_RESERVOIR = 'reservoirChange';
 export const SITE_CHANGE_TUBING = 'tubingPrime';
 export const SITE_CHANGE_CANNULA = 'cannulaPrime';
 
+export const SECTION_TYPE_UNDECLARED = 'undeclared';
+
 export const INSULET = 'Insulet';
 export const TANDEM = 'Tandem';
 export const ANIMAS = 'Animas';

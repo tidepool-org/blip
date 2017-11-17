@@ -37,6 +37,7 @@ import {
   SITE_CHANGE_RESERVOIR,
   SITE_CHANGE_TUBING,
   SITE_CHANGE_CANNULA,
+  SECTION_TYPE_UNDECLARED,
   INSULET,
   TANDEM,
   ANIMAS,
@@ -45,7 +46,9 @@ import {
 } from '../constants';
 
 /**
- * Calculate aggregated basal and bolus stats
+ * Get the BG distribution source and status
+ * source will be one of [cbg | smbg | null]
+ * status refers the the availability of cgm data [NO_CGM | NOT_ENOUGH_CGM | CGM_CALCULATED]
  *
  * @export
  * @param {Object} basicsData - the preprocessed basics data object
@@ -76,7 +79,6 @@ export function determineBgDistributionSource(basicsData) {
 
   return bgSource;
 }
-
 
 /**
  * Return a CGM status message
@@ -215,7 +217,7 @@ export function calculateBasalBolusStats(basicsData) {
  *
  * @export
  * @param {Object} basicsData - the preprocessed basics data object
- * @returns
+ * @returns {String|Null} - the latest upload source or null
  */
 export function getLatestPumpUploaded(basicsData) {
   const latestPump = _.findLast(
@@ -231,13 +233,13 @@ export function getLatestPumpUploaded(basicsData) {
 }
 
 /**
- *
+ * Get the infusion site history of a patient
  *
  * @param {Object} basicsData - the preprocessed basics data object
- * @param {any} type
+ * @param {String} type - infusion type, coming from the patients `siteChangeSource` setting
  * @returns {Object} infusionSiteHistory
  */
-function getInfusionSiteHistory(basicsData, type) {
+export function getInfusionSiteHistory(basicsData, type) {
   const infusionSitesPerDay = basicsData.data[type].dataByDate;
   const allDays = basicsData.days;
   const infusionSiteHistory = {};
@@ -273,13 +275,12 @@ function getInfusionSiteHistory(basicsData, type) {
 }
 
 /**
- *
+ * Process the infusion site history of a patient
  *
  * @export
  * @param {Object} data - the preprocessed basics data object
- * @param {any} latestPump
- * @param {any} patient
- * @param {any} permissions
+ * @param {Object} patient
+ * @returns {Object} basicsData - the revised data object
  */
 export function processInfusionSiteHistory(data, patient) {
   const basicsData = _.cloneDeep(data);
@@ -309,6 +310,8 @@ export function processInfusionSiteHistory(data, patient) {
 
     if (siteChangeSource && _.includes(allowedSources, siteChangeSource)) {
       basicsData.sections.siteChanges.type = settings.siteChangeSource;
+    } else {
+      basicsData.sections.siteChanges.type = SECTION_TYPE_UNDECLARED;
     }
   } else if (latestPump === INSULET) {
     basicsData.data.reservoirChange.infusionSiteHistory = getInfusionSiteHistory(
@@ -337,9 +340,9 @@ export function processInfusionSiteHistory(data, patient) {
 /**
  * Generate crossfilter reducers for classifying data records
  *
- * @param {any} dataObj
- * @param {any} type
- * @param {any} bgPrefs
+ * @param {Object} dataObj - the data object to reduce
+ * @param {String} type - the data type
+ * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds
  */
 function buildCrossfilterUtils(dataObj, type, bgPrefs) {
   /* eslint-disable no-param-reassign */
@@ -432,13 +435,13 @@ function buildCrossfilterUtils(dataObj, type, bgPrefs) {
 }
 
 /**
+ * Generate function to process summary breakdowns for section data
  *
- *
- * @param {any} dataObj
- * @param {any} summary
- * @returns
+ * @param {Object} dataObj
+ * @param {Object} summary
+ * @returns {Function}
  */
-function summarizeTagFn(dataObj, summary) {
+export function summarizeTagFn(dataObj, summary) {
   /* eslint-disable no-param-reassign */
   return tag => {
     summary[tag] = {
@@ -454,14 +457,14 @@ function summarizeTagFn(dataObj, summary) {
 }
 
 /**
+ * Get the average number of data events per day excluding the most recent
  *
- *
- * @param {any} dataObj
- * @param {any} total
- * @param {any} mostRecentDay
+ * @param {Object} dataObj
+ * @param {Number} total
+ * @param {String} mostRecentDay
  * @returns
  */
-function averageExcludingMostRecentDay(dataObj, total, mostRecentDay) {
+export function averageExcludingMostRecentDay(dataObj, total, mostRecentDay) {
   const mostRecentTotal = dataObj.dataByDate[mostRecentDay] ?
     dataObj.dataByDate[mostRecentDay].total : 0;
   const numDaysExcludingMostRecent = dataObj.dataByDate[mostRecentDay] ?
@@ -547,7 +550,6 @@ export function defineBasicsSections(bgPrefs) {
         break;
 
       case 'siteChanges':
-        type = undefined;
         title = 'Infusion site changes';
         break;
 
@@ -587,10 +589,12 @@ export function defineBasicsSections(bgPrefs) {
 }
 
 /**
- *
+ * Set up cross filters by date for all of the data types
  *
  * @export
- * @param {any} data
+ * @param {Object} data - the preprocessed basics data object
+ * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds
+ * @returns {Object} basicsData - the revised data object
  */
 export function reduceByDay(data, bgPrefs) {
   const basicsData = _.cloneDeep(data);

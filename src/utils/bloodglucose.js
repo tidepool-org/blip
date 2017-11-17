@@ -110,7 +110,7 @@ export function reshapeBgClassesToBgBounds(bgPrefs) {
  * Generate BG Range Labels for a given set of bg prefs
  *
  * @export
- * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds
+ * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds and the bgUnits
  * @returns {Object} bgRangeLabels - map of labels keyed by bgClassification
  */
 export function generateBgRangeLabels(bgPrefs) {

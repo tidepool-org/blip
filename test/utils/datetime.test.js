@@ -46,6 +46,13 @@ describe('datetime', () => {
     });
   });
 
+  describe('addDuration', () => {
+    it('add a duration to a date string', () => {
+      const start = '2017-11-10T00:00:00.000Z';
+      expect(datetime.addDuration(start, 60000)).to.equal('2017-11-10T00:01:00.000Z');
+    });
+  });
+
   describe('getTimezoneFromTimePrefs', () => {
     it('should be a function', () => {
       assert.isFunction(datetime.getTimezoneFromTimePrefs);
