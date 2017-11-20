@@ -8,15 +8,14 @@ RUN apk add --no-cache fontconfig \
  && apk add --no-cache --virtual .build-deps curl git \
  && echo "Fixing PhantomJS to run on alpine" \
  && curl -Ls "https://github.com/tidepool-org/tools/raw/master/alpine_phantomjs_dependencies/dockerized-phantomjs.tar.xz" | tar xJ -C / \
- && mkdir /app/dist && chown node:node -R /app && chmod -R 755 /app \
+ && mkdir /app/dist && chown node:node -R /app/dist && chmod -R 755 /app/dist \
+ && yarn install \
  && apk del .build-deps \
  && rm -rf /usr/share/man /tmp/* /var/tmp/* /root/.npm /root/.node-gyp
 
-USER node
-
 COPY . /app
 
-RUN yarn install
+USER node
 
 EXPOSE 8081
 
