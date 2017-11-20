@@ -543,6 +543,16 @@ class PrintView {
       .setColumnsDefaults(opts.columnDefaults)
       .addColumns(columns)
       .addBody(rows);
+
+    this.updatePositionAfterTableRender(table);
+  }
+
+  updatePositionAfterTableRender(table = {}) {
+    // Restore x position after table is drawn
+    this.doc.x = _.get(table, 'pos.x', this.doc.page.margins.left);
+
+    // Add margin to the bottom of the table
+    this.doc.y += table.bottomMargin;
   }
 
   onCellBackgroundAdd(tb, column, row, index, isHeader) {

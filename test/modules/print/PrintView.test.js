@@ -1044,6 +1044,7 @@ describe('PrintView', () => {
       setFill = sinon.spy(Renderer, 'setFill');
       setStroke = sinon.spy(Renderer, 'setStroke');
       resetText = sinon.spy(Renderer, 'resetText');
+      sinon.spy(Renderer, 'updatePositionAfterTableRender');
     });
 
     afterEach(() => {
@@ -1110,6 +1111,12 @@ describe('PrintView', () => {
     it('should add a listener for the `onRowAdded` table event', () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.onRowAdded);
+    });
+
+    it('should trigger a pdf cursor position update when rendering is complete', () => {
+      Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
+      sinon.assert.calledOnce(Renderer.updatePositionAfterTableRender);
+      sinon.assert.calledWith(Renderer.updatePositionAfterTableRender, Renderer.table);
     });
 
     describe('onCellBackgroundAdd', () => {
@@ -1344,8 +1351,30 @@ describe('PrintView', () => {
         sinon.assert.calledWithExactly(Renderer.resetText);
       });
     });
-  });
 
+    describe('updatePositionAfterTableRender', () => {
+      it('should properly update the pdf cursor position after rendering', () => {
+        Renderer.doc.x = 150;
+        Renderer.doc.y = 200;
+
+        Renderer.updatePositionAfterTableRender({
+          pos: { x: 100 },
+          bottomMargin: 50,
+        });
+
+        expect(Renderer.doc.x).to.equal(100);
+        expect(Renderer.doc.y).to.equal(250);
+      });
+
+      it('should default to the page\'s left margin when the table position isn\'t set', () => {
+        Renderer.doc.x = 150;
+
+        Renderer.updatePositionAfterTableRender();
+
+        expect(Renderer.doc.x).to.equal(36);
+      });
+    });
+  });
 
   describe('renderPatientInfo', () => {
     it('should render patient information', () => {

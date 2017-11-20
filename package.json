@@ -125,7 +125,7 @@
     "sundial": "1.6.0",
     "text-table": "0.2.0",
     "translate-svg-path": "0.0.1",
-    "voilab-pdf-table": "tidepool-org/voilab-pdf-table#v0.3.2-print-view-updates.1"
+    "voilab-pdf-table": "0.4.0"
   },
   "peerDependencies": {
     "classnames": "2.x",
