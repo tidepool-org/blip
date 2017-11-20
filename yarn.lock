@@ -2075,7 +2075,7 @@ date-now@^0.1.4:
   optionalDependencies:
     abstract-socket "^1.0.0"
 
-debug@*, debug@2, debug@^2.1.1, debug@^2.2.0, debug@^2.6.6:
+debug@*, debug@^2.6.6:
   version "2.6.6"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.6.tgz#a9fa6fbe9ca43cf1e79f73b75c0189cbb7d6db5a"
   dependencies:
@@ -2085,7 +2085,7 @@ debug@0.7.4:
   version "0.7.4"
   resolved "https://registry.yarnpkg.com/debug/-/debug-0.7.4.tgz#06e1ea8082c2cb14e39806e22e2f6f757f92af39"
 
-debug@2.2.0, debug@~2.2.0:
+debug@2, debug@2.2.0, debug@^2.1.1, debug@^2.2.0, debug@~2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.2.0.tgz#f87057e995b1a1f6ae6a4960664137bc56f039da"
   dependencies:
@@ -5388,7 +5388,7 @@ optimist@0.6.1, optimist@>=0.3.5, optimist@^0.6.1, optimist@~0.6.0, optimist@~0.
     wordwrap "~0.0.2"
 
 optional@0.1.3:
-  version "0.1.3"
+  version v0.1.3
   resolved "https://registry.yarnpkg.com/optional/-/optional-0.1.3.tgz#f87537517b59a5e732cfd8f18e4f7eea7ab4761e"
 
 optionator@^0.8.1:
