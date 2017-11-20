@@ -118,10 +118,12 @@ export function calculateBasalBolusStats(basicsData) {
     date => (date === mostRecent)
   );
 
+  const basals = basicsData.data.basal.data;
+
   // if three or more of the days (excepting most recent) don't have any boluses
   // then don't calculate these stats at all, since may be inaccurate if
   // long-running basals exist
-  if (pastDays.length - pastBolusDays.length >= 3) {
+  if (pastDays.length - pastBolusDays.length >= 3 || !basals.length) {
     return {
       basalBolusRatio: null,
       averageDailyDose: null,
@@ -131,7 +133,6 @@ export function calculateBasalBolusStats(basicsData) {
   }
 
   const boluses = basicsData.data.bolus.data;
-  const basals = basicsData.data.basal.data;
 
   const carbs = _.filter(
     basicsData.data.wizard.data,

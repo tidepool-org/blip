@@ -20,7 +20,6 @@ import _ from 'lodash';
 import PrintView from '../../../src/modules/print/PrintView';
 
 import * as patients from '../../../data/patient/profiles';
-import { data } from '../../../data/print/fixtures';
 
 import {
   getTimezoneFromTimePrefs,
@@ -42,6 +41,8 @@ import { getPatientFullName } from '../../../src/utils/misc';
 
 describe('PrintView', () => {
   let Renderer;
+
+  const data = {};
 
   const DPI = 72;
   const MARGIN = DPI / 2;

@@ -20,7 +20,7 @@
 import _ from 'lodash';
 import { utcDay } from 'd3-time';
 import * as dataUtils from '../../../src/utils/basics/data';
-import Types from '../../helpers/types';
+import Types from '../../../data/types';
 
 import {
   NO_CGM,

@@ -174,6 +174,10 @@ describe('SettingsPrintView', () => {
       expect(Renderer.deviceMeta.uploaded).to.be.a('string');
       expect(Renderer.deviceMeta.serial).to.be.a('string');
     });
+
+    it('should add the first pdf page', () => {
+      sinon.assert.calledOnce(Renderer.doc.addPage);
+    });
   });
 
   describe('render', () => {

@@ -48,6 +48,7 @@ export default class Doc {
     this.addPage = sinon.stub().returns(this);
     this.path = sinon.stub().returns(this);
     this.fill = sinon.stub().returns(this);
+    this.fillAndStroke = sinon.stub().returns(this);
     this.stub = sinon.stub().returns(this);
     this.dash = sinon.stub().returns(this);
     this.undash = sinon.stub().returns(this);

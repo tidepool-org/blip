@@ -18,16 +18,16 @@
 import _ from 'lodash';
 
 import guid from './guid';
-import { addDuration } from '../../src/utils/datetime';
+import { addDuration } from '../src/utils/datetime';
 
 // constants
-import { MGDL_UNITS, MS_IN_DAY } from '../../src/utils/constants';
+import { MGDL_UNITS, MS_IN_DAY } from '../src/utils/constants';
 const APPEND = '.000Z';
 
 class Common {
-  constructor() {
+  constructor(opts = {}) {
     this.deviceId = 'Test Page Data - 123';
-    this.source = 'testpage';
+    this.source = opts.source || 'testpage';
     this.conversionOffset = 0;
   }
 
@@ -71,7 +71,7 @@ class Common {
 
 class Basal extends Common {
   constructor(opts = {}) {
-    super();
+    super(opts);
 
     const defaults = {
       deliveryType: 'scheduled',
@@ -99,7 +99,7 @@ class Basal extends Common {
 
 class Bolus extends Common {
   constructor(opts = {}) {
-    super();
+    super(opts);
 
     const defaults = {
       deviceTime: this.makeDeviceTime(),
@@ -126,7 +126,7 @@ class Bolus extends Common {
 
 class CBG extends Common {
   constructor(opts = {}) {
-    super();
+    super(opts);
 
     const defaults = {
       deviceTime: this.makeDeviceTime(),
@@ -151,7 +151,7 @@ class CBG extends Common {
 
 class Message extends Common {
   constructor(opts = {}) {
-    super();
+    super(opts);
 
     const defaults = {
       messageText: 'This is a note.',
@@ -177,7 +177,7 @@ class Message extends Common {
 
 class Settings extends Common {
   constructor(opts = {}) {
-    super();
+    super(opts);
 
     const defaults = {
       activeBasalSchedule: 'standard',
@@ -229,7 +229,7 @@ class Settings extends Common {
 
 class SMBG extends Common {
   constructor(opts = {}) {
-    super();
+    super(opts);
 
     const defaults = {
       deviceTime: this.makeDeviceTime(),
@@ -258,23 +258,29 @@ class SMBG extends Common {
 
 class DeviceEvent extends Common {
   constructor(opts = {}) {
-    super();
+    super(opts);
 
     const defaults = {
       deviceTime: this.makeDeviceTime(),
       units: 'mg/dL',
       value: 100,
+      primeTarget: 'cannula',
     };
     _.defaults(opts, defaults);
 
     this.type = 'deviceEvent';
     this.subType = opts.subType;
 
+    if (opts.subType === 'prime') {
+      this.primeTarget = opts.primeTarget;
+    }
+
     this.deviceTime = opts.deviceTime;
 
     this.time = this.makeTime();
     this.createdTime = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
+    this.normalTime = this.makeNormalTime();
 
     this.id = this.makeId();
   }
@@ -282,7 +288,7 @@ class DeviceEvent extends Common {
 
 class Upload extends Common {
   constructor(opts = {}) {
-    super();
+    super(opts);
 
     const defaults = {
       deviceTime: this.makeDeviceTime(),
@@ -293,7 +299,6 @@ class Upload extends Common {
     this.type = 'upload';
     this.deviceTags = opts.deviceTags;
     this.deviceTime = opts.deviceTime;
-    this.source = opts.source;
 
     this.time = this.makeTime();
     this.timezone = opts.timezone;
@@ -307,7 +312,7 @@ class Upload extends Common {
 
 class Wizard extends Common {
   constructor(opts = {}) {
-    super();
+    super(opts);
 
     if (opts.bolus) {
       // eslint-disable-next-line no-param-reassign

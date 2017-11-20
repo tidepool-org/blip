@@ -22,7 +22,7 @@ import { mean } from 'd3-array';
 import DailyPrintView from '../../../src/modules/print/DailyPrintView';
 import PrintView from '../../../src/modules/print/PrintView';
 import * as patients from '../../../data/patient/profiles';
-import { data } from '../../../data/print/fixtures';
+import { dailyData as data } from '../../../data/print/fixtures';
 
 import {
   DEFAULT_FONT_SIZE,

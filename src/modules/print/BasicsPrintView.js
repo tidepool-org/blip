@@ -67,10 +67,9 @@ class BasicsPrintView extends PrintView {
     const { source: bgSource, cgmStatus } = determineBgDistributionSource(this.data);
     _.assign(this, { bgSource, cgmStatus });
 
-    this.data.data.bgDistribution = calcBgPercentInCategories(
-      this.data.data[this.bgSource].data,
-      this.bgBounds
-    );
+    this.data.data.bgDistribution = bgSource
+      ? calcBgPercentInCategories(_.get(this.data, ['data', bgSource, 'data'], []), this.bgBounds)
+      : null;
 
     this.data.sections = defineBasicsSections(this.bgPrefs);
 
@@ -739,7 +738,7 @@ class BasicsPrintView extends PrintView {
     return ' ';
   }
 
-  renderCountGrid(count, width, pos, color) {
+  renderCountGrid(count, width, pos) {
     const colCount = 3;
     const rowCount = 3;
     const gridSpaces = colCount * rowCount;
@@ -782,7 +781,7 @@ class BasicsPrintView extends PrintView {
       const dot = chunkedGridValues[rowIndex][colIndex];
 
       if (dot > 1) {
-        this.renderCountGrid(dot, diameter, gridPos, color);
+        this.renderCountGrid(dot, diameter, gridPos);
       } else if (dot === 1) {
         this.doc
           .circle(gridPos.x + radius, gridPos.y + radius, radius)
