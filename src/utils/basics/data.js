@@ -313,6 +313,7 @@ export function processInfusionSiteHistory(data, patient) {
       basicsData.sections.siteChanges.type = settings.siteChangeSource;
     } else {
       basicsData.sections.siteChanges.type = SECTION_TYPE_UNDECLARED;
+      basicsData.sections.siteChanges.active = false;
     }
   } else if (latestPump === INSULET) {
     basicsData.data.reservoirChange.infusionSiteHistory = getInfusionSiteHistory(
@@ -329,10 +330,14 @@ export function processInfusionSiteHistory(data, patient) {
     basicsData.sections.siteChanges.selector = null;
   }
 
+  const fallbackSubtitle = basicsData.sections.siteChanges.type !== SECTION_TYPE_UNDECLARED
+                         ? pumpVocabulary.default[SITE_CHANGE_RESERVOIR]
+                         : null;
+
   basicsData.sections.siteChanges.subTitle = _.get(
     pumpVocabulary,
     [latestPump, basicsData.sections.siteChanges.type],
-    pumpVocabulary.default[SITE_CHANGE_RESERVOIR],
+    fallbackSubtitle,
   );
 
   return basicsData;
@@ -751,15 +756,20 @@ export function setBasicsSectionsAvailability(data) {
     'totalDailyDose',
   ];
 
-  const getEmptyText = sectionKey => {
+  const getEmptyText = (section, sectionKey) => {
     /* eslint-disable max-len */
     let emptyText;
 
     switch (sectionKey) {
       case 'basals':
       case 'boluses':
+        emptyText = 'This section requires data from an insulin pump, so there\'s nothing to display.';
+        break;
+
       case 'siteChanges':
-        emptyText = 'This section requires data from an insulin pump, so there\'s nothing to display';
+        emptyText = section.type === SECTION_TYPE_UNDECLARED
+                  ? 'Please choose a preferred site change source from the \'Basics\' web view to view this data.'
+                  : 'This section requires data from an insulin pump, so there\'s nothing to display.';
         break;
 
       case 'fingersticks':
@@ -807,7 +817,7 @@ export function setBasicsSectionsAvailability(data) {
     }
 
     if (!active) {
-      basicsData.sections[key].emptyText = getEmptyText(key);
+      basicsData.sections[key].emptyText = getEmptyText(section, key);
     }
 
     basicsData.sections[key].active = active;
