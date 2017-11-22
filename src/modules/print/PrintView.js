@@ -539,20 +539,20 @@ class PrintView {
 
     table.onRowAdded(this.onRowAdded.bind(this));
 
+    table.onBodyAdded(this.onBodyAdded.bind(this));
+
     table
       .setColumnsDefaults(opts.columnDefaults)
       .addColumns(columns)
       .addBody(rows);
-
-    this.updatePositionAfterTableRender(table);
   }
 
-  updatePositionAfterTableRender(table = {}) {
+  onBodyAdded(tb) {
     // Restore x position after table is drawn
-    this.doc.x = _.get(table, 'pos.x', this.doc.page.margins.left);
+    this.doc.x = _.get(tb, 'pos.x', this.doc.page.margins.left);
 
     // Add margin to the bottom of the table
-    this.doc.y += table.bottomMargin;
+    this.doc.y += tb.bottomMargin;
   }
 
   onCellBackgroundAdd(tb, column, row, index, isHeader) {

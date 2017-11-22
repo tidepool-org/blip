@@ -1015,9 +1015,11 @@ describe('PrintView', () => {
         this.onCellBorderAdded = sinon.stub().resolves(true);
         this.onRowAdd = sinon.stub().resolves(true);
         this.onRowAdded = sinon.stub().resolves(true);
+        this.onBodyAdded = sinon.stub().resolves(true);
         this.setColumnsDefaults = sinon.stub().returns(this);
         this.addColumns = sinon.stub().returns(this);
         this.addBody = sinon.stub().returns(this);
+        this.bottomMargin = 20;
       }
     }
 
@@ -1044,7 +1046,6 @@ describe('PrintView', () => {
       setFill = sinon.spy(Renderer, 'setFill');
       setStroke = sinon.spy(Renderer, 'setStroke');
       resetText = sinon.spy(Renderer, 'resetText');
-      sinon.spy(Renderer, 'updatePositionAfterTableRender');
     });
 
     afterEach(() => {
@@ -1113,10 +1114,9 @@ describe('PrintView', () => {
       sinon.assert.calledOnce(Renderer.table.onRowAdded);
     });
 
-    it('should trigger a pdf cursor position update when rendering is complete', () => {
+    it('should add a listener for the `onBodyAdded` table event', () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
-      sinon.assert.calledOnce(Renderer.updatePositionAfterTableRender);
-      sinon.assert.calledWith(Renderer.updatePositionAfterTableRender, Renderer.table);
+      sinon.assert.calledOnce(Renderer.table.onBodyAdded);
     });
 
     describe('onCellBackgroundAdd', () => {
@@ -1352,12 +1352,12 @@ describe('PrintView', () => {
       });
     });
 
-    describe('updatePositionAfterTableRender', () => {
+    describe('onBodyAdded', () => {
       it('should properly update the pdf cursor position after rendering', () => {
         Renderer.doc.x = 150;
         Renderer.doc.y = 200;
 
-        Renderer.updatePositionAfterTableRender({
+        Renderer.onBodyAdded({
           pos: { x: 100 },
           bottomMargin: 50,
         });
@@ -1369,7 +1369,7 @@ describe('PrintView', () => {
       it('should default to the page\'s left margin when the table position isn\'t set', () => {
         Renderer.doc.x = 150;
 
-        Renderer.updatePositionAfterTableRender();
+        Renderer.onBodyAdded(new Table());
 
         expect(Renderer.doc.x).to.equal(36);
       });
