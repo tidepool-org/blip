@@ -40,6 +40,8 @@ COPY . /app
 
 VOLUME /app
 VOLUME /app/node_modules
+VOLUME /app/dist
+
 VOLUME /@tidepool/viz/node_modules
 VOLUME /tideline/node_modules
 VOLUME /tidepool-platform-client/node_modules
