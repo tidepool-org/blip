@@ -598,9 +598,24 @@ class BasicsPrintView extends PrintView {
     if (disabled) {
       this.renderEmptyText(emptyText);
     } else {
+      let priorToFirstSiteChange = false;
+      if (type === 'siteChange') {
+        priorToFirstSiteChange = _.some(data, { daysSince: NaN });
+      }
+
       const chunkedDayMap = _.chunk(_.map(this.calendar.days, (day, index) => {
         const date = moment.utc(day.date);
         const dateLabelMask = (index === 0 || date.date() === 1) ? 'MMM D' : 'D';
+
+        let dayType = _.get(data, `${day.date}.type`, day.type);
+
+        if (dayType === 'noSiteChange' && priorToFirstSiteChange) {
+          dayType = 'past';
+        }
+
+        if (dayType === 'siteChange' && priorToFirstSiteChange) {
+          priorToFirstSiteChange = false;
+        }
 
         return {
           color: this.colors[type],
@@ -608,7 +623,7 @@ class BasicsPrintView extends PrintView {
           dayOfWeek: date.format('ddd'),
           daysSince: _.get(data, `${day.date}.daysSince`),
           label: date.format(dateLabelMask),
-          type: _.get(data, `${day.date}.type`, day.type),
+          type: dayType,
         };
       }), 7);
 
@@ -672,13 +687,20 @@ class BasicsPrintView extends PrintView {
         this.setStroke(this.colors.grey);
         this.doc.lineWidth(1);
 
+        const isFirst = _.isNaN(daysSince);
+
         const linePos = {
           x: pos.x,
           y: pos.y + column.height / 2 - 1,
         };
 
+        const dotPos = {
+          x: linePos.x + column.width - 6,
+          y: linePos.y,
+        };
+
         this.doc
-          .moveTo(linePos.x, linePos.y)
+          .moveTo(isFirst ? dotPos.x : linePos.x, linePos.y)
           .lineTo(linePos.x + column.width, linePos.y)
           .stroke();
 
@@ -688,11 +710,6 @@ class BasicsPrintView extends PrintView {
           const siteChangeType = this.data.sections.siteChanges.type;
           const imageWidth = width / 2.5;
           const imagePadding = (width - imageWidth) / 2;
-
-          const dotPos = {
-            x: linePos.x + column.width - 6,
-            y: linePos.y,
-          };
 
           this.setStroke('white');
           this.doc.lineWidth(2);
@@ -716,10 +733,12 @@ class BasicsPrintView extends PrintView {
             width: imageWidth,
           });
 
-          this.doc.text(`${daysSince} ${daysSinceLabel}`, this.doc.x, this.doc.y + 2, {
-            width,
-            align: 'center',
-          });
+          if (!isFirst) {
+            this.doc.text(`${daysSince} ${daysSinceLabel}`, this.doc.x, this.doc.y + 2, {
+              width,
+              align: 'center',
+            });
+          }
         }
       } else if (count > 0) {
         const gridPos = {
@@ -821,7 +840,7 @@ class BasicsPrintView extends PrintView {
 
         const stat = {
           stat: filter.label,
-          value: value.toString(),
+          value: (value || 0).toString(),
         };
 
         if (filter.primary) {
@@ -837,7 +856,7 @@ class BasicsPrintView extends PrintView {
         valueWidth: columnWidth * 0.25,
         height: 20,
         statHeader: primaryFilter.stat,
-        valueHeader: primaryFilter.value,
+        valueHeader: (primaryFilter.value || 0).toString(),
       });
 
       tableColumns[0].headerFillStripe = {

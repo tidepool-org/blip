@@ -809,7 +809,7 @@ describe('BasicsPrintView', () => {
       );
     });
 
-    it('should render a sitechange cell', () => {
+    it('should render a sitechange cell showing days since last sitechange', () => {
       Renderer.data.sections.siteChanges.type = 'fillCannula';
 
       Renderer.renderCalendarCell(
@@ -842,7 +842,46 @@ describe('BasicsPrintView', () => {
       sinon.assert.callCount(Renderer.doc.fillAndStroke, 1);
 
       sinon.assert.calledOnce(Renderer.doc.image);
+
+      sinon.assert.callCount(Renderer.doc.text, 2);
       sinon.assert.calledWith(Renderer.doc.text, '3 days');
+    });
+
+    it('should render a sitechange cell without days since last sitechange when NaN', () => {
+      Renderer.data.sections.siteChanges.type = 'fillCannula';
+
+      Renderer.renderCalendarCell(
+        {},
+        { test: {
+          color: 'blue',
+          type: 'siteChange',
+          daysSince: NaN,
+        } },
+        true,
+        { id: 'test', disabled: true },
+        {
+          x: 100,
+          y: 200,
+        },
+        {
+          top: 0,
+          left: 0,
+        }
+      );
+
+      sinon.assert.calledWith(Renderer.setStroke, Renderer.colors.grey);
+      sinon.assert.calledWith(Renderer.doc.lineWidth, 1);
+
+      sinon.assert.callCount(Renderer.doc.moveTo, 2);
+      sinon.assert.callCount(Renderer.doc.lineTo, 2);
+      sinon.assert.callCount(Renderer.doc.stroke, 2);
+
+      sinon.assert.callCount(Renderer.doc.circle, 1);
+      sinon.assert.callCount(Renderer.doc.fillAndStroke, 1);
+
+      sinon.assert.calledOnce(Renderer.doc.image);
+
+      sinon.assert.callCount(Renderer.doc.text, 1);
     });
   });
 
