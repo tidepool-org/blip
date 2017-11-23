@@ -61,7 +61,7 @@ function basalRows(schedule, settings, units) {
  * basalColumns
  * @private
  */
-function basalColumns(styles, units) {
+function basalColumns(styles = {}, units) {
   return [
     { key: 'start',
       label: 'Start time' },
@@ -101,7 +101,7 @@ function basalColumns(styles, units) {
  * @param  {String} styles         object with applicable styles
  * @return {Object}                object with basal title, columns and rows
  */
-export function basal(schedule, settings, units, styles) {
+export function basal(schedule, settings, units, styles = {}) {
   return {
     scheduleName: schedule.name,
     activeAtUpload: (schedule.name === settings.activeSchedule),

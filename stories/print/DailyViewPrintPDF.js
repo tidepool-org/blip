@@ -21,23 +21,24 @@ import _ from 'lodash';
 import { storiesOf } from '@kadira/storybook';
 import { WithNotes } from '@kadira/storybook-addon-notes';
 
-import { createDailyPrintView } from '../../src/modules/print/index';
-import * as patients from '../../data/patient/fixtures';
+import { createPrintView } from '../../src/modules/print/index';
+import { MARGIN } from '../../src/modules/print/utils/constants';
+import PrintView from '../../src/modules/print/PrintView';
+
+import * as profiles from '../../data/patient/profiles';
+import { data as dataStub } from '../../data/patient/data';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
 /* global PDFDocument, blobStream */
 
-// eslint-disable-next-line import/no-unresolved
-import dataMGDL from '../../local/daily-print-view-mgdl.json';
-
-// eslint-disable-next-line import/no-unresolved
-import dataMMOLL from '../../local/daily-print-view-mmoll.json';
-
-const data = {
-  [MGDL_UNITS]: dataMGDL,
-  [MMOLL_UNITS]: dataMMOLL,
-};
+let data;
+try {
+  // eslint-disable-next-line global-require, import/no-unresolved
+  data = require('../../local/print-view.json');
+} catch (e) {
+  data = dataStub;
+}
 
 const bgBounds = {
   [MGDL_UNITS]: {
@@ -55,18 +56,26 @@ const bgBounds = {
 };
 
 function openPDF({ patient, bgUnits = MGDL_UNITS }) {
-  const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: 36 });
+  const doc = new PDFDocument({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
   const stream = doc.pipe(blobStream());
+  const opts = {
+    bgPrefs: {
+      bgBounds: bgBounds[bgUnits],
+      bgUnits,
+    },
+    timePrefs: {
+      timezoneAware: true,
+      timezoneName: 'US/Eastern',
+    },
+    numDays: {
+      daily: 6,
+    },
+    patient,
+  };
 
-  const dailyPrintView = createDailyPrintView(doc, data[bgUnits], {
-    bgBounds: bgBounds[bgUnits],
-    bgUnits,
-  }, {
-    timezoneAware: true,
-    timezoneName: 'US/Eastern',
-  }, 6, patient);
+  createPrintView('daily', data[bgUnits].daily, opts, doc).render();
+  PrintView.renderPageNumbers(doc);
 
-  dailyPrintView.render();
   doc.end();
 
   stream.on('finish', () => {
@@ -74,17 +83,17 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
   });
 }
 
-const notes = `Use \`window.downloadDailyPrintViewData()\` to get daily view munged data,
-  save it in local/ directory of viz as \`daily-print-view.json\`,
-  then use this story to iterate on the Daily Print PDF outside of blip!`;
+const notes = `Run \`window.downloadPrintViewData()\` from the console on a Tidepool Web data view.
+Save the resulting file to the \`local/\` directory of viz as \`print-view.json\`,
+and then use this story to iterate on the Daily Print PDF outside of Tidepool Web!`;
 
-patients.longName = _.cloneDeep(patients.standard);
-patients.longName.profile.fullName = 'Super Duper Long Patient Name';
+profiles.longName = _.cloneDeep(profiles.standard);
+profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
 
-storiesOf('DailyViewPrintPDF', module)
+storiesOf('Daily View PDF', module)
   .add(`standard account (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.standard })}>
+      <button onClick={() => openPDF({ patient: profiles.standard })}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -92,23 +101,7 @@ storiesOf('DailyViewPrintPDF', module)
 
   .add(`standard account (${MMOLL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.standard, bgUnits: MMOLL_UNITS })}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
-
-  .add('fake child account', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.fakeChildAcct })}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
-
-  .add('long patient name', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: patients.longName })}>
+      <button onClick={() => openPDF({ patient: profiles.standard, bgUnits: MMOLL_UNITS })}>
         Open PDF in new tab
       </button>
     </WithNotes>

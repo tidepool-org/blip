@@ -17,7 +17,7 @@
 
 import { timeParse } from 'd3-time-format';
 
-import * as patients from '../../data/patient/fixtures';
+import * as patients from '../../data/patient/profiles';
 import * as datetime from '../../src/utils/datetime';
 
 describe('datetime', () => {
@@ -43,6 +43,13 @@ describe('datetime', () => {
   describe('TWENTY_FOUR_HRS', () => {
     it('should be an integer', () => {
       assert.isNumber(datetime.TWENTY_FOUR_HRS);
+    });
+  });
+
+  describe('addDuration', () => {
+    it('add a duration to a date string', () => {
+      const start = '2017-11-10T00:00:00.000Z';
+      expect(datetime.addDuration(start, 60000)).to.equal('2017-11-10T00:01:00.000Z');
     });
   });
 

@@ -91,10 +91,4 @@
   .profileTable th:first-of-type {
     font-weight: normal;
   }
-
-  .printNotes {
-    margin-left: 40px;
-    composes: printNotes from './settings.css';
-  }
-
 }

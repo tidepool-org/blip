@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import * as patients from '../../data/patient/fixtures';
+import * as patients from '../../data/patient/profiles';
 import * as misc from '../../src/utils/misc';
 
 describe('misc utility functions', () => {

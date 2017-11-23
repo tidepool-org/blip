@@ -69,5 +69,7 @@
   "id": "8372053933d14de3974c8d183c2a433d",
   "time": "2016-08-22T01:31:55.605Z",
   "timezoneOffset": 720,
+  "source": "Animas",
+  "deviceSerialNumber": "123-45-678",
   "uploadId": "SampleUploadId"
 }

@@ -90,5 +90,7 @@
   "id": "e6ddc63d00b542d4818ae6c81e4b17d2",
   "time": "2016-07-14T23:31:43.009Z",
   "timezoneOffset": 720,
+  "source": "Medtronic",
+  "deviceSerialNumber": "123-45-678",
   "uploadId": "SampleUploadId"
 }
