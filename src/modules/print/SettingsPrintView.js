@@ -43,7 +43,9 @@ class SettingsPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
 
-    this.manufacturer = _.get(data, 'source', '').toLowerCase();
+    this.source = _.get(data, 'source', '').toLowerCase();
+    this.manufacturer = this.source === 'carelink' ? 'medtronic' : this.source;
+
     this.isTandem = this.manufacturer === 'tandem';
     this.deviceMeta = getDeviceMeta(data, opts.timePrefs);
 
@@ -62,7 +64,7 @@ class SettingsPrintView extends PrintView {
   }
 
   renderDeviceMeta() {
-    const device = this.isTandem ? 'Tandem' : deviceName(this.manufacturer);
+    const device = this.isTandem ? 'Tandem' : deviceName(this.manufacturer) || 'Unknown';
     this.doc
       .font(this.boldFont)
       .fontSize(this.defaultFontSize)

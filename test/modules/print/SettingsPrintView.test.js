@@ -156,6 +156,27 @@ describe('SettingsPrintView', () => {
       expect(Renderer.deviceMeta.serial).to.be.a('string');
     });
 
+    it('should set the manufacturer to `medtronic` when the source is `carelink`', () => {
+      Renderer = createRenderer(_.assign({}, data.tandemMultirate, {
+        source: 'carelink',
+      }));
+
+      const requiredProps = [
+        { prop: 'manufacturer', type: 'string', value: 'medtronic' },
+        { prop: 'isTandem', type: 'boolean', value: false },
+        { prop: 'deviceMeta', type: 'object' },
+      ];
+
+      _.each(requiredProps, item => {
+        expect(Renderer[item.prop]).to.be.a(item.type);
+        item.hasOwnProperty('value') && expect(Renderer[item.prop]).to.eql(item.value);
+      });
+
+      expect(Renderer.deviceMeta.schedule).to.be.a('string');
+      expect(Renderer.deviceMeta.uploaded).to.be.a('string');
+      expect(Renderer.deviceMeta.serial).to.be.a('string');
+    });
+
     it('should set it\'s own required initial instance properties for tandem devices', () => {
       Renderer = createRenderer(data.tandemMultirate);
 
