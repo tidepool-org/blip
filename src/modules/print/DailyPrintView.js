@@ -788,27 +788,25 @@ class DailyPrintView extends PrintView {
     };
 
     const labeledSchedules = [];
+    _.each(basal, datum => {
+      if (datum.subType === 'scheduled' && datum.rate > 0 && datum.duration >= 60 * MS_IN_MIN) {
+        const newRate = currentSchedule.rate !== datum.rate;
 
-    _.each(basal, (datum) => {
-      const showLabel = (
-        datum.subType === 'scheduled' &&
-        datum.rate > 0 &&
-        datum.duration >= 60 * MS_IN_MIN &&
-        currentSchedule.rate !== datum.rate
-      );
+        if (newRate) {
+          labeledSchedules.push({
+            utc: datum.utc,
+            rate: datum.rate,
+            duration: currentSchedule.duration + datum.duration,
+          });
 
-      if (showLabel) {
-        labeledSchedules.push(_.assign({}, datum, {
-          duration: currentSchedule.duration + datum.duration,
-        }));
-
-        currentSchedule.rate = datum.rate;
-        currentSchedule.index ++;
-        currentSchedule.duration = 0;
-      } else if (labeledSchedules.length) {
-        labeledSchedules[currentSchedule.index].duration += datum.duration;
-      } else {
-        currentSchedule.duration += datum.duration;
+          currentSchedule.rate = datum.rate;
+          currentSchedule.index ++;
+          currentSchedule.duration = 0;
+        } else if (labeledSchedules.length) {
+          labeledSchedules[currentSchedule.index].duration += datum.duration;
+        } else {
+          currentSchedule.duration += datum.duration;
+        }
       }
     });
 
