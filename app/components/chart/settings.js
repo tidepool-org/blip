@@ -49,7 +49,7 @@ const Settings = React.createClass({
     onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
-    onSwitchToPrint: React.PropTypes.func.isRequired,
+    onClickPrint: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
   },
@@ -190,14 +190,7 @@ const Settings = React.createClass({
       e.preventDefault();
     }
 
-    if (this.props.pdf.url) {
-      const printWindow = window.open(this.props.pdf.url);
-      printWindow.focus();
-      printWindow.print();
-    }
-
-    // Send tracking metric
-    this.props.onSwitchToPrint();
+    this.props.onClickPrint(this.props.pdf);
   },
 
   handleClickTwoWeeks: function(e) {

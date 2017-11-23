@@ -155,7 +155,7 @@ var Daily = React.createClass({
     // navigation handlers
     onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
-    onSwitchToPrint: React.PropTypes.func.isRequired,
+    onClickPrint: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     // PatientData state updaters
@@ -259,14 +259,7 @@ var Daily = React.createClass({
       e.preventDefault();
     }
 
-    if (this.props.pdf.url) {
-      const printWindow = window.open(this.props.pdf.url);
-      printWindow.focus();
-      printWindow.print();
-    }
-
-    // Send tracking metric
-    this.props.onSwitchToPrint();
+    this.props.onClickPrint(this.props.pdf);
   },
   handleClickTwoWeeks: function(e) {
     if (e) {

@@ -132,7 +132,7 @@ describe('Settings', function () {
       var spinner = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-loading-spinner');
     });
 
-    it('should have an enabled print button and icon when a pdf is ready and call onSwitchToPrint when clicked', function () {
+    it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', function () {
       var props = {
         bgPrefs,
         chartPrefs: {},
@@ -141,7 +141,7 @@ describe('Settings', function () {
         pdf: {
           url: 'blobURL',
         },
-        onSwitchToPrint: sinon.spy(),
+        onClickPrint: sinon.spy(),
       };
 
       var dailyElem = React.createElement(Settings, props);
@@ -149,9 +149,9 @@ describe('Settings', function () {
       var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-active', 'printview-print-icon']);
       var printIcon = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-icon');
 
-      expect(props.onSwitchToPrint.callCount).to.equal(0);
+      expect(props.onClickPrint.callCount).to.equal(0);
       TestUtils.Simulate.click(printLink);
-      expect(props.onSwitchToPrint.callCount).to.equal(1);
+      expect(props.onClickPrint.callCount).to.equal(1);
     });
   });
 });

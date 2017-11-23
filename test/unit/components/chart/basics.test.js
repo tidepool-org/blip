@@ -57,7 +57,7 @@ describe('Basics', () => {
       },
     },
     pdf: {},
-    onSwitchToPrint: sinon.stub(),
+    onClickPrint: sinon.stub(),
   };
 
   let wrapper;
@@ -108,7 +108,7 @@ describe('Basics', () => {
       expect(spinner.length).to.equal(1);
     });
 
-    it('should have an enabled print button and icon when a pdf is ready and call onSwitchToPrint when clicked', function () {
+    it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', function () {
       var props = _.assign({}, baseProps, {
         pdf: {
           url: 'blobURL',
@@ -124,9 +124,9 @@ describe('Basics', () => {
       var spinner = mountedWrapper.find('.print-loading-spinner');
       expect(spinner.length).to.equal(0);
 
-      expect(props.onSwitchToPrint.callCount).to.equal(0);
+      expect(props.onClickPrint.callCount).to.equal(0);
       printLink.simulate('click');
-      expect(props.onSwitchToPrint.callCount).to.equal(1);
+      expect(props.onClickPrint.callCount).to.equal(1);
     });
   });
 });

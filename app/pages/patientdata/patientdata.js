@@ -266,7 +266,7 @@ export let PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
-            onSwitchToPrint={this.handleSwitchToPrintView}
+            onClickPrint={this.handleClickPrint}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.viz.pdf.combined || {}}
@@ -291,7 +291,7 @@ export let PatientData = React.createClass({
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToPrint={this.handleSwitchToPrintView}
+            onClickPrint={this.handleClickPrint}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
@@ -316,7 +316,7 @@ export let PatientData = React.createClass({
             onShowMessageThread={this.handleShowMessageThread}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToPrint={this.handleSwitchToPrintView}
+            onClickPrint={this.handleClickPrint}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
@@ -506,10 +506,16 @@ export let PatientData = React.createClass({
     });
   },
 
-  handleSwitchToPrintView: function() {
+  handleClickPrint: function(pdf = {}) {
     this.props.trackMetric('Clicked Print', {
       fromChart: this.state.chartType
     });
+
+    if (pdf.url) {
+      const printWindow = window.open(pdf.url);
+      printWindow.focus();
+      printWindow.print();
+    }
   },
 
   handleSwitchToModal: function(datetime) {
