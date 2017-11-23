@@ -210,6 +210,23 @@ describe('PrintView', () => {
       expect(Renderer.currentPageIndex).to.equal(1);
     });
 
+    it('should reset the font styles after rendering the footer', () => {
+      sinon.stub(Renderer, 'renderHeader').returns(Renderer);
+      sinon.stub(Renderer, 'renderFooter');
+      Renderer.doc.font.resetHistory();
+      Renderer.doc.fontSize.resetHistory();
+      Renderer.newPage();
+
+      sinon.assert.calledOnce(Renderer.doc.font);
+      sinon.assert.calledOnce(Renderer.doc.fontSize);
+      sinon.assert.callOrder(
+        Renderer.renderHeader,
+        Renderer.renderFooter,
+        Renderer.doc.font,
+        Renderer.doc.fontSize
+      );
+    });
+
     it('should maintain the previous page\'s column layout and position', () => {
       expect(Renderer.layoutColumns).to.be.undefined;
 

@@ -137,11 +137,23 @@ class PrintView {
       this.renderDebugGrid();
     }
 
+    const currentFont = {
+      name: _.get(this.doc, '_font.name', this.font),
+      size: _.get(this.doc, '_fontSize', this.defaultFontSize),
+    };
+
     this.currentPageIndex++;
 
     this.renderHeader().renderFooter();
     this.doc.x = this.chartArea.leftEdge;
     this.doc.y = this.chartArea.topEdge;
+
+    // Set font styles back to what they were before the page break
+    // This is needed because the header and footer rendering changes it
+    // and any tables that need to continue rendering on the new page are affected.
+    this.doc
+      .font(currentFont.name)
+      .fontSize(currentFont.size);
 
     if (this.table) {
       const xPos = this.layoutColumns
