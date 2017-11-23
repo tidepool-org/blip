@@ -17,11 +17,9 @@
 
 import _ from 'lodash';
 
-import guid from './guid';
 import { addDuration } from '../src/utils/datetime';
-
-// constants
 import { MGDL_UNITS, MS_IN_DAY } from '../src/utils/constants';
+
 const APPEND = '.000Z';
 
 class Common {
@@ -29,6 +27,18 @@ class Common {
     this.deviceId = 'Test Page Data - 123';
     this.source = opts.source || 'testpage';
     this.conversionOffset = 0;
+
+    this.assignGUID();
+  }
+
+  assignGUID() {
+    const guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+
+    this.id = guid;
   }
 
   asObject() {
@@ -63,10 +73,6 @@ class Common {
     const offsetMinutes = d.getTimezoneOffset();
     return -offsetMinutes;
   }
-
-  makeId() {
-    return guid();
-  }
 }
 
 class Basal extends Common {
@@ -92,8 +98,6 @@ class Basal extends Common {
     this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
     this.normalEnd = addDuration(this.normalTime, this.duration);
-
-    this.id = this.makeId();
   }
 }
 
@@ -119,8 +123,6 @@ class Bolus extends Common {
     this.time = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
-
-    this.id = this.makeId();
   }
 }
 
@@ -144,8 +146,6 @@ class CBG extends Common {
     this.time = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
-
-    this.id = this.makeId();
   }
 }
 
@@ -170,8 +170,6 @@ class Message extends Common {
 
     this.messageText = opts.messageText;
     this.parentMessage = opts.parentMessage;
-
-    this.id = guid();
   }
 }
 
@@ -222,8 +220,6 @@ class Settings extends Common {
     this.time = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
-
-    this.id = this.makeId();
   }
 }
 
@@ -251,8 +247,6 @@ class SMBG extends Common {
     this.timezoneOffset = this.makeTimezoneOffset();
     this.displayOffset = opts.displayOffset;
     this.normalTime = opts.normalTime;
-
-    this.id = this.makeId();
   }
 }
 
@@ -281,8 +275,6 @@ class DeviceEvent extends Common {
     this.createdTime = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
-
-    this.id = this.makeId();
   }
 }
 
@@ -305,8 +297,6 @@ class Upload extends Common {
     this.normalTime = this.makeNormalTime();
     this.createdTime = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
-
-    this.id = this.makeId();
   }
 }
 
@@ -347,8 +337,6 @@ class Wizard extends Common {
     this.time = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
-
-    this.id = this.makeId();
   }
 }
 
