@@ -111,6 +111,22 @@ export const showingDonateBanner = (state = initialState.showingDonateBanner, ac
   }
 };
 
+export const showingDexcomConnectBanner = (state = initialState.showingDexcomConnectBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'dexcom') ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'dexcom') ? false : state;
+    case types.FETCH_USER_SUCCESS:
+      return _.get(action.payload, 'user.preferences.dismissedDexcomConnectBannerTime') ? false : state;
+    case types.HIDE_BANNER:
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
 export const signupKey = (state = initialState.signupKey, action) => {
   switch(action.type) {
     case types.CONFIRM_SIGNUP_FAILURE:
