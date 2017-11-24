@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "0.6.11-basics-print-view.alpha.1",
+  "version": "0.6.11",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
