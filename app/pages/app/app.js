@@ -61,7 +61,7 @@ export class AppComponent extends React.Component {
     onAcceptTerms: React.PropTypes.func.isRequired,
     onCloseNotification: React.PropTypes.func.isRequired,
     onDismissDonateBanner: React.PropTypes.func.isRequired,
-    onDismissBanner: React.PropTypes.func.isRequired,
+    onDismissDexcomConnectBanner: React.PropTypes.func.isRequired,
     onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
     onLogout: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object,
@@ -75,9 +75,7 @@ export class AppComponent extends React.Component {
     }).isRequired,
     showingDonateBanner: React.PropTypes.bool,
     showingDexcomConnectBanner: React.PropTypes.bool,
-    showDonateBanner: React.PropTypes.func.isRequired,
     showBanner: React.PropTypes.func.isRequired,
-    hideDonateBanner: React.PropTypes.func.isRequired,
     hideBanner: React.PropTypes.func.isRequired,
     termsAccepted: React.PropTypes.string,
     user: React.PropTypes.object,
@@ -153,9 +151,9 @@ export class AppComponent extends React.Component {
       const showBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
 
       if (showBanner) {
-        this.props.showDonateBanner();
+        this.props.showBanner('donate');
       } else if (showingDonateBanner) {
-        this.props.hideDonateBanner();
+        this.props.hideBanner('donate');
       }
     }
   }
@@ -445,11 +443,9 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   logout: actions.async.logout,
   onCloseNotification: actions.sync.acknowledgeNotification,
   onDismissDonateBanner: actions.async.dismissDonateBanner,
-  onDismissBanner: actions.async.dismissBanner,
+  onDismissDexcomConnectBanner: actions.async.dismissDexcomConnectBanner,
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
-  showDonateBanner: actions.sync.showDonateBanner,
   showBanner: actions.sync.showBanner,
-  hideDonateBanner: actions.sync.hideDonateBanner,
   hideBanner: actions.sync.hideBanner,
 }, dispatch);
 
@@ -462,11 +458,9 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
     onCloseNotification: dispatchProps.onCloseNotification,
     onDismissDonateBanner: dispatchProps.onDismissDonateBanner.bind(null, api),
-    onDismissBanner: dispatchProps.onDismissBanner.bind(null, api),
+    onDismissDexcomConnectBanner: dispatchProps.onDismissDexcomConnectBanner.bind(null, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
-    showDonateBanner: dispatchProps.showDonateBanner,
     showBanner: dispatchProps.showBanner,
-    hideDonateBanner: dispatchProps.hideDonateBanner,
     hideBanner: dispatchProps.hideBanner,
     onLogout: dispatchProps.logout.bind(null, api)
   });

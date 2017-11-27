@@ -999,7 +999,7 @@ export function dismissDonateBanner(api, patientId, dismissedDate) {
   dismissedDate = dismissedDate || sundial.utcDateString();
 
   return (dispatch) => {
-    dispatch(sync.dismissDonateBanner());
+    dispatch(sync.dismissBanner('donate'));
 
     const preferences = {
       dismissedDonateYourDataBannerTime: dismissedDate,
