@@ -26,7 +26,7 @@ RUN apk add --no-cache fontconfig \
  && echo "Fixing PhantomJS to run on alpine" \
  && curl -Ls "https://github.com/tidepool-org/tools/raw/master/alpine_phantomjs_dependencies/dockerized-phantomjs.tar.xz" | tar xJ -C / \
  && mkdir /app/dist && mkdir /app/node_modules && chown node:node -R /app \
- && mkdir -p /@tidepool/viz/node_modules && chown node:node -R /@tidepool/viz \
+ && mkdir -p /@tidepool/viz/node_modules && chown node:node -R /@tidepool \
  && mkdir -p /tideline/node_modules && chown node:node -R /tideline \
  && mkdir -p /tidepool-platform-client/node_modules && chown node:node -R /tidepool-platform-client \
  && apk del .build-deps \
@@ -39,12 +39,6 @@ RUN yarn install
 COPY . /app
 
 VOLUME /app
-VOLUME /app/node_modules
-VOLUME /app/dist
-
-VOLUME /@tidepool/viz/node_modules
-VOLUME /tideline/node_modules
-VOLUME /tidepool-platform-client/node_modules
 
 EXPOSE 3000
 
