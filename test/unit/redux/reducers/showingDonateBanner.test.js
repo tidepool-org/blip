@@ -32,11 +32,11 @@ import { showingDonateBanner as initialState } from '../../../../app/redux/reduc
 var expect = chai.expect;
 
 describe('showingDonateBanner', () => {
-  describe('showDonateBanner', () => {
+  describe('showBanner', () => {
     it('should set state to true', () => {
       let initialStateForTest = false;
 
-      let action = actions.sync.showDonateBanner();
+      let action = actions.sync.showBanner('donate');
 
       let intermediate = reducer(initialStateForTest, action);
 
@@ -48,11 +48,11 @@ describe('showingDonateBanner', () => {
     });
   });
 
-  describe('hideDonateBanner', () => {
+  describe('hideBanner', () => {
     it('should set state to null', () => {
       let initialStateForTest = true;
 
-      let action = actions.sync.hideDonateBanner();
+      let action = actions.sync.hideBanner('donate');
 
       let intermediate = reducer(initialStateForTest, action);
 
@@ -64,11 +64,11 @@ describe('showingDonateBanner', () => {
     });
   });
 
-  describe('dismissDonateBanner', () => {
+  describe('dismissBanner', () => {
     it('should set state to false', () => {
       let initialStateForTest = true;
 
-      let action = actions.sync.dismissDonateBanner();
+      let action = actions.sync.dismissBanner('donate');
 
       let intermediate = reducer(initialStateForTest, action);
 

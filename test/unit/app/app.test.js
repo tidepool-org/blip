@@ -100,8 +100,8 @@ describe('App',  () => {
       showingDonateBanner: null,
       onDismissDonateBanner: sinon.stub(),
       onUpdateDataDonationAccounts: sinon.stub(),
-      showDonateBanner: sinon.stub(),
-      hideDonateBanner: sinon.stub(),
+      showBanner: sinon.stub(),
+      hideBanner: sinon.stub(),
       patient: {},
       userIsDonor: true,
     });
@@ -125,8 +125,8 @@ describe('App',  () => {
 
   describe('componentWillReceiveProps', () => {
     let props = _.assign({}, baseProps, {
-      showDonateBanner: sinon.stub(),
-      hideDonateBanner: sinon.stub(),
+      showBanner: sinon.stub(),
+      hideBanner: sinon.stub(),
     });
 
     let wrapper;
@@ -135,21 +135,22 @@ describe('App',  () => {
     });
 
     afterEach(() => {
-      props.showDonateBanner.reset();
-      props.hideDonateBanner.reset();
+      props.showBanner.reset();
+      props.hideBanner.reset();
     });
 
     context('user has uploaded data and has not donated data', () => {
-      it('should show the banner, but only if user is on a patient data view', () => {
+      it('should show the donate banner, but only if user is on a patient data view', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
         });
 
-        sinon.assert.callCount(props.showDonateBanner, 0);
+        sinon.assert.callCount(props.showBanner, 0);
 
         wrapper.setProps({ location: '/patients/1234/data' })
-        sinon.assert.callCount(props.showDonateBanner, 1);
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWith(props.showBanner, 'donate');
       });
 
       it('should not show the banner if user has dismissed the banner', () => {
@@ -159,14 +160,15 @@ describe('App',  () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.showDonateBanner, 1);
-        props.showDonateBanner.reset();
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWith(props.showBanner, 'donate');
+        props.showBanner.reset();
 
         wrapper.setProps({
           showingDonateBanner: false,
         });
 
-        sinon.assert.callCount(props.showDonateBanner, 0);
+        sinon.assert.callCount(props.showBanner, 0);
       });
     });
 
@@ -179,8 +181,9 @@ describe('App',  () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.showDonateBanner, 0);
-        sinon.assert.callCount(props.hideDonateBanner, 1);
+        sinon.assert.callCount(props.showBanner, 0);
+        sinon.assert.callCount(props.hideBanner, 1);
+        sinon.assert.calledWith(props.hideBanner, 'donate');
       });
     });
 
@@ -193,8 +196,9 @@ describe('App',  () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.showDonateBanner, 0);
-        sinon.assert.callCount(props.hideDonateBanner, 1);
+        sinon.assert.callCount(props.showBanner, 0);
+        sinon.assert.callCount(props.hideBanner, 1);
+        sinon.assert.calledWith(props.hideBanner, 'donate');
       });
     });
 
@@ -208,7 +212,8 @@ describe('App',  () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.showDonateBanner, 1);
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWith(props.showBanner, 'donate');
       });
     });
 
@@ -221,7 +226,8 @@ describe('App',  () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.hideDonateBanner, 1);
+        sinon.assert.callCount(props.hideBanner, 1);
+        sinon.assert.calledWith(props.hideBanner, 'donate');
       });
     });
   });
