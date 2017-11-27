@@ -19,8 +19,6 @@ COPY . /app
 RUN yarn install
 
 VOLUME /app
-VOLUME /app/node_modules
-VOLUME /app/dist
 
 EXPOSE 8081 8082
 
