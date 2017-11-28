@@ -232,7 +232,7 @@ export default class DataSources extends Component {
   }
 
   componentDidMount() {
-    if (_.get(this.props, 'queryParams.dexcomConnect') {
+    if (_.get(this.props, 'queryParams.dexcomConnect')) {
       scroller.scrollTo('dexcomConnect', {
         delay: 0,
         duration: 250,
