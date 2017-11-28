@@ -273,6 +273,7 @@ export class AppComponent extends React.Component {
 
     const {
       showingDexcomConnectBanner,
+      onClickDexcomConnectBanner,
       onDismissDexcomConnectBanner,
       patient,
       userIsDonor,
@@ -282,6 +283,7 @@ export class AppComponent extends React.Component {
       return (
         <div className="App-dexcombanner">
           <DexcomBanner
+            onClick={onClickDexcomConnectBanner}
             onClose={onDismissDexcomConnectBanner}
             trackMetric={this.props.context.trackMetric}
             patient={patient} />
@@ -494,6 +496,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   onCloseNotification: actions.sync.acknowledgeNotification,
   onDismissDonateBanner: actions.async.dismissDonateBanner,
   onDismissDexcomConnectBanner: actions.async.dismissDexcomConnectBanner,
+  onClickDexcomConnectBanner: actions.async.clickDexcomConnectBanner,
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   showBanner: actions.sync.showBanner,
   hideBanner: actions.sync.hideBanner,
@@ -509,6 +512,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onCloseNotification: dispatchProps.onCloseNotification,
     onDismissDonateBanner: dispatchProps.onDismissDonateBanner.bind(null, api),
     onDismissDexcomConnectBanner: dispatchProps.onDismissDexcomConnectBanner.bind(null, api),
+    onClickDexcomConnectBanner: dispatchProps.onClickDexcomConnectBanner.bind(null, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     showBanner: dispatchProps.showBanner,
     hideBanner: dispatchProps.hideBanner,

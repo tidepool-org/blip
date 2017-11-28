@@ -1029,6 +1029,25 @@ export function dismissDexcomConnectBanner(api, patientId, dismissedDate) {
 }
 
 /**
+ * Click Donate Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function clickDexcomConnectBanner(api, patientId, clickedDate) {
+  clickedDate = clickedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('dexcom'));
+
+    const preferences = {
+      dismissedDexcomConnectBannerTime: clickedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
  * Fetch Data Sources
  *
  * @param  {Object} api an instance of the API wrapper

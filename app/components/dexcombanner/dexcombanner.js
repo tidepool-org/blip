@@ -22,6 +22,7 @@ import { URL_DEXCOM_CONNECT_INFO } from '../../core/constants';
 
 const DexcomBanner = (props) => {
   const {
+    onClick,
     onClose,
     onConfirm,
     patient,
@@ -60,6 +61,8 @@ const DexcomBanner = (props) => {
   };
 
   const handleSubmit = () => {
+    onClick(patient.userid);
+
     browserHistory.push(`/patients/${patient.userid}/profile?dexcomConnect=banner`);
 
     if (trackMetric) {
@@ -88,6 +91,7 @@ const DexcomBanner = (props) => {
 };
 
 DexcomBanner.propTypes = {
+  onClick: React.PropTypes.func.isRequired,
   onClose: React.PropTypes.func.isRequired,
   trackMetric: React.PropTypes.func.isRequired,
   patient: React.PropTypes.object.isRequired,
