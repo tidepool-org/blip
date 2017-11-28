@@ -96,7 +96,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
     connectDataSource: dispatchProps.connectDataSource.bind(null, api),
     disconnectDataSource: dispatchProps.disconnectDataSource.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric
+    trackMetric: ownProps.routes[0].trackMetric,
+    queryParams: ownProps.location.query,
   });
 };
 

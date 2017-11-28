@@ -5388,7 +5388,7 @@ optimist@0.6.1, optimist@>=0.3.5, optimist@^0.6.1, optimist@~0.6.0, optimist@~0.
     wordwrap "~0.0.2"
 
 optional@0.1.3:
-  version "0.1.3"
+  version v0.1.3
   resolved "https://registry.yarnpkg.com/optional/-/optional-0.1.3.tgz#f87537517b59a5e732cfd8f18e4f7eea7ab4761e"
 
 optionator@^0.8.1:
@@ -6245,6 +6245,12 @@ react-router@2.7.0:
     invariant "^2.2.1"
     loose-envify "^1.2.0"
     warning "^3.0.0"
+
+react-scroll@^1.6.7:
+  version "1.6.7"
+  resolved "https://registry.yarnpkg.com/react-scroll/-/react-scroll-1.6.7.tgz#23b55b1333411e729ea1a609686b1f87978ce77b"
+  dependencies:
+    prop-types "^15.5.8"
 
 react-select@1.0.0-rc.5:
   version "1.0.0-rc.5"

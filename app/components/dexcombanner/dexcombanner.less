@@ -13,20 +13,20 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.donateBannerLink {
-  color: @purple-pale;
+.dexcomBannerLink {
+  color: #297165;
 }
 
-.donateBannerLinkHover {
-  color: @white-color;
+.dexcomBannerLinkHover {
+  color: @purple-dark;
   text-decoration: underline;
 }
 
-.donateBanner {
-  color: @white-color;
+.dexcomBanner {
+  color: @purple-dark;
 
   .container-box-inner {
-    background-color: @purple;
+    background-color: @brand-green;
     display: flex;
     justify-content: space-between;
     padding: 4px 10px;
@@ -35,7 +35,7 @@
   }
 }
 
-.donateBanner-message {
+.dexcomBanner-message {
 
   .message-text {
     display: inline-block;
@@ -44,36 +44,36 @@
 
   .message-link {
     display: inline-block;
-    &:extend(.donateBannerLink);
+    &:extend(.dexcomBannerLink);
 
     &:hover {
-      &:extend(.donateBannerLinkHover);
+      &:extend(.dexcomBannerLinkHover);
     }
   }
 }
 
-.donateBanner-close {
+.dexcomBanner-close {
   width: 24px;
   text-align: right;
 
   a {
-    &:extend(.donateBannerLink);
+    &:extend(.dexcomBannerLink);
     font-size: 24px;
 
     &:hover {
-      &:extend(.donateBannerLinkHover);
+      &:extend(.dexcomBannerLinkHover);
       text-decoration: none;
     }
   }
 }
 
-.donateBanner-action {
+.dexcomBanner-action {
   flex-grow: 1;
   text-align: right;
 
   button {
-    background-color: #8095f8;
-    color: @white-color;
+    background-color: #2bd48b;
+    color: @purple-dark;
     border: 0;
     border-radius: 4px;
     padding: 7px 12px;
@@ -81,7 +81,7 @@
 
     &:hover {
       background-color: @white-color;
-      color: @purple;
+      color: #297165;
     }
 
     &:disabled {

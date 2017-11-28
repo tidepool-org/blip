@@ -131,6 +131,7 @@ const Patient = React.createClass({
           connectDataSource={this.props.connectDataSource}
           disconnectDataSource={this.props.disconnectDataSource}
           authorizedDataSource={this.props.authorizedDataSource}
+          queryParams={this.props.queryParams}
           trackMetric={this.props.trackMetric} />
       </div>
     );

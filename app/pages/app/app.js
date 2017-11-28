@@ -30,6 +30,7 @@ import * as UserMessages from '../../redux/constants/usrMessages';
 // Components
 import Navbar from '../../components/navbar';
 import DonateBanner from '../../components/donatebanner';
+import DexcomBanner from '../../components/dexcombanner';
 import LogoutOverlay from '../../components/logoutoverlay';
 import TidepoolNotification from '../../components/notification';
 
@@ -134,6 +135,7 @@ export class AppComponent extends React.Component {
   componentWillReceiveProps(nextProps) {
     const {
       showingDonateBanner,
+      showingDexcomConnectBanner,
       location,
       userHasData,
       userIsCurrentPatient,
@@ -144,16 +146,29 @@ export class AppComponent extends React.Component {
       this.doFetching(nextProps);
     }
 
+    const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
+    const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
+    let displayDonateBanner = false;
+
     // Determine whether or not to show the donate banner.
     // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
     if (showingDonateBanner !== false) {
-      const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
-      const showBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
-
-      if (showBanner) {
+      if (showDonateBanner) {
         this.props.showBanner('donate');
+        displayDonateBanner = true
       } else if (showingDonateBanner) {
         this.props.hideBanner('donate');
+      }
+    }
+
+    // Determine whether or not to show the dexcom banner.
+    // If showingDexcomConnectBanner is false, it means it was dismissed and we do not show it again.
+    if (showingDexcomConnectBanner !== false && !displayDonateBanner) {
+      const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData;
+      if (showDexcomBanner) {
+        this.props.showBanner('dexcom');
+      } else if (showingDexcomConnectBanner) {
+        this.props.hideBanner('dexcom');
       }
     }
   }
@@ -244,6 +259,30 @@ export class AppComponent extends React.Component {
     return null;
   }
 
+  renderDexcomConnectBanner() {
+    this.props.context.log('Rendering dexcom connect banner');
+
+    const {
+      showingDexcomConnectBanner,
+      onDismissDexcomConnectBanner,
+      patient,
+      userIsDonor,
+    } = this.props;
+
+    if (showingDexcomConnectBanner) {
+      return (
+        <div className="App-dexcombanner">
+          <DexcomBanner
+            onClose={onDismissDexcomConnectBanner}
+            trackMetric={this.props.context.trackMetric}
+            patient={patient} />
+        </div>
+      );
+    }
+
+    return null;
+  }
+
   renderNotification() {
     var notification = this.props.notification;
     var handleClose;
@@ -309,6 +348,7 @@ export class AppComponent extends React.Component {
     var navbar = this.renderNavbar();
     var notification = this.renderNotification();
     var donatebanner = this.renderDonateBanner();
+    var dexcombanner = this.renderDexcomConnectBanner();
     var footer = this.renderFooter();
 
     return (
@@ -317,6 +357,7 @@ export class AppComponent extends React.Component {
         {navbar}
         {notification}
         {donatebanner}
+        {dexcombanner}
         {this.props.children}
         {footer}
       </div>
