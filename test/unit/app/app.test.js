@@ -153,7 +153,7 @@ describe('App',  () => {
         sinon.assert.calledWith(props.showBanner, 'donate');
       });
 
-      it('should not show the banner if user has dismissed the banner', () => {
+      it.only('should not show the donate banner if user has dismissed it', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
@@ -168,7 +168,7 @@ describe('App',  () => {
           showingDonateBanner: false,
         });
 
-        sinon.assert.callCount(props.showBanner, 0);
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'donate');
       });
     });
 

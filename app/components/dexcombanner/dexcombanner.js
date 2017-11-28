@@ -29,7 +29,7 @@ const DexcomBanner = (props) => {
   } = props;
 
   const getMessageText = () => {
-    return 'Sync your Dexcom Clarity data with your Tidepool account.';
+    return 'Sync your Dexcom data directly with your Tidepool account.';
   };
 
   const renderLink = () => {
@@ -61,6 +61,10 @@ const DexcomBanner = (props) => {
 
   const handleSubmit = () => {
     browserHistory.push(`/patients/${patient.userid}/profile?dexcomConnect=banner`);
+
+    if (trackMetric) {
+      trackMetric('clicked Dexcom OAuth banner');
+    }
   }
 
   return (

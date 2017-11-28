@@ -88,6 +88,10 @@ export class AppComponent extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      dexcomShowBannerMetricTracked: false,
+    }
   }
 
   hideNavbarDropdown() {
@@ -167,6 +171,11 @@ export class AppComponent extends React.Component {
       const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData;
       if (showDexcomBanner) {
         this.props.showBanner('dexcom');
+
+        if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
+          this.props.context.trackMetric('Dexcom OAuth banner displayed');
+          this.setState({ dexcomShowBannerMetricTracked: true });
+        }
       } else if (showingDexcomConnectBanner) {
         this.props.hideBanner('dexcom');
       }
