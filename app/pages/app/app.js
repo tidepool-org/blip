@@ -142,6 +142,7 @@ export class AppComponent extends React.Component {
       showingDexcomConnectBanner,
       location,
       userHasData,
+      userHasConnectedDataSources,
       userIsCurrentPatient,
       userIsSupportingNonprofit
     } = nextProps;
@@ -168,7 +169,7 @@ export class AppComponent extends React.Component {
     // Determine whether or not to show the dexcom banner.
     // If showingDexcomConnectBanner is false, it means it was dismissed and we do not show it again.
     if (showingDexcomConnectBanner !== false && !displayDonateBanner) {
-      const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData;
+      const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
       if (showDexcomBanner) {
         this.props.showBanner('dexcom');
 
@@ -378,7 +379,8 @@ export class AppComponent extends React.Component {
 
 let getFetchers = (dispatchProps, ownProps, api) => {
   return [
-    dispatchProps.fetchUser.bind(null, api)
+    dispatchProps.fetchUser.bind(null, api),
+    dispatchProps.fetchDataSources.bind(null, api),
   ];
 }
 
@@ -391,6 +393,7 @@ export function mapStateToProps(state) {
   let patient = null;
   let permissions = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
+  let userHasConnectedDataSources = _.get(state, 'blip.dataSources', []).length > 0;
   let userIsSupportingNonprofit = false;
   let userIsCurrentPatient = false;
   let userHasData = false;
@@ -485,13 +488,15 @@ export function mapStateToProps(state) {
     userIsCurrentPatient,
     userHasData,
     userIsDonor,
+    userHasConnectedDataSources,
     userIsSupportingNonprofit,
   };
 };
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  fetchUser: actions.async.fetchUser,
   acceptTerms: actions.async.acceptTerms,
+  fetchDataSources: actions.async.fetchDataSources,
+  fetchUser: actions.async.fetchUser,
   logout: actions.async.logout,
   onCloseNotification: actions.sync.acknowledgeNotification,
   onDismissDonateBanner: actions.async.dismissDonateBanner,
@@ -506,6 +511,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return Object.assign({}, _.pick(ownProps, ['children']), stateProps, {
     context: ownProps.route,
+    fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
     fetchers: getFetchers(dispatchProps, ownProps, api),
     location: ownProps.location.pathname,
     onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),

@@ -16,7 +16,6 @@ let getFetchers = (dispatchProps, ownProps, api) => {
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
     dispatchProps.fetchDataDonationAccounts.bind(null, api),
     dispatchProps.fetchPendingSentInvites.bind(null, api),
-    dispatchProps.fetchDataSources.bind(null, api),
   ];
 };
 

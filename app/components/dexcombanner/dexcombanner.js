@@ -79,7 +79,7 @@ const DexcomBanner = (props) => {
         </div>
 
         <div className="dexcomBanner-action">
-          <button onClick={handleSubmit}>{getButtonText()}</button>
+          {/* <button onClick={handleSubmit}>{getButtonText()}</button> */}
         </div>
 
         <div className="dexcomBanner-close">
