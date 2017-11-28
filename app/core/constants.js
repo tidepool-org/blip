@@ -20,7 +20,7 @@ export const URL_TIDEPOOL_MOBILE_APP_STORE = 'https://itunes.apple.com/us/app/ti
 export const URL_TERMS_OF_USE = 'https://tidepool.org/terms-of-use';
 export const URL_PRIVACY_POLICY = 'https://tidepool.org/privacy-policy';
 export const URL_BIG_DATA_DONATION_INFO = 'https://tidepool.org/announcing-the-tidepool-big-data-donation-project';
-export const URL_DEXCOM_CONNECT_INFO = 'http://support.tidepool.org/article/73-connecting-tidepool-to-your-dexcom-account';
+export const URL_DEXCOM_CONNECT_INFO = 'http://support.tidepool.org/article/73-connecting-dexcom-account-to-tidepool';
 export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepool-uploader/'
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';

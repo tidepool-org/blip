@@ -24,7 +24,6 @@ const DexcomBanner = (props) => {
   const {
     onClick,
     onClose,
-    onConfirm,
     patient,
     trackMetric,
   } = props;

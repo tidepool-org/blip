@@ -59,6 +59,7 @@ const Patient = React.createClass({
     connectDataSource: React.PropTypes.func,
     disconnectDataSource: React.PropTypes.func,
     authorizedDataSource: React.PropTypes.object,
+    queryParams: React.PropTypes.object,
   },
 
   getInitialState: function() {

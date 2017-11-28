@@ -1040,7 +1040,7 @@ export function clickDexcomConnectBanner(api, patientId, clickedDate) {
     dispatch(sync.dismissBanner('dexcom'));
 
     const preferences = {
-      dismissedDexcomConnectBannerTime: clickedDate,
+      clickedDexcomConnectBannerTime: clickedDate,
     };
 
     dispatch(updatePreferences(api, patientId, preferences));

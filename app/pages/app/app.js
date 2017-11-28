@@ -277,7 +277,6 @@ export class AppComponent extends React.Component {
       onClickDexcomConnectBanner,
       onDismissDexcomConnectBanner,
       patient,
-      userIsDonor,
     } = this.props;
 
     if (showingDexcomConnectBanner) {
