@@ -29,11 +29,11 @@ const DexcomBanner = (props) => {
   } = props;
 
   const getMessageText = () => {
-    return 'Sync your Dexcom data directly with your Tidepool account.';
+    return 'Using Dexcom G5 Mobile on Android? See your data in Tidepool.';
   };
 
   const getButtonText = () => {
-    return 'Connect to Dexcom';
+    return 'Get Started';
   };
 
   const handleDismiss = () => {
@@ -56,7 +56,7 @@ const DexcomBanner = (props) => {
     browserHistory.push(`/patients/${patient.userid}/profile?dexcomConnect=banner`);
 
     if (trackMetric) {
-      trackMetric('clicked Dexcom OAuth banner');
+      trackMetric('clicked get started on Dexcom banner');
     }
   }
 
@@ -84,7 +84,7 @@ const DexcomBanner = (props) => {
         </div>
 
         <div className="dexcomBanner-action">
-          {/* <button onClick={handleSubmit}>{getButtonText()}</button> */}
+          <button onClick={handleSubmit}>{getButtonText()}</button>
         </div>
 
         <div className="dexcomBanner-close">
