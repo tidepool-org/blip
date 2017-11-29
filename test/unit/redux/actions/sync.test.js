@@ -41,42 +41,57 @@ describe('Actions', () => {
       });
     });
 
-    describe('showDonateBanner', () => {
+    describe('showBanner', () => {
       it('should be a TSA', () => {
-        let action = sync.showDonateBanner();
+        let action = sync.showBanner();
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal SHOW_DONATE_BANNER', () => {
-        let action = sync.showDonateBanner();
-        expect(action.type).to.equal('SHOW_DONATE_BANNER');
+      it('type should equal SHOW_BANNER', () => {
+        let action = sync.showBanner();
+        expect(action.type).to.equal('SHOW_BANNER');
+      });
+
+      it('should set the payload `type` from argument', () => {
+        let action = sync.showBanner('myType');
+        expect(action.payload.type).to.equal('myType');
       });
     });
 
-    describe('hideDonateBanner', () => {
+    describe('hideBanner', () => {
       it('should be a TSA', () => {
-        let action = sync.hideDonateBanner();
+        let action = sync.hideBanner();
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal HIDE_DONATE_BANNER', () => {
-        let action = sync.hideDonateBanner();
-        expect(action.type).to.equal('HIDE_DONATE_BANNER');
+      it('type should equal HIDE_BANNER', () => {
+        let action = sync.hideBanner();
+        expect(action.type).to.equal('HIDE_BANNER');
+      });
+
+      it('should set the payload `type` from argument', () => {
+        let action = sync.hideBanner('myType');
+        expect(action.payload.type).to.equal('myType');
       });
     });
 
-    describe('dismissDonateBanner', () => {
+    describe('dismissBanner', () => {
       it('should be a TSA', () => {
-        let action = sync.dismissDonateBanner();
+        let action = sync.dismissBanner();
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal DISMISS_DONATE_BANNER', () => {
-        let action = sync.dismissDonateBanner();
-        expect(action.type).to.equal('DISMISS_DONATE_BANNER');
+      it('type should equal DISMISS_BANNER', () => {
+        let action = sync.dismissBanner();
+        expect(action.type).to.equal('DISMISS_BANNER');
+      });
+
+      it('should set the payload `type` from argument', () => {
+        let action = sync.dismissBanner('myType');
+        expect(action.payload.type).to.equal('myType');
       });
     });
 

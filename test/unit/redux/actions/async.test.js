@@ -1374,6 +1374,114 @@ describe('Actions', () => {
       });
     });
 
+    describe('dismissDonateBanner', () => {
+      it('should trigger DISMISS_BANNER and it should call updatePreferences once for a successful request', () => {
+        let preferences = { dismissedDonateYourDataBannerTime: '2017-11-28T00:00:00.000Z' };
+        let patient = { id: 500, name: 'Buddy Holly', age: 65 };
+
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, null, preferences),
+            },
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'DISMISS_BANNER', payload: { type: 'donate' } },
+          { type: 'UPDATE_PREFERENCES_REQUEST' },
+          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: {
+            dismissedDonateYourDataBannerTime: preferences.dismissedDonateYourDataBannerTime,
+          } } },
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(initialState);
+        store.dispatch(async.dismissDonateBanner(api, patient.id));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
+    });
+
+    describe('dismissDexcomConnectBanner', () => {
+      it('should trigger DISMISS_BANNER and it should call updatePreferences once for a successful request', () => {
+        let preferences = { dismissedDexcomConnectBannerTime: '2017-11-28T00:00:00.000Z' };
+        let patient = { id: 500, name: 'Buddy Holly', age: 65 };
+
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, null, preferences),
+            },
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'DISMISS_BANNER', payload: { type: 'dexcom' } },
+          { type: 'UPDATE_PREFERENCES_REQUEST' },
+          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: {
+            dismissedDexcomConnectBannerTime: preferences.dismissedDexcomConnectBannerTime,
+          } } },
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(initialState);
+        store.dispatch(async.dismissDexcomConnectBanner(api, patient.id));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
+    });
+
+    describe('clickDexcomConnectBanner', () => {
+      it('should trigger DISMISS_BANNER and it should call updatePreferences once for a successful request', () => {
+        let preferences = { clickedDexcomConnectBannerTime: '2017-11-28T00:00:00.000Z' };
+        let patient = { id: 500, name: 'Buddy Holly', age: 65 };
+
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, null, preferences),
+            },
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'DISMISS_BANNER', payload: { type: 'dexcom' } },
+          { type: 'UPDATE_PREFERENCES_REQUEST' },
+          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: {
+            clickedDexcomConnectBannerTime: preferences.clickedDexcomConnectBannerTime,
+          } } },
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(initialState);
+        store.dispatch(async.clickDexcomConnectBanner(api, patient.id));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
+    });
+
     describe('acceptReceivedInvite', () => {
       it('should trigger ACCEPT_RECEIVED_INVITE_SUCCESS and it should call acceptReceivedInvite once for a successful request', () => {
         let invitation = { key: 'foo', creator: { userid: 500 } };

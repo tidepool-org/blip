@@ -97,13 +97,32 @@ export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage
 
 export const showingDonateBanner = (state = initialState.showingDonateBanner, action) => {
   switch (action.type) {
-    case types.SHOW_DONATE_BANNER:
-      return true;
-    case types.DISMISS_DONATE_BANNER:
-      return false;
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'donate') ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'donate') ? false : state;
     case types.FETCH_USER_SUCCESS:
-      return _.get(action.payload, 'user.preferences.dismissedDonateYourDataBannerTime') ? false : state;
-    case types.HIDE_DONATE_BANNER:
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedDonateYourDataBannerTime');
+      return dismissedBanner ? false : state;
+    case types.HIDE_BANNER:
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const showingDexcomConnectBanner = (state = initialState.showingDexcomConnectBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'dexcom') ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'dexcom') ? false : state;
+    case types.FETCH_USER_SUCCESS:
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedDexcomConnectBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedDexcomConnectBannerTime');
+      return (dismissedBanner || clickedBanner) ? false : state;
+    case types.HIDE_BANNER:
     case types.LOGOUT_REQUEST:
       return null;
     default:
