@@ -61,7 +61,7 @@ describe('DexcomBanner', () => {
     expect(console.error.callCount).to.equal(0);
   });
 
-  it('should render a link to the data donation page on the website', () => {
+  it('should render a link to the dexcom connect info on the website', () => {
     const expectedText = 'Learn More'
     const messageLink = wrapper.find('.message-link');
 
@@ -87,6 +87,13 @@ describe('DexcomBanner', () => {
     closeLink.simulate('click');
     sinon.assert.calledOnce(props.trackMetric);
     sinon.assert.calledWith(props.trackMetric, 'dismiss Dexcom OAuth banner');
+  });
+
+  it('should track the appropriate metric when the learn more link is clicked', () => {
+    const moreLink = wrapper.find('a.message-link');
+    moreLink.simulate('click');
+    sinon.assert.calledOnce(props.trackMetric);
+    sinon.assert.calledWith(props.trackMetric, 'clicked learn more Dexcom OAuth banner');
   });
 
   describe('render', function () {

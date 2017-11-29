@@ -430,6 +430,39 @@ describe('App',  () => {
         sinon.assert.callCount(props.context.trackMetric, 1);
       });
     });
+
+    context('donate banner is showing', () => {
+      it('should track the display banner metric', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingDonateBanner: true,
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWithMatch(props.showBanner, 'donate');
+        sinon.assert.calledWith(props.context.trackMetric, 'Big Data banner displayed');
+      });
+
+      it('should only track the display banner metric once', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingDonateBanner: true,
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.callCount(props.context.trackMetric, 1);
+
+        wrapper.setProps({});
+        wrapper.setProps({});
+
+        sinon.assert.callCount(props.showBanner, 3);
+        sinon.assert.callCount(props.context.trackMetric, 1);
+      });
+    });
   });
 
   describe('isPatientVisibleInNavbar', () => {

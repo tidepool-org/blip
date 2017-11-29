@@ -32,21 +32,6 @@ const DexcomBanner = (props) => {
     return 'Sync your Dexcom data directly with your Tidepool account.';
   };
 
-  const renderLink = () => {
-    const link = {
-      href: URL_DEXCOM_CONNECT_INFO,
-      text: 'Learn More',
-      target: '_blank',
-    };
-
-    return (
-      <a
-        className="message-link" href={link.href} target={link.target}>
-        {link.text}
-      </a>
-    );
-  };
-
   const getButtonText = () => {
     return 'Connect to Dexcom';
   };
@@ -59,6 +44,12 @@ const DexcomBanner = (props) => {
     }
   };
 
+  const handleClickLearnMore = () => {
+    if (trackMetric) {
+      trackMetric('clicked learn more Dexcom OAuth banner');
+    }
+  };
+
   const handleSubmit = () => {
     onClick(patient.userid);
 
@@ -68,6 +59,21 @@ const DexcomBanner = (props) => {
       trackMetric('clicked Dexcom OAuth banner');
     }
   }
+
+  const renderLink = () => {
+    const link = {
+      href: URL_DEXCOM_CONNECT_INFO,
+      text: 'Learn More',
+      target: '_blank',
+    };
+
+    return (
+      <a
+        className="message-link" href={link.href} target={link.target} onClick={handleClickLearnMore}>
+        {link.text}
+      </a>
+    );
+  };
 
   return (
     <div className='dexcomBanner container-box-outer'>

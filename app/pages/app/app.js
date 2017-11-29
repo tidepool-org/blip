@@ -91,6 +91,7 @@ export class AppComponent extends React.Component {
 
     this.state = {
       dexcomShowBannerMetricTracked: false,
+      donateShowBannerMetricTracked: false,
     }
   }
 
@@ -160,7 +161,12 @@ export class AppComponent extends React.Component {
     if (showingDonateBanner !== false) {
       if (showDonateBanner) {
         this.props.showBanner('donate');
-        displayDonateBanner = true
+        displayDonateBanner = true;
+
+        if (this.props.context.trackMetric && !this.state.donateShowBannerMetricTracked) {
+          this.props.context.trackMetric('Big Data banner displayed');
+          this.setState({ donateShowBannerMetricTracked: true });
+        }
       } else if (showingDonateBanner) {
         this.props.hideBanner('donate');
       }
