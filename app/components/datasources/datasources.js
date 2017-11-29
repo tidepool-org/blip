@@ -15,6 +15,7 @@
 
 import React, { Component } from 'react';
 import _ from 'lodash';
+import { scroller } from 'react-scroll';
 
 import sundial from 'sundial';
 
@@ -32,6 +33,7 @@ export default class DataSources extends Component {
     disconnectDataSource: React.PropTypes.func.isRequired,
     authorizedDataSource: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired,
+    queryParams: React.PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -164,7 +166,9 @@ export default class DataSources extends Component {
   handleConnectDataSource(provider) {
     this.displayPopupForDataSource(provider)
     this.props.connectDataSource(provider.id, provider.restrictedTokenCreate, provider.dataSourceFilter);
-    this.props.trackMetric('Web - data source connect clicked', { providerId: provider.id });
+
+    const location = _.get(this.props, 'queryParams.dexcomConnect', 'settings');
+    this.props.trackMetric('Web - data source connect clicked', { providerId: provider.id, location });
   }
 
   handleDisconnectDataSource(provider) {
@@ -225,6 +229,16 @@ export default class DataSources extends Component {
         {this.providers.map(provider => { return this.renderDataSource(provider); })}
       </div>
     );
+  }
+
+  componentDidMount() {
+    if (_.get(this.props, 'queryParams.dexcomConnect')) {
+      scroller.scrollTo('dexcomConnect', {
+        delay: 0,
+        duration: 250,
+        smooth: true,
+      });
+    }
   }
 
   componentDidUpdate() {

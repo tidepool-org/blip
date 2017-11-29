@@ -30,6 +30,7 @@ import * as UserMessages from '../../redux/constants/usrMessages';
 // Components
 import Navbar from '../../components/navbar';
 import DonateBanner from '../../components/donatebanner';
+import DexcomBanner from '../../components/dexcombanner';
 import LogoutOverlay from '../../components/logoutoverlay';
 import TidepoolNotification from '../../components/notification';
 
@@ -61,6 +62,7 @@ export class AppComponent extends React.Component {
     onAcceptTerms: React.PropTypes.func.isRequired,
     onCloseNotification: React.PropTypes.func.isRequired,
     onDismissDonateBanner: React.PropTypes.func.isRequired,
+    onDismissDexcomConnectBanner: React.PropTypes.func.isRequired,
     onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
     onLogout: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object,
@@ -73,8 +75,9 @@ export class AppComponent extends React.Component {
       trackMetric: React.PropTypes.func.isRequired,
     }).isRequired,
     showingDonateBanner: React.PropTypes.bool,
-    showDonateBanner: React.PropTypes.func.isRequired,
-    hideDonateBanner: React.PropTypes.func.isRequired,
+    showingDexcomConnectBanner: React.PropTypes.bool,
+    showBanner: React.PropTypes.func.isRequired,
+    hideBanner: React.PropTypes.func.isRequired,
     termsAccepted: React.PropTypes.string,
     user: React.PropTypes.object,
     userHasData: React.PropTypes.bool.isRequired,
@@ -85,6 +88,11 @@ export class AppComponent extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      dexcomShowBannerMetricTracked: false,
+      donateShowBannerMetricTracked: false,
+    }
   }
 
   hideNavbarDropdown() {
@@ -132,8 +140,10 @@ export class AppComponent extends React.Component {
   componentWillReceiveProps(nextProps) {
     const {
       showingDonateBanner,
+      showingDexcomConnectBanner,
       location,
       userHasData,
+      userHasConnectedDataSources,
       userIsCurrentPatient,
       userIsSupportingNonprofit
     } = nextProps;
@@ -142,16 +152,39 @@ export class AppComponent extends React.Component {
       this.doFetching(nextProps);
     }
 
+    const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
+    const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
+    let displayDonateBanner = false;
+
     // Determine whether or not to show the donate banner.
     // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
     if (showingDonateBanner !== false) {
-      const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
-      const showBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
+      if (showDonateBanner) {
+        this.props.showBanner('donate');
+        displayDonateBanner = true;
 
-      if (showBanner) {
-        this.props.showDonateBanner();
+        if (this.props.context.trackMetric && !this.state.donateShowBannerMetricTracked) {
+          this.props.context.trackMetric('Big Data banner displayed');
+          this.setState({ donateShowBannerMetricTracked: true });
+        }
       } else if (showingDonateBanner) {
-        this.props.hideDonateBanner();
+        this.props.hideBanner('donate');
+      }
+    }
+
+    // Determine whether or not to show the dexcom banner.
+    // If showingDexcomConnectBanner is false, it means it was dismissed and we do not show it again.
+    if (showingDexcomConnectBanner !== false && !displayDonateBanner) {
+      const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
+      if (showDexcomBanner) {
+        this.props.showBanner('dexcom');
+
+        if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
+          this.props.context.trackMetric('Dexcom OAuth banner displayed');
+          this.setState({ dexcomShowBannerMetricTracked: true });
+        }
+      } else if (showingDexcomConnectBanner) {
+        this.props.hideBanner('dexcom');
       }
     }
   }
@@ -242,6 +275,31 @@ export class AppComponent extends React.Component {
     return null;
   }
 
+  renderDexcomConnectBanner() {
+    this.props.context.log('Rendering dexcom connect banner');
+
+    const {
+      showingDexcomConnectBanner,
+      onClickDexcomConnectBanner,
+      onDismissDexcomConnectBanner,
+      patient,
+    } = this.props;
+
+    if (showingDexcomConnectBanner) {
+      return (
+        <div className="App-dexcombanner">
+          <DexcomBanner
+            onClick={onClickDexcomConnectBanner}
+            onClose={onDismissDexcomConnectBanner}
+            trackMetric={this.props.context.trackMetric}
+            patient={patient} />
+        </div>
+      );
+    }
+
+    return null;
+  }
+
   renderNotification() {
     var notification = this.props.notification;
     var handleClose;
@@ -307,6 +365,7 @@ export class AppComponent extends React.Component {
     var navbar = this.renderNavbar();
     var notification = this.renderNotification();
     var donatebanner = this.renderDonateBanner();
+    var dexcombanner = this.renderDexcomConnectBanner();
     var footer = this.renderFooter();
 
     return (
@@ -315,6 +374,7 @@ export class AppComponent extends React.Component {
         {navbar}
         {notification}
         {donatebanner}
+        {dexcombanner}
         {this.props.children}
         {footer}
       </div>
@@ -324,7 +384,8 @@ export class AppComponent extends React.Component {
 
 let getFetchers = (dispatchProps, ownProps, api) => {
   return [
-    dispatchProps.fetchUser.bind(null, api)
+    dispatchProps.fetchUser.bind(null, api),
+    dispatchProps.fetchDataSources.bind(null, api),
   ];
 }
 
@@ -337,6 +398,7 @@ export function mapStateToProps(state) {
   let patient = null;
   let permissions = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
+  let userHasConnectedDataSources = _.get(state, 'blip.dataSources', []).length > 0;
   let userIsSupportingNonprofit = false;
   let userIsCurrentPatient = false;
   let userHasData = false;
@@ -427,36 +489,44 @@ export function mapStateToProps(state) {
     user: user,
     patient: patient ? { permissions, ...patient } : null,
     showingDonateBanner: state.blip.showingDonateBanner,
+    showingDexcomConnectBanner: state.blip.showingDexcomConnectBanner,
     userIsCurrentPatient,
     userHasData,
     userIsDonor,
+    userHasConnectedDataSources,
     userIsSupportingNonprofit,
   };
 };
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  fetchUser: actions.async.fetchUser,
   acceptTerms: actions.async.acceptTerms,
+  fetchDataSources: actions.async.fetchDataSources,
+  fetchUser: actions.async.fetchUser,
   logout: actions.async.logout,
   onCloseNotification: actions.sync.acknowledgeNotification,
   onDismissDonateBanner: actions.async.dismissDonateBanner,
+  onDismissDexcomConnectBanner: actions.async.dismissDexcomConnectBanner,
+  onClickDexcomConnectBanner: actions.async.clickDexcomConnectBanner,
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
-  showDonateBanner: actions.sync.showDonateBanner,
-  hideDonateBanner: actions.sync.hideDonateBanner,
+  showBanner: actions.sync.showBanner,
+  hideBanner: actions.sync.hideBanner,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return Object.assign({}, _.pick(ownProps, ['children']), stateProps, {
     context: ownProps.route,
+    fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
     fetchers: getFetchers(dispatchProps, ownProps, api),
     location: ownProps.location.pathname,
     onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
     onCloseNotification: dispatchProps.onCloseNotification,
     onDismissDonateBanner: dispatchProps.onDismissDonateBanner.bind(null, api),
+    onDismissDexcomConnectBanner: dispatchProps.onDismissDexcomConnectBanner.bind(null, api),
+    onClickDexcomConnectBanner: dispatchProps.onClickDexcomConnectBanner.bind(null, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
-    showDonateBanner: dispatchProps.showDonateBanner,
-    hideDonateBanner: dispatchProps.hideDonateBanner,
+    showBanner: dispatchProps.showBanner,
+    hideBanner: dispatchProps.hideBanner,
     onLogout: dispatchProps.logout.bind(null, api)
   });
 };

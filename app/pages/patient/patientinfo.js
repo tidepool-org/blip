@@ -19,6 +19,8 @@ var Link = require('react-router').Link;
 var _ = require('lodash');
 var sundial = require('sundial');
 
+import { Element } from 'react-scroll';
+
 var personUtils = require('../../core/personutils');
 import PatientSettings from './patientsettings';
 import PatientBgUnits from '../../components/patientBgUnits';
@@ -380,7 +382,7 @@ var PatientInfo = React.createClass({
   renderDataSources: function() {
     if (this.isSamePersonUserAndPatient()) {
       return (
-        <div className="PatientPage-dataSources">
+        <Element name="dexcomConnect" className="PatientPage-dataSources">
           <div className="PatientPage-sectionTitle">My Data Sources</div>
           <div className="PatientInfo-content">
             <DataSources
@@ -390,9 +392,10 @@ var PatientInfo = React.createClass({
               disconnectDataSource={this.props.disconnectDataSource}
               authorizedDataSource={this.props.authorizedDataSource}
               trackMetric={this.props.trackMetric}
+              queryParams={this.props.queryParams}
             />
           </div>
-        </div>
+        </Element>
       );
     }
 

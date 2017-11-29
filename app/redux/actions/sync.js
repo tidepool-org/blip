@@ -32,21 +32,24 @@ export function hideWelcomeMessage() {
   };
 }
 
-export function showDonateBanner() {
+export function showBanner(type) {
   return {
-    type: ActionTypes.SHOW_DONATE_BANNER,
+    type: ActionTypes.SHOW_BANNER,
+    payload: { type },
   };
 }
 
-export function hideDonateBanner() {
+export function hideBanner(type) {
   return {
-    type: ActionTypes.HIDE_DONATE_BANNER,
+    type: ActionTypes.HIDE_BANNER,
+    payload: { type },
   };
 }
 
-export function dismissDonateBanner() {
+export function dismissBanner(type) {
   return {
-    type: ActionTypes.DISMISS_DONATE_BANNER,
+    type: ActionTypes.DISMISS_BANNER,
+    payload: { type },
   };
 }
 

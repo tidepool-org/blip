@@ -28,6 +28,7 @@ const initialState = {
   passwordResetConfirmed: false,
   showingWelcomeMessage: null,
   showingDonateBanner: null,
+  showingDexcomConnectBanner: null,
   signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,

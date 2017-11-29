@@ -999,10 +999,48 @@ export function dismissDonateBanner(api, patientId, dismissedDate) {
   dismissedDate = dismissedDate || sundial.utcDateString();
 
   return (dispatch) => {
-    dispatch(sync.dismissDonateBanner());
+    dispatch(sync.dismissBanner('donate'));
 
     const preferences = {
       dismissedDonateYourDataBannerTime: dismissedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Dismiss Dexcom Connect Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function dismissDexcomConnectBanner(api, patientId, dismissedDate) {
+  dismissedDate = dismissedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('dexcom'));
+
+    const preferences = {
+      dismissedDexcomConnectBannerTime: dismissedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Click Donate Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function clickDexcomConnectBanner(api, patientId, clickedDate) {
+  clickedDate = clickedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('dexcom'));
+
+    const preferences = {
+      clickedDexcomConnectBannerTime: clickedDate,
     };
 
     dispatch(updatePreferences(api, patientId, preferences));

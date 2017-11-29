@@ -44,4 +44,8 @@ describe('constants', function() {
     expect(Constants.DATA_DONATION_NONPROFITS).to.be.an('array');
     expect(Constants.DATA_DONATION_NONPROFITS.length > 0).to.be.true;
   });
+
+  it('should define url for dexcom connect info', function() {
+    expect(Constants.URL_DEXCOM_CONNECT_INFO).to.equal('http://support.tidepool.org/article/73-connecting-dexcom-account-to-tidepool');
+  });
 });
