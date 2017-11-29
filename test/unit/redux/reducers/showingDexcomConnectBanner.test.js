@@ -23,20 +23,20 @@
 
 import _ from 'lodash';
 
-import { showingDonateBanner as reducer } from '../../../../app/redux/reducers/misc';
+import { showingDexcomConnectBanner as reducer } from '../../../../app/redux/reducers/misc';
 
 import * as actions from '../../../../app/redux/actions/index';
 
-import { showingDonateBanner as initialState } from '../../../../app/redux/reducers/initialState';
+import { showingDexcomConnectBanner as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
-describe('showingDonateBanner', () => {
+describe('showingDexcomConnectBanner', () => {
   describe('showBanner', () => {
     it('should set state to true', () => {
       let initialStateForTest = false;
 
-      let action = actions.sync.showBanner('donate');
+      let action = actions.sync.showBanner('dexcom');
 
       let intermediate = reducer(initialStateForTest, action);
 
@@ -52,7 +52,7 @@ describe('showingDonateBanner', () => {
     it('should set state to null', () => {
       let initialStateForTest = true;
 
-      let action = actions.sync.hideBanner('donate');
+      let action = actions.sync.hideBanner('dexcom');
 
       let intermediate = reducer(initialStateForTest, action);
 
@@ -84,7 +84,7 @@ describe('showingDonateBanner', () => {
     it('should set state to false', () => {
       let initialStateForTest = true;
 
-      let action = actions.sync.dismissBanner('donate');
+      let action = actions.sync.dismissBanner('dexcom');
 
       let intermediate = reducer(initialStateForTest, action);
 
@@ -97,12 +97,32 @@ describe('showingDonateBanner', () => {
   });
 
   describe('fetchUserSuccess', () => {
+    it('should set state to false if user clicked the banner', () => {
+      let initialStateForTest = true;
+
+      const user = {
+        preferences: {
+          clickedDexcomConnectBannerTime: 'today',
+        },
+      };
+
+      let action = actions.sync.fetchUserSuccess(user);
+
+      let intermediate = reducer(initialStateForTest, action);
+
+      expect(intermediate).to.be.false;
+
+      let nextState = reducer(null, action);
+
+      expect(nextState).to.be.false;
+    });
+
     it('should set state to false if user dismissed the banner', () => {
       let initialStateForTest = true;
 
       const user = {
         preferences: {
-          dismissedDonateYourDataBannerTime: 'today',
+          dismissedDexcomConnectBannerTime: 'today',
         },
       };
 

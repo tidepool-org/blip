@@ -40,6 +40,31 @@ describe('App',  () => {
     }
   };
 
+  describe('constructor', () => {
+    var props = _.assign({}, baseProps, {
+      authenticated: false,
+      children: createFragment({}),
+      fetchers: [],
+      fetchingPatient: false,
+      fetchingUser: false,
+      location: '/foo',
+      loggingOut: false,
+      onAcceptTerms: sinon.stub(),
+      onCloseNotification: sinon.stub(),
+      onLogout: sinon.stub()
+    });
+
+    let wrapper;
+    beforeEach(() => {
+      wrapper = mount(<App {...props} />);
+    });
+
+    it('should set the `dexcomShowBannerMetricTracked` state to false', () => {
+      expect(wrapper.state().dexcomShowBannerMetricTracked).to.be.false;
+    });
+
+  });
+
   describe('render', () => {
     it('should render without problems or warnings when required props provided', () => {
       var props = _.assign({}, baseProps, {
@@ -100,8 +125,8 @@ describe('App',  () => {
       showingDonateBanner: null,
       onDismissDonateBanner: sinon.stub(),
       onUpdateDataDonationAccounts: sinon.stub(),
-      showDonateBanner: sinon.stub(),
-      hideDonateBanner: sinon.stub(),
+      showBanner: sinon.stub(),
+      hideBanner: sinon.stub(),
       patient: {},
       userIsDonor: true,
     });
@@ -123,10 +148,42 @@ describe('App',  () => {
     });
   });
 
+  describe('renderDexcomConnectBanner', () => {
+    let props = _.assign({}, baseProps, {
+      showingDexcomConnectBanner: null,
+      onClickDexcomConnectBanner: sinon.stub(),
+      onDismissDexcomConnectBanner: sinon.stub(),
+      showBanner: sinon.stub(),
+      hideBanner: sinon.stub(),
+      patient: {},
+    });
+
+    let wrapper;
+    beforeEach(() => {
+      wrapper = mount(<App {...props} />);
+    });
+
+    it('should render the banner or not based on the `showingDexcomConnectBanner` prop value', () => {
+      wrapper.setProps({ showingDexcomConnectBanner: true });
+      expect(wrapper.find('.App-dexcombanner').length).to.equal(1);
+
+      wrapper.setProps({ showingDexcomConnectBanner: null });
+      expect(wrapper.find('.App-dexcombanner').length).to.equal(0);
+
+      wrapper.setProps({ showingDexcomConnectBanner: false });
+      expect(wrapper.find('.App-dexcombanner').length).to.equal(0);
+    });
+  });
+
   describe('componentWillReceiveProps', () => {
     let props = _.assign({}, baseProps, {
-      showDonateBanner: sinon.stub(),
-      hideDonateBanner: sinon.stub(),
+      showBanner: sinon.stub(),
+      hideBanner: sinon.stub(),
+      context: {
+        log: sinon.stub(),
+        trackMetric: sinon.stub(),
+        config: { VERSION: 1 },
+      },
     });
 
     let wrapper;
@@ -135,38 +192,41 @@ describe('App',  () => {
     });
 
     afterEach(() => {
-      props.showDonateBanner.reset();
-      props.hideDonateBanner.reset();
+      props.showBanner.reset();
+      props.hideBanner.reset();
+      props.context.trackMetric.reset();
     });
 
     context('user has uploaded data and has not donated data', () => {
-      it('should show the banner, but only if user is on a patient data view', () => {
+      it('should show the donate banner, but only if user is on a patient data view', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
         });
 
-        sinon.assert.callCount(props.showDonateBanner, 0);
+        sinon.assert.callCount(props.showBanner, 0);
 
         wrapper.setProps({ location: '/patients/1234/data' })
-        sinon.assert.callCount(props.showDonateBanner, 1);
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWith(props.showBanner, 'donate');
       });
 
-      it('should not show the banner if user has dismissed the banner', () => {
+      it('should not show the donate banner if user has dismissed it', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.showDonateBanner, 1);
-        props.showDonateBanner.reset();
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWith(props.showBanner, 'donate');
+        props.showBanner.reset();
 
         wrapper.setProps({
           showingDonateBanner: false,
         });
 
-        sinon.assert.callCount(props.showDonateBanner, 0);
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'donate');
       });
     });
 
@@ -179,8 +239,9 @@ describe('App',  () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.showDonateBanner, 0);
-        sinon.assert.callCount(props.hideDonateBanner, 1);
+        sinon.assert.callCount(props.showBanner, 0);
+        sinon.assert.callCount(props.hideBanner, 1);
+        sinon.assert.calledWith(props.hideBanner, 'donate');
       });
     });
 
@@ -193,8 +254,9 @@ describe('App',  () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.showDonateBanner, 0);
-        sinon.assert.callCount(props.hideDonateBanner, 1);
+        sinon.assert.callCount(props.showBanner, 0);
+        sinon.assert.callCount(props.hideBanner, 1);
+        sinon.assert.calledWith(props.hideBanner, 'donate');
       });
     });
 
@@ -208,7 +270,8 @@ describe('App',  () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.showDonateBanner, 1);
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWith(props.showBanner, 'donate');
       });
     });
 
@@ -221,7 +284,183 @@ describe('App',  () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.hideDonateBanner, 1);
+        sinon.assert.callCount(props.hideBanner, 1);
+        sinon.assert.calledWith(props.hideBanner, 'donate');
+      });
+    });
+
+    context('donate banner is showing', () => {
+      it('should not show the dexcom banner', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingDonateBanner: true,
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWithMatch(props.showBanner, 'donate');
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom');
+      });
+    });
+
+    context('donate banner is not showing', () => {
+      beforeEach(() => {
+        wrapper.setProps({
+          showingDonateBanner: false,
+        });
+      });
+
+      context('user has uploaded data and has not already connected to a datasource', () => {
+        it('should show the dexcom banner, but only if user is on a patient data view', () => {
+          wrapper.setProps({
+            userIsCurrentPatient: true,
+            userHasConnectedDataSources: false,
+            userHasData: true,
+          });
+
+          sinon.assert.callCount(props.showBanner, 0);
+
+          wrapper.setProps({ location: '/patients/1234/data' })
+          sinon.assert.callCount(props.showBanner, 1);
+          sinon.assert.calledWith(props.showBanner, 'dexcom');
+        });
+
+        it('should not show the dexcom banner if user has dismissed it', () => {
+          wrapper.setProps({
+            userIsCurrentPatient: true,
+            userHasConnectedDataSources: false,
+            userHasData: true,
+            location: '/patients/1234/data',
+          });
+
+          sinon.assert.callCount(props.showBanner, 1);
+          sinon.assert.calledWith(props.showBanner, 'dexcom');
+          props.showBanner.reset();
+
+          wrapper.setProps({
+            showingDexcomConnectBanner: false,
+          });
+
+          sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom');
+        });
+      });
+
+      context('user has not uploaded data and has not connected to a data source', () => {
+        it('should not show the dexcom banner', () => {
+          wrapper.setProps({
+            userIsCurrentPatient: true,
+            userHasConnectedDataSources: false,
+            userHasData: false,
+            location: '/patients/1234/data',
+          });
+
+          sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom')
+        });
+      });
+
+      context('user has uploaded data but is not the current patient in view', () => {
+        it('should not show the dexcom banner', () => {
+          wrapper.setProps({
+            userIsCurrentPatient: false,
+            userHasData: true,
+            location: '/patients/1234/data',
+          });
+
+          sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom')
+        });
+      });
+
+      context('user has uploaded data, but has not connected a data source', () => {
+        it('should show the dexcom banner', () => {
+          wrapper.setProps({
+            userIsCurrentPatient: true,
+            userHasData: true,
+            userHasConnectedDataSources: false,
+            location: '/patients/1234/data',
+          });
+
+          sinon.assert.callCount(props.showBanner, 1);
+          sinon.assert.calledWith(props.showBanner, 'dexcom');
+        });
+      });
+
+      context('user has uploaded data and has connected a data source', () => {
+        it('should not show the banner', () => {
+          wrapper.setProps({
+            userHasUploadedData: true,
+            userHasConnectedDataSources: true,
+            location: '/patients/1234/data',
+          });
+
+          sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom')
+        });
+      });
+    });
+
+    context('dexcom banner is showing', () => {
+      it('should track the display banner metric', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingDonateBanner: false,
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWithMatch(props.showBanner, 'dexcom');
+        sinon.assert.calledWith(props.context.trackMetric, 'Dexcom OAuth banner displayed');
+      });
+
+      it('should only track the display banner metric once', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingDonateBanner: false,
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.callCount(props.context.trackMetric, 1);
+
+        wrapper.setProps({});
+        wrapper.setProps({});
+
+        sinon.assert.callCount(props.showBanner, 3);
+        sinon.assert.callCount(props.context.trackMetric, 1);
+      });
+    });
+
+    context('donate banner is showing', () => {
+      it('should track the display banner metric', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingDonateBanner: true,
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWithMatch(props.showBanner, 'donate');
+        sinon.assert.calledWith(props.context.trackMetric, 'Big Data banner displayed');
+      });
+
+      it('should only track the display banner metric once', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingDonateBanner: true,
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.callCount(props.context.trackMetric, 1);
+
+        wrapper.setProps({});
+        wrapper.setProps({});
+
+        sinon.assert.callCount(props.showBanner, 3);
+        sinon.assert.callCount(props.context.trackMetric, 1);
       });
     });
   });
@@ -332,7 +571,9 @@ describe('App',  () => {
           },
         },
         dataDonationAccounts: [],
+        datasources: [],
         showingDonateBanner: null,
+        showingDexcomConnectBanner: null,
         working: {
           fetchingUser: {inProgress: false},
           fetchingPendingSentInvites: {inProgress: false},
@@ -483,6 +724,39 @@ describe('App',  () => {
 
             expect(result.userHasData).to.be.true;
             expect(result.userIsCurrentPatient).to.be.true;
+          });
+        });
+      });
+
+      describe('Dexcom banner props', () => {
+        it('should map the `showingDexcomConnectBanner` state to a prop', () => {
+          const result = mapStateToProps({ blip: loggedIn });
+          expect(result.showingDexcomConnectBanner).to.equal(loggedIn.showingDexcomConnectBanner);
+        });
+
+        context('User has connected to a data source', () => {
+          it('should set props appropriately', () => {
+            const state = _.assign({}, loggedIn, {
+              dataSources: [
+                { id: 'dexcom/oauth' },
+              ],
+            });
+
+            const result = mapStateToProps({ blip: state });
+
+            expect(result.userHasConnectedDataSources).to.be.true;
+          });
+        });
+
+        context('User has connected to a data source', () => {
+          it('should set props appropriately', () => {
+            const state = _.assign({}, loggedIn, {
+              datasources: [],
+            });
+
+            const result = mapStateToProps({ blip: state });
+
+            expect(result.userHasConnectedDataSources).to.be.false;
           });
         });
       });

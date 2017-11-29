@@ -16,7 +16,6 @@ let getFetchers = (dispatchProps, ownProps, api) => {
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
     dispatchProps.fetchDataDonationAccounts.bind(null, api),
     dispatchProps.fetchPendingSentInvites.bind(null, api),
-    dispatchProps.fetchDataSources.bind(null, api),
   ];
 };
 
@@ -96,7 +95,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
     connectDataSource: dispatchProps.connectDataSource.bind(null, api),
     disconnectDataSource: dispatchProps.disconnectDataSource.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric
+    trackMetric: ownProps.routes[0].trackMetric,
+    queryParams: ownProps.location.query,
   });
 };
 
