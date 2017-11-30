@@ -90,7 +90,7 @@ describe('FocusedSMBGPointLabel', () => {
     });
 
     it('should render individual point tooltips', () => {
-      expect(wrapper.find(formatClassesAsSelector(styles.number))).to.have.length(4);
+      expect(wrapper.find(formatClassesAsSelector(styles.number))).to.have.length(3);
     });
     it('should render a detailed individual point tooltip', () => {
       expect(wrapper.find(formatClassesAsSelector(styles.shortDate))).to.have.length(1);
@@ -113,7 +113,7 @@ describe('FocusedSMBGPointLabel', () => {
     });
 
     it('should render individual point tooltips', () => {
-      expect(wrapper.find(formatClassesAsSelector(styles.number))).to.have.length(4);
+      expect(wrapper.find(formatClassesAsSelector(styles.number))).to.have.length(3);
     });
     it('should render a detailed individual point tooltip', () => {
       expect(wrapper.find(formatClassesAsSelector(styles.shortDate))).to.have.length(1);
