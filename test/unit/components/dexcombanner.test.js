@@ -96,36 +96,55 @@ describe('DexcomBanner', () => {
     sinon.assert.calledWith(props.trackMetric, 'clicked learn more Dexcom OAuth banner');
   });
 
+  it('should call the submit handler when the dexcom button is clicked', () => {
+    const button = wrapper.find('button');
+    button.simulate('click');
+    sinon.assert.calledOnce(props.onClick);
+  });
+
+  it('should track the metrics when the dexcom button is clicked', () => {
+    const button = wrapper.find('button');
+    button.simulate('click');
+    sinon.assert.calledOnce(props.trackMetric);
+    sinon.assert.calledWith(props.trackMetric, 'clicked get started on Dexcom banner');
+  });
+
   describe('render', function () {
-    context('User is not yet a donor', () => {
-      it('should render a dexcom message', () => {
-        const expectedText = 'Sync your Dexcom data'
-        const messageText = wrapper.find('.message-text');
+    it('should render without errors when provided all required props', () => {
+      console.error = sinon.stub();
 
-        expect(messageText).to.have.length(1);
-        expect(messageText.text()).contains(expectedText);
-      });
+      expect(wrapper.find('.dexcomBanner')).to.have.length(1);
+      expect(console.error.callCount).to.equal(0);
+    });
 
-      // it('should render a dexcom button', () => {
-      //   const expectedText = 'Connect to Dexcom'
-      //   const button = wrapper.find('button');
+    it('should render a dexcom message', () => {
+      const expectedText = 'Using Dexcom G5 Mobile on Android? See your data in Tidepool.'
+      const messageText = wrapper.find('.message-text');
 
-      //   expect(button).to.have.length(1);
-      //   expect(button.text()).contains(expectedText);
-      // });
+      expect(messageText).to.have.length(1);
+      expect(messageText.text()).contains(expectedText);
+    });
 
-      // it('should call the submit handler when the dexcom button is clicked', () => {
-      //   const button = wrapper.find('button');
-      //   button.simulate('click');
-      //   sinon.assert.calledOnce(props.onClick);
-      // });
+    it('should render a link to the dexcom connect info on the website', () => {
+      const expectedText = 'Learn More'
+      const messageLink = wrapper.find('.message-link');
 
-      // it('should track the metrics when the dexcom button is clicked', () => {
-      //   const button = wrapper.find('button');
-      //   button.simulate('click');
-      //   sinon.assert.calledOnce(props.trackMetric);
-      //   sinon.assert.calledWith(props.trackMetric, 'clicked Dexcom OAuth banner');
-      // });
+      expect(messageLink).to.have.length(1);
+      expect(messageLink.find({ href: URL_DEXCOM_CONNECT_INFO })).to.have.length(1);
+      expect(messageLink.text()).contains(expectedText);
+    });
+
+    it('should render a get started button', () => {
+      const expectedText = 'Get Started'
+      const button = wrapper.find('button');
+
+      expect(button).to.have.length(1);
+      expect(button.text()).contains(expectedText);
+    });
+
+    it('should render a close link to dismiss the banner', () => {
+      const closeLink = wrapper.find('a.close');
+      expect(closeLink).to.have.length(1);
     });
   });
 });
