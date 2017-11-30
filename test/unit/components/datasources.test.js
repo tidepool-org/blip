@@ -71,40 +71,49 @@ describe('DataSources', () => {
   it('should be a function', () => {
     expect(DataSources).to.be.a('function');
   });
-  describe('render',  () => {
-    it('without problems',  () => {
+
+  describe('render', () => {
+    it('without problems', () => {
       expect(wrapper.find(DataSources)).to.have.length(1);
     });
-    it('info for each datasource',  () => {
+
+    it('info for each datasource', () => {
       expect(props.dataSources).to.have.length(1);
       expect(wrapper.find('.DataSource-info')).to.have.length(1);
     });
-    it('logo that matches provider',  () => {
+
+    it('logo that matches provider', () => {
       expect(wrapper.find('.DataSource-logo-dexcom')).to.have.length(1);
     });
-    it('button to disconnect as we are connected',  () => {
+
+    it('button to disconnect as we are connected', () => {
       expect(props.dataSources[0].state).to.equal('connected');
       expect(wrapper.find('.DataSource-action-button-disconnect-dexcom')).to.have.length(1);
     });
-    it('indicator to show we are connected',  () => {
+
+    it('indicator to show we are connected', () => {
       expect(wrapper.find('.DataSource-status-indicator-connected')).to.have.length(1);
     });
-    it('a status message',  () => {
+
+    it('a status message', () => {
       expect(wrapper.find('.DataSource-status-message')).to.have.length(1);
     });
   });
-  describe('handleDisconnectDataSource when DataSource-action-button-disconnect clicked',  () => {
-    it('metrics called',  () => {
+
+  describe('handleDisconnectDataSource when DataSource-action-button-disconnect clicked', () => {
+    it('metrics called', () => {
       wrapper.find('.DataSource-action-button-disconnect-dexcom').simulate('click');
       expect(props.trackMetric.calledWith('Web - data source disconnect clicked')).to.be.true;
       expect(props.trackMetric.callCount).to.equal(1);
     });
-    it('disconnectDataSource called',  () => {
+
+    it('disconnectDataSource called', () => {
       wrapper.find('.DataSource-action-button-disconnect-dexcom').simulate('click');
       expect(props.disconnectDataSource.callCount).to.equal(1);
     });
   });
-  describe('handleConnectDataSource when DataSource-action-button-connect clicked',  () => {
+
+  describe('handleConnectDataSource when DataSource-action-button-connect clicked', () => {
     beforeEach(() => {
       dataSources[0].state = 'disconnected';
       props.dataSources = dataSources;
@@ -115,74 +124,106 @@ describe('DataSources', () => {
       );
     });
 
-    it('metrics called',  () => {
+    it('metrics called with settings as default location', () => {
       wrapper.find('.DataSource-action-button-connect-dexcom').simulate('click');
-      expect(props.trackMetric.calledWith('Web - data source connect clicked')).to.be.true;
+      sinon.assert.calledWithMatch(props.trackMetric, 'Web - data source connect clicked', sinon.match({ location: 'settings' }));
       expect(props.trackMetric.callCount).to.equal(1);
     });
-    it('connectDataSource called',  () => {
+
+    it('metrics called with location specified in query param', () => {
+      wrapper.setProps({
+        queryParams: {
+          dexcomConnect: 'banner',
+        },
+      });
+
+      wrapper.find('.DataSource-action-button-connect-dexcom').simulate('click');
+      sinon.assert.calledWithMatch(props.trackMetric, 'Web - data source connect clicked', sinon.match({ location: 'banner' }));
+      expect(props.trackMetric.callCount).to.equal(1);
+    });
+
+    it('connectDataSource called', () => {
       wrapper.find('.DataSource-action-button-connect-dexcom').simulate('click');
       expect(props.connectDataSource.callCount).to.equal(1);
     });
   });
-  describe('error message',  () => {
-    it('when unauthorized',  () => {
+
+  describe('error message', () => {
+    it('when unauthorized', () => {
       expect(
         wrapper.instance().calculateErrorMessage({ code: 'unauthenticated' })
       ).to.equal('Login expired - try signing out & in again');
     });
-    it('when anything else',  () => {
+
+    it('when anything else', () => {
       expect(
         wrapper.instance().calculateErrorMessage('stuff')
       ).to.equal('An unknown error occurred');
     });
   });
-  describe('state message',  () => {
-    it('when connected',  () => {
+
+  describe('state message', () => {
+    it('when connected', () => {
       expect(
         wrapper.instance().calculateMessage(dataSources[0], 'connected')
       ).to.contain('Last data ');
     });
-    it('when disconnected',  () => {
+
+    it('when disconnected', () => {
       expect(
         wrapper.instance().calculateMessage(dataSources[0], 'disconnected')
       ).to.equal('No data available - click Connect to enable');
     });
-    it('when anything else',  () => {
+
+    it('when anything else', () => {
       expect(
         wrapper.instance().calculateMessage(dataSources[0], 'hmmm')
       ).to.equal('An unknown error occurred');
     });
   });
-  describe('calculating state',  () => {
-    it('when connected',  () => {
+
+  describe('calculating state', () => {
+    it('when connected', () => {
       expect(
         wrapper.instance().calculateState({state: 'connected'})
       ).to.equal('connected');
     });
-    it('when error',  () => {
+
+    it('when error', () => {
       expect(
         wrapper.instance().calculateState({state: 'error'})
       ).to.equal('error');
     });
-    it('when disconnected',  () => {
+
+    it('when disconnected', () => {
       expect(
         wrapper.instance().calculateState({state: 'disconnected'})
       ).to.equal('disconnected');
     });
-    it('when other',  () => {
+
+    it('when other', () => {
       expect(
         wrapper.instance().calculateState({state: 'other'})
       ).to.equal('error');
     });
-    it('when not set',  () => {
+
+    it('when not set', () => {
       expect(
         wrapper.instance().calculateState()
       ).to.equal('disconnected');
     });
   });
-  describe('calculate popup id',  () => {
-    it('appends given id to org.tidepool.web.',  () => {
+
+  describe('calculate popup id', () => {
+    it('appends given id to org.tidepool.web.', () => {
+      expect(
+        wrapper.instance().calculatePopupId({id: 'mine'})
+      ).to.equal('org.tidepool.web.mine');
+    });
+  });
+
+  describe('componentDidMount', () => {
+    it('appends given id to org.tidepool.web.', () => {
       expect(
         wrapper.instance().calculatePopupId({id: 'mine'})
       ).to.equal('org.tidepool.web.mine');
