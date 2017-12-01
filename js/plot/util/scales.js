@@ -31,6 +31,7 @@ var scales = function(opts) {
     bolusRatio: 0.35,
     MIN_CBG: 39,
     MAX_CBG: 401,
+    TARGET_BG_BOUNDARY: 180,
     carbRadius: 14
   };
   _.defaults(opts, defaults);
@@ -38,6 +39,7 @@ var scales = function(opts) {
   if (opts.bgUnits === MMOLL_UNITS) {
     opts.MIN_CBG = opts.MIN_CBG/MGDL_PER_MMOLL;
     opts.MAX_CBG = opts.MAX_CBG/MGDL_PER_MMOLL;
+    opts.TARGET_BG_BOUNDARY = opts.TARGET_BG_BOUNDARY/MGDL_PER_MMOLL;
   }
 
   return {
@@ -51,6 +53,12 @@ var scales = function(opts) {
     },
     bg: function(data, pool, pad) {
       var ext = d3.extent(data, function(d) { return d.value; });
+      var targetBoundary = _.get(opts, 'bgClasses.target.boundary', opts.TARGET_BG_BOUNDARY);
+
+      // We need to ensure that the top of the bgScale is at least at the the target upper bound
+      // for proper rendering of datasets with no BG values above this mark.
+      ext[1] = _.max([ext[1], targetBoundary]);
+
       if (ext[1] > this.MAX_CBG || ext[0] === ext[1]) {
         return d3.scale.linear()
           .domain([0, this.MAX_CBG])
