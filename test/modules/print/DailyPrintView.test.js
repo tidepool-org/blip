@@ -276,7 +276,21 @@ describe('DailyPrintView', () => {
       expect(Renderer.makeScales).to.be.a('function');
     });
 
-    // Functionality already confirmed in constructor tests
+    it('should set the bgScaleYLimit to a minimum of the BG target upper bound', () => {
+      Renderer.data.bgRange[1] = 100;
+      Renderer.makeScales(Renderer.chartsByDate[sampleDate]);
+
+      expect(Renderer.bgScaleYLimit).to.equal(180);
+    });
+
+    it('should set the bgScaleYLimit to a maximum of the BG very high threshold', () => {
+      Renderer.data.bgRange[1] = 600;
+      Renderer.makeScales(Renderer.chartsByDate[sampleDate]);
+
+      expect(Renderer.bgScaleYLimit).to.equal(300);
+    });
+
+    // Remaining functionality already confirmed in constructor tests
   });
 
   describe('newPage', () => {
@@ -615,6 +629,23 @@ describe('DailyPrintView', () => {
 
       // Should render the timeslot time in the format 9a or 12p
       sinon.assert.calledWith(Renderer.doc.text, sinon.match(/\d?(\d)[a|p]/));
+    });
+
+    it('should not render a BG bound higher than the `bgScaleYLimit` value', () => {
+      Renderer.bgScaleYLimit = 305;
+
+      const args = setArgs(Renderer);
+      Renderer.renderYAxes(args);
+
+      const timeSlotTextCalls = 8;
+
+      sinon.assert.callCount(Renderer.doc.text, timeSlotTextCalls + 4);
+      Renderer.doc.text.resetHistory();
+
+      Renderer.bgScaleYLimit = 180;
+
+      Renderer.renderYAxes(args);
+      sinon.assert.callCount(Renderer.doc.text, timeSlotTextCalls + 3);
     });
 
     context('mmol/L support', () => {
