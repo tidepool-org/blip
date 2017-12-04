@@ -750,7 +750,7 @@ class DailyPrintView {
       width: this.chartArea.leftEdge - this.summaryArea.rightEdge - 3,
     };
 
-    const renderedBounds = _.filter(this.bgBounds, bound => bound <= this.bgScaleYLimit);
+    const renderedBounds = _.filter(this.bgBounds, bound => (bound <= this.bgScaleYLimit));
 
     _.each(renderedBounds, (bound) => {
       const bgTick = this.bgUnits === MMOLL_UNITS ? parseFloat(bound).toFixed(1) : bound;
