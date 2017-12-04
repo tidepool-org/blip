@@ -593,7 +593,6 @@ function TidelineData(data, opts) {
           )};
         }
         else if (aType === 'upload') {
-          console.log('upload data', this.grouped.upload);
           this.basicsData.data.upload = {
             data: this.grouped.upload,
           };
