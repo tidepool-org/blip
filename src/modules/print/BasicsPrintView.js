@@ -398,10 +398,12 @@ class BasicsPrintView extends PrintView {
               {
                 value: basalBolusRatio.basal,
                 color: this.colors.basal,
+                label: 'basal',
               },
               {
                 value: basalBolusRatio.bolus,
                 color: this.colors.bolus,
+                label: 'bolus',
               },
             ],
           },
@@ -478,16 +480,28 @@ class BasicsPrintView extends PrintView {
         data: pieData,
       } = data[column.id];
 
-      const arcData = pie()(_.map(pieData, datum => datum.value));
+      const arcData = pie()(_.map(pieData, d => d.value));
 
-      const generateArcPath = (datum) => (
-        arc()
+      let rotation = 0;
+
+      const generateArcPath = (datum, index) => {
+        const label = _.get(pieData, `${index}.label`);
+
+        // If the first arc rendered its the basal, and it starts at the top,
+        // rotate it back so that the bolus arc starts at the 12:00 position
+        if (index === 0 && label === 'basal' && datum.startAngle === 0) {
+          rotation = datum.endAngle;
+        }
+
+        return arc()
+          .startAngle((d) => (d.startAngle - rotation))
+          .endAngle((d) => (d.endAngle - rotation))
           .innerRadius(0)
-          .outerRadius(radius)(datum)
-      );
+          .outerRadius(radius)(datum);
+      };
 
       _.each(arcData, (segment, index) => {
-        const path = generateArcPath(segment);
+        const path = generateArcPath(segment, index);
         const points = translate(parse(path), xPos, yPos);
         const adjustedPath = serialize(points);
 
