@@ -34,7 +34,7 @@ export default class PDFWorker {
     const { data: action } = msg;
     switch (action.type) {
       case actionTypes.GENERATE_PDF_REQUEST: {
-        const { type, data, opts } = action.payload;
+        const { type, data, opts } = JSON.parse(action.payload);
         const { origin } = action.meta;
 
         const importLib = typeof this.importer !== 'undefined' ? this.importer : importScripts;
