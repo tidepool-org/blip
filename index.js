@@ -819,7 +819,7 @@ module.exports = function (config, deps) {
             if (res.status !== 200) {
               return common.handleHttpError(res, cb);
             }
-            return cb(null, res);
+            return cb(null, res.body);
           });
     },
     /**
