@@ -44,7 +44,11 @@ describe('worker action creators', () => {
       expect(action).to.deep.equal({
         type: actionTypes.GENERATE_PDF_REQUEST,
         meta: { WebWorker: true, origin: document.location.origin },
-        payload,
+        payload: {
+          type,
+          data: JSON.stringify(data),
+          opts,
+        },
       });
     });
   });

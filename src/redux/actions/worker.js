@@ -23,7 +23,7 @@ export function generatePDFRequest(type, data, opts) {
     meta: { WebWorker: true, origin: document.location.origin },
     payload: {
       type,
-      data,
+      data: JSON.stringify(data),
       opts,
     },
   };
