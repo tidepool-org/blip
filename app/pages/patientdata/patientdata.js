@@ -645,6 +645,14 @@ export let PatientData = React.createClass({
     if (!nextProps.fetchingPatient && !this.state.processedPatientData && nextPatientData) {
       this.doProcessing(nextProps);
     }
+
+    // If the patient makes a change to their site change source settings,
+    // we should remove the currently generated PDF, which will trigger a rebuild of
+    // the PDF with the updated settings.
+    const siteChangeSource = _.get(nextProps, 'patient.settings.siteChangeSource');
+    if (siteChangeSource && siteChangeSource !== _.get(this.props, 'patient.settings.siteChangeSource')) {
+      this.props.removeGeneratedPDFS();
+    }
   },
 
   componentWillUpdate: function (nextProps, nextState) {

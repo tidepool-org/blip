@@ -763,6 +763,98 @@ describe('PatientData', function () {
     });
   });
 
+  describe('componentWillReceiveProps', function() {
+    const props = {
+      clearPatientData: sinon.stub(),
+    };
+
+    it('should remove the generated PDF when the patient\'s site change source changes', function() {
+      var props = {
+        removeGeneratedPDFS: sinon.stub(),
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          },
+          settings: {
+            siteChangeSource: 'cannulaPrime',
+          },
+        },
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+
+      sinon.assert.notCalled(props.removeGeneratedPDFS);
+
+      wrapper.setProps({
+        patient: _.assign({}, props.patient, {
+          settings: {
+            siteChangeSource: 'tubingPrime',
+          },
+        }),
+      });
+
+      sinon.assert.calledOnce(props.removeGeneratedPDFS);
+    });
+
+    it('should not remove the generated PDF when the patient\'s site change source did not change', function() {
+      var props = {
+        removeGeneratedPDFS: sinon.stub(),
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          },
+          settings: {
+            siteChangeSource: 'cannulaPrime',
+          },
+        },
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+
+      sinon.assert.notCalled(props.removeGeneratedPDFS);
+
+      wrapper.setProps({
+        patient: _.assign({}, props.patient, {
+          settings: {
+            otherSetting: true,
+            siteChangeSource: 'cannulaPrime',
+          },
+        }),
+      });
+
+      sinon.assert.notCalled(props.removeGeneratedPDFS);
+    });
+
+    it('should not remove the generated PDF when the patient\'s site change source is not set', function() {
+      var props = {
+        removeGeneratedPDFS: sinon.stub(),
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          },
+          settings: {},
+        },
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+
+      sinon.assert.notCalled(props.removeGeneratedPDFS);
+
+      wrapper.setProps({
+        patient: _.assign({}, props.patient, {
+          settings: {
+            otherSetting: true,
+          },
+        }),
+      });
+
+      sinon.assert.notCalled(props.removeGeneratedPDFS);
+    });
+  });
+
   describe('componentWillUpdate', function() {
     it('should generate a pdf when view is basics and patient data is processed', function () {
       var props = {
