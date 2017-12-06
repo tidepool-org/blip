@@ -65,6 +65,7 @@ describe('PDFWorker', () => {
     const postMessage = sinon.stub();
 
     const action = actions.generatePDFRequest(type, data, opts);
+    action.payload = JSON.stringify(action.payload);
     const origin = action.meta.origin;
 
     Worker.handleMessage({ data: action }, postMessage);
@@ -79,6 +80,7 @@ describe('PDFWorker', () => {
     const postMessage = sinon.stub();
 
     const action = actions.generatePDFRequest(type, data, opts);
+    action.payload = JSON.stringify(action.payload);
     Worker.handleMessage({ data: action }, postMessage);
 
     sinon.assert.calledOnce(renderer);
@@ -91,6 +93,7 @@ describe('PDFWorker', () => {
     const postMessage = sinon.stub();
 
     const action = actions.generatePDFRequest(type, data, opts);
+    action.payload = JSON.stringify(action.payload);
     Worker.handleMessage({ data: action }, postMessage);
 
     return Worker.renderer(data, opts).then(result => {
@@ -108,6 +111,7 @@ describe('PDFWorker', () => {
     const postMessage = sinon.stub();
 
     const action = actions.generatePDFRequest(type, data, opts);
+    action.payload = JSON.stringify(action.payload);
     Worker.handleMessage({ data: action }, postMessage);
 
     return Worker.renderer(data, opts).then().catch(error => {

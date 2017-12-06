@@ -581,8 +581,8 @@ describe('DailyPrintView', () => {
       Renderer.renderBasalRates(Renderer.chartsByDate[sampleDate]);
 
       sinon.assert.callCount(Renderer.doc.text, 2);
-      sinon.assert.calledWith(Renderer.doc.text, 0.6);
-      sinon.assert.calledWith(Renderer.doc.text, 0.7);
+      sinon.assert.calledWith(Renderer.doc.text, '0.600');
+      sinon.assert.calledWith(Renderer.doc.text, '0.700');
     });
   });
 
