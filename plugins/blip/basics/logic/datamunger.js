@@ -51,14 +51,26 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         }
         return _.defaults(reshaped, distributionDefaults);
       }
+
+      function getLatestCGMUpload(basicsData) {
+        const uploadData = _.get(basicsData, 'data.upload.data', []);
+        return _.findLast(uploadData, upload => _.includes(_.get(upload, 'deviceTags', []), 'cgm'));
+      }
+
       var cgm = basicsData.data.cbg;
       var bgm = basicsData.data.smbg;
       var bgDistribution = {};
       if (cgm && !_.isEmpty(cgm.data)) {
+        const latestCGMUpload = getLatestCGMUpload(basicsData) || {};
         var count = cgm.data.length;
         var spanInDays = (Date.parse(basicsData.dateRange[1]) -
           Date.parse(basicsData.dateRange[0]))/constants.MS_IN_DAY;
-        if (count < (constants.CGM_IN_DAY/2 * spanInDays)) {
+
+        // We need to adjust the CGM_IN_DAY value for the Freestyle Libre, as it only
+        // collects BG samples every 15 minutes as opposed the 5 minute dexcom intervals.
+        const maxCGMInDay = latestCGMUpload.deviceModel === 'FreeStyle Libre' ? constants.CGM_IN_DAY / 3 : constants.CGM_IN_DAY;
+
+        if (count < (maxCGMInDay/2 * spanInDays)) {
           bgDistribution.cgmStatus = constants.NOT_ENOUGH_CGM;
         }
         else {
