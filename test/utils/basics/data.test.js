@@ -118,8 +118,54 @@ const siteChangeSections = {
 };
 
 describe('basics data utils', () => {
-  describe('determineBgDistributionSource', () => {
-    context('has enough cbg data', () => {
+  describe('getLatestCGMUpload', () => {
+    const uploadData = [
+      {
+        source: 'cgm',
+        deviceTags: ['cgm'],
+      },
+      {
+        source: 'bgm',
+        deviceTags: ['bgm'],
+      },
+      {
+        source: 'cgm2',
+        deviceTags: ['cgm'],
+      },
+      {
+        source: 'insulin-pump',
+        deviceTags: ['insulin-pump'],
+      },
+    ];
+
+    const noCGMUploadData = [
+      {
+        source: 'bgm',
+        deviceTags: ['bgm'],
+      },
+      {
+        source: 'other',
+      },
+    ];
+
+    it('should return the latest cgm upload data', () => {
+      expect(dataUtils.getLatestCGMUpload({
+        data: { upload: { data: uploadData } },
+      })).to.deep.equal({
+        source: 'cgm2',
+        deviceTags: ['cgm'],
+      });
+    });
+
+    it('should return `undefined` when there is no latest cgm upload data', () => {
+      expect(dataUtils.getLatestCGMUpload({
+        data: { upload: { data: noCGMUploadData } },
+      })).to.be.undefined;
+    });
+  });
+
+  describe.only('determineBgDistributionSource', () => {
+    context('has enough cbg data (Dexcom)', () => {
       it('should yield cgmStatus `calculatedCGM` and source `cbg`', () => {
         const now = new Date();
         const smbg = [
@@ -127,7 +173,9 @@ describe('basics data utils', () => {
         ];
         const cbg = [];
 
-        for (let i = 0; i < 144; ++i) {
+        const minimumCBGRequired = 144;
+
+        for (let i = 0; i < minimumCBGRequired; ++i) {
           cbg.push(new Types.CBG({
             deviceTime: new Date(now.valueOf() + i * 2000).toISOString().slice(0, -5),
             value: 50,
@@ -136,6 +184,41 @@ describe('basics data utils', () => {
 
         expect(dataUtils.determineBgDistributionSource({
           data: { smbg: { data: smbg }, cbg: { data: cbg } },
+          dateRange: [utcDay.floor(now), utcDay.ceil(now)],
+        })).to.deep.equal({
+          cgmStatus: 'calculatedCGM',
+          source: 'cbg',
+        });
+      });
+    });
+
+    context('has enough cbg data (FreeStyle Libre)', () => {
+      it('should yield cgmStatus `calculatedCGM` and source `cbg`', () => {
+        const now = new Date();
+        const smbg = [
+          new Types.SMBG({ value: 25 }),
+        ];
+        const cbg = [];
+
+        const minimumCBGRequired = 144 / 3;
+
+        for (let i = 0; i < minimumCBGRequired; ++i) {
+          cbg.push(new Types.CBG({
+            deviceTime: new Date(now.valueOf() + i * 2000).toISOString().slice(0, -5),
+            value: 50,
+          }));
+        }
+
+        const upload = [
+          {
+            source: 'Abbot',
+            deviceModel: 'FreeStyle Libre',
+            deviceTags: ['cgm', 'bgm'],
+          },
+        ];
+
+        expect(dataUtils.determineBgDistributionSource({
+          data: { smbg: { data: smbg }, cbg: { data: cbg }, upload: { data: upload } },
           dateRange: [utcDay.floor(now), utcDay.ceil(now)],
         })).to.deep.equal({
           cgmStatus: 'calculatedCGM',

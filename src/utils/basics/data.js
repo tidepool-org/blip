@@ -46,6 +46,18 @@ import {
 } from '../constants';
 
 /**
+ * Get the latest CGM upload
+ *
+ * @export
+ * @param {*} basicsData - the preprocessed basics data object
+ * @returns {Object} the latest cgm upload data record if found, otherwise `undefined`
+ */
+export function getLatestCGMUpload(basicsData) {
+  const uploadData = _.get(basicsData, 'data.upload.data', []);
+  return _.findLast(uploadData, upload => _.includes(_.get(upload, 'deviceTags', []), 'cgm'));
+}
+
+/**
  * Get the BG distribution source and status
  * source will be one of [cbg | smbg | null]
  * status refers the the availability of cgm data [NO_CGM | NOT_ENOUGH_CGM | CGM_CALCULATED]
@@ -62,12 +74,20 @@ export function determineBgDistributionSource(basicsData) {
     source: bgmAvailable ? BGM_DATA_KEY : null,
   };
 
+  const latestCGMUpload = getLatestCGMUpload(basicsData) || {};
+
   if (cgmAvailable) {
     const count = basicsData.data[CGM_DATA_KEY].data.length;
     const spanInDays = (Date.parse(basicsData.dateRange[1]) -
       Date.parse(basicsData.dateRange[0])) / MS_IN_DAY;
 
-    if (count < (CGM_IN_DAY / 2 * spanInDays)) {
+    // We need to adjust the CGM_IN_DAY value for the Freestyle Libre, as it only
+    // collects BG samples every 15 minutes as opposed the 5 minute dexcom intervals.
+    const expectedCGMInDay = latestCGMUpload.deviceModel === 'FreeStyle Libre'
+      ? CGM_IN_DAY / 3
+      : CGM_IN_DAY;
+
+    if (count < expectedCGMInDay / 2 * spanInDays) {
       bgSource.cgmStatus = NOT_ENOUGH_CGM;
     } else {
       bgSource.cgmStatus = CGM_CALCULATED;
