@@ -164,7 +164,7 @@ describe('basics data utils', () => {
     });
   });
 
-  describe.only('determineBgDistributionSource', () => {
+  describe('determineBgDistributionSource', () => {
     context('has enough cbg data (Dexcom)', () => {
       it('should yield cgmStatus `calculatedCGM` and source `cbg`', () => {
         const now = new Date();

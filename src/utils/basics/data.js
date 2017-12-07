@@ -82,11 +82,11 @@ export function determineBgDistributionSource(basicsData) {
 
     // We need to adjust the CGM_IN_DAY value for the Freestyle Libre, as it only
     // collects BG samples every 15 minutes as opposed the 5 minute dexcom intervals.
-    const expectedCGMInDay = latestCGMUpload.deviceModel === 'FreeStyle Libre'
+    const maxCGMInDay = latestCGMUpload.deviceModel === 'FreeStyle Libre'
       ? CGM_IN_DAY / 3
       : CGM_IN_DAY;
 
-    if (count < expectedCGMInDay / 2 * spanInDays) {
+    if (count < maxCGMInDay / 2 * spanInDays) {
       bgSource.cgmStatus = NOT_ENOUGH_CGM;
     } else {
       bgSource.cgmStatus = CGM_CALCULATED;
