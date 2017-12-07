@@ -74,9 +74,8 @@ export function determineBgDistributionSource(basicsData) {
     source: bgmAvailable ? BGM_DATA_KEY : null,
   };
 
-  const latestCGMUpload = getLatestCGMUpload(basicsData) || {};
-
   if (cgmAvailable) {
+    const latestCGMUpload = getLatestCGMUpload(basicsData) || {};
     const count = basicsData.data[CGM_DATA_KEY].data.length;
     const spanInDays = (Date.parse(basicsData.dateRange[1]) -
       Date.parse(basicsData.dateRange[0])) / MS_IN_DAY;
