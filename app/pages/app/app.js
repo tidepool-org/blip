@@ -382,11 +382,16 @@ export class AppComponent extends React.Component {
   }
 }
 
-let getFetchers = (dispatchProps, ownProps, api) => {
-  return [
+export function getFetchers(stateProps, dispatchProps, api) {
+  const fetchers = [
     dispatchProps.fetchUser.bind(null, api),
-    dispatchProps.fetchDataSources.bind(null, api),
   ];
+
+  if (stateProps.authenticated) {
+    fetchers.push(dispatchProps.fetchDataSources.bind(null, api));
+  }
+
+  return fetchers;
 }
 
 /**
@@ -517,7 +522,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return Object.assign({}, _.pick(ownProps, ['children']), stateProps, {
     context: ownProps.route,
     fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
-    fetchers: getFetchers(dispatchProps, ownProps, api),
+    fetchers: getFetchers(stateProps, dispatchProps, api),
     location: ownProps.location.pathname,
     onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
     onCloseNotification: dispatchProps.onCloseNotification,
