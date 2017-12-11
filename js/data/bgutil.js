@@ -76,6 +76,22 @@ function BGUtil(data, opts) {
     }
   }
 
+  this.weightedCGMCount = function(data) {
+    return _.reduce(data, (total, datum) => {
+      let datumWeight = 1;
+
+      // Because our decision as to whether or not there's enough cgm data to warrant using
+      // it to calculate average BGs is based on the expected number of readings in a day,
+      // we need to adjust the weight of a for the Freestyle Libre datum, as it only
+      // collects BG samples every 15 minutes as opposed the default 5 minutes from dexcom.
+      if (datum.deviceId.indexOf('AbbottFreeStyleLibre') === 0) {
+        datumWeight = 3;
+      }
+
+      return total + datumWeight;
+    }, 0);
+  }
+
   this.filtered = function(s, e) {
     if (!currentData) {
       currentData = dataByDate.top(Infinity).reverse();
@@ -95,7 +111,10 @@ function BGUtil(data, opts) {
       excluded: []
     };
     var filtered = filteredObj.data;
-    if (filtered.length < this.threshold(start, end)) {
+
+    var weightedCGMCount = this.weightedCGMCount(filtered);
+
+    if (weightedCGMCount < this.threshold(start, end)) {
       filteredObj.excluded.push(s);
       filteredObj.data = [];
       return filteredObj;
