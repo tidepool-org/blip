@@ -776,7 +776,7 @@ class BasicsPrintView extends PrintView {
     const rowCount = 3;
     const gridSpaces = colCount * rowCount;
     const padding = width * 0.05;
-    const maxCount = gridSpaces * gridSpaces;
+    const maxCount = 17;
     const renderCount = count > maxCount ? maxCount : count;
 
     const {

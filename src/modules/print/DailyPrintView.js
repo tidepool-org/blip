@@ -820,7 +820,7 @@ class DailyPrintView extends PrintView {
       const end = xScale(schedule.utc + schedule.duration);
 
       this.doc.fontSize(this.extraSmallFontSize);
-      const label = formatDecimalNumber(schedule.rate, 3);
+      const label = `${parseFloat(formatDecimalNumber(schedule.rate, 3))}`;
       const labelWidth = this.doc.widthOfString(label);
       const xPos = (start + end) / 2 - (labelWidth / 2);
       const yPos = bottomOfBasalChart - 10;
