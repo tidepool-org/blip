@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import * as bgUtils from '../../src/utils/bloodglucose';
 
 describe('blood glucose utilities', () => {
@@ -326,6 +327,34 @@ describe('blood glucose utilities', () => {
       };
 
       expect(bgUtils.getOutOfRangeThreshold(datum)).to.equal(null);
+    });
+  });
+
+  describe('weightedCGMCount', () => {
+    it('should return a count of 1 for every cgm datum by default', () => {
+      const data = _.map(_.range(0, 10), () => ({
+        deviceId: 'Dexcom_XXXXXXX',
+      }));
+
+      expect(bgUtils.weightedCGMCount(data)).to.equal(data.length);
+    });
+
+    it('should return a count of 3 for every FreeStyle Libre cgm datum by default', () => {
+      const data = _.map(_.range(0, 10), () => ({
+        deviceId: 'AbbottFreeStyleLibre_XXXXXXX',
+      }));
+
+      expect(bgUtils.weightedCGMCount(data)).to.equal(data.length * 3);
+    });
+
+    it('should properly handle a mix of FreeStyle Libre and Dexcom data', () => {
+      const data = _.map(_.range(0, 10), () => ({
+        deviceId: 'Dexcom_XXXXXXX',
+      })).concat(_.map(_.range(0, 10), () => ({
+        deviceId: 'AbbottFreeStyleLibre_XXXXXXX',
+      })));
+
+      expect(bgUtils.weightedCGMCount(data)).to.equal(40);
     });
   });
 });

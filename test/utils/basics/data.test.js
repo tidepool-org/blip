@@ -118,7 +118,7 @@ const siteChangeSections = {
 };
 
 describe('basics data utils', () => {
-  describe.only('determineBgDistributionSource', () => {
+  describe('determineBgDistributionSource', () => {
     context('has enough cbg data (Dexcom)', () => {
       it('should yield cgmStatus `calculatedCGM` and source `cbg`', () => {
         const now = new Date();
@@ -170,6 +170,54 @@ describe('basics data utils', () => {
         for (let i = 0; i < minimumCBGRequiredPerDay; ++i) {
           cbg.push(new Types.CBG({
             deviceId: 'AbbottFreeStyleLibre-XXX-XXXX',
+            deviceTime: new Date(now.valueOf() + i * 2000).toISOString().slice(0, -5),
+            value: 50,
+          }));
+        }
+
+        expect(dataUtils.determineBgDistributionSource({
+          data: { smbg: { data: smbg }, cbg: { data: cbg } },
+          dateRange: [utcDay.floor(now), utcDay.ceil(now)],
+        })).to.deep.equal({
+          cgmStatus: 'calculatedCGM',
+          source: 'cbg',
+        });
+
+        // remove one cbg point, and it should set status to `notEnoughCGM`
+        cbg.pop();
+
+        expect(dataUtils.determineBgDistributionSource({
+          data: { smbg: { data: smbg }, cbg: { data: cbg } },
+          dateRange: [utcDay.floor(now), utcDay.ceil(now)],
+        })).to.deep.equal({
+          cgmStatus: 'notEnoughCGM',
+          source: 'smbg',
+        });
+      });
+    });
+
+    context('has enough cbg data (Dexcom + FreeStyle Libre mix)', () => {
+      it('should yield cgmStatus `calculatedCGM` and source `cbg`', () => {
+        const now = new Date();
+        const smbg = [
+          new Types.SMBG({ value: 25 }),
+        ];
+        const cbg = [];
+
+        const minimumLibreCBGRequiredPerDay = 48;
+        const minimumDexcomCBGRequiredPerDay = 144;
+
+        for (let i = 0; i < minimumLibreCBGRequiredPerDay / 2; ++i) {
+          cbg.push(new Types.CBG({
+            deviceId: 'AbbottFreeStyleLibre-XXX-XXXX',
+            deviceTime: new Date(now.valueOf() + i * 2000).toISOString().slice(0, -5),
+            value: 50,
+          }));
+        }
+
+        for (let i = 0; i < minimumDexcomCBGRequiredPerDay / 2; ++i) {
+          cbg.push(new Types.CBG({
+            deviceId: 'Dexcom-XXX-XXXX',
             deviceTime: new Date(now.valueOf() + i * 2000).toISOString().slice(0, -5),
             value: 50,
           }));
