@@ -334,6 +334,7 @@ describe('blood glucose utilities', () => {
     it('should return a count of 1 for every cgm datum by default', () => {
       const data = _.map(_.range(0, 10), () => ({
         deviceId: 'Dexcom_XXXXXXX',
+        type: 'cbg',
       }));
 
       expect(bgUtils.weightedCGMCount(data)).to.equal(data.length);
@@ -342,6 +343,7 @@ describe('blood glucose utilities', () => {
     it('should return a count of 3 for every FreeStyle Libre cgm datum by default', () => {
       const data = _.map(_.range(0, 10), () => ({
         deviceId: 'AbbottFreeStyleLibre_XXXXXXX',
+        type: 'cbg',
       }));
 
       expect(bgUtils.weightedCGMCount(data)).to.equal(data.length * 3);
@@ -352,6 +354,7 @@ describe('blood glucose utilities', () => {
         deviceId: 'Dexcom_XXXXXXX',
       })).concat(_.map(_.range(0, 10), () => ({
         deviceId: 'AbbottFreeStyleLibre_XXXXXXX',
+        type: 'cbg',
       })));
 
       expect(bgUtils.weightedCGMCount(data)).to.equal(40);

@@ -143,48 +143,54 @@ describe('TrendsContainer', () => {
       },
     };
 
-    const justOneDatum = (device = devices.dexcom) => sinon.stub().returns([{
+    const justOneDatum = (device = devices.dexcom, type = 'cbg') => sinon.stub().returns([{
       id: chance.hash({ length: 6 }),
       deviceId: device.id,
       msPer24: chance.integer({ min: 0, max: 864e5 }),
+      type,
       value: 100,
     }]);
     const lowestBg = 25;
-    const sevenDaysData = (device = devices.dexcom) => sinon.stub().returns(
+    const sevenDaysData = (device = devices.dexcom, type = 'cbg') => sinon.stub().returns(
       _.map(range(0, device.cgmInDay * extentSize), () => ({
         id: chance.hash({ length: 6 }),
         deviceId: device.id,
         msPer24: chance.integer({ min: 0, max: 864e5 }),
+        type,
         value: chance.pickone([lowestBg, 525]),
       }))
     );
 
-    const sevenDaysDataMixedMinimum = () => sinon.stub().returns(
+    const sevenDaysDataMixedMinimum = (type = 'cbg') => sinon.stub().returns(
       _.map(range(0, (devices.dexcom.cgmInDay / 4) * extentSize), () => ({
         id: chance.hash({ length: 6 }),
         deviceId: devices.dexcom.id,
         msPer24: chance.integer({ min: 0, max: 864e5 }),
+        type,
         value: chance.pickone([lowestBg, 525]),
       })).concat(_.map(range(0, (devices.libre.cgmInDay / 4) * extentSize), () => ({
         id: chance.hash({ length: 6 }),
         deviceId: devices.libre.id,
         msPer24: chance.integer({ min: 0, max: 864e5 }),
+        type,
         value: chance.pickone([lowestBg, 525]),
       })))
     );
 
-    const justOneDatumMmol = (device = devices.dexcom) => sinon.stub().returns([{
+    const justOneDatumMmol = (device = devices.dexcom, type = 'cbg') => sinon.stub().returns([{
       id: chance.hash({ length: 6 }),
       deviceId: device.id,
       msPer24: chance.integer({ min: 0, max: 864e5 }),
+      type,
       value: 5.2,
     }]);
     const lowestBgMmol = 3.1;
-    const sevenDaysDataMmol = (device = devices.dexcom) => sinon.stub().returns(
+    const sevenDaysDataMmol = (device = devices.dexcom, type = 'cbg') => sinon.stub().returns(
       _.map(range(0, device.cgmInDay * extentSize), () => ({
         id: chance.hash({ length: 6 }),
         deviceId: device.id,
         msPer24: chance.integer({ min: 0, max: 864e5 }),
+        type,
         value: chance.pickone([lowestBgMmol, 28.4]),
       }))
     );
