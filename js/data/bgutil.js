@@ -84,13 +84,13 @@ function BGUtil(data, opts) {
       // it to calculate average BGs is based on the expected number of readings in a day,
       // we need to adjust the weight of a for the Freestyle Libre datum, as it only
       // collects BG samples every 15 minutes as opposed the default 5 minutes from dexcom.
-      if (datum.deviceId.indexOf('AbbottFreeStyleLibre') === 0) {
+      if (datum.type === 'cbg' && datum.deviceId.indexOf('AbbottFreeStyleLibre') === 0) {
         datumWeight = 3;
       }
 
       return total + datumWeight;
     }, 0);
-  }
+  };
 
   this.filtered = function(s, e) {
     if (!currentData) {

@@ -29,12 +29,12 @@ var { MGDL_UNITS } = require('../../../../js/data/util/constants');
 var basicsActions = require('./actions');
 var togglableState = require('../TogglableState');
 
-var bgUtil = require('../../../../js/data/bgutil');
+var BGUtil = require('../../../../js/data/bgutil');
 
 module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
 
   var classifiers = classifiersMkr(bgClasses, bgUnits);
-  var weightedCGMCount = new bgUtil([], { DAILY_MIN: constants.CGM_IN_DAY * .75 }).weightedCGMCount;
+  var weightedCGMCount = new BGUtil([], { DAILY_MIN: constants.CGM_IN_DAY * 0.75 }).weightedCGMCount;
 
   return {
     bgDistribution: function(basicsData) {

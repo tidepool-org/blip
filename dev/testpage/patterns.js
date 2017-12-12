@@ -85,7 +85,8 @@ module.exports = (function() {
         var defaults = {
           days: 1,
           value: 100,
-          start: naiveTimestamp()
+          start: naiveTimestamp(),
+          deviceId: 'Dexcom_XXXXXX',
         };
         _.defaults(opts, defaults);
 
@@ -97,6 +98,7 @@ module.exports = (function() {
           current = next();
           cbgs.push(new types.CBG({
             value: opts.value,
+            deviceId: opts.deviceId,
             deviceTime: current
           }));
         }
@@ -107,7 +109,9 @@ module.exports = (function() {
         var defaults = {
           days: 1,
           value: 100,
-          start: naiveTimestamp()
+          start: naiveTimestamp(),
+          cbgMin: CBGMIN,
+          deviceId: 'Dexcom_XXXXXX',
         };
         _.defaults(opts, defaults);
 
@@ -116,9 +120,10 @@ module.exports = (function() {
         for (var i = 0; i < opts.days; ++i) {
           var j = 0;
           var next = new utils.Intervaler(start, 1000*60*5);
-          while (j < CBGMIN) {
+          while (j < opts.cbgMin) {
             cbgs.push(new types.CBG({
               value: opts.value,
+              deviceId: opts.deviceId,
               deviceTime: next()
             }));
             j++;
@@ -132,7 +137,9 @@ module.exports = (function() {
         var defaults = {
           days: 1,
           value: 8.56,
-          start: naiveTimestamp()
+          start: naiveTimestamp(),
+          cbgMin: CBGMIN,
+          deviceId: 'Dexcom_XXXXXX',
         };
         _.defaults(opts, defaults);
 
@@ -141,9 +148,10 @@ module.exports = (function() {
         for (var i = 0; i < opts.days; ++i) {
           var j = 0;
           var next = new utils.Intervaler(start, 1000*60*5);
-          while (j < CBGMIN) {
+          while (j < opts.cbgMin) {
             cbgs.push(new types.CBG({
               value: opts.value,
+              deviceId: opts.deviceId,
               deviceTime: next()
             }));
             j++;
@@ -157,7 +165,9 @@ module.exports = (function() {
         var defaults = {
           days: 1,
           value: 100,
-          start: naiveTimestamp()
+          start: naiveTimestamp(),
+          cbgMin: CBGMIN,
+          deviceId: 'Dexcom_XXXXXX',
         };
         _.defaults(opts, defaults);
 
@@ -166,9 +176,10 @@ module.exports = (function() {
         for (var i = 0; i < opts.days; ++i) {
           var j = 0;
           var next = new utils.Intervaler(start, 1000*60*5);
-          while (j < CBGMIN - 1) {
+          while (j < (opts.cbgMin - 1)) {
             cbgs.push(new types.CBG({
               value: opts.value,
+              deviceId: opts.deviceId,
               deviceTime: next()
             }));
             j++;
