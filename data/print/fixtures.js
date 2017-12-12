@@ -362,7 +362,7 @@ export const dailyData = {
             type: 'basal',
             utc: 1483313400000,
             duration: 1483314400000,
-            rate: 0.6,
+            rate: 0.625,
             subType: 'scheduled',
           },
           {

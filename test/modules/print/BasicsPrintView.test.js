@@ -946,7 +946,7 @@ describe('BasicsPrintView', () => {
       sinon.assert.callCount(Renderer.renderCountGrid, 2);
     });
 
-    it('should render smaller recursive count grids to a max count of 81', () => {
+    it('should render smaller recursive count grids to a max count of 17', () => {
       Renderer.renderCountGrid(
         83,
         100,
@@ -956,17 +956,8 @@ describe('BasicsPrintView', () => {
         },
       );
 
-      sinon.assert.callCount(Renderer.doc.circle, 81);
-      sinon.assert.callCount(Renderer.doc.fill, 81);
-
-      sinon.assert.alwaysCalledWith(
-        Renderer.doc.circle,
-        sinon.match.typeOf('number'),
-        sinon.match.typeOf('number'),
-        smallRadius
-      );
-
-      sinon.assert.callCount(Renderer.renderCountGrid, 10);
+      sinon.assert.callCount(Renderer.doc.circle, 17);
+      sinon.assert.callCount(Renderer.doc.fill, 17);
     });
   });
 
