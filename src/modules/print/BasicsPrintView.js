@@ -245,7 +245,7 @@ class BasicsPrintView extends PrintView {
           fontSize: this.largeFontSize,
           font: this.boldFont,
           noteFontSize: this.smallFontSize,
-          align: 'center',
+          align: 'left',
         },
       ];
 
@@ -354,7 +354,7 @@ class BasicsPrintView extends PrintView {
       const tableColumns = [
         {
           id: 'basal',
-          align: 'center',
+          align: 'left',
           width: columnWidth * 0.35,
           height: 50,
           cache: false,
@@ -375,7 +375,7 @@ class BasicsPrintView extends PrintView {
         },
         {
           id: 'bolus',
-          align: 'center',
+          align: 'right',
           width: columnWidth * 0.35,
           height: 50,
           cache: false,
