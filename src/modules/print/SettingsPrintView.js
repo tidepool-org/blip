@@ -52,6 +52,10 @@ class SettingsPrintView extends PrintView {
     this.doc.addPage();
   }
 
+  newPage() {
+    super.newPage(`Uploaded on: ${this.deviceMeta.uploaded}`);
+  }
+
   render() {
     this.renderDeviceMeta();
 
@@ -70,7 +74,6 @@ class SettingsPrintView extends PrintView {
       .fontSize(this.defaultFontSize)
       .text(device, { continued: true })
       .font(this.font)
-      .text(` Uploaded on ${this.deviceMeta.uploaded}`, { continued: true })
       .text(` › Serial Number: ${this.deviceMeta.serial}`)
       .moveDown();
 

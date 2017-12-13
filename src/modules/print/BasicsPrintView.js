@@ -90,6 +90,10 @@ class BasicsPrintView extends PrintView {
     this.initLayout();
   }
 
+  newPage() {
+    super.newPage(this.getDateRange(this.data.dateRange[0], this.data.dateRange[1]));
+  }
+
   initCalendar() {
     const columnWidth = this.getActiveColumnWidth();
     const calendar = {};
@@ -135,7 +139,6 @@ class BasicsPrintView extends PrintView {
   renderLeftColumn() {
     this.goToLayoutColumnPosition(0);
 
-    this.renderDateRange();
     this.renderBgDistribution();
     this.renderAggregatedStats();
   }
@@ -214,31 +217,6 @@ class BasicsPrintView extends PrintView {
       type: 'basal',
       active: this.data.sections.basals.active,
     });
-  }
-
-  renderDateRange() {
-    const columnWidth = this.getActiveColumnWidth();
-    const dateRange = this.data.dateRange;
-    const start = moment.utc(dateRange[0]);
-    const end = moment.utc(dateRange[1]);
-
-    const isSameYear = start.isSame(end, 'year');
-    const startFormat = isSameYear ? start.format('MMM D') : start.format('MMM D, YYYY');
-    const endFormat = end.format('MMM D, YYYY');
-
-    const rangeLabel = 'Showing Data For';
-    const range = `${startFormat} - ${endFormat}`;
-
-    this.renderSectionHeading(rangeLabel, {
-      width: columnWidth,
-      fontSize: this.largeFontSize,
-      moveDown: 0.35,
-    });
-
-    this.doc
-      .text(range);
-
-    this.doc.moveDown(1.35);
   }
 
   renderBgDistribution() {

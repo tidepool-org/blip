@@ -18,6 +18,7 @@
 /* eslint-disable lodash/prefer-lodash-method */
 
 import _ from 'lodash';
+import moment from 'moment';
 import PdfTable from 'voilab-pdf-table';
 import PdfTableFitColumn from 'voilab-pdf-table/plugins/fitcolumn';
 
@@ -132,7 +133,7 @@ class PrintView {
     this.doc.on('pageAdded', this.newPage);
   }
 
-  newPage() {
+  newPage(dateText) {
     if (this.debug) {
       this.renderDebugGrid();
     }
@@ -144,7 +145,7 @@ class PrintView {
 
     this.currentPageIndex++;
 
-    this.renderHeader().renderFooter();
+    this.renderHeader(dateText).renderFooter();
     this.doc.x = this.chartArea.leftEdge;
     this.doc.y = this.chartArea.topEdge;
 
@@ -284,6 +285,19 @@ class PrintView {
 
   getActiveColumnWidth() {
     return this.layoutColumns.columns[this.layoutColumns.activeIndex].width;
+  }
+
+  getDateRange(startDate, endDate, format) {
+    const start = moment.utc(startDate, format);
+    const end = moment.utc(endDate, format);
+
+    const isSameYear = start.isSame(end, 'year');
+    const startFormat = isSameYear ? start.format('MMM D') : start.format('MMM D, YYYY');
+    const endFormat = end.format('MMM D, YYYY');
+
+    const range = `Date range: ${startFormat} - ${endFormat}`;
+
+    return range;
   }
 
   setFill(color = 'black', opacity = 1) {
@@ -681,7 +695,7 @@ class PrintView {
     this.titleWidth = this.doc.widthOfString(this.title);
   }
 
-  renderPrintDate() {
+  renderDateText(dateText = '') {
     const lineHeight = this.doc.fontSize(14).currentLineHeight();
 
     // Calculate the remaining available width so we can
@@ -704,7 +718,7 @@ class PrintView {
 
     this.doc
       .fontSize(10)
-      .text(`Printed on: ${formatCurrentDate()}`, xOffset, yOffset + 4, {
+      .text(dateText, xOffset, yOffset + 2.5, {
         width: availableWidth,
         align: 'center',
       });
@@ -713,7 +727,7 @@ class PrintView {
   renderLogo() {
     this.logoWidth = 100;
     const xOffset = this.doc.page.width - this.logoWidth - this.margins.right;
-    const yOffset = this.margins.top + 6;
+    const yOffset = this.margins.top + 5;
 
     this.doc.image(logo, xOffset, yOffset, { width: this.logoWidth });
   }
@@ -760,14 +774,14 @@ class PrintView {
     return this;
   }
 
-  renderHeader() {
+  renderHeader(dateText) {
     this.renderPatientInfo();
 
     this.renderTitle();
 
     this.renderLogo();
 
-    this.renderPrintDate();
+    this.renderDateText(dateText);
 
     this.doc.moveDown();
 
@@ -790,14 +804,26 @@ class PrintView {
   }
 
   renderFooter() {
-    const lineHeight = this.doc.fontSize(this.footerFontSize).currentLineHeight();
+    this.doc.fontSize(this.footerFontSize);
+
     const helpText = 'Questions or feedback? Please email support@tidepool.org ' +
                      'or visit support.tidepool.org.';
+
+    const printDateText = `Printed on: ${formatCurrentDate()}`;
+    const printDateWidth = this.doc.widthOfString(printDateText);
+
+    const pageCountWidth = this.doc.widthOfString('Page 1 of 1');
+
+    const xPos = this.margins.left;
+    const yPos = (this.height + this.margins.top) - this.doc.currentLineHeight() * 1.5;
+    const innerWidth = (this.width) - printDateWidth - pageCountWidth;
 
     this.doc
       .fillColor(this.colors.lightGrey)
       .fillOpacity(1)
-      .text(helpText, this.margins.left, this.bottomEdge - lineHeight * 1.5, {
+      .text(printDateText, xPos, yPos)
+      .text(helpText, xPos + printDateWidth, yPos, {
+        width: innerWidth,
         align: 'center',
       });
 
@@ -814,7 +840,7 @@ class PrintView {
       doc.switchToPage(page - 1);
       doc.fontSize(FOOTER_FONT_SIZE).fillColor('#979797').fillOpacity(1);
       doc.text(
-        `page ${page} of ${pageCount}`,
+        `Page ${page} of ${pageCount}`,
         MARGINS.left,
         (HEIGHT + MARGINS.top) - doc.currentLineHeight() * 1.5,
         { align: 'right' }
