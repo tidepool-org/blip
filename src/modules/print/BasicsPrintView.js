@@ -135,6 +135,7 @@ class BasicsPrintView extends PrintView {
   renderLeftColumn() {
     this.goToLayoutColumnPosition(0);
 
+    this.renderDateRange();
     this.renderBgDistribution();
     this.renderAggregatedStats();
   }
@@ -213,6 +214,31 @@ class BasicsPrintView extends PrintView {
       type: 'basal',
       active: this.data.sections.basals.active,
     });
+  }
+
+  renderDateRange() {
+    const columnWidth = this.getActiveColumnWidth();
+    const dateRange = this.data.dateRange;
+    const start = moment.utc(dateRange[0]);
+    const end = moment.utc(dateRange[1]);
+
+    const isSameYear = start.isSame(end, 'year');
+    const startFormat = isSameYear ? start.format('MMM D') : start.format('MMM D, YYYY');
+    const endFormat = end.format('MMM D, YYYY');
+
+    const rangeLabel = 'Showing Data For';
+    const range = `${startFormat} - ${endFormat}`;
+
+    this.renderSectionHeading(rangeLabel, {
+      width: columnWidth,
+      fontSize: this.largeFontSize,
+      moveDown: 0.35,
+    });
+
+    this.doc
+      .text(range);
+
+    this.doc.moveDown(1.35);
   }
 
   renderBgDistribution() {
@@ -872,11 +898,6 @@ class BasicsPrintView extends PrintView {
         statHeader: primaryFilter.stat,
         valueHeader: (primaryFilter.value || 0).toString(),
       });
-
-      tableColumns[0].headerFillStripe = {
-        color: this.colors[type],
-        opacity: 1,
-      };
 
       tableColumns[0].headerFont = this.font;
 

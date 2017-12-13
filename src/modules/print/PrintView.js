@@ -794,10 +794,14 @@ class PrintView {
     const helpText = 'Questions or feedback? Please email support@tidepool.org ' +
                      'or visit support.tidepool.org.';
 
-    this.doc.fillColor('black').fillOpacity(1)
+    this.doc
+      .fillColor(this.colors.lightGrey)
+      .fillOpacity(1)
       .text(helpText, this.margins.left, this.bottomEdge - lineHeight * 1.5, {
         align: 'center',
       });
+
+    this.setFill();
 
     return this;
   }
@@ -808,7 +812,7 @@ class PrintView {
     while (page < pageCount) {
       page++;
       doc.switchToPage(page - 1);
-      doc.fontSize(FOOTER_FONT_SIZE).fillColor('black').fillOpacity(1);
+      doc.fontSize(FOOTER_FONT_SIZE).fillColor('#979797').fillOpacity(1);
       doc.text(
         `page ${page} of ${pageCount}`,
         MARGINS.left,
