@@ -201,6 +201,25 @@ describe('SettingsPrintView', () => {
     });
   });
 
+  describe('newPage', () => {
+    let newPageSpy;
+
+    beforeEach(() => {
+      newPageSpy = sinon.spy(PrintView.prototype, 'newPage');
+    });
+
+    afterEach(() => {
+      newPageSpy.restore();
+    });
+
+    it('should call the newPage method of the parent class with the device uploaded time', () => {
+      Renderer.deviceMeta.uploaded = 'Dec 17, 2017';
+
+      Renderer.newPage();
+      sinon.assert.calledWith(PrintView.prototype.newPage, 'Uploaded on: Dec 17, 2017');
+    });
+  });
+
   describe('render', () => {
     it('should call all the appropriate render methods for non-tandem devices', () => {
       Renderer = createRenderer(data.omnipodMultirate);
@@ -230,10 +249,9 @@ describe('SettingsPrintView', () => {
   });
 
   describe('renderDeviceMeta', () => {
-    it('should render the serial # and upload time', () => {
+    it('should render the serial #', () => {
       Renderer.renderDeviceMeta();
 
-      sinon.assert.calledWithMatch(Renderer.doc.text, sinon.match('Aug 21, 2016'));
       sinon.assert.calledWithMatch(Renderer.doc.text, sinon.match('123-45-678'));
     });
 

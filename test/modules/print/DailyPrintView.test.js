@@ -229,13 +229,19 @@ describe('DailyPrintView', () => {
   });
 
   describe('newPage', () => {
-    it('should call the newPage method of the parent class', () => {
-      const newPageSpy = sinon.spy(PrintView.prototype, 'newPage');
+    let newPageSpy;
 
-      Renderer.newPage();
-      sinon.assert.called(PrintView.prototype.newPage);
+    beforeEach(() => {
+      newPageSpy = sinon.spy(PrintView.prototype, 'newPage');
+    });
 
+    afterEach(() => {
       newPageSpy.restore();
+    });
+
+    it('should call the newPage method of the parent class with a date range string', () => {
+      Renderer.newPage();
+      sinon.assert.calledWith(PrintView.prototype.newPage, 'Date range: Dec 28 - Dec 30, 2016');
     });
 
     it('should render a legend', () => {
@@ -327,7 +333,7 @@ describe('DailyPrintView', () => {
     });
 
     it('should render a formatted date', () => {
-      const formattedDate = moment(sampleDate, 'YYYY-MM-DD').format('dddd M/D');
+      const formattedDate = moment(sampleDate, 'YYYY-MM-DD').format('ddd, MMM D, YYYY');
 
       sinon.assert.calledWith(Renderer.doc.text, formattedDate);
     });
@@ -346,8 +352,8 @@ describe('DailyPrintView', () => {
       const totalInsulin = totalBasal + totalBolus;
       const basalPercent = formatPercentage(totalBasal / totalInsulin);
       const bolusPercent = formatPercentage(totalBolus / totalInsulin);
-      const basalPercentText = `${basalPercent}, ~${formatDecimalNumber(totalBasal, 0)} U`;
-      const bolusPercentText = `${bolusPercent}, ~${formatDecimalNumber(totalBolus, 0)} U`;
+      const basalPercentText = `${basalPercent}, ${formatDecimalNumber(totalBasal, 1)} U`;
+      const bolusPercentText = `${bolusPercent}, ${formatDecimalNumber(totalBolus, 1)} U`;
 
       sinon.assert.calledWith(Renderer.doc.text, 'Basal:Bolus Ratio');
 
@@ -381,7 +387,7 @@ describe('DailyPrintView', () => {
       const totalBasal = getTotalBasal(args.data.basal);
       const totalBolus = getTotalBolus(args.data.bolus);
       const totalInsulin = totalBasal + totalBolus;
-      const totalInsulinText = `${formatDecimalNumber(totalInsulin, 0)} U`;
+      const totalInsulinText = `${formatDecimalNumber(totalInsulin, 1)} U`;
 
       sinon.assert.calledWith(Renderer.doc.text, 'Total Insulin');
       sinon.assert.calledWith(Renderer.doc.text, totalInsulinText);
@@ -614,7 +620,8 @@ describe('DailyPrintView', () => {
       sinon.assert.calledWith(Renderer.doc.text, 'Bolus');
       sinon.assert.calledWith(Renderer.doc.text, 'Override up & down');
       sinon.assert.calledWith(Renderer.doc.text, 'Interrupted');
-      sinon.assert.calledWith(Renderer.doc.text, 'Combo');
+      sinon.assert.calledWith(Renderer.doc.text, 'Combo /');
+      sinon.assert.calledWith(Renderer.doc.text, 'Extended');
       sinon.assert.calledWith(Renderer.doc.text, 'Carbs');
       sinon.assert.calledWith(Renderer.doc.text, 'Basals');
 

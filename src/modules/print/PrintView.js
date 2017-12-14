@@ -18,7 +18,6 @@
 /* eslint-disable lodash/prefer-lodash-method */
 
 import _ from 'lodash';
-import moment from 'moment';
 import PdfTable from 'voilab-pdf-table';
 import PdfTableFitColumn from 'voilab-pdf-table/plugins/fitcolumn';
 
@@ -26,6 +25,7 @@ import {
   getTimezoneFromTimePrefs,
   formatBirthdate,
   formatCurrentDate,
+  formatDateRange,
 } from '../../utils/datetime';
 
 import { getPatientFullName } from '../../utils/misc';
@@ -288,16 +288,7 @@ class PrintView {
   }
 
   getDateRange(startDate, endDate, format) {
-    const start = moment.utc(startDate, format);
-    const end = moment.utc(endDate, format);
-
-    const isSameYear = start.isSame(end, 'year');
-    const startFormat = isSameYear ? start.format('MMM D') : start.format('MMM D, YYYY');
-    const endFormat = end.format('MMM D, YYYY');
-
-    const range = `Date range: ${startFormat} - ${endFormat}`;
-
-    return range;
+    return `Date range: ${formatDateRange(startDate, endDate, format)}`;
   }
 
   setFill(color = 'black', opacity = 1) {
