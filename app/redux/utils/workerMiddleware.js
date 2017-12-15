@@ -49,17 +49,21 @@ const createWorkerMiddleware = (worker, errActionCreators) => {
 
     return (action) => {
       if (action.meta && action.meta.WebWorker) {
-        worker.postMessage(action);
+        try {
+          worker.postMessage(action);
 
-        worker.onerror = (e) => { // eslint-disable-line no-param-reassign
+          worker.onerror = (e) => { // eslint-disable-line no-param-reassign
+            console.error(e);
+            // TODO: dispatch worker errors back to main thread
+            // dispatch(errActionCreators[action.type](action.payload.userId, e));
+          };
+
+          worker.onmessage = ({ data: successAction }) => { // eslint-disable-line no-param-reassign
+            dispatch(successAction);
+          };
+        } catch (e) {
           console.error(e);
-          // TODO: dispatch worker errors back to main thread
-          // dispatch(errActionCreators[action.type](action.payload.userId, e));
-        };
-
-        worker.onmessage = ({ data: successAction }) => { // eslint-disable-line no-param-reassign
-          dispatch(successAction);
-        };
+        }
       }
 
       return next(action);
