@@ -261,7 +261,8 @@ DeviceEvent.prototype = common;
 var Upload = function(opts) {
   opts = opts || {};
   var defaults = {
-      deviceTime: this.makeDeviceTime(),
+    deviceTime: this.makeDeviceTime(),
+    timezone: 'US/Eastern',
   };
   _.defaults(opts, defaults);
 
@@ -271,11 +272,12 @@ var Upload = function(opts) {
   this.source = opts.source;
 
   this.time = this.makeTime();
+  this.timezone = opts.timezone;
+  this.normalTime = this.makeNormalTime();
   this.createdTime = this.makeTime();
   this.timezoneOffset = this.makeTimezoneOffset();
 
   this.id = this.makeId();
-
 };
 
 Upload.prototype = common;

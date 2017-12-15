@@ -299,6 +299,7 @@ describe('TidelineData', function() {
     var secondCBG = new types.CBG({deviceTime: '2015-10-01T14:22:00'});
     var message = new types.Message({deviceTime: '2015-10-01T16:30:00'});
     var settings = new types.Settings({deviceTime: '2015-10-01T18:00:00'});
+    var upload = new types.Upload({ deviceTime: '2015-10-01T18:00:00', deviceTags: ['insulin-pump'], source: 'Insulet' });
     var secondCalibration = {
       type: 'deviceEvent',
       subType: 'calibration',
@@ -307,8 +308,10 @@ describe('TidelineData', function() {
       normalTime: '2015-10-02T16:35:00.000Z',
       timezoneOffset: -420
     };
+
     // defaults to timezoneAware: false
     var thisTd = new TidelineData([
+      upload,
       smbg,
       firstCBG,
       firstCalibration,
@@ -339,6 +342,7 @@ describe('TidelineData', function() {
 
     it('should add all relevant data as provided', function() {
       expect(thisTd.basicsData.data.bolus.data.length).to.equal(1);
+      expect(thisTd.basicsData.data.upload.data.length).to.equal(1);
       expect(thisTd.basicsData.data.basal.data.length).to.equal(1);
       expect(thisTd.basicsData.data.cbg.data.length).to.equal(2);
       expect(thisTd.basicsData.data.calibration.data.length).to.equal(2);
