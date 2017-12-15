@@ -17,9 +17,16 @@
 
 /* global PDFDocument, blobStream */
 import Promise from 'bluebird';
+import _ from 'lodash';
+
+import PrintView from './PrintView';
 import DailyPrintView from './DailyPrintView';
+import BasicsPrintView from './BasicsPrintView';
+import SettingsPrintView from './SettingsPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
 import { selectDailyViewData } from '../../utils/print/data';
+
+import * as constants from './utils/constants';
 
 // Exporting utils for easy stubbing in tests
 export const utils = {
@@ -27,15 +34,14 @@ export const utils = {
   selectDailyViewData,
   PDFDocument: class PDFDocumentStub {},
   blobStream: function blobStreamStub() {},
+  PrintView,
   DailyPrintView,
+  BasicsPrintView,
+  SettingsPrintView,
 };
 
-// DPI here is the coordinate system, not the resolution; sub-dot precision renders crisply!
-const DPI = 72;
-const MARGIN = DPI / 2;
-
 /**
- * createDailyPrintView
+ * createPrintView
  * @param {Object} doc - PDFKit document instance
  * @param {Object} data - pre-munged data for the daily print view
  * @param {Object} bgPrefs - user's blood glucose thresholds & targets
@@ -45,32 +51,66 @@ const MARGIN = DPI / 2;
  *
  * @return {Object} dailyPrintView instance
  */
-export function createDailyPrintView(doc, data, bgPrefs, timePrefs, numDays, patient) {
-  const CHARTS_PER_PAGE = 3;
-  return new utils.DailyPrintView(doc, data, {
+export function createPrintView(type, data, opts, doc) {
+  const {
     bgPrefs,
-    chartsPerPage: CHARTS_PER_PAGE,
+    patient,
+    timePrefs,
+    numDays,
+  } = opts;
+
+  let Renderer;
+  let renderOpts = {
+    bgPrefs,
     // TODO: set this up as a Webpack Define plugin to pull from env variable
     // maybe that'll be tricky through React Storybook?
     debug: false,
-    defaultFontSize: 8,
-    dpi: DPI,
-    footerFontSize: 8,
-    headerFontSize: 14,
-    height: 11 * DPI - (2 * MARGIN),
-    margins: {
-      left: MARGIN,
-      top: MARGIN,
-      right: MARGIN,
-      bottom: MARGIN,
-    },
-    numDays,
+    defaultFontSize: constants.DEFAULT_FONT_SIZE,
+    dpi: constants.DPI,
+    footerFontSize: constants.FOOTER_FONT_SIZE,
+    headerFontSize: constants.HEADER_FONT_SIZE,
+    height: constants.HEIGHT,
+    margins: constants.MARGINS,
     patient,
-    summaryHeaderFontSize: 10,
-    summaryWidthAsPercentage: 0.18,
+    smallFontSize: constants.SMALL_FONT_SIZE,
     timePrefs,
-    width: 8.5 * DPI - (2 * MARGIN),
-  });
+    width: constants.WIDTH,
+  };
+
+  switch (type) {
+    case 'daily':
+      Renderer = utils.DailyPrintView;
+
+      renderOpts = _.assign(renderOpts, {
+        chartsPerPage: 3,
+        numDays: numDays.daily,
+        summaryHeaderFontSize: 10,
+        summaryWidthAsPercentage: 0.18,
+        title: 'Daily View',
+      });
+      break;
+
+    case 'basics':
+      Renderer = utils.BasicsPrintView;
+
+      renderOpts = _.assign(renderOpts, {
+        title: 'The Basics',
+      });
+      break;
+
+    case 'settings':
+      Renderer = utils.SettingsPrintView;
+
+      renderOpts = _.assign(renderOpts, {
+        title: 'Pump Settings',
+      });
+      break;
+
+    default:
+      return null;
+  }
+
+  return new Renderer(doc, data, renderOpts);
 }
 
 /**
@@ -82,33 +122,39 @@ export function createDailyPrintView(doc, data, bgPrefs, timePrefs, numDays, pat
  *
  * @return {Promise} - Promise that resolves with an object containing the pdf blob and url
  */
-export function createPrintPDFPackage(mostRecent, groupedData, opts) {
+export function createPrintPDFPackage(data, opts) {
   const {
     bgPrefs,
     numDays,
-    patient,
     timePrefs,
+    mostRecent,
   } = opts;
 
+  const pdfOpts = _.cloneDeep(opts);
+
   return new Promise((resolve, reject) => {
-    const bgBounds = utils.reshapeBgClassesToBgBounds(bgPrefs);
-    const dailyViewData = utils.selectDailyViewData(mostRecent, groupedData, numDays, timePrefs);
-    /* NB: if you don't set the `margin` (or `margins` if not all are the same)
-      then when you are using the .text() command a new page will be added if you specify
-      coordinates outside of the default margin (or outside of the margins you've specified)
-    */
+    pdfOpts.bgPrefs.bgBounds = utils.reshapeBgClassesToBgBounds(bgPrefs);
     const DocLib = typeof PDFDocument !== 'undefined' ? PDFDocument : utils.PDFDocument;
     const streamLib = typeof blobStream !== 'undefined' ? blobStream : utils.blobStream;
 
-    const doc = new DocLib({ autoFirstPage: false, bufferPages: true, margin: MARGIN });
+    /* NB: if you don't set the `margin` (or `margins` if not all are the same)
+    then when you are using the .text() command a new page will be added if you specify
+    coordinates outside of the default margin (or outside of the margins you've specified)
+    */
+    const doc = new DocLib({ autoFirstPage: false, bufferPages: true, margin: constants.MARGIN });
     const stream = doc.pipe(streamLib());
 
-    const dailyPrintView = createDailyPrintView(doc, dailyViewData, {
-      bgBounds,
-      bgUnits: bgPrefs.bgUnits,
-    }, timePrefs, numDays, patient);
+    if (data.basics) createPrintView('basics', data.basics, pdfOpts, doc).render();
 
-    dailyPrintView.render();
+    if (data.daily) {
+      const dailyData = utils.selectDailyViewData(mostRecent, data.daily, numDays.daily, timePrefs);
+      createPrintView('daily', dailyData, pdfOpts, doc).render();
+    }
+
+    if (data.settings) createPrintView('settings', data.settings, pdfOpts, doc).render();
+
+    PrintView.renderPageNumbers(doc);
+
     doc.end();
 
     stream.on('finish', () => {

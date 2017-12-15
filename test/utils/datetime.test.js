@@ -17,7 +17,7 @@
 
 import { timeParse } from 'd3-time-format';
 
-import * as patients from '../../data/patient/fixtures';
+import * as patients from '../../data/patient/profiles';
 import * as datetime from '../../src/utils/datetime';
 
 describe('datetime', () => {
@@ -43,6 +43,13 @@ describe('datetime', () => {
   describe('TWENTY_FOUR_HRS', () => {
     it('should be an integer', () => {
       assert.isNumber(datetime.TWENTY_FOUR_HRS);
+    });
+  });
+
+  describe('addDuration', () => {
+    it('add a duration to a date string', () => {
+      const start = '2017-11-10T00:00:00.000Z';
+      expect(datetime.addDuration(start, 60000)).to.equal('2017-11-10T00:01:00.000Z');
     });
   });
 
@@ -166,6 +173,37 @@ describe('datetime', () => {
 
     it('should format diagnosisDate extracted from fake child account patient object', () => {
       expect(datetime.formatDiagnosisDate(fakeChildAcct)).to.equal('Jan 31, 1990');
+    });
+  });
+
+  describe('formatDateRange', () => {
+    it('should format a date range with dates provided as date strings', () => {
+      const start = '2017-12-01';
+      const end = '2017-12-10';
+      const format = 'YYYY-MM-DD';
+
+      expect(datetime.formatDateRange(start, end, format)).to.equal('Dec 1 - Dec 10, 2017');
+    });
+
+    it('should format a date range with dates provided as Date objects', () => {
+      const start = new Date('2017-12-01');
+      const end = new Date('2017-12-10');
+
+      expect(datetime.formatDateRange(start, end)).to.equal('Dec 1 - Dec 10, 2017');
+    });
+
+    it('should format a date range with dates provided as Date ISO strings', () => {
+      const start = new Date('2017-12-01').toISOString();
+      const end = new Date('2017-12-10').toISOString();
+
+      expect(datetime.formatDateRange(start, end)).to.equal('Dec 1 - Dec 10, 2017');
+    });
+
+    it('should properly format a range with with start and end dates in different years', () => {
+      const start = new Date('2017-12-01').toISOString();
+      const end = new Date('2018-01-10').toISOString();
+
+      expect(datetime.formatDateRange(start, end)).to.equal('Dec 1, 2017 - Jan 10, 2018');
     });
   });
 

@@ -20,19 +20,24 @@ import moment from 'moment';
 import { mean } from 'd3-array';
 
 import DailyPrintView from '../../../src/modules/print/DailyPrintView';
-import * as patients from '../../../data/patient/fixtures';
-import { data } from '../../../data/print/fixtures';
+import PrintView from '../../../src/modules/print/PrintView';
+import * as patients from '../../../data/patient/profiles';
+import { dailyData as data } from '../../../data/print/fixtures';
+
+import {
+  DEFAULT_FONT_SIZE,
+  FOOTER_FONT_SIZE,
+  HEADER_FONT_SIZE,
+  LARGE_FONT_SIZE,
+  SMALL_FONT_SIZE,
+  EXTRA_SMALL_FONT_SIZE,
+} from '../../../src/modules/print/utils/constants';
 
 import { getTotalBasal } from '../../../src/utils/basal';
 import { getTotalBolus, getTotalCarbs } from '../../../src/utils/bolus';
 import { formatPercentage, formatDecimalNumber, formatBgValue } from '../../../src/utils/format';
-import {
-  getTimezoneFromTimePrefs,
-  formatBirthdate,
-  formatCurrentDate,
-} from '../../../src/utils/datetime';
 
-import { getPatientFullName } from '../../../src/utils/misc';
+import Doc from '../../helpers/pdfDoc';
 
 describe('DailyPrintView', () => {
   let Renderer;
@@ -40,43 +45,6 @@ describe('DailyPrintView', () => {
 
   const DPI = 72;
   const MARGIN = DPI / 2;
-
-  class Doc {
-    constructor() {
-      this.autoFirstPage = false;
-      this.bufferPages = true;
-      this.margin = MARGIN;
-
-      this.page = {
-        width: 300,
-      };
-
-      this.currentLineHeight = sinon.stub().returns(10);
-      this.on = sinon.stub();
-      this.fontSize = sinon.stub().returns(this);
-      this.addPage = sinon.stub().returns(this);
-      this.path = sinon.stub().returns(this);
-      this.fill = sinon.stub().returns(this);
-      this.stub = sinon.stub().returns(this);
-      this.dash = sinon.stub().returns(this);
-      this.undash = sinon.stub().returns(this);
-      this.stroke = sinon.stub().returns(this);
-      this.circle = sinon.stub().returns(this);
-      this.lineWidth = sinon.stub().returns(this);
-      this.rect = sinon.stub().returns(this);
-      this.switchToPage = sinon.stub().returns(this);
-      this.text = sinon.stub().returns(this);
-      this.image = sinon.stub().returns(this);
-      this.fillColor = sinon.stub().returns(this);
-      this.fillOpacity = sinon.stub().returns(this);
-      this.font = sinon.stub().returns(this);
-      this.moveTo = sinon.stub().returns(this);
-      this.moveDown = sinon.stub().returns(this);
-      this.lineTo = sinon.stub().returns(this);
-      this.lineGap = sinon.stub().returns(this);
-      this.widthOfString = sinon.stub().returns(20);
-    }
-  }
 
   let doc;
 
@@ -92,10 +60,13 @@ describe('DailyPrintView', () => {
     },
     chartsPerPage: 3,
     debug: false,
-    defaultFontSize: 8,
     dpi: DPI,
-    footerFontSize: 8,
-    headerFontSize: 14,
+    defaultFontSize: DEFAULT_FONT_SIZE,
+    footerFontSize: FOOTER_FONT_SIZE,
+    headerFontSize: HEADER_FONT_SIZE,
+    largeFontSize: LARGE_FONT_SIZE,
+    smallFontSize: SMALL_FONT_SIZE,
+    extraSmallFontSize: EXTRA_SMALL_FONT_SIZE,
     height: 11 * DPI - (2 * MARGIN),
     margins: {
       left: MARGIN,
@@ -112,6 +83,7 @@ describe('DailyPrintView', () => {
       timezoneName: 'US/Pacific',
     },
     width: 8.5 * DPI - (2 * MARGIN),
+    title: 'Daily View',
   };
 
   const mmollOpts = _.assign({}, opts, {
@@ -127,7 +99,7 @@ describe('DailyPrintView', () => {
   });
 
   beforeEach(() => {
-    doc = new Doc();
+    doc = new Doc({ margin: MARGIN });
     Renderer = new DailyPrintView(doc, data, opts);
   });
 
@@ -136,34 +108,8 @@ describe('DailyPrintView', () => {
       expect(Renderer).to.be.an('object');
     });
 
-    it('should set default properties as provided by constructor args', () => {
-      expect(Renderer.doc).to.eql(doc);
-      expect(Renderer.data).to.eql(data);
-
-      const overrideOpts = [
-        'debug',
-        'dpi',
-        'margins',
-        'defaultFontSize',
-        'footerFontSize',
-        'headerFontSize',
-        'summaryHeaderFontSize',
-        'bgPrefs',
-        'timePrefs',
-        'width',
-        'height',
-        'chartsPerPage',
-        'numDays',
-        'patient',
-      ];
-
-      _.each(overrideOpts, opt => {
-        expect(Renderer[opt]).to.equal(opts[opt]);
-      });
-
-      expect(Renderer.bgUnits).to.equal(opts.bgPrefs.bgUnits);
-      expect(Renderer.bgBounds).to.equal(opts.bgPrefs.bgBounds);
-      expect(Renderer.timezone).to.equal(getTimezoneFromTimePrefs(opts.timePrefs));
+    it('should extend the `PrintView` class', () => {
+      expect(Renderer instanceof PrintView).to.be.true;
     });
 
     it('should set it\'s own required initial instance properties', () => {
@@ -172,6 +118,9 @@ describe('DailyPrintView', () => {
         { prop: 'boldFont', type: 'string' },
         { prop: 'bgAxisFontSize', type: 'number' },
         { prop: 'carbsFontSize', type: 'number' },
+        { prop: 'summaryHeaderFontSize', type: 'number' },
+        { prop: 'chartsPerPage', type: 'number', value: opts.chartsPerPage },
+        { prop: 'numDays', type: 'number', value: opts.numDays },
         { prop: 'bolusWidth', type: 'number' },
         { prop: 'carbRadius', type: 'number' },
         { prop: 'cbgRadius', type: 'number' },
@@ -179,7 +128,6 @@ describe('DailyPrintView', () => {
         { prop: 'interruptedLineThickness', type: 'number' },
         { prop: 'smbgRadius', type: 'number' },
         { prop: 'triangleHeight', type: 'number' },
-        { prop: 'startingPageIndex', type: 'number', value: opts.startingPageIndex || 0 },
         { prop: 'initialTotalPages', type: 'number', value: 0 },
         { prop: 'initialChartsPlaced', type: 'number', value: 0 },
         { prop: 'initialChartIndex', type: 'number', value: 0 },
@@ -190,6 +138,11 @@ describe('DailyPrintView', () => {
         { prop: 'patientInfoBox', type: 'object', value: {
           width: 0,
           height: 0,
+        } },
+        { prop: 'summaryArea', type: 'object', value: {
+          rightEdge: opts.margins.left + opts.summaryWidthAsPercentage * Renderer.width,
+          width: (opts.margins.left + opts.summaryWidthAsPercentage * Renderer.width)
+                 - Renderer.margins.left,
         } },
         { prop: 'chartArea', type: 'object' },
         { prop: 'initialChartArea', type: 'object', value: {
@@ -250,10 +203,6 @@ describe('DailyPrintView', () => {
   });
 
   describe('calculateChartMinimums', () => {
-    it('should be a function', () => {
-      expect(Renderer.calculateChartMinimums).to.be.a('function');
-    });
-
     it('should calculate the minimum area available to the charts', () => {
       Renderer.calculateChartMinimums(Renderer.initialChartArea);
       const { topEdge, bottomEdge } = Renderer.initialChartArea;
@@ -280,17 +229,26 @@ describe('DailyPrintView', () => {
   });
 
   describe('newPage', () => {
-    it('should be a function', () => {
-      expect(Renderer.newPage).to.be.a('function');
+    let newPageSpy;
+
+    beforeEach(() => {
+      newPageSpy = sinon.spy(PrintView.prototype, 'newPage');
     });
 
-    it('should render a header and footer', () => {
-      sinon.stub(Renderer, 'renderHeader').returns(Renderer);
-      sinon.stub(Renderer, 'renderFooter');
+    afterEach(() => {
+      newPageSpy.restore();
+    });
+
+    it('should call the newPage method of the parent class with a date range string', () => {
+      Renderer.newPage();
+      sinon.assert.calledWith(PrintView.prototype.newPage, 'Date range: Dec 28 - Dec 30, 2016');
+    });
+
+    it('should render a legend', () => {
+      sinon.stub(Renderer, 'renderLegend');
 
       Renderer.newPage();
-      sinon.assert.called(Renderer.renderHeader);
-      sinon.assert.called(Renderer.renderFooter);
+      sinon.assert.called(Renderer.renderLegend);
     });
   });
 
@@ -303,10 +261,6 @@ describe('DailyPrintView', () => {
   });
 
   describe('renderEventPath', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderEventPath).to.be.a('function');
-    });
-
     it('should render an svg path', () => {
       const path = {
         d: 'path',
@@ -332,10 +286,6 @@ describe('DailyPrintView', () => {
   });
 
   describe('render', () => {
-    it('should be a function', () => {
-      expect(Renderer.render).to.be.a('function');
-    });
-
     it('should call all the appropriate render methods for each page and chart', () => {
       sinon.stub(Renderer, 'renderPageNumber');
       sinon.stub(Renderer, 'renderSummary').returns(Renderer);
@@ -346,15 +296,14 @@ describe('DailyPrintView', () => {
       sinon.stub(Renderer, 'renderInsulinEvents').returns(Renderer);
       sinon.stub(Renderer, 'renderBolusDetails').returns(Renderer);
       sinon.stub(Renderer, 'renderBasalPaths').returns(Renderer);
+      sinon.stub(Renderer, 'renderBasalRates').returns(Renderer);
+      sinon.stub(Renderer, 'renderChartDivider').returns(Renderer);
 
-      const numPages = _.uniq(_.pluck(Renderer.chartsByDate, 'page')).length;
       const numCharts = _.keys(Renderer.chartsByDate).length;
 
       Renderer.render();
 
-      sinon.assert.callCount(Renderer.doc.switchToPage, (numPages + numCharts));
-
-      sinon.assert.callCount(Renderer.renderPageNumber, numPages);
+      sinon.assert.callCount(Renderer.doc.switchToPage, numCharts);
 
       sinon.assert.callCount(Renderer.renderSummary, numCharts);
       sinon.assert.callCount(Renderer.renderXAxes, numCharts);
@@ -364,79 +313,8 @@ describe('DailyPrintView', () => {
       sinon.assert.callCount(Renderer.renderInsulinEvents, numCharts);
       sinon.assert.callCount(Renderer.renderBolusDetails, numCharts);
       sinon.assert.callCount(Renderer.renderBasalPaths, numCharts);
-    });
-  });
-
-  describe('renderPageNumber', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderPageNumber).to.be.a('function');
-    });
-
-    it('should render the page number', () => {
-      const page = 1;
-
-      Renderer.renderPageNumber(page);
-      sinon.assert.calledWith(Renderer.doc.text, `page ${page} of ${Renderer.totalPages}`);
-    });
-  });
-
-  describe('renderPatientInfo', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderPatientInfo).to.be.a('function');
-    });
-
-    it('should render patient information', () => {
-      Renderer.doc.y = 32;
-      Renderer.renderPatientInfo();
-      sinon.assert.calledWith(Renderer.doc.text, getPatientFullName(opts.patient));
-      sinon.assert.calledWith(Renderer.doc.text, formatBirthdate(opts.patient));
-
-      expect(Renderer.patientInfoBox.width).to.be.a('number');
-      expect(Renderer.patientInfoBox.width > 0).to.be.true;
-
-      expect(Renderer.patientInfoBox.height).to.be.a('number');
-      expect(Renderer.patientInfoBox.height > 0).to.be.true;
-    });
-  });
-
-  describe('renderTitle', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderTitle).to.be.a('function');
-    });
-
-    it('should render the page title', () => {
-      const title = 'Daily View';
-
-      Renderer.renderTitle();
-      sinon.assert.calledWith(Renderer.doc.text, title);
-    });
-
-    it('should calculate the width of the title', () => {
-      Renderer.renderTitle();
-      expect(Renderer.titleWidth).to.be.a('number');
-      expect(Renderer.titleWidth > 0).to.be.true;
-    });
-  });
-
-  describe('renderPrintDate', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderPrintDate).to.be.a('function');
-    });
-
-    it('should render the date printed', () => {
-      Renderer.renderPrintDate();
-      sinon.assert.calledWith(Renderer.doc.text, `Printed from Tidepool: ${formatCurrentDate()}`);
-    });
-  });
-
-  describe('renderLogo', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderLogo).to.be.a('function');
-    });
-
-    it('should render the Tidepool logo', () => {
-      Renderer.renderLogo();
-      sinon.assert.calledOnce(Renderer.doc.image);
+      sinon.assert.callCount(Renderer.renderBasalRates, numCharts);
+      sinon.assert.callCount(Renderer.renderChartDivider, numCharts);
     });
   });
 
@@ -454,12 +332,8 @@ describe('DailyPrintView', () => {
       Renderer.renderSummary(args);
     });
 
-    it('should be a function', () => {
-      expect(Renderer.renderSummary).to.be.a('function');
-    });
-
     it('should render a formatted date', () => {
-      const formattedDate = moment(sampleDate, 'YYYY-MM-DD').format('dddd M/D');
+      const formattedDate = moment(sampleDate, 'YYYY-MM-DD').format('ddd, MMM D, YYYY');
 
       sinon.assert.calledWith(Renderer.doc.text, formattedDate);
     });
@@ -478,8 +352,8 @@ describe('DailyPrintView', () => {
       const totalInsulin = totalBasal + totalBolus;
       const basalPercent = formatPercentage(totalBasal / totalInsulin);
       const bolusPercent = formatPercentage(totalBolus / totalInsulin);
-      const basalPercentText = `${basalPercent}, ~${formatDecimalNumber(totalBasal, 0)} U`;
-      const bolusPercentText = `${bolusPercent}, ~${formatDecimalNumber(totalBolus, 0)} U`;
+      const basalPercentText = `${basalPercent}, ${formatDecimalNumber(totalBasal, 1)} U`;
+      const bolusPercentText = `${bolusPercent}, ${formatDecimalNumber(totalBolus, 1)} U`;
 
       sinon.assert.calledWith(Renderer.doc.text, 'Basal:Bolus Ratio');
 
@@ -513,7 +387,7 @@ describe('DailyPrintView', () => {
       const totalBasal = getTotalBasal(args.data.basal);
       const totalBolus = getTotalBolus(args.data.bolus);
       const totalInsulin = totalBasal + totalBolus;
-      const totalInsulinText = `${formatDecimalNumber(totalInsulin, 0)} U`;
+      const totalInsulinText = `${formatDecimalNumber(totalInsulin, 1)} U`;
 
       sinon.assert.calledWith(Renderer.doc.text, 'Total Insulin');
       sinon.assert.calledWith(Renderer.doc.text, totalInsulinText);
@@ -557,14 +431,11 @@ describe('DailyPrintView', () => {
   });
 
   describe('renderXAxes', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderXAxes).to.be.a('function');
-    });
-
     it('should render X axis at the bottom of the bg, bolus, and basal charts', () => {
       const args = {
         bolusDetailsHeight: 100,
         topEdge: 150,
+        date: sampleDate,
       };
 
       const {
@@ -593,25 +464,22 @@ describe('DailyPrintView', () => {
   describe('renderYAxes', () => {
     const setArgs = (renderer) => ({
       bgScale: sinon.stub().returns(100),
-      bottomEdge: 150,
+      bottomOfBasalChart: 150,
       bounds: renderer.chartsByDate[sampleDate].bounds,
       date: sampleDate,
       topEdge: 350,
       xScale: sinon.stub().returns(100),
     });
 
-    it('should be a function', () => {
-      expect(Renderer.renderYAxes).to.be.a('function');
-    });
-
     it('should render Y axis lines, times and bg bounds', () => {
       const args = setArgs(Renderer);
       Renderer.renderYAxes(args);
 
-      // Should draw a vertical line for every 3hr slot, plus a final one to close the chart
-      sinon.assert.callCount(Renderer.doc.lineTo, 24 / 3 + 1);
+      // Should draw a vertical line for every 3hr slot,
+      // plus a final one to close the chart and the 2 BG target lines
+      sinon.assert.callCount(Renderer.doc.lineTo, 24 / 3 + 1 + 2);
       sinon.assert.calledWith(Renderer.doc.moveTo, sinon.match.number, args.topEdge);
-      sinon.assert.calledWith(Renderer.doc.lineTo, sinon.match.number, args.bottomEdge);
+      sinon.assert.calledWith(Renderer.doc.lineTo, sinon.match.number, args.bottomOfBasalChart);
 
       // Should render the timeslot time in the format 9a or 12p
       sinon.assert.calledWith(Renderer.doc.text, sinon.match(/\d?(\d)[a|p]/));
@@ -634,10 +502,6 @@ describe('DailyPrintView', () => {
   });
 
   describe('renderCbgs', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderCbgs).to.be.a('function');
-    });
-
     it('should render cbg data', () => {
       const cbgCount = Renderer.chartsByDate[sampleDate].data.cbg.length;
 
@@ -647,10 +511,6 @@ describe('DailyPrintView', () => {
   });
 
   describe('renderSmbgs', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderSmbgs).to.be.a('function');
-    });
-
     it('should render smbg data as a cirle with a value', () => {
       const smbgCount = Renderer.chartsByDate[sampleDate].data.smbg.length;
 
@@ -684,10 +544,6 @@ describe('DailyPrintView', () => {
   });
 
   describe('renderInsulinEvents', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderInsulinEvents).to.be.a('function');
-    });
-
     it('should graph bolus and carb events', () => {
       const bolusCount = Renderer.chartsByDate[sampleDate].data.bolus.length;
 
@@ -701,10 +557,6 @@ describe('DailyPrintView', () => {
   });
 
   describe('renderBolusDetails', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderBolusDetails).to.be.a('function');
-    });
-
     it('should render bolus details', () => {
       const bolusCount = Renderer.chartsByDate[sampleDate].data.bolus.length;
       Renderer.chartsByDate[sampleDate].bolusDetailWidths = Array(8);
@@ -721,10 +573,6 @@ describe('DailyPrintView', () => {
   });
 
   describe('renderBasalPaths', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderBasalPaths).to.be.a('function');
-    });
-
     it('should render basal paths', () => {
       const basalData = Renderer.chartsByDate[sampleDate].data.basal;
 
@@ -734,45 +582,37 @@ describe('DailyPrintView', () => {
     });
   });
 
-  describe('renderDebugGrid', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderDebugGrid).to.be.a('function');
-    });
+  describe('renderBasalRates', () => {
+    it('should render basal rates', () => {
+      Renderer.renderBasalRates(Renderer.chartsByDate[sampleDate]);
 
-    // Not really used for anything except local debugging,
-    // so no need to test deeply
-  });
-
-  describe('renderHeader', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderHeader).to.be.a('function');
-    });
-
-    it('should render the header', () => {
-      sinon.spy(Renderer, 'renderPatientInfo');
-      sinon.spy(Renderer, 'renderTitle');
-      sinon.spy(Renderer, 'renderLogo');
-      sinon.spy(Renderer, 'renderPrintDate');
-
-      Renderer.renderHeader();
-
-      sinon.assert.calledOnce(Renderer.renderPatientInfo);
-      sinon.assert.calledOnce(Renderer.renderTitle);
-      sinon.assert.calledOnce(Renderer.renderLogo);
-      sinon.assert.calledOnce(Renderer.renderPrintDate);
+      sinon.assert.callCount(Renderer.doc.text, 2);
+      sinon.assert.calledWith(Renderer.doc.text, '0.625');
+      sinon.assert.calledWith(Renderer.doc.text, '0.7');
     });
   });
 
-  describe('renderFooter', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderFooter).to.be.a('function');
+  describe('renderChartDivider', () => {
+    it('should not render a chart divider if it\'s not the last one on a page', () => {
+      Renderer.renderChartDivider(Renderer.chartsByDate['2017-01-01']);
+
+      sinon.assert.callCount(Renderer.doc.lineTo, 1);
+      sinon.assert.calledWith(Renderer.doc.lineTo, Renderer.rightEdge);
     });
 
-    it('should render the footer', () => {
+    it('should not render a chart divider if it\'s the last one on a page', () => {
+      Renderer.renderChartDivider(Renderer.chartsByDate['2017-01-02']);
+
+      sinon.assert.callCount(Renderer.doc.lineTo, 0);
+    });
+  });
+
+  describe('renderLegend', () => {
+    it('should render the legend', () => {
       sinon.stub(Renderer, 'renderEventPath');
       sinon.stub(Renderer, 'renderBasalPaths');
 
-      Renderer.renderFooter();
+      Renderer.renderLegend();
 
       sinon.assert.calledWith(Renderer.doc.text, 'Legend');
       sinon.assert.calledWith(Renderer.doc.text, 'CGM');
@@ -780,7 +620,8 @@ describe('DailyPrintView', () => {
       sinon.assert.calledWith(Renderer.doc.text, 'Bolus');
       sinon.assert.calledWith(Renderer.doc.text, 'Override up & down');
       sinon.assert.calledWith(Renderer.doc.text, 'Interrupted');
-      sinon.assert.calledWith(Renderer.doc.text, 'Combo');
+      sinon.assert.calledWith(Renderer.doc.text, 'Combo /');
+      sinon.assert.calledWith(Renderer.doc.text, 'Extended');
       sinon.assert.calledWith(Renderer.doc.text, 'Carbs');
       sinon.assert.calledWith(Renderer.doc.text, 'Basals');
 
@@ -792,32 +633,6 @@ describe('DailyPrintView', () => {
       sinon.assert.callCount(Renderer.doc.circle, 12);
 
       sinon.assert.callCount(Renderer.renderBasalPaths, 1);
-    });
-  });
-
-  describe('setFooterSize', () => {
-    it('should be a function', () => {
-      expect(Renderer.setFooterSize).to.be.a('function');
-    });
-
-    it('should set the footer size', () => {
-      const bottomEdge = Renderer.chartArea.bottomEdge - Renderer.doc.currentLineHeight() * 9;
-
-      Renderer.setFooterSize();
-      expect(Renderer.chartArea.bottomEdge).to.equal(bottomEdge);
-    });
-  });
-
-  describe('setHeaderSize', () => {
-    it('should be a function', () => {
-      expect(Renderer.setHeaderSize).to.be.a('function');
-    });
-
-    it('should set the footer size', () => {
-      const topEdge = Renderer.chartArea.topEdge + Renderer.doc.currentLineHeight() * 4;
-
-      Renderer.setHeaderSize();
-      expect(Renderer.chartArea.topEdge).to.equal(topEdge);
     });
   });
 });

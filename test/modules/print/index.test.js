@@ -18,6 +18,7 @@
 import MemoryStream from 'memorystream';
 
 import * as Module from '../../../src/modules/print';
+import Doc from '../../helpers/pdfDoc';
 
 describe('print module', () => {
   const pdf = {
@@ -25,46 +26,63 @@ describe('print module', () => {
     blob: 'someBlob',
   };
 
-  const mostRecent = 'mostRecent';
-  const groupedData = [];
-  const opts = {
-    bgPrefs: {},
-    numDays: 6,
-    patient: {},
-    timePrefs: {},
+  const margin = 36;
+
+  const data = {
+    daily: { type: 'daily' },
+    basics: { type: 'basics' },
+    settings: { type: 'settings' },
   };
 
-  let stream = new MemoryStream();
-
-  class Doc {
-    pipe() {
-      const Stream = stream;
-      Stream.toBlobURL = () => pdf.url;
-      Stream.toBlob = () => pdf.blob;
-      return Stream;
-    }
-    end() {}
-  }
+  const opts = {
+    bgPrefs: {},
+    numDays: {
+      daily: 6,
+    },
+    patient: {},
+    timePrefs: {},
+    mostRecent: '',
+  };
 
   class DailyPrintView {
     render() {}
   }
 
+  class BasicsPrintView {
+    render() {}
+  }
+
+  class SettingsPrintView {
+    render() {}
+  }
+
+  const sandbox = sinon.sandbox.create();
+
+  let doc;
+  let stream;
+
   sinon.stub(Module.utils, 'reshapeBgClassesToBgBounds');
   sinon.stub(Module.utils, 'selectDailyViewData').returns(undefined);
+  sinon.stub(Module.utils.PrintView, 'renderPageNumbers');
+  sinon.stub(Module.utils, 'BasicsPrintView').returns(new BasicsPrintView());
   sinon.stub(Module.utils, 'DailyPrintView').returns(new DailyPrintView());
-  sinon.stub(Module.utils, 'PDFDocument').returns(new Doc());
+  sinon.stub(Module.utils, 'SettingsPrintView').returns(new SettingsPrintView());
   sinon.stub(Module.utils, 'blobStream').returns(new MemoryStream());
 
   beforeEach(() => {
     stream = new MemoryStream();
+    doc = new Doc({ pdf, margin });
+    sandbox.stub(Module.utils, 'PDFDocument').returns(doc);
   });
 
   afterEach(() => {
+    sandbox.restore();
     Module.utils.reshapeBgClassesToBgBounds.resetHistory();
     Module.utils.selectDailyViewData.resetHistory();
+    Module.utils.PrintView.renderPageNumbers.resetHistory();
+    Module.utils.BasicsPrintView.resetHistory();
     Module.utils.DailyPrintView.resetHistory();
-    Module.utils.PDFDocument.resetHistory();
+    Module.utils.SettingsPrintView.resetHistory();
     Module.utils.blobStream.resetHistory();
   });
 
@@ -72,13 +90,13 @@ describe('print module', () => {
     expect(Module.createPrintPDFPackage).to.be.a('function');
   });
 
-  it('should export a createDailyPrintView method', () => {
-    expect(Module.createDailyPrintView).to.be.a('function');
+  it('should export a createPrintView method', () => {
+    expect(Module.createPrintView).to.be.a('function');
   });
 
   it('should properly set bg bounds', () => {
-    const result = Module.createPrintPDFPackage(mostRecent, groupedData, opts);
-    stream.end();
+    const result = Module.createPrintPDFPackage(data, opts, stream);
+    doc.stream.end();
 
     return result.then(() => {
       sinon.assert.calledOnce(Module.utils.reshapeBgClassesToBgBounds);
@@ -86,40 +104,128 @@ describe('print module', () => {
     });
   });
 
-  it('should fetch the daily view data', () => {
-    const result = Module.createPrintPDFPackage(mostRecent, groupedData, opts);
-    stream.end();
+  it('should fetch the daily view data when daily data present', () => {
+    const result = Module.createPrintPDFPackage(data, opts);
+    doc.stream.end();
 
     return result.then(() => {
       sinon.assert.calledOnce(Module.utils.selectDailyViewData);
       sinon.assert.calledWithExactly(
         Module.utils.selectDailyViewData,
-        mostRecent,
-        groupedData,
-        opts.numDays,
+        opts.mostRecent,
+        data.daily,
+        opts.numDays.daily,
         opts.timePrefs
       );
     });
   });
 
-  it('should render and return the pdf data', () => {
-    const result = Module.createPrintPDFPackage(mostRecent, groupedData, opts);
-    stream.end();
+  it('should render and return the complete pdf data package when all data is available', () => {
+    const result = Module.createPrintPDFPackage(data, opts);
+    doc.stream.end();
 
     return result.then(_result => {
+      sinon.assert.calledOnce(Module.utils.BasicsPrintView);
+      sinon.assert.calledWithMatch(
+        Module.utils.BasicsPrintView,
+        doc,
+        data.basics,
+        {
+          patient: opts.patient,
+          timePrefs: opts.timePrefs,
+          bgPrefs: opts.bgPrefs,
+          title: 'The Basics',
+        },
+      );
+
       sinon.assert.calledOnce(Module.utils.DailyPrintView);
       sinon.assert.calledWithMatch(
         Module.utils.DailyPrintView,
-        new Module.utils.PDFDocument(),
+        doc,
         Module.utils.selectDailyViewData(),
         {
-          numDays: opts.numDays,
+          numDays: opts.numDays.daily,
           patient: opts.patient,
           timePrefs: opts.timePrefs,
+          bgPrefs: opts.bgPrefs,
+          title: 'Daily View',
+        },
+      );
+
+      sinon.assert.calledOnce(Module.utils.SettingsPrintView);
+      sinon.assert.calledWithMatch(
+        Module.utils.SettingsPrintView,
+        doc,
+        data.settings,
+        {
+          patient: opts.patient,
+          timePrefs: opts.timePrefs,
+          bgPrefs: opts.bgPrefs,
+          title: 'Pump Settings',
         },
       );
 
       expect(_result).to.eql(pdf);
+    });
+  });
+
+  it('should only render the basics view when only basics data is available', () => {
+    const basicsDataOnly = {
+      basics: data.basics,
+    };
+
+    const result = Module.createPrintPDFPackage(basicsDataOnly, opts);
+    doc.stream.end();
+
+    return result.then(() => {
+      sinon.assert.calledOnce(Module.utils.BasicsPrintView);
+
+      sinon.assert.notCalled(Module.utils.DailyPrintView);
+
+      sinon.assert.notCalled(Module.utils.SettingsPrintView);
+    });
+  });
+
+  it('should only render the daily view when only daily data is available', () => {
+    const dailyDataOnly = {
+      daily: data.daily,
+    };
+
+    const result = Module.createPrintPDFPackage(dailyDataOnly, opts);
+    doc.stream.end();
+
+    return result.then(() => {
+      sinon.assert.notCalled(Module.utils.BasicsPrintView);
+
+      sinon.assert.calledOnce(Module.utils.DailyPrintView);
+
+      sinon.assert.notCalled(Module.utils.SettingsPrintView);
+    });
+  });
+
+  it('should only render the settings view when only settings data is available', () => {
+    const settingsDataOnly = {
+      settings: data.settings,
+    };
+
+    const result = Module.createPrintPDFPackage(settingsDataOnly, opts);
+    doc.stream.end();
+
+    return result.then(() => {
+      sinon.assert.notCalled(Module.utils.BasicsPrintView);
+
+      sinon.assert.notCalled(Module.utils.DailyPrintView);
+
+      sinon.assert.calledOnce(Module.utils.SettingsPrintView);
+    });
+  });
+
+  it('should add the page numbers to the document', () => {
+    const result = Module.createPrintPDFPackage(data, opts);
+    doc.stream.end();
+
+    return result.then(() => {
+      sinon.assert.calledOnce(Module.utils.PrintView.renderPageNumbers);
     });
   });
 });

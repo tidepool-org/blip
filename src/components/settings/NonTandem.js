@@ -27,7 +27,6 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import * as nonTandemData from '../../utils/settings/nonTandemData';
 import { nonTandemText } from '../../utils/settings/textData';
 
-import { DISPLAY_VIEW, PRINT_VIEW } from './constants';
 import styles from './NonTandem.css';
 
 const NonTandem = (props) => {
@@ -40,7 +39,6 @@ const NonTandem = (props) => {
     timePrefs,
     toggleBasalScheduleExpansion,
     user,
-    view,
   } = props;
 
   let lookupKey = deviceKey;
@@ -60,22 +58,7 @@ const NonTandem = (props) => {
     );
   }
 
-  function renderBreathingSpace() {
-    if (view === PRINT_VIEW) {
-      return (
-        <div className={styles.printNotes}>
-          <hr />
-          <hr />
-        </div>
-      );
-    }
-    return null;
-  }
-
   function openSection(sectionName) {
-    if (view === PRINT_VIEW) {
-      return true;
-    }
     return _.get(openedSections, sectionName, false);
   }
 
@@ -105,7 +88,6 @@ const NonTandem = (props) => {
               styles.basalTable,
             )}
           </CollapsibleContainer>
-          {renderBreathingSpace()}
         </div>
       );
     });
@@ -128,7 +110,6 @@ const NonTandem = (props) => {
           title,
           styles.settingsTable,
         )}
-        {renderBreathingSpace()}
       </div>
     );
   }
@@ -151,7 +132,6 @@ const NonTandem = (props) => {
           title,
           styles.settingsTable,
         )}
-        {renderBreathingSpace()}
       </div>
     );
   }
@@ -174,7 +154,6 @@ const NonTandem = (props) => {
           title,
           styles.settingsTable,
         )}
-        {renderBreathingSpace()}
       </div>
     );
   }
@@ -192,9 +171,7 @@ const NonTandem = (props) => {
       <Header
         deviceDisplayName={nonTandemData.deviceName(lookupKey)}
         deviceMeta={nonTandemData.deviceMeta(pumpSettings, timePrefs)}
-        printView={view === PRINT_VIEW}
       />
-      {renderBreathingSpace()}
       <div className={styles.settingsContainer}>
         <div>
           <div className={styles.basalSettingsContainer}>
@@ -262,11 +239,6 @@ NonTandem.propTypes = {
   }).isRequired,
   toggleBasalScheduleExpansion: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
-  view: PropTypes.oneOf([DISPLAY_VIEW, PRINT_VIEW]).isRequired,
-};
-
-NonTandem.defaultProps = {
-  view: DISPLAY_VIEW,
 };
 
 export default NonTandem;

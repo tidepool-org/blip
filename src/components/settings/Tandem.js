@@ -28,8 +28,6 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import * as tandemData from '../../utils/settings/tandemData';
 import { tandemText } from '../../utils/settings/textData';
 
-import { DISPLAY_VIEW, PRINT_VIEW } from './constants';
-
 const Tandem = (props) => {
   const {
     bgUnits,
@@ -39,25 +37,9 @@ const Tandem = (props) => {
     timePrefs,
     toggleProfileExpansion,
     user,
-    view,
   } = props;
 
-  function renderBreathingSpace() {
-    if (view === PRINT_VIEW) {
-      return (
-        <div className={styles.printNotes}>
-          <hr />
-          <hr />
-        </div>
-      );
-    }
-    return null;
-  }
-
   function openSection(sectionName) {
-    if (view === PRINT_VIEW) {
-      return true;
-    }
     return _.get(openedSections, sectionName, false);
   }
 
@@ -79,7 +61,6 @@ const Tandem = (props) => {
             tableStyle={styles.profileTable}
           />
         </CollapsibleContainer>
-        {renderBreathingSpace()}
       </div>
     );
   });
@@ -97,7 +78,6 @@ const Tandem = (props) => {
       <Header
         deviceDisplayName="Tandem"
         deviceMeta={tandemData.deviceMeta(pumpSettings, timePrefs)}
-        printView={view === PRINT_VIEW}
       />
       <div>
         <span className={styles.title}>Profile Settings</span>
@@ -161,13 +141,11 @@ Tandem.propTypes = {
   }).isRequired,
   toggleProfileExpansion: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
-  view: PropTypes.oneOf([DISPLAY_VIEW, PRINT_VIEW]).isRequired,
 };
 
 Tandem.defaultProps = {
   deviceDisplayName: 'Tandem',
   deviceKey: 'tandem',
-  view: DISPLAY_VIEW,
 };
 
 export default Tandem;

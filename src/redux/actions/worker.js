@@ -17,14 +17,13 @@
 
 import * as actionTypes from '../constants/actionTypes';
 
-export function generatePDFRequest(type, mostRecent, groupedData, opts) {
+export function generatePDFRequest(type, data, opts) {
   return {
     type: actionTypes.GENERATE_PDF_REQUEST,
     meta: { WebWorker: true, origin: document.location.origin },
     payload: {
       type,
-      mostRecent,
-      groupedData,
+      data: JSON.stringify(data),
       opts,
     },
   };

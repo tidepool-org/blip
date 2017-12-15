@@ -32,15 +32,13 @@ describe('PDFWorker', () => {
 
   const payload = {
     type: 'daily',
-    mostRecent: 'mostRecent',
-    groupedData: [],
+    data: {},
     opts: {},
   };
 
   const {
     type,
-    mostRecent,
-    groupedData,
+    data,
     opts,
   } = payload;
 
@@ -66,7 +64,7 @@ describe('PDFWorker', () => {
 
     const postMessage = sinon.stub();
 
-    const action = actions.generatePDFRequest(type, mostRecent, groupedData, opts);
+    const action = actions.generatePDFRequest(type, data, opts);
     const origin = action.meta.origin;
 
     Worker.handleMessage({ data: action }, postMessage);
@@ -80,11 +78,11 @@ describe('PDFWorker', () => {
 
     const postMessage = sinon.stub();
 
-    const action = actions.generatePDFRequest(type, mostRecent, groupedData, opts);
+    const action = actions.generatePDFRequest(type, data, opts);
     Worker.handleMessage({ data: action }, postMessage);
 
     sinon.assert.calledOnce(renderer);
-    sinon.assert.calledWithExactly(renderer, mostRecent, groupedData, opts);
+    sinon.assert.calledWithExactly(renderer, data, opts);
   });
 
   it('should fire a success action upon succesful rendering', () => {
@@ -92,10 +90,10 @@ describe('PDFWorker', () => {
 
     const postMessage = sinon.stub();
 
-    const action = actions.generatePDFRequest(type, mostRecent, groupedData, opts);
+    const action = actions.generatePDFRequest(type, data, opts);
     Worker.handleMessage({ data: action }, postMessage);
 
-    return Worker.renderer(mostRecent, groupedData, opts).then(result => {
+    return Worker.renderer(data, opts).then(result => {
       sinon.assert.calledOnce(postMessage);
       sinon.assert.calledWithExactly(
         postMessage,
@@ -109,10 +107,10 @@ describe('PDFWorker', () => {
 
     const postMessage = sinon.stub();
 
-    const action = actions.generatePDFRequest(type, mostRecent, groupedData, opts);
+    const action = actions.generatePDFRequest(type, data, opts);
     Worker.handleMessage({ data: action }, postMessage);
 
-    return Worker.renderer(mostRecent, groupedData, opts).then().catch(error => {
+    return Worker.renderer(data, opts).then().catch(error => {
       sinon.assert.calledOnce(postMessage);
       sinon.assert.calledWithExactly(
         postMessage,
