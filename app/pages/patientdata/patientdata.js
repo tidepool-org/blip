@@ -27,7 +27,7 @@ import config from '../../config';
 import loadingGif from './loading.gif';
 
 import * as actions from '../../redux/actions';
-import { actions as workerActions} from '@tidepool/viz';
+import { actions as workerActions, selectDailyViewData} from '@tidepool/viz';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
@@ -38,7 +38,6 @@ import { daily as Daily } from '../../components/chart';
 import Trends from '../../components/chart/trends';
 import { weekly as Weekly } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
-import SettingsPrintView from '../../components/printview';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
 import nurseShark from 'tideline/plugins/nurseshark/';
@@ -47,6 +46,8 @@ import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 
 import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
+
+import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from '../../core/constants';
 
 export let PatientData = React.createClass({
   propTypes: {
@@ -265,19 +266,10 @@ export let PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
-            onSwitchToPrint={this.handleSwitchToSettingsPrintView}
+            onClickPrint={this.handleClickPrint}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
-            ref="tideline" />
-        </div>
-        <div id="app-print">
-          <SettingsPrintView
-            bgPrefs={this.state.bgPrefs}
-            currentPatientInViewId={this.props.currentPatientInViewId}
-            timePrefs={this.state.timePrefs}
-            patientData={this.state.processedPatientData}
-            patient={this.props.patient}
-            trackMetric={this.props.trackMetric}
+            pdf={this.props.viz.pdf.combined || {}}
             ref="tideline" />
         </div>
       </div>
@@ -299,6 +291,7 @@ export let PatientData = React.createClass({
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
+            onClickPrint={this.handleClickPrint}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
@@ -306,6 +299,7 @@ export let PatientData = React.createClass({
             updateBasicsSettings={this.props.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
+            pdf={this.props.viz.pdf.combined || {}}
             ref="tideline" />
           );
       case 'daily':
@@ -322,12 +316,12 @@ export let PatientData = React.createClass({
             onShowMessageThread={this.handleShowMessageThread}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToPrint={this.handleSwitchToDailyPrintView}
+            onClickPrint={this.handleClickPrint}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateDatetimeLocation={this.updateDatetimeLocation}
-            pdf={this.props.viz.pdf.daily || {}}
+            pdf={this.props.viz.pdf.combined || {}}
             ref="tideline" />
           );
       case 'trends':
@@ -421,19 +415,33 @@ export let PatientData = React.createClass({
     this.props.trackMetric('Closed New Message Modal');
   },
 
-  generatePDF: function (data) {
-    const dData = data.diabetesData;
+  generatePDF: function (props, state) {
+    const data = state.processedPatientData;
+    const diabetesData = data.diabetesData;
 
-    this.props.generatePDFRequest(
-      this.state.chartType,
-      dData[dData.length - 1].normalTime,
-      _.pick(
-        this.state.processedPatientData.grouped,
-        // TODO: add back deviceEvent later (not in first prod release)
-        ['basal', 'bolus', 'cbg', 'message', 'smbg']
-      ),
-      { bgPrefs: this.state.bgPrefs, numDays: 6, patient: this.props.patient, timePrefs: this.state.timePrefs }
-    );
+    if (diabetesData) {
+      const opts = {
+        bgPrefs: state.bgPrefs,
+        numDays: {
+          daily: 6
+        },
+        patient: props.patient,
+        timePrefs: state.timePrefs,
+        mostRecent: diabetesData[diabetesData.length - 1].normalTime,
+      };
+
+      const pdfData = {
+        daily: _.pick(data.grouped, ['basal', 'bolus', 'cbg', 'message', 'smbg']),
+        basics: data.basicsData,
+        settings: _.last(data.grouped.pumpSettings),
+      }
+
+      props.generatePDFRequest(
+        'combined',
+        pdfData,
+        opts,
+      );
+    }
   },
 
   handleMessageCreation: function(message){
@@ -498,10 +506,16 @@ export let PatientData = React.createClass({
     });
   },
 
-  handleSwitchToDailyPrintView: function() {
+  handleClickPrint: function(pdf = {}) {
     this.props.trackMetric('Clicked Print', {
       fromChart: this.state.chartType
     });
+
+    if (pdf.url) {
+      const printWindow = window.open(pdf.url);
+      printWindow.focus();
+      printWindow.print();
+    }
   },
 
   handleSwitchToModal: function(datetime) {
@@ -549,19 +563,6 @@ export let PatientData = React.createClass({
     });
   },
 
-  handleSwitchToSettingsPrintView: function(e) {
-    this.props.trackMetric('Clicked Print', {
-      fromChart: this.state.chartType
-    });
-    if (e) {
-      e.preventDefault();
-    }
-    window.print();
-    this.setState({
-      chartType: 'settings'
-    });
-  },
-
   handleClickRefresh: function(e) {
     this.handleRefresh(e);
     this.props.trackMetric('Clicked Refresh');
@@ -585,7 +586,7 @@ export let PatientData = React.createClass({
       this.setState({
         title: this.DEFAULT_TITLE,
         processingData: true,
-        processedPatientData: null
+        processedPatientData: null,
       });
 
       refresh(this.props.currentPatientInViewId);
@@ -644,19 +645,27 @@ export let PatientData = React.createClass({
     if (!nextProps.fetchingPatient && !this.state.processedPatientData && nextPatientData) {
       this.doProcessing(nextProps);
     }
+
+    // If the patient makes a change to their site change source settings,
+    // we should remove the currently generated PDF, which will trigger a rebuild of
+    // the PDF with the updated settings.
+    const siteChangeSource = _.get(nextProps, 'patient.settings.siteChangeSource');
+    if (siteChangeSource && siteChangeSource !== _.get(this.props, 'patient.settings.siteChangeSource')) {
+      this.props.removeGeneratedPDFS();
+    }
   },
 
   componentWillUpdate: function (nextProps, nextState) {
-    const pdfEnabled = _.indexOf(['daily'], this.state.chartType) >= 0;
+    const pdfEnabled =  _.indexOf(['daily', 'basics', 'settings'], nextState.chartType) >= 0;
     const pdfGenerating = nextProps.generatingPDF;
-    const pdfGenerated = _.get(nextProps, `viz.pdf[${this.state.chartType}]`, false);
-    const patientDataProcessed = (!this.state.processingData && !!this.state.processedPatientData && !!nextState.processedPatientData);
+    const pdfGenerated = _.get(nextProps, 'viz.pdf.combined', false);
+    const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
     if (pdfEnabled && !pdfGenerating && !pdfGenerated && patientDataProcessed) {
-      this.generatePDF(this.state.processedPatientData);
+      this.generatePDF(nextProps, nextState);
     }
   },
 
@@ -713,7 +722,7 @@ export let PatientData = React.createClass({
     return chartType;
   },
 
-  setDefaultChartType: function(processedData) {
+  setInitialChartType: function(processedData) {
     // Determine default chart type and date from latest data
     const uploads = processedData.grouped.upload;
     const latestData = _.last(processedData.diabetesData);
@@ -731,7 +740,6 @@ export let PatientData = React.createClass({
       };
 
       this.setState(state);
-
       this.props.trackMetric(`web - default to ${chartType}`);
     }
   },
@@ -763,7 +771,58 @@ export let PatientData = React.createClass({
         processingData: false,
       });
 
-      this.setDefaultChartType(processedData);
+      this.setInitialChartType(processedData);
+
+      window.downloadPrintViewData = () => {
+        const prepareProcessedData = (bgUnits) => {
+          const multiplier = bgUnits === MGDL_UNITS ? MGDL_PER_MMOLL : (1 / MGDL_PER_MMOLL);
+
+          return (bgUnits === processedData.bgUnits) ? processedData : utils.processPatientData(
+            this,
+            combinedData,
+            this.props.queryParams,
+            _.assign({}, patientSettings, {
+              bgTarget: {
+                low: patientSettings.bgTarget.low * multiplier,
+                high: patientSettings.bgTarget.high * multiplier,
+              },
+              units: { bg: bgUnits }
+            }),
+          );
+        };
+
+        const data = {
+          [MGDL_UNITS]: prepareProcessedData(MGDL_UNITS),
+          [MMOLL_UNITS]: prepareProcessedData(MMOLL_UNITS),
+        };
+
+        const dData = {
+          [MGDL_UNITS]: data[MGDL_UNITS].diabetesData,
+          [MMOLL_UNITS]: data[MMOLL_UNITS].diabetesData,
+        };
+
+        const preparePrintData = (bgUnits) => {
+          return {
+            daily: selectDailyViewData(
+              dData[bgUnits][dData[bgUnits].length - 1].normalTime,
+              _.pick(
+                data[bgUnits].grouped,
+                // TODO: add back deviceEvent later (not in first prod release)
+                ['basal', 'bolus', 'cbg', 'message', 'smbg']
+              ),
+              6,
+              this.state.timePrefs,
+            ),
+            basics: data[bgUnits].basicsData,
+            settings: _.last(data[bgUnits].grouped.pumpSettings),
+          };
+        };
+
+        console.save({
+          [MGDL_UNITS]: preparePrintData(MGDL_UNITS),
+          [MMOLL_UNITS]: preparePrintData(MMOLL_UNITS),
+        }, 'print-view.json');
+      };
     }
   },
 
