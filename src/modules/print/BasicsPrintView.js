@@ -884,12 +884,18 @@ class BasicsPrintView extends PrintView {
         this.doc.y = this.calendar.pos[type].y;
       }
 
+      const headerColors = {
+        smbg: '#e8ecfe',
+        bolus: '#ebf7fc',
+        basal: '#dcf1f9',
+      };
+
       this.renderTable(tableColumns, rows, {
         columnDefaults: {
           zebra: true,
           headerFill: {
-            color: this.colors[type],
-            opacity: 0.15,
+            color: headerColors[type],
+            opacity: 1,
           },
           headerRenderer: this.renderCustomTextCell,
           headerHeight: 28,
