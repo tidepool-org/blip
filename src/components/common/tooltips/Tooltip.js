@@ -86,8 +86,8 @@ class Tooltip extends PureComponent {
     let marginOuterValue;
     let marginInnerValue;
     if (tailSide === 'left') {
-      marginOuterValue = `calc(-100% - 2 * ${padding}px)`;
-      marginInnerValue = `calc(-100% - (2 * ${padding}px - ${borderWidth + 1}px))`;
+      marginOuterValue = `calc(-100% - (4 * ${tailWidth}px - ${padding}px)`;
+      marginInnerValue = `calc(-100% - (4 * ${tailWidth}px - ${padding}px - ${borderWidth + 1}px))`;
     } else {
       marginOuterValue = `calc(${padding}px + ${borderWidth}px)`;
       marginInnerValue = `${padding - 1}px`;
