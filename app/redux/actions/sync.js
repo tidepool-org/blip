@@ -527,31 +527,6 @@ export function updatePatientFailure(error, apiError) {
   };
 }
 
-export function fetchPreferencesRequest() {
-  return {
-    type: ActionTypes.FETCH_PREFERENCES_REQUEST,
-  };
-}
-
-export function fetchPreferencesSuccess(preferences) {
-  return {
-    type: ActionTypes.FETCH_PREFERENCES_SUCCESS,
-    payload: {
-      preferences: preferences,
-    },
-  };
-}
-
-export function fetchPreferencesFailure(error, apiError) {
-  return {
-    type: ActionTypes.FETCH_PREFERENCES_FAILURE,
-    error: error,
-    meta: {
-      apiError: apiError || null,
-    },
-  };
-}
-
 export function updatePreferencesRequest() {
   return {
     type: ActionTypes.UPDATE_PREFERENCES_REQUEST,

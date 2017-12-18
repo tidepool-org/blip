@@ -16,6 +16,10 @@
  */
 import _ from 'lodash';
 import update from 'react-addons-update';
+import {
+  DEFAULT_KEY,
+  generateCacheTTL,
+} from 'redux-cache';
 
 import initialState from './initialState';
 import * as types from '../constants/actionTypes';
@@ -422,14 +426,13 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
     case types.FETCH_PATIENT_DATA_SUCCESS: {
       const { patientId, patientData } = action.payload;
       return update(state, {
-        [patientId]: { $set: patientData }
+        [patientId]: { $set: patientData },
+        [`${patientId}_cacheUntil`]: { $set: generateCacheTTL() },
       });
     }
     case types.CLEAR_PATIENT_DATA: {
       const { patientId } = action.payload;
-      return update(state, {
-        [patientId]: { $set: null }
-      });
+      return update(state, { [patientId]: { $set: null } });
     }
     case types.LOGOUT_REQUEST:
     case types.FETCH_PATIENT_DATA_FAILURE:

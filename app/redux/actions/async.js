@@ -20,7 +20,10 @@ import React from 'react';
 import { Link } from 'react-router';
 import sundial from 'sundial';
 import async from 'async';
+import moment from 'moment';
 import { noop } from 'node-noop';
+import { checkCacheValid } from 'redux-cache';
+
 import * as ActionTypes from '../constants/actionTypes';
 import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
@@ -38,6 +41,15 @@ function createActionError(usrErrMessage, apiError) {
     err.status = apiError.status;
   }
   return err;
+}
+
+function cacheByIdOptions(id) {
+  return {
+    accessStrategy: (state, reducerKey, cacheKey) => {
+      return _.get(state.blip, [reducerKey, cacheKey], null);
+    },
+    cacheKey: `${id}_cacheUntil`,
+  }
 }
 
 /**
@@ -496,28 +508,6 @@ export function updatePatient(api, patient) {
 }
 
 /**
- * Fetch Preferences Data Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- * @param  {Object} patientId
- */
-export function fetchPreferences(api, patientId) {
-  return (dispatch) => {
-    dispatch(sync.fetchPreferencesRequest());
-
-    api.metadata.preferences.get(patientId, (err, preferences) => {
-      if (err) {
-        dispatch(sync.fetchPreferencesFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_PREFERENCES, err), err
-        ));
-      } else {
-        dispatch(sync.fetchPreferencesSuccess(preferences));
-      }
-    });
-  };
-}
-
-/**
  * Update Preferences Data Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
@@ -884,7 +874,19 @@ export function fetchPatients(api) {
  * @param {String|Number} id
  */
 export function fetchPatientData(api, options, id) {
-  return (dispatch) => {
+  // Default to only selecting the most recent 4 weeks of data
+  _.defaults(options, {
+    startDate: moment.utc().subtract(4, 'weeks').toISOString(),
+    endDate: moment.utc().toISOString(),
+  });
+
+  return (dispatch, getState) => {
+    // If we have a valid cache of the data, do not dispatch fetch action
+    // if(checkCacheValid(getState, 'patientDataMap', {  })) {
+    if(checkCacheValid(getState, 'patientDataMap', cacheByIdOptions(id))) {
+      return null;
+    }
+
     dispatch(sync.fetchPatientDataRequest());
 
     async.parallel({
