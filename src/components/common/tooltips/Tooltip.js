@@ -93,6 +93,7 @@ class Tooltip extends PureComponent {
       marginInnerValue = `${padding - 1}px`;
     }
     const borderSide = (tailSide === 'left') ? 'right' : 'left';
+    const tailInnerColor = this.props.tailColor || this.props.backgroundColor || backgroundColor;
     // The two child divs form the solid color tail and the border around it by layering
     // on one another offset by the border width adjusted slightly for the angle
     return (
@@ -107,16 +108,18 @@ class Tooltip extends PureComponent {
             [`border${_.capitalize(borderSide)}Color`]: borderColor,
           }}
         ></div>
-        <div
-          className={styles.tail}
-          style={{
-            marginTop: `-${tailHeight}px`,
-            marginLeft: marginInnerValue,
-            borderWidth: `${tailHeight}px ${2 * tailWidth}px`,
-            [`border${_.capitalize(borderSide)}Color`]:
-              this.props.backgroundColor || backgroundColor,
-          }}
-        ></div>
+        {tailInnerColor !== borderColor && (
+          <div
+            className={styles.tail}
+            style={{
+              marginTop: `-${tailHeight}px`,
+              marginLeft: marginInnerValue,
+              borderWidth: `${tailHeight}px ${2 * tailWidth}px`,
+              [`border${_.capitalize(borderSide)}Color`]:
+                this.props.tailColor || this.props.backgroundColor || backgroundColor,
+            }}
+          ></div>
+        )}
       </div>
     );
   }
@@ -184,6 +187,7 @@ Tooltip.propTypes = {
   side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
+  tailColor: PropTypes.string,
   backgroundColor: PropTypes.string,
   borderColor: PropTypes.string.isRequired,
   borderWidth: PropTypes.number.isRequired,
