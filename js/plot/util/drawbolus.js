@@ -359,7 +359,14 @@ module.exports = function(pool, opts) {
         });
     },
     tooltip: {
-      add: function(d) {
+      add: function(d, rect) {
+        if (_.get(opts, 'onBolusHover', false)) {
+          opts.onBolusHover({
+            data: d, 
+            rect: rect
+          });
+          return;
+        }
         var tooltips = pool.tooltips();
         var res = tooltips.addForeignObjTooltip({
           cssClass: 'd3-bolus',
@@ -512,6 +519,12 @@ module.exports = function(pool, opts) {
         }
       },
       remove: function(d) {
+        if (_.get(opts, 'onBolusOut', false)){
+          opts.onBolusOut({
+            data: d
+          });
+          return;
+        }
         mainGroup.select('#tooltip_' + d.id).remove();
       }
     },
