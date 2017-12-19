@@ -175,13 +175,13 @@ class BolusTooltip extends PureComponent {
     );
     const extendedLine = hasExtended && [
       !!normal && (
-        <div className={styles.normal}>
+        <div className={styles.normal} key={'normal'}>
           <div className={styles.label}>{`Up Front (${normalPercentage})`}</div>
           <div className={styles.value}>{`${formatDecimalNumber(normal, 1)}`}</div>
           <div className={styles.units}>U</div>
         </div>
       ),
-      <div className={styles.extended}>
+      <div className={styles.extended} key={'extended'}>
         <div className={styles.label}>
           {`Over ${formatDuration(bolusUtils.getDuration(wizard))} ${extendedPercentage}`}
         </div>
@@ -246,13 +246,13 @@ class BolusTooltip extends PureComponent {
     );
     const extendedLine = hasExtended && [
       !!normal && (
-        <div className={styles.normal}>
+        <div className={styles.normal} key={'normal'}>
           <div className={styles.label}>{`Up Front (${normalPercentage})`}</div>
           <div className={styles.value}>{`${formatDecimalNumber(normal, 1)}`}</div>
           <div className={styles.units}>U</div>
         </div>
       ),
-      <div className={styles.extended}>
+      <div className={styles.extended} key={'extended'}>
         <div className={styles.label}>
           {`Over ${formatDuration(bolusUtils.getDuration(bolus))} ${extendedPercentage}`}
         </div>
