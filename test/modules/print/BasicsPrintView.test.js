@@ -204,6 +204,23 @@ describe('BasicsPrintView', () => {
     });
   });
 
+  describe('newPage', () => {
+    let newPageSpy;
+
+    beforeEach(() => {
+      newPageSpy = sinon.spy(PrintView.prototype, 'newPage');
+    });
+
+    afterEach(() => {
+      newPageSpy.restore();
+    });
+
+    it('should call the newPage method of the parent class with a date range string', () => {
+      Renderer.newPage();
+      sinon.assert.calledWith(PrintView.prototype.newPage, 'Date range: Sep 18 - Oct 7, 2017');
+    });
+  });
+
   describe('initCalendar', () => {
     it('should initialize the calendar data', () => {
       expect(Renderer.calendar).to.be.undefined;
@@ -627,7 +644,7 @@ describe('BasicsPrintView', () => {
           id: 'stat',
           cache: false,
           renderer: Renderer.renderCustomTextCell,
-          width: Renderer.getActiveColumnWidth() * 0.65,
+          width: Renderer.getActiveColumnWidth() * 0.65 - Renderer.tableSettings.borderWidth,
           height: 35,
           fontSize: Renderer.defaultFontSize,
           font: Renderer.font,
@@ -642,7 +659,7 @@ describe('BasicsPrintView', () => {
           id: 'value',
           cache: false,
           renderer: Renderer.renderCustomTextCell,
-          width: Renderer.getActiveColumnWidth() * 0.35,
+          width: Renderer.getActiveColumnWidth() * 0.35 - Renderer.tableSettings.borderWidth,
           height: 35,
           fontSize: Renderer.defaultFontSize,
           font: Renderer.boldFont,
@@ -676,13 +693,13 @@ describe('BasicsPrintView', () => {
       });
 
       expect(result[0].height).to.equal(50);
-      expect(result[0].width).to.equal(40);
+      expect(result[0].width).to.equal(40 - Renderer.tableSettings.borderWidth);
       expect(result[0].font).to.equal('comic sans');
       expect(result[0].fontSize).to.equal(40);
       expect(result[0].header).to.equal('My Stat');
 
       expect(result[1].height).to.equal(50);
-      expect(result[1].width).to.equal(100);
+      expect(result[1].width).to.equal(100 - Renderer.tableSettings.borderWidth);
       expect(result[1].font).to.equal('courrier new');
       expect(result[1].fontSize).to.equal(50);
       expect(result[1].header).to.equal('Values');

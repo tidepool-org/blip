@@ -130,6 +130,25 @@ export function formatDiagnosisDate(patient) {
 }
 
 /**
+ * formatDateRange
+ * @param {String|Date} startDate - A moment-compatible date object or string
+ * @param {String|Date} endDate - A moment-compatible date object or string
+ * @param {String} format - Optional. The moment format string to parse startDate and endDate with
+ */
+export function formatDateRange(startDate, endDate, format) {
+  const start = moment.utc(startDate, format);
+  const end = moment.utc(endDate, format);
+
+  const isSameYear = start.isSame(end, 'year');
+  const startFormat = isSameYear ? start.format('MMM D') : start.format('MMM D, YYYY');
+  const endFormat = end.format('MMM D, YYYY');
+
+  const formattedRange = `${startFormat} - ${endFormat}`;
+
+  return formattedRange;
+}
+
+/**
  * formatDuration
  * @param {Number} duration - positive integer duration in milliseconds
  *

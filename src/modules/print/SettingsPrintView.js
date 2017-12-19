@@ -52,6 +52,10 @@ class SettingsPrintView extends PrintView {
     this.doc.addPage();
   }
 
+  newPage() {
+    super.newPage(`Uploaded on: ${this.deviceMeta.uploaded}`);
+  }
+
   render() {
     this.renderDeviceMeta();
 
@@ -70,7 +74,6 @@ class SettingsPrintView extends PrintView {
       .fontSize(this.defaultFontSize)
       .text(device, { continued: true })
       .font(this.font)
-      .text(` Uploaded on ${this.deviceMeta.uploaded}`, { continued: true })
       .text(` › Serial Number: ${this.deviceMeta.serial}`)
       .moveDown();
 
@@ -138,13 +141,6 @@ class SettingsPrintView extends PrintView {
           insulinSensitivity: fills.basal,
         };
 
-        const fillStripes = {
-          rate: this.colors.basal,
-          bgTarget: this.colors.bolus,
-          carbRatio: this.colors.bolus,
-          insulinSensitivity: this.colors.bolus,
-        };
-
         const label = _.isPlainObject(column.label)
           ? {
             text: column.label.main,
@@ -158,9 +154,6 @@ class SettingsPrintView extends PrintView {
           header: label,
           align: isFirst ? 'left' : 'center',
           headerFill: headerFills[column.key],
-          headerFillStripe: !fillStripes[column.key] ? false : {
-            color: fillStripes[column.key],
-          },
           cache: false,
           headerRenderer: this.renderCustomTextCell,
         };
@@ -263,7 +256,6 @@ class SettingsPrintView extends PrintView {
             color: this.colors.basal,
             opacity: 0.15,
           },
-          fillStripe: true,
           width: columnWidth,
         },
       });
@@ -345,9 +337,6 @@ class SettingsPrintView extends PrintView {
         fill: {
           color: this.colors.basal,
           opacity: 0.15,
-        },
-        fillStripe: {
-          color: this.colors.bolus,
         },
         width: columnWidth,
       },

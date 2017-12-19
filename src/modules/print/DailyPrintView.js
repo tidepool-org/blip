@@ -152,7 +152,12 @@ class DailyPrintView extends PrintView {
   }
 
   newPage() {
-    super.newPage();
+    const pageIndex = this.currentPageIndex + this.initialTotalPages + 1;
+    const charts = _.filter(this.chartsByDate, chart => chart.page === pageIndex);
+    const start = _.first(charts).date;
+    const end = _.last(charts).date;
+
+    super.newPage(this.getDateRange(start, end, 'YYYY-MM-DD'));
     this.renderLegend();
   }
 
@@ -244,7 +249,6 @@ class DailyPrintView extends PrintView {
   }
 
   placeChartsOnPage(pageIndex) {
-    this.doc.addPage();
     const { topEdge, bottomEdge } = this.chartArea;
     let totalChartHeight = 0;
     const dates = _.keys(this.chartsByDate);
@@ -283,6 +287,9 @@ class DailyPrintView extends PrintView {
     }
 
     this.totalPages += 1;
+
+    this.doc.addPage();
+
     return this;
   }
 
@@ -330,7 +337,8 @@ class DailyPrintView extends PrintView {
       .fillOpacity(1)
       .font(this.boldFont)
       .fontSize(this.summaryHeaderFontSize)
-      .text(moment(date, 'YYYY-MM-DD').format('dddd M/D'), this.margins.left, topEdge);
+      .text(moment(date, 'YYYY-MM-DD').format('ddd, MMM D, Y'), this.margins.left, topEdge);
+      // .text(moment(date, 'YYYY-MM-DD').format('dddd M/D/Y'), this.margins.left, topEdge);
 
     const yPos = (function (doc) { // eslint-disable-line func-names
       let value = topEdge + doc.currentLineHeight() * 1.5;
@@ -407,7 +415,7 @@ class DailyPrintView extends PrintView {
           { indent: statsIndent, continued: true, width: widthWithoutIndent },
         )
         .text(
-          `${basalPercent}, ~${formatDecimalNumber(totalBasal, 0)} U`,
+          `${basalPercent}, ${formatDecimalNumber(totalBasal, 1)} U`,
           { align: 'right' }
         );
 
@@ -419,7 +427,7 @@ class DailyPrintView extends PrintView {
           { indent: statsIndent, continued: true, width: widthWithoutIndent },
         )
         .text(
-          `${bolusPercent}, ~${formatDecimalNumber(totalBolus, 0)} U`,
+          `${bolusPercent}, ${formatDecimalNumber(totalBolus, 1)} U`,
           { align: 'right' }
         );
 
@@ -492,7 +500,7 @@ class DailyPrintView extends PrintView {
         )
         .font(this.font)
         .text(
-          `${formatDecimalNumber(totalInsulin, 0)} U`,
+          `${formatDecimalNumber(totalInsulin, 1)} U`,
           { align: 'right' }
         );
 
@@ -817,13 +825,11 @@ class DailyPrintView extends PrintView {
 
     _.each(labeledSchedules, schedule => {
       const start = xScale(schedule.utc);
-      const end = xScale(schedule.utc + schedule.duration);
 
       this.doc.fontSize(this.extraSmallFontSize);
       const label = `${parseFloat(formatDecimalNumber(schedule.rate, 3))}`;
-      const labelWidth = this.doc.widthOfString(label);
-      const xPos = (start + end) / 2 - (labelWidth / 2);
-      const yPos = bottomOfBasalChart - 10;
+      const xPos = start;
+      const yPos = bottomOfBasalChart + 2;
 
       this.doc.text(label, xPos, yPos);
     });
@@ -1076,8 +1082,12 @@ class DailyPrintView extends PrintView {
       this.renderEventPath(path);
     });
     cursor += this.bolusWidth / 2 + 10 + legendItemLabelOffset;
-    this.doc.fillColor('black').text('Combo', cursor, legendTextMiddle);
-    cursor += this.doc.widthOfString('Combo') + legendItemLeftOffset * 2;
+    this.doc
+      .fillColor('black')
+      .text('Combo /', cursor, legendTextMiddle - this.doc.currentLineHeight() / 2)
+      .text('Extended');
+
+    cursor += this.doc.widthOfString('Extended') + legendItemLeftOffset * 2;
 
     // carbohydrates
     this.doc.circle(cursor, legendVerticalMiddle, this.carbRadius)

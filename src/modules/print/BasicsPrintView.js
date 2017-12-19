@@ -90,6 +90,10 @@ class BasicsPrintView extends PrintView {
     this.initLayout();
   }
 
+  newPage() {
+    super.newPage(this.getDateRange(this.data.dateRange[0], this.data.dateRange[1]));
+  }
+
   initCalendar() {
     const columnWidth = this.getActiveColumnWidth();
     const calendar = {};
@@ -241,7 +245,7 @@ class BasicsPrintView extends PrintView {
           fontSize: this.largeFontSize,
           font: this.boldFont,
           noteFontSize: this.smallFontSize,
-          align: 'center',
+          align: 'left',
         },
       ];
 
@@ -350,7 +354,7 @@ class BasicsPrintView extends PrintView {
       const tableColumns = [
         {
           id: 'basal',
-          align: 'center',
+          align: 'left',
           width: columnWidth * 0.35,
           height: 50,
           cache: false,
@@ -371,7 +375,7 @@ class BasicsPrintView extends PrintView {
         },
         {
           id: 'bolus',
-          align: 'center',
+          align: 'right',
           width: columnWidth * 0.35,
           height: 50,
           cache: false,
@@ -538,7 +542,7 @@ class BasicsPrintView extends PrintView {
         id: 'stat',
         cache: false,
         renderer: this.renderCustomTextCell,
-        width: statWidth,
+        width: Math.round(statWidth) - this.tableSettings.borderWidth,
         height,
         fontSize: statFontSize,
         font: statFont,
@@ -553,7 +557,7 @@ class BasicsPrintView extends PrintView {
         id: 'value',
         cache: false,
         renderer: this.renderCustomTextCell,
-        width: valueWidth,
+        width: Math.round(valueWidth) - this.tableSettings.borderWidth,
         height,
         fontSize: valueFontSize,
         font: valueFont,
@@ -873,11 +877,6 @@ class BasicsPrintView extends PrintView {
         valueHeader: (primaryFilter.value || 0).toString(),
       });
 
-      tableColumns[0].headerFillStripe = {
-        color: this.colors[type],
-        opacity: 1,
-      };
-
       tableColumns[0].headerFont = this.font;
 
       if (_.get(this, `calendar.pos[${type}]`)) {
@@ -885,12 +884,18 @@ class BasicsPrintView extends PrintView {
         this.doc.y = this.calendar.pos[type].y;
       }
 
+      const headerColors = {
+        smbg: '#e8ecfe',
+        bolus: '#ebf7fc',
+        basal: '#dcf1f9',
+      };
+
       this.renderTable(tableColumns, rows, {
         columnDefaults: {
           zebra: true,
           headerFill: {
-            color: this.colors[type],
-            opacity: 0.15,
+            color: headerColors[type],
+            opacity: 1,
           },
           headerRenderer: this.renderCustomTextCell,
           headerHeight: 28,

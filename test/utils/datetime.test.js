@@ -176,6 +176,37 @@ describe('datetime', () => {
     });
   });
 
+  describe('formatDateRange', () => {
+    it('should format a date range with dates provided as date strings', () => {
+      const start = '2017-12-01';
+      const end = '2017-12-10';
+      const format = 'YYYY-MM-DD';
+
+      expect(datetime.formatDateRange(start, end, format)).to.equal('Dec 1 - Dec 10, 2017');
+    });
+
+    it('should format a date range with dates provided as Date objects', () => {
+      const start = new Date('2017-12-01');
+      const end = new Date('2017-12-10');
+
+      expect(datetime.formatDateRange(start, end)).to.equal('Dec 1 - Dec 10, 2017');
+    });
+
+    it('should format a date range with dates provided as Date ISO strings', () => {
+      const start = new Date('2017-12-01').toISOString();
+      const end = new Date('2017-12-10').toISOString();
+
+      expect(datetime.formatDateRange(start, end)).to.equal('Dec 1 - Dec 10, 2017');
+    });
+
+    it('should properly format a range with with start and end dates in different years', () => {
+      const start = new Date('2017-12-01').toISOString();
+      const end = new Date('2018-01-10').toISOString();
+
+      expect(datetime.formatDateRange(start, end)).to.equal('Dec 1, 2017 - Jan 10, 2018');
+    });
+  });
+
   describe('formatCurrentDate', () => {
     it('should be a function', () => {
       assert.isFunction(datetime.formatCurrentDate);

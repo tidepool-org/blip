@@ -402,6 +402,14 @@ describe('PrintView', () => {
     });
   });
 
+  describe('getDateRange', () => {
+    it('should return the formatted date range', () => {
+      const result = Renderer.getDateRange('2017-12-01', '2017-12-10', 'YYYY-MM-DD');
+
+      expect(result).to.equal('Date range: Dec 1 - Dec 10, 2017');
+    });
+  });
+
   describe('setFill', () => {
     it('should call doc fill methods with default args', () => {
       Renderer.setFill();
@@ -1427,14 +1435,12 @@ describe('PrintView', () => {
     });
   });
 
-  describe('renderPrintDate', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderPrintDate).to.be.a('function');
-    });
+  describe('renderDateText', () => {
+    it('should render the provided date text', () => {
+      const text = 'Date range';
 
-    it('should render the date printed', () => {
-      Renderer.renderPrintDate();
-      sinon.assert.calledWith(Renderer.doc.text, `Printed on: ${formatCurrentDate()}`);
+      Renderer.renderDateText(text);
+      sinon.assert.calledWith(Renderer.doc.text, text);
     });
   });
 
@@ -1467,14 +1473,14 @@ describe('PrintView', () => {
       sinon.spy(Renderer, 'renderPatientInfo');
       sinon.spy(Renderer, 'renderTitle');
       sinon.spy(Renderer, 'renderLogo');
-      sinon.spy(Renderer, 'renderPrintDate');
+      sinon.spy(Renderer, 'renderDateText');
 
       Renderer.renderHeader();
 
       sinon.assert.calledOnce(Renderer.renderPatientInfo);
       sinon.assert.calledOnce(Renderer.renderTitle);
       sinon.assert.calledOnce(Renderer.renderLogo);
-      sinon.assert.calledOnce(Renderer.renderPrintDate);
+      sinon.assert.calledOnce(Renderer.renderDateText);
     });
   });
 
@@ -1483,13 +1489,18 @@ describe('PrintView', () => {
       expect(Renderer.renderFooter).to.be.a('function');
     });
 
-    it('should render the footer', () => {
+    it('should render the footer help text', () => {
       Renderer.renderFooter();
 
       sinon.assert.calledWith(
         Renderer.doc.text,
         'Questions or feedback? Please email support@tidepool.org or visit support.tidepool.org.'
       );
+    });
+
+    it('should render the date printed', () => {
+      Renderer.renderFooter();
+      sinon.assert.calledWith(Renderer.doc.text, `Printed on: ${formatCurrentDate()}`);
     });
   });
 
