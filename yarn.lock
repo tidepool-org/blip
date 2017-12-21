@@ -7563,9 +7563,9 @@ thunkify@~2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@0.6.14-bolus-tooltip:
-  version "0.6.14-bolus-tooltip"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.14-bolus-tooltip.tgz#f652e67ff2910294a90b03937b30abfbec2f3d95"
+tideline@0.6.14-bolus-tooltip.1:
+  version "0.6.14-bolus-tooltip.1"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.14-bolus-tooltip.1.tgz#e95bb9fec8e20b393c091de8dd17ef6b126c63c7"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
