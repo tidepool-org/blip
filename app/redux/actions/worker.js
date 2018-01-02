@@ -49,22 +49,22 @@ export function removeGeneratedPDFS() {
   };
 }
 
-export function processPatientDataRequest(type, data, opts) {
+export function processPatientDataRequest(id, data, notes) {
   return {
     type: actionTypes.PROCESS_PATIENT_DATA_REQUEST,
     meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
     payload: {
-      type,
+      id,
       data: JSON.stringify(data),
-      opts,
+      notes: JSON.stringify(notes),
     },
   };
 }
 
-export function processPatientDataSuccess(pdf) {
+export function processPatientDataSuccess(id, data, notes) {
   return {
     type: actionTypes.PROCESS_PATIENT_DATA_SUCCESS,
-    payload: { pdf },
+    payload: { id, data, notes },
   };
 }
 

@@ -30,7 +30,8 @@ export default class DataWorker {
   handleMessage(msg, postMessage) {
     const { data: action } = msg;
     switch (action.type) {
-      case actionTypes.GENERATE_PDF_REQUEST: {
+      case actionTypes.PROCESS_PATIENT_DATA_REQUEST: {
+        this.log('Data to process', action);
         break;
       }
 
