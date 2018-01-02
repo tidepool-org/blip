@@ -25,7 +25,7 @@ import { createPrintPDFPackage } from '@tidepool/viz/dist/print';
 export default class PDFWorker {
   constructor(importer, renderer) {
     this.log = bows('PDFWorker');
-    this.log('PDFWorker constructed!');
+    window._this.log('Ready!');
     this.importer = importer;
     this.renderer = renderer;
   }

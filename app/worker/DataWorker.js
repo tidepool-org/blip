@@ -24,7 +24,7 @@ import * as actionTypes from '../redux/constants/actionTypes';
 export default class DataWorker {
   constructor(importer, renderer) {
     this.log = bows('DataWorker');
-    this.log('DataWorker constructed!');
+    this.log('Ready!');
   }
 
   handleMessage(msg, postMessage) {
