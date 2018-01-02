@@ -15,10 +15,13 @@ const importLoaders = 'importLoaders=1';
 module.exports = {
   debug: true,
   devtool: 'sourcemap',
-  entry: path.join(__dirname, '/src/index'),
+  entry: {
+    index: path.join(__dirname, '/src/index'),
+    print: path.join(__dirname, '/src/modules/print/index'),
+  },
   output: {
+    filename: '[name].js',
     path: path.join(__dirname, '/dist/'),
-    filename: 'index.js',
   },
   resolve: {
     extensions: [

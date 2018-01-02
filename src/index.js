@@ -25,15 +25,10 @@ import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
 import PumpSettingsContainer from './components/settings/common/PumpSettingsContainer';
 import TrendsContainer from './components/trends/common/TrendsContainer';
 
-import vizReducer from './redux/reducers/';
-import * as actions from './redux/actions/worker';
+import reducers from './redux/reducers/';
 
-// eslint-disable-next-line import/no-unresolved
-import Worker from 'worker-loader?inline!./worker/index';
-
-import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
 import { formatBgValue } from './utils/format';
-// a temporary(?) export to enable "snapshot"-ing of data from blip console
+import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
 import { selectDailyViewData } from './utils/print/data';
 
 const components = {
@@ -50,16 +45,14 @@ const containers = {
 };
 
 const utils = {
-  reshapeBgClassesToBgBounds,
   formatBgValue,
+  reshapeBgClassesToBgBounds,
+  selectDailyViewData,
 };
 
 export {
-  actions,
   components,
   containers,
-  selectDailyViewData,
   utils,
-  vizReducer,
-  Worker,
+  reducers,
 };
