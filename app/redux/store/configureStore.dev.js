@@ -26,7 +26,10 @@ import { syncHistory, routeReducer } from 'react-router-redux';
 import mutationTracker from 'redux-immutable-state-invariant';
 import { cacheEnhancer } from 'redux-cache'
 
-import { vizReducer, Worker } from '@tidepool/viz';
+import { reducers as vizReducers } from '@tidepool/viz/';
+
+// eslint-disable-next-line import/no-unresolved
+import Worker from 'worker-loader?inline!./../../worker/index';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
@@ -45,7 +48,7 @@ const reduxRouterMiddleware = syncHistory(browserHistory);
 const reducer = combineReducers({
   blip: reducers,
   routing: routeReducer,
-  viz: vizReducer,
+  viz: vizReducers,
 });
 
 const loggerMiddleware = createLogger({

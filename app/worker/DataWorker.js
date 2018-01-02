@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2015, Tidepool Project
+ * Copyright (c) 2017, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,8 +15,27 @@
  * == BSD2 LICENSE ==
  */
 
-import * as async from './async';
-import * as sync from './sync';
-import * as worker from './worker';
+/* global importScripts, postMessage */
+import bows from 'bows';
 
-export { async, sync, worker };
+import * as actions from '../redux/actions/worker';
+import * as actionTypes from '../redux/constants/actionTypes';
+
+export default class DataWorker {
+  constructor(importer, renderer) {
+    this.log = bows('DataWorker');
+    this.log('DataWorker constructed!');
+  }
+
+  handleMessage(msg, postMessage) {
+    const { data: action } = msg;
+    switch (action.type) {
+      case actionTypes.GENERATE_PDF_REQUEST: {
+        break;
+      }
+
+      default:
+        throw new Error(`Unhandled action type [${action.type}] passed to Web Worker!`);
+    }
+  }
+}

@@ -27,7 +27,7 @@ import config from '../../config';
 import loadingGif from './loading.gif';
 
 import * as actions from '../../redux/actions';
-import { actions as workerActions, selectDailyViewData} from '@tidepool/viz';
+import { utils as vizUtils } from '@tidepool/viz';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
@@ -803,7 +803,7 @@ export let PatientData = React.createClass({
 
         const preparePrintData = (bgUnits) => {
           return {
-            daily: selectDailyViewData(
+            daily: vizUtils.selectDailyViewData(
               dData[bgUnits][dData[bgUnits].length - 1].normalTime,
               _.pick(
                 data[bgUnits].grouped,
@@ -922,9 +922,9 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
-  generatePDFRequest: workerActions.generatePDFRequest,
+  generatePDFRequest: actions.worker.generatePDFRequest,
   fetchMessageThread: actions.async.fetchMessageThread,
-  removeGeneratedPDFS: workerActions.removeGeneratedPDFS,
+  removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
 
