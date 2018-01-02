@@ -21,7 +21,6 @@ import { Link } from 'react-router';
 import sundial from 'sundial';
 import async from 'async';
 import moment from 'moment';
-import { noop } from 'node-noop';
 import { checkCacheValid } from 'redux-cache';
 
 import * as ActionTypes from '../constants/actionTypes';
@@ -328,7 +327,7 @@ export function removeMembershipInOtherCareTeam(api, patientId) {
  * @param  {String|Number} patientId
  * @param  {String|Number} memberId
  */
-export function removeMemberFromTargetCareTeam(api, patientId, memberId, cb = noop) {
+export function removeMemberFromTargetCareTeam(api, patientId, memberId, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.removeMemberFromTargetCareTeamRequest());
 
@@ -354,7 +353,7 @@ export function removeMemberFromTargetCareTeam(api, patientId, memberId, cb = no
  * @param  {String} email
  * @param  {Object} permissions
  */
-export function sendInvite(api, email, permissions, cb = noop) {
+export function sendInvite(api, email, permissions, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.sendInviteRequest());
 
@@ -387,7 +386,7 @@ export function sendInvite(api, email, permissions, cb = noop) {
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} email
  */
-export function cancelSentInvite(api, email, cb = noop) {
+export function cancelSentInvite(api, email, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.cancelSentInviteRequest());
 
