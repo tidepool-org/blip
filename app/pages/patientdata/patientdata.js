@@ -269,7 +269,7 @@ export let PatientData = React.createClass({
             onClickPrint={this.handleClickPrint}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.viz.pdf.combined || {}}
+            pdf={this.props.pdf.combined || {}}
             ref="tideline" />
         </div>
       </div>
@@ -299,7 +299,7 @@ export let PatientData = React.createClass({
             updateBasicsSettings={this.props.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.viz.pdf.combined || {}}
+            pdf={this.props.pdf.combined || {}}
             ref="tideline" />
           );
       case 'daily':
@@ -321,7 +321,7 @@ export let PatientData = React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateDatetimeLocation={this.updateDatetimeLocation}
-            pdf={this.props.viz.pdf.combined || {}}
+            pdf={this.props.pdf.combined || {}}
             ref="tideline" />
           );
       case 'trends':
@@ -658,7 +658,7 @@ export let PatientData = React.createClass({
   componentWillUpdate: function (nextProps, nextState) {
     const pdfEnabled =  _.indexOf(['daily', 'basics', 'settings'], nextState.chartType) >= 0;
     const pdfGenerating = nextProps.generatingPDF;
-    const pdfGenerated = _.get(nextProps, 'viz.pdf.combined', false);
+    const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
     const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
@@ -911,6 +911,7 @@ export function mapStateToProps(state) {
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     generatingPDF: state.blip.working.generatingPDF.inProgress,
+    pdf: state.blip.pdf,
     viz: state.viz,
   };
 }

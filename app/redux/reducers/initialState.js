@@ -43,6 +43,7 @@ const initialState = {
   allUsersMap: {},
   patientDataMap: {},
   patientNotesMap: {},
+  pdf: {},
   pendingReceivedInvites: [],
   pendingSentInvites: [],
   messageThread: null,
