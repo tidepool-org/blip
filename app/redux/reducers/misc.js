@@ -432,7 +432,10 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
     }
     case types.CLEAR_PATIENT_DATA: {
       const { patientId } = action.payload;
-      return update(state, { [patientId]: { $set: null } });
+      return update(state, {
+        [patientId]: { $set: null },
+        [`${patientId}_cacheUntil`]: { $set: null },
+      });
     }
     case types.LOGOUT_REQUEST:
     case types.FETCH_PATIENT_DATA_FAILURE:
