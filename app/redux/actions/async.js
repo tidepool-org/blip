@@ -874,15 +874,15 @@ export function fetchPatients(api) {
  * @param {String|Number} id
  */
 export function fetchPatientData(api, options, id) {
-  // Default to only selecting the most recent 4 weeks of data
+  // Default to only selecting the most recent 8 weeks of data
   _.defaults(options, {
-    startDate: moment.utc().subtract(4, 'weeks').toISOString(),
+    startDate: moment.utc().subtract(8, 'weeks').toISOString(),
     endDate: moment.utc().toISOString(),
+    fetchCount: 0,
   });
 
   return (dispatch, getState) => {
     // If we have a valid cache of the data, do not dispatch fetch action
-    // if(checkCacheValid(getState, 'patientDataMap', {  })) {
     if(checkCacheValid(getState, 'patientDataMap', cacheByIdOptions(id))) {
       return null;
     }
@@ -897,10 +897,40 @@ export function fetchPatientData(api, options, id) {
         dispatch(sync.fetchPatientDataFailure(
           createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
         ));
-      } else {
-        let patientData = results.patientData || [];
-        let notes = results.teamNotes || [];
-        dispatch(sync.fetchPatientDataSuccess(id, patientData, notes));
+      }
+      else {
+        options.fetchCount++;
+        const isFirstFetchResults = options.fetchCount === 1;
+
+        const patientData = results.patientData || [];
+        const notes = results.teamNotes || [];
+
+        const range = utils.getDeviceDataRange(patientData);
+
+        if (isFirstFetchResults) {
+          if (range.spanInDays) {
+            if (range.spanInDays >= 28) {
+              // We have enough data for the initial rendering.
+              dispatch(sync.fetchPatientDataSuccess(id, patientData, notes));
+            }
+            else {
+              // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
+              dispatch(fetchPatientData(api, _.assign({}, options, {
+                startDate: moment.utc(range.end).subtract(4, 'weeks').toISOString(),
+              }), id));
+            }
+          }
+          else {
+            // No data in first pull. Pull all data.
+            dispatch(fetchPatientData(api, _.assign({}, options, {
+              startDate: null,
+            }), id));
+          }
+        }
+        else {
+          // Send what we have if we're beyond the first data fetch
+          dispatch(sync.fetchPatientDataSuccess(id, patientData, notes));
+        }
       }
     });
   };

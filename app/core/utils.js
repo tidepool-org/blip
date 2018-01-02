@@ -410,4 +410,31 @@ utils.getLatestGithubRelease = (releases) => {
   };
 }
 
+/**
+ * Get the earliest and latest dates, and the span in days in a given data set
+ * @param {Array} data - The raw unprocessed data
+ * @returns {Object}
+ */
+utils.getDeviceDataRange = (data) => {
+  const types = [
+    'basal',
+    'bolus',
+    'cbg',
+    'smbg',
+    'wizard',
+  ];
+
+  const sortedData = _.sortBy(data, 'time');
+
+  const start = _.get(_.find(sortedData, d => _.includes(types, d.type)), 'time');
+  const end = _.get(_.findLast(sortedData, d => _.includes(types, d.type)), 'time');
+  const spanInDays = (start && end) ? sundial.dateDifference(end, start, 'days') : null;
+
+  return {
+    start,
+    end,
+    spanInDays,
+  };
+}
+
 module.exports = utils;
