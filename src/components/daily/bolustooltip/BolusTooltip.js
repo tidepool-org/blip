@@ -307,6 +307,7 @@ BolusTooltip.propTypes = {
   }),
   tail: PropTypes.bool.isRequired,
   side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+  tailColor: PropTypes.string.isRequired,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
   backgroundColor: PropTypes.string,
