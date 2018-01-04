@@ -27,6 +27,7 @@ import * as ActionTypes from '../constants/actionTypes';
 import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
 import * as sync from './sync.js';
+import * as worker from './worker.js';
 import update from 'react-addons-update';
 import personUtils from '../../core/personutils';
 
@@ -878,11 +879,12 @@ export function fetchPatientData(api, options, id) {
     startDate: moment.utc().subtract(8, 'weeks').toISOString(),
     endDate: moment.utc().toISOString(),
     fetchCount: 0,
+    useCache: true,
   });
 
   return (dispatch, getState) => {
     // If we have a valid cache of the data, do not dispatch fetch action
-    if(checkCacheValid(getState, 'patientDataMap', cacheByIdOptions(id))) {
+    if(options.useCache && checkCacheValid(getState, 'patientDataMap', cacheByIdOptions(id))) {
       return null;
     }
 
@@ -911,6 +913,7 @@ export function fetchPatientData(api, options, id) {
             if (range.spanInDays >= 28) {
               // We have enough data for the initial rendering.
               dispatch(sync.fetchPatientDataSuccess(id, patientData, notes));
+              // dispatch(worker.processPatientDataRequest(id, patientData, notes));
             }
             else {
               // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
@@ -929,6 +932,7 @@ export function fetchPatientData(api, options, id) {
         else {
           // Send what we have if we're beyond the first data fetch
           dispatch(sync.fetchPatientDataSuccess(id, patientData, notes));
+          // dispatch(worker.processPatientDataRequest(id, patientData, notes));
         }
       }
     });

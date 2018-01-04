@@ -20,6 +20,7 @@ import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
 import bows from 'bows';
+import moment from 'moment';
 import sundial from 'sundial';
 import launchCustomProtocol from 'custom-protocol-detection';
 
@@ -70,6 +71,7 @@ export let PatientData = React.createClass({
     patient: React.PropTypes.object,
     patientDataMap: React.PropTypes.object.isRequired,
     patientNotesMap: React.PropTypes.object.isRequired,
+    processPatientDataRequest: React.PropTypes.func.isRequired,
     queryParams: React.PropTypes.object.isRequired,
     removeGeneratedPDFS: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -614,6 +616,7 @@ export let PatientData = React.createClass({
     this.setState({
       datetimeLocation: datetime
     });
+    this.fetchEarlierData(datetime);
   },
 
   componentWillMount: function() {
@@ -631,19 +634,27 @@ export let PatientData = React.createClass({
   },
 
   componentWillUnmount: function() {
-    // this.props.clearPatientData(this.props.currentPatientInViewId);
     this.props.removeGeneratedPDFS();
   },
 
   componentWillReceiveProps: function(nextProps) {
     var userId = this.props.currentPatientInViewId;
     var nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
+    var nextPatientProcessedData = _.get(nextProps, ['patientDataMap', `${userId}_processed`], null);
 
     // Hold processing until patient is fetched (ensuring settings are accessible), AND
     // processing hasn't already taken place (this should be cleared already when switching patients), AND
     // nextProps patient data exists
     if (!nextProps.fetchingPatient && !this.state.processedPatientData && nextPatientData) {
+    // if (!nextProps.fetchingPatient && !nextProps.processingPatientData && !nextPatientProcessedData && nextPatientData) {
+      // this.props.processPatientDataRequest();
+      console.log('doProcessing triggered');
       this.doProcessing(nextProps);
+    }
+
+    if (nextPatientProcessedData && this.state.processingData) {
+      console.log('processed data ready');
+      // this.handleProcessedData(nextPatientProcessedData);
     }
 
     // If the patient makes a change to their site change source settings,
@@ -660,6 +671,8 @@ export let PatientData = React.createClass({
     const pdfGenerating = nextProps.generatingPDF;
     const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
     const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
+
+    console.log('this.state.datetimeLocation', this.state.datetimeLocation);
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
@@ -744,8 +757,18 @@ export let PatientData = React.createClass({
     }
   },
 
+  fetchEarlierData: function(datetime) {
+    // this.props.onFetchEarlierData({
+    //   startDate: moment.utc(datetime).subtract(4, 'weeks').toISOString(),
+    //   endDate: moment.utc(datetime).toISOString(),
+    //   useCache: false,
+    //   carelink: this.props.carelink,
+    //   dexcom: this.props.dexcom,
+    // });
+  },
+
   doProcessing: function(nextProps) {
-    var userId = this.props.currentPatientInViewId;
+    var userId = nextProps.currentPatientInViewId;
     var patientData = _.get(nextProps, ['patientDataMap', userId], null);
     var patientSettings = _.cloneDeep(_.get(nextProps, ['patient', 'settings'], null));
     _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
@@ -755,6 +778,7 @@ export let PatientData = React.createClass({
       window.downloadInputData = () => {
         console.save(combinedData, 'blip-input.json');
       };
+
       let processedData = utils.processPatientData(
         this,
         combinedData,
@@ -762,68 +786,82 @@ export let PatientData = React.createClass({
         patientSettings,
       );
 
-      this.setState({
-        processedPatientData: processedData,
-        bgPrefs: {
-          bgClasses: processedData.bgClasses,
-          bgUnits: processedData.bgUnits
-        },
-        processingData: false,
-      });
+      this.handleProcessedData(processedData, nextProps);
 
-      this.setInitialChartType(processedData);
-
-      window.downloadPrintViewData = () => {
-        const prepareProcessedData = (bgUnits) => {
-          const multiplier = bgUnits === MGDL_UNITS ? MGDL_PER_MMOLL : (1 / MGDL_PER_MMOLL);
-
-          return (bgUnits === processedData.bgUnits) ? processedData : utils.processPatientData(
-            this,
-            combinedData,
-            this.props.queryParams,
-            _.assign({}, patientSettings, {
-              bgTarget: {
-                low: patientSettings.bgTarget.low * multiplier,
-                high: patientSettings.bgTarget.high * multiplier,
-              },
-              units: { bg: bgUnits }
-            }),
-          );
-        };
-
-        const data = {
-          [MGDL_UNITS]: prepareProcessedData(MGDL_UNITS),
-          [MMOLL_UNITS]: prepareProcessedData(MMOLL_UNITS),
-        };
-
-        const dData = {
-          [MGDL_UNITS]: data[MGDL_UNITS].diabetesData,
-          [MMOLL_UNITS]: data[MMOLL_UNITS].diabetesData,
-        };
-
-        const preparePrintData = (bgUnits) => {
-          return {
-            daily: vizUtils.selectDailyViewData(
-              dData[bgUnits][dData[bgUnits].length - 1].normalTime,
-              _.pick(
-                data[bgUnits].grouped,
-                // TODO: add back deviceEvent later (not in first prod release)
-                ['basal', 'bolus', 'cbg', 'message', 'smbg']
-              ),
-              6,
-              this.state.timePrefs,
-            ),
-            basics: data[bgUnits].basicsData,
-            settings: _.last(data[bgUnits].grouped.pumpSettings),
-          };
-        };
-
-        console.save({
-          [MGDL_UNITS]: preparePrintData(MGDL_UNITS),
-          [MMOLL_UNITS]: preparePrintData(MMOLL_UNITS),
-        }, 'print-view.json');
-      };
+      // this.props.processPatientDataRequest(userId, combinedData, this.props.queryParams, patientSettings);
     }
+  },
+
+  handleProcessedData: function(processedData, nextProps = this.props) {
+    var userId = nextProps.currentPatientInViewId;
+    var patientData = _.get(nextProps, ['patientDataMap', userId], null);
+    var patientSettings = _.cloneDeep(_.get(nextProps, ['patient', 'settings'], null));
+    _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
+
+    this.setState({
+      processedPatientData: processedData,
+      bgPrefs: {
+        bgClasses: processedData.bgClasses,
+        bgUnits: processedData.bgUnits
+      },
+      processingData: false,
+      // timePrefs: processedData.timePrefs,
+    });
+
+    this.setInitialChartType(processedData);
+
+    let combinedData = patientData.concat(nextProps.patientNotesMap[userId]);
+
+    window.downloadPrintViewData = () => {
+      const prepareProcessedData = (bgUnits) => {
+        const multiplier = bgUnits === MGDL_UNITS ? MGDL_PER_MMOLL : (1 / MGDL_PER_MMOLL);
+
+        return (bgUnits === processedData.bgUnits) ? processedData : utils.processPatientData(
+          this,
+          combinedData,
+          nextProps.queryParams,
+          _.assign({}, patientSettings, {
+            bgTarget: {
+              low: patientSettings.bgTarget.low * multiplier,
+              high: patientSettings.bgTarget.high * multiplier,
+            },
+            units: { bg: bgUnits }
+          }),
+        );
+      };
+
+      const data = {
+        [MGDL_UNITS]: prepareProcessedData(MGDL_UNITS),
+        [MMOLL_UNITS]: prepareProcessedData(MMOLL_UNITS),
+      };
+
+      const dData = {
+        [MGDL_UNITS]: data[MGDL_UNITS].diabetesData,
+        [MMOLL_UNITS]: data[MMOLL_UNITS].diabetesData,
+      };
+
+      const preparePrintData = (bgUnits) => {
+        return {
+          daily: vizUtils.selectDailyViewData(
+            dData[bgUnits][dData[bgUnits].length - 1].normalTime,
+            _.pick(
+              data[bgUnits].grouped,
+              // TODO: add back deviceEvent later (not in first prod release)
+              ['basal', 'bolus', 'cbg', 'message', 'smbg']
+            ),
+            6,
+            this.state.timePrefs,
+          ),
+          basics: data[bgUnits].basicsData,
+          settings: _.last(data[bgUnits].grouped.pumpSettings),
+        };
+      };
+
+      console.save({
+        [MGDL_UNITS]: preparePrintData(MGDL_UNITS),
+        [MMOLL_UNITS]: preparePrintData(MMOLL_UNITS),
+      }, 'print-view.json');
+    };
   },
 
   doFetching: function(nextProps) {
@@ -909,6 +947,7 @@ export function mapStateToProps(state) {
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
+    processingPatientData: state.blip.working.processingPatientData.inProgress,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     generatingPDF: state.blip.working.generatingPDF.inProgress,
     pdf: state.blip.pdf,
@@ -923,17 +962,23 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
-  generatePDFRequest: actions.worker.generatePDFRequest,
   fetchMessageThread: actions.async.fetchMessageThread,
+  generatePDFRequest: actions.worker.generatePDFRequest,
+  processPatientDataRequest: actions.worker.processPatientDataRequest,
   removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  let carelink = utils.getCarelink(ownProps.location);
-  let dexcom = utils.getDexcom(ownProps.location);
+  const carelink = utils.getCarelink(ownProps.location);
+  const dexcom = utils.getDexcom(ownProps.location);
   const api = ownProps.routes[0].api;
-  const assignedDispatchProps = ['clearPatientData', 'generatePDFRequest', 'removeGeneratedPDFS'];
+  const assignedDispatchProps = [
+    'clearPatientData',
+    'generatePDFRequest',
+    'processPatientDataRequest',
+    'removeGeneratedPDFS',
+  ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
     fetchers: getFetchers(dispatchProps, ownProps, api, { carelink, dexcom }),
@@ -948,6 +993,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     queryParams: ownProps.location.query,
     currentPatientInViewId: ownProps.routeParams.id,
     updateBasicsSettings: dispatchProps.updateSettings.bind(null, api),
+    onFetchEarlierData: dispatchProps.fetchPatientData.bind(null, api),
     carelink: carelink,
     dexcom: dexcom,
   });

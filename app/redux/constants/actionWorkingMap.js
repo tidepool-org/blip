@@ -32,6 +32,11 @@ export default (type) => {
     case types.FETCH_PATIENT_DATA_FAILURE:
       return 'fetchingPatientData';
 
+    case types.PROCESS_PATIENT_DATA_REQUEST:
+    case types.PROCESS_PATIENT_DATA_SUCCESS:
+    case types.PROCESS_PATIENT_DATA_FAILURE:
+      return 'processingPatientData';
+
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_FAILURE:

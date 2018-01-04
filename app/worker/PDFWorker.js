@@ -15,8 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-/* global importScripts, postMessage */
+/* global importScripts, postMessage, __DEV__ */
 import bows from 'bows';
+import _ from 'lodash';
 
 import * as actions from '../redux/actions/worker';
 import * as actionTypes from '../redux/constants/actionTypes';
@@ -24,8 +25,8 @@ import { createPrintPDFPackage } from '@tidepool/viz/dist/print';
 
 export default class PDFWorker {
   constructor(importer, renderer) {
-    this.log = bows('PDFWorker');
-    window._this.log('Ready!');
+    this.log = __DEV__ ? bows('PDFWorker') : _.noop;
+    this.log('Ready!');
     this.importer = importer;
     this.renderer = renderer;
   }

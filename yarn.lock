@@ -1822,6 +1822,12 @@ create-react-class@^15.5.2:
     loose-envify "^1.3.1"
     object-assign "^4.1.1"
 
+crossfilter2@1.4.0-alpha.6, crossfilter2@^1.4.0-alpha.6:
+  version "1.4.0-alpha.6"
+  resolved "https://registry.yarnpkg.com/crossfilter2/-/crossfilter2-1.4.0-alpha.6.tgz#f0197c6fab2d6a583b51254bfc6357093f80521b"
+  dependencies:
+    lodash.result "^4.4.0"
+
 crossfilter@1.3.12:
   version "1.3.12"
   resolved "https://registry.yarnpkg.com/crossfilter/-/crossfilter-1.3.12.tgz#147d7236a98c45c69f78bdc3a99d6fb00f70930c"
@@ -4461,6 +4467,10 @@ lodash.rest@^4.0.0:
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/lodash.rest/-/lodash.rest-4.0.5.tgz#954ef75049262038c96d1fc98b28fdaf9f0772aa"
 
+lodash.result@^4.4.0:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/lodash.result/-/lodash.result-4.5.2.tgz#cb45b27fb914eaa8d8ee6f0ce7b2870b87cb70aa"
+
 lodash.union@~4.2.0:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/lodash.union/-/lodash.union-4.2.1.tgz#6871017b9b1ff71952c1e2bb2e25b1046a7e2842"
@@ -5253,7 +5263,7 @@ npmi@1.0.1:
     npm "^2.1.12"
     semver "^4.1.0"
 
-"npmlog@0 || 1 || 2", "npmlog@0.1 || 1 || 2", npmlog@~2.0.0, "npmlog@~2.0.0 || ~3.1.0", npmlog@~2.0.2, npmlog@~2.0.4:
+"npmlog@0 || 1 || 2", "npmlog@0 || 1 || 2 || 3 || 4", "npmlog@0.1 || 1 || 2", npmlog@~2.0.0, "npmlog@~2.0.0 || ~3.1.0", npmlog@~2.0.2, npmlog@~2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/npmlog/-/npmlog-2.0.4.tgz#98b52530f2514ca90d09ec5b22c8846722375692"
   dependencies:
@@ -5261,7 +5271,7 @@ npmi@1.0.1:
     are-we-there-yet "~1.1.2"
     gauge "~1.2.5"
 
-"npmlog@0 || 1 || 2 || 3 || 4", npmlog@^4.0.2:
+npmlog@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/npmlog/-/npmlog-4.0.2.tgz#d03950e0e78ce1527ba26d2a7592e9348ac3e75f"
   dependencies:
@@ -5996,7 +6006,7 @@ put@0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/put/-/put-0.0.6.tgz#30f5f60bd6e4389bd329e16a25386cbb2e4a00a3"
 
-q@1.4.1, q@^1.1.2:
+q@1.4.1, q@^1.1.2, q@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/q/-/q-1.4.1.tgz#55705bcd93c5f3673530c2c2cbc0c2b3addc286e"
 
@@ -6483,6 +6493,12 @@ reduce-function-call@^1.0.1:
   dependencies:
     balanced-match "^0.4.2"
 
+reductio@^0.6.2:
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/reductio/-/reductio-0.6.3.tgz#292b2f66964a08abe0d061fe04d3eae974e41d83"
+  dependencies:
+    crossfilter2 "^1.4.0-alpha.6"
+
 redux-cache@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/redux-cache/-/redux-cache-0.3.0.tgz#1e5cca40cef9e8448cf5877d86fc20c3d7963af3"
@@ -6662,7 +6678,7 @@ request-progress@~2.0.1:
   dependencies:
     throttleit "^1.0.0"
 
-request@2, request@^2.47.0, request@^2.55.0, request@~2.74.0:
+request@2, request@^2.47.0, request@^2.55.0, request@^2.74.0, request@~2.74.0:
   version "2.74.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.74.0.tgz#7693ca768bbb0ea5c8ce08c084a45efa05b892ab"
   dependencies:
@@ -6731,7 +6747,7 @@ request@2.53.0:
     tough-cookie ">=0.12.0"
     tunnel-agent "~0.4.0"
 
-request@^2.74.0, request@^2.81.0:
+request@^2.81.0:
   version "2.81.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.81.0.tgz#c6928946a0e06c5f8d6f8a9333469ffda46298a0"
   dependencies:
@@ -6995,6 +7011,10 @@ send@0.14.1:
     on-finished "~2.3.0"
     range-parser "~1.2.0"
     statuses "~1.3.0"
+
+serialize-javascript@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-1.4.0.tgz#7c958514db6ac2443a8abc062dc9f7886a7f6005"
 
 serialize-svg-path@0.1.0:
   version "0.1.0"
@@ -7783,6 +7803,14 @@ unique-slug@^2.0.0:
   resolved "https://registry.yarnpkg.com/unique-slug/-/unique-slug-2.0.0.tgz#db6676e7c7cc0629878ff196097c78855ae9f4ab"
   dependencies:
     imurmurhash "^0.1.4"
+
+universe@^0.8.1:
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/universe/-/universe-0.8.1.tgz#71379bc3af9ef4a1902b317458ffe4ac5efa9b3a"
+  dependencies:
+    crossfilter2 "1.4.0-alpha.6"
+    q "^1.4.1"
+    reductio "^0.6.2"
 
 unpipe@1.0.0, unpipe@~1.0.0:
   version "1.0.0"

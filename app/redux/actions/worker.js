@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import * as actionTypes from '../constants/actionTypes';
 
 export function generatePDFRequest(type, data, opts) {
@@ -49,22 +50,57 @@ export function removeGeneratedPDFS() {
   };
 }
 
-export function processPatientDataRequest(id, data, notes) {
+export function processPatientDataRequest(id, data, queryParams, settings) {
+// export function processPatientDataRequest(id, data, notes) {
+
+  // const queryParams = {};
+  // _.forEach(document.location.search.replace('?', '').split('&'), paramString => {
+  //   const paramArr = paramString.split('=');
+  //   queryParams[paramArr[0]] = paramArr[1];
+  // });
+
   return {
     type: actionTypes.PROCESS_PATIENT_DATA_REQUEST,
-    meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
+    meta: { WebWorker: true, worker: 'data' },
+    // meta: { WebWorker: true, worker: 'data', queryParams },
     payload: {
       id,
-      data: JSON.stringify(data),
-      notes: JSON.stringify(notes),
+      // data: JSON.stringify(data),
+      data,
+      queryParams,
+      settings,
+      // notes: JSON.stringify(notes),
     },
   };
 }
 
-export function processPatientDataSuccess(id, data, notes) {
+export function processPatientDataSuccess(id, data) {
+  // const patientData = JSON.parse(data, function (key, value) {
+  //   if (value && typeof value === 'string' && value.substr(0,8) === 'function') {
+  //     var startBody = value.indexOf('{') + 1;
+  //     var endBody = value.lastIndexOf('}');
+  //     var startArgs = value.indexOf('(') + 1;
+  //     var endArgs = value.indexOf(')');
+  //     if (key === 'watson') {
+  //       console.log('startBody', startBody);
+  //       console.log('endBody', endBody);
+  //       console.log('startArgs', startArgs);
+  //       console.log('endArgs', endArgs);
+  //       console.log(value);
+  //     }
+
+  //     return new Function(value.substring(startArgs, endArgs), value.substring(startBody, endBody));
+  //   }
+  //   return value;
+  // });
+
   return {
     type: actionTypes.PROCESS_PATIENT_DATA_SUCCESS,
-    payload: { id, data, notes },
+    payload: {
+      patientId: id,
+      patientData: data,
+      // patientData: JSON.parse(data),
+    },
   };
 }
 
