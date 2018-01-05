@@ -105,8 +105,15 @@ export function confirmSignup(api, signupKey, signupEmail) {
  * @param  {String} password
  */
 export function verifyCustodial(api, signupKey, signupEmail, birthday, password) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const { blip: { working } } = getState();
+
+    if (working.confirmingSignup.notification) {
+      dispatch(sync.acknowledgeNotification('confirmingSignup'));
+    }
+
     dispatch(sync.verifyCustodialRequest());
+
     api.user.custodialConfirmSignUp(signupKey, birthday, password, function(err) {
       if (err) {
         let errorMessage = ErrorMessages.ERR_CONFIRMING_SIGNUP;
