@@ -425,28 +425,15 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
   switch(action.type) {
     case types.FETCH_PATIENT_DATA_SUCCESS: {
       const { patientId, patientData } = action.payload;
+      const method = state[patientId] ? '$push' : '$set';
       return update(state, {
-        [patientId]: { $set: patientData },
+        [patientId]: { [method]: patientData },
         [`${patientId}_cacheUntil`]: { $set: generateCacheTTL(36e5) }, // Cache for 60 mins
       });
     }
     case types.PROCESS_PATIENT_DATA_SUCCESS: {
       const { patientId, patientData } = action.payload;
-
-      // const parsedData = JSON.parse(_.cloneDeep(patientData), function (key, value) {
-      //   if (value && typeof value === 'string' && value.substr(0,8) === 'function') {
-      //     var startBody = value.indexOf('{') + 1;
-      //     var endBody = value.lastIndexOf('}');
-      //     var startArgs = value.indexOf('(') + 1;
-      //     var endArgs = value.indexOf(')');
-      //     return new Function(value.substring(startArgs, endArgs), value.substring(startBody, endBody));
-      //   }
-      //   return value;
-      // });
-
       return update(state, {
-        // [`${patientId}_processed`]: { $set: parsedData },
-        // [`${patientId}_processed`]: { $set: JSON.parse(patientData) },
         [`${patientId}_processed`]: { $set: patientData },
       });
     }

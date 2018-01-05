@@ -30,7 +30,7 @@ import loadingGif from './loading.gif';
 
 import * as actions from '../../redux/actions';
 import { utils as vizUtils } from '@tidepool/viz';
-import { getAvailablePatientDataRange } from '../../redux/selectors';
+import { getfetchedPatientDataRange } from '../../redux/selectors';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
@@ -110,6 +110,8 @@ export let PatientData = React.createClass({
       createMessageDatetime: null,
       datetimeLocation: null,
       initialDatetimeLocation: null,
+      // lastDatumProcessedIndex: 0,
+      // lastNoteProcessedIndex: 0,
       processingData: true,
       processedPatientData: null,
       timePrefs: {
@@ -313,7 +315,7 @@ export let PatientData = React.createClass({
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.state.timePrefs}
-            initialDatetimeLocation={this.state.initialDatetimeLocation}
+            initialDatetimeLocation={this.state.datetimeLocation || this.state.initialDatetimeLocation}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
@@ -337,7 +339,7 @@ export let PatientData = React.createClass({
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
             timePrefs={this.state.timePrefs}
-            initialDatetimeLocation={this.state.initialDatetimeLocation}
+            initialDatetimeLocation={this.state.datetimeLocation || this.state.initialDatetimeLocation}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
@@ -360,7 +362,7 @@ export let PatientData = React.createClass({
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.state.timePrefs}
-            initialDatetimeLocation={this.state.initialDatetimeLocation}
+            initialDatetimeLocation={this.state.datetimeLocation || this.state.initialDatetimeLocation}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
@@ -453,8 +455,11 @@ export let PatientData = React.createClass({
   },
 
   handleChartDateRangeUpdate: function(dateRange) {
-    console.log('dateRange', dateRange);
-    console.log('availablePatientDataRange', this.props.availablePatientDataRange);
+    if (moment(dateRange[0]).isBefore(this.props.fetchedPatientDataRange.start)) {
+      if (!this.props.fetchingPatientData) {
+        this.fetchEarlierData(this.props.fetchedPatientDataRange.start);
+      }
+    }
 
     this.updateChartDateRange(dateRange);
   },
@@ -660,11 +665,14 @@ export let PatientData = React.createClass({
     var nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
     var nextPatientProcessedData = _.get(nextProps, ['patientDataMap', `${userId}_processed`], null);
 
+    var nextFetchedDataRangeStart = _.get(nextProps, 'fetchedPatientDataRange.start');
+    var currentFetchedDataRangeStart = _.get(this.props, 'fetchedPatientDataRange.start');
+    var rangeChanged = nextFetchedDataRangeStart !== currentFetchedDataRangeStart;
+
     // Hold processing until patient is fetched (ensuring settings are accessible), AND
     // processing hasn't already taken place (this should be cleared already when switching patients), AND
     // nextProps patient data exists
-    if (!nextProps.fetchingPatient && !this.state.processedPatientData && nextPatientData) {
-    // if (!nextProps.fetchingPatient && !nextProps.processingPatientData && !nextPatientProcessedData && nextPatientData) {
+    if (nextFetchedDataRangeStart && rangeChanged && nextPatientData) {
       // this.props.processPatientDataRequest();
       console.log('doProcessing triggered');
       this.doProcessing(nextProps);
@@ -775,22 +783,27 @@ export let PatientData = React.createClass({
 
   fetchEarlierData: function(datetime) {
     this.props.onFetchEarlierData({
-      startDate: moment.utc(datetime).subtract(4, 'weeks').toISOString(),
+      startDate: moment.utc(datetime).startOf('day').subtract(8, 'weeks').toISOString(),
       endDate: moment.utc(datetime).toISOString(),
-      useCache: false,
       carelink: this.props.carelink,
       dexcom: this.props.dexcom,
+      useCache: false,
+      initial: false,
     }, this.props.currentPatientInViewId);
   },
 
   doProcessing: function(nextProps) {
     var userId = nextProps.currentPatientInViewId;
-    var patientData = _.get(nextProps, ['patientDataMap', userId], null);
+    var patientData = _.get(nextProps, ['patientDataMap', userId], []);
+    var patientNotes = _.get(nextProps, ['patientNotesMap', userId], []);
     var patientSettings = _.cloneDeep(_.get(nextProps, ['patient', 'settings'], null));
     _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
 
-    if (patientData) {
-      let combinedData = patientData.concat(nextProps.patientNotesMap[userId]);
+    if (patientData.length) {
+      const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1)
+      const unprocessedPatientNotes = patientNotes.slice(this.state.lastDatumProcessedIndex + 1)
+
+      let combinedData = unprocessedPatientData.concat(unprocessedPatientNotes);
       window.downloadInputData = () => {
         console.save(combinedData, 'blip-input.json');
       };
@@ -810,11 +823,28 @@ export let PatientData = React.createClass({
 
   handleProcessedData: function(processedData, nextProps = this.props) {
     var userId = nextProps.currentPatientInViewId;
-    var patientData = _.get(nextProps, ['patientDataMap', userId], null);
+    var patientData = _.get(nextProps, ['patientDataMap', userId], []);
+    var patientNotes = _.get(nextProps, ['patientNotesMap', userId], []);
     var patientSettings = _.cloneDeep(_.get(nextProps, ['patient', 'settings'], null));
     _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
 
+    var lastDatumProcessedIndex = patientData.length - 1;
+    var lastNoteProcessedIndex = patientData.length - 1;
+
+    var processedPatientData = !this.state.processedPatientData ? processedData : _.merge(
+      this.state.processedPatientData,
+      processedData,
+      (obj, src) => {
+        if (_.isArray(obj)) {
+          return obj.concat(src);
+        }
+      }
+    );
+
     this.setState({
+      // lastDatumProcessedIndex,
+      // lastNoteProcessedIndex,
+      // processedPatientData,
       processedPatientData: processedData,
       bgPrefs: {
         bgClasses: processedData.bgClasses,
@@ -826,7 +856,7 @@ export let PatientData = React.createClass({
 
     this.setInitialChartType(processedData);
 
-    let combinedData = patientData.concat(nextProps.patientNotesMap[userId]);
+    let combinedData = patientData.concat(patientNotes);
 
     window.downloadPrintViewData = () => {
       const prepareProcessedData = (bgUnits) => {
@@ -958,7 +988,7 @@ export function mapStateToProps(state, props) {
     isUserPatient: personUtils.isSame(user, patient),
     patient: { permissions, ...patient },
     patientDataMap: state.blip.patientDataMap,
-    availablePatientDataRange: getAvailablePatientDataRange(state, props),
+    fetchedPatientDataRange: getfetchedPatientDataRange(state, props),
     patientNotesMap: state.blip.patientNotesMap,
     permsOfLoggedInUser: permsOfLoggedInUser,
     messageThread: state.blip.messageThread,

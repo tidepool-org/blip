@@ -7,9 +7,9 @@ const getPatientData = (state, props) => _.get(
   `blip.patientDataMap[${_.get(props, 'routeParams.id')}]`
 );
 
-export const getAvailablePatientDataRange = createSelector(
+export const getfetchedPatientDataRange = createSelector(
   [ getPatientData ],
   (data) =>  utils.getDeviceDataRange(data),
 );
 
-export default getAvailablePatientDataRange;
+export default getfetchedPatientDataRange;
