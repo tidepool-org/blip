@@ -20,6 +20,7 @@ var bows = require('bows');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var sundial = require('sundial');
+var moment = require('moment');
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
@@ -159,6 +160,7 @@ var Daily = React.createClass({
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     // PatientData state updaters
+    onUpdateChartDateRange: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
@@ -274,6 +276,18 @@ var Daily = React.createClass({
       title: this.getTitle(datetimeLocationEndpoints[1])
     });
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
+
+    if (this.state.debouncedDateRangeUpdate) {
+      this.state.debouncedDateRangeUpdate.cancel();
+    }
+
+    // Update the chart date range in the patientData component
+    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
+    debouncedDateRangeUpdate([
+      moment.utc(datetimeLocationEndpoints[0].start).toISOString(),
+      moment.utc(datetimeLocationEndpoints[0].end).toISOString(),
+    ]);
+    this.setState({ debouncedDateRangeUpdate });
   },
   handleInTransition: function(inTransition) {
     this.setState({

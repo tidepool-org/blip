@@ -44,13 +44,13 @@ class Trends extends PureComponent {
     patient: React.PropTypes.object,
     patientData: PropTypes.object.isRequired,
     trendsState: PropTypes.object.isRequired,
-    // refresh handler
     onClickRefresh: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
     onSwitchToModal: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToWeekly: PropTypes.func.isRequired,
+    onUpdateChartDateRange: React.PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
     updateDatetimeLocation: PropTypes.func.isRequired,
@@ -251,6 +251,15 @@ class Trends extends PureComponent {
       title: this.getTitle(datetimeLocationEndpoints)
     });
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
+
+    if (this.state.debouncedDateRangeUpdate) {
+      this.state.debouncedDateRangeUpdate.cancel();
+    }
+
+    // Update the chart date range in the patientData component
+    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
+    debouncedDateRangeUpdate(datetimeLocationEndpoints);
+    this.setState({ debouncedDateRangeUpdate });
   }
 
   handleSelectDate(date) {

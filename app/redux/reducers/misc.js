@@ -427,7 +427,7 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
       const { patientId, patientData } = action.payload;
       return update(state, {
         [patientId]: { $set: patientData },
-        [`${patientId}_cacheUntil`]: { $set: generateCacheTTL() },
+        [`${patientId}_cacheUntil`]: { $set: generateCacheTTL(36e5) }, // Cache for 60 mins
       });
     }
     case types.PROCESS_PATIENT_DATA_SUCCESS: {

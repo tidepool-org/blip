@@ -17,6 +17,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { createSelector } from 'reselect';
 
 import _ from 'lodash';
 import bows from 'bows';
@@ -29,6 +30,7 @@ import loadingGif from './loading.gif';
 
 import * as actions from '../../redux/actions';
 import { utils as vizUtils } from '@tidepool/viz';
+import { getAvailablePatientDataRange } from '../../redux/selectors';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
@@ -297,6 +299,7 @@ export let PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
+            onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             updateBasicsData={this.updateBasicsData}
             updateBasicsSettings={this.props.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
@@ -322,6 +325,7 @@ export let PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
+            onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             updateDatetimeLocation={this.updateDatetimeLocation}
             pdf={this.props.pdf.combined || {}}
             ref="tideline" />
@@ -342,6 +346,7 @@ export let PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
+            onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
@@ -365,6 +370,7 @@ export let PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
+            onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             trackMetric={this.props.trackMetric}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
@@ -446,7 +452,14 @@ export let PatientData = React.createClass({
     }
   },
 
-  handleMessageCreation: function(message){
+  handleChartDateRangeUpdate: function(dateRange) {
+    console.log('dateRange', dateRange);
+    console.log('availablePatientDataRange', this.props.availablePatientDataRange);
+
+    this.updateChartDateRange(dateRange);
+  },
+
+  handleMessageCreation: function(message) {
     var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
     this.updateBasicsData(data);
     this.props.trackMetric('Created New Message');
@@ -608,15 +621,20 @@ export let PatientData = React.createClass({
     var currentPrefs = _.clone(this.state.chartPrefs);
     _.assign(currentPrefs, newChartPrefs);
     this.setState({
-      chartPrefs: currentPrefs
+      chartPrefs: currentPrefs,
     });
   },
 
   updateDatetimeLocation: function(datetime) {
     this.setState({
-      datetimeLocation: datetime
+      datetimeLocation: datetime,
     });
-    this.fetchEarlierData(datetime);
+  },
+
+  updateChartDateRange: function(dateRange) {
+    this.setState({
+      chartDateRange: dateRange,
+    });
   },
 
   componentWillMount: function() {
@@ -671,8 +689,6 @@ export let PatientData = React.createClass({
     const pdfGenerating = nextProps.generatingPDF;
     const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
     const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
-
-    console.log('this.state.datetimeLocation', this.state.datetimeLocation);
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
@@ -758,13 +774,13 @@ export let PatientData = React.createClass({
   },
 
   fetchEarlierData: function(datetime) {
-    // this.props.onFetchEarlierData({
-    //   startDate: moment.utc(datetime).subtract(4, 'weeks').toISOString(),
-    //   endDate: moment.utc(datetime).toISOString(),
-    //   useCache: false,
-    //   carelink: this.props.carelink,
-    //   dexcom: this.props.dexcom,
-    // });
+    this.props.onFetchEarlierData({
+      startDate: moment.utc(datetime).subtract(4, 'weeks').toISOString(),
+      endDate: moment.utc(datetime).toISOString(),
+      useCache: false,
+      carelink: this.props.carelink,
+      dexcom: this.props.dexcom,
+    }, this.props.currentPatientInViewId);
   },
 
   doProcessing: function(nextProps) {
@@ -902,7 +918,7 @@ let getFetchers = (dispatchProps, ownProps, api, options) => {
   ];
 };
 
-export function mapStateToProps(state) {
+export function mapStateToProps(state, props) {
   let user = null;
   let patient = null;
   let permissions = {};
@@ -942,6 +958,7 @@ export function mapStateToProps(state) {
     isUserPatient: personUtils.isSame(user, patient),
     patient: { permissions, ...patient },
     patientDataMap: state.blip.patientDataMap,
+    availablePatientDataRange: getAvailablePatientDataRange(state, props),
     patientNotesMap: state.blip.patientNotesMap,
     permsOfLoggedInUser: permsOfLoggedInUser,
     messageThread: state.blip.messageThread,

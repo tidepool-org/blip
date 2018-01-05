@@ -918,7 +918,7 @@ export function fetchPatientData(api, options, id) {
             else {
               // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
               dispatch(fetchPatientData(api, _.assign({}, options, {
-                startDate: moment.utc(range.end).subtract(4, 'weeks').toISOString(),
+                startDate: moment.utc(range.end).startOf('day').subtract(4, 'weeks').toISOString(),
               }), id));
             }
           }

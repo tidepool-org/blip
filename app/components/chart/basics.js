@@ -47,6 +47,7 @@ var Basics = React.createClass({
     onClickPrint: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
+    onUpdateChartDateRange: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
@@ -150,6 +151,10 @@ var Basics = React.createClass({
     }
     var basicsData = this.props.patientData.basicsData;
     var dtMask = 'MMM D, YYYY';
+
+    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
+    debouncedDateRangeUpdate(basicsData.dateRange);
+
     return sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask) +
       ' - ' + sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask);
   },

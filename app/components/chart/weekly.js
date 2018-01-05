@@ -140,6 +140,7 @@ var Weekly = React.createClass({
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
+    onUpdateChartDateRange: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
@@ -317,6 +318,15 @@ var Weekly = React.createClass({
       title: this.getTitle(datetimeLocationEndpoints)
     });
     this.props.updateDatetimeLocation(this.refs.chart.getCurrentDay());
+
+    if (this.state.debouncedDateRangeUpdate) {
+      this.state.debouncedDateRangeUpdate.cancel();
+    }
+
+    // Update the chart date range in the patientData component
+    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
+    debouncedDateRangeUpdate(datetimeLocationEndpoints);
+    this.setState({ debouncedDateRangeUpdate });
   },
   handleInTransition: function(inTransition) {
     this.setState({
