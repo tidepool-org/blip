@@ -30,23 +30,9 @@ var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
 var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('./data/util/constants');
 
-var log;
-if (typeof window !== 'undefined' && __DEV__ === true) {
-  log = require('bows')('TidelineData');
-}
-else {
-  log = function() { return; };
-}
-
-var startTimer, endTimer;
-if (typeof window !== 'undefined' && __DEV__ === true) {
-  startTimer = function(name) { console.time(name); };
-  endTimer = function(name) { console.timeEnd(name); };
-}
-else {
-  startTimer = function() { return; };
-  endTimer = function() { return; };
-}
+var log = __DEV__ ? require('bows')('TidelineData') : _.noop;
+var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
+var endTimer = __DEV__ ? function(name) { console.timeEnd(name); } : _.noop;
 
 function TidelineData(data, opts) {
   var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings'];
