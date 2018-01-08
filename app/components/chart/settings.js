@@ -46,7 +46,7 @@ const Settings = React.createClass({
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
-    onSwitchToModal: React.PropTypes.func.isRequired,
+    onSwitchToTrends: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     onClickPrint: React.PropTypes.func.isRequired,
@@ -161,7 +161,7 @@ const Settings = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToModal();
+    this.props.onSwitchToTrends();
   },
 
   handleClickMostRecent: function(e) {

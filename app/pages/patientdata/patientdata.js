@@ -269,7 +269,7 @@ export let PatientData = React.createClass({
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToModal={this.handleSwitchToModal}
+            onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             onClickPrint={this.handleClickPrint}
@@ -298,7 +298,7 @@ export let PatientData = React.createClass({
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onClickPrint={this.handleClickPrint}
-            onSwitchToModal={this.handleSwitchToModal}
+            onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
@@ -324,7 +324,7 @@ export let PatientData = React.createClass({
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onClickPrint={this.handleClickPrint}
-            onSwitchToModal={this.handleSwitchToModal}
+            onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
@@ -345,7 +345,7 @@ export let PatientData = React.createClass({
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToModal={this.handleSwitchToModal}
+            onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
@@ -369,7 +369,7 @@ export let PatientData = React.createClass({
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToModal={this.handleSwitchToModal}
+            onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
@@ -538,7 +538,7 @@ export let PatientData = React.createClass({
     }
   },
 
-  handleSwitchToModal: function(datetime) {
+  handleSwitchToTrends: function(datetime) {
     this.props.trackMetric('Clicked Switch To Modal', {
       fromChart: this.state.chartType
     });
@@ -567,7 +567,8 @@ export let PatientData = React.createClass({
     }
     this.setState({
       chartType: 'weekly',
-      initialDatetimeLocation: datetime
+      initialDatetimeLocation: datetime,
+      datetimeLocation: datetime,
     });
   },
 

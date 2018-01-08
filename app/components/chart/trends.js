@@ -47,7 +47,7 @@ class Trends extends PureComponent {
     onClickRefresh: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
-    onSwitchToModal: PropTypes.func.isRequired,
+    onSwitchToTrends: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToWeekly: PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,

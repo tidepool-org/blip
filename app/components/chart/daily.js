@@ -242,7 +242,7 @@ var Daily = React.createClass({
       e.preventDefault();
     }
     var datetime = this.refs.chart.getCurrentDay();
-    this.props.onSwitchToModal(datetime);
+    this.props.onSwitchToTrends(datetime);
   },
   handleClickMostRecent: function(e) {
     if (e) {

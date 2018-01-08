@@ -187,7 +187,7 @@ var Basics = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToModal();
+    this.props.onSwitchToTrends();
   },
 
   handleClickOneDay: function(e) {
