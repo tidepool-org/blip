@@ -232,6 +232,32 @@ describe('Actions', () => {
     });
 
     describe('verifyCustodial', () => {
+      it('should trigger ACKNOWLEDGE_NOTIFICATION for the confirmingSignup notification if set', () => {
+        let user = { id: 27 };
+        let key = 'fakeSignupKey';
+        let email = 'g@a.com';
+        let birthday = '07/18/1988';
+        let password = 'foobar01';
+        let creds = { username: email, password: password };
+        let api = {
+          user: {
+            custodialConfirmSignUp: sinon.stub().callsArgWith(3, null),
+            login: sinon.stub().callsArgWith(2, null),
+            get: sinon.stub().callsArgWith(0, null, user)
+          }
+        };
+
+        let expectedAction = { type: 'ACKNOWLEDGE_NOTIFICATION', payload: { acknowledgedNotification: 'confirmingSignup' } };
+
+        let initialStateForTest = _.merge({}, initialState, { blip: { working: { confirmingSignup: { notification: 'hi' } } } });
+
+        let store = mockStore(initialStateForTest);
+        store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
+
+        const actions = store.getActions();
+        expect(actions[0]).to.eql(expectedAction);
+      });
+
       it('should trigger VERIFY_CUSTODIAL_SUCCESS and it should call verifyCustodial once for a successful request', () => {
         let user = { id: 27 };
         let key = 'fakeSignupKey';
@@ -257,7 +283,10 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+
+        let initialStateForTest = _.merge({}, initialState, { blip: { working: { confirmingSignup: { notification: null } } } });
+
+        let store = mockStore(initialStateForTest);
         store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
 
         const actions = store.getActions();
@@ -293,7 +322,9 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let initialStateForTest = _.merge({}, initialState, { blip: { working: { confirmingSignup: { notification: null } } } });
+
+        let store = mockStore(initialStateForTest);
         store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
 
         const actions = store.getActions();

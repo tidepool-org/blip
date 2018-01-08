@@ -13,7 +13,10 @@ var TestUtils = require('react-addons-test-utils');
 
 import { mount } from 'enzyme';
 import mutationTracker from 'object-invariant-test-helper';
-import { mapStateToProps } from '../../../app/pages/app/app.js';
+import {
+  mapStateToProps,
+  getFetchers,
+} from '../../../app/pages/app/app.js';
 import initialState from '../../../app/redux/reducers/initialState';
 
 import * as ErrorMessages from '../../../app/redux/constants/errorMessages';
@@ -623,6 +626,34 @@ describe('App',  () => {
 
       it('should return the current patient in view as patient and empty permissions', () => {
         expect(result.patient).to.deep.equal(Object.assign({}, loggedIn.allUsersMap.d4e5f6, { permissions: {} }));
+      });
+
+      describe('getFetchers', () => {
+        const stateProps = {
+          authenticated: false,
+        };
+
+        const dispatchProps ={
+          fetchUser: sinon.stub().returns('fetchUser'),
+          fetchDataSources: sinon.stub().returns('fetchDataSources'),
+        };
+
+        const api = {};
+
+        it('should return an array containing the user fetcher from dispatchProps', () => {
+          const result = getFetchers(stateProps, dispatchProps, api);
+          expect(result[0]).to.be.a('function');
+          expect(result[0]()).to.equal('fetchUser');
+        });
+
+        it('should return an array containing the data sources fetcher from dispatchProps, but only if authenticated', () => {
+          const result = getFetchers(stateProps, dispatchProps, api);
+          expect(result[1]).to.be.undefined;
+
+          const loggedInResult = getFetchers(_.assign({}, stateProps, { authenticated: true } ), dispatchProps, api);
+          expect(loggedInResult[1]).to.be.a('function');
+          expect(loggedInResult[1]()).to.equal('fetchDataSources');
+        });
       });
 
       describe('Data donation props', () => {
