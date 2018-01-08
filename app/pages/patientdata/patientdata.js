@@ -854,7 +854,9 @@ export let PatientData = React.createClass({
       // timePrefs: processedData.timePrefs,
     });
 
-    this.setInitialChartType(processedData);
+    if (!this.state.chartType) {
+      this.setInitialChartType(processedData);
+    }
 
     let combinedData = patientData.concat(patientNotes);
 
