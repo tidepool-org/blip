@@ -197,9 +197,9 @@ describe('TidelineData', function() {
     }
   });
 
-  describe('addDatum', function() {
+  describe('addData', function() {
     it('should be a function', function() {
-      assert.isFunction(td.addDatum);
+      assert.isFunction(td.addData);
     });
 
     it('should increase the length of the group data and data by one', function() {
@@ -207,7 +207,7 @@ describe('TidelineData', function() {
       var toAdd = new TidelineData(origData);
       var origLen = toAdd.data.length;
       var bolusLen = toAdd.grouped.bolus.length;
-      toAdd.addDatum(new types.Bolus());
+      toAdd.addData([new types.Bolus()]);
       expect(toAdd.data.length - 1).to.equal(origLen);
       expect(toAdd.grouped.bolus.length - 1).to.equal(bolusLen);
     });
@@ -218,7 +218,7 @@ describe('TidelineData', function() {
       var origFill = toAdd.grouped.fill;
       var lastFill = origFill[origFill.length - 1];
       var later = moment(lastFill.normalTime).add(6, 'hours').toISOString();
-      toAdd.addDatum(new types.SMBG({deviceTime: later.slice(0, -5)}));
+      toAdd.addData([new types.SMBG({deviceTime: later.slice(0, -5)})]);
       var newFill = toAdd.grouped.fill;
       expect(newFill[newFill.length - 1].normalTime).to.be.at.least(later);
     });
@@ -597,7 +597,7 @@ describe('TidelineData', function() {
 
     it('should re-normalize to new timezone when new timezoneName', function() {
       thisTd.applyNewTimePrefs({timezoneName: 'Pacific/Auckland'});
-      thisTd.addDatum(new types.Message());
+      thisTd.addData([new types.Message()]);
       var datum = _.findWhere(thisTd.data, {type: 'basal'});
       var message = _.findWhere(thisTd.data, {type: 'message'});
       expect(datum.normalTime).to.equal(moment(datum.deviceTime).tz('Pacific/Auckland').toISOString());

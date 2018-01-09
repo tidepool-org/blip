@@ -102,13 +102,6 @@ function TidelineData(data, opts) {
     return that;
   }
 
-  function addAndResort(datum, a) {
-    return _.sortBy((function() {
-      a.push(datum);
-      return a;
-    }()), function(d) { return d.normalTime; });
-  }
-
   function updateCrossFilters(data) {
     startTimer('crossfilter');
     that.filterData = crossfilter(data);
@@ -160,17 +153,37 @@ function TidelineData(data, opts) {
     return newDim;
   };
 
-  this.addDatum = function(datum) {
-    this.watson(datum);
-    this.grouped[datum.type] = addAndResort(datum, this.grouped[datum.type]);
-    this.data = addAndResort(datum, this.data);
-    updateCrossFilters(this.data);
-    if (_.includes(opts.diabetesDataTypes, datum.type)) {
-      this.diabetesData = addAndResort(datum, this.diabetesData);
+  this.addData = function (data) {
+    var resortDiabetesData = false;
+
+    // Add all new datum to appropriate collections
+    _.each(data, datum => {
+      this.watson(datum);
+      this.grouped[datum.type].push(datum);
+      this.data.push(datum);
+      if (_.includes(opts.diabetesDataTypes, datum.type)) {
+        this.diabetesData.push(datum);
+        resortDiabetesData = true;
+      }
+    });
+
+    // Resort all updated collections
+    _.forIn(this.grouped, (group, key) => {
+      this.grouped[key] = _.sortBy(group, 'normalTime');
+    });
+
+    this.data = _.sortBy(this.data, 'normalTime');
+
+    if (resortDiabetesData) {
+      this.diabetesData = _.sortBy(this.diabetesData, 'normalTime');
     }
+
+    // Update the crossfilters and fill data
+    updateCrossFilters(this.data);
     this.generateFillData().adjustFillsForTwoWeekView();
+
     return this;
-  };
+  }
 
   this.editDatum = function(editedDatum, timeKey) {
     var self = this;
