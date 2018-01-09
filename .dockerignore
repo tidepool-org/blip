@@ -1,6 +1,7 @@
-node_modules
 .git
 .gitignore
+node_modules
+npm-debug.log
 dist
 local
 _book
