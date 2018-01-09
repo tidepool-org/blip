@@ -169,13 +169,13 @@ function TidelineData(data, opts) {
 
     // Resort all updated collections
     _.forIn(this.grouped, (group, key) => {
-      this.grouped[key] = _.sortBy(group, 'normalTime');
+      this.grouped[key] = _.uniq(_.sortBy(group, 'normalTime'), 'id');
     });
 
-    this.data = _.sortBy(this.data, 'normalTime');
+    this.data = _.uniq(_.sortBy(this.data, 'normalTime'), 'id');
 
     if (resortDiabetesData) {
-      this.diabetesData = _.sortBy(this.diabetesData, 'normalTime');
+      this.diabetesData = _.uniq(_.sortBy(this.diabetesData, 'normalTime'), 'id');
     }
 
     // Update the crossfilters and fill data
@@ -183,7 +183,7 @@ function TidelineData(data, opts) {
     this.generateFillData().adjustFillsForTwoWeekView();
 
     return this;
-  }
+  };
 
   this.editDatum = function(editedDatum, timeKey) {
     var self = this;
