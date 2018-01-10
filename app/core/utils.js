@@ -350,22 +350,22 @@ utils.workerProcessPatientData = (data, queryParams, settings) => {
 
     const timePrefsForTideline = utils.getTimezoneForDataProcessing(data, queryParams);
     const bgPrefs = utils.getBGPrefsForDataProcessing(queryParams, settings);
-    // const { bgUnits, bgClasses } = utils.getBGPrefsForDataProcessing(queryParams, settings);
 
     console.time('Nurseshark Total');
     var res = nurseShark.processData(data, bgPrefs.bgUnits);
     console.timeEnd('Nurseshark Total');
-    console.time('TidelineData Total');
-    // var tidelineData = new TidelineData(res.processedData, {
-    //   timePrefs: timePrefsForTideline,
-    //   bgUnits,
-    //   bgClasses,
-    // });
 
-    // if (!_.isEmpty(timePrefsForTideline)) {
-    //   tidelineData.timePrefs = timePrefsForTideline;
-    // }
-    // console.timeEnd('TidelineData Total');
+    console.time('TidelineData Total');
+    var tidelineData = new TidelineData(res.processedData, {
+      timePrefs: timePrefsForTideline,
+      bgUnits: bgPrefs.bgUnits,
+      bgClasses: bgPrefs.bgClasses,
+    });
+
+    if (!_.isEmpty(timePrefsForTideline)) {
+      tidelineData.timePrefs = timePrefsForTideline;
+    }
+    console.timeEnd('TidelineData Total');
 
     resolve({
       bgPrefs,
@@ -375,79 +375,36 @@ utils.workerProcessPatientData = (data, queryParams, settings) => {
   });
 }
 
-utils.processPatientData = (comp, data, queryParams, settings) => {
+utils.filterPatientData = (data, bgUnits) => {
+  return nurseShark.processData(data, bgUnits);
+}
+
+utils.processPatientData = (data, queryParams, settings) => {
+// utils.processPatientData = (comp, data, queryParams, settings) => {
   if (!(data && data.length >= 0)) {
     return null;
   }
 
-  var timePrefsForTideline;
-  function setNewTimePrefs(timezoneName) {
-    try {
-      sundial.checkTimezoneName(timezoneName);
-      timePrefsForTideline = {
-        timezoneAware: true,
-        timezoneName: timezoneName
-      };
-    }
-    catch(err) {
-      console.log(err);
-      console.log('Not a valid timezone! Defaulting to timezone-naive display.');
-      timePrefsForTideline = {};
-    }
-  }
-
-  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
-  if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
-    setNewTimePrefs(mostRecentUpload.timezone);
-  } else {
-    let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // eslint-disable-line new-cap
-    if (!_.isEmpty(timezone)) {
-      setNewTimePrefs(timezone);
-    }
-  }
-
-  // a timezone in the queryParams always overrides any other timePrefs
-  if (!_.isEmpty(queryParams.timezone)) {
-    setNewTimePrefs(queryParams.timezone);
-    console.log('Displaying in timezone from query params:', queryParams.timezone);
-  }
-  else if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
-    console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
-  }
-  else {
-    console.log('Falling back to display in browser timezone.');
-  }
-  if (!_.isEmpty(timePrefsForTideline)) {
-    comp.setState({
-      timePrefs: timePrefsForTideline
-    });
-  }
+  const timePrefsForTideline = utils.getTimezoneForDataProcessing(data, queryParams);
+  const bgPrefs = utils.getBGPrefsForDataProcessing(queryParams, settings);
 
   console.time('Nurseshark Total');
-  var bgUnits = settings.units.bg || MGDL_UNITS;
-  var bgClasses = {
-    low: { boundary: utils.roundBgTarget(settings.bgTarget.low, bgUnits) },
-    target: { boundary: utils.roundBgTarget(settings.bgTarget.high, bgUnits) },
-  };
-
-  // Allow overriding stored BG Unit preferences via query param
-  const bgUnitsFormatted = bgUnits.replace('/', '').toLowerCase();
-  if (!_.isEmpty(queryParams.units) && queryParams.units !== bgUnitsFormatted && _.includes([ 'mgdl', 'mmoll' ], queryParams.units)) {
-    bgUnits = queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
-    bgClasses.low.boundary = utils.roundBgTarget(utils.translateBg(settings.bgTarget.low, bgUnits), bgUnits);
-    bgClasses.target.boundary = utils.roundBgTarget(utils.translateBg(settings.bgTarget.high, bgUnits), bgUnits);
-    console.log(`Displaying BG in ${bgUnits} from query params`);
-  }
-
-
-  var res = nurseShark.processData(data, bgUnits);
+  const res = utils.filterPatientData(data, bgPrefs.bgUnits);
   console.timeEnd('Nurseshark Total');
+
   console.time('TidelineData Total');
-  var tidelineData = new TidelineData(res.processedData, {
+  let tidelineData = new TidelineData(res.processedData, {
     timePrefs: timePrefsForTideline,
-    bgUnits,
-    bgClasses,
+    bgUnits: bgPrefs.bgUnits,
+    bgClasses: bgPrefs.bgClasses,
   });
+
+  if (!_.isEmpty(timePrefsForTideline)) {
+    tidelineData.timePrefs = timePrefsForTideline;
+    //   comp.setState({
+    //     timePrefs: timePrefsForTideline
+    //   });
+  }
   console.timeEnd('TidelineData Total');
 
   window.tidelineData = tidelineData;

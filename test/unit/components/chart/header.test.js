@@ -30,7 +30,7 @@ describe('Header', function () {
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
-        onClickModal: sinon.stub(),
+        onClickTrends: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
@@ -59,7 +59,7 @@ describe('Header', function () {
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
-        onClickModal: sinon.stub(),
+        onClickTrends: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
@@ -94,7 +94,7 @@ describe('Header', function () {
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
-        onClickModal: sinon.stub(),
+        onClickTrends: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
@@ -112,7 +112,7 @@ describe('Header', function () {
       expect(props.onClickBack.callCount).to.equal(0);
     });
 
-    it('should trigger onClickModal when trends button is clicked', function () {
+    it('should trigger onClickTrends when trends button is clicked', function () {
       var props = {
         patient: {
           profile: {
@@ -129,7 +129,7 @@ describe('Header', function () {
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
-        onClickModal: sinon.stub(),
+        onClickTrends: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
@@ -142,9 +142,9 @@ describe('Header', function () {
 
       var trendsButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-trends');
 
-      expect(props.onClickModal.callCount).to.equal(0);
+      expect(props.onClickTrends.callCount).to.equal(0);
       TestUtils.Simulate.click(trendsButton);
-      expect(props.onClickModal.callCount).to.equal(1);
+      expect(props.onClickTrends.callCount).to.equal(1);
     });
 
     it('should trigger onClickMostRecent when inTransition is false and mostRecent button is clicked', function () {
@@ -164,7 +164,7 @@ describe('Header', function () {
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
-        onClickModal: sinon.stub(),
+        onClickTrends: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
@@ -199,7 +199,7 @@ describe('Header', function () {
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
-        onClickModal: sinon.stub(),
+        onClickTrends: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
@@ -234,7 +234,7 @@ describe('Header', function () {
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
-        onClickModal: sinon.stub(),
+        onClickTrends: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
@@ -269,7 +269,7 @@ describe('Header', function () {
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
-        onClickModal: sinon.stub(),
+        onClickTrends: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
@@ -304,7 +304,7 @@ describe('Header', function () {
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
-        onClickModal: sinon.stub(),
+        onClickTrends: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
@@ -339,7 +339,7 @@ describe('Header', function () {
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
-        onClickModal: sinon.stub(),
+        onClickTrends: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
@@ -374,7 +374,7 @@ describe('Header', function () {
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
-        onClickModal: sinon.stub(),
+        onClickTrends: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
@@ -409,7 +409,7 @@ describe('Header', function () {
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
-        onClickModal: sinon.stub(),
+        onClickTrends: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),

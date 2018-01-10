@@ -75,7 +75,7 @@ const Settings = React.createClass({
           onClickMostRecent={this.handleClickMostRecent}
           onClickBasics={this.props.onSwitchToBasics}
           onClickOneDay={this.handleClickOneDay}
-          onClickModal={this.handleClickModal}
+          onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.handleClickSettings}
           onClickTwoWeeks={this.handleClickTwoWeeks}
@@ -157,7 +157,7 @@ const Settings = React.createClass({
   },
 
   // handlers
-  handleClickModal: function(e) {
+  handleClickTrends: function(e) {
     if (e) {
       e.preventDefault();
     }

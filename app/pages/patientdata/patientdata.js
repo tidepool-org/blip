@@ -110,8 +110,7 @@ export let PatientData = React.createClass({
       createMessageDatetime: null,
       datetimeLocation: null,
       initialDatetimeLocation: null,
-      // lastDatumProcessedIndex: 0,
-      // lastNoteProcessedIndex: 0,
+      lastDatumProcessedIndex: 0,
       processingData: true,
       processedPatientData: null,
       timePrefs: {
@@ -454,10 +453,13 @@ export let PatientData = React.createClass({
     }
   },
 
-  handleChartDateRangeUpdate: function(dateRange) {
-    if (moment(dateRange[0]).isBefore(this.props.fetchedPatientDataRange.start)) {
+  handleChartDateRangeUpdate: function(dateRange, chart) {
+    const earliestRequestedData = _.get(this.state, 'requestedPatientDataRange', this.props.fetchedPatientDataRange).start;
+
+    if (moment.utc(dateRange[0]).startOf('day').isSameOrBefore(this.props.fetchedPatientDataRange.start)) {
       if (!this.props.fetchingPatientData) {
-        this.fetchEarlierData(this.props.fetchedPatientDataRange.start);
+        // console.log('chart', chart);
+        this.fetchEarlierData();
       }
     }
 
@@ -520,9 +522,11 @@ export let PatientData = React.createClass({
     this.props.trackMetric('Clicked Basics '+title+' calendar', {
       fromChart: this.state.chartType
     });
+    datetime = datetime || this.state.datetimeLocation;
     this.setState({
       chartType: 'daily',
-      initialDatetimeLocation: datetime || this.state.datetimeLocation
+      initialDatetimeLocation: datetime,
+      datetimeLocation: datetime,
     });
   },
 
@@ -542,9 +546,11 @@ export let PatientData = React.createClass({
     this.props.trackMetric('Clicked Switch To Modal', {
       fromChart: this.state.chartType
     });
+    datetime = datetime || this.state.datetimeLocation;
     this.setState({
       chartType: 'trends',
-      initialDatetimeLocation: datetime || this.state.datetimeLocation
+      initialDatetimeLocation: datetime,
+      datetimeLocation: datetime,
     });
   },
 
@@ -662,27 +668,36 @@ export let PatientData = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    var userId = this.props.currentPatientInViewId;
-    var nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
-    var nextPatientProcessedData = _.get(nextProps, ['patientDataMap', `${userId}_processed`], null);
+    const userId = this.props.currentPatientInViewId;
+    const nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
+    const currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
+    // const nextPatientProcessedData = _.get(nextProps, ['patientDataMap', `${userId}_processed`], null);
 
-    var nextFetchedDataRangeStart = _.get(nextProps, 'fetchedPatientDataRange.start');
-    var currentFetchedDataRangeStart = _.get(this.props, 'fetchedPatientDataRange.start');
-    var rangeChanged = nextFetchedDataRangeStart !== currentFetchedDataRangeStart;
+    const nextFetchedDataRangeStart = _.get(nextProps, 'fetchedPatientDataRange.fetchedUntil');
+    const currentFetchedDataRangeStart = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil');
+    const newDataFetched = nextFetchedDataRangeStart !== currentFetchedDataRangeStart;
 
     // Hold processing until patient is fetched (ensuring settings are accessible), AND
     // processing hasn't already taken place (this should be cleared already when switching patients), AND
     // nextProps patient data exists
-    if (nextFetchedDataRangeStart && rangeChanged && nextPatientData) {
-      // this.props.processPatientDataRequest();
-      console.log('doProcessing triggered');
-      this.doProcessing(nextProps);
+    if (nextPatientData) {
+      const currentPatientDataCount = _.get(currentPatientData, 'length', 0);
+      if (nextPatientData.length > currentPatientDataCount) {
+        this.processData(nextProps);
+      }
+      if (newDataFetched && nextPatientData.length === currentPatientDataCount) {
+        // Our latest data fetch yeilded no new data. We now request the remainder of the available
+        // data to make sure that we don't miss any.
+        if (nextFetchedDataRangeStart !== 'start') {
+          this.fetchEarlierData({ startDate: null });
+        }
+      }
     }
 
-    if (nextPatientProcessedData && this.state.processingData) {
-      console.log('processed data ready');
-      // this.handleProcessedData(nextPatientProcessedData);
-    }
+    // if (nextPatientProcessedData && this.state.processingData) {
+    //   console.log('processed data ready');
+    //   // this.handleProcessedData(nextPatientProcessedData);
+    // }
 
     // If the patient makes a change to their site change source settings,
     // we should remove the currently generated PDF, which will trigger a rebuild of
@@ -782,77 +797,87 @@ export let PatientData = React.createClass({
     }
   },
 
-  fetchEarlierData: function(datetime) {
-    this.props.onFetchEarlierData({
-      startDate: moment.utc(datetime).startOf('day').subtract(8, 'weeks').toISOString(),
-      endDate: moment.utc(datetime).toISOString(),
+  fetchEarlierData: function(options = {}) {
+    if (_.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start') {
+      return null;
+    };
+
+    const earliestRequestedData = _.get(this.state, 'requestedPatientDataRange', this.props.fetchedPatientDataRange).start;
+
+    const requestedPatientDataRange = {
+      start: moment.utc(earliestRequestedData).subtract(8, 'weeks').toISOString(),
+      end: moment.utc(earliestRequestedData).subtract(1, 'milliseconds').toISOString(),
+    };
+
+    this.setState({ requestedPatientDataRange });
+
+    const fetchOpts = _.defaults(options, {
+      startDate: requestedPatientDataRange.start,
+      endDate: requestedPatientDataRange.end,
       carelink: this.props.carelink,
       dexcom: this.props.dexcom,
       useCache: false,
       initial: false,
-    }, this.props.currentPatientInViewId);
+    });
+
+    this.props.onFetchEarlierData(fetchOpts, this.props.currentPatientInViewId);
   },
 
-  doProcessing: function(nextProps) {
-    var userId = nextProps.currentPatientInViewId;
-    var patientData = _.get(nextProps, ['patientDataMap', userId], []);
-    var patientNotes = _.get(nextProps, ['patientNotesMap', userId], []);
-    var patientSettings = _.cloneDeep(_.get(nextProps, ['patient', 'settings'], null));
+  processData: function(nextProps) {
+    const userId = nextProps.currentPatientInViewId;
+    const patientData = _.get(nextProps, ['patientDataMap', userId], []);
+    const patientNotes = _.get(nextProps, ['patientNotesMap', userId], []);
+    let patientSettings = _.cloneDeep(_.get(nextProps, ['patient', 'settings'], null));
     _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
 
     if (patientData.length) {
-      const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1)
-      const unprocessedPatientNotes = patientNotes.slice(this.state.lastDatumProcessedIndex + 1)
+      if (this.state.lastDatumProcessedIndex > 0) {
+        // We don't need full processing here. We just add and reprocess the new datums.
+        const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
+        const bgUnits = _.get(this.state, 'processedPatientData.bgUnits');
+        const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
 
-      let combinedData = unprocessedPatientData.concat(unprocessedPatientNotes);
-      window.downloadInputData = () => {
-        console.save(combinedData, 'blip-input.json');
-      };
+        this.setState({ processingData: true });
+        addData(utils.filterPatientData(unprocessedPatientData, bgUnits).processedData);
+        this.setState({ processingData: false });
+      }
+      else {
+        // Kick off the processing of the initial data fetch
+        const combinedData = patientData.concat(patientNotes);
+        window.downloadInputData = () => {
+          console.save(combinedData, 'blip-input.json');
+        };
 
-      let processedData = utils.processPatientData(
-        this,
-        combinedData,
-        this.props.queryParams,
-        patientSettings,
-      );
+        const processedData = utils.processPatientData(
+          combinedData,
+          this.props.queryParams,
+          patientSettings,
+        );
 
-      this.handleProcessedData(processedData, nextProps);
-
-      // this.props.processPatientDataRequest(userId, combinedData, this.props.queryParams, patientSettings);
+        this.handleProcessedData(processedData, nextProps);
+        // this.props.processPatientDataRequest(userId, combinedData, this.props.queryParams, patientSettings);
+      }
     }
   },
 
   handleProcessedData: function(processedData, nextProps = this.props) {
-    var userId = nextProps.currentPatientInViewId;
-    var patientData = _.get(nextProps, ['patientDataMap', userId], []);
-    var patientNotes = _.get(nextProps, ['patientNotesMap', userId], []);
-    var patientSettings = _.cloneDeep(_.get(nextProps, ['patient', 'settings'], null));
+    const userId = nextProps.currentPatientInViewId;
+    const patientData = _.get(nextProps, ['patientDataMap', userId], []);
+    const patientNotes = _.get(nextProps, ['patientNotesMap', userId], []);
+    let patientSettings = _.cloneDeep(_.get(nextProps, ['patient', 'settings'], null));
     _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
 
-    var lastDatumProcessedIndex = patientData.length - 1;
-    var lastNoteProcessedIndex = patientData.length - 1;
-
-    var processedPatientData = !this.state.processedPatientData ? processedData : _.merge(
-      this.state.processedPatientData,
-      processedData,
-      (obj, src) => {
-        if (_.isArray(obj)) {
-          return obj.concat(src);
-        }
-      }
-    );
+    const lastDatumProcessedIndex = patientData.length - 1;
 
     this.setState({
-      // lastDatumProcessedIndex,
-      // lastNoteProcessedIndex,
-      // processedPatientData,
+      lastDatumProcessedIndex,
       processedPatientData: processedData,
       bgPrefs: {
         bgClasses: processedData.bgClasses,
         bgUnits: processedData.bgUnits
       },
       processingData: false,
-      // timePrefs: processedData.timePrefs,
+      timePrefs: processedData.timePrefs,
     });
 
     if (!this.state.chartType) {
@@ -962,7 +987,7 @@ export function mapStateToProps(state, props) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
     }
 
-    if (state.blip.currentPatientInViewId){
+    if (state.blip.currentPatientInViewId) {
       patient = _.get(
         state.blip.allUsersMap,
         state.blip.currentPatientInViewId,
@@ -997,7 +1022,7 @@ export function mapStateToProps(state, props) {
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
-    processingPatientData: state.blip.working.processingPatientData.inProgress,
+    // processingPatientData: state.blip.working.processingPatientData.inProgress,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     generatingPDF: state.blip.working.generatingPDF.inProgress,
     pdf: state.blip.pdf,
@@ -1014,7 +1039,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   fetchMessageThread: actions.async.fetchMessageThread,
   generatePDFRequest: actions.worker.generatePDFRequest,
-  processPatientDataRequest: actions.worker.processPatientDataRequest,
+  // processPatientDataRequest: actions.worker.processPatientDataRequest,
   removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
   updateSettings: actions.async.updateSettings,
 }, dispatch);

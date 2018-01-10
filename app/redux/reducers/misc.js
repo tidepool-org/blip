@@ -424,11 +424,12 @@ export const messageThread = (state = initialState.messageThread, action) => {
 export const patientDataMap = (state = initialState.patientDataMap, action) => {
   switch(action.type) {
     case types.FETCH_PATIENT_DATA_SUCCESS: {
-      const { patientId, patientData } = action.payload;
+      const { patientId, patientData, fetchedUntil } = action.payload;
       const method = state[patientId] ? '$push' : '$set';
       return update(state, {
         [patientId]: { [method]: patientData },
         [`${patientId}_cacheUntil`]: { $set: generateCacheTTL(36e5) }, // Cache for 60 mins
+        [`${patientId}_fetchedUntil`]: { $set: fetchedUntil ? fetchedUntil : 'start' },
       });
     }
     case types.PROCESS_PATIENT_DATA_SUCCESS: {

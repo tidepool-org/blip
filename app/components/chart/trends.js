@@ -387,7 +387,7 @@ class Trends extends PureComponent {
         iconMostRecent={'icon-most-recent'}
         onClickBack={this.handleClickBack}
         onClickBasics={this.props.onSwitchToBasics}
-        onClickModal={this.handleClickTrends}
+        onClickTrends={this.handleClickTrends}
         onClickMostRecent={this.handleClickMostRecent}
         onClickNext={this.handleClickForward}
         onClickOneDay={this.handleClickDaily}

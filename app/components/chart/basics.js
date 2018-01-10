@@ -74,7 +74,7 @@ var Basics = React.createClass({
           title={this.state.title}
           onClickBasics={this.handleClickBasics}
           onClickOneDay={this.handleClickOneDay}
-          onClickModal={this.handleClickModal}
+          onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.props.onSwitchToSettings}
           onClickTwoWeeks={this.handleClickTwoWeeks}
@@ -183,7 +183,7 @@ var Basics = React.createClass({
     return;
   },
 
-  handleClickModal: function(e) {
+  handleClickTrends: function(e) {
     if (e) {
       e.preventDefault();
     }

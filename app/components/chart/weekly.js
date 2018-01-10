@@ -215,7 +215,7 @@ var Weekly = React.createClass({
         iconMostRecent={'icon-most-recent-up'}
         onClickBack={this.handlePanBack}
         onClickBasics={this.props.onSwitchToBasics}
-        onClickModal={this.handleClickModal}
+        onClickTrends={this.handleClickTrends}
         onClickMostRecent={this.handleClickMostRecent}
         onClickNext={this.handlePanForward}
         onClickOneDay={this.handleClickOneDay}
@@ -234,7 +234,7 @@ var Weekly = React.createClass({
         inTransition={this.state.inTransition}
         title={''}
         onClickOneDay={this.handleClickOneDay}
-        onClickModal={this.handleClickModal}
+        onClickTrends={this.handleClickTrends}
         onClickSettings={this.props.onSwitchToSettings}
         onClickTwoWeeks={this.handleClickTwoWeeks}
       ref="header" />
@@ -279,7 +279,7 @@ var Weekly = React.createClass({
     return false;
   },
   // handlers
-  handleClickModal: function(e) {
+  handleClickTrends: function(e) {
     if(e) {
       e.preventDefault();
     }
@@ -325,7 +325,7 @@ var Weekly = React.createClass({
 
     // Update the chart date range in the patientData component
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate(datetimeLocationEndpoints);
+    debouncedDateRangeUpdate(datetimeLocationEndpoints, this.refs.chart);
     this.setState({ debouncedDateRangeUpdate });
   },
   handleInTransition: function(inTransition) {

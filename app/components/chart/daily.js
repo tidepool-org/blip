@@ -186,7 +186,7 @@ var Daily = React.createClass({
           iconMostRecent={'icon-most-recent'}
           onClickBack={this.handlePanBack}
           onClickBasics={this.props.onSwitchToBasics}
-          onClickModal={this.handleClickModal}
+          onClickTrends={this.handleClickTrends}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
           onClickOneDay={this.handleClickOneDay}
@@ -237,7 +237,7 @@ var Daily = React.createClass({
     return sundial.formatInTimezone(datetime, timezone, 'ddd, MMM D, YYYY');
   },
   // handlers
-  handleClickModal: function(e) {
+  handleClickTrends: function(e) {
     if (e) {
       e.preventDefault();
     }

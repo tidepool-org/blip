@@ -807,13 +807,14 @@ export function fetchPatientDataRequest() {
   };
 }
 
-export function fetchPatientDataSuccess(patientId, patientData, patientNotes) {
+export function fetchPatientDataSuccess(patientId, patientData, patientNotes, fetchedUntil) {
   return {
     type: ActionTypes.FETCH_PATIENT_DATA_SUCCESS,
     payload: {
-      patientId: patientId,
-      patientData: patientData,
-      patientNotes: patientNotes,
+      patientId,
+      patientData,
+      patientNotes,
+      fetchedUntil,
     },
   };
 }

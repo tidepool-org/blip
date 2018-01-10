@@ -892,7 +892,7 @@ export function fetchPatientData(api, options, id) {
 
     async.parallel({
       patientData: api.patientData.get.bind(api, id, options),
-      teamNotes: api.team.getNotes.bind(api, id)
+      teamNotes: api.team.getNotes.bind(api, id),
     }, (err, results) => {
       if (err) {
         dispatch(sync.fetchPatientDataFailure(
@@ -909,7 +909,7 @@ export function fetchPatientData(api, options, id) {
           if (range.spanInDays) {
             if (range.spanInDays >= 28) {
               // We have enough data for the initial rendering.
-              dispatch(sync.fetchPatientDataSuccess(id, patientData, notes));
+              dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, options.startDate));
               // dispatch(worker.processPatientDataRequest(id, patientData, notes));
             }
             else {
@@ -929,7 +929,7 @@ export function fetchPatientData(api, options, id) {
         }
         else {
           // Send what we have if we're beyond the first data fetch
-          dispatch(sync.fetchPatientDataSuccess(id, patientData, notes));
+          dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, options.startDate));
           // dispatch(worker.processPatientDataRequest(id, patientData, notes));
         }
       }
