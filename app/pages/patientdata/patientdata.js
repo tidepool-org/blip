@@ -454,8 +454,6 @@ export let PatientData = React.createClass({
   },
 
   handleChartDateRangeUpdate: function(dateRange, chart) {
-    const earliestRequestedData = _.get(this.state, 'requestedPatientDataRange', this.props.fetchedPatientDataRange).start;
-
     if (moment.utc(dateRange[0]).startOf('day').isSameOrBefore(this.props.fetchedPatientDataRange.start)) {
       if (!this.props.fetchingPatientData) {
         // console.log('chart', chart);
@@ -682,7 +680,7 @@ export let PatientData = React.createClass({
     // nextProps patient data exists
     if (nextPatientData) {
       const currentPatientDataCount = _.get(currentPatientData, 'length', 0);
-      if (nextPatientData.length > currentPatientDataCount) {
+      if (nextPatientData.length > currentPatientDataCount || this.state.lastDatumProcessedIndex === 0) {
         this.processData(nextProps);
       }
       if (newDataFetched && nextPatientData.length === currentPatientDataCount) {
