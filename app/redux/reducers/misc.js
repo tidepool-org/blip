@@ -425,9 +425,10 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
   switch(action.type) {
     case types.FETCH_PATIENT_DATA_SUCCESS: {
       const { patientId, patientData, fetchedUntil } = action.payload;
+      const sortedData = _.sortByOrder(patientData, 'time', 'desc');
       const method = state[patientId] ? '$push' : '$set';
       return update(state, {
-        [patientId]: { [method]: patientData },
+        [patientId]: { [method]: sortedData },
         [`${patientId}_cacheUntil`]: { $set: generateCacheTTL(36e5) }, // Cache for 60 mins
         [`${patientId}_fetchedUntil`]: { $set: fetchedUntil ? fetchedUntil : 'start' },
       });
