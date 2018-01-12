@@ -320,8 +320,8 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
   return timePrefsForTideline;
 };
 
-utils.getBGPrefsForDataProcessing = (queryParams, settings) => {
-  var bgUnits = settings.units.bg || MGDL_UNITS;
+utils.getBGPrefsForDataProcessing = (queryParams = {}, settings) => {
+  var bgUnits = _.get(settings, 'units.bg', MGDL_UNITS);
   var bgClasses = {
     low: { boundary: utils.roundBgTarget(settings.bgTarget.low, bgUnits) },
     target: { boundary: utils.roundBgTarget(settings.bgTarget.high, bgUnits) },
@@ -380,7 +380,6 @@ utils.filterPatientData = (data, bgUnits) => {
 }
 
 utils.processPatientData = (data, queryParams, settings) => {
-// utils.processPatientData = (comp, data, queryParams, settings) => {
   if (!(data && data.length >= 0)) {
     return null;
   }
@@ -401,10 +400,8 @@ utils.processPatientData = (data, queryParams, settings) => {
 
   if (!_.isEmpty(timePrefsForTideline)) {
     tidelineData.timePrefs = timePrefsForTideline;
-    //   comp.setState({
-    //     timePrefs: timePrefsForTideline
-    //   });
   }
+
   console.timeEnd('TidelineData Total');
 
   window.tidelineData = tidelineData;
