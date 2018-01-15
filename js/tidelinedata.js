@@ -153,12 +153,38 @@ function TidelineData(data, opts) {
     return newDim;
   };
 
-  this.addData = function (data) {
+  this.setUtilities = function () {
+    this.basalUtil = new BasalUtil(this.grouped.basal);
+    this.bolusUtil = new BolusUtil(this.grouped.bolus);
+    this.cbgUtil = new BGUtil(this.grouped.cbg, {
+      bgUnits: this.bgUnits,
+      bgClasses: this.bgClasses,
+      DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)
+    });
+    this.smbgUtil = new BGUtil(this.grouped.smbg, {
+      bgUnits: this.bgUnits,
+      bgClasses: this.bgClasses,
+      DAILY_MIN: opts.SMBG_DAILY_MIN
+    });
+  };
+
+  this.addData = function (newData) {
     var resortDiabetesData = false;
 
-    // Add all new datum to appropriate collections
-    _.each(data, datum => {
+    var res;
+    startTimer('Validation');
+    res = validate.validateAll(newData.map(datum => {
       this.watson(datum);
+      return datum;
+    }));
+    endTimer('Validation');
+
+    // Add all valid new datums to appropriate collections
+    _.each(res.valid, datum => {
+      if (! _.isArray(this.grouped[datum.type])) {
+        this.grouped[datum.type] = [];
+      }
+
       this.grouped[datum.type].push(datum);
       this.data.push(datum);
       if (_.includes(opts.diabetesDataTypes, datum.type)) {
@@ -167,20 +193,37 @@ function TidelineData(data, opts) {
       }
     });
 
+    if (resortDiabetesData) {
+      this.diabetesData = _.uniq(_.sortBy(this.diabetesData, 'normalTime'), 'id');
+    }
+
     // Resort all updated collections
     _.forIn(this.grouped, (group, key) => {
       this.grouped[key] = _.uniq(_.sortBy(group, 'normalTime'), 'id');
     });
 
-    this.data = _.uniq(_.sortBy(this.data, 'normalTime'), 'id');
+    startTimer('setUtilities');
+    this.setUtilities();
+    endTimer('setUtilities');
 
-    if (resortDiabetesData) {
-      this.diabetesData = _.uniq(_.sortBy(this.diabetesData, 'normalTime'), 'id');
-    }
+    var dData = this.diabetesData;
+    var data = _.reject(this.data, function(d) {
+      if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
+        return true;
+      }
+      if (d.type === 'settings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
+        return true;
+      }
+      if (d.type === 'upload') {
+        return true;
+      }
+    });
+
+    this.data = _.uniq(_.sortBy(data, 'normalTime'), 'id');
 
     // Update the crossfilters and fill data
-    updateCrossFilters(this.data);
     this.generateFillData().adjustFillsForTwoWeekView();
+    updateCrossFilters(this.data);
 
     return this;
   };
@@ -460,18 +503,7 @@ function TidelineData(data, opts) {
   this.setBGPrefs();
 
   startTimer('setUtilities');
-  this.basalUtil = new BasalUtil(this.grouped.basal);
-  this.bolusUtil = new BolusUtil(this.grouped.bolus);
-  this.cbgUtil = new BGUtil(this.grouped.cbg, {
-    bgUnits: this.bgUnits,
-    bgClasses: this.bgClasses,
-    DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)
-  });
-  this.smbgUtil = new BGUtil(this.grouped.smbg, {
-    bgUnits: this.bgUnits,
-    bgClasses: this.bgClasses,
-    DAILY_MIN: opts.SMBG_DAILY_MIN
-  });
+  this.setUtilities();
 
   if (data.length > 0 && !_.isEmpty(this.diabetesData)) {
     var dData = this.diabetesData;
