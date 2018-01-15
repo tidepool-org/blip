@@ -876,7 +876,7 @@ export function fetchPatients(api) {
 export function fetchPatientData(api, options, id) {
   // Default to only selecting the most recent 8 weeks of data
   _.defaults(options, {
-    startDate: moment.utc().startOf('day').subtract(8, 'weeks').toISOString(),
+    startDate: moment.utc().subtract(8, 'weeks').startOf('day').toISOString(),
     endDate: moment.utc().toISOString(),
     useCache: true,
     initial: true,
@@ -916,7 +916,7 @@ export function fetchPatientData(api, options, id) {
               // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
               dispatch(fetchPatientData(api, _.assign({}, options, {
                 initial: false,
-                startDate: moment.utc(range.end).startOf('day').subtract(4, 'weeks').toISOString(),
+                startDate: moment.utc(range.end).subtract(4, 'weeks').startOf('day').toISOString(),
               }), id));
             }
           }
