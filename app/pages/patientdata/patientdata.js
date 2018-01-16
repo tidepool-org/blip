@@ -368,7 +368,6 @@ export let PatientData = React.createClass({
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation || this.state.initialDatetimeLocation}
-            latestProcessedData={this.state.lastDatumProcessedIndex}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
@@ -473,20 +472,21 @@ export let PatientData = React.createClass({
 
     const userId = this.props.currentPatientInViewId;
     const patientData = _.get(this.props, ['patientDataMap', userId], []);
-    const dateRangeStart = moment.utc(dateRange[0]).startOf('day');
+    const dateRangeStart = moment.utc(this.applyTimezoneOffset(dateRange[0])).startOf('day');
     let lastProcessedDateTarget = this.state.lastProcessedDateTarget;
-    let lastProcessedBGTime = this.applyTimezoneOffset(_.get(patientData, `${this.state.lastBGProcessedIndex}.time`));
+    let lastBGProcessedTime = this.applyTimezoneOffset(_.get(patientData, `${this.state.lastBGProcessedIndex}.time`));
+    let lastDatumProcessedTime = this.applyTimezoneOffset(_.get(patientData, `${this.state.lastDatumProcessedIndex}.time`));
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
-      const chartLimitReached = dateRangeStart.isSame(moment.utc(lastProcessedBGTime), 'day');
-      const weeklyChartLimitReached = dateRangeStart.isSame(moment.utc(lastProcessedBGTime), 'day');
+      const chartLimitReached = dateRangeStart.isSame(moment.utc(lastBGProcessedTime), 'day');
 
       if (dateRangeStart.isSameOrBefore(this.props.fetchedPatientDataRange.start)) {
         this.fetchEarlierData();
       }
       else if (
         (lastProcessedDateTarget && dateRangeStart.isSameOrBefore(lastProcessedDateTarget))
-        || (this.state.chartType === 'weekly' && weeklyChartLimitReached)) {
+        || (this.state.chartType === 'weekly' && chartLimitReached)
+        || (this.state.chartType === 'daily' && chartLimitReached)) {
         this.processData(this.props, dateRangeStart);
       }
     }
@@ -899,7 +899,7 @@ export let PatientData = React.createClass({
         return targetDatetime.isAfter(datum.time);
       });
 
-      const targetData =  targetIndex ? unprocessedPatientData.slice(0, targetIndex) : unprocessedPatientData;
+      const targetData = targetIndex ? unprocessedPatientData.slice(0, targetIndex) : unprocessedPatientData;
 
       const bgTypes = [
         'cbg',
@@ -925,7 +925,7 @@ export let PatientData = React.createClass({
           patientSettings,
         );
 
-        const lastDatumProcessedIndex = processedData.data.length - 1;
+        const lastDatumProcessedIndex = targetData.length - 1;
 
         this.setState({
           lastBGProcessedIndex,
