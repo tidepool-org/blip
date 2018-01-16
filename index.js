@@ -444,7 +444,10 @@ module.exports = function (config, deps) {
 
       var url = '/data/' + userId;
       if (!_.isUndefined(options.carelink) && !_.isNull(options.carelink)) {
-        url += '?carelink=' + options.carelink;
+        url += (url.includes('?') ? '&' : '?') + 'carelink=' + options.carelink;
+      }
+      if (!_.isUndefined(options.dexcom) && !_.isNull(options.dexcom)) {
+        url += (url.includes('?') ? '&' : '?') + 'dexcom=' + options.dexcom;
       }
 
       common.doGetWithToken(
@@ -488,6 +491,22 @@ module.exports = function (config, deps) {
           }
           return cb(null,res.body);
         });
+    },
+    /**
+     * Get the data sources for a given user
+     *
+     * @param {String} userId of the user to get the data sources for
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getDataSourcesForUser: function(userId, cb) {
+      common.assertArgumentsSize(arguments, 2);
+
+      common.doGetWithToken(
+        '/v1/users/' + userId + '/data_sources',
+        { 200: function(res) { return res.body; } },
+        cb
+      );
     },
     /**
      * Create a dataset for the given user
@@ -807,6 +826,39 @@ module.exports = function (config, deps) {
         });
     },
     /**
+     * Get upload records for the given user and device
+     *
+     * @param {String} userId of the user
+     * @param {String} deviceId of the device
+     * @param {String} size of the array to return
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getUploadRecordsForDevice: function (userId, deviceId, size, cb) {
+      common.assertArgumentsSize(arguments, 4);
+
+      if (!common.hasDataHost()) {
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'The data host needs to be configured' });
+      }
+
+       superagent
+        .get(common.makeDataUrl('/v1/users/' + userId + '/data_sets?deviceId=' + deviceId + '&size=' + size))
+        .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
+        .set(common.TRACE_SESSION_HEADER, common.getSessionTrace())
+        .end(
+          function (err, res) {
+            if (err) {
+              err.body = (err.response && err.response.body) || '';
+              return cb(err);
+            }
+
+            if (res.status !== 200) {
+              return common.handleHttpError(res, cb);
+            }
+            return cb(null, res.body);
+          });
+    },
+    /**
      * Get messages for a team between the given dates
      *
      * @param {String} userId of the user to get the messages for
@@ -953,6 +1005,9 @@ module.exports = function (config, deps) {
     signup: user.signup,
     updateCurrentUser: user.updateCurrentUser,
     updateCustodialUser: user.updateCustodialUser,
+    createRestrictedTokenForUser: user.createRestrictedTokenForUser,
+    createOAuthProviderAuthorization: user.createOAuthProviderAuthorization,
+    deleteOAuthProviderAuthorization: user.deleteOAuthProviderAuthorization,
     /**
      * Signup
      */

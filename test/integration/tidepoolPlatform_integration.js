@@ -672,6 +672,48 @@ describe('platform client', function () {
       });
     });
   });
+  describe.skip('handles connections to OAuth providers for the user', function () {
+    var dataSourceFilter = {
+      type: 'oauth',
+      name: 'dexcom',
+    };
+    it('using a restricted token', function (done) {
+      pwdClient.createRestrictedTokenForUser(
+        a_PWD.id, 
+        dataSourceFilter, function(error, restrictedToken){
+          expect(error).to.not.exist;
+          expect(restrictedToken).to.exist;
+        }
+      );
+    });
+
+    it('adding an OAuth provider authorization', function (done) {
+      pwdClient.createRestrictedTokenForUser(
+        a_PWD.id, 
+        dataSourceFilter, function(error, restrictedToken){
+          expect(error).to.not.exist;
+          expect(restrictedToken).to.exist;
+          pwdClient.createOAuthProviderAuthorization(
+            dataSourceFilter.name, 
+            restrictedToken, function(error, authorizationURL){
+              expect(error).to.not.exist;
+              expect(authorizationURL).to.exist;
+            }
+          );
+        }
+      );
+    });
+
+    it('removing an OAuth provider authorization', function (done) {
+      pwdClient.deleteOAuthProviderAuthorization(
+        dataSourceFilter.name, function(error, details){
+          expect(error).to.not.exist;
+          expect(details).to.exist;
+        }
+      );
+    });
+  
+  });
   describe.skip('handles invites', function () {
     /*
      * For the tests we are donig this one way
@@ -812,28 +854,6 @@ describe('platform client', function () {
         expect(confirmed).to.exist;
         done();
       });
-    });
-  });
-  describe('handles oauth token login', function () {
-    it('an invalid token returns 401', function(done){
-      async.series([
-        //ensure we are logged out
-        function(callback){ pwdClient.logout(callback);},
-        //do oauthLogin but with an invalid token
-        function(callback){
-          pwdClient.oauthLogin('fakeToken',function(err, data){
-            expect(err).to.exist;
-            expect(err.status).to.exist;
-            expect(err.status).to.equal(401);
-            callback(null);
-          });
-        },
-        //we do a legit login for cleanup in this instance
-        function(callback){ pwdClient.login(a_PWD,{}, callback);},
-        ],
-        function(err, details) {
-          done(); //finish up
-        });
     });
   });
 });
