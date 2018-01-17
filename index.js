@@ -476,6 +476,23 @@ module.exports = function (config, deps) {
         });
     },
     /**
+     * Get server time
+     *
+     * @param cb
+     * @returns {cb} cb(err, response)
+     */
+    getTime: function (cb) {
+      superagent
+        .get(common.makeDataUrl('/v1/time'))
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+          return cb(null,res.body);
+        });
+    },
+    /**
      * Get the data sources for a given user
      *
      * @param {String} userId of the user to get the data sources for
