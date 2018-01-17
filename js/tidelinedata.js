@@ -261,7 +261,7 @@ function TidelineData(data, opts) {
     }
   }
 
-  function fillDataFromInterval(first, last) {
+  function fillDataFromInterval(first, last, fixGaps = true) {
     startTimer('fillDataFromInterval');
     var fillData = [], points = d3.time.hour.utc.range(first, last);
     for (var i = 0; i < points.length; ++i) {
@@ -289,7 +289,9 @@ function TidelineData(data, opts) {
         });
       }
     }
-    fixGapsAndOverlaps(fillData);
+    if (fixGaps) {
+      fixGapsAndOverlaps(fillData);
+    }
     endTimer('fillDataFromInterval');
     return fillData;
   }
@@ -351,7 +353,7 @@ function TidelineData(data, opts) {
     var fillData = this.grouped.fill;
     var endpoints = getTwoWeekFillEndpoints();
     this.twoWeekData = this.grouped.smbg || [];
-    var twoWeekFills = fillDataFromInterval(new Date(endpoints[0]), new Date(endpoints[1]));
+    var twoWeekFills = fillDataFromInterval(new Date(endpoints[0]), new Date(endpoints[1]), false);
     this.twoWeekData = _.sortBy(this.twoWeekData.concat(twoWeekFills), function(d) {
       return d.normalTime;
     });
