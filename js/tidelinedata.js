@@ -169,8 +169,7 @@ function TidelineData(data, opts) {
   };
 
   this.addData = function (newData) {
-    var resortDiabetesData = false;
-
+    // Validate all new data received
     var res;
     startTimer('Validation');
     res = validate.validateAll(newData.map(datum => {
@@ -179,27 +178,18 @@ function TidelineData(data, opts) {
     }));
     endTimer('Validation');
 
-    // Add all valid new datums to appropriate collections
-    _.each(res.valid, datum => {
+    // Add all valid new datums to the top of appropriate collections in descending order
+    _.eachRight(_.sortBy(res.valid, 'normalTime'), datum => {
       if (! _.isArray(this.grouped[datum.type])) {
         this.grouped[datum.type] = [];
       }
 
-      this.grouped[datum.type].push(datum);
-      this.data.push(datum);
       if (_.includes(opts.diabetesDataTypes, datum.type)) {
-        this.diabetesData.push(datum);
-        resortDiabetesData = true;
+        this.diabetesData.unshift(datum);
       }
-    });
 
-    if (resortDiabetesData) {
-      this.diabetesData = _.uniq(_.sortBy(this.diabetesData, 'normalTime'), 'id');
-    }
-
-    // Resort all updated collections
-    _.forIn(this.grouped, (group, key) => {
-      this.grouped[key] = _.uniq(_.sortBy(group, 'normalTime'), 'id');
+      this.grouped[datum.type].unshift(datum);
+      this.data.unshift(datum);
     });
 
     startTimer('setUtilities');
@@ -207,22 +197,27 @@ function TidelineData(data, opts) {
     endTimer('setUtilities');
 
     var dData = this.diabetesData;
-    var data = _.reject(this.data, function(d) {
+
+    // Deduplicate and filter the data
+    this.data = _.uniq(_.reject(this.data, function(d) {
       if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
         return true;
       }
       if (d.type === 'settings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
         return true;
       }
-      if (d.type === 'upload') {
+      if (d.type === 'upload' || d.type === 'fill') {
         return true;
       }
-    });
+    }), 'id');
 
-    this.data = _.uniq(_.sortBy(data, 'normalTime'), 'id');
-
-    // Update the crossfilters and fill data
+    // generate the fill data for chart BGs
     this.generateFillData().adjustFillsForTwoWeekView();
+
+    // Concatenate the newly generated fill data and sort the resulting array
+    this.data = _.sortBy(this.data.concat(this.grouped.fill), 'normalTime');
+
+    // Update the crossfilters
     updateCrossFilters(this.data);
 
     return this;
