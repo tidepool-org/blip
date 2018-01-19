@@ -26,10 +26,9 @@ import sundial from 'sundial';
 import launchCustomProtocol from 'custom-protocol-detection';
 
 import config from '../../config';
-import loadingGif from './loading.gif';
 
 import * as actions from '../../redux/actions';
-import { utils as vizUtils } from '@tidepool/viz';
+import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
 import { getfetchedPatientDataRange } from '../../redux/selectors';
 
 import personUtils from '../../core/personutils';
@@ -51,6 +50,8 @@ import UploaderButton from '../../components/uploaderbutton';
 import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
 
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from '../../core/constants';
+
+const Loader = vizComponents.Loader;
 
 export let PatientData = React.createClass({
   propTypes: {
@@ -111,6 +112,7 @@ export let PatientData = React.createClass({
       datetimeLocation: null,
       initialDatetimeLocation: null,
       lastDatumProcessedIndex: -1,
+      loading: true,
       processingData: true,
       processedPatientData: null,
       timePrefs: {
@@ -126,26 +128,26 @@ export let PatientData = React.createClass({
   log: bows('PatientData'),
 
   render: function() {
-    var patientData = this.renderPatientData();
-    var messages = this.renderMessagesContainer();
+    const patientData = this.renderPatientData();
+    const messages = this.renderMessagesContainer();
+    const initialProcessing = this.state.lastDatumProcessedIndex < 0;
+    const fetching = this.props.fetchingUser || this.props.fetchingPatient || this.props.fetchingPatientData;
+    const showLoader = initialProcessing && (fetching || this.state.processingData);
 
     return (
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
+        <Loader show={showLoader} />
       </div>
     );
   },
 
   renderPatientData: function() {
-    if (this.props.fetchingUser || this.props.fetchingPatient || this.props.fetchingPatientData || this.state.processingData) {
+    const initialProcessing = this.state.lastDatumProcessedIndex < 0;
+
+    if (initialProcessing && this.state.loading) {
       return this.renderLoading();
-      // if (this.state.lastDatumProcessedIndex === 0) {
-      //   return this.renderLoading();
-      // }
-      // else {
-      //   console.log('rendering processing overlay');
-      // }
     }
 
     if (this.isEmptyPatientData() || this.isInsufficientPatientData()) {
@@ -174,7 +176,6 @@ export let PatientData = React.createClass({
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <img className='patient-data-loading-image' src={loadingGif} alt="Loading animation" />
               <div className="patient-data-message patient-data-loading-message">
                 Loading data...
               </div>
@@ -323,6 +324,7 @@ export let PatientData = React.createClass({
             initialDatetimeLocation={this.state.datetimeLocation || this.state.initialDatetimeLocation}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
+            loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -347,6 +349,7 @@ export let PatientData = React.createClass({
             initialDatetimeLocation={this.state.datetimeLocation || this.state.initialDatetimeLocation}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
+            loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -370,6 +373,7 @@ export let PatientData = React.createClass({
             initialDatetimeLocation={this.state.datetimeLocation || this.state.initialDatetimeLocation}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
+            loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -390,7 +394,6 @@ export let PatientData = React.createClass({
   },
 
   renderMessagesContainer: function() {
-
     if (this.state.createMessageDatetime) {
       return (
         <Messages
@@ -415,7 +418,6 @@ export let PatientData = React.createClass({
           timePrefs={this.state.timePrefs} />
       );
     }
-
   },
 
   closeMessageThread: function(){
@@ -481,12 +483,14 @@ export let PatientData = React.createClass({
       const chartLimitReached = dateRangeStart.isSame(moment.utc(lastBGProcessedTime), 'day');
 
       if (dateRangeStart.isSameOrBefore(this.props.fetchedPatientDataRange.start)) {
+        // this.setState({ processingData: true });
         this.fetchEarlierData();
       }
       else if (
         (lastProcessedDateTarget && dateRangeStart.isSameOrBefore(lastProcessedDateTarget))
         || (this.state.chartType === 'weekly' && chartLimitReached)
         || (this.state.chartType === 'daily' && chartLimitReached)) {
+        // this.setState({ processingData: true });
         this.processData(this.props, dateRangeStart);
       }
     }
@@ -717,12 +721,11 @@ export let PatientData = React.createClass({
           this.processData(nextProps);
         }
       }
-      if (newDataFetched && nextPatientData.length === currentPatientDataCount) {
+      if (newDataFetched && nextPatientData.length === currentPatientDataCount && nextFetchedDataRangeStart !== 'start') {
         // Our latest data fetch yeilded no new data. We now request the remainder of the available
         // data to make sure that we don't miss any.
-        if (nextFetchedDataRangeStart !== 'start') {
-          this.fetchEarlierData({ startDate: null });
-        }
+        this.setState({ processingData: true });
+        this.fetchEarlierData({ startDate: null });
       }
     }
 
@@ -749,7 +752,7 @@ export let PatientData = React.createClass({
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
-    if (pdfEnabled && !pdfGenerating && !pdfGenerated && patientDataProcessed) {
+    if (patientDataProcessed && pdfEnabled && !pdfGenerating && !pdfGenerated) {
       this.generatePDF(nextProps, nextState);
     }
   },
@@ -842,7 +845,10 @@ export let PatientData = React.createClass({
       end: moment.utc(earliestRequestedData).subtract(1, 'milliseconds').toISOString(),
     };
 
-    this.setState({ requestedPatientDataRange });
+    this.setState({
+      loading: true,
+      requestedPatientDataRange,
+     });
 
     const fetchOpts = _.defaults(options, {
       startDate: requestedPatientDataRange.start,
@@ -868,7 +874,10 @@ export let PatientData = React.createClass({
       return;
     };
 
-    this.setState({ processingData: true });
+    this.setState({
+      loading: true,
+      processingData: true,
+     });
 
     if (patientData.length) {
       const fetchedUntil = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil', 0);
@@ -928,14 +937,15 @@ export let PatientData = React.createClass({
         const lastDatumProcessedIndex = targetData.length - 1;
 
         this.setState({
-          lastBGProcessedIndex,
-          lastDatumProcessedIndex,
-          lastProcessedDateTarget: targetDatetime.toISOString(),
-          processedPatientData: processedData,
           bgPrefs: {
             bgClasses: processedData.bgClasses,
             bgUnits: processedData.bgUnits
           },
+          lastBGProcessedIndex,
+          lastDatumProcessedIndex,
+          lastProcessedDateTarget: targetDatetime.toISOString(),
+          loading: false,
+          processedPatientData: processedData,
           processingData: false,
           timePrefs: processedData.timePrefs,
         });
@@ -943,19 +953,35 @@ export let PatientData = React.createClass({
         this.handleInitialProcessedData(processedData, patientSettings);
       }
       else {
-        // We don't need full processing here. We just add and reprocess the new datums.
-        const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
+        this.log('processing more data');
 
-        addData(utils.filterPatientData(targetData, bgUnits).processedData);
+        // We don't need full processing here. We just add and reprocess the new datums.
+        const startingDataLength = _.get(this.state, 'processedPatientData.data.length');
+        const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
+        const processedPatientData = addData(utils.filterPatientData(targetData, bgUnits).processedData);
+        const processingComplete = _.get(processedPatientData, 'data.length') !== startingDataLength;
 
         this.setState({
-          processingData: false,
           lastBGProcessedIndex,
           lastDatumProcessedIndex: this.state.lastDatumProcessedIndex + targetData.length,
           lastProcessedDateTarget: targetDatetime.toISOString(),
+          processedPatientData,
+          processingData: false,
         });
+
+        this.completeLoading();
       }
     }
+  },
+
+  completeLoading: function() {
+    // Needs to be in a setTimeout to force unsetting the processingData state in a new render cycle
+    // so that child components can be aware of when processing begins and ends
+    setTimeout(() => {
+      this.setState({
+        loading: this.state.processingData,
+      });
+    }, 500);
   },
 
   handleInitialProcessedData: function(processedData, patientSettings) {

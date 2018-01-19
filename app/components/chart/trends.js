@@ -33,6 +33,7 @@ const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
 const TrendsContainer = viz.containers.TrendsContainer;
 const reshapeBgClassesToBgBounds = viz.utils.reshapeBgClassesToBgBounds;
+const Loader = viz.components.Loader;
 
 class Trends extends PureComponent {
   static propTypes = {
@@ -43,6 +44,7 @@ class Trends extends PureComponent {
     initialDatetimeLocation: PropTypes.string,
     patient: React.PropTypes.object,
     patientData: PropTypes.object.isRequired,
+    loading: PropTypes.bool.isRequired,
     trendsState: PropTypes.object.isRequired,
     onClickRefresh: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
@@ -101,6 +103,16 @@ class Trends extends PureComponent {
       this.chart = this.refs.chart.getWrappedInstance();
     }
   }
+
+  // componentWillReceiveProps(nextProps) {
+  //   if (_.get(this.props, 'loading') && !_.get(nextProps, 'loading')) {
+  //     const prefs = _.cloneDeep(this.props.chartPrefs);
+  //     prefs.trends.processedDataCount = _.get(this.props, 'patientData.data.length');
+  //     this.props.updateChartPrefs(prefs);
+
+  //     this.log(this.props.chartPrefs);
+  //   }
+  // }
 
   formatDate(datetime) {
     const timePrefs = this.props.timePrefs
@@ -346,6 +358,7 @@ class Trends extends PureComponent {
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
+              <Loader show={this.props.loading} overlay={true} />
               <div id="tidelineContainer" className="patient-data-chart-trends">
                 {this.renderChart()}
               </div>
@@ -426,6 +439,7 @@ class Trends extends PureComponent {
         currentPatientInViewId={this.props.currentPatientInViewId}
         extentSize={this.props.chartPrefs.trends.extentSize}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
+        loading={this.props.loading}
         showingSmbg={this.props.chartPrefs.trends.showingSmbg}
         showingCbg={this.props.chartPrefs.trends.showingCbg}
         smbgRangeOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}

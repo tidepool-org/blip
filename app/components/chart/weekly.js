@@ -25,6 +25,9 @@ var sundial = require('sundial');
 var tidelineBlip = require('tideline/plugins/blip');
 var chartWeeklyFactory = tidelineBlip.twoweek;
 
+var vizComponents = require('@tidepool/viz').components;
+var Loader = vizComponents.Loader;
+
 var Header = require('./header');
 var Footer = require('./footer');
 
@@ -50,29 +53,42 @@ var WeeklyChart = React.createClass({
     onTransition: React.PropTypes.func.isRequired,
     isClinicAccount: React.PropTypes.bool.isRequired,
   },
+
   mount: function() {
     this.mountChart(ReactDOM.findDOMNode(this));
     this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
   },
+
   componentWillUnmount: function() {
     this.unmountChart();
   },
+
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
     chartOpts = chartOpts || {};
     this.chart = chartWeeklyFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)));
+    this.chart.node = node;
     this.bindEvents();
   },
+
   unmountChart: function() {
     this.log('Unmounting...');
     this.chart.destroy();
   },
+
+  rerenderChart: function() {
+    this.log('Rerendering...');
+    this.unmountChart();
+    this.mount();
+  },
+
   bindEvents: function() {
     this.chart.emitter.on('inTransition', this.props.onTransition);
     this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
     this.chart.emitter.on('mostRecent', this.props.onMostRecent);
     this.chart.emitter.on('selectSMBG', this.props.onSelectSMBG);
   },
+
   initializeChart: function(data, datetimeLocation) {
     this.log('Initializing...');
     if (_.isEmpty(data)) {
@@ -89,6 +105,7 @@ var WeeklyChart = React.createClass({
       this.chart.showValues();
     }
   },
+
   render: function() {
     /* jshint ignore:start */
     return (
@@ -96,6 +113,7 @@ var WeeklyChart = React.createClass({
       );
     /* jshint ignore:end */
   },
+
   // handlers
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
     this.setState({
@@ -103,23 +121,29 @@ var WeeklyChart = React.createClass({
     });
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   },
+
   getCurrentDay: function(timePrefs) {
     return this.chart.getCurrentDay(timePrefs).toISOString();
   },
+
   goToMostRecent: function() {
     this.chart.clear();
     this.bindEvents();
     this.chart.load(this.props.patientData);
   },
+
   hideValues: function() {
     this.chart.hideValues();
   },
+
   panBack: function() {
     this.chart.panBack();
   },
+
   panForward: function() {
     this.chart.panForward();
   },
+
   showValues: function() {
     this.chart.showValues();
   }
@@ -131,9 +155,8 @@ var Weekly = React.createClass({
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
+    isClinicAccount: React.PropTypes.bool.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
@@ -141,11 +164,14 @@ var Weekly = React.createClass({
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
+    patientData: React.PropTypes.object.isRequired,
+    loading: React.PropTypes.bool.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
-    isClinicAccount: React.PropTypes.bool.isRequired,
   },
+
   getInitialState: function() {
     return {
       atMostRecent: false,
@@ -154,19 +180,30 @@ var Weekly = React.createClass({
       title: ''
     };
   },
+
   componentDidMount:function () {
     if (this.refs.chart) {
       this.refs.chart.mount();
     }
   },
-  render: function() {
 
+  componentWillReceiveProps:function (nextProps) {
+    console.log('this.props.loading', this.props.loading);
+    console.log('nextProps.loading', nextProps.loading);
+
+    if (this.props.loading && !nextProps.loading) {
+      this.refs.chart.rerenderChart();
+    }
+  },
+
+  render: function() {
     return (
       <div id="tidelineMain" className="grid">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
+              <Loader show={this.props.loading} overlay={true} />
               {this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart()}
             </div>
           </div>
@@ -178,11 +215,10 @@ var Weekly = React.createClass({
          showingValues={this.state.showingValues}
         ref="footer" />
       </div>
-      );
-
+    );
   },
-  renderChart: function() {
 
+  renderChart: function() {
     return (
       <WeeklyChart
         bgClasses={this.props.bgPrefs.bgClasses}
@@ -199,10 +235,9 @@ var Weekly = React.createClass({
         ref="chart"
         isClinicAccount={this.props.isClinicAccount} />
     );
-
   },
-  renderHeader: function() {
 
+  renderHeader: function() {
     return (
       <Header
         chartType={this.chartType}
@@ -223,10 +258,9 @@ var Weekly = React.createClass({
         onClickTwoWeeks={this.handleClickTwoWeeks}
       ref="header" />
     );
-
   },
-  renderMissingSMBGHeader: function() {
 
+  renderMissingSMBGHeader: function() {
     return (
       <Header
         chartType={this.chartType}
@@ -239,8 +273,8 @@ var Weekly = React.createClass({
         onClickTwoWeeks={this.handleClickTwoWeeks}
       ref="header" />
     );
-
   },
+
   renderMissingSMBGMessage: function() {
     var self = this;
     var handleClickUpload = function() {
@@ -262,15 +296,17 @@ var Weekly = React.createClass({
         </p>
       </div>
     );
-
   },
+
   formatDate: function(datetime) {
     // even when timezoneAware, labels should be generated as if UTC; just trust me (JEB)
     return sundial.formatInTimezone(datetime, 'UTC', 'MMM D, YYYY');
   },
+
   getTitle: function(datetimeLocationEndpoints) {
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(datetimeLocationEndpoints[1]);
   },
+
   isMissingSMBG: function() {
     var data = this.props.patientData;
     if (_.isEmpty(data.grouped.smbg)) {
@@ -278,6 +314,7 @@ var Weekly = React.createClass({
     }
     return false;
   },
+
   // handlers
   handleClickTrends: function(e) {
     if(e) {
@@ -289,6 +326,7 @@ var Weekly = React.createClass({
     }
     this.props.onSwitchToTrends(datetime);
   },
+
   handleClickMostRecent: function(e) {
     if (e) {
       e.preventDefault();
@@ -296,6 +334,7 @@ var Weekly = React.createClass({
     this.setState({showingValues: false});
     this.refs.chart.goToMostRecent();
   },
+
   handleClickOneDay: function(e) {
     if (e) {
       e.preventDefault();
@@ -306,12 +345,14 @@ var Weekly = React.createClass({
     }
     this.props.onSwitchToDaily(datetime);
   },
+
   handleClickTwoWeeks: function(e) {
     if (e) {
       e.preventDefault();
     }
     return;
   },
+
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
@@ -328,31 +369,37 @@ var Weekly = React.createClass({
     debouncedDateRangeUpdate(datetimeLocationEndpoints, this.refs.chart);
     this.setState({ debouncedDateRangeUpdate });
   },
+
   handleInTransition: function(inTransition) {
     this.setState({
       inTransition: inTransition
     });
   },
+
   handleMostRecent: function(atMostRecent) {
     this.setState({
       atMostRecent: atMostRecent
     });
   },
+
   handlePanBack: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.refs.chart.panBack();
   },
+
   handlePanForward: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.refs.chart.panForward();
   },
+
   handleSelectSMBG: function(datetime) {
     this.props.onSwitchToDaily(datetime);
   },
+
   toggleValues: function(e) {
     if (this.state.showingValues) {
       this.props.trackMetric('Clicked Show Values Off');

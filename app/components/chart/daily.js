@@ -26,6 +26,9 @@ var moment = require('moment');
 var tidelineBlip = require('tideline/plugins/blip');
 var chartDailyFactory = tidelineBlip.oneday;
 
+var vizComponents = require('@tidepool/viz').components;
+var Loader = vizComponents.Loader;
+
 var Header = require('./header');
 var Footer = require('./footer');
 
@@ -49,28 +52,34 @@ var DailyChart = React.createClass({
     onMostRecent: React.PropTypes.func.isRequired,
     onTransition: React.PropTypes.func.isRequired
   },
+
   getInitialState: function() {
     return {
       datetimeLocation: null
     };
   },
+
   componentDidMount: function() {
     this.mountChart();
     this.initializeChart(this.props.initialDatetimeLocation);
   },
+
   componentWillUnmount: function() {
     this.unmountChart();
   },
+
   mountChart: function() {
     this.log('Mounting...');
     this.chart = chartDailyFactory(ReactDOM.findDOMNode(this), _.pick(this.props, this.chartOpts))
       .setupPools();
     this.bindEvents();
   },
+
   unmountChart: function() {
     this.log('Unmounting...');
     this.chart.destroy();
   },
+
   bindEvents: function() {
     this.chart.emitter.on('createMessage', this.props.onCreateMessage);
     this.chart.emitter.on('inTransition', this.props.onTransition);
@@ -78,6 +87,7 @@ var DailyChart = React.createClass({
     this.chart.emitter.on('mostRecent', this.props.onMostRecent);
     this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
   },
+
   initializeChart: function(datetime) {
     this.log('Initializing...');
     if (_.isEmpty(this.props.patientData)) {
@@ -95,6 +105,7 @@ var DailyChart = React.createClass({
       this.chart.locate();
     }
   },
+
   render: function() {
     /* jshint ignore:start */
     return (
@@ -102,6 +113,7 @@ var DailyChart = React.createClass({
       );
     /* jshint ignore:end */
   },
+
   // handlers
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
     this.setState({
@@ -109,30 +121,38 @@ var DailyChart = React.createClass({
     });
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   },
+
   rerenderChart: function() {
     this.unmountChart();
     this.mountChart();
     this.initializeChart();
   },
+
   getCurrentDay: function() {
     return this.chart.getCurrentDay().toISOString();
   },
+
   goToMostRecent: function() {
     this.chart.setAtDate(null, true);
   },
+
   panBack: function() {
     this.chart.panBack();
   },
+
   panForward: function() {
     this.chart.panForward();
   },
+
   // methods for messages
   closeMessage: function() {
     return this.chart.closeMessage();
   },
+
   createMessage: function(message) {
     return this.chart.createMessage(message);
   },
+
   editMessage: function(message) {
     return this.chart.editMessage(message);
   }
@@ -148,6 +168,7 @@ var Daily = React.createClass({
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
     pdf: React.PropTypes.object.isRequired,
+    loading: React.PropTypes.bool.isRequired,
     // refresh handler
     onClickRefresh: React.PropTypes.func.isRequired,
     // message handlers
@@ -163,6 +184,7 @@ var Daily = React.createClass({
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired
   },
+
   getInitialState: function() {
     return {
       atMostRecent: false,
@@ -170,8 +192,14 @@ var Daily = React.createClass({
       title: '',
     };
   },
-  render: function() {
 
+  componentWillReceiveProps:function (nextProps) {
+    if (this.props.loading && !nextProps.loading) {
+      this.refs.chart.rerenderChart();
+    }
+  },
+
+  render: function() {
     return (
       <div id="tidelineMain">
         <Header
@@ -197,6 +225,7 @@ var Daily = React.createClass({
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
+              <Loader show={this.props.loading} overlay={true} />
               <DailyChart
                 bgClasses={this.props.bgPrefs.bgClasses}
                 bgUnits={this.props.bgPrefs.bgUnits}
@@ -224,8 +253,8 @@ var Daily = React.createClass({
         ref="footer" />
       </div>
       );
-
   },
+
   getTitle: function(datetime) {
     var timePrefs = this.props.timePrefs, timezone;
     if (!timePrefs.timezoneAware) {
@@ -236,6 +265,7 @@ var Daily = React.createClass({
     }
     return sundial.formatInTimezone(datetime, timezone, 'ddd, MMM D, YYYY');
   },
+
   // handlers
   handleClickTrends: function(e) {
     if (e) {
@@ -244,18 +274,21 @@ var Daily = React.createClass({
     var datetime = this.refs.chart.getCurrentDay();
     this.props.onSwitchToTrends(datetime);
   },
+
   handleClickMostRecent: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.refs.chart.goToMostRecent();
   },
+
   handleClickOneDay: function(e) {
     if (e) {
       e.preventDefault();
     }
     return;
   },
+
   handleClickPrint: function(e) {
     if (e) {
       e.preventDefault();
@@ -263,6 +296,7 @@ var Daily = React.createClass({
 
     this.props.onClickPrint(this.props.pdf);
   },
+
   handleClickTwoWeeks: function(e) {
     if (e) {
       e.preventDefault();
@@ -270,6 +304,7 @@ var Daily = React.createClass({
     var datetime = this.refs.chart.getCurrentDay();
     this.props.onSwitchToWeekly(datetime);
   },
+
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
@@ -289,36 +324,42 @@ var Daily = React.createClass({
     ]);
     this.setState({ debouncedDateRangeUpdate });
   },
+
   handleInTransition: function(inTransition) {
     this.setState({
       inTransition: inTransition
     });
-
   },
+
   handleMostRecent: function(atMostRecent) {
     this.setState({
       atMostRecent: atMostRecent
     });
   },
+
   handlePanBack: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.refs.chart.panBack();
   },
+
   handlePanForward: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.refs.chart.panForward();
   },
+
   // methods for messages
   closeMessageThread: function() {
     return this.refs.chart.closeMessage();
   },
+
   createMessageThread: function(message) {
     return this.refs.chart.createMessage(message);
   },
+
   editMessageThread: function(message) {
     return this.refs.chart.editMessage(message);
   }
