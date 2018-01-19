@@ -120,6 +120,7 @@ export class TrendsContainer extends PureComponent {
     currentPatientInViewId: PropTypes.string.isRequired,
     extentSize: PropTypes.oneOf([ONE_WEEK, TWO_WEEKS, FOUR_WEEKS]).isRequired,
     initialDatetimeLocation: PropTypes.string,
+    loading: PropTypes.bool.isRequired,
     showingSmbg: PropTypes.bool.isRequired,
     showingCbg: PropTypes.bool.isRequired,
     smbgRangeOverlay: PropTypes.bool.isRequired,
@@ -303,6 +304,51 @@ export class TrendsContainer extends PureComponent {
    * as a temporary compatibility interface
    */
   componentWillReceiveProps(nextProps) {
+    const newDataProcessed = !this.props.loading && nextProps.loading;
+    this.log('newDataProcessed', newDataProcessed, _.clone(this.state.dateDomain));
+
+    if (newDataProcessed) {
+      // const {
+      //   cbgByDate,
+      //   cbgByDayOfWeek,
+      //   smbgByDate,
+      //   smbgByDayOfWeek,
+      // } = nextProps;
+
+      const { dateDomain } = this.state;
+
+      const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek } = nextProps;
+      const allBg = cbgByDate.filterAll().top(Infinity).concat(smbgByDate.filterAll().top(Infinity));
+      const bgDomain = extent(allBg, d => d.value);
+
+      const { bgPrefs: { bgBounds, bgUnits }, yScaleClampTop } = nextProps;
+      const upperBound = yScaleClampTop[bgUnits];
+      const yScaleDomain = [bgDomain[0], upperBound];
+      if (bgDomain[0] > bgBounds.targetLowerBound) {
+        yScaleDomain[0] = bgBounds.targetLowerBound;
+      }
+      const yScale = scaleLinear().domain(yScaleDomain).clamp(true);
+
+      this.log('cbgByDate', cbgByDate.top(Infinity));
+      // this.initialFiltering(cbgByDate, cbgByDayOfWeek, dateDomain);
+      // this.initialFiltering(smbgByDate, smbgByDayOfWeek, dateDomain);
+
+      this.refilterByDayOfWeek(cbgByDayOfWeek, _.assign({}, nextProps.activeDays, { monday: false }));
+      this.refilterByDayOfWeek(smbgByDayOfWeek, _.assign({}, nextProps.activeDays, { monday: false }));
+
+      // this.refilterByDate(cbgByDate, dateDomain);
+      // this.refilterByDate(smbgByDate, dateDomain);
+
+      this.log('cbgByDate', cbgByDate.top(Infinity));
+
+      this.setState({
+        currentCbgData: cbgByDate.top(Infinity).reverse(),
+        currentSmbgData: smbgByDate.top(Infinity).reverse(),
+      });
+
+      // this.determineDataToShow();
+    }
+
     if (!_.isEqual(nextProps.activeDays, this.props.activeDays)) {
       const { cbgByDayOfWeek, smbgByDayOfWeek, smbgByDate, cbgByDate } = nextProps;
       this.refilterByDayOfWeek(cbgByDayOfWeek, nextProps.activeDays);

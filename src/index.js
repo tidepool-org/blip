@@ -20,6 +20,7 @@ require('./styles/colors.css');
 import CBGDateTraceLabel from './components/trends/cbg/CBGDateTraceLabel';
 import FocusedRangeLabels from './components/trends/common/FocusedRangeLabels';
 import FocusedSMBGPointLabel from './components/trends/smbg/FocusedSMBGPointLabel';
+import Loader from './components/common/loader/Loader';
 import RangeSelect from './components/trends/cbg/RangeSelect';
 import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
 import PumpSettingsContainer from './components/settings/common/PumpSettingsContainer';
@@ -35,6 +36,7 @@ const components = {
   CBGDateTraceLabel,
   FocusedRangeLabels,
   FocusedSMBGPointLabel,
+  Loader,
   RangeSelect,
   TwoOptionToggle,
 };
