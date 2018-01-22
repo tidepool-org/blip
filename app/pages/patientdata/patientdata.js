@@ -643,6 +643,7 @@ export let PatientData = React.createClass({
         title: this.DEFAULT_TITLE,
         processingData: true,
         processedPatientData: null,
+        lastDatumProcessedIndex: -1,
       });
 
       refresh(this.props.currentPatientInViewId);
@@ -950,7 +951,7 @@ export let PatientData = React.createClass({
           timePrefs: processedData.timePrefs,
         });
 
-        this.handleInitialProcessedData(processedData, patientSettings);
+        this.handleInitialProcessedData(props, processedData, patientSettings);
       }
       else {
         this.log('processing more data');
@@ -984,10 +985,10 @@ export let PatientData = React.createClass({
     }, 500);
   },
 
-  handleInitialProcessedData: function(processedData, patientSettings) {
-    const userId = this.props.currentPatientInViewId;
-    const patientData = _.get(this.props, ['patientDataMap', userId], []);
-    const patientNotes = _.get(this.props, ['patientNotesMap', userId], []);
+  handleInitialProcessedData: function(props, processedData, patientSettings) {
+    const userId = props.currentPatientInViewId;
+    const patientData = _.get(props, ['patientDataMap', userId], []);
+    const patientNotes = _.get(props, ['patientNotesMap', userId], []);
 
     if (!this.state.chartType) {
       this.setInitialChartType(processedData);
@@ -1001,7 +1002,7 @@ export let PatientData = React.createClass({
 
         return (bgUnits === processedData.bgUnits) ? processedData : utils.processPatientData(
           combinedData,
-          this.props.queryParams,
+          props.queryParams,
           _.assign({}, patientSettings, {
             bgTarget: {
               low: patientSettings.bgTarget.low * multiplier,

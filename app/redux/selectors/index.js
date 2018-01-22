@@ -17,7 +17,7 @@ export const getfetchedPatientDataRange = createSelector(
   [ getPatientData, getPatientFetchedUntil ],
   (data, fetchedUntil) =>  _.assign({}, utils.getDeviceDataRange(data), {
     fetchedUntil,
-    count: data.length,
+    count: data ? data.length : 0,
   }),
 );
 
