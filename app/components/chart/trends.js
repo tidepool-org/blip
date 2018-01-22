@@ -104,15 +104,6 @@ class Trends extends PureComponent {
     }
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   if (_.get(this.props, 'loading') && !_.get(nextProps, 'loading')) {
-  //     const prefs = _.cloneDeep(this.props.chartPrefs);
-  //     prefs.trends.processedDataCount = _.get(this.props, 'patientData.data.length');
-  //     this.props.updateChartPrefs(prefs);
-
-  //     this.log(this.props.chartPrefs);
-  //   }
-  // }
 
   formatDate(datetime) {
     const timePrefs = this.props.timePrefs
