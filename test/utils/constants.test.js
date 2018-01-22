@@ -60,9 +60,9 @@ describe('constants', () => {
     });
   });
 
-  describe('CGM_IN_DAY', () => {
+  describe('CGM_READINGS_ONE_DAY', () => {
     it('should be `288`', () => {
-      expect(constants.CGM_IN_DAY).to.equal(288);
+      expect(constants.CGM_READINGS_ONE_DAY).to.equal(288);
     });
   });
 

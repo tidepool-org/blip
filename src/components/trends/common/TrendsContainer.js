@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-const CBG_READINGS_ONE_DAY = 86400000 / (1000 * 60 * 5);
-
 import _ from 'lodash';
 import bows from 'bows';
 import { extent } from 'd3-array';
@@ -29,11 +27,20 @@ import { bindActionCreators } from 'redux';
 
 import * as actions from '../../../redux/actions/';
 import TrendsSVGContainer from './TrendsSVGContainer';
+
 import {
-  MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP, MGDL_UNITS, MMOLL_UNITS, trends,
+  CGM_READINGS_ONE_DAY,
+  MGDL_CLAMP_TOP,
+  MMOLL_CLAMP_TOP,
+  MGDL_UNITS,
+  MMOLL_UNITS,
+  trends,
 } from '../../../utils/constants';
-const { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } } = trends;
+
 import * as datetime from '../../../utils/datetime';
+import { weightedCGMCount } from '../../../utils/bloodglucose';
+
+const { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } } = trends;
 
 /**
  * getAllDatesInRange
@@ -425,8 +432,8 @@ export class TrendsContainer extends PureComponent {
     }
     const { currentCbgData } = this.state;
     const { extentSize, showingCbg } = this.props;
-    const minimumCbgs = (extentSize * CBG_READINGS_ONE_DAY) / 2;
-    if (showingCbg && currentCbgData.length < minimumCbgs) {
+    const minimumCbgs = (extentSize * CGM_READINGS_ONE_DAY) / 2;
+    if (showingCbg && weightedCGMCount(currentCbgData) < minimumCbgs) {
       this.props.onSwitchBgDataSource();
     }
     this.props.markTrendsViewed(currentPatientInViewId);
