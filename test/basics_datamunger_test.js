@@ -110,7 +110,7 @@ describe('basics datamunger', function() {
       assert.isFunction(dm.bgDistribution);
     });
 
-    it('should always calculate a BG distribution for smbg data, should calculate a BG distribution for cbg data if averages >= 144 readings per day, and should yield cgmStatus `calculatedCGM` when have calculated a BG distribution for cbg data', function() {
+    it('should always calculate a BG distribution for smbg data, should calculate a BG distribution for cbg data if averages >= 144 readings per day, and should yield cgmStatus `calculatedCGM` when have calculated a BG distribution for default (dexcom) cbg data', function() {
       var now = new Date();
       var smbg = [
         new types.SMBG({value: 25})
@@ -122,6 +122,65 @@ describe('basics datamunger', function() {
           value: 50
         }));
       }
+      expect(dm.bgDistribution({
+        data: {smbg: {data: smbg}, cbg: {data: cbg}},
+        dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
+      })).to.deep.equal({
+        cbg: _.defaults({veryhigh: 1}, zeroes),
+        cgmStatus: 'calculatedCGM',
+        smbg: _.defaults({target: 1}, zeroes)
+      });
+    });
+
+    it('should always calculate a BG distribution for smbg data, should calculate a BG distribution for cbg data if averages >= 48 readings per day, and should yield cgmStatus `calculatedCGM` when have calculated a BG distribution for FreeStyle Libre cbg data', function() {
+      var now = new Date();
+      var smbg = [
+        new types.SMBG({value: 25})
+      ];
+      var cbg = [];
+      for (var i = 0; i < 48; ++i) {
+        cbg.push(new types.CBG({
+          deviceId: 'AbbottFreeStyleLibre-XXX-XXXX',
+          deviceTime: new Date(now.valueOf() + i*2000).toISOString().slice(0,-5),
+          value: 50
+        }));
+      }
+
+      expect(dm.bgDistribution({
+        data: {smbg: {data: smbg}, cbg: {data: cbg}},
+        dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
+      })).to.deep.equal({
+        cbg: _.defaults({veryhigh: 1}, zeroes),
+        cgmStatus: 'calculatedCGM',
+        smbg: _.defaults({target: 1}, zeroes)
+      });
+    });
+
+    it('should always calculate a BG distribution for smbg data, should calculate a BG distribution for cbg data if averages enough readings per day, and should yield cgmStatus `calculatedCGM` when have calculated a BG distribution for mixed Dexcom and FreeStyle Libre cbg data', function() {
+      var now = new Date();
+      var smbg = [
+        new types.SMBG({value: 25})
+      ];
+      var cbg = [];
+
+      // Add half the required Dexcom datums
+      for (var i = 0; i < 72; ++i) {
+        cbg.push(new types.CBG({
+          deviceId: 'Dexcom-XXX-XXXX',
+          deviceTime: new Date(now.valueOf() + i*2000).toISOString().slice(0,-5),
+          value: 50
+        }));
+      }
+
+      // Add half the required Libre datums
+      for (var j = 0; j < 48; ++j) {
+        cbg.push(new types.CBG({
+          deviceId: 'AbbottFreeStyleLibre-XXX-XXXX',
+          deviceTime: new Date(now.valueOf() + i*2000).toISOString().slice(0,-5),
+          value: 50
+        }));
+      }
+
       expect(dm.bgDistribution({
         data: {smbg: {data: smbg}, cbg: {data: cbg}},
         dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
