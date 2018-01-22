@@ -188,9 +188,6 @@ var Weekly = React.createClass({
   },
 
   componentWillReceiveProps:function (nextProps) {
-    console.log('this.props.loading', this.props.loading);
-    console.log('nextProps.loading', nextProps.loading);
-
     if (this.props.loading && !nextProps.loading) {
       this.refs.chart.rerenderChart();
     }
