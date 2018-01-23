@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@0.9.7-bolus-tooltip.2":
-  version "0.9.7-bolus-tooltip.2"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.9.7-bolus-tooltip.2.tgz#af3e24f63b9a49aeda7fe3996ba48e3dfb94cef0"
+"@tidepool/viz@0.9.8-bolus-tooltip.3":
+  version "0.9.8-bolus-tooltip.3"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.9.8-bolus-tooltip.3.tgz#36f22b06f55fba956bc7d7a4b4089996d2608a73"
   dependencies:
     bluebird "3.5.0"
     crossfilter "1.3.12"
@@ -7563,9 +7563,9 @@ thunkify@~2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@0.6.14-bolus-tooltip.1:
-  version "0.6.14-bolus-tooltip.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.14-bolus-tooltip.1.tgz#e95bb9fec8e20b393c091de8dd17ef6b126c63c7"
+tideline@0.6.15-bolus-tooltip.2:
+  version "0.6.15-bolus-tooltip.2"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.15-bolus-tooltip.2.tgz#d5c168e9fb9feea6f36d15f79e84cd6f0268a154"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
