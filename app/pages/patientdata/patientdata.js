@@ -640,10 +640,13 @@ export let PatientData = React.createClass({
       this.props.removeGeneratedPDFS();
 
       this.setState({
-        title: this.DEFAULT_TITLE,
+        datetimeLocation: null,
+        initialDatetimeLocation: null,
+        lastDatumProcessedIndex: -1,
+        loading: true,
         processingData: true,
         processedPatientData: null,
-        lastDatumProcessedIndex: -1,
+        title: this.DEFAULT_TITLE,
       });
 
       refresh(this.props.currentPatientInViewId);
