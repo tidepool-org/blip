@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "0.6.14-basics-libre-avg-cbg-fix.alpha.1",
+  "version": "0.6.14",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
