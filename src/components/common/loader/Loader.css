@@ -19,20 +19,19 @@
 }
 
 .loaderText {
-  color: var(--text-medium-contrast);
+  color: var(--text-high-contrast);
+  font-size: 14px;
   display: flex;
   width: 100%;
   justify-content: center;
   position: absolute;
-  top: calc(50% + 36px);
+  top: calc(50% + 29px);
   left: 50%;
   transform: translate(-50%, -50%);
-  font-weight: bold;
-  color: var(--text-medium-contrast);
 }
 
 .loaderDots.overlay {
-  background-color: rgba(255, 255, 255, 0.5);
+  background: radial-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.7));
 }
 
 .loaderDots.hidden {
@@ -40,38 +39,30 @@
 }
 
 .loaderDot {
-  margin: 8px;
-  width: 24px;
-  height: 24px;
+  margin: 5px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: #ED4E3B;
-  /* background: #00EBFA; */
+  background: var(--brand-purple);
   transform: scale(0.5);
   animation: scale-dot 1.2s ease-out infinite;
-  border: 1px solid var(--text-medium-contrast);
 }
 
 .loaderDot:nth-of-type(2) {
-  background: #FEA89E;
-  /* background: #2CE993; */
+  background: var(--brand-purple-dark);
   animation-delay: 0.2s;
 }
 
 .loaderDot:nth-of-type(3) {
-  background: #6DD5A9;
-  /* background: #FF5F37; */
   animation-delay: 0.3s;
 }
 
 .loaderDot:nth-of-type(4) {
-  background: #C7ABE3;
-  /* background: #FF6F69; */
+  background: var(--brand-purple-dark);
   animation-delay: 0.4s;
 }
 
 .loaderDot:nth-of-type(5) {
-  background: #8037E1;
-  /* background: #FFCF9F; */
   animation-delay: 0.5s;
 }
 

@@ -52,7 +52,7 @@ const Loader = (props) => {
 Loader.defaultProps = {
   overlay: false,
   show: true,
-  text: '',
+  text: 'Loading...',
 };
 
 Loader.propTypes = {
