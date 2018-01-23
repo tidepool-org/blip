@@ -21,35 +21,44 @@ import cx from 'classnames';
 import styles from './Loader.css';
 
 const Loader = (props) => {
-  const { show, overlay } = props;
+  const { show, overlay, text } = props;
 
-  const loaderClasses = cx({
+  const loaderOuterClasses = cx({
+    loader: true,
+    [styles.loader]: true,
+  });
+
+  const loaderInnerClasses = cx({
     [styles.loaderDots]: true,
     [styles.hidden]: !show,
     [styles.overlay]: overlay,
   });
 
   return (
-    <div className={styles.loader}>
-      <div className={loaderClasses}>
+    <div className={loaderOuterClasses}>
+      <div className={loaderInnerClasses}>
         <div className={styles.loaderDot}></div>
         <div className={styles.loaderDot}></div>
         <div className={styles.loaderDot}></div>
         <div className={styles.loaderDot}></div>
         <div className={styles.loaderDot}></div>
+
+        <div className={styles.loaderText}>{text}</div>
       </div>
     </div>
-    );
+  );
 };
 
 Loader.defaultProps = {
-  show: true,
   overlay: false,
+  show: true,
+  text: '',
 };
 
 Loader.propTypes = {
-  show: PropTypes.bool.isRequired,
   overlay: PropTypes.bool.isRequired,
+  show: PropTypes.bool.isRequired,
+  text: PropTypes.string,
 };
 
 export default Loader;
