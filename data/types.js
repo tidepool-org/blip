@@ -79,13 +79,12 @@ class Basal extends Common {
   constructor(opts = {}) {
     super(opts);
 
-    const defaults = {
+    _.defaults(opts, {
       deliveryType: 'scheduled',
       deviceTime: this.makeDeviceTime(),
       duration: MS_IN_DAY / 12,
       rate: 0.5,
-    };
-    _.defaults(opts, defaults);
+    });
 
     this.type = 'basal';
 
@@ -105,12 +104,11 @@ class Bolus extends Common {
   constructor(opts = {}) {
     super(opts);
 
-    const defaults = {
+    _.defaults(opts, {
       deviceTime: this.makeDeviceTime(),
       subType: 'normal',
       value: 5.0,
-    };
-    _.defaults(opts, defaults);
+    });
 
     this.type = 'bolus';
     this.deviceTime = opts.deviceTime;
@@ -130,16 +128,17 @@ class CBG extends Common {
   constructor(opts = {}) {
     super(opts);
 
-    const defaults = {
+    _.defaults(opts, {
+      deviceId: 'DexG4Rec_XXXXXXXXX',
       deviceTime: this.makeDeviceTime(),
       units: MGDL_UNITS,
       value: 100,
-    };
-    _.defaults(opts, defaults);
+    });
 
     this.type = 'cbg';
 
     this.deviceTime = opts.deviceTime;
+    this.deviceId = opts.deviceId;
     this.units = opts.units;
     this.value = opts.value;
 
@@ -153,12 +152,11 @@ class Message extends Common {
   constructor(opts = {}) {
     super(opts);
 
-    const defaults = {
+    _.defaults(opts, {
       messageText: 'This is a note.',
       parentMessage: null,
       time: new Date().toISOString(),
-    };
-    _.defaults(opts, defaults);
+    });
 
     this.type = 'message';
 
@@ -177,7 +175,7 @@ class Settings extends Common {
   constructor(opts = {}) {
     super(opts);
 
-    const defaults = {
+    _.defaults(opts, {
       activeBasalSchedule: 'standard',
       basalSchedules: [{
         name: 'standard',
@@ -204,8 +202,7 @@ class Settings extends Common {
         carb: 'grams',
         bg: MGDL_UNITS,
       },
-    };
-    _.defaults(opts, defaults);
+    });
 
     this.type = 'settings';
 
@@ -227,15 +224,13 @@ class SMBG extends Common {
   constructor(opts = {}) {
     super(opts);
 
-    const defaults = {
+    _.defaults(opts, {
       deviceTime: this.makeDeviceTime(),
       normalTime: this.makeNormalTime(),
       displayOffset: 0,
       units: MGDL_UNITS,
       value: 100,
-    };
-
-    _.defaults(opts, defaults);
+    });
 
     this.type = 'smbg';
 
@@ -254,13 +249,12 @@ class DeviceEvent extends Common {
   constructor(opts = {}) {
     super(opts);
 
-    const defaults = {
+    _.defaults(opts, {
       deviceTime: this.makeDeviceTime(),
       units: 'mg/dL',
       value: 100,
       primeTarget: 'cannula',
-    };
-    _.defaults(opts, defaults);
+    });
 
     this.type = 'deviceEvent';
     this.subType = opts.subType;
@@ -282,11 +276,10 @@ class Upload extends Common {
   constructor(opts = {}) {
     super(opts);
 
-    const defaults = {
+    _.defaults(opts, {
       deviceTime: this.makeDeviceTime(),
       timezone: 'US/Eastern',
-    };
-    _.defaults(opts, defaults);
+    });
 
     this.type = 'upload';
     this.deviceTags = opts.deviceTags;
@@ -308,7 +301,7 @@ class Wizard extends Common {
       // eslint-disable-next-line no-param-reassign
       opts.deviceTime = opts.bolus.deviceTime;
     }
-    const defaults = {
+    _.defaults(opts, {
       bgTarget: {
         high: 120,
         target: 100,
@@ -318,8 +311,7 @@ class Wizard extends Common {
       insulinSensitivity: 50,
       recommended: {},
       value: 5.0,
-    };
-    _.defaults(opts, defaults);
+    });
 
     this.type = 'wizard';
 

@@ -132,30 +132,65 @@ describe('TrendsContainer', () => {
     const extentSize = 7;
     const timezone = 'US/Pacific';
 
-    const justOneDatum = sinon.stub().returns([{
+    const devices = {
+      dexcom: {
+        id: 'DexG4Rec_XXXXXXXXX',
+        cgmInDay: 288,
+      },
+      libre: {
+        id: 'AbbottFreeStyleLibre_XXXXXXXXX',
+        cgmInDay: 96,
+      },
+    };
+
+    const justOneDatum = (device = devices.dexcom, type = 'cbg') => sinon.stub().returns([{
       id: chance.hash({ length: 6 }),
+      deviceId: device.id,
       msPer24: chance.integer({ min: 0, max: 864e5 }),
+      type,
       value: 100,
     }]);
     const lowestBg = 25;
-    const sevenDaysData = sinon.stub().returns(
-      _.map(range(0, 288 * extentSize), () => ({
+    const sevenDaysData = (device = devices.dexcom, type = 'cbg') => sinon.stub().returns(
+      _.map(range(0, device.cgmInDay * extentSize), () => ({
         id: chance.hash({ length: 6 }),
+        deviceId: device.id,
         msPer24: chance.integer({ min: 0, max: 864e5 }),
+        type,
         value: chance.pickone([lowestBg, 525]),
       }))
     );
 
-    const justOneDatumMmol = sinon.stub().returns([{
+    const sevenDaysDataMixedMinimum = (type = 'cbg') => sinon.stub().returns(
+      _.map(range(0, (devices.dexcom.cgmInDay / 4) * extentSize), () => ({
+        id: chance.hash({ length: 6 }),
+        deviceId: devices.dexcom.id,
+        msPer24: chance.integer({ min: 0, max: 864e5 }),
+        type,
+        value: chance.pickone([lowestBg, 525]),
+      })).concat(_.map(range(0, (devices.libre.cgmInDay / 4) * extentSize), () => ({
+        id: chance.hash({ length: 6 }),
+        deviceId: devices.libre.id,
+        msPer24: chance.integer({ min: 0, max: 864e5 }),
+        type,
+        value: chance.pickone([lowestBg, 525]),
+      })))
+    );
+
+    const justOneDatumMmol = (device = devices.dexcom, type = 'cbg') => sinon.stub().returns([{
       id: chance.hash({ length: 6 }),
+      deviceId: device.id,
       msPer24: chance.integer({ min: 0, max: 864e5 }),
+      type,
       value: 5.2,
     }]);
     const lowestBgMmol = 3.1;
-    const sevenDaysDataMmol = sinon.stub().returns(
-      _.map(range(0, 288 * extentSize), () => ({
+    const sevenDaysDataMmol = (device = devices.dexcom, type = 'cbg') => sinon.stub().returns(
+      _.map(range(0, device.cgmInDay * extentSize), () => ({
         id: chance.hash({ length: 6 }),
+        deviceId: device.id,
         msPer24: chance.integer({ min: 0, max: 864e5 }),
+        type,
         value: chance.pickone([lowestBgMmol, 28.4]),
       }))
     );
@@ -255,7 +290,7 @@ describe('TrendsContainer', () => {
 
     before(() => {
       minimalData = mount(
-        <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum)} />
+        <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum())} />
       );
     });
 
@@ -273,7 +308,7 @@ describe('TrendsContainer', () => {
           <TrendsContainer
             {...props}
             {...mgdl}
-            {...makeDataStubs(justOneDatum)}
+            {...makeDataStubs(justOneDatum())}
             initialDatetimeLocation="2016-03-15T19:00:00.000Z"
           />
         );
@@ -301,7 +336,7 @@ describe('TrendsContainer', () => {
           <TrendsContainer
             {...props}
             {...mgdl}
-            {...makeDataStubs(justOneDatum)}
+            {...makeDataStubs(justOneDatum())}
           />
         );
         expect(markTrendsViewed.callCount).to.equal(1);
@@ -313,7 +348,7 @@ describe('TrendsContainer', () => {
           <TrendsContainer
             {..._.merge({}, props, { trendsState: { touched: true } })}
             {...mgdl}
-            {...makeDataStubs(justOneDatum)}
+            {...makeDataStubs(justOneDatum())}
           />
         );
         expect(markTrendsViewed.callCount).to.equal(0);
@@ -325,19 +360,43 @@ describe('TrendsContainer', () => {
           <TrendsContainer
             {...props}
             {...mgdl}
-            {...makeDataStubs(justOneDatum)}
+            {...makeDataStubs(justOneDatum())}
           />
         );
         expect(onSwitchBgDataSource.callCount).to.equal(1);
       });
 
-      it('should not toggle BG data source if enough cbg data', () => {
+      it('should not toggle BG data source if enough cbg data (dexcom)', () => {
         expect(onSwitchBgDataSource.callCount).to.equal(0);
         mount(
           <TrendsContainer
             {...props}
             {...mgdl}
-            {...makeDataStubs(sevenDaysData)}
+            {...makeDataStubs(sevenDaysData())}
+          />
+        );
+        expect(onSwitchBgDataSource.callCount).to.equal(0);
+      });
+
+      it('should not toggle BG data source if enough cbg data (libre)', () => {
+        expect(onSwitchBgDataSource.callCount).to.equal(0);
+        mount(
+          <TrendsContainer
+            {...props}
+            {...mgdl}
+            {...makeDataStubs(sevenDaysData(devices.libre))}
+          />
+        );
+        expect(onSwitchBgDataSource.callCount).to.equal(0);
+      });
+
+      it('should not toggle BG data source if enough cbg data (dexcom + libre mix)', () => {
+        expect(onSwitchBgDataSource.callCount).to.equal(0);
+        mount(
+          <TrendsContainer
+            {...props}
+            {...mgdl}
+            {...makeDataStubs(sevenDaysDataMixedMinimum())}
           />
         );
         expect(onSwitchBgDataSource.callCount).to.equal(0);
@@ -349,7 +408,7 @@ describe('TrendsContainer', () => {
           <TrendsContainer
             {..._.merge({}, props, { trendsState: { touched: true } })}
             {...mgdl}
-            {...makeDataStubs(justOneDatum)}
+            {...makeDataStubs(justOneDatum())}
           />
         );
         expect(onSwitchBgDataSource.callCount).to.equal(0);
@@ -403,7 +462,7 @@ describe('TrendsContainer', () => {
 
       beforeEach(() => {
         toBeUnmounted = mount(
-          <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum)} />
+          <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum())} />
         );
       });
 
@@ -454,7 +513,7 @@ describe('TrendsContainer', () => {
       describe('mg/dL blood glucose units', () => {
         before(() => {
           enoughCbgData = mount(
-            <TrendsContainer {...props} {...mgdl} {...makeDataStubs(sevenDaysData)} />
+            <TrendsContainer {...props} {...mgdl} {...makeDataStubs(sevenDaysData())} />
           );
         });
 
@@ -481,10 +540,10 @@ describe('TrendsContainer', () => {
       describe('mmol/L blood glucose units', () => {
         before(() => {
           enoughCbgDataMmol = mount(
-            <TrendsContainer {...props} {...mmoll} {...makeDataStubs(sevenDaysDataMmol)} />
+            <TrendsContainer {...props} {...mmoll} {...makeDataStubs(sevenDaysDataMmol())} />
           );
           minimalDataMmol = mount(
-            <TrendsContainer {...props} {...mmoll} {...makeDataStubs(justOneDatumMmol)} />
+            <TrendsContainer {...props} {...mmoll} {...makeDataStubs(justOneDatumMmol())} />
           );
         });
 
@@ -521,7 +580,7 @@ describe('TrendsContainer', () => {
             <TrendsContainer
               {...props}
               {...mgdl}
-              {...makeDataStubs(justOneDatum)}
+              {...makeDataStubs(justOneDatum())}
               initialDatetimeLocation="2016-03-15T19:00:00.000Z"
             />
           );
@@ -721,7 +780,7 @@ describe('TrendsContainer', () => {
     describe('render', () => {
       it('should render `TrendsSVGContainer`', () => {
         const wrapper = mount(
-          <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum)} />
+          <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum())} />
         );
         expect(wrapper.find(TrendsSVGContainer)).to.have.length(1);
       });
