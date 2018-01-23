@@ -45,6 +45,7 @@ class Trends extends PureComponent {
     patient: React.PropTypes.object,
     patientData: PropTypes.object.isRequired,
     loading: PropTypes.bool.isRequired,
+    loadingText: React.PropTypes.string,
     trendsState: PropTypes.object.isRequired,
     onClickRefresh: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
@@ -349,7 +350,7 @@ class Trends extends PureComponent {
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <Loader show={this.props.loading} overlay={true} />
+              <Loader show={this.props.loading} overlay={true} text={this.props.loadingText} />
               <div id="tidelineContainer" className="patient-data-chart-trends">
                 {this.renderChart()}
               </div>

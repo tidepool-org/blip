@@ -138,7 +138,7 @@ export let PatientData = React.createClass({
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
-        <Loader show={showLoader} />
+        <Loader show={showLoader} text="Loading data..." />
       </div>
     );
   },
@@ -146,6 +146,7 @@ export let PatientData = React.createClass({
   renderPatientData: function() {
     const initialProcessing = this.state.lastDatumProcessedIndex < 0;
 
+    // if (true) {
     if (initialProcessing && this.state.loading) {
       return this.renderLoading();
     }
@@ -175,11 +176,7 @@ export let PatientData = React.createClass({
         {header}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
-            <div className="patient-data-content">
-              <div className="patient-data-message patient-data-loading-message">
-                Loading data...
-              </div>
-            </div>
+            <div className="patient-data-content"></div>
           </div>
         </div>
       </div>
@@ -325,6 +322,7 @@ export let PatientData = React.createClass({
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             loading={this.state.loading}
+            loadingText={this.state.loadingText}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -350,6 +348,7 @@ export let PatientData = React.createClass({
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             loading={this.state.loading}
+            loadingText={this.state.loadingText}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -374,6 +373,7 @@ export let PatientData = React.createClass({
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             loading={this.state.loading}
+            loadingText={this.state.loadingText}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -745,6 +745,10 @@ export let PatientData = React.createClass({
     if (siteChangeSource && siteChangeSource !== _.get(this.props, 'patient.settings.siteChangeSource')) {
       this.props.removeGeneratedPDFS();
     }
+
+    const loadingText = nextProps.fetchingPatientData ? 'Loading data...' : 'Processing...';
+
+    this.setState({ loadingText });
   },
 
   componentWillUpdate: function (nextProps, nextState) {
