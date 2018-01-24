@@ -479,14 +479,12 @@ export let PatientData = React.createClass({
       const chartLimitReached = dateRangeStart.isSame(moment.utc(lastBGProcessedTime), 'day');
 
       if (dateRangeStart.isSameOrBefore(this.props.fetchedPatientDataRange.start)) {
-        // this.setState({ processingData: true });
         this.fetchEarlierData();
       }
       else if (
         (lastProcessedDateTarget && dateRangeStart.isSameOrBefore(lastProcessedDateTarget))
         || (this.state.chartType === 'weekly' && chartLimitReached)
         || (this.state.chartType === 'daily' && chartLimitReached)) {
-        // this.setState({ processingData: true });
         this.processData(this.props, dateRangeStart);
       }
     }
@@ -953,12 +951,11 @@ export let PatientData = React.createClass({
         this.handleInitialProcessedData(props, processedData, patientSettings);
       }
       else {
-        this.log('processing more data');
-
-        // We don't need full processing here. We just add and reprocess the new datums.
+        // We don't need full processing for subsequend data. We just add and reprocess the new datums.
         const startingDataLength = _.get(this.state, 'processedPatientData.data.length');
+        const newData = utils.filterPatientData(targetData, bgUnits).processedData;
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
-        const processedPatientData = addData(utils.filterPatientData(targetData, bgUnits).processedData);
+        const processedPatientData = addData(newData);
         const processingComplete = _.get(processedPatientData, 'data.length') !== startingDataLength;
 
         this.setState({
@@ -975,13 +972,14 @@ export let PatientData = React.createClass({
   },
 
   completeLoading: function() {
-    // Needs to be in a setTimeout to force unsetting the processingData state in a new render cycle
-    // so that child components can be aware of when processing begins and ends
+    // Needs to be in a setTimeout to force unsetting the loading state in a new render cycle
+    // so that child components can be aware of the change in processing states. It also serves
+    // to ensure the loading indicator shows long enough for the user to make sense of it.
     setTimeout(() => {
       this.setState({
         loading: this.state.processingData,
       });
-    }, 500);
+    }, 250);
   },
 
   handleInitialProcessedData: function(props, processedData, patientSettings) {
