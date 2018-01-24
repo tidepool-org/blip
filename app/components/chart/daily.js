@@ -169,7 +169,6 @@ var Daily = React.createClass({
     patientData: React.PropTypes.object.isRequired,
     pdf: React.PropTypes.object.isRequired,
     loading: React.PropTypes.bool.isRequired,
-    loadingText: React.PropTypes.string,
     // refresh handler
     onClickRefresh: React.PropTypes.func.isRequired,
     // message handlers
@@ -226,7 +225,7 @@ var Daily = React.createClass({
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <Loader show={this.props.loading} overlay={true} text={this.props.loadingText} />
+              <Loader show={this.props.loading} overlay={true} />
               <DailyChart
                 bgClasses={this.props.bgPrefs.bgClasses}
                 bgUnits={this.props.bgPrefs.bgUnits}

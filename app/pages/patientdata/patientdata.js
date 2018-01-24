@@ -138,7 +138,7 @@ export let PatientData = React.createClass({
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
-        <Loader show={showLoader} text="Loading data..." />
+        <Loader show={showLoader} />
       </div>
     );
   },
@@ -146,7 +146,6 @@ export let PatientData = React.createClass({
   renderPatientData: function() {
     const initialProcessing = this.state.lastDatumProcessedIndex < 0;
 
-    // if (true) {
     if (initialProcessing && this.state.loading) {
       return this.renderLoading();
     }
@@ -322,7 +321,6 @@ export let PatientData = React.createClass({
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             loading={this.state.loading}
-            loadingText={this.state.loadingText}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -348,7 +346,6 @@ export let PatientData = React.createClass({
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             loading={this.state.loading}
-            loadingText={this.state.loadingText}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -373,7 +370,6 @@ export let PatientData = React.createClass({
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             loading={this.state.loading}
-            loadingText={this.state.loadingText}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -552,7 +548,9 @@ export let PatientData = React.createClass({
     this.props.trackMetric('Clicked Basics '+title+' calendar', {
       fromChart: this.state.chartType
     });
-    datetime = datetime || this.state.datetimeLocation;
+
+    datetime = moment(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString();
+
     this.setState({
       chartType: 'daily',
       initialDatetimeLocation: datetime,
@@ -576,7 +574,9 @@ export let PatientData = React.createClass({
     this.props.trackMetric('Clicked Switch To Modal', {
       fromChart: this.state.chartType
     });
-    datetime = datetime || this.state.datetimeLocation;
+
+    datetime = moment(datetime || this.state.datetimeLocation).endOf('day').toISOString();
+
     this.setState({
       chartType: 'trends',
       initialDatetimeLocation: datetime,
@@ -589,16 +589,7 @@ export let PatientData = React.createClass({
       fromChart: this.state.chartType
     });
 
-    datetime = this.applyTimezoneOffset(datetime || this.state.datetimeLocation);
-
-    // when switching from initial Basics
-    // won't even have a datetimeLocation in the state yet
-    if (!datetime) {
-      this.setState({
-        chartType: 'weekly'
-      });
-      return;
-    }
+    datetime = moment.utc(datetime || this.state.datetimeLocation).endOf('day').toISOString();
 
     this.setState({
       chartType: 'weekly',
@@ -745,10 +736,6 @@ export let PatientData = React.createClass({
     if (siteChangeSource && siteChangeSource !== _.get(this.props, 'patient.settings.siteChangeSource')) {
       this.props.removeGeneratedPDFS();
     }
-
-    const loadingText = nextProps.fetchingPatientData ? 'Loading data...' : 'Processing...';
-
-    this.setState({ loadingText });
   },
 
   componentWillUpdate: function (nextProps, nextState) {
@@ -830,9 +817,14 @@ export let PatientData = React.createClass({
         this.deriveChartTypeFromLatestData(latestData, uploads)
       );
 
+      const datetime = chartType === 'basics'
+        ? moment(latestData.time).hour(12).minute(0).second(0).toISOString()
+        : moment(latestData.time).endOf('day').toISOString();
+
       let state = {
         chartType,
-        initialDatetimeLocation: chartType === 'trends' ? latestData.time : null,
+        initialDatetimeLocation: datetime,
+        datetimeLocation: datetime,
       };
 
       this.setState(state);

@@ -166,7 +166,6 @@ var Weekly = React.createClass({
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     patientData: React.PropTypes.object.isRequired,
     loading: React.PropTypes.bool.isRequired,
-    loadingText: React.PropTypes.string,
     timePrefs: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
@@ -201,7 +200,7 @@ var Weekly = React.createClass({
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <Loader show={this.props.loading} overlay={true} text={this.props.loadingText} />
+              <Loader show={this.props.loading} overlay={true} />
               {this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart()}
             </div>
           </div>

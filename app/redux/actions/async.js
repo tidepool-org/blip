@@ -905,10 +905,10 @@ export function fetchPatientData(api, options, id) {
 
         if (options.initial) {
           const range = utils.getDeviceDataRange(patientData);
-          const minDays = 28;
+          const minWeeks = 4;
 
           if (range.spanInDays) {
-            if (range.spanInDays >= minDays) {
+            if (range.spanInDays / 7 >= minWeeks) {
               // We have enough data for the initial rendering.
               dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, options.startDate));
               // dispatch(worker.processPatientDataRequest(id, patientData, notes));
@@ -917,7 +917,7 @@ export function fetchPatientData(api, options, id) {
               // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
               dispatch(fetchPatientData(api, _.assign({}, options, {
                 initial: false,
-                startDate: moment.utc(range.end).subtract(minDays, 'days').startOf('day').toISOString(),
+                startDate: moment.utc(range.end).subtract(minWeeks, 'weeks').startOf('day').toISOString(),
               }), id));
             }
           }
