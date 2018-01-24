@@ -357,13 +357,15 @@ var Weekly = React.createClass({
     });
     this.props.updateDatetimeLocation(this.refs.chart.getCurrentDay());
 
+    // Update the chart date range in the patientData component.
+    // We debounce this to avoid excessive updates while panning the view.
     if (this.state.debouncedDateRangeUpdate) {
       this.state.debouncedDateRangeUpdate.cancel();
     }
 
-    // Update the chart date range in the patientData component
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
     debouncedDateRangeUpdate(datetimeLocationEndpoints, this.refs.chart);
+
     this.setState({ debouncedDateRangeUpdate });
   },
 

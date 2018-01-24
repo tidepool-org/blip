@@ -62,6 +62,14 @@ var Basics = React.createClass({
     };
   },
 
+  componentWillMount: function() {
+    var basicsData = this.props.patientData.basicsData;
+
+    if (basicsData.dateRange) {
+      this.props.onUpdateChartDateRange(basicsData.dateRange);
+    }
+  },
+
   render: function() {
     return (
       <div id="tidelineMain">
@@ -151,9 +159,6 @@ var Basics = React.createClass({
     }
     var basicsData = this.props.patientData.basicsData;
     var dtMask = 'MMM D, YYYY';
-
-    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate(basicsData.dateRange);
 
     return sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask) +
       ' - ' + sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask);

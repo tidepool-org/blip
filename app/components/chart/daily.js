@@ -123,6 +123,7 @@ var DailyChart = React.createClass({
   },
 
   rerenderChart: function() {
+    this.log('Rerendering...');
     this.unmountChart();
     this.mountChart();
     this.initializeChart();
@@ -312,16 +313,18 @@ var Daily = React.createClass({
     });
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
 
+    // Update the chart date range in the patientData component.
+    // We debounce this to avoid excessive updates while panning the view.
     if (this.state.debouncedDateRangeUpdate) {
       this.state.debouncedDateRangeUpdate.cancel();
     }
 
-    // Update the chart date range in the patientData component
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
     debouncedDateRangeUpdate([
       moment.utc(datetimeLocationEndpoints[0].start).toISOString(),
       moment.utc(datetimeLocationEndpoints[0].end).toISOString(),
     ]);
+
     this.setState({ debouncedDateRangeUpdate });
   },
 

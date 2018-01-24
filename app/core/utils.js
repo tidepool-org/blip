@@ -17,7 +17,6 @@
 
 import _  from 'lodash';
 import sundial from 'sundial';
-import Promise from 'bluebird';
 import TidelineData from 'tideline/js/tidelinedata';
 import nurseShark from 'tideline/plugins/nurseshark';
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
@@ -340,39 +339,6 @@ utils.getBGPrefsForDataProcessing = (queryParams = {}, settings) => {
     bgUnits,
     bgClasses,
   };
-}
-
-utils.workerProcessPatientData = (data, queryParams, settings) => {
-  return new Promise((resolve, reject) => {
-    if (!(data && data.length >= 0)) {
-      resolve(null);
-    }
-
-    const timePrefsForTideline = utils.getTimezoneForDataProcessing(data, queryParams);
-    const bgPrefs = utils.getBGPrefsForDataProcessing(queryParams, settings);
-
-    console.time('Nurseshark Total');
-    var res = nurseShark.processData(data, bgPrefs.bgUnits);
-    console.timeEnd('Nurseshark Total');
-
-    console.time('TidelineData Total');
-    var tidelineData = new TidelineData(res.processedData, {
-      timePrefs: timePrefsForTideline,
-      bgUnits: bgPrefs.bgUnits,
-      bgClasses: bgPrefs.bgClasses,
-    });
-
-    if (!_.isEmpty(timePrefsForTideline)) {
-      tidelineData.timePrefs = timePrefsForTideline;
-    }
-    console.timeEnd('TidelineData Total');
-
-    resolve({
-      bgPrefs,
-      data: res.processedData,
-      timePrefs: timePrefsForTideline,
-    });
-  });
 }
 
 utils.filterPatientData = (data, bgUnits) => {

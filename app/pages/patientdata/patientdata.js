@@ -74,7 +74,6 @@ export let PatientData = React.createClass({
     patient: React.PropTypes.object,
     patientDataMap: React.PropTypes.object.isRequired,
     patientNotesMap: React.PropTypes.object.isRequired,
-    // processPatientDataRequest: React.PropTypes.func.isRequired,
     queryParams: React.PropTypes.object.isRequired,
     removeGeneratedPDFS: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -110,7 +109,6 @@ export let PatientData = React.createClass({
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
-      initialDatetimeLocation: null,
       lastDatumProcessedIndex: -1,
       loading: true,
       processingData: true,
@@ -147,7 +145,7 @@ export let PatientData = React.createClass({
     const initialProcessing = this.state.lastDatumProcessedIndex < 0;
 
     if (initialProcessing && this.state.loading) {
-      return this.renderLoading();
+      return this.renderInitialLoading();
     }
 
     if (this.isEmptyPatientData() || this.isInsufficientPatientData()) {
@@ -168,7 +166,7 @@ export let PatientData = React.createClass({
       );
   },
 
-  renderLoading: function() {
+  renderInitialLoading: function() {
     var header = this.renderEmptyHeader();
     return (
       <div>
@@ -317,7 +315,7 @@ export let PatientData = React.createClass({
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.state.timePrefs}
-            initialDatetimeLocation={this.state.datetimeLocation || this.state.initialDatetimeLocation}
+            initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             loading={this.state.loading}
@@ -342,7 +340,7 @@ export let PatientData = React.createClass({
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
             timePrefs={this.state.timePrefs}
-            initialDatetimeLocation={this.state.datetimeLocation || this.state.initialDatetimeLocation}
+            initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             loading={this.state.loading}
@@ -366,7 +364,7 @@ export let PatientData = React.createClass({
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.state.timePrefs}
-            initialDatetimeLocation={this.state.datetimeLocation || this.state.initialDatetimeLocation}
+            initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             loading={this.state.loading}
@@ -551,21 +549,8 @@ export let PatientData = React.createClass({
 
     this.setState({
       chartType: 'daily',
-      initialDatetimeLocation: datetime,
       datetimeLocation: datetime,
     });
-  },
-
-  handleClickPrint: function(pdf = {}) {
-    this.props.trackMetric('Clicked Print', {
-      fromChart: this.state.chartType
-    });
-
-    if (pdf.url) {
-      const printWindow = window.open(pdf.url);
-      printWindow.focus();
-      printWindow.print();
-    }
   },
 
   handleSwitchToTrends: function(datetime) {
@@ -577,7 +562,6 @@ export let PatientData = React.createClass({
 
     this.setState({
       chartType: 'trends',
-      initialDatetimeLocation: datetime,
       datetimeLocation: datetime,
     });
   },
@@ -591,7 +575,6 @@ export let PatientData = React.createClass({
 
     this.setState({
       chartType: 'weekly',
-      initialDatetimeLocation: datetime,
       datetimeLocation: datetime,
     });
   },
@@ -606,6 +589,18 @@ export let PatientData = React.createClass({
     this.setState({
       chartType: 'settings'
     });
+  },
+
+  handleClickPrint: function(pdf = {}) {
+    this.props.trackMetric('Clicked Print', {
+      fromChart: this.state.chartType
+    });
+
+    if (pdf.url) {
+      const printWindow = window.open(pdf.url);
+      printWindow.focus();
+      printWindow.print();
+    }
   },
 
   handleClickRefresh: function(e) {
@@ -629,8 +624,7 @@ export let PatientData = React.createClass({
       this.props.removeGeneratedPDFS();
 
       this.setState({
-        datetimeLocation: null,
-        initialDatetimeLocation: null,
+        datetimeLocation: this.state.initialDatetimeLocation,
         lastDatumProcessedIndex: -1,
         loading: true,
         processingData: true,
@@ -646,7 +640,7 @@ export let PatientData = React.createClass({
     // only attempt to update data if there's already data present to update
     if(this.state.processedPatientData){
       this.setState({
-        processedPatientData: data
+        processedPatientData: _.assign(this.state.processedPatientData, data),
       });
     }
   },
@@ -694,7 +688,6 @@ export let PatientData = React.createClass({
     const nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
     const currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
-    // const nextPatientProcessedData = _.get(nextProps, ['patientDataMap', `${userId}_processed`], null);
 
     const nextFetchedDataRangeStart = _.get(nextProps, 'fetchedPatientDataRange.fetchedUntil');
     const currentFetchedDataRangeStart = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil');
@@ -721,11 +714,6 @@ export let PatientData = React.createClass({
         this.fetchEarlierData({ startDate: null });
       }
     }
-
-    // if (nextPatientProcessedData && this.state.processingData) {
-    //   console.log('processed data ready');
-    //   // this.handleInitialProcessedData(nextPatientProcessedData);
-    // }
 
     // If the patient makes a change to their site change source settings,
     // we should remove the currently generated PDF, which will trigger a rebuild of
@@ -815,14 +803,14 @@ export let PatientData = React.createClass({
         this.deriveChartTypeFromLatestData(latestData, uploads)
       );
 
-      const datetime = chartType === 'basics'
+      const datetime = chartType === 'daily'
         ? moment(latestData.time).hour(12).minute(0).second(0).toISOString()
         : moment(latestData.time).endOf('day').toISOString();
 
       let state = {
         chartType,
-        initialDatetimeLocation: datetime,
         datetimeLocation: datetime,
+        initialDatetimeLocation: datetime,
       };
 
       this.setState(state);
@@ -1026,7 +1014,6 @@ export let PatientData = React.createClass({
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
               data[bgUnits].grouped,
-              // TODO: add back deviceEvent later (not in first prod release)
               ['basal', 'bolus', 'cbg', 'message', 'smbg']
             ),
             6,
@@ -1128,7 +1115,6 @@ export function mapStateToProps(state, props) {
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
-    // processingPatientData: state.blip.working.processingPatientData.inProgress,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     generatingPDF: state.blip.working.generatingPDF.inProgress,
     pdf: state.blip.pdf,
@@ -1145,7 +1131,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   fetchMessageThread: actions.async.fetchMessageThread,
   generatePDFRequest: actions.worker.generatePDFRequest,
-  // processPatientDataRequest: actions.worker.processPatientDataRequest,
   removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
