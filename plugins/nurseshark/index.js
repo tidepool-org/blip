@@ -147,7 +147,7 @@ var nurseshark = {
     var tidelineMessage = {
       time: d.timestamp,
       messageText: d.messagetext,
-      parentMessage: d.parentmessage,
+      parentMessage: d.parentmessage || null,
       type: 'message',
       user: d.user,
       id: d.id

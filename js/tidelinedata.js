@@ -206,7 +206,7 @@ function TidelineData(data, opts) {
       if (d.type === 'settings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
         return true;
       }
-      if (d.type === 'upload' || d.type === 'fill') {
+      if (d.type === 'upload') {
         return true;
       }
     }), 'id');
