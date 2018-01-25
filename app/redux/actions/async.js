@@ -899,7 +899,10 @@ export function fetchPatientData(api, options, id) {
 
     async.parallel({
       patientData: api.patientData.get.bind(api, id, options),
-      teamNotes: api.team.getNotes.bind(api, id),
+      teamNotes: api.team.getNotes.bind(api, id, _.assign({}, options, {
+        start: options.startDate,
+        end: options.endDate,
+      })),
     }, (err, results) => {
       if (err) {
         dispatch(sync.fetchPatientDataFailure(

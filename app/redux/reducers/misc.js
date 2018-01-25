@@ -458,14 +458,22 @@ export const patientNotesMap = (state = initialState.patientNotesMap, action) =>
   switch(action.type) {
     case types.FETCH_PATIENT_DATA_SUCCESS: {
       const { patientId, patientNotes } = action.payload;
+      const method = state[patientId] ? '$push' : '$set';
       return update(state, {
-        [patientId]: { $set: patientNotes }
+        [patientId]: { [method]: patientNotes },
       });
     }
     case types.CLEAR_PATIENT_DATA: {
       const { patientId } = action.payload;
       return update(state, {
         [patientId]: { $set: null }
+      });
+    }
+    case types.ADD_PATIENT_NOTE: {
+      const { patientId, note } = action.payload;
+      const method = state[patientId] ? '$push' : '$set';
+      return update(state, {
+        [patientId]: { [method]: [note] },
       });
     }
     case types.LOGOUT_REQUEST:

@@ -68,6 +68,15 @@ export function closeMessageThread() {
   };
 }
 
+export function addPatientNote(note) {
+  return {
+    type: ActionTypes.ADD_PATIENT_NOTE,
+    payload: {
+      note: note,
+    }
+  };
+}
+
 export function clearPatientData(patientId) {
   return {
     type: ActionTypes.CLEAR_PATIENT_DATA,

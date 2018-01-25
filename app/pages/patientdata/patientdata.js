@@ -55,6 +55,7 @@ const Loader = vizComponents.Loader;
 
 export let PatientData = React.createClass({
   propTypes: {
+    addPatientNote: React.PropTypes.func.isRequired,
     clearPatientData: React.PropTypes.func.isRequired,
     currentPatientInViewId: React.PropTypes.string.isRequired,
     fetchers: React.PropTypes.array.isRequired,
@@ -441,8 +442,18 @@ export let PatientData = React.createClass({
         mostRecent: diabetesData[diabetesData.length - 1].normalTime,
       };
 
+      const dailyData = vizUtils.selectDailyViewData(
+        diabetesData[diabetesData.length - 1].normalTime,
+        _.pick(
+          data.grouped,
+          ['basal', 'bolus', 'cbg', 'message', 'smbg']
+        ),
+        6,
+        this.state.timePrefs,
+      );
+
       const pdfData = {
-        daily: _.pick(data.grouped, ['basal', 'bolus', 'cbg', 'message', 'smbg']),
+        daily: dailyData,
         basics: data.basicsData,
         settings: _.last(data.grouped.pumpSettings),
       }
@@ -489,8 +500,8 @@ export let PatientData = React.createClass({
   },
 
   handleMessageCreation: function(message) {
-    var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
-    this.updateBasicsData(data);
+    this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
+    this.props.addPatientNote(message);
     this.props.trackMetric('Created New Message');
   },
 
@@ -508,7 +519,7 @@ export let PatientData = React.createClass({
       edit(message, cb);
     }
     var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    this.updateBasicsData(data);
+    this.updateMessageData(data);
     this.props.trackMetric('Edit To Message');
   },
 
@@ -636,11 +647,21 @@ export let PatientData = React.createClass({
     }
   },
 
-  updateBasicsData: function(data) {
+  updateBasicsData: function(basicsData) {
     // only attempt to update data if there's already data present to update
     if(this.state.processedPatientData){
       this.setState({
-        processedPatientData: _.assign(this.state.processedPatientData, data),
+        processedPatientData: _.assign(this.state.processedPatientData, { basicsData }),
+      });
+    }
+  },
+
+  updateMessageData: function(messageData) {
+    this.log('messageData', messageData);
+    // only attempt to update data if there's already data present to update
+    if(this.state.processedPatientData){
+      this.setState({
+        processedPatientData: _.assign(this.state.processedPatientData, { messageData }),
       });
     }
   },
@@ -943,7 +964,7 @@ export let PatientData = React.createClass({
         const startingDataLength = _.get(this.state, 'processedPatientData.data.length');
         const newData = utils.filterPatientData(targetData, bgUnits).processedData;
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
-        const processedPatientData = addData(newData);
+        const processedPatientData = addData(newData.concat(_.map(patientNotes, nurseShark.reshapeMessage)));
         const processingComplete = _.get(processedPatientData, 'data.length') !== startingDataLength;
 
         this.setState({
@@ -1123,6 +1144,7 @@ export function mapStateToProps(state, props) {
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
+  addPatientNote: actions.sync.addPatientNote,
   clearPatientData: actions.sync.clearPatientData,
   closeMessageThread: actions.sync.closeMessageThread,
   fetchDataDonationAccounts: actions.async.fetchDataDonationAccounts,
@@ -1140,6 +1162,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const dexcom = utils.getDexcom(ownProps.location);
   const api = ownProps.routes[0].api;
   const assignedDispatchProps = [
+    'addPatientNote',
     'clearPatientData',
     'generatePDFRequest',
     'processPatientDataRequest',
