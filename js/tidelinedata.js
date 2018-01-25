@@ -168,18 +168,37 @@ function TidelineData(data, opts) {
     });
   };
 
-  this.addData = function (newData) {
+  this.filterDataArray = function() {
+    this.data = _.reject(this.data, function(d) {
+      if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
+        return true;
+      }
+      if (d.type === 'settings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
+        return true;
+      }
+      if (d.type === 'upload') {
+        return true;
+      }
+    });
+    return this;
+  };
+
+  this.deduplicateDataArray = function() {
+    this.data = _.uniq(this.data, 'id');
+    return this;
+  };
+
+  this.addData = function(data) {
     // Validate all new data received
-    var res;
     startTimer('Validation');
-    res = validate.validateAll(newData.map(datum => {
+    const validatedData = validate.validateAll(data.map(datum => {
       this.watson(datum);
       return datum;
     }));
     endTimer('Validation');
 
     // Add all valid new datums to the top of appropriate collections in descending order
-    _.eachRight(_.sortBy(res.valid, 'normalTime'), datum => {
+    _.eachRight(_.sortBy(validatedData.valid, 'normalTime'), datum => {
       if (! _.isArray(this.grouped[datum.type])) {
         this.grouped[datum.type] = [];
       }
@@ -196,20 +215,10 @@ function TidelineData(data, opts) {
     this.setUtilities();
     endTimer('setUtilities');
 
-    var dData = this.diabetesData;
+    const dData = this.diabetesData;
 
-    // Deduplicate and filter the data
-    this.data = _.uniq(_.reject(this.data, function(d) {
-      if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
-        return true;
-      }
-      if (d.type === 'settings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
-        return true;
-      }
-      if (d.type === 'upload') {
-        return true;
-      }
-    }), 'id');
+    // Filter and deduplicate the data
+    this.filterDataArray().deduplicateDataArray();
 
     // generate the fill data for chart BGs
     this.generateFillData().adjustFillsForTwoWeekView();
@@ -504,18 +513,8 @@ function TidelineData(data, opts) {
 
   if (data.length > 0 && !_.isEmpty(this.diabetesData)) {
     var dData = this.diabetesData;
-    this.data = _.sortBy(_.reject(data, function(d) {
-      if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
-        return true;
-      }
-      if (d.type === 'settings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
-        return true;
-      }
-      if (d.type === 'upload') {
-        return true;
-      }
-    }), function(d) { return d.normalTime; });
-    this.generateFillData().adjustFillsForTwoWeekView();
+    this.data = _.sortBy(data, function(d) { return d.normalTime; });
+    this.filterDataArray().generateFillData().adjustFillsForTwoWeekView();
     this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
   }
   else {
