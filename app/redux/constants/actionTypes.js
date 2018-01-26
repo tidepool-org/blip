@@ -36,6 +36,7 @@ export const CLEAR_PATIENT_DATA = 'CLEAR_PATIENT_DATA';
 export const CLOSE_MESSAGE_THREAD = 'CLOSE_MESSAGE_THREAD';
 
 export const ADD_PATIENT_NOTE = 'ADD_PATIENT_NOTE';
+export const UPDATE_PATIENT_NOTE = 'UPDATE_PATIENT_NOTE';
 
 /*
  * Asyncronous action types

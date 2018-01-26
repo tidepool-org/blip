@@ -918,22 +918,24 @@ export function fetchPatientData(api, options, id) {
           const minWeeks = 4;
 
           if (range.spanInDays) {
+            const minStartDate = moment.utc(range.end).subtract(minWeeks, 'weeks').startOf('day').toISOString();
+
             if (range.spanInDays / 7 >= minWeeks) {
               // We have enough data for the initial rendering.
-              dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, options.startDate));
-              // dispatch(worker.processPatientDataRequest(id, patientData, notes));
+              dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, minStartDate));
             }
             else {
               // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
               dispatch(fetchPatientData(api, _.assign({}, options, {
                 initial: false,
-                startDate: moment.utc(range.end).subtract(minWeeks, 'weeks').startOf('day').toISOString(),
+                startDate: minStartDate,
               }), id));
             }
           }
           else {
             // No data in first pull. Pull all data.
             dispatch(fetchPatientData(api, _.assign({}, options, {
+              initial: false,
               startDate: null,
             }), id));
           }
@@ -941,7 +943,6 @@ export function fetchPatientData(api, options, id) {
         else {
           // Send what we have if we're beyond the first data fetch
           dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, options.startDate));
-          // dispatch(worker.processPatientDataRequest(id, patientData, notes));
         }
       }
     });

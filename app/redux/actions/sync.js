@@ -73,6 +73,17 @@ export function addPatientNote(note) {
     type: ActionTypes.ADD_PATIENT_NOTE,
     payload: {
       note: note,
+      patientId: note.groupid,
+    }
+  };
+}
+
+export function updatePatientNote(note) {
+  return {
+    type: ActionTypes.UPDATE_PATIENT_NOTE,
+    payload: {
+      note: note,
+      patientId: note.groupid,
     }
   };
 }

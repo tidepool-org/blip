@@ -425,7 +425,9 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
   switch(action.type) {
     case types.FETCH_PATIENT_DATA_SUCCESS: {
       const { patientId, patientData, fetchedUntil } = action.payload;
-      const sortedData = _.sortByOrder(patientData, 'time', 'desc');
+      const sortedData = _.filter(_.sortByOrder(patientData, 'time', 'desc'), datum => (
+        fetchedUntil ? datum.time >= fetchedUntil : true)
+      );
       const method = state[patientId] ? '$push' : '$set';
       return update(state, {
         [patientId]: { [method]: sortedData },
@@ -474,6 +476,18 @@ export const patientNotesMap = (state = initialState.patientNotesMap, action) =>
       const method = state[patientId] ? '$push' : '$set';
       return update(state, {
         [patientId]: { [method]: [note] },
+      });
+    }
+    case types.UPDATE_PATIENT_NOTE: {
+      const { patientId, note } = action.payload;
+      const newState = state[patientId].map(item => {
+        if (item.id === note.id) {
+          return note;
+        }
+        return item;
+      })
+      return update(state, {
+        [patientId]: { $set: newState },
       });
     }
     case types.LOGOUT_REQUEST:

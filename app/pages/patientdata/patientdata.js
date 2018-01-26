@@ -78,6 +78,7 @@ export let PatientData = React.createClass({
     queryParams: React.PropTypes.object.isRequired,
     removeGeneratedPDFS: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
+    updatePatientNote: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
     user: React.PropTypes.object,
     viz: React.PropTypes.object.isRequired,
@@ -518,8 +519,8 @@ export let PatientData = React.createClass({
     if (edit) {
       edit(message, cb);
     }
-    var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    this.updateMessageData(data);
+    this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
+    this.props.updatePatientNote(message);
     this.props.trackMetric('Edit To Message');
   },
 
@@ -656,16 +657,6 @@ export let PatientData = React.createClass({
     }
   },
 
-  updateMessageData: function(messageData) {
-    this.log('messageData', messageData);
-    // only attempt to update data if there's already data present to update
-    if(this.state.processedPatientData){
-      this.setState({
-        processedPatientData: _.assign(this.state.processedPatientData, { messageData }),
-      });
-    }
-  },
-
   updateChartPrefs: function(newChartPrefs) {
     var currentPrefs = _.clone(this.state.chartPrefs);
     _.assign(currentPrefs, newChartPrefs);
@@ -746,7 +737,6 @@ export let PatientData = React.createClass({
   },
 
   componentWillUpdate: function (nextProps, nextState) {
-    const pdfEnabled =  _.indexOf(['daily', 'basics', 'settings'], nextState.chartType) >= 0;
     const pdfGenerating = nextProps.generatingPDF;
     const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
     const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
@@ -754,7 +744,7 @@ export let PatientData = React.createClass({
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
-    if (patientDataProcessed && pdfEnabled && !pdfGenerating && !pdfGenerated) {
+    if (patientDataProcessed && !pdfGenerating && !pdfGenerated) {
       this.generatePDF(nextProps, nextState);
     }
   },
@@ -1154,6 +1144,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchMessageThread: actions.async.fetchMessageThread,
   generatePDFRequest: actions.worker.generatePDFRequest,
   removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
+  updatePatientNote: actions.sync.updatePatientNote,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
 
@@ -1167,6 +1158,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     'generatePDFRequest',
     'processPatientDataRequest',
     'removeGeneratedPDFS',
+    'updatePatientNote',
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
