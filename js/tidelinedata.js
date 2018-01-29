@@ -188,7 +188,7 @@ function TidelineData(data, opts) {
     return this;
   };
 
-  this.addData = function(data) {
+  this.addData = function(data = []) {
     // Validate all new data received
     startTimer('Validation');
     const validatedData = validate.validateAll(data.map(datum => {
@@ -214,8 +214,6 @@ function TidelineData(data, opts) {
     startTimer('setUtilities');
     this.setUtilities();
     endTimer('setUtilities');
-
-    const dData = this.diabetesData;
 
     // Filter and deduplicate the data
     this.filterDataArray().deduplicateDataArray();
