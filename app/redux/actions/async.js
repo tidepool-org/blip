@@ -27,7 +27,6 @@ import * as ActionTypes from '../constants/actionTypes';
 import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
 import * as sync from './sync.js';
-import * as worker from './worker.js';
 import update from 'react-addons-update';
 import personUtils from '../../core/personutils';
 

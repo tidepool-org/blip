@@ -19,10 +19,8 @@
 
 import _ from 'lodash';
 import Promise from 'bluebird';
-import DataWorker from './DataWorker';
 import PDFWorker from './PDFWorker';
 
-const dataWorker = new DataWorker();
 const pdfWorker = new PDFWorker();
 
 // eslint-disable-next-line no-native-reassign
@@ -30,10 +28,6 @@ onmessage = (msg) => {
   switch(_.get(msg, 'data.meta.worker')) {
     case 'pdf':
       pdfWorker.handleMessage(msg, postMessage);
-      break;
-
-    case 'data':
-      dataWorker.handleMessage(msg, postMessage);
       break;
   }
 };

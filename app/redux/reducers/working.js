@@ -49,7 +49,6 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_PATIENTS_REQUEST:
     case types.FETCH_PATIENT_REQUEST:
     case types.FETCH_PATIENT_DATA_REQUEST:
-    case types.PROCESS_PATIENT_DATA_REQUEST:
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.LOGIN_REQUEST:
     case types.LOGOUT_REQUEST:
@@ -102,7 +101,6 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_PATIENTS_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
     case types.FETCH_PATIENT_DATA_SUCCESS:
-    case types.PROCESS_PATIENT_DATA_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.LOGIN_SUCCESS:
     case types.LOGOUT_SUCCESS:
@@ -155,7 +153,6 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_PATIENTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
-    case types.PROCESS_PATIENT_DATA_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
     case types.LOGIN_FAILURE:
     case types.SIGNUP_FAILURE:

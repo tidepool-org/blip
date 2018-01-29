@@ -24,7 +24,6 @@ import createLogger from 'redux-logger';
 import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
 import mutationTracker from 'redux-immutable-state-invariant';
-import { cacheEnhancer } from 'redux-cache'
 
 import { reducers as vizReducers } from '@tidepool/viz/';
 
@@ -70,7 +69,6 @@ if (!__DEV_TOOLS__) {
         createErrorLogger(api),
         trackingMiddleware(api),
       ),
-      cacheEnhancer({ log: true }),
       persistState(getDebugSessionKey()),
     );
   }
@@ -87,7 +85,6 @@ if (!__DEV_TOOLS__) {
         trackingMiddleware(api),
         mutationTracker(),
       ),
-      cacheEnhancer({ log: true }),
       // We can persist debug sessions this way
       persistState(getDebugSessionKey()),
     );

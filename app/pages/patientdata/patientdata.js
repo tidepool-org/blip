@@ -488,9 +488,12 @@ export let PatientData = React.createClass({
     if (!this.props.fetchingPatientData && !this.state.processingData) {
       const chartLimitReached = dateRangeStart.isSame(moment.utc(lastBGProcessedTime), 'day');
 
+      // If we've reached the limit of our fetched data, we need to get some more
       if (dateRangeStart.isSameOrBefore(this.props.fetchedPatientDataRange.start)) {
         this.fetchEarlierData();
       }
+      // If we've reached the limit of our processed data (since we process in smaller chunks than
+      // what we fetch), we need to process some more.
       else if (
         (lastProcessedDateTarget && dateRangeStart.isSameOrBefore(lastProcessedDateTarget))
         || (this.state.chartType === 'weekly' && chartLimitReached)
@@ -557,6 +560,7 @@ export let PatientData = React.createClass({
       fromChart: this.state.chartType
     });
 
+    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
     datetime = moment(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString();
 
     this.setState({
@@ -583,7 +587,7 @@ export let PatientData = React.createClass({
       fromChart: this.state.chartType
     });
 
-    datetime = moment.utc(datetime || this.state.datetimeLocation).endOf('day').toISOString();
+    datetime = moment(datetime || this.state.datetimeLocation).endOf('day').toISOString();
 
     this.setState({
       chartType: 'weekly',
@@ -950,12 +954,10 @@ export let PatientData = React.createClass({
         this.handleInitialProcessedData(props, processedData, patientSettings);
       }
       else {
-        // We don't need full processing for subsequend data. We just add and reprocess the new datums.
-        const startingDataLength = _.get(this.state, 'processedPatientData.data.length');
+        // We don't need full processing for subsequent data. We just add and preprocess the new datums.
         const newData = utils.filterPatientData(targetData, bgUnits).processedData;
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
         const processedPatientData = addData(newData.concat(_.map(patientNotes, nurseShark.reshapeMessage)));
-        const processingComplete = _.get(processedPatientData, 'data.length') !== startingDataLength;
 
         this.setState({
           lastBGProcessedIndex,

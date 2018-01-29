@@ -16,10 +16,7 @@
  */
 import _ from 'lodash';
 import update from 'react-addons-update';
-import {
-  DEFAULT_KEY,
-  generateCacheTTL,
-} from 'redux-cache';
+import { generateCacheTTL } from 'redux-cache';
 
 import initialState from './initialState';
 import * as types from '../constants/actionTypes';
@@ -433,12 +430,6 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
         [patientId]: { [method]: sortedData },
         [`${patientId}_cacheUntil`]: { $set: generateCacheTTL(36e5) }, // Cache for 60 mins
         [`${patientId}_fetchedUntil`]: { $set: fetchedUntil ? fetchedUntil : 'start' },
-      });
-    }
-    case types.PROCESS_PATIENT_DATA_SUCCESS: {
-      const { patientId, patientData } = action.payload;
-      return update(state, {
-        [`${patientId}_processed`]: { $set: patientData },
       });
     }
     case types.CLEAR_PATIENT_DATA: {

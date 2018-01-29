@@ -49,33 +49,3 @@ export function removeGeneratedPDFS() {
     type: actionTypes.REMOVE_GENERATED_PDFS,
   };
 }
-
-export function processPatientDataRequest(id, data, queryParams, settings) {
-  return {
-    type: actionTypes.PROCESS_PATIENT_DATA_REQUEST,
-    meta: { WebWorker: true, worker: 'data' },
-    payload: {
-      id,
-      data,
-      queryParams,
-      settings,
-    },
-  };
-}
-
-export function processPatientDataSuccess(id, data) {
-  return {
-    type: actionTypes.PROCESS_PATIENT_DATA_SUCCESS,
-    payload: {
-      patientId: id,
-      patientData: data,
-    },
-  };
-}
-
-export function processPatientDataFailure(error) {
-  return {
-    type: actionTypes.PROCESS_PATIENT_DATA_FAILURE,
-    error,
-  };
-}
