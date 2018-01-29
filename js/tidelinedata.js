@@ -188,7 +188,7 @@ function TidelineData(data, opts) {
     this.diabetesData = _.uniq(this.diabetesData, 'id');
     _.each(this.grouped, (val, key) => {
       this.grouped[key] = _.uniq(val, 'id');
-    })
+    });
     return this;
   };
 
