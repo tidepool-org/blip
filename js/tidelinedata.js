@@ -215,7 +215,7 @@ function TidelineData(data, opts) {
       this.data.unshift(datum);
     });
 
-    // Filter and deduplicate the data
+    // Filter unwanted types from the data array
     this.filterDataArray();
 
     // generate the fill data for chart BGs
@@ -223,6 +223,8 @@ function TidelineData(data, opts) {
 
     // Concatenate the newly generated fill data and sort the resulting array
     this.data = _.sortBy(this.data.concat(this.grouped.fill), 'normalTime');
+
+    // Deduplicate the data
     this.deduplicateDataArrays();
 
     startTimer('setUtilities');
