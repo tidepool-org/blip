@@ -202,14 +202,12 @@ describe('TidelineData', function() {
       assert.isFunction(td.addData);
     });
 
-    it('should increase the length of the group data and data by one', function() {
-      var origData = [new types.Bolus()];
+    it('should increase the length of the group data and data by one (not including extra fill data)', function() {
+      var origData = [new types.Bolus(), new types.Basal()];
       var toAdd = new TidelineData(origData);
-      var origLen = toAdd.data.length;
-      var bolusLen = toAdd.grouped.bolus.length;
       toAdd.addData([new types.Bolus()]);
-      expect(toAdd.data.length - 1).to.equal(origLen);
-      expect(toAdd.grouped.bolus.length - 1).to.equal(bolusLen);
+      expect(_.reject(toAdd.data, { type: 'fill' }).length).to.equal(3);
+      expect(toAdd.grouped.bolus.length).to.equal(2);
     });
 
     it('should expand the fill data on the right if necessary', function() {

@@ -183,8 +183,12 @@ function TidelineData(data, opts) {
     return this;
   };
 
-  this.deduplicateDataArray = function() {
+  this.deduplicateDataArrays = function() {
     this.data = _.uniq(this.data, 'id');
+    this.diabetesData = _.uniq(this.diabetesData, 'id');
+    _.each(this.grouped, (val, key) => {
+      this.grouped[key] = _.uniq(val, 'id');
+    })
     return this;
   };
 
@@ -211,18 +215,19 @@ function TidelineData(data, opts) {
       this.data.unshift(datum);
     });
 
-    startTimer('setUtilities');
-    this.setUtilities();
-    endTimer('setUtilities');
-
     // Filter and deduplicate the data
-    this.filterDataArray().deduplicateDataArray();
+    this.filterDataArray();
 
     // generate the fill data for chart BGs
     this.generateFillData().adjustFillsForTwoWeekView();
 
     // Concatenate the newly generated fill data and sort the resulting array
     this.data = _.sortBy(this.data.concat(this.grouped.fill), 'normalTime');
+    this.deduplicateDataArrays();
+
+    startTimer('setUtilities');
+    this.setUtilities();
+    endTimer('setUtilities');
 
     // Update the crossfilters
     updateCrossFilters(this.data);
