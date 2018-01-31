@@ -940,7 +940,7 @@ export function fetchPatientData(api, options, id) {
           }
         }
         else {
-          // Send what we have if we're beyond the first data fetch
+          // Always dispatch the result if we're beyond the first data fetch
           dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, options.startDate));
         }
       }
