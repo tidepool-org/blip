@@ -113,7 +113,7 @@ export let PatientData = React.createClass({
       datetimeLocation: null,
       lastDatumProcessedIndex: -1,
       loading: true,
-      processingData: true,
+      processingData: false,
       processedPatientData: null,
       timePrefs: {
         timezoneAware: false,
@@ -480,24 +480,28 @@ export let PatientData = React.createClass({
 
     const userId = this.props.currentPatientInViewId;
     const patientData = _.get(this.props, ['patientDataMap', userId], []);
-    const dateRangeStart = moment.utc(this.applyTimezoneOffset(dateRange[0])).startOf('day');
+    const dateRangeStart = moment.utc(dateRange[0]).startOf('day');
     let lastProcessedDateTarget = this.state.lastProcessedDateTarget;
-    let lastBGProcessedTime = this.applyTimezoneOffset(_.get(patientData, `${this.state.lastBGProcessedIndex}.time`));
-    let lastDatumProcessedTime = this.applyTimezoneOffset(_.get(patientData, `${this.state.lastDatumProcessedIndex}.time`));
+    let lastBGProcessedTime = _.get(patientData, `${this.state.lastBGProcessedIndex}.time`);
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
       const chartLimitReached = dateRangeStart.isSame(moment.utc(lastBGProcessedTime), 'day');
+      const comparator = this.state.chartType === 'trends' ? 'isBefore' : 'isSameOrBefore';
+      const comparatorPrecision = this.state.chartType === 'trends' ? 'day' : 'millisecond';
 
       // If we've reached the limit of our fetched data, we need to get some more
-      if (dateRangeStart.isSameOrBefore(this.props.fetchedPatientDataRange.start)) {
+      if (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision)) {
+        this.log('fetching');
         this.fetchEarlierData();
       }
       // If we've reached the limit of our processed data (since we process in smaller chunks than
       // what we fetch), we need to process some more.
       else if (
-        (lastProcessedDateTarget && dateRangeStart.isSameOrBefore(lastProcessedDateTarget))
+        (lastProcessedDateTarget && dateRangeStart[comparator](lastProcessedDateTarget, comparatorPrecision))
         || (this.state.chartType === 'weekly' && chartLimitReached)
-        || (this.state.chartType === 'daily' && chartLimitReached)) {
+        || (this.state.chartType === 'daily' && chartLimitReached)
+      ) {
+        this.log('processing', chartLimitReached, lastProcessedDateTarget && dateRangeStart[comparator](lastProcessedDateTarget, comparatorPrecision));
         this.processData(this.props, dateRangeStart);
       }
     }
@@ -643,7 +647,6 @@ export let PatientData = React.createClass({
         datetimeLocation: this.state.initialDatetimeLocation,
         lastDatumProcessedIndex: -1,
         loading: true,
-        processingData: true,
         processedPatientData: null,
         title: this.DEFAULT_TITLE,
       });
@@ -836,7 +839,7 @@ export let PatientData = React.createClass({
 
   fetchEarlierData: function(options = {}) {
     // Return if we've already fetched all data, or are currently fetching
-    if (_.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start' || this.props.fetchingPatientData) {
+    if (_.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start') {
       return;
     };
 
@@ -850,7 +853,7 @@ export let PatientData = React.createClass({
     this.setState({
       loading: true,
       requestedPatientDataRange,
-     });
+    });
 
     const fetchOpts = _.defaults(options, {
       startDate: requestedPatientDataRange.start,
@@ -872,7 +875,7 @@ export let PatientData = React.createClass({
     _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
 
     // Return if we've already fetched and processed all data
-    if (_.get(props, 'fetchedPatientDataRange.fetchedUntil') === 'start' && this.state.lastDatumProcessedIndex === patientData.length - 1) {
+    if (this.state.processingData || _.get(props, 'fetchedPatientDataRange.fetchedUntil') === 'start' && this.state.lastDatumProcessedIndex === patientData.length - 1) {
       return;
     };
 
@@ -901,13 +904,24 @@ export let PatientData = React.createClass({
         targets.push(lastFetchedDatetime);
       }
 
-      const targetDatetime = moment.max(targets).subtract(processDataMaxWeeks, 'weeks').startOf('day');
-
       const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
       const bgUnits = _.get(this.state, 'processedPatientData.bgUnits');
 
+      const targetDatetimeMoment = moment.max(targets).subtract(processDataMaxWeeks, 'weeks').startOf('day');
+      let timezoneOffset = 0;
+
+      const timezoneSettings = this.state.timePrefs.timezoneAware
+        ? this.state.timePrefs
+        : utils.getTimezoneForDataProcessing(unprocessedPatientData, props.queryParams);
+
+      if (timezoneSettings.timezoneAware) {
+        timezoneOffset = sundial.getOffsetFromZone(targetDatetimeMoment.toISOString(), timezoneSettings.timezoneName);
+      }
+
+      const targetDatetime = targetDatetimeMoment.subtract(timezoneOffset, 'minutes').toISOString();
+
       const targetIndex = _.findIndex(unprocessedPatientData, datum => {
-        return targetDatetime.isAfter(datum.time);
+        return targetDatetime > datum.time;
       });
 
       const targetData = targetIndex ? unprocessedPatientData.slice(0, targetIndex) : unprocessedPatientData;
@@ -932,7 +946,7 @@ export let PatientData = React.createClass({
 
         const processedData = utils.processPatientData(
           combinedData,
-          this.props.queryParams,
+          props.queryParams,
           patientSettings,
         );
 
@@ -945,7 +959,7 @@ export let PatientData = React.createClass({
           },
           lastBGProcessedIndex,
           lastDatumProcessedIndex,
-          lastProcessedDateTarget: targetDatetime.toISOString(),
+          lastProcessedDateTarget: targetDatetime,
           loading: false,
           processedPatientData: processedData,
           processingData: false,
@@ -963,7 +977,7 @@ export let PatientData = React.createClass({
         this.setState({
           lastBGProcessedIndex,
           lastDatumProcessedIndex: this.state.lastDatumProcessedIndex + targetData.length,
-          lastProcessedDateTarget: targetDatetime.toISOString(),
+          lastProcessedDateTarget: targetDatetime,
           processedPatientData,
           processingData: false,
         });
