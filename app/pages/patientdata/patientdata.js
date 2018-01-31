@@ -924,7 +924,7 @@ export let PatientData = React.createClass({
         return targetDatetime > datum.time;
       });
 
-      const targetData = targetIndex ? unprocessedPatientData.slice(0, targetIndex) : unprocessedPatientData;
+      const targetData = targetIndex > 0 ? unprocessedPatientData.slice(0, targetIndex) : unprocessedPatientData;
 
       const bgTypes = [
         'cbg',
