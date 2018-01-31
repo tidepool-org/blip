@@ -15,8 +15,10 @@ const getPatientDataFetchedUntil = (state, props) => _.get(
 
 export const getfetchedPatientDataRange = createSelector(
   [ getPatientData, getPatientDataFetchedUntil ],
-  (data, fetchedUntil) =>  _.assign({}, utils.getDeviceDataRange(data), {
-    fetchedUntil,
-    count: data ? data.length : 0,
-  }),
+  (data, fetchedUntil) =>  {
+    const diabetesDataRange = utils.getDiabetesDataRange(data);
+    return _.assign({}, diabetesDataRange, {
+      fetchedUntil,
+    });
+  }
 );

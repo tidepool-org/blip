@@ -429,7 +429,7 @@ utils.getLatestGithubRelease = (releases) => {
  * @param {Array} data - The raw unprocessed data
  * @returns {Object}
  */
-utils.getDeviceDataRange = (data) => {
+utils.getDiabetesDataRange = (data) => {
   const types = [
     'basal',
     'bolus',
@@ -438,16 +438,18 @@ utils.getDeviceDataRange = (data) => {
     'wizard',
   ];
 
-  const sortedData = _.sortBy(data, 'time');
+  const sortedData = _.sortBy(_.filter(data, d => _.includes(types, d.type)), 'time');
 
-  const start = _.get(_.find(sortedData, d => _.includes(types, d.type)), 'time');
-  const end = _.get(_.findLast(sortedData, d => _.includes(types, d.type)), 'time');
+  const start = _.get(_.first(sortedData), 'time');
+  const end = _.get(_.last(sortedData), 'time');
   const spanInDays = (start && end) ? sundial.dateDifference(end, start, 'days') : null;
+  const count = sortedData.length;
 
   return {
     start,
     end,
     spanInDays,
+    count,
   };
 }
 

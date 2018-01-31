@@ -913,7 +913,7 @@ export function fetchPatientData(api, options, id) {
         const notes = results.teamNotes || [];
 
         if (options.initial) {
-          const range = utils.getDeviceDataRange(patientData);
+          const range = utils.getDiabetesDataRange(patientData);
           const minWeeks = 4;
 
           if (range.spanInDays) {

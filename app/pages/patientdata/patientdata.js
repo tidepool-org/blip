@@ -699,22 +699,24 @@ export let PatientData = React.createClass({
     this.props.removeGeneratedPDFS();
   },
 
-  componentWillReceiveProps: function(nextProps, nextState) {
+  componentWillReceiveProps: function(nextProps) {
     const userId = this.props.currentPatientInViewId;
     const nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
     const currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
 
-    const nextFetchedDataRangeStart = _.get(nextProps, 'fetchedPatientDataRange.fetchedUntil');
-    const currentFetchedDataRangeStart = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil');
-    const newDataFetched = nextFetchedDataRangeStart !== currentFetchedDataRangeStart;
+    const nextFetchedDataRange = _.get(nextProps, 'fetchedPatientDataRange');
+    const currentFetchedDataRange = _.get(this.props, 'fetchedPatientDataRange');
+
+    const newDataRangeFetched = nextFetchedDataRange.fetchedUntil !== currentFetchedDataRange.fetchedUntil;
+    const newDiabetesDataReturned = nextFetchedDataRange.count > currentFetchedDataRange.count;
+    const allDataFetched = nextFetchedDataRange.fetchedUntil === 'start';
 
     // Hold processing until patient is fetched (ensuring settings are accessible), AND
     // processing hasn't already taken place (this should be cleared already when switching patients), AND
     // nextProps patient data exists
     if (patientSettings && nextPatientData) {
-      const currentPatientDataCount = _.get(currentPatientData, 'length', 0);
-      if (nextPatientData.length > currentPatientDataCount || this.state.lastDatumProcessedIndex < 1) {
+      if (newDiabetesDataReturned || this.state.lastDatumProcessedIndex < 1) {
         const dateRangeStart = moment.utc(_.get(this.state, 'chartDateRange.0', null));
         if (dateRangeStart.isValid()) {
           this.processData(nextProps, dateRangeStart.startOf('day'));
@@ -723,10 +725,9 @@ export let PatientData = React.createClass({
           this.processData(nextProps);
         }
       }
-      if (newDataFetched && nextPatientData.length === currentPatientDataCount && nextFetchedDataRangeStart !== 'start') {
+      if (newDataRangeFetched && !newDiabetesDataReturned && !allDataFetched) {
         // Our latest data fetch yeilded no new data. We now request the remainder of the available
         // data to make sure that we don't miss any.
-        this.setState({ processingData: true });
         this.fetchEarlierData({ startDate: null });
       }
     }
@@ -834,8 +835,8 @@ export let PatientData = React.createClass({
   },
 
   fetchEarlierData: function(options = {}) {
-    // Return if we've already fetched all data
-    if (_.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start') {
+    // Return if we've already fetched all data, or are currently fetching
+    if (_.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start' || this.props.fetchingPatientData) {
       return;
     };
 
@@ -967,20 +968,18 @@ export let PatientData = React.createClass({
           processingData: false,
         });
 
-        this.completeLoading();
+        this.hideLoading();
       }
     }
   },
 
-  completeLoading: function() {
+  hideLoading: function(timeout = 250) {
     // Needs to be in a setTimeout to force unsetting the loading state in a new render cycle
     // so that child components can be aware of the change in processing states. It also serves
     // to ensure the loading indicator shows long enough for the user to make sense of it.
     setTimeout(() => {
-      this.setState({
-        loading: this.state.processingData,
-      });
-    }, 250);
+      this.setState({ loading: false });
+    }, timeout);
   },
 
   handleInitialProcessedData: function(props, processedData, patientSettings) {
