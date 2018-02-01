@@ -10,6 +10,11 @@ const normal = {
   normalTime: '2017-11-11T05:45:52.000Z',
 };
 
+const normalPrecise = {
+  normal: 5.05,
+  normalTime: '2017-11-11T05:45:52.000Z',
+};
+
 const cancelled = {
   normal: 2,
   expectedNormal: 5,
@@ -343,6 +348,12 @@ storiesOf('BolusTooltip', module)
     <div>
       {refDiv}
       <BolusTooltip {...props} bolus={normal} />
+    </div>
+  ))
+  .add('normalPrecise', () => (
+    <div>
+      {refDiv}
+      <BolusTooltip {...props} bolus={normalPrecise} />
     </div>
   ))
   .add('cancelled', () => (

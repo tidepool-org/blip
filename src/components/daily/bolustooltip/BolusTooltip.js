@@ -25,6 +25,17 @@ import colors from '../../../styles/colors.css';
 import styles from './BolusTooltip.css';
 
 class BolusTooltip extends PureComponent {
+  formatInsulin(qty) {
+    let decimalLength;
+    const qtyString = qty.toString();
+    if (qtyString.indexOf('.') !== -1 && qtyString.split('.')[1].length === 2) {
+      decimalLength = 2;
+    } else {
+      decimalLength = 1;
+    }
+    return formatDecimalNumber(qty, decimalLength);
+  }
+
   getTarget() {
     const wizardTarget = _.get(this.props.bolus, 'bgTarget');
     const target = _.get(wizardTarget, 'target', null);
@@ -33,10 +44,16 @@ class BolusTooltip extends PureComponent {
     const targetRange = _.get(wizardTarget, 'range', null);
     if (targetLow) {
       // medtronic
+      let value;
+      if (targetLow === targetHigh) {
+        value = `${targetLow}`;
+      } else {
+        value = `${targetLow}-${targetHigh}`;
+      }
       return (
         <div className={styles.target}>
           <div className={styles.label}>Target</div>
-          <div className={styles.value}>{`${targetLow}-${targetHigh}`}</div>
+          <div className={styles.value}>{value}</div>
           <div className={styles.units} />
         </div>
       );
@@ -106,7 +123,7 @@ class BolusTooltip extends PureComponent {
         <div className={styles.override}>
           <div className={styles.label}>Override</div>
           <div className={styles.value}>
-            {`+${formatDecimalNumber(programmed - recommended, 1)}`}
+            {`+${this.formatInsulin(programmed - recommended)}`}
           </div>
           <div className={styles.units}>U</div>
         </div>
@@ -117,7 +134,7 @@ class BolusTooltip extends PureComponent {
         <div className={styles.override}>
           <div className={styles.label}>Underride</div>
           <div className={styles.value}>
-            {`-${formatDecimalNumber(recommended - programmed, 1)}`}
+            {`-${this.formatInsulin(recommended - programmed)}`}
           </div>
           <div className={styles.units}>U</div>
         </div>
@@ -127,14 +144,14 @@ class BolusTooltip extends PureComponent {
     const deliveredLine = !!delivered && (
       <div className={styles.delivered}>
         <div className={styles.label}>Delivered</div>
-        <div className={styles.value}>{`${formatDecimalNumber(delivered, 1)}`}</div>
+        <div className={styles.value}>{`${this.formatInsulin(delivered)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
     const suggestedLine = (isInterrupted || overrideLine) && !!suggested && (
       <div className={styles.suggested}>
         <div className={styles.label}>Suggested</div>
-        <div className={styles.value}>{formatDecimalNumber(suggested, 1)}</div>
+        <div className={styles.value}>{this.formatInsulin(suggested)}</div>
         <div className={styles.units}>U</div>
       </div>
     );
@@ -148,14 +165,14 @@ class BolusTooltip extends PureComponent {
     const iobLine = !!iob && (
       <div className={styles.iob}>
         <div className={styles.label}>IOB</div>
-        <div className={styles.value}>{`${formatDecimalNumber(iob, 1)}`}</div>
+        <div className={styles.value}>{`${this.formatInsulin(iob)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
     const interruptedLine = isInterrupted && (
       <div className={styles.interrupted}>
         <div className={styles.label}>Interrupted</div>
-        <div className={styles.value}>{`-${formatDecimalNumber(programmed - delivered, 1)}`}</div>
+        <div className={styles.value}>{`-${this.formatInsulin(programmed - delivered)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
@@ -177,7 +194,7 @@ class BolusTooltip extends PureComponent {
       !!normal && (
         <div className={styles.normal} key={'normal'}>
           <div className={styles.label}>{`Up Front (${normalPercentage})`}</div>
-          <div className={styles.value}>{`${formatDecimalNumber(normal, 1)}`}</div>
+          <div className={styles.value}>{`${this.formatInsulin(normal)}`}</div>
           <div className={styles.units}>U</div>
         </div>
       ),
@@ -186,7 +203,7 @@ class BolusTooltip extends PureComponent {
           {`Over ${formatDuration(bolusUtils.getDuration(wizard))} ${extendedPercentage}`}
         </div>
         <div className={styles.value}>
-          {`${formatDecimalNumber(bolusUtils.getExtended(wizard), 1)}`}
+          {`${this.formatInsulin(bolusUtils.getExtended(wizard))}`}
         </div>
         <div className={styles.units}>U</div>
       </div>,
@@ -225,14 +242,14 @@ class BolusTooltip extends PureComponent {
     const deliveredLine = !!delivered && (
       <div className={styles.delivered}>
         <div className={styles.label}>Delivered</div>
-        <div className={styles.value}>{`${formatDecimalNumber(delivered, 1)}`}</div>
+        <div className={styles.value}>{`${this.formatInsulin(delivered)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
     const interruptedLine = isInterrupted && (
       <div className={styles.interrupted}>
         <div className={styles.label}>Interrupted</div>
-        <div className={styles.value}>{`-${formatDecimalNumber(programmed - delivered, 1)}`}</div>
+        <div className={styles.value}>{`-${this.formatInsulin(programmed - delivered)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
@@ -240,7 +257,7 @@ class BolusTooltip extends PureComponent {
       !!programmed && (
       <div className={styles.programmed}>
         <div className={styles.label}>Programmed</div>
-        <div className={styles.value}>{`${formatDecimalNumber(programmed, 1)}`}</div>
+        <div className={styles.value}>{`${this.formatInsulin(programmed)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
@@ -248,7 +265,7 @@ class BolusTooltip extends PureComponent {
       !!normal && (
         <div className={styles.normal} key={'normal'}>
           <div className={styles.label}>{`Up Front (${normalPercentage})`}</div>
-          <div className={styles.value}>{`${formatDecimalNumber(normal, 1)}`}</div>
+          <div className={styles.value}>{`${this.formatInsulin(normal)}`}</div>
           <div className={styles.units}>U</div>
         </div>
       ),
@@ -257,7 +274,7 @@ class BolusTooltip extends PureComponent {
           {`Over ${formatDuration(bolusUtils.getDuration(bolus))} ${extendedPercentage}`}
         </div>
         <div className={styles.value}>
-          {`${formatDecimalNumber(bolusUtils.getExtended(bolus), 1)}`}
+          {`${this.formatInsulin(bolusUtils.getExtended(bolus))}`}
         </div>
         <div className={styles.units}>U</div>
       </div>,
