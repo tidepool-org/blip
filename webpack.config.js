@@ -16,8 +16,8 @@ module.exports = {
   debug: true,
   devtool: 'sourcemap',
   entry: {
-    index: path.join(__dirname, '/src/index'),
-    print: path.join(__dirname, '/src/modules/print/index'),
+    index: [path.join(__dirname, '/src/index')],
+    print: [path.join(__dirname, '/src/modules/print/index')],
   },
   output: {
     filename: '[name].js',
