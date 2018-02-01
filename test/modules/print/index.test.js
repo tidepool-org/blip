@@ -20,7 +20,7 @@ import MemoryStream from 'memorystream';
 import * as Module from '../../../src/modules/print';
 import Doc from '../../helpers/pdfDoc';
 
-describe.only('print module', () => {
+describe('print module', () => {
   const pdf = {
     url: 'someURL',
     blob: 'someBlob',
