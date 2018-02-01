@@ -233,6 +233,7 @@ describe('TrendsContainer', () => {
       },
       currentPatientInViewId: 'a1b2c3',
       extentSize,
+      loading: false,
       showingSmbg: false,
       showingCbg: true,
       smbgRangeOverlay: true,
@@ -300,7 +301,7 @@ describe('TrendsContainer', () => {
       markTrendsViewed.reset();
     });
 
-    describe('componentWillMount', () => {
+    describe('mountData', () => {
       let withInitialDatetimeLocation;
 
       before(() => {
@@ -312,6 +313,9 @@ describe('TrendsContainer', () => {
             initialDatetimeLocation="2016-03-15T19:00:00.000Z"
           />
         );
+
+        withInitialDatetimeLocation.instance().mountData();
+        minimalData.instance().mountData();
       });
 
       it('should set dateDomain based on current datetime if no initialDatetimeLocation', () => {
@@ -415,7 +419,77 @@ describe('TrendsContainer', () => {
       });
     });
 
+    describe('componentWillMount', () => {
+      let mountDataSpy;
+
+      before(() => {
+        mountDataSpy = sinon.spy(TrendsContainer.prototype, 'mountData');
+      });
+
+      after(() => {
+        mountDataSpy.restore();
+      });
+
+      it('should call the `mountData` method', () => {
+        mount(
+          <TrendsContainer
+            {...props}
+            {...mgdl}
+            {...makeDataStubs(justOneDatum())}
+          />
+        );
+        sinon.assert.callCount(mountDataSpy, 1);
+      });
+    });
+
     describe('componentWillReceiveProps', () => {
+      let mountDataSpy;
+
+      before(() => {
+        mountDataSpy = sinon.spy(TrendsContainer.prototype, 'mountData');
+      });
+
+      afterEach(() => {
+        mountDataSpy.reset();
+      });
+
+      after(() => {
+        mountDataSpy.restore();
+      });
+
+      it('should call `mountData` if `loading` prop changes from true to false', () => {
+        const container = mount(
+          <TrendsContainer
+            {...props}
+            {...mgdl}
+            {...makeDataStubs(justOneDatum())}
+          />
+        );
+        mountDataSpy.reset();
+        sinon.assert.callCount(mountDataSpy, 0);
+
+        container.setProps({ loading: true });
+        sinon.assert.callCount(mountDataSpy, 0);
+
+        container.setProps({ loading: false });
+        sinon.assert.callCount(mountDataSpy, 1);
+      });
+
+      it('should not call `mountData` if `loading` prop does not change from true to false', () => {
+        const container = mount(
+          <TrendsContainer
+            {...props}
+            {...mgdl}
+            {...makeDataStubs(justOneDatum())}
+          />
+        );
+        mountDataSpy.reset();
+        sinon.assert.callCount(mountDataSpy, 0);
+
+        container.setProps({ loading: false });
+        sinon.assert.callCount(mountDataSpy, 0);
+      });
+
       it('should perform data refiltering if `activeDays` changes', () => {
         const byDateSpy = sinon.spy(minimalData.props().smbgByDate, 'top');
         const instance = minimalData.instance();

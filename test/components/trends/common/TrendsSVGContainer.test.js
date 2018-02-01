@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import React from 'react';
 
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
 import bgBounds from '../../../helpers/bgBounds';
 
@@ -88,29 +88,71 @@ describe('TrendsSVGContainer', () => {
     props.yScale.range.reset();
   });
 
-  describe('componentWillMount', () => {
+  describe('setScales', () => {
     it('should set the range of the xScale', () => {
-      sinon.spy(TrendsSVGContainer.prototype, 'componentWillMount');
-      expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(0);
+      sinon.spy(TrendsSVGContainer.prototype, 'setScales');
+      expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
       shallow(<TrendsSVGContainer {...props} />);
-      expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(1);
+      expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(1);
       expect(props.xScale.range.callCount).to.equal(1);
       expect(props.xScale.range.firstCall.args[0]).to.deep.equal([48, 942]);
-      TrendsSVGContainer.prototype.componentWillMount.restore();
+      TrendsSVGContainer.prototype.setScales.restore();
     });
 
     it('should set the range of the yScale', () => {
-      sinon.spy(TrendsSVGContainer.prototype, 'componentWillMount');
-      expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(0);
+      sinon.spy(TrendsSVGContainer.prototype, 'setScales');
+      expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
       shallow(<TrendsSVGContainer {...props} />);
-      expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(1);
+      expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(1);
       expect(props.yScale.range.callCount).to.equal(1);
       expect(props.yScale.range.firstCall.args[0]).to.deep.equal([480, 80]);
+      TrendsSVGContainer.prototype.setScales.restore();
+    });
+  });
+
+  describe('componentWillMount', () => {
+    it('should call the `setScales` method', () => {
+      sinon.spy(TrendsSVGContainer.prototype, 'setScales');
+      sinon.spy(TrendsSVGContainer.prototype, 'componentWillMount');
+      expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(0);
+      expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
+      shallow(<TrendsSVGContainer {...props} />);
+      expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(1);
+      expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(1);
       TrendsSVGContainer.prototype.componentWillMount.restore();
+      TrendsSVGContainer.prototype.setScales.restore();
     });
   });
 
   describe('componentWillReceiveProps', () => {
+    describe('when yScale changes', () => {
+      it('should call the `setScales` method', () => {
+        sinon.spy(TrendsSVGContainer.prototype, 'setScales');
+        const container = shallow(<TrendsSVGContainer {...props} />);
+        TrendsSVGContainer.prototype.setScales.reset();
+        expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
+
+        container.setProps({ yScale: _.assign({}, props.yScale, { changed: true }) });
+        expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(1);
+
+        TrendsSVGContainer.prototype.setScales.restore();
+      });
+    });
+
+    describe('when yScale does not change', () => {
+      it('should not call the `setScales` method', () => {
+        sinon.spy(TrendsSVGContainer.prototype, 'setScales');
+        const container = shallow(<TrendsSVGContainer {...props} />);
+        TrendsSVGContainer.prototype.setScales.reset();
+        expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
+
+        container.setProps({ someChange: true });
+        expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
+
+        TrendsSVGContainer.prototype.setScales.restore();
+      });
+    });
+
     describe('when showingCbgDateTraces is true', () => {
       let wrapper;
       beforeEach(() => {
