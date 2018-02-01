@@ -102,19 +102,21 @@ function TidelineData(data, opts) {
     return that;
   }
 
-  function updateCrossFilters(data) {
+  this.updateCrossFilters = function() {
     startTimer('crossfilter');
-    that.filterData = crossfilter(data);
-    that.smbgData = crossfilter(that.grouped.smbg || []);
-    that.cbgData = crossfilter(that.grouped.cbg || []);
+    this.filterData = crossfilter(this.data);
+    this.smbgData = crossfilter(this.grouped.smbg || []);
+    this.cbgData = crossfilter(this.grouped.cbg || []);
     endTimer('crossfilter');
-    that.dataByDate = that.createCrossFilter('datetime');
-    that.dataById = that.createCrossFilter('id');
-    that.smbgByDate = that.createCrossFilter('smbgByDatetime');
-    that.smbgByDayOfWeek = that.createCrossFilter('smbgByDayOfWeek');
-    that.cbgByDate = that.createCrossFilter('cbgByDatetime');
-    that.cbgByDayOfWeek = that.createCrossFilter('cbgByDayOfWeek');
-  }
+    this.dataByDate = this.createCrossFilter('datetime');
+    this.dataById = this.createCrossFilter('id');
+    this.smbgByDate = this.createCrossFilter('smbgByDatetime');
+    this.smbgByDayOfWeek = this.createCrossFilter('smbgByDayOfWeek');
+    this.cbgByDate = this.createCrossFilter('cbgByDatetime');
+    this.cbgByDayOfWeek = this.createCrossFilter('cbgByDayOfWeek');
+
+    return this;
+  };
 
   this.createCrossFilter = function(dim) {
     var newDim;
@@ -169,6 +171,7 @@ function TidelineData(data, opts) {
   };
 
   this.filterDataArray = function() {
+    var dData = _.sortBy(this.diabetesData, 'normalTime');
     this.data = _.reject(this.data, function(d) {
       if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
         return true;
@@ -232,7 +235,7 @@ function TidelineData(data, opts) {
     endTimer('setUtilities');
 
     // Update the crossfilters
-    updateCrossFilters(this.data);
+    this.updateCrossFilters();
 
     return this;
   };
@@ -254,7 +257,7 @@ function TidelineData(data, opts) {
       this.diabetesData = _.sortBy(self.diabetesData, sortByNormalTime);
     }
     this.generateFillData().adjustFillsForTwoWeekView();
-    updateCrossFilters(this.data);
+    this.updateCrossFilters();
     return this;
   };
 
@@ -527,7 +530,7 @@ function TidelineData(data, opts) {
   }
   endTimer('setUtilities');
 
-  updateCrossFilters(this.data);
+  this.updateCrossFilters();
 
   startTimer('basicsData');
   this.basicsData = {};
