@@ -350,12 +350,12 @@ var Weekly = React.createClass({
     return;
   },
 
-  handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
+  handleDatetimeLocationChange: function(datetimeLocationEndpoints, chart = this.refs.chart) {
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints)
     });
-    this.props.updateDatetimeLocation(this.refs.chart.getCurrentDay());
+    this.props.updateDatetimeLocation(chart.getCurrentDay());
 
     // Update the chart date range in the patientData component.
     // We debounce this to avoid excessive updates while panning the view.
