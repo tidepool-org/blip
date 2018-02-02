@@ -450,7 +450,7 @@ module.exports = function (config, deps) {
       ];
 
       // Generate url with any valid provided params
-      var url = common.appendUrlParamsFromOptions('/data/' + userId, options, allowedParams)
+      var url = common.appendUrlParamsFromOptions('/data/' + userId, options, allowedParams);
 
       common.doGetWithToken(
         url,
