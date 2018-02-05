@@ -42,6 +42,15 @@ function createActionError(usrErrMessage, apiError) {
   return err;
 }
 
+/**
+ * cacheByIdOptions
+ *
+ * Sets the options used by redux-cache for a given id. This allows us to selectively cache parts of
+ * a nested data store, such as our patientDataMap, which stores nested data by patient ID
+ *
+ * @param {String} id - The ID to use for the cache key
+ * @returns {Object} The options object
+ */
 function cacheByIdOptions(id) {
   return {
     accessStrategy: (state, reducerKey, cacheKey) => {

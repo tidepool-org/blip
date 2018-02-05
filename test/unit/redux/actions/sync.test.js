@@ -125,6 +125,52 @@ describe('Actions', () => {
       });
     });
 
+    describe('addPatientNote', () => {
+      const note = {
+        groupid: 1234,
+      };
+      it('should be a TSA', () => {
+        let action = sync.addPatientNote(note);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal ADD_PATIENT_NOTE', () => {
+        let action = {
+          type: 'ADD_PATIENT_NOTE',
+          payload: {
+            note,
+            patientId: note.groupid,
+          },
+        };
+
+        expect(sync.addPatientNote(note)).to.deep.equal(action);
+      });
+    });
+
+    describe('updatePatientNote', () => {
+      const note = {
+        groupid: 1234,
+      };
+      it('should be a TSA', () => {
+        let action = sync.updatePatientNote(note);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_PATIENT_NOTE', () => {
+        let action = {
+          type: 'UPDATE_PATIENT_NOTE',
+          payload: {
+            note,
+            patientId: note.groupid,
+          },
+        };
+
+        expect(sync.updatePatientNote(note)).to.deep.equal(action);
+      });
+    });
+
     describe('clearPatientData', () => {
       const patientId = 'a1b2c3';
       it('should be a TSA', () => {
@@ -1557,57 +1603,6 @@ describe('Actions', () => {
         let action = sync.fetchPatientDataFailure(error);
 
         expect(action.type).to.equal('FETCH_PATIENT_DATA_FAILURE');
-        expect(action.error).to.equal(error);
-      });
-    });
-
-    describe('fetchPreferencesRequest', () => {
-      it('should be a TSA', () => {
-        let action = sync.fetchPreferencesRequest();
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal FETCH_PREFERENCES_REQUEST', () => {
-        let action = sync.fetchPreferencesRequest();
-        expect(action.type).to.equal('FETCH_PREFERENCES_REQUEST');
-      });
-    });
-
-    describe('fetchPreferencesSuccess', () => {
-      it('should be a TSA', () => {
-        let preference = {
-          display: 'all'
-        };
-        let action = sync.fetchPreferencesSuccess(preference);
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal FETCH_PREFERENCES_SUCCESS', () => {
-        let preference = {
-          display: 'all'
-        };
-        let action = sync.fetchPreferencesSuccess(preference);
-
-        expect(action.type).to.equal('FETCH_PREFERENCES_SUCCESS');
-        expect(action.payload.preferences).to.equal(preference);
-      });
-    });
-
-    describe('fetchPreferencesFailure', () => {
-      it('should be a TSA', () => {
-        let error = new Error(':(');
-        let action = sync.fetchPreferencesFailure(error);
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal FETCH_PREFERENCES_FAILURE and error should equal passed error', () => {
-        let error = new Error(':(');
-        let action = sync.fetchPreferencesFailure(error);
-
-        expect(action.type).to.equal('FETCH_PREFERENCES_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
