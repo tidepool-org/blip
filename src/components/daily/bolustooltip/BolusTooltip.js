@@ -104,7 +104,8 @@ class BolusTooltip extends PureComponent {
     const suggested = !_.isNaN(recommended) ? `${recommended}` : null;
     const bg = _.get(wizard, 'bgInput', null);
     const iob = _.get(wizard, 'insulinOnBoard', null);
-    const carbsInput = !_.isNaN(bolusUtils.getCarbs(wizard)) && bolusUtils.getCarbs(wizard) > 0;
+    const carbs = bolusUtils.getCarbs(wizard);
+    const carbsInput = !_.isNaN(carbs) && carbs > 0;
     const carbRatio = _.get(wizard, 'insulinCarbRatio', null);
     const isf = _.get(wizard, 'insulinSensitivity', null);
     const delivered = bolusUtils.getDelivered(wizard);
@@ -140,7 +141,6 @@ class BolusTooltip extends PureComponent {
         </div>
       );
     }
-    const deliveredAtTop = !isInterrupted && !overrideLine;
     const deliveredLine = !!delivered && (
       <div className={styles.delivered}>
         <div className={styles.label}>Delivered</div>
@@ -160,6 +160,13 @@ class BolusTooltip extends PureComponent {
         <div className={styles.label}>BG</div>
         <div className={styles.value}>{bg}</div>
         <div className={styles.units} />
+      </div>
+    );
+    const carbsLine = !!carbs && (
+      <div className={styles.carbs}>
+        <div className={styles.label}>Carbs</div>
+        <div className={styles.value}>{carbs}</div>
+        <div className={styles.units}>g</div>
       </div>
     );
     const iobLine = !!iob && (
@@ -211,16 +218,16 @@ class BolusTooltip extends PureComponent {
 
     return (
       <div className={styles.container}>
-        {suggestedLine}
-        {deliveredAtTop && deliveredLine}
         {bgLine}
+        {carbsLine}
         {iobLine}
-        {(isInterrupted || overrideLine || hasExtended) && <div className={styles.dividerSmall} />}
-        {interruptedLine}
-        {overrideLine}
-        {!deliveredAtTop && deliveredLine}
-        {(icRatioLine || isfLine || bg || hasExtended) && <div className={styles.dividerLarge} />}
+        {suggestedLine}
         {extendedLine}
+        {(isInterrupted || overrideLine || hasExtended) && <div className={styles.dividerSmall} />}
+        {overrideLine}
+        {interruptedLine}
+        {deliveredLine}
+        {(icRatioLine || isfLine || bg) && <div className={styles.dividerLarge} />}
         {icRatioLine}
         {isfLine}
         {!!bg && this.getTarget()}
@@ -283,11 +290,9 @@ class BolusTooltip extends PureComponent {
     return (
       <div className={styles.container}>
         {programmedLine}
-        {!isInterrupted && deliveredLine}
-        {(isInterrupted || hasExtended) && <div className={styles.dividerSmall} />}
         {interruptedLine}
+        {deliveredLine}
         {extendedLine}
-        {isInterrupted && deliveredLine}
       </div>
     );
   }

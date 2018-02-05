@@ -25,6 +25,7 @@
 }
 
 .row {
+  composes: smallSize from '../../../styles/typography.css';
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -45,6 +46,7 @@
 }
 
 .title {
+  composes: smallSize from '../../../styles/typography.css';
   text-align: right;
 }
 
@@ -71,6 +73,7 @@
 }
 
 .normal {
+  color: var(--gray-dark);
   composes: row;
 }
 
@@ -80,6 +83,10 @@
 }
 
 .programmed {
+  composes: row;
+}
+
+.carbs {
   composes: row;
 }
 
