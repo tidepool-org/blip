@@ -284,8 +284,6 @@ utils.roundBgTarget = (value, units) => {
 utils.getTimezoneForDataProcessing = (data, queryParams) => {
   var timePrefsForTideline;
   function setNewTimePrefs(timezoneName) {
-    // have to replace - from queryParams set timezone with /
-    timezoneName = timezoneName.replace('-', '/');
     try {
       sundial.checkTimezoneName(timezoneName);
       timePrefsForTideline = {
@@ -300,7 +298,7 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
     }
   }
 
-  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
+  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
   if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
     setNewTimePrefs(mostRecentUpload.timezone);
   }
@@ -310,7 +308,7 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
     setNewTimePrefs(queryParams.timezone);
     console.log('Displaying in timezone from query params:', queryParams.timezone);
   }
-  else if (!_.isEmpty(mostRecentUpload)) {
+  else if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
     console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
   }
   else {
@@ -425,7 +423,8 @@ utils.getLatestGithubRelease = (releases) => {
 }
 
 /**
- * Get the earliest and latest dates, and the span in days in a given data set
+ * Get the earliest and latest dates, span in days, and count of
+ * diabetes data in a raw data set
  * @param {Array} data - The raw unprocessed data
  * @returns {Object}
  */
