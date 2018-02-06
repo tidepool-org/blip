@@ -292,7 +292,6 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
       };
     }
     catch(err) {
-      console.log(err);
       console.log('Not a valid timezone! Defaulting to timezone-naive display.');
       timePrefsForTideline = {};
     }

@@ -26,7 +26,6 @@ import mutationTracker from 'object-invariant-test-helper';
 
 import reducer from '../../../../app/redux/reducers/working';
 import * as actions from '../../../../app/redux/actions/index';
-import { actions as workerActions } from '@tidepool/viz';
 
 import initialAll from '../../../../app/redux/reducers/initialState';
 const { working: initialState } = initialAll;
@@ -811,7 +810,7 @@ describe('working', () => {
     describe('generatePDF', () => {
       describe('request', () => {
         it('should set generatingPDF to be true', () => {
-          let action = workerActions.generatePDFRequest();
+          let action = actions.worker.generatePDFRequest();
 
           expect(initialState.generatingPDF.inProgress).to.be.false;
 
@@ -826,7 +825,7 @@ describe('working', () => {
           let initialStateForTest = _.merge({}, initialState, { generatingPDF: { inProgress: true, notification: null } });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
-          let action = workerActions.generatePDFFailure(error);
+          let action = actions.worker.generatePDFFailure(error);
 
           expect(initialStateForTest.generatingPDF.inProgress).to.be.true;
           expect(initialStateForTest.generatingPDF.notification).to.be.null;
@@ -846,7 +845,7 @@ describe('working', () => {
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let pdf = {};
 
-          let action = workerActions.generatePDFSuccess({ pdf });
+          let action = actions.worker.generatePDFSuccess({ pdf });
 
           expect(initialStateForTest.generatingPDF.inProgress).to.be.true;
 

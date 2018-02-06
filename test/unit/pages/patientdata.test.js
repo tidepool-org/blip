@@ -12,7 +12,7 @@ import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import _ from 'lodash';
-import { mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 
 var assert = chai.assert;
 var expect = chai.expect;
@@ -23,6 +23,34 @@ import PD, { PatientData } from '../../../app/pages/patientdata/patientdata.js';
 import { mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 
 describe('PatientData', function () {
+  const defaultProps = {
+    addPatientNote: sinon.stub(),
+    clearPatientData: sinon.stub(),
+    currentPatientInViewId: 'smestring',
+    fetchers: [],
+    fetchingPatient: false,
+    fetchingPatientData: false,
+    fetchingUser: false,
+    generatePDFRequest: sinon.stub(),
+    generatingPDF: false,
+    isUserPatient: false,
+    onCloseMessageThread: sinon.stub(),
+    onCreateMessage: sinon.stub(),
+    onEditMessage: sinon.stub(),
+    onFetchMessageThread: sinon.stub(),
+    onRefresh: sinon.stub(),
+    onSaveComment: sinon.stub(),
+    patientDataMap: {},
+    patientNotesMap: {},
+    pdf: {},
+    queryParams: {},
+    removeGeneratedPDFS: sinon.stub(),
+    trackMetric: sinon.stub(),
+    updatePatientNote: sinon.stub(),
+    uploadUrl: 'http://foo.com',
+    viz: {},
+  };
+
   before(() => {
     PD.__Rewire__('Basics', React.createClass({
       render: function() {
@@ -53,30 +81,7 @@ describe('PatientData', function () {
 
   describe('render', function() {
     it('should not warn when required props are set', function() {
-      var props = {
-        clearPatientData: sinon.stub(),
-        currentPatientInViewId: 'smestring',
-        fetchers: [],
-        fetchingPatient: false,
-        fetchingPatientData: false,
-        fetchingUser: false,
-        generatePDFRequest: sinon.stub(),
-        generatingPDF: false,
-        isUserPatient: false,
-        onCloseMessageThread: sinon.stub(),
-        onCreateMessage: sinon.stub(),
-        onEditMessage: sinon.stub(),
-        onFetchMessageThread: sinon.stub(),
-        onRefresh: sinon.stub(),
-        onSaveComment: sinon.stub(),
-        patientDataMap: {},
-        patientNotesMap: {},
-        queryParams: {},
-        removeGeneratedPDFS: sinon.stub(),
-        trackMetric: sinon.stub(),
-        uploadUrl: 'http://foo.com',
-        viz: {},
-      };
+      var props = defaultProps;
 
       console.error = sinon.spy();
       var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
@@ -85,72 +90,57 @@ describe('PatientData', function () {
     });
 
     describe('loading message', () => {
+      let wrapper;
+      let loader;
+
+      beforeEach(() => {
+        wrapper = shallow(<PatientData {...defaultProps} />);
+        loader = () => wrapper.find('Loader');
+      });
+
       it('should render the loading message and image when fetchingPatient is true', function() {
-        var props = {
-          fetchingPatient: true,
-          fetchingPatientData: false
-        };
+        expect(loader().length).to.equal(1);
+        expect(loader().props().show).to.be.false;
 
-        // Try out using the spread props syntax in JSX
-        var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-        expect(elem).to.be.ok;
-
-        var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
-        expect(x).to.be.ok;
-
-        var y = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
-        expect(y).to.be.ok;
+        wrapper.setProps({ fetchingPatient: true });
+        expect(loader().props().show).to.be.true;
       });
 
       it('should render the loading message and image when fetchingPatientData is true', function() {
-        var props = {
-          fetchingPatient: false,
-          fetchingPatientData: true
-        };
+        expect(loader().length).to.equal(1);
+        expect(loader().props().show).to.be.false;
 
-        // Try out using the spread props syntax in JSX
-        var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-        expect(elem).to.be.ok;
-
-        var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
-        expect(x).to.be.ok;
-
-        var y = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
-        expect(y).to.be.ok;
+        wrapper.setProps({ fetchingPatientData: true });
+        expect(loader().props().show).to.be.true;
       });
 
       it('should render the loading message and image when both fetchingPatient and fetchingPatientData are true', function() {
-        var props = {
+        expect(loader().length).to.equal(1);
+        expect(loader().props().show).to.be.false;
+
+        wrapper.setProps({
           fetchingPatient: true,
-          fetchingPatientData: true
-        };
-
-        // Try out using the spread props syntax in JSX
-        var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-        expect(elem).to.be.ok;
-
-        var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
-        expect(x).to.be.ok;
-
-        var y = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
-        expect(y).to.be.ok;
+          fetchingPatientData: true,
+        });
+        expect(loader().props().show).to.be.true;
       });
 
       it('should still render the loading message and image when fetching is done but data is being processed', function() {
         var props = {
           fetchingPatient: false,
-          fetchingPatientData: false
+          fetchingPatientData: false,
         };
 
-        // Try out using the spread props syntax in JSX
-        var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-        expect(elem).to.be.ok;
+        var state = {
+          processingData: true,
+        };
 
-        var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
-        expect(x).to.be.ok;
+        expect(loader().length).to.equal(1);
+        expect(loader().props().show).to.be.false;
 
-        var y = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
-        expect(y).to.be.ok;
+        wrapper.setProps(props);
+        wrapper.setState(state);
+        expect(loader().props().show).to.be.true;
       });
 
       // this is THE REGRESSION TEST for the "data mismatch" bug
@@ -158,14 +148,15 @@ describe('PatientData', function () {
         var props = {
           currentPatientInViewId: 41,
           fetchingPatient: false,
-          fetchingPatientData: false
+          fetchingPatientData: true,
         };
 
-        // Try out using the spread props syntax in JSX
-        var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-        // bypass the actual processing function since that's not what we're testing here!
-        elem.doProcessing = sinon.spy();
-        elem.componentWillReceiveProps({
+        wrapper.setProps(props);
+
+        expect(loader().length).to.equal(1);
+        expect(loader().props().show).to.be.true;
+
+        wrapper.setProps({
           patientDataMap: {
             40: [{type: 'cbg'}]
           },
@@ -174,40 +165,41 @@ describe('PatientData', function () {
           }
         });
 
-        expect(elem.doProcessing.callCount).to.equal(0);
-
-        var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
-        expect(x).to.be.ok;
-
-        var y = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
-        expect(y).to.be.ok;
+        expect(loader().props().show).to.be.true;
       });
 
       it('should NOT render the loading message and image when fetching is done and data is processed', function() {
         var props = {
           fetchingPatient: false,
-          fetchingPatientData: false
+          fetchingPatientData: true,
         };
 
-        // Try out using the spread props syntax in JSX
-        var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-        expect(elem).to.be.ok;
-        elem.setState({
-          processingData: false
-        });
+        wrapper.setProps(props);
 
-        expect(() => { TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image'); })
-          .to.throw('Did not find exactly one match (found: 0) for class:patient-data-loading-image');
+        expect(loader().length).to.equal(1);
+        expect(loader().props().show).to.be.true;
 
-        expect(() => { TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message'); })
-          .to.throw('Did not find exactly one match (found: 0) for class:patient-data-loading-message');
+        var props = {
+          fetchingPatientData: false,
+        };
+        wrapper.setProps(props);
+
+        expect(loader().props().show).to.be.false;
       });
     });
 
     describe('no data message', () => {
+      let wrapper;
+      let noData;
+
+      beforeEach(() => {
+        wrapper = mount(<PatientData {...defaultProps} />);
+        noData = () => wrapper.find('.patient-data-message-no-data');
+      });
+
       describe('logged-in user is not current patient targeted for viewing', () => {
         it ('should render the no data message when no data is present and loading and processingData are false', function() {
-          var props = {
+          var props = _.assign({}, defaultProps, {
             patient: {
               profile: {
                 fullName: 'Fooey McBar'
@@ -215,22 +207,21 @@ describe('PatientData', function () {
             },
             fetchingPatient: false,
             fetchingPatientData: false
-          };
+          });
 
-          // Try out using the spread props syntax in JSX
-          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+          wrapper.setProps(props);
 
-          expect(elem).to.be.ok;
-          elem.setState({processingData: false});
+          wrapper.setState({
+            loading: false,
+            processingData: false,
+          });
 
-          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-no-data');
-          expect(x).to.be.ok;
-
-          expect(x.textContent).to.equal('Fooey McBar does not have any data yet.');
+          expect(noData().length).to.equal(1);
+          expect(noData().text()).to.equal('Fooey McBar does not have any data yet.');
         });
 
-        it ('should render the no data message when no data is present for current patient', function() {
-          var props = {
+        it('should render the no data message when no data is present for current patient', function() {
+          var props = _.assign({}, defaultProps, {
             currentPatientInViewId: 40,
             patient: {
               userid: 40,
@@ -239,51 +230,43 @@ describe('PatientData', function () {
               }
             },
             fetchingPatient: false,
-            fetchingPatientData: false
-          };
-
-          // Try out using the spread props syntax in JSX
-          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-          // bypass the actual processing function since that's not what we're testing here!
-          elem.doProcessing = () => {
-            elem.setState({
-              processedPatientData: {data: []},
-              processingData: false
-            });
-          }
-          elem.componentWillReceiveProps({
+            fetchingPatientData: false,
             patientDataMap: {
-              40: []
+              40: [],
             },
             patientNotesMap: {
-              40: []
-            }
+              40: [],
+            },
           });
 
-          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-no-data');
-          expect(x).to.be.ok;
+          wrapper.setProps(props);
 
-          expect(x.textContent).to.equal('Fooey McBar does not have any data yet.');
+          wrapper.setState({
+            loading: false,
+          });
+
+          expect(noData().length).to.equal(1);
+          expect(noData().text()).to.equal('Fooey McBar does not have any data yet.');
         });
       });
 
       describe('logged-in user is viewing own data', () => {
-        it ('should render the no data message when no data is present and loading and processingData are false', function() {
+        it('should render the no data message when no data is present and loading and processingData are false', function() {
           var props = {
             isUserPatient: true,
             fetchingPatient: false,
             fetchingPatientData: false
           };
 
-          // Try out using the spread props syntax in JSX
-          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-          expect(elem).to.be.ok;
-          elem.setState({processingData: false});
-          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-no-data');
-          expect(x).to.be.ok;
+          wrapper.setProps(props);
+          wrapper.setState({
+            loading: false,
+          });
+
+          expect(noData().length).to.equal(1);
         });
 
-        it ('should render the no data message when no data is present for current patient', function() {
+        it('should render the no data message when no data is present for current patient', function() {
           var props = {
             currentPatientInViewId: 40,
             isUserPatient: true,
@@ -297,26 +280,12 @@ describe('PatientData', function () {
             fetchingPatientData: false
           };
 
-          // Try out using the spread props syntax in JSX
-          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-          // bypass the actual processing function since that's not what we're testing here!
-          elem.doProcessing = () => {
-            elem.setState({
-              processedPatientData: {data: []},
-              processingData: false
-            });
-          }
-          elem.componentWillReceiveProps({
-            patientDataMap: {
-              40: []
-            },
-            patientNotesMap: {
-              40: []
-            }
+          wrapper.setProps(props);
+          wrapper.setState({
+            loading: false,
           });
 
-          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-uploader-message');
-          expect(x).to.be.ok;
+          expect(noData().length).to.equal(1);
         });
 
         it('should track click on main upload button', function() {
@@ -331,31 +300,27 @@ describe('PatientData', function () {
             },
             fetchingPatient: false,
             fetchingPatientData: false,
-            trackMetric: sinon.stub()
-          };
-
-          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-          // bypass the actual processing function since that's not what we're testing here!
-          elem.doProcessing = () => {
-            elem.setState({
-              processedPatientData: {data: []},
-              processingData: false
-            });
-          }
-          elem.componentWillReceiveProps({
+            trackMetric: sinon.stub(),
             patientDataMap: {
-              40: []
+              40: [],
             },
             patientNotesMap: {
-              40: []
-            }
+              40: [],
+            },
+          };
+
+          wrapper.setProps(props);
+          wrapper.setState({
+            loading: false,
           });
 
-          var renderedDOMElem = ReactDOM.findDOMNode(elem);
-          var links = renderedDOMElem.querySelectorAll('.patient-data-uploader-message a');
+          expect(noData().length).to.equal(1);
 
+          var links = wrapper.find('.patient-data-uploader-message a');
           var callCount = props.trackMetric.callCount;
-          TestUtils.Simulate.click(links[0]);
+
+          links.at(0).simulate('click');
+
           expect(props.trackMetric.callCount).to.equal(callCount + 1);
           expect(props.trackMetric.calledWith('Clicked No Data Upload')).to.be.true;
         });
@@ -375,28 +340,16 @@ describe('PatientData', function () {
             trackMetric: sinon.stub()
           };
 
-          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-          // bypass the actual processing function since that's not what we're testing here!
-          elem.doProcessing = () => {
-            elem.setState({
-              processedPatientData: {data: []},
-              processingData: false
-            });
-          }
-          elem.componentWillReceiveProps({
-            patientDataMap: {
-              40: []
-            },
-            patientNotesMap: {
-              40: []
-            }
+          wrapper.setProps(props);
+          wrapper.setState({
+            loading: false,
           });
 
-          var renderedDOMElem = ReactDOM.findDOMNode(elem);
-          var links = renderedDOMElem.querySelectorAll('.patient-data-uploader-message a');
-
+          var links = wrapper.find('.patient-data-uploader-message a');
           var callCount = props.trackMetric.callCount;
-          TestUtils.Simulate.click(links[3]);
+
+          links.at(3).simulate('click');
+
           expect(props.trackMetric.callCount).to.equal(callCount + 1);
           expect(props.trackMetric.calledWith('Clicked No Data Get Blip Notes')).to.be.true;
         });
@@ -428,13 +381,13 @@ describe('PatientData', function () {
         },
       ];
 
-      const props = {
+      const props = _.assign({}, defaultProps, {
         currentPatientInViewId: 40,
         patient: {
           userid: 40,
           profile: {
-            fullName: 'Fooey McBar'
-          }
+            fullName: 'Fooey McBar',
+          },
         },
         fetchingPatient: false,
         fetchingPatientData: false,
@@ -443,7 +396,7 @@ describe('PatientData', function () {
           trends: {},
           pdf: {},
         },
-      };
+      });
 
       beforeEach(() => {
         elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
@@ -453,7 +406,7 @@ describe('PatientData', function () {
           let processedData;
 
           // bypass the actual processing function since that's not what we're testing here!
-          elem.doProcessing = () => {
+          elem.processData = () => {
             let diabetesData = _.map(data, datum => {
               datum.time = time;
               return datum;
@@ -469,12 +422,16 @@ describe('PatientData', function () {
             elem.setState({
               processedPatientData: { data: diabetesData },
               processingData: false,
+              loading: false,
             });
 
             elem.setInitialChartType(processedData);
           };
 
           elem.componentWillReceiveProps({
+            patient: _.assign({}, props.patient, {
+              settings: {},
+            }),
             patientDataMap: {
               40: []
             },
@@ -626,7 +583,7 @@ describe('PatientData', function () {
     describe('render data (finally!)', () => {
       describe('logged-in user is not current patient targeted for viewing', () => {
         it ('should render the correct view when data is present for current patient', function() {
-          var props = {
+          var props = _.assign({}, defaultProps, {
             currentPatientInViewId: 40,
             patient: {
               userid: 40,
@@ -640,7 +597,7 @@ describe('PatientData', function () {
               trends: {},
               pdf: {},
             },
-          };
+          });
 
           // Try out using the spread props syntax in JSX
           var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
@@ -649,20 +606,24 @@ describe('PatientData', function () {
           const data = [{ type: 'cbg' }];
 
           // bypass the actual processing function since that's not what we're testing here!
-          elem.doProcessing = () => {
+          elem.processData = () => {
             elem.setState({
               processedPatientData: { data },
               processingData: false,
+              loading: false,
               chartType: elem.deriveChartTypeFromLatestData(data[0], []),
             });
           }
           elem.componentWillReceiveProps({
+            patient: _.assign({}, props.patient, {
+              settings: {},
+            }),
             patientDataMap: {
-              40: []
+              40: [],
             },
             patientNotesMap: {
-              40: []
-            }
+              40: [],
+            },
           });
 
           var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-trends-view');
@@ -672,7 +633,7 @@ describe('PatientData', function () {
 
       describe('logged-in user is viewing own data', () => {
         it ('should render the correct view when data is present for current patient', function() {
-          var props = {
+          var props = _.assign({}, defaultProps, {
             currentPatientInViewId: 40,
             isUserPatient: true,
             patient: {
@@ -686,7 +647,7 @@ describe('PatientData', function () {
             viz: {
               pdf: {},
             }
-          };
+          });
 
           // Try out using the spread props syntax in JSX
           var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
@@ -695,14 +656,18 @@ describe('PatientData', function () {
           const data = [{ type: 'basal' }];
 
           // bypass the actual processing function since that's not what we're testing here!
-          elem.doProcessing = () => {
+          elem.processData = () => {
             elem.setState({
               processedPatientData: { data },
               processingData: false,
+              loading: false,
               chartType: elem.deriveChartTypeFromLatestData(data[0]),
             });
           }
           elem.componentWillReceiveProps({
+            patient: _.assign({}, props.patient, {
+              settings: {},
+            }),
             patientDataMap: {
               40: []
             },
@@ -746,14 +711,6 @@ describe('PatientData', function () {
       clearPatientData: sinon.stub(),
       removeGeneratedPDFS: sinon.stub(),
     };
-
-    it('should clear patient data upon refresh', function() {
-      const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
-      const callCount = props.clearPatientData.callCount;
-      elem.componentWillUnmount();
-
-      expect(props.clearPatientData.callCount).to.equal(callCount + 1);
-    });
 
     it('should clear generated pdfs upon refresh', function() {
       const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
@@ -934,7 +891,7 @@ describe('PatientData', function () {
       expect(elem.generatePDF.callCount).to.equal(1);
     });
 
-    it('should not generate a pdf when view is weekly or trends and patient data is processed', function () {
+    it('should generate a pdf when view is weekly or trends and patient data is processed', function () {
       var props = {
         currentPatientInViewId: 40,
         isUserPatient: true,
@@ -957,7 +914,7 @@ describe('PatientData', function () {
       expect(elem.generatePDF.callCount).to.equal(0);
 
       wrapper.update();
-      expect(elem.generatePDF.callCount).to.equal(0);
+      expect(elem.generatePDF.callCount).to.equal(1);
 
       wrapper.setState({ chartType: 'trends', processingData: false, processedPatientData: true });
 
@@ -965,7 +922,7 @@ describe('PatientData', function () {
       expect(elem.generatePDF.callCount).to.equal(0);
 
       wrapper.update();
-      expect(elem.generatePDF.callCount).to.equal(0);
+      expect(elem.generatePDF.callCount).to.equal(1);
     });
 
     it('should not generate a pdf when one is currently generating', function () {
@@ -1052,11 +1009,9 @@ describe('PatientData', function () {
           }
         },
         generatingPDF: false,
-        viz: {
-          pdf: {
-            combined: {
-              url: 'someUrl'
-            }
+        pdf: {
+          combined: {
+            url: 'someUrl'
           }
         }
       };

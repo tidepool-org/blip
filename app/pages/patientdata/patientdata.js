@@ -708,8 +708,8 @@ export let PatientData = React.createClass({
     const currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
 
-    const nextFetchedDataRange = _.get(nextProps, 'fetchedPatientDataRange');
-    const currentFetchedDataRange = _.get(this.props, 'fetchedPatientDataRange');
+    const nextFetchedDataRange = _.get(nextProps, 'fetchedPatientDataRange', {});
+    const currentFetchedDataRange = _.get(this.props, 'fetchedPatientDataRange', {});
 
     const newDataRangeFetched = nextFetchedDataRange.fetchedUntil !== currentFetchedDataRange.fetchedUntil;
     const newDiabetesDataReturned = nextFetchedDataRange.count > currentFetchedDataRange.count;
@@ -876,13 +876,18 @@ export let PatientData = React.createClass({
 
     // Return if we've already fetched and processed all data
     if (this.state.processingData || _.get(props, 'fetchedPatientDataRange.fetchedUntil') === 'start' && this.state.lastDatumProcessedIndex === patientData.length - 1) {
+      this.setState({
+        loading: false,
+        processingData: false,
+      });
+
       return;
     };
 
     this.setState({
       loading: true,
       processingData: true,
-     });
+    });
 
     if (patientData.length) {
       const fetchedUntil = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil', 0);
