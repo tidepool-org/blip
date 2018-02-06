@@ -21,6 +21,14 @@ const cancelled = {
   normalTime: '2017-11-11T05:45:52.000Z',
 };
 
+const immediatelyCancelled = {
+  normal: 0,
+  expectedNormal: 5.3,
+  normalTime: '2017-11-11T05:45:52.000Z',
+  type: 'bolus',
+  subType: 'normal',
+};
+
 const override = {
   type: 'wizard',
   bolus: {
@@ -360,6 +368,12 @@ storiesOf('BolusTooltip', module)
     <div>
       {refDiv}
       <BolusTooltip {...props} bolus={cancelled} />
+    </div>
+  ))
+  .add('immediatelyCancelled', () => (
+    <div>
+      {refDiv}
+      <BolusTooltip {...props} bolus={immediatelyCancelled} />
     </div>
   ))
   .add('override', () => (

@@ -29,6 +29,11 @@ const cancelled = {
   expectedNormal: 5,
 };
 
+const immediatelyCancelled = {
+  normal: 0,
+  expectedNormal: 5,
+};
+
 const override = {
   type: 'wizard',
   bolus: {
@@ -707,6 +712,10 @@ describe('bolus utilities', () => {
 
     it('should return `false` on a no-frills `combo` bolus', () => {
       expect(bolusUtils.isInterruptedBolus(combo)).to.be.false;
+    });
+
+    it('should return `true` on an immediately cancelled `normal` bolus', () => {
+      expect(bolusUtils.isInterruptedBolus(immediatelyCancelled)).to.be.true;
     });
 
     it('should return `true` on a cancelled `normal` bolus', () => {

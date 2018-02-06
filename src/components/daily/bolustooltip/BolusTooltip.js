@@ -101,11 +101,11 @@ class BolusTooltip extends PureComponent {
   renderWizard() {
     const wizard = this.props.bolus;
     const recommended = bolusUtils.getRecommended(wizard);
-    const suggested = !_.isNaN(recommended) ? `${recommended}` : null;
+    const suggested = _.isFinite(recommended) ? `${recommended}` : null;
     const bg = _.get(wizard, 'bgInput', null);
     const iob = _.get(wizard, 'insulinOnBoard', null);
     const carbs = bolusUtils.getCarbs(wizard);
-    const carbsInput = !_.isNaN(carbs) && carbs > 0;
+    const carbsInput = _.isFinite(carbs) && carbs > 0;
     const carbRatio = _.get(wizard, 'insulinCarbRatio', null);
     const isf = _.get(wizard, 'insulinSensitivity', null);
     const delivered = bolusUtils.getDelivered(wizard);
@@ -141,7 +141,7 @@ class BolusTooltip extends PureComponent {
         </div>
       );
     }
-    const deliveredLine = !!delivered && (
+    const deliveredLine = _.isFinite(delivered) && (
       <div className={styles.delivered}>
         <div className={styles.label}>Delivered</div>
         <div className={styles.value}>{`${this.formatInsulin(delivered)}`}</div>
@@ -246,7 +246,7 @@ class BolusTooltip extends PureComponent {
     const extendedPercentage = _.isNaN(bolusUtils.getExtendedPercentage(bolus))
       ? ''
       : `(${bolusUtils.getExtendedPercentage(bolus)})`;
-    const deliveredLine = !!delivered && (
+    const deliveredLine = _.isFinite(delivered) && (
       <div className={styles.delivered}>
         <div className={styles.label}>Delivered</div>
         <div className={styles.value}>{`${this.formatInsulin(delivered)}`}</div>

@@ -41,6 +41,12 @@ const cancelled = {
   normalTime: '2017-11-11T05:45:52.000Z',
 };
 
+const immediatelyCancelled = {
+  normal: 0,
+  expectedNormal: 5,
+  normalTime: '2017-11-11T05:45:52.000Z',
+};
+
 const override = {
   type: 'wizard',
   bolus: {
@@ -303,6 +309,13 @@ describe('BolusTooltip', () => {
 
   it('should render programmed, interrupted and delivered for cancelled bolus', () => {
     const wrapper = mount(<BolusTooltip {...props} bolus={cancelled} />);
+    expect(wrapper.find(formatClassesAsSelector(styles.programmed))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.interrupted))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.delivered))).to.have.length(1);
+  });
+
+  it('should render programmed, interrupted and delivered for immediately cancelled bolus', () => {
+    const wrapper = mount(<BolusTooltip {...props} bolus={immediatelyCancelled} />);
     expect(wrapper.find(formatClassesAsSelector(styles.programmed))).to.have.length(1);
     expect(wrapper.find(formatClassesAsSelector(styles.interrupted))).to.have.length(1);
     expect(wrapper.find(formatClassesAsSelector(styles.delivered))).to.have.length(1);
