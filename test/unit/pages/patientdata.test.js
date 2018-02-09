@@ -4,6 +4,7 @@
 /* global it */
 /* global before */
 /* global beforeEach */
+/* global afterEach */
 /* global context */
 /* global after */
 
@@ -12,6 +13,7 @@ import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import _ from 'lodash';
+import moment from 'moment';
 import { mount, shallow } from 'enzyme';
 
 var assert = chai.assert;
@@ -19,8 +21,7 @@ var expect = chai.expect;
 
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
-import PD, { PatientData } from '../../../app/pages/patientdata/patientdata.js';
-import { mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
+import PD, { PatientData, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 
 describe('PatientData', function () {
   const defaultProps = {
@@ -67,12 +68,16 @@ describe('PatientData', function () {
         return (<div className='fake-weekly-view'></div>);
       }
     }));
+    PD.__Rewire__('vizUtils', {
+      selectDailyViewData: sinon.stub().returns('stubbed filtered data'),
+    });
   });
 
   after(() => {
     PD.__ResetDependency__('Basics');
-    PD.__ResetDependency__('Daily');
+    PD.__ResetDependency__('Trends');
     PD.__ResetDependency__('Weekly');
+    PD.__ResetDependency__('vizUtils');
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -158,11 +163,11 @@ describe('PatientData', function () {
 
         wrapper.setProps({
           patientDataMap: {
-            40: [{type: 'cbg'}]
+            40: [{type: 'cbg'}],
           },
           patientNotesMap: {
-            40: []
-          }
+            40: [],
+          },
         });
 
         expect(loader().props().show).to.be.true;
@@ -184,6 +189,33 @@ describe('PatientData', function () {
         };
         wrapper.setProps(props);
 
+        expect(loader().props().show).to.be.false;
+      });
+
+      it('should only render the initial loading view when the initial data is being fetched', () => {
+        wrapper.setState({
+          processingData: true,
+          lastDatumProcessedIndex: -1,
+        });
+
+        expect(loader().length).to.equal(1);
+        expect(loader().props().show).to.be.true;
+
+        wrapper.setState({
+          processingData: false,
+          lastDatumProcessedIndex: 100,
+        });
+
+        expect(loader().props().show).to.be.false;
+
+        wrapper.setState({
+          processingData: true,
+          lastDatumProcessedIndex: 100,
+        });
+
+        // should not show even though processingData state is true, since we're not processing
+        // the initial data set. After the initial processing, the loader will be rendered within
+        // the individual chart containers, not the main view.
         expect(loader().props().show).to.be.false;
       });
     });
@@ -704,6 +736,129 @@ describe('PatientData', function () {
       elem.handleRefresh();
       expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
     });
+
+    it('should reset patient data processing state', function() {
+      const setStateSpy = sinon.spy(PatientData.prototype, 'setState');
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      instance.DEFAULT_TITLE = 'defaultTitle';
+
+      wrapper.setState({
+        initialDatetimeLocation: 'initialDate',
+      })
+
+      setStateSpy.reset();
+      sinon.assert.callCount(setStateSpy, 0);
+      instance.handleRefresh();
+      sinon.assert.calledWith(setStateSpy, {
+        chartDateRange: null,
+        datetimeLocation: 'initialDate',
+        lastDatumProcessedIndex: -1,
+        lastProcessedDateTarget: null,
+        loading: true,
+        processedPatientData: null,
+        title: 'defaultTitle'
+      });
+
+      PatientData.prototype.setState.restore();
+    });
+  });
+
+  describe('updateBasicsData', () => {
+    it('should update the basicsdata portion of the processedPatientData state object', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      wrapper.setState({
+        processedPatientData: {
+          basicsData: 'old basicsData',
+          otherData: 'old otherData',
+        },
+      });
+
+      instance.updateBasicsData('new basicsData');
+
+      expect(instance.state.processedPatientData.basicsData).to.equal('new basicsData');
+    });
+
+    it('should not attempt toupdate the state object, if processedPatientData state is not present', () => {
+      const assignSpy = sinon.spy(_, 'assign');
+
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      wrapper.setState({
+        processedPatientData: undefined,
+      });
+
+      instance.updateBasicsData('new basicsData');
+
+      sinon.assert.notCalled(assignSpy)
+
+      _.assign.restore();
+    });
+
+    it('should update the processedPatientData state object, and not replace it with a new instance', () => {
+      const assignSpy = sinon.spy(_, 'assign');
+
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      wrapper.setState({
+        processedPatientData: {
+          basicsData: 'old basicsData',
+          otherData: 'old otherData',
+        },
+      });
+
+      instance.updateBasicsData('new basicsData');
+
+      sinon.assert.calledWithExactly(
+        assignSpy,
+        instance.state.processedPatientData,
+        { basicsData: 'new basicsData' }
+      );
+
+      _.assign.restore();
+    });
+  });
+
+  describe('updateDatetimeLocation', () => {
+    it('should update the chartDateRange state', () => {
+      const setStateSpy = sinon.spy(PatientData.prototype, 'setState');
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      setStateSpy.reset();
+      sinon.assert.callCount(setStateSpy, 0);
+
+      instance.updateDatetimeLocation('new datetime');
+
+      sinon.assert.calledWith(setStateSpy, {
+        datetimeLocation: 'new datetime',
+      });
+
+      PatientData.prototype.setState.restore();
+    });
+  });
+
+  describe('updateChartDateRange', () => {
+    it('should update the chartDateRange state', () => {
+      const setStateSpy = sinon.spy(PatientData.prototype, 'setState');
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      setStateSpy.reset();
+      sinon.assert.callCount(setStateSpy, 0);
+
+      instance.updateChartDateRange('new date range');
+
+      sinon.assert.calledWith(setStateSpy, {
+        chartDateRange: 'new date range',
+      });
+
+      PatientData.prototype.setState.restore();
+    });
   });
 
   describe('componentWillUnmount', function() {
@@ -725,90 +880,300 @@ describe('PatientData', function () {
       clearPatientData: sinon.stub(),
     };
 
-    it('should remove the generated PDF when the patient\'s site change source changes', function() {
-      var props = {
-        removeGeneratedPDFS: sinon.stub(),
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          },
-          settings: {
-            siteChangeSource: 'cannulaPrime',
-          },
-        },
-      };
+    describe('data processing and fetching', () => {
+      let wrapper;
+      let instance;
+      let initialProps;
+      let processDataStub;
+      let fetchEarlierDataStub;
+      let shouldProcessProps;
 
-      const wrapper = mount(<PatientData {...props} />);
-
-      sinon.assert.notCalled(props.removeGeneratedPDFS);
-
-      wrapper.setProps({
-        patient: _.assign({}, props.patient, {
-          settings: {
-            siteChangeSource: 'tubingPrime',
+      beforeEach(() => {
+        initialProps = _.assign({}, defaultProps, {
+          patient: {
+            userid: 40,
+            profile: {
+              fullName: 'Fooey McBar'
+            },
+            settings: {
+              siteChangeSource: 'cannulaPrime',
+            },
           },
-        }),
+          currentPatientInViewId: 40,
+          patientDataMap: {
+            40: [
+              { time: '2018-02-02T00:00:00.000Z' },
+            ]
+          },
+        });
+
+        shouldProcessProps = _.assign({}, initialProps, {
+          fetchedPatientDataRange: {
+            fetchedUntil: '2018-02-01T00:00:00.000Z',
+            start: '2018-02-01T00:00:00.000Z',
+            count: 1,
+          },
+        });
+
+        wrapper = shallow(<PatientData {...initialProps} />);
+        instance = wrapper.instance();
+        processDataStub = sinon.stub(instance, 'processData');
+        fetchEarlierDataStub = sinon.stub(instance, 'fetchEarlierData');
       });
 
-      sinon.assert.calledOnce(props.removeGeneratedPDFS);
+      afterEach(() => {
+        processDataStub.reset();
+        fetchEarlierDataStub.reset();
+      });
+
+      after(() => {
+        processDataStub.restore();
+        fetchEarlierDataStub.restore();
+      });
+
+      context('patient settings have been fetched, initial patient data has been received', () => {
+        it('should kick off data processing', () => {
+          sinon.assert.notCalled(processDataStub);
+          wrapper.setProps(shouldProcessProps);
+
+          assert.equal(instance.state.lastDatumProcessedIndex, -1);
+          sinon.assert.calledOnce(processDataStub);
+          sinon.assert.calledWithExactly(processDataStub, shouldProcessProps);
+        });
+
+        it('should kick off data processing and pass a date range start to the processing function when it is a proper moment-valid string', () => {
+          wrapper.setState({
+            chartDateRange: [
+              '2018-01-01T00:00:00.000Z',
+            ],
+          });
+
+          sinon.assert.notCalled(processDataStub);
+          wrapper.setProps(shouldProcessProps);
+
+          assert.equal(instance.state.lastDatumProcessedIndex, -1);
+          sinon.assert.calledOnce(processDataStub);
+          sinon.assert.calledWithExactly(processDataStub, shouldProcessProps, sinon.match.instanceOf(moment));
+        });
+
+        it('should kick off data processing and NOT pass a date range start to the processing function when it is NOT a proper moment-valid string', () => {
+          wrapper.setState({
+            chartDateRange: [
+              'blah',
+            ],
+          });
+
+          sinon.assert.notCalled(processDataStub);
+          wrapper.setProps(shouldProcessProps);
+
+          assert.equal(instance.state.lastDatumProcessedIndex, -1);
+          sinon.assert.calledOnce(processDataStub);
+          sinon.assert.calledWithExactly(processDataStub, shouldProcessProps);
+        });
+      });
+
+      context('patient settings have been fetched, initial data processed, new patient data has been received', () => {
+        it('should kick off processing of the new data', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0,
+          });
+
+          wrapper.setProps(shouldProcessProps); // kicks off the initial processing
+          sinon.assert.calledOnce(processDataStub);
+
+          const newDataProps = _.assign({}, shouldProcessProps, {
+            fetchedPatientDataRange: {
+              start: '2018-01-01T00:00:00.000Z',
+              count: 2,
+            },
+          });
+          wrapper.setProps(newDataProps);
+
+          assert.equal(instance.props.fetchedPatientDataRange.count, 2);
+          sinon.assert.calledTwice(processDataStub);
+        });
+      });
+
+      context('patient settings have been fetched, initial data processed, but no new patient data has been received', () => {
+        it('should NOT kick off data processing', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0,
+          });
+
+          wrapper.setProps(shouldProcessProps); // kicks off the initial processing
+          sinon.assert.calledOnce(processDataStub);
+
+          const newDataProps = _.assign({}, shouldProcessProps, {
+            fetchedPatientDataRange: {
+              start: '2018-01-01T00:00:00.000Z',
+              count: 1, // same as initial fetched data count
+            },
+          });
+          wrapper.setProps(newDataProps);
+
+          assert.equal(instance.props.fetchedPatientDataRange.count, 1);
+          sinon.assert.calledOnce(processDataStub); // still just one call made
+        });
+
+        it('should try to fetch some earlier data, but only once', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0,
+          });
+
+          wrapper.setProps(shouldProcessProps);
+          sinon.assert.calledOnce(processDataStub);
+          sinon.assert.notCalled(fetchEarlierDataStub);
+
+          const newDataProps = _.assign({}, shouldProcessProps, {
+            fetchedPatientDataRange: {
+              fetchedUntil:'2018-01-01T00:00:00.000Z',
+              start: '2018-01-01T00:00:00.000Z',
+              count: 1, // same as initial fetched data count
+            },
+          });
+          wrapper.setProps(newDataProps);
+
+          sinon.assert.calledOnce(fetchEarlierDataStub);
+          sinon.assert.calledWithExactly(fetchEarlierDataStub, { startDate: null });
+
+          // calling fetchEarlierData with a null startDate will set the
+          // 'fetchedPatientDataRange.fetchedUntil' prop to 'start', so we'll stub it here
+          const fetchedFromStartDataProps = _.assign({}, newDataProps, {
+            fetchedPatientDataRange: {
+              fetchedUntil: 'start',
+              start: '2018-01-01T00:00:00.000Z',
+              count: 1, // same as initial fetched data count
+            },
+          });
+
+          sinon.assert.calledOnce(fetchEarlierDataStub); // did not fetch a second time
+        });
+      });
+
+      context('patient settings have not been fetched, no patient data has been received', () => {
+        it('should not kick of processing or fetching', () => {
+          wrapper.setProps(_.assign({}, shouldProcessProps, {
+            patient: null,
+          }));
+          sinon.assert.notCalled(processDataStub);
+          sinon.assert.notCalled(fetchEarlierDataStub);
+        });
+      });
+
+      context('patient settings have not been fetched, patient data has been received', () => {
+        it('should not kick of processing or fetching', () => {
+          wrapper.setProps(_.assign({}, shouldProcessProps, {
+            patient: null,
+            fetchedPatientDataRange: {
+              fetchedUntil: 'start',
+              start: '2018-01-01T00:00:00.000Z',
+              count: 2, // additional data recieved
+            },
+          }));
+
+          sinon.assert.notCalled(processDataStub);
+          sinon.assert.notCalled(fetchEarlierDataStub);
+        });
+      });
+
+      context('patient settings have been fetched, patient data has not been received', () => {
+        it('should not kick of processing or fetching', () => {
+          wrapper.setProps(_.assign({}, shouldProcessProps, {
+            patientDataMap: {},
+          }));
+
+          sinon.assert.notCalled(processDataStub);
+          sinon.assert.notCalled(fetchEarlierDataStub);
+        });
+      });
     });
 
-    it('should not remove the generated PDF when the patient\'s site change source did not change', function() {
-      var props = {
-        removeGeneratedPDFS: sinon.stub(),
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
+    describe('pdf removal', () => {
+      it('should remove the generated PDF when the patient\'s site change source changes', function() {
+        var props = {
+          removeGeneratedPDFS: sinon.stub(),
+          patient: {
+            userid: 40,
+            profile: {
+              fullName: 'Fooey McBar'
+            },
+            settings: {
+              siteChangeSource: 'cannulaPrime',
+            },
           },
-          settings: {
-            siteChangeSource: 'cannulaPrime',
-          },
-        },
-      };
+        };
 
-      const wrapper = mount(<PatientData {...props} />);
+        const wrapper = mount(<PatientData {...props} />);
 
-      sinon.assert.notCalled(props.removeGeneratedPDFS);
+        sinon.assert.notCalled(props.removeGeneratedPDFS);
 
-      wrapper.setProps({
-        patient: _.assign({}, props.patient, {
-          settings: {
-            otherSetting: true,
-            siteChangeSource: 'cannulaPrime',
-          },
-        }),
+        wrapper.setProps({
+          patient: _.assign({}, props.patient, {
+            settings: {
+              siteChangeSource: 'tubingPrime',
+            },
+          }),
+        });
+
+        sinon.assert.calledOnce(props.removeGeneratedPDFS);
       });
 
-      sinon.assert.notCalled(props.removeGeneratedPDFS);
-    });
-
-    it('should not remove the generated PDF when the patient\'s site change source is not set', function() {
-      var props = {
-        removeGeneratedPDFS: sinon.stub(),
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
+      it('should not remove the generated PDF when the patient\'s site change source did not change', function() {
+        var props = {
+          removeGeneratedPDFS: sinon.stub(),
+          patient: {
+            userid: 40,
+            profile: {
+              fullName: 'Fooey McBar'
+            },
+            settings: {
+              siteChangeSource: 'cannulaPrime',
+            },
           },
-          settings: {},
-        },
-      };
+        };
 
-      const wrapper = mount(<PatientData {...props} />);
+        const wrapper = mount(<PatientData {...props} />);
 
-      sinon.assert.notCalled(props.removeGeneratedPDFS);
+        sinon.assert.notCalled(props.removeGeneratedPDFS);
 
-      wrapper.setProps({
-        patient: _.assign({}, props.patient, {
-          settings: {
-            otherSetting: true,
-          },
-        }),
+        wrapper.setProps({
+          patient: _.assign({}, props.patient, {
+            settings: {
+              otherSetting: true,
+              siteChangeSource: 'cannulaPrime',
+            },
+          }),
+        });
+
+        sinon.assert.notCalled(props.removeGeneratedPDFS);
       });
 
-      sinon.assert.notCalled(props.removeGeneratedPDFS);
+      it('should not remove the generated PDF when the patient\'s site change source is not set', function() {
+        var props = {
+          removeGeneratedPDFS: sinon.stub(),
+          patient: {
+            userid: 40,
+            profile: {
+              fullName: 'Fooey McBar'
+            },
+            settings: {},
+          },
+        };
+
+        const wrapper = mount(<PatientData {...props} />);
+
+        sinon.assert.notCalled(props.removeGeneratedPDFS);
+
+        wrapper.setProps({
+          patient: _.assign({}, props.patient, {
+            settings: {
+              otherSetting: true,
+            },
+          }),
+        });
+
+        sinon.assert.notCalled(props.removeGeneratedPDFS);
+      });
     });
   });
 
@@ -1026,6 +1391,1042 @@ describe('PatientData', function () {
       wrapper.update();
 
       expect(elem.generatePDF.callCount).to.equal(0);
+    });
+  });
+
+  describe('generatePDF', () => {
+    it('should filter the daily view data before dispatching the generate pdf action', () => {
+      const filterStub = PD.__get__('vizUtils').selectDailyViewData;
+
+      const props = _.assign({}, defaultProps, {
+        generatePDFRequest: sinon.stub(),
+      });
+
+      const state = {
+        processedPatientData: {
+          diabetesData: [{
+            normalTime: '2018-02-02T00:00:00.000Z',
+          }],
+          grouped: {
+            pumpSettings: {},
+          },
+        },
+      };
+
+      const wrapper = shallow(<PatientData {...props} />);
+
+      sinon.assert.callCount(filterStub, 0);
+      sinon.assert.callCount(props.generatePDFRequest, 0);
+
+      wrapper.instance().generatePDF(props, state);
+
+      sinon.assert.callCount(filterStub, 1);
+      sinon.assert.callCount(props.generatePDFRequest, 1);
+
+      assert(filterStub.calledBefore(props.generatePDFRequest));
+      sinon.assert.calledWithMatch(props.generatePDFRequest,
+        'combined',
+        {
+          daily: 'stubbed filtered data',
+        },
+      );
+    });
+  });
+
+  describe('handleChartDateRangeUpdate', () => {
+    let wrapper;
+    let instance;
+    let updateChartDateRangeSpy;
+    let fetchEarlierDataSpy;
+    let processDataSpy;
+    let setChartType;
+    let setToShouldProcess;
+    let setToShouldFetch;
+    const dateRange = ['2018-01-02T00:00:00.000Z', '2018-03-02T00:00:00.000Z'];
+
+    beforeEach(() => {
+      setChartType = (chartType) => {
+        wrapper.setState({
+          chartType,
+        });
+      };
+
+      setToShouldFetch = () => {
+        wrapper.setProps({
+          fetchedPatientDataRange: {
+            start: '2018-02-03T00:00:00.000Z',
+          },
+        });
+      };
+
+      setToShouldProcess = () => {
+        wrapper.setProps({
+          fetchedPatientDataRange: {
+            start: '2018-01-01T00:00:00.000Z',
+          },
+        });
+        wrapper.setState({
+          lastProcessedDateTarget: '2018-01-06T00:00:00.000Z',
+        });
+      };
+
+      wrapper = shallow(<PatientData {...defaultProps} />);
+
+      wrapper.setProps({
+        fetchingPatientData: false,
+        currentPatientInViewId: 40,
+        patientDataMap: {
+          40: [
+            { time: '2018-01-02T00:00:00.000Z' },
+          ]
+        },
+        fetchedPatientDataRange: {
+          start: '2018-01-01T00:00:00.000Z',
+        },
+      });
+
+      wrapper.setState({
+        chartType: 'trends',
+        processingData: false,
+      });
+
+      instance = wrapper.instance();
+
+      updateChartDateRangeSpy = sinon.spy(instance, 'updateChartDateRange');
+      fetchEarlierDataSpy = sinon.stub(instance, 'fetchEarlierData');
+      processDataSpy = sinon.stub(instance, 'processData');
+    });
+
+    afterEach(() => {
+      updateChartDateRangeSpy.reset();
+      fetchEarlierDataSpy.reset();
+      processDataSpy.reset();
+    });
+
+    after(() => {
+      updateChartDateRangeSpy.restore();
+      fetchEarlierDataSpy.restore();
+      processDataSpy.restore();
+    });
+
+    it('should update the chart date range state', () => {
+      sinon.assert.callCount(instance.updateChartDateRange, 0);
+
+      instance.handleChartDateRangeUpdate(dateRange);
+
+      sinon.assert.callCount(instance.updateChartDateRange, 1);
+      sinon.assert.calledWith(instance.updateChartDateRange, dateRange);
+    });
+
+    it('should not trigger data processing or fetching if data is currently fetching or processing (or both)', () => {
+      wrapper.setProps({ fetchingPatientData: true });
+      wrapper.setState({ processingData: true });
+
+      setToShouldFetch();
+      instance.handleChartDateRangeUpdate(dateRange);
+      sinon.assert.callCount(instance.fetchEarlierData, 0);
+
+      setToShouldProcess();
+      instance.handleChartDateRangeUpdate(dateRange);
+      sinon.assert.callCount(instance.processData, 0);
+
+      setToShouldFetch();
+      wrapper.setProps({ fetchingPatientData: true });
+      wrapper.setState({ processingData: false });
+      instance.handleChartDateRangeUpdate(dateRange);
+      sinon.assert.callCount(instance.fetchEarlierData, 0);
+
+      setToShouldProcess();
+      wrapper.setProps({ fetchingPatientData: false });
+      wrapper.setState({ processingData: true });
+      instance.handleChartDateRangeUpdate(dateRange);
+      sinon.assert.callCount(instance.processData, 0);
+    });
+
+    context('daily chart', () => {
+      beforeEach(() => {
+        setChartType('daily');
+      });
+
+      it('should trigger data fetching if the chart date range is same or before (to the millisecond) the earliest fetched patient data time', () => {
+        instance.handleChartDateRangeUpdate(dateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 0);
+
+        let newDateRange = [
+          moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'milliseconds').toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(newDateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 1);
+      });
+
+      it('should trigger data processing if the chart date range is same day or before (to the millisecond) the earliest processed patient datum time', () => {
+        wrapper.setState({
+          lastProcessedDateTarget: '2018-01-06T00:00:00.000Z',
+        });
+
+        const sameDateRange = [
+          moment(instance.state.lastProcessedDateTarget).toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(sameDateRange);
+        sinon.assert.callCount(instance.processData, 1);
+
+        const earlierDateRange = [
+          moment(instance.state.lastProcessedDateTarget).subtract(1, 'milliseconds').toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(earlierDateRange);
+        sinon.assert.callCount(instance.processData, 2);
+
+        const laterDateRange = [
+          moment(instance.state.lastProcessedDateTarget).add(1, 'days').toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(laterDateRange);
+        sinon.assert.callCount(instance.processData, 2);
+      });
+
+      it('should trigger processing if the chart scroll limit is reached and there is data to process', () => {
+        instance.handleChartDateRangeUpdate(dateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 0);
+        sinon.assert.callCount(instance.processData, 0);
+
+        wrapper.setState({
+          lastDiabetesDatumProcessedIndex: 0,
+        });
+
+        instance.handleChartDateRangeUpdate(dateRange);
+        sinon.assert.callCount(instance.processData, 1);
+      });
+    });
+
+    context('weekly chart', () => {
+      beforeEach(() => {
+        setChartType('weekly');
+      });
+
+      it('should trigger data fetching if the chart date range is same or before (to the millisecond) the earliest fetched patient data time', () => {
+        instance.handleChartDateRangeUpdate(dateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 0);
+
+        let newDateRange = [
+          moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'milliseconds').toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(newDateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 1);
+      });
+
+      it('should trigger data processing if the chart date range is same day or before (to the millisecond) the earliest processed patient datum time', () => {
+        wrapper.setState({
+          lastProcessedDateTarget: '2018-01-06T00:00:00.000Z',
+        });
+
+        const sameDateRange = [
+          moment(instance.state.lastProcessedDateTarget).toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(sameDateRange);
+        sinon.assert.callCount(instance.processData, 1);
+
+        const earlierDateRange = [
+          moment(instance.state.lastProcessedDateTarget).subtract(1, 'milliseconds').toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(earlierDateRange);
+        sinon.assert.callCount(instance.processData, 2);
+
+        const laterDateRange = [
+          moment(instance.state.lastProcessedDateTarget).add(1, 'days').toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(laterDateRange);
+        sinon.assert.callCount(instance.processData, 2);
+      });
+
+      it('should trigger processing if the chart scroll limit is reached and there is data to process', () => {
+        instance.handleChartDateRangeUpdate(dateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 0);
+        sinon.assert.callCount(instance.processData, 0);
+
+        wrapper.setState({
+          lastBGDatumProcessedIndex: 0,
+        });
+
+        instance.handleChartDateRangeUpdate(dateRange);
+        sinon.assert.callCount(instance.processData, 1);
+      });
+    });
+
+    context('trends chart', () => {
+      beforeEach(() => {
+        setChartType('trends');
+      });
+
+      it('should trigger data fetching if the chart date range is same or before (to the day) the earliest fetched patient data time', () => {
+        instance.handleChartDateRangeUpdate(dateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 0);
+
+        let newDateRange = [
+          moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'days').toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(newDateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 1);
+      });
+
+      it('should trigger data processing if the chart date range is same before (to the day) the earliest processed patient datum time', () => {
+        wrapper.setState({
+          lastProcessedDateTarget: '2018-01-06T00:00:00.000Z',
+        });
+
+        const sameDateRange = [
+          moment(instance.state.lastProcessedDateTarget).toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(sameDateRange);
+        sinon.assert.callCount(instance.processData, 0);
+
+        const earlierDateRange = [
+          moment(instance.state.lastProcessedDateTarget).subtract(1, 'days').toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(earlierDateRange);
+        sinon.assert.callCount(instance.processData, 1);
+
+        const laterDateRange = [
+          moment(instance.state.lastProcessedDateTarget).add(1, 'days').toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(laterDateRange);
+        sinon.assert.callCount(instance.processData, 1);
+      });
+    });
+  });
+
+  describe('handleMessageCreation', () => {
+    let props;
+    let BaseObject;
+
+    beforeEach(() => {
+      props = _.assign({}, defaultProps, {
+        addPatientNote: sinon.stub(),
+        trackMetric: sinon.stub(),
+      });
+
+      BaseObject = () => ({
+        props,
+        refs: {
+          tideline: {
+            createMessageThread: sinon.stub(),
+          },
+        },
+      });
+    });
+
+    it('should dispatch the message creation action', () => {
+      PatientData.prototype.handleMessageCreation.call(new BaseObject(), 'message');
+      sinon.assert.calledOnce(props.addPatientNote);
+      sinon.assert.calledWith(props.addPatientNote, 'message');
+    });
+
+    it('should dispatch the track metric action', () => {
+      PatientData.prototype.handleMessageCreation.call(new BaseObject(), 'message');
+      sinon.assert.calledOnce(props.trackMetric);
+      sinon.assert.calledWith(props.trackMetric, 'Created New Message');
+    });
+  });
+
+  describe('handleEditMessage', () => {
+    let props;
+    let BaseObject;
+
+    beforeEach(() => {
+      props = _.assign({}, defaultProps, {
+        updatePatientNote: sinon.stub(),
+        trackMetric: sinon.stub(),
+      });
+
+      BaseObject = () => ({
+        props,
+        refs: {
+          tideline: {
+            editMessageThread: sinon.stub(),
+          },
+        },
+      });
+    });
+
+    it('should dispatch the message creation action', () => {
+      PatientData.prototype.handleEditMessage.call(new BaseObject(), 'message');
+      sinon.assert.calledOnce(props.updatePatientNote);
+      sinon.assert.calledWith(props.updatePatientNote, 'message');
+    });
+
+    it('should dispatch the track metric action', () => {
+      PatientData.prototype.handleEditMessage.call(new BaseObject(), 'message');
+      sinon.assert.calledOnce(props.trackMetric);
+      sinon.assert.calledWith(props.trackMetric, 'Edit To Message');
+    });
+  });
+
+  describe('fetchEarlierData', () => {
+    let wrapper;
+    let instance;
+    let props;
+    let setStateSpy;
+
+    beforeEach(() => {
+      props = _.assign({}, defaultProps, {
+        onFetchEarlierData: sinon.stub(),
+      });
+
+
+      wrapper = shallow(<PatientData {...props} />);
+      instance = wrapper.instance();
+
+      setStateSpy = sinon.spy(instance, 'setState');
+    });
+
+    afterEach(() => {
+      props.onFetchEarlierData.reset();
+      setStateSpy.reset();
+    });
+
+    after(() => {
+      setStateSpy.restore();
+    });
+
+    context('all the data has been fetched already', () => {
+      it('should not fetch earlier data or update the state', () => {
+        wrapper.setProps({
+          fetchedPatientDataRange: {
+            fetchedUntil: 'start',
+          },
+        });
+
+        instance.fetchEarlierData();
+
+        sinon.assert.notCalled(setStateSpy);
+        sinon.assert.notCalled(props.onFetchEarlierData);
+      });
+    });
+
+    context('all the data has been not fetched already', () => {
+      it('should fetch a range of 16 weeks of prior data', () => {
+        const fetchedUntil = '2018-01-01T00:00:00.000Z';
+
+        wrapper.setProps({
+          currentPatientInViewId: 40,
+          fetchedPatientDataRange: {
+            fetchedUntil,
+          },
+        });
+
+        const expectedStart = moment.utc(fetchedUntil).subtract(16, 'weeks').toISOString();
+        const expectedEnd = moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString();
+
+        instance.fetchEarlierData();
+
+        sinon.assert.calledOnce(props.onFetchEarlierData);
+        sinon.assert.calledWith(props.onFetchEarlierData, {
+          startDate: expectedStart,
+          endDate: expectedEnd,
+          carelink: undefined,
+          dexcom: undefined,
+          initial: false,
+          useCache: false,
+        }, 40);
+      });
+
+      it('should allow overriding the default fetch options', () => {
+        const fetchedUntil = '2018-01-01T00:00:00.000Z';
+
+        wrapper.setProps({
+          currentPatientInViewId: 40,
+          fetchedPatientDataRange: {
+            fetchedUntil,
+          },
+        });
+
+        const options = {
+          startDate: null,
+          endDate: null,
+          useCache: true,
+        };
+
+        instance.fetchEarlierData(options);
+
+        sinon.assert.calledOnce(props.onFetchEarlierData);
+        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+          startDate: null,
+          endDate: null,
+          useCache: true,
+        }, 40);
+      });
+
+      it('should by default persist the `dexcom` and `carelink` data fetch api options from props', () => {
+        const fetchedUntil = '2018-01-01T00:00:00.000Z';
+
+        wrapper.setProps({
+          currentPatientInViewId: 40,
+          fetchedPatientDataRange: {
+            fetchedUntil,
+          },
+          carelink: true,
+          dexcom: true,
+        });
+
+        assert.isTrue(instance.props.dexcom);
+        assert.isTrue(instance.props.carelink);
+
+        instance.fetchEarlierData();
+
+        sinon.assert.calledOnce(props.onFetchEarlierData);
+        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+          carelink: true,
+          dexcom: true,
+        }, 40);
+
+        wrapper.setProps({
+          currentPatientInViewId: 40,
+          fetchedPatientDataRange: {
+            fetchedUntil,
+          },
+          carelink: false,
+          dexcom: false,
+        });
+
+        assert.isFalse(instance.props.dexcom);
+        assert.isFalse(instance.props.carelink);
+
+        instance.fetchEarlierData();
+
+        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+          carelink: false,
+          dexcom: false,
+        }, 40);
+      });
+
+      it('should set the `loading` and `requestedPatientDataRange` state', () => {
+        const fetchedUntil = '2018-01-01T00:00:00.000Z';
+
+        wrapper.setProps({
+          fetchedPatientDataRange: {
+            fetchedUntil,
+          },
+        });
+
+        const expectedStart = moment.utc(fetchedUntil).subtract(16, 'weeks').toISOString();
+        const expectedEnd = moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString();
+
+        instance.fetchEarlierData();
+
+        sinon.assert.calledOnce(setStateSpy);
+        sinon.assert.calledWith(setStateSpy, {
+          loading: true,
+          requestedPatientDataRange: {
+            start: expectedStart,
+            end: expectedEnd,
+          },
+        });
+      });
+    });
+  });
+
+  describe('hideLoading', () => {
+    let wrapper;
+    let instance;
+    let setStateSpy;
+    let setTimeoutSpy;
+
+    before(() => {
+      wrapper = shallow(<PatientData {...defaultProps} />);
+      instance = wrapper.instance();
+
+      setStateSpy = sinon.spy(instance, 'setState');
+      setTimeoutSpy = sinon.spy(window, 'setTimeout');
+    });
+
+    afterEach(() => {
+      setStateSpy.reset();
+      setTimeoutSpy.reset();
+    });
+
+    after(() => {
+      setStateSpy.restore();
+      setTimeoutSpy.restore();
+    });
+
+    it('should hide the loader after a specified timeout', (done) => {
+      instance.hideLoading(10);
+
+      sinon.assert.callCount(window.setTimeout, 1);
+      sinon.assert.calledWith(window.setTimeout, sinon.match.func, 10);
+
+      sinon.assert.callCount(setStateSpy, 0);
+      setTimeout(() => {
+        sinon.assert.callCount(setStateSpy, 1);
+        sinon.assert.calledWith(setStateSpy, {
+          loading: false,
+        });
+        done();
+      }, 10)
+    });
+
+    it('should default to a timeout of 250ms when not provided', () => {
+      instance.hideLoading();
+      sinon.assert.callCount(window.setTimeout, 1);
+      sinon.assert.calledWith(window.setTimeout, sinon.match.func, 250);
+    });
+  });
+
+  describe('processData', () => {
+    let wrapper;
+    let instance;
+    let setStateSpy;
+    let shouldProcessProps;
+    let processPatientDataStub;
+    let getTimezoneForDataProcessingStub;
+    let handleInitialProcessedDataStub;
+    let hideLoadingStub;
+
+    beforeEach(() => {
+      shouldProcessProps = _.assign({}, defaultProps, {
+        currentPatientInViewId: 40,
+        patientDataMap: {
+          40: [
+            { time: '2018-02-01T00:00:00.000Z', type: 'cbg' },
+            { time: '2018-01-01T00:00:00.000Z', type: 'bolus' },
+            { time: '2017-12-01T00:00:00.000Z', type: 'upload' },
+          ],
+        },
+        patientNotesMap: {
+          40: [
+            { message: 'hello' },
+          ],
+        },
+        patient: {
+          settings: {},
+        },
+      });
+
+      wrapper = shallow(<PatientData {...defaultProps} />);
+      instance = wrapper.instance();
+
+
+      // we want to stub out componentWillUpdate to keep these tests isolated
+      instance.componentWillUpdate = sinon.stub();
+
+      // stub out any methods we expect to be called
+      wrapper.setState({
+        processedPatientData: {
+          addData: sinon.stub(),
+        },
+      });
+
+      handleInitialProcessedDataStub = sinon.stub(instance, 'handleInitialProcessedData');
+      hideLoadingStub = sinon.stub(instance, 'hideLoading');
+
+      PD.__Rewire__('utils', {
+        processPatientData: sinon.stub().returns({
+          data: 'stubbed data',
+          bgClasses: 'stubbed bgClasses',
+          bgUnits: 'stubbed bgUnits',
+          timePrefs: 'stubbed timePrefs',
+          grouped: {},
+        }),
+        filterPatientData: sinon.stub().returns({
+          processedData: 'stubbed filtered data',
+        }),
+        getTimezoneForDataProcessing: sinon.stub().returns('stubbed timezone'),
+      });
+
+      processPatientDataStub = PD.__get__('utils').processPatientData;
+      getTimezoneForDataProcessingStub = PD.__get__('utils').getTimezoneForDataProcessing;
+
+      setStateSpy = sinon.spy(instance, 'setState');
+    });
+
+    afterEach(() => {
+      processPatientDataStub.reset();
+      getTimezoneForDataProcessingStub.reset();
+      PD.__ResetDependency__('utils');
+    });
+
+    context('data is currently being processed', () => {
+      it('should return without updating state and not attempt to process data', () => {
+        wrapper.setProps(shouldProcessProps);
+        wrapper.setState({
+          processingData: true,
+        });
+
+        setStateSpy.reset();
+
+        instance.processData();
+        sinon.assert.notCalled(setStateSpy);
+      });
+    });
+
+    context('all patient data has been fetched and processed', () => {
+      it('should set the loading state to false and not attempt to process any more data', () => {
+        wrapper.setState({
+          lastDatumProcessedIndex: 2,
+        });
+        wrapper.setProps(_.assign({}, shouldProcessProps, {
+          fetchedPatientDataRange: {
+            fetchedUntil: 'start',
+          },
+        }));
+
+        setStateSpy.reset();
+
+        instance.processData();
+        sinon.assert.callCount(setStateSpy, 1);
+        sinon.assert.calledWith(setStateSpy, {
+          loading: false,
+        });
+      });
+    });
+
+    context('no patient data has been fetched', () => {
+      it('should return without updating state and not attempt to process data', () => {
+        wrapper.setProps(_.assign({}, shouldProcessProps, {
+          patientDataMap: {
+            40: [],
+          },
+        }));
+
+        instance.processData();
+        sinon.assert.notCalled(setStateSpy);
+      });
+    });
+
+    context('patient data has been fetched', () => {
+      it('should set the loading and processingData state to `true`', () => {
+        wrapper.setProps(shouldProcessProps);
+        instance.processData();
+        sinon.assert.calledWith(setStateSpy, {
+          loading: true,
+          processingData: true,
+        });
+      });
+
+      it('should get the timezone info for processing data if not already available in state', () => {
+        wrapper.setState({
+          timePrefs: {
+            timezoneAware: false,
+          },
+        });
+        wrapper.setProps(_.assign({}, shouldProcessProps, {
+          queryParams: {
+            timezone: 'US/Eastern',
+          },
+        }));
+        instance.processData();
+        sinon.assert.calledOnce(getTimezoneForDataProcessingStub);
+        sinon.assert.calledWith(
+          getTimezoneForDataProcessingStub,
+          sinon.match.array,
+          { timezone: 'US/Eastern' },
+        );
+      });
+
+      context('processing initial data', () => {
+        it('should call processPatientData util with a combined patient data and notes array, query params, and patient settings', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2018-01-20T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
+          });
+          wrapper.setProps(_.assign({}, shouldProcessProps, {
+            queryParams: {
+              timezone: 'US/Eastern',
+            },
+          }));
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledOnce(processPatientDataStub);
+          sinon.assert.calledWith(
+            processPatientDataStub,
+            [
+              shouldProcessProps.patientDataMap[40][0],
+              shouldProcessProps.patientDataMap[40][1],
+              ...shouldProcessProps.patientNotesMap[40],
+            ],
+            { timezone: 'US/Eastern' },
+            { bgTarget: { high: 180, low: 70 }, units: { bg: 'mg/dL' } },
+          );
+        });
+
+        it('should call processPatientData util on data that falls within the 4 weeks of the lastProcessedDateTarget provided', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2018-02-01T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledOnce(processPatientDataStub);
+          sinon.assert.calledWith(
+            processPatientDataStub,
+            [
+              shouldProcessProps.patientDataMap[40][0], // second datum not processed as it is more than 4 weeks in the past
+              ...shouldProcessProps.patientNotesMap[40],
+            ],
+          );
+        });
+
+        it('should call processPatientData util on data that falls within the 4 weeks of provided dateRangeStart arg if its greater than the lastProcessedDateTarget provided', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z', // would result in 2 diabetes datums being processed
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData(instance.props, moment('2018-02-20T00:00:00.000Z')); // overrides lastProcessedDateTarget
+          sinon.assert.calledOnce(processPatientDataStub);
+          sinon.assert.calledWith(
+            processPatientDataStub,
+            [
+              shouldProcessProps.patientDataMap[40][0], // second datum not processed as it is more than 4 weeks in the past
+              ...shouldProcessProps.patientNotesMap[40],
+            ],
+          );
+        });
+
+        it('should call processPatientData util on data that falls within the 4 weeks of provided lastProcessedDateTarget if its greater than the dateRangeStart arg provided', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2018-02-20T00:00:00.000Z', // should result in 1 diabetes datums being processed
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData(instance.props, moment('2018-01-10T00:00:00.000Z')); // does not override lastProcessedDateTarget
+          sinon.assert.calledOnce(processPatientDataStub);
+          sinon.assert.calledWith(
+            processPatientDataStub,
+            [
+              shouldProcessProps.patientDataMap[40][0], // second datum not processed as it is more than 4 weeks in the past
+              ...shouldProcessProps.patientNotesMap[40],
+            ],
+          );
+        });
+
+        it('should set the processedPatientData to state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData(); // does not override lastProcessedDateTarget
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            {
+              processedPatientData: {
+                bgClasses: 'stubbed bgClasses',
+                bgUnits: 'stubbed bgUnits',
+                data: 'stubbed data',
+                timePrefs: 'stubbed timePrefs',
+              },
+            }
+          );
+        });
+
+        it('should set the lastDiabetesDatumProcessedIndex to state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData(); // does not override lastProcessedDateTarget
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { lastDiabetesDatumProcessedIndex: 1 }
+          );
+        });
+
+        it('should set the lastBGDatumProcessedIndex to state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData(); // does not override lastProcessedDateTarget
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { lastBGDatumProcessedIndex: 0 }
+          );
+        });
+
+        it('should set the lastDatumProcessedIndex to state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData(); // does not override lastProcessedDateTarget
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { lastDatumProcessedIndex: 2 }
+          );
+        });
+
+        it('should set the lastProcessedDateTarget to state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+          });
+
+          const expectedTargetDateTime = moment('2017-12-20T00:00:00.000Z').startOf('day').subtract(4, 'weeks').toISOString();
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData(); // does not override lastProcessedDateTarget
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { lastProcessedDateTarget: expectedTargetDateTime }
+          );
+        });
+
+        it('should apply a timezone offset to the lastProcessedDateTarget state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+            timePrefs: {
+              timezoneAware: true,
+              timezoneName: 'US/Eastern',
+            },
+          });
+
+          const expectedTargetDateTime = moment('2017-12-20T00:00:00.000Z').startOf('day').subtract(4, 'weeks').toISOString();
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData(); // does not override lastProcessedDateTarget
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { lastProcessedDateTarget: '2017-11-22T05:00:00.000Z' } // +5 hr offset for eastern time
+          );
+        });
+
+        it('should set the bgPrefs state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData(); // does not override lastProcessedDateTarget
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { bgPrefs: sinon.match.object }
+          );
+        });
+
+        it('should set the timePrefs state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData(); // does not override lastProcessedDateTarget
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { timePrefs: 'stubbed timePrefs' }
+          );
+        });
+
+        it('should set the loading and processingData states back to false at the end', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData(); // does not override lastProcessedDateTarget
+          sinon.assert.calledTwice(setStateSpy);
+
+          const firstCall = setStateSpy.getCall(0);
+          const secondCall = setStateSpy.getCall(1);
+
+          sinon.assert.calledWithMatch(
+            firstCall,
+            {
+              loading: true,
+              processingData: true,
+            },
+          );
+
+          sinon.assert.calledWithMatch(
+            secondCall,
+            {
+              loading: false,
+              processingData: false,
+            },
+          );
+
+          assert(setStateSpy.calledBefore(processPatientDataStub));
+          assert(setStateSpy.calledAfter(processPatientDataStub));
+        });
+
+        it('should set call the `handleInitialProcessedData` method after updating state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+          });
+
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData(); // does not override lastProcessedDateTarget
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledOnce(handleInitialProcessedDataStub);
+
+          const secondSetStateCall = setStateSpy.getCall(1);
+
+          assert(secondSetStateCall.calledBefore(handleInitialProcessedDataStub.getCall(0)));
+        });
+      });
+
+      context('processing subsequent data', () => {
+      });
     });
   });
 

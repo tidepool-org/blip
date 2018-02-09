@@ -437,6 +437,7 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
       return update(state, {
         [patientId]: { $set: null },
         [`${patientId}_cacheUntil`]: { $set: null },
+        [`${patientId}_fetchedUntil`]: { $set: null },
       });
     }
     case types.LOGOUT_REQUEST:

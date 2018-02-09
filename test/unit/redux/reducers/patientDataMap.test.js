@@ -153,9 +153,13 @@ describe('patientDataMap', () => {
           { value: 100 },
           { value: 20 }
         ],
+        'a1b2c3_fetchedUntil': '2018-02-01T00:00:00.000Z',
+        'a1b2c3_cacheUntil': 12345678910,
         d4e5f6: [
           { value: 34 }
-        ]
+        ],
+        'd4e5f6_fetchedUntil': '2018-02-01T00:00:00.000Z',
+        'd4e5f6_cacheUntil': 12345678910,
       };
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
@@ -163,13 +167,14 @@ describe('patientDataMap', () => {
 
       let action = actions.sync.clearPatientData(patientId);
 
-      expect(Object.keys(initialStateForTest).length).to.equal(2);
+      expect(Object.keys(initialStateForTest).length).to.equal(6);
 
       let state = reducer(initialStateForTest, action);
 
-      expect(Object.keys(state).length).to.equal(3);
+      expect(Object.keys(state).length).to.equal(6);
       expect(state[patientId]).to.be.null;
       expect(state[`${patientId}_cacheUntil`]).to.be.null;
+      expect(state[`${patientId}_fetchedUntil`]).to.be.null;
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
