@@ -241,7 +241,7 @@ describe('PatientInfo', function () {
   });
 
   describe('getDiagnosisText', function() {
-    it('should return unknown Dx date if less than 1 years old, or Dx date in future', function() {
+    it('should return unknown Dx date if less than 1 years old, or Dx date in future, and diagnosis type is not set', function() {
       var props = {
         patient: {
           userid: 1,
@@ -258,6 +258,26 @@ describe('PatientInfo', function () {
       expect(elem).to.be.ok;
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1983, 3, 20))).to.equal('Diagnosis date not known');
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1982, 4, 20))).to.equal('Diagnosis date not known');
+    });
+
+    it('should not return unknown Dx date if less than 1 years old, or Dx date in future, and diagnosis type is set', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              diagnosisDate: '1984-05-18',
+              diagnosisType: 'type1',
+            }
+          }
+        }
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      expect(elem).to.be.ok;
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1983, 3, 20))).to.equal('Diagnosed as Type 1');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1982, 4, 20))).to.equal('Diagnosed as Type 1');
     });
 
     it('should return text representing years difference', function() {
@@ -305,6 +325,98 @@ describe('PatientInfo', function () {
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
       elem.props.patient.profile.patient.diagnosisDate = '1984-05-29';
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 30 years ago');
+    });
+
+    it('should handle return correct text representation when both diagnosis type and date are available', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              diagnosisType: 'type1',
+              diagnosisDate: '1984-05-18',
+            },
+          },
+        },
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      expect(elem).to.be.ok;
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago as Type 1');
+    });
+
+    it('should handle return correct text representation when only diagnosis type is available', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              diagnosisType: 'type1',
+            },
+          },
+        },
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      expect(elem).to.be.ok;
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed as Type 1');
+    });
+
+    it('should handle return correct text representation when an invalid diagnosis type is provided, and no date is available', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              diagnosisType: 'imaginary',
+            },
+          },
+        },
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      expect(elem).to.be.ok;
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosis date not known');
+    });
+
+    it('should handle return correct text representation when an invalid diagnosis type is provided, and a date is available', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              diagnosisDate: '1984-05-18',
+              diagnosisType: 'imaginary',
+            },
+          },
+        },
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      expect(elem).to.be.ok;
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
+    });
+
+    it('should handle return correct text representation when only diagnosis date is available', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              diagnosisDate: '1984-05-18',
+            },
+          },
+        },
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      expect(elem).to.be.ok;
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
     });
   });
 
@@ -421,6 +533,27 @@ describe('PatientInfo', function () {
       expect(formValues.diagnosisDate).to.equal('06/05/2006');
     });
 
+    it('should return object containing diagnosisType', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              diagnosisType: 'type1'
+            }
+          }
+        }
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+
+      var formValues = elem.formValuesFromPatient(elem.props.patient);
+
+      expect(Object.keys(formValues).length).to.equal(1);
+      expect(formValues.diagnosisType).to.equal('type1');
+    });
+
     it('should return object containing about', function() {
       var props = {
         patient: {
@@ -442,7 +575,7 @@ describe('PatientInfo', function () {
       expect(formValues.about).to.equal('I have a wonderful coffee mug.');
     });
 
-    it('should return object containing fullName, birthday, diagnosisDate and about', function() {
+    it('should return object containing fullName, birthday, diagnosisDate, diagnosisType and about', function() {
       var props = {
         patient: {
           userid: 1,
@@ -451,6 +584,7 @@ describe('PatientInfo', function () {
             patient: {
               birthday: '1995-05-01',
               diagnosisDate: '2006-06-05',
+              diagnosisType: 'type1',
               about: 'I have a wonderful coffee mug.'
             }
           }
@@ -462,10 +596,11 @@ describe('PatientInfo', function () {
 
       var formValues = elem.formValuesFromPatient(elem.props.patient);
 
-      expect(Object.keys(formValues).length).to.equal(4);
+      expect(Object.keys(formValues).length).to.equal(5);
       expect(formValues.fullName).to.equal('Joe Bloggs');
       expect(formValues.birthday).to.equal('05/01/1995');
       expect(formValues.diagnosisDate).to.equal('06/05/2006');
+      expect(formValues.diagnosisType).to.equal('type1');
       expect(formValues.about).to.equal('I have a wonderful coffee mug.');
     });
   });
@@ -628,6 +763,23 @@ describe('PatientInfo', function () {
       expect(result.profile.patient.diagnosisDate).to.equal('2016-02-29');
     });
 
+    it('should remove empty diagnosisType field', function() {
+      var props = {
+        patient: {
+          profile : {},
+        },
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var formValues = {
+        diagnosisType: '',
+      };
+      var result = elem.prepareFormValuesForSubmit(formValues);
+
+      expect(result.profile.patient.diagnosisType).to.be.an('undefined');
+    });
+
     it('should remove empty about field', function() {
       var props = {
         patient: {
@@ -657,13 +809,48 @@ describe('PatientInfo', function () {
       var formValues = {
         about: 'I am a testing developer.',
         birthday: '02-02-1990',
-        diagnosisDate: '04-05-2001'
+        diagnosisDate: '04-05-2001',
+        diagnosisType: 'type1',
       };
       var result = elem.prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.about).to.equal('I am a testing developer.');
       expect(result.profile.patient.birthday).to.equal('1990-02-02');
       expect(result.profile.patient.diagnosisDate).to.equal('2001-04-05');
+      expect(result.profile.patient.diagnosisType).to.equal('type1');
+    });
+  });
+
+  describe('renderDiagnosisTypeInput', function() {
+    let props = {
+      patient: { userid: 1234 },
+      user: { userid: 1234 },
+    };
+
+    let wrapper;
+    beforeEach(() => {
+      wrapper = mount(<PatientInfo {...props} />);
+      wrapper.setState({ editing: true });
+    });
+
+    it('should render the renderDiagnosisTypeInput select while in editing mode', function() {
+      expect(wrapper.find('select#diagnosisType')).to.have.length(1);
+    });
+
+    it('should set the value of renderDiagnosisTypeInput select if available in the patient prop', function() {
+      wrapper.setProps({
+        patient: {
+          userid: 1234,
+          profile: {
+            patient: {
+              diagnosisType: 'type1',
+            },
+          },
+        },
+      });
+
+      const select = wrapper.find('select#diagnosisType');
+      expect(select.props().defaultValue).to.equal('type1');
     });
   });
 

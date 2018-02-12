@@ -507,6 +507,10 @@ var PatientInfo = React.createClass({
       if (diagnosisTypeLabel) {
         diagnosisTypeText = ` as ${diagnosisTypeLabel}`;
       }
+      else if (!diagnosisDate) {
+        startText = '';
+        diagnosisDateText = 'Diagnosis date not known';
+      }
     }
 
     return `${startText}${diagnosisDateText}${diagnosisTypeText}`;
