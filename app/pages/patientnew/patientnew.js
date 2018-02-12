@@ -87,7 +87,7 @@ export let PatientNew = React.createClass({
         label: `How do you describe ${isOtherPerson ? 'their' : 'your'} diabetes?`,
         type: 'select',
         multi: false,
-        value: this.state.formValues.dataDonateDestination,
+        value: this.state.formValues.diagnosisType,
         placeholder: 'Choose One',
         items: DIABETES_TYPES,
       },
