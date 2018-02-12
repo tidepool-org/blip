@@ -33,8 +33,9 @@ import { getDonationAccountCodeFromEmail } from '../../core/utils';
 
 import {
   DATA_DONATION_NONPROFITS,
-  URL_BIG_DATA_DONATION_INFO,
+  DIABETES_TYPES,
   TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
+  URL_BIG_DATA_DONATION_INFO,
 } from '../../core/constants';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
@@ -50,6 +51,8 @@ export let PatientNew = React.createClass({
   },
 
   getFormInputs: function() {
+    const isOtherPerson = this.state.formValues.isOtherPerson;
+
     return [
       {
         name: 'isOtherPerson',
@@ -67,7 +70,7 @@ export let PatientNew = React.createClass({
       {
         name: 'about',
         type: 'textarea',
-        placeholder: 'Share a bit about yourself or this person.',
+        placeholder: `Share a bit about ${isOtherPerson ? 'this person' : 'yourself'}.`,
       },
       {
         name: 'birthday',
@@ -80,8 +83,17 @@ export let PatientNew = React.createClass({
         type: 'datepicker',
       },
       {
+        name: 'diagnosisType',
+        label: `How do you describe ${isOtherPerson ? 'their' : 'your'} diabetes?`,
+        type: 'select',
+        multi: false,
+        value: this.state.formValues.dataDonateDestination,
+        placeholder: 'Choose One',
+        items: DIABETES_TYPES,
+      },
+      {
         name: 'dataDonate',
-        label: 'Donate my anonymized data',
+        label: `Donate ${isOtherPerson ? 'their' : 'my'} anonymized data`,
         disabled: !_.isEmpty(this.state.formValues.dataDonateDestination),
         value: this.state.formValues.dataDonate,
         type: 'checkbox',
@@ -324,6 +336,10 @@ export let PatientNew = React.createClass({
 
     if (formValues.about) {
       patient.about = formValues.about;
+    }
+
+    if (formValues.diagnosisType) {
+      patient.diagnosisType = formValues.diagnosisType;
     }
 
     if (formValues.isOtherPerson) {
