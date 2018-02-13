@@ -5,7 +5,7 @@
 
 .loaderDots {
   opacity: 1;
-  transition: opacity .5s ease;
+  transition: opacity .25s ease;
   display: flex;
   position: absolute;
   z-index: 10;
