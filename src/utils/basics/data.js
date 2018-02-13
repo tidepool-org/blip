@@ -21,14 +21,17 @@ import sundial from 'sundial';
 import crossfilter from 'crossfilter';
 
 import generateClassifiers from '../classifiers';
-import { generateBgRangeLabels } from '../bloodglucose';
+import {
+  generateBgRangeLabels,
+  weightedCGMCount,
+} from '../bloodglucose';
 
 import {
   BGM_DATA_KEY,
   CGM_DATA_KEY,
   MS_IN_DAY,
   MS_IN_HOUR,
-  CGM_IN_DAY,
+  CGM_READINGS_ONE_DAY,
   NOT_ENOUGH_CGM,
   CGM_CALCULATED,
   NO_CGM,
@@ -63,11 +66,11 @@ export function determineBgDistributionSource(basicsData) {
   };
 
   if (cgmAvailable) {
-    const count = basicsData.data[CGM_DATA_KEY].data.length;
+    const cbgCount = weightedCGMCount(basicsData.data[CGM_DATA_KEY].data);
     const spanInDays = (Date.parse(basicsData.dateRange[1]) -
       Date.parse(basicsData.dateRange[0])) / MS_IN_DAY;
 
-    if (count < (CGM_IN_DAY / 2 * spanInDays)) {
+    if (cbgCount < CGM_READINGS_ONE_DAY / 2 * spanInDays) {
       bgSource.cgmStatus = NOT_ENOUGH_CGM;
     } else {
       bgSource.cgmStatus = CGM_CALCULATED;
