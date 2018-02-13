@@ -153,6 +153,30 @@ const immediatelyCancelledExtended = {
   normalTime: '2017-11-11T05:45:52.000Z',
 };
 
+const extendedAnimas = {
+  extended: 1.2,
+  duration: 18000000,
+  normalTime: '2017-11-11T05:45:52.000Z',
+  annotations: [
+    { code: 'animas/bolus/extended-equal-split' },
+  ],
+};
+
+const extendedAnimasUnderride = {
+  type: 'wizard',
+  bolus: {
+    extended: 1.2,
+    duration: 18000000,
+    normalTime: '2017-11-11T05:45:52.000Z',
+    annotations: [
+      { code: 'animas/bolus/extended-equal-split' },
+    ],
+  },
+  recommended: {
+    correction: 3.5,
+  },
+};
+
 const extendedUnderride = {
   type: 'wizard',
   bolus: {
@@ -440,6 +464,18 @@ storiesOf('BolusTooltip', module)
     <div>
       {refDiv}
       <BolusTooltip {...props} bolus={immediatelyCancelledExtended} />
+    </div>
+  ))
+  .add('extendedAnimas', () => (
+    <div>
+      {refDiv}
+      <BolusTooltip {...props} bolus={extendedAnimas} />
+    </div>
+  ))
+  .add('extendedAnimasUnderride', () => (
+    <div>
+      {refDiv}
+      <BolusTooltip {...props} bolus={extendedAnimasUnderride} />
     </div>
   ))
   .add('extendedUnderride', () => (

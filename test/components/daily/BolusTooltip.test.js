@@ -171,6 +171,30 @@ const immediatelyCancelledExtended = {
   normalTime: '2017-11-11T05:45:52.000Z',
 };
 
+const extendedAnimas = {
+  extended: 1.2,
+  duration: 18000000,
+  normalTime: '2017-11-11T05:45:52.000Z',
+  annotations: [
+    { code: 'animas/bolus/extended-equal-split' },
+  ],
+};
+
+const extendedAnimasUnderride = {
+  type: 'wizard',
+  bolus: {
+    extended: 1.2,
+    duration: 18000000,
+    normalTime: '2017-11-11T05:45:52.000Z',
+    annotations: [
+      { code: 'animas/bolus/extended-equal-split' },
+    ],
+  },
+  recommended: {
+    correction: 3.5,
+  },
+};
+
 const extendedUnderride = {
   type: 'wizard',
   bolus: {
@@ -223,6 +247,26 @@ const withMedtronicTarget = {
   bgTarget: {
     low: 60,
     high: 180,
+  },
+  bolus: {
+    normal: 5,
+    normalTime: '2017-11-11T05:45:52.000Z',
+  },
+  recommended: {
+    carb: 5,
+    correction: 0,
+    net: 5,
+  },
+  carbInput: 75,
+  insulinCarbRatio: 15,
+};
+
+const withMedtronicSameTarget = {
+  type: 'wizard',
+  bgInput: 180,
+  bgTarget: {
+    low: 100,
+    high: 100,
   },
   bolus: {
     normal: 5,
@@ -422,6 +466,24 @@ describe('BolusTooltip', () => {
   });
 
   // eslint-disable-next-line max-len
+  it('should render delivered, extended and annotation for extended Animas bolus', () => {
+    const wrapper = mount(<BolusTooltip {...props} bolus={extendedAnimas} />);
+    expect(wrapper.find(formatClassesAsSelector(styles.delivered))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.extended))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.annotation))).to.have.length(1);
+  });
+
+  // eslint-disable-next-line max-len
+  it('should render suggested, override, delivered, extended and annotation for extended underride Animas bolus', () => {
+    const wrapper = mount(<BolusTooltip {...props} bolus={extendedAnimasUnderride} />);
+    expect(wrapper.find(formatClassesAsSelector(styles.suggested))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.override))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.delivered))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.extended))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.annotation))).to.have.length(1);
+  });
+
+  // eslint-disable-next-line max-len
   it('should render suggested, override, delivered and extended for extended underide bolus', () => {
     const wrapper = mount(<BolusTooltip {...props} bolus={extendedUnderride} />);
     expect(wrapper.find(formatClassesAsSelector(styles.suggested))).to.have.length(1);
@@ -451,6 +513,11 @@ describe('BolusTooltip', () => {
       const wrapper = mount(<BolusTooltip {...props} bolus={withMedtronicTarget} />);
       expect(shallow(wrapper.instance().getTarget()).type()).to.equal('div');
       expect(wrapper.find(targetValue).text()).to.equal('60-180');
+    });
+    it('should return a single div and single value for Medtronic style same value target', () => {
+      const wrapper = mount(<BolusTooltip {...props} bolus={withMedtronicSameTarget} />);
+      expect(shallow(wrapper.instance().getTarget()).type()).to.equal('div');
+      expect(wrapper.find(targetValue).text()).to.equal('100');
     });
     it('should return an array for Animas style target', () => {
       const wrapper = mount(<BolusTooltip {...props} bolus={withAnimasTarget} />);
@@ -485,6 +552,68 @@ describe('BolusTooltip', () => {
       const wrapper = mount(<BolusTooltip {...props} bolus={normalPrecise} />);
       expect(wrapper.instance().formatInsulin(normalPrecise.normal)).to.equal('5.05');
       expect(wrapper.find(insulinValue).text()).to.equal('5.05');
+    });
+  });
+
+  describe('isAnimasExtended', () => {
+    it('should return true if annotations include Animas extended equal split', () => {
+      const wrapper = mount(<BolusTooltip {...props} bolus={extendedAnimas} />);
+      expect(wrapper.instance().isAnimasExtended()).to.be.true;
+    });
+    it('should return false for non-annotated boluse', () => {
+      const wrapper = mount(<BolusTooltip {...props} bolus={normal} />);
+      expect(wrapper.instance().isAnimasExtended()).to.be.false;
+    });
+    it('should return false for non-Animas annotated boluse', () => {
+      const wrapper = mount(<BolusTooltip
+        {...props}
+        bolus={
+          _.extend(
+            normal, { annotations: [{ code: 'some/awesome-annotation' }] }
+          )
+        }
+      />);
+      expect(wrapper.instance().isAnimasExtended()).to.be.false;
+    });
+  });
+
+  describe('getExtended', () => {
+    const extendedStyle = formatClassesAsSelector(styles.extended);
+    const normalStyle = formatClassesAsSelector(styles.normal);
+    const label = formatClassesAsSelector(styles.label);
+    it('should return a single div for Animas extended', () => {
+      const wrapper = mount(<BolusTooltip {...props} bolus={extendedAnimas} />);
+      expect(shallow(wrapper.instance().getExtended()).type()).to.equal('div');
+      expect(wrapper.find(`${extendedStyle} ${label}`).text()).to.equal('Extended Over*');
+    });
+    it('should return an array for normal extended', () => {
+      const wrapper = mount(<BolusTooltip {...props} bolus={extended} />);
+      expect(_.isArray(wrapper.instance().getExtended())).to.be.true;
+      expect(wrapper.instance().getExtended().length).to.equal(2);
+      expect(wrapper.instance().getExtended()[0]).to.be.false;
+      expect(wrapper.find(`${extendedStyle} ${label}`).text()).to.equal('Over 1 hr ');
+    });
+    it('should return an array for combo extended', () => {
+      const wrapper = mount(<BolusTooltip {...props} bolus={combo} />);
+      expect(_.isArray(wrapper.instance().getExtended())).to.be.true;
+      expect(wrapper.instance().getExtended().length).to.equal(2);
+      expect(wrapper.find(`${normalStyle} ${label}`).text()).to.equal('Up Front (33%)');
+      expect(wrapper.find(`${extendedStyle} ${label}`).text()).to.equal('Over 1 hr (67%)');
+    });
+    it('should return null for normal bolus', () => {
+      const wrapper = mount(<BolusTooltip {...props} bolus={normal} />);
+      expect(wrapper.instance().getExtended()).to.be.null;
+    });
+  });
+
+  describe('animasExtendedAnnotationMessage', () => {
+    it('should return a div for Animas extended', () => {
+      const wrapper = mount(<BolusTooltip {...props} bolus={extendedAnimas} />);
+      expect(shallow(wrapper.instance().animasExtendedAnnotationMessage()).type()).to.equal('div');
+    });
+    it('should return null for normal bolus', () => {
+      const wrapper = mount(<BolusTooltip {...props} bolus={normal} />);
+      expect(wrapper.instance().animasExtendedAnnotationMessage()).to.be.null;
     });
   });
 });

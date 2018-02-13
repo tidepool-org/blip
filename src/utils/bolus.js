@@ -343,3 +343,15 @@ export function isOverride(insulinEvent) {
 export function isUnderride(insulinEvent) {
   return getRecommended(insulinEvent) > getProgrammed(insulinEvent);
 }
+
+/**
+ * getAnnoations
+ * @param {Object} insulinEvent - a Tidebool bolus or wizard object
+ *
+ * @returns {Array} array of annotations for the bolus or an empty array
+ */
+export function getAnnotations(insulinEvent) {
+  const bolus = getBolusFromInsulinEvent(insulinEvent);
+  const annotations = _.get(bolus, 'annotations', []);
+  return annotations;
+}

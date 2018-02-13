@@ -36,6 +36,26 @@ class BolusTooltip extends PureComponent {
     return formatDecimalNumber(qty, decimalLength);
   }
 
+  isAnimasExtended() {
+    const annotations = bolusUtils.getAnnotations(this.props.bolus);
+    const isAnimasExtended =
+      _.findIndex(annotations, { code: 'animas/bolus/extended-equal-split' }) !== -1;
+    return isAnimasExtended;
+  }
+
+  animasExtendedAnnotationMessage() {
+    let content = null;
+    if (this.isAnimasExtended()) {
+      content = (
+        <div className={styles.annotation}>
+          * Animas pumps don't capture the details of how combo boluses are split between the normal
+          and extended amounts.
+        </div>
+      );
+    }
+    return content;
+  }
+
   getTarget() {
     const wizardTarget = _.get(this.props.bolus, 'bgTarget');
     const target = _.get(wizardTarget, 'target', null);
@@ -98,6 +118,48 @@ class BolusTooltip extends PureComponent {
     );
   }
 
+  getExtended() {
+    const bolus = bolusUtils.getBolusFromInsulinEvent(this.props.bolus);
+    const hasExtended = bolusUtils.hasExtended(bolus);
+    const normalPercentage = bolusUtils.getNormalPercentage(bolus);
+    const normal = _.get(bolus, 'normal', NaN);
+    const isAnimasExtended = this.isAnimasExtended();
+    const extendedPercentage = _.isNaN(bolusUtils.getExtendedPercentage(bolus))
+      ? ''
+      : `(${bolusUtils.getExtendedPercentage(bolus)})`;
+    let extendedLine = null;
+    if (hasExtended) {
+      if (isAnimasExtended) {
+        extendedLine = (
+          <div className={styles.extended}>
+            <div className={styles.label}>Extended Over*</div>
+            <div className={styles.value}>{formatDuration(bolusUtils.getDuration(bolus))}</div>
+          </div>
+        );
+      } else {
+        extendedLine = [
+          !!normal && (
+            <div className={styles.normal} key={'normal'}>
+              <div className={styles.label}>{`Up Front (${normalPercentage})`}</div>
+              <div className={styles.value}>{`${this.formatInsulin(normal)}`}</div>
+              <div className={styles.units}>U</div>
+            </div>
+          ),
+          <div className={styles.extended} key={'extended'}>
+            <div className={styles.label}>
+              {`Over ${formatDuration(bolusUtils.getDuration(bolus))} ${extendedPercentage}`}
+            </div>
+            <div className={styles.value}>
+              {`${this.formatInsulin(bolusUtils.getExtended(bolus))}`}
+            </div>
+            <div className={styles.units}>U</div>
+          </div>,
+        ];
+      }
+    }
+    return extendedLine;
+  }
+
   renderWizard() {
     const wizard = this.props.bolus;
     const recommended = bolusUtils.getRecommended(wizard);
@@ -112,20 +174,14 @@ class BolusTooltip extends PureComponent {
     const isInterrupted = bolusUtils.isInterruptedBolus(wizard);
     const programmed = bolusUtils.getProgrammed(wizard);
     const hasExtended = bolusUtils.hasExtended(wizard);
-    const normal = _.get(wizard, 'bolus.normal', NaN);
-    const normalPercentage = bolusUtils.getNormalPercentage(wizard);
-    const extendedPercentage = _.isNaN(bolusUtils.getExtendedPercentage(wizard))
-      ? ''
-      : `(${bolusUtils.getExtendedPercentage(wizard)})`;
+    const isAnimasExtended = this.isAnimasExtended();
 
     let overrideLine = null;
     if (bolusUtils.isOverride(wizard)) {
       overrideLine = (
         <div className={styles.override}>
           <div className={styles.label}>Override</div>
-          <div className={styles.value}>
-            {`+${this.formatInsulin(programmed - recommended)}`}
-          </div>
+          <div className={styles.value}>{`+${this.formatInsulin(programmed - recommended)}`}</div>
           <div className={styles.units}>U</div>
         </div>
       );
@@ -134,9 +190,7 @@ class BolusTooltip extends PureComponent {
       overrideLine = (
         <div className={styles.override}>
           <div className={styles.label}>Underride</div>
-          <div className={styles.value}>
-            {`-${this.formatInsulin(recommended - programmed)}`}
-          </div>
+          <div className={styles.value}>{`-${this.formatInsulin(recommended - programmed)}`}</div>
           <div className={styles.units}>U</div>
         </div>
       );
@@ -148,13 +202,14 @@ class BolusTooltip extends PureComponent {
         <div className={styles.units}>U</div>
       </div>
     );
-    const suggestedLine = (isInterrupted || overrideLine) && !!suggested && (
+    const suggestedLine = (isInterrupted || overrideLine) &&
+      !!suggested && (
       <div className={styles.suggested}>
         <div className={styles.label}>Suggested</div>
         <div className={styles.value}>{this.formatInsulin(suggested)}</div>
         <div className={styles.units}>U</div>
       </div>
-    );
+      );
     const bgLine = !!bg && (
       <div className={styles.bg}>
         <div className={styles.label}>BG</div>
@@ -183,38 +238,22 @@ class BolusTooltip extends PureComponent {
         <div className={styles.units}>U</div>
       </div>
     );
-    const icRatioLine = !!carbsInput && !!carbRatio && (
+    const icRatioLine = !!carbsInput &&
+      !!carbRatio && (
       <div className={styles.carbRatio}>
         <div className={styles.label}>I:C Ratio</div>
         <div className={styles.value}>{`1:${carbRatio}`}</div>
         <div className={styles.units} />
       </div>
-    );
-    const isfLine = !!isf && !!bg && (
+      );
+    const isfLine = !!isf &&
+      !!bg && (
       <div className={styles.isf}>
         <div className={styles.label}>ISF</div>
         <div className={styles.value}>{`${isf}`}</div>
         <div className={styles.units} />
       </div>
-    );
-    const extendedLine = hasExtended && [
-      !!normal && (
-        <div className={styles.normal} key={'normal'}>
-          <div className={styles.label}>{`Up Front (${normalPercentage})`}</div>
-          <div className={styles.value}>{`${this.formatInsulin(normal)}`}</div>
-          <div className={styles.units}>U</div>
-        </div>
-      ),
-      <div className={styles.extended} key={'extended'}>
-        <div className={styles.label}>
-          {`Over ${formatDuration(bolusUtils.getDuration(wizard))} ${extendedPercentage}`}
-        </div>
-        <div className={styles.value}>
-          {`${this.formatInsulin(bolusUtils.getExtended(wizard))}`}
-        </div>
-        <div className={styles.units}>U</div>
-      </div>,
-    ];
+      );
 
     return (
       <div className={styles.container}>
@@ -222,15 +261,18 @@ class BolusTooltip extends PureComponent {
         {carbsLine}
         {iobLine}
         {suggestedLine}
-        {extendedLine}
+        {this.getExtended()}
         {(isInterrupted || overrideLine || hasExtended) && <div className={styles.dividerSmall} />}
         {overrideLine}
         {interruptedLine}
         {deliveredLine}
-        {(icRatioLine || isfLine || bg) && <div className={styles.dividerLarge} />}
+        {(icRatioLine || isfLine || bg || isAnimasExtended) && (
+          <div className={styles.dividerLarge} />
+        )}
         {icRatioLine}
         {isfLine}
         {!!bg && this.getTarget()}
+        {this.animasExtendedAnnotationMessage()}
       </div>
     );
   }
@@ -240,12 +282,8 @@ class BolusTooltip extends PureComponent {
     const delivered = bolusUtils.getDelivered(bolus);
     const isInterrupted = bolusUtils.isInterruptedBolus(bolus);
     const programmed = bolusUtils.getProgrammed(bolus);
-    const hasExtended = bolusUtils.hasExtended(bolus);
-    const normal = _.get(bolus, 'normal', NaN);
-    const normalPercentage = bolusUtils.getNormalPercentage(bolus);
-    const extendedPercentage = _.isNaN(bolusUtils.getExtendedPercentage(bolus))
-      ? ''
-      : `(${bolusUtils.getExtendedPercentage(bolus)})`;
+    const isAnimasExtended = this.isAnimasExtended();
+
     const deliveredLine = _.isFinite(delivered) && (
       <div className={styles.delivered}>
         <div className={styles.label}>Delivered</div>
@@ -267,32 +305,16 @@ class BolusTooltip extends PureComponent {
         <div className={styles.value}>{`${this.formatInsulin(programmed)}`}</div>
         <div className={styles.units}>U</div>
       </div>
-    );
-    const extendedLine = hasExtended && [
-      !!normal && (
-        <div className={styles.normal} key={'normal'}>
-          <div className={styles.label}>{`Up Front (${normalPercentage})`}</div>
-          <div className={styles.value}>{`${this.formatInsulin(normal)}`}</div>
-          <div className={styles.units}>U</div>
-        </div>
-      ),
-      <div className={styles.extended} key={'extended'}>
-        <div className={styles.label}>
-          {`Over ${formatDuration(bolusUtils.getDuration(bolus))} ${extendedPercentage}`}
-        </div>
-        <div className={styles.value}>
-          {`${this.formatInsulin(bolusUtils.getExtended(bolus))}`}
-        </div>
-        <div className={styles.units}>U</div>
-      </div>,
-    ];
+      );
 
     return (
       <div className={styles.container}>
         {programmedLine}
         {interruptedLine}
         {deliveredLine}
-        {extendedLine}
+        {this.getExtended()}
+        {isAnimasExtended && <div className={styles.dividerLarge} />}
+        {this.animasExtendedAnnotationMessage()}
       </div>
     );
   }
