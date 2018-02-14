@@ -52,7 +52,7 @@ export class Terms extends React.Component {
   static defaultProps = {
     ages: {
       OF_AGE: {value: '>=18', label: ' I am 18 years old or older.'},
-      WITH_CONSENT: {value: '13-17', label: ' I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms on the next screen.' },
+      WITH_CONSENT: {value: '13-17', label: ' I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms below.' },
       NOT_OF_AGE: {value: '<=12', label: ' I am 12 years old or younger.'}
     },
     messages: {

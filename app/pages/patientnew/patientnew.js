@@ -58,8 +58,8 @@ export let PatientNew = React.createClass({
         name: 'isOtherPerson',
         type: 'radios',
         items: [
-          {value: false, label: 'This is for me, I have type 1 diabetes'},
-          {value: true, label: 'This is for someone I care for who has type 1 diabetes'}
+          {value: false, label: 'This is for me, I have diabetes'},
+          {value: true, label: 'This is for someone I care for who has diabetes'}
         ],
       },
       {
