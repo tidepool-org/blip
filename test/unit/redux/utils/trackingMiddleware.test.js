@@ -90,12 +90,21 @@ describe('trackingMiddleware', () => {
 
   it('should call the metrics api for SETUP_DATA_STORAGE_SUCCESS', () => {
     const createdProfile = {
-      type: ActionTypes.SETUP_DATA_STORAGE_SUCCESS
+      type: ActionTypes.SETUP_DATA_STORAGE_SUCCESS,
+      payload: {
+        patient: {
+          profile: {
+            patient: {
+              diagnosisType: 'type1',
+            },
+          },
+        },
+      },
     };
     expect(api.metrics.track.callCount).to.equal(0);
     trackingMiddleware(api)(getStateObj)(next)(createdProfile);
     expect(api.metrics.track.callCount).to.equal(1);
-    expect(api.metrics.track.calledWith('Created Profile')).to.be.true;
+    sinon.assert.calledWith(api.metrics.track, 'Created Profile', { 'Diabetes Type': 'type1' });
   });
 
   it('should call the metrics api for UPDATE_PATIENT_SUCCESS', () => {

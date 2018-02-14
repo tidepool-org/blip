@@ -22,7 +22,6 @@ import * as ActionTypes from '../constants/actionTypes';
 
 const trackMetricMap = {
   LOGIN_SUCCESS: 'Logged In',
-  SETUP_DATA_STORAGE_SUCCESS: 'Created Profile',
   UPDATE_PATIENT_SUCCESS: 'Updated Profile',
   UPDATE_USER_SUCCESS: 'Updated Account',
   LOGOUT_REQUEST: 'Logged Out',
@@ -30,6 +29,10 @@ const trackMetricMap = {
 };
 
 const interpretMetricMap = {
+  SETUP_DATA_STORAGE_SUCCESS: function(action) {
+    const diagnosisType = _.get(action, 'payload.patient.profile.patient.diagnosisType');
+    return { eventName: 'Created Profile', properties: diagnosisType ? { 'Diabetes Type': diagnosisType } : null };
+  },
   SIGNUP_SUCCESS: function(action) {
     const user = _.get(action, 'payload.user');
     const roles = _.get(user, 'roles');

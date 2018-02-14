@@ -36,6 +36,7 @@
 .PatientInfo-picture {
   float: left;
   margin-right: 30px;
+  margin-top: 5px;
 
   background-image: url('images/profile-180x180.png');
   background-repeat: no-repeat;
@@ -146,9 +147,6 @@ a.PatientInfo-block {
   color: @gray-darker;
   background-color: @gray-lighter;
 
-  // Remove inset shadow in iOS
-  -webkit-appearance: none;
-
   &:hover {
     border-color: darken(@gray-darker, 15%);
   }
@@ -160,10 +158,29 @@ a.PatientInfo-block {
     border-color: @blue-green;
   }
 
+  select& {
+    border-radius: 0px;
+    border: 0;
+    outline: 1px dashed #6d6d6d;
+    outline-offset: -1px;
+
+    &:focus {
+      outline: 1px dashed @blue-green;
+    }
+  }
+
   textarea& {
+    // Remove inset shadow in iOS
+    -webkit-appearance: none;
+
     height: auto;
     display: block;
     width: 100%;
+  }
+
+  input& {
+    // Remove inset shadow in iOS
+    -webkit-appearance: none;
   }
 }
 
