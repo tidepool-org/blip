@@ -949,6 +949,31 @@ export function fetchDataSourcesFailure(error, apiError) {
   };
 }
 
+export function fetchServerTimeRequest() {
+  return {
+    type: ActionTypes.FETCH_SERVER_TIME_REQUEST,
+  };
+}
+
+export function fetchServerTimeSuccess(serverTime) {
+  return {
+    type: ActionTypes.FETCH_SERVER_TIME_SUCCESS,
+    payload: {
+      serverTime,
+    },
+  };
+}
+
+export function fetchServerTimeFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_SERVER_TIME_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function connectDataSourceRequest() {
   return {
     type: ActionTypes.CONNECT_DATA_SOURCE_REQUEST,

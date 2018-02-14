@@ -891,8 +891,6 @@ export function fetchPatients(api) {
 export function fetchPatientData(api, options, id) {
   // Default to only selecting the most recent 8 weeks of data
   _.defaults(options, {
-    startDate: moment.utc().subtract(8, 'weeks').startOf('day').toISOString(),
-    endDate: moment.utc().toISOString(),
     useCache: true,
     initial: true,
   });
@@ -903,58 +901,89 @@ export function fetchPatientData(api, options, id) {
       return null;
     }
 
-    dispatch(sync.fetchPatientDataRequest());
+    if (options.initial) {
+      // On the initial fetch, we want to use the server time if we can in case the user's local
+      // computer time is off and set the endDate to one day in the future since we can get `time`
+      // fields that are slightly in the future due to incorrect device time and/or computer time
+      // upon upload.
+      dispatch(sync.fetchServerTimeRequest());
+      api.server.getTime((err, results) => {
+        let serverTime;
 
-    async.parallel({
-      patientData: api.patientData.get.bind(api, id, options),
-      teamNotes: api.team.getNotes.bind(api, id, _.assign({}, options, {
-        start: options.startDate,
-        end: options.endDate,
-      })),
-    }, (err, results) => {
-      if (err) {
-        dispatch(sync.fetchPatientDataFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
-        ));
-      }
-      else {
-        const patientData = results.patientData || [];
-        const notes = results.teamNotes || [];
+        if (err) {
+          dispatch(sync.fetchServerTimeFailure(
+            createActionError(ErrorMessages.ERR_FETCHING_SERVER_TIME, err), err
+          ));
+        }
+        else {
+          serverTime = _.get(results, 'data.time');
+          dispatch(sync.fetchServerTimeSuccess(serverTime));
+        }
 
-        if (options.initial) {
-          const range = utils.getDiabetesDataRange(patientData);
-          const minWeeks = 4;
+        options.startDate = moment.utc(serverTime).subtract(8, 'weeks').startOf('day').toISOString();
+        options.endDate = moment.utc(serverTime).add(1, 'days').toISOString();
 
-          if (range.spanInDays) {
-            const minStartDate = moment.utc(range.end).subtract(minWeeks, 'weeks').startOf('day').toISOString();
+        fetchData(options);
+      });
+    }
+    else {
+      fetchData(options);
+    }
 
-            if (range.spanInDays / 7 >= minWeeks) {
-              // We have enough data for the initial rendering.
-              dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, minStartDate));
+    function fetchData(options) {
+      dispatch(sync.fetchPatientDataRequest());
+
+      async.parallel({
+        patientData: api.patientData.get.bind(api, id, options),
+        teamNotes: api.team.getNotes.bind(api, id, _.assign({}, options, {
+          start: options.startDate,
+          end: options.endDate,
+        })),
+      }, (err, results) => {
+        if (err) {
+          dispatch(sync.fetchPatientDataFailure(
+            createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
+          ));
+        }
+        else {
+          const patientData = results.patientData || [];
+          const notes = results.teamNotes || [];
+
+          if (options.initial) {
+            const range = utils.getDiabetesDataRange(patientData);
+            const minWeeks = 4;
+
+            if (range.spanInDays) {
+              const minStartDate = moment.utc(range.end).subtract(minWeeks, 'weeks').startOf('day').toISOString();
+
+              if (range.spanInDays / 7 >= minWeeks) {
+                // We have enough data for the initial rendering.
+                dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, minStartDate));
+              }
+              else {
+                // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
+                dispatch(fetchPatientData(api, _.assign({}, options, {
+                  initial: false,
+                  startDate: minStartDate,
+                }), id));
+              }
             }
             else {
-              // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
+              // No data in first pull. Pull all data.
               dispatch(fetchPatientData(api, _.assign({}, options, {
                 initial: false,
-                startDate: minStartDate,
+                startDate: null,
               }), id));
             }
           }
           else {
-            // No data in first pull. Pull all data.
-            dispatch(fetchPatientData(api, _.assign({}, options, {
-              initial: false,
-              startDate: null,
-            }), id));
+            // Always dispatch the result if we're beyond the first data fetch
+            dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, options.startDate));
           }
         }
-        else {
-          // Always dispatch the result if we're beyond the first data fetch
-          dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, options.startDate));
-        }
-      }
-    });
-  };
+      });
+    };
+  }
 }
 
 /**

@@ -35,6 +35,7 @@ api.init = function(cb) {
   var tidepoolLog = bows('Tidepool');
   tidepool = createTidepoolClient({
     host: config.API_HOST,
+    dataHost: config.API_HOST + '/dataservices',
     uploadApi: config.UPLOAD_API,
     log: {
       warn: tidepoolLog,
@@ -51,6 +52,18 @@ api.init = function(cb) {
   tidepool.initialize(function() {
     api.log('Initialized');
     cb();
+  });
+};
+
+// ----- Server -----
+api.server = {};
+
+api.server.getTime = function(cb) {
+  tidepool.getTime(function(err, data) {
+    if (err) {
+      return cb(err);
+    }
+    cb(null, data);
   });
 };
 
