@@ -1,6 +1,10 @@
 {
   "name": "blip",
+<<<<<<< HEAD
   "version": "1.9.6-update-data-partners.1",
+=======
+  "version": "1.9.6",
+>>>>>>> master
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
