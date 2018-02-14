@@ -26,6 +26,7 @@ import PatientSettings from './patientsettings';
 import PatientBgUnits from '../../components/patientBgUnits';
 import DonateForm from '../../components/donateform';
 import DataSources from '../../components/datasources';
+import { DIABETES_TYPES } from '../../core/constants';
 
 //date masks we use
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
@@ -227,6 +228,7 @@ var PatientInfo = React.createClass({
               {this.renderFullNameInput(formValues)}
               {this.renderBirthdayInput(formValues)}
               {this.renderDiagnosisDateInput(formValues)}
+              {this.renderDiagnosisTypeInput(formValues)}
             </div>
           </div>
           {this.renderAboutInput(formValues)}
@@ -301,6 +303,32 @@ var PatientInfo = React.createClass({
         <label className="PatientInfo-label" htmlFor="diagnosisDate">Date of diagnosis</label>
         <input className={classes} id="diagnosisDate" ref="diagnosisDate" placeholder={FORM_DATE_FORMAT} defaultValue={formValues.diagnosisDate} />
         {errorElem}
+      </div>
+    </div>);
+  },
+
+  renderDiagnosisTypeInput: function(formValues) {
+    var classes = 'PatientInfo-input';
+    var types = _.clone(DIABETES_TYPES);
+    types.unshift({
+      value: '',
+      label: 'Choose One'
+    });
+    var options = _.map(types, function(item) {
+      return <option key={item.value} value={item.value}>{item.label}</option>;
+    });
+    return (<div className="PatientInfo-blockRow">
+      <div className="">
+        <label className="PatientInfo-label" htmlFor="diagnosisType">Diagnosed as</label>
+        <select
+          id="diagnosisType"
+          ref="diagnosisType"
+          placeholder='Choose one'
+          className={classes}
+          name="diabetesType"
+          defaultValue={formValues.diagnosisType}>
+          {options}
+        </select>
       </div>
     </div>);
   },
@@ -444,26 +472,48 @@ var PatientInfo = React.createClass({
   getDiagnosisText: function(patient, currentDate) {
     var patientInfo = personUtils.patientInfo(patient) || {};
     var diagnosisDate = patientInfo.diagnosisDate;
+    var diagnosisType = patientInfo.diagnosisType;
+    var startText = 'Diagnosed';
+    var diagnosisDateText = '';
+    var diagnosisTypeText = '';
+    var yearsAgo;
 
-    if (!diagnosisDate) {
+    if (!diagnosisDate && !diagnosisType) {
       return;
     }
 
     var now = new Date();
     currentDate = currentDate || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-    var yrsAgo = sundial.dateDifference(currentDate, diagnosisDate, 'years');
 
-    if (yrsAgo === 0) {
-      return 'Diagnosed this year';
-    } else if (yrsAgo === 1) {
-      return 'Diagnosed 1 year ago';
-    } else if (yrsAgo > 1) {
-      return 'Diagnosed ' + yrsAgo + ' years ago';
-    } else if (yrsAgo === 0) {
-      return 'Diagnosed this year';
-    } else {
-      return 'Diagnosis date not known';
+    if (diagnosisDate) {
+      var yearsAgo = sundial.dateDifference(currentDate, diagnosisDate, 'years');
+
+      if (yearsAgo === 0) {
+        diagnosisDateText = ' this year';
+      } else if (yearsAgo === 1) {
+        diagnosisDateText = ' 1 year ago';
+      } else if (yearsAgo > 1) {
+        diagnosisDateText = ` ${yearsAgo} years ago`;
+      } else if (yearsAgo === 0) {
+        diagnosisDateText = ' this year';
+      } else if (!diagnosisType) {
+        startText = '';
+        diagnosisDateText = 'Diagnosis date not known';
+      }
     }
+
+    if (diagnosisType) {
+      var diagnosisTypeLabel = _.get(_.find(DIABETES_TYPES, { value: diagnosisType}), 'label');
+      if (diagnosisTypeLabel) {
+        diagnosisTypeText = ` as ${diagnosisTypeLabel}`;
+      }
+      else if (!diagnosisDate) {
+        startText = '';
+        diagnosisDateText = 'Diagnosis date not known';
+      }
+    }
+
+    return `${startText}${diagnosisDateText}${diagnosisTypeText}`;
   },
 
   getAboutText: function(patient) {
@@ -500,6 +550,10 @@ var PatientInfo = React.createClass({
         formValues.diagnosisDate = sundial.translateMask(patientInfo.diagnosisDate, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
       }
 
+      if (patientInfo.diagnosisType) {
+        formValues.diagnosisType = patientInfo.diagnosisType;
+      }
+
       if (patientInfo.about) {
         formValues.about = patientInfo.about;
       }
@@ -533,6 +587,7 @@ var PatientInfo = React.createClass({
       'fullName',
       'birthday',
       'diagnosisDate',
+      'diagnosisType',
       'about'
     ], function(acc, key, value) {
       if (self.refs[key]) {
@@ -544,7 +599,6 @@ var PatientInfo = React.createClass({
 
   submitFormValues: function(formValues) {
     formValues = this.prepareFormValuesForSubmit(formValues);
-    var self = this;
 
     // Save optimistically
     this.props.onUpdatePatient(formValues);
@@ -563,6 +617,10 @@ var PatientInfo = React.createClass({
 
     if (formValues.diagnosisDate) {
       formValues.diagnosisDate = sundial.translateMask(formValues.diagnosisDate, FORM_DATE_FORMAT, SERVER_DATE_FORMAT);
+    }
+
+    if (!formValues.diagnosisType) {
+      delete formValues.diagnosisType;
     }
 
     if (!formValues.about) {

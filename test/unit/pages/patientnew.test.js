@@ -36,6 +36,20 @@ describe('PatientNew', function () {
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });
+
+    it('should render a diagnosis type label and select list', function() {
+      let wrapper = mount(
+        <PatientNew {...props}/>
+      );
+      const label = wrapper.find('.input-group-label').at(2);
+      const select = wrapper.find('.Select-input > input').first();
+      const selectPlaceholder = wrapper.find('.Select-placeholder').first();
+      expect(label.length).to.equal(1);
+      expect(select.length).to.equal(1);
+      expect(selectPlaceholder.length).to.equal(1);
+      expect(label.text()).to.equal('How do you describe your diabetes?');
+      expect(selectPlaceholder.text()).to.equal('Choose One');
+    });
   });
 
   describe('getInitialState', function() {
@@ -66,6 +80,7 @@ describe('PatientNew', function () {
         month: '1',
         year: '1995'
       },
+      diagnosisType: 'type1',
       fullName: 'John Doh',
       isOtherPerson: false
     };
@@ -79,8 +94,36 @@ describe('PatientNew', function () {
     it('should call onSubmit with valid form values', function(){
       wrapper.instance().handleSubmit(formValues);
       expect(props.onSubmit.callCount).to.equal(1);
+
+      sinon.assert.calledWith(props.onSubmit, {
+        profile: {
+          fullName: 'John Doh',
+          patient: {
+            birthday: '1990-01-01',
+            diagnosisDate: '1995-02-02',
+            diagnosisType: 'type1',
+          },
+        },
+      });
       expect(props.onUpdateDataDonationAccounts.callCount).to.equal(0);
       expect(props.trackMetric.callCount).to.equal(0);
+    });
+
+    it('should should not submit diagnosisType if left blank', function(){
+      wrapper.instance().handleSubmit(_.assign({}, formValues, {
+        diagnosisType: ''
+      }));
+      expect(props.onSubmit.callCount).to.equal(1);
+
+      sinon.assert.calledWith(props.onSubmit, {
+        profile: {
+          fullName: 'John Doh',
+          patient: {
+            birthday: '1990-01-01',
+            diagnosisDate: '1995-02-02',
+          },
+        },
+      });
     });
 
     it('should call onSubmit and onUpdateDataDonationAccounts with data donation values', function(){
