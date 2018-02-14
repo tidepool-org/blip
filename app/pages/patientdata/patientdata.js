@@ -480,7 +480,7 @@ export let PatientData = React.createClass({
       const lastDiabetesDatumProcessedTime = _.get(patientData, `${this.state.lastDiabetesDatumProcessedIndex}.time`);
       const lastChartDatumProcessedTime = this.state.chartType === 'daily' ? lastDiabetesDatumProcessedTime : lastBGProcessedTime;
 
-      const chartLimitReached = dateRangeStart.isSame(moment.utc(lastChartDatumProcessedTime), 'day');
+      const chartLimitReached = lastChartDatumProcessedTime && dateRangeStart.isSameOrBefore(moment.utc(lastChartDatumProcessedTime), 'day');
 
       const comparator = this.state.chartType === 'trends' ? 'isBefore' : 'isSameOrBefore';
       const comparatorPrecision = this.state.chartType === 'trends' ? 'day' : 'millisecond';
@@ -498,7 +498,7 @@ export let PatientData = React.createClass({
         || (this.state.chartType === 'daily' && chartLimitReached)
       ) {
         this.log('processing');
-        this.processData(this.props, dateRangeStart);
+        this.processData(this.props);
       }
     }
   },
@@ -716,15 +716,9 @@ export let PatientData = React.createClass({
     // nextProps patient data exists
     if (patientSettings && nextPatientData) {
       if (newDiabetesDataReturned || this.state.lastDatumProcessedIndex < 0) {
-        const dateRangeStart = moment.utc(_.get(this.state, 'chartDateRange.0', null));
-        if (dateRangeStart.isValid()) {
-          this.processData(nextProps, dateRangeStart.startOf('day'));
-        }
-        else {
-          this.processData(nextProps);
-        }
+        this.processData(nextProps);
       }
-      if (newDataRangeFetched && !newDiabetesDataReturned && !allDataFetched) {
+      else if (!newDiabetesDataReturned && newDataRangeFetched && !allDataFetched) {
         // Our latest data fetch yeilded no new data. We now request the remainder of the available
         // data to make sure that we don't miss any.
         this.fetchEarlierData({ startDate: null });
@@ -863,7 +857,7 @@ export let PatientData = React.createClass({
     this.props.onFetchEarlierData(fetchOpts, this.props.currentPatientInViewId);
   },
 
-  processData: function(props = this.props, dateRangeStart) {
+  processData: function(props = this.props) {
     const userId = props.currentPatientInViewId;
     const patientData = _.get(props, ['patientDataMap', userId], []);
 
@@ -883,32 +877,21 @@ export let PatientData = React.createClass({
         processingData: true,
       });
 
-      const fetchedUntil = _.get(props, 'fetchedPatientDataRange.fetchedUntil', 0);
+      const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
       const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
       const processDataMaxWeeks = isInitialProcessing ? 4 : 8;
-      const lastDatumProcessedIndex = isInitialProcessing ? 0 : this.state.lastDatumProcessedIndex;
-      const lastProcessedDatetime = moment.utc(this.state.lastProcessedDateTarget || _.get(patientData, `${lastDatumProcessedIndex}.time`));
-      const lastFetchedDatetime = fetchedUntil === 'start' ? moment.utc(0) : moment.utc(fetchedUntil);
+      const lastProcessedDatetime = moment.utc(isInitialProcessing ? patientData[0].time : this.state.lastProcessedDateTarget);
       const patientNotes = _.get(props, ['patientNotesMap', userId], []);
       let patientSettings = _.cloneDeep(_.get(props, ['patient', 'settings'], null));
       _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
 
-      const targets = [
-        lastProcessedDatetime,
-      ];
+      // Determine how far back into the unprocessed patient data we want to process.
+      // const targetDatetimeMoment = moment.max(targets).subtract(processDataMaxWeeks, 'weeks').startOf('day');
+      const targetDatetimeMoment = lastProcessedDatetime.subtract(processDataMaxWeeks, 'weeks').startOf('day');
 
-      if (dateRangeStart && dateRangeStart.isValid()) {
-        targets.push(dateRangeStart);
-      }
-
-      if (!isInitialProcessing && lastFetchedDatetime.isValid()) {
-        targets.push(lastFetchedDatetime);
-      }
-
-      const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
-      const bgUnits = _.get(this.state, 'processedPatientData.bgUnits');
-
-      const targetDatetimeMoment = moment.max(targets).subtract(processDataMaxWeeks, 'weeks').startOf('day');
+      // We first take the user's timezone offset into consideration so that we process back to the
+      // start of the most recent day the user is viewing so they don't see incomplete data for the
+      // last day in view.
       let timezoneOffset = 0;
 
       const timezoneSettings = this.state.timePrefs.timezoneAware
@@ -921,14 +904,26 @@ export let PatientData = React.createClass({
 
       const targetDatetime = targetDatetimeMoment.subtract(timezoneOffset, 'minutes').toISOString();
 
-      const targetIndex = _.findIndex(unprocessedPatientData, datum => {
+
+      // Find a cutoff point for processing unprocessed data
+      let targetIndex = _.findIndex(unprocessedPatientData, datum => {
+        // Return the index of the first item we don't want to process in this round
+        // This is what we want, as we will slice with this index as the end argument, which will not include this datum
         return targetDatetime > datum.time;
       });
+
+      // If it didn't find a cutoff point, we process all the remaining unprocessed data
+      if (targetIndex === -1) {
+        targetIndex = unprocessedPatientData.length;
+      }
 
       const targetData = targetIndex > 0
         ? unprocessedPatientData.slice(0, targetIndex)
         : unprocessedPatientData;
 
+
+      // We need to track the last processed indexes for diabetes and bg data to help determine when
+      // we've reached the scroll limits of the daily and weekly charts
       const bgTypes = [
         'cbg',
         'smbg',
@@ -941,11 +936,11 @@ export let PatientData = React.createClass({
         ...bgTypes,
       ];
 
-      const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, this.state.lastDatumProcessedIndex + targetIndex + 1), datum => {
+      const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + 1) + targetIndex), datum => {
         return _.includes(diabetesDataTypes, datum.type);
       });
 
-      const lastBGDatumProcessedIndex = _.findLastIndex(patientData.slice(0, this.state.lastDatumProcessedIndex + targetIndex + 1), datum => {
+      const lastBGDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + 1) + targetIndex), datum => {
         return _.includes(bgTypes, datum.type);
       });
 
@@ -985,14 +980,16 @@ export let PatientData = React.createClass({
       }
       else {
         // We don't need full processing for subsequent data. We just add and preprocess the new datums.
+        const bgUnits = _.get(this.state, 'processedPatientData.bgUnits');
         const newData = utils.filterPatientData(targetData, bgUnits).processedData;
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
         const processedPatientData = addData(newData.concat(_.map(patientNotes, nurseShark.reshapeMessage)));
+        const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + targetData.length;
 
         this.setState({
           lastBGDatumProcessedIndex,
           lastDiabetesDatumProcessedIndex,
-          lastDatumProcessedIndex: this.state.lastDatumProcessedIndex + targetData.length,
+          lastDatumProcessedIndex,
           lastProcessedDateTarget: targetDatetime,
           processedPatientData,
           processingData: false,

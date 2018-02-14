@@ -940,36 +940,6 @@ describe('PatientData', function () {
           sinon.assert.calledOnce(processDataStub);
           sinon.assert.calledWithExactly(processDataStub, shouldProcessProps);
         });
-
-        it('should kick off data processing and pass a date range start to the processing function when it is a proper moment-valid string', () => {
-          wrapper.setState({
-            chartDateRange: [
-              '2018-01-01T00:00:00.000Z',
-            ],
-          });
-
-          sinon.assert.notCalled(processDataStub);
-          wrapper.setProps(shouldProcessProps);
-
-          assert.equal(instance.state.lastDatumProcessedIndex, -1);
-          sinon.assert.calledOnce(processDataStub);
-          sinon.assert.calledWithExactly(processDataStub, shouldProcessProps, sinon.match.instanceOf(moment));
-        });
-
-        it('should kick off data processing and NOT pass a date range start to the processing function when it is NOT a proper moment-valid string', () => {
-          wrapper.setState({
-            chartDateRange: [
-              'blah',
-            ],
-          });
-
-          sinon.assert.notCalled(processDataStub);
-          wrapper.setProps(shouldProcessProps);
-
-          assert.equal(instance.state.lastDatumProcessedIndex, -1);
-          sinon.assert.calledOnce(processDataStub);
-          sinon.assert.calledWithExactly(processDataStub, shouldProcessProps);
-        });
       });
 
       context('patient settings have been fetched, initial data processed, new patient data has been received', () => {
@@ -1947,62 +1917,24 @@ describe('PatientData', function () {
     });
   });
 
-  describe('hideLoading', () => {
-    let wrapper;
-    let instance;
-    let setStateSpy;
-    let setTimeoutSpy;
-
-    before(() => {
-      wrapper = shallow(<PatientData {...defaultProps} />);
-      instance = wrapper.instance();
-
-      setStateSpy = sinon.spy(instance, 'setState');
-      setTimeoutSpy = sinon.spy(window, 'setTimeout');
-    });
-
-    afterEach(() => {
-      setStateSpy.reset();
-      setTimeoutSpy.reset();
-    });
-
-    after(() => {
-      setStateSpy.restore();
-      setTimeoutSpy.restore();
-    });
-
-    it('should hide the loader after a specified timeout', (done) => {
-      instance.hideLoading(10);
-
-      sinon.assert.callCount(window.setTimeout, 1);
-      sinon.assert.calledWith(window.setTimeout, sinon.match.func, 10);
-
-      sinon.assert.callCount(setStateSpy, 0);
-      setTimeout(() => {
-        sinon.assert.callCount(setStateSpy, 1);
-        sinon.assert.calledWith(setStateSpy, {
-          loading: false,
-        });
-        done();
-      }, 10)
-    });
-
-    it('should default to a timeout of 250ms when not provided', () => {
-      instance.hideLoading();
-      sinon.assert.callCount(window.setTimeout, 1);
-      sinon.assert.calledWith(window.setTimeout, sinon.match.func, 250);
-    });
-  });
-
   describe('processData', () => {
     let wrapper;
     let instance;
     let setStateSpy;
     let shouldProcessProps;
     let processPatientDataStub;
+    let addDataStub;
     let getTimezoneForDataProcessingStub;
     let handleInitialProcessedDataStub;
     let hideLoadingStub;
+
+    const processedPatientDataStub = {
+      data: 'stubbed data',
+      bgClasses: 'stubbed bgClasses',
+      bgUnits: 'stubbed bgUnits',
+      timePrefs: 'stubbed timePrefs',
+      grouped: {},
+    };
 
     beforeEach(() => {
       shouldProcessProps = _.assign({}, defaultProps, {
@@ -2012,11 +1944,12 @@ describe('PatientData', function () {
             { time: '2018-02-01T00:00:00.000Z', type: 'cbg' },
             { time: '2018-01-01T00:00:00.000Z', type: 'bolus' },
             { time: '2017-12-01T00:00:00.000Z', type: 'upload' },
+            { time: '2017-11-01T00:00:00.000Z', type: 'basal' },
           ],
         },
         patientNotesMap: {
           40: [
-            { message: 'hello' },
+            { messagetext: 'hello' },
           ],
         },
         patient: {
@@ -2032,23 +1965,19 @@ describe('PatientData', function () {
       instance.componentWillUpdate = sinon.stub();
 
       // stub out any methods we expect to be called
+      addDataStub = sinon.stub().returns(processedPatientDataStub);
       wrapper.setState({
         processedPatientData: {
-          addData: sinon.stub(),
+          addData: addDataStub,
         },
       });
+
 
       handleInitialProcessedDataStub = sinon.stub(instance, 'handleInitialProcessedData');
       hideLoadingStub = sinon.stub(instance, 'hideLoading');
 
       PD.__Rewire__('utils', {
-        processPatientData: sinon.stub().returns({
-          data: 'stubbed data',
-          bgClasses: 'stubbed bgClasses',
-          bgUnits: 'stubbed bgUnits',
-          timePrefs: 'stubbed timePrefs',
-          grouped: {},
-        }),
+        processPatientData: sinon.stub().returns(processedPatientDataStub),
         filterPatientData: sinon.stub().returns({
           processedData: 'stubbed filtered data',
         }),
@@ -2063,6 +1992,7 @@ describe('PatientData', function () {
 
     afterEach(() => {
       processPatientDataStub.reset();
+      addDataStub.reset();
       getTimezoneForDataProcessingStub.reset();
       PD.__ResetDependency__('utils');
     });
@@ -2084,7 +2014,7 @@ describe('PatientData', function () {
     context('all patient data has been fetched and processed', () => {
       it('should set the loading state to false and not attempt to process any more data', () => {
         wrapper.setState({
-          lastDatumProcessedIndex: 2,
+          lastDatumProcessedIndex: 3,
         });
         wrapper.setProps(_.assign({}, shouldProcessProps, {
           fetchedPatientDataRange: {
@@ -2149,7 +2079,6 @@ describe('PatientData', function () {
         it('should call processPatientData util with a combined patient data and notes array, query params, and patient settings', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2018-01-20T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
           });
           wrapper.setProps(_.assign({}, shouldProcessProps, {
             queryParams: {
@@ -2164,7 +2093,6 @@ describe('PatientData', function () {
             processPatientDataStub,
             [
               shouldProcessProps.patientDataMap[40][0],
-              shouldProcessProps.patientDataMap[40][1],
               ...shouldProcessProps.patientNotesMap[40],
             ],
             { timezone: 'US/Eastern' },
@@ -2175,7 +2103,6 @@ describe('PatientData', function () {
         it('should call processPatientData util on data that falls within the 4 weeks of the lastProcessedDateTarget provided', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2018-02-01T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
           });
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
@@ -2191,53 +2118,14 @@ describe('PatientData', function () {
           );
         });
 
-        it('should call processPatientData util on data that falls within the 4 weeks of provided dateRangeStart arg if its greater than the lastProcessedDateTarget provided', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z', // would result in 2 diabetes datums being processed
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
-
-          instance.processData(instance.props, moment('2018-02-20T00:00:00.000Z')); // overrides lastProcessedDateTarget
-          sinon.assert.calledOnce(processPatientDataStub);
-          sinon.assert.calledWith(
-            processPatientDataStub,
-            [
-              shouldProcessProps.patientDataMap[40][0], // second datum not processed as it is more than 4 weeks in the past
-              ...shouldProcessProps.patientNotesMap[40],
-            ],
-          );
-        });
-
-        it('should call processPatientData util on data that falls within the 4 weeks of provided lastProcessedDateTarget if its greater than the dateRangeStart arg provided', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2018-02-20T00:00:00.000Z', // should result in 1 diabetes datums being processed
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
-
-          instance.processData(instance.props, moment('2018-01-10T00:00:00.000Z')); // does not override lastProcessedDateTarget
-          sinon.assert.calledOnce(processPatientDataStub);
-          sinon.assert.calledWith(
-            processPatientDataStub,
-            [
-              shouldProcessProps.patientDataMap[40][0], // second datum not processed as it is more than 4 weeks in the past
-              ...shouldProcessProps.patientNotesMap[40],
-            ],
-          );
-        });
-
         it('should set the processedPatientData to state', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
           });
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
-          instance.processData(); // does not override lastProcessedDateTarget
+          instance.processData();
           sinon.assert.calledTwice(setStateSpy);
           sinon.assert.calledWithMatch(
             setStateSpy,
@@ -2255,28 +2143,26 @@ describe('PatientData', function () {
         it('should set the lastDiabetesDatumProcessedIndex to state', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
           });
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
-          instance.processData(); // does not override lastProcessedDateTarget
+          instance.processData();
           sinon.assert.calledTwice(setStateSpy);
           sinon.assert.calledWithMatch(
             setStateSpy,
-            { lastDiabetesDatumProcessedIndex: 1 }
+            { lastDiabetesDatumProcessedIndex: 0 }
           );
         });
 
         it('should set the lastBGDatumProcessedIndex to state', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
           });
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
-          instance.processData(); // does not override lastProcessedDateTarget
+          instance.processData();
           sinon.assert.calledTwice(setStateSpy);
           sinon.assert.calledWithMatch(
             setStateSpy,
@@ -2287,30 +2173,28 @@ describe('PatientData', function () {
         it('should set the lastDatumProcessedIndex to state', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
           });
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
-          instance.processData(); // does not override lastProcessedDateTarget
+          instance.processData();
           sinon.assert.calledTwice(setStateSpy);
           sinon.assert.calledWithMatch(
             setStateSpy,
-            { lastDatumProcessedIndex: 2 }
+            { lastDatumProcessedIndex: 0 }
           );
         });
 
         it('should set the lastProcessedDateTarget to state', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
           });
 
-          const expectedTargetDateTime = moment('2017-12-20T00:00:00.000Z').startOf('day').subtract(4, 'weeks').toISOString();
+          const expectedTargetDateTime = moment(shouldProcessProps.patientDataMap[40][0].time).startOf('day').subtract(4, 'weeks').toISOString();
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
-          instance.processData(); // does not override lastProcessedDateTarget
+          instance.processData();
           sinon.assert.calledTwice(setStateSpy);
           sinon.assert.calledWithMatch(
             setStateSpy,
@@ -2321,22 +2205,22 @@ describe('PatientData', function () {
         it('should apply a timezone offset to the lastProcessedDateTarget state', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
             timePrefs: {
               timezoneAware: true,
               timezoneName: 'US/Eastern',
             },
           });
 
-          const expectedTargetDateTime = moment('2017-12-20T00:00:00.000Z').startOf('day').subtract(4, 'weeks').toISOString();
+          const expectedTargetDateTime = moment(shouldProcessProps.patientDataMap[40][0].time).startOf('day').subtract(4, 'weeks').toISOString();
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
-          instance.processData(); // does not override lastProcessedDateTarget
+          instance.processData();
           sinon.assert.calledTwice(setStateSpy);
           sinon.assert.calledWithMatch(
             setStateSpy,
-            { lastProcessedDateTarget: '2017-11-22T05:00:00.000Z' } // +5 hr offset for eastern time
+            { lastProcessedDateTarget: moment(expectedTargetDateTime).add(5, 'hours').toISOString() } // +5 hr offset for eastern time
+            // { lastProcessedDateTarget: '2017-11-22T05:00:00.000Z' } // +5 hr offset for eastern time
           );
         });
 
@@ -2348,7 +2232,7 @@ describe('PatientData', function () {
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
-          instance.processData(); // does not override lastProcessedDateTarget
+          instance.processData();
           sinon.assert.calledTwice(setStateSpy);
           sinon.assert.calledWithMatch(
             setStateSpy,
@@ -2364,7 +2248,7 @@ describe('PatientData', function () {
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
-          instance.processData(); // does not override lastProcessedDateTarget
+          instance.processData();
           sinon.assert.calledTwice(setStateSpy);
           sinon.assert.calledWithMatch(
             setStateSpy,
@@ -2380,7 +2264,7 @@ describe('PatientData', function () {
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
-          instance.processData(); // does not override lastProcessedDateTarget
+          instance.processData();
           sinon.assert.calledTwice(setStateSpy);
 
           const firstCall = setStateSpy.getCall(0);
@@ -2415,7 +2299,7 @@ describe('PatientData', function () {
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
-          instance.processData(); // does not override lastProcessedDateTarget
+          instance.processData();
           sinon.assert.calledTwice(setStateSpy);
           sinon.assert.calledOnce(handleInitialProcessedDataStub);
 
@@ -2426,7 +2310,259 @@ describe('PatientData', function () {
       });
 
       context('processing subsequent data', () => {
+        it('should call addData util with a combined patient data and notes array', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-02-01T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+          PD.__ResetDependency__('utils');
+
+          instance.processData();
+
+          sinon.assert.calledOnce(addDataStub);
+          sinon.assert.calledWith(
+            addDataStub,
+            [
+              sinon.match(shouldProcessProps.patientDataMap[40][1]),
+              sinon.match({ messageText: 'hello' }),
+            ],
+          );
+        });
+
+        it('should call addData util on data that falls within the 8 weeks of the lastProcessedDateTarget provided', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-02T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+          PD.__ResetDependency__('utils');
+
+          instance.processData();
+
+          sinon.assert.calledOnce(addDataStub);
+          sinon.assert.calledWith(
+            addDataStub,
+            [
+              sinon.match(shouldProcessProps.patientDataMap[40][2]), // diabetes data order reversed due to reseting utils.filterPatientData mock above, which sorts by time asc
+              sinon.match(shouldProcessProps.patientDataMap[40][1]),
+              sinon.match({ messageText: 'hello' }),
+            ],
+          );
+        });
+
+        it('should set the processedPatientData to state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-20T00:00:00.000Z',
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            {
+              processedPatientData: {
+                bgClasses: 'stubbed bgClasses',
+                bgUnits: 'stubbed bgUnits',
+                data: 'stubbed data',
+                timePrefs: 'stubbed timePrefs',
+              },
+            }
+          );
+        });
+
+        it('should set the lastDiabetesDatumProcessedIndex to state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-20T00:00:00.000Z',
+          });
+          setStateSpy.reset();
+          wrapper.setProps(shouldProcessProps);
+
+          instance.processData();
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { lastDiabetesDatumProcessedIndex: 1 }
+          );
+        });
+
+        it('should set the lastBGDatumProcessedIndex to state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-20T00:00:00.000Z',
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { lastBGDatumProcessedIndex: 0 }
+          );
+        });
+
+        it('should set the lastDatumProcessedIndex to state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { lastDatumProcessedIndex: 2 }
+          );
+        });
+
+        it('should set the lastProcessedDateTarget to state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
+          });
+
+          const expectedTargetDateTime = moment('2018-01-10T00:00:00.000Z').startOf('day').subtract(8, 'weeks').toISOString();
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { lastProcessedDateTarget: expectedTargetDateTime }
+          );
+        });
+
+        it('should apply a timezone offset to the lastProcessedDateTarget state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
+            timePrefs: {
+              timezoneAware: true,
+              timezoneName: 'US/Eastern',
+            },
+          });
+
+          const expectedTargetDateTime = moment('2018-01-10T00:00:00.000Z').startOf('day').subtract(8, 'weeks').toISOString();
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { lastProcessedDateTarget: moment(expectedTargetDateTime).add(5, 'hours').toISOString() } // +5 hr offset for eastern time
+          );
+        });
+
+        it('should set the processingData states back to false at the end', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledTwice(setStateSpy);
+
+          const firstCall = setStateSpy.getCall(0);
+          const secondCall = setStateSpy.getCall(1);
+
+          sinon.assert.calledWithMatch(
+            firstCall,
+            {
+              loading: true,
+              processingData: true,
+            },
+          );
+
+          sinon.assert.calledWithMatch(
+            secondCall,
+            {
+              processingData: false,
+            },
+          );
+
+          assert(firstCall.calledBefore(addDataStub.getCall(0)));
+          assert(secondCall.calledAfter(addDataStub.getCall(0)));
+        });
+
+        it('should call the `hideLoading` method after updating state', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
+          });
+
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledOnce(hideLoadingStub);
+
+          const secondSetStateCall = setStateSpy.getCall(1);
+
+          assert(secondSetStateCall.calledBefore(hideLoadingStub.getCall(0)));
+        });
       });
+    });
+  });
+
+
+  describe('hideLoading', () => {
+    let wrapper;
+    let instance;
+    let setStateSpy;
+    let setTimeoutSpy;
+
+    before(() => {
+      wrapper = shallow(<PatientData {...defaultProps} />);
+      instance = wrapper.instance();
+
+      setStateSpy = sinon.spy(instance, 'setState');
+      setTimeoutSpy = sinon.spy(window, 'setTimeout');
+    });
+
+    afterEach(() => {
+      setStateSpy.reset();
+      setTimeoutSpy.reset();
+    });
+
+    after(() => {
+      setStateSpy.restore();
+      setTimeoutSpy.restore();
+    });
+
+    it('should hide the loader after a specified timeout', (done) => {
+      instance.hideLoading(10);
+
+      sinon.assert.callCount(window.setTimeout, 1);
+      sinon.assert.calledWith(window.setTimeout, sinon.match.func, 10);
+
+      sinon.assert.callCount(setStateSpy, 0);
+      setTimeout(() => {
+        sinon.assert.callCount(setStateSpy, 1);
+        sinon.assert.calledWith(setStateSpy, {
+          loading: false,
+        });
+        done();
+      }, 10)
+    });
+
+    it('should default to a timeout of 250ms when not provided', () => {
+      instance.hideLoading();
+      sinon.assert.callCount(window.setTimeout, 1);
+      sinon.assert.calledWith(window.setTimeout, sinon.match.func, 250);
     });
   });
 
