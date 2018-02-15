@@ -10,6 +10,7 @@ import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
 import util from 'util';
+import moment from 'moment';
 import _ from 'lodash';
 
 import isTSA from 'tidepool-standard-action';
@@ -2730,6 +2731,8 @@ describe('Actions', () => {
 
     describe('fetchPatientData', () => {
       const patientId = 300;
+      const serverTime = '2018-01-28T00:00:11.000Z';
+      const serverTimePlusOneDay = moment.utc(serverTime).add(1, 'days').toISOString();
       let options;
       let patientData;
       let teamNotes;
@@ -2738,15 +2741,15 @@ describe('Actions', () => {
 
       beforeEach(() => {
         options = {
-          startDate: '2018-01-01:00:00:00.000Z',
-          endDate: '2018-01-01:28:00:00.000Z',
+          startDate: '2018-01-01T00:00:00.000Z',
+          endDate: '2018-01-28T00:00:00.000Z',
           useCache: true,
           initial: true,
         };
 
         patientData = [
-          { id: 25, value: 540.4, type: 'smbg', time: '2018-01-01:00:00:00.000Z' },
-          { id: 25, value: 540.4, type: 'smbg', time: '2018-01-01:28:00:00.000Z' },
+          { id: 25, value: 540.4, type: 'smbg', time: '2018-01-01T00:00:00.000Z' },
+          { id: 25, value: 540.4, type: 'smbg', time: '2018-01-28T00:00:00.000Z' },
         ];
 
         teamNotes = [
@@ -2757,22 +2760,30 @@ describe('Actions', () => {
           patientData: {
             get: sinon.stub().callsArgWith(2, null, patientData),
           },
+          server: {
+            getTime: sinon.stub().callsArgWith(0, null, { data: { time: serverTime } }),
+          },
           team: {
             getNotes: sinon.stub().callsArgWith(2, null, teamNotes)
-          }
+          },
         };
 
         async.__Rewire__('utils', {
           getDiabetesDataRange: sinon.stub().returns({
             spanInDays: 28,
-            start: '2018-01-01:00:00:00.000Z',
-            end: '2018-01-01:28:00:00.000Z',
+            start: '2018-01-01T00:00:00.000Z',
+            end: '2018-01-28T00:00:00.000Z',
           }),
         });
       });
 
-      it('should trigger FETCH_PATIENT_DATA_SUCCESS once for a successful request when enough data is returned', () => {
+      it('should trigger FETCH_PATIENT_DATA_REQUEST once for a successful request when enough data is returned', () => {
         let expectedActions = [
+          { type: 'FETCH_SERVER_TIME_REQUEST' },
+          {
+            type: 'FETCH_SERVER_TIME_SUCCESS',
+            payload: { serverTime },
+          },
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
           {
             type: 'FETCH_PATIENT_DATA_SUCCESS',
@@ -2780,7 +2791,7 @@ describe('Actions', () => {
               patientData: patientData,
               patientNotes: teamNotes,
               patientId: patientId,
-              fetchedUntil: '2017-12-04T00:00:00.000Z'
+              fetchedUntil: '2017-12-31T00:00:00.000Z'
             },
           },
         ];
@@ -2812,7 +2823,7 @@ describe('Actions', () => {
               patientData: patientData,
               patientNotes: teamNotes,
               patientId: patientId,
-              fetchedUntil: '2018-01-01:00:00:00.000Z'
+              fetchedUntil: '2018-01-01T00:00:00.000Z'
             },
           },
         ];
@@ -2834,12 +2845,17 @@ describe('Actions', () => {
         async.__Rewire__('utils', {
           getDiabetesDataRange: sinon.stub().returns({
             spanInDays: 27, // should trigger second fetch if less than 28
-            start: '2018-01-01:00:00:00.000Z',
-            end: '2018-01-01:14:00.000Z',
+            start: '2018-01-01T00:00:00.000Z',
+            end: '2018-01-01T00:14:00.000Z',
           }),
         });
 
         let expectedActions = [
+          { type: 'FETCH_SERVER_TIME_REQUEST' },
+          {
+            type: 'FETCH_SERVER_TIME_SUCCESS',
+            payload: { serverTime },
+          },
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
           {
@@ -2866,7 +2882,7 @@ describe('Actions', () => {
         expect(api.patientData.get.firstCall.args[1]).to.eql(options);
         expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
           startDate: '2017-12-04T00:00:00.000Z',
-          endDate: '2018-01-01:28:00:00.000Z',
+          endDate: serverTimePlusOneDay,
           initial: false,
         }));
 
@@ -2877,9 +2893,9 @@ describe('Actions', () => {
         }));
         expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
           startDate: '2017-12-04T00:00:00.000Z',
-          endDate: '2018-01-01:28:00:00.000Z',
+          endDate: serverTimePlusOneDay,
           start: '2017-12-04T00:00:00.000Z',
-          end: '2018-01-01:28:00:00.000Z',
+          end: serverTimePlusOneDay,
           initial: false,
         }));
 
@@ -2900,6 +2916,11 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
+          { type: 'FETCH_SERVER_TIME_REQUEST' },
+          {
+            type: 'FETCH_SERVER_TIME_SUCCESS',
+            payload: { serverTime },
+          },
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
           {
@@ -2926,7 +2947,7 @@ describe('Actions', () => {
         expect(api.patientData.get.firstCall.args[1]).to.eql(options);
         expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
           startDate: null, // should fetch to the beginning by not specifying a start date
-          endDate: '2018-01-01:28:00:00.000Z',
+          endDate: serverTimePlusOneDay,
           initial: false,
         }));
 
@@ -2937,9 +2958,9 @@ describe('Actions', () => {
         }));
         expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
           startDate: null,
-          endDate: '2018-01-01:28:00:00.000Z',
+          endDate: serverTimePlusOneDay,
           start: null,
-          end: '2018-01-01:28:00:00.000Z',
+          end: serverTimePlusOneDay,
           initial: false,
         }));
       });
@@ -2953,6 +2974,11 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
+          { type: 'FETCH_SERVER_TIME_REQUEST' },
+          {
+            type: 'FETCH_SERVER_TIME_SUCCESS',
+            payload: { serverTime },
+          },
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
           { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
@@ -2977,8 +3003,48 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
+          { type: 'FETCH_SERVER_TIME_REQUEST' },
+          {
+            type: 'FETCH_SERVER_TIME_SUCCESS',
+            payload: { serverTime },
+          },
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
           { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore(initialState);
+        store.dispatch(async.fetchPatientData(api, options, patientId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_SERVER_TIME_FAILURE and when unable to fetch the server time, but continue on with fetching patientData', () => {
+        api.server = {
+          getTime: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null)
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_SERVER_TIME);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_SERVER_TIME_REQUEST' },
+          { type: 'FETCH_SERVER_TIME_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
+          { type: 'FETCH_PATIENT_DATA_REQUEST' },
+          {
+            type: 'FETCH_PATIENT_DATA_SUCCESS',
+            payload: {
+              patientData,
+              patientNotes: teamNotes,
+              patientId: patientId,
+              fetchedUntil: '2017-12-31T00:00:00.000Z',
+            },
+          },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

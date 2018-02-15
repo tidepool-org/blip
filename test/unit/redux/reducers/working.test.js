@@ -1711,6 +1711,68 @@ describe('working', () => {
       });
     });
 
+    describe('fetchServerTime', () => {
+      describe('request', () => {
+        it('should set fetchingServerTime to be true', () => {
+          let initialStateForTest = _.merge({}, initialState);
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+          let action = actions.sync.fetchServerTimeRequest();
+
+          expect(initialStateForTest.fetchingServerTime.inProgress).to.be.false;
+
+          let state = reducer(initialStateForTest, action);
+          expect(state.fetchingServerTime.inProgress).to.be.true;
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set fetchingServerTime to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, {
+            fetchingServerTime: { inProgress: true, notification: null },
+          });
+
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+          let error = new Error('Something bad happened :(');
+          let action = actions.sync.fetchServerTimeFailure(error);
+
+          expect(initialStateForTest.fetchingServerTime.inProgress).to.be.true;
+          expect(initialStateForTest.fetchingServerTime.notification).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+
+          expect(state.fetchingServerTime.inProgress).to.be.false;
+          expect(state.fetchingServerTime.notification.type).to.equal('error');
+          expect(state.fetchingServerTime.notification.message).to.equal(error.message);
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+
+      describe('success', () => {
+        it('should set fetchingServerTime to be false', () => {
+          let ServerTime = [
+            { id: 'strava', url: 'blah' },
+            { name: 'fitbit', url: 'blah' },
+          ];
+
+          let initialStateForTest = _.merge({}, initialState, {
+            fetchingServerTime: { inProgress: true, notification: null },
+          });
+
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+
+          let action = actions.sync.fetchServerTimeSuccess(ServerTime);
+
+          expect(initialStateForTest.fetchingServerTime.inProgress).to.be.true;
+
+          let state = reducer(initialStateForTest, action);
+
+          expect(state.fetchingServerTime.inProgress).to.be.false;
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+    });
+
     describe('connectDataSource', () => {
       describe('request', () => {
         it('should set connectDataSource to be true', () => {
