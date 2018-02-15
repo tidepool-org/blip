@@ -153,6 +153,33 @@ const immediatelyCancelledExtended = {
   normalTime: '2017-11-11T05:45:52.000Z',
 };
 
+const immediatelyCancelledExtendedWizard = {
+  type: 'wizard',
+  bgTarget: {
+    target: 100,
+  },
+  bolus: {
+    normal: 0,
+    extended: 0,
+    expectedNormal: 2,
+    expectedExtended: 3,
+    duration: 0,
+    expectedDuration: 3600000,
+    normalTime: '2017-11-11T05:45:52.000Z',
+  },
+  recommended: {
+    net: 5,
+    carb: 5,
+    correction: 2,
+  },
+  carbInput: 75,
+  bgInput: 280,
+  insulinSensitivity: 70,
+  insulinOnBoard: 10,
+  insulinCarbRatio: 15,
+  normalTime: '2017-11-11T05:45:52.000Z',
+};
+
 const extendedAnimas = {
   extended: 1.2,
   duration: 18000000,
@@ -464,6 +491,12 @@ storiesOf('BolusTooltip', module)
     <div>
       {refDiv}
       <BolusTooltip {...props} bolus={immediatelyCancelledExtended} />
+    </div>
+  ))
+  .add('immediatelyCancelledExtendedWizard', () => (
+    <div>
+      {refDiv}
+      <BolusTooltip {...props} bolus={immediatelyCancelledExtendedWizard} />
     </div>
   ))
   .add('extendedAnimas', () => (

@@ -130,6 +130,33 @@ const immediatelyCancelledExtended = {
   expectedDuration: 36e5,
 };
 
+const immediatelyCancelledExtendedWizard = {
+  type: 'wizard',
+  bgTarget: {
+    target: 100,
+  },
+  bolus: {
+    normal: 0,
+    extended: 0,
+    expectedNormal: 2,
+    expectedExtended: 3,
+    duration: 0,
+    expectedDuration: 3600000,
+    normalTime: '2017-11-11T05:45:52.000Z',
+  },
+  recommended: {
+    net: 5,
+    carb: 5,
+    correction: 2,
+  },
+  carbInput: 75,
+  bgInput: 280,
+  insulinSensitivity: 70,
+  insulinOnBoard: 10,
+  insulinCarbRatio: 15,
+  normalTime: '2017-11-11T05:45:52.000Z',
+};
+
 const extendedUnderride = {
   type: 'wizard',
   bolus: {
@@ -287,6 +314,20 @@ describe('bolus utilities', () => {
         comboUnderrideCancelled.bolus.normal + comboUnderrideCancelled.bolus.expectedExtended
       );
     });
+
+    it('should return the `expectedExtended` for an immediately cancelled extended', () => {
+      expect(bolusUtils.getProgrammed(immediatelyCancelledExtended)).to.equal(
+        immediatelyCancelledExtended.expectedExtended
+      );
+    });
+
+    it(`should return the \`expectedNormal\` and \`expectedExtended\` for an immediately 
+        cancelled extended wizard`, () => {
+      expect(bolusUtils.getProgrammed(immediatelyCancelledExtendedWizard)).to.equal(
+        immediatelyCancelledExtendedWizard.bolus.expectedExtended +
+        immediatelyCancelledExtendedWizard.bolus.expectedNormal
+      );
+    });
   });
 
   describe('getRecommended', () => {
@@ -384,6 +425,20 @@ describe('bolus utilities', () => {
     it('should return the `normal` & `extended` of a cancelled `combo` underride', () => {
       expect(bolusUtils.getDelivered(comboUnderrideCancelled)).to.equal(
         comboUnderrideCancelled.bolus.normal + comboUnderrideCancelled.bolus.extended
+      );
+    });
+
+    it('should return the `extended` for an immediately cancelled extended', () => {
+      expect(bolusUtils.getDelivered(immediatelyCancelledExtended)).to.equal(
+        immediatelyCancelledExtended.extended
+      );
+    });
+
+    it(`should return the \`normal\` and \`extended\` for an immediately 
+        cancelled extended wizard`, () => {
+      expect(bolusUtils.getDelivered(immediatelyCancelledExtendedWizard)).to.equal(
+        immediatelyCancelledExtendedWizard.bolus.extended +
+        immediatelyCancelledExtendedWizard.bolus.normal
       );
     });
   });
