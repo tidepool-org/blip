@@ -31,6 +31,9 @@ import _ from 'lodash';
 import Weekly from '../../../../app/components/chart/weekly';
 import { shallow } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
+import { components as vizComponents } from '@tidepool/viz';
+
+const { Loader } = vizComponents;
 
 describe('Weekly', () => {
   let baseProps = {
@@ -88,7 +91,7 @@ describe('Weekly', () => {
 
   describe('render', () => {
     it('should show a loader when loading prop is true', () => {
-      const loader = () => wrapper.find('Loader');
+      const loader = () => wrapper.find(Loader);
 
       expect(loader().length).to.equal(1);
       expect(loader().props().show).to.be.false;

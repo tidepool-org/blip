@@ -15,6 +15,9 @@ import mutationTracker from 'object-invariant-test-helper';
 import _ from 'lodash';
 import moment from 'moment';
 import { mount, shallow } from 'enzyme';
+import { components as vizComponents } from '@tidepool/viz';
+
+const { Loader } = vizComponents;
 
 var assert = chai.assert;
 var expect = chai.expect;
@@ -100,7 +103,7 @@ describe('PatientData', function () {
 
       beforeEach(() => {
         wrapper = shallow(<PatientData {...defaultProps} />);
-        loader = () => wrapper.find('Loader');
+        loader = () => wrapper.find(Loader);
       });
 
       it('should render the loading message and image when fetchingPatient is true', function() {

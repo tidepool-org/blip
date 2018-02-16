@@ -12,9 +12,12 @@ var TestUtils = require('react-addons-test-utils');
 var _ = require('lodash');
 var expect = chai.expect;
 
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import Daily from '../../../../app/components/chart/daily';
 import { MGDL_UNITS } from '../../../../app/core/constants';
+import { components as vizComponents } from '@tidepool/viz';
+
+const { Loader } = vizComponents;
 
 require('tideline/css/tideline.less');
 require('../../../../app/core/less/fonts.less');
@@ -198,7 +201,7 @@ describe('Daily', () => {
       };
 
       const wrapper = shallow(<Daily {...props} />);
-      const loader = () => wrapper.find('Loader');
+      const loader = () => wrapper.find(Loader);
 
       expect(loader().length).to.equal(1);
       expect(loader().props().show).to.be.false;
