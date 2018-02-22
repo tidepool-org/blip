@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "0.6.15-bolus-tooltip.2",
+  "version": "0.6.15",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
