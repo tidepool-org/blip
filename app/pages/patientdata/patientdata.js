@@ -111,9 +111,11 @@ export let PatientData = React.createClass({
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
+      fetchEarlierDataCount: 0,
       lastDatumProcessedIndex: -1,
       loading: true,
       processingData: false,
+      processEarlierDataCount: 0,
       processedPatientData: null,
       timePrefs: {
         timezoneAware: false,
@@ -471,8 +473,8 @@ export let PatientData = React.createClass({
     this.updateChartDateRange(dateRange);
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
-      const userId = this.props.currentPatientInViewId;
-      const patientData = _.get(this.props, ['patientDataMap', userId], []);
+      const patientID = this.props.currentPatientInViewId;
+      const patientData = _.get(this.props, ['patientDataMap', patientID], []);
       const dateRangeStart = moment.utc(dateRange[0]).startOf('day');
 
       const lastProcessedDateTarget = this.state.lastProcessedDateTarget;
@@ -840,9 +842,12 @@ export let PatientData = React.createClass({
       end: moment.utc(earliestRequestedData).subtract(1, 'milliseconds').toISOString(),
     };
 
+    const count = this.state.fetchEarlierDataCount + 1;
+
     this.setState({
       loading: true,
       requestedPatientDataRange,
+      fetchEarlierDataCount: count
     });
 
     const fetchOpts = _.defaults(options, {
@@ -855,11 +860,14 @@ export let PatientData = React.createClass({
     });
 
     this.props.onFetchEarlierData(fetchOpts, this.props.currentPatientInViewId);
+
+    const patientID = this.props.currentPatientInViewId;
+    this.props.trackMetric('Fetched earlier patient data', { patientID, count });
   },
 
   processData: function(props = this.props) {
-    const userId = props.currentPatientInViewId;
-    const patientData = _.get(props, ['patientDataMap', userId], []);
+    const patientID = props.currentPatientInViewId;
+    const patientData = _.get(props, ['patientDataMap', patientID], []);
 
     // Return if currently processing or we've already fetched and processed all data
     if (this.state.processingData || _.get(props, 'fetchedPatientDataRange.fetchedUntil') === 'start' && this.state.lastDatumProcessedIndex === patientData.length - 1) {
@@ -881,7 +889,7 @@ export let PatientData = React.createClass({
       const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
       const processDataMaxWeeks = isInitialProcessing ? 4 : 8;
       const lastProcessedDatetime = moment.utc(isInitialProcessing ? patientData[0].time : this.state.lastProcessedDateTarget);
-      const patientNotes = _.get(props, ['patientNotesMap', userId], []);
+      const patientNotes = _.get(props, ['patientNotesMap', patientID], []);
       let patientSettings = _.cloneDeep(_.get(props, ['patient', 'settings'], null));
       _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
 
@@ -976,6 +984,7 @@ export let PatientData = React.createClass({
           timePrefs: processedData.timePrefs,
         }, () => {
           this.handleInitialProcessedData(props, processedData, patientSettings);
+          props.trackMetric('Processed initial patient data', { patientID });
         });
       }
       else {
@@ -985,16 +994,19 @@ export let PatientData = React.createClass({
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
         const processedPatientData = addData(newData.concat(_.map(patientNotes, nurseShark.reshapeMessage)));
         const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + targetData.length;
+        const count = this.state.processEarlierDataCount + 1;
 
         this.setState({
           lastBGDatumProcessedIndex,
           lastDiabetesDatumProcessedIndex,
           lastDatumProcessedIndex,
           lastProcessedDateTarget: targetDatetime,
+          processEarlierDataCount: count,
           processedPatientData,
           processingData: false,
         }, () => {
           this.hideLoading();
+          props.trackMetric('Processed earlier patient data', { patientID, count });
         });
       }
     }
@@ -1072,16 +1084,18 @@ export let PatientData = React.createClass({
 
   doFetching: function(nextProps) {
     if (this.props.trackMetric) {
-      let carelink = nextProps.carelink;
+      const carelink = nextProps.carelink;
       if (!_.isEmpty(carelink)) {
         this.props.trackMetric('Web - CareLink Import URL Param', { carelink });
       }
 
-      let dexcom = nextProps.dexcom;
+      const dexcom = nextProps.dexcom;
       if (!_.isEmpty(dexcom)) {
         this.props.trackMetric('Web - Dexcom Import URL Param', { dexcom });
       }
 
+      const patientID = nextProps.currentPatientInViewId;
+      this.props.trackMetric('Fetched initial patient data', { patientID });
       this.props.trackMetric('Viewed Data');
     }
 

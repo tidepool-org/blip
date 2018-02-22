@@ -30,7 +30,7 @@ describe('PatientData', function () {
   const defaultProps = {
     addPatientNote: sinon.stub(),
     clearPatientData: sinon.stub(),
-    currentPatientInViewId: 'smestring',
+    currentPatientInViewId: 'somestring',
     fetchers: [],
     fetchingPatient: false,
     fetchingPatientData: false,
@@ -1776,6 +1776,7 @@ describe('PatientData', function () {
 
     afterEach(() => {
       props.onFetchEarlierData.reset();
+      props.trackMetric.reset();
       setStateSpy.reset();
     });
 
@@ -1894,7 +1895,7 @@ describe('PatientData', function () {
         }, 40);
       });
 
-      it('should set the `loading` and `requestedPatientDataRange` state', () => {
+      it('should set the `loading`, `fetchEarlierDataCount` and `requestedPatientDataRange` state', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
         wrapper.setProps({
@@ -1906,15 +1907,40 @@ describe('PatientData', function () {
         const expectedStart = moment.utc(fetchedUntil).subtract(16, 'weeks').toISOString();
         const expectedEnd = moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString();
 
+        expect(wrapper.state().fetchEarlierDataCount).to.equal(0);
+
         instance.fetchEarlierData();
 
         sinon.assert.calledOnce(setStateSpy);
         sinon.assert.calledWith(setStateSpy, {
           loading: true,
+          fetchEarlierDataCount: 1,
           requestedPatientDataRange: {
             start: expectedStart,
             end: expectedEnd,
           },
+        });
+      });
+
+      it('should track the `Fetched earlier patient data` metric', () => {
+        const fetchedUntil = '2018-01-01T00:00:00.000Z';
+
+        wrapper.setProps({
+          fetchedPatientDataRange: {
+            fetchedUntil,
+          },
+        });
+
+        const expectedStart = moment.utc(fetchedUntil).subtract(16, 'weeks').toISOString();
+        const expectedEnd = moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString();
+
+        expect(wrapper.state().fetchEarlierDataCount).to.equal(0);
+
+        instance.fetchEarlierData();
+
+        sinon.assert.calledWith(props.trackMetric, 'Fetched earlier patient data', {
+          count: 1,
+          patientID: 'somestring' ,
         });
       });
     });
@@ -2310,6 +2336,21 @@ describe('PatientData', function () {
 
           assert(secondSetStateCall.calledBefore(handleInitialProcessedDataStub.getCall(0)));
         });
+
+        it('should track the `Processed initial patient data` metric', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+          });
+
+          wrapper.setProps(shouldProcessProps);
+
+          instance.processData();
+
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Processed initial patient data', {
+            patientID: 40 ,
+          });
+        });
       });
 
       context('processing subsequent data', () => {
@@ -2445,6 +2486,25 @@ describe('PatientData', function () {
           );
         });
 
+        it('should increment the processEarlierDataCount state', () => {
+          wrapper.setState({
+            processEarlierDataCount: 0, // previous data has been processed
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
+          });
+
+          const expectedTargetDateTime = moment('2018-01-10T00:00:00.000Z').startOf('day').subtract(8, 'weeks').toISOString();
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { processEarlierDataCount: 1 }
+          );
+        });
+
         it('should apply a timezone offset to the lastProcessedDateTarget state', () => {
           wrapper.setState({
             lastDatumProcessedIndex: 0, // previous data has been processed
@@ -2516,6 +2576,22 @@ describe('PatientData', function () {
           const secondSetStateCall = setStateSpy.getCall(1);
 
           assert(secondSetStateCall.calledBefore(hideLoadingStub.getCall(0)));
+        });
+
+        it('should track the `Processed earlier patient data` metric', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
+          });
+
+          wrapper.setProps(shouldProcessProps);
+
+          instance.processData();
+
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Processed earlier patient data', {
+            patientID: 40,
+            count: 1,
+          });
         });
       });
     });
