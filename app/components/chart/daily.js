@@ -28,8 +28,11 @@ var chartDailyFactory = tidelineBlip.oneday;
 var Header = require('./header');
 var Footer = require('./footer');
 
+import { components } from '@tidepool/viz';
+var BolusTooltip = components.BolusTooltip;
+
 var DailyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs'],
+  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs', 'onBolusHover', 'onBolusOut'],
   log: bows('Daily Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
@@ -46,7 +49,9 @@ var DailyChart = React.createClass({
     // other handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
     onMostRecent: React.PropTypes.func.isRequired,
-    onTransition: React.PropTypes.func.isRequired
+    onTransition: React.PropTypes.func.isRequired,
+    onBolusHover: React.PropTypes.func.isRequired,
+    onBolusOut: React.PropTypes.func.isRequired,
   },
   getInitialState: function() {
     return {
@@ -212,6 +217,8 @@ var Daily = React.createClass({
                 onMostRecent={this.handleMostRecent}
                 onShowBasalSettings={this.handleShowBasalSettings}
                 onTransition={this.handleInTransition}
+                onBolusHover={this.handleBolusHover}
+                onBolusOut={this.handleBolusOut}
                 ref="chart" />
             </div>
           </div>
@@ -220,6 +227,15 @@ var Daily = React.createClass({
          chartType={this.chartType}
          onClickRefresh={this.props.onClickRefresh}
         ref="footer" />
+        {this.state.hoveredBolus && <BolusTooltip
+            position={{
+              top: this.state.hoveredBolus.top,
+              left: this.state.hoveredBolus.left
+            }}
+            side={this.state.hoveredBolus.side}
+            bolus={this.state.hoveredBolus.data}
+            timePrefs={this.props.timePrefs}
+          />}
       </div>
       );
 
@@ -279,7 +295,27 @@ var Daily = React.createClass({
     this.setState({
       inTransition: inTransition
     });
-
+  },
+  handleBolusHover: function(bolus) {
+    var rect = bolus.rect;
+    // range here is -12 to 12
+    var hoursOffset = sundial.dateDifference(bolus.data.normalTime, this.state.datetimeLocation, 'h');
+    bolus.top = rect.top + (rect.height / 2)
+    if(hoursOffset > 5) {
+      bolus.side = 'left';
+      bolus.left = rect.left;
+    } else {
+      bolus.side = 'right';
+      bolus.left = rect.left + rect.width;
+    }
+    this.setState({
+      hoveredBolus: bolus
+    });
+  },
+  handleBolusOut: function() {
+    this.setState({
+      hoveredBolus: false
+    });
   },
   handleMostRecent: function(atMostRecent) {
     this.setState({
