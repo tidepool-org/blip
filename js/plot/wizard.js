@@ -129,7 +129,7 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-wizard-group').on('mouseover', function(d) {
         if (d.bolus) {
-          drawBolus.tooltip.add(d);
+          drawBolus.tooltip.add(d, this.getBoundingClientRect());
         }
 
         highlight.on(d3.select(this));

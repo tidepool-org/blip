@@ -95,7 +95,7 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-bolus-group').on('mouseover', function(d) {
         highlight.on(d3.select(this));
-        drawBolus.tooltip.add(d);
+        drawBolus.tooltip.add(d, this.getBoundingClientRect());
       });
       selection.selectAll('.d3-bolus-group').on('mouseout', function(d) {
         highlight.off();
