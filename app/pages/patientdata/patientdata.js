@@ -952,14 +952,14 @@ export let PatientData = React.createClass({
         return _.includes(bgTypes, datum.type);
       });
 
+      window.downloadInputData = () => {
+        console.save(patientData.concat(patientNotes), 'blip-input.json');
+      };
+
       // Process data fetched after the initial processing
       if (isInitialProcessing) {
         // Kick off the processing of the initial data fetch
         const combinedData = targetData.concat(patientNotes);
-
-        window.downloadInputData = () => {
-          console.save(combinedData, 'blip-input.json');
-        };
 
         const processedData = utils.processPatientData(
           combinedData,
