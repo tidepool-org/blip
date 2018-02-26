@@ -30,11 +30,21 @@ export const DATA_DONATION_NONPROFITS = [
   { value: 'CARBDM', label: 'CarbDM' },
   { value: 'CWD', label: 'Children with Diabetes' },
   { value: 'CDN', label: 'College Diabetes Network' },
-  { value: 'DHF', label: 'Diabetes Hands Foundation' },
+  { value: 'DYF', label: 'Diabetes Youth Families (DYF)' },
+  { value: 'DIABETESSISTERS', label: 'DiabetesSisters' },
   { value: 'DIATRIBE', label: 'The diaTribe Foundation' },
   { value: 'JDRF', label: 'JDRF' },
   { value: 'NSF', label: 'Nightscout Foundation' },
   { value: 'T1DX', label: 'T1D Exchange' },
+];
+
+export const DIABETES_TYPES = [
+  { value: 'type1', label: 'Type 1' },
+  { value: 'type2', label: 'Type 2' },
+  { value: 'gestational', label: 'Gestational' },
+  { value: 'prediabetes', label: 'Pre-diabetes' },
+  { value: 'lada', label: 'LADA (Type 1.5)' },
+  { value: 'other', label: 'Other' },
 ];
 
 export const MGDL_UNITS = 'mg/dL';

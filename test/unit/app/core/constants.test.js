@@ -18,9 +18,10 @@
 /* global describe */
 /* global it */
 
-const expect = chai.expect;
-
+import _ from 'lodash';
 import * as Constants from '../../../../app/core/constants';
+
+const expect = chai.expect;
 
 describe('constants', function() {
   it('should export an object', function() {
@@ -40,9 +41,32 @@ describe('constants', function() {
     expect(Constants.TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL).to.equal('bigdata@tidepool.org');
   });
 
-  it('should define the list tidepool big data donation nonprofit partners', function() {
+  it('should define the list of tidepool big data donation nonprofit partners', function() {
     expect(Constants.DATA_DONATION_NONPROFITS).to.be.an('array');
-    expect(Constants.DATA_DONATION_NONPROFITS.length > 0).to.be.true;
+    expect(_.pluck(Constants.DATA_DONATION_NONPROFITS, 'value')).to.eql([
+      'BT1',
+      'CARBDM',
+      'CWD',
+      'CDN',
+      'DYF',
+      'DIABETESSISTERS',
+      'DIATRIBE',
+      'JDRF',
+      'NSF',
+      'T1DX',
+    ]);
+  });
+
+  it('should define the list of diabetes diagnosis types', function() {
+    expect(Constants.DIABETES_TYPES).to.be.an('array');
+    expect(_.pluck(Constants.DIABETES_TYPES, 'value')).to.eql([
+      'type1',
+      'type2',
+      'gestational',
+      'prediabetes',
+      'lada',
+      'other',
+    ]);
   });
 
   it('should define url for dexcom connect info', function() {
