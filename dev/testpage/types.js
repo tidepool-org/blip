@@ -116,6 +116,7 @@ Bolus.prototype = common;
 var CBG = function(opts) {
   opts = opts || {};
   var defaults = {
+    deviceId: 'DexG4Rec_XXXXXXXXX',
     deviceTime: this.makeDeviceTime(),
     units: MGDL_UNITS,
     value: 100
@@ -124,6 +125,7 @@ var CBG = function(opts) {
 
   this.type = 'cbg';
 
+  this.deviceId = opts.deviceId;
   this.deviceTime = opts.deviceTime;
   this.units = opts.units;
   this.value = opts.value;
@@ -261,7 +263,8 @@ DeviceEvent.prototype = common;
 var Upload = function(opts) {
   opts = opts || {};
   var defaults = {
-      deviceTime: this.makeDeviceTime(),
+    deviceTime: this.makeDeviceTime(),
+    timezone: 'US/Eastern',
   };
   _.defaults(opts, defaults);
 
@@ -271,11 +274,12 @@ var Upload = function(opts) {
   this.source = opts.source;
 
   this.time = this.makeTime();
+  this.timezone = opts.timezone;
+  this.normalTime = this.makeNormalTime();
   this.createdTime = this.makeTime();
   this.timezoneOffset = this.makeTimezoneOffset();
 
   this.id = this.makeId();
-
 };
 
 Upload.prototype = common;

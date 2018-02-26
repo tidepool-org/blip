@@ -18,6 +18,7 @@
 /* jshint esversion:6 */
 
 var chai = require('chai');
+var _ = require('lodash');
 var assert = chai.assert;
 var expect = chai.expect;
 
@@ -53,6 +54,38 @@ describe('BGUtil', function() {
 
   it('should be a (newable) constructor', function() {
     expect(bg).to.exist;
+  });
+
+  describe('weightedCGMCount', function() {
+    it('should return a count of 1 for every cgm datum by default', () => {
+      const data = _.map(_.range(0, 10), () => ({
+        deviceId: 'Dexcom_XXXXXXX',
+        type: 'cbg',
+      }));
+
+      expect(bg.weightedCGMCount(data)).to.equal(data.length);
+    });
+
+    it('should return a count of 3 for every FreeStyle Libre cgm datum by default', () => {
+      const data = _.map(_.range(0, 10), () => ({
+        deviceId: 'AbbottFreeStyleLibre_XXXXXXX',
+        type: 'cbg',
+      }));
+
+      expect(bg.weightedCGMCount(data)).to.equal(data.length * 3);
+    });
+
+    it('should properly handle a mix of FreeStyle Libre and Dexcom data', () => {
+      const data = _.map(_.range(0, 10), () => ({
+        deviceId: 'Dexcom_XXXXXXX',
+        type: 'cbg',
+      })).concat(_.map(_.range(0, 10), () => ({
+        deviceId: 'AbbottFreeStyleLibre_XXXXXXX',
+        type: 'cbg',
+      })));
+
+      expect(bg.weightedCGMCount(data)).to.equal(40);
+    });
   });
 
   describe('filtered', function() {

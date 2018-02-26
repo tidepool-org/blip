@@ -29,9 +29,12 @@ var { MGDL_UNITS } = require('../../../../js/data/util/constants');
 var basicsActions = require('./actions');
 var togglableState = require('../TogglableState');
 
+var BGUtil = require('../../../../js/data/bgutil');
+
 module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
 
   var classifiers = classifiersMkr(bgClasses, bgUnits);
+  var weightedCGMCount = new BGUtil([], { DAILY_MIN: constants.CGM_IN_DAY * 0.75 }).weightedCGMCount;
 
   return {
     bgDistribution: function(basicsData) {
@@ -51,6 +54,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         }
         return _.defaults(reshaped, distributionDefaults);
       }
+
       var cgm = basicsData.data.cbg;
       var bgm = basicsData.data.smbg;
       var bgDistribution = {};
@@ -58,7 +62,8 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         var count = cgm.data.length;
         var spanInDays = (Date.parse(basicsData.dateRange[1]) -
           Date.parse(basicsData.dateRange[0]))/constants.MS_IN_DAY;
-        if (count < (constants.CGM_IN_DAY/2 * spanInDays)) {
+
+        if (weightedCGMCount(cgm.data) < (constants.CGM_IN_DAY/2 * spanInDays)) {
           bgDistribution.cgmStatus = constants.NOT_ENOUGH_CGM;
         }
         else {
