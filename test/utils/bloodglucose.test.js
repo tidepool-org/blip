@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import * as bgUtils from '../../src/utils/bloodglucose';
 
 describe('blood glucose utilities', () => {
@@ -139,6 +140,57 @@ describe('blood glucose utilities', () => {
 
       it('should return `veryHigh` for a value > the `veryHighThreshold`', () => {
         expect(bgUtils.classifyBgValue(bgBounds, 301, 'fiveWay')).to.equal('veryHigh');
+      });
+    });
+  });
+
+  describe('generateBgRangeLabels', () => {
+    const bounds = {
+      mgdl: {
+        veryHighThreshold: 300.12345,
+        targetUpperBound: 180,
+        targetLowerBound: 70,
+        veryLowThreshold: 55,
+      },
+      mmoll: {
+        veryHighThreshold: 16.666667,
+        targetUpperBound: 10,
+        targetLowerBound: 3.9,
+        veryLowThreshold: 3.1,
+      },
+    };
+
+    it('should generate properly formatted range labels for mg/dL BG prefs', () => {
+      const bgPrefs = {
+        bgBounds: bounds.mgdl,
+        bgUnits: 'mg/dL',
+      };
+
+      const result = bgUtils.generateBgRangeLabels(bgPrefs);
+
+      expect(result).to.eql({
+        veryLow: 'below 55 mg/dL',
+        low: 'between 55 - 70 mg/dL',
+        target: 'between 70 - 180 mg/dL',
+        high: 'between 180 - 300 mg/dL',
+        veryHigh: 'above 300 mg/dL',
+      });
+    });
+
+    it('should generate properly formatted range labels for mmol/L BG prefs', () => {
+      const bgPrefs = {
+        bgBounds: bounds.mmoll,
+        bgUnits: 'mmol/L',
+      };
+
+      const result = bgUtils.generateBgRangeLabels(bgPrefs);
+
+      expect(result).to.eql({
+        veryLow: 'below 3.1 mmol/L',
+        low: 'between 3.1 - 3.9 mmol/L',
+        target: 'between 3.9 - 10.0 mmol/L',
+        high: 'between 10.0 - 16.7 mmol/L',
+        veryHigh: 'above 16.7 mmol/L',
       });
     });
   });
@@ -275,6 +327,37 @@ describe('blood glucose utilities', () => {
       };
 
       expect(bgUtils.getOutOfRangeThreshold(datum)).to.equal(null);
+    });
+  });
+
+  describe('weightedCGMCount', () => {
+    it('should return a count of 1 for every cgm datum by default', () => {
+      const data = _.map(_.range(0, 10), () => ({
+        deviceId: 'Dexcom_XXXXXXX',
+        type: 'cbg',
+      }));
+
+      expect(bgUtils.weightedCGMCount(data)).to.equal(data.length);
+    });
+
+    it('should return a count of 3 for every FreeStyle Libre cgm datum by default', () => {
+      const data = _.map(_.range(0, 10), () => ({
+        deviceId: 'AbbottFreeStyleLibre_XXXXXXX',
+        type: 'cbg',
+      }));
+
+      expect(bgUtils.weightedCGMCount(data)).to.equal(data.length * 3);
+    });
+
+    it('should properly handle a mix of FreeStyle Libre and Dexcom data', () => {
+      const data = _.map(_.range(0, 10), () => ({
+        deviceId: 'Dexcom_XXXXXXX',
+      })).concat(_.map(_.range(0, 10), () => ({
+        deviceId: 'AbbottFreeStyleLibre_XXXXXXX',
+        type: 'cbg',
+      })));
+
+      expect(bgUtils.weightedCGMCount(data)).to.equal(40);
     });
   });
 });

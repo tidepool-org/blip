@@ -24,6 +24,8 @@ import RangeSelect from './components/trends/cbg/RangeSelect';
 import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
 import PumpSettingsContainer from './components/settings/common/PumpSettingsContainer';
 import TrendsContainer from './components/trends/common/TrendsContainer';
+import Tooltip from './components/common/tooltips/Tooltip';
+import BolusTooltip from './components/daily/bolustooltip/BolusTooltip';
 
 import vizReducer from './redux/reducers/';
 import * as actions from './redux/actions/worker';
@@ -42,6 +44,8 @@ const components = {
   FocusedSMBGPointLabel,
   RangeSelect,
   TwoOptionToggle,
+  Tooltip,
+  BolusTooltip,
 };
 
 const containers = {

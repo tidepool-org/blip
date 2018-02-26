@@ -23,20 +23,18 @@ import * as actions from '../../../src/redux/actions/';
 describe('worker action creators', () => {
   describe('generatePDFRequest', () => {
     const payload = {
-      type: 'daily',
-      mostRecent: 'mostRecent',
-      groupedData: [],
+      type: 'combined',
+      data: [],
       opts: {},
     };
 
     const {
       type,
-      mostRecent,
-      groupedData,
+      data,
       opts,
     } = payload;
 
-    const action = actions.generatePDFRequest(type, mostRecent, groupedData, opts);
+    const action = actions.generatePDFRequest(type, data, opts);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
@@ -46,7 +44,11 @@ describe('worker action creators', () => {
       expect(action).to.deep.equal({
         type: actionTypes.GENERATE_PDF_REQUEST,
         meta: { WebWorker: true, origin: document.location.origin },
-        payload,
+        payload: {
+          type,
+          data: JSON.stringify(data),
+          opts,
+        },
       });
     });
   });

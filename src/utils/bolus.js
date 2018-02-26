@@ -70,7 +70,7 @@ export function getProgrammed(insulinEvent) {
   let bolus = insulinEvent;
   if (_.get(insulinEvent, 'type') === 'wizard') {
     bolus = getBolusFromInsulinEvent(insulinEvent);
-    if (!bolus.normal && !bolus.extended) {
+    if (!_.inRange(bolus.normal, Infinity) && !_.inRange(bolus.extended, Infinity)) {
       return NaN;
     }
   }
@@ -129,7 +129,7 @@ export function getDelivered(insulinEvent) {
   let bolus = insulinEvent;
   if (_.get(insulinEvent, 'type') === 'wizard') {
     bolus = getBolusFromInsulinEvent(insulinEvent);
-    if (!bolus.normal && !bolus.extended) {
+    if (!_.inRange(bolus.normal, Infinity) && !_.inRange(bolus.extended, Infinity)) {
       return NaN;
     }
   }
@@ -315,7 +315,7 @@ export function isInterruptedBolus(insulinEvent) {
     bolus.extended !== bolus.expectedExtended
   );
 
-  if (bolus.normal) {
+  if (_.inRange(bolus.normal, Infinity)) {
     if (!bolus.extended) {
       return cancelledDuringNormal;
     }
@@ -342,4 +342,16 @@ export function isOverride(insulinEvent) {
  */
 export function isUnderride(insulinEvent) {
   return getRecommended(insulinEvent) > getProgrammed(insulinEvent);
+}
+
+/**
+ * getAnnoations
+ * @param {Object} insulinEvent - a Tidebool bolus or wizard object
+ *
+ * @returns {Array} array of annotations for the bolus or an empty array
+ */
+export function getAnnotations(insulinEvent) {
+  const bolus = getBolusFromInsulinEvent(insulinEvent);
+  const annotations = _.get(bolus, 'annotations', []);
+  return annotations;
 }

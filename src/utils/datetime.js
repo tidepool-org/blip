@@ -51,6 +51,18 @@ export const THREE_HRS = 10800000;
 export const TWENTY_FOUR_HRS = 86400000;
 
 /**
+ * addDuration
+ * @param {String} datetime - an ISO date string
+ * @param {Number} duration - milliseconds to add to date
+ * @returns new Date ISO string - the provided datetime + duration
+ */
+export function addDuration(startTime, duration) {
+  const dateTime = new Date(startTime);
+
+  return new Date(dateTime.valueOf() + duration).toISOString();
+}
+
+/**
  * getTimezoneFromTimePrefs
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *
@@ -115,6 +127,25 @@ export function formatDiagnosisDate(patient) {
     return utcFormat('%b %-d, %Y')(Date.parse(diagnosis));
   }
   return '';
+}
+
+/**
+ * formatDateRange
+ * @param {String|Date} startDate - A moment-compatible date object or string
+ * @param {String|Date} endDate - A moment-compatible date object or string
+ * @param {String} format - Optional. The moment format string to parse startDate and endDate with
+ */
+export function formatDateRange(startDate, endDate, format) {
+  const start = moment.utc(startDate, format);
+  const end = moment.utc(endDate, format);
+
+  const isSameYear = start.isSame(end, 'year');
+  const startFormat = isSameYear ? start.format('MMM D') : start.format('MMM D, YYYY');
+  const endFormat = end.format('MMM D, YYYY');
+
+  const formattedRange = `${startFormat} - ${endFormat}`;
+
+  return formattedRange;
 }
 
 /**
