@@ -25,8 +25,9 @@
 }
 
 .EmailVerification-intro {
-  margin: 0 auto;
+  margin: 10px auto 0;
   width: @breakWidth;
+  line-height: 1.5;
 
   @media (max-width: @breakWidth) {
     width: 100%;
@@ -34,28 +35,36 @@
 }
 
 .EmailVerification-title {
-  margin-top: @spacing-large;
-  margin-bottom: @spacing-base;
+  max-width: 300px;
+  margin: @spacing-large auto;
   font-size: 20px;
-  line-height: 1;
+  font-weight: 600;
   text-align: center;
   color: @purple-highcontrast;
 
+
   @media (max-width: @breakWidth) {
-    margin-left: @sideMargin;
-    margin-right: @sideMargin;
+    max-width: 100%;
+    margin: @spacing-base @sideMargin;
   }
 }
 
 .EmailVerification-instructions {
+  max-width: 600px;
+  margin: 0 auto @spacing-base;
   margin-bottom: 20px;
-  font-size: 20px;
+  font-size: 18px;
   text-align: center;
   color: @purple-highcontrast;
 
   @media (max-width: @breakWidth) {
+    max-width: 100%;
     margin-left: @sideMargin;
     margin-right: @sideMargin;
+  }
+
+  strong {
+    color: @purple;
   }
 }
 
