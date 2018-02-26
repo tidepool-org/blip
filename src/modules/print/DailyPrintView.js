@@ -622,14 +622,10 @@ class DailyPrintView extends PrintView {
       align: 'right',
       width: this.chartArea.leftEdge - this.summaryArea.rightEdge - 3,
     };
-<<<<<<< HEAD
 
-    const renderedBounds = _.filter(this.bgBounds, bound => (bound <= this.bgScaleYLimit));
+    const renderedBounds = _.pick(this.bgBounds, bound => (bound <= this.bgScaleYLimit));
 
-    _.each(renderedBounds, (bound) => {
-=======
-    _.each(this.bgBounds, (bound, key) => {
->>>>>>> master
+    _.each(renderedBounds, (bound, key) => {
       const bgTick = this.bgUnits === MMOLL_UNITS ? parseFloat(bound).toFixed(1) : bound;
 
       const xPos = this.chartArea.leftEdge;
