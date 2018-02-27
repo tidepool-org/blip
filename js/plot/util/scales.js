@@ -101,22 +101,16 @@ var scales = function(opts) {
 
       var ext = d3.extent(data, function(d) { return d.value; });
       if (ext[0] === ext[1]) {
-        return defaultTicks;
+        var targetBoundary = _.get(opts, 'bgClasses.target.boundary', opts.TARGET_BG_BOUNDARY);
+        ext[1] = _.max([ext[1], targetBoundary]);
       }
       // if the min of our data is greater than any of the defaultTicks, remove that tick
-      defaultTicks.forEach(function(tick) {
-        if (ext[0] > tick) {
-          defaultTicks.shift();
-        }
-      });
-      defaultTicks.reverse();
-      // same thing for max
-      defaultTicks.forEach(function(tick) {
+      defaultTicks.forEach(function(tick, i) {
         if (ext[1] < tick) {
-          defaultTicks.shift();
+          defaultTicks.pop();
         }
       });
-      return defaultTicks.reverse();
+      return defaultTicks;
     },
     carbs: function(data, pool) {
       var scale = d3.scale.linear()
