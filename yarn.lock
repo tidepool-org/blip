@@ -7563,9 +7563,9 @@ thunkify@~2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@0.6.16-daily-y-scale-fix.2:
-  version "0.6.16-daily-y-scale-fix.2"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.16-daily-y-scale-fix.2.tgz#a5734fcbfc4b9dc1ed219a24d19cdc9f840122aa"
+tideline@0.6.16-daily-y-scale-fix.3:
+  version "0.6.16-daily-y-scale-fix.3"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.6.16-daily-y-scale-fix.3.tgz#a643ff929a36f9976931381e12caad7e42809dc9"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
