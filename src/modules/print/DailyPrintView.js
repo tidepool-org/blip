@@ -222,8 +222,15 @@ class DailyPrintView extends PrintView {
       belowBasal,
     } = this.chartMinimums;
 
+    // We need to ensure that the top of the bgScale is at least at the the targetUpperBound
+    // for proper rendering of datasets with no BG values above this mark.
+    this.data.bgRange[1] = _.max([this.data.bgRange[1], this.bgBounds.targetUpperBound]);
+
+    // Calculate the maximum BG yScale value
+    this.bgScaleYLimit = _.min([this.data.bgRange[1], this.bgBounds.veryHighThreshold]);
+
     dateChart.bgScale = scaleLinear() // eslint-disable-line no-param-reassign
-      .domain([0, _.min([this.bgBounds.veryHighThreshold, this.data.bgRange[1]])])
+      .domain([0, this.bgScaleYLimit])
       .range([
         dateChart.topEdge + notesEtc + bgEtcChart + this.cbgRadius,
         dateChart.topEdge + notesEtc - this.cbgRadius,
@@ -615,7 +622,10 @@ class DailyPrintView extends PrintView {
       align: 'right',
       width: this.chartArea.leftEdge - this.summaryArea.rightEdge - 3,
     };
-    _.each(this.bgBounds, (bound, key) => {
+
+    const renderedBounds = _.pick(this.bgBounds, bound => (bound <= this.bgScaleYLimit));
+
+    _.each(renderedBounds, (bound, key) => {
       const bgTick = this.bgUnits === MMOLL_UNITS ? parseFloat(bound).toFixed(1) : bound;
 
       const xPos = this.chartArea.leftEdge;
