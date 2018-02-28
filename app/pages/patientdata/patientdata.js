@@ -49,7 +49,7 @@ import UploaderButton from '../../components/uploaderbutton';
 
 import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
 
-import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from '../../core/constants';
+import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, BG_DATA_TYPES, DIABETES_DATA_TYPES } from '../../core/constants';
 
 const Loader = vizComponents.Loader;
 
@@ -434,7 +434,8 @@ export let PatientData = React.createClass({
     const data = state.processedPatientData;
     const diabetesData = data.diabetesData;
 
-    if (diabetesData) {
+    if (diabetesData.length > 0) {
+      const mostRecent = diabetesData[diabetesData.length - 1].normalTime;
       const opts = {
         bgPrefs: state.bgPrefs,
         numDays: {
@@ -442,11 +443,11 @@ export let PatientData = React.createClass({
         },
         patient: props.patient,
         timePrefs: state.timePrefs,
-        mostRecent: diabetesData[diabetesData.length - 1].normalTime,
+        mostRecent,
       };
 
       const dailyData = vizUtils.selectDailyViewData(
-        diabetesData[diabetesData.length - 1].normalTime,
+        mostRecent,
         _.pick(
           data.grouped,
           ['basal', 'bolus', 'cbg', 'message', 'smbg']
@@ -487,20 +488,20 @@ export let PatientData = React.createClass({
       const comparator = this.state.chartType === 'trends' ? 'isBefore' : 'isSameOrBefore';
       const comparatorPrecision = this.state.chartType === 'trends' ? 'day' : 'millisecond';
 
-      // If we've reached the limit of our fetched data, we need to get some more
-      if (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision)) {
-        this.log('fetching');
-        this.fetchEarlierData();
-      }
       // If we've reached the limit of our processed data (since we process in smaller chunks than
       // what we fetch), we need to process some more.
-      else if (
+      if (
         (lastProcessedDateTarget && dateRangeStart[comparator](lastProcessedDateTarget, comparatorPrecision))
         || (this.state.chartType === 'weekly' && chartLimitReached)
         || (this.state.chartType === 'daily' && chartLimitReached)
       ) {
         this.log('processing');
         this.processData(this.props);
+      }
+      // If we've reached the limit of our fetched data, we need to get some more
+      else if (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision)) {
+        this.log('fetching');
+        this.fetchEarlierData();
       }
     }
   },
@@ -720,10 +721,15 @@ export let PatientData = React.createClass({
       if (newDiabetesDataReturned || this.state.lastDatumProcessedIndex < 0) {
         this.processData(nextProps);
       }
-      else if (!newDiabetesDataReturned && newDataRangeFetched && !allDataFetched) {
-        // Our latest data fetch yeilded no new data. We now request the remainder of the available
-        // data to make sure that we don't miss any.
-        this.fetchEarlierData({ startDate: null });
+      else if (!newDiabetesDataReturned && newDataRangeFetched) {
+        if (!allDataFetched) {
+          // Our latest data fetch yeilded no new data. We now request the remainder of the available
+          // data to make sure that we don't miss any.
+          this.fetchEarlierData({ startDate: null });
+        }
+        else {
+          this.setState({ loading: false });
+        }
       }
     }
 
@@ -740,11 +746,12 @@ export let PatientData = React.createClass({
     const pdfGenerating = nextProps.generatingPDF;
     const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
     const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
+    const hasDiabetesData = _.get(nextState, 'processedPatientData.diabetesData.length');
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
-    if (patientDataProcessed && !pdfGenerating && !pdfGenerated) {
+    if (patientDataProcessed && hasDiabetesData && !pdfGenerating && !pdfGenerated) {
       this.generatePDF(nextProps, nextState);
     }
   },
@@ -912,12 +919,17 @@ export let PatientData = React.createClass({
 
       const targetDatetime = targetDatetimeMoment.subtract(timezoneOffset, 'minutes').toISOString();
 
-
       // Find a cutoff point for processing unprocessed data
+      let diabetesDataCount = 0;
       let targetIndex = _.findIndex(unprocessedPatientData, datum => {
+        // We want to be sure that the slice of data includes at least one diabetes datum
+        if (DIABETES_DATA_TYPES.indexOf(datum.type) >= 0) {
+          diabetesDataCount++;
+        }
+
         // Return the index of the first item we don't want to process in this round
         // This is what we want, as we will slice with this index as the end argument, which will not include this datum
-        return targetDatetime > datum.time;
+        return diabetesDataCount && targetDatetime > datum.time;
       });
 
       // If it didn't find a cutoff point, we process all the remaining unprocessed data
@@ -925,31 +937,24 @@ export let PatientData = React.createClass({
         targetIndex = unprocessedPatientData.length;
       }
 
+      // If there's only 1 diabetes datum found up to the target index, and it's the last one,
+      // we need to make sure it's included in the data slice to process.
+      if (diabetesDataCount === 1 && DIABETES_DATA_TYPES.indexOf(unprocessedPatientData[targetIndex].type >= 0)) {
+        targetIndex++;
+      }
+
       const targetData = targetIndex > 0
         ? unprocessedPatientData.slice(0, targetIndex)
         : unprocessedPatientData;
 
-
       // We need to track the last processed indexes for diabetes and bg data to help determine when
       // we've reached the scroll limits of the daily and weekly charts
-      const bgTypes = [
-        'cbg',
-        'smbg',
-      ];
-
-      const diabetesDataTypes = [
-        'basal',
-        'bolus',
-        'wizard',
-        ...bgTypes,
-      ];
-
       const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + 1) + targetIndex), datum => {
-        return _.includes(diabetesDataTypes, datum.type);
+        return _.includes(DIABETES_DATA_TYPES, datum.type);
       });
 
       const lastBGDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + 1) + targetIndex), datum => {
-        return _.includes(bgTypes, datum.type);
+        return _.includes(BG_DATA_TYPES, datum.type);
       });
 
       window.downloadInputData = () => {

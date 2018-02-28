@@ -19,7 +19,7 @@ import _  from 'lodash';
 import sundial from 'sundial';
 import TidelineData from 'tideline/js/tidelinedata';
 import nurseShark from 'tideline/plugins/nurseshark';
-import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
+import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, DIABETES_DATA_TYPES } from './constants';
 
 var utils = {};
 
@@ -428,15 +428,7 @@ utils.getLatestGithubRelease = (releases) => {
  * @returns {Object}
  */
 utils.getDiabetesDataRange = (data) => {
-  const types = [
-    'basal',
-    'bolus',
-    'cbg',
-    'smbg',
-    'wizard',
-  ];
-
-  const sortedData = _.sortBy(_.filter(data, d => _.includes(types, d.type)), 'time');
+  const sortedData = _.sortBy(_.filter(data, d => _.includes(DIABETES_DATA_TYPES, d.type)), 'time');
 
   const start = _.get(_.first(sortedData), 'time');
   const end = _.get(_.last(sortedData), 'time');
