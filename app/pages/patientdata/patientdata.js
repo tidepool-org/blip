@@ -923,13 +923,15 @@ export let PatientData = React.createClass({
       let diabetesDataCount = 0;
       let targetIndex = _.findIndex(unprocessedPatientData, datum => {
         // We want to be sure that the slice of data includes at least one diabetes datum
-        if (DIABETES_DATA_TYPES.indexOf(datum.type) >= 0) {
+        if (isInitialProcessing && DIABETES_DATA_TYPES.indexOf(datum.type) >= 0) {
           diabetesDataCount++;
         }
 
         // Return the index of the first item we don't want to process in this round
         // This is what we want, as we will slice with this index as the end argument, which will not include this datum
-        return diabetesDataCount && targetDatetime > datum.time;
+        return isInitialProcessing
+          ? diabetesDataCount && targetDatetime > datum.time
+          : targetDatetime > datum.time;
       });
 
       // If it didn't find a cutoff point, we process all the remaining unprocessed data

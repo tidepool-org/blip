@@ -1164,11 +1164,15 @@ describe('PatientData', function () {
         generatingPDF: false,
       };
 
+      const processedPatientData = {
+        diabetesData: ['stub'],
+      };
+
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.setState({ chartType: 'basics', processingData: false, processedPatientData: true });
+      wrapper.setState({ chartType: 'basics', processingData: false, processedPatientData });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1190,11 +1194,15 @@ describe('PatientData', function () {
         generatingPDF: false,
       };
 
+      const processedPatientData = {
+        diabetesData: ['stub'],
+      };
+
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: true });
+      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1216,11 +1224,15 @@ describe('PatientData', function () {
         generatingPDF: false,
       };
 
+      const processedPatientData = {
+        diabetesData: ['stub'],
+      };
+
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.setState({ chartType: 'settings', processingData: false, processedPatientData: true });
+      wrapper.setState({ chartType: 'settings', processingData: false, processedPatientData });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1242,11 +1254,15 @@ describe('PatientData', function () {
         generatingPDF: false,
       };
 
+      const processedPatientData = {
+        diabetesData: ['stub'],
+      };
+
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.setState({ chartType: 'weekly', processingData: false, processedPatientData: true });
+      wrapper.setState({ chartType: 'weekly', processingData: false, processedPatientData });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1254,7 +1270,7 @@ describe('PatientData', function () {
       wrapper.update();
       expect(elem.generatePDF.callCount).to.equal(1);
 
-      wrapper.setState({ chartType: 'trends', processingData: false, processedPatientData: true });
+      wrapper.setState({ chartType: 'trends', processingData: false, processedPatientData });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -2142,6 +2158,33 @@ describe('PatientData', function () {
             processPatientDataStub,
             [
               shouldProcessProps.patientDataMap[40][0], // second datum not processed as it is more than 4 weeks in the past
+              ...shouldProcessProps.patientNotesMap[40],
+            ],
+          );
+        });
+
+        it('should call processPatientData util on data beyond the 4 weeks of the lastProcessedDateTarget provided if no diabetes data would be in that slice', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+          });
+          wrapper.setProps(_.assign({}, shouldProcessProps, {
+            patientDataMap: {
+              40: [
+                { time: '2018-02-01T00:00:00.000Z', type: 'upload' },
+                { time: '2017-12-01T00:00:00.000Z', type: 'basal' }, // over 4 weeks back, but still should be included
+                { time: '2017-11-30T00:00:00.000Z', type: 'cbg' }, // not included in slice
+              ],
+            },
+          }));
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledOnce(processPatientDataStub);
+          sinon.assert.calledWith(
+            processPatientDataStub,
+            [
+              { time: '2018-02-01T00:00:00.000Z', type: 'upload' },
+                { time: '2017-12-01T00:00:00.000Z', type: 'basal' },
               ...shouldProcessProps.patientNotesMap[40],
             ],
           );
