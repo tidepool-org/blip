@@ -488,6 +488,12 @@ export let PatientData = React.createClass({
       const comparator = this.state.chartType === 'trends' ? 'isBefore' : 'isSameOrBefore';
       const comparatorPrecision = this.state.chartType === 'trends' ? 'day' : 'millisecond';
 
+      // If we've reached the limit of our fetched data, we need to get some more
+      if (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision)) {
+        this.log('fetching');
+        return this.fetchEarlierData();
+      }
+
       // If we've reached the limit of our processed data (since we process in smaller chunks than
       // what we fetch), we need to process some more.
       if (
@@ -496,12 +502,7 @@ export let PatientData = React.createClass({
         || (this.state.chartType === 'daily' && chartLimitReached)
       ) {
         this.log('processing');
-        this.processData(this.props);
-      }
-      // If we've reached the limit of our fetched data, we need to get some more
-      else if (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision)) {
-        this.log('fetching');
-        this.fetchEarlierData();
+        return this.processData(this.props);
       }
     }
   },
