@@ -18,7 +18,6 @@
 /* global importScripts, onmessage, postMessage */
 
 import _ from 'lodash';
-import Promise from 'bluebird';
 import PDFWorker from './PDFWorker';
 
 const pdfWorker = new PDFWorker();

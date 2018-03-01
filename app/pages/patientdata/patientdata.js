@@ -901,7 +901,6 @@ export let PatientData = React.createClass({
       _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
 
       // Determine how far back into the unprocessed patient data we want to process.
-      // const targetDatetimeMoment = moment.max(targets).subtract(processDataMaxWeeks, 'weeks').startOf('day');
       const targetDatetimeMoment = lastProcessedDatetime.subtract(processDataMaxWeeks, 'weeks').startOf('day');
 
       // We first take the user's timezone offset into consideration so that we process back to the

@@ -784,7 +784,7 @@ describe('PatientData', function () {
       expect(instance.state.processedPatientData.basicsData).to.equal('new basicsData');
     });
 
-    it('should not attempt toupdate the state object, if processedPatientData state is not present', () => {
+    it('should not attempt to update the state object, if processedPatientData state is not present', () => {
       const assignSpy = sinon.spy(_, 'assign');
 
       const wrapper = shallow(<PatientData {...defaultProps} />);
@@ -1024,7 +1024,7 @@ describe('PatientData', function () {
       });
 
       context('patient settings have not been fetched, no patient data has been received', () => {
-        it('should not kick of processing or fetching', () => {
+        it('should not kick off processing or fetching', () => {
           wrapper.setProps(_.assign({}, shouldProcessProps, {
             patient: null,
           }));
@@ -1034,7 +1034,7 @@ describe('PatientData', function () {
       });
 
       context('patient settings have not been fetched, patient data has been received', () => {
-        it('should not kick of processing or fetching', () => {
+        it('should not kick off processing or fetching', () => {
           wrapper.setProps(_.assign({}, shouldProcessProps, {
             patient: null,
             fetchedPatientDataRange: {
@@ -1050,7 +1050,7 @@ describe('PatientData', function () {
       });
 
       context('patient settings have been fetched, patient data has not been received', () => {
-        it('should not kick of processing or fetching', () => {
+        it('should not kick off processing or fetching', () => {
           wrapper.setProps(_.assign({}, shouldProcessProps, {
             patientDataMap: {},
           }));
