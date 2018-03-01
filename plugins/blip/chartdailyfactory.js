@@ -285,7 +285,9 @@ function chartDailyFactory(el, options) {
       yScaleCarbs: scaleCarbs,
       emitter: emitter,
       subdueOpacity: 0.4,
-      timezoneAware: chart.options.timePrefs.timezoneAware
+      timezoneAware: chart.options.timePrefs.timezoneAware,
+      onBolusHover: options.onBolusHover,
+      onBolusOut: options.onBolusOut,
     }), true, true);
 
     // quick bolus data to wizard pool
@@ -293,7 +295,9 @@ function chartDailyFactory(el, options) {
       yScale: scaleBolus,
       emitter: emitter,
       subdueOpacity: 0.4,
-      timezoneAware: chart.options.timePrefs.timezoneAware
+      timezoneAware: chart.options.timePrefs.timezoneAware,
+      onBolusHover: options.onBolusHover,
+      onBolusOut: options.onBolusOut,
     }), true, true);
 
     // basal pool
