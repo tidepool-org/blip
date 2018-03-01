@@ -61,6 +61,7 @@
 }
 
 :export {
+  bolus: #7CD0F0;
   basal: #19A0D7;
   low: #FF8B7C;
   target: #76D3A6;

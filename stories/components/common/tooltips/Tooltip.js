@@ -89,7 +89,7 @@ storiesOf('Tooltip', module)
   .add('tailWidth', () => (
     <div>
       {refDiv}
-      <Tooltip {...props} tailWidth={10} />
+      <Tooltip {...props} tailWidth={20} />
     </div>
   ))
   .add('tailHeight', () => (
@@ -144,6 +144,12 @@ storiesOf('Tooltip', module)
     <div>
       {refDiv}
       <Tooltip {...props} side={'right'} />
+    </div>
+  ))
+  .add('tail, on right, tailWidth', () => (
+    <div>
+      {refDiv}
+      <Tooltip {...props} side={'right'} tailWidth={20} />
     </div>
   ))
   .add('tail, on right, offset 5,5', () => (
