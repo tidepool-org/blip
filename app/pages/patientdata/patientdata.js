@@ -470,6 +470,21 @@ export let PatientData = React.createClass({
     }
   },
 
+  subtractTimezoneOffset: function(datetime, timezoneSettings = this.state.timePrefs) {
+    const dateMoment = moment.utc(datetime);
+
+    if (dateMoment.isValid()) {
+      let timezoneOffset = 0;
+
+      if (_.get(timezoneSettings, 'timezoneAware')) {
+        timezoneOffset = sundial.getOffsetFromZone(dateMoment.toISOString(), timezoneSettings.timezoneName);
+      }
+      return dateMoment.subtract(timezoneOffset, 'minutes').toISOString();
+    }
+
+    return datetime;
+  },
+
   handleChartDateRangeUpdate: function(dateRange) {
     this.updateChartDateRange(dateRange);
 
@@ -565,7 +580,7 @@ export let PatientData = React.createClass({
     });
 
     // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
-    datetime = moment(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString();
+    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString());
 
     this.setState({
       chartType: 'daily',
@@ -578,7 +593,7 @@ export let PatientData = React.createClass({
       fromChart: this.state.chartType
     });
 
-    datetime = moment(datetime || this.state.datetimeLocation).endOf('day').toISOString();
+    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).endOf('day').toISOString());
 
     this.setState({
       chartType: 'trends',
@@ -591,7 +606,7 @@ export let PatientData = React.createClass({
       fromChart: this.state.chartType
     });
 
-    datetime = moment(datetime || this.state.datetimeLocation).endOf('day').toISOString();
+    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).endOf('day').toISOString());
 
     this.setState({
       chartType: 'weekly',
@@ -823,8 +838,8 @@ export let PatientData = React.createClass({
       );
 
       const datetime = chartType === 'daily'
-        ? moment(latestData.time).hour(12).minute(0).second(0).toISOString()
-        : moment(latestData.time).endOf('day').toISOString();
+        ? this.subtractTimezoneOffset(moment.utc(latestData.time).hour(12).minute(0).second(0).toISOString())
+        : this.subtractTimezoneOffset(moment.utc(latestData.time).endOf('day').toISOString());
 
       let state = {
         chartType,
@@ -902,22 +917,14 @@ export let PatientData = React.createClass({
       _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
 
       // Determine how far back into the unprocessed patient data we want to process.
-      const targetDatetimeMoment = lastProcessedDatetime.subtract(processDataMaxWeeks, 'weeks').startOf('day');
-
-      // We first take the user's timezone offset into consideration so that we process back to the
-      // start of the most recent day the user is viewing so they don't see incomplete data for the
-      // last day in view.
-      let timezoneOffset = 0;
-
       const timezoneSettings = this.state.timePrefs.timezoneAware
         ? this.state.timePrefs
         : utils.getTimezoneForDataProcessing(unprocessedPatientData, props.queryParams);
 
-      if (_.get(timezoneSettings, 'timezoneAware')) {
-        timezoneOffset = sundial.getOffsetFromZone(targetDatetimeMoment.toISOString(), timezoneSettings.timezoneName);
-      }
-
-      const targetDatetime = targetDatetimeMoment.subtract(timezoneOffset, 'minutes').toISOString();
+      const targetDatetime = this.subtractTimezoneOffset(
+        lastProcessedDatetime.subtract(processDataMaxWeeks, 'weeks').startOf('day').toISOString(),
+        timezoneSettings
+      );
 
       // Find a cutoff point for processing unprocessed data
       let diabetesDataCount = 0;
