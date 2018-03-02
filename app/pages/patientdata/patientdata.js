@@ -494,9 +494,8 @@ export let PatientData = React.createClass({
       const dateRangeStart = moment.utc(dateRange[0]).startOf('day');
 
       const lastProcessedDateTarget = this.state.lastProcessedDateTarget;
-      const lastBGProcessedTime = _.get(patientData, `${this.state.lastBGDatumProcessedIndex}.time`);
-      const lastDiabetesDatumProcessedTime = _.get(patientData, `${this.state.lastDiabetesDatumProcessedIndex}.time`);
-      const lastChartDatumProcessedTime = this.state.chartType === 'daily' ? lastDiabetesDatumProcessedTime : lastBGProcessedTime;
+      const lastChartDatumProcessedKey = `last${_.capitalize(this.state.chartType)}DatumProcessedIndex`;
+      const lastChartDatumProcessedTime = _.get(patientData, `${this.state[lastChartDatumProcessedKey]}.time`);
 
       const chartLimitReached = lastChartDatumProcessedTime && dateRangeStart.isSameOrBefore(moment.utc(lastChartDatumProcessedTime), 'day');
 
@@ -958,11 +957,15 @@ export let PatientData = React.createClass({
 
       // We need to track the last processed indexes for diabetes and bg data to help determine when
       // we've reached the scroll limits of the daily and weekly charts
-      const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + 1) + targetIndex), datum => {
+      const lastDailyDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + 1) + targetIndex), datum => {
         return _.includes(DIABETES_DATA_TYPES, datum.type);
       });
 
-      const lastBGDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + 1) + targetIndex), datum => {
+      const lastWeeklyDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + 1) + targetIndex), datum => {
+        return datum.type === 'smbg';
+      });
+
+      const lastTrendsDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + 1) + targetIndex), datum => {
         return _.includes(BG_DATA_TYPES, datum.type);
       });
 
@@ -988,8 +991,9 @@ export let PatientData = React.createClass({
             bgClasses: processedData.bgClasses,
             bgUnits: processedData.bgUnits
           },
-          lastBGDatumProcessedIndex,
-          lastDiabetesDatumProcessedIndex,
+          lastDailyDatumProcessedIndex,
+          lastWeeklyDatumProcessedIndex,
+          lastTrendsDatumProcessedIndex,
           lastDatumProcessedIndex,
           lastProcessedDateTarget: targetDatetime,
           loading: false,
@@ -1011,8 +1015,9 @@ export let PatientData = React.createClass({
         const count = this.state.processEarlierDataCount + 1;
 
         this.setState({
-          lastBGDatumProcessedIndex,
-          lastDiabetesDatumProcessedIndex,
+          lastDailyDatumProcessedIndex,
+          lastWeeklyDatumProcessedIndex,
+          lastTrendsDatumProcessedIndex,
           lastDatumProcessedIndex,
           lastProcessedDateTarget: targetDatetime,
           processEarlierDataCount: count,
