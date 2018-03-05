@@ -497,12 +497,14 @@ export let PatientData = React.createClass({
       const lastChartDatumProcessedKey = `last${_.capitalize(this.state.chartType)}DatumProcessedIndex`;
       const lastChartDatumProcessedTime = _.get(patientData, `${this.state[lastChartDatumProcessedKey]}.time`);
 
+      this.log('chartLimitReached?', dateRangeStart.toISOString(), 'isSameOrBefore', '(', lastChartDatumProcessedTime, ', day)' )
       const chartLimitReached = lastChartDatumProcessedTime && dateRangeStart.isSameOrBefore(moment.utc(lastChartDatumProcessedTime), 'day');
 
       const comparator = this.state.chartType === 'trends' ? 'isBefore' : 'isSameOrBefore';
       const comparatorPrecision = this.state.chartType === 'trends' ? 'day' : 'millisecond';
 
       // If we've reached the limit of our fetched data, we need to get some more
+      this.log('fetch?', dateRangeStart.toISOString(), comparator, '(', this.props.fetchedPatientDataRange.start, ',', comparatorPrecision, ')');
       if (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision)) {
         this.log('fetching');
         return this.fetchEarlierData();
@@ -510,6 +512,8 @@ export let PatientData = React.createClass({
 
       // If we've reached the limit of our processed data (since we process in smaller chunks than
       // what we fetch), we need to process some more.
+      this.log('process?', dateRangeStart.toISOString(), comparator, '(', lastProcessedDateTarget, ',', comparatorPrecision, ')');
+      this.log('process?', chartLimitReached, '(chartLimitReached');
       if (
         (lastProcessedDateTarget && dateRangeStart[comparator](lastProcessedDateTarget, comparatorPrecision))
         || (this.state.chartType === 'weekly' && chartLimitReached)
