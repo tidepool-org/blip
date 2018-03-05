@@ -492,10 +492,12 @@ export let PatientData = React.createClass({
       const patientID = this.props.currentPatientInViewId;
       const patientData = _.get(this.props, ['patientDataMap', patientID], []);
       const dateRangeStart = moment.utc(dateRange[0]).startOf('day');
+      const isScrollChart = _.includes(['daily', 'weekly'], this.state.chartType);
 
       const lastProcessedDateTarget = this.state.lastProcessedDateTarget;
       const lastChartDatumProcessedKey = `last${_.capitalize(this.state.chartType)}DatumProcessedIndex`;
       const lastChartDatumProcessedTime = _.get(patientData, `${this.state[lastChartDatumProcessedKey]}.time`);
+      const allFetchedDatumsProcessed = this.state.lastDatumProcessedIndex === patientData.length - 1;
 
       this.log('chartLimitReached?', dateRangeStart.toISOString(), 'isSameOrBefore', '(', lastChartDatumProcessedTime, ', day)' )
       const chartLimitReached = lastChartDatumProcessedTime && dateRangeStart.isSameOrBefore(moment.utc(lastChartDatumProcessedTime), 'day');
@@ -503,9 +505,14 @@ export let PatientData = React.createClass({
       const comparator = this.state.chartType === 'trends' ? 'isBefore' : 'isSameOrBefore';
       const comparatorPrecision = this.state.chartType === 'trends' ? 'day' : 'millisecond';
 
+
       // If we've reached the limit of our fetched data, we need to get some more
       this.log('fetch?', dateRangeStart.toISOString(), comparator, '(', this.props.fetchedPatientDataRange.start, ',', comparatorPrecision, ')');
-      if (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision)) {
+      this.log('fetch?', isScrollChart, chartLimitReached, allFetchedDatumsProcessed);
+      if (
+        (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision))
+        || (isScrollChart && chartLimitReached && allFetchedDatumsProcessed)
+      ) {
         this.log('fetching');
         return this.fetchEarlierData();
       }
@@ -513,11 +520,10 @@ export let PatientData = React.createClass({
       // If we've reached the limit of our processed data (since we process in smaller chunks than
       // what we fetch), we need to process some more.
       this.log('process?', dateRangeStart.toISOString(), comparator, '(', lastProcessedDateTarget, ',', comparatorPrecision, ')');
-      this.log('process?', chartLimitReached, '(chartLimitReached');
+      this.log('process?', isScrollChart, chartLimitReached);
       if (
         (lastProcessedDateTarget && dateRangeStart[comparator](lastProcessedDateTarget, comparatorPrecision))
-        || (this.state.chartType === 'weekly' && chartLimitReached)
-        || (this.state.chartType === 'daily' && chartLimitReached)
+        || (isScrollChart && chartLimitReached)
       ) {
         this.log('processing');
         return this.processData(this.props);
@@ -933,7 +939,7 @@ export let PatientData = React.createClass({
       let diabetesDataCount = 0;
       let targetIndex = _.findIndex(unprocessedPatientData, datum => {
         // We want to be sure that the slice of data includes at least one diabetes datum
-        if (isInitialProcessing && DIABETES_DATA_TYPES.indexOf(datum.type) >= 0) {
+        if (isInitialProcessing && _.includes(DIABETES_DATA_TYPES, datum.type)) {
           diabetesDataCount++;
         }
 
@@ -951,7 +957,7 @@ export let PatientData = React.createClass({
 
       // If there's only 1 diabetes datum found up to the target index, and it's the last one,
       // we need to make sure it's included in the data slice to process.
-      if (diabetesDataCount === 1 && DIABETES_DATA_TYPES.indexOf(unprocessedPatientData[targetIndex].type >= 0)) {
+      if (diabetesDataCount === 1 && _.includes(DIABETES_DATA_TYPES, unprocessedPatientData[targetIndex].type)) {
         targetIndex++;
       }
 
@@ -961,15 +967,15 @@ export let PatientData = React.createClass({
 
       // We need to track the last processed indexes for diabetes and bg data to help determine when
       // we've reached the scroll limits of the daily and weekly charts
-      const lastDailyDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + 1) + targetIndex), datum => {
+      const lastDailyDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + targetData.length + 1)), datum => {
         return _.includes(DIABETES_DATA_TYPES, datum.type);
       });
 
-      const lastWeeklyDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + 1) + targetIndex), datum => {
+      const lastWeeklyDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + targetData.length + 1)), datum => {
         return datum.type === 'smbg';
       });
 
-      const lastTrendsDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + 1) + targetIndex), datum => {
+      const lastTrendsDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + targetData.length + 1)), datum => {
         return _.includes(BG_DATA_TYPES, datum.type);
       });
 
@@ -989,6 +995,11 @@ export let PatientData = React.createClass({
         );
 
         const lastDatumProcessedIndex = targetData.length - 1;
+        this.log('patientData.length', patientData.length);
+        this.log('lastDatumProcessedIndex', lastDatumProcessedIndex);
+        this.log('lastWeeklyDatumProcessedIndex', lastWeeklyDatumProcessedIndex);
+        this.log('lastDailyDatumProcessedIndex', lastDailyDatumProcessedIndex);
+        this.log('lastTrendsDatumProcessedIndex', lastTrendsDatumProcessedIndex);
 
         this.setState({
           bgPrefs: {
@@ -1017,6 +1028,12 @@ export let PatientData = React.createClass({
         const processedPatientData = addData(newData.concat(_.map(patientNotes, nurseShark.reshapeMessage)));
         const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + targetData.length;
         const count = this.state.processEarlierDataCount + 1;
+
+        this.log('patientData.length', patientData.length);
+        this.log('lastDatumProcessedIndex', lastDatumProcessedIndex);
+        this.log('lastWeeklyDatumProcessedIndex', lastWeeklyDatumProcessedIndex);
+        this.log('lastDailyDatumProcessedIndex', lastDailyDatumProcessedIndex);
+        this.log('lastTrendsDatumProcessedIndex', lastTrendsDatumProcessedIndex);
 
         this.setState({
           lastDailyDatumProcessedIndex,
