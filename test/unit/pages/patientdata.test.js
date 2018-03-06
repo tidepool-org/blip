@@ -1586,7 +1586,7 @@ describe('PatientData', function () {
         sinon.assert.callCount(instance.processData, 0);
 
         wrapper.setState({
-          lastDailyDatumProcessedIndex: 0,
+          lastDiabetesDatumProcessedIndex: 0,
         });
 
         instance.handleChartDateRangeUpdate(dateRange);
@@ -1648,7 +1648,7 @@ describe('PatientData', function () {
         sinon.assert.callCount(instance.processData, 0);
 
         wrapper.setState({
-          lastWeeklyDatumProcessedIndex: 0,
+          lastDiabetesDatumProcessedIndex: 0,
         });
 
         instance.handleChartDateRangeUpdate(dateRange);
@@ -2212,7 +2212,7 @@ describe('PatientData', function () {
           );
         });
 
-        it('should set the lastDailyDatumProcessedIndex to state', () => {
+        it('should set the lastDiabetesDatumProcessedIndex to state', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
           });
@@ -2223,37 +2223,7 @@ describe('PatientData', function () {
           sinon.assert.calledTwice(setStateSpy);
           sinon.assert.calledWithMatch(
             setStateSpy,
-            { lastDailyDatumProcessedIndex: 0 }
-          );
-        });
-
-        it('should set the lastWeeklyDatumProcessedIndex to state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { lastWeeklyDatumProcessedIndex: -1 }
-          );
-        });
-
-        it('should set the lastTrendsDatumProcessedIndex to state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { lastTrendsDatumProcessedIndex: 0 }
+            { lastDiabetesDatumProcessedIndex: 0 }
           );
         });
 
@@ -2478,7 +2448,7 @@ describe('PatientData', function () {
           );
         });
 
-        it('should set the lastDailyDatumProcessedIndex to state', () => {
+        it('should set the lastDiabetesDatumProcessedIndex to state', () => {
           wrapper.setState({
             lastDatumProcessedIndex: 0, // previous data has been processed
             lastProcessedDateTarget: '2018-01-20T00:00:00.000Z',
@@ -2490,23 +2460,7 @@ describe('PatientData', function () {
           sinon.assert.calledTwice(setStateSpy);
           sinon.assert.calledWithMatch(
             setStateSpy,
-            { lastDailyDatumProcessedIndex: 1 }
-          );
-        });
-
-        it('should set the lastTrendsDatumProcessedIndex to state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-20T00:00:00.000Z',
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { lastTrendsDatumProcessedIndex: 0 }
+            { lastDiabetesDatumProcessedIndex: 1 }
           );
         });
 
