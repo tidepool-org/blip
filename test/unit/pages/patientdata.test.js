@@ -1422,6 +1422,77 @@ describe('PatientData', function () {
     });
   });
 
+  describe('subtractTimezoneOffset', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should apply a timezone offset to a provided datetime using `timePrefs` from state', () => {
+      wrapper.setState({
+        timePrefs: {
+          timezoneAware: true,
+          timezoneName: 'US/Eastern',
+        },
+      });
+
+      const datetime = '2018-02-02T00:00:00.000Z';
+
+      const result = instance.subtractTimezoneOffset(datetime);
+      expect(result).to.equal(moment(datetime).add(5, 'hours').toISOString()); // +5hr offset for US/Eastern
+    });
+
+    it('should apply a timezone offset to a provided datetime using provided `timePrefs` arg', () => {
+      wrapper.setState({
+        timePrefs: {
+          timezoneAware: true,
+          timezoneName: 'US/Eastern',
+        },
+      });
+
+      const timePrefsOverride = {
+        timezoneAware: true,
+        timezoneName: 'US/Pacific',
+      }
+
+      const datetime = '2018-02-02T00:00:00.000Z';
+
+      const result = instance.subtractTimezoneOffset(datetime, timePrefsOverride);
+      expect(result).to.equal(moment(datetime).add(8, 'hours').toISOString()); // +8hr offset for US/Pacific
+    });
+
+    it('should return an unmodified datetime when `datetime` arg is not a moment-valid value', () => {
+      wrapper.setState({
+        timePrefs: {
+          timezoneAware: true,
+          timezoneName: 'US/Eastern',
+        },
+      });
+
+      const datetime = 'hello';
+
+      const result = instance.subtractTimezoneOffset(datetime);
+      expect(result).to.equal(datetime);
+    });
+
+    it('should return an unmodified datetime when `timezoneSettings.timezoneAware` arg is not truthy', () => {
+      wrapper.setState({
+        timePrefs: {
+          timezoneAware: null,
+          timezoneName: 'US/Eastern',
+        },
+      });
+
+      const datetime = '2018-02-02T00:00:00.000Z';
+
+      const result = instance.subtractTimezoneOffset(datetime);
+      expect(result).to.equal(datetime);
+    });
+  });
+
   describe('handleChartDateRangeUpdate', () => {
     let wrapper;
     let instance;
@@ -2277,7 +2348,6 @@ describe('PatientData', function () {
           sinon.assert.calledWithMatch(
             setStateSpy,
             { lastProcessedDateTarget: moment(expectedTargetDateTime).add(5, 'hours').toISOString() } // +5 hr offset for eastern time
-            // { lastProcessedDateTarget: '2017-11-22T05:00:00.000Z' } // +5 hr offset for eastern time
           );
         });
 
