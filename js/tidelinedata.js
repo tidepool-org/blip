@@ -315,12 +315,7 @@ function TidelineData(data, opts) {
 
   function getTwoWeekFillEndpoints() {
     startTimer('getTwoWeekFillEndpoints');
-    var data;
-    if (that.grouped.smbg && that.grouped.smbg.length !== 0) {
-      data = that.grouped.smbg;
-    } else {
-      data = that.diabetesData;
-    }
+    var data = that.diabetesData;
 
     var first = data[0].normalTime, last = data[data.length - 1].normalTime;
     if (dt.getNumDays(first, last) < 14) {
