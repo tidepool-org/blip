@@ -43,13 +43,12 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--brand-purple);
+  background: var(--brand-purple-dark);
   transform: scale(0.5);
   animation: scale-dot 1.2s ease-out infinite;
 }
 
 .loaderDot:nth-of-type(2) {
-  background: var(--brand-purple-dark);
   animation-delay: 0.2s;
 }
 
@@ -58,7 +57,6 @@
 }
 
 .loaderDot:nth-of-type(4) {
-  background: var(--brand-purple-dark);
   animation-delay: 0.4s;
 }
 
