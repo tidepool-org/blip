@@ -1,19 +1,21 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+/* jshint esversion:6 */
 
 var d3 = require('d3');
 var _ = require('lodash');
@@ -136,8 +138,6 @@ module.exports = function(pool, opts) {
   basal.addRectToPool = function(selection, invisible) {
     opts.xScale = pool.xScale().copy();
 
-    var rectClass = invisible ? 'd3-basal d3-basal-invisible' : 'd3-basal d3-rect-basal';
-
     var heightFn = invisible ? basal.invisibleRectHeight : basal.height;
 
     var yPosFn = invisible ? basal.invisibleRectYPosition : basal.yPosition;
@@ -154,7 +154,9 @@ module.exports = function(pool, opts) {
         },
         width: basal.width,
         height: heightFn,
-        'class': rectClass
+        'class': function(d) {
+          return invisible ? 'd3-basal d3-basal-invisible' : `d3-basal d3-rect-basal d3-basal-${d.deliveryType}`;
+        }
       });
   };
 
@@ -256,7 +258,7 @@ module.exports = function(pool, opts) {
           group.append('p')
             .append('span')
             .attr('class', 'secondary')
-            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' scheduled'); 
+            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' scheduled');
         }
         break;
       case 'suspend':
@@ -267,7 +269,7 @@ module.exports = function(pool, opts) {
           group.append('p')
             .append('span')
             .attr('class', 'secondary')
-            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' scheduled'); 
+            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' scheduled');
         }
         break;
       default:

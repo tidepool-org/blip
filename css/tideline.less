@@ -324,10 +324,15 @@ svg {
 .d3-basal {
   &.d3-rect-basal {
     fill: @basal;
+    stroke: @basal;
+    stroke-opacity: 0.01;
     &.d3-legend {
       fill-opacity: 0.3;
-      stroke: @basal;
       stroke-width: 1.5;
+    }
+    &.d3-basal-automated {
+      fill: @basal-automated;
+      stroke: @basal-automated;
     }
   }
   &.d3-basal-invisible {
@@ -341,6 +346,9 @@ svg {
     &.d3-path-basal-undelivered {
       stroke-dasharray: 1.5,3;
       stroke-linecap: round;
+    }
+    &.d3-path-basal-automated {
+      stroke: @basal-automated;
     }
   }
   // only in legends
