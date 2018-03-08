@@ -20,6 +20,9 @@
 var format = require('../../../data/util/format');
 
 var definitions = {
+  DISABLED: [
+    'basal/auto',
+  ],
   LEAD_TEXT: {
     'stats-insufficient-data': function() {
       return 'Why is this grey?';
