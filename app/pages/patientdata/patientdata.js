@@ -734,9 +734,15 @@ export let PatientData = React.createClass({
         this.deriveChartTypeFromLatestData(latestData, uploads)
       );
 
+      const datetime = _.get(this.props, 'queryParams.datetime');
+
       let state = {
         chartType,
-        initialDatetimeLocation: chartType === 'trends' ? latestData.time : null,
+        initialDatetimeLocation: datetime
+          ? datetime
+          : chartType === 'trends'
+          ? latestData.time
+          : null,
       };
 
       this.setState(state);
