@@ -97,21 +97,49 @@ module.exports = function(pool, opts) {
       // add invisible rects as hover targets for all basals
       basal.addRectToPool(basalSegmentGroups, true);
 
-      var basalPathsGroup = selection.selectAll('.d3-basal-path-group').data(['d3-basal-path-group']);
-      basalPathsGroup.enter().append('g').attr('class', 'd3-basal-path-group');
-      var paths = basalPathsGroup.selectAll('.d3-basal.d3-path-basal')
-        .data(['d3-basal d3-path-basal', 'd3-basal d3-path-basal d3-path-basal-undelivered']);
-      paths.enter().append('path').attr({
-        'class': function(d) { return d; }
+      // split data into groups when delivery type changes to generate unique path elements for each group
+      // var groups = [];
+      // var currentDeliveryType;
+      // _.each(currentData, datum => {
+      //   if (datum) {
+      //     if (datum.deliveryType !== currentDeliveryType) {
+      //       currentDeliveryType = datum.deliveryType;
+      //       groups.push([])
+      //     }
+      //     _.last(groups).push(datum);
+      //   }
+      // });
+
+      // console.log('groups', groups);
+
+      var deliveryTypeGroups = _.groupBy(currentData, 'deliveryType');
+
+      _.each(deliveryTypeGroups, (data, group) => {
+        // var basalPathsGroup = selection.selectAll(`.d3-basal-path-group`).data([`d3-basal-path-group`]);
+        var basalPathsGroup = selection.selectAll(`.d3-basal-path-group-${group}`).data([`d3-basal-path-group-${group}`]);
+
+        // basalPathsGroup.enter().append('g').attr('class', `d3-basal-path-group`);
+        basalPathsGroup.enter().append('g').attr('class', `d3-basal-path-group-${group}`);
+
+        basalPathsGroup.exit().remove();
+
+        var paths = basalPathsGroup.selectAll(`.d3-basal.d3-path-basal.d3-path-basal-${group}`)
+          .data([`d3-basal d3-path-basal d3-path-basal-${group}`, `d3-basal d3-path-basal d3-path-basal-${group} d3-path-basal-undelivered`]);
+
+        paths.enter().append('path').attr({
+          'class': function(d) { return d; }
+        });
+
+        paths.exit().remove();
+
+        // d3.selects are OK here because `paths` is a chained selection
+        var actualpath = d3.select(paths[0][0]);
+        var undeliveredPath = d3.select(paths[0][1]);
+
+        basal.updatePath(actualpath, data);
+
+        basal.updatePath(undeliveredPath, getUndelivereds(data));
       });
-
-      // d3.selects are OK here because `paths` is a chained selection
-      var actualpath = d3.select(paths[0][0]);
-      var undeliveredPath = d3.select(paths[0][1]);
-
-      basal.updatePath(actualpath, currentData);
-
-      basal.updatePath(undeliveredPath, getUndelivereds(currentData));
 
       basalSegments.exit().remove();
 
