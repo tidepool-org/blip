@@ -98,48 +98,57 @@ module.exports = function(pool, opts) {
       basal.addRectToPool(basalSegmentGroups, true);
 
       // split data into groups when delivery type changes to generate unique path elements for each group
-      // var groups = [];
-      // var currentDeliveryType;
-      // _.each(currentData, datum => {
-      //   if (datum) {
-      //     if (datum.deliveryType !== currentDeliveryType) {
-      //       currentDeliveryType = datum.deliveryType;
-      //       groups.push([])
-      //     }
-      //     _.last(groups).push(datum);
-      //   }
-      // });
+      var basalPathGroups = [];
+      var currentPathType;
+      _.each(currentData, datum => {
+        if (datum) {
+          var pathType = datum.deliveryType === 'automated' ? 'automated' : 'standard'
+          if (pathType !== currentPathType) {
+            currentPathType = pathType;
+            basalPathGroups.push([])
+          }
+          _.last(basalPathGroups).push(datum);
+        }
+      });
 
-      // console.log('groups', groups);
+      var basalPathsGroup = selection.selectAll(`.d3-basal-path-group`).data([`d3-basal-path-group`]);
 
-      var deliveryTypeGroups = _.groupBy(currentData, 'deliveryType');
+      basalPathsGroup.enter().append('g').attr('class', `d3-basal-path-group`);
 
-      _.each(deliveryTypeGroups, (data, group) => {
-        // var basalPathsGroup = selection.selectAll(`.d3-basal-path-group`).data([`d3-basal-path-group`]);
-        var basalPathsGroup = selection.selectAll(`.d3-basal-path-group-${group}`).data([`d3-basal-path-group-${group}`]);
+      _.each(basalPathGroups, (data, index) => {
+        var pathType = data[0].deliveryType === 'automated' ? 'automated' : 'standard'
 
-        // basalPathsGroup.enter().append('g').attr('class', `d3-basal-path-group`);
-        basalPathsGroup.enter().append('g').attr('class', `d3-basal-path-group-${group}`);
+        var paths = basalPathsGroup
+          .selectAll(`.d3-basal.d3-path-basal.d3-path-basal-${pathType}`)
+          .data([`d3-basal d3-path-basal d3-path-basal-${pathType}-${index}`]);
 
-        basalPathsGroup.exit().remove();
-
-        var paths = basalPathsGroup.selectAll(`.d3-basal.d3-path-basal.d3-path-basal-${group}`)
-          .data([`d3-basal d3-path-basal d3-path-basal-${group}`, `d3-basal d3-path-basal d3-path-basal-${group} d3-path-basal-undelivered`]);
-
-        paths.enter().append('path').attr({
-          'class': function(d) { return d; }
-        });
+        paths
+          .enter()
+          .append('path')
+          .attr({
+            'class': function(d) { return d; }
+          });
 
         paths.exit().remove();
 
         // d3.selects are OK here because `paths` is a chained selection
-        var actualpath = d3.select(paths[0][0]);
-        var undeliveredPath = d3.select(paths[0][1]);
-
-        basal.updatePath(actualpath, data);
-
-        basal.updatePath(undeliveredPath, getUndelivereds(data));
+        var path = d3.select(paths[0][0]);
+        basal.updatePath(path, data);
       });
+
+      var undeliveredPaths = basalPathsGroup
+          .selectAll(`.d3-basal.d3-path-basal.d3-path-basal-undelivered`)
+          .data(['d3-basal d3-path-basal d3-path-basal-undelivered']);
+
+      undeliveredPaths
+        .enter()
+        .append('path')
+        .attr({
+          'class': function(d) { return d; }
+        });
+
+      var undeliveredPath = d3.select(undeliveredPaths[0][0]);
+      basal.updatePath(undeliveredPath, getUndelivereds(currentData));
 
       basalSegments.exit().remove();
 
