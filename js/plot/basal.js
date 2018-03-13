@@ -32,7 +32,7 @@ module.exports = function(pool, opts) {
     opacityDelta: 0.2,
     pathStroke: 1.5,
     timezoneAware: false,
-    tooltipPadding: 20
+    tooltipPadding: 20,
   };
 
   opts = _.defaults(opts, defaults);
@@ -101,26 +101,33 @@ module.exports = function(pool, opts) {
       var basalPathGroups = [];
       var currentPathType;
       _.each(currentData, datum => {
-        if (datum) {
-          var pathType = datum.deliveryType === 'automated' ? 'automated' : 'standard'
+          var pathType = _.get(datum, 'deliveryType') === 'automated' ? 'automated' : 'standard'
           if (pathType !== currentPathType) {
             currentPathType = pathType;
-            basalPathGroups.push([])
+            basalPathGroups.push([]);
           }
           _.last(basalPathGroups).push(datum);
-        }
       });
 
-      var basalPathsGroup = selection.selectAll(`.d3-basal-path-group`).data([`d3-basal-path-group`]);
+      var renderGroupMarkers = basalPathGroups.length > 1;
 
-      basalPathsGroup.enter().append('g').attr('class', `d3-basal-path-group`);
+      var basalPathsGroup = selection
+        .selectAll(`.d3-basal-path-group`)
+        .data([`d3-basal-path-group`]);
 
-      _.each(basalPathGroups, (data, index) => {
-        var pathType = data[0].deliveryType === 'automated' ? 'automated' : 'standard'
+      basalPathsGroup
+        .enter()
+        .append('g')
+        .attr('class', `d3-basal-path-group`);
+
+      _.each(basalPathGroups, (data) => {
+        var id = data[0].id;
+        var isAutomated = data[0].deliveryType === 'automated';
+        var pathType = isAutomated ? 'automated' : 'standard';
 
         var paths = basalPathsGroup
-          .selectAll(`.d3-basal.d3-path-basal.d3-path-basal-${pathType}`)
-          .data([`d3-basal d3-path-basal d3-path-basal-${pathType}-${index}`]);
+          .selectAll(`.d3-basal.d3-path-basal.d3-path-basal-${pathType}-${id}`)
+          .data([`d3-basal d3-path-basal d3-path-basal-${pathType}-${id}`]);
 
         paths
           .enter()
@@ -134,6 +141,55 @@ module.exports = function(pool, opts) {
         // d3.selects are OK here because `paths` is a chained selection
         var path = d3.select(paths[0][0]);
         basal.updatePath(path, data);
+
+        // Render the group markers
+        if (renderGroupMarkers) {
+          var radius = 7;
+          var xPosition = basal.xPosition(data[0]);
+          var yPosition = radius + 2;
+          var random = parseInt(Math.random() * 100);
+
+          var markers = basalPathsGroup
+            .selectAll(`.d3-basal-marker-group.d3-basal-marker-group-${pathType}-${id}`)
+            .data([`d3-basal-marker-group d3-basal-marker-group-${pathType}-${id}`]);
+
+          var markersGroups = markers
+            .enter()
+            .append('g')
+            .attr('class', function(d) { return d; });
+
+          markersGroups
+            .append('circle')
+            .attr({
+              'class': 'd3-basal-group-circle',
+              cx: xPosition,
+              cy: yPosition,
+              r: radius,
+            });
+
+          markersGroups
+            .append('line')
+            .attr({
+              x1: xPosition,
+              y1: yPosition,
+              x2: xPosition,
+              y2: pool.height(),
+              'class': 'd3-basal-group-line',
+            });
+
+          markersGroups
+            .append('text')
+            .attr({
+              x: xPosition,
+              y: yPosition,
+              'class': 'd3-basal-group-label',
+            })
+            .text(function(d) {
+              return isAutomated ? 'A' : 'R';
+            });
+
+          markers.exit().remove();
+        }
       });
 
       var undeliveredPaths = basalPathsGroup
@@ -204,7 +260,7 @@ module.exports = function(pool, opts) {
 
     if (pathDef !== '') {
       selection.attr({
-        d: basal.pathData(data)
+        d: pathDef,
       });
     }
   };
