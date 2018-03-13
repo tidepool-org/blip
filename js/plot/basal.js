@@ -120,7 +120,7 @@ module.exports = function(pool, opts) {
         .append('g')
         .attr('class', `d3-basal-path-group`);
 
-      _.each(basalPathGroups, (data) => {
+      _.each(basalPathGroups, (data, index) => {
         var id = data[0].id;
         var isAutomated = data[0].deliveryType === 'automated';
         var pathType = isAutomated ? 'automated' : 'standard';
@@ -143,7 +143,7 @@ module.exports = function(pool, opts) {
         basal.updatePath(path, data);
 
         // Render the group markers
-        if (renderGroupMarkers) {
+        if (renderGroupMarkers && index > 0) {
           var radius = 7;
           var xPosition = basal.xPosition(data[0]);
           var yPosition = radius + 2;
