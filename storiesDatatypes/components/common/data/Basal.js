@@ -48,6 +48,22 @@ storiesOf('Basal', module)
       </WithNotes>
     );
   })
+  .add('automated basals', () => {
+    const notes = 'A set of automated basal segments, uninterrupted.';
+    return (
+      <WithNotes notes={notes.replace('\n', '')}>
+        <Basal basals={basals.automated} xScale={xScale} yScale={yScale} />
+      </WithNotes>
+    );
+  })
+  .add('automated and scheduled basals', () => {
+    const notes = 'A set of automated and scheduled basal segments, uninterrupted.';
+    return (
+      <WithNotes notes={notes.replace('\n', '')}>
+        <Basal basals={basals.automatedAndScheduled} xScale={xScale} yScale={yScale} />
+      </WithNotes>
+    );
+  })
   .add('simple negative temp basal', () => {
     const notes = `A negative temp basal entirely contained within one scheduled
      basal segment.`;
