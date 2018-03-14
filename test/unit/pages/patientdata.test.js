@@ -2367,7 +2367,7 @@ describe('PatientData', function () {
           );
         });
 
-        it('should set the timePrefs state', () => {
+        it('should set the timePrefs state with updated timePrefs or existing state timePrefs if undefined', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
             lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
@@ -2380,6 +2380,35 @@ describe('PatientData', function () {
           sinon.assert.calledWithMatch(
             setStateSpy,
             { timePrefs: 'stubbed timePrefs' }
+          );
+
+          // Rewire processPatientData util to return undefined
+          PD.__Rewire__('utils', {
+            processPatientData: sinon.stub().returns(_.assign({}, processedPatientDataStub, {
+              timePrefs: undefined,
+            })),
+            filterPatientData: sinon.stub().returns({
+              processedData: 'stubbed filtered data',
+            }),
+            getTimezoneForDataProcessing: sinon.stub().returns('stubbed timezone'),
+          });
+
+          wrapper.setState({
+            processedPatientData: {
+              addData: addDataStub,
+            },
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+            timePrefs: 'existing timePrefs',
+          });
+
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { timePrefs: 'existing timePrefs' }
           );
         });
 

@@ -981,6 +981,7 @@ export let PatientData = React.createClass({
         );
 
         const lastDatumProcessedIndex = targetData.length - 1;
+        const timePrefs = processedData.timePrefs || this.state.timePrefs;
 
         this.setState({
           bgPrefs: {
@@ -993,7 +994,7 @@ export let PatientData = React.createClass({
           loading: false,
           processedPatientData: processedData,
           processingData: false,
-          timePrefs: processedData.timePrefs,
+          timePrefs,
         }, () => {
           this.handleInitialProcessedData(props, processedData, patientSettings);
           props.trackMetric('Processed initial patient data', { patientID });
