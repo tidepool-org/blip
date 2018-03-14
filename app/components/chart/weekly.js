@@ -80,6 +80,7 @@ var WeeklyChart = React.createClass({
     this.log('Rerendering...');
     this.unmountChart();
     this.mount();
+    this.chart.emitter.emit('inTransition', false);
   },
 
   bindEvents: function() {

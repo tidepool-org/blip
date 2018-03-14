@@ -132,6 +132,7 @@ var DailyChart = React.createClass({
     this.unmountChart();
     this.mountChart();
     this.initializeChart();
+    this.chart.emitter.emit('inTransition', false);
   },
 
   getCurrentDay: function() {
