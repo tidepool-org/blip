@@ -26,7 +26,7 @@ import PrintView from './PrintView';
 
 import { calculateBasalPath, getBasalSequencePaths } from '../render/basal';
 import getBolusPaths from '../render/bolus';
-import { getTotalBasal } from '../../utils/basal';
+import { getTotalBasal, getBasalPathGroups } from '../../utils/basal';
 import {
   calcBgPercentInCategories,
   classifyBgValue,
@@ -72,6 +72,7 @@ class DailyPrintView extends PrintView {
     this.bolusWidth = 3;
     this.carbRadius = 4.25;
     this.cbgRadius = 1;
+    this.markerRadius = 4.25;
     this.extendedLineThickness = 0.75;
     this.interruptedLineThickness = 0.5;
     this.smbgRadius = 3;
@@ -99,6 +100,7 @@ class DailyPrintView extends PrintView {
       low: '#FF8B7C',
       target: '#76D3A6',
       basal: '#19A0D7',
+      basalAutomated: '#44b9be',
       high: '#BB9AE7',
     });
 
@@ -856,14 +858,20 @@ class DailyPrintView extends PrintView {
         const paths = getBasalSequencePaths(sequence, xScale, basalScale);
 
         _.each(paths, (path) => {
-          const opacity = path.basalType === 'scheduled' ? 0.4 : 0.2;
+          const opacity = _.includes(['scheduled', 'automated'], path.basalType) ? 0.4 : 0.2;
+          const fillColor = path.basalType === 'automated'
+            ? this.colors.basalAutomated
+            : this.colors.basal;
+
           if (path.renderType === 'fill') {
-            this.doc.path(path.d)
-              .fillColor(this.colors.basal)
+            this.doc
+              .path(path.d)
+              .fillColor(fillColor)
               .fillOpacity(opacity)
               .fill();
           } else if (path.renderType === 'stroke') {
-            this.doc.path(path.d)
+            this.doc
+              .path(path.d)
               .lineWidth(0.5)
               .dash(1, { space: 2 })
               .stroke(this.colors.basal);
@@ -873,17 +881,60 @@ class DailyPrintView extends PrintView {
     });
 
     if (!_.isEmpty(basal)) {
-      const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
-        endAtZero: false,
-        flushBottomOffset: -0.25,
-        isFilled: false,
-        startAtZero: false,
-      });
+      const basalPathGroups = getBasalPathGroups(basal);
 
-      this.doc.path(wholeDateDeliveredPath)
-        .lineWidth(0.5)
-        .undash()
-        .stroke(this.colors.basal);
+      // Split delivered path into individual segments based on subType
+      _.each(basalPathGroups, (group, index) => {
+        const firstDatum = group[0];
+        const isAutomated = firstDatum.subType === 'automated';
+        const color = isAutomated
+          ? this.colors.basalAutomated
+          : this.colors.basal;
+
+        const wholeDateDeliveredPath = calculateBasalPath(group, xScale, basalScale, {
+          endAtZero: false,
+          flushBottomOffset: -0.25,
+          isFilled: false,
+          startAtZero: false,
+        });
+
+        this.doc
+          .path(wholeDateDeliveredPath)
+          .lineWidth(0.5)
+          .undash()
+          .stroke(color);
+
+        // Render group markers
+        if (index > 0) {
+          const xPos = xScale(firstDatum.utc);
+          const yPos = basalScale.range()[1] + this.markerRadius + 1;
+          const zeroBasal = basalScale.range()[0];
+          const flushWithBottomOfScale = zeroBasal;
+          const label = isAutomated ? 'A' : 'R';
+          const labelWidth = this.doc
+            .fontSize(5)
+            .widthOfString(label);
+
+          this.doc
+            .circle(xPos, yPos, this.markerRadius)
+            .fillColor(color)
+            .fillOpacity(1)
+            .fill();
+
+          this.doc
+            .moveTo(xPos, yPos)
+            .lineWidth(0.75)
+            .lineTo(xPos, flushWithBottomOfScale)
+            .stroke(color);
+
+          this.doc
+            .fillColor('white')
+            .text(label, xPos - (labelWidth / 2), yPos - 2, {
+              width: labelWidth,
+              align: 'center',
+            });
+        }
+      });
     }
 
     return this;
