@@ -66,6 +66,10 @@ module.exports = function(pool, opts) {
     return undelivereds;
   }
 
+  function getBasalPathGroupType(datum) {
+    return _.get(datum, 'deliveryType') === 'automated' ? 'automated' : 'regular';
+  }
+
   function basal(selection) {
     opts.xScale = pool.xScale().copy();
 
@@ -101,7 +105,7 @@ module.exports = function(pool, opts) {
       var basalPathGroups = [];
       var currentPathType;
       _.each(currentData, datum => {
-          var pathType = _.get(datum, 'deliveryType') === 'automated' ? 'automated' : 'standard'
+          var pathType = getBasalPathGroupType(datum);
           if (pathType !== currentPathType) {
             currentPathType = pathType;
             basalPathGroups.push([]);
@@ -122,8 +126,8 @@ module.exports = function(pool, opts) {
 
       _.each(basalPathGroups, (data, index) => {
         var id = data[0].id;
-        var isAutomated = data[0].deliveryType === 'automated';
-        var pathType = isAutomated ? 'automated' : 'standard';
+        var pathType = getBasalPathGroupType(data[0]);
+        var isAutomated = pathType === 'automated';
 
         var paths = basalPathsGroup
           .selectAll(`.d3-basal.d3-path-basal.d3-path-basal-${pathType}-${id}`)
@@ -147,7 +151,6 @@ module.exports = function(pool, opts) {
           var radius = 7;
           var xPosition = basal.xPosition(data[0]);
           var yPosition = radius + 2;
-          var random = parseInt(Math.random() * 100);
 
           var markers = basalPathsGroup
             .selectAll(`.d3-basal-marker-group.d3-basal-marker-group-${pathType}-${id}`)
@@ -159,15 +162,6 @@ module.exports = function(pool, opts) {
             .attr('class', function(d) { return d; });
 
           markersGroups
-            .append('circle')
-            .attr({
-              'class': 'd3-basal-group-circle',
-              cx: xPosition,
-              cy: yPosition,
-              r: radius,
-            });
-
-          markersGroups
             .append('line')
             .attr({
               x1: xPosition,
@@ -175,6 +169,15 @@ module.exports = function(pool, opts) {
               x2: xPosition,
               y2: pool.height(),
               'class': 'd3-basal-group-line',
+            });
+
+          markersGroups
+            .append('circle')
+            .attr({
+              'class': 'd3-basal-group-circle',
+              cx: xPosition,
+              cy: yPosition,
+              r: radius,
             });
 
           markersGroups
