@@ -4,5 +4,5 @@ module.exports = {
   MMOLL_UNITS: 'mmol/L',
   AUTOMATED_BASAL_LABELS: {
     medtronic: 'Auto Mode'
-  }
+  },
 };

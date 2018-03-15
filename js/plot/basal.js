@@ -24,7 +24,7 @@ var dt = require('../data/util/datetime');
 var format = require('../data/util/format');
 var log = require('bows')('Basal');
 
-import { AUTOMATED_BASAL_LABELS } from '../data/util/constants';
+var { AUTOMATED_BASAL_LABELS } = require('../data/util/constants');
 
 module.exports = function(pool, opts) {
   opts = opts || {};
