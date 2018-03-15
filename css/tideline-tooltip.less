@@ -33,6 +33,9 @@
 .plainText {
   font-weight: normal;
 }
+.mutedText {
+  color: @secondary-label-color;
+}
 .secondaryText {
   font-size: @font-size-small;
   font-weight: normal;
@@ -58,11 +61,14 @@
         .secondaryText;
         .fromto {
           .secondaryText;
-          color: @secondary-label-color;
+          .mutedText;
         }
       }
       &.plain {
         .plainText;
+      }
+      &.muted {
+        .mutedText;
       }
     }
     margin-top: -@margin-shift;
