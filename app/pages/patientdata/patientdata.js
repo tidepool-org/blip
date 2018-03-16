@@ -493,6 +493,7 @@ export let PatientData = React.createClass({
       const patientID = this.props.currentPatientInViewId;
       const patientData = _.get(this.props, ['patientDataMap', patientID], []);
       const dateRangeStart = moment.utc(dateRange[0]).startOf('day');
+      const allDataFetched = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
 
       const lastProcessedDateTarget = this.state.lastProcessedDateTarget;
       const lastDiabetesDatumProcessedTime = _.get(patientData, `${this.state.lastDiabetesDatumProcessedIndex}.time`);
@@ -506,20 +507,25 @@ export let PatientData = React.createClass({
 
       // If we've reached the limit of our fetched data, we need to get some more
       if (
-        (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision))
-        || (isScrollChart && chartLimitReached && allFetchedDatumsProcessed)
+        allFetchedDatumsProcessed && (
+          (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision))
+          || (isScrollChart && chartLimitReached)
+        )
       ) {
-        this.log('fetching');
+        if (allDataFetched) {
+          return;
+        }
         return this.fetchEarlierData();
       }
 
       // If we've reached the limit of our processed data (since we process in smaller chunks than
       // what we fetch), we need to process some more.
       if (
-        (lastProcessedDateTarget && dateRangeStart[comparator](lastProcessedDateTarget, comparatorPrecision))
-        || (isScrollChart && chartLimitReached)
+        !allFetchedDatumsProcessed && (
+          (lastProcessedDateTarget && dateRangeStart[comparator](lastProcessedDateTarget, comparatorPrecision))
+          || (isScrollChart && chartLimitReached)
+        )
       ) {
-        this.log('processing');
         return this.processData(this.props);
       }
     }
@@ -664,9 +670,11 @@ export let PatientData = React.createClass({
       this.setState({
         chartDateRange: null,
         datetimeLocation: this.state.initialDatetimeLocation,
+        fetchEarlierDataCount: 0,
         lastDatumProcessedIndex: -1,
         lastProcessedDateTarget: null,
         loading: true,
+        processEarlierDataCount: 0,
         processedPatientData: null,
         title: this.DEFAULT_TITLE,
       }, () => refresh(this.props.currentPatientInViewId));
@@ -861,6 +869,8 @@ export let PatientData = React.createClass({
       return;
     };
 
+    this.log('fetching');
+
     const earliestRequestedData = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil');
 
     const requestedPatientDataRange = {
@@ -894,9 +904,10 @@ export let PatientData = React.createClass({
   processData: function(props = this.props) {
     const patientID = props.currentPatientInViewId;
     const patientData = _.get(props, ['patientDataMap', patientID], []);
+    const allDataFetched = _.get(props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
 
     // Return if currently processing or we've already fetched and processed all data
-    if (this.state.processingData || _.get(props, 'fetchedPatientDataRange.fetchedUntil') === 'start' && this.state.lastDatumProcessedIndex === patientData.length - 1) {
+    if (this.state.processingData || allDataFetched && this.state.lastDatumProcessedIndex === patientData.length - 1) {
       if (!this.state.processingData) {
         this.setState({
           loading: false,
@@ -958,6 +969,18 @@ export let PatientData = React.createClass({
       const targetData = targetIndex > 0
         ? unprocessedPatientData.slice(0, targetIndex)
         : unprocessedPatientData;
+
+      // If there's only a week or less data to process, and not all the data has been fetched,
+      // we just fetch instead of a tiny processing cycle followed by an immediate fetch
+      const timeOfLastUnprocessedDatum = _.get(_.last(unprocessedPatientData), 'time');
+      const remainingDataIsLessThanAWeek = timeOfLastUnprocessedDatum &&  moment(targetDatetime).subtract(1, 'week').isSameOrBefore(moment(timeOfLastUnprocessedDatum));
+      if (!isInitialProcessing && !allDataFetched && remainingDataIsLessThanAWeek) {
+        return this.setState({
+          processingData: false,
+        }, this.fetchEarlierData);
+      }
+
+      this.log('processing data up to', targetDatetime);
 
       // We need to track the last processed indexes for diabetes and bg data to help determine when
       // we've reached the scroll limits of the daily and weekly charts

@@ -753,12 +753,14 @@ describe('PatientData', function () {
       setStateSpy.reset();
       sinon.assert.callCount(setStateSpy, 0);
       instance.handleRefresh();
-      sinon.assert.calledWith(setStateSpy, {
+      sinon.assert.calledWithMatch(setStateSpy, {
         chartDateRange: null,
         datetimeLocation: 'initialDate',
+        fetchEarlierDataCount: 0,
         lastDatumProcessedIndex: -1,
         lastProcessedDateTarget: null,
         loading: true,
+        processEarlierDataCount: 0,
         processedPatientData: null,
         title: 'defaultTitle'
       });
@@ -1608,9 +1610,30 @@ describe('PatientData', function () {
         setChartType('daily');
       });
 
+      it('should not trigger data fetching if all fetched data has not been processed', () => {
+        instance.handleChartDateRangeUpdate(dateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 0);
+
+        wrapper.setState({
+          lastDatumProcessedIndex: -1,
+        });
+
+        let newDateRange = [
+          moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'milliseconds').toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(newDateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 0);
+      });
+
       it('should trigger data fetching if the chart date range is same or before (to the millisecond) the earliest fetched patient data time', () => {
         instance.handleChartDateRangeUpdate(dateRange);
         sinon.assert.callCount(instance.fetchEarlierData, 0);
+
+        wrapper.setState({
+          lastDatumProcessedIndex: 0,
+        });
 
         let newDateRange = [
           moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'milliseconds').toISOString(),
@@ -1670,9 +1693,30 @@ describe('PatientData', function () {
         setChartType('weekly');
       });
 
+      it('should not trigger data fetching if all fetched data has not been processed', () => {
+        instance.handleChartDateRangeUpdate(dateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 0);
+
+        wrapper.setState({
+          lastDatumProcessedIndex: -1,
+        });
+
+        let newDateRange = [
+          moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'milliseconds').toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(newDateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 0);
+      });
+
       it('should trigger data fetching if the chart date range is same or before (to the millisecond) the earliest fetched patient data time', () => {
         instance.handleChartDateRangeUpdate(dateRange);
         sinon.assert.callCount(instance.fetchEarlierData, 0);
+
+        wrapper.setState({
+          lastDatumProcessedIndex: 0,
+        });
 
         let newDateRange = [
           moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'milliseconds').toISOString(),
@@ -1732,9 +1776,30 @@ describe('PatientData', function () {
         setChartType('trends');
       });
 
+      it('should not trigger data fetching if all fetched data has not been processed', () => {
+        instance.handleChartDateRangeUpdate(dateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 0);
+
+        wrapper.setState({
+          lastDatumProcessedIndex: -1,
+        });
+
+        let newDateRange = [
+          moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'days').toISOString(),
+          dateRange[1],
+        ];
+
+        instance.handleChartDateRangeUpdate(newDateRange);
+        sinon.assert.callCount(instance.fetchEarlierData, 0);
+      });
+
       it('should trigger data fetching if the chart date range is same or before (to the day) the earliest fetched patient data time', () => {
         instance.handleChartDateRangeUpdate(dateRange);
         sinon.assert.callCount(instance.fetchEarlierData, 0);
+
+        wrapper.setState({
+          lastDatumProcessedIndex: 0,
+        });
 
         let newDateRange = [
           moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'days').toISOString(),
@@ -2077,8 +2142,9 @@ describe('PatientData', function () {
       instance = wrapper.instance();
 
 
-      // we want to stub out componentWillUpdate to keep these tests isolated
+      // we want to stub out componentWillUpdate and fetchEarlierData to keep these tests isolated
       instance.componentWillUpdate = sinon.stub();
+      instance.fetchEarlierData = sinon.stub();
 
       // stub out any methods we expect to be called
       addDataStub = sinon.stub().returns(processedPatientDataStub);
@@ -2502,10 +2568,24 @@ describe('PatientData', function () {
           );
         });
 
-        it('should call addData util on data that falls within the 8 weeks of the lastProcessedDateTarget provided', () => {
+        it('should call fetchEarlierData on data that falls within the 8 weeks of the lastProcessedDateTarget provided, but leaves less than a week to process', () => {
           wrapper.setState({
             lastDatumProcessedIndex: 0, // previous data has been processed
             lastProcessedDateTarget: '2018-01-02T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.reset();
+          PD.__ResetDependency__('utils');
+
+          instance.processData();
+
+          sinon.assert.calledOnce(instance.fetchEarlierData);
+        });
+
+        it('should call addData util on data that falls within the 8 weeks of the lastProcessedDateTarget provided, and leaves more than a week to process', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-05T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
           });
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
