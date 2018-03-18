@@ -29,3 +29,6 @@ artifact_node.sh
 
 # GitBook
 _book/
+
+# Use yarn.lock
+package-lock.json
