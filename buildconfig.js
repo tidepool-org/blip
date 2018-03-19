@@ -3,6 +3,7 @@ require('shelljs/global');
 var fs = require('fs');
 var crypto = require('crypto');
 var ms = require('ms');
+var languages = require('./translations/languages.json');
 
 var start = new Date();
 
@@ -30,6 +31,15 @@ indexHtml = indexHtml.replace('<!-- config -->',
   '<script type="text/javascript" src="/' + filename + '"></script>'
 );
 indexHtml.to('dist/index.html');
+
+languages.forEach(language => {
+  console.log(`Updating "dist/index.${language}.html"...`);
+  var indexHtml = fs.readFileSync(`dist/index.${language}.html`, 'utf8');
+  indexHtml = indexHtml.replace('<!-- config -->',
+    '<script type="text/javascript" src="/' + filename + '"></script>'
+  );
+  indexHtml.to(`dist/index.${language}.html`);
+})
 
 var end = new Date();
 console.log('Config built in ' + ms(end - start));

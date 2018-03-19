@@ -4,6 +4,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
+var WebpackShellPlugin = require('webpack-shell-plugin');
 var uglifyJS = require('uglify-es');
 var fs = require('fs');
 
@@ -51,6 +52,12 @@ var plugins = [
     assets: ['pdfkit.js', 'blob-stream.js'],
     hash: true,
     append: true,
+  }),
+  new WebpackShellPlugin({
+    // Generate a different index.html for each translation
+    onBuildEnd: [
+      'node translations/build.js'
+    ]
   })
 ];
 
