@@ -53,11 +53,17 @@ var plugins = [
     hash: true,
     append: true,
   }),
-  new WebpackShellPlugin({
-    // Generate a different index.html for each translation
-    onBuildEnd: [
-      'node translations/build.js'
-    ]
+  // // OPTION 1 for multi-language: generate a different .html / .js for each language
+  // // and serve the appropriate file
+  // new WebpackShellPlugin({
+  //   Generate a different index.html for each translation
+  //   onBuildEnd: [
+  //     'node translations/build.js'
+  //   ]
+  // }),
+  // OPTION 2 for multi-language: use __ as a custom module
+  new webpack.ProvidePlugin({
+    __: 'i18n'
   })
 ];
 

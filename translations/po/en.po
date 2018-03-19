@@ -1,2 +1,14 @@
 msgid ""
 msgstr "Content-Type: text/plain;\n"
+
+msgid "Logged in as "
+msgstr ""
+
+msgid "Account"
+msgstr ""
+
+msgid "Account Settings"
+msgstr ""
+
+msgid "Logout"
+msgstr ""
