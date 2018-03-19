@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import * as basals from '../../data/basal/fixtures';
 import * as basalUtils from '../../src/utils/basal';
 
@@ -53,6 +54,44 @@ describe('basal utilties', () => {
           basals.suspendAcrossScheduled.slice(4, 5),
           basals.suspendAcrossScheduled.slice(5),
         ]);
+    });
+  });
+
+  describe('getBasalPathGroupType', () => {
+    it('should be a function', () => {
+      assert.isFunction(basalUtils.getBasalPathGroupType);
+    });
+
+    it('should return the path group type `automated` for an automated basal', () => {
+      expect(basalUtils.getBasalPathGroupType({ subType: 'automated' })).to.equal('automated');
+    });
+
+    it('should return the path group type `regular` for a non-automated basal', () => {
+      expect(basalUtils.getBasalPathGroupType({ subType: 'scheduled' })).to.equal('regular');
+      expect(basalUtils.getBasalPathGroupType({ subType: 'temp' })).to.equal('regular');
+      expect(basalUtils.getBasalPathGroupType({ subType: 'suspend' })).to.equal('regular');
+    });
+  });
+
+  describe('getBasalPathGroups', () => {
+    it('should be a function', () => {
+      assert.isFunction(basalUtils.getBasalPathGroups);
+    });
+
+    it('should return an array of groupings of automated and regular data', () => {
+      const mixedBasals = basals.automatedAndScheduled;
+      const result = basalUtils.getBasalPathGroups(mixedBasals);
+      expect(result).to.be.an('array');
+      expect(result.length).to.equal(3);
+
+      _.each(result, (group, groupIndex) => {
+        expect(group).to.be.an('array');
+
+        const expectedSubType = groupIndex === 1 ? 'scheduled' : 'automated';
+        _.each(group, datum => {
+          expect(datum.subType).to.equal(expectedSubType);
+        });
+      });
     });
   });
 

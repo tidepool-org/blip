@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* eslint-disable max-len */
+
 import React from 'react';
 import { shallow } from 'enzyme';
 
@@ -23,9 +25,9 @@ const { detailXScale, detailBasalScale } = detail;
 
 import Basal from '../../../../src/components/common/data/Basal';
 import { getBasalSequencePaths } from '../../../../src/modules/render/basal';
-import { getBasalSequences } from '../../../../src/utils/basal';
+import { getBasalSequences, getBasalPathGroups } from '../../../../src/utils/basal';
 
-import { scheduledFlat } from '../../../../data/basal/fixtures';
+import { scheduledFlat, automatedAndScheduled, automated } from '../../../../data/basal/fixtures';
 
 describe('Basal', () => {
   it('should return `null` if input `basals` prop is empty', () => {
@@ -41,8 +43,58 @@ describe('Basal', () => {
     const wrapper = shallow(
       <Basal basals={scheduledFlat} xScale={detailXScale} yScale={detailBasalScale} />
     );
-    expect(wrapper.find(`#basals-${scheduledFlat[0].id}-thru-${scheduledFlat[1].id}`).length)
-      .to.equal(1);
+    expect(wrapper.find(`#basals-${scheduledFlat[0].id}-thru-${scheduledFlat[1].id}`).length).to.equal(1);
     expect(wrapper.find('path').length).to.equal(paths.length + 1);
+  });
+
+  it('should return automated and regular basal path and outline groupings', () => {
+    const groups = getBasalPathGroups(automatedAndScheduled);
+    const expectedGroupsLength = 3; // automated, regular, automated
+    const expectedBordersLength = groups.length;
+    const wrapper = shallow(
+      <Basal basals={automatedAndScheduled} xScale={detailXScale} yScale={detailBasalScale} />
+    );
+
+    expect(groups.length).to.equal(expectedGroupsLength);
+    expect(wrapper.find('path').length).to.equal(expectedGroupsLength + expectedBordersLength);
+  });
+
+  it('should return markers for each automated and regular basal path groupings, minus the first one', () => {
+    const groups = getBasalPathGroups(automatedAndScheduled);
+    const expectedGroupsLength = 3;
+    const expectedMarkersLength = groups.length - 1;
+    const wrapper = shallow(
+      <Basal basals={automatedAndScheduled} xScale={detailXScale} yScale={detailBasalScale} />
+    );
+
+    expect(groups.length).to.equal(expectedGroupsLength);
+
+    const basalsGroup = wrapper.find(`#basals-${automatedAndScheduled[0].id}-thru-${automatedAndScheduled[automatedAndScheduled.length - 1].id}`);
+    expect(basalsGroup.length).to.equal(1);
+
+    const markersGroup = basalsGroup.children('g');
+    expect(markersGroup.length).to.equal(expectedMarkersLength);
+    expect(markersGroup.find('line').length).to.equal(expectedMarkersLength);
+    expect(markersGroup.find('circle').length).to.equal(expectedMarkersLength);
+    expect(markersGroup.find('text').length).to.equal(expectedMarkersLength);
+  });
+
+  it('should not return markers if there is only one path grouping', () => {
+    const groups = getBasalPathGroups(automated);
+    const expectedGroupsLength = 1;
+    const wrapper = shallow(
+      <Basal basals={automated} xScale={detailXScale} yScale={detailBasalScale} />
+    );
+
+    expect(groups.length).to.equal(expectedGroupsLength);
+
+    const basalsGroup = wrapper.find(`#basals-${automated[0].id}-thru-${automated[automated.length - 1].id}`);
+    expect(basalsGroup.length).to.equal(1);
+
+    const markersGroup = basalsGroup.children('g');
+    expect(markersGroup.length).to.equal(0);
+    expect(markersGroup.find('line').length).to.equal(0);
+    expect(markersGroup.find('circle').length).to.equal(0);
+    expect(markersGroup.find('text').length).to.equal(0);
   });
 });
