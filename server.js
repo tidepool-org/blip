@@ -15,7 +15,7 @@ app.use(express.static(staticDir));
 
 //So that we can use react-router and browser history
 app.get('*', function (request, response){
-  response.sendFile(staticDir + '/index.html');
+  response.sendFile(staticDir + '/index.en.html');
 });
 
 // If no ports specified, just start on default HTTP port
