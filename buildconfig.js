@@ -33,6 +33,9 @@ indexHtml = indexHtml.replace('<!-- config -->',
 indexHtml.to('dist/index.html');
 
 languages.forEach(language => {
+  if (!fs.existsSync(`dist/index.${language}.html`)) {
+    return;
+  }
   console.log(`Updating "dist/index.${language}.html"...`);
   var indexHtml = fs.readFileSync(`dist/index.${language}.html`, 'utf8');
   indexHtml = indexHtml.replace('<!-- config -->',
