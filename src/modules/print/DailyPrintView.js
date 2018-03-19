@@ -126,9 +126,10 @@ class DailyPrintView extends PrintView {
 
     const dates = _.keys(data.dataByDate);
     const numDays = _.min([this.numDays, dates.length]);
+    const selectedDates = _.slice(dates, -Math.abs(numDays));
     this.chartsByDate = {};
     this.initialChartsByDate = {};
-    _.each(dates, (date) => {
+    _.each(selectedDates, (date) => {
       const dateData = data.dataByDate[date];
       this.chartsByDate[date] = { ...dateData };
       this.initialChartsByDate[date] = { ...dateData };
@@ -142,7 +143,7 @@ class DailyPrintView extends PrintView {
 
     // calculate heights and place charts in preparation for rendering
     for (let i = 0; i < numDays; ++i) {
-      const dateData = data.dataByDate[dates[i]];
+      const dateData = data.dataByDate[selectedDates[i]];
       this.calculateDateChartHeight(dateData);
     }
 
