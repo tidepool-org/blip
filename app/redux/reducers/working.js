@@ -74,6 +74,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_DATA_DONATION_ACCOUNTS_REQUEST:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST:
     case types.FETCH_DATA_SOURCES_REQUEST:
+    case types.FETCH_SERVER_TIME_REQUEST:
     case types.CONNECT_DATA_SOURCE_REQUEST:
     case types.DISCONNECT_DATA_SOURCE_REQUEST:
       key = actionWorkingMap(action.type);
@@ -126,6 +127,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_DATA_DONATION_ACCOUNTS_SUCCESS:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS:
     case types.FETCH_DATA_SOURCES_SUCCESS:
+    case types.FETCH_SERVER_TIME_SUCCESS:
     case types.CONNECT_DATA_SOURCE_SUCCESS:
     case types.DISCONNECT_DATA_SOURCE_SUCCESS:
       key = actionWorkingMap(action.type);
@@ -177,6 +179,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.FETCH_DATA_SOURCES_FAILURE:
+    case types.FETCH_SERVER_TIME_FAILURE:
     case types.CONNECT_DATA_SOURCE_FAILURE:
     case types.DISCONNECT_DATA_SOURCE_FAILURE:
       key = actionWorkingMap(action.type);

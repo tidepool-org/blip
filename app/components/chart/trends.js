@@ -33,6 +33,7 @@ const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
 const TrendsContainer = viz.containers.TrendsContainer;
 const reshapeBgClassesToBgBounds = viz.utils.reshapeBgClassesToBgBounds;
+const Loader = viz.components.Loader;
 
 class Trends extends PureComponent {
   static propTypes = {
@@ -43,14 +44,15 @@ class Trends extends PureComponent {
     initialDatetimeLocation: PropTypes.string,
     patient: React.PropTypes.object,
     patientData: PropTypes.object.isRequired,
+    loading: PropTypes.bool.isRequired,
     trendsState: PropTypes.object.isRequired,
-    // refresh handler
     onClickRefresh: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
-    onSwitchToModal: PropTypes.func.isRequired,
+    onSwitchToTrends: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToWeekly: PropTypes.func.isRequired,
+    onUpdateChartDateRange: React.PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
     updateDatetimeLocation: PropTypes.func.isRequired,
@@ -251,6 +253,17 @@ class Trends extends PureComponent {
       title: this.getTitle(datetimeLocationEndpoints)
     });
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
+
+    // Update the chart date range in the patientData component.
+    // We debounce this to avoid excessive updates while panning the view.
+    if (this.state.debouncedDateRangeUpdate) {
+      this.state.debouncedDateRangeUpdate.cancel();
+    }
+
+    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
+    debouncedDateRangeUpdate(datetimeLocationEndpoints);
+
+    this.setState({ debouncedDateRangeUpdate });
   }
 
   handleSelectDate(date) {
@@ -337,6 +350,7 @@ class Trends extends PureComponent {
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
+              <Loader show={this.props.loading} overlay={true} />
               <div id="tidelineContainer" className="patient-data-chart-trends">
                 {this.renderChart()}
               </div>
@@ -378,7 +392,7 @@ class Trends extends PureComponent {
         iconMostRecent={'icon-most-recent'}
         onClickBack={this.handleClickBack}
         onClickBasics={this.props.onSwitchToBasics}
-        onClickModal={this.handleClickTrends}
+        onClickTrends={this.handleClickTrends}
         onClickMostRecent={this.handleClickMostRecent}
         onClickNext={this.handleClickForward}
         onClickOneDay={this.handleClickDaily}
@@ -417,6 +431,7 @@ class Trends extends PureComponent {
         currentPatientInViewId={this.props.currentPatientInViewId}
         extentSize={this.props.chartPrefs.trends.extentSize}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
+        loading={this.props.loading}
         showingSmbg={this.props.chartPrefs.trends.showingSmbg}
         showingCbg={this.props.chartPrefs.trends.showingCbg}
         smbgRangeOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}

@@ -125,6 +125,52 @@ describe('Actions', () => {
       });
     });
 
+    describe('addPatientNote', () => {
+      const note = {
+        groupid: 1234,
+      };
+      it('should be a TSA', () => {
+        let action = sync.addPatientNote(note);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal ADD_PATIENT_NOTE', () => {
+        let action = {
+          type: 'ADD_PATIENT_NOTE',
+          payload: {
+            note,
+            patientId: note.groupid,
+          },
+        };
+
+        expect(sync.addPatientNote(note)).to.deep.equal(action);
+      });
+    });
+
+    describe('updatePatientNote', () => {
+      const note = {
+        groupid: 1234,
+      };
+      it('should be a TSA', () => {
+        let action = sync.updatePatientNote(note);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_PATIENT_NOTE', () => {
+        let action = {
+          type: 'UPDATE_PATIENT_NOTE',
+          payload: {
+            note,
+            patientId: note.groupid,
+          },
+        };
+
+        expect(sync.updatePatientNote(note)).to.deep.equal(action);
+      });
+    });
+
     describe('clearPatientData', () => {
       const patientId = 'a1b2c3';
       it('should be a TSA', () => {
@@ -1561,57 +1607,6 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchPreferencesRequest', () => {
-      it('should be a TSA', () => {
-        let action = sync.fetchPreferencesRequest();
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal FETCH_PREFERENCES_REQUEST', () => {
-        let action = sync.fetchPreferencesRequest();
-        expect(action.type).to.equal('FETCH_PREFERENCES_REQUEST');
-      });
-    });
-
-    describe('fetchPreferencesSuccess', () => {
-      it('should be a TSA', () => {
-        let preference = {
-          display: 'all'
-        };
-        let action = sync.fetchPreferencesSuccess(preference);
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal FETCH_PREFERENCES_SUCCESS', () => {
-        let preference = {
-          display: 'all'
-        };
-        let action = sync.fetchPreferencesSuccess(preference);
-
-        expect(action.type).to.equal('FETCH_PREFERENCES_SUCCESS');
-        expect(action.payload.preferences).to.equal(preference);
-      });
-    });
-
-    describe('fetchPreferencesFailure', () => {
-      it('should be a TSA', () => {
-        let error = new Error(':(');
-        let action = sync.fetchPreferencesFailure(error);
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal FETCH_PREFERENCES_FAILURE and error should equal passed error', () => {
-        let error = new Error(':(');
-        let action = sync.fetchPreferencesFailure(error);
-
-        expect(action.type).to.equal('FETCH_PREFERENCES_FAILURE');
-        expect(action.error).to.equal(error);
-      });
-    });
-
     describe('fetchSettingsRequest', () => {
       it('should be a TSA', () => {
         let action = sync.fetchSettingsRequest();
@@ -1897,6 +1892,53 @@ describe('Actions', () => {
         let action = sync.fetchDataSourcesFailure(error);
 
         expect(action.type).to.equal('FETCH_DATA_SOURCES_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchServerTimeRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchServerTimeRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_SERVER_TIME_REQUEST', () => {
+        let action = sync.fetchServerTimeRequest();
+        expect(action.type).to.equal('FETCH_SERVER_TIME_REQUEST');
+      });
+    });
+
+    describe('fetchServerTimeSuccess', () => {
+      it('should be a TSA', () => {
+        let serverTime = '2018-01-01T00:00:00.000Z';
+        let action = sync.fetchServerTimeSuccess(serverTime);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_SERVER_TIME_SUCCESS', () => {
+        let serverTime = '2018-01-01T00:00:00.000Z';
+        let action = sync.fetchServerTimeSuccess(serverTime);
+
+        expect(action.type).to.equal('FETCH_SERVER_TIME_SUCCESS');
+        expect(action.payload.serverTime).to.equal(serverTime);
+      });
+    });
+
+    describe('fetchServerTimeFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.fetchServerTimeFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_SERVER_TIME_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.fetchServerTimeFailure(error);
+
+        expect(action.type).to.equal('FETCH_SERVER_TIME_FAILURE');
         expect(action.error).to.equal(error);
       });
     });

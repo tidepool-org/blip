@@ -35,7 +35,9 @@ import BrowserWarning from '../../components/browserwarning';
 
 export let Patients = React.createClass({
   propTypes: {
+    clearPatientData: React.PropTypes.func.isRequired,
     clearPatientInView: React.PropTypes.func.isRequired,
+    currentPatientInViewId: React.PropTypes.string,
     fetchers: React.PropTypes.array.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
     invites: React.PropTypes.array.isRequired,
@@ -315,7 +317,12 @@ export let Patients = React.createClass({
       fetcher();
     });
   },
+
   componentWillMount: function() {
+    if (this.props.currentPatientInViewId) {
+      this.props.clearPatientData(this.props.currentPatientInViewId);
+    }
+
     if (this.props.clearPatientInView) {
       this.props.clearPatientInView();
     }
@@ -405,13 +412,14 @@ export function mapStateToProps(state) {
   } = state.blip.working;
 
   return {
-    user: user,
+    currentPatientInViewId: state.blip.currentPatientInViewId,
+    invites: state.blip.pendingReceivedInvites,
+    fetchingUser: fetchingUser,
     loading: fetchingUser || fetchingPatients || fetchingInvites,
     loggedInUserId: state.blip.loggedInUserId,
-    fetchingUser: fetchingUser,
     patients: _.keys(patientMap).map((key) => patientMap[key]),
-    invites: state.blip.pendingReceivedInvites,
-    showingWelcomeMessage: state.blip.showingWelcomeMessage
+    showingWelcomeMessage: state.blip.showingWelcomeMessage,
+    user: user,
   }
 };
 
@@ -421,6 +429,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   removePatient: actions.async.removeMembershipInOtherCareTeam,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchPatients: actions.async.fetchPatients,
+  clearPatientData: actions.sync.clearPatientData,
   clearPatientInView: actions.sync.clearPatientInView,
   showWelcomeMessage: actions.sync.showWelcomeMessage,
   onHideWelcomeSetup: actions.sync.hideWelcomeMessage
@@ -430,7 +439,12 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return _.assign(
     {},
-    _.pick(dispatchProps, ['clearPatientInView', 'showWelcomeMessage', 'onHideWelcomeSetup']),
+    _.pick(dispatchProps, [
+      'clearPatientData',
+      'clearPatientInView',
+      'showWelcomeMessage',
+      'onHideWelcomeSetup',
+    ]),
     stateProps,
     {
       fetchers: getFetchers(dispatchProps, ownProps, api),

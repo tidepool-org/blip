@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2015, Tidepool Project
+ * Copyright (c) 2017, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,8 +15,18 @@
  * == BSD2 LICENSE ==
  */
 
-import * as async from './async';
-import * as sync from './sync';
-import * as worker from './worker';
+/* global importScripts, onmessage, postMessage */
 
-export { async, sync, worker };
+import _ from 'lodash';
+import PDFWorker from './PDFWorker';
+
+const pdfWorker = new PDFWorker();
+
+// eslint-disable-next-line no-native-reassign
+onmessage = (msg) => {
+  switch(_.get(msg, 'data.meta.worker')) {
+    case 'pdf':
+      pdfWorker.handleMessage(msg, postMessage);
+      break;
+  }
+};

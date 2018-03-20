@@ -1,6 +1,6 @@
 /*
  * == BSD2 LICENSE ==
- * Copyright (c) 2015, Tidepool Project
+ * Copyright (c) 2018, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-import * as async from './async';
-import * as sync from './sync';
-import * as worker from './worker';
+import { getfetchedPatientDataRange } from './patientData';
 
-export { async, sync, worker };
+export {
+  getfetchedPatientDataRange,
+}

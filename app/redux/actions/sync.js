@@ -68,6 +68,26 @@ export function closeMessageThread() {
   };
 }
 
+export function addPatientNote(note) {
+  return {
+    type: ActionTypes.ADD_PATIENT_NOTE,
+    payload: {
+      note: note,
+      patientId: note.groupid,
+    }
+  };
+}
+
+export function updatePatientNote(note) {
+  return {
+    type: ActionTypes.UPDATE_PATIENT_NOTE,
+    payload: {
+      note: note,
+      patientId: note.groupid,
+    }
+  };
+}
+
 export function clearPatientData(patientId) {
   return {
     type: ActionTypes.CLEAR_PATIENT_DATA,
@@ -527,31 +547,6 @@ export function updatePatientFailure(error, apiError) {
   };
 }
 
-export function fetchPreferencesRequest() {
-  return {
-    type: ActionTypes.FETCH_PREFERENCES_REQUEST,
-  };
-}
-
-export function fetchPreferencesSuccess(preferences) {
-  return {
-    type: ActionTypes.FETCH_PREFERENCES_SUCCESS,
-    payload: {
-      preferences: preferences,
-    },
-  };
-}
-
-export function fetchPreferencesFailure(error, apiError) {
-  return {
-    type: ActionTypes.FETCH_PREFERENCES_FAILURE,
-    error: error,
-    meta: {
-      apiError: apiError || null,
-    },
-  };
-}
-
 export function updatePreferencesRequest() {
   return {
     type: ActionTypes.UPDATE_PREFERENCES_REQUEST,
@@ -832,13 +827,14 @@ export function fetchPatientDataRequest() {
   };
 }
 
-export function fetchPatientDataSuccess(patientId, patientData, patientNotes) {
+export function fetchPatientDataSuccess(patientId, patientData, patientNotes, fetchedUntil) {
   return {
     type: ActionTypes.FETCH_PATIENT_DATA_SUCCESS,
     payload: {
-      patientId: patientId,
-      patientData: patientData,
-      patientNotes: patientNotes,
+      patientId,
+      patientData,
+      patientNotes,
+      fetchedUntil,
     },
   };
 }
@@ -946,6 +942,31 @@ export function fetchDataSourcesSuccess(dataSources) {
 export function fetchDataSourcesFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_DATA_SOURCES_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchServerTimeRequest() {
+  return {
+    type: ActionTypes.FETCH_SERVER_TIME_REQUEST,
+  };
+}
+
+export function fetchServerTimeSuccess(serverTime) {
+  return {
+    type: ActionTypes.FETCH_SERVER_TIME_SUCCESS,
+    payload: {
+      serverTime,
+    },
+  };
+}
+
+export function fetchServerTimeFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_SERVER_TIME_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,

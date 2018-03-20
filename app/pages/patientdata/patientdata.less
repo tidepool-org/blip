@@ -15,6 +15,7 @@
 
 .patient-data {
   margin-bottom: @spacing-large;
+  position: relative;
 }
 
 // Subnav
@@ -134,6 +135,15 @@
   position: relative;
 }
 
+// Loader
+// ====================================
+.patient-data > .loader {
+  height: 540px;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
 // Chart
 // ====================================
 
@@ -196,13 +206,6 @@
 .patient-data-loading-message {
   margin-top: 0px;
   font-weight: bold;
-}
-
-.patient-data-loading-image {
-  display: block;
-  margin: 80px auto 0;
-  padding-top: 130px;
-  width: 160px;
 }
 
 .patient-data-message-no-data {

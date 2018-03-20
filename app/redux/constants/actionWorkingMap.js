@@ -167,6 +167,11 @@ export default (type) => {
     case types.DISCONNECT_DATA_SOURCE_FAILURE:
       return 'disconnectingDataSource';
 
+    case types.FETCH_SERVER_TIME_REQUEST:
+    case types.FETCH_SERVER_TIME_SUCCESS:
+    case types.FETCH_SERVER_TIME_FAILURE:
+      return 'fetchingServerTime';
+
     default:
       return null;
   }

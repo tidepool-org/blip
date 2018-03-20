@@ -17,6 +17,7 @@
 import { combineReducers } from 'redux';
 
 import working from './working';
+import pdf from './pdf';
 
 import {
   bgPrefs,
@@ -76,5 +77,6 @@ export default combineReducers({
   dataDonationAccounts,
   dataSources,
   authorizedDataSource,
+  pdf,
   working,
 });
