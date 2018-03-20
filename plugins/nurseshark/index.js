@@ -25,13 +25,7 @@ var util = require('util');
 var { MGDL_PER_MMOLL, MGDL_UNITS } = require('../../js/data/util/constants');
 var dt = require('../../js/data/util/datetime');
 
-var log;
-if (typeof window !== 'undefined' && __TEST__ !== true) {
-  log = require('bows')('Nurseshark');
-}
-else {
-  log = function() { return; };
-}
+var log = __DEV__ && !__TEST__ ? require('bows')('Nurseshark') : _.noop;
 
 function translateBg(value) {
   return Math.round(MGDL_PER_MMOLL * value);
@@ -87,7 +81,7 @@ function cloneDeep(d) {
 }
 
 function timeIt(fn, name) {
-  if (typeof window !== 'undefined' && __DEV__ === true) {
+  if (__DEV__ && !__TEST__) {
     console.time(name);
     fn();
     console.timeEnd(name);
@@ -153,7 +147,7 @@ var nurseshark = {
     var tidelineMessage = {
       time: d.timestamp,
       messageText: d.messagetext,
-      parentMessage: d.parentmessage,
+      parentMessage: d.parentmessage || null,
       type: 'message',
       user: d.user,
       id: d.id

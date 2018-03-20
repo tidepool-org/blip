@@ -425,7 +425,7 @@ function chartDailyFactory(el, options) {
 
   chart.createMessage = function(message) {
     log('New message created:', message);
-    chart.tidelineData.addDatum(message);
+    chart.tidelineData.addData([message]);
     chart.data(chart.tidelineData);
     chart.emitter.emit('messageCreated', message);
     return chart.tidelineData;
