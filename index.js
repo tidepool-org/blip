@@ -442,13 +442,15 @@ module.exports = function (config, deps) {
     getDeviceDataForUser: function (userId, options, cb) {
       common.assertArgumentsSize(arguments, 3);
 
-      var url = '/data/' + userId;
-      if (!_.isUndefined(options.carelink) && !_.isNull(options.carelink)) {
-        url += (url.includes('?') ? '&' : '?') + 'carelink=' + options.carelink;
-      }
-      if (!_.isUndefined(options.dexcom) && !_.isNull(options.dexcom)) {
-        url += (url.includes('?') ? '&' : '?') + 'dexcom=' + options.dexcom;
-      }
+      var allowedParams = [
+        'carelink',
+        'dexcom',
+        'startDate',
+        'endDate',
+      ];
+
+      // Generate url with any valid provided params
+      var url = common.appendUrlParamsFromOptions('/data/' + userId, options, allowedParams);
 
       common.doGetWithToken(
         url,
