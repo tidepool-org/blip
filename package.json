@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "0.7.0-data-paging.3",
+  "version": "0.7.0",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
