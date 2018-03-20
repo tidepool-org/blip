@@ -127,6 +127,7 @@ export class TrendsContainer extends PureComponent {
     currentPatientInViewId: PropTypes.string.isRequired,
     extentSize: PropTypes.oneOf([ONE_WEEK, TWO_WEEKS, FOUR_WEEKS]).isRequired,
     initialDatetimeLocation: PropTypes.string,
+    loading: PropTypes.bool.isRequired,
     showingSmbg: PropTypes.bool.isRequired,
     showingCbg: PropTypes.bool.isRequired,
     smbgRangeOverlay: PropTypes.bool.isRequired,
@@ -263,41 +264,7 @@ export class TrendsContainer extends PureComponent {
   }
 
   componentWillMount() {
-    // find BG domain (for yScale construction)
-    const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek } = this.props;
-    const allBg = cbgByDate.filterAll().top(Infinity).concat(smbgByDate.filterAll().top(Infinity));
-    const bgDomain = extent(allBg, d => d.value);
-
-    const { bgPrefs: { bgBounds, bgUnits }, yScaleClampTop } = this.props;
-    const upperBound = yScaleClampTop[bgUnits];
-    const yScaleDomain = [bgDomain[0], upperBound];
-    if (bgDomain[0] > bgBounds.targetLowerBound) {
-      yScaleDomain[0] = bgBounds.targetLowerBound;
-    }
-    const yScale = scaleLinear().domain(yScaleDomain).clamp(true);
-
-    // find initial date domain (based on initialDatetimeLocation or current time)
-    const { extentSize, initialDatetimeLocation, timePrefs } = this.props;
-    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    const mostRecent = datetime.getLocalizedCeiling(new Date().valueOf(), timezone);
-    const end = initialDatetimeLocation ?
-      datetime.getLocalizedCeiling(initialDatetimeLocation, timezone) : mostRecent;
-    const start = utcDay.offset(end, -extentSize);
-    const dateDomain = [start.toISOString(), end.toISOString()];
-
-    // filter data according to current activeDays and dateDomain
-    this.initialFiltering(cbgByDate, cbgByDayOfWeek, dateDomain);
-    this.initialFiltering(smbgByDate, smbgByDayOfWeek, dateDomain);
-    this.setState({
-      bgDomain: { lo: bgDomain[0], hi: bgDomain[1] },
-      currentCbgData: cbgByDate.top(Infinity).reverse(),
-      currentSmbgData: smbgByDate.top(Infinity).reverse(),
-      dateDomain: { start: dateDomain[0], end: dateDomain[1] },
-      mostRecent: mostRecent.toISOString(),
-      xScale: scaleLinear().domain([0, 864e5]),
-      yScale,
-    }, this.determineDataToShow);
-    this.props.onDatetimeLocationChange(dateDomain, end === mostRecent);
+    this.mountData();
   }
 
   /*
@@ -310,6 +277,12 @@ export class TrendsContainer extends PureComponent {
    * as a temporary compatibility interface
    */
   componentWillReceiveProps(nextProps) {
+    const newDataLoaded = this.props.loading && !nextProps.loading;
+
+    if (newDataLoaded) {
+      this.mountData(nextProps);
+    }
+
     if (!_.isEqual(nextProps.activeDays, this.props.activeDays)) {
       const { cbgByDayOfWeek, smbgByDayOfWeek, smbgByDate, cbgByDate } = nextProps;
       this.refilterByDayOfWeek(cbgByDayOfWeek, nextProps.activeDays);
@@ -338,6 +311,47 @@ export class TrendsContainer extends PureComponent {
     if (_.get(trendsState, 'focusedSmbgRangeAvg') !== null) {
       unfocusSmbgRangeAvg(currentPatientInViewId);
     }
+  }
+
+  mountData(props = this.props) {
+    // find BG domain (for yScale construction)
+    const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek } = props;
+    const allBg = cbgByDate.filterAll().top(Infinity).concat(smbgByDate.filterAll().top(Infinity));
+    const bgDomain = extent(allBg, d => d.value);
+
+    const { bgPrefs: { bgBounds, bgUnits }, yScaleClampTop } = props;
+    const upperBound = yScaleClampTop[bgUnits];
+    const yScaleDomain = [bgDomain[0], upperBound];
+    if (bgDomain[0] > bgBounds.targetLowerBound) {
+      yScaleDomain[0] = bgBounds.targetLowerBound;
+    }
+    const yScale = scaleLinear().domain(yScaleDomain).clamp(true);
+
+    // find initial date domain (based on initialDatetimeLocation or current time)
+    const { extentSize, initialDatetimeLocation, timePrefs } = props;
+    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+    const mostRecent = datetime.getLocalizedCeiling(new Date().valueOf(), timezone);
+    const end = initialDatetimeLocation ?
+      datetime.getLocalizedCeiling(initialDatetimeLocation, timezone) : mostRecent;
+    const start = utcDay.offset(end, -extentSize);
+    const dateDomain = [start.toISOString(), end.toISOString()];
+
+    // filter data according to current activeDays and dateDomain
+    this.initialFiltering(cbgByDate, cbgByDayOfWeek, dateDomain);
+    this.initialFiltering(smbgByDate, smbgByDayOfWeek, dateDomain);
+
+    const state = {
+      bgDomain: { lo: bgDomain[0], hi: bgDomain[1] },
+      currentCbgData: cbgByDate.top(Infinity).reverse(),
+      currentSmbgData: smbgByDate.top(Infinity).reverse(),
+      dateDomain: { start: dateDomain[0], end: dateDomain[1] },
+      mostRecent: mostRecent.toISOString(),
+      xScale: scaleLinear().domain([0, 864e5]),
+      yScale,
+    };
+
+    this.setState(state, this.determineDataToShow);
+    props.onDatetimeLocationChange(dateDomain, end === mostRecent);
   }
 
   getCurrentDay() {

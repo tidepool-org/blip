@@ -18,4 +18,3 @@
 export * from './thunks';
 export * from './trends';
 export * from './settings';
-export * from './worker';

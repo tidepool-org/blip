@@ -62,7 +62,6 @@ describe('print module', () => {
   let stream;
 
   sinon.stub(Module.utils, 'reshapeBgClassesToBgBounds');
-  sinon.stub(Module.utils, 'selectDailyViewData').returns(undefined);
   sinon.stub(Module.utils.PrintView, 'renderPageNumbers');
   sinon.stub(Module.utils, 'BasicsPrintView').returns(new BasicsPrintView());
   sinon.stub(Module.utils, 'DailyPrintView').returns(new DailyPrintView());
@@ -78,7 +77,6 @@ describe('print module', () => {
   afterEach(() => {
     sandbox.restore();
     Module.utils.reshapeBgClassesToBgBounds.resetHistory();
-    Module.utils.selectDailyViewData.resetHistory();
     Module.utils.PrintView.renderPageNumbers.resetHistory();
     Module.utils.BasicsPrintView.resetHistory();
     Module.utils.DailyPrintView.resetHistory();
@@ -104,22 +102,6 @@ describe('print module', () => {
     });
   });
 
-  it('should fetch the daily view data when daily data present', () => {
-    const result = Module.createPrintPDFPackage(data, opts);
-    doc.stream.end();
-
-    return result.then(() => {
-      sinon.assert.calledOnce(Module.utils.selectDailyViewData);
-      sinon.assert.calledWithExactly(
-        Module.utils.selectDailyViewData,
-        opts.mostRecent,
-        data.daily,
-        opts.numDays.daily,
-        opts.timePrefs
-      );
-    });
-  });
-
   it('should render and return the complete pdf data package when all data is available', () => {
     const result = Module.createPrintPDFPackage(data, opts);
     doc.stream.end();
@@ -142,7 +124,7 @@ describe('print module', () => {
       sinon.assert.calledWithMatch(
         Module.utils.DailyPrintView,
         doc,
-        Module.utils.selectDailyViewData(),
+        data.daily,
         {
           numDays: opts.numDays.daily,
           patient: opts.patient,

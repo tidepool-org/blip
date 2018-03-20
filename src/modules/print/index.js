@@ -24,14 +24,12 @@ import DailyPrintView from './DailyPrintView';
 import BasicsPrintView from './BasicsPrintView';
 import SettingsPrintView from './SettingsPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
-import { selectDailyViewData } from '../../utils/print/data';
 
 import * as constants from './utils/constants';
 
 // Exporting utils for easy stubbing in tests
 export const utils = {
   reshapeBgClassesToBgBounds,
-  selectDailyViewData,
   PDFDocument: class PDFDocumentStub {},
   blobStream: function blobStreamStub() {},
   PrintView,
@@ -125,9 +123,6 @@ export function createPrintView(type, data, opts, doc) {
 export function createPrintPDFPackage(data, opts) {
   const {
     bgPrefs,
-    numDays,
-    timePrefs,
-    mostRecent,
   } = opts;
 
   const pdfOpts = _.cloneDeep(opts);
@@ -145,12 +140,7 @@ export function createPrintPDFPackage(data, opts) {
     const stream = doc.pipe(streamLib());
 
     if (data.basics) createPrintView('basics', data.basics, pdfOpts, doc).render();
-
-    if (data.daily) {
-      const dailyData = utils.selectDailyViewData(mostRecent, data.daily, numDays.daily, timePrefs);
-      createPrintView('daily', dailyData, pdfOpts, doc).render();
-    }
-
+    if (data.daily) createPrintView('daily', data.daily, pdfOpts, doc).render();
     if (data.settings) createPrintView('settings', data.settings, pdfOpts, doc).render();
 
     PrintView.renderPageNumbers(doc);

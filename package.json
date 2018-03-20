@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "0.9.9",
+  "version": "0.10.0",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
@@ -101,8 +101,7 @@
     "sinon": "2.3.4",
     "style-loader": "0.13.1",
     "tidepool-standard-action": "0.1.1",
-    "webpack": "1.13.2",
-    "worker-loader": "0.8.0"
+    "webpack": "1.13.2"
   },
   "dependencies": {
     "bluebird": "3.5.0",
