@@ -9,10 +9,7 @@
 
 const defaultLanguage = 'en';
 
-const translations = {
-  'fr': require('../../translations/json/fr.json'),
-  'en': require('../../translations/json/en.json'),
-};
+let translations = {};
 
 let currentLanguage = defaultLanguage;
 
@@ -24,7 +21,11 @@ let currentLanguage = defaultLanguage;
  * @returns {string} Translated version of text, or text if no translation
  */
 function __(text) {
-  return translations[currentLanguage][text] || text;
+  return (translations[currentLanguage] || {})[text] || text;
+}
+
+__.load = function(_translations) {
+  translations = _translations;
 }
 
 __.lang = function(language) {

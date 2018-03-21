@@ -14,7 +14,7 @@ const languages = require('./languages.json');
 
 // We overwrite .po files with the updated information from the code, removing unused translations and adding
 // new keys for new items to translate
-for (let language of languages) {
+for (let language of Object.keys(languages)) {
   mergeMessagesWithPO(keys, path.join(poDir, `${language}.po`), path.join(poDir, `${language}.po`));
 }
 

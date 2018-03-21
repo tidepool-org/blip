@@ -3657,7 +3657,7 @@ i18n-extract@^0.5.1:
     glob "^7.1.1"
 
 "i18n@file:./dependencies/i18n":
-  version "0.1.0"
+  version "0.2.3"
 
 iconv-lite@0.4.15, iconv-lite@^0.4.5, iconv-lite@~0.4.13:
   version "0.4.15"

@@ -18,6 +18,7 @@ import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
 
+import './core/language'; // Set the language before loading components
 import blipCreateStore from './redux/store';
 import AppRoot from './redux/containers/Root';
 
@@ -62,8 +63,6 @@ appContext.props = {
 appContext.init = callback => {
 
   function beginInit() {
-    __.lang('fr');
-
     initNoTouch();
   }
 

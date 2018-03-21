@@ -39,11 +39,15 @@ export var UserProfile = React.createClass({
     user: React.PropTypes.object
   },
 
-  formInputs: [
-    {name: 'fullName', label: 'Full name', type: 'text'},
-    {name: 'username', label: 'Email', type: 'email'},
-    {name: 'password', label: 'Password', type: 'password'},
-    {name: 'passwordConfirm', label: 'Confirm password', type: 'password'}
+  formInputs: () => [
+    {name: 'fullName', label: __('Full name'), type: 'text'},
+    {name: 'username', label: __('Email'), type: 'email'},
+    {name: 'lang', label: __('Language'), type: 'select', items: [
+      {value: 'en', label: 'English'},
+      {value: 'fr', label: 'Français'},
+    ]},
+    {name: 'password', label: __('Password'), type: 'password'},
+    {name: 'passwordConfirm', label: __('Confirm password'), type: 'password'}
   ],
 
   MESSAGE_TIMEOUT: 2000,
@@ -63,7 +67,8 @@ export var UserProfile = React.createClass({
 
     return {
       fullName: user.profile && user.profile.fullName,
-      username: user.username
+      username: user.username,
+      lang: user.language || 'en'
     };
   },
 
@@ -101,11 +106,11 @@ export var UserProfile = React.createClass({
               <div className="grid-item one-whole medium-one-third">
                 <a className="js-back" href="" onClick={handleClickBack}>
                   <i className="icon-back"></i>
-                  {' ' + 'Back'}
+                  {' ' + __('Back')}
                 </a>
               </div>
               <div className="grid-item one-whole medium-one-third">
-                <div className="profile-subnav-title">Account</div>
+                <div className="profile-subnav-title">{__('Account')}</div>
               </div>
             </div>
           </div>
@@ -126,7 +131,7 @@ export var UserProfile = React.createClass({
 
     return (
       <SimpleForm
-        inputs={this.formInputs}
+        inputs={this.formInputs()}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText="Save"
@@ -194,6 +199,7 @@ export var UserProfile = React.createClass({
     var result = {
       username: formValues.username,
       emails: [formValues.username],
+      language: formValues.lang,
       profile: {
         fullName: formValues.fullName
       }
@@ -209,6 +215,10 @@ export var UserProfile = React.createClass({
   submitFormValues: function(formValues) {
     var self = this;
     var submit = this.props.onSubmit;
+
+    // Todo: change language only when server responds, for now
+    // as we only modify BLIP, it is done when the user settings are edited
+    __.lang(formValues.language);
 
     // Save optimistically
     submit(formValues);

@@ -12,3 +12,21 @@ msgstr ""
 
 msgid "Logout"
 msgstr ""
+
+msgid "Full name"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Confirm password"
+msgstr ""
+
+msgid "Back"
+msgstr ""
