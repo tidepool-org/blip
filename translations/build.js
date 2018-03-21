@@ -12,7 +12,7 @@ const htmlPath = path.join(__dirname, '..', 'dist', 'index.html');
 const bundleContent = fs.readFileSync(bundlePath, 'utf8');
 const htmlContent = fs.readFileSync(htmlPath, 'utf8');
 
-for (let language of languages) {
+for (let language of Object.keys(languages)) {
   const translations = require(`./json/${language}.json`);
   const translatedBundlePath = path.join(__dirname, '..', 'dist', `bundle.${language}.js`);
   const translatedHtmlPath = path.join(__dirname, '..', 'dist', `index.${language}.html`);

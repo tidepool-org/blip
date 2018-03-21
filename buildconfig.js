@@ -32,7 +32,7 @@ indexHtml = indexHtml.replace('<!-- config -->',
 );
 indexHtml.to('dist/index.html');
 
-languages.forEach(language => {
+Object.keys(languages).forEach(language => {
   if (!fs.existsSync(`dist/index.${language}.html`)) {
     return;
   }

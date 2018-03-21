@@ -7,7 +7,7 @@ const translationDir = __dirname;
 const poDir = path.join(translationDir, 'po');
 const jsonDir = path.join(translationDir, 'json');
 
-for (let language of languages) {
+for (let language of Object.keys(languages)) {
   const poPath = path.join(poDir, `${language}.po`);
   const jsonPath = path.join(jsonDir, `${language}.json`);
 
