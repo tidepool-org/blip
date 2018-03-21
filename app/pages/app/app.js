@@ -418,6 +418,10 @@ export function mapStateToProps(state) {
       if (state.blip.loggedInUserId === state.blip.currentPatientInViewId) {
         userIsCurrentPatient = true;
       }
+
+      if (user && user.profile && user.profile.language) {
+        __.lang(user.profile.language);
+      }
     }
 
     if (state.blip.currentPatientInViewId) {

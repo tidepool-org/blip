@@ -68,7 +68,7 @@ export var UserProfile = React.createClass({
     return {
       fullName: user.profile && user.profile.fullName,
       username: user.username,
-      lang: user.language || 'en'
+      lang: user.profile && user.profile.language || 'en'
     };
   },
 
@@ -199,9 +199,11 @@ export var UserProfile = React.createClass({
     var result = {
       username: formValues.username,
       emails: [formValues.username],
-      language: formValues.lang,
       profile: {
-        fullName: formValues.fullName
+        fullName: formValues.fullName,
+        // This seems to be the best place to put language. Preferences and Settings
+        // both refer to a patient id, but language doesn't have anything to do with patients
+        language: formValues.lang
       }
     };
 
@@ -215,10 +217,6 @@ export var UserProfile = React.createClass({
   submitFormValues: function(formValues) {
     var self = this;
     var submit = this.props.onSubmit;
-
-    // Todo: change language only when server responds, for now
-    // as we only modify BLIP, it is done when the user settings are edited
-    __.lang(formValues.language);
 
     // Save optimistically
     submit(formValues);
