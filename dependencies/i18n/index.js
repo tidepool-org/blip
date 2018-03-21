@@ -21,7 +21,16 @@ let currentLanguage = defaultLanguage;
  * @returns {string} Translated version of text, or text if no translation
  */
 function __(text) {
-  return (translations[currentLanguage] || {})[text] || text;
+  // If the language is en-US, first look at en-US, then en.
+  if (translations[currentLanguage] && translations[currentLanguage].hasOwnProperty(text)) {
+    return translations[currentLanguage][text];
+  }
+  const shortLanguage = currentLanguage.substr(0, 2);
+  if (translations[shortLanguage] && translations[shortLanguage].hasOwnProperty(text)) {
+    return translations[shortLanguage][text];
+  }
+
+  return text;
 }
 
 __.load = function(_translations) {

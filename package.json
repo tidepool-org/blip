@@ -32,6 +32,7 @@
     "babel-preset-stage-0": "6.5.0",
     "babel-preset-stage-2": "6.13.0",
     "bows": "1.6.0",
+    "browser-locale": "^1.0.3",
     "classnames": "2.2.5",
     "copy-webpack-plugin": "4.0.1",
     "css-loader": "0.23.1",

@@ -68,7 +68,7 @@ export var UserProfile = React.createClass({
     return {
       fullName: user.profile && user.profile.fullName,
       username: user.username,
-      lang: user.profile && user.profile.language || 'en'
+      lang: user.profile && user.profile.language || undefined
     };
   },
 
