@@ -1,6 +1,6 @@
 {
   "name": "i18n",
-  "version": "0.2.3",
+  "version": "0.3.1",
   "description": "Dynamic translated content",
   "main": "index.js",
   "license": "MIT"

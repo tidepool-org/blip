@@ -5,4 +5,5 @@ __.load({
 });
 
 // Set default language
-__.lang('en');
+const browserLanguage = require('browser-locale')();
+__.lang(browserLanguage);
