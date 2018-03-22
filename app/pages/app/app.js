@@ -18,6 +18,7 @@ import React from 'react';
 import async from 'async';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import i18next from 'i18next';
 
 import * as actions from '../../redux/actions';
 
@@ -420,7 +421,7 @@ export function mapStateToProps(state) {
       }
 
       if (user && user.profile && user.profile.language) {
-        __.lang(user.profile.language);
+        i18next.changeLanguage(user.profile.language);
       }
     }
 

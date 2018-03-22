@@ -7,8 +7,8 @@ const appDir = path.join(__dirname, '..', 'app');
 const translationDir = __dirname;
 const poDir = path.join(translationDir, 'po');
 
-// __ is our translation function, and we only translate what's inside app
-const keys = extractFromFiles(`${appDir}/**/*.js`, {marker: '__'});
+// i18next.t is our translation function, and we only translate what's inside app
+const keys = extractFromFiles(`${appDir}/**/*.js`, {marker: 't'});
 
 const languages = require('./languages.json');
 

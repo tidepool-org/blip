@@ -180,7 +180,7 @@ var Navbar = React.createClass({
           <div onClick={this.toggleDropdown}>
             <i className='Navbar-icon Navbar-icon-profile icon-profile'></i>
             <div className="Navbar-logged">
-              <span className="Navbar-loggedInAs">{__('Logged in as ')}</span>
+              <span className="Navbar-loggedInAs">{t('Logged in as ')}</span>
               <span className="Navbar-userName" ref="userFullName" title={displayName}>{displayName}</span>
             </div>
             <i className='Navbar-icon Navbar-icon-down icon-arrow-down'></i>
@@ -189,13 +189,13 @@ var Navbar = React.createClass({
           <div onClick={this.stopPropagation} className={dropdownClasses}>
             <ul>
               <li>
-                <Link to="/profile" title={__('Account')} onClick={handleClickUser} className={accountSettingsClasses}>
-                  <i className='Navbar-icon icon-settings'></i><span className="Navbar-menuText">{__('Account Settings')}</span>
+                <Link to="/profile" title={t('Account')} onClick={handleClickUser} className={accountSettingsClasses}>
+                  <i className='Navbar-icon icon-settings'></i><span className="Navbar-menuText">{t('Account Settings')}</span>
                 </Link>
               </li>
               <li>
-                <a href="" title={__('Logout')} onClick={this.handleLogout} className="Navbar-button" ref="logout">
-                  <i className='Navbar-icon icon-logout'></i><span className="Navbar-menuText">{__('Logout')}</span>
+                <a href="" title={t('Logout')} onClick={this.handleLogout} className="Navbar-button" ref="logout">
+                  <i className='Navbar-icon icon-logout'></i><span className="Navbar-menuText">{t('Logout')}</span>
                 </a>
               </li>
             </ul>

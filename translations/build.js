@@ -24,8 +24,8 @@ for (let language of Object.keys(languages)) {
 
   // eslint ensures that there are no double-quoted strings, only
   // single-quoted and anti-quoted strings
-  const regexAntiQuotes = /__\(`([^`\\]|\\.)`\)/g;
-  const regexSingleQuotes = /__\('([^'\\]|\\.)'\)/g;
+  const regexAntiQuotes = /\bt\(`([^`\\]|\\.)`\)/g;
+  const regexSingleQuotes = /\bt\('([^'\\]|\\.)'\)/g;
 
   let translatedBundle = translate({
     source: bundleContent,

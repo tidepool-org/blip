@@ -63,7 +63,7 @@ var plugins = [
   // }),
   // OPTION 2 for multi-language: use __ as a custom module
   new webpack.ProvidePlugin({
-    __: 'i18n'
+    t: 'i18n'
   })
 ];
 
