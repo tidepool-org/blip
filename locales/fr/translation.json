@@ -1,12 +1,18 @@
 {
-  "Logged in as ": "Connecté en tant que ",
   "Account": "Compte",
   "Account Settings": "Paramètres de compte",
-  "Logout": "Déconnexion",
-  "Full name": "Nom complet",
-  "Email": "",
-  "Language": "Langue",
-  "Password": "Mot de passe",
+  "Back": "Retour",
   "Confirm password": "Confirmer le mot de passe",
-  "Back": "Retour"
+  "Email": "",
+  "Forgot your password?": "",
+  "Full name": "Nom complet",
+  "Language": "Langue",
+  "Log in": "Connexion",
+  "Logged in as ": "Connecté en tant que ",
+  "Logging in...": "Connexion...",
+  "Login": "Connexion",
+  "Logout": "Déconnexion",
+  "Password": "Mot de passe",
+  "Remember me": "Se souvenir de moi",
+  "Sign up": "Inscription"
 }
