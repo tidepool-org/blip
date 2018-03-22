@@ -21,7 +21,7 @@
     "__API_HOST__": false,
     "__INVITE_KEY__": false,
     "__LATEST_TERMS__": false,
-    "__": false
+    "t": false
   },
   // To give you an idea how to override rule options:
   "rules": {

@@ -40,14 +40,14 @@ export var UserProfile = React.createClass({
   },
 
   formInputs: () => [
-    {name: 'fullName', label: __('Full name'), type: 'text'},
-    {name: 'username', label: __('Email'), type: 'email'},
-    {name: 'lang', label: __('Language'), type: 'select', items: [
+    {name: 'fullName', label: t('Full name'), type: 'text'},
+    {name: 'username', label: t('Email'), type: 'email'},
+    {name: 'lang', label: t('Language'), type: 'select', items: [
       {value: 'en', label: 'English'},
       {value: 'fr', label: 'Français'},
     ]},
-    {name: 'password', label: __('Password'), type: 'password'},
-    {name: 'passwordConfirm', label: __('Confirm password'), type: 'password'}
+    {name: 'password', label: t('Password'), type: 'password'},
+    {name: 'passwordConfirm', label: t('Confirm password'), type: 'password'}
   ],
 
   MESSAGE_TIMEOUT: 2000,
@@ -106,11 +106,11 @@ export var UserProfile = React.createClass({
               <div className="grid-item one-whole medium-one-third">
                 <a className="js-back" href="" onClick={handleClickBack}>
                   <i className="icon-back"></i>
-                  {' ' + __('Back')}
+                  {' ' + t('Back')}
                 </a>
               </div>
               <div className="grid-item one-whole medium-one-third">
-                <div className="profile-subnav-title">{__('Account')}</div>
+                <div className="profile-subnav-title">{t('Account')}</div>
               </div>
             </div>
           </div>
