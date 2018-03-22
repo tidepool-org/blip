@@ -1,13 +1,14 @@
 
 import i18n from 'i18next';
 import { reactI18nextModule } from 'react-i18next';
+import getLocale from 'browser-locale';
 
 i18n
   .use(reactI18nextModule)
   .init({
     fallbackLng: 'en',
     // i18next-browser-languagedetector doesn't work in my experience
-    lng: require('browser-locale')(),
+    lng: getLocale(),
 
     // To allow . in keys
     keySeparator: false,
