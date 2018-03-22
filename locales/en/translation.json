@@ -1,12 +1,18 @@
 {
-  "Logged in as ": "",
   "Account": "",
   "Account Settings": "",
-  "Logout": "",
-  "Full name": "",
-  "Email": "",
-  "Language": "",
-  "Password": "",
+  "Back": "",
   "Confirm password": "",
-  "Back": ""
+  "Email": "",
+  "Forgot your password?": "",
+  "Full name": "",
+  "Language": "",
+  "Log in": "",
+  "Logged in as ": "",
+  "Logging in...": "",
+  "Login": "",
+  "Logout": "",
+  "Password": "",
+  "Remember me": "",
+  "Sign up": ""
 }
