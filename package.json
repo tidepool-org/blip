@@ -45,7 +45,6 @@
     "history": "2.1.2",
     "html-webpack-include-assets-plugin": "0.0.5",
     "html-webpack-plugin": "2.28.0",
-    "i18n": "file:./dependencies/i18n",
     "i18next": "^10.6.0",
     "i18next-browser-languagedetector": "^2.1.0",
     "json-loader": "0.5.4",

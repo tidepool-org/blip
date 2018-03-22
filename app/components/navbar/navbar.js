@@ -17,6 +17,7 @@
 var React = require('react');
 var IndexLink = require('react-router').IndexLink;
 var Link = require('react-router').Link;
+import { translate } from 'react-i18next';
 
 var _ = require('lodash');
 var cx = require('classnames');
@@ -26,7 +27,7 @@ var NavbarPatientCard = require('../../components/navbarpatientcard');
 
 var logoSrc = require('./images/tidepool-logo-408x46.png');
 
-var Navbar = React.createClass({
+var Navbar = translate('translation', {withRef: true})(React.createClass({
   propTypes: {
     currentPage: React.PropTypes.string,
     user: React.PropTypes.object,
@@ -128,7 +129,7 @@ var Navbar = React.createClass({
 
   renderMenuSection: function() {
     var currentPage = (this.props.currentPage && this.props.currentPage[0] === '/') ? this.props.currentPage.slice(1) : this.props.currentPage;
-    var user = this.props.user;
+    const {user, t} = this.props;
 
     if (_.isEmpty(user)) {
       return <div className="Navbar-menuSection"></div>;
@@ -225,6 +226,6 @@ var Navbar = React.createClass({
       logout();
     }
   }
-});
+}))
 
 module.exports = Navbar;

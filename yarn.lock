@@ -3741,9 +3741,6 @@ https-proxy-agent@1:
     debug "2"
     extend "3"
 
-"i18n@file:./dependencies/i18n":
-  version "0.4.1"
-
 i18next-browser-languagedetector@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/i18next-browser-languagedetector/-/i18next-browser-languagedetector-2.1.0.tgz#1b0e17b09507f84e7a1fa761539a07544f92a0df"

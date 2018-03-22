@@ -51,10 +51,6 @@ var plugins = [
     assets: ['pdfkit.js', 'blob-stream.js'],
     hash: true,
     append: true,
-  }),
-  // Provide seamless translation function, without the need to import anything
-  new webpack.ProvidePlugin({
-    t: 'i18n'
   })
 ];
 

@@ -20,6 +20,7 @@ import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
 
+import {translate} from 'react-i18next';
 import _ from 'lodash';
 import { validateForm } from '../../core/validation';
 
@@ -30,7 +31,8 @@ import personUtils from '../../core/personutils';
 import SimpleForm from '../../components/simpleform';
 import PeopleList from '../../components/peoplelist';
 
-export var UserProfile = React.createClass({
+// A different namespace than the default can be specified in translate()
+export var UserProfile = translate()(React.createClass({
   propTypes: {
     fetchingUser: React.PropTypes.bool.isRequired,
     history: React.PropTypes.object.isRequired,
@@ -39,16 +41,19 @@ export var UserProfile = React.createClass({
     user: React.PropTypes.object
   },
 
-  formInputs: () => [
-    {name: 'fullName', label: t('Full name'), type: 'text'},
-    {name: 'username', label: t('Email'), type: 'email'},
-    {name: 'lang', label: t('Language'), type: 'select', items: [
-      {value: 'en', label: 'English'},
-      {value: 'fr', label: 'Français'},
-    ]},
-    {name: 'password', label: t('Password'), type: 'password'},
-    {name: 'passwordConfirm', label: t('Confirm password'), type: 'password'}
-  ],
+  formInputs: function() {
+    const {t} = this.props;
+    return [
+      {name: 'fullName', label: t('Full name'), type: 'text'},
+      {name: 'username', label: t('Email'), type: 'email'},
+      {name: 'lang', label: t('Language'), type: 'select', items: [
+        {value: 'en', label: 'English'},
+        {value: 'fr', label: 'Français'},
+      ]},
+      {name: 'password', label: t('Password'), type: 'password'},
+      {name: 'passwordConfirm', label: t('Confirm password'), type: 'password'}
+    ];
+  },
 
   MESSAGE_TIMEOUT: 2000,
 
@@ -88,6 +93,7 @@ export var UserProfile = React.createClass({
   },
 
   render: function() {
+    const {t} = this.props;
     var form = this.renderForm();
     var self = this;
     var handleClickBack = function(e) {
@@ -228,7 +234,7 @@ export var UserProfile = React.createClass({
       self.setState({notification: null});
     }, this.MESSAGE_TIMEOUT);
   }
-});
+}));
 
 
 /**

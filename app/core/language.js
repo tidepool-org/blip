@@ -15,6 +15,7 @@ i18n
       escapeValue: false, // not needed for react!!
     },
 
+    // If the translation is empty, return the key instead
     returnEmptyString: false,
 
     react: {
