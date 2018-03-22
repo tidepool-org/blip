@@ -9,15 +9,13 @@ i18n
   .init({
     fallbackLng: 'en',
 
-    // have a common namespace used around the full app
-    ns: ['translations'],
-    defaultNS: 'translations',
-
     debug: true,
 
     interpolation: {
       escapeValue: false, // not needed for react!!
     },
+
+    returnEmptyString: false,
 
     react: {
       wait: true,
@@ -27,10 +25,12 @@ i18n
 
     resources: {
       en: {
-        translations: require('../../translations/json/en.json')
+        // Default namespace
+        translation: require('../../locales/en/translation.json')
       },
       fr: {
-        translations: require('../../translations/json/fr.json')
+        // Default namespace
+        translation: require('../../locales/fr/translation.json')
       }
     }
   });
