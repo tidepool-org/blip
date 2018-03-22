@@ -4,7 +4,6 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
-var WebpackShellPlugin = require('webpack-shell-plugin');
 var uglifyJS = require('uglify-es');
 var fs = require('fs');
 
@@ -53,15 +52,7 @@ var plugins = [
     hash: true,
     append: true,
   }),
-  // // OPTION 1 for multi-language: generate a different .html / .js for each language
-  // // and serve the appropriate file
-  // new WebpackShellPlugin({
-  //   Generate a different index.html for each translation
-  //   onBuildEnd: [
-  //     'node translations/build.js'
-  //   ]
-  // }),
-  // OPTION 2 for multi-language: use __ as a custom module
+  // Provide seamless translation function, without the need to import anything
   new webpack.ProvidePlugin({
     t: 'i18n'
   })
