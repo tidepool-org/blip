@@ -100,7 +100,7 @@ export class AppComponent extends React.Component {
     var navbar = this.refs.navbar;
 
     if (navbar) {
-      navbar.hideDropdown();
+      navbar.getWrappedInstance().hideDropdown();
     }
   }
 
