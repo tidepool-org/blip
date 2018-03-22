@@ -125,8 +125,7 @@
     "sinon": "2.3.4",
     "sinon-chai": "2.8.0",
     "tidepool-standard-action": "0.1.1",
-    "webpack-dev-server": "1.15.0",
-    "webpack-shell-plugin": "^0.5.0"
+    "webpack-dev-server": "1.15.0"
   },
   "engines": {
     "node": "6.x",
