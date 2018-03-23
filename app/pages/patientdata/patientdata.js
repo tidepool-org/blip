@@ -838,7 +838,7 @@ export let PatientData = React.createClass({
 
   setInitialChartType: function(processedData) {
     // Determine default chart type and date from latest data
-    const uploads = processedData.grouped.upload;
+    const uploads = _.get(processedData.grouped, 'upload', []);
     const latestData = _.last(processedData.diabetesData);
 
     if (uploads && latestData) {

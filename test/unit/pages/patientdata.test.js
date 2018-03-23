@@ -437,7 +437,7 @@ describe('PatientData', function () {
         elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
         sinon.spy(elem, 'deriveChartTypeFromLatestData');
 
-        kickOffProcessing = (data) => {
+        kickOffProcessing = (data, includeUploads = true) => {
           let processedData;
 
           // bypass the actual processing function since that's not what we're testing here!
@@ -447,11 +447,17 @@ describe('PatientData', function () {
               return datum;
             });
 
-            processedData = {
-              grouped: {
-                upload: uploads,
-              },
-              diabetesData,
+            if(includeUploads){
+              processedData = {
+                grouped: {
+                  upload: uploads,
+                },
+                diabetesData,
+              }
+            } else {
+              processedData = {
+                diabetesData,
+              }
             }
 
             elem.setState({
@@ -605,6 +611,83 @@ describe('PatientData', function () {
           }];
 
           kickOffProcessing(data);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-weekly-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to weekly');
+        });
+      });
+
+      context('with no upload records, falling back to data.type', () => {
+        it('should set the default view to <Basics /> when type is bolus', () => {
+          const data = [{
+            type: 'bolus',
+            deviceId: 'unknown',
+          }];
+
+          kickOffProcessing(data, false);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+        });
+
+        it('should set the default view to <Basics /> when type is basal', () => {
+          const data = [{
+            type: 'basal',
+            deviceId: 'unknown',
+          }];
+
+          kickOffProcessing(data, false);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+        });
+
+        it('should set the default view to <Basics /> when type is wizard', () => {
+          const data = [{
+            type: 'wizard',
+            deviceId: 'unknown',
+          }];
+
+          kickOffProcessing(data, false);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+        });
+
+        it('should set the default view to <Trends /> when type is cbg', () => {
+          const data = [{
+            type: 'cbg',
+            deviceId: 'unknown',
+          }];
+
+          kickOffProcessing(data, false);
+
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-trends-view');
+          expect(view).to.be.ok;
+
+          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to trends');
+        });
+
+        it('should set the default view to <Weekly /> when type is smbg', () => {
+          const data = [{
+            type: 'smbg',
+            deviceId: 'unknown',
+          }];
+
+          kickOffProcessing(data, false);
 
           const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-weekly-view');
           expect(view).to.be.ok;
