@@ -4,10 +4,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import '../../../app/core/language';
-// The HOC makes it difficult to access / set properties of the pure component,
-// in this case the trackMetric property of PureNavbar. So we test
-// on the pure component instead.
-import Navbar, {PureNavbar} from '../../../app/components/navbar';
+import Navbar from '../../../app/components/navbar';
 
 const expect = chai.expect;
 
@@ -25,7 +22,10 @@ describe('Navbar', ()  => {
         </div>
       );
     });
-    wrapper = shallow(<PureNavbar {...props} />);
+    // The HOC makes it difficult to access / set properties of the pure component,
+    // in this case the trackMetric property of PureNavbar. So we test
+    // on the pure component instead.
+    wrapper = shallow(<Navbar.WrappedComponent {...props} />);
   });
 
   after(() => {

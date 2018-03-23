@@ -2,6 +2,10 @@
 import i18n from 'i18next';
 import { reactI18nextModule } from 'react-i18next';
 import getLocale from 'browser-locale';
+import moment from 'moment';
+
+// Update moment with the right language, for date display
+i18n.on('languageChanged', lng => moment.locale(lng));
 
 i18n
   .use(reactI18nextModule)

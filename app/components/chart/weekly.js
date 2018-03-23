@@ -20,6 +20,7 @@ var bows = require('bows');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var sundial = require('sundial');
+import { translate } from 'react-i18next';
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
@@ -150,7 +151,7 @@ var WeeklyChart = React.createClass({
   }
 });
 
-var Weekly = React.createClass({
+var Weekly = translate()(React.createClass({
   chartType: 'weekly',
   log: bows('Weekly View'),
   propTypes: {
@@ -297,8 +298,9 @@ var Weekly = React.createClass({
   },
 
   formatDate: function(datetime) {
+    const { t } = this.props;
     // even when timezoneAware, labels should be generated as if UTC; just trust me (JEB)
-    return sundial.formatInTimezone(datetime, 'UTC', 'MMM D, YYYY');
+    return sundial.formatInTimezone(datetime, 'UTC', t('MMM D, YYYY'));
   },
 
   getTitle: function(datetimeLocationEndpoints) {
@@ -411,6 +413,6 @@ var Weekly = React.createClass({
     }
     this.setState({showingValues: !this.state.showingValues});
   }
-});
+}));
 
 module.exports = Weekly;

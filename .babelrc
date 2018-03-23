@@ -7,6 +7,9 @@
       "plugins": ["rewire"]
     }
   },
+  "plugins": [
+    "transform-decorators-legacy"
+  ],
   "presets": [
     "es2015",
     "stage-0",

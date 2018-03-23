@@ -5,6 +5,7 @@
     "jsx": true,
     "classes": true,
     "modules": true,
+    "experimentalDecorators": true
   },
   "env": {
     // I write for browser

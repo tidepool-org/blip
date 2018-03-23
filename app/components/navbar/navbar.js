@@ -27,8 +27,7 @@ var NavbarPatientCard = require('../../components/navbarpatientcard');
 
 var logoSrc = require('./images/tidepool-logo-408x46.png');
 
-// The pure component needs to be exported for tests
-export const PureNavbar = React.createClass({
+export default translate('translation', {withRef: true})(React.createClass({
   propTypes: {
     currentPage: React.PropTypes.string,
     user: React.PropTypes.object,
@@ -227,6 +226,4 @@ export const PureNavbar = React.createClass({
       logout();
     }
   }
-});
-
-export default translate('translation', {withRef: true})(PureNavbar);
+}));

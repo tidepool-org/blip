@@ -32,6 +32,7 @@ import Weekly from '../../../../app/components/chart/weekly';
 import { shallow } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
+import i18next from '../../../../app/core/language';
 
 const { Loader } = vizComponents;
 
@@ -77,11 +78,12 @@ describe('Weekly', () => {
     loading: false,
     onUpdateChartDateRange: sinon.stub(),
     updateDatetimeLocation: sinon.stub(),
+    t: i18next.t.bind(i18next)
   };
 
   let wrapper;
   beforeEach(() => {
-    wrapper = shallow(<Weekly {...baseProps} />);
+    wrapper = shallow(<Weekly.WrappedComponent {...baseProps} />);
   })
 
   afterEach(() => {
@@ -110,7 +112,7 @@ describe('Weekly', () => {
     };
 
     beforeEach(() => {
-      wrapper = shallow(<Weekly {...baseProps} />);
+      wrapper = shallow(<Weekly.WrappedComponent {...baseProps} />);
       instance = wrapper.instance();
     });
 
