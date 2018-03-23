@@ -1,6 +1,6 @@
 {
   "keySeparator": "__NO_KEY_SEPARATOR__",
-  "namespaceSeparator": "__NO_NAMESPACE_SEPARATOR__",
+  "namespaceSeparator": "|",
   "lexers": {
     "js": ["JavascriptLexer", "JsxLexer"]
   },

@@ -17,7 +17,7 @@ i18n
     // To allow . in keys
     keySeparator: false,
     // To allow : in keys
-    nsSeparator: false,
+    nsSeparator: '|',
 
     debug: true,
 
