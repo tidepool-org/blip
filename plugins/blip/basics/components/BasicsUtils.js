@@ -14,6 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var _ = require('lodash');
 
@@ -120,11 +122,11 @@ module.exports = {
 
     return {
       bg: {
-        verylow: 'below ' + format.tooltipBGValue(bgClasses['very-low'].boundary, opts.bgUnits) + bgUnits,
-        low: 'between ' + format.tooltipBGValue(bgClasses['very-low'].boundary, opts.bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.low.boundary, opts.bgUnits) + bgUnits,
-        target: 'between ' + format.tooltipBGValue(bgClasses.low.boundary, opts.bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.target.boundary, opts.bgUnits) + bgUnits,
-        high: 'between ' + format.tooltipBGValue(bgClasses.target.boundary, opts.bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.high.boundary, opts.bgUnits) + bgUnits,
-        veryhigh: 'above ' + format.tooltipBGValue(bgClasses.high.boundary, opts.bgUnits) + bgUnits
+        verylow: t('below') + " " + format.tooltipBGValue(bgClasses['very-low'].boundary, opts.bgUnits) + bgUnits,
+        low: t('between') + " " + format.tooltipBGValue(bgClasses['very-low'].boundary, opts.bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.low.boundary, opts.bgUnits) + bgUnits,
+        target: t('between') + " " + format.tooltipBGValue(bgClasses.low.boundary, opts.bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.target.boundary, opts.bgUnits) + bgUnits,
+        high: t('between') + " " + format.tooltipBGValue(bgClasses.target.boundary, opts.bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.high.boundary, opts.bgUnits) + bgUnits,
+        veryhigh: t('above') + " " + format.tooltipBGValue(bgClasses.high.boundary, opts.bgUnits) + bgUnits
       }
     };
   }

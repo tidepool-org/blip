@@ -1,19 +1,22 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var d3 = require('d3');
 var _ = require('lodash');
@@ -251,12 +254,12 @@ module.exports = function(pool, opts) {
       case 'temp':
         group.append('p')
           .append('span')
-          .html('<span class="plain">Temp basal of</span> ' + basal.tempPercentage(datum));
+          .html('<span class="plain">'+t("Temp basal of")+'</span> ' + basal.tempPercentage(datum));
         if (datum.suppressed) {
           group.append('p')
             .append('span')
             .attr('class', 'secondary')
-            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' scheduled'); 
+            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
         }
         break;
       case 'suspend':
@@ -267,7 +270,7 @@ module.exports = function(pool, opts) {
           group.append('p')
             .append('span')
             .attr('class', 'secondary')
-            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' scheduled'); 
+            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
         }
         break;
       default:
@@ -278,9 +281,9 @@ module.exports = function(pool, opts) {
     group.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="fromto">from</span> ' +
+      .html('<span class="fromto">'+t('from')+'</span> ' +
         format.timestamp(datum.normalTime, datum.displayOffset) +
-        ' <span class="fromto">to</span> ' +
+        ' <span class="fromto">'+t('to')+'</span> ' +
         format.timestamp(datum.normalEnd, datum.displayOffset));
   };
 

@@ -17,6 +17,9 @@
 
 /* jshint esversion:6 */
 
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
+
 // in order to get d3.chart dependency
 var tideline = require('../../../js/');
 
@@ -59,8 +62,8 @@ var BasicsChart = React.createClass({
 
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
     var insulinDataAvailable = this._insulinDataAvailable();
-    var noPumpDataMessage = 'This section requires data from an insulin pump, so there\'s nothing to display.';
-    var noSMBGDataMessage = 'This section requires data from a blood-glucose meter, so there\'s nothing to display.';
+    var noPumpDataMessage = t("This section requires data from an insulin pump, so there's nothing to display.");
+    var noSMBGDataMessage = t("This section requires data from a blood-glucose meter, so there's nothing to display.");
 
     if (basicsData.sections.siteChanges.type !== constants.SECTION_TYPE_UNDECLARED) {
       if (!this._hasSectionData(basicsData.sections.siteChanges.type)) {
