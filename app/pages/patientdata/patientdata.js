@@ -454,7 +454,7 @@ export let PatientData = React.createClass({
           ['basal', 'bolus', 'cbg', 'message', 'smbg']
         ),
         6,
-        this.state.timePrefs,
+        state.timePrefs,
       );
 
       const pdfData = {
