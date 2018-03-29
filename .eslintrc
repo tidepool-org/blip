@@ -4,8 +4,7 @@
   "ecmaFeatures": {
     "jsx": true,
     "classes": true,
-    "modules": true,
-    "experimentalDecorators": true
+    "modules": true
   },
   "env": {
     // I write for browser
