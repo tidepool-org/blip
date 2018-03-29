@@ -36,8 +36,7 @@ const TrendsContainer = viz.containers.TrendsContainer;
 const reshapeBgClassesToBgBounds = viz.utils.reshapeBgClassesToBgBounds;
 const Loader = viz.components.Loader;
 
-@translate()
-class Trends extends PureComponent {
+const Trends = translate()(class extends PureComponent {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
     chartPrefs: PropTypes.object.isRequired,
@@ -502,6 +501,6 @@ class Trends extends PureComponent {
         focusedPoint={this.props.trendsState[currentPatientInViewId].focusedSmbg} />
     );
   }
-}
+});
 
 export default Trends;
