@@ -28,6 +28,9 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import * as tandemData from '../../utils/settings/tandemData';
 import { tandemText } from '../../utils/settings/textData';
 
+import i18next from 'i18next';
+const t = i18next.t.bind(i18next);
+
 const Tandem = (props) => {
   const {
     bgUnits,
@@ -69,18 +72,18 @@ const Tandem = (props) => {
     <div>
       <ClipboardButton
         className={styles.copyButton}
-        button-title="For email or notes"
+        button-title={t('For email or notes')}
         data-clipboard-target="#copySettingsText"
         onSuccess={copySettingsClicked}
       >
-        <p>Copy as text</p>
+        <p>{t('Copy as text')}</p>
       </ClipboardButton>
       <Header
         deviceDisplayName="Tandem"
         deviceMeta={tandemData.deviceMeta(pumpSettings, timePrefs)}
       />
       <div>
-        <span className={styles.title}>Profile Settings</span>
+        <span className={styles.title}>{t('Profile Settings')}</span>
         {tables}
       </div>
       <pre className={styles.copyText} id="copySettingsText">

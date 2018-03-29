@@ -23,6 +23,9 @@ import { formatDecimalNumber } from '../../../utils/format';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './BolusTooltip.css';
+import i18next from 'i18next';
+
+const t = i18next.t.bind(i18next);
 
 class BolusTooltip extends PureComponent {
   formatInsulin(qty) {
@@ -48,8 +51,8 @@ class BolusTooltip extends PureComponent {
     if (this.isAnimasExtended()) {
       content = (
         <div className={styles.annotation}>
-          * Animas pumps don't capture the details of how combo boluses are split between the normal
-          and extended amounts.
+          {t('* Animas pumps don\'t capture the details of how combo boluses are split between the '
+          + 'normal and extended amounts')}.
         </div>
       );
     }

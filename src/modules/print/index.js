@@ -19,6 +19,7 @@
 import Promise from 'bluebird';
 import _ from 'lodash';
 
+import i18next from 'i18next';
 import PrintView from './PrintView';
 import DailyPrintView from './DailyPrintView';
 import BasicsPrintView from './BasicsPrintView';
@@ -26,6 +27,13 @@ import SettingsPrintView from './SettingsPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
 
 import * as constants from './utils/constants';
+
+if (i18next.options.returnEmptyString === undefined) {
+  // Return key if no translation is present
+  i18next.init({ returnEmptyString: false });
+}
+
+const t = i18next.t.bind(i18next);
 
 // Exporting utils for easy stubbing in tests
 export const utils = {
@@ -84,7 +92,7 @@ export function createPrintView(type, data, opts, doc) {
         numDays: numDays.daily,
         summaryHeaderFontSize: 10,
         summaryWidthAsPercentage: 0.18,
-        title: 'Daily View',
+        title: t('Daily View'),
       });
       break;
 
@@ -92,7 +100,7 @@ export function createPrintView(type, data, opts, doc) {
       Renderer = utils.BasicsPrintView;
 
       renderOpts = _.assign(renderOpts, {
-        title: 'The Basics',
+        title: t('The Basics'),
       });
       break;
 
@@ -100,7 +108,7 @@ export function createPrintView(type, data, opts, doc) {
       Renderer = utils.SettingsPrintView;
 
       renderOpts = _.assign(renderOpts, {
-        title: 'Pump Settings',
+        title: t('Pump Settings'),
       });
       break;
 

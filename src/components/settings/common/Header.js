@@ -19,6 +19,10 @@ import React, { PropTypes, PureComponent } from 'react';
 
 import styles from './Header.css';
 
+import i18next from 'i18next';
+const t = i18next.t.bind(i18next);
+
+
 class Header extends PureComponent {
   constructor(props) {
     super(props);
@@ -41,11 +45,13 @@ class Header extends PureComponent {
             <span className={styles.headerInner}>{this.props.deviceDisplayName}</span>
           </li>
           <li className={styles.headerOuter}>
-            <span className={styles.headerInner}>Uploaded on {this.props.deviceMeta.uploaded}</span>
+            <span className={styles.headerInner}>
+              {t('Uploaded on')} {this.props.deviceMeta.uploaded}
+            </span>
           </li>
           <li className={styles.headerOuter}>
             <span className={styles.headerInner}>
-              Serial Number: {this.props.deviceMeta.serial}
+              {t('Serial Number')}: {this.props.deviceMeta.serial}
             </span>
           </li>
         </ul>
