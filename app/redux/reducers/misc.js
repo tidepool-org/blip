@@ -16,6 +16,7 @@
  */
 import _ from 'lodash';
 import update from 'react-addons-update';
+import { generateCacheTTL } from 'redux-cache';
 
 import initialState from './initialState';
 import * as types from '../constants/actionTypes';
@@ -52,6 +53,7 @@ export const notification = (state = initialState.notification, action) => {
     case types.FETCH_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.FETCH_DATA_SOURCES_FAILURE:
+    case types.FETCH_SERVER_TIME_FAILURE:
     case types.CONNECT_DATA_SOURCE_FAILURE:
     case types.DISCONNECT_DATA_SOURCE_FAILURE:
       const err = _.get(action, 'error', null);
@@ -421,15 +423,23 @@ export const messageThread = (state = initialState.messageThread, action) => {
 export const patientDataMap = (state = initialState.patientDataMap, action) => {
   switch(action.type) {
     case types.FETCH_PATIENT_DATA_SUCCESS: {
-      const { patientId, patientData } = action.payload;
+      const { patientId, patientData, fetchedUntil } = action.payload;
+      const sortedData = _.filter(_.sortByOrder(patientData, 'time', 'desc'), datum => (
+        fetchedUntil ? datum.time >= fetchedUntil : true)
+      );
+      const method = state[patientId] ? '$push' : '$set';
       return update(state, {
-        [patientId]: { $set: patientData }
+        [patientId]: { [method]: sortedData },
+        [`${patientId}_cacheUntil`]: { $set: generateCacheTTL(36e5) }, // Cache for 60 mins
+        [`${patientId}_fetchedUntil`]: { $set: fetchedUntil ? fetchedUntil : 'start' },
       });
     }
     case types.CLEAR_PATIENT_DATA: {
       const { patientId } = action.payload;
       return update(state, {
-        [patientId]: { $set: null }
+        [patientId]: { $set: null },
+        [`${patientId}_cacheUntil`]: { $set: null },
+        [`${patientId}_fetchedUntil`]: { $set: null },
       });
     }
     case types.LOGOUT_REQUEST:
@@ -444,14 +454,34 @@ export const patientNotesMap = (state = initialState.patientNotesMap, action) =>
   switch(action.type) {
     case types.FETCH_PATIENT_DATA_SUCCESS: {
       const { patientId, patientNotes } = action.payload;
+      const method = state[patientId] ? '$push' : '$set';
       return update(state, {
-        [patientId]: { $set: patientNotes }
+        [patientId]: { [method]: patientNotes },
       });
     }
     case types.CLEAR_PATIENT_DATA: {
       const { patientId } = action.payload;
       return update(state, {
         [patientId]: { $set: null }
+      });
+    }
+    case types.ADD_PATIENT_NOTE: {
+      const { patientId, note } = action.payload;
+      const method = state[patientId] ? '$push' : '$set';
+      return update(state, {
+        [patientId]: { [method]: [note] },
+      });
+    }
+    case types.UPDATE_PATIENT_NOTE: {
+      const { patientId, note } = action.payload;
+      const newState = state[patientId].map(item => {
+        if (item.id === note.id) {
+          return note;
+        }
+        return item;
+      })
+      return update(state, {
+        [patientId]: { $set: newState },
       });
     }
     case types.LOGOUT_REQUEST:

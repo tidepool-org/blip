@@ -69,6 +69,23 @@ describe('constants', function() {
     ]);
   });
 
+  it('should define the list of bg data types', function() {
+    expect(Constants.BG_DATA_TYPES).to.eql([
+      'cbg',
+      'smbg',
+    ]);
+  });
+
+  it('should define the list of diabetes data types', function() {
+    expect(Constants.DIABETES_DATA_TYPES).to.eql([
+      'cbg',
+      'smbg',
+      'basal',
+      'bolus',
+      'wizard',
+    ]);
+  });
+
   it('should define url for dexcom connect info', function() {
     expect(Constants.URL_DEXCOM_CONNECT_INFO).to.equal('http://support.tidepool.org/article/73-connecting-dexcom-account-to-tidepool');
   });

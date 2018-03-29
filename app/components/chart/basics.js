@@ -47,6 +47,7 @@ var Basics = React.createClass({
     onClickPrint: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
+    onUpdateChartDateRange: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
@@ -61,6 +62,14 @@ var Basics = React.createClass({
     };
   },
 
+  componentWillMount: function() {
+    var basicsData = this.props.patientData.basicsData;
+
+    if (basicsData.dateRange) {
+      this.props.onUpdateChartDateRange(basicsData.dateRange);
+    }
+  },
+
   render: function() {
     return (
       <div id="tidelineMain">
@@ -73,7 +82,7 @@ var Basics = React.createClass({
           title={this.state.title}
           onClickBasics={this.handleClickBasics}
           onClickOneDay={this.handleClickOneDay}
-          onClickModal={this.handleClickModal}
+          onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.props.onSwitchToSettings}
           onClickTwoWeeks={this.handleClickTwoWeeks}
@@ -150,6 +159,7 @@ var Basics = React.createClass({
     }
     var basicsData = this.props.patientData.basicsData;
     var dtMask = 'MMM D, YYYY';
+
     return sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask) +
       ' - ' + sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask);
   },
@@ -178,11 +188,11 @@ var Basics = React.createClass({
     return;
   },
 
-  handleClickModal: function(e) {
+  handleClickTrends: function(e) {
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToModal();
+    this.props.onSwitchToTrends();
   },
 
   handleClickOneDay: function(e) {

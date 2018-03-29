@@ -143,6 +143,21 @@ describe('notification', () => {
     });
   });
 
+  describe('fetchServerTimeFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.fetchServerTimeFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'fetchingServerTime',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
   describe('removeMembershipInOtherCareTeamFailure', () => {
     it('should build a notification', () => {
       let action = actions.sync.removeMembershipInOtherCareTeamFailure(ERR);

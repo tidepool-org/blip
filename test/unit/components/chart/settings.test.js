@@ -50,7 +50,7 @@ describe('Settings', function () {
         onClickNoDataRefresh: function() {},
         onSwitchToBasics: function() {},
         onSwitchToDaily: function() {},
-        onSwitchToModal: function() {},
+        onSwitchToTrends: function() {},
         onSwitchToSettings: function() {},
         onSwitchToWeekly: function() {},
         trackMetric: function() {},

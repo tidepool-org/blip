@@ -47,6 +47,18 @@ export const DIABETES_TYPES = [
   { value: 'other', label: 'Other' },
 ];
 
+export const BG_DATA_TYPES = [
+  'cbg',
+  'smbg',
+];
+
+export const DIABETES_DATA_TYPES = [
+  ...BG_DATA_TYPES,
+  'basal',
+  'bolus',
+  'wizard',
+]
+
 export const MGDL_UNITS = 'mg/dL';
 export const MMOLL_UNITS = 'mmol/L';
 export const MGDL_PER_MMOLL = 18.01559;

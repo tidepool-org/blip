@@ -20,6 +20,42 @@ describe('Patients', () => {
     expect(Patients).to.be.a('function');
   });
 
+  describe('componentWillMount', () => {
+    it('should clear previously viewed patient data', () => {
+      var props = {
+        clearPatientData: sinon.stub(),
+        currentPatientInViewId: 1234,
+      };
+
+      var elem = React.createElement(Patients, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      sinon.assert.calledOnce(props.clearPatientData);
+    });
+
+    it('should not clear previously viewed patient data if `currentPatientInViewId` prop not set', () => {
+      var props = {
+        clearPatientData: sinon.stub(),
+      };
+
+      var elem = React.createElement(Patients, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      sinon.assert.notCalled(props.clearPatientData);
+    });
+
+    it('should call the `clearPatientInView` prop when provided', () => {
+      var props = {
+        clearPatientInView: sinon.stub(),
+      };
+
+      var elem = React.createElement(Patients, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      sinon.assert.calledOnce(props.clearPatientInView);
+    });
+  });
+
   describe('componentWillReceiveProps', () => {
     it('should not redirect to patient data when justLogged query param is set and only one patient if invites present', () => {
       var props = {};

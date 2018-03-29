@@ -26,7 +26,6 @@ import mutationTracker from 'object-invariant-test-helper';
 
 import reducer from '../../../../app/redux/reducers/working';
 import * as actions from '../../../../app/redux/actions/index';
-import { actions as workerActions } from '@tidepool/viz';
 
 import initialAll from '../../../../app/redux/reducers/initialState';
 const { working: initialState } = initialAll;
@@ -811,7 +810,7 @@ describe('working', () => {
     describe('generatePDF', () => {
       describe('request', () => {
         it('should set generatingPDF to be true', () => {
-          let action = workerActions.generatePDFRequest();
+          let action = actions.worker.generatePDFRequest();
 
           expect(initialState.generatingPDF.inProgress).to.be.false;
 
@@ -826,7 +825,7 @@ describe('working', () => {
           let initialStateForTest = _.merge({}, initialState, { generatingPDF: { inProgress: true, notification: null } });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
-          let action = workerActions.generatePDFFailure(error);
+          let action = actions.worker.generatePDFFailure(error);
 
           expect(initialStateForTest.generatingPDF.inProgress).to.be.true;
           expect(initialStateForTest.generatingPDF.notification).to.be.null;
@@ -846,7 +845,7 @@ describe('working', () => {
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let pdf = {};
 
-          let action = workerActions.generatePDFSuccess({ pdf });
+          let action = actions.worker.generatePDFSuccess({ pdf });
 
           expect(initialStateForTest.generatingPDF.inProgress).to.be.true;
 
@@ -1707,6 +1706,68 @@ describe('working', () => {
           let state = reducer(initialStateForTest, action);
 
           expect(state.fetchingDataSources.inProgress).to.be.false;
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+    });
+
+    describe('fetchServerTime', () => {
+      describe('request', () => {
+        it('should set fetchingServerTime to be true', () => {
+          let initialStateForTest = _.merge({}, initialState);
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+          let action = actions.sync.fetchServerTimeRequest();
+
+          expect(initialStateForTest.fetchingServerTime.inProgress).to.be.false;
+
+          let state = reducer(initialStateForTest, action);
+          expect(state.fetchingServerTime.inProgress).to.be.true;
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set fetchingServerTime to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, {
+            fetchingServerTime: { inProgress: true, notification: null },
+          });
+
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+          let error = new Error('Something bad happened :(');
+          let action = actions.sync.fetchServerTimeFailure(error);
+
+          expect(initialStateForTest.fetchingServerTime.inProgress).to.be.true;
+          expect(initialStateForTest.fetchingServerTime.notification).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+
+          expect(state.fetchingServerTime.inProgress).to.be.false;
+          expect(state.fetchingServerTime.notification.type).to.equal('error');
+          expect(state.fetchingServerTime.notification.message).to.equal(error.message);
+          expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        });
+      });
+
+      describe('success', () => {
+        it('should set fetchingServerTime to be false', () => {
+          let ServerTime = [
+            { id: 'strava', url: 'blah' },
+            { name: 'fitbit', url: 'blah' },
+          ];
+
+          let initialStateForTest = _.merge({}, initialState, {
+            fetchingServerTime: { inProgress: true, notification: null },
+          });
+
+          let tracked = mutationTracker.trackObj(initialStateForTest);
+
+          let action = actions.sync.fetchServerTimeSuccess(ServerTime);
+
+          expect(initialStateForTest.fetchingServerTime.inProgress).to.be.true;
+
+          let state = reducer(initialStateForTest, action);
+
+          expect(state.fetchingServerTime.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });

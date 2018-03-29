@@ -369,4 +369,42 @@ describe('utils', () => {
       });
     });
   });
+
+  describe('getDiabetesDataRange', () => {
+    it('should return the range and count of diabetes data in a raw data set', () => {
+      const data = [
+        {
+          type: 'upload',
+          time: '2018-03-01:00:00:00Z',
+        },
+        {
+          type: 'setting',
+          time: '2017-02-18:00:00:00Z',
+        },
+        {
+          type: 'basal',
+          time: '2018-02-14:00:00:00Z',
+        },
+        {
+          type: 'wizard',
+          time: '2018-02-01:00:00:00Z',
+        },
+        {
+          type: 'smbg',
+          time: '2018-02-20:00:00:00Z',
+        },
+        {
+          type: 'cbg',
+          time: '2018-02-02:00:00:00Z',
+        },
+      ];
+
+      expect(utils.getDiabetesDataRange(data)).to.deep.equal({
+        start: '2018-02-01:00:00:00Z',
+        end: '2018-02-20:00:00:00Z',
+        spanInDays: 19,
+        count: 4,
+      });
+    });
+  });
 });

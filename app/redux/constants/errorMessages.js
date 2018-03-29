@@ -35,6 +35,7 @@ export const ERR_FETCHING_PATIENT_DATA = 'Something went wrong while fetching da
 export const ERR_FETCHING_PATIENTS = 'Something went wrong while fetching patients.';
 export const ERR_FETCHING_PENDING_RECEIVED_INVITES = 'Something went wrong while fetching received invitations to others\' care teams.';
 export const ERR_FETCHING_PENDING_SENT_INVITES = 'Something went wrong while fetching pending outgoing care team invitations.';
+export const ERR_FETCHING_SERVER_TIME = 'Something went wrong while fetching the server time.  Falling back to local machine time';
 export const ERR_FETCHING_USER = 'Something went wrong while fetching user.';
 export const ERR_LOGIN = 'An error occurred while logging in.';
 export const ERR_REJECTING_INVITE = 'Something went wrong while rejecting a received care team invitation.';
