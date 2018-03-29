@@ -16,6 +16,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { scroller } from 'react-scroll';
+import { translate } from 'react-i18next';
 
 import sundial from 'sundial';
 
@@ -25,7 +26,7 @@ const DATA_SOURCE_STATE_ERROR = 'error';
 
 const DATA_SOURCE_ERROR_CODE_UNAUTHENTICATED = 'unauthenticated';
 
-export default class DataSources extends Component {
+export default translate()(class DataSources extends Component {
   static propTypes = {
     dataSources: React.PropTypes.array.isRequired,
     fetchDataSources: React.PropTypes.func.isRequired,
@@ -38,6 +39,7 @@ export default class DataSources extends Component {
 
   constructor(props) {
     super(props);
+    const { t } = props;
 
     this.providers = [
       {
@@ -52,9 +54,9 @@ export default class DataSources extends Component {
           providerName: 'dexcom',
         },
         content: {
-          description: 'CGM data will be synced from Dexcom',
+          description: t('CGM data will be synced from Dexcom'),
           connectButton: '',
-          disconnectButton: 'Disconnect',
+          disconnectButton: t('Disconnect'),
         },
         classNames: {
           logo: 'DataSource-logo-dexcom',
@@ -94,16 +96,17 @@ export default class DataSources extends Component {
   }
 
   calculateMessage(dataSource, state) {
+    const { t } = this.props;
     switch (state) {
       case DATA_SOURCE_STATE_DISCONNECTED:
-        return 'No data available - click Connect to enable';
+        return t('No data available - click Connect to enable');
       case DATA_SOURCE_STATE_CONNECTED:
         if (!dataSource.lastImportTime) {
-          return 'Waiting to import data';
+          return t('Waiting to import data');
         } else if (!dataSource.latestDataTime) {
-          return 'No data found';
+          return t('No data found');
         } else {
-          return 'Last data ' + this.calculateTimeAgoMessage(dataSource.latestDataTime);
+          return t('Last data {{timeAgo}}', {timeAgo: this.calculateTimeAgoMessage(dataSource.latestDataTime)});
         }
       default:
         return this.calculateErrorMessage(dataSource.error);
@@ -111,27 +114,39 @@ export default class DataSources extends Component {
   }
 
   calculateErrorMessage(error) {
+    const { t } = this.props;
     if (error.code && error.code === DATA_SOURCE_ERROR_CODE_UNAUTHENTICATED) {
-      return 'Login expired - try signing out & in again';
+      return t('Login expired - try signing out & in again');
     }
-    return 'An unknown error occurred';
+    return t('An unknown error occurred');
   }
 
   calculateTimeAgoMessage(timestamp) {
+    const { t } = this.props;
+
+    /* The following is for the translation extracter */
+    // t('year', {context: 'timeago'});t('years', {context: 'timeago'});
+    // t('month', {context: 'timeago'});t('months', {context: 'timeago'});
+    // t('week', {context: 'timeago'});t('minutes', {context: 'timeago'});
+    // t('day', {context: 'timeago'});t('days', {context: 'timeago'});
+    // t('hour', {context: 'timeago'});t('hours', {context: 'timeago'});
+    // t('minute', {context: 'timeago'});t('minutes', {context: 'timeago'});
     if (timestamp) {
       for (const units of ['year', 'month', 'week', 'day', 'hour', 'minute']) {
         let diff = sundial.dateDifference(this.state.now, timestamp, units);
         if (diff > 1) {
-          return diff + ' ' + units + 's ago';
+          const unit = t(units+'s', {context: 'timeago'});
+          return t('{{diff}} {{unit}} ago_plural', {diff, unit});
         } else if (diff > 0) {
-          return diff + ' ' + units + ' ago';
+          const unit = t(units, {context: 'timeago'});
+          return t('{{diff}} {{unit}} ago', {diff, unit});
         } else if (diff < 0) {
-          return 'unknown';
+          return t('unknown');
         }
       }
-      return 'a few seconds ago';
+      return t('a few seconds ago');
     }
-    return 'unknown';
+    return t('unknown');
   }
 
   calculatePopupId(provider) {
@@ -290,4 +305,4 @@ export default class DataSources extends Component {
       this.props.fetchDataSources();
     }
   }
-}
+});

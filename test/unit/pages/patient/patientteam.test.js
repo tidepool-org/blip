@@ -6,10 +6,12 @@
 
 import React from 'react';
 import { mount } from 'enzyme';
+import i18next from '../../../../app/core/language';
 
 import { PatientTeam, MemberInviteForm } from '../../../../app/pages/patient/patientteam';
 
 const expect = chai.expect;
+const t = i18next.t.bind(i18next);
 
 describe('PatientTeam', function () {
   const props = {
@@ -25,14 +27,15 @@ describe('PatientTeam', function () {
     pendingSentInvites: [],
     removingMember: false,
     trackMetric: sinon.stub(),
-    user: {}
+    user: {},
+    t
   };
 
   let wrapper;
   beforeEach(() => {
     props.trackMetric.reset();
     wrapper = mount(
-      <PatientTeam
+      <PatientTeam.WrappedComponent
         {...props}
       />
     );
@@ -77,14 +80,15 @@ describe('MemberInviteForm', function () {
     onSubmit: sinon.stub(),
     onCancel: sinon.stub(),
     working: false,
-    trackMetric: sinon.stub()
+    trackMetric: sinon.stub(),
+    t
   };
 
   let wrapper;
   beforeEach(() => {
     props.trackMetric.reset();
     wrapper = mount(
-      <MemberInviteForm
+      <MemberInviteForm.WrappedComponent
         {...props}
       />
     );

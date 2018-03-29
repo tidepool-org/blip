@@ -14,15 +14,17 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var _ = require('lodash');
-var cx = require('classnames');
+import React from 'react';
+import { translate } from 'react-i18next'
+import _ from 'lodash';
+import cx from 'classnames';
+
 var ModalOverlay = require('../../components/modaloverlay');
 var InputGroup = require('../../components/inputgroup');
 var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
 
-var PermissionInputGroup = React.createClass({
+var PermissionInputGroup = translate()(React.createClass({
   propTypes: {
     value: React.PropTypes.bool,
     working: React.PropTypes.bool,
@@ -50,19 +52,20 @@ var PermissionInputGroup = React.createClass({
     return this.props.value;
   },
   render: function() {
+    const { t } = this.props;
     return (
       <InputGroup
         name={this.state.name}
         type="checkbox"
-        label="Allow uploading"
+        label={t('Allow uploading')}
         disabled={this.props.working}
         value={this.props.value}
         onChange={this.handleChange}/>
     );
   }
-});
+}));
 
-var MemberInviteForm = React.createClass({
+var MemberInviteForm = translate()(React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func,
     onCancel: React.PropTypes.func,
@@ -86,13 +89,14 @@ var MemberInviteForm = React.createClass({
     this.refs.email.focus();
   },
   render: function() {
+    const { t } = this.props;
     return (
       <li className="PatientTeam-member PatientTeam-member--first">
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture PatientTeam-picture--newMember"></div>
           <div className="PatientTeam-memberContent PatientTeam-blocks">
             <div className="">
-              <input className="PatientInfo-input" id="email" ref="email" placeholder="Email" />
+              <input className="PatientInfo-input" id="email" ref="email" placeholder={t('Email')} />
               <div className="PatientTeam-permissionSelection">
                 <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} onChange={this.onAllowUploadClick}/>
               </div>
@@ -103,7 +107,7 @@ var MemberInviteForm = React.createClass({
                 <button className="PatientInfo-button PatientInfo-button--primary" type="submit"
                   onClick={this.handleSubmit}
                   disabled={this.props.working}>
-                  {this.props.working ? 'Sending...' : 'Invite'}
+                  {this.props.working ? t('Sending...') : t('Invite')}
                 </button>
               </div>
               <div className="PatientTeam-validationError">{this.props.error || this.state.error}</div>
@@ -117,13 +121,14 @@ var MemberInviteForm = React.createClass({
   },
 
   handleSubmit: function(e) {
+    const { t } = this.props;
     if (e) {
       e.preventDefault();
     }
 
     var self = this;
     var email = self.refs.email.value;
-    var allowUpload = self.refs.allowUpload.getValue();
+    var allowUpload = self.refs.allowUpload.getWrappedInstance().getValue();
 
     var validateEmail = function(email) {
       var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -131,7 +136,7 @@ var MemberInviteForm = React.createClass({
     };
 
     if (!validateEmail(email)) {
-      self.setState({error: 'Invalid email address.'});
+      self.setState({error: t('Invalid email address.')});
       return;
     } else {
       self.setState({error: null});
@@ -153,9 +158,9 @@ var MemberInviteForm = React.createClass({
     self.props.onSubmit(email, permissions);
     self.props.trackMetric('Clicked Invite');
   }
-});
+}));
 
-var ConfirmDialog = React.createClass({
+var ConfirmDialog = translate()(React.createClass({
   propTypes: {
     buttonText: React.PropTypes.string,
     dismissText: React.PropTypes.string,
@@ -165,6 +170,7 @@ var ConfirmDialog = React.createClass({
   },
 
   render: function() {
+    const { t } = this.props;
     return (
       <div>
         <div className="ModalOverlay-content">
@@ -172,7 +178,7 @@ var ConfirmDialog = React.createClass({
         </div>
         <div className="ModalOverlay-controls">
           <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
-            onClick={this.props.onCancel}>{this.props.dismissText || 'Cancel'}</button>
+            onClick={this.props.onCancel}>{this.props.dismissText || t('Cancel')}</button>
           <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit"
             onClick={this.handleSubmit}>
             {this.props.buttonText}
@@ -189,9 +195,9 @@ var ConfirmDialog = React.createClass({
 
     this.props.onSubmit();
   }
-});
+}));
 
-var PatientTeam = React.createClass({
+var PatientTeam = translate()(React.createClass({
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
     cancellingInvite: React.PropTypes.bool.isRequired,
@@ -218,6 +224,7 @@ var PatientTeam = React.createClass({
   },
 
   renderRemoveTeamMemberDialog: function(member) {
+    const { t } = this.props;
     var self = this;
 
     var handleCancel = this.overlayClickHandler;
@@ -230,8 +237,8 @@ var PatientTeam = React.createClass({
 
     return (
       <ConfirmDialog
-        buttonText={'I\'m sure, remove them'}
-        message={'Are you sure you want to remove this person? They will no longer be able to see or comment on your data.'}
+        buttonText={t('I\'m sure, remove them')}
+        message={t('Are you sure you want to remove this person? They will no longer be able to see or comment on your data.')}
         onCancel={handleCancel}
         onSubmit={handleSubmit} />
     );
@@ -316,6 +323,7 @@ var PatientTeam = React.createClass({
   },
 
   renderCancelInviteDialog: function(invite) {
+    const { t } = this.props;
     var self = this;
 
     var handleCancel = this.overlayClickHandler;
@@ -328,9 +336,9 @@ var PatientTeam = React.createClass({
 
     return (
       <ConfirmDialog
-        buttonText={'Yes'}
-        dismissText={'No'}
-        message={'Are you sure you want to cancel your invitation to ' + invite.email + '?'}
+        buttonText={t('Yes')}
+        dismissText={t('No')}
+        message={t('Are you sure you want to cancel your invitation to {{email}}?', {email: invite.email})}
         onCancel={handleCancel}
         onSubmit={handleSubmit} />
     );
@@ -351,6 +359,7 @@ var PatientTeam = React.createClass({
   },
 
   renderPendingInvite: function(invite) {
+    const { t } = this.props;
     return (
       <li key={invite.key} className="PatientTeam-member--fadeNew  PatientTeam-member">
         <div className="PatientInfo-head">
@@ -360,7 +369,7 @@ var PatientTeam = React.createClass({
               <div className="PatientInfo-block PatientInfo-block--withArrow" title={invite.email}><div>{invite.email}</div></div>
               <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Dismiss invitation' onClick={this.handleCancelInvite(invite)}><i className="icon-delete"></i></a>
               <div className="clear"></div>
-              <div className="PatientInfo-waiting">Waiting for confirmation</div>
+              <div className="PatientInfo-waiting">{t('Waiting for confirmation')}</div>
             </div>
           </div>
         </div>
@@ -406,6 +415,7 @@ var PatientTeam = React.createClass({
   },
 
   renderInvite: function() {
+    const { t } = this.props;
     var isTeamEmpty = false;
     if (utils.getIn(this.props, ['patient', 'team'])) {
       isTeamEmpty = this.props.patient.team.length === 0;
@@ -433,7 +443,7 @@ var PatientTeam = React.createClass({
           <div className="PatientTeam-picture PatientInfo-picture PatientTeam-picture--newMember"></div>
           <div className="PatientTeam-blocks PatientInfo-blocks">
             <div className="PatientInfo-blockRow" onClick={handleClick}>
-              <a href="" onClick={handleClick} className="PatientInfo-block PatientInfo-block--withArrow">Invite new member</a>
+              <a href="" onClick={handleClick} className="PatientInfo-block PatientInfo-block--withArrow">{t('Invite new member')}</a>
             </div>
           </div>
         </div>
@@ -457,11 +467,12 @@ var PatientTeam = React.createClass({
   },
 
   renderEditControls: function() {
+    const { t } = this.props;
     var key = 'edit';
-    var text = 'Remove People';
+    var text = t('Remove People');
     if (this.state.editing) {
       key = 'cancel';
-      text = 'Done';
+      text = t('Done');
     }
 
     return (
@@ -478,6 +489,7 @@ var PatientTeam = React.createClass({
   },
 
   render: function() {
+    const { t } = this.props;
     var classes = cx({
       'PatientTeam': true,
       'isEditing': this.state.editing
@@ -516,7 +528,7 @@ var PatientTeam = React.createClass({
         <div className="PatientPage-sectionTitle">
           {'Share'}
           <span className="PatientPage-sectionTitleMessage">
-            {'These people can view ' + patientName + '\'s data'}
+            {t('These people can view {{patientName}}\'s data', {patientName})}
           </span>
         </div>
         <div className="clear"></div>
@@ -531,7 +543,7 @@ var PatientTeam = React.createClass({
       </div>
     );
   }
-});
+}));
 
 module.exports = {
   PatientTeam,

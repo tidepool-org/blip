@@ -17,7 +17,7 @@
     "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0",
     "build-docs": "./update-gh-pages.sh",
     "serve-docs": "./node_modules/.bin/gitbook serve",
-    "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/js/**/*.js' 'node_modules/@tidepool/viz/{stories,storybook}Datatypes/**/*.js' -c i18next-parser.config.json -o ."
+    "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o ."
   },
   "dependencies": {
     "@tidepool/viz": "0.10.0",
@@ -93,7 +93,7 @@
     "eslint": "2.13.1",
     "eslint-plugin-react": "5.2.2",
     "gitbook-cli": "2.3.0",
-    "i18next-parser": "^1.0.0-beta6",
+    "i18next-parser": "^1.0.0-beta8",
     "karma": "1.2.0",
     "karma-chai": "0.1.0",
     "karma-chrome-launcher": "2.0.0",

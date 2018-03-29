@@ -20,7 +20,7 @@ var bows = require('bows');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var sundial = require('sundial');
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
@@ -191,7 +191,7 @@ var Weekly = translate()(React.createClass({
 
   componentWillReceiveProps:function (nextProps) {
     if (this.props.loading && !nextProps.loading) {
-      this.refs.chart.rerenderChart();
+      this.refs.chart.getWrappedInstance().rerenderChart();
     }
   },
 
@@ -281,19 +281,19 @@ var Weekly = translate()(React.createClass({
     };
 
     return (
-      <div className="patient-data-message patient-data-message-loading">
-        <p>{'The Weekly view shows a history of your finger stick BG data, but it looks like you haven\'t uploaded finger stick data yet.'}</p>
-        <p>{'To see your data in the Weekly view, '}
+      <Trans className="patient-data-message patient-data-message-loading">
+        <p>The Weekly view shows a history of your finger stick BG data, but it looks like you haven't uploaded finger stick data yet.</p>
+        <p>To see your data in the Weekly view,&nbsp;
           <a
             href={this.props.uploadUrl}
             target="_blank"
-            onClick={handleClickUpload}>upload</a>
-          {' your pump or BG meter.'}</p>
-        <p>{'If you just uploaded, try '}
+            onClick={handleClickUpload}>upload</a>&nbsp;
+          your pump or BG meter.</p>
+        <p>If you just uploaded, try&nbsp;
           <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>
-          {'.'}
+          .
         </p>
-      </div>
+      </Trans>
     );
   },
 
@@ -322,7 +322,7 @@ var Weekly = translate()(React.createClass({
     }
     var datetime;
     if (this.refs.chart) {
-      datetime = this.refs.chart.getCurrentDay(this.props.timePrefs);
+      datetime = this.refs.chart.getWrappedInstance().getCurrentDay(this.props.timePrefs);
     }
     this.props.onSwitchToTrends(datetime);
   },
@@ -332,7 +332,7 @@ var Weekly = translate()(React.createClass({
       e.preventDefault();
     }
     this.setState({showingValues: false});
-    this.refs.chart.goToMostRecent();
+    this.refs.chart.getWrappedInstance().goToMostRecent();
   },
 
   handleClickOneDay: function(e) {
@@ -358,7 +358,7 @@ var Weekly = translate()(React.createClass({
       datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints)
     });
-    this.props.updateDatetimeLocation(chart.getCurrentDay());
+    this.props.updateDatetimeLocation(chart.getWrappedInstance().getCurrentDay());
 
     // Update the chart date range in the patientData component.
     // We debounce this to avoid excessive updates while panning the view.
@@ -388,14 +388,14 @@ var Weekly = translate()(React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.panBack();
+    this.refs.chart.getWrappedInstance().panBack();
   },
 
   handlePanForward: function(e) {
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.panForward();
+    this.refs.chart.getWrappedInstance().panForward();
   },
 
   handleSelectSMBG: function(datetime) {
@@ -405,11 +405,11 @@ var Weekly = translate()(React.createClass({
   toggleValues: function(e) {
     if (this.state.showingValues) {
       this.props.trackMetric('Clicked Show Values Off');
-      this.refs.chart.hideValues();
+      this.refs.chart.getWrappedInstance().hideValues();
     }
     else {
       this.props.trackMetric('Clicked Show Values On');
-      this.refs.chart.showValues();
+      this.refs.chart.getWrappedInstance().showValues();
     }
     this.setState({showingValues: !this.state.showingValues});
   }

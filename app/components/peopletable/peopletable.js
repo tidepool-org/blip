@@ -21,6 +21,7 @@ import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
 import { browserHistory } from 'react-router';
 import WindowSizeListener from 'react-window-size-listener'
+import { translate, Trans } from 'react-i18next';
 
 import { SortHeaderCell, SortTypes } from './sortheadercell';
 import personUtils from '../../core/personutils';
@@ -60,7 +61,7 @@ RemoveLinkCell.propTypes = {
 
 RemoveLinkCell.displayName = 'RemoveLinkCell';
 
-class PeopleTable extends React.Component {
+const PeopleTable = translate()(class PeopleTable extends React.Component {
   constructor(props) {
     super(props);
 
@@ -96,11 +97,12 @@ class PeopleTable extends React.Component {
   }
 
   buildDataList() {
+    const { t } = this.props;
     const list = _.map(this.props.people, (person) => {
       let bday = _.get(person, ['profile', 'patient', 'birthday'], '');
 
       if (bday) {
-        bday = ` ${sundial.translateMask(bday, 'YYYY-MM-DD', 'M/D/YYYY')}`;
+        bday = ` ${sundial.translateMask(bday, 'YYYY-MM-DD', t('M/D/YYYY'))}`;
       }
 
       return {
@@ -161,16 +163,17 @@ class PeopleTable extends React.Component {
   }
 
   renderSearchBar() {
+    const { t } = this.props;
     return (
       <div className="peopletable-search">
         <div className="peopletable-search-label">
-          Patient List
+          {t('Patient List')}
         </div>
         <input
           type="search"
           className="peopletable-search-box form-control-border"
           onChange={this.handleFilterChange}
-          placeholder="Search by Name"
+          placeholder={t('Search by Name')}
         />
       </div>
     );
@@ -188,10 +191,11 @@ class PeopleTable extends React.Component {
   }
 
   renderShowNamesToggle() {
-    let toggleLabel = 'Hide All';
+    const { t } = this.props;
+    let toggleLabel = t('Hide All');
 
     if (!this.state.showNames) {
-      toggleLabel = 'Show All';
+      toggleLabel = t('Show All');
     }
 
     return (
@@ -216,29 +220,30 @@ class PeopleTable extends React.Component {
 
   renderPeopleInstructions() {
     return (
-      <div className="peopletable-instructions">
+      <Trans className="peopletable-instructions">
         Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={this.handleToggleShowNames}>Show All</a> to display all patients.
-      </div>
+      </Trans>
     );
   }
 
   renderRemoveDialog(patient) {
+    const { t } = this.props;
     return (
       <div className="patient-remove-dialog">
-        <div className="ModalOverlay-content">
+        <Trans className="ModalOverlay-content">
           <p>
             Are you sure you want to remove this patient from your list?
           </p>
           <p>
             You will no longer be able to see or comment on their data.
           </p>
-        </div>
+        </Trans>
         <div className="ModalOverlay-controls">
           <button className="btn-secondary" type="button" onClick={this.handleOverlayClick}>
-            Cancel
+            {t('Cancel')}
           </button>
           <button className="btn btn-danger" type="submit" onClick={this.handleRemovePatient(patient)}>
-            Remove
+          {t('Remove')}
           </button>
         </div>
       </div>
@@ -303,6 +308,7 @@ class PeopleTable extends React.Component {
   }
 
   renderPeopleTable() {
+    const { t } = this.props;
     const { colSortDirs, dataList, tableWidth, tableHeight } = this.state;
 
     return (
@@ -323,7 +329,7 @@ class PeopleTable extends React.Component {
               onSortChange={this.handleSortChange}
               sortDir={colSortDirs.fullNameOrderable}
             >
-              NAME
+              {t('NAME')}
             </SortHeaderCell>
           }
           cell={<TextCell
@@ -343,7 +349,7 @@ class PeopleTable extends React.Component {
               onSortChange={this.handleSortChange}
               sortDir={colSortDirs.birthdayOrderable}
             >
-              BIRTHDAY
+              {t('BIRTHDAY')}
             </SortHeaderCell>
           }
           cell={<TextCell
@@ -388,7 +394,7 @@ class PeopleTable extends React.Component {
       </div>
     );
   }
-}
+});
 
 PeopleTable.propTypes = {
   people: React.PropTypes.array,

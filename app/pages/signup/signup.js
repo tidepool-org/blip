@@ -15,6 +15,7 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
+import { translate, Trans} from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import { browserHistory } from 'react-router';
 import sundial from 'sundial';
@@ -33,7 +34,7 @@ import SimpleForm from '../../components/simpleform';
 
 import check from './images/check.svg';
 
-export let Signup = React.createClass({
+export let Signup = translate()(React.createClass({
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
     api: React.PropTypes.object.isRequired,
@@ -49,22 +50,23 @@ export let Signup = React.createClass({
   },
 
   formInputs: function() {
+    const { t } = this.props;
     let inputs = [
       {
         name: 'username',
-        label: 'Email',
+        label: t('Email'),
         type: 'email',
         placeholder: '',
         disabled: !!this.props.inviteEmail,
       },
       {
         name: 'password',
-        label: 'Password',
+        label: t('Password'),
         type: 'password',
       },
       {
         name: 'passwordConfirm',
-        label: 'Confirm password',
+        label: t('Confirm password'),
         type: 'password',
       },
     ];
@@ -72,7 +74,7 @@ export let Signup = React.createClass({
     if (this.state.selected === 'personal') {
       inputs.unshift({
         name: 'fullName',
-        label: 'Full name',
+        label: t('Full name'),
         type: 'text',
       });
     }
@@ -169,28 +171,30 @@ export let Signup = React.createClass({
   },
 
   renderInviteIntroduction: function() {
+    const { t } = this.props;
     if (!this.props.inviteEmail) {
       return null;
     }
 
     return (
-      <div className='signup-inviteIntro'>
-        <p>{'You\'ve been invited to Tidepool.'}</p><p>{'Sign up to view the invitation.'}</p>
-      </div>
+      <Trans className='signup-inviteIntro'>
+        <p>You've been invited to Tidepool.</p><p>Sign up to view the invitation.</p>
+      </Trans>
     );
   },
 
   renderFormIntroduction: function() {
+    const { t } = this.props;
     const type = this.state.selected;
 
     const heading = {
-      personal: 'Create Tidepool Account',
-      clinician: 'Create Clinician Account',
+      personal: t('Create Tidepool Account'),
+      clinician: t('Create Clinician Account'),
     };
 
     const subHeading = {
-      personal: 'See all your diabetes data in one place. Finally.',
-      clinician: 'See all your patients and all their device data in one place.'
+      personal: t('See all your diabetes data in one place. Finally.'),
+      clinician: t('See all your patients and all their device data in one place.')
     };
 
     return (
@@ -209,9 +213,9 @@ export let Signup = React.createClass({
         href = '/signup/clinician';
 
         content = (
-          <p>
-            If you are a Healthcare Provider and want to create an account, please <a href={href} className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'clinician')} children="click here" />.
-          </p>
+          <Trans parent="p">
+            If you are a Healthcare Provider and want to create an account, please <a href={href} className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'clinician')}>click here</a>.
+          </Trans>
         );
         break;
 
@@ -219,10 +223,10 @@ export let Signup = React.createClass({
         href = '/signup/personal';
 
         content = (
-          <p>
+          <Trans parent="p">
             If you are a provider who lives with diabetes and wants to track and manage your personal diabetes data,
-            please create a separate <a href={href} className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'personal')} children="personal account" />.
-          </p>
+            please create a separate <a href={href} className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'personal')}>personal account</a>.
+          </Trans>
         );
         break;
     }
@@ -235,6 +239,7 @@ export let Signup = React.createClass({
   },
 
   renderForm: function() {
+    const { t } = this.props;
     let submitButtonText;
     let submitButtonWorkingText;
     let submitButtonDisabled = false;
@@ -248,13 +253,13 @@ export let Signup = React.createClass({
 
     switch (this.state.selected) {
       case 'personal':
-        submitButtonText = 'Create Personal Account';
-        submitButtonWorkingText = 'Creating Personal Account...';
+        submitButtonText = t('Create Personal Account');
+        submitButtonWorkingText = t('Creating Personal Account...');
         break;
 
       case 'clinician':
-        submitButtonText = 'Create Clinician Account';
-        submitButtonWorkingText = 'Creating Clinician Account...';
+        submitButtonText = t('Create Clinician Account');
+        submitButtonWorkingText = t('Creating Clinician Account...');
         break;
     }
 
@@ -288,6 +293,7 @@ export let Signup = React.createClass({
   },
 
   renderTypeSelection: function() {
+    const { t } = this.props;
     if(this.state.madeSelection){
       return null;
     }
@@ -295,34 +301,30 @@ export let Signup = React.createClass({
     let clinicanClass = 'signup-selection' + (this.state.selected === 'clinician' ? ' selected' : '');
     return (
       <div className="signup-container container-small-outer">
-        <div className="signup-title">Sign Up for Tidepool</div>
-        <div className="signup-subtitle">Which kind of account do you need?</div>
+        <div className="signup-title">{t('Sign Up for Tidepool')}</div>
+        <div className="signup-subtitle">{t('Which kind of account do you need?')}</div>
         <div className={personalClass} onClick={_.partial(this.handleSelectionClick, 'personal')}>
           <div className="signup-selectionHeader">
-            <div className="signup-selectionTitle">Personal Account</div>
+            <div className="signup-selectionTitle">{t('Personal Account')}</div>
             <div className="signup-selectionCheck">
               <img src={check} />
             </div>
           </div>
-          <div className="signup-selectionDescription">You want to manage
-            your diabetes data. You are caring for or supporting someone
-            with diabetes.
+          <div className="signup-selectionDescription">{t('You want to manage your diabetes data. You are caring for or supporting someone with diabetes.')}
           </div>
         </div>
         <div className={clinicanClass} onClick={_.partial(this.handleSelectionClick, 'clinician')}>
           <div className="signup-selectionHeader">
-            <div className="signup-selectionTitle">Clinician Account</div>
+            <div className="signup-selectionTitle">{t('Clinician Account')}</div>
             <div className="signup-selectionCheck">
               <img src={check} />
             </div>
           </div>
-          <div className="signup-selectionDescription">You are a doctor, a
-            clinic or other healthcare provider that wants to use Tidepool to
-            help people in your care.
+          <div className="signup-selectionDescription">{t('You are a doctor, a clinic or other healthcare provider that wants to use Tidepool to help people in your care.')}
           </div>
         </div>
         <div className="signup-continue">
-          <button className="btn btn-primary" disabled={!this.state.selected} onClick={this.handleContinueClick}>Continue</button>
+          <button className="btn btn-primary" disabled={!this.state.selected} onClick={this.handleContinueClick}>{t('Continue')}</button>
         </div>
       </div>
     );
@@ -330,9 +332,9 @@ export let Signup = React.createClass({
 
   renderAcceptTermsLabel: function() {
     return (
-      <span>
+      <Trans parent="span">
         I accept the terms of the Tidepool Applications <a href={URL_TERMS_OF_USE} target='_blank'>Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
-      </span>
+      </Trans>
     );
   },
 
@@ -386,10 +388,11 @@ export let Signup = React.createClass({
   },
 
   validateFormValues: function(formValues) {
+    const { t } = this.props;
     var form = [
-      { type: 'email', name: 'username', label: 'email address', value: formValues.username },
-      { type: 'password', name: 'password', label: 'password', value: formValues.password },
-      { type: 'confirmPassword', name: 'passwordConfirm', label: 'confirm password', value: formValues.passwordConfirm, prerequisites: { password: formValues.password } },
+      { type: 'email', name: 'username', label: t('email address'), value: formValues.username },
+      { type: 'password', name: 'password', label: t('password'), value: formValues.password },
+      { type: 'confirmPassword', name: 'passwordConfirm', label: t('confirm password'), value: formValues.passwordConfirm, prerequisites: { password: formValues.password } },
     ];
 
     var validationErrors = validateForm(form);
@@ -399,7 +402,7 @@ export let Signup = React.createClass({
         validationErrors: validationErrors,
         notification: {
           type: 'error',
-          message:'Some entries are invalid.'
+          message: t('Some entries are invalid.')
         }
       });
     }
@@ -435,7 +438,8 @@ export let Signup = React.createClass({
 
     return values;
   }
-});
+}));
+
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */

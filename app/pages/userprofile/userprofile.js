@@ -32,7 +32,7 @@ import SimpleForm from '../../components/simpleform';
 import PeopleList from '../../components/peoplelist';
 
 // A different namespace than the default can be specified in translate()
-export var UserProfile = translate('translation', {withRef: true})(React.createClass({
+export var UserProfile = translate()(React.createClass({
   propTypes: {
     fetchingUser: React.PropTypes.bool.isRequired,
     history: React.PropTypes.object.isRequired,
@@ -49,7 +49,7 @@ export var UserProfile = translate('translation', {withRef: true})(React.createC
       {name: 'lang', label: t('Language'), type: 'select', items: [
         {value: 'en', label: 'English'},
         {value: 'fr', label: 'Français'},
-      ]},
+      ], placeholder: t('Select language...')},
       {name: 'password', label: t('Password'), type: 'password'},
       {name: 'passwordConfirm', label: t('Confirm password'), type: 'password'}
     ];
@@ -132,6 +132,7 @@ export var UserProfile = translate('translation', {withRef: true})(React.createC
   },
 
   renderForm: function() {
+    const {t} = this.props;
     var disabled = this.isResettingUserData();
 
 
@@ -140,7 +141,7 @@ export var UserProfile = translate('translation', {withRef: true})(React.createC
         inputs={this.formInputs()}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
-        submitButtonText="Save"
+        submitButtonText={t('Save')}
         onSubmit={this.handleSubmit}
         notification={this.state.notification}
         disabled={disabled}/>

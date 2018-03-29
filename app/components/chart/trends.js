@@ -36,7 +36,7 @@ const TrendsContainer = viz.containers.TrendsContainer;
 const reshapeBgClassesToBgBounds = viz.utils.reshapeBgClassesToBgBounds;
 const Loader = viz.components.Loader;
 
-const Trends = translate()(class extends PureComponent {
+const Trends = translate()(class Trends extends PureComponent {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
     chartPrefs: PropTypes.object.isRequired,

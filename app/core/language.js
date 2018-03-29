@@ -19,7 +19,7 @@ i18n
     // To allow : in keys
     nsSeparator: '|',
 
-    debug: true,
+    debug: false,
 
     interpolation: {
       escapeValue: false, // not needed for react!!
@@ -30,6 +30,7 @@ i18n
 
     react: {
       wait: true,
+      withRef: true,
       // Needed for react < 16
       defaultTransParent: 'div'
     },

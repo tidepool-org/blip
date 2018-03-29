@@ -34,7 +34,7 @@ describe('Messages', function () {
       };
       var elem = React.createElement(Messages, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var state = render.getInitialState();
+      var state = render.getWrappedInstance().getInitialState();
 
       expect(state.messages).to.deep.equal(props.messages);
     });

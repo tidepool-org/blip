@@ -14,10 +14,12 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var Link = require('react-router').Link;
-var _ = require('lodash');
-var sundial = require('sundial');
+import React from 'react';
+import { Link } from 'react-router';
+import _ from 'lodash';
+import sundial from 'sundial';
+import { translate, Trans } from 'react-i18next';
+import i18next from '../../core/language';
 
 import { Element } from 'react-scroll';
 
@@ -28,11 +30,13 @@ import DonateForm from '../../components/donateform';
 import DataSources from '../../components/datasources';
 import { DIABETES_TYPES } from '../../core/constants';
 
+const t = i18next.t.bind(i18next);
+
 //date masks we use
-var FORM_DATE_FORMAT = 'MM/DD/YYYY';
+var FORM_DATE_FORMAT = t('MM/DD/YYYY');
 var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
-var PatientInfo = React.createClass({
+var PatientInfo = translate()(React.createClass({
   // many things *not* required here because they aren't needed for
   // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
   propTypes: {
@@ -63,6 +67,7 @@ var PatientInfo = React.createClass({
   },
 
   render: function() {
+    const { t } = this.props;
     if (this.props.fetchingPatient) {
       return this.renderSkeleton();
     }
@@ -117,7 +122,7 @@ var PatientInfo = React.createClass({
 
     return (
       <div className="PatientInfo">
-        <div className="PatientPage-sectionTitle">Profile</div>
+        <div className="PatientPage-sectionTitle">{t('Profile')}</div>
         <div className="PatientInfo-controls">
           {this.renderEditLink()}
         </div>
@@ -151,9 +156,10 @@ var PatientInfo = React.createClass({
   },
 
   renderSkeleton: function() {
+    const { t } = this.props;
     return (
       <div className="PatientInfo">
-        <div className="PatientPage-sectionTitle">Profile</div>
+        <div className="PatientPage-sectionTitle">{t('Profile')}</div>
         <div className="PatientInfo-controls"></div>
         <div className="clear"></div>
         <div className="PatientInfo-content">
@@ -178,6 +184,7 @@ var PatientInfo = React.createClass({
   },
 
   renderEditLink: function() {
+    const { t } = this.props;
     if (!this.isSamePersonUserAndPatient()) {
       return null;
     }
@@ -192,7 +199,7 @@ var PatientInfo = React.createClass({
     // Important to add a `key`, different from the "Cancel" button in edit mode
     // or else react will maintain the "focus" state when flipping back and forth
     return (
-      <button key="edit" className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={handleClick}>Edit</button>
+      <button key="edit" className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={handleClick}>{t('Edit')}</button>
     );
   },
 
@@ -215,9 +222,9 @@ var PatientInfo = React.createClass({
 
     return (
       <div className="PatientInfo">
-        <div className="PatientPage-sectionTitle">Profile</div>
+        <div className="PatientPage-sectionTitle">{t('Profile')}</div>
         <div className="PatientInfo-controls">
-          <button key="cancel" className="PatientInfo-button PatientInfo-button--secondary" type="button" disabled={this.state.working} onClick={handleCancel}>Cancel</button>
+          <button key="cancel" className="PatientInfo-button PatientInfo-button--secondary" type="button" disabled={this.state.working} onClick={handleCancel}>{t('Cancel')}</button>
           {this.renderSubmit()}
         </div>
         <div className="clear"></div>
@@ -261,12 +268,10 @@ var PatientInfo = React.createClass({
     else {
       formValues = _.omit(formValues, 'fullName');
       fullNameNode = (
-        <div className="PatientInfo-block PatientInfo-block--withArrow">
-          {this.getDisplayName(this.props.patient)}
-          {' (edit in '}
-          <Link to="/profile">account</Link>
-          {')'}
-        </div>
+        <Trans className="PatientInfo-block PatientInfo-block--withArrow">
+          {{ fullName: this.getDisplayName(this.props.patient)}} (edit in
+          <Link to="/profile">account</Link>)
+        </Trans>
       );
     }
 
@@ -276,6 +281,7 @@ var PatientInfo = React.createClass({
   },
 
   renderBirthdayInput: function(formValues) {
+    const { t } = this.props;
     var classes = 'PatientInfo-input', errorElem;
     var error = this.state.validationErrors.birthday;
     if (error) {
@@ -284,7 +290,7 @@ var PatientInfo = React.createClass({
     }
     return (<div className="PatientInfo-blockRow">
       <div className="">
-        <label className="PatientInfo-label" htmlFor="birthday">Date of birth</label>
+        <label className="PatientInfo-label" htmlFor="birthday">{t('Date of birth')}</label>
         <input className={classes} id="birthday" ref="birthday" placeholder={FORM_DATE_FORMAT} defaultValue={formValues.birthday} />
         {errorElem}
       </div>
@@ -292,6 +298,7 @@ var PatientInfo = React.createClass({
   },
 
   renderDiagnosisDateInput: function(formValues) {
+    const { t } = this.props;
     var classes = 'PatientInfo-input', errorElem;
     var error = this.state.validationErrors.diagnosisDate;
     if (error) {
@@ -300,7 +307,7 @@ var PatientInfo = React.createClass({
     }
     return (<div className="PatientInfo-blockRow">
       <div className="">
-        <label className="PatientInfo-label" htmlFor="diagnosisDate">Date of diagnosis</label>
+        <label className="PatientInfo-label" htmlFor="diagnosisDate">{t('Date of diagnosis')}</label>
         <input className={classes} id="diagnosisDate" ref="diagnosisDate" placeholder={FORM_DATE_FORMAT} defaultValue={formValues.diagnosisDate} />
         {errorElem}
       </div>
@@ -308,17 +315,18 @@ var PatientInfo = React.createClass({
   },
 
   renderDiagnosisTypeInput: function(formValues) {
+    const { t } = this.props;
     var classes = 'PatientInfo-input';
-    var types = _.clone(DIABETES_TYPES);
+    var types = _.clone(DIABETES_TYPES()); // eslint-disable-line new-cap
     types.unshift({
       value: '',
-      label: 'Choose One'
+      label: t('Choose One')
     });
     var options = _.map(types, function(item) {
       return <option key={item.value} value={item.value}>{item.label}</option>;
     });
     return (<div className="PatientInfo-blockRow">
-      <div className="">
+      <Trans className="">
         <label className="PatientInfo-label" htmlFor="diagnosisType">Diagnosed as</label>
         <select
           id="diagnosisType"
@@ -329,11 +337,12 @@ var PatientInfo = React.createClass({
           defaultValue={formValues.diagnosisType}>
           {options}
         </select>
-      </div>
+      </Trans>
     </div>);
   },
 
   renderAboutInput: function(formValues) {
+    const { t } = this.props;
     var classes = 'PatientInfo-input', errorElem;
     var error = this.state.validationErrors.about;
     if (error) {
@@ -342,7 +351,7 @@ var PatientInfo = React.createClass({
     }
     return (<div className="PatientInfo-bio">
       <textarea className={classes} ref="about"
-        placeholder="Anything you would like to share?"
+        placeholder={t('Anything you would like to share?')}
         rows="3"
         defaultValue={formValues.about}>
       </textarea>
@@ -351,10 +360,11 @@ var PatientInfo = React.createClass({
   },
 
   renderSubmit: function() {
+    const { t } = this.props;
     return (
       <button className="PatientInfo-button PatientInfo-button--primary"
         type="submit" onClick={this.handleSubmit}>
-        {'Save changes'}
+        {t('Save changes')}
       </button>
     );
   },
@@ -372,7 +382,7 @@ var PatientInfo = React.createClass({
 
   renderBgUnitSettings: function() {
     return (
-      <div className="PatientPage-bgUnitSettings">
+      <Trans className="PatientPage-bgUnitSettings">
         <div className="PatientPage-sectionTitle">The units I use are</div>
         <div className="PatientInfo-content">
           <PatientBgUnits
@@ -383,15 +393,16 @@ var PatientInfo = React.createClass({
             working={this.props.updatingPatientBgUnits || false}
           />
         </div>
-      </div>
+      </Trans>
     );
   },
 
   renderDonateForm: function() {
+    const { t } = this.props;
     if (this.isSamePersonUserAndPatient()) {
       return (
         <div className="PatientPage-donateForm">
-          <div className="PatientPage-sectionTitle">Donate my data?</div>
+          <div className="PatientPage-sectionTitle">{t('Donate my data?')}</div>
           <div className="PatientInfo-content">
             <DonateForm
               dataDonationAccounts={this.props.dataDonationAccounts || []}
@@ -408,10 +419,11 @@ var PatientInfo = React.createClass({
   },
 
   renderDataSources: function() {
+    const { t } = this.props;
     if (this.isSamePersonUserAndPatient()) {
       return (
         <Element name="dexcomConnect" className="PatientPage-dataSources">
-          <div className="PatientPage-sectionTitle">My Data Sources</div>
+          <div className="PatientPage-sectionTitle">{t('My Data Sources')}</div>
           <div className="PatientInfo-content">
             <DataSources
               dataSources={this.props.dataSources}
@@ -447,6 +459,7 @@ var PatientInfo = React.createClass({
   },
 
   getAgeText: function(patient, currentDate) {
+    const { t } = this.props;
     var patientInfo = personUtils.patientInfo(patient) || {};
     var birthday = patientInfo.birthday;
 
@@ -459,21 +472,21 @@ var PatientInfo = React.createClass({
     var yrsAgo = sundial.dateDifference(currentDate, birthday, 'years');
 
     if (yrsAgo === 1) {
-      return '1 year old';
+      return t('1 year old');
     } else if (yrsAgo > 1) {
-      return yrsAgo +' years old';
+      return t('{{yrsAgo}} years old', {yrsAgo});
     } else if (yrsAgo === 0) {
-      return 'Born this year';
+      return t('Born this year');
     } else {
-      return 'Birthdate not known';
+      return t('Birthdate not known');
     }
   },
 
   getDiagnosisText: function(patient, currentDate) {
+    const { t } = this.props;
     var patientInfo = personUtils.patientInfo(patient) || {};
     var diagnosisDate = patientInfo.diagnosisDate;
     var diagnosisType = patientInfo.diagnosisType;
-    var startText = 'Diagnosed';
     var diagnosisDateText = '';
     var diagnosisTypeText = '';
     var yearsAgo;
@@ -489,31 +502,34 @@ var PatientInfo = React.createClass({
       var yearsAgo = sundial.dateDifference(currentDate, diagnosisDate, 'years');
 
       if (yearsAgo === 0) {
-        diagnosisDateText = ' this year';
+        diagnosisDateText = t('this year');
       } else if (yearsAgo === 1) {
-        diagnosisDateText = ' 1 year ago';
+        diagnosisDateText = t('1 year ago');
       } else if (yearsAgo > 1) {
-        diagnosisDateText = ` ${yearsAgo} years ago`;
+        diagnosisDateText = t('{{yearsAgo}} years ago', {yearsAgo});
       } else if (yearsAgo === 0) {
-        diagnosisDateText = ' this year';
-      } else if (!diagnosisType) {
-        startText = '';
-        diagnosisDateText = 'Diagnosis date not known';
+        diagnosisDateText = t('this year');
       }
     }
 
     if (diagnosisType) {
-      var diagnosisTypeLabel = _.get(_.find(DIABETES_TYPES, { value: diagnosisType}), 'label');
-      if (diagnosisTypeLabel) {
-        diagnosisTypeText = ` as ${diagnosisTypeLabel}`;
-      }
-      else if (!diagnosisDate) {
-        startText = '';
-        diagnosisDateText = 'Diagnosis date not known';
-      }
+      // eslint-disable-next-line new-cap
+      diagnosisTypeText = _.get(_.find(DIABETES_TYPES(), { value: diagnosisType}), 'label');
     }
 
-    return `${startText}${diagnosisDateText}${diagnosisTypeText}`;
+    if (!diagnosisTypeText && !diagnosisDateText) {
+      return t('Diagnosis date not known');
+    }
+
+    if (!diagnosisTypeText) {
+      return t('Diagnosed {{diagnosisDate}}', {diagnosisDate: diagnosisDateText});
+    }
+
+    if (!diagnosisDateText) {
+      return t('Diagnosed as {{diagnosisType}}', {diagnosisType: diagnosisTypeText});
+    }
+
+    return t('Diagnosed {{diagnosisDate}} as {{diagnosisType}}', {diagnosisDate: diagnosisDateText, diagnosisType: diagnosisTypeText});
   },
 
   getAboutText: function(patient) {
@@ -637,6 +653,6 @@ var PatientInfo = React.createClass({
 
     return result;
   }
-});
+}));
 
 module.exports = PatientInfo;

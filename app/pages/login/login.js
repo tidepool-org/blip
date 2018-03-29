@@ -91,13 +91,14 @@ export let Login = translate()(React.createClass({
   },
 
   renderInviteIntroduction: function() {
+    const { t } = this.props;
     if (!this.props.isInvite) {
       return null;
     }
 
     return (
       <div className='login-inviteIntro'>
-        <p>{'You\'ve been invited to Tidepool.'}</p><p>{'Log in to view the invitation.'}</p>
+        <p>{t('You\'ve been invited to Tidepool.')}</p><p>{t('Log in to view the invitation.')}</p>
       </div>
     );
   },
@@ -160,9 +161,10 @@ export let Login = translate()(React.createClass({
   },
 
   validateFormValues: function(formValues) {
+    const { t } = this.props;
     var form = [
-      { type: 'name', name: 'password', label: 'this field', value: formValues.password },
-      { type: 'email', name: 'username', label: 'this field', value: formValues.username },
+      { type: 'name', name: 'password', label: t('this field'), value: formValues.password },
+      { type: 'email', name: 'username', label: t('this field'), value: formValues.username },
     ];
 
     var validationErrors = validateForm(form);
@@ -172,7 +174,7 @@ export let Login = translate()(React.createClass({
         validationErrors: validationErrors,
         notification: {
           type: 'error',
-          message:'Some entries are invalid.'
+          message: t('Some entries are invalid.')
         }
       });
     }

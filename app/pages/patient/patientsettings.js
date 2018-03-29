@@ -18,6 +18,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import sundial from 'sundial';
 import { utils } from '@tidepool/viz';
+import { translate, Trans } from 'react-i18next';
 
 import IncrementalInput from '../../components/incrementalinput';
 import CustomizedTrendsChart from './customizedtrendschart';
@@ -72,7 +73,7 @@ export const DEFAULT_BG_SETTINGS = {
   },
 };
 
-export default class PatientSettings extends Component {
+export default translate()(class PatientSettings extends Component {
   static propTypes = {
     editingAllowed: React.PropTypes.bool.isRequired,
     patient: React.PropTypes.object,
@@ -98,7 +99,7 @@ export default class PatientSettings extends Component {
 
   render() {
     const self = this;
-    const patient = self.props.patient;
+    const { patient, t } = this.props;
     let settings = {};
 
     if (!patient) {
@@ -120,7 +121,7 @@ export default class PatientSettings extends Component {
 
     const lowNode = (self.props.editingAllowed) ? self.renderIncrementalInput('low', settings) : self.renderValueNode('low', settings);
     const highNode = (self.props.editingAllowed) ? self.renderIncrementalInput('high', settings) : self.renderValueNode('high', settings);
-    const resetNode = (self.props.editingAllowed) ? (<a href="#" className="PatientSettings-reset" onClick={self.resetRange}>Reset to default</a>) : null;
+    const resetNode = (self.props.editingAllowed) ? (<a href="#" className="PatientSettings-reset" onClick={self.resetRange}>{t('Reset to default')}</a>) : null;
 
     const errorNode = (self.state.error.low || self.state.error.high) ? self.renderErrorNode() : null;
 
@@ -130,7 +131,7 @@ export default class PatientSettings extends Component {
     };
 
     return (
-      <div className="PatientSettings">
+      <Trans className="PatientSettings">
         <div className="PatientPage-sectionTitle">My target range <span className="PatientPage-sectionTitle--lowercase">is</span></div>
         <div className="PatientInfo-content">
           <div className="PatientInfo-head">
@@ -152,7 +153,7 @@ export default class PatientSettings extends Component {
             </div>
           </div>
         </div>
-      </div>
+      </Trans>
     );
   };
 
@@ -176,11 +177,12 @@ export default class PatientSettings extends Component {
   }
 
   renderErrorNode() {
+    const { t } = this.props;
     if (this.state.error.low) {
-      return (<p className="PatientSettings-error-message">Upper target must be greater than lower target.</p>);
+      return (<p className="PatientSettings-error-message">{t('Upper target must be greater than lower target.')}</p>);
     }
     else if (this.state.error.high) {
-      return (<p className="PatientSettings-error-message">Lower target must be less than upper target.</p>);
+      return (<p className="PatientSettings-error-message">{t('Lower target must be less than upper target.')}</p>);
     }
   }
 
@@ -261,5 +263,4 @@ export default class PatientSettings extends Component {
   validateBounds(bounds) {
     return bounds.low < bounds.high;
   }
-
-}
+});

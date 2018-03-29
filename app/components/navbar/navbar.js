@@ -27,7 +27,7 @@ var NavbarPatientCard = require('../../components/navbarpatientcard');
 
 var logoSrc = require('./images/tidepool-logo-408x46.png');
 
-export default translate('translation', {withRef: true})(React.createClass({
+export default translate()(React.createClass({
   propTypes: {
     currentPage: React.PropTypes.string,
     user: React.PropTypes.object,

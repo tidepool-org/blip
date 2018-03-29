@@ -14,6 +14,7 @@
  */
 
 import React, { Component } from 'react'
+import { translate, Trans } from 'react-i18next';
 
 import utils from '../../core/utils';
 
@@ -21,7 +22,7 @@ const COPY_STATUS_NULL = 0;
 const COPY_STATUS_SUCCESS = 10;
 const COPY_STATUS_FAIL = 20;
 
-export default class BrowserWarning extends Component {
+export default translate()(class BrowserWarning extends Component {
   static propTypes = {
     trackMetric: React.PropTypes.func.isRequired
   };
@@ -38,19 +39,20 @@ export default class BrowserWarning extends Component {
   }
 
   render() {
+    const { t } = this.props;
     var self = this;
     var downloadCopy = <div className="browser-warning-chrome-image"></div>;
-    var copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>Copy link</button>;
+    var copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>{t('Copy link')}</button>;
     var handleClickDownload = function() {
       self.props.trackMetric('Clicked Download Chrome');
     }
 
     if (this.state.copyStatus === COPY_STATUS_SUCCESS) {
       self.props.trackMetric('Clicked Copy blip.tidepool.org, automatically copied');
-      copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>Copied!</button>
+      copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>{t('Copied!')}</button>
     } else if (this.state.copyStatus === COPY_STATUS_FAIL) {
       self.props.trackMetric('Clicked Copy blip.tidepool.org, manually copied');
-      copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>Please press Ctrl + C now</button>
+      copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>{t('Please press Ctrl + C now')}</button>
     }
 
     if (!utils.isMobile()) {
@@ -58,20 +60,20 @@ export default class BrowserWarning extends Component {
         <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">
           <div className="browser-warning-chrome-image"></div>
         </a>
-        <div className="browser-warning-text">
+        <Trans className="browser-warning-text">
           <span className="dark-text">Copy and paste</span>
           <input type="text" className="blip-link-text" value="app.tidepool.org" readOnly={true}></input>
           <span className="dark-text">into Chrome.</span>
-        </div>
+        </Trans>
         {copyButton}
-        <div className="browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">here</a>.</div>
+        <Trans className="browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">here</a>.</Trans>
       </div>);
     }
 
     return (
       <div className="browser-warning js-terms">
         <div className="browser-warning-content browser-warning-box">
-          <h1 className="browser-warning-title">Tidepool's visualizations are only certified to work in the Chrome browser, and on Mac or PC.</h1>
+          <h1 className="browser-warning-title">{t('Tidepool\'s visualizations are only certified to work in the Chrome browser, and on Mac or PC.')}</h1>
           {downloadCopy}
         </div>
       </div>
@@ -94,4 +96,4 @@ export default class BrowserWarning extends Component {
       });
     }
   }
-}
+});

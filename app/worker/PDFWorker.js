@@ -16,6 +16,7 @@
  */
 
 /* global importScripts, postMessage, __DEV__ */
+import i18next from '../core/language';
 import bows from 'bows';
 import _ from 'lodash';
 

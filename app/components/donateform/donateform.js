@@ -15,6 +15,8 @@
 
 import React, { Component } from 'react';
 import _ from 'lodash';
+import { translate, Trans } from 'react-i18next';
+import i18next from '../../core/language';
 
 import InputGroup from '../../components/inputgroup';
 import SimpleForm from '../../components/simpleform';
@@ -27,7 +29,7 @@ import {
 
 import { getDonationAccountCodeFromEmail } from '../../core/utils';
 
-export default class DonateForm extends Component {
+export default translate()(class DonateForm extends Component {
   static propTypes = {
     dataDonationAccounts: React.PropTypes.array.isRequired,
     onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
@@ -69,11 +71,12 @@ export default class DonateForm extends Component {
     );
   }
 
-  getFormInputs = () => {
+  getFormInputs() {
+    const { t } = this.props;
     return [
       {
         name: 'dataDonate',
-        label: 'Donate my anonymized data',
+        label: t('Donate my anonymized data'),
         disabled: !_.isEmpty(this.state.formValues.dataDonateDestination),
         value: this.state.formValues.dataDonate,
         type: 'checkbox'
@@ -82,10 +85,10 @@ export default class DonateForm extends Component {
         name: 'dataDonateExplainer',
         type: 'explanation',
         text: (
-          <div>
+          <Trans i18n={i18next}>
             You own your data. Read all the details about Tidepool's Big Data
             Donation project <a target="_blank" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
-          </div>
+          </Trans>
         ),
       },
       {
@@ -93,15 +96,15 @@ export default class DonateForm extends Component {
         type: 'select',
         multi: true,
         value: this.state.formValues.dataDonateDestination,
-        placeholder: 'Choose which diabetes organization(s) to support',
-        items: DATA_DONATION_NONPROFITS,
+        placeholder: t('Choose which diabetes organization(s) to support'),
+        items: DATA_DONATION_NONPROFITS(), //eslint-disable-line new-cap
       },
       {
         name: 'donateExplainer',
         type: 'explanation',
         text: (
           <div>
-            Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.
+            {t('Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.')}
           </div>
         ),
       },
@@ -220,4 +223,4 @@ export default class DonateForm extends Component {
       });
     }
   }
-}
+});

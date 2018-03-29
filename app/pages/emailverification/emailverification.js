@@ -15,6 +15,7 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
+import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 
@@ -26,7 +27,7 @@ import SimpleForm from '../../components/simpleform';
 
 import utils from '../../core/utils';
 
-export var EmailVerification = React.createClass({
+export var EmailVerification = translate()(React.createClass({
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
     notification: React.PropTypes.object,
@@ -43,8 +44,9 @@ export var EmailVerification = React.createClass({
     this.props.acknowledgeNotification('resendingEmailVerification');
   },
   formInputs: function() {
+    const { t } = this.props;
     return [
-      {name: 'email', label: 'Email', type: 'email'}
+      {name: 'email', label: t('Email'), type: 'email'}
     ];
   },
   getInitialState: function() {
@@ -54,18 +56,19 @@ export var EmailVerification = React.createClass({
     };
   },
   render: function() {
+    const { t } = this.props;
     var content;
     var loginPage;
 
     if (this.props.sent) {
       loginPage = 'signup';
       content = (
-        <div className="EmailVerification-intro">
+        <Trans className="EmailVerification-intro" i18nkey="html.emailverification-instructions">
           <div className="EmailVerification-title">Keeping your data private and secure is important to us!</div>
           <div className="EmailVerification-instructions">
             <p>Please click the link in the email we just sent you at <strong>{this.props.sent}</strong> to verify and activate your account.</p>
           </div>
-        </div>
+        </Trans>
       );
     }
     else {
@@ -73,14 +76,14 @@ export var EmailVerification = React.createClass({
       content = (
         <div className="EmailVerification-content">
           <div className="EmailVerification-intro">
-            <div className="EmailVerification-title">Hey, you're not verified yet.</div>
+            <div className="EmailVerification-title">{t('Hey, you\'re not verified yet.')}</div>
               <div className="EmailVerification-instructions">
-                <p>Check your email and follow the link there. (We need to confirm that you are really you.)</p>
+                <p>{t('Check your email and follow the link there. (We need to confirm that you are really you.)')}</p>
               </div>
           </div>
           <div className="container-small-outer">
             <div className="EmailVerification-resend-note">
-              <p>Do you want us to resend the email? Enter the address you used to signup below.</p>
+              <p>{t('Do you want us to resend the email? Enter the address you used to signup below.')}</p>
             </div>
             <div className="container-small-inner login-form-box">
               <div className="EmailVerification-form">{this.renderForm()}</div>
@@ -102,7 +105,8 @@ export var EmailVerification = React.createClass({
     );
   },
   renderForm: function() {
-    var submitButtonText = this.props.working ? 'Sending email...' : 'Resend';
+    const { t } = this.props;
+    var submitButtonText = this.props.working ? t('Sending email...') : t('Resend');
 
     return (
       <SimpleForm
@@ -138,9 +142,10 @@ export var EmailVerification = React.createClass({
     });
   },
   validateFormValues: function(formValues) {
+    const { t } = this.props;
     var validationErrors = {};
-    var IS_REQUIRED = 'This field is required.';
-    var INVALID_EMAIL = 'Invalid email address.';
+    var IS_REQUIRED = t('This field is required.');
+    var INVALID_EMAIL = t('Invalid email address.');
 
     if (!formValues.email) {
       validationErrors.email = IS_REQUIRED;
@@ -158,7 +163,7 @@ export var EmailVerification = React.createClass({
 
     return validationErrors;
   }
-});
+}));
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

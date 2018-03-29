@@ -16,6 +16,7 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
+import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
@@ -27,7 +28,7 @@ import ModalOverlay from '../../components/modaloverlay';
 import PatientInfo from './patientinfo';
 import { PatientTeam } from './patientteam';
 
-const Patient = React.createClass({
+const Patient = translate()(React.createClass({
   // many things *not* required here because they aren't needed for
   // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
   propTypes: {
@@ -144,11 +145,12 @@ const Patient = React.createClass({
 
   renderDeleteDialog: function() {
     return (
-      <div>If you are sure you want to delete your account, <a href="mailto:support@tidepool.org?Subject=Delete%20my%20account" target="_blank">send an email</a> to support@tidepool.org and we take care of it for you.</div>
+      <Trans>If you are sure you want to delete your account, <a href="mailto:support@tidepool.org?Subject=Delete%20my%20account" target="_blank">send an email</a> to support@tidepool.org and we take care of it for you.</Trans>
     );
   },
 
   renderDelete: function() {
+    const { t } = this.props;
     var self = this;
 
     if (!this.isSamePersonUserAndPatient()) {
@@ -164,7 +166,7 @@ const Patient = React.createClass({
 
     return (
       <div className="PatientPage-deleteSection">
-        <div onClick={handleClick}>Delete my account</div>
+        <div onClick={handleClick}>{t('Delete my account')}</div>
       </div>
     );
   },
@@ -241,6 +243,6 @@ const Patient = React.createClass({
   componentWillMount: function() {
     this.doFetching(this.props);
   }
-});
+}));
 
 export default Patient;

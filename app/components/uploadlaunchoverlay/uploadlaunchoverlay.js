@@ -15,6 +15,7 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
+import { translate, Trans } from 'react-i18next';
 import cx from 'classnames';
 import GitHub from 'github-api';
 import ModalOverlay from '../modaloverlay';
@@ -24,7 +25,7 @@ import logoSrc from '../uploaderbutton/images/T-logo-dark-512x512.png';
 
 const github = new GitHub();
 
-class UploadLaunchOverlay extends Component {
+const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -50,13 +51,14 @@ class UploadLaunchOverlay extends Component {
 
   renderErrorText = () => {
     return (
-      <div>Error fetching release information, please go to our
+      <Trans>Error fetching release information, please go to our
         <a href={URL_UPLOADER_DOWNLOAD_PAGE}> downloads page</a>.
-      </div>
+      </Trans>
     )
   }
 
   render = () => {
+    const { t } = this.props;
     const winReleaseClasses = cx({
       btn: true,
       'btn-primary': true,
@@ -78,15 +80,15 @@ class UploadLaunchOverlay extends Component {
             <div className='UploadLaunchOverlay-icon'>
               <img src={logoSrc} />
             </div>
-            <div>
+            <Trans>
               <div className='UploadLaunchOverlay-title'>Launching Uploader</div>
               <div className='UploadLaunchOverlay-text'>If you don't yet have the Tidepool Uploader, please install the appropriate version below</div>
-            </div>
+            </Trans>
           </div>
         </div>,
         <div className='ModalOverlay-controls' key={'div2'}>
-          <a className={winReleaseClasses} href={`${this.state.latestWinRelease}`} disabled={!this.state.latestWinRelease}>Download for PC</a>
-          <a className={macReleaseClasses} href={`${this.state.latestMacRelease}`} disabled={!this.state.latestMacRelease}>Download for Mac</a>
+          <a className={winReleaseClasses} href={`${this.state.latestWinRelease}`} disabled={!this.state.latestWinRelease}>{t('Download for PC')}</a>
+          <a className={macReleaseClasses} href={`${this.state.latestMacRelease}`} disabled={!this.state.latestMacRelease}>{t('Download for Mac')}</a>
         </div>,
       ]
     }
@@ -106,6 +108,6 @@ class UploadLaunchOverlay extends Component {
     );
   };
 
-};
+});
 
 module.exports = UploadLaunchOverlay;

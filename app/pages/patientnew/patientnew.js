@@ -17,11 +17,13 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
+import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
 import sundial from 'sundial';
 import { validateForm } from '../../core/validation';
+import i18next from '../../core/language';
 
 import * as actions from '../../redux/actions';
 
@@ -40,7 +42,7 @@ import {
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
-export let PatientNew = React.createClass({
+export let PatientNew = translate()(React.createClass({
   propTypes: {
     fetchingUser: React.PropTypes.bool.isRequired,
     onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
@@ -51,6 +53,7 @@ export let PatientNew = React.createClass({
   },
 
   getFormInputs: function() {
+    const { t } = this.props;
     const isOtherPerson = this.state.formValues.isOtherPerson;
 
     return [
@@ -58,42 +61,42 @@ export let PatientNew = React.createClass({
         name: 'isOtherPerson',
         type: 'radios',
         items: [
-          {value: false, label: 'This is for me, I have diabetes'},
-          {value: true, label: 'This is for someone I care for who has diabetes'}
+          {value: false, label: t('This is for me, I have diabetes')},
+          {value: true, label: t('This is for someone I care for who has diabetes')}
         ],
       },
       {
         name: 'fullName',
         type: 'text',
-        placeholder: 'Full name',
+        placeholder: t('Full name'),
       },
       {
         name: 'about',
         type: 'textarea',
-        placeholder: `Share a bit about ${isOtherPerson ? 'this person' : 'yourself'}.`,
+        placeholder: isOtherPerson ? t('Share a bit about this person.') : t('Share a bit about yourself.')
       },
       {
         name: 'birthday',
-        label: 'Birthday',
+        label: t('Birthday'),
         type: 'datepicker',
       },
       {
         name: 'diagnosisDate',
-        label: 'Diagnosis date',
+        label: t('Diagnosis date'),
         type: 'datepicker',
       },
       {
         name: 'diagnosisType',
-        label: `How do you describe ${isOtherPerson ? 'their' : 'your'} diabetes?`,
+        label: isOtherPerson ? t('How do you describe their diabetes?') : t('How do you describe your diabetes?'),
         type: 'select',
         multi: false,
         value: this.state.formValues.diagnosisType,
-        placeholder: 'Choose One',
-        items: DIABETES_TYPES,
+        placeholder: t('Choose One'),
+        items: DIABETES_TYPES(), // eslint-disable-line new-cap
       },
       {
         name: 'dataDonate',
-        label: `Donate ${isOtherPerson ? 'their' : 'my'} anonymized data`,
+        label: isOtherPerson ? t('Donate their anonymized data') : t('Donate my anonymized data'),
         disabled: !_.isEmpty(this.state.formValues.dataDonateDestination),
         value: this.state.formValues.dataDonate,
         type: 'checkbox',
@@ -102,10 +105,10 @@ export let PatientNew = React.createClass({
         name: 'dataDonateExplainer',
         type: 'explanation',
         text: (
-          <div>
+          <Trans i18n={i18next}>
             You own your data. Read all the details about Tidepool's Big Data
             Donation project <a target="_blank" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
-          </div>
+          </Trans>
         ),
       },
       {
@@ -113,15 +116,15 @@ export let PatientNew = React.createClass({
         type: 'select',
         multi: true,
         value: this.state.formValues.dataDonateDestination,
-        placeholder: 'Choose which diabetes organization(s) to support',
-        items: DATA_DONATION_NONPROFITS,
+        placeholder: t('Choose which diabetes organization(s) to support'),
+        items: DATA_DONATION_NONPROFITS(), //eslint-disable-line new-cap
       },
       {
         name: 'donateExplainer',
         type: 'explanation',
         text: (
           <div>
-            Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.
+            {t('Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.')}
           </div>
         ),
       }
@@ -178,13 +181,14 @@ export let PatientNew = React.createClass({
   },
 
   renderSubnav: function() {
+    const { t } = this.props;
     return (
       <div className="container-box-outer">
         <div className="container-box-inner PatientNew-subnavInner">
           <div className="grid PatientNew-subnav">
             <div className="grid-item one-whole">
               <div className="PatientNew-subnavTitle">
-                {'Set up data storage'}
+                {t('Set up data storage')}
               </div>
             </div>
           </div>
@@ -208,10 +212,11 @@ export let PatientNew = React.createClass({
   },
 
   getSubmitButtonText: function() {
+    const { t } = this.props;
     if (this.props.working) {
-      return 'Saving...';
+      return t('Saving...');
     }
-    return 'Save';
+    return t('Save');
   },
 
   isFormDisabled: function() {
@@ -284,11 +289,12 @@ export let PatientNew = React.createClass({
   },
 
   validateFormValues: function(formValues) {
+    const { t } = this.props;
     var form = [
-      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
-      { type: 'date', name: 'birthday', label: 'birthday', value: formValues.birthday },
-      { type: 'diagnosisDate', name: 'diagnosisDate', label: 'diagnosis date', value: formValues.diagnosisDate, prerequisites: { birthday: formValues.birthday } },
-      { type: 'about', name: 'about', label: 'about', value: formValues.about},
+      { type: 'name', name: 'fullName', label: t('full name'), value: formValues.fullName },
+      { type: 'date', name: 'birthday', label: t('birthday'), value: formValues.birthday },
+      { type: 'diagnosisDate', name: 'diagnosisDate', label: t('diagnosis date'), value: formValues.diagnosisDate, prerequisites: { birthday: formValues.birthday } },
+      { type: 'about', name: 'about', label: t('about'), value: formValues.about},
     ];
     var validationErrors = validateForm(form);
 
@@ -357,7 +363,7 @@ export let PatientNew = React.createClass({
       profile: profile,
     };
   }
-});
+}));
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

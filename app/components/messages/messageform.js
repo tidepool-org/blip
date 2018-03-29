@@ -15,14 +15,18 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 == BSD2 LICENSE ==
 */
 
-var React = require('react');
-var _ = require('lodash');
-var sundial = require('sundial');
+import React from 'react';
+import _ from 'lodash';
+import sundial from 'sundial';
+import { translate } from 'react-i18next';
+import i18next from '../../core/language';
+
+const t = i18next.t.bind(i18next);
 
 var MessageMixins = require('./messagemixins');
 
 // Form for creating new Notes or adding Comments
-var MessageForm = React.createClass({
+var MessageForm = translate()(React.createClass({
   mixins: [MessageMixins],
   propTypes: {
     formFields: React.PropTypes.object,
@@ -60,9 +64,9 @@ var MessageForm = React.createClass({
       DATE_MASK: 'YYYY-MM-DD',
       TIME_MASK: 'HH:mm',
       EDITED_DATE_MASK: 'YYYY-MM-DD HH:mm',
-      SENDING_TEXT: 'Sending...',
-      cancelBtnText: 'Cancel',
-      saveBtnText: 'Post',
+      SENDING_TEXT: t('Sending...'),
+      cancelBtnText: t('Cancel'),
+      saveBtnText: t('Post_submit'),
     };
   },
   getEditableDateAndTime: function(ts) {
@@ -220,18 +224,19 @@ var MessageForm = React.createClass({
     var msg = this.state.msg;
     return !(msg && msg.length);
   },
-  
+
   /*
    * Just displays the notes date if it is set
    */
   renderDisplayDate: function(canEditTimestamp) {
+    const { t } = this.props;
     var displayDate;
     if (this.state.whenUtc) {
       var editLink;
 
       if (canEditTimestamp) {
         editLink = (
-          <a className='messageform-change-datetime' href='' ref='showDateTime' onClick={this.showEditDate}>Change</a>
+          <a className='messageform-change-datetime' href='' ref='showDateTime' onClick={this.showEditDate}>{t('Change')}</a>
         );
       }
 
@@ -328,7 +333,7 @@ var MessageForm = React.createClass({
       </form>
     );
   }
-  
-});
+
+}));
 
 module.exports = MessageForm;

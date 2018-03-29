@@ -15,6 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
+import i18next from './language';
+
+const t = i18next.t.bind(i18next);
+
 export const URL_UPLOADER_CHROME_STORE = 'http://chrome.google.com/webstore/detail/tidepool-uploader/cabklgajffclbljkhmjphejemhpbghfb';
 export const URL_TIDEPOOL_MOBILE_APP_STORE = 'https://itunes.apple.com/us/app/tidepool-mobile/id1026395200?mt=8';
 export const URL_TERMS_OF_USE = 'https://tidepool.org/terms-of-use';
@@ -25,26 +29,26 @@ export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepoo
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
 
-export const DATA_DONATION_NONPROFITS = [
-  { value: 'BT1', label: 'Beyond Type 1' },
-  { value: 'CARBDM', label: 'CarbDM' },
-  { value: 'CWD', label: 'Children with Diabetes' },
-  { value: 'CDN', label: 'College Diabetes Network' },
-  { value: 'DYF', label: 'Diabetes Youth Families (DYF)' },
-  { value: 'DIABETESSISTERS', label: 'DiabetesSisters' },
-  { value: 'DIATRIBE', label: 'The diaTribe Foundation' },
-  { value: 'JDRF', label: 'JDRF' },
-  { value: 'NSF', label: 'Nightscout Foundation' },
-  { value: 'T1DX', label: 'T1D Exchange' },
+export const DATA_DONATION_NONPROFITS = () => [
+  { value: 'BT1', label: t('Beyond Type 1') },
+  { value: 'CARBDM', label: t('CarbDM') },
+  { value: 'CWD', label: t('Children with Diabetes') },
+  { value: 'CDN', label: t('College Diabetes Network') },
+  { value: 'DYF', label: t('Diabetes Youth Families (DYF)') },
+  { value: 'DIABETESSISTERS', label: t('DiabetesSisters') },
+  { value: 'DIATRIBE', label: t('The diaTribe Foundation') },
+  { value: 'JDRF', label: t('JDRF') },
+  { value: 'NSF', label: t('Nightscout Foundation') },
+  { value: 'T1DX', label: t('T1D Exchange') },
 ];
 
-export const DIABETES_TYPES = [
-  { value: 'type1', label: 'Type 1' },
-  { value: 'type2', label: 'Type 2' },
-  { value: 'gestational', label: 'Gestational' },
-  { value: 'prediabetes', label: 'Pre-diabetes' },
-  { value: 'lada', label: 'LADA (Type 1.5)' },
-  { value: 'other', label: 'Other' },
+export const DIABETES_TYPES = () => [
+  { value: 'type1', label: t('Type 1') },
+  { value: 'type2', label: t('Type 2') },
+  { value: 'gestational', label: t('Gestational') },
+  { value: 'prediabetes', label: t('Pre-diabetes') },
+  { value: 'lada', label: t('LADA (Type 1.5)') },
+  { value: 'other', label: t('Other') },
 ];
 
 export const BG_DATA_TYPES = [

@@ -3808,9 +3808,9 @@ https-proxy-agent@1:
     debug "2"
     extend "3"
 
-i18next-parser@^1.0.0-beta6:
-  version "1.0.0-beta6"
-  resolved "https://registry.yarnpkg.com/i18next-parser/-/i18next-parser-1.0.0-beta6.tgz#268c2ebbaa48584f9ea644b64bcc22dfac057847"
+i18next-parser@^1.0.0-beta8:
+  version "1.0.0-beta8"
+  resolved "https://registry.yarnpkg.com/i18next-parser/-/i18next-parser-1.0.0-beta8.tgz#49b8edd46a8d01649e1cbbe9d3c1acde792978b2"
   dependencies:
     colors "~1.2.0-rc0"
     commander "~2.9.0"

@@ -17,6 +17,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
+import { translate } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
@@ -31,7 +32,7 @@ import personUtils from '../../core/personutils';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
-export let ClinicianDetails = React.createClass({
+export let ClinicianDetails = translate()(React.createClass({
   propTypes: {
     fetchingUser: React.PropTypes.bool.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
@@ -40,43 +41,45 @@ export let ClinicianDetails = React.createClass({
     working: React.PropTypes.bool.isRequired
   },
 
-  formInputs: [
+  formInputs: () => {
+    const { t } = this.props;
+    return [
     {
       name: 'fullName',
-      label: 'Full Name',
+      label: t('Full Name'),
       type: 'text',
-      placeholder: 'Full name'
+      placeholder: t('Full name')
     },
     {
       name: 'clinicalRole',
-      label: 'Clinical Role',
+      label: t('Clinical Role'),
       type: 'select',
       value: '',
-      placeholder: 'Select Role....',
+      placeholder: t('Select Role...'),
       items: [
-        {value: 'clinic_manager', label: 'Clinic Manager'},
-        {value: 'diabetes_educator', label: 'Diabetes Educator'},
-        {value: 'endocrinologist', label: 'Endocrinologist'},
-        {value: 'front_desk', label: 'Front Desk'},
-        {value: 'information_technology', label: 'IT/Technology'},
-        {value: 'medical_assistant', label: 'Medical Assistant'},
-        {value: 'nurse', label: 'Nurse/Nurse Practitioner'},
-        {value: 'primary_care_physician', label: 'Primary Care Physician'},
-        {value: 'physician_assistant', label: 'Physician Assistant'},
-        {value: 'other', label: 'Other'}
+        {value: 'clinic_manager', label: t('Clinic Manager')},
+        {value: 'diabetes_educator', label: t('Diabetes Educator')},
+        {value: 'endocrinologist', label: t('Endocrinologist')},
+        {value: 'front_desk', label: t('Front Desk')},
+        {value: 'information_technology', label: t('IT/Technology')},
+        {value: 'medical_assistant', label: t('Medical Assistant')},
+        {value: 'nurse', label: t('Nurse/Nurse Practitioner')},
+        {value: 'primary_care_physician', label: t('Primary Care Physician')},
+        {value: 'physician_assistant', label: t('Physician Assistant')},
+        {value: 'other', label: t('Other')}
       ]
     },
     {
       name: 'clinicName',
-      label: 'Clinic Name',
+      label: t('Clinic Name'),
       type: 'text'
     },
     {
       name: 'clinicPhone',
-      label: 'Clinic Phone Number (optional)',
+      label: t('Clinic Phone Number (optional)'),
       type: 'text'
     }
-  ],
+  ]},
 
   getInitialState: function() {
     return {
@@ -122,6 +125,7 @@ export let ClinicianDetails = React.createClass({
   },
 
   render: function() {
+    const { t } = this.props;
     var form = this.renderForm();
 
     return (
@@ -130,13 +134,13 @@ export let ClinicianDetails = React.createClass({
           <div className="container-box-inner ClinicianDetails-contentInner">
             <div className="ClinicianDetails-content">
               <div className="ClinicianDetails-head">
-                Clinician Setup
+                {t('Clinician Setup')}
               </div>
               <div className="ClinicianDetails-subTitle">
-                Please complete these details.
+                {t('Please complete these details.')}
               </div>
               <div className="ClinicianDetails-desc">
-                We use these details to identify you to your patients and to better support you.
+                {t('We use these details to identify you to your patients and to better support you.')}
               </div>
               {form}
             </div>
@@ -149,7 +153,7 @@ export let ClinicianDetails = React.createClass({
   renderForm: function() {
     return (
       <SimpleForm
-        inputs={this.formInputs}
+        inputs={this.formInputs()}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={this.getSubmitButtonText()}
@@ -161,10 +165,11 @@ export let ClinicianDetails = React.createClass({
   },
 
   getSubmitButtonText: function() {
+    const { t } = this.props;
     if (this.props.working) {
-      return 'Saving...';
+      return t('Saving...');
     }
-    return 'Continue';
+    return t('Continue');
   },
 
   isFormDisabled: function() {
@@ -233,7 +238,7 @@ export let ClinicianDetails = React.createClass({
       validationErrors: {}
     });
   }
-});
+}));
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

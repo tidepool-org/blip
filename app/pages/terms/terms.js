@@ -15,9 +15,11 @@
  */
 import React  from 'react';
 import { connect } from 'react-redux';
+import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 
+import i18next from '../../core/language';
 import config from '../../config';
 import LoginNav from '../../components/loginnav';
 import utils  from '../../core/utils';
@@ -25,20 +27,22 @@ import { URL_TERMS_OF_USE, URL_PRIVACY_POLICY } from '../../core/constants';
 
 import * as actions from '../../redux/actions';
 
-const ACCEPT_OF_AGE = <span>
+const t = i18next.t.bind(i18next);
+
+const ACCEPT_OF_AGE = <Trans parent="span">
   I am 18 or older and I accept the terms of the <a href={URL_TERMS_OF_USE} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
-</span>;
+</Trans>;
 
-const ACCEPT_ON_BEHALF = <span>
+const ACCEPT_ON_BEHALF = <Trans parent="span">
   I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the <a href={URL_TERMS_OF_USE} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
-</span>;
+</Trans>;
 
-const TERMS_OF_USE_UPDATED = <p>
+const TERMS_OF_USE_UPDATED = <Trans parent="span">
   The Terms of Use and Privacy Policy have changed since you last used Tidepool.<br/>
   You need to accept the changes to continue.
-</p>;
+</Trans>;
 
-export class Terms extends React.Component {
+export const Terms = translate()(class Terms extends React.Component {
   static propTypes = {
     ages: React.PropTypes.object.isRequired,
     authenticated: React.PropTypes.bool.isRequired,
@@ -49,33 +53,30 @@ export class Terms extends React.Component {
     trackMetric: React.PropTypes.func.isRequired
   };
 
-  static defaultProps = {
-    ages: {
-      OF_AGE: {value: '>=18', label: ' I am 18 years old or older.'},
-      WITH_CONSENT: {value: '13-17', label: ' I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms below.' },
-      NOT_OF_AGE: {value: '<=12', label: ' I am 12 years old or younger.'}
-    },
-    messages: {
-      ACCEPT_OF_AGE: ACCEPT_OF_AGE,
-      ACCEPT_ON_BEHALF:  ACCEPT_ON_BEHALF,
-      TERMS_OF_USE_UPDATED: TERMS_OF_USE_UPDATED,
-      SORRY_NOT_OF_AGE: 'We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.',
-    }
-  };
+  static get defaultProps () {
+    return {
+      ages: {
+        OF_AGE: {value: '>=18', label: t(' I am 18 years old or older.')},
+        WITH_CONSENT: {value: '13-17', label: t(' I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms below.') },
+        NOT_OF_AGE: {value: '<=12', label: t(' I am 12 years old or younger.')}
+      },
+      messages: {
+        ACCEPT_OF_AGE: ACCEPT_OF_AGE,
+        ACCEPT_ON_BEHALF:  ACCEPT_ON_BEHALF,
+        TERMS_OF_USE_UPDATED: TERMS_OF_USE_UPDATED,
+        SORRY_NOT_OF_AGE: t('We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.'),
+      }
+    };
+  }
 
   constructor(props) {
     super(props);
 
-    function getDefaultState() {
-      return {
-        agreed: false,
-        agreedOnBehalf: false,
-        ageSelected: props.ages.OF_AGE.value // default
-      }
-    }
-
-    this.state = getDefaultState();
-    this.getDefaultState = getDefaultState.bind(this);
+    this.state = {
+      agreed: false,
+      agreedOnBehalf: false,
+      ageSelected: props.ages.OF_AGE.value // default
+    };
   }
 
   renderAgeConsentStep() {
@@ -250,7 +251,7 @@ export class Terms extends React.Component {
     this.props.trackMetric('Agreed To Terms Of Use');
     this.props.onSubmit();
   }
-};
+});
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

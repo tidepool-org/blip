@@ -17,6 +17,7 @@ import React from 'react';
 import { browserHistory, Link } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { translate, Trans } from 'react-i18next';
 import update from 'react-addons-update';
 
 import * as actions from '../../redux/actions';
@@ -33,7 +34,7 @@ import PeopleTable from '../../components/peopletable';
 import Invitation from '../../components/invitation';
 import BrowserWarning from '../../components/browserwarning';
 
-export let Patients = React.createClass({
+export let Patients = translate()(React.createClass({
   propTypes: {
     clearPatientData: React.PropTypes.func.isRequired,
     clearPatientInView: React.PropTypes.func.isRequired,
@@ -104,6 +105,7 @@ export let Patients = React.createClass({
   },
 
   renderWelcomeSetup: function() {
+    const { t } = this.props;
     if (!this.isShowingWelcomeSetup()) {
       return null;
     }
@@ -122,13 +124,13 @@ export let Patients = React.createClass({
     return (
       <div className="patients-message">
         <div>
-          {"Tidepool provides free, secure data storage for diabetes data."}
+          {t('Tidepool provides free, secure data storage for diabetes data.')}
           <br />
-          {"Would you like to set up data storage for someone’s diabetes data?"}
+          {t('Would you like to set up data storage for someone’s diabetes data?')}
         </div>
         <div className="patients-welcomesetup-actions">
-          <button className="btn btn-tertiary" onClick={handleClickNo}>{"No, not now"}</button>
-          <button className="btn btn-primary" onClick={handleClickYes}>{"Yes, let's set it up"}</button>
+          <button className="btn btn-tertiary" onClick={handleClickNo}>{t('No, not now')}</button>
+          <button className="btn btn-primary" onClick={handleClickYes}>{t('Yes, let\'s set it up')}</button>
         </div>
       </div>
     );
@@ -164,11 +166,11 @@ export let Patients = React.createClass({
       return null;
     }
     return (
-      <div className="patients-message">
-        {"Looks like you don’t have access to any data yet."}
+      <Trans className="patients-message">
+        Looks like you don’t have access to any data yet.
         <br />
-        {"Please ask someone to invite you to see their data."}
-      </div>
+        Please ask someone to invite you to see their data.
+      </Trans>
     );
   },
 
@@ -177,15 +179,14 @@ export let Patients = React.createClass({
       return null;
     }
     return (
-      <div className="patients-message">
-        {"You can also "}
-        <Link to="/patients/new">{"setup data storage"}</Link>
-        {" for someone’s diabetes data."}
-      </div>
+      <Trans className="patients-message">
+        You can also <Link to="/patients/new">setup data storage</Link> for someone’s diabetes data.
+      </Trans>
     );
   },
 
   renderPatients: function() {
+    const { t } = this.props;
     if (!this.hasPatients()) {
       return null;
     }
@@ -215,7 +216,7 @@ export let Patients = React.createClass({
     return (
       <div className="container-box-inner patients-section js-patients-shared">
         <div className="patients-section-title-wrapper">
-          <div className="patients-section-title">{"View data for:"}</div>
+          <div className="patients-section-title">{t('View data for:')}</div>
         </div>
         <div className="patients-section-content">
           {this.renderAddDataStorage()}
@@ -233,6 +234,7 @@ export let Patients = React.createClass({
   },
 
   renderAddDataStorage: function() {
+    const { t } = this.props;
     // Until the "child accounts" feature,
     // don't allow additional data accounts once the primary one has been setup
     if (personUtils.isPatient(this.props.user)) {
@@ -244,28 +246,30 @@ export let Patients = React.createClass({
         className="patients-new-account"
         to="/patients/new"
         onClick={this.handleClickCreateProfile}>
-        Setup data storage
+        { t('Setup data storage') }
         <i className="icon-add"></i>
       </Link>
     );
   },
 
   renderWelcomeTitle: function() {
+    const { t } = this.props;
     if (!this.isShowingWelcomeTitle()) {
       return null;
     }
 
     return (
       <div className="patients-welcome-title">
-        {'Welcome!'}
+        {t('Welcome!')}
       </div>
     );
   },
 
   renderLoadingIndicator: function() {
+    const { t } = this.props;
     return (
       <div className="patients-message patients-message-loading">
-        Loading...
+        {t('Loading...')}
       </div>
     );
   },
@@ -352,7 +356,7 @@ export let Patients = React.createClass({
       }
     }
   }
-});
+}));
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

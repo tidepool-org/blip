@@ -17,6 +17,7 @@
 
 import React, { PropTypes } from 'react';
 import { browserHistory } from 'react-router';
+import { translate } from 'react-i18next';
 
 import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, URL_BIG_DATA_DONATION_INFO } from '../../core/constants';
 
@@ -28,20 +29,21 @@ const DonateBanner = (props) => {
     processingDonation,
     trackMetric,
     userIsDonor,
+    t
   } = props;
 
   const getMessageText = () => {
     if (userIsDonor) {
-      return 'Thanks for contributing! Donate proceeds to a diabetes nonprofit.';
+      return t('Thanks for contributing! Donate proceeds to a diabetes nonprofit.');
     } else {
-      return 'Donate your data. Contribute to research.';
+      return t('Donate your data. Contribute to research.');
     }
   };
 
   const renderLink = () => {
     const link = {
       href: URL_BIG_DATA_DONATION_INFO,
-      text: 'Learn More',
+      text: t('Learn More'),
       target: '_blank',
     };
 
@@ -55,13 +57,13 @@ const DonateBanner = (props) => {
 
   const getButtonText = () => {
     if (processingDonation) {
-      return 'Donating anonymized data...';
+      return t('Donating anonymized data...');
     }
 
     if (userIsDonor) {
-      return 'Choose a diabetes nonprofit';
+      return t('Choose a diabetes nonprofit');
     } else {
-      return 'Donate my anonymized data';
+      return t('Donate my anonymized data');
     }
   };
 
@@ -127,4 +129,4 @@ DonateBanner.propTypes = {
   userIsDonor: React.PropTypes.bool.isRequired,
 };
 
-export default DonateBanner;
+export default translate()(DonateBanner);
