@@ -32,7 +32,10 @@ export var EmailVerification = React.createClass({
     notification: React.PropTypes.object,
     onSubmitResend: React.PropTypes.func.isRequired,
     resent: React.PropTypes.bool.isRequired,
-    sent: React.PropTypes.bool.isRequired,
+    sent: React.PropTypes.oneOfType([
+      React.PropTypes.bool,
+      React.PropTypes.string,
+    ]),
     trackMetric: React.PropTypes.func.isRequired,
     working: React.PropTypes.bool.isRequired
   },
@@ -58,9 +61,9 @@ export var EmailVerification = React.createClass({
       loginPage = 'signup';
       content = (
         <div className="EmailVerification-intro">
-          <div className="EmailVerification-title">{'Keeping your data private and secure is important to us!'}</div>
+          <div className="EmailVerification-title">Keeping your data private and secure is important to us!</div>
           <div className="EmailVerification-instructions">
-            <p>{'We just sent you an email. To verify we have the right email address, please click the link in the email to activate your account.'}</p>
+            <p>Please click the link in the email we just sent you at <strong>{this.props.sent}</strong> to verify and activate your account.</p>
           </div>
         </div>
       );
@@ -70,14 +73,14 @@ export var EmailVerification = React.createClass({
       content = (
         <div className="EmailVerification-content">
           <div className="EmailVerification-intro">
-            <div className="EmailVerification-title">{'Hey, you\'re not verified yet.'}</div>
+            <div className="EmailVerification-title">Hey, you're not verified yet.</div>
               <div className="EmailVerification-instructions">
-                <p>{'Check your email and follow the link there. (We need to confirm that you are really you.)'}</p>
+                <p>Check your email and follow the link there. (We need to confirm that you are really you.)</p>
               </div>
           </div>
           <div className="container-small-outer">
             <div className="EmailVerification-resend-note">
-              <p>{'Do you want us to resend the email? Enter the address you used to signup below.'}</p>
+              <p>Do you want us to resend the email? Enter the address you used to signup below.</p>
             </div>
             <div className="container-small-inner login-form-box">
               <div className="EmailVerification-form">{this.renderForm()}</div>

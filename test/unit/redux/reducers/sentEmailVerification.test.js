@@ -33,14 +33,19 @@ var expect = chai.expect;
 
 describe('sentEmailVerification', () => {
   describe('signupSuccess', () => {
-    it('should set state to true', () => {
-      let initialStateForTest = false;
+    it('should set state to the email address of the user', () => {
+      const initialStateForTest = false;
+      const user = {
+        emails: [
+          'email@address.com',
+        ],
+      };
 
-      let action = actions.sync.signupSuccess();
+      const action = actions.sync.signupSuccess(user);
 
-      let state = reducer(initialStateForTest, action);
+      const state = reducer(initialStateForTest, action);
 
-      expect(state).to.be.true;
+      expect(state).to.equal('email@address.com');
     });
   });
 });

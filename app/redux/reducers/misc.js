@@ -160,7 +160,8 @@ export const isLoggedIn = (state = initialState.isLoggedIn, action) => {
 export const sentEmailVerification = (state = initialState.sentEmailVerification, action) => {
   switch(action.type) {
     case types.SIGNUP_SUCCESS:
-      return true;
+      const { user } = action.payload;
+      return _.get(user, 'emails.0', state);
     default:
       return state;
   }
