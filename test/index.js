@@ -22,6 +22,7 @@ require('./polyfill/function.prototype.bind');
 
 /* plugins/ */
 require('./chartbasicsfactory_test');
+require('intl/locale-data/jsonp/en.js');
 
 
 // DOM not required
