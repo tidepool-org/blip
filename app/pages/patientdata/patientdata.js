@@ -424,13 +424,13 @@ export let PatientData = translate()(React.createClass({
 
   closeMessageThread: function(){
     this.props.onCloseMessageThread();
-    this.refs.tideline.closeMessageThread();
+    this.refs.tideline.getWrappedInstance().closeMessageThread();
     this.props.trackMetric('Closed Message Thread Modal');
   },
 
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
-    this.refs.tideline.closeMessageThread();
+    this.refs.tideline.getWrappedInstance().closeMessageThread();
     this.props.trackMetric('Closed New Message Modal');
   },
 
@@ -535,7 +535,7 @@ export let PatientData = translate()(React.createClass({
   },
 
   handleMessageCreation: function(message) {
-    this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
+    this.refs.tideline.getWrappedInstance().createMessageThread(nurseShark.reshapeMessage(message));
     this.props.addPatientNote(message);
     this.props.trackMetric('Created New Message');
   },
@@ -553,7 +553,7 @@ export let PatientData = translate()(React.createClass({
     if (edit) {
       edit(message, cb);
     }
-    this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
+    this.refs.tideline.getWrappedInstance().editMessageThread(nurseShark.reshapeMessage(message));
     this.props.updatePatientNote(message);
     this.props.trackMetric('Edit To Message');
   },

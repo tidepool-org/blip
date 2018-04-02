@@ -1946,7 +1946,7 @@ describe('PatientData', function () {
         props,
         refs: {
           tideline: {
-            createMessageThread: sinon.stub(),
+            getWrappedInstance: () => ({createMessageThread: sinon.stub()})
           },
         },
       });
@@ -1979,7 +1979,7 @@ describe('PatientData', function () {
         props,
         refs: {
           tideline: {
-            editMessageThread: sinon.stub(),
+            getWrappedInstance: () => ({editMessageThread: sinon.stub()}),
           },
         },
       });
