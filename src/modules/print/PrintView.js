@@ -840,7 +840,7 @@ class PrintView {
       doc.switchToPage(page - 1);
       doc.fontSize(FOOTER_FONT_SIZE).fillColor('#979797').fillOpacity(1);
       doc.text(
-        t('Page ') + page + t(' of ') + pageCount,
+        t('Page {{page}} of {{pageCount}}', { page, pageCount }),
         MARGINS.left,
         (HEIGHT + MARGINS.top) - doc.currentLineHeight() * 1.5,
         { align: 'right' }
