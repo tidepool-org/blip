@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* global sinon */
+
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
@@ -277,12 +279,13 @@ describe('datetime utility', function() {
     });
 
     it('should return the browser timezone', function() {
-      sinon.stub(Intl, 'DateTimeFormat').returns({
+      var DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
         resolvedOptions: function() {
           return { timeZone: 'browserTimezone' };
         },
       });
       expect(dt.getBrowserTimezone()).to.equal('browserTimezone');
+      DateTimeFormatStub.restore();
     });
   });
 
