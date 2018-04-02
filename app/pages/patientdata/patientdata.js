@@ -212,7 +212,7 @@ export let PatientData = translate()(React.createClass({
     if (this.props.isUserPatient) {
       content = (
         <Trans className="patient-data-uploader-message">
-          <h1>{t('To see your data, you’ll need the Tidepool Uploader')}</h1>
+          <h1>To see your data, you’ll need the Tidepool Uploader</h1>
           <UploaderButton
             onClick={handleClickUpload}
             buttonText='Get the Tidepool Uploader' />
