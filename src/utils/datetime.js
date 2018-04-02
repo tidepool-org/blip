@@ -63,16 +63,24 @@ export function addDuration(startTime, duration) {
 }
 
 /**
+ * getBrowserTimezone
+ * @returns {String} browser-determined timezone name
+ */
+export function getBrowserTimezone() {
+  return new Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
+/**
  * getTimezoneFromTimePrefs
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *
- * @return {String} timezoneName
+ * @return {String} timezoneName from timePrefs, browser, or fallback to 'UTC'
  */
 export function getTimezoneFromTimePrefs(timePrefs) {
   const { timezoneAware, timezoneName } = timePrefs;
-  let timezone = 'UTC';
-  if (timezoneAware) {
-    timezone = timezoneName || 'UTC';
+  let timezone = getBrowserTimezone() || 'UTC';
+  if (timezoneAware && timezoneName) {
+    timezone = timezoneName;
   }
   return timezone;
 }
