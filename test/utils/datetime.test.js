@@ -108,7 +108,7 @@ describe('datetime', () => {
         expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal('browserTimezone');
       });
 
-      it('should return `UTC` when timezoneAware is falsey', () => {
+      it('should return browser timezone when timezoneAware is falsey', () => {
         const timePrefs1 = {
           timezoneAware: false,
           timezoneName: 'Europe/London',
