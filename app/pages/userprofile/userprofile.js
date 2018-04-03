@@ -222,13 +222,14 @@ export var UserProfile = translate()(React.createClass({
   },
 
   submitFormValues: function(formValues) {
+    const {t} = this.props;
     var self = this;
     var submit = this.props.onSubmit;
 
     // Save optimistically
     submit(formValues);
     this.setState({
-      notification: {type: 'success', message: 'All changes saved.'}
+      notification: {type: 'success', message: t('All changes saved.')}
     });
 
     this.messageTimeoutId = setTimeout(function() {
