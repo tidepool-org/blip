@@ -57,9 +57,9 @@ describe('datetime', () => {
   describe('getBrowserTimezone', () => {
     it('return the default timezone detected by the browser', () => {
       const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
-        resolvedOptions: () => ({ timeZone: 'browserTimezone' }),
+        resolvedOptions: () => ({ timeZone: 'Europe/Budapest' }),
       });
-      expect(datetime.getBrowserTimezone()).to.equal('browserTimezone');
+      expect(datetime.getBrowserTimezone()).to.equal('Europe/Budapest');
       DateTimeFormatStub.restore();
     });
   });
@@ -83,7 +83,7 @@ describe('datetime', () => {
 
       beforeEach(() => {
         DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
-          resolvedOptions: () => ({ timeZone: 'browserTimezone' }),
+          resolvedOptions: () => ({ timeZone: 'Europe/Budapest' }),
         });
       });
 
@@ -103,9 +103,9 @@ describe('datetime', () => {
           timezoneAware: true,
           timezoneName: undefined,
         };
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs1)).to.equal('browserTimezone');
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal('browserTimezone');
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal('browserTimezone');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs1)).to.equal('Europe/Budapest');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal('Europe/Budapest');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal('Europe/Budapest');
       });
 
       it('should return browser timezone when timezoneAware is falsey', () => {
@@ -124,10 +124,10 @@ describe('datetime', () => {
           timezoneAware: undefined,
           timezoneName: 'Europe/London',
         };
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs1)).to.equal('browserTimezone');
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal('browserTimezone');
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal('browserTimezone');
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs4)).to.equal('browserTimezone');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs1)).to.equal('Europe/Budapest');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal('Europe/Budapest');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal('Europe/Budapest');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs4)).to.equal('Europe/Budapest');
       });
     });
 
