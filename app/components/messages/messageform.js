@@ -19,9 +19,6 @@ import React from 'react';
 import _ from 'lodash';
 import sundial from 'sundial';
 import { translate } from 'react-i18next';
-import i18next from '../../core/language';
-
-const t = i18next.t.bind(i18next);
 
 var MessageMixins = require('./messagemixins');
 
@@ -31,8 +28,6 @@ var MessageForm = translate()(React.createClass({
   propTypes: {
     formFields: React.PropTypes.object,
     messagePrompt: React.PropTypes.string,
-    saveBtnText: React.PropTypes.string,
-    cancelBtnText: React.PropTypes.string,
     onCancel: React.PropTypes.func,
     onSubmit: React.PropTypes.func,
     timePrefs: React.PropTypes.object.isRequired
@@ -63,10 +58,7 @@ var MessageForm = translate()(React.createClass({
     return {
       DATE_MASK: 'YYYY-MM-DD',
       TIME_MASK: 'HH:mm',
-      EDITED_DATE_MASK: 'YYYY-MM-DD HH:mm',
-      SENDING_TEXT: t('Sending...'),
-      cancelBtnText: t('Cancel'),
-      saveBtnText: t('Post_submit'),
+      EDITED_DATE_MASK: 'YYYY-MM-DD HH:mm'
     };
   },
   getEditableDateAndTime: function(ts) {
@@ -275,10 +267,11 @@ var MessageForm = translate()(React.createClass({
     );
   },
   renderButtons: function() {
-    var saveBtnText = this.props.saveBtnText;
+    const { t } = this.props;
+    let saveBtnText = t('Post_submit');
 
     if (this.state.saving) {
-      saveBtnText = this.props.SENDING_TEXT;
+      saveBtnText = t('Sending...');
     }
 
     return (
@@ -287,7 +280,7 @@ var MessageForm = translate()(React.createClass({
           type='reset'
           className='messageform-button messageform-button-cancel'
           onClick={this.handleCancel}
-          ref='cancelBtn'>{this.props.cancelBtnText}</button>
+          ref='cancelBtn'>{t('Cancel')}</button>
         <button
           type='submit'
           className='messageform-button messageform-button-save'

@@ -19,9 +19,6 @@ import React from 'react';
 import _ from 'lodash';
 import sundial from 'sundial';
 import { translate } from 'react-i18next';
-import i18next from '../../core/language';
-
-const t = i18next.t.bind(i18next);
 
 var Message = require('./message');
 var MessageForm = require('./messageform');
@@ -37,12 +34,6 @@ var Messages = translate()(React.createClass({
     onEdit: React.PropTypes.func,
     onNewMessage: React.PropTypes.func,
     timePrefs: React.PropTypes.object.isRequired
-  },
-  getDefaultProps: function () {
-    return {
-      NOTE_PROMPT : t('Type a new note here ...'),
-      COMMENT_PROMPT : t('Type a comment here ...')
-    };
   },
   componentWillReceiveProps: function(nextProps) {
     this.setState({messages: nextProps.messages});
@@ -114,7 +105,7 @@ var Messages = translate()(React.createClass({
     return (
       <div className='messages-form'>
         <MessageForm
-          messagePrompt={this.props.COMMENT_PROMPT}
+          messagePrompt={t('Type a comment here ...')}
           saveBtnText={submitButtonText}
           onSubmit={this.handleAddComment}
           timePrefs={this.props.timePrefs} />
@@ -130,7 +121,7 @@ var Messages = translate()(React.createClass({
       <div className='messages-form'>
         <MessageForm
           formFields={{editableTimestamp: this.props.createDatetime}}
-          messagePrompt={this.props.NOTE_PROMPT}
+          messagePrompt={t('Type a new note here ...')}
           saveBtnText={submitButtonText}
           onSubmit={this.handleCreateNote}
           onCancel={this.handleClose}
