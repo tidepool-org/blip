@@ -378,7 +378,7 @@ describe('utils', () => {
       it('should fall back to browser time when given an invalid timezone', () => {
         const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
           resolvedOptions: () => {
-            return { timeZone: 'browserTimezone' };
+            return { timeZone: 'Europe/Budapest' };
           },
         });
 
@@ -386,7 +386,7 @@ describe('utils', () => {
 
         expect(utils.getTimezoneForDataProcessing(data, queryParamsWithInvalidTimezone)).to.eql({
           timezoneAware: true,
-          timezoneName: 'browserTimezone',
+          timezoneName: 'Europe/Budapest',
         });
 
         DateTimeFormatStub.restore();
@@ -425,13 +425,13 @@ describe('utils', () => {
 
         const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
           resolvedOptions: () => {
-            return { timeZone: 'browserTimezone' };
+            return { timeZone: 'Europe/Budapest' };
           },
         });
 
         expect(utils.getTimezoneForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
           timezoneAware: true,
-          timezoneName: 'browserTimezone',
+          timezoneName: 'Europe/Budapest',
         });
 
         DateTimeFormatStub.restore();
@@ -461,13 +461,13 @@ describe('utils', () => {
       it('should fall back to browser timezone if available', () => {
         const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
           resolvedOptions: () => {
-            return { timeZone: 'browserTimezone' };
+            return { timeZone: 'Europe/Budapest' };
           },
         });
 
         expect(utils.getTimezoneForDataProcessing([], {})).to.eql({
           timezoneAware: true,
-          timezoneName: 'browserTimezone',
+          timezoneName: 'Europe/Budapest',
         });
 
         DateTimeFormatStub.restore();

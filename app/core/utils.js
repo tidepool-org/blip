@@ -283,8 +283,14 @@ utils.roundBgTarget = (value, units) => {
 
 utils.getTimezoneForDataProcessing = (data, queryParams) => {
   var timePrefsForTideline;
-  var browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
   var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
+  var browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  try {
+    sundial.checkTimezoneName(browserTimezone);
+  } catch (err) {
+    browserTimezone = false;
+  }
 
   function setNewTimePrefs(timezoneName) {
     try {
@@ -293,8 +299,7 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
         timezoneAware: true,
         timezoneName: timezoneName
       };
-    }
-    catch(err) {
+    } catch(err) {
       if (browserTimezone) {
         console.log('Not a valid timezone! Defaulting to browser timezone display:', browserTimezone);
         timePrefsForTideline = {
