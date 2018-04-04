@@ -5,14 +5,23 @@ import getLocale from 'browser-locale';
 import moment from 'moment';
 
 // Update moment with the right language, for date display
-i18n.on('languageChanged', lng => moment.locale(lng));
+i18n.on('languageChanged', lng => {
+  moment.locale(lng);
+  if (self.localStorage) {
+    self.localStorage.lang = lng;
+  }
+});
+
+let defaultLanguage = getLocale();
+if (self.localStorage && self.localStorage.lang) {
+  defaultLanguage = self.localStorage.lang;
+}
 
 i18n
   .use(reactI18nextModule)
   .init({
     fallbackLng: 'en',
-    // i18next-browser-languagedetector doesn't work in my experience
-    lng: getLocale(),
+    lng: defaultLanguage,
 
     // To allow . in keys
     keySeparator: false,
