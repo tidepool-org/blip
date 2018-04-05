@@ -41,7 +41,7 @@ export let ClinicianDetails = translate()(React.createClass({
     working: React.PropTypes.bool.isRequired
   },
 
-  formInputs: () => {
+  formInputs: function () {
     const { t } = this.props;
     return [
     {
