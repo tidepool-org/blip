@@ -20,6 +20,7 @@ import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
 
+import {translate} from 'react-i18next';
 import _ from 'lodash';
 import { validateForm } from '../../core/validation';
 
@@ -30,7 +31,8 @@ import personUtils from '../../core/personutils';
 import SimpleForm from '../../components/simpleform';
 import PeopleList from '../../components/peoplelist';
 
-export var UserProfile = React.createClass({
+// A different namespace than the default can be specified in translate()
+export var UserProfile = translate('translation', {withRef: true})(React.createClass({
   propTypes: {
     fetchingUser: React.PropTypes.bool.isRequired,
     history: React.PropTypes.object.isRequired,
@@ -39,12 +41,19 @@ export var UserProfile = React.createClass({
     user: React.PropTypes.object
   },
 
-  formInputs: [
-    {name: 'fullName', label: 'Full name', type: 'text'},
-    {name: 'username', label: 'Email', type: 'email'},
-    {name: 'password', label: 'Password', type: 'password'},
-    {name: 'passwordConfirm', label: 'Confirm password', type: 'password'}
-  ],
+  formInputs: function() {
+    const {t} = this.props;
+    return [
+      {name: 'fullName', label: t('Full name'), type: 'text'},
+      {name: 'username', label: t('Email'), type: 'email'},
+      {name: 'lang', label: t('Language'), type: 'select', items: [
+        {value: 'en', label: 'English'},
+        {value: 'fr', label: 'Français'},
+      ]},
+      {name: 'password', label: t('Password'), type: 'password'},
+      {name: 'passwordConfirm', label: t('Confirm password'), type: 'password'}
+    ];
+  },
 
   MESSAGE_TIMEOUT: 2000,
 
@@ -63,7 +72,8 @@ export var UserProfile = React.createClass({
 
     return {
       fullName: user.profile && user.profile.fullName,
-      username: user.username
+      username: user.username,
+      lang: user.profile && user.profile.language || undefined
     };
   },
 
@@ -83,6 +93,7 @@ export var UserProfile = React.createClass({
   },
 
   render: function() {
+    const {t} = this.props;
     var form = this.renderForm();
     var self = this;
     var handleClickBack = function(e) {
@@ -101,11 +112,11 @@ export var UserProfile = React.createClass({
               <div className="grid-item one-whole medium-one-third">
                 <a className="js-back" href="" onClick={handleClickBack}>
                   <i className="icon-back"></i>
-                  {' ' + 'Back'}
+                  {' ' + t('Back')}
                 </a>
               </div>
               <div className="grid-item one-whole medium-one-third">
-                <div className="profile-subnav-title">Account</div>
+                <div className="profile-subnav-title">{t('Account')}</div>
               </div>
             </div>
           </div>
@@ -126,7 +137,7 @@ export var UserProfile = React.createClass({
 
     return (
       <SimpleForm
-        inputs={this.formInputs}
+        inputs={this.formInputs()}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText="Save"
@@ -195,7 +206,10 @@ export var UserProfile = React.createClass({
       username: formValues.username,
       emails: [formValues.username],
       profile: {
-        fullName: formValues.fullName
+        fullName: formValues.fullName,
+        // This seems to be the best place to put language. Preferences and Settings
+        // both refer to a patient id, but language doesn't have anything to do with patients
+        language: formValues.lang
       }
     };
 
@@ -220,7 +234,7 @@ export var UserProfile = React.createClass({
       self.setState({notification: null});
     }, this.MESSAGE_TIMEOUT);
   }
-});
+}));
 
 
 /**
