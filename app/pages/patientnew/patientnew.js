@@ -105,7 +105,7 @@ export let PatientNew = translate()(React.createClass({
         name: 'dataDonateExplainer',
         type: 'explanation',
         text: (
-          <Trans i18n={i18next}>
+          <Trans i18nKey="html.patientnew-donate-explainer">
             You own your data. Read all the details about Tidepool's Big Data
             Donation project <a target="_blank" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
           </Trans>

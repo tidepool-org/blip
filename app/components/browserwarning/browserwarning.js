@@ -60,13 +60,13 @@ export default translate()(class BrowserWarning extends Component {
         <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">
           <div className="browser-warning-chrome-image"></div>
         </a>
-        <Trans className="browser-warning-text">
+        <Trans className="browser-warning-text" i18nKey="html.browser-warning-text">
           <span className="dark-text">Copy and paste</span>
           <input type="text" className="blip-link-text" value="app.tidepool.org" readOnly={true}></input>
           <span className="dark-text">into Chrome.</span>
         </Trans>
         {copyButton}
-        <Trans className="browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">here</a>.</Trans>
+        <Trans className="browser-warning-download-text" i18nKey="html.browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">here</a>.</Trans>
       </div>);
     }
 

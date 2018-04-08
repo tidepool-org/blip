@@ -131,7 +131,7 @@ export default translate()(class PatientSettings extends Component {
     };
 
     return (
-      <Trans className="PatientSettings">
+      <Trans className="PatientSettings" i18nKey="html.patientsettings-target-range">
         <div className="PatientPage-sectionTitle">My target range <span className="PatientPage-sectionTitle--lowercase">is</span></div>
         <div className="PatientInfo-content">
           <div className="PatientInfo-head">

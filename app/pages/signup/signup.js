@@ -177,7 +177,7 @@ export let Signup = translate()(React.createClass({
     }
 
     return (
-      <Trans className='signup-inviteIntro'>
+      <Trans className='signup-inviteIntro' i18nKey="html.signup-invited">
         <p>You've been invited to Tidepool.</p><p>Sign up to view the invitation.</p>
       </Trans>
     );
@@ -213,7 +213,7 @@ export let Signup = translate()(React.createClass({
         href = '/signup/clinician';
 
         content = (
-          <Trans parent="p">
+          <Trans parent="p" i18nKey="html.signup-clinician">
             If you are a Healthcare Provider and want to create an account, please <a href={href} className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'clinician')}>click here</a>.
           </Trans>
         );
@@ -223,7 +223,7 @@ export let Signup = translate()(React.createClass({
         href = '/signup/personal';
 
         content = (
-          <Trans parent="p">
+          <Trans parent="p" i18nKey="html.signup-personal">
             If you are a provider who lives with diabetes and wants to track and manage your personal diabetes data,
             please create a separate <a href={href} className="type-switch" onClick={this.handleTypeSwitchClick.bind(this, 'personal')}>personal account</a>.
           </Trans>
@@ -332,7 +332,7 @@ export let Signup = translate()(React.createClass({
 
   renderAcceptTermsLabel: function() {
     return (
-      <Trans parent="span">
+      <Trans parent="span" i18nKey="html.signup-terms-of-use">
         I accept the terms of the Tidepool Applications <a href={URL_TERMS_OF_USE} target='_blank'>Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
       </Trans>
     );

@@ -281,17 +281,14 @@ var Weekly = translate()(React.createClass({
     };
 
     return (
-      <Trans className="patient-data-message patient-data-message-loading">
+      <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.weekly-no-uploaded-data">
         <p>The Weekly view shows a history of your finger stick BG data, but it looks like you haven't uploaded finger stick data yet.</p>
-        <p>To see your data in the Weekly view,&nbsp;
-          <a
+        <p>To see your data in the Weekly view, <a
             href={this.props.uploadUrl}
             target="_blank"
-            onClick={handleClickUpload}>upload</a>&nbsp;
-          your pump or BG meter.</p>
-        <p>If you just uploaded, try&nbsp;
-          <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>
-          .
+            onClick={handleClickUpload}>upload</a> your pump or BG meter.</p>
+        <p>
+          If you just uploaded, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.
         </p>
       </Trans>
     );

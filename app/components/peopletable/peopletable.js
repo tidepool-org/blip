@@ -220,7 +220,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
 
   renderPeopleInstructions() {
     return (
-      <Trans className="peopletable-instructions">
+      <Trans className="peopletable-instructions" i18nKey="html.peopletable-instructions">
         Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={this.handleToggleShowNames}>Show All</a> to display all patients.
       </Trans>
     );
@@ -230,7 +230,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
     const { t } = this.props;
     return (
       <div className="patient-remove-dialog">
-        <Trans className="ModalOverlay-content">
+        <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-confirm">
           <p>
             Are you sure you want to remove this patient from your list?
           </p>

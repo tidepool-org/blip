@@ -211,7 +211,7 @@ export let PatientData = translate()(React.createClass({
 
     if (this.props.isUserPatient) {
       content = (
-        <Trans className="patient-data-uploader-message">
+        <Trans className="patient-data-uploader-message" i18nKey="html.patientdata-uploaded-message">
           <h1>To see your data, you’ll need the Tidepool Uploader</h1>
           <UploaderButton
             onClick={handleClickUpload}

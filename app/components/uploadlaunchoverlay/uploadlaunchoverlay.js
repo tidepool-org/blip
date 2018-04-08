@@ -51,7 +51,7 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
 
   renderErrorText = () => {
     return (
-      <Trans>Error fetching release information, please go to our
+      <Trans i18nKey="html.uploadlaunchoverlay-error">Error fetching release information, please go to our
         <a href={URL_UPLOADER_DOWNLOAD_PAGE}> downloads page</a>.
       </Trans>
     )
@@ -80,7 +80,7 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
             <div className='UploadLaunchOverlay-icon'>
               <img src={logoSrc} />
             </div>
-            <Trans>
+            <Trans i18nKey="html.uploadlaunchoverlay-launching">
               <div className='UploadLaunchOverlay-title'>Launching Uploader</div>
               <div className='UploadLaunchOverlay-text'>If you don't yet have the Tidepool Uploader, please install the appropriate version below</div>
             </Trans>

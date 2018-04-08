@@ -73,6 +73,12 @@ acorn-jsx@^3.0.0:
   dependencies:
     acorn "^3.0.4"
 
+acorn-jsx@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/acorn-jsx/-/acorn-jsx-4.1.1.tgz#e8e41e48ea2fe0c896740610ab6a4ffd8add225e"
+  dependencies:
+    acorn "^5.0.3"
+
 acorn@^2.1.0, acorn@^2.4.0:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-2.7.0.tgz#ab6e7d9d886aaca8b085bc3312b79a198433f0e7"
@@ -88,6 +94,10 @@ acorn@^4.0.3:
 acorn@^5.0.1:
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.0.3.tgz#c460df08491463f028ccb82eab3730bf01087b3d"
+
+acorn@^5.0.3:
+  version "5.5.3"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.5.3.tgz#f473dd47e0277a08e28e9bec5aeeb04751f0b8c9"
 
 adm-zip@^0.4.7:
   version "0.4.7"
@@ -3808,10 +3818,11 @@ https-proxy-agent@1:
     debug "2"
     extend "3"
 
-i18next-parser@^1.0.0-beta8:
-  version "1.0.0-beta8"
-  resolved "https://registry.yarnpkg.com/i18next-parser/-/i18next-parser-1.0.0-beta8.tgz#49b8edd46a8d01649e1cbbe9d3c1acde792978b2"
+i18next-parser@^1.0.0-beta9:
+  version "1.0.0-beta9"
+  resolved "https://registry.yarnpkg.com/i18next-parser/-/i18next-parser-1.0.0-beta9.tgz#9e0fff4eea55850ab3be6ee85fa5dcdc0ab379a3"
   dependencies:
+    acorn-jsx "^4.1.1"
     colors "~1.2.0-rc0"
     commander "~2.9.0"
     concat-stream "~1.6.0"

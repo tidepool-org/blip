@@ -145,7 +145,7 @@ const Patient = translate()(React.createClass({
 
   renderDeleteDialog: function() {
     return (
-      <Trans>If you are sure you want to delete your account, <a href="mailto:support@tidepool.org?Subject=Delete%20my%20account" target="_blank">send an email</a> to support@tidepool.org and we take care of it for you.</Trans>
+      <Trans i18nKey="html.patient-delete-account">If you are sure you want to delete your account, <a href="mailto:support@tidepool.org?Subject=Delete%20my%20account" target="_blank">send an email</a> to support@tidepool.org and we take care of it for you.</Trans>
     );
   },
 

@@ -63,7 +63,7 @@ export var EmailVerification = translate()(React.createClass({
     if (this.props.sent) {
       loginPage = 'signup';
       content = (
-        <Trans className="EmailVerification-intro" i18nkey="html.emailverification-instructions">
+        <Trans className="EmailVerification-intro" i18nKey="html.emailverification-instructions">
           <div className="EmailVerification-title">Keeping your data private and secure is important to us!</div>
           <div className="EmailVerification-instructions">
             <p>Please click the link in the email we just sent you at <strong>{this.props.sent}</strong> to verify and activate your account.</p>

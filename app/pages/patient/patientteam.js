@@ -526,7 +526,7 @@ var PatientTeam = translate()(React.createClass({
     return (
       <div className={classes}>
         <div className="PatientPage-sectionTitle">
-          {'Share'}
+          {t('Share')}
           <span className="PatientPage-sectionTitleMessage">
             {t('These people can view {{patientName}}\'s data', {patientName})}
           </span>

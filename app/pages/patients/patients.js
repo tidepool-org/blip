@@ -166,7 +166,7 @@ export let Patients = translate()(React.createClass({
       return null;
     }
     return (
-      <Trans className="patients-message">
+      <Trans className="patients-message" i18nKey="html.patients-no-data">
         Looks like you don’t have access to any data yet.
         <br />
         Please ask someone to invite you to see their data.
@@ -179,7 +179,7 @@ export let Patients = translate()(React.createClass({
       return null;
     }
     return (
-      <Trans className="patients-message">
+      <Trans className="patients-message" i18nKey="html.paitents-setup-data-storage">
         You can also <Link to="/patients/new">setup data storage</Link> for someone’s diabetes data.
       </Trans>
     );
