@@ -99,7 +99,7 @@ export default translate()(class PatientSettings extends Component {
 
   render() {
     const self = this;
-    const { patient, t } = this.props;
+    const { patient, t, editingAllowed } = this.props;
     let settings = {};
 
     if (!patient) {
@@ -119,10 +119,10 @@ export default translate()(class PatientSettings extends Component {
       }
     }
 
-    const lowNode = (self.props.editingAllowed) ? self.renderIncrementalInput('low', settings) : self.renderValueNode('low', settings);
-    const highNode = (self.props.editingAllowed) ? self.renderIncrementalInput('high', settings) : self.renderValueNode('high', settings);
-    const resetNode = (self.props.editingAllowed) ? (<a href="#" className="PatientSettings-reset" onClick={self.resetRange}>{t('Reset to default')}</a>) : null;
+    const lowNode = editingAllowed ? self.renderIncrementalInput('low', settings) : self.renderValueNode('low', settings);
+    const highNode = editingAllowed ? self.renderIncrementalInput('high', settings) : self.renderValueNode('high', settings);
 
+    const resetNode = editingAllowed ? <a href="#" className="PatientSettings-reset" onClick={self.resetRange}>{t('Reset to default')}</a> : null;
     const errorNode = (self.state.error.low || self.state.error.high) ? self.renderErrorNode() : null;
 
     let chartTargets = {
@@ -131,15 +131,17 @@ export default translate()(class PatientSettings extends Component {
     };
 
     return (
-      <Trans className="PatientSettings" i18nKey="html.patientsettings-target-range">
-        <div className="PatientPage-sectionTitle">My target range <span className="PatientPage-sectionTitle--lowercase">is</span></div>
+      <div className="PatientSettings">
+        <Trans className="PatientPage-sectionTitle" i18nKey="html.patientsettings-target-range">
+          My target range <span className="PatientPage-sectionTitle--lowercase">is</span>
+        </Trans>
         <div className="PatientInfo-content">
           <div className="PatientInfo-head">
             <div className="PatientSettings-blocks">
               <div className="PatientInfo-blockRow">
-                Above
+                {t('Above')}
                 {lowNode}
-                and below
+                {t('and below')}
                 {highNode}
                 {resetNode}
               </div>
@@ -153,7 +155,7 @@ export default translate()(class PatientSettings extends Component {
             </div>
           </div>
         </div>
-      </Trans>
+      </div>
     );
   };
 

@@ -267,9 +267,10 @@ var PatientInfo = translate()(React.createClass({
     }
     else {
       formValues = _.omit(formValues, 'fullName');
+      const fullName = this.getDisplayName(this.props.patient);
       fullNameNode = (
         <Trans className="PatientInfo-block PatientInfo-block--withArrow" i18nKey="html.patient-info-fullname">
-          {{ fullName: this.getDisplayName(this.props.patient)}} (edit in
+          {{fullName}} (edit in
           <Link to="/profile">account</Link>)
         </Trans>
       );
@@ -326,8 +327,8 @@ var PatientInfo = translate()(React.createClass({
       return <option key={item.value} value={item.value}>{item.label}</option>;
     });
     return (<div className="PatientInfo-blockRow">
-      <Trans className="" i18nKey="html.patient-info-diagnosed-as">
-        <label className="PatientInfo-label" htmlFor="diagnosisType">Diagnosed as</label>
+      <div className="">
+        <label className="PatientInfo-label" htmlFor="diagnosisType">{t('Diagnosed as')}</label>
         <select
           id="diagnosisType"
           ref="diagnosisType"
@@ -337,7 +338,7 @@ var PatientInfo = translate()(React.createClass({
           defaultValue={formValues.diagnosisType}>
           {options}
         </select>
-      </Trans>
+      </div>
     </div>);
   },
 
