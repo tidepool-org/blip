@@ -53,7 +53,7 @@ export let PatientNew = React.createClass({
   getFormInputs: function() {
     const isOtherPerson = this.state.formValues.isOtherPerson;
 
-    return [
+    const baseInputs = [
       {
         name: 'isOtherPerson',
         type: 'radios',
@@ -90,8 +90,13 @@ export let PatientNew = React.createClass({
         value: this.state.formValues.diagnosisType,
         placeholder: 'Choose One',
         items: DIABETES_TYPES,
-      },
-      {
+      }
+    ];
+
+    if (__HIDE_DONATE__) {
+      return baseInputs;
+    } else {
+      return baseInputs.concat({
         name: 'dataDonate',
         label: `Donate ${isOtherPerson ? 'their' : 'my'} anonymized data`,
         disabled: !_.isEmpty(this.state.formValues.dataDonateDestination),
@@ -124,8 +129,8 @@ export let PatientNew = React.createClass({
             Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.
           </div>
         ),
-      }
-    ];
+      })
+    }
   },
 
   getInitialState: function() {
