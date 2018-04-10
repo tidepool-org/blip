@@ -26,6 +26,7 @@ var EventEmitter = require('events').EventEmitter;
 var tideline = require('../../js/index');
 var fill = tideline.plot.util.fill;
 var scalesutil = tideline.plot.util.scales;
+var dt = tideline.data.util.datetime;
 var { MGDL_UNITS } = require('../../js/data/util/constants');
 
 // Create a 'One Day' chart object that is a wrapper around Tideline components
@@ -39,7 +40,7 @@ function chartDailyFactory(el, options) {
     labelBaseline: 4,
     timePrefs: {
       timezoneAware: false,
-      timezoneName: 'US/Pacific'
+      timezoneName: dt.getBrowserTimezone(),
     }
   };
   _.defaults(options, defaults);

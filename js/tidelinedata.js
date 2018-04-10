@@ -74,7 +74,7 @@ function TidelineData(data, opts) {
     ],
     timePrefs: {
       timezoneAware: false,
-      timezoneName: 'US/Pacific'
+      timezoneName: dt.getBrowserTimezone(),
     }
   };
 

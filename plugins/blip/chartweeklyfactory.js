@@ -36,7 +36,7 @@ function chartWeeklyFactory(el, options) {
     bgUnits: MGDL_UNITS,
     timePrefs: {
       timezoneAware: false,
-      timezoneName: 'US/Pacific'
+      timezoneName: dt.getBrowserTimezone(),
     }
   };
   _.defaults(options, defaults);
