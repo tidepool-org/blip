@@ -283,6 +283,15 @@ utils.roundBgTarget = (value, units) => {
 
 utils.getTimezoneForDataProcessing = (data, queryParams) => {
   var timePrefsForTideline;
+  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
+  var browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  try {
+    sundial.checkTimezoneName(browserTimezone);
+  } catch (err) {
+    browserTimezone = false;
+  }
+
   function setNewTimePrefs(timezoneName) {
     try {
       sundial.checkTimezoneName(timezoneName);
@@ -290,16 +299,19 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
         timezoneAware: true,
         timezoneName: timezoneName
       };
+    } catch(err) {
+      if (browserTimezone) {
+        console.log('Not a valid timezone! Defaulting to browser timezone display:', browserTimezone);
+        timePrefsForTideline = {
+          timezoneAware: true,
+          timezoneName: browserTimezone
+        };
+      }
+      else {
+        console.log('Not a valid timezone! Defaulting to timezone-naive display.');
+        timePrefsForTideline = {};
+      }
     }
-    catch(err) {
-      console.log('Not a valid timezone! Defaulting to timezone-naive display.');
-      timePrefsForTideline = {};
-    }
-  }
-
-  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
-  if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
-    setNewTimePrefs(mostRecentUpload.timezone);
   }
 
   // a timezone in the queryParams always overrides any other timePrefs
@@ -308,7 +320,12 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
     console.log('Displaying in timezone from query params:', queryParams.timezone);
   }
   else if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
+    setNewTimePrefs(mostRecentUpload.timezone);
     console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
+  }
+  else if (browserTimezone) {
+    setNewTimePrefs(browserTimezone);
+    console.log('Falling back to browser timezone:', browserTimezone);
   }
   else {
     console.log('Falling back to timezone-naive display.');
