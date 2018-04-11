@@ -175,7 +175,7 @@ export class AppComponent extends React.Component {
 
     // Determine whether or not to show the dexcom banner.
     // If showingDexcomConnectBanner is false, it means it was dismissed and we do not show it again.
-    if (showingDexcomConnectBanner !== false && !displayDonateBanner) {
+    if (!__HIDE_DEXCOM_BANNER__ && showingDexcomConnectBanner !== false && !displayDonateBanner) {
       const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
       if (showDexcomBanner) {
         this.props.showBanner('dexcom');
@@ -287,7 +287,7 @@ export class AppComponent extends React.Component {
       patient,
     } = this.props;
 
-    if (showingDexcomConnectBanner) {
+    if (!__HIDE_DEXCOM_BANNER__ && showingDexcomConnectBanner) {
       return (
         <div className="App-dexcombanner">
           <DexcomBanner
