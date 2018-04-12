@@ -8,6 +8,9 @@ var config = require('./config.server.js');
 var buildDir = 'dist';
 
 var app = express();
+var helmet = require('helmet');
+app.use(helmet());
+
 
 var staticDir = path.join(__dirname, buildDir);
 app.use(express.static(staticDir));
