@@ -1,7 +1,10 @@
 /* global chai */
 /* global describe */
 /* global it */
+/* global context */
+/* global sinon */
 
+import _ from 'lodash';
 import utils from '../../../app/core/utils';
 import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 import releases from '../../fixtures/githubreleasefixture';
@@ -351,6 +354,136 @@ describe('utils', () => {
       // to the nearest .1 for mmol/L
       expect(utils.roundBgTarget(3.91, MMOLL_UNITS)).to.equal(3.9);
       expect(utils.roundBgTarget(3.96, MMOLL_UNITS)).to.equal(4);
+    });
+  });
+
+  describe('getTimezoneForDataProcessing', () => {
+    const data = [
+      { type: 'upload', time: '2018-01-02T00:00:00.000Z', timezone: 'US/Eastern' },
+      { type: 'smbg', time: '2018-01-10T00:00:00.000Z', timezone: 'US/Central' },
+      { type: 'upload', time: '2018-02-02T00:00:00.000Z', timezone: 'US/Pacific' },
+    ];
+
+    const queryParams = {};
+
+    context('Timezone provided from queryParam', () => {
+      it('should set a valid timezone from a query param', () => {
+        const queryParamsWithValidTimezone = _.assign({}, queryParams, { timezone: 'UTC' });
+        expect(utils.getTimezoneForDataProcessing(data, queryParamsWithValidTimezone)).to.eql({
+          timezoneAware: true,
+          timezoneName: 'UTC',
+        });
+      });
+
+      it('should fall back to browser time when given an invalid timezone', () => {
+        const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
+          resolvedOptions: () => {
+            return { timeZone: 'Europe/Budapest' };
+          },
+        });
+
+        const queryParamsWithInvalidTimezone = _.assign({}, queryParams, { timezone: 'invalid' });
+
+        expect(utils.getTimezoneForDataProcessing(data, queryParamsWithInvalidTimezone)).to.eql({
+          timezoneAware: true,
+          timezoneName: 'Europe/Budapest',
+        });
+
+        DateTimeFormatStub.restore();
+      });
+
+      it('should fall back to timezone-naive display time when given an invalid timezone and cannot determine timezone from browser', () => {
+        const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
+          resolvedOptions: () => {
+            return { timeZone: undefined };
+          },
+        });
+
+        const queryParamsWithInvalidTimezone = _.assign({}, queryParams, { timezone: 'invalid' });
+
+        expect(utils.getTimezoneForDataProcessing(data, queryParamsWithInvalidTimezone)).to.eql({});
+
+        DateTimeFormatStub.restore();
+      });
+    });
+
+    context('Timezone provided from most recent upload', () => {
+      it('should set a valid timezone from a query param', () => {
+        expect(utils.getTimezoneForDataProcessing(data, queryParams)).to.eql({
+          timezoneAware: true,
+          timezoneName: 'US/Pacific',
+        });
+      });
+
+      it('should fall back to browser time when given an invalid timezone', () => {
+        const dataWithInvalidTimezone = data.slice();
+        dataWithInvalidTimezone.push({
+          type: 'upload',
+          time: '2018-02-10T00:00:00.000Z',
+          timezone: 'invalid',
+        });
+
+        const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
+          resolvedOptions: () => {
+            return { timeZone: 'Europe/Budapest' };
+          },
+        });
+
+        expect(utils.getTimezoneForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
+          timezoneAware: true,
+          timezoneName: 'Europe/Budapest',
+        });
+
+        DateTimeFormatStub.restore();
+      });
+
+      it('should fall back to timezone-naive display time when given an invalid timezone and cannot determine timezone from browser', () => {
+        const dataWithInvalidTimezone = data.slice();
+        dataWithInvalidTimezone.push({
+          type: 'upload',
+          time: '2018-02-10T00:00:00.000Z',
+          timezone: 'invalid',
+        });
+
+        const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
+          resolvedOptions: () => {
+            return { timeZone: undefined };
+          },
+        });
+
+        expect(utils.getTimezoneForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({});
+
+        DateTimeFormatStub.restore();
+      });
+    });
+
+    context('Timezone not provided from query params or most recent upload', () => {
+      it('should fall back to browser timezone if available', () => {
+        const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
+          resolvedOptions: () => {
+            return { timeZone: 'Europe/Budapest' };
+          },
+        });
+
+        expect(utils.getTimezoneForDataProcessing([], {})).to.eql({
+          timezoneAware: true,
+          timezoneName: 'Europe/Budapest',
+        });
+
+        DateTimeFormatStub.restore();
+      });
+
+      it('should return `undefined` when browser timezone is not available', () => {
+        const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
+          resolvedOptions: () => {
+            return { timeZone: undefined };
+          },
+        });
+
+        expect(utils.getTimezoneForDataProcessing([], {})).to.be.undefined;
+
+        DateTimeFormatStub.restore();
+      });
     });
   });
 
