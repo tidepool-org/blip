@@ -71,19 +71,14 @@ export class TrendsSVGContainer extends PureComponent {
   }
 
   componentWillMount() {
-    const { containerHeight: height, containerWidth: width } = this.props;
-    const { margins, smbgOpts, xScale, yScale } = this.props;
-    xScale.range([
-      margins.left + Math.round(smbgOpts.maxR),
-      width - margins.right - Math.round(smbgOpts.maxR),
-    ]);
-    yScale.range([
-      height - margins.bottom - BUMPERS.bottom,
-      margins.top + BUMPERS.top,
-    ]);
+    this.setScales();
   }
 
   componentWillReceiveProps(nextProps) {
+    if (nextProps.yScale !== this.props.yScale) {
+      this.setScales(nextProps);
+    }
+
     const { showingCbgDateTraces } = nextProps;
     if (!showingCbgDateTraces) {
       // if we just flipped the showingCbgDateTraces flag from true to false
@@ -116,6 +111,19 @@ export class TrendsSVGContainer extends PureComponent {
         });
       }
     }
+  }
+
+  setScales(props = this.props) {
+    const { containerHeight: height, containerWidth: width } = props;
+    const { margins, smbgOpts, xScale, yScale } = props;
+    xScale.range([
+      margins.left + Math.round(smbgOpts.maxR),
+      width - margins.right - Math.round(smbgOpts.maxR),
+    ]);
+    yScale.range([
+      height - margins.bottom - BUMPERS.bottom,
+      margins.top + BUMPERS.top,
+    ]);
   }
 
   renderNoDataMessage(dataType) {

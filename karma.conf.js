@@ -27,7 +27,7 @@ module.exports = function karmaConfig(config) {
     browserNoActivityTimeout: 60000,
     singleRun: true,
     colors: true,
-    frameworks: ['mocha', 'chai', 'sinon'],
+    frameworks: ['mocha', 'chai', 'sinon', 'intl-shim'],
     client: {
       mocha: mochaConf,
     },

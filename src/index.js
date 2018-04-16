@@ -20,6 +20,7 @@ require('./styles/colors.css');
 import CBGDateTraceLabel from './components/trends/cbg/CBGDateTraceLabel';
 import FocusedRangeLabels from './components/trends/common/FocusedRangeLabels';
 import FocusedSMBGPointLabel from './components/trends/smbg/FocusedSMBGPointLabel';
+import Loader from './components/common/loader/Loader';
 import RangeSelect from './components/trends/cbg/RangeSelect';
 import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
 import PumpSettingsContainer from './components/settings/common/PumpSettingsContainer';
@@ -27,21 +28,17 @@ import TrendsContainer from './components/trends/common/TrendsContainer';
 import Tooltip from './components/common/tooltips/Tooltip';
 import BolusTooltip from './components/daily/bolustooltip/BolusTooltip';
 
-import vizReducer from './redux/reducers/';
-import * as actions from './redux/actions/worker';
+import reducers from './redux/reducers/';
 
-// eslint-disable-next-line import/no-unresolved
-import Worker from 'worker-loader?inline!./worker/index';
-
-import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
 import { formatBgValue } from './utils/format';
-// a temporary(?) export to enable "snapshot"-ing of data from blip console
+import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
 import { selectDailyViewData } from './utils/print/data';
 
 const components = {
   CBGDateTraceLabel,
   FocusedRangeLabels,
   FocusedSMBGPointLabel,
+  Loader,
   RangeSelect,
   TwoOptionToggle,
   Tooltip,
@@ -54,16 +51,14 @@ const containers = {
 };
 
 const utils = {
-  reshapeBgClassesToBgBounds,
   formatBgValue,
+  reshapeBgClassesToBgBounds,
+  selectDailyViewData,
 };
 
 export {
-  actions,
   components,
   containers,
-  selectDailyViewData,
   utils,
-  vizReducer,
-  Worker,
+  reducers,
 };
