@@ -213,9 +213,7 @@ var BasicsChart = React.createClass({
   },
 
   componentWillUnmount: function() {
-    var patientData = _.clone(this.props.patientData);
-    patientData.basicsData = this.state;
-    this.props.updateBasicsData(patientData);
+    this.props.updateBasicsData(this.state);
   },
 
   render: function() {

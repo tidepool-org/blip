@@ -24,6 +24,7 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var TestUtils = require('react-addons-test-utils');
 
 var basicsState = require('../plugins/blip/basics/logic/state');
@@ -430,6 +431,31 @@ describe('BasicsChart', function() {
       elem = React.createElement(BasicsChart, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM+CGM+Pump'});
+    });
+  });
+
+  describe('componentWillUnmount', function() {
+    it('should call the updateBasicsData prop method with the current state', function() {
+      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
+      var props = {
+        bgUnits: MGDL_UNITS,
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patientData: td,
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      ReactDOM.unmountComponentAtNode(ReactDOM.findDOMNode(render).parentNode);
+
+      sinon.assert.calledOnce(props.updateBasicsData);
+      sinon.assert.calledWithMatch(props.updateBasicsData, {
+        data: sinon.match.object,
+        sections: sinon.match.object,
+        timezone: sinon.match.string,
+      });
     });
   });
 });

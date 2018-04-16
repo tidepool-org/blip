@@ -17,6 +17,9 @@
 
 /* jshint esversion:6 */
 
+/* global sinon */
+/* global context */
+
 var _ = require('lodash');
 
 var chai = require('chai');
@@ -197,30 +200,307 @@ describe('TidelineData', function() {
     }
   });
 
-  describe('addDatum', function() {
-    it('should be a function', function() {
-      assert.isFunction(td.addDatum);
+  describe('setUtilities', function() {
+    var BaseObject = function() {
+      return {
+        grouped: {
+          bolus: [],
+          basal: [],
+          cbg: [],
+          smbg: [],
+        },
+      };
+    };
+
+    var thisTD;
+    var baseObject;
+
+    beforeEach(function() {
+      thisTD = new TidelineData([]);
+      baseObject = new BaseObject();
+      thisTD.setUtilities.call(baseObject);
     });
 
-    it('should increase the length of the group data and data by one', function() {
-      var origData = [new types.Bolus()];
-      var toAdd = new TidelineData(origData);
-      var origLen = toAdd.data.length;
-      var bolusLen = toAdd.grouped.bolus.length;
-      toAdd.addDatum(new types.Bolus());
-      expect(toAdd.data.length - 1).to.equal(origLen);
-      expect(toAdd.grouped.bolus.length - 1).to.equal(bolusLen);
+    it('should set set a basal utility', function() {
+      expect(baseObject.basalUtil).to.be.an('object');
+    });
+
+    it('should set set a bolus utility', function() {
+      expect(baseObject.bolusUtil).to.be.an('object');
+    });
+
+    it('should set set a cbg utility', function() {
+      expect(baseObject.cbgUtil).to.be.an('object');
+    });
+
+    it('should set set an smbg utility', function() {
+      expect(baseObject.smbgUtil).to.be.an('object');
+    });
+  });
+
+  describe('filterDataArray', function() {
+    var diabetesData = [
+      new types.Basal({ deviceTime: '2015-10-01T00:00:00' }),
+      new types.Bolus({ deviceTime: '2015-10-04T00:00:00' }),
+    ];
+
+    var data = [
+      new types.Upload({ deviceTags: ['insulin-pump'], source: 'Insulet' }),
+      new types.Settings({ deviceTime: '2015-09-30T00:00:00' }),
+      new types.Settings({ deviceTime: '2015-10-02T00:00:00' }),
+      new types.Settings({ deviceTime: '2015-10-05T00:00:00' }),
+      new types.Message({ time: '2015-09-28T00:00:00' }),
+      new types.Message({ time: '2015-10-02T00:00:00' }),
+      new types.Message({ time: '2015-10-05T00:00:00' }),
+    ].concat(diabetesData);
+
+    var BaseObject = function(data) {
+      return {
+        data,
+        diabetesData,
+      };
+    };
+
+    var thisTD;
+    var baseObject;
+
+    beforeEach(function() {
+      thisTD = new TidelineData([]);
+      baseObject = new BaseObject(data);
+    });
+
+    it('should filter out upload data', function() {
+      expect(_.filter(baseObject.data, { type: 'upload' }).length).to.equal(1);
+      thisTD.filterDataArray.call(baseObject);
+      expect(_.filter(baseObject.data, { type: 'upload' }).length).to.equal(0);
+    });
+
+    it('should filter out message data if it is prior to the time of the earliest diabetes datum', function() {
+      expect(_.filter(baseObject.data, { type: 'message' }).length).to.equal(3);
+      thisTD.filterDataArray.call(baseObject);
+      expect(_.filter(baseObject.data, { type: 'message' }).length).to.equal(2);
+      expect(_.find(baseObject.data, { type: 'message' }).time).to.equal('2015-10-02T00:00:00');
+      expect(_.findLast(baseObject.data, { type: 'message' }).time).to.equal('2015-10-05T00:00:00');
+    });
+
+    it('should filter out settings data if it is outside diabetes data time range', function() {
+      expect(_.filter(baseObject.data, { type: 'settings' }).length).to.equal(3);
+      thisTD.filterDataArray.call(baseObject);
+      expect(_.filter(baseObject.data, { type: 'settings' }).length).to.equal(1);
+      expect(_.find(baseObject.data, { type: 'settings' }).time).to.equal('2015-10-02T00:00:00.000Z');
+    });
+  });
+
+  describe('deduplicateDataArrays', function() {
+    var basal = [new types.Basal()];
+    var basals = basal.concat(basal);
+
+    var bolus = [new types.Bolus()];
+    var boluses = bolus.concat(bolus);
+
+    var setting = [new types.Settings()];
+    var settings = setting.concat(setting);
+
+    var BaseObject = function() {
+      return {
+        data: basals.concat(boluses).concat(settings),
+        diabetesData: basals.concat(boluses),
+        grouped: {
+          basal: basals,
+          bolus: boluses,
+          settings: settings,
+        }
+      };
+    };
+
+    var thisTD;
+    var baseObject;
+
+    beforeEach(function() {
+      thisTD = new TidelineData([]);
+      baseObject = new BaseObject();
+    });
+
+    it('should deduplicate the data array', function() {
+      expect(baseObject.data.length).to.equal(6);
+      thisTD.deduplicateDataArrays.call(baseObject);
+      expect(baseObject.data.length).to.equal(3);
+    });
+
+    it('should deduplicate the diabetes data array', function() {
+      expect(baseObject.diabetesData.length).to.equal(4);
+      thisTD.deduplicateDataArrays.call(baseObject);
+      expect(baseObject.diabetesData.length).to.equal(2);
+    });
+
+    it('should deduplicate the grouped data arrays', function() {
+      expect(baseObject.grouped.basal.length).to.equal(2);
+      expect(baseObject.grouped.bolus.length).to.equal(2);
+      expect(baseObject.grouped.settings.length).to.equal(2);
+      thisTD.deduplicateDataArrays.call(baseObject);
+      expect(baseObject.grouped.basal.length).to.equal(1);
+      expect(baseObject.grouped.bolus.length).to.equal(1);
+      expect(baseObject.grouped.settings.length).to.equal(1);
+    });
+  });
+
+  describe('addData', function() {
+    it('should increase the length of the group data, diabetes data, and data by the length of the provided data array (not including extra fill data)', function() {
+      var origData = [
+        new types.Bolus({ deviceTime: '2015-09-28T00:00:00' }),
+        new types.Message({ time: '2015-09-29T00:00:00.000Z' }),
+        new types.Basal({ deviceTime: '2015-09-30T00:00:00' }),
+      ];
+
+      var thisTD = new TidelineData(origData);
+
+      var newData = [
+        new types.Bolus(),
+        new types.Bolus(),
+        new types.Basal(),
+        new types.SMBG(),
+      ];
+
+      thisTD.addData(newData);
+      var tdDataWithoutFills = _.reject(thisTD.data, { type: 'fill' });
+      expect(tdDataWithoutFills.length).to.equal(7);
+
+      expect(thisTD.diabetesData.length).to.equal(6);
+
+      expect(thisTD.grouped.bolus.length).to.equal(3);
+      expect(thisTD.grouped.basal.length).to.equal(2);
+      expect(thisTD.grouped.smbg.length).to.equal(1);
+    });
+
+    it('should only add valid data', function() {
+      var origData = [
+        new types.Bolus(),
+      ];
+
+      var thisTD = new TidelineData(origData);
+
+      var goodBolus = new types.Bolus();
+
+      var badBolus = _.assign({}, new types.Bolus(), {
+        deviceTime: null,
+      });
+
+      var newData = [
+        goodBolus,
+        badBolus,
+      ];
+
+      expect(_.reject(thisTD.data, { type: 'fill' }).length).to.equal(1);
+      expect(thisTD.diabetesData.length).to.equal(1);
+      expect(thisTD.grouped.bolus.length).to.equal(1);
+
+      thisTD.addData(newData);
+
+      expect(_.reject(thisTD.data, { type: 'fill' }).length).to.equal(2);
+      expect(thisTD.diabetesData.length).to.equal(2);
+      expect(thisTD.grouped.bolus.length).to.equal(2);
+    });
+
+    it('should sort the data by "normalTime"', function() {
+      var origData = [
+        new types.Basal({ deviceTime: '2015-10-04T00:00:00' }),
+        new types.Bolus({ deviceTime: '2015-10-06T00:00:00' }),
+        new types.Message({ time: '2015-10-08T00:00:00.000Z' }),
+      ];
+
+      var thisTD = new TidelineData(origData);
+
+      var newData = [
+        new types.CBG({ deviceTime: '2015-10-01T00:00:00' }),
+        new types.SMBG({ deviceTime: '2015-10-07T00:00:00' }),
+      ];
+
+      thisTD.addData(newData);
+      var tdDataWithoutFills = _.reject(thisTD.data, { type: 'fill' });
+
+      expect(_.findIndex(tdDataWithoutFills, {type: 'cbg'})).to.equal(0);
+      expect(_.findIndex(tdDataWithoutFills, {type: 'smbg'})).to.equal(3);
     });
 
     it('should expand the fill data on the right if necessary', function() {
       var origData = [new types.Bolus()];
-      var toAdd = new TidelineData(origData);
-      var origFill = toAdd.grouped.fill;
+      var thisTD = new TidelineData(origData);
+      var origFill = thisTD.grouped.fill;
       var lastFill = origFill[origFill.length - 1];
       var later = moment(lastFill.normalTime).add(6, 'hours').toISOString();
-      toAdd.addDatum(new types.SMBG({deviceTime: later.slice(0, -5)}));
-      var newFill = toAdd.grouped.fill;
+      thisTD.addData([new types.SMBG({deviceTime: later.slice(0, -5)})]);
+      var newFill = thisTD.grouped.fill;
       expect(newFill[newFill.length - 1].normalTime).to.be.at.least(later);
+    });
+
+    context('data munging', function() {
+      var thisTD;
+      var filterDataArraySpy;
+      var generateFillDataSpy;
+      var adjustFillsForTwoWeekViewSpy;
+      var deduplicateDataArraysSpy;
+      var setUtilitiesSpy;
+      var updateCrossFiltersSpy;
+
+      before(() => {
+        thisTD = new TidelineData([]);
+        filterDataArraySpy = sinon.spy(thisTD, 'filterDataArray');
+        generateFillDataSpy = sinon.spy(thisTD, 'generateFillData');
+        adjustFillsForTwoWeekViewSpy = sinon.spy(thisTD, 'adjustFillsForTwoWeekView');
+        deduplicateDataArraysSpy = sinon.spy(thisTD, 'deduplicateDataArrays');
+        setUtilitiesSpy = sinon.spy(thisTD, 'setUtilities');
+        updateCrossFiltersSpy = sinon.spy(thisTD, 'updateCrossFilters');
+      });
+
+      beforeEach(() => {
+        thisTD.addData([new types.Basal()]);
+      });
+
+      afterEach(() => {
+        filterDataArraySpy.reset();
+        generateFillDataSpy.reset();
+        adjustFillsForTwoWeekViewSpy.reset();
+        deduplicateDataArraysSpy.reset();
+        setUtilitiesSpy.reset();
+        updateCrossFiltersSpy.reset();
+      });
+
+      after(() => {
+        filterDataArraySpy.restore();
+        generateFillDataSpy.restore();
+        adjustFillsForTwoWeekViewSpy.restore();
+        deduplicateDataArraysSpy.restore();
+        setUtilitiesSpy.restore();
+        updateCrossFiltersSpy.restore();
+      });
+
+      it('should call the "filterDataArray" method', function() {
+        sinon.assert.calledOnce(filterDataArraySpy);
+        assert(filterDataArraySpy.firstCall);
+      });
+
+      it('should call the fill generation methods after the data array is filtered', function() {
+        sinon.assert.calledOnce(generateFillDataSpy);
+        assert(generateFillDataSpy.calledAfter(filterDataArraySpy));
+
+        sinon.assert.calledOnce(adjustFillsForTwoWeekViewSpy);
+        assert(adjustFillsForTwoWeekViewSpy.calledAfter(generateFillDataSpy));
+      });
+
+      it('should call the "deduplicateDataArrays" method after the fills are created', function() {
+        sinon.assert.calledOnce(deduplicateDataArraysSpy);
+        assert(deduplicateDataArraysSpy.calledAfter(adjustFillsForTwoWeekViewSpy));
+      });
+
+      it('should call the "setUtilities" method after deduplication', function() {
+        sinon.assert.calledOnce(setUtilitiesSpy);
+        assert(setUtilitiesSpy.calledAfter(deduplicateDataArraysSpy));
+      });
+
+      it('should call the "updateCrossFilters" method at the end', function() {
+        sinon.assert.calledOnce(updateCrossFiltersSpy);
+        assert(setUtilitiesSpy.lastCall);
+      });
     });
   });
 
@@ -297,7 +577,7 @@ describe('TidelineData', function() {
     var bolus = new types.Bolus({deviceTime: '2015-09-28T14:05:00'});
     var basal = new types.Basal({deviceTime: '2015-09-28T14:06:00'});
     var secondCBG = new types.CBG({deviceTime: '2015-10-01T14:22:00'});
-    var message = new types.Message({deviceTime: '2015-10-01T16:30:00'});
+    var message = new types.Message({time: '2015-10-01T16:30:00'});
     var settings = new types.Settings({deviceTime: '2015-10-01T18:00:00'});
     var upload = new types.Upload({ deviceTime: '2015-10-01T18:00:00', deviceTags: ['insulin-pump'], source: 'Insulet' });
     var secondCalibration = {
@@ -597,7 +877,7 @@ describe('TidelineData', function() {
 
     it('should re-normalize to new timezone when new timezoneName', function() {
       thisTd.applyNewTimePrefs({timezoneName: 'Pacific/Auckland'});
-      thisTd.addDatum(new types.Message());
+      thisTd.addData([new types.Message()]);
       var datum = _.findWhere(thisTd.data, {type: 'basal'});
       var message = _.findWhere(thisTd.data, {type: 'message'});
       expect(datum.normalTime).to.equal(moment(datum.deviceTime).tz('Pacific/Auckland').toISOString());

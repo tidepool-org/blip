@@ -13,7 +13,7 @@ module.exports = function (config) {
         timeout: 4000
       },
     },
-    frameworks: [ 'mocha', 'sinon', 'chai' ], // Mocha is our testing framework of choice
+    frameworks: [ 'mocha', 'sinon', 'chai', 'intl-shim' ], // Mocha is our testing framework of choice
     files: [
       'test/index.js'
     ],
