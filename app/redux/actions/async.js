@@ -20,7 +20,9 @@ import React from 'react';
 import { Link } from 'react-router';
 import sundial from 'sundial';
 import async from 'async';
-import { noop } from 'node-noop';
+import moment from 'moment';
+import { checkCacheValid } from 'redux-cache';
+
 import * as ActionTypes from '../constants/actionTypes';
 import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
@@ -38,6 +40,24 @@ function createActionError(usrErrMessage, apiError) {
     err.status = apiError.status;
   }
   return err;
+}
+
+/**
+ * cacheByIdOptions
+ *
+ * Sets the options used by redux-cache for a given id. This allows us to selectively cache parts of
+ * a nested data store, such as our patientDataMap, which stores nested data by patient ID
+ *
+ * @param {String} id - The ID to use for the cache key
+ * @returns {Object} The options object
+ */
+function cacheByIdOptions(id) {
+  return {
+    accessStrategy: (state, reducerKey, cacheKey) => {
+      return _.get(state.blip, [reducerKey, cacheKey], null);
+    },
+    cacheKey: `${id}_cacheUntil`,
+  }
 }
 
 /**
@@ -323,7 +343,7 @@ export function removeMembershipInOtherCareTeam(api, patientId) {
  * @param  {String|Number} patientId
  * @param  {String|Number} memberId
  */
-export function removeMemberFromTargetCareTeam(api, patientId, memberId, cb = noop) {
+export function removeMemberFromTargetCareTeam(api, patientId, memberId, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.removeMemberFromTargetCareTeamRequest());
 
@@ -349,7 +369,7 @@ export function removeMemberFromTargetCareTeam(api, patientId, memberId, cb = no
  * @param  {String} email
  * @param  {Object} permissions
  */
-export function sendInvite(api, email, permissions, cb = noop) {
+export function sendInvite(api, email, permissions, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.sendInviteRequest());
 
@@ -382,7 +402,7 @@ export function sendInvite(api, email, permissions, cb = noop) {
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} email
  */
-export function cancelSentInvite(api, email, cb = noop) {
+export function cancelSentInvite(api, email, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.cancelSentInviteRequest());
 
@@ -497,28 +517,6 @@ export function updatePatient(api, patient) {
         ));
       } else {
         dispatch(sync.updatePatientSuccess(updatedPatient));
-      }
-    });
-  };
-}
-
-/**
- * Fetch Preferences Data Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- * @param  {Object} patientId
- */
-export function fetchPreferences(api, patientId) {
-  return (dispatch) => {
-    dispatch(sync.fetchPreferencesRequest());
-
-    api.metadata.preferences.get(patientId, (err, preferences) => {
-      if (err) {
-        dispatch(sync.fetchPreferencesFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_PREFERENCES, err), err
-        ));
-      } else {
-        dispatch(sync.fetchPreferencesSuccess(preferences));
       }
     });
   };
@@ -891,24 +889,101 @@ export function fetchPatients(api) {
  * @param {String|Number} id
  */
 export function fetchPatientData(api, options, id) {
-  return (dispatch) => {
-    dispatch(sync.fetchPatientDataRequest());
+  // Default to only selecting the most recent 8 weeks of data
+  _.defaults(options, {
+    useCache: true,
+    initial: true,
+  });
 
-    async.parallel({
-      patientData: api.patientData.get.bind(api, id, options),
-      teamNotes: api.team.getNotes.bind(api, id)
-    }, (err, results) => {
-      if (err) {
-        dispatch(sync.fetchPatientDataFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
-        ));
-      } else {
-        let patientData = results.patientData || [];
-        let notes = results.teamNotes || [];
-        dispatch(sync.fetchPatientDataSuccess(id, patientData, notes));
-      }
-    });
-  };
+  return (dispatch, getState) => {
+    // If we have a valid cache of the data, do not dispatch fetch action
+    if(options.useCache && checkCacheValid(getState, 'patientDataMap', cacheByIdOptions(id))) {
+      return null;
+    }
+
+    if (options.initial) {
+      // On the initial fetch, we want to use the server time if we can in case the user's local
+      // computer time is off and set the endDate to one day in the future since we can get `time`
+      // fields that are slightly in the future due to incorrect device time and/or computer time
+      // upon upload.
+      dispatch(sync.fetchServerTimeRequest());
+      api.server.getTime((err, results) => {
+        let serverTime;
+
+        if (err) {
+          dispatch(sync.fetchServerTimeFailure(
+            createActionError(ErrorMessages.ERR_FETCHING_SERVER_TIME, err), err
+          ));
+        }
+        else {
+          serverTime = _.get(results, 'data.time');
+          dispatch(sync.fetchServerTimeSuccess(serverTime));
+        }
+
+        options.startDate = moment.utc(serverTime).subtract(8, 'weeks').startOf('day').toISOString();
+        options.endDate = moment.utc(serverTime).add(1, 'days').toISOString();
+
+        fetchData(options);
+      });
+    }
+    else {
+      fetchData(options);
+    }
+
+    function fetchData(options) {
+      dispatch(sync.fetchPatientDataRequest());
+
+      async.parallel({
+        patientData: api.patientData.get.bind(api, id, options),
+        teamNotes: api.team.getNotes.bind(api, id, _.assign({}, options, {
+          start: options.startDate,
+          end: options.endDate,
+        })),
+      }, (err, results) => {
+        if (err) {
+          dispatch(sync.fetchPatientDataFailure(
+            createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
+          ));
+        }
+        else {
+          const patientData = results.patientData || [];
+          const notes = results.teamNotes || [];
+
+          if (options.initial) {
+            const range = utils.getDiabetesDataRange(patientData);
+            const minWeeks = 4;
+
+            if (range.spanInDays) {
+              const minStartDate = moment.utc(range.end).subtract(minWeeks, 'weeks').startOf('day').toISOString();
+
+              if (range.spanInDays / 7 >= minWeeks) {
+                // We have enough data for the initial rendering.
+                dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, minStartDate));
+              }
+              else {
+                // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
+                dispatch(fetchPatientData(api, _.assign({}, options, {
+                  initial: false,
+                  startDate: minStartDate,
+                }), id));
+              }
+            }
+            else {
+              // No data in first pull. Pull all data.
+              dispatch(fetchPatientData(api, _.assign({}, options, {
+                initial: false,
+                startDate: null,
+              }), id));
+            }
+          }
+          else {
+            // Always dispatch the result if we're beyond the first data fetch
+            dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, options.startDate));
+          }
+        }
+      });
+    };
+  }
 }
 
 /**

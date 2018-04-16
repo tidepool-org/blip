@@ -40,7 +40,7 @@ class TidelineHeader extends Component {
     iconMostRecent: React.PropTypes.string,
     onClickBack: React.PropTypes.func,
     onClickBasics: React.PropTypes.func,
-    onClickModal: React.PropTypes.func,
+    onClickTrends: React.PropTypes.func,
     onClickMostRecent: React.PropTypes.func,
     onClickNext: React.PropTypes.func,
     onClickOneDay: React.PropTypes.func,
@@ -140,7 +140,7 @@ class TidelineHeader extends Component {
             <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>Basics</a>
             <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>Daily</a>
             <a href="" className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>Weekly</a>
-            <a href="" className={trendsLinkClass} onClick={this.props.onClickModal}>Trends</a>
+            <a href="" className={trendsLinkClass} onClick={this.props.onClickTrends}>Trends</a>
         </div>
         <div className="grid-item one-whole large-one-third patient-data-subnav-center" id="tidelineLabel">
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}

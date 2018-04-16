@@ -12,7 +12,7 @@ module.exports = function (config) {
       mocha: mochaConf,
     },
     colors: true,
-    frameworks: [ 'mocha', 'sinon', 'chai' ], // Mocha is our testing framework of choice
+    frameworks: [ 'mocha', 'sinon', 'chai', 'intl-shim' ], // Mocha is our testing framework of choice
     files: [
       'loadtests.js'
     ],

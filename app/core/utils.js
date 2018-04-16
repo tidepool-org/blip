@@ -19,7 +19,7 @@ import _  from 'lodash';
 import sundial from 'sundial';
 import TidelineData from 'tideline/js/tidelinedata';
 import nurseShark from 'tideline/plugins/nurseshark';
-import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
+import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, DIABETES_DATA_TYPES } from './constants';
 
 var utils = {};
 
@@ -281,12 +281,17 @@ utils.roundBgTarget = (value, units) => {
   return parseFloat((nearest * Math.round(value / nearest)).toFixed(precision));
 }
 
-utils.processPatientData = (comp, data, queryParams, settings) => {
-  if (!(data && data.length >= 0)) {
-    return null;
+utils.getTimezoneForDataProcessing = (data, queryParams) => {
+  var timePrefsForTideline;
+  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
+  var browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  try {
+    sundial.checkTimezoneName(browserTimezone);
+  } catch (err) {
+    browserTimezone = false;
   }
 
-  var timePrefsForTideline;
   function setNewTimePrefs(timezoneName) {
     try {
       sundial.checkTimezoneName(timezoneName);
@@ -294,21 +299,18 @@ utils.processPatientData = (comp, data, queryParams, settings) => {
         timezoneAware: true,
         timezoneName: timezoneName
       };
-    }
-    catch(err) {
-      console.log(err);
-      console.log('Not a valid timezone! Defaulting to timezone-naive display.');
-      timePrefsForTideline = {};
-    }
-  }
-
-  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
-  if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
-    setNewTimePrefs(mostRecentUpload.timezone);
-  } else {
-    let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // eslint-disable-line new-cap
-    if (!_.isEmpty(timezone)) {
-      setNewTimePrefs(timezone);
+    } catch(err) {
+      if (browserTimezone) {
+        console.log('Not a valid timezone! Defaulting to browser timezone display:', browserTimezone);
+        timePrefsForTideline = {
+          timezoneAware: true,
+          timezoneName: browserTimezone
+        };
+      }
+      else {
+        console.log('Not a valid timezone! Defaulting to timezone-naive display.');
+        timePrefsForTideline = {};
+      }
     }
   }
 
@@ -318,19 +320,21 @@ utils.processPatientData = (comp, data, queryParams, settings) => {
     console.log('Displaying in timezone from query params:', queryParams.timezone);
   }
   else if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
+    setNewTimePrefs(mostRecentUpload.timezone);
     console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
   }
+  else if (browserTimezone) {
+    setNewTimePrefs(browserTimezone);
+    console.log('Falling back to browser timezone:', browserTimezone);
+  }
   else {
-    console.log('Falling back to display in browser timezone.');
+    console.log('Falling back to timezone-naive display.');
   }
-  if (!_.isEmpty(timePrefsForTideline)) {
-    comp.setState({
-      timePrefs: timePrefsForTideline
-    });
-  }
+  return timePrefsForTideline;
+};
 
-  console.time('Nurseshark Total');
-  var bgUnits = settings.units.bg || MGDL_UNITS;
+utils.getBGPrefsForDataProcessing = (queryParams = {}, settings) => {
+  var bgUnits = _.get(settings, 'units.bg', MGDL_UNITS);
   var bgClasses = {
     low: { boundary: utils.roundBgTarget(settings.bgTarget.low, bgUnits) },
     target: { boundary: utils.roundBgTarget(settings.bgTarget.high, bgUnits) },
@@ -345,15 +349,39 @@ utils.processPatientData = (comp, data, queryParams, settings) => {
     console.log(`Displaying BG in ${bgUnits} from query params`);
   }
 
-
-  var res = nurseShark.processData(data, bgUnits);
-  console.timeEnd('Nurseshark Total');
-  console.time('TidelineData Total');
-  var tidelineData = new TidelineData(res.processedData, {
-    timePrefs: timePrefsForTideline,
+  return {
     bgUnits,
     bgClasses,
+  };
+}
+
+utils.filterPatientData = (data, bgUnits) => {
+  return nurseShark.processData(data, bgUnits);
+}
+
+utils.processPatientData = (data, queryParams, settings) => {
+  if (!(data && data.length >= 0)) {
+    return null;
+  }
+
+  const timePrefsForTideline = utils.getTimezoneForDataProcessing(data, queryParams);
+  const bgPrefs = utils.getBGPrefsForDataProcessing(queryParams, settings);
+
+  console.time('Nurseshark Total');
+  const res = utils.filterPatientData(data, bgPrefs.bgUnits);
+  console.timeEnd('Nurseshark Total');
+
+  console.time('TidelineData Total');
+  let tidelineData = new TidelineData(res.processedData, {
+    timePrefs: timePrefsForTideline,
+    bgUnits: bgPrefs.bgUnits,
+    bgClasses: bgPrefs.bgClasses,
   });
+
+  if (!_.isEmpty(timePrefsForTideline)) {
+    tidelineData.timePrefs = timePrefsForTideline;
+  }
+
   console.timeEnd('TidelineData Total');
 
   window.tidelineData = tidelineData;
@@ -407,6 +435,28 @@ utils.getLatestGithubRelease = (releases) => {
   return {
     latestWinRelease: latestWinRelease,
     latestMacRelease: latestMacRelease,
+  };
+}
+
+/**
+ * Get the earliest and latest dates, span in days, and count of
+ * diabetes data in a raw data set
+ * @param {Array} data - The raw unprocessed data
+ * @returns {Object}
+ */
+utils.getDiabetesDataRange = (data) => {
+  const sortedData = _.sortBy(_.filter(data, d => _.includes(DIABETES_DATA_TYPES, d.type)), 'time');
+
+  const start = _.get(_.first(sortedData), 'time');
+  const end = _.get(_.last(sortedData), 'time');
+  const spanInDays = (start && end) ? sundial.dateDifference(end, start, 'days') : null;
+  const count = sortedData.length;
+
+  return {
+    start,
+    end,
+    spanInDays,
+    count,
   };
 }
 

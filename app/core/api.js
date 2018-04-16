@@ -35,6 +35,7 @@ api.init = function(cb) {
   var tidepoolLog = bows('Tidepool');
   tidepool = createTidepoolClient({
     host: config.API_HOST,
+    dataHost: config.API_HOST + '/dataservices',
     uploadApi: config.UPLOAD_API,
     log: {
       warn: tidepoolLog,
@@ -51,6 +52,18 @@ api.init = function(cb) {
   tidepool.initialize(function() {
     api.log('Initialized');
     cb();
+  });
+};
+
+// ----- Server -----
+api.server = {};
+
+api.server.getTime = function(cb) {
+  tidepool.getTime(function(err, data) {
+    if (err) {
+      return cb(err);
+    }
+    cb(null, data);
   });
 };
 
@@ -617,13 +630,10 @@ api.team.getMessageThread = function(messageId,cb){
 };
 
 //Get all notes (parent messages) for the given team
-api.team.getNotes = function(userId,cb){
+api.team.getNotes = function(userId, options = {}, cb){
   api.log('GET /message/notes/' + userId);
 
-  //at present we are not using the date range
-  var dateRange = null;
-
-  tidepool.getNotesForUser(userId, dateRange, function(error,messages){
+  tidepool.getNotesForUser(userId, options, function(error,messages){
     if (error){
       return cb(error);
     }
