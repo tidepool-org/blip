@@ -54,6 +54,9 @@ export const SITE_CHANGE_RESERVOIR = 'reservoirChange';
 export const SITE_CHANGE_TUBING = 'tubingPrime';
 export const SITE_CHANGE_CANNULA = 'cannulaPrime';
 
+export const AUTOMATED_DELIVERY = 'automatedDelivery';
+export const MANUAL_DELIVERY = 'manualDelivery';
+
 export const SECTION_TYPE_UNDECLARED = 'undeclared';
 
 export const INSULET = 'Insulet';
@@ -76,6 +79,8 @@ export const pumpVocabulary = {
     [SITE_CHANGE_RESERVOIR]: 'Rewind',
     [SITE_CHANGE_TUBING]: 'Prime',
     [SITE_CHANGE_CANNULA]: 'Prime Cannula',
+    [AUTOMATED_DELIVERY]: 'Auto Mode',
+    [MANUAL_DELIVERY]: 'Manual',
   },
   [TANDEM]: {
     [SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
