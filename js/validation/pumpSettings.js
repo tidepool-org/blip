@@ -116,26 +116,11 @@ module.exports = schema(
         {
           name: schema().string().minLength(1),
           value: schema().array(
-            schema().oneOf(
-              // Automated
-              schema(
-                {
-                  name: schema().string().minLength(1),
-                  array: schema().array(schema().ifExists().object(
-                    {
-                      rate: schema().number().min(0),
-                      start: schema().number().min(0).max(86400000)
-                    }
-                  ))
-                }
-              ),
-              // Manual
-              schema(
-                {
-                  rate: schema().number().min(0),
-                  start: schema().number().min(0).max(86400000)
-                }
-              )
+            schema(
+              {
+                rate: schema().number().min(0),
+                start: schema().number().min(0).max(86400000)
+              }
             )
           )
         }
