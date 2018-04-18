@@ -41,12 +41,12 @@ module.exports = function(pool, opts) {
 
   var mainGroup = pool.parent();
 
-  function getScheduledSuppressed(supp) {
-    if (supp.deliveryType === 'scheduled') {
+  function getDeliverySuppressed(supp) {
+    if (_.includes(['scheduled', 'automated'], supp.deliveryType)) {
       return supp;
     }
     else if (supp.suppressed) {
-      return getScheduledSuppressed(supp.suppressed);
+      return getDeliverySuppressed(supp.suppressed);
     }
     else {
       return;
@@ -59,7 +59,7 @@ module.exports = function(pool, opts) {
     for (var i = 0; i < data.length; ++i) {
       var d = data[i];
       if (d.suppressed) {
-        var scheduled = getScheduledSuppressed(d.suppressed);
+        var scheduled = getDeliverySuppressed(d.suppressed);
         if (scheduled) {
           undelivereds.push(scheduled);
         }
@@ -356,7 +356,7 @@ module.exports = function(pool, opts) {
           group.append('p')
             .append('span')
             .attr('class', 'secondary')
-            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' scheduled');
+            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' scheduled');
         }
         break;
       case 'suspend':
@@ -367,7 +367,7 @@ module.exports = function(pool, opts) {
           group.append('p')
             .append('span')
             .attr('class', 'secondary')
-            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' scheduled');
+            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' scheduled');
         }
         break;
       case 'automated':
