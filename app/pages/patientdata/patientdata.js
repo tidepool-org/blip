@@ -927,7 +927,11 @@ export let PatientData = React.createClass({
       const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
       const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
       const processDataMaxWeeks = isInitialProcessing ? 4 : 8;
-      const lastProcessedDatetime = moment.utc(isInitialProcessing ? patientData[0].time : this.state.lastProcessedDateTarget);
+
+      // Grab the first diabetes datum time on first process in case upload date is much later
+      const firstDiabetesDatum = _.find(patientData, (d) => _.includes(DIABETES_DATA_TYPES, d.type));
+      const lastProcessedDatetime = moment.utc(isInitialProcessing ? _.get(firstDiabetesDatum, 'time', patientData[0].time) : this.state.lastProcessedDateTarget);
+
       const patientNotes = _.get(props, ['patientNotesMap', patientID], []);
       let patientSettings = _.cloneDeep(_.get(props, ['patient', 'settings'], null));
       _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
@@ -1028,9 +1032,17 @@ export let PatientData = React.createClass({
       else {
         // We don't need full processing for subsequent data. We just add and preprocess the new datums.
         const bgUnits = _.get(this.state, 'processedPatientData.bgUnits');
-        const newData = utils.filterPatientData(targetData, bgUnits).processedData;
+
+        // Need to have all of the upload data present when filtering data or else the `source` and
+        // `deviceSerialNumber` properties will not be mapped. This will not result in duplication
+        // of upload records, as deduplication will happen when `addData` is called.
+        const uploadData = _.filter(patientData, { type: 'upload' });
+        const newData = utils.filterPatientData(targetData.concat(uploadData), bgUnits).processedData;
+
+        // Add and process the new data
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
         const processedPatientData = addData(newData.concat(_.map(patientNotes, nurseShark.reshapeMessage)));
+
         const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + targetData.length;
         const count = this.state.processEarlierDataCount + 1;
 
