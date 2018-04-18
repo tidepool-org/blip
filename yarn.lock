@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@0.10.1":
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.10.1.tgz#123235951cc915ff1a008db4f969ebb378ddf81f"
+"@tidepool/viz@0.10.2-automated-basal.1":
+  version "0.10.2-automated-basal.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.10.2-automated-basal.1.tgz#d62ee0f7be2efd421f3821d9cca7b66fca4b4357"
   dependencies:
     bluebird "3.5.0"
     crossfilter "1.3.12"
@@ -7585,9 +7585,9 @@ thunkify@~2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.7.1.tgz#3ce59b734d72c1f841c1facc792f55641ce8e477"
+tideline@0.7.2-automated-basal.1:
+  version "0.7.2-automated-basal.1"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.7.2-automated-basal.1.tgz#6b4c545a556601651a11886d5158f65197e94bdf"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
