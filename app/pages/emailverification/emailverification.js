@@ -63,7 +63,13 @@ export var EmailVerification = React.createClass({
         <div className="EmailVerification-intro">
           <div className="EmailVerification-title">Keeping your data private and secure is important to us!</div>
           <div className="EmailVerification-instructions">
-            <p>Please click the link in the email we just sent you at <strong>{this.props.sent}</strong> to verify and activate your account.</p>
+            <p>
+              Please click the link in the email we just sent you at
+              <br/>
+                <strong>{this.props.sent}</strong>
+              <br/>
+              to verify and activate your account.
+            </p>
           </div>
         </div>
       );
