@@ -6,6 +6,6 @@ module.exports = {
     Medtronic: 'Auto Mode'
   },
   SCHEDULED_BASAL_LABELS: {
-    Medtronic: 'Scheduled'
+    Medtronic: 'Manual'
   },
 };

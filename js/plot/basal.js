@@ -194,7 +194,7 @@ module.exports = function(pool, opts) {
               /* jshint laxbreak: true */
               return isAutomated
                 ? _.get(AUTOMATED_BASAL_LABELS, source, 'A').charAt(0)
-                : _.get(SCHEDULED_BASAL_LABELS, source, 'S').charAt(0);
+                : _.get(SCHEDULED_BASAL_LABELS, source, 'M').charAt(0);
             });
 
           markers.exit().remove();
@@ -381,7 +381,7 @@ module.exports = function(pool, opts) {
             basal.rateString(datum, 'plain'));
         break;
       default:
-        var label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, datum.source, 'Scheduled') + ':</span> ' : '';
+        var label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, datum.source, 'Manual') + ':</span> ' : '';
         group.append('p')
           .append('span')
           .html(label + basal.rateString(datum, 'plain'));
