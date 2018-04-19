@@ -1036,8 +1036,8 @@ export let PatientData = React.createClass({
         // Need to have all of the upload data present when filtering data or else the `source` and
         // `deviceSerialNumber` properties will not be mapped. This will not result in duplication
         // of upload records, as deduplication will happen when `addData` is called.
-        const uploadData = _.filter(patientData, { type: 'upload' });
-        const newData = utils.filterPatientData(targetData.concat(uploadData), bgUnits).processedData;
+        const previousUploadData = _.filter(patientData.slice(0, this.state.lastDatumProcessedIndex + 1), { type: 'upload' });
+        const newData = utils.filterPatientData(targetData.concat(previousUploadData), bgUnits).processedData;
 
         // Add and process the new data
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
