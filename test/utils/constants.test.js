@@ -144,6 +144,18 @@ describe('constants', () => {
     });
   });
 
+  describe('AUTOMATED_DELIVERY', () => {
+    it('should be `automatedDelivery`', () => {
+      expect(constants.AUTOMATED_DELIVERY).to.equal('automatedDelivery');
+    });
+  });
+
+  describe('SCHEDULED_DELIVERY', () => {
+    it('should be `scheduledDelivery`', () => {
+      expect(constants.SCHEDULED_DELIVERY).to.equal('scheduledDelivery');
+    });
+  });
+
   describe('SECTION_TYPE_UNDECLARED', () => {
     it('should be `undeclared`', () => {
       expect(constants.SECTION_TYPE_UNDECLARED).to.equal('undeclared');
@@ -191,6 +203,8 @@ describe('constants', () => {
           [constants.SITE_CHANGE_RESERVOIR]: 'Rewind',
           [constants.SITE_CHANGE_TUBING]: 'Prime',
           [constants.SITE_CHANGE_CANNULA]: 'Prime Cannula',
+          [constants.AUTOMATED_DELIVERY]: 'Auto Mode',
+          [constants.SCHEDULED_DELIVERY]: 'Manual',
         },
         [constants.TANDEM]: {
           [constants.SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
@@ -201,6 +215,8 @@ describe('constants', () => {
           [constants.SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
           [constants.SITE_CHANGE_TUBING]: 'Fill Tubing',
           [constants.SITE_CHANGE_CANNULA]: 'Fill Cannula',
+          [constants.AUTOMATED_DELIVERY]: 'Automated',
+          [constants.SCHEDULED_DELIVERY]: 'Manual',
         },
       });
     });

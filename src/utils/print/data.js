@@ -233,5 +233,11 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
     dateData.data.basalSequences = getBasalSequences(basals);
   });
 
+  if (_.get(groupedData, 'pumpSettings.length', 0) > 0) {
+    selected.pumpSettings = {
+      source: _.get(_.last(groupedData.pumpSettings), 'source', ''),
+    };
+  }
+
   return selected;
 }

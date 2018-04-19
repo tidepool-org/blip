@@ -55,7 +55,7 @@ export const SITE_CHANGE_TUBING = 'tubingPrime';
 export const SITE_CHANGE_CANNULA = 'cannulaPrime';
 
 export const AUTOMATED_DELIVERY = 'automatedDelivery';
-export const MANUAL_DELIVERY = 'manualDelivery';
+export const SCHEDULED_DELIVERY = 'scheduledDelivery';
 
 export const SECTION_TYPE_UNDECLARED = 'undeclared';
 
@@ -80,7 +80,7 @@ export const pumpVocabulary = {
     [SITE_CHANGE_TUBING]: 'Prime',
     [SITE_CHANGE_CANNULA]: 'Prime Cannula',
     [AUTOMATED_DELIVERY]: 'Auto Mode',
-    [MANUAL_DELIVERY]: 'Manual',
+    [SCHEDULED_DELIVERY]: 'Manual',
   },
   [TANDEM]: {
     [SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
@@ -91,6 +91,8 @@ export const pumpVocabulary = {
     [SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
     [SITE_CHANGE_TUBING]: 'Fill Tubing',
     [SITE_CHANGE_CANNULA]: 'Fill Cannula',
+    [AUTOMATED_DELIVERY]: 'Automated',
+    [SCHEDULED_DELIVERY]: 'Manual',
   },
 };
 

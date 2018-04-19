@@ -54,11 +54,20 @@ import {
   removeTrailingZeroes,
 } from '../../utils/format';
 
-import { MMOLL_UNITS, MS_IN_MIN } from '../../utils/constants';
+import {
+  MMOLL_UNITS,
+  MS_IN_MIN,
+  pumpVocabulary,
+  AUTOMATED_DELIVERY,
+  SCHEDULED_DELIVERY,
+} from '../../utils/constants';
 
 class DailyPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
+
+    this.source = _.get(data, 'pumpSettings.source', '').toLowerCase();
+    this.manufacturer = this.source === 'carelink' ? 'medtronic' : this.source;
 
     this.bgAxisFontSize = 5;
     this.carbsFontSize = 5.5;
@@ -912,7 +921,15 @@ class DailyPrintView extends PrintView {
           const yPos = basalScale.range()[1] + this.markerRadius + 1;
           const zeroBasal = basalScale.range()[0];
           const flushWithBottomOfScale = zeroBasal;
-          const label = isAutomated ? 'A' : 'R';
+
+          const manufacturer = _.capitalize(this.manufacturer);
+          const automatedLabel = _.get(pumpVocabulary, ['default', AUTOMATED_DELIVERY]);
+          const scheduledLabel = _.get(pumpVocabulary, ['default', SCHEDULED_DELIVERY]);
+
+          const label = isAutomated
+            ? _.get(pumpVocabulary, [manufacturer, AUTOMATED_DELIVERY], automatedLabel).charAt(0)
+            : _.get(pumpVocabulary, [manufacturer, SCHEDULED_DELIVERY], scheduledLabel).charAt(0);
+
           const labelWidth = this.doc
             .fontSize(5)
             .widthOfString(label);
