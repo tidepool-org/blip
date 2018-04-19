@@ -25,6 +25,7 @@ import CollapsibleContainer from './common/CollapsibleContainer';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import * as nonTandemData from '../../utils/settings/nonTandemData';
+import { deviceName } from '../../utils/settings/data';
 import { nonTandemText } from '../../utils/settings/textData';
 
 import styles from './NonTandem.css';
@@ -169,7 +170,7 @@ const NonTandem = (props) => {
         <p>Copy as text</p>
       </ClipboardButton>
       <Header
-        deviceDisplayName={nonTandemData.deviceName(lookupKey)}
+        deviceDisplayName={deviceName(lookupKey)}
         deviceMeta={nonTandemData.deviceMeta(pumpSettings, timePrefs)}
       />
       <div className={styles.settingsContainer}>

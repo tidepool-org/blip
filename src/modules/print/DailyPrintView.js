@@ -27,6 +27,7 @@ import PrintView from './PrintView';
 import { calculateBasalPath, getBasalSequencePaths } from '../render/basal';
 import getBolusPaths from '../render/bolus';
 import { getTotalBasal, getBasalPathGroups } from '../../utils/basal';
+import { deviceName } from '../../utils/settings/data';
 import {
   calcBgPercentInCategories,
   classifyBgValue,
@@ -922,7 +923,7 @@ class DailyPrintView extends PrintView {
           const zeroBasal = basalScale.range()[0];
           const flushWithBottomOfScale = zeroBasal;
 
-          const manufacturer = _.capitalize(this.manufacturer);
+          const manufacturer = deviceName(this.manufacturer);
           const automatedLabel = _.get(pumpVocabulary, ['default', AUTOMATED_DELIVERY]);
           const scheduledLabel = _.get(pumpVocabulary, ['default', SCHEDULED_DELIVERY]);
 
