@@ -20,6 +20,7 @@ import _ from 'lodash';
 import PrintView from './PrintView';
 
 import {
+  deviceName,
   getDeviceMeta,
   getScheduleLabel,
   processBasalRateData,
@@ -27,7 +28,6 @@ import {
 } from '../../utils/settings/data';
 
 import {
-  deviceName,
   bolusTitle,
   ratio,
   sensitivity,
@@ -68,7 +68,7 @@ class SettingsPrintView extends PrintView {
   }
 
   renderDeviceMeta() {
-    const device = this.isTandem ? 'Tandem' : deviceName(this.manufacturer) || 'Unknown';
+    const device = deviceName(this.manufacturer) || 'Unknown';
     this.doc
       .font(this.boldFont)
       .fontSize(this.defaultFontSize)

@@ -33,6 +33,22 @@ export function noData(val) {
 }
 
 /**
+ * deviceName
+ * @param  {String} manufacturer one of: animas, insulet, medtronic, tandem
+ *
+ * @return {String}              name for given manufacturer
+ */
+export function deviceName(manufacturer) {
+  const DEVICE_DISPLAY_NAME_BY_MANUFACTURER = {
+    animas: 'Animas',
+    insulet: 'OmniPod',
+    medtronic: 'Medtronic',
+    tandem: 'Tandem',
+  };
+  return DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturer];
+}
+
+/**
  * getBasalRate
  * @private
  * @param  {Array} scheduleData  basal schedule

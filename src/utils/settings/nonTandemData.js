@@ -53,21 +53,6 @@ export function bolusTitle(manufacturer) {
 }
 
 /**
- * deviceName
- * @param  {String} manufacturer one of: animas, insulet, medtronic
- *
- * @return {String}              name for given manufacturer
- */
-export function deviceName(manufacturer) {
-  const DEVICE_DISPLAY_NAME_BY_MANUFACTURER = {
-    animas: 'Animas',
-    insulet: 'OmniPod',
-    medtronic: 'Medtronic',
-  };
-  return DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturer];
-}
-
-/**
  * scheduleLabel
  * @private
  */
