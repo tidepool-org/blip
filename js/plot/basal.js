@@ -24,7 +24,7 @@ var dt = require('../data/util/datetime');
 var format = require('../data/util/format');
 var log = require('bows')('Basal');
 
-var { AUTOMATED_BASAL_LABELS } = require('../data/util/constants');
+var { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS } = require('../data/util/constants');
 
 module.exports = function(pool, opts) {
   opts = opts || {};
@@ -128,6 +128,7 @@ module.exports = function(pool, opts) {
 
       _.each(basalPathGroups, (data, index) => {
         var id = data[0].id;
+        var source = data[0].source;
         var pathType = getBasalPathGroupType(data[0]);
         var isAutomated = pathType === 'automated';
 
@@ -190,7 +191,10 @@ module.exports = function(pool, opts) {
               'class': 'd3-basal-group-label',
             })
             .text(function(d) {
-              return isAutomated ? 'A' : 'R';
+              /* jshint laxbreak: true */
+              return isAutomated
+                ? _.get(AUTOMATED_BASAL_LABELS, source, 'A').charAt(0)
+                : _.get(SCHEDULED_BASAL_LABELS, source, 'M').charAt(0);
             });
 
           markers.exit().remove();
@@ -215,7 +219,7 @@ module.exports = function(pool, opts) {
 
       // tooltips
       basalSegmentGroups.on('mouseover', function() {
-        basal.addTooltip(d3.select(this).datum());
+        basal.addTooltip(d3.select(this).datum(), renderGroupMarkers);
         d3.select(this).selectAll('.d3-basal.d3-rect-basal')
           .attr('opacity', opts.opacity + opts.opacityDelta);
       });
@@ -346,7 +350,7 @@ module.exports = function(pool, opts) {
     }
   };
 
-  basal.tooltipHtml = function(group, datum) {
+  basal.tooltipHtml = function(group, datum, showSheduledLabel) {
     switch (datum.deliveryType) {
       case 'temp':
         group.append('p')
@@ -373,13 +377,14 @@ module.exports = function(pool, opts) {
       case 'automated':
         group.append('p')
           .append('span')
-          .html('<span class="plain muted">' + AUTOMATED_BASAL_LABELS[datum.source.toLowerCase()] + ':</span> ' +
-          basal.rateString(datum, 'plain'));
+          .html('<span class="plain muted">' + _.get(AUTOMATED_BASAL_LABELS, datum.source, 'Automated') + ':</span> ' +
+            basal.rateString(datum, 'plain'));
         break;
       default:
+        var label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, datum.source, 'Manual') + ':</span> ' : '';
         group.append('p')
           .append('span')
-          .html(basal.rateString(datum, 'plain'));
+          .html(label + basal.rateString(datum, 'plain'));
     }
     group.append('p')
       .append('span')
@@ -390,7 +395,7 @@ module.exports = function(pool, opts) {
         format.timestamp(datum.normalEnd, datum.displayOffset));
   };
 
-  basal.addTooltip = function(d) {
+  basal.addTooltip = function(d, showSheduledLabel) {
     var datum = _.clone(d);
     datum.type = 'basal';
     var tooltips = pool.tooltips();
@@ -403,7 +408,7 @@ module.exports = function(pool, opts) {
       yPosition: function() { return 0; }
     });
     var foGroup = res.foGroup;
-    basal.tooltipHtml(foGroup, d);
+    basal.tooltipHtml(foGroup, d, showSheduledLabel);
     var dims = tooltips.foreignObjDimensions(foGroup);
     // foGroup.node().parentNode is the <foreignObject> itself
     // because foGroup is actually the top-level <xhtml:div> element

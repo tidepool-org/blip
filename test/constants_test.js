@@ -39,9 +39,15 @@ describe('constants', function() {
     expect(constants.MMOLL_UNITS).to.equal('mmol/L');
   });
 
-  it('should define the AUTOMATED_BASAL_LABELS conversion as mmol/L', function() {
+  it('should define the AUTOMATED_BASAL_LABELS mapping', function() {
     expect(constants.AUTOMATED_BASAL_LABELS).to.eql({
-      medtronic: 'Auto Mode',
+      Medtronic: 'Auto Mode',
+    });
+  });
+
+  it('should define the SCHEDULED_BASAL_LABELS mapping', function() {
+    expect(constants.SCHEDULED_BASAL_LABELS).to.eql({
+      Medtronic: 'Manual',
     });
   });
 });
