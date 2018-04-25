@@ -131,7 +131,12 @@ export function createPrintView(type, data, opts, doc) {
 export function createPrintPDFPackage(data, opts) {
   const {
     bgPrefs,
+    patient,
   } = opts;
+
+  if (patient && patient.profile && patient.profile.language) {
+    i18next.changeLanguage(patient.profile.language);
+  }
 
   const pdfOpts = _.cloneDeep(opts);
 
