@@ -15,6 +15,10 @@
  * == BSD2 LICENSE ==
  */
 import * as data from './data';
+import i18next from 'i18next';
+
+const t = i18next.t.bind(i18next);
+
 
 /**
  * basalSchedules
@@ -45,9 +49,9 @@ export function deviceMeta(settings, timePrefs) {
  */
 export function bolusTitle(manufacturer) {
   const BOLUS_SETTINGS_LABEL_BY_MANUFACTURER = {
-    animas: 'ezCarb ezBG',
-    insulet: 'Bolus Calculator',
-    medtronic: 'Bolus Wizard',
+    animas: t('ezCarb ezBG'),
+    insulet: t('Bolus Calculator'),
+    medtronic: t('Bolus Wizard'),
   };
   return BOLUS_SETTINGS_LABEL_BY_MANUFACTURER[manufacturer];
 }
@@ -115,9 +119,9 @@ export function basal(schedule, settings, manufacturer) {
  */
 function sensitivityTitle(manufacturer) {
   const ISF_BY_MANUFACTURER = {
-    animas: 'ISF',
-    insulet: 'Correction factor',
-    medtronic: 'Sensitivity',
+    animas: t('ISF'),
+    insulet: t('Correction factor'),
+    medtronic: t('Sensitivity'),
   };
   return ISF_BY_MANUFACTURER[manufacturer];
 }
@@ -163,9 +167,9 @@ export function sensitivity(settings, manufacturer, units) {
  */
 function ratioTitle(manufacturer) {
   const CARB_RATIO_BY_MANUFACTURER = {
-    animas: 'I:C Ratio',
-    insulet: 'IC ratio',
-    medtronic: 'Carb Ratios',
+    animas: t('I:C Ratio'),
+    insulet: t('IC ratio'),
+    medtronic: t('Carb Ratios'),
   };
   return CARB_RATIO_BY_MANUFACTURER[manufacturer];
 }
@@ -207,9 +211,9 @@ export function ratio(settings, manufacturer) {
  */
 function targetTitle(manufacturer) {
   const BG_TARGET_BY_MANUFACTURER = {
-    animas: 'BG Target',
-    insulet: 'Target BG',
-    medtronic: 'BG Target',
+    animas: t('BG Target'),
+    insulet: t('Target BG'),
+    medtronic: t('BG Target'),
   };
   return BG_TARGET_BY_MANUFACTURER[manufacturer];
 }
@@ -221,19 +225,19 @@ function targetTitle(manufacturer) {
 function targetColumns(manufacturer) {
   const BG_TARGET_COLS_BY_MANUFACTURER = {
     animas: [
-      { key: 'start', label: 'Start time' },
-      { key: 'columnTwo', label: 'Target' },
-      { key: 'columnThree', label: 'Range' },
+      { key: 'start', label: t('Start time') },
+      { key: 'columnTwo', label: t('Target') },
+      { key: 'columnThree', label: t('Range') },
     ],
     insulet: [
-      { key: 'start', label: 'Start time' },
-      { key: 'columnTwo', label: 'Target' },
-      { key: 'columnThree', label: 'Correct Above' },
+      { key: 'start', label: t('Start time') },
+      { key: 'columnTwo', label: t('Target') },
+      { key: 'columnThree', label: t('Correct Above') },
     ],
     medtronic: [
-      { key: 'start', label: 'Start time' },
-      { key: 'columnTwo', label: 'Low' },
-      { key: 'columnThree', label: 'High' },
+      { key: 'start', label: t('Start time') },
+      { key: 'columnTwo', label: t('Low') },
+      { key: 'columnThree', label: t('High') },
     ],
   };
   return BG_TARGET_COLS_BY_MANUFACTURER[manufacturer];

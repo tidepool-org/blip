@@ -169,7 +169,7 @@ const NonTandem = (props) => {
         data-clipboard-target="#copySettingsText"
         onSuccess={copySettingsClicked}
       >
-        <p>Copy as text</p>
+        <p>{t('Copy as text')}</p>
       </ClipboardButton>
       <Header
         deviceDisplayName={nonTandemData.deviceName(lookupKey)}
