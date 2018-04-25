@@ -660,7 +660,7 @@ class PrintView {
       });
 
     const patientNameWidth = this.patientInfoBox.width = this.doc.widthOfString(patientName);
-    const patientDOB = `DOB: ${patientBirthdate}`;
+    const patientDOB = t('DOB: {{birthdate}}', { birthdate: patientBirthdate });
 
     this.doc
       .fontSize(10)
