@@ -16,7 +16,7 @@
  */
 
 /* global importScripts, postMessage, __DEV__ */
-import i18next from '../core/language';
+import '../core/language'; // Needed to load i18next config in the web worker
 import bows from 'bows';
 import _ from 'lodash';
 
