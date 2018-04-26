@@ -22,7 +22,7 @@
     "d3": "3.5.17",
     "d3.chart": "0.3.0",
     "duration-js": "3.6.0",
-    "i18next": "^10.6.0",
+    "i18next": "10.6.0",
     "lodash": "3.10.1",
     "moment-timezone": "0.5.5",
     "sundial": "1.5.0"
