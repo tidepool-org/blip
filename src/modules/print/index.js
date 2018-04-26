@@ -134,8 +134,8 @@ export function createPrintPDFPackage(data, opts) {
     patient,
   } = opts;
 
-  if (patient && patient.profile && patient.profile.language) {
-    i18next.changeLanguage(patient.profile.language);
+  if (_.get(patient, 'preferences.displayLanguageCode')) {
+    i18next.changeLanguage(patient.preferences.displayLanguageCode);
   }
 
   const pdfOpts = _.cloneDeep(opts);
