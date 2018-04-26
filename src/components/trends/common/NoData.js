@@ -25,7 +25,7 @@ const t = i18next.t.bind(i18next);
 
 if (i18next.options.returnEmptyString === undefined) {
   // Return key if no translation is present
-  i18next.init({ returnEmptyString: false });
+  i18next.init({ returnEmptyString: false, nsSeparator: '|' });
 }
 
 const NoData = (props) => {

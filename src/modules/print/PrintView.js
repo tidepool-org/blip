@@ -44,10 +44,6 @@ import {
   SMALL_FONT_SIZE,
 } from './utils/constants';
 
-if (i18next.options.nsSeparator === undefined) {
-  i18next.init({ returnEmptyString: false, nsSeparator: '|' });
-}
-
 const t = i18next.t.bind(i18next);
 
 const logo = require('./images/tidepool-logo-408x46.png');
