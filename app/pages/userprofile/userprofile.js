@@ -43,16 +43,27 @@ export var UserProfile = translate()(React.createClass({
 
   formInputs: function() {
     const {t} = this.props;
-    return [
+    const inputs = [
       {name: 'fullName', label: t('Full name'), type: 'text'},
       {name: 'username', label: t('Email'), type: 'email'},
-      {name: 'lang', label: t('Language'), type: 'select', items: [
-        {value: 'en', label: 'English'},
-        {value: 'fr', label: 'Français'},
-      ], placeholder: t('Select language...')},
       {name: 'password', label: t('Password'), type: 'password'},
       {name: 'passwordConfirm', label: t('Confirm password'), type: 'password'}
     ];
+
+    if (config.I18N_ENABLED) {
+      inputs.push({
+        name: 'lang',
+        label: t('Language'),
+        type: 'select',
+        items: [
+          {value: 'en', label: 'English'},
+          {value: 'fr', label: 'Français'},
+        ],
+        placeholder: t('Select language...')
+      });
+    }
+
+    return inputs;
   },
 
   MESSAGE_TIMEOUT: 2000,
@@ -73,7 +84,7 @@ export var UserProfile = translate()(React.createClass({
     return {
       fullName: user.profile && user.profile.fullName,
       username: user.username,
-      lang: user.profile && user.profile.language || undefined
+      lang: _.get(user, 'preferences.displayLanguageCode', undefined)
     };
   },
 
@@ -207,12 +218,13 @@ export var UserProfile = translate()(React.createClass({
       username: formValues.username,
       emails: [formValues.username],
       profile: {
-        fullName: formValues.fullName,
-        // This seems to be the best place to put language. Preferences and Settings
-        // both refer to a patient id, but language doesn't have anything to do with patients
-        language: formValues.lang
-      }
+        fullName: formValues.fullName
+      },
     };
+
+    if (config.I18N_ENABLED) {
+      _.set(result, 'preferences.displayLanguageCode', formValues.lang);
+    }
 
     if (formValues.password) {
       result.password = formValues.password;

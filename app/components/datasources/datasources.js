@@ -127,7 +127,7 @@ export default translate()(class DataSources extends Component {
     /* The following is for the translation extracter */
     // t('year', {context: 'timeago'});t('years', {context: 'timeago'});
     // t('month', {context: 'timeago'});t('months', {context: 'timeago'});
-    // t('week', {context: 'timeago'});t('minutes', {context: 'timeago'});
+    // t('week', {context: 'timeago'});t('weeks', {context: 'timeago'});
     // t('day', {context: 'timeago'});t('days', {context: 'timeago'});
     // t('hour', {context: 'timeago'});t('hours', {context: 'timeago'});
     // t('minute', {context: 'timeago'});t('minutes', {context: 'timeago'});

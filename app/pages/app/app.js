@@ -420,8 +420,8 @@ export function mapStateToProps(state) {
         userIsCurrentPatient = true;
       }
 
-      if (user && user.profile && user.profile.language) {
-        i18next.changeLanguage(user.profile.language);
+      if (_.get(user, 'preferences.displayLanguageCode')) {
+        i18next.changeLanguage(user.preferences.displayLanguageCode);
       }
     }
 

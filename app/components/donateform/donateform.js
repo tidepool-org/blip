@@ -16,7 +16,6 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { translate, Trans } from 'react-i18next';
-import i18next from '../../core/language';
 
 import InputGroup from '../../components/inputgroup';
 import SimpleForm from '../../components/simpleform';
