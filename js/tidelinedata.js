@@ -28,7 +28,7 @@ var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
-var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('./data/util/constants');
+var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, AUTOMATED_BASAL_LABELS } = require('./data/util/constants');
 
 var log = __DEV__ ? require('bows')('TidelineData') : _.noop;
 var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
@@ -379,6 +379,13 @@ function TidelineData(data, opts) {
     endTimer('setBGPrefs');
   };
 
+  this.setLastManualBasalSchedule = function() {
+    startTimer('getLastManualBasalSchedule');
+    var lastManualBasalSchedule = _.findLast(this.grouped.basal, { deliveryType: 'scheduled' });
+    _.last(this.grouped.pumpSettings).lastManualBasalSchedule = _.get(lastManualBasalSchedule, 'scheduleName');
+    endTimer('getLastManualBasalSchedule');
+  }
+
   function makeWatsonFn() {
     var MS_IN_MIN = 60000, watson;
     if (opts.timePrefs.timezoneAware) {
@@ -510,6 +517,18 @@ function TidelineData(data, opts) {
   endTimer('diabetesData');
 
   this.setBGPrefs();
+
+  this.activeScheduleIsAutomated = function() {
+    var latestPumpSettings = _.last(this.grouped.pumpSettings);
+    var automatedDeliverySchedule = _.get(AUTOMATED_BASAL_LABELS, _.get(latestPumpSettings, 'source'));
+    var activeSchedule = _.get(latestPumpSettings, 'activeSchedule');
+    return automatedDeliverySchedule && (automatedDeliverySchedule === activeSchedule);
+  };
+
+  if (this.activeScheduleIsAutomated()) {
+    // _.last(this.grouped.pumpSettings).isAutomated = true;
+    this.setLastManualBasalSchedule();
+  }
 
   startTimer('setUtilities');
   this.setUtilities();
