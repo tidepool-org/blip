@@ -80,6 +80,10 @@
   composes: bolusHeaderBackground settingsHeader from './settings.css';
 }
 
+.automatedBasalHeaderBackground {
+  composes: automatedBasalHeaderBackground from './settings.css';
+}
+
 @media print {
 
   .copyButton {

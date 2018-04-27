@@ -69,6 +69,30 @@ const NonTandem = (props) => {
       const toggleFn = _.partial(toggleBasalScheduleExpansion, basal.scheduleName);
 
       let labelClass = styles.singleLineBasalScheduleHeader;
+
+      if (basal.isAutomated) {
+        // We only show automated basal schedules if active at upload
+        if (!basal.activeAtUpload) {
+          return null;
+        }
+
+        const title = {
+          label: basal.title,
+          className: styles.automatedBasalHeaderBackground,
+        };
+
+        return (
+          <div className={styles.categoryContainer} key={schedule}>
+            {buildTable(
+              [],
+              [],
+              title,
+              [labelClass, styles.settingsTable].join(' '),
+            )}
+          </div>
+        );
+      }
+
       if (basal.activeAtUpload) {
         labelClass = styles.twoLineBasalScheduleHeader;
       }
