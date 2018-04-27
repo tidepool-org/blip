@@ -97,8 +97,8 @@ export function basal(schedule, settings, manufacturer) {
     activeAtUpload: (name === settings.activeSchedule),
     isAutomated,
     title: scheduleLabel(name, settings.activeSchedule, manufacturer, isAutomated),
-    columns: basalColumns(),
-    rows: basalRows(schedule, settings),
+    columns: isAutomated ? [] : basalColumns(),
+    rows: isAutomated ? [] : basalRows(schedule, settings),
   };
 }
 

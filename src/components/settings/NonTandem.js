@@ -84,8 +84,8 @@ const NonTandem = (props) => {
         return (
           <div className={styles.categoryContainer} key={schedule}>
             {buildTable(
-              [],
-              [],
+              basal.rows,
+              basal.columns,
               title,
               [labelClass, styles.settingsTable].join(' '),
             )}

@@ -84,6 +84,7 @@ class PrintView {
 
     this.colors = {
       basal: '#19A0D7',
+      basalAutomated: '#44b9be',
       bolus: '#7CD0F0',
       smbg: '#6480FB',
       siteChange: '#fcd144',
