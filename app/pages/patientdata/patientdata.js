@@ -776,12 +776,13 @@ export let PatientData = translate()(React.createClass({
     const pdfGenerating = nextProps.generatingPDF;
     const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
     const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
+    const userFetched = !nextProps.fetchingUser;
     const hasDiabetesData = _.get(nextState, 'processedPatientData.diabetesData.length');
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
-    if (patientDataProcessed && hasDiabetesData && !pdfGenerating && !pdfGenerated) {
+    if (userFetched && patientDataProcessed && hasDiabetesData && !pdfGenerating && !pdfGenerated) {
       this.generatePDF(nextProps, nextState);
     }
   },
