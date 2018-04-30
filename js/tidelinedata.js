@@ -386,7 +386,7 @@ function TidelineData(data, opts) {
       _.last(this.grouped.pumpSettings).lastManualBasalSchedule = _.get(lastManualBasalSchedule, 'scheduleName');
     }
     endTimer('setLastManualBasalSchedule');
-  }
+  };
 
   function makeWatsonFn() {
     var MS_IN_MIN = 60000, watson;
