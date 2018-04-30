@@ -380,10 +380,12 @@ function TidelineData(data, opts) {
   };
 
   this.setLastManualBasalSchedule = function() {
-    startTimer('getLastManualBasalSchedule');
+    startTimer('setLastManualBasalSchedule');
     var lastManualBasalSchedule = _.findLast(this.grouped.basal, { deliveryType: 'scheduled' });
-    _.last(this.grouped.pumpSettings).lastManualBasalSchedule = _.get(lastManualBasalSchedule, 'scheduleName');
-    endTimer('getLastManualBasalSchedule');
+    if (lastManualBasalSchedule) {
+      _.last(this.grouped.pumpSettings).lastManualBasalSchedule = _.get(lastManualBasalSchedule, 'scheduleName');
+    }
+    endTimer('setLastManualBasalSchedule');
   }
 
   function makeWatsonFn() {
@@ -526,7 +528,6 @@ function TidelineData(data, opts) {
   };
 
   if (this.activeScheduleIsAutomated()) {
-    // _.last(this.grouped.pumpSettings).isAutomated = true;
     this.setLastManualBasalSchedule();
   }
 
