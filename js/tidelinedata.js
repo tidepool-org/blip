@@ -176,7 +176,7 @@ function TidelineData(data, opts) {
       if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
         return true;
       }
-      if (d.type === 'settings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
+      if (d.type === 'pumpSettings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
         return true;
       }
       if (d.type === 'upload') {

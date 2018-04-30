@@ -200,6 +200,26 @@ describe('TidelineData', function() {
     }
   });
 
+  describe('activeScheduleIsAutomated', function() {
+    it('should return `true` when the active schedule is automated', function() {
+      var data = [
+        new types.Settings({ activeSchedule: 'Auto Mode', source: 'Medtronic' }),
+      ];
+      var thisTD = new TidelineData(data);
+
+      expect(thisTD.activeScheduleIsAutomated()).to.be.true;
+    });
+
+    it('should return `false` when the active schedule is not automated', function() {
+      var data = [
+        new types.Settings({ activeSchedule: 'standard', source: 'Medtronic' }),
+      ];
+      var thisTD = new TidelineData(data);
+
+      expect(thisTD.activeScheduleIsAutomated()).to.be.false;
+    });
+  });
+
   describe('setUtilities', function() {
     var BaseObject = function() {
       return {
@@ -284,10 +304,10 @@ describe('TidelineData', function() {
     });
 
     it('should filter out settings data if it is outside diabetes data time range', function() {
-      expect(_.filter(baseObject.data, { type: 'settings' }).length).to.equal(3);
+      expect(_.filter(baseObject.data, { type: 'pumpSettings' }).length).to.equal(3);
       thisTD.filterDataArray.call(baseObject);
-      expect(_.filter(baseObject.data, { type: 'settings' }).length).to.equal(1);
-      expect(_.find(baseObject.data, { type: 'settings' }).time).to.equal('2015-10-02T00:00:00.000Z');
+      expect(_.filter(baseObject.data, { type: 'pumpSettings' }).length).to.equal(1);
+      expect(_.find(baseObject.data, { type: 'pumpSettings' }).time).to.equal('2015-10-02T00:00:00.000Z');
     });
   });
 
@@ -832,6 +852,42 @@ describe('TidelineData', function() {
       ];
       var thisTd = new TidelineData(mmolData, {bgUnits: MMOLL_UNITS});
       expect(thisTd.bgUnits).to.equal(MMOLL_UNITS);
+    });
+  });
+
+  describe('setLastManualBasalSchedule', function() {
+    context('automated basal is active at last upload', function() {
+      it('should set the `lastManualBasalSchedule` property on the last pumpSettings object when available', function() {
+        var data = [
+          new types.Settings(),
+          new types.Settings({ activeSchedule: 'Auto Mode', source: 'Medtronic' }),
+          new types.Basal({ deliveryType: 'scheduled' }),
+        ];
+        var thisTd = new TidelineData(data);
+        expect(thisTd.grouped.pumpSettings[1].lastManualBasalSchedule).to.equal('standard');
+      });
+
+      it('should not set the `lastManualBasalSchedule` property on the last pumpSettings object when unavailable', function() {
+        var data = [
+          new types.Settings(),
+          new types.Settings({ activeSchedule: 'Auto Mode', source: 'Medtronic' }),
+          new types.Basal({ deliveryType: 'automated' }),
+        ];
+        var thisTd = new TidelineData(data);
+        expect(thisTd.grouped.pumpSettings[1].lastManualBasalSchedule).to.be.undefined;
+      });
+    });
+
+    context('automated basal is not active at last upload', function() {
+      it('should not set the `lastManualBasalSchedule` property', function() {
+        var data = [
+          new types.Settings(),
+          new types.Settings({ activeSchedule: 'standard', source: 'Medtronic' }),
+          new types.Basal({ deliveryType: 'scheduled' }),
+        ];
+        var thisTd = new TidelineData(data);
+        expect(thisTd.grouped.pumpSettings[1].lastManualBasalSchedule).to.be.undefined;
+      });
     });
   });
 
