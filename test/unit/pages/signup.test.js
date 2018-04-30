@@ -96,7 +96,7 @@ describe('Signup', function () {
         location: { pathname: 'signup' },
       };
       var elem = React.createElement(Signup, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
       render.setState({madeSelection:true});
       var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
     });
@@ -105,14 +105,14 @@ describe('Signup', function () {
       var props = {
         configuredInviteKey: '',
         inviteKey: '',
-        location: { pathname: 'signup' },
+        location: { pathname: 'signup' }
       };
 
       var wrapper = mount(
         <Signup {...props} />
       );
 
-      wrapper.setState({madeSelection:true, selected: 'personal'});
+      wrapper.instance().getWrappedInstance().setState({madeSelection:true, selected: 'personal'});
 
       expect(wrapper.find('.signup-form').length).to.equal(1)
       expect(wrapper.find('.signup-title-condensed').length).to.equal(1)
@@ -121,14 +121,14 @@ describe('Signup', function () {
 
     it('should render the clinician signup-form when clinician was selected', function () {
       var props = {
-        location: { pathname: 'signup' },
+        location: { pathname: 'signup' }
       };
 
       var wrapper = mount(
         <Signup {...props} />
       );
 
-      wrapper.setState({ madeSelection: true, selected: 'clinician'});
+      wrapper.instance().getWrappedInstance().setState({ madeSelection: true, selected: 'clinician'});
 
       expect(wrapper.find('.signup-form').length).to.equal(1)
       expect(wrapper.find('.signup-title-condensed').length).to.equal(1)
@@ -169,7 +169,7 @@ describe('Signup', function () {
 
     it('should render a link from the personal form to the clinician form, and vice-versa', function() {
       var props = {
-        location: { pathname: '/signup/personal' },
+        location: { pathname: '/signup/personal' }
       };
 
       var wrapper = mount(
@@ -183,10 +183,10 @@ describe('Signup', function () {
       expect(link.length).to.equal(1);
 
       link.simulate('click');
-      expect(wrapper.state('selected')).to.equal('clinician');
+      expect(wrapper.instance().getWrappedInstance().state.selected).to.equal('clinician');
 
       link.simulate('click');
-      expect(wrapper.state('selected')).to.equal('personal');
+      expect(wrapper.instance().getWrappedInstance().state.selected).to.equal('personal');
     });
 
     it('should render the proper submit button text for each signup form', function() {
@@ -238,7 +238,7 @@ describe('Signup', function () {
         location: { pathname: 'signup' },
       };
       var elem = React.createElement(Signup, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
       var state = render.getInitialState();
 
       expect(state.loading).to.equal(true);
@@ -311,7 +311,7 @@ describe('Signup', function () {
       const username = 'jill@gmail.com';
 
       const props = {
-        location: { pathname: '/signup/clinician' },
+        location: { pathname: '/signup/clinician' }
       };
 
       const wrapper = mount(
@@ -320,11 +320,11 @@ describe('Signup', function () {
 
       const input = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
       expect(input.length).to.equal(1);
-      expect(wrapper.state('formValues')).to.eql({});
+      expect(wrapper.instance().getWrappedInstance().state.formValues).to.eql({});
 
       input.simulate('change', { target: { name: 'username', value: username } });
 
-      expect(wrapper.state('formValues')).to.eql({ username });
+      expect(wrapper.instance().getWrappedInstance().state.formValues).to.eql({ username });
     });
   });
 
@@ -353,10 +353,8 @@ describe('Signup', function () {
         passwordConfirm: 'secret',
       };
 
-      const wrapper = mount(
-        <Signup {...props} />
-      );
-
+      const elem = React.createElement(Signup, props);
+      const rendered = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
       const expectedformattedValues = {
         username: formValues.username,
@@ -368,7 +366,7 @@ describe('Signup', function () {
         },
       };
 
-      const formattedValues = wrapper.instance().prepareFormValuesForSubmit(formValues);
+      const formattedValues = rendered.prepareFormValuesForSubmit(formValues);
 
       expect(formattedValues).to.eql(expectedformattedValues);
     });
@@ -386,9 +384,8 @@ describe('Signup', function () {
         passwordConfirm: 'secret',
       };
 
-      const wrapper = mount(
-        <Signup {...props} />
-      );
+      const elem = React.createElement(Signup, props);
+      const rendered = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
       const expectedformattedValues = {
         username: formValues.username,
@@ -398,7 +395,7 @@ describe('Signup', function () {
         roles: [ 'clinic' ],
       };
 
-      const formattedValues = wrapper.instance().prepareFormValuesForSubmit(formValues);
+      const formattedValues = rendered.prepareFormValuesForSubmit(formValues);
 
       expect(formattedValues).to.eql(expectedformattedValues);
     });

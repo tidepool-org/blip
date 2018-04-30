@@ -60,7 +60,7 @@ describe('Patients', () => {
     it('should not redirect to patient data when justLogged query param is set and only one patient if invites present', () => {
       var props = {};
       var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
       var nextProps = Object.assign({}, props, {
         invites: [1],
@@ -81,7 +81,7 @@ describe('Patients', () => {
     it('should not redirect to patient data when justLogged query param is set and more than one patient available', () => {
       var props = {};
       var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
         loading: false,
@@ -103,7 +103,7 @@ describe('Patients', () => {
         showWelcomeMessage: sinon.stub()
       };
       var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -126,7 +126,7 @@ describe('Patients', () => {
         showWelcomeMessage: sinon.stub()
       };
       var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -149,7 +149,7 @@ describe('Patients', () => {
         showWelcomeMessage: sinon.stub()
       };
       var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -172,7 +172,7 @@ describe('Patients', () => {
         showWelcomeMessage: sinon.stub()
       };
       var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -193,7 +193,7 @@ describe('Patients', () => {
     it('should not redirect to patient data when justLogged query param is set and only one patient available and no invites, but user is a clinic', () => {
       var props = {};
       var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
       var nextProps = Object.assign({}, props, {
         invites: [],
@@ -218,7 +218,7 @@ describe('Patients', () => {
     it('should redirect to patient data when justLogged query param is set and only one patient available and no invites', () => {
       var props = {};
       var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
       var nextProps = Object.assign({}, props, {
         invites: [],

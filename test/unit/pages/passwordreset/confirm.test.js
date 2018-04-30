@@ -49,7 +49,7 @@ describe('ConfirmPasswordReset', function () {
         working: false
       };
       var elem = React.createElement(ConfirmPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
       var formInputs = render.formInputs();
       expect(formInputs.length).to.equal(3);
       expect(formInputs[0].name).to.equal('email');
@@ -82,7 +82,7 @@ describe('ConfirmPasswordReset', function () {
       };
       var elem = React.createElement(ConfirmPasswordReset, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var initialState = render.getInitialState();
+      var initialState = render.getWrappedInstance().getInitialState();
       expect(Object.keys(initialState.formValues).length).to.equal(0);
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);
       expect(initialState.notification).to.equal(null);
@@ -102,7 +102,7 @@ describe('ConfirmPasswordReset', function () {
         working: false
       };
       var elem = React.createElement(ConfirmPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
       var vals = {
         email: 'foo@bar.com',
         password: 'woowoo'

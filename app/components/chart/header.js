@@ -20,6 +20,7 @@ import bows from 'bows';
 import React, { Component } from 'react';
 import cx from 'classnames';
 import Loading from 'react-loading';
+import { translate } from 'react-i18next';
 
 import printPng from './img/print-icon-2x.png';
 
@@ -27,7 +28,7 @@ const tideline = {
   log: bows('Header'),
 };
 
-class TidelineHeader extends Component {
+const TidelineHeader = translate()(class TidelineHeader extends Component {
   static propTypes = {
     patient: React.PropTypes.object,
     printReady: React.PropTypes.bool,
@@ -54,6 +55,7 @@ class TidelineHeader extends Component {
   };
 
   renderStandard = () => {
+    const { t } = this.props;
     const basicsLinkClass = cx({
       'js-basics': true,
       'patient-data-subnav-active': this.props.chartType === 'basics',
@@ -137,10 +139,10 @@ class TidelineHeader extends Component {
     return (
       <div id="app-no-print" className="grid patient-data-subnav">
         <div className="grid-item one-whole large-one-third">
-            <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>Basics</a>
-            <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>Daily</a>
-            <a href="" className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>Weekly</a>
-            <a href="" className={trendsLinkClass} onClick={this.props.onClickTrends}>Trends</a>
+            <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>{t('Basics')}</a>
+            <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>{t('Daily')}</a>
+            <a href="" className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>{t('Weekly')}</a>
+            <a href="" className={trendsLinkClass} onClick={this.props.onClickTrends}>{t('Trends')}</a>
         </div>
         <div className="grid-item one-whole large-one-third patient-data-subnav-center" id="tidelineLabel">
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
@@ -151,11 +153,11 @@ class TidelineHeader extends Component {
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
         <div className="grid-item one-whole large-one-third">
-          <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
+          <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>
           <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
             {this.props.printReady && <img className="print-icon" src={printPng} alt="Print" />}
             {!this.props.printReady && <Loading className="print-loading-spinner" width={16} height={16} delay={0} type="spin" color="#fff" />}
-            Print
+            {t('Print')}
           </a>
         </div>
       </div>
@@ -163,17 +165,18 @@ class TidelineHeader extends Component {
   };
 
   printTitle = () => {
+    const { t } = this.props;
     switch (this.props.chartType) {
       case 'basics':
-        return 'Basics';
+        return t('Basics');
       case 'daily':
-        return 'Daily';
+        return t('Daily');
       case 'weekly':
-        return 'Weekly';
+        return t('Weekly');
       case 'trends':
-        return 'Trends';
+        return t('Trends');
       case 'settings':
-        return 'Pump Settings';
+        return t('Pump Settings');
       case 'no-data':
       default:
         return '';
@@ -212,6 +215,6 @@ class TidelineHeader extends Component {
       return (<a href="" className={buttonClass} onClick={clickAction}><i className={icon}/></a>);
     }
   };
-};
+});
 
 module.exports = TidelineHeader;

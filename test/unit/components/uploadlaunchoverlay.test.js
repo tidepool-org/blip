@@ -64,7 +64,7 @@ describe('UploadLaunchOverlay', function () {
     });
 
     it('should have active buttons if URLs have been set', () => {
-      wrapper.setState({
+      wrapper.instance().getWrappedInstance().setState({
         latestMacRelease: 'test',
         latestWinRelease: 'test',
       });
@@ -73,7 +73,7 @@ describe('UploadLaunchOverlay', function () {
     });
 
     it('should display download link if error retrieving github releases', () => {
-      wrapper.setState({
+      wrapper.instance().getWrappedInstance().setState({
         error: 'some error',
       });
       expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);

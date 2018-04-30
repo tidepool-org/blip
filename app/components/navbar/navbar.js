@@ -17,6 +17,7 @@
 var React = require('react');
 var IndexLink = require('react-router').IndexLink;
 var Link = require('react-router').Link;
+import { translate } from 'react-i18next';
 
 var _ = require('lodash');
 var cx = require('classnames');
@@ -26,7 +27,7 @@ var NavbarPatientCard = require('../../components/navbarpatientcard');
 
 var logoSrc = require('./images/tidepool-logo-408x46.png');
 
-var Navbar = React.createClass({
+export default translate()(React.createClass({
   propTypes: {
     currentPage: React.PropTypes.string,
     user: React.PropTypes.object,
@@ -128,7 +129,7 @@ var Navbar = React.createClass({
 
   renderMenuSection: function() {
     var currentPage = (this.props.currentPage && this.props.currentPage[0] === '/') ? this.props.currentPage.slice(1) : this.props.currentPage;
-    var user = this.props.user;
+    const {user, t} = this.props;
 
     if (_.isEmpty(user)) {
       return <div className="Navbar-menuSection"></div>;
@@ -180,7 +181,7 @@ var Navbar = React.createClass({
           <div onClick={this.toggleDropdown}>
             <i className='Navbar-icon Navbar-icon-profile icon-profile'></i>
             <div className="Navbar-logged">
-              <span className="Navbar-loggedInAs">{'Logged in as '}</span>
+              <span className="Navbar-loggedInAs">{t('Logged in as ')}</span>
               <span className="Navbar-userName" ref="userFullName" title={displayName}>{displayName}</span>
             </div>
             <i className='Navbar-icon Navbar-icon-down icon-arrow-down'></i>
@@ -189,13 +190,13 @@ var Navbar = React.createClass({
           <div onClick={this.stopPropagation} className={dropdownClasses}>
             <ul>
               <li>
-                <Link to="/profile" title="Account" onClick={handleClickUser} className={accountSettingsClasses}>
-                  <i className='Navbar-icon icon-settings'></i><span className="Navbar-menuText">Account Settings</span>
+                <Link to="/profile" title={t('Account')} onClick={handleClickUser} className={accountSettingsClasses}>
+                  <i className='Navbar-icon icon-settings'></i><span className="Navbar-menuText">{t('Account Settings')}</span>
                 </Link>
               </li>
               <li>
-                <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout">
-                  <i className='Navbar-icon icon-logout'></i><span className="Navbar-menuText">Logout</span>
+                <a href="" title={t('Logout')} onClick={this.handleLogout} className="Navbar-button" ref="logout">
+                  <i className='Navbar-icon icon-logout'></i><span className="Navbar-menuText">{t('Logout')}</span>
                 </a>
               </li>
             </ul>
@@ -225,6 +226,4 @@ var Navbar = React.createClass({
       logout();
     }
   }
-});
-
-module.exports = Navbar;
+}));

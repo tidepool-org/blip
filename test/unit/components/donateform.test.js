@@ -82,7 +82,7 @@ describe('DonateForm', () => {
       formSubmitted: false,
     };
 
-    expect(wrapper.state()).to.eql(expectedInitialState);
+    expect(wrapper.instance().getWrappedInstance().state).to.eql(expectedInitialState);
   });
 
   describe('render', () => {
@@ -114,7 +114,7 @@ describe('DonateForm', () => {
 
   describe('getInitialFormValues', () => {
     it('should set appropriate form values for a non-donor', () => {
-      expect(wrapper.state('formValues')).to.eql(expectedInitialFormValues);
+      expect(wrapper.instance().getWrappedInstance().state.formValues).to.eql(expectedInitialFormValues);
     });
 
     it('should set appropriate initial form values for a donor who has not yet shared proceeds', () => {
@@ -127,7 +127,7 @@ describe('DonateForm', () => {
       });
 
       const element = mount(<DonateForm {...newProps} />);
-      expect(element.state('formValues')).to.eql(expectedFormValues);
+      expect(element.instance().getWrappedInstance().state.formValues).to.eql(expectedFormValues);
     });
 
     it('should set appropriate initial form values for a donor who has shared proceeds', () => {
@@ -145,7 +145,7 @@ describe('DonateForm', () => {
       });
 
       const element = mount(<DonateForm {...newProps} />)
-      expect(element.state('formValues')).to.eql(expectedFormValues);
+      expect(element.instance().getWrappedInstance().state.formValues).to.eql(expectedFormValues);
     });
 
     it('should set sort the nonprofits alphabetically in the value string', () => {
@@ -164,7 +164,7 @@ describe('DonateForm', () => {
       });
 
       const element = mount(<DonateForm {...newProps} />);
-      expect(element.state('formValues')).to.eql(expectedFormValues);
+      expect(element.instance().getWrappedInstance().state.formValues).to.eql(expectedFormValues);
     });
   });
 
@@ -181,7 +181,7 @@ describe('DonateForm', () => {
       const button = wrapper.find('button.simple-form-submit');
       expect(button.text()).to.equal('Save');
 
-      wrapper.setState({ formSubmitted: true });
+      wrapper.instance().getWrappedInstance().setState({ formSubmitted: true });
       expect(button.text()).to.equal('Saved');
     });
 
@@ -196,15 +196,15 @@ describe('DonateForm', () => {
 
   describe('formIsUpdated', () => {
     it('should return true if the form has been updated', () => {
-      wrapper.setState({ formValues: {
+      wrapper.instance().getWrappedInstance().setState({ formValues: {
         dataDonate: true,
         dataDonateDestination: 'CARBDM,CWD',
       }})
-      expect(wrapper.instance().formIsUpdated()).to.be.true;
+      expect(wrapper.instance().getWrappedInstance().formIsUpdated()).to.be.true;
     });
 
     it('should return false if the form has not been updated', () => {
-      expect(wrapper.instance().formIsUpdated()).to.be.false;
+      expect(wrapper.instance().getWrappedInstance().formIsUpdated()).to.be.false;
     });
   })
 
@@ -243,7 +243,7 @@ describe('DonateForm', () => {
     let spy, checkbox, select;
 
     beforeEach(() => {
-      spy = sinon.spy(wrapper.instance(), 'handleChange');
+      spy = sinon.spy(wrapper.instance().getWrappedInstance(), 'handleChange');
       wrapper.update();
 
       checkbox = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
@@ -251,17 +251,17 @@ describe('DonateForm', () => {
     });
 
     it('should update the form values in state when a form value changes', () => {
-      expect(wrapper.state('formValues').dataDonate).to.be.false;
+      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonate).to.be.false;
 
       checkbox.simulate('change', { target: { name: 'dataDonate', checked: true } });
       sinon.assert.calledOnce(spy);
 
-      expect(wrapper.state('formValues').dataDonate).to.be.true;
+      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonate).to.be.true;
     });
 
     it('should ensure that the dataDonate form value is true if recipients are added from the dropdown', () => {
-      expect(wrapper.state('formValues').dataDonateDestination).to.be.empty;
-      expect(wrapper.state('formValues').dataDonate).to.be.false;
+      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.be.empty;
+      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonate).to.be.false;
 
       // Only way I could find of triggering change in React-Select element
       // was to simulate arrow down then enter keystrokes
@@ -269,19 +269,19 @@ describe('DonateForm', () => {
       select.simulate('keyDown', { keyCode: 13 });
 
       sinon.assert.calledOnce(spy);
-      expect(wrapper.state('formValues').dataDonateDestination).to.not.be.empty
-      expect(wrapper.state('formValues').dataDonate).to.be.true;
+      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.not.be.empty
+      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonate).to.be.true;
     });
 
     it('should ensure that the dataDonate form value string is sorted alphabetically', () => {
-      expect(wrapper.state('formValues').dataDonateDestination).to.be.empty;
+      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.be.empty;
 
-      wrapper.instance().handleChange({
+      wrapper.instance().getWrappedInstance().handleChange({
         name: 'dataDonateDestination',
         value: 'CWD,ZZZ,CARBDM',
       });
 
-      expect(wrapper.state('formValues').dataDonateDestination).to.equal('CARBDM,CWD,ZZZ');
+      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.equal('CARBDM,CWD,ZZZ');
     });
   });
 
@@ -289,7 +289,7 @@ describe('DonateForm', () => {
     let spy, checkbox, button;
 
     beforeEach(() => {
-      spy = sinon.spy(wrapper.instance(), 'handleSubmit');
+      spy = sinon.spy(wrapper.instance().getWrappedInstance(), 'handleSubmit');
       wrapper.update();
 
       checkbox = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
@@ -340,9 +340,9 @@ describe('DonateForm', () => {
 
       const location = 'settings';
 
-      wrapper.setState({ formValues });
+      wrapper.instance().getWrappedInstance().setState({ formValues });
 
-      wrapper.instance().handleSubmit(formValues);
+      wrapper.instance().getWrappedInstance().handleSubmit(formValues);
       sinon.assert.calledOnce(props.onUpdateDataDonationAccounts);
       sinon.assert.calledWith(props.onUpdateDataDonationAccounts, expectedAddAccounts);
 
@@ -369,9 +369,9 @@ describe('DonateForm', () => {
         'bigdata+CARBDM@tidepool.org',
       ];
 
-      wrapper.setState({ formValues });
+      wrapper.instance().getWrappedInstance().setState({ formValues });
 
-      wrapper.instance().handleSubmit(formValues);
+      wrapper.instance().getWrappedInstance().handleSubmit(formValues);
 
       sinon.assert.calledOnce(props.onUpdateDataDonationAccounts);
       sinon.assert.calledWith(props.onUpdateDataDonationAccounts, expectedAddAccounts);
@@ -396,9 +396,9 @@ describe('DonateForm', () => {
         { email: 'bigdata+CARBDM@tidepool.org' },
       ];
 
-      wrapper.setState({ formValues });
+      wrapper.instance().getWrappedInstance().setState({ formValues });
 
-      wrapper.instance().handleSubmit(formValues);
+      wrapper.instance().getWrappedInstance().handleSubmit(formValues);
 
       sinon.assert.calledOnce(props.onUpdateDataDonationAccounts);
       sinon.assert.calledWithExactly(props.onUpdateDataDonationAccounts, [], expectedRemoveAccounts);

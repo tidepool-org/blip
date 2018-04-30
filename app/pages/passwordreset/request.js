@@ -22,6 +22,7 @@ import { bindActionCreators } from 'redux';
 import * as actions from '../../redux/actions';
 
 import { Link } from 'react-router';
+import { translate } from 'react-i18next';
 import _ from 'lodash';
 
 import config from '../../config';
@@ -31,7 +32,7 @@ import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
-export let RequestPasswordReset = React.createClass({
+export let RequestPasswordReset = translate()(React.createClass({
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
     api: React.PropTypes.object.isRequired,
@@ -42,8 +43,9 @@ export let RequestPasswordReset = React.createClass({
   },
 
   formInputs: function() {
+    const { t } = this.props;
     return [
-      {name: 'email', label: 'Email', type: 'email'}
+      {name: 'email', label: t('Email'), type: 'email'}
     ];
   },
 
@@ -57,13 +59,14 @@ export let RequestPasswordReset = React.createClass({
   },
 
   render: function() {
+    const { t } = this.props;
     var content;
     if (this.state.success) {
       content = (
         <div className="PasswordReset-intro">
-          <div className="PasswordReset-title">{'Email sent!'}</div>
+          <div className="PasswordReset-title">{t('Email sent!')}</div>
           <div className="PasswordReset-instructions">
-            <p>{'Check your email and follow the instructions to reset your password.'}</p>
+            <p>{t('Check your email and follow the instructions to reset your password.')}</p>
           </div>
         </div>
       );
@@ -72,9 +75,9 @@ export let RequestPasswordReset = React.createClass({
       content = (
         <div>
           <div className="PasswordReset-intro">
-            <div className="PasswordReset-title">{'Forgot your password?'}</div>
+            <div className="PasswordReset-title">{t('Forgot your password?')}</div>
             <div className="PasswordReset-instructions">
-              {'Please enter your email address.'}
+              {t('Please enter your email address.')}
             </div>
           </div>
           <div className="PasswordReset-form">{this.renderForm()}</div>
@@ -92,7 +95,7 @@ export let RequestPasswordReset = React.createClass({
           <div className="container-small-inner login-form-box">
             {content}
             <div className="PasswordReset-link">
-              <Link to="/login">Return to login</Link>
+              <Link to="/login">{t('Return to login')}</Link>
             </div>
           </div>
         </div>
@@ -101,7 +104,8 @@ export let RequestPasswordReset = React.createClass({
   },
 
   renderForm: function() {
-    var submitButtonText = this.props.working ? 'Sending email...' : 'Send reset link';
+    const { t } = this.props;
+    var submitButtonText = this.props.working ? t('Sending email...') : t('Send reset link');
 
     return (
       <SimpleForm
@@ -145,9 +149,10 @@ export let RequestPasswordReset = React.createClass({
   },
 
   validateFormValues: function(formValues) {
+    const { t } = this.props;
     var validationErrors = {};
-    var IS_REQUIRED = 'This field is required.';
-    var INVALID_EMAIL = 'Invalid email address.';
+    var IS_REQUIRED = t('This field is required.');
+    var INVALID_EMAIL = t('Invalid email address.');
 
     if (!formValues.email) {
       validationErrors.email = IS_REQUIRED;
@@ -165,7 +170,7 @@ export let RequestPasswordReset = React.createClass({
 
     return validationErrors;
   }
-});
+}));
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

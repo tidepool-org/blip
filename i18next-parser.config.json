@@ -1,0 +1,9 @@
+{
+  "keySeparator": "__NO_KEY_SEPARATOR__",
+  "namespaceSeparator": "|",
+  "lexers": {
+    "js": ["JavascriptLexer", "JsxLexer"]
+  },
+  "sort": true,
+  "locales": ["en", "fr"]
+}
