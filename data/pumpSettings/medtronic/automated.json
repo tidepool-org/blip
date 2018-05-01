@@ -1,10 +1,14 @@
 {
   "type": "pumpSettings",
   "activeSchedule": "Auto Mode",
-  "lastManualBasalSchedule": "standard",
+  "lastManualBasalSchedule": "Standard",
   "basalSchedules": [
     {
-      "name": "standard",
+      "name": "Auto Mode",
+      "value": []
+    },
+    {
+      "name": "Standard",
       "value": [
         {
           "start": 0,
@@ -13,15 +17,11 @@
       ]
     },
     {
-      "name": "Auto Mode",
+      "name": "Pattern A",
       "value": []
     },
     {
-      "name": "pattern a",
-      "value": []
-    },
-    {
-      "name": "pattern b",
+      "name": "Pattern B",
       "value": []
     }
   ],

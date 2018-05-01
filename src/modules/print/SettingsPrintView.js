@@ -221,7 +221,7 @@ class SettingsPrintView extends PrintView {
       };
     });
 
-
+    // We only show automated basal schedules if active at upload
     const schedules = _.reject(
       _.map(
         basalSchedules,

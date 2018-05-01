@@ -87,8 +87,10 @@ function basalColumns() {
  */
 export function basal(schedule, settings, manufacturer) {
   const name = settings.basalSchedules[schedule].name;
+  const lookupKey = (manufacturer === 'carelink') ? 'medtronic' : manufacturer;
+
   const isAutomated = _.get(pumpVocabulary, [
-    data.deviceName(manufacturer),
+    data.deviceName(lookupKey),
     AUTOMATED_DELIVERY,
   ]) === name;
 
