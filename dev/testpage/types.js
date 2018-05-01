@@ -66,7 +66,8 @@ var Basal = function(opts) {
     deliveryType: 'scheduled',
     deviceTime: this.makeDeviceTime(),
     duration: MS_IN_24HRS/12,
-    rate: 0.5
+    rate: 0.5,
+    scheduleName: 'standard',
   };
   _.defaults(opts, defaults);
 
@@ -76,6 +77,7 @@ var Basal = function(opts) {
   this.deviceTime = opts.deviceTime;
   this.duration = opts.duration;
   this.rate = opts.rate;
+  this.scheduleName = opts.scheduleName;
 
   this.time = this.makeTime();
   this.timezoneOffset = this.makeTimezoneOffset();
@@ -165,7 +167,7 @@ var Message = function(opts) {
 var Settings = function(opts) {
   opts = opts || {};
   var defaults = {
-    activeBasalSchedule: 'standard',
+    activeSchedule: 'standard',
     basalSchedules: [{
       name: 'standard',
       value: [{
@@ -190,19 +192,21 @@ var Settings = function(opts) {
     units: {
       carb: 'grams',
       bg: MGDL_UNITS
-    }
+    },
+    source: 'Medtronic',
   };
   _.defaults(opts, defaults);
 
-  this.type = 'settings';
+  this.type = 'pumpSettings';
 
-  this.activeBasalSchedule = opts.activeBasalSchedule;
+  this.activeSchedule = opts.activeSchedule;
   this.basalSchedules = opts.basalSchedules;
   this.bgTarget = opts.bgTarget;
   this.carbRatio = opts.carbRatio;
   this.deviceTime = opts.deviceTime;
   this.insulinSensitivity = opts.insulinSensitivity;
   this.units = opts.units;
+  this.source = opts.source;
 
   this.time = this.makeTime();
   this.timezoneOffset = this.makeTimezoneOffset();
