@@ -16,11 +16,12 @@
  */
 
 /* global d3 */
-
 var _ = require('lodash');
 var cx = require('classnames');
 var React = require('react');
 var basicsActions = require('../../logic/actions');
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var DailyDoseTitle = React.createClass({
   propTypes: {
@@ -54,8 +55,8 @@ var DailyDoseTitle = React.createClass({
       return (
         <h3 className="DailyDoseTitle" onClick={this.handleToggleSection}>
           <div className="DailyDoseTitle-content content">
-            <span className="DailyDoseTitle-label label">Total daily dose / kg</span>
-            <span className="DailyDoseTitle-value value">{d3.format('.2f')(dosePerKg) + ' U'}</span>
+            <span className="DailyDoseTitle-label label">{t("Total daily dose")} / kg</span>
+            <span className="DailyDoseTitle-value value">{t("{{dosePerKg}} U", {dosePerKg: d3.format('.2f')(dosePerKg)})}</span>
           </div>
           <i className={this.props.iconClass}/>
         </h3>
@@ -64,8 +65,8 @@ var DailyDoseTitle = React.createClass({
       return (
         <h3 className={headerClasses} onClick={this.handleToggleSection}>
           <div className="DailyDoseTitle-content content">
-            <span className="DailyDoseTitle-label label">Avg total daily dose</span>
-            <span className="DailyDoseTitle-value value">{displayDose + ' U'}</span>
+            <span className="DailyDoseTitle-label label">{t("Avg total daily dose")}</span>
+            <span className="DailyDoseTitle-value value">{t('{{displayDose}} U', {displayDose: displayDose})}</span>
           </div>
           <i className={this.props.iconClass}/>
         </h3>

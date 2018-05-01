@@ -18,6 +18,17 @@
 var _ = require('lodash');
 var React = require('react');
 
+var i18next = require('i18next');
+
+// Should be initialized in calling module
+if (i18next.options.returnEmptyString === undefined) {
+  // Return key if no translation is present
+  i18next.init({returnEmptyString: false});
+}
+
+var t = i18next.t.bind(i18next);
+
+
 var BasicContainer = require('../components/BasicContainer');
 var CalendarContainer = require('../components/CalendarContainer');
 var SummaryGroup = React.createFactory(require('../components/misc/SummaryGroup'));
@@ -49,18 +60,18 @@ var basicsState = {
       togglable: togglableState.off,
       selector: SummaryGroup,
       selectorOptions: {
-        primary: { key: 'total', label: 'Basal Events' },
+        primary: { key: 'total', label: t('Basal Events') },
         rows: [
           [
-            { key: 'temp', label: 'Temp Basals' },
-            { key: 'suspend', label: 'Suspends' }
+            { key: 'temp', label: t('Temp Basals') },
+            { key: 'suspend', label: t('Suspends') }
             // commented out because there's a problem with scheduleName in OmniPod data :(
             // { key: 'scheduleChange', label: 'Schedule Changes' }
           ]
         ]
       },
       settingsTogglable: togglableState.off,
-      title: 'Basals',
+      title: t('Basals'),
       type: 'basal'
     },
     basalBolusRatio: {
@@ -71,7 +82,7 @@ var basicsState = {
       id: 'basalBolusRatio',
       index: 3,
       noData: false,
-      title: 'Insulin ratio',
+      title: t('Insulin ratio'),
       togglable: togglableState.off,
       settingsTogglable: togglableState.off,
     },
@@ -82,7 +93,7 @@ var basicsState = {
       column: 'left',
       id: 'bgDistribution',
       index: 1,
-      title: 'BG distribution',
+      title: t('BG distribution'),
       togglable: togglableState.off,
       settingsTogglable: togglableState.off,
     },
@@ -97,22 +108,22 @@ var basicsState = {
       togglable: togglableState.off,
       selector: SummaryGroup,
       selectorOptions: {
-        primary: { key: 'total', label: 'Avg per day', average: true },
+        primary: { key: 'total', label: t('Avg per day'), average: true },
         rows: [
           [
-            { key: 'wizard', label: 'Calculator', percentage: true  },
-            { key: 'correction', label: 'Correction', percentage: true  },
-            { key: 'override', label: 'Override', percentage: true  }
+            { key: 'wizard', label: t('Calculator'), percentage: true  },
+            { key: 'correction', label: t('Correction'), percentage: true  },
+            { key: 'override', label: t('Override'), percentage: true  }
           ],
           [
-            { key: 'extended', label: 'Extended', percentage: true  },
-            { key: 'interrupted', label : 'Interrupted', percentage: true  },
-            { key: 'underride', label: 'Underride', percentage: true  }
+            { key: 'extended', label: t('Extended'), percentage: true  },
+            { key: 'interrupted', label : t('Interrupted'), percentage: true  },
+            { key: 'underride', label: t('Underride'), percentage: true  }
           ]
         ]
       },
       settingsTogglable: togglableState.off,
-      title: 'Bolusing',
+      title: t('Bolusing'),
       type: 'bolus'
     },
     fingersticks: {
@@ -126,12 +137,12 @@ var basicsState = {
       togglable: togglableState.off,
       selector: SummaryGroup,
       selectorOptions: {
-        primary: { path: 'smbg', key: 'total', label: 'Avg per day', average: true },
+        primary: { path: 'smbg', key: 'total', label: t('Avg per day'), average: true },
         rows: [
           [
-            { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
-            { path: 'smbg', key: 'manual', label: 'Manual', percentage: true },
-            { path: 'calibration', key: 'calibration', label: 'Calibrations' }
+            { path: 'smbg', key: 'meter', label: t('Meter'), percentage: true },
+            { path: 'smbg', key: 'manual', label: t('Manual'), percentage: true },
+            { path: 'calibration', key: 'calibration', label: t('Calibrations') }
           ],
           [
             { path: 'smbg', key: 'verylow', labelOpts: {type: 'bg', key: 'verylow'}, percentage: true },
@@ -140,7 +151,7 @@ var basicsState = {
         ]
       },
       settingsTogglable: togglableState.off,
-      title: 'BG readings',
+      title: t('BG readings'),
       type: 'fingerstick'
     },
     siteChanges: {
@@ -152,20 +163,20 @@ var basicsState = {
       hoverDisplay: InfusionHoverDisplay,
       id: 'siteChanges',
       index: 3,
-      noDataMessage: 'Infusion site changes are not yet available for all pumps. Coming soon!',
+      noDataMessage: t('Infusion site changes are not yet available for all pumps. Coming soon!'),
       togglable: togglableState.off,
       selector: SiteChangeSelector,
       selectorOptions: {
-        primary: { key: constants.SITE_CHANGE_RESERVOIR, label: 'Reservoir Changes' },
+        primary: { key: constants.SITE_CHANGE_RESERVOIR, label: t('Reservoir Changes') },
         rows: [
           [
-            { key: constants.SITE_CHANGE_CANNULA, label: 'Cannula Fills' },
-            { key: constants.SITE_CHANGE_TUBING, label: 'Tube Primes' },
+            { key: constants.SITE_CHANGE_CANNULA, label: t('Cannula Fills') },
+            { key: constants.SITE_CHANGE_TUBING, label: t('Tube Primes') },
           ]
         ]
       },
       settingsTogglable: togglableState.closed,
-      title: 'Infusion site changes',
+      title: t('Infusion site changes'),
       type: constants.SITE_CHANGE_RESERVOIR
     },
     totalDailyDose: {

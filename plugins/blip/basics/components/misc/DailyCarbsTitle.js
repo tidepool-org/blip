@@ -17,6 +17,9 @@
 
 /* global d3 */
 
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
+
 var _ = require('lodash');
 var cx = require('classnames');
 var React = require('react');
@@ -50,8 +53,8 @@ var DailyCarbsTitle = React.createClass({
     return (
       <h3 className={headerClasses} onClick={this.handleToggleSection}>
         <div className="DailyCarbsTitle-content content">
-          <span className="DailyCarbsTitle-label label">Avg daily carbs</span>
-          <span className="DailyCarbsTitle-value value">{displayCarbs + ' g'}</span>
+          <span className="DailyCarbsTitle-label label">{t('Avg daily carbs')}</span>
+          <span className="DailyCarbsTitle-value value">{t('{{displayCarbs}} g', {displayCarbs: displayCarbs})}</span>
         </div>
         <i className={this.props.iconClass}/>
       </h3>

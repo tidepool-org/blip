@@ -16,6 +16,8 @@
  */
 
 /* jshint esversion:6 */
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var d3 = require('d3');
 var _ = require('lodash');
@@ -49,8 +51,8 @@ module.exports = function(pool, opts) {
     pieRadius: pool.height() * 0.5,
     bgUnits: MGDL_UNITS,
     PTiRLabels: {
-      cbg: 'Time in Target Range',
-      smbg: 'Readings in Range'
+      cbg: t('Time in Target Range'),
+      smbg: t('Readings in Range')
     },
     puddleWeights: {
       ratio: 1.0,
@@ -97,13 +99,13 @@ module.exports = function(pool, opts) {
     var pw = opts.puddleWeights;
     var lowBound = opts.bgUnits === MGDL_UNITS ? opts.classes.low.boundary : opts.classes.low.boundary.toFixed(1);
     var highBound = opts.bgUnits === MGDL_UNITS ? opts.classes.target.boundary : opts.classes.target.boundary.toFixed(1);
-    var targetRangeString = 'Target range: ' + lowBound + ' - ' + highBound + ' ';
+    var targetRangeString = t('Target range') +': ' + lowBound + ' - ' + highBound + ' ';
 
     // create basal-to-bolus ratio puddle
     var ratioOpts = {
       id: 'Ratio',
-      head: 'Basal : Bolus',
-      lead: 'Basal to bolus insulin ratio',
+      head: t('Basal : Bolus'),
+      lead: t('Basal to bolus insulin ratio'),
       weight: pw.ratio,
       pieBoolean: true,
       annotationOpts: {
@@ -128,7 +130,7 @@ module.exports = function(pool, opts) {
     // create average BG puddle
     var averageOpts = {
       id: 'Average',
-      head: 'Average BG',
+      head: t('Average BG'),
       lead: opts.averageLabel,
       weight: pw.average,
       pieBoolean: false,
