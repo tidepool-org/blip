@@ -14,17 +14,18 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var Link = require('react-router').Link;
-var _ = require('lodash');
-var cx = require('classnames');
-var launchCustomProtocol = require('custom-protocol-detection');
+import React from 'react';
+import { translate } from 'react-i18next';
+import { Link } from 'react-router';
+import _ from 'lodash';
+import cx from 'classnames';
+import launchCustomProtocol from 'custom-protocol-detection';
 
 var personUtils = require('../../core/personutils');
 var ModalOverlay = require('../modaloverlay');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
-var PatientCard = React.createClass({
+var PatientCard = translate()(React.createClass({
   propTypes: {
     href: React.PropTypes.string.isRequired,
     currentPage: React.PropTypes.string,
@@ -90,6 +91,7 @@ var PatientCard = React.createClass({
   },
 
   renderView: function() {
+    const { t } = this.props;
     var classes = cx({
       'patientcard-actions-view': true,
       'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'view') || this.props.currentPage && this.props.currentPage.match(/(data)$/i),
@@ -98,7 +100,7 @@ var PatientCard = React.createClass({
     var self = this;
 
     return (
-      <Link className={classes} to={this.props.href} onClick={self.handleViewClick}>View</Link>
+      <Link className={classes} to={this.props.href} onClick={self.handleViewClick}>{t('View')}</Link>
     );
   },
 
@@ -148,6 +150,7 @@ var PatientCard = React.createClass({
   },
 
   renderUpload: function(patient) {
+    const { t } = this.props;
     var classes = cx({
       'patientcard-actions-upload': true,
       'patientcard-actions--highlight': this.state.highlight === 'upload',
@@ -166,7 +169,7 @@ var PatientCard = React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        <a className={classes} href='' onClick={handleClick} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} title="Upload data">Upload</a>
+        <a className={classes} href='' onClick={handleClick} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} title={t('Upload data')}>{t('Upload')}</a>
       );
     }
 
@@ -174,6 +177,7 @@ var PatientCard = React.createClass({
   },
 
   renderShare: function(patient) {
+    const { t } = this.props;
     var shareUrl = '';
     if (!_.isEmpty(patient.link)) {
       shareUrl = patient.link.slice(0,-5) + '/share';
@@ -191,7 +195,7 @@ var PatientCard = React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        <Link className={classes} onClick={handleClick} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} to={shareUrl} title="Share data">Share</Link>
+        <Link className={classes} onClick={handleClick} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} to={shareUrl} title={t('Share data')}>{t('Share')}</Link>
       );
     }
 
@@ -199,12 +203,13 @@ var PatientCard = React.createClass({
   },
 
   renderRemoveDialog: function(patient) {
+    const { t } = this.props;
     return (
       <div>
-        <div className="ModalOverlay-content">{"Are you sure you want to leave this person's Care Team? You will no longer be able to view their data."}</div>
+        <div className="ModalOverlay-content">{t('Are you sure you want to leave this person\'s Care Team? You will no longer be able to view their data.')}</div>
         <div className="ModalOverlay-controls">
           <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.overlayClickHandler}>Cancel</button>
-          <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient(patient)}>{"I'm sure, remove me."}</button>
+          <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient(patient)}>{t('I\'m sure, remove me.')}</button>
         </div>
       </div>
     );
@@ -283,6 +288,6 @@ var PatientCard = React.createClass({
   handleViewClick: function() {
     this.props.trackMetric('Clicked VDF View Data');
   },
-});
+}));
 
 module.exports = PatientCard;

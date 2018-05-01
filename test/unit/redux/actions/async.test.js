@@ -1957,6 +1957,7 @@ describe('Actions', () => {
             name: 'Joe Steven Bloggs',
             age: 30
           },
+          preferences: {},
           emails: [
             'joe@bloggs.com'
           ],
@@ -1968,6 +1969,7 @@ describe('Actions', () => {
             name: 'Joe Steven Bloggs',
             age: 30
           },
+          preferences: {},
           password: 'foo'
         };
 
@@ -2034,6 +2036,7 @@ describe('Actions', () => {
             name: 'Joe Steven Bloggs',
             age: 30
           },
+          preferences: {},
           emails: [
             'joe@bloggs.com'
           ],
@@ -2045,6 +2048,7 @@ describe('Actions', () => {
             name: 'Joe Steven Bloggs',
             age: 30
           },
+          preferences: {},
           password: 'foo'
         };
         let api = {

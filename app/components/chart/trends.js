@@ -22,6 +22,7 @@ import bows from 'bows';
 import React, { PropTypes, PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import sundial from 'sundial';
+import { translate } from 'react-i18next';
 
 import Header from './header';
 import SubNav from './trendssubnav';
@@ -35,7 +36,7 @@ const TrendsContainer = viz.containers.TrendsContainer;
 const reshapeBgClassesToBgBounds = viz.utils.reshapeBgClassesToBgBounds;
 const Loader = viz.components.Loader;
 
-class Trends extends PureComponent {
+const Trends = translate()(class Trends extends PureComponent {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
     chartPrefs: PropTypes.object.isRequired,
@@ -105,7 +106,7 @@ class Trends extends PureComponent {
   }
 
   formatDate(datetime) {
-    const timePrefs = this.props.timePrefs
+    const { timePrefs, t } = this.props;
     let timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
@@ -113,7 +114,7 @@ class Trends extends PureComponent {
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-    return sundial.formatInTimezone(datetime, timezone, 'MMM D, YYYY');
+    return sundial.formatInTimezone(datetime, timezone, t('MMM D, YYYY'));
   }
 
   getNewDomain(current, extent) {
@@ -500,6 +501,6 @@ class Trends extends PureComponent {
         focusedPoint={this.props.trendsState[currentPatientInViewId].focusedSmbg} />
     );
   }
-}
+});
 
 export default Trends;
