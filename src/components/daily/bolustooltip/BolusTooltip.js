@@ -23,6 +23,9 @@ import { formatDecimalNumber } from '../../../utils/format';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './BolusTooltip.css';
+import i18next from 'i18next';
+
+const t = i18next.t.bind(i18next);
 
 class BolusTooltip extends PureComponent {
   formatInsulin(qty) {
@@ -48,8 +51,8 @@ class BolusTooltip extends PureComponent {
     if (this.isAnimasExtended()) {
       content = (
         <div className={styles.annotation}>
-          * Animas pumps don't capture the details of how combo boluses are split between the normal
-          and extended amounts.
+          {t('* Animas pumps don\'t capture the details of how combo boluses are split between the '
+          + 'normal and extended amounts')}.
         </div>
       );
     }
@@ -72,7 +75,7 @@ class BolusTooltip extends PureComponent {
       }
       return (
         <div className={styles.target}>
-          <div className={styles.label}>Target</div>
+          <div className={styles.label}>{t('Target')}</div>
           <div className={styles.value}>{value}</div>
           <div className={styles.units} />
         </div>
@@ -82,12 +85,12 @@ class BolusTooltip extends PureComponent {
       // animas
       return [
         <div className={styles.target} key={'target'}>
-          <div className={styles.label}>Target</div>
+          <div className={styles.label}>{t('Target')}</div>
           <div className={styles.value}>{`${target}`}</div>
           <div className={styles.units} />
         </div>,
         <div className={styles.target} key={'range'}>
-          <div className={styles.label}>Range</div>
+          <div className={styles.label}>{t('Range')}</div>
           <div className={styles.value}>{`${targetRange}`}</div>
           <div className={styles.units} />
         </div>,
@@ -97,12 +100,12 @@ class BolusTooltip extends PureComponent {
       // insulet
       return [
         <div className={styles.target} key={'target'}>
-          <div className={styles.label}>Target</div>
+          <div className={styles.label}>{t('Target')}</div>
           <div className={styles.value}>{`${target}`}</div>
           <div className={styles.units} />
         </div>,
         <div className={styles.target} key={'high'}>
-          <div className={styles.label}>High</div>
+          <div className={styles.label}>{t('High')}</div>
           <div className={styles.value}>{`${targetHigh}`}</div>
           <div className={styles.units} />
         </div>,
@@ -111,7 +114,7 @@ class BolusTooltip extends PureComponent {
     // tandem
     return (
       <div className={styles.target}>
-        <div className={styles.label}>Target</div>
+        <div className={styles.label}>{t('Target')}</div>
         <div className={styles.value}>{`${target}`}</div>
         <div className={styles.units} />
       </div>
@@ -140,7 +143,7 @@ class BolusTooltip extends PureComponent {
         extendedLine = [
           !!normal && (
             <div className={styles.normal} key={'normal'}>
-              <div className={styles.label}>{`Up Front (${normalPercentage})`}</div>
+              <div className={styles.label}>{t(`Up Front (${normalPercentage})`)}</div>
               <div className={styles.value}>{`${this.formatInsulin(normal)}`}</div>
               <div className={styles.units}>U</div>
             </div>
@@ -180,7 +183,7 @@ class BolusTooltip extends PureComponent {
     if (bolusUtils.isOverride(wizard)) {
       overrideLine = (
         <div className={styles.override}>
-          <div className={styles.label}>Override</div>
+          <div className={styles.label}>{t('Override')}</div>
           <div className={styles.value}>{`+${this.formatInsulin(programmed - recommended)}`}</div>
           <div className={styles.units}>U</div>
         </div>
@@ -189,7 +192,7 @@ class BolusTooltip extends PureComponent {
     if (bolusUtils.isUnderride(wizard)) {
       overrideLine = (
         <div className={styles.override}>
-          <div className={styles.label}>Underride</div>
+          <div className={styles.label}>{t('Underride')}</div>
           <div className={styles.value}>{`-${this.formatInsulin(recommended - programmed)}`}</div>
           <div className={styles.units}>U</div>
         </div>
@@ -197,7 +200,7 @@ class BolusTooltip extends PureComponent {
     }
     const deliveredLine = _.isFinite(delivered) && (
       <div className={styles.delivered}>
-        <div className={styles.label}>Delivered</div>
+        <div className={styles.label}>{t('Delivered')}</div>
         <div className={styles.value}>{`${this.formatInsulin(delivered)}`}</div>
         <div className={styles.units}>U</div>
       </div>
@@ -205,35 +208,35 @@ class BolusTooltip extends PureComponent {
     const suggestedLine = (isInterrupted || overrideLine) &&
       !!suggested && (
       <div className={styles.suggested}>
-        <div className={styles.label}>Suggested</div>
+        <div className={styles.label}>{t('Suggested')}</div>
         <div className={styles.value}>{this.formatInsulin(suggested)}</div>
         <div className={styles.units}>U</div>
       </div>
       );
     const bgLine = !!bg && (
       <div className={styles.bg}>
-        <div className={styles.label}>BG</div>
+        <div className={styles.label}>{t('BG')}</div>
         <div className={styles.value}>{bg}</div>
         <div className={styles.units} />
       </div>
     );
     const carbsLine = !!carbs && (
       <div className={styles.carbs}>
-        <div className={styles.label}>Carbs</div>
+        <div className={styles.label}>{t('Carbs')}</div>
         <div className={styles.value}>{carbs}</div>
         <div className={styles.units}>g</div>
       </div>
     );
     const iobLine = !!iob && (
       <div className={styles.iob}>
-        <div className={styles.label}>IOB</div>
+        <div className={styles.label}>{t('IOB')}</div>
         <div className={styles.value}>{`${this.formatInsulin(iob)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
     const interruptedLine = isInterrupted && (
       <div className={styles.interrupted}>
-        <div className={styles.label}>Interrupted</div>
+        <div className={styles.label}>{t('Interrupted')}</div>
         <div className={styles.value}>{`-${this.formatInsulin(programmed - delivered)}`}</div>
         <div className={styles.units}>U</div>
       </div>
@@ -241,7 +244,7 @@ class BolusTooltip extends PureComponent {
     const icRatioLine = !!carbsInput &&
       !!carbRatio && (
       <div className={styles.carbRatio}>
-        <div className={styles.label}>I:C Ratio</div>
+        <div className={styles.label}>{t('I:C Ratio')}</div>
         <div className={styles.value}>{`1:${carbRatio}`}</div>
         <div className={styles.units} />
       </div>
@@ -249,7 +252,7 @@ class BolusTooltip extends PureComponent {
     const isfLine = !!isf &&
       !!bg && (
       <div className={styles.isf}>
-        <div className={styles.label}>ISF</div>
+        <div className={styles.label}>{t('ISF')}</div>
         <div className={styles.value}>{`${isf}`}</div>
         <div className={styles.units} />
       </div>
@@ -286,14 +289,14 @@ class BolusTooltip extends PureComponent {
 
     const deliveredLine = _.isFinite(delivered) && (
       <div className={styles.delivered}>
-        <div className={styles.label}>Delivered</div>
+        <div className={styles.label}>{t('Delivered')}</div>
         <div className={styles.value}>{`${this.formatInsulin(delivered)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
     const interruptedLine = isInterrupted && (
       <div className={styles.interrupted}>
-        <div className={styles.label}>Interrupted</div>
+        <div className={styles.label}>{t('Interrupted')}</div>
         <div className={styles.value}>{`-${this.formatInsulin(programmed - delivered)}`}</div>
         <div className={styles.units}>U</div>
       </div>
@@ -301,7 +304,7 @@ class BolusTooltip extends PureComponent {
     const programmedLine = isInterrupted &&
       !!programmed && (
       <div className={styles.programmed}>
-        <div className={styles.label}>Programmed</div>
+        <div className={styles.label}>{t('Programmed')}</div>
         <div className={styles.value}>{`${this.formatInsulin(programmed)}`}</div>
         <div className={styles.units}>U</div>
       </div>

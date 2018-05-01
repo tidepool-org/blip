@@ -19,6 +19,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import sundial from 'sundial';
 import crossfilter from 'crossfilter';
+import i18next from 'i18next';
 
 import generateClassifiers from '../classifiers';
 import {
@@ -47,6 +48,8 @@ import {
   MEDTRONIC,
   pumpVocabulary,
 } from '../constants';
+
+const t = i18next.t.bind(i18next);
 
 /**
  * Get the BG distribution source and status
@@ -520,62 +523,62 @@ export function defineBasicsSections(bgPrefs) {
     switch (section) {
       case 'basals':
         type = 'basal';
-        title = 'Basals';
-        summaryTitle = 'Total basal events';
+        title = t('Basals');
+        summaryTitle = t('Total basal events');
         filters = [
-          { key: 'total', label: 'Basal Events', primary: true },
-          { key: 'temp', label: 'Temp Basals' },
-          { key: 'suspend', label: 'Suspends' },
+          { key: 'total', label: t('Basal Events'), primary: true },
+          { key: 'temp', label: t('Temp Basals') },
+          { key: 'suspend', label: t('Suspends') },
         ];
         break;
 
       case 'boluses':
         type = 'bolus';
-        title = 'Bolusing';
-        summaryTitle = 'Avg boluses / day';
+        title = t('Bolusing');
+        summaryTitle = t('Avg boluses / day');
         filters = [
-          { key: 'total', label: 'Avg per day', average: true, primary: true },
-          { key: 'wizard', label: 'Calculator', percentage: true },
-          { key: 'correction', label: 'Correction', percentage: true },
-          { key: 'extended', label: 'Extended', percentage: true },
-          { key: 'interrupted', label: 'Interrupted', percentage: true },
-          { key: 'override', label: 'Override', percentage: true },
-          { key: 'underride', label: 'Underride', percentage: true },
+          { key: 'total', label: t('Avg per day'), average: true, primary: true },
+          { key: 'wizard', label: t('Calculator'), percentage: true },
+          { key: 'correction', label: t('Correction'), percentage: true },
+          { key: 'extended', label: t('Extended'), percentage: true },
+          { key: 'interrupted', label: t('Interrupted'), percentage: true },
+          { key: 'override', label: t('Override'), percentage: true },
+          { key: 'underride', label: t('Underride'), percentage: true },
         ];
         break;
 
       case 'fingersticks':
         type = 'fingerstick';
-        title = 'BG readings';
-        summaryTitle = 'Avg BG readings / day';
+        title = t('BG readings');
+        summaryTitle = t('Avg BG readings / day');
         filters = [
-          { path: 'smbg', key: 'total', label: 'Avg per day', average: true, primary: true },
-          { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
-          { path: 'smbg', key: 'manual', label: 'Manual', percentage: true },
-          { path: 'calibration', key: 'total', label: 'Calibrations' },
+          { path: 'smbg', key: 'total', label: t('Avg per day'), average: true, primary: true },
+          { path: 'smbg', key: 'meter', label: t('Meter'), percentage: true },
+          { path: 'smbg', key: 'manual', label: t('Manual'), percentage: true },
+          { path: 'calibration', key: 'total', label: t('Calibrations') },
           { path: 'smbg', key: 'veryLow', label: bgLabels.veryLow, percentage: true },
           { path: 'smbg', key: 'veryHigh', label: bgLabels.veryHigh, percentage: true },
         ];
         break;
 
       case 'siteChanges':
-        title = 'Infusion site changes';
+        title = t('Infusion site changes');
         break;
 
       case 'bgDistribution':
-        title = 'BG distribution';
+        title = t('BG distribution');
         break;
 
       case 'totalDailyDose':
-        title = 'Avg total daily dose';
+        title = t('Avg total daily dose');
         break;
 
       case 'basalBolusRatio':
-        title = 'Insulin ratio';
+        title = t('Insulin ratio');
         break;
 
       case 'averageDailyCarbs':
-        title = 'Avg daily carbs';
+        title = t('Avg daily carbs');
         break;
 
       default:
@@ -766,31 +769,31 @@ export function setBasicsSectionsAvailability(data) {
     switch (sectionKey) {
       case 'basals':
       case 'boluses':
-        emptyText = 'This section requires data from an insulin pump, so there\'s nothing to display.';
+        emptyText = t("This section requires data from an insulin pump, so there's nothing to display.");
         break;
 
       case 'siteChanges':
         emptyText = section.type === SECTION_TYPE_UNDECLARED
-                  ? 'Please choose a preferred site change source from the \'Basics\' web view to view this data.'
-                  : 'This section requires data from an insulin pump, so there\'s nothing to display.';
+                  ? t("Please choose a preferred site change source from the 'Basics' web view to view this data.")
+                  : t("This section requires data from an insulin pump, so there's nothing to display.");
         break;
 
       case 'fingersticks':
-        emptyText = 'This section requires data from a blood-glucose meter, so there\'s nothing to display.';
+        emptyText = t("This section requires data from a blood-glucose meter, so there's nothing to display.");
         break;
 
       case 'bgDistribution':
-        emptyText = 'No BG data available';
+        emptyText = t('No BG data available');
         break;
 
       case 'averageDailyCarbs':
       case 'basalBolusRatio':
       case 'totalDailyDose':
-        emptyText = 'Why is this grey? There is not enough data to show this statistic.';
+        emptyText = t('Why is this grey? There is not enough data to show this statistic.');
         break;
 
       default:
-        emptyText = 'Why is this grey? There is not enough data to show this statistic.';
+        emptyText = t('Why is this grey? There is not enough data to show this statistic.');
         break;
     }
 
