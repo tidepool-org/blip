@@ -15,11 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
- /* eslint no-console:0 */
+ /* eslint no-console:0, max-len:0 */
 
 import React from 'react';
 
 import { mount } from 'enzyme';
+import _ from 'lodash';
 
 import { PumpSettingsContainer, mapStateToProps, mapDispatchToProps }
   from '../../../../src/components/settings/common/PumpSettingsContainer';
@@ -29,6 +30,7 @@ import { MGDL_UNITS } from '../../../../src/utils/constants';
 
 const animasSettings = require('../../../../data/pumpSettings/animas/multirate.json');
 const medtronicSettings = require('../../../../data/pumpSettings/medtronic/multirate.json');
+const medtronicAutomatedSettings = require('../../../../data/pumpSettings/medtronic/automated.json');
 const omnipodSettings = require('../../../../data/pumpSettings/omnipod/multirate.json');
 const tandemSettings = require('../../../../data/pumpSettings/tandem/multirate.json');
 
@@ -111,6 +113,55 @@ describe('PumpSettingsContainer', () => {
         );
         expect(markSettingsViewed.callCount).to.equal(0);
         expect(toggleSettingsSection.callCount).to.equal(0);
+      });
+
+      // eslint-disable-next-line max-len
+      it('should call `toggleSettingsSection` with `lastManualBasalSchedule` when available', () => {
+        sinon.assert.notCalled(toggleSettingsSection);
+
+        const manufacturerKey = 'medtronic';
+
+        mount(
+          <PumpSettingsContainer
+            {...props}
+            manufacturerKey={manufacturerKey}
+            pumpSettings={medtronicAutomatedSettings}
+            settingsState={untouched(medtronicAutomatedSettings, manufacturerKey)}
+          />
+        );
+
+        sinon.assert.calledOnce(toggleSettingsSection);
+        sinon.assert.calledWith(
+          toggleSettingsSection,
+          manufacturerKey,
+          'Standard'
+        );
+      });
+
+      // eslint-disable-next-line max-len
+      it('should call `toggleSettingsSection` with `activeSchedule` when `lastManualBasalSchedule` is not available', () => {
+        sinon.assert.notCalled(toggleSettingsSection);
+
+        const manufacturerKey = 'medtronic';
+        const medtronicAutomatedSettingsWithoutManual = _.assign({}, medtronicAutomatedSettings, {
+          lastManualBasalSchedule: undefined,
+        });
+
+        mount(
+          <PumpSettingsContainer
+            {...props}
+            manufacturerKey={manufacturerKey}
+            pumpSettings={medtronicAutomatedSettingsWithoutManual}
+            settingsState={untouched(medtronicAutomatedSettingsWithoutManual, manufacturerKey)}
+          />
+        );
+
+        sinon.assert.calledOnce(toggleSettingsSection);
+        sinon.assert.calledWith(
+          toggleSettingsSection,
+          manufacturerKey,
+          'Auto Mode'
+        );
       });
     });
 

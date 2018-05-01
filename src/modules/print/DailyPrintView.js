@@ -107,11 +107,6 @@ class DailyPrintView extends PrintView {
       },
       carbs: '#CFCFCF',
       lightDividers: '#D8D8D8',
-      low: '#FF8B7C',
-      target: '#76D3A6',
-      basal: '#19A0D7',
-      basalAutomated: '#44b9be',
-      high: '#BB9AE7',
     });
 
     this.rightEdge = this.margins.left + this.width;

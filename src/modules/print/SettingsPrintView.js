@@ -22,12 +22,11 @@ import PrintView from './PrintView';
 import {
   deviceName,
   getDeviceMeta,
-  getScheduleLabel,
-  processBasalRateData,
   startTimeAndValue,
 } from '../../utils/settings/data';
 
 import {
+  basal,
   bolusTitle,
   ratio,
   sensitivity,
@@ -36,7 +35,7 @@ import {
 
 import {
   basalSchedules as profileSchedules,
-  basal,
+  basal as tandemBasal,
 } from '../../utils/settings/tandemData';
 
 class SettingsPrintView extends PrintView {
@@ -95,7 +94,7 @@ class SettingsPrintView extends PrintView {
     );
 
     _.each(sortedSchedules, schedule => {
-      const profile = basal(schedule, this.data, this.bgUnits);
+      const profile = tandemBasal(schedule, this.data, this.bgUnits);
 
       const heading = {
         text: profile.title.main,
@@ -205,6 +204,7 @@ class SettingsPrintView extends PrintView {
     const {
       activeSchedule,
       basalSchedules,
+      lastManualBasalSchedule,
     } = this.data;
 
     const columnWidth = this.getActiveColumnWidth();
@@ -221,68 +221,80 @@ class SettingsPrintView extends PrintView {
       };
     });
 
-    const sortedSchedules = _.sortByOrder(basalSchedules,
-      [
-        schedule => (schedule.name === activeSchedule ? 1 : 0),
-        schedule => schedule.value.length,
-        'name',
-      ],
-      ['desc', 'desc', 'asc']
+    // We only show automated basal schedules if active at upload
+    const schedules = _.reject(
+      _.map(
+        basalSchedules,
+        (schedule, index) => basal(index, this.data, this.manufacturer)
+      ),
+      schedule => (schedule.isAutomated && schedule.scheduleName !== activeSchedule)
     );
 
+    const sortedSchedules = _.sortByOrder(
+      schedules,
+      [
+        schedule => (schedule.isAutomated ? 1 : 0),
+        schedule => (schedule.scheduleName === lastManualBasalSchedule ? 1 : 0),
+        schedule => (schedule.scheduleName === activeSchedule ? 1 : 0),
+        schedule => schedule.rows.length,
+        'name',
+      ],
+      ['desc', 'desc', 'desc', 'desc', 'asc']
+    );
+
+    const automatedScheduleShowing = _.some(sortedSchedules, { isAutomated: true });
+
     _.each(sortedSchedules, (schedule, index) => {
-      const activeColumn = index < this.layoutColumns.count
-        ? index % this.layoutColumns.count
+      const columnIndex = automatedScheduleShowing && index > 0 ? index - 1 : index;
+      const activeColumn = columnIndex < this.layoutColumns.count
+        ? columnIndex % this.layoutColumns.count
         : this.getShortestLayoutColumn();
 
       this.goToLayoutColumnPosition(activeColumn);
 
-      const scheduleLabel = getScheduleLabel(
-        schedule.name,
-        activeSchedule,
-        this.manufacturer,
-        this.isTandem
-      );
+      const scheduleLabel = _.get(schedule, 'title', {});
 
       const heading = {
         text: scheduleLabel.main,
-        subText: scheduleLabel.units,
-        note: scheduleLabel.secondary,
+        subText: schedule.isAutomated ? scheduleLabel.secondary : scheduleLabel.units,
+        note: schedule.isAutomated ? null : scheduleLabel.secondary,
       };
 
       this.renderTableHeading(heading, {
         columnDefaults: {
           fill: {
-            color: this.colors.basal,
+            color: schedule.isAutomated ? this.colors.basalAutomated : this.colors.basal,
             opacity: 0.15,
           },
           width: columnWidth,
         },
+        bottomMargin: schedule.isAutomated ? 15 : 0,
       });
 
       this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
 
-      const sheduleRows = processBasalRateData(schedule);
-      const rows = _.map(sheduleRows, (row, rowIndex) => {
-        const isLast = rowIndex === sheduleRows.length - 1;
+      if (!schedule.isAutomated) {
+        const rows = _.map(schedule.rows, (row, rowIndex) => {
+          const isLast = rowIndex === schedule.rows.length - 1;
 
-        if (isLast) {
-          // eslint-disable-next-line no-underscore-dangle, no-param-reassign
-          row._bold = true;
-        }
+          if (isLast) {
+            // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+            row._bold = true;
+          }
 
-        return row;
-      });
+          return row;
+        });
 
-      this.renderTable(tableColumns, rows, {
-        columnDefaults: {
-          zebra: true,
-          headerFill: true,
-        },
-        bottomMargin: 15,
-      });
+        this.renderTable(tableColumns, rows, {
+          columnDefaults: {
+            zebra: true,
+            headerFill: true,
+          },
+          bottomMargin: 15,
+        });
 
-      this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
+        this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
+      }
     });
 
     this.resetText();

@@ -44,6 +44,7 @@ import animasDataMultiRate from '../../data/pumpSettings/animas/multirate.json';
 import animasDataFlatRate from '../../data/pumpSettings/animas/flatrate.json';
 import medtronicDataMultiRate from '../../data/pumpSettings/medtronic/multirate.json';
 import medtronicDataFlatRate from '../../data/pumpSettings/medtronic/flatrate.json';
+import medtronicDataAutomated from '../../data/pumpSettings/medtronic/automated.json';
 import omnipodDataMultiRate from '../../data/pumpSettings/omnipod/multirate.json';
 import omnipodDataFlatRate from '../../data/pumpSettings/omnipod/flatrate.json';
 import tandemDataMultiRate from '../../data/pumpSettings/tandem/multirate.json';
@@ -146,6 +147,28 @@ storiesOf('Settings View PDF', module)
       </button>
     </WithNotes>
   ))
+
+  .add('medtronic automated rate', () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: profiles.longName }, medtronicDataAutomated)}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
+
+  .add('medtronic automated inactive rate', () => {
+    const inactiveAutomatedBasaldata = _.assign({}, medtronicDataAutomated, {
+      activeSchedule: 'standard',
+    });
+
+    return (
+      <WithNotes notes={notes}>
+        <button onClick={() => openPDF({ patient: profiles.longName }, inactiveAutomatedBasaldata)}>
+          Open PDF in new tab
+        </button>
+      </WithNotes>
+    );
+  })
 
   .add('omnipod flat rate', () => (
     <WithNotes notes={notes}>
