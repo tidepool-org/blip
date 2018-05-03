@@ -3,9 +3,11 @@ module.exports = {
   MGDL_UNITS: 'mg/dL',
   MMOLL_UNITS: 'mmol/L',
   AUTOMATED_BASAL_LABELS: {
-    Medtronic: 'Auto Mode'
+    Medtronic: 'Auto Mode',
+    default: 'Automated',
   },
   SCHEDULED_BASAL_LABELS: {
-    Medtronic: 'Manual'
+    Medtronic: 'Manual',
+    default: 'Manual',
   },
 };

@@ -23,9 +23,9 @@ var categorizer = require('../../../../js/data/util/categorize');
 var { MGDL_UNITS } = require('../../../../js/data/util/constants');
 
 module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
-  var classifers = {
+  var classifiers = {
     basal: function(d) {
-      if (d.deliveryType === 'scheduled') {
+      if (_.includes(['scheduled', 'automated'], d.deliveryType)) {
         return [];
       }
       else {
@@ -75,7 +75,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
       else {
         tags.push('meter');
       }
-      var bgCategory = classifers.categorizeBg(d);
+      var bgCategory = classifiers.categorizeBg(d);
       switch (bgCategory) {
         case 'verylow':
           tags.push('verylow');
@@ -90,5 +90,5 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
     }
   };
 
-  return classifers;
+  return classifiers;
 };

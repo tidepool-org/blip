@@ -24,6 +24,9 @@ var dt = require('../data/util/datetime');
 var format = require('../data/util/format');
 var log = require('bows')('Basal');
 
+var basalUtil = require('../data/basalutil');
+var BasalUtil = new basalUtil();
+
 var { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS } = require('../data/util/constants');
 
 module.exports = function(pool, opts) {
@@ -68,10 +71,6 @@ module.exports = function(pool, opts) {
     return undelivereds;
   }
 
-  function getBasalPathGroupType(datum) {
-    return _.get(datum, 'deliveryType') === 'automated' ? 'automated' : 'regular';
-  }
-
   function basal(selection) {
     opts.xScale = pool.xScale().copy();
 
@@ -104,16 +103,7 @@ module.exports = function(pool, opts) {
       basal.addRectToPool(basalSegmentGroups, true);
 
       // split data into groups when delivery type changes to generate unique path elements for each group
-      var basalPathGroups = [];
-      var currentPathType;
-      _.each(currentData, datum => {
-          var pathType = getBasalPathGroupType(datum);
-          if (pathType !== currentPathType) {
-            currentPathType = pathType;
-            basalPathGroups.push([]);
-          }
-          _.last(basalPathGroups).push(datum);
-      });
+      var basalPathGroups = BasalUtil.getBasalPathGroups(currentData);
 
       var renderGroupMarkers = basalPathGroups.length > 1;
 
@@ -129,7 +119,7 @@ module.exports = function(pool, opts) {
       _.each(basalPathGroups, (data, index) => {
         var id = data[0].id;
         var source = data[0].source;
-        var pathType = getBasalPathGroupType(data[0]);
+        var pathType = BasalUtil.getBasalPathGroupType(data[0]);
         var isAutomated = pathType === 'automated';
 
         var paths = basalPathsGroup
@@ -377,11 +367,11 @@ module.exports = function(pool, opts) {
       case 'automated':
         group.append('p')
           .append('span')
-          .html('<span class="plain muted">' + _.get(AUTOMATED_BASAL_LABELS, datum.source, 'Automated') + ':</span> ' +
+          .html('<span class="plain muted">' + _.get(AUTOMATED_BASAL_LABELS, datum.source, AUTOMATED_BASAL_LABELS.default) + ':</span> ' +
             basal.rateString(datum, 'plain'));
         break;
       default:
-        var label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, datum.source, 'Manual') + ':</span> ' : '';
+        var label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, datum.source, SCHEDULED_BASAL_LABELS.default) + ':</span> ' : '';
         group.append('p')
           .append('span')
           .html(label + basal.rateString(datum, 'plain'));
