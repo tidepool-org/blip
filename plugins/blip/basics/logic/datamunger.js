@@ -30,8 +30,8 @@ var basicsActions = require('./actions');
 var togglableState = require('../TogglableState');
 
 var BGUtil = require('../../../../js/data/bgutil');
-var basalUtil = require('../../../../js/data/basalutil');
-var BasalUtil = new basalUtil();
+var BasalUtil = require('../../../../js/data/basalutil');
+var basalUtil = new BasalUtil();
 
 module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
 
@@ -423,7 +423,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
       function findAutomatedBasalEventsForDay(dataForDate) {
         // Get the path groups, and remove the first group, as we only want to
         // track changes into and out of automated delivery
-        var basalPathGroups = BasalUtil.getBasalPathGroups(dataForDate.data);
+        var basalPathGroups = basalUtil.getBasalPathGroups(dataForDate.data);
         basalPathGroups.shift();
 
         var events = {

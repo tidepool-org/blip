@@ -89,7 +89,7 @@ var BasicsChart = React.createClass({
       basalSection.selectorOptions.rows.forEach(function(row) {
         _.each(row, function(option) {
           if (option.key === 'automatedStop') {
-            option.active = false
+            option.active = false;
           }
         });
       });

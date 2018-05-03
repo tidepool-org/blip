@@ -198,7 +198,7 @@ var basicsState = function (manufacturer) {
         settingsTogglable: togglableState.off,
       }
     }
-  }
+  };
 };
 
 module.exports = basicsState;

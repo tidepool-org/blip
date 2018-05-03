@@ -24,8 +24,8 @@ var dt = require('../data/util/datetime');
 var format = require('../data/util/format');
 var log = require('bows')('Basal');
 
-var basalUtil = require('../data/basalutil');
-var BasalUtil = new basalUtil();
+var BasalUtil = require('../data/basalutil');
+var basalUtil = new BasalUtil();
 
 var { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS } = require('../data/util/constants');
 
@@ -103,7 +103,7 @@ module.exports = function(pool, opts) {
       basal.addRectToPool(basalSegmentGroups, true);
 
       // split data into groups when delivery type changes to generate unique path elements for each group
-      var basalPathGroups = BasalUtil.getBasalPathGroups(currentData);
+      var basalPathGroups = basalUtil.getBasalPathGroups(currentData);
 
       var renderGroupMarkers = basalPathGroups.length > 1;
 
@@ -119,7 +119,7 @@ module.exports = function(pool, opts) {
       _.each(basalPathGroups, (data, index) => {
         var id = data[0].id;
         var source = data[0].source;
-        var pathType = BasalUtil.getBasalPathGroupType(data[0]);
+        var pathType = basalUtil.getBasalPathGroupType(data[0]);
         var isAutomated = pathType === 'automated';
 
         var paths = basalPathsGroup
