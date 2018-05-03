@@ -420,7 +420,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         dataForDate.subtotals.scheduleChange = changes < 0 ? 0 : changes;
       }
 
-      function findAutomatedBasalEventsForDay(dataForDate) {
+      function countAutomatedBasalEventsForDay(dataForDate) {
         // Get the path groups, and remove the first group, as we only want to
         // track changes into and out of automated delivery
         var basalPathGroups = basalUtil.getBasalPathGroups(dataForDate.data);
@@ -432,13 +432,15 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
 
         _.reduce(basalPathGroups, (acc, group) => {
           const event = group[0].deliveryType === 'automated' ? 'automatedStart' : 'automatedStop';
-          if (event !== 'automated') {
+          // For now, we're only tracking `automatedStop` events
+          if (event === 'automatedStop') {
             acc[event]++;
           }
           return acc;
         }, events);
 
         _.assign(dataForDate.subtotals, events);
+        dataForDate.total += events.automatedStop;
       }
 
       var mostRecentDay = _.find(basicsData.days, {type: 'mostRecent'}).date;
@@ -449,9 +451,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
           typeObj.cf = crossfilter(typeObj.data);
           this._buildCrossfilterUtils(typeObj, type);
         }
-        if (type === 'basal') {
-          _.each(typeObj.dataByDate, findAutomatedBasalEventsForDay);
-        }
+
         if (_.includes(['calibration', 'smbg'], type)) {
           if (!basicsData.data.fingerstick) {
             basicsData.data.fingerstick = {};
@@ -462,17 +462,8 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
           this._buildCrossfilterUtils(basicsData.data.fingerstick[type], type);
         }
 
-        /*
-        * This is inelegant but necessary since reduceAdd will only
-        * add to the total basal events if there are tags matched for the day.
-        * (Schedule changes aren't counted as "tags".)
-        */
-       if (type === 'basal') {
-         _.each(typeObj.dataByDate, function(dateData) {
-            if (dateData.subtotals.automatedStop > 0) {
-              dateData.total += dateData.subtotals.automatedStop;
-            }
-          });
+        if (type === 'basal') {
+          _.each(typeObj.dataByDate, countAutomatedBasalEventsForDay);
         }
 
         // for basal and boluses, summarize tags and find avg events per day
