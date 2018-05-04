@@ -156,6 +156,47 @@ describe('BasicsChart', function() {
     });
   });
 
+  describe('_automatedBasalEventsAvailable', function() {
+    it('should return `false` if there are no `automatedStop` events available', function() {
+      var td = new TidelineData([
+        new types.Basal({ deliveryType: 'automated', deviceTime: '2018-03-03T00:00:00' }),
+      ]);
+      var props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patientData: td,
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      expect(render._automatedBasalEventsAvailable()).to.be.false;
+    });
+
+    it('should return `true` if there are any `automatedStop` events available', function() {
+      var td = new TidelineData([
+        new types.Basal({ deliveryType: 'automated', deviceTime: '2018-03-03T00:00:00' }),
+        new types.Basal({ deliveryType: 'scheduled', deviceTime: '2018-03-03T00:00:00' }),
+      ]);
+      var props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patientData: td,
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      expect(render._automatedBasalEventsAvailable()).to.be.true;
+    });
+  });
+
   describe('_adjustSectionsBasedOnAvailableData', function() {
     it('should deactivate sections for which there is no data available', function() {
       var td = new TidelineData([new types.CBG()]);
@@ -174,6 +215,10 @@ describe('BasicsChart', function() {
       // basals gets disabled when no data
       expect(render.state.sections.basals.active).to.be.false;
       expect(basicsState().sections.basals.active).to.be.true;
+
+      // automated basal stop selector in basal section gets active: false added when no data
+      expect(render.state.sections.basals.selectorOptions.rows[0][2].active).to.be.false;
+      expect(basicsState().sections.basals.selectorOptions.rows[0][2].active).to.be.undefined;
 
       // boluses gets disabled when no data
       expect(render.state.sections.boluses.active).to.be.false;
