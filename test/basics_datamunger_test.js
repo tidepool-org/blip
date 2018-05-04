@@ -998,10 +998,9 @@ describe('basics datamunger', function() {
             basal: { data: [
               { type: 'basal', deliveryType: 'temp', normalTime: then, displayOffset: 0 },
               { type: 'basal', deliveryType: 'automated', normalTime: then, displayOffset: 0 },
-              // ,
             ] },
           },
-          days: [{ date: '2015-01-01', type: 'mostRecent' }]
+          days: [{ date: '2015-01-01', type: 'mostRecent' }],
         };
 
         dm.reduceByDay(bd);
