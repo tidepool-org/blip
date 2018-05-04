@@ -71,6 +71,15 @@ describe('basal utilties', () => {
       expect(basalUtils.getBasalPathGroupType({ subType: 'temp' })).to.equal('regular');
       expect(basalUtils.getBasalPathGroupType({ subType: 'suspend' })).to.equal('regular');
     });
+
+    it('should work with old `deliveryType` basal prop if `subType` is not set', () => {
+      expect(basalUtils.getBasalPathGroupType({ deliveryType: 'scheduled' })).to.equal('regular');
+      expect(basalUtils.getBasalPathGroupType({ deliveryType: 'automated' })).to.equal('automated');
+      expect(basalUtils.getBasalPathGroupType({
+        subType: 'automated',
+        deliveryType: 'scheduled',
+      })).to.equal('automated');
+    });
   });
 
   describe('getBasalPathGroups', () => {

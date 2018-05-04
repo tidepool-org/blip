@@ -643,7 +643,8 @@ export function reduceByDay(data, bgPrefs) {
     };
 
     _.reduce(basalPathGroups, (acc, group) => {
-      const event = group[0].deliveryType === 'automated' ? 'automatedStart' : 'automatedStop';
+      const subType = _.get(group[0], 'subType', group[0].deliveryType);
+      const event = subType === 'automated' ? 'automatedStart' : 'automatedStop';
       // For now, we're only tracking `automatedStop` events
       if (event === 'automatedStop') {
         // eslint-disable-next-line no-param-reassign

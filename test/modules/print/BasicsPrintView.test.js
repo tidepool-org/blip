@@ -134,6 +134,8 @@ describe('BasicsPrintView', () => {
       const requiredProps = [
         { prop: 'bgSource', type: 'string' },
         { prop: 'cgmStatus', type: 'string' },
+        { prop: 'source', type: 'string' },
+        { prop: 'manufacturer', type: 'string' },
       ];
 
       _.each(requiredProps, item => {
