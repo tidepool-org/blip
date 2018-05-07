@@ -63,6 +63,9 @@ class BasicsPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
 
+    this.source = _.get(data, 'data.upload.data.0.source', '').toLowerCase();
+    this.manufacturer = this.source === 'carelink' ? 'medtronic' : this.source;
+
     // Process basics data
     const { source: bgSource, cgmStatus } = determineBgDistributionSource(this.data);
     _.assign(this, { bgSource, cgmStatus });
@@ -71,7 +74,7 @@ class BasicsPrintView extends PrintView {
       ? calcBgPercentInCategories(_.get(this.data, ['data', bgSource, 'data'], []), this.bgBounds)
       : null;
 
-    this.data.sections = defineBasicsSections(this.bgPrefs);
+    this.data.sections = defineBasicsSections(this.bgPrefs, this.manufacturer);
 
     this.data = reduceByDay(this.data, this.bgPrefs);
 
@@ -865,6 +868,9 @@ class BasicsPrintView extends PrintView {
           stat.stat = header;
           primaryFilter = stat;
         } else {
+          if (value === 0 && filter.hideEmpty) {
+            return;
+          }
           rows.push(stat);
         }
       });

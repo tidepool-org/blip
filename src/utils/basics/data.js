@@ -41,12 +41,16 @@ import {
   SITE_CHANGE_TUBING,
   SITE_CHANGE_CANNULA,
   SECTION_TYPE_UNDECLARED,
+  AUTOMATED_DELIVERY,
   INSULET,
   TANDEM,
   ANIMAS,
   MEDTRONIC,
   pumpVocabulary,
 } from '../constants';
+
+import { getBasalPathGroups } from '../basal';
+import { deviceName } from '../../utils/settings/data';
 
 /**
  * Get the BG distribution source and status
@@ -334,8 +338,8 @@ export function processInfusionSiteHistory(data, patient) {
   }
 
   const fallbackSubtitle = basicsData.sections.siteChanges.type !== SECTION_TYPE_UNDECLARED
-                         ? pumpVocabulary.default[SITE_CHANGE_RESERVOIR]
-                         : null;
+    ? pumpVocabulary.default[SITE_CHANGE_RESERVOIR]
+    : null;
 
   basicsData.sections.siteChanges.subTitle = _.get(
     pumpVocabulary,
@@ -491,10 +495,12 @@ export function averageExcludingMostRecentDay(dataObj, total, mostRecentDay) {
  * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds
  * @returns {Object} sections
  */
-export function defineBasicsSections(bgPrefs) {
+export function defineBasicsSections(bgPrefs, manufacturer) {
   const bgLabels = generateBgRangeLabels(bgPrefs);
   bgLabels.veryLow = _.capitalize(bgLabels.veryLow);
   bgLabels.veryHigh = _.capitalize(bgLabels.veryHigh);
+
+  const deviceLabels = _.get(pumpVocabulary, deviceName(manufacturer), pumpVocabulary.default);
 
   const sectionNames = [
     'basals',
@@ -526,6 +532,11 @@ export function defineBasicsSections(bgPrefs) {
           { key: 'total', label: 'Basal Events', primary: true },
           { key: 'temp', label: 'Temp Basals' },
           { key: 'suspend', label: 'Suspends' },
+          {
+            key: 'automatedStop',
+            label: `${deviceLabels[AUTOMATED_DELIVERY]} Exited`,
+            hideEmpty: true,
+          },
         ];
         break;
 
@@ -621,6 +632,32 @@ export function reduceByDay(data, bgPrefs) {
     p + typeObj.dataByDate[date].total
   );
 
+  const countAutomatedBasalEventsForDay = (dataForDate) => {
+    // Get the path groups, and remove the first group, as we only want to
+    // track changes into and out of automated delivery
+    const basalPathGroups = getBasalPathGroups(dataForDate.data);
+    basalPathGroups.shift();
+
+    const events = {
+      automatedStop: 0,
+    };
+
+    _.reduce(basalPathGroups, (acc, group) => {
+      const subType = _.get(group[0], 'subType', group[0].deliveryType);
+      const event = subType === 'automated' ? 'automatedStart' : 'automatedStop';
+      // For now, we're only tracking `automatedStop` events
+      if (event === 'automatedStop') {
+        // eslint-disable-next-line no-param-reassign
+        acc[event]++;
+      }
+      return acc;
+    }, events);
+
+    _.assign(dataForDate.subtotals, events);
+    // eslint-disable-next-line no-param-reassign
+    dataForDate.total += events.automatedStop;
+  };
+
   const mostRecentDay = _.find(basicsData.days, { type: 'mostRecent' }).date;
 
   _.each(basicsData.data, (value, type) => {
@@ -631,6 +668,10 @@ export function reduceByDay(data, bgPrefs) {
     ) {
       typeObj.cf = crossfilter(typeObj.data);
       buildCrossfilterUtils(typeObj, type, bgPrefs);
+    }
+
+    if (type === 'basal') {
+      _.each(typeObj.dataByDate, countAutomatedBasalEventsForDay);
     }
 
     if (_.includes(['calibration', 'smbg'], type)) {

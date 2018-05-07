@@ -957,6 +957,33 @@ describe('basics data utils', () => {
         expect(dataUtils.averageExcludingMostRecentDay(dataObj, 28, '2015-01-04')).to.equal(9);
       });
     });
+
+    describe('countAutomatedBasalEventsForDay', () => {
+      it('should count the number of `automatedStop` events and add them to the totals', () => {
+        const then = '2015-01-01T00:00:00.000Z';
+        const bd = {
+          data: {
+            basal: { data: [
+              { type: 'basal', deliveryType: 'temp', normalTime: then, displayOffset: 0 },
+              { type: 'basal', deliveryType: 'automated', normalTime: then, displayOffset: 0 },
+            ] },
+          },
+          days: [{ date: '2015-01-01', type: 'mostRecent' }],
+        };
+
+        const result = dataUtils.reduceByDay(bd, bgPrefs[MGDL_UNITS]);
+
+        expect(result.data.basal.dataByDate['2015-01-01'].subtotals.automatedStop).to.equal(0);
+        expect(result.data.basal.dataByDate['2015-01-01'].total).to.equal(1);
+
+        // Add a scheduled basal to kick out of automode
+        bd.data.basal.data.push({ type: 'basal', deliveryType: 'scheduled', normalTime: then, displayOffset: 0 });
+        const result2 = dataUtils.reduceByDay(bd, bgPrefs[MGDL_UNITS]);
+
+        expect(result2.data.basal.dataByDate['2015-01-01'].subtotals.automatedStop).to.equal(1);
+        expect(result2.data.basal.dataByDate['2015-01-01'].total).to.equal(2);
+      });
+    });
   });
 
   describe('defineBasicsSections', () => {
@@ -999,6 +1026,18 @@ describe('basics data utils', () => {
       const veryLowFilter = _.find(result.fingersticks.filters, { key: 'veryLow' });
       expect(veryHighFilter.label).to.equal('Above 16.7 mmol/L');
       expect(veryLowFilter.label).to.equal('Below 3.1 mmol/L');
+    });
+
+    it('should set the label for the `automatedStop` filter based on the manufacturer', () => {
+      const result = dataUtils.defineBasicsSections(bgPrefs[MMOLL_UNITS], 'medtronic');
+      const automatedStopFilter = _.find(result.basals.filters, { key: 'automatedStop' });
+      expect(automatedStopFilter.label).to.equal('Auto Mode Exited');
+    });
+
+    it('should set default label for the `automatedStop` filter when missing manufacturer', () => {
+      const result = dataUtils.defineBasicsSections(bgPrefs[MMOLL_UNITS]);
+      const automatedStopFilter = _.find(result.basals.filters, { key: 'automatedStop' });
+      expect(automatedStopFilter.label).to.equal('Automated Exited');
     });
   });
 
