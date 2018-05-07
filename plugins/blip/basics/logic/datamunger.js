@@ -30,6 +30,8 @@ var basicsActions = require('./actions');
 var togglableState = require('../TogglableState');
 
 var BGUtil = require('../../../../js/data/bgutil');
+var BasalUtil = require('../../../../js/data/basalutil');
+var basalUtil = new BasalUtil();
 
 module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
 
@@ -418,6 +420,29 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         dataForDate.subtotals.scheduleChange = changes < 0 ? 0 : changes;
       }
 
+      function countAutomatedBasalEventsForDay(dataForDate) {
+        // Get the path groups, and remove the first group, as we only want to
+        // track changes into and out of automated delivery
+        var basalPathGroups = basalUtil.getBasalPathGroups(dataForDate.data);
+        basalPathGroups.shift();
+
+        var events = {
+          automatedStop: 0,
+        };
+
+        _.reduce(basalPathGroups, (acc, group) => {
+          const event = group[0].deliveryType === 'automated' ? 'automatedStart' : 'automatedStop';
+          // For now, we're only tracking `automatedStop` events
+          if (event === 'automatedStop') {
+            acc[event]++;
+          }
+          return acc;
+        }, events);
+
+        _.assign(dataForDate.subtotals, events);
+        dataForDate.total += events.automatedStop;
+      }
+
       var mostRecentDay = _.find(basicsData.days, {type: 'mostRecent'}).date;
 
       for (var type in basicsData.data) {
@@ -426,11 +451,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
           typeObj.cf = crossfilter(typeObj.data);
           this._buildCrossfilterUtils(typeObj, type);
         }
-        // because we're disabling this feature for now
-        // see comment in state.js
-        // if (type === 'basal') {
-        //   _.each(typeObj.dataByDate, findScheduleChangesForDay);
-        // }
+
         if (_.includes(['calibration', 'smbg'], type)) {
           if (!basicsData.data.fingerstick) {
             basicsData.data.fingerstick = {};
@@ -441,20 +462,9 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
           this._buildCrossfilterUtils(basicsData.data.fingerstick[type], type);
         }
 
-        // because we're disabling this feature for now
-        // see comment in state.js
-        /*
-         * This is inelegant but necessary since reduceAdd will only
-         * add to the total basal events if there are tags matched for the day.
-         * (Schedule changes aren't counted as "tags".)
-         */
-        // if (type === 'basal') {
-        //   _.each(typeObj.dataByDate, function(dateData) {
-        //     if (dateData.subtotals.scheduleChange !== 0) {
-        //       dateData.total += dateData.subtotals.scheduleChange;
-        //     }
-        //   });
-        // }
+        if (type === 'basal') {
+          _.each(typeObj.dataByDate, countAutomatedBasalEventsForDay);
+        }
 
         // for basal and boluses, summarize tags and find avg events per day
         if (_.includes(['basal', 'bolus'], type)) {

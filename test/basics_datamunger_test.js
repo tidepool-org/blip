@@ -989,5 +989,32 @@ describe('basics datamunger', function() {
         });
       });
     });
+
+    describe('countAutomatedBasalEventsForDay', function() {
+      it('should count the number of `automatedStop` events and add them to the totals', function() {
+        var then = '2015-01-01T00:00:00.000Z';
+        var bd = {
+          data: {
+            basal: { data: [
+              { type: 'basal', deliveryType: 'temp', normalTime: then, displayOffset: 0 },
+              { type: 'basal', deliveryType: 'automated', normalTime: then, displayOffset: 0 },
+            ] },
+          },
+          days: [{ date: '2015-01-01', type: 'mostRecent' }],
+        };
+
+        dm.reduceByDay(bd);
+
+        expect(bd.data.basal.dataByDate['2015-01-01'].subtotals.automatedStop).to.equal(0);
+        expect(bd.data.basal.dataByDate['2015-01-01'].total).to.equal(1);
+
+        // Add a scheduled basal to kick out of automode
+        bd.data.basal.data.push({ type: 'basal', deliveryType: 'scheduled', normalTime: then, displayOffset: 0 });
+        dm.reduceByDay(bd);
+
+        expect(bd.data.basal.dataByDate['2015-01-01'].subtotals.automatedStop).to.equal(1);
+        expect(bd.data.basal.dataByDate['2015-01-01'].total).to.equal(2);
+      });
+    });
   });
 });

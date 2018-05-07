@@ -83,6 +83,18 @@ var BasicsChart = React.createClass({
       basicsData.sections.basals.message = noPumpDataMessage;
     }
 
+    if (!this._automatedBasalEventsAvailable()) {
+      var basalSection = _.find(basicsData.sections, {type: 'basal'});
+
+      basalSection.selectorOptions.rows.forEach(function(row) {
+        _.each(row, function(option) {
+          if (option.key === 'automatedStop') {
+            option.active = false;
+          }
+        });
+      });
+    }
+
     if (!this._hasSectionData('smbg') && !this._hasSectionData('calibration')) {
       basicsData.sections.fingersticks.active = false;
       basicsData.sections.fingersticks.message = noSMBGDataMessage;
@@ -135,6 +147,10 @@ var BasicsChart = React.createClass({
     return false;
   },
 
+  _automatedBasalEventsAvailable: function() {
+    return _.get(this.props, 'patientData.basicsData.data.basal.summary.automatedStop.count', 0) > 0;
+  },
+
   _aggregatedDataEmpty: function() {
     var {
       basalBolusRatio,
@@ -176,11 +192,12 @@ var BasicsChart = React.createClass({
   componentWillMount: function() {
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
-      basicsData = _.assign({}, basicsData, _.cloneDeep(basicsState));
       var dataMunger = dataMungerMkr(this.props.bgClasses, this.props.bgUnits);
+      var latestPump = dataMunger.getLatestPumpUploaded(this.props.patientData);
+      basicsData = _.assign({}, basicsData, basicsState(latestPump));
+
       dataMunger.reduceByDay(basicsData);
 
-      var latestPump = dataMunger.getLatestPumpUploaded(this.props.patientData);
       dataMunger.processInfusionSiteHistory(basicsData, latestPump, this.props.patient, this.props.permsOfLoggedInUser);
 
       basicsData.data.bgDistribution = dataMunger.bgDistribution(basicsData);
