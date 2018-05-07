@@ -54,6 +54,7 @@ describe('constants', function() {
       'JDRF',
       'NSF',
       'T1DX',
+      'AADE',
     ]);
   });
 
