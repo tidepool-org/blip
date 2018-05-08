@@ -76,6 +76,8 @@ const NonTandem = (props) => {
           return null;
         }
 
+        basal.title.secondary = basal.title.secondary.toLowerCase();
+
         const title = {
           label: basal.title,
           className: styles.automatedBasalHeaderBackground,

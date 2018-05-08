@@ -458,7 +458,7 @@ describe('SettingsPrintView', () => {
 
         const activeCall = Renderer.renderTableHeading.getCall(activeIndex);
         expect(activeCall.args[0].text).to.equal('Auto Mode');
-        expect(activeCall.args[0].subText).to.equal('Active at upload');
+        expect(activeCall.args[0].subText).to.equal('active at upload');
 
         // ensure it's only rendering a table for each non-automated schedule
         sinon.assert.callCount(Renderer.renderTable, schedules.length - 1);

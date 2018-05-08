@@ -158,7 +158,7 @@ storiesOf('Settings View PDF', module)
 
   .add('medtronic automated inactive rate', () => {
     const inactiveAutomatedBasaldata = _.assign({}, medtronicDataAutomated, {
-      activeSchedule: 'standard',
+      activeSchedule: 'Standard',
     });
 
     return (

@@ -51,6 +51,7 @@ storiesOf('Device Settings [Animas]', module)
 
 const medtronicFlatRateData = require('../../../data/pumpSettings/medtronic/flatrate.json');
 const medtronicMultiRateData = require('../../../data/pumpSettings/medtronic/multirate.json');
+const medtronicAutomatedData = require('../../../data/pumpSettings/medtronic/automated.json');
 
 storiesOf('Device Settings [Medtronic]', module)
   .add('flat rate', () => (
@@ -74,6 +75,19 @@ storiesOf('Device Settings [Medtronic]', module)
       openedSections={{ [medtronicMultiRateData.activeSchedule]: true }}
       view={'display'}
       pumpSettings={medtronicMultiRateData}
+      timePrefs={timePrefs}
+      toggleBasalScheduleExpansion={() => {}}
+      user={user}
+    />
+  ))
+  .add('automated', () => (
+    <NonTandem
+      bgUnits={MMOLL_UNITS}
+      copySettingsClicked={() => {}}
+      deviceKey={'medtronic'}
+      openedSections={{ [medtronicAutomatedData.activeSchedule]: true }}
+      view={'display'}
+      pumpSettings={medtronicAutomatedData}
       timePrefs={timePrefs}
       toggleBasalScheduleExpansion={() => {}}
       user={user}

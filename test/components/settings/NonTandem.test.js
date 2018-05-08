@@ -595,7 +595,7 @@ describe('NonTandem', () => {
 
         expect(autoBasalHeading.length).to.equal(1);
         expect(autoBasalHeading.text()).contains('Auto Mode');
-        expect(autoBasalHeading.text()).contains('Active at upload');
+        expect(autoBasalHeading.text()).contains('active at upload');
       });
 
       it('should display the automated basal heading when and deviceKey is carelink', () => {
@@ -618,7 +618,7 @@ describe('NonTandem', () => {
 
         expect(autoBasalHeading.length).to.equal(1);
         expect(autoBasalHeading.text()).contains('Auto Mode');
-        expect(autoBasalHeading.text()).contains('Active at upload');
+        expect(autoBasalHeading.text()).contains('active at upload');
       });
 
       it('should not display the automated basal heading when inactive at upload', () => {

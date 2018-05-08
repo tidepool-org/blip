@@ -256,7 +256,7 @@ class SettingsPrintView extends PrintView {
 
       const heading = {
         text: scheduleLabel.main,
-        subText: schedule.isAutomated ? scheduleLabel.secondary : scheduleLabel.units,
+        subText: schedule.isAutomated ? scheduleLabel.secondary.toLowerCase() : scheduleLabel.units,
         note: schedule.isAutomated ? null : scheduleLabel.secondary,
       };
 
