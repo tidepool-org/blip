@@ -24,10 +24,10 @@ var { MGDL_PER_MMOLL } = require('../js/data/util/constants');
 
 var categorizer = require('../js/data/util/categorize');
 var defaultBgClasses = {
-  'very-low': { boundary: 55 },
+  'very-low': { boundary: 54 },
   low: { boundary: 70 },
   target: { boundary: 180 },
-  high: { boundary: 300 },
+  high: { boundary: 250 },
 };
 var alternateBgClasses = {
   'very-low': { boundary: 60 },
@@ -36,10 +36,10 @@ var alternateBgClasses = {
   high: { boundary: 250 },
 };
 var mmollBgClasses = {
-  'very-low': { boundary: 55/MGDL_PER_MMOLL },
+  'very-low': { boundary: 54/MGDL_PER_MMOLL },
   low: { boundary: 70/MGDL_PER_MMOLL },
   target: { boundary: 180/MGDL_PER_MMOLL },
-  high: { boundary: 300/MGDL_PER_MMOLL },
+  high: { boundary: 250/MGDL_PER_MMOLL },
 };
 
 describe('Categorize', function() {
@@ -75,8 +75,8 @@ describe('Categorize', function() {
       it('should categorize 250 as "high"', function(){
         expect(defaultCategorizer({value:250})).to.equal("high");
       });
-      it('should categorize 300 as "high"', function(){
-        expect(defaultCategorizer({value:300})).to.equal("high");
+      it('should categorize 300 as "veryhigh"', function(){
+        expect(defaultCategorizer({value:300})).to.equal("veryhigh");
       });
       it('should categorize 350 as "veryhigh"', function(){
         expect(defaultCategorizer({value:350})).to.equal("veryhigh");
@@ -144,7 +144,7 @@ describe('Categorize', function() {
       it('should categorize 2.5 as "verylow"', function(){
         expect(mmollCategorizer({value:2.8})).to.equal("verylow");
       });
-      it('should categorize 3.2 as "low"', function(){
+      it('should categorize 3.2 as "verylow"', function(){
         expect(mmollCategorizer({value:3.2})).to.equal("low");
       });
       it('should categorize 3.7 as "low"', function(){
@@ -162,8 +162,8 @@ describe('Categorize', function() {
       it('should categorize 12.2 as "high"', function(){
         expect(mmollCategorizer({value:12.2})).to.equal("high");
       });
-      it('should categorize 15.8 as "high"', function(){
-        expect(mmollCategorizer({value:15.8})).to.equal("high");
+      it('should categorize 15.8 as "veryhigh"', function(){
+        expect(mmollCategorizer({value:15.8})).to.equal("veryhigh");
       });
       it('should categorize 22.0 as "veryhigh"', function(){
         expect(mmollCategorizer({value:22.0})).to.equal("veryhigh");
