@@ -133,7 +133,7 @@ describe('Categorize', function() {
       it('should categorize 250 as "high"', function(){
         expect(noConfigCategorizer({value:250})).to.equal("high");
       });
-      it('should categorize 300 as "high"', function(){
+      it('should categorize 300 as "veryhigh"', function(){
         expect(noConfigCategorizer({value:300})).to.equal("high");
       });
       it('should categorize 350 as "veryhigh"', function(){
@@ -144,7 +144,7 @@ describe('Categorize', function() {
       it('should categorize 2.5 as "verylow"', function(){
         expect(mmollCategorizer({value:2.8})).to.equal("verylow");
       });
-      it('should categorize 3.2 as "verylow"', function(){
+      it('should categorize 3.2 as "low"', function(){
         expect(mmollCategorizer({value:3.2})).to.equal("low");
       });
       it('should categorize 3.7 as "low"', function(){
