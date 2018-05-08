@@ -926,6 +926,8 @@ class DailyPrintView extends PrintView {
             ? _.get(pumpVocabulary, [manufacturer, AUTOMATED_DELIVERY], automatedLabel).charAt(0)
             : _.get(pumpVocabulary, [manufacturer, SCHEDULED_DELIVERY], scheduledLabel).charAt(0);
 
+          const labelColor = isAutomated ? this.colors.darkGrey : 'white';
+
           const labelWidth = this.doc
             .fontSize(5)
             .widthOfString(label);
@@ -943,7 +945,7 @@ class DailyPrintView extends PrintView {
             .stroke(color);
 
           this.doc
-            .fillColor('white')
+            .fillColor(labelColor)
             .text(label, xPos - (labelWidth / 2), yPos - 2, {
               width: labelWidth,
               align: 'center',
