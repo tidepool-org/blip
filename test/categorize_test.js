@@ -112,8 +112,8 @@ describe('Categorize', function() {
       });
     });
     describe('with no classes', function(){
-      it('should categorize 54 as "verylow"', function(){
-        expect(noConfigCategorizer({value:54})).to.equal("verylow");
+      it('should categorize 54 as "low"', function(){
+        expect(noConfigCategorizer({value:54})).to.equal("low");
       });
       it('should categorize 55 as "low"', function(){
         expect(noConfigCategorizer({value:55})).to.equal("low");
