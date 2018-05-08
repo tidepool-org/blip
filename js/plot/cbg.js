@@ -35,7 +35,7 @@ module.exports = function(pool, opts) {
     classes: {
       low: { boundary: 70 },
       target: { boundary: 180 },
-      high: { boundary: 300 },
+      high: { boundary: 180 },
     },
     radius: 2.5,
   };

@@ -36,10 +36,10 @@ module.exports = function(pool, opts) {
 
   var defaults = {
     classes: {
-      'very-low': { boundary: 55 },
+      'very-low': { boundary: 54 },
       low: { boundary: 70 },
       target: { boundary: 180 },
-      high: { boundary: 300 },
+      high: { boundary: 250 },
       'very-high': { boundary: 600 },
     },
     twoWeekOptions: {

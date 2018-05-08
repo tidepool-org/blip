@@ -54,19 +54,19 @@ describe('BGDistribution', () => {
   var props = {
     bgClasses: {
       'very-low': {
-        boundary: 60,
+        boundary: 54,
       },
       'low': {
-        boundary: 80,
+        boundary: 70,
       },
       'target': {
         boundary: 180,
       },
       'high': {
-        boundary: 200,
+        boundary: 180,
       },
       'very-high': {
-        boundary: 300,
+        boundary: 250,
       },
     },
     bgUnits: 'mg/dL',
