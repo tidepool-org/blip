@@ -23,10 +23,10 @@ var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('../../data/util/const
 var Categorizer = function(bgClasses, bgUnits = MGDL_UNITS){
   var classes = _.cloneDeep(bgClasses);
   var defaults = {
-    'very-low': { boundary: 55 },
+    'very-low': { boundary: 54 },
     low: { boundary: 70 },
     target: { boundary: 180 },
-    high: { boundary: 300 },
+    high: { boundary: 250 },
   };
 
   if (bgUnits === MMOLL_UNITS) {

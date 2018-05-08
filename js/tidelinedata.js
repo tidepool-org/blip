@@ -49,7 +49,7 @@ function TidelineData(data, opts) {
       low: { boundary: 70 },
       target: { boundary: 180 },
       high: { boundary: 250 },
-      'very-high': { boundary: 250 }
+      'very-high': { boundary: 600 }
     },
     bgUnits: MGDL_UNITS,
     fillOpts: {

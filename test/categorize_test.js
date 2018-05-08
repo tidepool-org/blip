@@ -54,8 +54,8 @@ describe('Categorize', function() {
 
   describe('categorization', function(){
     describe('with default classes', function(){
-      it('should categorize 54 as "verylow"', function(){
-        expect(defaultCategorizer({value:54})).to.equal("verylow");
+      it('should categorize 54 as "low"', function(){
+        expect(defaultCategorizer({value:54})).to.equal("low");
       });
       it('should categorize 55 as "low"', function(){
         expect(defaultCategorizer({value:55})).to.equal("low");
@@ -134,7 +134,7 @@ describe('Categorize', function() {
         expect(noConfigCategorizer({value:250})).to.equal("high");
       });
       it('should categorize 300 as "veryhigh"', function(){
-        expect(noConfigCategorizer({value:300})).to.equal("high");
+        expect(noConfigCategorizer({value:300})).to.equal("veryhigh");
       });
       it('should categorize 350 as "veryhigh"', function(){
         expect(noConfigCategorizer({value:350})).to.equal("veryhigh");
