@@ -40,8 +40,8 @@ describe('TidelineData', function() {
     'very-low': { boundary: 54 },
     low: { boundary: 70 },
     target: { boundary: 180 },
-    high: { boundary: 180 },
-    'very-high': { boundary: 250 }
+    high: { boundary: 250 },
+    'very-high': { boundary: 600 }
   };
   it('should be a function', function() {
     assert.isFunction(TidelineData);
