@@ -36,7 +36,7 @@ export const DATA_DONATION_NONPROFITS = [
   { value: 'JDRF', label: 'JDRF' },
   { value: 'NSF', label: 'Nightscout Foundation' },
   { value: 'T1DX', label: 'T1D Exchange' },
-  { value: 'AADE', label: 'American Association of Diabetes Educators Foundation' },
+  { value: 'AADE', label: 'AADE Foundation' },
 ];
 
 export const DIABETES_TYPES = [
