@@ -42,8 +42,10 @@ deploy:
   bucket: $AWS_BUCKET
   # Prevent Travis from deleting your built site so it can be uploaded.
   skip_cleanup: true
-  # Path to a directory containing your built site.
+  # Path of the source directory containing your built site.
   local_dir: deploy
+  # Path to a directory containing your built site.
+  upload-dir: deploy
   # Set the Cache-Control header.
   cache_control: "max-age=21600"
 
