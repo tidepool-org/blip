@@ -16,7 +16,6 @@
  */
 
 /* jshint esversion:6 */
-
 var d3 = require('d3');
 var _ = require('lodash');
 
@@ -24,6 +23,7 @@ var log = require('bows')('SMBG');
 var format = require('../data/util/format');
 var scales = require('./util/scales')();
 var bgBoundaryClass = require('./util/bgboundary');
+var categorizer = require('../data/util/categorize');
 var { MGDL_UNITS } = require('../data/util/constants');
 
 module.exports = function(pool, opts) {
@@ -76,12 +76,17 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-circle-smbg').on('mouseover', function() {
         highlight.on(d3.select(this));
-        smbg.addTooltip(d3.select(this).datum());
+        var parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect();
+        var container = this.getBoundingClientRect();
+        container.y = container.top - parentContainer.top;
+
+        smbg.addTooltip(d3.select(this).datum(), container);
       });
       selection.selectAll('.d3-circle-smbg').on('mouseout', function() {
         highlight.off();
-        var id = d3.select(this).attr('id').replace('smbg_', 'tooltip_');
-        mainGroup.select('#' + id).remove();
+        if (_.get(opts, 'onSMBGOut', false)){
+          opts.onSMBGOut();
+        }
       });
     });
   }
@@ -103,63 +108,15 @@ module.exports = function(pool, opts) {
   smbg.id = function(d) {
     return 'smbg_' + d.id;
   };
-
-  smbg.orientation = function(cssClass) {
-    if (cssClass.search('d3-bg-high') !== -1) {
-      return 'leftAndDown';
+  
+  smbg.addTooltip = function(d, rect) {
+    if (_.get(opts, 'onSMBGHover', false)) {
+      opts.onSMBGHover({
+        data: d,
+        rect: rect,
+        class: categorizer(opts.classes, opts.bgUnits)(d)
+      });
     }
-    else {
-      return 'normal';
-    }
-  };
-
-  smbg.tooltipHtml = function(group, datum) {
-    var value = format.tooltipBG(datum, opts.bgUnits);
-
-    group.append('p')
-      .append('span')
-      .attr('class', 'secondary')
-      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime, datum.displayOffset));
-    group.append('p')
-      .attr('class', 'value')
-      .append('span')
-      .html(datum.tooltipText ? datum.tooltipText : value);
-    if (!_.isEmpty(datum.subType)) {
-      group.append('p')
-        .append('span')
-        .attr('class', 'secondary')
-        .html(format.capitalize(datum.subType));
-    }
-  };
-
-  smbg.addTooltip = function(d) {
-    var tooltips = pool.tooltips();
-    var getBgBoundaryClass = bgBoundaryClass(opts.classes, opts.bgUnits);
-    var cssClass = getBgBoundaryClass(d);
-    var res = tooltips.addForeignObjTooltip({
-      cssClass: cssClass,
-      datum: d,
-      shape: 'smbg',
-      xPosition: smbg.xPosition,
-      yPosition: smbg.yPosition
-    });
-    var foGroup = res.foGroup;
-    smbg.tooltipHtml(foGroup, d);
-    var dims = tooltips.foreignObjDimensions(foGroup);
-    // foGroup.node().parentNode is the <foreignObject> itself
-    // because foGroup is actually the top-level <xhtml:div> element
-    tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
-      w: dims.width + opts.tooltipPadding,
-      h: dims.height,
-      y: -dims.height,
-      orientation: {
-        'default': smbg.orientation(cssClass),
-        leftEdge: smbg.orientation(cssClass) === 'leftAndDown' ? 'rightAndDown': 'normal',
-        rightEdge: smbg.orientation(cssClass) === 'normal' ? 'leftAndUp': 'leftAndDown'
-      },
-      shape: 'smbg',
-      edge: res.edge
-    });
   };
 
   smbg.addAnnotations = function(data) {
