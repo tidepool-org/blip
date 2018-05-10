@@ -26,7 +26,7 @@ var dt = require('../../data/util/datetime');
 var format = require('../../data/util/format');
 var Puddle = require('./puddle');
 var bgBoundaryClass = require('../util/bgboundary');
-var { MGDL_UNITS } = require('../../data/util/constants');
+var { MGDL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require('../../data/util/constants');
 
 module.exports = function(pool, opts) {
 
@@ -36,11 +36,11 @@ module.exports = function(pool, opts) {
 
   var defaults = {
     classes: {
-      'very-low': { boundary: 54 },
-      low: { boundary: 70 },
-      target: { boundary: 180 },
-      high: { boundary: 250 },
-      'very-high': { boundary: 600 },
+      'very-low': { boundary: DEFAULT_BG_BOUNDS.veryLow },
+      low: { boundary: DEFAULT_BG_BOUNDS.targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS.targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS.veryHigh },
+      'very-high': { boundary: BG_CLAMP_THRESHOLD },
     },
     twoWeekOptions: {
       exclusionThreshold: 7

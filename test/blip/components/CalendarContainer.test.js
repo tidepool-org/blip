@@ -28,6 +28,7 @@
 /* global chai */
 
 var expect = chai.expect;
+var { DEFAULT_BG_BOUNDS } = require('../js/data/util/constants');
 
 const React = require('react');
 const _ = require('lodash');
@@ -48,19 +49,19 @@ describe('CalendarContainer', () => {
   var props = {
     bgClasses: {
       'very-low': {
-        boundary: 54,
+        boundary: DEFAULT_BG_BOUNDS.veryLow,
       },
       'low': {
-        boundary: 70,
+        boundary: DEFAULT_BG_BOUNDS.targetLower,
       },
       'target': {
-        boundary: 180,
+        boundary: DEFAULT_BG_BOUNDS.targetUpper,
       },
       'high': {
-        boundary: 180,
+        boundary: DEFAULT_BG_BOUNDS.veryHigh,
       },
       'very-high': {
-        boundary: 250,
+        boundary: 600,
       },
     },
     bgUnits: 'mg/dL',

@@ -28,7 +28,7 @@ var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
-var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('./data/util/constants');
+var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require('./data/util/constants');
 
 var log = __DEV__ ? require('bows')('TidelineData') : _.noop;
 var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
@@ -45,11 +45,11 @@ function TidelineData(data, opts) {
     SMBG_DAILY_MIN: 4,
     basicsTypes: ['basal', 'bolus', 'cbg', 'smbg', 'deviceEvent', 'wizard', 'upload'],
     bgClasses: {
-      'very-low': { boundary: 54 },
-      low: { boundary: 70 },
-      target: { boundary: 180 },
-      high: { boundary: 250 },
-      'very-high': { boundary: 600 }
+      'very-low': { boundary: DEFAULT_BG_BOUNDS.veryLow },
+      low: { boundary: DEFAULT_BG_BOUNDS.targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS.targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS.veryHigh },
+      'very-high': { boundary: BG_CLAMP_THRESHOLD }
     },
     bgUnits: MGDL_UNITS,
     fillOpts: {

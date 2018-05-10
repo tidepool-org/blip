@@ -30,18 +30,18 @@ var crossfilter = require('crossfilter');
 var moment = require('moment-timezone');
 
 var types = require('../dev/testpage/types');
-var { MGDL_UNITS, MMOLL_UNITS } = require('../js/data/util/constants');
+var { MGDL_UNITS, MMOLL_UNIT, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require('../js/data/util/constants');
 
 var TidelineData = require('../js/tidelinedata');
 
 describe('TidelineData', function() {
   var td = new TidelineData([]);
   var bgClasses = {
-    'very-low': { boundary: 54 },
-    low: { boundary: 70 },
-    target: { boundary: 180 },
-    high: { boundary: 250 },
-    'very-high': { boundary: 600 }
+    'very-low': { boundary: DEFAULT_BG_BOUNDS.veryLow },
+    low: { boundary: DEFAULT_BG_BOUNDS.targetLower },
+    target: { boundary: DEFAULT_BG_BOUNDS.targetUpper },
+    high: { boundary: DEFAULT_BG_BOUNDS.veryHigh },
+    'very-high': { boundary: BG_CLAMP_THRESHOLD }
   };
   it('should be a function', function() {
     assert.isFunction(TidelineData);

@@ -18,15 +18,15 @@
 /* jshint esversion:6 */
 
 var _ = require('lodash');
-var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('../../data/util/constants');
+var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../../data/util/constants');
 
 var Categorizer = function(bgClasses, bgUnits = MGDL_UNITS){
   var classes = _.cloneDeep(bgClasses);
   var defaults = {
-    'very-low': { boundary: 54 },
-    low: { boundary: 70 },
-    target: { boundary: 180 },
-    high: { boundary: 250 },
+    'very-low': { boundary: DEFAULT_BG_BOUNDS.veryLow },
+    low: { boundary: DEFAULT_BG_BOUNDS.targetLower },
+    target: { boundary: DEFAULT_BG_BOUNDS.targetUpper },
+    high: { boundary: DEFAULT_BG_BOUNDS.veryHigh },
   };
 
   if (bgUnits === MMOLL_UNITS) {

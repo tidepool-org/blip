@@ -33,7 +33,7 @@ var smbgBox = require('./SMBGBox');
 var smbgDay = require('./SMBGDay');
 var smbgInfo = require('./SMBGInfo');
 
-var { MGDL_UNITS, MMOLL_UNITS } = require('../../../js/data/util/constants');
+var { MGDL_UNITS, MMOLL_UNITS, BG_CLAMP_THRESHOLD } = require('../../../js/data/util/constants');
 
 var THREE_HRS = 10800000;
 var chart;
@@ -494,7 +494,7 @@ module.exports = {
     opts = opts || {};
     var defaults = {
       baseMargin: opts.baseMargin || 10,
-      bgDomain: [0,600],
+      bgDomain: [0,BG_CLAMP_THRESHOLD],
       brushHeight: 0,
       clampTop: false,
       smbg: {

@@ -24,7 +24,7 @@ var log = require('bows')('SMBG');
 var format = require('../data/util/format');
 var scales = require('./util/scales')();
 var bgBoundaryClass = require('./util/bgboundary');
-var { MGDL_UNITS } = require('../data/util/constants');
+var { MGDL_UNITS, DEFAULT_BG_BOUNDS } = require('../data/util/constants');
 
 module.exports = function(pool, opts) {
   opts = opts || {};
@@ -32,10 +32,10 @@ module.exports = function(pool, opts) {
   var defaults = {
     bgUnits: MGDL_UNITS,
     classes: {
-      'very-low': { boundary: 54 },
-      low: { boundary: 70 },
-      target: { boundary: 180 },
-      high: { boundary: 250 },
+      'very-low': { boundary: DEFAULT_BG_BOUNDS.veryLow },
+      low: { boundary: DEFAULT_BG_BOUNDS.targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS.targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS.veryHigh },
     },
     size: 16,
     timezoneAware: false,
