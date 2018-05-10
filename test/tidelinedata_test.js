@@ -30,7 +30,7 @@ var crossfilter = require('crossfilter');
 var moment = require('moment-timezone');
 
 var types = require('../dev/testpage/types');
-var { MGDL_UNITS, MMOLL_UNIT, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require('../js/data/util/constants');
+var { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require('../js/data/util/constants');
 
 var TidelineData = require('../js/tidelinedata');
 
