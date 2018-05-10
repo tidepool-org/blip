@@ -32,7 +32,7 @@ var Categorizer = function(bgClasses, bgUnits = MGDL_UNITS){
 
   if (bgUnits === MMOLL_UNITS) {
     _.forOwn(defaults, function(value, key) {
-      defaults[key].boundary = d3.format('.f')(value.boundary/MGDL_PER_MMOLL);
+      defaults[key].boundary = d3.format('d')(value.boundary/MGDL_PER_MMOLL);
     });
   }
 
