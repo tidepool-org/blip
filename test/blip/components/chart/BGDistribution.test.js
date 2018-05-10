@@ -25,7 +25,7 @@
 /* global chai */
 
 var expect = chai.expect;
-var { DEFAULT_BG_BOUNDS } = require('../js/data/util/constants');
+var { DEFAULT_BG_BOUNDS } = require('../../../../js/data/util/constants');
 
 const React = require('react');
 const _ = require('lodash');
