@@ -262,15 +262,15 @@ describe('BasalUtil', function() {
       expect(bu.getBasalPathGroupType({ deliveryType: 'automated' })).to.equal('automated');
     });
 
-    it('should return the path group type `regular` for a non-automated basal', function() {
-      expect(bu.getBasalPathGroupType({ deliveryType: 'scheduled' })).to.equal('regular');
-      expect(bu.getBasalPathGroupType({ deliveryType: 'temp' })).to.equal('regular');
-      expect(bu.getBasalPathGroupType({ deliveryType: 'suspend' })).to.equal('regular');
+    it('should return the path group type `manual` for a non-automated basal', function() {
+      expect(bu.getBasalPathGroupType({ deliveryType: 'scheduled' })).to.equal('manual');
+      expect(bu.getBasalPathGroupType({ deliveryType: 'temp' })).to.equal('manual');
+      expect(bu.getBasalPathGroupType({ deliveryType: 'suspend' })).to.equal('manual');
     });
   });
 
   describe('getBasalPathGroups', function() {
-    it('should return an array of groupings of automated and regular data', function() {
+    it('should return an array of groupings of automated and manual data', function() {
       var mixedBasals = [
         { deliveryType: 'automated' },
         { deliveryType: 'scheduled' },
