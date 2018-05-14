@@ -18,6 +18,7 @@
 /* jshint esversion:6 */
 
 var _ = require('lodash');
+var d3 = require('d3');
 var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../../data/util/constants');
 
 var Categorizer = function(bgClasses, bgUnits = MGDL_UNITS){
@@ -31,7 +32,7 @@ var Categorizer = function(bgClasses, bgUnits = MGDL_UNITS){
 
   if (bgUnits === MMOLL_UNITS) {
     _.forOwn(defaults, function(value, key) {
-      defaults[key].boundary = Math.round(value.boundary/MGDL_PER_MMOLL);
+      defaults[key].boundary = d3.format('.1f')(value.boundary/MGDL_PER_MMOLL);
     });
   }
 
