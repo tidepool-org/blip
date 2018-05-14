@@ -1,3 +1,5 @@
+/* jshint esversion:6 */
+
 const MGDL_UNITS = 'mg/dL';
 const MMOLL_UNITS = 'mmol/L';
 

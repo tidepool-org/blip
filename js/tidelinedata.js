@@ -38,7 +38,7 @@ function TidelineData(data, opts) {
   var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings'];
 
   opts = opts || {};
-
+  bgUnits = MGDL_UNITS;
   var defaults = {
     CBG_PERCENT_FOR_ENOUGH: 0.75,
     CBG_MAX_DAILY: 288,
