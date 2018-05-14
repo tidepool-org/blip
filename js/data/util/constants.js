@@ -1,3 +1,6 @@
+const MGDL_UNITS = 'mg/dL';
+const MMOLL_UNITS = 'mmol/L';
+
 module.exports = {
   MGDL_PER_MMOLL: 18.01559,
   MGDL_UNITS: 'mg/dL',

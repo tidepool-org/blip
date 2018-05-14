@@ -33,9 +33,9 @@ module.exports = function(pool, opts) {
   var defaults = {
     bgUnits: MGDL_UNITS,
     classes: {
-      low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
-      target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
-      high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
+      low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
     },
     radius: 2.5,
   };

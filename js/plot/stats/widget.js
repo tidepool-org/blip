@@ -36,10 +36,10 @@ module.exports = function(pool, opts) {
 
   var defaults = {
     classes: {
-      'very-low': { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow },
-      low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
-      target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
-      high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
+      'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
+      low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
       'very-high': { boundary: BG_CLAMP_THRESHOLD },
     },
     twoWeekOptions: {

@@ -45,10 +45,10 @@ function TidelineData(data, opts) {
     SMBG_DAILY_MIN: 4,
     basicsTypes: ['basal', 'bolus', 'cbg', 'smbg', 'deviceEvent', 'wizard', 'upload'],
     bgClasses: {
-      'very-low': { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow },
-      low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
-      target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
-      high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
+      'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
+      low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
     },
     bgUnits: MGDL_UNITS,
     fillOpts: {
