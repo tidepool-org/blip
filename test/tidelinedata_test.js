@@ -33,7 +33,8 @@ var types = require('../dev/testpage/types');
 var { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require('../js/data/util/constants');
 
 var TidelineData = require('../js/tidelinedata');
-bgUnits = MGDL_UNITS;
+
+var bgUnits = MGDL_UNITS;
 
 describe('TidelineData', function() {
   var td = new TidelineData([]);

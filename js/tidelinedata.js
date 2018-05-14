@@ -34,11 +34,12 @@ var log = __DEV__ ? require('bows')('TidelineData') : _.noop;
 var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
 var endTimer = __DEV__ ? function(name) { console.timeEnd(name); } : _.noop;
 
+var bgUnits = MGDL_UNITS
+
 function TidelineData(data, opts) {
   var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings'];
 
   opts = opts || {};
-  bgUnits = MGDL_UNITS;
   var defaults = {
     CBG_PERCENT_FOR_ENOUGH: 0.75,
     CBG_MAX_DAILY: 288,
