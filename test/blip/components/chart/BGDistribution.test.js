@@ -25,7 +25,7 @@
 /* global chai */
 
 var expect = chai.expect;
-var { DEFAULT_BG_BOUNDS } = require('../../../../js/data/util/constants');
+var { DEFAULT_BG_BOUNDS, MGDL_UNITS } = require('../../../../js/data/util/constants');
 
 const React = require('react');
 const _ = require('lodash');
@@ -55,16 +55,16 @@ describe('BGDistribution', () => {
   var props = {
     bgClasses: {
       'very-low': {
-        boundary: DEFAULT_BG_BOUNDS.veryLow,
+        boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow,
       },
       'low': {
-        boundary: DEFAULT_BG_BOUNDS.targetLower,
+        boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower,
       },
       'target': {
-        boundary: DEFAULT_BG_BOUNDS.targetUpper,
+        boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper,
       },
       'high': {
-        boundary: DEFAULT_BG_BOUNDS.veryHigh,
+        boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh,
       },
       'very-high': {
         boundary: 600,

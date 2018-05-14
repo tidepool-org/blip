@@ -3,10 +3,18 @@ module.exports = {
   MGDL_UNITS: 'mg/dL',
   MMOLL_UNITS: 'mmol/L',
   DEFAULT_BG_BOUNDS: {
-  	veryLow: 54,
-  	targetLower: 70,
-  	targetUpper: 180,
-  	veryHigh:250,
+  	[MGDL_UNITS]:{
+  		veryLow: 54,
+  		targetLower: 70,
+  		targetUpper: 180,
+  		veryHigh:250,
+  	},
+  	[MMOLL_UNITS]: {
+  		veryLow: 3.0,
+     	targetLower: 3.9,
+      	targetUpper: 10.0,
+      	veryHigh: 13.9,
+  	},
   },
   BG_CLAMP_THRESHOLD: 600,
 };

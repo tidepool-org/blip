@@ -32,10 +32,10 @@ module.exports = function(pool, opts) {
   var defaults = {
     bgUnits: MGDL_UNITS,
     classes: {
-      'very-low': { boundary: DEFAULT_BG_BOUNDS.veryLow },
-      low: { boundary: DEFAULT_BG_BOUNDS.targetLower },
-      target: { boundary: DEFAULT_BG_BOUNDS.targetUpper },
-      high: { boundary: DEFAULT_BG_BOUNDS.veryHigh },
+      'very-low': { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow },
+      low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
     },
     size: 16,
     timezoneAware: false,

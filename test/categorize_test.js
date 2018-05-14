@@ -21,14 +21,14 @@ var chai = require('chai');
 var d3 = require('d3');
 var assert = chai.assert;
 var expect = chai.expect;
-var { MGDL_PER_MMOLL, DEFAULT_BG_BOUNDS } = require('../js/data/util/constants');
+var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../js/data/util/constants');
 
 var categorizer = require('../js/data/util/categorize');
 var defaultBgClasses = {
-  'very-low': { boundary: DEFAULT_BG_BOUNDS.veryLow },
-  low: { boundary: DEFAULT_BG_BOUNDS.targetLower },
-  target: { boundary: DEFAULT_BG_BOUNDS.targetUpper },
-  high: { boundary: DEFAULT_BG_BOUNDS.veryHigh },
+  'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
+  low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+  target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+  high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
 };
 var alternateBgClasses = {
   'very-low': { boundary: 60 },
@@ -37,10 +37,10 @@ var alternateBgClasses = {
   high: { boundary: 250 },
 };
 var mmollBgClasses = {
-  'very-low': { boundary: d3.format('.1f')(DEFAULT_BG_BOUNDS.veryLow/MGDL_PER_MMOLL) },
-  low: { boundary: d3.format('.1f')(DEFAULT_BG_BOUNDS.targetLower/MGDL_PER_MMOLL) },
-  target: { boundary: d3.format('.1f')(DEFAULT_BG_BOUNDS.targetUpper/MGDL_PER_MMOLL) },
-  high: { boundary: d3.format('.1f')(DEFAULT_BG_BOUNDS.veryHigh/MGDL_PER_MMOLL) },
+  'very-low': { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].veryLow },
+  low: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].targetLower },
+  target: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].targetUpper },
+  high: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].veryHigh },
 };
 
 describe('Categorize', function() {

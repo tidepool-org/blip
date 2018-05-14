@@ -45,11 +45,10 @@ function TidelineData(data, opts) {
     SMBG_DAILY_MIN: 4,
     basicsTypes: ['basal', 'bolus', 'cbg', 'smbg', 'deviceEvent', 'wizard', 'upload'],
     bgClasses: {
-      'very-low': { boundary: DEFAULT_BG_BOUNDS.veryLow },
-      low: { boundary: DEFAULT_BG_BOUNDS.targetLower },
-      target: { boundary: DEFAULT_BG_BOUNDS.targetUpper },
-      high: { boundary: DEFAULT_BG_BOUNDS.veryHigh },
-      'very-high': { boundary: BG_CLAMP_THRESHOLD }
+      'very-low': { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow },
+      low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
     },
     bgUnits: MGDL_UNITS,
     fillOpts: {
@@ -77,12 +76,6 @@ function TidelineData(data, opts) {
       timezoneName: dt.getBrowserTimezone(),
     }
   };
-
-  if (opts.bgUnits === MMOLL_UNITS) {
-    _.forOwn(defaults.bgClasses, function(value, key) {
-      defaults.bgClasses[key].boundary = value.boundary/MGDL_PER_MMOLL;
-    });
-  }
 
   _.defaultsDeep(opts, defaults);
   var that = this;

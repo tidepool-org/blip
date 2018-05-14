@@ -24,17 +24,11 @@ var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('..
 var Categorizer = function(bgClasses, bgUnits = MGDL_UNITS){
   var classes = _.cloneDeep(bgClasses);
   var defaults = {
-    'very-low': { boundary: DEFAULT_BG_BOUNDS.veryLow },
-    low: { boundary: DEFAULT_BG_BOUNDS.targetLower },
-    target: { boundary: DEFAULT_BG_BOUNDS.targetUpper },
-    high: { boundary: DEFAULT_BG_BOUNDS.veryHigh },
+    'very-low': { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow },
+    low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
+    target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
+    high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
   };
-
-  if (bgUnits === MMOLL_UNITS) {
-    _.forOwn(defaults, function(value, key) {
-      defaults[key].boundary = d3.format('.1f')(value.boundary/MGDL_PER_MMOLL);
-    });
-  }
 
   _.defaults(classes, defaults);
 
