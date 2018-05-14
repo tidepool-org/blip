@@ -47,6 +47,78 @@ describe('format utility', function() {
     it('should return a float string with one decimal place when no units', function() {
       expect(fmt.tooltipBG({value: 4.2222222222222222222222222})).to.equal('4.2');
     });
+
+    it('should set the tooltip text to "High" for smbg values above the device threshold', function() {
+      var datum = {
+        type: 'smbg',
+        value: 601,
+        annotations: [
+          {
+            code: 'bg/out-of-range',
+            threshold: 600,
+            value: 'high',
+          },
+        ],
+      };
+
+      fmt.tooltipBG(datum);
+
+      expect(datum.tooltipText).to.equal('High');
+    });
+
+    it('should set the tooltip text to "Hi" for cbg values above the device threshold', function() {
+      var datum = {
+        type: 'cbg',
+        value: 601,
+        annotations: [
+          {
+            code: 'bg/out-of-range',
+            threshold: 600,
+            value: 'high',
+          },
+        ],
+      };
+
+      fmt.tooltipBG(datum);
+
+      expect(datum.tooltipText).to.equal('Hi');
+    });
+
+    it('should set the tooltip text to "Low" for smbg values below the device threshold', function() {
+      var datum = {
+        type: 'smbg',
+        value: 39,
+        annotations: [
+          {
+            code: 'bg/out-of-range',
+            threshold: 40,
+            value: 'low',
+          },
+        ],
+      };
+
+      fmt.tooltipBG(datum);
+
+      expect(datum.tooltipText).to.equal('Low');
+    });
+
+    it('should set the tooltip text to "Lo" for cbg values below the device threshold', function() {
+      var datum = {
+        type: 'cbg',
+        value: 39,
+        annotations: [
+          {
+            code: 'bg/out-of-range',
+            threshold: 40,
+            value: 'low',
+          },
+        ],
+      };
+
+      fmt.tooltipBG(datum);
+
+      expect(datum.tooltipText).to.equal('Lo');
+    });
   });
 
   describe('tooltipValue', function() {

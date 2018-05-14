@@ -32,18 +32,20 @@ var format = {
       if (annotation.code && annotation.code === 'bg/out-of-range') {
         var value = annotation.value;
         if (value === 'low') {
-          d.tooltipText = 'Lo';
+          d.tooltipText = d.type === 'cbg' ? 'Lo' : 'Low';
         }
         else if (value === 'high') {
-          d.tooltipText = 'Hi';
+          d.tooltipText = d.type === 'cbg' ? 'Hi' : 'High';
         }
       }
     }
     return format.tooltipBGValue(d.value, units);
   },
+
   tooltipBGValue: function(value, units) {
     return units === MGDL_UNITS ? d3.format('g')(Math.round(value)) : d3.format('.1f')(value);
   },
+
   tooltipValue: function(x) {
     if (x === 0) {
       return '0.0';
@@ -96,7 +98,6 @@ var format = {
     return s[0].toUpperCase() + s.slice(1);
   },
 
-
   dayAndDate: function(i, offset) {
     var d = new Date(i);
     if (offset) {
@@ -114,7 +115,7 @@ var format = {
       return '-- %';
     }
     else {
-      return parseInt(Math.round(f * 100), 10) + '%';
+      return d3.format('%')(f);
     }
   },
 
@@ -201,6 +202,7 @@ var format = {
     }
     return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
   },
+
   /**
    * Given two timestamps return an object containing a timechange
    *
@@ -237,8 +239,6 @@ var format = {
       type = 'Clock Drift Adjustment';
     }
 
-
-
     return {
       type: type,
       from: moment(fromDate).utc().format(format),
@@ -262,7 +262,6 @@ var format = {
     }
     return d3.time.format.utc('%-I %p')(d).toLowerCase();
   }
-
 };
 
 module.exports = format;

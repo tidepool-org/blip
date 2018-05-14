@@ -76,7 +76,7 @@ var DashboardSection = React.createClass({
       }
       else {
         dataDisplay = (
-          <NoDataContainer moreInfo={section.noDataMessage || null} />
+          <NoDataContainer message={section.message} moreInfo={section.noDataMessage || null} />
         );
       }
     }

@@ -30,26 +30,11 @@ var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
 var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('./data/util/constants');
 
-var log;
-if (typeof window !== 'undefined' && __DEV__ === true) {
-  log = require('bows')('TidelineData');
-}
-else {
-  log = function() { return; };
-}
-
-var startTimer, endTimer;
-if (typeof window !== 'undefined' && __DEV__ === true) {
-  startTimer = function(name) { console.time(name); };
-  endTimer = function(name) { console.timeEnd(name); };
-}
-else {
-  startTimer = function() { return; };
-  endTimer = function() { return; };
-}
+var log = __DEV__ ? require('bows')('TidelineData') : _.noop;
+var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
+var endTimer = __DEV__ ? function(name) { console.timeEnd(name); } : _.noop;
 
 function TidelineData(data, opts) {
-
   var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings'];
 
   opts = opts || {};
@@ -58,7 +43,7 @@ function TidelineData(data, opts) {
     CBG_PERCENT_FOR_ENOUGH: 0.75,
     CBG_MAX_DAILY: 288,
     SMBG_DAILY_MIN: 4,
-    basicsTypes: ['basal', 'bolus', 'cbg', 'smbg', 'deviceEvent', 'wizard'],
+    basicsTypes: ['basal', 'bolus', 'cbg', 'smbg', 'deviceEvent', 'wizard', 'upload'],
     bgClasses: {
       'very-low': { boundary: 55 },
       low: { boundary: 70 },
@@ -89,7 +74,7 @@ function TidelineData(data, opts) {
     ],
     timePrefs: {
       timezoneAware: false,
-      timezoneName: 'US/Pacific'
+      timezoneName: dt.getBrowserTimezone(),
     }
   };
 
@@ -117,26 +102,21 @@ function TidelineData(data, opts) {
     return that;
   }
 
-  function addAndResort(datum, a) {
-    return _.sortBy((function() {
-      a.push(datum);
-      return a;
-    }()), function(d) { return d.normalTime; });
-  }
-
-  function updateCrossFilters(data) {
+  this.updateCrossFilters = function() {
     startTimer('crossfilter');
-    that.filterData = crossfilter(data);
-    that.smbgData = crossfilter(that.grouped.smbg || []);
-    that.cbgData = crossfilter(that.grouped.cbg || []);
+    this.filterData = crossfilter(this.data);
+    this.smbgData = crossfilter(this.grouped.smbg || []);
+    this.cbgData = crossfilter(this.grouped.cbg || []);
     endTimer('crossfilter');
-    that.dataByDate = that.createCrossFilter('datetime');
-    that.dataById = that.createCrossFilter('id');
-    that.smbgByDate = that.createCrossFilter('smbgByDatetime');
-    that.smbgByDayOfWeek = that.createCrossFilter('smbgByDayOfWeek');
-    that.cbgByDate = that.createCrossFilter('cbgByDatetime');
-    that.cbgByDayOfWeek = that.createCrossFilter('cbgByDayOfWeek');
-  }
+    this.dataByDate = this.createCrossFilter('datetime');
+    this.dataById = this.createCrossFilter('id');
+    this.smbgByDate = this.createCrossFilter('smbgByDatetime');
+    this.smbgByDayOfWeek = this.createCrossFilter('smbgByDayOfWeek');
+    this.cbgByDate = this.createCrossFilter('cbgByDatetime');
+    this.cbgByDayOfWeek = this.createCrossFilter('cbgByDayOfWeek');
+
+    return this;
+  };
 
   this.createCrossFilter = function(dim) {
     var newDim;
@@ -175,15 +155,88 @@ function TidelineData(data, opts) {
     return newDim;
   };
 
-  this.addDatum = function(datum) {
-    this.watson(datum);
-    this.grouped[datum.type] = addAndResort(datum, this.grouped[datum.type]);
-    this.data = addAndResort(datum, this.data);
-    updateCrossFilters(this.data);
-    if (_.includes(opts.diabetesDataTypes, datum.type)) {
-      this.diabetesData = addAndResort(datum, this.diabetesData);
-    }
+  this.setUtilities = function () {
+    this.basalUtil = new BasalUtil(this.grouped.basal);
+    this.bolusUtil = new BolusUtil(this.grouped.bolus);
+    this.cbgUtil = new BGUtil(this.grouped.cbg, {
+      bgUnits: this.bgUnits,
+      bgClasses: this.bgClasses,
+      DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)
+    });
+    this.smbgUtil = new BGUtil(this.grouped.smbg, {
+      bgUnits: this.bgUnits,
+      bgClasses: this.bgClasses,
+      DAILY_MIN: opts.SMBG_DAILY_MIN
+    });
+  };
+
+  this.filterDataArray = function() {
+    var dData = _.sortBy(this.diabetesData, 'normalTime');
+    this.data = _.reject(this.data, function(d) {
+      if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
+        return true;
+      }
+      if (d.type === 'settings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
+        return true;
+      }
+      if (d.type === 'upload') {
+        return true;
+      }
+    });
+    return this;
+  };
+
+  this.deduplicateDataArrays = function() {
+    this.data = _.uniq(this.data, 'id');
+    this.diabetesData = _.uniq(this.diabetesData, 'id');
+    _.each(this.grouped, (val, key) => {
+      this.grouped[key] = _.uniq(val, 'id');
+    });
+    return this;
+  };
+
+  this.addData = function(data = []) {
+    // Validate all new data received
+    startTimer('Validation');
+    const validatedData = validate.validateAll(data.map(datum => {
+      this.watson(datum);
+      return datum;
+    }));
+    endTimer('Validation');
+
+    // Add all valid new datums to the top of appropriate collections in descending order
+    _.eachRight(_.sortBy(validatedData.valid, 'normalTime'), datum => {
+      if (! _.isArray(this.grouped[datum.type])) {
+        this.grouped[datum.type] = [];
+      }
+
+      if (_.includes(opts.diabetesDataTypes, datum.type)) {
+        this.diabetesData.unshift(datum);
+      }
+
+      this.grouped[datum.type].unshift(datum);
+      this.data.unshift(datum);
+    });
+
+    // Filter unwanted types from the data array
+    this.filterDataArray();
+
+    // generate the fill data for chart BGs
     this.generateFillData().adjustFillsForTwoWeekView();
+
+    // Concatenate the newly generated fill data and sort the resulting array
+    this.data = _.sortBy(this.data.concat(this.grouped.fill), 'normalTime');
+
+    // Deduplicate the data
+    this.deduplicateDataArrays();
+
+    startTimer('setUtilities');
+    this.setUtilities();
+    endTimer('setUtilities');
+
+    // Update the crossfilters
+    this.updateCrossFilters();
+
     return this;
   };
 
@@ -204,7 +257,7 @@ function TidelineData(data, opts) {
       this.diabetesData = _.sortBy(self.diabetesData, sortByNormalTime);
     }
     this.generateFillData().adjustFillsForTwoWeekView();
-    updateCrossFilters(this.data);
+    this.updateCrossFilters();
     return this;
   };
 
@@ -225,7 +278,7 @@ function TidelineData(data, opts) {
     }
   }
 
-  function fillDataFromInterval(first, last) {
+  function fillDataFromInterval(first, last, fixGaps = true) {
     startTimer('fillDataFromInterval');
     var fillData = [], points = d3.time.hour.utc.range(first, last);
     for (var i = 0; i < points.length; ++i) {
@@ -253,19 +306,16 @@ function TidelineData(data, opts) {
         });
       }
     }
-    fixGapsAndOverlaps(fillData);
+    if (fixGaps) {
+      fixGapsAndOverlaps(fillData);
+    }
     endTimer('fillDataFromInterval');
     return fillData;
   }
 
   function getTwoWeekFillEndpoints() {
     startTimer('getTwoWeekFillEndpoints');
-    var data;
-    if (that.grouped.smbg && that.grouped.smbg.length !== 0) {
-      data = that.grouped.smbg;
-    } else {
-      data = that.diabetesData;
-    }
+    var data = that.diabetesData;
 
     var first = data[0].normalTime, last = data[data.length - 1].normalTime;
     if (dt.getNumDays(first, last) < 14) {
@@ -315,7 +365,7 @@ function TidelineData(data, opts) {
     var fillData = this.grouped.fill;
     var endpoints = getTwoWeekFillEndpoints();
     this.twoWeekData = this.grouped.smbg || [];
-    var twoWeekFills = fillDataFromInterval(new Date(endpoints[0]), new Date(endpoints[1]));
+    var twoWeekFills = fillDataFromInterval(new Date(endpoints[0]), new Date(endpoints[1]), false);
     this.twoWeekData = _.sortBy(this.twoWeekData.concat(twoWeekFills), function(d) {
       return d.normalTime;
     });
@@ -462,33 +512,12 @@ function TidelineData(data, opts) {
   this.setBGPrefs();
 
   startTimer('setUtilities');
-  this.basalUtil = new BasalUtil(this.grouped.basal);
-  this.bolusUtil = new BolusUtil(this.grouped.bolus);
-  this.cbgUtil = new BGUtil(this.grouped.cbg, {
-    bgUnits: this.bgUnits,
-    bgClasses: this.bgClasses,
-    DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)
-  });
-  this.smbgUtil = new BGUtil(this.grouped.smbg, {
-    bgUnits: this.bgUnits,
-    bgClasses: this.bgClasses,
-    DAILY_MIN: opts.SMBG_DAILY_MIN
-  });
+  this.setUtilities();
 
   if (data.length > 0 && !_.isEmpty(this.diabetesData)) {
     var dData = this.diabetesData;
-    this.data = _.sortBy(_.reject(data, function(d) {
-      if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
-        return true;
-      }
-      if (d.type === 'settings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
-        return true;
-      }
-      if (d.type === 'upload') {
-        return true;
-      }
-    }), function(d) { return d.normalTime; });
-    this.generateFillData().adjustFillsForTwoWeekView();
+    this.data = _.sortBy(data, function(d) { return d.normalTime; });
+    this.filterDataArray().generateFillData().adjustFillsForTwoWeekView();
     this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
   }
   else {
@@ -496,7 +525,7 @@ function TidelineData(data, opts) {
   }
   endTimer('setUtilities');
 
-  updateCrossFilters(this.data);
+  this.updateCrossFilters();
 
   startTimer('basicsData');
   this.basicsData = {};
@@ -504,19 +533,22 @@ function TidelineData(data, opts) {
     var last = _.findLast(this.data, function(d) {
       switch (d.type) {
         case 'basal':
-          return true;
+        case 'wizard':
         case 'bolus':
+        case 'cbg':
+        case 'smbg':
+        case 'upload':
           return true;
         case 'deviceEvent':
-          if (d.subType === 'reservoirChange') {
-            return true;
-          }
-          if (d.subType === 'prime') {
+          var includedSubtypes = [
+            'reservoirChange',
+            'prime',
+            'calibration',
+          ];
+          if (_.includes(includedSubtypes, d.subType)) {
             return true;
           }
           return false;
-        case 'wizard':
-          return true;
         default:
           return false;
       }
@@ -589,6 +621,11 @@ function TidelineData(data, opts) {
               return d.subType === 'calibration';
             }
           )};
+        }
+        else if (aType === 'upload') {
+          this.basicsData.data.upload = {
+            data: this.grouped.upload,
+          };
         }
         else {
           this.basicsData.data[aType] = {};
