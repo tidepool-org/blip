@@ -24,5 +24,5 @@ module.exports = {
   BG_CLAMP_THRESHOLD: {
   	[MGDL_UNITS]: 600,
   	[MMOLL_UNITS]: 600/MGDL_PER_MMOLL,
-  }''
+  },
 };
