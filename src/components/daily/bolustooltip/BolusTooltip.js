@@ -19,23 +19,13 @@ import React, { PropTypes, PureComponent } from 'react';
 import _ from 'lodash';
 import * as bolusUtils from '../../../utils/bolus';
 import { formatLocalizedFromUTC, formatDuration } from '../../../utils/datetime';
-import { formatDecimalNumber } from '../../../utils/format';
+import { formatInsulin } from '../../../utils/format';
+import { getAnnotationMessages } from '../../../utils/annotations';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './BolusTooltip.css';
 
 class BolusTooltip extends PureComponent {
-  formatInsulin(qty) {
-    let decimalLength;
-    const qtyString = qty.toString();
-    if (qtyString.indexOf('.') !== -1 && qtyString.split('.')[1].length === 2) {
-      decimalLength = 2;
-    } else {
-      decimalLength = 1;
-    }
-    return formatDecimalNumber(qty, decimalLength);
-  }
-
   isAnimasExtended() {
     const annotations = bolusUtils.getAnnotations(this.props.bolus);
     const isAnimasExtended =
@@ -46,10 +36,10 @@ class BolusTooltip extends PureComponent {
   animasExtendedAnnotationMessage() {
     let content = null;
     if (this.isAnimasExtended()) {
+      const messages = getAnnotationMessages(bolusUtils.getBolusFromInsulinEvent(this.props.bolus));
       content = (
         <div className={styles.annotation}>
-          * Animas pumps don't capture the details of how combo boluses are split between the normal
-          and extended amounts.
+          {_.find(messages, { code: 'animas/bolus/extended-equal-split' }).message.value}
         </div>
       );
     }
@@ -141,7 +131,7 @@ class BolusTooltip extends PureComponent {
           !!normal && (
             <div className={styles.normal} key={'normal'}>
               <div className={styles.label}>{`Up Front (${normalPercentage})`}</div>
-              <div className={styles.value}>{`${this.formatInsulin(normal)}`}</div>
+              <div className={styles.value}>{`${formatInsulin(normal)}`}</div>
               <div className={styles.units}>U</div>
             </div>
           ),
@@ -150,7 +140,7 @@ class BolusTooltip extends PureComponent {
               {`Over ${formatDuration(bolusUtils.getDuration(bolus))} ${extendedPercentage}`}
             </div>
             <div className={styles.value}>
-              {`${this.formatInsulin(bolusUtils.getExtended(bolus))}`}
+              {`${formatInsulin(bolusUtils.getExtended(bolus))}`}
             </div>
             <div className={styles.units}>U</div>
           </div>,
@@ -181,7 +171,7 @@ class BolusTooltip extends PureComponent {
       overrideLine = (
         <div className={styles.override}>
           <div className={styles.label}>Override</div>
-          <div className={styles.value}>{`+${this.formatInsulin(programmed - recommended)}`}</div>
+          <div className={styles.value}>{`+${formatInsulin(programmed - recommended)}`}</div>
           <div className={styles.units}>U</div>
         </div>
       );
@@ -190,7 +180,7 @@ class BolusTooltip extends PureComponent {
       overrideLine = (
         <div className={styles.override}>
           <div className={styles.label}>Underride</div>
-          <div className={styles.value}>{`-${this.formatInsulin(recommended - programmed)}`}</div>
+          <div className={styles.value}>{`-${formatInsulin(recommended - programmed)}`}</div>
           <div className={styles.units}>U</div>
         </div>
       );
@@ -198,7 +188,7 @@ class BolusTooltip extends PureComponent {
     const deliveredLine = _.isFinite(delivered) && (
       <div className={styles.delivered}>
         <div className={styles.label}>Delivered</div>
-        <div className={styles.value}>{`${this.formatInsulin(delivered)}`}</div>
+        <div className={styles.value}>{`${formatInsulin(delivered)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
@@ -206,7 +196,7 @@ class BolusTooltip extends PureComponent {
       !!suggested && (
       <div className={styles.suggested}>
         <div className={styles.label}>Suggested</div>
-        <div className={styles.value}>{this.formatInsulin(suggested)}</div>
+        <div className={styles.value}>{formatInsulin(suggested)}</div>
         <div className={styles.units}>U</div>
       </div>
       );
@@ -227,14 +217,14 @@ class BolusTooltip extends PureComponent {
     const iobLine = !!iob && (
       <div className={styles.iob}>
         <div className={styles.label}>IOB</div>
-        <div className={styles.value}>{`${this.formatInsulin(iob)}`}</div>
+        <div className={styles.value}>{`${formatInsulin(iob)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
     const interruptedLine = isInterrupted && (
       <div className={styles.interrupted}>
         <div className={styles.label}>Interrupted</div>
-        <div className={styles.value}>{`-${this.formatInsulin(programmed - delivered)}`}</div>
+        <div className={styles.value}>{`-${formatInsulin(programmed - delivered)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
@@ -287,14 +277,14 @@ class BolusTooltip extends PureComponent {
     const deliveredLine = _.isFinite(delivered) && (
       <div className={styles.delivered}>
         <div className={styles.label}>Delivered</div>
-        <div className={styles.value}>{`${this.formatInsulin(delivered)}`}</div>
+        <div className={styles.value}>{`${formatInsulin(delivered)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
     const interruptedLine = isInterrupted && (
       <div className={styles.interrupted}>
         <div className={styles.label}>Interrupted</div>
-        <div className={styles.value}>{`-${this.formatInsulin(programmed - delivered)}`}</div>
+        <div className={styles.value}>{`-${formatInsulin(programmed - delivered)}`}</div>
         <div className={styles.units}>U</div>
       </div>
     );
@@ -302,7 +292,7 @@ class BolusTooltip extends PureComponent {
       !!programmed && (
       <div className={styles.programmed}>
         <div className={styles.label}>Programmed</div>
-        <div className={styles.value}>{`${this.formatInsulin(programmed)}`}</div>
+        <div className={styles.value}>{`${formatInsulin(programmed)}`}</div>
         <div className={styles.units}>U</div>
       </div>
       );
