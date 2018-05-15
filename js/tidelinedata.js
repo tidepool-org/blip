@@ -38,6 +38,7 @@ function TidelineData(data, opts) {
   var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings'];
 
   opts = opts || {};
+  var bgUnits = opts.bgUnits || MGDL_UNITS;
   var defaults = {
     CBG_PERCENT_FOR_ENOUGH: 0.75,
     CBG_MAX_DAILY: 288,
@@ -76,8 +77,6 @@ function TidelineData(data, opts) {
       timezoneName: dt.getBrowserTimezone(),
     }
   };
-
-  var bgUnits = opts.bgUnits || MGDL_UNITS;
 
   _.defaultsDeep(opts, defaults);
   var that = this;
