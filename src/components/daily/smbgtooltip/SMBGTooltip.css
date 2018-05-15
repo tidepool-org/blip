@@ -61,7 +61,7 @@
   color: var(--gray-dark);
 }
 
-.confirmBG {
+.confirmBg {
   composes: subType;
 }
 
@@ -71,4 +71,13 @@
 
 .source {
   composes: subType;
+}
+
+.annotation {
+  composes: subType;
+}
+
+.dividerLarge {
+  height: 4px;
+  margin: 5px -10px;
 }

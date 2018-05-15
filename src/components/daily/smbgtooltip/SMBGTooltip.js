@@ -17,81 +17,80 @@
 
 import React, { PropTypes, PureComponent } from 'react';
 import _ from 'lodash';
-import { classifyBgValue, reshapeBgClassesToBgBounds } from '../../../utils/bloodglucose';
+import {
+  classifyBgValue,
+  reshapeBgClassesToBgBounds,
+  getOutOfRangeThreshold,
+} from '../../../utils/bloodglucose';
+import { formatBgValue } from '../../../utils/format';
 import { formatLocalizedFromUTC } from '../../../utils/datetime';
+import {
+  getMedtronic600AnnotationMessages,
+  getOutOfRangeAnnotationMessage,
+} from '../../../utils/annotations';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './SMBGTooltip.css';
 
-const medtronic600BGMessages = {
-  'medtronic600/smbg/user-accepted-remote-bg': 'Yes',
-  'medtronic600/smbg/user-rejected-remote-bg': 'No',
-  'medtronic600/smbg/remote-bg-acceptance-screen-timeout': 'Timed Out',
-};
-
-const medtronic600CalibrationMessages = {
-  'medtronic600/smbg/bg-sent-for-calib': 'Yes',
-  'medtronic600/smbg/user-rejected-sensor-calib': 'No',
-};
-
 class SMBGTooltip extends PureComponent {
-  getMedtronic600AnnotationMessages() {
-    const annotations = _.map(_.get(this.props.smbg, 'annotations', []), 'code');
-    const messages = [];
-    const medtronic600BGMessage = _.intersection(_.keys(medtronic600BGMessages), annotations);
-    if (medtronic600BGMessage.length > 0) {
-      messages.push(
-        <div key={"confirmBG"} className={styles.confirmBG}>
-          <div className={styles.label}>Confirm BG</div>
-          <div className={styles.value}>{medtronic600BGMessages[medtronic600BGMessage]}</div>
-        </div>
-      );
-    }
-    const medtronic600CalibrationMessage = _.intersection(
-      _.keys(medtronic600CalibrationMessages),
-      annotations
-    );
-    if (medtronic600CalibrationMessage.length > 0) {
-      messages.push(
-        <div key={"calibration"} className={styles.calibration}>
-          <div className={styles.label}>Calibration</div>
-          <div className={styles.value}>
-            {medtronic600CalibrationMessages[medtronic600CalibrationMessage]}
-          </div>
-        </div>
-      );
-    }
-    return messages;
-  }
-
   renderSMBG() {
     const smbg = this.props.smbg;
-    let rows = [<div key={"bg"} className={styles.bg}>
-      <div className={styles.label}>BG</div>
-      <div className={styles.value}>{`${smbg.value}`}</div>
-    </div>];
+    const outOfRangeMessage = getOutOfRangeAnnotationMessage(smbg);
+    const rows = [
+      <div key={'bg'} className={styles.bg}>
+        <div className={styles.label}>BG</div>
+        <div className={styles.value}>
+          {`${formatBgValue(smbg.value, this.props.bgPrefs, getOutOfRangeThreshold(smbg))}`}
+        </div>
+      </div>,
+    ];
 
     if (!_.isEmpty(smbg.subType)) {
       rows.push(
-        <div key={"source"} className={styles.source}>
+        <div key={'source'} className={styles.source}>
           <div className={styles.label}>Source</div>
           <div className={styles.value}>{`${_.capitalize(smbg.subType)}`}</div>
         </div>
       );
     }
 
-    rows = rows.concat(this.getMedtronic600AnnotationMessages());
+    _.each(getMedtronic600AnnotationMessages(smbg), annotation => {
+      rows.push(
+        <div
+          key={annotation.message.label}
+          className={styles[_.camelCase(annotation.message.label)]}
+        >
+          <div className={styles.label}>{annotation.message.label}</div>
+          <div className={styles.value}>{annotation.message.value}</div>
+        </div>
+      );
+    });
 
-    return (
-      <div className={styles.container}>
-        {rows}
-      </div>
-    );
+    if (!_.isEmpty(outOfRangeMessage)) {
+      const bgClass = classifyBgValue(
+        reshapeBgClassesToBgBounds(this.props.bgPrefs),
+        this.props.smbg.value
+      );
+      rows.push(
+        <div
+          key={'divider'}
+          className={styles.dividerLarge}
+          style={{ backgroundColor: colors[bgClass] }}
+        />
+      );
+      rows.push(
+        <div key={'outOfRange'} className={styles.annotation}>
+          {outOfRangeMessage[0].message.value}
+        </div>
+      );
+    }
+
+    return <div className={styles.container}>{rows}</div>;
   }
 
   render() {
     const bgClass = classifyBgValue(
-      reshapeBgClassesToBgBounds({ bgClasses: this.props.bgClasses }),
+      reshapeBgClassesToBgBounds(this.props.bgPrefs),
       this.props.smbg.value
     );
     const title = (
@@ -99,13 +98,15 @@ class SMBGTooltip extends PureComponent {
         {formatLocalizedFromUTC(this.props.smbg.normalTime, this.props.timePrefs, 'h:mm a')}
       </div>
     );
-    return (<Tooltip
-      {...this.props}
-      title={title}
-      content={this.renderSMBG()}
-      borderColor={colors[bgClass]}
-      tailColor={colors[bgClass]}
-    />);
+    return (
+      <Tooltip
+        {...this.props}
+        title={title}
+        content={this.renderSMBG()}
+        borderColor={colors[bgClass]}
+        tailColor={colors[bgClass]}
+      />
+    );
   }
 }
 
@@ -133,7 +134,10 @@ SMBGTooltip.propTypes = {
     value: PropTypes.number.isRequired,
   }).isRequired,
   timePrefs: PropTypes.object.isRequired,
-  bgClasses: PropTypes.object.isRequired,
+  bgPrefs: PropTypes.shape({
+    bgClasses: PropTypes.object.isRequired,
+    bgUnits: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 SMBGTooltip.defaultProps = {

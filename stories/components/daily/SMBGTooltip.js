@@ -4,12 +4,15 @@ import { storiesOf } from '@kadira/storybook';
 
 import SMBGTooltip from '../../../src/components/daily/smbgtooltip/SMBGTooltip';
 
-const bgClasses = {
-  'very-high': { boundary: 600 },
-  high: { boundary: 300 },
-  target: { boundary: 180 },
-  low: { boundary: 70 },
-  'very-low': { boundary: 54 },
+const bgPrefs = {
+  bgClasses: {
+    'very-high': { boundary: 600 },
+    high: { boundary: 300 },
+    target: { boundary: 180 },
+    low: { boundary: 70 },
+    'very-low': { boundary: 54 },
+  },
+  bgUnits: 'mg/dL',
 };
 
 const target = {
@@ -132,10 +135,36 @@ const medT600acceptedNoncalibManual = {
   ],
 };
 
+const veryHigh = {
+  type: 'smbg',
+  units: 'mg/dL',
+  value: 601,
+  annotations: [
+    {
+      code: 'bg/out-of-range',
+      value: 'high',
+      threshold: 600,
+    },
+  ],
+};
+
+const veryLow = {
+  type: 'smbg',
+  units: 'mg/dL',
+  value: 39,
+  annotations: [
+    {
+      code: 'bg/out-of-range',
+      value: 'low',
+      threshold: 40,
+    },
+  ],
+};
+
 const props = {
   position: { top: 200, left: 200 },
   timePrefs: { timezoneAware: false },
-  bgClasses,
+  bgPrefs,
 };
 
 const BackgroundDecorator = story => (
@@ -175,6 +204,18 @@ storiesOf('SMBGTooltip', module)
     <div>
       {refDiv}
       <SMBGTooltip {...props} smbg={high} />
+    </div>
+  ))
+  .add('veryHigh', () => (
+    <div>
+      {refDiv}
+      <SMBGTooltip {...props} smbg={veryHigh} />
+    </div>
+  ))
+  .add('veryLow', () => (
+    <div>
+      {refDiv}
+      <SMBGTooltip {...props} smbg={veryLow} />
     </div>
   ))
   .add('manual', () => (
