@@ -18,7 +18,6 @@
 /* jshint esversion:6 */
 
 var _ = require('lodash');
-var d3 = require('d3');
 var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../../data/util/constants');
 
 var Categorizer = function(bgClasses, bgUnits = MGDL_UNITS){

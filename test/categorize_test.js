@@ -18,7 +18,6 @@
  /* jshint esversion:6 */
 
 var chai = require('chai');
-var d3 = require('d3');
 var assert = chai.assert;
 var expect = chai.expect;
 var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../js/data/util/constants');

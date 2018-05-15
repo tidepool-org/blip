@@ -34,11 +34,9 @@ var { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require
 
 var TidelineData = require('../js/tidelinedata');
 
-var bgUnits;
-
 describe('TidelineData', function() {
   var td = new TidelineData([]);
-  bgUnits = MGDL_UNITS;
+  var bgUnits = MGDL_UNITS;
   var bgClasses = {
     'very-low': { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow },
     low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },

@@ -40,7 +40,7 @@ module.exports = function(pool, opts) {
       low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
       target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
       high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
-      'very-high': { boundary: BG_CLAMP_THRESHOLD },
+      'very-high': { boundary: BG_CLAMP_THRESHOLD[MGDL_UNITS] },
     },
     twoWeekOptions: {
       exclusionThreshold: 7

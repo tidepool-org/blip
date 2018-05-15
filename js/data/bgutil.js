@@ -31,9 +31,9 @@ function BGUtil(data, opts) {
   var defaults = {
     bgClasses: {
       'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
-    low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
-    target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
-    high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
+      low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
     },
     bgUnits: MGDL_UNITS
   };

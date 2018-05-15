@@ -28,7 +28,7 @@
 /* global chai */
 
 var expect = chai.expect;
-var { DEFAULT_BG_BOUNDS, MGDL_UNITS } = require('../../../js/data/util/constants');
+var { DEFAULT_BG_BOUNDS, MGDL_UNITS, BG_CLAMP_THRESHOLD } = require('../../../js/data/util/constants');
 
 const React = require('react');
 const _ = require('lodash');
@@ -61,7 +61,7 @@ describe('CalendarContainer', () => {
         boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh,
       },
       'very-high': {
-        boundary: 600,
+        boundary: BG_CLAMP_THRESHOLD[MGDL_UNITS],
       },
     },
     bgUnits: 'mg/dL',

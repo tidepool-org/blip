@@ -34,7 +34,7 @@ var log = __DEV__ ? require('bows')('TidelineData') : _.noop;
 var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
 var endTimer = __DEV__ ? function(name) { console.timeEnd(name); } : _.noop;
 
-var bgUnits = MGDL_UNITS;
+var bgUnits = opts.bgUnits || MGDL_UNITS;
 
 function TidelineData(data, opts) {
   var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings'];
@@ -45,7 +45,7 @@ function TidelineData(data, opts) {
     CBG_MAX_DAILY: 288,
     SMBG_DAILY_MIN: 4,
     basicsTypes: ['basal', 'bolus', 'cbg', 'smbg', 'deviceEvent', 'wizard', 'upload'],
-    bgUnits: MGDL_UNITS,
+    bgUnits,
     bgClasses: {
       'very-low': { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow },
       low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
@@ -78,12 +78,6 @@ function TidelineData(data, opts) {
       timezoneName: dt.getBrowserTimezone(),
     }
   };
-
-  if (opts.bgUnits === MMOLL_UNITS) {
-    _.forOwn(defaults.bgClasses, function(value, key) {
-      defaults.bgClasses[key].boundary = value.boundary[MMOLL_UNITS];
-    });
-  }
 
   _.defaultsDeep(opts, defaults);
   var that = this;

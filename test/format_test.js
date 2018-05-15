@@ -55,7 +55,7 @@ describe('format utility', function() {
         annotations: [
           {
             code: 'bg/out-of-range',
-            threshold: BG_CLAMP_THRESHOLD,
+            threshold: BG_CLAMP_THRESHOLD[MGDL_UNITS],
             value: 'high',
           },
         ],
@@ -73,7 +73,7 @@ describe('format utility', function() {
         annotations: [
           {
             code: 'bg/out-of-range',
-            threshold: BG_CLAMP_THRESHOLD,
+            threshold: BG_CLAMP_THRESHOLD[MGDL_UNITS],
             value: 'high',
           },
         ],

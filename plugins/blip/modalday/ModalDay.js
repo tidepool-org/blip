@@ -494,7 +494,7 @@ module.exports = {
     opts = opts || {};
     var defaults = {
       baseMargin: opts.baseMargin || 10,
-      bgDomain: [0,BG_CLAMP_THRESHOLD],
+      bgDomain: [0, BG_CLAMP_THRESHOLD[MGDL_UNITS]],
       brushHeight: 0,
       clampTop: false,
       smbg: {
