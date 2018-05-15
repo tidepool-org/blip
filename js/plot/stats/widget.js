@@ -57,7 +57,7 @@ module.exports = function(pool, opts) {
     size: 16,
     pieRadius: pool.height() * 0.5,
     bgUnits: MGDL_UNITS,
-    activeRatio: 'timeInAuto', // TODO: figure out how to set appropriately
+    activeRatio: 'basalBolus',
     ratioLabels: {
       basalBolus: 'Basal : Bolus',
       timeInAuto: `Time In ${basalLabels.automated}`,
