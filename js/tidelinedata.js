@@ -79,6 +79,12 @@ function TidelineData(data, opts) {
     }
   };
 
+  if (opts.bgUnits === MMOLL_UNITS) {
+    _.forOwn(defaults.bgClasses, function(value, key) {
+      defaults.bgClasses[key].boundary = value.boundary;
+    });
+  }
+
   _.defaultsDeep(opts, defaults);
   var that = this;
 
