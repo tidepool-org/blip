@@ -21,5 +21,8 @@ module.exports = {
       	veryHigh: 13.9,
   	},
   },
-  BG_CLAMP_THRESHOLD: 600,
+  BG_CLAMP_THRESHOLD: {
+  	[MGDL_UNITS]: 600,
+  	[MMOLL_UNITS]: 600/MGDL_PER_MMOLL,
+  }''
 };

@@ -34,7 +34,7 @@ var { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require
 
 var TidelineData = require('../js/tidelinedata');
 
-var bgUnits = MGDL_UNITS;
+var bgUnits;
 
 describe('TidelineData', function() {
   var td = new TidelineData([]);
@@ -44,7 +44,7 @@ describe('TidelineData', function() {
     low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
     target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
     high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
-    'very-high': { boundary: BG_CLAMP_THRESHOLD }
+    'very-high': { boundary: BG_CLAMP_THRESHOLD[bgUnits] }
   };
   it('should be a function', function() {
     assert.isFunction(TidelineData);

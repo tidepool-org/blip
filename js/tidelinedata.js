@@ -34,7 +34,7 @@ var log = __DEV__ ? require('bows')('TidelineData') : _.noop;
 var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
 var endTimer = __DEV__ ? function(name) { console.timeEnd(name); } : _.noop;
 
-var bgUnits = MGDL_UNITS
+var bgUnits = MGDL_UNITS;
 
 function TidelineData(data, opts) {
   var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings'];
@@ -51,7 +51,7 @@ function TidelineData(data, opts) {
       low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
       target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
       high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
-      'very-high': { boundary: BG_CLAMP_THRESHOLD },
+      'very-high': { boundary: BG_CLAMP_THRESHOLD[bgUnits] },
     },
     fillOpts: {
       classes: {
