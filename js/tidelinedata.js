@@ -34,8 +34,6 @@ var log = __DEV__ ? require('bows')('TidelineData') : _.noop;
 var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
 var endTimer = __DEV__ ? function(name) { console.timeEnd(name); } : _.noop;
 
-var bgUnits = opts.bgUnits || MGDL_UNITS;
-
 function TidelineData(data, opts) {
   var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings'];
 
@@ -78,6 +76,8 @@ function TidelineData(data, opts) {
       timezoneName: dt.getBrowserTimezone(),
     }
   };
+
+  var bgUnits = opts.bgUnits || MGDL_UNITS;
 
   _.defaultsDeep(opts, defaults);
   var that = this;
