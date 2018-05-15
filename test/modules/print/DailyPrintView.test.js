@@ -618,11 +618,11 @@ describe('DailyPrintView', () => {
 
       sinon.assert.callCount(Renderer.doc.path, expectedOutlinesPaths + expectedBasalSequencePaths);
 
-      // Should render both automated and regular basal sequences in appropriate colors
+      // Should render both automated and manual basal sequences in appropriate colors
       expect(Renderer.doc.fillColor.getCall(0).args[0]).to.equal(Renderer.colors.basal);
       expect(Renderer.doc.fillColor.getCall(1).args[0]).to.equal(Renderer.colors.basalAutomated);
 
-      // Should render both automated and regular basal outlines in appropriate colors
+      // Should render both automated and manual basal outlines in appropriate colors
       expect(Renderer.doc.stroke.getCall(0).args[0]).to.equal(Renderer.colors.basal);
       expect(Renderer.doc.stroke.getCall(1).args[0]).to.equal(Renderer.colors.basalAutomated);
     });
@@ -645,7 +645,7 @@ describe('DailyPrintView', () => {
   });
 
   describe('renderBasalRates', () => {
-    it('should render basal rates for regular (not automated) basals', () => {
+    it('should render basal rates for manual (not automated) basals', () => {
       Renderer.renderBasalRates(Renderer.chartsByDate[sampleDate]);
 
       sinon.assert.callCount(Renderer.doc.text, 1);

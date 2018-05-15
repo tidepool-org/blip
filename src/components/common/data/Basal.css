@@ -27,7 +27,7 @@
   stroke-width: 0;
 }
 
-.border--delivered--regular {
+.border--delivered--manual {
   composes: noFill;
   composes: basalScheduledPath from '../../../styles/diabetes.css';
   stroke-width: var(--stroke-width);
@@ -62,7 +62,7 @@
   stroke-width: 2.5;
 }
 
-.marker--regular {
+.marker--manual {
   composes: marker;
   fill: var(--basal);
   stroke: var(--basal);

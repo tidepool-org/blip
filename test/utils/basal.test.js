@@ -66,14 +66,14 @@ describe('basal utilties', () => {
       expect(basalUtils.getBasalPathGroupType({ subType: 'automated' })).to.equal('automated');
     });
 
-    it('should return the path group type `regular` for a non-automated basal', () => {
-      expect(basalUtils.getBasalPathGroupType({ subType: 'scheduled' })).to.equal('regular');
-      expect(basalUtils.getBasalPathGroupType({ subType: 'temp' })).to.equal('regular');
-      expect(basalUtils.getBasalPathGroupType({ subType: 'suspend' })).to.equal('regular');
+    it('should return the path group type `manual` for a non-automated basal', () => {
+      expect(basalUtils.getBasalPathGroupType({ subType: 'scheduled' })).to.equal('manual');
+      expect(basalUtils.getBasalPathGroupType({ subType: 'temp' })).to.equal('manual');
+      expect(basalUtils.getBasalPathGroupType({ subType: 'suspend' })).to.equal('manual');
     });
 
     it('should work with old `deliveryType` basal prop if `subType` is not set', () => {
-      expect(basalUtils.getBasalPathGroupType({ deliveryType: 'scheduled' })).to.equal('regular');
+      expect(basalUtils.getBasalPathGroupType({ deliveryType: 'scheduled' })).to.equal('manual');
       expect(basalUtils.getBasalPathGroupType({ deliveryType: 'automated' })).to.equal('automated');
       expect(basalUtils.getBasalPathGroupType({
         subType: 'automated',
@@ -87,7 +87,7 @@ describe('basal utilties', () => {
       assert.isFunction(basalUtils.getBasalPathGroups);
     });
 
-    it('should return an array of groupings of automated and regular data', () => {
+    it('should return an array of groupings of automated and manual data', () => {
       const mixedBasals = basals.automatedAndScheduled;
       const result = basalUtils.getBasalPathGroups(mixedBasals);
       expect(result).to.be.an('array');

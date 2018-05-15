@@ -56,13 +56,13 @@ export function getBasalSequences(basals) {
  * @return {String} the path group type
  */
 export function getBasalPathGroupType(datum = {}) {
-  return _.get(datum, 'subType', datum.deliveryType) === 'automated' ? 'automated' : 'regular';
+  return _.get(datum, 'subType', datum.deliveryType) === 'automated' ? 'automated' : 'manual';
 }
 
 /**
  * getBasalPathGroups
  * @param {Array} basals - Array of preprocessed Tidepool basal objects
- * @return {Array} groups of alternating 'automated' and 'regular' datums
+ * @return {Array} groups of alternating 'automated' and 'manual' datums
  */
 export function getBasalPathGroups(basals) {
   const basalPathGroups = [];
