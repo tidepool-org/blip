@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@1.10.2-smbg-tooltips.1":
-  version "1.10.2-smbg-tooltips.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.2-smbg-tooltips.1.tgz#ac7c86237d4e13429f3d5911be70df45bc1c995c"
+"@tidepool/viz@1.10.2-smbg-tooltips.2":
+  version "1.10.2-smbg-tooltips.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.2-smbg-tooltips.2.tgz#5d07faf6654fd4d540152a429df37a39edd30c28"
   dependencies:
     bluebird "3.5.0"
     crossfilter "1.3.12"
