@@ -26,6 +26,7 @@ var EventEmitter = require('events').EventEmitter;
 var tideline = require('../../js/index');
 var fill = tideline.plot.util.fill;
 var scalesutil = tideline.plot.util.scales;
+var { getLatestPumpUpload, isAutomatedBasalDevice } = require('../../js/plot/util/device');
 var dt = tideline.data.util.datetime;
 var { MGDL_UNITS, AUTOMATED_BASAL_DEVICE_MODELS } = require('../../js/data/util/constants');
 
@@ -343,12 +344,7 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // stats pool
-    var isAutomatedBasalDevice = false;
-    var latestPump = _.findLast(tidelineData.grouped.upload, {deviceTags: ['insulin-pump']}) || {};
-    if (_.includes(_.get(AUTOMATED_BASAL_DEVICE_MODELS, latestPump.source, []), latestPump.deviceModel)) {
-      isAutomatedBasalDevice = true;
-    }
-
+    var latestPumpUpload = getLatestPumpUpload(tidelineData.grouped.upload);
     poolStats.addPlotType('stats', tideline.plot.stats.widget(poolStats, {
       classes: chart.options.bgClasses,
       bgUnits: chart.options.bgUnits,
@@ -360,7 +356,8 @@ function chartDailyFactory(el, options) {
       yPosition: 0,
       emitter: emitter,
       averageLabel: 'These 24 hours',
-      activeRatio: isAutomatedBasalDevice ? 'timeInAuto' : 'basalBolus',
+      manufacturer: latestPumpUpload.source,
+      activeBasalRatio: isAutomatedBasalDevice(latestPumpUpload) ? 'timeInAuto' : 'basalBolus',
       puddleWeights: {
         ratio: 1.0,
         range: 1.2,

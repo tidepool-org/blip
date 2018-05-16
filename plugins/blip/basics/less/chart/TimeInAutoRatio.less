@@ -1,0 +1,73 @@
+.TimeInAutoRatio {
+  margin: 0;
+  padding: 8px 0px;
+
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+
+  .TimeInAutoRatio-manual, .TimeInAutoRatio-automated {
+    width: 85px;
+    height: 90px;
+    p {
+      text-align: center;
+      margin: 7px 0;
+    }
+
+    .TimeInAutoRatio-percent {
+      font-size: @huge-numbers;
+      font-weight: bold;
+      &.TimeInAutoRatio-percent--manual {
+        color: @automated-ratio-label;
+      }
+      &.TimeInAutoRatio-percent--automated {
+        color: @automated-ratio-label;
+      }
+    }
+    .TimeInAutoRatio-label {
+      font-size: @small-text;
+      font-weight: bold;
+      &.TimeInAutoRatio-label--manual {
+        color: @manual-ratio-label;
+      }
+      &.TimeInAutoRatio-label--automated {
+        color: @manual-ratio-label;
+      }
+    }
+    .TimeInAutoRatio-units {
+      font-size: @small-text;
+      &.TimeInAutoRatio-units--manual {
+        color: @manual-ratio-label;
+      }
+      &.TimeInAutoRatio-units--automated {
+        color: @automated-ratio-label;
+      }
+    }
+    .TimeInAutoRatio--nodata {
+      color: @text-light;
+    }
+    margin-bottom: 10px;
+  }
+
+  .TimeInAutoRatio-pie {
+    height: 90px;
+    width: 100px;
+    margin: 0 auto;
+
+    .d3-arc-manual {
+      fill: @basal;
+    }
+    .d3-arc-automated {
+      fill: @basal-automated;
+    }
+    .d3-circle-nodata {
+      fill: @text-light;
+    }
+  }
+
+  &:last-child {
+    p {
+      margin-bottom: 4px;
+    }
+  }
+}

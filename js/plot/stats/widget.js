@@ -57,7 +57,7 @@ module.exports = function(pool, opts) {
     size: 16,
     pieRadius: pool.height() * 0.5,
     bgUnits: MGDL_UNITS,
-    activeRatio: 'basalBolus',
+    activeBasalRatio: 'basalBolus',
     ratioLabels: {
       basalBolus: 'Basal : Bolus',
       timeInAuto: `Time In ${basalLabels.automated}`,
@@ -120,8 +120,8 @@ module.exports = function(pool, opts) {
     // create basal-to-bolus ratio puddle
     var ratioOpts = {
       id: 'Ratio',
-      head: opts.ratioLabels[opts.activeRatio],
-      lead: opts.ratioLeads[opts.activeRatio],
+      head: opts.ratioLabels[opts.activeBasalRatio],
+      lead: opts.ratioLeads[opts.activeBasalRatio],
       weight: pw.ratio,
       pieBoolean: true,
       annotationOpts: {
@@ -504,7 +504,7 @@ module.exports = function(pool, opts) {
   };
 
   stats.ratioDisplay = function() {
-    if (opts.activeRatio === 'timeInAuto') {
+    if (opts.activeBasalRatio === 'timeInAuto') {
       var basalAutomatedDuration = _.findWhere(data.ratio, {type: 'basalAutomatedDuration'}).value;
       var basalManualDuration = _.findWhere(data.ratio, {type: 'basalManualDuration'}).value;
       var totalDuration = basalAutomatedDuration + basalManualDuration;
@@ -554,7 +554,7 @@ module.exports = function(pool, opts) {
     var start = domainObj.domain[0].valueOf(), end = domainObj.domain[1].valueOf();
     opts.twoWeekOptions.startIndex = domainObj.startIndex;
 
-    if (opts.activeRatio === 'timeInAuto') {
+    if (opts.activeBasalRatio === 'timeInAuto') {
       var groupDurations = opts.basal.getGroupDurations(start, end);
       data.ratio = [
         {

@@ -25,6 +25,7 @@ var sundial = require('sundial');
 var classifiersMkr = require('./classifiers');
 var constants = require('./constants');
 var { MGDL_UNITS } = require('../../../../js/data/util/constants');
+var { getLatestPumpUpload } = require('../../../../js/plot/util/device');
 
 var basicsActions = require('./actions');
 var togglableState = require('../TogglableState');
@@ -82,7 +83,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
 
       return bgDistribution;
     },
-    calculateBasalBolusStats: function(basicsData) {
+    calculateBasalBolusStats: function(basicsData, basalUtil) {
       var pastDays = _.filter(basicsData.days, {type: 'past'});
       var mostRecent = _.get(
         _.filter(basicsData.days, {type: 'mostRecent'}),
@@ -99,6 +100,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
       // long-running basals exist
       if (pastDays.length - pastBolusDays.length >= 3) {
         return {
+          timeInAutoRatio: null,
           basalBolusRatio: null,
           averageDailyDose: null,
           totalDailyDose: null,
@@ -176,7 +178,14 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
 
       var totalInsulin = sumBasalInsulin + sumBolusInsulin;
 
+      var { automated, manual } = basalUtil.getGroupDurations(start, end);
+      var totalBasalDuration = automated + manual;
+
       return {
+        timeInAutoRatio: {
+          automated: automated/totalBasalDuration,
+          manual: manual/totalBasalDuration,
+        },
         basalBolusRatio: {
           basal: sumBasalInsulin/totalInsulin,
           bolus: sumBolusInsulin/totalInsulin
@@ -190,7 +199,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
       };
     },
     getLatestPumpUploaded: function(patientData) {
-      var latestPump = _.findLast(patientData.grouped.upload, {deviceTags: ['insulin-pump']});
+      var latestPump = getLatestPumpUpload(patientData.grouped.upload);
 
       if (latestPump && latestPump.hasOwnProperty('source')) {
         return latestPump.source;

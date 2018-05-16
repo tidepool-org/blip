@@ -27,6 +27,7 @@ var SiteChangeSelector = React.createFactory(require('../components/sitechange/S
 var DailyDoseTitle = React.createFactory(require('../components/misc/DailyDoseTitle'));
 
 var BasalBolusRatio = React.createFactory(require('../components/chart/BasalBolusRatio'));
+var TimeInAutoRatio = React.createFactory(require('../components/chart/TimeInAutoRatio'));
 var BGDistribution = React.createFactory(require('../components/chart/BGDistribution'));
 var WrapCount = React.createFactory(require('../components/chart/WrapCount'));
 var SiteChange = React.createFactory(require('../components/chart/SiteChange'));
@@ -36,11 +37,12 @@ var InfusionHoverDisplay = React.createFactory(require('../components/day/hover/
 
 var basicsActions = require('./actions');
 var constants = require('./constants');
-var { AUTOMATED_BASAL_LABELS } = require('../../../../js/data/util/constants');
+var { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS } = require('../../../../js/data/util/constants');
 var togglableState = require('../TogglableState');
 
 var basicsState = function (manufacturer) {
-  var automodeLabel = _.get(AUTOMATED_BASAL_LABELS, [manufacturer], AUTOMATED_BASAL_LABELS.default);
+  var automatedLabel = _.get(AUTOMATED_BASAL_LABELS, [manufacturer], AUTOMATED_BASAL_LABELS.default);
+  var manualLabel = _.get(SCHEDULED_BASAL_LABELS, [manufacturer], SCHEDULED_BASAL_LABELS.default);
 
   return {
     sections: {
@@ -60,7 +62,7 @@ var basicsState = function (manufacturer) {
             [
               { key: 'temp', label: 'Temp Basals' },
               { key: 'suspend', label: 'Suspends' },
-              { key: 'automatedStop', label: `${automodeLabel} Exited` },
+              { key: 'automatedStop', label: `${automatedLabel} Exited` },
             ],
           ]
         },
@@ -77,6 +79,22 @@ var basicsState = function (manufacturer) {
         index: 3,
         noData: false,
         title: 'Insulin ratio',
+        togglable: togglableState.off,
+        settingsTogglable: togglableState.off,
+      },
+      timeInAutoRatio: {
+        active: true,
+        chart: TimeInAutoRatio,
+        container: BasicContainer,
+        column: 'left',
+        id: 'timeInAutoRatio',
+        index: 3,
+        noData: false,
+        labels: {
+          automated: automatedLabel,
+          manual: manualLabel,
+        },
+        title: `Time in ${automatedLabel} ratio`,
         togglable: togglableState.off,
         settingsTogglable: togglableState.off,
       },
