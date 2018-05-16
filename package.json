@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "0.7.2",
+  "version": "0.7.3-medtronic600-automode-start.1",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
