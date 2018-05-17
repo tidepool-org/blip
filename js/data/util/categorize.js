@@ -18,7 +18,7 @@
 /* jshint esversion:6 */
 
 var _ = require('lodash');
-var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../../data/util/constants');
+var { MGDL_UNITS, DEFAULT_BG_BOUNDS } = require('../../data/util/constants');
 
 var Categorizer = function(bgClasses, bgUnits = MGDL_UNITS){
   var classes = _.cloneDeep(bgClasses);
