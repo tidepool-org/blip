@@ -21,17 +21,19 @@ var d3 = require('d3');
 var _ = require('lodash');
 
 var commonbolus = require('./commonbolus');
-var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('../../data/util/constants');
+var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../../data/util/constants');
 
 var scales = function(opts) {
   opts = _.assign({}, opts) || {};
 
+  var bgUnits = opts.bgUnits || MGDL_UNITS;
+
   var defaults = {
-    bgUnits: MGDL_UNITS,
+    bgUnits,
     bolusRatio: 0.35,
     MIN_CBG: 39,
     MAX_CBG: 401,
-    TARGET_BG_BOUNDARY: 180,
+    TARGET_BG_BOUNDARY: DEFAULT_BG_BOUNDS[bgUnits].targetUpper,
     carbRadius: 14
   };
   _.defaults(opts, defaults);
@@ -39,7 +41,6 @@ var scales = function(opts) {
   if (opts.bgUnits === MMOLL_UNITS) {
     opts.MIN_CBG = opts.MIN_CBG/MGDL_PER_MMOLL;
     opts.MAX_CBG = opts.MAX_CBG/MGDL_PER_MMOLL;
-    opts.TARGET_BG_BOUNDARY = opts.TARGET_BG_BOUNDARY/MGDL_PER_MMOLL;
   }
 
   return {
