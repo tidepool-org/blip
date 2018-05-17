@@ -94,7 +94,6 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-circle-cbg').on('mouseover', function() {
         var thisCbg = _.clone(d3.select(this).datum());
-        thisCbg.value = format.tooltipBG(thisCbg, opts.bgUnits);
         cbg.addTooltip(thisCbg);
       });
       selection.selectAll('.d3-circle-cbg').on('mouseout', function() {
@@ -126,6 +125,8 @@ module.exports = function(pool, opts) {
     var getBgBoundaryClass = bgBoundaryClass(opts.classes, opts.bgUnits);
     var cssClass = getBgBoundaryClass(d);
     var category = categorize(d);
+    // Round the value after categorization
+    d.value = format.tooltipBG(d, opts.bgUnits);
     tooltips.addFixedTooltip({
       cssClass: cssClass,
       datum: d,
