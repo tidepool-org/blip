@@ -19,7 +19,7 @@ import React, { PropTypes, PureComponent } from 'react';
 import _ from 'lodash';
 import * as bolusUtils from '../../../utils/bolus';
 import { formatLocalizedFromUTC, formatDuration } from '../../../utils/datetime';
-import { formatDecimalNumber } from '../../../utils/format';
+import { formatDecimalNumber, formatBgValue } from '../../../utils/format';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './BolusTooltip.css';
@@ -57,6 +57,7 @@ class BolusTooltip extends PureComponent {
   }
 
   getTarget() {
+    const bgPrefs = this.props.bgPrefs;
     const wizardTarget = _.get(this.props.bolus, 'bgTarget');
     const target = _.get(wizardTarget, 'target', null);
     const targetLow = _.get(wizardTarget, 'low', null);
@@ -83,12 +84,12 @@ class BolusTooltip extends PureComponent {
       return [
         <div className={styles.target} key={'target'}>
           <div className={styles.label}>Target</div>
-          <div className={styles.value}>{`${target}`}</div>
+          <div className={styles.value}>{`${formatBgValue(target, bgPrefs)}`}</div>
           <div className={styles.units} />
         </div>,
         <div className={styles.target} key={'range'}>
           <div className={styles.label}>Range</div>
-          <div className={styles.value}>{`${targetRange}`}</div>
+          <div className={styles.value}>{`${formatBgValue(targetRange, bgPrefs)}`}</div>
           <div className={styles.units} />
         </div>,
       ];
@@ -162,6 +163,7 @@ class BolusTooltip extends PureComponent {
 
   renderWizard() {
     const wizard = this.props.bolus;
+    const bgPrefs = this.props.bgPrefs;
     const recommended = bolusUtils.getRecommended(wizard);
     const suggested = _.isFinite(recommended) ? `${recommended}` : null;
     const bg = _.get(wizard, 'bgInput', null);
@@ -250,7 +252,7 @@ class BolusTooltip extends PureComponent {
       !!bg && (
       <div className={styles.isf}>
         <div className={styles.label}>ISF</div>
-        <div className={styles.value}>{`${isf}`}</div>
+        <div className={styles.value}>{`${formatBgValue(isf, bgPrefs)}`}</div>
         <div className={styles.units} />
       </div>
       );
@@ -360,6 +362,7 @@ BolusTooltip.propTypes = {
   bolus: PropTypes.shape({
     type: PropTypes.string.isRequired,
   }).isRequired,
+  bgPrefs: PropTypes.object.isRequired,
   timePrefs: PropTypes.object.isRequired,
 };
 
