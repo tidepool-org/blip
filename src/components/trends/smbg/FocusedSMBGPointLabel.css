@@ -25,9 +25,8 @@
 }
 
 .explainerText {
-  composes: highContrastText noWrap from '../../../styles/typography.css';
+  composes: smallSize noWrap from '../../../styles/typography.css';
   display: block;
-  padding: 5px;
 }
 
 .detailNumber {
@@ -35,11 +34,7 @@
   text-align: center;
 }
 
-.shortDate {
-  composes: explainerText;
-}
-
-.shortTime {
+.dateTime {
   composes: explainerText;
 }
 
@@ -49,7 +44,5 @@
 }
 
 .tipWrapper {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: nowrap;
+  text-align: right;
 }

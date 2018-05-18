@@ -45,14 +45,13 @@ class SMBGTooltip extends PureComponent {
       </div>,
     ];
 
-    if (!_.isEmpty(smbg.subType)) {
-      rows.push(
-        <div key={'source'} className={styles.source}>
-          <div className={styles.label}>Source</div>
-          <div className={styles.value}>{`${_.capitalize(smbg.subType)}`}</div>
-        </div>
-      );
-    }
+    const source = !_.isEmpty(smbg.subType) ? `${_.capitalize(smbg.subType)}` : 'Meter';
+    rows.push(
+      <div key={'source'} className={styles.source}>
+        <div className={styles.label}>Source</div>
+        <div className={styles.value}>{source}</div>
+      </div>
+    );
 
     _.each(getMedtronic600AnnotationMessages(smbg), annotation => {
       rows.push(
@@ -93,7 +92,7 @@ class SMBGTooltip extends PureComponent {
       reshapeBgClassesToBgBounds(this.props.bgPrefs),
       this.props.smbg.value
     );
-    const title = (
+    const title = this.props.title ? this.props.title : (
       <div className={styles.title}>
         {formatLocalizedFromUTC(this.props.smbg.normalTime, this.props.timePrefs, 'h:mm a')}
       </div>
@@ -120,6 +119,7 @@ SMBGTooltip.propTypes = {
     left: PropTypes.number,
     horizontal: PropTypes.number,
   }),
+  titls: PropTypes.node,
   tail: PropTypes.bool.isRequired,
   side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
   tailColor: PropTypes.string.isRequired,
