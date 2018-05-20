@@ -135,7 +135,7 @@ class TidelineHeader extends Component {
     });
 
     return (
-      <div id="app-no-print" className="grid patient-data-subnav">
+      <div className="app-no-print grid patient-data-subnav">
         <div className="grid-item one-whole large-one-third">
             <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>Basics</a>
             <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>Daily</a>
