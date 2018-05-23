@@ -21,6 +21,7 @@ import sundial from 'sundial';
 import crossfilter from 'crossfilter';
 
 import generateClassifiers from '../classifiers';
+import { getLatestPumpUpload, isAutomatedBasalDevice } from '../device';
 import {
   generateBgRangeLabels,
   weightedCGMCount,
@@ -42,6 +43,7 @@ import {
   SITE_CHANGE_CANNULA,
   SECTION_TYPE_UNDECLARED,
   AUTOMATED_DELIVERY,
+  SCHEDULED_DELIVERY,
   INSULET,
   TANDEM,
   ANIMAS,
@@ -49,7 +51,7 @@ import {
   pumpVocabulary,
 } from '../constants';
 
-import { getBasalPathGroups } from '../basal';
+import { getBasalPathGroups, getGroupDurations } from '../basal';
 import { deviceName } from '../../utils/settings/data';
 
 /**
@@ -203,8 +205,14 @@ export function calculateBasalBolusStats(basicsData) {
   );
 
   const totalInsulin = sumBasalInsulin + sumBolusInsulin;
+  const { automated, manual } = getGroupDurations(basals, start, end);
+  const totalBasalDuration = automated + manual;
 
   const stats = {
+    timeInAutoRatio: {
+      automated: automated / totalBasalDuration,
+      manual: manual / totalBasalDuration,
+    },
     basalBolusRatio: {
       basal: sumBasalInsulin / totalInsulin,
       bolus: sumBolusInsulin / totalInsulin,
@@ -228,10 +236,7 @@ export function calculateBasalBolusStats(basicsData) {
  * @returns {String|Null} - the latest upload source or null
  */
 export function getLatestPumpUploaded(basicsData) {
-  const latestPump = _.findLast(
-    _.get(basicsData, 'data.upload.data', []),
-    { deviceTags: ['insulin-pump'] }
-  );
+  const latestPump = getLatestPumpUpload(_.get(basicsData, 'data.upload.data', []));
 
   if (latestPump && latestPump.hasOwnProperty('source')) {
     return latestPump.source;
@@ -490,45 +495,51 @@ export function averageExcludingMostRecentDay(dataObj, total, mostRecentDay) {
 }
 
 /**
- * Define sections and filters used in the basics view
+ * Define sections and dimensions used in the basics view
  *
  * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds
  * @returns {Object} sections
  */
-export function defineBasicsSections(bgPrefs, manufacturer) {
+export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
   const bgLabels = generateBgRangeLabels(bgPrefs);
   bgLabels.veryLow = _.capitalize(bgLabels.veryLow);
   bgLabels.veryHigh = _.capitalize(bgLabels.veryHigh);
 
   const deviceLabels = _.get(pumpVocabulary, deviceName(manufacturer), pumpVocabulary.default);
 
+  const activeBasalRatio = isAutomatedBasalDevice(deviceName(manufacturer), deviceModel)
+    ? 'timeInAutoRatio'
+    : 'basalBolusRatio';
+
   const sectionNames = [
-    'basals',
+    'averageDailyCarbs',
     'basalBolusRatio',
+    'basals',
     'bgDistribution',
     'boluses',
     'fingersticks',
     'siteChanges',
+    'timeInAutoRatio',
     'totalDailyDose',
-    'averageDailyCarbs',
   ];
 
   const sections = {};
 
   _.each(sectionNames, section => {
     let type;
-    let filters;
+    let dimensions;
     let title = '';
     let subTitle;
     let summaryTitle;
     let emptyText;
+    let active = true;
 
     switch (section) {
       case 'basals':
         type = 'basal';
         title = 'Basals';
         summaryTitle = 'Total basal events';
-        filters = [
+        dimensions = [
           { key: 'total', label: 'Basal Events', primary: true },
           { key: 'temp', label: 'Temp Basals' },
           { key: 'suspend', label: 'Suspends' },
@@ -544,7 +555,7 @@ export function defineBasicsSections(bgPrefs, manufacturer) {
         type = 'bolus';
         title = 'Bolusing';
         summaryTitle = 'Avg boluses / day';
-        filters = [
+        dimensions = [
           { key: 'total', label: 'Avg per day', average: true, primary: true },
           { key: 'wizard', label: 'Calculator', percentage: true },
           { key: 'correction', label: 'Correction', percentage: true },
@@ -559,7 +570,7 @@ export function defineBasicsSections(bgPrefs, manufacturer) {
         type = 'fingerstick';
         title = 'BG readings';
         summaryTitle = 'Avg BG readings / day';
-        filters = [
+        dimensions = [
           { path: 'smbg', key: 'total', label: 'Avg per day', average: true, primary: true },
           { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
           { path: 'smbg', key: 'manual', label: 'Manual', percentage: true },
@@ -583,6 +594,20 @@ export function defineBasicsSections(bgPrefs, manufacturer) {
 
       case 'basalBolusRatio':
         title = 'Insulin ratio';
+        active = activeBasalRatio === 'basalBolusRatio';
+        dimensions = [
+          { key: 'basal', label: 'Basal' },
+          { key: 'bolus', label: 'Bolus' },
+        ];
+        break;
+
+      case 'timeInAutoRatio':
+        title = `Time in ${deviceLabels[AUTOMATED_DELIVERY]} ratio`;
+        active = activeBasalRatio === 'timeInAutoRatio';
+        dimensions = [
+          { key: 'manual', label: `${deviceLabels[SCHEDULED_DELIVERY]}` },
+          { key: 'automated', label: `${deviceLabels[AUTOMATED_DELIVERY]}` },
+        ];
         break;
 
       case 'averageDailyCarbs':
@@ -595,13 +620,13 @@ export function defineBasicsSections(bgPrefs, manufacturer) {
     }
 
     sections[section] = {
-      active: true,
+      active,
       title,
       subTitle,
       summaryTitle,
       emptyText,
       type,
-      filters,
+      dimensions,
     };
   });
 
@@ -609,7 +634,7 @@ export function defineBasicsSections(bgPrefs, manufacturer) {
 }
 
 /**
- * Set up cross filters by date for all of the data types
+ * Set up cross dimensions by date for all of the data types
  *
  * @export
  * @param {Object} data - the preprocessed basics data object
@@ -691,7 +716,7 @@ export function reduceByDay(data, bgPrefs) {
       const section = _.find(sections, findSectionContainingType(type));
       // wrap this in an if mostly for testing convenience
       if (section) {
-        const tags = _.map(_.filter(section.filters, f => !f.primary), row => row.key);
+        const tags = _.map(_.filter(section.dimensions, f => !f.primary), row => row.key);
 
         const summary = {
           total: _.reduce(
@@ -738,7 +763,7 @@ export function reduceByDay(data, bgPrefs) {
 
     const filterTags = filter => (filter.path === 'smbg' && !filter.primary);
 
-    const fsTags = _.map(_.filter(fsSection.filters, filterTags), row => row.key);
+    const fsTags = _.map(_.filter(fsSection.dimensions, filterTags), row => row.key);
 
     _.each(fsTags, summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
     const smbgSummary = fingerstickData.summary.smbg;
@@ -776,7 +801,7 @@ export function generateCalendarDayLabels(days) {
  * @export
  * @param {any} sections
  */
-export function setBasicsSectionsAvailability(data) {
+export function disableEmptySections(data) {
   const basicsData = _.cloneDeep(data);
 
   const {
@@ -812,8 +837,8 @@ export function setBasicsSectionsAvailability(data) {
 
       case 'siteChanges':
         emptyText = section.type === SECTION_TYPE_UNDECLARED
-                  ? 'Please choose a preferred site change source from the \'Basics\' web view to view this data.'
-                  : 'This section requires data from an insulin pump, so there\'s nothing to display.';
+          ? 'Please choose a preferred site change source from the \'Basics\' web view to view this data.'
+          : 'This section requires data from an insulin pump, so there\'s nothing to display.';
         break;
 
       case 'fingersticks':
@@ -842,29 +867,30 @@ export function setBasicsSectionsAvailability(data) {
   _.each(sections, (section, key) => {
     const type = section.type;
     let active = section.active;
+    let disabled = false;
 
     if (!type) active = false;
 
     if (_.includes(diabetesDataTypes, type)) {
-      active = hasDataInRange(typeData[type]);
-    } else if (_.includes(aggregatedDataTypes, key)) {
-      active = !!typeData[key];
+      disabled = !hasDataInRange(typeData[type]);
+    } else if (active && _.includes(aggregatedDataTypes, key)) {
+      disabled = !typeData[key];
     } else if (type === 'fingerstick') {
       const hasSMBG = hasDataInRange(typeData[type].smbg);
       const hasCalibrations = hasDataInRange(typeData[type].calibration);
 
       if (!hasCalibrations) {
-        _.remove(basicsData.sections[key].filters, filter => filter.path === 'calibration');
+        _.remove(basicsData.sections[key].dimensions, filter => filter.path === 'calibration');
       }
 
-      active = hasSMBG || hasCalibrations;
+      disabled = !hasSMBG && !hasCalibrations;
     }
 
-    if (!active) {
+    if (disabled) {
       basicsData.sections[key].emptyText = getEmptyText(section, key);
     }
 
-    basicsData.sections[key].active = active;
+    basicsData.sections[key].disabled = disabled;
   });
 
   return basicsData;

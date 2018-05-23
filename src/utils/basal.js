@@ -92,3 +92,83 @@ export function getTotalBasal(basals) {
     result + basal.rate * (basal.duration / ONE_HR)
   ), 0);
 }
+
+/**
+ * Get the start and end indexes and datetimes of basal datums within a given time range
+ * @param {Array} data Array of Tidepool basal data
+ * @param {String} s ISO date string for the start of the range
+ * @param {String} e ISO date string for the end of the range
+ * @param {Boolean} optionalEnd Allow an end segment without a `normalEnd` defined
+ * @returns {Object} The start and end datetimes and indexes
+ */
+export function getEndpoints(data, s, e, optionalEnd = false) {
+  const start = new Date(s);
+  const end = new Date(e);
+
+  const startIndex = _.findIndex(
+    data,
+    segment => (
+      !new Date(segment.normalTime).valueOf() <= start)
+      && (start <= new Date(segment.normalEnd).valueOf()
+    )
+  );
+
+  const endIndex = _.findLastIndex(
+    data,
+    segment => (
+      new Date(segment.normalTime).valueOf() <= end)
+      && (optionalEnd || end <= new Date(segment.normalEnd).valueOf()
+    )
+  );
+
+  return {
+    start: {
+      datetime: start.toISOString(),
+      index: startIndex,
+    },
+    end: {
+      datetime: end.toISOString(),
+      index: endIndex,
+    },
+  };
+}
+
+/**
+ * Get durations of basal groups within a given span of time
+ * @param {Array} data Array of Tidepool basal data
+ * @param {String} s ISO date string for the start of the range
+ * @param {String} e ISO date string for the end of the range
+ * @returns {Object} The durations (in ms) keyed by basal group type
+ */
+export function getGroupDurations(data, s, e) {
+  const endpoints = getEndpoints(data, s, e, true);
+
+  const durations = {
+    automated: 0,
+    manual: 0,
+  };
+
+  if ((endpoints.start.index >= 0) && (endpoints.end.index >= 0)) {
+    const start = new Date(endpoints.start.datetime);
+    const end = new Date(endpoints.end.datetime);
+
+    // handle first segment, which may have started before the start endpoint
+    let segment = data[endpoints.start.index];
+    const initialSegmentDuration = new Date(segment.normalEnd) - start;
+    durations[getBasalPathGroupType(segment)] = initialSegmentDuration;
+
+    // add the durations of all subsequent basals, minus the last
+    let i = endpoints.start.index + 1;
+    while (i < endpoints.end.index) {
+      segment = data[i];
+      durations[getBasalPathGroupType(segment)] += segment.duration;
+      i++;
+    }
+
+    // handle last segment, which may go past the end endpoint
+    segment = data[endpoints.end.index];
+    durations[getBasalPathGroupType(segment)] += end - new Date(segment.normalTime);
+  }
+
+  return durations;
+}

@@ -29,12 +29,13 @@ import {
   defineBasicsSections,
   generateCalendarDayLabels,
   processInfusionSiteHistory,
-  setBasicsSectionsAvailability,
+  disableEmptySections,
   reduceByDay,
 } from '../../utils/basics/data';
 
 import { calcBgPercentInCategories, generateBgRangeLabels } from '../../utils/bloodglucose';
 import { formatPercentage, formatDecimalNumber } from '../../utils/format';
+import { getLatestPumpUpload } from '../../utils/device';
 
 import { pie, arc } from 'd3-shape';
 import parse from 'parse-svg-path';
@@ -63,7 +64,8 @@ class BasicsPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
 
-    this.source = _.get(data, 'data.upload.data.0.source', '').toLowerCase();
+    const latestPumpUpload = getLatestPumpUpload(_.get(data, 'data.upload.data', []));
+    this.source = _.get(latestPumpUpload, 'source', '').toLowerCase();
     this.manufacturer = this.source === 'carelink' ? 'medtronic' : this.source;
 
     // Process basics data
@@ -74,7 +76,11 @@ class BasicsPrintView extends PrintView {
       ? calcBgPercentInCategories(_.get(this.data, ['data', bgSource, 'data'], []), this.bgBounds)
       : null;
 
-    this.data.sections = defineBasicsSections(this.bgPrefs, this.manufacturer);
+    this.data.sections = defineBasicsSections(
+      this.bgPrefs,
+      this.manufacturer,
+      latestPumpUpload.deviceModel
+    );
 
     this.data = reduceByDay(this.data, this.bgPrefs);
 
@@ -82,7 +88,7 @@ class BasicsPrintView extends PrintView {
 
     this.data = processInfusionSiteHistory(this.data, this.patient);
 
-    this.data = setBasicsSectionsAvailability(this.data);
+    this.data = disableEmptySections(this.data);
 
     // Auto-bind callback methods
     this.renderStackedStat = this.renderStackedStat.bind(this);
@@ -155,7 +161,7 @@ class BasicsPrintView extends PrintView {
       title: this.data.sections.fingersticks.title,
       data: this.data.data.fingerstick.smbg.dataByDate,
       type: 'smbg',
-      active: this.data.sections.fingersticks.active,
+      disabled: this.data.sections.fingersticks.disabled,
       emptyText: this.data.sections.fingersticks.emptyText,
     });
 
@@ -163,7 +169,7 @@ class BasicsPrintView extends PrintView {
       title: this.data.sections.boluses.title,
       data: this.data.data.bolus.dataByDate,
       type: 'bolus',
-      active: this.data.sections.boluses.active,
+      disabled: this.data.sections.boluses.disabled,
       emptyText: this.data.sections.boluses.emptyText,
     });
 
@@ -180,7 +186,7 @@ class BasicsPrintView extends PrintView {
         , {}
       ),
       type: 'siteChange',
-      active: this.data.sections.siteChanges.active,
+      disabled: this.data.sections.siteChanges.disabled,
       emptyText: this.data.sections.siteChanges.emptyText,
     });
 
@@ -188,7 +194,7 @@ class BasicsPrintView extends PrintView {
       title: this.data.sections.basals.title,
       data: this.data.data.basal.dataByDate,
       type: 'basal',
-      active: this.data.sections.basals.active,
+      disabled: this.data.sections.basals.disabled,
       emptyText: this.data.sections.basals.emptyText,
       bottomMargin: 0,
     });
@@ -198,27 +204,27 @@ class BasicsPrintView extends PrintView {
     this.goToLayoutColumnPosition(2);
 
     this.renderCalendarSummary({
-      filters: this.data.sections.fingersticks.filters,
+      dimensions: this.data.sections.fingersticks.dimensions,
       header: this.data.sections.fingersticks.summaryTitle,
       data: this.data.data.fingerstick.summary,
       type: 'smbg',
-      active: this.data.sections.fingersticks.active,
+      disabled: this.data.sections.fingersticks.disabled,
     });
 
     this.renderCalendarSummary({
-      filters: this.data.sections.boluses.filters,
+      dimensions: this.data.sections.boluses.dimensions,
       header: this.data.sections.boluses.summaryTitle,
       data: this.data.data.bolus.summary,
       type: 'bolus',
-      active: this.data.sections.boluses.active,
+      disabled: this.data.sections.boluses.disabled,
     });
 
     this.renderCalendarSummary({
-      filters: this.data.sections.basals.filters,
+      dimensions: this.data.sections.basals.dimensions,
       header: this.data.sections.basals.summaryTitle,
       data: this.data.data.basal.summary,
       type: 'basal',
-      active: this.data.sections.basals.active,
+      disabled: this.data.sections.basals.disabled,
     });
   }
 
@@ -310,6 +316,7 @@ class BasicsPrintView extends PrintView {
       averageDailyCarbs,
       averageDailyDose,
       basalBolusRatio,
+      timeInAutoRatio,
       totalDailyDose,
     } = this.data.data;
 
@@ -320,7 +327,14 @@ class BasicsPrintView extends PrintView {
       !averageDailyCarbs,
     );
 
-    this.renderBasalBolusRatio(averageDailyDose, basalBolusRatio);
+    this.renderRatio('basalBolusRatio', {
+      primary: basalBolusRatio,
+      secondary: averageDailyDose,
+    });
+
+    this.renderRatio('timeInAutoRatio', {
+      primary: timeInAutoRatio,
+    });
 
     this.renderSimpleStat(this.data.sections.totalDailyDose.title,
       totalDailyDose ? formatDecimalNumber(totalDailyDose, 1) : '--',
@@ -329,103 +343,125 @@ class BasicsPrintView extends PrintView {
     );
   }
 
-  renderBasalBolusRatio(averageDailyDose, basalBolusRatio) {
+  renderRatio(sectionKey, sectionData) {
     const columnWidth = this.getActiveColumnWidth();
 
     const {
-      basalBolusRatio: basalBolusRatioSection,
+      [sectionKey]: section,
     } = this.data.sections;
 
-    const disabled = !basalBolusRatioSection.active;
+    const { active, disabled } = section;
 
-    const heading = {
-      text: this.data.sections.basalBolusRatio.title,
-    };
+    if (active) {
+      const heading = {
+        text: section.title,
+      };
 
-    if (disabled) {
-      this.renderSimpleStat(heading, '--', '', true);
-    } else {
-      this.renderTableHeading(heading, {
-        font: this.font,
-        fontSize: this.defaultFontSize,
-        columnDefaults: {
-          width: columnWidth,
-          border: 'TLR',
-        },
-      });
+      if (disabled) {
+        this.renderSimpleStat(heading, '--', '', true);
+      } else {
+        const { primary, secondary } = sectionData;
+        const { dimensions } = section;
+        const key1 = dimensions[0].key;
+        const key2 = dimensions[1].key;
 
-      const tableColumns = [
-        {
-          id: 'basal',
-          align: 'left',
-          width: columnWidth * 0.35,
-          height: 50,
-          cache: false,
-          renderer: this.renderStackedStat,
-          border: 'LB',
-          disabled,
-        },
-        {
-          id: 'chart',
-          align: 'center',
-          width: columnWidth * 0.3,
-          height: 50,
-          cache: false,
-          renderer: this.renderPieChart,
-          padding: [0, 0, 0, 0],
-          border: 'B',
-          disabled,
-        },
-        {
-          id: 'bolus',
-          align: 'right',
-          width: columnWidth * 0.35,
-          height: 50,
-          cache: false,
-          renderer: this.renderStackedStat,
-          border: 'RB',
-          disabled,
-        },
-      ];
-
-      const rows = [
-        {
-          basal: {
-            stat: 'Basal',
-            value: disabled ? '--' : formatPercentage(basalBolusRatio.basal),
-            summary: disabled ? '-- U' : `${formatDecimalNumber(averageDailyDose.basal, 1)} U`,
+        this.renderTableHeading(heading, {
+          font: this.font,
+          fontSize: this.defaultFontSize,
+          columnDefaults: {
+            width: columnWidth,
+            border: 'TLR',
           },
-          chart: {
-            data: disabled ? [
-              {
-                value: 1.0,
-                color: this.colors.lightGrey,
-              },
-            ] : [
-              {
-                value: basalBolusRatio.basal,
-                color: this.colors.basal,
-                label: 'basal',
-              },
-              {
-                value: basalBolusRatio.bolus,
-                color: this.colors.bolus,
-                label: 'bolus',
-              },
-            ],
-          },
-          bolus: {
-            stat: 'Bolus',
-            value: disabled ? '--' : formatPercentage(basalBolusRatio.bolus),
-            summary: disabled ? '-- U' : `${formatDecimalNumber(averageDailyDose.bolus, 1)} U`,
-          },
-        },
-      ];
+        });
 
-      this.renderTable(tableColumns, rows, {
-        showHeaders: false,
-        bottomMargin: 15,
-      });
+        const tableColumns = [
+          {
+            id: key1,
+            align: 'left',
+            width: columnWidth * 0.35,
+            height: 50,
+            cache: false,
+            renderer: this.renderStackedStat,
+            border: 'LB',
+            disabled,
+          },
+          {
+            id: 'chart',
+            align: 'center',
+            width: columnWidth * 0.3,
+            height: 50,
+            cache: false,
+            renderer: this.renderPieChart,
+            padding: [0, 0, 0, 0],
+            border: 'B',
+            disabled,
+          },
+          {
+            id: key2,
+            align: 'right',
+            width: columnWidth * 0.35,
+            height: 50,
+            cache: false,
+            renderer: this.renderStackedStat,
+            border: 'RB',
+            disabled,
+          },
+        ];
+
+        const ratioColors = {
+          basal: this.colors.basal,
+          bolus: this.colors.bolus,
+          automated: this.colors.basalAutomated,
+          manual: this.colors.basal,
+        };
+
+        const rows = [
+          {
+            [key1]: {
+              stat: dimensions[0].label,
+              primary: disabled ? '--' : formatPercentage(primary[key1]),
+            },
+            chart: {
+              data: disabled ? [
+                {
+                  value: 1.0,
+                  color: this.colors.lightGrey,
+                },
+              ] : [
+                {
+                  value: primary[key1],
+                  color: ratioColors[key1],
+                  label: 'basal',
+                },
+                {
+                  value: primary[key2],
+                  color: ratioColors[key2],
+                  label: 'bolus',
+                },
+              ],
+            },
+            [key2]: {
+              stat: dimensions[1].label,
+              primary: disabled ? '--' : formatPercentage(primary[key2]),
+            },
+          },
+        ];
+
+        if (secondary) {
+          rows[0][key1].secondary = disabled
+            ? '-- U'
+            : `${formatDecimalNumber(secondary[key1], 1)} U`;
+
+          rows[0][key2].secondary = disabled
+            ? '-- U'
+            : `${formatDecimalNumber(secondary[key2], 1)} U`;
+        }
+
+        this.renderTable(tableColumns, rows, {
+          showHeaders: false,
+          bottomMargin: 15,
+        });
+      }
     }
   }
 
@@ -433,8 +469,8 @@ class BasicsPrintView extends PrintView {
     if (draw) {
       const {
         stat,
-        value,
-        summary,
+        primary,
+        secondary,
       } = data[column.id];
 
       const xPos = pos.x + _.get(padding, 'left', 0);
@@ -459,14 +495,16 @@ class BasicsPrintView extends PrintView {
       this.doc
         .font(this.boldFont)
         .fontSize(this.largeFontSize)
-        .text(value, _.assign({}, textOpts, {
+        .text(primary, _.assign({}, textOpts, {
           paragraphGap: 0,
         }));
 
-      this.doc
-        .font(this.font)
-        .fontSize(this.smallFontSize)
-        .text(summary, textOpts);
+      if (secondary) {
+        this.doc
+          .font(this.font)
+          .fontSize(this.smallFontSize)
+          .text(secondary, textOpts);
+      }
     }
 
     return ' ';
@@ -602,11 +640,9 @@ class BasicsPrintView extends PrintView {
       data,
       type,
       bottomMargin = 20,
-      active,
+      disabled,
       emptyText,
     } = opts;
-
-    const disabled = !active;
 
     const columnWidth = this.getActiveColumnWidth();
 
@@ -840,35 +876,40 @@ class BasicsPrintView extends PrintView {
     const columnWidth = this.getActiveColumnWidth();
 
     const {
-      filters,
+      dimensions,
       data,
       type,
       header,
-      active,
+      disabled,
     } = opts;
 
-    if (active) {
-      let primaryFilter;
+    if (!disabled) {
+      let primaryDimension;
       const rows = [];
 
-      _.each(filters, filter => {
-        const valueObj = _.get(data, [filter.path, filter.key], _.get(data, filter.key, {}));
-        const isAverage = filter.average;
+      _.each(dimensions, dimension => {
+        const valueObj = _.get(
+          data,
+          [dimension.path, dimension.key],
+          _.get(data, dimension.key, {})
+        );
+
+        const isAverage = dimension.average;
 
         const value = isAverage
-          ? Math.round(_.get(data, [filter.path, 'avgPerDay'], data.avgPerDay))
+          ? Math.round(_.get(data, [dimension.path, 'avgPerDay'], data.avgPerDay))
           : _.get(valueObj, 'count', valueObj);
 
         const stat = {
-          stat: filter.label,
+          stat: dimension.label,
           value: (value || 0).toString(),
         };
 
-        if (filter.primary) {
+        if (dimension.primary) {
           stat.stat = header;
-          primaryFilter = stat;
+          primaryDimension = stat;
         } else {
-          if (value === 0 && filter.hideEmpty) {
+          if (value === 0 && dimension.hideEmpty) {
             return;
           }
           rows.push(stat);
@@ -879,8 +920,8 @@ class BasicsPrintView extends PrintView {
         statWidth: columnWidth * 0.75,
         valueWidth: columnWidth * 0.25,
         height: 20,
-        statHeader: primaryFilter.stat,
-        valueHeader: (primaryFilter.value || 0).toString(),
+        statHeader: primaryDimension.stat,
+        valueHeader: (primaryDimension.value || 0).toString(),
       });
 
       tableColumns[0].headerFont = this.font;

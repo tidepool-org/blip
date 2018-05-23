@@ -1048,7 +1048,7 @@ describe('basics data utils', () => {
     });
   });
 
-  describe('setBasicsSectionsAvailability', () => {
+  describe('disableEmptySections', () => {
     const basicsData = {
       data: {
         cbg: { data: [new Types.CBG()] },
@@ -1076,7 +1076,7 @@ describe('basics data utils', () => {
       expect(basicsData.sections.averageDailyCarbs.active).to.be.true;
       expect(_.find(basicsData.sections.fingersticks.filters, { path: 'calibration' })).to.be.defined;
 
-      const result = dataUtils.setBasicsSectionsAvailability(basicsData);
+      const result = dataUtils.disableEmptySections(basicsData);
 
       // basals gets disabled when no data
       expect(result.sections.basals.active).to.be.false;
@@ -1118,7 +1118,7 @@ describe('basics data utils', () => {
       expect(basicsData.sections.averageDailyCarbs.emptyText).to.be.undefined;
       expect(basicsData.sections.fingersticks.emptyText).to.be.undefined;
 
-      const result = dataUtils.setBasicsSectionsAvailability(basicsData);
+      const result = dataUtils.disableEmptySections(basicsData);
 
       // basals gets emptyText set when no data
       expect(result.sections.basals.emptyText).to.be.a('string');
