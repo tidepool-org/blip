@@ -79,7 +79,7 @@ describe('BasalUtil', function() {
       expect(constant.totalBasal(start, end, {
         midnightToMidnight: true,
         exclusionThreshold: 7
-      }).total).to.equal(constant.subtotal(constant.isContinuous(start, end)));
+      }).total).to.equal(constant.subtotal(constant.getContinuousEndpoints(start, end)));
     });
 
     it('should return the same as subtotal on a 14-day span of data when not given midnight-to-midnight domain', function() {
@@ -88,14 +88,14 @@ describe('BasalUtil', function() {
       var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY*14);
       expect(constant.totalBasal(start, end, {
         exclusionThreshold: 7
-      }).total).to.equal(constant.subtotal(constant.isContinuous(start, end)));
+      }).total).to.equal(constant.subtotal(constant.getContinuousEndpoints(start, end)));
     });
 
     it('should have an excluded of length 8 when span of 7 days of data removed', function() {
       var data = patterns.basal.constant({days: 14});
       var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY*14);
       var toRemove = 7;
-      data = data.slice(1, (14 - toRemove) * 4);
+      data.splice(1, (toRemove * 4));
       var constant = new BasalUtil(data);
       var res = constant.totalBasal(start, end, {
         exclusionThreshold: 7
@@ -107,7 +107,7 @@ describe('BasalUtil', function() {
       var data = patterns.basal.constant({days: 14});
       var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY*14);
       var toRemove = 8;
-      data = data.slice(1, (14 - toRemove) * 4);
+      data.splice(1, (toRemove * 4));
       var constant = new BasalUtil(data);
       var res = constant.totalBasal(start, end, {
         exclusionThreshold: 7
@@ -139,9 +139,9 @@ describe('BasalUtil', function() {
     });
   });
 
-  describe('isContinuous', function() {
+  describe('getContinuousEndpoints', function() {
     it('should be a function', function() {
-      assert.isFunction(bu.isContinuous);
+      assert.isFunction(bu.getContinuousEndpoints);
     });
 
     it('should return false when there is a gap between basal segments in a 24-hour period', function() {
@@ -149,7 +149,7 @@ describe('BasalUtil', function() {
       var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
       data.splice(1,1);
       var gap = new BasalUtil(data);
-      expect(gap.isContinuous(start, end)).to.be.false;
+      expect(gap.getContinuousEndpoints(start, end)).to.be.false;
     });
 
     it('should return an endpoints object when there is no gap between basal segments in a 24-hour period', function() {
@@ -166,7 +166,7 @@ describe('BasalUtil', function() {
           index: 3
         }
       };
-      expect(noGap.isContinuous(start, end)).to.eql(expected);
+      expect(noGap.getContinuousEndpoints(start, end)).to.eql(expected);
     });
 
     it('should return an endpoints object when a single basal segment contains (is a superset of) the given 24-hour period', function() {
@@ -189,7 +189,7 @@ describe('BasalUtil', function() {
         }
       };
       var singleSegment = new BasalUtil(data);
-      expect(singleSegment.isContinuous(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString())).to.eql(expected);
+      expect(singleSegment.getContinuousEndpoints(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString())).to.eql(expected);
     });
   });
 

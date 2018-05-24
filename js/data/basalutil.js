@@ -71,7 +71,7 @@ function BasalUtil(data) {
   this.getEndpoints = function(s, e, optionalEnd = false) {
     var start = new Date(s), end = new Date(e);
     var startIndex = _.findIndex(this.actual, function(segment) {
-      return (!new Date(segment.normalTime).valueOf() <= start) && (start <= new Date(segment.normalEnd).valueOf());
+      return (new Date(segment.normalTime).valueOf() <= start) && (start <= new Date(segment.normalEnd).valueOf());
     });
     var endIndex = _.findLastIndex(this.actual, function(segment) {
       return (new Date(segment.normalTime).valueOf() <= end) && (optionalEnd || end <= new Date(segment.normalEnd).valueOf());
