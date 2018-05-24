@@ -114,7 +114,7 @@ function formatTitle(patient) {
  * nonTandemText
  * @param  {Object} patient     the patient object that contains the profile
  * @param  {String} units         MGDL_UNITS or MMOLL_UNITS
- * @param  {String} manufacturer  one of: animas, carelink, insulet, medtronic
+ * @param  {String} manufacturer  one of: animas, carelink, insulet, medtronic, diabeloop
  *
  * @return {String}               non tandem settings as a string table
  */

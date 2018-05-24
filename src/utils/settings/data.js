@@ -144,7 +144,7 @@ export function getTotalBasalRates(scheduleData) {
  * getScheduleLabel
  * @param  {String} scheduleName  basal schedule name
  * @param  {String} activeName    name of active basal schedule at time of upload
- * @param  {String} deviceKey    one of: animas, carelink, insulet, medtronic, tandem
+ * @param  {String} deviceKey    one of: animas, carelink, insulet, medtronic, tandem, diabeloop
  * @param  {Boolean} noUnits      whether units should be included in label object
  *
  * @return {Object}              object representing basal schedule label

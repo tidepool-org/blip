@@ -30,7 +30,7 @@ export class PumpSettingsContainer extends PureComponent {
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
     copySettingsClicked: PropTypes.func.isRequired,
     manufacturerKey: PropTypes.oneOf(
-      ['animas', 'carelink', 'insulet', 'medtronic', 'tandem']
+      ['animas', 'carelink', 'insulet', 'medtronic', 'tandem', 'diabeloop']
     ).isRequired,
     markSettingsViewed: PropTypes.func.isRequired,
     // see more specific schema in NonTandem and Tandem components!
@@ -73,7 +73,7 @@ export class PumpSettingsContainer extends PureComponent {
       timePrefs,
       toggleSettingsSection,
     } = this.props;
-    const supportedNonTandemPumps = ['animas', 'carelink', 'insulet', 'medtronic'];
+    const supportedNonTandemPumps = ['animas', 'carelink', 'insulet', 'medtronic', 'diabeloop'];
     const toggleFn = _.partial(toggleSettingsSection, manufacturerKey);
 
     if (manufacturerKey === 'tandem') {
