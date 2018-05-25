@@ -55,6 +55,12 @@ describe('UploadLaunchOverlay', function () {
       expect(props.modalDismissHandler.callCount).to.equal(callCount + 1);
     });
 
+    it('dismiss button should respond to an onClick event', () => {
+      var callCount = props.uploadDismiss.callCount;
+      wrapper.find('.uploadDismiss').simulate('click');
+      expect(props.uploadDismiss.callCount).to.equal(callCount + 1);
+    });
+
     it('should have disabled download buttons if no URLs have been set', () => {
       wrapper.setState({
         latestWinRelease: null,
