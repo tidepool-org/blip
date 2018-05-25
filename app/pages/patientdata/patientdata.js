@@ -241,7 +241,7 @@ export let PatientData = React.createClass({
   },
 
   renderUploadOverlay: function() {
-    return <UploadLaunchOverlay overlayClickHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
   },
 
   isEmptyPatientData: function() {

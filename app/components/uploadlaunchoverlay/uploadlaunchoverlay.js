@@ -35,7 +35,7 @@ class UploadLaunchOverlay extends Component {
   }
 
   static propTypes = {
-    overlayClickHandler: React.PropTypes.func.isRequired,
+    modalDismissHandler: React.PropTypes.func.isRequired,
   };
 
   componentWillMount = () => {
@@ -79,6 +79,7 @@ class UploadLaunchOverlay extends Component {
               <img src={logoSrc} />
             </div>
             <div>
+              <a className="uploadDismiss" onClick={this.props.modalDismissHandler}>&times;</a>
               <div className='UploadLaunchOverlay-title'>Launching Uploader</div>
               <div className='UploadLaunchOverlay-text'>If you don't yet have the Tidepool Uploader, please install the appropriate version below</div>
             </div>
@@ -101,7 +102,7 @@ class UploadLaunchOverlay extends Component {
       <ModalOverlay
         show={true}
         dialog={dialog}
-        overlayClickHandler={this.props.overlayClickHandler}
+        overlayClickHandler={this.props.modalDismissHandler}
       />
     );
   };
