@@ -79,9 +79,7 @@ class UploadLaunchOverlay extends Component {
               <img src={logoSrc} />
             </div>
             <div>
-              <div className=uploadDismiss>
-                <a className='uploadDismiss' onClick={this.props.modalDismissHandler}>&times;</a>
-              </div>
+              <a className='uploadDismiss' onClick={this.props.modalDismissHandler}>&times;</a>
               <div className='UploadLaunchOverlay-title'>Launching Uploader</div>
               <div className='UploadLaunchOverlay-text'>If you don't yet have the Tidepool Uploader, please install the appropriate version below</div>
             </div>
