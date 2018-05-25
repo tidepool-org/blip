@@ -188,6 +188,52 @@ const NonTandem = (props) => {
     );
   }
 
+  function renderDiabeloopPayload() {
+    if (lookupKey !== 'diabeloop') {
+      return null;
+    }
+
+    const params = _.get(pumpSettings, 'payload.Parameters');
+
+    if (!params) {
+      return null;
+    }
+
+    const swVersion = _.get(pumpSettings, 'payload.Ids._swVersion');
+
+    const columns = [
+      {
+        key: 'name',
+        label: t('Parameter'),
+      },
+      {
+        key: 'value',
+        label: t('Value'),
+      },
+      {
+        key: 'unit',
+        label: t('unit'),
+      },
+    ];
+    const rows = params;
+
+    return (<div className={styles.diabeloopPayloadContainer}>
+      <div className={styles.categoryTitle}>{t('Specific settings')}</div>
+        {buildTable(
+          rows,
+          columns,
+          {
+            label: {
+              main: swVersion ? t('Diabeloop settings ({{swVersion}})', { swVersion })
+                : t('Diabeloop settings', { swVersion }),
+            },
+            className: styles.bolusSettingsHeader,
+          },
+          styles.settingsTable,
+        )}
+    </div>);
+  }
+
   return (
     <div>
       <ClipboardButton
@@ -215,6 +261,7 @@ const NonTandem = (props) => {
           {renderTargetData()}
           {renderRatioData()}
         </div>
+        {renderDiabeloopPayload()}
       </div>
       <pre className={styles.copyText} id="copySettingsText">
         {nonTandemText(user, pumpSettings, bgUnits, lookupKey)}
