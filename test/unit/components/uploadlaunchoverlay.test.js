@@ -31,7 +31,7 @@ import releases from '../../fixtures/githubreleasefixture';
 
 describe('UploadLaunchOverlay', function () {
   const props = {
-    overlayClickHandler: sinon.spy(),
+    modalDismissHandler: sinon.spy(),
   };
 
   let wrapper;
@@ -50,9 +50,9 @@ describe('UploadLaunchOverlay', function () {
     });
 
     it('should respond to an onClick event', () => {
-      var callCount = props.overlayClickHandler.callCount;
+      var callCount = props.modalDismissHandler.callCount;
       wrapper.find('.ModalOverlay-target').simulate('click');
-      expect(props.overlayClickHandler.callCount).to.equal(callCount + 1);
+      expect(props.modalDismissHandler.callCount).to.equal(callCount + 1);
     });
 
     it('should have disabled download buttons if no URLs have been set', () => {
