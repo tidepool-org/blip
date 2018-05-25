@@ -67,6 +67,7 @@ describe('UploadLaunchOverlay', function () {
       wrapper.setState({
         latestMacRelease: 'test',
         latestWinRelease: 'test',
+        uploadDismiss: 'test',
       });
       expect(wrapper.find('a')).to.have.length(3);
       expect(wrapper.find('a.disabled')).to.have.length(0);
