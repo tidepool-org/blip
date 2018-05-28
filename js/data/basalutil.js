@@ -68,13 +68,13 @@ function BasalUtil(data) {
     return format.fixFloatingPoint(dose);
   };
 
-  this.getEndpoints = function(s, e, optionalEnd = false) {
+  this.getEndpoints = function(s, e, optionalExtents = false) {
     var start = new Date(s), end = new Date(e);
     var startIndex = _.findIndex(this.actual, function(segment) {
-      return (new Date(segment.normalTime).valueOf() <= start) && (start <= new Date(segment.normalEnd).valueOf());
+      return (optionalExtents || new Date(segment.normalTime).valueOf() <= start) && (start <= new Date(segment.normalEnd).valueOf());
     });
     var endIndex = _.findLastIndex(this.actual, function(segment) {
-      return (new Date(segment.normalTime).valueOf() <= end) && (optionalEnd || end <= new Date(segment.normalEnd).valueOf());
+      return (new Date(segment.normalTime).valueOf() <= end) && (optionalExtents || end <= new Date(segment.normalEnd).valueOf());
     });
 
     return {
@@ -138,7 +138,7 @@ function BasalUtil(data) {
     }
 
     return durations;
-  }
+  };
 
   this.totalBasal = function(s, e, opts) {
     opts = opts || {};

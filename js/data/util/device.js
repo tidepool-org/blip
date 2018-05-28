@@ -23,7 +23,7 @@ var { AUTOMATED_BASAL_DEVICE_MODELS } = require('../../data/util/constants');
 
 module.exports = {
   getLatestPumpUpload: (uploadData = []) => {
-    return _.findLast(uploadData, {deviceTags: ['insulin-pump']});
+    return _.findLast(uploadData, { deviceTags: ['insulin-pump'] });
   },
 
   isAutomatedBasalDevice: (pumpUpload = {}) => {

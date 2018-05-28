@@ -282,19 +282,36 @@ describe('basics datamunger', function() {
       { type: 'wizard', carbInput: 77, normalTime: '2015-09-03T10:30:00Z' },
       { type: 'wizard', carbInput: 33, normalTime: '2015-09-03T13:00:00Z' },
     ];
-    var basal = [new types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-01T00:00:00'
-    }), new types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-02T00:00:00'
-    }), new types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-03T00:00:00'
-    }), new types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-04T00:00:00'
-    })];
+    var basal = [
+      new types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-01T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'automated',
+      }),
+      new types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-02T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'scheduled',
+      }),
+      new types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-03T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'automated',
+      }),
+      new types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-04T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'automated',
+      }),
+    ];
     var bolus = [new types.Bolus({
       value: 4.0,
       deviceTime: '2015-09-01T12:00:00'
@@ -337,10 +354,55 @@ describe('basics datamunger', function() {
       }]
     };
 
+    var bu = new BasalUtil(bd.data.basal.data);
+
     it('should be a function', function() {
       assert.isFunction(dm.calculateBasalBolusStats);
     });
 
+    describe('timeInAutoRatio', function() {
+      it('should calculate percentage of time in automated basal delivery', function() {
+        expect(dm.calculateBasalBolusStats(bd, bu).timeInAutoRatio.automated).to.equal(2/3);
+      });
+
+      it('should calculate percentage of time in manual basal delivery', function() {
+        expect(dm.calculateBasalBolusStats(bd, bu).timeInAutoRatio.manual).to.equal(1/3);
+      });
+
+      it('should exclude any portion of basal duration prior to or following basics date range', function() {
+        var bd2 = {
+          data: {
+            basal: {data: basal},
+            bolus: {data: bolus, dataByDate: {'2015-09-01': []}},
+            wizard: { data: wizard }
+          },
+          dateRange: [
+            '2015-09-01T06:00:00.000Z',
+            '2015-09-02T06:00:00.000Z'
+          ],
+          days: [{
+            date: '2015-09-01',
+            type: 'past',
+          }, {
+            date: '2015-09-02',
+            type: 'mostRecent',
+          }]
+        };
+        var bu2 = new BasalUtil(bd2.data.basal.data);
+        expect(dm.calculateBasalBolusStats(bd2, bu2).timeInAutoRatio.automated).to.equal(0.75);
+        expect(dm.calculateBasalBolusStats(bd2, bu2).timeInAutoRatio.manual).to.equal(0.25);
+      });
+
+      it('should calculate a statistic even if there are 3 or more `past` days with no boluses', function() {
+        var bd4 = _.cloneDeep(bd);
+        delete bd4.data.bolus.dataByDate['2015-09-02'];
+        delete bd4.data.bolus.dataByDate['2015-09-03'];
+        delete bd4.data.bolus.dataByDate['2015-09-04'];
+        bd4.data.bolus.dataByDate['2015-09-05'] = [];
+        bd4.days.push({date: '2015-09-05', type: 'mostRecent'});
+        expect(dm.calculateBasalBolusStats(bd4, bu).timeInAutoRatio).to.be.an('object');
+      });
+    });
     describe('basalBolusRatio', function() {
       it('should calculate percentage of basal insulin', function() {
         expect(dm.calculateBasalBolusStats(bd, bu).basalBolusRatio.basal).to.equal(0.75);

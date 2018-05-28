@@ -309,6 +309,72 @@ describe('BasicsChart', function() {
       expect(render.state.sections.totalDailyDose.noData).to.be.true;
       expect(render.state.sections.totalDailyDose.togglable).to.be.false;
     });
+
+    it('should remove the "time in auto" and activate the "basal:bolus" ratio when pump is incapable of automated delivery', function() {
+      var td = new TidelineData([
+        new types.SMBG(),
+        new types.Bolus(),
+        new types.Basal(),
+        new types.Upload({
+          deviceTags: ['insulin-pump'],
+          deviceModel: 'xxx',
+          source: 'Insulet',
+        }),
+        new types.DeviceEvent({ subType: 'reservoirChange' }),
+      ]);
+      var props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patient: {
+          profile: {},
+        },
+        permsOfLoggedInUser: { root: true },
+        patientData: td,
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      // averageDailyCarbs closed when no data
+      expect(render.state.sections.timeInAutoRatio).to.be.undefined;
+      expect(render.state.sections.basalBolusRatio.active).to.be.true;
+    });
+
+    it('should remove the "basal:bolus" and activate the "time in auto" ratio when pump is capable of automated delivery', function() {
+      var td = new TidelineData([
+        new types.SMBG(),
+        new types.Bolus(),
+        new types.Basal(),
+        new types.Upload({
+          deviceTags: ['insulin-pump'],
+          deviceModel: '1780',
+          source: 'Medtronic',
+        }),
+        new types.DeviceEvent({ subType: 'reservoirChange' }),
+      ]);
+      var props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patient: {
+          profile: {},
+        },
+        permsOfLoggedInUser: { root: true },
+        patientData: td,
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      // averageDailyCarbs closed when no data
+      expect(render.state.sections.basalBolusRatio).to.be.undefined;
+      expect(render.state.sections.timeInAutoRatio.active).to.be.true;
+    });
   });
 
   it('should calculate bgDistribution for mmol/L data', function() {

@@ -42,6 +42,7 @@ require('./categorize_test');
 /* js/plot/ */
 require('./annotations_test');
 require('./commonbolus_test');
+require('./device_test');
 
 /* plugins/ */
 require('./basics_classifiers_test');

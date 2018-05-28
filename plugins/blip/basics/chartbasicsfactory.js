@@ -34,7 +34,7 @@ var basicsState = require('./logic/state');
 var basicsActions = require('./logic/actions');
 var dataMungerMkr = require('./logic/datamunger');
 var constants = require('./logic/constants');
-var { getLatestPumpUpload, isAutomatedBasalDevice } = require('../../../js/plot/util/device');
+var { getLatestPumpUpload, isAutomatedBasalDevice } = require('../../../js/data/util/device');
 
 var Section = require('./components/DashboardSection');
 var UnknownStatistic = React.createFactory(require('./components/misc/UnknownStatistic'));

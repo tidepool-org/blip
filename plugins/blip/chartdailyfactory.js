@@ -26,7 +26,7 @@ var EventEmitter = require('events').EventEmitter;
 var tideline = require('../../js/index');
 var fill = tideline.plot.util.fill;
 var scalesutil = tideline.plot.util.scales;
-var { getLatestPumpUpload, isAutomatedBasalDevice } = require('../../js/plot/util/device');
+var { getLatestPumpUpload, isAutomatedBasalDevice } = require('../../js/data/util/device');
 var dt = tideline.data.util.datetime;
 var { MGDL_UNITS, AUTOMATED_BASAL_DEVICE_MODELS } = require('../../js/data/util/constants');
 
@@ -356,7 +356,7 @@ function chartDailyFactory(el, options) {
       yPosition: 0,
       emitter: emitter,
       averageLabel: 'These 24 hours',
-      manufacturer: latestPumpUpload.source,
+      manufacturer: _.get(latestPumpUpload, 'source'),
       activeBasalRatio: isAutomatedBasalDevice(latestPumpUpload) ? 'timeInAuto' : 'basalBolus',
       puddleWeights: {
         ratio: 1.0,
