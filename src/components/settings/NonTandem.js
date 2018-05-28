@@ -193,39 +193,20 @@ const NonTandem = (props) => {
       return null;
     }
 
-    const params = _.get(pumpSettings, 'payload.Parameters');
+    const tableData = nonTandemData.diabeloopSettings(pumpSettings);
 
-    if (!params) {
+    if (!tableData) {
       return null;
     }
 
-    const swVersion = _.get(pumpSettings, 'payload.Ids._swVersion');
-
-    const columns = [
-      {
-        key: 'name',
-        label: t('Parameter'),
-      },
-      {
-        key: 'value',
-        label: t('Value'),
-      },
-      {
-        key: 'unit',
-        label: t('unit'),
-      },
-    ];
-    const rows = params;
-
     return (<div className={styles.diabeloopPayloadContainer}>
-      <div className={styles.categoryTitle}>{t('Specific settings')}</div>
+      <div className={styles.categoryTitle}>{nonTandemData.customSettingsTitle(lookupKey)}</div>
         {buildTable(
-          rows,
-          columns,
+          tableData.rows,
+          tableData.columns,
           {
             label: {
-              main: swVersion ? t('Diabeloop settings ({{swVersion}})', { swVersion })
-                : t('Diabeloop settings', { swVersion }),
+              main: tableData.title,
             },
             className: styles.bolusSettingsHeader,
           },

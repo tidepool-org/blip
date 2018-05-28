@@ -28,6 +28,8 @@ import {
 import {
   basal,
   bolusTitle,
+  customSettingsTitle,
+  diabeloopSettings,
   ratio,
   sensitivity,
   target,
@@ -63,6 +65,7 @@ class SettingsPrintView extends PrintView {
     } else {
       this.renderBasalSchedules();
       this.renderWizardSettings();
+      this.renderDiabeloopSettings();
     }
   }
 
@@ -318,6 +321,28 @@ class SettingsPrintView extends PrintView {
     this.renderTarget();
 
     this.renderRatio();
+
+    this.resetText();
+  }
+
+  renderDiabeloopSettings() {
+    if (this.source !== 'diabeloop') {
+      return;
+    }
+
+    this.doc.x = this.chartArea.leftEdge;
+    this.doc.y = _.get(this.layoutColumns, ['columns', this.getLongestLayoutColumn(), 'y']);
+    this.doc.moveDown();
+
+    this.renderSectionHeading(customSettingsTitle(this.manufacturer));
+
+    this.setLayoutColumns({
+      width: this.chartArea.width,
+      count: 2,
+      gutter: 15,
+    });
+
+    this.renderWizardSetting(diabeloopSettings(this.data));
 
     this.resetText();
   }

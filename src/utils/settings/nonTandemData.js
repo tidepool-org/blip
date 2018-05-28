@@ -59,6 +59,19 @@ export function bolusTitle(manufacturer) {
 }
 
 /**
+ * bolusTitle
+ * @param  {String} manufacturer one of: animas, carelink, insulet, medtronic, diabeloop
+ *
+ * @return {String}              bolus title for given manufacturer
+ */
+export function customSettingsTitle(manufacturer) {
+  switch (manufacturer) {
+    case 'diabeloop':
+    default: return t('Specific Settings');
+  }
+}
+
+/**
  * deviceName
  * @param  {String} manufacturer one of: animas, insulet, medtronic, diabeloop
  *
@@ -293,5 +306,45 @@ export function target(settings, manufacturer, units) {
     title: targetTitle(manufacturer),
     columns: targetColumns(manufacturer),
     rows: targetRows(settings, units, manufacturer),
+  };
+}
+
+/**
+ * diabeloopSettings
+ *
+ * Returns the data for the table of custom diabeloop data.
+ *
+ * @param {Object} settings object with pump settings data
+ */
+export function diabeloopSettings(settings) {
+  const params = _.get(settings, 'payload.Parameters');
+
+  if (!params) {
+    return null;
+  }
+
+  const swVersion = _.get(settings, 'payload.Ids._swVersion');
+
+  const columns = [
+    {
+      key: 'name',
+      label: t('Parameter'),
+    },
+    {
+      key: 'value',
+      label: t('Value'),
+    },
+    {
+      key: 'unit',
+      label: t('Unit'),
+    },
+  ];
+  const rows = params;
+
+  return {
+    title: swVersion ? t('Diabeloop settings ({{swVersion}})', { swVersion })
+      : t('Diabeloop settings'),
+    columns,
+    rows,
   };
 }
