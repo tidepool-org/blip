@@ -79,7 +79,7 @@ class BasicsPrintView extends PrintView {
     this.data.sections = defineBasicsSections(
       this.bgPrefs,
       this.manufacturer,
-      latestPumpUpload.deviceModel
+      _.get(latestPumpUpload, 'deviceModel')
     );
 
     this.data = reduceByDay(this.data, this.bgPrefs);

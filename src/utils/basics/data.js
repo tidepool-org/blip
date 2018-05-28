@@ -526,7 +526,7 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
   const sections = {};
 
   _.each(sectionNames, section => {
-    let type;
+    let type = section;
     let dimensions;
     let title = '';
     let subTitle;
@@ -822,6 +822,7 @@ export function disableEmptySections(data) {
     'averageDailyCarbs',
     'basalBolusRatio',
     'bgDistribution',
+    'timeInAutoRatio',
     'totalDailyDose',
   ];
 
@@ -851,6 +852,7 @@ export function disableEmptySections(data) {
 
       case 'averageDailyCarbs':
       case 'basalBolusRatio':
+      case 'timeInAutoRatio':
       case 'totalDailyDose':
         emptyText = 'Why is this grey? There is not enough data to show this statistic.';
         break;
