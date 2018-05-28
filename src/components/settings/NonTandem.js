@@ -207,6 +207,7 @@ const NonTandem = (props) => {
           {
             label: {
               main: tableData.title,
+              secondary: tableData.secondary,
             },
             className: styles.bolusSettingsHeader,
           },
@@ -254,7 +255,8 @@ const NonTandem = (props) => {
 NonTandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
   copySettingsClicked: PropTypes.func.isRequired,
-  deviceKey: PropTypes.oneOf(['animas', 'carelink', 'insulet', 'medtronic', 'diabeloop']).isRequired,
+  deviceKey: PropTypes.oneOf(['animas', 'carelink', 'insulet',
+    'medtronic', 'diabeloop']).isRequired,
   openedSections: PropTypes.object.isRequired,
   pumpSettings: PropTypes.shape({
     activeSchedule: PropTypes.string.isRequired,

@@ -342,7 +342,9 @@ class SettingsPrintView extends PrintView {
       gutter: 15,
     });
 
-    this.renderWizardSetting(diabeloopSettings(this.data));
+    const diabeloop = diabeloopSettings(this.data);
+
+    this.renderWizardSetting(diabeloop, diabeloop.secondary);
 
     this.resetText();
   }

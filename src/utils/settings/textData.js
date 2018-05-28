@@ -150,6 +150,15 @@ export function nonTandemText(patient, settings, units, manufacturer) {
     ratio.columns,
   );
 
+  const diabeloop = nonTandemData.diabeloopSettings(settings);
+  if (diabeloop) {
+    tablesString += buildTextTable(
+      `${diabeloop.title} ${diabeloop.secondary || ''}`,
+      diabeloop.rows,
+      diabeloop.columns,
+    );
+  }
+
   return tablesString;
 }
 

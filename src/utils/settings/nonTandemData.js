@@ -342,8 +342,8 @@ export function diabeloopSettings(settings) {
   const rows = params;
 
   return {
-    title: swVersion ? t('Diabeloop ({{swVersion}})', { swVersion })
-      : t('Diabeloop'),
+    title: t('Diabeloop'),
+    secondary: swVersion,
     columns,
     rows,
   };
