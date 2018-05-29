@@ -45,7 +45,7 @@ export function deviceName(manufacturer) {
     medtronic: 'Medtronic',
     tandem: 'Tandem',
   };
-  return DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturer];
+  return DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturer] || manufacturer;
 }
 
 /**

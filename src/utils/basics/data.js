@@ -21,7 +21,7 @@ import sundial from 'sundial';
 import crossfilter from 'crossfilter';
 
 import generateClassifiers from '../classifiers';
-import { getLatestPumpUpload, isAutomatedBasalDevice } from '../device';
+import { getLatestPumpUpload, isAutomatedBasalDevice, getPumpVocabulary } from '../device';
 import {
   generateBgRangeLabels,
   weightedCGMCount,
@@ -52,7 +52,6 @@ import {
 } from '../constants';
 
 import { getBasalPathGroups, getGroupDurations } from '../basal';
-import { deviceName } from '../../utils/settings/data';
 
 /**
  * Get the BG distribution source and status
@@ -504,9 +503,9 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
   bgLabels.veryLow = _.capitalize(bgLabels.veryLow);
   bgLabels.veryHigh = _.capitalize(bgLabels.veryHigh);
 
-  const deviceLabels = _.get(pumpVocabulary, deviceName(manufacturer), pumpVocabulary.default);
+  const deviceLabels = getPumpVocabulary(manufacturer);
 
-  const activeBasalRatio = isAutomatedBasalDevice(deviceName(manufacturer), deviceModel)
+  const activeBasalRatio = isAutomatedBasalDevice(manufacturer, deviceModel)
     ? 'timeInAutoRatio'
     : 'basalBolusRatio';
 

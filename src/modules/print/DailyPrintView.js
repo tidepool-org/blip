@@ -27,8 +27,7 @@ import PrintView from './PrintView';
 import { calculateBasalPath, getBasalSequencePaths } from '../render/basal';
 import getBolusPaths from '../render/bolus';
 import { getTotalBasal, getBasalPathGroups } from '../../utils/basal';
-import { deviceName } from '../../utils/settings/data';
-import { isAutomatedBasalDevice } from '../../utils/device';
+import { isAutomatedBasalDevice, getPumpVocabulary } from '../../utils/device';
 import {
   calcBgPercentInCategories,
   classifyBgValue,
@@ -59,7 +58,6 @@ import {
 import {
   MMOLL_UNITS,
   MS_IN_MIN,
-  pumpVocabulary,
   AUTOMATED_DELIVERY,
   SCHEDULED_DELIVERY,
 } from '../../utils/constants';
@@ -72,17 +70,15 @@ class DailyPrintView extends PrintView {
     this.manufacturer = this.source === 'carelink' ? 'medtronic' : this.source;
 
     this.isAutomatedBasalDevice = isAutomatedBasalDevice(
-      deviceName(this.manufacturer),
+      this.manufacturer,
       _.get(data, 'latestPumpUpload.deviceModel')
     );
 
-    const manufacturerName = deviceName(this.manufacturer);
-    const automatedLabel = _.get(pumpVocabulary, ['default', AUTOMATED_DELIVERY]);
-    const scheduledLabel = _.get(pumpVocabulary, ['default', SCHEDULED_DELIVERY]);
+    const deviceLabels = getPumpVocabulary(this.manufacturer);
 
     this.basalGroupLabels = {
-      automated: _.get(pumpVocabulary, [manufacturerName, AUTOMATED_DELIVERY], automatedLabel),
-      manual: _.get(pumpVocabulary, [manufacturerName, SCHEDULED_DELIVERY], scheduledLabel),
+      automated: deviceLabels[AUTOMATED_DELIVERY],
+      manual: deviceLabels[SCHEDULED_DELIVERY],
     };
 
     this.bgAxisFontSize = 5;
@@ -434,7 +430,7 @@ class DailyPrintView extends PrintView {
 
       const ratioTitle = this.isAutomatedBasalDevice
         ? `Time in ${this.basalGroupLabels.automated}`
-        : 'Basal:Bolus Ratio';
+        : 'Insulin Ratio';
 
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
       .text(ratioTitle, smallIndent, yPos.update());
