@@ -195,6 +195,8 @@ describe('print data utils', () => {
       const stripped = dataUtils.stripDatum(originalDatum);
       expect(stripped).to.eql({
         annotations: '',
+        normalEnd: '',
+        normalTime: '',
         type: 'cbg',
         value: 75,
       });

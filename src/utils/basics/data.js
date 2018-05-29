@@ -325,7 +325,6 @@ export function processInfusionSiteHistory(data, patient) {
       basicsData.sections.siteChanges.type = settings.siteChangeSource;
     } else {
       basicsData.sections.siteChanges.type = SECTION_TYPE_UNDECLARED;
-      basicsData.sections.siteChanges.active = false;
     }
   } else if (latestPump === INSULET) {
     basicsData.data.reservoirChange.infusionSiteHistory = getInfusionSiteHistory(
@@ -581,6 +580,7 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
         break;
 
       case 'siteChanges':
+        type = null; // Will be set by `processInfusionSiteHistory`
         title = 'Infusion site changes';
         break;
 
@@ -634,7 +634,7 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
 }
 
 /**
- * Set up cross dimensions by date for all of the data types
+ * Set up cross filters by date for all of the data types
  *
  * @export
  * @param {Object} data - the preprocessed basics data object
@@ -868,14 +868,11 @@ export function disableEmptySections(data) {
 
   _.each(sections, (section, key) => {
     const type = section.type;
-    let active = section.active;
     let disabled = false;
-
-    if (!type) active = false;
 
     if (_.includes(diabetesDataTypes, type)) {
       disabled = !hasDataInRange(typeData[type]);
-    } else if (active && _.includes(aggregatedDataTypes, key)) {
+    } else if (_.includes(aggregatedDataTypes, key)) {
       disabled = !typeData[key];
     } else if (type === 'fingerstick') {
       const hasSMBG = hasDataInRange(typeData[type].smbg);
@@ -886,6 +883,8 @@ export function disableEmptySections(data) {
       }
 
       disabled = !hasSMBG && !hasCalibrations;
+    } else if (key === 'siteChanges') {
+      disabled = (!type || type === SECTION_TYPE_UNDECLARED);
     }
 
     if (disabled) {

@@ -182,8 +182,8 @@ class BasicsPrintView extends PrintView {
       },
       data: _.get(
         this.data.data,
-        [_.get(this.data.sections.siteChanges, 'type'), 'infusionSiteHistory']
-        , {}
+        [_.get(this.data.sections.siteChanges, 'type'), 'infusionSiteHistory'],
+        {}
       ),
       type: 'siteChange',
       disabled: this.data.sections.siteChanges.disabled,

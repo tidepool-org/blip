@@ -1014,29 +1014,29 @@ describe('basics data utils', () => {
 
     it('should set the veryLow and veryHigh fingerstick filter labels correctly for mg/dL data', () => {
       const result = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS]);
-      const veryHighFilter = _.find(result.fingersticks.filters, { key: 'veryHigh' });
-      const veryLowFilter = _.find(result.fingersticks.filters, { key: 'veryLow' });
+      const veryHighFilter = _.find(result.fingersticks.dimensions, { key: 'veryHigh' });
+      const veryLowFilter = _.find(result.fingersticks.dimensions, { key: 'veryLow' });
       expect(veryHighFilter.label).to.equal('Above 300 mg/dL');
       expect(veryLowFilter.label).to.equal('Below 55 mg/dL');
     });
 
     it('should set the veryLow and veryHigh fingerstick filter labels correctly for mmol/L data', () => {
       const result = dataUtils.defineBasicsSections(bgPrefs[MMOLL_UNITS]);
-      const veryHighFilter = _.find(result.fingersticks.filters, { key: 'veryHigh' });
-      const veryLowFilter = _.find(result.fingersticks.filters, { key: 'veryLow' });
+      const veryHighFilter = _.find(result.fingersticks.dimensions, { key: 'veryHigh' });
+      const veryLowFilter = _.find(result.fingersticks.dimensions, { key: 'veryLow' });
       expect(veryHighFilter.label).to.equal('Above 16.7 mmol/L');
       expect(veryLowFilter.label).to.equal('Below 3.1 mmol/L');
     });
 
     it('should set the label for the `automatedStop` filter based on the manufacturer', () => {
       const result = dataUtils.defineBasicsSections(bgPrefs[MMOLL_UNITS], 'medtronic');
-      const automatedStopFilter = _.find(result.basals.filters, { key: 'automatedStop' });
+      const automatedStopFilter = _.find(result.basals.dimensions, { key: 'automatedStop' });
       expect(automatedStopFilter.label).to.equal('Auto Mode Exited');
     });
 
     it('should set default label for the `automatedStop` filter when missing manufacturer', () => {
       const result = dataUtils.defineBasicsSections(bgPrefs[MMOLL_UNITS]);
-      const automatedStopFilter = _.find(result.basals.filters, { key: 'automatedStop' });
+      const automatedStopFilter = _.find(result.basals.dimensions, { key: 'automatedStop' });
       expect(automatedStopFilter.label).to.equal('Automated Exited');
     });
   });
@@ -1059,12 +1059,15 @@ describe('basics data utils', () => {
           smbg: { data: [] },
           calibration: { data: [] },
         },
+        cannulaPrime: { dataByDate: {} },
+        tubingPrime: { dataByDate: {} },
+        upload: { data: [new Types.Upload({ deviceTags: ['insulin-pump'], source: MEDTRONIC })] },
       },
       days: oneWeekDates,
       sections: dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS]),
     };
 
-    it('should deactivate sections for which there is no data available', () => {
+    it('should disable sections for which there is no data available', () => {
       // all sections active by default
       expect(basicsData.sections.basals.active).to.be.true;
       expect(basicsData.sections.boluses.active).to.be.true;
@@ -1075,32 +1078,32 @@ describe('basics data utils', () => {
       expect(basicsData.sections.basalBolusRatio.active).to.be.true;
       expect(basicsData.sections.averageDailyCarbs.active).to.be.true;
       expect(_.find(basicsData.sections.fingersticks.filters, { path: 'calibration' })).to.be.defined;
-
-      const result = dataUtils.disableEmptySections(basicsData);
+      const processedBasicsData = dataUtils.processInfusionSiteHistory(basicsData, {});
+      const result = dataUtils.disableEmptySections(processedBasicsData);
 
       // basals gets disabled when no data
-      expect(result.sections.basals.active).to.be.false;
+      expect(result.sections.basals.disabled).to.be.true;
 
       // boluses gets disabled when no data
-      expect(result.sections.boluses.active).to.be.false;
+      expect(result.sections.boluses.disabled).to.be.true;
 
       // siteChanges gets disabled when no data
-      expect(result.sections.siteChanges.active).to.be.false;
+      expect(result.sections.siteChanges.disabled).to.be.true;
 
       // fingersticks gets disabled when no data
-      expect(result.sections.fingersticks.active).to.be.false;
+      expect(result.sections.fingersticks.disabled).to.be.true;
 
       // bgDistribution gets disabled when no data
-      expect(result.sections.bgDistribution.active).to.be.false;
+      expect(result.sections.bgDistribution.disabled).to.be.true;
 
       // totalDailyDose gets disabled when no data
-      expect(result.sections.totalDailyDose.active).to.be.false;
+      expect(result.sections.totalDailyDose.disabled).to.be.true;
 
       // basalBolusRatio gets disabled when no data
-      expect(result.sections.basalBolusRatio.active).to.be.false;
+      expect(result.sections.basalBolusRatio.disabled).to.be.true;
 
       // averageDailyCarbs gets disabled when no data
-      expect(result.sections.averageDailyCarbs.active).to.be.false;
+      expect(result.sections.averageDailyCarbs.disabled).to.be.true;
 
       // calibration filter in fingerstick section gets removed when no data
       expect(_.find(result.sections.fingersticks.filters, { path: 'calibration' })).to.be.undefined;
@@ -1118,7 +1121,8 @@ describe('basics data utils', () => {
       expect(basicsData.sections.averageDailyCarbs.emptyText).to.be.undefined;
       expect(basicsData.sections.fingersticks.emptyText).to.be.undefined;
 
-      const result = dataUtils.disableEmptySections(basicsData);
+      const processedBasicsData = dataUtils.processInfusionSiteHistory(basicsData, {});
+      const result = dataUtils.disableEmptySections(processedBasicsData);
 
       // basals gets emptyText set when no data
       expect(result.sections.basals.emptyText).to.be.a('string');

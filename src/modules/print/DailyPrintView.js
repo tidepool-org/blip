@@ -76,16 +76,14 @@ class DailyPrintView extends PrintView {
       _.get(data, 'latestPumpUpload.deviceModel')
     );
 
-    if (this.isAutomatedBasalDevice) {
-      const manufacturerName = deviceName(this.manufacturer);
-      const automatedLabel = _.get(pumpVocabulary, ['default', AUTOMATED_DELIVERY]);
-      const scheduledLabel = _.get(pumpVocabulary, ['default', SCHEDULED_DELIVERY]);
+    const manufacturerName = deviceName(this.manufacturer);
+    const automatedLabel = _.get(pumpVocabulary, ['default', AUTOMATED_DELIVERY]);
+    const scheduledLabel = _.get(pumpVocabulary, ['default', SCHEDULED_DELIVERY]);
 
-      this.basalGroupLabels = {
-        automated: _.get(pumpVocabulary, [manufacturerName, AUTOMATED_DELIVERY], automatedLabel),
-        manual: _.get(pumpVocabulary, [manufacturerName, SCHEDULED_DELIVERY], scheduledLabel),
-      };
-    }
+    this.basalGroupLabels = {
+      automated: _.get(pumpVocabulary, [manufacturerName, AUTOMATED_DELIVERY], automatedLabel),
+      manual: _.get(pumpVocabulary, [manufacturerName, SCHEDULED_DELIVERY], scheduledLabel),
+    };
 
     this.bgAxisFontSize = 5;
     this.carbsFontSize = 5.5;

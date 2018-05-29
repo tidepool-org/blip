@@ -283,6 +283,7 @@ class Upload extends Common {
 
     this.type = 'upload';
     this.deviceTags = opts.deviceTags;
+    this.source = opts.source;
     this.deviceTime = opts.deviceTime;
 
     this.time = this.makeTime();
