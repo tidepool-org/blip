@@ -220,7 +220,7 @@ var PatientCard = React.createClass({
   },
 
   renderUploadOverlay: function() {
-    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+    return <UploadLaunchOverlay modalDismissHandler={this.modalDismissHandler}/>
   },
 
   handleRemovePatient: function(patient) {
