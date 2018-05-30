@@ -215,12 +215,12 @@ var PatientCard = React.createClass({
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
-        overlayClickHandler={this.overlayClickHandler}/>
+        modalDismissHandler={this.modalDismissHandler}/>
     );
   },
 
   renderUploadOverlay: function() {
-    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+    return <UploadLaunchOverlay modalDismissHandler={this.modalDismissHandler}/>
   },
 
   handleRemovePatient: function(patient) {

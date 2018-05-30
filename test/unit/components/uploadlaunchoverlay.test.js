@@ -57,7 +57,7 @@ describe('UploadLaunchOverlay', function () {
 
     it('dismiss button should respond to an onClick event', () => {
       var callCount = props.modalDismissHandler.callCount;
-      wrapper.find('.uploadDismiss').simulate('click');
+      wrapper.find('.ModalOverlay-dismiss').simulate('click');
       expect(props.modalDismissHandler.callCount).to.equal(callCount + 1);
     });
 
