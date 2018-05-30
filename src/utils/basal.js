@@ -98,27 +98,23 @@ export function getTotalBasal(basals) {
  * @param {Array} data Array of Tidepool basal data
  * @param {String} s ISO date string for the start of the range
  * @param {String} e ISO date string for the end of the range
- * @param {Boolean} optionalEnd Allow an end segment without a `normalEnd` defined
+ * @param {Boolean} optionalExtents If true, allow basal gaps at start and end extents of the range.
  * @returns {Object} The start and end datetimes and indexes
  */
-export function getEndpoints(data, s, e, optionalEnd = false) {
+export function getEndpoints(data, s, e, optionalExtents = false) {
   const start = new Date(s);
   const end = new Date(e);
 
   const startIndex = _.findIndex(
     data,
-    segment => (
-      !new Date(segment.normalTime).valueOf() <= start)
-      && (start <= new Date(segment.normalEnd).valueOf()
-    )
+    segment => (optionalExtents || new Date(segment.normalTime).valueOf() <= start)
+      && (start <= new Date(segment.normalEnd).valueOf())
   );
 
   const endIndex = _.findLastIndex(
     data,
-    segment => (
-      new Date(segment.normalTime).valueOf() <= end)
-      && (optionalEnd || end <= new Date(segment.normalEnd).valueOf()
-    )
+    segment => (new Date(segment.normalTime).valueOf() <= end)
+      && (optionalExtents || end <= new Date(segment.normalEnd).valueOf())
   );
 
   return {

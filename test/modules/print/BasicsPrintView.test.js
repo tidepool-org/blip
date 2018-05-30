@@ -496,7 +496,7 @@ describe('BasicsPrintView', () => {
     });
   });
 
-  describe('renderBasalBolusRatio', () => {
+  describe('renderRatio', () => {
     it('should render a simple disabled stat when disabled', () => {
       sinon.stub(Renderer, 'renderSimpleStat');
 
@@ -514,7 +514,7 @@ describe('BasicsPrintView', () => {
       );
     });
 
-    it('should render a table stat when not disabled', () => {
+    it('should render a basal:bolus stat when not disabled', () => {
       sinon.stub(Renderer, 'renderTableHeading');
       sinon.stub(Renderer, 'renderTable');
 
@@ -536,6 +536,27 @@ describe('BasicsPrintView', () => {
       );
 
       sinon.assert.calledWith(Renderer.renderTableHeading, { text: 'Insulin ratio' });
+      sinon.assert.calledOnce(Renderer.renderTable);
+    });
+
+    it('should render a time in auto stat when not disabled', () => {
+      sinon.stub(Renderer, 'renderTableHeading');
+      sinon.stub(Renderer, 'renderTable');
+
+      Renderer.data.sections.timeInAutoRatio.active = true;
+      Renderer.data.sections.timeInAutoRatio.disabled = false;
+
+      Renderer.renderRatio(
+        'timeInAutoRatio',
+        {
+          primary: {
+            manual: 0.25,
+            automated: 0.75,
+          },
+        }
+      );
+
+      sinon.assert.calledWith(Renderer.renderTableHeading, { text: 'Time in Automated ratio' });
       sinon.assert.calledOnce(Renderer.renderTable);
     });
   });
@@ -599,6 +620,29 @@ describe('BasicsPrintView', () => {
       sinon.assert.calledWith(Renderer.doc.text, stat.secondary);
 
       sinon.assert.calledWith(Renderer.setFill, Renderer.colors.lightGrey, 1);
+    });
+
+    it('should not render secondary text if falsey', () => {
+      sinon.stub(Renderer, 'setFill');
+
+      Renderer.renderStackedStat(
+        {},
+        { test: _.assign({}, stat, { secondary: undefined }) },
+        true,
+        { id: 'test', disabled: true },
+        {
+          x: 100,
+          y: 200,
+        },
+        {
+          top: 0,
+          left: 0,
+        }
+      );
+
+      sinon.assert.callCount(Renderer.doc.text, 2);
+      sinon.assert.calledWith(Renderer.doc.text, stat.stat);
+      sinon.assert.calledWith(Renderer.doc.text, stat.primary);
     });
   });
 

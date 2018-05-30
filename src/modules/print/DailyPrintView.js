@@ -430,7 +430,7 @@ class DailyPrintView extends PrintView {
 
       const ratioTitle = this.isAutomatedBasalDevice
         ? `Time in ${this.basalGroupLabels.automated}`
-        : 'Insulin Ratio';
+        : 'Basal:Bolus Ratio';
 
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
       .text(ratioTitle, smallIndent, yPos.update());

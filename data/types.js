@@ -75,7 +75,7 @@ class Common {
   }
 }
 
-class Basal extends Common {
+export class Basal extends Common {
   constructor(opts = {}) {
     super(opts);
 
@@ -100,7 +100,7 @@ class Basal extends Common {
   }
 }
 
-class Bolus extends Common {
+export class Bolus extends Common {
   constructor(opts = {}) {
     super(opts);
 
@@ -124,7 +124,7 @@ class Bolus extends Common {
   }
 }
 
-class CBG extends Common {
+export class CBG extends Common {
   constructor(opts = {}) {
     super(opts);
 
@@ -148,7 +148,7 @@ class CBG extends Common {
   }
 }
 
-class Message extends Common {
+export class Message extends Common {
   constructor(opts = {}) {
     super(opts);
 
@@ -171,7 +171,7 @@ class Message extends Common {
   }
 }
 
-class Settings extends Common {
+export class Settings extends Common {
   constructor(opts = {}) {
     super(opts);
 
@@ -220,7 +220,7 @@ class Settings extends Common {
   }
 }
 
-class SMBG extends Common {
+export class SMBG extends Common {
   constructor(opts = {}) {
     super(opts);
 
@@ -245,7 +245,7 @@ class SMBG extends Common {
   }
 }
 
-class DeviceEvent extends Common {
+export class DeviceEvent extends Common {
   constructor(opts = {}) {
     super(opts);
 
@@ -272,7 +272,7 @@ class DeviceEvent extends Common {
   }
 }
 
-class Upload extends Common {
+export class Upload extends Common {
   constructor(opts = {}) {
     super(opts);
 
@@ -294,7 +294,7 @@ class Upload extends Common {
   }
 }
 
-class Wizard extends Common {
+export class Wizard extends Common {
   constructor(opts = {}) {
     super(opts);
 

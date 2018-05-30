@@ -146,6 +146,8 @@ describe('DailyPrintView', () => {
                  - Renderer.margins.left,
         } },
         { prop: 'chartArea', type: 'object' },
+        { prop: 'isAutomatedBasalDevice', type: 'boolean' },
+        { prop: 'basalGroupLabels', type: 'object' },
         { prop: 'initialChartArea', type: 'object', value: {
           bottomEdge: opts.margins.top + opts.height,
           leftEdge: opts.margins.left +
@@ -347,6 +349,10 @@ describe('DailyPrintView', () => {
       Renderer.renderSummary(args);
     });
 
+    afterEach(() => {
+      Renderer.doc.text.resetHistory();
+    });
+
     it('should render a formatted date', () => {
       const formattedDate = moment(sampleDate, 'YYYY-MM-DD').format('ddd, MMM D, YYYY');
 
@@ -361,7 +367,7 @@ describe('DailyPrintView', () => {
       sinon.assert.calledWith(Renderer.doc.text, `Below ${veryLowThreshold}`);
     });
 
-    it('should render the basal to bolus ratio', () => {
+    it('should render the basal to bolus ratio for non-automated-basal devices', () => {
       const totalBasal = getTotalBasal(args.data.basal);
       const totalBolus = getTotalBolus(args.data.bolus);
       const totalInsulin = totalBasal + totalBolus;
@@ -377,6 +383,24 @@ describe('DailyPrintView', () => {
 
       sinon.assert.calledWith(Renderer.doc.text, 'Bolus');
       sinon.assert.calledWith(Renderer.doc.text, bolusPercentText);
+    });
+
+    it('should render the time in auto ratio for automated-basal devices', () => {
+      const { automated, manual } = args.data.timeInAutoRatio;
+      const totalBasalDuration = automated + manual;
+      const automatedPercentText = formatPercentage(automated / totalBasalDuration);
+      const manualPercentText = formatPercentage(manual / totalBasalDuration);
+
+      Renderer.isAutomatedBasalDevice = true;
+      Renderer.doc.text.resetHistory();
+      Renderer.renderSummary(args);
+      sinon.assert.calledWith(Renderer.doc.text, 'Time in Automated');
+
+      sinon.assert.calledWith(Renderer.doc.text, 'Manual');
+      sinon.assert.calledWith(Renderer.doc.text, manualPercentText);
+
+      sinon.assert.calledWith(Renderer.doc.text, 'Automated');
+      sinon.assert.calledWith(Renderer.doc.text, automatedPercentText);
     });
 
     it('should render the Average BG with cbg data if available', () => {
