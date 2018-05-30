@@ -215,7 +215,7 @@ var PatientCard = React.createClass({
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
-        modalDismissHandler={this.modalDismissHandler}/>
+        modalDismissHandler={this.overlayClickHandler}/>
     );
   },
 
