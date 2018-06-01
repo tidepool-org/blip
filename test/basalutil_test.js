@@ -370,7 +370,7 @@ describe('BasalUtil', function() {
       var bu = new BasalUtil(data);
       var result = bu.getGroupDurations(start, end);
       expect(result.automated).to.equal(firstDatum.duration - MS_IN_HOUR);
-      expect(result.automated + result.manual).to.equal(MS_IN_DAY);
+      expect(result.automated + result.manual).to.equal(MS_IN_DAY - MS_IN_HOUR);
     });
 
     it('should handle partial durations for `automated` and `manual` basals that fall partially outside the end of range', function() {
@@ -382,7 +382,7 @@ describe('BasalUtil', function() {
       var bu = new BasalUtil(data);
       var result = bu.getGroupDurations(start, end);
       expect(result.automated).to.equal(lastDatum.duration - MS_IN_HOUR);
-      expect(result.automated + result.manual).to.equal(MS_IN_DAY);
+      expect(result.automated + result.manual).to.equal(MS_IN_DAY - MS_IN_HOUR);
     });
   });
 
