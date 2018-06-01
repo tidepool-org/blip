@@ -121,7 +121,7 @@ function BasalUtil(data) {
 
       // handle first segment, which may have started before the start endpoint
       var segment = this.actual[endpoints.start.index];
-      var initialSegmentDuration = new Date(segment.normalEnd) - start;
+      var initialSegmentDuration = _.min([new Date(segment.normalEnd) - start, segment.duration]);
       durations[this.getBasalPathGroupType(segment)] = initialSegmentDuration;
 
       // add the durations of all subsequent basals, minus the last
@@ -134,7 +134,7 @@ function BasalUtil(data) {
 
       // handle last segment, which may go past the end endpoint
       segment = this.actual[endpoints.end.index];
-      durations[this.getBasalPathGroupType(segment)] += end - new Date(segment.normalTime);
+      durations[this.getBasalPathGroupType(segment)] += _.min([end - new Date(segment.normalTime), segment.duration]);
     }
 
     return durations;
