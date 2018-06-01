@@ -150,7 +150,7 @@ export function getGroupDurations(data, s, e) {
 
     // handle first segment, which may have started before the start endpoint
     let segment = data[endpoints.start.index];
-    const initialSegmentDuration = new Date(segment.normalEnd) - start;
+    const initialSegmentDuration = _.min([new Date(segment.normalEnd) - start, segment.duration]);
     durations[getBasalPathGroupType(segment)] = initialSegmentDuration;
 
     // add the durations of all subsequent basals, minus the last
@@ -163,7 +163,10 @@ export function getGroupDurations(data, s, e) {
 
     // handle last segment, which may go past the end endpoint
     segment = data[endpoints.end.index];
-    durations[getBasalPathGroupType(segment)] += end - new Date(segment.normalTime);
+    durations[getBasalPathGroupType(segment)] += _.min([
+      end - new Date(segment.normalTime),
+      segment.duration,
+    ]);
   }
 
   return durations;

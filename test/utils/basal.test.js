@@ -109,7 +109,7 @@ describe.only('basal utilties', () => {
     });
   });
 
-  describe.only('getEndpoints', () => {
+  describe('getEndpoints', () => {
     const sixHours = MS_IN_HOUR * 6;
     let data;
 
@@ -122,7 +122,7 @@ describe.only('basal utilties', () => {
       ];
     });
 
-    it.only('should return an endpoints object given a start and end time', () => {
+    it('should return an endpoints object given a start and end time', () => {
       const start = data[0].normalTime;
       const end = addDuration(start, MS_IN_DAY);
 
@@ -141,7 +141,7 @@ describe.only('basal utilties', () => {
     });
 
     // eslint-disable-next-line max-len
-    it.only('should return an endpoints object when a single basal segment contains (is a superset of) the given 24-hour period', () => {
+    it('should return an endpoints object when a single basal segment contains (is a superset of) the given 24-hour period', () => {
       const basalStart = '2017-12-23T00:00:00';
       data = [
         new Basal({
@@ -168,7 +168,7 @@ describe.only('basal utilties', () => {
     });
 
     // eslint-disable-next-line max-len
-    it.only('should return an endpoints object with a start and end index when basal segments overlap the start and end times', () => {
+    it('should return an endpoints object with a start and end index when basal segments overlap the start and end times', () => {
       const start = data[0].normalTime;
       const end = addDuration(start, MS_IN_DAY);
       data[0].normalTime = addDuration(start, -MS_IN_HOUR);
@@ -192,7 +192,7 @@ describe.only('basal utilties', () => {
     });
 
     // eslint-disable-next-line max-len
-    it.only('should return an endpoints object with a start and end index when basal segments overlap the only the start time and `optionalExtents` arg is `true`', () => {
+    it('should return an endpoints object with a start and end index when basal segments overlap the only the start time and `optionalExtents` arg is `true`', () => {
       const start = data[0].normalTime;
       const end = addDuration(start, MS_IN_DAY);
       data[0].normalTime = addDuration(start, -MS_IN_HOUR);
@@ -217,102 +217,154 @@ describe.only('basal utilties', () => {
 
     // eslint-disable-next-line max-len
     it('should return an endpoints object with a `-1` end index when basal segments overlap the only the start time and `optionalExtents` arg is `false`', () => {
-      const now = new Date();
-      const optionalExtents = false;
-      const minusOneHour = new Date(now.valueOf() - MS_IN_HOUR);
-      const halfDay = MS_IN_DAY / 2;
-      const data = [
-        {
-          duration: halfDay,
-          normalTime: minusOneHour.toISOString(),
-          normalEnd: new Date(minusOneHour.valueOf() + halfDay).toISOString()
-        },
-        {
-          duration: halfDay,
-          normalTime: new Date(minusOneHour.valueOf() + halfDay).toISOString(),
-          normalEnd: new Date(minusOneHour.valueOf() + MS_IN_DAY).toISOString()
-        },
-      ];
-      const start = now.toISOString();
-      const end = new Date(now.valueOf() + MS_IN_DAY).toISOString();
+      const start = data[0].normalTime;
+      const end = addDuration(start, MS_IN_DAY);
+      data[0].normalTime = addDuration(start, -MS_IN_HOUR);
+      data[0].duration = data[0].duration + MS_IN_HOUR;
+
+      // remove the last datum
+      data.pop();
+
       const expected = {
         start: {
           datetime: start,
-          index: 0
+          index: 0,
         },
         end: {
           datetime: end,
-          index: -1
-        }
+          index: -1,
+        },
       };
-      const bu = new BasalUtil(data);
-      expect(bu.getEndpoints(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString(), optionalExtents)).to.eql(expected);
+
+      expect(basalUtils.getEndpoints(data, start, end, false)).to.eql(expected);
     });
 
     // eslint-disable-next-line max-len
     it('should return an endpoints object with a `-1` end index when basal segments overlap the only the start time and `optionalExtents` arg is omitted', () => {
-      const now = new Date();
-      const minusOneHour = new Date(now.valueOf() - MS_IN_HOUR);
-      const halfDay = MS_IN_DAY / 2;
-      const data = [
-        {
-          duration: halfDay,
-          normalTime: minusOneHour.toISOString(),
-          normalEnd: new Date(minusOneHour.valueOf() + halfDay).toISOString()
-        },
-        {
-          duration: halfDay,
-          normalTime: new Date(minusOneHour.valueOf() + halfDay).toISOString(),
-          normalEnd: new Date(minusOneHour.valueOf() + MS_IN_DAY).toISOString()
-        },
-      ];
-      const start = now.toISOString();
-      const end = new Date(now.valueOf() + MS_IN_DAY).toISOString();
+      const start = data[0].normalTime;
+      const end = addDuration(start, MS_IN_DAY);
+      data[0].normalTime = addDuration(start, -MS_IN_HOUR);
+      data[0].duration = data[0].duration + MS_IN_HOUR;
+
+      // remove the last datum
+      data.pop();
+
       const expected = {
         start: {
           datetime: start,
-          index: 0
+          index: 0,
         },
         end: {
           datetime: end,
-          index: -1
-        }
+          index: -1,
+        },
       };
-      const bu = new BasalUtil(data);
-      expect(bu.getEndpoints(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString())).to.eql(expected);
+
+      expect(basalUtils.getEndpoints(data, start, end)).to.eql(expected);
     });
 
     // eslint-disable-next-line max-len
-    it('should return an endpoints object with a `-1` start index when basal segments overlap only the end time', () => {
-      const now = new Date();
-      const plusOneHour = new Date(now.valueOf() + MS_IN_HOUR);
-      const halfDay = MS_IN_DAY / 2;
-      const data = [
-        {
-          duration: halfDay,
-          normalTime: plusOneHour.toISOString(),
-          normalEnd: new Date(plusOneHour.valueOf() + halfDay).toISOString()
-        },
-        {
-          duration: halfDay,
-          normalTime: new Date(plusOneHour.valueOf() + halfDay).toISOString(),
-          normalEnd: new Date(plusOneHour.valueOf() + MS_IN_DAY).toISOString()
-        },
-      ];
-      const start = now.toISOString();
-      const end = new Date(now.valueOf() + MS_IN_DAY).toISOString();
+    it('should return an endpoints object with a start and end index when basal segments overlap only the end time and `optionalExtents` arg is `true`', () => {
+      const start = addDuration(data[0].normalTime, -MS_IN_HOUR);
+      const end = addDuration(start, MS_IN_DAY);
+
+      // remove the first datum
+      data.shift();
+
       const expected = {
         start: {
           datetime: start,
-          index: -1
+          index: 0,
         },
         end: {
           datetime: end,
-          index: 1
-        }
+          index: 2,
+        },
       };
-      const bu = new BasalUtil(data);
-      expect(bu.getEndpoints(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString())).to.eql(expected);
+
+      expect(basalUtils.getEndpoints(data, start, end, true)).to.eql(expected);
+    });
+
+    // eslint-disable-next-line max-len
+    it('should return an endpoints object with a `-1` start index when basal segments overlap only the end time and `optionalExtents` arg is `false`', () => {
+      const start = addDuration(data[0].normalTime, -MS_IN_HOUR);
+      const end = addDuration(start, MS_IN_DAY);
+
+      // remove the first datum
+      data.shift();
+
+      const expected = {
+        start: {
+          datetime: start,
+          index: -1,
+        },
+        end: {
+          datetime: end,
+          index: 2,
+        },
+      };
+
+      expect(basalUtils.getEndpoints(data, start, end)).to.eql(expected);
+    });
+  });
+
+  describe('getGroupDurations', () => {
+    const sixHours = MS_IN_HOUR * 6;
+    let data;
+
+    beforeEach(() => {
+      data = [
+        new Basal({ deviceTime: '2018-01-01T00:00:00', duration: sixHours }),
+        new Basal({ deviceTime: '2018-01-01T06:00:00', duration: sixHours }),
+        new Basal({ deviceTime: '2018-01-01T12:00:00', duration: sixHours }),
+        new Basal({ deviceTime: '2018-01-01T18:00:00', duration: sixHours }),
+      ];
+    });
+
+    it('should return an object with `automated` and `manual` keys', () => {
+      const start = data[0].normalTime;
+      const end = addDuration(start, MS_IN_DAY);
+      const result = basalUtils.getGroupDurations(data, start, end);
+
+      expect(_.keysIn(result)).to.eql(['automated', 'manual']);
+    });
+
+    it('should return durations for `automated` and `manual` basal delivery', () => {
+      const halfAutomatedData = _.map(data, (d, i) => (
+        _.assign({}, d, {
+          deliveryType: (i % 2 === 0) ? 'automated' : 'scheduled',
+        })
+      ));
+
+      const start = halfAutomatedData[0].normalTime;
+      const end = addDuration(start, MS_IN_DAY);
+      const result = basalUtils.getGroupDurations(halfAutomatedData, start, end);
+
+      expect(result.automated).to.equal(result.manual);
+      expect(result.automated + result.manual).to.equal(MS_IN_DAY);
+    });
+
+    // eslint-disable-next-line max-len
+    it('should handle partial durations for `automated` and `manual` basals that fall partially outside the start of range', () => {
+      const firstDatum = data[0];
+      firstDatum.deliveryType = 'automated';
+      const start = addDuration(firstDatum.normalTime, MS_IN_HOUR);
+      const end = addDuration(start, MS_IN_DAY);
+      const result = basalUtils.getGroupDurations(data, start, end);
+      expect(result.automated).to.equal(firstDatum.duration - MS_IN_HOUR);
+      expect(result.automated + result.manual).to.equal(MS_IN_DAY - MS_IN_HOUR);
+    });
+
+    // eslint-disable-next-line max-len
+    it('should handle partial durations for `automated` and `manual` basals that fall partially outside the end of range', () => {
+      const firstDatum = data[0];
+      const lastDatum = data[data.length - 1];
+      lastDatum.deliveryType = 'automated';
+      const start = addDuration(firstDatum.normalTime, -MS_IN_HOUR);
+      const end = addDuration(start, MS_IN_DAY);
+      const result = basalUtils.getGroupDurations(data, start, end);
+      expect(result.automated).to.equal(lastDatum.duration - MS_IN_HOUR);
+      expect(result.automated + result.manual).to.equal(MS_IN_DAY - MS_IN_HOUR);
     });
   });
 
