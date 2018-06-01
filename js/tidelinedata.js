@@ -368,8 +368,22 @@ function TidelineData(data, opts) {
 
   this.setBGPrefs = function() {
     startTimer('setBGPrefs');
-    this.bgClasses = opts.bgClasses;
-    this.bgUnits = opts.bgUnits;
+      this.bgClasses = opts.bgClasses;
+      this.bgUnits = opts.bgUnits;
+
+      // mg/dL values are converted to mmol/L and rounded to 5 decimal places on platform.
+      // This can cause some discrepancies when converting back to mg/dL, and throw off the
+      // categorization.
+      // i.e. A 'target' value 180 gets stored as 9.99135, which gets converted back to 180.0000651465
+      // which causes it to be classified as 'high'
+      // Thus, we need to allow for our thresholds accordingly.
+      if (this.bgUnits === MGDL_UNITS) {
+        var roundingAllowance = 0.0001;
+        this.bgClasses['very-low'].boundary -= roundingAllowance;
+        this.bgClasses.low.boundary -= roundingAllowance;
+        this.bgClasses.target.boundary += roundingAllowance;
+        this.bgClasses.high.boundary += roundingAllowance;
+      }
     endTimer('setBGPrefs');
   };
 
