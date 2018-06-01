@@ -157,5 +157,17 @@ describe('Categorize', function() {
         expect(mmollCategorizer({value:14.0})).to.equal("veryhigh");
       });
     });
+    describe('with mg/dL conversion rounding allowances', function() {
+      it('should apply `0.0001` rounding allowances for mg/dL values', function() {
+          expect(defaultCategorizer({value:53.9998})).to.equal("verylow");
+          expect(defaultCategorizer({value:53.9999})).to.equal("low");
+          expect(defaultCategorizer({value:69.9998})).to.equal("low");
+          expect(defaultCategorizer({value:69.9999})).to.equal("target");
+          expect(defaultCategorizer({value:180.0001})).to.equal("target");
+          expect(defaultCategorizer({value:180.0002})).to.equal("high");
+          expect(defaultCategorizer({value:250.0001})).to.equal("high");
+          expect(defaultCategorizer({value:250.0002})).to.equal("veryhigh");
+      });
+    });
   });
 });
