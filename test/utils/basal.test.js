@@ -24,7 +24,7 @@ import { addDuration } from '../../src/utils/datetime';
 const MS_IN_HOUR = 3600000;
 const MS_IN_DAY = 86400000;
 
-describe.only('basal utilties', () => {
+describe('basal utilties', () => {
   describe('getBasalSequences', () => {
     it('should be a function', () => {
       assert.isFunction(basalUtils.getBasalSequences);

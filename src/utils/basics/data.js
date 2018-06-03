@@ -126,35 +126,41 @@ export function calculateBasalBolusStats(basicsData) {
     date => (date === mostRecent)
   );
 
+  const boluses = basicsData.data.bolus.data;
   const basals = basicsData.data.basal.data;
+  const carbs = _.filter(
+    basicsData.data.wizard.data,
+    wizardEvent => (wizardEvent.carbInput && wizardEvent.carbInput > 0)
+  );
+
+  let start = _.get(basals[0], 'normalTime', basicsData.dateRange[0]);
+  if (start < basicsData.dateRange[0]) {
+    start = basicsData.dateRange[0];
+  }
+
+  let end = _.get(basals[basals.length - 1], 'normalEnd', basicsData.dateRange[1]);
+  if (end > basicsData.dateRange[1]) {
+    end = basicsData.dateRange[1];
+  }
+
+  const { automated, manual } = getGroupDurations(basals, start, end);
+  const totalBasalDuration = automated + manual;
+  const timeInAutoRatio = {
+    automated: automated / totalBasalDuration,
+    manual: manual / totalBasalDuration,
+  };
 
   // if three or more of the days (excepting most recent) don't have any boluses
   // then don't calculate these stats at all, since may be inaccurate if
   // long-running basals exist
   if (pastDays.length - pastBolusDays.length >= 3 || !basals.length) {
     return {
+      timeInAutoRatio,
       basalBolusRatio: null,
       averageDailyDose: null,
       totalDailyDose: null,
       averageDailyCarbs: null,
     };
-  }
-
-  const boluses = basicsData.data.bolus.data;
-
-  const carbs = _.filter(
-    basicsData.data.wizard.data,
-    wizardEvent => (wizardEvent.carbInput && wizardEvent.carbInput > 0)
-  );
-
-  let start = basals[0].normalTime;
-  if (start < basicsData.dateRange[0]) {
-    start = basicsData.dateRange[0];
-  }
-
-  let end = basals[basals.length - 1].normalEnd;
-  if (end > basicsData.dateRange[1]) {
-    end = basicsData.dateRange[1];
   }
 
   // find the duration of a basal segment that falls within the basicsData.dateRange
@@ -204,14 +210,9 @@ export function calculateBasalBolusStats(basicsData) {
   );
 
   const totalInsulin = sumBasalInsulin + sumBolusInsulin;
-  const { automated, manual } = getGroupDurations(basals, start, end);
-  const totalBasalDuration = automated + manual;
 
   const stats = {
-    timeInAutoRatio: {
-      automated: automated / totalBasalDuration,
-      manual: manual / totalBasalDuration,
-    },
+    timeInAutoRatio,
     basalBolusRatio: {
       basal: sumBasalInsulin / totalInsulin,
       bolus: sumBolusInsulin / totalInsulin,

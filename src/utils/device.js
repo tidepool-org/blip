@@ -31,8 +31,9 @@ export function isAutomatedBasalDevice(manufacturer, deviceModel) {
  * @returns {Object} pump vocabulary
  */
 export function getPumpVocabulary(manufacturer) {
+  const vocabulary = _.cloneDeep(pumpVocabulary);
   return _.defaults(
-    _.get(pumpVocabulary, deviceName(manufacturer), {}),
-    pumpVocabulary.default
+    _.get(vocabulary, deviceName(manufacturer), {}),
+    vocabulary.default
   );
 }

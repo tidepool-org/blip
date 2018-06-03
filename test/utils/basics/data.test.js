@@ -117,7 +117,7 @@ const siteChangeSections = {
   },
 };
 
-describe('basics data utils', () => {
+describe.only('basics data utils', () => {
   describe('determineBgDistributionSource', () => {
     context('has enough cbg data (Dexcom)', () => {
       it('should yield cgmStatus `calculatedCGM` and source `cbg`', () => {
@@ -341,19 +341,36 @@ describe('basics data utils', () => {
       { type: 'wizard', carbInput: 33, normalTime: '2015-09-03T13:00:00Z' },
     ];
 
-    const basal = [new Types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-01T00:00:00',
-    }), new Types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-02T00:00:00',
-    }), new Types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-03T00:00:00',
-    }), new Types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-04T00:00:00',
-    })];
+    const basal = [
+      new Types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-01T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'automated',
+      }),
+      new Types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-02T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'scheduled',
+      }),
+      new Types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-03T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'automated',
+      }),
+      new Types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-04T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'automated',
+      }),
+    ];
 
     const bolus = [new Types.Bolus({
       value: 4.0,
@@ -403,6 +420,49 @@ describe('basics data utils', () => {
         type: 'mostRecent',
       }],
     };
+
+    describe('timeInAutoRatio', () => {
+      it('should calculate percentage of time in automated basal delivery', () => {
+        expect(dataUtils.calculateBasalBolusStats(bd).timeInAutoRatio.automated).to.equal(2 / 3);
+      });
+
+      it('should calculate percentage of time in manual basal delivery', () => {
+        expect(dataUtils.calculateBasalBolusStats(bd).timeInAutoRatio.manual).to.equal(1 / 3);
+      });
+
+      it('should exclude any portion of basal duration prior to or following basics date range', () => {
+        const bd2 = {
+          data: {
+            basal: { data: basal },
+            bolus: { data: bolus, dataByDate: { '2015-09-01': [] } },
+            wizard: { data: wizard },
+          },
+          dateRange: [
+            '2015-09-01T06:00:00.000Z',
+            '2015-09-02T06:00:00.000Z',
+          ],
+          days: [{
+            date: '2015-09-01',
+            type: 'past',
+          }, {
+            date: '2015-09-02',
+            type: 'mostRecent',
+          }],
+        };
+        expect(dataUtils.calculateBasalBolusStats(bd2).timeInAutoRatio.automated).to.equal(0.75);
+        expect(dataUtils.calculateBasalBolusStats(bd2).timeInAutoRatio.manual).to.equal(0.25);
+      });
+
+      it('should calculate a statistic even if there are 3 or more `past` days with no boluses', () => {
+        const bd4 = _.cloneDeep(bd);
+        delete bd4.data.bolus.dataByDate['2015-09-02'];
+        delete bd4.data.bolus.dataByDate['2015-09-03'];
+        delete bd4.data.bolus.dataByDate['2015-09-04'];
+        bd4.data.bolus.dataByDate['2015-09-05'] = [];
+        bd4.days.push({ date: '2015-09-05', type: 'mostRecent' });
+        expect(dataUtils.calculateBasalBolusStats(bd4).timeInAutoRatio).to.be.an('object');
+      });
+    });
 
     describe('basalBolusRatio', () => {
       it('should calculate percentage of basal insulin', () => {
@@ -986,7 +1046,7 @@ describe('basics data utils', () => {
     });
   });
 
-  describe('defineBasicsSections', () => {
+  describe.only('defineBasicsSections', () => {
     const sectionNames = [
       'basals',
       'basalBolusRatio',
@@ -995,14 +1055,13 @@ describe('basics data utils', () => {
       'fingersticks',
       'siteChanges',
       'totalDailyDose',
+      'timeInAutoRatio',
       'averageDailyCarbs',
     ];
 
     it('should return an object with all required basics section keys with the default properties set', () => {
       const result = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS]);
-      _.forEach(sectionNames, (section) => {
-        expect(result[section]).to.be.defined;
-      });
+      expect(result).to.have.all.keys(sectionNames);
     });
 
     it('should set titles for each section', () => {
