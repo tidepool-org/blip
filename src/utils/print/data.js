@@ -234,7 +234,6 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
     /* eslint-enable no-param-reassign */
   });
 
-  console.log(groupedData.upload)
   if (_.get(groupedData, 'upload.length', 0) > 0) {
     selected.latestPumpUpload = getLatestPumpUpload(groupedData.upload);
   }
