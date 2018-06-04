@@ -95,8 +95,8 @@ module.exports = function(pool, opts) {
     });
 
     var pw = opts.puddleWeights;
-    var lowBound = opts.bgUnits === MGDL_UNITS ? opts.classes.low.boundary : opts.classes.low.boundary.toFixed(1);
-    var highBound = opts.bgUnits === MGDL_UNITS ? opts.classes.target.boundary : opts.classes.target.boundary.toFixed(1);
+    var lowBound = format.tooltipBGValue(opts.classes.low.boundary, opts.bgUnits);
+    var highBound = format.tooltipBGValue(opts.classes.target.boundary, opts.bgUnits);
     var targetRangeString = 'Target range: ' + lowBound + ' - ' + highBound + ' ';
 
     // create basal-to-bolus ratio puddle
