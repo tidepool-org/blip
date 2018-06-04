@@ -61,6 +61,16 @@ describe('print data utils', () => {
       normalTime: '2017-01-01T23:30:00.0000Z',
       normalEnd: '2017-01-03T0:45:00.0000Z',
     },
+    upload1: {
+      normalTime: '2017-01-02T8:30:00.0000Z',
+      type: 'upload',
+      deviceTags: ['insulin-pump'],
+    },
+    upload2: {
+      normalTime: '2017-01-02T10:30:00.0000Z',
+      type: 'upload',
+      deviceTags: ['insulin-pump'],
+    },
   };
 
   const mostRecent = '2017-01-02T09:19:05.000Z';
@@ -80,6 +90,10 @@ describe('print data utils', () => {
     ],
     smbg: [
       datums.smbg,
+    ],
+    upload: [
+      datums.upload1,
+      datums.upload2,
     ],
   };
   const numDays = 6;
@@ -129,6 +143,11 @@ describe('print data utils', () => {
       expect(latestFilteredData.data.basalSequences.length > 0).to.be.true;
     });
 
+    it('should return time in automode data by date', () => {
+      expect(latestFilteredData.data.timeInAutoRatio).to.be.an('object');
+      expect(latestFilteredData.data.timeInAutoRatio).to.have.all.keys(['automated', 'manual']);
+    });
+
     it('should return bolus data by date', () => {
       expect(latestFilteredData.data.bolus).to.be.an('array');
       expect(latestFilteredData.data.bolus.length > 0).to.be.true;
@@ -157,6 +176,11 @@ describe('print data utils', () => {
     it('should return the basal range', () => {
       expect(filtered.basalRange).to.be.an('array');
       expect(filtered.basalRange.length).to.equal(2);
+    });
+
+    it('should return the latest pump upload', () => {
+      expect(filtered.latestPumpUpload).to.be.an('object');
+      expect(filtered.latestPumpUpload).to.equal(datums.upload2);
     });
   });
 
