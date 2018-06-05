@@ -26,7 +26,7 @@ var dt = require('../../data/util/datetime');
 var format = require('../../data/util/format');
 var Puddle = require('./puddle');
 var bgBoundaryClass = require('../util/bgboundary');
-var { MGDL_UNITS } = require('../../data/util/constants');
+var { MGDL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require('../../data/util/constants');
 
 module.exports = function(pool, opts) {
 
@@ -36,11 +36,11 @@ module.exports = function(pool, opts) {
 
   var defaults = {
     classes: {
-      'very-low': { boundary: 55 },
-      low: { boundary: 70 },
-      target: { boundary: 180 },
-      high: { boundary: 300 },
-      'very-high': { boundary: 600 },
+      'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
+      low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
+      'very-high': { boundary: BG_CLAMP_THRESHOLD[MGDL_UNITS] },
     },
     twoWeekOptions: {
       exclusionThreshold: 7
@@ -95,8 +95,8 @@ module.exports = function(pool, opts) {
     });
 
     var pw = opts.puddleWeights;
-    var lowBound = opts.bgUnits === MGDL_UNITS ? opts.classes.low.boundary : opts.classes.low.boundary.toFixed(1);
-    var highBound = opts.bgUnits === MGDL_UNITS ? opts.classes.target.boundary : opts.classes.target.boundary.toFixed(1);
+    var lowBound = format.tooltipBGValue(opts.classes.low.boundary, opts.bgUnits);
+    var highBound = format.tooltipBGValue(opts.classes.target.boundary, opts.bgUnits);
     var targetRangeString = 'Target range: ' + lowBound + ' - ' + highBound + ' ';
 
     // create basal-to-bolus ratio puddle
