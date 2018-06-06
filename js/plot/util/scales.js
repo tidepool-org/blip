@@ -22,6 +22,7 @@ var _ = require('lodash');
 
 var commonbolus = require('./commonbolus');
 var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../../data/util/constants');
+var format = require('../../data/util/format');
 
 var scales = function(opts) {
   opts = _.assign({}, opts) || {};
@@ -97,7 +98,7 @@ var scales = function(opts) {
         return [];
       }
       var defaultTicks = _.map(_.values(_.omit(opts.bgClasses, ['very-high', 'very-low'])), function(n) {
-        return _.get(n, 'boundary');
+        return format.tooltipBGValue(_.get(n, 'boundary'), bgUnits);
       }).sort(function (a, b) { return a - b; });
 
       var ext = d3.extent(data, function(d) { return d.value; });
