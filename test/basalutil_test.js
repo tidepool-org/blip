@@ -28,7 +28,7 @@ var patterns = require('../dev/testpage/patterns');
 var MS_IN_HOUR = 3600000;
 var MS_IN_DAY = 86400000;
 
-describe.only('BasalUtil', function() {
+describe('BasalUtil', function() {
   var bu = new BasalUtil([]);
   it('should be a function', function() {
     assert.isFunction(BasalUtil);
