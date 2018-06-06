@@ -168,7 +168,6 @@ function BasalUtil(data) {
     var deliveryType = _.get(datum, 'deliveryType');
     var suppressedDeliveryType = _.get(datum, 'suppressed.deliveryType');
     return _.contains([deliveryType, suppressedDeliveryType], 'automated')
-      // ? deliveryType === 'automated' ? 'automated' : 'automatedSuppressed'
       ? 'automated'
       : 'regular';
   };

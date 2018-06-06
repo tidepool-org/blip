@@ -28,7 +28,7 @@ var patterns = require('../dev/testpage/patterns');
 var MS_IN_HOUR = 3600000;
 var MS_IN_DAY = 86400000;
 
-describe('BasalUtil', function() {
+describe.only('BasalUtil', function() {
   var bu = new BasalUtil([]);
   it('should be a function', function() {
     assert.isFunction(BasalUtil);
@@ -266,6 +266,15 @@ describe('BasalUtil', function() {
       expect(bu.getBasalPathGroupType({ deliveryType: 'scheduled' })).to.equal('regular');
       expect(bu.getBasalPathGroupType({ deliveryType: 'temp' })).to.equal('regular');
       expect(bu.getBasalPathGroupType({ deliveryType: 'suspend' })).to.equal('regular');
+    });
+
+    it.only('should return the path group type `regular` for a suspend suppressing non-automated delivery', function() {
+      expect(bu.getBasalPathGroupType({ deliveryType: 'suspend', suppressed: { deliveryType: 'scheduled' } })).to.equal('regular');
+      expect(bu.getBasalPathGroupType({ deliveryType: 'suspend', suppressed: { deliveryType: 'temp' } })).to.equal('regular');
+    });
+
+    it.only('should return the path group type `automated` for a suspend suppressing automated delivery', function() {
+      expect(bu.getBasalPathGroupType({ deliveryType: 'suspend', suppressed: { deliveryType: 'automated' } })).to.equal('automated');
     });
   });
 
