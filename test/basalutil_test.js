@@ -343,10 +343,6 @@ describe('BasalUtil', function() {
       var data = patterns.basal.constant();
       var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
       var bu = new BasalUtil(data);
-      var expected = {
-        automated: 0,
-        manual: 0,
-      };
       expect(_.keysIn(bu.getGroupDurations(start, end))).to.eql(['automated', 'manual']);
     });
 
@@ -360,6 +356,20 @@ describe('BasalUtil', function() {
       var result = bu.getGroupDurations(start, end);
       expect(result.automated).to.equal(result.manual);
       expect(result.automated + result.manual).to.equal(MS_IN_DAY);
+    });
+
+    it('should set `automated` and `manual` values to `NaN` if the sum of them is 0', function() {
+      var zeroDurationData = _.map(patterns.basal.constant(), function (d) {
+        d.duration = 0;
+        return d;
+      });
+      var start = zeroDurationData[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
+      var bu = new BasalUtil(zeroDurationData);
+      var expected = {
+        automated: NaN,
+        manual: NaN,
+      };
+      expect(bu.getGroupDurations(start, end)).to.eql(expected);
     });
 
     it('should handle partial durations for `automated` and `manual` basals that fall partially outside the start of range', function() {

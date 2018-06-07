@@ -137,6 +137,11 @@ function BasalUtil(data) {
       durations[this.getBasalPathGroupType(segment)] += _.min([end - new Date(segment.normalTime), segment.duration]);
     }
 
+    if (durations.automated + durations.manual === 0) {
+      durations.automated = NaN;
+      durations.manual = NaN;
+    }
+
     return durations;
   };
 
