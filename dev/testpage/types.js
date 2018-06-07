@@ -275,6 +275,7 @@ var Upload = function(opts) {
   this.type = 'upload';
   this.deviceTags = opts.deviceTags;
   this.deviceTime = opts.deviceTime;
+  this.deviceModel = opts.deviceModel;
   this.source = opts.source;
 
   this.time = this.makeTime();

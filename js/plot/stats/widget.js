@@ -26,13 +26,22 @@ var dt = require('../../data/util/datetime');
 var format = require('../../data/util/format');
 var Puddle = require('./puddle');
 var bgBoundaryClass = require('../util/bgboundary');
-var { MGDL_UNITS } = require('../../data/util/constants');
+var {
+  MGDL_UNITS,
+  AUTOMATED_BASAL_LABELS,
+  SCHEDULED_BASAL_LABELS
+} = require('../../data/util/constants');
 
 module.exports = function(pool, opts) {
 
   var annotation = pool.annotations();
 
   opts = opts || {};
+
+  var basalLabels = {
+    automated: _.get(AUTOMATED_BASAL_LABELS, opts.manufacturer, AUTOMATED_BASAL_LABELS.default),
+    manual: _.get(SCHEDULED_BASAL_LABELS, opts.manufacturer, SCHEDULED_BASAL_LABELS.default),
+  };
 
   var defaults = {
     classes: {
@@ -48,9 +57,18 @@ module.exports = function(pool, opts) {
     size: 16,
     pieRadius: pool.height() * 0.5,
     bgUnits: MGDL_UNITS,
+    activeBasalRatio: 'basalBolus',
+    ratioLabels: {
+      basalBolus: 'Basal : Bolus',
+      timeInAuto: `Time In ${basalLabels.automated}`,
+    },
+    ratioLeads: {
+      basalBolus: 'Basal to bolus insulin ratio',
+      timeInAuto: `${basalLabels.manual} to ${basalLabels.automated} ratio`,
+    },
     PTiRLabels: {
       cbg: 'Time in Target Range',
-      smbg: 'Readings in Range'
+      smbg: 'Readings in Range',
     },
     puddleWeights: {
       ratio: 1.0,
@@ -102,8 +120,8 @@ module.exports = function(pool, opts) {
     // create basal-to-bolus ratio puddle
     var ratioOpts = {
       id: 'Ratio',
-      head: 'Basal : Bolus',
-      lead: 'Basal to bolus insulin ratio',
+      head: opts.ratioLabels[opts.activeBasalRatio],
+      lead: opts.ratioLeads[opts.activeBasalRatio],
       weight: pw.ratio,
       pieBoolean: true,
       annotationOpts: {
@@ -486,17 +504,35 @@ module.exports = function(pool, opts) {
   };
 
   stats.ratioDisplay = function() {
+    if (opts.activeBasalRatio === 'timeInAuto') {
+      var basalAutomatedDuration = _.findWhere(data.ratio, {type: 'basalAutomatedDuration'}).value;
+      var basalManualDuration = _.findWhere(data.ratio, {type: 'basalManualDuration'}).value;
+      var totalDuration = basalAutomatedDuration + basalManualDuration;
+      return [
+        {
+          text: format.percentage(basalManualDuration / totalDuration) + ' : ',
+          'class': 'd3-stats-basalManualDuration',
+        },
+        {
+          text: format.percentage(basalAutomatedDuration / totalDuration),
+          'class': 'd3-stats-basalAutomatedDuration',
+        },
+      ];
+    }
+
     var bolus = _.findWhere(data.ratio, {type: 'bolus'}).value;
     var basal = _.findWhere(data.ratio, {type: 'basal'}).value;
     var total = bolus + basal;
-    return [{
-        text: format.percentage(basal/total) + ' : ',
-        'class': 'd3-stats-basal'
+    return [
+      {
+        text: format.percentage(basal / total) + ' : ',
+        'class': 'd3-stats-basal',
       },
       {
-        text: format.percentage(bolus/total),
-        'class': 'd3-stats-bolus'
-      }];
+        text: format.percentage(bolus / total),
+        'class': 'd3-stats-bolus',
+      },
+    ];
   };
 
   stats.rangeDisplay = function() {
@@ -517,18 +553,34 @@ module.exports = function(pool, opts) {
   stats.getStats = function(domainObj) {
     var start = domainObj.domain[0].valueOf(), end = domainObj.domain[1].valueOf();
     opts.twoWeekOptions.startIndex = domainObj.startIndex;
-    var basalData = opts.basal.totalBasal(start, end, opts.twoWeekOptions);
-    var excluded = basalData.excluded;
-    data.ratio = [
-      {
-        type: 'bolus',
-        value: opts.bolus.totalBolus(start, end, {excluded: excluded})
-      },
-      {
-        type: 'basal',
-        value: basalData.total
-      }
-    ];
+
+    if (opts.activeBasalRatio === 'timeInAuto') {
+      var groupDurations = opts.basal.getGroupDurations(start, end);
+      data.ratio = [
+        {
+          type: 'basalManualDuration',
+          value: groupDurations.manual,
+        },
+        {
+          type: 'basalAutomatedDuration',
+          value: groupDurations.automated,
+        },
+      ];
+    }
+    else {
+      var basalData = opts.basal.totalBasal(start, end, opts.twoWeekOptions);
+      var excluded = basalData.excluded;
+      data.ratio = [
+        {
+          type: 'bolus',
+          value: opts.bolus.totalBolus(start, end, {excluded: excluded}),
+        },
+        {
+          type: 'basal',
+          value: basalData.total,
+        },
+      ];
+    }
     var bgStats = opts.cbg.getStats(start, end, opts.twoWeekOptions);
     if (isNaN(bgStats.breakdown.total)) {
       log('Unable to calculate CBG stats; fell back to SMBG stats.');
