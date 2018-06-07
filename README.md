@@ -12,7 +12,7 @@ This README is focused on just the details of getting blip running locally. For 
 
 - [Install](#install)
 - [Running locally](#running-locally)
-   - ["Verifying" the e-mail of a new account locally](#getting-past-email-verification-for-a-user-created-locally)
+   - ["Verifying" the e-mail of a new account locally](#getting-past-e-mail-verification-for-a-user-created-locally)
    - [Creating a special account to bypass e-mail verification](#creating-a-user-without-email-verification)
 - [Running against `dev`](#running-against-dev)
 - [Config](#config)
