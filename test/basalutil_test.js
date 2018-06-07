@@ -79,7 +79,7 @@ describe('BasalUtil', function() {
       expect(constant.totalBasal(start, end, {
         midnightToMidnight: true,
         exclusionThreshold: 7
-      }).total).to.equal(constant.subtotal(constant.isContinuous(start, end)));
+      }).total).to.equal(constant.subtotal(constant.getContinuousEndpoints(start, end)));
     });
 
     it('should return the same as subtotal on a 14-day span of data when not given midnight-to-midnight domain', function() {
@@ -88,14 +88,14 @@ describe('BasalUtil', function() {
       var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY*14);
       expect(constant.totalBasal(start, end, {
         exclusionThreshold: 7
-      }).total).to.equal(constant.subtotal(constant.isContinuous(start, end)));
+      }).total).to.equal(constant.subtotal(constant.getContinuousEndpoints(start, end)));
     });
 
     it('should have an excluded of length 8 when span of 7 days of data removed', function() {
       var data = patterns.basal.constant({days: 14});
       var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY*14);
       var toRemove = 7;
-      data = data.slice(1, (14 - toRemove) * 4);
+      data.splice(1, (toRemove * 4));
       var constant = new BasalUtil(data);
       var res = constant.totalBasal(start, end, {
         exclusionThreshold: 7
@@ -107,7 +107,7 @@ describe('BasalUtil', function() {
       var data = patterns.basal.constant({days: 14});
       var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY*14);
       var toRemove = 8;
-      data = data.slice(1, (14 - toRemove) * 4);
+      data.splice(1, (toRemove * 4));
       var constant = new BasalUtil(data);
       var res = constant.totalBasal(start, end, {
         exclusionThreshold: 7
@@ -139,9 +139,256 @@ describe('BasalUtil', function() {
     });
   });
 
-  describe('isContinuous', function() {
+  describe('getEndpoints', function() {
+    it('should return an endpoints object given a start and end time', function() {
+      var data = patterns.basal.constant();
+      var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
+      var noGap = new BasalUtil(data);
+      var expected = {
+        start: {
+          datetime: start,
+          index: 0
+        },
+        end: {
+          datetime: end,
+          index: 3
+        }
+      };
+      expect(noGap.getEndpoints(start, end)).to.eql(expected);
+    });
+
+    it('should return an endpoints object when a single basal segment contains (is a superset of) the given 24-hour period', function() {
+      var now = new Date();
+      var minusOneHour = new Date(now.valueOf() - MS_IN_HOUR);
+      var data = [{
+        duration: MS_IN_DAY*2,
+        normalTime: minusOneHour.toISOString(),
+        normalEnd: new Date(minusOneHour.valueOf() + MS_IN_DAY*2).toISOString()
+      }];
+      var start = now.toISOString(), end = new Date(now.valueOf() + MS_IN_DAY).toISOString();
+      var expected = {
+        start: {
+          datetime: start,
+          index: 0
+        },
+        end: {
+          datetime: end,
+          index: 0
+        }
+      };
+      var singleSegment = new BasalUtil(data);
+      expect(singleSegment.getEndpoints(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString())).to.eql(expected);
+    });
+
+    it('should return an endpoints object with a start and end index when basal segments overlap the start and end times', function() {
+      var now = new Date();
+      var minusOneHour = new Date(now.valueOf() - MS_IN_HOUR);
+      var halfDay = MS_IN_DAY/2;
+      var data = [
+        {
+          duration: halfDay,
+          normalTime: minusOneHour.toISOString(),
+          normalEnd: new Date(minusOneHour.valueOf() + halfDay).toISOString()
+        },
+        {
+          duration: MS_IN_DAY,
+          normalTime: new Date(minusOneHour.valueOf() + halfDay).toISOString(),
+          normalEnd: new Date(minusOneHour.valueOf() + halfDay + MS_IN_DAY).toISOString()
+        },
+      ];
+      var start = now.toISOString(), end = new Date(now.valueOf() + MS_IN_DAY).toISOString();
+      var expected = {
+        start: {
+          datetime: start,
+          index: 0
+        },
+        end: {
+          datetime: end,
+          index: 1
+        }
+      };
+      var bu = new BasalUtil(data);
+      expect(bu.getEndpoints(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString(), true)).to.eql(expected);
+    });
+
+    it('should return an endpoints object with a start and end index when basal segments overlap the only the start time and `optionalExtents` arg is `true`', function() {
+      var now = new Date();
+      var optionalExtents = true;
+      var minusOneHour = new Date(now.valueOf() - MS_IN_HOUR);
+      var halfDay = MS_IN_DAY/2;
+      var data = [
+        {
+          duration: halfDay,
+          normalTime: minusOneHour.toISOString(),
+          normalEnd: new Date(minusOneHour.valueOf() + halfDay).toISOString()
+        },
+        {
+          duration: halfDay,
+          normalTime: new Date(minusOneHour.valueOf() + halfDay).toISOString(),
+          normalEnd: new Date(minusOneHour.valueOf() + MS_IN_DAY).toISOString()
+        },
+      ];
+      var start = now.toISOString(), end = new Date(now.valueOf() + MS_IN_DAY).toISOString();
+      var expected = {
+        start: {
+          datetime: start,
+          index: 0
+        },
+        end: {
+          datetime: end,
+          index: 1
+        }
+      };
+      var bu = new BasalUtil(data);
+      expect(bu.getEndpoints(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString(), optionalExtents)).to.eql(expected);
+    });
+
+    it('should return an endpoints object with a `-1` end index when basal segments overlap the only the start time and `optionalExtents` arg is `false`', function() {
+      var now = new Date();
+      var optionalExtents = false;
+      var minusOneHour = new Date(now.valueOf() - MS_IN_HOUR);
+      var halfDay = MS_IN_DAY/2;
+      var data = [
+        {
+          duration: halfDay,
+          normalTime: minusOneHour.toISOString(),
+          normalEnd: new Date(minusOneHour.valueOf() + halfDay).toISOString()
+        },
+        {
+          duration: halfDay,
+          normalTime: new Date(minusOneHour.valueOf() + halfDay).toISOString(),
+          normalEnd: new Date(minusOneHour.valueOf() + MS_IN_DAY).toISOString()
+        },
+      ];
+      var start = now.toISOString(), end = new Date(now.valueOf() + MS_IN_DAY).toISOString();
+      var expected = {
+        start: {
+          datetime: start,
+          index: 0
+        },
+        end: {
+          datetime: end,
+          index: -1
+        }
+      };
+      var bu = new BasalUtil(data);
+      expect(bu.getEndpoints(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString(), optionalExtents)).to.eql(expected);
+    });
+
+    it('should return an endpoints object with a `-1` end index when basal segments overlap the only the start time and `optionalExtents` arg is omitted', function() {
+      var now = new Date();
+      var minusOneHour = new Date(now.valueOf() - MS_IN_HOUR);
+      var halfDay = MS_IN_DAY/2;
+      var data = [
+        {
+          duration: halfDay,
+          normalTime: minusOneHour.toISOString(),
+          normalEnd: new Date(minusOneHour.valueOf() + halfDay).toISOString()
+        },
+        {
+          duration: halfDay,
+          normalTime: new Date(minusOneHour.valueOf() + halfDay).toISOString(),
+          normalEnd: new Date(minusOneHour.valueOf() + MS_IN_DAY).toISOString()
+        },
+      ];
+      var start = now.toISOString(), end = new Date(now.valueOf() + MS_IN_DAY).toISOString();
+      var expected = {
+        start: {
+          datetime: start,
+          index: 0
+        },
+        end: {
+          datetime: end,
+          index: -1
+        }
+      };
+      var bu = new BasalUtil(data);
+      expect(bu.getEndpoints(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString())).to.eql(expected);
+    });
+
+    it('should return an endpoints object with a `-1` start index when basal segments overlap only the end time', function() {
+      var now = new Date();
+      var plusOneHour = new Date(now.valueOf() + MS_IN_HOUR);
+      var halfDay = MS_IN_DAY/2;
+      var data = [
+        {
+          duration: halfDay,
+          normalTime: plusOneHour.toISOString(),
+          normalEnd: new Date(plusOneHour.valueOf() + halfDay).toISOString()
+        },
+        {
+          duration: halfDay,
+          normalTime: new Date(plusOneHour.valueOf() + halfDay).toISOString(),
+          normalEnd: new Date(plusOneHour.valueOf() + MS_IN_DAY).toISOString()
+        },
+      ];
+      var start = now.toISOString(), end = new Date(now.valueOf() + MS_IN_DAY).toISOString();
+      var expected = {
+        start: {
+          datetime: start,
+          index: -1
+        },
+        end: {
+          datetime: end,
+          index: 1
+        }
+      };
+      var bu = new BasalUtil(data);
+      expect(bu.getEndpoints(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString())).to.eql(expected);
+    });
+  });
+
+  describe('getGroupDurations', function() {
+    it('should return an object with `automated` and `manual` keys', function() {
+      var data = patterns.basal.constant();
+      var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
+      var bu = new BasalUtil(data);
+      var expected = {
+        automated: 0,
+        manual: 0,
+      };
+      expect(_.keysIn(bu.getGroupDurations(start, end))).to.eql(['automated', 'manual']);
+    });
+
+    it('should return durations for `automated` and `manual` basal delivery', function() {
+      var halfAutomatedData = patterns.basal.constant().map(function(d, i) {
+        d.deliveryType = (i%2 === 0) ? 'automated' : 'scheduled';
+        return d;
+      });
+      var start = halfAutomatedData[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
+      var bu = new BasalUtil(halfAutomatedData);
+      var result = bu.getGroupDurations(start, end);
+      expect(result.automated).to.equal(result.manual);
+      expect(result.automated + result.manual).to.equal(MS_IN_DAY);
+    });
+
+    it('should handle partial durations for `automated` and `manual` basals that fall partially outside the start of range', function() {
+      var data = patterns.basal.constant();
+      var firstDatum = data[0];
+      firstDatum.deliveryType = 'automated';
+      var start = dt.addDuration(firstDatum.normalTime, MS_IN_HOUR), end = dt.addDuration(start, MS_IN_DAY);
+      var bu = new BasalUtil(data);
+      var result = bu.getGroupDurations(start, end);
+      expect(result.automated).to.equal(firstDatum.duration - MS_IN_HOUR);
+      expect(result.automated + result.manual).to.equal(MS_IN_DAY - MS_IN_HOUR);
+    });
+
+    it('should handle partial durations for `automated` and `manual` basals that fall partially outside the end of range', function() {
+      var data = patterns.basal.constant();
+      var firstDatum = data[0];
+      var lastDatum = data[data.length - 1];
+      lastDatum.deliveryType = 'automated';
+      var start = dt.addDuration(firstDatum.normalTime, -MS_IN_HOUR), end = dt.addDuration(start, MS_IN_DAY);
+      var bu = new BasalUtil(data);
+      var result = bu.getGroupDurations(start, end);
+      expect(result.automated).to.equal(lastDatum.duration - MS_IN_HOUR);
+      expect(result.automated + result.manual).to.equal(MS_IN_DAY - MS_IN_HOUR);
+    });
+  });
+
+  describe('getContinuousEndpoints', function() {
     it('should be a function', function() {
-      assert.isFunction(bu.isContinuous);
+      assert.isFunction(bu.getContinuousEndpoints);
     });
 
     it('should return false when there is a gap between basal segments in a 24-hour period', function() {
@@ -149,7 +396,7 @@ describe('BasalUtil', function() {
       var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
       data.splice(1,1);
       var gap = new BasalUtil(data);
-      expect(gap.isContinuous(start, end)).to.be.false;
+      expect(gap.getContinuousEndpoints(start, end)).to.be.false;
     });
 
     it('should return an endpoints object when there is no gap between basal segments in a 24-hour period', function() {
@@ -166,7 +413,7 @@ describe('BasalUtil', function() {
           index: 3
         }
       };
-      expect(noGap.isContinuous(start, end)).to.eql(expected);
+      expect(noGap.getContinuousEndpoints(start, end)).to.eql(expected);
     });
 
     it('should return an endpoints object when a single basal segment contains (is a superset of) the given 24-hour period', function() {
@@ -189,7 +436,7 @@ describe('BasalUtil', function() {
         }
       };
       var singleSegment = new BasalUtil(data);
-      expect(singleSegment.isContinuous(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString())).to.eql(expected);
+      expect(singleSegment.getContinuousEndpoints(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString())).to.eql(expected);
     });
   });
 
@@ -262,15 +509,15 @@ describe('BasalUtil', function() {
       expect(bu.getBasalPathGroupType({ deliveryType: 'automated' })).to.equal('automated');
     });
 
-    it('should return the path group type `regular` for a non-automated basal', function() {
-      expect(bu.getBasalPathGroupType({ deliveryType: 'scheduled' })).to.equal('regular');
-      expect(bu.getBasalPathGroupType({ deliveryType: 'temp' })).to.equal('regular');
-      expect(bu.getBasalPathGroupType({ deliveryType: 'suspend' })).to.equal('regular');
+    it('should return the path group type `manual` for a non-automated basal', function() {
+      expect(bu.getBasalPathGroupType({ deliveryType: 'scheduled' })).to.equal('manual');
+      expect(bu.getBasalPathGroupType({ deliveryType: 'temp' })).to.equal('manual');
+      expect(bu.getBasalPathGroupType({ deliveryType: 'suspend' })).to.equal('manual');
     });
   });
 
   describe('getBasalPathGroups', function() {
-    it('should return an array of groupings of automated and regular data', function() {
+    it('should return an array of groupings of automated and manual data', function() {
       var mixedBasals = [
         { deliveryType: 'automated' },
         { deliveryType: 'scheduled' },

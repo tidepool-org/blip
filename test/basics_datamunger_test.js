@@ -27,6 +27,8 @@ var d3 = require('d3');
 var constants = require('../plugins/blip/basics/logic/constants');
 var togglableState = require('../plugins/blip/basics/TogglableState');
 
+var BasalUtil = require('../js/data/basalutil');
+
 var { MMOLL_UNITS } = require('../js/data/util/constants');
 
 var bgClasses = {
@@ -88,7 +90,8 @@ var siteChangeSections = {
   },
 };
 
-var dm = require('../plugins/blip/basics/logic/datamunger')(bgClasses);
+var bu = new BasalUtil([]);
+var dm = require('../plugins/blip/basics/logic/datamunger')(bgClasses, bu);
 var dmMmol = require('../plugins/blip/basics/logic/datamunger')(bgClassesMmoll, MMOLL_UNITS);
 
 var types = require('../dev/testpage/types');
@@ -279,19 +282,36 @@ describe('basics datamunger', function() {
       { type: 'wizard', carbInput: 77, normalTime: '2015-09-03T10:30:00Z' },
       { type: 'wizard', carbInput: 33, normalTime: '2015-09-03T13:00:00Z' },
     ];
-    var basal = [new types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-01T00:00:00'
-    }), new types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-02T00:00:00'
-    }), new types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-03T00:00:00'
-    }), new types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-04T00:00:00'
-    })];
+    var basal = [
+      new types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-01T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'automated',
+      }),
+      new types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-02T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'scheduled',
+      }),
+      new types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-03T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'automated',
+      }),
+      new types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-04T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'automated',
+      }),
+    ];
     var bolus = [new types.Bolus({
       value: 4.0,
       deviceTime: '2015-09-01T12:00:00'
@@ -334,17 +354,62 @@ describe('basics datamunger', function() {
       }]
     };
 
+    var bu = new BasalUtil(bd.data.basal.data);
+
     it('should be a function', function() {
       assert.isFunction(dm.calculateBasalBolusStats);
     });
 
+    describe('timeInAutoRatio', function() {
+      it('should calculate percentage of time in automated basal delivery', function() {
+        expect(dm.calculateBasalBolusStats(bd, bu).timeInAutoRatio.automated).to.equal(2/3);
+      });
+
+      it('should calculate percentage of time in manual basal delivery', function() {
+        expect(dm.calculateBasalBolusStats(bd, bu).timeInAutoRatio.manual).to.equal(1/3);
+      });
+
+      it('should exclude any portion of basal duration prior to or following basics date range', function() {
+        var bd2 = {
+          data: {
+            basal: {data: basal},
+            bolus: {data: bolus, dataByDate: {'2015-09-01': []}},
+            wizard: { data: wizard }
+          },
+          dateRange: [
+            '2015-09-01T06:00:00.000Z',
+            '2015-09-02T06:00:00.000Z'
+          ],
+          days: [{
+            date: '2015-09-01',
+            type: 'past',
+          }, {
+            date: '2015-09-02',
+            type: 'mostRecent',
+          }]
+        };
+        var bu2 = new BasalUtil(bd2.data.basal.data);
+        expect(dm.calculateBasalBolusStats(bd2, bu2).timeInAutoRatio.automated).to.equal(0.75);
+        expect(dm.calculateBasalBolusStats(bd2, bu2).timeInAutoRatio.manual).to.equal(0.25);
+      });
+
+      it('should calculate a statistic even if there are 3 or more `past` days with no boluses', function() {
+        var bd4 = _.cloneDeep(bd);
+        delete bd4.data.bolus.dataByDate['2015-09-02'];
+        delete bd4.data.bolus.dataByDate['2015-09-03'];
+        delete bd4.data.bolus.dataByDate['2015-09-04'];
+        bd4.data.bolus.dataByDate['2015-09-05'] = [];
+        bd4.days.push({date: '2015-09-05', type: 'mostRecent'});
+        expect(dm.calculateBasalBolusStats(bd4, bu).timeInAutoRatio).to.be.an('object');
+      });
+    });
     describe('basalBolusRatio', function() {
       it('should calculate percentage of basal insulin', function() {
-        expect(dm.calculateBasalBolusStats(bd).basalBolusRatio.basal).to.equal(0.75);
+        expect(dm.calculateBasalBolusStats(bd, bu).basalBolusRatio.basal).to.equal(0.75);
       });
 
       it('should calculate percentage of bolus insulin', function() {
-        expect(dm.calculateBasalBolusStats(bd).basalBolusRatio.bolus).to.equal(0.25);
+        expect(dm.calculateBasalBolusStats(bd, bu).basalBolusRatio.bolus).to.equal(0.25);
       });
 
       it('should exclude any portion of basal duration prior to or following basics date range', function() {
@@ -366,8 +431,8 @@ describe('basics datamunger', function() {
             type: 'mostRecent',
           }]
         };
-        expect(dm.calculateBasalBolusStats(bd2).basalBolusRatio.basal).to.equal(0.5);
-        expect(dm.calculateBasalBolusStats(bd2).basalBolusRatio.bolus).to.equal(0.5);
+        expect(dm.calculateBasalBolusStats(bd2, bu).basalBolusRatio.basal).to.equal(0.5);
+        expect(dm.calculateBasalBolusStats(bd2, bu).basalBolusRatio.bolus).to.equal(0.5);
       });
 
       it('should exclude any boluses falling outside basal date range', function() {
@@ -390,8 +455,8 @@ describe('basics datamunger', function() {
             type: 'mostRecent',
           }]
         };
-        expect(dm.calculateBasalBolusStats(bd3).basalBolusRatio.basal).to.equal(0.6);
-        expect(dm.calculateBasalBolusStats(bd3).basalBolusRatio.bolus).to.equal(0.4);
+        expect(dm.calculateBasalBolusStats(bd3, bu).basalBolusRatio.basal).to.equal(0.6);
+        expect(dm.calculateBasalBolusStats(bd3, bu).basalBolusRatio.bolus).to.equal(0.4);
       });
 
       it('should not calculate a statistic if there are 3 or more `past` days with no boluses', function() {
@@ -401,17 +466,17 @@ describe('basics datamunger', function() {
         delete bd4.data.bolus.dataByDate['2015-09-04'];
         bd4.data.bolus.dataByDate['2015-09-05'] = [];
         bd4.days.push({date: '2015-09-05', type: 'mostRecent'});
-        expect(dm.calculateBasalBolusStats(bd4).basalBolusRatio).to.be.null;
+        expect(dm.calculateBasalBolusStats(bd4, bu).basalBolusRatio).to.be.null;
       });
     });
 
     describe('averageDailyDose', function() {
       it('should calculate average daily amount of basal insulin', function() {
-        expect(dm.calculateBasalBolusStats(bd).averageDailyDose.basal).to.equal(12.0);
+        expect(dm.calculateBasalBolusStats(bd, bu).averageDailyDose.basal).to.equal(12.0);
       });
 
       it('should calculate average daily amount of bolus insulin', function() {
-        expect(dm.calculateBasalBolusStats(bd).averageDailyDose.bolus).to.equal(4.0);
+        expect(dm.calculateBasalBolusStats(bd, bu).averageDailyDose.bolus).to.equal(4.0);
       });
 
       it('should exclude any portion of basal duration prior to or following basics date range', function() {
@@ -433,8 +498,8 @@ describe('basics datamunger', function() {
             type: 'mostRecent',
           }]
         };
-        expect(dm.calculateBasalBolusStats(bd2).averageDailyDose.basal).to.equal(12.0);
-        expect(dm.calculateBasalBolusStats(bd2).averageDailyDose.bolus).to.equal(12.0);
+        expect(dm.calculateBasalBolusStats(bd2, bu).averageDailyDose.basal).to.equal(12.0);
+        expect(dm.calculateBasalBolusStats(bd2, bu).averageDailyDose.bolus).to.equal(12.0);
       });
 
       it('should exclude any boluses falling outside basal date range', function() {
@@ -457,8 +522,8 @@ describe('basics datamunger', function() {
             type: 'mostRecent',
           }]
         };
-        expect(dm.calculateBasalBolusStats(bd3).averageDailyDose.basal).to.equal(12.0);
-        expect(dm.calculateBasalBolusStats(bd3).averageDailyDose.bolus).to.equal(8.0);
+        expect(dm.calculateBasalBolusStats(bd3, bu).averageDailyDose.basal).to.equal(12.0);
+        expect(dm.calculateBasalBolusStats(bd3, bu).averageDailyDose.bolus).to.equal(8.0);
       });
 
       it('should not calculate a statistic if there are 3 or more `past` days with no boluses', function() {
@@ -468,13 +533,13 @@ describe('basics datamunger', function() {
         delete bd4.data.bolus.dataByDate['2015-09-04'];
         bd4.data.bolus.dataByDate['2015-09-05'] = [];
         bd4.days.push({date: '2015-09-05', type: 'mostRecent'});
-        expect(dm.calculateBasalBolusStats(bd4).averageDailyDose).to.be.null;
+        expect(dm.calculateBasalBolusStats(bd4, bu).averageDailyDose).to.be.null;
       });
     });
 
     describe('totalDailyDose', function() {
       it('should calculate average total daily dose', function() {
-        expect(dm.calculateBasalBolusStats(bd).totalDailyDose).to.equal(16.0);
+        expect(dm.calculateBasalBolusStats(bd, bu).totalDailyDose).to.equal(16.0);
       });
 
       it('should exclude any portion of basal duration prior to or following basics date range', function() {
@@ -496,7 +561,7 @@ describe('basics datamunger', function() {
             type: 'mostRecent',
           }]
         };
-        expect(dm.calculateBasalBolusStats(bd2).totalDailyDose).to.equal(24.0);
+        expect(dm.calculateBasalBolusStats(bd2, bu).totalDailyDose).to.equal(24.0);
       });
 
       it('should exclude any boluses falling outside basal date range', function() {
@@ -519,7 +584,7 @@ describe('basics datamunger', function() {
             type: 'mostRecent',
           }]
         };
-        expect(dm.calculateBasalBolusStats(bd3).totalDailyDose).to.equal(20.0);
+        expect(dm.calculateBasalBolusStats(bd3, bu).totalDailyDose).to.equal(20.0);
       });
 
       it('should not calculate a statistic if there are 3 or more `past` days with no boluses', function() {
@@ -529,12 +594,12 @@ describe('basics datamunger', function() {
         delete bd4.data.bolus.dataByDate['2015-09-03'];
         bd4.data.bolus.dataByDate['2015-09-05'] = [];
         bd4.days.push({date: '2015-09-05', type: 'mostRecent'});
-        expect(dm.calculateBasalBolusStats(bd4).totalDailyDose).to.be.null;
+        expect(dm.calculateBasalBolusStats(bd4, bu).totalDailyDose).to.be.null;
       });
     });
     describe('averageDailyCarbs', function() {
       it('should calculate average daily carbs', function() {
-        expect(dm.calculateBasalBolusStats(bd).averageDailyCarbs).to.equal(210);
+        expect(dm.calculateBasalBolusStats(bd, bu).averageDailyCarbs).to.equal(210);
       });
       it('should exclude any carbs falling outside the date range', function() {
         var wizardMore = [
@@ -554,7 +619,7 @@ describe('basics datamunger', function() {
         delete bdCarbs.data.wizard;
         bdCarbs.data.wizard = { data: wizardMore };
 
-        expect(dm.calculateBasalBolusStats(bdCarbs).averageDailyCarbs).to.equal(120);
+        expect(dm.calculateBasalBolusStats(bdCarbs, bu).averageDailyCarbs).to.equal(120);
       });
       it('should not calculate a statistic if there are 3 or more `past` days with no carbs', function() {
         var bdCarbs = _.cloneDeep(bd);
@@ -563,7 +628,7 @@ describe('basics datamunger', function() {
         delete bdCarbs.data.bolus.dataByDate['2015-09-04'];
         bdCarbs.data.bolus.dataByDate['2015-09-05'] = [];
         bdCarbs.days.push({date: '2015-09-05', type: 'mostRecent'});
-         expect(dm.calculateBasalBolusStats(bdCarbs).averageDailyCarbs).to.be.null;
+         expect(dm.calculateBasalBolusStats(bdCarbs, bu).averageDailyCarbs).to.be.null;
       });
     });
   });

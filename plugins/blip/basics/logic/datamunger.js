@@ -25,6 +25,7 @@ var sundial = require('sundial');
 var classifiersMkr = require('./classifiers');
 var constants = require('./constants');
 var { MGDL_UNITS } = require('../../../../js/data/util/constants');
+var { getLatestPumpUpload } = require('../../../../js/data/util/device');
 
 var basicsActions = require('./actions');
 var togglableState = require('../TogglableState');
@@ -82,7 +83,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
 
       return bgDistribution;
     },
-    calculateBasalBolusStats: function(basicsData) {
+    calculateBasalBolusStats: function(basicsData, basalUtil) {
       var pastDays = _.filter(basicsData.days, {type: 'past'});
       var mostRecent = _.get(
         _.filter(basicsData.days, {type: 'mostRecent'}),
@@ -94,31 +95,39 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         function(date) { return date === mostRecent; }
       );
 
-      // if three or more of the days (excepting most recent) don't have any boluses
-      // then don't calculate these stats at all, since may be inaccurate if
-      // long-running basals exist
-      if (pastDays.length - pastBolusDays.length >= 3) {
-        return {
-          basalBolusRatio: null,
-          averageDailyDose: null,
-          totalDailyDose: null,
-          averageDailyCarbs: null,
-        };
-      }
-
       var boluses = basicsData.data.bolus.data;
       var basals = basicsData.data.basal.data;
       var carbs =  _.filter(basicsData.data.wizard.data, function(wizardEvent) {
         return wizardEvent.carbInput && wizardEvent.carbInput > 0 ;
       });
 
-      var start = basals[0].normalTime;
+      var start = _.get(basals[0], 'normalTime', basicsData.dateRange[0]);
       if (start < basicsData.dateRange[0]) {
         start = basicsData.dateRange[0];
       }
-      var end = basals[basals.length - 1].normalEnd;
+      var end = _.get(basals[basals.length - 1], 'normalEnd', basicsData.dateRange[1]);
       if (end > basicsData.dateRange[1]) {
         end = basicsData.dateRange[1];
+      }
+
+      var { automated, manual } = basalUtil.getGroupDurations(start, end);
+      var totalBasalDuration = automated + manual;
+      var timeInAutoRatio = {
+        automated: automated/totalBasalDuration,
+        manual: manual/totalBasalDuration,
+      };
+
+      // if three or more of the days (excepting most recent) don't have any boluses
+      // then don't calculate any bolus-related stats at all, since may be inaccurate if
+      // long-running basals exist
+      if (pastDays.length - pastBolusDays.length >= 3) {
+        return {
+          timeInAutoRatio,
+          basalBolusRatio: null,
+          averageDailyDose: null,
+          totalDailyDose: null,
+          averageDailyCarbs: null,
+        };
       }
 
       // find the duration of a basal segment that falls within the basicsData.dateRange
@@ -177,6 +186,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
       var totalInsulin = sumBasalInsulin + sumBolusInsulin;
 
       return {
+        timeInAutoRatio,
         basalBolusRatio: {
           basal: sumBasalInsulin/totalInsulin,
           bolus: sumBolusInsulin/totalInsulin
@@ -190,7 +200,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
       };
     },
     getLatestPumpUploaded: function(patientData) {
-      var latestPump = _.findLast(patientData.grouped.upload, {deviceTags: ['insulin-pump']});
+      var latestPump = getLatestPumpUpload(patientData.grouped.upload);
 
       if (latestPump && latestPump.hasOwnProperty('source')) {
         return latestPump.source;

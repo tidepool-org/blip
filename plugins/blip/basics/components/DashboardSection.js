@@ -88,6 +88,7 @@ var DashboardSection = React.createClass({
           chart={section.chart}
           data={this.props.data}
           days={this.props.days}
+          labels={section.labels || {}}
           title={this.props.title} />
       );
     }

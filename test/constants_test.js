@@ -39,6 +39,12 @@ describe('constants', function() {
     expect(constants.MMOLL_UNITS).to.equal('mmol/L');
   });
 
+  it('should define the AUTOMATED_BASAL_DEVICE_MODELS mapping', function() {
+    expect(constants.AUTOMATED_BASAL_DEVICE_MODELS).to.eql({
+      Medtronic: ['1780'],
+    });
+  });
+
   it('should define the AUTOMATED_BASAL_LABELS mapping', function() {
     expect(constants.AUTOMATED_BASAL_LABELS).to.eql({
       Medtronic: 'Auto Mode',
