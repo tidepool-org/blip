@@ -74,12 +74,12 @@
 }
 
 .normal {
-  color: var(--gray-dark);
+  color: var(--gray-medium);
   composes: row;
 }
 
 .extended {
-  color: var(--gray-dark);
+  color: var(--gray-medium);
   composes: row;
 }
 

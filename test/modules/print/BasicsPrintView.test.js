@@ -184,13 +184,13 @@ describe('BasicsPrintView', () => {
     });
 
     it('should process the section availability', () => {
-      assert(Renderer.data.sections.basals.active);
+      assert(!Renderer.data.sections.basals.disabled);
 
       const noBasalData = _.cloneDeep(data);
       noBasalData.data.basal.data = [];
       Renderer = createRenderer(noBasalData);
 
-      assert(!Renderer.data.sections.basals.active);
+      assert(Renderer.data.sections.basals.disabled);
     });
 
     it('should add the first pdf page', () => {
@@ -311,7 +311,7 @@ describe('BasicsPrintView', () => {
         title: Renderer.data.sections.fingersticks.title,
         data: Renderer.data.data.fingerstick.smbg.dataByDate,
         type: 'smbg',
-        active: Renderer.data.sections.fingersticks.active,
+        disabled: Renderer.data.sections.fingersticks.disabled,
         emptyText: Renderer.data.sections.fingersticks.emptyText,
       });
     });
@@ -325,7 +325,7 @@ describe('BasicsPrintView', () => {
         title: Renderer.data.sections.boluses.title,
         data: Renderer.data.data.bolus.dataByDate,
         type: 'bolus',
-        active: Renderer.data.sections.boluses.active,
+        disabled: Renderer.data.sections.boluses.disabled,
         emptyText: Renderer.data.sections.boluses.emptyText,
       });
     });
@@ -341,7 +341,7 @@ describe('BasicsPrintView', () => {
         },
         data: Renderer.data.data.cannulaPrime.infusionSiteHistory,
         type: 'siteChange',
-        active: Renderer.data.sections.siteChanges.active,
+        disabled: Renderer.data.sections.siteChanges.disabled,
         emptyText: Renderer.data.sections.siteChanges.emptyText,
       });
     });
@@ -355,7 +355,7 @@ describe('BasicsPrintView', () => {
         title: Renderer.data.sections.basals.title,
         data: Renderer.data.data.basal.dataByDate,
         type: 'basal',
-        active: Renderer.data.sections.basals.active,
+        disabled: Renderer.data.sections.basals.disabled,
         emptyText: Renderer.data.sections.basals.emptyText,
       });
     });
@@ -380,7 +380,7 @@ describe('BasicsPrintView', () => {
         header: Renderer.data.sections.fingersticks.summaryTitle,
         data: Renderer.data.data.fingerstick.summary,
         type: 'smbg',
-        active: Renderer.data.sections.fingersticks.active,
+        disabled: Renderer.data.sections.fingersticks.disabled,
       });
     });
 
@@ -394,7 +394,7 @@ describe('BasicsPrintView', () => {
         header: Renderer.data.sections.boluses.summaryTitle,
         data: Renderer.data.data.bolus.summary,
         type: 'bolus',
-        active: Renderer.data.sections.boluses.active,
+        disabled: Renderer.data.sections.boluses.disabled,
       });
     });
 
@@ -408,7 +408,7 @@ describe('BasicsPrintView', () => {
         header: Renderer.data.sections.basals.summaryTitle,
         data: Renderer.data.data.basal.summary,
         type: 'basal',
-        active: Renderer.data.sections.basals.active,
+        disabled: Renderer.data.sections.basals.disabled,
       });
     });
   });
@@ -467,7 +467,7 @@ describe('BasicsPrintView', () => {
     });
 
     it('should render the basal to bolus ratio', () => {
-      sinon.stub(Renderer, 'renderBasalBolusRatio');
+      sinon.stub(Renderer, 'renderRatio');
 
       Renderer.renderAggregatedStats();
 
@@ -478,9 +478,12 @@ describe('BasicsPrintView', () => {
       expect(Renderer.data.data.basalBolusRatio.bolus).to.be.a('number');
 
       sinon.assert.calledWith(
-        Renderer.renderBasalBolusRatio,
-        Renderer.data.data.averageDailyDose,
-        Renderer.data.data.basalBolusRatio
+        Renderer.renderRatio,
+        'basalBolusRatio',
+        {
+          primary: Renderer.data.data.basalBolusRatio,
+          secondary: Renderer.data.data.averageDailyDose,
+        }
       );
     });
 
@@ -493,13 +496,14 @@ describe('BasicsPrintView', () => {
     });
   });
 
-  describe('renderBasalBolusRatio', () => {
-    it('should render a simple disabled stat when inactive', () => {
+  describe('renderRatio', () => {
+    it('should render a simple disabled stat when disabled', () => {
       sinon.stub(Renderer, 'renderSimpleStat');
 
-      Renderer.data.sections.basalBolusRatio.active = false;
+      Renderer.data.sections.basalBolusRatio.active = true;
+      Renderer.data.sections.basalBolusRatio.disabled = true;
 
-      Renderer.renderBasalBolusRatio({}, {});
+      Renderer.renderRatio('basalBolusRatio', {});
 
       sinon.assert.calledWith(
         Renderer.renderSimpleStat,
@@ -510,21 +514,49 @@ describe('BasicsPrintView', () => {
       );
     });
 
-    it('should render a table stat when active', () => {
+    it('should render a basal:bolus stat when not disabled', () => {
       sinon.stub(Renderer, 'renderTableHeading');
       sinon.stub(Renderer, 'renderTable');
 
       Renderer.data.sections.basalBolusRatio.active = true;
+      Renderer.data.sections.basalBolusRatio.disabled = false;
 
-      Renderer.renderBasalBolusRatio({
-        basal: 1,
-        bolus: 15,
-      }, {
-        basal: 0.06,
-        bolus: 0.94,
-      });
+      Renderer.renderRatio(
+        'basalBolusRatio',
+        {
+          primary: {
+            basal: 0.06,
+            bolus: 0.94,
+          },
+          secondary: {
+            basal: 1,
+            bolus: 15,
+          },
+        }
+      );
 
       sinon.assert.calledWith(Renderer.renderTableHeading, { text: 'Insulin ratio' });
+      sinon.assert.calledOnce(Renderer.renderTable);
+    });
+
+    it('should render a time in auto stat when not disabled', () => {
+      sinon.stub(Renderer, 'renderTableHeading');
+      sinon.stub(Renderer, 'renderTable');
+
+      Renderer.data.sections.timeInAutoRatio.active = true;
+      Renderer.data.sections.timeInAutoRatio.disabled = false;
+
+      Renderer.renderRatio(
+        'timeInAutoRatio',
+        {
+          primary: {
+            manual: 0.25,
+            automated: 0.75,
+          },
+        }
+      );
+
+      sinon.assert.calledWith(Renderer.renderTableHeading, { text: 'Time in Automated ratio' });
       sinon.assert.calledOnce(Renderer.renderTable);
     });
   });
@@ -532,8 +564,8 @@ describe('BasicsPrintView', () => {
   describe('renderStackedStat', () => {
     const stat = {
       stat: 'my stat',
-      value: 10,
-      summary: 'stat summary',
+      primary: 10,
+      secondary: 'stat summary',
     };
 
     it('should render a stacked stat with active styles', () => {
@@ -557,8 +589,8 @@ describe('BasicsPrintView', () => {
 
       sinon.assert.callCount(Renderer.doc.text, 3);
       sinon.assert.calledWith(Renderer.doc.text, stat.stat);
-      sinon.assert.calledWith(Renderer.doc.text, stat.value);
-      sinon.assert.calledWith(Renderer.doc.text, stat.summary);
+      sinon.assert.calledWith(Renderer.doc.text, stat.primary);
+      sinon.assert.calledWith(Renderer.doc.text, stat.secondary);
 
       sinon.assert.calledWith(Renderer.setFill, 'black', 1);
     });
@@ -584,10 +616,33 @@ describe('BasicsPrintView', () => {
 
       sinon.assert.callCount(Renderer.doc.text, 3);
       sinon.assert.calledWith(Renderer.doc.text, stat.stat);
-      sinon.assert.calledWith(Renderer.doc.text, stat.value);
-      sinon.assert.calledWith(Renderer.doc.text, stat.summary);
+      sinon.assert.calledWith(Renderer.doc.text, stat.primary);
+      sinon.assert.calledWith(Renderer.doc.text, stat.secondary);
 
       sinon.assert.calledWith(Renderer.setFill, Renderer.colors.lightGrey, 1);
+    });
+
+    it('should not render secondary text if falsey', () => {
+      sinon.stub(Renderer, 'setFill');
+
+      Renderer.renderStackedStat(
+        {},
+        { test: _.assign({}, stat, { secondary: undefined }) },
+        true,
+        { id: 'test', disabled: true },
+        {
+          x: 100,
+          y: 200,
+        },
+        {
+          top: 0,
+          left: 0,
+        }
+      );
+
+      sinon.assert.callCount(Renderer.doc.text, 2);
+      sinon.assert.calledWith(Renderer.doc.text, stat.stat);
+      sinon.assert.calledWith(Renderer.doc.text, stat.primary);
     });
   });
 
@@ -743,10 +798,11 @@ describe('BasicsPrintView', () => {
       sinon.stub(Renderer, 'renderTable');
     });
 
-    it('should render a calendar section with empty text for inactive sections', () => {
+    it('should render a calendar section with empty text for disabled sections', () => {
       Renderer.renderCalendarSection({
         title: 'My Disabled Section',
-        active: false,
+        active: true,
+        disabled: true,
         emptyText: 'Sorry, nothing to show here',
       });
 
@@ -756,10 +812,11 @@ describe('BasicsPrintView', () => {
       sinon.assert.notCalled(Renderer.renderTable);
     });
 
-    it('should render a calendar section for active sections', () => {
+    it('should render a calendar section for enabled sections', () => {
       Renderer.renderCalendarSection({
         title: 'My Active Section',
         active: true,
+        disabled: false,
       });
 
       sinon.assert.calledWith(Renderer.renderSectionHeading, 'My Active Section');
@@ -993,9 +1050,9 @@ describe('BasicsPrintView', () => {
       sinon.stub(Renderer, 'renderTable');
     });
 
-    it('should not render a table if section is inactive', () => {
+    it('should not render a table if section is disabled', () => {
       Renderer.renderCalendarSummary({
-        active: false,
+        disabled: true,
       });
 
       sinon.assert.notCalled(Renderer.renderTable);
@@ -1003,11 +1060,11 @@ describe('BasicsPrintView', () => {
 
     it('should call defineStatColumns with custom opts', () => {
       Renderer.renderCalendarSummary({
-        filters: Renderer.data.sections.basals.filters,
+        dimensions: Renderer.data.sections.basals.dimensions,
         header: Renderer.data.sections.basals.summaryTitle,
         data: Renderer.data.data.basal.summary,
         type: 'basal',
-        active: true,
+        disabled: false,
       });
 
       sinon.assert.calledOnce(Renderer.defineStatColumns);
@@ -1020,13 +1077,13 @@ describe('BasicsPrintView', () => {
       });
     });
 
-    it('should render a table if section is active', () => {
+    it('should render a table if section is enabled', () => {
       Renderer.renderCalendarSummary({
-        filters: Renderer.data.sections.basals.filters,
+        dimensions: Renderer.data.sections.basals.dimensions,
         header: Renderer.data.sections.basals.summaryTitle,
         data: Renderer.data.data.basal.summary,
         type: 'basal',
-        active: true,
+        disabled: false,
       });
 
       sinon.assert.calledOnce(Renderer.renderTable);

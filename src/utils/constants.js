@@ -96,3 +96,6 @@ export const pumpVocabulary = {
   },
 };
 
+export const AUTOMATED_BASAL_DEVICE_MODELS = {
+  [MEDTRONIC]: ['1780'],
+};

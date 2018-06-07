@@ -19,7 +19,8 @@ import _ from 'lodash';
 import moment from 'moment-timezone';
 import { extent } from 'd3-array';
 
-import { getBasalSequences } from '../../utils/basal';
+import { getBasalSequences, getGroupDurations } from '../../utils/basal';
+import { getLatestPumpUpload } from '../../utils/device';
 import { getTimezoneFromTimePrefs, getLocalizedCeiling } from '../../utils/datetime';
 
 /**
@@ -43,8 +44,6 @@ export function stripDatum(d) {
       'localDayOfWeek',
       'localDate',
       'modifiedUserId',
-      'normalEnd',
-      'normalTime',
       'payload',
       'scheduleName',
       'source',
@@ -229,14 +228,14 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
         }
       }
     }
-    // eslint-disable-next-line no-param-reassign
+    /* eslint-disable no-param-reassign */
     dateData.data.basalSequences = getBasalSequences(basals);
+    dateData.data.timeInAutoRatio = getGroupDurations(basals, bounds[0], bounds[1]);
+    /* eslint-enable no-param-reassign */
   });
 
-  if (_.get(groupedData, 'pumpSettings.length', 0) > 0) {
-    selected.pumpSettings = {
-      source: _.get(_.last(groupedData.pumpSettings), 'source', ''),
-    };
+  if (_.get(groupedData, 'upload.length', 0) > 0) {
+    selected.latestPumpUpload = getLatestPumpUpload(groupedData.upload);
   }
 
   return selected;

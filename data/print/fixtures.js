@@ -439,6 +439,10 @@ export const dailyData = {
             },
           ],
         ],
+        timeInAutoRatio: {
+          automated: 1483314400000,
+          manual: 1483314400000,
+        },
       },
     },
   },

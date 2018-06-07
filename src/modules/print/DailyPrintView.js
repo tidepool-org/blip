@@ -27,7 +27,7 @@ import PrintView from './PrintView';
 import { calculateBasalPath, getBasalSequencePaths } from '../render/basal';
 import getBolusPaths from '../render/bolus';
 import { getTotalBasal, getBasalPathGroups } from '../../utils/basal';
-import { deviceName } from '../../utils/settings/data';
+import { isAutomatedBasalDevice, getPumpVocabulary } from '../../utils/device';
 import {
   calcBgPercentInCategories,
   classifyBgValue,
@@ -58,7 +58,6 @@ import {
 import {
   MMOLL_UNITS,
   MS_IN_MIN,
-  pumpVocabulary,
   AUTOMATED_DELIVERY,
   SCHEDULED_DELIVERY,
 } from '../../utils/constants';
@@ -67,8 +66,20 @@ class DailyPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
 
-    this.source = _.get(data, 'pumpSettings.source', '').toLowerCase();
+    this.source = _.get(data, 'latestPumpUpload.source', '').toLowerCase();
     this.manufacturer = this.source === 'carelink' ? 'medtronic' : this.source;
+
+    this.isAutomatedBasalDevice = isAutomatedBasalDevice(
+      this.manufacturer,
+      _.get(data, 'latestPumpUpload.deviceModel')
+    );
+
+    const deviceLabels = getPumpVocabulary(this.manufacturer);
+
+    this.basalGroupLabels = {
+      automated: deviceLabels[AUTOMATED_DELIVERY],
+      manual: deviceLabels[SCHEDULED_DELIVERY],
+    };
 
     this.bgAxisFontSize = 5;
     this.carbsFontSize = 5.5;
@@ -417,21 +428,56 @@ class DailyPrintView extends PrintView {
         first = false;
       }
 
+      const ratioTitle = this.isAutomatedBasalDevice
+        ? `Time in ${this.basalGroupLabels.automated}`
+        : 'Basal:Bolus Ratio';
+
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
-        .text('Basal:Bolus Ratio', smallIndent, yPos.update());
+      .text(ratioTitle, smallIndent, yPos.update());
 
       yPos.update();
 
-      const basalPercent = formatPercentage(totalBasal / totalInsulin);
-      const bolusPercent = formatPercentage(totalBolus / totalInsulin);
+      const ratio = this.isAutomatedBasalDevice
+        ? ['manual', 'automated']
+        : ['basal', 'bolus'];
+
+      const percentages = {
+        basal: formatPercentage(totalBasal / totalInsulin),
+        bolus: formatPercentage(totalBolus / totalInsulin),
+      };
+
+      const labels = {
+        basal: 'Basal',
+        bolus: 'Bolus',
+      };
+
+      if (this.isAutomatedBasalDevice) {
+        const { automated, manual } = data.timeInAutoRatio;
+        const totalBasalDuration = automated + manual;
+        percentages.automated = formatPercentage(automated / totalBasalDuration);
+        percentages.manual = formatPercentage(manual / totalBasalDuration);
+
+        labels.automated = this.basalGroupLabels.automated;
+        labels.manual = this.basalGroupLabels.manual;
+      }
+
+      const primary = {
+        [ratio[0]]: percentages[ratio[0]],
+        [ratio[1]]: percentages[ratio[1]],
+      };
+
+      const secondary = {
+        [ratio[0]]: this.isAutomatedBasalDevice ? '' : `, ${formatDecimalNumber(totalBasal, 1)} U`,
+        [ratio[1]]: this.isAutomatedBasalDevice ? '' : `, ${formatDecimalNumber(totalBolus, 1)} U`,
+      };
 
       this.doc.font(this.font)
         .text(
-          'Basal',
+          labels[ratio[0]],
           { indent: statsIndent, continued: true, width: widthWithoutIndent },
         )
         .text(
-          `${basalPercent}, ${formatDecimalNumber(totalBasal, 1)} U`,
+          `${primary[ratio[0]]}${secondary[ratio[0]]}`,
           { align: 'right' }
         );
 
@@ -439,11 +485,11 @@ class DailyPrintView extends PrintView {
 
       this.doc.font(this.font)
         .text(
-          'Bolus',
+          labels[ratio[1]],
           { indent: statsIndent, continued: true, width: widthWithoutIndent },
         )
         .text(
-          `${bolusPercent}, ${formatDecimalNumber(totalBolus, 1)} U`,
+          `${primary[ratio[1]]}${secondary[ratio[1]]}`,
           { align: 'right' }
         );
 
@@ -918,13 +964,9 @@ class DailyPrintView extends PrintView {
           const zeroBasal = basalScale.range()[0];
           const flushWithBottomOfScale = zeroBasal;
 
-          const manufacturer = deviceName(this.manufacturer);
-          const automatedLabel = _.get(pumpVocabulary, ['default', AUTOMATED_DELIVERY]);
-          const scheduledLabel = _.get(pumpVocabulary, ['default', SCHEDULED_DELIVERY]);
-
           const label = isAutomated
-            ? _.get(pumpVocabulary, [manufacturer, AUTOMATED_DELIVERY], automatedLabel).charAt(0)
-            : _.get(pumpVocabulary, [manufacturer, SCHEDULED_DELIVERY], scheduledLabel).charAt(0);
+            ? this.basalGroupLabels.automated.charAt(0)
+            : this.basalGroupLabels.manual.charAt(0);
 
           const labelColor = isAutomated ? this.colors.darkGrey : 'white';
 

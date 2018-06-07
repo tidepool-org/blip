@@ -47,9 +47,9 @@ describe('Basal', () => {
     expect(wrapper.find('path').length).to.equal(paths.length + 1);
   });
 
-  it('should return automated and regular basal path and outline groupings', () => {
+  it('should return automated and manual basal path and outline groupings', () => {
     const groups = getBasalPathGroups(automatedAndScheduled);
-    const expectedGroupsLength = 3; // automated, regular, automated
+    const expectedGroupsLength = 3; // automated, manual, automated
     const expectedBordersLength = groups.length;
     const wrapper = shallow(
       <Basal basals={automatedAndScheduled} xScale={detailXScale} yScale={detailBasalScale} />
@@ -59,7 +59,7 @@ describe('Basal', () => {
     expect(wrapper.find('path').length).to.equal(expectedGroupsLength + expectedBordersLength);
   });
 
-  it('should return markers for each automated and regular basal path groupings, minus the first one', () => {
+  it('should return markers for each automated and manual basal path groupings, minus the first one', () => {
     const groups = getBasalPathGroups(automatedAndScheduled);
     const expectedGroupsLength = 3;
     const expectedMarkersLength = groups.length - 1;

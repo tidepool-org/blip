@@ -341,19 +341,36 @@ describe('basics data utils', () => {
       { type: 'wizard', carbInput: 33, normalTime: '2015-09-03T13:00:00Z' },
     ];
 
-    const basal = [new Types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-01T00:00:00',
-    }), new Types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-02T00:00:00',
-    }), new Types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-03T00:00:00',
-    }), new Types.Basal({
-      duration: 864e5,
-      deviceTime: '2015-09-04T00:00:00',
-    })];
+    const basal = [
+      new Types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-01T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'automated',
+      }),
+      new Types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-02T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'scheduled',
+      }),
+      new Types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-03T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'automated',
+      }),
+      new Types.Basal({
+        duration: 864e5,
+        deviceTime: '2015-09-04T00:00:00',
+        source: 'Medtronic',
+        deviceModel: '1780',
+        deliveryType: 'automated',
+      }),
+    ];
 
     const bolus = [new Types.Bolus({
       value: 4.0,
@@ -403,6 +420,49 @@ describe('basics data utils', () => {
         type: 'mostRecent',
       }],
     };
+
+    describe('timeInAutoRatio', () => {
+      it('should calculate percentage of time in automated basal delivery', () => {
+        expect(dataUtils.calculateBasalBolusStats(bd).timeInAutoRatio.automated).to.equal(2 / 3);
+      });
+
+      it('should calculate percentage of time in manual basal delivery', () => {
+        expect(dataUtils.calculateBasalBolusStats(bd).timeInAutoRatio.manual).to.equal(1 / 3);
+      });
+
+      it('should exclude any portion of basal duration prior to or following basics date range', () => {
+        const bd2 = {
+          data: {
+            basal: { data: basal },
+            bolus: { data: bolus, dataByDate: { '2015-09-01': [] } },
+            wizard: { data: wizard },
+          },
+          dateRange: [
+            '2015-09-01T06:00:00.000Z',
+            '2015-09-02T06:00:00.000Z',
+          ],
+          days: [{
+            date: '2015-09-01',
+            type: 'past',
+          }, {
+            date: '2015-09-02',
+            type: 'mostRecent',
+          }],
+        };
+        expect(dataUtils.calculateBasalBolusStats(bd2).timeInAutoRatio.automated).to.equal(0.75);
+        expect(dataUtils.calculateBasalBolusStats(bd2).timeInAutoRatio.manual).to.equal(0.25);
+      });
+
+      it('should calculate a statistic even if there are 3 or more `past` days with no boluses', () => {
+        const bd4 = _.cloneDeep(bd);
+        delete bd4.data.bolus.dataByDate['2015-09-02'];
+        delete bd4.data.bolus.dataByDate['2015-09-03'];
+        delete bd4.data.bolus.dataByDate['2015-09-04'];
+        bd4.data.bolus.dataByDate['2015-09-05'] = [];
+        bd4.days.push({ date: '2015-09-05', type: 'mostRecent' });
+        expect(dataUtils.calculateBasalBolusStats(bd4).timeInAutoRatio).to.be.an('object');
+      });
+    });
 
     describe('basalBolusRatio', () => {
       it('should calculate percentage of basal insulin', () => {
@@ -995,14 +1055,13 @@ describe('basics data utils', () => {
       'fingersticks',
       'siteChanges',
       'totalDailyDose',
+      'timeInAutoRatio',
       'averageDailyCarbs',
     ];
 
     it('should return an object with all required basics section keys with the default properties set', () => {
       const result = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS]);
-      _.forEach(sectionNames, (section) => {
-        expect(result[section]).to.be.defined;
-      });
+      expect(result).to.have.all.keys(sectionNames);
     });
 
     it('should set titles for each section', () => {
@@ -1014,30 +1073,52 @@ describe('basics data utils', () => {
 
     it('should set the veryLow and veryHigh fingerstick filter labels correctly for mg/dL data', () => {
       const result = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS]);
-      const veryHighFilter = _.find(result.fingersticks.filters, { key: 'veryHigh' });
-      const veryLowFilter = _.find(result.fingersticks.filters, { key: 'veryLow' });
+      const veryHighFilter = _.find(result.fingersticks.dimensions, { key: 'veryHigh' });
+      const veryLowFilter = _.find(result.fingersticks.dimensions, { key: 'veryLow' });
       expect(veryHighFilter.label).to.equal('Above 300 mg/dL');
       expect(veryLowFilter.label).to.equal('Below 55 mg/dL');
     });
 
     it('should set the veryLow and veryHigh fingerstick filter labels correctly for mmol/L data', () => {
       const result = dataUtils.defineBasicsSections(bgPrefs[MMOLL_UNITS]);
-      const veryHighFilter = _.find(result.fingersticks.filters, { key: 'veryHigh' });
-      const veryLowFilter = _.find(result.fingersticks.filters, { key: 'veryLow' });
+      const veryHighFilter = _.find(result.fingersticks.dimensions, { key: 'veryHigh' });
+      const veryLowFilter = _.find(result.fingersticks.dimensions, { key: 'veryLow' });
       expect(veryHighFilter.label).to.equal('Above 16.7 mmol/L');
       expect(veryLowFilter.label).to.equal('Below 3.1 mmol/L');
     });
 
     it('should set the label for the `automatedStop` filter based on the manufacturer', () => {
       const result = dataUtils.defineBasicsSections(bgPrefs[MMOLL_UNITS], 'medtronic');
-      const automatedStopFilter = _.find(result.basals.filters, { key: 'automatedStop' });
+      const automatedStopFilter = _.find(result.basals.dimensions, { key: 'automatedStop' });
       expect(automatedStopFilter.label).to.equal('Auto Mode Exited');
     });
 
     it('should set default label for the `automatedStop` filter when missing manufacturer', () => {
       const result = dataUtils.defineBasicsSections(bgPrefs[MMOLL_UNITS]);
-      const automatedStopFilter = _.find(result.basals.filters, { key: 'automatedStop' });
+      const automatedStopFilter = _.find(result.basals.dimensions, { key: 'automatedStop' });
       expect(automatedStopFilter.label).to.equal('Automated Exited');
+    });
+
+    it('should set the active basal ratio to `basalBolusRatio` for non-automated-basal devices', () => {
+      const result = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], MEDTRONIC, '723');
+      expect(result.basalBolusRatio.active).to.be.true;
+      expect(result.timeInAutoRatio.active).to.be.false;
+    });
+
+    it('should set the active basal ratio to `timeInAutoRatio` for automated-basal devices', () => {
+      const result = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], MEDTRONIC, '1780');
+      expect(result.basalBolusRatio.active).to.be.false;
+      expect(result.timeInAutoRatio.active).to.be.true;
+    });
+
+    it('should set the per-manufacturer labels for `timeInAutoRatio`, with default fallbacks when unavailable', () => {
+      const result = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], MEDTRONIC, '1780');
+      expect(result.timeInAutoRatio.title).to.equal('Time in Auto Mode ratio');
+      expect(result.timeInAutoRatio.dimensions[1].label).to.equal('Auto Mode');
+
+      const fallbackResult = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], ANIMAS);
+      expect(fallbackResult.timeInAutoRatio.title).to.equal('Time in Automated ratio');
+      expect(fallbackResult.timeInAutoRatio.dimensions[1].label).to.equal('Automated');
     });
   });
 
@@ -1048,7 +1129,7 @@ describe('basics data utils', () => {
     });
   });
 
-  describe('setBasicsSectionsAvailability', () => {
+  describe('disableEmptySections', () => {
     const basicsData = {
       data: {
         cbg: { data: [new Types.CBG()] },
@@ -1059,48 +1140,55 @@ describe('basics data utils', () => {
           smbg: { data: [] },
           calibration: { data: [] },
         },
+        cannulaPrime: { dataByDate: {} },
+        tubingPrime: { dataByDate: {} },
+        upload: { data: [new Types.Upload({ deviceTags: ['insulin-pump'], source: MEDTRONIC })] },
       },
       days: oneWeekDates,
-      sections: dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS]),
+      sections: dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], MEDTRONIC, '1780'),
     };
 
-    it('should deactivate sections for which there is no data available', () => {
-      // all sections active by default
+    it('should disable sections for which there is no data available', () => {
+      // all sections (except basalBolusRatio since it's an automated-basal device) active by default
       expect(basicsData.sections.basals.active).to.be.true;
       expect(basicsData.sections.boluses.active).to.be.true;
       expect(basicsData.sections.siteChanges.active).to.be.true;
       expect(basicsData.sections.fingersticks.active).to.be.true;
       expect(basicsData.sections.bgDistribution.active).to.be.true;
       expect(basicsData.sections.totalDailyDose.active).to.be.true;
-      expect(basicsData.sections.basalBolusRatio.active).to.be.true;
+      expect(basicsData.sections.basalBolusRatio.active).to.be.false;
+      expect(basicsData.sections.timeInAutoRatio.active).to.be.true;
       expect(basicsData.sections.averageDailyCarbs.active).to.be.true;
       expect(_.find(basicsData.sections.fingersticks.filters, { path: 'calibration' })).to.be.defined;
-
-      const result = dataUtils.setBasicsSectionsAvailability(basicsData);
+      const processedBasicsData = dataUtils.processInfusionSiteHistory(basicsData, {});
+      const result = dataUtils.disableEmptySections(processedBasicsData);
 
       // basals gets disabled when no data
-      expect(result.sections.basals.active).to.be.false;
+      expect(result.sections.basals.disabled).to.be.true;
 
       // boluses gets disabled when no data
-      expect(result.sections.boluses.active).to.be.false;
+      expect(result.sections.boluses.disabled).to.be.true;
 
       // siteChanges gets disabled when no data
-      expect(result.sections.siteChanges.active).to.be.false;
+      expect(result.sections.siteChanges.disabled).to.be.true;
 
       // fingersticks gets disabled when no data
-      expect(result.sections.fingersticks.active).to.be.false;
+      expect(result.sections.fingersticks.disabled).to.be.true;
 
       // bgDistribution gets disabled when no data
-      expect(result.sections.bgDistribution.active).to.be.false;
+      expect(result.sections.bgDistribution.disabled).to.be.true;
 
       // totalDailyDose gets disabled when no data
-      expect(result.sections.totalDailyDose.active).to.be.false;
+      expect(result.sections.totalDailyDose.disabled).to.be.true;
 
       // basalBolusRatio gets disabled when no data
-      expect(result.sections.basalBolusRatio.active).to.be.false;
+      expect(result.sections.basalBolusRatio.disabled).to.be.true;
+
+      // timeInAutoRatio gets disabled when no data
+      expect(result.sections.timeInAutoRatio.disabled).to.be.true;
 
       // averageDailyCarbs gets disabled when no data
-      expect(result.sections.averageDailyCarbs.active).to.be.false;
+      expect(result.sections.averageDailyCarbs.disabled).to.be.true;
 
       // calibration filter in fingerstick section gets removed when no data
       expect(_.find(result.sections.fingersticks.filters, { path: 'calibration' })).to.be.undefined;
@@ -1115,10 +1203,12 @@ describe('basics data utils', () => {
       expect(basicsData.sections.bgDistribution.emptyText).to.be.undefined;
       expect(basicsData.sections.totalDailyDose.emptyText).to.be.undefined;
       expect(basicsData.sections.basalBolusRatio.emptyText).to.be.undefined;
+      expect(basicsData.sections.timeInAutoRatio.emptyText).to.be.undefined;
       expect(basicsData.sections.averageDailyCarbs.emptyText).to.be.undefined;
       expect(basicsData.sections.fingersticks.emptyText).to.be.undefined;
 
-      const result = dataUtils.setBasicsSectionsAvailability(basicsData);
+      const processedBasicsData = dataUtils.processInfusionSiteHistory(basicsData, {});
+      const result = dataUtils.disableEmptySections(processedBasicsData);
 
       // basals gets emptyText set when no data
       expect(result.sections.basals.emptyText).to.be.a('string');
@@ -1140,6 +1230,9 @@ describe('basics data utils', () => {
 
       // basalBolusRatio gets emptyText set when no data
       expect(result.sections.basalBolusRatio.emptyText).to.be.a('string');
+
+      // basalBolusRatio gets emptyText set when no data
+      expect(result.sections.timeInAutoRatio.emptyText).to.be.a('string');
 
       // averageDailyCarbs gets emptyText set when no data
       expect(result.sections.averageDailyCarbs.emptyText).to.be.a('string');
