@@ -70,7 +70,7 @@ Blip includes several Redux developer tools: the original time-travel dev tools 
 
 ### Getting past e-mail verification for a user created locally
 
-When running locally with `runservers`, no e-mail will be sent to a sign-up e-mail address, and so a workaround is needed to get past the e-mail verification step for a newly created local account being used for development. What you need to do is construct the login URL that is provided in a link in the verification e-mail *manually* by finding the correct key for the e-mail confirmation.
+When running locally with `runservers` or with the [docker-based setup](https://github.com/tidepool-org/development), no e-mail will be sent to a sign-up e-mail address, and so a workaround is needed to get past the e-mail verification step for a newly created local account being used for development. What you need to do is construct the login URL that is provided in a link in the verification e-mail *manually* by finding the correct key for the e-mail confirmation.
 
 If you're developing locally, you can find the key by looking in the local `server.log` (located at the root level of where you've cloned all the Tidepool repositories).
 
