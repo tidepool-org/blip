@@ -7672,9 +7672,9 @@ thunkify@~2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@0.7.2-automated-basal.7:
-  version "0.7.2-automated-basal.7"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.7.2-automated-basal.7.tgz#187996891d31f845430e89e6d75d4a372fdc3d6b"
+tideline@0.7.2-automated-basal.8:
+  version "0.7.2-automated-basal.8"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-0.7.2-automated-basal.8.tgz#5494f429e94f74d55323dbd4aa9ca5ce450debfe"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
