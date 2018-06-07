@@ -451,7 +451,7 @@ export let PatientData = React.createClass({
         mostRecent,
         _.pick(
           data.grouped,
-          ['basal', 'bolus', 'cbg', 'message', 'smbg', 'pumpSettings']
+          ['basal', 'bolus', 'cbg', 'message', 'smbg', 'upload']
         ),
         6,
         state.timePrefs,
@@ -1114,7 +1114,7 @@ export let PatientData = React.createClass({
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
               data[bgUnits].grouped,
-              ['basal', 'bolus', 'cbg', 'message', 'smbg', 'pumpSettings']
+              ['basal', 'bolus', 'cbg', 'message', 'smbg', 'upload']
             ),
             6,
             this.state.timePrefs,
