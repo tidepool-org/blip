@@ -19,7 +19,7 @@
     "serve-docs": "./node_modules/.bin/gitbook serve"
   },
   "dependencies": {
-    "@tidepool/viz": "0.10.2-automated-basal-time-widget.1",
+    "@tidepool/viz": "0.10.2-automated-basal.6",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
@@ -74,7 +74,7 @@
     "shelljs": "0.7.3",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "0.7.2-automated-basal-time-widget.1",
+    "tideline": "0.7.2-automated-basal.7",
     "tidepool-platform-client": "0.37.0",
     "uglify-es": "3.0.13",
     "url-loader": "0.5.7",
