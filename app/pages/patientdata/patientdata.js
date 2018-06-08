@@ -110,7 +110,7 @@ export let PatientData = React.createClass({
       },
       printOpts: {
         numDays: {
-          daily: 6
+          daily: 6,
         },
       },
       createMessage: null,
