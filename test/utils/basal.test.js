@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* eslint-disable max-len */
+
 import _ from 'lodash';
 import * as basals from '../../data/basal/fixtures';
 import * as basalUtils from '../../src/utils/basal';
@@ -84,6 +86,16 @@ describe('basal utilties', () => {
         subType: 'automated',
         deliveryType: 'scheduled',
       })).to.equal('automated');
+    });
+
+    it('should return the path group type `regular` for a suspend suppressing non-automated delivery', () => {
+      expect(basalUtils.getBasalPathGroupType({ deliveryType: 'suspend', suppressed: { subType: 'scheduled' } })).to.equal('manual');
+      expect(basalUtils.getBasalPathGroupType({ subType: 'suspend', suppressed: { deliveryType: 'temp' } })).to.equal('manual');
+    });
+
+    it('should return the path group type `automated` for a suspend suppressing automated delivery', () => {
+      expect(basalUtils.getBasalPathGroupType({ deliveryType: 'suspend', suppressed: { subType: 'automated' } })).to.equal('automated');
+      expect(basalUtils.getBasalPathGroupType({ subType: 'suspend', suppressed: { deliveryType: 'automated' } })).to.equal('automated');
     });
   });
 
@@ -398,3 +410,5 @@ describe('basal utilties', () => {
     });
   });
 });
+
+/* eslint-enable max-len */

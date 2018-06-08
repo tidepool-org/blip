@@ -132,6 +132,55 @@ export const automated = [{
   id: 'b37c572fed1440ceae0fc430dd8c7183',
 }];
 
+export const automatedWithSuspend = [{
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS * 2,
+  rate: 2.25,
+  utc: NINE_PM,
+  id: '2eb21eeec78e44b8ab266b25341ddc61',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 2.05,
+  utc: NINE_TEN_PM,
+  id: 'cd9939963ff94ad8b8399fad3e6cbeec',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.75,
+  utc: NINE_FIFTEEN_PM,
+  id: 'd46c5bf13e784d11a8e1ef417675c2b8',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.35,
+  utc: NINE_TWENTY_PM,
+  id: '937c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'suspend',
+  duration: FIVE_MINS * 7,
+  rate: 0,
+  utc: NINE_TWENTY_FIVE_PM,
+  id: 'a37c572fed1440ceae0fc430dd8c7183',
+  suppressed: {
+    type: 'basal',
+    subType: 'automated',
+    rate: 0,
+  },
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.9,
+  utc: TEN_PM,
+  id: 'b37c572fed1440ceae0fc430dd8c7183',
+}];
+
 export const automatedAndScheduled = [{
   type: 'basal',
   subType: 'automated',

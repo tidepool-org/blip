@@ -44,6 +44,12 @@
   composes: basalUndeliveredPath from '../../../styles/diabetes.css';
 }
 
+.border--undelivered--automated {
+  composes: noFill;
+  composes: basalUndeliveredPath from '../../../styles/diabetes.css';
+  stroke-width: 2;
+}
+
 .fill--scheduled {
   composes: noStroke;
   composes: basalScheduledFill from '../../../styles/diabetes.css';
