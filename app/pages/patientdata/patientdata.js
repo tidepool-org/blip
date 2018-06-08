@@ -108,6 +108,11 @@ export let PatientData = React.createClass({
           smbgRangeOverlay: true,
         }
       },
+      printOpts: {
+        numDays: {
+          daily: 6
+        },
+      },
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -439,9 +444,7 @@ export let PatientData = React.createClass({
       const mostRecent = diabetesData[diabetesData.length - 1].normalTime;
       const opts = {
         bgPrefs: state.bgPrefs,
-        numDays: {
-          daily: 6
-        },
+        numDays: state.printOpts.numDays,
         patient: props.patient,
         timePrefs: state.timePrefs,
         mostRecent,
@@ -453,7 +456,7 @@ export let PatientData = React.createClass({
           data.grouped,
           ['basal', 'bolus', 'cbg', 'message', 'smbg', 'upload']
         ),
-        6,
+        state.printOpts.numDays.daily,
         state.timePrefs,
       );
 
@@ -1116,7 +1119,7 @@ export let PatientData = React.createClass({
               data[bgUnits].grouped,
               ['basal', 'bolus', 'cbg', 'message', 'smbg', 'upload']
             ),
-            6,
+            this.state.printOpts.numDays.daily,
             this.state.timePrefs,
           ),
           basics: data[bgUnits].basicsData,
