@@ -203,7 +203,7 @@ module.exports = function(pool, opts) {
         });
 
       var undeliveredPath = d3.select(undeliveredPaths[0][0]);
-      basal.updatePath(undeliveredPath, getUndelivereds(currentData));
+      basal.updatePath(undeliveredPath, getUndelivereds(currentData), true);
 
       basalSegments.exit().remove();
 
@@ -252,10 +252,10 @@ module.exports = function(pool, opts) {
       });
   };
 
-  basal.updatePath = function(selection, data) {
+  basal.updatePath = function(selection, data, isUndelivered) {
     opts.xScale = pool.xScale().copy();
 
-    var pathDef = basal.pathData(data);
+    var pathDef = basal.pathData(data, isUndelivered);
 
     if (pathDef !== '') {
       selection.attr({
@@ -264,7 +264,7 @@ module.exports = function(pool, opts) {
     }
   };
 
-  basal.pathData = function(data) {
+  basal.pathData = function(data, isUndelivered) {
     opts.xScale = pool.xScale().copy();
 
     function stringCoords(datum) {
@@ -277,8 +277,14 @@ module.exports = function(pool, opts) {
         d += 'M' + stringCoords(data[i]);
       }
       else if (data[i].normalTime === data[i - 1].normalEnd) {
-        // if segment is contiguous with previous, draw a vertical line connecting their values
-        d += 'V' + basal.pathYPosition(data[i]) + ' ';
+        if (isUndelivered && data[i].rate === 0) {
+          // We don't want a dashed undelivered vertical line down to 0 on automated basal suspends
+          d += 'M' + stringCoords(data[i]);
+        }
+        else {
+          // if segment is contiguous with previous, draw a vertical line connecting their values
+          d += 'V' + basal.pathYPosition(data[i]) + ' ';
+        }
       }
       // TODO: maybe a robust check for a gap in time here instead of just !==?
       else if (data[i].normalTime !== data[i - 1].normalEnd) {
