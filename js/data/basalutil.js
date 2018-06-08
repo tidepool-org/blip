@@ -211,7 +211,7 @@ function BasalUtil(data) {
   this.getBasalPathGroupType = function(datum) {
     var deliveryType = _.get(datum, 'deliveryType');
     var suppressedDeliveryType = _.get(datum, 'suppressed.deliveryType');
-    return _.contains([deliveryType, suppressedDeliveryType], 'automated') ? 'automated' : 'regular';
+    return _.contains([deliveryType, suppressedDeliveryType], 'automated') ? 'automated' : 'manual';
   };
 
   /**
