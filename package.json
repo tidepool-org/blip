@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.10.9-bg-defaults-daily-ticks-fix.1",
+  "version": "1.10.9-jellyfish-fix.3",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
