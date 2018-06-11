@@ -56,6 +56,14 @@ storiesOf('Basal', module)
       </WithNotes>
     );
   })
+  .add('automated basals with suspend', () => {
+    const notes = 'A set of automated basal segments, with a suspend.';
+    return (
+      <WithNotes notes={notes.replace('\n', '')}>
+        <Basal basals={basals.automatedWithSuspend} xScale={xScale} yScale={yScale} />
+      </WithNotes>
+    );
+  })
   .add('automated and scheduled basals', () => {
     const notes = 'A set of automated and scheduled basal segments, uninterrupted.';
     return (

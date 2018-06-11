@@ -56,7 +56,13 @@ export function getBasalSequences(basals) {
  * @return {String} the path group type
  */
 export function getBasalPathGroupType(datum = {}) {
-  return _.get(datum, 'subType', datum.deliveryType) === 'automated' ? 'automated' : 'manual';
+  const deliveryType = _.get(datum, 'subType', datum.deliveryType);
+  const suppressedDeliveryType = _.get(
+    datum.suppressed,
+    'subType',
+    _.get(datum.suppressed, 'deliveryType')
+  );
+  return _.contains([deliveryType, suppressedDeliveryType], 'automated') ? 'automated' : 'manual';
 }
 
 /**

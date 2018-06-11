@@ -26,7 +26,7 @@ import PrintView from './PrintView';
 
 import { calculateBasalPath, getBasalSequencePaths } from '../render/basal';
 import getBolusPaths from '../render/bolus';
-import { getTotalBasal, getBasalPathGroups } from '../../utils/basal';
+import { getTotalBasal, getBasalPathGroups, getBasalPathGroupType } from '../../utils/basal';
 import { isAutomatedBasalDevice, getPumpVocabulary } from '../../utils/device';
 import {
   calcBgPercentInCategories,
@@ -304,12 +304,6 @@ class DailyPrintView extends PrintView {
         chart.topEdge =
           this.chartsByDate[dates[i - 1]].bottomEdge + this.chartMinimums.paddingBelow;
         chart.bottomEdge = chart.topEdge + chart.chartHeight;
-      }
-      // TODO: remove this; it is just for exposing/debugging the chart placement
-      if (this.debug) {
-        this.doc.fillColor('blue', 0.1)
-          .rect(this.chartArea.leftEdge, chart.topEdge, this.chartArea.width, chart.chartHeight)
-          .fill();
       }
     }
 
@@ -916,6 +910,8 @@ class DailyPrintView extends PrintView {
             ? this.colors.basalAutomated
             : this.colors.basal;
 
+          const lineWidth = path.type === 'border--undelivered--automated' ? 1.5 : 0.5;
+
           if (path.renderType === 'fill') {
             this.doc
               .path(path.d)
@@ -925,7 +921,7 @@ class DailyPrintView extends PrintView {
           } else if (path.renderType === 'stroke') {
             this.doc
               .path(path.d)
-              .lineWidth(0.5)
+              .lineWidth(lineWidth)
               .dash(1, { space: 2 })
               .stroke(this.colors.basal);
           }
@@ -939,7 +935,7 @@ class DailyPrintView extends PrintView {
       // Split delivered path into individual segments based on subType
       _.each(basalPathGroups, (group, index) => {
         const firstDatum = group[0];
-        const isAutomated = firstDatum.subType === 'automated';
+        const isAutomated = getBasalPathGroupType(firstDatum) === 'automated';
         const color = isAutomated
           ? this.colors.basalAutomated
           : this.colors.basal;
@@ -1227,15 +1223,17 @@ class DailyPrintView extends PrintView {
 
     /* basals */
     const legendBasalYScale = scaleLinear()
-      .domain([0, 2])
-      .range([legendTop + legendHeight - legendHeight / 4, legendTop + legendHeight / 4]);
+      .domain([0, 2.5])
+      .range([legendTop + legendHeight - legendHeight / 4, legendTop + legendHeight / 4.5]);
 
     const legendBasalXScale = scaleLinear()
       .domain([0, 10])
       .range([cursor, cursor + 50]);
 
+    const dynamicBasalType = this.isAutomatedBasalDevice ? 'automated' : 'scheduled';
+
     const scheduled1 = {
-      subType: 'scheduled',
+      subType: dynamicBasalType,
       rate: 1.5,
       duration: 2,
       utc: 0,
@@ -1270,7 +1268,8 @@ class DailyPrintView extends PrintView {
       duration: 2,
       utc: 8,
       suppressed: {
-        rate: 1.75,
+        subType: dynamicBasalType,
+        rate: dynamicBasalType === 'automated' ? 0 : 1.75,
       },
     };
     const data = {
@@ -1296,13 +1295,6 @@ class DailyPrintView extends PrintView {
     });
     cursor += 50 + legendItemLabelOffset;
     this.doc.fillColor('black').text('Basals', cursor, legendTextMiddle);
-
-    // TODO: remove this; it is just for exposing/debugging the chartArea.bottomEdge adjustment
-    if (this.debug) {
-      this.doc.fillColor('#E8E8E8', 0.3333333333)
-        .rect(this.margins.left, this.bottomEdge - lineHeight * 9, this.width, lineHeight * 9)
-        .fill();
-    }
 
     return this;
   }

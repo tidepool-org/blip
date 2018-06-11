@@ -114,5 +114,14 @@ describe('basal path generators', () => {
       expect(paths.length).to.equal(1);
       expect(paths[0].type).to.equal('border--undelivered');
     });
+
+    it(`should produce a path with type \`border--undelivered--automated\` for
+       a suspend basal sequence suppressing automated delivery`, () => {
+      const paths = getBasalSequencePaths(
+        getBasalSequences(basals.automatedWithSuspend)[1], detailXScale, detailBasalScale
+      );
+      expect(paths.length).to.equal(1);
+      expect(paths[0].type).to.equal('border--undelivered--automated');
+    });
   });
 });
