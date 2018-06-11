@@ -1485,6 +1485,11 @@ describe('PatientData', function () {
             pumpSettings: {},
           },
         },
+        printOpts: {
+          numDays: {
+            daily: 6,
+          },
+        },
       };
 
       const wrapper = shallow(<PatientData {...props} />);
