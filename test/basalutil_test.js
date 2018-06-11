@@ -524,6 +524,15 @@ describe('BasalUtil', function() {
       expect(bu.getBasalPathGroupType({ deliveryType: 'temp' })).to.equal('manual');
       expect(bu.getBasalPathGroupType({ deliveryType: 'suspend' })).to.equal('manual');
     });
+
+    it('should return the path group type `manual` for a suspend suppressing non-automated delivery', function() {
+      expect(bu.getBasalPathGroupType({ deliveryType: 'suspend', suppressed: { deliveryType: 'scheduled' } })).to.equal('manual');
+      expect(bu.getBasalPathGroupType({ deliveryType: 'suspend', suppressed: { deliveryType: 'temp' } })).to.equal('manual');
+    });
+
+    it('should return the path group type `automated` for a suspend suppressing automated delivery', function() {
+      expect(bu.getBasalPathGroupType({ deliveryType: 'suspend', suppressed: { deliveryType: 'automated' } })).to.equal('automated');
+    });
   });
 
   describe('getBasalPathGroups', function() {
