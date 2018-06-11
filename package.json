@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "0.7.2-automated-basal-suspend-fix.1",
+  "version": "0.7.2-automated-basal.9",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
