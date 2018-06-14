@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -26,7 +26,7 @@ var legend = require('./plot/util/legend');
 
 var log = require('bows')('Two Week');
 
-module.exports = function(emitter) {
+module.exports = function(emitter, timePrefs) {
   // constants
   var MS_IN_24 = 86400000;
 
@@ -50,7 +50,8 @@ module.exports = function(emitter) {
     sortReverse = true, viewIndex,
     mainSVG, mainGroup, scrollNav, scrollHandleTrigger = true,
     annotations, tooltips,
-    cachedDomain;
+    cachedDomain,
+    cachedDomainInited;
 
   container.dataFill = {};
 
@@ -265,16 +266,22 @@ module.exports = function(emitter) {
     }
     emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
     // domain should go from midnight to midnight, not noon to noon
-    a[0].setUTCHours(a[0].getUTCHours() - 12);
     var topDate = a[0].toISOString().slice(0,10);
-    a[1].setUTCHours(a[1].getUTCHours() + 12);
+    a[1].setUTCHours(a[1].getUTCHours() + 24);
     var bottomDate = a[1].toISOString().slice(0,10);
     var midnight = 'T00:00:00.000Z';
-    if ((topDate !== cachedDomain[0]) || (bottomDate !== cachedDomain[1])) {
+    if (!cachedDomainInited || (topDate !== cachedDomain[0].toISOString().slice(0,10)) || (bottomDate !== cachedDomain[1].toISOString().slice(0,10))) {
       cachedDomain = [new Date(topDate + midnight), new Date(bottomDate + midnight)];
+      if (timePrefs && timePrefs.timezoneAware) {
+        cachedDomain = _.map(cachedDomain, function(d) {
+          var current = d.valueOf();
+          return new Date(dt.applyOffset(d.valueOf(), dt.getOffset(d.toISOString(), timePrefs.timezoneName)));
+        });
+      }
       emitter.emit('currentDomain', {
         domain: cachedDomain
       });
+      cachedDomainInited = true;
     }
   };
 
@@ -418,7 +425,6 @@ module.exports = function(emitter) {
     mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
 
     // set the domain and range for the main two-week y-scale
-    
     yScale.domain(viewEndpoints)
       .range([nav.axisHeight, height - statsHeight])
       .ticks(d3.time.day.utc, 1);
@@ -775,7 +781,7 @@ module.exports = function(emitter) {
       viewEndDate = new Date(firstDayInView);
       viewEndDate.setUTCDate(viewEndDate.getUTCDate() + 14);
     }
-    
+
     viewEndpoints = [new Date(viewBeginning.toISOString().slice(0,11) + noon), new Date(viewEndDate.toISOString().slice(0,11) + noon)];
 
     if (sortReverse) {
