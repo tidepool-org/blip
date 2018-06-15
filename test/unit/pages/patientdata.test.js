@@ -2919,6 +2919,41 @@ describe('PatientData', function () {
     });
   });
 
+  describe('handleSwitchToBasics', function() {
+    it('should track a metric', function() {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        fetchingUser: false,
+        trackMetric: sinon.stub()
+      };
+
+      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
+      var callCount = props.trackMetric.callCount;
+      elem.handleSwitchToBasics();
+      expect(props.trackMetric.callCount).to.equal(callCount + 1);
+      expect(props.trackMetric.calledWith('Clicked Switch To Basics')).to.be.true;
+    });
+
+    it('should set the `chartType` state to `basics`', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({chartType: 'daily'});
+
+      instance.handleSwitchToBasics();
+      expect(wrapper.state('chartType')).to.equal('basics');
+    });
+  });
+
   describe('handleSwitchToDaily', function() {
     it('should track metric for calender', function() {
       var props = {
@@ -2942,6 +2977,147 @@ describe('PatientData', function () {
       elem.handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
       expect(props.trackMetric.callCount).to.equal(callCount + 1);
       expect(props.trackMetric.calledWith('Clicked Basics testing calendar')).to.be.true;
+    });
+
+    it('should set the `chartType` state to `daily`', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({chartType: 'basics'});
+
+      instance.handleSwitchToDaily();
+      expect(wrapper.state('chartType')).to.equal('daily');
+    });
+
+    it('should set the `datetimeLocation` state to noon for the provided datetime', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
+
+      instance.handleSwitchToDaily('2018-03-03T00:00:00.000Z');
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T12:00:00.000Z');
+    });
+  });
+
+  describe('handleSwitchToTrends', function() {
+    it('should track a metric', function() {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        fetchingUser: false,
+        trackMetric: sinon.stub()
+      };
+
+      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
+      var callCount = props.trackMetric.callCount;
+      elem.handleSwitchToTrends('2016-08-19T01:51:55.000Z');
+      expect(props.trackMetric.callCount).to.equal(callCount + 1);
+      expect(props.trackMetric.calledWith('Clicked Switch To Modal')).to.be.true;
+    });
+
+    it('should set the `chartType` state to `trends`', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({chartType: 'basics'});
+
+      instance.handleSwitchToTrends();
+      expect(wrapper.state('chartType')).to.equal('trends');
+    });
+
+    it('should set the `datetimeLocation` state to the end of the day for the provided datetime', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
+
+      instance.handleSwitchToTrends('2018-03-03T00:00:00.000Z');
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T23:59:59.999Z');
+    });
+  });
+
+  describe('handleSwitchToWeekly', function() {
+    it('should track a metric', function() {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        fetchingUser: false,
+        trackMetric: sinon.stub()
+      };
+
+      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
+      var callCount = props.trackMetric.callCount;
+      elem.handleSwitchToWeekly('2016-08-19T01:51:55.000Z');
+      expect(props.trackMetric.callCount).to.equal(callCount + 1);
+      expect(props.trackMetric.calledWith('Clicked Switch To Two Week')).to.be.true;
+    });
+
+    it('should set the `chartType` state to `weekly`', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({chartType: 'basics'});
+
+      instance.handleSwitchToWeekly();
+      expect(wrapper.state('chartType')).to.equal('weekly');
+    });
+
+    it('should set the `datetimeLocation` state to noon for the provided datetime', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
+
+      instance.handleSwitchToWeekly('2018-03-03T00:00:00.000Z');
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T12:00:00.000Z');
+    });
+  });
+
+  describe('handleSwitchToSettings', function() {
+    it('should track a metric', function() {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        fetchingUser: false,
+        trackMetric: sinon.stub()
+      };
+
+      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
+      var callCount = props.trackMetric.callCount;
+      elem.handleSwitchToSettings();
+      expect(props.trackMetric.callCount).to.equal(callCount + 1);
+      expect(props.trackMetric.calledWith('Clicked Switch To Settings')).to.be.true;
+    });
+
+    it('should set the `chartType` state to `settings`', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({chartType: 'daily'});
+
+      instance.handleSwitchToSettings();
+      expect(wrapper.state('chartType')).to.equal('settings');
     });
   });
 
