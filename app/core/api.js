@@ -376,6 +376,14 @@ function getPerson(userId, cb) {
 
   tidepool.findProfile(userId, function(err, profile) {
     if (err) {
+      // Due to existing account creation anti-patterns, coupled with automatically sharing our demo
+      // account with new VCAs, we can end up with 404s that break login of our demo user when any
+      // VCA account has not completed their profile setup. Until this is addressed on the backend,
+      // we can't callback an error for 404s.
+      if (err.status === 404) {
+        person.profile = null;
+        return cb(null, person)
+      }
       return cb(err);
     }
 
