@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.10.10-dismiss-launch-uploader",
+  "version": "1.10.10-dismiss-launch-uploader.2",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
