@@ -256,6 +256,7 @@ var PatientCard = React.createClass({
   modalDismissHandler: function() {
     this.setState({
       showModalOverlay: false,
+      showUploadOverlay: false,
     });
   },
 
