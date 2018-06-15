@@ -49,7 +49,7 @@ export function mapStateToProps(state) {
           let member = allUsersMap[memberId];
 
           // We don't want to include data donation accounts here, as they are managed in the settings page
-          if (_.indexOf(sharedDonationAccountIds, member.userid) < 0) {
+          if (member.profile && _.indexOf(sharedDonationAccountIds, member.userid) < 0) {
             member = update(member, {
               permissions: { $set: permissionsOfMembersInTargetCareTeam[memberId] },
             });
