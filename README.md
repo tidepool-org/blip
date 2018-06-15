@@ -74,7 +74,7 @@ When running locally with `runservers` or with the [docker-based setup](https://
 
 If you're developing locally, you can find the key by looking in the local `server.log` (located at the root level of where you've cloned all the Tidepool repositories).
 
-If you're developing with the docker setup, you can find the key in the logs of the `hydrophone` container. It looks like
+If you're developing with the docker setup, you can find the key in the logs of the `hydrophone` container. It will look something like
 ```
 2018/06/07 16:17:17 Sending email confirmation to foo@bar.com with key aSuzGcwq4kPRyb6pwQnTcSKVTt_V6CtL
 ```
