@@ -102,6 +102,7 @@ var Navbar = React.createClass({
           currentPage={this.props.currentPage}
           uploadUrl={this.props.getUploadUrl()}
           patient={patient}
+          permsOfClinician={this.props.permsOfClinician}
           trackMetric={this.props.trackMetric} />
       </div>
     );

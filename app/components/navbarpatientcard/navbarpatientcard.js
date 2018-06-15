@@ -20,7 +20,6 @@ var _ = require('lodash');
 var cx = require('classnames');
 var launchCustomProtocol = require('custom-protocol-detection');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');
-import { connect } from 'react-redux';
 
 var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
@@ -32,7 +31,7 @@ var NavbarPatientCard = React.createClass({
     uploadUrl: React.PropTypes.string,
     patient: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired,
-    permsOfLoggedInUser: React.PropTypes.object,
+    permsOfClinician: React.PropTypes.object, 
   },
 
   getInitialState: function() {
@@ -115,7 +114,7 @@ var NavbarPatientCard = React.createClass({
     );
   },
 
-  renderUpload: function(patient, PropTypes) {
+  renderUpload: function(patient, permsOfClinician) {
     var classes = cx({
       'patientcard-actions-upload': true,
     });
@@ -131,7 +130,7 @@ var NavbarPatientCard = React.createClass({
       self.props.trackMetric('Clicked Navbar Upload Data');
     };
 
-     if( _.isEmpty(patient.permissions) === false && patient.permissions.root || this.props.permsOfLoggedInUser.upload){
+     if( _.isEmpty(patient.permissions) === false && patient.permissions.root || this.props.permsOfClinician.upload){
       return (
         <a href="" onClick={handleClick} className={classes} title="Upload data">Upload</a>
       );
@@ -174,14 +173,4 @@ var NavbarPatientCard = React.createClass({
   },
 });
 
-export function mapStateToProps(state) {
-  let permsOfLoggedInUser = {};    
-  if (!_.isEmpty(state.blip.membershipPermissionsInOtherCareTeams)) {
-    permsOfLoggedInUser = state.blip.membershipPermissionsInOtherCareTeams[state.blip.currentPatientInViewId];
-  } 
-  return {
-    permsOfLoggedInUser: permsOfLoggedInUser,
-  };
-}
-
-module.exports = connect(mapStateToProps)(NavbarPatientCard);
+module.exports = NavbarPatientCard;
