@@ -130,11 +130,11 @@ var NavbarPatientCard = React.createClass({
       self.props.trackMetric('Clicked Navbar Upload Data');
     };
 
-     if( _.isEmpty(patient.permissions) === false && patient.permissions.root || _.has(this.props.permsOfClinician, 'upload') ) {
+    if(_.isEmpty(patient.permissions) === false && patient.permissions.root || _.has(this.props.permsOfClinician, 'upload') ) {
       return (
         <a href="" onClick={handleClick} className={classes} title="Upload data">Upload</a>
       );
-    } 
+    }
 
     return null;
   },
