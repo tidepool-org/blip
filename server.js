@@ -2,15 +2,24 @@ var http = require('http');
 var https = require('https');
 var path = require('path');
 var express = require('express');
+var helmet = require('helmet');
 
 var config = require('./config.server.js');
 
 var buildDir = 'dist';
 
 var app = express();
-var helmet = require('helmet');
-app.use(helmet());
 
+app.use(helmet());
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    styleSrc: ["'self'", "'unsafe-inline'"],
+    scriptSrc: ["'self'", "'unsafe-inline'"],
+    imgSrc: ["'self'", "'data:'"],
+  },
+  reportOnly: true,
+}));
 
 var staticDir = path.join(__dirname, buildDir);
 app.use(express.static(staticDir));
