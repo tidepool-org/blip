@@ -1,31 +1,33 @@
-.ModalOverlay{
+.ModalOverlay {
   display: none;
 
   .ModalOverlay-target {
     content: "";
     display: none;
-    background: rgba(0,0,0,.6);
+    background: rgba(0, 0, 0, 0.6);
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     z-index: 10;
   }
 
   .PatientInfo-button--warning {
-      background-color: @brand-coral;
-      border-color: @brand-coral;
+    background-color: @brand-coral;
+    border-color: @brand-coral;
 
-      .no-touch &:hover,
-      &:focus,
-      &:active {
-        background-color: @brand-orange;
-        border-color: @brand-orange;
-      }
+    .no-touch &:hover,
+    &:focus,
+    &:active {
+      background-color: @brand-orange;
+      border-color: @brand-orange;
+    }
   }
 }
 
 .ModalOverlay--show {
   display: block;
-
 
   .ModalOverlay-target {
     cursor: pointer;
@@ -33,7 +35,7 @@
   }
 }
 
-.ModalOverlay-dialog{
+.ModalOverlay-dialog {
   background: #fefefe;
   border: @gray solid 1px;
   margin-left: -200px;
@@ -54,7 +56,6 @@
   > .input-group {
     padding-left: 0px;
     margin-bottom: 0px;
-
 
     .input-group-radios {
       margin-bottom: 0px;
@@ -83,5 +84,6 @@
 
   &:hover {
     text-decoration: none;
+    color: #627cff;
   }
 }
