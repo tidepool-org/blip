@@ -36,6 +36,7 @@ var Navbar = React.createClass({
     getUploadUrl: React.PropTypes.func,
     onLogout: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
+    permsOfClinician: React.PropTypes.object,
   },
 
   getInitialState: function() {
@@ -88,7 +89,6 @@ var Navbar = React.createClass({
 
   renderPatientSection: function() {
     var patient = this.props.patient;
-
     if (_.isEmpty(patient)) {
       return <div className="Navbar-patientSection"></div>;
     }
@@ -130,7 +130,6 @@ var Navbar = React.createClass({
   renderMenuSection: function() {
     var currentPage = (this.props.currentPage && this.props.currentPage[0] === '/') ? this.props.currentPage.slice(1) : this.props.currentPage;
     var user = this.props.user;
-
     if (_.isEmpty(user)) {
       return <div className="Navbar-menuSection"></div>;
     }

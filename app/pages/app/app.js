@@ -404,7 +404,7 @@ export function mapStateToProps(state) {
   let user = null;
   let patient = null;
   let permissions = null;
-  let permsOfClinician = {};
+  let permsOfClinician = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
   let userHasConnectedDataSources = _.get(state, 'blip.dataSources', []).length > 0;
   let userIsSupportingNonprofit = false;
@@ -436,10 +436,13 @@ export function mapStateToProps(state) {
       );
     }
 
-    if(state.blip.loggedInUserId != state.blip.currentPatientInViewId){
-      if(_.isEmpty(state.blip.membershipPermissionsInOtherCareTeams[state.blip.currentPatientInViewId]) === false){
-      permsOfClinician = state.blip.membershipPermissionsInOtherCareTeams[state.blip.currentPatientInViewId]; 
-    }}
+  if (state.blip.membershipPermissionsInOtherCareTeams ) {
+    permsOfClinician = _.get(
+      state.blip.membershipPermissionsInOtherCareTeams,
+      state.blip.currentPatientInViewId,
+      {}
+    );
+  } 
 
     // Check to see if a data-donating patient has selected a nonprofit to support
     if (userIsDonor) {
