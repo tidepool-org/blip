@@ -24,7 +24,7 @@ var log = require('bows')('CBG');
 var bgBoundaryClass = require('./util/bgboundary');
 var format = require('../data/util/format');
 var categorizer = require('../../js/data/util/categorize');
-var { MGDL_UNITS } = require('../../js/data/util/constants');
+var { MGDL_UNITS, DEFAULT_BG_BOUNDS } = require('../../js/data/util/constants');
 
 module.exports = function(pool, opts) {
 
@@ -33,9 +33,9 @@ module.exports = function(pool, opts) {
   var defaults = {
     bgUnits: MGDL_UNITS,
     classes: {
-      low: { boundary: 70 },
-      target: { boundary: 180 },
-      high: { boundary: 300 },
+      low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
     },
     radius: 2.5,
   };
@@ -94,7 +94,6 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-circle-cbg').on('mouseover', function() {
         var thisCbg = _.clone(d3.select(this).datum());
-        thisCbg.value = format.tooltipBG(thisCbg, opts.bgUnits);
         cbg.addTooltip(thisCbg);
       });
       selection.selectAll('.d3-circle-cbg').on('mouseout', function() {
@@ -126,6 +125,8 @@ module.exports = function(pool, opts) {
     var getBgBoundaryClass = bgBoundaryClass(opts.classes, opts.bgUnits);
     var cssClass = getBgBoundaryClass(d);
     var category = categorize(d);
+    // Round the value after categorization
+    d.value = format.tooltipBG(d, opts.bgUnits);
     tooltips.addFixedTooltip({
       cssClass: cssClass,
       datum: d,

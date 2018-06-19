@@ -30,18 +30,20 @@ var crossfilter = require('crossfilter');
 var moment = require('moment-timezone');
 
 var types = require('../dev/testpage/types');
-var { MGDL_UNITS, MMOLL_UNITS } = require('../js/data/util/constants');
+var { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require('../js/data/util/constants');
 
 var TidelineData = require('../js/tidelinedata');
 
 describe('TidelineData', function() {
   var td = new TidelineData([]);
+  var bgUnits = MGDL_UNITS;
+  var roundingAllowance = 0.0001;
   var bgClasses = {
-    'very-low': { boundary: 55 },
-    low: { boundary: 70 },
-    target: { boundary: 180 },
-    high: { boundary: 300 },
-    'very-high': { boundary: 600 }
+    'very-low': { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow - roundingAllowance},
+    low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower - roundingAllowance},
+    target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper + roundingAllowance},
+    high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh + roundingAllowance},
+    'very-high': { boundary: BG_CLAMP_THRESHOLD[bgUnits] }
   };
   it('should be a function', function() {
     assert.isFunction(TidelineData);
@@ -834,6 +836,13 @@ describe('TidelineData', function() {
 
     it('should set bgClasses to the default', function() {
       expect(thisTd.bgClasses).to.eql(bgClasses);
+    });
+
+    it('should apply `0.0001` rounding allowances for mg/dL values', function() {
+      expect(thisTd.bgClasses['very-low'].boundary).to.equal(DEFAULT_BG_BOUNDS[bgUnits].veryLow - roundingAllowance);
+      expect(thisTd.bgClasses.low.boundary).to.equal(DEFAULT_BG_BOUNDS[bgUnits].targetLower - roundingAllowance);
+      expect(thisTd.bgClasses.target.boundary).to.equal(DEFAULT_BG_BOUNDS[bgUnits].targetUpper + roundingAllowance);
+      expect(thisTd.bgClasses.high.boundary).to.equal(DEFAULT_BG_BOUNDS[bgUnits].veryHigh + roundingAllowance);
     });
 
     it('should default bgUnits to mg/dL', function() {

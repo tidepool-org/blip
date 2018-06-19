@@ -24,7 +24,7 @@ var log = require('bows')('Two-Week SMBG');
 var dt = require('../data/util/datetime');
 var format = require('../data/util/format');
 var bgBoundaryClass = require('./util/bgboundary');
-var { MGDL_UNITS } = require('../data/util/constants');
+var { MGDL_UNITS, DEFAULT_BG_BOUNDS } = require('../data/util/constants');
 
 function SMBGTime (opts) {
   var MS_IN_HOUR = 3600000;
@@ -36,10 +36,10 @@ function SMBGTime (opts) {
   var defaults = {
     bgUnits: MGDL_UNITS,
     classes: {
-      'very-low': { boundary: 55 },
-      low: { boundary: 70 },
-      target: { boundary: 180 },
-      high: { boundary: 300 },
+      'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
+      low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
     },
     size: 16,
     rectWidth: 32,
