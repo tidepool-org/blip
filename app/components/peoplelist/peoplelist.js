@@ -27,7 +27,8 @@ var PeopleList = React.createClass({
     uploadUrl: React.PropTypes.string,
     onClickPerson: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    permsOfLoggedInUser: React.PropTypes.object,
   },
 
   getInitialState: function() {
@@ -131,7 +132,8 @@ var PeopleList = React.createClass({
           isEditing={this.state.editing}
           onRemovePatient={this.props.onRemovePatient}
           patient={person}
-          trackMetric={this.props.trackMetric}></PatientCard>
+          trackMetric={this.props.trackMetric}
+          permsOfLoggedInUser={this.props.permsOfLoggedInUser}></PatientCard>
       </li>
     );
   },
