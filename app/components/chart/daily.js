@@ -272,6 +272,7 @@ var Daily = React.createClass({
             }}
             side={this.state.hoveredBolus.side}
             bolus={this.state.hoveredBolus.data}
+            bgPrefs={this.props.bgPrefs}
             timePrefs={this.props.timePrefs}
           />}
         {this.state.hoveredSMBG && <SMBGTooltip

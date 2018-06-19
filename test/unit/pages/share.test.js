@@ -5,6 +5,7 @@
 
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
+import _ from 'lodash';
 var assert = chai.assert;
 var expect = chai.expect;
 
@@ -16,11 +17,11 @@ describe('PatientCareTeam', () => {
   describe('mapStateToProps', () => {
     const state = {
       allUsersMap: {
-        a1b2c3: {userid: 'a1b2c3'},
-        d4e5f6: {userid: 'd4e5f6'},
-        foo: {userid: 'foo'},
-        bar: {userid: 'bar'},
-        bigdata: {userid: 'bigdata'},
+        a1b2c3: {userid: 'a1b2c3', profile: {} },
+        d4e5f6: {userid: 'd4e5f6', profile: {} },
+        foo: {userid: 'foo', profile: {} },
+        bar: {userid: 'bar', profile: {} },
+        bigdata: {userid: 'bigdata', profile: {} },
       },
       dataDonationAccounts: [
         { userid: 'bigdata'},
@@ -67,9 +68,38 @@ describe('PatientCareTeam', () => {
       // note that bigdata user has been stripped, which is correct
       expect(result.patient).to.deep.equal({
         userid: 'a1b2c3',
+        profile: {},
         team: [
-          {userid: 'foo', permissions: state.permissionsOfMembersInTargetCareTeam.foo},
-          {userid: 'bar', permissions: state.permissionsOfMembersInTargetCareTeam.bar}
+          {userid: 'foo', profile: {}, permissions: state.permissionsOfMembersInTargetCareTeam.foo},
+          {userid: 'bar', profile: {}, permissions: state.permissionsOfMembersInTargetCareTeam.bar}
+        ]
+      });
+    });
+
+    it('should strip team members without a profile', () => {
+      const newState = _.assign({}, state, {
+        allUsersMap: {
+          foo: {userid: 'foo', profile: {} },
+          bar: {userid: 'bar', profile: null },
+          baz: {userid: 'baz', profile: false },
+          bay: {userid: 'bay' },
+          a1b2c3: {userid: 'a1b2c3', profile: {} },
+        },
+        membersOfTargetCareTeam: ['foo', 'bar', 'baz', 'bay'],
+        permissionsOfMembersInTargetCareTeam: {
+          foo: {view: {}, note: {}},
+          bar: {view: {}, note: {}, upload: {}},
+          baz: {view: {}, note: {}, upload: {}},
+          bay: {view: {}, note: {}, upload: {}},
+        },
+      });
+
+      const result = mapStateToProps({ blip: newState });
+      expect(result.patient).to.deep.equal({
+        userid: 'a1b2c3',
+        profile: {},
+        team: [
+          {userid: 'foo', profile: {}, permissions: state.permissionsOfMembersInTargetCareTeam.foo},
         ]
       });
     });
