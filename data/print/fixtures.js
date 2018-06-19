@@ -370,7 +370,7 @@ export const dailyData = {
             utc: 1483314400000,
             duration: 1483315400000,
             rate: 0.7,
-            subType: 'scheduled',
+            subType: 'automated',
           },
         ],
         bolus: [
@@ -439,6 +439,10 @@ export const dailyData = {
             },
           ],
         ],
+        timeInAutoRatio: {
+          automated: 1483314400000,
+          manual: 1483314400000,
+        },
       },
     },
   },

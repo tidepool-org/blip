@@ -29,7 +29,7 @@ import _ from 'lodash';
 
 export function calculateBasalPath(basalSequence, xScale, yScale, {
   endAtZero,
-  flushBottomOffset,
+  flushBottomOffset = 0,
   isFilled,
   startAtZero,
 }) {
@@ -141,8 +141,12 @@ export function getBasalSequencePaths(basalSequence, xScale, yScale) {
   }
 
   const suppresseds = [];
+  let undeliveredType = 'border--undelivered';
   _.each(basalSequence, (basal) => {
     if (basal.suppressed) {
+      if (_.get(basal.suppressed, 'subType', basal.suppressed.deliveryType) === 'automated') {
+        undeliveredType = 'border--undelivered--automated';
+      }
       suppresseds.push(_.assign({}, basal.suppressed, _.pick(basal, ['duration', 'utc'])));
     }
   });
@@ -159,7 +163,7 @@ export function getBasalSequencePaths(basalSequence, xScale, yScale) {
       basalType: type,
       key: `basalPathUndelivered-${first.id}`,
       renderType: 'stroke',
-      type: 'border--undelivered',
+      type: undeliveredType,
     });
   }
 

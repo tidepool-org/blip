@@ -40,6 +40,19 @@ describe('[settings] data utils', () => {
     });
   });
 
+  describe('deviceName', () => {
+    it('should return a formatted device name when provided a known manufacturer key', () => {
+      expect(data.deviceName('animas')).to.equal('Animas');
+      expect(data.deviceName('insulet')).to.equal('OmniPod');
+      expect(data.deviceName('medtronic')).to.equal('Medtronic');
+      expect(data.deviceName('tandem')).to.equal('Tandem');
+    });
+
+    it('should return the manufacturer key if a device name mapping does not exist', () => {
+      expect(data.deviceName('foo')).to.equal('foo');
+    });
+  });
+
   describe('processBgTargetData', () => {
     it('should return formatted objects', () => {
       expect(

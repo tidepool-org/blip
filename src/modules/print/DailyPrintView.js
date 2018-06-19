@@ -26,7 +26,8 @@ import PrintView from './PrintView';
 
 import { calculateBasalPath, getBasalSequencePaths } from '../render/basal';
 import getBolusPaths from '../render/bolus';
-import { getTotalBasal } from '../../utils/basal';
+import { getTotalBasal, getBasalPathGroups, getBasalPathGroupType } from '../../utils/basal';
+import { isAutomatedBasalDevice, getPumpVocabulary } from '../../utils/device';
 import {
   calcBgPercentInCategories,
   classifyBgValue,
@@ -54,11 +55,31 @@ import {
   removeTrailingZeroes,
 } from '../../utils/format';
 
-import { MMOLL_UNITS, MS_IN_MIN } from '../../utils/constants';
+import {
+  MMOLL_UNITS,
+  MS_IN_MIN,
+  AUTOMATED_DELIVERY,
+  SCHEDULED_DELIVERY,
+} from '../../utils/constants';
 
 class DailyPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
+
+    this.source = _.get(data, 'latestPumpUpload.source', '').toLowerCase();
+    this.manufacturer = this.source === 'carelink' ? 'medtronic' : this.source;
+
+    this.isAutomatedBasalDevice = isAutomatedBasalDevice(
+      this.manufacturer,
+      _.get(data, 'latestPumpUpload.deviceModel')
+    );
+
+    const deviceLabels = getPumpVocabulary(this.manufacturer);
+
+    this.basalGroupLabels = {
+      automated: deviceLabels[AUTOMATED_DELIVERY],
+      manual: deviceLabels[SCHEDULED_DELIVERY],
+    };
 
     this.bgAxisFontSize = 5;
     this.carbsFontSize = 5.5;
@@ -72,6 +93,7 @@ class DailyPrintView extends PrintView {
     this.bolusWidth = 3;
     this.carbRadius = 4.25;
     this.cbgRadius = 1;
+    this.markerRadius = 4.25;
     this.extendedLineThickness = 0.75;
     this.interruptedLineThickness = 0.5;
     this.smbgRadius = 3;
@@ -96,10 +118,6 @@ class DailyPrintView extends PrintView {
       },
       carbs: '#CFCFCF',
       lightDividers: '#D8D8D8',
-      low: '#FF8B7C',
-      target: '#76D3A6',
-      basal: '#19A0D7',
-      high: '#BB9AE7',
     });
 
     this.rightEdge = this.margins.left + this.width;
@@ -123,9 +141,11 @@ class DailyPrintView extends PrintView {
     this.summaryArea.width = this.summaryArea.rightEdge - this.margins.left;
 
     const dates = _.keys(data.dataByDate);
+    const numDays = _.min([this.numDays, dates.length]);
+    const selectedDates = _.slice(dates, -Math.abs(numDays));
     this.chartsByDate = {};
     this.initialChartsByDate = {};
-    _.each(dates, (date) => {
+    _.each(selectedDates, (date) => {
       const dateData = data.dataByDate[date];
       this.chartsByDate[date] = { ...dateData };
       this.initialChartsByDate[date] = { ...dateData };
@@ -138,12 +158,12 @@ class DailyPrintView extends PrintView {
     this.setHeaderSize().setFooterSize().calculateChartMinimums(this.chartArea);
 
     // calculate heights and place charts in preparation for rendering
-    for (let i = 0; i < this.numDays; ++i) {
-      const dateData = data.dataByDate[dates[i]];
+    for (let i = 0; i < numDays; ++i) {
+      const dateData = data.dataByDate[selectedDates[i]];
       this.calculateDateChartHeight(dateData);
     }
 
-    while (this.chartsPlaced < this.numDays) {
+    while (this.chartsPlaced < numDays) {
       this.placeChartsOnPage(this.totalPages);
     }
     _.each(this.chartsByDate, (dateChart) => {
@@ -285,12 +305,6 @@ class DailyPrintView extends PrintView {
           this.chartsByDate[dates[i - 1]].bottomEdge + this.chartMinimums.paddingBelow;
         chart.bottomEdge = chart.topEdge + chart.chartHeight;
       }
-      // TODO: remove this; it is just for exposing/debugging the chart placement
-      if (this.debug) {
-        this.doc.fillColor('blue', 0.1)
-          .rect(this.chartArea.leftEdge, chart.topEdge, this.chartArea.width, chart.chartHeight)
-          .fill();
-      }
     }
 
     this.totalPages += 1;
@@ -408,21 +422,56 @@ class DailyPrintView extends PrintView {
         first = false;
       }
 
+      const ratioTitle = this.isAutomatedBasalDevice
+        ? `Time in ${this.basalGroupLabels.automated}`
+        : 'Basal:Bolus Ratio';
+
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
-        .text('Basal:Bolus Ratio', smallIndent, yPos.update());
+      .text(ratioTitle, smallIndent, yPos.update());
 
       yPos.update();
 
-      const basalPercent = formatPercentage(totalBasal / totalInsulin);
-      const bolusPercent = formatPercentage(totalBolus / totalInsulin);
+      const ratio = this.isAutomatedBasalDevice
+        ? ['manual', 'automated']
+        : ['basal', 'bolus'];
+
+      const percentages = {
+        basal: formatPercentage(totalBasal / totalInsulin),
+        bolus: formatPercentage(totalBolus / totalInsulin),
+      };
+
+      const labels = {
+        basal: 'Basal',
+        bolus: 'Bolus',
+      };
+
+      if (this.isAutomatedBasalDevice) {
+        const { automated, manual } = data.timeInAutoRatio;
+        const totalBasalDuration = automated + manual;
+        percentages.automated = formatPercentage(automated / totalBasalDuration);
+        percentages.manual = formatPercentage(manual / totalBasalDuration);
+
+        labels.automated = this.basalGroupLabels.automated;
+        labels.manual = this.basalGroupLabels.manual;
+      }
+
+      const primary = {
+        [ratio[0]]: percentages[ratio[0]],
+        [ratio[1]]: percentages[ratio[1]],
+      };
+
+      const secondary = {
+        [ratio[0]]: this.isAutomatedBasalDevice ? '' : `, ${formatDecimalNumber(totalBasal, 1)} U`,
+        [ratio[1]]: this.isAutomatedBasalDevice ? '' : `, ${formatDecimalNumber(totalBolus, 1)} U`,
+      };
 
       this.doc.font(this.font)
         .text(
-          'Basal',
+          labels[ratio[0]],
           { indent: statsIndent, continued: true, width: widthWithoutIndent },
         )
         .text(
-          `${basalPercent}, ${formatDecimalNumber(totalBasal, 1)} U`,
+          `${primary[ratio[0]]}${secondary[ratio[0]]}`,
           { align: 'right' }
         );
 
@@ -430,11 +479,11 @@ class DailyPrintView extends PrintView {
 
       this.doc.font(this.font)
         .text(
-          'Bolus',
+          labels[ratio[1]],
           { indent: statsIndent, continued: true, width: widthWithoutIndent },
         )
         .text(
-          `${bolusPercent}, ${formatDecimalNumber(totalBolus, 1)} U`,
+          `${primary[ratio[1]]}${secondary[ratio[1]]}`,
           { align: 'right' }
         );
 
@@ -856,15 +905,23 @@ class DailyPrintView extends PrintView {
         const paths = getBasalSequencePaths(sequence, xScale, basalScale);
 
         _.each(paths, (path) => {
-          const opacity = path.basalType === 'scheduled' ? 0.4 : 0.2;
+          const opacity = _.includes(['scheduled', 'automated'], path.basalType) ? 0.4 : 0.2;
+          const fillColor = path.basalType === 'automated'
+            ? this.colors.basalAutomated
+            : this.colors.basal;
+
+          const lineWidth = path.type === 'border--undelivered--automated' ? 1.5 : 0.5;
+
           if (path.renderType === 'fill') {
-            this.doc.path(path.d)
-              .fillColor(this.colors.basal)
+            this.doc
+              .path(path.d)
+              .fillColor(fillColor)
               .fillOpacity(opacity)
               .fill();
           } else if (path.renderType === 'stroke') {
-            this.doc.path(path.d)
-              .lineWidth(0.5)
+            this.doc
+              .path(path.d)
+              .lineWidth(lineWidth)
               .dash(1, { space: 2 })
               .stroke(this.colors.basal);
           }
@@ -873,17 +930,66 @@ class DailyPrintView extends PrintView {
     });
 
     if (!_.isEmpty(basal)) {
-      const wholeDateDeliveredPath = calculateBasalPath(basal, xScale, basalScale, {
-        endAtZero: false,
-        flushBottomOffset: -0.25,
-        isFilled: false,
-        startAtZero: false,
-      });
+      const basalPathGroups = getBasalPathGroups(basal);
 
-      this.doc.path(wholeDateDeliveredPath)
-        .lineWidth(0.5)
-        .undash()
-        .stroke(this.colors.basal);
+      // Split delivered path into individual segments based on subType
+      _.each(basalPathGroups, (group, index) => {
+        const firstDatum = group[0];
+        const isAutomated = getBasalPathGroupType(firstDatum) === 'automated';
+        const color = isAutomated
+          ? this.colors.basalAutomated
+          : this.colors.basal;
+
+        const wholeDateDeliveredPath = calculateBasalPath(group, xScale, basalScale, {
+          endAtZero: false,
+          flushBottomOffset: -0.25,
+          isFilled: false,
+          startAtZero: false,
+        });
+
+        this.doc
+          .path(wholeDateDeliveredPath)
+          .lineWidth(0.5)
+          .undash()
+          .stroke(color);
+
+        // Render group markers
+        if (index > 0) {
+          const xPos = xScale(firstDatum.utc);
+          const yPos = basalScale.range()[1] + this.markerRadius + 1;
+          const zeroBasal = basalScale.range()[0];
+          const flushWithBottomOfScale = zeroBasal;
+
+          const label = isAutomated
+            ? this.basalGroupLabels.automated.charAt(0)
+            : this.basalGroupLabels.manual.charAt(0);
+
+          const labelColor = isAutomated ? this.colors.darkGrey : 'white';
+
+          const labelWidth = this.doc
+            .fontSize(5)
+            .widthOfString(label);
+
+          this.doc
+            .circle(xPos, yPos, this.markerRadius)
+            .fillColor(color)
+            .fillOpacity(1)
+            .fill();
+
+          this.doc
+            .moveTo(xPos, yPos)
+            .lineWidth(0.75)
+            .lineTo(xPos, flushWithBottomOfScale)
+            .stroke(color);
+
+          this.doc
+            .fillColor(labelColor)
+            .text(label, xPos - (labelWidth / 2), yPos - 2, {
+              width: labelWidth,
+              align: 'center',
+            });
+        }
+      });
     }
 
     return this;
@@ -1117,15 +1223,17 @@ class DailyPrintView extends PrintView {
 
     /* basals */
     const legendBasalYScale = scaleLinear()
-      .domain([0, 2])
-      .range([legendTop + legendHeight - legendHeight / 4, legendTop + legendHeight / 4]);
+      .domain([0, 2.5])
+      .range([legendTop + legendHeight - legendHeight / 4, legendTop + legendHeight / 4.5]);
 
     const legendBasalXScale = scaleLinear()
       .domain([0, 10])
       .range([cursor, cursor + 50]);
 
+    const dynamicBasalType = this.isAutomatedBasalDevice ? 'automated' : 'scheduled';
+
     const scheduled1 = {
-      subType: 'scheduled',
+      subType: dynamicBasalType,
       rate: 1.5,
       duration: 2,
       utc: 0,
@@ -1160,7 +1268,8 @@ class DailyPrintView extends PrintView {
       duration: 2,
       utc: 8,
       suppressed: {
-        rate: 1.75,
+        subType: dynamicBasalType,
+        rate: dynamicBasalType === 'automated' ? 0 : 1.75,
       },
     };
     const data = {
@@ -1186,13 +1295,6 @@ class DailyPrintView extends PrintView {
     });
     cursor += 50 + legendItemLabelOffset;
     this.doc.fillColor('black').text('Basals', cursor, legendTextMiddle);
-
-    // TODO: remove this; it is just for exposing/debugging the chartArea.bottomEdge adjustment
-    if (this.debug) {
-      this.doc.fillColor('#E8E8E8', 0.3333333333)
-        .rect(this.margins.left, this.bottomEdge - lineHeight * 9, this.width, lineHeight * 9)
-        .fill();
-    }
 
     return this;
   }

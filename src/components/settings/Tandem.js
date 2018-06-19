@@ -25,6 +25,7 @@ import Header from './common/Header';
 import Table from './common/Table';
 import CollapsibleContainer from './common/CollapsibleContainer';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
+import { deviceName } from '../../utils/settings/data';
 import * as tandemData from '../../utils/settings/tandemData';
 import { tandemText } from '../../utils/settings/textData';
 
@@ -37,6 +38,7 @@ const Tandem = (props) => {
     timePrefs,
     toggleProfileExpansion,
     user,
+    deviceDisplayName,
   } = props;
 
   function openSection(sectionName) {
@@ -76,7 +78,7 @@ const Tandem = (props) => {
         <p>Copy as text</p>
       </ClipboardButton>
       <Header
-        deviceDisplayName="Tandem"
+        deviceDisplayName={deviceDisplayName}
         deviceMeta={tandemData.deviceMeta(pumpSettings, timePrefs)}
       />
       <div>
@@ -94,6 +96,7 @@ Tandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
   copySettingsClicked: PropTypes.func.isRequired,
   deviceKey: PropTypes.oneOf(['tandem']).isRequired,
+  deviceDisplayName: PropTypes.string.isRequired,
   openedSections: PropTypes.object.isRequired,
   pumpSettings: PropTypes.shape({
     activeSchedule: PropTypes.string.isRequired,
@@ -144,7 +147,7 @@ Tandem.propTypes = {
 };
 
 Tandem.defaultProps = {
-  deviceDisplayName: 'Tandem',
+  deviceDisplayName: deviceName('tandem'),
   deviceKey: 'tandem',
 };
 

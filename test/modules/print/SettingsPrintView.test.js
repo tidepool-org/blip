@@ -22,6 +22,7 @@ import PrintView from '../../../src/modules/print/PrintView';
 import * as patients from '../../../data/patient/profiles';
 import animasFlatrate from '../../../data/pumpSettings/animas/flatrate.json';
 import medtronicFlatrate from '../../../data/pumpSettings/medtronic/flatrate.json';
+import medtronicAutomated from '../../../data/pumpSettings/medtronic/automated.json';
 import omnipodMultirate from '../../../data/pumpSettings/omnipod/multirate.json';
 import tandemMultirate from '../../../data/pumpSettings/tandem/multirate.json';
 
@@ -46,6 +47,7 @@ const data = {
   animasFlatrate,
   tandemMultirate,
   medtronicFlatrate,
+  medtronicAutomated,
   omnipodMultirate,
 };
 
@@ -422,6 +424,74 @@ describe('SettingsPrintView', () => {
       Renderer.renderWizardSettings();
 
       assert(Renderer.resetText.calledAfter(Renderer.updateLayoutColumnPosition));
+    });
+
+    context('automated basals', () => {
+      it('should render the automated basal schedule if active at upload', () => {
+        Renderer = createRenderer(data.medtronicAutomated);
+
+        sinon.stub(Renderer, 'renderTableHeading');
+        sinon.stub(Renderer, 'renderTable');
+
+        const schedules = Renderer.data.basalSchedules;
+        expect(schedules.length).to.equal(4);
+
+        Renderer.renderBasalSchedules();
+
+        // ensure it's rendering a table heading for each schedule, including the automated one
+        sinon.assert.callCount(Renderer.renderTableHeading, schedules.length);
+
+        // ensure it's writing the schedule name
+        let activeIndex;
+        _.forEach(schedules, (schedule, index) => {
+          sinon.assert.calledWithMatch(Renderer.renderTableHeading, {
+            text: schedule.name,
+          });
+
+          if (schedule.name === Renderer.data.activeSchedule) {
+            activeIndex = index;
+          }
+        });
+
+        // ensure it's denoting the active schedule
+        expect(activeIndex).to.be.a('number');
+
+        const activeCall = Renderer.renderTableHeading.getCall(activeIndex);
+        expect(activeCall.args[0].text).to.equal('Auto Mode');
+        expect(activeCall.args[0].subText).to.equal('active at upload');
+
+        // ensure it's only rendering a table for each non-automated schedule
+        sinon.assert.callCount(Renderer.renderTable, schedules.length - 1);
+      });
+
+      it('should not render the automated basal schedule if inactive at upload', () => {
+        Renderer = createRenderer(_.assign({}, data.medtronicAutomated, {
+          activeSchedule: 'Standard',
+        }));
+
+        sinon.stub(Renderer, 'renderTableHeading');
+        sinon.stub(Renderer, 'renderTable');
+
+        const schedules = Renderer.data.basalSchedules;
+        expect(schedules.length).to.equal(4);
+
+        Renderer.renderBasalSchedules();
+
+        // ensure it's rendering a table heading for each non-automated schedule
+        sinon.assert.callCount(Renderer.renderTableHeading, schedules.length - 1);
+
+        // ensure it's writing the schedule name
+        _.forEach(schedules, (schedule) => {
+          if (schedule.name === 'Auto Mode') return; // not called for the automated basal
+
+          sinon.assert.calledWithMatch(Renderer.renderTableHeading, {
+            text: schedule.name,
+          });
+        });
+
+        // ensure it's only rendering a table for each non-automated schedule
+        sinon.assert.callCount(Renderer.renderTable, schedules.length - 1);
+      });
     });
   });
 

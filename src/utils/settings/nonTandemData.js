@@ -14,8 +14,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import * as data from './data';
 
+import _ from 'lodash';
+import * as data from './data';
+import { pumpVocabulary, AUTOMATED_DELIVERY } from '../constants';
 /**
  * basalSchedules
  * @param  {Object} settings    object with basal schedule properties
@@ -53,26 +55,11 @@ export function bolusTitle(manufacturer) {
 }
 
 /**
- * deviceName
- * @param  {String} manufacturer one of: animas, insulet, medtronic
- *
- * @return {String}              name for given manufacturer
- */
-export function deviceName(manufacturer) {
-  const DEVICE_DISPLAY_NAME_BY_MANUFACTURER = {
-    animas: 'Animas',
-    insulet: 'OmniPod',
-    medtronic: 'Medtronic',
-  };
-  return DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturer];
-}
-
-/**
  * scheduleLabel
  * @private
  */
-function scheduleLabel(scheduleName, activeScheduleName, manufacturer) {
-  return data.getScheduleLabel(scheduleName, activeScheduleName, manufacturer, false);
+function scheduleLabel(scheduleName, activeScheduleName, manufacturer, noUnits) {
+  return data.getScheduleLabel(scheduleName, activeScheduleName, manufacturer, noUnits);
 }
 
 /**
@@ -100,12 +87,20 @@ function basalColumns() {
  */
 export function basal(schedule, settings, manufacturer) {
   const name = settings.basalSchedules[schedule].name;
+  const lookupKey = (manufacturer === 'carelink') ? 'medtronic' : manufacturer;
+
+  const isAutomated = _.get(pumpVocabulary, [
+    data.deviceName(lookupKey),
+    AUTOMATED_DELIVERY,
+  ]) === name;
+
   return {
     scheduleName: name,
     activeAtUpload: (name === settings.activeSchedule),
-    title: scheduleLabel(name, settings.activeSchedule, manufacturer),
-    columns: basalColumns(),
-    rows: basalRows(schedule, settings),
+    isAutomated,
+    title: scheduleLabel(name, settings.activeSchedule, manufacturer, isAutomated),
+    columns: isAutomated ? [] : basalColumns(),
+    rows: isAutomated ? [] : basalRows(schedule, settings),
   };
 }
 

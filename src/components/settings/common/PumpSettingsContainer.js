@@ -22,7 +22,6 @@ import { bindActionCreators } from 'redux';
 
 import * as actions from '../../../redux/actions/';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
-
 import NonTandem from '../NonTandem';
 import Tandem from '../Tandem';
 
@@ -48,11 +47,16 @@ export class PumpSettingsContainer extends PureComponent {
 
   componentWillMount() {
     const { markSettingsViewed } = this.props;
-    const { manufacturerKey, pumpSettings: { activeSchedule }, toggleSettingsSection } = this.props;
-    const { settingsState: { touched } } = this.props;
+    const {
+      manufacturerKey,
+      pumpSettings: { activeSchedule, lastManualBasalSchedule },
+      toggleSettingsSection,
+      settingsState: { touched },
+    } = this.props;
+
     if (!touched) {
       markSettingsViewed();
-      toggleSettingsSection(manufacturerKey, activeSchedule);
+      toggleSettingsSection(manufacturerKey, lastManualBasalSchedule || activeSchedule);
     }
   }
 

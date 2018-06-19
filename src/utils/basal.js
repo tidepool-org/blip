@@ -51,6 +51,41 @@ export function getBasalSequences(basals) {
 }
 
 /**
+ * getBasalPathGroupType
+ * @param {Object} basal - single basal datum
+ * @return {String} the path group type
+ */
+export function getBasalPathGroupType(datum = {}) {
+  const deliveryType = _.get(datum, 'subType', datum.deliveryType);
+  const suppressedDeliveryType = _.get(
+    datum.suppressed,
+    'subType',
+    _.get(datum.suppressed, 'deliveryType')
+  );
+  return _.contains([deliveryType, suppressedDeliveryType], 'automated') ? 'automated' : 'manual';
+}
+
+/**
+ * getBasalPathGroups
+ * @param {Array} basals - Array of preprocessed Tidepool basal objects
+ * @return {Array} groups of alternating 'automated' and 'manual' datums
+ */
+export function getBasalPathGroups(basals) {
+  const basalPathGroups = [];
+  let currentPathType;
+  _.each(basals, datum => {
+    const pathType = getBasalPathGroupType(datum);
+    if (pathType !== currentPathType) {
+      currentPathType = pathType;
+      basalPathGroups.push([]);
+    }
+    _.last(basalPathGroups).push(datum);
+  });
+
+  return basalPathGroups;
+}
+
+/**
  * getTotalBasal
  * @param {Array} basals - Array of preprocessed Tidepool basal objects
  *                         trimmed to fit within the timespan the total basal
@@ -62,4 +97,83 @@ export function getTotalBasal(basals) {
   return _.reduce(basals, (result, basal) => (
     result + basal.rate * (basal.duration / ONE_HR)
   ), 0);
+}
+
+/**
+ * Get the start and end indexes and datetimes of basal datums within a given time range
+ * @param {Array} data Array of Tidepool basal data
+ * @param {String} s ISO date string for the start of the range
+ * @param {String} e ISO date string for the end of the range
+ * @param {Boolean} optionalExtents If true, allow basal gaps at start and end extents of the range.
+ * @returns {Object} The start and end datetimes and indexes
+ */
+export function getEndpoints(data, s, e, optionalExtents = false) {
+  const start = new Date(s);
+  const end = new Date(e);
+
+  const startIndex = _.findIndex(
+    data,
+    segment => (optionalExtents || new Date(segment.normalTime).valueOf() <= start)
+      && (start <= new Date(segment.normalEnd).valueOf())
+  );
+
+  const endIndex = _.findLastIndex(
+    data,
+    segment => (new Date(segment.normalTime).valueOf() <= end)
+      && (optionalExtents || end <= new Date(segment.normalEnd).valueOf())
+  );
+
+  return {
+    start: {
+      datetime: start.toISOString(),
+      index: startIndex,
+    },
+    end: {
+      datetime: end.toISOString(),
+      index: endIndex,
+    },
+  };
+}
+
+/**
+ * Get durations of basal groups within a given span of time
+ * @param {Array} data Array of Tidepool basal data
+ * @param {String} s ISO date string for the start of the range
+ * @param {String} e ISO date string for the end of the range
+ * @returns {Object} The durations (in ms) keyed by basal group type
+ */
+export function getGroupDurations(data, s, e) {
+  const endpoints = getEndpoints(data, s, e, true);
+
+  const durations = {
+    automated: 0,
+    manual: 0,
+  };
+
+  if ((endpoints.start.index >= 0) && (endpoints.end.index >= 0)) {
+    const start = new Date(endpoints.start.datetime);
+    const end = new Date(endpoints.end.datetime);
+
+    // handle first segment, which may have started before the start endpoint
+    let segment = data[endpoints.start.index];
+    const initialSegmentDuration = _.min([new Date(segment.normalEnd) - start, segment.duration]);
+    durations[getBasalPathGroupType(segment)] = initialSegmentDuration;
+
+    // add the durations of all subsequent basals, minus the last
+    let i = endpoints.start.index + 1;
+    while (i < endpoints.end.index) {
+      segment = data[i];
+      durations[getBasalPathGroupType(segment)] += segment.duration;
+      i++;
+    }
+
+    // handle last segment, which may go past the end endpoint
+    segment = data[endpoints.end.index];
+    durations[getBasalPathGroupType(segment)] += _.min([
+      end - new Date(segment.normalTime),
+      segment.duration,
+    ]);
+  }
+
+  return durations;
 }

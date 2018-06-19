@@ -46,7 +46,7 @@
 
 .categoryContainer {
   max-width: 300px;
-  min-width: 240px;
+  min-width: 250px;
   margin-bottom: 10px;
   margin-right: 10px;
 }
@@ -76,8 +76,22 @@
   composes: basalHeaderBackground settingsHeaderDecoration settingsHeaderLayout settingsHeaderText from './settings.css';
 }
 
+.twoLineBasalScheduleHeader > div:first-child {
+  padding-left: 0;
+}
+
 .bolusSettingsHeader {
   composes: bolusHeaderBackground settingsHeader from './settings.css';
+}
+
+.automatedBasalHeaderBackground {
+  composes: automatedBasalHeaderBackground from './settings.css';
+  text-align: left;
+  padding-left: 28px;
+}
+
+.automatedBasalHeaderBackground > span {
+  padding-left: 5px;
 }
 
 @media print {
