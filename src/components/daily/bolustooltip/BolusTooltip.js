@@ -21,11 +21,27 @@ import * as bolusUtils from '../../../utils/bolus';
 import { formatLocalizedFromUTC, formatDuration } from '../../../utils/datetime';
 import { formatInsulin } from '../../../utils/format';
 import { getAnnotationMessages } from '../../../utils/annotations';
+import { formatDecimalNumber, formatBgValue } from '../../../utils/format';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './BolusTooltip.css';
 
 class BolusTooltip extends PureComponent {
+  formatInsulin(qty) {
+    let decimalLength;
+    const qtyString = qty.toString();
+    if (qtyString.indexOf('.') !== -1 && qtyString.split('.')[1].length === 2) {
+      decimalLength = 2;
+    } else {
+      decimalLength = 1;
+    }
+    return formatDecimalNumber(qty, decimalLength);
+  }
+
+  formatBgValue(val) {
+    return formatBgValue(val, this.props.bgPrefs);
+  }
+
   isAnimasExtended() {
     const annotations = bolusUtils.getAnnotations(this.props.bolus);
     const isAnimasExtended =
@@ -56,9 +72,9 @@ class BolusTooltip extends PureComponent {
       // medtronic
       let value;
       if (targetLow === targetHigh) {
-        value = `${targetLow}`;
+        value = `${this.formatBgValue(targetLow)}`;
       } else {
-        value = `${targetLow}-${targetHigh}`;
+        value = `${this.formatBgValue(targetLow)}-${this.formatBgValue(targetHigh)}`;
       }
       return (
         <div className={styles.target}>
@@ -73,12 +89,12 @@ class BolusTooltip extends PureComponent {
       return [
         <div className={styles.target} key={'target'}>
           <div className={styles.label}>Target</div>
-          <div className={styles.value}>{`${target}`}</div>
+          <div className={styles.value}>{`${this.formatBgValue(target)}`}</div>
           <div className={styles.units} />
         </div>,
         <div className={styles.target} key={'range'}>
           <div className={styles.label}>Range</div>
-          <div className={styles.value}>{`${targetRange}`}</div>
+          <div className={styles.value}>{`${this.formatBgValue(targetRange)}`}</div>
           <div className={styles.units} />
         </div>,
       ];
@@ -88,12 +104,12 @@ class BolusTooltip extends PureComponent {
       return [
         <div className={styles.target} key={'target'}>
           <div className={styles.label}>Target</div>
-          <div className={styles.value}>{`${target}`}</div>
+          <div className={styles.value}>{`${this.formatBgValue(target)}`}</div>
           <div className={styles.units} />
         </div>,
         <div className={styles.target} key={'high'}>
           <div className={styles.label}>High</div>
-          <div className={styles.value}>{`${targetHigh}`}</div>
+          <div className={styles.value}>{`${this.formatBgValue(targetHigh)}`}</div>
           <div className={styles.units} />
         </div>,
       ];
@@ -102,7 +118,7 @@ class BolusTooltip extends PureComponent {
     return (
       <div className={styles.target}>
         <div className={styles.label}>Target</div>
-        <div className={styles.value}>{`${target}`}</div>
+        <div className={styles.value}>{`${this.formatBgValue(target)}`}</div>
         <div className={styles.units} />
       </div>
     );
@@ -203,7 +219,7 @@ class BolusTooltip extends PureComponent {
     const bgLine = !!bg && (
       <div className={styles.bg}>
         <div className={styles.label}>BG</div>
-        <div className={styles.value}>{bg}</div>
+        <div className={styles.value}>{this.formatBgValue(bg)}</div>
         <div className={styles.units} />
       </div>
     );
@@ -240,7 +256,7 @@ class BolusTooltip extends PureComponent {
       !!bg && (
       <div className={styles.isf}>
         <div className={styles.label}>ISF</div>
-        <div className={styles.value}>{`${isf}`}</div>
+        <div className={styles.value}>{`${this.formatBgValue(isf)}`}</div>
         <div className={styles.units} />
       </div>
       );
@@ -350,6 +366,7 @@ BolusTooltip.propTypes = {
   bolus: PropTypes.shape({
     type: PropTypes.string.isRequired,
   }).isRequired,
+  bgPrefs: PropTypes.object.isRequired,
   timePrefs: PropTypes.object.isRequired,
 };
 
