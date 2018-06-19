@@ -28,7 +28,7 @@ var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
-var { MGDL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require('./data/util/constants');
+var { MGDL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD, AUTOMATED_BASAL_LABELS } = require('./data/util/constants');
 
 var log = __DEV__ ? require('bows')('TidelineData') : _.noop;
 var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
@@ -170,7 +170,7 @@ function TidelineData(data, opts) {
       if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
         return true;
       }
-      if (d.type === 'settings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
+      if (d.type === 'pumpSettings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
         return true;
       }
       if (d.type === 'upload') {
@@ -387,6 +387,15 @@ function TidelineData(data, opts) {
     endTimer('setBGPrefs');
   };
 
+  this.setLastManualBasalSchedule = function() {
+    startTimer('setLastManualBasalSchedule');
+    var lastManualBasalSchedule = _.findLast(this.grouped.basal, { deliveryType: 'scheduled' });
+    if (lastManualBasalSchedule) {
+      _.last(this.grouped.pumpSettings).lastManualBasalSchedule = _.get(lastManualBasalSchedule, 'scheduleName');
+    }
+    endTimer('setLastManualBasalSchedule');
+  };
+
   function makeWatsonFn() {
     var MS_IN_MIN = 60000, watson;
     if (opts.timePrefs.timezoneAware) {
@@ -518,6 +527,17 @@ function TidelineData(data, opts) {
   endTimer('diabetesData');
 
   this.setBGPrefs();
+
+  this.activeScheduleIsAutomated = function() {
+    var latestPumpSettings = _.last(this.grouped.pumpSettings);
+    var automatedDeliverySchedule = _.get(AUTOMATED_BASAL_LABELS, _.get(latestPumpSettings, 'source'));
+    var activeSchedule = _.get(latestPumpSettings, 'activeSchedule');
+    return automatedDeliverySchedule && (automatedDeliverySchedule === activeSchedule);
+  };
+
+  if (this.activeScheduleIsAutomated()) {
+    this.setLastManualBasalSchedule();
+  }
 
   startTimer('setUtilities');
   this.setUtilities();

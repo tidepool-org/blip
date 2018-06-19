@@ -39,6 +39,26 @@ describe('constants', function() {
     expect(constants.MMOLL_UNITS).to.equal('mmol/L');
   });
 
+  it('should define the AUTOMATED_BASAL_DEVICE_MODELS mapping', function() {
+    expect(constants.AUTOMATED_BASAL_DEVICE_MODELS).to.eql({
+      Medtronic: ['1780'],
+    });
+  });
+
+  it('should define the AUTOMATED_BASAL_LABELS mapping', function() {
+    expect(constants.AUTOMATED_BASAL_LABELS).to.eql({
+      Medtronic: 'Auto Mode',
+      default: 'Automated',
+    });
+  });
+
+  it('should define the SCHEDULED_BASAL_LABELS mapping', function() {
+    expect(constants.SCHEDULED_BASAL_LABELS).to.eql({
+      Medtronic: 'Manual',
+      default: 'Manual',
+    });
+  });
+
   it('should define the DEFAULT_BG_BOUNDS MGDL_UNITS veryLow threshold as 54', function() {
     expect(constants.DEFAULT_BG_BOUNDS[constants.MGDL_UNITS].veryLow).to.equal(54);
   });

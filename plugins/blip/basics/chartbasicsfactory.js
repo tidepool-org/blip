@@ -34,6 +34,7 @@ var basicsState = require('./logic/state');
 var basicsActions = require('./logic/actions');
 var dataMungerMkr = require('./logic/datamunger');
 var constants = require('./logic/constants');
+var { getLatestPumpUpload, isAutomatedBasalDevice } = require('../../../js/data/util/device');
 
 var Section = require('./components/DashboardSection');
 var UnknownStatistic = React.createFactory(require('./components/misc/UnknownStatistic'));
@@ -58,6 +59,9 @@ var BasicsChart = React.createClass({
   },
 
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
+    var latestPumpUpload = getLatestPumpUpload(this.props.patientData.grouped.upload);
+    var inactiveBasalRatio = isAutomatedBasalDevice(latestPumpUpload) ? 'basalBolusRatio' : 'timeInAutoRatio';
+
     var insulinDataAvailable = this._insulinDataAvailable();
     var noPumpDataMessage = 'This section requires data from an insulin pump, so there\'s nothing to display.';
     var noSMBGDataMessage = 'This section requires data from a blood-glucose meter, so there\'s nothing to display.';
@@ -81,6 +85,18 @@ var BasicsChart = React.createClass({
     if (!this._hasSectionData(basicsData.sections.basals.type)) {
       basicsData.sections.basals.active = false;
       basicsData.sections.basals.message = noPumpDataMessage;
+    }
+
+    if (!this._automatedBasalEventsAvailable()) {
+      var basalSection = _.find(basicsData.sections, {type: 'basal'});
+
+      basalSection.selectorOptions.rows.forEach(function(row) {
+        _.each(row, function(option) {
+          if (option.key === 'automatedStop') {
+            option.active = false;
+          }
+        });
+      });
     }
 
     if (!this._hasSectionData('smbg') && !this._hasSectionData('calibration')) {
@@ -120,6 +136,8 @@ var BasicsChart = React.createClass({
       totalDailyDoseSection.noData = true;
       totalDailyDoseSection.togglable = togglableState.closed;
     }
+
+    delete(basicsData.sections[inactiveBasalRatio]);
   },
 
   _insulinDataAvailable: function() {
@@ -135,9 +153,14 @@ var BasicsChart = React.createClass({
     return false;
   },
 
+  _automatedBasalEventsAvailable: function() {
+    return _.get(this.props, 'patientData.basicsData.data.basal.summary.automatedStop.count', 0) > 0;
+  },
+
   _aggregatedDataEmpty: function() {
     var {
       basalBolusRatio,
+      timeInAutoRatio,
       averageDailyDose,
       averageDailyCarbs,
     } = this.state.data;
@@ -176,16 +199,19 @@ var BasicsChart = React.createClass({
   componentWillMount: function() {
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
-      basicsData = _.assign({}, basicsData, _.cloneDeep(basicsState));
       var dataMunger = dataMungerMkr(this.props.bgClasses, this.props.bgUnits);
+      var basalUtil = this.props.patientData.basalUtil;
+      var latestPump = dataMunger.getLatestPumpUploaded(this.props.patientData);
+      basicsData = _.assign({}, basicsData, basicsState(latestPump));
+
       dataMunger.reduceByDay(basicsData);
 
-      var latestPump = dataMunger.getLatestPumpUploaded(this.props.patientData);
       dataMunger.processInfusionSiteHistory(basicsData, latestPump, this.props.patient, this.props.permsOfLoggedInUser);
 
       basicsData.data.bgDistribution = dataMunger.bgDistribution(basicsData);
-      var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData);
+      var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData, basalUtil);
       basicsData.data.basalBolusRatio = basalBolusStats.basalBolusRatio;
+      basicsData.data.timeInAutoRatio = basalBolusStats.timeInAutoRatio;
       basicsData.data.averageDailyDose = basalBolusStats.averageDailyDose;
       basicsData.data.totalDailyDose = basalBolusStats.totalDailyDose;
       basicsData.data.averageDailyCarbs = basalBolusStats.averageDailyCarbs;
@@ -254,6 +280,7 @@ var BasicsChart = React.createClass({
           chart={section.chart}
           data={self.state.data}
           days={self.state.days}
+          labels={section.labels}
           name={section.name}
           onSelectDay={self.props.onSelectDay}
           open={section.open}

@@ -1,20 +1,21 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
 
+var _ = require('lodash');
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
@@ -64,6 +65,27 @@ describe('annotation definitions', function() {
           assert.isString(annotations.LEAD_TEXT[key]());
         });
       });
+    });
+  });
+
+  describe('disabled', function() {
+    it('should define an array of disabled annotations', function() {
+      expect(annotations.DISABLED).to.eql([
+        'basal/auto',
+        'medtronic600/smbg/bg-reading-received',
+        'medtronic600/smbg/user-accepted-remote-bg',
+        'medtronic600/smbg/user-rejected-remote-bg',
+        'medtronic600/smbg/remote-bg-acceptance-screen-timeout',
+        'medtronic600/smbg/bg-si-pass-result-recd-frm-gst',
+        'medtronic600/smbg/bg-si-fail-result-recd-frm-gst',
+        'medtronic600/smbg/bg-sent-for-calib',
+        'medtronic600/smbg/user-rejected-sensor-calib',
+        'medtronic600/smbg/entered-in-bg-entry',
+        'medtronic600/smbg/entered-in-meal-wizard',
+        'medtronic600/smbg/entered-in-bolus-wizard',
+        'medtronic600/smbg/entered-in-sensor-calib',
+        'medtronic600/smbg/entered-as-bg-marker',
+      ]);
     });
   });
 });

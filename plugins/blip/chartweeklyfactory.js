@@ -26,6 +26,7 @@ var EventEmitter = require('events').EventEmitter;
 var tideline = require('../../js/index');
 var fill = tideline.plot.util.fill;
 var dt = tideline.data.util.datetime;
+var { getLatestPumpUpload, isAutomatedBasalDevice } = require('../../js/data/util/device');
 var { MGDL_UNITS } = require('../../js/data/util/constants');
 
 // Create a 'Two Weeks' chart object that is a wrapper around Tideline components
@@ -140,6 +141,8 @@ function chartWeeklyFactory(el, options) {
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);
     });
 
+    var latestPumpUpload = getLatestPumpUpload(tidelineData.grouped.upload);
+
     chart.poolStats.addPlotType('stats', tideline.plot.stats.widget(chart.poolStats, {
       classes: chart.options.bgClasses,
       bgUnits: chart.options.bgUnits,
@@ -151,6 +154,8 @@ function chartWeeklyFactory(el, options) {
       yPosition: chart.poolStats.height() / 10,
       emitter: emitter,
       averageLabel: 'These two weeks',
+      manufacturer: _.get(latestPumpUpload, 'source'),
+      activeBasalRatio: isAutomatedBasalDevice(latestPumpUpload) ? 'timeInAuto' : 'basalBolus',
       puddleWeights : {
         ratio: 1.1,
         range: 1.2,

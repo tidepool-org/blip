@@ -15,21 +15,18 @@
  * == BSD2 LICENSE ==
  */
 
-var common = require('./common.js');
-var schema = require('./validator/schematron.js');
+/* jshint esversion:6 */
 
-var basalCommon = {
-  deliveryType: schema().in(['scheduled', 'suspend', 'temp', 'automated']),
-  deviceTime: schema().ifExists().isDeviceTime(),
-  duration: schema().ifExists().number().min(0),
-  normalEnd: schema().isISODateTime(),
-  rate: schema().number().min(0)
+var _ = require('lodash');
+
+var { AUTOMATED_BASAL_DEVICE_MODELS } = require('../../data/util/constants');
+
+module.exports = {
+  getLatestPumpUpload: (uploadData = []) => {
+    return _.findLast(uploadData, { deviceTags: ['insulin-pump'] });
+  },
+
+  isAutomatedBasalDevice: (pumpUpload = {}) => {
+    return _.includes(_.get(AUTOMATED_BASAL_DEVICE_MODELS, pumpUpload.source, []), pumpUpload.deviceModel);
+  },
 };
-
-module.exports = schema(
-  common,
-  schema(basalCommon),
-  {
-    suppressed: schema().ifExists().object(basalCommon)
-  }
-);
