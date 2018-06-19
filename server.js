@@ -3,6 +3,7 @@ var https = require('https');
 var path = require('path');
 var express = require('express');
 var helmet = require('helmet');
+var bodyParser = require('body-parser')
 
 var config = require('./config.server.js');
 
@@ -15,11 +16,19 @@ app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'self'"],
     styleSrc: ["'self'", "'unsafe-inline'"],
-    scriptSrc: ["'self'", "'unsafe-inline'"],
-    imgSrc: ["'self'", "'data:'"],
+    imgSrc: ["'self'", 'data:'],
+    fontSrc: ["'self'", 'data:'],
+    reportUri: '/report-violation',
+    objectSrc: ["'none'"],
+    workerSrc: ['blob:'],
+    // upgradeInsecureRequests: true,
   },
   reportOnly: true,
 }));
+
+app.use(bodyParser.json({
+  type: ['json', 'application/csp-report']
+}))
 
 var staticDir = path.join(__dirname, buildDir);
 app.use(express.static(staticDir));
@@ -29,6 +38,15 @@ app.use(express.static(staticDir));
 app.get('*', function (request, response){
   response.sendFile(staticDir + '/index.html');
 });
+
+app.post('/report-violation', function (req, res) {
+  if (req.body) {
+    console.log('CSP Violation: ', req.body)
+  } else {
+    console.log('CSP Violation: No data received!')
+  }
+  res.status(204).end()
+})
 
 // If no ports specified, just start on default HTTP port
 if (!(config.httpPort || config.httpsPort)) {
