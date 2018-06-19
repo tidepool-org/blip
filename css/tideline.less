@@ -324,10 +324,15 @@ svg {
 .d3-basal {
   &.d3-rect-basal {
     fill: @basal;
+    stroke: @basal;
+    stroke-opacity: 0.01;
     &.d3-legend {
       fill-opacity: 0.3;
-      stroke: @basal;
       stroke-width: 1.5;
+    }
+    &.d3-basal-automated {
+      fill: @basal-automated;
+      stroke: @basal-automated;
     }
   }
   &.d3-basal-invisible {
@@ -342,6 +347,9 @@ svg {
       stroke-dasharray: 1.5,3;
       stroke-linecap: round;
     }
+    &[class*='d3-path-basal-automated-'] {
+      stroke: @basal-automated;
+    }
   }
   // only in legends
   &.d3-rect-basal-undelivered {
@@ -349,6 +357,29 @@ svg {
     stroke: @basal;
     stroke-dasharray: 1.5, 3;
     stroke-width: 1.5;
+  }
+}
+
+.d3-basal-marker-group {
+  fill: @basal;
+  stroke: @basal;
+  stroke-width: 2.5;
+
+  &[class*='d3-basal-marker-group-automated-'] {
+    fill: @basal-automated;
+    stroke: @basal-automated;
+
+    .d3-basal-group-label {
+      fill: #4e4e4f;
+    }
+  }
+
+  .d3-basal-group-label {
+    fill: #ffffff;
+    stroke-width: 0;
+    font-size: 10px;
+    text-anchor: middle;
+    dominant-baseline: central;
   }
 }
 
@@ -510,6 +541,12 @@ text.d3-tabular-ui {
       &.d3-stats-bolus {
         fill: @bolus;
       }
+      &.d3-stats-basalManualDuration {
+        fill: @basal;
+      }
+      &.d3-stats-basalAutomatedDuration {
+        fill: @basal-automated;
+      }
     }
   }
   rect {
@@ -524,6 +561,12 @@ text.d3-tabular-ui {
       }
       &.d3-bolus {
         fill: @bolus;
+      }
+      &.d3-basalManualDuration {
+        fill: @basal;
+      }
+      &.d3-basalAutomatedDuration {
+        fill: @basal-automated;
       }
       &.d3-bg-low {
         fill: @bg-low;

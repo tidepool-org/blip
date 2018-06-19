@@ -1,19 +1,21 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+/* jshint esversion:6 */
 
 var _ = require('lodash');
 
@@ -24,6 +26,7 @@ module.exports = function(opts) {
   opts = opts || {};
 
   var defaults = {
+    classes: [],
     headSize: 16,
     leadSize: 14,
     displaySize: 24
@@ -39,7 +42,7 @@ module.exports = function(opts) {
     selection.call(puddle.addHoverRect);
   }
 
-  puddle.dataDisplay = function(selection, display) {
+  puddle.dataDisplay = function(selection, display = []) {
     // the main (large) number of each puddle is the 'data display'
     // which is anchored with a central baseline 80% down from the top of the pool
     var dataDisplayHeight = opts.height * 4/5;

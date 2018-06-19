@@ -56,6 +56,10 @@ describe('basics classifiers', function() {
       expect(classifier({deliveryType: 'scheduled'})).to.deep.equal([]);
     });
 
+    it('should return no tags for an automated basal', function() {
+      expect(classifier({deliveryType: 'automated'})).to.deep.equal([]);
+    });
+
     it('should return `temp` for a temp basal', function() {
       expect(classifier({deliveryType: 'temp'})).to.deep.equal(['temp']);
     });
