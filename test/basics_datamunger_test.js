@@ -91,7 +91,7 @@ var siteChangeSections = {
 };
 
 var bu = new BasalUtil([]);
-var dm = require('../plugins/blip/basics/logic/datamunger')(bgClasses, bu);
+var dm = require('../plugins/blip/basics/logic/datamunger')(bgClasses);
 var dmMmol = require('../plugins/blip/basics/logic/datamunger')(bgClassesMmoll, MMOLL_UNITS);
 
 var types = require('../dev/testpage/types');

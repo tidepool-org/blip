@@ -24,7 +24,6 @@ var format = require('../data/util/format');
 var scales = require('./util/scales')();
 var bgBoundaryClass = require('./util/bgboundary');
 var categorizer = require('../data/util/categorize');
-var { MGDL_UNITS } = require('../data/util/constants');
 var { MGDL_UNITS, DEFAULT_BG_BOUNDS } = require('../data/util/constants');
 
 module.exports = function(pool, opts) {
@@ -109,7 +108,7 @@ module.exports = function(pool, opts) {
   smbg.id = function(d) {
     return 'smbg_' + d.id;
   };
-  
+
   smbg.addTooltip = function(d, rect) {
     if (_.get(opts, 'onSMBGHover', false)) {
       opts.onSMBGHover({
