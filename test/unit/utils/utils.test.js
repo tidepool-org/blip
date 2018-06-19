@@ -508,33 +508,33 @@ describe('utils', () => {
       const data = [
         {
           type: 'upload',
-          time: '2018-03-01:00:00:00Z',
+          time: '2018-03-01T00:00:00.000Z',
         },
         {
           type: 'setting',
-          time: '2017-02-18:00:00:00Z',
+          time: '2017-02-18T00:00:00.000Z',
         },
         {
           type: 'basal',
-          time: '2018-02-14:00:00:00Z',
+          time: '2018-02-14T00:00:00.000Z',
         },
         {
           type: 'wizard',
-          time: '2018-02-01:00:00:00Z',
+          time: '2018-02-01T00:00:00.000Z',
         },
         {
           type: 'smbg',
-          time: '2018-02-20:00:00:00Z',
+          time: '2018-02-20T00:00:00.000Z',
         },
         {
           type: 'cbg',
-          time: '2018-02-02:00:00:00Z',
+          time: '2018-02-02T00:00:00.000Z',
         },
       ];
 
       expect(utils.getDiabetesDataRange(data)).to.deep.equal({
-        start: '2018-02-01:00:00:00Z',
-        end: '2018-02-20:00:00:00Z',
+        start: '2018-02-01T00:00:00.000Z',
+        end: '2018-02-20T00:00:00.000Z',
         spanInDays: 19,
         count: 4,
       });

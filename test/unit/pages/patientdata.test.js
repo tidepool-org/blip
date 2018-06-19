@@ -1485,6 +1485,11 @@ describe('PatientData', function () {
             pumpSettings: {},
           },
         },
+        printOpts: {
+          numDays: {
+            daily: 6,
+          },
+        },
       };
 
       const wrapper = shallow(<PatientData {...props} />);
@@ -2205,15 +2210,15 @@ describe('PatientData', function () {
         currentPatientInViewId: 40,
         patientDataMap: {
           40: [
-            { time: '2018-02-01T00:00:00.000Z', type: 'cbg' },
-            { time: '2018-01-01T00:00:00.000Z', type: 'bolus' },
-            { time: '2017-12-01T00:00:00.000Z', type: 'upload' },
-            { time: '2017-11-01T00:00:00.000Z', type: 'basal' },
+            { id: 1, time: '2018-02-01T00:00:00.000Z', type: 'cbg' },
+            { id: 2, time: '2018-01-01T00:00:00.000Z', type: 'bolus' },
+            { id: 3, time: '2017-12-01T00:00:00.000Z', type: 'upload' },
+            { id: 4, time: '2017-11-01T00:00:00.000Z', type: 'basal' },
           ],
         },
         patientNotesMap: {
           40: [
-            { messagetext: 'hello' },
+            { id: 5, messagetext: 'hello' },
           ],
         },
         patient: {
@@ -2392,7 +2397,7 @@ describe('PatientData', function () {
               40: [
                 { time: '2018-02-01T00:00:00.000Z', type: 'upload' },
                 { time: '2017-12-01T00:00:00.000Z', type: 'basal' }, // over 4 weeks back, but still should be included
-                { time: '2017-11-30T00:00:00.000Z', type: 'cbg' }, // not included in slice
+                { time: '2017-10-30T00:00:00.000Z', type: 'cbg' }, // not included in slice
               ],
             },
           }));
@@ -2630,12 +2635,19 @@ describe('PatientData', function () {
       });
 
       context('processing subsequent data', () => {
-        it('should call addData util with a combined patient data and notes array', () => {
+        it('should call addData util with a combined patient data and notes array, and any previously processed upload data', () => {
           wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastDatumProcessedIndex: 1, // previous data has been processed
             lastProcessedDateTarget: '2018-02-01T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
           });
-          wrapper.setProps(shouldProcessProps);
+          const previousUpload = { id: 0, time: '2018-02-10T00:00:00.000Z', type: 'upload' };
+          const propsWithPreviousUpload = _.assign({}, shouldProcessProps, {
+            patientDataMap: {
+              40: [previousUpload].concat(shouldProcessProps.patientDataMap[40]),
+            }
+          });
+
+          wrapper.setProps(propsWithPreviousUpload);
           setStateSpy.reset();
           PD.__ResetDependency__('utils');
 
@@ -2645,7 +2657,8 @@ describe('PatientData', function () {
           sinon.assert.calledWith(
             addDataStub,
             [
-              sinon.match(shouldProcessProps.patientDataMap[40][1]),
+              sinon.match(propsWithPreviousUpload.patientDataMap[40][2]),
+              sinon.match(previousUpload), // previously processed upload record included
               sinon.match({ messageText: 'hello' }),
             ],
           );
