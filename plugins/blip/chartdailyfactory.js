@@ -254,7 +254,9 @@ function chartDailyFactory(el, options) {
       bgUnits: chart.options.bgUnits,
       classes: chart.options.bgClasses,
       yScale: scaleBG,
-      timezoneAware: chart.options.timePrefs.timezoneAware
+      timezoneAware: chart.options.timePrefs.timezoneAware,
+      onSMBGHover: options.onSMBGHover,
+      onSMBGOut: options.onSMBGOut,
     }), true, true);
 
     // TODO: when we bring responsiveness in
