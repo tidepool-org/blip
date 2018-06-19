@@ -24,7 +24,7 @@ var expect = chai.expect;
 var _ = require('lodash');
 
 var dt = require('../js/data/util/datetime');
-var { MGDL_UNITS, MMOLL_UNITS } = require('../js/data/util/constants');
+var { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } = require('../js/data/util/constants');
 
 var nurseshark = require('../plugins/nurseshark');
 
@@ -254,9 +254,9 @@ describe('nurseshark', function() {
         timezoneOffset: 0
       }];
       var res = nurseshark.processData(bgs, MGDL_UNITS).processedData;
-      expect(res[0].value).to.equal(256);
-      expect(res[1].value).to.equal(45);
-      expect(res[2].value).to.equal(127);
+      expect(res[0].value).to.equal(bgs[0].value * MGDL_PER_MMOLL);
+      expect(res[1].value).to.equal(bgs[1].value * MGDL_PER_MMOLL);
+      expect(res[2].value).to.equal(bgs[2].value * MGDL_PER_MMOLL);
     });
 
     it('should translate wizard bg-related fields to mg/dL when such units specified', function() {
@@ -276,12 +276,12 @@ describe('nurseshark', function() {
         timezoneOffset: 0
       }];
       var res = nurseshark.processData(datum, MGDL_UNITS).processedData[0];
-      expect(res.bgInput).to.equal(273);
-      expect(res.bgTarget.low).to.equal(100);
-      expect(res.bgTarget.high).to.equal(100);
-      expect(res.bgTarget.target).to.equal(100);
-      expect(res.bgTarget.range).to.equal(10);
-      expect(res.insulinSensitivity).to.equal(68);
+      expect(res.bgInput).to.equal(datum[0].bgInput * MGDL_PER_MMOLL);
+      expect(res.bgTarget.low).to.equal(datum[0].bgTarget.low * MGDL_PER_MMOLL);
+      expect(res.bgTarget.high).to.equal(datum[0].bgTarget.high * MGDL_PER_MMOLL);
+      expect(res.bgTarget.target).to.equal(datum[0].bgTarget.target * MGDL_PER_MMOLL);
+      expect(res.bgTarget.range).to.equal(datum[0].bgTarget.range * MGDL_PER_MMOLL);
+      expect(res.insulinSensitivity).to.equal(datum[0].insulinSensitivity * MGDL_PER_MMOLL);
     });
 
     it('should translate pumpSettings bg-related fields to mg/dL when such units specified', function() {
@@ -310,10 +310,10 @@ describe('nurseshark', function() {
         timezoneOffset: 0
       }];
       var res = nurseshark.processData(settings, MGDL_UNITS).processedData[0];
-      expect(res.bgTarget[0].target).to.equal(120);
-      expect(res.bgTarget[0].range).to.equal(10);
-      expect(res.insulinSensitivity[0].amount).to.equal(80);
-      expect(res.insulinSensitivity[1].amount).to.equal(90);
+      expect(res.bgTarget[0].target).to.equal(settings[0].bgTarget[0].target * MGDL_PER_MMOLL);
+      expect(res.bgTarget[0].range).to.equal(settings[0].bgTarget[0].range * MGDL_PER_MMOLL);
+      expect(res.insulinSensitivity[0].amount).to.equal(settings[0].insulinSensitivity[0].amount * MGDL_PER_MMOLL);
+      expect(res.insulinSensitivity[1].amount).to.equal(settings[0].insulinSensitivity[1].amount * MGDL_PER_MMOLL);
     });
 
     it('should reshape basalSchedules from an object to an array', function() {

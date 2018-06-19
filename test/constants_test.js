@@ -38,4 +38,44 @@ describe('constants', function() {
   it('should define the MMOLL_UNITS conversion as mmol/L', function() {
     expect(constants.MMOLL_UNITS).to.equal('mmol/L');
   });
+
+  it('should define the DEFAULT_BG_BOUNDS MGDL_UNITS veryLow threshold as 54', function() {
+    expect(constants.DEFAULT_BG_BOUNDS[constants.MGDL_UNITS].veryLow).to.equal(54);
+  });
+
+  it('should define the DEFAULT_BG_BOUNDS MGDL_UNITS targetLower threshold as 70', function() {
+    expect(constants.DEFAULT_BG_BOUNDS[constants.MGDL_UNITS].targetLower).to.equal(70);
+  });
+
+  it('should define the DEFAULT_BG_BOUNDS MGDL_UNITS targetUpper threshold as 180', function() {
+    expect(constants.DEFAULT_BG_BOUNDS[constants.MGDL_UNITS].targetUpper).to.equal(180);
+  });
+
+  it('should define the DEFAULT_BG_BOUNDS MGDL_UNITS veryHigh threshold as 250', function() {
+    expect(constants.DEFAULT_BG_BOUNDS[constants.MGDL_UNITS].veryHigh).to.equal(250);
+  });
+
+  it('should define the DEFAULT_BG_BOUNDS MMOLL_UNITS veryLow threshold as 3.0', function() {
+    expect(constants.DEFAULT_BG_BOUNDS[constants.MMOLL_UNITS].veryLow).to.equal(3.0);
+  });
+
+  it('should define the DEFAULT_BG_BOUNDS MMOLL_UNITS targetLower threshold as 3.9', function() {
+    expect(constants.DEFAULT_BG_BOUNDS[constants.MMOLL_UNITS].targetLower).to.equal(3.9);
+  });
+
+  it('should define the DEFAULT_BG_BOUNDS MMOLL_UNITS targetUpper threshold as 10.0', function() {
+    expect(constants.DEFAULT_BG_BOUNDS[constants.MMOLL_UNITS].targetUpper).to.equal(10.0);
+  });
+
+  it('should define the DEFAULT_BG_BOUNDS MMOLL_UNITS veryHigh threshold as 13.9', function() {
+    expect(constants.DEFAULT_BG_BOUNDS[constants.MMOLL_UNITS].veryHigh).to.equal(13.9);
+  });
+
+  it('should define the BG_CLAMP_THRESHOLD in MGDL_UNITS threshold as 600', function() {
+    expect(constants.BG_CLAMP_THRESHOLD[constants.MGDL_UNITS]).to.equal(600);
+  });
+
+  it('should define the BG_CLAMP_THRESHOLD in MMOLL_UNITS threshold as 600/MGDL_PER_MMOLL', function() {
+    expect(constants.BG_CLAMP_THRESHOLD[constants.MMOLL_UNITS]).to.equal(600/constants.MGDL_PER_MMOLL);
+  });
 });

@@ -23,17 +23,17 @@ var crossfilter = require('crossfilter');
 var datetime = require('./util/datetime');
 var categorizer = require('./util/categorize');
 
-var { MGDL_UNITS, MMOLL_UNITS } = require('../data/util/constants');
+var { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../data/util/constants');
 
 function BGUtil(data, opts) {
 
   opts = opts || {};
   var defaults = {
     bgClasses: {
-      'very-low': { boundary: 55 },
-      low: { boundary: 70 },
-      target: { boundary: 180 },
-      high: { boundary: 300 },
+      'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
+      low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
     },
     bgUnits: MGDL_UNITS
   };

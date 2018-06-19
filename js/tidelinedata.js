@@ -28,7 +28,7 @@ var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
-var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('./data/util/constants');
+var { MGDL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require('./data/util/constants');
 
 var log = __DEV__ ? require('bows')('TidelineData') : _.noop;
 var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
@@ -38,20 +38,20 @@ function TidelineData(data, opts) {
   var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings'];
 
   opts = opts || {};
-
+  var bgUnits = opts.bgUnits || MGDL_UNITS;
   var defaults = {
     CBG_PERCENT_FOR_ENOUGH: 0.75,
     CBG_MAX_DAILY: 288,
     SMBG_DAILY_MIN: 4,
     basicsTypes: ['basal', 'bolus', 'cbg', 'smbg', 'deviceEvent', 'wizard', 'upload'],
+    bgUnits,
     bgClasses: {
-      'very-low': { boundary: 55 },
-      low: { boundary: 70 },
-      target: { boundary: 180 },
-      high: { boundary: 300 },
-      'very-high': { boundary: 600 }
+      'very-low': { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow },
+      low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
+      target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
+      high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
+      'very-high': { boundary: BG_CLAMP_THRESHOLD[bgUnits] },
     },
-    bgUnits: MGDL_UNITS,
     fillOpts: {
       classes: {
         0: 'darkest',
@@ -77,12 +77,6 @@ function TidelineData(data, opts) {
       timezoneName: dt.getBrowserTimezone(),
     }
   };
-
-  if (opts.bgUnits === MMOLL_UNITS) {
-    _.forOwn(defaults.bgClasses, function(value, key) {
-      defaults.bgClasses[key].boundary = value.boundary/MGDL_PER_MMOLL;
-    });
-  }
 
   _.defaultsDeep(opts, defaults);
   var that = this;
@@ -374,8 +368,22 @@ function TidelineData(data, opts) {
 
   this.setBGPrefs = function() {
     startTimer('setBGPrefs');
-    this.bgClasses = opts.bgClasses;
-    this.bgUnits = opts.bgUnits;
+      this.bgClasses = opts.bgClasses;
+      this.bgUnits = opts.bgUnits;
+
+      // mg/dL values are converted to mmol/L and rounded to 5 decimal places on platform.
+      // This can cause some discrepancies when converting back to mg/dL, and throw off the
+      // categorization.
+      // i.e. A 'target' value 180 gets stored as 9.99135, which gets converted back to 180.0000651465
+      // which causes it to be classified as 'high'
+      // Thus, we need to allow for our thresholds accordingly.
+      if (this.bgUnits === MGDL_UNITS) {
+        var roundingAllowance = 0.0001;
+        this.bgClasses['very-low'].boundary -= roundingAllowance;
+        this.bgClasses.low.boundary -= roundingAllowance;
+        this.bgClasses.target.boundary += roundingAllowance;
+        this.bgClasses.high.boundary += roundingAllowance;
+      }
     endTimer('setBGPrefs');
   };
 

@@ -18,22 +18,16 @@
 /* jshint esversion:6 */
 
 var _ = require('lodash');
-var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } = require('../../data/util/constants');
+var { MGDL_UNITS, DEFAULT_BG_BOUNDS } = require('../../data/util/constants');
 
-var Categorizer = function(bgClasses, bgUnits = MGDL_UNITS){
+var Categorizer = function(bgClasses = {}, bgUnits = MGDL_UNITS){
   var classes = _.cloneDeep(bgClasses);
   var defaults = {
-    'very-low': { boundary: 55 },
-    low: { boundary: 70 },
-    target: { boundary: 180 },
-    high: { boundary: 300 },
+    'very-low': { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow },
+    low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
+    target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
+    high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
   };
-
-  if (bgUnits === MMOLL_UNITS) {
-    _.forOwn(defaults, function(value, key) {
-      defaults[key].boundary = value.boundary/MGDL_PER_MMOLL;
-    });
-  }
 
   _.defaults(classes, defaults);
 
