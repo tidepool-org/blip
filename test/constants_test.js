@@ -57,6 +57,7 @@ describe('constants', function() {
       Medtronic: 'Manual',
       default: 'Manual',
     });
+  });
 
   it('should define the DEFAULT_BG_BOUNDS MGDL_UNITS veryLow threshold as 54', function() {
     expect(constants.DEFAULT_BG_BOUNDS[constants.MGDL_UNITS].veryLow).to.equal(54);
