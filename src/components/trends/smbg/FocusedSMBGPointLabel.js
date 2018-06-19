@@ -18,6 +18,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import Tooltip from '../../common/tooltips/Tooltip';
+import SMBGToolTip from '../../daily/smbgtooltip/SMBGTooltip';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { formatBgValue } from '../../../utils/format';
@@ -27,7 +28,6 @@ import {
   formatLocalizedFromUTC,
   getHammertimeFromDatumWithTimePrefs,
 } from '../../../utils/datetime';
-import { categorizeSmbgSubtype } from '../../../utils/trends/data';
 
 import styles from './FocusedSMBGPointLabel.css';
 
@@ -90,18 +90,13 @@ const FocusedSMBGPointLabel = (props) => {
     );
   } else {
     focusedTooltip = (
-      <Tooltip
-        title={<span className={styles.tipWrapper}>
-          <span className={styles.shortDate}>{shortDate}</span>
-          <span className={styles.shortTime}>{formatClocktimeFromMsPer24(datum.msPer24)}</span>
-        </span>
-        }
-        content={<span className={styles.tipWrapper}>
-          <span className={styles.detailNumber}>
-            {formatBgValue(datum.value, bgPrefs, getOutOfRangeThreshold(datum))}
+      <SMBGToolTip
+        title={
+          <span className={styles.tipWrapper}>
+            <span className={styles.dateTime}>{
+              `${shortDate}, ${formatClocktimeFromMsPer24(datum.msPer24)}`
+            }</span>
           </span>
-          <span className={styles.subType}>{categorizeSmbgSubtype(datum)}</span>
-        </span>
         }
         position={position}
         side={side}
@@ -109,6 +104,9 @@ const FocusedSMBGPointLabel = (props) => {
           top: 0,
           horizontal: DETAILED_DAY_HORIZ_OFFSET,
         }}
+        smbg={datum}
+        bgPrefs={bgPrefs}
+        timePrefs={timePrefs}
       />
     );
   }

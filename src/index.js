@@ -27,6 +27,7 @@ import PumpSettingsContainer from './components/settings/common/PumpSettingsCont
 import TrendsContainer from './components/trends/common/TrendsContainer';
 import Tooltip from './components/common/tooltips/Tooltip';
 import BolusTooltip from './components/daily/bolustooltip/BolusTooltip';
+import SMBGTooltip from './components/daily/smbgtooltip/SMBGTooltip';
 
 import reducers from './redux/reducers/';
 
@@ -43,6 +44,7 @@ const components = {
   TwoOptionToggle,
   Tooltip,
   BolusTooltip,
+  SMBGTooltip,
 };
 
 const containers = {
