@@ -15,6 +15,7 @@ module.exports = {
   SCHEDULED_BASAL_LABELS: {
     Medtronic: 'Manual',
     default: 'Manual',
+  },
   MGDL_PER_MMOLL,
   MGDL_UNITS,
   MMOLL_UNITS,
