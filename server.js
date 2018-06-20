@@ -21,6 +21,7 @@ app.use(helmet.contentSecurityPolicy({
     reportUri: '/report-violation',
     objectSrc: ["'none'"],
     workerSrc: ['blob:'],
+    connectSrc: ["'self'", process.env.API_HOST],
     // upgradeInsecureRequests: true,
   },
   reportOnly: true,
@@ -41,9 +42,14 @@ app.get('*', function (request, response){
 
 app.post('/report-violation', function (req, res) {
   if (req.body) {
-    console.log('CSP Violation: ', req.body)
+    console.log('CSP Violation: ', {
+      'violated-directive': req.body['csp-report']['violated-directive'],
+      'document-uri': req.body['csp-report']['document-uri'],
+      'blocked-uri': req.body['csp-report']['blocked-uri'],
+      'source-file': req.body['csp-report']['source-file'] + ':' + req.body['csp-report']['line-number'] + ':' + req.body['csp-report']['column-number'],
+    });
   } else {
-    console.log('CSP Violation: No data received!')
+    console.log('CSP Violation: No data received!');
   }
   res.status(204).end()
 })
