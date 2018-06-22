@@ -94,11 +94,16 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-circle-cbg').on('mouseover', function() {
         var thisCbg = _.clone(d3.select(this).datum());
-        cbg.addTooltip(thisCbg);
+        var parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect(); 
+        var container = this.getBoundingClientRect(); 
+        container.y = container.top - parentContainer.top; 
+ 
+        cbg.addTooltip(d3.select(this).datum(), container); 
       });
       selection.selectAll('.d3-circle-cbg').on('mouseout', function() {
-        var id = d3.select(this).attr('id').replace('cbg_', 'tooltip_');
-        mainGroup.select('#' + id).remove();
+        if (_.get(opts, 'onCBGOut', false)){ 
+          opts.onCBGOut(); 
+        } 
       });
     });
   }
@@ -111,35 +116,15 @@ module.exports = function(pool, opts) {
     return opts.yScale(d.value);
   };
 
-  cbg.orientation = function(category) {
-    if (category === 'high' || category ==='veryhigh') {
-      return 'leftAndDown';
-    }
-    else {
-      return 'normal';
-    }
-  };
-
-  cbg.addTooltip = function(d) {
-    var tooltips = pool.tooltips();
-    var getBgBoundaryClass = bgBoundaryClass(opts.classes, opts.bgUnits);
-    var cssClass = getBgBoundaryClass(d);
-    var category = categorize(d);
-    // Round the value after categorization
-    d.value = format.tooltipBG(d, opts.bgUnits);
-    tooltips.addFixedTooltip({
-      cssClass: cssClass,
-      datum: d,
-      orientation: {
-        'default': cbg.orientation(category),
-        leftEdge: cbg.orientation(category) === 'leftAndDown' ? 'rightAndDown': 'normal',
-        rightEdge: cbg.orientation(category) === 'normal' ? 'leftAndUp': 'leftAndDown'
-      },
-      shape: 'cbg',
-      xPosition: cbg.xPosition,
-      yPosition: cbg.yPosition
-    });
-  };
+  cbg.addTooltip = function(d, rect) {
+    if (_.get(opts, 'onCBGHover', false)) {
+      opts.onCBGHover({ 
+        data: d, 
+        rect: rect, 
+        class: categorizer(opts.classes, opts.bgUnits)(d) 
+      }); 
+    };
+  }
 
   cbg.addAnnotations = function(data) {
     for (var i = 0; i < data.length; ++i) {
