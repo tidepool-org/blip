@@ -84,6 +84,7 @@ describe('Daily', () => {
     onSwitchToSettings: () => {},
     onSwitchToWeekly: () => {},
     onSwitchToTrends: () => {},
+    trackMetric: () => {},
     onUpdateChartDateRange: sinon.stub(),
     updateDatetimeLocation: sinon.stub(),
     patient: {
@@ -138,7 +139,8 @@ describe('Daily', () => {
         onSwitchToDaily: () => {},
         onSwitchToSettings: () => {},
         onSwitchToWeekly: () => {},
-        updateDatetimeLocation: () => {}
+        updateDatetimeLocation: () => {},
+        trackMetric: () => {},
       };
       var dailyElem = React.createElement(Daily, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -156,6 +158,7 @@ describe('Daily', () => {
         patientData: {},
         printReady: false,
         pdf: {},
+        trackMetric: () => {},
       };
 
       var dailyElem = React.createElement(Daily, props);
@@ -175,6 +178,7 @@ describe('Daily', () => {
           url: 'blobURL',
         },
         onClickPrint: sinon.spy(),
+        trackMetric: () => {},
       };
 
       var dailyElem = React.createElement(Daily, props);
@@ -198,6 +202,7 @@ describe('Daily', () => {
         },
         onClickPrint: sinon.spy(),
         loading: false,
+        trackMetric: () => {},
       };
 
       const wrapper = shallow(<Daily {...props} />);
