@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.10.9",
+  "version": "1.11.0",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -19,7 +19,7 @@
     "serve-docs": "./node_modules/.bin/gitbook serve"
   },
   "dependencies": {
-    "@tidepool/viz": "0.10.2",
+    "@tidepool/viz": "0.11.0",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
@@ -75,7 +75,7 @@
     "shelljs": "0.7.3",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "0.7.6",
+    "tideline": "0.8.0",
     "tidepool-platform-client": "0.37.0",
     "uglify-es": "3.0.13",
     "url-loader": "0.5.7",
@@ -103,7 +103,7 @@
     "karma-sourcemap-loader": "0.3.7",
     "karma-webpack": "1.8.0",
     "mocha": "3.0.2",
-    "moment": "2.14.1",
+    "moment": "2.22.1",
     "nightwatch": "0.9.7",
     "object-invariant-test-helper": "0.1.1",
     "optional": "0.1.3",
