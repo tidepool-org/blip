@@ -1,5 +1,5 @@
-require('script!d3/d3.min.js');
-require('script!d3.chart/d3.chart.min.js');
+window.d3 = window.d3 || require('d3/d3.min.js');
+window.d3.chart = window.d3.chart || require('d3.chart/d3.chart.min.js');
 
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
@@ -158,7 +158,7 @@ d3.chart('Brush', {
   makeBrush: function() {
     var chart = this, emitter = this.emitter();
     function brushed() {
-      
+
       var origExtent = chart.brush.extent(), newExtent;
       var timezone = chart.timezone();
       // preserve width of handle on drag
@@ -187,7 +187,7 @@ d3.chart('Brush', {
     var initial = chart.initialExtent();
 
     var extentDates = [Date.parse(initial[0]), Date.parse(initial[1])];
-      
+
     this.brush = d3.svg.brush()
       .x(xScale)
       .extent(extentDates)
