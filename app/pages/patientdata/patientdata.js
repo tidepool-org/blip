@@ -267,7 +267,7 @@ export let PatientData = React.createClass({
   renderSettings: function(){
     return (
       <div>
-        <div id="app-no-print">
+        <div class="app-no-print">
           <Settings
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
