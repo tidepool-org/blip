@@ -343,7 +343,7 @@ describe('BasicsChart', function() {
       expect(render.state.sections.basalBolusRatio.active).to.be.true;
     });
 
-    it('should remove the "basal:bolus" and activate the "time in auto" ratio when pump is capable of automated delivery', function() {
+    it('should show both the "basal:bolus" and "time in auto" ratios when pump is capable of automated delivery', function() {
       var td = new TidelineData([
         new types.SMBG(),
         new types.Bolus(),
@@ -372,7 +372,7 @@ describe('BasicsChart', function() {
       var render = TestUtils.renderIntoDocument(elem);
 
       // averageDailyCarbs closed when no data
-      expect(render.state.sections.basalBolusRatio).to.be.undefined;
+      expect(render.state.sections.basalBolusRatio.active).to.be.true;
       expect(render.state.sections.timeInAutoRatio.active).to.be.true;
     });
   });
