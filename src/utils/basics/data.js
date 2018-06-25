@@ -506,10 +506,6 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
 
   const deviceLabels = getPumpVocabulary(manufacturer);
 
-  const activeBasalRatio = isAutomatedBasalDevice(manufacturer, deviceModel)
-    ? 'timeInAutoRatio'
-    : 'basalBolusRatio';
-
   const sectionNames = [
     'averageDailyCarbs',
     'basalBolusRatio',
@@ -594,7 +590,6 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
 
       case 'basalBolusRatio':
         title = 'Insulin ratio';
-        active = activeBasalRatio === 'basalBolusRatio';
         dimensions = [
           { key: 'basal', label: 'Basal' },
           { key: 'bolus', label: 'Bolus' },
@@ -603,7 +598,7 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
 
       case 'timeInAutoRatio':
         title = `Time in ${deviceLabels[AUTOMATED_DELIVERY]} ratio`;
-        active = activeBasalRatio === 'timeInAutoRatio';
+        active = isAutomatedBasalDevice(manufacturer, deviceModel);
         dimensions = [
           { key: 'manual', label: `${deviceLabels[SCHEDULED_DELIVERY]}` },
           { key: 'automated', label: `${deviceLabels[AUTOMATED_DELIVERY]}` },
