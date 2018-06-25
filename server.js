@@ -18,13 +18,16 @@ app.use(helmet.contentSecurityPolicy({
     styleSrc: ["'self'", "'unsafe-inline'"],
     imgSrc: ["'self'", 'data:'],
     fontSrc: ["'self'", 'data:'],
-    reportUri: '/report-violation',
+    reportUri: '/event/csp-report/violation',
     objectSrc: ["'none'"],
     workerSrc: ['blob:'],
-    connectSrc: ["'self'", process.env.API_HOST],
-    // upgradeInsecureRequests: true,
+    connectSrc: [
+      "'self'",
+      process.env.API_HOST,
+      'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
+    ],
   },
-  reportOnly: true,
+  reportOnly: false,
 }));
 
 app.use(bodyParser.json({
@@ -40,14 +43,9 @@ app.get('*', function (request, response){
   response.sendFile(staticDir + '/index.html');
 });
 
-app.post('/report-violation', function (req, res) {
+app.post('/event/csp-report/violation', function (req, res) {
   if (req.body) {
-    console.log('CSP Violation: ', {
-      'violated-directive': req.body['csp-report']['violated-directive'],
-      'document-uri': req.body['csp-report']['document-uri'],
-      'blocked-uri': req.body['csp-report']['blocked-uri'],
-      'source-file': req.body['csp-report']['source-file'] + ':' + req.body['csp-report']['line-number'] + ':' + req.body['csp-report']['column-number'],
-    });
+    console.log('CSP Violation: ', req.body);
   } else {
     console.log('CSP Violation: No data received!');
   }
