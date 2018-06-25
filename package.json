@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "0.8.0",
+  "version": "0.8.1-automated-basal-add-basal-bolus.1",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
