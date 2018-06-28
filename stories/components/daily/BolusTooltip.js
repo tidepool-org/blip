@@ -318,6 +318,29 @@ const withMedtronicTarget = {
   insulinCarbRatio: 15,
 };
 
+const withAutoTarget = {
+  type: 'wizard',
+  bgInput: 180,
+  bgTarget: {
+    low: 60,
+    high: 180,
+  },
+  bolus: {
+    normal: 5,
+    normalTime: '2017-11-11T05:45:52.000Z',
+    annotations: [
+      { code: 'wizard/target-automated' },
+    ],
+  },
+  recommended: {
+    carb: 5,
+    correction: 0,
+    net: 5,
+  },
+  carbInput: 75,
+  insulinCarbRatio: 15,
+};
+
 const withAnimasTarget = {
   type: 'wizard',
   bgInput: 180,
@@ -551,6 +574,12 @@ storiesOf('BolusTooltip', module)
     <div>
       {refDiv}
       <BolusTooltip {...props} bolus={withMedtronicTarget} />
+    </div>
+  ))
+  .add('withAutoTarget', () => (
+    <div>
+      {refDiv}
+      <BolusTooltip {...props} bolus={withAutoTarget} />
     </div>
   ))
   .add('withAnimasTarget', () => (

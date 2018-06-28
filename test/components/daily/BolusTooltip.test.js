@@ -236,6 +236,29 @@ const withBGInputAndIOB = {
   insulinOnBoard: 0.5,
 };
 
+const withAutoTarget = {
+  type: 'wizard',
+  bgInput: 180,
+  bgTarget: {
+    low: 60,
+    high: 180,
+  },
+  bolus: {
+    normal: 5,
+    normalTime: '2017-11-11T05:45:52.000Z',
+    annotations: [
+      { code: 'wizard/target-automated' },
+    ],
+  },
+  recommended: {
+    carb: 5,
+    correction: 0,
+    net: 5,
+  },
+  carbInput: 75,
+  insulinCarbRatio: 15,
+};
+
 const withMedtronicTarget = {
   type: 'wizard',
   bgInput: 180,
@@ -532,6 +555,11 @@ describe('BolusTooltip', () => {
       const wrapper = mount(<BolusTooltip {...props} bolus={withTandemTarget} />);
       expect(shallow(wrapper.instance().getTarget()).type()).to.equal('div');
       expect(wrapper.find(targetValue).text()).to.equal('100');
+    });
+    it('should return "Auto" for a bolus with an automated wizard annotation', () => {
+      const wrapper = mount(<BolusTooltip {...props} bolus={withAutoTarget} />);
+      expect(shallow(wrapper.instance().getTarget()).type()).to.equal('div');
+      expect(wrapper.find(targetValue).text()).to.equal('Auto');
     });
   });
 
