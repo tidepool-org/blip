@@ -665,19 +665,19 @@ module.exports = function (config, deps) {
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    uploadBlobForUser: function (userId, blob, contentType, cb) {
-      common.assertArgumentsSize(arguments, 4);
+    uploadBlobForUser: function (userId, blob, contentType, digest, cb) {
+      common.assertArgumentsSize(arguments, 5);
 
       if (!common.hasDataHost()) {
       return cb({ status : common.STATUS_BAD_REQUEST, message: 'The data host needs to be configured' });
       }
 
       superagent
-      .post(common.makeDataUrl('/v1/users/' + userId + '/blobs'))
+      .post(common.makeAPIUrl('/v1/users/' + userId + '/blobs'))
       .send(blob)
       .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
       .set(common.TRACE_SESSION_HEADER, common.getSessionTrace())
-      // TODO: MD5 digest
+      .set(common.DIGEST_HEADER, digest)
       .type(contentType)
       .end(
       function (err, res) {
