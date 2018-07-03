@@ -320,6 +320,9 @@ const withMedtronicTarget = {
 
 const withAutoTarget = {
   type: 'wizard',
+  annotations: [
+    { code: 'wizard/target-automated' },
+  ],
   bgInput: 180,
   bgTarget: {
     low: 60,
@@ -328,9 +331,6 @@ const withAutoTarget = {
   bolus: {
     normal: 5,
     normalTime: '2017-11-11T05:45:52.000Z',
-    annotations: [
-      { code: 'wizard/target-automated' },
-    ],
   },
   recommended: {
     carb: 5,

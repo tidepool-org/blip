@@ -56,7 +56,7 @@ class BolusTooltip extends PureComponent {
     const targetLow = _.get(wizardTarget, 'low', null);
     const targetHigh = _.get(wizardTarget, 'high', null);
     const targetRange = _.get(wizardTarget, 'range', null);
-    const isAutomatedTarget = _.findIndex(bolusUtils.getAnnotations(this.props.bolus), {
+    const isAutomatedTarget = _.findIndex(_.get(this.props.bolus, 'annotations', []), {
       code: 'wizard/target-automated',
     }) !== -1;
     if (isAutomatedTarget) {
