@@ -164,7 +164,7 @@ var NavbarPatientCard = React.createClass({
   },
 
   renderOverlay: function() {
-    return <UploadLaunchOverlay overlayClickHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
   },
 
   getFullName: function() {
