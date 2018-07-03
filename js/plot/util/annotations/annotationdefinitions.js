@@ -35,6 +35,7 @@ var definitions = {
     'medtronic600/smbg/entered-in-bolus-wizard',
     'medtronic600/smbg/entered-in-sensor-calib',
     'medtronic600/smbg/entered-as-bg-marker',
+    'wizard/target-automated',
   ],
   LEAD_TEXT: {
     'stats-insufficient-data': function() {
