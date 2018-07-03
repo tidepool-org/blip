@@ -43,7 +43,7 @@ function chartWeeklyFactory(el, options) {
   _.defaults(options, defaults);
 
   var emitter = new EventEmitter();
-  var chart = tideline.twoWeek(emitter);
+  var chart = tideline.twoWeek(emitter, options.timePrefs);
   chart.options = options;
   chart.emitter = emitter;
 
