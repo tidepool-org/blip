@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "0.11.1-automated-basal-add-basal-bolus.1",
+  "version": "1.11.1",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
