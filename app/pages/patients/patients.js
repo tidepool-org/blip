@@ -54,7 +54,6 @@ export let Patients = React.createClass({
     trackMetric: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
     user: React.PropTypes.object,
-    permsOfLoggedInUser: React.PropTypes.object,
   },
 
   render: function() {
@@ -227,7 +226,6 @@ export let Patients = React.createClass({
             uploadUrl={this.props.uploadUrl}
             onClickPerson={this.handleClickPatient}
             onRemovePatient={this.props.onRemovePatient}
-            permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           />
         </div>
       </div>
@@ -371,7 +369,6 @@ let getFetchers = (dispatchProps, ownProps, api) => {
 export function mapStateToProps(state) {
   var user = null;
   let patientMap = {};
-  let permsOfLoggedInUser = null;
 
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
@@ -392,7 +389,6 @@ export function mapStateToProps(state) {
       _.forEach(state.blip.membershipInOtherCareTeams, (key) => {
         patientMap[key] = state.blip.allUsersMap[key];
       });
-      permsOfLoggedInUser = state.blip.membershipPermissionsInOtherCareTeams;
     }
 
     if (state.blip.membershipPermissionsInOtherCareTeams) {
@@ -424,7 +420,6 @@ export function mapStateToProps(state) {
     patients: _.keys(patientMap).map((key) => patientMap[key]),
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
     user: user,
-    permsOfLoggedInUser: permsOfLoggedInUser,
   }
 };
 

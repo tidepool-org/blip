@@ -114,7 +114,7 @@ var NavbarPatientCard = React.createClass({
     );
   },
 
-  renderUpload: function(patient) {
+  renderUpload: function(patient) { 
     var classes = cx({
       'patientcard-actions-upload': true,
     });

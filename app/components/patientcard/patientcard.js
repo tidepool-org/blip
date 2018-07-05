@@ -35,7 +35,6 @@ var PatientCard = React.createClass({
     uploadUrl: React.PropTypes.string,
     patient: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    permsOfLoggedInUser: React.PropTypes.object,
   },
 
   getInitialState: function() {
