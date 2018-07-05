@@ -108,6 +108,11 @@ export let PatientData = React.createClass({
           smbgRangeOverlay: true,
         }
       },
+      printOpts: {
+        numDays: {
+          daily: 6,
+        },
+      },
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -241,7 +246,7 @@ export let PatientData = React.createClass({
   },
 
   renderUploadOverlay: function() {
-    return <UploadLaunchOverlay overlayClickHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
   },
 
   isEmptyPatientData: function() {
@@ -262,7 +267,7 @@ export let PatientData = React.createClass({
   renderSettings: function(){
     return (
       <div>
-        <div id="app-no-print">
+        <div class="app-no-print">
           <Settings
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
@@ -439,9 +444,7 @@ export let PatientData = React.createClass({
       const mostRecent = diabetesData[diabetesData.length - 1].normalTime;
       const opts = {
         bgPrefs: state.bgPrefs,
-        numDays: {
-          daily: 6
-        },
+        numDays: state.printOpts.numDays,
         patient: props.patient,
         timePrefs: state.timePrefs,
         mostRecent,
@@ -451,9 +454,9 @@ export let PatientData = React.createClass({
         mostRecent,
         _.pick(
           data.grouped,
-          ['basal', 'bolus', 'cbg', 'message', 'smbg']
+          ['basal', 'bolus', 'cbg', 'message', 'smbg', 'upload']
         ),
-        6,
+        state.printOpts.numDays.daily,
         state.timePrefs,
       );
 
@@ -615,7 +618,7 @@ export let PatientData = React.createClass({
       fromChart: this.state.chartType
     });
 
-    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).endOf('day').toISOString());
+    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString());
 
     this.setState({
       chartType: 'weekly',
@@ -848,9 +851,11 @@ export let PatientData = React.createClass({
         this.deriveChartTypeFromLatestData(latestData, uploads)
       );
 
-      const datetime = chartType === 'daily'
+      const datetimeByChart = chartType === 'daily'
         ? this.subtractTimezoneOffset(moment.utc(latestData.time).hour(12).minute(0).second(0).toISOString())
         : this.subtractTimezoneOffset(moment.utc(latestData.time).endOf('day').toISOString());
+
+      const datetime = _.get(this.props, 'queryParams.datetime', datetimeByChart);
 
       let state = {
         chartType,
@@ -925,7 +930,11 @@ export let PatientData = React.createClass({
       const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
       const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
       const processDataMaxWeeks = isInitialProcessing ? 4 : 8;
-      const lastProcessedDatetime = moment.utc(isInitialProcessing ? patientData[0].time : this.state.lastProcessedDateTarget);
+
+      // Grab the first diabetes datum time on first process in case upload date is much later
+      const firstDiabetesDatum = _.find(patientData, (d) => _.includes(DIABETES_DATA_TYPES, d.type));
+      const lastProcessedDatetime = moment.utc(isInitialProcessing ? _.get(firstDiabetesDatum, 'time', patientData[0].time) : this.state.lastProcessedDateTarget);
+
       const patientNotes = _.get(props, ['patientNotesMap', patientID], []);
       let patientSettings = _.cloneDeep(_.get(props, ['patient', 'settings'], null));
       _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
@@ -1026,9 +1035,17 @@ export let PatientData = React.createClass({
       else {
         // We don't need full processing for subsequent data. We just add and preprocess the new datums.
         const bgUnits = _.get(this.state, 'processedPatientData.bgUnits');
-        const newData = utils.filterPatientData(targetData, bgUnits).processedData;
+
+        // Need to have all of the upload data present when filtering data or else the `source` and
+        // `deviceSerialNumber` properties will not be mapped. This will not result in duplication
+        // of upload records, as deduplication will happen when `addData` is called.
+        const previousUploadData = _.filter(patientData.slice(0, this.state.lastDatumProcessedIndex + 1), { type: 'upload' });
+        const newData = utils.filterPatientData(targetData.concat(previousUploadData), bgUnits).processedData;
+
+        // Add and process the new data
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
         const processedPatientData = addData(newData.concat(_.map(patientNotes, nurseShark.reshapeMessage)));
+
         const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + targetData.length;
         const count = this.state.processEarlierDataCount + 1;
 
@@ -1100,9 +1117,9 @@ export let PatientData = React.createClass({
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
               data[bgUnits].grouped,
-              ['basal', 'bolus', 'cbg', 'message', 'smbg']
+              ['basal', 'bolus', 'cbg', 'message', 'smbg', 'upload']
             ),
-            6,
+            this.state.printOpts.numDays.daily,
             this.state.timePrefs,
           ),
           basics: data[bgUnits].basicsData,
