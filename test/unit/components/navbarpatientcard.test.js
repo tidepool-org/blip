@@ -10,7 +10,7 @@ import { shallow } from 'enzyme';
 
 var NavbarPatientCard = require('../../../app/components/navbarpatientcard');
 
-const rootuser = {
+const rootUser = {
   patient: {
     permissions: {
       root: {},
@@ -23,7 +23,7 @@ const rootuser = {
   },
 };
 
-const clinicianupload = {
+const careTeamMemberUpload = {
   patient: {
     permissions: {},
   },
@@ -34,7 +34,7 @@ const clinicianupload = {
   },
 };
 
-const cliniciannoupload = {
+const careTeamMemberNoUpload = {
   patient: {
     permissions: {},
   },
@@ -60,17 +60,17 @@ describe('NavbarPatientCard', function () {
     });
 
     it('should render upload button if user is root', function() {
-      let wrapper = shallow(<NavbarPatientCard  patient={rootuser.patient} permsOfLoggedInUser={rootuser.permsOfLoggedInUser}/>);
+      let wrapper = shallow(<NavbarPatientCard  patient={rootUser.patient} permsOfLoggedInUser={rootUser.permsOfLoggedInUser}/>);
         expect(wrapper.contains('Upload')).to.equal(true);
     });
 
-    it('should render upload button if user is clinician with upload permissions', function() {
-      let wrapper = shallow(<NavbarPatientCard  patient={clinicianupload.patient} permsOfLoggedInUser={clinicianupload.permsOfLoggedInUser}/>);
+    it('should render upload button if user is care team member with upload permissions', function() {
+      let wrapper = shallow(<NavbarPatientCard  patient={careTeamMemberUpload.patient} permsOfLoggedInUser={careTeamMemberUpload.permsOfLoggedInUser}/>);
       expect(wrapper.contains('Upload')).to.equal(true);
     });
 
-    it('should not render upload button if use is clinician without upload permissions', function() {
-      let wrapper = shallow(<NavbarPatientCard  patient={cliniciannoupload.patient} permsOfLoggedInUser={cliniciannoupload.permsOfLoggedInUser}/>);
+    it('should not render upload button if user is care team member without upload permissions', function() {
+      let wrapper = shallow(<NavbarPatientCard  patient={careTeamMemberNoUpload.patient} permsOfLoggedInUser={careTeamMemberNoUpload.permsOfLoggedInUser}/>);
       expect(wrapper.contains('Upload')).to.equal(false);
     });
   });

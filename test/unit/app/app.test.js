@@ -632,95 +632,99 @@ describe('App',  () => {
         expect(result.patient).to.deep.equal(Object.assign({}, loggedIn.allUsersMap.d4e5f6, { permissions: {} }));
       }); 
 
-      const clinicianupload = {
-        allUsersMap: {
-          a1b2c3: {
-            termsAccepted: 'today'
-          },
-          d4e5f6: {}
-        },
-        currentPatientInViewId: 'd4e5f6',
-        loggedIn: true,
-        loggedInUserId: 'a1b2c3',
-        notification: {
-          key: 'fetchingPatient',
-          link: {
-            to: '/patients/foo',
-            text: 'Sorry!'
-          },
-          status: 405
-        },
-        permissionsOfMembersInTargetCareTeam: {},
-        membershipPermissionsInOtherCareTeams: {
-          d4e5f6: {
-            view: {},
-            note: {},
-            upload: {},
-          }
-        },
-        dataDonationAccounts: [],
-        datasources: [],
-        showingDonateBanner: null,
-        showingDexcomConnectBanner: null,
-        working: {
-          fetchingUser: {inProgress: false},
-          fetchingPendingSentInvites: {inProgress: false},
-          updatingDataDonationAccounts: {inProgress: false},
-          fetchingPatient: {inProgress: false, notification: {type: 'error'}},
-          loggingOut: {inProgress: false}
-        }
-      };
-      const clinicianuploadresult = mapStateToProps({blip: clinicianupload});
-
-      it('should return user is clinician with upload permissions', () => {
-        expect(clinicianuploadresult.permsOfLoggedInUser).to.equal(clinicianupload.membershipPermissionsInOtherCareTeams.d4e5f6);
-      });
-
-      const cliniciannoupload = {
-        allUsersMap: {
-          a1b2c3: {
-            termsAccepted: 'today'
-          },
-          d4e5f6: {}
-        },
-        currentPatientInViewId: 'd4e5f6',
-        loggedIn: true,
-        loggedInUserId: 'a1b2c3',
-        notification: {
-          key: 'fetchingPatient',
-          link: {
-            to: '/patients/foo',
-            text: 'Sorry!'
-          },
-          status: 405
-        },
-        permissionsOfMembersInTargetCareTeam: {},
-        membershipPermissionsInOtherCareTeams: {
-          d4e5f6: {
-            view: {},
-            note: {},
-          }
-        },
-        dataDonationAccounts: [],
-        datasources: [],
-        showingDonateBanner: null,
-        showingDexcomConnectBanner: null,
-        working: {
-          fetchingUser: {inProgress: false},
-          fetchingPendingSentInvites: {inProgress: false},
-          updatingDataDonationAccounts: {inProgress: false},
-          fetchingPatient: {inProgress: false, notification: {type: 'error'}},
-          loggingOut: {inProgress: false}
-        }
-      };
-      const cliniciannouploadresult = mapStateToProps({blip: cliniciannoupload});
-
-      it('should return user is clinician without upload permissionss', () => {
-        expect(cliniciannouploadresult.permsOfLoggedInUser).to.equal(cliniciannoupload.membershipPermissionsInOtherCareTeams.d4e5f6);
-      });
-
-      it('should return user is not clinician with empty permsOfLoggedInUser', () => {
+      it('should return empty permsOfLoggedInUser if user does not have authorization', () => {
         expect(result.permsOfLoggedInUser).to.be.empty;
+      });
+
+      context('Care team member with upload permissions', () => {
+        const careTeamMemberUpload = {
+          allUsersMap: {
+            a1b2c3: {
+              termsAccepted: 'today'
+            },
+            d4e5f6: {}
+          },
+          currentPatientInViewId: 'd4e5f6',
+          loggedIn: true,
+          loggedInUserId: 'a1b2c3',
+          notification: {
+            key: 'fetchingPatient',
+            link: {
+              to: '/patients/foo',
+              text: 'Sorry!'
+            },
+            status: 405
+          },
+          permissionsOfMembersInTargetCareTeam: {},
+          membershipPermissionsInOtherCareTeams: {
+            d4e5f6: {
+              view: {},
+              note: {},
+              upload: {},
+            }
+          },
+          dataDonationAccounts: [],
+          datasources: [],
+          showingDonateBanner: null,
+          showingDexcomConnectBanner: null,
+          working: {
+            fetchingUser: {inProgress: false},
+            fetchingPendingSentInvites: {inProgress: false},
+            updatingDataDonationAccounts: {inProgress: false},
+            fetchingPatient: {inProgress: false, notification: {type: 'error'}},
+            loggingOut: {inProgress: false}
+          }
+        };
+        const careTeamMemberUploadResult = mapStateToProps({blip: careTeamMemberUpload});
+  
+        it('should return correct permsOfLoggedInUser permissions', () => {
+          expect(careTeamMemberUploadResult.permsOfLoggedInUser).to.equal(careTeamMemberUpload.membershipPermissionsInOtherCareTeams.d4e5f6);
+        });  
+      });
+
+      context('Care team member without upload permissions', () => {
+        const careTeamMemberNoUpload = {
+          allUsersMap: {
+            a1b2c3: {
+              termsAccepted: 'today'
+            },
+            d4e5f6: {}
+          },
+          currentPatientInViewId: 'd4e5f6',
+          loggedIn: true,
+          loggedInUserId: 'a1b2c3',
+          notification: {
+            key: 'fetchingPatient',
+            link: {
+              to: '/patients/foo',
+              text: 'Sorry!'
+            },
+            status: 405
+          },
+          permissionsOfMembersInTargetCareTeam: {},
+          membershipPermissionsInOtherCareTeams: {
+            d4e5f6: {
+              view: {},
+              note: {},
+            }
+          },
+          dataDonationAccounts: [],
+          datasources: [],
+          showingDonateBanner: null,
+          showingDexcomConnectBanner: null,
+          working: {
+            fetchingUser: {inProgress: false},
+            fetchingPendingSentInvites: {inProgress: false},
+            updatingDataDonationAccounts: {inProgress: false},
+            fetchingPatient: {inProgress: false, notification: {type: 'error'}},
+            loggingOut: {inProgress: false}
+          }
+        };
+        const careTeamMemberNoUploadResult = mapStateToProps({blip: careTeamMemberNoUpload});
+  
+        it('should return correct permsOfLoggedInUser permissions', () => {
+          expect(careTeamMemberNoUploadResult.permsOfLoggedInUser).to.equal(careTeamMemberNoUpload.membershipPermissionsInOtherCareTeams.d4e5f6);
+        });
       });
 
       describe('getFetchers', () => {

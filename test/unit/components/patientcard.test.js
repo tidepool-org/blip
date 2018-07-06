@@ -12,14 +12,14 @@ import {shallow} from 'enzyme';
 
 var PatientCard = require('../../../app/components/patientcard');
 
-let patientupload = {
+let patientUpload = {
   permissions: {
     view: {},
     upload: {},
   },
 }
 
-let patientnoupload = {
+let patientNoUpload = {
   permissions: {
     view: {},
   },
@@ -41,13 +41,13 @@ describe('PatientCard', function () {
       expect(console.error.callCount).to.equal(0);
     });
 
-    it('should render upload button if user has permissions set', function() {
-      let wrapper = shallow(<PatientCard patient={patientupload}/>);
+    it('should render upload button if user has upload permissions', function() {
+      let wrapper = shallow(<PatientCard patient={patientUpload}/>);
       expect(wrapper.contains('Upload')).to.equal(true);
     });
 
-    it('should not render upload button if user permissions are not set', function() {
-      let wrapper = shallow(<PatientCard patient={patientnoupload}/>);
+    it('should not render upload button if user does not have upload permissions', function() {
+      let wrapper = shallow(<PatientCard patient={patientNoUpload}/>);
       expect(wrapper.contains('Upload')).to.equal(false);
     });
   });
