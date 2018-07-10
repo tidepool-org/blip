@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2017 Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -57,6 +57,7 @@ var Selector = React.createClass({
     var {
       latestPump,
       canUpdateSettings,
+      hasSiteChangeSourceSettings,
       patientName,
     } = this.props.selectorMetaData;
 
@@ -84,26 +85,38 @@ var Selector = React.createClass({
     else {
       switch(type) {
         case constants.SITE_CHANGE_TUBING:
-          message = [
+          var subAction = this.subAction(latestPump, constants.SITE_CHANGE_TUBING);
+          message = hasSiteChangeSourceSettings ? [
             patientName,
             ' is using ',
-            this.subAction(latestPump, constants.SITE_CHANGE_TUBING),
+            subAction,
             ' to see infusion site changes.'
+          ] : [
+            'You are using ',
+            subAction,
+            ' to see infusion site changes for ',
+            patientName,
           ];
           break;
         case constants.SITE_CHANGE_CANNULA:
-          message = [
+          var subAction = this.subAction(latestPump, constants.SITE_CHANGE_CANNULA);
+          message = hasSiteChangeSourceSettings ? [
             patientName,
             ' is using ',
-            this.subAction(latestPump, constants.SITE_CHANGE_CANNULA),
+            subAction,
             ' to see infusion site changes.'
+          ] : [
+            'You are using ',
+            subAction,
+            ' to see infusion site changes for ',
+            patientName,
           ];
           break;
         default:
           message = [
-            'Please ask ',
             patientName,
-            ' to select how they would like to see infusion site changes.'
+            ' has not selected how they would like to see infusion site changes.',
+            ' Please select a temporary view option:'
           ];
           break;
         }
@@ -122,10 +135,6 @@ var Selector = React.createClass({
   },
   renderOptions: function() {
     var self = this;
-
-    if (!self.props.selectorMetaData.canUpdateSettings) {
-      return;
-    }
 
     var optionRows = self.props.selectorOptions.rows;
 
