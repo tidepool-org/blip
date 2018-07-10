@@ -37,7 +37,7 @@ export default function generateClassifiers(bgPrefs) {
 
   const classifers = {
     basal: (datum) => {
-      if (datum.deliveryType === 'scheduled') {
+      if (_.includes(['scheduled', 'automated'], datum.deliveryType)) {
         return [];
       }
 

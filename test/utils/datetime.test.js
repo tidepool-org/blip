@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+/* eslint-disable max-len */
 import { timeParse } from 'd3-time-format';
 
 import * as patients from '../../data/patient/profiles';
@@ -53,6 +54,16 @@ describe('datetime', () => {
     });
   });
 
+  describe('getBrowserTimezone', () => {
+    it('return the default timezone detected by the browser', () => {
+      const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
+        resolvedOptions: () => ({ timeZone: 'Europe/Budapest' }),
+      });
+      expect(datetime.getBrowserTimezone()).to.equal('Europe/Budapest');
+      DateTimeFormatStub.restore();
+    });
+  });
+
   describe('getTimezoneFromTimePrefs', () => {
     it('should be a function', () => {
       assert.isFunction(datetime.getTimezoneFromTimePrefs);
@@ -67,43 +78,110 @@ describe('datetime', () => {
       expect(datetime.getTimezoneFromTimePrefs(timePrefs)).to.equal(tz);
     });
 
-    it('should return `UTC` if timezoneAware is true but no timezoneName given', () => {
-      const timePrefs1 = {
-        timezoneAware: true,
-      };
-      const timePrefs2 = {
-        timezoneAware: true,
-        timezoneName: null,
-      };
-      const timePrefs3 = {
-        timezoneAware: true,
-        timezoneName: undefined,
-      };
-      expect(datetime.getTimezoneFromTimePrefs(timePrefs1)).to.equal('UTC');
-      expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal('UTC');
-      expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal('UTC');
+    context('timezone can be determined by browser', () => {
+      let DateTimeFormatStub;
+
+      beforeEach(() => {
+        DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
+          resolvedOptions: () => ({ timeZone: 'Europe/Budapest' }),
+        });
+      });
+
+      afterEach(() => {
+        DateTimeFormatStub.restore();
+      });
+
+      it('should return browser timezone if timezoneAware is true but no timezoneName given', () => {
+        const timePrefs1 = {
+          timezoneAware: true,
+        };
+        const timePrefs2 = {
+          timezoneAware: true,
+          timezoneName: null,
+        };
+        const timePrefs3 = {
+          timezoneAware: true,
+          timezoneName: undefined,
+        };
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs1)).to.equal('Europe/Budapest');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal('Europe/Budapest');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal('Europe/Budapest');
+      });
+
+      it('should return browser timezone when timezoneAware is falsey', () => {
+        const timePrefs1 = {
+          timezoneAware: false,
+          timezoneName: 'Europe/London',
+        };
+        const timePrefs2 = {
+          timezoneName: 'Europe/London',
+        };
+        const timePrefs3 = {
+          timezoneAware: null,
+          timezoneName: 'Europe/London',
+        };
+        const timePrefs4 = {
+          timezoneAware: undefined,
+          timezoneName: 'Europe/London',
+        };
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs1)).to.equal('Europe/Budapest');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal('Europe/Budapest');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal('Europe/Budapest');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs4)).to.equal('Europe/Budapest');
+      });
     });
 
-    it('should return `UTC` when timezoneAware is falsey', () => {
-      const timePrefs1 = {
-        timezoneAware: false,
-        timezoneName: 'Europe/London',
-      };
-      const timePrefs2 = {
-        timezoneName: 'Europe/London',
-      };
-      const timePrefs3 = {
-        timezoneAware: null,
-        timezoneName: 'Europe/London',
-      };
-      const timePrefs4 = {
-        timezoneAware: undefined,
-        timezoneName: 'Europe/London',
-      };
-      expect(datetime.getTimezoneFromTimePrefs(timePrefs1)).to.equal('UTC');
-      expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal('UTC');
-      expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal('UTC');
-      expect(datetime.getTimezoneFromTimePrefs(timePrefs4)).to.equal('UTC');
+    context('timezone cannot be determined by browser', () => {
+      let DateTimeFormatStub;
+
+      beforeEach(() => {
+        DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
+          resolvedOptions: () => ({ timeZone: undefined }),
+        });
+      });
+
+      afterEach(() => {
+        DateTimeFormatStub.restore();
+      });
+
+      it('should return `UTC` if timezoneAware is true but no timezoneName given', () => {
+        const timePrefs1 = {
+          timezoneAware: true,
+        };
+        const timePrefs2 = {
+          timezoneAware: true,
+          timezoneName: null,
+        };
+        const timePrefs3 = {
+          timezoneAware: true,
+          timezoneName: undefined,
+        };
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs1)).to.equal('UTC');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal('UTC');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal('UTC');
+      });
+
+      it('should return `UTC` when timezoneAware is falsey', () => {
+        const timePrefs1 = {
+          timezoneAware: false,
+          timezoneName: 'Europe/London',
+        };
+        const timePrefs2 = {
+          timezoneName: 'Europe/London',
+        };
+        const timePrefs3 = {
+          timezoneAware: null,
+          timezoneName: 'Europe/London',
+        };
+        const timePrefs4 = {
+          timezoneAware: undefined,
+          timezoneName: 'Europe/London',
+        };
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs1)).to.equal('UTC');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal('UTC');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal('UTC');
+        expect(datetime.getTimezoneFromTimePrefs(timePrefs4)).to.equal('UTC');
+      });
     });
   });
 

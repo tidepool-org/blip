@@ -20,7 +20,7 @@
   opacity: 1;
   display: flex;
   flex-direction: column;
-  min-width: 160px;
+  min-width: 80px;
   margin: 2px 0;
   max-width: 180px;
 }
@@ -51,78 +51,33 @@
   text-align: right;
 }
 
-.suggested {
-  composes: row;
-  font-weight: bold;
-}
-
-.delivered {
-  composes: row;
-  font-weight: bold;
-}
-
-.override {
-  composes: row;
-  color: var(--bolus--ride);
-  font-weight: bold;
-}
-
-.interrupted {
-  composes: row;
-  color: var(--bolus--interrupted);
-  font-weight: bold;
-}
-
-.normal {
-  color: var(--gray-medium);
-  composes: row;
-}
-
-.extended {
-  color: var(--gray-medium);
-  composes: row;
-}
-
-.programmed {
-  composes: row;
-}
-
-.carbs {
-  composes: row;
-}
-
 .bg {
   composes: row;
+  font-weight: bold;
 }
 
-.iob {
+.subType {
   composes: row;
+  color: var(--gray-dark);
 }
 
-.target {
-  composes: row;
+.confirmBg {
+  composes: subType;
 }
 
-.isf {
-  composes: row;
+.calibration {
+  composes: subType;
 }
 
-.carbRatio {
-  composes: row;
+.source {
+  composes: subType;
 }
 
 .annotation {
-  composes: row;
-}
-
-.dividerSmall {
-  background-color: var(--bolus);
-  height: 2px;
-  margin: 5px -10px;
+  composes: subType;
 }
 
 .dividerLarge {
-  background-color: var(--bolus);
   height: 4px;
   margin: 5px -10px;
 }

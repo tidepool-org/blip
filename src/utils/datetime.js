@@ -44,6 +44,7 @@ import _ from 'lodash';
 // user’s browser time, not PwD’s configured timezone
 import { utcFormat, timeFormat } from 'd3-time-format';
 import moment from 'moment-timezone';
+import sundial from 'sundial';
 
 export const THIRTY_MINS = 1800000;
 export const ONE_HR = 3600000;
@@ -63,18 +64,31 @@ export function addDuration(startTime, duration) {
 }
 
 /**
+ * getBrowserTimezone
+ * @returns {String} browser-determined timezone name
+ */
+export function getBrowserTimezone() {
+  return new Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
+/**
  * getTimezoneFromTimePrefs
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *
- * @return {String} timezoneName
+ * @return {String} timezoneName from timePrefs, browser, or fallback to 'UTC'
  */
 export function getTimezoneFromTimePrefs(timePrefs) {
   const { timezoneAware, timezoneName } = timePrefs;
-  let timezone = 'UTC';
-  if (timezoneAware) {
-    timezone = timezoneName || 'UTC';
+  try {
+    let timezone = getBrowserTimezone() || 'UTC';
+    if (timezoneAware && timezoneName) {
+      timezone = timezoneName;
+    }
+    sundial.checkTimezoneName(timezone);
+    return timezone;
+  } catch (err) {
+    return 'UTC';
   }
-  return timezone;
 }
 
 /**

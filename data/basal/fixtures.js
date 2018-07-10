@@ -25,9 +25,19 @@
   */
 
 const NINE_PM = Date.parse('1969-12-31T21:00:00.000Z');
+const NINE_TEN_PM = Date.parse('1969-12-31T21:10:00.000Z');
+const NINE_FIFTEEN_PM = Date.parse('1969-12-31T21:15:00.000Z');
+const NINE_TWENTY_PM = Date.parse('1969-12-31T21:20:00.000Z');
+const NINE_TWENTY_FIVE_PM = Date.parse('1969-12-31T21:25:00.000Z');
+const NINE_THIRTY_PM = Date.parse('1969-12-31T21:30:00.000Z');
+const TEN_PM = Date.parse('1969-12-31T22:00:00.000Z');
 const MIDNIGHT = Date.parse('1970-01-01T00:00:00.000Z');
 const ONE_AM = Date.parse('1970-01-01T01:00:00.000Z');
 const THREE_AM = Date.parse('1970-01-01T03:00:00.000Z');
+const FIVE_FORTY_AM = Date.parse('1970-01-01T05:40:00.000Z');
+const FIVE_FORTY_FIVE_AM = Date.parse('1970-01-01T05:45:00.000Z');
+const FIVE_FIFTY_AM = Date.parse('1970-01-01T05:50:00.000Z');
+const FIVE_FIFTY_FIVE_AM = Date.parse('1970-01-01T05:55:00.000Z');
 const ONE_HR = 36e5;
 const FIVE_MINS = 5 * 60 * 1000;
 const TWENTY_MINS = 20 * 60 * 1000;
@@ -76,6 +86,192 @@ export const scheduledNonFlat = [{
   rate: 1.95,
   utc: THREE_AM,
   id: '937c572fed1440ceae0fc430dd8c7183',
+}];
+
+export const automated = [{
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS * 2,
+  rate: 2.25,
+  utc: NINE_PM,
+  id: '2eb21eeec78e44b8ab266b25341ddc61',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 2.05,
+  utc: NINE_TEN_PM,
+  id: 'cd9939963ff94ad8b8399fad3e6cbeec',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.75,
+  utc: NINE_FIFTEEN_PM,
+  id: 'd46c5bf13e784d11a8e1ef417675c2b8',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.35,
+  utc: NINE_TWENTY_PM,
+  id: '937c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.35,
+  utc: NINE_TWENTY_FIVE_PM,
+  id: 'a37c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.9,
+  utc: NINE_THIRTY_PM,
+  id: 'b37c572fed1440ceae0fc430dd8c7183',
+}];
+
+export const automatedWithSuspend = [{
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS * 2,
+  rate: 2.25,
+  utc: NINE_PM,
+  id: '2eb21eeec78e44b8ab266b25341ddc61',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 2.05,
+  utc: NINE_TEN_PM,
+  id: 'cd9939963ff94ad8b8399fad3e6cbeec',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.75,
+  utc: NINE_FIFTEEN_PM,
+  id: 'd46c5bf13e784d11a8e1ef417675c2b8',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.35,
+  utc: NINE_TWENTY_PM,
+  id: '937c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'suspend',
+  duration: FIVE_MINS * 7,
+  rate: 0,
+  utc: NINE_TWENTY_FIVE_PM,
+  id: 'a37c572fed1440ceae0fc430dd8c7183',
+  suppressed: {
+    type: 'basal',
+    subType: 'automated',
+    rate: 0,
+  },
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.9,
+  utc: TEN_PM,
+  id: 'b37c572fed1440ceae0fc430dd8c7183',
+}];
+
+export const automatedAndScheduled = [{
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS * 2,
+  rate: 2.25,
+  utc: NINE_PM,
+  id: '2eb21eeec78e44b8ab266b25341ddc61',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 2.05,
+  utc: NINE_TEN_PM,
+  id: 'cd9939963ff94ad8b8399fad3e6cbeec',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.75,
+  utc: NINE_FIFTEEN_PM,
+  id: 'd46c5bf13e784d11a8e1ef417675c2b8',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.35,
+  utc: NINE_TWENTY_PM,
+  id: '937c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 1.35,
+  utc: NINE_TWENTY_FIVE_PM,
+  id: 'a37c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS * 6,
+  rate: 1.9,
+  utc: NINE_THIRTY_PM,
+  id: 'b37c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'scheduled',
+  duration: ONE_HR * 2,
+  rate: 1.75,
+  utc: TEN_PM,
+  id: 'c37c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'scheduled',
+  duration: ONE_HR * 3,
+  rate: 1.55,
+  utc: MIDNIGHT,
+  id: 'd37c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'scheduled',
+  duration: ONE_HR * 2 + TWENTY_MINS * 2,
+  rate: 2.25,
+  utc: THREE_AM,
+  id: 'e37c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 2.15,
+  utc: FIVE_FORTY_AM,
+  id: '037c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 2.35,
+  utc: FIVE_FORTY_FIVE_AM,
+  id: 'f37c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 2.45,
+  utc: FIVE_FIFTY_AM,
+  id: 'g37c572fed1440ceae0fc430dd8c7183',
+}, {
+  type: 'basal',
+  subType: 'automated',
+  duration: FIVE_MINS,
+  rate: 2.35,
+  utc: FIVE_FIFTY_FIVE_AM,
+  id: 'h37c572fed1440ceae0fc430dd8c7183',
 }];
 
 export const simpleNegativeTemp = [{

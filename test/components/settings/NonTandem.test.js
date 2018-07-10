@@ -20,6 +20,7 @@
 import React from 'react';
 // because the component is wrapped, can't use shallow
 import { mount, shallow } from 'enzyme';
+import _ from 'lodash';
 
 import CollapsibleContainer from '../../../src/components/settings/common/CollapsibleContainer';
 import NonTandem from '../../../src/components/settings/NonTandem';
@@ -34,6 +35,7 @@ const animasMultiRateData = require('../../../data/pumpSettings/animas/multirate
 const omnipodFlatRateData = require('../../../data/pumpSettings/omnipod/flatrate.json');
 const omnipodMultiRateData = require('../../../data/pumpSettings/omnipod/multirate.json');
 const medtronicMultiRateData = require('../../../data/pumpSettings/medtronic/multirate.json');
+const medtronicAutomatedData = require('../../../data/pumpSettings/medtronic/automated.json');
 
 const copySettingsClicked = sinon.spy();
 const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
@@ -570,6 +572,79 @@ describe('NonTandem', () => {
       expect(copySettingsClicked.callCount).to.equal(0);
       mounted.find(formatClassesAsSelector(styles.copyButton)).simulate('click');
       expect(copySettingsClicked).to.be.called;
+    });
+
+    describe('automated basal', () => {
+      it('should display the automated basal heading when active at upload', () => {
+        const mounted = mount(
+          <NonTandem
+            bgUnits={MGDL_UNITS}
+            copySettingsClicked={copySettingsClicked}
+            deviceKey={'medtronic'}
+            openedSections={{}}
+            pumpSettings={medtronicAutomatedData}
+            timePrefs={timePrefs}
+            user={user}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+
+        const autoBasalHeading = mounted.find(
+          formatClassesAsSelector(styles.automatedBasalHeaderBackground)
+        );
+
+        expect(autoBasalHeading.length).to.equal(1);
+        expect(autoBasalHeading.text()).contains('Auto Mode');
+        expect(autoBasalHeading.text()).contains('active at upload');
+      });
+
+      it('should display the automated basal heading when and deviceKey is carelink', () => {
+        const mounted = mount(
+          <NonTandem
+            bgUnits={MGDL_UNITS}
+            copySettingsClicked={copySettingsClicked}
+            deviceKey={'carelink'}
+            openedSections={{}}
+            pumpSettings={medtronicAutomatedData}
+            timePrefs={timePrefs}
+            user={user}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+
+        const autoBasalHeading = mounted.find(
+          formatClassesAsSelector(styles.automatedBasalHeaderBackground)
+        );
+
+        expect(autoBasalHeading.length).to.equal(1);
+        expect(autoBasalHeading.text()).contains('Auto Mode');
+        expect(autoBasalHeading.text()).contains('active at upload');
+      });
+
+      it('should not display the automated basal heading when inactive at upload', () => {
+        const nonActiveMedtronicAutomatedData = _.assign({}, medtronicAutomatedData, {
+          activeSchedule: 'Standard',
+        });
+
+        const mounted = mount(
+          <NonTandem
+            bgUnits={MGDL_UNITS}
+            copySettingsClicked={copySettingsClicked}
+            deviceKey={'medtronic'}
+            openedSections={{}}
+            pumpSettings={nonActiveMedtronicAutomatedData}
+            timePrefs={timePrefs}
+            user={user}
+            toggleBasalScheduleExpansion={() => {}}
+          />
+        );
+
+        const autoBasalHeading = mounted.find(formatClassesAsSelector(
+          styles.automatedBasalHeaderBackground)
+        );
+
+        expect(autoBasalHeading.length).to.equal(0);
+      });
     });
 
     describe('bolus settings', () => {

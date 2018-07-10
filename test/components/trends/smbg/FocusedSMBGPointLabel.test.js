@@ -59,6 +59,16 @@ describe('FocusedSMBGPointLabel', () => {
     timezoneAware: false,
     timezoneName: null,
   };
+  const bgPrefs = {
+    bgClasses: {
+      'very-high': { boundary: 600 },
+      high: { boundary: 300 },
+      target: { boundary: 180 },
+      low: { boundary: 70 },
+      'very-low': { boundary: 54 },
+    },
+    bgUnits: MGDL_UNITS,
+  };
 
   describe('when no focused datum', () => {
     it('should render nothing', () => {
@@ -80,7 +90,7 @@ describe('FocusedSMBGPointLabel', () => {
     before(() => {
       wrapper = mount(
         <FocusedSMBGPointLabel
-          bgPrefs={{ bgUnits: MGDL_UNITS }}
+          bgPrefs={bgPrefs}
           focusedPoint={focusedPoint}
           lines={false}
           grouped
@@ -90,10 +100,10 @@ describe('FocusedSMBGPointLabel', () => {
     });
 
     it('should render individual point tooltips', () => {
-      expect(wrapper.find(formatClassesAsSelector(styles.number))).to.have.length(3);
+      expect(wrapper.find(formatClassesAsSelector(styles.number))).to.have.length(2);
     });
     it('should render a detailed individual point tooltip', () => {
-      expect(wrapper.find(formatClassesAsSelector(styles.shortDate))).to.have.length(1);
+      expect(wrapper.find(formatClassesAsSelector(styles.dateTime))).to.have.length(1);
     });
   });
 
@@ -103,7 +113,7 @@ describe('FocusedSMBGPointLabel', () => {
     before(() => {
       wrapper = mount(
         <FocusedSMBGPointLabel
-          bgPrefs={{ bgUnits: MGDL_UNITS }}
+          bgPrefs={bgPrefs}
           focusedPoint={focusedPoint}
           lines={false}
           grouped={false}
@@ -113,10 +123,10 @@ describe('FocusedSMBGPointLabel', () => {
     });
 
     it('should render individual point tooltips', () => {
-      expect(wrapper.find(formatClassesAsSelector(styles.number))).to.have.length(3);
+      expect(wrapper.find(formatClassesAsSelector(styles.number))).to.have.length(2);
     });
     it('should render a detailed individual point tooltip', () => {
-      expect(wrapper.find(formatClassesAsSelector(styles.shortDate))).to.have.length(1);
+      expect(wrapper.find(formatClassesAsSelector(styles.dateTime))).to.have.length(1);
     });
   });
 
@@ -126,7 +136,7 @@ describe('FocusedSMBGPointLabel', () => {
     before(() => {
       wrapper = mount(
         <FocusedSMBGPointLabel
-          bgPrefs={{ bgUnits: MGDL_UNITS }}
+          bgPrefs={bgPrefs}
           focusedPoint={focusedPoint}
           lines
           grouped
@@ -149,7 +159,7 @@ describe('FocusedSMBGPointLabel', () => {
     before(() => {
       wrapper = mount(
         <FocusedSMBGPointLabel
-          bgPrefs={{ bgUnits: MGDL_UNITS }}
+          bgPrefs={bgPrefs}
           focusedPoint={focusedPoint}
           lines
           grouped={false}
