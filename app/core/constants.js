@@ -26,6 +26,7 @@ export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepoo
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
 
 export const DATA_DONATION_NONPROFITS = [
+  { value: 'AADE', label: 'AADE Foundation' },
   { value: 'BT1', label: 'Beyond Type 1' },
   { value: 'CARBDM', label: 'CarbDM' },
   { value: 'CWD', label: 'Children with Diabetes' },

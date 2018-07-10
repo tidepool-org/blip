@@ -13,23 +13,23 @@ describe('getfetchedPatientDataRange', () => {
         patientDataMap: {
           [patientId]: [
             {
-              time: '2018-02-10:T00:00:00.000Z',
+              time: '2018-02-10T00:00:00.000Z',
               type: 'basal',
             },
             {
-              time: '2018-02-08:T00:00:00.000Z',
+              time: '2018-02-08T00:00:00.000Z',
               type: 'basal',
             },
             {
-              time: '2018-02-01:T00:00:00.000Z',
+              time: '2018-02-01T00:00:00.000Z',
               type: 'basal',
             },
             {
-              time: '2018-01-20:T00:00:00.000Z',
+              time: '2018-01-20T00:00:00.000Z',
               type: 'deviceEvent',
             },
           ],
-          [`${patientId}_fetchedUntil`]: '2018-01-01:T00:00:00.000Z',
+          [`${patientId}_fetchedUntil`]: '2018-01-01T00:00:00.000Z',
         },
       },
     };
@@ -41,11 +41,11 @@ describe('getfetchedPatientDataRange', () => {
     const result = selector(state, props);
 
     expect(result).to.eql({
-      start: '2018-02-01:T00:00:00.000Z',
-      end: '2018-02-10:T00:00:00.000Z',
+      start: '2018-02-01T00:00:00.000Z',
+      end: '2018-02-10T00:00:00.000Z',
       spanInDays: 9,
       count: 3,
-      fetchedUntil: '2018-01-01:T00:00:00.000Z'
+      fetchedUntil: '2018-01-01T00:00:00.000Z'
     });
   });
 });
