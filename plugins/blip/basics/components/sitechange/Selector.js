@@ -136,6 +136,15 @@ var Selector = React.createClass({
   renderOptions: function() {
     var self = this;
 
+    var {
+      canUpdateSettings,
+      hasSiteChangeSourceSettings,
+    } = self.props.selectorMetaData;
+
+    if (!canUpdateSettings && hasSiteChangeSourceSettings) {
+      return;
+    }
+
     var optionRows = self.props.selectorOptions.rows;
 
     return optionRows.map(function(row, id) {
