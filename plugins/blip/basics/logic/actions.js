@@ -67,13 +67,12 @@ basicsActions.setSiteChangeEvent = function(sectionName, selectedKey, selectedLa
 
   metricsFunc('Selected ' + selectedLabel);
 
-  if (_.get(sections, 'siteChanges.selectorMetaData.canUpdateSettings')) {
-    var newSettings = _.assign({}, this.app.props.patient.settings, {
-      siteChangeSource: selectedKey,
-    });
+  var canUpdateSettings = _.get(sections, 'siteChanges.selectorMetaData.canUpdateSettings');
+  var newSettings = _.assign({}, this.app.props.patient.settings, {
+    siteChangeSource: selectedKey,
+  });
 
-    updateBasicsSettingsFunc(this.app.props.patient.userid, newSettings);
-  }
+  updateBasicsSettingsFunc(this.app.props.patient.userid, newSettings, canUpdateSettings);
 
   this.app.setState({sections: sections});
 };
