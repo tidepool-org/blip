@@ -59,8 +59,8 @@ describe('constants', function() {
   });
 
   it('should define the list of diabetes diagnosis types', function() {
-    expect(Constants.DIABETES_TYPES).to.be.an('array');
-    expect(_.pluck(Constants.DIABETES_TYPES, 'value')).to.eql([
+    expect(Constants.DIABETES_TYPES()).to.be.an('array'); // eslint-disable-line new-cap
+    expect(_.pluck(Constants.DIABETES_TYPES(), 'value')).to.eql([ // eslint-disable-line new-cap
       'type1',
       'type2',
       'gestational',

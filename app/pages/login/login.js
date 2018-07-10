@@ -17,6 +17,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { translate } from 'react-i18next';
 
 import * as actions from '../../redux/actions';
 
@@ -30,7 +31,7 @@ import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
-export let Login = React.createClass({
+export let Login = translate()(React.createClass({
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
     confirmSignup: React.PropTypes.func.isRequired,
@@ -44,10 +45,12 @@ export let Login = React.createClass({
   },
 
   formInputs: function() {
+    const { t } = this.props;
+
     return [
-      { name: 'username', placeholder: 'Email', type: 'email', disabled: !!this.props.seedEmail },
-      { name: 'password', placeholder: 'Password', type: 'password' },
-      { name: 'remember', label: 'Remember me', type: 'checkbox' }
+      { name: 'username', placeholder: t('Email'), type: 'email', disabled: !!this.props.seedEmail },
+      { name: 'password', placeholder: t('Password'), type: 'password' },
+      { name: 'remember', label: t('Remember me'), type: 'checkbox' }
     ];
   },
 
@@ -88,19 +91,22 @@ export let Login = React.createClass({
   },
 
   renderInviteIntroduction: function() {
+    const { t } = this.props;
     if (!this.props.isInvite) {
       return null;
     }
 
     return (
       <div className='login-inviteIntro'>
-        <p>{'You\'ve been invited to Tidepool.'}</p><p>{'Log in to view the invitation.'}</p>
+        <p>{t('You\'ve been invited to Tidepool.')}</p><p>{t('Log in to view the invitation.')}</p>
       </div>
     );
   },
 
   renderForm: function() {
-    var submitButtonText = this.props.working ? 'Logging in...' : 'Login';
+    const { t } = this.props;
+
+    var submitButtonText = this.props.working ? t('Logging in...') : t('Login');
     var forgotPassword = this.renderForgotPassword();
 
     return (
@@ -122,7 +128,8 @@ export let Login = React.createClass({
   },
 
   renderForgotPassword: function() {
-    return <Link to="/request-password-reset">Forgot your password?</Link>;
+    const { t } = this.props;
+    return <Link to="/request-password-reset">{t('Forgot your password?')}</Link>;
   },
 
   handleSubmit: function(formValues) {
@@ -154,9 +161,10 @@ export let Login = React.createClass({
   },
 
   validateFormValues: function(formValues) {
+    const { t } = this.props;
     var form = [
-      { type: 'name', name: 'password', label: 'this field', value: formValues.password },
-      { type: 'email', name: 'username', label: 'this field', value: formValues.username },
+      { type: 'name', name: 'password', label: t('this field'), value: formValues.password },
+      { type: 'email', name: 'username', label: t('this field'), value: formValues.username },
     ];
 
     var validationErrors = validateForm(form);
@@ -166,7 +174,7 @@ export let Login = React.createClass({
         validationErrors: validationErrors,
         notification: {
           type: 'error',
-          message:'Some entries are invalid.'
+          message: t('Some entries are invalid.')
         }
       });
     }
@@ -202,7 +210,7 @@ export let Login = React.createClass({
   componentWillMount: function() {
     this.doFetching(this.props);
   }
-});
+}));
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

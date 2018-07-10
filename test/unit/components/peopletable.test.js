@@ -110,8 +110,8 @@ describe('PeopleTable', () => {
     });
 
     it('should default searching and showNames to be false', function () {
-      expect(wrapper.state().searching).to.equal(false);
-      expect(wrapper.state().showNames).to.equal(false);
+      expect(wrapper.instance().getWrappedInstance().state.searching).to.equal(false);
+      expect(wrapper.instance().getWrappedInstance().state.showNames).to.equal(false);
     });
   });
 
@@ -137,7 +137,7 @@ describe('PeopleTable', () => {
 
   describe('searching', function () {
     it('should show a row of data for each person', function () {
-      wrapper.setState({ searching: true });
+      wrapper.instance().getWrappedInstance().setState({ searching: true });
       // 5 people plus one row for the header
       expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(6);
     });
@@ -146,11 +146,11 @@ describe('PeopleTable', () => {
       // showing `amanda` or `Anna`
       wrapper.find('input').simulate('change', {target: {value: 'a'}});
       expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(3);
-      expect(wrapper.state().searching).to.equal(true);
+      expect(wrapper.instance().getWrappedInstance().state.searching).to.equal(true);
       // now just showing `amanda`
       wrapper.find('input').simulate('change', {target: {value: 'am'}});
       expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(2);
-      expect(wrapper.state().searching).to.equal(true);
+      expect(wrapper.instance().getWrappedInstance().state.searching).to.equal(true);
     });
 
     it('should NOT trigger a call to trackMetric', function () {
@@ -174,7 +174,7 @@ describe('PeopleTable', () => {
     });
 
     it('should show open a modal for removing a patient when their remove icon is clicked', function () {
-      const renderRemoveDialog = sinon.spy(wrapper.instance(), 'renderRemoveDialog');
+      const renderRemoveDialog = sinon.spy(wrapper.instance().getWrappedInstance(), 'renderRemoveDialog');
 
       // Modal should be hidden
       const overlay = wrapper.find('.ModalOverlay');
@@ -183,24 +183,27 @@ describe('PeopleTable', () => {
 
       // Click the remove link for the last patient
       const removeLink = wrapper.find('RemoveLinkCell').last().find('i.peopletable-icon-remove');
-      expect(wrapper.instance().handleRemove).to.have.beenCalled;
+      expect(wrapper.instance().getWrappedInstance().handleRemove).to.have.beenCalled;
       removeLink.simulate('click');
 
       // Ensure the currentRowIndex is set to highlight the proper patient
-      const currentRow = wrapper.state('currentRowIndex');
+      const state = (key) => wrapper.instance().getWrappedInstance().state[key];
+      const currentRow = state('currentRowIndex');
       expect(currentRow).to.equal(4);
-      expect(removeLink.closest('.peopletable-active-row')).to.have.length(1);
+      const activeRow = wrapper.find('.peopletable-active-row');
+      expect(activeRow).to.have.length(1);
+      expect(activeRow.html()).to.contain('Zoe Doe');
 
       // Ensure the renderRemoveDialog method is called with the correct patient
       // Since we've clicked the last one, and the default sort is fullName alphabetically,
       // it should be 'Zoe Doe'
       sinon.assert.callCount(renderRemoveDialog, 1);
-      sinon.assert.calledWith(renderRemoveDialog, wrapper.state('dataList')[currentRow]);
-      expect(wrapper.state('dataList')[currentRow].fullName).to.equal('Zoe Doe');
+      sinon.assert.calledWith(renderRemoveDialog, state('dataList')[currentRow]);
+      expect(state('dataList')[currentRow].fullName).to.equal('Zoe Doe');
 
       // Ensure the modal is showing
       expect(overlay.is('.ModalOverlay--show')).to.be.true;
-      expect(wrapper.state('showModalOverlay')).to.equal(true);
+      expect(state('showModalOverlay')).to.equal(true);
     });
   });
 
@@ -253,9 +256,9 @@ describe('PeopleTable', () => {
     let proxy;
 
     beforeEach(function () {
-      patient = wrapper.state('dataList')[0];
+      patient = wrapper.instance().getWrappedInstance().state.dataList[0];
       rowIndex = 4;
-      proxy = wrapper.instance().handleRemove(patient, rowIndex);
+      proxy = wrapper.instance().getWrappedInstance().handleRemove(patient, rowIndex);
     });
 
     it('should return a proxy function', function () {
@@ -263,15 +266,16 @@ describe('PeopleTable', () => {
     });
 
     it('should set the modal and currentRowIndex state appropriately when called', function () {
-      expect(wrapper.state('currentRowIndex')).to.equal(-1);
-      expect(wrapper.state('showModalOverlay')).to.be.false;
-      expect(wrapper.state('dialog')).to.equal('');
+      const state = key => wrapper.instance().getWrappedInstance().state[key];
+      expect(state('currentRowIndex')).to.equal(-1);
+      expect(state('showModalOverlay')).to.be.false;
+      expect(state('dialog')).to.equal('');
 
       proxy();
 
-      expect(wrapper.state('currentRowIndex')).to.equal(rowIndex);
-      expect(wrapper.state('showModalOverlay')).to.be.true;
-      expect(wrapper.state('dialog')).to.be.an('object');
+      expect(state('currentRowIndex')).to.equal(rowIndex);
+      expect(state('showModalOverlay')).to.be.true;
+      expect(state('dialog')).to.be.an('object');
     });
   })
 
@@ -281,7 +285,7 @@ describe('PeopleTable', () => {
 
     beforeEach(function () {
       patient = { userid: 40 };
-      proxy = wrapper.instance().handleRemovePatient(patient);
+      proxy = wrapper.instance().getWrappedInstance().handleRemovePatient(patient);
     });
 
     it('should return a proxy function', function () {

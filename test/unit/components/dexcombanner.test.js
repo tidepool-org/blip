@@ -24,7 +24,7 @@
 
 import React from 'react';
 import { browserHistory } from 'react-router'
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
 import DexcomBanner from '../../../app/components/dexcombanner';
 import { URL_DEXCOM_CONNECT_INFO } from '../../../app/core/constants';
@@ -41,7 +41,7 @@ describe('DexcomBanner', () => {
 
   let wrapper;
   beforeEach(() => {
-    wrapper = shallow(
+    wrapper = mount(
       <DexcomBanner
         {...props}
       />

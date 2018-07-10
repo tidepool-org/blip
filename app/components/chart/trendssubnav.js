@@ -18,6 +18,7 @@
 
 var React = require('react');
 var cx = require('classnames');
+import { translate } from 'react-i18next';
 
 var d3 = window.d3;
 
@@ -33,7 +34,7 @@ var DaysGroup = React.createClass({
       'daysGroup': true,
       'active': this.props.active
     }) + ' ' + this.props.category;
-    
+
     return (
       <div>
         <input type="checkbox" className={groupClass}
@@ -42,14 +43,14 @@ var DaysGroup = React.createClass({
         {this.props.days}
       </div>
       );
-    
+
   },
   handleDaysGroupClick: function() {
     this.props.onClickGroup(this.props.category);
   }
 });
 
-var TrendsSubNav = React.createClass({
+var TrendsSubNav = translate()(React.createClass({
   propTypes: {
     activeDays: React.PropTypes.object.isRequired,
     activeDomain: React.PropTypes.string.isRequired,
@@ -59,14 +60,27 @@ var TrendsSubNav = React.createClass({
     toggleWeekdays: React.PropTypes.func.isRequired,
     toggleWeekends: React.PropTypes.func.isRequired
   },
-  DAY_ABBREVS: {
-    monday: 'M',
-    tuesday: 'Tu',
-    wednesday: 'W',
-    thursday: 'Th',
-    friday: 'F',
-    saturday: 'Sa',
-    sunday: 'Su'
+  renderDayAbbrev: function(day) {
+    const { t } = this.props;
+    switch (day) {
+      case 'monday': return t('M_Monday');
+      case 'tuesday': return t('Tu_Tuesday');
+      case 'wednesday': return t('W_Wednesday');
+      case 'thursday': return t('Th_Thursday');
+      case 'friday': return t('F_Friday');
+      case 'saturday': return t('Sa_Saturday');
+      case 'sunday': return t('Su_Sunday');
+      default: return undefined
+    }
+  },
+  renderDomain: function(domain) {
+    const { t } = this.props;
+    switch (domain) {
+      case '1 week': return t('1 week');
+      case '2 weeks': return t('2 weeks');
+      case '4 weeks': return t('4 weeks');
+      default: return domain;
+    }
   },
   componentWillMount: function() {
     this.areWeekdaysActive(this.props);
@@ -79,7 +93,7 @@ var TrendsSubNav = React.createClass({
   render: function() {
     var domainLinks = this.renderDomainLinks();
     var dayFilters = this.renderDayFilters();
-    
+
     return (
       <div id="trendsSubNav">
         <div className="trendsSubNavContainer">
@@ -89,9 +103,10 @@ var TrendsSubNav = React.createClass({
         </div>
       </div>
       );
-    
+
   },
   renderDomainLinks: function() {
+    const { t } = this.props;
     var domains = ['1 week', '2 weeks', '4 weeks'];
     var domainLinks = [];
     for (var i = 0; i < domains.length; ++i) {
@@ -105,32 +120,32 @@ var TrendsSubNav = React.createClass({
     }
     var visibleDaysText, numVisibleDays = this.props.extentSize/7 * numActiveDays;
     if (numVisibleDays % 1 !== 0) {
-      visibleDaysText = 'Approx ' + Math.round(numVisibleDays) + ' days in view';
+      visibleDaysText = t('Approx {{numVisibleDays}} days in view', {numVisibleDays: Math.round(numVisibleDays)});
     }
     else {
-      visibleDaysText = numVisibleDays + ' days in view';
+      visibleDaysText = t('{{numVisibleDays}} days in view', {numVisibleDays});
     }
 
-    
+
     return (
       <div>
         <div className="domainContainer">{domainLinks}</div>
         <div className="visibleDays">{visibleDaysText}</div>
       </div>
       );
-    
+
   },
   renderDomainLink: function(domain) {
     var domainLinkClass = cx({
       'btn btn-chart-control' : true,
       'active': domain === this.props.activeDomain
     });
-    
+
     return (
       <button className={domainLinkClass} key={domain}
-        onClick={this.props.domainClickHandlers[domain]}>{domain}</button>
+        onClick={this.props.domainClickHandlers[domain]}>{this.renderDomain(domain)}</button>
       );
-    
+
   },
   renderDayFilters: function() {
     var days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -138,7 +153,7 @@ var TrendsSubNav = React.createClass({
     for (var i = 0; i < days.length; ++i) {
       dayLinks.push(this.renderDay(days[i]));
     }
-    
+
     return (
       <div className="daysGroupContainer">
         <DaysGroup
@@ -153,7 +168,7 @@ var TrendsSubNav = React.createClass({
           onClickGroup={this.handleSelectDaysGroup} />
       </div>
       );
-    
+
   },
   renderDay: function(day) {
     var dayLinkClass = cx({
@@ -162,11 +177,11 @@ var TrendsSubNav = React.createClass({
       'active': this.props.activeDays[day],
       'inactive': !this.props.activeDays[day]
     }) + ' ' + day;
-    
+
     return (
-      <a className={dayLinkClass} key={day} onClick={this.props.onClickDay(day)}>{this.DAY_ABBREVS[day]}</a>
+      <a className={dayLinkClass} key={day} onClick={this.props.onClickDay(day)}>{this.renderDayAbbrev(day)}</a>
       );
-    
+
   },
   areWeekdaysActive: function(props) {
     var weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
@@ -197,6 +212,6 @@ var TrendsSubNav = React.createClass({
       this.props.toggleWeekends(this.state.weekendsActive);
     }
   }
-});
+}));
 
 module.exports = TrendsSubNav;

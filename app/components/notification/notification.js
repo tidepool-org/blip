@@ -13,11 +13,12 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-var _ = require('lodash');
-var React = require('react');
-var Link = require('react-router').Link;
+import _ from 'lodash';
+import React from 'react';
+import { Link } from 'react-router';
+import { translate } from 'react-i18next';
 
-var TidepoolNotification = React.createClass({
+var TidepoolNotification = translate()(React.createClass({
   propTypes: {
     type: React.PropTypes.string,
     contents: React.PropTypes.object.isRequired,
@@ -26,6 +27,7 @@ var TidepoolNotification = React.createClass({
   },
 
   render: function() {
+    const { t } = this.props;
     var type = this.props.type || 'alert';
     var className = 'notification notification-' + type;
     var contents = this.props.contents;
@@ -68,13 +70,14 @@ var TidepoolNotification = React.createClass({
     if (!this.props.onClose) {
       return null;
     }
+    const { t } = this.props;
 
     return (
       <a
         className="notification-close"
         href=""
         onClick={this.handleClose}
-        ref='close'>Close</a>
+        ref='close'>{t('Close')}</a>
     );
   },
 
@@ -88,6 +91,6 @@ var TidepoolNotification = React.createClass({
       close();
     }
   }
-});
+}));
 
 module.exports = TidepoolNotification;

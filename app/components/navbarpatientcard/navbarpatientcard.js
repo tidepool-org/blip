@@ -14,17 +14,18 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var Link = require('react-router').Link;
-var _ = require('lodash');
-var cx = require('classnames');
+import React from 'react';
+import { translate } from 'react-i18next';
+import { Link } from 'react-router';
+import _ from 'lodash';
+import cx from 'classnames';
 var launchCustomProtocol = require('custom-protocol-detection');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
 var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
 
-var NavbarPatientCard = React.createClass({
+var NavbarPatientCard = translate()(React.createClass({
   propTypes: {
     href: React.PropTypes.string.isRequired,
     currentPage: React.PropTypes.string,
@@ -71,6 +72,7 @@ var NavbarPatientCard = React.createClass({
   },
 
   renderView: function() {
+    const { t } = this.props;
     var classes = cx({
       'patientcard-actions-view': true,
       'patientcard-actions--highlight': this.props.currentPage && this.props.currentPage.match(/(data)$/i),
@@ -82,11 +84,12 @@ var NavbarPatientCard = React.createClass({
     };
 
     return (
-      <Link className={classes} onClick={handleClick} to={this.props.href}>View</Link>
+      <Link className={classes} onClick={handleClick} to={this.props.href}>{t('View')}</Link>
     );
   },
 
   renderProfile: function(patient) {
+    const { t } = this.props;
     var url = '';
     if (!_.isEmpty(patient.link)) {
       url = patient.link.slice(0,-5) + '/profile';
@@ -104,7 +107,7 @@ var NavbarPatientCard = React.createClass({
     };
 
     return (
-      <Link className={classes} to={url} onClick={handleClick} title="Profile">
+      <Link className={classes} to={url} onClick={handleClick} title={t('Profile')}>
         <div className="patientcard-fullname" title={this.getFullName()}>
           {this.getFullName()}
           <i className="patientcard-icon icon-settings"></i>
@@ -114,6 +117,7 @@ var NavbarPatientCard = React.createClass({
   },
 
   renderUpload: function(patient) {
+    const { t } = this.props;
     var classes = cx({
       'patientcard-actions-upload': true,
     });
@@ -131,7 +135,7 @@ var NavbarPatientCard = React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        <a href="" onClick={handleClick} className={classes} title="Upload data">Upload</a>
+        <a href="" onClick={handleClick} className={classes} title={t('Upload data')}>{t('Upload')}</a>
       );
     }
 
@@ -139,6 +143,8 @@ var NavbarPatientCard = React.createClass({
   },
 
   renderShare: function(patient) {
+    const { t } = this.props;
+
     var shareUrl = '';
     if (!_.isEmpty(patient.link)) {
       shareUrl = patient.link.slice(0,-5) + '/share';
@@ -156,7 +162,7 @@ var NavbarPatientCard = React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        <Link className={classes} onClick={handleClick} to={shareUrl} title="Share data">Share</Link>
+        <Link className={classes} onClick={handleClick} to={shareUrl} title={t('Share data')}>{t('Share')}</Link>
       );
     }
 
@@ -170,6 +176,6 @@ var NavbarPatientCard = React.createClass({
   getFullName: function() {
     return personUtils.patientFullName(this.props.patient);
   },
-});
+}));
 
 module.exports = NavbarPatientCard;
