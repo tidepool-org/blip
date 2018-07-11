@@ -246,7 +246,7 @@ export let PatientData = React.createClass({
   },
 
   renderUploadOverlay: function() {
-    return <UploadLaunchOverlay overlayClickHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
   },
 
   isEmptyPatientData: function() {
@@ -267,7 +267,7 @@ export let PatientData = React.createClass({
   renderSettings: function(){
     return (
       <div>
-        <div id="app-no-print">
+        <div class="app-no-print">
           <Settings
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
@@ -619,7 +619,7 @@ export let PatientData = React.createClass({
       fromChart: this.state.chartType
     });
 
-    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).endOf('day').toISOString());
+    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString());
 
     this.setState({
       chartType: 'weekly',
