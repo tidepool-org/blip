@@ -43,6 +43,9 @@ describe('actions', function() {
               ],
             ],
           },
+          selectorMetaData: {
+            canUpdateSettings: true,
+          },
         },
         'fingersticks': {
           id: 'fingersticks',
@@ -138,15 +141,20 @@ describe('actions', function() {
     it('should call updateBasicsSettings function', function() {
       var trackMetric = sinon.stub();
       var updateBasicsSettings = sinon.stub();
+      var canUpdateSettings = app.state.sections.siteChanges.selectorMetaData.canUpdateSettings;
       expect(updateBasicsSettings.callCount).to.equal(0);
       basicsActions.setSiteChangeEvent('siteChanges', constants.SITE_CHANGE_CANNULA, 'Cannula Prime', trackMetric, updateBasicsSettings);
+
+      expect(canUpdateSettings).to.be.true;
+
       expect(updateBasicsSettings.callCount).to.equal(1);
-      expect(updateBasicsSettings.calledWith(
+      expect(updateBasicsSettings.calledWithExactly(
         app.props.patient.userid,
         {
           previousSetting: true,
           siteChangeSource: constants.SITE_CHANGE_CANNULA,
-        }
+        },
+        canUpdateSettings
       )).to.be.true;
     });
   });
