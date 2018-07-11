@@ -1105,9 +1105,9 @@ describe('basics data utils', () => {
       expect(result.timeInAutoRatio.active).to.be.false;
     });
 
-    it('should set the active basal ratio to `timeInAutoRatio` for automated-basal devices', () => {
+    it('should activate both `basalBolusRatio` and `timeInAutoRatio` for automated-basal devices', () => {
       const result = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], MEDTRONIC, '1780');
-      expect(result.basalBolusRatio.active).to.be.false;
+      expect(result.basalBolusRatio.active).to.be.true;
       expect(result.timeInAutoRatio.active).to.be.true;
     });
 
@@ -1149,14 +1149,14 @@ describe('basics data utils', () => {
     };
 
     it('should disable sections for which there is no data available', () => {
-      // all sections (except basalBolusRatio since it's an automated-basal device) active by default
+      // all sections (including timeInAutoRatio since it's an automated-basal device) active by default
       expect(basicsData.sections.basals.active).to.be.true;
       expect(basicsData.sections.boluses.active).to.be.true;
       expect(basicsData.sections.siteChanges.active).to.be.true;
       expect(basicsData.sections.fingersticks.active).to.be.true;
       expect(basicsData.sections.bgDistribution.active).to.be.true;
       expect(basicsData.sections.totalDailyDose.active).to.be.true;
-      expect(basicsData.sections.basalBolusRatio.active).to.be.false;
+      expect(basicsData.sections.basalBolusRatio.active).to.be.true;
       expect(basicsData.sections.timeInAutoRatio.active).to.be.true;
       expect(basicsData.sections.averageDailyCarbs.active).to.be.true;
       expect(_.find(basicsData.sections.fingersticks.filters, { path: 'calibration' })).to.be.defined;
