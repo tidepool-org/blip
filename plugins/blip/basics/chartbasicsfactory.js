@@ -60,7 +60,6 @@ var BasicsChart = React.createClass({
 
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
     var latestPumpUpload = getLatestPumpUpload(this.props.patientData.grouped.upload);
-    var inactiveBasalRatio = isAutomatedBasalDevice(latestPumpUpload) ? 'basalBolusRatio' : 'timeInAutoRatio';
 
     var insulinDataAvailable = this._insulinDataAvailable();
     var noPumpDataMessage = 'This section requires data from an insulin pump, so there\'s nothing to display.';
@@ -137,7 +136,9 @@ var BasicsChart = React.createClass({
       totalDailyDoseSection.togglable = togglableState.closed;
     }
 
-    delete(basicsData.sections[inactiveBasalRatio]);
+    if (!isAutomatedBasalDevice(latestPumpUpload)) {
+      delete(basicsData.sections.timeInAutoRatio);
+    }
   },
 
   _insulinDataAvailable: function() {
