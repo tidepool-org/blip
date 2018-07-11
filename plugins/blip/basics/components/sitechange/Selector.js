@@ -52,6 +52,7 @@ var Selector = React.createClass({
       return;
     }
 
+    var subAction;
     var message;
     var type = this.props.selectedSubtotal;
     var {
@@ -85,7 +86,7 @@ var Selector = React.createClass({
     else {
       switch(type) {
         case constants.SITE_CHANGE_TUBING:
-          var subAction = this.subAction(latestPump, constants.SITE_CHANGE_TUBING);
+          subAction = this.subAction(latestPump, constants.SITE_CHANGE_TUBING);
           message = hasSiteChangeSourceSettings ? [
             patientName,
             ' is using ',
@@ -99,7 +100,7 @@ var Selector = React.createClass({
           ];
           break;
         case constants.SITE_CHANGE_CANNULA:
-          var subAction = this.subAction(latestPump, constants.SITE_CHANGE_CANNULA);
+          subAction = this.subAction(latestPump, constants.SITE_CHANGE_CANNULA);
           message = hasSiteChangeSourceSettings ? [
             patientName,
             ' is using ',
