@@ -1,7 +1,11 @@
+const webpack = require('webpack');
 const _ = require('lodash');
-const baseConfig = require('./webpack.config');
 
+const baseConfig = require('./webpack.config');
 const packageConfig = _.cloneDeep(baseConfig);
+
+// eslint-disable-next-line no-underscore-dangle
+const __DEV__ = process.env.NODE_ENV === 'development';
 
 packageConfig.output.libraryTarget = 'commonjs';
 
@@ -24,5 +28,18 @@ packageConfig.externals = {
   'react-redux': 'react-redux',
   redux: 'redux',
 };
+
+packageConfig.plugins = [
+  // `process.env.NODE_ENV === 'production'` must be `true` for production
+  // builds to eliminate development checks and reduce build size. You may
+  // wish to include additional optimizations.
+  new webpack.DefinePlugin({
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+    __DEV__,
+  }),
+  new webpack.LoaderOptionsPlugin({
+    debug: false,
+  }),
+];
 
 module.exports = packageConfig;

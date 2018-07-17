@@ -99,18 +99,18 @@ module.exports = {
       },
       babelLoaderConfiguration,
       imageLoaderConfiguration,
-      // {
-      //   test: /\.ttf$/,
-      //   use: [
-      //     {
-      //       loader: 'url-loader',
-      //       query: {
-      //         limit: 25000,
-      //         mimetype: 'application/octet-stream',
-      //       },
-      //     },
-      //   ],
-      // },
+      {
+        test: /\.ttf$/,
+        use: [
+          {
+            loader: 'url-loader',
+            query: {
+              limit: 25000,
+              mimetype: 'application/octet-stream',
+            },
+          },
+        ],
+      },
     ],
   },
 };
