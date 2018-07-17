@@ -108,7 +108,7 @@
     "sinon": "2.3.4",
     "style-loader": "0.13.1",
     "tidepool-standard-action": "0.1.1",
-    "webpack": "1.13.2"
+    "webpack": "2.7.0"
   },
   "dependencies": {
     "@nivo/bar": "^0.42.1",
