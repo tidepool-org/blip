@@ -6,54 +6,100 @@ import { withKnobs, select, button } from '@storybook/addon-knobs';
 
 import Stat, { statTypes } from '../../../../src/components/common/stat/Stat';
 
-const basalBolusData = [
+let basalBolusData = [
   {
-    x: 'basal',
+    x: 1,
     y: 0.6,
+    type: 'basal',
   },
   {
-    x: 'bolus',
+    x: 2,
     y: 0.4,
+    type: 'bolus',
   },
 ];
 
-const categories = {
-  x: ['basal', 'bolus'],
-};
+let bgRangeData = [
+  {
+    x: 1,
+    y: 0.1,
+    type: 'veryLow',
+  },
+  {
+    x: 2,
+    y: 0.2,
+    type: 'low',
+  },
+  {
+    x: 3,
+    y: 0.4,
+    type: 'target',
+  },
+  {
+    x: 4,
+    y: 0.2,
+    type: 'high',
+  },
+  {
+    x: 5,
+    y: 0.1,
+    type: 'veryHigh',
+  },
+];
+
 
 const stories = storiesOf('Stat', module);
 stories.addDecorator(withKnobs);
 
+const generateRandom = data => {
+  const random = _.map(data, () => Math.random());
+  const sum = _.sum(random);
+
+  return _.map(data, (d, i) => ({
+    x: d.x,
+    y: random[i] / sum,
+    type: d.type,
+  }));
+};
 
 stories.add('basalBolusData', () => {
-  const type = select('Type', statTypes, statTypes.barHorizontal, 'TYPE-1');
-  const dataSource = basalBolusData;
-  const data = button('Update Data', () => {
-    const initial = Math.random();
-    return _.map(dataSource, (d, i) => {
-      d.y = i === 0 ? initial : 1 - initial;
-      return d;
-    });
-  }, 'DATA-1');
+  const categories = ['basal', 'bolus'];
+
+  const type = select('Type', statTypes, statTypes.barHorizontal, 'STAT');
+
+  button('Update Data', () => {
+    basalBolusData = generateRandom(basalBolusData);
+  }, 'STAT');
+
   return (
-    <div>
-      <Stat data={data} type={type} categories={categories} />
-    </div>
+    <Stat
+      data={basalBolusData}
+      type={type}
+      categories={categories}
+    />
   );
 });
 
-stories.add('barHorizontal', () => (
-  <div>
-    <Stat type="barHorizontal" />
-  </div>
-));
-stories.add('barVertical', () => (
-  <div>
-    <Stat type="barVertical" />
-  </div>
-));
-stories.add('pie', () => (
-  <div>
-    <Stat type="pie" />
-  </div>
-));
+stories.add('bgRangeData', () => {
+  const categories = [
+    'veryLow',
+    'low',
+    'target',
+    'high',
+    'veryHigh',
+  ];
+
+  const type = select('Type', statTypes, statTypes.barHorizontal, 'STAT');
+
+  button('Update Data', () => {
+    bgRangeData = generateRandom(bgRangeData);
+  }, 'STAT');
+
+  return (
+    <Stat
+      data={bgRangeData}
+      type={type}
+      categories={categories}
+    />
+  );
+});

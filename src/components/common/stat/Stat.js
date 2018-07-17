@@ -17,7 +17,8 @@
 
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { VictoryChart, VictoryBar, VictoryAxis, VictoryPie } from 'victory';
+import { VictoryChart, VictoryBar, VictoryGroup, VictoryPie } from 'victory';
+import { formatPercentage } from '../../../utils/format';
 
 import styles from './Stat.css';
 
@@ -42,81 +43,59 @@ export const statTypes = {
 const Stat = (props) => {
   const { type } = props;
 
-  let chartRenderer;
-  let chartProps;
+  let ChartRenderer = VictoryBar;
+  const chartProps = _.defaults({
+    animate: { duration: 300 },
+    domainPadding: 25,
+    labels: d => formatPercentage(d.y),
+    sortKey: 'x',
+    style: {
+      data: {
+        fill: d => colors[d.type],
+      },
+    },
+  }, props);
 
   switch (type) {
     case 'pie':
-      chartProps = {
-        style: {
-          data: {
-            fill: d => colors[d.x],
-          },
-        },
-        ...props,
-      };
-      chartRenderer = () => {
-        return (
-          <VictoryPie {...chartProps} />
-        );
-      };
+      ChartRenderer = VictoryPie;
       break;
 
     case 'barVertical':
-      chartProps = {
-        horizontal: false,
+      _.assign(chartProps, {
         cornerRadius: 4,
-        style: {
-          data: {
-            fill: d => colors[d.x],
-          },
-        },
-        ...props,
-      };
-      chartRenderer = () => {
-        return (
-          <VictoryBar {...chartProps} />
-        );
-      };
+        maxDomain: { y: 1.0 },
+        sortOrder: 'descending',
+      });
       break;
 
     case 'barHorizontal':
     default:
-      chartProps = {
-        horizontal: true,
+      _.assign(chartProps, {
         cornerRadius: 4,
-        style: {
-          data: {
-            fill: d => colors[d.x],
-          },
-        },
-        ...props,
-      };
-      chartRenderer = () => {
-        return (
-          <VictoryBar {...chartProps} />
-        );
-      };
+        horizontal: true,
+        maxDomain: { x: 1.0 },
+        sortOrder: 'ascending',
+      });
       break;
   }
 
   return (
     <div className={styles[type]}>
-      <VictoryChart maxDomain={{ x: 1.0 }} animate={{ duration: 300 }} >
-        {chartRenderer()}
-      </VictoryChart>
+      <ChartRenderer {...chartProps} />
     </div>
   );
 };
 
 Stat.defaultProps = {
   type: statTypes.barHorizontal.type,
+  categories: {},
 };
 
 Stat.propTypes = {
-  type: PropTypes.oneOf(_.map(statTypes, t => t.type)),
-  data: PropTypes.object.isRequired,
-  categories: PropTypes.object.isRequired,
+  type: PropTypes.oneOf(_.keys(statTypes)),
+  data: PropTypes.array.isRequired,
+  categories: PropTypes.object,
 };
 
 export default Stat;

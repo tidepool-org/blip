@@ -1,13 +1,14 @@
 .pie {
   background-color: transparent;
+  height: 300px;
 }
 
 .barHorizontal {
   background-color: transparent;
-  max-width: 100%;
-  max-height: 100%;
+  height: 300px;
 }
 
 .barVertical {
   background-color: transparent;
+  height: 300px;
 }

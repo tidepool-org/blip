@@ -38,9 +38,9 @@
   },
   "homepage": "https://github.com/tidepool-org/viz#readme",
   "devDependencies": {
-    "@storybook/addon-knobs": "4.0.0-alpha.3",
-    "@storybook/addon-notes": "4.0.0-alpha.3",
-    "@storybook/react": "4.0.0-alpha.3",
+    "@storybook/addon-knobs": "4.0.0-alpha.14",
+    "@storybook/addon-notes": "4.0.0-alpha.14",
+    "@storybook/react": "4.0.0-alpha.14",
     "babel-cli": "6.26.0",
     "babel-core": "6.26.3",
     "babel-eslint": "8.2.5",
