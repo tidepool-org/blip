@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { configure } from '@kadira/storybook';
+import { configure } from '@storybook/react';
 
 function loadStories() {
   const context = require.context('../storiesDatatypes', true, /.js$/); // Load .js files in /storybook

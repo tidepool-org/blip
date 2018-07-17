@@ -19,7 +19,7 @@
     "pretest": "npm run lint",
     "serve-docs": "./node_modules/.bin/gitbook serve",
     "start": "./node_modules/.bin/webpack --config package.config.js --watch",
-    "stories": "./node_modules/.bin/start-storybook -c storybook -p 8081 -s ./static",
+    "stories": "./node_modules/.bin/start-storybook -c storybook -p 8083 -s ./static",
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
     "test-watch": "NODE_ENV=test ./node_modules/.bin/karma start --no-single-run --reporters=mocha",
     "typestories": "./node_modules/.bin/start-storybook -c storybookDatatypes -p 8082"
@@ -39,7 +39,12 @@
   "homepage": "https://github.com/tidepool-org/viz#readme",
   "devDependencies": {
     "@kadira/storybook": "2.35.3",
+    "@kadira/storybook-addon-knobs": "1.7.1",
     "@kadira/storybook-addon-notes": "1.0.1",
+    "@storybook/addon-knobs": "3.4.8",
+    "@storybook/addon-notes": "3.4.8",
+    "@storybook/addons": "3.4.8",
+    "@storybook/react": "^3.4.8",
     "babel-cli": "6.11.4",
     "babel-core": "6.13.2",
     "babel-eslint": "6.1.2",
@@ -106,6 +111,8 @@
     "webpack": "1.13.2"
   },
   "dependencies": {
+    "@nivo/bar": "^0.42.1",
+    "@nivo/line": "^0.42.1",
     "bluebird": "3.5.0",
     "crossfilter": "1.3.12",
     "d3-array": "1.0.1",
@@ -126,6 +133,7 @@
     "sundial": "1.6.0",
     "text-table": "0.2.0",
     "translate-svg-path": "0.0.1",
+    "victory": "^0.27.2",
     "voilab-pdf-table": "0.4.0"
   },
   "peerDependencies": {

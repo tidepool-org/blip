@@ -18,8 +18,8 @@
 import React from 'react';
 import _ from 'lodash';
 
-import { storiesOf } from '@kadira/storybook';
-import { WithNotes } from '@kadira/storybook-addon-notes';
+import { storiesOf } from '@storybook/react';
+import { WithNotes } from '@storybook/addon-notes';
 
 import { createPrintView } from '../../src/modules/print/index';
 import { MARGIN } from '../../src/modules/print/utils/constants';

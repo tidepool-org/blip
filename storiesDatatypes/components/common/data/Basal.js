@@ -18,8 +18,8 @@
 import React from 'react';
 import { scaleLinear } from 'd3-scale';
 
-import { storiesOf } from '@kadira/storybook';
-import { WithNotes } from '@kadira/storybook-addon-notes';
+import { storiesOf } from '@storybook/react';
+import { WithNotes } from '@storybook/addon-notes';
 
 import Basal from '../../../../src/components/common/data/Basal';
 
