@@ -43,7 +43,6 @@ const medtronic600BGMessages = {
 
 const medtronic600CalibrationMessages = {
   'medtronic600/smbg/bg-sent-for-calib': 'Yes',
-  'medtronic600/smbg/user-rejected-sensor-calib': 'No',
 };
 
 const simpleAnnotationMessages = {
@@ -103,8 +102,7 @@ export function getMedtronic600AnnotationMessages(datum) {
     messages.push(
       _.assign(_.find(annotations, { code: medtronic600CalibrationMessage[0] }), {
         message: {
-          label: 'Calibration',
-          value: medtronic600CalibrationMessages[medtronic600CalibrationMessage[0]],
+          label: 'Sent for Calibration',
         },
       })
     );

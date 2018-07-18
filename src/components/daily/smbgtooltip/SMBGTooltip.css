@@ -65,7 +65,7 @@
   composes: subType;
 }
 
-.calibration {
+.sentForCalibration {
   composes: subType;
 }
 

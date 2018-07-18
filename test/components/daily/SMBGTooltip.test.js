@@ -192,7 +192,7 @@ const props = {
 
 const bgValueSelector = `${formatClassesAsSelector(styles.confirmBg)} ${formatClassesAsSelector(styles.value)}`;
 const sourceValueSelector = `${formatClassesAsSelector(styles.source)} ${formatClassesAsSelector(styles.value)}`;
-const calibrationValueSelector = `${formatClassesAsSelector(styles.calibration)} ${formatClassesAsSelector(styles.value)}`;
+const calibrationValueSelector = `${formatClassesAsSelector(styles.sentForCalibration)}`;
 const glucoseValueSelector = `${formatClassesAsSelector(styles.bg)} ${formatClassesAsSelector(styles.value)}`;
 
 describe('SMBGTooltip', () => {
@@ -273,28 +273,26 @@ describe('SMBGTooltip', () => {
     expect(wrapper.find(sourceValueSelector).text()).to.equal('Manual');
   });
 
-  it('should render "Yes" and "Manual" for a calibration manual medtronic 600 series smbg', () => {
+  it('should render "Sent for Calibration" and "Manual" for a calibration manual medtronic 600 series smbg', () => {
     const wrapper = mount(<SMBGTooltip {...props} smbg={medT600calibManual} />);
-    expect(wrapper.find(formatClassesAsSelector(styles.calibration))).to.have.length(1);
-    expect(wrapper.find(calibrationValueSelector).text()).to.equal('Yes');
+    expect(wrapper.find(formatClassesAsSelector(styles.sentForCalibration))).to.have.length(1);
+    expect(wrapper.find(calibrationValueSelector).text()).to.equal('Sent for Calibration');
     expect(wrapper.find(formatClassesAsSelector(styles.source))).to.have.length(1);
     expect(wrapper.find(sourceValueSelector).text()).to.equal('Manual');
   });
 
-  it('should render "No" and "Manual" for a non-calibration manual medtronic 600 series smbg', () => {
+  it('should render "Manual" for a non-calibration manual medtronic 600 series smbg', () => {
     const wrapper = mount(<SMBGTooltip {...props} smbg={medT600noncalibManual} />);
-    expect(wrapper.find(formatClassesAsSelector(styles.calibration))).to.have.length(1);
-    expect(wrapper.find(calibrationValueSelector).text()).to.equal('No');
+    expect(wrapper.find(formatClassesAsSelector(styles.sentForCalibration))).to.have.length(0);
     expect(wrapper.find(formatClassesAsSelector(styles.source))).to.have.length(1);
     expect(wrapper.find(sourceValueSelector).text()).to.equal('Manual');
   });
 
-  it('should render "Yes", "No" and "Manual" for an accepted non-calibration manual medtronic 600 series smbg', () => {
+  it('should render "Yes" and "Manual" for an accepted non-calibration manual medtronic 600 series smbg', () => {
     const wrapper = mount(<SMBGTooltip {...props} smbg={medT600acceptedNoncalibManual} />);
     expect(wrapper.find(formatClassesAsSelector(styles.confirmBg))).to.have.length(1);
     expect(wrapper.find(bgValueSelector).text()).to.equal('Yes');
-    expect(wrapper.find(formatClassesAsSelector(styles.calibration))).to.have.length(1);
-    expect(wrapper.find(calibrationValueSelector).text()).to.equal('No');
+    expect(wrapper.find(formatClassesAsSelector(styles.sentForCalibration))).to.have.length(0);
     expect(wrapper.find(formatClassesAsSelector(styles.source))).to.have.length(1);
     expect(wrapper.find(sourceValueSelector).text()).to.equal('Manual');
   });

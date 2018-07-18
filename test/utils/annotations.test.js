@@ -141,13 +141,6 @@ describe('annotation utilities', () => {
             value: 'Yes',
           },
         },
-        {
-          code: 'medtronic600/smbg/user-rejected-sensor-calib',
-          message: {
-            label: 'Calibration',
-            value: 'No',
-          },
-        },
       ]);
       expect(annotations.getAnnotationMessages(animasBolus)[0].message.value).to.equal(
         "* Animas pumps don't capture the details of how combo boluses are split between the normal and extended amounts."
@@ -174,13 +167,6 @@ describe('annotation utilities', () => {
           message: {
             label: 'Confirm BG',
             value: 'Yes',
-          },
-        },
-        {
-          code: 'medtronic600/smbg/user-rejected-sensor-calib',
-          message: {
-            label: 'Calibration',
-            value: 'No',
           },
         },
       ]);
