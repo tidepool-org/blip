@@ -56,9 +56,9 @@ const Stat = (props) => {
   }, props);
 
   let barWidth;
-  let domain;
-  let topPadding;
   let barSpacing;
+  let domain;
+  let padding;
 
   switch (type) {
     case 'pie':
@@ -75,23 +75,23 @@ const Stat = (props) => {
 
     case 'barHorizontal':
     default:
-      topPadding = 6;
-      barSpacing = 6;
-      barWidth = (((chartHeight - (topPadding * 2)) / props.data.length) - (barSpacing / 2));
       domain = { y: [0, props.data.length], x: [0, 1] };
+      barSpacing = 6;
+      barWidth = (chartHeight / props.data.length) - (barSpacing / 2);
+      padding = { top: barWidth / 2, bottom: barWidth / 2 * -1 };
 
       _.assign(chartProps, {
         alignment: 'middle',
         containerComponent: <VictoryContainer
           responsive={false}
         />,
-        cornerRadius: { top: 4, bottom: 4 },
+        cornerRadius: { top: 2, bottom: 2 },
         dataComponent: <HoverBar />,
         domain,
         height: chartHeight,
         horizontal: true,
         labelComponent: <HoverBarLabel domain={domain} />,
-        padding: { top: (barWidth / 2 + barSpacing / 2) + topPadding, bottom: -topPadding },
+        padding,
         style: {
           data: {
             fill: d => colors[d.type],

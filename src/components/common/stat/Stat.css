@@ -1,7 +1,8 @@
 .Stat {
-  max-width: 300px;
+  max-width: 400px;
   padding: .5em;
   background-color: var(--bkgrnd-white);
+  overflow: hidden;
 }
 
 .Stat.pie {}
@@ -10,7 +11,7 @@
 
 .Stat.barVertical {}
 
-.Stat.chartHeader {
+.chartHeader {
   display: flex;
   flex-wrap: nowrap;
 }
@@ -19,4 +20,5 @@
   font-size: .8em;
   line-height: 1em;
   white-space: nowrap;
+  margin-bottom: .5em;
 }

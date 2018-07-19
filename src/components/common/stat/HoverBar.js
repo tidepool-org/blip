@@ -31,7 +31,7 @@ export const HoverBar = (props) => {
       {...props}
       events={{
         onClick: (d) => console.log('clicked', d),
-        onHover: (d) => console.log('hovered', d),
+        onMouseOver: (d) => console.log('hovered', d),
       }}
     />
   );
