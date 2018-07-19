@@ -1,14 +1,22 @@
-.pie {
-  background-color: transparent;
-  height: 300px;
+.Stat {
+  max-width: 300px;
+  padding: .5em;
+  background-color: var(--bkgrnd-white);
 }
 
-.barHorizontal {
-  background-color: transparent;
-  height: 300px;
+.Stat.pie {}
+
+.Stat.barHorizontal {}
+
+.Stat.barVertical {}
+
+.Stat.chartHeader {
+  display: flex;
+  flex-wrap: nowrap;
 }
 
-.barVertical {
-  background-color: transparent;
-  height: 300px;
+.chartTitle {
+  font-size: .8em;
+  line-height: 1em;
+  white-space: nowrap;
 }

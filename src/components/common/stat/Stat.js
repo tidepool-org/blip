@@ -17,21 +17,23 @@
 
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { VictoryChart, VictoryBar, VictoryGroup, VictoryPie } from 'victory';
-import { formatPercentage } from '../../../utils/format';
+import dimensions from 'react-dimensions';
+import { VictoryBar, VictoryContainer, VictoryPie } from 'victory';
 
+import { formatPercentage } from '../../../utils/format';
 import styles from './Stat.css';
+import cx from 'classnames';
+import HoverBar, { HoverBarLabel } from './HoverBar';
 
 const colors = {
-  basal: '#19A0D7',
-  basalAutomated: '#00D3E6',
-  bolus: '#7CD0F0',
-  smbg: '#6480FB',
-  veryLow: '#FF8B7C',
-  low: '#FF8B7C',
-  target: '#76D3A6',
-  high: '#BB9AE7',
-  veryHigh: '#BB9AE7',
+  basal: '#0096d1',
+  basalAutomated: '#00e9fa',
+  bolus: '#7ed1f2',
+  veryLow: '#fb5951',
+  low: '#f28684',
+  target: '#76db9b',
+  high: '#b49de3',
+  veryHigh: '#8c65d6',
 };
 
 export const statTypes = {
@@ -41,20 +43,22 @@ export const statTypes = {
 };
 
 const Stat = (props) => {
-  const { type } = props;
-
+  const { type, title, chartHeight } = props;
   let ChartRenderer = VictoryBar;
   const chartProps = _.defaults({
-    animate: { duration: 300 },
-    domainPadding: 25,
+    animate: { duration: 300, onLoad: { duration: 300 } },
     labels: d => formatPercentage(d.y),
-    sortKey: 'x',
     style: {
       data: {
         fill: d => colors[d.type],
       },
     },
   }, props);
+
+  let barWidth;
+  let domain;
+  let topPadding;
+  let barSpacing;
 
   switch (type) {
     case 'pie':
@@ -71,31 +75,68 @@ const Stat = (props) => {
 
     case 'barHorizontal':
     default:
+      topPadding = 6;
+      barSpacing = 6;
+      barWidth = (((chartHeight - (topPadding * 2)) / props.data.length) - (barSpacing / 2));
+      domain = { y: [0, props.data.length], x: [0, 1] };
+
       _.assign(chartProps, {
-        cornerRadius: 4,
+        alignment: 'middle',
+        containerComponent: <VictoryContainer
+          responsive={false}
+        />,
+        cornerRadius: { top: 4, bottom: 4 },
+        dataComponent: <HoverBar />,
+        domain,
+        height: chartHeight,
         horizontal: true,
-        maxDomain: { x: 1.0 },
-        sortOrder: 'ascending',
+        labelComponent: <HoverBarLabel domain={domain} />,
+        padding: { top: (barWidth / 2 + barSpacing / 2) + topPadding, bottom: -topPadding },
+        style: {
+          data: {
+            fill: d => colors[d.type],
+            width: () => barWidth,
+          },
+          labels: {
+            fill: d => colors[d.type],
+          },
+        },
       });
       break;
   }
 
+  const statOuterClasses = cx({
+    [styles.Stat]: true,
+    [styles[type]]: true,
+  });
+
+  const InnerChart = dimensions()((innerProps) => {
+    const { containerWidth, ...rest } = innerProps;
+    return <ChartRenderer width={containerWidth} {...rest} />;
+  });
+
   return (
-    <div className={styles[type]}>
-      <ChartRenderer {...chartProps} />
+    <div className={statOuterClasses}>
+      <div className={styles.chartHeader}>
+        <div className={styles.chartTitle}>{title}</div>
+      </div>
+      <InnerChart {...chartProps} />
     </div>
   );
 };
 
 Stat.defaultProps = {
-  type: statTypes.barHorizontal.type,
   categories: {},
+  chartHeight: 80,
+  type: statTypes.barHorizontal.type,
 };
 
 Stat.propTypes = {
-  type: PropTypes.oneOf(_.keys(statTypes)),
-  data: PropTypes.array.isRequired,
   categories: PropTypes.object,
+  data: PropTypes.array.isRequired,
+  chartHeight: PropTypes.number.isRequired,
+  title: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(_.keys(statTypes)),
 };
 
 export default Stat;

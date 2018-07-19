@@ -19,6 +19,19 @@ let basalBolusData = [
   },
 ];
 
+let autoManualData = [
+  {
+    x: 1,
+    y: 0.75,
+    type: 'basalAutomated',
+  },
+  {
+    x: 2,
+    y: 0.25,
+    type: 'basal',
+  },
+];
+
 let bgRangeData = [
   {
     x: 1,
@@ -62,33 +75,19 @@ const generateRandom = data => {
   }));
 };
 
-stories.add('basalBolusData', () => {
-  const categories = ['basal', 'bolus'];
+/* eslint-disable react/prop-types */
+const Container = (props) => (
+  <div
+    style={{
+      background: '#f6f6f6',
+      border: '1px solid #eee',
+      margin: '20px',
+    }}
+  >{props.children}</div>
+);
+/* eslint-enable react/prop-types */
 
-  const type = select('Type', statTypes, statTypes.barHorizontal, 'STAT');
-
-  button('Update Data', () => {
-    basalBolusData = generateRandom(basalBolusData);
-  }, 'STAT');
-
-  return (
-    <Stat
-      data={basalBolusData}
-      type={type}
-      categories={categories}
-    />
-  );
-});
-
-stories.add('bgRangeData', () => {
-  const categories = [
-    'veryLow',
-    'low',
-    'target',
-    'high',
-    'veryHigh',
-  ];
-
+stories.add('Time In Range', () => {
   const type = select('Type', statTypes, statTypes.barHorizontal, 'STAT');
 
   button('Update Data', () => {
@@ -96,10 +95,48 @@ stories.add('bgRangeData', () => {
   }, 'STAT');
 
   return (
-    <Stat
-      data={bgRangeData}
-      type={type}
-      categories={categories}
-    />
+    <Container>
+      <Stat
+        data={bgRangeData}
+        title="Time In Range"
+        type={type}
+      />
+    </Container>
+  );
+});
+
+stories.add('Basal : Bolus Ratio', () => {
+  const type = select('Type', statTypes, statTypes.barHorizontal, 'STAT');
+
+  button('Update Data', () => {
+    basalBolusData = generateRandom(basalBolusData);
+  }, 'STAT');
+
+  return (
+    <Container>
+      <Stat
+        data={basalBolusData}
+        title="Basal : Bolus Ratio"
+        type={type}
+      />
+    </Container>
+  );
+});
+
+stories.add('Auto Mode : Manual Ratio', () => {
+  const type = select('Type', statTypes, statTypes.barHorizontal, 'STAT');
+
+  button('Update Data', () => {
+    autoManualData = generateRandom(autoManualData);
+  }, 'STAT');
+
+  return (
+    <Container>
+      <Stat
+        data={autoManualData}
+        title="Auto Mode : Manual Ratio"
+        type={type}
+      />
+    </Container>
   );
 });
