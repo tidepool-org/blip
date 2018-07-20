@@ -26,7 +26,7 @@ var expect = chai.expect;
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 
-describe('PatientData', function () {
+describe.only('PatientData', function () {
   const defaultProps = {
     addPatientNote: sinon.stub(),
     clearPatientData: sinon.stub(),
@@ -111,39 +111,26 @@ describe('PatientData', function () {
         expect(loader().props().show).to.be.true;
       });
 
-      it('should render the loading message and image when initialProcessing and loadedPatientData are true', function() {
-        expect(loader().length).to.equal(1);
-        expect(loader().props().show).to.be.true;
-        //assert vals of these props
-      });
-
-      it('should not render the loading message and image when initialProcessing is false', function() {
+      it('should stop rendering the loading message and image when initialProcessing and missingPatientData are false', function() {
         expect(loader().length).to.equal(1);
         expect(loader().props().show).to.be.true;
 
+        // Set initialProcessing to false - should hide loader
         wrapper.setState({lastDatumProcessedIndex: 1});
         expect(loader().props().show).to.be.false;
-      });
 
-      it.only('should not render the loading message and image when loadedPatientData is false', function() {
-        expect(loader().length).to.equal(1);
+        // Set initialProcessing back to true - should show loader
+        wrapper.setState({lastDatumProcessedIndex: -1});
         expect(loader().props().show).to.be.true;
 
-        delete wrapper.props.currentPatientInViewId;
-        delete wrapper.props.patientDataMap;
-        wrapper.setProps({/*currentPatientInViewId: null,*/ patientDataMap: null});
-        wrapper.update;
-        loader.update;
+        // Set loadedPatientData to true - should hide loader
+        wrapper.setProps({ patientDataMap: {
+          [defaultProps.currentPatientInViewId]: ['some data'],
+        }});
         expect(loader().props().show).to.be.false;
-      });
 
-      it('should not render the loading message and image when initialProcessing and loadedPatientData is false', function() {
-        //expect(loader().length).to.equal(1);
-        //expect(loader().props().show).to.be.true;
-
-        //turn loadedPatientData to false
-        wrapper.setState({lastDatumProcessedIndex: 1});
-
+        // Set initialProcessing to false, so both are false - should hide loader
+        wrapper.setState({lastDatumProcessedIndex: -1});
         expect(loader().props().show).to.be.false;
       });
 

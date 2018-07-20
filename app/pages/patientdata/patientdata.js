@@ -140,14 +140,14 @@ export let PatientData = React.createClass({
     const messages = this.renderMessagesContainer();
     const initialProcessing = this.state.lastDatumProcessedIndex < 0;
     const patientID = this.props.currentPatientInViewId;
-    const loadedPatientData = !!_.get(this.props, ['patientDataMap', patientID]);
-    const showLoader = initialProcessing && !loadedPatientData;
+    const missingPatientData = !_.get(this.props, ['patientDataMap', patientID]);
+    const showLoader = initialProcessing && missingPatientData;
 
     return (
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
-        <Loader show={showLoader} /> 
+        <Loader show={showLoader} />
       </div>
     );
   },
