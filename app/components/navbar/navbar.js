@@ -36,6 +36,7 @@ var Navbar = React.createClass({
     getUploadUrl: React.PropTypes.func,
     onLogout: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
+    permsOfLoggedInUser: React.PropTypes.object,
   },
 
   getInitialState: function() {
@@ -102,6 +103,7 @@ var Navbar = React.createClass({
           currentPage={this.props.currentPage}
           uploadUrl={this.props.getUploadUrl()}
           patient={patient}
+          permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           trackMetric={this.props.trackMetric} />
       </div>
     );

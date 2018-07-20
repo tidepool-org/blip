@@ -53,7 +53,7 @@ export let Patients = React.createClass({
     showingWelcomeMessage: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
-    user: React.PropTypes.object
+    user: React.PropTypes.object,
   },
 
   render: function() {
