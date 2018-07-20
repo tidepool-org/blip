@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.11.3-add-careteam-upload-link.1",
+  "version": "1.11.3",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
