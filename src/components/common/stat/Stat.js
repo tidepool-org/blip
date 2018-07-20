@@ -43,7 +43,7 @@ export const statTypes = {
 };
 
 const Stat = (props) => {
-  const { type, title, chartHeight } = props;
+  const { type, title } = props;
   let ChartRenderer = VictoryBar;
   const chartProps = _.defaults({
     animate: { duration: 300, onLoad: { duration: 300 } },
@@ -57,6 +57,7 @@ const Stat = (props) => {
 
   let barWidth;
   let barSpacing;
+  let chartHeight;
   let domain;
   let padding;
 
@@ -76,8 +77,16 @@ const Stat = (props) => {
     case 'barHorizontal':
     default:
       domain = { y: [0, props.data.length], x: [0, 1] };
-      barSpacing = 6;
-      barWidth = (chartHeight / props.data.length) - (barSpacing / 2);
+      barSpacing = chartProps.barSpacing || 6;
+      chartHeight = chartProps.chartHeight;
+
+      if (chartHeight > 0) {
+        barWidth = ((chartHeight - barSpacing) / props.data.length) - (barSpacing / 2);
+      } else {
+        barWidth = chartProps.barWidth || 24;
+        chartHeight = (barWidth + barSpacing) * props.data.length;
+      }
+
       padding = { top: barWidth / 2, bottom: barWidth / 2 * -1 };
 
       _.assign(chartProps, {
@@ -127,14 +136,14 @@ const Stat = (props) => {
 
 Stat.defaultProps = {
   categories: {},
-  chartHeight: 80,
   type: statTypes.barHorizontal.type,
+  chartHeight: 0,
 };
 
 Stat.propTypes = {
   categories: PropTypes.object,
   data: PropTypes.array.isRequired,
-  chartHeight: PropTypes.number.isRequired,
+  chartHeight: PropTypes.number,
   title: PropTypes.string.isRequired,
   type: PropTypes.oneOf(_.keys(statTypes)),
 };

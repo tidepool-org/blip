@@ -2,9 +2,15 @@ import React from 'react';
 import _ from 'lodash';
 
 import { storiesOf } from '@storybook/react';
-import { withKnobs, select, button } from '@storybook/addon-knobs';
+import { withKnobs, select, button, number } from '@storybook/addon-knobs';
 
 import Stat, { statTypes } from '../../../../src/components/common/stat/Stat';
+
+export const chartHeights = {
+  fluid: 0,
+  80: 80,
+  100: 100,
+};
 
 let basalBolusData = [
   {
@@ -82,6 +88,7 @@ const Container = (props) => (
       background: '#f6f6f6',
       border: '1px solid #eee',
       margin: '20px',
+      padding: '20px',
     }}
   >{props.children}</div>
 );
@@ -89,6 +96,7 @@ const Container = (props) => (
 
 stories.add('Time In Range', () => {
   const type = select('Type', statTypes, statTypes.barHorizontal, 'STAT');
+  const chartHeight = select('Chart Height', chartHeights, chartHeights['100'], 'STAT');
 
   button('Update Data', () => {
     bgRangeData = generateRandom(bgRangeData);
@@ -97,6 +105,7 @@ stories.add('Time In Range', () => {
   return (
     <Container>
       <Stat
+        chartHeight={chartHeight}
         data={bgRangeData}
         title="Time In Range"
         type={type}
@@ -107,6 +116,7 @@ stories.add('Time In Range', () => {
 
 stories.add('Basal : Bolus Ratio', () => {
   const type = select('Type', statTypes, statTypes.barHorizontal, 'STAT');
+  const chartHeight = select('Chart Height', chartHeights, chartHeights['100'], 'STAT');
 
   button('Update Data', () => {
     basalBolusData = generateRandom(basalBolusData);
@@ -115,6 +125,7 @@ stories.add('Basal : Bolus Ratio', () => {
   return (
     <Container>
       <Stat
+        chartHeight={chartHeight}
         data={basalBolusData}
         title="Basal : Bolus Ratio"
         type={type}
@@ -125,6 +136,7 @@ stories.add('Basal : Bolus Ratio', () => {
 
 stories.add('Auto Mode : Manual Ratio', () => {
   const type = select('Type', statTypes, statTypes.barHorizontal, 'STAT');
+  const chartHeight = select('Chart Height', chartHeights, chartHeights['100'], 'STAT');
 
   button('Update Data', () => {
     autoManualData = generateRandom(autoManualData);
@@ -133,6 +145,7 @@ stories.add('Auto Mode : Manual Ratio', () => {
   return (
     <Container>
       <Stat
+        chartHeight={chartHeight}
         data={autoManualData}
         title="Auto Mode : Manual Ratio"
         type={type}

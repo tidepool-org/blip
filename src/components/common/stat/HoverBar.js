@@ -19,9 +19,9 @@ export const HoverBarLabel = (props) => {
 HoverBarLabel.displayName = 'HoverBarLabel';
 
 HoverBarLabel.propTypes = {
-  text: PropTypes.string.isRequired,
-  scale: PropTypes.object.isRequired,
-  y: PropTypes.number.isRequired,
+  text: PropTypes.func,
+  scale: PropTypes.object,
+  y: PropTypes.number,
   domain: PropTypes.object.isRequired,
 };
 

@@ -1,7 +1,8 @@
 .Stat {
-  max-width: 400px;
-  padding: .5em;
+  padding: .75em .75em .5em;
   background-color: var(--bkgrnd-white);
+  border-radius: 8px;
+  border: 1px solid var(--gray-dark);
   overflow: hidden;
 }
 
@@ -20,5 +21,5 @@
   font-size: .8em;
   line-height: 1em;
   white-space: nowrap;
-  margin-bottom: .5em;
+  margin-bottom: .75em;
 }
