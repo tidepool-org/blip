@@ -26,7 +26,7 @@ var expect = chai.expect;
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 
-describe.only('PatientData', function () {
+describe('PatientData', function () {
   const defaultProps = {
     addPatientNote: sinon.stub(),
     clearPatientData: sinon.stub(),
