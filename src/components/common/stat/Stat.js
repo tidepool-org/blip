@@ -17,13 +17,14 @@
 
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import dimensions from 'react-dimensions';
-import { VictoryBar, VictoryContainer, VictoryPie } from 'victory';
-
+import bows from 'bows';
+import { SizeMe } from 'react-sizeme';
+import { Line, VictoryBar, VictoryContainer, VictoryPie } from 'victory';
+import { VictoryLine } from 'victory-chart';
 import { formatPercentage } from '../../../utils/format';
 import styles from './Stat.css';
 import cx from 'classnames';
-import HoverBar, { HoverBarLabel } from './HoverBar';
+import HoverBar, { SizedHoverLabel } from './HoverBar';
 
 const colors = {
   basal: '#0096d1',
@@ -42,110 +43,132 @@ export const statTypes = {
   pie: 'pie',
 };
 
-const Stat = (props) => {
-  const { type, title } = props;
-  let ChartRenderer = VictoryBar;
-  const chartProps = _.defaults({
-    animate: { duration: 300, onLoad: { duration: 300 } },
-    labels: d => formatPercentage(d.y),
-    style: {
-      data: {
-        fill: d => colors[d.type],
-      },
-    },
-  }, props);
+// const Stat = (props) => {
+class Stat extends React.PureComponent {
+  static propTypes = {
+    categories: PropTypes.object,
+    data: PropTypes.array.isRequired,
+    chartHeight: PropTypes.number,
+    title: PropTypes.string.isRequired,
+    type: PropTypes.oneOf(_.keys(statTypes)),
+  };
 
-  let barWidth;
-  let barSpacing;
-  let chartHeight;
-  let domain;
-  let padding;
+  static defaultProps = {
+    categories: {},
+    type: statTypes.barHorizontal.type,
+    chartHeight: 0,
+  };
 
-  switch (type) {
-    case 'pie':
-      ChartRenderer = VictoryPie;
-      break;
+  constructor(props) {
+    super(props);
+    this.log = bows('Stat');
 
-    case 'barVertical':
-      _.assign(chartProps, {
-        cornerRadius: 4,
-        maxDomain: { y: 1.0 },
-        sortOrder: 'descending',
-      });
-      break;
-
-    case 'barHorizontal':
-    default:
-      domain = { y: [0, props.data.length], x: [0, 1] };
-      barSpacing = chartProps.barSpacing || 6;
-      chartHeight = chartProps.chartHeight;
-
-      if (chartHeight > 0) {
-        barWidth = ((chartHeight - barSpacing) / props.data.length) - (barSpacing / 2);
-      } else {
-        barWidth = chartProps.barWidth || 24;
-        chartHeight = (barWidth + barSpacing) * props.data.length;
-      }
-
-      padding = { top: barWidth / 2, bottom: barWidth / 2 * -1 };
-
-      _.assign(chartProps, {
-        alignment: 'middle',
-        containerComponent: <VictoryContainer
-          responsive={false}
-        />,
-        cornerRadius: { top: 2, bottom: 2 },
-        dataComponent: <HoverBar />,
-        domain,
-        height: chartHeight,
-        horizontal: true,
-        labelComponent: <HoverBarLabel domain={domain} />,
-        padding,
-        style: {
-          data: {
-            fill: d => colors[d.type],
-            width: () => barWidth,
-          },
-          labels: {
-            fill: d => colors[d.type],
-          },
-        },
-      });
-      break;
+    this.setChartProps(props);
   }
 
-  const statOuterClasses = cx({
-    [styles.Stat]: true,
-    [styles[type]]: true,
-  });
+  componentWillUpdate(nextProps) {
+    this.setChartProps(nextProps);
+  }
 
-  const InnerChart = dimensions()((innerProps) => {
-    const { containerWidth, ...rest } = innerProps;
-    return <ChartRenderer width={containerWidth} {...rest} />;
-  });
+  render() {
+    this.log('rendering');
+    const statOuterClasses = cx({
+      [styles.Stat]: true,
+      [styles[this.props.type]]: true,
+    });
 
-  return (
-    <div className={statOuterClasses}>
-      <div className={styles.chartHeader}>
-        <div className={styles.chartTitle}>{title}</div>
+    return (
+      <div className={statOuterClasses}>
+        <div className={styles.chartHeader}>
+          <div className={styles.chartTitle}>{this.props.title}</div>
+        </div>
+        <SizeMe render={({ size }) => <div><this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width} /></div>} />
       </div>
-      <InnerChart {...chartProps} />
-    </div>
-  );
-};
+    );
+  }
 
-Stat.defaultProps = {
-  categories: {},
-  type: statTypes.barHorizontal.type,
-  chartHeight: 0,
-};
+  setChartProps(props) {
+    const { type, ...rest } = props;
+    let chartRenderer = VictoryBar;
+    const chartProps = _.defaults({
+      animate: { duration: 300, onLoad: { duration: 300 } },
+      labels: d => formatPercentage(d.y),
+      style: {
+        data: {
+          fill: d => colors[d.type],
+        },
+      },
+    }, rest);
 
-Stat.propTypes = {
-  categories: PropTypes.object,
-  data: PropTypes.array.isRequired,
-  chartHeight: PropTypes.number,
-  title: PropTypes.string.isRequired,
-  type: PropTypes.oneOf(_.keys(statTypes)),
-};
+    let barWidth;
+    let barSpacing;
+    let chartHeight;
+    let domain;
+    let padding;
+
+    switch (type) {
+      case 'pie':
+        chartRenderer = VictoryPie;
+        break;
+
+      case 'barVertical':
+        _.assign(chartProps, {
+          cornerRadius: 4,
+          maxDomain: { y: 1.0 },
+          sortOrder: 'descending',
+        });
+        break;
+
+      case 'barHorizontal':
+      default:
+        domain = { y: [0, props.data.length], x: [0, 1] };
+        barSpacing = chartProps.barSpacing || 6;
+        chartHeight = chartProps.chartHeight;
+
+        if (chartHeight > 0) {
+          barWidth = ((chartHeight - barSpacing) / props.data.length) - (barSpacing / 2);
+        } else {
+          barWidth = chartProps.barWidth || 24;
+          chartHeight = (barWidth + barSpacing) * props.data.length;
+        }
+
+        padding = { top: barWidth / 2, bottom: barWidth / 2 * -1 };
+
+        _.assign(chartProps, {
+          alignment: 'middle',
+          containerComponent: <VictoryContainer responsive={false} />,
+          cornerRadius: { top: 2, bottom: 2 },
+          dataComponent: <HoverBar domain={domain} barWidth={barWidth} />,
+          domain,
+          height: chartHeight,
+          horizontal: true,
+          labelComponent: <SizedHoverLabel onSize={(size) => console.log(size)} domain={domain} />,
+          padding,
+          style: {
+            data: {
+              fill: d => colors[d.type],
+              width: () => barWidth,
+            },
+            labels: {
+              fill: d => colors[d.type],
+              fontSize: barWidth,
+              fontWeight: 600,
+            },
+          },
+        });
+        break;
+    }
+    this.chartProps = chartProps;
+    this.setChartRenderer(chartRenderer);
+  }
+
+  setChartRef = (element) => {
+    this.chartRef = element;
+  }
+
+  setChartRenderer(chartRenderer) {
+    this.chartRenderer = chartRenderer;
+  }
+}
 
 export default Stat;

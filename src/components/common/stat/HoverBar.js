@@ -1,22 +1,25 @@
 import React, { PropTypes } from 'react';
-import { Bar, VictoryLabel } from 'victory';
+import bows from 'bows';
+import { Bar, Line, VictoryLabel, Rect } from 'victory';
+import SizeMe from 'react-sizeme';
+import styles from './HoverBar.css';
 
 export const HoverBarLabel = (props) => {
-  const { text, scale, y, domain } = props;
+  const { domain, scale, text, y } = props;
 
   return (
-    <VictoryLabel
-      {...props}
-      x={scale.y(domain.x[1])}
-      y={y}
-      text={text}
-      textAnchor="end"
-      verticalAnchor="middle"
-    />
+    <g>
+      <VictoryLabel
+        {...props}
+        x={scale.y(domain.x[1])}
+        y={y}
+        text={text}
+        textAnchor="end"
+        verticalAnchor="middle"
+        />
+    </g>
   );
 };
-
-HoverBarLabel.displayName = 'HoverBarLabel';
 
 HoverBarLabel.propTypes = {
   text: PropTypes.func,
@@ -25,18 +28,52 @@ HoverBarLabel.propTypes = {
   domain: PropTypes.object.isRequired,
 };
 
-export const HoverBar = (props) => {
-  return (
-    <Bar
-      {...props}
-      events={{
-        onClick: (d) => console.log('clicked', d),
-        onMouseOver: (d) => console.log('hovered', d),
-      }}
-    />
-  );
-};
+HoverBarLabel.displayName = 'HoverBarLabel';
 
-HoverBar.displayName = 'HoverBar';
+export const SizedHoverLabel =  SizeMe()(HoverBarLabel);
+
+export class HoverBar extends React.PureComponent {
+  static propTypes = {
+    scale: PropTypes.object,
+    y: PropTypes.number,
+    domain: PropTypes.object.isRequired,
+  };
+
+  static displayName = 'HoverBar';
+
+  constructor(props) {
+    super(props);
+    this.log = bows('HoverBar');
+  }
+
+  render() {
+    const { domain, scale, barWidth, cornerRadius, index } = this.props;
+    const barGridWidth = barWidth / 3;
+    const barGridRadius = cornerRadius.top || 2;
+    this.log('rendering', this.props);
+
+    return (
+      <g>
+        <Rect
+          {...this.props}
+          x={0}
+          y={scale.x(index + 1) - (barGridWidth / 2)}
+          rx={barGridRadius}
+          ry={barGridRadius}
+          width={scale.y(domain.x[1])}
+          height={barGridWidth}
+          className={styles.BarGrid}
+        />
+        <Bar
+          {...this.props}
+          events={{
+            onClick: (d) => console.log('clicked', d),
+            onMouseOver: (d) => console.log('hovered', d),
+          }}
+        />
+      </g>
+    );
+  }
+}
 
 export default HoverBar;

@@ -3,7 +3,7 @@
   background-color: var(--bkgrnd-white);
   border-radius: 8px;
   border: 1px solid var(--gray-dark);
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .Stat.pie {}
