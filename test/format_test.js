@@ -22,7 +22,7 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var fmt = require('../js/data/util/format');
-var { MGDL_UNITS, MMOLL_UNITS } = require('../js/data/util/constants');
+var { MGDL_UNITS, MMOLL_UNITS, BG_CLAMP_THRESHOLD } = require('../js/data/util/constants');
 
 describe('format utility', function() {
   describe('tooltipBG', function() {
@@ -55,7 +55,7 @@ describe('format utility', function() {
         annotations: [
           {
             code: 'bg/out-of-range',
-            threshold: 600,
+            threshold: BG_CLAMP_THRESHOLD[MGDL_UNITS],
             value: 'high',
           },
         ],
@@ -73,7 +73,7 @@ describe('format utility', function() {
         annotations: [
           {
             code: 'bg/out-of-range',
-            threshold: 600,
+            threshold: BG_CLAMP_THRESHOLD[MGDL_UNITS],
             value: 'high',
           },
         ],

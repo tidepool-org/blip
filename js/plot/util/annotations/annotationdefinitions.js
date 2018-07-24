@@ -22,6 +22,23 @@ var t = i18next.t.bind(i18next);
 var format = require('../../../data/util/format');
 
 var definitions = {
+  DISABLED: [
+    'basal/auto',
+    'medtronic600/smbg/bg-reading-received',
+    'medtronic600/smbg/user-accepted-remote-bg',
+    'medtronic600/smbg/user-rejected-remote-bg',
+    'medtronic600/smbg/remote-bg-acceptance-screen-timeout',
+    'medtronic600/smbg/bg-si-pass-result-recd-frm-gst',
+    'medtronic600/smbg/bg-si-fail-result-recd-frm-gst',
+    'medtronic600/smbg/bg-sent-for-calib',
+    'medtronic600/smbg/user-rejected-sensor-calib',
+    'medtronic600/smbg/entered-in-bg-entry',
+    'medtronic600/smbg/entered-in-meal-wizard',
+    'medtronic600/smbg/entered-in-bolus-wizard',
+    'medtronic600/smbg/entered-in-sensor-calib',
+    'medtronic600/smbg/entered-as-bg-marker',
+    'wizard/target-automated',
+  ],
   LEAD_TEXT: {
     'stats-insufficient-data': function() {
       return t('Why is this grey?');

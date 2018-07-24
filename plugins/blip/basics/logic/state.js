@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
+
 var _ = require('lodash');
 var React = require('react');
 
@@ -36,6 +38,7 @@ var SiteChangeSelector = React.createFactory(require('../components/sitechange/S
 var DailyDoseTitle = React.createFactory(require('../components/misc/DailyDoseTitle'));
 
 var BasalBolusRatio = React.createFactory(require('../components/chart/BasalBolusRatio'));
+var TimeInAutoRatio = React.createFactory(require('../components/chart/TimeInAutoRatio'));
 var BGDistribution = React.createFactory(require('../components/chart/BGDistribution'));
 var WrapCount = React.createFactory(require('../components/chart/WrapCount'));
 var SiteChange = React.createFactory(require('../components/chart/SiteChange'));
@@ -45,165 +48,186 @@ var InfusionHoverDisplay = React.createFactory(require('../components/day/hover/
 
 var basicsActions = require('./actions');
 var constants = require('./constants');
+var { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS } = require('../../../../js/data/util/constants');
 var togglableState = require('../TogglableState');
 
-var basicsState = {
-  sections: {
-    basals: {
-      active: true,
-      chart: WrapCount,
-      column: 'right',
-      container: CalendarContainer,
-      hasHover: true,
-      id: 'basals',
-      index: 4,
-      togglable: togglableState.off,
-      selector: SummaryGroup,
-      selectorOptions: {
-        primary: { key: 'total', label: t('Basal Events') },
-        rows: [
-          [
-            { key: 'temp', label: t('Temp Basals') },
-            { key: 'suspend', label: t('Suspends') }
-            // commented out because there's a problem with scheduleName in OmniPod data :(
-            // { key: 'scheduleChange', label: 'Schedule Changes' }
+var basicsState = function (manufacturer) {
+  var automatedLabel = t(_.get(AUTOMATED_BASAL_LABELS, [manufacturer], AUTOMATED_BASAL_LABELS.default));
+  var manualLabel = t(_.get(SCHEDULED_BASAL_LABELS, [manufacturer], SCHEDULED_BASAL_LABELS.default));
+
+  return {
+    sections: {
+      basals: {
+        active: true,
+        chart: WrapCount,
+        column: 'right',
+        container: CalendarContainer,
+        hasHover: true,
+        id: 'basals',
+        index: 4,
+        togglable: togglableState.off,
+        selector: SummaryGroup,
+        selectorOptions: {
+          primary: { key: 'total', label: t('Basal Events') },
+          rows: [
+            [
+              { key: 'temp', label: t('Temp Basals') },
+              { key: 'suspend', label: t('Suspends') },
+              { key: 'automatedStop', label: t('{{automatedLabel}} Exited', { automatedLabel }) },
+            ],
           ]
-        ]
+        },
+        settingsTogglable: togglableState.off,
+        title: 'Basals',
+        type: 'basal'
       },
-      settingsTogglable: togglableState.off,
-      title: t('Basals'),
-      type: 'basal'
-    },
-    basalBolusRatio: {
-      active: true,
-      chart: BasalBolusRatio,
-      container: BasicContainer,
-      column: 'left',
-      id: 'basalBolusRatio',
-      index: 3,
-      noData: false,
-      title: t('Insulin ratio'),
-      togglable: togglableState.off,
-      settingsTogglable: togglableState.off,
-    },
-    bgDistribution: {
-      active: true,
-      chart: BGDistribution,
-      container: BasicContainer,
-      column: 'left',
-      id: 'bgDistribution',
-      index: 1,
-      title: t('BG distribution'),
-      togglable: togglableState.off,
-      settingsTogglable: togglableState.off,
-    },
-    boluses: {
-      active: true,
-      chart: WrapCount,
-      column: 'right',
-      container: CalendarContainer,
-      hasHover: true,
-      id: 'boluses',
-      index: 2,
-      togglable: togglableState.off,
-      selector: SummaryGroup,
-      selectorOptions: {
-        primary: { key: 'total', label: t('Avg per day'), average: true },
-        rows: [
-          [
-            { key: 'wizard', label: t('Calculator'), percentage: true  },
-            { key: 'correction', label: t('Correction'), percentage: true  },
-            { key: 'override', label: t('Override'), percentage: true  }
-          ],
-          [
-            { key: 'extended', label: t('Extended'), percentage: true  },
-            { key: 'interrupted', label : t('Interrupted'), percentage: true  },
-            { key: 'underride', label: t('Underride'), percentage: true  }
+      basalBolusRatio: {
+        active: true,
+        chart: BasalBolusRatio,
+        container: BasicContainer,
+        column: 'left',
+        id: 'basalBolusRatio',
+        index: 3,
+        noData: false,
+        title: 'Insulin ratio',
+        togglable: togglableState.off,
+        settingsTogglable: togglableState.off,
+      },
+      timeInAutoRatio: {
+        active: true,
+        chart: TimeInAutoRatio,
+        container: BasicContainer,
+        column: 'left',
+        id: 'timeInAutoRatio',
+        index: 3,
+        noData: false,
+        labels: {
+          automated: automatedLabel,
+          manual: manualLabel,
+        },
+        title: t('Time in {{automatedLabel}} ratio', { automatedLabel }),
+        togglable: togglableState.off,
+        settingsTogglable: togglableState.off,
+      },
+      bgDistribution: {
+        active: true,
+        chart: BGDistribution,
+        container: BasicContainer,
+        column: 'left',
+        id: 'bgDistribution',
+        index: 1,
+        title: t('BG distribution'),
+        togglable: togglableState.off,
+        settingsTogglable: togglableState.off,
+      },
+      boluses: {
+        active: true,
+        chart: WrapCount,
+        column: 'right',
+        container: CalendarContainer,
+        hasHover: true,
+        id: 'boluses',
+        index: 2,
+        togglable: togglableState.off,
+        selector: SummaryGroup,
+        selectorOptions: {
+          primary: { key: 'total', label: t('Avg per day'), average: true },
+          rows: [
+            [
+              { key: 'wizard', label: t('Calculator'), percentage: true  },
+              { key: 'correction', label: t('Correction'), percentage: true  },
+              { key: 'override', label: t('Override'), percentage: true  }
+            ],
+            [
+              { key: 'extended', label: t('Extended'), percentage: true  },
+              { key: 'interrupted', label :t('Interrupted'), percentage: true  },
+              { key: 'underride', label: t('Underride'), percentage: true  }
+            ]
           ]
-        ]
+        },
+        settingsTogglable: togglableState.off,
+        title: t('Bolusing'),
+        type: 'bolus'
       },
-      settingsTogglable: togglableState.off,
-      title: t('Bolusing'),
-      type: 'bolus'
-    },
-    fingersticks: {
-      active: true,
-      chart: WrapCount,
-      column: 'right',
-      container: CalendarContainer,
-      hasHover: true,
-      id: 'fingersticks',
-      index: 1,
-      togglable: togglableState.off,
-      selector: SummaryGroup,
-      selectorOptions: {
-        primary: { path: 'smbg', key: 'total', label: t('Avg per day'), average: true },
-        rows: [
-          [
-            { path: 'smbg', key: 'meter', label: t('Meter'), percentage: true },
-            { path: 'smbg', key: 'manual', label: t('Manual'), percentage: true },
-            { path: 'calibration', key: 'calibration', label: t('Calibrations') }
-          ],
-          [
-            { path: 'smbg', key: 'verylow', labelOpts: {type: 'bg', key: 'verylow'}, percentage: true },
-            { path: 'smbg', key: 'veryhigh', labelOpts: {type: 'bg', key: 'veryhigh'}, percentage: true }
+      fingersticks: {
+        active: true,
+        chart: WrapCount,
+        column: 'right',
+        container: CalendarContainer,
+        hasHover: true,
+        id: 'fingersticks',
+        index: 1,
+        togglable: togglableState.off,
+        selector: SummaryGroup,
+        selectorOptions: {
+          primary: { path: 'smbg', key: 'total', label: t('Avg per day'), average: true },
+          rows: [
+            [
+              { path: 'smbg', key: 'meter', label: t('Meter'), percentage: true },
+              { path: 'smbg', key: 'manual', label: t('Manual'), percentage: true },
+              { path: 'calibration', key: 'calibration', label: t('Calibrations') }
+            ],
+            [
+              { path: 'smbg', key: 'verylow', labelOpts: {type: 'bg', key: 'verylow'}, percentage: true },
+              { path: 'smbg', key: 'veryhigh', labelOpts: {type: 'bg', key: 'veryhigh'}, percentage: true }
+            ]
           ]
-        ]
+        },
+        settingsTogglable: togglableState.off,
+        title: t('BG readings'),
+        type: 'fingerstick'
       },
-      settingsTogglable: togglableState.off,
-      title: t('BG readings'),
-      type: 'fingerstick'
-    },
-    siteChanges: {
-      active: true,
-      chart: SiteChange,
-      column: 'right',
-      container: CalendarContainer,
-      hasHover: true,
-      hoverDisplay: InfusionHoverDisplay,
-      id: 'siteChanges',
-      index: 3,
-      noDataMessage: t('Infusion site changes are not yet available for all pumps. Coming soon!'),
-      togglable: togglableState.off,
-      selector: SiteChangeSelector,
-      selectorOptions: {
-        primary: { key: constants.SITE_CHANGE_RESERVOIR, label: t('Reservoir Changes') },
-        rows: [
-          [
-            { key: constants.SITE_CHANGE_CANNULA, label: t('Cannula Fills') },
-            { key: constants.SITE_CHANGE_TUBING, label: t('Tube Primes') },
+      siteChanges: {
+        active: true,
+        chart: SiteChange,
+        column: 'right',
+        container: CalendarContainer,
+        hasHover: true,
+        hoverDisplay: InfusionHoverDisplay,
+        id: 'siteChanges',
+        index: 3,
+        noDataMessage: t('Infusion site changes are not yet available for all pumps. Coming soon!'),
+        togglable: togglableState.off,
+        selector: SiteChangeSelector,
+        selectorOptions: {
+          primary: { key: constants.SITE_CHANGE_RESERVOIR, label: t('Reservoir Changes') },
+          rows: [
+            [
+              { key: constants.SITE_CHANGE_CANNULA, label: t('Cannula Fills') },
+              { key: constants.SITE_CHANGE_TUBING, label: t('Tube Primes') },
+            ]
           ]
-        ]
+        },
+        settingsTogglable: togglableState.closed,
+        title: t('Infusion site changes'),
+        type: constants.SITE_CHANGE_RESERVOIR
       },
-      settingsTogglable: togglableState.closed,
-      title: t('Infusion site changes'),
-      type: constants.SITE_CHANGE_RESERVOIR
-    },
-    totalDailyDose: {
-      active: true,
-      chart: DailyDose,
-      container: BasicContainer,
-      column: 'left',
-      id: 'totalDailyDose',
-      index: 4,
-      noData: false,
-      title: DailyDoseTitle,
-      togglable: togglableState.closed,
-      settingsTogglable: togglableState.off,
-    },
-    averageDailyCarbs: {
-      active: true,
-      chart: DailyCarbs,
-      container: BasicContainer,
-      column: 'left',
-      id: 'averageDailyCarbs',
-      index: 2,
-      noData: false,
-      title: '',
-      togglable: togglableState.off,
-      settingsTogglable: togglableState.off,
+      totalDailyDose: {
+        active: true,
+        chart: DailyDose,
+        container: BasicContainer,
+        column: 'left',
+        id: 'totalDailyDose',
+        index: 4,
+        noData: false,
+        title: DailyDoseTitle,
+        togglable: togglableState.closed,
+        settingsTogglable: togglableState.off,
+      },
+      averageDailyCarbs: {
+        active: true,
+        chart: DailyCarbs,
+        container: BasicContainer,
+        column: 'left',
+        id: 'averageDailyCarbs',
+        index: 2,
+        noData: false,
+        title: '',
+        togglable: togglableState.off,
+        settingsTogglable: togglableState.off,
+      }
     }
-  }
+  };
 };
 
 module.exports = basicsState;

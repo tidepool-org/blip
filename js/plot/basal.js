@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+/* jshint esversion:6 */
 var i18next = require('i18next');
 var t = i18next.t.bind(i18next);
 
@@ -25,6 +26,11 @@ var dt = require('../data/util/datetime');
 var format = require('../data/util/format');
 var log = require('bows')('Basal');
 
+var BasalUtil = require('../data/basalutil');
+var basalUtil = new BasalUtil();
+
+var { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS } = require('../data/util/constants');
+
 module.exports = function(pool, opts) {
   opts = opts || {};
 
@@ -33,19 +39,19 @@ module.exports = function(pool, opts) {
     opacityDelta: 0.2,
     pathStroke: 1.5,
     timezoneAware: false,
-    tooltipPadding: 20
+    tooltipPadding: 20,
   };
 
   opts = _.defaults(opts, defaults);
 
   var mainGroup = pool.parent();
 
-  function getScheduledSuppressed(supp) {
-    if (supp.deliveryType === 'scheduled') {
+  function getDeliverySuppressed(supp) {
+    if (_.includes(['scheduled', 'automated'], supp.deliveryType)) {
       return supp;
     }
     else if (supp.suppressed) {
-      return getScheduledSuppressed(supp.suppressed);
+      return getDeliverySuppressed(supp.suppressed);
     }
     else {
       return;
@@ -58,7 +64,7 @@ module.exports = function(pool, opts) {
     for (var i = 0; i < data.length; ++i) {
       var d = data[i];
       if (d.suppressed) {
-        var scheduled = getScheduledSuppressed(d.suppressed);
+        var scheduled = getDeliverySuppressed(d.suppressed);
         if (scheduled) {
           undelivereds.push(scheduled);
         }
@@ -98,27 +104,114 @@ module.exports = function(pool, opts) {
       // add invisible rects as hover targets for all basals
       basal.addRectToPool(basalSegmentGroups, true);
 
-      var basalPathsGroup = selection.selectAll('.d3-basal-path-group').data(['d3-basal-path-group']);
-      basalPathsGroup.enter().append('g').attr('class', 'd3-basal-path-group');
-      var paths = basalPathsGroup.selectAll('.d3-basal.d3-path-basal')
-        .data(['d3-basal d3-path-basal', 'd3-basal d3-path-basal d3-path-basal-undelivered']);
-      paths.enter().append('path').attr({
-        'class': function(d) { return d; }
+      // split data into groups when delivery type changes to generate unique path elements for each group
+      var basalPathGroups = basalUtil.getBasalPathGroups(currentData);
+
+      var renderGroupMarkers = basalPathGroups.length > 1;
+
+      var basalPathsGroup = selection
+        .selectAll(`.d3-basal-path-group`)
+        .data([`d3-basal-path-group`]);
+
+      basalPathsGroup
+        .enter()
+        .append('g')
+        .attr('class', `d3-basal-path-group`);
+
+      _.each(basalPathGroups, (data, index) => {
+        var id = data[0].id;
+        var source = data[0].source;
+        var pathType = basalUtil.getBasalPathGroupType(data[0]);
+        var isAutomated = pathType === 'automated';
+
+        var paths = basalPathsGroup
+          .selectAll(`.d3-basal.d3-path-basal.d3-path-basal-${pathType}-${id}`)
+          .data([`d3-basal d3-path-basal d3-path-basal-${pathType}-${id}`]);
+
+        paths
+          .enter()
+          .append('path')
+          .attr({
+            'class': function(d) { return d; }
+          });
+
+        paths.exit().remove();
+
+        // d3.selects are OK here because `paths` is a chained selection
+        var path = d3.select(paths[0][0]);
+        basal.updatePath(path, data);
+
+        // Render the group markers
+        if (renderGroupMarkers && index > 0) {
+          var radius = 7;
+          var xPosition = basal.xPosition(data[0]);
+          var yPosition = radius + 2;
+
+          var markers = basalPathsGroup
+            .selectAll(`.d3-basal-marker-group.d3-basal-marker-group-${pathType}-${id}`)
+            .data([`d3-basal-marker-group d3-basal-marker-group-${pathType}-${id}`]);
+
+          var markersGroups = markers
+            .enter()
+            .append('g')
+            .attr('class', function(d) { return d; });
+
+          markersGroups
+            .append('line')
+            .attr({
+              x1: xPosition,
+              y1: yPosition,
+              x2: xPosition,
+              y2: pool.height(),
+              'class': 'd3-basal-group-line',
+            });
+
+          markersGroups
+            .append('circle')
+            .attr({
+              'class': 'd3-basal-group-circle',
+              cx: xPosition,
+              cy: yPosition,
+              r: radius,
+            });
+
+          markersGroups
+            .append('text')
+            .attr({
+              x: xPosition,
+              y: yPosition,
+              'class': 'd3-basal-group-label',
+            })
+            .text(function(d) {
+              /* jshint laxbreak: true */
+              return isAutomated
+                ? _.get(AUTOMATED_BASAL_LABELS, source, 'A').charAt(0)
+                : _.get(SCHEDULED_BASAL_LABELS, source, 'M').charAt(0);
+            });
+
+          markers.exit().remove();
+        }
       });
 
-      // d3.selects are OK here because `paths` is a chained selection
-      var actualpath = d3.select(paths[0][0]);
-      var undeliveredPath = d3.select(paths[0][1]);
+      var undeliveredPaths = basalPathsGroup
+          .selectAll(`.d3-basal.d3-path-basal.d3-path-basal-undelivered`)
+          .data(['d3-basal d3-path-basal d3-path-basal-undelivered']);
 
-      basal.updatePath(actualpath, currentData);
+      undeliveredPaths
+        .enter()
+        .append('path')
+        .attr({
+          'class': function(d) { return d; }
+        });
 
-      basal.updatePath(undeliveredPath, getUndelivereds(currentData));
+      var undeliveredPath = d3.select(undeliveredPaths[0][0]);
+      basal.updatePath(undeliveredPath, getUndelivereds(currentData), true);
 
       basalSegments.exit().remove();
 
       // tooltips
       basalSegmentGroups.on('mouseover', function() {
-        basal.addTooltip(d3.select(this).datum());
+        basal.addTooltip(d3.select(this).datum(), renderGroupMarkers);
         d3.select(this).selectAll('.d3-basal.d3-rect-basal')
           .attr('opacity', opts.opacity + opts.opacityDelta);
       });
@@ -139,8 +232,6 @@ module.exports = function(pool, opts) {
   basal.addRectToPool = function(selection, invisible) {
     opts.xScale = pool.xScale().copy();
 
-    var rectClass = invisible ? 'd3-basal d3-basal-invisible' : 'd3-basal d3-rect-basal';
-
     var heightFn = invisible ? basal.invisibleRectHeight : basal.height;
 
     var yPosFn = invisible ? basal.invisibleRectYPosition : basal.yPosition;
@@ -157,23 +248,25 @@ module.exports = function(pool, opts) {
         },
         width: basal.width,
         height: heightFn,
-        'class': rectClass
+        'class': function(d) {
+          return invisible ? 'd3-basal d3-basal-invisible' : `d3-basal d3-rect-basal d3-basal-${d.deliveryType}`;
+        }
       });
   };
 
-  basal.updatePath = function(selection, data) {
+  basal.updatePath = function(selection, data, isUndelivered) {
     opts.xScale = pool.xScale().copy();
 
-    var pathDef = basal.pathData(data);
+    var pathDef = basal.pathData(data, isUndelivered);
 
     if (pathDef !== '') {
       selection.attr({
-        d: basal.pathData(data)
+        d: pathDef,
       });
     }
   };
 
-  basal.pathData = function(data) {
+  basal.pathData = function(data, isUndelivered) {
     opts.xScale = pool.xScale().copy();
 
     function stringCoords(datum) {
@@ -186,8 +279,14 @@ module.exports = function(pool, opts) {
         d += 'M' + stringCoords(data[i]);
       }
       else if (data[i].normalTime === data[i - 1].normalEnd) {
-        // if segment is contiguous with previous, draw a vertical line connecting their values
-        d += 'V' + basal.pathYPosition(data[i]) + ' ';
+        if (isUndelivered && data[i].rate === 0) {
+          // We don't want a dashed undelivered vertical line down to 0 on automated basal suspends
+          d += 'M' + stringCoords(data[i]);
+        }
+        else {
+          // if segment is contiguous with previous, draw a vertical line connecting their values
+          d += 'V' + basal.pathYPosition(data[i]) + ' ';
+        }
       }
       // TODO: maybe a robust check for a gap in time here instead of just !==?
       else if (data[i].normalTime !== data[i - 1].normalEnd) {
@@ -249,7 +348,7 @@ module.exports = function(pool, opts) {
     }
   };
 
-  basal.tooltipHtml = function(group, datum) {
+  basal.tooltipHtml = function(group, datum, showSheduledLabel) {
     switch (datum.deliveryType) {
       case 'temp':
         group.append('p')
@@ -259,7 +358,7 @@ module.exports = function(pool, opts) {
           group.append('p')
             .append('span')
             .attr('class', 'secondary')
-            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
+            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
         }
         break;
       case 'suspend':
@@ -270,13 +369,20 @@ module.exports = function(pool, opts) {
           group.append('p')
             .append('span')
             .attr('class', 'secondary')
-            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
+            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
         }
         break;
-      default:
+      case 'automated':
         group.append('p')
           .append('span')
-          .html(basal.rateString(datum, 'plain'));
+          .html('<span class="plain muted">' + _.get(AUTOMATED_BASAL_LABELS, datum.source, AUTOMATED_BASAL_LABELS.default) + ':</span> ' +
+            basal.rateString(datum, 'plain'));
+        break;
+      default:
+        var label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, datum.source, SCHEDULED_BASAL_LABELS.default) + ':</span> ' : '';
+        group.append('p')
+          .append('span')
+          .html(label + basal.rateString(datum, 'plain'));
     }
     group.append('p')
       .append('span')
@@ -287,7 +393,7 @@ module.exports = function(pool, opts) {
         format.timestamp(datum.normalEnd, datum.displayOffset));
   };
 
-  basal.addTooltip = function(d) {
+  basal.addTooltip = function(d, showSheduledLabel) {
     var datum = _.clone(d);
     datum.type = 'basal';
     var tooltips = pool.tooltips();
@@ -300,7 +406,7 @@ module.exports = function(pool, opts) {
       yPosition: function() { return 0; }
     });
     var foGroup = res.foGroup;
-    basal.tooltipHtml(foGroup, d);
+    basal.tooltipHtml(foGroup, d, showSheduledLabel);
     var dims = tooltips.foreignObjDimensions(foGroup);
     // foGroup.node().parentNode is the <foreignObject> itself
     // because foGroup is actually the top-level <xhtml:div> element

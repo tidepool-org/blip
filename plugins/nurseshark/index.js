@@ -28,7 +28,7 @@ var dt = require('../../js/data/util/datetime');
 var log = __DEV__ && !__TEST__ ? require('bows')('Nurseshark') : _.noop;
 
 function translateBg(value) {
-  return Math.round(MGDL_PER_MMOLL * value);
+  return MGDL_PER_MMOLL * value;
 }
 
 function isBadStatus(d) {

@@ -20,14 +20,14 @@
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
-var { MGDL_PER_MMOLL } = require('../js/data/util/constants');
+var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../js/data/util/constants');
 
 var categorizer = require('../js/data/util/categorize');
 var defaultBgClasses = {
-  'very-low': { boundary: 55 },
-  low: { boundary: 70 },
-  target: { boundary: 180 },
-  high: { boundary: 300 },
+  'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
+  low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+  target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+  high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
 };
 var alternateBgClasses = {
   'very-low': { boundary: 60 },
@@ -36,10 +36,10 @@ var alternateBgClasses = {
   high: { boundary: 250 },
 };
 var mmollBgClasses = {
-  'very-low': { boundary: 55/MGDL_PER_MMOLL },
-  low: { boundary: 70/MGDL_PER_MMOLL },
-  target: { boundary: 180/MGDL_PER_MMOLL },
-  high: { boundary: 300/MGDL_PER_MMOLL },
+  'very-low': { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].veryLow },
+  low: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].targetLower },
+  target: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].targetUpper },
+  high: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].veryHigh },
 };
 
 describe('Categorize', function() {
@@ -54,119 +54,107 @@ describe('Categorize', function() {
 
   describe('categorization', function(){
     describe('with default classes', function(){
-      it('should categorize 54 as "verylow"', function(){
-        expect(defaultCategorizer({value:54})).to.equal("verylow");
+      it('should categorize 53 as "verylow"', function(){
+        expect(defaultCategorizer({value:53})).to.equal("verylow");
       });
-      it('should categorize 55 as "low"', function(){
-        expect(defaultCategorizer({value:55})).to.equal("low");
+      it('should categorize 54 as "low"', function(){
+        expect(defaultCategorizer({value:54})).to.equal("low");
       });
-      it('should categorize 60 as "low"', function(){
-        expect(defaultCategorizer({value:60})).to.equal("low");
+      it('should categorize 69 as "low"', function(){
+        expect(defaultCategorizer({value:69})).to.equal("low");
       });
       it('should categorize 70 as "target"', function(){
         expect(defaultCategorizer({value:70})).to.equal("target");
       });
-      it('should categorize 100 as "target"', function(){
-        expect(defaultCategorizer({value:100})).to.equal("target");
-      });
       it('should categorize 180 as "target"', function(){
         expect(defaultCategorizer({value:180})).to.equal("target");
+      });
+      it('should categorize 181 as "high"', function(){
+        expect(defaultCategorizer({value:181})).to.equal("high");
       });
       it('should categorize 250 as "high"', function(){
         expect(defaultCategorizer({value:250})).to.equal("high");
       });
-      it('should categorize 300 as "high"', function(){
-        expect(defaultCategorizer({value:300})).to.equal("high");
-      });
-      it('should categorize 350 as "veryhigh"', function(){
-        expect(defaultCategorizer({value:350})).to.equal("veryhigh");
+      it('should categorize 251 as "veryhigh"', function(){
+        expect(defaultCategorizer({value:251})).to.equal("veryhigh");
       });
     });
     describe('with alternate classes', function(){
-      it('should categorize 55 as "verylow"', function(){
-        expect(alternateCategorizer({value:55})).to.equal("verylow");
+      it('should categorize 59 as "verylow"', function(){
+        expect(alternateCategorizer({value:59})).to.equal("verylow");
       });
       it('should categorize 60 as "low"', function(){
         expect(alternateCategorizer({value:60})).to.equal("low");
       });
-      it('should categorize 70 as "low"', function(){
-        expect(alternateCategorizer({value:70})).to.equal("low");
+      it('should categorize 79 as "low"', function(){
+        expect(alternateCategorizer({value:79})).to.equal("low");
       });
       it('should categorize 80 as "target"', function(){
         expect(alternateCategorizer({value:80})).to.equal("target");
       });
-      it('should categorize 100 as "target"', function(){
-        expect(alternateCategorizer({value:100})).to.equal("target");
-      });
       it('should categorize 150 as "target"', function(){
         expect(alternateCategorizer({value:150})).to.equal("target");
       });
-      it('should categorize 220 as "high"', function(){
-        expect(alternateCategorizer({value:220})).to.equal("high");
+      it('should categorize 151 as "high"', function(){
+        expect(alternateCategorizer({value:151})).to.equal("high");
       });
       it('should categorize 250 as "high"', function(){
         expect(alternateCategorizer({value:250})).to.equal("high");
       });
-      it('should categorize 270 as "veryhigh"', function(){
-        expect(alternateCategorizer({value:270})).to.equal("veryhigh");
+      it('should categorize 251 as "veryhigh"', function(){
+        expect(alternateCategorizer({value:251})).to.equal("veryhigh");
       });
     });
     describe('with no classes', function(){
-      it('should categorize 54 as "verylow"', function(){
-        expect(noConfigCategorizer({value:54})).to.equal("verylow");
+      it('should categorize 53 as "verylow"', function(){
+        expect(noConfigCategorizer({value:53})).to.equal("verylow");
       });
-      it('should categorize 55 as "low"', function(){
-        expect(noConfigCategorizer({value:55})).to.equal("low");
+      it('should categorize 54 as "low"', function(){
+        expect(noConfigCategorizer({value:54})).to.equal("low");
       });
-      it('should categorize 60 as "low"', function(){
-        expect(noConfigCategorizer({value:60})).to.equal("low");
+      it('should categorize 69 as "low"', function(){
+        expect(noConfigCategorizer({value:69})).to.equal("low");
       });
       it('should categorize 70 as "target"', function(){
         expect(noConfigCategorizer({value:70})).to.equal("target");
       });
-      it('should categorize 100 as "target"', function(){
-        expect(noConfigCategorizer({value:100})).to.equal("target");
-      });
       it('should categorize 180 as "target"', function(){
         expect(noConfigCategorizer({value:180})).to.equal("target");
+      });
+      it('should categorize 181 as "high"', function(){
+        expect(noConfigCategorizer({value:181})).to.equal("high");
       });
       it('should categorize 250 as "high"', function(){
         expect(noConfigCategorizer({value:250})).to.equal("high");
       });
-      it('should categorize 300 as "high"', function(){
-        expect(noConfigCategorizer({value:300})).to.equal("high");
-      });
-      it('should categorize 350 as "veryhigh"', function(){
-        expect(noConfigCategorizer({value:350})).to.equal("veryhigh");
+      it('should categorize 251 as "veryhigh"', function(){
+        expect(noConfigCategorizer({value:251})).to.equal("veryhigh");
       });
     });
     describe('with mmoll values', function(){
-      it('should categorize 2.5 as "verylow"', function(){
-        expect(mmollCategorizer({value:2.8})).to.equal("verylow");
+      it('should categorize 2.9 as "verylow"', function(){
+        expect(mmollCategorizer({value:2.9})).to.equal("verylow");
       });
-      it('should categorize 3.2 as "low"', function(){
-        expect(mmollCategorizer({value:3.2})).to.equal("low");
+      it('should categorize 3.0 as "low"', function(){
+        expect(mmollCategorizer({value:3.0})).to.equal("low");
       });
-      it('should categorize 3.7 as "low"', function(){
-        expect(mmollCategorizer({value:3.7})).to.equal("low");
+      it('should categorize 3.8 as "low"', function(){
+        expect(mmollCategorizer({value:3.8})).to.equal("low");
       });
-      it('should categorize 6.5 as "target"', function(){
-        expect(mmollCategorizer({value:6.5})).to.equal("target");
+      it('should categorize 3.9 as "target"', function(){
+        expect(mmollCategorizer({value:3.9})).to.equal("target");
       });
-      it('should categorize 8.0 as "target"', function(){
-        expect(mmollCategorizer({value:8.0})).to.equal("target");
+      it('should categorize 10.0 as "target"', function(){
+        expect(mmollCategorizer({value:10.0})).to.equal("target");
       });
-      it('should categorize 9.9 as "target"', function(){
-        expect(mmollCategorizer({value:9.9})).to.equal("target");
+      it('should categorize 10.1 as "high"', function(){
+        expect(mmollCategorizer({value:10.1})).to.equal("high");
       });
-      it('should categorize 12.2 as "high"', function(){
-        expect(mmollCategorizer({value:12.2})).to.equal("high");
+      it('should categorize 13.9 as "high"', function(){
+        expect(mmollCategorizer({value:13.9})).to.equal("high");
       });
-      it('should categorize 15.8 as "high"', function(){
-        expect(mmollCategorizer({value:15.8})).to.equal("high");
-      });
-      it('should categorize 22.0 as "veryhigh"', function(){
-        expect(mmollCategorizer({value:22.0})).to.equal("veryhigh");
+      it('should categorize 14.0 as "veryhigh"', function(){
+        expect(mmollCategorizer({value:14.0})).to.equal("veryhigh");
       });
     });
   });
