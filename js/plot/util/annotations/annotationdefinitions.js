@@ -120,11 +120,6 @@ var definitions = {
       var b = ' do not match up exactly.';
       return defs.stitch(a, b, source);
     },
-    'medtronic600/basal/fabricated-from-automode-start': function(source, defs) {
-      var a = 'We are calculating the basal rate here using the Auto Mode start event from your pump history, but ';
-      var b = ' did not directly provide us with these rate changes.';
-      return defs.stitch(a, b, source);
-    },
     'tandem/basal/fabricated-from-new-day': function(source, defs) {
       var a = 'We have fabricated this basal segment from a ';
       var b = ' new day event; it was not provided directly as basal data';
