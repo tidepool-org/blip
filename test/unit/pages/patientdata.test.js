@@ -1492,6 +1492,11 @@ describe('PatientData', function () {
             pumpSettings: {},
           },
         },
+        printOpts: {
+          numDays: {
+            daily: 6,
+          },
+        },
       };
 
       const wrapper = shallow(<PatientData.WrappedComponent {...props} />);
@@ -2212,15 +2217,15 @@ describe('PatientData', function () {
         currentPatientInViewId: 40,
         patientDataMap: {
           40: [
-            { time: '2018-02-01T00:00:00.000Z', type: 'cbg' },
-            { time: '2018-01-01T00:00:00.000Z', type: 'bolus' },
-            { time: '2017-12-01T00:00:00.000Z', type: 'upload' },
-            { time: '2017-11-01T00:00:00.000Z', type: 'basal' },
+            { id: 1, time: '2018-02-01T00:00:00.000Z', type: 'cbg' },
+            { id: 2, time: '2018-01-01T00:00:00.000Z', type: 'bolus' },
+            { id: 3, time: '2017-12-01T00:00:00.000Z', type: 'upload' },
+            { id: 4, time: '2017-11-01T00:00:00.000Z', type: 'basal' },
           ],
         },
         patientNotesMap: {
           40: [
-            { messagetext: 'hello' },
+            { id: 5, messagetext: 'hello' },
           ],
         },
         patient: {
@@ -2399,7 +2404,7 @@ describe('PatientData', function () {
               40: [
                 { time: '2018-02-01T00:00:00.000Z', type: 'upload' },
                 { time: '2017-12-01T00:00:00.000Z', type: 'basal' }, // over 4 weeks back, but still should be included
-                { time: '2017-11-30T00:00:00.000Z', type: 'cbg' }, // not included in slice
+                { time: '2017-10-30T00:00:00.000Z', type: 'cbg' }, // not included in slice
               ],
             },
           }));
@@ -2637,12 +2642,19 @@ describe('PatientData', function () {
       });
 
       context('processing subsequent data', () => {
-        it('should call addData util with a combined patient data and notes array', () => {
+        it('should call addData util with a combined patient data and notes array, and any previously processed upload data', () => {
           wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastDatumProcessedIndex: 1, // previous data has been processed
             lastProcessedDateTarget: '2018-02-01T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
           });
-          wrapper.setProps(shouldProcessProps);
+          const previousUpload = { id: 0, time: '2018-02-10T00:00:00.000Z', type: 'upload' };
+          const propsWithPreviousUpload = _.assign({}, shouldProcessProps, {
+            patientDataMap: {
+              40: [previousUpload].concat(shouldProcessProps.patientDataMap[40]),
+            }
+          });
+
+          wrapper.setProps(propsWithPreviousUpload);
           setStateSpy.reset();
           PD.__ResetDependency__('utils');
 
@@ -2652,7 +2664,8 @@ describe('PatientData', function () {
           sinon.assert.calledWith(
             addDataStub,
             [
-              sinon.match(shouldProcessProps.patientDataMap[40][1]),
+              sinon.match(propsWithPreviousUpload.patientDataMap[40][2]),
+              sinon.match(previousUpload), // previously processed upload record included
               sinon.match({ messageText: 'hello' }),
             ],
           );
@@ -2926,6 +2939,41 @@ describe('PatientData', function () {
     });
   });
 
+  describe('handleSwitchToBasics', function() {
+    it('should track a metric', function() {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        fetchingUser: false,
+        trackMetric: sinon.stub()
+      };
+
+      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
+      var callCount = props.trackMetric.callCount;
+      elem.handleSwitchToBasics();
+      expect(props.trackMetric.callCount).to.equal(callCount + 1);
+      expect(props.trackMetric.calledWith('Clicked Switch To Basics')).to.be.true;
+    });
+
+    it('should set the `chartType` state to `basics`', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({chartType: 'daily'});
+
+      instance.handleSwitchToBasics();
+      expect(wrapper.state('chartType')).to.equal('basics');
+    });
+  });
+
   describe('handleSwitchToDaily', function() {
     it('should track metric for calender', function() {
       var props = {
@@ -2950,6 +2998,147 @@ describe('PatientData', function () {
       elem.handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
       expect(props.trackMetric.callCount).to.equal(callCount + 1);
       expect(props.trackMetric.calledWith('Clicked Basics testing calendar')).to.be.true;
+    });
+
+    it('should set the `chartType` state to `daily`', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({chartType: 'basics'});
+
+      instance.handleSwitchToDaily();
+      expect(wrapper.state('chartType')).to.equal('daily');
+    });
+
+    it('should set the `datetimeLocation` state to noon for the provided datetime', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
+
+      instance.handleSwitchToDaily('2018-03-03T00:00:00.000Z');
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T12:00:00.000Z');
+    });
+  });
+
+  describe('handleSwitchToTrends', function() {
+    it('should track a metric', function() {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        fetchingUser: false,
+        trackMetric: sinon.stub()
+      };
+
+      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
+      var callCount = props.trackMetric.callCount;
+      elem.handleSwitchToTrends('2016-08-19T01:51:55.000Z');
+      expect(props.trackMetric.callCount).to.equal(callCount + 1);
+      expect(props.trackMetric.calledWith('Clicked Switch To Modal')).to.be.true;
+    });
+
+    it('should set the `chartType` state to `trends`', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({chartType: 'basics'});
+
+      instance.handleSwitchToTrends();
+      expect(wrapper.state('chartType')).to.equal('trends');
+    });
+
+    it('should set the `datetimeLocation` state to the end of the day for the provided datetime', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
+
+      instance.handleSwitchToTrends('2018-03-03T00:00:00.000Z');
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T23:59:59.999Z');
+    });
+  });
+
+  describe('handleSwitchToWeekly', function() {
+    it('should track a metric', function() {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        fetchingUser: false,
+        trackMetric: sinon.stub()
+      };
+
+      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
+      var callCount = props.trackMetric.callCount;
+      elem.handleSwitchToWeekly('2016-08-19T01:51:55.000Z');
+      expect(props.trackMetric.callCount).to.equal(callCount + 1);
+      expect(props.trackMetric.calledWith('Clicked Switch To Two Week')).to.be.true;
+    });
+
+    it('should set the `chartType` state to `weekly`', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({chartType: 'basics'});
+
+      instance.handleSwitchToWeekly();
+      expect(wrapper.state('chartType')).to.equal('weekly');
+    });
+
+    it('should set the `datetimeLocation` state to noon for the provided datetime', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
+
+      instance.handleSwitchToWeekly('2018-03-03T00:00:00.000Z');
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T12:00:00.000Z');
+    });
+  });
+
+  describe('handleSwitchToSettings', function() {
+    it('should track a metric', function() {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        fetchingUser: false,
+        trackMetric: sinon.stub()
+      };
+
+      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
+      var callCount = props.trackMetric.callCount;
+      elem.handleSwitchToSettings();
+      expect(props.trackMetric.callCount).to.equal(callCount + 1);
+      expect(props.trackMetric.calledWith('Clicked Switch To Settings')).to.be.true;
+    });
+
+    it('should set the `chartType` state to `settings`', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+      wrapper.setState({chartType: 'daily'});
+
+      instance.handleSwitchToSettings();
+      expect(wrapper.state('chartType')).to.equal('settings');
     });
   });
 

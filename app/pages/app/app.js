@@ -85,6 +85,7 @@ export class AppComponent extends React.Component {
     userIsCurrentPatient: React.PropTypes.bool.isRequired,
     userIsDonor: React.PropTypes.bool.isRequired,
     userIsSupportingNonprofit: React.PropTypes.bool.isRequired,
+    permsOfLoggedInUser: React.PropTypes.object,
   };
 
   constructor(props) {
@@ -240,6 +241,7 @@ export class AppComponent extends React.Component {
             getUploadUrl={getUploadUrl}
             onLogout={this.props.onLogout}
             trackMetric={this.props.context.trackMetric}
+            permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             ref="navbar"/>
           </div>
         );
@@ -403,6 +405,7 @@ export function mapStateToProps(state) {
   let user = null;
   let patient = null;
   let permissions = null;
+  let permsOfLoggedInUser = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
   let userHasConnectedDataSources = _.get(state, 'blip.dataSources', []).length > 0;
   let userIsSupportingNonprofit = false;
@@ -436,7 +439,12 @@ export function mapStateToProps(state) {
         state.blip.currentPatientInViewId,
         {}
       );
-    }
+      permsOfLoggedInUser = _.get(
+       state.blip.membershipPermissionsInOtherCareTeams,
+       state.blip.currentPatientInViewId,
+       {}
+      );
+    } 
 
     // Check to see if a data-donating patient has selected a nonprofit to support
     if (userIsDonor) {
@@ -499,6 +507,7 @@ export function mapStateToProps(state) {
     termsAccepted: _.get(user, 'termsAccepted', null),
     user: user,
     patient: patient ? { permissions, ...patient } : null,
+    permsOfLoggedInUser: permsOfLoggedInUser,
     showingDonateBanner: state.blip.showingDonateBanner,
     showingDexcomConnectBanner: state.blip.showingDexcomConnectBanner,
     userIsCurrentPatient,

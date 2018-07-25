@@ -29,15 +29,15 @@ var chartDailyFactory = tidelineBlip.oneday;
 
 var vizComponents = require('@tidepool/viz').components;
 var Loader = vizComponents.Loader;
+var BolusTooltip = vizComponents.BolusTooltip;
+var SMBGTooltip = vizComponents.SMBGTooltip;
 
 var Header = require('./header');
 var Footer = require('./footer');
 
-import { components } from '@tidepool/viz';
-var BolusTooltip = components.BolusTooltip;
-
 var DailyChart = translate()(React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs', 'onBolusHover', 'onBolusOut'],
+  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs', 'onBolusHover', 'onBolusOut',
+    'onSMBGHover', 'onSMBGOut'],
   log: bows('Daily Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
@@ -57,6 +57,8 @@ var DailyChart = translate()(React.createClass({
     onTransition: React.PropTypes.func.isRequired,
     onBolusHover: React.PropTypes.func.isRequired,
     onBolusOut: React.PropTypes.func.isRequired,
+    onSMBGHover: React.PropTypes.func.isRequired,
+    onSMBGOut: React.PropTypes.func.isRequired,
   },
 
   getInitialState: function() {
@@ -255,6 +257,8 @@ var Daily = translate()(React.createClass({
                 onTransition={this.handleInTransition}
                 onBolusHover={this.handleBolusHover}
                 onBolusOut={this.handleBolusOut}
+                onSMBGHover={this.handleSMBGHover}
+                onSMBGOut={this.handleSMBGOut}
                 ref="chart" />
             </div>
           </div>
@@ -270,7 +274,18 @@ var Daily = translate()(React.createClass({
             }}
             side={this.state.hoveredBolus.side}
             bolus={this.state.hoveredBolus.data}
+            bgPrefs={this.props.bgPrefs}
             timePrefs={this.props.timePrefs}
+          />}
+        {this.state.hoveredSMBG && <SMBGTooltip
+            position={{
+              top: this.state.hoveredSMBG.top,
+              left: this.state.hoveredSMBG.left
+            }}
+            side={this.state.hoveredSMBG.side}
+            smbg={this.state.hoveredSMBG.data}
+            timePrefs={this.props.timePrefs}
+            bgPrefs={this.props.bgPrefs}
           />}
       </div>
       );
@@ -375,6 +390,29 @@ var Daily = translate()(React.createClass({
   handleBolusOut: function() {
     this.setState({
       hoveredBolus: false
+    });
+  },
+
+  handleSMBGHover: function(smbg) {
+    var rect = smbg.rect;
+    // range here is -12 to 12
+    var hoursOffset = sundial.dateDifference(smbg.data.normalTime, this.state.datetimeLocation, 'h');
+    smbg.top = rect.top + (rect.height / 2)
+    if(hoursOffset > 5) {
+      smbg.side = 'left';
+      smbg.left = rect.left;
+    } else {
+      smbg.side = 'right';
+      smbg.left = rect.left + rect.width;
+    }
+    this.setState({
+      hoveredSMBG: smbg
+    });
+  },
+
+  handleSMBGOut: function() {
+    this.setState({
+      hoveredSMBG: false
     });
   },
 

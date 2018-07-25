@@ -36,7 +36,7 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
   }
 
   static propTypes = {
-    overlayClickHandler: React.PropTypes.func.isRequired,
+    modalDismissHandler: React.PropTypes.func.isRequired,
   };
 
   componentWillMount = () => {
@@ -80,10 +80,13 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
             <div className='UploadLaunchOverlay-icon'>
               <img src={logoSrc} />
             </div>
-            <Trans i18nKey="html.uploadlaunchoverlay-launching">
-              <div className='UploadLaunchOverlay-title'>Launching Uploader</div>
-              <div className='UploadLaunchOverlay-text'>If you don't yet have the Tidepool Uploader, please install the appropriate version below</div>
-            </Trans>
+            <div>
+              <a className=' ModalOverlay-dismiss' onClick={this.props.modalDismissHandler}>&times;</a>
+              <Trans i18nKey="html.uploadlaunchoverlay-launching">
+                <div className='UploadLaunchOverlay-title'>Launching Uploader</div>
+                <div className='UploadLaunchOverlay-text'>If you don't yet have the Tidepool Uploader, please install the appropriate version below</div>
+              </Trans>
+            </div>
           </div>
         </div>,
         <div className='ModalOverlay-controls' key={'div2'}>
@@ -103,7 +106,7 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
       <ModalOverlay
         show={true}
         dialog={dialog}
-        overlayClickHandler={this.props.overlayClickHandler}
+        overlayClickHandler={this.props.modalDismissHandler}
       />
     );
   };

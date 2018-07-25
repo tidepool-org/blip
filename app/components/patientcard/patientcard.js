@@ -167,7 +167,7 @@ var PatientCard = translate()(React.createClass({
       self.props.trackMetric('Clicked VDF Upload Data');
     };
 
-    if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
+    if(_.isEmpty(patient.permissions) === false && patient.permissions.root || _.has(patient.permissions, ['upload'])) {
       return (
         <a className={classes} href='' onClick={handleClick} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} title={t('Upload data')}>{t('Upload')}</a>
       );
@@ -208,7 +208,7 @@ var PatientCard = translate()(React.createClass({
       <div>
         <div className="ModalOverlay-content">{t('Are you sure you want to leave this person\'s Care Team? You will no longer be able to view their data.')}</div>
         <div className="ModalOverlay-controls">
-          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.overlayClickHandler}>Cancel</button>
+          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.modalDismissHandler}>Cancel</button>
           <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient(patient)}>{t('I\'m sure, remove me.')}</button>
         </div>
       </div>
@@ -220,12 +220,12 @@ var PatientCard = translate()(React.createClass({
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
-        overlayClickHandler={this.overlayClickHandler}/>
+        overlayClickHandler={this.modalDismissHandler}/>
     );
   },
 
   renderUploadOverlay: function() {
-    return <UploadLaunchOverlay overlayClickHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+    return <UploadLaunchOverlay modalDismissHandler={this.modalDismissHandler}/>
   },
 
   handleRemovePatient: function(patient) {
@@ -258,9 +258,10 @@ var PatientCard = translate()(React.createClass({
     };
   },
 
-  overlayClickHandler: function() {
+  modalDismissHandler: function() {
     this.setState({
       showModalOverlay: false,
+      showUploadOverlay: false,
     });
   },
 

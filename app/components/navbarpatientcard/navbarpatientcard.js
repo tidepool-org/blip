@@ -23,7 +23,6 @@ var launchCustomProtocol = require('custom-protocol-detection');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
 var personUtils = require('../../core/personutils');
-var utils = require('../../core/utils');
 
 var NavbarPatientCard = translate()(React.createClass({
   propTypes: {
@@ -32,6 +31,7 @@ var NavbarPatientCard = translate()(React.createClass({
     uploadUrl: React.PropTypes.string,
     patient: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired,
+    permsOfLoggedInUser: React.PropTypes.object,
   },
 
   getInitialState: function() {
@@ -133,7 +133,7 @@ var NavbarPatientCard = translate()(React.createClass({
       self.props.trackMetric('Clicked Navbar Upload Data');
     };
 
-    if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
+    if(_.isEmpty(patient.permissions) === false && patient.permissions.root || _.has(this.props.permsOfLoggedInUser, 'upload') ) {
       return (
         <a href="" onClick={handleClick} className={classes} title={t('Upload data')}>{t('Upload')}</a>
       );
@@ -170,7 +170,7 @@ var NavbarPatientCard = translate()(React.createClass({
   },
 
   renderOverlay: function() {
-    return <UploadLaunchOverlay overlayClickHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
   },
 
   getFullName: function() {

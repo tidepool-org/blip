@@ -137,8 +137,8 @@ const TidelineHeader = translate()(class TidelineHeader extends Component {
     });
 
     return (
-      <div id="app-no-print" className="grid patient-data-subnav">
-        <div className="grid-item one-whole large-one-third">
+      <div className="grid patient-data-subnav">
+        <div className="app-no-print grid-item one-whole large-one-third">
             <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>{t('Basics')}</a>
             <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>{t('Daily')}</a>
             <a href="" className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>{t('Weekly')}</a>
@@ -152,7 +152,7 @@ const TidelineHeader = translate()(class TidelineHeader extends Component {
           {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
-        <div className="grid-item one-whole large-one-third">
+        <div className="app-no-print grid-item one-whole large-one-third">
           <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>
           <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
             {this.props.printReady && <img className="print-icon" src={printPng} alt="Print" />}
