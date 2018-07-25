@@ -10,7 +10,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
  *
- * You should have received a copy of the License along with this program; if
+ * You should have received a copy of the License along with this program; ifg
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
@@ -149,7 +149,9 @@ class BolusTooltip extends PureComponent {
         extendedLine = [
           !!normal && (
             <div className={styles.normal} key={'normal'}>
-              <div className={styles.label}>{t('Up Front ({{normalPercentage}})', { normalPercentage })}</div>
+              <div className={styles.label}>{t('Up Front ({{normalPercentage}})', {
+                normalPercentage,
+              })}</div>
               <div className={styles.value}>{`${formatInsulin(normal)}`}</div>
               <div className={styles.units}>U</div>
             </div>

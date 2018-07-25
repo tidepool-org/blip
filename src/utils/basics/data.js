@@ -564,7 +564,7 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
           { key: 'override', label: t('Override'), percentage: true },
           { key: 'underride', label: t('Underride'), percentage: true },
         ];
-        break;t()
+        break;
 
       case 'fingersticks':
         type = 'fingerstick';
@@ -607,8 +607,8 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
         });
         active = isAutomatedBasalDevice(manufacturer, deviceModel);
         dimensions = [
-          { key: 'manual', label: t(deviceLabels[SCHEDULED_DELIVERY]}) },
-          { key: 'automated', label: t(deviceLabels[AUTOMATED_DELIVERY]}) },
+          { key: 'manual', label: t(deviceLabels[SCHEDULED_DELIVERY]) },
+          { key: 'automated', label: t(deviceLabels[AUTOMATED_DELIVERY]) },
         ];
         break;
 
@@ -835,7 +835,7 @@ export function disableEmptySections(data) {
     switch (sectionKey) {
       case 'basals':
       case 'boluses':
-        emptyText = t('This section requires data from an insulin pump, so there's nothing to display.');
+        emptyText = t("This section requires data from an insulin pump, so there's nothing to display.");
         break;
 
       case 'siteChanges':

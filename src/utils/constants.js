@@ -15,8 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
-export const BG_HIGH = 'High';
-export const BG_LOW = 'Low';
+import i18next from 'i18next';
+const t = i18next.t.bind(i18next);
+
+if (i18next.options.returnEmptyString === undefined) {
+  // Return key if no translation is present
+  i18next.init({ returnEmptyString: false, nsSeparator: '|' });
+}
+
+export const BG_HIGH = t('High');
+export const BG_LOW = t('Low');
 
 const STIFFNESS = 180;
 const DAMPING = 40;
@@ -27,8 +35,8 @@ export const springConfig = { stiffness: STIFFNESS, damping: DAMPING, precision:
 export const MGDL_CLAMP_TOP = 400;
 export const MMOLL_CLAMP_TOP = 22.5;
 
-export const MGDL_UNITS = 'mg/dL';
-export const MMOLL_UNITS = 'mmol/L';
+export const MGDL_UNITS = t('mg/dL');
+export const MMOLL_UNITS = t('mmol/L');
 export const MGDL_PER_MMOLL = 18.01559;
 
 const ONE_WEEK = 7;
@@ -66,33 +74,33 @@ export const MEDTRONIC = 'Medtronic';
 
 export const pumpVocabulary = {
   [ANIMAS]: {
-    [SITE_CHANGE_RESERVOIR]: 'Go Rewind',
-    [SITE_CHANGE_TUBING]: 'Go Prime',
-    [SITE_CHANGE_CANNULA]: 'Fill Cannula',
+    [SITE_CHANGE_RESERVOIR]: t('Go Rewind'),
+    [SITE_CHANGE_TUBING]: t('Go Prime'),
+    [SITE_CHANGE_CANNULA]: t('Fill Cannula'),
   },
   [INSULET]: {
-    [SITE_CHANGE_RESERVOIR]: 'Change Pod',
-    [SITE_CHANGE_TUBING]: 'Activate Pod',
-    [SITE_CHANGE_CANNULA]: 'Prime',
+    [SITE_CHANGE_RESERVOIR]: t('Change Pod'),
+    [SITE_CHANGE_TUBING]: t('Activate Pod'),
+    [SITE_CHANGE_CANNULA]: t('Prime'),
   },
   [MEDTRONIC]: {
-    [SITE_CHANGE_RESERVOIR]: 'Rewind',
-    [SITE_CHANGE_TUBING]: 'Prime',
-    [SITE_CHANGE_CANNULA]: 'Prime Cannula',
-    [AUTOMATED_DELIVERY]: 'Auto Mode',
-    [SCHEDULED_DELIVERY]: 'Manual',
+    [SITE_CHANGE_RESERVOIR]: t('Rewind'),
+    [SITE_CHANGE_TUBING]: t('Prime'),
+    [SITE_CHANGE_CANNULA]: t('Prime Cannula'),
+    [AUTOMATED_DELIVERY]: t('Auto Mode'),
+    [SCHEDULED_DELIVERY]: t('Manual'),
   },
   [TANDEM]: {
-    [SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
-    [SITE_CHANGE_TUBING]: 'Fill Tubing',
-    [SITE_CHANGE_CANNULA]: 'Fill Cannula',
+    [SITE_CHANGE_RESERVOIR]: t('Change Cartridge'),
+    [SITE_CHANGE_TUBING]: t('Fill Tubing'),
+    [SITE_CHANGE_CANNULA]: t('Fill Cannula'),
   },
   default: {
-    [SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
-    [SITE_CHANGE_TUBING]: 'Fill Tubing',
-    [SITE_CHANGE_CANNULA]: 'Fill Cannula',
-    [AUTOMATED_DELIVERY]: 'Automated',
-    [SCHEDULED_DELIVERY]: 'Manual',
+    [SITE_CHANGE_RESERVOIR]: t('Change Cartridge'),
+    [SITE_CHANGE_TUBING]: t('Fill Tubing'),
+    [SITE_CHANGE_CANNULA]: t('Fill Cannula'),
+    [AUTOMATED_DELIVERY]: t('Automated'),
+    [SCHEDULED_DELIVERY]: t('Manual'),
   },
 };
 

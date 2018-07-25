@@ -38,6 +38,11 @@ import i18next from 'i18next';
 
 const t = i18next.t.bind(i18next);
 
+if (i18next.options.returnEmptyString === undefined) {
+  // Return key if no translation is present
+  i18next.init({ returnEmptyString: false, nsSeparator: '|' });
+}
+
 const medtronic600BGMessages = {
   'medtronic600/smbg/user-accepted-remote-bg': t('Yes'),
   'medtronic600/smbg/user-rejected-remote-bg': t('No'),
