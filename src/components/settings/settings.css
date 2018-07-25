@@ -86,6 +86,10 @@
   background-image: linear-gradient(to right, var(--basal) 0, var(--basal) 14px, #d7f1fb 14px, #d7f1fb 100%);
 }
 
+.automatedBasalHeaderBackground {
+  background-image: linear-gradient(to right, var(--basal-automated) 0, var(--basal-automated) 14px, #d7f1fb 14px, #d7f1fb 100%);
+}
+
 .bolusHeaderBackground {
   background-image: linear-gradient(to right, var(--bolus) 0, var(--bolus) 14px, #d7f1fb 14px, #d7f1fb 100%);
 }

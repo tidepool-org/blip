@@ -25,6 +25,7 @@ import CollapsibleContainer from './common/CollapsibleContainer';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../utils/constants';
 import * as nonTandemData from '../../utils/settings/nonTandemData';
+import { deviceName } from '../../utils/settings/data';
 import { nonTandemText } from '../../utils/settings/textData';
 
 import styles from './NonTandem.css';
@@ -71,6 +72,32 @@ const NonTandem = (props) => {
       const toggleFn = _.partial(toggleBasalScheduleExpansion, basal.scheduleName);
 
       let labelClass = styles.singleLineBasalScheduleHeader;
+
+      if (basal.isAutomated) {
+        // We only show automated basal schedules if active at upload
+        if (!basal.activeAtUpload) {
+          return null;
+        }
+
+        basal.title.secondary = basal.title.secondary.toLowerCase();
+
+        const title = {
+          label: basal.title,
+          className: styles.automatedBasalHeaderBackground,
+        };
+
+        return (
+          <div className={styles.categoryContainer} key={schedule}>
+            {buildTable(
+              basal.rows,
+              basal.columns,
+              title,
+              [labelClass, styles.settingsTable].join(' '),
+            )}
+          </div>
+        );
+      }
+
       if (basal.activeAtUpload) {
         labelClass = styles.twoLineBasalScheduleHeader;
       }
@@ -172,7 +199,7 @@ const NonTandem = (props) => {
         <p>{t('Copy as text')}</p>
       </ClipboardButton>
       <Header
-        deviceDisplayName={nonTandemData.deviceName(lookupKey)}
+        deviceDisplayName={deviceName(lookupKey)}
         deviceMeta={nonTandemData.deviceMeta(pumpSettings, timePrefs)}
       />
       <div className={styles.settingsContainer}>

@@ -91,6 +91,25 @@ export function formatDecimalNumber(val, places) {
   return format(`.${places}f`)(val);
 }
 
+
+/**
+ * formatInsulin
+ *
+ * @export
+ * @param {Number} val - numeric value to format
+ * @returns {String} numeric value formatted for the precision of insulin dosing
+ */
+export function formatInsulin(val) {
+  let decimalLength;
+  const qtyString = val.toString();
+  if (qtyString.indexOf('.') !== -1 && qtyString.split('.')[1].length === 2) {
+    decimalLength = 2;
+  } else {
+    decimalLength = 1;
+  }
+  return formatDecimalNumber(val, decimalLength);
+}
+
 /**
  * formatPercentage
  * @param {Number} val - raw decimal proportion, range of 0.0 to 1.0

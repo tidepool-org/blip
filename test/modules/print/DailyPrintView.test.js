@@ -33,7 +33,7 @@ import {
   EXTRA_SMALL_FONT_SIZE,
 } from '../../../src/modules/print/utils/constants';
 
-import { getTotalBasal } from '../../../src/utils/basal';
+import { getTotalBasal, getBasalPathGroups } from '../../../src/utils/basal';
 import { getTotalBolus, getTotalCarbs } from '../../../src/utils/bolus';
 import { formatPercentage, formatDecimalNumber, formatBgValue } from '../../../src/utils/format';
 
@@ -124,6 +124,7 @@ describe('DailyPrintView', () => {
         { prop: 'bolusWidth', type: 'number' },
         { prop: 'carbRadius', type: 'number' },
         { prop: 'cbgRadius', type: 'number' },
+        { prop: 'markerRadius', type: 'number' },
         { prop: 'extendedLineThickness', type: 'number' },
         { prop: 'interruptedLineThickness', type: 'number' },
         { prop: 'smbgRadius', type: 'number' },
@@ -145,6 +146,8 @@ describe('DailyPrintView', () => {
                  - Renderer.margins.left,
         } },
         { prop: 'chartArea', type: 'object' },
+        { prop: 'isAutomatedBasalDevice', type: 'boolean' },
+        { prop: 'basalGroupLabels', type: 'object' },
         { prop: 'initialChartArea', type: 'object', value: {
           bottomEdge: opts.margins.top + opts.height,
           leftEdge: opts.margins.left +
@@ -346,6 +349,10 @@ describe('DailyPrintView', () => {
       Renderer.renderSummary(args);
     });
 
+    afterEach(() => {
+      Renderer.doc.text.resetHistory();
+    });
+
     it('should render a formatted date', () => {
       const formattedDate = moment(sampleDate, 'YYYY-MM-DD').format('ddd, MMM D, YYYY');
 
@@ -360,7 +367,7 @@ describe('DailyPrintView', () => {
       sinon.assert.calledWith(Renderer.doc.text, `Below ${veryLowThreshold}`);
     });
 
-    it('should render the basal to bolus ratio', () => {
+    it('should render the basal to bolus ratio for non-automated-basal devices', () => {
       const totalBasal = getTotalBasal(args.data.basal);
       const totalBolus = getTotalBolus(args.data.bolus);
       const totalInsulin = totalBasal + totalBolus;
@@ -376,6 +383,24 @@ describe('DailyPrintView', () => {
 
       sinon.assert.calledWith(Renderer.doc.text, 'Bolus');
       sinon.assert.calledWith(Renderer.doc.text, bolusPercentText);
+    });
+
+    it('should render the time in auto ratio for automated-basal devices', () => {
+      const { automated, manual } = args.data.timeInAutoRatio;
+      const totalBasalDuration = automated + manual;
+      const automatedPercentText = formatPercentage(automated / totalBasalDuration);
+      const manualPercentText = formatPercentage(manual / totalBasalDuration);
+
+      Renderer.isAutomatedBasalDevice = true;
+      Renderer.doc.text.resetHistory();
+      Renderer.renderSummary(args);
+      sinon.assert.calledWith(Renderer.doc.text, 'Time in Automated');
+
+      sinon.assert.calledWith(Renderer.doc.text, 'Manual');
+      sinon.assert.calledWith(Renderer.doc.text, manualPercentText);
+
+      sinon.assert.calledWith(Renderer.doc.text, 'Automated');
+      sinon.assert.calledWith(Renderer.doc.text, automatedPercentText);
     });
 
     it('should render the Average BG with cbg data if available', () => {
@@ -606,20 +631,49 @@ describe('DailyPrintView', () => {
   describe('renderBasalPaths', () => {
     it('should render basal paths', () => {
       const basalData = Renderer.chartsByDate[sampleDate].data.basal;
+      const groups = getBasalPathGroups(basalData);
 
       Renderer.renderBasalPaths(Renderer.chartsByDate[sampleDate]);
 
-      sinon.assert.callCount(Renderer.doc.path, basalData.length);
+      expect(groups.length).to.equal(2);
+
+      const expectedOutlinesPaths = groups.length; // one outline for each group
+      const expectedBasalSequencePaths = 1; // one sequence path total
+
+      sinon.assert.callCount(Renderer.doc.path, expectedOutlinesPaths + expectedBasalSequencePaths);
+
+      // Should render both automated and manual basal sequences in appropriate colors
+      expect(Renderer.doc.fillColor.getCall(0).args[0]).to.equal(Renderer.colors.basal);
+      expect(Renderer.doc.fillColor.getCall(1).args[0]).to.equal(Renderer.colors.basalAutomated);
+
+      // Should render both automated and manual basal outlines in appropriate colors
+      expect(Renderer.doc.stroke.getCall(0).args[0]).to.equal(Renderer.colors.basal);
+      expect(Renderer.doc.stroke.getCall(1).args[0]).to.equal(Renderer.colors.basalAutomated);
+    });
+
+    it('should render basal group markers', () => {
+      const basalData = Renderer.chartsByDate[sampleDate].data.basal;
+      const groups = getBasalPathGroups(basalData);
+
+      Renderer.renderBasalPaths(Renderer.chartsByDate[sampleDate]);
+
+      expect(groups.length).to.equal(2);
+
+      const expectedMarkersCount = 1; // one marker for each group, not including the first
+
+      sinon.assert.callCount(Renderer.doc.circle, expectedMarkersCount);
+      sinon.assert.callCount(Renderer.doc.lineTo, expectedMarkersCount);
+      sinon.assert.callCount(Renderer.doc.text, expectedMarkersCount);
+      sinon.assert.calledWith(Renderer.doc.text, 'A');
     });
   });
 
   describe('renderBasalRates', () => {
-    it('should render basal rates', () => {
+    it('should render basal rates for manual (not automated) basals', () => {
       Renderer.renderBasalRates(Renderer.chartsByDate[sampleDate]);
 
-      sinon.assert.callCount(Renderer.doc.text, 2);
+      sinon.assert.callCount(Renderer.doc.text, 1);
       sinon.assert.calledWith(Renderer.doc.text, '0.625');
-      sinon.assert.calledWith(Renderer.doc.text, '0.7');
     });
   });
 

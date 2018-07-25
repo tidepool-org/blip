@@ -30,11 +30,6 @@ const normal = {
   normalTime: '2017-11-11T05:45:52.000Z',
 };
 
-const normalPrecise = {
-  normal: 5.05,
-  normalTime: '2017-11-11T05:45:52.000Z',
-};
-
 const cancelled = {
   normal: 2,
   expectedNormal: 5,
@@ -239,6 +234,29 @@ const withBGInputAndIOB = {
   bgInput: 280,
   insulinSensitivity: 70,
   insulinOnBoard: 0.5,
+};
+
+const withAutoTarget = {
+  type: 'wizard',
+  annotations: [
+    { code: 'wizard/target-automated' },
+  ],
+  bgInput: 180,
+  bgTarget: {
+    low: 60,
+    high: 180,
+  },
+  bolus: {
+    normal: 5,
+    normalTime: '2017-11-11T05:45:52.000Z',
+  },
+  recommended: {
+    carb: 5,
+    correction: 0,
+    net: 5,
+  },
+  carbInput: 75,
+  insulinCarbRatio: 15,
 };
 
 const withMedtronicTarget = {
@@ -538,20 +556,10 @@ describe('BolusTooltip', () => {
       expect(shallow(wrapper.instance().getTarget()).type()).to.equal('div');
       expect(wrapper.find(targetValue).text()).to.equal('100');
     });
-  });
-
-  describe('formatInsulin', () => {
-    // eslint-disable-next-line max-len
-    const insulinValue = `${formatClassesAsSelector(styles.delivered)} ${formatClassesAsSelector(styles.value)}`;
-    it('should return a single digit fixed point float for integers', () => {
-      const wrapper = mount(<BolusTooltip {...props} bolus={normal} />);
-      expect(wrapper.instance().formatInsulin(normal.normal)).to.equal('5.0');
-      expect(wrapper.find(insulinValue).text()).to.equal('5.0');
-    });
-    it('should include hundredths for insulin with hundredths precision', () => {
-      const wrapper = mount(<BolusTooltip {...props} bolus={normalPrecise} />);
-      expect(wrapper.instance().formatInsulin(normalPrecise.normal)).to.equal('5.05');
-      expect(wrapper.find(insulinValue).text()).to.equal('5.05');
+    it('should return "Auto" for a bolus with an automated wizard annotation', () => {
+      const wrapper = mount(<BolusTooltip {...props} bolus={withAutoTarget} />);
+      expect(shallow(wrapper.instance().getTarget()).type()).to.equal('div');
+      expect(wrapper.find(targetValue).text()).to.equal('Auto');
     });
   });
 

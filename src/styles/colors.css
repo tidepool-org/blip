@@ -17,6 +17,7 @@
 
 :root {
   --basal: #19A0D7;
+  --basal-automated: #00D3E6;
   --bolus: #7CD0F0;
   --bolus--interrupted: #FF8B7C;
   --bolus--ride: #107EA8;
@@ -53,7 +54,8 @@
   --text-hover: #00D3D9;
 
   --blue-green-light: #12d3d8;
-  --gray-dark: #989897;
+  --gray-medium: #989897;
+  --gray-dark: #4e4e4f;
   --white: #ffffff;
 
   --brand-purple: #627cff;

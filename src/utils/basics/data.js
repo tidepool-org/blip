@@ -22,6 +22,7 @@ import crossfilter from 'crossfilter';
 import i18next from 'i18next';
 
 import generateClassifiers from '../classifiers';
+import { getLatestPumpUpload, isAutomatedBasalDevice, getPumpVocabulary } from '../device';
 import {
   generateBgRangeLabels,
   weightedCGMCount,
@@ -42,12 +43,16 @@ import {
   SITE_CHANGE_TUBING,
   SITE_CHANGE_CANNULA,
   SECTION_TYPE_UNDECLARED,
+  AUTOMATED_DELIVERY,
+  SCHEDULED_DELIVERY,
   INSULET,
   TANDEM,
   ANIMAS,
   MEDTRONIC,
   pumpVocabulary,
 } from '../constants';
+
+import { getBasalPathGroups, getGroupDurations } from '../basal';
 
 const t = i18next.t.bind(i18next);
 
@@ -124,35 +129,41 @@ export function calculateBasalBolusStats(basicsData) {
     date => (date === mostRecent)
   );
 
+  const boluses = basicsData.data.bolus.data;
   const basals = basicsData.data.basal.data;
+  const carbs = _.filter(
+    basicsData.data.wizard.data,
+    wizardEvent => (wizardEvent.carbInput && wizardEvent.carbInput > 0)
+  );
+
+  let start = _.get(basals[0], 'normalTime', basicsData.dateRange[0]);
+  if (start < basicsData.dateRange[0]) {
+    start = basicsData.dateRange[0];
+  }
+
+  let end = _.get(basals[basals.length - 1], 'normalEnd', basicsData.dateRange[1]);
+  if (end > basicsData.dateRange[1]) {
+    end = basicsData.dateRange[1];
+  }
+
+  const { automated, manual } = getGroupDurations(basals, start, end);
+  const totalBasalDuration = automated + manual;
+  const timeInAutoRatio = {
+    automated: automated / totalBasalDuration,
+    manual: manual / totalBasalDuration,
+  };
 
   // if three or more of the days (excepting most recent) don't have any boluses
   // then don't calculate these stats at all, since may be inaccurate if
   // long-running basals exist
   if (pastDays.length - pastBolusDays.length >= 3 || !basals.length) {
     return {
+      timeInAutoRatio,
       basalBolusRatio: null,
       averageDailyDose: null,
       totalDailyDose: null,
       averageDailyCarbs: null,
     };
-  }
-
-  const boluses = basicsData.data.bolus.data;
-
-  const carbs = _.filter(
-    basicsData.data.wizard.data,
-    wizardEvent => (wizardEvent.carbInput && wizardEvent.carbInput > 0)
-  );
-
-  let start = basals[0].normalTime;
-  if (start < basicsData.dateRange[0]) {
-    start = basicsData.dateRange[0];
-  }
-
-  let end = basals[basals.length - 1].normalEnd;
-  if (end > basicsData.dateRange[1]) {
-    end = basicsData.dateRange[1];
   }
 
   // find the duration of a basal segment that falls within the basicsData.dateRange
@@ -204,6 +215,7 @@ export function calculateBasalBolusStats(basicsData) {
   const totalInsulin = sumBasalInsulin + sumBolusInsulin;
 
   const stats = {
+    timeInAutoRatio,
     basalBolusRatio: {
       basal: sumBasalInsulin / totalInsulin,
       bolus: sumBolusInsulin / totalInsulin,
@@ -227,10 +239,7 @@ export function calculateBasalBolusStats(basicsData) {
  * @returns {String|Null} - the latest upload source or null
  */
 export function getLatestPumpUploaded(basicsData) {
-  const latestPump = _.findLast(
-    _.get(basicsData, 'data.upload.data', []),
-    { deviceTags: ['insulin-pump'] }
-  );
+  const latestPump = getLatestPumpUpload(_.get(basicsData, 'data.upload.data', []));
 
   if (latestPump && latestPump.hasOwnProperty('source')) {
     return latestPump.source;
@@ -319,7 +328,6 @@ export function processInfusionSiteHistory(data, patient) {
       basicsData.sections.siteChanges.type = settings.siteChangeSource;
     } else {
       basicsData.sections.siteChanges.type = SECTION_TYPE_UNDECLARED;
-      basicsData.sections.siteChanges.active = false;
     }
   } else if (latestPump === INSULET) {
     basicsData.data.reservoirChange.infusionSiteHistory = getInfusionSiteHistory(
@@ -337,8 +345,8 @@ export function processInfusionSiteHistory(data, patient) {
   }
 
   const fallbackSubtitle = basicsData.sections.siteChanges.type !== SECTION_TYPE_UNDECLARED
-                         ? pumpVocabulary.default[SITE_CHANGE_RESERVOIR]
-                         : null;
+    ? pumpVocabulary.default[SITE_CHANGE_RESERVOIR]
+    : null;
 
   basicsData.sections.siteChanges.subTitle = _.get(
     pumpVocabulary,
@@ -489,46 +497,57 @@ export function averageExcludingMostRecentDay(dataObj, total, mostRecentDay) {
 }
 
 /**
- * Define sections and filters used in the basics view
+ * Define sections and dimensions used in the basics view
  *
  * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds
  * @returns {Object} sections
  */
-export function defineBasicsSections(bgPrefs) {
+export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
   const bgLabels = generateBgRangeLabels(bgPrefs);
   bgLabels.veryLow = _.capitalize(bgLabels.veryLow);
   bgLabels.veryHigh = _.capitalize(bgLabels.veryHigh);
 
+  const deviceLabels = getPumpVocabulary(manufacturer);
+
   const sectionNames = [
-    'basals',
+    'averageDailyCarbs',
     'basalBolusRatio',
+    'basals',
     'bgDistribution',
     'boluses',
     'fingersticks',
     'siteChanges',
+    'timeInAutoRatio',
     'totalDailyDose',
-    'averageDailyCarbs',
   ];
 
   const sections = {};
 
   _.each(sectionNames, section => {
-    let type;
-    let filters;
+    let type = section;
+    let dimensions;
     let title = '';
     let subTitle;
     let summaryTitle;
     let emptyText;
+    let active = true;
 
     switch (section) {
       case 'basals':
         type = 'basal';
-        title = t('Basals');
+        title = 'Basals';
         summaryTitle = t('Total basal events');
-        filters = [
+        dimensions = [
           { key: 'total', label: t('Basal Events'), primary: true },
           { key: 'temp', label: t('Temp Basals') },
           { key: 'suspend', label: t('Suspends') },
+          {
+            key: 'automatedStop',
+            label: t('{{automatedLabel}} Exited', {
+              automatedLabel: deviceLabels[AUTOMATED_DELIVERY],
+            }),
+            hideEmpty: true,
+          },
         ];
         break;
 
@@ -536,7 +555,7 @@ export function defineBasicsSections(bgPrefs) {
         type = 'bolus';
         title = t('Bolusing');
         summaryTitle = t('Avg boluses / day');
-        filters = [
+        dimensions = [
           { key: 'total', label: t('Avg per day'), average: true, primary: true },
           { key: 'wizard', label: t('Calculator'), percentage: true },
           { key: 'correction', label: t('Correction'), percentage: true },
@@ -545,13 +564,13 @@ export function defineBasicsSections(bgPrefs) {
           { key: 'override', label: t('Override'), percentage: true },
           { key: 'underride', label: t('Underride'), percentage: true },
         ];
-        break;
+        break;t()
 
       case 'fingersticks':
         type = 'fingerstick';
         title = t('BG readings');
         summaryTitle = t('Avg BG readings / day');
-        filters = [
+        dimensions = [
           { path: 'smbg', key: 'total', label: t('Avg per day'), average: true, primary: true },
           { path: 'smbg', key: 'meter', label: t('Meter'), percentage: true },
           { path: 'smbg', key: 'manual', label: t('Manual'), percentage: true },
@@ -562,6 +581,7 @@ export function defineBasicsSections(bgPrefs) {
         break;
 
       case 'siteChanges':
+        type = null; // Will be set by `processInfusionSiteHistory`
         title = t('Infusion site changes');
         break;
 
@@ -575,6 +595,21 @@ export function defineBasicsSections(bgPrefs) {
 
       case 'basalBolusRatio':
         title = t('Insulin ratio');
+        dimensions = [
+          { key: 'basal', label: t('Basal') },
+          { key: 'bolus', label: t('Bolus') },
+        ];
+        break;
+
+      case 'timeInAutoRatio':
+        title = t('Time in {{automatedLabel}} ratio', {
+          automatedLabel: deviceLabels[AUTOMATED_DELIVERY],
+        });
+        active = isAutomatedBasalDevice(manufacturer, deviceModel);
+        dimensions = [
+          { key: 'manual', label: t(deviceLabels[SCHEDULED_DELIVERY]}) },
+          { key: 'automated', label: t(deviceLabels[AUTOMATED_DELIVERY]}) },
+        ];
         break;
 
       case 'averageDailyCarbs':
@@ -587,13 +622,13 @@ export function defineBasicsSections(bgPrefs) {
     }
 
     sections[section] = {
-      active: true,
+      active,
       title,
       subTitle,
       summaryTitle,
       emptyText,
       type,
-      filters,
+      dimensions,
     };
   });
 
@@ -624,6 +659,32 @@ export function reduceByDay(data, bgPrefs) {
     p + typeObj.dataByDate[date].total
   );
 
+  const countAutomatedBasalEventsForDay = (dataForDate) => {
+    // Get the path groups, and remove the first group, as we only want to
+    // track changes into and out of automated delivery
+    const basalPathGroups = getBasalPathGroups(dataForDate.data);
+    basalPathGroups.shift();
+
+    const events = {
+      automatedStop: 0,
+    };
+
+    _.reduce(basalPathGroups, (acc, group) => {
+      const subType = _.get(group[0], 'subType', group[0].deliveryType);
+      const event = subType === 'automated' ? 'automatedStart' : 'automatedStop';
+      // For now, we're only tracking `automatedStop` events
+      if (event === 'automatedStop') {
+        // eslint-disable-next-line no-param-reassign
+        acc[event]++;
+      }
+      return acc;
+    }, events);
+
+    _.assign(dataForDate.subtotals, events);
+    // eslint-disable-next-line no-param-reassign
+    dataForDate.total += events.automatedStop;
+  };
+
   const mostRecentDay = _.find(basicsData.days, { type: 'mostRecent' }).date;
 
   _.each(basicsData.data, (value, type) => {
@@ -634,6 +695,10 @@ export function reduceByDay(data, bgPrefs) {
     ) {
       typeObj.cf = crossfilter(typeObj.data);
       buildCrossfilterUtils(typeObj, type, bgPrefs);
+    }
+
+    if (type === 'basal') {
+      _.each(typeObj.dataByDate, countAutomatedBasalEventsForDay);
     }
 
     if (_.includes(['calibration', 'smbg'], type)) {
@@ -653,7 +718,7 @@ export function reduceByDay(data, bgPrefs) {
       const section = _.find(sections, findSectionContainingType(type));
       // wrap this in an if mostly for testing convenience
       if (section) {
-        const tags = _.map(_.filter(section.filters, f => !f.primary), row => row.key);
+        const tags = _.map(_.filter(section.dimensions, f => !f.primary), row => row.key);
 
         const summary = {
           total: _.reduce(
@@ -700,7 +765,7 @@ export function reduceByDay(data, bgPrefs) {
 
     const filterTags = filter => (filter.path === 'smbg' && !filter.primary);
 
-    const fsTags = _.map(_.filter(fsSection.filters, filterTags), row => row.key);
+    const fsTags = _.map(_.filter(fsSection.dimensions, filterTags), row => row.key);
 
     _.each(fsTags, summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
     const smbgSummary = fingerstickData.summary.smbg;
@@ -738,7 +803,7 @@ export function generateCalendarDayLabels(days) {
  * @export
  * @param {any} sections
  */
-export function setBasicsSectionsAvailability(data) {
+export function disableEmptySections(data) {
   const basicsData = _.cloneDeep(data);
 
   const {
@@ -759,6 +824,7 @@ export function setBasicsSectionsAvailability(data) {
     'averageDailyCarbs',
     'basalBolusRatio',
     'bgDistribution',
+    'timeInAutoRatio',
     'totalDailyDose',
   ];
 
@@ -769,13 +835,13 @@ export function setBasicsSectionsAvailability(data) {
     switch (sectionKey) {
       case 'basals':
       case 'boluses':
-        emptyText = t("This section requires data from an insulin pump, so there's nothing to display.");
+        emptyText = t('This section requires data from an insulin pump, so there's nothing to display.');
         break;
 
       case 'siteChanges':
         emptyText = section.type === SECTION_TYPE_UNDECLARED
-                  ? t("Please choose a preferred site change source from the 'Basics' web view to view this data.")
-                  : t("This section requires data from an insulin pump, so there's nothing to display.");
+          ? t("Please choose a preferred site change source from the 'Basics' web view to view this data.")
+          : t("This section requires data from an insulin pump, so there's nothing to display.");
         break;
 
       case 'fingersticks':
@@ -788,6 +854,7 @@ export function setBasicsSectionsAvailability(data) {
 
       case 'averageDailyCarbs':
       case 'basalBolusRatio':
+      case 'timeInAutoRatio':
       case 'totalDailyDose':
         emptyText = t('Why is this grey? There is not enough data to show this statistic.');
         break;
@@ -803,30 +870,30 @@ export function setBasicsSectionsAvailability(data) {
 
   _.each(sections, (section, key) => {
     const type = section.type;
-    let active = section.active;
-
-    if (!type) active = false;
+    let disabled = false;
 
     if (_.includes(diabetesDataTypes, type)) {
-      active = hasDataInRange(typeData[type]);
+      disabled = !hasDataInRange(typeData[type]);
     } else if (_.includes(aggregatedDataTypes, key)) {
-      active = !!typeData[key];
+      disabled = !typeData[key];
     } else if (type === 'fingerstick') {
       const hasSMBG = hasDataInRange(typeData[type].smbg);
       const hasCalibrations = hasDataInRange(typeData[type].calibration);
 
       if (!hasCalibrations) {
-        _.remove(basicsData.sections[key].filters, filter => filter.path === 'calibration');
+        _.remove(basicsData.sections[key].dimensions, filter => filter.path === 'calibration');
       }
 
-      active = hasSMBG || hasCalibrations;
+      disabled = !hasSMBG && !hasCalibrations;
+    } else if (key === 'siteChanges') {
+      disabled = (!type || type === SECTION_TYPE_UNDECLARED);
     }
 
-    if (!active) {
+    if (disabled) {
       basicsData.sections[key].emptyText = getEmptyText(section, key);
     }
 
-    basicsData.sections[key].active = active;
+    basicsData.sections[key].disabled = disabled;
   });
 
   return basicsData;

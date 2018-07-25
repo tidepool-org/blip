@@ -1,0 +1,84 @@
+{
+  "type": "pumpSettings",
+  "activeSchedule": "Auto Mode",
+  "lastManualBasalSchedule": "Standard",
+  "basalSchedules": [
+    {
+      "name": "Auto Mode",
+      "value": []
+    },
+    {
+      "name": "Standard",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.75
+        }
+      ]
+    },
+    {
+      "name": "Pattern A",
+      "value": []
+    },
+    {
+      "name": "Pattern B",
+      "value": []
+    }
+  ],
+  "units": {
+    "carbs": "grams",
+    "bg": "mmol/L"
+  },
+  "bgTarget": [
+    {
+      "start": 0,
+      "low": 3.8855235937318735,
+      "high": 7.771047187463747
+    },
+    {
+      "start": 41400000,
+      "low": 4.440598392836427,
+      "high": 6.66089758925464
+    },
+    {
+      "start": 64800000,
+      "low": 4.16306099328415,
+      "high": 8.3261219865683
+    }
+  ],
+  "carbRatio": [
+    {
+      "amount": 24,
+      "start": 0
+    },
+    {
+      "amount": 22,
+      "start": 9000000
+    },
+    {
+      "amount": 17,
+      "start": 21600000
+    },
+    {
+      "amount": 6,
+      "start": 63000000
+    }
+  ],
+  "insulinSensitivity": [
+    {
+      "amount": 1.7762393571345707,
+      "start": 0
+    }
+  ],
+  "clockDriftOffset": 0,
+  "conversionOffset": 0,
+  "deviceId": "DevId0987654321",
+  "deviceTime": "2016-07-15T11:31:43",
+  "guid": "654fb6d4-85ba-4dcc-870d-4f99f2414363",
+  "id": "e6ddc63d00b542d4818ae6c81e4b17d2",
+  "time": "2016-07-14T23:31:43.009Z",
+  "timezoneOffset": 720,
+  "source": "Medtronic",
+  "deviceSerialNumber": "123-45-678",
+  "uploadId": "SampleUploadId"
+}

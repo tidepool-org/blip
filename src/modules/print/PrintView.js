@@ -87,6 +87,7 @@ class PrintView {
 
     this.colors = {
       basal: '#19A0D7',
+      basalAutomated: '#00D3E6',
       bolus: '#7CD0F0',
       smbg: '#6480FB',
       siteChange: '#fcd144',
@@ -95,6 +96,7 @@ class PrintView {
       high: '#BB9AE7',
       grey: '#6D6D6D',
       lightGrey: '#979797',
+      darkGrey: '#4e4e4f',
     };
 
     this.tableSettings = {
