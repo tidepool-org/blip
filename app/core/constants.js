@@ -29,7 +29,7 @@ export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepoo
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
 
-export const DATA_DONATION_NONPROFITS = [
+export const DATA_DONATION_NONPROFITS = () => [
   { value: 'AADE', label: t('AADE Foundation') },
   { value: 'BT1', label: t('Beyond Type 1') },
   { value: 'CARBDM', label: t('CarbDM') },
