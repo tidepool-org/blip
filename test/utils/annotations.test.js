@@ -32,6 +32,7 @@ const medT600acceptedNoncalibManual = {
   subType: 'manual',
   annotations: [
     { code: 'medtronic600/smbg/user-accepted-remote-bg' },
+    { code: 'medtronic600/smbg/user-rejected-sensor-calib' },
   ],
 };
 
