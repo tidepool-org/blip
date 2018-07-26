@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "1.8.4-remove-automode-annotation.1",
+  "version": "1.8.5-i18n.1",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
