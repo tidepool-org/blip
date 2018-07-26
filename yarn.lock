@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@0.11.2":
-  version "0.11.2"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.11.2.tgz#2524ce5273fbf8890cb0f4b805c4e590915991b8"
+"@tidepool/viz@0.11.3-i18n.1":
+  version "0.11.3-i18n.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.11.3-i18n.1.tgz#abb3582c50c875935893f026ed6c3b670f525d6d"
   dependencies:
     bluebird "3.5.0"
     crossfilter "1.3.12"
@@ -7967,15 +7967,16 @@ thunkify@~2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@1.8.4:
-  version "1.8.4"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.8.4.tgz#373516548113edcfa3b12101869715a0dd21ea30"
+tideline@1.8.5-i18n.1:
+  version "1.8.5-i18n.1"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.8.5-i18n.1.tgz#8a7b80c28e55c82e66347747495186efc30514ed"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
     d3 "3.5.17"
     d3.chart "0.3.0"
     duration-js "3.6.0"
+    i18next "10.6.0"
     lodash "3.10.1"
     moment-timezone "0.5.5"
     sundial "1.5.0"
