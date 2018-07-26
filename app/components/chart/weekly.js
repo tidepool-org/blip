@@ -191,7 +191,7 @@ var Weekly = translate()(React.createClass({
 
   componentWillReceiveProps:function (nextProps) {
     if (this.props.loading && !nextProps.loading) {
-      this.refs.chart.getWrappedInstance().rerenderChart();
+      this.refs.chart.rerenderChart();
     }
   },
 
@@ -319,7 +319,7 @@ var Weekly = translate()(React.createClass({
     }
     var datetime;
     if (this.refs.chart) {
-      datetime = this.refs.chart.getWrappedInstance().getCurrentDay(this.props.timePrefs);
+      datetime = this.refs.chart.getCurrentDay(this.props.timePrefs);
     }
     this.props.onSwitchToTrends(datetime);
   },
@@ -329,7 +329,7 @@ var Weekly = translate()(React.createClass({
       e.preventDefault();
     }
     this.setState({showingValues: false});
-    this.refs.chart.getWrappedInstance().goToMostRecent();
+    this.refs.chart.goToMostRecent();
   },
 
   handleClickOneDay: function(e) {
@@ -351,11 +351,12 @@ var Weekly = translate()(React.createClass({
   },
 
   handleDatetimeLocationChange: function(datetimeLocationEndpoints, chart = this.refs.chart) {
+    console.log('weekly chart ref', chart)
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints)
     });
-    this.props.updateDatetimeLocation(chart.getWrappedInstance().getCurrentDay());
+    this.props.updateDatetimeLocation(chart.getCurrentDay());
 
     // Update the chart date range in the patientData component.
     // We debounce this to avoid excessive updates while panning the view.
@@ -385,14 +386,14 @@ var Weekly = translate()(React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.getWrappedInstance().panBack();
+    this.refs.chart.panBack();
   },
 
   handlePanForward: function(e) {
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.getWrappedInstance().panForward();
+    this.refs.chart.panForward();
   },
 
   handleSelectSMBG: function(datetime) {
@@ -402,11 +403,11 @@ var Weekly = translate()(React.createClass({
   toggleValues: function(e) {
     if (this.state.showingValues) {
       this.props.trackMetric('Clicked Show Values Off');
-      this.refs.chart.getWrappedInstance().hideValues();
+      this.refs.chart.hideValues();
     }
     else {
       this.props.trackMetric('Clicked Show Values On');
-      this.refs.chart.getWrappedInstance().showValues();
+      this.refs.chart.showValues();
     }
     this.setState({showingValues: !this.state.showingValues});
   }
