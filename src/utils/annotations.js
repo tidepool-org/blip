@@ -41,10 +41,6 @@ const medtronic600BGMessages = {
   'medtronic600/smbg/remote-bg-acceptance-screen-timeout': 'Timed Out',
 };
 
-const medtronic600CalibrationMessages = {
-  'medtronic600/smbg/bg-sent-for-calib': 'Yes',
-};
-
 const simpleAnnotationMessages = {
   'animas/bolus/extended-equal-split':
     "* Animas pumps don't capture the details of how combo boluses are split between the normal and extended amounts.",
@@ -90,19 +86,6 @@ export function getMedtronic600AnnotationMessages(datum) {
         message: {
           label: 'Confirm BG',
           value: medtronic600BGMessages[medtronic600BGMessage[0]],
-        },
-      })
-    );
-  }
-  const medtronic600CalibrationMessage = _.intersection(
-    _.keys(medtronic600CalibrationMessages),
-    annotationCodes
-  );
-  if (medtronic600CalibrationMessage.length > 0) {
-    messages.push(
-      _.assign(_.find(annotations, { code: medtronic600CalibrationMessage[0] }), {
-        message: {
-          label: 'Sent for Calibration',
         },
       })
     );
