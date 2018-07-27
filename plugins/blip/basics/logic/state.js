@@ -61,7 +61,7 @@ var basicsState = function (manufacturer) {
           rows: [
             [
               { key: 'temp', label: 'Temp Basals' },
-              { key: 'suspend', label: 'Suspends' },
+              { key: 'distinctSuspend', label: 'Suspends' },
               { key: 'automatedStop', label: `${automatedLabel} Exited` },
             ],
           ]

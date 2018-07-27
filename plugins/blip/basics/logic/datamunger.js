@@ -453,6 +453,27 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         dataForDate.total += events.automatedStop;
       }
 
+      function countDistinctSuspendsForDay(dataForDate) {
+        const suspends = _.filter(dataForDate.data, d => d.deliveryType === 'suspend');
+
+        const result = {
+          prev: {},
+          distinct: 0,
+        }
+
+        _.reduce(suspends, (acc, datum) => {
+          // We only want to track non-contiguous suspends as distinct
+          if (_.get(acc.prev, 'normalEnd') !== datum.normalTime) {
+            acc.distinct++;
+          }
+          acc.prev = datum;
+          return acc;
+        }, result);
+
+        dataForDate.subtotals.distinctSuspend = result.distinct;
+        dataForDate.total += result.distinct;
+      }
+
       var mostRecentDay = _.find(basicsData.days, {type: 'mostRecent'}).date;
 
       for (var type in basicsData.data) {
@@ -473,7 +494,10 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         }
 
         if (type === 'basal') {
-          _.each(typeObj.dataByDate, countAutomatedBasalEventsForDay);
+          _.each(typeObj.dataByDate, data => {
+            countAutomatedBasalEventsForDay(data);
+            countDistinctSuspendsForDay(data);
+          });
         }
 
         // for basal and boluses, summarize tags and find avg events per day
