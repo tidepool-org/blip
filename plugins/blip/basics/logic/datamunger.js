@@ -156,9 +156,6 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
           return 0;
         }
       }
-      var sumDurations = _.reduce(basals, function(total, d) {
-        return total + getDurationInRange(d);
-      }, 0);
       var sumBasalInsulin = _.reduce(_.map(basals, function(d) {
         return d.rate * (getDurationInRange(d)/constants.MS_IN_HOUR);
       }), function(total, insulin) {
@@ -425,11 +422,6 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         };
       }
 
-      function findScheduleChangesForDay(dataForDate) {
-        var changes = _.compact(_.uniq(_.pluck(dataForDate.data, 'scheduleName'))).length - 1;
-        dataForDate.subtotals.scheduleChange = changes < 0 ? 0 : changes;
-      }
-
       function countAutomatedBasalEventsForDay(dataForDate) {
         // Get the path groups, and remove the first group, as we only want to
         // track changes into and out of automated delivery
@@ -459,19 +451,22 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         const result = {
           prev: {},
           distinct: 0,
-        }
+          skipped: 0
+        };
 
         _.reduce(suspends, (acc, datum) => {
           // We only want to track non-contiguous suspends as distinct
-          if (_.get(acc.prev, 'normalEnd') !== datum.normalTime) {
+          if (_.get(acc.prev, 'normalEnd') === datum.normalTime) {
+            acc.skipped++
+          } else {
             acc.distinct++;
           }
           acc.prev = datum;
           return acc;
         }, result);
 
-        dataForDate.subtotals.distinctSuspend = result.distinct;
-        dataForDate.total += result.distinct;
+        dataForDate.subtotals.suspend = result.distinct;
+        dataForDate.total -= result.skipped;
       }
 
       var mostRecentDay = _.find(basicsData.days, {type: 'mostRecent'}).date;
