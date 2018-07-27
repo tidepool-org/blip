@@ -457,7 +457,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         _.reduce(suspends, (acc, datum) => {
           // We only want to track non-contiguous suspends as distinct
           if (_.get(acc.prev, 'normalEnd') === datum.normalTime) {
-            acc.skipped++
+            acc.skipped++;
           } else {
             acc.distinct++;
           }
@@ -489,10 +489,8 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         }
 
         if (type === 'basal') {
-          _.each(typeObj.dataByDate, data => {
-            countAutomatedBasalEventsForDay(data);
-            countDistinctSuspendsForDay(data);
-          });
+          _.each(typeObj.dataByDate, countAutomatedBasalEventsForDay);
+          _.each(typeObj.dataByDate, countDistinctSuspendsForDay);
         }
 
         // for basal and boluses, summarize tags and find avg events per day
