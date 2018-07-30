@@ -1081,5 +1081,59 @@ describe('basics datamunger', function() {
         expect(bd.data.basal.dataByDate['2015-01-01'].total).to.equal(2);
       });
     });
+
+    describe('countDistinctSuspendsForDay', function() {
+      it('should count contiguous `suspend` events as 1 and add them to the totals', function() {
+        var start1 = '2015-01-01T00:00:00.000Z';
+        var start2 = '2015-01-01T00:01:00.000Z';
+        var start3 = '2015-01-01T00:01:02.000Z';
+        var start4 = '2015-01-01T00:01:06.000Z';
+        var start5 = '2015-01-01T00:02:00.000Z';
+        var bd = {
+          data: {
+            basal: { data: [
+              { type: 'basal', deliveryType: 'scheduled', normalTime: start1, normalEnd: start2 },
+              { type: 'basal', deliveryType: 'suspend', normalTime: start2, normalEnd: start3 },
+              { type: 'basal', deliveryType: 'suspend', normalTime: start3, normalEnd: start4 },
+              { type: 'basal', deliveryType: 'suspend', normalTime: start4, normalEnd: start5 },
+              { type: 'basal', deliveryType: 'scheduled', normalTime: start5 },
+            ] },
+          },
+          days: [{ date: '2015-01-01', type: 'mostRecent' }],
+        };
+
+        dm.reduceByDay(bd);
+
+        // should only count the 3 suspends as 1, because they are contiguous
+        expect(bd.data.basal.dataByDate['2015-01-01'].subtotals.suspend).to.equal(1);
+        expect(bd.data.basal.dataByDate['2015-01-01'].total).to.equal(1);
+      });
+
+      it('should count non-contiguous `suspend` events as distict add them to the totals', function() {
+        var start1 = '2015-01-01T00:00:00.000Z';
+        var start2 = '2015-01-01T00:01:00.000Z';
+        var start3 = '2015-01-01T00:01:02.000Z';
+        var start4 = '2015-01-01T00:01:06.000Z';
+        var start5 = '2015-01-01T00:02:00.000Z';
+        var bd = {
+          data: {
+            basal: { data: [
+              { type: 'basal', deliveryType: 'scheduled', normalTime: start1, normalEnd: start2 },
+              { type: 'basal', deliveryType: 'suspend', normalTime: start2, normalEnd: start3 },
+              { type: 'basal', deliveryType: 'scheduled', normalTime: start3, normalEnd: start4 },
+              { type: 'basal', deliveryType: 'suspend', normalTime: start4, normalEnd: start5 },
+              { type: 'basal', deliveryType: 'scheduled', normalTime: start5 },
+            ] },
+          },
+          days: [{ date: '2015-01-01', type: 'mostRecent' }],
+        };
+
+        dm.reduceByDay(bd);
+
+        // should only count the 2 suspends as 2, because they are non-contiguous
+        expect(bd.data.basal.dataByDate['2015-01-01'].subtotals.suspend).to.equal(2);
+        expect(bd.data.basal.dataByDate['2015-01-01'].total).to.equal(2);
+      });
+    });
   });
 });
