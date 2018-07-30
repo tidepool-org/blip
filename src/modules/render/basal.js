@@ -144,10 +144,13 @@ export function getBasalSequencePaths(basalSequence, xScale, yScale) {
   let undeliveredType = 'border--undelivered';
   _.each(basalSequence, (basal) => {
     if (basal.suppressed) {
-      if (_.get(basal.suppressed, 'subType', basal.suppressed.deliveryType) === 'automated') {
+      const suppressed = _.clone(basal.suppressed);
+      if (_.get(suppressed, 'subType', suppressed.deliveryType) === 'automated') {
         undeliveredType = 'border--undelivered--automated';
+        // For automated suppressed delivery, we always render at the baseline
+        suppressed.rate = 0;
       }
-      suppresseds.push(_.assign({}, basal.suppressed, _.pick(basal, ['duration', 'utc'])));
+      suppresseds.push(_.assign({}, suppressed, _.pick(basal, ['duration', 'utc'])));
     }
   });
 
