@@ -451,7 +451,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         const result = {
           prev: {},
           distinct: 0,
-          skipped: 0
+          skipped: 0,
         };
 
         _.reduce(suspends, (acc, datum) => {

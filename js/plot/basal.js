@@ -275,9 +275,10 @@ module.exports = function(pool, opts) {
         d += 'M' + stringCoords(data[i]);
       }
       else if (isUndelivered && data[i].deliveryType === 'automated') {
-        // For automated undelivereds, we always render at the baseline
-        data[i].rate = 0;
-        d += 'M' + stringCoords(data[i]);
+        // For automated suppressed delivery, we always render at the baseline
+        var suppressed = _.clone(data[i]);
+        suppressed.rate = 0;
+        d += 'M' + stringCoords(suppressed);
       }
       else if (data[i].normalTime === data[i - 1].normalEnd) {
         // if segment is contiguous with previous, draw a vertical line connecting their values
