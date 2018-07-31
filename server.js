@@ -11,25 +11,41 @@ var buildDir = 'dist';
 
 var app = express();
 
-var whitelistedCSPDomains = [
-  'https://app.tidepool.org',
-  'https://dev-app.tidepool.org',
-  'https://stg-app.tidepool.org',
-  'https://int-app.tidepool.org',
-];
+// var whitelistedCSPDomains = [
+//   'https://app.tidepool.org',
+//   'https://dev-app.tidepool.org',
+//   'https://stg-app.tidepool.org',
+//   'https://int-app.tidepool.org',
+// ];
 
-if (process.env.CSP_DEBUG_HOST) {
-  whitelistedCSPDomains.push(process.env.CSP_DEBUG_HOST);
-}
+// if (process.env.CSP_DEBUG_HOST) {
+//   whitelistedCSPDomains.push(process.env.CSP_DEBUG_HOST);
+// }
+
+var uuidv4 = require('uuid/v4')
+
+app.use(function (req, res, next) {
+  res.locals.nonce = uuidv4()
+  next()
+})
 
 app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'none'"],
-    scriptSrc: whitelistedCSPDomains,
-    styleSrc: whitelistedCSPDomains.concat(["'unsafe-inline'"]),
-    imgSrc: whitelistedCSPDomains.concat(['data:']),
-    fontSrc: whitelistedCSPDomains.concat(['data:']),
+    baseUri: ["'none'"],
+    // scriptSrc: whitelistedCSPDomains,
+    scriptSrc: [
+      function (req, res) {
+        return "'nonce-" + res.locals.nonce + "'"  // 'nonce-614d9122-d5b0-4760-aecf-3a5d17cf0ac9'
+      }
+    ],
+    styleSrc: ["'self'", "'unsafe-inline'"],
+    imgSrc: ["'self'", 'data:'],
+    fontSrc: ["'self'", 'data:'],
+    // styleSrc: whitelistedCSPDomains.concat(["'unsafe-inline'"]),
+    // imgSrc: whitelistedCSPDomains.concat(['data:']),
+    // fontSrc: whitelistedCSPDomains.concat(['data:']),
     reportUri: '/event/csp-report/violation',
     objectSrc: ['blob:'],
     workerSrc: ['blob:'],
