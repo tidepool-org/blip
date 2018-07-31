@@ -11,21 +11,32 @@ var buildDir = 'dist';
 
 var app = express();
 
+var whitelistedCSPDomains = [
+  'https://app.tidepool.org',
+  'https://dev-app.tidepool.org',
+  'https://stg-app.tidepool.org',
+  'https://int-app.tidepool.org',
+];
+
+if (process.env.CSP_DEBUG_HOST) {
+  whitelistedCSPDomains.push(process.env.CSP_DEBUG_HOST);
+}
+
 app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
   directives: {
-    defaultSrc: ["'self'"],
-    styleSrc: ["'self'", "'unsafe-inline'"],
-    imgSrc: ["'self'", 'data:'],
-    fontSrc: ["'self'", 'data:'],
+    defaultSrc: ["'none'"],
+    scriptSrc: whitelistedCSPDomains,
+    styleSrc: whitelistedCSPDomains.concat(["'unsafe-inline'"]),
+    imgSrc: whitelistedCSPDomains.concat(['data:']),
+    fontSrc: whitelistedCSPDomains.concat(['data:']),
     reportUri: '/event/csp-report/violation',
-    objectSrc: ["'none'"],
+    objectSrc: ['blob:'],
     workerSrc: ['blob:'],
-    connectSrc: [
-      "'self'",
+    connectSrc: [].concat([
       process.env.API_HOST,
       'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
-    ],
+    ]),
   },
   reportOnly: false,
 }));
