@@ -44,13 +44,31 @@ export var UserProfile = translate()(React.createClass({
   formInputs: function() {
     const {t} = this.props;
     const inputs = [
-      {name: 'fullName', label: t('Full name'), type: 'text'},
-      {name: 'username', label: t('Email'), type: 'email'},
-      {name: 'password', label: t('Password'), type: 'password'},
-      {name: 'passwordConfirm', label: t('Confirm password'), type: 'password'}
+      {name: 'fullName', label: t('Full name'), type: 'text'}
     ];
 
-    if (config.I18N_ENABLED) {
+    if (config.ALLOW_CHANGE_EMAIL) {
+      inputs.push({
+        name: 'username',
+        label: t('Email'),
+        type: 'email'
+      });
+    }
+
+    if (config.ALLOW_CHANGE_PASSWORD) {
+      inputs.push({
+        name: 'password',
+        label: t('Password'),
+        type: 'password'
+      });
+      inputs.push({
+        name: 'passwordConfirm',
+        label: t('Confirm password'),
+        type: 'password'
+      });
+    }
+
+    if (config.I18N_ENABLED && config.ALLOW_CHANGE_LANG) {
       inputs.push({
         name: 'lang',
         label: t('Language'),
@@ -190,11 +208,14 @@ export var UserProfile = translate()(React.createClass({
 
   validateFormValues: function(formValues) {
     var form = [
-      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
-      { type: 'email', name: 'username', label: 'email', value: formValues.username }
+      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName }
     ];
 
-    if (formValues.password || formValues.passwordConfirm) {
+    if (config.ALLOW_CHANGE_EMAIL) {
+      form.push({ type: 'email', name: 'username', label: 'email', value: formValues.username });
+    }
+
+    if (config.ALLOW_CHANGE_PASSWORD && (formValues.password || formValues.passwordConfirm)) {
       form = _.merge(form, [
         { type: 'password', name: 'password', label: 'password', value: formValues.password },
         { type: 'confirmPassword', name: 'passwordConfirm', label: 'confirm password', value: formValues.passwordConfirm, prerequisites: { password: formValues.password }  }
@@ -215,18 +236,21 @@ export var UserProfile = translate()(React.createClass({
 
   prepareFormValuesForSubmit: function(formValues) {
     var result = {
-      username: formValues.username,
-      emails: [formValues.username],
       profile: {
         fullName: formValues.fullName
       },
     };
 
-    if (config.I18N_ENABLED) {
+    if (config.ALLOW_CHANGE_EMAIL) {
+      result.username = formValues.username;
+      result.emails = [formValues.username];
+    }
+
+    if (config.I18N_ENABLED && config.ALLOW_CHANGE_LANG) {
       _.set(result, 'preferences.displayLanguageCode', formValues.lang);
     }
 
-    if (formValues.password) {
+    if (config.ALLOW_CHANGE_PASSWORD && formValues.password) {
       result.password = formValues.password;
     }
 
