@@ -541,6 +541,22 @@ describe('DailyPrintView', () => {
       sinon.assert.callCount(Renderer.doc.text, timeSlotTextCalls + 3);
     });
 
+    context('mg/dL support', () => {
+      beforeEach(() => {
+        Renderer = new DailyPrintView(doc, data, opts);
+        Renderer.bgScaleYLimit = 305;
+
+        Renderer.renderYAxes(setArgs(Renderer));
+      });
+
+      it('should render bg bounds in mmol/L with proper formatting', () => {
+        sinon.assert.calledWith(Renderer.doc.text, '300');
+        sinon.assert.calledWith(Renderer.doc.text, '180');
+        sinon.assert.calledWith(Renderer.doc.text, '70');
+        sinon.assert.calledWith(Renderer.doc.text, '54');
+      });
+    });
+
     context('mmol/L support', () => {
       beforeEach(() => {
         Renderer = new DailyPrintView(doc, data, mmollOpts);

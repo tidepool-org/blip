@@ -65,10 +65,6 @@
   composes: subType;
 }
 
-.calibration {
-  composes: subType;
-}
-
 .source {
   composes: subType;
 }
