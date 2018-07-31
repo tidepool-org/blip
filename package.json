@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.11.5-bolus-rounding.1",
+  "version": "1.11.7",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
