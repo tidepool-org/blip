@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "0.11.3-bolus-rounding.1",
+  "version": "0.11.5",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
