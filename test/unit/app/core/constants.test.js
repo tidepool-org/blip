@@ -42,8 +42,8 @@ describe('constants', function() {
   });
 
   it('should define the list of tidepool big data donation nonprofit partners', function() {
-    expect(Constants.DATA_DONATION_NONPROFITS).to.be.an('array');
-    expect(_.pluck(Constants.DATA_DONATION_NONPROFITS, 'value')).to.eql([
+    expect(Constants.DATA_DONATION_NONPROFITS()).to.be.an('array'); // eslint-disable-line new-cap
+    expect(_.pluck(Constants.DATA_DONATION_NONPROFITS(), 'value')).to.eql([ // eslint-disable-line new-cap
       'AADE',
       'BT1',
       'CARBDM',

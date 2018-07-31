@@ -106,9 +106,9 @@ describe('Weekly', () => {
     let instance;
     let state = () => instance.state;
 
-    const chart = {getWrappedInstance: () => ({
+    const chart = {
       getCurrentDay: sinon.stub().returns('current day'),
-    })};
+    };
 
     beforeEach(() => {
       wrapper = mount(<Weekly {...baseProps} />);

@@ -35,10 +35,7 @@ var SMBGTooltip = vizComponents.SMBGTooltip;
 var Header = require('./header');
 var Footer = require('./footer');
 
-import { components } from '@tidepool/viz';
-var BolusTooltip = components.BolusTooltip;
-
-var DailyChart = React.createClass({
+var DailyChart = translate()(React.createClass({
   chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs', 'onBolusHover', 'onBolusOut',
     'onSMBGHover', 'onSMBGOut'],
   log: bows('Daily Chart'),
@@ -170,7 +167,7 @@ var DailyChart = React.createClass({
   editMessage: function(message) {
     return this.chart.editMessage(message);
   }
-});
+}));
 
 var Daily = translate()(React.createClass({
   chartType: 'daily',

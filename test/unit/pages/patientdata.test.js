@@ -96,7 +96,7 @@ describe('PatientData', function () {
       var props = defaultProps;
 
       console.error = sinon.spy();
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });
@@ -2956,7 +2956,7 @@ describe('PatientData', function () {
         trackMetric: sinon.stub()
       };
 
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToBasics();
@@ -2965,7 +2965,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `basics`', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({chartType: 'daily'});
 
@@ -3001,7 +3001,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `daily`', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({chartType: 'basics'});
 
@@ -3010,7 +3010,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to noon for the provided datetime', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
@@ -3036,7 +3036,7 @@ describe('PatientData', function () {
         trackMetric: sinon.stub()
       };
 
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToTrends('2016-08-19T01:51:55.000Z');
@@ -3045,7 +3045,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `trends`', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({chartType: 'basics'});
 
@@ -3054,7 +3054,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to the end of the day for the provided datetime', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
@@ -3080,7 +3080,7 @@ describe('PatientData', function () {
         trackMetric: sinon.stub()
       };
 
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToWeekly('2016-08-19T01:51:55.000Z');
@@ -3089,7 +3089,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `weekly`', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({chartType: 'basics'});
 
@@ -3098,7 +3098,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to noon for the provided datetime', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
@@ -3124,7 +3124,7 @@ describe('PatientData', function () {
         trackMetric: sinon.stub()
       };
 
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToSettings();
@@ -3133,7 +3133,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `settings`', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({chartType: 'daily'});
 

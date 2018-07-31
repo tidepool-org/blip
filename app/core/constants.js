@@ -29,7 +29,7 @@ export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepoo
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
 
-export const DATA_DONATION_NONPROFITS = [
+export const DATA_DONATION_NONPROFITS = () => [
   { value: 'AADE', label: t('AADE Foundation') },
   { value: 'BT1', label: t('Beyond Type 1') },
   { value: 'CARBDM', label: t('CarbDM') },
@@ -64,6 +64,6 @@ export const DIABETES_DATA_TYPES = [
   'wizard',
 ]
 
-export const MGDL_UNITS = 'mg/dL';
-export const MMOLL_UNITS = 'mmol/L';
+export const MGDL_UNITS = t('mg/dL');
+export const MMOLL_UNITS = t('mmol/L');
 export const MGDL_PER_MMOLL = 18.01559;

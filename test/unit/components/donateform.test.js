@@ -28,12 +28,8 @@ import _ from 'lodash';
 
 import DonateForm from '../../../app/components/donateform';
 import {
-  DATA_DONATION_NONPROFITS,
-  URL_BIG_DATA_DONATION_INFO,
   TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
 } from '../../../app/core/constants';
-
-import { getDonationAccountCodeFromEmail } from '../../../app/core/utils';
 
 const expect = chai.expect;
 

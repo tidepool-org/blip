@@ -84,7 +84,7 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
             <Trans i18nKey="html.uploadlaunchoverlay-launching">
               <a className=' ModalOverlay-dismiss' onClick={this.props.modalDismissHandler}>&times;</a>
               <div className='UploadLaunchOverlay-title'>Launching Uploader</div>
-              <div className='UploadLaunchOverlay-text'>If you dont yet have the Tidepool Uploader, please install the appropriate version below</div>
+              <div className='UploadLaunchOverlay-text'>If you don't yet have the Tidepool Uploader, please install the appropriate version below</div>
             </Trans>
             </div>
           </div>
