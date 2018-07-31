@@ -25,7 +25,6 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __I18N_ENABLED__: JSON.stringify(process.env.I18N_ENABLED || false),
   __ALLOW_CHANGE_EMAIL__: JSON.stringify(process.env.ALLOW_CHANGE_EMAIL || true),
   __ALLOW_CHANGE_PASSWORD__: JSON.stringify(process.env.ALLOW_CHANGE_PASSWORD || true),
-  __ALLOW_CHANGE_LANG__: JSON.stringify(process.env.ALLOW_CHANGE_LANG || true),
   __DEV__: isDev,
   __TEST__: false,
   __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false) //eslint-disable-line eqeqeq

@@ -68,7 +68,7 @@ export var UserProfile = translate()(React.createClass({
       });
     }
 
-    if (config.I18N_ENABLED && config.ALLOW_CHANGE_LANG) {
+    if (config.I18N_ENABLED) {
       inputs.push({
         name: 'lang',
         label: t('Language'),
@@ -246,7 +246,7 @@ export var UserProfile = translate()(React.createClass({
       result.emails = [formValues.username];
     }
 
-    if (config.I18N_ENABLED && config.ALLOW_CHANGE_LANG) {
+    if (config.I18N_ENABLED) {
       _.set(result, 'preferences.displayLanguageCode', formValues.lang);
     }
 
