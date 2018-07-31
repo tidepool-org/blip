@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@0.11.3-daily-print-view-tick-formatting.1":
-  version "0.11.3-daily-print-view-tick-formatting.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.11.3-daily-print-view-tick-formatting.1.tgz#d13c89f88b8c302d75fefaa1e058fb4bcd230f8d"
+"@tidepool/viz@0.11.3":
+  version "0.11.3"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.11.3.tgz#4af7374f49ff2fbc56e468ffe366a36e433b5647"
   dependencies:
     bluebird "3.5.0"
     crossfilter "1.3.12"
@@ -5483,7 +5483,7 @@ optimist@0.6.1, optimist@>=0.3.5, optimist@^0.6.1, optimist@~0.6.0, optimist@~0.
     wordwrap "~0.0.2"
 
 optional@0.1.3:
-  version v0.1.3
+  version "0.1.3"
   resolved "https://registry.yarnpkg.com/optional/-/optional-0.1.3.tgz#f87537517b59a5e732cfd8f18e4f7eea7ab4761e"
 
 optionator@^0.8.1:
