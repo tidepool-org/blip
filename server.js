@@ -1,9 +1,11 @@
 var http = require('http');
 var https = require('https');
+var fs = require('fs');
 var path = require('path');
 var express = require('express');
 var helmet = require('helmet');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+var crypto = require('crypto');
 
 var config = require('./config.server.js');
 
@@ -11,21 +13,8 @@ var buildDir = 'dist';
 
 var app = express();
 
-// var whitelistedCSPDomains = [
-//   'https://app.tidepool.org',
-//   'https://dev-app.tidepool.org',
-//   'https://stg-app.tidepool.org',
-//   'https://int-app.tidepool.org',
-// ];
-
-// if (process.env.CSP_DEBUG_HOST) {
-//   whitelistedCSPDomains.push(process.env.CSP_DEBUG_HOST);
-// }
-
-var uuidv4 = require('uuid/v4')
-
 app.use(function (req, res, next) {
-  res.locals.nonce = uuidv4()
+  res.locals.nonce = crypto.randomBytes(16).toString('base64');
   next()
 })
 
@@ -34,21 +23,19 @@ app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'none'"],
     baseUri: ["'none'"],
-    // scriptSrc: whitelistedCSPDomains,
     scriptSrc: [
+      "'self'",
+      "'strict-dynamic'",
       function (req, res) {
-        return "'nonce-" + res.locals.nonce + "'"  // 'nonce-614d9122-d5b0-4760-aecf-3a5d17cf0ac9'
-      }
+        return "'nonce-" + res.locals.nonce + "'";
+      },
     ],
     styleSrc: ["'self'", "'unsafe-inline'"],
     imgSrc: ["'self'", 'data:'],
     fontSrc: ["'self'", 'data:'],
-    // styleSrc: whitelistedCSPDomains.concat(["'unsafe-inline'"]),
-    // imgSrc: whitelistedCSPDomains.concat(['data:']),
-    // fontSrc: whitelistedCSPDomains.concat(['data:']),
     reportUri: '/event/csp-report/violation',
     objectSrc: ['blob:'],
-    workerSrc: ['blob:'],
+    workerSrc: ["'self'", 'blob:'],
     connectSrc: [].concat([
       process.env.API_HOST,
       'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
@@ -66,8 +53,10 @@ app.use(express.static(staticDir));
 
 
 //So that we can use react-router and browser history
-app.get('*', function (request, response){
-  response.sendFile(staticDir + '/index.html');
+app.get('*', function (req, res){
+  var html = fs.readFileSync(staticDir + '/index.html', 'utf8');
+  var htmlWithNonces = html.replace(/<(script)/g, '<$1 nonce="' + res.locals.nonce + '"');
+  res.send(htmlWithNonces);
 });
 
 app.post('/event/csp-report/violation', function (req, res) {
