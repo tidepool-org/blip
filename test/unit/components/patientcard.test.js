@@ -8,8 +8,22 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
+import {shallow} from 'enzyme';
 
 var PatientCard = require('../../../app/components/patientcard');
+
+let patientUpload = {
+  permissions: {
+    view: {},
+    upload: {},
+  },
+}
+
+let patientNoUpload = {
+  permissions: {
+    view: {},
+  },
+}
 
 describe('PatientCard', function () {
   describe('render', function() {
@@ -25,6 +39,16 @@ describe('PatientCard', function () {
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should render upload button if user has upload permissions', function() {
+      let wrapper = shallow(<PatientCard patient={patientUpload}/>);
+      expect(wrapper.contains('Upload')).to.equal(true);
+    });
+
+    it('should not render upload button if user does not have upload permissions', function() {
+      let wrapper = shallow(<PatientCard patient={patientNoUpload}/>);
+      expect(wrapper.contains('Upload')).to.equal(false);
     });
   });
 
