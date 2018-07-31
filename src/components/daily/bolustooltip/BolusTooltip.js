@@ -19,24 +19,13 @@ import React, { PropTypes, PureComponent } from 'react';
 import _ from 'lodash';
 import * as bolusUtils from '../../../utils/bolus';
 import { formatLocalizedFromUTC, formatDuration } from '../../../utils/datetime';
-import { formatInsulin, formatDecimalNumber, formatBgValue } from '../../../utils/format';
+import { formatInsulin, formatBgValue } from '../../../utils/format';
 import { getAnnotationMessages } from '../../../utils/annotations';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './BolusTooltip.css';
 
 class BolusTooltip extends PureComponent {
-  formatInsulin(qty) {
-    let decimalLength;
-    const qtyString = qty.toString();
-    if (qtyString.indexOf('.') !== -1 && qtyString.split('.')[1].length === 2) {
-      decimalLength = 2;
-    } else {
-      decimalLength = 1;
-    }
-    return formatDecimalNumber(qty, decimalLength);
-  }
-
   formatBgValue(val) {
     return formatBgValue(val, this.props.bgPrefs);
   }
@@ -67,6 +56,18 @@ class BolusTooltip extends PureComponent {
     const targetLow = _.get(wizardTarget, 'low', null);
     const targetHigh = _.get(wizardTarget, 'high', null);
     const targetRange = _.get(wizardTarget, 'range', null);
+    const isAutomatedTarget = _.findIndex(_.get(this.props.bolus, 'annotations', []), {
+      code: 'wizard/target-automated',
+    }) !== -1;
+    if (isAutomatedTarget) {
+      return (
+        <div className={styles.target}>
+          <div className={styles.label}>Target</div>
+          <div className={styles.value}>Auto</div>
+          <div className={styles.units} />
+        </div>
+      );
+    }
     if (targetLow) {
       // medtronic
       let value;
