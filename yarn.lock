@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@0.11.3-bolus-rounding.1":
-  version "0.11.3-bolus-rounding.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.11.3-bolus-rounding.1.tgz#49f5e45eb36e2ea316375b0952f22ec64082b5dc"
+"@tidepool/viz@0.11.5":
+  version "0.11.5"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.11.5.tgz#831f3e262c87d81ddc9fbc4c7fa8631a84e4166f"
   dependencies:
     bluebird "3.5.0"
     crossfilter "1.3.12"
