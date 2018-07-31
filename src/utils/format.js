@@ -100,12 +100,11 @@ export function formatDecimalNumber(val, places) {
  * @returns {String} numeric value formatted for the precision of insulin dosing
  */
 export function formatInsulin(val) {
-  let decimalLength;
+  let decimalLength = 1;
   const qtyString = val.toString();
-  if (qtyString.indexOf('.') !== -1 && qtyString.split('.')[1].length === 2) {
-    decimalLength = 2;
-  } else {
-    decimalLength = 1;
+  if (qtyString.indexOf('.') !== -1) {
+    const length = qtyString.split('.')[1].length;
+    decimalLength = _.min([length, 3]);
   }
   return formatDecimalNumber(val, decimalLength);
 }
