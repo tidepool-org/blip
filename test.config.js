@@ -3,7 +3,9 @@ var webpack = require('webpack');
 
 var defineEnvPlugin = new webpack.DefinePlugin({
   __DEV__: false,
-  __TEST__: true
+  __TEST__: true,
+  __HIDE_DONATE__: JSON.stringify(process.env.HIDE_DONATE || null),
+  __HIDE_DEXCOM_BANNER__: JSON.stringify(process.env.HIDE_DEXCOM_BANNER || null)
 });
 
 module.exports = {
