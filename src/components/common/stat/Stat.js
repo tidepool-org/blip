@@ -21,10 +21,12 @@ import bows from 'bows';
 import { SizeMe } from 'react-sizeme';
 import { Line, VictoryBar, VictoryContainer, VictoryPie } from 'victory';
 import { VictoryLine } from 'victory-chart';
+import { Collapse } from 'react-collapse';
 import { formatPercentage } from '../../../utils/format';
 import styles from './Stat.css';
 import cx from 'classnames';
 import HoverBar, { SizedHoverLabel } from './HoverBar';
+import CollapseIcon from './assets/unfold-less-24-px.svg';
 
 const colors = {
   basal: '#0096d1',
@@ -47,23 +49,45 @@ export const statTypes = {
 class Stat extends React.PureComponent {
   static propTypes = {
     categories: PropTypes.object,
-    data: PropTypes.array.isRequired,
+    data: PropTypes.arrayOf(PropTypes.shape(
+      {
+        name: PropTypes.string.isRequired,
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+      }
+    )).isRequired,
     chartHeight: PropTypes.number,
     title: PropTypes.string.isRequired,
     type: PropTypes.oneOf(_.keys(statTypes)),
+    collapsible: PropTypes.boolean,
+    isOpened: PropTypes.boolean,
+    primaryStat: PropTypes.string,
   };
 
   static defaultProps = {
     categories: {},
     type: statTypes.barHorizontal.type,
     chartHeight: 0,
+    collapsible: true,
+    isOpened: true,
+    primaryStat: '',
   };
 
   constructor(props) {
     super(props);
     this.log = bows('Stat');
 
+    this.state = {
+      isOpened: props.isOpened,
+    }
+
     this.setChartProps(props);
+  }
+
+  toggleIsOpened = () => {
+    this.setState({
+      isOpened: !this.state.isOpened,
+    });
   }
 
   componentWillUpdate(nextProps) {
@@ -81,8 +105,20 @@ class Stat extends React.PureComponent {
       <div className={statOuterClasses}>
         <div className={styles.chartHeader}>
           <div className={styles.chartTitle}>{this.props.title}</div>
+          {this.props.collapsible && (
+            <div className={styles.chartCollapse}>
+              <img className src={CollapseIcon} onClick={this.toggleIsOpened} />
+            </div>
+          )}
         </div>
-        <SizeMe render={({ size }) => <div><this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width} /></div>} />
+          <SizeMe render={({ size }) => (
+            <Collapse
+              isOpened={this.state.isOpened}
+              springConfig={{ stiffness: 200, damping: 23 }}
+            >
+              <div><this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width} /></div>
+            </Collapse>
+          )} />
       </div>
     );
   }
@@ -95,7 +131,7 @@ class Stat extends React.PureComponent {
       labels: d => formatPercentage(d.y),
       style: {
         data: {
-          fill: d => colors[d.type],
+          fill: d => colors[d.name],
         },
       },
     }, rest);
@@ -146,11 +182,11 @@ class Stat extends React.PureComponent {
           padding,
           style: {
             data: {
-              fill: d => colors[d.type],
+              fill: d => colors[d.name],
               width: () => barWidth,
             },
             labels: {
-              fill: d => colors[d.type],
+              fill: d => colors[d.name],
               fontSize: barWidth,
               fontWeight: 600,
             },

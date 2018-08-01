@@ -14,55 +14,55 @@ export const chartHeights = {
 
 let basalBolusData = [
   {
+    name: 'basal',
     x: 1,
     y: 0.6,
-    type: 'basal',
   },
   {
+    name: 'bolus',
     x: 2,
     y: 0.4,
-    type: 'bolus',
   },
 ];
 
 let autoManualData = [
   {
+    name: 'basalAutomated',
     x: 1,
     y: 0.75,
-    type: 'basalAutomated',
   },
   {
+    name: 'basal',
     x: 2,
     y: 0.25,
-    type: 'basal',
   },
 ];
 
 let bgRangeData = [
   {
+    name: 'veryLow',
     x: 1,
     y: 0.1,
-    type: 'veryLow',
   },
   {
+    name: 'low',
     x: 2,
     y: 0.2,
-    type: 'low',
   },
   {
+    name: 'target',
     x: 3,
     y: 0.4,
-    type: 'target',
   },
   {
+    name: 'high',
     x: 4,
     y: 0.2,
-    type: 'high',
   },
   {
+    name: 'veryHigh',
     x: 5,
     y: 0.1,
-    type: 'veryHigh',
   },
 ];
 
@@ -77,7 +77,7 @@ const generateRandom = data => {
   return _.map(data, (d, i) => ({
     x: d.x,
     y: random[i] / sum,
-    type: d.type,
+    name: d.name,
   }));
 };
 
@@ -96,7 +96,7 @@ const Container = (props) => (
 
 stories.add('Time In Range', () => {
   const type = select('Type', statTypes, statTypes.barHorizontal, 'STAT');
-  const chartHeight = select('Chart Height', chartHeights, chartHeights['100'], 'STAT');
+  const chartHeight = select('Chart Height', chartHeights, chartHeights.fluid, 'STAT');
 
   button('Update Data', () => {
     bgRangeData = generateRandom(bgRangeData);
@@ -116,7 +116,7 @@ stories.add('Time In Range', () => {
 
 stories.add('Basal : Bolus Ratio', () => {
   const type = select('Type', statTypes, statTypes.barHorizontal, 'STAT');
-  const chartHeight = select('Chart Height', chartHeights, chartHeights['100'], 'STAT');
+  const chartHeight = select('Chart Height', chartHeights, chartHeights.fluid, 'STAT');
 
   button('Update Data', () => {
     basalBolusData = generateRandom(basalBolusData);
@@ -136,7 +136,7 @@ stories.add('Basal : Bolus Ratio', () => {
 
 stories.add('Auto Mode : Manual Ratio', () => {
   const type = select('Type', statTypes, statTypes.barHorizontal, 'STAT');
-  const chartHeight = select('Chart Height', chartHeights, chartHeights['100'], 'STAT');
+  const chartHeight = select('Chart Height', chartHeights, chartHeights.fluid, 'STAT');
 
   button('Update Data', () => {
     autoManualData = generateRandom(autoManualData);

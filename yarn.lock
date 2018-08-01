@@ -8662,9 +8662,11 @@ react-clipboard.js@1.0.1:
   dependencies:
     clipboard "^1.4.0"
 
-react-collapse@2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/react-collapse/-/react-collapse-2.3.1.tgz#2b164259ecd6fd749f4a187d35bdf0030bb60093"
+react-collapse@4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/react-collapse/-/react-collapse-4.0.3.tgz#b96de959ed0092a43534630b599a4753dd76d543"
+  dependencies:
+    prop-types "^15.5.8"
 
 react-color@^2.14.1:
   version "2.14.1"

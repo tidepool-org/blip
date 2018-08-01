@@ -15,6 +15,8 @@
 .chartHeader {
   display: flex;
   flex-wrap: nowrap;
+  align-items: center;
+  align-content: space-between
 }
 
 .chartTitle {
@@ -22,4 +24,12 @@
   line-height: 1em;
   white-space: nowrap;
   margin-bottom: .75em;
+}
+
+.chartCollapse {
+  margin-bottom: .5em;
+}
+
+.chartCollapse img {
+  cursor: pointer;
 }
