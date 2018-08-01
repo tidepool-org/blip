@@ -27,7 +27,7 @@ var PeopleList = React.createClass({
     uploadUrl: React.PropTypes.string,
     onClickPerson: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
   },
 
   getInitialState: function() {
