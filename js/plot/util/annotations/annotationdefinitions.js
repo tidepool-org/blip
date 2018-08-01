@@ -35,6 +35,7 @@ var definitions = {
     'medtronic600/smbg/entered-in-bolus-wizard',
     'medtronic600/smbg/entered-in-sensor-calib',
     'medtronic600/smbg/entered-as-bg-marker',
+    'wizard/target-automated',
   ],
   LEAD_TEXT: {
     'stats-insufficient-data': function() {
@@ -117,11 +118,6 @@ var definitions = {
     'medtronic/basal/one-second-gap': function(source, defs) {
       var a = 'This basal was extended by one second because the duration and time reported by ';
       var b = ' do not match up exactly.';
-      return defs.stitch(a, b, source);
-    },
-    'medtronic600/basal/fabricated-from-automode-start': function(source, defs) {
-      var a = 'We are calculating the basal rate here using the Auto Mode start event from your pump history, but ';
-      var b = ' did not directly provide us with these rate changes.';
       return defs.stitch(a, b, source);
     },
     'tandem/basal/fabricated-from-new-day': function(source, defs) {
