@@ -132,9 +132,9 @@ export var UserProfile = translate()(React.createClass({
       return false;
     };
 
-    var organization = "";
+    var organization = '';
     if (user && user.profile && user.profile.organization && user.profile.organization.name) {
-      organization = user.profile.organization.name + " / ";
+      organization = user.profile.organization.name + ' / ';
     }
 
     return (
