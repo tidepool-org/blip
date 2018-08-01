@@ -5,7 +5,12 @@ import SizeMe from 'react-sizeme';
 import styles from './HoverBar.css';
 
 export const HoverBarLabel = (props) => {
-  const { domain, scale, text, y } = props;
+  const {
+    domain,
+    scale,
+    text,
+    y,
+  } = props;
 
   return (
     <g>
@@ -47,9 +52,20 @@ export class HoverBar extends React.PureComponent {
   }
 
   render() {
-    const { domain, scale, barWidth, cornerRadius, index } = this.props;
-    const barGridWidth = barWidth / 3;
+    const {
+      domain,
+      scale,
+      barWidth,
+      cornerRadius,
+      index,
+      width,
+      y,
+    } = this.props;
+
+    const rightPadding = 60;
+    const barGridWidth = barWidth / 6;
     const barGridRadius = cornerRadius.top || 2;
+    const widthCorrection = (width - rightPadding) / width;
     this.log('rendering', this.props);
 
     return (
@@ -60,12 +76,14 @@ export class HoverBar extends React.PureComponent {
           y={scale.x(index + 1) - (barGridWidth / 2)}
           rx={barGridRadius}
           ry={barGridRadius}
-          width={scale.y(domain.x[1])}
+          width={scale.y(domain.x[1]) - 60}
           height={barGridWidth}
           className={styles.BarGrid}
         />
         <Bar
           {...this.props}
+          width={scale.y(domain.x[1]) - 60}
+          y={y * widthCorrection}
           events={{
             onClick: (d) => console.log('clicked', d),
             onMouseOver: (d) => console.log('hovered', d),

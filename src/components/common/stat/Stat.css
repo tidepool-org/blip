@@ -1,16 +1,19 @@
 .Stat {
-  padding: .75em .75em .5em;
+  padding: 0.25em 0.625em 0.25em;
   background-color: var(--bkgrnd-white);
   border-radius: 8px;
   border: 1px solid var(--gray-dark);
-  /* overflow: hidden; */
+  overflow: hidden;
 }
 
-.Stat.pie {}
+.Stat.pie {
+}
 
-.Stat.barHorizontal {}
+.Stat.barHorizontal {
+}
 
-.Stat.barVertical {}
+.Stat.barVertical {
+}
 
 .chartHeader {
   display: flex;
@@ -21,16 +24,21 @@
 }
 
 .chartTitle {
-  font-size: .8em;
-  line-height: 1em;
+  font-size: 0.8em;
+  line-height: 1;
   white-space: nowrap;
-  margin-bottom: .75em;
+  margin-bottom: 0;
 }
 
 .chartCollapse {
-  margin-bottom: .5em;
+  margin-bottom: 0;
+  line-height: 1;
 }
 
 .chartCollapse img {
   cursor: pointer;
+}
+
+.chartContainer {
+  padding-top: 0.5em;
 }

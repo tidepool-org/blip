@@ -19,8 +19,7 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
 import { SizeMe } from 'react-sizeme';
-import { Line, VictoryBar, VictoryContainer, VictoryPie } from 'victory';
-import { VictoryLine } from 'victory-chart';
+import { VictoryBar, VictoryContainer, VictoryPie } from 'victory';
 import { Collapse } from 'react-collapse';
 import { formatPercentage } from '../../../utils/format';
 import styles from './Stat.css';
@@ -116,7 +115,9 @@ class Stat extends React.PureComponent {
               isOpened={this.state.isOpened}
               springConfig={{ stiffness: 200, damping: 23 }}
             >
-              <div><this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width} /></div>
+              <div className={styles.chartContainer}>
+                <this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width} />
+              </div>
             </Collapse>
           )} />
       </div>
@@ -189,6 +190,7 @@ class Stat extends React.PureComponent {
               fill: d => colors[d.name],
               fontSize: barWidth,
               fontWeight: 600,
+              paddingLeft: 70,
             },
           },
         });
