@@ -122,7 +122,7 @@ export var UserProfile = translate()(React.createClass({
   },
 
   render: function() {
-    const {t} = this.props;
+    const {t,user} = this.props;
     var form = this.renderForm();
     var self = this;
     var handleClickBack = function(e) {
@@ -132,6 +132,10 @@ export var UserProfile = translate()(React.createClass({
       return false;
     };
 
+    var organization = "";
+    if (user && user.profile && user.profile.organization && user.profile.organization.name) {
+      organization = user.profile.organization.name + " / ";
+    }
 
     return (
       <div className="profile">
@@ -145,7 +149,7 @@ export var UserProfile = translate()(React.createClass({
                 </a>
               </div>
               <div className="grid-item one-whole medium-one-third">
-                <div className="profile-subnav-title">{t('Account')}</div>
+                <div className="profile-subnav-title">{organization + t('Account')}</div>
               </div>
             </div>
           </div>
