@@ -17,6 +17,8 @@
 /* global __PASSWORD_MAX_LENGTH__ */
 /* global __ABOUT_MAX_LENGTH__ */
 /* global __I18N_ENABLED__ */
+/* global __ALLOW_CHANGE_EMAIL__ */
+/* global __ALLOW_CHANGE_PASSWORD__ */
 
 var pkg = require('./package.json');
 
@@ -51,5 +53,7 @@ module.exports = {
   PASSWORD_MIN_LENGTH: integerFromText(__PASSWORD_MIN_LENGTH__, 8),
   PASSWORD_MAX_LENGTH: integerFromText(__PASSWORD_MAX_LENGTH__, 72),
   ABOUT_MAX_LENGTH: integerFromText(__ABOUT_MAX_LENGTH__, 256),
-  I18N_ENABLED: booleanFromText(__I18N_ENABLED__, false)
+  I18N_ENABLED: booleanFromText(__I18N_ENABLED__, false),
+  ALLOW_CHANGE_EMAIL: booleanFromText(__ALLOW_CHANGE_EMAIL__, true),
+  ALLOW_CHANGE_PASSWORD: booleanFromText(__ALLOW_CHANGE_PASSWORD__, true)
 };
