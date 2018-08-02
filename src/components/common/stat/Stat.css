@@ -2,18 +2,15 @@
   padding: 0.25em 0.625em 0.25em;
   background-color: var(--bkgrnd-white);
   border-radius: 8px;
-  border: 1px solid var(--gray-dark);
+  border: 1px solid var(--border-stat);
   overflow: hidden;
 }
 
-.Stat.pie {
-}
+.Stat.pie {}
 
-.Stat.barHorizontal {
-}
+.Stat.barHorizontal {}
 
-.Stat.barVertical {
-}
+.Stat.barVertical {}
 
 .chartHeader {
   display: flex;
@@ -36,6 +33,8 @@
 }
 
 .chartCollapse img {
+  position: relative;
+  left: .4em;
   cursor: pointer;
 }
 

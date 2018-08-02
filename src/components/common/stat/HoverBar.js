@@ -62,7 +62,7 @@ export class HoverBar extends React.PureComponent {
       y,
     } = this.props;
 
-    const rightPadding = 60;
+    const rightPadding = barWidth * 2.5;
     const barGridWidth = barWidth / 6;
     const barGridRadius = cornerRadius.top || 2;
     const widthCorrection = (width - rightPadding) / width;
@@ -76,13 +76,13 @@ export class HoverBar extends React.PureComponent {
           y={scale.x(index + 1) - (barGridWidth / 2)}
           rx={barGridRadius}
           ry={barGridRadius}
-          width={scale.y(domain.x[1]) - 60}
+          width={scale.y(domain.x[1]) - rightPadding}
           height={barGridWidth}
           className={styles.BarGrid}
         />
         <Bar
           {...this.props}
-          width={scale.y(domain.x[1]) - 60}
+          width={scale.y(domain.x[1]) - rightPadding}
           y={y * widthCorrection}
           events={{
             onClick: (d) => console.log('clicked', d),
