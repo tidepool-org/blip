@@ -18,6 +18,7 @@ import React from 'react';
 import { translate } from 'react-i18next'
 import _ from 'lodash';
 import cx from 'classnames';
+import config from '../../config';
 
 var ModalOverlay = require('../../components/modaloverlay');
 var InputGroup = require('../../components/inputgroup');
@@ -90,6 +91,7 @@ var MemberInviteForm = translate()(React.createClass({
   },
   render: function() {
     const { t } = this.props;
+    var upload = config.HIDE_UPLOAD_LINK ? null : this.renderUpload();
     return (
       <li className="PatientTeam-member PatientTeam-member--first">
         <div className="PatientInfo-head">
@@ -97,9 +99,7 @@ var MemberInviteForm = translate()(React.createClass({
           <div className="PatientTeam-memberContent PatientTeam-blocks">
             <div className="">
               <input className="PatientInfo-input" id="email" ref="email" placeholder={t('Email')} />
-              <div className="PatientTeam-permissionSelection">
-                <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} onChange={this.onAllowUploadClick}/>
-              </div>
+              {upload}
               <div className="PatientTeam-buttonHolder">
                 <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
                   onClick={this.props.onCancel}
@@ -117,6 +117,14 @@ var MemberInviteForm = translate()(React.createClass({
           <div className="clear"></div>
         </div>
       </li>
+    );
+  },
+
+  renderUpload: function() {
+    return (
+      <div className="PatientTeam-permissionSelection">
+        <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} onChange={this.onAllowUploadClick}/>
+      </div>
     );
   },
 
