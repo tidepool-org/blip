@@ -25,8 +25,8 @@ import LabeledCheckbox from '../../common/controls/LabeledCheckbox';
 
 import styles from './RangeSelect.css';
 
-export const RangeSelect = (props) =>
-  (<div className={styles.container}>
+export const RangeSelect = (props) => (
+  <div className={styles.container}>
     <LabeledCheckbox
       checked={props.displayFlags.cbg100Enabled}
       name="hundred"
@@ -55,7 +55,8 @@ export const RangeSelect = (props) =>
       onFn={_.partial(props.turnOnCbgRange, 'median')}
       offFn={_.partial(props.turnOffCbgRange, 'median')}
     />
-  </div>);
+  </div>
+);
 
 RangeSelect.propTypes = {
   displayFlags: PropTypes.shape({

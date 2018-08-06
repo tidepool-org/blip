@@ -107,7 +107,7 @@ class Tooltip extends PureComponent {
             borderWidth: `${tailHeight}px ${2 * tailWidth}px`,
             [`border${_.capitalize(borderSide)}Color`]: borderColor,
           }}
-        ></div>
+        />
         {tailInnerColor !== borderColor && (
           <div
             className={styles.tail}
@@ -118,7 +118,7 @@ class Tooltip extends PureComponent {
               [`border${_.capitalize(borderSide)}Color`]:
                 this.props.tailColor || this.props.backgroundColor || backgroundColor,
             }}
-          ></div>
+          />
         )}
       </div>
     );

@@ -359,7 +359,6 @@ class DailyPrintView extends PrintView {
       .font(this.boldFont)
       .fontSize(this.summaryHeaderFontSize)
       .text(moment(date, 'YYYY-MM-DD').format('ddd, MMM D, Y'), this.margins.left, topEdge);
-      // .text(moment(date, 'YYYY-MM-DD').format('dddd M/D/Y'), this.margins.left, topEdge);
 
     const yPos = (function (doc) { // eslint-disable-line func-names
       let value = topEdge + doc.currentLineHeight() * 1.5;
@@ -405,10 +404,9 @@ class DailyPrintView extends PrintView {
       yPos.update();
 
       this.doc.text(
-          `Below ${formatDecimalNumber(veryLowThreshold, bgPrecision)}`,
-          { indent: statsIndent, continued: true, width: widthWithoutIndent },
-        )
-        .text(`${formatPercentage(cbgTimeInCategories.veryLow)}`, { align: 'right' });
+        `Below ${formatDecimalNumber(veryLowThreshold, bgPrecision)}`,
+        { indent: statsIndent, continued: true, width: widthWithoutIndent },
+      ).text(`${formatPercentage(cbgTimeInCategories.veryLow)}`, { align: 'right' });
 
       yPos.update();
     }
@@ -427,7 +425,7 @@ class DailyPrintView extends PrintView {
         : 'Basal:Bolus Ratio';
 
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
-      .text(ratioTitle, smallIndent, yPos.update());
+        .text(ratioTitle, smallIndent, yPos.update());
 
       yPos.update();
 
@@ -608,8 +606,8 @@ class DailyPrintView extends PrintView {
     const bottomOfBolusDetails = bottomOfBgEtcChart + bolusDetailsHeight;
 
     this.doc.moveTo(this.chartArea.leftEdge, bottomOfBolusDetails)
-    .lineTo(this.rightEdge, bottomOfBolusDetails)
-    .stroke(this.colors.axes);
+      .lineTo(this.rightEdge, bottomOfBolusDetails)
+      .stroke(this.colors.axes);
 
     // render x-axis for basalChart
     const bottomOfBasalChart = bottomOfBolusDetails + basalChart;
@@ -819,15 +817,15 @@ class DailyPrintView extends PrintView {
         const displayTime = formatLocalizedFromUTC(bolus.utc, this.timePrefs, 'h:mma')
           .slice(0, -1);
         this.doc.text(
-            displayTime,
-            groupXPos,
-            yPos.current(),
-            { continued: true, indent: 2, width: groupWidth },
-          )
-          .text(
-            removeTrailingZeroes(formatDecimalNumber(getDelivered(bolus), 2)),
-            { align: 'right' }
-          );
+          displayTime,
+          groupXPos,
+          yPos.current(),
+          { continued: true, indent: 2, width: groupWidth },
+        ).text(
+          removeTrailingZeroes(formatDecimalNumber(getDelivered(bolus), 2)),
+          { align: 'right' }
+        );
+
         if (bolus.extended != null) {
           const normalPercentage = getNormalPercentage(bolus);
           const extendedPercentage = getExtendedPercentage(bolus);

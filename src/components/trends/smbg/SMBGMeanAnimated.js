@@ -130,25 +130,25 @@ export class SMBGMeanAnimated extends PureComponent {
         willEnter={this.willEnter}
         willLeave={this.willLeave}
       >
-      {(interpolated) => {
-        if (interpolated.length === 0) {
-          return null;
-        }
-        return (
-          <SMBGMean
-            classes={meanClasses}
-            datum={datum}
-            interpolated={interpolated[0]}
-            positionData={{
-              left: xPos,
-              tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
-              yPositions,
-            }}
-            width={width}
-            x={binLeftX}
-          />
-        );
-      }}
+        {(interpolated) => {
+          if (interpolated.length === 0) {
+            return null;
+          }
+          return (
+            <SMBGMean
+              classes={meanClasses}
+              datum={datum}
+              interpolated={interpolated[0]}
+              positionData={{
+                left: xPos,
+                tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
+                yPositions,
+              }}
+              width={width}
+              x={binLeftX}
+            />
+          );
+        }}
       </TransitionMotion>
     );
   }

@@ -40,11 +40,9 @@ const colors = {
 
 export const statTypes = {
   barHorizontal: 'barHorizontal',
-  barVertical: 'barVertical',
   pie: 'pie',
 };
 
-// const Stat = (props) => {
 class Stat extends React.PureComponent {
   static propTypes = {
     categories: PropTypes.object,
@@ -58,8 +56,8 @@ class Stat extends React.PureComponent {
     chartHeight: PropTypes.number,
     title: PropTypes.string.isRequired,
     type: PropTypes.oneOf(_.keys(statTypes)),
-    collapsible: PropTypes.boolean,
-    isOpened: PropTypes.boolean,
+    collapsible: PropTypes.bool,
+    isOpened: PropTypes.bool,
     primaryStat: PropTypes.string,
   };
 
@@ -78,7 +76,7 @@ class Stat extends React.PureComponent {
 
     this.state = {
       isOpened: props.isOpened,
-    }
+    };
 
     this.setChartProps(props);
   }
@@ -110,16 +108,16 @@ class Stat extends React.PureComponent {
             </div>
           )}
         </div>
-          <SizeMe render={({ size }) => (
-            <Collapse
-              isOpened={this.state.isOpened}
-              springConfig={{ stiffness: 200, damping: 23 }}
-            >
-              <div className={styles.chartContainer}>
-                <this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width} />
-              </div>
-            </Collapse>
-          )} />
+        <SizeMe render={({ size }) => (
+          <Collapse
+            isOpened={this.state.isOpened}
+            springConfig={{ stiffness: 200, damping: 23 }}
+          >
+            <div className={styles.chartContainer}>
+              <this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width} />
+            </div>
+          </Collapse>
+        )} />
       </div>
     );
   }

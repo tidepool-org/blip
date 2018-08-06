@@ -21,7 +21,6 @@ import _ from 'lodash';
 import styles from './Table.css';
 
 class Table extends PureComponent {
-
   getItemField(item, field) {
     return item[field];
   }

@@ -34,4 +34,3 @@ storiesOf('Loader', module)
       <Loader {...props} text="" />
     </div>
   ));
-

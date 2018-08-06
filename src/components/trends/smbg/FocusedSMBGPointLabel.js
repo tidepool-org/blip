@@ -93,9 +93,9 @@ const FocusedSMBGPointLabel = (props) => {
       <SMBGToolTip
         title={
           <span className={styles.tipWrapper}>
-            <span className={styles.dateTime}>{
-              `${shortDate}, ${formatClocktimeFromMsPer24(datum.msPer24)}`
-            }</span>
+            <span className={styles.dateTime}>
+              {`${shortDate}, ${formatClocktimeFromMsPer24(datum.msPer24)}`}
+            </span>
           </span>
         }
         position={position}

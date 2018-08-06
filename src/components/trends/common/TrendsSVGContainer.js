@@ -255,10 +255,10 @@ export class TrendsSVGContainer extends PureComponent {
 
       return (
         <g id="smbgTrends">
-        {this.renderOverlay(SMBGRangeAnimated, 'SMBGRangeContainer')}
-        {allSmbgsByDate}
-        {this.renderOverlay(SMBGMeanAnimated, 'SMBGMeanContainer')}
-        {focusedSmbgDate}
+          {this.renderOverlay(SMBGRangeAnimated, 'SMBGRangeContainer')}
+          {allSmbgsByDate}
+          {this.renderOverlay(SMBGMeanAnimated, 'SMBGMeanContainer')}
+          {focusedSmbgDate}
         </g>
       );
     }

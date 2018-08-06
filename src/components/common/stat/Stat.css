@@ -6,11 +6,8 @@
   overflow: hidden;
 }
 
-.Stat.pie {}
-
-.Stat.barHorizontal {}
-
-.Stat.barVertical {}
+.Stat.barHorizontal {
+}
 
 .chartHeader {
   display: flex;
@@ -34,7 +31,7 @@
 
 .chartCollapse img {
   position: relative;
-  left: .4em;
+  left: 0.4em;
   cursor: pointer;
 }
 

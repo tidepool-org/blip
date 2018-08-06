@@ -112,23 +112,23 @@ export class SMBGRangeAnimated extends PureComponent {
         willEnter={this.willEnter}
         willLeave={this.willLeave}
       >
-      {(interpolated) => {
-        if (interpolated.length === 0) {
-          return null;
-        }
-        return (
-          <SMBGRange
-            classes={rangeClasses}
-            datum={datum}
-            interpolated={interpolated[0]}
-            positionData={{
-              left: xPos,
-              tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
-              yPositions,
-            }}
-          />
-        );
-      }}
+        {(interpolated) => {
+          if (interpolated.length === 0) {
+            return null;
+          }
+          return (
+            <SMBGRange
+              classes={rangeClasses}
+              datum={datum}
+              interpolated={interpolated[0]}
+              positionData={{
+                left: xPos,
+                tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
+                yPositions,
+              }}
+            />
+          );
+        }}
       </TransitionMotion>
     );
   }

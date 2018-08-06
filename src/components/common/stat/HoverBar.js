@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import bows from 'bows';
-import { Bar, Line, VictoryLabel, Rect } from 'victory';
+import { Bar, VictoryLabel, Rect } from 'victory';
 import SizeMe from 'react-sizeme';
 import styles from './HoverBar.css';
 
@@ -21,7 +21,7 @@ export const HoverBarLabel = (props) => {
         text={text}
         textAnchor="end"
         verticalAnchor="middle"
-        />
+      />
     </g>
   );
 };
@@ -35,7 +35,7 @@ HoverBarLabel.propTypes = {
 
 HoverBarLabel.displayName = 'HoverBarLabel';
 
-export const SizedHoverLabel =  SizeMe()(HoverBarLabel);
+export const SizedHoverLabel = SizeMe()(HoverBarLabel);
 
 export class HoverBar extends React.PureComponent {
   static propTypes = {

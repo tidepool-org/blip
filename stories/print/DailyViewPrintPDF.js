@@ -30,7 +30,7 @@ import { data as dataStub } from '../../data/patient/data';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
-/* global PDFDocument, blobStream */
+/* global PDFDocument, blobStream, window */
 
 let data;
 try {

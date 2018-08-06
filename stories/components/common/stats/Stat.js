@@ -90,7 +90,8 @@ const Container = (props) => (
       margin: '20px',
       padding: '20px',
     }}
-  >{props.children}</div>
+  >{props.children}
+  </div>
 );
 /* eslint-enable react/prop-types */
 
