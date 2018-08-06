@@ -196,7 +196,7 @@ export let PatientData = translate()(React.createClass({
     if (config.HIDE_UPLOAD_LINK) {
       return this.renderNoDataWithoutUploadLink();
     }
-    return renderNoDataWithUploadLink();
+    return this.renderNoDataWithUploadLink();
   },
 
   renderNoDataWithoutUploadLink: function() {
