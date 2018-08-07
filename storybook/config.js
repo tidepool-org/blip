@@ -1,5 +1,7 @@
 /* eslint-disable */
-import { configure } from '@storybook/react';
+import { configure, addDecorator } from '@storybook/react';
+import { withNotes } from '@storybook/addon-notes';
+import { withKnobs } from '@storybook/addon-knobs';
 import { configureViewport, INITIAL_VIEWPORTS } from '@storybook/addon-viewport';
 
 configureViewport({
@@ -7,6 +9,9 @@ configureViewport({
     ...INITIAL_VIEWPORTS,
   }
 });
+
+addDecorator(withNotes);
+addDecorator(withKnobs);
 
 function loadStories() {
   const context = require.context('../stories', true, /.js$/); // Load .js files in /storybook

@@ -3,15 +3,14 @@ const webpackConf = require('./webpack.config.js');
 const optional = require('optional');
 const mochaConf = optional('./local/mocha.opts.json') || {};
 
-webpackConf.module.preLoaders = [
-  {
-    test: /\.(js)$/,
-    loader: 'isparta-loader',
-    include: [
-      path.join(__dirname, '/../src'),
-    ],
-  },
-];
+webpackConf.module.rules.unshift({
+  enforce: 'pre',
+  test: /\.(js)$/,
+  loader: 'isparta-loader',
+  include: [
+    path.join(__dirname, '/../src'),
+  ],
+});
 
 webpackConf.externals = {
   cheerio: 'window',

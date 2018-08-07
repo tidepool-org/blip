@@ -24,6 +24,7 @@ const babelLoaderConfiguration = {
   // Add every directory that needs to be compiled by Babel during the build
   include: [
     path.resolve(appDirectory, 'src'),
+    path.resolve(appDirectory, 'test'),
   ],
 
   use: {

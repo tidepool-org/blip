@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 
 import { storiesOf } from '@storybook/react';
-import { withKnobs, select, button } from '@storybook/addon-knobs';
+import { select, button } from '@storybook/addon-knobs';
 
 import Stat, { statTypes } from '../../../../src/components/common/stat/Stat';
 
@@ -68,7 +68,6 @@ let bgRangeData = [
 
 
 const stories = storiesOf('Stat', module);
-stories.addDecorator(withKnobs);
 
 const generateRandom = data => {
   const random = _.map(data, () => Math.random());
