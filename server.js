@@ -1,28 +1,28 @@
-var http = require('http');
-var https = require('https');
-var fs = require('fs');
-var path = require('path');
-var express = require('express');
-var helmet = require('helmet');
-var bodyParser = require('body-parser');
-var crypto = require('crypto');
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const express = require('express');
+const helmet = require('helmet');
+const bodyParser = require('body-parser');
+const crypto = require('crypto');
 
-var config = require('./config.server.js');
+const config = require('./config.server.js');
 
-var buildDir = 'dist';
+const buildDir = 'dist';
 
-var app = express();
+const app = express();
 
-var nonceMiddleware = function (req, res, next) {
+const nonceMiddleware = (req, res, next) => {
   // Cache static html file to avoid reading it from the filesystem on each request
   if (!global.html) {
     console.log('Caching static HTML');
-    global.html = fs.readFileSync(staticDir + '/index.html', 'utf8');
+    global.html = fs.readFileSync(`${staticDir}/index.html`, 'utf8');
   }
 
   // Set a unique nonce for each request
   res.locals.nonce = crypto.randomBytes(16).toString('base64');
-  res.locals.htmlWithNonces = global.html.replace(/<(script)/g, '<$1 nonce="' + res.locals.nonce + '"');
+  res.locals.htmlWithNonces = global.html.replace(/<(script)/g, `<$1 nonce="${res.locals.nonce}"`);
   next();
 }
 
@@ -34,8 +34,8 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     scriptSrc: [
       "'self'",
       "'strict-dynamic'",
-      function (req, res) {
-        return "'nonce-" + res.locals.nonce + "'";
+      (req, res) => {
+        return `'nonce-${res.locals.nonce}'`;
       },
     ],
     styleSrc: ["'self'", "'unsafe-inline'"],
@@ -56,15 +56,15 @@ app.use(bodyParser.json({
   type: ['json', 'application/csp-report']
 }))
 
-var staticDir = path.join(__dirname, buildDir);
+const staticDir = path.join(__dirname, buildDir);
 app.use(express.static(staticDir));
 
 //So that we can use react-router and browser history
-app.get('*', function (req, res){
+app.get('*', (req, res) => {
   res.send(res.locals.htmlWithNonces);
 });
 
-app.post('/event/csp-report/violation', function (req, res) {
+app.post('/event/csp-report/violation', (req, res) => {
   if (req.body) {
     console.log('CSP Violation: ', req.body);
   } else {
@@ -79,24 +79,24 @@ if (!(config.httpPort || config.httpsPort)) {
 }
 
 if (config.httpPort) {
-  app.server = http.createServer(app).listen(config.httpPort, function() {
+  app.server = http.createServer(app).listen(config.httpPort, () => {
     console.log('Connect server started on port', config.httpPort);
     console.log('Serving static directory "' + staticDir + '/"');
   });
 }
 
 if (config.httpsPort) {
-  https.createServer(config.httpsConfig, app).listen(config.httpsPort, function() {
+  https.createServer(config.httpsConfig, app).listen(config.httpsPort, () => {
     console.log('Connect server started on HTTPS port', config.httpsPort);
     console.log('Serving static directory "' + staticDir + '/"');
   });
 }
 
 if (config.discovery && config.publishHost) {
-  var hakken = require('hakken')(config.discovery).client();
+  const hakken = require('hakken')(config.discovery).client();
   hakken.start();
 
-  var serviceDescriptor = {service: config.serviceName};
+  const serviceDescriptor = {service: config.serviceName};
 
   if (config.httpsPort) {
     serviceDescriptor.host = config.publishHost + ':' + config.httpsPort;
@@ -107,7 +107,7 @@ if (config.discovery && config.publishHost) {
     serviceDescriptor.protocol = 'http';
   }
 
-  console.log('Publishing to service discovery: ',serviceDescriptor);
+  console.log('Publishing to service discovery: ', serviceDescriptor);
   hakken.publish(serviceDescriptor);
 }
 
