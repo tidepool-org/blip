@@ -32,100 +32,76 @@ import * as basals from '../../../../data/basal/fixtures';
 
 const stories = storiesOf('Basal', module);
 
-stories.addDecorator(SixHrScaleSVGDecorator)
-stories.add('scheduled flat rate basal', () => {
-  return (
-    <Basal basals={basals.scheduledFlat} xScale={xScale} yScale={yScale} />
-  );
-}, {
+stories.addDecorator(SixHrScaleSVGDecorator);
+stories.add('scheduled flat rate basal', () => (
+  <Basal basals={basals.scheduledFlat} xScale={xScale} yScale={yScale} />
+), {
   notes: 'A twenty-four hour flat rate scheduled basal in two segments (because crosses midnight).',
 });
 
-stories.add('scheduled basals', () => {
-  return (
-    <Basal basals={basals.scheduledNonFlat} xScale={xScale} yScale={yScale} />
-  );
-}, {
+stories.add('scheduled basals', () => (
+  <Basal basals={basals.scheduledNonFlat} xScale={xScale} yScale={yScale} />
+), {
   notes: 'A set of scheduled basal segments, uninterrupted.',
 });
 
-stories.add('automated basals', () => {
-  return (
-    <Basal basals={basals.automated} xScale={xScale} yScale={yScale} />
-  );
-}, {
+stories.add('automated basals', () => (
+  <Basal basals={basals.automated} xScale={xScale} yScale={yScale} />
+), {
   notes: 'A set of automated basal segments, uninterrupted.',
 });
 
-stories.add('automated basals with suspend', () => {
-  return (
-    <Basal basals={basals.automatedWithSuspend} xScale={xScale} yScale={yScale} />
-  );
-}, {
+stories.add('automated basals with suspend', () => (
+  <Basal basals={basals.automatedWithSuspend} xScale={xScale} yScale={yScale} />
+), {
   notes: 'A set of automated basal segments, with a suspend.',
 });
 
-stories.add('automated and scheduled basals', () => {
-  return (
-    <Basal basals={basals.automatedAndScheduled} xScale={xScale} yScale={yScale} />
-  );
-}, {
+stories.add('automated and scheduled basals', () => (
+  <Basal basals={basals.automatedAndScheduled} xScale={xScale} yScale={yScale} />
+), {
   notes: 'A set of automated and scheduled basal segments, uninterrupted.',
 });
 
-stories.add('simple negative temp basal', () => {
-  return (
-    <Basal basals={basals.simpleNegativeTemp} xScale={xScale} yScale={yScale} />
-  );
-}, {
+stories.add('simple negative temp basal', () => (
+  <Basal basals={basals.simpleNegativeTemp} xScale={xScale} yScale={yScale} />
+), {
   notes: 'A negative temp basal entirely contained within one scheduled basal segment.',
 });
 
-stories.add('simple positive temp basal', () => {
-  return (
-    <Basal basals={basals.simplePositiveTemp} xScale={xScale} yScale={yScale} />
-  );
-}, {
+stories.add('simple positive temp basal', () => (
+  <Basal basals={basals.simplePositiveTemp} xScale={xScale} yScale={yScale} />
+), {
   notes: 'A positive temp basal entirely contained within one scheduled basal segment.',
 });
 
-stories.add('simple suspend basal', () => {
-  return (
-    <Basal basals={basals.simpleSuspend} xScale={xScale} yScale={yScale} />
-  );
-}, {
+stories.add('simple suspend basal', () => (
+  <Basal basals={basals.simpleSuspend} xScale={xScale} yScale={yScale} />
+), {
   notes: 'A suspend basal entirely contained within one scheduled basal segment.',
 });
 
-stories.add('negative temp basal across schedule boundary', () => {
-  return (
-    <Basal basals={basals.negativeTempAcrossScheduled} xScale={xScale} yScale={yScale} />
-  );
-}, {
+stories.add('negative temp basal across schedule boundary', () => (
+  <Basal basals={basals.negativeTempAcrossScheduled} xScale={xScale} yScale={yScale} />
+), {
   notes: 'A negative temp basal that cross a basal schedule boundary.',
 });
 
-stories.add('positive temp basal across schedule boundary', () => {
-  return (
-    <Basal basals={basals.positiveTempAcrossScheduled} xScale={xScale} yScale={yScale} />
-  );
-}, {
+stories.add('positive temp basal across schedule boundary', () => (
+  <Basal basals={basals.positiveTempAcrossScheduled} xScale={xScale} yScale={yScale} />
+), {
   notes: 'A positive temp basal that cross a basal schedule boundary.',
 });
 
-stories.add('suspend basal across schedule boundary', () => {
-  return (
-    <Basal basals={basals.suspendAcrossScheduled} xScale={xScale} yScale={yScale} />
-  );
-}, {
+stories.add('suspend basal across schedule boundary', () => (
+  <Basal basals={basals.suspendAcrossScheduled} xScale={xScale} yScale={yScale} />
+), {
   notes: 'A suspend basal that cross a basal schedule boundary.',
 });
 
-stories.add('scheduled flat rate basal with two discontinuities', () => {
-  return (
-    <Basal basals={basals.discontinuous} xScale={xScale} yScale={yScale} />
-  );
-}, {
+stories.add('scheduled flat rate basal with two discontinuities', () => (
+  <Basal basals={basals.discontinuous} xScale={xScale} yScale={yScale} />
+), {
   notes: 'A twenty-four hour flat rate scheduled basal in two segments (because crosses midnight), but with two discontinuities of five minutes just before midnight and at one a.m..',
 });
 

@@ -147,9 +147,9 @@ stories.add('medtronic automated inactive rate', () => {
   });
 
   return (
-      <button onClick={() => openPDF({ patient: profiles.longName }, inactiveAutomatedBasaldata)}>
-        Open PDF in new tab
-      </button>
+    <button onClick={() => openPDF({ patient: profiles.longName }, inactiveAutomatedBasaldata)}>
+      Open PDF in new tab
+    </button>
   );
 }, { notes });
 
