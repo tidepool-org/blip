@@ -4,7 +4,7 @@
   "ecmaFeatures": {
     "jsx": true,
     "classes": true,
-    "modules": true,
+    "modules": true
   },
   "env": {
     // I write for browser
@@ -24,9 +24,7 @@
   },
   // To give you an idea how to override rule options:
   "rules": {
-    "quotes": [2, "single", {
-      "avoidEscape": true
-    }],
+    "quotes": [2, "single"],
     "strict": [2, "never"],
     "eol-last": [0],
     "no-mixed-requires": [0],
