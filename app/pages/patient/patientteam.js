@@ -294,25 +294,11 @@ var PatientTeam = translate()(React.createClass({
   },
 
   renderTeamMember: function(member) {
-    var classes = {
-      'icon-permissions': true
-    };
-    var allowUpload = false;
-
-    if(_.isEmpty(member.permissions)){
+    if (_.isEmpty(member.permissions) || !(member.permissions.upload || member.permissions.view)) {
       return null;
-    } else {
-      if(member.permissions.upload) {
-        classes['icon-permissions-upload'] = true;
-        allowUpload = true;
-      } else if(member.permissions.view) {
-        classes['icon-permissions-view'] = true;
-      } else {
-        return null;
-      }
     }
 
-    var iconClasses = cx(classes);
+    var upload = config.HIDE_UPLOAD_LINK ? null : this.renderUpload(member);
 
     return (
       <li key={member.userid} className="PatientTeam-member">
@@ -323,16 +309,27 @@ var PatientTeam = translate()(React.createClass({
               <div className="PatientInfo-block PatientInfo-block--withArrow"><div>{member.profile.fullName}</div></div>
               <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-delete"></i></a>
               <div className="clear"></div>
-              <PermissionInputGroup
-                onChange={this.handlePermissionChange(member)}
-                value={allowUpload}
-                working={this.props.changingMemberPermissions}
-              />
+              {upload}
             </div>
           </div>
         </div>
       </li>
     );
+  },
+
+  renderUpload: function(member) {
+    var allowUpload = false;
+
+    if (member.permissions.upload) {
+      allowUpload = true;
+    }
+
+    return (
+      <PermissionInputGroup
+        onChange={this.handlePermissionChange(member)}
+        value={allowUpload}
+        working={this.props.changingMemberPermissions}
+      />);
   },
 
   renderCancelInviteDialog: function(invite) {
