@@ -76,8 +76,8 @@ var MemberInviteForm = translate()(React.createClass({
   },
   getInitialState: function() {
     return {
-      //by default uploads are allowed
-      allowUpload: true,
+      // By default uploads are allowed when enabled
+      allowUpload: !config.HIDE_UPLOAD_LINK,
       error: null
     };
   },
@@ -130,18 +130,23 @@ var MemberInviteForm = translate()(React.createClass({
 
   handleSubmit: function(e) {
     const { t } = this.props;
+
     if (e) {
       e.preventDefault();
     }
 
-    var self = this;
-    var email = self.refs.email.value;
-    var allowUpload = self.refs.allowUpload.getWrappedInstance().getValue();
-
-    var validateEmail = function(email) {
+    const validateEmail = function(email) {
       var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       return re.test(email);
     };
+
+    var permissions = {
+      view: {},
+      note: {}
+    };
+    var self = this;
+    var email = self.refs.email.value;
+    var allowUpload;
 
     if (!validateEmail(email)) {
       self.setState({error: t('Invalid email address.')});
@@ -150,19 +155,19 @@ var MemberInviteForm = translate()(React.createClass({
       self.setState({error: null});
     }
 
-    var permissions = {
-      view: {},
-      note: {}
-    };
-
-    if (allowUpload) {
-      self.props.trackMetric('invitation with upload on');
-      permissions.upload = {};
+    if (config.HIDE_UPLOAD_LINK) {
+      allowUpload = false;
     } else {
-      self.props.trackMetric('invitation with upload off');
+      allowUpload = self.refs.allowUpload.getWrappedInstance().getValue();
+      if (allowUpload) {
+        self.props.trackMetric('invitation with upload on');
+        permissions.upload = {};
+      } else {
+        self.props.trackMetric('invitation with upload off');
+      }
     }
 
-    self.setState({ allowUpload: allowUpload});
+    self.setState({allowUpload: allowUpload});
     self.props.onSubmit(email, permissions);
     self.props.trackMetric('Clicked Invite');
   }
