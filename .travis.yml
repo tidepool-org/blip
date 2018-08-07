@@ -3,7 +3,7 @@ sudo: false
 language: node_js
 
 node_js:
-  - "6.10.2"
+  - "8.11.3"
   - "stable"
 
 services:
