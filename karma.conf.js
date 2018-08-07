@@ -38,8 +38,11 @@ module.exports = function karmaConfig(config) {
     },
     reporters: ['mocha', 'coverage'],
     webpack: webpackConf,
-    webpackServer: {
+    webpackMiddleware: {
       noInfo: true,
+      stats: {
+        chunks: false,
+      },
     },
     coverageReporter: {
       dir: 'coverage/',

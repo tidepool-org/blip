@@ -25,6 +25,7 @@ const babelLoaderConfiguration = {
   include: [
     path.resolve(appDirectory, 'src'),
     path.resolve(appDirectory, 'test'),
+    path.resolve(appDirectory, 'data'),
   ],
 
   use: {
@@ -60,7 +61,6 @@ module.exports = {
     // builds to eliminate development checks and reduce build size. You may
     // wish to include additional optimizations.
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
       __DEV__,
     }),
     new webpack.LoaderOptionsPlugin({
@@ -102,4 +102,5 @@ module.exports = {
       imageLoaderConfiguration,
     ],
   },
+  mode: 'development',
 };
