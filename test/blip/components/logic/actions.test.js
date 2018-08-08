@@ -19,6 +19,7 @@
 
 var chai = require('chai');
 var expect = chai.expect;
+var _ = require('lodash');
 
 var basicsActions = require('../../../../plugins/blip/basics/logic/actions');
 var constants = require('../../../../plugins/blip/basics/logic/constants');
@@ -130,13 +131,24 @@ describe('actions', function() {
   });
 
   describe('setSiteChangeEvent', function() {
-    it('should track metric', function() {
+    it('should track metric for a user setting the source', function() {
       var trackMetric = sinon.stub();
       var updateBasicsSettings = sinon.stub();
       expect(trackMetric.callCount).to.equal(0);
       basicsActions.setSiteChangeEvent('siteChanges', constants.SITE_CHANGE_CANNULA, 'Cannula Prime', trackMetric, updateBasicsSettings);
       expect(trackMetric.callCount).to.equal(1);
-      expect(trackMetric.calledWith('Selected Cannula Prime')).to.be.true;
+      expect(trackMetric.calledWith('Selected Cannula Prime', { initiatedBy: 'User' })).to.be.true;
+    });
+    it('should track metric for a care team member setting the initiatedBy', function() {
+      var careTeamApp = _.cloneDeep(app);
+      careTeamApp.state.sections.siteChanges.selectorMetaData.canUpdateSettings = false;
+      basicsActions.bindApp(careTeamApp);
+      var trackMetric = sinon.stub();
+      var updateBasicsSettings = sinon.stub();
+      expect(trackMetric.callCount).to.equal(0);
+      basicsActions.setSiteChangeEvent('siteChanges', constants.SITE_CHANGE_TUBING, 'Tubing Prime', trackMetric, updateBasicsSettings);
+      expect(trackMetric.callCount).to.equal(1);
+      expect(trackMetric.calledWith('Selected Tubing Prime', { initiatedBy: 'Care Team' })).to.be.true;
     });
     it('should call updateBasicsSettings function', function() {
       var trackMetric = sinon.stub();
