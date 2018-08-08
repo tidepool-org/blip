@@ -657,6 +657,45 @@ module.exports = function (config, deps) {
         });
     },
     /**
+     * Upload blob data for the given user
+     *
+     * @param {String} userId of the user to get the device data for
+     * @param {Object} blob to be uploaded
+     * @param {String} contentType of blob, e.g. 'application/json'
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    uploadBlobForUser: function (userId, blob, contentType, digest, cb) {
+      common.assertArgumentsSize(arguments, 5);
+
+      if (!common.hasDataHost()) {
+      return cb({ status : common.STATUS_BAD_REQUEST, message: 'The data host needs to be configured' });
+      }
+
+      superagent
+      .post(common.makeAPIUrl('/v1/users/' + userId + '/blobs'))
+      .send(blob)
+      .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
+      .set(common.TRACE_SESSION_HEADER, common.getSessionTrace())
+      .set(common.DIGEST_HEADER, digest)
+      .type(contentType)
+      .end(
+      function (err, res) {
+       if (err != null) {
+         if (err.status !== 201) {
+           return cb(formatError(err));
+         }
+         return cb(err);
+       } else if (res.error === true) {
+         return cb(res.error);
+       } else if (res.status !== 201) {
+         return cb(new Error('Unexpected HTTP response: ' + res.status));
+       }
+
+       return cb(null, res.body);
+      });
+    },
+    /**
      * Start an device upload session by generating an uploadMeta record
      *
      * @param {Object} sessionInfo to initialise the upload session
