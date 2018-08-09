@@ -6,8 +6,7 @@
   overflow: hidden;
 }
 
-.Stat.barHorizontal {
-}
+.Stat.barHorizontal {}
 
 .chartHeader {
   display: flex;
@@ -15,6 +14,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  min-height: 24px;
 }
 
 .chartTitle {
@@ -26,7 +26,7 @@
 
 .chartCollapse {
   margin-bottom: 0;
-  line-height: 1;
+  height: 24px;
 }
 
 .chartCollapse img {

@@ -19,13 +19,14 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
 import { SizeMe } from 'react-sizeme';
-import { VictoryBar, VictoryContainer, VictoryPie } from 'victory';
+import { VictoryBar, VictoryContainer } from 'victory';
 import { Collapse } from 'react-collapse';
 import { formatPercentage } from '../../../utils/format';
 import styles from './Stat.css';
 import cx from 'classnames';
 import HoverBar, { SizedHoverLabel } from './HoverBar';
-import CollapseIcon from './assets/unfold-less-24-px.svg';
+import CollapseIconOpen from './assets/expand-more-24-px.svg';
+import CollapseIconClose from './assets/chevron-right-24-px.svg';
 
 const colors = {
   basal: '#0096d1',
@@ -40,7 +41,7 @@ const colors = {
 
 export const statTypes = {
   barHorizontal: 'barHorizontal',
-  pie: 'pie',
+  simple: 'simple',
 };
 
 class Stat extends React.PureComponent {
@@ -76,6 +77,7 @@ class Stat extends React.PureComponent {
 
     this.state = {
       isOpened: props.isOpened,
+      isCollapsible: props.collapsible,
     };
 
     this.setChartProps(props);
@@ -91,8 +93,22 @@ class Stat extends React.PureComponent {
     this.setChartProps(nextProps);
   }
 
+  renderCollapsible = (size) => (
+    <Collapse
+      isOpened={this.state.isOpened}
+      springConfig={{ stiffness: 200, damping: 23 }}
+    >
+      {this.renderChart(size)}
+    </Collapse>
+  );
+
+  renderChart = (size) => (
+    <div className={styles.chartContainer}>
+      <this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width} />
+    </div>
+  );
+
   render() {
-    this.log('rendering');
     const statOuterClasses = cx({
       [styles.Stat]: true,
       [styles[this.props.type]]: true,
@@ -102,22 +118,19 @@ class Stat extends React.PureComponent {
       <div className={statOuterClasses}>
         <div className={styles.chartHeader}>
           <div className={styles.chartTitle}>{this.props.title}</div>
-          {this.props.collapsible && (
+          {this.state.isCollapsible && (
             <div className={styles.chartCollapse}>
-              <img className src={CollapseIcon} onClick={this.toggleIsOpened} />
+              <img
+                className
+                src={this.state.isOpened ? CollapseIconOpen : CollapseIconClose}
+                onClick={this.toggleIsOpened}
+              />
             </div>
           )}
         </div>
-        <SizeMe render={({ size }) => (
-          <Collapse
-            isOpened={this.state.isOpened}
-            springConfig={{ stiffness: 200, damping: 23 }}
-          >
-            <div className={styles.chartContainer}>
-              <this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width} />
-            </div>
-          </Collapse>
-        )} />
+        {this.chartRenderer && <SizeMe render={({ size }) => (
+          this.state.isCollapsible ? this.renderCollapsible(size) : this.renderChart(size)
+        )} />}
       </div>
     );
   }
@@ -128,6 +141,7 @@ class Stat extends React.PureComponent {
     const chartProps = _.defaults({
       animate: { duration: 300, onLoad: { duration: 300 } },
       labels: d => formatPercentage(d.y),
+      primaryStat: props.primaryStat || _.get(props.data, [0, 'name']),
       style: {
         data: {
           fill: d => colors[d.name],
@@ -142,20 +156,19 @@ class Stat extends React.PureComponent {
     let padding;
 
     switch (type) {
-      case 'pie':
-        chartRenderer = VictoryPie;
-        break;
-
-      case 'barVertical':
-        _.assign(chartProps, {
-          cornerRadius: 4,
-          maxDomain: { y: 1.0 },
-          sortOrder: 'descending',
+      case 'simple':
+        this.setState({
+          isCollapsible: false,
         });
+        chartRenderer = null;
         break;
 
       case 'barHorizontal':
       default:
+        this.setState({
+          isCollapsible: true,
+        });
+
         domain = { y: [0, props.data.length], x: [0, 1] };
         barSpacing = chartProps.barSpacing || 6;
         chartHeight = chartProps.chartHeight;
@@ -177,7 +190,7 @@ class Stat extends React.PureComponent {
           domain,
           height: chartHeight,
           horizontal: true,
-          labelComponent: <SizedHoverLabel onSize={(size) => console.log(size)} domain={domain} />,
+          labelComponent: <SizedHoverLabel domain={domain} />,
           padding,
           style: {
             data: {
