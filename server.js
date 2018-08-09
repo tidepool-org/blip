@@ -57,7 +57,7 @@ app.use(bodyParser.json({
 }))
 
 const staticDir = path.join(__dirname, buildDir);
-app.use(express.static(staticDir));
+app.use(express.static(staticDir, { index: false }));
 
 //So that we can use react-router and browser history
 app.get('*', (req, res) => {
