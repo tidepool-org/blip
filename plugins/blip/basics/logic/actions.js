@@ -65,13 +65,17 @@ basicsActions.setSiteChangeEvent = function(sectionName, selectedKey, selectedLa
   sections.siteChanges.type = selectedKey;
   sections.siteChanges.hasHover = true;
 
-  metricsFunc('Selected ' + selectedLabel);
+  var canUpdateSettings = _.get(sections, 'siteChanges.selectorMetaData.canUpdateSettings');
+
+  metricsFunc('Selected ' + selectedLabel, {
+    initiatedBy: canUpdateSettings ? 'User' : 'Care Team',
+  });
 
   var newSettings = _.assign({}, this.app.props.patient.settings, {
     siteChangeSource: selectedKey,
   });
 
-  updateBasicsSettingsFunc(this.app.props.patient.userid, newSettings);
+  updateBasicsSettingsFunc(this.app.props.patient.userid, newSettings, canUpdateSettings);
 
   this.app.setState({sections: sections});
 };
