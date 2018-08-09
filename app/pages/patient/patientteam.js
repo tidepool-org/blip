@@ -18,6 +18,7 @@ import React from 'react';
 import { translate } from 'react-i18next'
 import _ from 'lodash';
 import cx from 'classnames';
+import config from '../../config';
 
 var ModalOverlay = require('../../components/modaloverlay');
 var InputGroup = require('../../components/inputgroup');
@@ -75,8 +76,8 @@ var MemberInviteForm = translate()(React.createClass({
   },
   getInitialState: function() {
     return {
-      //by default uploads are allowed
-      allowUpload: true,
+      // By default uploads are allowed when enabled
+      allowUpload: !config.HIDE_UPLOAD_LINK,
       error: null
     };
   },
@@ -90,6 +91,7 @@ var MemberInviteForm = translate()(React.createClass({
   },
   render: function() {
     const { t } = this.props;
+    var upload = config.HIDE_UPLOAD_LINK ? null : this.renderUpload();
     return (
       <li className="PatientTeam-member PatientTeam-member--first">
         <div className="PatientInfo-head">
@@ -97,9 +99,7 @@ var MemberInviteForm = translate()(React.createClass({
           <div className="PatientTeam-memberContent PatientTeam-blocks">
             <div className="">
               <input className="PatientInfo-input" id="email" ref="email" placeholder={t('Email')} />
-              <div className="PatientTeam-permissionSelection">
-                <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} onChange={this.onAllowUploadClick}/>
-              </div>
+              {upload}
               <div className="PatientTeam-buttonHolder">
                 <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
                   onClick={this.props.onCancel}
@@ -120,20 +120,33 @@ var MemberInviteForm = translate()(React.createClass({
     );
   },
 
+  renderUpload: function() {
+    return (
+      <div className="PatientTeam-permissionSelection">
+        <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} onChange={this.onAllowUploadClick}/>
+      </div>
+    );
+  },
+
   handleSubmit: function(e) {
     const { t } = this.props;
+
     if (e) {
       e.preventDefault();
     }
 
-    var self = this;
-    var email = self.refs.email.value;
-    var allowUpload = self.refs.allowUpload.getWrappedInstance().getValue();
-
-    var validateEmail = function(email) {
+    const validateEmail = function(email) {
       var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       return re.test(email);
     };
+
+    var permissions = {
+      view: {},
+      note: {}
+    };
+    var self = this;
+    var email = self.refs.email.value;
+    var allowUpload;
 
     if (!validateEmail(email)) {
       self.setState({error: t('Invalid email address.')});
@@ -142,19 +155,19 @@ var MemberInviteForm = translate()(React.createClass({
       self.setState({error: null});
     }
 
-    var permissions = {
-      view: {},
-      note: {}
-    };
-
-    if (allowUpload) {
-      self.props.trackMetric('invitation with upload on');
-      permissions.upload = {};
+    if (config.HIDE_UPLOAD_LINK) {
+      allowUpload = false;
     } else {
-      self.props.trackMetric('invitation with upload off');
+      allowUpload = self.refs.allowUpload.getWrappedInstance().getValue();
+      if (allowUpload) {
+        self.props.trackMetric('invitation with upload on');
+        permissions.upload = {};
+      } else {
+        self.props.trackMetric('invitation with upload off');
+      }
     }
 
-    self.setState({ allowUpload: allowUpload});
+    self.setState({allowUpload: allowUpload});
     self.props.onSubmit(email, permissions);
     self.props.trackMetric('Clicked Invite');
   }
@@ -281,25 +294,11 @@ var PatientTeam = translate()(React.createClass({
   },
 
   renderTeamMember: function(member) {
-    var classes = {
-      'icon-permissions': true
-    };
-    var allowUpload = false;
-
-    if(_.isEmpty(member.permissions)){
+    if (_.isEmpty(member.permissions) || !(member.permissions.upload || member.permissions.view)) {
       return null;
-    } else {
-      if(member.permissions.upload) {
-        classes['icon-permissions-upload'] = true;
-        allowUpload = true;
-      } else if(member.permissions.view) {
-        classes['icon-permissions-view'] = true;
-      } else {
-        return null;
-      }
     }
 
-    var iconClasses = cx(classes);
+    var upload = config.HIDE_UPLOAD_LINK ? null : this.renderUpload(member);
 
     return (
       <li key={member.userid} className="PatientTeam-member">
@@ -310,16 +309,27 @@ var PatientTeam = translate()(React.createClass({
               <div className="PatientInfo-block PatientInfo-block--withArrow"><div>{member.profile.fullName}</div></div>
               <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-delete"></i></a>
               <div className="clear"></div>
-              <PermissionInputGroup
-                onChange={this.handlePermissionChange(member)}
-                value={allowUpload}
-                working={this.props.changingMemberPermissions}
-              />
+              {upload}
             </div>
           </div>
         </div>
       </li>
     );
+  },
+
+  renderUpload: function(member) {
+    var allowUpload = false;
+
+    if (member.permissions.upload) {
+      allowUpload = true;
+    }
+
+    return (
+      <PermissionInputGroup
+        onChange={this.handlePermissionChange(member)}
+        value={allowUpload}
+        working={this.props.changingMemberPermissions}
+      />);
   },
 
   renderCancelInviteDialog: function(invite) {

@@ -19,6 +19,7 @@
 /* global __I18N_ENABLED__ */
 /* global __ALLOW_CHANGE_EMAIL__ */
 /* global __ALLOW_CHANGE_PASSWORD__ */
+/* global __HIDE_UPLOAD_LINK__ */
 
 var pkg = require('./package.json');
 
@@ -55,5 +56,6 @@ module.exports = {
   ABOUT_MAX_LENGTH: integerFromText(__ABOUT_MAX_LENGTH__, 256),
   I18N_ENABLED: booleanFromText(__I18N_ENABLED__, false),
   ALLOW_CHANGE_EMAIL: booleanFromText(__ALLOW_CHANGE_EMAIL__, true),
-  ALLOW_CHANGE_PASSWORD: booleanFromText(__ALLOW_CHANGE_PASSWORD__, true)
+  ALLOW_CHANGE_PASSWORD: booleanFromText(__ALLOW_CHANGE_PASSWORD__, true),
+  HIDE_UPLOAD_LINK: booleanFromText(__HIDE_UPLOAD_LINK__, false)
 };

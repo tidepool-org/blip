@@ -19,6 +19,9 @@ import { translate } from 'react-i18next';
 import { Link } from 'react-router';
 import _ from 'lodash';
 import cx from 'classnames';
+
+import config from '../../config';
+
 var launchCustomProtocol = require('custom-protocol-detection');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
@@ -49,7 +52,7 @@ var NavbarPatientCard = translate()(React.createClass({
     });
 
     var view = this.renderView(patient);
-    var upload = this.renderUpload(patient);
+    var upload = config.HIDE_UPLOAD_LINK ? null : this.renderUpload(patient);
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
     var overlay = this.state.showUploadOverlay ? this.renderOverlay() : null;

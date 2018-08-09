@@ -21,6 +21,8 @@ import _ from 'lodash';
 import cx from 'classnames';
 import launchCustomProtocol from 'custom-protocol-detection';
 
+import config from '../../config';
+
 var personUtils = require('../../core/personutils');
 var ModalOverlay = require('../modaloverlay');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');
@@ -57,7 +59,7 @@ var PatientCard = translate()(React.createClass({
 
     var view = this.renderView(patient);
     var remove = this.renderRemove(patient);
-    var upload = this.renderUpload(patient);
+    var upload = config.HIDE_UPLOAD_LINK ? null : this.renderUpload(patient);
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
     var uploadLaunchOverlay = this.state.showUploadOverlay ? this.renderUploadOverlay() : null;
