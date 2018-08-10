@@ -66,7 +66,6 @@ export class HoverBar extends React.PureComponent {
     const barGridWidth = barWidth / 6;
     const barGridRadius = cornerRadius.top || 2;
     const widthCorrection = (width - rightPadding) / width;
-    this.log('rendering', this.props);
 
     return (
       <g>

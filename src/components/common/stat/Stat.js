@@ -44,9 +44,28 @@ export const statTypes = {
   simple: 'simple',
 };
 
+export const statFormats = {
+  bgRange: 'bgRange',
+  bgValue: 'bgValue',
+  duration: 'duration',
+  percentage: 'percentage',
+  units: 'units',
+};
+
 class Stat extends React.PureComponent {
   static propTypes = {
+    bgPrefs: PropTypes.shape({
+      bgBounds: PropTypes.shape({
+        veryHighThreshold: PropTypes.number.isRequired,
+        targetUpperBound: PropTypes.number.isRequired,
+        targetLowerBound: PropTypes.number.isRequired,
+        veryLowThreshold: PropTypes.number.isRequired,
+      }),
+      bgUnits: PropTypes.string.isRequired,
+    }),
     categories: PropTypes.object,
+    chartHeight: PropTypes.number,
+    collapsible: PropTypes.bool,
     data: PropTypes.arrayOf(PropTypes.shape(
       {
         name: PropTypes.string.isRequired,
@@ -54,33 +73,28 @@ class Stat extends React.PureComponent {
         y: PropTypes.number.isRequired,
       }
     )).isRequired,
-    chartHeight: PropTypes.number,
-    title: PropTypes.string.isRequired,
-    type: PropTypes.oneOf(_.keys(statTypes)),
-    collapsible: PropTypes.bool,
     isOpened: PropTypes.bool,
     primaryStat: PropTypes.string,
+    title: PropTypes.string.isRequired,
+    type: PropTypes.oneOf(_.keys(statTypes)),
   };
 
   static defaultProps = {
     categories: {},
-    type: statTypes.barHorizontal.type,
     chartHeight: 0,
     collapsible: true,
     isOpened: true,
     primaryStat: '',
+    type: statTypes.barHorizontal.type,
   };
 
   constructor(props) {
     super(props);
     this.log = bows('Stat');
 
-    this.state = {
-      isOpened: props.isOpened,
-      isCollapsible: props.collapsible,
-    };
+    this.state = this.getStateByType(props);
 
-    this.setChartProps(props);
+    this.setChartPropsByType(props);
   }
 
   toggleIsOpened = () => {
@@ -89,8 +103,9 @@ class Stat extends React.PureComponent {
     });
   }
 
-  componentWillUpdate(nextProps) {
-    this.setChartProps(nextProps);
+  componentWillReceiveProps(nextProps) {
+    this.setState(this.getStateByType(nextProps));
+    this.setChartPropsByType(nextProps);
   }
 
   renderCollapsible = (size) => (
@@ -135,7 +150,30 @@ class Stat extends React.PureComponent {
     );
   }
 
-  setChartProps(props) {
+  getStateByType = (props) => {
+    let state = {};
+    switch (props.type) {
+      case 'simple':
+        state = {
+          isCollapsible: false,
+        };
+        break;
+
+      case 'barHorizontal':
+      default:
+        state = {
+          isCollapsible: props.collapsible,
+          isOpened: props.isOpened,
+        };
+        break;
+    }
+
+    console.log(state);
+
+    return state;
+  }
+
+  setChartPropsByType = (props) => {
     const { type, ...rest } = props;
     let chartRenderer = VictoryBar;
     const chartProps = _.defaults({
@@ -157,18 +195,11 @@ class Stat extends React.PureComponent {
 
     switch (type) {
       case 'simple':
-        this.setState({
-          isCollapsible: false,
-        });
         chartRenderer = null;
         break;
 
       case 'barHorizontal':
       default:
-        this.setState({
-          isCollapsible: true,
-        });
-
         domain = { y: [0, props.data.length], x: [0, 1] };
         barSpacing = chartProps.barSpacing || 6;
         chartHeight = chartProps.chartHeight;
@@ -215,7 +246,7 @@ class Stat extends React.PureComponent {
     this.chartRef = element;
   }
 
-  setChartRenderer(chartRenderer) {
+  setChartRenderer = (chartRenderer) => {
     this.chartRenderer = chartRenderer;
   }
 }
