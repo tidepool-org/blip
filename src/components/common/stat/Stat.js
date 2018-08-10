@@ -66,18 +66,23 @@ class Stat extends React.PureComponent {
     categories: PropTypes.object,
     chartHeight: PropTypes.number,
     collapsible: PropTypes.bool,
-    data: PropTypes.arrayOf(PropTypes.shape(
-      {
-        name: PropTypes.string.isRequired,
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-      }
-    )).isRequired,
+    data: PropTypes.shape({
+      data: PropTypes.arrayOf(PropTypes.shape(
+        {
+          name: PropTypes.string.isRequired,
+          x: PropTypes.number.isRequired,
+          y: PropTypes.number.isRequired,
+        }
+      )).isRequired,
+      total: PropTypes.number,
+      primary: PropTypes.any,
+      secondary: PropTypes.any,
+    }),
     dataFormat: PropTypes.shape({
       datum: PropTypes.oneOf(_.values(statFormats)),
-      datumTooltip: PropTypes.oneOf(_.values(statFormats)),
-      header: PropTypes.oneOf(_.values(statFormats)),
-      headerTitle: PropTypes.oneOf(_.values(statFormats)),
+      tooltip: PropTypes.oneOf(_.values(statFormats)),
+      primary: PropTypes.oneOf(_.values(statFormats)),
+      secondary: PropTypes.oneOf(_.values(statFormats)),
     }),
     isOpened: PropTypes.bool,
     primaryStat: PropTypes.string,
@@ -101,6 +106,8 @@ class Stat extends React.PureComponent {
     this.state = this.getStateByType(props);
 
     this.setChartPropsByType(props);
+
+    console.log('data', props.data);
   }
 
   toggleIsOpened = () => {
@@ -112,6 +119,8 @@ class Stat extends React.PureComponent {
   componentWillReceiveProps(nextProps) {
     this.setState(this.getStateByType(nextProps));
     this.setChartPropsByType(nextProps);
+
+    console.log('data', nextProps.data);
   }
 
   renderCollapsible = (size) => (
@@ -125,7 +134,7 @@ class Stat extends React.PureComponent {
 
   renderChart = (size) => (
     <div className={styles.chartContainer}>
-      <this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width} />
+      <this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width || 270} />
     </div>
   );
 
@@ -174,8 +183,6 @@ class Stat extends React.PureComponent {
         break;
     }
 
-    console.log(state);
-
     return state;
   }
 
@@ -183,14 +190,13 @@ class Stat extends React.PureComponent {
     const { type, data, ...rest } = props;
     let chartRenderer = VictoryBar;
     const chartProps = _.defaults({
-      animate: { duration: 300, onLoad: { duration: 300 } },
-      data: _.map(data, (d, i) => ({
+      animate: { duration: 300, onLoad: { duration: 0 } },
+      data: _.map(data.data, (d, i) => ({
         x: i + 1,
         y: d.value,
         id: d.id,
       })),
       labels: d => formatPercentage(d.y),
-      primaryStat: props.primaryStat || _.get(props.data, [0, 'name']),
       style: {
         data: {
           fill: d => colors[d.id],
@@ -211,15 +217,15 @@ class Stat extends React.PureComponent {
 
       case 'barHorizontal':
       default:
-        domain = { y: [0, props.data.length], x: [0, 1] };
+        domain = { y: [0, props.data.data.length], x: [0, 1] };
         barSpacing = chartProps.barSpacing || 5;
         chartHeight = chartProps.chartHeight;
 
         if (chartHeight > 0) {
-          barWidth = ((chartHeight - barSpacing) / props.data.length) - (barSpacing / 2);
+          barWidth = ((chartHeight - barSpacing) / props.data.data.length) - (barSpacing / 2);
         } else {
           barWidth = chartProps.barWidth || 24;
-          chartHeight = (barWidth + barSpacing) * props.data.length;
+          chartHeight = (barWidth + barSpacing) * props.data.data.length;
         }
 
         padding = { top: barWidth / 2, bottom: barWidth / 2 * -1 };

@@ -40,59 +40,72 @@ const chartHeightOptions = {
   100: 100,
 };
 
-let timeInRangeData = [
-  {
-    id: 'veryLow',
-    value: 0.01,
-    hoverTitle: 'Time Below Range',
-  },
-  {
-    id: 'low',
-    value: 0.03,
-    hoverTitle: 'Time Below Range',
-  },
-  {
-    id: 'target',
-    value: 0.7,
-    hoverTitle: 'Time In Range',
-  },
-  {
-    id: 'high',
-    value: 0.16,
-    hoverTitle: 'Time Above Range',
-  },
-  {
-    id: 'veryHigh',
-    value: 0.1,
-    hoverTitle: 'Time Above Range',
-  },
-];
+let timeInRangeData = {
+  data: [
+    {
+      id: 'veryLow',
+      value: 0.01,
+      hoverTitle: 'Time Below Range',
+    },
+    {
+      id: 'low',
+      value: 0.03,
+      hoverTitle: 'Time Below Range',
+    },
+    {
+      id: 'target',
+      value: 0.7,
+      hoverTitle: 'Time In Range',
+    },
+    {
+      id: 'high',
+      value: 0.16,
+      hoverTitle: 'Time Above Range',
+    },
+    {
+      id: 'veryHigh',
+      value: 0.1,
+      hoverTitle: 'Time Above Range',
+    },
+  ],
+  total: 1,
+};
+timeInRangeData.primary = _.find(timeInRangeData, { id: 'target' });
 
-let timeInAutoData = [
-  {
-    id: 'basal',
-    value: 0.3,
-    hoverTitle: 'Time In Manual Mode',
-  },
-  {
-    id: 'basalAutomated',
-    value: 0.7,
-    hoverTitle: 'Time In Auto Mode',
-  },
-];
+let timeInAutoData = {
+  data: [
+    {
+      id: 'basal',
+      value: 0.3,
+      hoverTitle: 'Time In Manual Mode',
+    },
+    {
+      id: 'basalAutomated',
+      value: 0.7,
+      hoverTitle: 'Time In Auto Mode',
+    },
+  ],
+  total: 1,
+};
+timeInAutoData.primary = _.find(timeInRangeData, { id: 'basalAutomated' });
 
-let totalInsulinData = [
-  {
-    id: 'basal',
-    value: 0.44,
-    hoverTitle: 'Basal Insulin',
-  },
-  {
-    id: 'bolus',
-    value: 0.56,
-    hoverTitle: 'Bolus Insulin',
-  },
-];
+let totalInsulinData = {
+  data: [
+    {
+      id: 'basal',
+      value: 62.9,
+      hoverTitle: 'Basal Insulin',
+    },
+    {
+      id: 'bolus',
+      value: 49.5,
+      hoverTitle: 'Bolus Insulin',
+    },
+  ],
+  total: 112.4,
+};
+totalInsulinData.primary = _.find(timeInRangeData, { id: 'target' });
+totalInsulinData.secondary = _.find(timeInRangeData, { id: 'target' });
 
 let averageBgData = [
   {
@@ -116,14 +129,17 @@ let glucoseManagementIndexData = [
 const stories = storiesOf('Stat', module);
 
 const generateRandom = data => {
-  const random = _.map(data, () => Math.random());
+  const random = _.map(data.data, () => Math.random());
   const sum = _.sum(random);
 
-  return _.map(data, (d, i) => ({
-    x: i + 1,
-    y: random[i] / sum,
-    id: d.id,
-  }));
+  return {
+    data: _.map(data.data, (d, i) => (_.assign({}, d, {
+      value: random[i] / sum,
+    }))),
+    total: sum,
+    primary: data.primary,
+    secondary: data.secondary,
+  };
 };
 
 /* eslint-disable react/prop-types */
@@ -161,8 +177,8 @@ stories.add('Time In Range', () => {
         dataFormat={{
           datum: statFormats.percentage,
           datumTooltip: statFormats.duration,
-          header: statFormats.duration,
-          headerTooltip: statFormats.bgRange,
+          primary: statFormats.duration,
+          secondary: statFormats.bgRange,
         }}
         isOpened={isOpened}
         title="Time In Range"
@@ -190,7 +206,7 @@ stories.add('Time In Auto', () => {
         dataFormat={{
           datum: statFormats.percentage,
           datumTooltip: statFormats.duration,
-          header: statFormats.percentage,
+          primary: statFormats.percentage,
         }}
         isOpened={isOpened}
         title="Time In Auto Mode"
@@ -218,8 +234,8 @@ stories.add('Total Insulin', () => {
         dataFormat={{
           datum: statFormats.percentage,
           datumTooltip: statFormats.duration,
-          header: statFormats.percentage,
-          headerTitle: statFormats.percentage,
+          primary: statFormats.percentage,
+          secondary: statFormats.percentage,
         }}
         isOpened={isOpened}
         title="Total Insulin"
@@ -246,8 +262,8 @@ stories.add('Average BG', () => {
         collapsible={collapsible}
         data={averageBgData}
         dataFormat={{
-          header: statFormats.units,
-          label: statFormats.bgValue,
+          primary: statFormats.units,
+          datum: statFormats.bgValue,
           tooltip: statFormats.units,
         }}
         isOpened={isOpened}
@@ -270,7 +286,7 @@ stories.add('Glucose Management Index', () => {
         title="G.M.I"
         type={statTypes.simple}
         dataFormat={{
-          header: statFormats.percentage,
+          primary: statFormats.percentage,
           label: statFormats.percentage,
         }}
       />
