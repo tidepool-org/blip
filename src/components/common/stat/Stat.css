@@ -18,7 +18,8 @@
 }
 
 .chartTitle {
-  font-size: 0.8em;
+  font-size: 1em;
+  font-weight: 600;
   line-height: 1;
   white-space: nowrap;
   margin-bottom: 0;

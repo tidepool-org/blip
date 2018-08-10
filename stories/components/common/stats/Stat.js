@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 
 import { storiesOf } from '@storybook/react';
-import { select, button, boolean, object } from '@storybook/addon-knobs';
+import { select, button, boolean } from '@storybook/addon-knobs';
 
 import Stat, { statTypes, statFormats } from '../../../../src/components/common/stat/Stat';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../../src/utils/constants';
@@ -42,73 +42,74 @@ const chartHeightOptions = {
 
 let timeInRangeData = [
   {
-    name: 'veryLow',
-    x: 1,
-    y: 0.1,
+    id: 'veryLow',
+    value: 0.01,
+    hoverTitle: 'Time Below Range',
   },
   {
-    name: 'low',
-    x: 2,
-    y: 0.2,
+    id: 'low',
+    value: 0.03,
+    hoverTitle: 'Time Below Range',
   },
   {
-    name: 'target',
-    x: 3,
-    y: 0.4,
+    id: 'target',
+    value: 0.7,
+    hoverTitle: 'Time In Range',
   },
   {
-    name: 'high',
-    x: 4,
-    y: 0.2,
+    id: 'high',
+    value: 0.16,
+    hoverTitle: 'Time Above Range',
   },
   {
-    name: 'veryHigh',
-    x: 5,
-    y: 0.1,
+    id: 'veryHigh',
+    value: 0.1,
+    hoverTitle: 'Time Above Range',
   },
 ];
 
 let timeInAutoData = [
   {
-    name: 'basalAutomated',
-    x: 1,
-    y: 0.75,
+    id: 'basal',
+    value: 0.3,
+    hoverTitle: 'Time In Manual Mode',
   },
   {
-    name: 'basal',
-    x: 2,
-    y: 0.25,
+    id: 'basalAutomated',
+    value: 0.7,
+    hoverTitle: 'Time In Auto Mode',
   },
 ];
 
 let totalInsulinData = [
   {
-    name: 'basal',
-    x: 1,
-    y: 0.6,
+    id: 'basal',
+    value: 0.44,
+    hoverTitle: 'Basal Insulin',
   },
   {
-    name: 'bolus',
-    x: 2,
-    y: 0.4,
+    id: 'bolus',
+    value: 0.56,
+    hoverTitle: 'Bolus Insulin',
   },
 ];
 
 let averageBgData = [
   {
-    name: 'averageBg',
+    id: 'averageBg',
     value: 187,
   },
   {
-    name: 'coefficientOfVariation',
+    id: 'coefficientOfVariation',
     value: 25,
   },
 ];
 
 let glucoseManagementIndexData = [
   {
-    name: 'gmi',
+    id: 'gmi',
     value: 0.051,
+    hoverTitle: 'G.M.I. (Estimated A1c)',
   },
 ];
 
@@ -119,9 +120,9 @@ const generateRandom = data => {
   const sum = _.sum(random);
 
   return _.map(data, (d, i) => ({
-    x: d.x,
+    x: i + 1,
     y: random[i] / sum,
-    name: d.name,
+    id: d.id,
   }));
 };
 
@@ -157,7 +158,7 @@ stories.add('Time In Range', () => {
         chartHeight={chartHeight}
         collapsible={collapsible}
         data={timeInRangeData}
-        format={{
+        dataFormat={{
           datum: statFormats.percentage,
           datumTooltip: statFormats.duration,
           header: statFormats.duration,
@@ -186,7 +187,7 @@ stories.add('Time In Auto', () => {
         chartHeight={chartHeight}
         collapsible={collapsible}
         data={timeInAutoData}
-        format={{
+        dataFormat={{
           datum: statFormats.percentage,
           datumTooltip: statFormats.duration,
           header: statFormats.percentage,
@@ -214,11 +215,11 @@ stories.add('Total Insulin', () => {
         chartHeight={chartHeight}
         collapsible={collapsible}
         data={totalInsulinData}
-        format={{
+        dataFormat={{
           datum: statFormats.percentage,
           datumTooltip: statFormats.duration,
           header: statFormats.percentage,
-          headerTooltip: statFormats.percentage,
+          headerTitle: statFormats.percentage,
         }}
         isOpened={isOpened}
         title="Total Insulin"
@@ -244,7 +245,7 @@ stories.add('Average BG', () => {
         bgPrefs={bgPrefs}
         collapsible={collapsible}
         data={averageBgData}
-        format={{
+        dataFormat={{
           header: statFormats.units,
           label: statFormats.bgValue,
           tooltip: statFormats.units,
@@ -268,7 +269,7 @@ stories.add('Glucose Management Index', () => {
         data={glucoseManagementIndexData}
         title="G.M.I"
         type={statTypes.simple}
-        format={{
+        dataFormat={{
           header: statFormats.percentage,
           label: statFormats.percentage,
         }}

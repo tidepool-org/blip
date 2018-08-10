@@ -73,6 +73,12 @@ class Stat extends React.PureComponent {
         y: PropTypes.number.isRequired,
       }
     )).isRequired,
+    dataFormat: PropTypes.shape({
+      datum: PropTypes.oneOf(_.values(statFormats)),
+      datumTooltip: PropTypes.oneOf(_.values(statFormats)),
+      header: PropTypes.oneOf(_.values(statFormats)),
+      headerTitle: PropTypes.oneOf(_.values(statFormats)),
+    }),
     isOpened: PropTypes.bool,
     primaryStat: PropTypes.string,
     title: PropTypes.string.isRequired,
@@ -174,15 +180,20 @@ class Stat extends React.PureComponent {
   }
 
   setChartPropsByType = (props) => {
-    const { type, ...rest } = props;
+    const { type, data, ...rest } = props;
     let chartRenderer = VictoryBar;
     const chartProps = _.defaults({
       animate: { duration: 300, onLoad: { duration: 300 } },
+      data: _.map(data, (d, i) => ({
+        x: i + 1,
+        y: d.value,
+        id: d.id,
+      })),
       labels: d => formatPercentage(d.y),
       primaryStat: props.primaryStat || _.get(props.data, [0, 'name']),
       style: {
         data: {
-          fill: d => colors[d.name],
+          fill: d => colors[d.id],
         },
       },
     }, rest);
@@ -201,7 +212,7 @@ class Stat extends React.PureComponent {
       case 'barHorizontal':
       default:
         domain = { y: [0, props.data.length], x: [0, 1] };
-        barSpacing = chartProps.barSpacing || 6;
+        barSpacing = chartProps.barSpacing || 5;
         chartHeight = chartProps.chartHeight;
 
         if (chartHeight > 0) {
@@ -225,12 +236,12 @@ class Stat extends React.PureComponent {
           padding,
           style: {
             data: {
-              fill: d => colors[d.name],
+              fill: d => colors[d.id],
               width: () => barWidth,
             },
             labels: {
-              fill: d => colors[d.name],
-              fontSize: barWidth,
+              fill: d => colors[d.id],
+              fontSize: barWidth * 0.8,
               fontWeight: 600,
               paddingLeft: 70,
             },
