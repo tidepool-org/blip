@@ -132,14 +132,12 @@ const generateRandom = data => {
   const random = _.map(data.data, () => Math.random());
   const sum = _.sum(random);
 
-  return {
+  return _.assign({}, data, {
     data: _.map(data.data, (d, i) => (_.assign({}, d, {
-      value: random[i] / sum,
+      value: random[i],
     }))),
     total: sum,
-    primary: data.primary,
-    secondary: data.secondary,
-  };
+  });
 };
 
 /* eslint-disable react/prop-types */

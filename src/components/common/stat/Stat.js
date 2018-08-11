@@ -69,9 +69,9 @@ class Stat extends React.PureComponent {
     data: PropTypes.shape({
       data: PropTypes.arrayOf(PropTypes.shape(
         {
-          name: PropTypes.string.isRequired,
-          x: PropTypes.number.isRequired,
-          y: PropTypes.number.isRequired,
+          id: PropTypes.string.isRequired,
+          value: PropTypes.number.isRequired,
+          hoverTitle: PropTypes.string,
         }
       )).isRequired,
       total: PropTypes.number,
@@ -104,10 +104,7 @@ class Stat extends React.PureComponent {
     this.log = bows('Stat');
 
     this.state = this.getStateByType(props);
-
     this.setChartPropsByType(props);
-
-    console.log('data', props.data);
   }
 
   toggleIsOpened = () => {
@@ -119,8 +116,6 @@ class Stat extends React.PureComponent {
   componentWillReceiveProps(nextProps) {
     this.setState(this.getStateByType(nextProps));
     this.setChartPropsByType(nextProps);
-
-    console.log('data', nextProps.data);
   }
 
   renderCollapsible = (size) => (
@@ -193,7 +188,7 @@ class Stat extends React.PureComponent {
       animate: { duration: 300, onLoad: { duration: 0 } },
       data: _.map(data.data, (d, i) => ({
         x: i + 1,
-        y: d.value,
+        y: data.total ? d.value / data.total : d.value,
         id: d.id,
       })),
       labels: d => formatPercentage(d.y),
