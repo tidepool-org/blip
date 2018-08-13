@@ -22,6 +22,7 @@ import { SizeMe } from 'react-sizeme';
 import { VictoryBar, VictoryContainer } from 'victory';
 import { Collapse } from 'react-collapse';
 import { formatPercentage } from '../../../utils/format';
+import { formatDuration } from '../../../utils/datetime';
 import styles from './Stat.css';
 import cx from 'classnames';
 import HoverBar, { SizedHoverLabel } from './HoverBar';
@@ -253,11 +254,13 @@ class Stat extends React.PureComponent {
               target: 'data',
               eventHandlers: {
                 onMouseOver: (event, target) => {
-                  console.log('mouseOver', event, target);
-                  this.setChartTitle(_.get(props.data, ['data', target.index, 'title']));
+                  const datum = _.get(props.data, ['data', target.index], {});
+                  this.setChartTitle(datum.title);
+                  if (props.dataFormat.datumTooltip) {
+                    console.log('datumTooltip', this.formatValue(datum.value, statFormats.duration));
+                  }
                 },
-                onMouseLeave: (event, target) => {
-                  console.log('mouseLeave', event, target);
+                onMouseLeave: () => {
                   this.setChartTitle();
                 },
               },
@@ -314,11 +317,14 @@ class Stat extends React.PureComponent {
       const { total = this.props.data.total } = opts;
 
       switch (format) {
-        case 'percentage':
+        case statFormats.percentage:
           if (total) {
             calculatedValue = value / total;
           }
           return formatPercentage(calculatedValue);
+
+        case statFormats.duration:
+          return formatDuration(calculatedValue, 'condensed');
 
         default:
           return value;

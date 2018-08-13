@@ -53,12 +53,12 @@ export class HoverBar extends React.PureComponent {
 
   render() {
     const {
-      domain,
-      scale,
-      barWidth,
       barSpacing,
+      barWidth,
       cornerRadius,
+      domain,
       index,
+      scale,
       width,
       y,
     } = this.props;

@@ -40,36 +40,39 @@ const chartHeightOptions = {
   100: 100,
 };
 
+const convertPercentageToDayDuration = value => value * MS_IN_DAY;
+const getSum = data => _.sum(_.map(data, d => d.value));
+
 let timeInRangeData = {
   data: [
     {
       id: 'veryLow',
-      value: 0.01,
+      value: convertPercentageToDayDuration(0.01),
       title: 'Time Below Range',
     },
     {
       id: 'low',
-      value: 0.03,
+      value: convertPercentageToDayDuration(0.03),
       title: 'Time Below Range',
     },
     {
       id: 'target',
-      value: 0.7,
+      value: convertPercentageToDayDuration(0.7),
       title: 'Time In Range',
     },
     {
       id: 'high',
-      value: 0.16,
+      value: convertPercentageToDayDuration(0.16),
       title: 'Time Above Range',
     },
     {
       id: 'veryHigh',
-      value: 0.1,
+      value: convertPercentageToDayDuration(0.1),
       title: 'Time Above Range',
     },
   ],
-  total: 1,
 };
+timeInRangeData.total = getSum(timeInRangeData.data);
 timeInRangeData.primaryIndex = _.findIndex(timeInRangeData.data, { id: 'target' });
 
 let timeInAutoData = {
@@ -136,14 +139,13 @@ const stories = storiesOf('Stat', module);
 
 const generateRandom = (data, type) => {
   const random = _.map(data.data, () => Math.random());
-  const sum = _.sum(random);
-
-  return _.assign({}, data, {
+  const randomData = _.assign({}, data, {
     data: _.map(data.data, (d, i) => (_.assign({}, d, {
-      value: type === 'duration' ? random[i] * MS_IN_DAY : random[i],
+      value: type === 'duration' ? convertPercentageToDayDuration(random[i]) : random[i],
     }))),
-    total: type === 'duration' ? sum * MS_IN_DAY : sum,
   });
+  randomData.total = getSum(randomData.data);
+  return randomData;
 };
 
 /* eslint-disable react/prop-types */

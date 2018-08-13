@@ -165,40 +165,54 @@ export function formatDateRange(startDate, endDate, format) {
 /**
  * formatDuration
  * @param {Number} duration - positive integer duration in milliseconds
- *
+ * @param {String} format - one of [hoursFractional, condensed]
  * @return {String} formatted duration, e.g., '1¼ hr'
  */
-export function formatDuration(duration) {
+export function formatDuration(duration, format = 'hoursFractional') {
   const momentDuration = moment.duration(duration);
-  const QUARTER = '¼';
-  const THIRD = '⅓';
-  const HALF = '½';
-  const TWO_THIRDS = '⅔';
-  const THREE_QUARTERS = '¾';
+  const days = momentDuration.days();
   const hours = momentDuration.hours();
   const minutes = momentDuration.minutes();
 
-  if (hours !== 0) {
-    const suffix = (hours === 1) ? 'hr' : 'hrs';
-    switch (minutes) {
-      case 0:
-        return `${hours} ${suffix}`;
-      case 15:
-        return `${hours}${QUARTER} ${suffix}`;
-      case 20:
-        return `${hours}${THIRD} ${suffix}`;
-      case 30:
-        return `${hours}${HALF} ${suffix}`;
-      case 40:
-        return `${hours}${TWO_THIRDS} ${suffix}`;
-      case 45:
-        return `${hours}${THREE_QUARTERS} ${suffix}`;
-      default:
-        return `${hours} ${suffix} ${minutes} min`;
+  if (format === 'hoursFractional') {
+    const QUARTER = '¼';
+    const THIRD = '⅓';
+    const HALF = '½';
+    const TWO_THIRDS = '⅔';
+    const THREE_QUARTERS = '¾';
+
+    if (hours !== 0) {
+      const suffix = (hours === 1) ? 'hr' : 'hrs';
+      switch (minutes) {
+        case 0:
+          return `${hours} ${suffix}`;
+        case 15:
+          return `${hours}${QUARTER} ${suffix}`;
+        case 20:
+          return `${hours}${THIRD} ${suffix}`;
+        case 30:
+          return `${hours}${HALF} ${suffix}`;
+        case 40:
+          return `${hours}${TWO_THIRDS} ${suffix}`;
+        case 45:
+          return `${hours}${THREE_QUARTERS} ${suffix}`;
+        default:
+          return `${hours} ${suffix} ${minutes} min`;
+      }
+    } else {
+      return `${minutes} min`;
     }
-  } else {
-    return `${minutes} min`;
+  } else if (format === 'condensed') {
+    const formatted = {
+      days: days !== 0 ? `${hours}d ` : '',
+      hours: hours !== 0 ? `${hours}h ` : '',
+      minutes: minutes !== 0 ? `${minutes}m` : '',
+    };
+
+    return `${formatted.days}${formatted.hours}${formatted.minutes}`;
   }
+
+  return duration;
 }
 
 /**
