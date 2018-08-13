@@ -94,6 +94,12 @@ class Stat extends React.PureComponent {
     categories: {},
     chartHeight: 0,
     collapsible: true,
+    dataFormat: {
+      datum: statFormats.percentage,
+      tooltip: statFormats.percentage,
+      primary: statFormats.percentage,
+      secondary: statFormats.percentage,
+    },
     isOpened: true,
     primaryStat: '',
     type: statTypes.barHorizontal.type,
@@ -170,21 +176,6 @@ class Stat extends React.PureComponent {
         {this.chartRenderer && <SizeMe render={({ size }) => (this.renderChart(size))} />}
       </div>
     );
-  }
-
-  formatValue = (value, format, opts) => {
-    if (_.includes(_.values(statFormats), format)) {
-      switch (format) {
-        case 'percentage':
-          console.log('value', value);
-          console.log('this.props.data.total', this.props.data.total);
-          return formatPercentage(value / this.props.data.total);
-
-        default:
-          return value;
-      }
-    }
-    return value;
   }
 
   getStateByType = (props) => {
@@ -274,7 +265,15 @@ class Stat extends React.PureComponent {
           ],
           height: chartHeight,
           horizontal: true,
-          labelComponent: <SizedHoverLabel domain={domain} />,
+          labelComponent: (
+            <SizedHoverLabel
+              domain={domain}
+              text={datum => (this.formatValue(
+                _.get(props.data, ['data', datum.eventKey, 'value']),
+                props.dataFormat.datum,
+              ))}
+            />
+          ),
           padding,
           style: {
             data: {
@@ -307,6 +306,25 @@ class Stat extends React.PureComponent {
 
   setChartRenderer = (chartRenderer) => {
     this.chartRenderer = chartRenderer;
+  }
+
+  formatValue = (value, format, opts = {}) => {
+    if (_.includes(_.values(statFormats), format)) {
+      let calculatedValue = value;
+      const { total = this.props.data.total } = opts;
+
+      switch (format) {
+        case 'percentage':
+          if (total) {
+            calculatedValue = value / total;
+          }
+          return formatPercentage(calculatedValue);
+
+        default:
+          return value;
+      }
+    }
+    return value;
   }
 }
 
