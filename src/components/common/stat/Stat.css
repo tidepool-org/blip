@@ -8,13 +8,17 @@
 
 .Stat.barHorizontal {}
 
+.Stat.isCollapsible {}
+
+.Stat.isOpen {}
+
 .chartHeader {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  min-height: 24px;
+  min-height: 1.5em;
 }
 
 .chartTitle {
@@ -25,14 +29,30 @@
   margin-bottom: 0;
 }
 
+.chartPrimary {
+  font-size: 1.25em;
+  line-height: 1.25em;
+  font-weight: 600;
+  display: flex;
+}
+
+.primaryValue {
+  opacity: 1;
+  transition: .3s ease-in-out;
+}
+
+.Stat.isOpen .primaryValue {
+  opacity: 0.001;
+}
+
 .chartCollapse {
   margin-bottom: 0;
+  margin-right: -0.3em;
   height: 24px;
 }
 
 .chartCollapse img {
   position: relative;
-  left: 0.4em;
   cursor: pointer;
 }
 

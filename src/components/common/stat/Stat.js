@@ -71,12 +71,12 @@ class Stat extends React.PureComponent {
         {
           id: PropTypes.string.isRequired,
           value: PropTypes.number.isRequired,
-          hoverTitle: PropTypes.string,
+          title: PropTypes.string,
         }
       )).isRequired,
       total: PropTypes.number,
-      primary: PropTypes.any,
-      secondary: PropTypes.any,
+      primaryIndex: PropTypes.number,
+      secondaryIndex: PropTypes.number,
     }),
     dataFormat: PropTypes.shape({
       datum: PropTypes.oneOf(_.values(statFormats)),
@@ -118,63 +118,89 @@ class Stat extends React.PureComponent {
     this.setChartPropsByType(nextProps);
   }
 
-  renderCollapsible = (size) => (
+  renderChart = (size) => (
     <Collapse
       isOpened={this.state.isOpened}
       springConfig={{ stiffness: 200, damping: 23 }}
     >
-      {this.renderChart(size)}
+      <div className={styles.chartContainer}>
+        <this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width || 270} />
+      </div>
     </Collapse>
-  );
-
-  renderChart = (size) => (
-    <div className={styles.chartContainer}>
-      <this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width || 270} />
-    </div>
   );
 
   render() {
     const statOuterClasses = cx({
       [styles.Stat]: true,
       [styles[this.props.type]]: true,
+      [styles.isCollapsible]: this.state.isCollapsible,
+      [styles.isOpen]: this.state.isOpened,
     });
+
+    const primary = _.get(this.props.data, ['data', this.props.data.primaryIndex]);
 
     return (
       <div className={statOuterClasses}>
         <div className={styles.chartHeader}>
-          <div className={styles.chartTitle}>{this.props.title}</div>
-          {this.state.isCollapsible && (
-            <div className={styles.chartCollapse}>
-              <img
-                className
-                src={this.state.isOpened ? CollapseIconOpen : CollapseIconClose}
-                onClick={this.toggleIsOpened}
-              />
-            </div>
-          )}
+          <div className={styles.chartTitle}>{this.state.chartTitle}</div>
+
+          <div className={styles.chartPrimary}>
+            {primary && (
+              <div
+                className={styles.primaryValue}
+                style={{
+                  color: colors[primary.id],
+                }}
+              >
+                {this.formatValue(primary.value, this.props.dataFormat.primary)}
+              </div>
+            )}
+
+            {this.state.isCollapsible && (
+              <div className={styles.chartCollapse}>
+                <img
+                  src={this.state.isOpened ? CollapseIconOpen : CollapseIconClose}
+                  onClick={this.toggleIsOpened}
+                />
+              </div>
+            )}
+          </div>
+
         </div>
-        {this.chartRenderer && <SizeMe render={({ size }) => (
-          this.state.isCollapsible ? this.renderCollapsible(size) : this.renderChart(size)
-        )} />}
+        {this.chartRenderer && <SizeMe render={({ size }) => (this.renderChart(size))} />}
       </div>
     );
   }
 
+  formatValue = (value, format, opts) => {
+    if (_.includes(_.values(statFormats), format)) {
+      switch (format) {
+        case 'percentage':
+          console.log('value', value);
+          console.log('this.props.data.total', this.props.data.total);
+          return formatPercentage(value / this.props.data.total);
+
+        default:
+          return value;
+      }
+    }
+    return value;
+  }
+
   getStateByType = (props) => {
-    let state = {};
+    const state = {
+      chartTitle: props.title,
+    };
     switch (props.type) {
       case 'simple':
-        state = {
-          isCollapsible: false,
-        };
+        state.isCollapsible = false;
+        state.isOpened = false;
         break;
 
       case 'barHorizontal':
       default:
-        state = {
-          isCollapsible: props.collapsible,
-          isOpened: props.isOpened,
-        };
+        state.isCollapsible = props.collapsible;
+        state.isOpened = props.isOpened;
         break;
     }
 
@@ -229,8 +255,23 @@ class Stat extends React.PureComponent {
           alignment: 'middle',
           containerComponent: <VictoryContainer responsive={false} />,
           cornerRadius: { top: 2, bottom: 2 },
-          dataComponent: <HoverBar domain={domain} barWidth={barWidth} />,
+          dataComponent: <HoverBar domain={domain} barWidth={barWidth} barSpacing={barSpacing} />,
           domain,
+          events: [
+            {
+              target: 'data',
+              eventHandlers: {
+                onMouseOver: (event, target) => {
+                  console.log('mouseOver', event, target);
+                  this.setChartTitle(_.get(props.data, ['data', target.index, 'title']));
+                },
+                onMouseLeave: (event, target) => {
+                  console.log('mouseLeave', event, target);
+                  this.setChartTitle();
+                },
+              },
+            },
+          ],
           height: chartHeight,
           horizontal: true,
           labelComponent: <SizedHoverLabel domain={domain} />,
@@ -242,7 +283,7 @@ class Stat extends React.PureComponent {
             },
             labels: {
               fill: d => colors[d.id],
-              fontSize: barWidth * 0.8,
+              fontSize: barWidth * 0.833,
               fontWeight: 600,
               paddingLeft: 70,
             },
@@ -252,6 +293,12 @@ class Stat extends React.PureComponent {
     }
     this.chartProps = chartProps;
     this.setChartRenderer(chartRenderer);
+  }
+
+  setChartTitle = (chartTitle = this.props.title) => {
+    this.setState({
+      chartTitle,
+    });
   }
 
   setChartRef = (element) => {

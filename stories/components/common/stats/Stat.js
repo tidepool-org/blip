@@ -5,7 +5,7 @@ import { storiesOf } from '@storybook/react';
 import { select, button, boolean } from '@storybook/addon-knobs';
 
 import Stat, { statTypes, statFormats } from '../../../../src/components/common/stat/Stat';
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../../src/utils/constants';
+import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from '../../../../src/utils/constants';
 
 
 const bgPrefsOptions = {
@@ -45,98 +45,104 @@ let timeInRangeData = {
     {
       id: 'veryLow',
       value: 0.01,
-      hoverTitle: 'Time Below Range',
+      title: 'Time Below Range',
     },
     {
       id: 'low',
       value: 0.03,
-      hoverTitle: 'Time Below Range',
+      title: 'Time Below Range',
     },
     {
       id: 'target',
       value: 0.7,
-      hoverTitle: 'Time In Range',
+      title: 'Time In Range',
     },
     {
       id: 'high',
       value: 0.16,
-      hoverTitle: 'Time Above Range',
+      title: 'Time Above Range',
     },
     {
       id: 'veryHigh',
       value: 0.1,
-      hoverTitle: 'Time Above Range',
+      title: 'Time Above Range',
     },
   ],
   total: 1,
 };
-timeInRangeData.primary = _.find(timeInRangeData, { id: 'target' });
+timeInRangeData.primaryIndex = _.findIndex(timeInRangeData.data, { id: 'target' });
 
 let timeInAutoData = {
   data: [
     {
       id: 'basal',
       value: 0.3,
-      hoverTitle: 'Time In Manual Mode',
+      title: 'Time In Manual Mode',
     },
     {
       id: 'basalAutomated',
       value: 0.7,
-      hoverTitle: 'Time In Auto Mode',
+      title: 'Time In Auto Mode',
     },
   ],
   total: 1,
 };
-timeInAutoData.primary = _.find(timeInRangeData, { id: 'basalAutomated' });
+timeInAutoData.primaryIndex = _.findIndex(timeInRangeData.data, { id: 'basalAutomated' });
 
 let totalInsulinData = {
   data: [
     {
       id: 'basal',
       value: 62.9,
-      hoverTitle: 'Basal Insulin',
+      title: 'Basal Insulin',
     },
     {
       id: 'bolus',
       value: 49.5,
-      hoverTitle: 'Bolus Insulin',
+      title: 'Bolus Insulin',
     },
   ],
   total: 112.4,
 };
-totalInsulinData.primary = _.find(timeInRangeData, { id: 'target' });
-totalInsulinData.secondary = _.find(timeInRangeData, { id: 'target' });
+totalInsulinData.primaryIndex = _.findIndex(timeInRangeData.data, { id: 'target' });
+totalInsulinData.secondaryIndex = _.findIndex(timeInRangeData.data, { id: 'target' });
 
-let averageBgData = [
-  {
-    id: 'averageBg',
-    value: 187,
-  },
-  {
-    id: 'coefficientOfVariation',
-    value: 25,
-  },
-];
+let averageBgData = {
+  data: [
+    {
+      id: 'averageBg',
+      value: 187,
+    },
+    {
+      id: 'coefficientOfVariation',
+      value: 25,
+    },
+  ],
+};
+averageBgData.primaryIndex = 0;
 
-let glucoseManagementIndexData = [
-  {
-    id: 'gmi',
-    value: 0.051,
-    hoverTitle: 'G.M.I. (Estimated A1c)',
-  },
-];
+let glucoseManagementIndexData = {
+  data: [
+    {
+      id: 'gmi',
+      value: 0.051,
+      title: 'G.M.I. (Estimated A1c)',
+    },
+  ],
+};
+glucoseManagementIndexData.primaryIndex = 0;
 
 const stories = storiesOf('Stat', module);
 
-const generateRandom = data => {
+const generateRandom = (data, type) => {
   const random = _.map(data.data, () => Math.random());
   const sum = _.sum(random);
 
   return _.assign({}, data, {
     data: _.map(data.data, (d, i) => (_.assign({}, d, {
-      value: random[i],
+      value: type === 'duration' ? random[i] * MS_IN_DAY : random[i],
     }))),
-    total: sum,
+    total: type === 'duration' ? sum * MS_IN_DAY : sum,
   });
 };
 
@@ -162,7 +168,7 @@ stories.add('Time In Range', () => {
   const isOpened = boolean('isOpened', true, 'PROPS');
 
   button('Randomize Data', () => {
-    timeInRangeData = generateRandom(timeInRangeData);
+    timeInRangeData = generateRandom(timeInRangeData, 'duration');
   }, 'PROPS');
 
   return (
@@ -175,7 +181,7 @@ stories.add('Time In Range', () => {
         dataFormat={{
           datum: statFormats.percentage,
           datumTooltip: statFormats.duration,
-          primary: statFormats.duration,
+          primary: statFormats.percentage,
           secondary: statFormats.bgRange,
         }}
         isOpened={isOpened}
