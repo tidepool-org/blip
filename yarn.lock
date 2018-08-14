@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@0.11.2-cbg-tooltips.2":
-  version "0.11.2-cbg-tooltips.2"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.11.2-cbg-tooltips.2.tgz#241497d43450b4066467a40a4cc31ee8c2dcbe12"
+"@tidepool/viz@0.11.6-cbg-tooltips.4":
+  version "0.11.6-cbg-tooltips.4"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.11.6-cbg-tooltips.4.tgz#3dc5d5e52cf85cff81441a2a75bbf29f3941f1fa"
   dependencies:
     bluebird "3.5.0"
     crossfilter "1.3.12"
@@ -7638,9 +7638,9 @@ thunkify@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@1.8.4-cbg-tooltips.2:
-  version "1.8.4-cbg-tooltips.2"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.8.4-cbg-tooltips.2.tgz#d3c8c4908444df2c18feb6f8f161cf31c94ff87a"
+tideline@1.8.6-cbg-tooltips.3:
+  version "1.8.6-cbg-tooltips.3"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.8.6-cbg-tooltips.3.tgz#65a28c18ed9b8840c4187a4aa633b60acdd0e2d2"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
