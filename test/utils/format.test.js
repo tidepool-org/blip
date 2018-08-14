@@ -126,6 +126,11 @@ describe('format', () => {
     it('should include hundredths for insulin with hundredths precision', () => {
       expect(format.formatInsulin(5.05)).to.equal('5.05');
     });
+
+    it('should include thousandths for insulin with thousandths precision', () => {
+      expect(format.formatInsulin(0.375)).to.equal('0.375');
+      expect(format.formatInsulin(3.825)).to.equal('3.825');
+    });
   });
 
   describe('formatPercentage', () => {
