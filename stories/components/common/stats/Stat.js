@@ -79,18 +79,19 @@ let timeInAutoData = {
   data: [
     {
       id: 'basal',
-      value: 0.3,
+      value: convertPercentageToDayDuration(0.3),
       title: 'Time In Manual Mode',
     },
     {
       id: 'basalAutomated',
-      value: 0.7,
+      value: convertPercentageToDayDuration(0.7),
       title: 'Time In Auto Mode',
     },
   ],
   total: 1,
 };
-timeInAutoData.primaryIndex = _.findIndex(timeInRangeData.data, { id: 'basalAutomated' });
+timeInAutoData.total = getSum(timeInAutoData.data);
+timeInAutoData.primaryIndex = _.findIndex(timeInAutoData.data, { id: 'basalAutomated' });
 
 let totalInsulinData = {
   data: [
@@ -107,8 +108,7 @@ let totalInsulinData = {
   ],
   total: 112.4,
 };
-totalInsulinData.primaryIndex = _.findIndex(timeInRangeData.data, { id: 'target' });
-totalInsulinData.secondaryIndex = _.findIndex(timeInRangeData.data, { id: 'target' });
+totalInsulinData.primaryIndex = _.findIndex(totalInsulinData.data, { id: 'basal' });
 
 let averageBgData = {
   data: [
@@ -166,8 +166,10 @@ stories.add('Time In Range', () => {
   const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'PROPS');
   const bgUnits = select('bgPrefs', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'PROPS');
   const bgPrefs = bgPrefsValues[bgUnits];
+  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'PROPS');
   const collapsible = boolean('collapsible', true, 'PROPS');
   const isOpened = boolean('isOpened', true, 'PROPS');
+  const muteOthersOnHover = boolean('muteOthersOnHover', true, 'PROPS');
 
   button('Randomize Data', () => {
     timeInRangeData = generateRandom(timeInRangeData, 'duration');
@@ -176,6 +178,7 @@ stories.add('Time In Range', () => {
   return (
     <Container>
       <Stat
+        alwaysShowTooltips={alwaysShowTooltips}
         bgPrefs={bgPrefs}
         chartHeight={chartHeight}
         collapsible={collapsible}
@@ -187,6 +190,7 @@ stories.add('Time In Range', () => {
           secondary: statFormats.bgRange,
         }}
         isOpened={isOpened}
+        muteOthersOnHover={muteOthersOnHover}
         title="Time In Range"
         type={statTypes.barHorizontal}
       />
@@ -197,15 +201,18 @@ stories.add('Time In Range', () => {
 stories.add('Time In Auto', () => {
   const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'PROPS');
   const collapsible = boolean('collapsible', true, 'PROPS');
+  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'PROPS');
   const isOpened = boolean('isOpened', true, 'PROPS');
+  const muteOthersOnHover = boolean('muteOthersOnHover', true, 'PROPS');
 
   button('Randomize Data', () => {
-    timeInAutoData = generateRandom(timeInAutoData);
+    timeInAutoData = generateRandom(timeInAutoData, 'duration');
   }, 'PROPS');
 
   return (
     <Container>
       <Stat
+        alwaysShowTooltips={alwaysShowTooltips}
         chartHeight={chartHeight}
         collapsible={collapsible}
         data={timeInAutoData}
@@ -215,6 +222,7 @@ stories.add('Time In Auto', () => {
           primary: statFormats.percentage,
         }}
         isOpened={isOpened}
+        muteOthersOnHover={muteOthersOnHover}
         title="Time In Auto Mode"
         type={statTypes.barHorizontal}
       />
@@ -225,7 +233,9 @@ stories.add('Time In Auto', () => {
 stories.add('Total Insulin', () => {
   const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'PROPS');
   const collapsible = boolean('collapsible', true, 'PROPS');
+  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'PROPS');
   const isOpened = boolean('isOpened', true, 'PROPS');
+  const muteOthersOnHover = boolean('muteOthersOnHover', true, 'PROPS');
 
   button('Randomize Data', () => {
     totalInsulinData = generateRandom(totalInsulinData);
@@ -234,16 +244,18 @@ stories.add('Total Insulin', () => {
   return (
     <Container>
       <Stat
+        alwaysShowTooltips={alwaysShowTooltips}
         chartHeight={chartHeight}
         collapsible={collapsible}
         data={totalInsulinData}
         dataFormat={{
           datum: statFormats.percentage,
-          datumTooltip: statFormats.duration,
+          datumTooltip: statFormats.units,
           primary: statFormats.percentage,
           secondary: statFormats.percentage,
         }}
         isOpened={isOpened}
+        muteOthersOnHover={muteOthersOnHover}
         title="Total Insulin"
         type={statTypes.barHorizontal}
       />

@@ -21,7 +21,7 @@ import bows from 'bows';
 import { SizeMe } from 'react-sizeme';
 import { VictoryBar, VictoryContainer } from 'victory';
 import { Collapse } from 'react-collapse';
-import { formatPercentage } from '../../../utils/format';
+import { formatPercentage, formatInsulin } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
 import styles from './Stat.css';
 import cx from 'classnames';
@@ -29,7 +29,7 @@ import HoverBar, { SizedHoverLabel } from './HoverBar';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
 
-const colors = {
+export const statColors = {
   basal: '#0096d1',
   basalAutomated: '#00e9fa',
   bolus: '#7ed1f2',
@@ -38,6 +38,9 @@ const colors = {
   target: '#76db9b',
   high: '#b49de3',
   veryHigh: '#8c65d6',
+  white: '#ffffff',
+  axis: '#e7e9ee',
+  muted: '#c1c9d6',
 };
 
 export const statTypes = {
@@ -55,6 +58,7 @@ export const statFormats = {
 
 class Stat extends React.PureComponent {
   static propTypes = {
+    alwaysShowTooltips: PropTypes.bool,
     bgPrefs: PropTypes.shape({
       bgBounds: PropTypes.shape({
         veryHighThreshold: PropTypes.number.isRequired,
@@ -86,12 +90,14 @@ class Stat extends React.PureComponent {
       secondary: PropTypes.oneOf(_.values(statFormats)),
     }),
     isOpened: PropTypes.bool,
+    muteOthersOnHover: PropTypes.bool,
     primaryStat: PropTypes.string,
     title: PropTypes.string.isRequired,
     type: PropTypes.oneOf(_.keys(statTypes)),
   };
 
   static defaultProps = {
+    alwaysShowTooltips: false,
     categories: {},
     chartHeight: 0,
     collapsible: true,
@@ -102,6 +108,7 @@ class Stat extends React.PureComponent {
       secondary: statFormats.percentage,
     },
     isOpened: true,
+    muteOthersOnHover: true,
     primaryStat: '',
     type: statTypes.barHorizontal.type,
   };
@@ -156,7 +163,7 @@ class Stat extends React.PureComponent {
               <div
                 className={styles.primaryValue}
                 style={{
-                  color: colors[primary.id],
+                  color: statColors[primary.id],
                 }}
               >
                 {this.formatValue(primary.value, this.props.dataFormat.primary)}
@@ -193,6 +200,7 @@ class Stat extends React.PureComponent {
       default:
         state.isCollapsible = props.collapsible;
         state.isOpened = props.isOpened;
+        state.hoveredDatumIndex = -1;
         break;
     }
 
@@ -212,7 +220,7 @@ class Stat extends React.PureComponent {
       labels: d => formatPercentage(d.y),
       style: {
         data: {
-          fill: d => colors[d.id],
+          fill: d => statColors[d.id],
         },
       },
     }, rest);
@@ -220,8 +228,10 @@ class Stat extends React.PureComponent {
     let barWidth;
     let barSpacing;
     let chartHeight;
+    let chartLabelWidth;
     let domain;
     let padding;
+    let getStatColor;
 
     switch (type) {
       case 'simple':
@@ -231,7 +241,7 @@ class Stat extends React.PureComponent {
       case 'barHorizontal':
       default:
         domain = { y: [0, props.data.data.length], x: [0, 1] };
-        barSpacing = chartProps.barSpacing || 5;
+        barSpacing = chartProps.barSpacing || 4;
         chartHeight = chartProps.chartHeight;
 
         if (chartHeight > 0) {
@@ -242,12 +252,29 @@ class Stat extends React.PureComponent {
         }
 
         padding = { top: barWidth / 2, bottom: barWidth / 2 * -1 };
+        chartLabelWidth = barWidth * 2.25;
+
+        getStatColor = (datum) => {
+          const { hoveredDatumIndex } = this.state;
+          const isMuted = props.muteOthersOnHover
+            && hoveredDatumIndex >= 0
+            && hoveredDatumIndex !== datum.eventKey;
+
+          return isMuted ? statColors.muted : statColors[datum.id];
+        };
 
         _.assign(chartProps, {
           alignment: 'middle',
           containerComponent: <VictoryContainer responsive={false} />,
           cornerRadius: { top: 2, bottom: 2 },
-          dataComponent: <HoverBar domain={domain} barWidth={barWidth} barSpacing={barSpacing} />,
+          dataComponent: (
+            <HoverBar
+              domain={domain}
+              barWidth={barWidth}
+              barSpacing={barSpacing}
+              chartLabelWidth={chartLabelWidth}
+            />
+          ),
           domain,
           events: [
             {
@@ -256,12 +283,24 @@ class Stat extends React.PureComponent {
                 onMouseOver: (event, target) => {
                   const datum = _.get(props.data, ['data', target.index], {});
                   this.setChartTitle(datum.title);
+                  this.setState({ hoveredDatumIndex: target.index });
                   if (props.dataFormat.datumTooltip) {
-                    console.log('datumTooltip', this.formatValue(datum.value, statFormats.duration));
+                    return {
+                      target: 'labels',
+                      mutation: () => ({
+                        active: true,
+                      }),
+                    };
                   }
+                  return {};
                 },
-                onMouseLeave: () => {
+                onMouseOut: () => {
                   this.setChartTitle();
+                  this.setState({ hoveredDatumIndex: -1 });
+                  return {
+                    target: 'labels',
+                    mutation: () => ({ active: props.alwaysalwaysShowTooltips }),
+                  };
                 },
               },
             },
@@ -270,24 +309,30 @@ class Stat extends React.PureComponent {
           horizontal: true,
           labelComponent: (
             <SizedHoverLabel
+              active={props.alwaysShowTooltips}
               domain={domain}
+              barWidth={barWidth}
               text={datum => (this.formatValue(
                 _.get(props.data, ['data', datum.eventKey, 'value']),
                 props.dataFormat.datum,
+              ))}
+              tooltipText={datum => (this.formatValue(
+                _.get(props.data, ['data', datum.eventKey, 'value']),
+                props.dataFormat.datumTooltip,
               ))}
             />
           ),
           padding,
           style: {
             data: {
-              fill: d => colors[d.id],
+              fill: d => getStatColor(d),
               width: () => barWidth,
             },
             labels: {
-              fill: d => colors[d.id],
+              fill: d => getStatColor(d),
               fontSize: barWidth * 0.833,
               fontWeight: 600,
-              paddingLeft: 70,
+              paddingLeft: chartLabelWidth,
             },
           },
         });
@@ -325,6 +370,9 @@ class Stat extends React.PureComponent {
 
         case statFormats.duration:
           return formatDuration(calculatedValue, 'condensed');
+
+        case statFormats.units:
+          return `${formatInsulin(calculatedValue)}u`;
 
         default:
           return value;

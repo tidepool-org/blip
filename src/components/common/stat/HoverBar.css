@@ -1,9 +1,0 @@
-.BarGrid {
-  stroke: var(--axis-tick);
-  fill: var(--axis-tick);
-}
-
-.BarHoverTarget {
-  stroke: transparent;
-  fill: transparent;
-}

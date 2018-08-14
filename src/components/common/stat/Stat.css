@@ -6,12 +6,6 @@
   overflow: hidden;
 }
 
-.Stat.barHorizontal {}
-
-.Stat.isCollapsible {}
-
-.Stat.isOpen {}
-
 .chartHeader {
   display: flex;
   flex-wrap: nowrap;
