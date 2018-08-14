@@ -546,6 +546,10 @@ describe('App',  () => {
       it('should return null for patient', () => {
         expect(result.patient).to.be.null;
       });
+
+      it('should return null for permsOfLoggedInUser', () => {
+        expect(result.permsOfLoggedInUser).to.be.null;
+      });
     });
 
     describe('logged-in state', () => {
@@ -626,6 +630,101 @@ describe('App',  () => {
 
       it('should return the current patient in view as patient and empty permissions', () => {
         expect(result.patient).to.deep.equal(Object.assign({}, loggedIn.allUsersMap.d4e5f6, { permissions: {} }));
+      }); 
+
+      it('should return empty permsOfLoggedInUser if user does not have authorization', () => {
+        expect(result.permsOfLoggedInUser).to.be.empty;
+      });
+
+      context('Care team member with upload permissions', () => {
+        const careTeamMemberUpload = {
+          allUsersMap: {
+            a1b2c3: {
+              termsAccepted: 'today'
+            },
+            d4e5f6: {}
+          },
+          currentPatientInViewId: 'd4e5f6',
+          loggedIn: true,
+          loggedInUserId: 'a1b2c3',
+          notification: {
+            key: 'fetchingPatient',
+            link: {
+              to: '/patients/foo',
+              text: 'Sorry!'
+            },
+            status: 405
+          },
+          permissionsOfMembersInTargetCareTeam: {},
+          membershipPermissionsInOtherCareTeams: {
+            d4e5f6: {
+              view: {},
+              note: {},
+              upload: {},
+            }
+          },
+          dataDonationAccounts: [],
+          datasources: [],
+          showingDonateBanner: null,
+          showingDexcomConnectBanner: null,
+          working: {
+            fetchingUser: {inProgress: false},
+            fetchingPendingSentInvites: {inProgress: false},
+            updatingDataDonationAccounts: {inProgress: false},
+            fetchingPatient: {inProgress: false, notification: {type: 'error'}},
+            loggingOut: {inProgress: false}
+          }
+        };
+        const careTeamMemberUploadResult = mapStateToProps({blip: careTeamMemberUpload});
+  
+        it('should return correct permsOfLoggedInUser permissions', () => {
+          expect(careTeamMemberUploadResult.permsOfLoggedInUser).to.equal(careTeamMemberUpload.membershipPermissionsInOtherCareTeams.d4e5f6);
+        });  
+      });
+
+      context('Care team member without upload permissions', () => {
+        const careTeamMemberNoUpload = {
+          allUsersMap: {
+            a1b2c3: {
+              termsAccepted: 'today'
+            },
+            d4e5f6: {}
+          },
+          currentPatientInViewId: 'd4e5f6',
+          loggedIn: true,
+          loggedInUserId: 'a1b2c3',
+          notification: {
+            key: 'fetchingPatient',
+            link: {
+              to: '/patients/foo',
+              text: 'Sorry!'
+            },
+            status: 405
+          },
+          permissionsOfMembersInTargetCareTeam: {},
+          membershipPermissionsInOtherCareTeams: {
+            d4e5f6: {
+              view: {},
+              note: {},
+            }
+          },
+          dataDonationAccounts: [],
+          datasources: [],
+          showingDonateBanner: null,
+          showingDexcomConnectBanner: null,
+          working: {
+            fetchingUser: {inProgress: false},
+            fetchingPendingSentInvites: {inProgress: false},
+            updatingDataDonationAccounts: {inProgress: false},
+            fetchingPatient: {inProgress: false, notification: {type: 'error'}},
+            loggingOut: {inProgress: false}
+          }
+        };
+        const careTeamMemberNoUploadResult = mapStateToProps({blip: careTeamMemberNoUpload});
+  
+        it('should return correct permsOfLoggedInUser permissions', () => {
+          expect(careTeamMemberNoUploadResult.permsOfLoggedInUser).to.equal(careTeamMemberNoUpload.membershipPermissionsInOtherCareTeams.d4e5f6);
+        });
       });
 
       describe('getFetchers', () => {

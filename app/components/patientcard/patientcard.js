@@ -164,7 +164,7 @@ var PatientCard = React.createClass({
       self.props.trackMetric('Clicked VDF Upload Data');
     };
 
-    if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
+    if(_.isEmpty(patient.permissions) === false && patient.permissions.root || _.has(patient.permissions, ['upload'])) {
       return (
         <a className={classes} href='' onClick={handleClick} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} title="Upload data">Upload</a>
       );
