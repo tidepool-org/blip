@@ -204,9 +204,10 @@ stories.add('Time In Range', () => {
         collapsible={collapsible}
         data={timeInRangeData}
         dataFormat={{
-          datum: statFormats.percentage,
-          datumTooltip: statFormats.duration,
+          label: statFormats.percentage,
           summary: statFormats.percentage,
+          tooltip: statFormats.duration,
+          tooltipTitle: statFormats.duration, // TODO: statFormats.bgRange
         }}
         isOpened={isOpened}
         muteOthersOnHover={muteOthersOnHover}
@@ -236,9 +237,9 @@ stories.add('Time In Auto', () => {
         collapsible={collapsible}
         data={timeInAutoData}
         dataFormat={{
-          datum: statFormats.percentage,
-          datumTooltip: statFormats.duration,
+          label: statFormats.percentage,
           summary: statFormats.percentage,
+          tooltip: statFormats.duration,
         }}
         isOpened={isOpened}
         muteOthersOnHover={muteOthersOnHover}
@@ -268,10 +269,10 @@ stories.add('Total Insulin', () => {
         collapsible={collapsible}
         data={totalInsulinData}
         dataFormat={{
-          datum: statFormats.percentage,
-          datumTooltip: statFormats.units,
+          label: statFormats.percentage,
           summary: statFormats.units,
           title: statFormats.units,
+          tooltip: statFormats.units,
         }}
         isOpened={isOpened}
         muteOthersOnHover={muteOthersOnHover}
@@ -299,9 +300,9 @@ stories.add('Average BG', () => {
         collapsible={collapsible}
         data={averageBgData}
         dataFormat={{
+          label: statFormats.bgValue,
           summary: statFormats.units,
-          datum: statFormats.bgValue,
-          tooltip: statFormats.units,
+          title: statFormats.units,
         }}
         isOpened={isOpened}
         title="Average BG"
@@ -324,7 +325,6 @@ stories.add('Glucose Management Index', () => {
         type={statTypes.simple}
         dataFormat={{
           summary: statFormats.percentage,
-          label: statFormats.percentage,
         }}
       />
     </Container>

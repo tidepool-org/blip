@@ -4,7 +4,7 @@ import { Bar, Rect, VictoryLabel, VictoryTooltip, TextSize } from 'victory';
 import SizeMe from 'react-sizeme';
 import { statColors } from './Stat';
 
-export const HoverBarLabel = (props) => {
+export const HoverBarLabel = props => {
   const {
     barWidth,
     domain,
@@ -74,7 +74,7 @@ HoverBarLabel.displayName = 'HoverBarLabel';
 
 export const SizedHoverLabel = SizeMe()(HoverBarLabel);
 
-export const HoverBar = (props) => {
+export const HoverBar = props => {
   const {
     barSpacing,
     barWidth,

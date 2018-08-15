@@ -97,10 +97,11 @@ class Stat extends React.PureComponent {
       }),
     }),
     dataFormat: PropTypes.shape({
-      datum: PropTypes.oneOf(_.values(statFormats)),
-      tooltip: PropTypes.oneOf(_.values(statFormats)),
+      label: PropTypes.oneOf(_.values(statFormats)),
       summary: PropTypes.oneOf(_.values(statFormats)),
-      secondary: PropTypes.oneOf(_.values(statFormats)),
+      title: PropTypes.oneOf(_.values(statFormats)),
+      tooltip: PropTypes.oneOf(_.values(statFormats)),
+      tooltipTitle: PropTypes.oneOf(_.values(statFormats)),
     }),
     isOpened: PropTypes.bool,
     muteOthersOnHover: PropTypes.bool,
@@ -114,10 +115,11 @@ class Stat extends React.PureComponent {
     chartHeight: 0,
     collapsible: true,
     dataFormat: {
-      datum: statFormats.percentage,
-      tooltip: statFormats.percentage,
+      label: statFormats.percentage,
       summary: statFormats.percentage,
-      secondary: statFormats.percentage,
+      title: statFormats.percentage,
+      tooltip: statFormats.percentage,
+      tooltipTitle: statFormats.percentage,
     },
     isOpened: true,
     muteOthersOnHover: true,
@@ -143,7 +145,7 @@ class Stat extends React.PureComponent {
     this.setChartPropsByType(nextProps);
   }
 
-  renderChart = (size) => (
+  renderChart = size => (
     <Collapse
       isOpened={this.state.isOpened}
       springConfig={{ stiffness: 200, damping: 23 }}
@@ -154,28 +156,22 @@ class Stat extends React.PureComponent {
     </Collapse>
   );
 
-  getData = pathKey => {
-    let data;
-    if (this.props.dataFormat[pathKey]) {
-      const dataPath = _.get(this.props.data, ['dataPaths', pathKey]);
-      const ref = _.get(this.props.data, dataPath);
-      data = this.formatValue(ref.value, this.props.dataFormat[pathKey]);
-      data.id = ref.id;
-    }
-    return data;
-  }
-
   render() {
+    const isHovered = this.state.hoveredDatumIndex >= 0;
     const statOuterClasses = cx({
       [styles.Stat]: true,
       [styles[this.props.type]]: true,
       [styles.isCollapsible]: this.state.isCollapsible,
       [styles.isOpen]: this.state.isOpened,
-      [styles.isHovered]: this.state.hoveredDatumIndex >= 0,
+      [styles.isHovered]: isHovered,
     });
 
-    const summaryData = this.getData('summary');
-    const titleData = this.getData('title');
+    const summaryData = this.getData({ pathKey: 'summary' });
+    const titleData = isHovered
+      ? this.state.tooltipTitleData
+      : this.getData({ pathKey: 'title' });
+
+    console.log('titleData', titleData);
 
     return (
       <div className={statOuterClasses}>
@@ -227,7 +223,27 @@ class Stat extends React.PureComponent {
     );
   }
 
-  getStateByType = (props) => {
+  getData = (opts = {}) => {
+    const { pathKey, path, format } = opts;
+    let dataPath = path;
+    let dataFormat = format;
+    let data;
+
+    if (!dataPath && pathKey && this.props.dataFormat[pathKey]) {
+      dataPath = _.get(this.props.data, ['dataPaths', pathKey]);
+      dataFormat = this.props.dataFormat[pathKey];
+    }
+
+    if (dataPath) {
+      const ref = _.get(this.props.data, dataPath, {});
+      data = this.formatValue(ref.value, dataFormat);
+      data.id = ref.id;
+    }
+
+    return data;
+  }
+
+  getStateByType = props => {
     const state = {
       chartTitle: props.title,
     };
@@ -248,7 +264,7 @@ class Stat extends React.PureComponent {
     return state;
   }
 
-  setChartPropsByType = (props) => {
+  setChartPropsByType = props => {
     const { type, data, ...rest } = props;
     let chartRenderer = VictoryBar;
     const chartProps = _.defaults({
@@ -295,7 +311,7 @@ class Stat extends React.PureComponent {
         padding = { top: barWidth / 2, bottom: barWidth / 2 * -1 };
         chartLabelWidth = barWidth * 2.25;
 
-        getStatColor = (datum) => {
+        getStatColor = datum => {
           const { hoveredDatumIndex } = this.state;
           const isMuted = props.muteOthersOnHover
             && hoveredDatumIndex >= 0
@@ -323,9 +339,10 @@ class Stat extends React.PureComponent {
               eventHandlers: {
                 onMouseOver: (event, target) => {
                   const datum = _.get(props.data, ['data', target.index], {});
-                  this.setChartTitle(datum.title);
+                  datum.index = target.index;
+                  this.setChartTitle(datum);
                   this.setState({ hoveredDatumIndex: target.index });
-                  if (props.dataFormat.datumTooltip) {
+                  if (props.dataFormat.tooltip) {
                     return {
                       target: 'labels',
                       mutation: () => ({
@@ -356,14 +373,14 @@ class Stat extends React.PureComponent {
               text={datum => {
                 const { value, suffix } = this.formatValue(
                   _.get(props.data, ['data', datum.eventKey, 'value']),
-                  props.dataFormat.datum,
+                  props.dataFormat.label,
                 );
                 return `${value}${suffix}`;
               }}
               tooltipText={datum => {
                 const { value, suffix } = this.formatValue(
                   _.get(props.data, ['data', datum.eventKey, 'value']),
-                  props.dataFormat.datumTooltip,
+                  props.dataFormat.tooltip,
                 );
                 return `${value}${suffix}`;
               }}
@@ -389,17 +406,29 @@ class Stat extends React.PureComponent {
     this.setChartRenderer(chartRenderer);
   }
 
-  setChartTitle = (chartTitle = this.props.title) => {
+  setChartTitle = (datum = {}) => {
+    let tooltipTitleData;
+    const { title = this.props.title } = datum;
+    const tooltipTitleFormat = _.get(this.props, 'dataFormat.tooltipTitle');
+
+    if (tooltipTitleFormat) {
+      tooltipTitleData = this.getData({
+        path: ['data', datum.index],
+        format: tooltipTitleFormat,
+      });
+    }
+
     this.setState({
-      chartTitle,
+      chartTitle: title,
+      tooltipTitleData,
     });
   }
 
-  setChartRef = (element) => {
+  setChartRef = element => {
     this.chartRef = element;
   }
 
-  setChartRenderer = (chartRenderer) => {
+  setChartRenderer = chartRenderer => {
     this.chartRenderer = chartRenderer;
   }
 

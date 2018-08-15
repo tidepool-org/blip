@@ -48,11 +48,6 @@
   opacity: 1;
 }
 
-.Stat.isOpen.isHovered .chartTitleData {
-  opacity: 0.001;
-  transition: 0s;
-}
-
 .titleSuffix {
   color: var(--stat--suffix);
 }
