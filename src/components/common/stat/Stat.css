@@ -2,7 +2,7 @@
   padding: 0.25em 0.625em 0.25em;
   background-color: var(--bkgrnd-white);
   border-radius: 8px;
-  border: 1px solid var(--border-stat);
+  border: 1px solid var(--stat--border);
   overflow: hidden;
 }
 
@@ -33,6 +33,10 @@
 .primaryValue {
   opacity: 1;
   transition: .3s ease-in-out;
+}
+
+.primarySuffix {
+  color: var(--stat--suffix);
 }
 
 .Stat.isOpen .primaryValue {

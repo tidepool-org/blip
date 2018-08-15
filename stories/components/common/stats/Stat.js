@@ -72,8 +72,11 @@ let timeInRangeData = {
     },
   ],
 };
-timeInRangeData.total = getSum(timeInRangeData.data);
-timeInRangeData.primaryIndex = _.findIndex(timeInRangeData.data, { id: 'target' });
+timeInRangeData.total = { value: getSum(timeInRangeData.data) };
+timeInRangeData.primaryDataPath = [
+  'data',
+  _.findIndex(timeInRangeData.data, { id: 'target' }),
+];
 
 let timeInAutoData = {
   data: [
@@ -90,8 +93,11 @@ let timeInAutoData = {
   ],
   total: 1,
 };
-timeInAutoData.total = getSum(timeInAutoData.data);
-timeInAutoData.primaryIndex = _.findIndex(timeInAutoData.data, { id: 'basalAutomated' });
+timeInAutoData.total = { value: getSum(timeInAutoData.data) };
+timeInAutoData.primaryDataPath = [
+  'data',
+  _.findIndex(timeInAutoData.data, { id: 'basalAutomated' }),
+];
 
 let totalInsulinData = {
   data: [
@@ -106,9 +112,12 @@ let totalInsulinData = {
       title: 'Bolus Insulin',
     },
   ],
-  total: 112.4,
+  total: {
+    id: 'totalInsulin',
+    value: 112.4,
+  },
 };
-totalInsulinData.primaryIndex = _.findIndex(totalInsulinData.data, { id: 'basal' });
+totalInsulinData.primaryDataPath = 'total';
 
 let averageBgData = {
   data: [
@@ -122,7 +131,7 @@ let averageBgData = {
     },
   ],
 };
-averageBgData.primaryIndex = 0;
+averageBgData.primaryDataPath = 'data.0';
 
 let glucoseManagementIndexData = {
   data: [
@@ -133,7 +142,7 @@ let glucoseManagementIndexData = {
     },
   ],
 };
-glucoseManagementIndexData.primaryIndex = 0;
+glucoseManagementIndexData.primaryDataPath = 'data.0';
 
 const stories = storiesOf('Stat', module);
 
@@ -251,7 +260,7 @@ stories.add('Total Insulin', () => {
         dataFormat={{
           datum: statFormats.percentage,
           datumTooltip: statFormats.units,
-          primary: statFormats.percentage,
+          primary: statFormats.units,
           secondary: statFormats.percentage,
         }}
         isOpened={isOpened}

@@ -33,6 +33,7 @@ export const statColors = {
   basal: '#0096d1',
   basalAutomated: '#00e9fa',
   bolus: '#7ed1f2',
+  totalInsulin: '#0096d1',
   veryLow: '#fb5951',
   low: '#f28684',
   target: '#76db9b',
@@ -79,8 +80,16 @@ class Stat extends React.PureComponent {
           title: PropTypes.string,
         }
       )).isRequired,
-      total: PropTypes.number,
-      primaryIndex: PropTypes.number,
+      total: PropTypes.shape(
+        {
+          id: PropTypes.string,
+          value: PropTypes.number.isRequired,
+        }
+      ),
+      primaryDataPath: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.array,
+      ]),
       secondaryIndex: PropTypes.number,
     }),
     dataFormat: PropTypes.shape({
@@ -151,7 +160,9 @@ class Stat extends React.PureComponent {
       [styles.isOpen]: this.state.isOpened,
     });
 
-    const primary = _.get(this.props.data, ['data', this.props.data.primaryIndex]);
+    const primaryDataPath = _.get(this.props.data, 'primaryDataPath');
+    const primaryData = _.get(this.props.data, primaryDataPath);
+    const primaryValue = this.formatValue(primaryData.value, this.props.dataFormat.primary);
 
     return (
       <div className={statOuterClasses}>
@@ -159,14 +170,15 @@ class Stat extends React.PureComponent {
           <div className={styles.chartTitle}>{this.state.chartTitle}</div>
 
           <div className={styles.chartPrimary}>
-            {primary && (
+            {primaryValue && (
               <div
                 className={styles.primaryValue}
                 style={{
-                  color: statColors[primary.id],
+                  color: statColors[primaryData.id],
                 }}
               >
-                {this.formatValue(primary.value, this.props.dataFormat.primary)}
+                {primaryValue.value}
+                <span className={styles.primarySuffix}>{primaryValue.suffix}</span>
               </div>
             )}
 
@@ -214,7 +226,7 @@ class Stat extends React.PureComponent {
       animate: { duration: 300, onLoad: { duration: 0 } },
       data: _.map(data.data, (d, i) => ({
         x: i + 1,
-        y: data.total ? d.value / data.total : d.value,
+        y: data.total ? d.value / data.total.value : d.value,
         id: d.id,
       })),
       labels: d => formatPercentage(d.y),
@@ -312,14 +324,20 @@ class Stat extends React.PureComponent {
               active={props.alwaysShowTooltips}
               domain={domain}
               barWidth={barWidth}
-              text={datum => (this.formatValue(
-                _.get(props.data, ['data', datum.eventKey, 'value']),
-                props.dataFormat.datum,
-              ))}
-              tooltipText={datum => (this.formatValue(
-                _.get(props.data, ['data', datum.eventKey, 'value']),
-                props.dataFormat.datumTooltip,
-              ))}
+              text={datum => {
+                const { value, suffix } = this.formatValue(
+                  _.get(props.data, ['data', datum.eventKey, 'value']),
+                  props.dataFormat.datum,
+                );
+                return `${value}${suffix}`;
+              }}
+              tooltipText={datum => {
+                const { value, suffix } = this.formatValue(
+                  _.get(props.data, ['data', datum.eventKey, 'value']),
+                  props.dataFormat.datumTooltip,
+                );
+                return `${value}${suffix}`;
+              }}
             />
           ),
           padding,
@@ -356,29 +374,36 @@ class Stat extends React.PureComponent {
     this.chartRenderer = chartRenderer;
   }
 
-  formatValue = (value, format, opts = {}) => {
-    if (_.includes(_.values(statFormats), format)) {
-      let calculatedValue = value;
-      const { total = this.props.data.total } = opts;
+  formatValue = (inputValue, format, opts = {}) => {
+    let suffix = '';
+    let value = inputValue;
+    const { total = _.get(this.props.data, 'total.value') } = opts;
 
-      switch (format) {
-        case statFormats.percentage:
-          if (total) {
-            calculatedValue = value / total;
-          }
-          return formatPercentage(calculatedValue);
+    switch (format) {
+      case statFormats.percentage:
+        if (total) {
+          value = value / total;
+        }
+        value = formatPercentage(value);
+        break;
 
-        case statFormats.duration:
-          return formatDuration(calculatedValue, 'condensed');
+      case statFormats.duration:
+        value = formatDuration(value, 'condensed');
+        break;
 
-        case statFormats.units:
-          return `${formatInsulin(calculatedValue)}u`;
+      case statFormats.units:
+        value = formatInsulin(value);
+        suffix = 'u';
+        break;
 
-        default:
-          return value;
-      }
+      default:
+        break;
     }
-    return value;
+
+    return {
+      value,
+      suffix,
+    };
   }
 }
 

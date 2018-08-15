@@ -30,11 +30,12 @@
   --trends--light--faded: #F0F0F0;
   --trends--dark: #BCBCBC;
   --trends--dark--faded: #E3E3E3;
+  --stat--border: #75849f;
+  --stat--suffix: #75849f;
   --axis-tick: #E7E7E7;
   --bkgrnd: #F8F8F8;
   --bkgrnd-lines: #E7E7E7;
   --bkgrnd-white: #ffffff;
-  --border-stat: #75849f;
   --tooltip-title-bg: #EAEAEE;
   --chrome: #989897;
   --text-medium-contrast: #727375;
