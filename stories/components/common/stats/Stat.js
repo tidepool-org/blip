@@ -73,10 +73,12 @@ let timeInRangeData = {
   ],
 };
 timeInRangeData.total = { value: getSum(timeInRangeData.data) };
-timeInRangeData.primaryDataPath = [
-  'data',
-  _.findIndex(timeInRangeData.data, { id: 'target' }),
-];
+timeInRangeData.dataPaths = {
+  summary: [
+    'data',
+    _.findIndex(timeInRangeData.data, { id: 'target' }),
+  ],
+};
 
 let timeInAutoData = {
   data: [
@@ -94,10 +96,12 @@ let timeInAutoData = {
   total: 1,
 };
 timeInAutoData.total = { value: getSum(timeInAutoData.data) };
-timeInAutoData.primaryDataPath = [
-  'data',
-  _.findIndex(timeInAutoData.data, { id: 'basalAutomated' }),
-];
+timeInAutoData.dataPaths = {
+  summary: [
+    'data',
+    _.findIndex(timeInAutoData.data, { id: 'basalAutomated' }),
+  ],
+};
 
 let totalInsulinData = {
   data: [
@@ -117,7 +121,10 @@ let totalInsulinData = {
     value: 112.4,
   },
 };
-totalInsulinData.primaryDataPath = 'total';
+totalInsulinData.dataPaths = {
+  summary: 'total',
+  title: 'total',
+};
 
 let averageBgData = {
   data: [
@@ -131,7 +138,9 @@ let averageBgData = {
     },
   ],
 };
-averageBgData.primaryDataPath = 'data.0';
+averageBgData.dataPaths = {
+  summary: 'data.0',
+};
 
 let glucoseManagementIndexData = {
   data: [
@@ -142,7 +151,9 @@ let glucoseManagementIndexData = {
     },
   ],
 };
-glucoseManagementIndexData.primaryDataPath = 'data.0';
+glucoseManagementIndexData.dataPaths = {
+  summary: 'data.0',
+};
 
 const stories = storiesOf('Stat', module);
 
@@ -195,8 +206,7 @@ stories.add('Time In Range', () => {
         dataFormat={{
           datum: statFormats.percentage,
           datumTooltip: statFormats.duration,
-          primary: statFormats.percentage,
-          secondary: statFormats.bgRange,
+          summary: statFormats.percentage,
         }}
         isOpened={isOpened}
         muteOthersOnHover={muteOthersOnHover}
@@ -228,7 +238,7 @@ stories.add('Time In Auto', () => {
         dataFormat={{
           datum: statFormats.percentage,
           datumTooltip: statFormats.duration,
-          primary: statFormats.percentage,
+          summary: statFormats.percentage,
         }}
         isOpened={isOpened}
         muteOthersOnHover={muteOthersOnHover}
@@ -260,8 +270,8 @@ stories.add('Total Insulin', () => {
         dataFormat={{
           datum: statFormats.percentage,
           datumTooltip: statFormats.units,
-          primary: statFormats.units,
-          secondary: statFormats.percentage,
+          summary: statFormats.units,
+          title: statFormats.units,
         }}
         isOpened={isOpened}
         muteOthersOnHover={muteOthersOnHover}
@@ -289,7 +299,7 @@ stories.add('Average BG', () => {
         collapsible={collapsible}
         data={averageBgData}
         dataFormat={{
-          primary: statFormats.units,
+          summary: statFormats.units,
           datum: statFormats.bgValue,
           tooltip: statFormats.units,
         }}
@@ -313,7 +323,7 @@ stories.add('Glucose Management Index', () => {
         title="G.M.I"
         type={statTypes.simple}
         dataFormat={{
-          primary: statFormats.percentage,
+          summary: statFormats.percentage,
           label: statFormats.percentage,
         }}
       />

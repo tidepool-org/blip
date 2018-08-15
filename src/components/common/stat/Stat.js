@@ -57,6 +57,11 @@ export const statFormats = {
   units: 'units',
 };
 
+const dataPathPropType = PropTypes.oneOfType([
+  PropTypes.string,
+  PropTypes.array,
+]);
+
 class Stat extends React.PureComponent {
   static propTypes = {
     alwaysShowTooltips: PropTypes.bool,
@@ -86,21 +91,19 @@ class Stat extends React.PureComponent {
           value: PropTypes.number.isRequired,
         }
       ),
-      primaryDataPath: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.array,
-      ]),
-      secondaryIndex: PropTypes.number,
+      dataPaths: PropTypes.shape({
+        summary: dataPathPropType,
+        title: dataPathPropType,
+      }),
     }),
     dataFormat: PropTypes.shape({
       datum: PropTypes.oneOf(_.values(statFormats)),
       tooltip: PropTypes.oneOf(_.values(statFormats)),
-      primary: PropTypes.oneOf(_.values(statFormats)),
+      summary: PropTypes.oneOf(_.values(statFormats)),
       secondary: PropTypes.oneOf(_.values(statFormats)),
     }),
     isOpened: PropTypes.bool,
     muteOthersOnHover: PropTypes.bool,
-    primaryStat: PropTypes.string,
     title: PropTypes.string.isRequired,
     type: PropTypes.oneOf(_.keys(statTypes)),
   };
@@ -113,12 +116,11 @@ class Stat extends React.PureComponent {
     dataFormat: {
       datum: statFormats.percentage,
       tooltip: statFormats.percentage,
-      primary: statFormats.percentage,
+      summary: statFormats.percentage,
       secondary: statFormats.percentage,
     },
     isOpened: true,
     muteOthersOnHover: true,
-    primaryStat: '',
     type: statTypes.barHorizontal.type,
   };
 
@@ -152,33 +154,60 @@ class Stat extends React.PureComponent {
     </Collapse>
   );
 
+  getData = pathKey => {
+    let data;
+    if (this.props.dataFormat[pathKey]) {
+      const dataPath = _.get(this.props.data, ['dataPaths', pathKey]);
+      const ref = _.get(this.props.data, dataPath);
+      data = this.formatValue(ref.value, this.props.dataFormat[pathKey]);
+      data.id = ref.id;
+    }
+    return data;
+  }
+
   render() {
     const statOuterClasses = cx({
       [styles.Stat]: true,
       [styles[this.props.type]]: true,
       [styles.isCollapsible]: this.state.isCollapsible,
       [styles.isOpen]: this.state.isOpened,
+      [styles.isHovered]: this.state.hoveredDatumIndex >= 0,
     });
 
-    const primaryDataPath = _.get(this.props.data, 'primaryDataPath');
-    const primaryData = _.get(this.props.data, primaryDataPath);
-    const primaryValue = this.formatValue(primaryData.value, this.props.dataFormat.primary);
+    const summaryData = this.getData('summary');
+    const titleData = this.getData('title');
 
     return (
       <div className={statOuterClasses}>
         <div className={styles.chartHeader}>
-          <div className={styles.chartTitle}>{this.state.chartTitle}</div>
+          <div className={styles.chartTitle}>
+            {this.state.chartTitle}
+            {titleData && (
+              <span className={styles.chartTitleData}>
+                &nbsp;(
+                <span
+                  style={{
+                    color: statColors[titleData.id],
+                  }}
+                >
+                  {titleData.value}
+                </span>
+                <span className={styles.titleSuffix}>{titleData.suffix}</span>
+                )
+              </span>
+            )}
+          </div>
 
-          <div className={styles.chartPrimary}>
-            {primaryValue && (
+          <div className={styles.chartSummary}>
+            {summaryData && (
               <div
-                className={styles.primaryValue}
+                className={styles.summaryValue}
                 style={{
-                  color: statColors[primaryData.id],
+                  color: statColors[summaryData.id],
                 }}
               >
-                {primaryValue.value}
-                <span className={styles.primarySuffix}>{primaryValue.suffix}</span>
+                {summaryData.value}
+                <span className={styles.summarySuffix}>{summaryData.suffix}</span>
               </div>
             )}
 

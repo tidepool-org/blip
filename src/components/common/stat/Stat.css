@@ -23,23 +23,41 @@
   margin-bottom: 0;
 }
 
-.chartPrimary {
+.chartSummary {
   font-size: 1.25em;
   line-height: 1.25em;
   font-weight: 600;
   display: flex;
 }
 
-.primaryValue {
+.summaryValue {
   opacity: 1;
   transition: .3s ease-in-out;
 }
 
-.primarySuffix {
+.summarySuffix {
   color: var(--stat--suffix);
 }
 
-.Stat.isOpen .primaryValue {
+.chartTitleData {
+  opacity: 0.001;
+  transition: .3s ease-out;
+}
+
+.Stat.isOpen .chartTitleData {
+  opacity: 1;
+}
+
+.Stat.isOpen.isHovered .chartTitleData {
+  opacity: 0.001;
+  transition: 0s;
+}
+
+.titleSuffix {
+  color: var(--stat--suffix);
+}
+
+.Stat.isOpen .summaryValue {
   opacity: 0.001;
 }
 
