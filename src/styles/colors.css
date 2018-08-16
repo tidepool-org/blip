@@ -31,7 +31,7 @@
   --trends--dark: #BCBCBC;
   --trends--dark--faded: #E3E3E3;
   --stat--border: #75849f;
-  --stat--summary--default: #75849f;
+  --stat--default: #75849f;
   --axis-tick: #E7E7E7;
   --bkgrnd: #F8F8F8;
   --bkgrnd-lines: #E7E7E7;
@@ -56,18 +56,13 @@
 :export {
   bolus: #7CD0F0;
   basal: #19A0D7;
+  basalAutomated: #00e9fa;
+  veryLow: #fb5951;
   low: #FF8B7C;
   target: #76D3A6;
   high: #BB9AE7;
-  /* basal: #0096d1; */
-  basalAutomated: #00e9fa;
-  /* bolus: #7ed1f2; */
-  totalInsulin: #0096d1;
-  veryLow: #fb5951;
-  /* low: #f28684; */
-  /* target: #76db9b; */
-  /* high: #b49de3; */
   veryHigh: #8c65d6;
+  insulin: #0096d1;
   white: #ffffff;
   axis: #e7e9ee;
   muted: #c1c9d6;

@@ -117,7 +117,7 @@ let totalInsulinData = {
     },
   ],
   total: {
-    id: 'totalInsulin',
+    id: 'insulin',
     value: 112.4,
   },
 };

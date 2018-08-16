@@ -465,7 +465,6 @@ class Stat extends React.PureComponent {
 
       case statFormats.bgRange:
         suffixSrc = this.props.bgPrefs.bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
-        console.log(generateBgRangeLabels(this.props.bgPrefs, { condensed: true }), id);
         value = generateBgRangeLabels(this.props.bgPrefs, { condensed: true })[id];
         suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         break;

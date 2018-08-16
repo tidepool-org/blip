@@ -34,7 +34,7 @@
 .summaryValue {
   opacity: 1;
   display: inline;
-  color: var(--stat--summary--default);
+  color: var(--stat--default);
 }
 
 .Stat.isOpen .summaryValue {
@@ -42,7 +42,7 @@
 }
 
 .summarySuffix {
-  color: var(--stat--summary--default);
+  color: var(--stat--default);
 }
 
 .chartTitleData {
@@ -52,6 +52,7 @@
   align-items: center;
   position: relative;
   top: -1px;
+  color: var(--stat--default);
 }
 
 .chartTitleData span {
