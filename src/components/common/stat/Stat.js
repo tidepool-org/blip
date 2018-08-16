@@ -23,6 +23,7 @@ import { VictoryBar, VictoryContainer } from 'victory';
 import { Collapse } from 'react-collapse';
 import { formatPercentage, formatInsulin } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
+import { generateBgRangeLabels } from '../../../utils/bloodglucose';
 import styles from './Stat.css';
 import cx from 'classnames';
 import HoverBar, { SizedHoverLabel } from './HoverBar';
@@ -236,7 +237,7 @@ class Stat extends React.PureComponent {
 
     if (dataPath) {
       const ref = _.get(this.props.data, dataPath, {});
-      data = this.formatValue(ref.value, dataFormat);
+      data = this.formatValue(ref.value, dataFormat, { id: ref.id });
       data.id = ref.id;
     }
 
@@ -435,7 +436,7 @@ class Stat extends React.PureComponent {
   formatValue = (inputValue, format, opts = {}) => {
     let suffix = '';
     let value = inputValue;
-    const { total = _.get(this.props.data, 'total.value') } = opts;
+    const { total = _.get(this.props.data, 'total.value'), id } = opts;
 
     switch (format) {
       case statFormats.percentage:
@@ -446,12 +447,17 @@ class Stat extends React.PureComponent {
         break;
 
       case statFormats.duration:
-        value = formatDuration(value, 'condensed');
+        value = formatDuration(value, { condensed: true });
         break;
 
       case statFormats.units:
         value = formatInsulin(value);
         suffix = 'u';
+        break;
+
+      case statFormats.bgRange:
+        value = generateBgRangeLabels(this.props.bgPrefs, { condensed: true })[id];
+        suffix = this.props.bgPrefs.bgUnits;
         break;
 
       default:

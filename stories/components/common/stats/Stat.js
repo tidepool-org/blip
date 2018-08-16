@@ -207,7 +207,7 @@ stories.add('Time In Range', () => {
           label: statFormats.percentage,
           summary: statFormats.percentage,
           tooltip: statFormats.duration,
-          tooltipTitle: statFormats.duration, // TODO: statFormats.bgRange
+          tooltipTitle: statFormats.bgRange,
         }}
         isOpened={isOpened}
         muteOthersOnHover={muteOthersOnHover}

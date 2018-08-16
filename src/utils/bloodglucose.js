@@ -20,6 +20,7 @@ import _ from 'lodash';
 import { MGDL_PER_MMOLL } from './constants';
 
 import { formatBgValue } from './format.js';
+import { operators } from '../../node_modules/rxjs';
 
 /**
  * classifyBgValue
@@ -113,9 +114,19 @@ export function reshapeBgClassesToBgBounds(bgPrefs) {
  * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds and the bgUnits
  * @returns {Object} bgRangeLabels - map of labels keyed by bgClassification
  */
-export function generateBgRangeLabels(bgPrefs) {
+export function generateBgRangeLabels(bgPrefs, opts = {}) {
   const { bgBounds, bgUnits } = bgPrefs;
   const thresholds = _.mapValues(bgBounds, threshold => formatBgValue(threshold, bgPrefs));
+
+  if (opts.condensed) {
+    return {
+      veryLow: `<${thresholds.veryLowThreshold}`,
+      low: `${thresholds.veryLowThreshold}$-${thresholds.targetLowerBound}`,
+      target: `${thresholds.targetLowerBound}$-${thresholds.targetUpperBound}`,
+      high: `${thresholds.targetUpperBound}$-${thresholds.veryHighThreshold}`,
+      veryHigh: `>${thresholds.veryHighThreshold}`,
+    };
+  }
 
   return {
     veryLow: `below ${thresholds.veryLowThreshold} ${bgUnits}`,
