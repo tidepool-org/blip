@@ -59,4 +59,16 @@
   low: #FF8B7C;
   target: #76D3A6;
   high: #BB9AE7;
+  /* basal: #0096d1; */
+  basalAutomated: #00e9fa;
+  /* bolus: #7ed1f2; */
+  totalInsulin: #0096d1;
+  veryLow: #fb5951;
+  /* low: #f28684; */
+  /* target: #76db9b; */
+  /* high: #b49de3; */
+  veryHigh: #8c65d6;
+  white: #ffffff;
+  axis: #e7e9ee;
+  muted: #c1c9d6;
 }

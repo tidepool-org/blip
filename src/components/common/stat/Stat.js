@@ -27,26 +27,12 @@ import { formatDuration } from '../../../utils/datetime';
 import { generateBgRangeLabels, classifyGmiValue } from '../../../utils/bloodglucose';
 import { MGDL_UNITS } from '../../../utils/constants';
 import styles from './Stat.css';
+import colors from '../../../styles/colors.css';
 import HoverBar, { HoverBarLabel } from './HoverBar';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
 import MGDLIcon from './assets/mgdl-inv-24-px.svg';
 import MMOLIcon from './assets/mgdl-inv-24-px.svg'; // TODO: Replace with mmol icon when avail
-
-export const statColors = {
-  basal: '#0096d1',
-  basalAutomated: '#00e9fa',
-  bolus: '#7ed1f2',
-  totalInsulin: '#0096d1',
-  veryLow: '#fb5951',
-  low: '#f28684',
-  target: '#76db9b',
-  high: '#b49de3',
-  veryHigh: '#8c65d6',
-  white: '#ffffff',
-  axis: '#e7e9ee',
-  muted: '#c1c9d6',
-};
 
 export const statTypes = {
   barHorizontal: 'barHorizontal',
@@ -200,7 +186,7 @@ class Stat extends React.PureComponent {
                 (&nbsp;
                 <span
                   style={{
-                    color: statColors[titleData.id],
+                    color: colors[titleData.id],
                   }}
                 >
                   {titleData.value}
@@ -216,7 +202,7 @@ class Stat extends React.PureComponent {
               <div
                 className={styles.summaryValue}
                 style={{
-                  color: statColors[summaryData.id],
+                  color: colors[summaryData.id],
                 }}
               >
                 {summaryData.value}
@@ -293,7 +279,7 @@ class Stat extends React.PureComponent {
       labels: d => formatPercentage(d.y),
       style: {
         data: {
-          fill: d => statColors[d.id],
+          fill: d => colors[d.id],
         },
       },
     }, rest);
@@ -333,7 +319,7 @@ class Stat extends React.PureComponent {
             && hoveredDatumIndex >= 0
             && hoveredDatumIndex !== datum.eventKey;
 
-          return isMuted ? statColors.muted : statColors[datum.id];
+          return isMuted ? colors.muted : colors[datum.id];
         };
 
         _.assign(chartProps, {

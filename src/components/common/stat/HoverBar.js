@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import { Bar, Rect, VictoryLabel, VictoryTooltip, TextSize } from 'victory';
-import { statColors } from './Stat';
+import colors from '../../../styles/colors.css';
 
 export const HoverBarLabel = props => {
   const {
@@ -46,9 +46,9 @@ export const HoverBarLabel = props => {
         x={scale.y(domain.x[1]) - style.paddingLeft - tooltipTextSize.width - (tooltipRadius * 2)}
         y={y}
         flyoutStyle={{
-          stroke: statColors.axis,
+          stroke: colors.axis,
           strokeWidth: 2,
-          fill: statColors.white,
+          fill: colors.white,
         }}
         width={tooltipTextSize.width + (tooltipRadius * 2)}
         height={tooltipHeight}
@@ -113,7 +113,7 @@ export const HoverBar = props => {
         height={barGridWidth}
         style={{
           stroke: 'transparent',
-          fill: statColors.axis,
+          fill: colors.axis,
         }}
       />
       <Bar
