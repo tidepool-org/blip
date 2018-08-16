@@ -18,17 +18,20 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
+import cx from 'classnames';
 import { SizeMe } from 'react-sizeme';
 import { VictoryBar, VictoryContainer } from 'victory';
 import { Collapse } from 'react-collapse';
 import { formatPercentage, formatInsulin } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
 import { generateBgRangeLabels } from '../../../utils/bloodglucose';
+import { MGDL_UNITS } from '../../../utils/constants';
 import styles from './Stat.css';
-import cx from 'classnames';
 import HoverBar, { SizedHoverLabel } from './HoverBar';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
+import MGDLIcon from './assets/mgdl-inv-24-px.svg';
+import MMOLIcon from './assets/mgdl-inv-24-px.svg'; // TODO: Replace with mmol icon when avail
 
 export const statColors = {
   basal: '#0096d1',
@@ -172,8 +175,6 @@ class Stat extends React.PureComponent {
       ? this.state.tooltipTitleData
       : this.getData({ pathKey: 'title' });
 
-    console.log('titleData', titleData);
-
     return (
       <div className={statOuterClasses}>
         <div className={styles.chartHeader}>
@@ -181,7 +182,7 @@ class Stat extends React.PureComponent {
             {this.state.chartTitle}
             {titleData && (
               <span className={styles.chartTitleData}>
-                &nbsp;(
+                (&nbsp;
                 <span
                   style={{
                     color: statColors[titleData.id],
@@ -190,7 +191,7 @@ class Stat extends React.PureComponent {
                   {titleData.value}
                 </span>
                 <span className={styles.titleSuffix}>{titleData.suffix}</span>
-                )
+                &nbsp;)
               </span>
             )}
           </div>
@@ -436,6 +437,7 @@ class Stat extends React.PureComponent {
   formatValue = (inputValue, format, opts = {}) => {
     let suffix = '';
     let value = inputValue;
+    let suffixSrc;
     const { total = _.get(this.props.data, 'total.value'), id } = opts;
 
     switch (format) {
@@ -456,8 +458,9 @@ class Stat extends React.PureComponent {
         break;
 
       case statFormats.bgRange:
+        suffixSrc = this.props.bgPrefs.bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
         value = generateBgRangeLabels(this.props.bgPrefs, { condensed: true })[id];
-        suffix = this.props.bgPrefs.bgUnits;
+        suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         break;
 
       default:

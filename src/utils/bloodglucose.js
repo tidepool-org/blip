@@ -121,9 +121,9 @@ export function generateBgRangeLabels(bgPrefs, opts = {}) {
   if (opts.condensed) {
     return {
       veryLow: `<${thresholds.veryLowThreshold}`,
-      low: `${thresholds.veryLowThreshold}$-${thresholds.targetLowerBound}`,
-      target: `${thresholds.targetLowerBound}$-${thresholds.targetUpperBound}`,
-      high: `${thresholds.targetUpperBound}$-${thresholds.veryHighThreshold}`,
+      low: `${thresholds.veryLowThreshold}-${thresholds.targetLowerBound}`,
+      target: `${thresholds.targetLowerBound}-${thresholds.targetUpperBound}`,
+      high: `${thresholds.targetUpperBound}-${thresholds.veryHighThreshold}`,
       veryHigh: `>${thresholds.veryHighThreshold}`,
     };
   }

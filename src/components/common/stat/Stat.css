@@ -9,10 +9,10 @@
 .chartHeader {
   display: flex;
   flex-wrap: nowrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   width: 100%;
-  min-height: 1.5em;
+  height: 1.5em;
 }
 
 .chartTitle {
@@ -20,7 +20,7 @@
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
-  margin-bottom: 0;
+  margin-top: .25em;
 }
 
 .chartSummary {
@@ -28,11 +28,16 @@
   line-height: 1.25em;
   font-weight: 600;
   display: flex;
+  justify-content: space-between;
 }
 
 .summaryValue {
   opacity: 1;
-  transition: .3s ease-in-out;
+  display: inline;
+}
+
+.Stat.isOpen .summaryValue {
+  display: none;
 }
 
 .summarySuffix {
@@ -40,20 +45,34 @@
 }
 
 .chartTitleData {
-  opacity: 0.001;
-  transition: .3s ease-out;
+  display: none;
+  font-size: .75em;
+  padding-left: .25em;
+  align-items: center;
+  position: relative;
+  top: -1px;
+}
+
+.chartTitleData span {
+  margin-top: 1px;
 }
 
 .Stat.isOpen .chartTitleData {
-  opacity: 1;
+  display: inline-flex;
+}
+
+.bgIcon {
+  height: 24px;
+  margin-bottom: -5px;
+  margin-top: -5px;
+}
+
+.chartTitleData .bgIcon {
+  margin-right: -0.4em;
 }
 
 .titleSuffix {
   color: var(--stat--suffix);
-}
-
-.Stat.isOpen .summaryValue {
-  opacity: 0.001;
 }
 
 .chartCollapse {
