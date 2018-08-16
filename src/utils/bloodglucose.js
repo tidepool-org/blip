@@ -20,7 +20,6 @@ import _ from 'lodash';
 import { MGDL_PER_MMOLL } from './constants';
 
 import { formatBgValue } from './format.js';
-import { operators } from '../../node_modules/rxjs';
 
 /**
  * classifyBgValue
@@ -60,6 +59,21 @@ export function classifyBgValue(bgBounds, bgValue, classificationType = 'threeWa
     return 'high';
   }
   return 'target';
+}
+
+/**
+ * classifyGmiValue
+ * @param {number} value - integer or float glucose management index (or eA1c) value
+ * @return {String} gmiClassification - target, high, veryHigh
+ */
+export function classifyGmiValue(value) {
+  if (value <= 0.08) {
+    return 'target';
+  } else if (value <= 0.1) {
+    return 'high';
+  } else {
+    return 'veryHigh';
+  }
 }
 
 /**

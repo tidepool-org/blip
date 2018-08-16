@@ -93,7 +93,7 @@ let timeInAutoData = {
       title: 'Time In Auto Mode',
     },
   ],
-  total: 1,
+  total: { value: 1 },
 };
 timeInAutoData.total = { value: getSum(timeInAutoData.data) };
 timeInAutoData.dataPaths = {
@@ -157,16 +157,34 @@ glucoseManagementIndexData.dataPaths = {
 
 const stories = storiesOf('Stat', module);
 
+const randomValueByType = (value, type) => {
+  switch (type) {
+    case 'duration':
+      return convertPercentageToDayDuration(value);
+
+    case 'units':
+      return value * 70;
+
+    case 'gmi':
+      return value / 10 + 0.05;
+
+    default:
+      return value;
+  }
+};
+
+/* eslint-disable no-nested-ternary */
 const generateRandom = (data, type) => {
   const random = _.map(data.data, () => Math.random());
   const randomData = _.assign({}, data, {
     data: _.map(data.data, (d, i) => (_.assign({}, d, {
-      value: type === 'duration' ? convertPercentageToDayDuration(random[i]) : random[i],
+      value: randomValueByType(random[i], type),
     }))),
   });
-  randomData.total = getSum(randomData.data);
+  randomData.total = _.assign({}, data.total, { value: getSum(randomData.data) });
   return randomData;
 };
+/* eslint-enable no-nested-ternary */
 
 /* eslint-disable react/prop-types */
 const Container = (props) => (
@@ -258,7 +276,7 @@ stories.add('Total Insulin', () => {
   const muteOthersOnHover = boolean('muteOthersOnHover', true, 'PROPS');
 
   button('Randomize Data', () => {
-    totalInsulinData = generateRandom(totalInsulinData);
+    totalInsulinData = generateRandom(totalInsulinData, 'units');
   }, 'PROPS');
 
   return (
@@ -314,7 +332,7 @@ stories.add('Average BG', () => {
 
 stories.add('Glucose Management Index', () => {
   button('Randomize Data', () => {
-    glucoseManagementIndexData = generateRandom(glucoseManagementIndexData);
+    glucoseManagementIndexData = generateRandom(glucoseManagementIndexData, 'gmi');
   }, 'PROPS');
 
   return (
@@ -324,7 +342,7 @@ stories.add('Glucose Management Index', () => {
         title="G.M.I"
         type={statTypes.simple}
         dataFormat={{
-          summary: statFormats.percentage,
+          summary: statFormats.gmi,
         }}
       />
     </Container>

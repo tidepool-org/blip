@@ -24,10 +24,10 @@ import { VictoryBar, VictoryContainer } from 'victory';
 import { Collapse } from 'react-collapse';
 import { formatPercentage, formatInsulin } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
-import { generateBgRangeLabels } from '../../../utils/bloodglucose';
+import { generateBgRangeLabels, classifyGmiValue } from '../../../utils/bloodglucose';
 import { MGDL_UNITS } from '../../../utils/constants';
 import styles from './Stat.css';
-import HoverBar, { SizedHoverLabel } from './HoverBar';
+import HoverBar, { HoverBarLabel } from './HoverBar';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
 import MGDLIcon from './assets/mgdl-inv-24-px.svg';
@@ -57,6 +57,7 @@ export const statFormats = {
   bgRange: 'bgRange',
   bgValue: 'bgValue',
   duration: 'duration',
+  gmi: 'gmi',
   percentage: 'percentage',
   units: 'units',
 };
@@ -251,9 +252,8 @@ class Stat extends React.PureComponent {
     }
 
     if (dataPath) {
-      const ref = _.get(this.props.data, dataPath, {});
-      data = this.formatValue(ref.value, dataFormat, { id: ref.id });
-      data.id = ref.id;
+      const datum = _.get(this.props.data, dataPath);
+      data = this.formatValue(datum, dataFormat);
     }
 
     return data;
@@ -382,20 +382,20 @@ class Stat extends React.PureComponent {
           height: chartHeight,
           horizontal: true,
           labelComponent: (
-            <SizedHoverLabel
+            <HoverBarLabel
               active={props.alwaysShowTooltips}
               domain={domain}
               barWidth={barWidth}
               text={datum => {
                 const { value, suffix } = this.formatValue(
-                  _.get(props.data, ['data', datum.eventKey, 'value']),
+                  _.get(props.data, ['data', datum.eventKey]),
                   props.dataFormat.label,
                 );
                 return `${value}${suffix}`;
               }}
               tooltipText={datum => {
                 const { value, suffix } = this.formatValue(
-                  _.get(props.data, ['data', datum.eventKey, 'value']),
+                  _.get(props.data, ['data', datum.eventKey]),
                   props.dataFormat.tooltip,
                 );
                 return `${value}${suffix}`;
@@ -448,11 +448,12 @@ class Stat extends React.PureComponent {
     this.chartRenderer = chartRenderer;
   }
 
-  formatValue = (inputValue, format, opts = {}) => {
+  formatValue = (datum = {}, format) => {
+    let id = datum.id;
+    let value = datum.value;
     let suffix = '';
-    let value = inputValue;
     let suffixSrc;
-    const { total = _.get(this.props.data, 'total.value'), id } = opts;
+    const total = _.get(this.props.data, 'total.value');
 
     switch (format) {
       case statFormats.percentage:
@@ -460,6 +461,11 @@ class Stat extends React.PureComponent {
           value = value / total;
         }
         value = formatPercentage(value);
+        break;
+
+      case statFormats.gmi:
+        id = classifyGmiValue(value);
+        value = formatPercentage(value, 1);
         break;
 
       case statFormats.duration:
@@ -473,6 +479,7 @@ class Stat extends React.PureComponent {
 
       case statFormats.bgRange:
         suffixSrc = this.props.bgPrefs.bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
+        console.log(generateBgRangeLabels(this.props.bgPrefs, { condensed: true }), id);
         value = generateBgRangeLabels(this.props.bgPrefs, { condensed: true })[id];
         suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         break;
@@ -482,6 +489,7 @@ class Stat extends React.PureComponent {
     }
 
     return {
+      id,
       value,
       suffix,
     };
