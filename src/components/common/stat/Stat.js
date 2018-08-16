@@ -149,6 +149,16 @@ class Stat extends React.PureComponent {
     this.setChartPropsByType(nextProps);
   }
 
+  handleMouseOver = () => {
+    if (this.props.type === statTypes.simple) {
+      this.setChartTitle(_.get(this.props.data, 'data.0'));
+    }
+  };
+
+  handleMouseOut = () => {
+    this.setChartTitle();
+  };
+
   renderChart = size => (
     <Collapse
       isOpened={this.state.isOpened}
@@ -161,22 +171,26 @@ class Stat extends React.PureComponent {
   );
 
   render() {
-    const isHovered = this.state.hoveredDatumIndex >= 0;
+    const isDatumHovered = this.state.hoveredDatumIndex >= 0;
     const statOuterClasses = cx({
       [styles.Stat]: true,
       [styles[this.props.type]]: true,
       [styles.isCollapsible]: this.state.isCollapsible,
       [styles.isOpen]: this.state.isOpened,
-      [styles.isHovered]: isHovered,
+      [styles.isDatumHovered]: isDatumHovered,
     });
 
     const summaryData = this.getData({ pathKey: 'summary' });
-    const titleData = isHovered
+    const titleData = isDatumHovered
       ? this.state.tooltipTitleData
       : this.getData({ pathKey: 'title' });
 
     return (
-      <div className={statOuterClasses}>
+      <div
+        className={statOuterClasses}
+        onMouseOver={this.handleMouseOver}
+        onMouseOut={this.handleMouseOut}
+      >
         <div className={styles.chartHeader}>
           <div className={styles.chartTitle}>
             {this.state.chartTitle}

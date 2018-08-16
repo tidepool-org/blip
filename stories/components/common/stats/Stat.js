@@ -145,7 +145,7 @@ averageBgData.dataPaths = {
 let glucoseManagementIndexData = {
   data: [
     {
-      id: 'gmi',
+      id: 'target',
       value: 0.051,
       title: 'G.M.I. (Estimated A1c)',
     },
