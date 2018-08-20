@@ -41,121 +41,8 @@ const chartHeightOptions = {
 };
 
 const convertPercentageToDayDuration = value => value * MS_IN_DAY;
+
 const getSum = data => _.sum(_.map(data, d => d.value));
-
-let timeInRangeData = {
-  data: [
-    {
-      id: 'veryLow',
-      value: convertPercentageToDayDuration(0.01),
-      title: 'Time Below Range',
-    },
-    {
-      id: 'low',
-      value: convertPercentageToDayDuration(0.03),
-      title: 'Time Below Range',
-    },
-    {
-      id: 'target',
-      value: convertPercentageToDayDuration(0.7),
-      title: 'Time In Range',
-    },
-    {
-      id: 'high',
-      value: convertPercentageToDayDuration(0.16),
-      title: 'Time Above Range',
-    },
-    {
-      id: 'veryHigh',
-      value: convertPercentageToDayDuration(0.1),
-      title: 'Time Above Range',
-    },
-  ],
-};
-timeInRangeData.total = { value: getSum(timeInRangeData.data) };
-timeInRangeData.dataPaths = {
-  summary: [
-    'data',
-    _.findIndex(timeInRangeData.data, { id: 'target' }),
-  ],
-};
-
-let timeInAutoData = {
-  data: [
-    {
-      id: 'basal',
-      value: convertPercentageToDayDuration(0.3),
-      title: 'Time In Manual Mode',
-    },
-    {
-      id: 'basalAutomated',
-      value: convertPercentageToDayDuration(0.7),
-      title: 'Time In Auto Mode',
-    },
-  ],
-  total: { value: 1 },
-};
-timeInAutoData.total = { value: getSum(timeInAutoData.data) };
-timeInAutoData.dataPaths = {
-  summary: [
-    'data',
-    _.findIndex(timeInAutoData.data, { id: 'basalAutomated' }),
-  ],
-};
-
-let totalInsulinData = {
-  data: [
-    {
-      id: 'basal',
-      value: 62.9,
-      title: 'Basal Insulin',
-    },
-    {
-      id: 'bolus',
-      value: 49.5,
-      title: 'Bolus Insulin',
-    },
-  ],
-  total: {
-    id: 'insulin',
-    value: 112.4,
-  },
-};
-totalInsulinData.dataPaths = {
-  summary: 'total',
-  title: 'total',
-};
-
-let averageBgData = {
-  data: [
-    {
-      id: 'averageBg',
-      value: 187,
-    },
-    {
-      id: 'coefficientOfVariation',
-      value: 25,
-    },
-  ],
-};
-averageBgData.dataPaths = {
-  summary: 'data.0',
-};
-
-let glucoseManagementIndexData = {
-  data: [
-    {
-      id: 'target',
-      value: 0.051,
-      title: 'G.M.I. (Estimated A1c)',
-    },
-  ],
-};
-glucoseManagementIndexData.dataPaths = {
-  summary: 'data.0',
-};
-
-const stories = storiesOf('Stat', module);
 
 const randomValueByType = (value, type) => {
   switch (type) {
@@ -200,6 +87,45 @@ const Container = (props) => (
 );
 /* eslint-enable react/prop-types */
 
+const stories = storiesOf('Stat', module);
+
+let timeInRangeData = {
+  data: [
+    {
+      id: 'veryLow',
+      value: convertPercentageToDayDuration(0.01),
+      title: 'Time Below Range',
+    },
+    {
+      id: 'low',
+      value: convertPercentageToDayDuration(0.03),
+      title: 'Time Below Range',
+    },
+    {
+      id: 'target',
+      value: convertPercentageToDayDuration(0.7),
+      title: 'Time In Range',
+    },
+    {
+      id: 'high',
+      value: convertPercentageToDayDuration(0.16),
+      title: 'Time Above Range',
+    },
+    {
+      id: 'veryHigh',
+      value: convertPercentageToDayDuration(0.1),
+      title: 'Time Above Range',
+    },
+  ],
+};
+timeInRangeData.total = { value: getSum(timeInRangeData.data) };
+timeInRangeData.dataPaths = {
+  summary: [
+    'data',
+    _.findIndex(timeInRangeData.data, { id: 'target' }),
+  ],
+};
+
 stories.add('Time In Range', () => {
   const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'PROPS');
   const bgUnits = select('bgPrefs', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'PROPS');
@@ -236,6 +162,29 @@ stories.add('Time In Range', () => {
   );
 });
 
+let timeInAutoData = {
+  data: [
+    {
+      id: 'basal',
+      value: convertPercentageToDayDuration(0.3),
+      title: 'Time In Manual Mode',
+    },
+    {
+      id: 'basalAutomated',
+      value: convertPercentageToDayDuration(0.7),
+      title: 'Time In Auto Mode',
+    },
+  ],
+  total: { value: 1 },
+};
+timeInAutoData.total = { value: getSum(timeInAutoData.data) };
+timeInAutoData.dataPaths = {
+  summary: [
+    'data',
+    _.findIndex(timeInAutoData.data, { id: 'basalAutomated' }),
+  ],
+};
+
 stories.add('Time In Auto', () => {
   const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'PROPS');
   const collapsible = boolean('collapsible', true, 'PROPS');
@@ -267,6 +216,29 @@ stories.add('Time In Auto', () => {
     </Container>
   );
 });
+
+let totalInsulinData = {
+  data: [
+    {
+      id: 'basal',
+      value: 62.9,
+      title: 'Basal Insulin',
+    },
+    {
+      id: 'bolus',
+      value: 49.5,
+      title: 'Bolus Insulin',
+    },
+  ],
+  total: {
+    id: 'insulin',
+    value: 112.4,
+  },
+};
+totalInsulinData.dataPaths = {
+  summary: 'total',
+  title: 'total',
+};
 
 stories.add('Total Insulin', () => {
   const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'PROPS');
@@ -301,6 +273,21 @@ stories.add('Total Insulin', () => {
   );
 });
 
+let averageBgData = {
+  data: [
+    {
+      id: 'averageBg',
+      value: 101,
+      hoverValue: 25,
+      title: 'Coefficient of Variation',
+    },
+  ],
+};
+averageBgData.dataPaths = {
+  summary: 'data.0',
+  hover: 'data.1',
+};
+
 stories.add('Average BG', () => {
   const collapsible = boolean('collapsible', true, 'PROPS');
   const isOpened = boolean('isOpened', true, 'PROPS');
@@ -319,16 +306,30 @@ stories.add('Average BG', () => {
         data={averageBgData}
         dataFormat={{
           label: statFormats.bgValue,
-          summary: statFormats.units,
-          title: statFormats.units,
+          summary: statFormats.bgValue,
+          hover: statFormats.units,
+          hoverTitle: statFormats.bgRange,
         }}
         isOpened={isOpened}
-        title="Average BG"
-        type={statTypes.simple}
+        title="Average Blood Glucose"
+        type={statTypes.barBg}
       />
     </Container>
   );
 });
+
+let glucoseManagementIndexData = {
+  data: [
+    {
+      id: 'gmi',
+      value: 0.051,
+      title: 'G.M.I. (Estimated A1c)',
+    },
+  ],
+};
+glucoseManagementIndexData.dataPaths = {
+  summary: 'data.0',
+};
 
 stories.add('Glucose Management Index', () => {
   button('Randomize Data', () => {

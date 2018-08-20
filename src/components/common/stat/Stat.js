@@ -25,10 +25,11 @@ import { Collapse } from 'react-collapse';
 import { formatPercentage, formatInsulin } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
 import { generateBgRangeLabels, classifyGmiValue } from '../../../utils/bloodglucose';
-import { MGDL_UNITS } from '../../../utils/constants';
+import { MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
 import styles from './Stat.css';
 import colors from '../../../styles/colors.css';
 import HoverBar, { HoverBarLabel } from './HoverBar';
+import BgBar, { BgBarLabel } from './BgBar';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
 import MGDLIcon from './assets/mgdl-inv-24-px.svg';
@@ -36,6 +37,7 @@ import MMOLIcon from './assets/mgdl-inv-24-px.svg'; // TODO: Replace with mmol i
 
 export const statTypes = {
   barHorizontal: 'barHorizontal',
+  barBg: 'barBg',
   simple: 'simple',
 };
 
@@ -102,16 +104,10 @@ class Stat extends React.PureComponent {
 
   static defaultProps = {
     alwaysShowTooltips: false,
+    bgPrefs: {},
     categories: {},
     chartHeight: 0,
     collapsible: true,
-    dataFormat: {
-      label: statFormats.percentage,
-      summary: statFormats.percentage,
-      title: statFormats.percentage,
-      tooltip: statFormats.percentage,
-      tooltipTitle: statFormats.percentage,
-    },
     isOpened: true,
     muteOthersOnHover: true,
     type: statTypes.barHorizontal.type,
@@ -267,7 +263,7 @@ class Stat extends React.PureComponent {
   }
 
   setChartPropsByType = props => {
-    const { type, data, ...rest } = props;
+    const { type, data, bgPrefs: { bgUnits }, ...rest } = props;
     let chartRenderer = VictoryBar;
     const chartProps = _.defaults({
       animate: { duration: 300, onLoad: { duration: 0 } },
@@ -290,16 +286,81 @@ class Stat extends React.PureComponent {
     let chartLabelWidth;
     let domain;
     let padding;
-    let getStatColor;
 
     switch (type) {
-      case 'simple':
-        chartRenderer = null;
+      case 'barBg':
+        barWidth = 4;
+        chartHeight = barWidth * 6;
+
+        domain = {
+          x: [0, bgUnits === MGDL_UNITS ? MGDL_CLAMP_TOP : MMOLL_CLAMP_TOP],
+          y: [0, 1],
+        };
+
+        padding = {
+          top: 10,
+          bottom: 10,
+        };
+
+        chartLabelWidth = barWidth * 2.25 * 6;
+
+        this.chartProps = _.assign({}, chartProps, {
+          alignment: 'middle',
+          containerComponent: <VictoryContainer responsive={false} />,
+          cornerRadius: { top: 2, bottom: 2 },
+          dataComponent: (
+            <BgBar
+              barWidth={barWidth}
+              bgPrefs={props.bgPrefs}
+              chartLabelWidth={chartLabelWidth}
+              domain={domain}
+            />
+          ),
+          domain,
+          height: chartHeight,
+          horizontal: true,
+          labelComponent: (
+            <BgBarLabel
+              active={props.alwaysShowTooltips}
+              barWidth={barWidth}
+              domain={domain}
+              text={datum => {
+                const { value, suffix } = this.formatValue(
+                  _.get(props.data, ['data', datum.eventKey]),
+                  props.dataFormat.label,
+                );
+                return `${value}${suffix}`;
+              }}
+              tooltipText={datum => {
+                const { value, suffix } = this.formatValue(
+                  _.get(props.data, ['data', datum.eventKey]),
+                  props.dataFormat.tooltip,
+                );
+                return `${value}${suffix}`;
+              }}
+            />
+          ),
+          padding,
+          style: {
+            data: {
+              fill: d => this.getColorByDatumId(d),
+              width: () => barWidth,
+            },
+            labels: {
+              fill: d => this.getColorByDatumId(d),
+              fontSize: barWidth * 0.833 * 6,
+              fontWeight: 600,
+              paddingLeft: chartLabelWidth,
+            },
+          },
+        });
         break;
 
       case 'barHorizontal':
-      default:
-        domain = { y: [0, props.data.data.length], x: [0, 1] };
+        domain = {
+          x: [0, 1],
+          y: [0, props.data.data.length],
+        };
         barSpacing = chartProps.barSpacing || 4;
         chartHeight = chartProps.chartHeight;
 
@@ -313,16 +374,7 @@ class Stat extends React.PureComponent {
         padding = { top: barWidth / 2, bottom: barWidth / 2 * -1 };
         chartLabelWidth = barWidth * 2.25;
 
-        getStatColor = datum => {
-          const { hoveredDatumIndex } = this.state;
-          const isMuted = props.muteOthersOnHover
-            && hoveredDatumIndex >= 0
-            && hoveredDatumIndex !== datum.eventKey;
-
-          return isMuted ? colors.muted : colors[datum.id];
-        };
-
-        _.assign(chartProps, {
+        this.chartProps = _.assign({}, chartProps, {
           alignment: 'middle',
           containerComponent: <VictoryContainer responsive={false} />,
           cornerRadius: { top: 2, bottom: 2 },
@@ -391,11 +443,11 @@ class Stat extends React.PureComponent {
           padding,
           style: {
             data: {
-              fill: d => getStatColor(d),
+              fill: d => this.getColorByDatumId(d),
               width: () => barWidth,
             },
             labels: {
-              fill: d => getStatColor(d),
+              fill: d => this.getColorByDatumId(d),
               fontSize: barWidth * 0.833,
               fontWeight: 600,
               paddingLeft: chartLabelWidth,
@@ -403,10 +455,23 @@ class Stat extends React.PureComponent {
           },
         });
         break;
+
+      case 'simple':
+      default:
+        chartRenderer = null;
+        break;
     }
-    this.chartProps = chartProps;
     this.setChartRenderer(chartRenderer);
   }
+
+  getColorByDatumId = datum => {
+    const { hoveredDatumIndex } = this.state;
+    const isMuted = this.props.muteOthersOnHover
+      && hoveredDatumIndex >= 0
+      && hoveredDatumIndex !== datum.eventKey;
+
+    return isMuted ? colors.muted : colors[datum.id];
+  };
 
   setChartTitle = (datum = {}) => {
     let tooltipTitleData;
