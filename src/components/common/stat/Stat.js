@@ -22,9 +22,9 @@ import cx from 'classnames';
 import { SizeMe } from 'react-sizeme';
 import { VictoryBar, VictoryContainer } from 'victory';
 import { Collapse } from 'react-collapse';
-import { formatPercentage, formatInsulin } from '../../../utils/format';
+import { formatPercentage, formatInsulin, formatBgValue } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
-import { generateBgRangeLabels, classifyGmiValue } from '../../../utils/bloodglucose';
+import { generateBgRangeLabels, classifyGmiValue, classifyBgValue } from '../../../utils/bloodglucose';
 import { MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
 import styles from './Stat.css';
 import colors from '../../../styles/colors.css';
@@ -283,7 +283,7 @@ class Stat extends React.PureComponent {
     let barWidth;
     let barSpacing;
     let chartHeight;
-    let chartLabelWidth;
+    let chartLabelWidth = 60;
     let domain;
     let padding;
 
@@ -301,8 +301,6 @@ class Stat extends React.PureComponent {
           top: 10,
           bottom: 10,
         };
-
-        chartLabelWidth = barWidth * 2.25 * 6;
 
         this.chartProps = _.assign({}, chartProps, {
           alignment: 'middle',
@@ -323,13 +321,14 @@ class Stat extends React.PureComponent {
             <BgBarLabel
               active={props.alwaysShowTooltips}
               barWidth={barWidth}
+              bgPrefs={props.bgPrefs}
               domain={domain}
               text={datum => {
-                const { value, suffix } = this.formatValue(
+                const { value } = this.formatValue(
                   _.get(props.data, ['data', datum.eventKey]),
                   props.dataFormat.label,
                 );
-                return `${value}${suffix}`;
+                return `${value}`;
               }}
               tooltipText={datum => {
                 const { value, suffix } = this.formatValue(
@@ -343,11 +342,14 @@ class Stat extends React.PureComponent {
           padding,
           style: {
             data: {
-              fill: d => this.getColorByDatumId(d),
+              fill: datum => this.getColorByDatumId(datum),
               width: () => barWidth,
             },
             labels: {
-              fill: d => this.getColorByDatumId(d),
+              fill: datum => this.getColorByDatumId(this.formatValue(
+                _.get(props.data, ['data', datum.eventKey]),
+                props.dataFormat.label,
+              )),
               fontSize: barWidth * 0.833 * 6,
               fontWeight: 600,
               paddingLeft: chartLabelWidth,
@@ -357,22 +359,26 @@ class Stat extends React.PureComponent {
         break;
 
       case 'barHorizontal':
-        domain = {
-          x: [0, 1],
-          y: [0, props.data.data.length],
-        };
         barSpacing = chartProps.barSpacing || 4;
         chartHeight = chartProps.chartHeight;
 
         if (chartHeight > 0) {
           barWidth = ((chartHeight - barSpacing) / props.data.data.length) - (barSpacing / 2);
+          chartLabelWidth = barWidth * 2.25;
         } else {
           barWidth = chartProps.barWidth || 24;
           chartHeight = (barWidth + barSpacing) * props.data.data.length;
         }
 
-        padding = { top: barWidth / 2, bottom: barWidth / 2 * -1 };
-        chartLabelWidth = barWidth * 2.25;
+        domain = {
+          x: [0, 1],
+          y: [0, props.data.data.length],
+        };
+
+        padding = {
+          top: barWidth / 2,
+          bottom: barWidth / 2 * -1,
+        };
 
         this.chartProps = _.assign({}, chartProps, {
           alignment: 'middle',
@@ -443,11 +449,11 @@ class Stat extends React.PureComponent {
           padding,
           style: {
             data: {
-              fill: d => this.getColorByDatumId(d),
+              fill: datum => this.getColorByDatumId(datum),
               width: () => barWidth,
             },
             labels: {
-              fill: d => this.getColorByDatumId(d),
+              fill: datum => this.getColorByDatumId(datum),
               fontSize: barWidth * 0.833,
               fontWeight: 600,
               paddingLeft: chartLabelWidth,
@@ -505,6 +511,8 @@ class Stat extends React.PureComponent {
     let suffix = '';
     let suffixSrc;
     const total = _.get(this.props.data, 'total.value');
+    const { bgPrefs } = this.props;
+    const { bgBounds, bgUnits } = bgPrefs;
 
     switch (format) {
       case statFormats.percentage:
@@ -529,8 +537,15 @@ class Stat extends React.PureComponent {
         break;
 
       case statFormats.bgRange:
-        suffixSrc = this.props.bgPrefs.bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
-        value = generateBgRangeLabels(this.props.bgPrefs, { condensed: true })[id];
+        suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
+        value = generateBgRangeLabels(bgPrefs, { condensed: true })[id];
+        suffix = <img className={styles.bgIcon} src={suffixSrc} />;
+        break;
+
+      case statFormats.bgValue:
+        id = classifyBgValue(bgBounds, value);
+        suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
+        value = formatBgValue(value);
         suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         break;
 
@@ -542,6 +557,7 @@ class Stat extends React.PureComponent {
       id,
       value,
       suffix,
+      suffixSrc,
     };
   }
 }

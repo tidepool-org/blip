@@ -278,14 +278,18 @@ let averageBgData = {
     {
       id: 'averageBg',
       value: 101,
-      hoverValue: 25,
+      variability: {
+        lower: 76,
+        value: 25,
+        upper: 126,
+      },
       title: 'Coefficient of Variation',
     },
   ],
 };
 averageBgData.dataPaths = {
   summary: 'data.0',
-  hover: 'data.1',
+  hover: 'data.0.variability',
 };
 
 stories.add('Average BG', () => {

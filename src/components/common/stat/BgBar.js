@@ -1,32 +1,30 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { Point, Rect, VictoryLabel, VictoryTooltip, TextSize } from 'victory';
+import { Point, Rect, VictoryLabel } from 'victory';
 import colors from '../../../styles/colors.css';
+import MGDLIcon from './assets/mgdl-inv-24-px.svg';
+import MMOLIcon from './assets/mgdl-inv-24-px.svg'; // TODO: Replace with mmol icon when avail
+import { MGDL_UNITS } from '../../../utils/constants';
+
+/* global atob */
 
 export const BgBarLabel = props => {
   const {
     barWidth,
+    bgPrefs: { bgUnits } = {},
     domain,
+    width,
     scale,
-    style,
     text,
-    tooltipText,
     y,
   } = props;
-
-  const tooltipFontSize = _.max([barWidth / 2, 12]);
-  const tooltipHeight = tooltipFontSize * 1.2;
-  const tooltipRadius = tooltipHeight / 2;
 
   const labelStyle = _.assign({}, props.style, {
     pointerEvents: 'none',
   });
 
-  const tooltipStyle = _.assign({}, props.style, {
-    fontSize: tooltipFontSize,
-  });
-
-  const tooltipTextSize = TextSize.approximateTextSize(tooltipText(props.datum), tooltipStyle);
+  const iconSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
+  const svgIcon = atob(iconSrc.replace(/data:image\/svg\+xml;base64,/, ''));
 
   return (
     <g>
@@ -37,26 +35,14 @@ export const BgBarLabel = props => {
         text={text}
         textAnchor="end"
         verticalAnchor="middle"
+        width={width}
+        dx={-20}
         x={scale.y(domain.x[1])}
         y={y}
       />
-      <VictoryTooltip
-        {...props}
-        cornerRadius={tooltipRadius}
-        x={scale.y(domain.x[1]) - style.paddingLeft - tooltipTextSize.width - (tooltipRadius * 2)}
-        y={y}
-        flyoutStyle={{
-          stroke: colors.axis,
-          strokeWidth: 2,
-          fill: colors.white,
-        }}
-        width={tooltipTextSize.width + (tooltipRadius * 2)}
-        height={tooltipHeight}
-        pointerLength={0}
-        pointerWidth={0}
-        renderInPortal={false}
-        text={tooltipText}
-        style={tooltipStyle}
+      <g
+        transform={`translate(${scale.y(domain.x[1]) - 20}, -${barWidth / 2})`}
+        dangerouslySetInnerHTML={{ __html: svgIcon }} // eslint-disable-line react/no-danger
       />
     </g>
   );
@@ -90,12 +76,14 @@ export const BgBar = props => {
     high: scale.y(domain.x[1] - bgBounds.targetUpperBound) * widthCorrection,
   };
 
+  const yPos = scale.x(index + 1) - (barWidth / 2);
+
   return (
     <g>
       <Rect
         {...props}
         x={0}
-        y={scale.x(index + 1)}
+        y={yPos}
         width={widths.low}
         height={barWidth}
         style={{
@@ -106,7 +94,7 @@ export const BgBar = props => {
       <Rect
         {...props}
         x={widths.low}
-        y={scale.x(index + 1)}
+        y={yPos}
         width={widths.target}
         height={barWidth}
         style={{
@@ -117,7 +105,7 @@ export const BgBar = props => {
       <Rect
         {...props}
         x={(widths.low + widths.target)}
-        y={scale.x(index + 1)}
+        y={yPos}
         width={widths.high}
         height={barWidth}
         style={{
@@ -127,7 +115,7 @@ export const BgBar = props => {
       />
       <Point
         x={scale.y(datum.y) * widthCorrection}
-        y={scale.x(index + 1) + (barWidth / 2)}
+        y={yPos + (barWidth / 2)}
         style={{
           fill: colors.target,
           stroke: colors.white,
