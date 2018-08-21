@@ -111,6 +111,7 @@ export let PatientData = React.createClass({
       printOpts: {
         numDays: {
           daily: 6,
+          weekly: 28,
         },
       },
       createMessage: null,
@@ -466,10 +467,21 @@ export let PatientData = React.createClass({
         state.timePrefs,
       );
 
+      const weeklyData = vizUtils.selectWeeklyViewData(
+        mostRecent,
+        _.pick(
+          data.grouped,
+          ['cbg', 'smbg']
+        ),
+        state.printOpts.numDays.weekly,
+        state.timePrefs,
+      );
+
       const pdfData = {
-        daily: dailyData,
         basics: data.basicsData,
+        daily: dailyData,
         settings: _.last(data.grouped.pumpSettings),
+        weekly: weeklyData,
       }
 
       props.generatePDFRequest(
@@ -1125,6 +1137,7 @@ export let PatientData = React.createClass({
 
       const preparePrintData = (bgUnits) => {
         return {
+          basics: data[bgUnits].basicsData,
           daily: vizUtils.selectDailyViewData(
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
@@ -1134,8 +1147,16 @@ export let PatientData = React.createClass({
             this.state.printOpts.numDays.daily,
             this.state.timePrefs,
           ),
-          basics: data[bgUnits].basicsData,
           settings: _.last(data[bgUnits].grouped.pumpSettings),
+          weekly: vizUtils.selectWeeklyViewData(
+            dData[bgUnits][dData[bgUnits].length - 1].normalTime,
+            _.pick(
+              data[bgUnits].grouped,
+              ['cbg', 'smbg']
+            ),
+            this.state.printOpts.numDays.weekly,
+            this.state.timePrefs,
+          ),
         };
       };
 
