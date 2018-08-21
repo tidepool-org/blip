@@ -53,6 +53,7 @@ describe('PatientData', function () {
     queryParams: {},
     removeGeneratedPDFS: sinon.stub(),
     trackMetric: sinon.stub(),
+    updateBasicsSettings: sinon.stub(),
     updatePatientNote: sinon.stub(),
     uploadUrl: 'http://foo.com',
     viz: {},
@@ -918,6 +919,148 @@ describe('PatientData', function () {
     });
   });
 
+  describe('updateBasicsSettings', () => {
+    beforeEach(() => {
+      defaultProps.updateBasicsSettings.reset();
+      defaultProps.removeGeneratedPDFS.reset();
+    })
+
+    it('should call `updateBasicsSettings` from props, but only if `canUpdateSettings` arg is true', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      const settings = { siteChangeSource: 'prime' };
+
+      let canUpdateSettings = false;
+      instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
+      sinon.assert.notCalled(defaultProps.updateBasicsSettings);
+
+      canUpdateSettings = true;
+      instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
+      sinon.assert.calledOnce(defaultProps.updateBasicsSettings);
+      sinon.assert.calledWith(defaultProps.updateBasicsSettings, defaultProps.currentPatientInViewId, settings);
+    });
+
+    it('should set the `updatedSiteChangeSource` to state if `siteChangeSource` differs from user settings', () => {
+      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      expect(wrapper.state('updatedSiteChangeSource')).to.be.undefined;
+
+      const settings = { siteChangeSource: 'prime' };
+
+      let canUpdateSettings = false;
+      instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
+      expect(wrapper.state('updatedSiteChangeSource')).to.equal('prime');
+    });
+
+    it('should not set the `updatedSiteChangeSource` to state if `siteChangeSource` is unchanged from user settings', () => {
+      const setStateSpy = sinon.spy(PatientData.prototype, 'setState');
+
+      const settingsProps = _.assign({}, defaultProps, {
+        patient: _.assign({}, defaultProps.patient, {
+          settings: {
+            siteChangeSource: 'cannula',
+          },
+        }),
+      });
+
+      const wrapper = shallow(<PatientData {...settingsProps} />);
+      const instance = wrapper.instance();
+
+      setStateSpy.reset();
+      sinon.assert.callCount(setStateSpy, 0);
+
+      expect(instance.props.patient.settings.siteChangeSource).to.equal('cannula');
+
+      const settings = { siteChangeSource: 'cannula' };
+
+      let canUpdateSettings = false;
+      instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
+      sinon.assert.notCalled(setStateSpy);
+      PatientData.prototype.setState.restore();
+    });
+
+    it('should callback with `props.removeGeneratedPDFS` if `siteChangeSource` is changed from user settings', () => {
+      const setStateSpy = sinon.spy(PatientData.prototype, 'setState');
+
+      const settingsProps = _.assign({}, defaultProps, {
+        patient: _.assign({}, defaultProps.patient, {
+          settings: {
+            siteChangeSource: 'cannula',
+          },
+        }),
+      });
+
+      const wrapper = shallow(<PatientData {...settingsProps} />);
+      const instance = wrapper.instance();
+
+      setStateSpy.reset();
+      sinon.assert.callCount(setStateSpy, 0);
+
+      expect(instance.props.patient.settings.siteChangeSource).to.equal('cannula');
+
+      const settings = { siteChangeSource: 'prime' };
+
+      let canUpdateSettings = false;
+      instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
+
+      sinon.assert.calledOnce(setStateSpy);
+      sinon.assert.calledWith(setStateSpy, {
+        updatedSiteChangeSource: settings.siteChangeSource
+      }, defaultProps.removeGeneratedPDFS);
+
+      PatientData.prototype.setState.restore();
+    });
+
+    describe('pdf removal', () => {
+      it('should remove the generated PDF when the patient\'s site change source changes', function() {
+        const settingsProps = _.assign({}, defaultProps, {
+          patient: _.assign({}, defaultProps.patient, {
+            settings: {
+              siteChangeSource: 'cannula',
+            },
+          }),
+        });
+
+        const wrapper = shallow(<PatientData {...settingsProps} />);
+        const instance = wrapper.instance();
+
+        sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 0);
+
+        const settings = { siteChangeSource: 'prime' };
+
+        let canUpdateSettings = false;
+        instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
+        expect(wrapper.state('updatedSiteChangeSource')).to.equal('prime');
+
+        sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 1);
+      });
+
+      it('should not remove the generated PDF when the patient\'s site change source did not change', function() {
+        const settingsProps = _.assign({}, defaultProps, {
+          patient: _.assign({}, defaultProps.patient, {
+            settings: {
+              siteChangeSource: 'prime',
+            },
+          }),
+        });
+
+        const wrapper = shallow(<PatientData {...settingsProps} />);
+        const instance = wrapper.instance();
+
+        sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 0);
+
+        const settings = { siteChangeSource: 'prime' };
+
+        let canUpdateSettings = false;
+        instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
+
+        sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 0);
+      });
+    });
+  });
+
   describe('updateDatetimeLocation', () => {
     it('should update the chartDateRange state', () => {
       const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
@@ -1150,94 +1293,6 @@ describe('PatientData', function () {
           sinon.assert.notCalled(processDataStub);
           sinon.assert.notCalled(fetchEarlierDataStub);
         });
-      });
-    });
-
-    describe('pdf removal', () => {
-      it('should remove the generated PDF when the patient\'s site change source changes', function() {
-        var props = {
-          removeGeneratedPDFS: sinon.stub(),
-          patient: {
-            userid: 40,
-            profile: {
-              fullName: 'Fooey McBar'
-            },
-            settings: {
-              siteChangeSource: 'cannulaPrime',
-            },
-          },
-        };
-
-        const wrapper = mount(<PatientData {...props} />);
-
-        sinon.assert.notCalled(props.removeGeneratedPDFS);
-
-        wrapper.setProps({
-          patient: _.assign({}, props.patient, {
-            settings: {
-              siteChangeSource: 'tubingPrime',
-            },
-          }),
-        });
-
-        sinon.assert.calledOnce(props.removeGeneratedPDFS);
-      });
-
-      it('should not remove the generated PDF when the patient\'s site change source did not change', function() {
-        var props = {
-          removeGeneratedPDFS: sinon.stub(),
-          patient: {
-            userid: 40,
-            profile: {
-              fullName: 'Fooey McBar'
-            },
-            settings: {
-              siteChangeSource: 'cannulaPrime',
-            },
-          },
-        };
-
-        const wrapper = mount(<PatientData {...props} />);
-
-        sinon.assert.notCalled(props.removeGeneratedPDFS);
-
-        wrapper.setProps({
-          patient: _.assign({}, props.patient, {
-            settings: {
-              otherSetting: true,
-              siteChangeSource: 'cannulaPrime',
-            },
-          }),
-        });
-
-        sinon.assert.notCalled(props.removeGeneratedPDFS);
-      });
-
-      it('should not remove the generated PDF when the patient\'s site change source is not set', function() {
-        var props = {
-          removeGeneratedPDFS: sinon.stub(),
-          patient: {
-            userid: 40,
-            profile: {
-              fullName: 'Fooey McBar'
-            },
-            settings: {},
-          },
-        };
-
-        const wrapper = mount(<PatientData {...props} />);
-
-        sinon.assert.notCalled(props.removeGeneratedPDFS);
-
-        wrapper.setProps({
-          patient: _.assign({}, props.patient, {
-            settings: {
-              otherSetting: true,
-            },
-          }),
-        });
-
-        sinon.assert.notCalled(props.removeGeneratedPDFS);
       });
     });
   });
