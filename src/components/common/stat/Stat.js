@@ -33,7 +33,7 @@ import BgBar, { BgBarLabel } from './BgBar';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
 import MGDLIcon from './assets/mgdl-inv-24-px.svg';
-import MMOLIcon from './assets/mgdl-inv-24-px.svg'; // TODO: Replace with mmol icon when avail
+import MMOLIcon from './assets/mmol-inv-24-px.svg'; // TODO: Replace with mmol icon when avail
 
 export const statTypes = {
   barHorizontal: 'barHorizontal',
@@ -545,7 +545,7 @@ class Stat extends React.PureComponent {
       case statFormats.bgValue:
         id = classifyBgValue(bgBounds, value);
         suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
-        value = formatBgValue(value);
+        value = formatBgValue(value, bgPrefs);
         suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         break;
 

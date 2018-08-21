@@ -3,8 +3,9 @@ import _ from 'lodash';
 import { Point, Rect, VictoryLabel } from 'victory';
 import colors from '../../../styles/colors.css';
 import MGDLIcon from './assets/mgdl-inv-24-px.svg';
-import MMOLIcon from './assets/mgdl-inv-24-px.svg'; // TODO: Replace with mmol icon when avail
+import MMOLIcon from './assets/mmol-inv-24-px.svg'; // TODO: Replace with mmol icon when avail
 import { MGDL_UNITS } from '../../../utils/constants';
+import { classifyBgValue } from '../../../utils/bloodglucose';
 
 /* global atob */
 
@@ -23,6 +24,7 @@ export const BgBarLabel = props => {
     pointerEvents: 'none',
   });
 
+  const iconPadding = 20;
   const iconSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
   const svgIcon = atob(iconSrc.replace(/data:image\/svg\+xml;base64,/, ''));
 
@@ -36,12 +38,12 @@ export const BgBarLabel = props => {
         textAnchor="end"
         verticalAnchor="middle"
         width={width}
-        dx={-20}
+        dx={-iconPadding}
         x={scale.y(domain.x[1])}
         y={y}
       />
       <g
-        transform={`translate(${scale.y(domain.x[1]) - 20}, -${barWidth / 2})`}
+        transform={`translate(${scale.y(domain.x[1]) - iconPadding}, -${barWidth / 2})`}
         dangerouslySetInnerHTML={{ __html: svgIcon }} // eslint-disable-line react/no-danger
       />
     </g>
@@ -89,6 +91,7 @@ export const BgBar = props => {
         style={{
           stroke: 'transparent',
           fill: colors.low,
+          fillOpacity: 0.5,
         }}
       />
       <Rect
@@ -100,6 +103,7 @@ export const BgBar = props => {
         style={{
           stroke: 'transparent',
           fill: colors.target,
+          fillOpacity: 0.5,
         }}
       />
       <Rect
@@ -111,13 +115,14 @@ export const BgBar = props => {
         style={{
           stroke: 'transparent',
           fill: colors.high,
+          fillOpacity: 0.5,
         }}
       />
       <Point
         x={scale.y(datum.y) * widthCorrection}
         y={yPos + (barWidth / 2)}
         style={{
-          fill: colors.target,
+          fill: colors[classifyBgValue(bgBounds, datum.y)],
           stroke: colors.white,
           strokeWidth: 2,
         }}

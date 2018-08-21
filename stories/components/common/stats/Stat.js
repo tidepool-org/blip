@@ -5,7 +5,8 @@ import { storiesOf } from '@storybook/react';
 import { select, button, boolean } from '@storybook/addon-knobs';
 
 import Stat, { statTypes, statFormats } from '../../../../src/components/common/stat/Stat';
-import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from '../../../../src/utils/constants';
+import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP, MGDL_PER_MMOLL } from '../../../../src/utils/constants';
+import { __makeTemplateObject } from 'tslib';
 
 
 const bgPrefsOptions = {
@@ -44,31 +45,38 @@ const convertPercentageToDayDuration = value => value * MS_IN_DAY;
 
 const getSum = data => _.sum(_.map(data, d => d.value));
 
-const randomValueByType = (value, type) => {
+const randomValueByType = (type, bgUnits) => {
   switch (type) {
     case 'duration':
-      return convertPercentageToDayDuration(value);
+      return convertPercentageToDayDuration(_.random(0, 1, true));
 
     case 'units':
-      return value * 70;
+      return _.random(20, 100);
 
     case 'gmi':
-      return value / 10 + 0.05;
+      return _.random(0.04, 0.15, true);
+
+    case 'bg':
+      console.log(type, bgUnits);
+      return bgUnits === MGDL_UNITS
+        ? _.random(18, MGDL_CLAMP_TOP)
+        : _.random(1, MMOLL_CLAMP_TOP, true);
 
     default:
-      return value;
+      return _.random(0, 1, true);
   }
 };
 
 /* eslint-disable no-nested-ternary */
-const generateRandom = (data, type) => {
-  const random = _.map(data.data, () => Math.random());
+const generateRandom = (data, type, bgUnits) => {
   const randomData = _.assign({}, data, {
-    data: _.map(data.data, (d, i) => (_.assign({}, d, {
-      value: randomValueByType(random[i], type),
+    data: _.map(data.data, (d) => (_.assign({}, d, {
+      value: randomValueByType(type, bgUnits),
     }))),
   });
-  randomData.total = _.assign({}, data.total, { value: getSum(randomData.data) });
+  if (randomData.total) {
+    randomData.total = _.assign({}, data.total, { value: getSum(randomData.data) });
+  }
   return randomData;
 };
 /* eslint-enable no-nested-ternary */
@@ -292,14 +300,24 @@ averageBgData.dataPaths = {
   hover: 'data.0.variability',
 };
 
+let averageBgDataMmol = _.assign({}, averageBgData, {
+  data: _.map(averageBgData.data, d => _.assign({}, d, { value: d.value / MGDL_PER_MMOLL })),
+});
+
+let averageBgDataUnits = bgPrefsOptions[MGDL_UNITS];
+
 stories.add('Average BG', () => {
   const collapsible = boolean('collapsible', true, 'PROPS');
   const isOpened = boolean('isOpened', true, 'PROPS');
-  const bgUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'PROPS');
-  const bgPrefs = bgPrefsValues[bgUnits];
+  averageBgDataUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'PROPS');
+  const bgPrefs = bgPrefsValues[averageBgDataUnits];
 
   button('Randomize Data', () => {
-    averageBgData = generateRandom(averageBgData);
+    if (averageBgDataUnits === MGDL_UNITS) {
+      averageBgData = generateRandom(averageBgData, 'bg', averageBgDataUnits);
+    } else {
+      averageBgDataMmol = generateRandom(averageBgData, 'bg', averageBgDataUnits);
+    }
   }, 'PROPS');
 
   return (
@@ -307,7 +325,7 @@ stories.add('Average BG', () => {
       <Stat
         bgPrefs={bgPrefs}
         collapsible={collapsible}
-        data={averageBgData}
+        data={averageBgDataUnits === MGDL_UNITS ? averageBgData : averageBgDataMmol}
         dataFormat={{
           label: statFormats.bgValue,
           summary: statFormats.bgValue,
@@ -335,7 +353,7 @@ glucoseManagementIndexData.dataPaths = {
   summary: 'data.0',
 };
 
-stories.add('Glucose Management Index', () => {
+stories.add('Glucose Management Indicator', () => {
   button('Randomize Data', () => {
     glucoseManagementIndexData = generateRandom(glucoseManagementIndexData, 'gmi');
   }, 'PROPS');
