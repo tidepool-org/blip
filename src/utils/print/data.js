@@ -105,80 +105,17 @@ export function filterPointInTimeFnMaker(dateStart, dateEnd) {
  * @return {Object} selected data for daily print view
  */
 export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs) {
-  const timezone = getTimezoneFromTimePrefs(timePrefs);
-  const end = getLocalizedCeiling(mostRecent, timePrefs);
-  let lastDate;
-
-  const dateBoundaries = [end.toISOString()];
-  let last = end;
-  for (let i = 0; i < numDays; ++i) {
-    const startOfDate = moment.utc(last)
-      .tz(timezone)
-      .subtract(1, 'day')
-      .toDate();
-    dateBoundaries.push(
-      startOfDate.toISOString()
-    );
-    last = startOfDate;
-  }
-  dateBoundaries.reverse();
-
-  const selected = { dataByDate: {} };
+  const selected = processDateBoundaries(mostRecent, groupedData, numDays, timePrefs);
   const { dataByDate: selectedDataByDate } = selected;
 
-  for (let i = 0; i < numDays; ++i) {
-    const thisDateStart = dateBoundaries[i];
-    const thisDateEnd = dateBoundaries[i + 1];
-    const date = moment.utc(Date.parse(thisDateStart))
-      .tz(timezone)
-      .format('YYYY-MM-DD');
-    selected.dataByDate[date] = {
-      bounds: [Date.parse(thisDateStart), Date.parse(thisDateEnd)],
-      date,
-      data: _.mapValues(groupedData, (dataForType) => {
-        if (_.isEmpty(dataForType)) {
-          return [];
-        }
-        const filterFn = _.includes(['basal', 'bolus'], dataForType[0].type) ?
-          filterWithDurationFnMaker(thisDateStart, thisDateEnd) :
-          filterPointInTimeFnMaker(thisDateStart, thisDateEnd);
-        return _.sortBy(_.map(
-          _.filter(dataForType, filterFn),
-          (d) => {
-            const reshaped = stripDatum(d);
-            if (reshaped.suppressed) {
-              reshaped.suppressed = stripDatum(reshaped.suppressed);
-            }
-            reshaped.utc = Date.parse(d.normalTime);
-            return reshaped;
-          },
-        ), 'utc');
-      }),
-    };
-
-    if (i === numDays - 1) {
-      lastDate = date;
-    }
-    // TODO: select out infusion site changes, calibrations from deviceEvent array
-    // (NB: deviceEvent not being passed through via blip yet!!)
-  }
-
-  // TODO: properly factor out into own utility? API needs thinking about
-  const bgs = _.reduce(
-    selectedDataByDate,
-    (all, date) => (
-      all.concat(_.get(date, ['data', 'cbg'], [])).concat(_.get(date, ['data', 'smbg'], []))
-    ),
-    []
-  );
-  selected.bgRange = extent(bgs, (d) => (d.value));
+  selected.bgRange = processBgRange(selectedDataByDate);
 
   const boluses = _.reduce(
     selectedDataByDate, (all, date) => (all.concat(_.get(date, ['data', 'bolus'], []))), []
   );
   _.each(boluses, (bolus) => {
     // eslint-disable-next-line no-param-reassign
-    bolus.threeHrBin = Math.floor(moment.utc(bolus.utc).tz(timezone).hours() / 3) * 3;
+    bolus.threeHrBin = Math.floor(moment.utc(bolus.utc).tz(selected.timezone).hours() / 3) * 3;
   });
   selected.bolusRange = extent(boluses, (d) => (d.normal + (d.extended || 0)));
 
@@ -214,7 +151,7 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
         basal.duration = basal.duration - (bounds[0] - basal.utc);
         basal.utc = bounds[0];
       }
-      if (i === basals.length - 1 && dateData.date !== lastDate) {
+      if (i === basals.length - 1 && dateData.date !== selected.lastDate) {
         basal.duration = bounds[1] - basal.utc;
       }
       let nextBasal;
@@ -239,4 +176,95 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
   }
 
   return selected;
+}
+
+/**
+ * selectWeeklyViewData
+ * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
+ * @param {Array} groupedData - Object of tideline-preprocessed Tidepool smbg data;
+ *                              grouped by type
+ * @param {Number} numDays - number of days of data to select
+ * @param {Object} timePrefs - object containing timezoneAware Boolean, timezoneName String or null
+ *
+ * @return {Object} selected data for weekly print view
+ */
+export function selectWeeklyViewData(mostRecent, groupedData, numDays, timePrefs) {
+  const selected = processDateBoundaries(mostRecent, groupedData, numDays, timePrefs);
+  const { dataByDate: selectedDataByDate } = selected;
+
+  selected.bgRange = processBgRange(selectedDataByDate);
+
+  return selected;
+}
+
+function processDateBoundaries(mostRecent, groupedData, numDays, timePrefs) {
+  const timezone = getTimezoneFromTimePrefs(timePrefs);
+  const end = getLocalizedCeiling(mostRecent, timePrefs);
+  let lastDate;
+
+  const dateBoundaries = [end.toISOString()];
+  let last = end;
+  for (let i = 0; i < numDays; ++i) {
+    const startOfDate = moment.utc(last)
+      .tz(timezone)
+      .subtract(1, 'day')
+      .toDate();
+    dateBoundaries.push(
+      startOfDate.toISOString()
+    );
+    last = startOfDate;
+  }
+  dateBoundaries.reverse();
+
+  const selected = { dataByDate: {}, lastDate, timezone };
+
+  for (let i = 0; i < numDays; ++i) {
+    const thisDateStart = dateBoundaries[i];
+    const thisDateEnd = dateBoundaries[i + 1];
+    const date = moment.utc(Date.parse(thisDateStart))
+      .tz(timezone)
+      .format('YYYY-MM-DD');
+    selected.dataByDate[date] = {
+      bounds: [Date.parse(thisDateStart), Date.parse(thisDateEnd)],
+      date,
+      data: _.mapValues(groupedData, (dataForType) => {
+        if (_.isEmpty(dataForType)) {
+          return [];
+        }
+        const filterFn = _.includes(['basal', 'bolus'], dataForType[0].type) ?
+          filterWithDurationFnMaker(thisDateStart, thisDateEnd) :
+          filterPointInTimeFnMaker(thisDateStart, thisDateEnd);
+        return _.sortBy(_.map(
+          _.filter(dataForType, filterFn),
+          (d) => {
+            const reshaped = stripDatum(d);
+            if (reshaped.suppressed) {
+              reshaped.suppressed = stripDatum(reshaped.suppressed);
+            }
+            reshaped.utc = Date.parse(d.normalTime);
+            return reshaped;
+          },
+        ), 'utc');
+      }),
+    };
+
+    if (i === numDays - 1) {
+      selected.lastDate = date;
+    }
+    // TODO: select out infusion site changes, calibrations from deviceEvent array
+    // (NB: deviceEvent not being passed through via blip yet!!)
+  }
+
+  return selected;
+}
+
+function processBgRange(selectedDataByDate) {
+  const bgs = _.reduce(
+    selectedDataByDate,
+    (all, date) => (
+      all.concat(_.get(date, ['data', 'cbg'], [])).concat(_.get(date, ['data', 'smbg'], []))
+    ),
+    []
+  );
+  return extent(bgs, (d) => (d.value));
 }
