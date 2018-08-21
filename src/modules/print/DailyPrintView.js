@@ -683,7 +683,6 @@ class DailyPrintView extends PrintView {
 
     _.each(renderedBounds, (bound, key) => {
       const bgTick = formatBgValue(bound, this.bgPrefs);
-
       const xPos = this.chartArea.leftEdge;
       const yPos = bgScale(bound);
 
