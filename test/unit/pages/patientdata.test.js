@@ -926,7 +926,7 @@ describe('PatientData', function () {
     })
 
     it('should call `updateBasicsSettings` from props, but only if `canUpdateSettings` arg is true', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
       const settings = { siteChangeSource: 'prime' };
@@ -942,7 +942,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `updatedSiteChangeSource` to state if `siteChangeSource` differs from user settings', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
       expect(wrapper.state('updatedSiteChangeSource')).to.be.undefined;
@@ -955,7 +955,7 @@ describe('PatientData', function () {
     });
 
     it('should not set the `updatedSiteChangeSource` to state if `siteChangeSource` is unchanged from user settings', () => {
-      const setStateSpy = sinon.spy(PatientData.prototype, 'setState');
+      const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
 
       const settingsProps = _.assign({}, defaultProps, {
         patient: _.assign({}, defaultProps.patient, {
@@ -965,7 +965,7 @@ describe('PatientData', function () {
         }),
       });
 
-      const wrapper = shallow(<PatientData {...settingsProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
       const instance = wrapper.instance();
 
       setStateSpy.reset();
@@ -978,11 +978,11 @@ describe('PatientData', function () {
       let canUpdateSettings = false;
       instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
       sinon.assert.notCalled(setStateSpy);
-      PatientData.prototype.setState.restore();
+      PatientData.WrappedComponent.prototype.setState.restore();
     });
 
     it('should callback with `props.removeGeneratedPDFS` if `siteChangeSource` is changed from user settings', () => {
-      const setStateSpy = sinon.spy(PatientData.prototype, 'setState');
+      const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
 
       const settingsProps = _.assign({}, defaultProps, {
         patient: _.assign({}, defaultProps.patient, {
@@ -992,7 +992,7 @@ describe('PatientData', function () {
         }),
       });
 
-      const wrapper = shallow(<PatientData {...settingsProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
       const instance = wrapper.instance();
 
       setStateSpy.reset();
@@ -1010,7 +1010,7 @@ describe('PatientData', function () {
         updatedSiteChangeSource: settings.siteChangeSource
       }, defaultProps.removeGeneratedPDFS);
 
-      PatientData.prototype.setState.restore();
+      PatientData.WrappedComponent.prototype.setState.restore();
     });
 
     describe('pdf removal', () => {
@@ -1023,7 +1023,7 @@ describe('PatientData', function () {
           }),
         });
 
-        const wrapper = shallow(<PatientData {...settingsProps} />);
+        const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
         const instance = wrapper.instance();
 
         sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 0);
@@ -1046,7 +1046,7 @@ describe('PatientData', function () {
           }),
         });
 
-        const wrapper = shallow(<PatientData {...settingsProps} />);
+        const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
         const instance = wrapper.instance();
 
         sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 0);
