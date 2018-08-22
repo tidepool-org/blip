@@ -200,7 +200,7 @@ var Daily = React.createClass({
   },
 
   getInitialState: function() {
-    this.throttledMetric = _.throttle(this.props.trackMetric, 1000);
+    this.throttledMetric = _.throttle(this.props.trackMetric, 5000);
     return {
       atMostRecent: false,
       inTransition: false,
