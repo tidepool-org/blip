@@ -24,7 +24,7 @@ import { VictoryBar, VictoryContainer } from 'victory';
 import { Collapse } from 'react-collapse';
 import { formatPercentage, formatInsulin, formatBgValue } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
-import { generateBgRangeLabels, classifyGmiValue, classifyBgValue } from '../../../utils/bloodglucose';
+import { generateBgRangeLabels, classifyBgValue, classifyCvValue } from '../../../utils/bloodglucose';
 import { MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
 import styles from './Stat.css';
 import colors from '../../../styles/colors.css';
@@ -44,9 +44,11 @@ export const statTypes = {
 export const statFormats = {
   bgRange: 'bgRange',
   bgValue: 'bgValue',
+  cv: 'cv',
   duration: 'duration',
   gmi: 'gmi',
   percentage: 'percentage',
+  stdDevValue: 'stdDevValue',
   units: 'units',
 };
 
@@ -73,7 +75,7 @@ class Stat extends React.PureComponent {
     data: PropTypes.shape({
       data: PropTypes.arrayOf(PropTypes.shape(
         {
-          id: PropTypes.string.isRequired,
+          id: PropTypes.string,
           value: PropTypes.number.isRequired,
           title: PropTypes.string,
         }
@@ -182,12 +184,18 @@ class Stat extends React.PureComponent {
                 (&nbsp;
                 <span
                   style={{
-                    color: colors[titleData.id],
+                    color: colors[titleData.id] || colors.statDefault,
                   }}
                 >
                   {titleData.value}
                 </span>
-                <span className={styles.titleSuffix}>{titleData.suffix}</span>
+                <span
+                  style={{
+                    color: colors[titleData.id] || colors.statDefault,
+                  }}
+                >
+                  {titleData.suffix}
+                </span>
                 &nbsp;)
               </span>
             )}
@@ -275,7 +283,7 @@ class Stat extends React.PureComponent {
       labels: d => formatPercentage(d.y),
       style: {
         data: {
-          fill: d => colors[d.id],
+          fill: d => colors[d.id] || colors.statDark,
         },
       },
     }, rest);
@@ -306,6 +314,12 @@ class Stat extends React.PureComponent {
           alignment: 'middle',
           containerComponent: <VictoryContainer responsive={false} />,
           cornerRadius: { top: 2, bottom: 2 },
+          data: _.map(data.data, (d, i) => ({
+            x: i + 1,
+            y: d.value,
+            id: d.id,
+            deviation: d.deviation,
+          })),
           dataComponent: (
             <BgBar
               barWidth={barWidth}
@@ -324,9 +338,10 @@ class Stat extends React.PureComponent {
               bgPrefs={props.bgPrefs}
               domain={domain}
               text={datum => {
+                const datumRef = _.get(props.data, ['data', datum.eventKey]);
                 const { value } = this.formatValue(
-                  _.get(props.data, ['data', datum.eventKey]),
-                  props.dataFormat.label,
+                  datumRef.deviation || datumRef,
+                  props.dataFormat.label
                 );
                 return `${value}`;
               }}
@@ -476,7 +491,7 @@ class Stat extends React.PureComponent {
       && hoveredDatumIndex >= 0
       && hoveredDatumIndex !== datum.eventKey;
 
-    return isMuted ? colors.muted : colors[datum.id];
+    return isMuted ? colors.muted : colors[datum.id] || colors.statDark;
   };
 
   setChartTitle = (datum = {}) => {
@@ -515,27 +530,6 @@ class Stat extends React.PureComponent {
     const { bgBounds, bgUnits } = bgPrefs;
 
     switch (format) {
-      case statFormats.percentage:
-        if (total) {
-          value = value / total;
-        }
-        value = formatPercentage(value);
-        break;
-
-      case statFormats.gmi:
-        id = classifyGmiValue(value);
-        value = formatPercentage(value, 1);
-        break;
-
-      case statFormats.duration:
-        value = formatDuration(value, { condensed: true });
-        break;
-
-      case statFormats.units:
-        value = formatInsulin(value);
-        suffix = 'u';
-        break;
-
       case statFormats.bgRange:
         suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
         value = generateBgRangeLabels(bgPrefs, { condensed: true })[id];
@@ -547,6 +541,37 @@ class Stat extends React.PureComponent {
         suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
         value = formatBgValue(value, bgPrefs);
         suffix = <img className={styles.bgIcon} src={suffixSrc} />;
+        break;
+
+      case statFormats.cv:
+        id = classifyCvValue(value);
+        value = formatPercentage(value);
+        break;
+
+      case statFormats.duration:
+        value = formatDuration(value, { condensed: true });
+        break;
+
+      case statFormats.gmi:
+        value = formatPercentage(value, 1);
+        break;
+
+      case statFormats.percentage:
+        if (total) {
+          value = value / total;
+        }
+        value = formatPercentage(value);
+        break;
+
+      case statFormats.stdDevValue:
+        suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
+        value = formatBgValue(value, bgPrefs);
+        suffix = <img className={styles.bgIcon} src={suffixSrc} />;
+        break;
+
+      case statFormats.units:
+        value = formatInsulin(value);
+        suffix = 'u';
         break;
 
       default:

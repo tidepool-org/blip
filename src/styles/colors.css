@@ -32,6 +32,7 @@
   --trends--dark--faded: #E3E3E3;
   --stat--border: #75849f;
   --stat--default: #75849f;
+  --stat--dark: #27385b;
   --axis-tick: #E7E7E7;
   --bkgrnd: #F8F8F8;
   --bkgrnd-lines: #E7E7E7;
@@ -57,6 +58,8 @@
   bolus: #7CD0F0;
   basal: #19A0D7;
   basalAutomated: #00e9fa;
+  statDark: #27385b;
+  statDefault: #75849f;
   veryLow: #fb5951;
   low: #FF8B7C;
   target: #76D3A6;

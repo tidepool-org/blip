@@ -6,8 +6,6 @@ import { select, button, boolean } from '@storybook/addon-knobs';
 
 import Stat, { statTypes, statFormats } from '../../../../src/components/common/stat/Stat';
 import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP, MGDL_PER_MMOLL } from '../../../../src/utils/constants';
-import { __makeTemplateObject } from 'tslib';
-
 
 const bgPrefsOptions = {
   [MGDL_UNITS]: MGDL_UNITS,
@@ -56,8 +54,10 @@ const randomValueByType = (type, bgUnits) => {
     case 'gmi':
       return _.random(0.04, 0.15, true);
 
+    case 'cv':
+      return _.random(0.24, 0.40, true);
+
     case 'bg':
-      console.log(type, bgUnits);
       return bgUnits === MGDL_UNITS
         ? _.random(18, MGDL_CLAMP_TOP)
         : _.random(1, MMOLL_CLAMP_TOP, true);
@@ -284,20 +284,12 @@ stories.add('Total Insulin', () => {
 let averageBgData = {
   data: [
     {
-      id: 'averageBg',
       value: 101,
-      variability: {
-        lower: 76,
-        value: 25,
-        upper: 126,
-      },
-      title: 'Coefficient of Variation',
     },
   ],
 };
 averageBgData.dataPaths = {
   summary: 'data.0',
-  hover: 'data.0.variability',
 };
 
 let averageBgDataMmol = _.assign({}, averageBgData, {
@@ -329,11 +321,64 @@ stories.add('Average BG', () => {
         dataFormat={{
           label: statFormats.bgValue,
           summary: statFormats.bgValue,
-          hover: statFormats.units,
-          hoverTitle: statFormats.bgRange,
         }}
         isOpened={isOpened}
         title="Average Blood Glucose"
+        type={statTypes.barBg}
+      />
+    </Container>
+  );
+});
+
+let standardDevData = {
+  data: [
+    {
+      value: 101,
+      deviation: {
+        value: 25,
+      },
+    },
+  ],
+};
+standardDevData.dataPaths = {
+  summary: 'data.0.deviation',
+};
+
+let standardDevDataMmol = _.assign({}, standardDevData, {
+  data: _.map(standardDevData.data, d => _.assign({}, d, {
+    value: d.value / MGDL_PER_MMOLL,
+    mean: d.mean / MGDL_PER_MMOLL,
+  })),
+});
+
+let standardDevDataUnits = bgPrefsOptions[MGDL_UNITS];
+
+stories.add('Standard Deviation', () => {
+  const collapsible = boolean('collapsible', true, 'PROPS');
+  const isOpened = boolean('isOpened', true, 'PROPS');
+  standardDevDataUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'PROPS');
+  const bgPrefs = bgPrefsValues[standardDevDataUnits];
+
+  button('Randomize Data', () => {
+    if (standardDevDataUnits === MGDL_UNITS) {
+      standardDevData = generateRandom(standardDevData, 'bg', standardDevDataUnits);
+    } else {
+      standardDevDataMmol = generateRandom(standardDevData, 'bg', standardDevDataUnits);
+    }
+  }, 'PROPS');
+
+  return (
+    <Container>
+      <Stat
+        bgPrefs={bgPrefs}
+        collapsible={collapsible}
+        data={standardDevDataUnits === MGDL_UNITS ? standardDevData : standardDevDataMmol}
+        dataFormat={{
+          label: statFormats.stdDevValue,
+          summary: statFormats.stdDevValue,
+        }}
+        isOpened={isOpened}
+        title="Standard Deviation"
         type={statTypes.barBg}
       />
     </Container>
@@ -345,7 +390,7 @@ let glucoseManagementIndexData = {
     {
       id: 'gmi',
       value: 0.051,
-      title: 'G.M.I. (Estimated A1c)',
+      title: 'Glucose Mgmt Indicator',
     },
   ],
 };
@@ -362,10 +407,42 @@ stories.add('Glucose Management Indicator', () => {
     <Container>
       <Stat
         data={glucoseManagementIndexData}
-        title="G.M.I"
+        title="G.M.I."
         type={statTypes.simple}
         dataFormat={{
           summary: statFormats.gmi,
+        }}
+      />
+    </Container>
+  );
+});
+
+let coefficientOfVariationData = {
+  data: [
+    {
+      id: 'cv',
+      value: 0.3615,
+      title: 'Coefficient of Variation',
+    },
+  ],
+};
+coefficientOfVariationData.dataPaths = {
+  summary: 'data.0',
+};
+
+stories.add('Coefficient of Variation', () => {
+  button('Randomize Data', () => {
+    coefficientOfVariationData = generateRandom(coefficientOfVariationData, 'cv');
+  }, 'PROPS');
+
+  return (
+    <Container>
+      <Stat
+        data={coefficientOfVariationData}
+        title="C.V."
+        type={statTypes.simple}
+        dataFormat={{
+          summary: statFormats.cv,
         }}
       />
     </Container>

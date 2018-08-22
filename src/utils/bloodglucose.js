@@ -62,17 +62,15 @@ export function classifyBgValue(bgBounds, bgValue, classificationType = 'threeWa
 }
 
 /**
- * classifyGmiValue
- * @param {number} value - integer or float glucose management index (or eA1c) value
- * @return {String} gmiClassification - target, high, veryHigh
+ * classifyCvValue
+ * @param {number} value - integer or float coefficient of variation (CV) value
+ * @return {String} cvClassification - target, high
  */
-export function classifyGmiValue(value) {
-  if (value <= 0.08) {
+export function classifyCvValue(value) {
+  if (value <= 0.36) { // c.f. http://care.diabetesjournals.org/content/diacare/40/7/832.full.pdf
     return 'target';
-  } else if (value <= 0.1) {
-    return 'high';
   } else {
-    return 'veryHigh';
+    return 'high';
   }
 }
 

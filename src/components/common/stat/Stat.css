@@ -21,6 +21,7 @@
   line-height: 1;
   white-space: nowrap;
   margin-top: .25em;
+  color: var(--stat--dark);
 }
 
 .chartSummary {
@@ -34,7 +35,7 @@
 .summaryValue {
   opacity: 1;
   display: inline;
-  color: var(--stat--default);
+  color: var(--stat--default-dark);
 }
 
 .Stat.isOpen .summaryValue {
@@ -42,7 +43,7 @@
 }
 
 .summarySuffix {
-  color: var(--stat--default);
+  color: var(--stat--default-dark);
 }
 
 .chartTitleData {
@@ -71,10 +72,6 @@
 
 .chartTitleData .bgIcon {
   margin-right: -0.4em;
-}
-
-.titleSuffix {
-  color: var(--stat--suffix);
 }
 
 .chartCollapse {

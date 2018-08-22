@@ -26,7 +26,10 @@ export const BgBarLabel = props => {
 
   const iconPadding = 20;
   const iconSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
-  const svgIcon = atob(iconSrc.replace(/data:image\/svg\+xml;base64,/, ''));
+
+  // We need to directly embed the raw svg html in order to use them within the Victory-generated
+  // charts. This is not a security concern, as we are supplying the iconSrc.
+  const svgIconHTML = atob(iconSrc.replace(/data:image\/svg\+xml;base64,/, ''));
 
   return (
     <g>
@@ -44,7 +47,7 @@ export const BgBarLabel = props => {
       />
       <g
         transform={`translate(${scale.y(domain.x[1]) - iconPadding}, -${barWidth / 2})`}
-        dangerouslySetInnerHTML={{ __html: svgIcon }} // eslint-disable-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: svgIconHTML }} // eslint-disable-line react/no-danger
       />
     </g>
   );
@@ -70,6 +73,9 @@ export const BgBar = props => {
     scale,
     width,
   } = props;
+
+  const renderDeviation = _.isObject(datum.deviation);
+  const renderMean = !renderDeviation;
 
   const widthCorrection = (width - chartLabelWidth) / width;
   const widths = {
@@ -118,22 +124,36 @@ export const BgBar = props => {
           fillOpacity: 0.5,
         }}
       />
-      <Point
-        x={scale.y(datum.y) * widthCorrection}
-        y={yPos + (barWidth / 2)}
-        style={{
-          fill: colors[classifyBgValue(bgBounds, datum.y)],
-          stroke: colors.white,
-          strokeWidth: 2,
-        }}
-        size={barWidth * 2}
-      />
+      {renderMean && (
+        <Point
+          x={scale.y(datum.y) * widthCorrection}
+          y={yPos + (barWidth / 2)}
+          style={{
+            fill: colors[classifyBgValue(bgBounds, datum.y)],
+            stroke: colors.white,
+            strokeWidth: 2,
+          }}
+          size={barWidth * 2}
+        />
+      )}
+      {renderDeviation && (
+        <Point
+          x={scale.y(datum.y) * widthCorrection}
+          y={yPos + (barWidth / 2)}
+          style={{
+            fill: colors[classifyBgValue(bgBounds, datum.y)],
+            stroke: colors.white,
+            strokeWidth: 2,
+          }}
+          size={barWidth}
+        />
+      )}
     </g>
   );
 };
 
 BgBar.propTypes = {
-  bgPrefs: PropTypes.object,
+  bgPrefs: PropTypes.object.isRequired,
 };
 
 BgBar.displayName = 'BgBar';
