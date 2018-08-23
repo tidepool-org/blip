@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "1.8.5-suspend-count-fix.1",
+  "version": "1.8.6",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
