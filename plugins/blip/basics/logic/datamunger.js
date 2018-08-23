@@ -218,10 +218,12 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
       } = patient;
 
       var canUpdateSettings = permissions.hasOwnProperty('custodian') || permissions.hasOwnProperty('root');
+      var hasSiteChangeSourceSettings = settings && settings.hasOwnProperty('siteChangeSource');
 
       basicsData.sections.siteChanges.selectorMetaData = {
         latestPump: latestPump,
         canUpdateSettings,
+        hasSiteChangeSourceSettings,
         patientName: fullName,
       };
 
@@ -229,7 +231,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
         basicsData.data.tubingPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
 
-        if (settings && settings.hasOwnProperty('siteChangeSource') && ([constants.SITE_CHANGE_CANNULA, constants.SITE_CHANGE_TUBING].indexOf(settings.siteChangeSource) >= 0)) {
+        if (hasSiteChangeSourceSettings && ([constants.SITE_CHANGE_CANNULA, constants.SITE_CHANGE_TUBING].indexOf(settings.siteChangeSource) >= 0)) {
           basicsData.sections.siteChanges.type = settings.siteChangeSource;
           basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, settings.siteChangeSource);
         }

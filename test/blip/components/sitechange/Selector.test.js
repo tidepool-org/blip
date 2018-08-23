@@ -83,7 +83,7 @@ describe('SiteChangeSelector', function () {
 
       var compElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector');
       expect(compElem).to.be.ok;
-  
+
       var messageElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector-message--cannula');
       expect(ReactDOM.findDOMNode(messageElem).textContent).to.equal('We are using Fill Cannula to visualize your infusion site changes.');
 
@@ -99,7 +99,7 @@ describe('SiteChangeSelector', function () {
 
       var compElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector');
       expect(compElem).to.be.ok;
-  
+
       var messageElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector-message--tubing');
       expect(ReactDOM.findDOMNode(messageElem).textContent).to.equal('We are using Fill Tubing to visualize your infusion site changes.');
 
@@ -107,7 +107,7 @@ describe('SiteChangeSelector', function () {
       expect(ReactDOM.findDOMNode(optionElem).textContent).to.equal('Fill Tubing');
     });
 
-    it('should render with message disabled when canUpdateSettings is false', function () {
+    it('should render with message disabled when canUpdateSettings is false and user has not selected siteChange source', function () {
       this.props.selectorMetaData.canUpdateSettings = false;
 
       var elem = React.createElement(Selector, this.props);
@@ -115,9 +115,37 @@ describe('SiteChangeSelector', function () {
 
       var compElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector');
       expect(compElem).to.be.ok;
-  
+
       var messageElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector-message--disabled');
-      expect(ReactDOM.findDOMNode(messageElem).textContent).to.equal('Please ask ' + this.props.selectorMetaData.patientName + ' to select how they would like to see infusion site changes.');
+      expect(ReactDOM.findDOMNode(messageElem).textContent).to.equal(this.props.selectorMetaData.patientName + ' has not selected how they would like to see infusion site changes. Please select a temporary view option:');
+    });
+
+    it('should render with cannula message when canUpdateSettings is false and careteam user has selected siteChange source', function () {
+      this.props.selectorMetaData.canUpdateSettings = false;
+      this.props.selectedSubtotal = constants.SITE_CHANGE_CANNULA;
+
+      var elem = React.createElement(Selector, this.props);
+      var renderedElem = TestUtils.renderIntoDocument(elem);
+
+      var compElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector');
+      expect(compElem).to.be.ok;
+
+      var messageElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector-message--disabled');
+      expect(ReactDOM.findDOMNode(messageElem).textContent).to.equal('You are using Fill Cannula to see infusion site changes for ' + this.props.selectorMetaData.patientName);
+    });
+
+    it('should render with tubing message when canUpdateSettings is false and careteam user has selected siteChange source', function () {
+      this.props.selectorMetaData.canUpdateSettings = false;
+      this.props.selectedSubtotal = constants.SITE_CHANGE_TUBING;
+
+      var elem = React.createElement(Selector, this.props);
+      var renderedElem = TestUtils.renderIntoDocument(elem);
+
+      var compElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector');
+      expect(compElem).to.be.ok;
+
+      var messageElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector-message--disabled');
+      expect(ReactDOM.findDOMNode(messageElem).textContent).to.equal('You are using Fill Tubing to see infusion site changes for ' + this.props.selectorMetaData.patientName);
     });
   });
 
@@ -130,7 +158,7 @@ describe('SiteChangeSelector', function () {
 
       var compElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector');
       expect(compElem).to.be.ok;
-  
+
       var messageElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'SiteChangeSelector-message--cannula');
       expect(ReactDOM.findDOMNode(messageElem).textContent).to.equal('We are using Fill Cannula to visualize your infusion site changes.');
 

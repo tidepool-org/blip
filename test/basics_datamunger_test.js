@@ -699,6 +699,52 @@ describe('basics datamunger', function() {
       expect(dm.processInfusionSiteHistory(basicsData, null, patient, perms)).to.equal(null);
     });
 
+    it('should return that a user has set their site change source settings', function() {
+      var basicsData = {
+        data: {
+          [constants.SITE_CHANGE_RESERVOIR]: {dataByDate: countSiteChangesByDay},
+        },
+        days: oneWeekDates,
+        sections: siteChangeSections,
+      };
+
+      var perms = { root: { } };
+
+      var patient = {
+        profile: {
+          fullName: 'Jill Jellyfish',
+        },
+        settings: {
+          siteChangeSource: constants.SITE_CHANGE_CANNULA,
+        },
+      };
+
+      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient, perms);
+      expect(basicsData.sections.siteChanges.selectorMetaData.hasSiteChangeSourceSettings).to.equal(true);
+    });
+
+    it('should return that a user has not set their site change source settings', function() {
+      var basicsData = {
+        data: {
+          [constants.SITE_CHANGE_RESERVOIR]: {dataByDate: countSiteChangesByDay},
+        },
+        days: oneWeekDates,
+        sections: siteChangeSections,
+      };
+
+      var perms = { root: { } };
+
+      var patient = {
+        profile: {
+          fullName: 'Jill Jellyfish',
+        },
+        settings: {},
+      };
+
+      dm.processInfusionSiteHistory(basicsData, constants.INSULET, patient, perms);
+      expect(basicsData.sections.siteChanges.selectorMetaData.hasSiteChangeSourceSettings).to.equal(false);
+    });
+
     it('should return that logged in user has permission to update patient settings', function() {
       var basicsData = {
         data: {
