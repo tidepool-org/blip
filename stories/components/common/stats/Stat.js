@@ -284,7 +284,7 @@ stories.add('Total Insulin', () => {
 let averageBgData = {
   data: [
     {
-      value: 101,
+      value: 91,
     },
   ],
 };
@@ -333,7 +333,7 @@ stories.add('Average BG', () => {
 let standardDevData = {
   data: [
     {
-      value: 101,
+      value: 91,
       deviation: {
         value: 25,
       },

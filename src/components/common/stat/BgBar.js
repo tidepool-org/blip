@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { Point, Rect, VictoryLabel } from 'victory';
+import { Line, Point, Rect, VictoryLabel } from 'victory';
+import { Arc } from 'victory-core';
 import colors from '../../../styles/colors.css';
 import MGDLIcon from './assets/mgdl-inv-24-px.svg';
 import MMOLIcon from './assets/mmol-inv-24-px.svg'; // TODO: Replace with mmol icon when avail
@@ -77,6 +78,8 @@ export const BgBar = props => {
   const renderDeviation = _.isObject(datum.deviation);
   const renderMean = !renderDeviation;
 
+  const deviation = _.get(datum, 'deviation.value', 0);
+
   const widthCorrection = (width - chartLabelWidth) / width;
   const widths = {
     low: scale.y(bgBounds.targetLowerBound) * widthCorrection,
@@ -84,15 +87,37 @@ export const BgBar = props => {
     high: scale.y(domain.x[1] - bgBounds.targetUpperBound) * widthCorrection,
   };
 
+  const barRadius = barWidth / 2;
+
   const yPos = scale.x(index + 1) - (barWidth / 2);
+  const datumY = yPos + (barWidth / 2);
+  const datumX = scale.y(datum.y) * widthCorrection;
+
+  const dev1Value = datum.y - deviation;
+  const dev1X = scale.y(datum.y - deviation) * widthCorrection;
+
+  const dev2Value = datum.y + deviation;
+  const dev2X = scale.y(datum.y + deviation) * widthCorrection;
 
   return (
     <g>
+      <Arc
+        cx={barRadius}
+        cy={datumY}
+        r={barRadius}
+        startAngle={90}
+        endAngle={270}
+        style={{
+          stroke: 'transparent',
+          fill: colors.low,
+          fillOpacity: 0.5,
+        }}
+      />
       <Rect
         {...props}
-        x={0}
+        x={barRadius}
         y={yPos}
-        width={widths.low}
+        width={widths.low - barRadius}
         height={barWidth}
         style={{
           stroke: 'transparent',
@@ -116,7 +141,7 @@ export const BgBar = props => {
         {...props}
         x={(widths.low + widths.target)}
         y={yPos}
-        width={widths.high}
+        width={widths.high - barRadius}
         height={barWidth}
         style={{
           stroke: 'transparent',
@@ -124,29 +149,76 @@ export const BgBar = props => {
           fillOpacity: 0.5,
         }}
       />
+      <Arc
+        cx={(widths.low + widths.target + widths.high) - barRadius}
+        cy={datumY}
+        r={barRadius}
+        startAngle={270}
+        endAngle={90}
+        style={{
+          stroke: 'transparent',
+          fill: colors.high,
+          fillOpacity: 0.5,
+        }}
+      />
+
       {renderMean && (
         <Point
-          x={scale.y(datum.y) * widthCorrection}
-          y={yPos + (barWidth / 2)}
-          style={{
-            fill: colors[classifyBgValue(bgBounds, datum.y)],
-            stroke: colors.white,
-            strokeWidth: 2,
-          }}
-          size={barWidth * 2}
+        x={datumX}
+        y={datumY}
+        style={{
+          fill: colors[classifyBgValue(bgBounds, datum.y)],
+          stroke: colors.white,
+          strokeWidth: 2,
+        }}
+        size={barWidth * 2}
         />
       )}
+
       {renderDeviation && (
-        <Point
-          x={scale.y(datum.y) * widthCorrection}
-          y={yPos + (barWidth / 2)}
-          style={{
-            fill: colors[classifyBgValue(bgBounds, datum.y)],
-            stroke: colors.white,
-            strokeWidth: 2,
-          }}
-          size={barWidth}
-        />
+        <g>
+          <Line
+            x1={dev1X}
+            x2={dev1X}
+            y1={datumY - barWidth * 2}
+            y2={datumY + barWidth * 2}
+            style={{
+              stroke: colors.white,
+              strokeWidth: 6,
+            }}
+          />
+          <Line
+            x1={dev1X}
+            x2={dev1X}
+            y1={datumY - barWidth * 2}
+            y2={datumY + barWidth * 2}
+            style={{
+              stroke: colors[classifyBgValue(bgBounds, dev1Value)],
+              strokeWidth: 2,
+            }}
+          />
+
+          <Line
+            x1={dev2X}
+            x2={dev2X}
+            y1={datumY - barWidth * 2}
+            y2={datumY + barWidth * 2}
+            style={{
+              stroke: colors.white,
+              strokeWidth: 6,
+            }}
+          />
+          <Line
+            x1={dev2X}
+            x2={dev2X}
+            y1={datumY - barWidth * 2}
+            y2={datumY + barWidth * 2}
+            style={{
+              stroke: colors[classifyBgValue(bgBounds, dev2Value)],
+              strokeWidth: 2,
+            }}
+          />
+        </g>
       )}
     </g>
   );
