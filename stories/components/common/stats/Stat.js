@@ -43,7 +43,12 @@ const convertPercentageToDayDuration = value => value * MS_IN_DAY;
 
 const getSum = data => _.sum(_.map(data, d => d.value));
 
-const randomValueByType = (type, bgUnits) => {
+const randomValueByType = (type, bgUnits, opts = {}) => {
+  const isMGDL = bgUnits === MGDL_UNITS;
+  const {
+    deviation,
+  } = opts;
+
   switch (type) {
     case 'duration':
       return convertPercentageToDayDuration(_.random(0, 1, true));
@@ -58,32 +63,42 @@ const randomValueByType = (type, bgUnits) => {
       return _.random(0.24, 0.40, true);
 
     case 'deviation':
-      return _.random(12, 48);
+      return _.random(
+        isMGDL ? 12 : 12 / MGDL_PER_MMOLL,
+        isMGDL ? 48 : 48 / MGDL_PER_MMOLL,
+        true
+      );
 
     case 'bg':
-      return bgUnits === MGDL_UNITS
-        ? _.random(18, MGDL_CLAMP_TOP)
-        : _.random(1, MMOLL_CLAMP_TOP, true);
+      return _.random(
+        isMGDL ? 18 + deviation : 1 + deviation,
+        isMGDL ? MGDL_CLAMP_TOP - deviation : MMOLL_CLAMP_TOP - deviation,
+        true
+      );
 
     default:
       return _.random(0, 1, true);
   }
 };
 
-/* eslint-disable no-nested-ternary */
 const generateRandom = (data, type, bgUnits) => {
+  const deviation = { value: randomValueByType('deviation', bgUnits) };
+
   const randomData = _.assign({}, data, {
     data: _.map(data.data, (d) => (_.assign({}, d, {
-      value: randomValueByType(type, bgUnits),
-      deviation: d.deviation ? { value: randomValueByType('deviation') } : undefined,
+      value: randomValueByType(type, bgUnits, {
+        deviation: d.deviation ? deviation.value : 0,
+      }),
+      deviation: d.deviation ? deviation : undefined,
     }))),
   });
   if (randomData.total) {
     randomData.total = _.assign({}, data.total, { value: getSum(randomData.data) });
   }
+
+  console.log(randomData)
   return randomData;
 };
-/* eslint-enable no-nested-ternary */
 
 /* eslint-disable react/prop-types */
 const Container = (props) => (
@@ -351,7 +366,7 @@ standardDevData.dataPaths = {
 let standardDevDataMmol = _.assign({}, standardDevData, {
   data: _.map(standardDevData.data, d => _.assign({}, d, {
     value: d.value / MGDL_PER_MMOLL,
-    mean: d.mean / MGDL_PER_MMOLL,
+    deviation: { value: d.deviation.value / MGDL_PER_MMOLL },
   })),
 });
 
