@@ -134,16 +134,6 @@ class Stat extends React.PureComponent {
     this.setChartPropsByType(nextProps);
   }
 
-  handleMouseOver = () => {
-    if (this.props.type === statTypes.simple) {
-      this.setChartTitle(_.get(this.props.data, 'data.0'));
-    }
-  };
-
-  handleMouseOut = () => {
-    this.setChartTitle();
-  };
-
   renderChart = size => (
     <Collapse
       isOpened={this.state.isOpened}

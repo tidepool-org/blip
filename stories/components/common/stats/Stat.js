@@ -390,7 +390,6 @@ let glucoseManagementIndexData = {
     {
       id: 'gmi',
       value: 0.051,
-      title: 'Glucose Mgmt Indicator',
     },
   ],
 };
@@ -422,7 +421,6 @@ let coefficientOfVariationData = {
     {
       id: 'cv',
       value: 0.3615,
-      title: 'Coefficient of Variation',
     },
   ],
 };
