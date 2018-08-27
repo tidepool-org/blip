@@ -101,82 +101,86 @@ export const BgBar = props => {
 
   return (
     <g>
-      <Arc
-        cx={barRadius}
-        cy={datumY}
-        r={barRadius}
-        startAngle={90}
-        endAngle={270}
-        style={{
-          stroke: 'transparent',
-          fill: colors.low,
-          fillOpacity: 0.5,
-        }}
-      />
-      <Rect
-        {...props}
-        x={barRadius}
-        y={yPos}
-        width={widths.low - barRadius}
-        height={barWidth}
-        style={{
-          stroke: 'transparent',
-          fill: colors.low,
-          fillOpacity: 0.5,
-        }}
-      />
-      <Rect
-        {...props}
-        x={widths.low}
-        y={yPos}
-        width={widths.target}
-        height={barWidth}
-        style={{
-          stroke: 'transparent',
-          fill: colors.target,
-          fillOpacity: 0.5,
-        }}
-      />
-      <Rect
-        {...props}
-        x={(widths.low + widths.target)}
-        y={yPos}
-        width={widths.high - barRadius}
-        height={barWidth}
-        style={{
-          stroke: 'transparent',
-          fill: colors.high,
-          fillOpacity: 0.5,
-        }}
-      />
-      <Arc
-        cx={(widths.low + widths.target + widths.high) - barRadius}
-        cy={datumY}
-        r={barRadius}
-        startAngle={270}
-        endAngle={90}
-        style={{
-          stroke: 'transparent',
-          fill: colors.high,
-          fillOpacity: 0.5,
-        }}
-      />
+      <g className="bgScale">
+        <Arc
+          cx={barRadius}
+          cy={datumY}
+          r={barRadius}
+          startAngle={90}
+          endAngle={270}
+          style={{
+            stroke: 'transparent',
+            fill: colors.low,
+            fillOpacity: 0.5,
+          }}
+        />
+        <Rect
+          {...props}
+          x={barRadius}
+          y={yPos}
+          width={widths.low - barRadius}
+          height={barWidth}
+          style={{
+            stroke: 'transparent',
+            fill: colors.low,
+            fillOpacity: 0.5,
+          }}
+        />
+        <Rect
+          {...props}
+          x={widths.low}
+          y={yPos}
+          width={widths.target}
+          height={barWidth}
+          style={{
+            stroke: 'transparent',
+            fill: colors.target,
+            fillOpacity: 0.5,
+          }}
+        />
+        <Rect
+          {...props}
+          x={(widths.low + widths.target)}
+          y={yPos}
+          width={widths.high - barRadius}
+          height={barWidth}
+          style={{
+            stroke: 'transparent',
+            fill: colors.high,
+            fillOpacity: 0.5,
+          }}
+        />
+        <Arc
+          cx={(widths.low + widths.target + widths.high) - barRadius}
+          cy={datumY}
+          r={barRadius}
+          startAngle={270}
+          endAngle={90}
+          style={{
+            stroke: 'transparent',
+            fill: colors.high,
+            fillOpacity: 0.5,
+          }}
+        />
+      </g>
 
       {renderMean && (
-        <Point
-        x={datumX}
-        y={datumY}
-        style={{
-          fill: colors[classifyBgValue(bgBounds, datum.y)],
-          stroke: colors.white,
-          strokeWidth: 2,
-        }}
-        size={barWidth * 2}
-        />
+        <g className="bgMean">
+          <Point
+            x={datumX}
+            y={datumY}
+            style={{
+              fill: colors[classifyBgValue(bgBounds, datum.y)],
+              stroke: colors.white,
+              strokeWidth: 2,
+            }}
+            size={barWidth * 2}
+          />
+        </g>
       )}
 
       {renderDeviation && (
-        <g>
+        <g className="bgDeviation">
           <Line
             x1={dev1X}
             x2={dev1X}

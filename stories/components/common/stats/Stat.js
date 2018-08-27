@@ -49,13 +49,16 @@ const randomValueByType = (type, bgUnits) => {
       return convertPercentageToDayDuration(_.random(0, 1, true));
 
     case 'units':
-      return _.random(20, 100);
+      return _.random(20, 100, true);
 
     case 'gmi':
       return _.random(0.04, 0.15, true);
 
     case 'cv':
       return _.random(0.24, 0.40, true);
+
+    case 'deviation':
+      return _.random(12, 48);
 
     case 'bg':
       return bgUnits === MGDL_UNITS
@@ -72,6 +75,7 @@ const generateRandom = (data, type, bgUnits) => {
   const randomData = _.assign({}, data, {
     data: _.map(data.data, (d) => (_.assign({}, d, {
       value: randomValueByType(type, bgUnits),
+      deviation: d.deviation ? { value: randomValueByType('deviation') } : undefined,
     }))),
   });
   if (randomData.total) {
@@ -284,7 +288,7 @@ stories.add('Total Insulin', () => {
 let averageBgData = {
   data: [
     {
-      value: 91,
+      value: 101,
     },
   ],
 };
@@ -333,7 +337,7 @@ stories.add('Average BG', () => {
 let standardDevData = {
   data: [
     {
-      value: 91,
+      value: 101,
       deviation: {
         value: 25,
       },
