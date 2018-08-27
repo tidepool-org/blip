@@ -361,6 +361,7 @@ let standardDevData = {
 };
 standardDevData.dataPaths = {
   summary: 'data.0.deviation',
+  title: 'data.0',
 };
 
 let standardDevDataMmol = _.assign({}, standardDevData, {
@@ -395,6 +396,7 @@ stories.add('Standard Deviation', () => {
         dataFormat={{
           label: statFormats.stdDevValue,
           summary: statFormats.stdDevValue,
+          title: statFormats.stdDevRange,
         }}
         isOpened={isOpened}
         title="Standard Deviation"

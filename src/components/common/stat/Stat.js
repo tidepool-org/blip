@@ -48,6 +48,7 @@ export const statFormats = {
   duration: 'duration',
   gmi: 'gmi',
   percentage: 'percentage',
+  stdDevRange: 'stdDevRange',
   stdDevValue: 'stdDevValue',
   units: 'units',
 };
@@ -513,6 +514,7 @@ class Stat extends React.PureComponent {
   formatValue = (datum = {}, format) => {
     let id = datum.id;
     let value = datum.value;
+    let deviation = _.get(datum, 'deviation.value', 0);
     let suffix = '';
     let suffixSrc;
     const total = _.get(this.props.data, 'total.value');
@@ -551,6 +553,26 @@ class Stat extends React.PureComponent {
           value = value / total;
         }
         value = formatPercentage(value);
+        break;
+
+      case statFormats.stdDevRange:
+        suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
+        value = (
+          <span>
+            <span style={{
+              color: colors[classifyBgValue(bgBounds, value - deviation)],
+            }}>
+              {formatBgValue(value - deviation, bgPrefs)}
+            </span>
+            &nbsp;-&nbsp;
+            <span style={{
+              color: colors[classifyBgValue(bgBounds, value + deviation)],
+            }}>
+              {formatBgValue(value + deviation, bgPrefs)}
+            </span>
+          </span>
+        );
+        suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         break;
 
       case statFormats.stdDevValue:
