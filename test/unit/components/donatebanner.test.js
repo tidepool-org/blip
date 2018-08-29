@@ -24,7 +24,7 @@
 
 import React from 'react';
 import { browserHistory } from 'react-router'
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
 import DonateBanner from '../../../app/components/donatebanner';
 import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, URL_BIG_DATA_DONATION_INFO } from '../../../app/core/constants';
@@ -43,7 +43,7 @@ describe('DonateBanner', () => {
 
   let wrapper;
   beforeEach(() => {
-    wrapper = shallow(
+    wrapper = mount(
       <DonateBanner
         {...props}
       />

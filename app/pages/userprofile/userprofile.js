@@ -20,6 +20,7 @@ import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
 
+import {translate} from 'react-i18next';
 import _ from 'lodash';
 import { validateForm } from '../../core/validation';
 
@@ -30,7 +31,8 @@ import personUtils from '../../core/personutils';
 import SimpleForm from '../../components/simpleform';
 import PeopleList from '../../components/peoplelist';
 
-export var UserProfile = React.createClass({
+// A different namespace than the default can be specified in translate()
+export var UserProfile = translate()(React.createClass({
   propTypes: {
     fetchingUser: React.PropTypes.bool.isRequired,
     history: React.PropTypes.object.isRequired,
@@ -39,12 +41,30 @@ export var UserProfile = React.createClass({
     user: React.PropTypes.object
   },
 
-  formInputs: [
-    {name: 'fullName', label: 'Full name', type: 'text'},
-    {name: 'username', label: 'Email', type: 'email'},
-    {name: 'password', label: 'Password', type: 'password'},
-    {name: 'passwordConfirm', label: 'Confirm password', type: 'password'}
-  ],
+  formInputs: function() {
+    const {t} = this.props;
+    const inputs = [
+      {name: 'fullName', label: t('Full name'), type: 'text'},
+      {name: 'username', label: t('Email'), type: 'email'},
+      {name: 'password', label: t('Password'), type: 'password'},
+      {name: 'passwordConfirm', label: t('Confirm password'), type: 'password'}
+    ];
+
+    if (config.I18N_ENABLED) {
+      inputs.push({
+        name: 'lang',
+        label: t('Language'),
+        type: 'select',
+        items: [
+          {value: 'en', label: 'English'},
+          {value: 'fr', label: 'Français'},
+        ],
+        placeholder: t('Select language...')
+      });
+    }
+
+    return inputs;
+  },
 
   MESSAGE_TIMEOUT: 2000,
 
@@ -63,7 +83,8 @@ export var UserProfile = React.createClass({
 
     return {
       fullName: user.profile && user.profile.fullName,
-      username: user.username
+      username: user.username,
+      lang: _.get(user, 'preferences.displayLanguageCode', undefined)
     };
   },
 
@@ -83,6 +104,7 @@ export var UserProfile = React.createClass({
   },
 
   render: function() {
+    const {t} = this.props;
     var form = this.renderForm();
     var self = this;
     var handleClickBack = function(e) {
@@ -101,11 +123,11 @@ export var UserProfile = React.createClass({
               <div className="grid-item one-whole medium-one-third">
                 <a className="js-back" href="" onClick={handleClickBack}>
                   <i className="icon-back"></i>
-                  {' ' + 'Back'}
+                  {' ' + t('Back')}
                 </a>
               </div>
               <div className="grid-item one-whole medium-one-third">
-                <div className="profile-subnav-title">Account</div>
+                <div className="profile-subnav-title">{t('Account')}</div>
               </div>
             </div>
           </div>
@@ -121,15 +143,16 @@ export var UserProfile = React.createClass({
   },
 
   renderForm: function() {
+    const {t} = this.props;
     var disabled = this.isResettingUserData();
 
 
     return (
       <SimpleForm
-        inputs={this.formInputs}
+        inputs={this.formInputs()}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
-        submitButtonText="Save"
+        submitButtonText={t('Save')}
         onSubmit={this.handleSubmit}
         notification={this.state.notification}
         disabled={disabled}/>
@@ -196,8 +219,12 @@ export var UserProfile = React.createClass({
       emails: [formValues.username],
       profile: {
         fullName: formValues.fullName
-      }
+      },
     };
+
+    if (config.I18N_ENABLED) {
+      _.set(result, 'preferences.displayLanguageCode', formValues.lang);
+    }
 
     if (formValues.password) {
       result.password = formValues.password;
@@ -207,20 +234,21 @@ export var UserProfile = React.createClass({
   },
 
   submitFormValues: function(formValues) {
+    const {t} = this.props;
     var self = this;
     var submit = this.props.onSubmit;
 
     // Save optimistically
     submit(formValues);
     this.setState({
-      notification: {type: 'success', message: 'All changes saved.'}
+      notification: {type: 'success', message: t('All changes saved.')}
     });
 
     this.messageTimeoutId = setTimeout(function() {
       self.setState({notification: null});
     }, this.MESSAGE_TIMEOUT);
   }
-});
+}));
 
 
 /**

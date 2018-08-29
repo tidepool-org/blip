@@ -14,14 +14,15 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var _ = require('lodash');
-var cx = require('classnames');
+import React from 'react';
+import _ from 'lodash';
+import cx from 'classnames';
+import { translate } from 'react-i18next';
 
 var personUtils = require('../../core/personutils');
 var PatientCard = require('../../components/patientcard');
 
-var PeopleList = React.createClass({
+var PeopleList = translate()(React.createClass({
   propTypes: {
     people: React.PropTypes.array,
     uploadUrl: React.PropTypes.string,
@@ -94,11 +95,12 @@ var PeopleList = React.createClass({
   },
 
   renderRemoveControls: function() {
+    const { t } = this.props;
     var key = 'edit';
-    var text = 'Remove People';
+    var text = t('Remove People');
     if (this.state.editing) {
       key = 'cancel';
-      text = 'Done';
+      text = t('Done');
     }
 
     return (
@@ -137,15 +139,16 @@ var PeopleList = React.createClass({
   },
 
   getPersonDisplayName: function(person) {
+    const { t } = this.props;
     var fullName;
     fullName = personUtils.patientFullName(person);
 
     if (!fullName) {
-      return 'Anonymous user';
+      return t('Anonymous user');
     }
 
     return fullName;
   }
-});
+}));
 
 module.exports = PeopleList;

@@ -9,6 +9,9 @@ var ReactDOM = require('react-dom');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 import {shallow} from 'enzyme';
+import i18next from '../../../app/core/language';
+
+const t = i18next.t.bind(i18next);
 
 var PatientCard = require('../../../app/components/patientcard');
 
@@ -42,12 +45,20 @@ describe('PatientCard', function () {
     });
 
     it('should render upload button if user has upload permissions', function() {
-      let wrapper = shallow(<PatientCard patient={patientUpload}/>);
+      let props = {
+        patient: patientUpload,
+        t,
+      };
+      let wrapper = shallow(<PatientCard.WrappedComponent {...props} />);
       expect(wrapper.contains('Upload')).to.equal(true);
     });
 
     it('should not render upload button if user does not have upload permissions', function() {
-      let wrapper = shallow(<PatientCard patient={patientNoUpload}/>);
+      let props = {
+        patient: patientNoUpload,
+        t,
+      };
+      let wrapper = shallow(<PatientCard.WrappedComponent {...props} />);
       expect(wrapper.contains('Upload')).to.equal(false);
     });
   });

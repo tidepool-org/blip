@@ -15,9 +15,10 @@
  */
 
 var React = require('react');
+import { translate } from 'react-i18next';
 var Link = require('react-router').Link;
 
-var LoginNav = React.createClass({
+var LoginNav = translate()(React.createClass({
   propTypes: {
     page: React.PropTypes.string,
     hideLinks: React.PropTypes.bool,
@@ -45,12 +46,13 @@ var LoginNav = React.createClass({
       return null;
     }
 
+
     var self = this;
-    var page = this.props.page;
+    const {page, t} = this.props;
     var href = '/signup';
     var className = 'js-signup-link';
     var icon = 'icon-add';
-    var text = 'Sign up';
+    var text = t('Sign up');
     var handleClick = function() {
       self.props.trackMetric('Clicked Sign Up Link');
     };
@@ -59,7 +61,7 @@ var LoginNav = React.createClass({
       href = '/login';
       className = 'js-login-link';
       icon = 'icon-login';
-      text = 'Log in';
+      text = t('Log in');
       handleClick = function() {
         self.props.trackMetric('Clicked Log In Link');
       };
@@ -71,6 +73,6 @@ var LoginNav = React.createClass({
         className={className}><i className={icon}></i>{' ' + text}</Link>
     );
   }
-});
+}));
 
 module.exports = LoginNav;

@@ -64,7 +64,7 @@ describe('Basics', () => {
 
   let wrapper;
   beforeEach(() => {
-    wrapper = shallow(<Basics {...baseProps} />);
+    wrapper = mount(<Basics {...baseProps} />);
   })
 
   afterEach(() => {
@@ -82,6 +82,7 @@ describe('Basics', () => {
     });
 
     it('should render the basics chart if any data is uploaded', () => {
+      wrapper = shallow(<Basics.WrappedComponent {...baseProps} />);
       wrapper.setProps({
         patientData: {
           basicsData: _.assign({}, baseProps.patientData.basicsData, {
