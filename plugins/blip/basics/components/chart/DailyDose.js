@@ -1,19 +1,22 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var _ = require('lodash');
 var d3 = require('d3');
@@ -33,7 +36,7 @@ var DailyDose = React.createClass({
   },
   /**
    * Get the initial state of the component
-   * 
+   *
    * @return {Object}
    */
   getInitialState: function() {
@@ -58,7 +61,7 @@ var DailyDose = React.createClass({
       <div className='DailyDose'>
         <div className="DailyDose-weightInputContainer">
           <div className="DailyDose-weightInputForm">
-            <label className={weightLabelClass}>Weight</label>
+            <label className={weightLabelClass}>{t('Weight')}</label>
             {this.renderWeightSelector(noTDD)}
           </div>
           {noTDD ? null : calculateButton}
@@ -71,9 +74,9 @@ var DailyDose = React.createClass({
    * Render function for the weight selector. We render an input[type=number] element that allows
    * numeric values between 0 and MAX_WEIGHT kgs. An error message will be displayed if the weight
    * entered exceeds MAX_WEIGHT
-   * 
+   *
    * If weight is set in this session then the input element is pre-populated.
-   * 
+   *
    * @return {Element}
    */
   renderWeightSelector: function(noTDD) {

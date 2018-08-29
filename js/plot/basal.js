@@ -16,6 +16,8 @@
  */
 
 /* jshint esversion:6 */
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var d3 = require('d3');
 var _ = require('lodash');
@@ -349,12 +351,12 @@ module.exports = function(pool, opts) {
       case 'temp':
         group.append('p')
           .append('span')
-          .html('<span class="plain">Temp basal of</span> ' + basal.tempPercentage(datum));
+          .html('<span class="plain">'+t("Temp basal of")+'</span> ' + basal.tempPercentage(datum));
         if (datum.suppressed) {
           group.append('p')
             .append('span')
             .attr('class', 'secondary')
-            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' scheduled');
+            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
         }
         break;
       case 'suspend':
@@ -365,7 +367,7 @@ module.exports = function(pool, opts) {
           group.append('p')
             .append('span')
             .attr('class', 'secondary')
-            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' scheduled');
+            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
         }
         break;
       case 'automated':
@@ -383,9 +385,9 @@ module.exports = function(pool, opts) {
     group.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="fromto">from</span> ' +
+      .html('<span class="fromto">'+t('from')+'</span> ' +
         format.timestamp(datum.normalTime, datum.displayOffset) +
-        ' <span class="fromto">to</span> ' +
+        ' <span class="fromto">'+t('to')+'</span> ' +
         format.timestamp(datum.normalEnd, datum.displayOffset));
   };
 

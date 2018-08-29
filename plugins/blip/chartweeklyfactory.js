@@ -16,6 +16,9 @@
  */
 
 /* jshint esversion:6 */
+var i18next = require('i18next');
+
+var t = i18next.t.bind(i18next);
 
 var _ = require('lodash');
 var bows = require('bows');
@@ -96,7 +99,7 @@ function chartWeeklyFactory(el, options) {
 
     chart.setup();
     chart.legend({
-      main: 'Blood Glucose',
+      main: t('Blood Glucose'),
       light: ' ' + chart.options.bgUnits
     });
 
@@ -153,7 +156,7 @@ function chartWeeklyFactory(el, options) {
       xPosition: 0,
       yPosition: chart.poolStats.height() / 10,
       emitter: emitter,
-      averageLabel: 'These two weeks',
+      averageLabel: t('These two weeks'),
       manufacturer: _.get(latestPumpUpload, 'source'),
       activeBasalRatio: isAutomatedBasalDevice(latestPumpUpload) ? 'timeInAuto' : 'basalBolus',
       puddleWeights : {

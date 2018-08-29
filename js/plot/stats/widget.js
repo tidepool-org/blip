@@ -16,6 +16,8 @@
  */
 
 /* jshint esversion:6 */
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var d3 = require('d3');
 var _ = require('lodash');
@@ -61,16 +63,19 @@ module.exports = function(pool, opts) {
     bgUnits: MGDL_UNITS,
     activeBasalRatio: 'basalBolus',
     ratioLabels: {
-      basalBolus: 'Basal : Bolus',
-      timeInAuto: `Time In ${basalLabels.automated}`,
+      basalBolus: t('Basal : Bolus'),
+      timeInAuto: t('Time In {{automatedLabel}}', { automatedLabel: basalLabels.automated }),
     },
     ratioLeads: {
-      basalBolus: 'Basal to bolus insulin ratio',
-      timeInAuto: `${basalLabels.manual} to ${basalLabels.automated} ratio`,
+      basalBolus: t('Basal to bolus insulin ratio'),
+      timeInAuto: t('{{manualLabel}} to {{automatedLabel}} ratio', {
+        automatedLabel: basalLabels.automated,
+        manualLabel: basalLabels.manual,
+      }),
     },
     PTiRLabels: {
-      cbg: 'Time in Target Range',
-      smbg: 'Readings in Range',
+      cbg: t('Time in Target Range'),
+      smbg: t('Readings in Range')
     },
     puddleWeights: {
       ratio: 1.0,
@@ -117,7 +122,7 @@ module.exports = function(pool, opts) {
     var pw = opts.puddleWeights;
     var lowBound = format.tooltipBGValue(opts.classes.low.boundary, opts.bgUnits);
     var highBound = format.tooltipBGValue(opts.classes.target.boundary, opts.bgUnits);
-    var targetRangeString = 'Target range: ' + lowBound + ' - ' + highBound + ' ';
+    var targetRangeString = t('Target range') +': ' + lowBound + ' - ' + highBound + ' ';
 
     // create basal-to-bolus ratio puddle
     var ratioOpts = {
@@ -148,7 +153,7 @@ module.exports = function(pool, opts) {
     // create average BG puddle
     var averageOpts = {
       id: 'Average',
-      head: 'Average BG',
+      head: t('Average BG'),
       lead: opts.averageLabel,
       weight: pw.average,
       pieBoolean: false,
