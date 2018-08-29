@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
 import cx from 'classnames';
@@ -33,7 +33,8 @@ import BgBar, { BgBarLabel } from './BgBar';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
 import MGDLIcon from './assets/mgdl-inv-24-px.svg';
-import MMOLIcon from './assets/mmol-inv-24-px.svg'; // TODO: Replace with mmol icon when avail
+import MMOLIcon from './assets/mmol-inv-24-px.svg';
+import InfoIcon from './assets/info-outline-24-px.svg';
 
 export const statTypes = {
   barHorizontal: 'barHorizontal',
@@ -58,7 +59,7 @@ const dataPathPropType = PropTypes.oneOfType([
   PropTypes.array,
 ]);
 
-class Stat extends React.PureComponent {
+class Stat extends PureComponent {
   static propTypes = {
     alwaysShowTooltips: PropTypes.bool,
     bgPrefs: PropTypes.shape({
@@ -189,6 +190,11 @@ class Stat extends React.PureComponent {
                 </span>
                 &nbsp;)
               </span>
+            )}
+            {this.props.tooltips && (
+              <a href="">
+                <img src={InfoIcon} alt="Hover for more info"/>
+              </a>
             )}
           </div>
 

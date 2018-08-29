@@ -492,7 +492,7 @@ let coefficientOfVariationData = {
   data: [
     {
       id: 'cv',
-      value: 0.3615,
+      value: 0.36,
     },
   ],
 };

@@ -67,7 +67,7 @@ export function classifyBgValue(bgBounds, bgValue, classificationType = 'threeWa
  * @return {String} cvClassification - target, high
  */
 export function classifyCvValue(value) {
-  if (value <= 0.36) { // c.f. http://care.diabetesjournals.org/content/diacare/40/7/832.full.pdf
+  if (value <= 0.36) {
     return 'target';
   } else {
     return 'high';
