@@ -13,6 +13,7 @@ packageConfig.externals = {
   'd3-scale': 'd3-scale',
   'd3-shape': 'd3-shape',
   'd3-time': 'd3-time',
+  i18next: 'i18next',
   'moment-timezone': 'moment-timezone',
   pdfkit: 'pdfkit',
   react: 'react',
