@@ -659,6 +659,7 @@ export function reduceByDay(data, bgPrefs) {
     p + typeObj.dataByDate[date].total
   );
 
+  /* eslint-disable no-param-reassign */
   const countAutomatedBasalEventsForDay = (dataForDate) => {
     // Get the path groups, and remove the first group, as we only want to
     // track changes into and out of automated delivery
@@ -674,16 +675,41 @@ export function reduceByDay(data, bgPrefs) {
       const event = subType === 'automated' ? 'automatedStart' : 'automatedStop';
       // For now, we're only tracking `automatedStop` events
       if (event === 'automatedStop') {
-        // eslint-disable-next-line no-param-reassign
         acc[event]++;
       }
       return acc;
     }, events);
 
     _.assign(dataForDate.subtotals, events);
-    // eslint-disable-next-line no-param-reassign
     dataForDate.total += events.automatedStop;
   };
+  /* eslint-enable no-param-reassign */
+
+  /* eslint-disable no-param-reassign */
+  const countDistinctSuspendsForDay = (dataForDate) => {
+    const suspends = _.filter(dataForDate.data, d => d.deliveryType === 'suspend');
+
+    const result = {
+      prev: {},
+      distinct: 0,
+      skipped: 0,
+    };
+
+    _.reduce(suspends, (acc, datum) => {
+      // We only want to track non-contiguous suspends as distinct
+      if (_.get(acc.prev, 'normalEnd') === datum.normalTime) {
+        acc.skipped++;
+      } else {
+        acc.distinct++;
+      }
+      acc.prev = datum;
+      return acc;
+    }, result);
+
+    dataForDate.subtotals.suspend = result.distinct;
+    dataForDate.total -= result.skipped;
+  };
+  /* eslint-enable no-param-reassign */
 
   const mostRecentDay = _.find(basicsData.days, { type: 'mostRecent' }).date;
 
@@ -699,6 +725,7 @@ export function reduceByDay(data, bgPrefs) {
 
     if (type === 'basal') {
       _.each(typeObj.dataByDate, countAutomatedBasalEventsForDay);
+      _.each(typeObj.dataByDate, countDistinctSuspendsForDay);
     }
 
     if (_.includes(['calibration', 'smbg'], type)) {

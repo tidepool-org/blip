@@ -18,7 +18,7 @@ import _ from 'lodash';
 
 import * as basals from '../../../data/basal/fixtures';
 import { detail } from '../../helpers/scales';
-const { detailXScale, detailBasalScale } = detail;
+const { detailXScale, detailBasalScale, detailHeight } = detail;
 
 import { calculateBasalPath, getBasalSequencePaths } from '../../../src/modules/render/basal';
 import { getBasalSequences } from '../../../src/utils/basal';
@@ -122,6 +122,18 @@ describe('basal path generators', () => {
       );
       expect(paths.length).to.equal(1);
       expect(paths[0].type).to.equal('border--undelivered--automated');
+    });
+
+    it(`should render at the baseline for a suspend basal sequence suppressing
+       automated delivery`, () => {
+      const paths = getBasalSequencePaths(
+        getBasalSequences(basals.automatedWithSuspend)[1], detailXScale, detailBasalScale
+      );
+      expect(paths.length).to.equal(1);
+      expect(detailHeight).to.equal(100);
+
+      // Initial move to and line at the baseline of 100
+      expect(paths[0].d).to.match(/^M -?\d.,100 L -?\d.,100/);
     });
   });
 });
