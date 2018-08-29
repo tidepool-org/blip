@@ -610,9 +610,12 @@ export function updateUser(api, formValues) {
     const loggedInUser = allUsersMap[loggedInUserId];
 
     const newUser = _.assign({},
-      _.omit(loggedInUser, 'profile'),
-      _.omit(formValues, 'profile'),
-      { profile: _.assign({}, loggedInUser.profile, formValues.profile) }
+      _.omit(loggedInUser, ['profile', 'preferences']),
+      _.omit(formValues, ['profile', 'preferences']),
+      {
+        profile: _.assign({}, loggedInUser.profile, formValues.profile),
+        preferences: _.assign({}, loggedInUser.preferences, formValues.preferences)
+      }
     );
 
     dispatch(sync.updateUserRequest(loggedInUserId, _.omit(newUser, 'password')));

@@ -33,7 +33,7 @@ describe('PeopleList', function () {
         trackMetric: function() {}
       };
       var listElem = React.createElement(PeopleList, props);
-      var elem = TestUtils.renderIntoDocument(listElem);
+      var elem = TestUtils.renderIntoDocument(listElem).getWrappedInstance();
       var state = elem.getInitialState();
 
       expect(state.editing).to.equal(false);

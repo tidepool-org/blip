@@ -66,7 +66,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
 
       var initialState = elem.getInitialState();
       expect(Object.keys(initialState).length).to.equal(2);
@@ -80,7 +80,7 @@ describe('PatientInfo', function () {
       var props = {};
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
 
       expect(elem.state.editing).to.equal(false);
       elem.toggleEdit();
@@ -102,7 +102,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       expect(elem.isSamePersonUserAndPatient()).to.equal(false);
     });
@@ -118,7 +118,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       expect(elem.isSamePersonUserAndPatient()).to.equal(true);
     });
@@ -137,7 +137,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem.getDisplayName(elem.props.patient)).to.equal('Joe Bloggs');
     });
   });
@@ -156,7 +156,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
       //
@@ -182,7 +182,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
       expect(elem.getAgeText(elem.props.patient, Date.UTC(1980, 4, 17))).to.equal('Birthdate not known');
@@ -205,7 +205,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       expect(elem.getAgeText(elem.props.patient, Date.UTC(1985, 4, 19))).to.equal('1 year old');
       expect(elem.getAgeText(elem.props.patient, Date.UTC(1986, 4, 19))).to.equal('2 years old');
@@ -229,7 +229,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       var today = Date.UTC(2015, 4, 28); //for testing purposes - set today as fixed
       expect(elem).to.be.ok;
       expect(elem.getAgeText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('31 years old');
@@ -254,7 +254,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1983, 3, 20))).to.equal('Diagnosis date not known');
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1982, 4, 20))).to.equal('Diagnosis date not known');
@@ -274,7 +274,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1983, 3, 20))).to.equal('Diagnosed as Type 1');
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1982, 4, 20))).to.equal('Diagnosed as Type 1');
@@ -293,7 +293,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1984, 4, 18))).to.equal('Diagnosed this year');
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1985, 4, 19))).to.equal('Diagnosed 1 year ago');
@@ -317,7 +317,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       var today = Date.UTC(2015, 4, 28); //for testing purposes - set today as fixed
       expect(elem).to.be.ok;
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
@@ -341,7 +341,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago as Type 1');
     });
@@ -359,7 +359,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed as Type 1');
     });
@@ -377,7 +377,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosis date not known');
     });
@@ -396,7 +396,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
     });
@@ -414,7 +414,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       expect(elem).to.be.ok;
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
     });
@@ -434,7 +434,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
 
       expect(elem.getAboutText(elem.props.patient)).to.equal('I am a developer.');
     });
@@ -447,7 +447,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       // If patient is empty object
       // Easy way to check if the returned variable is an empty POJO
       expect(Object.keys(elem.formValuesFromPatient(elem.props.patient)).length).to.equal(0);
@@ -465,7 +465,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
 
       var formValues = elem.formValuesFromPatient(elem.props.patient);
 
@@ -483,7 +483,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
 
       var formValues = elem.formValuesFromPatient(elem.props.patient);
 
@@ -504,7 +504,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
 
       var formValues = elem.formValuesFromPatient(elem.props.patient);
 
@@ -525,7 +525,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
 
       var formValues = elem.formValuesFromPatient(elem.props.patient);
 
@@ -546,7 +546,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
 
       var formValues = elem.formValuesFromPatient(elem.props.patient);
 
@@ -567,7 +567,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
 
       var formValues = elem.formValuesFromPatient(elem.props.patient);
 
@@ -592,7 +592,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
 
       var formValues = elem.formValuesFromPatient(elem.props.patient);
 
@@ -640,7 +640,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       var formValues = {
         birthday: '000/00/0000',
       };
@@ -663,7 +663,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       var formValues = {
         birthday: '07/01/1984',
       };
@@ -694,7 +694,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       var formValues = {
         diagnosisDate: '02/29/2015',
       };
@@ -718,7 +718,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       var formValues = {
         diagnosisDate: '000/00/0000',
       };
@@ -741,7 +741,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       var formValues = {
         diagnosisDate: '07/01/1984',
       };
@@ -771,7 +771,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       var formValues = {
         diagnosisType: '',
       };
@@ -788,7 +788,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       var formValues = {
         about: '',
       };
@@ -805,7 +805,7 @@ describe('PatientInfo', function () {
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
       var formValues = {
         about: 'I am a testing developer.',
         birthday: '02-02-1990',
@@ -830,7 +830,7 @@ describe('PatientInfo', function () {
     let wrapper;
     beforeEach(() => {
       wrapper = mount(<PatientInfo {...props} />);
-      wrapper.setState({ editing: true });
+      wrapper.instance().getWrappedInstance().setState({ editing: true });
     });
 
     it('should render the renderDiagnosisTypeInput select while in editing mode', function() {
@@ -910,12 +910,12 @@ describe('PatientInfo', function () {
 
   describe('renderDataSources', function() {
     it('should not render the data sources if the patient is NOT the logged in user', function() {
-      expect(wrapper.instance().isSamePersonUserAndPatient()).to.equal(false);
+      expect(wrapper.instance().getWrappedInstance().isSamePersonUserAndPatient()).to.equal(false);
       expect(wrapper.find('.PatientPage-dataSources')).to.have.length(0);
     });
     it('should render the data sources if the patient is the logged in user', function() {
       wrapper.setProps({ patient: { userid: 5678 }});
-      expect(wrapper.instance().isSamePersonUserAndPatient()).to.equal(true);
+      expect(wrapper.instance().getWrappedInstance().isSamePersonUserAndPatient()).to.equal(true);
       expect(wrapper.find('.PatientPage-dataSources')).to.have.length(1);
     });
   });

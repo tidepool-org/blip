@@ -15,14 +15,15 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 == BSD2 LICENSE ==
 */
 
-var React = require('react');
-var _ = require('lodash');
-var sundial = require('sundial');
+import React from 'react';
+import _ from 'lodash';
+import sundial from 'sundial';
+import { translate } from 'react-i18next';
 
 var Message = require('./message');
 var MessageForm = require('./messageform');
 
-var Messages = React.createClass({
+var Messages = translate()(React.createClass({
   propTypes: {
     messages: React.PropTypes.array,
     createDatetime: React.PropTypes.string,
@@ -33,12 +34,6 @@ var Messages = React.createClass({
     onEdit: React.PropTypes.func,
     onNewMessage: React.PropTypes.func,
     timePrefs: React.PropTypes.object.isRequired
-  },
-  getDefaultProps: function () {
-    return {
-      NOTE_PROMPT : 'Type a new note here ...',
-      COMMENT_PROMPT : 'Type a comment here ...'
-    };
   },
   componentWillReceiveProps: function(nextProps) {
     this.setState({messages: nextProps.messages});
@@ -67,7 +62,7 @@ var Messages = React.createClass({
         onSaveEdit={this.getSaveEdit(message.userid)}
         timePrefs={this.props.timePrefs} />
       );
-    
+
   },
   renderComment: function(message){
     return (
@@ -78,7 +73,7 @@ var Messages = React.createClass({
         onSaveEdit={this.getSaveEdit(message.userid)}
         timePrefs={this.props.timePrefs} />
       );
-    
+
   },
   renderThread: function() {
     if (this.isMessageThread()) {
@@ -90,11 +85,11 @@ var Messages = React.createClass({
         }
       }.bind(this));
 
-      
+
       return (
         <div className='messages-thread'>{thread}</div>
       );
-      
+
     }
 
     return;
@@ -103,13 +98,14 @@ var Messages = React.createClass({
     return !_.isEmpty(this.state.messages);
   },
   renderCommentOnThreadForm: function() {
-    var submitButtonText = 'Comment';
+    const { t } = this.props;
+    var submitButtonText = t('Comment_submit');
 
-    
+
     return (
       <div className='messages-form'>
         <MessageForm
-          messagePrompt={this.props.COMMENT_PROMPT}
+          messagePrompt={t('Type a comment here ...')}
           saveBtnText={submitButtonText}
           onSubmit={this.handleAddComment}
           timePrefs={this.props.timePrefs} />
@@ -117,14 +113,15 @@ var Messages = React.createClass({
     );
   },
   renderNewThreadForm: function() {
-    var submitButtonText = 'Post';
+    const { t } = this.props;
+    var submitButtonText = t('Post_submit');
 
-    
+
     return (
       <div className='messages-form'>
         <MessageForm
           formFields={{editableTimestamp: this.props.createDatetime}}
-          messagePrompt={this.props.NOTE_PROMPT}
+          messagePrompt={t('Type a new note here ...')}
           saveBtnText={submitButtonText}
           onSubmit={this.handleCreateNote}
           onCancel={this.handleClose}
@@ -134,7 +131,7 @@ var Messages = React.createClass({
   },
   renderClose:function(){
     return (<a className='messages-close' onClick={this.handleClose}>Close</a>);
-    
+
   },
   render: function() {
     var thread = this.renderThread();
@@ -148,7 +145,7 @@ var Messages = React.createClass({
     }
 
     return (
-     
+
      <div className='messages'>
       <div className='messages-inner'>
         <div className='messages-header'>
@@ -197,7 +194,7 @@ var Messages = React.createClass({
           messages: withReply
         });
       });
-      
+
     }
   },
   handleCreateNote: function(formValues,cb) {
@@ -253,6 +250,6 @@ var Messages = React.createClass({
       close();
     }
   }
-});
+}));
 
 module.exports = Messages;
