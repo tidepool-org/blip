@@ -16,6 +16,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
+import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import { createSelector } from 'reselect';
 
@@ -53,7 +54,7 @@ import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, BG_DATA_TYPES, DIABETES_DATA_T
 
 const Loader = vizComponents.Loader;
 
-export let PatientData = React.createClass({
+export let PatientData = translate()(React.createClass({
   propTypes: {
     addPatientNote: React.PropTypes.func.isRequired,
     clearPatientData: React.PropTypes.func.isRequired,
@@ -108,6 +109,11 @@ export let PatientData = React.createClass({
           smbgRangeOverlay: true,
         }
       },
+      printOpts: {
+        numDays: {
+          daily: 6,
+        },
+      },
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -161,12 +167,13 @@ export let PatientData = React.createClass({
   },
 
   renderEmptyHeader: function() {
+    const { t } = this.props;
     return (
       <Header
         chartType={'no-data'}
         inTransition={false}
         atMostRecent={false}
-        title={'Data'}
+        title={t('Data')}
         ref="header" />
       );
   },
@@ -186,7 +193,8 @@ export let PatientData = React.createClass({
   },
 
   renderNoData: function() {
-    var content = personUtils.patientFullName(this.props.patient) + ' does not have any data yet.';
+    const { t } = this.props;
+    var content = t('{{patientName}} does not have any data yet.', {patientName: personUtils.patientFullName(this.props.patient)});
     var header = this.renderEmptyHeader();
     var uploadLaunchOverlay = this.state.showUploadOverlay ? this.renderUploadOverlay() : null;
 
@@ -208,7 +216,7 @@ export let PatientData = React.createClass({
 
     if (this.props.isUserPatient) {
       content = (
-        <div className="patient-data-uploader-message">
+        <Trans className="patient-data-uploader-message" i18nKey="html.patientdata-uploaded-message">
           <h1>To see your data, you’ll need the Tidepool Uploader</h1>
           <UploaderButton
             onClick={handleClickUpload}
@@ -219,7 +227,7 @@ export let PatientData = React.createClass({
             Already uploaded? <a href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</a><br />
             <b>Need help?</b> Email us at <a className="uploader-color-override" href="mailto:support@tidepool.org">support@tidepool.org</a> or visit our <a className="uploader-color-override" href="http://support.tidepool.org/">help page</a>.
           </p>
-        </div>
+        </Trans>
       );
     }
 
@@ -241,7 +249,7 @@ export let PatientData = React.createClass({
   },
 
   renderUploadOverlay: function() {
-    return <UploadLaunchOverlay overlayClickHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
   },
 
   isEmptyPatientData: function() {
@@ -262,7 +270,7 @@ export let PatientData = React.createClass({
   renderSettings: function(){
     return (
       <div>
-        <div id="app-no-print">
+        <div class="app-no-print">
           <Settings
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
@@ -308,7 +316,7 @@ export let PatientData = React.createClass({
             onSwitchToWeekly={this.handleSwitchToWeekly}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             updateBasicsData={this.updateBasicsData}
-            updateBasicsSettings={this.props.updateBasicsSettings}
+            updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
@@ -421,13 +429,13 @@ export let PatientData = React.createClass({
 
   closeMessageThread: function(){
     this.props.onCloseMessageThread();
-    this.refs.tideline.closeMessageThread();
+    this.refs.tideline.getWrappedInstance().closeMessageThread();
     this.props.trackMetric('Closed Message Thread Modal');
   },
 
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
-    this.refs.tideline.closeMessageThread();
+    this.refs.tideline.getWrappedInstance().closeMessageThread();
     this.props.trackMetric('Closed New Message Modal');
   },
 
@@ -435,14 +443,18 @@ export let PatientData = React.createClass({
     const data = state.processedPatientData;
     const diabetesData = data.diabetesData;
 
+    const patientSettings = _.get(props, 'patient.settings', {});
+    const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
+    const pdfPatient = _.assign({}, props.patient, {
+      settings: _.assign({}, patientSettings, { siteChangeSource }),
+    });
+
     if (diabetesData.length > 0) {
       const mostRecent = diabetesData[diabetesData.length - 1].normalTime;
       const opts = {
         bgPrefs: state.bgPrefs,
-        numDays: {
-          daily: 6
-        },
-        patient: props.patient,
+        numDays: state.printOpts.numDays,
+        patient: pdfPatient,
         timePrefs: state.timePrefs,
         mostRecent,
       };
@@ -451,9 +463,9 @@ export let PatientData = React.createClass({
         mostRecent,
         _.pick(
           data.grouped,
-          ['basal', 'bolus', 'cbg', 'message', 'smbg']
+          ['basal', 'bolus', 'cbg', 'message', 'smbg', 'upload']
         ),
-        6,
+        state.printOpts.numDays.daily,
         state.timePrefs,
       );
 
@@ -532,7 +544,7 @@ export let PatientData = React.createClass({
   },
 
   handleMessageCreation: function(message) {
-    this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
+    this.refs.tideline.getWrappedInstance().createMessageThread(nurseShark.reshapeMessage(message));
     this.props.addPatientNote(message);
     this.props.trackMetric('Created New Message');
   },
@@ -550,7 +562,7 @@ export let PatientData = React.createClass({
     if (edit) {
       edit(message, cb);
     }
-    this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
+    this.refs.tideline.getWrappedInstance().editMessageThread(nurseShark.reshapeMessage(message));
     this.props.updatePatientNote(message);
     this.props.trackMetric('Edit To Message');
   },
@@ -615,7 +627,7 @@ export let PatientData = React.createClass({
       fromChart: this.state.chartType
     });
 
-    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).endOf('day').toISOString());
+    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString());
 
     this.setState({
       chartType: 'weekly',
@@ -690,6 +702,20 @@ export let PatientData = React.createClass({
     }
   },
 
+  updateBasicsSettings: function(patientId, settings, canUpdateSettings) {
+    if (canUpdateSettings) {
+      this.props.updateBasicsSettings(patientId, settings);
+    }
+
+    // If the user makes a change to the site change source settings,
+    // we should remove the currently generated PDF, which will trigger a rebuild of
+    // the PDF with the updated settings.
+    const settingsSiteChangeSource = _.get(this.props, 'patient.settings.siteChangeSource');
+    if (settings.siteChangeSource && settings.siteChangeSource !== settingsSiteChangeSource) {
+      this.setState({ updatedSiteChangeSource: settings.siteChangeSource }, this.props.removeGeneratedPDFS);
+    }
+  },
+
   updateChartPrefs: function(newChartPrefs) {
     var currentPrefs = _.clone(this.state.chartPrefs);
     _.assign(currentPrefs, newChartPrefs);
@@ -759,26 +785,19 @@ export let PatientData = React.createClass({
         }
       }
     }
-
-    // If the patient makes a change to their site change source settings,
-    // we should remove the currently generated PDF, which will trigger a rebuild of
-    // the PDF with the updated settings.
-    const siteChangeSource = _.get(nextProps, 'patient.settings.siteChangeSource');
-    if (siteChangeSource && siteChangeSource !== _.get(this.props, 'patient.settings.siteChangeSource')) {
-      this.props.removeGeneratedPDFS();
-    }
   },
 
   componentWillUpdate: function (nextProps, nextState) {
     const pdfGenerating = nextProps.generatingPDF;
     const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
     const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
+    const userFetched = !nextProps.fetchingUser;
     const hasDiabetesData = _.get(nextState, 'processedPatientData.diabetesData.length');
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
-    if (patientDataProcessed && hasDiabetesData && !pdfGenerating && !pdfGenerated) {
+    if (userFetched && patientDataProcessed && hasDiabetesData && !pdfGenerating && !pdfGenerated) {
       this.generatePDF(nextProps, nextState);
     }
   },
@@ -848,9 +867,11 @@ export let PatientData = React.createClass({
         this.deriveChartTypeFromLatestData(latestData, uploads)
       );
 
-      const datetime = chartType === 'daily'
+      const datetimeByChart = chartType === 'daily'
         ? this.subtractTimezoneOffset(moment.utc(latestData.time).hour(12).minute(0).second(0).toISOString())
         : this.subtractTimezoneOffset(moment.utc(latestData.time).endOf('day').toISOString());
+
+      const datetime = _.get(this.props, 'queryParams.datetime', datetimeByChart);
 
       let state = {
         chartType,
@@ -925,7 +946,11 @@ export let PatientData = React.createClass({
       const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
       const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
       const processDataMaxWeeks = isInitialProcessing ? 4 : 8;
-      const lastProcessedDatetime = moment.utc(isInitialProcessing ? patientData[0].time : this.state.lastProcessedDateTarget);
+
+      // Grab the first diabetes datum time on first process in case upload date is much later
+      const firstDiabetesDatum = _.find(patientData, (d) => _.includes(DIABETES_DATA_TYPES, d.type));
+      const lastProcessedDatetime = moment.utc(isInitialProcessing ? _.get(firstDiabetesDatum, 'time', patientData[0].time) : this.state.lastProcessedDateTarget);
+
       const patientNotes = _.get(props, ['patientNotesMap', patientID], []);
       let patientSettings = _.cloneDeep(_.get(props, ['patient', 'settings'], null));
       _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
@@ -1026,9 +1051,17 @@ export let PatientData = React.createClass({
       else {
         // We don't need full processing for subsequent data. We just add and preprocess the new datums.
         const bgUnits = _.get(this.state, 'processedPatientData.bgUnits');
-        const newData = utils.filterPatientData(targetData, bgUnits).processedData;
+
+        // Need to have all of the upload data present when filtering data or else the `source` and
+        // `deviceSerialNumber` properties will not be mapped. This will not result in duplication
+        // of upload records, as deduplication will happen when `addData` is called.
+        const previousUploadData = _.filter(patientData.slice(0, this.state.lastDatumProcessedIndex + 1), { type: 'upload' });
+        const newData = utils.filterPatientData(targetData.concat(previousUploadData), bgUnits).processedData;
+
+        // Add and process the new data
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
         const processedPatientData = addData(newData.concat(_.map(patientNotes, nurseShark.reshapeMessage)));
+
         const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + targetData.length;
         const count = this.state.processEarlierDataCount + 1;
 
@@ -1100,9 +1133,9 @@ export let PatientData = React.createClass({
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
               data[bgUnits].grouped,
-              ['basal', 'bolus', 'cbg', 'message', 'smbg']
+              ['basal', 'bolus', 'cbg', 'message', 'smbg', 'upload']
             ),
-            6,
+            this.state.printOpts.numDays.daily,
             this.state.timePrefs,
           ),
           basics: data[bgUnits].basicsData,
@@ -1142,7 +1175,7 @@ export let PatientData = React.createClass({
       fetcher();
     });
   }
-});
+}));
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

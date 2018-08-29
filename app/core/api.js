@@ -250,12 +250,14 @@ api.user.get = function(cb) {
 api.user.put = function(user, cb) {
   api.log('PUT /user');
 
-  var account = accountFromUser(user);
-  var profile = profileFromUser(user);
+  const account = accountFromUser(user);
+  const profile = profileFromUser(user);
+  const preferences = preferencesFromUser(user);
 
   async.parallel({
     account: tidepool.updateCurrentUser.bind(tidepool, account),
-    profile: tidepool.addOrUpdateProfile.bind(tidepool, user.userid, profile)
+    profile: tidepool.addOrUpdateProfile.bind(tidepool, user.userid, profile),
+    preferences: tidepool.addOrUpdatePreferences.bind(tidepool, user.userid, preferences)
   },
   function(err, results) {
     if (err) {
@@ -273,6 +275,10 @@ function accountFromUser(user) {
 
 function profileFromUser(user) {
   return _.cloneDeep(user.profile);
+}
+
+function preferencesFromUser(user) {
+  return _.cloneDeep(user.preferences);
 }
 
 function userFromAccountAndProfile(results) {
@@ -376,6 +382,14 @@ function getPerson(userId, cb) {
 
   tidepool.findProfile(userId, function(err, profile) {
     if (err) {
+      // Due to existing account creation anti-patterns, coupled with automatically sharing our demo
+      // account with new VCAs, we can end up with 404s that break login of our demo user when any
+      // VCA account has not completed their profile setup. Until this is addressed on the backend,
+      // we can't callback an error for 404s.
+      if (err.status === 404) {
+        person.profile = null;
+        return cb(null, person)
+      }
       return cb(err);
     }
 

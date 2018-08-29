@@ -21,6 +21,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var sundial = require('sundial');
 var moment = require('moment');
+import { translate } from 'react-i18next';
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
@@ -28,15 +29,15 @@ var chartDailyFactory = tidelineBlip.oneday;
 
 var vizComponents = require('@tidepool/viz').components;
 var Loader = vizComponents.Loader;
+var BolusTooltip = vizComponents.BolusTooltip;
+var SMBGTooltip = vizComponents.SMBGTooltip;
 
 var Header = require('./header');
 var Footer = require('./footer');
 
-import { components } from '@tidepool/viz';
-var BolusTooltip = components.BolusTooltip;
-
-var DailyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs', 'onBolusHover', 'onBolusOut'],
+var DailyChart = translate()(React.createClass({
+  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs', 'onBolusHover', 'onBolusOut',
+    'onSMBGHover', 'onSMBGOut'],
   log: bows('Daily Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
@@ -56,6 +57,8 @@ var DailyChart = React.createClass({
     onTransition: React.PropTypes.func.isRequired,
     onBolusHover: React.PropTypes.func.isRequired,
     onBolusOut: React.PropTypes.func.isRequired,
+    onSMBGHover: React.PropTypes.func.isRequired,
+    onSMBGOut: React.PropTypes.func.isRequired,
   },
 
   getInitialState: function() {
@@ -94,9 +97,10 @@ var DailyChart = React.createClass({
   },
 
   initializeChart: function(datetime) {
+    const { t } = this.props;
     this.log('Initializing...');
     if (_.isEmpty(this.props.patientData)) {
-      throw new Error('Cannot create new chart with no data');
+      throw new Error(t('Cannot create new chart with no data'));
     }
 
     this.chart.load(this.props.patientData);
@@ -163,9 +167,9 @@ var DailyChart = React.createClass({
   editMessage: function(message) {
     return this.chart.editMessage(message);
   }
-});
+}));
 
-var Daily = React.createClass({
+var Daily = translate()(React.createClass({
   chartType: 'daily',
   log: bows('Daily View'),
   propTypes: {
@@ -203,7 +207,7 @@ var Daily = React.createClass({
 
   componentWillReceiveProps:function (nextProps) {
     if (this.props.loading && !nextProps.loading) {
-      this.refs.chart.rerenderChart();
+      this.refs.chart.getWrappedInstance().rerenderChart();
     }
   },
 
@@ -253,6 +257,8 @@ var Daily = React.createClass({
                 onTransition={this.handleInTransition}
                 onBolusHover={this.handleBolusHover}
                 onBolusOut={this.handleBolusOut}
+                onSMBGHover={this.handleSMBGHover}
+                onSMBGOut={this.handleSMBGOut}
                 ref="chart" />
             </div>
           </div>
@@ -268,21 +274,33 @@ var Daily = React.createClass({
             }}
             side={this.state.hoveredBolus.side}
             bolus={this.state.hoveredBolus.data}
+            bgPrefs={this.props.bgPrefs}
             timePrefs={this.props.timePrefs}
+          />}
+        {this.state.hoveredSMBG && <SMBGTooltip
+            position={{
+              top: this.state.hoveredSMBG.top,
+              left: this.state.hoveredSMBG.left
+            }}
+            side={this.state.hoveredSMBG.side}
+            smbg={this.state.hoveredSMBG.data}
+            timePrefs={this.props.timePrefs}
+            bgPrefs={this.props.bgPrefs}
           />}
       </div>
       );
   },
 
   getTitle: function(datetime) {
-    var timePrefs = this.props.timePrefs, timezone;
+    const { timePrefs, t } = this.props;
+    let timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
     }
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-    return sundial.formatInTimezone(datetime, timezone, 'ddd, MMM D, YYYY');
+    return sundial.formatInTimezone(datetime, timezone, t('ddd, MMM D, YYYY'));
   },
 
   // handlers
@@ -290,7 +308,7 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart.getCurrentDay();
+    var datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
     this.props.onSwitchToTrends(datetime);
   },
 
@@ -298,7 +316,7 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.goToMostRecent();
+    this.refs.chart.getWrappedInstance().goToMostRecent();
   },
 
   handleClickOneDay: function(e) {
@@ -320,7 +338,7 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart.getCurrentDay();
+    var datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
     this.props.onSwitchToWeekly(datetime);
   },
 
@@ -375,6 +393,29 @@ var Daily = React.createClass({
     });
   },
 
+  handleSMBGHover: function(smbg) {
+    var rect = smbg.rect;
+    // range here is -12 to 12
+    var hoursOffset = sundial.dateDifference(smbg.data.normalTime, this.state.datetimeLocation, 'h');
+    smbg.top = rect.top + (rect.height / 2)
+    if(hoursOffset > 5) {
+      smbg.side = 'left';
+      smbg.left = rect.left;
+    } else {
+      smbg.side = 'right';
+      smbg.left = rect.left + rect.width;
+    }
+    this.setState({
+      hoveredSMBG: smbg
+    });
+  },
+
+  handleSMBGOut: function() {
+    this.setState({
+      hoveredSMBG: false
+    });
+  },
+
   handleMostRecent: function(atMostRecent) {
     this.setState({
       atMostRecent: atMostRecent
@@ -385,28 +426,28 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.panBack();
+    this.refs.chart.getWrappedInstance().panBack();
   },
 
   handlePanForward: function(e) {
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.panForward();
+    this.refs.chart.getWrappedInstance().panForward();
   },
 
   // methods for messages
   closeMessageThread: function() {
-    return this.refs.chart.closeMessage();
+    return this.refs.chart.getWrappedInstance().closeMessage();
   },
 
   createMessageThread: function(message) {
-    return this.refs.chart.createMessage(message);
+    return this.refs.chart.getWrappedInstance().createMessage(message);
   },
 
   editMessageThread: function(message) {
-    return this.refs.chart.editMessage(message);
+    return this.refs.chart.getWrappedInstance().editMessage(message);
   }
-});
+}));
 
 module.exports = Daily;

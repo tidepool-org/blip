@@ -18,9 +18,12 @@ import sundial from 'sundial';
 
 import config from '../config';
 import utils from './utils';
+import i18next from './language';
+
+const t = i18next.t.bind(i18next);
 
 // date masks we use
-const FORM_DATE_FORMAT = 'MM/DD/YYYY';
+const FORM_DATE_FORMAT = t('MM/DD/YYYY');
 const SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
 import { MGDL_UNITS, MMOLL_UNITS } from './constants';
@@ -147,12 +150,12 @@ personUtils.togglePatientBgUnits = (settings) => {
 personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, currentDateObj) => {
   let validationErrors = {};
 
-  const INVALID_DATE_TEXT = 'Hmm, this date doesn’t look right';
-  const OUT_OF_ORDER_TEXT = 'Hmm, diagnosis date usually comes after birthday';
+  const INVALID_DATE_TEXT = t('Hmm, this date doesn’t look right');
+  const OUT_OF_ORDER_TEXT = t('Hmm, diagnosis date usually comes after birthday');
 
   // Legacy: revisit when proper "child accounts" are implemented
   if (isNameRequired && !formValues.fullName) {
-    validationErrors.fullName = 'Full name is required';
+    validationErrors.fullName = t('Full name is required');
   }
 
   const birthday = formValues.birthday;
@@ -186,7 +189,7 @@ personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, curren
   const maxLength = 256;
   const about = formValues.about;
   if (about && about.length > maxLength) {
-    validationErrors.about = 'Please keep "about" text under ' + maxLength + ' characters';
+    validationErrors.about = t('Please keep "about" text under {{maxLength}} characters', {maxLength});
   }
 
   return validationErrors;

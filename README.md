@@ -12,7 +12,7 @@ This README is focused on just the details of getting blip running locally. For 
 
 - [Install](#install)
 - [Running locally](#running-locally)
-   - ["Verifying" the e-mail of a new account locally](#getting-past-email-verification-for-a-user-created-locally)
+   - ["Verifying" the e-mail of a new account locally](#getting-past-e-mail-verification-for-a-user-created-locally)
    - [Creating a special account to bypass e-mail verification](#creating-a-user-without-email-verification)
 - [Running against `dev`](#running-against-dev)
 - [Config](#config)
@@ -70,12 +70,24 @@ Blip includes several Redux developer tools: the original time-travel dev tools 
 
 ### Getting past e-mail verification for a user created locally
 
-When running locally with `runservers`, no e-mail will be sent to a sign-up e-mail address, and so a workaround is needed to get past the e-mail verification step for a newly created local account being used for development. What you need to do is construct the login URL that is provided in a link in the verification e-mail *manually* by finding the correct ID for the e-mail confirmation. There are two ways to do this: by looking in the local `server.log` (located at the root level of where you've cloned all the Tidepool repositories) or by finding it in your local Mongo database. The steps for the latter are:
+When running locally with `runservers` or with the [docker-based setup](https://github.com/tidepool-org/development), no e-mail will be sent to a sign-up e-mail address, and so a workaround is needed to get past the e-mail verification step for a newly created local account being used for development. What you need to do is construct the login URL that is provided in a link in the verification e-mail *manually* by finding the correct key for the e-mail confirmation.
+
+If you're developing locally, you can find the key by looking in the local `server.log` (located at the root level of where you've cloned all the Tidepool repositories).
+
+If you're developing with the docker setup, you can find the key in the logs of the `hydrophone` container. It will look something like
+```
+2018/06/07 16:17:17 Sending email confirmation to foo@bar.com with key aSuzGcwq4kPRyb6pwQnTcSKVTt_V6CtL
+```
+[Kitematic](https://kitematic.com/) is an easy-to-use tool for inspecting the logs of your docker containers. You can find the link to it's installer in Docker's menu.
+
+You can also find the key in your Mongo database. The steps for the latter are:
 
 - start a Mongo shell in a fresh Terminal window with `mongo`
 - switch to the `confirm` database with `use confirm`
 - find the pending account with `db.confirmations.find({status: 'pending'});`
-- copy the `_id` from the pending confirmation record with an `email` matching the account you've just created and provide it as a `signupKey` parameter in the login URL: `http://localhost:3000/login?signupKey=<_id>`
+- copy the `_id` from the pending confirmation record with an `email` matching the account you've just created
+
+After you've found the key, you can provide it as a `signupKey` parameter in the login URL: `http://localhost:3000/login?signupKey=<key>`
 
 ### Creating a user without e-mail verification
 

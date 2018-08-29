@@ -151,13 +151,13 @@ describe('DataSources', () => {
   describe('error message', () => {
     it('when unauthorized', () => {
       expect(
-        wrapper.instance().calculateErrorMessage({ code: 'unauthenticated' })
+        wrapper.instance().getWrappedInstance().calculateErrorMessage({ code: 'unauthenticated' })
       ).to.equal('Login expired - try signing out & in again');
     });
 
     it('when anything else', () => {
       expect(
-        wrapper.instance().calculateErrorMessage('stuff')
+        wrapper.instance().getWrappedInstance().calculateErrorMessage('stuff')
       ).to.equal('An unknown error occurred');
     });
   });
@@ -165,19 +165,19 @@ describe('DataSources', () => {
   describe('state message', () => {
     it('when connected', () => {
       expect(
-        wrapper.instance().calculateMessage(dataSources[0], 'connected')
+        wrapper.instance().getWrappedInstance().calculateMessage(dataSources[0], 'connected')
       ).to.contain('Last data ');
     });
 
     it('when disconnected', () => {
       expect(
-        wrapper.instance().calculateMessage(dataSources[0], 'disconnected')
+        wrapper.instance().getWrappedInstance().calculateMessage(dataSources[0], 'disconnected')
       ).to.equal('No data available - click Connect to enable');
     });
 
     it('when anything else', () => {
       expect(
-        wrapper.instance().calculateMessage(dataSources[0], 'hmmm')
+        wrapper.instance().getWrappedInstance().calculateMessage(dataSources[0], 'hmmm')
       ).to.equal('An unknown error occurred');
     });
   });
@@ -185,31 +185,31 @@ describe('DataSources', () => {
   describe('calculating state', () => {
     it('when connected', () => {
       expect(
-        wrapper.instance().calculateState({state: 'connected'})
+        wrapper.instance().getWrappedInstance().calculateState({state: 'connected'})
       ).to.equal('connected');
     });
 
     it('when error', () => {
       expect(
-        wrapper.instance().calculateState({state: 'error'})
+        wrapper.instance().getWrappedInstance().calculateState({state: 'error'})
       ).to.equal('error');
     });
 
     it('when disconnected', () => {
       expect(
-        wrapper.instance().calculateState({state: 'disconnected'})
+        wrapper.instance().getWrappedInstance().calculateState({state: 'disconnected'})
       ).to.equal('disconnected');
     });
 
     it('when other', () => {
       expect(
-        wrapper.instance().calculateState({state: 'other'})
+        wrapper.instance().getWrappedInstance().calculateState({state: 'other'})
       ).to.equal('error');
     });
 
     it('when not set', () => {
       expect(
-        wrapper.instance().calculateState()
+        wrapper.instance().getWrappedInstance().calculateState()
       ).to.equal('disconnected');
     });
   });
@@ -217,7 +217,7 @@ describe('DataSources', () => {
   describe('calculate popup id', () => {
     it('appends given id to org.tidepool.web.', () => {
       expect(
-        wrapper.instance().calculatePopupId({id: 'mine'})
+        wrapper.instance().getWrappedInstance().calculatePopupId({id: 'mine'})
       ).to.equal('org.tidepool.web.mine');
     });
   });
@@ -225,7 +225,7 @@ describe('DataSources', () => {
   describe('componentDidMount', () => {
     it('appends given id to org.tidepool.web.', () => {
       expect(
-        wrapper.instance().calculatePopupId({id: 'mine'})
+        wrapper.instance().getWrappedInstance().calculatePopupId({id: 'mine'})
       ).to.equal('org.tidepool.web.mine');
     });
   });

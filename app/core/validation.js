@@ -17,10 +17,13 @@ import _ from 'lodash';
 
 import sundial from 'sundial';
 
+import i18next from './language';
 import { capitalize, validateEmail } from './utils';
 import * as errors from './validation/errors';
 
 import config from '../config';
+
+const t = i18next.t.bind(i18next);
 
 // ensure config vars are defined
 export const ABOUT_MAX_LENGTH = config.ABOUT_MAX_LENGTH || 256;
@@ -62,7 +65,7 @@ export const invalid = (message) => ({
  */
 const dateValidator = (fieldLabel, fieldValue, currentDateObj) => {
   let now = new Date();
-  let dateMask = 'M-D-YYYY';
+  let dateMask = t('M-D-YYYY');
   let dateString;
 
   currentDateObj = currentDateObj || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
@@ -151,7 +154,7 @@ export const typeValidators = {
   },
   date: dateValidator,
   diagnosisDate: (fieldLabel, fieldValue, prerequisites) => {
-    let dateMask = 'M-D-YYYY';
+    let dateMask = t('M-D-YYYY');
     let validDateCheck = dateValidator(fieldLabel, fieldValue);
     let birthdayObj, birthdayDateString;
     let diagnosisDateObj, diagnosisDateString;
@@ -167,10 +170,10 @@ export const typeValidators = {
       return invalid(errors.invalidBirthday());
     }
 
-    birthdayDateString = `${prerequisites.birthday.month}-${prerequisites.birthday.day}-${prerequisites.birthday.year}`
+    birthdayDateString = t('{{month}}-{{day}}-{{year}}', {month: prerequisites.birthday.month, day: prerequisites.birthday.day, year: prerequisites.birthday.year});
     birthdayObj = sundial.parseFromFormat(birthdayDateString, dateMask);
 
-    diagnosisDateString = `${fieldValue.month}-${fieldValue.day}-${fieldValue.year}`
+    diagnosisDateString = t('{{month}}-{{day}}-{{year}}', {month: fieldValue.month, day: fieldValue.day, year: fieldValue.year});
     diagnosisDateObj = sundial.parseFromFormat(diagnosisDateString, dateMask);
 
     if (birthdayObj > diagnosisDateObj) {

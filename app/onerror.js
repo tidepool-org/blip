@@ -12,15 +12,20 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
+
+import i18next from './core/language';
+
+const t = i18next.t.bind(i18next);
+
 module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, colno, error) {
   var ERR_GENERIC_LIST = [
-    'Whoops! Tidepool\'s servers got clogged with glucose tabs.',
-    'Whoops! Tidepool ran out of test strips...',
-    'Whoa, sorry about that. Looks like Tidepool needs to change the battery on its pump.'
+    t('Whoops! Tidepool\'s servers got clogged with glucose tabs.'),
+    t('Whoops! Tidepool ran out of test strips...'),
+    t('Whoa, sorry about that. Looks like Tidepool needs to change the battery on its pump.')
   ];
-  var ERR_GENERIC_HELP = 'Tidepool is stuck and isn\'t doing what you want it to do. We\'re sorry for the trouble.';
-  var ERR_SENT_TO_SERVER = 'Tidepool will attempt to send the details to our server.';
-  var ERR_PLEASE_SEND_DETAIL = 'We were unable to log this error to our server so could you please send us a note at <a style="text-decoration: underline;" href="mailto:support@tidepool.org">support@tidepool.org</a> and we\'ll try to see what broke?';
+  var ERR_GENERIC_HELP = t('Tidepool is stuck and isn\'t doing what you want it to do. We\'re sorry for the trouble.');
+  var ERR_SENT_TO_SERVER = t('Tidepool will attempt to send the details to our server.');
+  var ERR_PLEASE_SEND_DETAIL = t('We were unable to log this error to our server so could you please send us a note at <a style="text-decoration: underline;" href="mailto:support@tidepool.org">support@tidepool.org</a> and we\'ll try to see what broke?');
   var html;
 
   var details = {
