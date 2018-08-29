@@ -81,7 +81,7 @@ const randomValueByType = (type, bgUnits, opts = {}) => {
   }
 };
 
-const generateRandom = (data, type, bgUnits) => {
+const generateRandomData = (data, type, bgUnits) => {
   const deviation = { value: randomValueByType('deviation', bgUnits) };
 
   const randomData = _.assign({}, data, {
@@ -92,6 +92,25 @@ const generateRandom = (data, type, bgUnits) => {
       deviation: d.deviation ? deviation : undefined,
     }))),
   });
+
+  if (randomData.total) {
+    randomData.total = _.assign({}, data.total, { value: getSum(randomData.data) });
+  }
+
+  console.log(randomData)
+  return randomData;
+};
+
+const generateEmptyData = (data, type, bgUnits) => {
+  const deviation = { value: 0 };
+
+  const randomData = _.assign({}, data, {
+    data: _.map(data.data, (d) => (_.assign({}, d, {
+      value: 0,
+      deviation: d.deviation ? deviation : undefined,
+    }))),
+  });
+
   if (randomData.total) {
     randomData.total = _.assign({}, data.total, { value: getSum(randomData.data) });
   }
@@ -101,7 +120,7 @@ const generateRandom = (data, type, bgUnits) => {
 };
 
 /* eslint-disable react/prop-types */
-const Container = (props) => (
+const Container = (UI) => (
   <div
     style={{
       background: '#f6f6f6',
@@ -109,7 +128,7 @@ const Container = (props) => (
       margin: '20px',
       padding: '20px',
     }}
-  >{props.children}
+  >{UI.children}
   </div>
 );
 /* eslint-enable react/prop-types */
@@ -154,17 +173,21 @@ timeInRangeData.dataPaths = {
 };
 
 stories.add('Time In Range', () => {
-  const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'PROPS');
-  const bgUnits = select('bgPrefs', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'PROPS');
+  const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'UI');
+  const bgUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
   const bgPrefs = bgPrefsValues[bgUnits];
-  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'PROPS');
-  const collapsible = boolean('collapsible', true, 'PROPS');
-  const isOpened = boolean('isOpened', true, 'PROPS');
-  const muteOthersOnHover = boolean('muteOthersOnHover', true, 'PROPS');
+  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
+  const collapsible = boolean('collapsible', true, 'UI');
+  const isOpened = boolean('isOpened', true, 'UI');
+  const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
 
-  button('Randomize Data', () => {
-    timeInRangeData = generateRandom(timeInRangeData, 'duration');
-  }, 'PROPS');
+  button('Random Data', () => {
+    timeInRangeData = generateRandomData(timeInRangeData, 'duration');
+  }, 'DATA');
+
+  button('Empty Data', () => {
+    timeInRangeData = generateEmptyData(timeInRangeData, 'duration');
+  }, 'DATA');
 
   return (
     <Container>
@@ -213,15 +236,19 @@ timeInAutoData.dataPaths = {
 };
 
 stories.add('Time In Auto', () => {
-  const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'PROPS');
-  const collapsible = boolean('collapsible', true, 'PROPS');
-  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'PROPS');
-  const isOpened = boolean('isOpened', true, 'PROPS');
-  const muteOthersOnHover = boolean('muteOthersOnHover', true, 'PROPS');
+  const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'UI');
+  const collapsible = boolean('collapsible', true, 'UI');
+  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
+  const isOpened = boolean('isOpened', true, 'UI');
+  const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
 
-  button('Randomize Data', () => {
-    timeInAutoData = generateRandom(timeInAutoData, 'duration');
-  }, 'PROPS');
+  button('Random Data', () => {
+    timeInAutoData = generateRandomData(timeInAutoData, 'duration');
+  }, 'DATA');
+
+  button('Empty Data', () => {
+    timeInAutoData = generateEmptyData(timeInAutoData, 'duration');
+  }, 'DATA');
 
   return (
     <Container>
@@ -268,15 +295,19 @@ totalInsulinData.dataPaths = {
 };
 
 stories.add('Total Insulin', () => {
-  const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'PROPS');
-  const collapsible = boolean('collapsible', true, 'PROPS');
-  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'PROPS');
-  const isOpened = boolean('isOpened', true, 'PROPS');
-  const muteOthersOnHover = boolean('muteOthersOnHover', true, 'PROPS');
+  const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'UI');
+  const collapsible = boolean('collapsible', true, 'UI');
+  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
+  const isOpened = boolean('isOpened', true, 'UI');
+  const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
 
-  button('Randomize Data', () => {
-    totalInsulinData = generateRandom(totalInsulinData, 'units');
-  }, 'PROPS');
+  button('Random Data', () => {
+    totalInsulinData = generateRandomData(totalInsulinData, 'units');
+  }, 'DATA');
+
+  button('Empty Data', () => {
+    totalInsulinData = generateEmptyData(totalInsulinData, 'units');
+  }, 'DATA');
 
   return (
     <Container>
@@ -318,18 +349,26 @@ let averageBgDataMmol = _.assign({}, averageBgData, {
 let averageBgDataUnits = bgPrefsOptions[MGDL_UNITS];
 
 stories.add('Average BG', () => {
-  const collapsible = boolean('collapsible', true, 'PROPS');
-  const isOpened = boolean('isOpened', true, 'PROPS');
-  averageBgDataUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'PROPS');
+  const collapsible = boolean('collapsible', true, 'UI');
+  const isOpened = boolean('isOpened', true, 'UI');
+  averageBgDataUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
   const bgPrefs = bgPrefsValues[averageBgDataUnits];
 
-  button('Randomize Data', () => {
+  button('Random Data', () => {
     if (averageBgDataUnits === MGDL_UNITS) {
-      averageBgData = generateRandom(averageBgData, 'bg', averageBgDataUnits);
+      averageBgData = generateRandomData(averageBgData, 'bg', averageBgDataUnits);
     } else {
-      averageBgDataMmol = generateRandom(averageBgData, 'bg', averageBgDataUnits);
+      averageBgDataMmol = generateRandomData(averageBgDataMmol, 'bg', averageBgDataUnits);
     }
-  }, 'PROPS');
+  }, 'DATA');
+
+  button('Empty Data', () => {
+    if (averageBgDataUnits === MGDL_UNITS) {
+      averageBgData = generateEmptyData(averageBgData, 'bg', averageBgDataUnits);
+    } else {
+      averageBgDataMmol = generateEmptyData(averageBgDataMmol, 'bg', averageBgDataUnits);
+    }
+  }, 'DATA');
 
   return (
     <Container>
@@ -374,18 +413,26 @@ let standardDevDataMmol = _.assign({}, standardDevData, {
 let standardDevDataUnits = bgPrefsOptions[MGDL_UNITS];
 
 stories.add('Standard Deviation', () => {
-  const collapsible = boolean('collapsible', true, 'PROPS');
-  const isOpened = boolean('isOpened', true, 'PROPS');
-  standardDevDataUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'PROPS');
+  const collapsible = boolean('collapsible', true, 'UI');
+  const isOpened = boolean('isOpened', true, 'UI');
+  standardDevDataUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
   const bgPrefs = bgPrefsValues[standardDevDataUnits];
 
-  button('Randomize Data', () => {
+  button('Random Data', () => {
     if (standardDevDataUnits === MGDL_UNITS) {
-      standardDevData = generateRandom(standardDevData, 'bg', standardDevDataUnits);
+      standardDevData = generateRandomData(standardDevData, 'bg', standardDevDataUnits);
     } else {
-      standardDevDataMmol = generateRandom(standardDevData, 'bg', standardDevDataUnits);
+      standardDevDataMmol = generateRandomData(standardDevDataMmol, 'bg', standardDevDataUnits);
     }
-  }, 'PROPS');
+  }, 'DATA');
+
+  button('Empty Data', () => {
+    if (standardDevDataUnits === MGDL_UNITS) {
+      standardDevData = generateEmptyData(standardDevData, 'bg', standardDevDataUnits);
+    } else {
+      standardDevDataMmol = generateEmptyData(standardDevDataMmol, 'bg', standardDevDataUnits);
+    }
+  }, 'DATA');
 
   return (
     <Container>
@@ -419,9 +466,13 @@ glucoseManagementIndexData.dataPaths = {
 };
 
 stories.add('Glucose Management Indicator', () => {
-  button('Randomize Data', () => {
-    glucoseManagementIndexData = generateRandom(glucoseManagementIndexData, 'gmi');
-  }, 'PROPS');
+  button('Random Data', () => {
+    glucoseManagementIndexData = generateRandomData(glucoseManagementIndexData, 'gmi');
+  }, 'DATA');
+
+  button('Empty Data', () => {
+    glucoseManagementIndexData = generateEmptyData(glucoseManagementIndexData, 'gmi');
+  }, 'DATA');
 
   return (
     <Container>
@@ -450,9 +501,13 @@ coefficientOfVariationData.dataPaths = {
 };
 
 stories.add('Coefficient of Variation', () => {
-  button('Randomize Data', () => {
-    coefficientOfVariationData = generateRandom(coefficientOfVariationData, 'cv');
-  }, 'PROPS');
+  button('Random Data', () => {
+    coefficientOfVariationData = generateRandomData(coefficientOfVariationData, 'cv');
+  }, 'DATA');
+
+  button('Empty Data', () => {
+    coefficientOfVariationData = generateEmptyData(coefficientOfVariationData, 'cv');
+  }, 'DATA');
 
   return (
     <Container>

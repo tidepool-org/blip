@@ -170,7 +170,7 @@ class Stat extends React.PureComponent {
         <div className={styles.chartHeader}>
           <div className={styles.chartTitle}>
             {this.state.chartTitle}
-            {titleData && (
+            {_.get(titleData, 'value') && (
               <span className={styles.chartTitleData}>
                 (&nbsp;
                 <span
@@ -241,8 +241,14 @@ class Stat extends React.PureComponent {
   }
 
   getStateByType = props => {
+    const { data } = props;
+
+    // TODO: consider whether we should be tracking disabled state internally or passing in a prop
+    const isDisabled = _.sum(_.map(data.data, d => d.value)) <= 0;
+
     const state = {
       chartTitle: props.title,
+      isDisabled,
     };
     switch (props.type) {
       case 'simple':
@@ -263,12 +269,13 @@ class Stat extends React.PureComponent {
 
   setChartPropsByType = props => {
     const { type, data, bgPrefs: { bgUnits }, ...rest } = props;
+    const total = _.get(data, 'total.value');
     let chartRenderer = VictoryBar;
     const chartProps = _.defaults({
       animate: { duration: 300, onLoad: { duration: 0 } },
       data: _.map(data.data, (d, i) => ({
         x: i + 1,
-        y: data.total ? d.value / data.total.value : d.value,
+        y: total > 0 ? d.value / total : d.value,
         id: d.id,
       })),
       labels: d => formatPercentage(d.y),
@@ -348,11 +355,11 @@ class Stat extends React.PureComponent {
           padding,
           style: {
             data: {
-              fill: datum => this.getColorByDatumId(datum),
+              fill: datum => this.getDatumColor(datum),
               width: () => barWidth,
             },
             labels: {
-              fill: datum => this.getColorByDatumId(this.formatValue(
+              fill: datum => this.getDatumColor(this.formatValue(
                 _.get(props.data, ['data', datum.eventKey]),
                 props.dataFormat.label,
               )),
@@ -455,11 +462,11 @@ class Stat extends React.PureComponent {
           padding,
           style: {
             data: {
-              fill: datum => this.getColorByDatumId(datum),
+              fill: datum => this.getDatumColor(datum),
               width: () => barWidth,
             },
             labels: {
-              fill: datum => this.getColorByDatumId(datum),
+              fill: datum => this.getDatumColor(datum),
               fontSize: barWidth * 0.833,
               fontWeight: 600,
               paddingLeft: chartLabelWidth,
@@ -476,13 +483,19 @@ class Stat extends React.PureComponent {
     this.setChartRenderer(chartRenderer);
   }
 
-  getColorByDatumId = datum => {
-    const { hoveredDatumIndex } = this.state;
+  getDatumColor = datum => {
+    const { hoveredDatumIndex, isDisabled } = this.state;
     const isMuted = this.props.muteOthersOnHover
       && hoveredDatumIndex >= 0
       && hoveredDatumIndex !== datum.eventKey;
 
-    return isMuted ? colors.muted : colors[datum.id] || colors.statDark;
+    let color = isDisabled
+      ? colors.statDisabled
+      : isMuted
+        ? colors.muted
+        : colors[datum.id] || colors.statDark;
+
+    return color;
   };
 
   setChartTitle = (datum = {}) => {
@@ -529,9 +542,14 @@ class Stat extends React.PureComponent {
         break;
 
       case statFormats.bgValue:
-        id = classifyBgValue(bgBounds, value);
+        if (value > 0) {
+          id = classifyBgValue(bgBounds, value);
+          value = formatBgValue(value, bgPrefs);
+        } else {
+          id = 'statDisabled';
+          value = '--';
+        }
         suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
-        value = formatBgValue(value, bgPrefs);
         suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         break;
 
@@ -549,35 +567,61 @@ class Stat extends React.PureComponent {
         break;
 
       case statFormats.percentage:
-        if (total) {
-          value = value / total;
+        if (total && total > 0) {
+          if (total) {
+            value = value / total;
+          }
+          value = formatPercentage(value);
+        } else {
+          id = 'statDisabled';
+          value = '--';
         }
-        value = formatPercentage(value);
         break;
 
       case statFormats.stdDevRange:
         suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
-        value = (
-          <span>
-            <span style={{
-              color: colors[classifyBgValue(bgBounds, value - deviation)],
-            }}>
-              {formatBgValue(value - deviation, bgPrefs)}
+
+        const lowerValue = value - deviation;
+        const lowerColorId = lowerValue > 0
+          ? classifyBgValue(bgBounds, lowerValue)
+          : 'statDisabled';
+
+        const upperValue = value + deviation;
+        const upperColorId = upperValue > 0
+          ? classifyBgValue(bgBounds, upperValue)
+          : 'statDisabled';
+
+        if (value > 0) {
+          value = (
+            <span>
+              <span style={{
+                color: colors[lowerColorId],
+              }}>
+                {formatBgValue(value - deviation, bgPrefs)}
+              </span>
+              &nbsp;-&nbsp;
+              <span style={{
+                color: colors[upperColorId],
+              }}>
+                {formatBgValue(value + deviation, bgPrefs)}
+              </span>
             </span>
-            &nbsp;-&nbsp;
-            <span style={{
-              color: colors[classifyBgValue(bgBounds, value + deviation)],
-            }}>
-              {formatBgValue(value + deviation, bgPrefs)}
-            </span>
-          </span>
-        );
-        suffix = <img className={styles.bgIcon} src={suffixSrc} />;
+          );
+          suffix = <img className={styles.bgIcon} src={suffixSrc} />;
+        } else {
+          value = undefined;
+          suffix = undefined;
+        }
         break;
 
       case statFormats.stdDevValue:
+        if (value > 0) {
+          value = formatBgValue(value, bgPrefs);
+        } else {
+          id = 'statDisabled';
+          value = '--';
+        }
         suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
-        value = formatBgValue(value, bgPrefs);
         suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         break;
 

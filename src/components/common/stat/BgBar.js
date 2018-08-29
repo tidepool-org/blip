@@ -43,11 +43,12 @@ export const BgBarLabel = props => {
         verticalAnchor="middle"
         width={width}
         dx={-iconPadding}
+        dy={-(barWidth / 2)}
         x={scale.y(domain.x[1])}
         y={y}
       />
       <g
-        transform={`translate(${scale.y(domain.x[1]) - iconPadding}, -${barWidth / 2})`}
+        transform={`translate(${scale.y(domain.x[1]) - iconPadding}, -${barWidth / 2 + 2})`}
         dangerouslySetInnerHTML={{ __html: svgIconHTML }} // eslint-disable-line react/no-danger
       />
     </g>
@@ -99,6 +100,8 @@ export const BgBar = props => {
   const dev2Value = datum.y + deviation;
   const dev2X = scale.y(datum.y + deviation) * widthCorrection;
 
+  const isEnabled = datum.y > 0;
+
   return (
     <g>
       <g className="bgScale">
@@ -110,8 +113,8 @@ export const BgBar = props => {
           endAngle={270}
           style={{
             stroke: 'transparent',
-            fill: colors.low,
-            fillOpacity: 0.5,
+            fill: isEnabled ? colors.low : colors.statDisabled,
+            fillOpacity: isEnabled ? 0.5 : 1,
           }}
         />
         <Rect
@@ -122,8 +125,8 @@ export const BgBar = props => {
           height={barWidth}
           style={{
             stroke: 'transparent',
-            fill: colors.low,
-            fillOpacity: 0.5,
+            fill: isEnabled ? colors.low : colors.statDisabled,
+            fillOpacity: isEnabled ? 0.5 : 1,
           }}
         />
         <Rect
@@ -134,8 +137,8 @@ export const BgBar = props => {
           height={barWidth}
           style={{
             stroke: 'transparent',
-            fill: colors.target,
-            fillOpacity: 0.5,
+            fill: isEnabled ? colors.target : colors.statDisabled,
+            fillOpacity: isEnabled ? 0.5 : 1,
           }}
         />
         <Rect
@@ -146,8 +149,8 @@ export const BgBar = props => {
           height={barWidth}
           style={{
             stroke: 'transparent',
-            fill: colors.high,
-            fillOpacity: 0.5,
+            fill: isEnabled ? colors.high : colors.statDisabled,
+            fillOpacity: isEnabled ? 0.5 : 1,
           }}
         />
         <Arc
@@ -158,13 +161,13 @@ export const BgBar = props => {
           endAngle={90}
           style={{
             stroke: 'transparent',
-            fill: colors.high,
-            fillOpacity: 0.5,
+            fill: isEnabled ? colors.high : colors.statDisabled,
+            fillOpacity: isEnabled ? 0.5 : 1,
           }}
         />
       </g>
 
-      {renderMean && (
+      {renderMean && isEnabled && (
         <g className="bgMean">
           <Point
             x={datumX}
@@ -179,7 +182,7 @@ export const BgBar = props => {
         </g>
       )}
 
-      {renderDeviation && (
+      {renderDeviation && isEnabled && (
         <g className="bgDeviation">
           <Line
             x1={dev1X}

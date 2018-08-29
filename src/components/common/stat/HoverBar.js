@@ -88,6 +88,8 @@ export const HoverBar = props => {
   const barGridRadius = cornerRadius.top || 2;
   const widthCorrection = (width - chartLabelWidth) / width;
 
+  const isEnabled = y > 0;
+
   return (
     <g>
       <Rect
@@ -116,11 +118,13 @@ export const HoverBar = props => {
           fill: colors.axis,
         }}
       />
-      <Bar
-        {...props}
-        width={scale.y(domain.x[1]) - chartLabelWidth}
-        y={y * widthCorrection}
-      />
+      {isEnabled && (
+        <Bar
+          {...props}
+          width={scale.y(domain.x[1]) - chartLabelWidth}
+          y={y * widthCorrection}
+        />
+      )}
     </g>
   );
 };
