@@ -30,6 +30,9 @@ import { nonTandemText } from '../../utils/settings/textData';
 
 import styles from './NonTandem.css';
 
+import i18next from 'i18next';
+const t = i18next.t.bind(i18next);
+
 const NonTandem = (props) => {
   const {
     bgUnits,
@@ -189,11 +192,11 @@ const NonTandem = (props) => {
     <div>
       <ClipboardButton
         className={styles.copyButton}
-        button-title="For email or notes"
+        button-title={t('For email or notes')}
         data-clipboard-target="#copySettingsText"
         onSuccess={copySettingsClicked}
       >
-        <p>Copy as text</p>
+        <p>{t('Copy as text')}</p>
       </ClipboardButton>
       <Header
         deviceDisplayName={deviceName(lookupKey)}
@@ -202,7 +205,7 @@ const NonTandem = (props) => {
       <div className={styles.settingsContainer}>
         <div>
           <div className={styles.basalSettingsContainer}>
-            <div className={styles.categoryTitle}>Basal Rates</div>
+            <div className={styles.categoryTitle}>{t('Basal Rates')}</div>
             {renderBasalsData()}
           </div>
         </div>
