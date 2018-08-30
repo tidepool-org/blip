@@ -25,13 +25,15 @@ describe('LogoutOverlay', function () {
   });
 
   describe('getInitialState', function() {
-    console.error = sinon.stub();
+    it('should have fadeOut initially equal to false', function() {
+      console.error = sinon.stub();
       var props = {};
       var elem = React.createElement(LogoutOverlay, props);
       var render = TestUtils.renderIntoDocument(elem);
 
-      var state = render.getInitialState();
+      var state = render.getWrappedInstance().getInitialState();
 
       expect(state.fadeOut).to.equal(false);
+    })
   });
 });

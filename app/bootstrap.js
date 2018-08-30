@@ -18,6 +18,7 @@ import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
 
+import './core/language'; // Set the language before loading components
 import blipCreateStore from './redux/store';
 import AppRoot from './redux/containers/Root';
 
@@ -42,10 +43,10 @@ var appContext = {
   config: config
 };
 
-// This anonymous function must remain in ES5 format because 
+// This anonymous function must remain in ES5 format because
 // the argument parameter used is not bound when using arrow functions
 // See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
-appContext.trackMetric = function() { 
+appContext.trackMetric = function() {
   var args = Array.prototype.slice.call(arguments);
   return appContext.api.metrics.track.apply(appContext.api.metrics, args);
 };
@@ -84,7 +85,7 @@ appContext.init = callback => {
  * This renders the AppComponent into the DOM providing appContext
  * as the context for AppComponent so that the required dependencies
  * are passed in!
- * 
+ *
  */
 appContext.start = () => {
 

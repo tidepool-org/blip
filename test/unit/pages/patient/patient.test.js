@@ -52,7 +52,7 @@ describe('Patient', function () {
     it('should return an object', function() {
       var props = {};
       var patientElem = React.createElement(Patient, props);
-      var elem = TestUtils.renderIntoDocument(patientElem);
+      var elem = TestUtils.renderIntoDocument(patientElem).getWrappedInstance();
       var initialState = elem.getInitialState();
 
       expect(Object.keys(initialState).length).to.equal(2);
