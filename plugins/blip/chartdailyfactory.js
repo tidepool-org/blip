@@ -16,6 +16,8 @@
  */
 
 /* jshint esversion:6 */
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var _ = require('lodash');
 var bows = require('bows');
@@ -100,7 +102,7 @@ function chartDailyFactory(el, options) {
     poolBG = chart.newPool()
       .id('poolBG', chart.poolGroup())
       .label([{
-        'main': 'Blood Glucose',
+        'main': t('Blood Glucose'),
         'light': ' ' + chart.options.bgUnits
       }])
       .labelBaseline(options.labelBaseline)
@@ -113,11 +115,11 @@ function chartDailyFactory(el, options) {
     poolBolus = chart.newPool()
       .id('poolBolus', chart.poolGroup())
       .label([{
-        'main': 'Bolus',
+        'main': t('Bolus'),
         'light': ' u'
       },
       {
-        'main': ' & Carbohydrates',
+        'main': ' & '+t('Carbohydrates'),
         'light': ' g'
       }])
       .labelBaseline(options.labelBaseline)
@@ -130,7 +132,7 @@ function chartDailyFactory(el, options) {
     poolBasal = chart.newPool()
       .id('poolBasal', chart.poolGroup())
       .label([{
-        main: 'Basal Rates',
+        main: t('Basal Rates'),
         light: ' u/hr'
       }])
       .labelBaseline(options.labelBaseline)
@@ -360,7 +362,7 @@ function chartDailyFactory(el, options) {
       xPosition: chart.axisGutter(),
       yPosition: 0,
       emitter: emitter,
-      averageLabel: 'These 24 hours',
+      averageLabel: t('These 24 hours'),
       manufacturer: _.get(latestPumpUpload, 'source'),
       activeBasalRatio: isAutomatedBasalDevice(latestPumpUpload) ? 'timeInAuto' : 'basalBolus',
       puddleWeights: {

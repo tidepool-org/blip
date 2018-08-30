@@ -1,7 +1,9 @@
 /* jshint esversion:6 */
+const i18next = require('i18next');
+const t = i18next.t.bind(i18next);
 
-const MGDL_UNITS = 'mg/dL';
-const MMOLL_UNITS = 'mmol/L';
+const MGDL_UNITS = t('mg/dL');
+const MMOLL_UNITS = t('mmol/L');
 const MGDL_PER_MMOLL = 18.01559;
 
 module.exports = {
@@ -9,12 +11,12 @@ module.exports = {
     Medtronic: ['1780'],
   },
   AUTOMATED_BASAL_LABELS: {
-    Medtronic: 'Auto Mode',
-    default: 'Automated',
+    Medtronic: t('Auto Mode'),
+    default: t('Automated'),
   },
   SCHEDULED_BASAL_LABELS: {
-    Medtronic: 'Manual',
-    default: 'Manual',
+    Medtronic: t('Manual'),
+    default: t('Manual'),
   },
   MGDL_PER_MMOLL,
   MGDL_UNITS,
