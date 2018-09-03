@@ -23,6 +23,11 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __PASSWORD_MAX_LENGTH__: JSON.stringify(process.env.PASSWORD_MAX_LENGTH || null),
   __ABOUT_MAX_LENGTH__: JSON.stringify(process.env.ABOUT_MAX_LENGTH || null),
   __I18N_ENABLED__: JSON.stringify(process.env.I18N_ENABLED || false),
+  __ALLOW_CHANGE_EMAIL__: JSON.stringify(process.env.ALLOW_CHANGE_EMAIL || true),
+  __ALLOW_CHANGE_PASSWORD__: JSON.stringify(process.env.ALLOW_CHANGE_PASSWORD || true),
+  __HIDE_DONATE__: JSON.stringify(process.env.HIDE_DONATE || null),
+  __HIDE_DEXCOM_BANNER__: JSON.stringify(process.env.HIDE_DEXCOM_BANNER || null),
+  __HIDE_UPLOAD_LINK__: JSON.stringify(process.env.HIDE_UPLOAD_LINK || false),
   __DEV__: isDev,
   __TEST__: false,
   __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false) //eslint-disable-line eqeqeq

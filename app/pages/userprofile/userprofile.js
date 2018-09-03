@@ -44,11 +44,29 @@ export var UserProfile = translate()(React.createClass({
   formInputs: function() {
     const {t} = this.props;
     const inputs = [
-      {name: 'fullName', label: t('Full name'), type: 'text'},
-      {name: 'username', label: t('Email'), type: 'email'},
-      {name: 'password', label: t('Password'), type: 'password'},
-      {name: 'passwordConfirm', label: t('Confirm password'), type: 'password'}
+      {name: 'fullName', label: t('Full name'), type: 'text'}
     ];
+
+    if (config.ALLOW_CHANGE_EMAIL) {
+      inputs.push({
+        name: 'username',
+        label: t('Email'),
+        type: 'email'
+      });
+    }
+
+    if (config.ALLOW_CHANGE_PASSWORD) {
+      inputs.push({
+        name: 'password',
+        label: t('Password'),
+        type: 'password'
+      });
+      inputs.push({
+        name: 'passwordConfirm',
+        label: t('Confirm password'),
+        type: 'password'
+      });
+    }
 
     if (config.I18N_ENABLED) {
       inputs.push({
@@ -104,7 +122,7 @@ export var UserProfile = translate()(React.createClass({
   },
 
   render: function() {
-    const {t} = this.props;
+    const {t,user} = this.props;
     var form = this.renderForm();
     var self = this;
     var handleClickBack = function(e) {
@@ -114,6 +132,10 @@ export var UserProfile = translate()(React.createClass({
       return false;
     };
 
+    var organization = '';
+    if (user && user.profile && user.profile.organization && user.profile.organization.name) {
+      organization = user.profile.organization.name + ' / ';
+    }
 
     return (
       <div className="profile">
@@ -127,7 +149,7 @@ export var UserProfile = translate()(React.createClass({
                 </a>
               </div>
               <div className="grid-item one-whole medium-one-third">
-                <div className="profile-subnav-title">{t('Account')}</div>
+                <div className="profile-subnav-title">{organization + t('Account')}</div>
               </div>
             </div>
           </div>
@@ -190,11 +212,14 @@ export var UserProfile = translate()(React.createClass({
 
   validateFormValues: function(formValues) {
     var form = [
-      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
-      { type: 'email', name: 'username', label: 'email', value: formValues.username }
+      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName }
     ];
 
-    if (formValues.password || formValues.passwordConfirm) {
+    if (config.ALLOW_CHANGE_EMAIL) {
+      form.push({ type: 'email', name: 'username', label: 'email', value: formValues.username });
+    }
+
+    if (config.ALLOW_CHANGE_PASSWORD && (formValues.password || formValues.passwordConfirm)) {
       form = _.merge(form, [
         { type: 'password', name: 'password', label: 'password', value: formValues.password },
         { type: 'confirmPassword', name: 'passwordConfirm', label: 'confirm password', value: formValues.passwordConfirm, prerequisites: { password: formValues.password }  }
@@ -215,18 +240,21 @@ export var UserProfile = translate()(React.createClass({
 
   prepareFormValuesForSubmit: function(formValues) {
     var result = {
-      username: formValues.username,
-      emails: [formValues.username],
       profile: {
         fullName: formValues.fullName
       },
     };
 
+    if (config.ALLOW_CHANGE_EMAIL) {
+      result.username = formValues.username;
+      result.emails = [formValues.username];
+    }
+
     if (config.I18N_ENABLED) {
       _.set(result, 'preferences.displayLanguageCode', formValues.lang);
     }
 
-    if (formValues.password) {
+    if (config.ALLOW_CHANGE_PASSWORD && formValues.password) {
       result.password = formValues.password;
     }
 
