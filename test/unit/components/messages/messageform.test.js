@@ -24,7 +24,7 @@ describe('MessageForm', function () {
       var props = {};
       var elem = React.createElement(MessageForm, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var state = render.getInitialState();
+      var state = render.getWrappedInstance().getInitialState();
 
       expect(state.msg).to.equal('');
       expect(state.whenUtc).to.equal(null);

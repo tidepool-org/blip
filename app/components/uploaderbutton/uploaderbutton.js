@@ -19,6 +19,7 @@ import GitHub from 'github-api';
 import _ from 'lodash';
 import cx from 'classnames';
 import utils from '../../core/utils';
+import { translate } from 'react-i18next';
 
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 
@@ -26,7 +27,7 @@ import logoSrc from './images/T-logo-dark-512x512.png';
 
 const github = new GitHub();
 
-class UploaderButton extends Component {
+export default translate()(class UploaderButton extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -52,6 +53,7 @@ class UploaderButton extends Component {
   }
 
   renderErrorText = () => {
+    const { t } = this.props;
     return (
       <a
         className="btn btn-uploader"
@@ -59,7 +61,7 @@ class UploaderButton extends Component {
         target="_blank"
         onClick={this.props.onClick}>
           <div className="uploader-logo">
-            <img src={logoSrc} alt="Tidepool Uploader" />
+            <img src={logoSrc} alt={t('Tidepool Uploader')} />
           </div>
           {this.props.buttonText}
         </a>
@@ -67,6 +69,7 @@ class UploaderButton extends Component {
   }
 
   render = () => {
+    const { t } = this.props;
     const winReleaseClasses = cx({
       btn: true,
       'btn-uploader': true,
@@ -89,7 +92,7 @@ class UploaderButton extends Component {
           href={`${this.state.latestWinRelease}`}
           disabled={!this.state.latestWinRelease}
           onClick={this.props.onClick}>
-          Download for PC
+          {t('Download for PC')}
         </a>,
         <a
           key={'mac'}
@@ -97,7 +100,7 @@ class UploaderButton extends Component {
           href={`${this.state.latestMacRelease}`}
           disabled={!this.state.latestMacRelease}
           onClick={this.props.onClick}>
-          Download for Mac
+          {t('Download for Mac')}
         </a>
       ]
     }
@@ -108,6 +111,4 @@ class UploaderButton extends Component {
       </div>
     );
   }
-}
-
-export default UploaderButton;
+});

@@ -41,7 +41,7 @@ describe('Terms', () => {
     beforeEach(() => {
       var props = {};
       var termsElem = React.createElement(Terms, props);
-      elem = TestUtils.renderIntoDocument(termsElem);
+      elem = TestUtils.renderIntoDocument(termsElem).getWrappedInstance();
     });
 
     it('is not agreed', () => {
@@ -95,7 +95,7 @@ describe('Terms', () => {
         trackMetric: sinon.stub()
       };
       termsElem = React.createElement(Terms, props);
-      termsElem = TestUtils.renderIntoDocument(termsElem);
+      termsElem = TestUtils.renderIntoDocument(termsElem).getWrappedInstance();
     });
 
     describe('flow for 18 and over login', () => {
