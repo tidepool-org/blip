@@ -399,6 +399,7 @@ var PatientInfo = translate()(React.createClass({
   },
 
   renderDonateForm: function() {
+    const { t } = this.props;
     if (this.isSamePersonUserAndPatient() && !__HIDE_DONATE__) {
       return (
         <div className="PatientPage-donateForm">

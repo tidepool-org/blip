@@ -346,7 +346,7 @@ export let PatientData = translate()(React.createClass({
             onSwitchToWeekly={this.handleSwitchToWeekly}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             updateBasicsData={this.updateBasicsData}
-            updateBasicsSettings={this.props.updateBasicsSettings}
+            updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
@@ -473,12 +473,18 @@ export let PatientData = translate()(React.createClass({
     const data = state.processedPatientData;
     const diabetesData = data.diabetesData;
 
+    const patientSettings = _.get(props, 'patient.settings', {});
+    const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
+    const pdfPatient = _.assign({}, props.patient, {
+      settings: _.assign({}, patientSettings, { siteChangeSource }),
+    });
+
     if (diabetesData.length > 0) {
       const mostRecent = diabetesData[diabetesData.length - 1].normalTime;
       const opts = {
         bgPrefs: state.bgPrefs,
         numDays: state.printOpts.numDays,
-        patient: props.patient,
+        patient: pdfPatient,
         timePrefs: state.timePrefs,
         mostRecent,
       };
@@ -726,6 +732,20 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
+  updateBasicsSettings: function(patientId, settings, canUpdateSettings) {
+    if (canUpdateSettings) {
+      this.props.updateBasicsSettings(patientId, settings);
+    }
+
+    // If the user makes a change to the site change source settings,
+    // we should remove the currently generated PDF, which will trigger a rebuild of
+    // the PDF with the updated settings.
+    const settingsSiteChangeSource = _.get(this.props, 'patient.settings.siteChangeSource');
+    if (settings.siteChangeSource && settings.siteChangeSource !== settingsSiteChangeSource) {
+      this.setState({ updatedSiteChangeSource: settings.siteChangeSource }, this.props.removeGeneratedPDFS);
+    }
+  },
+
   updateChartPrefs: function(newChartPrefs) {
     var currentPrefs = _.clone(this.state.chartPrefs);
     _.assign(currentPrefs, newChartPrefs);
@@ -794,14 +814,6 @@ export let PatientData = translate()(React.createClass({
           this.setState({ loading: false });
         }
       }
-    }
-
-    // If the patient makes a change to their site change source settings,
-    // we should remove the currently generated PDF, which will trigger a rebuild of
-    // the PDF with the updated settings.
-    const siteChangeSource = _.get(nextProps, 'patient.settings.siteChangeSource');
-    if (siteChangeSource && siteChangeSource !== _.get(this.props, 'patient.settings.siteChangeSource')) {
-      this.props.removeGeneratedPDFS();
     }
   },
 

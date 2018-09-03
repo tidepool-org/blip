@@ -130,12 +130,15 @@ var MemberInviteForm = translate()(React.createClass({
 
   handleSubmit: function(e) {
     const { t } = this.props;
-
     if (e) {
       e.preventDefault();
     }
 
-    const validateEmail = function(email) {
+    var self = this;
+    var email = self.refs.email.value;
+    var allowUpload = self.refs.allowUpload.getWrappedInstance().getValue();
+
+    var validateEmail = function(email) {
       var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       return re.test(email);
     };
