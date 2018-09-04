@@ -69,6 +69,9 @@ const randomValueByType = (type, bgUnits, opts = {}) => {
         true
       );
 
+    case 'count':
+      return _.random(0, 3);
+
     case 'bg':
       return _.random(
         isMGDL ? 18 + deviation : 1 + deviation,
@@ -97,11 +100,10 @@ const generateRandomData = (data, type, bgUnits) => {
     randomData.total = _.assign({}, data.total, { value: getSum(randomData.data) });
   }
 
-  console.log(randomData)
   return randomData;
 };
 
-const generateEmptyData = (data, type, bgUnits) => {
+const generateEmptyData = (data) => {
   const deviation = { value: 0 };
 
   const randomData = _.assign({}, data, {
@@ -115,7 +117,6 @@ const generateEmptyData = (data, type, bgUnits) => {
     randomData.total = _.assign({}, data.total, { value: getSum(randomData.data) });
   }
 
-  console.log(randomData)
   return randomData;
 };
 
@@ -125,7 +126,7 @@ const Container = (UI) => (
     style={{
       background: '#f6f6f6',
       border: '1px solid #eee',
-      margin: '20px',
+      margin: '50px',
       padding: '20px',
     }}
   >{UI.children}
@@ -186,7 +187,7 @@ stories.add('Time In Range', () => {
   }, 'DATA');
 
   button('Empty Data', () => {
-    timeInRangeData = generateEmptyData(timeInRangeData, 'duration');
+    timeInRangeData = generateEmptyData(timeInRangeData);
   }, 'DATA');
 
   return (
@@ -204,8 +205,90 @@ stories.add('Time In Range', () => {
           tooltipTitle: statFormats.bgRange,
         }}
         isOpened={isOpened}
+        messages={[
+          'Based on 70% CGM data availability for this view.',
+        ]}
         muteOthersOnHover={muteOthersOnHover}
         title="Time In Range"
+        type={statTypes.barHorizontal}
+      />
+    </Container>
+  );
+});
+
+let readingsInRangeData = {
+  data: [
+    {
+      id: 'veryLow',
+      value: 0,
+      title: 'Readings Below Range',
+    },
+    {
+      id: 'low',
+      value: 1,
+      title: 'Readings Below Range',
+    },
+    {
+      id: 'target',
+      value: 3,
+      title: 'Readings In Range',
+    },
+    {
+      id: 'high',
+      value: 2,
+      title: 'Readings Above Range',
+    },
+    {
+      id: 'veryHigh',
+      value: 1,
+      title: 'Readings Above Range',
+    },
+  ],
+};
+readingsInRangeData.total = { value: getSum(readingsInRangeData.data) };
+readingsInRangeData.dataPaths = {
+  summary: [
+    'data',
+    _.findIndex(readingsInRangeData.data, { id: 'target' }),
+  ],
+};
+
+stories.add('Readings In Range', () => {
+  const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'UI');
+  const bgUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
+  const bgPrefs = bgPrefsValues[bgUnits];
+  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
+  const collapsible = boolean('collapsible', true, 'UI');
+  const isOpened = boolean('isOpened', true, 'UI');
+  const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
+
+  button('Random Data', () => {
+    readingsInRangeData = generateRandomData(readingsInRangeData, 'count');
+  }, 'DATA');
+
+  button('Empty Data', () => {
+    readingsInRangeData = generateEmptyData(readingsInRangeData);
+  }, 'DATA');
+
+  return (
+    <Container>
+      <Stat
+        alwaysShowTooltips={alwaysShowTooltips}
+        bgPrefs={bgPrefs}
+        chartHeight={chartHeight}
+        collapsible={collapsible}
+        data={readingsInRangeData}
+        dataFormat={{
+          label: statFormats.bgCount,
+          summary: statFormats.bgCount,
+          tooltipTitle: statFormats.bgRange,
+        }}
+        isOpened={isOpened}
+        messages={[
+          'Based on 7 SMBG readings for this view.',
+        ]}
+        muteOthersOnHover={muteOthersOnHover}
+        title="Readings In Range"
         type={statTypes.barHorizontal}
       />
     </Container>
@@ -247,7 +330,7 @@ stories.add('Time In Auto', () => {
   }, 'DATA');
 
   button('Empty Data', () => {
-    timeInAutoData = generateEmptyData(timeInAutoData, 'duration');
+    timeInAutoData = generateEmptyData(timeInAutoData);
   }, 'DATA');
 
   return (
@@ -263,6 +346,9 @@ stories.add('Time In Auto', () => {
           tooltip: statFormats.duration,
         }}
         isOpened={isOpened}
+        messages={[
+          'Based on 50% pump data availability for this view.',
+        ]}
         muteOthersOnHover={muteOthersOnHover}
         title="Time In Auto Mode"
         type={statTypes.barHorizontal}
@@ -306,7 +392,7 @@ stories.add('Total Insulin', () => {
   }, 'DATA');
 
   button('Empty Data', () => {
-    totalInsulinData = generateEmptyData(totalInsulinData, 'units');
+    totalInsulinData = generateEmptyData(totalInsulinData);
   }, 'DATA');
 
   return (
@@ -323,6 +409,9 @@ stories.add('Total Insulin', () => {
           tooltip: statFormats.units,
         }}
         isOpened={isOpened}
+        messages={[
+          'Based on 50% pump data availability for this view.',
+        ]}
         muteOthersOnHover={muteOthersOnHover}
         title="Total Insulin"
         type={statTypes.barHorizontal}
@@ -364,9 +453,9 @@ stories.add('Average BG', () => {
 
   button('Empty Data', () => {
     if (averageBgDataUnits === MGDL_UNITS) {
-      averageBgData = generateEmptyData(averageBgData, 'bg', averageBgDataUnits);
+      averageBgData = generateEmptyData(averageBgData);
     } else {
-      averageBgDataMmol = generateEmptyData(averageBgDataMmol, 'bg', averageBgDataUnits);
+      averageBgDataMmol = generateEmptyData(averageBgDataMmol);
     }
   }, 'DATA');
 
@@ -381,6 +470,10 @@ stories.add('Average BG', () => {
           summary: statFormats.bgValue,
         }}
         isOpened={isOpened}
+        messages={[
+          'Based on 70% CGM data availability for this view.',
+          'Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.',
+        ]}
         title="Average Blood Glucose"
         type={statTypes.barBg}
       />
@@ -428,9 +521,9 @@ stories.add('Standard Deviation', () => {
 
   button('Empty Data', () => {
     if (standardDevDataUnits === MGDL_UNITS) {
-      standardDevData = generateEmptyData(standardDevData, 'bg', standardDevDataUnits);
+      standardDevData = generateEmptyData(standardDevData);
     } else {
-      standardDevDataMmol = generateEmptyData(standardDevDataMmol, 'bg', standardDevDataUnits);
+      standardDevDataMmol = generateEmptyData(standardDevDataMmol);
     }
   }, 'DATA');
 
@@ -446,6 +539,10 @@ stories.add('Standard Deviation', () => {
           title: statFormats.stdDevRange,
         }}
         isOpened={isOpened}
+        messages={[
+          'Based on 70% CGM data availability for this view.',
+          'SD (Standard Deviation) is…',
+        ]}
         title="Standard Deviation"
         type={statTypes.barBg}
       />
@@ -471,7 +568,7 @@ stories.add('Glucose Management Indicator', () => {
   }, 'DATA');
 
   button('Empty Data', () => {
-    glucoseManagementIndexData = generateEmptyData(glucoseManagementIndexData, 'gmi');
+    glucoseManagementIndexData = generateEmptyData(glucoseManagementIndexData);
   }, 'DATA');
 
   return (
@@ -483,6 +580,10 @@ stories.add('Glucose Management Indicator', () => {
         dataFormat={{
           summary: statFormats.gmi,
         }}
+        messages={[
+          'Based on 70% CGM data availability for this view.',
+          'GMI (Glucose Management Indicator) is an estimate of HbA1c that has been calculated based on your average blood glucose.',
+        ]}
       />
     </Container>
   );
@@ -506,7 +607,7 @@ stories.add('Coefficient of Variation', () => {
   }, 'DATA');
 
   button('Empty Data', () => {
-    coefficientOfVariationData = generateEmptyData(coefficientOfVariationData, 'cv');
+    coefficientOfVariationData = generateEmptyData(coefficientOfVariationData);
   }, 'DATA');
 
   return (
@@ -519,7 +620,7 @@ stories.add('Coefficient of Variation', () => {
           summary: statFormats.cv,
         }}
         messages={[
-          'Based on 70% CGM data availability in this view.',
+          'Based on 70% CGM data availability for this view.',
           'CV (Coefficient of Variation) is…',
         ]}
       />

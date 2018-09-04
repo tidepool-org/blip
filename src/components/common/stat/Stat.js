@@ -25,7 +25,7 @@ import { Collapse } from 'react-collapse';
 import { formatPercentage, formatInsulin, formatBgValue } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
 import { generateBgRangeLabels, classifyBgValue, classifyCvValue } from '../../../utils/bloodglucose';
-import { MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
+import { MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP, MMOLL_UNITS } from '../../../utils/constants';
 import styles from './Stat.css';
 import colors from '../../../styles/colors.css';
 import HoverBar, { HoverBarLabel } from './HoverBar';
@@ -44,6 +44,7 @@ export const statTypes = {
 };
 
 export const statFormats = {
+  bgCount: 'bgCount',
   bgRange: 'bgRange',
   bgValue: 'bgValue',
   cv: 'cv',
@@ -70,7 +71,7 @@ class Stat extends PureComponent {
         targetLowerBound: PropTypes.number.isRequired,
         veryLowThreshold: PropTypes.number.isRequired,
       }),
-      bgUnits: PropTypes.string.isRequired,
+      bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]),
     }),
     categories: PropTypes.object,
     chartHeight: PropTypes.number,
@@ -193,7 +194,7 @@ class Stat extends PureComponent {
                 &nbsp;)
               </span>
             )}
-            {this.props.messages && (
+            {this.props.messages && !isDatumHovered && (
               <span
                 className={styles.tooltipIcon}
               >
@@ -381,10 +382,10 @@ class Stat extends PureComponent {
               width: () => barWidth,
             },
             labels: {
-              fill: datum => this.getDatumColor(this.formatValue(
+              fill: datum => this.getDatumColor(_.assign({}, datum, this.formatValue(
                 _.get(props.data, ['data', datum.eventKey]),
                 props.dataFormat.label,
-              )),
+              ))),
               fontSize: barWidth * 0.833 * 6,
               fontWeight: 600,
               paddingLeft: chartLabelWidth,
@@ -488,7 +489,10 @@ class Stat extends PureComponent {
               width: () => barWidth,
             },
             labels: {
-              fill: datum => this.getDatumColor(datum),
+              fill: datum => this.getDatumColor(_.assign({}, datum, this.formatValue(
+                _.get(props.data, ['data', datum.eventKey]),
+                props.dataFormat.label,
+              ))),
               fontSize: barWidth * 0.833,
               fontWeight: 600,
               paddingLeft: chartLabelWidth,
@@ -562,6 +566,13 @@ class Stat extends PureComponent {
     const { bgBounds, bgUnits } = bgPrefs;
 
     switch (format) {
+      case statFormats.bgCount:
+        if (value <= 0) {
+          id = 'statDisabled';
+          value = '--';
+        }
+        break;
+
       case statFormats.bgRange:
         suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
         value = generateBgRangeLabels(bgPrefs, { condensed: true })[id];
