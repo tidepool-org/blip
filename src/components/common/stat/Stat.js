@@ -30,6 +30,7 @@ import styles from './Stat.css';
 import colors from '../../../styles/colors.css';
 import HoverBar, { HoverBarLabel } from './HoverBar';
 import BgBar, { BgBarLabel } from './BgBar';
+import StatTooltip from '../tooltips/StatTooltip';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
 import MGDLIcon from './assets/mgdl-inv-24-px.svg';
@@ -101,6 +102,7 @@ class Stat extends PureComponent {
       tooltipTitle: PropTypes.oneOf(_.values(statFormats)),
     }),
     isOpened: PropTypes.bool,
+    messages: PropTypes.arrayOf(PropTypes.string),
     muteOthersOnHover: PropTypes.bool,
     title: PropTypes.string.isRequired,
     type: PropTypes.oneOf(_.keys(statTypes)),
@@ -123,6 +125,10 @@ class Stat extends PureComponent {
 
     this.state = this.getStateByType(props);
     this.setChartPropsByType(props);
+
+    this.setTooltipIconRef = element => {
+      this.tooltipIcon = element;
+    };
   }
 
   toggleIsOpened = () => {
@@ -163,11 +169,7 @@ class Stat extends PureComponent {
       : this.getData({ pathKey: 'title' });
 
     return (
-      <div
-        className={statOuterClasses}
-        onMouseOver={this.handleMouseOver}
-        onMouseOut={this.handleMouseOut}
-      >
+      <div className={statOuterClasses}>
         <div className={styles.chartHeader}>
           <div className={styles.chartTitle}>
             {this.state.chartTitle}
@@ -191,10 +193,18 @@ class Stat extends PureComponent {
                 &nbsp;)
               </span>
             )}
-            {this.props.tooltips && (
-              <a href="">
-                <img src={InfoIcon} alt="Hover for more info"/>
-              </a>
+            {this.props.messages && (
+              <span
+                className={styles.tooltipIcon}
+              >
+                <img
+                  src={InfoIcon}
+                  alt="Hover for more info"
+                  ref={this.setTooltipIconRef}
+                  onMouseOver={this.handleTooltipIconMouseOver}
+                  onMouseOut={this.handleTooltipIconMouseOut}
+                />
+              </span>
             )}
           </div>
 
@@ -223,6 +233,12 @@ class Stat extends PureComponent {
 
         </div>
         {this.chartRenderer && <SizeMe render={({ size }) => (this.renderChart(size))} />}
+        {this.state.showMessages && (
+          <StatTooltip
+            messages={this.props.messages}
+            position={this.state.messageTooltipPosition}
+          />
+        )}
       </div>
     );
   }
@@ -495,11 +511,11 @@ class Stat extends PureComponent {
       && hoveredDatumIndex >= 0
       && hoveredDatumIndex !== datum.eventKey;
 
-    let color = isDisabled
-      ? colors.statDisabled
-      : isMuted
-        ? colors.muted
-        : colors[datum.id] || colors.statDark;
+    let color = colors[datum.id] || colors.statDark;
+
+    if (isDisabled || isMuted) {
+      color = isDisabled ? colors.statDisabled : colors.muted;
+    }
 
     return color;
   };
@@ -533,9 +549,14 @@ class Stat extends PureComponent {
   formatValue = (datum = {}, format) => {
     let id = datum.id;
     let value = datum.value;
-    let deviation = _.get(datum, 'deviation.value', 0);
     let suffix = '';
     let suffixSrc;
+    let deviation;
+    let lowerValue;
+    let lowerColorId;
+    let upperValue;
+    let upperColorId;
+
     const total = _.get(this.props.data, 'total.value');
     const { bgPrefs } = this.props;
     const { bgBounds, bgUnits } = bgPrefs;
@@ -587,13 +608,14 @@ class Stat extends PureComponent {
       case statFormats.stdDevRange:
         suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
 
-        const lowerValue = value - deviation;
-        const lowerColorId = lowerValue > 0
+        deviation = _.get(datum, 'deviation.value', 0);
+        lowerValue = value - deviation;
+        lowerColorId = lowerValue > 0
           ? classifyBgValue(bgBounds, lowerValue)
           : 'statDisabled';
 
-        const upperValue = value + deviation;
-        const upperColorId = upperValue > 0
+        upperValue = value + deviation;
+        upperColorId = upperValue > 0
           ? classifyBgValue(bgBounds, upperValue)
           : 'statDisabled';
 
@@ -646,6 +668,25 @@ class Stat extends PureComponent {
       suffix,
       suffixSrc,
     };
+  }
+
+  handleTooltipIconMouseOver = () => {
+    const { top, left, width, height } = this.tooltipIcon.getBoundingClientRect();
+
+    this.setState({
+      showMessages: true,
+      messageTooltipPosition: {
+        top: top + height / 2,
+        left: left + width - 1,
+      },
+    });
+  }
+
+  handleTooltipIconMouseOut = () => {
+    this.setState({
+      showMessages: false,
+      messageTooltipPosition: undefined,
+    });
   }
 }
 

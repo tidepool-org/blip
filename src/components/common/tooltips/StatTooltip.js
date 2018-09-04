@@ -29,7 +29,7 @@ class StatTooltip extends PureComponent {
     _.each(messages, (message, index) => {
       rows.push(
         <div
-          key="message"
+          key={`message-${index}`}
           className={styles.message}
         >
           {message}
@@ -38,8 +38,8 @@ class StatTooltip extends PureComponent {
       if (index !== messages.length - 1) {
         rows.push(
           <div
-            key="divider"
-            className={styles.dividerLarge}
+            key={`divider-${index}`}
+            className={styles.divider}
           />
         );
       }
@@ -81,7 +81,7 @@ StatTooltip.propTypes = {
 
 StatTooltip.defaultProps = {
   tail: true,
-  side: 'left',
+  side: 'right',
   tailWidth: 9,
   tailHeight: 17,
   tailColor: colors.statDefault,

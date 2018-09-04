@@ -1,18 +1,19 @@
-@import '../../../styles/colors.css';
 .row {
   composes: smallSize from '../../../styles/typography.css';
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   line-height: 20px;
+  max-width: 190px;
 }
 
 .message {
   composes: row;
-  color: var(--stat-default);
+  color: var(--stat--default);
 }
 
-.dividerLarge {
-  height: 4px;
+.divider {
+  height: 2px;
   margin: 5px -10px;
+  background-color: var(--stat--default);
 }

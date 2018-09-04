@@ -88,3 +88,13 @@
 .chartContainer {
   padding-top: 0.5em;
 }
+
+.tooltipIcon {
+  position: absolute;
+  margin-top: -0.3em;
+  margin-left: 0.1em;
+}
+
+.tooltipIcon>img {
+  width: 0.9em;
+}

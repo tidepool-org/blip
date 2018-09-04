@@ -478,7 +478,7 @@ stories.add('Glucose Management Indicator', () => {
     <Container>
       <Stat
         data={glucoseManagementIndexData}
-        title="G.M.I."
+        title="GMI"
         type={statTypes.simple}
         dataFormat={{
           summary: statFormats.gmi,
@@ -513,11 +513,15 @@ stories.add('Coefficient of Variation', () => {
     <Container>
       <Stat
         data={coefficientOfVariationData}
-        title="C.V."
+        title="CV"
         type={statTypes.simple}
         dataFormat={{
           summary: statFormats.cv,
         }}
+        messages={[
+          'Based on 70% CGM data availability in this view.',
+          'CV (Coefficient of Variation) is…',
+        ]}
       />
     </Container>
   );
