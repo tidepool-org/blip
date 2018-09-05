@@ -71,40 +71,6 @@ describe('NoData', () => {
       .to.equal('There is no  data for this time period :(');
   });
 
-  it('should be able to override the message with a templated string', () => {
-    const wrapper = shallow(
-      <NoData
-        position={position}
-        displayTypes={{ cbg: 'CGM', smbg: 'fingerstick' }}
-        dataType="smbg"
-        messageString="Whoops no <%= displayType %> data!"
-      />
-    );
-    expect(wrapper.find('text').text()).to.equal('Whoops no fingerstick data!');
-  });
-
-  it('should be able to override the message with own displayTypes', () => {
-    const wrapper = shallow(
-      <NoData
-        position={position}
-        displayTypes={{ cbg: 'CGM', smbg: 'BGM' }}
-        dataType="smbg"
-        messageString="Whoops no <%= displayType %> data!"
-      />
-    );
-    expect(wrapper.find('text').text()).to.equal('Whoops no BGM data!');
-  });
-
-  it('should be able to override the message and without a templated string', () => {
-    const wrapper = shallow(
-      <NoData
-        position={position}
-        messageString="Whoops no data!"
-      />
-    );
-    expect(wrapper.find('text').text()).to.equal('Whoops no data!');
-  });
-
   it('should render the unselected all data msg if unselectedAllData prop is true', () => {
     const wrapper = shallow(
       <NoData
