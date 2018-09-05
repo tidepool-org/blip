@@ -140,8 +140,9 @@ export let PatientData = translate()(React.createClass({
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
     const initialProcessing = this.state.lastDatumProcessedIndex < 0;
-    const fetching = this.props.fetchingUser || this.props.fetchingPatient || this.props.fetchingPatientData;
-    const showLoader = initialProcessing && (fetching || this.state.processingData);
+    const patientID = this.props.currentPatientInViewId;
+    const missingPatientData = !_.get(this.props, ['patientDataMap', patientID]);
+    const showLoader = initialProcessing && missingPatientData;
 
     return (
       <div className="patient-data js-patient-data-page">
