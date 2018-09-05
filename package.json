@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.12.1-remove-browser-warning-scrollbars",
+  "version": "1.11.9-casper.1",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -20,7 +20,7 @@
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o ."
   },
   "dependencies": {
-    "@tidepool/viz": "0.11.7",
+    "@tidepool/viz": "0.11.6-casper.2",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
@@ -30,6 +30,7 @@
     "babel-preset-react": "6.11.1",
     "babel-preset-stage-0": "6.5.0",
     "babel-preset-stage-2": "6.13.0",
+    "body-parser": "1.18.3",
     "bows": "1.6.0",
     "browser-locale": "1.0.3",
     "classnames": "2.2.5",
@@ -78,7 +79,7 @@
     "shelljs": "0.7.3",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "1.8.7",
+    "tideline": "1.8.6-casper.1",
     "tidepool-platform-client": "0.37.0",
     "uglify-es": "3.0.13",
     "url-loader": "0.5.7",
