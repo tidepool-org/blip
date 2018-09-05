@@ -1,19 +1,22 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var d3 = require('d3');
 var _ = require('lodash');
@@ -40,7 +43,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('delivered')
+          .text(t('delivered'))
           .each(function() {
             opts.widths.push(this.getBoundingClientRect().width);
             opts.textHeight = this.getBoundingClientRect().height;
@@ -64,7 +67,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('scheduled')
+          .text(t('scheduled'))
           .each(function() {
             opts.widths.push(this.getBoundingClientRect().width);
           });
@@ -79,7 +82,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('high')
+          .text(t('high'))
           .each(function() {
             opts.widths.push(this.getBoundingClientRect().width);
             opts.textHeight = this.getBoundingClientRect().height;
@@ -143,7 +146,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('low')
+          .text(t('low'))
           .each(function() {
             opts.widths.push(this.getBoundingClientRect().width);
           });
@@ -168,7 +171,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('delivered')
+          .text(t('delivered'))
           .each(function() {
             opts.widths.push(this.getBoundingClientRect().width);
             opts.textHeight = this.getBoundingClientRect().height;
@@ -192,7 +195,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('undelivered')
+          .text(t('undelivered'))
           .each(function() {
             opts.widths.push(this.getBoundingClientRect().width);
             opts.textHeight = this.getBoundingClientRect().height;
@@ -218,7 +221,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('carbs')
+          .text(t('carbs'))
           .each(function() {
             opts.widths.push(this.getBoundingClientRect().width);
             opts.textHeight = this.getBoundingClientRect().height;

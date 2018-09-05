@@ -19,6 +19,9 @@ var _ = require('lodash');
 var cx = require('classnames');
 var d3 = require('d3');
 var React = require('react');
+var i18next = require('i18next');
+
+var t = i18next.t.bind(i18next);
 
 var UnknownStatistic = require('../misc/UnknownStatistic');
 
@@ -117,7 +120,7 @@ var BasalBolusRatio = React.createClass({
       <div className='BasalBolusRatio'>
         <div className='BasalBolusRatio-basal'>
             <p className={basalLabelClasses}>
-              Basal
+              {t('Basal')}
             </p>
             <p className={basalPercentClasses}>
               {basal ? percent(basal) : '-- %'}
@@ -130,7 +133,7 @@ var BasalBolusRatio = React.createClass({
         </div>
         <div className='BasalBolusRatio-bolus'>
           <p className={bolusLabelClasses}>
-            Bolus
+            {t('Bolus')}
           </p>
           <p className={bolusPercentClasses}>
             {bolus ? percent(bolus) : '-- %'}

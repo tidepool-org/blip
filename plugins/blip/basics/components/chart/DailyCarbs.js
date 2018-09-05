@@ -16,6 +16,8 @@
  */
 
 /* global d3 */
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var _ = require('lodash');
 var cx = require('classnames');
@@ -43,7 +45,7 @@ var DailyCarbs = React.createClass({
     });
     return (
       <div className={headerClasses}>
-        <span className="DailyCarbs-label">Avg daily carbs</span>
+        <span className="DailyCarbs-label">{t("Avg daily carbs")}</span>
         <span className="DailyCarbs-amount">{circleAmountLabel}</span>
         {averageDailyCarbs ? null : (<UnknownStatistic />)}
       </div>

@@ -16,6 +16,8 @@
  */
 
  /* jshint esversion:6 */
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var _ = require('lodash');
 var cx = require('classnames');
@@ -88,9 +90,9 @@ var BGDistribution = React.createClass({
     }
     var cgmStatus = this.props.data.bgDistribution.cgmStatus;
     var displayText = {};
-    displayText[constants.NO_CGM] = 'Showing BGM data (no CGM)';
-    displayText[constants.NOT_ENOUGH_CGM] = 'Showing BGM data (not enough CGM)';
-    displayText[constants.CGM_CALCULATED] = 'Showing CGM data';
+    displayText[constants.NO_CGM] = t('Showing BGM data (no CGM)');
+    displayText[constants.NOT_ENOUGH_CGM] = t('Showing BGM data (not enough CGM)');
+    displayText[constants.CGM_CALCULATED] = t('Showing CGM data');
     return (
       <p className='BGDistribution-text BGDistribution-cgmStatus'>
         {displayText[cgmStatus]}

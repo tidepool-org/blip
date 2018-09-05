@@ -16,14 +16,13 @@
  */
 
 /* jshint esversion:6 */
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var d3 = require('d3');
 var _ = require('lodash');
 
-var dt = require('../data/util/datetime');
 var format = require('../data/util/format');
-var log = require('bows')('Basal');
-
 var BasalUtil = require('../data/basalutil');
 var basalUtil = new BasalUtil();
 
@@ -268,23 +267,24 @@ module.exports = function(pool, opts) {
     opts.xScale = pool.xScale().copy();
 
     function stringCoords(datum) {
-      return basal.xPosition(data[i]) + ',' + basal.pathYPosition(data[i]) + ' ';
+      return basal.xPosition(datum) + ',' + basal.pathYPosition(datum) + ' ';
     }
+
     var d = '';
     for (var i = 0; i < data.length; ++i) {
       if (i === 0) {
         // start with a moveto command
         d += 'M' + stringCoords(data[i]);
       }
+      else if (isUndelivered && data[i].deliveryType === 'automated') {
+        // For automated suppressed delivery, we always render at the baseline
+        var suppressed = _.clone(data[i]);
+        suppressed.rate = 0;
+        d += 'M' + stringCoords(suppressed);
+      }
       else if (data[i].normalTime === data[i - 1].normalEnd) {
-        if (isUndelivered && data[i].rate === 0) {
-          // We don't want a dashed undelivered vertical line down to 0 on automated basal suspends
-          d += 'M' + stringCoords(data[i]);
-        }
-        else {
-          // if segment is contiguous with previous, draw a vertical line connecting their values
-          d += 'V' + basal.pathYPosition(data[i]) + ' ';
-        }
+        // if segment is contiguous with previous, draw a vertical line connecting their values
+        d += 'V' + basal.pathYPosition(data[i]) + ' ';
       }
       // TODO: maybe a robust check for a gap in time here instead of just !==?
       else if (data[i].normalTime !== data[i - 1].normalEnd) {
@@ -351,12 +351,12 @@ module.exports = function(pool, opts) {
       case 'temp':
         group.append('p')
           .append('span')
-          .html('<span class="plain">Temp basal of</span> ' + basal.tempPercentage(datum));
+          .html('<span class="plain">'+t("Temp basal of")+'</span> ' + basal.tempPercentage(datum));
         if (datum.suppressed) {
           group.append('p')
             .append('span')
             .attr('class', 'secondary')
-            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' scheduled');
+            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
         }
         break;
       case 'suspend':
@@ -367,7 +367,7 @@ module.exports = function(pool, opts) {
           group.append('p')
             .append('span')
             .attr('class', 'secondary')
-            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' scheduled');
+            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
         }
         break;
       case 'automated':
@@ -385,9 +385,9 @@ module.exports = function(pool, opts) {
     group.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="fromto">from</span> ' +
+      .html('<span class="fromto">'+t('from')+'</span> ' +
         format.timestamp(datum.normalTime, datum.displayOffset) +
-        ' <span class="fromto">to</span> ' +
+        ' <span class="fromto">'+t('to')+'</span> ' +
         format.timestamp(datum.normalEnd, datum.displayOffset));
   };
 

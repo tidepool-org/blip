@@ -1,5 +1,7 @@
 var _ = require('lodash');
 var React = require('react');
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var NoDataContainer = React.createClass({
   propTypes: {
@@ -9,7 +11,7 @@ var NoDataContainer = React.createClass({
 
   getDefaultProps: function() {
     return {
-      message: 'No available data to display here, sorry!'
+      message: t('No available data to display here, sorry!')
     };
   },
 

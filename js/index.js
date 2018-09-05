@@ -17,6 +17,13 @@
 window.d3 = window.d3 || require('d3/d3.min.js');
 window.d3.chart = window.d3.chart || require('d3.chart/d3.chart.min.js');
 
+var i18next = require('i18next');
+// Should be initialized in calling module
+if (i18next.options.returnEmptyString === undefined) {
+  // Return key if no translation is present
+  i18next.init({returnEmptyString: false});
+}
+
 module.exports = {
   TidelineData: require('./tidelinedata'),
   pool: require('./pool'),
