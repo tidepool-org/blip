@@ -14,8 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-require('script!d3/d3.min.js');
-require('script!d3.chart/d3.chart.min.js');
+window.d3 = window.d3 || require('d3/d3.min.js');
+window.d3.chart = window.d3.chart || require('d3.chart/d3.chart.min.js');
 
 var i18next = require('i18next');
 // Should be initialized in calling module

@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "1.8.7",
+  "version": "1.8.6-casper.1",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",

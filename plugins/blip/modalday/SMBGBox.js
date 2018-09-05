@@ -1,5 +1,5 @@
-require('script!d3/d3.min.js');
-require('script!d3.chart/d3.chart.min.js');
+window.d3 = window.d3 || require('d3/d3.min.js');
+window.d3.chart = window.d3.chart || require('d3.chart/d3.chart.min.js');
 
 var _ = require('lodash');
 var d3 = window.d3;
