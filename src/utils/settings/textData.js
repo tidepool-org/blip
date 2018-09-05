@@ -17,6 +17,7 @@
 
 import _ from 'lodash';
 import table from 'text-table';
+import i18next from 'i18next';
 
 import * as tandemData from './tandemData';
 import * as nonTandemData from './nonTandemData';
@@ -24,6 +25,7 @@ import * as nonTandemData from './nonTandemData';
 import { formatBirthdate, formatCurrentDate, formatDiagnosisDate } from '../datetime';
 import { getPatientFullName } from '../misc';
 
+const t = i18next.t.bind(i18next);
 
 /**
  * getItemField
@@ -101,9 +103,9 @@ function buildTextTable(name, rows, columns) {
  * @private
  */
 function formatTitle(patient) {
-  const exported = `Exported from Tidepool: ${formatCurrentDate()}`;
-  const bday = `Date of birth: ${formatBirthdate(patient)}`;
-  const diagnosis = `Date of diagnosis: ${formatDiagnosisDate(patient)}`;
+  const exported = t('Exported from Tidepool: {{date}}', { date: formatCurrentDate() });
+  const bday = t('Date of birth: {{date}}', { date: formatBirthdate(patient) });
+  const diagnosis = t('Date of diagnosis: {{date}}', { date: formatDiagnosisDate(patient) });
   const fullname = getPatientFullName(patient);
   return `${fullname}\n${bday}\n${diagnosis}\n${exported}\n`;
 }
