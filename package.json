@@ -20,7 +20,7 @@
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o ."
   },
   "dependencies": {
-    "@tidepool/viz": "0.11.8",
+    "@tidepool/viz": "0.11.9-fix-missing-device-id-error.1",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
@@ -79,7 +79,7 @@
     "shelljs": "0.7.3",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "1.8.8",
+    "tideline": "1.8.9-fix-missing-device-id-error.1",
     "tidepool-platform-client": "0.37.0",
     "uglify-es": "3.0.13",
     "url-loader": "0.5.7",
