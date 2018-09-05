@@ -66,7 +66,7 @@ describe('VerificationWithPassword', () => {
         working: false
       };
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
+      let render = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(elem), VerificationWithPassword.WrappedComponent);
       render.componentWillReceiveProps({notification:{message: errorMessages.ERR_BIRTHDAY_MISMATCH}});
       expect(console.error.callCount).to.equal(0);
       expect(props.trackMetric.callCount).to.equal(2);
@@ -95,9 +95,8 @@ describe('VerificationWithPassword', () => {
       };
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
+      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
       expect(console.error.callCount).to.equal(0);
-
       expect(render.getInitialState()).to.eql(expectedInitialState);
     });
   });
@@ -123,7 +122,7 @@ describe('VerificationWithPassword', () => {
       };
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
+      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
       expect(render.getInitialState()).to.eql(expectedInitialState);
 
@@ -156,7 +155,7 @@ describe('VerificationWithPassword', () => {
       };
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
+      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
       let intermediateState = {
         validationErrors: {
@@ -221,7 +220,7 @@ describe('VerificationWithPassword', () => {
       }
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
+      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
       expect(render.isFormDisabled()).to.be.true;
     });
@@ -238,7 +237,7 @@ describe('VerificationWithPassword', () => {
       }
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
+      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
       expect(render.isFormDisabled()).to.be.undefined;
     });

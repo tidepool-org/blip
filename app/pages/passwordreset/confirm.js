@@ -15,6 +15,7 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
+import { translate } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import { Link } from 'react-router';
 import _ from 'lodash';
@@ -28,7 +29,7 @@ import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
-export var ConfirmPasswordReset = React.createClass({
+export var ConfirmPasswordReset = translate()(React.createClass({
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
     api: React.PropTypes.object.isRequired,
@@ -41,16 +42,17 @@ export var ConfirmPasswordReset = React.createClass({
   },
 
   formInputs: function() {
+    const { t } = this.props;
     return [
-      {name: 'email', label: 'Email', type: 'email'},
+      {name: 'email', label: t('Email'), type: 'email'},
       {
         name: 'password',
-        label: 'New password',
+        label: t('New password'),
         type: 'password'
       },
       {
         name: 'passwordConfirm',
-        label: 'Confirm new password',
+        label: t('Confirm new password'),
         type: 'password'
       }
     ];
@@ -67,16 +69,17 @@ export var ConfirmPasswordReset = React.createClass({
   },
 
   render: function() {
+    const { t } = this.props;
     var content;
     if (this.props.success) {
       content = (
         <div className="PasswordReset-intro">
-          <div className="PasswordReset-title">{'Success!'}</div>
+          <div className="PasswordReset-title">{t('Success!')}</div>
           <div className="PasswordReset-instructions">
-            <p>{'Your password was changed successfully. You can now log in with your new password.'}</p>
+            <p>{t('Your password was changed successfully. You can now log in with your new password.')}</p>
           </div>
           <div className="PasswordReset-button">
-            <Link className="btn btn-primary" to="/login">Log in</Link>
+            <Link className="btn btn-primary" to="/login">{t('Log in')}</Link>
           </div>
         </div>
       );
@@ -85,11 +88,11 @@ export var ConfirmPasswordReset = React.createClass({
       content = (
         <div>
           <div className="PasswordReset-intro">
-            <div className="PasswordReset-title">{'Change your password'}</div>
+            <div className="PasswordReset-title">{t('Change your password')}</div>
           </div>
           <div className="PasswordReset-form">{this.renderForm()}</div>
           <div className="PasswordReset-link">
-            <Link to="/login">Cancel</Link>
+            <Link to="/login">{t('Cancel')}</Link>
           </div>
         </div>
       );
@@ -111,7 +114,8 @@ export var ConfirmPasswordReset = React.createClass({
   },
 
   renderForm: function() {
-    var submitButtonText = this.state.working ? 'Saving...' : 'Save';
+    const { t } = this.props;
+    var submitButtonText = this.state.working ? t('Saving...') : t('Save');
 
     return (
       <SimpleForm
@@ -154,10 +158,11 @@ export var ConfirmPasswordReset = React.createClass({
   },
 
   validateFormValues: function(formValues) {
+    const { t } = this.props;
     var validationErrors = {};
-    var IS_REQUIRED = 'This field is required.';
-    var INVALID_EMAIL = 'Invalid email address.';
-    var SHORT_PASSWORD = 'Password must be at least ' + config.PASSWORD_MIN_LENGTH + ' characters long.';
+    var IS_REQUIRED = t('This field is required.');
+    var INVALID_EMAIL = t('Invalid email address.');
+    var SHORT_PASSWORD = t('Password must be at least {{minLength}} characters long.', {minLength: config.PASSWORD_MIN_LENGTH});
 
     if (!formValues.email) {
       validationErrors.email = IS_REQUIRED;
@@ -180,7 +185,7 @@ export var ConfirmPasswordReset = React.createClass({
         validationErrors.passwordConfirm = IS_REQUIRED;
       }
       else if (formValues.passwordConfirm !== formValues.password) {
-        validationErrors.passwordConfirm = 'Passwords don\'t match.';
+        validationErrors.passwordConfirm = t('Passwords don\'t match.');
       }
     }
 
@@ -200,7 +205,7 @@ export var ConfirmPasswordReset = React.createClass({
       password: formValues.password
     };
   }
-});
+}));
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

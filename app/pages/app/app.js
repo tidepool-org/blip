@@ -18,6 +18,7 @@ import React from 'react';
 import async from 'async';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import i18next from '../../core/language';
 
 import * as actions from '../../redux/actions';
 
@@ -100,7 +101,7 @@ export class AppComponent extends React.Component {
     var navbar = this.refs.navbar;
 
     if (navbar) {
-      navbar.hideDropdown();
+      navbar.getWrappedInstance().hideDropdown();
     }
   }
 
@@ -421,6 +422,10 @@ export function mapStateToProps(state) {
       if (state.blip.loggedInUserId === state.blip.currentPatientInViewId) {
         userIsCurrentPatient = true;
       }
+
+      if (_.get(user, 'preferences.displayLanguageCode')) {
+        i18next.changeLanguage(user.preferences.displayLanguageCode);
+      }
     }
 
     if (state.blip.currentPatientInViewId) {
@@ -443,7 +448,8 @@ export function mapStateToProps(state) {
 
     // Check to see if a data-donating patient has selected a nonprofit to support
     if (userIsDonor) {
-      let allDonationAccountEmails = _.map(DATA_DONATION_NONPROFITS, nonprofit => `bigdata+${nonprofit.value}@tidepool.org`);
+      //eslint-disable-next-line new-cap
+      let allDonationAccountEmails = _.map(DATA_DONATION_NONPROFITS(), nonprofit => `bigdata+${nonprofit.value}@tidepool.org`);
       let userDonationAccountEmails = _.pluck(state.blip.dataDonationAccounts, 'email');
       userIsSupportingNonprofit = _.intersection(allDonationAccountEmails, userDonationAccountEmails).length > 0;
     }

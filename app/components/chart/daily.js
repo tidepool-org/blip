@@ -21,6 +21,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var sundial = require('sundial');
 var moment = require('moment');
+import { translate } from 'react-i18next';
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
@@ -34,8 +35,8 @@ var SMBGTooltip = vizComponents.SMBGTooltip;
 var Header = require('./header');
 var Footer = require('./footer');
 
-var DailyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs', 'onBolusHover', 'onBolusOut', 
+var DailyChart = translate()(React.createClass({
+  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs', 'onBolusHover', 'onBolusOut',
     'onSMBGHover', 'onSMBGOut'],
   log: bows('Daily Chart'),
   propTypes: {
@@ -96,9 +97,10 @@ var DailyChart = React.createClass({
   },
 
   initializeChart: function(datetime) {
+    const { t } = this.props;
     this.log('Initializing...');
     if (_.isEmpty(this.props.patientData)) {
-      throw new Error('Cannot create new chart with no data');
+      throw new Error(t('Cannot create new chart with no data'));
     }
 
     this.chart.load(this.props.patientData);
@@ -165,9 +167,9 @@ var DailyChart = React.createClass({
   editMessage: function(message) {
     return this.chart.editMessage(message);
   }
-});
+}));
 
-var Daily = React.createClass({
+var Daily = translate()(React.createClass({
   chartType: 'daily',
   log: bows('Daily View'),
   propTypes: {
@@ -205,7 +207,7 @@ var Daily = React.createClass({
 
   componentWillReceiveProps:function (nextProps) {
     if (this.props.loading && !nextProps.loading) {
-      this.refs.chart.rerenderChart();
+      this.refs.chart.getWrappedInstance().rerenderChart();
     }
   },
 
@@ -290,14 +292,15 @@ var Daily = React.createClass({
   },
 
   getTitle: function(datetime) {
-    var timePrefs = this.props.timePrefs, timezone;
+    const { timePrefs, t } = this.props;
+    let timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
     }
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-    return sundial.formatInTimezone(datetime, timezone, 'ddd, MMM D, YYYY');
+    return sundial.formatInTimezone(datetime, timezone, t('ddd, MMM D, YYYY'));
   },
 
   // handlers
@@ -305,7 +308,7 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart.getCurrentDay();
+    var datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
     this.props.onSwitchToTrends(datetime);
   },
 
@@ -313,7 +316,7 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.goToMostRecent();
+    this.refs.chart.getWrappedInstance().goToMostRecent();
   },
 
   handleClickOneDay: function(e) {
@@ -335,7 +338,7 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart.getCurrentDay();
+    var datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
     this.props.onSwitchToWeekly(datetime);
   },
 
@@ -423,28 +426,28 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.panBack();
+    this.refs.chart.getWrappedInstance().panBack();
   },
 
   handlePanForward: function(e) {
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.panForward();
+    this.refs.chart.getWrappedInstance().panForward();
   },
 
   // methods for messages
   closeMessageThread: function() {
-    return this.refs.chart.closeMessage();
+    return this.refs.chart.getWrappedInstance().closeMessage();
   },
 
   createMessageThread: function(message) {
-    return this.refs.chart.createMessage(message);
+    return this.refs.chart.getWrappedInstance().createMessage(message);
   },
 
   editMessageThread: function(message) {
-    return this.refs.chart.editMessage(message);
+    return this.refs.chart.getWrappedInstance().editMessage(message);
   }
-});
+}));
 
 module.exports = Daily;

@@ -30,6 +30,7 @@ import Trends from '../../../../app/components/chart/trends';
 import { shallow } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
+import i18next from '../../../../app/core/language';
 
 const { Loader } = vizComponents;
 
@@ -88,6 +89,7 @@ describe('Trends', () => {
     trendsState: {
       '1234': {},
     },
+    t: i18next.t.bind(i18next),
     loading: false,
     onUpdateChartDateRange: sinon.stub(),
     updateDatetimeLocation: sinon.stub(),
@@ -95,7 +97,7 @@ describe('Trends', () => {
 
   let wrapper;
   beforeEach(() => {
-    wrapper = shallow(<Trends {...baseProps} />);
+    wrapper = shallow(<Trends.WrappedComponent {...baseProps} />);
   })
 
   afterEach(() => {
@@ -120,7 +122,7 @@ describe('Trends', () => {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<Trends {...baseProps} />);
+      wrapper = shallow(<Trends.WrappedComponent {...baseProps} />);
       instance = wrapper.instance();
     });
 
