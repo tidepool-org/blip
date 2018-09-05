@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "1.8.8",
+  "version": "1.8.9-fix-missing-device-id-error.1",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
