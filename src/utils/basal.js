@@ -62,7 +62,7 @@ export function getBasalPathGroupType(datum = {}) {
     'subType',
     _.get(datum.suppressed, 'deliveryType')
   );
-  return _.contains([deliveryType, suppressedDeliveryType], 'automated') ? 'automated' : 'manual';
+  return _.includes([deliveryType, suppressedDeliveryType], 'automated') ? 'automated' : 'manual';
 }
 
 /**

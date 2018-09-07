@@ -174,7 +174,7 @@ class DailyPrintView extends PrintView {
   newPage() {
     const pageIndex = this.currentPageIndex + this.initialTotalPages + 1;
     const charts = _.filter(this.chartsByDate, chart => chart.page === pageIndex);
-    const start = _.first(charts).date;
+    const start = _.head(charts).date;
     const end = _.last(charts).date;
 
     super.newPage(this.getDateRange(start, end, 'YYYY-MM-DD'));
@@ -670,7 +670,7 @@ class DailyPrintView extends PrintView {
       width: this.chartArea.leftEdge - this.summaryArea.rightEdge - 3,
     };
 
-    const renderedBounds = _.pick(this.bgBounds, bound => (bound <= this.bgScaleYLimit));
+    const renderedBounds = _.pickBy(this.bgBounds, bound => (bound <= this.bgScaleYLimit));
 
     _.each(renderedBounds, (bound, key) => {
       const bgTick = this.bgUnits === MMOLL_UNITS ? parseFloat(bound).toFixed(1) : bound;

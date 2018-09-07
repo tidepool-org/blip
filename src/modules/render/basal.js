@@ -110,7 +110,7 @@ export function getBasalSequencePaths(basalSequence, xScale, yScale) {
 
   const types = _.uniq(
     _.reject(
-      _.pluck(
+      _.map(
         basalSequence, 'subType'
       ),
       (d) => (!_.isString(d))
