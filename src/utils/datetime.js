@@ -182,10 +182,14 @@ export function formatDuration(duration, opts = {}) {
 
   if (opts.condensed) {
     const formatted = {
-      days: days !== 0 ? `${hours}d ` : '',
+      days: days !== 0 ? `${days}d ` : '',
       hours: hours !== 0 ? `${hours}h ` : '',
       minutes: minutes !== 0 ? `${minutes}m` : '',
     };
+
+    if (days + hours + minutes === 0) {
+      formatted.minutes = '0m';
+    }
 
     return `${formatted.days}${formatted.hours}${formatted.minutes}`;
   } else if (hours !== 0) {

@@ -25,9 +25,10 @@ import { Collapse } from 'react-collapse';
 import { formatPercentage, formatInsulin, formatBgValue } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
 import { generateBgRangeLabels, classifyBgValue, classifyCvValue } from '../../../utils/bloodglucose';
-import { MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP, MMOLL_UNITS } from '../../../utils/constants';
+import { MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
 import styles from './Stat.css';
 import colors from '../../../styles/colors.css';
+import { bgPrefsPropType } from '../../../propTypes';
 import HoverBar, { HoverBarLabel } from './HoverBar';
 import BgBar, { BgBarLabel } from './BgBar';
 import StatTooltip from '../tooltips/StatTooltip';
@@ -61,35 +62,22 @@ const dataPathPropType = PropTypes.oneOfType([
   PropTypes.array,
 ]);
 
+const datumPropType = PropTypes.shape({
+  id: PropTypes.string,
+  value: PropTypes.number.isRequired,
+  title: PropTypes.string,
+});
+
 class Stat extends PureComponent {
   static propTypes = {
     alwaysShowTooltips: PropTypes.bool,
-    bgPrefs: PropTypes.shape({
-      bgBounds: PropTypes.shape({
-        veryHighThreshold: PropTypes.number.isRequired,
-        targetUpperBound: PropTypes.number.isRequired,
-        targetLowerBound: PropTypes.number.isRequired,
-        veryLowThreshold: PropTypes.number.isRequired,
-      }),
-      bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]),
-    }),
+    bgPrefs: bgPrefsPropType,
     categories: PropTypes.object,
     chartHeight: PropTypes.number,
     collapsible: PropTypes.bool,
     data: PropTypes.shape({
-      data: PropTypes.arrayOf(PropTypes.shape(
-        {
-          id: PropTypes.string,
-          value: PropTypes.number.isRequired,
-          title: PropTypes.string,
-        }
-      )).isRequired,
-      total: PropTypes.shape(
-        {
-          id: PropTypes.string,
-          value: PropTypes.number.isRequired,
-        }
-      ),
+      data: PropTypes.arrayOf(datumPropType).isRequired,
+      total: datumPropType,
       dataPaths: PropTypes.shape({
         summary: dataPathPropType,
         title: dataPathPropType,
@@ -102,6 +90,8 @@ class Stat extends PureComponent {
       tooltip: PropTypes.oneOf(_.values(statFormats)),
       tooltipTitle: PropTypes.oneOf(_.values(statFormats)),
     }),
+    emptyDataPlaceholder: PropTypes.string.isRequired,
+    isDisabled: PropTypes.bool,
     isOpened: PropTypes.bool,
     messages: PropTypes.arrayOf(PropTypes.string),
     muteOthersOnHover: PropTypes.bool,
@@ -115,9 +105,11 @@ class Stat extends PureComponent {
     categories: {},
     chartHeight: 0,
     collapsible: true,
+    emptyDataPlaceholder: '--',
+    isDisabled: false,
     isOpened: true,
     muteOthersOnHover: true,
-    type: statTypes.barHorizontal.type,
+    type: statTypes.simple,
   };
 
   constructor(props) {
@@ -132,108 +124,122 @@ class Stat extends PureComponent {
     };
   }
 
-  toggleIsOpened = () => {
-    this.setState({
-      isOpened: !this.state.isOpened,
-    });
-  }
-
   componentWillReceiveProps(nextProps) {
     this.setState(this.getStateByType(nextProps));
     this.setChartPropsByType(nextProps);
   }
 
-  renderChart = size => (
-    <Collapse
-      isOpened={this.state.isOpened}
-      springConfig={{ stiffness: 200, damping: 23 }}
-    >
-      <div className={styles.chartContainer}>
-        <this.chartRenderer {...this.chartProps} ref={this.setChartRef} width={size.width || 270} />
+  renderChartTitle = () => {
+    const isDatumHovered = this.state.hoveredDatumIndex >= 0;
+
+    const titleData = isDatumHovered
+      ? this.state.tooltipTitleData
+      : this.getFormattedDataByKey('title');
+
+    const titleDataValue = _.get(titleData, 'value');
+
+    return (
+      <div className={styles.chartTitle}>
+        {this.state.chartTitle}
+        {titleDataValue && titleDataValue !== this.props.emptyDataPlaceholder && (
+          <span className={styles.chartTitleData}>
+            (&nbsp;
+            <span
+              style={{
+                color: colors[titleData.id] || colors.statDefault,
+              }}
+            >
+              {titleData.value}
+            </span>
+            <span
+              style={{
+                color: colors[titleData.id] || colors.statDefault,
+              }}
+            >
+              {titleData.suffix}
+            </span>
+            &nbsp;)
+          </span>
+        )}
+        {this.props.messages && !isDatumHovered && (
+          <span
+            className={styles.tooltipIcon}
+          >
+            <img
+              src={InfoIcon}
+              alt="Hover for more info"
+              ref={this.setTooltipIconRef}
+              onMouseOver={this.handleTooltipIconMouseOver}
+              onMouseOut={this.handleTooltipIconMouseOut}
+            />
+          </span>
+        )}
       </div>
-    </Collapse>
+    );
+  };
+
+  renderChartSummary = () => {
+    const summaryData = this.getFormattedDataByKey('summary');
+
+    return (
+      <div className={styles.chartSummary}>
+        {summaryData && (
+          <div
+            className={styles.summaryValue}
+            style={{
+              color: colors[summaryData.id],
+            }}
+          >
+            {summaryData.value}
+            <span className={styles.summarySuffix}>{summaryData.suffix}</span>
+          </div>
+        )}
+
+        {this.state.isCollapsible && (
+          <div className={styles.chartCollapse}>
+            <img
+              src={this.state.isOpened ? CollapseIconOpen : CollapseIconClose}
+              onClick={this.handleCollapse}
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  renderChartHeader = () => (
+    <div className={styles.chartHeader}>
+      {this.renderChartTitle()}
+      {this.renderChartSummary()}
+    </div>
   );
 
+  renderChart = size => {
+    const { renderer: Renderer, ...chartProps } = this.chartProps;
+
+    return (
+      <Collapse
+        isOpened={this.state.isOpened}
+        springConfig={{ stiffness: 200, damping: 23 }}
+      >
+        <div className={styles.chartContainer}>
+          <Renderer {...chartProps} ref={this.setChartRef} width={size.width || 270} />
+        </div>
+      </Collapse>
+    );
+  };
+
   render() {
-    const isDatumHovered = this.state.hoveredDatumIndex >= 0;
     const statOuterClasses = cx({
       [styles.Stat]: true,
       [styles[this.props.type]]: true,
-      [styles.isCollapsible]: this.state.isCollapsible,
       [styles.isOpen]: this.state.isOpened,
-      [styles.isDatumHovered]: isDatumHovered,
     });
-
-    const summaryData = this.getData({ pathKey: 'summary' });
-    const titleData = isDatumHovered
-      ? this.state.tooltipTitleData
-      : this.getData({ pathKey: 'title' });
 
     return (
       <div className={statOuterClasses}>
-        <div className={styles.chartHeader}>
-          <div className={styles.chartTitle}>
-            {this.state.chartTitle}
-            {_.get(titleData, 'value') && (
-              <span className={styles.chartTitleData}>
-                (&nbsp;
-                <span
-                  style={{
-                    color: colors[titleData.id] || colors.statDefault,
-                  }}
-                >
-                  {titleData.value}
-                </span>
-                <span
-                  style={{
-                    color: colors[titleData.id] || colors.statDefault,
-                  }}
-                >
-                  {titleData.suffix}
-                </span>
-                &nbsp;)
-              </span>
-            )}
-            {this.props.messages && !isDatumHovered && (
-              <span
-                className={styles.tooltipIcon}
-              >
-                <img
-                  src={InfoIcon}
-                  alt="Hover for more info"
-                  ref={this.setTooltipIconRef}
-                  onMouseOver={this.handleTooltipIconMouseOver}
-                  onMouseOut={this.handleTooltipIconMouseOut}
-                />
-              </span>
-            )}
-          </div>
-
-          <div className={styles.chartSummary}>
-            {summaryData && (
-              <div
-                className={styles.summaryValue}
-                style={{
-                  color: colors[summaryData.id],
-                }}
-              >
-                {summaryData.value}
-                <span className={styles.summarySuffix}>{summaryData.suffix}</span>
-              </div>
-            )}
-
-            {this.state.isCollapsible && (
-              <div className={styles.chartCollapse}>
-                <img
-                  src={this.state.isOpened ? CollapseIconOpen : CollapseIconClose}
-                  onClick={this.toggleIsOpened}
-                />
-              </div>
-            )}
-          </div>
-
-        </div>
-        {this.chartRenderer && <SizeMe render={({ size }) => (this.renderChart(size))} />}
+        {this.renderChartHeader()}
+        {this.chartProps.renderer && <SizeMe render={({ size }) => (this.renderChart(size))} />}
         {this.state.showMessages && (
           <StatTooltip
             messages={this.props.messages}
@@ -244,35 +250,16 @@ class Stat extends PureComponent {
     );
   }
 
-  getData = (opts = {}) => {
-    const { pathKey, path, format } = opts;
-    let dataPath = path;
-    let dataFormat = format;
-    let data;
-
-    if (!dataPath && pathKey && this.props.dataFormat[pathKey]) {
-      dataPath = _.get(this.props.data, ['dataPaths', pathKey]);
-      dataFormat = this.props.dataFormat[pathKey];
-    }
-
-    if (dataPath) {
-      const datum = _.get(this.props.data, dataPath);
-      data = this.formatValue(datum, dataFormat);
-    }
-
-    return data;
-  }
-
   getStateByType = props => {
-    const { data } = props;
-
-    // TODO: consider whether we should be tracking disabled state internally or passing in a prop
-    const isDisabled = _.sum(_.map(data.data, d => d.value)) <= 0;
+    const {
+      data,
+    } = props;
 
     const state = {
       chartTitle: props.title,
-      isDisabled,
+      isDisabled: _.sum(_.map(data.data, d => d.value)) <= 0,
     };
+
     switch (props.type) {
       case 'simple':
         state.isCollapsible = false;
@@ -288,38 +275,46 @@ class Stat extends PureComponent {
     }
 
     return state;
-  }
+  };
 
-  setChartPropsByType = props => {
-    const { type, data, bgPrefs: { bgUnits }, ...rest } = props;
+  getDefaultChartProps = props => {
+    const { data, chartHeight } = props;
     const total = _.get(data, 'total.value');
-    let chartRenderer = VictoryBar;
-    const chartProps = _.defaults({
+
+    return {
       animate: { duration: 300, onLoad: { duration: 0 } },
       data: _.map(data.data, (d, i) => ({
         x: i + 1,
         y: total > 0 ? d.value / total : d.value,
         id: d.id,
       })),
+      height: chartHeight,
       labels: d => formatPercentage(d.y),
+      renderer: null,
       style: {
         data: {
           fill: d => colors[d.id] || colors.statDark,
         },
       },
-    }, rest);
+    };
+  };
+
+  setChartPropsByType = props => {
+    const { type, data, bgPrefs: { bgUnits } } = props;
 
     let barWidth;
     let barSpacing;
-    let chartHeight;
+    let height;
     let chartLabelWidth = 60;
     let domain;
     let padding;
 
+    this.chartProps = this.getDefaultChartProps(props);
+
     switch (type) {
       case 'barBg':
         barWidth = 4;
-        chartHeight = barWidth * 6;
+        height = this.chartProps.height || barWidth * 6;
 
         domain = {
           x: [0, bgUnits === MGDL_UNITS ? MGDL_CLAMP_TOP : MMOLL_CLAMP_TOP],
@@ -331,7 +326,7 @@ class Stat extends PureComponent {
           bottom: 10,
         };
 
-        this.chartProps = _.assign({}, chartProps, {
+        _.assign(this.chartProps, {
           alignment: 'middle',
           containerComponent: <VictoryContainer responsive={false} />,
           cornerRadius: { top: 2, bottom: 2 },
@@ -350,7 +345,7 @@ class Stat extends PureComponent {
             />
           ),
           domain,
-          height: chartHeight,
+          height,
           horizontal: true,
           labelComponent: (
             <BgBarLabel
@@ -360,14 +355,14 @@ class Stat extends PureComponent {
               domain={domain}
               text={datum => {
                 const datumRef = _.get(props.data, ['data', datum.eventKey]);
-                const { value } = this.formatValue(
+                const { value } = this.formatDatum(
                   datumRef.deviation || datumRef,
                   props.dataFormat.label
                 );
                 return `${value}`;
               }}
               tooltipText={datum => {
-                const { value, suffix } = this.formatValue(
+                const { value, suffix } = this.formatDatum(
                   _.get(props.data, ['data', datum.eventKey]),
                   props.dataFormat.tooltip,
                 );
@@ -376,13 +371,14 @@ class Stat extends PureComponent {
             />
           ),
           padding,
+          renderer: VictoryBar,
           style: {
             data: {
               fill: datum => this.getDatumColor(datum),
               width: () => barWidth,
             },
             labels: {
-              fill: datum => this.getDatumColor(_.assign({}, datum, this.formatValue(
+              fill: datum => this.getDatumColor(_.assign({}, datum, this.formatDatum(
                 _.get(props.data, ['data', datum.eventKey]),
                 props.dataFormat.label,
               ))),
@@ -395,15 +391,15 @@ class Stat extends PureComponent {
         break;
 
       case 'barHorizontal':
-        barSpacing = chartProps.barSpacing || 4;
-        chartHeight = chartProps.chartHeight;
+        barSpacing = 4;
+        height = this.chartProps.height;
 
-        if (chartHeight > 0) {
-          barWidth = ((chartHeight - barSpacing) / props.data.data.length) - (barSpacing / 2);
+        if (height > 0) {
+          barWidth = ((height - barSpacing) / props.data.data.length) - (barSpacing / 2);
           chartLabelWidth = barWidth * 2.25;
         } else {
-          barWidth = chartProps.barWidth || 24;
-          chartHeight = (barWidth + barSpacing) * props.data.data.length;
+          barWidth = 24;
+          height = (barWidth + barSpacing) * props.data.data.length;
         }
 
         domain = {
@@ -416,7 +412,7 @@ class Stat extends PureComponent {
           bottom: barWidth / 2 * -1,
         };
 
-        this.chartProps = _.assign({}, chartProps, {
+        _.assign(this.chartProps, {
           alignment: 'middle',
           containerComponent: <VictoryContainer responsive={false} />,
           cornerRadius: { top: 2, bottom: 2 },
@@ -434,19 +430,21 @@ class Stat extends PureComponent {
               target: 'data',
               eventHandlers: {
                 onMouseOver: (event, target) => {
+                  if (this.state.isDisabled || !props.dataFormat.tooltip) {
+                    return {};
+                  }
+
                   const datum = _.get(props.data, ['data', target.index], {});
                   datum.index = target.index;
                   this.setChartTitle(datum);
                   this.setState({ hoveredDatumIndex: target.index });
-                  if (props.dataFormat.tooltip) {
-                    return {
-                      target: 'labels',
-                      mutation: () => ({
-                        active: true,
-                      }),
-                    };
-                  }
-                  return {};
+
+                  return {
+                    target: 'labels',
+                    mutation: () => ({
+                      active: true,
+                    }),
+                  };
                 },
                 onMouseOut: () => {
                   this.setChartTitle();
@@ -459,7 +457,7 @@ class Stat extends PureComponent {
               },
             },
           ],
-          height: chartHeight,
+          height,
           horizontal: true,
           labelComponent: (
             <HoverBarLabel
@@ -467,14 +465,14 @@ class Stat extends PureComponent {
               domain={domain}
               barWidth={barWidth}
               text={datum => {
-                const { value, suffix } = this.formatValue(
+                const { value, suffix } = this.formatDatum(
                   _.get(props.data, ['data', datum.eventKey]),
                   props.dataFormat.label,
                 );
                 return `${value}${suffix}`;
               }}
               tooltipText={datum => {
-                const { value, suffix } = this.formatValue(
+                const { value, suffix } = this.formatDatum(
                   _.get(props.data, ['data', datum.eventKey]),
                   props.dataFormat.tooltip,
                 );
@@ -483,13 +481,14 @@ class Stat extends PureComponent {
             />
           ),
           padding,
+          renderer: VictoryBar,
           style: {
             data: {
               fill: datum => this.getDatumColor(datum),
               width: () => barWidth,
             },
             labels: {
-              fill: datum => this.getDatumColor(_.assign({}, datum, this.formatValue(
+              fill: datum => this.getDatumColor(_.assign({}, datum, this.formatDatum(
                 _.get(props.data, ['data', datum.eventKey]),
                 props.dataFormat.label,
               ))),
@@ -501,13 +500,40 @@ class Stat extends PureComponent {
         });
         break;
 
-      case 'simple':
       default:
-        chartRenderer = null;
         break;
     }
-    this.setChartRenderer(chartRenderer);
-  }
+  };
+
+  setChartTitle = (datum = {}) => {
+    let tooltipTitleData;
+    const { title = this.props.title } = datum;
+    const tooltipTitleFormat = _.get(this.props, 'dataFormat.tooltipTitle');
+
+    if (tooltipTitleFormat) {
+      tooltipTitleData = this.getFormattedDataByDataPath(['data', datum.index], tooltipTitleFormat);
+    }
+
+    this.setState({
+      chartTitle: title,
+      tooltipTitleData,
+    });
+  };
+
+  setChartRef = element => {
+    this.chartRef = element;
+  };
+
+  getFormattedDataByDataPath = (path, format) => {
+    const datum = _.get(this.props.data, path);
+    return this.formatDatum(datum, format);
+  };
+
+  getFormattedDataByKey = key => {
+    const path = _.get(this.props.data, ['dataPaths', key]);
+    const format = this.props.dataFormat[key];
+    return this.getFormattedDataByDataPath(path, format);
+  };
 
   getDatumColor = datum => {
     const { hoveredDatumIndex, isDisabled } = this.state;
@@ -524,33 +550,7 @@ class Stat extends PureComponent {
     return color;
   };
 
-  setChartTitle = (datum = {}) => {
-    let tooltipTitleData;
-    const { title = this.props.title } = datum;
-    const tooltipTitleFormat = _.get(this.props, 'dataFormat.tooltipTitle');
-
-    if (tooltipTitleFormat) {
-      tooltipTitleData = this.getData({
-        path: ['data', datum.index],
-        format: tooltipTitleFormat,
-      });
-    }
-
-    this.setState({
-      chartTitle: title,
-      tooltipTitleData,
-    });
-  }
-
-  setChartRef = element => {
-    this.chartRef = element;
-  }
-
-  setChartRenderer = chartRenderer => {
-    this.chartRenderer = chartRenderer;
-  }
-
-  formatValue = (datum = {}, format) => {
+  formatDatum = (datum = {}, format) => {
     let id = datum.id;
     let value = datum.value;
     let suffix = '';
@@ -562,15 +562,17 @@ class Stat extends PureComponent {
     let upperColorId;
 
     const total = _.get(this.props.data, 'total.value');
-    const { bgPrefs } = this.props;
+    const { bgPrefs, emptyDataPlaceholder } = this.props;
     const { bgBounds, bgUnits } = bgPrefs;
+
+    function disableStat() {
+      id = 'statDisabled';
+      value = emptyDataPlaceholder;
+    }
 
     switch (format) {
       case statFormats.bgCount:
-        if (value <= 0) {
-          id = 'statDisabled';
-          value = '--';
-        }
+        if (value < 0) disableStat();
         break;
 
       case statFormats.bgRange:
@@ -580,57 +582,62 @@ class Stat extends PureComponent {
         break;
 
       case statFormats.bgValue:
-        if (value > 0) {
+        suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
+        suffix = <img className={styles.bgIcon} src={suffixSrc} />;
+        if (value >= 0) {
           id = classifyBgValue(bgBounds, value);
           value = formatBgValue(value, bgPrefs);
         } else {
-          id = 'statDisabled';
-          value = '--';
+          disableStat();
         }
-        suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
-        suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         break;
 
       case statFormats.cv:
-        id = classifyCvValue(value);
-        value = formatPercentage(value);
+        if (value >= 0) {
+          id = classifyCvValue(value);
+          value = formatPercentage(value);
+        } else {
+          disableStat();
+        }
         break;
 
       case statFormats.duration:
-        value = formatDuration(value, { condensed: true });
+        if (value >= 0) {
+          value = formatDuration(value, { condensed: true });
+        } else {
+          disableStat();
+        }
         break;
 
       case statFormats.gmi:
-        value = formatPercentage(value, 1);
+        if (value >= 0) {
+          value = formatPercentage(value, 1);
+        } else {
+          disableStat();
+        }
         break;
 
       case statFormats.percentage:
-        if (total && total > 0) {
-          if (total) {
-            value = value / total;
-          }
-          value = formatPercentage(value);
+        if (total && total >= 0) {
+          value = formatPercentage(value / total);
         } else {
-          id = 'statDisabled';
-          value = '--';
+          disableStat();
         }
         break;
 
       case statFormats.stdDevRange:
-        suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
+        if (value >= 0) {
+          suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
 
-        deviation = _.get(datum, 'deviation.value', 0);
-        lowerValue = value - deviation;
-        lowerColorId = lowerValue > 0
-          ? classifyBgValue(bgBounds, lowerValue)
-          : 'statDisabled';
+          deviation = _.get(datum, 'deviation.value', 0);
+          lowerValue = value - deviation;
+          lowerColorId = lowerValue >= 0
+            ? classifyBgValue(bgBounds, lowerValue)
+            : 'low';
 
-        upperValue = value + deviation;
-        upperColorId = upperValue > 0
-          ? classifyBgValue(bgBounds, upperValue)
-          : 'statDisabled';
+          upperValue = value + deviation;
+          upperColorId = classifyBgValue(bgBounds, upperValue);
 
-        if (value > 0) {
           value = (
             <span>
               <span style={{
@@ -648,25 +655,27 @@ class Stat extends PureComponent {
           );
           suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         } else {
-          value = undefined;
-          suffix = undefined;
+          disableStat();
         }
         break;
 
       case statFormats.stdDevValue:
-        if (value > 0) {
-          value = formatBgValue(value, bgPrefs);
-        } else {
-          id = 'statDisabled';
-          value = '--';
-        }
         suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
         suffix = <img className={styles.bgIcon} src={suffixSrc} />;
+        if (value >= 0) {
+          value = formatBgValue(value, bgPrefs);
+        } else {
+          disableStat();
+        }
         break;
 
       case statFormats.units:
-        value = formatInsulin(value);
-        suffix = 'u';
+        if (value >= 0) {
+          value = formatInsulin(value);
+          suffix = 'u';
+        } else {
+          disableStat();
+        }
         break;
 
       default:
@@ -679,7 +688,13 @@ class Stat extends PureComponent {
       suffix,
       suffixSrc,
     };
-  }
+  };
+
+  handleCollapse = () => {
+    this.setState({
+      isOpened: !this.state.isOpened,
+    });
+  };
 
   handleTooltipIconMouseOver = () => {
     const { top, left, width, height } = this.tooltipIcon.getBoundingClientRect();
@@ -691,14 +706,14 @@ class Stat extends PureComponent {
         left: left + width - 1,
       },
     });
-  }
+  };
 
   handleTooltipIconMouseOut = () => {
     this.setState({
       showMessages: false,
       messageTooltipPosition: undefined,
     });
-  }
+  };
 }
 
 export default Stat;

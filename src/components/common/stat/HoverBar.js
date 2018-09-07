@@ -18,15 +18,15 @@ export const HoverBarLabel = props => {
   const tooltipHeight = tooltipFontSize * 1.2;
   const tooltipRadius = tooltipHeight / 2;
 
-  const labelStyle = _.assign({}, props.style, {
-    pointerEvents: 'none',
-  });
-
   const tooltipStyle = _.assign({}, props.style, {
     fontSize: tooltipFontSize,
   });
 
   const tooltipTextSize = TextSize.approximateTextSize(tooltipText(props.datum), tooltipStyle);
+
+  const labelStyle = _.assign({}, props.style, {
+    pointerEvents: 'none',
+  });
 
   return (
     <g>
@@ -40,24 +40,26 @@ export const HoverBarLabel = props => {
         x={scale.y(domain.x[1])}
         y={y}
       />
-      <VictoryTooltip
-        {...props}
-        cornerRadius={tooltipRadius}
-        x={scale.y(domain.x[1]) - style.paddingLeft - tooltipTextSize.width - (tooltipRadius * 2)}
-        y={y}
-        flyoutStyle={{
-          stroke: colors.axis,
-          strokeWidth: 2,
-          fill: colors.white,
-        }}
-        width={tooltipTextSize.width + (tooltipRadius * 2)}
-        height={tooltipHeight}
-        pointerLength={0}
-        pointerWidth={0}
-        renderInPortal={false}
-        text={tooltipText}
-        style={tooltipStyle}
-      />
+      {tooltipTextSize.width > 0 && (
+        <VictoryTooltip
+          {...props}
+          cornerRadius={tooltipRadius}
+          x={scale.y(domain.x[1]) - style.paddingLeft - tooltipTextSize.width - (tooltipRadius * 2)}
+          y={y}
+          flyoutStyle={{
+            stroke: colors.axis,
+            strokeWidth: 2,
+            fill: colors.white,
+          }}
+          width={tooltipTextSize.width + (tooltipRadius * 2)}
+          height={tooltipHeight}
+          pointerLength={0}
+          pointerWidth={0}
+          renderInPortal={false}
+          text={tooltipText}
+          style={tooltipStyle}
+        />
+      )}
     </g>
   );
 };
@@ -88,43 +90,43 @@ export const HoverBar = props => {
   const barGridRadius = cornerRadius.top || 2;
   const widthCorrection = (width - chartLabelWidth) / width;
 
-  const isEnabled = y > 0;
-
   return (
     <g>
-      <Rect
-        {...props}
-        x={0}
-        y={scale.x(index + 1) - (barWidth / 2) - (barSpacing / 2)}
-        rx={barGridRadius}
-        ry={barGridRadius}
-        width={scale.y(domain.x[1])}
-        height={barWidth + barSpacing}
-        style={{
-          stroke: 'transparent',
-          fill: 'transparent',
-        }}
-      />
-      <Rect
-        {...props}
-        x={0}
-        y={scale.x(index + 1) - (barGridWidth / 2)}
-        rx={barGridRadius}
-        ry={barGridRadius}
-        width={scale.y(domain.x[1]) - chartLabelWidth}
-        height={barGridWidth}
-        style={{
-          stroke: 'transparent',
-          fill: colors.axis,
-        }}
-      />
-      {isEnabled && (
-        <Bar
+      <g className="barHoverTarget">
+        <Rect
           {...props}
-          width={scale.y(domain.x[1]) - chartLabelWidth}
-          y={y * widthCorrection}
+          x={0}
+          y={scale.x(index + 1) - (barWidth / 2) - (barSpacing / 2)}
+          rx={barGridRadius}
+          ry={barGridRadius}
+          width={scale.y(domain.x[1])}
+          height={barWidth + barSpacing}
+          style={{
+            stroke: 'transparent',
+            fill: 'transparent',
+          }}
         />
-      )}
+      </g>
+      <g className="barBg">
+        <Rect
+          {...props}
+          x={0}
+          y={scale.x(index + 1) - (barGridWidth / 2)}
+          rx={barGridRadius}
+          ry={barGridRadius}
+          width={scale.y(domain.x[1]) - chartLabelWidth}
+          height={barGridWidth}
+          style={{
+            stroke: 'transparent',
+            fill: colors.axis,
+          }}
+        />
+      </g>
+      <Bar
+        {...props}
+        width={scale.y(domain.x[1]) - chartLabelWidth}
+        y={y * widthCorrection}
+      />
     </g>
   );
 };

@@ -104,12 +104,12 @@ const generateRandomData = (data, type, bgUnits) => {
 };
 
 const generateEmptyData = (data) => {
-  const deviation = { value: 0 };
-
   const randomData = _.assign({}, data, {
     data: _.map(data.data, (d) => (_.assign({}, d, {
-      value: 0,
-      deviation: d.deviation ? deviation : undefined,
+      value: -1,
+      deviation: d.deviation
+        ? _.assign(d.deviation, { value: -1 })
+        : undefined,
     }))),
   });
 
@@ -140,12 +140,12 @@ let timeInRangeData = {
   data: [
     {
       id: 'veryLow',
-      value: convertPercentageToDayDuration(0.01),
+      value: convertPercentageToDayDuration(0),
       title: 'Time Below Range',
     },
     {
       id: 'low',
-      value: convertPercentageToDayDuration(0.03),
+      value: convertPercentageToDayDuration(0.04),
       title: 'Time Below Range',
     },
     {
@@ -281,6 +281,7 @@ stories.add('Readings In Range', () => {
         dataFormat={{
           label: statFormats.bgCount,
           summary: statFormats.bgCount,
+          tooltip: statFormats.percentage,
           tooltipTitle: statFormats.bgRange,
         }}
         isOpened={isOpened}
@@ -299,16 +300,17 @@ let timeInAutoData = {
   data: [
     {
       id: 'basal',
-      value: convertPercentageToDayDuration(0.3),
+      // value: convertPercentageToDayDuration(0.3),
+      value: convertPercentageToDayDuration(0),
       title: 'Time In Manual Mode',
     },
     {
       id: 'basalAutomated',
-      value: convertPercentageToDayDuration(0.7),
+      // value: convertPercentageToDayDuration(0.7),
+      value: convertPercentageToDayDuration(1),
       title: 'Time In Auto Mode',
     },
   ],
-  total: { value: 1 },
 };
 timeInAutoData.total = { value: getSum(timeInAutoData.data) };
 timeInAutoData.dataPaths = {
@@ -361,20 +363,19 @@ let totalInsulinData = {
   data: [
     {
       id: 'basal',
-      value: 62.9,
+      // value: 62.9,
+      value: 0,
       title: 'Basal Insulin',
     },
     {
       id: 'bolus',
       value: 49.5,
+      // value: 0,
       title: 'Bolus Insulin',
     },
   ],
-  total: {
-    id: 'insulin',
-    value: 112.4,
-  },
 };
+totalInsulinData.total = { id: 'insulin', value: getSum(totalInsulinData.data) };
 totalInsulinData.dataPaths = {
   summary: 'total',
   title: 'total',
