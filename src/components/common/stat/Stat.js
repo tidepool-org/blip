@@ -68,6 +68,8 @@ const datumPropType = PropTypes.shape({
   title: PropTypes.string,
 });
 
+const statFormatPropType = PropTypes.oneOf(_.values(statFormats));
+
 class Stat extends PureComponent {
   static propTypes = {
     alwaysShowTooltips: PropTypes.bool,
@@ -84,11 +86,11 @@ class Stat extends PureComponent {
       }),
     }),
     dataFormat: PropTypes.shape({
-      label: PropTypes.oneOf(_.values(statFormats)),
-      summary: PropTypes.oneOf(_.values(statFormats)),
-      title: PropTypes.oneOf(_.values(statFormats)),
-      tooltip: PropTypes.oneOf(_.values(statFormats)),
-      tooltipTitle: PropTypes.oneOf(_.values(statFormats)),
+      label: statFormatPropType,
+      summary: statFormatPropType,
+      title: statFormatPropType,
+      tooltip: statFormatPropType,
+      tooltipTitle: statFormatPropType,
     }),
     emptyDataPlaceholder: PropTypes.string.isRequired,
     isDisabled: PropTypes.bool,
