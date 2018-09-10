@@ -15,6 +15,11 @@ const normalPrecise = {
   normalTime: '2017-11-11T05:45:52.000Z',
 };
 
+const normalVeryPrecise = {
+  normal: 5.025,
+  normalTime: '2017-11-11T05:45:52.000Z',
+};
+
 const cancelled = {
   normal: 2,
   expectedNormal: 5,
@@ -318,6 +323,29 @@ const withMedtronicTarget = {
   insulinCarbRatio: 15,
 };
 
+const withAutoTarget = {
+  type: 'wizard',
+  annotations: [
+    { code: 'wizard/target-automated' },
+  ],
+  bgInput: 180,
+  bgTarget: {
+    low: 60,
+    high: 180,
+  },
+  bolus: {
+    normal: 5,
+    normalTime: '2017-11-11T05:45:52.000Z',
+  },
+  recommended: {
+    carb: 5,
+    correction: 0,
+    net: 5,
+  },
+  carbInput: 75,
+  insulinCarbRatio: 15,
+};
+
 const withAnimasTarget = {
   type: 'wizard',
   bgInput: 180,
@@ -413,6 +441,12 @@ storiesOf('BolusTooltip', module)
     <div>
       {refDiv}
       <BolusTooltip {...props} bolus={normalPrecise} />
+    </div>
+  ))
+  .add('normalVeryPrecise', () => (
+    <div>
+      {refDiv}
+      <BolusTooltip {...props} bolus={normalVeryPrecise} />
     </div>
   ))
   .add('cancelled', () => (
@@ -551,6 +585,12 @@ storiesOf('BolusTooltip', module)
     <div>
       {refDiv}
       <BolusTooltip {...props} bolus={withMedtronicTarget} />
+    </div>
+  ))
+  .add('withAutoTarget', () => (
+    <div>
+      {refDiv}
+      <BolusTooltip {...props} bolus={withAutoTarget} />
     </div>
   ))
   .add('withAnimasTarget', () => (

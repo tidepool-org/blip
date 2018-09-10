@@ -170,7 +170,7 @@ export const automatedWithSuspend = [{
   suppressed: {
     type: 'basal',
     subType: 'automated',
-    rate: 0,
+    rate: 1,
   },
 }, {
   type: 'basal',
