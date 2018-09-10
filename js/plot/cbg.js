@@ -91,8 +91,28 @@ module.exports = function(pool, opts) {
       cbgHigh.classed({'d3-circle-cbg': true, 'd3-bg-high': true});
       allCBG.exit().remove();
 
+      var highlight = pool.highlight(allCBG);
+
       // tooltips
       selection.selectAll('.d3-circle-cbg').on('mouseover', function() {
+        var d3_select = d3.select(this);
+        highlight.on(d3_select);
+        d3_select.attr({r: opts.radius+1});
+        switch (categorize(d3_select.datum())) {
+          case 'low':
+          case 'verylow':
+            d3_select.classed({'d3-bg-low-focus': true});
+            break;
+          case 'target':
+            d3_select.classed({'d3-bg-target-focus': true});
+            break;
+          case 'high':
+          case 'veryhigh':
+            d3_select.classed({'d3-bg-high-focus': true});
+            break;
+          default:
+            break;
+        }
         var thisCbg = _.clone(d3.select(this).datum());
         var parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect(); 
         var container = this.getBoundingClientRect(); 
@@ -101,6 +121,13 @@ module.exports = function(pool, opts) {
         cbg.addTooltip(d3.select(this).datum(), container); 
       });
       selection.selectAll('.d3-circle-cbg').on('mouseout', function() {
+        highlight.off();
+        d3.select(this).attr({r: opts.radius});
+        d3.select(this).classed({
+          'd3-bg-low-focus': false,
+          'd3-bg-target-focus': false,
+          'd3-bg-high-focus': false
+        });
         if (_.get(opts, 'onCBGOut', false)){ 
           opts.onCBGOut(); 
         } 
