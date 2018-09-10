@@ -1199,17 +1199,13 @@ block-stream@*, block-stream@0.0.9:
   dependencies:
     inherits "~2.0.0"
 
-bluebird@3.5.0:
+bluebird@3.5.0, bluebird@^3.3.0, bluebird@^3.4.7:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.0.tgz#791420d7f551eea2897453a8a77653f96606d67c"
 
 bluebird@^2.10.2:
   version "2.11.0"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-2.11.0.tgz#534b9033c022c9579c56ba3b3e5a5caafbb650e1"
-
-bluebird@^3.3.0, bluebird@^3.4.7:
-  version "3.5.1"
-  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.1.tgz#d9551f9de98f1fcda1e683d17ee91a0602ee2eb9"
 
 body-parser@^1.12.4:
   version "1.18.3"
@@ -1604,13 +1600,9 @@ color-convert@^1.3.0, color-convert@^1.9.0:
   dependencies:
     color-name "1.1.1"
 
-color-name@1.1.1:
+color-name@1.1.1, color-name@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.1.tgz#4b1415304cf50028ea81643643bd82ea05803689"
-
-color-name@^1.0.0:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.3.tgz#a7d0558bd89c42f795dd42328f740831ca53bc25"
 
 color-string@^0.3.0:
   version "0.3.0"
@@ -1634,17 +1626,13 @@ colormin@^1.0.5:
     css-color-names "0.0.4"
     has "^1.0.1"
 
-colors@^1.1.0:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/colors/-/colors-1.3.1.tgz#4accdb89cf2cabc7f982771925e9468784f32f3d"
+colors@^1.1.0, colors@~1.2.0-rc0:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/colors/-/colors-1.2.5.tgz#89c7ad9a374bc030df8013241f68136ed8835afc"
 
 colors@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/colors/-/colors-1.1.2.tgz#168a4701756b6a7f51a12ce0c97bfa28c084ed63"
-
-colors@~1.2.0-rc0:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/colors/-/colors-1.2.5.tgz#89c7ad9a374bc030df8013241f68136ed8835afc"
 
 columnify@~1.5.4:
   version "1.5.4"
@@ -2327,11 +2315,7 @@ domain-browser@^1.1.1:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/domain-browser/-/domain-browser-1.2.0.tgz#3d31f50191a6749dd1375a7f522e823d42e54eda"
 
-domelementtype@1:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/domelementtype/-/domelementtype-1.3.0.tgz#b17aed82e8ab59e52dd9c19b1756e0fc187204c2"
-
-domelementtype@~1.1.1:
+domelementtype@1, domelementtype@~1.1.1:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/domelementtype/-/domelementtype-1.1.3.tgz#bd28773e2642881aec51544924299c5cd822185b"
 
@@ -5564,7 +5548,7 @@ npmi@1.0.1:
     npm "^2.1.12"
     semver "^4.1.0"
 
-"npmlog@0 || 1 || 2", "npmlog@0.1 || 1 || 2", npmlog@~2.0.0, "npmlog@~2.0.0 || ~3.1.0", npmlog@~2.0.2, npmlog@~2.0.4:
+"npmlog@0 || 1 || 2", "npmlog@0 || 1 || 2 || 3 || 4", "npmlog@0.1 || 1 || 2", npmlog@~2.0.0, "npmlog@~2.0.0 || ~3.1.0", npmlog@~2.0.2, npmlog@~2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/npmlog/-/npmlog-2.0.4.tgz#98b52530f2514ca90d09ec5b22c8846722375692"
   dependencies:
@@ -5572,7 +5556,7 @@ npmi@1.0.1:
     are-we-there-yet "~1.1.2"
     gauge "~1.2.5"
 
-"npmlog@0 || 1 || 2 || 3 || 4", npmlog@^4.0.2:
+npmlog@^4.0.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/npmlog/-/npmlog-4.1.2.tgz#08a7f2a8bf734604779a9efa4ad5cc717abb954b"
   dependencies:
@@ -7289,19 +7273,15 @@ selenium-standalone@5.5.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.1.0.tgz#85f2cf8550465c4df000cf7d86f6b054106ab9e5"
 
-"semver@2 || 3 || 4", semver@^4.1.0, semver@~4.3.3:
-  version "4.3.6"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-4.3.6.tgz#300bc6e0e86374f7ba61068b5b1ecd57fc6532da"
-
-semver@^2.3.0:
+"semver@2 || 3 || 4", semver@^2.3.0:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/semver/-/semver-2.3.2.tgz#b9848f25d6cf36333073ec9ef8856d42f1233e52"
 
-semver@^5.3.0:
-  version "5.5.1"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-5.5.1.tgz#7dfdd8814bdb7cabc7be0fb1d734cfb66c940477"
+semver@^4.1.0, semver@~4.3.3:
+  version "4.3.6"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-4.3.6.tgz#300bc6e0e86374f7ba61068b5b1ecd57fc6532da"
 
-semver@~5.3.0:
+semver@^5.3.0, semver@~5.3.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.3.0.tgz#9b2ce5d3de02d17c6012ad326aa6b4d0cf54f94f"
 
@@ -7951,9 +7931,9 @@ thunkify@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@1.8.8-cbg-tooltips.4:
-  version "1.8.8-cbg-tooltips.4"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.8.8-cbg-tooltips.4.tgz#9de7e005fee6e6f996e65f5bff483d5558e32b6e"
+tideline@1.8.9-cbg-tooltips.6:
+  version "1.8.9-cbg-tooltips.6"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.8.9-cbg-tooltips.6.tgz#8a3e5ea5ed414d3cb4e6fa9409ea42d3220f89eb"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
