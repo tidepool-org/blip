@@ -94,42 +94,41 @@ module.exports = function(pool, opts) {
       var highlight = pool.highlight(allCBG);
 
       // tooltips
-      selection.selectAll('.d3-circle-cbg').on('mouseover', function() {
-        var d3_select = d3.select(this);
-        highlight.on(d3_select);
-        d3_select.attr({r: opts.radius+1});
-        switch (categorize(d3_select.datum())) {
+      selection.selectAll('.d3-circle-cbg').on('mouseover', function () {
+        var d3Select = d3.select(this);
+        highlight.on(d3Select);
+        d3Select.attr({ r: opts.radius + 1 });
+        switch (categorize(d3Select.datum())) {
           case 'low':
           case 'verylow':
-            d3_select.classed({'d3-bg-low-focus': true});
+            d3Select.classed({ 'd3-bg-low-focus': true });
             break;
           case 'target':
-            d3_select.classed({'d3-bg-target-focus': true});
+            d3Select.classed({ 'd3-bg-target-focus': true });
             break;
           case 'high':
           case 'veryhigh':
-            d3_select.classed({'d3-bg-high-focus': true});
+            d3Select.classed({ 'd3-bg-high-focus': true });
             break;
           default:
             break;
         }
-        var thisCbg = _.clone(d3.select(this).datum());
-        var parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect(); 
-        var container = this.getBoundingClientRect(); 
-        container.y = container.top - parentContainer.top; 
- 
-        cbg.addTooltip(d3.select(this).datum(), container); 
+        var parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect();
+        var container = this.getBoundingClientRect();
+        container.y = container.top - parentContainer.top;
+
+        cbg.addTooltip(d3.select(this).datum(), container);
       });
-      selection.selectAll('.d3-circle-cbg').on('mouseout', function() {
+      selection.selectAll('.d3-circle-cbg').on('mouseout', function () {
         highlight.off();
-        d3.select(this).attr({r: opts.radius});
+        d3.select(this).attr({ r: opts.radius });
         d3.select(this).classed({
           'd3-bg-low-focus': false,
           'd3-bg-target-focus': false,
           'd3-bg-high-focus': false
         });
-        if (_.get(opts, 'onCBGOut', false)){ 
-          opts.onCBGOut(); 
+        if (_.get(opts, 'onCBGOut', false)) {
+          opts.onCBGOut();
         } 
       });
     });
