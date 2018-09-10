@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.12.1-cbg-tooltips.6",
+  "version": "1.12.1",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -30,6 +30,7 @@
     "babel-preset-react": "6.11.1",
     "babel-preset-stage-0": "6.5.0",
     "babel-preset-stage-2": "6.13.0",
+    "body-parser": "1.18.3",
     "bows": "1.6.0",
     "browser-locale": "1.0.3",
     "classnames": "2.2.5",
