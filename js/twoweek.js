@@ -741,7 +741,7 @@ module.exports = function(emitter, timePrefs) {
       last = new Date(dt.applyOffset(last, lastDatum.displayOffset));
     }
 
-    days = _.uniq(_.pluck(_.where(data, {type: 'fill'}), 'fillDate'));
+    days = _.uniq(_.map(_.filter(data, {type: 'fill'}), 'fillDate'));
     dataStartNoon = new Date(days[0]);
     dataStartNoon.setUTCHours(12);
     dataStartNoon.setUTCMinutes(0);

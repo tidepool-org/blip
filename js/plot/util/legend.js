@@ -242,7 +242,7 @@ var legend = {
       SHAPE_WIDTH: this.SHAPE_WIDTH
     };
     var typeFns = this[type];
-    _.each(typeFns, function(fn, i) {
+    _.each(typeFns, _.bind(function(fn, i) {
       var created = fn.create(opts), w;
       if (fn.type === 'text') {
         if (opts.widths[i - 1]) {
@@ -285,7 +285,7 @@ var legend = {
           });
         }
       }
-    }, this);
+    }, this));
     if (type !== 'bg') {
       // a y-attribute of 0 would put the top of the rects *at* the text baseline
       // so an upward (negative) shift of half the shape width works well

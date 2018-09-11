@@ -512,8 +512,8 @@ module.exports = function(pool, opts) {
 
   stats.ratioDisplay = function() {
     if (opts.activeBasalRatio === 'timeInAuto') {
-      var basalAutomatedDuration = _.findWhere(data.ratio, {type: 'basalAutomatedDuration'}).value;
-      var basalManualDuration = _.findWhere(data.ratio, {type: 'basalManualDuration'}).value;
+      var basalAutomatedDuration = _.find(data.ratio, {type: 'basalAutomatedDuration'}).value;
+      var basalManualDuration = _.find(data.ratio, {type: 'basalManualDuration'}).value;
       var totalDuration = basalAutomatedDuration + basalManualDuration;
       return [
         {
@@ -527,8 +527,8 @@ module.exports = function(pool, opts) {
       ];
     }
 
-    var bolus = _.findWhere(data.ratio, {type: 'bolus'}).value;
-    var basal = _.findWhere(data.ratio, {type: 'basal'}).value;
+    var bolus = _.find(data.ratio, {type: 'bolus'}).value;
+    var basal = _.find(data.ratio, {type: 'basal'}).value;
     var total = bolus + basal;
     return [
       {
@@ -543,7 +543,7 @@ module.exports = function(pool, opts) {
   };
 
   stats.rangeDisplay = function() {
-    var target = _.findWhere(data.range, {type: 'bg-target'}).value;
+    var target = _.find(data.range, {type: 'bg-target'}).value;
     var total = parseFloat(data.bgReadings);
     return [{text: format.percentage(target/total), 'class': 'd3-stats-percentage'}];
   };
