@@ -192,7 +192,7 @@ var nurseshark = {
     var typeGroups = {}, overlappingUploads = {}, mostRecentFromOverlapping = null;
 
     function createUploadIDsMap() {
-      var uploads = _.where(data, {type: 'upload'});
+      var uploads = _.filter(data, {type: 'upload'});
       _.each(uploads, function(upload) {
         var source = 'Unknown';
         if (upload.hasOwnProperty('source')) {

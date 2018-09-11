@@ -786,7 +786,7 @@ describe('TidelineData', function() {
         timezoneAware: true,
         timezoneName: 'US/Pacific'
       }});
-      var twoWeekFills = _.where(thisTd.twoWeekData, {type: 'fill'});
+      var twoWeekFills = _.filter(thisTd.twoWeekData, {type: 'fill'});
       var firstFill = twoWeekFills[0], lastFill = twoWeekFills[twoWeekFills.length - 1];
       expect(firstFill.normalTime).to.equal('2014-12-19T08:00:00.000Z');
       expect(lastFill.normalTime).to.equal('2015-03-19T04:00:00.000Z');
@@ -816,7 +816,7 @@ describe('TidelineData', function() {
         timezoneAware: true,
         timezoneName: 'Pacific/Auckland'
       }});
-      var twoWeekFills = _.where(thisTd.twoWeekData, {type: 'fill'});
+      var twoWeekFills = _.filter(thisTd.twoWeekData, {type: 'fill'});
       var firstFill = twoWeekFills[0], lastFill = twoWeekFills[twoWeekFills.length - 1];
       expect(firstFill.normalTime).to.equal('2014-12-19T11:00:00.000Z');
       expect(lastFill.normalTime).to.equal('2015-03-19T08:00:00.000Z');

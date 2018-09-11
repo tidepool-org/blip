@@ -272,7 +272,7 @@ var BasicsChart = React.createClass({
       sections.push(section);
     }
     var column = _.sortBy(
-      _.where(sections, {column: columnSide}),
+      _.filter(sections, {column: columnSide}),
       'index'
     );
 
