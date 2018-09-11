@@ -810,7 +810,7 @@ export let PatientData = translate()(React.createClass({
       // Ideally, we determine the default view based on the device type
       // so that, for instance, if the latest data type is cgm, but comes from
       // an insulin-pump, we still direct them to the basics view
-      const deviceMap = _.indexBy(uploads, 'deviceId');
+      const deviceMap = _.keyBy(uploads, 'deviceId');
       const latestDataDevice = deviceMap[latestData.deviceId];
 
       if (latestDataDevice) {

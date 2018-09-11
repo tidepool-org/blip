@@ -177,7 +177,7 @@ export default translate()(class DonateForm extends Component {
       return;
     }
 
-    const existingAccounts = _.indexBy(this.props.dataDonationAccounts, 'email');
+    const existingAccounts = _.keyBy(this.props.dataDonationAccounts, 'email');
     const selectedAccounts = formValues.dataDonateDestination.split(',');
 
     const addAccounts = [];

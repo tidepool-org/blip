@@ -115,7 +115,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
       };
     });
 
-    return _.sortByOrder(list, ['fullNameOrderable'], [SortTypes.DESC]);
+    return _.orderBy(list, ['fullNameOrderable'], [SortTypes.DESC]);
   }
 
   handleFilterChange(e) {
@@ -140,7 +140,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
   }
 
   handleSortChange(columnKey, sortDir, track) {
-    const sorted = _.sortByOrder(this.state.dataList, [columnKey], [sortDir]);
+    const sorted = _.orderBy(this.state.dataList, [columnKey], [sortDir]);
 
     if (track) {
       let metricMessage = 'Sort by ';

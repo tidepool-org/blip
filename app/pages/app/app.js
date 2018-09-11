@@ -450,7 +450,7 @@ export function mapStateToProps(state) {
     if (userIsDonor) {
       //eslint-disable-next-line new-cap
       let allDonationAccountEmails = _.map(DATA_DONATION_NONPROFITS(), nonprofit => `bigdata+${nonprofit.value}@tidepool.org`);
-      let userDonationAccountEmails = _.pluck(state.blip.dataDonationAccounts, 'email');
+      let userDonationAccountEmails = _.map(state.blip.dataDonationAccounts, 'email');
       userIsSupportingNonprofit = _.intersection(allDonationAccountEmails, userDonationAccountEmails).length > 0;
     }
   }

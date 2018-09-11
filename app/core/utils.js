@@ -447,7 +447,7 @@ utils.getLatestGithubRelease = (releases) => {
 utils.getDiabetesDataRange = (data) => {
   const sortedData = _.sortBy(_.filter(data, d => _.includes(DIABETES_DATA_TYPES, d.type)), 'time');
 
-  const start = _.get(_.first(sortedData), 'time');
+  const start = _.get(_.head(sortedData), 'time');
   const end = _.get(_.last(sortedData), 'time');
   const spanInDays = (start && end) ? sundial.dateDifference(end, start, 'days') : null;
   const count = sortedData.length;

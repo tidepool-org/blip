@@ -175,7 +175,7 @@ var Basics = translate()(React.createClass({
     }
 
     // require at least one relevant data point to show The Basics
-    var basicsDataLength = _.flatten(_.pluck(_.values(data), 'data')).length;
+    var basicsDataLength = _.flatten(_.map(_.values(data), 'data')).length;
     return basicsDataLength === 0;
   },
 

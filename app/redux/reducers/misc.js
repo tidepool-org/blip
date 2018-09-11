@@ -424,7 +424,7 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
   switch(action.type) {
     case types.FETCH_PATIENT_DATA_SUCCESS: {
       const { patientId, patientData, fetchedUntil } = action.payload;
-      const sortedData = _.filter(_.sortByOrder(patientData, 'time', 'desc'), datum => (
+      const sortedData = _.filter(_.orderBy(patientData, 'time', 'desc'), datum => (
         fetchedUntil ? datum.time >= fetchedUntil : true)
       );
       const method = state[patientId] ? '$push' : '$set';
@@ -540,7 +540,7 @@ export const dataDonationAccounts = (state = initialState.dataDonationAccounts, 
   switch(action.type) {
     case types.FETCH_DATA_DONATION_ACCOUNTS_SUCCESS:
       accounts = state.concat(_.get(action.payload, 'accounts', []));
-      return update(state, { $set: _.uniq(accounts, 'email') });
+      return update(state, { $set: _.uniqBy(accounts, 'email') });
 
     case types.FETCH_PENDING_SENT_INVITES_SUCCESS:
       accounts = state.concat(_.get(action.payload, 'pendingSentInvites', []).map(invite => {
@@ -549,13 +549,13 @@ export const dataDonationAccounts = (state = initialState.dataDonationAccounts, 
           status: 'pending',
         };
       }));
-      return update(state, { $set: _.uniq(_.filter(accounts, isDataDonationAccount), 'email') });
+      return update(state, { $set: _.uniqBy(_.filter(accounts, isDataDonationAccount), 'email') });
 
     case types.CANCEL_SENT_INVITE_SUCCESS:
-      return _.reject(state, 'email', _.get(action.payload, 'removedEmail', null));
+      return _.reject(state, _.bind('email', _.get(action.payload, 'removedEmail', null)));
 
     case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
-      return _.reject(state, 'userid', _.get(action.payload, 'removedMemberId', null));
+      return _.reject(state, _.bind('userid', _.get(action.payload, 'removedMemberId', null)));
 
     case types.LOGOUT_REQUEST:
       return [];
