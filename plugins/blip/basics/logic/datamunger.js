@@ -396,7 +396,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
       };
     },
     _getRowKey: function(row) {
-      return _.pluck(row, 'key');
+      return _.map(row, 'key');
     },
     _averageExcludingMostRecentDay: function(dataObj, total, mostRecentDay) {
       var mostRecentTotal = dataObj.dataByDate[mostRecentDay] ?
@@ -535,7 +535,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         fingerstickData.summary = fsSummary;
 
         var fsTags = _.flatten(fsSection.selectorOptions.rows.map(function(row) {
-          return _.pluck(_.filter(row, function(opt) {
+          return _.map(_.filter(row, function(opt) {
             return opt.path === 'smbg';
           }), 'key');
         }));
