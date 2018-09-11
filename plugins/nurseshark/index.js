@@ -300,7 +300,7 @@ var nurseshark = {
 
     var emoticon = erroredData.length ? ':(' : ':)';
     log(erroredData.length, 'items in the erroredData.', emoticon, _.countBy(erroredData, 'type'));
-    log('Unique error messages:', _.unique(_.map(erroredData, 'errorMessage')));
+    log('Unique error messages:', _.uniq(_.map(erroredData, 'errorMessage')));
     return {erroredData: erroredData, processedData: processedData};
   }
 };
