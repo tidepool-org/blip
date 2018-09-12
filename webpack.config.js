@@ -3,8 +3,7 @@ const webpack = require('webpack');
 
 const appDirectory = path.resolve(__dirname);
 
-// eslint-disable-next-line no-underscore-dangle
-const __DEV__ = process.env.NODE_ENV === 'development';
+const isDev = (process.env.NODE_ENV === 'development');
 
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
@@ -13,6 +12,22 @@ const __DEV__ = process.env.NODE_ENV === 'development';
 const localIdentName = process.env.NODE_ENV === 'test'
   ? '[name]--[local]'
   : '[name]--[local]--[hash:base64:5]';
+
+const styleLoaderConfiguration = {
+  test: /\.css$/,
+  use: [
+    'style-loader',
+    {
+      loader: 'css-loader?sourceMap',
+      query: {
+        modules: true,
+        importLoaders: 1,
+        localIdentName,
+      },
+    },
+    'postcss-loader?sourceMap',
+  ],
+};
 
 // This is needed for webpack to compile JavaScript.
 // Many OSS React Native packages are not compiled to ES5 before being
@@ -55,27 +70,33 @@ const imageLoaderConfiguration = {
   },
 };
 
+const plugins = [
+  // `process.env.NODE_ENV === 'production'` must be `true` for production
+  // builds to eliminate development checks and reduce build size. You may
+  // wish to include additional optimizations.
+  new webpack.DefinePlugin({
+    __DEV__: isDev,
+  }),
+  new webpack.LoaderOptionsPlugin({
+    debug: true,
+  }),
+];
+
+const entry = {
+  index: [path.join(__dirname, '/src/index')],
+  print: [path.join(__dirname, '/src/modules/print/index')],
+};
+
+const output = {
+  filename: '[name].js',
+  path: path.join(__dirname, '/dist/'),
+};
+
 module.exports = {
-  plugins: [
-    // `process.env.NODE_ENV === 'production'` must be `true` for production
-    // builds to eliminate development checks and reduce build size. You may
-    // wish to include additional optimizations.
-    new webpack.DefinePlugin({
-      __DEV__,
-    }),
-    new webpack.LoaderOptionsPlugin({
-      debug: true,
-    }),
-  ],
+  plugins,
   devtool: 'sourcemap',
-  entry: {
-    index: [path.join(__dirname, '/src/index')],
-    print: [path.join(__dirname, '/src/modules/print/index')],
-  },
-  output: {
-    filename: '[name].js',
-    path: path.join(__dirname, '/dist/'),
-  },
+  entry,
+  output,
   resolve: {
     extensions: [
       '.js',
@@ -83,24 +104,10 @@ module.exports = {
   },
   module: {
     rules: [
-      {
-        test: /\.(css)$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader?sourceMap',
-            query: {
-              modules: true,
-              importLoaders: 1,
-              localIdentName,
-            },
-          },
-          'postcss-loader?sourceMap',
-        ],
-      },
-      babelLoaderConfiguration,
       imageLoaderConfiguration,
+      styleLoaderConfiguration,
+      babelLoaderConfiguration,
     ],
   },
-  mode: 'development',
+  mode: isDev ? 'development' : 'production',
 };
