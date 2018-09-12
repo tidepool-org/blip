@@ -271,7 +271,7 @@ export let PatientData = translate()(React.createClass({
   renderSettings: function(){
     return (
       <div>
-        <div class="app-no-print">
+        <div className="app-no-print">
           <Settings
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
