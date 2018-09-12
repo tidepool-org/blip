@@ -79,12 +79,13 @@ function BGUtil(data, opts) {
   this.weightedCGMCount = function(data) {
     return _.reduce(data, (total, datum) => {
       let datumWeight = 1;
+      const deviceId = _.get(datum, 'deviceId', '');
 
       // Because our decision as to whether or not there's enough cgm data to warrant using
       // it to calculate average BGs is based on the expected number of readings in a day,
       // we need to adjust the weight of a for the Freestyle Libre datum, as it only
       // collects BG samples every 15 minutes as opposed the default 5 minutes from dexcom.
-      if (datum.type === 'cbg' && datum.deviceId.indexOf('AbbottFreeStyleLibre') === 0) {
+      if (datum.type === 'cbg' && deviceId.indexOf('AbbottFreeStyleLibre') === 0) {
         datumWeight = 3;
       }
 
