@@ -351,7 +351,6 @@ var Weekly = translate()(React.createClass({
   },
 
   handleDatetimeLocationChange: function(datetimeLocationEndpoints, chart = this.refs.chart) {
-    console.log('weekly chart ref', chart)
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints)
