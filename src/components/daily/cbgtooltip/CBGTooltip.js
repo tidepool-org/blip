@@ -41,15 +41,6 @@ class CBGTooltip extends PureComponent {
         </div>
       </div>,
     ];
-    /*
-    const source = !_.isEmpty(cbg.subType) ? `${_.capitalize(cbg.subType)}` : 'Meter';
-    rows.push(
-      <div key={'source'} className={styles.source}>
-        <div className={styles.label}>Source</div>
-        <div className={styles.value}>{source}</div>
-      </div>
-    );
-    */
     if (!_.isEmpty(outOfRangeMessage)) {
       const bgClass = classifyBgValue(
         reshapeBgClassesToBgBounds(this.props.bgPrefs),
