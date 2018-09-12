@@ -44,6 +44,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     reportUri: '/event/csp-report/violation',
     objectSrc: ['blob:'],
     workerSrc: ["'self'", 'blob:'],
+    childSrc: ["'self'", 'blob:'],
     connectSrc: [].concat([
       process.env.API_HOST,
       'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
