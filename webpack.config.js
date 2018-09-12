@@ -42,19 +42,15 @@ const babelLoaderConfiguration = {
     path.resolve(appDirectory, 'test'),
     path.resolve(appDirectory, 'data'),
   ],
-
   use: {
     loader: 'babel-loader',
     options: {
       cacheDirectory: true,
-      plugins: [
-        ['transform-runtime', {
-          helpers: false,
-          polyfill: false,
-          regenerator: true,
-          moduleName: 'babel-runtime',
-        }],
-      ],
+      // plugins: [
+      //   ['@babel/plugin-transform-runtime', {
+      //     helpers: false,
+      //   }],
+      // ],
     },
   },
 };
