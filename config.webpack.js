@@ -1,12 +1,12 @@
-var path = require('path');
-var webpack = require('webpack');
+const path = require('path');
+const webpack = require('webpack');
 
-var isDev = (process.env.NODE_ENV === 'development');
+const isDev = (process.env.NODE_ENV === 'development');
 
 // these values are required in the config.app.js file -- we can't use
 // process.env with webpack, we have to create these magic constants
 // individually.
-var defineEnvPlugin = new webpack.DefinePlugin({
+const defineEnvPlugin = new webpack.DefinePlugin({
   __UPLOAD_API__: JSON.stringify(process.env.UPLOAD_API || null),
   __API_HOST__: JSON.stringify(process.env.API_HOST || null),
   __INVITE_KEY__: JSON.stringify(process.env.INVITE_KEY || null),
@@ -17,7 +17,7 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __I18N_ENABLED__: JSON.stringify(process.env.I18N_ENABLED || false),
   __DEV__: isDev,
   __TEST__: false,
-  __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false)
+  __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false) //eslint-disable-line eqeqeq
 });
 
 module.exports = {
@@ -25,15 +25,15 @@ module.exports = {
   output: {
     path: path.join(__dirname, '/dist'),
     filename: 'config.js',
-    library: 'config'
+    library: 'config',
   },
   module: {
-    loaders: [
-      {test: /\.js$/, exclude: /(node_modules)/, loaders: []},
-      {test: /\.json$/, loader: 'json-loader'}
-    ]
+    rules: [
+      { test: /\.js$/, exclude: /(node_modules)/, use: [] },
+      { test: /\.json$/, use: { loader: 'json-loader' } },
+    ],
   },
   plugins: [
-    defineEnvPlugin
-  ]
+    defineEnvPlugin,
+  ],
 };

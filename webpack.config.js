@@ -52,11 +52,6 @@ const babelLoaderConfiguration = {
     loader: 'babel-loader',
     options: {
       cacheDirectory: true,
-      // plugins: [
-      //   ['@babel/plugin-transform-runtime', {
-      //     helpers: false,
-      //   }],
-      // ],//
     },
   },
 };
@@ -160,17 +155,6 @@ const plugins = [
     append: true,
   })
 ];
-
-// const entry = isDev
-//   ? [
-//     'babel-polyfill',
-//     'webpack-dev-server/client?http://localhost:3000',
-//     'webpack/hot/only-dev-server',
-//     './app/main.js',
-//   ] : [
-//     'babel-polyfill',
-//     './app/main.prod.js',
-//   ];
 
 const entry = {
   index: [path.join(__dirname, '/app/main.js')],
