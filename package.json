@@ -19,7 +19,7 @@
     "pretest": "npm run lint",
     "serve-docs": "./node_modules/.bin/gitbook serve",
     "start": "./node_modules/.bin/webpack --config package.config.js --watch",
-    "stories": "./node_modules/.bin/start-storybook -c storybook -p 8083 -s ./static",
+    "stories": "./node_modules/.bin/start-storybook -c storybook -p 8081 -s ./static",
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
     "test-watch": "NODE_ENV=test ./node_modules/.bin/karma start --no-single-run --reporters=mocha",
     "typestories": "./node_modules/.bin/start-storybook -c storybookDatatypes -p 8082"
@@ -64,9 +64,9 @@
     "react-motion": "0.5.2",
     "react-redux": "4.4.5",
     "react-sizeme": "2.5.2",
+    "react-transition-group-plus": "0.5.3",
     "redux": "3.5.2",
     "redux-thunk": "2.2.0",
-    "react-transition-group-plus": "0.5.3",
     "serialize-svg-path": "0.1.0",
     "sundial": "1.6.0",
     "text-table": "0.2.0",
@@ -103,6 +103,7 @@
     "@storybook/addon-viewport": "4.0.0-alpha.14",
     "@storybook/addons": "4.0.0-alpha.14",
     "@storybook/react": "4.0.0-alpha.14",
+    "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "9.0.0",
     "babel-loader": "8.0.2",
     "babel-plugin-istanbul": "5.0.1",
@@ -152,6 +153,7 @@
     "webpack-cli": "3.1.0"
   },
   "peerDependencies": {
+    "babel-core": "6.x || ^7.0.0-bridge.0",
     "classnames": "2.x",
     "lodash": "4.x",
     "moment-timezone": "0.x",
