@@ -38,7 +38,7 @@ import TidepoolNotification from '../../components/notification';
 import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
 
-import { DATA_DONATION_NONPROFITS } from '../../core/constants';
+import { DATA_DONATION_NONPROFITS, CONFIG } from '../../core/constants';
 
 // Styles
 require('react-select/less/default.less');
@@ -47,6 +47,8 @@ require('../../style.less');
 
 // Blip favicon
 require('../../../favicon.ico');
+
+document.title = CONFIG[__BRANDING__].name;
 
 export class AppComponent extends React.Component {
   static propTypes = {
@@ -444,7 +446,7 @@ export function mapStateToProps(state) {
        state.blip.currentPatientInViewId,
        {}
       );
-    } 
+    }
 
     // Check to see if a data-donating patient has selected a nonprofit to support
     if (userIsDonor) {

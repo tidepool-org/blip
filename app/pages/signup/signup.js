@@ -25,7 +25,7 @@ import * as actions from '../../redux/actions';
 import _ from 'lodash';
 import config from '../../config';
 import { validateForm } from '../../core/validation';
-import { URL_TERMS_OF_USE, URL_PRIVACY_POLICY } from '../../core/constants';
+import { CONFIG } from '../../core/constants';
 
 import utils from '../../core/utils';
 import LoginNav from '../../components/loginnav';
@@ -33,6 +33,12 @@ import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
 import check from './images/check.svg';
+
+var urlTermsOfUse = CONFIG[__BRANDING__].terms;
+var textTermsOfUse = CONFIG[__BRANDING__].termsText;
+
+var urlPrivacyPolicy = CONFIG[__BRANDING__].privacy;
+var textPrivacyPolicy = CONFIG[__BRANDING__].privacyText;
 
 export let Signup = translate()(React.createClass({
   propTypes: {
@@ -333,7 +339,7 @@ export let Signup = translate()(React.createClass({
   renderAcceptTermsLabel: function() {
     return (
       <Trans parent="span" i18nKey="html.signup-terms-of-use">
-        I accept the terms of the Tidepool Applications <a href={URL_TERMS_OF_USE} target='_blank'>Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
+        I accept the terms of the <a href={urlTermsOfUse} target='_blank'>{textTermsOfUse}</a> and <a href={urlPrivacyPolicy} target='_blank'>{textPrivacyPolicy}</a>
       </Trans>
     );
   },

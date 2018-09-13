@@ -22,7 +22,8 @@
     "__INVITE_KEY__": false,
     "__LATEST_TERMS__": false,
     "__HIDE_DONATE__": false,
-    "__HIDE_DEXCOM_BANNER__": false
+    "__HIDE_DEXCOM_BANNER__": false,
+    "__BRANDING__": false
   },
   // To give you an idea how to override rule options:
   "rules": {
