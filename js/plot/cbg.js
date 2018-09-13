@@ -91,14 +91,45 @@ module.exports = function(pool, opts) {
       cbgHigh.classed({'d3-circle-cbg': true, 'd3-bg-high': true});
       allCBG.exit().remove();
 
+      var highlight = pool.highlight(allCBG);
+
       // tooltips
-      selection.selectAll('.d3-circle-cbg').on('mouseover', function() {
-        var thisCbg = _.clone(d3.select(this).datum());
-        cbg.addTooltip(thisCbg);
+      selection.selectAll('.d3-circle-cbg').on('mouseover', function () {
+        var d3Select = d3.select(this);
+        highlight.on(d3Select);
+        d3Select.attr({ r: opts.radius + 1 });
+        switch (categorize(d3Select.datum())) {
+          case 'low':
+          case 'verylow':
+            d3Select.classed({ 'd3-bg-low-focus': true });
+            break;
+          case 'target':
+            d3Select.classed({ 'd3-bg-target-focus': true });
+            break;
+          case 'high':
+          case 'veryhigh':
+            d3Select.classed({ 'd3-bg-high-focus': true });
+            break;
+          default:
+            break;
+        }
+        var parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect();
+        var container = this.getBoundingClientRect();
+        container.y = container.top - parentContainer.top;
+
+        cbg.addTooltip(d3.select(this).datum(), container);
       });
-      selection.selectAll('.d3-circle-cbg').on('mouseout', function() {
-        var id = d3.select(this).attr('id').replace('cbg_', 'tooltip_');
-        mainGroup.select('#' + id).remove();
+      selection.selectAll('.d3-circle-cbg').on('mouseout', function () {
+        highlight.off();
+        d3.select(this).attr({ r: opts.radius });
+        d3.select(this).classed({
+          'd3-bg-low-focus': false,
+          'd3-bg-target-focus': false,
+          'd3-bg-high-focus': false
+        });
+        if (_.get(opts, 'onCBGOut', false)) {
+          opts.onCBGOut();
+        } 
       });
     });
   }
@@ -111,34 +142,14 @@ module.exports = function(pool, opts) {
     return opts.yScale(d.value);
   };
 
-  cbg.orientation = function(category) {
-    if (category === 'high' || category ==='veryhigh') {
-      return 'leftAndDown';
+  cbg.addTooltip = function(d, rect) {
+    if (_.get(opts, 'onCBGHover', false)) {
+      opts.onCBGHover({ 
+        data: d, 
+        rect: rect, 
+        class: categorizer(opts.classes, opts.bgUnits)(d) 
+      }); 
     }
-    else {
-      return 'normal';
-    }
-  };
-
-  cbg.addTooltip = function(d) {
-    var tooltips = pool.tooltips();
-    var getBgBoundaryClass = bgBoundaryClass(opts.classes, opts.bgUnits);
-    var cssClass = getBgBoundaryClass(d);
-    var category = categorize(d);
-    // Round the value after categorization
-    d.value = format.tooltipBG(d, opts.bgUnits);
-    tooltips.addFixedTooltip({
-      cssClass: cssClass,
-      datum: d,
-      orientation: {
-        'default': cbg.orientation(category),
-        leftEdge: cbg.orientation(category) === 'leftAndDown' ? 'rightAndDown': 'normal',
-        rightEdge: cbg.orientation(category) === 'normal' ? 'leftAndUp': 'leftAndDown'
-      },
-      shape: 'cbg',
-      xPosition: cbg.xPosition,
-      yPosition: cbg.yPosition
-    });
   };
 
   cbg.addAnnotations = function(data) {
