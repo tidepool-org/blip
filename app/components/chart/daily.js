@@ -31,13 +31,14 @@ var vizComponents = require('@tidepool/viz').components;
 var Loader = vizComponents.Loader;
 var BolusTooltip = vizComponents.BolusTooltip;
 var SMBGTooltip = vizComponents.SMBGTooltip;
+var CBGTooltip = vizComponents.CBGTooltip;
 
 var Header = require('./header');
 var Footer = require('./footer');
 
 var DailyChart = translate()(React.createClass({
   chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs', 'onBolusHover', 'onBolusOut',
-    'onSMBGHover', 'onSMBGOut'],
+    'onSMBGHover', 'onSMBGOut', 'onCBGHover', 'onCBGOut'],
   log: bows('Daily Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
@@ -59,6 +60,8 @@ var DailyChart = translate()(React.createClass({
     onBolusOut: React.PropTypes.func.isRequired,
     onSMBGHover: React.PropTypes.func.isRequired,
     onSMBGOut: React.PropTypes.func.isRequired,
+    onCBGHover: React.PropTypes.func.isRequired,
+    onCBGOut: React.PropTypes.func.isRequired,
   },
 
   getInitialState: function() {
@@ -194,10 +197,12 @@ var Daily = translate()(React.createClass({
     onSwitchToTrends: React.PropTypes.func.isRequired,
     // PatientData state updaters
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
-    updateDatetimeLocation: React.PropTypes.func.isRequired
+    updateDatetimeLocation: React.PropTypes.func.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
   },
 
   getInitialState: function() {
+    this.throttledMetric = _.throttle(this.props.trackMetric, 5000);
     return {
       atMostRecent: false,
       inTransition: false,
@@ -259,6 +264,8 @@ var Daily = translate()(React.createClass({
                 onBolusOut={this.handleBolusOut}
                 onSMBGHover={this.handleSMBGHover}
                 onSMBGOut={this.handleSMBGOut}
+                onCBGHover={this.handleCBGHover}
+                onCBGOut={this.handleCBGOut}
                 ref="chart" />
             </div>
           </div>
@@ -287,6 +294,16 @@ var Daily = translate()(React.createClass({
             timePrefs={this.props.timePrefs}
             bgPrefs={this.props.bgPrefs}
           />}
+        {this.state.hoveredCBG && <CBGTooltip
+          position={{
+            top: this.state.hoveredCBG.top,
+            left: this.state.hoveredCBG.left
+          }}
+          side={this.state.hoveredCBG.side}
+          cbg={this.state.hoveredCBG.data}
+          timePrefs={this.props.timePrefs}
+          bgPrefs={this.props.bgPrefs}
+        />}
       </div>
       );
   },
@@ -413,6 +430,30 @@ var Daily = translate()(React.createClass({
   handleSMBGOut: function() {
     this.setState({
       hoveredSMBG: false
+    });
+  },
+
+  handleCBGHover: function(cbg) {
+    this.throttledMetric('hovered over daily cgm tooltip');
+    var rect = cbg.rect;
+    // range here is -12 to 12 
+    var hoursOffset = sundial.dateDifference(cbg.data.normalTime, this.state.datetimeLocation, 'h');
+    cbg.top = rect.top + (rect.height / 2)
+    if(hoursOffset > 5) {
+      cbg.side = 'left';
+      cbg.left = rect.left;
+    } else {
+      cbg.side = 'right';
+      cbg.left = rect.left + rect.width;
+    }
+    this.setState({
+      hoveredCBG: cbg
+    });
+  },
+
+  handleCBGOut: function() {
+    this.setState({
+      hoveredCBG: false
     });
   },
 

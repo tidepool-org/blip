@@ -343,6 +343,7 @@ export let PatientData = translate()(React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            trackMetric={this.props.trackMetric}
             updateDatetimeLocation={this.updateDatetimeLocation}
             pdf={this.props.pdf.combined || {}}
             ref="tideline" />
