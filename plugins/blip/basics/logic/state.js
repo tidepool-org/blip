@@ -23,7 +23,7 @@ var React = require('react');
 var i18next = require('i18next');
 
 // Should be initialized in calling module
-if (i18next.options.returnEmptyString === undefined) {
+if (_.get(i18next, 'options.returnEmptyString') === undefined) {
   // Return key if no translation is present
   i18next.init({returnEmptyString: false});
 }
