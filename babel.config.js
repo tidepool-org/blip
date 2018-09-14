@@ -60,4 +60,4 @@ module.exports = function babelConfig(api) {
     presets,
     plugins,
   };
-}
+};
