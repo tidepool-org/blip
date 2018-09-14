@@ -133,7 +133,7 @@
     "karma-notification-reporter": "0.1.2",
     "karma-phantomjs-launcher": "1.0.4",
     "karma-sinon": "1.0.5",
-    "karma-webpack": "3.0.4",
+    "karma-webpack": "4.0.0-rc.2",
     "mocha": "5.2.0",
     "object-invariant-test-helper": "0.1.1",
     "optional": "0.1.4",
