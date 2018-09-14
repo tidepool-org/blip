@@ -41,12 +41,8 @@ import Version from '../../components/version';
 import { DATA_DONATION_NONPROFITS } from '../../core/constants';
 
 // Styles
-require('react-select/less/default.less');
 require('tideline/css/tideline.less');
 require('../../style.less');
-
-// Blip favicon
-require('../../../favicon.ico');
 
 export class AppComponent extends React.Component {
   static propTypes = {
@@ -444,7 +440,7 @@ export function mapStateToProps(state) {
        state.blip.currentPatientInViewId,
        {}
       );
-    } 
+    }
 
     // Check to see if a data-donating patient has selected a nonprofit to support
     if (userIsDonor) {
