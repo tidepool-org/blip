@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
@@ -9,6 +9,13 @@ const fs = require('fs');
 
 const appDirectory = path.resolve(__dirname);
 const isDev = (process.env.NODE_ENV === 'development');
+
+// Add every directory that needs to be compiled by webpack during the build
+const includePaths = [
+  path.resolve(appDirectory, 'app'),
+  path.resolve(appDirectory, 'test'),
+  path.resolve(appDirectory, 'node_modules/tideline'),
+];
 
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
@@ -20,34 +27,36 @@ const localIdentName = process.env.NODE_ENV === 'test'
 
 const styleLoaderConfiguration = {
   test: /\.less$/,
+  include: includePaths,
   use: [
-    'style-loader',
+    isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
     {
-      loader: 'css-loader?sourceMap',
+      loader: 'css-loader',
       query: {
-        modules: true,
-        importLoaders: 1,
+        sourceMap: true,
+        importLoaders: 2,
         localIdentName,
       },
     },
-    'postcss-loader?sourceMap',
-    'less-loader',
+    {
+      loader: 'postcss-loader',
+      options: {
+        sourceMap: true,
+      },
+    },
+    {
+      loader: 'less-loader',
+      options: {
+        sourceMap: true,
+        javascriptEnabled: true,
+      },
+    },
   ],
 };
 
-// This is needed for webpack to compile JavaScript.
-// Some OSS packages are not compiled to ES5 before being
-// published. If you depend on uncompiled packages they may cause webpack build
-// errors. To fix this webpack can be configured to compile to the necessary
-// `node_module`.
 const babelLoaderConfiguration = {
   test: /\.js$/,
-  // Add every directory that needs to be compiled by Babel during the build
-  include: [
-    path.resolve(appDirectory, 'app'),
-    path.resolve(appDirectory, 'test'),
-    path.resolve(appDirectory, 'node_modules/tideline'),
-  ],
+  include: includePaths,
   use: {
     loader: 'babel-loader',
     options: {
@@ -57,26 +66,15 @@ const babelLoaderConfiguration = {
 };
 
 // This is needed for webpack to import static images in JavaScript files
-const imageLoaderConfiguration = [
-  {
-    test: /\.(gif|jpe?g|png|svg)$/,
-    use: {
-      loader: 'url-loader',
-      options: {
-        name: '[name].[ext]',
-      },
+const imageLoaderConfiguration = {
+  test: /\.(gif|jpe?g|png|svg)$/,
+  use: {
+    loader: 'url-loader',
+    options: {
+      name: '[name].[ext]',
     },
   },
-  {
-    test: /favicon\.ico$/,
-    use: {
-      loader: 'file-loader',
-      options: {
-        name: 'favicon.ico&limit=100000&mimetype=image/x-icon',
-      },
-    },
-  },
-];
+};
 
 const fontLoaderConfiguration = [
   {
@@ -131,7 +129,9 @@ const plugins = [
     __TEST__: false,
     __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false) //eslint-disable-line eqeqeq
   }),
-  new ExtractTextPlugin('style.[contenthash].css'),
+  new MiniCssExtractPlugin({
+    filename: isDev ? 'style.css' : 'style.[hash].css',
+  }),
   new CopyWebpackPlugin([
     {
       from: 'static',
@@ -148,6 +148,7 @@ const plugins = [
   ]),
   new HtmlWebpackPlugin({
     template: 'index.ejs',
+    favicon: 'favicon.ico',
   }),
   new HtmlWebpackIncludeAssetsPlugin({
     assets: ['pdfkit.js', 'blob-stream.js'],
@@ -156,38 +157,56 @@ const plugins = [
   })
 ];
 
-const entry = {
-  index: [path.join(__dirname, '/app/main.js')],
-};
+const entry = isDev
+  ? [
+    '@babel/polyfill',
+    'webpack-dev-server/client?http://localhost:3000',
+    'webpack/hot/only-dev-server',
+    './app/main.js',
+  ] : [
+    '@babel/polyfill',
+    './app/main.prod.js',
+  ];
 
 const output = {
   filename: 'bundle.js',
   path: path.join(__dirname, '/dist'),
   publicPath: isDev ? 'http://localhost:3000/' : '/',
+  globalObject: `typeof self !== 'undefined' ? self : this`, // eslint-disable-line quotes
 };
 
 module.exports = {
-  plugins,
-  devtool: process.env.WEBPACK_DEVTOOL || 'eval-source-map',
-  entry,
-  output,
-  resolve: {
-    extensions: [
-      '.js',
-    ],
-  },
-  module: {
-    rules: [
-      ...imageLoaderConfiguration,
-      ...fontLoaderConfiguration,
-      styleLoaderConfiguration,
-      babelLoaderConfiguration,
-    ],
-  },
   devServer: {
     publicPath: output.publicPath,
-    hot: true,
+    // hot: true,
     historyApiFallback: true
   },
+  devtool: process.env.WEBPACK_DEVTOOL || 'eval-source-map',
+  entry,
   mode: isDev ? 'development' : 'production',
+  module: {
+    rules: [
+      // {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
+      babelLoaderConfiguration,
+      imageLoaderConfiguration,
+      styleLoaderConfiguration,
+      ...fontLoaderConfiguration,
+    ],
+  },
+  output,
+  plugins,
+  resolve: {
+    symlinks: false,
+    modules: [
+      path.join(__dirname, 'node_modules'),
+      'node_modules',
+    ]
+  },
+  resolveLoader: {
+    symlinks: false,
+    modules: [
+      path.join(__dirname, 'node_modules'),
+      'node_modules',
+    ]
+  },
 };
