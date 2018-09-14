@@ -2,7 +2,6 @@ const path = require('path');
 const webpack = require('webpack');
 
 const appDirectory = path.resolve(__dirname);
-
 const isDev = (process.env.NODE_ENV === 'development');
 
 // Enzyme as of v2.4.1 has trouble with classes
@@ -20,24 +19,25 @@ const styleLoaderConfiguration = {
     {
       loader: 'css-loader?sourceMap',
       query: {
-        modules: true,
         importLoaders: 1,
         localIdentName,
+        modules: true,
+        sourceMap: true,
       },
     },
-    'postcss-loader?sourceMap',
+    {
+      loader: 'postcss-loader',
+      options: {
+        sourceMap: true,
+      },
+    },
   ],
 };
 
-// This is needed for webpack to compile JavaScript.
-// Many OSS React Native packages are not compiled to ES5 before being
-// published. If you depend on uncompiled packages they may cause webpack build
-// errors. To fix this webpack can be configured to compile to the necessary
-// `node_module`.
 const babelLoaderConfiguration = {
   test: /\.js$/,
-  // Add every directory that needs to be compiled by Babel during the build
   include: [
+    // Add every directory that needs to be compiled by babel during the build
     path.resolve(appDirectory, 'src'),
     path.resolve(appDirectory, 'test'),
     path.resolve(appDirectory, 'data'),
@@ -61,6 +61,39 @@ const imageLoaderConfiguration = {
   },
 };
 
+const fontLoaderConfiguration = [
+  {
+    test: /\.eot$/,
+    use: {
+      loader: 'url-loader',
+      query: {
+        limit: 10000,
+        mimetype: 'application/vnd.ms-fontobject',
+      },
+    },
+  },
+  {
+    test: /\.woff$/,
+    use: {
+      loader: 'url-loader',
+      query: {
+        limit: 10000,
+        mimetype: 'application/font-woff',
+      },
+    },
+  },
+  {
+    test: /\.ttf$/,
+    use: {
+      loader: 'url-loader',
+      query: {
+        limit: 10000,
+        mimetype: 'application/octet-stream',
+      },
+    },
+  },
+];
+
 const plugins = [
   // `process.env.NODE_ENV === 'production'` must be `true` for production
   // builds to eliminate development checks and reduce build size. You may
@@ -83,22 +116,25 @@ const output = {
   path: path.join(__dirname, '/dist/'),
 };
 
+const resolve = {
+  extensions: [
+    '.js',
+  ],
+};
+
 module.exports = {
-  plugins,
   devtool: 'sourcemap',
   entry,
-  output,
-  resolve: {
-    extensions: [
-      '.js',
-    ],
-  },
+  mode: isDev ? 'development' : 'production',
   module: {
     rules: [
+      babelLoaderConfiguration,
       imageLoaderConfiguration,
       styleLoaderConfiguration,
-      babelLoaderConfiguration,
+      ...fontLoaderConfiguration,
     ],
   },
-  mode: isDev ? 'development' : 'production',
+  output,
+  plugins,
+  resolve,
 };
