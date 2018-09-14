@@ -1,10 +1,10 @@
-module.exports = function (api) {
+module.exports = function babelConfig(api) {
   api.cache(true);
 
   const env = {
     dev: {
       plugins: [
-        'react-hot-loader/babel'
+        'react-hot-loader/babel',
       ],
     },
     test: {
@@ -16,15 +16,15 @@ module.exports = function (api) {
 
   const presets = [
     '@babel/preset-env',
-    '@babel/preset-react'
+    '@babel/preset-react',
   ];
 
   const plugins = [
     [
       '@babel/plugin-transform-runtime',
       {
-        helpers: false
-      }
+        helpers: false,
+      },
     ],
     '@babel/plugin-syntax-dynamic-import',
     '@babel/plugin-syntax-import-meta',
@@ -33,8 +33,8 @@ module.exports = function (api) {
     [
       '@babel/plugin-proposal-decorators',
       {
-        legacy: true
-      }
+        legacy: true,
+      },
     ],
     '@babel/plugin-proposal-function-sent',
     '@babel/plugin-proposal-export-namespace-from',
@@ -47,17 +47,17 @@ module.exports = function (api) {
     [
       '@babel/plugin-proposal-pipeline-operator',
       {
-        proposal: 'minimal'
-      }
+        proposal: 'minimal',
+      },
     ],
     '@babel/plugin-proposal-nullish-coalescing-operator',
     '@babel/plugin-proposal-do-expressions',
-    '@babel/plugin-proposal-function-bind'
+    '@babel/plugin-proposal-function-bind',
   ];
 
   return {
     env,
     presets,
-    plugins
+    plugins,
   };
 }

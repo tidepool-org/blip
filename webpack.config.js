@@ -10,13 +10,6 @@ const fs = require('fs');
 const appDirectory = path.resolve(__dirname);
 const isDev = (process.env.NODE_ENV === 'development');
 
-// Add every directory that needs to be compiled by webpack during the build
-const includePaths = [
-  path.resolve(appDirectory, 'app'),
-  path.resolve(appDirectory, 'test'),
-  path.resolve(appDirectory, 'node_modules/tideline'),
-];
-
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
 // but that will sometimes happen with the base64 hashes
@@ -27,15 +20,14 @@ const localIdentName = process.env.NODE_ENV === 'test'
 
 const styleLoaderConfiguration = {
   test: /\.less$/,
-  include: includePaths,
   use: [
     isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
     {
       loader: 'css-loader',
       query: {
-        sourceMap: true,
         importLoaders: 2,
         localIdentName,
+        sourceMap: true,
       },
     },
     {
@@ -56,7 +48,12 @@ const styleLoaderConfiguration = {
 
 const babelLoaderConfiguration = {
   test: /\.js$/,
-  include: includePaths,
+  include: [
+    // Add every directory that needs to be compiled by babel during the build
+    path.resolve(appDirectory, 'app'),
+    path.resolve(appDirectory, 'test'),
+    path.resolve(appDirectory, 'node_modules/tideline'),
+  ],
   use: {
     loader: 'babel-loader',
     options: {
@@ -175,10 +172,17 @@ const output = {
   globalObject: `typeof self !== 'undefined' ? self : this`, // eslint-disable-line quotes
 };
 
+const resolve = {
+  symlinks: false,
+  modules: [
+    path.join(__dirname, 'node_modules'),
+    'node_modules',
+  ],
+};
+
 module.exports = {
   devServer: {
     publicPath: output.publicPath,
-    // hot: true,
     historyApiFallback: true
   },
   devtool: process.env.WEBPACK_DEVTOOL || 'eval-source-map',
@@ -186,7 +190,6 @@ module.exports = {
   mode: isDev ? 'development' : 'production',
   module: {
     rules: [
-      // {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
       babelLoaderConfiguration,
       imageLoaderConfiguration,
       styleLoaderConfiguration,
@@ -195,18 +198,6 @@ module.exports = {
   },
   output,
   plugins,
-  resolve: {
-    symlinks: false,
-    modules: [
-      path.join(__dirname, 'node_modules'),
-      'node_modules',
-    ]
-  },
-  resolveLoader: {
-    symlinks: false,
-    modules: [
-      path.join(__dirname, 'node_modules'),
-      'node_modules',
-    ]
-  },
+  resolve,
+  resolveLoader: resolve,
 };
