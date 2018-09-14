@@ -249,7 +249,10 @@ function chartDailyFactory(el, options) {
     poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {
       bgUnits: chart.options.bgUnits,
       classes: chart.options.bgClasses,
-      yScale: scaleBG
+      yScale: scaleBG,
+      timezoneAware: chart.options.timePrefs.timezoneAware,
+      onCBGHover: options.onCBGHover,
+      onCBGOut: options.onCBGOut,
     }), true, true);
 
     // add SMBG data to BG pool
