@@ -17,6 +17,7 @@
 
 require('./styles/colors.css');
 
+import _ from 'lodash';
 import CBGDateTraceLabel from './components/trends/cbg/CBGDateTraceLabel';
 import FocusedRangeLabels from './components/trends/common/FocusedRangeLabels';
 import FocusedSMBGPointLabel from './components/trends/smbg/FocusedSMBGPointLabel';
@@ -36,8 +37,7 @@ import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
 import { selectDailyViewData } from './utils/print/data';
 
 const i18next = require('i18next');
-
-if (i18next.options.returnEmptyString === undefined) {
+if (_.get(i18next, 'options.returnEmptyString') === undefined) {
   // Return key if no translation is present
   i18next.init({ returnEmptyString: false, nsSeparator: '|' });
 }
