@@ -19,12 +19,15 @@ webpackConf.externals = {
   'react/lib/ReactContext': true,
 };
 
+webpackConf.devtool = 'inline-source-map';
+
 module.exports = function karmaConfig(config) {
   config.set({
     browsers: ['PhantomJS'],
     captureTimeout: 60000,
     browserNoActivityTimeout: 60000,
     singleRun: true,
+    logLevel: config.LOG_INFO,
     colors: true,
     frameworks: ['mocha', 'chai', 'sinon', 'intl-shim'],
     client: {
@@ -34,7 +37,7 @@ module.exports = function karmaConfig(config) {
       'loadtests.js',
     ],
     preprocessors: {
-      'loadtests.js': ['webpack'],
+      'loadtests.js': ['webpack', 'sourcemap'],
     },
     reporters: ['mocha', 'coverage'],
     webpack: webpackConf,

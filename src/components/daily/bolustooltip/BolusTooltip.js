@@ -149,9 +149,9 @@ class BolusTooltip extends PureComponent {
         extendedLine = [
           !!normal && (
             <div className={styles.normal} key={'normal'}>
-              <div className={styles.label}>{t('Up Front ({{normalPercentage}})', {
-                normalPercentage,
-              })}</div>
+              <div className={styles.label}>
+                {t('Up Front ({{normalPercentage}})', { normalPercentage })}
+              </div>
               <div className={styles.value}>{`${formatInsulin(normal)}`}</div>
               <div className={styles.units}>U</div>
             </div>

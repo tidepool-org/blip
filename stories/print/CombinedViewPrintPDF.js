@@ -23,7 +23,7 @@ import { createPrintView } from '../../src/modules/print/index';
 import { MARGIN } from '../../src/modules/print/utils/constants';
 import PrintView from '../../src/modules/print/PrintView';
 
-import * as Profiles from '../../data/patient/profiles';
+import * as profiles from '../../data/patient/profiles';
 import * as settings from '../../data/patient/settings';
 import { data as dataStub } from '../../data/patient/data';
 
@@ -91,7 +91,6 @@ const notes = `Run \`window.downloadPrintViewData()\` from the console on a Tide
 Save the resulting file to the \`local/\` directory of viz as \`print-view.json\`,
 and then use this story to iterate on the Combined Print PDF outside of Tidepool Web!`;
 
-const profiles = _.cloneDeep(Profiles);
 profiles.longName = _.cloneDeep(profiles.standard);
 profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
 
