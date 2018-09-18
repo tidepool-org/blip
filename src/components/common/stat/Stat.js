@@ -486,7 +486,7 @@ class Stat extends PureComponent {
           renderer: VictoryBar,
           style: {
             data: {
-              fill: datum => this.getDatumColor(datum),
+              fill: datum => (datum.y === 0 ? 'transparent' : this.getDatumColor(datum)),
               width: () => barWidth,
             },
             labels: {
