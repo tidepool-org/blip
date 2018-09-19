@@ -1,16 +1,6 @@
-const path = require('path');
 const webpackConf = require('./webpack.config.js');
 const optional = require('optional');
 const mochaConf = optional('./local/mocha.opts.json') || {};
-
-webpackConf.module.rules.unshift({
-  enforce: 'pre',
-  test: /\.(js)$/,
-  loader: 'isparta-loader',
-  include: [
-    path.join(__dirname, '/../src'),
-  ],
-});
 
 webpackConf.externals = {
   cheerio: 'window',
@@ -23,36 +13,36 @@ webpackConf.devtool = 'inline-source-map';
 
 module.exports = function karmaConfig(config) {
   config.set({
+    browserNoActivityTimeout: 60000,
     browsers: ['PhantomJS'],
     captureTimeout: 60000,
-    browserNoActivityTimeout: 60000,
-    singleRun: true,
-    logLevel: config.LOG_INFO,
-    colors: true,
-    frameworks: ['mocha', 'chai', 'sinon', 'intl-shim'],
     client: {
       mocha: mochaConf,
     },
-    files: [
-      'loadtests.js',
-    ],
-    preprocessors: {
-      'loadtests.js': ['webpack', 'sourcemap'],
-    },
-    reporters: ['mocha', 'coverage'],
-    webpack: webpackConf,
-    webpackMiddleware: {
-      noInfo: true,
-      stats: {
-        chunks: false,
-      },
-    },
+    colors: true,
     coverageReporter: {
       dir: 'coverage/',
       reporters: [
         { type: 'html' },
         { type: 'text' },
       ],
+    },
+    files: [
+      'loadtests.js',
+    ],
+    frameworks: ['mocha', 'chai', 'sinon', 'intl-shim'],
+    logLevel: config.LOG_INFO,
+    preprocessors: {
+      'loadtests.js': ['webpack', 'sourcemap'],
+    },
+    reporters: ['mocha', 'coverage'],
+    singleRun: true,
+    webpack: webpackConf,
+    webpackMiddleware: {
+      noInfo: true,
+      stats: {
+        chunks: false,
+      },
     },
   });
 };
