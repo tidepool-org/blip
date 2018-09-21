@@ -1,5 +1,3 @@
-
-
 require('@babel/polyfill');
 require('intl/locale-data/jsonp/en.js');
 

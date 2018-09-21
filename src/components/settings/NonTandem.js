@@ -265,7 +265,7 @@ NonTandem.propTypes = {
   }).isRequired,
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool.isRequired,
-    timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
+    timezoneName: PropTypes.string,
   }).isRequired,
   toggleBasalScheduleExpansion: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
