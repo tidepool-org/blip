@@ -551,10 +551,10 @@ export const dataDonationAccounts = (state = initialState.dataDonationAccounts, 
       return update(state, { $set: _.uniqBy(_.filter(accounts, isDataDonationAccount), 'email') });
 
     case types.CANCEL_SENT_INVITE_SUCCESS:
-      return _.reject(state, _.bind('email', _.get(action.payload, 'removedEmail', null)));
+      return _.reject(state, { email: _.get(action.payload, 'removedEmail') });
 
     case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
-      return _.reject(state, _.bind('userid', _.get(action.payload, 'removedMemberId', null)));
+      return _.reject(state, { userid: _.get(action.payload, 'removedMemberId') });
 
     case types.LOGOUT_REQUEST:
       return [];
