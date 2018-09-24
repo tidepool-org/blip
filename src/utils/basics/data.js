@@ -504,8 +504,8 @@ export function averageExcludingMostRecentDay(dataObj, total, mostRecentDay) {
  */
 export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
   const bgLabels = generateBgRangeLabels(bgPrefs);
-  bgLabels.veryLow = _.capitalize(bgLabels.veryLow);
-  bgLabels.veryHigh = _.capitalize(bgLabels.veryHigh);
+  bgLabels.veryLow = _.upperFirst(bgLabels.veryLow);
+  bgLabels.veryHigh = _.upperFirst(bgLabels.veryHigh);
 
   const deviceLabels = getPumpVocabulary(manufacturer);
 

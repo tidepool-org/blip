@@ -296,9 +296,9 @@ describe('TrendsContainer', () => {
     });
 
     afterEach(() => {
-      onDatetimeLocationChange.reset();
-      onSwitchBgDataSource.reset();
-      markTrendsViewed.reset();
+      onDatetimeLocationChange.resetHistory();
+      onSwitchBgDataSource.resetHistory();
+      markTrendsViewed.resetHistory();
     });
 
     describe('mountData', () => {
@@ -450,7 +450,7 @@ describe('TrendsContainer', () => {
       });
 
       afterEach(() => {
-        mountDataSpy.reset();
+        mountDataSpy.resetHistory();
       });
 
       after(() => {
@@ -465,7 +465,7 @@ describe('TrendsContainer', () => {
             {...makeDataStubs(justOneDatum())}
           />
         );
-        mountDataSpy.reset();
+        mountDataSpy.resetHistory();
         sinon.assert.callCount(mountDataSpy, 0);
 
         container.setProps({ loading: true });
@@ -483,7 +483,7 @@ describe('TrendsContainer', () => {
             {...makeDataStubs(justOneDatum())}
           />
         );
-        mountDataSpy.reset();
+        mountDataSpy.resetHistory();
         sinon.assert.callCount(mountDataSpy, 0);
 
         container.setProps({ loading: false });
@@ -541,9 +541,9 @@ describe('TrendsContainer', () => {
       });
 
       afterEach(() => {
-        unfocusCbgSlice.reset();
-        unfocusSmbg.reset();
-        unfocusSmbgRangeAvg.reset();
+        unfocusCbgSlice.resetHistory();
+        unfocusSmbg.resetHistory();
+        unfocusSmbgRangeAvg.resetHistory();
       });
 
       describe('when a cbg slice segment is focused', () => {
@@ -820,7 +820,7 @@ describe('TrendsContainer', () => {
 
         describe('selectDate', () => {
           afterEach(() => {
-            props.onSelectDate.reset();
+            props.onSelectDate.resetHistory();
           });
 
           it('should exist and be a function', () => {

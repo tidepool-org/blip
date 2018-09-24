@@ -105,8 +105,8 @@ describe('SMBGDatePointsAnimated', () => {
 
   describe('interactions', () => {
     afterEach(() => {
-      props.focusSmbg.reset();
-      props.unfocusSmbg.reset();
+      props.focusSmbg.resetHistory();
+      props.unfocusSmbg.resetHistory();
     });
 
     it('should call focusSmbg on mouseover of smbg circle', () => {

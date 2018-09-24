@@ -67,10 +67,12 @@ describe('Tooltip', () => {
         side={'left'}
       />
     );
-    const tailElem = wrapper.node.tailElem;
+
+    console.log(wrapper.instance());
+    const tailElem = wrapper.instance().tailElem;
     const tailgetBoundingClientRect = sinon.stub(tailElem, 'getBoundingClientRect');
     tailgetBoundingClientRect.returns({ top: 50, left: 50, height: 10, width: 10 });
-    const tooltipElem = wrapper.node.element;
+    const tooltipElem = wrapper.instance().element;
     const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
     tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
     wrapper.instance().calculateOffset(wrapper.props());
@@ -86,10 +88,10 @@ describe('Tooltip', () => {
         side={'right'}
       />
     );
-    const tailElem = wrapper.node.tailElem;
+    const tailElem = wrapper.instance().tailElem;
     const tailgetBoundingClientRect = sinon.stub(tailElem, 'getBoundingClientRect');
     tailgetBoundingClientRect.returns({ top: 50, left: 150, height: 10, width: 10 });
-    const tooltipElem = wrapper.node.element;
+    const tooltipElem = wrapper.instance().element;
     const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
     tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
     wrapper.instance().calculateOffset(wrapper.props());
@@ -106,7 +108,7 @@ describe('Tooltip', () => {
         side={'left'}
       />
     );
-    const tooltipElem = wrapper.node.element;
+    const tooltipElem = wrapper.instance().element;
     const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
     tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
     wrapper.instance().calculateOffset(wrapper.props());
@@ -123,7 +125,7 @@ describe('Tooltip', () => {
         side={'right'}
       />
     );
-    const tooltipElem = wrapper.node.element;
+    const tooltipElem = wrapper.instance().element;
     const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
     tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
     wrapper.instance().calculateOffset(wrapper.props());
@@ -140,7 +142,7 @@ describe('Tooltip', () => {
         side={'top'}
       />
     );
-    const tooltipElem = wrapper.node.element;
+    const tooltipElem = wrapper.instance().element;
     const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
     tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
     wrapper.instance().calculateOffset(wrapper.props());
@@ -157,7 +159,7 @@ describe('Tooltip', () => {
         side={'bottom'}
       />
     );
-    const tooltipElem = wrapper.node.element;
+    const tooltipElem = wrapper.instance().element;
     const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
     tooltipgetBoundingClientRect.returns({ top: 0, left: 50, height: 100, width: 100 });
     wrapper.instance().calculateOffset(wrapper.props());
@@ -177,10 +179,10 @@ describe('Tooltip', () => {
           side={'right'}
         />
       );
-      const tailElem = wrapper.node.tailElem;
+      const tailElem = wrapper.instance().tailElem;
       const tailgetBoundingClientRect = sinon.stub(tailElem, 'getBoundingClientRect');
       tailgetBoundingClientRect.returns({ top: 50, left: 150, height: 10, width: 10 });
-      const tooltipElem = wrapper.node.element;
+      const tooltipElem = wrapper.instance().element;
       const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
       tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
       wrapper.instance().calculateOffset(wrapper.props());
@@ -200,10 +202,10 @@ describe('Tooltip', () => {
             side={'right'}
           />
         );
-        const tailElem = wrapper.node.tailElem;
+        const tailElem = wrapper.instance().tailElem;
         const tailgetBoundingClientRect = sinon.stub(tailElem, 'getBoundingClientRect');
         tailgetBoundingClientRect.returns({ top: 50, left: 150, height: 10, width: 10 });
-        const tooltipElem = wrapper.node.element;
+        const tooltipElem = wrapper.instance().element;
         const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
         tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
         wrapper.instance().calculateOffset(wrapper.props());
@@ -222,10 +224,10 @@ describe('Tooltip', () => {
             side={'left'}
           />
         );
-        const tailElem = wrapper.node.tailElem;
+        const tailElem = wrapper.instance().tailElem;
         const tailgetBoundingClientRect = sinon.stub(tailElem, 'getBoundingClientRect');
         tailgetBoundingClientRect.returns({ top: 50, left: 50, height: 10, width: 10 });
-        const tooltipElem = wrapper.node.element;
+        const tooltipElem = wrapper.instance().element;
         const tooltipgetBoundingClientRect = sinon.stub(tooltipElem, 'getBoundingClientRect');
         tooltipgetBoundingClientRect.returns({ top: 50, left: 50, height: 100, width: 100 });
         wrapper.instance().calculateOffset(wrapper.props());

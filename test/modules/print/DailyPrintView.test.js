@@ -304,7 +304,6 @@ describe('DailyPrintView', () => {
 
   describe('render', () => {
     it('should call all the appropriate render methods for each page and chart', () => {
-      sinon.stub(Renderer, 'renderPageNumber');
       sinon.stub(Renderer, 'renderSummary').returns(Renderer);
       sinon.stub(Renderer, 'renderXAxes').returns(Renderer);
       sinon.stub(Renderer, 'renderYAxes').returns(Renderer);

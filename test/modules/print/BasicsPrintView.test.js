@@ -431,14 +431,14 @@ describe('BasicsPrintView', () => {
 
       Renderer.cgmStatus = 'noCGM';
 
-      Renderer.doc.text.reset();
+      Renderer.doc.text.resetHistory();
       Renderer.renderBgDistribution();
 
       sinon.assert.calledWith(Renderer.doc.text, 'Showing BGM data (no CGM)');
 
       Renderer.cgmStatus = 'notEnoughCGM';
 
-      Renderer.doc.text.reset();
+      Renderer.doc.text.resetHistory();
       Renderer.renderBgDistribution();
 
       sinon.assert.calledWith(Renderer.doc.text, 'Showing BGM data (not enough CGM)');

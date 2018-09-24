@@ -562,7 +562,7 @@ describe('PrintView', () => {
     });
 
     afterEach(() => {
-      Renderer.setFill.reset();
+      Renderer.setFill.resetHistory();
     });
 
     it('should not render a fill stripe when missing column fill stripe definition', () => {
@@ -724,7 +724,7 @@ describe('PrintView', () => {
     });
 
     afterEach(() => {
-      Renderer.renderCellStripe.reset();
+      Renderer.renderCellStripe.resetHistory();
     });
 
     it('should make the call to render a cell stripe', () => {
@@ -1074,9 +1074,9 @@ describe('PrintView', () => {
     });
 
     afterEach(() => {
-      setFill.reset();
-      setStroke.reset();
-      resetText.reset();
+      setFill.resetHistory();
+      setStroke.resetHistory();
+      resetText.resetHistory();
     });
 
     it('should render a table with default settings when no args provided', () => {

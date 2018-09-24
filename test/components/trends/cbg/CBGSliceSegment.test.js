@@ -72,8 +72,8 @@ describe('CBGSliceSegment', () => {
 
   describe('interactions', () => {
     afterEach(() => {
-      props.focusSlice.reset();
-      props.unfocusSlice.reset();
+      props.focusSlice.resetHistory();
+      props.unfocusSlice.resetHistory();
     });
 
     describe('onMouseOver', () => {

@@ -202,20 +202,20 @@ describe('SMBGTooltip', () => {
 
   it('should render "target" color for target bg', () => {
     const wrapper = mount(<SMBGTooltip {...props} smbg={target} />);
-    expect(wrapper.find('Tooltip').node.props.tailColor).to.equal(colors.target);
-    expect(wrapper.find('Tooltip').node.props.borderColor).to.equal(colors.target);
+    expect(wrapper.find('Tooltip').instance().props.tailColor).to.equal(colors.target);
+    expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.target);
   });
 
   it('should render "high" color for high bg', () => {
     const wrapper = mount(<SMBGTooltip {...props} smbg={high} />);
-    expect(wrapper.find('Tooltip').node.props.tailColor).to.equal(colors.high);
-    expect(wrapper.find('Tooltip').node.props.borderColor).to.equal(colors.high);
+    expect(wrapper.find('Tooltip').instance().props.tailColor).to.equal(colors.high);
+    expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.high);
   });
 
   it('should render "low" color for low bg', () => {
     const wrapper = mount(<SMBGTooltip {...props} smbg={low} />);
-    expect(wrapper.find('Tooltip').node.props.tailColor).to.equal(colors.low);
-    expect(wrapper.find('Tooltip').node.props.borderColor).to.equal(colors.low);
+    expect(wrapper.find('Tooltip').instance().props.tailColor).to.equal(colors.low);
+    expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.low);
   });
 
   it('should render "manual" for a manual smbg', () => {

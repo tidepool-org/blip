@@ -84,8 +84,8 @@ describe('TrendsSVGContainer', () => {
   };
 
   afterEach(() => {
-    props.xScale.range.reset();
-    props.yScale.range.reset();
+    props.xScale.range.resetHistory();
+    props.yScale.range.resetHistory();
   });
 
   describe('setScales', () => {
@@ -129,7 +129,7 @@ describe('TrendsSVGContainer', () => {
       it('should call the `setScales` method', () => {
         sinon.spy(TrendsSVGContainer.prototype, 'setScales');
         const container = shallow(<TrendsSVGContainer {...props} />);
-        TrendsSVGContainer.prototype.setScales.reset();
+        TrendsSVGContainer.prototype.setScales.resetHistory();
         expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
 
         container.setProps({ yScale: _.assign({}, props.yScale, { changed: true }) });
@@ -143,7 +143,7 @@ describe('TrendsSVGContainer', () => {
       it('should not call the `setScales` method', () => {
         sinon.spy(TrendsSVGContainer.prototype, 'setScales');
         const container = shallow(<TrendsSVGContainer {...props} />);
-        TrendsSVGContainer.prototype.setScales.reset();
+        TrendsSVGContainer.prototype.setScales.resetHistory();
         expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
 
         container.setProps({ someChange: true });

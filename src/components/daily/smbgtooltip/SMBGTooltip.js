@@ -45,7 +45,7 @@ class SMBGTooltip extends PureComponent {
       </div>,
     ];
 
-    const source = !_.isEmpty(smbg.subType) ? `${_.capitalize(smbg.subType)}` : 'Meter';
+    const source = !_.isEmpty(smbg.subType) ? `${_.upperFirst(smbg.subType)}` : 'Meter';
     rows.push(
       <div key={'source'} className={styles.source}>
         <div className={styles.label}>Source</div>

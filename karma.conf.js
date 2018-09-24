@@ -9,7 +9,8 @@ webpackConf.externals = {
   'react/lib/ReactContext': true,
 };
 
-webpackConf.devtool = 'inline-source-map';
+// webpackConf.devtool = 'inline-source-map';
+webpackConf.devtool = 'none';
 
 module.exports = function karmaConfig(config) {
   config.set({
@@ -33,16 +34,18 @@ module.exports = function karmaConfig(config) {
     frameworks: ['mocha', 'chai', 'sinon', 'intl-shim'],
     logLevel: config.LOG_INFO,
     preprocessors: {
-      'loadtests.js': ['webpack', 'sourcemap'],
+      'loadtests.js': ['webpack'],
+      // 'loadtests.js': ['webpack', 'sourcemap'],
     },
     reporters: ['mocha', 'coverage'],
     singleRun: true,
     webpack: webpackConf,
-    webpackMiddleware: {
-      noInfo: true,
-      stats: {
-        chunks: false,
-      },
-    },
+    // webpackMiddleware: {
+    //   noInfo: true,
+    //   stats: 'errors-only',
+    //   // stats: {
+    //   //   chunks: false,
+    //   // },
+    // },
   });
 };
