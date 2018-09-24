@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "1.9.0-aggregated-stats-widgets.2",
+  "version": "1.9.0-aggregated-stats-widgets.1",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
     "bows": "1.7.0",
     "classnames": "2.2.6",
     "crossfilter": "1.3.12",
-    "d3": "5.7.0",
+    "d3": "3.5.17",
     "d3.chart": "0.3.0",
     "duration-js": "4.0.0",
     "i18next": "11.9.0",
