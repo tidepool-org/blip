@@ -68,7 +68,6 @@ describe('Tooltip', () => {
       />
     );
 
-    console.log(wrapper.instance());
     const tailElem = wrapper.instance().tailElem;
     const tailgetBoundingClientRect = sinon.stub(tailElem, 'getBoundingClientRect');
     tailgetBoundingClientRect.returns({ top: 50, left: 50, height: 10, width: 10 });
