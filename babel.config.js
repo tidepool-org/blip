@@ -1,62 +1,34 @@
 module.exports = function babelConfig(api) {
-  api.cache(true);
-
-  const env = {
-    dev: {
-      plugins: [
-        'react-hot-loader/babel',
-      ],
-    },
-    test: {
-      plugins: [
-        'rewire',
-      ],
-    },
-  };
-
   const presets = [
     '@babel/preset-env',
     '@babel/preset-react',
+    'babel-preset-react-app',
   ];
 
   const plugins = [
-    [
-      '@babel/plugin-transform-runtime',
-      {
-        helpers: false,
-      },
-    ],
-    '@babel/plugin-syntax-dynamic-import',
-    '@babel/plugin-syntax-import-meta',
-    '@babel/plugin-proposal-class-properties',
-    '@babel/plugin-proposal-json-strings',
-    [
-      '@babel/plugin-proposal-decorators',
-      {
-        legacy: true,
-      },
-    ],
-    '@babel/plugin-proposal-function-sent',
-    '@babel/plugin-proposal-export-namespace-from',
-    '@babel/plugin-proposal-numeric-separator',
-    '@babel/plugin-proposal-throw-expressions',
-    '@babel/plugin-proposal-export-default-from',
     '@babel/plugin-transform-modules-commonjs',
-    '@babel/plugin-proposal-logical-assignment-operators',
-    '@babel/plugin-proposal-optional-chaining',
-    [
-      '@babel/plugin-proposal-pipeline-operator',
-      {
-        proposal: 'minimal',
-      },
-    ],
-    '@babel/plugin-proposal-nullish-coalescing-operator',
-    '@babel/plugin-proposal-do-expressions',
-    '@babel/plugin-proposal-function-bind',
   ];
 
+  const env = api.env();
+
+  if (env === 'dev') {
+    plugins.unshift(
+      'react-hot-loader/babel',
+    );
+  }
+
+  if (env === 'test') {
+    plugins.unshift(
+      ['babel-plugin-istanbul', {
+        useInlineSourceMaps: false,
+      }],
+      'babel-plugin-rewire',
+    );
+  }
+
+  api.cache(true);
+
   return {
-    env,
     presets,
     plugins,
   };

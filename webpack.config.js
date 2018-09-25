@@ -1,14 +1,15 @@
 const path = require('path');
 const webpack = require('webpack');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
 const uglifyJS = require('uglify-es');
 const fs = require('fs');
 
-const appDirectory = path.resolve(__dirname);
 const isDev = (process.env.NODE_ENV === 'development');
+const isTest = (process.env.NODE_ENV === 'test');
 
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
@@ -21,7 +22,7 @@ const localIdentName = process.env.NODE_ENV === 'test'
 const styleLoaderConfiguration = {
   test: /\.less$/,
   use: [
-    isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
+    (isDev || isTest) ? 'style-loader' : MiniCssExtractPlugin.loader,
     {
       loader: 'css-loader',
       query: {
@@ -46,21 +47,31 @@ const styleLoaderConfiguration = {
   ],
 };
 
-const babelLoaderConfiguration = {
-  test: /\.js$/,
-  include: [
-    // Add every directory that needs to be compiled by babel during the build
-    path.resolve(appDirectory, 'app'),
-    path.resolve(appDirectory, 'test'),
-    path.resolve(appDirectory, 'node_modules/tideline'),
-  ],
-  use: {
-    loader: 'babel-loader',
-    options: {
-      cacheDirectory: true,
+const babelLoaderConfiguration = [
+  {
+    test: /\.js$/,
+    // exclude: /node_modules/,
+    exclude: function(modulePath) {
+      return /node_modules/.test(modulePath) && !/node_modules\/(tideline)/.test(modulePath);
+    },
+    use: {
+      loader: 'babel-loader',
+      options: {
+        cacheDirectory: true,
+      },
     },
   },
-};
+  // {
+  //   test: /node_modules\/tideline\/.*\.js$/,
+  //   exclude: /tideline\/node_modules/,
+  //   use: {
+  //     loader: 'babel-loader',
+  //     options: {
+  //       cacheDirectory: true,
+  //     },
+  //   },
+  // },
+];
 
 // This is needed for webpack to import static images in JavaScript files
 const imageLoaderConfiguration = {
@@ -123,7 +134,7 @@ const plugins = [
     __ABOUT_MAX_LENGTH__: JSON.stringify(process.env.ABOUT_MAX_LENGTH || null),
     __I18N_ENABLED__: JSON.stringify(process.env.I18N_ENABLED || false),
     __DEV__: isDev,
-    __TEST__: false,
+    __TEST__: isTest,
     __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false) //eslint-disable-line eqeqeq
   }),
   new MiniCssExtractPlugin({
@@ -147,12 +158,11 @@ const plugins = [
     template: 'index.ejs',
     favicon: 'favicon.ico',
   }),
-  new HtmlWebpackIncludeAssetsPlugin({
-    assets: ['pdfkit.js', 'blob-stream.js'],
-    hash: true,
-    append: true,
-  })
 ];
+
+if (isDev) {
+  plugins.push(new webpack.HotModuleReplacementPlugin());
+}
 
 const entry = isDev
   ? [
@@ -169,7 +179,7 @@ const output = {
   filename: 'bundle.js',
   path: path.join(__dirname, '/dist'),
   publicPath: isDev ? 'http://localhost:3000/' : '/',
-  globalObject: `typeof self !== 'undefined' ? self : this`, // eslint-disable-line quotes
+  globalObject: `(typeof self !== 'undefined' ? self : this)`, // eslint-disable-line quotes
 };
 
 const resolve = {
@@ -183,18 +193,38 @@ const resolve = {
 module.exports = {
   devServer: {
     publicPath: output.publicPath,
-    historyApiFallback: true
+    historyApiFallback: true,
+    hot: isDev,
+    clientLogLevel: 'warning',
+    // clientLogLevel: 'info',
   },
   devtool: process.env.WEBPACK_DEVTOOL || 'eval-source-map',
   entry,
   mode: isDev ? 'development' : 'production',
   module: {
     rules: [
-      babelLoaderConfiguration,
+      ...babelLoaderConfiguration,
       imageLoaderConfiguration,
       styleLoaderConfiguration,
       ...fontLoaderConfiguration,
     ],
+  },
+  optimization: {
+    minimizer: [
+      new UglifyJsPlugin({
+        uglifyOptions: {
+          ecma: 7,
+          ie8: false,
+          output: {
+            comments: false
+          }
+        },
+        cache: true,
+        parallel: true,
+        sourceMap: true // set to true if you want JS source maps
+      }),
+      new OptimizeCSSAssetsPlugin({})
+    ]
   },
   output,
   plugins,
