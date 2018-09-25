@@ -12,7 +12,7 @@
     "build": "NODE_ENV=production npm run clean && ./node_modules/.bin/webpack --config package.config.js",
     "build-docs": "./update-gh-pages.sh",
     "build-storybooks": "./node_modules/.bin/build-storybook -c storybook -o web/stories && ./node_modules/.bin/build-storybook -c storybookDatatypes -o web/diabetes-data-stories",
-    "clean": "./node_modules/.bin/rimraf ./dist/*",
+    "clean": "NODE_ENV=production ./node_modules/.bin/rimraf ./dist/*",
     "lint": "./node_modules/.bin/eslint src/ stories/ storiesDatatypes/ test/ *.js",
     "prepare": "NODE_ENV=production npm run build",
     "prepublishOnly": "NODE_ENV=production ./node_modules/.bin/rimraf ./node_modules && yarn install --frozen-lockfile && npm test && npm run build",

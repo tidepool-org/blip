@@ -11,6 +11,10 @@ webpackConf.externals = {
 
 webpackConf.devtool = 'inline-source-map';
 
+webpackConf.output = {
+  filename: '[name]',
+};
+
 module.exports = function karmaConfig(config) {
   config.set({
     browserNoActivityTimeout: 60000,

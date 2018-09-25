@@ -1,14 +1,4 @@
 module.exports = function babelConfig(api) {
-  api.cache(true);
-
-  const env = {
-    test: {
-      plugins: [
-        'istanbul',
-      ],
-    },
-  };
-
   const presets = [
     '@babel/preset-env',
     '@babel/preset-react',
@@ -20,8 +10,19 @@ module.exports = function babelConfig(api) {
     '@babel/plugin-transform-modules-commonjs',
   ];
 
+  const env = api.env();
+
+  if (env === 'test') {
+    plugins.unshift(
+      ['babel-plugin-istanbul', {
+        useInlineSourceMaps: false,
+      }],
+    );
+  }
+
+  api.cache(true);
+
   return {
-    env,
     presets,
     plugins,
   };
