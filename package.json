@@ -15,7 +15,7 @@
     "clean": "./node_modules/.bin/rimraf ./dist/*",
     "lint": "./node_modules/.bin/eslint src/ stories/ storiesDatatypes/ test/ *.js",
     "prepare": "NODE_ENV=production npm run build",
-    "prepublishOnly": "./node_modules/.bin/rimraf ./node_modules && yarn install --frozen-lockfile && npm test && npm run build",
+    "prepublishOnly": "NODE_ENV=production ./node_modules/.bin/rimraf ./node_modules && yarn install --frozen-lockfile && npm test && npm run build",
     "pretest": "npm run lint",
     "serve-docs": "./node_modules/.bin/gitbook serve",
     "start": "NODE_ENV=development ./node_modules/.bin/webpack --config package.config.js --watch",
