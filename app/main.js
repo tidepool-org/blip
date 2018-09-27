@@ -13,9 +13,23 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-window.onerror = require('./onerror');
-window.config = require('../config.app.js');
+import config from '../config.app';
+import onerror from './onerror';
+import app from './bootstrap';
+import AppRoot from './redux/containers/Root';
+import i18n from 'i18next';
 
-var app = window.app = require('./bootstrap');
+import { setConfig } from 'react-hot-loader'
+setConfig({ logLevel: 'debug' });
 
-app.start();
+window.onerror = onerror;
+
+app.start(AppRoot);
+
+// webpack Hot Module Replacement API
+if (module.hot) {
+  module.hot.accept('./bootstrap', () => {
+    app.render(AppRoot);
+    i18n.reloadResources();
+  });
+}

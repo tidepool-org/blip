@@ -18,7 +18,7 @@
 /* global __ABOUT_MAX_LENGTH__ */
 /* global __I18N_ENABLED__ */
 
-var pkg = require('./package.json');
+const pkg = require('./package.json');
 
 function booleanFromText(value, defaultValue) {
   if (value === 'true') {
@@ -42,7 +42,7 @@ function integerFromText(value, defaultValue) {
 
 // the constants below are defined in webpack.config.js -- they're aliases for
 // environment variables.
-module.exports = {
+export const config = window.config = {
   VERSION: pkg.version,
   UPLOAD_API: __UPLOAD_API__ || 'https://tidepool.org/uploader',
   API_HOST: __API_HOST__ || 'https://dev-api.tidepool.org',
@@ -53,3 +53,5 @@ module.exports = {
   ABOUT_MAX_LENGTH: integerFromText(__ABOUT_MAX_LENGTH__, 256),
   I18N_ENABLED: booleanFromText(__I18N_ENABLED__, false)
 };
+
+export default config;
