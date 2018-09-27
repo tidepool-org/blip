@@ -3096,7 +3096,7 @@ describe('Actions', () => {
             payload: { serverTime },
           },
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'FETCH_MESSAGE_THREAD_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
