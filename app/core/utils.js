@@ -65,12 +65,6 @@ utils.getIn = (obj, props, notFound) => {
   return result.child;
 };
 
-// concat([1, 2], 3, [4, 5]) -> [1, 2, 3, 4, 5]
-utils.concat = () => {
-  var args = Array.prototype.slice.call(arguments, 0);
-  return Array.prototype.concat.apply([], args);
-};
-
 utils.isChrome = () => {
   var userAgent = navigator.userAgent.toLowerCase();
   return (userAgent.indexOf('chrome') > -1 && userAgent.indexOf('edge') === -1);
