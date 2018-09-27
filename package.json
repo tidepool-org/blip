@@ -13,7 +13,7 @@
     "build-app": "NODE_ENV=production node buildapp",
     "build-config": "NODE_ENV=production node buildconfig",
     "server": "node server",
-    "lint": "eslint app test",
+    "lint": "./node_modules/.bin/eslint app test",
     "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0",
     "build-docs": "./update-gh-pages.sh",
     "serve-docs": "./node_modules/.bin/gitbook serve",

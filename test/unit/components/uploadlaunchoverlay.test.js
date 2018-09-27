@@ -27,8 +27,6 @@ import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../../app/core/constants';
 
 const expect = chai.expect;
 
-import releases from '../../fixtures/githubreleasefixture';
-
 describe('UploadLaunchOverlay', function () {
   const props = {
     modalDismissHandler: sinon.spy(),
@@ -75,6 +73,7 @@ describe('UploadLaunchOverlay', function () {
         latestWinRelease: 'test',
         uploadDismiss: 'test',
       });
+      wrapper.update();
       expect(wrapper.find('a')).to.have.length(3);
       expect(wrapper.find('a.disabled')).to.have.length(0);
     });
@@ -83,6 +82,7 @@ describe('UploadLaunchOverlay', function () {
       wrapper.instance().getWrappedInstance().setState({
         error: 'some error',
       });
+      wrapper.update();
       expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
     });
   });

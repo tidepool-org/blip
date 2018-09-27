@@ -36,7 +36,7 @@ describe('Actions', () => {
     // very important to do this in an afterEach than in each test when __Rewire__ is used
     // if you try to reset within each test you'll make it impossible for tests to fail!
     async.__ResetDependency__('utils');
-    trackMetric.reset();
+    trackMetric.resetHistory();
   })
 
   describe('Asynchronous Actions', () => {
@@ -118,6 +118,8 @@ describe('Actions', () => {
         store.dispatch(async.signup(api, {foo: 'bar'}));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.signup.callCount).to.equal(1);
       });
@@ -144,6 +146,8 @@ describe('Actions', () => {
         store.dispatch(async.signup(api, {foo: 'bar'}));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SIGNUP });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.signup.callCount).to.equal(1);
       });
@@ -197,6 +201,8 @@ describe('Actions', () => {
         store.dispatch(async.confirmSignup(api, 'fakeSignupKey'));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CONFIRMING_SIGNUP });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.confirmSignUp.calledWith('fakeSignupKey')).to.be.true;
         expect(api.user.confirmSignUp.callCount).to.equal(1);
@@ -226,6 +232,8 @@ describe('Actions', () => {
         store.dispatch(async.confirmSignup(api, 'fakeSignupKey', 'g@a.com'));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CONFIRMING_SIGNUP });
+        expectedActions[1].error = actions[1].error;
 
         expect(actions).to.eql(expectedActions);
         expect(api.user.confirmSignUp.calledWith('fakeSignupKey')).to.be.true;
@@ -330,6 +338,8 @@ describe('Actions', () => {
         store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CONFIRMING_SIGNUP });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.custodialConfirmSignUp.calledWith(key, birthday, password)).to.be.true;
         expect(api.user.custodialConfirmSignUp.callCount).to.equal(1);
@@ -385,6 +395,8 @@ describe('Actions', () => {
         store.dispatch(async.resendEmailVerification(api, email));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_RESENDING_EMAIL_VERIFICATION });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.resendEmailVerification.calledWith(email)).to.be.true;
         expect(api.user.resendEmailVerification.callCount).to.equal(1);
@@ -488,7 +500,7 @@ describe('Actions', () => {
         expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
         expect(api.user.acceptTerms.callCount).to.equal(1);
 
-        expect(_.findWhere(actions, { type: '@@router/TRANSITION' })).to.be.undefined;
+        expect(_.find(actions, { type: '@@router/TRANSITION' })).to.be.undefined;
       });
 
       it('should trigger ACCEPT_TERMS_FAILURE and it should call acceptTerms once for a failed request', () => {
@@ -518,6 +530,8 @@ describe('Actions', () => {
         store.dispatch(async.acceptTerms(api, acceptedDate));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_ACCEPTING_TERMS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
         expect(api.user.acceptTerms.callCount).to.equal(1);
@@ -686,6 +700,8 @@ describe('Actions', () => {
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_LOGIN });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.login.callCount).to.equal(1);
@@ -716,6 +732,8 @@ describe('Actions', () => {
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_LOGIN_CREDS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.login.callCount).to.equal(1);
@@ -777,6 +795,8 @@ describe('Actions', () => {
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_USER });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.login.callCount).to.equal(1);
@@ -810,6 +830,8 @@ describe('Actions', () => {
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.login.callCount).to.equal(1);
@@ -900,6 +922,8 @@ describe('Actions', () => {
         store.dispatch(async.setupDataStorage(api, patient));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DSA_SETUP });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.post.calledWith(patient)).to.be.true;
         expect(api.patient.post.callCount).to.equal(1);
@@ -965,6 +989,8 @@ describe('Actions', () => {
         store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REMOVING_MEMBERSHIP });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.access.leaveGroup.calledWith(patientId)).to.be.true;
         expect(api.access.leaveGroup.callCount).to.equal(1)
@@ -1037,6 +1063,8 @@ describe('Actions', () => {
         store.dispatch(async.removeMemberFromTargetCareTeam(api, patientId, memberId, callback));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REMOVING_MEMBER });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.access.removeMember.calledWith(memberId)).to.be.true;
 
@@ -1145,6 +1173,8 @@ describe('Actions', () => {
         store.dispatch(async.sendInvite(api, email, permissions, callback));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_ALREADY_SENT_TO_EMAIL });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
 
@@ -1183,6 +1213,8 @@ describe('Actions', () => {
         store.dispatch(async.sendInvite(api, email, permissions, callback));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_INVITE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
 
@@ -1248,6 +1280,8 @@ describe('Actions', () => {
         store.dispatch(async.cancelSentInvite(api, email, callback));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CANCELLING_INVITE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.cancel.calledWith(email)).to.be.true;
 
@@ -1261,7 +1295,7 @@ describe('Actions', () => {
       it('should trigger FETCH_DATA_DONATION_ACCOUNTS_SUCCESS and it should call api.user.getDataDonationAccounts once for a successful request', () => {
         let dataDonationAccounts = [
           { email: 'bigdata@tidepool.org' },
-          { email: 'bigdata+ZZZ@tidepool.org' },
+          { email: 'bigdata+NSF@tidepool.org' },
         ];
 
         let api = {
@@ -1288,7 +1322,7 @@ describe('Actions', () => {
       it('should trigger FETCH_DATA_DONATION_ACCOUNTS_FAILURE and it should call error once for a failed request', () => {
         let dataDonationAccounts = [
           { email: 'bigdata@tidepool.org' },
-          { email: 'bigdata+ZZZ@tidepool.org' },
+          { email: 'bigdata+NSF@tidepool.org' },
         ];
 
         let api = {
@@ -1311,6 +1345,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchDataDonationAccounts(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_DATA_DONATION_ACCOUNTS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.getDataDonationAccounts.callCount).to.equal(1);
       });
@@ -1323,13 +1359,13 @@ describe('Actions', () => {
         ];
 
         let removeAccounts = [
-          { email: 'bigdata+ZZZ@tidepool.org' },
+          { email: 'bigdata+NSF@tidepool.org' },
         ];
 
         let api = {
           invitation: {
             send: sinon.stub().callsArgWith(2, null, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL }),
-            cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+ZZZ@tidepool.org' }),
+            cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+NSF@tidepool.org' }),
             getSent: sinon.stub(),
           }
         };
@@ -1340,7 +1376,7 @@ describe('Actions', () => {
           { type: 'FETCH_PENDING_SENT_INVITES_REQUEST'},
           { type: 'SEND_INVITE_SUCCESS', payload: { invite: { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL } } },
           { type: 'CANCEL_SENT_INVITE_REQUEST' },
-          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+ZZZ@tidepool.org' } },
+          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+NSF@tidepool.org' } },
           { type: 'UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS', payload: { accounts: {
             addAccounts: _.map(addAccounts, email => ({ email: email })),
             removeAccounts: _.map(removeAccounts, account => account.email),
@@ -1360,13 +1396,13 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
       });
 
-      it('should trigger FETCH_DATA_DONATION_ACCOUNTS_FAILURE and it should call error once for a failed add account request', () => {
+      it('should trigger UPDATE_DATA_DONATION_ACCOUNTS_FAILURE and it should call error once for a failed add account request', () => {
         let addAccounts = [
           TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
         ];
 
         let removeAccounts = [
-          { email: 'bigdata+ZZZ@tidepool.org' },
+          { email: 'bigdata+NSF@tidepool.org' },
         ];
 
         let err = new Error(ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS);
@@ -1378,7 +1414,7 @@ describe('Actions', () => {
         let api = {
           invitation: {
             send: sinon.stub().callsArgWith(2, { status: 500, body: 'Error!' } , null),
-            cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+ZZZ@tidepool.org' }),
+            cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+NSF@tidepool.org' }),
             getSent: sinon.stub(),
           }
         };
@@ -1386,10 +1422,10 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'UPDATE_DATA_DONATION_ACCOUNTS_REQUEST' },
           { type: 'SEND_INVITE_REQUEST' },
-          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_FAILURE', error: err, meta: { apiError: { status: 500, body: 'Error!' } } },
           { type: 'SEND_INVITE_FAILURE', error: sendErr, meta: { apiError: { status: 500, body: 'Error!' } } },
           { type: 'CANCEL_SENT_INVITE_REQUEST' },
-          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+ZZZ@tidepool.org' } },
+          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+NSF@tidepool.org' } },
+          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_FAILURE', error: err, meta: { apiError: { status: 500, body: 'Error!' } } },
         ];
 
         _.each(expectedActions, (action) => {
@@ -1403,6 +1439,10 @@ describe('Actions', () => {
         store.dispatch(async.updateDataDonationAccounts(api, addAccounts, removeAccounts));
 
         const actions = store.getActions();
+        expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_INVITE });
+        expectedActions[2].error = actions[2].error;
+        expect(actions[5].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS });
+        expectedActions[5].error = actions[5].error;
         expect(actions).to.eql(expectedActions);
       });
     });
@@ -1570,6 +1610,8 @@ describe('Actions', () => {
         store.dispatch(async.acceptReceivedInvite(api, invitation));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_ACCEPTING_INVITE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.accept.calledWith(invitation.key, invitation.creator.userid)).to.be.true;
       });
@@ -1622,6 +1664,8 @@ describe('Actions', () => {
         store.dispatch(async.rejectReceivedInvite(api, invitation));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REJECTING_INVITE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.dismiss.calledWith(invitation.key, invitation.creator.userid)).to.be.true;
       });
@@ -1693,6 +1737,8 @@ describe('Actions', () => {
         store.dispatch(async.setMemberPermissions(api, patientId, memberId, permissions));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CHANGING_PERMS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.access.setMemberPermissions.calledWith(memberId, permissions)).to.be.true;
       });
@@ -1746,6 +1792,8 @@ describe('Actions', () => {
         store.dispatch(async.updatePatient(api, patient));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_PATIENT });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.put.calledWith(patient)).to.be.true;
       });
@@ -1804,6 +1852,8 @@ describe('Actions', () => {
         store.dispatch(async.updatePreferences(api, patientId, preferences));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_PREFERENCES });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.metadata.preferences.put.calledWith(patientId, preferences)).to.be.true;
       });
@@ -1892,6 +1942,8 @@ describe('Actions', () => {
         store.dispatch(async.updateSettings(api, patientId, settings));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_SETTINGS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.metadata.settings.put.calledWith(patientId, settings)).to.be.true;
       });
@@ -1910,11 +1962,14 @@ describe('Actions', () => {
         let err = new Error(ErrorMessages.ERR_UPDATING_SETTINGS);
         err.status = 500;
 
+        let bgErr = new Error(ErrorMessages.ERR_UPDATING_PATIENT_BG_UNITS);
+        bgErr.status = 500;
+
         let expectedActions = [
           { type: 'UPDATE_SETTINGS_REQUEST' },
           { type: 'UPDATE_PATIENT_BG_UNITS_REQUEST' },
           { type: 'UPDATE_SETTINGS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
-          { type: 'UPDATE_PATIENT_BG_UNITS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
+          { type: 'UPDATE_PATIENT_BG_UNITS_FAILURE', error: bgErr, meta: { apiError: {status: 500, body: 'Error!'} } },
         ];
 
         _.each(expectedActions, (action) => {
@@ -1925,6 +1980,10 @@ describe('Actions', () => {
         store.dispatch(async.updateSettings(api, patientId, settings));
 
         const actions = store.getActions();
+        expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_SETTINGS });
+        expectedActions[2].error = actions[2].error;
+        expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_PATIENT_BG_UNITS });
+        expectedActions[3].error = actions[3].error;
         expect(actions).to.eql(expectedActions);
         expect(api.metadata.settings.put.calledWith(patientId, settings)).to.be.true;
       });
@@ -2074,6 +2133,8 @@ describe('Actions', () => {
         store.dispatch(async.updateUser(api, formValues));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_USER });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.put.calledWith(userUpdates)).to.be.true;
       });
@@ -2220,6 +2281,8 @@ describe('Actions', () => {
         store.dispatch(async.updateClinicianProfile(api, formValues));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_USER });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.put.calledWith(userUpdates)).to.be.true;
       });
@@ -2271,6 +2334,8 @@ describe('Actions', () => {
         store.dispatch(async.requestPasswordReset(api, email));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REQUESTING_PASSWORD_RESET });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.requestPasswordReset.calledWith(email)).to.be.true;
       });
@@ -2322,6 +2387,8 @@ describe('Actions', () => {
         store.dispatch(async.confirmPasswordReset(api, payload));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CONFIRMING_PASSWORD_RESET });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.confirmPasswordReset.calledWith(payload)).to.be.true;
       });
@@ -2432,6 +2499,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchUser(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_EMAIL_NOT_VERIFIED });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.get.callCount).to.equal(1);
       });
@@ -2484,6 +2553,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchUser(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_USER });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.get.callCount).to.equal(1);
       });
@@ -2537,6 +2608,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPendingSentInvites(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PENDING_SENT_INVITES });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.getSent.callCount).to.equal(1);
       });
@@ -2590,6 +2663,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPendingReceivedInvites(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PENDING_RECEIVED_INVITES });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.getReceived.callCount).to.equal(1);
       });
@@ -2629,7 +2704,7 @@ describe('Actions', () => {
           }
         };
 
-        let err = new Error(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD);
+        let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT);
         err.status = 500;
 
         let expectedActions = [
@@ -2643,6 +2718,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatient(api, 58686));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
@@ -2671,6 +2748,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatient(api, 58686));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
@@ -2714,7 +2793,7 @@ describe('Actions', () => {
           }
         };
 
-        let err = new Error(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD);
+        let err = new Error(ErrorMessages.ERR_FETCHING_PATIENTS);
         err.status = 500;
 
         let expectedActions = [
@@ -2728,6 +2807,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatients(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENTS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.getAll.callCount).to.equal(1);
       });
@@ -2974,7 +3055,7 @@ describe('Actions', () => {
           get: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
         };
 
-        let err = new Error(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD);
+        let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA);
         err.status = 500;
 
         let expectedActions = [
@@ -2993,6 +3074,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatientData(api, options, patientId));
 
         const actions = store.getActions();
+        expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA });
+        expectedActions[3].error = actions[3].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
         expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
@@ -3003,7 +3086,7 @@ describe('Actions', () => {
           getNotes: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null)
         };
 
-        let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA);
+        let err = new Error(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD);
         err.status = 500;
 
         let expectedActions = [
@@ -3023,6 +3106,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatientData(api, options, patientId));
 
         const actions = store.getActions();
+        expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_MESSAGE_THREAD });
+        expectedActions[3].error = actions[3].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
         expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
@@ -3058,6 +3143,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatientData(api, options, patientId));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_SERVER_TIME });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
         expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
@@ -3116,6 +3203,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchSettings(api, patientId));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_SETTINGS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.metadata.settings.get.calledWith(patientId)).to.be.true;
       });
@@ -3175,6 +3264,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchMessageThread(api, 400));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_MESSAGE_THREAD });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.team.getMessageThread.withArgs(400).callCount).to.equal(1);
       });
@@ -3230,6 +3321,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchDataSources(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_DATA_SOURCES });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.getDataSources.callCount).to.equal(1);
       });
@@ -3286,6 +3379,8 @@ describe('Actions', () => {
         store.dispatch(async.connectDataSource(api, 'strava', { path: [ '/v1/oauth/strava' ] }, { providerType: 'unexpected', providerName: 'strava' }));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CONNECTING_DATA_SOURCE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.createRestrictedToken.callCount).to.equal(0);
         expect(api.user.createOAuthProviderAuthorization.callCount).to.equal(0);
@@ -3313,6 +3408,8 @@ describe('Actions', () => {
         store.dispatch(async.connectDataSource(api, 'strava', { path: [ '/v1/oauth/strava' ] }, { providerType: 'oauth', providerName: 'strava' }));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CONNECTING_DATA_SOURCE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.createRestrictedToken.withArgs({ path: [ '/v1/oauth/strava' ] }).callCount).to.equal(1);
         expect(api.user.createOAuthProviderAuthorization.callCount).to.equal(0);
@@ -3351,7 +3448,7 @@ describe('Actions', () => {
           }
         };
 
-        let err = new Error(ErrorMessages.ERR_CONNECTING_DATA_SOURCE);
+        let err = new Error(ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE);
 
         let expectedActions = [
           { type: 'DISCONNECT_DATA_SOURCE_REQUEST' },
@@ -3364,6 +3461,8 @@ describe('Actions', () => {
         store.dispatch(async.disconnectDataSource(api, 'strava', { providerType: 'unexpected', providerName: 'strava' }));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.deleteOAuthProviderAuthorization.callCount).to.equal(0);
       });
@@ -3375,7 +3474,7 @@ describe('Actions', () => {
           }
         };
 
-        let err = new Error(ErrorMessages.ERR_CONNECTING_DATA_SOURCE);
+        let err = new Error(ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE);
         err.status = 500;
 
         let expectedActions = [
@@ -3389,6 +3488,8 @@ describe('Actions', () => {
         store.dispatch(async.disconnectDataSource(api, 'strava', { providerType: 'oauth', providerName: 'strava' }));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.deleteOAuthProviderAuthorization.withArgs('strava').callCount).to.equal(1);
       });

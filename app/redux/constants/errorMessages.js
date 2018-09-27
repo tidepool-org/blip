@@ -12,8 +12,6 @@ export const ERR_EMAIL_NOT_VERIFIED = t('Looks like your e-mail address has not 
 // relating to care team invitations
 export const ERR_ALREADY_SENT_TO_EMAIL = t('Looks like you\'ve already sent an invitation to that email.');
 
-export const SIGNUP_ERROR = t('An error occurred while signing up.');
-
 // these get assigned based on HTTP status codes
 // default
 export const ERR_GENERIC = t('Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to investigate.');

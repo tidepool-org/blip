@@ -53,6 +53,7 @@ describe('UploaderButton', function () {
         latestMacRelease: 'test',
         latestWinRelease: 'test',
       });
+      wrapper.update();
       expect(wrapper.find('a')).to.have.length(2);
       expect(wrapper.find('a.disabled')).to.have.length(0);
     });
@@ -61,6 +62,7 @@ describe('UploaderButton', function () {
       wrapper.instance().getWrappedInstance().setState({
         error: 'some error',
       });
+      wrapper.update();
       expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
       expect(wrapper.find('.btn-uploader').someWhere(n => (n.text().search(props.buttonText) !== -1))).to.be.true;
     });
@@ -69,6 +71,7 @@ describe('UploaderButton', function () {
       wrapper.instance().getWrappedInstance().setState({
         error: 'some error',
       });
+      wrapper.update();
       var callCount = props.onClick.callCount;
       wrapper.find('a').simulate('click');
       expect(props.onClick.callCount).to.equal(callCount + 1);

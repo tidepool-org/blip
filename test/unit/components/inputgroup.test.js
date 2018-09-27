@@ -54,34 +54,34 @@ describe('InputGroup', () => {
       const renderRadios = sinon.spy(wrapper.instance(), 'renderRadios');
       const renderSelect = sinon.spy(wrapper.instance(), 'renderSelect');
       const renderDatePicker = sinon.spy(wrapper.instance(), 'renderDatePicker');
-      wrapper.update();
+      wrapper.instance().forceUpdate();
 
       sinon.assert.calledOnce(renderInput);
-      renderInput.reset();
+      renderInput.resetHistory();
 
       wrapper.setProps({ type: 'explanation' });
       sinon.assert.calledOnce(renderExplanation);
-      renderExplanation.reset();
+      renderExplanation.resetHistory();
 
       wrapper.setProps({ type: 'textarea' });
       sinon.assert.calledOnce(renderTextArea);
-      renderTextArea.reset();
+      renderTextArea.resetHistory();
 
       wrapper.setProps({ type: 'checkbox' });
       sinon.assert.calledOnce(renderCheckbox);
-      renderCheckbox.reset();
+      renderCheckbox.resetHistory();
 
       wrapper.setProps({ type: 'radios' });
       sinon.assert.calledOnce(renderRadios);
-      renderRadios.reset();
+      renderRadios.resetHistory();
 
       wrapper.setProps({ type: 'select' });
       sinon.assert.calledOnce(renderSelect);
-      renderSelect.reset();
+      renderSelect.resetHistory();
 
       wrapper.setProps({ type: 'datepicker' });
       sinon.assert.calledOnce(renderDatePicker);
-      renderDatePicker.reset();
+      renderDatePicker.resetHistory();
 
     });
   });

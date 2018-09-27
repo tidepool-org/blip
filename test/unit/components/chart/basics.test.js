@@ -74,8 +74,8 @@ describe('Basics', () => {
 
   describe('render', () => {
     it('should render the missing data text if no data has been uploaded', () => {
-      const noDataMessage = wrapper.find('.patient-data-message');
-      const chart = wrapper.find('BasicsChart');
+      const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
+      const chart = wrapper.hostNodes('BasicsChart');
       expect(noDataMessage.length).to.equal(1);
       expect(chart.length).to.equal(0);
       expect(noDataMessage.text()).to.include('upload some device data');
@@ -99,8 +99,8 @@ describe('Basics', () => {
           }),
         }
       });
-      const noDataMessage = wrapper.find('.patient-data-message');
-      const chart = wrapper.find('BasicsChart');
+      const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
+      const chart = wrapper.hostNodes('BasicsChart');
       expect(noDataMessage.length).to.equal(0);
       expect(chart.length).to.equal(1);
     });
@@ -108,11 +108,11 @@ describe('Basics', () => {
     it('should have a disabled print button and spinner when a pdf is not ready to print', () => {
       let mountedWrapper = mount(<Basics {...baseProps} />);
 
-      var printLink = mountedWrapper.find('.printview-print-icon');
+      var printLink = mountedWrapper.find('.printview-print-icon').hostNodes();
       expect(printLink.length).to.equal(1);
       expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.true;
 
-      var spinner = mountedWrapper.find('.print-loading-spinner');
+      var spinner = mountedWrapper.find('.print-loading-spinner').hostNodes();
       expect(spinner.length).to.equal(1);
     });
 

@@ -201,7 +201,7 @@ describe('PatientData', function () {
       });
 
       describe('logged-in user is not current patient targeted for viewing', () => {
-        it ('should render the no data message when no data is present and loading and processingData are false', function() {
+        it('should render the no data message when no data is present and loading and processingData are false', function() {
           var props = _.assign({}, defaultProps, {
             patient: {
               profile: {
@@ -218,6 +218,8 @@ describe('PatientData', function () {
             loading: false,
             processingData: false,
           });
+
+          wrapper.update();
 
           expect(noData().length).to.equal(1);
           expect(noData().text()).to.equal('Fooey McBar does not have any data yet.');
@@ -248,6 +250,8 @@ describe('PatientData', function () {
             loading: false,
           });
 
+          wrapper.update();
+
           expect(noData().length).to.equal(1);
           expect(noData().text()).to.equal('Fooey McBar does not have any data yet.');
         });
@@ -266,6 +270,8 @@ describe('PatientData', function () {
           wrapper.instance().getWrappedInstance().setState({
             loading: false,
           });
+
+          wrapper.update();
 
           expect(noData().length).to.equal(1);
         });
@@ -289,6 +295,8 @@ describe('PatientData', function () {
           wrapper.instance().getWrappedInstance().setState({
             loading: false,
           });
+
+          wrapper.update();
 
           expect(noData().length).to.equal(1);
         });
@@ -319,6 +327,8 @@ describe('PatientData', function () {
           wrapper.instance().getWrappedInstance().setState({
             loading: false,
           });
+
+          wrapper.update();
 
           expect(noData().length).to.equal(1);
 
@@ -351,6 +361,8 @@ describe('PatientData', function () {
           wrapper.instance().getWrappedInstance().setState({
             loading: false,
           });
+
+          wrapper.update();
 
           var links = wrapper.find('.patient-data-uploader-message a');
           var callCount = props.trackMetric.callCount;
@@ -805,7 +817,7 @@ describe('PatientData', function () {
         initialDatetimeLocation: 'initialDate',
       })
 
-      setStateSpy.reset();
+      setStateSpy.resetHistory();
       sinon.assert.callCount(setStateSpy, 0);
       instance.handleRefresh();
       sinon.assert.calledWithMatch(setStateSpy, {
@@ -932,7 +944,7 @@ describe('PatientData', function () {
       const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
       const instance = wrapper.instance();
 
-      setStateSpy.reset();
+      setStateSpy.resetHistory();
       sinon.assert.callCount(setStateSpy, 0);
 
       expect(instance.props.patient.settings.siteChangeSource).to.equal('cannula');
@@ -959,7 +971,7 @@ describe('PatientData', function () {
       const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
       const instance = wrapper.instance();
 
-      setStateSpy.reset();
+      setStateSpy.resetHistory();
       sinon.assert.callCount(setStateSpy, 0);
 
       expect(instance.props.patient.settings.siteChangeSource).to.equal('cannula');
@@ -1031,7 +1043,7 @@ describe('PatientData', function () {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
-      setStateSpy.reset();
+      setStateSpy.resetHistory();
       sinon.assert.callCount(setStateSpy, 0);
 
       instance.updateDatetimeLocation('new datetime');
@@ -1050,7 +1062,7 @@ describe('PatientData', function () {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
-      setStateSpy.reset();
+      setStateSpy.resetHistory();
       sinon.assert.callCount(setStateSpy, 0);
 
       instance.updateChartDateRange('new date range');
@@ -1288,7 +1300,7 @@ describe('PatientData', function () {
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
 
-      wrapper.update();
+      wrapper.instance().forceUpdate();
       expect(elem.generatePDF.callCount).to.equal(1);
     });
 
@@ -1318,7 +1330,7 @@ describe('PatientData', function () {
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
 
-      wrapper.update();
+      wrapper.instance().forceUpdate();
       expect(elem.generatePDF.callCount).to.equal(1);
     });
 
@@ -1348,7 +1360,7 @@ describe('PatientData', function () {
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
 
-      wrapper.update();
+      wrapper.instance().forceUpdate();
       expect(elem.generatePDF.callCount).to.equal(1);
     });
 
@@ -1378,7 +1390,7 @@ describe('PatientData', function () {
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
 
-      wrapper.update();
+      wrapper.instance().forceUpdate();
       expect(elem.generatePDF.callCount).to.equal(1);
 
       wrapper.instance().getWrappedInstance().setState({ chartType: 'trends', processingData: false, processedPatientData });
@@ -1386,7 +1398,7 @@ describe('PatientData', function () {
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
 
-      wrapper.update();
+      wrapper.instance().forceUpdate();
       expect(elem.generatePDF.callCount).to.equal(1);
     });
 
@@ -1674,9 +1686,9 @@ describe('PatientData', function () {
     });
 
     afterEach(() => {
-      updateChartDateRangeSpy.reset();
-      fetchEarlierDataSpy.reset();
-      processDataSpy.reset();
+      updateChartDateRangeSpy.resetHistory();
+      fetchEarlierDataSpy.resetHistory();
+      processDataSpy.resetHistory();
     });
 
     after(() => {
@@ -2043,7 +2055,7 @@ describe('PatientData', function () {
     afterEach(() => {
       props.onFetchEarlierData.reset();
       props.trackMetric.reset();
-      setStateSpy.reset();
+      setStateSpy.resetHistory();
     });
 
     after(() => {
@@ -2300,7 +2312,7 @@ describe('PatientData', function () {
           processingData: true,
         });
 
-        setStateSpy.reset();
+        setStateSpy.resetHistory();
 
         instance.processData();
         sinon.assert.notCalled(setStateSpy);
@@ -2318,7 +2330,7 @@ describe('PatientData', function () {
           },
         }));
 
-        setStateSpy.reset();
+        setStateSpy.resetHistory();
 
         instance.processData();
         sinon.assert.callCount(setStateSpy, 1);
@@ -2381,7 +2393,7 @@ describe('PatientData', function () {
               timezone: 'US/Eastern',
             },
           }));
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledOnce(processPatientDataStub);
@@ -2401,7 +2413,7 @@ describe('PatientData', function () {
             lastDatumProcessedIndex: -1, // no data has been processed
           });
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledOnce(processPatientDataStub);
@@ -2427,7 +2439,7 @@ describe('PatientData', function () {
               ],
             },
           }));
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledOnce(processPatientDataStub);
@@ -2446,7 +2458,7 @@ describe('PatientData', function () {
             lastDatumProcessedIndex: -1, // no data has been processed
           });
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2468,7 +2480,7 @@ describe('PatientData', function () {
             lastDatumProcessedIndex: -1, // no data has been processed
           });
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2483,7 +2495,7 @@ describe('PatientData', function () {
             lastDatumProcessedIndex: -1, // no data has been processed
           });
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2500,7 +2512,7 @@ describe('PatientData', function () {
 
           const expectedTargetDateTime = moment(shouldProcessProps.patientDataMap[40][0].time).startOf('day').subtract(4, 'weeks').toISOString();
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2521,7 +2533,7 @@ describe('PatientData', function () {
 
           const expectedTargetDateTime = moment(shouldProcessProps.patientDataMap[40][0].time).startOf('day').subtract(4, 'weeks').toISOString();
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2537,7 +2549,7 @@ describe('PatientData', function () {
             lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
           });
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2553,7 +2565,7 @@ describe('PatientData', function () {
             lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
           });
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2582,7 +2594,7 @@ describe('PatientData', function () {
             timePrefs: 'existing timePrefs',
           });
 
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2598,7 +2610,7 @@ describe('PatientData', function () {
             lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
           });
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2633,7 +2645,7 @@ describe('PatientData', function () {
           });
 
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2674,7 +2686,7 @@ describe('PatientData', function () {
           });
 
           wrapper.setProps(propsWithPreviousUpload);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
           PD.__ResetDependency__('utils');
 
           instance.processData();
@@ -2696,7 +2708,7 @@ describe('PatientData', function () {
             lastProcessedDateTarget: '2018-01-02T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
           });
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
           PD.__ResetDependency__('utils');
 
           instance.processData();
@@ -2710,7 +2722,7 @@ describe('PatientData', function () {
             lastProcessedDateTarget: '2018-01-05T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
           });
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
           PD.__ResetDependency__('utils');
 
           instance.processData();
@@ -2732,7 +2744,7 @@ describe('PatientData', function () {
             lastProcessedDateTarget: '2018-01-20T00:00:00.000Z',
           });
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2754,7 +2766,7 @@ describe('PatientData', function () {
             lastDatumProcessedIndex: 0, // previous data has been processed
             lastProcessedDateTarget: '2018-01-20T00:00:00.000Z',
           });
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
           wrapper.setProps(shouldProcessProps);
 
           instance.processData();
@@ -2771,7 +2783,7 @@ describe('PatientData', function () {
             lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
           });
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2789,7 +2801,7 @@ describe('PatientData', function () {
 
           const expectedTargetDateTime = moment('2018-01-10T00:00:00.000Z').startOf('day').subtract(8, 'weeks').toISOString();
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2808,7 +2820,7 @@ describe('PatientData', function () {
 
           const expectedTargetDateTime = moment('2018-01-10T00:00:00.000Z').startOf('day').subtract(8, 'weeks').toISOString();
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2830,7 +2842,7 @@ describe('PatientData', function () {
 
           const expectedTargetDateTime = moment('2018-01-10T00:00:00.000Z').startOf('day').subtract(8, 'weeks').toISOString();
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2846,7 +2858,7 @@ describe('PatientData', function () {
             lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
           });
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2880,7 +2892,7 @@ describe('PatientData', function () {
           });
 
           wrapper.setProps(shouldProcessProps);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
@@ -2926,8 +2938,8 @@ describe('PatientData', function () {
     });
 
     afterEach(() => {
-      setStateSpy.reset();
-      setTimeoutSpy.reset();
+      setStateSpy.resetHistory();
+      setTimeoutSpy.resetHistory();
     });
 
     after(() => {
