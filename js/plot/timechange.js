@@ -118,6 +118,7 @@ module.exports = function(pool, opts) {
 
         if (timeChange.format === 'h:mm a' && !toTimeZoneName) {
           // No time zone change and time change is on the same day so we display on one line.
+          /* jshint laxbreak: true */
           var html = timeChange.from
             ? '<span class="fromto">from</span> ' + timeChange.from + ' <span class="fromto">to</span> ' + timeChange.to
             : '<span class="fromto">to</span> ' + timeChange.to;
@@ -132,8 +133,8 @@ module.exports = function(pool, opts) {
           var toTimeZoneText = '';
 
           if (toTimeZoneName && toTimeZoneName !== fromTimeZoneName) {
-            var fromTimeZoneText = fromTimeZoneName ? ' ' + fromTimeZoneName : '';
-            var toTimeZoneText = ' ' + toTimeZoneName;
+            fromTimeZoneText = fromTimeZoneName ? ' ' + fromTimeZoneName : '';
+            toTimeZoneText = ' ' + toTimeZoneName;
           }
 
           var fromHTML = '<span class="fromto">from</span> ' + timeChange.from + fromTimeZoneText;
