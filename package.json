@@ -24,7 +24,7 @@
     "npm": "6.x"
   },
   "dependencies": {
-    "@tidepool/viz": "0.12.0-aggregated-stats-widgets.1",
+    "@tidepool/viz": "0.12.0-aggregated-stats-widgets.4",
     "async": "2.6.1",
     "body-parser": "1.18.3",
     "bows": "1.7.0",
