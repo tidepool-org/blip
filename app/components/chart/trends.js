@@ -22,6 +22,7 @@ import bows from 'bows';
 import React, { PropTypes, PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import sundial from 'sundial';
+import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
 
 import Header from './header';
@@ -77,6 +78,7 @@ const Trends = translate()(class Trends extends PureComponent {
     this.formatDate = this.formatDate.bind(this);
     this.getNewDomain = this.getNewDomain.bind(this);
     this.getTitle = this.getTitle.bind(this);
+    this.handleWindowResize = this.handleWindowResize.bind(this);
     this.handleClickBack = this.handleClickBack.bind(this);
     this.handleClickDaily = this.handleClickDaily.bind(this);
     this.handleClickForward = this.handleClickForward.bind(this);
@@ -134,6 +136,11 @@ const Trends = translate()(class Trends extends PureComponent {
     // endpoint is exclusive, so need to subtract a day
     const end = d3.time.day.utc.offset(new Date(datetimeLocationEndpoints[1]), -1);
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(end);
+  }
+
+  handleWindowResize(windowSize) {
+    this.chart.mountData();
+    // this.chart.forceUpdate();
   }
 
   handleClickBack(e) {
@@ -345,11 +352,11 @@ const Trends = translate()(class Trends extends PureComponent {
   render() {
     const { currentPatientInViewId } = this.props;
     return (
-      <div id="tidelineMain">
+      <div id="tidelineMain" className="grid">
         {this.renderHeader()}
-        {this.renderSubNav()}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
+        {this.renderSubNav()}
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
               <div id="tidelineContainer" className="patient-data-chart-trends">
@@ -359,6 +366,9 @@ const Trends = translate()(class Trends extends PureComponent {
               {this.renderFocusedSMBGPointLabel()}
               {this.renderFocusedRangeLabels()}
             </div>
+          </div>
+          <div className="container-box-inner patient-data-sidebar-inner">
+            <div className="patient-data-sidebar">Hello sidebar</div>
           </div>
         </div>
         <Footer
@@ -376,6 +386,7 @@ const Trends = translate()(class Trends extends PureComponent {
          displayFlags={this.props.trendsState[currentPatientInViewId].cbgFlags}
          currentPatientInViewId={currentPatientInViewId}
          ref="footer" />
+         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );
   }

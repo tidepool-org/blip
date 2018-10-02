@@ -20,6 +20,7 @@ var bows = require('bows');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var sundial = require('sundial');
+import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
 
 // tideline dependencies & plugins
@@ -197,7 +198,7 @@ var Weekly = translate()(React.createClass({
 
   render: function() {
     return (
-      <div id="tidelineMain" className="grid">
+      <div id="tidelineMain">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
@@ -206,6 +207,9 @@ var Weekly = translate()(React.createClass({
               {this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart()}
             </div>
           </div>
+          <div className="container-box-inner patient-data-sidebar-inner">
+            <div className="patient-data-sidebar">Hello sidebar</div>
+          </div>
         </div>
         <Footer
          chartType={this.isMissingSMBG() ? 'no-data' : this.chartType}
@@ -213,6 +217,7 @@ var Weekly = translate()(React.createClass({
          onClickRefresh={this.props.onClickRefresh}
          showingValues={this.state.showingValues}
         ref="footer" />
+        <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );
   },
@@ -302,6 +307,10 @@ var Weekly = translate()(React.createClass({
 
   getTitle: function(datetimeLocationEndpoints) {
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(datetimeLocationEndpoints[1]);
+  },
+
+  handleWindowResize(windowSize) {
+    this.refs.chart.rerenderChart();
   },
 
   isMissingSMBG: function() {

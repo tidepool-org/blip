@@ -21,6 +21,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var sundial = require('sundial');
 var moment = require('moment');
+import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
 
 // tideline dependencies & plugins
@@ -262,6 +263,9 @@ var Daily = translate()(React.createClass({
                 ref="chart" />
             </div>
           </div>
+          <div className="container-box-inner patient-data-sidebar-inner">
+            <div className="patient-data-sidebar">Hello sidebar</div>
+          </div>
         </div>
         <Footer
          chartType={this.chartType}
@@ -287,6 +291,7 @@ var Daily = translate()(React.createClass({
             timePrefs={this.props.timePrefs}
             bgPrefs={this.props.bgPrefs}
           />}
+        <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
       );
   },
@@ -301,6 +306,10 @@ var Daily = translate()(React.createClass({
       timezone = timePrefs.timezoneName || 'UTC';
     }
     return sundial.formatInTimezone(datetime, timezone, t('ddd, MMM D, YYYY'));
+  },
+
+  handleWindowResize(windowSize) {
+    this.refs.chart.getWrappedInstance().rerenderChart();
   },
 
   // handlers

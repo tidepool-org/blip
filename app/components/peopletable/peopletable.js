@@ -20,7 +20,7 @@ import cx from 'classnames';
 import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
 import { browserHistory } from 'react-router';
-import WindowSizeListener from 'react-window-size-listener'
+import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
 
 import { SortHeaderCell, SortTypes } from './sortheadercell';
