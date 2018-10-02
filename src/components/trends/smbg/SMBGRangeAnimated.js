@@ -27,6 +27,10 @@ import SMBGRange from './SMBGRange';
 import styles from './SMBGRangeAnimated.css';
 
 export class SMBGRangeAnimated extends PureComponent {
+  static defaultProps = {
+    width: 108,
+  };
+
   static propTypes = {
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,
@@ -46,6 +50,7 @@ export class SMBGRangeAnimated extends PureComponent {
     defaultY: PropTypes.number.isRequired,
     someSmbgDataIsFocused: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
@@ -76,7 +81,7 @@ export class SMBGRangeAnimated extends PureComponent {
   }
 
   render() {
-    const { datum, defaultY, someSmbgDataIsFocused, xScale, yScale } = this.props;
+    const { datum, defaultY, someSmbgDataIsFocused, width, xScale, yScale } = this.props;
 
     const xPos = xScale(datum.msX);
     const yPositions = {
@@ -126,6 +131,7 @@ export class SMBGRangeAnimated extends PureComponent {
                 tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
                 yPositions,
               }}
+              rectWidth={width}
             />
           );
         }}

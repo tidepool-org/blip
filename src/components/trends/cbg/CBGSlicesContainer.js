@@ -36,6 +36,7 @@ export default class CBGSlicesContainer extends PureComponent {
       veryLowThreshold: PropTypes.number.isRequired,
     }).isRequired,
     binSize: PropTypes.number.isRequired,
+    sliceWidth: PropTypes.number.isRequired,
     data: PropTypes.arrayOf(PropTypes.shape({
       // here only documenting the properties we actually use rather than the *whole* data model!
       id: PropTypes.string.isRequired,
@@ -57,6 +58,7 @@ export default class CBGSlicesContainer extends PureComponent {
 
   static defaultProps = {
     binSize: THIRTY_MINS,
+    sliceWidth: 16,
   };
 
   constructor(props) {
@@ -96,7 +98,7 @@ export default class CBGSlicesContainer extends PureComponent {
 
   render() {
     const { mungedData } = this.state;
-    const { xScale, yScale } = this.props;
+    const { xScale, yScale, sliceWidth } = this.props;
 
     return (
       <g id="cbgSlices">
@@ -113,6 +115,7 @@ export default class CBGSlicesContainer extends PureComponent {
               unfocusSlice={this.props.unfocusSlice}
               xScale={xScale}
               yScale={yScale}
+              sliceWidth={sliceWidth}
             />
             <CBGMedianAnimated
               bgBounds={this.props.bgBounds}
@@ -121,6 +124,7 @@ export default class CBGSlicesContainer extends PureComponent {
               showingCbgDateTraces={this.props.showingCbgDateTraces}
               xScale={xScale}
               yScale={yScale}
+              sliceWidth={sliceWidth}
             />
           </g>
         ))}

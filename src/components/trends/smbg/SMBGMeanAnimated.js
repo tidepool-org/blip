@@ -51,9 +51,9 @@ export class SMBGMeanAnimated extends PureComponent {
     }),
     defaultY: PropTypes.number.isRequired,
     meanHeight: PropTypes.number.isRequired,
-    meanWidth: PropTypes.number.isRequired,
     someSmbgDataIsFocused: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
@@ -85,7 +85,7 @@ export class SMBGMeanAnimated extends PureComponent {
 
   render() {
     const {
-      bgBounds, datum, defaultY, meanHeight, meanWidth, someSmbgDataIsFocused, xScale, yScale,
+      bgBounds, datum, defaultY, meanHeight, someSmbgDataIsFocused, width, xScale, yScale,
     } = this.props;
 
     const xPos = xScale(datum.msX);
@@ -106,8 +106,8 @@ export class SMBGMeanAnimated extends PureComponent {
         [styles.transparent]: true,
       });
 
-    const binLeftX = xScale(datum.msX) - meanWidth / 2 + styles.stroke / 2;
-    const width = meanWidth - styles.stroke;
+    const binLeftX = xScale(datum.msX) - width / 2 + styles.stroke / 2;
+    const meanWidth = width - styles.stroke;
 
     return (
       <TransitionMotion
@@ -144,7 +144,7 @@ export class SMBGMeanAnimated extends PureComponent {
                 tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
                 yPositions,
               }}
-              width={width}
+              width={meanWidth}
               x={binLeftX}
             />
           );
