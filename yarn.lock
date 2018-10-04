@@ -3060,13 +3060,9 @@ formidable@1.0.11:
   version "1.0.11"
   resolved "https://registry.yarnpkg.com/formidable/-/formidable-1.0.11.tgz#68f63325a035e644b6f7bb3d11243b9761de1b30"
 
-formidable@1.0.14:
+formidable@1.0.14, formidable@^1.0.14:
   version "1.0.14"
   resolved "https://registry.yarnpkg.com/formidable/-/formidable-1.0.14.tgz#2b3f4c411cbb5fdd695c44843e2a23514a43231a"
-
-formidable@^1.0.14:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/formidable/-/formidable-1.2.1.tgz#70fb7ca0290ee6ff961090415f4b3df3d2082659"
 
 forwarded@~0.1.0:
   version "0.1.2"
@@ -5686,7 +5682,7 @@ optimist@0.6.1, optimist@>=0.3.5, optimist@^0.6.1, optimist@~0.6.0, optimist@~0.
     wordwrap "~0.0.2"
 
 optional@0.1.3:
-  version "0.1.3"
+  version v0.1.3
   resolved "https://registry.yarnpkg.com/optional/-/optional-0.1.3.tgz#f87537517b59a5e732cfd8f18e4f7eea7ab4761e"
 
 optionator@^0.8.1:
@@ -6337,7 +6333,7 @@ qs@0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/qs/-/qs-0.5.1.tgz#9f6bf5d9ac6c76384e95d36d15b48980e5e4add0"
 
-qs@1.2.0:
+qs@1.2.0, qs@^1.0.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-1.2.0.tgz#ed079be28682147e6fd9a34cc2b0c1e0ec6453ee"
 
@@ -6356,10 +6352,6 @@ qs@6.2.1, qs@~6.2.0:
 qs@6.5.2:
   version "6.5.2"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
-
-qs@^1.0.0:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-1.2.2.tgz#19b57ff24dc2a99ce1f8bdf6afcda59f8ef61f88"
 
 qs@~6.0.2:
   version "6.0.4"
@@ -7927,9 +7919,9 @@ thunkify@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@1.8.10:
-  version "1.8.10"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.8.10.tgz#838054389abca2aa879dd783cc1844c3a4dcf51a"
+tideline@1.8.11-fix-timechange-error.1:
+  version "1.8.11-fix-timechange-error.1"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.8.11-fix-timechange-error.1.tgz#c3ce3b1ee0f3c362ede1bdbfd10e4c4a18834535"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
