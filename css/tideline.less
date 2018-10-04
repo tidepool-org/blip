@@ -15,10 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-@import 'tideline-colors.less';
-@import 'tideline-modalday.less';
-@import 'tideline-svg.less';
-@import 'tideline-tooltip.less';
+@import "tideline-breakpoints.less";
+@import "tideline-colors.less";
+@import "tideline-modalday.less";
+@import "tideline-svg.less";
+@import "tideline-tooltip.less";
 // typography
 // @font-family-base shared with blip, but sizes are specific to tideline
 @font-family-base: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -65,6 +66,10 @@ svg {
     &.d3-day-label {
       dominant-baseline: hanging;
       fill: @text-light;
+    }
+
+    @media (max-width: @screen-sm-max) {
+      font-size: 10px;
     }
   }
 }
@@ -116,6 +121,10 @@ svg {
     &.light {
       font-weight: 300;
     }
+
+    @media (max-width: @screen-sm-max) {
+      font-size: 10px;
+    }
   }
 }
 
@@ -124,6 +133,10 @@ svg {
   font-size: @font-size-axes;
   text-anchor: end;
   fill: @text-light;
+
+  @media (max-width: @screen-sm-max) {
+    font-size: 10px;
+  }
 }
 
 .d3-pool-weekend {
@@ -170,15 +183,16 @@ svg {
     stroke-width: 1px;
   }
   &.d3-line-bg-threshold {
-    stroke-dasharray: 3,5;
+    stroke-dasharray: 3, 5;
   }
   &.d3-line-bg-threshold-trends {
-    stroke-dasharray: 9,9;
+    stroke-dasharray: 9, 9;
   }
 }
 
 // messages, timechange
-.d3-rect-message, .d3-rect-timechange {
+.d3-rect-message,
+.d3-rect-timechange {
   fill: white;
   opacity: 0.5;
   &.hidden {
@@ -222,7 +236,7 @@ svg {
   &.d3-path-extended {
     stroke: @bolus;
     &.d3-unknown-delivery-split {
-      stroke-dasharray: 3,5;
+      stroke-dasharray: 3, 5;
     }
   }
   &.d3-path-extended-triangle {
@@ -247,7 +261,7 @@ svg {
   }
   &.d3-path-suspended-triangle {
     stroke: @suspended;
-    fill:none;
+    fill: none;
   }
   &.d3-rect-recommended {
     fill: @undelivered;
@@ -309,7 +323,7 @@ svg {
     stroke: @bg-high;
   }
   &.d3-circle-open {
-    fill: rgba(255, 255, 255, 0.0) !important;
+    fill: rgba(255, 255, 255, 0) !important;
   }
 }
 
@@ -346,17 +360,17 @@ svg {
   }
   &.d3-basal-invisible {
     fill: @basal;
-    opacity: 0.0;
+    opacity: 0;
   }
   &.d3-path-basal {
     fill: none;
     stroke: @basal;
     stroke-width: 1.5;
     &.d3-path-basal-undelivered {
-      stroke-dasharray: 1.5,3;
+      stroke-dasharray: 1.5, 3;
       stroke-linecap: round;
     }
-    &[class*='d3-path-basal-automated-'] {
+    &[class*="d3-path-basal-automated-"] {
       stroke: @basal-automated;
     }
   }
@@ -374,7 +388,7 @@ svg {
   stroke: @basal;
   stroke-width: 2.5;
 
-  &[class*='d3-basal-marker-group-automated-'] {
+  &[class*="d3-basal-marker-group-automated-"] {
     fill: @basal-automated;
     stroke: @basal-automated;
 
@@ -395,7 +409,8 @@ svg {
 // basal tabular settings
 div.d3-tabular-ui {
   background-color: none;
-  p, i {
+  p,
+  i {
     color: @text-light;
     cursor: pointer;
     font-size: @font-size-axes;
@@ -441,7 +456,6 @@ text.d3-tabular-ui {
   text-anchor: end;
 }
 
-
 // annotations
 .d3-circle-data-annotation {
   fill: @background;
@@ -461,7 +475,7 @@ text.d3-tabular-ui {
   pointer-events: none;
   body {
     margin: 0px;
-    background-color: rgba(255, 255, 255, 0)
+    background-color: rgba(255, 255, 255, 0);
   }
 }
 
@@ -605,10 +619,11 @@ text.d3-tabular-ui {
     circle {
       fill: white;
       stroke-width: 3;
-      stroke-dasharray: 8,5;
+      stroke-dasharray: 8, 5;
       stroke: @stats-insufficient-data;
     }
-    text, tspan {
+    text,
+    tspan {
       fill: @stats-insufficient-data !important;
     }
   }
@@ -620,8 +635,8 @@ text.d3-tabular-ui {
   *:before,
   *:after {
     -webkit-box-sizing: border-box;
-      -moz-box-sizing: border-box;
-      box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
   }
 
   table {
@@ -639,7 +654,6 @@ text.d3-tabular-ui {
   font-size: 14px;
   color: @text;
 }
-
 
 .d3-settings-section,
 .d3-settings-col {
@@ -659,7 +673,8 @@ text.d3-tabular-ui {
   width: 7/9 * 100%;
 }
 
-#carbRatioSettings, #insulinSensitivitySettings {
+#carbRatioSettings,
+#insulinSensitivitySettings {
   width: 2/7 * 100%;
 }
 
@@ -758,7 +773,8 @@ text.d3-tabular-ui {
   padding-left: 2px;
 }
 
-.d3-wizard-group, .d3-bolus-group {
+.d3-wizard-group,
+.d3-bolus-group {
   cursor: default;
 }
 
@@ -769,10 +785,12 @@ text.d3-tabular-ui {
     }
   }
 
-  .d3-settings-section, .d3-settings-col {
+  .d3-settings-section,
+  .d3-settings-col {
     display: inline;
     width: auto;
-    .d3-settings-col-label, table {
+    .d3-settings-col-label,
+    table {
       width: auto;
     }
   }
