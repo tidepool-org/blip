@@ -131,21 +131,17 @@
 // ====================================
 
 .patient-data-content-outer {
-  display: flex;
-  flex-wrap: wrap;
+  display: block;
 
   @media (min-width: @patient-data-sidebar-bp) {
+    display: flex;
     flex-wrap: nowrap;
   }
 }
 
 .patient-data-content-inner {
-  flex: 1 1 (@patient-data-sidebar-bp - @patient-data-sidebar-width);
-
+  width: 100%;
   background-color: #fff;
-  // Bug with message:
-  // If no padding top is set, message top margin will "push" this white block
-  // down, instead of "stretching" it
   padding-top: 5px;
   padding-bottom: 5px;
 }
@@ -159,12 +155,12 @@
 // ====================================
 
 .patient-data-sidebar-inner {
-  flex: 1 0 100%;
+  width: 100%;
   background-color: #eef5f9;
   padding: @spacing-small;
 
   @media (min-width: @patient-data-sidebar-bp) {
-    flex: 0 0 @patient-data-sidebar-width;
+    width: 300px;
   }
 }
 
