@@ -290,11 +290,12 @@ describe('format utility', function() {
       assert.isFunction(fmt.timeChangeInfo);
     });
 
-    it('should error if 2 arguments are not passed', function() {
-      var err = 'You have not provided two datetime strings';
+    it('should error if `to` argument is not passed', function() {
+      var err = 'You have not provided a `to` datetime string';
       var x = '2014-01-01T01:00:00';
       expect(fmt.timeChangeInfo.bind(fmt)).to.throw(err);
       expect(fmt.timeChangeInfo.bind(fmt, x)).to.throw(err);
+      expect(fmt.timeChangeInfo.bind(fmt, null, x)).to.not.throw();
     });
 
     it('should return an object containing strings of times when both are on same day', function() {
@@ -326,6 +327,16 @@ describe('format utility', function() {
       var y2 = '2015-04-15T04:25:00';
       expect(fmt.timeChangeInfo(x,y)).to.eql({type: 'Time Change', from: 'Dec 31, 2014 4:00 am', to: 'Jan 1, 2015 1:00 am', format: 'MMM D, YYYY h:mm a'});
       expect(fmt.timeChangeInfo(x,y2)).to.eql({type: 'Time Change', from: 'Dec 31, 2014 4:00 am', to: 'Apr 15, 2015 4:25 am', format: 'MMM D, YYYY h:mm a'});
+    });
+
+    it('should return an object containing only the `to` time when `from` arg is falsey', function() {
+      var x;
+      var x1 = false;
+      var x2 = null;
+      var y = '2015-01-01T01:00:00';
+      expect(fmt.timeChangeInfo(x,y)).to.eql({type: 'Time Change', from: undefined, to: '1:00 am', format: 'h:mm a'});
+      expect(fmt.timeChangeInfo(x1,y)).to.eql({type: 'Time Change', from: undefined, to: '1:00 am', format: 'h:mm a'});
+      expect(fmt.timeChangeInfo(x2,y)).to.eql({type: 'Time Change', from: undefined, to: '1:00 am', format: 'h:mm a'});
     });
   });
 
