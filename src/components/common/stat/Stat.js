@@ -131,10 +131,6 @@ class Stat extends PureComponent {
       this.stat = ref;
     };
 
-    this.setChartRef = ref => {
-      this.chartRef = ref;
-    };
-
     this.setTooltipIconRef = ref => {
       this.tooltipIcon = ref;
     };
@@ -239,7 +235,7 @@ class Stat extends PureComponent {
         springConfig={{ stiffness: 200, damping: 23 }}
       >
         <div className={styles.chartContainer}>
-          <Renderer {...chartProps} ref={this.setChartRef} width={size.width || 270} />
+          <Renderer {...chartProps} width={size.width || 270} />
         </div>
       </Collapse>
     );
@@ -741,9 +737,6 @@ class Stat extends PureComponent {
   handleTooltipIconMouseOut = () => {
     this.setState({
       showMessages: false,
-      messageTooltipPosition: undefined,
-      messageTooltipOffset: undefined,
-      messageTooltipSide: undefined,
     });
   };
 }
