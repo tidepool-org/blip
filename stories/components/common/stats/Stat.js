@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { storiesOf } from '@storybook/react';
 import { select, button, boolean } from '@storybook/addon-knobs';
 
-import Stat, { statTypes, statFormats } from '../../../../src/components/common/stat/Stat';
+import Stat from '../../../../src/components/common/stat/Stat';
 import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP, MGDL_PER_MMOLL } from '../../../../src/utils/constants';
 
 const bgPrefsOptions = {
@@ -199,10 +199,10 @@ stories.add('Time In Range', () => {
         collapsible={collapsible}
         data={timeInRangeData}
         dataFormat={{
-          label: statFormats.percentage,
-          summary: statFormats.percentage,
-          tooltip: statFormats.duration,
-          tooltipTitle: statFormats.bgRange,
+          label: Stat.statFormats.percentage,
+          summary: Stat.statFormats.percentage,
+          tooltip: Stat.statFormats.duration,
+          tooltipTitle: Stat.statFormats.bgRange,
         }}
         isOpened={isOpened}
         messages={[
@@ -210,7 +210,7 @@ stories.add('Time In Range', () => {
         ]}
         muteOthersOnHover={muteOthersOnHover}
         title="Time In Range"
-        type={statTypes.barHorizontal}
+        type={Stat.statTypes.barHorizontal}
       />
     </Container>
   );
@@ -279,10 +279,10 @@ stories.add('Readings In Range', () => {
         collapsible={collapsible}
         data={readingsInRangeData}
         dataFormat={{
-          label: statFormats.bgCount,
-          summary: statFormats.bgCount,
-          tooltip: statFormats.percentage,
-          tooltipTitle: statFormats.bgRange,
+          label: Stat.statFormats.bgCount,
+          summary: Stat.statFormats.bgCount,
+          tooltip: Stat.statFormats.percentage,
+          tooltipTitle: Stat.statFormats.bgRange,
         }}
         isOpened={isOpened}
         messages={[
@@ -290,7 +290,7 @@ stories.add('Readings In Range', () => {
         ]}
         muteOthersOnHover={muteOthersOnHover}
         title="Readings In Range"
-        type={statTypes.barHorizontal}
+        type={Stat.statTypes.barHorizontal}
       />
     </Container>
   );
@@ -343,9 +343,9 @@ stories.add('Time In Auto', () => {
         collapsible={collapsible}
         data={timeInAutoData}
         dataFormat={{
-          label: statFormats.percentage,
-          summary: statFormats.percentage,
-          tooltip: statFormats.duration,
+          label: Stat.statFormats.percentage,
+          summary: Stat.statFormats.percentage,
+          tooltip: Stat.statFormats.duration,
         }}
         isOpened={isOpened}
         messages={[
@@ -353,7 +353,7 @@ stories.add('Time In Auto', () => {
         ]}
         muteOthersOnHover={muteOthersOnHover}
         title="Time In Auto Mode"
-        type={statTypes.barHorizontal}
+        type={Stat.statTypes.barHorizontal}
       />
     </Container>
   );
@@ -404,10 +404,10 @@ stories.add('Total Insulin', () => {
         collapsible={collapsible}
         data={totalInsulinData}
         dataFormat={{
-          label: statFormats.percentage,
-          summary: statFormats.units,
-          title: statFormats.units,
-          tooltip: statFormats.units,
+          label: Stat.statFormats.percentage,
+          summary: Stat.statFormats.units,
+          title: Stat.statFormats.units,
+          tooltip: Stat.statFormats.units,
         }}
         isOpened={isOpened}
         messages={[
@@ -415,7 +415,7 @@ stories.add('Total Insulin', () => {
         ]}
         muteOthersOnHover={muteOthersOnHover}
         title="Total Insulin"
-        type={statTypes.barHorizontal}
+        type={Stat.statTypes.barHorizontal}
       />
     </Container>
   );
@@ -467,8 +467,8 @@ stories.add('Average BG', () => {
         collapsible={collapsible}
         data={averageBgDataUnits === MGDL_UNITS ? averageBgData : averageBgDataMmol}
         dataFormat={{
-          label: statFormats.bgValue,
-          summary: statFormats.bgValue,
+          label: Stat.statFormats.bgValue,
+          summary: Stat.statFormats.bgValue,
         }}
         isOpened={isOpened}
         messages={[
@@ -476,7 +476,7 @@ stories.add('Average BG', () => {
           'Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.',
         ]}
         title="Average Blood Glucose"
-        type={statTypes.barBg}
+        type={Stat.statTypes.barBg}
       />
     </Container>
   );
@@ -535,9 +535,9 @@ stories.add('Standard Deviation', () => {
         collapsible={collapsible}
         data={standardDevDataUnits === MGDL_UNITS ? standardDevData : standardDevDataMmol}
         dataFormat={{
-          label: statFormats.stdDevValue,
-          summary: statFormats.stdDevValue,
-          title: statFormats.stdDevRange,
+          label: Stat.statFormats.stdDevValue,
+          summary: Stat.statFormats.stdDevValue,
+          title: Stat.statFormats.stdDevRange,
         }}
         isOpened={isOpened}
         messages={[
@@ -545,7 +545,7 @@ stories.add('Standard Deviation', () => {
           'SD (Standard Deviation) is…',
         ]}
         title="Standard Deviation"
-        type={statTypes.barBg}
+        type={Stat.statTypes.barBg}
       />
     </Container>
   );
@@ -577,9 +577,9 @@ stories.add('Glucose Management Indicator', () => {
       <Stat
         data={glucoseManagementIndexData}
         title="GMI"
-        type={statTypes.simple}
+        type={Stat.statTypes.simple}
         dataFormat={{
-          summary: statFormats.gmi,
+          summary: Stat.statFormats.gmi,
         }}
         messages={[
           'Based on 70% CGM data availability for this view.',
@@ -616,9 +616,9 @@ stories.add('Coefficient of Variation', () => {
       <Stat
         data={coefficientOfVariationData}
         title="CV"
-        type={statTypes.simple}
+        type={Stat.statTypes.simple}
         dataFormat={{
-          summary: statFormats.cv,
+          summary: Stat.statFormats.cv,
         }}
         messages={[
           'Based on 70% CGM data availability for this view.',
