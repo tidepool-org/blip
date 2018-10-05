@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* global document */
+
 import React, { PropTypes, PureComponent } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
@@ -38,13 +40,13 @@ import MGDLIcon from './assets/mgdl-inv-24-px.svg';
 import MMOLIcon from './assets/mmol-inv-24-px.svg';
 import InfoIcon from './assets/info-outline-24-px.svg';
 
-export const statTypes = {
+const statTypes = {
   barHorizontal: 'barHorizontal',
   barBg: 'barBg',
   simple: 'simple',
 };
 
-export const statFormats = {
+const statFormats = {
   bgCount: 'bgCount',
   bgRange: 'bgRange',
   bgValue: 'bgValue',
@@ -114,6 +116,10 @@ class Stat extends PureComponent {
     type: statTypes.simple,
   };
 
+  static statFormats = statFormats;
+
+  static statTypes = statTypes;
+
   constructor(props) {
     super(props);
     this.log = bows('Stat');
@@ -121,8 +127,16 @@ class Stat extends PureComponent {
     this.state = this.getStateByType(props);
     this.setChartPropsByType(props);
 
-    this.setTooltipIconRef = element => {
-      this.tooltipIcon = element;
+    this.setStatRef = ref => {
+      this.stat = ref;
+    };
+
+    this.setChartRef = ref => {
+      this.chartRef = ref;
+    };
+
+    this.setTooltipIconRef = ref => {
+      this.tooltipIcon = ref;
     };
   }
 
@@ -231,23 +245,29 @@ class Stat extends PureComponent {
     );
   };
 
+  renderTooltip = () => (
+    <StatTooltip
+      messages={this.props.messages}
+      offset={this.state.messageTooltipOffset}
+      position={this.state.messageTooltipPosition}
+      side={this.state.messageTooltipSide}
+    />
+  );
+
   render() {
-    const statOuterClasses = cx({
+    const statClasses = cx({
       [styles.Stat]: true,
       [styles[this.props.type]]: true,
       [styles.isOpen]: this.state.isOpened,
     });
 
     return (
-      <div className={statOuterClasses}>
-        {this.renderChartHeader()}
-        {this.chartProps.renderer && <SizeMe render={({ size }) => (this.renderChart(size))} />}
-        {this.state.showMessages && (
-          <StatTooltip
-            messages={this.props.messages}
-            position={this.state.messageTooltipPosition}
-          />
-        )}
+      <div className={styles.StatWrapper}>
+        <div ref={this.setStatRef} className={statClasses}>
+          {this.renderChartHeader()}
+          {this.chartProps.renderer && <SizeMe render={({ size }) => (this.renderChart(size))} />}
+        </div>
+        {this.state.showMessages && this.renderTooltip()}
       </div>
     );
   }
@@ -522,10 +542,6 @@ class Stat extends PureComponent {
     });
   };
 
-  setChartRef = element => {
-    this.chartRef = element;
-  };
-
   getFormattedDataByDataPath = (path, format) => {
     const datum = _.get(this.props.data, path);
     return this.formatDatum(datum, format);
@@ -700,13 +716,25 @@ class Stat extends PureComponent {
 
   handleTooltipIconMouseOver = () => {
     const { top, left, width, height } = this.tooltipIcon.getBoundingClientRect();
+    const { top: parentTop, left: parentLeft } = this.stat.getBoundingClientRect();
+
+    const position = {
+      top: (top - parentTop) + height / 2,
+      left: (left - parentLeft) + width / 2,
+    };
+
+    const offset = {
+      horizontal: width / 2,
+      top: 0,
+    };
+
+    const side = (document.body.clientWidth - left < 225) ? 'left' : 'right';
 
     this.setState({
       showMessages: true,
-      messageTooltipPosition: {
-        top: top + height / 2,
-        left: left + width - 1,
-      },
+      messageTooltipPosition: position,
+      messageTooltipOffset: offset,
+      messageTooltipSide: side,
     });
   };
 
@@ -714,6 +742,8 @@ class Stat extends PureComponent {
     this.setState({
       showMessages: false,
       messageTooltipPosition: undefined,
+      messageTooltipOffset: undefined,
+      messageTooltipSide: undefined,
     });
   };
 }
