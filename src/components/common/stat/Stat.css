@@ -1,3 +1,8 @@
+.StatWrapper {
+  position: relative;
+  overflow: visible;
+}
+
 .Stat {
   padding: 0.25em 0.625em 0.25em;
   background-color: var(--bkgrnd-white);
@@ -90,8 +95,8 @@
 }
 
 .tooltipIcon {
-  position: absolute;
-  margin-top: -0.3em;
+  position: relative;
+  top: -0.3em;
   margin-left: 0.1em;
 }
 
