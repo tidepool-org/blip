@@ -724,7 +724,7 @@ class Stat extends PureComponent {
       top: 0,
     };
 
-    const side = (document.body.clientWidth - left < 225) ? 'left' : 'right';
+    const side = (_.get(document, 'body.clientWidth', 0) - left < 225) ? 'left' : 'right';
 
     this.setState({
       showMessages: true,
