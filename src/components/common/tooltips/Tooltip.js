@@ -30,6 +30,12 @@ class Tooltip extends PureComponent {
     this.calculateOffset(this.props);
   }
 
+  componentDidUpdate() {
+    // In cases where the tooltip width is not statically set, we may need to re-caculate
+    // the offset after updates to get the proper positioning after browser reflow is complete.
+    this.calculateOffset(this.props);
+  }
+
   componentWillReceiveProps(nextProps) {
     this.calculateOffset(nextProps);
   }
@@ -76,7 +82,11 @@ class Tooltip extends PureComponent {
       offset.left = leftOffset + horizontalOffset;
     }
 
-    this.setState({ offset });
+    // We only update the offset state when a change is required.  Otherwise, we'd end up in an
+    // infinite render loop since this method is invoked from componentDidUpdate
+    if (!_.isEqual(offset, this.state.offset)) {
+      this.setState({ offset });
+    }
   }
 
   renderTail(backgroundColor = 'white') {
