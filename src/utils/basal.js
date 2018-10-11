@@ -190,28 +190,57 @@ export function getSegmentDose(duration, rate) {
 }
 
 /**
- * Get total basal
+ * Get total basal delivered for a given time range
  * @param {Array} data Array of Tidepool basal data
- * @param {String} s ISO date string for the start of the range
- * @param {String} e ISO date string for the end of the range
+ * @param {[]String} enpoints ISO date strings for the start, end of the range, in that order
  * @return {Number} Formatted total insulin dose
  */
-export function getTotalBasalFromEndpoints(data, s, e) {
-  const start = new Date(s);
-  const end = new Date(e);
+export function getTotalBasalFromEndpoints(data, endpoints) {
+  const start = new Date(endpoints[0]);
+  const end = new Date(endpoints[1]);
   let dose = 0;
 
   _.each(data, (datum, index) => {
+    let duration = datum.duration;
     if (index === 0) {
       // handle first segment, which may have started before the start endpoint
-      dose += getSegmentDose((new Date(datum.normalEnd) - start), datum.rate);
+      duration = _.min([new Date(datum.normalEnd) - start, datum.duration]);
     } else if (index === data.length - 1) {
-      dose += getSegmentDose((end - new Date(datum.normalTime)), datum.rate);
-    } else {
       // handle last segment, which may go past the end endpoint
-      dose += getSegmentDose(datum.duration, datum.rate);
+      duration = _.min([end - new Date(datum.normalTime), datum.duration]);
     }
+    dose += getSegmentDose(duration, datum.rate);
   });
 
   return formatInsulin(dose);
+}
+
+/**
+ * Get automated and manual basal delivery time for a given time range
+ * @param {Array} data Array of Tidepool basal data
+ * @param {[]String} enpoints ISO date strings for the start, end of the range, in that order
+ * @return {Number} Formatted total insulin dose
+ */
+export function getBasalGroupDurationsFromEndpoints(data, endpoints) {
+  const start = new Date(endpoints[0]);
+  const end = new Date(endpoints[1]);
+
+  const durations = {
+    automated: 0,
+    manual: 0,
+  };
+
+  _.each(data, (datum, index) => {
+    let duration = datum.duration;
+    if (index === 0) {
+      // handle first segment, which may have started before the start endpoint
+      duration = _.min([new Date(datum.normalEnd) - start, datum.duration]);
+    } else if (index === data.length - 1) {
+      // handle last segment, which may go past the end endpoint
+      duration = _.min([end - new Date(datum.normalTime), datum.duration]);
+    }
+    durations[getBasalPathGroupType(datum)] += duration;
+  });
+
+  return durations;
 }

@@ -1,5 +1,6 @@
 import crossfilter from 'crossfilter'; // eslint-disable-line import/no-unresolved
-import { getTotalBasalFromEndpoints } from './basal';
+import _ from 'lodash';
+import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from './basal';
 import { getTotalBolus } from './bolus';
 import { addDuration, TWENTY_FOUR_HRS } from './datetime';
 
@@ -43,12 +44,7 @@ export class DataUtil {
     );
   };
 
-  getTotalInsulinData = () => {
-    this.filter.byEndpoints(this._endpoints);
-
-    const bolusData = this.filter.byType('bolus').top(Infinity);
-    const basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity));
-
+  includeBasalOverlappingStart = (basalData) => {
     if (basalData.length && basalData[0].normalTime > this._endpoints[0]) {
       // Fetch last basal from previous day
       this.filter.byEndpoints([
@@ -56,7 +52,9 @@ export class DataUtil {
         this._endpoints[0],
       ]);
 
-      const previousBasalDatum = this.filter.byType('basal').top(1)[0];
+      const previousBasalDatum = this.sort
+        .byDate(this.filter.byType('basal').top(Infinity))
+        .reverse()[0];
 
       // Add to top of basal data array if it overlaps the start endpoint
       const datumOverlapsStart = previousBasalDatum
@@ -67,13 +65,29 @@ export class DataUtil {
         basalData.unshift(previousBasalDatum);
       }
     }
+    return basalData;
+  };
+
+  getTotalInsulinData = () => {
+    this.filter.byEndpoints(this._endpoints);
+
+    const bolusData = this.filter.byType('bolus').top(Infinity);
+    let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity).reverse());
+    basalData = this.includeBasalOverlappingStart(basalData);
 
     return {
-      totalBasal: basalData.length
-        ? getTotalBasalFromEndpoints(basalData, this._endpoints[0], this._endpoints[1])
-        : NaN,
+      totalBasal: basalData.length ? getTotalBasalFromEndpoints(basalData, this._endpoints) : NaN,
       totalBolus: bolusData.length ? getTotalBolus(bolusData) : NaN,
     };
+  }
+
+  getTimeInAutoData = () => {
+    this.filter.byEndpoints(this._endpoints);
+
+    let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity));
+    basalData = this.includeBasalOverlappingStart(basalData);
+
+    return basalData.length ? getBasalGroupDurationsFromEndpoints(basalData, this._endpoints) : NaN;
   }
 }
 

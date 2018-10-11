@@ -28,6 +28,7 @@ import { formatPercentage, formatInsulin, formatBgValue } from '../../../utils/f
 import { formatDuration } from '../../../utils/datetime';
 import { generateBgRangeLabels, classifyBgValue, classifyCvValue } from '../../../utils/bloodglucose';
 import { MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
+import { statFormats, statTypes } from '../../../utils/stat';
 import styles from './Stat.css';
 import colors from '../../../styles/colors.css';
 import { bgPrefsPropType } from '../../../propTypes';
@@ -39,25 +40,6 @@ import CollapseIconClose from './assets/chevron-right-24-px.svg';
 import MGDLIcon from './assets/mgdl-inv-24-px.svg';
 import MMOLIcon from './assets/mmol-inv-24-px.svg';
 import InfoIcon from './assets/info-outline-24-px.svg';
-
-const statTypes = {
-  barHorizontal: 'barHorizontal',
-  barBg: 'barBg',
-  simple: 'simple',
-};
-
-const statFormats = {
-  bgCount: 'bgCount',
-  bgRange: 'bgRange',
-  bgValue: 'bgValue',
-  cv: 'cv',
-  duration: 'duration',
-  gmi: 'gmi',
-  percentage: 'percentage',
-  stdDevRange: 'stdDevRange',
-  stdDevValue: 'stdDevValue',
-  units: 'units',
-};
 
 const dataPathPropType = PropTypes.oneOfType([
   PropTypes.string,
@@ -115,10 +97,6 @@ class Stat extends PureComponent {
     muteOthersOnHover: true,
     type: statTypes.simple,
   };
-
-  static statFormats = statFormats;
-
-  static statTypes = statTypes;
 
   constructor(props) {
     super(props);
