@@ -117,6 +117,9 @@ const output = {
 };
 
 const resolve = {
+  alias: {
+    crossfilter: 'crossfilter2',
+  },
   extensions: [
     '.js',
   ],

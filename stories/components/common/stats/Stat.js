@@ -205,7 +205,7 @@ stories.add('Time In Range', () => {
           tooltipTitle: Stat.statFormats.bgRange,
         }}
         isOpened={isOpened}
-        messages={[
+        annotations={[
           'Based on 70% CGM data availability for this view.',
         ]}
         muteOthersOnHover={muteOthersOnHover}
@@ -285,7 +285,7 @@ stories.add('Readings In Range', () => {
           tooltipTitle: Stat.statFormats.bgRange,
         }}
         isOpened={isOpened}
-        messages={[
+        annotations={[
           'Based on 7 SMBG readings for this view.',
         ]}
         muteOthersOnHover={muteOthersOnHover}
@@ -348,7 +348,7 @@ stories.add('Time In Auto', () => {
           tooltip: Stat.statFormats.duration,
         }}
         isOpened={isOpened}
-        messages={[
+        annotations={[
           'Based on 50% pump data availability for this view.',
         ]}
         muteOthersOnHover={muteOthersOnHover}
@@ -410,7 +410,7 @@ stories.add('Total Insulin', () => {
           tooltip: Stat.statFormats.units,
         }}
         isOpened={isOpened}
-        messages={[
+        annotations={[
           'Based on 50% pump data availability for this view.',
         ]}
         muteOthersOnHover={muteOthersOnHover}
@@ -471,7 +471,7 @@ stories.add('Average BG', () => {
           summary: Stat.statFormats.bgValue,
         }}
         isOpened={isOpened}
-        messages={[
+        annotations={[
           'Based on 70% CGM data availability for this view.',
           'Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.',
         ]}
@@ -540,7 +540,7 @@ stories.add('Standard Deviation', () => {
           title: Stat.statFormats.stdDevRange,
         }}
         isOpened={isOpened}
-        messages={[
+        annotations={[
           'Based on 70% CGM data availability for this view.',
           'SD (Standard Deviation) is…',
         ]}
@@ -581,7 +581,7 @@ stories.add('Glucose Management Indicator', () => {
         dataFormat={{
           summary: Stat.statFormats.gmi,
         }}
-        messages={[
+        annotations={[
           'Based on 70% CGM data availability for this view.',
           'GMI (Glucose Management Indicator) is an estimate of HbA1c that has been calculated based on your average blood glucose.',
         ]}
@@ -620,7 +620,7 @@ stories.add('Coefficient of Variation', () => {
         dataFormat={{
           summary: Stat.statFormats.cv,
         }}
-        messages={[
+        annotations={[
           'Based on 70% CGM data availability for this view.',
           'CV (Coefficient of Variation) is…',
         ]}

@@ -35,6 +35,9 @@ import reducers from './redux/reducers/';
 
 import { formatBgValue } from './utils/format';
 import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
+import { getTotalBasalFromEndpoints, getGroupDurations } from './utils/basal';
+import { commonStats, getStatDefinition } from './utils/stat';
+import DataUtil from './utils/data';
 import { selectDailyViewData } from './utils/print/data';
 
 const i18next = require('i18next');
@@ -62,9 +65,22 @@ const containers = {
 };
 
 const utils = {
-  formatBgValue,
-  reshapeBgClassesToBgBounds,
-  selectDailyViewData,
+  basal: {
+    getGroupDurations,
+    getTotalBasalFromEndpoints,
+  },
+  bg: {
+    formatBgValue,
+    reshapeBgClassesToBgBounds,
+  },
+  data: {
+    selectDailyViewData,
+    DataUtil,
+  },
+  stat: {
+    commonStats,
+    getStatDefinition,
+  },
 };
 
 export {

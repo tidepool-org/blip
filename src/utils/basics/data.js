@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import sundial from 'sundial';
-import crossfilter from 'crossfilter';
+import crossfilter from 'crossfilter'; // eslint-disable-line import/no-unresolved
 import i18next from 'i18next';
 
 import generateClassifiers from '../classifiers';

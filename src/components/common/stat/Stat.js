@@ -97,7 +97,7 @@ class Stat extends PureComponent {
     emptyDataPlaceholder: PropTypes.string.isRequired,
     isDisabled: PropTypes.bool,
     isOpened: PropTypes.bool,
-    messages: PropTypes.arrayOf(PropTypes.string),
+    annotations: PropTypes.arrayOf(PropTypes.string),
     muteOthersOnHover: PropTypes.bool,
     title: PropTypes.string.isRequired,
     type: PropTypes.oneOf(_.keys(statTypes)),
@@ -173,7 +173,7 @@ class Stat extends PureComponent {
             &nbsp;)
           </span>
         )}
-        {this.props.messages && !isDatumHovered && (
+        {this.props.annotations && !isDatumHovered && (
           <span
             className={styles.tooltipIcon}
           >
@@ -243,7 +243,7 @@ class Stat extends PureComponent {
 
   renderTooltip = () => (
     <StatTooltip
-      messages={this.props.messages}
+      annotations={this.props.annotations}
       offset={this.state.messageTooltipOffset}
       position={this.state.messageTooltipPosition}
       side={this.state.messageTooltipSide}

@@ -23,10 +23,10 @@ import styles from './StatTooltip.css';
 
 class StatTooltip extends PureComponent {
   renderMessages() {
-    const messages = this.props.messages;
+    const annotations = this.props.annotations;
     const rows = [];
 
-    _.each(messages, (message, index) => {
+    _.each(annotations, (message, index) => {
       rows.push(
         <div
           key={`message-${index}`}
@@ -35,7 +35,7 @@ class StatTooltip extends PureComponent {
           {message}
         </div>
       );
-      if (index !== messages.length - 1) {
+      if (index !== annotations.length - 1) {
         rows.push(
           <div
             key={`divider-${index}`}
@@ -59,6 +59,7 @@ class StatTooltip extends PureComponent {
 }
 
 StatTooltip.propTypes = {
+  annotations: PropTypes.arrayOf(PropTypes.string),
   position: PropTypes.shape({
     top: PropTypes.number.isRequired,
     left: PropTypes.number.isRequired,
@@ -80,6 +81,7 @@ StatTooltip.propTypes = {
 };
 
 StatTooltip.defaultProps = {
+  annotations: [],
   tail: true,
   side: 'right',
   tailWidth: 9,

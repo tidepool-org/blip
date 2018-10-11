@@ -17,6 +17,7 @@
 
 import _ from 'lodash';
 
+import { formatInsulin, formatDecimalNumber } from './format';
 import { ONE_HR } from './datetime';
 
 /**
@@ -176,4 +177,41 @@ export function getGroupDurations(data, s, e) {
   }
 
   return durations;
+}
+
+/**
+ * Calculate the total insulin dose delivered in a given basal segment
+ * @param {Number} duration Duration of segment in milliseconds
+ * @param {Number} rate Basal rate of segment
+ */
+export function getSegmentDose(duration, rate) {
+  const hours = duration / ONE_HR;
+  return parseFloat(formatDecimalNumber(hours * rate, 3));
+}
+
+/**
+ * Get total basal
+ * @param {Array} data Array of Tidepool basal data
+ * @param {String} s ISO date string for the start of the range
+ * @param {String} e ISO date string for the end of the range
+ * @return {Number} Formatted total insulin dose
+ */
+export function getTotalBasalFromEndpoints(data, s, e) {
+  const start = new Date(s);
+  const end = new Date(e);
+  let dose = 0;
+
+  _.each(data, (datum, index) => {
+    if (index === 0) {
+      // handle first segment, which may have started before the start endpoint
+      dose += getSegmentDose((new Date(datum.normalEnd) - start), datum.rate);
+    } else if (index === data.length - 1) {
+      dose += getSegmentDose((end - new Date(datum.normalTime)), datum.rate);
+    } else {
+      // handle last segment, which may go past the end endpoint
+      dose += getSegmentDose(datum.duration, datum.rate);
+    }
+  });
+
+  return formatInsulin(dose);
 }
