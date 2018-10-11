@@ -126,8 +126,8 @@ export default translate()(class PatientSettings extends Component {
     const errorNode = (self.state.error.low || self.state.error.high) ? self.renderErrorNode() : null;
 
     let chartTargets = {
-      high: utils.formatBgValue(roundBgTarget(settings.bgTarget.high, settings.units.bg), { bgUnits: settings.units.bg }),
-      low: utils.formatBgValue(roundBgTarget(settings.bgTarget.low, settings.units.bg), { bgUnits: settings.units.bg }),
+      high: utils.bg.formatBgValue(roundBgTarget(settings.bgTarget.high, settings.units.bg), { bgUnits: settings.units.bg }),
+      low: utils.bg.formatBgValue(roundBgTarget(settings.bgTarget.low, settings.units.bg), { bgUnits: settings.units.bg }),
     };
 
     return (
@@ -208,7 +208,7 @@ export default translate()(class PatientSettings extends Component {
   }
 
   onIncrementChange(inputName, newValue, newUnit) {
-    const value = parseFloat(utils.formatBgValue(newValue, { bgUnits: newUnit }))
+    const value = parseFloat(utils.bg.formatBgValue(newValue, { bgUnits: newUnit }))
 
     let lowError = false;
     let highError = false;

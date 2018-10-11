@@ -33,10 +33,6 @@ var Loader = vizComponents.Loader;
 var Header = require('./header');
 var Footer = require('./footer');
 
-var tideline = {
-  log: bows('Two Weeks')
-};
-
 var WeeklyChart = React.createClass({
   chartOpts: ['bgClasses', 'bgUnits', 'timePrefs'],
   log: bows('Weekly Chart'),

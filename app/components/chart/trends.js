@@ -34,7 +34,7 @@ const CBGDateTraceLabel = viz.components.CBGDateTraceLabel;
 const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
 const TrendsContainer = viz.containers.TrendsContainer;
-const reshapeBgClassesToBgBounds = viz.utils.reshapeBgClassesToBgBounds;
+const reshapeBgClassesToBgBounds = viz.utils.bg.reshapeBgClassesToBgBounds;
 const Loader = viz.components.Loader;
 
 const Trends = translate()(class Trends extends PureComponent {

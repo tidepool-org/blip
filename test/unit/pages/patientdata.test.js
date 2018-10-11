@@ -77,7 +77,9 @@ describe('PatientData', function () {
       }
     }));
     PD.__Rewire__('vizUtils', {
-      selectDailyViewData: sinon.stub().returns('stubbed filtered data'),
+      data: {
+        selectDailyViewData: sinon.stub().returns('stubbed filtered data'),
+      },
     });
   });
 
@@ -1508,7 +1510,7 @@ describe('PatientData', function () {
 
   describe('generatePDF', () => {
     it('should filter the daily view data before dispatching the generate pdf action', () => {
-      const filterStub = PD.__get__('vizUtils').selectDailyViewData;
+      const filterStub = PD.__get__('vizUtils').data.selectDailyViewData;
 
       const props = _.assign({}, defaultProps, {
         generatePDFRequest: sinon.stub(),

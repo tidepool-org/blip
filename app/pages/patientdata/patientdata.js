@@ -14,11 +14,9 @@
  */
 
 import React from 'react';
-import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
-import { createSelector } from 'reselect';
 
 import _ from 'lodash';
 import bows from 'bows';
@@ -34,7 +32,7 @@ import { getfetchedPatientDataRange } from '../../redux/selectors';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
-import { URL_UPLOADER_DOWNLOAD_PAGE, URL_TIDEPOOL_MOBILE_APP_STORE } from '../../core/constants';
+import { URL_TIDEPOOL_MOBILE_APP_STORE } from '../../core/constants';
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
@@ -52,7 +50,8 @@ import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
 
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, BG_DATA_TYPES, DIABETES_DATA_TYPES } from '../../core/constants';
 
-const Loader = vizComponents.Loader;
+const { Loader } = vizComponents;
+const { DataUtil } = vizUtils.data;
 
 export let PatientData = translate()(React.createClass({
   propTypes: {
@@ -345,6 +344,7 @@ export let PatientData = translate()(React.createClass({
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             updateDatetimeLocation={this.updateDatetimeLocation}
             pdf={this.props.pdf.combined || {}}
+            dataUtil={this.state.dataUtil}
             ref="tideline" />
           );
       case 'trends':
@@ -460,7 +460,7 @@ export let PatientData = translate()(React.createClass({
         mostRecent,
       };
 
-      const dailyData = vizUtils.selectDailyViewData(
+      const dailyData = vizUtils.data.selectDailyViewData(
         mostRecent,
         _.pick(
           data.grouped,
@@ -499,8 +499,19 @@ export let PatientData = translate()(React.createClass({
     return datetime;
   },
 
+  getAggregatedStats: function(dateRange) {
+
+  },
+
   handleChartDateRangeUpdate: function(dateRange) {
     this.updateChartDateRange(dateRange);
+    if (!this.state.dataUtil) {
+      console.log('init this.dataUtil')
+      this.setState({
+        dataUtil: new DataUtil(this.state.processedPatientData.data, dateRange),
+      });
+    }
+    this.getAggregatedStats(dateRange);
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
       const patientID = this.props.currentPatientInViewId;
@@ -1130,7 +1141,7 @@ export let PatientData = translate()(React.createClass({
 
       const preparePrintData = (bgUnits) => {
         return {
-          daily: vizUtils.selectDailyViewData(
+          daily: vizUtils.data.selectDailyViewData(
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
               data[bgUnits].grouped,

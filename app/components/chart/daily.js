@@ -24,6 +24,8 @@ var moment = require('moment');
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
 
+import Stats from './stats';
+
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
 var chartDailyFactory = tidelineBlip.oneday;
@@ -32,7 +34,6 @@ var vizComponents = require('@tidepool/viz').components;
 var Loader = vizComponents.Loader;
 var BolusTooltip = vizComponents.BolusTooltip;
 var SMBGTooltip = vizComponents.SMBGTooltip;
-var Stat = vizComponents.Stat;
 
 var Header = require('./header');
 var Footer = require('./footer');
@@ -214,33 +215,6 @@ var Daily = translate()(React.createClass({
   },
 
   render: function() {
-    const getSum = data => _.sum(_.map(data, d => d.value));
-
-    let totalInsulinData = {
-      data: [
-        {
-          id: 'basal',
-          value: 62.9,
-          // value: 0,
-          title: 'Basal Insulin',
-        },
-        {
-          id: 'bolus',
-          value: 49.5,
-          // value: 0,
-          title: 'Bolus Insulin',
-        },
-      ],
-    };
-    totalInsulinData.total = { id: 'insulin', value: getSum(totalInsulinData.data) };
-    totalInsulinData.dataPaths = {
-      summary: 'total',
-      title: 'total',
-    };
-
-    // const { top, left } = document.getElementsByClassName('patient-data')[0].getBoundingClientRect();
-    // console.log('patient-data', top, left );
-
     return (
       <div id="tidelineMain">
         <Header
@@ -293,25 +267,11 @@ var Daily = translate()(React.createClass({
           </div>
           <div className="container-box-inner patient-data-sidebar-inner">
             <div className="patient-data-sidebar">
-            <Stat
-              // alwaysShowTooltips={alwaysShowTooltips}
-              // chartHeight={chartHeight}
-              // collapsible={collapsible}
-              data={totalInsulinData}
-              dataFormat={{
-                label: Stat.statFormats.percentage,
-                summary: Stat.statFormats.units,
-                title: Stat.statFormats.units,
-                tooltip: Stat.statFormats.units,
-              }}
-              // isOpened={isOpened}
-              messages={[
-                'Based on 50% pump data availability for this view.',
-              ]}
-              // muteOthersOnHover={muteOthersOnHover}
-              title="Total Insulin"
-              type={Stat.statTypes.barHorizontal}
-            />
+              <Stats
+                chartType={this.chartType}
+                endpoints={this.state.endpoints}
+                dataUtil={this.props.dataUtil}
+              />
             </div>
           </div>
         </div>
@@ -400,9 +360,15 @@ var Daily = translate()(React.createClass({
   },
 
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
+    const endpoints = [
+      moment.utc(datetimeLocationEndpoints[0].start).toISOString(),
+      moment.utc(datetimeLocationEndpoints[0].end).toISOString(),
+    ];
+
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
-      title: this.getTitle(datetimeLocationEndpoints[1])
+      title: this.getTitle(datetimeLocationEndpoints[1]),
+      endpoints,
     });
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
 
@@ -413,10 +379,7 @@ var Daily = translate()(React.createClass({
     }
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate([
-      moment.utc(datetimeLocationEndpoints[0].start).toISOString(),
-      moment.utc(datetimeLocationEndpoints[0].end).toISOString(),
-    ]);
+    debouncedDateRangeUpdate(endpoints);
 
     this.setState({ debouncedDateRangeUpdate });
   },
