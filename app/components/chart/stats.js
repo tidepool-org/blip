@@ -20,7 +20,7 @@ class Stats extends PureComponent {
     this.log = bows('Stats');
   }
 
-  renderStats = (stats) => (_.map(stats, (stat, i) => <Stat key={i} {...stat} />));
+  renderStats = (stats) => (_.map(stats, (stat, i) => (stat.data.data && <Stat key={i} {...stat} />)));
 
   render = () => {
     const stats = this.getStatsByChartType();
@@ -48,6 +48,7 @@ class Stats extends PureComponent {
       switch (chartType) {
         case 'daily':
           stats.push(getStatDefinition(dataUtil.getTotalInsulinData(), commonStats.totalInsulin));
+          stats.push(getStatDefinition(dataUtil.getTimeInAutoData(), commonStats.timeInAuto));
           break;
 
           case 'weekly':
