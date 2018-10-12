@@ -25,27 +25,18 @@ var tideline = require('../../../js/');
 
 var _ = require('lodash');
 var bows = require('bows');
-var d3 = require('d3');
-var moment = require('moment-timezone');
 var React = require('react');
 
-var sundial = require('sundial');
-
 require('./less/basics.less');
-var debug = bows('Basics Chart');
 var basicsState = require('./logic/state');
 var basicsActions = require('./logic/actions');
 var dataMungerMkr = require('./logic/datamunger');
 var constants = require('./logic/constants');
-var { getLatestPumpUpload, isAutomatedBasalDevice } = require('../../../js/data/util/device');
 
 var Section = require('./components/DashboardSection');
 var UnknownStatistic = React.createFactory(require('./components/misc/UnknownStatistic'));
-var DailyCarbsTitle = React.createFactory(require('./components/misc/DailyCarbsTitle'));
 
 var togglableState = require('./TogglableState');
-
-var dataUrl = 'data/blip-input.json';
 
 var BasicsChart = React.createClass({
   propTypes: {
@@ -62,8 +53,6 @@ var BasicsChart = React.createClass({
   },
 
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
-    var latestPumpUpload = getLatestPumpUpload(this.props.patientData.grouped.upload);
-
     var insulinDataAvailable = this._insulinDataAvailable();
     var noPumpDataMessage = t("This section requires data from an insulin pump, so there's nothing to display.");
     var noSMBGDataMessage = t("This section requires data from a blood-glucose meter, so there's nothing to display.");
@@ -118,30 +107,6 @@ var BasicsChart = React.createClass({
         }
       });
     }
-
-    if (basicsData.data.averageDailyCarbs === null) {
-      var averageDailyCarbsSection = _.find(basicsData.sections, {id: 'averageDailyCarbs'});
-      averageDailyCarbsSection.noData = true;
-      averageDailyCarbsSection.togglable = insulinDataAvailable ? togglableState.off : togglableState.closed;
-      averageDailyCarbsSection.title = DailyCarbsTitle;
-      averageDailyCarbsSection.chart = UnknownStatistic;
-    }
-
-    if (_.isEmpty(basicsData.data.basalBolusRatio)) {
-      var basalBolusRatioSection = _.find(basicsData.sections, {id: 'basalBolusRatio'});
-      basalBolusRatioSection.noData = true;
-      basalBolusRatioSection.togglable = insulinDataAvailable ? togglableState.off : togglableState.closed;
-    }
-
-    if (basicsData.data.totalDailyDose === null) {
-      var totalDailyDoseSection = _.find(basicsData.sections, {id: 'totalDailyDose'});
-      totalDailyDoseSection.noData = true;
-      totalDailyDoseSection.togglable = togglableState.closed;
-    }
-
-    if (!isAutomatedBasalDevice(latestPumpUpload)) {
-      delete(basicsData.sections.timeInAutoRatio);
-    }
   },
 
   _insulinDataAvailable: function() {
@@ -159,20 +124,6 @@ var BasicsChart = React.createClass({
 
   _automatedBasalEventsAvailable: function() {
     return _.get(this.props, 'patientData.basicsData.data.basal.summary.automatedStop.count', 0) > 0;
-  },
-
-  _aggregatedDataEmpty: function() {
-    var {
-      basalBolusRatio,
-      timeInAutoRatio,
-      averageDailyDose,
-      averageDailyCarbs,
-    } = this.state.data;
-
-    if (basalBolusRatio === null || averageDailyDose === null || averageDailyCarbs === null) {
-      return true;
-    }
-    return false;
   },
 
   _hasSectionData: function (section) {
@@ -212,13 +163,6 @@ var BasicsChart = React.createClass({
 
       dataMunger.processInfusionSiteHistory(basicsData, latestPump, this.props.patient, this.props.permsOfLoggedInUser);
 
-      basicsData.data.bgDistribution = dataMunger.bgDistribution(basicsData);
-      var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData, basalUtil);
-      basicsData.data.basalBolusRatio = basalBolusStats.basalBolusRatio;
-      basicsData.data.timeInAutoRatio = basalBolusStats.timeInAutoRatio;
-      basicsData.data.averageDailyDose = basalBolusStats.averageDailyDose;
-      basicsData.data.totalDailyDose = basalBolusStats.totalDailyDose;
-      basicsData.data.averageDailyCarbs = basalBolusStats.averageDailyCarbs;
       this._adjustSectionsBasedOnAvailableData(basicsData);
     }
     this.setState(basicsData);
@@ -235,10 +179,6 @@ var BasicsChart = React.createClass({
       }
 
       this.props.trackMetric('web - viewed basics data', { device });
-    }
-
-    if (this._aggregatedDataEmpty() && this.props.trackMetric) {
-      this.props.trackMetric('web - pump vacation message displayed');
     }
   },
 

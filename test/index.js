@@ -50,13 +50,8 @@ require('./basics_datamunger_test');
 require('./nurseshark_test');
 
 
-require('./blip/components/chart/BGDistribution.test.js');
-require('./blip/components/chart/DailyCarbs.test.js');
-require('./blip/components/chart/DailyDose.test.js');
 require('./blip/components/day/hover/InfusionHoverDisplay.test.js');
 require('./blip/components/logic/actions.test.js');
-require('./blip/components/misc/DailyCarbsTitle.test.js');
-require('./blip/components/misc/DailyDoseTitle.test.js');
 require('./blip/components/misc/SummaryGroup.test.js');
 require('./blip/components/sitechange/Selector.test.js');
 require('./blip/components/BasicsUtils.test.js');

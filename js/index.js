@@ -58,7 +58,6 @@ module.exports = {
     wizard: require('./plot/wizard'),
     stats: {
       puddle: require('./plot/stats/puddle'),
-      widget: require('./plot/stats/widget')
     },
     util: {
       annotations: {
