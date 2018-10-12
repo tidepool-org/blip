@@ -72,6 +72,7 @@ describe('annotation definitions', function() {
     it('should define an array of disabled annotations', function() {
       expect(annotations.DISABLED).to.eql([
         'basal/auto',
+        'bg/out-of-range',
         'medtronic600/smbg/bg-reading-received',
         'medtronic600/smbg/user-accepted-remote-bg',
         'medtronic600/smbg/user-rejected-remote-bg',
