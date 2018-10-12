@@ -2,19 +2,22 @@ import crossfilter from 'crossfilter'; // eslint-disable-line import/no-unresolv
 import _ from 'lodash';
 import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from './basal';
 import { getTotalBolus } from './bolus';
+import { classifyBgValue, reshapeBgClassesToBgBounds, cgmSampleFrequency } from './bloodglucose';
 import { addDuration, TWENTY_FOUR_HRS } from './datetime';
 
 
-/* eslint-disable lodash/prefer-lodash-method, no-underscore-dangle */
+/* eslint-disable lodash/prefer-lodash-method, no-underscore-dangle, no-param-reassign */
 
 export class DataUtil {
   /**
+   * @param {Object} bgBounds - object describing boundaries for blood glucose categories
    * @param {Array} data Unfiltered tideline data
    * @param {Array} endpoints Array ISO strings [start, end]
    */
-  constructor(data, endpoints) {
+  constructor(data, endpoints, bgPrefs) {
     this.data = crossfilter(data);
     this._endpoints = endpoints;
+    this.bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
     this.dimension = {};
     this.filter = {};
     this.sort = {};
@@ -25,8 +28,14 @@ export class DataUtil {
   }
 
   set endpoints(endpoints) {
-    this._endpoints = endpoints;
+    if (endpoints) {
+      this._endpoints = endpoints;
+    }
   }
+
+  addData = data => {
+    this.data.add(data);
+  };
 
   buildDimensions = () => {
     this.dimension.byDate = this.data.dimension(d => d.normalTime);
@@ -68,6 +77,59 @@ export class DataUtil {
     return basalData;
   };
 
+  getReadingsInRangeData = () => {
+    this.filter.byEndpoints(this._endpoints);
+
+    const smbgData = _.reduce(
+      this.sort.byDate(this.filter.byType('smbg').top(Infinity)),
+      (result, datum) => {
+        const classification = classifyBgValue(this.bgBounds, datum.value, 'fiveWay');
+        result[classification]++;
+        return result;
+      },
+      {
+        veryLow: 0,
+        low: 0,
+        high: 0,
+        veryHigh: 0,
+        target: 0,
+      }
+    );
+
+    return smbgData;
+  };
+
+  getTimeInAutoData = () => {
+    this.filter.byEndpoints(this._endpoints);
+
+    let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity));
+    basalData = this.includeBasalOverlappingStart(basalData);
+
+    return basalData.length ? getBasalGroupDurationsFromEndpoints(basalData, this._endpoints) : NaN;
+  };
+
+  getTimeInRangeData = () => {
+    this.filter.byEndpoints(this._endpoints);
+    const cbgData = this.sort.byDate(this.filter.byType('cbg').top(Infinity));
+    const timeInRangeData = _.reduce(
+      cbgData,
+      (result, datum) => {
+        const classification = classifyBgValue(this.bgBounds, datum.value, 'fiveWay');
+        result[classification] += cgmSampleFrequency(datum);
+        return result;
+      },
+      {
+        veryLow: 0,
+        low: 0,
+        high: 0,
+        veryHigh: 0,
+        target: 0,
+      }
+    );
+
+    return timeInRangeData;
+  };
+
   getTotalInsulinData = () => {
     this.filter.byEndpoints(this._endpoints);
 
@@ -79,15 +141,6 @@ export class DataUtil {
       totalBasal: basalData.length ? getTotalBasalFromEndpoints(basalData, this._endpoints) : NaN,
       totalBolus: bolusData.length ? getTotalBolus(bolusData) : NaN,
     };
-  }
-
-  getTimeInAutoData = () => {
-    this.filter.byEndpoints(this._endpoints);
-
-    let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity));
-    basalData = this.includeBasalOverlappingStart(basalData);
-
-    return basalData.length ? getBasalGroupDurationsFromEndpoints(basalData, this._endpoints) : NaN;
   }
 }
 
