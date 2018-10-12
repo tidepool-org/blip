@@ -178,6 +178,24 @@
   width: 100%;
 }
 
+// Stats
+// ====================================
+.patient-data .Stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 8px;
+
+  @media (min-width: @patient-data-sidebar-bp) {
+    display: block;
+    margin: 0;
+
+    > div {
+      margin: 0 0 8px;
+      max-width: 100%;
+    }
+  }
+}
+
 // Chart
 // ====================================
 
