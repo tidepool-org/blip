@@ -161,7 +161,7 @@
 
   @media (min-width: @patient-data-sidebar-bp) {
     flex-shrink: 0;
-    width: 300px;
+    width: @patient-data-sidebar-width;
   }
 }
 
@@ -182,7 +182,10 @@
 // ====================================
 .patient-data .Stats {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(@patient-data-sidebar-width, 1fr)
+  );
   grid-gap: 8px;
 
   @media (min-width: @patient-data-sidebar-bp) {

@@ -23,6 +23,8 @@ var sundial = require('sundial');
 import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
 
+import Stats from './stats';
+
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
 var chartWeeklyFactory = tidelineBlip.twoweek;
@@ -204,7 +206,14 @@ var Weekly = translate()(React.createClass({
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar-inner">
-            <div className="patient-data-sidebar">Hello sidebar</div>
+            <div className="patient-data-sidebar">
+              <Stats
+                bgPrefs={this.props.bgPrefs}
+                chartType={this.chartType}
+                dataUtil={this.props.dataUtil}
+                endpoints={this.state.endpoints}
+              />
+            </div>
           </div>
         </div>
         <Footer
@@ -358,7 +367,8 @@ var Weekly = translate()(React.createClass({
   handleDatetimeLocationChange: function(datetimeLocationEndpoints, chart = this.refs.chart) {
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
-      title: this.getTitle(datetimeLocationEndpoints)
+      title: this.getTitle(datetimeLocationEndpoints),
+      endpoints: datetimeLocationEndpoints,
     });
     this.props.updateDatetimeLocation(chart.getCurrentDay());
 

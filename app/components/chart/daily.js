@@ -268,9 +268,10 @@ var Daily = translate()(React.createClass({
           <div className="container-box-inner patient-data-sidebar-inner">
             <div className="patient-data-sidebar">
               <Stats
+                bgPrefs={this.props.bgPrefs}
                 chartType={this.chartType}
-                endpoints={this.state.endpoints}
                 dataUtil={this.props.dataUtil}
+                endpoints={this.state.endpoints}
               />
             </div>
           </div>

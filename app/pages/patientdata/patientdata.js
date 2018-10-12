@@ -302,6 +302,7 @@ export let PatientData = translate()(React.createClass({
           <Basics
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            dataUtil={this.state.dataUtil}
             timePrefs={this.state.timePrefs}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
@@ -327,6 +328,7 @@ export let PatientData = translate()(React.createClass({
           <Daily
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            dataUtil={this.state.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
@@ -344,7 +346,6 @@ export let PatientData = translate()(React.createClass({
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             updateDatetimeLocation={this.updateDatetimeLocation}
             pdf={this.props.pdf.combined || {}}
-            dataUtil={this.state.dataUtil}
             ref="tideline" />
           );
       case 'trends':
@@ -353,6 +354,7 @@ export let PatientData = translate()(React.createClass({
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
+            dataUtil={this.state.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
@@ -377,6 +379,7 @@ export let PatientData = translate()(React.createClass({
           <Weekly
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            dataUtil={this.state.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
@@ -499,19 +502,8 @@ export let PatientData = translate()(React.createClass({
     return datetime;
   },
 
-  getAggregatedStats: function(dateRange) {
-
-  },
-
   handleChartDateRangeUpdate: function(dateRange) {
     this.updateChartDateRange(dateRange);
-    if (!this.state.dataUtil) {
-      console.log('init this.dataUtil')
-      this.setState({
-        dataUtil: new DataUtil(this.state.processedPatientData.data, dateRange),
-      });
-    }
-    this.getAggregatedStats(dateRange);
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
       const patientID = this.props.currentPatientInViewId;
@@ -1042,12 +1034,14 @@ export let PatientData = translate()(React.createClass({
 
         const lastDatumProcessedIndex = targetData.length - 1;
         const timePrefs = processedData.timePrefs || this.state.timePrefs;
+        const bgPrefs = {
+          bgClasses: processedData.bgClasses,
+          bgUnits: processedData.bgUnits
+        };
 
         this.setState({
-          bgPrefs: {
-            bgClasses: processedData.bgClasses,
-            bgUnits: processedData.bgUnits
-          },
+          bgPrefs,
+          dataUtil: new DataUtil(processedData.data, [], bgPrefs),
           lastDiabetesDatumProcessedIndex,
           lastDatumProcessedIndex,
           lastProcessedDateTarget: targetDatetime,
