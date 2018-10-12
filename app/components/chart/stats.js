@@ -28,6 +28,7 @@ class Stats extends PureComponent {
 
     this.dataFetchMethods = {
       [commonStats.averageBg]:'getAverageBgData',
+      [commonStats.averageDailyCarbs]:'getAverageDailyCarbsData',
       [commonStats.readingsInRange]:'getReadingsInRangeData',
       [commonStats.timeInAuto]:'getTimeInAutoData',
       [commonStats.timeInRange]:'getTimeInRangeData',
@@ -81,6 +82,12 @@ class Stats extends PureComponent {
 
     switch (chartType) {
       case 'basics':
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.timeInRange]](), commonStats.timeInRange));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.readingsInRange]](), commonStats.readingsInRange));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.totalInsulin]](), commonStats.totalInsulin));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.timeInAuto]](), commonStats.timeInAuto));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.averageDailyCarbs]](), commonStats.averageDailyCarbs));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.averageBg]](), commonStats.averageBg));
         break;
 
       case 'daily':

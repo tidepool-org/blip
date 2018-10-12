@@ -21,12 +21,14 @@ var React = require('react');
 var sundial = require('sundial');
 import { translate, Trans } from 'react-i18next';
 
-var utils = require('../../core/utils');
-
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
 var BasicsChart = tidelineBlip.basics;
 
+import { components as vizComponents } from '@tidepool/viz';
+var Loader = vizComponents.Loader;
+
+import Stats from './stats';
 var Header = require('./header');
 var Footer = require('./footer');
 
@@ -60,6 +62,7 @@ var Basics = translate()(React.createClass({
       atMostRecent: true,
       inTransition: false,
       title: this.getTitle(),
+      endpoints: this.props.patientData.basicsData.dateRange,
     };
   },
 
@@ -92,8 +95,18 @@ var Basics = translate()(React.createClass({
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              {this.isMissingBasics() ?
-                this.renderMissingBasicsMessage() : this.renderChart()}
+              <Loader show={this.props.loading} overlay={true} />
+              {this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart()}
+            </div>
+          </div>
+          <div className="container-box-inner patient-data-sidebar-inner">
+            <div className="patient-data-sidebar">
+              <Stats
+                bgPrefs={this.props.bgPrefs}
+                chartType={this.chartType}
+                dataUtil={this.props.dataUtil}
+                endpoints={this.state.endpoints}
+              />
             </div>
           </div>
         </div>
