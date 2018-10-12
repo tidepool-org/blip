@@ -20,6 +20,7 @@ export const statFormats = {
 };
 
 export const commonStats = {
+  averageBg: 'averageBg',
   readingsInRange: 'readingsInRange',
   timeInAuto: 'timeInAuto',
   timeInRange: 'timeInRange',
@@ -34,6 +35,18 @@ export const getStatData = (data, type) => {
   let statData = {};
 
   switch (type) {
+    case commonStats.averageBg:
+      statData.data = [
+        {
+          value: ensureNumeric(data.averageBg),
+        },
+      ];
+
+      statData.dataPaths = {
+        summary: 'data.0',
+      };
+      break;
+
     case commonStats.readingsInRange:
       statData.data = [
         {
@@ -170,6 +183,19 @@ export const getStatDefinition = (data, type) => {
   };
 
   switch (type) {
+    case commonStats.averageBg:
+      stat.dataFormat = {
+        label: statFormats.bgValue,
+        summary: statFormats.bgValue,
+      };
+      stat.annotations = [
+        'Based on 70% CGM data availability for this view.',
+        'Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.',
+      ];
+      stat.title = 'Average Blood Glucose';
+      stat.type = statTypes.barBg;
+      break;
+
     case commonStats.readingsInRange:
       stat.dataFormat = {
         label: statFormats.bgCount,
@@ -180,7 +206,7 @@ export const getStatDefinition = (data, type) => {
       stat.annotations = [
         'Based on 7 SMBG readings for this view.',
       ];
-      stat.title = 'Readings In Range'; // TODO: use labels from pump vocabulary
+      stat.title = 'Readings In Range';
       break;
 
     case commonStats.timeInAuto:
@@ -205,7 +231,7 @@ export const getStatDefinition = (data, type) => {
       stat.annotations = [
         'Based on 70% CGM data availability for this view.',
       ];
-      stat.title = 'Time In Range'; // TODO: use labels from pump vocabulary
+      stat.title = 'Time In Range';
       break;
 
     case commonStats.totalInsulin:

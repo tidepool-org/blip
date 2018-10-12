@@ -77,11 +77,20 @@ export class DataUtil {
     return basalData;
   };
 
+  getAverageBgData = () => {
+    this.filter.byEndpoints(this._endpoints);
+
+    const cbgData = this.filter.byType('cbg').top(Infinity);
+    const smbgData = this.filter.byType('smbg').top(Infinity);
+
+    return { averageBg: _.meanBy(cbgData.concat(smbgData), 'value') };
+  };
+
   getReadingsInRangeData = () => {
     this.filter.byEndpoints(this._endpoints);
 
     const smbgData = _.reduce(
-      this.sort.byDate(this.filter.byType('smbg').top(Infinity)),
+      this.filter.byType('smbg').top(Infinity),
       (result, datum) => {
         const classification = classifyBgValue(this.bgBounds, datum.value, 'fiveWay');
         result[classification]++;
@@ -110,7 +119,7 @@ export class DataUtil {
 
   getTimeInRangeData = () => {
     this.filter.byEndpoints(this._endpoints);
-    const cbgData = this.sort.byDate(this.filter.byType('cbg').top(Infinity));
+    const cbgData = this.filter.byType('cbg').top(Infinity);
     const timeInRangeData = _.reduce(
       cbgData,
       (result, datum) => {
