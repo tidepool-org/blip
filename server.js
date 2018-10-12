@@ -58,8 +58,8 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     reportUri: '/event/csp-report/violation',
     objectSrc: ['blob:', 'https://beacon-v2.helpscout.net'],
     workerSrc: ["'self'", 'blob:'],
-    childSrc: ["'self'", 'blob:'],
-    frameSrc: ['https://beacon-v2.helpscout.net'],
+    childSrc: ["'self'", 'blob:', 'https://docs.google.com/forms'],
+    frameSrc: ['https://beacon-v2.helpscout.net', 'https://docs.google.com/forms'],
     connectSrc: [].concat([
       process.env.API_HOST,
       'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
