@@ -1,4 +1,5 @@
 import crossfilter from 'crossfilter'; // eslint-disable-line import/no-unresolved
+import moment from 'moment';
 import _ from 'lodash';
 import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from './basal';
 import { getTotalBolus } from './bolus';
@@ -84,6 +85,21 @@ export class DataUtil {
     const smbgData = this.filter.byType('smbg').top(Infinity);
 
     return { averageBg: _.meanBy(cbgData.concat(smbgData), 'value') };
+  };
+
+  getAverageDailyCarbsData = () => {
+    this.filter.byEndpoints(this._endpoints);
+
+    const wizardData = this.filter.byType('wizard').top(Infinity);
+    const days = moment.utc(this._endpoints[1]).diff(moment.utc(this._endpoints[0]), 'days') + 1;
+
+    const totalCarbs = _.reduce(
+      wizardData,
+      (result, datum) => result + _.get(datum, 'carbInput', 0),
+      0
+    );
+
+    return { averageDailyCarbs: totalCarbs / days };
   };
 
   getReadingsInRangeData = () => {

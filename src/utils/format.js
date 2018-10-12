@@ -123,6 +123,19 @@ export function formatPercentage(val, precision = 0) {
 }
 
 /**
+ * formatCarbs
+ * @param {Number} val Number of carbs
+ * @param {Number} precision Number of decimal places to show
+ * @return {String}
+ */
+export function formatCarbs(val, precision = 0) {
+  if (Number.isNaN(val)) {
+    return '--%';
+  }
+  return `${formatDecimalNumber(val, precision)} g`;
+}
+
+/**
  * removeTrailingZeroes
  * @param {String} - formatted decimal value, may have trailing zeroes
  *

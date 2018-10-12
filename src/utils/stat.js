@@ -11,6 +11,7 @@ export const statFormats = {
   bgRange: 'bgRange',
   bgValue: 'bgValue',
   cv: 'cv',
+  carbs: 'carbs',
   duration: 'duration',
   gmi: 'gmi',
   percentage: 'percentage',
@@ -21,6 +22,7 @@ export const statFormats = {
 
 export const commonStats = {
   averageBg: 'averageBg',
+  averageDailyCarbs: 'averageDailyCarbs',
   readingsInRange: 'readingsInRange',
   timeInAuto: 'timeInAuto',
   timeInRange: 'timeInRange',
@@ -39,6 +41,18 @@ export const getStatData = (data, type) => {
       statData.data = [
         {
           value: ensureNumeric(data.averageBg),
+        },
+      ];
+
+      statData.dataPaths = {
+        summary: 'data.0',
+      };
+      break;
+
+    case commonStats.averageDailyCarbs:
+      statData.data = [
+        {
+          value: ensureNumeric(data.averageDailyCarbs),
         },
       ];
 
@@ -194,6 +208,17 @@ export const getStatDefinition = (data, type) => {
       ];
       stat.title = 'Average Blood Glucose';
       stat.type = statTypes.barBg;
+      break;
+
+    case commonStats.averageDailyCarbs:
+      stat.dataFormat = {
+        summary: statFormats.carbs,
+      };
+      stat.annotations = [
+        'Based on 10 bolus wizard events available for this view.',
+      ];
+      stat.title = 'Average Daily Carbs';
+      stat.type = statTypes.simple;
       break;
 
     case commonStats.readingsInRange:
