@@ -12,9 +12,9 @@ const { reshapeBgClassesToBgBounds } = vizUtils.bg;
 class Stats extends PureComponent {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
-    chartType: PropTypes.oneOf(['daily', 'weekly', 'trends']).isRequired,
+    chartType: PropTypes.oneOf(['basics', 'daily', 'weekly', 'trends']).isRequired,
     endpoints: PropTypes.arrayOf(PropTypes.string),
-    dataUtil: PropTypes.object,
+    dataUtil: PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -27,10 +27,11 @@ class Stats extends PureComponent {
     };
 
     this.dataFetchMethods = {
-      readingsInRange:'getReadingsInRangeData',
-      timeInAuto:'getTimeInAutoData',
-      timeInRange:'getTimeInRangeData',
-      totalInsulin:'getTotalInsulinData',
+      [commonStats.averageBg]:'getAverageBgData',
+      [commonStats.readingsInRange]:'getReadingsInRangeData',
+      [commonStats.timeInAuto]:'getTimeInAutoData',
+      [commonStats.timeInRange]:'getTimeInRangeData',
+      [commonStats.totalInsulin]:'getTotalInsulinData',
     }
 
     this.stats = this.getStatsByChartType();
@@ -42,7 +43,11 @@ class Stats extends PureComponent {
       endpoints,
     } = nextProps;
 
-    if (dataUtil && this.props.endpoints !== endpoints) {
+    const endpointsChanged = endpoints && (
+      _.get(this.props, 'endpoints.0') !== endpoints[0] || _.get(this.props, 'endpoints.1') !== endpoints[1]
+    );
+
+    if (endpointsChanged) {
       dataUtil.endpoints = endpoints;
 
       _.each(this.stats, (stat, i) => {
@@ -71,23 +76,32 @@ class Stats extends PureComponent {
 
     const stats = [];
 
-    if (dataUtil) {
-      // Update dataUtil endpoints
-      dataUtil.endpoints = endpoints;
+    // Set dataUtil endpoints
+    dataUtil.endpoints = endpoints;
 
-      switch (chartType) {
-        case 'daily':
-          stats.push(getStatDefinition(dataUtil.getTimeInRangeData(), commonStats.timeInRange));
-          stats.push(getStatDefinition(dataUtil.getReadingsInRangeData(), commonStats.readingsInRange));
-          stats.push(getStatDefinition(dataUtil.getTotalInsulinData(), commonStats.totalInsulin));
-          stats.push(getStatDefinition(dataUtil.getTimeInAutoData(), commonStats.timeInAuto));
-          break;
+    switch (chartType) {
+      case 'basics':
+        break;
 
-        case 'weekly':
-          stats.push(getStatDefinition(dataUtil.getTimeInRangeData(), commonStats.timeInRange));
-          stats.push(getStatDefinition(dataUtil.getReadingsInRangeData(), commonStats.readingsInRange));
-          break;
-      }
+      case 'daily':
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.timeInRange]](), commonStats.timeInRange));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.readingsInRange]](), commonStats.readingsInRange));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.totalInsulin]](), commonStats.totalInsulin));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.timeInAuto]](), commonStats.timeInAuto));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.averageBg]](), commonStats.averageBg));
+        break;
+
+      case 'weekly':
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.timeInRange]](), commonStats.timeInRange));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.readingsInRange]](), commonStats.readingsInRange));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.averageBg]](), commonStats.averageBg));
+        break;
+
+      case 'trends':
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.timeInRange]](), commonStats.timeInRange));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.readingsInRange]](), commonStats.readingsInRange));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.averageBg]](), commonStats.averageBg));
+        break;
     }
 
     return stats;

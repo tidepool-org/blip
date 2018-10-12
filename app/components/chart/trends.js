@@ -20,14 +20,15 @@ const d3 = window.d3;
 import _ from 'lodash';
 import bows from 'bows';
 import React, { PropTypes, PureComponent } from 'react';
-import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
 
 import Header from './header';
 import SubNav from './trendssubnav';
+import Stats from './stats';
 import Footer from './footer';
+
 
 import * as viz from '@tidepool/viz';
 const CBGDateTraceLabel = viz.components.CBGDateTraceLabel;
@@ -258,7 +259,8 @@ const Trends = translate()(class Trends extends PureComponent {
   handleDatetimeLocationChange(datetimeLocationEndpoints, atMostRecent) {
     this.setState({
       atMostRecent: atMostRecent,
-      title: this.getTitle(datetimeLocationEndpoints)
+      title: this.getTitle(datetimeLocationEndpoints),
+      endpoints: datetimeLocationEndpoints,
     });
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
 
@@ -356,7 +358,7 @@ const Trends = translate()(class Trends extends PureComponent {
         {this.renderHeader()}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
-        {this.renderSubNav()}
+            {this.renderSubNav()}
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
               <div id="tidelineContainer" className="patient-data-chart-trends">
@@ -368,7 +370,14 @@ const Trends = translate()(class Trends extends PureComponent {
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar-inner">
-            <div className="patient-data-sidebar">Hello sidebar</div>
+            <div className="patient-data-sidebar">
+              <Stats
+                bgPrefs={this.props.bgPrefs}
+                chartType={this.chartType}
+                dataUtil={this.props.dataUtil}
+                endpoints={this.state.endpoints}
+              />
+            </div>
           </div>
         </div>
         <Footer
