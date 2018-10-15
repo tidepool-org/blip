@@ -27,12 +27,15 @@ class Stats extends PureComponent {
     };
 
     this.dataFetchMethods = {
-      [commonStats.averageBg]:'getAverageBgData',
-      [commonStats.averageDailyCarbs]:'getAverageDailyCarbsData',
-      [commonStats.readingsInRange]:'getReadingsInRangeData',
-      [commonStats.timeInAuto]:'getTimeInAutoData',
-      [commonStats.timeInRange]:'getTimeInRangeData',
-      [commonStats.totalInsulin]:'getTotalInsulinData',
+      [commonStats.averageBg]: 'getAverageBgData',
+      [commonStats.averageDailyCarbs]: 'getAverageDailyCarbsData',
+      [commonStats.coefficientOfVariation]: 'getCoefficientOfVariationData',
+      [commonStats.glucoseManagementIndex]: 'getGlucoseManagementIndexData',
+      [commonStats.readingsInRange]: 'getReadingsInRangeData',
+      [commonStats.standardDev]: 'getStandardDevData',
+      [commonStats.timeInAuto]: 'getTimeInAutoData',
+      [commonStats.timeInRange]: 'getTimeInRangeData',
+      [commonStats.totalInsulin]: 'getTotalInsulinData',
     }
 
     this.stats = this.getStatsByChartType();
@@ -57,7 +60,7 @@ class Stats extends PureComponent {
     }
   };
 
-  renderStats = (stats) => (_.map(stats, (stat, i) => (stat.data.data && <Stat key={i} bgPrefs={this.bgPrefs} {...stat} />)));
+  renderStats = (stats) => (_.map(stats, (stat, i) => (<Stat key={i} bgPrefs={this.bgPrefs} {...stat} />)));
 
   render = () => {
     console.log('this.stats', this.stats);
@@ -88,26 +91,38 @@ class Stats extends PureComponent {
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.timeInAuto]](), commonStats.timeInAuto));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.averageDailyCarbs]](), commonStats.averageDailyCarbs));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.averageBg]](), commonStats.averageBg));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.standardDev]](), commonStats.standardDev));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.coefficientOfVariation]](), commonStats.coefficientOfVariation));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.glucoseManagementIndex]](), commonStats.glucoseManagementIndex));
         break;
 
-      case 'daily':
+        case 'daily':
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.timeInRange]](), commonStats.timeInRange));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.readingsInRange]](), commonStats.readingsInRange));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.totalInsulin]](), commonStats.totalInsulin));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.timeInAuto]](), commonStats.timeInAuto));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.averageBg]](), commonStats.averageBg));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.standardDev]](), commonStats.standardDev));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.coefficientOfVariation]](), commonStats.coefficientOfVariation));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.glucoseManagementIndex]](), commonStats.glucoseManagementIndex));
         break;
 
-      case 'weekly':
+        case 'weekly':
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.timeInRange]](), commonStats.timeInRange));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.readingsInRange]](), commonStats.readingsInRange));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.averageBg]](), commonStats.averageBg));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.standardDev]](), commonStats.standardDev));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.coefficientOfVariation]](), commonStats.coefficientOfVariation));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.glucoseManagementIndex]](), commonStats.glucoseManagementIndex));
         break;
 
-      case 'trends':
+        case 'trends':
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.timeInRange]](), commonStats.timeInRange));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.readingsInRange]](), commonStats.readingsInRange));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.averageBg]](), commonStats.averageBg));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.standardDev]](), commonStats.standardDev));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.coefficientOfVariation]](), commonStats.coefficientOfVariation));
+        stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.glucoseManagementIndex]](), commonStats.glucoseManagementIndex));
         break;
     }
 
