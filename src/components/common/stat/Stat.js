@@ -625,7 +625,7 @@ class Stat extends PureComponent {
         }
         break;
 
-      case statFormats.stdDevRange:
+      case statFormats.standardDevRange:
         if (value >= 0) {
           suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
 
@@ -659,7 +659,7 @@ class Stat extends PureComponent {
         }
         break;
 
-      case statFormats.stdDevValue:
+      case statFormats.standardDevValue:
         suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
         suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         if (value >= 0) {

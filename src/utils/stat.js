@@ -15,15 +15,18 @@ export const statFormats = {
   duration: 'duration',
   gmi: 'gmi',
   percentage: 'percentage',
-  stdDevRange: 'stdDevRange',
-  stdDevValue: 'stdDevValue',
+  standardDevRange: 'standardDevRange',
+  standardDevValue: 'standardDevValue',
   units: 'units',
 };
 
 export const commonStats = {
   averageBg: 'averageBg',
   averageDailyCarbs: 'averageDailyCarbs',
+  coefficientOfVariation: 'coefficientOfVariation',
+  glucoseManagementIndex: 'glucoseManagementIndex',
   readingsInRange: 'readingsInRange',
+  standardDev: 'standardDev',
   timeInAuto: 'timeInAuto',
   timeInRange: 'timeInRange',
   totalInsulin: 'totalInsulin',
@@ -53,6 +56,32 @@ export const getStatData = (data, type) => {
       statData.data = [
         {
           value: ensureNumeric(data.averageDailyCarbs),
+        },
+      ];
+
+      statData.dataPaths = {
+        summary: 'data.0',
+      };
+      break;
+
+    case commonStats.coefficientOfVariation:
+      statData.data = [
+        {
+          id: 'cv',
+          value: ensureNumeric(data.coefficientOfVariation),
+        },
+      ];
+
+      statData.dataPaths = {
+        summary: 'data.0',
+      };
+      break;
+
+    case commonStats.glucoseManagementIndex:
+      statData.data = [
+        {
+          id: 'gmi',
+          value: ensureNumeric(data.glucoseManagementIndex),
         },
       ];
 
@@ -96,6 +125,22 @@ export const getStatData = (data, type) => {
           'data',
           _.findIndex(statData.data, { id: 'target' }),
         ],
+      };
+      break;
+
+    case commonStats.standardDev:
+      statData.data = [
+        {
+          value: ensureNumeric(data.averageBg),
+          deviation: {
+            value: ensureNumeric(data.standardDeviation),
+          },
+        },
+      ];
+
+      statData.dataPaths = {
+        summary: 'data.0.deviation',
+        title: 'data.0',
       };
       break;
 
@@ -221,6 +266,30 @@ export const getStatDefinition = (data, type) => {
       stat.type = statTypes.simple;
       break;
 
+    case commonStats.coefficientOfVariation:
+      stat.dataFormat = {
+        summary: statFormats.cv,
+      };
+      stat.annotations = [
+        'Based on 70% CGM data availability for this view.',
+        'CV (Coefficient of Variation) is…',
+      ];
+      stat.title = 'CV';
+      stat.type = statTypes.simple;
+      break;
+
+    case commonStats.glucoseManagementIndex:
+      stat.dataFormat = {
+        summary: statFormats.gmi,
+      };
+      stat.annotations = [
+        'Based on 70% CGM data availability for this view.',
+        'GMI (Glucose Management Indicator) is an estimate of HbA1c that has been calculated based on your average blood glucose.',
+      ];
+      stat.title = 'GMI';
+      stat.type = statTypes.simple;
+      break;
+
     case commonStats.readingsInRange:
       stat.dataFormat = {
         label: statFormats.bgCount,
@@ -232,6 +301,20 @@ export const getStatDefinition = (data, type) => {
         'Based on 7 SMBG readings for this view.',
       ];
       stat.title = 'Readings In Range';
+      break;
+
+    case commonStats.standardDev:
+      stat.dataFormat = {
+        label: statFormats.standardDevValue,
+        summary: statFormats.standardDevValue,
+        title: statFormats.standardDevRange,
+      };
+      stat.annotations = [
+        'Based on 70% CGM data availability for this view.',
+        'SD (Standard Deviation) is…',
+      ];
+      stat.title = 'Standard Deviation';
+      stat.type = statTypes.barBg;
       break;
 
     case commonStats.timeInAuto:

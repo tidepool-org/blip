@@ -536,9 +536,9 @@ stories.add('Standard Deviation', () => {
         collapsible={collapsible}
         data={standardDevDataUnits === MGDL_UNITS ? standardDevData : standardDevDataMmol}
         dataFormat={{
-          label: statFormats.stdDevValue,
-          summary: statFormats.stdDevValue,
-          title: statFormats.stdDevRange,
+          label: statFormats.standardDevValue,
+          summary: statFormats.standardDevValue,
+          title: statFormats.standardDevRange,
         }}
         isOpened={isOpened}
         annotations={[

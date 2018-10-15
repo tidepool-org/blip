@@ -5,6 +5,7 @@ import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from 
 import { getTotalBolus } from './bolus';
 import { classifyBgValue, reshapeBgClassesToBgBounds, cgmSampleFrequency } from './bloodglucose';
 import { addDuration, TWENTY_FOUR_HRS } from './datetime';
+import { MGDL_UNITS, MGDL_PER_MMOLL } from './constants';
 
 
 /* eslint-disable lodash/prefer-lodash-method, no-underscore-dangle, no-param-reassign */
@@ -19,6 +20,7 @@ export class DataUtil {
     this.data = crossfilter(data);
     this._endpoints = endpoints;
     this.bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
+    this.bgUnits = bgPrefs.bgUnits;
     this.dimension = {};
     this.filter = {};
     this.sort = {};
@@ -78,13 +80,22 @@ export class DataUtil {
     return basalData;
   };
 
-  getAverageBgData = () => {
+  getAverageBgData = (returnBgData = false) => {
     this.filter.byEndpoints(this._endpoints);
 
     const cbgData = this.filter.byType('cbg').top(Infinity);
     const smbgData = this.filter.byType('smbg').top(Infinity);
+    const combinedBgData = cbgData.concat(smbgData);
 
-    return { averageBg: _.meanBy(cbgData.concat(smbgData), 'value') };
+    const data = {
+      averageBg: _.meanBy(combinedBgData, 'value'),
+    };
+
+    if (returnBgData) {
+      data.bgData = combinedBgData;
+    }
+
+    return data;
   };
 
   getAverageDailyCarbsData = () => {
@@ -100,6 +111,25 @@ export class DataUtil {
     );
 
     return { averageDailyCarbs: totalCarbs / days };
+  };
+
+  getCoefficientOfVariationData = () => {
+    const { averageBg, standardDeviation } = this.getStandardDevData();
+
+    return {
+      coefficientOfVariation: standardDeviation / averageBg,
+    };
+  };
+
+  getGlucoseManagementIndexData = () => {
+    const { averageBg } = this.getAverageBgData();
+    const meanInMGDL = this.bgUnits === MGDL_UNITS ? averageBg : averageBg * MGDL_PER_MMOLL;
+
+    const glucoseManagementIndex = (3.31 + 0.02392 * meanInMGDL) / 100;
+
+    return {
+      glucoseManagementIndex,
+    };
   };
 
   getReadingsInRangeData = () => {
@@ -122,6 +152,19 @@ export class DataUtil {
     );
 
     return smbgData;
+  };
+
+  getStandardDevData = () => {
+    const { averageBg, bgData } = this.getAverageBgData(true);
+
+    const squaredDiffs = _.map(bgData, d => (d.value - averageBg) ** 2);
+    const avgSquaredDiff = _.mean(squaredDiffs);
+    const standardDeviation = Math.sqrt(avgSquaredDiff);
+
+    return {
+      averageBg,
+      standardDeviation,
+    };
   };
 
   getTimeInAutoData = () => {
@@ -166,7 +209,7 @@ export class DataUtil {
       totalBasal: basalData.length ? getTotalBasalFromEndpoints(basalData, this._endpoints) : NaN,
       totalBolus: bolusData.length ? getTotalBolus(bolusData) : NaN,
     };
-  }
+  };
 }
 
 export default DataUtil;
