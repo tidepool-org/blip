@@ -4,8 +4,8 @@ import _ from 'lodash';
 import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from './basal';
 import { getTotalBolus } from './bolus';
 import { classifyBgValue, reshapeBgClassesToBgBounds, cgmSampleFrequency } from './bloodglucose';
-import { addDuration, TWENTY_FOUR_HRS } from './datetime';
-import { MGDL_UNITS, MGDL_PER_MMOLL } from './constants';
+import { addDuration } from './datetime';
+import { MGDL_UNITS, MGDL_PER_MMOLL, MS_IN_DAY } from './constants';
 
 
 /* eslint-disable lodash/prefer-lodash-method, no-underscore-dangle, no-param-reassign */
@@ -16,11 +16,12 @@ export class DataUtil {
    * @param {Array} data Unfiltered tideline data
    * @param {Array} endpoints Array ISO strings [start, end]
    */
-  constructor(data, endpoints, bgPrefs) {
+  constructor(data, endpoints, opts = {}) {
     this.data = crossfilter(data);
     this._endpoints = endpoints;
-    this.bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
-    this.bgUnits = bgPrefs.bgUnits;
+    this._bgSource = opts.bgSource;
+    this.bgBounds = reshapeBgClassesToBgBounds(opts.bgPrefs);
+    this.bgUnits = opts.bgPrefs.bgUnits;
     this.dimension = {};
     this.filter = {};
     this.sort = {};
@@ -33,6 +34,12 @@ export class DataUtil {
   set endpoints(endpoints) {
     if (endpoints) {
       this._endpoints = endpoints;
+    }
+  }
+
+  set bgSource(bgSource) {
+    if (bgSource) {
+      this._bgSource = bgSource;
     }
   }
 
@@ -60,7 +67,7 @@ export class DataUtil {
     if (basalData.length && basalData[0].normalTime > this._endpoints[0]) {
       // Fetch last basal from previous day
       this.filter.byEndpoints([
-        addDuration(this._endpoints[0], -TWENTY_FOUR_HRS),
+        addDuration(this._endpoints[0], -MS_IN_DAY),
         this._endpoints[0],
       ]);
 
@@ -102,7 +109,7 @@ export class DataUtil {
     this.filter.byEndpoints(this._endpoints);
 
     const wizardData = this.filter.byType('wizard').top(Infinity);
-    const days = moment.utc(this._endpoints[1]).diff(moment.utc(this._endpoints[0]), 'days') + 1;
+    const days = this.getDayCountFromEndpoints();
 
     const totalCarbs = _.reduce(
       wizardData,
@@ -121,6 +128,9 @@ export class DataUtil {
     };
   };
 
+  getDayCountFromEndpoints = () => moment.utc(this._endpoints[1])
+    .diff(moment.utc(this._endpoints[0])) / MS_IN_DAY;
+
   getGlucoseManagementIndexData = () => {
     const { averageBg } = this.getAverageBgData();
     const meanInMGDL = this.bgUnits === MGDL_UNITS ? averageBg : averageBg * MGDL_PER_MMOLL;
@@ -135,6 +145,7 @@ export class DataUtil {
   getReadingsInRangeData = () => {
     this.filter.byEndpoints(this._endpoints);
 
+    // TODO: move to bloodglucose util?
     const smbgData = _.reduce(
       this.filter.byType('smbg').top(Infinity),
       (result, datum) => {
@@ -173,17 +184,33 @@ export class DataUtil {
     let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity));
     basalData = this.includeBasalOverlappingStart(basalData);
 
-    return basalData.length ? getBasalGroupDurationsFromEndpoints(basalData, this._endpoints) : NaN;
+    const days = this.getDayCountFromEndpoints();
+    const averageDailyDurations = basalData.length
+      ? _.transform(
+        getBasalGroupDurationsFromEndpoints(basalData, this._endpoints),
+        (result, value, key) => {
+          result[key] = value / days;
+          return result;
+        },
+        {},
+      )
+      : NaN;
+
+    return averageDailyDurations;
   };
 
   getTimeInRangeData = () => {
     this.filter.byEndpoints(this._endpoints);
     const cbgData = this.filter.byType('cbg').top(Infinity);
-    const timeInRangeData = _.reduce(
+
+    const days = this.getDayCountFromEndpoints();
+    // TODO: move to bloodglucose util?
+    const averageDailyDurations = _.reduce(
       cbgData,
       (result, datum) => {
         const classification = classifyBgValue(this.bgBounds, datum.value, 'fiveWay');
-        result[classification] += cgmSampleFrequency(datum);
+        // TODO: dividing by days doesn't cut it, as there could be many days without cgm data
+        result[classification] += cgmSampleFrequency(datum) / days;
         return result;
       },
       {
@@ -195,7 +222,7 @@ export class DataUtil {
       }
     );
 
-    return timeInRangeData;
+    return averageDailyDurations;
   };
 
   getTotalInsulinData = () => {

@@ -318,6 +318,7 @@ export const getStatDefinition = (data, type) => {
       break;
 
     case commonStats.timeInAuto:
+      stat.alwaysShowTooltips = true;
       stat.dataFormat = {
         label: statFormats.percentage,
         summary: statFormats.percentage,
@@ -330,6 +331,7 @@ export const getStatDefinition = (data, type) => {
       break;
 
     case commonStats.timeInRange:
+      stat.alwaysShowTooltips = true;
       stat.dataFormat = {
         label: statFormats.percentage,
         summary: statFormats.percentage,

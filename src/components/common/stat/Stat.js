@@ -24,7 +24,7 @@ import cx from 'classnames';
 import { SizeMe } from 'react-sizeme';
 import { VictoryBar, VictoryContainer } from 'victory';
 import { Collapse } from 'react-collapse';
-import { formatPercentage, formatInsulin, formatBgValue, formatCarbs } from '../../../utils/format';
+import { formatPercentage, formatDecimalNumber, formatBgValue, formatCarbs } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
 import { generateBgRangeLabels, classifyBgValue, classifyCvValue } from '../../../utils/bloodglucose';
 import { MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
@@ -671,7 +671,7 @@ class Stat extends PureComponent {
 
       case statFormats.units:
         if (value >= 0) {
-          value = formatInsulin(value);
+          value = formatDecimalNumber(value, 1);
           suffix = 'u';
         } else {
           disableStat();
