@@ -203,17 +203,17 @@ const NonTandem = (props) => {
         deviceMeta={nonTandemData.deviceMeta(pumpSettings, timePrefs)}
       />
       <div className={styles.settingsContainer}>
-        <div>
-          <div className={styles.basalSettingsContainer}>
-            <div className={styles.categoryTitle}>{t('Basal Rates')}</div>
-            {renderBasalsData()}
-          </div>
+        <div className={styles.basalSettingsContainer}>
+          <div className={styles.categoryTitle}>{t('Basal Rates')}</div>
+          {renderBasalsData()}
         </div>
         <div className={styles.bolusSettingsContainer}>
           <div className={styles.categoryTitle}>{nonTandemData.bolusTitle(lookupKey)}</div>
-          {renderSensitivityData()}
-          {renderTargetData()}
-          {renderRatioData()}
+          <div className={styles.bolusSettingsInnerContainer}>
+            {renderSensitivityData()}
+            {renderTargetData()}
+            {renderRatioData()}
+          </div>
         </div>
       </div>
       <pre className={styles.copyText} id="copySettingsText">

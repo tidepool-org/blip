@@ -26,16 +26,23 @@
 .settingsContainer {
   align-items: flex-start;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
 }
 
 .basalSettingsContainer {
-  margin-right: 10px;
+  flex-basis: 25%;
 }
 
 .bolusSettingsContainer {
   display: flex;
   flex-wrap: wrap;
+  flex-grow: 1;
+}
+
+.bolusSettingsInnerContainer {
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
 }
 
 .categoryTitle {
@@ -45,10 +52,14 @@
 }
 
 .categoryContainer {
-  max-width: 300px;
-  min-width: 250px;
+  padding-right: 10px;
   margin-bottom: 10px;
-  margin-right: 10px;
+  width: 100%;
+  flex-basis: calc(100% / 3);
+}
+
+.bolusSettingsInnerContainer .categoryContainer:last-child {
+  padding-right: 0;
 }
 
 .basalTable {
@@ -117,13 +128,6 @@
     flex-flow: row wrap;
     justify-content: flex-start;
     page-break-after: auto;
-  }
-
-  .bolusSettingsContainer {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: flex-start;
-    page-break-inside: avoid;
   }
 
   .categoryTitle {
