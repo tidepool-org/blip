@@ -39,6 +39,7 @@ var CalendarContainer = React.createClass({
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     chart: React.PropTypes.func.isRequired,
+    chartWidth: React.PropTypes.number.isRequired,
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
     hasHover: React.PropTypes.bool.isRequired,
@@ -126,8 +127,12 @@ var CalendarContainer = React.createClass({
         <div className={containerClass} ref='container'>
           {selector}
           <div className='Calendar' ref='content'>
-            {dayLabels}
-            {days}
+            <div className="weekdays">
+              {dayLabels}
+            </div>
+            <div className="day-grid">
+              {days}
+            </div>
           </div>
         </div>
       </div>
@@ -155,10 +160,11 @@ var CalendarContainer = React.createClass({
     // of the week.
     var firstDay = moment(this.props.days[0].date).day();
     return _.range(firstDay, firstDay + 7).map(function(dow) {
+      var day = moment().day(dow).format('ddd');
       return (
         <div key={moment().day(dow)} className='Calendar-day-label'>
           <div className='Calendar-dayofweek'>
-            {moment().day(dow).format('ddd')}
+            {day}
           </div>
         </div>
       );
@@ -191,6 +197,7 @@ var CalendarContainer = React.createClass({
         return (
           <ADay key={day.date}
             chart={self.props.chart}
+            chartWidth={self.props.chartWidth}
             data={path ? self.props.data[self.props.type][path] :
               self.props.data[self.props.type]}
             date={day.date}

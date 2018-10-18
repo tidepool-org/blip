@@ -32,9 +32,9 @@ var basicsState = require('./logic/state');
 var basicsActions = require('./logic/actions');
 var dataMungerMkr = require('./logic/datamunger');
 var constants = require('./logic/constants');
+var sizeMe = require('react-sizeme');
 
 var Section = require('./components/DashboardSection');
-var UnknownStatistic = React.createFactory(require('./components/misc/UnknownStatistic'));
 
 var togglableState = require('./TogglableState');
 
@@ -46,6 +46,7 @@ var BasicsChart = React.createClass({
     patient: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
     permsOfLoggedInUser: React.PropTypes.object.isRequired,
+    size: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
@@ -216,6 +217,7 @@ var BasicsChart = React.createClass({
           bgClasses={self.props.bgClasses}
           bgUnits={self.props.bgUnits}
           chart={section.chart}
+          chartWidth={self.props.size.width}
           data={self.state.data}
           days={self.state.days}
           labels={section.labels}
@@ -234,4 +236,4 @@ var BasicsChart = React.createClass({
   }
 });
 
-module.exports = BasicsChart;
+module.exports = sizeMe({ monitorHeight: true })(BasicsChart);
