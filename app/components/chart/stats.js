@@ -5,6 +5,8 @@ import bows from 'bows';
 
 import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
 
+import { BG_DATA_TYPES } from '../../core/constants';
+
 const { Stat } = vizComponents;
 const { commonStats, getStatData, getStatDefinition } = vizUtils.stat;
 const { reshapeBgClassesToBgBounds } = vizUtils.bg;
@@ -12,6 +14,7 @@ const { reshapeBgClassesToBgBounds } = vizUtils.bg;
 class Stats extends PureComponent {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
+    bgSource: PropTypes.oneOf(BG_DATA_TYPES),
     chartType: PropTypes.oneOf(['basics', 'daily', 'weekly', 'trends']).isRequired,
     endpoints: PropTypes.arrayOf(PropTypes.string),
     dataUtil: PropTypes.object.isRequired,
@@ -38,7 +41,9 @@ class Stats extends PureComponent {
       [commonStats.totalInsulin]: 'getTotalInsulinData',
     }
 
-    this.stats = this.getStatsByChartType();
+    this.state = {
+      stats: this.getStatsByChartType(),
+    };
   }
 
   componentWillReceiveProps = nextProps => {
@@ -53,20 +58,23 @@ class Stats extends PureComponent {
 
     if (endpointsChanged) {
       dataUtil.endpoints = endpoints;
+      const stats = this.state.stats;
 
-      _.each(this.stats, (stat, i) => {
-        this.stats[i].data = getStatData(dataUtil[this.dataFetchMethods[stat.id]](), stat.id);
+      _.each(stats, (stat, i) => {
+        stats[i].data = getStatData(dataUtil[this.dataFetchMethods[stat.id]](), stat.id);
       });
+
+      this.setState(stats);
     }
   };
 
   renderStats = (stats) => (_.map(stats, (stat, i) => (<Stat key={i} bgPrefs={this.bgPrefs} {...stat} />)));
 
   render = () => {
-    console.log('this.stats', this.stats);
+    console.log('this.state.stats', this.state.stats);
     return (
       <div className="Stats">
-        {this.renderStats(this.stats)}
+        {this.renderStats(this.state.stats)}
       </div>
     );
   };
@@ -106,7 +114,7 @@ class Stats extends PureComponent {
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.glucoseManagementIndex]](), commonStats.glucoseManagementIndex));
         break;
 
-      case 'weekly':
+    case 'weekly':
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.readingsInRange]](), commonStats.readingsInRange));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.averageBg]](), commonStats.averageBg));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.standardDev]](), commonStats.standardDev));
@@ -114,7 +122,7 @@ class Stats extends PureComponent {
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.glucoseManagementIndex]](), commonStats.glucoseManagementIndex));
         break;
 
-      case 'trends':
+    case 'trends':
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.timeInRange]](), commonStats.timeInRange));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.readingsInRange]](), commonStats.readingsInRange));
         stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[commonStats.averageBg]](), commonStats.averageBg));

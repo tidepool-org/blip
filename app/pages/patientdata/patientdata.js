@@ -302,7 +302,7 @@ export let PatientData = translate()(React.createClass({
           <Basics
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            dataUtil={this.state.dataUtil}
+            dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
@@ -329,7 +329,7 @@ export let PatientData = translate()(React.createClass({
           <Daily
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            dataUtil={this.state.dataUtil}
+            dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
@@ -355,7 +355,7 @@ export let PatientData = translate()(React.createClass({
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
-            dataUtil={this.state.dataUtil}
+            dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
@@ -380,7 +380,7 @@ export let PatientData = translate()(React.createClass({
           <Weekly
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            dataUtil={this.state.dataUtil}
+            dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
@@ -1040,9 +1040,10 @@ export let PatientData = translate()(React.createClass({
           bgUnits: processedData.bgUnits
         };
 
+        this.dataUtil = new DataUtil(processedData.data, [], { bgPrefs });
+
         this.setState({
           bgPrefs,
-          dataUtil: new DataUtil(processedData.data, [], bgPrefs),
           lastDiabetesDatumProcessedIndex,
           lastDatumProcessedIndex,
           lastProcessedDateTarget: targetDatetime,
@@ -1067,7 +1068,9 @@ export let PatientData = translate()(React.createClass({
 
         // Add and process the new data
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
-        const processedPatientData = addData(newData.concat(_.map(patientNotes, nurseShark.reshapeMessage)));
+        const combinedNewData = newData.concat(_.map(patientNotes, nurseShark.reshapeMessage))
+        const processedPatientData = addData(combinedNewData);
+        this.dataUtil.addData(combinedNewData);
 
         const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + targetData.length;
         const count = this.state.processEarlierDataCount + 1;
