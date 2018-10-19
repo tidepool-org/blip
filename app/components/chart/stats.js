@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import bows from 'bows';
@@ -11,10 +11,11 @@ const { Stat } = vizComponents;
 const { commonStats, getStatData, getStatDefinition } = vizUtils.stat;
 const { reshapeBgClassesToBgBounds } = vizUtils.bg;
 
-class Stats extends PureComponent {
+class Stats extends Component {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
     bgSource: PropTypes.oneOf(BG_DATA_TYPES),
+    chartPrefs: PropTypes.object,
     chartType: PropTypes.oneOf(['basics', 'daily', 'weekly', 'trends']).isRequired,
     endpoints: PropTypes.arrayOf(PropTypes.string),
     dataUtil: PropTypes.object.isRequired,
@@ -48,16 +49,16 @@ class Stats extends PureComponent {
 
   componentWillReceiveProps = nextProps => {
     const {
+      chartPrefs,
+      chartType,
       dataUtil,
       endpoints,
     } = nextProps;
 
-    const endpointsChanged = endpoints && (
-      _.get(this.props, 'endpoints.0') !== endpoints[0] || _.get(this.props, 'endpoints.1') !== endpoints[1]
-    );
-
-    if (endpointsChanged) {
+    if (this.updateRequired(nextProps)) {
       dataUtil.endpoints = endpoints;
+      dataUtil.chartPrefs = chartPrefs[chartType];
+
       const stats = this.state.stats;
 
       _.each(stats, (stat, i) => {
@@ -66,6 +67,22 @@ class Stats extends PureComponent {
 
       this.setState(stats);
     }
+  };
+
+  shouldComponentUpdate = nextProps => {
+    return this.updateRequired(nextProps);
+  };
+
+  updateRequired = nextProps => {
+    const {
+      chartPrefs,
+      endpoints,
+    } = nextProps;
+
+    const endpointsChanged = endpoints && !_.isEqual(endpoints, this.props.endpoints);
+    const chartPrefsChanged = chartPrefs && !_.isEqual(chartPrefs, this.props.chartPrefs);
+
+    return endpointsChanged || chartPrefsChanged;
   };
 
   renderStats = (stats) => (_.map(stats, (stat, i) => (<Stat key={i} bgPrefs={this.bgPrefs} {...stat} />)));
@@ -81,6 +98,7 @@ class Stats extends PureComponent {
 
   getStatsByChartType = () => {
     const {
+      chartPrefs,
       chartType,
       dataUtil,
       endpoints,
@@ -88,8 +106,9 @@ class Stats extends PureComponent {
 
     const stats = [];
 
-    // Set dataUtil endpoints
+    // Set dataUtil endpoints and chartPrefs
     dataUtil.endpoints = endpoints;
+    dataUtil.chartPrefs = chartPrefs[chartType];
 
     switch (chartType) {
       case 'basics':

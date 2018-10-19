@@ -269,6 +269,7 @@ var Daily = translate()(React.createClass({
             <div className="patient-data-sidebar">
               <Stats
                 bgPrefs={this.props.bgPrefs}
+                chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
                 endpoints={this.state.endpoints}
