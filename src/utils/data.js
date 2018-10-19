@@ -1,5 +1,5 @@
 import crossfilter from 'crossfilter'; // eslint-disable-line import/no-unresolved
-import moment from 'moment';
+import moment from 'moment-timezone';
 import _ from 'lodash';
 import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from './basal';
 import { getTotalBolus } from './bolus';
@@ -16,12 +16,14 @@ export class DataUtil {
    * @param {Array} data Unfiltered tideline data
    * @param {Array} endpoints Array ISO strings [start, end]
    */
-  constructor(data, endpoints, opts = {}) {
+  constructor(data, opts = {}) {
     this.data = crossfilter(data);
-    this._endpoints = endpoints;
+    this._endpoints = opts.endpoints || [];
+    this._chartPrefs = opts.chartPrefs || {};
     this._bgSource = opts.bgSource;
     this.bgBounds = reshapeBgClassesToBgBounds(opts.bgPrefs);
-    this.bgUnits = opts.bgPrefs.bgUnits;
+    this.timeZoneName = _.get(opts, 'timePrefs.timezoneName', 'UTC');
+    this.bgUnits = _.get(opts, 'bgPrefs.bgUnits');
     this.dimension = {};
     this.filter = {};
     this.sort = {};
@@ -31,39 +33,41 @@ export class DataUtil {
     this.buildSorts();
   }
 
-  set endpoints(endpoints) {
-    if (endpoints) {
-      this._endpoints = endpoints;
-    }
-  }
-
   set bgSource(bgSource) {
     if (bgSource) {
       this._bgSource = bgSource;
     }
   }
 
+  set chartPrefs(chartPrefs = {}) {
+    this._chartPrefs = chartPrefs;
+  }
+
+  set endpoints(endpoints = []) {
+    this._endpoints = endpoints;
+  }
+
   addData = data => {
     this.data.add(data);
   };
 
-  buildDimensions = () => {
-    this.dimension.byDate = this.data.dimension(d => d.normalTime);
-    this.dimension.byType = this.data.dimension(d => d.type);
-  };
+  applyDateFilters = () => {
+    this.filter.byEndpoints(this._endpoints);
 
-  buildFilters = () => {
-    this.filter.byEndpoints = endpoints => this.dimension.byDate.filterRange(endpoints);
-    this.filter.byType = type => this.dimension.byType.filterExact(type);
-  };
+    this.dimension.byDayOfWeek.filterAll();
+    if (this._chartPrefs.activeDays) {
+      const activeDays = _.reduce(this._chartPrefs.activeDays, (result, active, day) => {
+        if (active) {
+          result.push(this.getDayIndex(day));
+        }
+        return result;
+      }, []);
 
-  buildSorts = () => {
-    this.sort.byDate = array => (
-      crossfilter.quicksort.by(d => d.normalTime)(array, 0, array.length)
-    );
-  };
+      this.filter.byActiveDays(activeDays);
+    }
+  }
 
-  includeBasalOverlappingStart = (basalData) => {
+  applyBasalOverlappingStart = (basalData) => {
     if (basalData.length && basalData[0].normalTime > this._endpoints[0]) {
       // Fetch last basal from previous day
       this.filter.byEndpoints([
@@ -87,8 +91,32 @@ export class DataUtil {
     return basalData;
   };
 
+  buildDimensions = () => {
+    this.dimension.byDate = this.data.dimension(d => d.normalTime);
+
+    this.dimension.byDayOfWeek = this.data.dimension(
+      d => moment.utc(d.normalTime).tz(this.timeZoneName).day()
+    );
+
+    this.dimension.byType = this.data.dimension(d => d.type);
+  };
+
+  buildFilters = () => {
+    this.filter.byActiveDays = activeDays => this.dimension.byDayOfWeek
+      .filterFunction(d => _.includes(activeDays, d));
+
+    this.filter.byEndpoints = endpoints => this.dimension.byDate.filterRange(endpoints);
+    this.filter.byType = type => this.dimension.byType.filterExact(type);
+  };
+
+  buildSorts = () => {
+    this.sort.byDate = array => (
+      crossfilter.quicksort.by(d => d.normalTime)(array, 0, array.length)
+    );
+  };
+
   getAverageBgData = (returnBgData = false) => {
-    this.filter.byEndpoints(this._endpoints);
+    this.applyDateFilters();
 
     const cbgData = this.filter.byType('cbg').top(Infinity);
     const smbgData = this.filter.byType('smbg').top(Infinity);
@@ -106,7 +134,7 @@ export class DataUtil {
   };
 
   getAverageDailyCarbsData = () => {
-    this.filter.byEndpoints(this._endpoints);
+    this.applyDateFilters();
 
     const wizardData = this.filter.byType('wizard').top(Infinity);
     const days = this.getDayCountFromEndpoints();
@@ -131,6 +159,20 @@ export class DataUtil {
   getDayCountFromEndpoints = () => moment.utc(this._endpoints[1])
     .diff(moment.utc(this._endpoints[0])) / MS_IN_DAY;
 
+  getDayIndex = day => {
+    const dayMap = {
+      sunday: 0,
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+      friday: 5,
+      saturday: 6,
+    };
+
+    return dayMap[day];
+  }
+
   getGlucoseManagementIndexData = () => {
     const { averageBg } = this.getAverageBgData();
     const meanInMGDL = this.bgUnits === MGDL_UNITS ? averageBg : averageBg * MGDL_PER_MMOLL;
@@ -143,7 +185,7 @@ export class DataUtil {
   };
 
   getReadingsInRangeData = () => {
-    this.filter.byEndpoints(this._endpoints);
+    this.applyDateFilters();
 
     // TODO: move to bloodglucose util?
     const smbgData = _.reduce(
@@ -179,10 +221,10 @@ export class DataUtil {
   };
 
   getTimeInAutoData = () => {
-    this.filter.byEndpoints(this._endpoints);
+    this.applyDateFilters();
 
     let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity));
-    basalData = this.includeBasalOverlappingStart(basalData);
+    basalData = this.applyBasalOverlappingStart(basalData);
 
     const days = this.getDayCountFromEndpoints();
     const averageDailyDurations = basalData.length
@@ -200,7 +242,7 @@ export class DataUtil {
   };
 
   getTimeInRangeData = () => {
-    this.filter.byEndpoints(this._endpoints);
+    this.applyDateFilters();
     const cbgData = this.filter.byType('cbg').top(Infinity);
 
     const days = this.getDayCountFromEndpoints();
@@ -209,7 +251,8 @@ export class DataUtil {
       cbgData,
       (result, datum) => {
         const classification = classifyBgValue(this.bgBounds, datum.value, 'fiveWay');
-        // TODO: dividing by days doesn't cut it, as there could be many days without cgm data
+        // Simply dividing by days doesn't quite work, as there could be many days without cgm data
+        // Could also multiply % x 24h to have it always total up to 24h, but seems questionable
         result[classification] += cgmSampleFrequency(datum) / days;
         return result;
       },
@@ -226,11 +269,11 @@ export class DataUtil {
   };
 
   getTotalInsulinData = () => {
-    this.filter.byEndpoints(this._endpoints);
+    this.applyDateFilters();
 
     const bolusData = this.filter.byType('bolus').top(Infinity);
     let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity).reverse());
-    basalData = this.includeBasalOverlappingStart(basalData);
+    basalData = this.applyBasalOverlappingStart(basalData);
 
     return {
       totalBasal: basalData.length ? getTotalBasalFromEndpoints(basalData, this._endpoints) : NaN,
