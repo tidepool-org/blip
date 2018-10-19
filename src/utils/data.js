@@ -115,6 +115,17 @@ export class DataUtil {
     );
   };
 
+  getDailyAverage = data => {
+    const clone = _.clone(data);
+    const total = _.sum(_.values(data));
+
+    _.each(clone, (value, key) => {
+      clone[key] = (value / total) * MS_IN_DAY;
+    });
+
+    return clone;
+  };
+
   getAverageBgData = (returnBgData = false) => {
     this.applyDateFilters();
 
@@ -171,7 +182,7 @@ export class DataUtil {
     };
 
     return dayMap[day];
-  }
+  };
 
   getGlucoseManagementIndexData = () => {
     const { averageBg } = this.getAverageBgData();
@@ -227,18 +238,24 @@ export class DataUtil {
     basalData = this.applyBasalOverlappingStart(basalData);
 
     const days = this.getDayCountFromEndpoints();
-    const averageDailyDurations = basalData.length
+    const returnDailyAverage = days > 1;
+
+    let durations = basalData.length
       ? _.transform(
         getBasalGroupDurationsFromEndpoints(basalData, this._endpoints),
         (result, value, key) => {
-          result[key] = value / days;
+          result[key] = value;
           return result;
         },
         {},
       )
       : NaN;
 
-    return averageDailyDurations;
+    if (returnDailyAverage && !_.isNaN(durations)) {
+      durations = this.getDailyAverage(durations);
+    }
+
+    return durations;
   };
 
   getTimeInRangeData = () => {
@@ -246,14 +263,14 @@ export class DataUtil {
     const cbgData = this.filter.byType('cbg').top(Infinity);
 
     const days = this.getDayCountFromEndpoints();
+    const returnDailyAverage = days > 1;
+
     // TODO: move to bloodglucose util?
-    const averageDailyDurations = _.reduce(
+    let durations = _.reduce(
       cbgData,
       (result, datum) => {
         const classification = classifyBgValue(this.bgBounds, datum.value, 'fiveWay');
-        // Simply dividing by days doesn't quite work, as there could be many days without cgm data
-        // Could also multiply % x 24h to have it always total up to 24h, but seems questionable
-        result[classification] += cgmSampleFrequency(datum) / days;
+        result[classification] += cgmSampleFrequency(datum);
         return result;
       },
       {
@@ -265,7 +282,11 @@ export class DataUtil {
       }
     );
 
-    return averageDailyDurations;
+    if (returnDailyAverage) {
+      durations = this.getDailyAverage(durations);
+    }
+
+    return durations;
   };
 
   getTotalInsulinData = () => {
