@@ -10,6 +10,7 @@ import { BG_DATA_TYPES } from '../../core/constants';
 const { Stat } = vizComponents;
 const { commonStats, getStatData, getStatDefinition } = vizUtils.stat;
 const { reshapeBgClassesToBgBounds } = vizUtils.bg;
+const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
 
 class Stats extends Component {
   static propTypes = {
@@ -62,7 +63,9 @@ class Stats extends Component {
       const stats = this.state.stats;
 
       _.each(stats, (stat, i) => {
-        stats[i].data = getStatData(dataUtil[this.dataFetchMethods[stat.id]](), stat.id);
+        stats[i].data = getStatData(dataUtil[this.dataFetchMethods[stat.id]](), stat.id, {
+          manufacturer: dataUtil.latestPump.manufacturer,
+        });
       });
 
       this.setState(stats);
@@ -104,10 +107,15 @@ class Stats extends Component {
       endpoints,
     } = this.props;
 
+    const { manufacturer, deviceModel } = dataUtil.latestPump;
+    const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
+
     const stats = [];
 
-    const addStat = statType => {
-      stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[statType]](), statType));
+    const addStat = (statType) => {
+      stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[statType]](), statType, {
+        manufacturer,
+      }));
     };
 
     // Set dataUtil endpoints and chartPrefs
@@ -118,7 +126,7 @@ class Stats extends Component {
       case 'basics':
         addStat(commonStats.timeInRange);
         addStat(commonStats.readingsInRange);
-        addStat(commonStats.timeInAuto);
+        isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
         addStat(commonStats.totalInsulin);
         addStat(commonStats.averageBg);
         addStat(commonStats.standardDev);
@@ -129,7 +137,7 @@ class Stats extends Component {
 
       case 'daily':
         addStat(commonStats.timeInRange);
-        addStat(commonStats.timeInAuto);
+        isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
         addStat(commonStats.totalInsulin);
         addStat(commonStats.averageBg);
         addStat(commonStats.standardDev);

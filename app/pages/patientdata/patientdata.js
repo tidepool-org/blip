@@ -1040,7 +1040,10 @@ export let PatientData = translate()(React.createClass({
           bgUnits: processedData.bgUnits
         };
 
-        this.dataUtil = new DataUtil(processedData.data, { bgPrefs, timePrefs });
+        this.dataUtil = new DataUtil(
+          processedData.data.concat(processedData.grouped.upload),
+          { bgPrefs, timePrefs }
+        );
 
         this.setState({
           bgPrefs,
