@@ -21,7 +21,6 @@ export class DataUtil {
     this.data = crossfilter(data);
     this._endpoints = opts.endpoints || [];
     this._chartPrefs = opts.chartPrefs || {};
-    this._bgSource = opts.bgSource;
     this.bgBounds = reshapeBgClassesToBgBounds(opts.bgPrefs);
     this.timeZoneName = _.get(opts, 'timePrefs.timezoneName', 'UTC');
     this.bgUnits = _.get(opts, 'bgPrefs.bgUnits');
@@ -33,13 +32,9 @@ export class DataUtil {
     this.buildFilters();
     this.buildSorts();
 
+    this.bgSources = this.getBgSources();
+    this.defaultBgSource = this.getDefaultBgSource();
     this.latestPump = this.getLatestPump();
-  }
-
-  set bgSource(bgSource) {
-    if (bgSource) {
-      this._bgSource = bgSource;
-    }
   }
 
   set chartPrefs(chartPrefs = {}) {
@@ -52,6 +47,8 @@ export class DataUtil {
 
   addData = data => {
     this.data.add(data);
+    this.bgSources = this.getBgSources();
+    this.defaultBgSource = this.getDefaultBgSource();
   };
 
   applyDateFilters = () => {
@@ -160,6 +157,21 @@ export class DataUtil {
     );
 
     return { averageDailyCarbs: totalCarbs / days };
+  };
+
+  getBgSources = () => ({
+    cbg: this.filter.byType('cbg').top(Infinity).length > 0,
+    smbg: this.filter.byType('smbg').top(Infinity).length > 0,
+  });
+
+  getDefaultBgSource = () => {
+    let source;
+    if (this.bgSources.cbg) {
+      source = 'cbg';
+    } else if (this.bgSources.smbg) {
+      source = 'smbg';
+    }
+    return source;
   };
 
   getCoefficientOfVariationData = () => {
