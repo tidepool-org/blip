@@ -5,6 +5,7 @@ import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from 
 import { getTotalBolus } from './bolus';
 import { classifyBgValue, reshapeBgClassesToBgBounds, cgmSampleFrequency } from './bloodglucose';
 import { addDuration } from './datetime';
+import { getLatestPumpUpload } from './device';
 import { MGDL_UNITS, MGDL_PER_MMOLL, MS_IN_DAY } from './constants';
 
 
@@ -31,6 +32,8 @@ export class DataUtil {
     this.buildDimensions();
     this.buildFilters();
     this.buildSorts();
+
+    this.latestPump = this.getLatestPump();
   }
 
   set bgSource(bgSource) {
@@ -192,6 +195,16 @@ export class DataUtil {
 
     return {
       glucoseManagementIndex,
+    };
+  };
+
+  getLatestPump = () => {
+    const uploadData = this.sort.byDate(this.filter.byType('upload').top(Infinity));
+    const latestPumpUpload = getLatestPumpUpload(uploadData);
+    const latestUploadSource = _.get(latestPumpUpload, 'source', '').toLowerCase();
+    return {
+      deviceModel: _.get(latestPumpUpload, 'deviceModel', ''),
+      manufacturer: latestUploadSource === 'carelink' ? 'medtronic' : latestUploadSource,
     };
   };
 
