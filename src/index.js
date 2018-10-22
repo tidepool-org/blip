@@ -36,6 +36,7 @@ import reducers from './redux/reducers/';
 import { formatBgValue } from './utils/format';
 import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
 import { getTotalBasalFromEndpoints, getGroupDurations } from './utils/basal';
+import { isAutomatedBasalDevice } from './utils/device';
 import { commonStats, getStatData, getStatDefinition } from './utils/stat';
 import DataUtil from './utils/data';
 import { selectDailyViewData } from './utils/print/data';
@@ -76,6 +77,9 @@ const utils = {
   data: {
     selectDailyViewData,
     DataUtil,
+  },
+  device: {
+    isAutomatedBasalDevice,
   },
   stat: {
     commonStats,
