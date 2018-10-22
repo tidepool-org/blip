@@ -1,5 +1,8 @@
 import _ from 'lodash';
 
+import { AUTOMATED_DELIVERY, SCHEDULED_DELIVERY } from './constants';
+import { getPumpVocabulary } from './device';
+
 export const statTypes = {
   barHorizontal: 'barHorizontal',
   barBg: 'barBg',
@@ -36,7 +39,9 @@ export const getSum = data => _.sum(_.map(data, d => d.value));
 
 export const ensureNumeric = value => (_.isNaN(value) ? -1 : parseFloat(value));
 
-export const getStatData = (data, type) => {
+export const getStatData = (data, type, opts) => {
+  const vocabulary = getPumpVocabulary(opts.manufacturer);
+
   let statData = {};
 
   switch (type) {
@@ -149,12 +154,12 @@ export const getStatData = (data, type) => {
         {
           id: 'basalAutomated',
           value: ensureNumeric(data.automated),
-          title: 'Time In Auto Mode', // TODO: use labels from pump vocab
+          title: `Time In ${vocabulary[AUTOMATED_DELIVERY]}`,
         },
         {
           id: 'basal',
           value: ensureNumeric(data.manual),
-          title: 'Time In Manual Mode', // TODO: use labels from pump vocab
+          title: `Time In ${vocabulary[SCHEDULED_DELIVERY]}`,
         },
       ];
 
@@ -234,9 +239,11 @@ export const getStatData = (data, type) => {
   return statData;
 };
 
-export const getStatDefinition = (data, type) => {
+export const getStatDefinition = (data, type, opts = {}) => {
+  const vocabulary = getPumpVocabulary(opts.manufacturer);
+
   let stat = {
-    data: getStatData(data, type),
+    data: getStatData(data, type, opts),
     id: type,
     type: statTypes.barHorizontal,
   };
@@ -327,7 +334,7 @@ export const getStatDefinition = (data, type) => {
       stat.annotations = [
         'Based on 50% pump data availability for this view.',
       ];
-      stat.title = 'Time In Auto Mode'; // TODO: use labels from pump vocabulary
+      stat.title = `Time In ${vocabulary[AUTOMATED_DELIVERY]}`;
       break;
 
     case commonStats.timeInRange:
