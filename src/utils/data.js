@@ -37,6 +37,10 @@ export class DataUtil {
     this.latestPump = this.getLatestPump();
   }
 
+  get bgSource() {
+    return _.get(this._chartPrefs, ['bgSource'], this.defaultBgSource);
+  }
+
   set chartPrefs(chartPrefs = {}) {
     this._chartPrefs = chartPrefs;
   }
