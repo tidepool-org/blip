@@ -27,6 +27,7 @@ import { translate } from 'react-i18next';
 import Header from './header';
 import SubNav from './trendssubnav';
 import Stats from './stats';
+import BgSourceToggle from './bgSourceToggle';
 import Footer from './footer';
 
 
@@ -369,8 +370,14 @@ const Trends = translate()(class Trends extends PureComponent {
               {this.renderFocusedRangeLabels()}
             </div>
           </div>
-          <div className="container-box-inner patient-data-sidebar-inner">
-            <div className="patient-data-sidebar">
+          <div className="container-box-inner patient-data-sidebar">
+            <div className="patient-data-sidebar-inner">
+              <BgSourceToggle
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                dataUtil={this.props.dataUtil}
+                onClickBgSourceToggle={this.toggleBgDataSource}
+              />
               <Stats
                 bgPrefs={this.props.bgPrefs}
                 chartPrefs={this.props.chartPrefs}

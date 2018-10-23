@@ -154,7 +154,7 @@
 // Sidebar
 // ====================================
 
-.patient-data-sidebar-inner {
+.patient-data-sidebar {
   width: 100%;
   background-color: #eef5f9;
   padding: @spacing-small;
@@ -163,9 +163,14 @@
     flex-shrink: 0;
     width: @patient-data-sidebar-width;
   }
+
+  .toggle-container {
+    margin-bottom: 8px;
+    float: right;
+  }
 }
 
-.patient-data-sidebar {
+.patient-data-sidebar-inner {
   position: relative;
 }
 
@@ -181,6 +186,7 @@
 // Stats
 // ====================================
 .patient-data .Stats {
+  clear: both;
   display: grid;
   grid-template-columns: repeat(
     auto-fill,

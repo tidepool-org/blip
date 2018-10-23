@@ -15,22 +15,23 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-var _ = require('lodash');
-var bows = require('bows');
-var React = require('react');
-var sundial = require('sundial');
+import _ from 'lodash';
+import bows from 'bows';
+import React from 'react';
+import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
 
 // tideline dependencies & plugins
-var tidelineBlip = require('tideline/plugins/blip');
+import tidelineBlip from 'tideline/plugins/blip';
 var BasicsChart = tidelineBlip.basics;
 
 import { components as vizComponents } from '@tidepool/viz';
 var Loader = vizComponents.Loader;
 
 import Stats from './stats';
-var Header = require('./header');
-var Footer = require('./footer');
+import BgSourceToggle from './bgSourceToggle';
+import Header from './header';
+import Footer from './footer';
 
 var Basics = translate()(React.createClass({
   chartType: 'basics',
@@ -99,10 +100,17 @@ var Basics = translate()(React.createClass({
               {this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart()}
             </div>
           </div>
-          <div className="container-box-inner patient-data-sidebar-inner">
-            <div className="patient-data-sidebar">
+          <div className="container-box-inner patient-data-sidebar">
+            <div className="patient-data-sidebar-inner">
+              <BgSourceToggle
+                bgSource={this.getBgSource()}
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                onClickBgSourceToggle={this.toggleBgDataSource}
+              />
               <Stats
                 bgPrefs={this.props.bgPrefs}
+                bgSource={this.getBgSource()}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
@@ -158,6 +166,10 @@ var Basics = translate()(React.createClass({
     );
   },
 
+  getBgSource: function() {
+    return this.props.dataUtil.bgSource;
+  },
+
   getTitle: function() {
     const { t } = this.props;
     if (this.isMissingBasics()) {
@@ -194,6 +206,22 @@ var Basics = translate()(React.createClass({
   },
 
   // handlers
+  toggleBgDataSource(e, bgSource) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    // const bgSource = this.getBgSource() === 'cbg' ? 'smbg' : 'cbg';
+
+    const bgSourceLabel = bgSource === 'cbg' ? 'CGM' : 'BGM';
+    this.props.trackMetric(`Basics Click to ${bgSourceLabel}`);
+
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    console.log('toggleBgDataSource bgSource', bgSource)
+    prefs.basics.bgSource = bgSource;
+    this.props.updateChartPrefs(prefs);
+  },
+
   handleClickBasics: function(e) {
     if (e) {
       e.preventDefault();

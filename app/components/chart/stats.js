@@ -5,8 +5,6 @@ import bows from 'bows';
 
 import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
 
-import { BG_DATA_TYPES } from '../../core/constants';
-
 const { Stat } = vizComponents;
 const { commonStats, getStatData, getStatDefinition } = vizUtils.stat;
 const { reshapeBgClassesToBgBounds } = vizUtils.bg;
@@ -15,11 +13,10 @@ const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
 class Stats extends Component {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
-    bgSource: PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: PropTypes.object,
     chartType: PropTypes.oneOf(['basics', 'daily', 'weekly', 'trends']).isRequired,
-    endpoints: PropTypes.arrayOf(PropTypes.string),
     dataUtil: PropTypes.object.isRequired,
+    endpoints: PropTypes.arrayOf(PropTypes.string),
   };
 
   constructor(props) {
@@ -43,32 +40,26 @@ class Stats extends Component {
       [commonStats.totalInsulin]: 'getTotalInsulinData',
     }
 
+    this.updateDataUtilEndpoints(this.props);
+
     this.state = {
-      stats: this.getStatsByChartType(),
+      stats: this.getStatsByChartType(this.props),
     };
   }
 
   componentWillReceiveProps = nextProps => {
-    const {
-      chartPrefs,
-      chartType,
-      dataUtil,
-      endpoints,
-    } = nextProps;
-
-    if (this.updateRequired(nextProps)) {
-      dataUtil.endpoints = endpoints;
-      dataUtil.chartPrefs = chartPrefs[chartType];
-
-      const stats = this.state.stats;
-
-      _.each(stats, (stat, i) => {
-        stats[i].data = getStatData(dataUtil[this.dataFetchMethods[stat.id]](), stat.id, {
-          manufacturer: dataUtil.latestPump.manufacturer,
+    const update = this.updateRequired(nextProps);
+    console.log('update', update);
+    if (update) {
+      this.updateDataUtilEndpoints(nextProps);
+      if (update.full) {
+        this.setState({
+          stats: this.getStatsByChartType(nextProps)
         });
-      });
-
-      this.setState(stats);
+      } else if (update.data) {
+        // this.updateDataUtilEndpoints(nextProps);
+        this.updateStats(nextProps);
+      }
     }
   };
 
@@ -78,20 +69,31 @@ class Stats extends Component {
 
   updateRequired = nextProps => {
     const {
-      chartPrefs,
+      bgSource,
+      // dataUtil: { bgSource },
+      // chartPrefs,
       endpoints,
     } = nextProps;
 
     const endpointsChanged = endpoints && !_.isEqual(endpoints, this.props.endpoints);
-    const chartPrefsChanged = chartPrefs && !_.isEqual(chartPrefs, this.props.chartPrefs);
+    // const chartPrefsChanged = chartPrefs && !_.isEqual(chartPrefs, this.props.chartPrefs);
+    const bgSourceChanged = bgSource && !_.isEqual(bgSource, this.props.bgSource);
 
-    return endpointsChanged || chartPrefsChanged;
+    console.log('bgSourceChanged', bgSourceChanged, bgSource, this.props.bgSource);
+
+    return endpointsChanged || bgSourceChanged
+    // return endpointsChanged || chartPrefsChanged || bgSourceChanged
+      ? {
+        data: endpointsChanged,
+        // data: endpointsChanged || chartPrefsChanged,
+        full: bgSourceChanged,
+      }
+      : false;
   };
 
-  renderStats = (stats) => (_.map(stats, (stat, i) => (<Stat key={i} bgPrefs={this.bgPrefs} {...stat} />)));
+  renderStats = (stats) => (_.map(stats, (stat, i) => (<Stat key={stat.id} bgPrefs={this.bgPrefs} {...stat} />)));
 
   render = () => {
-    console.log('this.state.stats', this.state.stats);
     return (
       <div className="Stats">
         {this.renderStats(this.state.stats)}
@@ -99,50 +101,49 @@ class Stats extends Component {
     );
   };
 
-  getStatsByChartType = () => {
+  getStatsByChartType = (props = this.props) => {
     const {
-      chartPrefs,
       chartType,
       dataUtil,
-      endpoints,
-    } = this.props;
+    } = props;
+
+    const { bgSource } = dataUtil;
 
     const { manufacturer, deviceModel } = dataUtil.latestPump;
     const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
 
     const stats = [];
 
-    const addStat = (statType) => {
+    const addStat = statType => {
       stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[statType]](), statType, {
         manufacturer,
       }));
     };
 
-    // Set dataUtil endpoints and chartPrefs
-    dataUtil.endpoints = endpoints;
-    dataUtil.chartPrefs = chartPrefs[chartType];
+    const cbgSelected = bgSource === 'cbg';
+    const smbgSelected = bgSource === 'smbg';
 
     switch (chartType) {
       case 'basics':
-        addStat(commonStats.timeInRange);
-        addStat(commonStats.readingsInRange);
-        isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
-        addStat(commonStats.totalInsulin);
+        cbgSelected && addStat(commonStats.glucoseManagementIndex);
         addStat(commonStats.averageBg);
+        cbgSelected && addStat(commonStats.timeInRange);
+        smbgSelected && addStat(commonStats.readingsInRange);
         addStat(commonStats.standardDev);
         addStat(commonStats.coefficientOfVariation);
-        addStat(commonStats.glucoseManagementIndex);
         addStat(commonStats.averageDailyCarbs);
+        isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
+        addStat(commonStats.totalInsulin);
         break;
 
       case 'daily':
-        addStat(commonStats.timeInRange);
+        addStat(commonStats.averageBg);
+        cbgSelected && addStat(commonStats.timeInRange);
+        smbgSelected && addStat(commonStats.readingsInRange);
+        cbgSelected && addStat(commonStats.standardDev);
+        cbgSelected && addStat(commonStats.coefficientOfVariation);
         isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
         addStat(commonStats.totalInsulin);
-        addStat(commonStats.averageBg);
-        addStat(commonStats.standardDev);
-        addStat(commonStats.coefficientOfVariation);
-        addStat(commonStats.glucoseManagementIndex);
         break;
 
       case 'weekly':
@@ -150,12 +151,11 @@ class Stats extends Component {
         addStat(commonStats.averageBg);
         addStat(commonStats.standardDev);
         addStat(commonStats.coefficientOfVariation);
-        addStat(commonStats.glucoseManagementIndex);
         break;
 
       case 'trends':
-        addStat(commonStats.timeInRange);
-        addStat(commonStats.readingsInRange);
+        cbgSelected && addStat(commonStats.timeInRange);
+        smbgSelected && addStat(commonStats.readingsInRange);
         addStat(commonStats.averageBg);
         addStat(commonStats.standardDev);
         addStat(commonStats.coefficientOfVariation);
@@ -164,7 +164,29 @@ class Stats extends Component {
     }
 
     return stats;
-  }
+  };
+
+  updateDataUtilEndpoints = props => {
+    const {
+      dataUtil,
+      endpoints,
+    } = props;
+
+    dataUtil.endpoints = endpoints;
+  };
+
+  updateStats = props => {
+    const { dataUtil } = props;
+    const stats = this.state.stats;
+
+    _.each(stats, (stat, i) => {
+      stats[i].data = getStatData(dataUtil[this.dataFetchMethods[stat.id]](), stat.id, {
+        manufacturer: dataUtil.latestPump.manufacturer,
+      });
+    });
+
+    this.setState(stats);
+  };
 };
 
 export default Stats

@@ -205,8 +205,8 @@ var Weekly = translate()(React.createClass({
               {this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart()}
             </div>
           </div>
-          <div className="container-box-inner patient-data-sidebar-inner">
-            <div className="patient-data-sidebar">
+          <div className="container-box-inner patient-data-sidebar">
+            <div className="patient-data-sidebar-inner">
               <Stats
                 bgPrefs={this.props.bgPrefs}
                 chartPrefs={this.props.chartPrefs}

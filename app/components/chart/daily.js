@@ -25,6 +25,7 @@ import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
 
 import Stats from './stats';
+import BgSourceToggle from './bgSourceToggle';
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
@@ -265,8 +266,14 @@ var Daily = translate()(React.createClass({
                 ref="chart" />
             </div>
           </div>
-          <div className="container-box-inner patient-data-sidebar-inner">
-            <div className="patient-data-sidebar">
+          <div className="container-box-inner patient-data-sidebar">
+            <div className="patient-data-sidebar-inner">
+              <BgSourceToggle
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                dataUtil={this.props.dataUtil}
+                onClickBgSourceToggle={this.toggleBgDataSource}
+              />
               <Stats
                 bgPrefs={this.props.bgPrefs}
                 chartPrefs={this.props.chartPrefs}
@@ -318,11 +325,25 @@ var Daily = translate()(React.createClass({
     return sundial.formatInTimezone(datetime, timezone, t('ddd, MMM D, YYYY'));
   },
 
+  // handlers
+  toggleBgDataSource(e, bgSource) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const changedTo = bgSource === 'cbg' ? 'CGM' : 'BGM';
+    this.props.trackMetric(`Daily Click to ${changedTo}`);
+
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    console.log('bgSource', bgSource)
+    prefs.daily.bgSource = bgSource;
+    this.props.updateChartPrefs(prefs);
+  },
+
   handleWindowResize(windowSize) {
     this.refs.chart.getWrappedInstance().rerenderChart();
   },
 
-  // handlers
   handleClickTrends: function(e) {
     if (e) {
       e.preventDefault();

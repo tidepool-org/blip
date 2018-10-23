@@ -87,6 +87,8 @@ export let PatientData = translate()(React.createClass({
   getInitialState: function() {
     var state = {
       chartPrefs: {
+        basics: {},
+        daily: {},
         trends: {
           activeDays: {
             monday: true,
@@ -106,7 +108,10 @@ export let PatientData = translate()(React.createClass({
           smbgGrouped: false,
           smbgLines: false,
           smbgRangeOverlay: true,
-        }
+        },
+        weekly: {
+          bgSource: 'smbg',
+        },
       },
       printOpts: {
         numDays: {
@@ -320,6 +325,7 @@ export let PatientData = translate()(React.createClass({
             updateBasicsData={this.updateBasicsData}
             updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
+            updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
             ref="tideline" />
@@ -345,6 +351,8 @@ export let PatientData = translate()(React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            trackMetric={this.props.trackMetric}
+            updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             pdf={this.props.pdf.combined || {}}
             ref="tideline" />
@@ -395,6 +403,7 @@ export let PatientData = translate()(React.createClass({
             onSwitchToWeekly={this.handleSwitchToWeekly}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             trackMetric={this.props.trackMetric}
+            updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             ref="tideline"
@@ -724,6 +733,7 @@ export let PatientData = translate()(React.createClass({
   updateChartPrefs: function(newChartPrefs) {
     var currentPrefs = _.clone(this.state.chartPrefs);
     _.assign(currentPrefs, newChartPrefs);
+    this.dataUtil.chartPrefs = currentPrefs[this.state.chartType];
     this.setState({
       chartPrefs: currentPrefs,
     });
