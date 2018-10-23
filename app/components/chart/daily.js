@@ -26,6 +26,7 @@ import { translate } from 'react-i18next';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
+import { BG_DATA_TYPES } from '../../core/constants';
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
@@ -178,6 +179,7 @@ var Daily = translate()(React.createClass({
   log: bows('Daily View'),
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
+    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
@@ -269,13 +271,14 @@ var Daily = translate()(React.createClass({
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <BgSourceToggle
+                bgSource={this.props.bgSource}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
-                dataUtil={this.props.dataUtil}
                 onClickBgSourceToggle={this.toggleBgDataSource}
               />
               <Stats
                 bgPrefs={this.props.bgPrefs}
+                bgSource={this.props.bgSource}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
@@ -335,7 +338,6 @@ var Daily = translate()(React.createClass({
     this.props.trackMetric(`Daily Click to ${changedTo}`);
 
     const prefs = _.cloneDeep(this.props.chartPrefs);
-    console.log('bgSource', bgSource)
     prefs.daily.bgSource = bgSource;
     this.props.updateChartPrefs(prefs);
   },

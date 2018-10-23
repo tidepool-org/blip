@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import bows from 'bows';
-
 import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
+
+import { BG_DATA_TYPES } from '../../core/constants';
 
 const { Stat } = vizComponents;
 const { commonStats, getStatData, getStatDefinition } = vizUtils.stat;
@@ -13,6 +14,7 @@ const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
 class Stats extends Component {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
+    bgSource: PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: PropTypes.object,
     chartType: PropTypes.oneOf(['basics', 'daily', 'weekly', 'trends']).isRequired,
     dataUtil: PropTypes.object.isRequired,
@@ -48,50 +50,41 @@ class Stats extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
-    const update = this.updateRequired(nextProps);
-    console.log('update', update);
+    const update = this.updatesRequired(nextProps);
     if (update) {
-      this.updateDataUtilEndpoints(nextProps);
-      if (update.full) {
+      if (update.stats) {
         this.setState({
           stats: this.getStatsByChartType(nextProps)
         });
-      } else if (update.data) {
-        // this.updateDataUtilEndpoints(nextProps);
-        this.updateStats(nextProps);
+      } else if (update.endpoints) {
+        this.updateDataUtilEndpoints(nextProps);
+        this.updateStatData(nextProps);
       }
     }
   };
 
   shouldComponentUpdate = nextProps => {
-    return this.updateRequired(nextProps);
+    return this.updatesRequired(nextProps);
   };
 
-  updateRequired = nextProps => {
+  updatesRequired = nextProps => {
     const {
       bgSource,
-      // dataUtil: { bgSource },
-      // chartPrefs,
       endpoints,
     } = nextProps;
 
     const endpointsChanged = endpoints && !_.isEqual(endpoints, this.props.endpoints);
-    // const chartPrefsChanged = chartPrefs && !_.isEqual(chartPrefs, this.props.chartPrefs);
     const bgSourceChanged = bgSource && !_.isEqual(bgSource, this.props.bgSource);
 
-    console.log('bgSourceChanged', bgSourceChanged, bgSource, this.props.bgSource);
-
     return endpointsChanged || bgSourceChanged
-    // return endpointsChanged || chartPrefsChanged || bgSourceChanged
       ? {
-        data: endpointsChanged,
-        // data: endpointsChanged || chartPrefsChanged,
-        full: bgSourceChanged,
+        endpoints: endpointsChanged,
+        stats: bgSourceChanged,
       }
       : false;
   };
 
-  renderStats = (stats) => (_.map(stats, (stat, i) => (<Stat key={stat.id} bgPrefs={this.bgPrefs} {...stat} />)));
+  renderStats = (stats) => (_.map(stats, (stat) => (<Stat key={stat.id} bgPrefs={this.bgPrefs} {...stat} />)));
 
   render = () => {
     return (
@@ -105,9 +98,8 @@ class Stats extends Component {
     const {
       chartType,
       dataUtil,
+      bgSource,
     } = props;
-
-    const { bgSource } = dataUtil;
 
     const { manufacturer, deviceModel } = dataUtil.latestPump;
     const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
@@ -175,7 +167,7 @@ class Stats extends Component {
     dataUtil.endpoints = endpoints;
   };
 
-  updateStats = props => {
+  updateStatData = props => {
     const { dataUtil } = props;
     const stats = this.state.stats;
 

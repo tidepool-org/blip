@@ -29,6 +29,7 @@ import SubNav from './trendssubnav';
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Footer from './footer';
+import { BG_DATA_TYPES } from '../../core/constants';
 
 
 import * as viz from '@tidepool/viz';
@@ -42,6 +43,7 @@ const Loader = viz.components.Loader;
 const Trends = translate()(class Trends extends PureComponent {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
+    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: PropTypes.object.isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
     timePrefs: PropTypes.object.isRequired,
@@ -281,18 +283,18 @@ const Trends = translate()(class Trends extends PureComponent {
     this.props.onSwitchToDaily(date);
   }
 
-  toggleBgDataSource(e) {
+  toggleBgDataSource(e, bgSource) {
     if (e) {
       e.preventDefault();
-      if (this.props.chartPrefs.trends.showingCbg) {
-        this.props.trackMetric('Trends Click to BGM');
-      } else {
-        this.props.trackMetric('Trends Click to CGM');
-      }
     }
+
+    const changedTo = bgSource === 'cbg' ? 'CGM' : 'BGM';
+    this.props.trackMetric(`Trends Click to ${changedTo}`);
+
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.trends.showingCbg = !prefs.trends.showingCbg;
     prefs.trends.showingSmbg = !prefs.trends.showingSmbg;
+    prefs.trends.bgSource = bgSource;
     this.props.updateChartPrefs(prefs);
   }
 
@@ -373,6 +375,7 @@ const Trends = translate()(class Trends extends PureComponent {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <BgSourceToggle
+                bgSource={this.props.bgSource}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
@@ -380,6 +383,7 @@ const Trends = translate()(class Trends extends PureComponent {
               />
               <Stats
                 bgPrefs={this.props.bgPrefs}
+                bgSource={this.props.bgSource}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}

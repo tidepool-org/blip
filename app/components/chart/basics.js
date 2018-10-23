@@ -32,12 +32,14 @@ import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import Footer from './footer';
+import { BG_DATA_TYPES } from '../../core/constants';
 
 var Basics = translate()(React.createClass({
   chartType: 'basics',
   log: bows('Basics View'),
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
+    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
@@ -103,14 +105,14 @@ var Basics = translate()(React.createClass({
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <BgSourceToggle
-                bgSource={this.getBgSource()}
+                bgSource={this.props.bgSource}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 onClickBgSourceToggle={this.toggleBgDataSource}
-              />
+                />
               <Stats
                 bgPrefs={this.props.bgPrefs}
-                bgSource={this.getBgSource()}
+                bgSource={this.props.bgSource}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
@@ -166,10 +168,6 @@ var Basics = translate()(React.createClass({
     );
   },
 
-  getBgSource: function() {
-    return this.props.dataUtil.bgSource;
-  },
-
   getTitle: function() {
     const { t } = this.props;
     if (this.isMissingBasics()) {
@@ -211,13 +209,10 @@ var Basics = translate()(React.createClass({
       e.preventDefault();
     }
 
-    // const bgSource = this.getBgSource() === 'cbg' ? 'smbg' : 'cbg';
-
     const bgSourceLabel = bgSource === 'cbg' ? 'CGM' : 'BGM';
     this.props.trackMetric(`Basics Click to ${bgSourceLabel}`);
 
     const prefs = _.cloneDeep(this.props.chartPrefs);
-    console.log('toggleBgDataSource bgSource', bgSource)
     prefs.basics.bgSource = bgSource;
     this.props.updateChartPrefs(prefs);
   },

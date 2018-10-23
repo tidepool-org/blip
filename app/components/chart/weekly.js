@@ -24,6 +24,7 @@ import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
 
 import Stats from './stats';
+import { BG_DATA_TYPES } from '../../core/constants';
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
@@ -155,6 +156,7 @@ var Weekly = translate()(React.createClass({
   log: bows('Weekly View'),
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
+    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     isClinicAccount: React.PropTypes.bool.isRequired,
@@ -209,6 +211,7 @@ var Weekly = translate()(React.createClass({
             <div className="patient-data-sidebar-inner">
               <Stats
                 bgPrefs={this.props.bgPrefs}
+                bgSource={this.props.bgSource}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}

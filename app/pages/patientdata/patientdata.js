@@ -138,6 +138,11 @@ export let PatientData = translate()(React.createClass({
     return state;
   },
 
+
+  getBgSource: function() {
+    return this.dataUtil.bgSource;
+  },
+
   log: bows('PatientData'),
 
   render: function() {
@@ -306,6 +311,7 @@ export let PatientData = translate()(React.createClass({
         return (
           <Basics
             bgPrefs={this.state.bgPrefs}
+            bgSource={this.getBgSource()}
             chartPrefs={this.state.chartPrefs}
             dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
@@ -334,6 +340,7 @@ export let PatientData = translate()(React.createClass({
         return (
           <Daily
             bgPrefs={this.state.bgPrefs}
+            bgSource={this.getBgSource()}
             chartPrefs={this.state.chartPrefs}
             dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
@@ -361,6 +368,7 @@ export let PatientData = translate()(React.createClass({
         return (
           <Trends
             bgPrefs={this.state.bgPrefs}
+            bgSource={this.getBgSource()}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
             dataUtil={this.dataUtil}
@@ -387,6 +395,7 @@ export let PatientData = translate()(React.createClass({
         return (
           <Weekly
             bgPrefs={this.state.bgPrefs}
+            bgSource={this.getBgSource()}
             chartPrefs={this.state.chartPrefs}
             dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
@@ -604,6 +613,8 @@ export let PatientData = translate()(React.createClass({
     if (e) {
       e.preventDefault();
     }
+
+    this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
     this.setState({
       chartType: 'basics'
     });
@@ -617,6 +628,7 @@ export let PatientData = translate()(React.createClass({
     // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
     datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString());
 
+    this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
     this.setState({
       chartType: 'daily',
       datetimeLocation: datetime,
@@ -630,6 +642,7 @@ export let PatientData = translate()(React.createClass({
 
     datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).endOf('day').toISOString());
 
+    this.dataUtil.chartPrefs = this.state.chartPrefs['trends'];
     this.setState({
       chartType: 'trends',
       datetimeLocation: datetime,
@@ -643,6 +656,7 @@ export let PatientData = translate()(React.createClass({
 
     datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString());
 
+    this.dataUtil.chartPrefs = this.state.chartPrefs['weekly'];
     this.setState({
       chartType: 'weekly',
       datetimeLocation: datetime,
@@ -893,6 +907,8 @@ export let PatientData = translate()(React.createClass({
         datetimeLocation: datetime,
         initialDatetimeLocation: datetime,
       };
+
+      this.dataUtil.chartPrefs = this.state.chartPrefs[chartType];
 
       this.setState(state);
       this.props.trackMetric(`web - default to ${chartType}`);
