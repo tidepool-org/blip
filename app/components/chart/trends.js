@@ -398,7 +398,6 @@ const Trends = translate()(class Trends extends PureComponent {
          onClickGroup={this.toggleGrouping}
          onClickLines={this.toggleLines}
          onClickRefresh={this.props.onClickRefresh}
-         onClickBgDataToggle={this.toggleBgDataSource}
          boxOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}
          grouped={this.props.chartPrefs.trends.smbgGrouped}
          showingLines={this.props.chartPrefs.trends.smbgLines}
