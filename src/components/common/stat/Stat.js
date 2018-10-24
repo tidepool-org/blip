@@ -458,8 +458,9 @@ class Stat extends PureComponent {
           labelComponent: (
             <HoverBarLabel
               active={props.alwaysShowTooltips}
-              domain={domain}
               barWidth={barWidth}
+              isDisabled={() => this.state.isDisabled}
+              domain={domain}
               text={datum => {
                 const { value, suffix } = this.formatDatum(
                   _.get(props.data, ['data', datum.eventKey]),

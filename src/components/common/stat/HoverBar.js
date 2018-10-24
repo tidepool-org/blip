@@ -6,6 +6,7 @@ import colors from '../../../styles/colors.css';
 export const HoverBarLabel = props => {
   const {
     barWidth,
+    isDisabled,
     domain,
     scale,
     style,
@@ -18,8 +19,11 @@ export const HoverBarLabel = props => {
   const tooltipHeight = tooltipFontSize * 1.2;
   const tooltipRadius = tooltipHeight / 2;
 
+  const disabled = isDisabled();
+
   const tooltipStyle = _.assign({}, props.style, {
     fontSize: tooltipFontSize,
+    display: disabled ? 'none' : 'inherit',
   });
 
   const tooltipTextSize = TextSize.approximateTextSize(tooltipText(props.datum), tooltipStyle);
@@ -47,6 +51,7 @@ export const HoverBarLabel = props => {
           x={scale.y(domain.x[1]) - style.paddingLeft - tooltipTextSize.width - (tooltipRadius * 2)}
           y={y}
           flyoutStyle={{
+            display: disabled ? 'none' : 'inherit',
             stroke: colors.axis,
             strokeWidth: 2,
             fill: colors.white,
@@ -92,7 +97,7 @@ export const HoverBar = props => {
 
   return (
     <g>
-      <g className="barHoverTarget">
+      <g className="HoverBarTarget">
         <Rect
           {...props}
           x={0}
