@@ -253,7 +253,7 @@ class Stat extends PureComponent {
 
     const state = {
       chartTitle: props.title,
-      isDisabled: _.sum(_.map(data.data, d => d.value)) <= 0,
+      isDisabled: _.sum(_.map(data.data, d => _.get(d, 'deviation.value', d.value))) <= 0,
     };
 
     switch (props.type) {
@@ -626,10 +626,10 @@ class Stat extends PureComponent {
         break;
 
       case statFormats.standardDevRange:
-        if (value >= 0) {
+        deviation = _.get(datum, 'deviation.value', -1);
+        if (value >= 0 && deviation >= 0) {
           suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
 
-          deviation = _.get(datum, 'deviation.value', 0);
           lowerValue = value - deviation;
           lowerColorId = lowerValue >= 0
             ? classifyBgValue(bgBounds, lowerValue)

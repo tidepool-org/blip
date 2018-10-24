@@ -100,7 +100,7 @@ export const BgBar = props => {
   const dev2Value = datum.y + deviation;
   const dev2X = scale.y(datum.y + deviation) * widthCorrection;
 
-  const isEnabled = datum.y > 0;
+  const isEnabled = renderMean ? datum.y > 0 : deviation > 0;
 
   return (
     <g>
