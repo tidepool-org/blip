@@ -298,6 +298,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
       break;
 
     case commonStats.readingsInRange:
+      stat.alwaysShowTooltips = true;
       stat.dataFormat = {
         label: statFormats.bgCount,
         summary: statFormats.bgCount,
@@ -352,6 +353,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
       break;
 
     case commonStats.totalInsulin:
+      stat.alwaysShowTooltips = true;
       stat.dataFormat = {
         label: statFormats.percentage,
         summary: statFormats.units,
