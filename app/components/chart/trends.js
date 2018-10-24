@@ -376,6 +376,7 @@ const Trends = translate()(class Trends extends PureComponent {
             <div className="patient-data-sidebar-inner">
               <BgSourceToggle
                 bgSource={this.props.bgSource}
+                bgSources={this.props.dataUtil.bgSources}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}

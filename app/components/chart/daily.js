@@ -272,6 +272,7 @@ var Daily = translate()(React.createClass({
             <div className="patient-data-sidebar-inner">
               <BgSourceToggle
                 bgSource={this.props.bgSource}
+                bgSources={this.props.dataUtil.bgSources}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 onClickBgSourceToggle={this.toggleBgDataSource}

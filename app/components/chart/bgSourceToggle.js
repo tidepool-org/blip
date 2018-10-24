@@ -10,19 +10,26 @@ const { TwoOptionToggle } = vizComponents;
 class BgSourceToggle extends PureComponent {
   static propTypes = {
     bgSource: PropTypes.oneOf(BG_DATA_TYPES),
+    bgSources: PropTypes.shape({
+      cbg: PropTypes.bool.isRequired,
+      smbg: PropTypes.bool.isRequired,
+    }).isRequired,
     chartPrefs: PropTypes.object.isRequired,
     chartType: PropTypes.oneOf(['basics', 'daily', 'weekly', 'trends']).isRequired,
+    disabled: PropTypes.bool,
     onClickBgSourceToggle: PropTypes.func.isRequired,
   };
 
   render = () => {
+    const showToggle = this.props.bgSources.cbg && this.props.bgSources.smbg;
+
     return (
       <div className="toggle-container">
-        <TwoOptionToggle
+        {showToggle ? <TwoOptionToggle
           left={{ label: 'BGM', state: this.props.bgSource === 'smbg' }}
           right={{ label: 'CGM', state: this.props.bgSource === 'cbg' }}
           toggleFn={this.handleBgToggle}
-          />
+        /> : null}
       </div>
     );
   };

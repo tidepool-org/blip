@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import bows from 'bows';
 import React from 'react';
+import moment from 'moment';
 import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
 
@@ -61,11 +62,28 @@ var Basics = translate()(React.createClass({
   },
 
   getInitialState: function() {
+    const { timezoneAware, timezoneName } = this.props.timePrefs;
+    const endMoment = moment
+      .utc(this.props.patientData.basicsData.dateRange[1])
+      .add(1, 'day')
+      .startOf('day');
+
+    let timezoneOffset = 0;
+
+    if (timezoneAware) {
+      timezoneOffset = sundial.getOffsetFromZone(endMoment.toISOString(), timezoneName);
+    }
+
+    const endpoints = [
+      this.props.patientData.basicsData.dateRange[0],
+      endMoment.subtract(timezoneOffset, 'minutes').toISOString(),
+    ];
+
     return {
       atMostRecent: true,
       inTransition: false,
       title: this.getTitle(),
-      endpoints: this.props.patientData.basicsData.dateRange,
+      endpoints,
     };
   },
 
@@ -106,6 +124,7 @@ var Basics = translate()(React.createClass({
             <div className="patient-data-sidebar-inner">
               <BgSourceToggle
                 bgSource={this.props.bgSource}
+                bgSources={this.props.dataUtil.bgSources}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 onClickBgSourceToggle={this.toggleBgDataSource}

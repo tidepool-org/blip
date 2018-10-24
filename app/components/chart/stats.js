@@ -52,12 +52,15 @@ class Stats extends Component {
   componentWillReceiveProps = nextProps => {
     const update = this.updatesRequired(nextProps);
     if (update) {
+      console.log('update', update);
       if (update.stats) {
         this.setState({
           stats: this.getStatsByChartType(nextProps)
         });
       } else if (update.endpoints) {
         this.updateDataUtilEndpoints(nextProps);
+        this.updateStatData(nextProps);
+      } else if (update.activeDays) {
         this.updateStatData(nextProps);
       }
     }
@@ -70,14 +73,20 @@ class Stats extends Component {
   updatesRequired = nextProps => {
     const {
       bgSource,
+      chartPrefs,
+      chartType,
       endpoints,
     } = nextProps;
 
-    const endpointsChanged = endpoints && !_.isEqual(endpoints, this.props.endpoints);
-    const bgSourceChanged = bgSource && !_.isEqual(bgSource, this.props.bgSource);
+    const { activeDays } = chartPrefs[chartType];
 
-    return endpointsChanged || bgSourceChanged
+    const activeDaysChanged = activeDays && !_.isEqual(activeDays, this.props.chartPrefs[chartType].activeDays);
+    const bgSourceChanged = bgSource && !_.isEqual(bgSource, this.props.bgSource);
+    const endpointsChanged = endpoints && !_.isEqual(endpoints, this.props.endpoints);
+
+    return activeDaysChanged || bgSourceChanged || endpointsChanged
       ? {
+        activeDays: activeDaysChanged,
         endpoints: endpointsChanged,
         stats: bgSourceChanged,
       }
@@ -87,6 +96,9 @@ class Stats extends Component {
   renderStats = (stats) => (_.map(stats, (stat) => (<Stat key={stat.id} bgPrefs={this.bgPrefs} {...stat} />)));
 
   render = () => {
+    console.log('endpoints', this.props.endpoints);
+    console.log('stats', this.state.stats);
+
     return (
       <div className="Stats">
         {this.renderStats(this.state.stats)}
@@ -114,6 +126,7 @@ class Stats extends Component {
 
     const cbgSelected = bgSource === 'cbg';
     const smbgSelected = bgSource === 'smbg';
+    const hasBgData = dataUtil.bgSources[bgSource];
 
     switch (chartType) {
       case 'basics':
@@ -130,7 +143,7 @@ class Stats extends Component {
 
       case 'daily':
         addStat(commonStats.averageBg);
-        cbgSelected && addStat(commonStats.timeInRange);
+        cbgSelected && hasBgData && addStat(commonStats.timeInRange);
         smbgSelected && addStat(commonStats.readingsInRange);
         cbgSelected && addStat(commonStats.standardDev);
         cbgSelected && addStat(commonStats.coefficientOfVariation);

@@ -19,6 +19,7 @@ var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
 var ReactDOM = require('react-dom');
+var moment = require('moment');
 var sundial = require('sundial');
 import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
@@ -369,10 +370,34 @@ var Weekly = translate()(React.createClass({
   },
 
   handleDatetimeLocationChange: function(datetimeLocationEndpoints, chart = this.refs.chart) {
+    const { timezoneAware, timezoneName } = this.props.timePrefs;
+
+    const startMoment = moment
+      .utc(datetimeLocationEndpoints[0])
+      .startOf('day');
+
+    const endMoment = moment
+      .utc(datetimeLocationEndpoints[1])
+      .add(1, 'day')
+      .startOf('day');
+
+    let startTimezoneOffset = 0;
+    let endTimezoneOffset = 0;
+
+    if (timezoneAware) {
+      startTimezoneOffset = sundial.getOffsetFromZone(startMoment.toISOString(), timezoneName);
+      endTimezoneOffset = sundial.getOffsetFromZone(endMoment.toISOString(), timezoneName);
+    }
+
+    const endpoints = [
+      startMoment.subtract(startTimezoneOffset, 'minutes').toISOString(),
+      endMoment.subtract(endTimezoneOffset, 'minutes').toISOString(),
+    ];
+
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints),
-      endpoints: datetimeLocationEndpoints,
+      endpoints,
     });
     this.props.updateDatetimeLocation(chart.getCurrentDay());
 
