@@ -119,7 +119,7 @@ export class DataUtil {
     );
   };
 
-  getDailyAverage = data => {
+  getDailyAverageDurations = data => {
     const clone = _.clone(data);
     const total = _.sum(_.values(data));
 
@@ -286,7 +286,7 @@ export class DataUtil {
       : NaN;
 
     if (returnDailyAverage && !_.isNaN(durations)) {
-      durations = this.getDailyAverage(durations);
+      durations = this.getDailyAverageDurations(durations);
     }
 
     return durations;
@@ -317,7 +317,7 @@ export class DataUtil {
     );
 
     if (returnDailyAverage) {
-      durations = this.getDailyAverage(durations);
+      durations = this.getDailyAverageDurations(durations);
     }
 
     return durations;
@@ -326,14 +326,26 @@ export class DataUtil {
   getTotalInsulinData = () => {
     this.applyDateFilters();
 
+    const days = this.getDayCountFromEndpoints();
+    const returnDailyAverage = days > 1;
+
     const bolusData = this.filter.byType('bolus').top(Infinity);
     let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity).reverse());
     basalData = this.applyBasalOverlappingStart(basalData);
 
-    return {
-      totalBasal: basalData.length ? getTotalBasalFromEndpoints(basalData, this._endpoints) : NaN,
+    const totalInsulin = {
+      totalBasal: basalData.length
+        ? parseFloat(getTotalBasalFromEndpoints(basalData, this._endpoints))
+        : NaN,
       totalBolus: bolusData.length ? getTotalBolus(bolusData) : NaN,
     };
+
+    if (returnDailyAverage) {
+      totalInsulin.totalBasal = totalInsulin.totalBasal / days;
+      totalInsulin.totalBolus = totalInsulin.totalBolus / days;
+    }
+
+    return totalInsulin;
   };
 }
 
