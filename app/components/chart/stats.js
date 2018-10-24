@@ -96,9 +96,6 @@ class Stats extends Component {
   renderStats = (stats) => (_.map(stats, (stat) => (<Stat key={stat.id} bgPrefs={this.bgPrefs} {...stat} />)));
 
   render = () => {
-    console.log('endpoints', this.props.endpoints);
-    console.log('stats', this.state.stats);
-
     return (
       <div className="Stats">
         {this.renderStats(this.state.stats)}
@@ -132,8 +129,8 @@ class Stats extends Component {
       case 'basics':
         cbgSelected && addStat(commonStats.glucoseManagementIndex);
         addStat(commonStats.averageBg);
-        cbgSelected && addStat(commonStats.timeInRange);
-        smbgSelected && addStat(commonStats.readingsInRange);
+        cbgSelected && hasBgData && addStat(commonStats.timeInRange);
+        smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
         addStat(commonStats.standardDev);
         addStat(commonStats.coefficientOfVariation);
         addStat(commonStats.averageDailyCarbs);
@@ -144,7 +141,7 @@ class Stats extends Component {
       case 'daily':
         addStat(commonStats.averageBg);
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
-        smbgSelected && addStat(commonStats.readingsInRange);
+        smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
         cbgSelected && addStat(commonStats.standardDev);
         cbgSelected && addStat(commonStats.coefficientOfVariation);
         isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
@@ -152,19 +149,19 @@ class Stats extends Component {
         break;
 
       case 'weekly':
-        addStat(commonStats.readingsInRange);
         addStat(commonStats.averageBg);
+        addStat(commonStats.readingsInRange);
         addStat(commonStats.standardDev);
         addStat(commonStats.coefficientOfVariation);
         break;
 
       case 'trends':
-        cbgSelected && addStat(commonStats.timeInRange);
-        smbgSelected && addStat(commonStats.readingsInRange);
+        cbgSelected && addStat(commonStats.glucoseManagementIndex);
         addStat(commonStats.averageBg);
+        cbgSelected && hasBgData && addStat(commonStats.timeInRange);
+        smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
         addStat(commonStats.standardDev);
         addStat(commonStats.coefficientOfVariation);
-        addStat(commonStats.glucoseManagementIndex);
         break;
     }
 
