@@ -133,16 +133,14 @@ export class DataUtil {
   getAverageBgData = (returnBgData = false) => {
     this.applyDateFilters();
 
-    const cbgData = this.filter.byType('cbg').top(Infinity);
-    const smbgData = this.filter.byType('smbg').top(Infinity);
-    const combinedBgData = cbgData.concat(smbgData);
+    const bgData = this.filter.byType(this.bgSource).top(Infinity);
 
     const data = {
-      averageBg: _.meanBy(combinedBgData, 'value'),
+      averageBg: _.meanBy(bgData, 'value'),
     };
 
     if (returnBgData) {
-      data.bgData = combinedBgData;
+      data.bgData = bgData;
     }
 
     return data;
@@ -249,6 +247,13 @@ export class DataUtil {
 
   getStandardDevData = () => {
     const { averageBg, bgData } = this.getAverageBgData(true);
+
+    if (bgData.length < 3) {
+      return {
+        averageBg,
+        standardDeviation: NaN,
+      };
+    }
 
     const squaredDiffs = _.map(bgData, d => (d.value - averageBg) ** 2);
     const avgSquaredDiff = _.mean(squaredDiffs);
