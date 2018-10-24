@@ -119,17 +119,6 @@ export class DataUtil {
     );
   };
 
-  getDailyAverageDurations = data => {
-    const clone = _.clone(data);
-    const total = _.sum(_.values(data));
-
-    _.each(clone, (value, key) => {
-      clone[key] = (value / total) * MS_IN_DAY;
-    });
-
-    return clone;
-  };
-
   getAverageBgData = (returnBgData = false) => {
     this.applyDateFilters();
 
@@ -165,6 +154,17 @@ export class DataUtil {
     cbg: this.filter.byType('cbg').top(Infinity).length > 0,
     smbg: this.filter.byType('smbg').top(Infinity).length > 0,
   });
+
+  getDailyAverageDurations = data => {
+    const clone = _.clone(data);
+    const total = _.sum(_.values(data));
+
+    _.each(clone, (value, key) => {
+      clone[key] = (value / total) * MS_IN_DAY;
+    });
+
+    return clone;
+  };
 
   getDefaultBgSource = () => {
     let source;
@@ -202,7 +202,27 @@ export class DataUtil {
   };
 
   getGlucoseManagementIndexData = () => {
-    const { averageBg } = this.getAverageBgData();
+    const { averageBg, bgData } = this.getAverageBgData(true);
+
+    const getTotalCbgDuration = () => _.reduce(
+      bgData,
+      (result, datum) => {
+        result += cgmSampleFrequency(datum);
+        return result;
+      },
+      0
+    );
+
+    const insufficientData = this.bgSource === 'smbg'
+      || this.getDayCountFromEndpoints() < 14
+      || getTotalCbgDuration() < 14 * MS_IN_DAY * 0.7;
+
+    if (insufficientData) {
+      return {
+        glucoseManagementIndex: NaN,
+      };
+    }
+
     const meanInMGDL = this.bgUnits === MGDL_UNITS ? averageBg : averageBg * MGDL_PER_MMOLL;
 
     const glucoseManagementIndex = (3.31 + 0.02392 * meanInMGDL) / 100;
