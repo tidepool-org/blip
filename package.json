@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "1.8.11",
+  "version": "1.8.12-disable-bg-annotation.2",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
