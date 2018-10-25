@@ -126,6 +126,7 @@ export class DataUtil {
 
     const data = {
       averageBg: _.meanBy(bgData, 'value'),
+      bgSource: this.bgSource,
     };
 
     if (returnBgData) {

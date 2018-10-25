@@ -9,6 +9,11 @@ export const statTypes = {
   simple: 'simple',
 };
 
+export const statBgSourceLabels = {
+  cbg: 'CGM',
+  smbg: 'BGM',
+};
+
 export const statFormats = {
   bgCount: 'bgCount',
   bgRange: 'bgRange',
@@ -258,7 +263,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
         'Based on 70% CGM data availability for this view.',
         'Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.',
       ];
-      stat.title = 'Average Blood Glucose';
+      stat.title = `Average BG ${data.bgSource ? `(${statBgSourceLabels[data.bgSource]})` : ''}`;
       stat.type = statTypes.barBg;
       break;
 
