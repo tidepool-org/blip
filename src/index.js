@@ -37,7 +37,13 @@ import { formatBgValue } from './utils/format';
 import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
 import { getTotalBasalFromEndpoints, getGroupDurations } from './utils/basal';
 import { isAutomatedBasalDevice } from './utils/device';
-import { commonStats, getStatData, getStatDefinition, statBgSourceLabels } from './utils/stat';
+import {
+  commonStats,
+  getStatAnnotations,
+  getStatData,
+  getStatDefinition,
+  statBgSourceLabels,
+} from './utils/stat';
 import DataUtil from './utils/data';
 import { selectDailyViewData } from './utils/print/data';
 
@@ -83,6 +89,7 @@ const utils = {
   },
   stat: {
     commonStats,
+    getStatAnnotations,
     getStatData,
     getStatDefinition,
     statBgSourceLabels,

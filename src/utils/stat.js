@@ -44,6 +44,78 @@ export const getSum = data => _.sum(_.map(data, d => d.value));
 
 export const ensureNumeric = value => (_.isNaN(value) ? -1 : parseFloat(value));
 
+export const translatePercentage = value => value / 100;
+
+export const getStatAnnotations = (data, type) => {
+  let annotations = [];
+
+  switch (type) {
+    case commonStats.averageBg:
+      annotations = [
+        'Based on 70% CGM data availability for this view.',
+        'Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.',
+      ];
+      break;
+
+    case commonStats.averageDailyCarbs:
+      annotations = [
+        `Based on ${data.total} bolus wizard events available for this view.`,
+      ];
+      break;
+
+    case commonStats.coefficientOfVariation:
+      annotations = [
+        'Based on 70% CGM data availability for this view.',
+        'CV (Coefficient of Variation) is…',
+      ];
+      break;
+
+    case commonStats.glucoseManagementIndex:
+      annotations = [
+        'Based on 70% CGM data availability for this view.',
+        'GMI (Glucose Management Indicator) is an estimate of HbA1c that has been calculated based on your average blood glucose.',
+      ];
+      break;
+
+    case commonStats.readingsInRange:
+      annotations = [
+        `Based on ${data.total} SMBG readings for this view.`,
+      ];
+      break;
+
+    case commonStats.standardDev:
+      annotations = [
+        'Based on 70% CGM data availability for this view.',
+        'SD (Standard Deviation) is…',
+      ];
+      break;
+
+    case commonStats.timeInAuto:
+      annotations = [
+        'Based on 50% pump data availability for this view.',
+      ];
+      break;
+
+    case commonStats.timeInRange:
+      annotations = [
+        'Based on 70% CGM data availability for this view.',
+      ];
+      break;
+
+    case commonStats.totalInsulin:
+      annotations = [
+        'Based on 50% pump data availability for this view.',
+      ];
+      break;
+
+    default:
+      annotations = undefined;
+      break;
+  }
+
+  return annotations;
+};
+
 export const getStatData = (data, type, opts) => {
   const vocabulary = getPumpVocabulary(opts.manufacturer);
 
@@ -91,7 +163,7 @@ export const getStatData = (data, type, opts) => {
       statData.data = [
         {
           id: 'gmi',
-          value: ensureNumeric(data.glucoseManagementIndex),
+          value: ensureNumeric(translatePercentage(data.glucoseManagementIndex)),
         },
       ];
 
@@ -251,6 +323,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
     data: getStatData(data, type, opts),
     id: type,
     type: statTypes.barHorizontal,
+    annotations: getStatAnnotations(data, type),
   };
 
   switch (type) {
@@ -259,11 +332,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
         label: statFormats.bgValue,
         summary: statFormats.bgValue,
       };
-      stat.annotations = [
-        'Based on 70% CGM data availability for this view.',
-        'Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.',
-      ];
-      stat.title = `Average BG ${data.bgSource ? `(${statBgSourceLabels[data.bgSource]})` : ''}`;
+      stat.title = `Average BG (${statBgSourceLabels[data.bgSource]})`;
       stat.type = statTypes.barBg;
       break;
 
@@ -271,9 +340,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
       stat.dataFormat = {
         summary: statFormats.carbs,
       };
-      stat.annotations = [
-        'Based on 10 bolus wizard events available for this view.',
-      ];
       stat.title = 'Average Daily Carbs';
       stat.type = statTypes.simple;
       break;
@@ -282,10 +348,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
       stat.dataFormat = {
         summary: statFormats.cv,
       };
-      stat.annotations = [
-        'Based on 70% CGM data availability for this view.',
-        'CV (Coefficient of Variation) is…',
-      ];
       stat.title = 'CV';
       stat.type = statTypes.simple;
       break;
@@ -294,10 +356,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
       stat.dataFormat = {
         summary: statFormats.gmi,
       };
-      stat.annotations = [
-        'Based on 70% CGM data availability for this view.',
-        'GMI (Glucose Management Indicator) is an estimate of HbA1c that has been calculated based on your average blood glucose.',
-      ];
       stat.title = 'GMI';
       stat.type = statTypes.simple;
       break;
@@ -310,9 +368,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
         tooltip: statFormats.percentage,
         tooltipTitle: statFormats.bgRange,
       };
-      stat.annotations = [
-        'Based on 7 SMBG readings for this view.',
-      ];
       stat.title = 'Readings In Range';
       break;
 
@@ -322,10 +377,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
         summary: statFormats.standardDevValue,
         title: statFormats.standardDevRange,
       };
-      stat.annotations = [
-        'Based on 70% CGM data availability for this view.',
-        'SD (Standard Deviation) is…',
-      ];
       stat.title = 'Standard Deviation';
       stat.type = statTypes.barBg;
       break;
@@ -337,9 +388,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
         summary: statFormats.percentage,
         tooltip: statFormats.duration,
       };
-      stat.annotations = [
-        'Based on 50% pump data availability for this view.',
-      ];
       stat.title = `Time In ${vocabulary[AUTOMATED_DELIVERY]}`;
       break;
 
@@ -351,9 +399,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
         tooltip: statFormats.duration,
         tooltipTitle: statFormats.bgRange,
       };
-      stat.annotations = [
-        'Based on 70% CGM data availability for this view.',
-      ];
       stat.title = 'Time In Range';
       break;
 
@@ -365,9 +410,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
         title: statFormats.units,
         tooltip: statFormats.units,
       };
-      stat.annotations = [
-        'Based on 50% pump data availability for this view.',
-      ];
       stat.title = 'Total Insulin';
       break;
 

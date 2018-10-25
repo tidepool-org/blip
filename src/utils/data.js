@@ -226,7 +226,7 @@ export class DataUtil {
 
     const meanInMGDL = this.bgUnits === MGDL_UNITS ? averageBg : averageBg * MGDL_PER_MMOLL;
 
-    const glucoseManagementIndex = (3.31 + 0.02392 * meanInMGDL) / 100;
+    const glucoseManagementIndex = (3.31 + 0.02392 * meanInMGDL);
 
     return {
       glucoseManagementIndex,
@@ -252,6 +252,7 @@ export class DataUtil {
       (result, datum) => {
         const classification = classifyBgValue(this.bgBounds, datum.value, 'fiveWay');
         result[classification]++;
+        result.total++;
         return result;
       },
       {
@@ -260,6 +261,7 @@ export class DataUtil {
         high: 0,
         veryHigh: 0,
         target: 0,
+        total: 0,
       }
     );
 
