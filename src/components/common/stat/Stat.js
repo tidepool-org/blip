@@ -220,12 +220,14 @@ class Stat extends PureComponent {
   };
 
   renderTooltip = () => (
-    <StatTooltip
-      annotations={this.props.annotations}
-      offset={this.state.messageTooltipOffset}
-      position={this.state.messageTooltipPosition}
-      side={this.state.messageTooltipSide}
-    />
+    <div className={styles.StatTooltipWrapper}>
+      <StatTooltip
+        annotations={this.props.annotations}
+        offset={this.state.messageTooltipOffset}
+        position={this.state.messageTooltipPosition}
+        side={this.state.messageTooltipSide}
+      />
+    </div>
   );
 
   render() {
@@ -699,7 +701,7 @@ class Stat extends PureComponent {
 
   handleTooltipIconMouseOver = () => {
     const { top, left, width, height } = this.tooltipIcon.getBoundingClientRect();
-    const { top: parentTop, left: parentLeft } = this.stat.getBoundingClientRect();
+    const { top: parentTop, left: parentLeft, height: parentHeight } = this.stat.getBoundingClientRect();
 
     const position = {
       top: (top - parentTop) + height / 2,
@@ -708,7 +710,7 @@ class Stat extends PureComponent {
 
     const offset = {
       horizontal: width / 2,
-      top: 0,
+      top: -parentHeight,
     };
 
     const side = (_.get(document, 'body.clientWidth', 0) - left < 225) ? 'left' : 'right';

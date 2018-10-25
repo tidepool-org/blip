@@ -104,3 +104,8 @@
 .tooltipIcon>img {
   width: 0.9em;
 }
+
+.StatTooltipWrapper {
+  z-index: 1;
+  position: relative;
+}
