@@ -213,7 +213,7 @@ class Stat extends PureComponent {
         springConfig={{ stiffness: 200, damping: 23 }}
       >
         <div className={styles.chartContainer}>
-          <Renderer {...chartProps} width={size.width || 270} />
+          <Renderer {...chartProps} width={size.width || 278} />
         </div>
       </Collapse>
     );
