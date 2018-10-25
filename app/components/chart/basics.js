@@ -128,7 +128,7 @@ var Basics = translate()(React.createClass({
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 onClickBgSourceToggle={this.toggleBgDataSource}
-                />
+              />
               <Stats
                 bgPrefs={this.props.bgPrefs}
                 bgSource={this.props.bgSource}

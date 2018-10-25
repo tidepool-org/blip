@@ -21,12 +21,7 @@ var cx = require('classnames');
 import { translate } from 'react-i18next';
 
 import { components } from '@tidepool/viz';
-const TwoOptionToggle = components.TwoOptionToggle;
 const RangeSelect = components.RangeSelect;
-
-var tideline = {
-  log: bows('Footer')
-};
 
 var TidelineFooter = translate()(React.createClass({
   propTypes: {

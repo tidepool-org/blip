@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { components as vizComponents } from '@tidepool/viz';
+import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 
 import { BG_DATA_TYPES } from '../../core/constants';
 
 const { TwoOptionToggle } = vizComponents;
+const { statBgSourceLabels } = vizUtils.stat;
 
 class BgSourceToggle extends PureComponent {
   static propTypes = {
@@ -26,8 +27,8 @@ class BgSourceToggle extends PureComponent {
     return (
       <div className="toggle-container">
         {showToggle ? <TwoOptionToggle
-          left={{ label: 'BGM', state: this.props.bgSource === 'smbg' }}
-          right={{ label: 'CGM', state: this.props.bgSource === 'cbg' }}
+          left={{ label: statBgSourceLabels.smbg, state: this.props.bgSource === 'smbg' }}
+          right={{ label: statBgSourceLabels.cbg, state: this.props.bgSource === 'cbg' }}
           toggleFn={this.handleBgToggle}
         /> : null}
       </div>
