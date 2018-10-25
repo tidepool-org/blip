@@ -265,7 +265,7 @@ class Stat extends PureComponent {
       case 'barHorizontal':
       default:
         state.isCollapsible = props.collapsible;
-        state.isOpened = props.isOpened;
+        state.isOpened = _.get(this.state, 'isOpened', props.isOpened);
         state.hoveredDatumIndex = -1;
         break;
     }
