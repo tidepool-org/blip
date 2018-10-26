@@ -280,8 +280,7 @@ export class DataUtil {
     }
 
     const squaredDiffs = _.map(bgData, d => (d.value - averageBg) ** 2);
-    const avgSquaredDiff = _.mean(squaredDiffs);
-    const standardDeviation = Math.sqrt(avgSquaredDiff);
+    const standardDeviation = Math.sqrt(_.sum(squaredDiffs) / (bgData.length - 1));
 
     return {
       averageBg,
