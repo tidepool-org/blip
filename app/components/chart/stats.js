@@ -31,7 +31,7 @@ class Stats extends Component {
     };
 
     this.dataFetchMethods = {
-      [commonStats.averageBg]: 'getAverageBgData',
+      [commonStats.averageGlucose]: 'getAverageGlucoseData',
       [commonStats.averageDailyCarbs]: 'getAverageDailyCarbsData',
       [commonStats.coefficientOfVariation]: 'getCoefficientOfVariationData',
       [commonStats.glucoseManagementIndicator]: 'getGlucoseManagementIndicatorData',
@@ -128,7 +128,7 @@ class Stats extends Component {
     switch (chartType) {
       case 'basics':
         cbgSelected && addStat(commonStats.glucoseManagementIndicator);
-        addStat(commonStats.averageBg);
+        addStat(commonStats.averageGlucose);
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
         smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
         addStat(commonStats.standardDev);
@@ -139,7 +139,7 @@ class Stats extends Component {
         break;
 
       case 'daily':
-        addStat(commonStats.averageBg);
+        addStat(commonStats.averageGlucose);
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
         smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
         cbgSelected && addStat(commonStats.standardDev);
@@ -149,7 +149,7 @@ class Stats extends Component {
         break;
 
       case 'weekly':
-        addStat(commonStats.averageBg);
+        addStat(commonStats.averageGlucose);
         addStat(commonStats.readingsInRange);
         addStat(commonStats.standardDev);
         addStat(commonStats.coefficientOfVariation);
@@ -157,7 +157,7 @@ class Stats extends Component {
 
       case 'trends':
         cbgSelected && addStat(commonStats.glucoseManagementIndicator);
-        addStat(commonStats.averageBg);
+        addStat(commonStats.averageGlucose);
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
         smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
         addStat(commonStats.standardDev);
