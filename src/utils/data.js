@@ -179,10 +179,12 @@ export class DataUtil {
   };
 
   getCoefficientOfVariationData = () => {
-    const { averageBg, standardDeviation } = this.getStandardDevData();
+    const { bgSource, averageBg, standardDeviation, total } = this.getStandardDevData();
 
     return {
+      bgSource,
       coefficientOfVariation: standardDeviation / averageBg * 100,
+      total,
     };
   };
 
@@ -204,7 +206,7 @@ export class DataUtil {
   };
 
   getGlucoseManagementIndicatorData = () => {
-    const { averageBg, bgData } = this.getAverageBgData(true);
+    const { averageBg, bgData, bgSource, total } = this.getAverageBgData(true);
 
     const getTotalCbgDuration = () => _.reduce(
       bgData,
@@ -230,7 +232,9 @@ export class DataUtil {
     const glucoseManagementIndicator = (3.31 + 0.02392 * meanInMGDL);
 
     return {
+      bgSource,
       glucoseManagementIndicator,
+      total,
     };
   };
 
@@ -266,16 +270,21 @@ export class DataUtil {
       }
     );
 
-    return smbgData;
+    return {
+      ...smbgData,
+      bgSource: this.bgSource,
+    };
   };
 
   getStandardDevData = () => {
-    const { averageBg, bgData } = this.getAverageBgData(true);
+    const { averageBg, bgData, bgSource, total } = this.getAverageBgData(true);
 
     if (bgData.length < 3) {
       return {
         averageBg,
+        bgSource,
         standardDeviation: NaN,
+        total,
       };
     }
 
@@ -284,7 +293,9 @@ export class DataUtil {
 
     return {
       averageBg,
+      bgSource,
       standardDeviation,
+      total,
     };
   };
 
@@ -327,7 +338,9 @@ export class DataUtil {
       cbgData,
       (result, datum) => {
         const classification = classifyBgValue(this.bgBounds, datum.value, 'fiveWay');
-        result[classification] += cgmSampleFrequency(datum);
+        const duration = cgmSampleFrequency(datum);
+        result[classification] += duration;
+        result.total += duration;
         return result;
       },
       {
@@ -336,6 +349,7 @@ export class DataUtil {
         high: 0,
         veryHigh: 0,
         target: 0,
+        total: 0,
       }
     );
 
@@ -343,7 +357,10 @@ export class DataUtil {
       durations = this.getDailyAverageDurations(durations);
     }
 
-    return durations;
+    return {
+      ...durations,
+      bgSource: this.bgSource,
+    };
   };
 
   getTotalInsulinData = () => {

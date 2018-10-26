@@ -47,52 +47,45 @@ export const ensureNumeric = value => (_.isNaN(value) ? -1 : parseFloat(value));
 export const translatePercentage = value => value / 100;
 
 export const getStatAnnotations = (data, type) => {
-  let annotations = [];
+  const annotations = [];
 
   if (data.bgSource) {
     const annotation = data.bgSource === 'cbg'
-      ? `Based on ${data.total}% CGM data availability for this view.`
-      : `Based on ${data.total} SMBG readings for this view.`;
+      ? `Based on _**${data.total}%**_ ${statBgSourceLabels.cbg} data availability for this view.`
+      : `Based on _**${data.total}**_ ${statBgSourceLabels.smbg} readings for this view.`;
     annotations.push(annotation);
   }
 
   switch (type) {
     case commonStats.averageBg:
-      annotations.push('Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.');
+      annotations.push('**Average Glucose (mean)** is all glucose values added together, divided by the number of readings.');
       break;
 
     case commonStats.averageDailyCarbs:
-      annotations = [
-        `Based on ${data.total} bolus wizard events available for this view.`,
-      ];
+      annotations.push(`Based on ${data.total} bolus wizard events available for this view.`);
       break;
 
     case commonStats.coefficientOfVariation:
-      annotations.push('CV (Coefficient of Variation) is…');
+      annotations.push('**CV (Coefficient of Variation)** is how far apart (wide) glucose values are; ideally a low number.');
       break;
 
     case commonStats.glucoseManagementIndicator:
-      annotations.push('GMI (Glucose Management Indicator) is an estimate of HbA1c that has been calculated based on your average blood glucose.');
+      annotations.push('**GMI (Glucose Management Indicator)** is calculated from average glucose; estimates your future lab A1c.');
       break;
 
     case commonStats.standardDev:
-      annotations.push('SD (Standard Deviation) is…');
+      annotations.push('**SD (Standard Deviation)** is how far values are from the average; ideally a low number.');
       break;
 
     case commonStats.timeInAuto:
-      annotations = [
-        `Based on ${data.total}% pump data availability for this view.`,
-      ];
+      annotations.push(`Based on ${data.total}% pump data availability for this view.`);
       break;
 
     case commonStats.totalInsulin:
-      annotations = [
-        `Based on ${data.total}% pump data availability for this view.`,
-      ];
+      annotations.push(`Based on ${data.total}% pump data availability for this view.`);
       break;
 
     default:
-      annotations = undefined;
       break;
   }
 
