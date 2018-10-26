@@ -552,7 +552,7 @@ stories.add('Standard Deviation', () => {
   );
 });
 
-let glucoseManagementIndexData = {
+let glucoseManagementIndicatorData = {
   data: [
     {
       id: 'gmi',
@@ -560,23 +560,23 @@ let glucoseManagementIndexData = {
     },
   ],
 };
-glucoseManagementIndexData.dataPaths = {
+glucoseManagementIndicatorData.dataPaths = {
   summary: 'data.0',
 };
 
 stories.add('Glucose Management Indicator', () => {
   button('Random Data', () => {
-    glucoseManagementIndexData = generateRandomData(glucoseManagementIndexData, 'gmi');
+    glucoseManagementIndicatorData = generateRandomData(glucoseManagementIndicatorData, 'gmi');
   }, 'DATA');
 
   button('Empty Data', () => {
-    glucoseManagementIndexData = generateEmptyData(glucoseManagementIndexData);
+    glucoseManagementIndicatorData = generateEmptyData(glucoseManagementIndicatorData);
   }, 'DATA');
 
   return (
     <Container>
       <Stat
-        data={glucoseManagementIndexData}
+        data={glucoseManagementIndicatorData}
         title="GMI"
         type={statTypes.simple}
         dataFormat={{

@@ -127,6 +127,7 @@ export class DataUtil {
     const data = {
       averageBg: _.meanBy(bgData, 'value'),
       bgSource: this.bgSource,
+      total: bgData.length,
     };
 
     if (returnBgData) {
@@ -181,7 +182,7 @@ export class DataUtil {
     const { averageBg, standardDeviation } = this.getStandardDevData();
 
     return {
-      coefficientOfVariation: standardDeviation / averageBg,
+      coefficientOfVariation: standardDeviation / averageBg * 100,
     };
   };
 
@@ -202,7 +203,7 @@ export class DataUtil {
     return dayMap[day];
   };
 
-  getGlucoseManagementIndexData = () => {
+  getGlucoseManagementIndicatorData = () => {
     const { averageBg, bgData } = this.getAverageBgData(true);
 
     const getTotalCbgDuration = () => _.reduce(
@@ -220,16 +221,16 @@ export class DataUtil {
 
     if (insufficientData) {
       return {
-        glucoseManagementIndex: NaN,
+        glucoseManagementIndicator: NaN,
       };
     }
 
     const meanInMGDL = this.bgUnits === MGDL_UNITS ? averageBg : averageBg * MGDL_PER_MMOLL;
 
-    const glucoseManagementIndex = (3.31 + 0.02392 * meanInMGDL);
+    const glucoseManagementIndicator = (3.31 + 0.02392 * meanInMGDL);
 
     return {
-      glucoseManagementIndex,
+      glucoseManagementIndicator,
     };
   };
 

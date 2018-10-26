@@ -32,7 +32,7 @@ export const commonStats = {
   averageBg: 'averageBg',
   averageDailyCarbs: 'averageDailyCarbs',
   coefficientOfVariation: 'coefficientOfVariation',
-  glucoseManagementIndex: 'glucoseManagementIndex',
+  glucoseManagementIndicator: 'glucoseManagementIndicator',
   readingsInRange: 'readingsInRange',
   standardDev: 'standardDev',
   timeInAuto: 'timeInAuto',
@@ -49,12 +49,16 @@ export const translatePercentage = value => value / 100;
 export const getStatAnnotations = (data, type) => {
   let annotations = [];
 
+  if (data.bgSource) {
+    const annotation = data.bgSource === 'cbg'
+      ? `Based on ${data.total}% CGM data availability for this view.`
+      : `Based on ${data.total} SMBG readings for this view.`;
+    annotations.push(annotation);
+  }
+
   switch (type) {
     case commonStats.averageBg:
-      annotations = [
-        'Based on 70% CGM data availability for this view.',
-        'Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.',
-      ];
+      annotations.push('Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.');
       break;
 
     case commonStats.averageDailyCarbs:
@@ -64,47 +68,26 @@ export const getStatAnnotations = (data, type) => {
       break;
 
     case commonStats.coefficientOfVariation:
-      annotations = [
-        'Based on 70% CGM data availability for this view.',
-        'CV (Coefficient of Variation) is…',
-      ];
+      annotations.push('CV (Coefficient of Variation) is…');
       break;
 
-    case commonStats.glucoseManagementIndex:
-      annotations = [
-        'Based on 70% CGM data availability for this view.',
-        'GMI (Glucose Management Indicator) is an estimate of HbA1c that has been calculated based on your average blood glucose.',
-      ];
-      break;
-
-    case commonStats.readingsInRange:
-      annotations = [
-        `Based on ${data.total} SMBG readings for this view.`,
-      ];
+    case commonStats.glucoseManagementIndicator:
+      annotations.push('GMI (Glucose Management Indicator) is an estimate of HbA1c that has been calculated based on your average blood glucose.');
       break;
 
     case commonStats.standardDev:
-      annotations = [
-        'Based on 70% CGM data availability for this view.',
-        'SD (Standard Deviation) is…',
-      ];
+      annotations.push('SD (Standard Deviation) is…');
       break;
 
     case commonStats.timeInAuto:
       annotations = [
-        'Based on 50% pump data availability for this view.',
-      ];
-      break;
-
-    case commonStats.timeInRange:
-      annotations = [
-        'Based on 70% CGM data availability for this view.',
+        `Based on ${data.total}% pump data availability for this view.`,
       ];
       break;
 
     case commonStats.totalInsulin:
       annotations = [
-        'Based on 50% pump data availability for this view.',
+        `Based on ${data.total}% pump data availability for this view.`,
       ];
       break;
 
@@ -159,11 +142,11 @@ export const getStatData = (data, type, opts) => {
       };
       break;
 
-    case commonStats.glucoseManagementIndex:
+    case commonStats.glucoseManagementIndicator:
       statData.data = [
         {
           id: 'gmi',
-          value: ensureNumeric(translatePercentage(data.glucoseManagementIndex)),
+          value: ensureNumeric(translatePercentage(data.glucoseManagementIndicator)),
         },
       ];
 
@@ -352,7 +335,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
       stat.type = statTypes.simple;
       break;
 
-    case commonStats.glucoseManagementIndex:
+    case commonStats.glucoseManagementIndicator:
       stat.dataFormat = {
         summary: statFormats.gmi,
       };
