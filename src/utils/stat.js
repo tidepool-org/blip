@@ -29,7 +29,7 @@ export const statFormats = {
 };
 
 export const commonStats = {
-  averageBg: 'averageBg',
+  averageGlucose: 'averageGlucose',
   averageDailyCarbs: 'averageDailyCarbs',
   coefficientOfVariation: 'coefficientOfVariation',
   glucoseManagementIndicator: 'glucoseManagementIndicator',
@@ -57,7 +57,7 @@ export const getStatAnnotations = (data, type) => {
   }
 
   switch (type) {
-    case commonStats.averageBg:
+    case commonStats.averageGlucose:
       annotations.push('**Average Glucose (mean)** is all glucose values added together, divided by the number of readings.');
       break;
 
@@ -98,10 +98,10 @@ export const getStatData = (data, type, opts) => {
   let statData = {};
 
   switch (type) {
-    case commonStats.averageBg:
+    case commonStats.averageGlucose:
       statData.data = [
         {
-          value: ensureNumeric(data.averageBg),
+          value: ensureNumeric(data.averageGlucose),
         },
       ];
 
@@ -189,7 +189,7 @@ export const getStatData = (data, type, opts) => {
     case commonStats.standardDev:
       statData.data = [
         {
-          value: ensureNumeric(data.averageBg),
+          value: ensureNumeric(data.averageGlucose),
           deviation: {
             value: ensureNumeric(data.standardDeviation),
           },
@@ -303,12 +303,12 @@ export const getStatDefinition = (data, type, opts = {}) => {
   };
 
   switch (type) {
-    case commonStats.averageBg:
+    case commonStats.averageGlucose:
       stat.dataFormat = {
         label: statFormats.bgValue,
         summary: statFormats.bgValue,
       };
-      stat.title = `Average BG (${statBgSourceLabels[data.bgSource]})`;
+      stat.title = `Average Glucose (${statBgSourceLabels[data.bgSource]})`;
       stat.type = statTypes.barBg;
       break;
 

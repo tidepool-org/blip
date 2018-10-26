@@ -422,42 +422,42 @@ stories.add('Total Insulin', () => {
   );
 });
 
-let averageBgData = {
+let averageGlucoseData = {
   data: [
     {
       value: 101,
     },
   ],
 };
-averageBgData.dataPaths = {
+averageGlucoseData.dataPaths = {
   summary: 'data.0',
 };
 
-let averageBgDataMmol = _.assign({}, averageBgData, {
-  data: _.map(averageBgData.data, d => _.assign({}, d, { value: d.value / MGDL_PER_MMOLL })),
+let averageGlucoseDataMmol = _.assign({}, averageGlucoseData, {
+  data: _.map(averageGlucoseData.data, d => _.assign({}, d, { value: d.value / MGDL_PER_MMOLL })),
 });
 
-let averageBgDataUnits = bgPrefsOptions[MGDL_UNITS];
+let averageGlucoseDataUnits = bgPrefsOptions[MGDL_UNITS];
 
-stories.add('Average BG', () => {
+stories.add('Average Glucose', () => {
   const collapsible = boolean('collapsible', true, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
-  averageBgDataUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
-  const bgPrefs = bgPrefsValues[averageBgDataUnits];
+  averageGlucoseDataUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
+  const bgPrefs = bgPrefsValues[averageGlucoseDataUnits];
 
   button('Random Data', () => {
-    if (averageBgDataUnits === MGDL_UNITS) {
-      averageBgData = generateRandomData(averageBgData, 'bg', averageBgDataUnits);
+    if (averageGlucoseDataUnits === MGDL_UNITS) {
+      averageGlucoseData = generateRandomData(averageGlucoseData, 'bg', averageGlucoseDataUnits);
     } else {
-      averageBgDataMmol = generateRandomData(averageBgDataMmol, 'bg', averageBgDataUnits);
+      averageGlucoseDataMmol = generateRandomData(averageGlucoseDataMmol, 'bg', averageGlucoseDataUnits);
     }
   }, 'DATA');
 
   button('Empty Data', () => {
-    if (averageBgDataUnits === MGDL_UNITS) {
-      averageBgData = generateEmptyData(averageBgData);
+    if (averageGlucoseDataUnits === MGDL_UNITS) {
+      averageGlucoseData = generateEmptyData(averageGlucoseData);
     } else {
-      averageBgDataMmol = generateEmptyData(averageBgDataMmol);
+      averageGlucoseDataMmol = generateEmptyData(averageGlucoseDataMmol);
     }
   }, 'DATA');
 
@@ -466,7 +466,7 @@ stories.add('Average BG', () => {
       <Stat
         bgPrefs={bgPrefs}
         collapsible={collapsible}
-        data={averageBgDataUnits === MGDL_UNITS ? averageBgData : averageBgDataMmol}
+        data={averageGlucoseDataUnits === MGDL_UNITS ? averageGlucoseData : averageGlucoseDataMmol}
         dataFormat={{
           label: statFormats.bgValue,
           summary: statFormats.bgValue,
@@ -476,7 +476,7 @@ stories.add('Average BG', () => {
           'Based on 70% CGM data availability for this view.',
           'Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.',
         ]}
-        title="Average Blood Glucose"
+        title="Average Glucose"
         type={statTypes.barBg}
       />
     </Container>

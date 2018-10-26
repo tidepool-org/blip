@@ -119,13 +119,13 @@ export class DataUtil {
     );
   };
 
-  getAverageBgData = (returnBgData = false) => {
+  getAverageGlucoseData = (returnBgData = false) => {
     this.applyDateFilters();
 
     const bgData = this.filter.byType(this.bgSource).top(Infinity);
 
     const data = {
-      averageBg: _.meanBy(bgData, 'value'),
+      averageGlucose: _.meanBy(bgData, 'value'),
       bgSource: this.bgSource,
       total: bgData.length,
     };
@@ -179,11 +179,11 @@ export class DataUtil {
   };
 
   getCoefficientOfVariationData = () => {
-    const { bgSource, averageBg, standardDeviation, total } = this.getStandardDevData();
+    const { bgSource, averageGlucose, standardDeviation, total } = this.getStandardDevData();
 
     return {
       bgSource,
-      coefficientOfVariation: standardDeviation / averageBg * 100,
+      coefficientOfVariation: standardDeviation / averageGlucose * 100,
       total,
     };
   };
@@ -206,7 +206,7 @@ export class DataUtil {
   };
 
   getGlucoseManagementIndicatorData = () => {
-    const { averageBg, bgData, bgSource, total } = this.getAverageBgData(true);
+    const { averageGlucose, bgData, bgSource, total } = this.getAverageGlucoseData(true);
 
     const getTotalCbgDuration = () => _.reduce(
       bgData,
@@ -227,7 +227,7 @@ export class DataUtil {
       };
     }
 
-    const meanInMGDL = this.bgUnits === MGDL_UNITS ? averageBg : averageBg * MGDL_PER_MMOLL;
+    const meanInMGDL = this.bgUnits === MGDL_UNITS ? averageGlucose : averageGlucose * MGDL_PER_MMOLL;
 
     const glucoseManagementIndicator = (3.31 + 0.02392 * meanInMGDL);
 
@@ -277,22 +277,22 @@ export class DataUtil {
   };
 
   getStandardDevData = () => {
-    const { averageBg, bgData, bgSource, total } = this.getAverageBgData(true);
+    const { averageGlucose, bgData, bgSource, total } = this.getAverageGlucoseData(true);
 
     if (bgData.length < 3) {
       return {
-        averageBg,
+        averageGlucose,
         bgSource,
         standardDeviation: NaN,
         total,
       };
     }
 
-    const squaredDiffs = _.map(bgData, d => (d.value - averageBg) ** 2);
+    const squaredDiffs = _.map(bgData, d => (d.value - averageGlucose) ** 2);
     const standardDeviation = Math.sqrt(_.sum(squaredDiffs) / (bgData.length - 1));
 
     return {
-      averageBg,
+      averageGlucose,
       bgSource,
       standardDeviation,
       total,
