@@ -7,7 +7,7 @@ import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
 import { BG_DATA_TYPES } from '../../core/constants';
 
 const { Stat } = vizComponents;
-const { commonStats, getStatData, getStatDefinition } = vizUtils.stat;
+const { commonStats, getStatAnnotations, getStatData, getStatDefinition } = vizUtils.stat;
 const { reshapeBgClassesToBgBounds } = vizUtils.bg;
 const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
 
@@ -34,7 +34,7 @@ class Stats extends Component {
       [commonStats.averageBg]: 'getAverageBgData',
       [commonStats.averageDailyCarbs]: 'getAverageDailyCarbsData',
       [commonStats.coefficientOfVariation]: 'getCoefficientOfVariationData',
-      [commonStats.glucoseManagementIndex]: 'getGlucoseManagementIndexData',
+      [commonStats.glucoseManagementIndicator]: 'getGlucoseManagementIndicatorData',
       [commonStats.readingsInRange]: 'getReadingsInRangeData',
       [commonStats.standardDev]: 'getStandardDevData',
       [commonStats.timeInAuto]: 'getTimeInAutoData',
@@ -52,7 +52,6 @@ class Stats extends Component {
   componentWillReceiveProps = nextProps => {
     const update = this.updatesRequired(nextProps);
     if (update) {
-      console.log('update', update);
       if (update.stats) {
         this.setState({
           stats: this.getStatsByChartType(nextProps)
@@ -96,6 +95,7 @@ class Stats extends Component {
   renderStats = (stats) => (_.map(stats, (stat) => (<Stat key={stat.id} bgPrefs={this.bgPrefs} {...stat} />)));
 
   render = () => {
+    console.log('stats', this.state.stats);
     return (
       <div className="Stats">
         {this.renderStats(this.state.stats)}
@@ -127,7 +127,7 @@ class Stats extends Component {
 
     switch (chartType) {
       case 'basics':
-        cbgSelected && addStat(commonStats.glucoseManagementIndex);
+        cbgSelected && addStat(commonStats.glucoseManagementIndicator);
         addStat(commonStats.averageBg);
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
         smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
@@ -156,7 +156,7 @@ class Stats extends Component {
         break;
 
       case 'trends':
-        cbgSelected && addStat(commonStats.glucoseManagementIndex);
+        cbgSelected && addStat(commonStats.glucoseManagementIndicator);
         addStat(commonStats.averageBg);
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
         smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
@@ -182,9 +182,12 @@ class Stats extends Component {
     const stats = this.state.stats;
 
     _.each(stats, (stat, i) => {
-      stats[i].data = getStatData(dataUtil[this.dataFetchMethods[stat.id]](), stat.id, {
+      const data = dataUtil[this.dataFetchMethods[stat.id]]();
+      console.log('data', data);
+      stats[i].data = getStatData(data, stat.id, {
         manufacturer: dataUtil.latestPump.manufacturer,
       });
+      stats[i].annotations = getStatAnnotations(data, stat.id);
     });
 
     this.setState(stats);
