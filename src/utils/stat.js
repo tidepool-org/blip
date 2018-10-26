@@ -133,7 +133,7 @@ export const getStatData = (data, type, opts) => {
       statData.data = [
         {
           id: 'cv',
-          value: ensureNumeric(data.coefficientOfVariation),
+          value: ensureNumeric(translatePercentage(data.coefficientOfVariation)),
         },
       ];
 
