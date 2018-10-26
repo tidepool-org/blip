@@ -16,6 +16,7 @@
  */
 
 import React, { PropTypes, PureComponent } from 'react';
+import Markdown from 'react-markdown';
 import _ from 'lodash';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
@@ -28,12 +29,12 @@ class StatTooltip extends PureComponent {
 
     _.each(annotations, (message, index) => {
       rows.push(
-        <div
+        <Markdown
           key={`message-${index}`}
           className={styles.message}
-        >
-          {message}
-        </div>
+          source={message}
+          linkTarget="_blank"
+        />
       );
       if (index !== annotations.length - 1) {
         rows.push(

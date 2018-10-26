@@ -30,28 +30,35 @@ const refDiv = (
 const stories = storiesOf('StatTooltip', module);
 stories.addDecorator(BackgroundDecorator);
 
-stories.add('short message', () => (
+stories.add('short annotation', () => (
   <div>
     {refDiv}
-    <StatTooltip {...props} messages={['A nice, concise message.']} />
+    <StatTooltip {...props} annotations={['A nice, concise annotation.']} />
   </div>
 ));
 
-stories.add('long message', () => (
+stories.add('long annotation', () => (
   <div>
     {refDiv}
-    <StatTooltip {...props} messages={['A longer message that should wrap due to a max-width of 190px set.']} />
+    <StatTooltip {...props} annotations={['A longer annotation that should wrap due to a max-width of 190px set.']} />
   </div>
 ));
 
-stories.add('multiple messages', () => (
+stories.add('markdown annotation', () => (
+  <div>
+    {refDiv}
+    <StatTooltip {...props} annotations={['**A markdown annotation** that should [link](http://www.example.com) to example.com in a new tab']} />
+  </div>
+));
+
+stories.add('multiple annotations', () => (
   <div>
     {refDiv}
     <StatTooltip
       {...props}
-      messages={[
-        'A nice, concise message.',
-        'A longer message that should wrap due to a max-width of 190px set.',
+      annotations={[
+        'A nice, concise annotation.',
+        'A longer annotation that should wrap due to a max-width of 190px set.',
       ]}
     />
   </div>

@@ -10,6 +10,14 @@
   color: var(--stat--default);
 }
 
+.message p {
+  margin: 0;
+}
+
+.message a {
+  pointer-events: all;
+}
+
 .divider {
   height: 2px;
   margin: 5px -10px;
