@@ -57,5 +57,8 @@ module.exports = {
   I18N_ENABLED: booleanFromText(__I18N_ENABLED__, false),
   ALLOW_CHANGE_EMAIL: booleanFromText(__ALLOW_CHANGE_EMAIL__, true),
   ALLOW_CHANGE_PASSWORD: booleanFromText(__ALLOW_CHANGE_PASSWORD__, true),
-  HIDE_UPLOAD_LINK: booleanFromText(__HIDE_UPLOAD_LINK__, false)
+  HIDE_DONATE: booleanFromText(__HIDE_DONATE__ , false),
+  HIDE_DEXCOM_BANNER: booleanFromText(__HIDE_DEXCOM_BANNER__ , false),
+  HIDE_UPLOAD_LINK: booleanFromText(__HIDE_UPLOAD_LINK__, false),
+  BRANDING: __BRANDING__ || 'tidepool'
 };
