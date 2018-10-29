@@ -7,7 +7,15 @@ import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
 import { BG_DATA_TYPES } from '../../core/constants';
 
 const { Stat } = vizComponents;
-const { commonStats, getStatAnnotations, getStatData, getStatDefinition } = vizUtils.stat;
+
+const {
+  commonStats,
+  getStatAnnotations,
+  getStatData,
+  getStatDefinition,
+  getStatTitle
+} = vizUtils.stat;
+
 const { reshapeBgClassesToBgBounds } = vizUtils.bg;
 const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
 
@@ -187,11 +195,12 @@ class Stats extends Component {
 
     _.each(stats, (stat, i) => {
       const data = dataUtil[this.dataFetchMethods[stat.id]]();
-      console.log('data', data);
-      stats[i].data = getStatData(data, stat.id, {
+      const opts = {
         manufacturer: dataUtil.latestPump.manufacturer,
-      });
+      };
+      stats[i].data = getStatData(data, stat.id, opts);
       stats[i].annotations = getStatAnnotations(data, stat.id);
+      stats[i].title = getStatTitle(data, stat.id, opts);
     });
 
     this.setState(stats);
