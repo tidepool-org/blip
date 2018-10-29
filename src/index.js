@@ -42,6 +42,7 @@ import {
   getStatAnnotations,
   getStatData,
   getStatDefinition,
+  getStatTitle,
   statBgSourceLabels,
 } from './utils/stat';
 import DataUtil from './utils/data';
@@ -92,6 +93,7 @@ const utils = {
     getStatAnnotations,
     getStatData,
     getStatDefinition,
+    getStatTitle,
     statBgSourceLabels,
   },
 };

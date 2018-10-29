@@ -314,14 +314,69 @@ export const getStatData = (data, type, opts) => {
   return statData;
 };
 
+export const getStatTitle = (data, type, opts) => {
+  const vocabulary = getPumpVocabulary(opts.manufacturer);
+
+  let title;
+
+  switch (type) {
+    case commonStats.averageGlucose:
+      title = `Average Glucose (${statBgSourceLabels[data.bgSource]})`;
+      break;
+
+    case commonStats.averageDailyCarbs:
+      title = 'Average Daily Carbs';
+      break;
+
+    case commonStats.coefficientOfVariation:
+      title = 'CV';
+      break;
+
+    case commonStats.glucoseManagementIndicator:
+      title = 'GMI';
+      break;
+
+    case commonStats.readingsInRange:
+      title = `${data.days > 1 ? 'Daily ' : ''}Readings In Range`;
+      break;
+
+    case commonStats.sensorUsage:
+      title = 'Sensor Usage';
+      break;
+
+    case commonStats.standardDev:
+      title = 'Standard Deviation';
+      break;
+
+    case commonStats.timeInAuto:
+      title = `${data.days > 1 ? 'Daily ' : ''}Time In ${vocabulary[AUTOMATED_DELIVERY]}`;
+      break;
+
+    case commonStats.timeInRange:
+      title = `${data.days > 1 ? 'Daily ' : ''}Time In Range`;
+      break;
+
+    case commonStats.totalInsulin:
+      title = `${data.days > 1 ? 'Daily ' : ''}Total Insulin`;
+      break;
+
+    default:
+      title = '';
+      break;
+  }
+
+  return title;
+};
+
 export const getStatDefinition = (data, type, opts = {}) => {
   const vocabulary = getPumpVocabulary(opts.manufacturer);
 
   let stat = {
+    annotations: getStatAnnotations(data, type),
     data: getStatData(data, type, opts),
     id: type,
+    title: getStatTitle(data, type, opts),
     type: statTypes.barHorizontal,
-    annotations: getStatAnnotations(data, type),
   };
 
   switch (type) {
@@ -330,7 +385,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
         label: statFormats.bgValue,
         summary: statFormats.bgValue,
       };
-      stat.title = `Average Glucose (${statBgSourceLabels[data.bgSource]})`;
       stat.type = statTypes.barBg;
       break;
 
@@ -338,7 +392,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
       stat.dataFormat = {
         summary: statFormats.carbs,
       };
-      stat.title = 'Average Daily Carbs';
       stat.type = statTypes.simple;
       break;
 
@@ -346,7 +399,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
       stat.dataFormat = {
         summary: statFormats.cv,
       };
-      stat.title = 'CV';
       stat.type = statTypes.simple;
       break;
 
@@ -354,7 +406,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
       stat.dataFormat = {
         summary: statFormats.gmi,
       };
-      stat.title = 'GMI';
       stat.type = statTypes.simple;
       break;
 
@@ -366,14 +417,12 @@ export const getStatDefinition = (data, type, opts = {}) => {
         tooltip: statFormats.percentage,
         tooltipTitle: statFormats.bgRange,
       };
-      stat.title = 'Readings In Range';
       break;
 
     case commonStats.sensorUsage:
       stat.dataFormat = {
         summary: statFormats.percentage,
       };
-      stat.title = 'Sensor Usage';
       stat.type = statTypes.simple;
       break;
 
@@ -383,7 +432,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
         summary: statFormats.standardDevValue,
         title: statFormats.standardDevRange,
       };
-      stat.title = 'Standard Deviation';
       stat.type = statTypes.barBg;
       break;
 
@@ -394,7 +442,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
         summary: statFormats.percentage,
         tooltip: statFormats.duration,
       };
-      stat.title = `Time In ${vocabulary[AUTOMATED_DELIVERY]}`;
       break;
 
     case commonStats.timeInRange:
@@ -405,7 +452,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
         tooltip: statFormats.duration,
         tooltipTitle: statFormats.bgRange,
       };
-      stat.title = 'Time In Range';
       break;
 
     case commonStats.totalInsulin:
@@ -416,7 +462,6 @@ export const getStatDefinition = (data, type, opts = {}) => {
         title: statFormats.units,
         tooltip: statFormats.units,
       };
-      stat.title = 'Total Insulin';
       break;
 
     default:
