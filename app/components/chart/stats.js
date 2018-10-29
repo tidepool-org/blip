@@ -36,6 +36,7 @@ class Stats extends Component {
       [commonStats.coefficientOfVariation]: 'getCoefficientOfVariationData',
       [commonStats.glucoseManagementIndicator]: 'getGlucoseManagementIndicatorData',
       [commonStats.readingsInRange]: 'getReadingsInRangeData',
+      [commonStats.sensorUsage]: 'getSensorUsage',
       [commonStats.standardDev]: 'getStandardDevData',
       [commonStats.timeInAuto]: 'getTimeInAutoData',
       [commonStats.timeInRange]: 'getTimeInRangeData',
@@ -127,6 +128,7 @@ class Stats extends Component {
 
     switch (chartType) {
       case 'basics':
+        cbgSelected && addStat(commonStats.sensorUsage);
         cbgSelected && addStat(commonStats.glucoseManagementIndicator);
         addStat(commonStats.averageGlucose);
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
@@ -139,6 +141,7 @@ class Stats extends Component {
         break;
 
       case 'daily':
+        cbgSelected && addStat(commonStats.sensorUsage);
         addStat(commonStats.averageGlucose);
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
         smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
@@ -156,6 +159,7 @@ class Stats extends Component {
         break;
 
       case 'trends':
+        cbgSelected && addStat(commonStats.sensorUsage);
         cbgSelected && addStat(commonStats.glucoseManagementIndicator);
         addStat(commonStats.averageGlucose);
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
