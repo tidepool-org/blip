@@ -24,10 +24,7 @@ export class DataUtil {
     this.bgBounds = reshapeBgClassesToBgBounds(opts.bgPrefs);
     this.timeZoneName = _.get(opts, 'timePrefs.timezoneName', 'UTC');
     this.bgUnits = _.get(opts, 'bgPrefs.bgUnits');
-    this.days = {
-      active: 0,
-      range: 0,
-    };
+    this.days = this.getDayCountFromEndpoints();
     this.dimension = {};
     this.filter = {};
     this.sort = {};
@@ -65,10 +62,7 @@ export class DataUtil {
     this.dimension.byDayOfWeek.filterAll();
 
     const daysInRange = this.getDayCountFromEndpoints();
-    this.days = {
-      active: daysInRange,
-      range: daysInRange,
-    };
+    this.days = daysInRange;
 
     if (this._chartPrefs.activeDays) {
       const activeDays = _.reduce(this._chartPrefs.activeDays, (result, active, day) => {
@@ -80,7 +74,7 @@ export class DataUtil {
 
       this.filter.byActiveDays(activeDays);
 
-      this.days.active = daysInRange / 7 * activeDays.length;
+      this.days = daysInRange / 7 * activeDays.length;
     }
   }
 
@@ -161,7 +155,7 @@ export class DataUtil {
       0
     );
 
-    return { averageDailyCarbs: totalCarbs / this.days.active };
+    return { averageDailyCarbs: totalCarbs / this.days };
   };
 
   getBgSources = () => ({
@@ -170,7 +164,7 @@ export class DataUtil {
   });
 
   getCoefficientOfVariationData = () => {
-    const { bgSource, averageGlucose, standardDeviation, total } = this.getStandardDevData();
+    const { averageGlucose, bgSource, standardDeviation, total } = this.getStandardDevData();
 
     return {
       bgSource,
@@ -179,12 +173,26 @@ export class DataUtil {
     };
   };
 
+  getDailyAverageSums = data => {
+    const clone = _.clone(data);
+
+    _.each(clone, (value, key) => {
+      if (key !== 'total') {
+        clone[key] = value / this.days;
+      }
+    });
+
+    return clone;
+  };
+
   getDailyAverageDurations = data => {
-    const clone = _.omit(data, ['total']);
+    const clone = _.clone(data);
     const total = data.total || _.sum(_.values(data));
 
     _.each(clone, (value, key) => {
-      clone[key] = (value / total) * MS_IN_DAY;
+      if (key !== 'total') {
+        clone[key] = (value / total) * MS_IN_DAY;
+      }
     });
 
     return clone;
@@ -265,8 +273,7 @@ export class DataUtil {
   getReadingsInRangeData = () => {
     this.applyDateFilters();
 
-    // TODO: move to bloodglucose util?
-    const smbgData = _.reduce(
+    let smbgData = _.reduce(
       this.filter.byType('smbg').top(Infinity),
       (result, datum) => {
         const classification = classifyBgValue(this.bgBounds, datum.value, 'fiveWay');
@@ -284,9 +291,14 @@ export class DataUtil {
       }
     );
 
+    if (this.days > 1) {
+      smbgData = this.getDailyAverageSums(smbgData);
+    }
+
     return {
       ...smbgData,
       bgSource: this.bgSource,
+      days: this.days,
     };
   };
 
@@ -303,7 +315,7 @@ export class DataUtil {
       0
     );
 
-    const total = this.days.active * MS_IN_DAY;
+    const total = this.days * MS_IN_DAY;
 
     return {
       sensorUsage: duration,
@@ -351,18 +363,20 @@ export class DataUtil {
       )
       : NaN;
 
-    if (this.days.range > 1 && !_.isNaN(durations)) {
+    if (this.days > 1 && !_.isNaN(durations)) {
       durations = this.getDailyAverageDurations(durations);
     }
 
-    return durations;
+    return {
+      ...durations,
+      days: this.days,
+    };
   };
 
   getTimeInRangeData = () => {
     this.applyDateFilters();
     const cbgData = this.filter.byType('cbg').top(Infinity);
 
-    // TODO: move to bloodglucose util?
     let durations = _.reduce(
       cbgData,
       (result, datum) => {
@@ -382,13 +396,14 @@ export class DataUtil {
       }
     );
 
-    if (this.days.range > 1) {
+    if (this.days > 1) {
       durations = this.getDailyAverageDurations(durations);
     }
 
     return {
       ...durations,
       bgSource: this.bgSource,
+      days: this.days,
     };
   };
 
@@ -406,12 +421,15 @@ export class DataUtil {
       totalBolus: bolusData.length ? getTotalBolus(bolusData) : NaN,
     };
 
-    if (this.days.range > 1) {
-      totalInsulin.totalBasal = totalInsulin.totalBasal / this.days.active;
-      totalInsulin.totalBolus = totalInsulin.totalBolus / this.days.active;
+    if (this.days > 1) {
+      totalInsulin.totalBasal = totalInsulin.totalBasal / this.days;
+      totalInsulin.totalBolus = totalInsulin.totalBolus / this.days;
     }
 
-    return totalInsulin;
+    return {
+      ...totalInsulin,
+      days: this.days,
+    };
   };
 }
 

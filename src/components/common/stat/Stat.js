@@ -568,6 +568,7 @@ class Stat extends PureComponent {
     switch (format) {
       case statFormats.bgCount:
         if (value < 0) disableStat();
+        value = +value.toFixed(1);
         break;
 
       case statFormats.bgRange:
