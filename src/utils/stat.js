@@ -34,6 +34,7 @@ export const commonStats = {
   coefficientOfVariation: 'coefficientOfVariation',
   glucoseManagementIndicator: 'glucoseManagementIndicator',
   readingsInRange: 'readingsInRange',
+  sensorUsage: 'sensorUsage',
   standardDev: 'standardDev',
   timeInAuto: 'timeInAuto',
   timeInRange: 'timeInRange',
@@ -49,16 +50,13 @@ export const translatePercentage = value => value / 100;
 export const getStatAnnotations = (data, type) => {
   const annotations = [];
 
-  if (data.bgSource) {
-    const annotation = data.bgSource === 'cbg'
-      ? `Based on _**${data.total}%**_ ${statBgSourceLabels.cbg} data availability for this view.`
-      : `Based on _**${data.total}**_ ${statBgSourceLabels.smbg} readings for this view.`;
-    annotations.push(annotation);
+  if (data.bgSource === 'smbg') {
+    annotations.push(`Based on _**${data.total}**_ ${statBgSourceLabels.smbg} readings for this view.`);
   }
 
   switch (type) {
     case commonStats.averageGlucose:
-      annotations.push('**Average Glucose (mean)** is all glucose values added together, divided by the number of readings.');
+      annotations.push('**Average Glucose (mean):** All glucose values added together, divided by the number of readings.');
       break;
 
     case commonStats.averageDailyCarbs:
@@ -66,19 +64,31 @@ export const getStatAnnotations = (data, type) => {
       break;
 
     case commonStats.coefficientOfVariation:
-      annotations.push('**CV (Coefficient of Variation)** is how far apart (wide) glucose values are; ideally a low number.');
+      annotations.push('**CV (Coefficient of Variation):** How far apart (wide) glucose values are; ideally a low number.');
       break;
 
     case commonStats.glucoseManagementIndicator:
-      annotations.push('**GMI (Glucose Management Indicator)** is calculated from average glucose; estimates your future lab A1c.');
+      annotations.push('**GMI (Glucose Management Indicator):** Calculated from average glucose; estimates your future lab A1c.');
+      break;
+
+    case commonStats.readingsInRange:
+      annotations.push(`**Readings In Range:** Daily average of the number of ${statBgSourceLabels.smbg} readings; grouped by range.`);
+      break;
+
+    case commonStats.sensorUsage:
+      annotations.push(`**Sensor Usage:** Time the ${statBgSourceLabels.cbg} collected data, divided by the total time represented in this view`);
       break;
 
     case commonStats.standardDev:
-      annotations.push('**SD (Standard Deviation)** is how far values are from the average; ideally a low number.');
+      annotations.push('**SD (Standard Deviation):** How far values are from the average; ideally a low number.');
       break;
 
     case commonStats.timeInAuto:
       annotations.push(`Based on ${data.total}% pump data availability for this view.`);
+      break;
+
+    case commonStats.timeInRange:
+      annotations.push(`**Time In Range:** Daily average of the number of ${statBgSourceLabels.cbg} readings; grouped by range.`);
       break;
 
     case commonStats.totalInsulin:
@@ -183,6 +193,18 @@ export const getStatData = (data, type, opts) => {
           'data',
           _.findIndex(statData.data, { id: 'target' }),
         ],
+      };
+      break;
+
+    case commonStats.sensorUsage:
+      statData.data = [
+        {
+          value: ensureNumeric(data.sensorUsage),
+        },
+      ];
+      statData.total = { value: ensureNumeric(data.total) };
+      statData.dataPaths = {
+        summary: 'data.0',
       };
       break;
 
@@ -345,6 +367,14 @@ export const getStatDefinition = (data, type, opts = {}) => {
         tooltipTitle: statFormats.bgRange,
       };
       stat.title = 'Readings In Range';
+      break;
+
+    case commonStats.sensorUsage:
+      stat.dataFormat = {
+        summary: statFormats.percentage,
+      };
+      stat.title = 'Sensor Usage';
+      stat.type = statTypes.simple;
       break;
 
     case commonStats.standardDev:

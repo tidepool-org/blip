@@ -24,6 +24,10 @@ export class DataUtil {
     this.bgBounds = reshapeBgClassesToBgBounds(opts.bgPrefs);
     this.timeZoneName = _.get(opts, 'timePrefs.timezoneName', 'UTC');
     this.bgUnits = _.get(opts, 'bgPrefs.bgUnits');
+    this.days = {
+      active: 0,
+      range: 0,
+    };
     this.dimension = {};
     this.filter = {};
     this.sort = {};
@@ -59,6 +63,13 @@ export class DataUtil {
     this.filter.byEndpoints(this._endpoints);
 
     this.dimension.byDayOfWeek.filterAll();
+
+    const daysInRange = this.getDayCountFromEndpoints();
+    this.days = {
+      active: daysInRange,
+      range: daysInRange,
+    };
+
     if (this._chartPrefs.activeDays) {
       const activeDays = _.reduce(this._chartPrefs.activeDays, (result, active, day) => {
         if (active) {
@@ -68,6 +79,8 @@ export class DataUtil {
       }, []);
 
       this.filter.byActiveDays(activeDays);
+
+      this.days.active = daysInRange / 7 * activeDays.length;
     }
   }
 
@@ -141,7 +154,6 @@ export class DataUtil {
     this.applyDateFilters();
 
     const wizardData = this.filter.byType('wizard').top(Infinity);
-    const days = this.getDayCountFromEndpoints();
 
     const totalCarbs = _.reduce(
       wizardData,
@@ -149,7 +161,7 @@ export class DataUtil {
       0
     );
 
-    return { averageDailyCarbs: totalCarbs / days };
+    return { averageDailyCarbs: totalCarbs / this.days.active };
   };
 
   getBgSources = () => ({
@@ -157,9 +169,19 @@ export class DataUtil {
     smbg: this.filter.byType('smbg').top(Infinity).length > 0,
   });
 
+  getCoefficientOfVariationData = () => {
+    const { bgSource, averageGlucose, standardDeviation, total } = this.getStandardDevData();
+
+    return {
+      bgSource,
+      coefficientOfVariation: standardDeviation / averageGlucose * 100,
+      total,
+    };
+  };
+
   getDailyAverageDurations = data => {
-    const clone = _.clone(data);
-    const total = _.sum(_.values(data));
+    const clone = _.omit(data, ['total']);
+    const total = data.total || _.sum(_.values(data));
 
     _.each(clone, (value, key) => {
       clone[key] = (value / total) * MS_IN_DAY;
@@ -176,16 +198,6 @@ export class DataUtil {
       source = 'smbg';
     }
     return source;
-  };
-
-  getCoefficientOfVariationData = () => {
-    const { bgSource, averageGlucose, standardDeviation, total } = this.getStandardDevData();
-
-    return {
-      bgSource,
-      coefficientOfVariation: standardDeviation / averageGlucose * 100,
-      total,
-    };
   };
 
   getDayCountFromEndpoints = () => moment.utc(this._endpoints[1])
@@ -227,7 +239,9 @@ export class DataUtil {
       };
     }
 
-    const meanInMGDL = this.bgUnits === MGDL_UNITS ? averageGlucose : averageGlucose * MGDL_PER_MMOLL;
+    const meanInMGDL = this.bgUnits === MGDL_UNITS
+      ? averageGlucose
+      : averageGlucose * MGDL_PER_MMOLL;
 
     const glucoseManagementIndicator = (3.31 + 0.02392 * meanInMGDL);
 
@@ -276,6 +290,27 @@ export class DataUtil {
     };
   };
 
+  getSensorUsage = () => {
+    this.applyDateFilters();
+    const cbgData = this.filter.byType('cbg').top(Infinity);
+
+    const duration = _.reduce(
+      cbgData,
+      (result, datum) => {
+        result += cgmSampleFrequency(datum);
+        return result;
+      },
+      0
+    );
+
+    const total = this.days.active * MS_IN_DAY;
+
+    return {
+      sensorUsage: duration,
+      total,
+    };
+  };
+
   getStandardDevData = () => {
     const { averageGlucose, bgData, bgSource, total } = this.getAverageGlucoseData(true);
 
@@ -305,9 +340,6 @@ export class DataUtil {
     let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity));
     basalData = this.applyBasalOverlappingStart(basalData);
 
-    const days = this.getDayCountFromEndpoints();
-    const returnDailyAverage = days > 1;
-
     let durations = basalData.length
       ? _.transform(
         getBasalGroupDurationsFromEndpoints(basalData, this._endpoints),
@@ -319,7 +351,7 @@ export class DataUtil {
       )
       : NaN;
 
-    if (returnDailyAverage && !_.isNaN(durations)) {
+    if (this.days.range > 1 && !_.isNaN(durations)) {
       durations = this.getDailyAverageDurations(durations);
     }
 
@@ -329,9 +361,6 @@ export class DataUtil {
   getTimeInRangeData = () => {
     this.applyDateFilters();
     const cbgData = this.filter.byType('cbg').top(Infinity);
-
-    const days = this.getDayCountFromEndpoints();
-    const returnDailyAverage = days > 1;
 
     // TODO: move to bloodglucose util?
     let durations = _.reduce(
@@ -353,7 +382,7 @@ export class DataUtil {
       }
     );
 
-    if (returnDailyAverage) {
+    if (this.days.range > 1) {
       durations = this.getDailyAverageDurations(durations);
     }
 
@@ -366,9 +395,6 @@ export class DataUtil {
   getTotalInsulinData = () => {
     this.applyDateFilters();
 
-    const days = this.getDayCountFromEndpoints();
-    const returnDailyAverage = days > 1;
-
     const bolusData = this.filter.byType('bolus').top(Infinity);
     let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity).reverse());
     basalData = this.applyBasalOverlappingStart(basalData);
@@ -380,9 +406,9 @@ export class DataUtil {
       totalBolus: bolusData.length ? getTotalBolus(bolusData) : NaN,
     };
 
-    if (returnDailyAverage) {
-      totalInsulin.totalBasal = totalInsulin.totalBasal / days;
-      totalInsulin.totalBolus = totalInsulin.totalBolus / days;
+    if (this.days.range > 1) {
+      totalInsulin.totalBasal = totalInsulin.totalBasal / this.days.active;
+      totalInsulin.totalBolus = totalInsulin.totalBolus / this.days.active;
     }
 
     return totalInsulin;
