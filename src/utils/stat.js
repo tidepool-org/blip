@@ -1,5 +1,6 @@
 import _ from 'lodash';
 
+import { generateBgRangeLabels } from './bloodglucose';
 import { AUTOMATED_DELIVERY, SCHEDULED_DELIVERY } from './constants';
 import { getPumpVocabulary } from './device';
 
@@ -62,10 +63,9 @@ export const getStatAnnotations = (data, type, opts = {}) => {
   ];
 
   if (_.includes(bgStats, type)) {
-    annotations.push(bgSource === 'smbg'
-      ? `Based on _**${data.total}**_ ${statBgSourceLabels.smbg} readings for this view.`
-      : `Based on _**${data.total}**_ ${statBgSourceLabels.cbg} readings for this view.`
-    );
+    if (bgSource === 'smbg') {
+      annotations.push(`Based on _**${data.total}**_ ${statBgSourceLabels.smbg} readings for this view.`);
+    }
   }
 
   switch (type) {
@@ -86,7 +86,7 @@ export const getStatAnnotations = (data, type, opts = {}) => {
       break;
 
     case commonStats.readingsInRange:
-      annotations.push(`**Readings In Range:** Daily average of the number of ${statBgSourceLabels.smbg} readings; grouped by range.`);
+      annotations.push(`**Readings In Range:** Daily average of the number of ${statBgSourceLabels.smbg} readings.`);
       break;
 
     case commonStats.sensorUsage:
@@ -102,7 +102,8 @@ export const getStatAnnotations = (data, type, opts = {}) => {
       break;
 
     case commonStats.timeInRange:
-      annotations.push(`**Time In Range:** Daily average of the number of ${statBgSourceLabels.cbg} readings; grouped by range.`);
+      annotations.push(`**Time In Range:**\n\nDaily average of the number of ${statBgSourceLabels.cbg} readings.`);
+      annotations.push('**How we calculate this:**\n\n**(%)** Number of readings in range for this time period, divided by all readings for this time period.\n\n**(time)** 24 hours x % in range.');
       break;
 
     case commonStats.totalInsulin:
@@ -118,6 +119,7 @@ export const getStatAnnotations = (data, type, opts = {}) => {
 
 export const getStatData = (data, type, opts = {}) => {
   const vocabulary = getPumpVocabulary(opts.manufacturer);
+  const bgRanges = generateBgRangeLabels(opts.bgPrefs, { condensed: true });
 
   let statData = {};
 
@@ -178,31 +180,31 @@ export const getStatData = (data, type, opts = {}) => {
           id: 'veryLow',
           value: ensureNumeric(data.veryLow),
           title: 'Readings Below Range',
-          legendTitle: 'Very Low',
+          legendTitle: bgRanges.veryLow,
         },
         {
           id: 'low',
           value: ensureNumeric(data.low),
           title: 'Readings Below Range',
-          legendTitle: 'Low',
+          legendTitle: bgRanges.low,
         },
         {
           id: 'target',
           value: ensureNumeric(data.target),
           title: 'Readings In Range',
-          legendTitle: 'Target',
+          legendTitle: bgRanges.target,
         },
         {
           id: 'high',
           value: ensureNumeric(data.high),
           title: 'Readings Above Range',
-          legendTitle: 'High',
+          legendTitle: bgRanges.high,
         },
         {
           id: 'veryHigh',
           value: ensureNumeric(data.veryHigh),
           title: 'Readings Above Range',
-          legendTitle: 'Very High',
+          legendTitle: bgRanges.veryHigh,
         },
       ];
 
@@ -274,31 +276,31 @@ export const getStatData = (data, type, opts = {}) => {
           id: 'veryLow',
           value: ensureNumeric(data.veryLow),
           title: 'Time Below Range',
-          legendTitle: 'Very Low',
+          legendTitle: bgRanges.veryLow,
         },
         {
           id: 'low',
           value: ensureNumeric(data.low),
           title: 'Time Below Range',
-          legendTitle: 'Low',
+          legendTitle: bgRanges.low,
         },
         {
           id: 'target',
           value: ensureNumeric(data.target),
           title: 'Time In Range',
-          legendTitle: 'Target',
+          legendTitle: bgRanges.target,
         },
         {
           id: 'high',
           value: ensureNumeric(data.high),
           title: 'Time Above Range',
-          legendTitle: 'High',
+          legendTitle: bgRanges.high,
         },
         {
           id: 'veryHigh',
           value: ensureNumeric(data.veryHigh),
           title: 'Time Above Range',
-          legendTitle: 'Very High',
+          legendTitle: bgRanges.veryHigh,
         },
       ];
 
@@ -400,6 +402,7 @@ export const getStatTitle = (type, opts = {}) => {
 export const getStatDefinition = (data, type, opts = {}) => {
   let stat = {
     annotations: getStatAnnotations(data, type, opts),
+    collapsible: false,
     data: getStatData(data, type, opts),
     id: type,
     title: getStatTitle(type, opts),
