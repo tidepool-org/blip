@@ -211,11 +211,18 @@ class Stat extends PureComponent {
     </div>
   );
 
-  renderChartLegend = () => (
-    <div className={styles.chartLegend}>
-      <StatLegend items={this.props.data.data.reverse()} />
-    </div>
-  );
+  renderChartLegend = () => {
+    const items = _.map(
+      this.props.data.data,
+      datum => _.pick(datum, ['id', 'legendTitle'])
+    ).reverse();
+
+    return (
+      <div className={styles.chartLegend}>
+        <StatLegend items={items} />
+      </div>
+    );
+  };
 
   renderChart = size => {
     const { renderer: Renderer, ...chartProps } = this.chartProps;
