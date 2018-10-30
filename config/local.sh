@@ -3,3 +3,4 @@ export I18N_ENABLED=false
 export ALLOW_CHANGE_EMAIL=true
 export ALLOW_CHANGE_PASSWORD=true
 export HIDE_UPLOAD_LINK=false
+export SERVICE_NAME='blip'
