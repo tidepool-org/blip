@@ -10587,9 +10587,9 @@ victory-axis@^30.3.1:
     prop-types "^15.5.8"
     victory-core "^30.3.1"
 
-victory-bar@^30.3.1:
-  version "30.3.1"
-  resolved "https://registry.yarnpkg.com/victory-bar/-/victory-bar-30.3.1.tgz#96808e6216f40a9de10d8756185d55a3ed1c3dab"
+victory-bar@^30.6.0:
+  version "30.6.0"
+  resolved "https://registry.yarnpkg.com/victory-bar/-/victory-bar-30.6.0.tgz#b90c44f13fbc0d3b2b07d5db3c7e44257b99bbe9"
   dependencies:
     d3-shape "^1.2.0"
     lodash "^4.17.5"
@@ -10605,9 +10605,9 @@ victory-box-plot@^30.3.1:
     prop-types "^15.5.8"
     victory-core "^30.3.1"
 
-victory-brush-container@^30.3.1:
-  version "30.3.1"
-  resolved "https://registry.yarnpkg.com/victory-brush-container/-/victory-brush-container-30.3.1.tgz#12270ff9523ff1af60aa99d081ee097f8f053c75"
+victory-brush-container@^30.5.0:
+  version "30.5.0"
+  resolved "https://registry.yarnpkg.com/victory-brush-container/-/victory-brush-container-30.5.0.tgz#d0bb1f59ebb3124d24b26ecf45ceab0d663a236c"
   dependencies:
     lodash "^4.17.5"
     prop-types "^15.5.8"
@@ -10654,21 +10654,21 @@ victory-core@^30.3.1:
     prop-types "^15.5.8"
     react-fast-compare "^2.0.0"
 
-victory-create-container@^30.3.1:
-  version "30.3.1"
-  resolved "https://registry.yarnpkg.com/victory-create-container/-/victory-create-container-30.3.1.tgz#6bb7c2ebab415db3ef031e1ea761a3beaad961ba"
+victory-create-container@^30.5.1:
+  version "30.5.1"
+  resolved "https://registry.yarnpkg.com/victory-create-container/-/victory-create-container-30.5.1.tgz#516c34333945874b489b00c50b0fe11f1f75edfc"
   dependencies:
     lodash "^4.17.5"
-    victory-brush-container "^30.3.1"
+    victory-brush-container "^30.5.0"
     victory-core "^30.3.1"
-    victory-cursor-container "^30.3.1"
+    victory-cursor-container "^30.5.1"
     victory-selection-container "^30.3.1"
     victory-voronoi-container "^30.3.1"
     victory-zoom-container "^30.3.1"
 
-victory-cursor-container@^30.3.1:
-  version "30.3.1"
-  resolved "https://registry.yarnpkg.com/victory-cursor-container/-/victory-cursor-container-30.3.1.tgz#833fd2a35f16db030fe1093ff258b045154d8ce9"
+victory-cursor-container@^30.5.1:
+  version "30.5.1"
+  resolved "https://registry.yarnpkg.com/victory-cursor-container/-/victory-cursor-container-30.5.1.tgz#134219d1843a3133379446baa33d5dce3612e028"
   dependencies:
     lodash "^4.17.5"
     prop-types "^15.5.8"
@@ -10698,18 +10698,18 @@ victory-legend@^30.3.1:
     prop-types "^15.5.8"
     victory-core "^30.3.1"
 
-victory-line@^30.3.1:
-  version "30.3.1"
-  resolved "https://registry.yarnpkg.com/victory-line/-/victory-line-30.3.1.tgz#7e4cf7617dd7f2070686d92efc2e7873934b5447"
+victory-line@^30.5.0:
+  version "30.5.0"
+  resolved "https://registry.yarnpkg.com/victory-line/-/victory-line-30.5.0.tgz#726c59ceaacedfc95c9e83c0ba7d7d42b65fec67"
   dependencies:
     d3-shape "^1.2.0"
     lodash "^4.17.5"
     prop-types "^15.5.8"
     victory-core "^30.3.1"
 
-victory-pie@^30.3.1:
-  version "30.3.1"
-  resolved "https://registry.yarnpkg.com/victory-pie/-/victory-pie-30.3.1.tgz#526005fc312eae84c29e53c44c18ef949e8f6c04"
+victory-pie@^30.5.1:
+  version "30.5.1"
+  resolved "https://registry.yarnpkg.com/victory-pie/-/victory-pie-30.5.1.tgz#f2053459dd8e7073a3ade6c16de1237a025fd3ad"
   dependencies:
     d3-shape "^1.0.0"
     lodash "^4.17.5"
@@ -10791,26 +10791,26 @@ victory-zoom-container@^30.3.1:
     prop-types "^15.5.8"
     victory-core "^30.3.1"
 
-victory@30.3.1:
-  version "30.3.1"
-  resolved "https://registry.yarnpkg.com/victory/-/victory-30.3.1.tgz#dd1903aa309fa511d5f9a397a16fc7a42a15591c"
+victory@30.6.0:
+  version "30.6.0"
+  resolved "https://registry.yarnpkg.com/victory/-/victory-30.6.0.tgz#a8441b7d3b748e3dc039f37ff67aa68f9cf3eda5"
   dependencies:
     victory-area "^30.3.1"
     victory-axis "^30.3.1"
-    victory-bar "^30.3.1"
+    victory-bar "^30.6.0"
     victory-box-plot "^30.3.1"
-    victory-brush-container "^30.3.1"
+    victory-brush-container "^30.5.0"
     victory-brush-line "^30.3.1"
     victory-candlestick "^30.3.1"
     victory-chart "^30.3.1"
     victory-core "^30.3.1"
-    victory-create-container "^30.3.1"
-    victory-cursor-container "^30.3.1"
+    victory-create-container "^30.5.1"
+    victory-cursor-container "^30.5.1"
     victory-errorbar "^30.3.1"
     victory-group "^30.3.1"
     victory-legend "^30.3.1"
-    victory-line "^30.3.1"
-    victory-pie "^30.3.1"
+    victory-line "^30.5.0"
+    victory-pie "^30.5.1"
     victory-polar-axis "^30.3.1"
     victory-scatter "^30.3.1"
     victory-selection-container "^30.3.1"

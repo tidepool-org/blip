@@ -141,13 +141,15 @@ let timeInRangeData = {
   data: [
     {
       id: 'veryLow',
-      value: convertPercentageToDayDuration(0),
+      // value: convertPercentageToDayDuration(0.0004),
+      value: convertPercentageToDayDuration(0.004),
       title: 'Time Below Range',
       legendTitle: 'Very Low',
     },
     {
       id: 'low',
-      value: convertPercentageToDayDuration(0.04),
+      // value: convertPercentageToDayDuration(0.0396),
+      value: convertPercentageToDayDuration(0.036),
       title: 'Time Below Range',
       legendTitle: 'Low',
     },

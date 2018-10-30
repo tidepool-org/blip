@@ -348,7 +348,7 @@ class Stat extends PureComponent {
         _.assign(this.chartProps, {
           alignment: 'middle',
           containerComponent: <VictoryContainer responsive={false} />,
-          cornerRadius: { top: 2, bottom: 2 },
+          cornerRadius: { topLeft: 2, bottomLeft: 2, topRight: 2, bottomRight: 2 },
           data: _.map(data.data, (d, i) => ({
             x: i + 1,
             y: d.value,
@@ -434,7 +434,7 @@ class Stat extends PureComponent {
         _.assign(this.chartProps, {
           alignment: 'middle',
           containerComponent: <VictoryContainer responsive={false} />,
-          cornerRadius: { top: 2, bottom: 2 },
+          cornerRadius: { topLeft: 2, bottomLeft: 2, topRight: 2, bottomRight: 2 },
           dataComponent: (
             <HoverBar
               domain={domain}
@@ -645,7 +645,14 @@ class Stat extends PureComponent {
 
       case statFormats.percentage:
         if (total && total >= 0) {
-          value = formatPercentage(value / total);
+          const percentage = value / total;
+          let precision = 0;
+          // We want to show extra precision on very small percentages so that we avoid showing 0%
+          // when there is some data there.
+          if (percentage > 0 && percentage < 0.005) {
+            precision = percentage < 0.0005 ? 2 : 1;
+          }
+          value = formatPercentage(percentage, precision);
         } else {
           disableStat();
         }
