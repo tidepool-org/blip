@@ -410,14 +410,14 @@ class Stat extends PureComponent {
         break;
 
       case 'barHorizontal':
-        barSpacing = 4;
+        barSpacing = 6;
         height = this.chartProps.height;
 
         if (height > 0) {
           barWidth = ((height - barSpacing) / props.data.data.length) - (barSpacing / 2);
           chartLabelWidth = barWidth * 2.25;
         } else {
-          barWidth = 24;
+          barWidth = 30;
           height = (barWidth + barSpacing) * props.data.data.length;
         }
 
