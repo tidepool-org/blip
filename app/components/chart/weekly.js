@@ -199,7 +199,7 @@ var Weekly = translate()(React.createClass({
 
   render: function() {
     return (
-      <div id="tidelineMain">
+      <div id="tidelineMain" className="weekly">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">

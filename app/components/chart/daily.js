@@ -219,7 +219,7 @@ var Daily = translate()(React.createClass({
 
   render: function() {
     return (
-      <div id="tidelineMain">
+      <div id="tidelineMain" className="daily">
         <Header
           chartType={this.chartType}
           patient={this.props.patient}

@@ -126,6 +126,8 @@ class Stats extends Component {
 
     const addStat = statType => {
       stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[statType]](), statType, {
+        bgSource,
+        days: dataUtil.days,
         manufacturer,
       }));
     };
@@ -136,16 +138,16 @@ class Stats extends Component {
 
     switch (chartType) {
       case 'basics':
-        cbgSelected && addStat(commonStats.sensorUsage);
-        cbgSelected && addStat(commonStats.glucoseManagementIndicator);
-        addStat(commonStats.averageGlucose);
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
         smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
-        addStat(commonStats.standardDev);
-        addStat(commonStats.coefficientOfVariation);
-        addStat(commonStats.averageDailyCarbs);
-        isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
+        cbgSelected && addStat(commonStats.sensorUsage);
+        addStat(commonStats.averageGlucose);
         addStat(commonStats.totalInsulin);
+        isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
+        // addStat(commonStats.standardDev);
+        // addStat(commonStats.coefficientOfVariation);
+        cbgSelected && addStat(commonStats.glucoseManagementIndicator);
+        addStat(commonStats.averageDailyCarbs);
         break;
 
       case 'daily':
@@ -190,17 +192,20 @@ class Stats extends Component {
   };
 
   updateStatData = props => {
-    const { dataUtil } = props;
+    const { bgSource, dataUtil } = props;
     const stats = this.state.stats;
 
     _.each(stats, (stat, i) => {
       const data = dataUtil[this.dataFetchMethods[stat.id]]();
       const opts = {
+        bgSource: bgSource,
+        days: dataUtil.days,
         manufacturer: dataUtil.latestPump.manufacturer,
       };
+
       stats[i].data = getStatData(data, stat.id, opts);
-      stats[i].annotations = getStatAnnotations(data, stat.id);
-      stats[i].title = getStatTitle(data, stat.id, opts);
+      stats[i].annotations = getStatAnnotations(data, stat.id, opts);
+      stats[i].title = getStatTitle(stat.id, opts);
     });
 
     this.setState(stats);

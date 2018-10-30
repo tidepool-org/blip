@@ -357,7 +357,7 @@ const Trends = translate()(class Trends extends PureComponent {
   render() {
     const { currentPatientInViewId } = this.props;
     return (
-      <div id="tidelineMain" className="grid">
+      <div id="tidelineMain" className="trends grid">
         {this.renderHeader()}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
