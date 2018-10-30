@@ -35,7 +35,7 @@ After cloning this repository to your local machine, first make sure that you ha
 
 It's not an absolute requirement, but it is preferable to have [Yarn](https://yarnpkg.com 'Yarn') installed, as it provides dependency management features above and beyond what npm provides. Just follow [Yarn's installation instructions](https://yarnpkg.com/en/docs/install 'Yarn installation instructions') (hint: for Mac users with Homebrew installed, it's just `brew install yarn`).
 
-Once your environment is setup with node `6.x` and npm `3.x` install the dependencies with Yarn:
+Once your environment is setup with node `6.x` and npm `4.x` install the dependencies with Yarn:
 
 ```bash
 $ yarn install

@@ -111,49 +111,32 @@ describe('PatientData', function () {
         loader = () => wrapper.find(Loader);
       });
 
-      it('should render the loading message and image when fetchingPatient is true', function() {
+      it('should render the loading message and image with default default props set', function() {
         expect(loader().length).to.equal(1);
-        expect(loader().props().show).to.be.false;
-
-        wrapper.setProps({ fetchingPatient: true });
         expect(loader().props().show).to.be.true;
       });
 
-      it('should render the loading message and image when fetchingPatientData is true', function() {
+      it('should stop rendering the loading message and image when initialProcessing and missingPatientData are false', function() {
         expect(loader().length).to.equal(1);
+        expect(loader().props().show).to.be.true;
+
+        // Set initialProcessing to false - should hide loader
+        wrapper.setState({lastDatumProcessedIndex: 1});
         expect(loader().props().show).to.be.false;
 
-        wrapper.setProps({ fetchingPatientData: true });
+        // Set initialProcessing back to true - should show loader
+        wrapper.setState({lastDatumProcessedIndex: -1});
         expect(loader().props().show).to.be.true;
-      });
 
-      it('should render the loading message and image when both fetchingPatient and fetchingPatientData are true', function() {
-        expect(loader().length).to.equal(1);
+        // Set loadedPatientData to true - should hide loader
+        wrapper.setProps({ patientDataMap: {
+          [defaultProps.currentPatientInViewId]: ['some data'],
+        }});
         expect(loader().props().show).to.be.false;
 
-        wrapper.setProps({
-          fetchingPatient: true,
-          fetchingPatientData: true,
-        });
-        expect(loader().props().show).to.be.true;
-      });
-
-      it('should still render the loading message and image when fetching is done but data is being processed', function() {
-        var props = {
-          fetchingPatient: false,
-          fetchingPatientData: false,
-        };
-
-        var state = {
-          processingData: true,
-        };
-
-        expect(loader().length).to.equal(1);
+        // Set initialProcessing to false, so both are false - should hide loader
+        wrapper.setState({lastDatumProcessedIndex: -1});
         expect(loader().props().show).to.be.false;
-
-        wrapper.setProps(props);
-        wrapper.setState(state);
-        expect(loader().props().show).to.be.true;
       });
 
       // this is THE REGRESSION TEST for the "data mismatch" bug
@@ -179,25 +162,6 @@ describe('PatientData', function () {
         });
 
         expect(loader().props().show).to.be.true;
-      });
-
-      it('should NOT render the loading message and image when fetching is done and data is processed', function() {
-        var props = {
-          fetchingPatient: false,
-          fetchingPatientData: true,
-        };
-
-        wrapper.setProps(props);
-
-        expect(loader().length).to.equal(1);
-        expect(loader().props().show).to.be.true;
-
-        var props = {
-          fetchingPatientData: false,
-        };
-        wrapper.setProps(props);
-
-        expect(loader().props().show).to.be.false;
       });
 
       it('should only render the initial loading view when the initial data is being fetched', () => {
