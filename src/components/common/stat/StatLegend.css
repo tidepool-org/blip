@@ -1,0 +1,25 @@
+.StatLegend {
+  position: relative;
+  list-style: none;
+  font-size: .7em;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.StatLegendItem {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.StatLegendIndicator {
+  display: inline-block;
+  width: .75em;
+  height: .75em;
+}
+
+.StatLegendTitle {
+  padding: 0 1em 0 .35em;
+  white-space: nowrap;
+}

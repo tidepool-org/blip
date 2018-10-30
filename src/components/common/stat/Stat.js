@@ -35,6 +35,7 @@ import { bgPrefsPropType } from '../../../propTypes';
 import HoverBar, { HoverBarLabel } from './HoverBar';
 import BgBar, { BgBarLabel } from './BgBar';
 import StatTooltip from '../tooltips/StatTooltip';
+import StatLegend from './StatLegend';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
 import MGDLIcon from './assets/mgdl-inv-24-px.svg';
@@ -204,6 +205,18 @@ class Stat extends PureComponent {
     </div>
   );
 
+  renderChartFooter = () => (
+    <div className={styles.chartFooter}>
+      {this.chartProps.legend && this.renderChartLegend()}
+    </div>
+  );
+
+  renderChartLegend = () => (
+    <div className={styles.chartLegend}>
+      <StatLegend items={this.props.data.data.reverse()} />
+    </div>
+  );
+
   renderChart = size => {
     const { renderer: Renderer, ...chartProps } = this.chartProps;
 
@@ -242,6 +255,7 @@ class Stat extends PureComponent {
         <div ref={this.setStatRef} className={statClasses}>
           {this.renderChartHeader()}
           {this.chartProps.renderer && <SizeMe render={({ size }) => (this.renderChart(size))} />}
+          {this.renderChartFooter()}
         </div>
         {this.state.showMessages && this.renderTooltip()}
       </div>
@@ -479,6 +493,7 @@ class Stat extends PureComponent {
               }}
             />
           ),
+          legend: true,
           padding,
           renderer: VictoryBar,
           style: {
@@ -702,7 +717,11 @@ class Stat extends PureComponent {
 
   handleTooltipIconMouseOver = () => {
     const { top, left, width, height } = this.tooltipIcon.getBoundingClientRect();
-    const { top: parentTop, left: parentLeft, height: parentHeight } = this.stat.getBoundingClientRect();
+    const {
+      top: parentTop,
+      left: parentLeft,
+      height: parentHeight,
+    } = this.stat.getBoundingClientRect();
 
     const position = {
       top: (top - parentTop) + height / 2,

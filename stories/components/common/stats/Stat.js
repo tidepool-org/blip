@@ -143,26 +143,31 @@ let timeInRangeData = {
       id: 'veryLow',
       value: convertPercentageToDayDuration(0),
       title: 'Time Below Range',
+      legendTitle: 'Very Low',
     },
     {
       id: 'low',
       value: convertPercentageToDayDuration(0.04),
       title: 'Time Below Range',
+      legendTitle: 'Low',
     },
     {
       id: 'target',
       value: convertPercentageToDayDuration(0.7),
       title: 'Time In Range',
+      legendTitle: 'Target',
     },
     {
       id: 'high',
       value: convertPercentageToDayDuration(0.16),
       title: 'Time Above Range',
+      legendTitle: 'High',
     },
     {
       id: 'veryHigh',
       value: convertPercentageToDayDuration(0.1),
       title: 'Time Above Range',
+      legendTitle: 'Very High',
     },
   ],
 };
@@ -223,26 +228,31 @@ let readingsInRangeData = {
       id: 'veryLow',
       value: 0,
       title: 'Readings Below Range',
+      legendTitle: 'Very Low',
     },
     {
       id: 'low',
       value: 1,
       title: 'Readings Below Range',
+      legendTitle: 'Low',
     },
     {
       id: 'target',
       value: 3,
       title: 'Readings In Range',
+      legendTitle: 'Target',
     },
     {
       id: 'high',
       value: 2,
       title: 'Readings Above Range',
+      legendTitle: 'High',
     },
     {
       id: 'veryHigh',
       value: 1,
       title: 'Readings Above Range',
+      legendTitle: 'Very High',
     },
   ],
 };
@@ -304,12 +314,14 @@ let timeInAutoData = {
       // value: convertPercentageToDayDuration(0.3),
       value: convertPercentageToDayDuration(0),
       title: 'Time In Manual Mode',
+      legendTitle: 'Manual Mode',
     },
     {
       id: 'basalAutomated',
       // value: convertPercentageToDayDuration(0.7),
       value: convertPercentageToDayDuration(1),
       title: 'Time In Auto Mode',
+      legendTitle: 'Auto Mode',
     },
   ],
 };
@@ -363,16 +375,18 @@ stories.add('Time In Auto', () => {
 let totalInsulinData = {
   data: [
     {
-      id: 'basal',
-      // value: 62.9,
-      value: 0,
-      title: 'Basal Insulin',
-    },
-    {
       id: 'bolus',
       value: 49.5,
       // value: 0,
       title: 'Bolus Insulin',
+      legendTitle: 'Bolus',
+    },
+    {
+      id: 'basal',
+      // value: 62.9,
+      value: 0,
+      title: 'Basal Insulin',
+      legendTitle: 'Basal',
     },
   ],
 };

@@ -47,11 +47,25 @@ export const ensureNumeric = value => (_.isNaN(value) ? -1 : parseFloat(value));
 
 export const translatePercentage = value => value / 100;
 
-export const getStatAnnotations = (data, type) => {
+export const getStatAnnotations = (data, type, opts = {}) => {
+  const { bgSource } = opts;
+
   const annotations = [];
 
-  if (data.bgSource === 'smbg') {
-    annotations.push(`Based on _**${data.total}**_ ${statBgSourceLabels.smbg} readings for this view.`);
+  const bgStats = [
+    commonStats.averageGlucose,
+    commonStats.coefficientOfVariation,
+    commonStats.glucoseManagementIndicator,
+    commonStats.readingsInRange,
+    commonStats.timeInRange,
+    commonStats.standardDev,
+  ];
+
+  if (_.includes(bgStats, type)) {
+    annotations.push(bgSource === 'smbg'
+      ? `Based on _**${data.total}**_ ${statBgSourceLabels.smbg} readings for this view.`
+      : `Based on _**${data.total}**_ ${statBgSourceLabels.cbg} readings for this view.`
+    );
   }
 
   switch (type) {
@@ -102,7 +116,7 @@ export const getStatAnnotations = (data, type) => {
   return annotations;
 };
 
-export const getStatData = (data, type, opts) => {
+export const getStatData = (data, type, opts = {}) => {
   const vocabulary = getPumpVocabulary(opts.manufacturer);
 
   let statData = {};
@@ -164,26 +178,31 @@ export const getStatData = (data, type, opts) => {
           id: 'veryLow',
           value: ensureNumeric(data.veryLow),
           title: 'Readings Below Range',
+          legendTitle: 'Very Low',
         },
         {
           id: 'low',
           value: ensureNumeric(data.low),
           title: 'Readings Below Range',
+          legendTitle: 'Low',
         },
         {
           id: 'target',
           value: ensureNumeric(data.target),
           title: 'Readings In Range',
+          legendTitle: 'Target',
         },
         {
           id: 'high',
           value: ensureNumeric(data.high),
           title: 'Readings Above Range',
+          legendTitle: 'High',
         },
         {
           id: 'veryHigh',
           value: ensureNumeric(data.veryHigh),
           title: 'Readings Above Range',
+          legendTitle: 'Very High',
         },
       ];
 
@@ -230,11 +249,13 @@ export const getStatData = (data, type, opts) => {
           id: 'basalAutomated',
           value: ensureNumeric(data.automated),
           title: `Time In ${vocabulary[AUTOMATED_DELIVERY]}`,
+          legendTitle: vocabulary[AUTOMATED_DELIVERY],
         },
         {
           id: 'basal',
           value: ensureNumeric(data.manual),
           title: `Time In ${vocabulary[SCHEDULED_DELIVERY]}`,
+          legendTitle: vocabulary[SCHEDULED_DELIVERY],
         },
       ];
 
@@ -253,26 +274,31 @@ export const getStatData = (data, type, opts) => {
           id: 'veryLow',
           value: ensureNumeric(data.veryLow),
           title: 'Time Below Range',
+          legendTitle: 'Very Low',
         },
         {
           id: 'low',
           value: ensureNumeric(data.low),
           title: 'Time Below Range',
+          legendTitle: 'Low',
         },
         {
           id: 'target',
           value: ensureNumeric(data.target),
           title: 'Time In Range',
+          legendTitle: 'Target',
         },
         {
           id: 'high',
           value: ensureNumeric(data.high),
           title: 'Time Above Range',
+          legendTitle: 'High',
         },
         {
           id: 'veryHigh',
           value: ensureNumeric(data.veryHigh),
           title: 'Time Above Range',
+          legendTitle: 'Very High',
         },
       ];
 
@@ -291,11 +317,13 @@ export const getStatData = (data, type, opts) => {
           id: 'bolus',
           value: ensureNumeric(data.totalBolus),
           title: 'Bolus Insulin',
+          legendTitle: 'Bolus',
         },
         {
           id: 'basal',
           value: ensureNumeric(data.totalBasal),
           title: 'Basal Insulin',
+          legendTitle: 'Basal',
         },
       ];
 
@@ -314,14 +342,15 @@ export const getStatData = (data, type, opts) => {
   return statData;
 };
 
-export const getStatTitle = (data, type, opts) => {
+export const getStatTitle = (type, opts = {}) => {
+  const { bgSource, days } = opts;
   const vocabulary = getPumpVocabulary(opts.manufacturer);
 
   let title;
 
   switch (type) {
     case commonStats.averageGlucose:
-      title = `Average Glucose (${statBgSourceLabels[data.bgSource]})`;
+      title = `Average Glucose (${statBgSourceLabels[bgSource]})`;
       break;
 
     case commonStats.averageDailyCarbs:
@@ -337,7 +366,7 @@ export const getStatTitle = (data, type, opts) => {
       break;
 
     case commonStats.readingsInRange:
-      title = `${data.days > 1 ? 'Daily ' : ''}Readings In Range`;
+      title = `${days > 1 ? 'Avg. Daily ' : ''}Readings In Range`;
       break;
 
     case commonStats.sensorUsage:
@@ -349,15 +378,15 @@ export const getStatTitle = (data, type, opts) => {
       break;
 
     case commonStats.timeInAuto:
-      title = `${data.days > 1 ? 'Daily ' : ''}Time In ${vocabulary[AUTOMATED_DELIVERY]}`;
+      title = `${days > 1 ? 'Avg. Daily ' : ''}Time In ${vocabulary[AUTOMATED_DELIVERY]}`;
       break;
 
     case commonStats.timeInRange:
-      title = `${data.days > 1 ? 'Daily ' : ''}Time In Range`;
+      title = `${days > 1 ? 'Avg. Daily ' : ''}Time In Range`;
       break;
 
     case commonStats.totalInsulin:
-      title = `${data.days > 1 ? 'Daily ' : ''}Total Insulin`;
+      title = `${days > 1 ? 'Avg. Daily ' : ''}Total Insulin`;
       break;
 
     default:
@@ -369,13 +398,11 @@ export const getStatTitle = (data, type, opts) => {
 };
 
 export const getStatDefinition = (data, type, opts = {}) => {
-  const vocabulary = getPumpVocabulary(opts.manufacturer);
-
   let stat = {
-    annotations: getStatAnnotations(data, type),
+    annotations: getStatAnnotations(data, type, opts),
     data: getStatData(data, type, opts),
     id: type,
-    title: getStatTitle(data, type, opts),
+    title: getStatTitle(type, opts),
     type: statTypes.barHorizontal,
   };
 

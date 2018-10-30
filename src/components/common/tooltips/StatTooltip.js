@@ -23,6 +23,39 @@ import colors from '../../../styles/colors.css';
 import styles from './StatTooltip.css';
 
 class StatTooltip extends PureComponent {
+  static propTypes = {
+    annotations: PropTypes.arrayOf(PropTypes.string),
+    position: PropTypes.shape({
+      top: PropTypes.number.isRequired,
+      left: PropTypes.number.isRequired,
+    }).isRequired,
+    offset: PropTypes.shape({
+      top: PropTypes.number.isRequired,
+      left: PropTypes.number,
+      horizontal: PropTypes.number,
+    }),
+    titls: PropTypes.node,
+    tail: PropTypes.bool.isRequired,
+    side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+    tailColor: PropTypes.string.isRequired,
+    tailWidth: PropTypes.number.isRequired,
+    tailHeight: PropTypes.number.isRequired,
+    backgroundColor: PropTypes.string,
+    borderColor: PropTypes.string.isRequired,
+    borderWidth: PropTypes.number.isRequired,
+  };
+
+  static defaultProps = {
+    annotations: [],
+    tail: true,
+    side: 'right',
+    tailWidth: 9,
+    tailHeight: 17,
+    tailColor: colors.statDefault,
+    borderColor: colors.statDefault,
+    borderWidth: 2,
+  };
+
   renderMessages() {
     const annotations = this.props.annotations;
     const rows = [];
@@ -58,38 +91,5 @@ class StatTooltip extends PureComponent {
     );
   }
 }
-
-StatTooltip.propTypes = {
-  annotations: PropTypes.arrayOf(PropTypes.string),
-  position: PropTypes.shape({
-    top: PropTypes.number.isRequired,
-    left: PropTypes.number.isRequired,
-  }).isRequired,
-  offset: PropTypes.shape({
-    top: PropTypes.number.isRequired,
-    left: PropTypes.number,
-    horizontal: PropTypes.number,
-  }),
-  titls: PropTypes.node,
-  tail: PropTypes.bool.isRequired,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
-  tailColor: PropTypes.string.isRequired,
-  tailWidth: PropTypes.number.isRequired,
-  tailHeight: PropTypes.number.isRequired,
-  backgroundColor: PropTypes.string,
-  borderColor: PropTypes.string.isRequired,
-  borderWidth: PropTypes.number.isRequired,
-};
-
-StatTooltip.defaultProps = {
-  annotations: [],
-  tail: true,
-  side: 'right',
-  tailWidth: 9,
-  tailHeight: 17,
-  tailColor: colors.statDefault,
-  borderColor: colors.statDefault,
-  borderWidth: 2,
-};
 
 export default StatTooltip;
