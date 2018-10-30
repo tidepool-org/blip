@@ -119,7 +119,8 @@ class Stats extends Component {
       bgSource,
     } = props;
 
-    const { manufacturer, deviceModel } = dataUtil.latestPump;
+    const { bgBounds, bgSources, bgUnits, days, latestPump } = dataUtil;
+    const { manufacturer, deviceModel } = latestPump;
     const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
 
     const stats = [];
@@ -127,53 +128,54 @@ class Stats extends Component {
     const addStat = statType => {
       stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[statType]](), statType, {
         bgSource,
-        days: dataUtil.days,
+        days,
+        bgPrefs: {
+          bgBounds,
+          bgUnits,
+        },
         manufacturer,
       }));
     };
 
     const cbgSelected = bgSource === 'cbg';
     const smbgSelected = bgSource === 'smbg';
-    const hasBgData = dataUtil.bgSources[bgSource];
+    const hasBgData = bgSources[bgSource];
 
     switch (chartType) {
       case 'basics':
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
         smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
-        cbgSelected && addStat(commonStats.sensorUsage);
         addStat(commonStats.averageGlucose);
+        cbgSelected && addStat(commonStats.sensorUsage);
         addStat(commonStats.totalInsulin);
         isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
-        // addStat(commonStats.standardDev);
-        // addStat(commonStats.coefficientOfVariation);
-        cbgSelected && addStat(commonStats.glucoseManagementIndicator);
         addStat(commonStats.averageDailyCarbs);
+        cbgSelected && addStat(commonStats.glucoseManagementIndicator);
         break;
 
       case 'daily':
-        cbgSelected && addStat(commonStats.sensorUsage);
-        addStat(commonStats.averageGlucose);
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
         smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
+        addStat(commonStats.averageGlucose);
+        addStat(commonStats.totalInsulin);
+        isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
         cbgSelected && addStat(commonStats.standardDev);
         cbgSelected && addStat(commonStats.coefficientOfVariation);
-        isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
-        addStat(commonStats.totalInsulin);
         break;
 
       case 'weekly':
-        addStat(commonStats.averageGlucose);
         addStat(commonStats.readingsInRange);
+        addStat(commonStats.averageGlucose);
         addStat(commonStats.standardDev);
         addStat(commonStats.coefficientOfVariation);
         break;
 
       case 'trends':
-        cbgSelected && addStat(commonStats.sensorUsage);
-        cbgSelected && addStat(commonStats.glucoseManagementIndicator);
-        addStat(commonStats.averageGlucose);
         cbgSelected && hasBgData && addStat(commonStats.timeInRange);
         smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
+        addStat(commonStats.averageGlucose);
+        cbgSelected && addStat(commonStats.sensorUsage);
+        cbgSelected && addStat(commonStats.glucoseManagementIndicator);
         addStat(commonStats.standardDev);
         addStat(commonStats.coefficientOfVariation);
         break;
@@ -195,12 +197,19 @@ class Stats extends Component {
     const { bgSource, dataUtil } = props;
     const stats = this.state.stats;
 
+    const { bgBounds, bgUnits, days, latestPump } = dataUtil;
+    const { manufacturer } = latestPump;
+
     _.each(stats, (stat, i) => {
       const data = dataUtil[this.dataFetchMethods[stat.id]]();
       const opts = {
         bgSource: bgSource,
-        days: dataUtil.days,
-        manufacturer: dataUtil.latestPump.manufacturer,
+        bgPrefs: {
+          bgBounds,
+          bgUnits,
+        },
+        days,
+        manufacturer,
       };
 
       stats[i].data = getStatData(data, stat.id, opts);
