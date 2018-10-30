@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 import _ from 'lodash';
 import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from './basal';
 import { getTotalBolus } from './bolus';
-import { classifyBgValue, reshapeBgClassesToBgBounds, cgmSampleFrequency } from './bloodglucose';
+import { cgmSampleFrequency, classifyBgValue, reshapeBgClassesToBgBounds } from './bloodglucose';
 import { addDuration } from './datetime';
 import { getLatestPumpUpload } from './device';
 import { MGDL_UNITS, MGDL_PER_MMOLL, MS_IN_DAY } from './constants';

@@ -185,13 +185,20 @@ export function formatDuration(duration, opts = {}) {
       days: days !== 0 ? `${days}d ` : '',
       hours: hours !== 0 ? `${hours}h ` : '',
       minutes: minutes !== 0 ? `${minutes}m` : '',
+      seconds: '',
     };
 
     if (days + hours + minutes === 0) {
-      formatted.minutes = '0m';
+      const seconds = momentDuration.seconds();
+
+      if (seconds > 0) {
+        formatted.seconds = `${seconds}s`;
+      } else {
+        formatted.minutes = '0m';
+      }
     }
 
-    return `${formatted.days}${formatted.hours}${formatted.minutes}`;
+    return `${formatted.days}${formatted.hours}${formatted.minutes}${formatted.seconds}`;
   } else if (hours !== 0) {
     const suffix = (hours === 1) ? 'hr' : 'hrs';
     switch (minutes) {
