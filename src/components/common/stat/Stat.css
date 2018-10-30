@@ -11,6 +11,10 @@
   overflow: hidden;
 }
 
+.Stat tspan {
+  font-family: 'Open Sans' !important;
+}
+
 .chartHeader {
   display: flex;
   flex-wrap: nowrap;
