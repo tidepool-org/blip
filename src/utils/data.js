@@ -133,7 +133,6 @@ export class DataUtil {
 
     const data = {
       averageGlucose: _.meanBy(bgData, 'value'),
-      bgSource: this.bgSource,
       total: bgData.length,
     };
 
@@ -164,10 +163,9 @@ export class DataUtil {
   });
 
   getCoefficientOfVariationData = () => {
-    const { averageGlucose, bgSource, standardDeviation, total } = this.getStandardDevData();
+    const { averageGlucose, standardDeviation, total } = this.getStandardDevData();
 
     return {
-      bgSource,
       coefficientOfVariation: standardDeviation / averageGlucose * 100,
       total,
     };
@@ -226,7 +224,7 @@ export class DataUtil {
   };
 
   getGlucoseManagementIndicatorData = () => {
-    const { averageGlucose, bgData, bgSource, total } = this.getAverageGlucoseData(true);
+    const { averageGlucose, bgData, total } = this.getAverageGlucoseData(true);
 
     const getTotalCbgDuration = () => _.reduce(
       bgData,
@@ -254,7 +252,6 @@ export class DataUtil {
     const glucoseManagementIndicator = (3.31 + 0.02392 * meanInMGDL);
 
     return {
-      bgSource,
       glucoseManagementIndicator,
       total,
     };
@@ -295,11 +292,7 @@ export class DataUtil {
       smbgData = this.getDailyAverageSums(smbgData);
     }
 
-    return {
-      ...smbgData,
-      bgSource: this.bgSource,
-      days: this.days,
-    };
+    return smbgData;
   };
 
   getSensorUsage = () => {
@@ -324,12 +317,11 @@ export class DataUtil {
   };
 
   getStandardDevData = () => {
-    const { averageGlucose, bgData, bgSource, total } = this.getAverageGlucoseData(true);
+    const { averageGlucose, bgData, total } = this.getAverageGlucoseData(true);
 
     if (bgData.length < 3) {
       return {
         averageGlucose,
-        bgSource,
         standardDeviation: NaN,
         total,
       };
@@ -340,7 +332,6 @@ export class DataUtil {
 
     return {
       averageGlucose,
-      bgSource,
       standardDeviation,
       total,
     };
@@ -367,10 +358,7 @@ export class DataUtil {
       durations = this.getDailyAverageDurations(durations);
     }
 
-    return {
-      ...durations,
-      days: this.days,
-    };
+    return durations;
   };
 
   getTimeInRangeData = () => {
@@ -400,11 +388,7 @@ export class DataUtil {
       durations = this.getDailyAverageDurations(durations);
     }
 
-    return {
-      ...durations,
-      bgSource: this.bgSource,
-      days: this.days,
-    };
+    return durations;
   };
 
   getTotalInsulinData = () => {
@@ -426,10 +410,7 @@ export class DataUtil {
       totalInsulin.totalBolus = totalInsulin.totalBolus / this.days;
     }
 
-    return {
-      ...totalInsulin,
-      days: this.days,
-    };
+    return totalInsulin;
   };
 }
 
