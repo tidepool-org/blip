@@ -37,6 +37,7 @@ api.init = function(cb) {
     host: config.API_HOST,
     dataHost: config.API_HOST + '/dataservices',
     uploadApi: config.UPLOAD_API,
+    exportHost: config.EXPORT_HOST,
     log: {
       warn: tidepoolLog,
       info: tidepoolLog,
@@ -565,6 +566,17 @@ api.patient.getAll = function(cb) {
     return cb(null, viewableUsers);
   });
 };
+
+api.patient.export = function (patientId, options, cb) {
+  api.log('export');
+
+  tidepool.exportData(patientId, options, function (err, data) {
+    if (err) {
+      return cb(err);
+    }
+    return cb(null, data);
+  });
+}
 
 // ----- Metadata -----
 
