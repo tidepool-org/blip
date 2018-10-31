@@ -48,6 +48,7 @@ export class DataUtil {
 
   set endpoints(endpoints = []) {
     this._endpoints = endpoints;
+    this.days = this.getDayCountFromEndpoints();
   }
 
   addData = data => {
