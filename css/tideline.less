@@ -316,6 +316,10 @@ svg {
 // smbg
 .d3-circle-smbg {
   stroke-width: 2;
+  &.d3-bg-very-low {
+    fill: @bg-very-low;
+    stroke: @bg-very-low;
+  }
   &.d3-bg-low {
     fill: @bg-low;
     stroke: @bg-low;
@@ -328,8 +332,9 @@ svg {
     fill: @bg-high;
     stroke: @bg-high;
   }
-  &.d3-circle-open {
-    fill: rgba(255, 255, 255, 0) !important;
+  &.d3-bg-very-high {
+    fill: @bg-very-high;
+    stroke: @bg-very-high;
   }
 }
 
