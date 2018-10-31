@@ -80,6 +80,7 @@ class Stat extends PureComponent {
     emptyDataPlaceholder: PropTypes.string.isRequired,
     isDisabled: PropTypes.bool,
     isOpened: PropTypes.bool,
+    legend: PropTypes.bool,
     annotations: PropTypes.arrayOf(PropTypes.string),
     muteOthersOnHover: PropTypes.bool,
     title: PropTypes.string.isRequired,
@@ -95,6 +96,7 @@ class Stat extends PureComponent {
     emptyDataPlaceholder: '--',
     isDisabled: false,
     isOpened: true,
+    legend: true,
     muteOthersOnHover: true,
     type: statTypes.simple,
   };
@@ -207,7 +209,7 @@ class Stat extends PureComponent {
 
   renderChartFooter = () => (
     <div className={styles.chartFooter}>
-      {this.chartProps.legend && this.renderChartLegend()}
+      {this.chartProps.legend && this.state.isOpened && this.renderChartLegend()}
     </div>
   );
 
@@ -500,7 +502,7 @@ class Stat extends PureComponent {
               }}
             />
           ),
-          legend: true,
+          legend: props.legend,
           padding,
           renderer: VictoryBar,
           style: {
@@ -705,7 +707,7 @@ class Stat extends PureComponent {
       case statFormats.units:
         if (value >= 0) {
           value = formatDecimalNumber(value, 1);
-          suffix = 'u';
+          suffix = 'U';
         } else {
           disableStat();
         }

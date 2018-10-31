@@ -188,6 +188,7 @@ stories.add('Time In Range', () => {
   const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
   const collapsible = boolean('collapsible', true, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
+  const legend = boolean('legend', true, 'UI');
   const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
 
   button('Random Data', () => {
@@ -202,6 +203,9 @@ stories.add('Time In Range', () => {
     <Container>
       <Stat
         alwaysShowTooltips={alwaysShowTooltips}
+        annotations={[
+          'Based on 70% CGM data availability for this view.',
+        ]}
         bgPrefs={bgPrefs}
         chartHeight={chartHeight}
         collapsible={collapsible}
@@ -213,9 +217,7 @@ stories.add('Time In Range', () => {
           tooltipTitle: statFormats.bgRange,
         }}
         isOpened={isOpened}
-        annotations={[
-          'Based on 70% CGM data availability for this view.',
-        ]}
+        legend={legend}
         muteOthersOnHover={muteOthersOnHover}
         title="Time In Range"
         type={statTypes.barHorizontal}
@@ -273,6 +275,7 @@ stories.add('Readings In Range', () => {
   const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
   const collapsible = boolean('collapsible', true, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
+  const legend = boolean('legend', true, 'UI');
   const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
 
   button('Random Data', () => {
@@ -287,6 +290,9 @@ stories.add('Readings In Range', () => {
     <Container>
       <Stat
         alwaysShowTooltips={alwaysShowTooltips}
+        annotations={[
+          'Based on 7 SMBG readings for this view.',
+        ]}
         bgPrefs={bgPrefs}
         chartHeight={chartHeight}
         collapsible={collapsible}
@@ -298,9 +304,7 @@ stories.add('Readings In Range', () => {
           tooltipTitle: statFormats.bgRange,
         }}
         isOpened={isOpened}
-        annotations={[
-          'Based on 7 SMBG readings for this view.',
-        ]}
+        legend={legend}
         muteOthersOnHover={muteOthersOnHover}
         title="Readings In Range"
         type={statTypes.barHorizontal}
@@ -340,6 +344,7 @@ stories.add('Time In Auto', () => {
   const collapsible = boolean('collapsible', true, 'UI');
   const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
+  const legend = boolean('legend', true, 'UI');
   const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
 
   button('Random Data', () => {
@@ -354,6 +359,9 @@ stories.add('Time In Auto', () => {
     <Container>
       <Stat
         alwaysShowTooltips={alwaysShowTooltips}
+        annotations={[
+          'Based on 50% pump data availability for this view.',
+        ]}
         chartHeight={chartHeight}
         collapsible={collapsible}
         data={timeInAutoData}
@@ -363,9 +371,7 @@ stories.add('Time In Auto', () => {
           tooltip: statFormats.duration,
         }}
         isOpened={isOpened}
-        annotations={[
-          'Based on 50% pump data availability for this view.',
-        ]}
+        legend={legend}
         muteOthersOnHover={muteOthersOnHover}
         title="Time In Auto Mode"
         type={statTypes.barHorizontal}
@@ -403,6 +409,7 @@ stories.add('Total Insulin', () => {
   const collapsible = boolean('collapsible', true, 'UI');
   const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
+  const legend = boolean('legend', true, 'UI');
   const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
 
   button('Random Data', () => {
@@ -417,6 +424,9 @@ stories.add('Total Insulin', () => {
     <Container>
       <Stat
         alwaysShowTooltips={alwaysShowTooltips}
+        annotations={[
+          'Based on 50% pump data availability for this view.',
+        ]}
         chartHeight={chartHeight}
         collapsible={collapsible}
         data={totalInsulinData}
@@ -427,9 +437,7 @@ stories.add('Total Insulin', () => {
           tooltip: statFormats.units,
         }}
         isOpened={isOpened}
-        annotations={[
-          'Based on 50% pump data availability for this view.',
-        ]}
+        legend={legend}
         muteOthersOnHover={muteOthersOnHover}
         title="Total Insulin"
         type={statTypes.barHorizontal}
@@ -480,6 +488,10 @@ stories.add('Average Glucose', () => {
   return (
     <Container>
       <Stat
+        annotations={[
+          'Based on 70% CGM data availability for this view.',
+          'Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.',
+        ]}
         bgPrefs={bgPrefs}
         collapsible={collapsible}
         data={averageGlucoseDataUnits === MGDL_UNITS ? averageGlucoseData : averageGlucoseDataMmol}
@@ -488,10 +500,6 @@ stories.add('Average Glucose', () => {
           summary: statFormats.bgValue,
         }}
         isOpened={isOpened}
-        annotations={[
-          'Based on 70% CGM data availability for this view.',
-          'Average Blood Glucose (mean) is all glucose values added together, divided by the number of readings.',
-        ]}
         title="Average Glucose"
         type={statTypes.barBg}
       />
@@ -548,6 +556,10 @@ stories.add('Standard Deviation', () => {
   return (
     <Container>
       <Stat
+        annotations={[
+          'Based on 70% CGM data availability for this view.',
+          'SD (Standard Deviation) is…',
+        ]}
         bgPrefs={bgPrefs}
         collapsible={collapsible}
         data={standardDevDataUnits === MGDL_UNITS ? standardDevData : standardDevDataMmol}
@@ -557,10 +569,6 @@ stories.add('Standard Deviation', () => {
           title: statFormats.standardDevRange,
         }}
         isOpened={isOpened}
-        annotations={[
-          'Based on 70% CGM data availability for this view.',
-          'SD (Standard Deviation) is…',
-        ]}
         title="Standard Deviation"
         type={statTypes.barBg}
       />
@@ -592,16 +600,16 @@ stories.add('Glucose Management Indicator', () => {
   return (
     <Container>
       <Stat
-        data={glucoseManagementIndicatorData}
-        title="GMI"
-        type={statTypes.simple}
-        dataFormat={{
-          summary: statFormats.gmi,
-        }}
         annotations={[
           'Based on 70% CGM data availability for this view.',
           'GMI (Glucose Management Indicator) is an estimate of HbA1c that has been calculated based on your average blood glucose.',
         ]}
+        data={glucoseManagementIndicatorData}
+        dataFormat={{
+          summary: statFormats.gmi,
+        }}
+        title="GMI"
+        type={statTypes.simple}
       />
     </Container>
   );
@@ -631,16 +639,16 @@ stories.add('Coefficient of Variation', () => {
   return (
     <Container>
       <Stat
-        data={coefficientOfVariationData}
-        title="CV"
-        type={statTypes.simple}
-        dataFormat={{
-          summary: statFormats.cv,
-        }}
         annotations={[
           'Based on 70% CGM data availability for this view.',
           'CV (Coefficient of Variation) is…',
         ]}
+        data={coefficientOfVariationData}
+        dataFormat={{
+          summary: statFormats.cv,
+        }}
+        title="CV"
+        type={statTypes.simple}
       />
     </Container>
   );
