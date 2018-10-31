@@ -15,7 +15,7 @@ export const HoverBarLabel = props => {
     y,
   } = props;
 
-  const tooltipFontSize = _.max([barWidth / 2, 12]);
+  const tooltipFontSize = _.min([barWidth / 2, 12]);
   const tooltipHeight = tooltipFontSize * 1.2;
   const tooltipRadius = tooltipHeight / 2;
 

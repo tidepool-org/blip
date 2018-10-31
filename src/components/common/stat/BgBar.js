@@ -43,7 +43,7 @@ export const BgBarLabel = props => {
         verticalAnchor="middle"
         width={width}
         dx={-iconPadding}
-        dy={-(barWidth / 2)}
+        dy={-(barWidth / 2 - 1)}
         x={scale.y(domain.x[1])}
         y={y}
       />

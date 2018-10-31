@@ -235,7 +235,7 @@ class Stat extends PureComponent {
         springConfig={{ stiffness: 200, damping: 23 }}
       >
         <div className={styles.chartContainer}>
-          <Renderer {...chartProps} width={size.width || 278} />
+          <Renderer {...chartProps} width={size.width || 298} />
         </div>
       </Collapse>
     );
@@ -325,9 +325,10 @@ class Stat extends PureComponent {
 
     let barWidth;
     let barSpacing;
-    let height;
-    let chartLabelWidth = 60;
     let domain;
+    let height;
+    let labelFontSize = 24;
+    let chartLabelWidth = labelFontSize * 2.75;
     let padding;
 
     this.chartProps = this.getDefaultChartProps(props);
@@ -403,7 +404,7 @@ class Stat extends PureComponent {
                 _.get(props.data, ['data', datum.eventKey]),
                 props.dataFormat.label,
               ))),
-              fontSize: barWidth * 0.833 * 6,
+              fontSize: labelFontSize,
               fontWeight: 600,
               paddingLeft: chartLabelWidth,
             },
@@ -417,7 +418,8 @@ class Stat extends PureComponent {
 
         if (height > 0) {
           barWidth = ((height - barSpacing) / props.data.data.length) - (barSpacing / 2);
-          chartLabelWidth = barWidth * 2.25;
+          labelFontSize = _.min([barWidth * 0.833, labelFontSize]);
+          chartLabelWidth = labelFontSize * 2.75;
         } else {
           barWidth = 30;
           height = (barWidth + barSpacing) * props.data.data.length;
@@ -515,7 +517,7 @@ class Stat extends PureComponent {
                 _.get(props.data, ['data', datum.eventKey]),
                 props.dataFormat.label,
               ))),
-              fontSize: barWidth * 0.833,
+              fontSize: labelFontSize,
               fontWeight: 600,
               paddingLeft: chartLabelWidth,
             },

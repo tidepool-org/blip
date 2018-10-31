@@ -25,7 +25,7 @@
 }
 
 .chartTitle {
-  font-size: 1em;
+  composes: largeSize from '../../../styles/typography.css';
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -34,8 +34,8 @@
 }
 
 .chartSummary {
-  font-size: 1.25em;
-  line-height: 1.25em;
+  composes: extraLargeSize from '../../../styles/typography.css';
+  line-height: 1;
   font-weight: 600;
   display: flex;
   justify-content: space-between;
@@ -56,8 +56,8 @@
 }
 
 .chartTitleData {
+  composes: smallSize from '../../../styles/typography.css';
   display: none;
-  font-size: .75em;
   padding-left: .25em;
   align-items: center;
   position: relative;
@@ -105,7 +105,7 @@
   margin-left: 0.1em;
 }
 
-.tooltipIcon>img {
+.tooltipIcon > img {
   width: 0.9em;
 }
 
