@@ -68,7 +68,8 @@ class SMBGTooltip extends PureComponent {
     if (!_.isEmpty(outOfRangeMessage)) {
       const bgClass = classifyBgValue(
         reshapeBgClassesToBgBounds(this.props.bgPrefs),
-        this.props.smbg.value
+        this.props.smbg.value,
+        'fiveWay'
       );
       rows.push(
         <div
@@ -90,7 +91,8 @@ class SMBGTooltip extends PureComponent {
   render() {
     const bgClass = classifyBgValue(
       reshapeBgClassesToBgBounds(this.props.bgPrefs),
-      this.props.smbg.value
+      this.props.smbg.value,
+      'fiveWay'
     );
     const title = this.props.title ? this.props.title : (
       <div className={styles.title}>

@@ -101,8 +101,8 @@ export class CBGMedianAnimated extends PureComponent {
     const medianClasses = datum.median ?
       cx({
         [styles.median]: true,
-        [styles[`${classifyBgValue(bgBounds, datum.median)}FadeIn`]]: !showingCbgDateTraces,
-        [styles[`${classifyBgValue(bgBounds, datum.median)}FadeOut`]]: showingCbgDateTraces,
+        [styles[`${classifyBgValue(bgBounds, datum.median, 'fiveWay')}FadeIn`]]: !showingCbgDateTraces,
+        [styles[`${classifyBgValue(bgBounds, datum.median, 'fiveWay')}FadeOut`]]: showingCbgDateTraces,
       }) :
       cx({
         [styles.median]: true,

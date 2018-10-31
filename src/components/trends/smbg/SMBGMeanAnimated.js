@@ -98,8 +98,8 @@ export class SMBGMeanAnimated extends PureComponent {
     const meanClasses = datum.mean ?
       cx({
         [styles.smbgMean]: true,
-        [styles[`${classifyBgValue(bgBounds, datum.mean)}FadeIn`]]: !someSmbgDataIsFocused,
-        [styles[`${classifyBgValue(bgBounds, datum.mean)}FadeOut`]]: someSmbgDataIsFocused,
+        [styles[`${classifyBgValue(bgBounds, datum.mean, 'fiveWay')}FadeIn`]]: !someSmbgDataIsFocused,
+        [styles[`${classifyBgValue(bgBounds, datum.mean, 'fiveWay')}FadeOut`]]: someSmbgDataIsFocused,
       }) :
       cx({
         [styles.smbgMean]: true,

@@ -43,9 +43,11 @@
   --text-medium-contrast: #727375;
   --text-high-contrast: #281946;
   --text-black: #000;
+  --bg-very-low: #fb5951;
   --bg-low: #FF8B7C;
   --bg-target: #76D3A6;
   --bg-high: #BB9AE7;
+  --bg-very-high: #8c65d6;
   --text-hover: #00D3D9;
   --blue-green-light: #12d3d8;
   --gray-medium: #989897;

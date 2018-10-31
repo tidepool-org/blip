@@ -96,7 +96,7 @@ export class CBGDateTraceAnimated extends PureComponent {
       <g id={`cbgDateTrace-${date}`}>
         {_.map(data, (d) => (
           <circle
-            className={styles[classifyBgValue(bgBounds, d.value)]}
+            className={styles[classifyBgValue(bgBounds, d.value, 'fiveWay')]}
             cx={xScale(d.msPer24)}
             cy={yScale(d.value)}
             id={`cbgCircle-${d.id}`}
