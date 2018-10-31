@@ -6,3 +6,4 @@ export HIDE_UPLOAD_LINK=false
 export HIDE_DEXCOM_BANNER=false
 export HIDE_DONATE=false
 export BRANDING='tidepool'
+export SERVICE_NAME='blip'
