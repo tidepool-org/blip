@@ -60,6 +60,7 @@ class Stats extends Component {
 
   componentWillReceiveProps = nextProps => {
     const update = this.updatesRequired(nextProps);
+
     if (update) {
       if (update.stats) {
         this.setState({
