@@ -49,7 +49,8 @@ export const ensureNumeric = value => (_.isNaN(value) ? -1 : parseFloat(value));
 export const translatePercentage = value => value / 100;
 
 export const getStatAnnotations = (data, type, opts = {}) => {
-  const { bgSource } = opts;
+  const { bgSource, manufacturer } = opts;
+  const vocabulary = getPumpVocabulary(manufacturer);
 
   const annotations = [];
 
@@ -62,19 +63,14 @@ export const getStatAnnotations = (data, type, opts = {}) => {
     commonStats.standardDev,
   ];
 
-  if (_.includes(bgStats, type)) {
-    if (bgSource === 'smbg') {
-      annotations.push(`Based on _**${data.total}**_ ${statBgSourceLabels.smbg} readings for this view.`);
-    }
-  }
-
   switch (type) {
     case commonStats.averageGlucose:
-      annotations.push('**Average Glucose (mean):** All glucose values added together, divided by the number of readings.');
+      annotations.push(`**Avg. Glucose (${statBgSourceLabels[bgSource]}):** All ${statBgSourceLabels[bgSource]} glucose values added together, divided by the number of readings.`);
       break;
 
     case commonStats.averageDailyCarbs:
-      annotations.push(`Based on ${data.total} bolus wizard events available for this view.`);
+      annotations.push('**Avg. Daily Carbs**: All carb entries from bolus wizard events added together, divided by the number of days in this view');
+      annotations.push(`Derived from _**${data.total}**_ bolus wizard events.`);
       break;
 
     case commonStats.coefficientOfVariation:
@@ -98,20 +94,28 @@ export const getStatAnnotations = (data, type, opts = {}) => {
       break;
 
     case commonStats.timeInAuto:
-      annotations.push(`Based on ${data.total}% pump data availability for this view.`);
+      annotations.push(`**Time In ${vocabulary[AUTOMATED_DELIVERY]}:** Daily average of the time spent in automated basal delivery`);
+      annotations.push(`**How we calculate this:**\n\n**(%)** is the duration in ${vocabulary[AUTOMATED_DELIVERY]} divided the total duration of basals for this time period.\n\n**(time)** is 24 hours multiplied by % in ${vocabulary[AUTOMATED_DELIVERY]}.`);
       break;
 
     case commonStats.timeInRange:
       annotations.push(`**Time In Range:**\n\nDaily average of the number of ${statBgSourceLabels.cbg} readings.`);
-      annotations.push('**How we calculate this:**\n\n**(%)** Number of readings in range for this time period, divided by all readings for this time period.\n\n**(time)** 24 hours x % in range.');
+      annotations.push('**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is 24 hours multiplied by % in range.');
       break;
 
     case commonStats.totalInsulin:
-      annotations.push(`Based on ${data.total}% pump data availability for this view.`);
+      annotations.push('**Total Insulin:**\n\nAll basal and bolus insulin delivery (in Units) added together, divided by the number of days in this view');
+      annotations.push('**How we calculate this:**\n\n**(%)** is the respective total of basal or bolus delivery divided by total insulin delivered for this time period.');
       break;
 
     default:
       break;
+  }
+
+  if (_.includes(bgStats, type)) {
+    if (bgSource === 'smbg') {
+      annotations.push(`Derived from _**${data.total}**_ ${statBgSourceLabels.smbg} readings.`);
+    }
   }
 
   return annotations;
@@ -352,11 +356,11 @@ export const getStatTitle = (type, opts = {}) => {
 
   switch (type) {
     case commonStats.averageGlucose:
-      title = `Average Glucose (${statBgSourceLabels[bgSource]})`;
+      title = `Avg. Glucose (${statBgSourceLabels[bgSource]})`;
       break;
 
     case commonStats.averageDailyCarbs:
-      title = 'Average Daily Carbs';
+      title = 'Avg. Daily Carbs';
       break;
 
     case commonStats.coefficientOfVariation:

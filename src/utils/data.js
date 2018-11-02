@@ -155,7 +155,10 @@ export class DataUtil {
       0
     );
 
-    return { averageDailyCarbs: totalCarbs / this.days };
+    return {
+      averageDailyCarbs: totalCarbs / this.days,
+      total: wizardData.length,
+    };
   };
 
   getBgSources = () => ({
