@@ -21,5 +21,6 @@
 
 .StatLegendTitle {
   padding: 0 1em 0 .35em;
+  letter-spacing: -.01em;
   white-space: nowrap;
 }
