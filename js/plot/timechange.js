@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2015, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -27,7 +27,7 @@ var log = require('bows')('DeviceEvent - TimeChange');
 
 /**
  * Module for adding timechange markers to a chart pool
- * 
+ *
  * @param  {Object} pool the chart pool
  * @param  {Object|null} opts configuration options
  * @return {Object}      time change object
@@ -92,55 +92,106 @@ module.exports = function(pool, opts) {
   };
 
   timechange._displayTooltip = function(d) {
-    var elem = d3.select('#timechange_' + d.id + ' image');
-    var tooltips = pool.tooltips();
-    var tooltip = tooltips.addForeignObjTooltip({
-      cssClass: 'svg-tooltip-timechange',
-      datum: d,
-      shape: 'generic',
-      xPosition: timechange.xPositionCenter,
-      yPosition: timechange.yPositionCenter
-    });
+    // Need to check if time is coming from the current data model, or the deprecated `change` property
+    var fromTime = _.get(d, 'from.time', _.get(d, 'change.from'));
+    var toTime = _.get(d, 'to.time', _.get(d, 'change.to'));
 
-    var timeChange = format.timeChangeInfo(d.change.from, d.change.to);
+    var fromTimeZoneName = _.get(d, 'from.timeZoneName');
+    var toTimeZoneName = _.get(d, 'to.timeZoneName');
 
-    var foGroup = tooltip.foGroup;
-    if (timeChange.format === 'h:mm a') { // if the timechange is on the same display time info on one line
-      tooltip.foGroup.append('p')
-        .append('span')
-        .attr('class', 'secondary')
-        .html('<span class="fromto">from</span> ' + timeChange.from + ' <span class="fromto">to</span> ' + timeChange.to);
-    } else {
-      tooltip.foGroup.append('p')
-        .append('span')
-        .attr('class', 'secondary')
-        .html('<span class="fromto">from</span> ' + timeChange.from);
-      tooltip.foGroup.append('p')
-        .append('span')
-        .attr('class', 'secondary')
-        .html('<span class="fromto">to</span> ' + timeChange.to);
+    if (toTime || toTimeZoneName) {
+      var tooltips = pool.tooltips();
+
+      var tooltip = tooltips.addForeignObjTooltip({
+        cssClass: 'svg-tooltip-timechange',
+        datum: d,
+        shape: 'generic',
+        xPosition: timechange.xPositionCenter,
+        yPosition: timechange.yPositionCenter
+      });
+
+      var foGroup = tooltip.foGroup;
+
+      if (toTime) {
+        // Render time change
+        var timeChange = format.timeChangeInfo(fromTime, toTime);
+
+        if (timeChange.format === 'h:mm a' && !toTimeZoneName) {
+          // No time zone change and time change is on the same day so we display on one line.
+          /* jshint laxbreak: true */
+          var html = timeChange.from
+            ? '<span class="fromto">from</span> ' + timeChange.from + ' <span class="fromto">to</span> ' + timeChange.to
+            : '<span class="fromto">to</span> ' + timeChange.to;
+
+          tooltip.foGroup.append('p')
+            .append('span')
+            .attr('class', 'secondary')
+            .html(html);
+        } else {
+          // Render time change on 2 lines, appended by time zone change if present
+          var fromTimeZoneText = '';
+          var toTimeZoneText = '';
+
+          if (toTimeZoneName && toTimeZoneName !== fromTimeZoneName) {
+            fromTimeZoneText = fromTimeZoneName ? ' ' + fromTimeZoneName : '';
+            toTimeZoneText = ' ' + toTimeZoneName;
+          }
+
+          var fromHTML = '<span class="fromto">from</span> ' + timeChange.from + fromTimeZoneText;
+          var toHTML = '<span class="fromto">to</span> ' + timeChange.to + toTimeZoneText;
+
+          if (fromTime) {
+            tooltip.foGroup.append('p')
+              .append('span')
+              .attr('class', 'secondary')
+              .html(fromHTML);
+          }
+          tooltip.foGroup.append('p')
+            .append('span')
+            .attr('class', 'secondary')
+            .html(toHTML);
+        }
+        foGroup.append('p')
+          .append('span')
+          .attr('class', 'mainText')
+          .html(timeChange.type);
+      } else {
+        // Render time zone change
+        if (fromTimeZoneName) {
+          tooltip.foGroup.append('p')
+            .append('span')
+            .attr('class', 'secondary')
+            .html('<span class="fromto">from</span> ' + fromTimeZoneName);
+        }
+        tooltip.foGroup.append('p')
+          .append('span')
+          .attr('class', 'secondary')
+          .html('<span class="fromto">to</span> ' + toTimeZoneName);
+
+        foGroup.append('p')
+          .append('span')
+          .attr('class', 'mainText')
+          .html('Time Zone Change');
+      }
+
+      var dims = tooltips.foreignObjDimensions(foGroup);
+
+      // foGroup.node().parentNode is the <foreignObject> itself
+      // because foGroup is actually the top-level <xhtml:div> element
+      tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
+        w: dims.width + opts.tooltipPadding,
+        h: dims.height,
+        x: timechange.xPositionCenter(d),
+        y: -dims.height,
+        orientation: {
+          'default': 'leftAndDown',
+          leftEdge: 'rightAndDown',
+          rightEdge: 'leftAndDown'
+        },
+        shape: 'generic',
+        edge: tooltip.edge
+      });
     }
-    foGroup.append('p')
-      .append('span')
-      .attr('class', 'mainText')
-      .html(timeChange.type);
-      
-    var dims = tooltips.foreignObjDimensions(foGroup);
-    // foGroup.node().parentNode is the <foreignObject> itself
-    // because foGroup is actually the top-level <xhtml:div> element
-    tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
-      w: dims.width + opts.tooltipPadding,
-      h: dims.height,
-      x: timechange.xPositionCenter(d),
-      y: -dims.height,
-      orientation: {
-        'default': 'leftAndDown',
-        leftEdge: 'rightAndDown',
-        rightEdge: 'leftAndDown'
-      },
-      shape: 'generic',
-      edge: tooltip.edge
-    });
   };
 
   timechange.xPositionCorner = function(d) {

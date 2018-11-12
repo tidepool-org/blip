@@ -207,12 +207,12 @@ var format = {
    * Given two timestamps return an object containing a timechange
    *
    * @param {String} from - date string
-   * @param {String} to - date string
+   * @param {String} to - date string (required)
    * @return {Object} containing keys from, to, type, format
    */
-  timeChangeInfo: function(from,to) {
-    if (!from || !to) { // guard statement
-      throw new Error('You have not provided two datetime strings');
+  timeChangeInfo: function(from, to) {
+    if (!to) { // guard statement
+      throw new Error('You have not provided a `to` datetime string');
     }
 
     // the "from" and "to" fields of a time change are always timezone-naive
@@ -220,28 +220,29 @@ var format = {
     // but some (versions) of (some) browsers like to coerce timestamps without TZ info into local time
     // and we need to prevent that, so we use moment.utc and then use the UTC
     // variant of all JS Date methods to ensure consistency across browsers
-    var fromDate = moment.utc(from).toDate();
+    var fromDate = from ? moment.utc(from).toDate() : undefined;
     var toDate = moment.utc(to).toDate();
-
     var type = 'Time Change';
 
     var format = 'h:mm a';
-    if (fromDate.getUTCFullYear() !== toDate.getUTCFullYear()) {
-      format = 'MMM D, YYYY h:mm a';
-    } else if (
-      fromDate.getUTCMonth() !== toDate.getUTCMonth() ||
-      fromDate.getUTCDay() !== toDate.getUTCDay()
-    ) {
-      format = 'MMM D, h:mm a';
-    }
+    if (fromDate && toDate) {
+      if (fromDate.getUTCFullYear() !== toDate.getUTCFullYear()) {
+        format = 'MMM D, YYYY h:mm a';
+      } else if (
+        fromDate.getUTCMonth() !== toDate.getUTCMonth() ||
+        fromDate.getUTCDay() !== toDate.getUTCDay()
+      ) {
+        format = 'MMM D, h:mm a';
+      }
 
-    if (Math.abs(toDate - fromDate) <= (8*(60*1000))) { // Clock Drift Adjustment if less than 8 minutes
-      type = 'Clock Drift Adjustment';
+      if (Math.abs(toDate - fromDate) <= (8*(60*1000))) { // Clock Drift Adjustment if less than 8 minutes
+        type = 'Clock Drift Adjustment';
+      }
     }
 
     return {
       type: type,
-      from: moment(fromDate).utc().format(format),
+      from: fromDate ? moment(fromDate).utc().format(format): undefined,
       to: moment(toDate).utc().format(format),
       format: format
     };
