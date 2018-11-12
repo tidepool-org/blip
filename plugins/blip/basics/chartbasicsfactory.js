@@ -237,3 +237,4 @@ var BasicsChart = React.createClass({
 });
 
 module.exports = sizeMe({ monitorHeight: true })(BasicsChart);
+module.exports.inner = BasicsChart;

@@ -83,7 +83,7 @@ describe('BasicsChart', function() {
     };
     var elem = React.createElement(BasicsChart, props);
     var render = TestUtils.renderIntoDocument(elem);
-    expect(render.state.sections === basicsState.sections).to.be.false;
+    expect(render.state.sections === basicsState().sections).to.be.false;
   });
 
   describe('_insulinDataAvailable', function() {
@@ -96,9 +96,11 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       expect(render._insulinDataAvailable()).to.be.false;
@@ -113,9 +115,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       expect(render._insulinDataAvailable()).to.be.true;
@@ -130,9 +133,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       expect(render._insulinDataAvailable()).to.be.true;
@@ -147,9 +151,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       expect(render._insulinDataAvailable()).to.be.true;
@@ -168,9 +173,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       expect(render._automatedBasalEventsAvailable()).to.be.false;
@@ -188,9 +194,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       expect(render._automatedBasalEventsAvailable()).to.be.true;
@@ -207,9 +214,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       // basals gets disabled when no data
@@ -260,10 +268,11 @@ describe('BasicsChart', function() {
         }),
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
 
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       // basals remain enabled when data present
@@ -297,46 +306,47 @@ describe('BasicsChart', function() {
         timePrefs: {},
         updateBasicsData: sinon.stub(),
         trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
 
       props.patientData = td;
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'Pump only'});
 
       props.trackMetric.reset();
       props.patientData = new TidelineData([new types.SMBG()]);
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM only'});
 
       props.trackMetric.reset();
       props.patientData = new TidelineData([new types.CBG()]);
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'CGM only'});
 
       props.trackMetric.reset();
       props.patientData = new TidelineData([new types.CBG(), new types.SMBG()]);
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM+CGM'});
 
       props.trackMetric.reset();
       props.patientData = new TidelineData([new types.SMBG(), new types.Basal()]);
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM+Pump'});
 
       props.trackMetric.reset();
       props.patientData = new TidelineData([new types.CBG(), new types.Basal()]);
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'CGM+Pump'});
 
       props.trackMetric.reset();
       props.patientData = new TidelineData([new types.CBG(), new types.SMBG(), new types.Basal()]);
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM+CGM+Pump'});
     });
@@ -352,9 +362,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
       ReactDOM.unmountComponentAtNode(ReactDOM.findDOMNode(render).parentNode);
 
