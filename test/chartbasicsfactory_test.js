@@ -20,7 +20,6 @@
 
 var _ = require('lodash');
 var chai = require('chai');
-var assert = chai.assert;
 var expect = chai.expect;
 
 var React = require('react');
@@ -32,7 +31,7 @@ var BasicsChart = require('../plugins/blip/basics/chartbasicsfactory');
 var TidelineData = require('../js/tidelinedata');
 var types = require('../dev/testpage/types');
 
-var { MGDL_UNITS, MMOLL_UNITS } = require('../js/data/util/constants');
+var { MGDL_UNITS } = require('../js/data/util/constants');
 
 describe('BasicsChart', function() {
   it('should render', function() {
@@ -50,10 +49,10 @@ describe('BasicsChart', function() {
       timePrefs: {},
       updateBasicsData: sinon.stub(),
       updateBasicsSettings: sinon.stub(),
-      trackMetric: sinon.stub()
+      trackMetric: sinon.stub(),
+      size: { width: 1000 }
     };
-    var elem = React.createElement(BasicsChart, props);
-    var render = TestUtils.renderIntoDocument(elem);
+    var elem = React.createElement(BasicsChart.inner, props);
     expect(elem).to.be.ok;
     expect(console.error.callCount).to.equal(0);
   });
@@ -61,12 +60,12 @@ describe('BasicsChart', function() {
   it('should console.error when required props are missing', function() {
     console.error = sinon.stub();
     var props = {};
-    var elem = React.createElement(BasicsChart, props);
+    var elem = React.createElement(BasicsChart.inner, props);
     try {
       TestUtils.renderIntoDocument(elem);
     }
     catch(e) {
-      expect(console.error.callCount).to.equal(10);
+      expect(console.error.callCount).to.equal(11);
     }
   });
 
@@ -79,9 +78,10 @@ describe('BasicsChart', function() {
       patientData: td,
       timePrefs: {},
       updateBasicsData: sinon.stub(),
-      trackMetric: sinon.stub()
+      trackMetric: sinon.stub(),
+      size: { width: 1000 }
     };
-    var elem = React.createElement(BasicsChart, props);
+    var elem = React.createElement(BasicsChart.inner, props);
     var render = TestUtils.renderIntoDocument(elem);
     expect(render.state.sections === basicsState().sections).to.be.false;
   });
