@@ -1,7 +1,7 @@
 /* global sinon */
 
 export default class DataUtil {
-  constructor(data = [], opts = {}) {
+  constructor() {
     this.bgSources = {
       cbg: true,
       smbg: true,
@@ -13,18 +13,24 @@ export default class DataUtil {
     };
 
     this.getAverageGlucoseData = sinon.stub().returns({
-      averageGlucose: 0,
+      averageGlucose: NaN,
       total: 0,
     });
 
     this.getAverageDailyCarbsData = sinon.stub().returns({
-      averageDailyCarbs: 0,
+      averageDailyCarbs: NaN,
       total: 0,
     });
 
-    this.getCoefficientOfVariationData = sinon.stub().returns({});
+    this.getCoefficientOfVariationData = sinon.stub().returns({
+      coefficientOfVariation: NaN,
+      total: 0,
+    });
 
-    this.getGlucoseManagementIndicatorData = sinon.stub().returns({});
+    this.getGlucoseManagementIndicatorData = sinon.stub().returns({
+      glucoseManagementIndicator: NaN,
+      total: 0,
+    });
 
     this.getReadingsInRangeData = sinon.stub().returns({
       veryLow: 0,
@@ -35,13 +41,20 @@ export default class DataUtil {
       total: 0,
     });
 
-    this.getSensorUsage = sinon.stub().returns({});
+    this.getSensorUsage = sinon.stub().returns({
+      sensorUsage: NaN,
+      total: 0,
+    });
 
-    this.getStandardDevData = sinon.stub().returns({});
+    this.getStandardDevData = sinon.stub().returns({
+      averageGlucose: NaN,
+      standardDeviation: NaN,
+      total: 0,
+    });
 
     this.getTimeInAutoData = sinon.stub().returns({
-      manual: 0,
-      automated: 0,
+      manual: NaN,
+      automated: NaN,
     });
 
     this.getTimeInRangeData = sinon.stub().returns({
@@ -53,7 +66,9 @@ export default class DataUtil {
       total: 0,
     });
 
-    this.getTotalInsulinData = sinon.stub().returns({});
+    this.getTotalInsulinData = sinon.stub().returns({
+      basal: NaN,
+      bolus: NaN,
+    });
   }
 }
-
