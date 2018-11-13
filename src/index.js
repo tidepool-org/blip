@@ -48,6 +48,8 @@ import {
 import DataUtil from './utils/data';
 import { selectDailyViewData } from './utils/print/data';
 
+import DataUtilStub from '../test/helpers/DataUtil';
+
 const i18next = require('i18next');
 if (_.get(i18next, 'options.returnEmptyString') === undefined) {
   // Return key if no translation is present
@@ -95,6 +97,9 @@ const utils = {
     getStatDefinition,
     getStatTitle,
     statBgSourceLabels,
+  },
+  test: {
+    DataUtil: DataUtilStub,
   },
 };
 
