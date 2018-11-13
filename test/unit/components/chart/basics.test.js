@@ -26,54 +26,70 @@ var expect = chai.expect;
 
 import React from 'react';
 import _ from 'lodash';
-import Basics from '../../../../app/components/chart/basics';
 import { mount, shallow } from 'enzyme';
+
+import DataUtilStub from '../../../helpers/DataUtil';
+import Basics from '../../../../app/components/chart/basics';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 
-describe('Basics', () => {
-  let baseProps = {
-    bgPrefs: {
-      bgClasses: {
-        'very-low': {
-          boundary: 60
-        },
-        'low': {
-          boundary: 80
-        },
-        'target': {
-          boundary: 180
-        },
-        'high': {
-          boundary: 200
-        },
-        'very-high': {
-          boundary: 300
-        }
+describe.only('Basics', () => {
+  const bgPrefs = {
+    bgClasses: {
+      'very-low': {
+        boundary: 60
       },
-      bgUnits: MGDL_UNITS
+      'low': {
+        boundary: 80
+      },
+      'target': {
+        boundary: 180
+      },
+      'high': {
+        boundary: 200
+      },
+      'very-high': {
+        boundary: 300
+      }
     },
+    bgUnits: MGDL_UNITS
+  };
+
+  let baseProps = {
+    bgPrefs,
+    bgSource: 'cbg',
+    chartPrefs: { basics: {} },
+    dataUtil: new DataUtilStub(),
+    onClickPrint: sinon.stub(),
+    onUpdateChartDateRange: sinon.stub(),
     patientData: {
       basicsData: {
         data: {},
       },
     },
     pdf: {},
-    onClickPrint: sinon.stub(),
-    onUpdateChartDateRange: sinon.stub(),
+    timePrefs: {
+      timezoneAware: true,
+      timezoneName: 'US/Eastern',
+    },
+    trackMetric: sinon.stub(),
+    updateChartPrefs: sinon.stub(),
   };
 
   let wrapper;
   beforeEach(() => {
-    wrapper = mount(<Basics {...baseProps} />);
+    wrapper = shallow(<Basics.WrappedComponent {...baseProps} />);
   })
 
   afterEach(() => {
     baseProps.onClickPrint.reset();
     baseProps.onUpdateChartDateRange.reset();
+    baseProps.trackMetric.reset();
+    baseProps.updateChartPrefs.reset();
   });
 
   describe('render', () => {
     it('should render the missing data text if no data has been uploaded', () => {
+      wrapper = mount(<Basics {...baseProps} />);
       const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
       const chart = wrapper.hostNodes('BasicsChart');
       expect(noDataMessage.length).to.equal(1);
@@ -82,7 +98,6 @@ describe('Basics', () => {
     });
 
     it('should render the basics chart if any data is uploaded', () => {
-      wrapper = shallow(<Basics.WrappedComponent {...baseProps} />);
       wrapper.setProps({
         patientData: {
           basicsData: _.assign({}, baseProps.patientData.basicsData, {
@@ -136,6 +151,76 @@ describe('Basics', () => {
       printLink.simulate('click');
       expect(props.onClickPrint.callCount).to.equal(1);
     });
+
+    it('should not render the bg toggle when dateRange is not set', () => {
+      const toggle = wrapper.find('BgSourceToggle');
+      expect(toggle.length).to.equal(0);
+    });
+
+    it('should render the bg toggle when dateRange is set', () => {
+      var props = _.assign({}, baseProps, {
+        patientData: {
+          basicsData: {
+            data: {},
+            dateRange: [
+              '2018-01-15T05:00:00.000Z',
+              '2018-01-30T03:46:52.000Z',
+            ],
+          },
+        },
+      });
+      wrapper = shallow(<Basics.WrappedComponent {...props} />);
+      const toggle = wrapper.find('BgSourceToggle');
+      expect(toggle.length).to.equal(1);
+    });
+
+    it('should not render the stats when dateRange is not set', () => {
+      const stats = wrapper.find('Stats');
+      expect(stats.length).to.equal(0);
+    });
+
+    it('should render the stats when dateRange is set', () => {
+      var props = _.assign({}, baseProps, {
+        patientData: {
+          basicsData: {
+            data: {},
+            dateRange: [
+              '2018-01-15T05:00:00.000Z',
+              '2018-01-30T03:46:52.000Z',
+            ],
+          },
+        },
+      });
+      wrapper = shallow(<Basics.WrappedComponent {...props} />);
+      const stats = wrapper.find('Stats');
+      expect(stats.length).to.equal(1);
+    });
+  });
+
+  describe('getInitialState', () => {
+    it('should set the endpoints when dateRange available', () => {
+      var props = _.assign({}, baseProps, {
+        patientData: {
+          basicsData: {
+            data: {},
+            dateRange: [
+              '2018-01-15T05:00:00.000Z',
+              '2018-01-30T03:46:52.000Z',
+            ],
+          },
+        },
+      });
+      wrapper = shallow(<Basics.WrappedComponent {...props} />);
+      expect(wrapper.state('endpoints')).to.eql([
+        '2018-01-15T05:00:00.000Z',
+        '2018-01-31T05:00:00.000Z',
+      ]);
+    });
+
+    it('should set the endpoints to empty array when dateRange unavailable', () => {
+      wrapper = shallow(<Basics.WrappedComponent {...baseProps} />);
+      expect(wrapper.state('endpoints')).to.eql([]);
+    });
   });
 
   describe('componentWillMount', () => {
@@ -159,5 +244,35 @@ describe('Basics', () => {
       let mountedWrapper = mount(<Basics {...props} />);
       sinon.assert.calledOnce(baseProps.onUpdateChartDateRange);
     });
-  })
+  });
+
+  describe('toggleBgDataSource', () => {
+    it('should track metric when toggled', () => {
+      const instance = wrapper.instance();
+      instance.toggleBgDataSource(null, 'cbg');
+      sinon.assert.callCount(baseProps.trackMetric, 1);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Basics Click to CGM');
+
+      instance.toggleBgDataSource(null, 'smbg');
+      sinon.assert.callCount(baseProps.trackMetric, 2);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Basics Click to BGM');
+    });
+
+    it('should call the `updateChartPrefs` handler to update the bgSource', () => {
+      const instance = wrapper.instance();
+      instance.toggleBgDataSource(null, 'cbg');
+
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        basics: { bgSource: 'cbg' },
+      });
+
+      instance.toggleBgDataSource(null, 'smbg');
+
+      sinon.assert.callCount(baseProps.updateChartPrefs, 2);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        basics: { bgSource: 'smbg' },
+      });
+    });
+  });
 });
