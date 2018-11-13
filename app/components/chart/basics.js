@@ -1,33 +1,16 @@
-
-/*
- * == BSD2 LICENSE ==
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
- */
+import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
-import React from 'react';
 import moment from 'moment';
 import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
-var BasicsChart = tidelineBlip.basics;
+const BasicsChart = tidelineBlip.basics;
 
 import { components as vizComponents } from '@tidepool/viz';
-var Loader = vizComponents.Loader;
+const Loader = vizComponents.Loader;
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
@@ -35,13 +18,12 @@ import Header from './header';
 import Footer from './footer';
 import { BG_DATA_TYPES } from '../../core/constants';
 
-var Basics = translate()(React.createClass({
-  chartType: 'basics',
-  log: bows('Basics View'),
-  propTypes: {
+class Basics extends Component {
+  static propTypes = {
     bgPrefs: React.PropTypes.object.isRequired,
     bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
+    dataUtil: React.PropTypes.object,
     timePrefs: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
     patientData: React.PropTypes.object.isRequired,
@@ -59,25 +41,40 @@ var Basics = translate()(React.createClass({
     updateBasicsData: React.PropTypes.func.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
-  },
+  };
 
-  getInitialState: function() {
+  static displayName = 'Basics';
+
+  constructor(props) {
+    super(props);
+    this.chartType = 'basics';
+    this.log = bows('Basics View');
+
+    this.state = this.getInitialState();
+  }
+
+  getInitialState = () => {
     const { timezoneAware, timezoneName } = this.props.timePrefs;
-    const endMoment = moment
-      .utc(this.props.patientData.basicsData.dateRange[1])
-      .add(1, 'day')
-      .startOf('day');
+    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
+    let endpoints = [];
 
-    let timezoneOffset = 0;
+    if (dateRange) {
+      const endMoment = moment
+        .utc(dateRange[1])
+        .add(1, 'day')
+        .startOf('day');
 
-    if (timezoneAware) {
-      timezoneOffset = sundial.getOffsetFromZone(endMoment.toISOString(), timezoneName);
+      let timezoneOffset = 0;
+
+      if (timezoneAware) {
+        timezoneOffset = sundial.getOffsetFromZone(endMoment.toISOString(), timezoneName);
+      }
+
+      endpoints = [
+        this.props.patientData.basicsData.dateRange[0],
+        endMoment.subtract(timezoneOffset, 'minutes').toISOString(),
+      ];
     }
-
-    const endpoints = [
-      this.props.patientData.basicsData.dateRange[0],
-      endMoment.subtract(timezoneOffset, 'minutes').toISOString(),
-    ];
 
     return {
       atMostRecent: true,
@@ -85,17 +82,17 @@ var Basics = translate()(React.createClass({
       title: this.getTitle(),
       endpoints,
     };
-  },
+  };
 
-  componentWillMount: function() {
-    var basicsData = this.props.patientData.basicsData;
+  componentWillMount = () => {
+    const basicsData = this.props.patientData.basicsData;
 
     if (basicsData.dateRange) {
       this.props.onUpdateChartDateRange(basicsData.dateRange);
     }
-  },
+  };
 
-  render: function() {
+  render = () => {
     return (
       <div id="tidelineMain" className="basics">
         <Header
@@ -122,21 +119,25 @@ var Basics = translate()(React.createClass({
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
-              <BgSourceToggle
-                bgSource={this.props.bgSource}
-                bgSources={this.props.dataUtil.bgSources}
-                chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                onClickBgSourceToggle={this.toggleBgDataSource}
-              />
-              <Stats
-                bgPrefs={this.props.bgPrefs}
-                bgSource={this.props.bgSource}
-                chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                dataUtil={this.props.dataUtil}
-                endpoints={this.state.endpoints}
-              />
+            {this.state.endpoints.length && (
+              <div>
+                <BgSourceToggle
+                  bgSource={this.props.bgSource}
+                  bgSources={this.props.dataUtil.bgSources}
+                  chartPrefs={this.props.chartPrefs}
+                  chartType={this.chartType}
+                  onClickBgSourceToggle={this.toggleBgDataSource}
+                />
+                <Stats
+                  bgPrefs={this.props.bgPrefs}
+                  bgSource={this.props.bgSource}
+                  chartPrefs={this.props.chartPrefs}
+                  chartType={this.chartType}
+                  dataUtil={this.props.dataUtil}
+                  endpoints={this.state.endpoints}
+                />
+              </div>
+            )}
             </div>
           </div>
         </div>
@@ -146,9 +147,9 @@ var Basics = translate()(React.createClass({
         ref="footer" />
       </div>
       );
-  },
+  };
 
-  renderChart: function() {
+  renderChart = () => {
     return (
       <div id="tidelineContainer" className="patient-data-chart-growing">
         <BasicsChart
@@ -165,12 +166,12 @@ var Basics = translate()(React.createClass({
           trackMetric={this.props.trackMetric} />
       </div>
     );
-  },
+  };
 
-  renderMissingBasicsMessage: function() {
-    var self = this;
+  renderMissingBasicsMessage = () => {
+    const self = this;
     const { t } = this.props;
-    var handleClickUpload = function() {
+    const handleClickUpload = function() {
       self.props.trackMetric('Clicked Partial Data Upload, No Pump Data for Basics');
     };
 
@@ -185,30 +186,31 @@ var Basics = translate()(React.createClass({
         </p>
       </Trans>
     );
-  },
+  };
 
-  getTitle: function() {
+  getTitle = () => {
     const { t } = this.props;
     if (this.isMissingBasics()) {
       return '';
     }
-    var timePrefs = this.props.timePrefs, timezone;
+    const timePrefs = this.props.timePrefs
+    let timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
     }
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-    var basicsData = this.props.patientData.basicsData;
-    var dtMask = t('MMM D, YYYY');
+    const basicsData = this.props.patientData.basicsData;
+    const dtMask = t('MMM D, YYYY');
 
     return sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask) +
       ' - ' + sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask);
-  },
+  }
 
-  isMissingBasics: function() {
-    var basicsData = _.get(this.props, 'patientData.basicsData', {});
-    var data;
+  isMissingBasics = () => {
+    const basicsData = _.get(this.props, 'patientData.basicsData', {});
+    let data;
 
     if (basicsData.data) {
       data = basicsData.data;
@@ -218,12 +220,12 @@ var Basics = translate()(React.createClass({
     }
 
     // require at least one relevant data point to show The Basics
-    var basicsDataLength = _.flatten(_.map(_.values(data), 'data')).length;
+    const basicsDataLength = _.flatten(_.map(_.values(data), 'data')).length;
     return basicsDataLength === 0;
-  },
+  };
 
   // handlers
-  toggleBgDataSource(e, bgSource) {
+  toggleBgDataSource = (e, bgSource) => {
     if (e) {
       e.preventDefault();
     }
@@ -234,47 +236,47 @@ var Basics = translate()(React.createClass({
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.basics.bgSource = bgSource;
     this.props.updateChartPrefs(prefs);
-  },
+  };
 
-  handleClickBasics: function(e) {
+  handleClickBasics = e => {
     if (e) {
       e.preventDefault();
     }
     return;
-  },
+  };
 
-  handleClickTrends: function(e) {
+  handleClickTrends = e => {
     if (e) {
       e.preventDefault();
     }
     this.props.onSwitchToTrends();
-  },
+  };
 
-  handleClickOneDay: function(e) {
+  handleClickOneDay = e => {
     if (e) {
       e.preventDefault();
     }
     this.props.onSwitchToDaily();
-  },
+  };
 
-  handleClickPrint: function(e) {
+  handleClickPrint = e => {
     if (e) {
       e.preventDefault();
     }
 
     this.props.onClickPrint(this.props.pdf);
-  },
+  };
 
-  handleClickTwoWeeks: function(e) {
+  handleClickTwoWeeks = e => {
     if (e) {
       e.preventDefault();
     }
     this.props.onSwitchToWeekly();
-  },
+  };
 
-  handleSelectDay: function(date, title) {
+  handleSelectDay = (date, title) => {
     this.props.onSwitchToDaily(date, title);
-  },
-}));
+  };
+};
 
-module.exports = Basics;
+export default translate()(Basics);

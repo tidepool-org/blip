@@ -13,8 +13,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import Basics from './basics';
+
 module.exports = {
-  basics: require('./basics'),
+  basics: Basics,
   daily: require('./daily'),
   weekly: require('./weekly'),
   settings: require('./settings'),
