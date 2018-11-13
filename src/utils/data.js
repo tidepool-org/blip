@@ -144,19 +144,23 @@ export class DataUtil {
     return data;
   };
 
-  getAverageDailyCarbsData = () => {
+  getCarbsData = () => {
     this.applyDateFilters();
 
     const wizardData = this.filter.byType('wizard').top(Infinity);
 
-    const totalCarbs = _.reduce(
+    let carbs = _.reduce(
       wizardData,
       (result, datum) => result + _.get(datum, 'carbInput', 0),
       0
     );
 
+    if (this.days > 1) {
+      carbs = carbs / this.days;
+    }
+
     return {
-      averageDailyCarbs: totalCarbs / this.days,
+      carbs,
       total: wizardData.length,
     };
   };
@@ -403,15 +407,15 @@ export class DataUtil {
     basalData = this.applyBasalOverlappingStart(basalData);
 
     const totalInsulin = {
-      totalBasal: basalData.length
+      basal: basalData.length
         ? parseFloat(getTotalBasalFromEndpoints(basalData, this._endpoints))
         : NaN,
-      totalBolus: bolusData.length ? getTotalBolus(bolusData) : NaN,
+      bolus: bolusData.length ? getTotalBolus(bolusData) : NaN,
     };
 
     if (this.days > 1) {
-      totalInsulin.totalBasal = totalInsulin.totalBasal / this.days;
-      totalInsulin.totalBolus = totalInsulin.totalBolus / this.days;
+      totalInsulin.basal = totalInsulin.basal / this.days;
+      totalInsulin.bolus = totalInsulin.bolus / this.days;
     }
 
     return totalInsulin;
