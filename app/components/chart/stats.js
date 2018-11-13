@@ -40,7 +40,7 @@ class Stats extends Component {
 
     this.dataFetchMethods = {
       [commonStats.averageGlucose]: 'getAverageGlucoseData',
-      [commonStats.averageDailyCarbs]: 'getAverageDailyCarbsData',
+      [commonStats.carbs]: 'getCarbsData',
       [commonStats.coefficientOfVariation]: 'getCoefficientOfVariationData',
       [commonStats.glucoseManagementIndicator]: 'getGlucoseManagementIndicatorData',
       [commonStats.readingsInRange]: 'getReadingsInRangeData',
@@ -105,7 +105,6 @@ class Stats extends Component {
   renderStats = (stats) => (_.map(stats, (stat) => (<Stat key={stat.id} bgPrefs={this.bgPrefs} {...stat} />)));
 
   render = () => {
-    console.log('stats', this.state.stats);
     return (
       <div className="Stats">
         {this.renderStats(this.state.stats)}
@@ -150,7 +149,7 @@ class Stats extends Component {
         cbgSelected && addStat(commonStats.sensorUsage);
         addStat(commonStats.totalInsulin);
         isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
-        addStat(commonStats.averageDailyCarbs);
+        addStat(commonStats.carbs);
         cbgSelected && addStat(commonStats.glucoseManagementIndicator);
         break;
 
@@ -160,6 +159,7 @@ class Stats extends Component {
         addStat(commonStats.averageGlucose);
         addStat(commonStats.totalInsulin);
         isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
+        addStat(commonStats.carbs);
         cbgSelected && addStat(commonStats.standardDev);
         cbgSelected && addStat(commonStats.coefficientOfVariation);
         break;
