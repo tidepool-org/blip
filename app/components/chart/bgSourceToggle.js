@@ -15,14 +15,14 @@ class BgSourceToggle extends PureComponent {
       cbg: PropTypes.bool.isRequired,
       smbg: PropTypes.bool.isRequired,
     }).isRequired,
-    chartPrefs: PropTypes.object.isRequired,
-    chartType: PropTypes.oneOf(['basics', 'daily', 'weekly', 'trends']).isRequired,
-    disabled: PropTypes.bool,
     onClickBgSourceToggle: PropTypes.func.isRequired,
   };
 
+  static displayName = 'BgSourceToggle';
+
   render = () => {
-    const showToggle = this.props.bgSources.cbg && this.props.bgSources.smbg;
+    const showToggle = this.props.bgSources.cbg || this.props.bgSources.smbg;
+    const disabled = !(this.props.bgSources.cbg && this.props.bgSources.smbg);
 
     return (
       <div className="toggle-container">
@@ -30,6 +30,7 @@ class BgSourceToggle extends PureComponent {
           left={{ label: statBgSourceLabels.smbg, state: this.props.bgSource === 'smbg' }}
           right={{ label: statBgSourceLabels.cbg, state: this.props.bgSource === 'cbg' }}
           toggleFn={this.handleBgToggle}
+          disabled={disabled}
         /> : null}
       </div>
     );
