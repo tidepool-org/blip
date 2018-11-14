@@ -220,7 +220,7 @@ class Daily extends Component {
   constructor(props) {
     super(props);
 
-    this.chartType = 'weekly';
+    this.chartType = 'daily';
     this.log = bows('Daily View');
     this.state = this.getInitialState()
   }
