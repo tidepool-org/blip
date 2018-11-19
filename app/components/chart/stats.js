@@ -49,7 +49,7 @@ class Stats extends Component {
       [commonStats.timeInAuto]: 'getTimeInAutoData',
       [commonStats.timeInRange]: 'getTimeInRangeData',
       [commonStats.totalInsulin]: 'getTotalInsulinData',
-    }
+    };
 
     this.updateDataUtilEndpoints(this.props);
 
@@ -102,7 +102,11 @@ class Stats extends Component {
       : false;
   };
 
-  renderStats = (stats) => (_.map(stats, (stat) => (<Stat key={stat.id} bgPrefs={this.bgPrefs} {...stat} />)));
+  renderStats = (stats) => (_.map(stats, (stat) => (
+    <div id={`Stat--${stat.id}`} key={stat.id}>
+      <Stat bgPrefs={this.bgPrefs} {...stat} />
+    </div>
+  )));
 
   render = () => {
     return (
@@ -119,7 +123,7 @@ class Stats extends Component {
       bgSource,
     } = props;
 
-    const { bgBounds, bgSources, bgUnits, days, latestPump } = dataUtil;
+    const { bgBounds, bgUnits, days, latestPump } = dataUtil;
     const { manufacturer, deviceModel } = latestPump;
     const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
 
@@ -139,12 +143,11 @@ class Stats extends Component {
 
     const cbgSelected = bgSource === 'cbg';
     const smbgSelected = bgSource === 'smbg';
-    const hasBgData = bgSources[bgSource];
 
     switch (chartType) {
       case 'basics':
-        cbgSelected && hasBgData && addStat(commonStats.timeInRange);
-        smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
+        cbgSelected && addStat(commonStats.timeInRange);
+        smbgSelected && addStat(commonStats.readingsInRange);
         addStat(commonStats.averageGlucose);
         cbgSelected && addStat(commonStats.sensorUsage);
         addStat(commonStats.totalInsulin);
@@ -154,8 +157,8 @@ class Stats extends Component {
         break;
 
       case 'daily':
-        cbgSelected && hasBgData && addStat(commonStats.timeInRange);
-        smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
+        cbgSelected && addStat(commonStats.timeInRange);
+        smbgSelected && addStat(commonStats.readingsInRange);
         addStat(commonStats.averageGlucose);
         addStat(commonStats.totalInsulin);
         isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
@@ -172,8 +175,8 @@ class Stats extends Component {
         break;
 
       case 'trends':
-        cbgSelected && hasBgData && addStat(commonStats.timeInRange);
-        smbgSelected && hasBgData && addStat(commonStats.readingsInRange);
+        cbgSelected && addStat(commonStats.timeInRange);
+        smbgSelected && addStat(commonStats.readingsInRange);
         addStat(commonStats.averageGlucose);
         cbgSelected && addStat(commonStats.sensorUsage);
         cbgSelected && addStat(commonStats.glucoseManagementIndicator);
@@ -218,7 +221,7 @@ class Stats extends Component {
       stats[i].title = getStatTitle(stat.id, opts);
     });
 
-    this.setState(stats);
+    this.setState({ stats });
   };
 };
 

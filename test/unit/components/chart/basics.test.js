@@ -32,7 +32,7 @@ import DataUtilStub from '../../../helpers/DataUtil';
 import Basics from '../../../../app/components/chart/basics';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 
-describe.only('Basics', () => {
+describe('Basics', () => {
   const bgPrefs = {
     bgClasses: {
       'very-low': {
@@ -68,8 +68,8 @@ describe.only('Basics', () => {
     },
     pdf: {},
     timePrefs: {
-      timezoneAware: true,
-      timezoneName: 'US/Eastern',
+      timezoneAware: false,
+      timezoneName: 'US/Pacific',
     },
     trackMetric: sinon.stub(),
     updateChartPrefs: sinon.stub(),
@@ -198,13 +198,13 @@ describe.only('Basics', () => {
   });
 
   describe('getInitialState', () => {
-    it('should set the endpoints when dateRange available', () => {
+    it('should set the endpoints when dateRange available and timezoneAware is false', () => {
       var props = _.assign({}, baseProps, {
         patientData: {
           basicsData: {
             data: {},
             dateRange: [
-              '2018-01-15T05:00:00.000Z',
+              '2018-01-15T00:00:00.000Z',
               '2018-01-30T03:46:52.000Z',
             ],
           },
@@ -212,8 +212,31 @@ describe.only('Basics', () => {
       });
       wrapper = shallow(<Basics.WrappedComponent {...props} />);
       expect(wrapper.state('endpoints')).to.eql([
-        '2018-01-15T05:00:00.000Z',
-        '2018-01-31T05:00:00.000Z',
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-31T00:00:00.000Z',
+      ]);
+    });
+
+    it('should set the endpoints when dateRange available and timezoneAware is true', () => {
+      var props = _.assign({}, baseProps, {
+        timePrefs: {
+          timezoneAware: true,
+          timezoneName: 'US/Pacific',
+        },
+        patientData: {
+          basicsData: {
+            data: {},
+            dateRange: [
+              '2018-01-15T08:00:00.000Z',
+              '2018-01-30T03:46:52.000Z',
+            ],
+          },
+        },
+      });
+      wrapper = shallow(<Basics.WrappedComponent {...props} />);
+      expect(wrapper.state('endpoints')).to.eql([
+        '2018-01-15T08:00:00.000Z',
+        '2018-01-31T08:00:00.000Z',
       ]);
     });
 

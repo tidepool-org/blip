@@ -29,9 +29,11 @@ var expect = chai.expect;
 import React from 'react';
 import _ from 'lodash';
 import Weekly from '../../../../app/components/chart/weekly';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
+import i18next from '../../../../app/core/language';
+import DataUtilStub from '../../../helpers/DataUtil';
 
 const { Loader } = vizComponents;
 
@@ -61,7 +63,20 @@ describe('Weekly', () => {
       timezoneAware: false,
       timezoneName: 'US/Pacific'
     },
-    chartPrefs: {},
+    isClinicAccount: false,
+    onClickRefresh: sinon.stub(),
+    onClickNoDataRefresh: sinon.stub(),
+    onSwitchToBasics: sinon.stub(),
+    onSwitchToDaily: sinon.stub(),
+    onSwitchToWeekly: sinon.stub(),
+    onSwitchToTrends: sinon.stub(),
+    onSwitchToSettings: sinon.stub(),
+    trackMetric: sinon.stub(),
+    uploadUrl: '',
+    chartPrefs: {
+      weekly: {},
+    },
+    dataUtil: new DataUtilStub(),
     currentPatientInViewId: 1234,
     patientData: {
       WeeklyData: {
@@ -71,17 +86,17 @@ describe('Weekly', () => {
         smbg: [],
       },
     },
-    WeeklyState: {
-      '1234': {},
-    },
     loading: false,
     onUpdateChartDateRange: sinon.stub(),
+    t: i18next.t.bind(i18next),
     updateDatetimeLocation: sinon.stub()
   };
 
   let wrapper;
+  let instance;
   beforeEach(() => {
-    wrapper = mount(<Weekly {...baseProps} />);
+    wrapper = shallow(<Weekly.WrappedComponent {...baseProps} />);
+    instance = wrapper.instance();
   })
 
   afterEach(() => {
@@ -99,21 +114,19 @@ describe('Weekly', () => {
       wrapper.setProps({ loading: true });
       expect(loader().props().show).to.be.true;
     });
+
+    it('should render the stats', () => {
+      const stats = wrapper.find('Stats');
+      expect(stats.length).to.equal(1);
+    });
   });
 
   describe('handleDatetimeLocationChange', () => {
-    let wrapper;
-    let instance;
     let state = () => instance.state;
 
     const chart = {
       getCurrentDay: sinon.stub().returns('current day'),
     };
-
-    beforeEach(() => {
-      wrapper = mount(<Weekly {...baseProps} />);
-      instance = wrapper.instance().getWrappedInstance();
-    });
 
     it('should set the `datetimeLocation` state', () => {
       expect(state().datetimeLocation).to.be.undefined;
@@ -135,6 +148,41 @@ describe('Weekly', () => {
       ], chart);
 
       expect(state().title).to.equal('Jan 15, 2018 - Jan 28, 2018');
+    });
+
+    it('should set the `endpoints` state correctly when timezoneAware is false', () => {
+      expect(state().endpoints).to.eql([]);
+
+      instance.handleDatetimeLocationChange([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-28T23:59:59.000Z',
+      ], chart);
+
+      expect(state().endpoints).to.eql([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-29T00:00:00.000Z',
+      ]);
+    });
+
+    it('should set the `endpoints` state correctly when timezoneAware is true', () => {
+      expect(state().endpoints).to.eql([]);
+
+      wrapper.setProps(_.assign({}, baseProps, {
+        timePrefs: {
+          timezoneAware: true,
+          timezoneName: 'US/Pacific',
+        },
+      }));
+
+      instance.handleDatetimeLocationChange([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-28T23:59:59.000Z',
+      ], chart);
+
+      expect(state().endpoints).to.eql([
+        '2018-01-15T08:00:00.000Z',
+        '2018-01-29T08:00:00.000Z',
+      ]);
     });
 
     it('should call the `updateDatetimeLocation` prop method', () => {

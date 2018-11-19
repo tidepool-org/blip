@@ -9,7 +9,6 @@
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
-import util from 'util';
 import moment from 'moment';
 import _ from 'lodash';
 

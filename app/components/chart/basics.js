@@ -40,6 +40,7 @@ class Basics extends Component {
     trackMetric: React.PropTypes.func.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
+    updateChartPrefs: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
   };
 

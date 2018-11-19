@@ -40,7 +40,7 @@ const SMBGTooltip = vizComponents.SMBGTooltip;
 import Header from './header';
 import Footer from './footer';
 
-const LocalizedDailyChart = translate()(class DailyChart extends Component {
+const DailyChart = translate()(class DailyChart extends Component {
   static propTypes = {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
@@ -214,7 +214,8 @@ class Daily extends Component {
     onSwitchToTrends: React.PropTypes.func.isRequired,
     // PatientData state updaters
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
-    updateDatetimeLocation: React.PropTypes.func.isRequired
+    updateChartPrefs: React.PropTypes.func.isRequired,
+    updateDatetimeLocation: React.PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -228,6 +229,7 @@ class Daily extends Component {
   getInitialState = () => {
     return {
       atMostRecent: false,
+      endpoints: [],
       inTransition: false,
       title: '',
     };
@@ -266,7 +268,7 @@ class Daily extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
-              <LocalizedDailyChart
+              <DailyChart
                 bgClasses={this.props.bgPrefs.bgClasses}
                 bgUnits={this.props.bgPrefs.bgUnits}
                 bolusRatio={this.props.chartPrefs.bolusRatio}

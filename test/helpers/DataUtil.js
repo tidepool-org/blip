@@ -1,16 +1,26 @@
 /* global sinon */
 
 export default class DataUtil {
-  constructor() {
-    this.bgSources = {
+  constructor(data = [], opts = {}) {
+    this.bgSources = opts.bgSources || {
       cbg: true,
       smbg: true,
     };
 
-    this.latestPump = {
-      deviceModel: '1780',
-      manufacturer: 'medtronic',
+    this._endpoints = opts.endpoints || [];
+    this._chartPrefs = opts.chartPrefs || {};
+
+    this.defaultBgSource = 'cbg';
+    this.bgBounds = {};
+    this.bgUnits = 'mg/dL';
+    this.days = {};
+
+    this.latestPump = opts.latestPump || {
+      deviceModel: 'Ping',
+      manufacturer: 'Animas',
     };
+
+    this.addData = sinon.stub();
 
     this.getAverageGlucoseData = sinon.stub().returns({
       averageGlucose: NaN,
@@ -70,5 +80,17 @@ export default class DataUtil {
       basal: NaN,
       bolus: NaN,
     });
+  }
+
+  get bgSource() {
+    return this.defaultBgSource;
+  }
+
+  set chartPrefs(chartPrefs = {}) {
+    this._chartPrefs = chartPrefs;
+  }
+
+  set endpoints(endpoints = []) {
+    this._endpoints = endpoints;
   }
 }

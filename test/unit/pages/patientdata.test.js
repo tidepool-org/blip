@@ -17,6 +17,7 @@ import moment from 'moment';
 import { mount, shallow } from 'enzyme';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
+import DataUtilStub from '../../helpers/DataUtil';
 
 const { Loader } = vizComponents;
 
@@ -79,8 +80,10 @@ describe('PatientData', function () {
     PD.__Rewire__('vizUtils', {
       data: {
         selectDailyViewData: sinon.stub().returns('stubbed filtered data'),
+        DataUtil: DataUtilStub,
       },
     });
+    // PD.__Rewire__('DataUtil', DataUtilStub);
   });
 
   after(() => {
@@ -88,6 +91,7 @@ describe('PatientData', function () {
     PD.__ResetDependency__('Trends');
     PD.__ResetDependency__('Weekly');
     PD.__ResetDependency__('vizUtils');
+    // PD.__ResetDependency__('DataUtil');
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -403,7 +407,7 @@ describe('PatientData', function () {
       ];
 
       const props = _.assign({}, defaultProps, {
-        currentPatientInViewId: 40,
+        currentPatientInViewId: '40',
         patient: {
           userid: 40,
           profile: {
@@ -422,6 +426,8 @@ describe('PatientData', function () {
       beforeEach(() => {
         elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
         sinon.spy(elem, 'deriveChartTypeFromLatestData');
+
+        elem.dataUtil = new DataUtilStub();
 
         kickOffProcessing = (data, includeUploads = true) => {
           let processedData;
@@ -464,6 +470,26 @@ describe('PatientData', function () {
             },
           });
         };
+      });
+
+      it('should set `dataUtil._chartPrefs` to the prefs for the initial `chartType` state', () => {
+        const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+        const instance = wrapper.instance();
+
+        const processedData = {
+          grouped: {
+            upload: ['foo'],
+          },
+          diabetesData: ['bar'] ,
+        };
+
+        const chartPrefs = { basics: 'basics prefs' };
+
+        wrapper.setState({ chartPrefs })
+        instance.dataUtil = new DataUtilStub();
+
+        instance.setInitialChartType(processedData);
+        expect(instance.dataUtil._chartPrefs).to.equal('basics prefs');
       });
 
       context('setting default view based on device type of last upload', () => {
@@ -705,6 +731,7 @@ describe('PatientData', function () {
 
           // Try out using the spread props syntax in JSX
           var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props}/>), PatientData.WrappedComponent);
+          elem.dataUtil = new DataUtilStub();
 
           // Setting data.type to 'cbg' should result in <Trends /> view rendering
           const data = [{ type: 'cbg' }];
@@ -755,6 +782,7 @@ describe('PatientData', function () {
 
           // Try out using the spread props syntax in JSX
           var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props}/>), PatientData.WrappedComponent);
+          elem.dataUtil = new DataUtilStub();
 
           // Setting data.type to 'basal' should result in <Basics /> view rendering
           const data = [{ type: 'basal' }];
@@ -784,6 +812,47 @@ describe('PatientData', function () {
           expect(x).to.be.ok;
         });
       });
+    });
+  });
+
+  describe('getInitialState', () => {
+    it('should return the default `chartPrefs` state for each data view', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      expect(wrapper.state().chartPrefs).to.eql({
+        basics: {},
+        daily: {},
+        trends: {
+          activeDays: {
+            monday: true,
+            tuesday: true,
+            wednesday: true,
+            thursday: true,
+            friday: true,
+            saturday: true,
+            sunday: true,
+          },
+          activeDomain: '2 weeks',
+          extentSize: 14,
+          showingCbg: true,
+          showingSmbg: false,
+          smbgGrouped: false,
+          smbgLines: false,
+          smbgRangeOverlay: true,
+        },
+        weekly: {
+          bgSource: 'smbg',
+        },
+      });
+    });
+  });
+
+  describe('getBgSource', () => {
+    it('should return the bgSource property of the `dataUtil`', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+      instance.dataUtil = new DataUtilStub();
+
+      expect(instance.getBgSource()).to.equal('cbg');
     });
   });
 
@@ -2269,10 +2338,10 @@ describe('PatientData', function () {
       wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       instance = wrapper.instance();
 
-
       // we want to stub out componentWillUpdate and fetchEarlierData to keep these tests isolated
       instance.componentWillUpdate = sinon.stub();
       instance.fetchEarlierData = sinon.stub();
+      instance.dataUtil = new DataUtilStub();
 
       // stub out any methods we expect to be called
       addDataStub = sinon.stub().returns(processedPatientDataStub);
@@ -2294,6 +2363,8 @@ describe('PatientData', function () {
         getTimezoneForDataProcessing: sinon.stub().returns('stubbed timezone'),
       });
 
+      PD.__Rewire__('DataUtil', DataUtilStub);
+
       processPatientDataStub = PD.__get__('utils').processPatientData;
       getTimezoneForDataProcessingStub = PD.__get__('utils').getTimezoneForDataProcessing;
 
@@ -2305,6 +2376,7 @@ describe('PatientData', function () {
       addDataStub.reset();
       getTimezoneForDataProcessingStub.reset();
       PD.__ResetDependency__('utils');
+      PD.__ResetDependency__('DataUtil');
     });
 
     context('data is currently being processed', () => {
@@ -2672,6 +2744,25 @@ describe('PatientData', function () {
             patientID: 40 ,
           });
         });
+
+        it('should initialize the `dataUtil`', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
+          });
+
+          wrapper.setProps(shouldProcessProps);
+
+          delete instance.dataUtil;
+          expect(instance.dataUtil).to.be.undefined;
+
+          instance.processData();
+          expect(instance.dataUtil).to.be.an.instanceof(DataUtilStub);
+
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Processed initial patient data', {
+            patientID: 40 ,
+          });
+        });
       });
 
       context('processing subsequent data', () => {
@@ -2732,6 +2823,30 @@ describe('PatientData', function () {
           sinon.assert.calledOnce(addDataStub);
           sinon.assert.calledWith(
             addDataStub,
+            [
+              sinon.match(shouldProcessProps.patientDataMap[40][2]), // diabetes data order reversed due to reseting utils.filterPatientData mock above, which sorts by time asc
+              sinon.match(shouldProcessProps.patientDataMap[40][1]),
+              sinon.match({ messageText: 'hello' }),
+            ],
+          );
+        });
+
+        it('should add newly processed data to the dataUtil', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-05T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.resetHistory();
+          PD.__ResetDependency__('utils');
+
+          sinon.assert.notCalled(instance.dataUtil.addData);
+
+          instance.processData();
+
+          sinon.assert.calledOnce(instance.dataUtil.addData);
+          sinon.assert.calledWith(
+            instance.dataUtil.addData,
             [
               sinon.match(shouldProcessProps.patientDataMap[40][2]), // diabetes data order reversed due to reseting utils.filterPatientData mock above, which sorts by time asc
               sinon.match(shouldProcessProps.patientDataMap[40][1]),
@@ -2990,6 +3105,7 @@ describe('PatientData', function () {
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+      elem.dataUtil = new DataUtilStub();
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToBasics();
@@ -3000,10 +3116,24 @@ describe('PatientData', function () {
     it('should set the `chartType` state to `basics`', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+      instance.dataUtil = new DataUtilStub();
       wrapper.setState({chartType: 'daily'});
 
       instance.handleSwitchToBasics();
       expect(wrapper.state('chartType')).to.equal('basics');
+    });
+
+    it('should set `dataUtil._chartPrefs` to the `basics.chartPrefs` state', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      const chartPrefs = { basics: 'basics prefs' };
+
+      wrapper.setState({ chartPrefs })
+      instance.dataUtil = new DataUtilStub();
+
+      instance.handleSwitchToBasics();
+      expect(instance.dataUtil._chartPrefs).to.equal('basics prefs');
     });
   });
 
@@ -3026,6 +3156,7 @@ describe('PatientData', function () {
       };
 
       var elem = TestUtils.renderIntoDocument(<PatientData.WrappedComponent {...props}/>);
+      elem.dataUtil = new DataUtilStub();
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
@@ -3036,15 +3167,32 @@ describe('PatientData', function () {
     it('should set the `chartType` state to `daily`', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+      instance.dataUtil = new DataUtilStub();
+
       wrapper.setState({chartType: 'basics'});
 
       instance.handleSwitchToDaily();
       expect(wrapper.state('chartType')).to.equal('daily');
     });
 
+    it('should set `dataUtil._chartPrefs` to the `daily.chartPrefs` state', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      const chartPrefs = { daily: 'daily prefs' };
+
+      wrapper.setState({ chartPrefs })
+      instance.dataUtil = new DataUtilStub();
+
+      instance.handleSwitchToDaily();
+      expect(instance.dataUtil._chartPrefs).to.equal('daily prefs');
+    });
+
     it('should set the `datetimeLocation` state to noon for the provided datetime', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+      instance.dataUtil = new DataUtilStub();
+
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
       instance.handleSwitchToDaily('2018-03-03T00:00:00.000Z');
@@ -3070,6 +3218,7 @@ describe('PatientData', function () {
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+      elem.dataUtil = new DataUtilStub();
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToTrends('2016-08-19T01:51:55.000Z');
@@ -3080,15 +3229,32 @@ describe('PatientData', function () {
     it('should set the `chartType` state to `trends`', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+      instance.dataUtil = new DataUtilStub();
+
       wrapper.setState({chartType: 'basics'});
 
       instance.handleSwitchToTrends();
       expect(wrapper.state('chartType')).to.equal('trends');
     });
 
+    it('should set `dataUtil._chartPrefs` to the `trends.chartPrefs` state', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      const chartPrefs = { trends: 'trends prefs' };
+
+      wrapper.setState({ chartPrefs })
+      instance.dataUtil = new DataUtilStub();
+
+      instance.handleSwitchToTrends();
+      expect(instance.dataUtil._chartPrefs).to.equal('trends prefs');
+    });
+
     it('should set the `datetimeLocation` state to the end of the day for the provided datetime', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+      instance.dataUtil = new DataUtilStub();
+
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
       instance.handleSwitchToTrends('2018-03-03T00:00:00.000Z');
@@ -3114,6 +3280,7 @@ describe('PatientData', function () {
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+      elem.dataUtil = new DataUtilStub();
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToWeekly('2016-08-19T01:51:55.000Z');
@@ -3124,15 +3291,32 @@ describe('PatientData', function () {
     it('should set the `chartType` state to `weekly`', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+      instance.dataUtil = new DataUtilStub();
+
       wrapper.setState({chartType: 'basics'});
 
       instance.handleSwitchToWeekly();
       expect(wrapper.state('chartType')).to.equal('weekly');
     });
 
+    it('should set `dataUtil._chartPrefs` to the `weekly.chartPrefs` state', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      const chartPrefs = { weekly: 'weekly prefs' };
+
+      wrapper.setState({ chartPrefs })
+      instance.dataUtil = new DataUtilStub();
+
+      instance.handleSwitchToWeekly();
+      expect(instance.dataUtil._chartPrefs).to.equal('weekly prefs');
+    });
+
     it('should set the `datetimeLocation` state to noon for the provided datetime', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+      instance.dataUtil = new DataUtilStub();
+
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
       instance.handleSwitchToWeekly('2018-03-03T00:00:00.000Z');
@@ -3158,6 +3342,7 @@ describe('PatientData', function () {
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+      elem.dataUtil = new DataUtilStub();
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToSettings();
@@ -3168,6 +3353,8 @@ describe('PatientData', function () {
     it('should set the `chartType` state to `settings`', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+      instance.dataUtil = new DataUtilStub();
+
       wrapper.setState({chartType: 'daily'});
 
       instance.handleSwitchToSettings();

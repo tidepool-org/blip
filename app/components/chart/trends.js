@@ -74,6 +74,7 @@ const Trends = translate()(class Trends extends PureComponent {
 
     this.state = {
       atMostRecent: true,
+      endpoints: [],
       inTransition: false,
       title: '',
       visibleDays: 0,
@@ -144,7 +145,6 @@ const Trends = translate()(class Trends extends PureComponent {
 
   handleWindowResize(windowSize) {
     this.chart.mountData();
-    // this.chart.forceUpdate();
   }
 
   handleClickBack(e) {
@@ -480,7 +480,8 @@ const Trends = translate()(class Trends extends PureComponent {
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDate={this.handleSelectDate}
         onSwitchBgDataSource={this.toggleBgDataSource}
-      ref="chart" />
+        ref="chart"
+      />
     );
   }
 
