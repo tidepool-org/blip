@@ -59,6 +59,9 @@ TwoOptionToggle.propTypes = {
   toggleFn: PropTypes.func.isRequired,
 };
 
+
+TwoOptionToggle.displayName = 'TwoOptionToggle';
+
 export const Toggle = (props) => {
   const { disabled, leftOptionActive, toggleFn } = props;
   return (
@@ -77,5 +80,7 @@ Toggle.propTypes = {
   leftOptionActive: PropTypes.bool.isRequired,
   toggleFn: PropTypes.func.isRequired,
 };
+
+Toggle.displayName = 'Toggle';
 
 export default TwoOptionToggle;
