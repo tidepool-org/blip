@@ -57,29 +57,7 @@ export class DataUtil {
     this.defaultBgSource = this.getDefaultBgSource();
   };
 
-  applyDateFilters = () => {
-    this.filter.byEndpoints(this._endpoints);
-
-    this.dimension.byDayOfWeek.filterAll();
-
-    const daysInRange = this.getDayCountFromEndpoints();
-    this.days = daysInRange;
-
-    if (this._chartPrefs.activeDays) {
-      const activeDays = _.reduce(this._chartPrefs.activeDays, (result, active, day) => {
-        if (active) {
-          result.push(this.getDayIndex(day));
-        }
-        return result;
-      }, []);
-
-      this.filter.byActiveDays(activeDays);
-
-      this.days = daysInRange / 7 * activeDays.length;
-    }
-  }
-
-  applyBasalOverlappingStart = (basalData) => {
+  addBasalOverlappingStart = (basalData) => {
     if (basalData.length && basalData[0].normalTime > this._endpoints[0]) {
       // Fetch last basal from previous day
       this.filter.byEndpoints([
@@ -102,6 +80,28 @@ export class DataUtil {
     }
     return basalData;
   };
+
+  applyDateFilters = () => {
+    this.filter.byEndpoints(this._endpoints);
+
+    this.dimension.byDayOfWeek.filterAll();
+
+    const daysInRange = this.getDayCountFromEndpoints();
+    this.days = daysInRange;
+
+    if (this._chartPrefs.activeDays) {
+      const activeDays = _.reduce(this._chartPrefs.activeDays, (result, active, day) => {
+        if (active) {
+          result.push(this.getDayIndex(day));
+        }
+        return result;
+      }, []);
+
+      this.filter.byActiveDays(activeDays);
+
+      this.days = daysInRange / 7 * activeDays.length;
+    }
+  }
 
   buildDimensions = () => {
     this.dimension.byDate = this.data.dimension(d => d.normalTime);
@@ -144,6 +144,11 @@ export class DataUtil {
     return data;
   };
 
+  getBgSources = () => ({
+    cbg: this.filter.byType('cbg').top(Infinity).length > 0,
+    smbg: this.filter.byType('smbg').top(Infinity).length > 0,
+  });
+
   getCarbsData = () => {
     this.applyDateFilters();
 
@@ -164,11 +169,6 @@ export class DataUtil {
       total: wizardData.length,
     };
   };
-
-  getBgSources = () => ({
-    cbg: this.filter.byType('cbg').top(Infinity).length > 0,
-    smbg: this.filter.byType('smbg').top(Infinity).length > 0,
-  });
 
   getCoefficientOfVariationData = () => {
     const { averageGlucose, standardDeviation, total } = this.getStandardDevData();
@@ -289,9 +289,9 @@ export class DataUtil {
       {
         veryLow: 0,
         low: 0,
+        target: 0,
         high: 0,
         veryHigh: 0,
-        target: 0,
         total: 0,
       }
     );
@@ -349,7 +349,7 @@ export class DataUtil {
     this.applyDateFilters();
 
     let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity));
-    basalData = this.applyBasalOverlappingStart(basalData);
+    basalData = this.addBasalOverlappingStart(basalData);
 
     let durations = basalData.length
       ? _.transform(
@@ -385,9 +385,9 @@ export class DataUtil {
       {
         veryLow: 0,
         low: 0,
+        target: 0,
         high: 0,
         veryHigh: 0,
-        target: 0,
         total: 0,
       }
     );
@@ -404,7 +404,7 @@ export class DataUtil {
 
     const bolusData = this.filter.byType('bolus').top(Infinity);
     let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity).reverse());
-    basalData = this.applyBasalOverlappingStart(basalData);
+    basalData = this.addBasalOverlappingStart(basalData);
 
     const totalInsulin = {
       basal: basalData.length

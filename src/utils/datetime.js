@@ -198,7 +198,7 @@ export function formatDuration(duration, opts = {}) {
       }
     }
 
-    return `${formatted.days}${formatted.hours}${formatted.minutes}${formatted.seconds}`;
+    return `${formatted.days}${formatted.hours}${formatted.minutes}${formatted.seconds}`.trim();
   } else if (hours !== 0) {
     const suffix = (hours === 1) ? 'hr' : 'hrs';
     switch (minutes) {

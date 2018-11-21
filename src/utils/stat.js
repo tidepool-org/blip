@@ -44,7 +44,7 @@ export const commonStats = {
 
 export const getSum = data => _.sum(_.map(data, d => d.value));
 
-export const ensureNumeric = value => (_.isNaN(value) ? -1 : parseFloat(value));
+export const ensureNumeric = value => (_.isNil(value) || _.isNaN(value) ? -1 : parseFloat(value));
 
 export const translatePercentage = value => value / 100;
 
@@ -113,7 +113,7 @@ export const getStatAnnotations = (data, type, opts = {}) => {
         annotations.push('**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is 24 hours multiplied by % in range.');
       } else {
         annotations.push(`**Time In Range:**\n\nTime spent in range, based on ${statBgSourceLabels.cbg} readings.`);
-        annotations.push('**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is number of cgm readings in range multiplied by the CGM sample frequency.');
+        annotations.push(`**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is number of readings in range multiplied by the ${statBgSourceLabels.cbg} sample frequency.`);
       }
       break;
 
@@ -382,11 +382,11 @@ export const getStatTitle = (type, opts = {}) => {
       break;
 
     case commonStats.coefficientOfVariation:
-      title = 'CV';
+      title = `CV (${statBgSourceLabels[bgSource]})`;
       break;
 
     case commonStats.glucoseManagementIndicator:
-      title = 'GMI';
+      title = `GMI (${statBgSourceLabels[bgSource]})`;
       break;
 
     case commonStats.readingsInRange:
@@ -398,7 +398,7 @@ export const getStatTitle = (type, opts = {}) => {
       break;
 
     case commonStats.standardDev:
-      title = 'Standard Deviation';
+      title = `Standard Deviation (${statBgSourceLabels[bgSource]})`;
       break;
 
     case commonStats.timeInAuto:

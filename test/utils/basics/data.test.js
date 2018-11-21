@@ -941,7 +941,7 @@ describe('basics data utils', () => {
       const then = '2015-01-01T00:00:00.000Z';
       const bd = {
         data: {
-          smbg: { data: [new Types.SMBG({ normalTime: then })] },
+          smbg: { data: [new Types.SMBG({ deviceTime: then.slice(0, -5) })] },
           calibration: { data: [{ type: 'deviceEvent', subType: 'calibration', normalTime: then, displayOffset: 0 }] },
         },
         days: [{ date: '2015-01-01', type: 'past' }, { date: '2015-01-02', type: 'mostRecent' }],

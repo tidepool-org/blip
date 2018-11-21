@@ -23,6 +23,7 @@ import { formatClassesAsSelector } from '../../../helpers/cssmodules';
 import TwoOptionToggle, { Toggle }
   from '../../../../src/components/common/controls/TwoOptionToggle';
 import styles from '../../../../src/components/common/controls/TwoOptionToggle.css';
+import { toLong } from 'ip';
 
 describe('TwoOptionToggle', () => {
   let wrapper;
@@ -54,6 +55,33 @@ describe('TwoOptionToggle', () => {
     expect(toggleFn.callCount).to.equal(0);
     wrapper.find(formatClassesAsSelector(styles.toggle)).simulate('click');
     expect(toggleFn.calledOnce).to.be.true;
+  });
+
+  it('should set the active class when not disabled', () => {
+    const activeOption = wrapper.find(formatClassesAsSelector(styles.active));
+    expect(activeOption).to.have.length(1);
+    expect(activeOption.text()).to.equal('foo');
+  });
+
+  it('should not set the active class when disabled', () => {
+    const activeOption = () => wrapper.find(formatClassesAsSelector(styles.active));
+
+    expect(activeOption()).to.have.length(1);
+    expect(activeOption().text()).to.equal('foo');
+
+    wrapper.setProps({
+      disabled: true,
+      left: {
+        label: 'foo',
+        state: true,
+      },
+      right: {
+        label: 'bar',
+        state: false,
+      },
+    });
+
+    expect(activeOption()).to.have.length(0);
   });
 
   it('should not fire the passed-in `toggleFn` if Toggle is disabled', () => {

@@ -130,7 +130,7 @@ export function formatPercentage(val, precision = 0) {
  */
 export function formatCarbs(val, precision = 0) {
   if (Number.isNaN(val)) {
-    return '--%';
+    return '--';
   }
   return `${formatDecimalNumber(val, precision)} g`;
 }

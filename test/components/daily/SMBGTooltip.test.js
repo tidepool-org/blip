@@ -212,10 +212,22 @@ describe('SMBGTooltip', () => {
     expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.high);
   });
 
+  it('should render "veryHigh" color for very high bg', () => {
+    const wrapper = mount(<SMBGTooltip {...props} smbg={veryHigh} />);
+    expect(wrapper.find('Tooltip').instance().props.tailColor).to.equal(colors.veryHigh);
+    expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.veryHigh);
+  });
+
   it('should render "low" color for low bg', () => {
     const wrapper = mount(<SMBGTooltip {...props} smbg={low} />);
     expect(wrapper.find('Tooltip').instance().props.tailColor).to.equal(colors.low);
     expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.low);
+  });
+
+  it('should render "veryLow" color for very low bg', () => {
+    const wrapper = mount(<SMBGTooltip {...props} smbg={veryLow} />);
+    expect(wrapper.find('Tooltip').instance().props.tailColor).to.equal(colors.veryLow);
+    expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.veryLow);
   });
 
   it('should render "manual" for a manual smbg', () => {
