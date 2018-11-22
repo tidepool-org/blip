@@ -11,16 +11,11 @@
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-}
-
-.StatLegendIndicator {
-  display: inline-block;
-  width: .75em;
-  height: .75em;
+  margin: 0 1em 0 0;
+  border-bottom: 2px solid;
 }
 
 .StatLegendTitle {
-  padding: 0 1em 0 .35em;
   letter-spacing: -.01em;
   white-space: nowrap;
 }

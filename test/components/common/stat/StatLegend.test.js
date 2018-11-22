@@ -33,10 +33,9 @@ describe('StatLegend', () => {
     expect(items.at(1).text()).to.equal('Bolus');
   });
 
-  it('should render legend indicators in proper color based on id', () => {
-    const indicators = wrapper.find(formatClassesAsSelector(styles.StatLegendIndicator));
-    expect(indicators).to.have.length(2);
-    expect(indicators.at(0).props().style.backgroundColor).to.equal(colors.basal);
-    expect(indicators.at(1).props().style.backgroundColor).to.equal(colors.bolus);
+  it('should render legend item borders in proper color based on id', () => {
+    const items = wrapper.find(formatClassesAsSelector(styles.StatLegendItem));
+    expect(items.at(0).props().style.borderBottomColor).to.equal(colors.basal);
+    expect(items.at(1).props().style.borderBottomColor).to.equal(colors.bolus);
   });
 });

@@ -60,6 +60,7 @@ const statFormatPropType = PropTypes.oneOf(_.values(statFormats));
 class Stat extends PureComponent {
   static propTypes = {
     alwaysShowTooltips: PropTypes.bool,
+    annotations: PropTypes.arrayOf(PropTypes.string),
     bgPrefs: bgPrefsPropType,
     categories: PropTypes.object,
     chartHeight: PropTypes.number,
@@ -83,8 +84,8 @@ class Stat extends PureComponent {
     isDisabled: PropTypes.bool,
     isOpened: PropTypes.bool,
     legend: PropTypes.bool,
-    annotations: PropTypes.arrayOf(PropTypes.string),
     muteOthersOnHover: PropTypes.bool,
+    reverseLegendOrder: PropTypes.bool,
     title: PropTypes.string.isRequired,
     type: PropTypes.oneOf(_.keys(statTypes)),
   };
@@ -98,7 +99,7 @@ class Stat extends PureComponent {
     emptyDataPlaceholder: '--',
     isDisabled: false,
     isOpened: true,
-    legend: true,
+    legend: false,
     muteOthersOnHover: true,
     type: statTypes.simple,
   };
@@ -202,15 +203,15 @@ class Stat extends PureComponent {
     );
   };
 
-  renderChartHeader = () => (
-    <div className={styles.chartHeader}>
+  renderStatHeader = () => (
+    <div className={styles.statHeader}>
       {this.renderChartTitle()}
       {this.renderChartSummary()}
     </div>
   );
 
-  renderChartFooter = () => (
-    <div className={styles.chartFooter}>
+  renderStatFooter = () => (
+    <div className={styles.statFooter}>
       {this.chartProps.legend && this.state.isOpened && this.renderChartLegend()}
     </div>
   );
@@ -219,7 +220,11 @@ class Stat extends PureComponent {
     const items = _.map(
       this.props.data.data,
       datum => _.pick(datum, ['id', 'legendTitle'])
-    ).reverse();
+    );
+
+    if (!this.props.reverseLegendOrder) {
+      _.reverse(items);
+    }
 
     return (
       <div className={styles.chartLegend}>
@@ -254,7 +259,7 @@ class Stat extends PureComponent {
     </div>
   );
 
-  render() {
+  render = () => {
     const statClasses = cx({
       [styles.Stat]: true,
       [styles[this.props.type]]: true,
@@ -264,14 +269,18 @@ class Stat extends PureComponent {
     return (
       <div className={styles.StatWrapper}>
         <div ref={this.setStatRef} className={statClasses}>
-          {this.renderChartHeader()}
-          {this.chartProps.renderer && <SizeMe render={({ size }) => (this.renderChart(size))} />}
-          {this.renderChartFooter()}
+          {this.renderStatHeader()}
+          {this.chartProps.renderer && (
+            <div className={styles.statMain}>
+              <SizeMe render={({ size }) => (this.renderChart(size))} />
+            </div>
+          )}
+          {this.state.isOpened && this.props.legend && this.renderStatFooter()}
         </div>
         {this.state.showMessages && this.renderTooltip()}
       </div>
     );
-  }
+  };
 
   getStateByType = props => {
     const {

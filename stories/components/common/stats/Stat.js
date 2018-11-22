@@ -190,6 +190,7 @@ stories.add('Time In Range', () => {
   const isOpened = boolean('isOpened', true, 'UI');
   const legend = boolean('legend', true, 'UI');
   const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
+  const reverseLegendOrder = boolean('reverseLegendOrder', true, 'UI');
 
   button('Random Data', () => {
     timeInRangeData = generateRandomData(timeInRangeData, 'duration');
@@ -219,6 +220,7 @@ stories.add('Time In Range', () => {
         isOpened={isOpened}
         legend={legend}
         muteOthersOnHover={muteOthersOnHover}
+        reverseLegendOrder={reverseLegendOrder}
         title="Time In Range"
         type={statTypes.barHorizontal}
       />
@@ -277,6 +279,7 @@ stories.add('Readings In Range', () => {
   const isOpened = boolean('isOpened', true, 'UI');
   const legend = boolean('legend', true, 'UI');
   const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
+  const reverseLegendOrder = boolean('reverseLegendOrder', true, 'UI');
 
   button('Random Data', () => {
     readingsInRangeData = generateRandomData(readingsInRangeData, 'count');
@@ -306,6 +309,7 @@ stories.add('Readings In Range', () => {
         isOpened={isOpened}
         legend={legend}
         muteOthersOnHover={muteOthersOnHover}
+        reverseLegendOrder={reverseLegendOrder}
         title="Readings In Range"
         type={statTypes.barHorizontal}
       />

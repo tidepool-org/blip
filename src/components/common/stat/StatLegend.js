@@ -31,8 +31,11 @@ class StatTooltip extends PureComponent {
 
   renderLegendItems = (items) => (
     _.map(items, (item) => (
-      <li className={styles.StatLegendItem} key={item.id}>
-        <span className={styles.StatLegendIndicator} style={{ backgroundColor: colors[item.id] }} />
+      <li
+        className={styles.StatLegendItem}
+        key={item.id}
+        style={{ borderBottomColor: colors[item.id] }}
+      >
         <span className={styles.StatLegendTitle}>
           {item.legendTitle}
         </span>
