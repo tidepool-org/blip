@@ -1,68 +1,9 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { Line, Point, Rect, VictoryLabel } from 'victory';
+import { Line, Point, Rect } from 'victory';
 import { Arc } from 'victory-core';
 import colors from '../../../styles/colors.css';
-import MGDLIcon from './assets/mgdl-inv-24-px.svg';
-import MMOLIcon from './assets/mmol-inv-24-px.svg'; // TODO: Replace with mmol icon when avail
-import { MGDL_UNITS } from '../../../utils/constants';
 import { classifyBgValue } from '../../../utils/bloodglucose';
-
-/* global atob */
-
-export const BgBarLabel = props => {
-  const {
-    barWidth,
-    bgPrefs: { bgUnits } = {},
-    domain,
-    width,
-    scale,
-    text,
-    y,
-  } = props;
-
-  const labelStyle = _.assign({}, props.style, {
-    pointerEvents: 'none',
-  });
-
-  const iconPadding = 20;
-  const iconSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
-
-  // We need to directly embed the raw svg html in order to use them within the Victory-generated
-  // charts. This is not a security concern, as we are supplying the iconSrc.
-  const svgIconHTML = atob(iconSrc.replace(/data:image\/svg\+xml;base64,/, ''));
-
-  return (
-    <g>
-      <VictoryLabel
-        {...props}
-        renderInPortal={false}
-        style={labelStyle}
-        text={text}
-        textAnchor="end"
-        verticalAnchor="middle"
-        width={width}
-        dx={-iconPadding}
-        dy={-(barWidth / 2 - 1)}
-        x={scale.y(domain.x[1])}
-        y={y}
-      />
-      <g
-        transform={`translate(${scale.y(domain.x[1]) - iconPadding}, -${barWidth / 2 + 2})`}
-        dangerouslySetInnerHTML={{ __html: svgIconHTML }} // eslint-disable-line react/no-danger
-      />
-    </g>
-  );
-};
-
-BgBarLabel.propTypes = {
-  domain: PropTypes.object.isRequired,
-  scale: PropTypes.object,
-  text: PropTypes.func,
-  y: PropTypes.number,
-};
-
-BgBarLabel.displayName = 'BgBarLabel';
 
 export const BgBar = props => {
   const {
@@ -100,7 +41,7 @@ export const BgBar = props => {
   const dev2Value = datum.y + deviation;
   const dev2X = scale.y(datum.y + deviation) * widthCorrection;
 
-  const isEnabled = renderMean ? datum.y > 0 : deviation > 0;
+  const isEnabled = renderMean ? datum.y >= 0 : deviation >= 0;
 
   return (
     <g>
@@ -184,45 +125,29 @@ export const BgBar = props => {
 
       {renderDeviation && isEnabled && (
         <g className="bgDeviation">
-          <Line
-            x1={dev1X}
-            x2={dev1X}
-            y1={datumY - barWidth * 2}
-            y2={datumY + barWidth * 2}
+          <Rect
+            {...props}
+            x={dev1X - 3}
+            y={datumY - barWidth * 2 - 1}
+            width={4}
+            height={barWidth * 4 + 2}
             style={{
-              stroke: colors.white,
-              strokeWidth: 6,
-            }}
-          />
-          <Line
-            x1={dev1X}
-            x2={dev1X}
-            y1={datumY - barWidth * 2}
-            y2={datumY + barWidth * 2}
-            style={{
-              stroke: colors[classifyBgValue(bgBounds, dev1Value)],
+              stroke: 'white',
               strokeWidth: 2,
+              fill: colors[classifyBgValue(bgBounds, dev1Value)],
             }}
           />
 
-          <Line
-            x1={dev2X}
-            x2={dev2X}
-            y1={datumY - barWidth * 2}
-            y2={datumY + barWidth * 2}
+          <Rect
+            {...props}
+            x={dev2X - 3}
+            y={datumY - barWidth * 2 - 1}
+            width={4}
+            height={barWidth * 4 + 2}
             style={{
-              stroke: colors.white,
-              strokeWidth: 6,
-            }}
-          />
-          <Line
-            x1={dev2X}
-            x2={dev2X}
-            y1={datumY - barWidth * 2}
-            y2={datumY + barWidth * 2}
-            style={{
-              stroke: colors[classifyBgValue(bgBounds, dev2Value)],
+              stroke: 'white',
               strokeWidth: 2,
+              fill: colors[classifyBgValue(bgBounds, dev2Value)],
             }}
           />
         </g>

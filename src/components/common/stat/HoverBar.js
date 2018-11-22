@@ -1,82 +1,8 @@
 import React, { PropTypes } from 'react';
+import { Bar, Rect } from 'victory';
 import _ from 'lodash';
-import { Bar, Rect, VictoryLabel, VictoryTooltip, TextSize } from 'victory';
+
 import colors from '../../../styles/colors.css';
-
-export const HoverBarLabel = props => {
-  const {
-    barWidth,
-    isDisabled,
-    domain,
-    scale,
-    style,
-    text,
-    tooltipText,
-    y,
-  } = props;
-
-  const tooltipFontSize = _.min([barWidth / 2, 12]);
-  const tooltipHeight = tooltipFontSize * 1.2;
-  const tooltipRadius = tooltipHeight / 2;
-
-  const disabled = isDisabled();
-
-  const tooltipStyle = _.assign({}, props.style, {
-    fontSize: tooltipFontSize,
-    display: disabled ? 'none' : 'inherit',
-  });
-
-  const tooltipTextSize = TextSize.approximateTextSize(tooltipText(props.datum), tooltipStyle);
-
-  const labelStyle = _.assign({}, props.style, {
-    pointerEvents: 'none',
-  });
-
-  return (
-    <g>
-      <VictoryLabel
-        {...props}
-        renderInPortal={false}
-        style={labelStyle}
-        text={text}
-        textAnchor="end"
-        verticalAnchor="middle"
-        x={scale.y(domain.x[1])}
-        y={y}
-      />
-      {tooltipTextSize.width > 0 && (
-        <VictoryTooltip
-          {...props}
-          cornerRadius={tooltipRadius}
-          x={scale.y(domain.x[1]) - style.paddingLeft - tooltipTextSize.width - (tooltipRadius * 2)}
-          y={y}
-          flyoutStyle={{
-            display: disabled ? 'none' : 'inherit',
-            stroke: colors.axis,
-            strokeWidth: 2,
-            fill: colors.white,
-          }}
-          width={tooltipTextSize.width + (tooltipRadius * 2)}
-          height={tooltipHeight}
-          pointerLength={0}
-          pointerWidth={0}
-          renderInPortal={false}
-          text={tooltipText}
-          style={tooltipStyle}
-        />
-      )}
-    </g>
-  );
-};
-
-HoverBarLabel.propTypes = {
-  domain: PropTypes.object.isRequired,
-  scale: PropTypes.object,
-  text: PropTypes.func,
-  y: PropTypes.number,
-};
-
-HoverBarLabel.displayName = 'HoverBarLabel';
 
 export const HoverBar = props => {
   const {
@@ -92,7 +18,7 @@ export const HoverBar = props => {
   } = props;
 
   const barGridWidth = barWidth / 6;
-  const barGridRadius = cornerRadius.top || 2;
+  const barGridRadius = _.get(cornerRadius, 'top', 2);
   const widthCorrection = (width - chartLabelWidth) / width;
 
   return (

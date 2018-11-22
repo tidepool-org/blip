@@ -34,7 +34,7 @@ class StatTooltip extends PureComponent {
       left: PropTypes.number,
       horizontal: PropTypes.number,
     }),
-    titls: PropTypes.node,
+    title: PropTypes.node,
     tail: PropTypes.bool.isRequired,
     side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
     tailColor: PropTypes.string.isRequired,

@@ -181,6 +181,8 @@ class Tooltip extends PureComponent {
   }
 }
 
+Tooltip.displayName = 'Tooltip';
+
 Tooltip.propTypes = {
   title: PropTypes.node,
   content: PropTypes.node,

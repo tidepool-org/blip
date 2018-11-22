@@ -6,7 +6,7 @@ import StatLegend from '../../../../src/components/common/stat/StatLegend';
 import styles from '../../../../src/components/common/stat/StatLegend.css';
 import colors from '../../../../src/styles/colors.css';
 
-describe.only('StatLegend', () => {
+describe('StatLegend', () => {
   let wrapper;
 
   const defaultProps = {
@@ -33,7 +33,7 @@ describe.only('StatLegend', () => {
     expect(items.at(1).text()).to.equal('Bolus');
   });
 
-  it('should render legend indicators in proper color', () => {
+  it('should render legend indicators in proper color based on id', () => {
     const indicators = wrapper.find(formatClassesAsSelector(styles.StatLegendIndicator));
     expect(indicators).to.have.length(2);
     expect(indicators.at(0).props().style.backgroundColor).to.equal(colors.basal);
