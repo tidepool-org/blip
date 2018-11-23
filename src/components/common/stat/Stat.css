@@ -20,7 +20,7 @@
   align-items: flex-start;
   justify-content: space-between;
   height: 1.5em;
-  padding: 0.25em 0.625em;
+  margin: 0.25em 0.625em;
 }
 
 .statMain {
