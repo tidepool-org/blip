@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 
 import Stat from '../../../../src/components/common/stat/Stat';
 
-describe.only('Stat', () => {
+describe('Stat', () => {
   let wrapper;
 
   const defaultProps = {

@@ -311,7 +311,7 @@ describe('stat', () => {
       expect(statData.data).to.eql([
         {
           id: 'cv',
-          value: 0.4,
+          value: 40,
         },
       ]);
 
@@ -330,7 +330,7 @@ describe('stat', () => {
       expect(statData.data).to.eql([
         {
           id: 'gmi',
-          value: 0.36,
+          value: 36,
         },
       ]);
 
@@ -617,11 +617,11 @@ describe('stat', () => {
 
     describe('standardDev', () => {
       it('should return title for `standardDev` stat when bgSource is `smgb`', () => {
-        expect(stat.getStatTitle(commonStats.standardDev, smbgOpts)).to.equal('Standard Deviation (BGM)');
+        expect(stat.getStatTitle(commonStats.standardDev, smbgOpts)).to.equal('Std. Deviation (BGM)');
       });
 
       it('should return title for `standardDev` stat when bgSource is `cbg`', () => {
-        expect(stat.getStatTitle(commonStats.standardDev, cbgOpts)).to.equal('Standard Deviation (CGM)');
+        expect(stat.getStatTitle(commonStats.standardDev, cbgOpts)).to.equal('Std. Deviation (CGM)');
       });
     });
 

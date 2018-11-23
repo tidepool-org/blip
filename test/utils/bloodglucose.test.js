@@ -150,12 +150,12 @@ describe('blood glucose utilities', () => {
 
   describe('classifyCvValue', () => {
     it('should return `target` for any value <= 0.36', () => {
-      expect(bgUtils.classifyCvValue(0.36)).to.equal('target');
-      expect(bgUtils.classifyCvValue(0.359)).to.equal('target');
+      expect(bgUtils.classifyCvValue(36)).to.equal('target');
+      expect(bgUtils.classifyCvValue(35.9)).to.equal('target');
     });
 
     it('should return `high` for any value > 0.36', () => {
-      expect(bgUtils.classifyCvValue(0.361)).to.equal('high');
+      expect(bgUtils.classifyCvValue(36.1)).to.equal('high');
     });
   });
 
