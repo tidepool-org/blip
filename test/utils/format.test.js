@@ -157,26 +157,6 @@ describe('format', () => {
     });
   });
 
-  describe('formatCarbs', () => {
-    it('should be a function', () => {
-      assert.isFunction(format.formatCarbs);
-    });
-
-    it('should return `--` on `NaN` input', () => {
-      expect(format.formatCarbs(NaN)).to.equal('--');
-    });
-
-    it('should round to zero decimal places by default', () => {
-      expect(format.formatCarbs(7.4)).to.equal('7 g');
-      expect(format.formatCarbs(7.5)).to.equal('8 g');
-    });
-
-    it('should round to a provided number of decimal places', () => {
-      expect(format.formatCarbs(7.4, 2)).to.equal('7.40 g');
-      expect(format.formatCarbs(7.5456, 3)).to.equal('7.546 g');
-    });
-  });
-
   describe('removeTrailingZeroes', () => {
     it('should be a function', () => {
       assert.isFunction(format.removeTrailingZeroes);

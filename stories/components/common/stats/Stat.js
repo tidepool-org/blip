@@ -40,7 +40,7 @@ const chartHeightOptions = {
   100: 100,
 };
 
-const convertPercentageToDayDuration = value => value * MS_IN_DAY;
+const convertPercentageToDayDuration = value => (value / 100) * MS_IN_DAY;
 
 const getSum = data => _.sum(_.map(data, d => d.value));
 
@@ -52,16 +52,19 @@ const randomValueByType = (type, bgUnits, opts = {}) => {
 
   switch (type) {
     case 'duration':
-      return convertPercentageToDayDuration(_.random(0, 1, true));
+      return convertPercentageToDayDuration(_.random(0, 100, true));
 
     case 'units':
       return _.random(20, 100, true);
 
     case 'gmi':
-      return _.random(0.04, 0.15, true);
+      return _.random(4, 15, true);
+
+    case 'carb':
+      return _.random(5, 100, true);
 
     case 'cv':
-      return _.random(0.24, 0.40, true);
+      return _.random(24, 40, true);
 
     case 'deviation':
       return _.random(
@@ -141,33 +144,31 @@ let timeInRangeData = {
   data: [
     {
       id: 'veryLow',
-      // value: convertPercentageToDayDuration(0.0004),
-      value: convertPercentageToDayDuration(0.004),
+      value: convertPercentageToDayDuration(0.4),
       title: 'Time Below Range',
       legendTitle: '<54',
     },
     {
       id: 'low',
-      // value: convertPercentageToDayDuration(0.0396),
-      value: convertPercentageToDayDuration(0.036),
+      value: convertPercentageToDayDuration(3.6),
       title: 'Time Below Range',
       legendTitle: '54-70',
     },
     {
       id: 'target',
-      value: convertPercentageToDayDuration(0.7),
+      value: convertPercentageToDayDuration(70),
       title: 'Time In Range',
       legendTitle: '70-180',
     },
     {
       id: 'high',
-      value: convertPercentageToDayDuration(0.16),
+      value: convertPercentageToDayDuration(16),
       title: 'Time Above Range',
       legendTitle: '180-250',
     },
     {
       id: 'veryHigh',
-      value: convertPercentageToDayDuration(0.1),
+      value: convertPercentageToDayDuration(10),
       title: 'Time Above Range',
       legendTitle: '>250',
     },
@@ -186,7 +187,7 @@ stories.add('Time In Range', () => {
   const bgUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
   const bgPrefs = bgPrefsValues[bgUnits];
   const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
-  const collapsible = boolean('collapsible', true, 'UI');
+  const collapsible = boolean('collapsible', false, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
   const legend = boolean('legend', true, 'UI');
   const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
@@ -223,6 +224,7 @@ stories.add('Time In Range', () => {
         reverseLegendOrder={reverseLegendOrder}
         title="Time In Range"
         type={statTypes.barHorizontal}
+        units={bgUnits}
       />
     </Container>
   );
@@ -275,7 +277,7 @@ stories.add('Readings In Range', () => {
   const bgUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
   const bgPrefs = bgPrefsValues[bgUnits];
   const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
-  const collapsible = boolean('collapsible', true, 'UI');
+  const collapsible = boolean('collapsible', false, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
   const legend = boolean('legend', true, 'UI');
   const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
@@ -312,6 +314,7 @@ stories.add('Readings In Range', () => {
         reverseLegendOrder={reverseLegendOrder}
         title="Readings In Range"
         type={statTypes.barHorizontal}
+        units={bgUnits}
       />
     </Container>
   );
@@ -321,15 +324,13 @@ let timeInAutoData = {
   data: [
     {
       id: 'basal',
-      // value: convertPercentageToDayDuration(0.3),
-      value: convertPercentageToDayDuration(0),
+      value: convertPercentageToDayDuration(30),
       title: 'Time In Manual Mode',
       legendTitle: 'Manual Mode',
     },
     {
       id: 'basalAutomated',
-      // value: convertPercentageToDayDuration(0.7),
-      value: convertPercentageToDayDuration(1),
+      value: convertPercentageToDayDuration(70),
       title: 'Time In Auto Mode',
       legendTitle: 'Auto Mode',
     },
@@ -345,7 +346,7 @@ timeInAutoData.dataPaths = {
 
 stories.add('Time In Auto', () => {
   const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'UI');
-  const collapsible = boolean('collapsible', true, 'UI');
+  const collapsible = boolean('collapsible', false, 'UI');
   const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
   const legend = boolean('legend', true, 'UI');
@@ -389,14 +390,12 @@ let totalInsulinData = {
     {
       id: 'bolus',
       value: 49.5,
-      // value: 0,
       title: 'Bolus Insulin',
       legendTitle: 'Bolus',
     },
     {
       id: 'basal',
-      // value: 62.9,
-      value: 0,
+      value: 62.9,
       title: 'Basal Insulin',
       legendTitle: 'Basal',
     },
@@ -410,7 +409,7 @@ totalInsulinData.dataPaths = {
 
 stories.add('Total Insulin', () => {
   const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'UI');
-  const collapsible = boolean('collapsible', true, 'UI');
+  const collapsible = boolean('collapsible', false, 'UI');
   const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
   const legend = boolean('legend', true, 'UI');
@@ -468,7 +467,7 @@ let averageGlucoseDataMmol = _.assign({}, averageGlucoseData, {
 let averageGlucoseDataUnits = bgPrefsOptions[MGDL_UNITS];
 
 stories.add('Average Glucose', () => {
-  const collapsible = boolean('collapsible', true, 'UI');
+  const collapsible = boolean('collapsible', false, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
   averageGlucoseDataUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
   const bgPrefs = bgPrefsValues[averageGlucoseDataUnits];
@@ -506,6 +505,7 @@ stories.add('Average Glucose', () => {
         isOpened={isOpened}
         title="Average Glucose"
         type={statTypes.barBg}
+        units={averageGlucoseDataUnits}
       />
     </Container>
   );
@@ -536,7 +536,7 @@ let standardDevDataMmol = _.assign({}, standardDevData, {
 let standardDevDataUnits = bgPrefsOptions[MGDL_UNITS];
 
 stories.add('Standard Deviation', () => {
-  const collapsible = boolean('collapsible', true, 'UI');
+  const collapsible = boolean('collapsible', false, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
   standardDevDataUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
   const bgPrefs = bgPrefsValues[standardDevDataUnits];
@@ -575,6 +575,7 @@ stories.add('Standard Deviation', () => {
         isOpened={isOpened}
         title="Standard Deviation"
         type={statTypes.barBg}
+        units={standardDevDataUnits}
       />
     </Container>
   );
@@ -584,7 +585,7 @@ let glucoseManagementIndicatorData = {
   data: [
     {
       id: 'gmi',
-      value: 0.051,
+      value: 5.1,
     },
   ],
 };
@@ -623,7 +624,7 @@ let coefficientOfVariationData = {
   data: [
     {
       id: 'cv',
-      value: 0.36,
+      value: 36,
     },
   ],
 };
@@ -652,6 +653,43 @@ stories.add('Coefficient of Variation', () => {
           summary: statFormats.cv,
         }}
         title="CV"
+        type={statTypes.simple}
+      />
+    </Container>
+  );
+});
+
+let carbData = {
+  data: [
+    {
+      value: 60,
+    },
+  ],
+};
+carbData.dataPaths = {
+  summary: 'data.0',
+};
+
+stories.add('Avg. Daily Carbs', () => {
+  button('Random Data', () => {
+    carbData = generateRandomData(carbData, 'carb');
+  }, 'DATA');
+
+  button('Empty Data', () => {
+    carbData = generateEmptyData(carbData);
+  }, 'DATA');
+
+  return (
+    <Container>
+      <Stat
+        annotations={[
+          'Based on 5 bolus wizard events for this view.',
+        ]}
+        data={carbData}
+        dataFormat={{
+          summary: statFormats.carbs,
+        }}
+        title="Avg. Daily Carbs"
         type={statTypes.simple}
       />
     </Container>

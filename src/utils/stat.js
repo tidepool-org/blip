@@ -46,8 +46,6 @@ export const getSum = data => _.sum(_.map(data, d => d.value));
 
 export const ensureNumeric = value => (_.isNil(value) || _.isNaN(value) ? -1 : parseFloat(value));
 
-export const translatePercentage = value => value / 100;
-
 export const getStatAnnotations = (data, type, opts = {}) => {
   const { bgSource, days, manufacturer } = opts;
   const vocabulary = getPumpVocabulary(manufacturer);
@@ -174,7 +172,7 @@ export const getStatData = (data, type, opts = {}) => {
       statData.data = [
         {
           id: 'cv',
-          value: ensureNumeric(translatePercentage(data.coefficientOfVariation)),
+          value: ensureNumeric(data.coefficientOfVariation),
         },
       ];
 
@@ -187,7 +185,7 @@ export const getStatData = (data, type, opts = {}) => {
       statData.data = [
         {
           id: 'gmi',
-          value: ensureNumeric(translatePercentage(data.glucoseManagementIndicator)),
+          value: ensureNumeric(data.glucoseManagementIndicator),
         },
       ];
 
@@ -438,6 +436,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
         summary: statFormats.bgValue,
       };
       stat.type = statTypes.barBg;
+      stat.units = _.get(opts, 'bgPrefs.bgUnits');
       break;
 
     case commonStats.carbs:
@@ -469,6 +468,8 @@ export const getStatDefinition = (data, type, opts = {}) => {
         tooltip: statFormats.percentage,
         tooltipTitle: statFormats.bgRange,
       };
+      stat.reverseLegendOrder = true;
+      stat.units = _.get(opts, 'bgPrefs.bgUnits');
       break;
 
     case commonStats.sensorUsage:
@@ -485,6 +486,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
         title: statFormats.standardDevRange,
       };
       stat.type = statTypes.barBg;
+      stat.units = _.get(opts, 'bgPrefs.bgUnits');
       break;
 
     case commonStats.timeInAuto:
@@ -504,6 +506,8 @@ export const getStatDefinition = (data, type, opts = {}) => {
         tooltip: statFormats.duration,
         tooltipTitle: statFormats.bgRange,
       };
+      stat.reverseLegendOrder = true;
+      stat.units = _.get(opts, 'bgPrefs.bgUnits');
       break;
 
     case commonStats.totalInsulin:

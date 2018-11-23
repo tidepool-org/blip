@@ -24,7 +24,7 @@ import cx from 'classnames';
 import { SizeMe } from 'react-sizeme';
 import { VictoryBar, VictoryContainer } from 'victory';
 import { Collapse } from 'react-collapse';
-import { formatPercentage, formatDecimalNumber, formatBgValue, formatCarbs } from '../../../utils/format';
+import { formatPercentage, formatDecimalNumber, formatBgValue } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
 import { generateBgRangeLabels, classifyBgValue, classifyCvValue } from '../../../utils/bloodglucose';
 import { MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
@@ -40,8 +40,6 @@ import StatTooltip from '../tooltips/StatTooltip';
 import StatLegend from './StatLegend';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
-import MGDLIcon from './assets/mgdl-inv-24-px.svg';
-import MMOLIcon from './assets/mmol-inv-24-px.svg';
 import InfoIcon from './assets/info-outline-24-px.svg';
 
 const dataPathPropType = PropTypes.oneOfType([
@@ -147,11 +145,7 @@ class Stat extends PureComponent {
             >
               {titleData.value}
             </span>
-            <span
-              style={{
-                color: colors[titleData.id] || colors.statDefault,
-              }}
-            >
+            <span className={styles.chartTitleSuffix}>
               {titleData.suffix}
             </span>
             &nbsp;)
@@ -181,15 +175,21 @@ class Stat extends PureComponent {
       <div className={styles.chartSummary}>
         {summaryData && (
           <div
-            className={styles.summaryValue}
+            className={styles.summaryWrapper}
             style={{
               color: colors[summaryData.id],
             }}
           >
-            {summaryData.value}
-            <span className={styles.summarySuffix}>{summaryData.suffix}</span>
+            <span className={styles.summaryValue}>
+              {summaryData.value}
+            </span>
+            <span className={styles.summarySuffix}>
+              {summaryData.suffix}
+            </span>
           </div>
         )}
+
+        {this.props.units && !this.state.showFooter && this.renderStatUnits()}
 
         {this.state.isCollapsible && (
           <div className={styles.chartCollapse}>
@@ -203,6 +203,12 @@ class Stat extends PureComponent {
     );
   };
 
+  renderStatUnits = () => (
+    <div className={styles.units}>
+      {this.props.units}
+    </div>
+  );
+
   renderStatHeader = () => (
     <div className={styles.statHeader}>
       {this.renderChartTitle()}
@@ -212,7 +218,8 @@ class Stat extends PureComponent {
 
   renderStatFooter = () => (
     <div className={styles.statFooter}>
-      {this.chartProps.legend && this.state.isOpened && this.renderChartLegend()}
+      {this.renderChartLegend()}
+      {this.props.units && this.renderStatUnits()}
     </div>
   );
 
@@ -275,7 +282,7 @@ class Stat extends PureComponent {
               <SizeMe render={({ size }) => (this.renderChart(size))} />
             </div>
           )}
-          {this.state.isOpened && this.props.legend && this.renderStatFooter()}
+          {this.state.showFooter && this.renderStatFooter()}
         </div>
         {this.state.showMessages && this.renderTooltip()}
       </div>
@@ -285,24 +292,31 @@ class Stat extends PureComponent {
   getStateByType = props => {
     const {
       data,
+      legend,
     } = props;
+
+    let isOpened;
 
     const state = {
       chartTitle: props.title,
       isDisabled: _.sum(_.map(data.data, d => _.get(d, 'deviation.value', d.value))) <= 0,
     };
 
+
     switch (props.type) {
       case 'simple':
         state.isCollapsible = false;
         state.isOpened = false;
+        state.showFooter = false;
         break;
 
       case 'barHorizontal':
       default:
+        isOpened = _.get(this.state, 'isOpened', props.isOpened);
         state.isCollapsible = props.collapsible;
-        state.isOpened = _.get(this.state, 'isOpened', props.isOpened);
+        state.isOpened = isOpened;
         state.hoveredDatumIndex = -1;
+        state.showFooter = legend && isOpened;
         break;
     }
 
@@ -586,7 +600,6 @@ class Stat extends PureComponent {
     let id = datum.id;
     let value = datum.value;
     let suffix = '';
-    let suffixSrc;
     let deviation;
     let lowerValue;
     let lowerColorId;
@@ -595,7 +608,7 @@ class Stat extends PureComponent {
 
     const total = _.get(this.props.data, 'total.value');
     const { bgPrefs, emptyDataPlaceholder } = this.props;
-    const { bgBounds, bgUnits } = bgPrefs;
+    const { bgBounds } = bgPrefs;
 
     function disableStat() {
       id = 'statDisabled';
@@ -609,14 +622,10 @@ class Stat extends PureComponent {
         break;
 
       case statFormats.bgRange:
-        suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
         value = generateBgRangeLabels(bgPrefs, { condensed: true })[id];
-        suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         break;
 
       case statFormats.bgValue:
-        suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
-        suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         if (value >= 0) {
           id = classifyBgValue(bgBounds, value);
           value = formatBgValue(value, bgPrefs);
@@ -627,7 +636,8 @@ class Stat extends PureComponent {
 
       case statFormats.carbs:
         if (value >= 0) {
-          value = formatCarbs(value);
+          value = formatDecimalNumber(value);
+          suffix = 'g';
         } else {
           disableStat();
         }
@@ -636,7 +646,8 @@ class Stat extends PureComponent {
       case statFormats.cv:
         if (value >= 0) {
           id = classifyCvValue(value);
-          value = formatPercentage(value);
+          value = formatDecimalNumber(value);
+          suffix = '%';
         } else {
           disableStat();
         }
@@ -652,7 +663,8 @@ class Stat extends PureComponent {
 
       case statFormats.gmi:
         if (value >= 0) {
-          value = formatPercentage(value, 1);
+          value = formatDecimalNumber(value, 1);
+          suffix = '%';
         } else {
           disableStat();
         }
@@ -660,14 +672,15 @@ class Stat extends PureComponent {
 
       case statFormats.percentage:
         if (total && total >= 0) {
-          const percentage = value / total;
+          const percentage = (value / total) * 100;
           let precision = 0;
           // We want to show extra precision on very small percentages so that we avoid showing 0%
           // when there is some data there.
-          if (percentage > 0 && percentage < 0.005) {
-            precision = percentage < 0.0005 ? 2 : 1;
+          if (percentage > 0 && percentage < 0.5) {
+            precision = percentage < 0.05 ? 2 : 1;
           }
-          value = formatPercentage(percentage, precision);
+          value = formatDecimalNumber(percentage, precision);
+          suffix = '%';
         } else {
           disableStat();
         }
@@ -676,8 +689,6 @@ class Stat extends PureComponent {
       case statFormats.standardDevRange:
         deviation = _.get(datum, 'deviation.value', -1);
         if (value >= 0 && deviation >= 0) {
-          suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
-
           lowerValue = value - deviation;
           lowerColorId = lowerValue >= 0
             ? classifyBgValue(bgBounds, lowerValue)
@@ -701,15 +712,12 @@ class Stat extends PureComponent {
               </span>
             </span>
           );
-          suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         } else {
           disableStat();
         }
         break;
 
       case statFormats.standardDevValue:
-        suffixSrc = bgUnits === MGDL_UNITS ? MGDLIcon : MMOLIcon;
-        suffix = <img className={styles.bgIcon} src={suffixSrc} />;
         if (value >= 0) {
           value = formatBgValue(value, bgPrefs);
         } else {
@@ -734,13 +742,14 @@ class Stat extends PureComponent {
       id,
       value,
       suffix,
-      suffixSrc,
     };
   };
 
   handleCollapse = () => {
+    const isOpened = !this.state.isOpened;
     this.setState({
-      isOpened: !this.state.isOpened,
+      isOpened,
+      showFooter: this.props.legend && isOpened,
     });
   };
 

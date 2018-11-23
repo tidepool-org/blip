@@ -95,13 +95,6 @@ describe('stat', () => {
     });
   });
 
-  describe('translatePercentage', () => {
-    it('convert value to a percentage', () => {
-      expect(stat.translatePercentage(65)).to.equal(0.65);
-      expect(stat.translatePercentage(100)).to.equal(1);
-    });
-  });
-
   describe('getStatAnnotations', () => {
     const defaultOpts = {
       manufacturer: 'medtronic',

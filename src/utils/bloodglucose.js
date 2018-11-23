@@ -67,7 +67,7 @@ export function classifyBgValue(bgBounds, bgValue, classificationType = 'threeWa
  * @return {String} cvClassification - target, high
  */
 export function classifyCvValue(value) {
-  if (value <= 0.36) {
+  if (value <= 36) {
     return 'target';
   } else {
     return 'high';

@@ -32,7 +32,6 @@
   flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
   border-top: 1px solid var(--stat--border);
   padding: 0.25em 0.625em .375em;
 }
@@ -47,25 +46,50 @@
 }
 
 .chartSummary {
-  composes: extraLargeSize from '../../../styles/typography.css';
   line-height: 1;
-  font-weight: 600;
   display: flex;
   justify-content: space-between;
 }
 
-.summaryValue {
+/* .chartSummary .units {
+  position: relative;
+  top: 10px;
+  font-weight: normal;
+} */
+
+.summaryWrapper {
   opacity: 1;
   display: inline;
+}
+
+.Stat.isOpen .summaryWrapper {
+  display: none;
   color: var(--stat--dark);
 }
 
-.Stat.isOpen .summaryValue {
-  display: none;
+.summaryValue {
+  composes: extraLargeSize from '../../../styles/typography.css';
+  opacity: 1;
+  display: inline-block;
+  font-weight: 600;
 }
 
 .summarySuffix {
-  color: var(--stat--dark);
+  composes: smallSize from '../../../styles/typography.css';
+  color: var(--stat--default);
+  font-weight: normal;
+  position: relative;
+  bottom: 1px;
+  padding-left: 1px;
+}
+
+.units {
+  composes: smallSize from '../../../styles/typography.css';
+  color: var(--stat--default);
+  font-weight: normal;
+  align-self: center;
+  line-height: 24px;
+  padding-left: .75em;
 }
 
 .chartTitleData {
@@ -82,18 +106,12 @@
   margin-top: 1px;
 }
 
+.chartTitleSuffix {
+  font-weight: normal;
+}
+
 .Stat.isOpen .chartTitleData {
   display: inline-flex;
-}
-
-.bgIcon {
-  height: 24px;
-  margin-bottom: -5px;
-  margin-top: -5px;
-}
-
-.chartTitleData .bgIcon {
-  margin-right: -0.4em;
 }
 
 .chartCollapse {
