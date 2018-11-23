@@ -396,7 +396,7 @@ export const getStatTitle = (type, opts = {}) => {
       break;
 
     case commonStats.standardDev:
-      title = `Standard Deviation (${statBgSourceLabels[bgSource]})`;
+      title = `Std. Deviation (${statBgSourceLabels[bgSource]})`;
       break;
 
     case commonStats.timeInAuto:
@@ -468,6 +468,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
         tooltip: statFormats.percentage,
         tooltipTitle: statFormats.bgRange,
       };
+      stat.legend = true;
       stat.reverseLegendOrder = true;
       stat.units = _.get(opts, 'bgPrefs.bgUnits');
       break;
@@ -496,6 +497,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
         summary: statFormats.percentage,
         tooltip: statFormats.duration,
       };
+      stat.legend = true;
       break;
 
     case commonStats.timeInRange:
@@ -506,6 +508,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
         tooltip: statFormats.duration,
         tooltipTitle: statFormats.bgRange,
       };
+      stat.legend = true;
       stat.reverseLegendOrder = true;
       stat.units = _.get(opts, 'bgPrefs.bgUnits');
       break;
@@ -518,6 +521,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
         title: statFormats.units,
         tooltip: statFormats.units,
       };
+      stat.legend = true;
       break;
 
     default:
