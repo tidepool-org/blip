@@ -22,7 +22,7 @@ import { range } from 'd3-array';
 import moment from 'moment-timezone';
 import React from 'react';
 
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../../src/utils/constants';
 import { getLocalizedCeiling } from '../../../../src/utils/datetime';
@@ -290,8 +290,8 @@ describe('TrendsContainer', () => {
     };
 
     before(() => {
-      minimalData = mount(
-        <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum())} />
+      minimalData = shallow(
+        <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum())} />,
       );
     });
 
@@ -305,7 +305,7 @@ describe('TrendsContainer', () => {
       let withInitialDatetimeLocation;
 
       before(() => {
-        withInitialDatetimeLocation = mount(
+        withInitialDatetimeLocation = shallow(
           <TrendsContainer
             {...props}
             {...mgdl}
@@ -336,7 +336,7 @@ describe('TrendsContainer', () => {
 
       it('should mark trends viewed as `touched` if not already touched', () => {
         expect(markTrendsViewed.callCount).to.equal(0);
-        mount(
+        shallow(
           <TrendsContainer
             {...props}
             {...mgdl}
@@ -348,7 +348,7 @@ describe('TrendsContainer', () => {
 
       it('should not mark trends view `touched` if already touched', () => {
         expect(markTrendsViewed.callCount).to.equal(0);
-        mount(
+        shallow(
           <TrendsContainer
             {..._.merge({}, props, { trendsState: { touched: true } })}
             {...mgdl}
@@ -360,7 +360,7 @@ describe('TrendsContainer', () => {
 
       it('should toggle BG data source if not enough cbg data', () => {
         expect(onSwitchBgDataSource.callCount).to.equal(0);
-        mount(
+        shallow(
           <TrendsContainer
             {...props}
             {...mgdl}
@@ -372,7 +372,7 @@ describe('TrendsContainer', () => {
 
       it('should not toggle BG data source if enough cbg data (dexcom)', () => {
         expect(onSwitchBgDataSource.callCount).to.equal(0);
-        mount(
+        shallow(
           <TrendsContainer
             {...props}
             {...mgdl}
@@ -384,7 +384,7 @@ describe('TrendsContainer', () => {
 
       it('should not toggle BG data source if enough cbg data (libre)', () => {
         expect(onSwitchBgDataSource.callCount).to.equal(0);
-        mount(
+        shallow(
           <TrendsContainer
             {...props}
             {...mgdl}
@@ -396,7 +396,7 @@ describe('TrendsContainer', () => {
 
       it('should not toggle BG data source if enough cbg data (dexcom + libre mix)', () => {
         expect(onSwitchBgDataSource.callCount).to.equal(0);
-        mount(
+        shallow(
           <TrendsContainer
             {...props}
             {...mgdl}
@@ -408,7 +408,7 @@ describe('TrendsContainer', () => {
 
       it('should not toggle BG data source even if not enough cbg data if `touched`', () => {
         expect(onSwitchBgDataSource.callCount).to.equal(0);
-        mount(
+        shallow(
           <TrendsContainer
             {..._.merge({}, props, { trendsState: { touched: true } })}
             {...mgdl}
@@ -431,7 +431,7 @@ describe('TrendsContainer', () => {
       });
 
       it('should call the `mountData` method', () => {
-        mount(
+        shallow(
           <TrendsContainer
             {...props}
             {...mgdl}
@@ -458,7 +458,7 @@ describe('TrendsContainer', () => {
       });
 
       it('should call `mountData` if `loading` prop changes from true to false', () => {
-        const container = mount(
+        const container = shallow(
           <TrendsContainer
             {...props}
             {...mgdl}
@@ -476,7 +476,7 @@ describe('TrendsContainer', () => {
       });
 
       it('should not call `mountData` if `loading` prop does not change from true to false', () => {
-        const container = mount(
+        const container = shallow(
           <TrendsContainer
             {...props}
             {...mgdl}
@@ -491,8 +491,8 @@ describe('TrendsContainer', () => {
       });
 
       it('should perform data refiltering if `activeDays` changes', () => {
-        const byDateSpy = sinon.spy(minimalData.props().smbgByDate, 'top');
         const instance = minimalData.instance();
+        const byDateSpy = sinon.spy(instance.props.smbgByDate, 'top');
         const refilterSpy = sinon.spy(instance, 'refilterByDayOfWeek');
         const stateSpy = sinon.spy(instance, 'setState');
         expect(refilterSpy.callCount).to.equal(0);
@@ -535,7 +535,7 @@ describe('TrendsContainer', () => {
       let toBeUnmounted;
 
       beforeEach(() => {
-        toBeUnmounted = mount(
+        toBeUnmounted = shallow(
           <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum())} />
         );
       });
@@ -586,7 +586,7 @@ describe('TrendsContainer', () => {
     describe('yScale', () => {
       describe('mg/dL blood glucose units', () => {
         before(() => {
-          enoughCbgData = mount(
+          enoughCbgData = shallow(
             <TrendsContainer {...props} {...mgdl} {...makeDataStubs(sevenDaysData())} />
           );
         });
@@ -613,10 +613,10 @@ describe('TrendsContainer', () => {
 
       describe('mmol/L blood glucose units', () => {
         before(() => {
-          enoughCbgDataMmol = mount(
+          enoughCbgDataMmol = shallow(
             <TrendsContainer {...props} {...mmoll} {...makeDataStubs(sevenDaysDataMmol())} />
           );
-          minimalDataMmol = mount(
+          minimalDataMmol = shallow(
             <TrendsContainer {...props} {...mmoll} {...makeDataStubs(justOneDatumMmol())} />
           );
         });
@@ -650,7 +650,7 @@ describe('TrendsContainer', () => {
         let withInitialDatetimeLocation;
 
         before(() => {
-          withInitialDatetimeLocation = mount(
+          withInitialDatetimeLocation = shallow(
             <TrendsContainer
               {...props}
               {...mgdl}
@@ -853,7 +853,7 @@ describe('TrendsContainer', () => {
 
     describe('render', () => {
       it('should render `TrendsSVGContainer`', () => {
-        const wrapper = mount(
+        const wrapper = shallow(
           <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum())} />
         );
         expect(wrapper.find(TrendsSVGContainer)).to.have.length(1);
