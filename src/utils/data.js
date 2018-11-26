@@ -171,12 +171,23 @@ export class DataUtil {
   };
 
   getCoefficientOfVariationData = () => {
-    const { averageGlucose, standardDeviation, total } = this.getStandardDevData();
+    const {
+      averageGlucose,
+      insufficientData,
+      standardDeviation,
+      total,
+    } = this.getStandardDevData();
 
-    return {
+    const coefficientOfVariationData = {
       coefficientOfVariation: standardDeviation / averageGlucose * 100,
       total,
     };
+
+    if (insufficientData) {
+      coefficientOfVariationData.insufficientData = true;
+    }
+
+    return coefficientOfVariationData;
   };
 
   getDailyAverageSums = data => {
@@ -250,6 +261,7 @@ export class DataUtil {
     if (insufficientData) {
       return {
         glucoseManagementIndicator: NaN,
+        insufficientData: true,
       };
     }
 
@@ -330,6 +342,7 @@ export class DataUtil {
     if (bgData.length < 3) {
       return {
         averageGlucose,
+        insufficientData: true,
         standardDeviation: NaN,
         total,
       };

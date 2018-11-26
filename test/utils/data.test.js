@@ -530,6 +530,7 @@ describe('DataUtil', () => {
       dataUtil = new DataUtil(smbgData.slice(0, 2), opts({ chartPrefs: { bgSource: 'smbg' } }));
       expect(dataUtil.getCoefficientOfVariationData()).to.eql({
         coefficientOfVariation: NaN,
+        insufficientData: true,
         total: 2,
       });
     });
@@ -659,6 +660,64 @@ describe('DataUtil', () => {
     });
   });
 
+  describe('getGlucoseManagementIndicatorData', () => {
+    it('should return the GMI data when viewing at least 14 days of data and 70% coverage', () => {
+      const requiredDexcomDatums = 2823; // 288(total daily possible readings) * .7(%required) * 14(days)
+      const sufficientData = _.fill(Array(requiredDexcomDatums), cbgData[4], 0, requiredDexcomDatums);
+
+      dataUtil = new DataUtil(sufficientData, defaultOpts);
+      dataUtil.endpoints = twoWeekEndpoints;
+
+      expect(dataUtil.getGlucoseManagementIndicatorData()).to.eql({
+        glucoseManagementIndicator: 9.5292,
+        total: 2823,
+      });
+    });
+
+    it('should return `NaN` when viewing less than 14 days of data', () => {
+      const requiredDexcomDatums = 2823; // 288(total daily possible readings) * .7(%required) * 14(days)
+      const insufficientData = _.fill(Array(requiredDexcomDatums), cbgData[4], 0, requiredDexcomDatums);
+
+      dataUtil = new DataUtil(insufficientData, defaultOpts);
+      dataUtil.endpoints = [
+        '2018-02-01T00:00:00.000Z',
+        '2018-02-14T00:00:00.000Z',
+      ];
+
+      expect(dataUtil.getGlucoseManagementIndicatorData()).to.eql({
+        glucoseManagementIndicator: NaN,
+        insufficientData: true,
+      });
+    });
+
+    it('should return `NaN` when viewing 14 days of data and less than 70% coverage', () => {
+      const requiredDexcomDatums = 2823; // 288(total daily possible readings) * .7(%required) * 14(days)
+      const count = requiredDexcomDatums - 1;
+      const insufficientData = _.fill(Array(count), cbgData[4], 0, count);
+
+      dataUtil = new DataUtil(insufficientData, defaultOpts);
+      dataUtil.endpoints = twoWeekEndpoints;
+
+      expect(dataUtil.getGlucoseManagementIndicatorData()).to.eql({
+        glucoseManagementIndicator: NaN,
+        insufficientData: true,
+      });
+    });
+
+    it('should return `NaN` when bgSource is `smbg`', () => {
+      const requiredDexcomDatums = 2823; // 288(total daily possible readings) * .7(%required) * 14(days)
+      const sufficientData = _.fill(Array(requiredDexcomDatums), cbgData[4], 0, requiredDexcomDatums);
+
+      dataUtil = new DataUtil(sufficientData, opts({ chartPrefs: { bgSource: 'smbg' } }));
+      dataUtil.endpoints = twoWeekEndpoints;
+
+      expect(dataUtil.getGlucoseManagementIndicatorData()).to.eql({
+        glucoseManagementIndicator: NaN,
+        insufficientData: true,
+      });
+    });
+  });
+
   describe('getLatestPump', () => {
     it('should return the make and model of the latest pump uploaded', () => {
       expect(dataUtil.getLatestPump()).to.eql({
@@ -741,6 +800,7 @@ describe('DataUtil', () => {
       expect(dataUtil.getStandardDevData()).to.eql({
         averageGlucose: 65,
         standardDeviation: NaN,
+        insufficientData: true,
         total: 2,
       });
     });

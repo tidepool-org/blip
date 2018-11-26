@@ -153,6 +153,17 @@ describe('stat', () => {
           '**CV (Coefficient of Variation):** How far apart (wide) glucose values are; ideally a low number.',
         ]);
       });
+
+      it('should return insufficient dataannotation for `standardDev` stat when not enough data was present for a calculation', () => {
+        const insufficientData = {
+          ...data,
+          insufficientData: true,
+        };
+
+        expect(stat.getStatAnnotations(insufficientData, commonStats.coefficientOfVariation, cbgOpts)).to.have.include.members([
+          '**Why is this stat empty?**\n\nThere is not enough data present in this view to calculate it.',
+        ]);
+      });
     });
 
     describe('glucoseManagementIndicator', () => {
@@ -166,6 +177,17 @@ describe('stat', () => {
       it('should return annotations for `glucoseManagementIndicator` stat when bgSource is `cbg`', () => {
         expect(stat.getStatAnnotations(data, commonStats.glucoseManagementIndicator, cbgOpts)).to.have.ordered.members([
           '**GMI (Glucose Management Indicator):** Calculated from average glucose; estimates your future lab A1c.',
+        ]);
+      });
+
+      it('should return insufficient dataannotation for `standardDev` stat when not enough data was present for a calculation', () => {
+        const insufficientData = {
+          ...data,
+          insufficientData: true,
+        };
+
+        expect(stat.getStatAnnotations(insufficientData, commonStats.glucoseManagementIndicator, cbgOpts)).to.have.include.members([
+          '**Why is this stat empty?**\n\nThere is not enough data present in this view to calculate it.',
         ]);
       });
     });
@@ -198,6 +220,17 @@ describe('stat', () => {
       it('should return annotations for `standardDev` stat when bgSource is `cbg`', () => {
         expect(stat.getStatAnnotations(data, commonStats.standardDev, cbgOpts)).to.have.ordered.members([
           '**SD (Standard Deviation):** How far values are from the average; ideally a low number.',
+        ]);
+      });
+
+      it('should return insufficient dataannotation for `standardDev` stat when not enough data was present for a calculation', () => {
+        const insufficientData = {
+          ...data,
+          insufficientData: true,
+        };
+
+        expect(stat.getStatAnnotations(insufficientData, commonStats.standardDev, cbgOpts)).to.have.include.members([
+          '**Why is this stat empty?**\n\nThere is not enough data present in this view to calculate it.',
         ]);
       });
     });

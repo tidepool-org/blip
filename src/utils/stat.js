@@ -128,7 +128,9 @@ export const getStatAnnotations = (data, type, opts = {}) => {
       break;
   }
 
-  if (_.includes(bgStats, type)) {
+  if (data.insufficientData) {
+    annotations.push('**Why is this stat empty?**\n\nThere is not enough data present in this view to calculate it.');
+  } else if (_.includes(bgStats, type)) {
     if (bgSource === 'smbg') {
       annotations.push(`Derived from _**${data.total}**_ ${statBgSourceLabels.smbg} readings.`);
     }
