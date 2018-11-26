@@ -23,7 +23,6 @@ import { formatClassesAsSelector } from '../../../helpers/cssmodules';
 import TwoOptionToggle, { Toggle }
   from '../../../../src/components/common/controls/TwoOptionToggle';
 import styles from '../../../../src/components/common/controls/TwoOptionToggle.css';
-import { toLong } from 'ip';
 
 describe('TwoOptionToggle', () => {
   let wrapper;

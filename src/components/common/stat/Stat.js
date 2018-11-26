@@ -70,14 +70,14 @@ class Stat extends PureComponent {
         summary: dataPathPropType,
         title: dataPathPropType,
       }),
-    }),
+    }).isRequired,
     dataFormat: PropTypes.shape({
       label: statFormatPropType,
       summary: statFormatPropType,
       title: statFormatPropType,
       tooltip: statFormatPropType,
       tooltipTitle: statFormatPropType,
-    }),
+    }).isRequired,
     emptyDataPlaceholder: PropTypes.string.isRequired,
     isDisabled: PropTypes.bool,
     isOpened: PropTypes.bool,
@@ -101,6 +101,8 @@ class Stat extends PureComponent {
     muteOthersOnHover: true,
     type: statTypes.simple,
   };
+
+  static displayName = 'Stat';
 
   constructor(props) {
     super(props);

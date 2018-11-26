@@ -1,6 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import _ from 'lodash';
 
 import HoverBar from '../../../../src/components/common/stat/HoverBar';
 import colors from '../../../../src/styles/colors.css';

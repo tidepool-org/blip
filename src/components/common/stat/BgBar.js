@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { Line, Point, Rect } from 'victory';
+import { Point, Rect } from 'victory';
 import { Arc } from 'victory-core';
 import colors from '../../../styles/colors.css';
 import { classifyBgValue } from '../../../utils/bloodglucose';
