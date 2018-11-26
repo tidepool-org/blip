@@ -95,7 +95,7 @@ var legend = {
         opts.widths.push(opts.SHAPE_WIDTH);
         return opts.selection.append('circle')
           .attr({
-            'class': 'd3-smbg d3-circle-smbg d3-bg-high'
+            'class': 'd3-smbg d3-circle-smbg d3-bg-very-high'
           });
       },
       type: 'circle'
@@ -105,7 +105,7 @@ var legend = {
         opts.widths.push(opts.SHAPE_WIDTH);
         return opts.selection.append('circle')
           .attr({
-            'class': 'd3-smbg d3-circle-smbg d3-bg-high d3-circle-open'
+            'class': 'd3-smbg d3-circle-smbg d3-bg-high'
           });
       },
       type: 'circle'
@@ -125,7 +125,7 @@ var legend = {
         opts.widths.push(opts.SHAPE_WIDTH);
         return opts.selection.append('circle')
           .attr({
-            'class': 'd3-smbg d3-circle-smbg d3-bg-low d3-circle-open'
+            'class': 'd3-smbg d3-circle-smbg d3-bg-low'
           });
       },
       type: 'circle'
@@ -135,7 +135,7 @@ var legend = {
         opts.widths.push(opts.SHAPE_WIDTH);
         return opts.selection.append('circle')
           .attr({
-            'class': 'd3-smbg d3-circle-smbg d3-bg-low'
+            'class': 'd3-smbg d3-circle-smbg d3-bg-very-low'
           });
       },
       type: 'circle'
