@@ -24,7 +24,7 @@
     "npm": "6.x"
   },
   "dependencies": {
-    "@tidepool/viz": "0.12.0-aggregated-stats-widgets.4",
+    "@tidepool/viz": "0.12.0-aggregated-stats-widgets.7",
     "async": "2.6.1",
     "body-parser": "1.18.3",
     "bows": "1.7.0",
@@ -60,7 +60,7 @@
     "redux-thunk": "2.2.0",
     "reselect": "3.0.1",
     "sundial": "1.6.0",
-    "tideline": "1.9.0-aggregated-stats-widgets.7",
+    "tideline": "1.9.0-aggregated-stats-widgets.10",
     "tidepool-platform-client": "0.37.0"
   },
   "devDependencies": {
