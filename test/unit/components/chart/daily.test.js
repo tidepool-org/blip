@@ -65,6 +65,7 @@ describe('Daily', () => {
     onSwitchToSettings: () => {},
     onSwitchToWeekly: () => {},
     onSwitchToTrends: () => {},
+    trackMetric: () => {},
     onUpdateChartDateRange: sinon.stub(),
     patient: {
       profile: {

@@ -36,6 +36,7 @@ import { components as vizComponents } from '@tidepool/viz';
 const Loader = vizComponents.Loader;
 const BolusTooltip = vizComponents.BolusTooltip;
 const SMBGTooltip = vizComponents.SMBGTooltip;
+const CBGTooltip = vizComponents.CBGTooltip;
 
 import Header from './header';
 import Footer from './footer';
@@ -61,6 +62,8 @@ const DailyChart = translate()(class DailyChart extends Component {
     onBolusOut: React.PropTypes.func.isRequired,
     onSMBGHover: React.PropTypes.func.isRequired,
     onSMBGOut: React.PropTypes.func.isRequired,
+    onCBGHover: React.PropTypes.func.isRequired,
+    onCBGOut: React.PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -75,7 +78,9 @@ const DailyChart = translate()(class DailyChart extends Component {
       'onBolusHover',
       'onBolusOut',
       'onSMBGHover',
-      'onSMBGOut'
+      'onSMBGOut',
+      'onCBGHover',
+      'onCBGOut',
     ];
 
     this.log = bows('Daily Chart');
@@ -216,6 +221,7 @@ class Daily extends Component {
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -227,6 +233,7 @@ class Daily extends Component {
   }
 
   getInitialState = () => {
+    this.throttledMetric = _.throttle(this.props.trackMetric, 5000);
     return {
       atMostRecent: false,
       endpoints: [],
@@ -289,6 +296,8 @@ class Daily extends Component {
                 onBolusOut={this.handleBolusOut}
                 onSMBGHover={this.handleSMBGHover}
                 onSMBGOut={this.handleSMBGOut}
+                onCBGHover={this.handleCBGHover}
+                onCBGOut={this.handleCBGOut}
                 ref="chart" />
             </div>
           </div>
@@ -336,6 +345,16 @@ class Daily extends Component {
             timePrefs={this.props.timePrefs}
             bgPrefs={this.props.bgPrefs}
           />}
+        {this.state.hoveredCBG && <CBGTooltip
+          position={{
+            top: this.state.hoveredCBG.top,
+            left: this.state.hoveredCBG.left
+          }}
+          side={this.state.hoveredCBG.side}
+          cbg={this.state.hoveredCBG.data}
+          timePrefs={this.props.timePrefs}
+          bgPrefs={this.props.bgPrefs}
+        />}
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
       );
@@ -483,6 +502,30 @@ class Daily extends Component {
   handleSMBGOut = () => {
     this.setState({
       hoveredSMBG: false
+    });
+  };
+
+  handleCBGHover = cbg => {
+    this.throttledMetric('hovered over daily cgm tooltip');
+    var rect = cbg.rect;
+    // range here is -12 to 12
+    var hoursOffset = sundial.dateDifference(cbg.data.normalTime, this.state.datetimeLocation, 'h');
+    cbg.top = rect.top + (rect.height / 2)
+    if(hoursOffset > 5) {
+      cbg.side = 'left';
+      cbg.left = rect.left;
+    } else {
+      cbg.side = 'right';
+      cbg.left = rect.left + rect.width;
+    }
+    this.setState({
+      hoveredCBG: cbg
+    });
+  };
+
+  handleCBGOut = () => {
+    this.setState({
+      hoveredCBG: false
     });
   };
 
