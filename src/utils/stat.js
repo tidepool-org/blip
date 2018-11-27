@@ -1,8 +1,16 @@
 import _ from 'lodash';
+import i18next from 'i18next';
 
 import { generateBgRangeLabels } from './bloodglucose';
 import { AUTOMATED_DELIVERY, SCHEDULED_DELIVERY } from './constants';
 import { getPumpVocabulary } from './device';
+
+const t = i18next.t.bind(i18next);
+
+if (_.get(i18next, 'options.returnEmptyString') === undefined) {
+  // Return key if no translation is present
+  i18next.init({ returnEmptyString: false, nsSeparator: '|' });
+}
 
 export const statTypes = {
   barHorizontal: 'barHorizontal',
@@ -11,8 +19,8 @@ export const statTypes = {
 };
 
 export const statBgSourceLabels = {
-  cbg: 'CGM',
-  smbg: 'BGM',
+  cbg: t('CGM'),
+  smbg: t('BGM'),
 };
 
 export const statFormats = {
@@ -63,65 +71,65 @@ export const getStatAnnotations = (data, type, opts = {}) => {
 
   switch (type) {
     case commonStats.averageGlucose:
-      annotations.push(`**Avg. Glucose (${statBgSourceLabels[bgSource]}):** All ${statBgSourceLabels[bgSource]} glucose values added together, divided by the number of readings.`);
+      annotations.push(t('**Avg. Glucose ({{bgSourceLabel}}):** All {{bgSourceLabel}} glucose values added together, divided by the number of readings.', { bgSourceLabel: statBgSourceLabels[bgSource] }));
       break;
 
     case commonStats.carbs:
       if (days > 1) {
-        annotations.push('**Avg. Daily Carbs**: All carb entries from bolus wizard events added together, divided by the number of days in this view');
+        annotations.push(t('**Avg. Daily Carbs**: All carb entries from bolus wizard events added together, divided by the number of days in this view'));
       } else {
-        annotations.push('**Total Carbs**: All carb entries from bolus wizard events added together');
+        annotations.push(t('**Total Carbs**: All carb entries from bolus wizard events added together'));
       }
-      annotations.push(`Derived from _**${data.total}**_ bolus wizard events.`);
+      annotations.push(t('Derived from _**{{total}}**_ bolus wizard events.', { total: data.total }));
       break;
 
     case commonStats.coefficientOfVariation:
-      annotations.push('**CV (Coefficient of Variation):** How far apart (wide) glucose values are; ideally a low number.');
+      annotations.push(t('**CV (Coefficient of Variation):** How far apart (wide) glucose values are; ideally a low number.'));
       break;
 
     case commonStats.glucoseManagementIndicator:
-      annotations.push('**GMI (Glucose Management Indicator):** Calculated from average glucose; estimates your future lab A1c.');
+      annotations.push(t('**GMI (Glucose Management Indicator):** Calculated from average glucose; estimates your future lab A1c.'));
       break;
 
     case commonStats.readingsInRange:
-      annotations.push(`**Readings In Range:** Daily average of the number of ${statBgSourceLabels.smbg} readings.`);
+      annotations.push(t('**Readings In Range:** Daily average of the number of {{smbgLabel}} readings.', { smbgLabel: statBgSourceLabels.smbg }));
       break;
 
     case commonStats.sensorUsage:
-      annotations.push(`**Sensor Usage:** Time the ${statBgSourceLabels.cbg} collected data, divided by the total time represented in this view`);
+      annotations.push(t('**Sensor Usage:** Time the {{cbgLabel}} collected data, divided by the total time represented in this view', { cbgLabel: statBgSourceLabels.cbg }));
       break;
 
     case commonStats.standardDev:
-      annotations.push('**SD (Standard Deviation):** How far values are from the average; ideally a low number.');
+      annotations.push(t('**SD (Standard Deviation):** How far values are from the average; ideally a low number.'));
       break;
 
     case commonStats.timeInAuto:
       if (days > 1) {
-        annotations.push(`**Time In ${vocabulary[AUTOMATED_DELIVERY]}:** Daily average of the time spent in automated basal delivery`);
-        annotations.push(`**How we calculate this:**\n\n**(%)** is the duration in ${vocabulary[AUTOMATED_DELIVERY]} divided the total duration of basals for this time period.\n\n**(time)** is 24 hours multiplied by % in ${vocabulary[AUTOMATED_DELIVERY]}.`);
+        annotations.push(t('**Time In {{automatedLabel}}:** Daily average of the time spent in automated basal delivery', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] }));
+        annotations.push(t('**How we calculate this:**\n\n**(%)** is the duration in {{automatedLabel}} divided the total duration of basals for this time period.\n\n**(time)** is 24 hours multiplied by % in {{automatedLabel}}.', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] }));
       } else {
-        annotations.push(`**Time In ${vocabulary[AUTOMATED_DELIVERY]}:** Time spent in automated basal delivery`);
-        annotations.push(`**How we calculate this:**\n\n**(%)** is the duration in ${vocabulary[AUTOMATED_DELIVERY]} divided the total duration of basals for this time period.\n\n**(time)** is total duration of time in ${vocabulary[AUTOMATED_DELIVERY]}.`);
+        annotations.push(t('**Time In {{automatedLabel}}:** Time spent in automated basal delivery', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] }));
+        annotations.push(t('**How we calculate this:**\n\n**(%)** is the duration in {{automatedLabel}} divided the total duration of basals for this time period.\n\n**(time)** is total duration of time in {{automatedLabel}}.', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] }));
       }
       break;
 
     case commonStats.timeInRange:
       if (days > 1) {
-        annotations.push(`**Time In Range:**\n\nDaily average of the time spent in range, based on ${statBgSourceLabels.cbg} readings.`);
-        annotations.push('**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is 24 hours multiplied by % in range.');
+        annotations.push(t('**Time In Range:**\n\nDaily average of the time spent in range, based on {{cbgLabel}} readings.', { cbgLabel: statBgSourceLabels.cbg }));
+        annotations.push(t('**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is 24 hours multiplied by % in range.'));
       } else {
-        annotations.push(`**Time In Range:**\n\nTime spent in range, based on ${statBgSourceLabels.cbg} readings.`);
-        annotations.push(`**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is number of readings in range multiplied by the ${statBgSourceLabels.cbg} sample frequency.`);
+        annotations.push(t('**Time In Range:**\n\nTime spent in range, based on {{cbgLabel}} readings.', { cbgLabel: statBgSourceLabels.cbg }));
+        annotations.push(t('**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is number of readings in range multiplied by the {{cbgLabel}} sample frequency.', { cbgLabel: statBgSourceLabels.cbg }));
       }
       break;
 
     case commonStats.totalInsulin:
       if (days > 1) {
-        annotations.push('**Total Insulin:**\n\nAll basal and bolus insulin delivery (in Units) added together, divided by the number of days in this view');
+        annotations.push(t('**Total Insulin:**\n\nAll basal and bolus insulin delivery (in Units) added together, divided by the number of days in this view'));
       } else {
-        annotations.push('**Total Insulin:**\n\nAll basal and bolus insulin delivery (in Units) added together');
+        annotations.push(t('**Total Insulin:**\n\nAll basal and bolus insulin delivery (in Units) added together'));
       }
-      annotations.push('**How we calculate this:**\n\n**(%)** is the respective total of basal or bolus delivery divided by total insulin delivered for this time period.');
+      annotations.push(t('**How we calculate this:**\n\n**(%)** is the respective total of basal or bolus delivery divided by total insulin delivered for this time period.'));
       break;
 
     default:
@@ -129,10 +137,10 @@ export const getStatAnnotations = (data, type, opts = {}) => {
   }
 
   if (data.insufficientData) {
-    annotations.push('**Why is this stat empty?**\n\nThere is not enough data present in this view to calculate it.');
+    annotations.push(t('**Why is this stat empty?**\n\nThere is not enough data present in this view to calculate it.'));
   } else if (_.includes(bgStats, type)) {
     if (bgSource === 'smbg') {
-      annotations.push(`Derived from _**${data.total}**_ ${statBgSourceLabels.smbg} readings.`);
+      annotations.push(t('Derived from _**{{total}}**_ {{smbgLabel}} readings.', { total: data.total, smbgLabel: statBgSourceLabels.smbg }));
     }
   }
 
@@ -201,31 +209,31 @@ export const getStatData = (data, type, opts = {}) => {
         {
           id: 'veryLow',
           value: ensureNumeric(data.veryLow),
-          title: 'Readings Below Range',
+          title: t('Readings Below Range'),
           legendTitle: bgRanges.veryLow,
         },
         {
           id: 'low',
           value: ensureNumeric(data.low),
-          title: 'Readings Below Range',
+          title: t('Readings Below Range'),
           legendTitle: bgRanges.low,
         },
         {
           id: 'target',
           value: ensureNumeric(data.target),
-          title: 'Readings In Range',
+          title: t('Readings In Range'),
           legendTitle: bgRanges.target,
         },
         {
           id: 'high',
           value: ensureNumeric(data.high),
-          title: 'Readings Above Range',
+          title: t('Readings Above Range'),
           legendTitle: bgRanges.high,
         },
         {
           id: 'veryHigh',
           value: ensureNumeric(data.veryHigh),
-          title: 'Readings Above Range',
+          title: t('Readings Above Range'),
           legendTitle: bgRanges.veryHigh,
         },
       ];
@@ -272,13 +280,13 @@ export const getStatData = (data, type, opts = {}) => {
         {
           id: 'basalAutomated',
           value: ensureNumeric(data.automated),
-          title: `Time In ${vocabulary[AUTOMATED_DELIVERY]}`,
+          title: t('Time In {{automatedLabel}}', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] }),
           legendTitle: vocabulary[AUTOMATED_DELIVERY],
         },
         {
           id: 'basal',
           value: ensureNumeric(data.manual),
-          title: `Time In ${vocabulary[SCHEDULED_DELIVERY]}`,
+          title: t('Time In {{scheduledLabel}}', { scheduledLabel: vocabulary[SCHEDULED_DELIVERY] }),
           legendTitle: vocabulary[SCHEDULED_DELIVERY],
         },
       ];
@@ -297,31 +305,31 @@ export const getStatData = (data, type, opts = {}) => {
         {
           id: 'veryLow',
           value: ensureNumeric(data.veryLow),
-          title: 'Time Below Range',
+          title: t('Time Below Range'),
           legendTitle: bgRanges.veryLow,
         },
         {
           id: 'low',
           value: ensureNumeric(data.low),
-          title: 'Time Below Range',
+          title: t('Time Below Range'),
           legendTitle: bgRanges.low,
         },
         {
           id: 'target',
           value: ensureNumeric(data.target),
-          title: 'Time In Range',
+          title: t('Time In Range'),
           legendTitle: bgRanges.target,
         },
         {
           id: 'high',
           value: ensureNumeric(data.high),
-          title: 'Time Above Range',
+          title: t('Time Above Range'),
           legendTitle: bgRanges.high,
         },
         {
           id: 'veryHigh',
           value: ensureNumeric(data.veryHigh),
-          title: 'Time Above Range',
+          title: t('Time Above Range'),
           legendTitle: bgRanges.veryHigh,
         },
       ];
@@ -340,14 +348,14 @@ export const getStatData = (data, type, opts = {}) => {
         {
           id: 'bolus',
           value: ensureNumeric(data.bolus),
-          title: 'Bolus Insulin',
-          legendTitle: 'Bolus',
+          title: t('Bolus Insulin'),
+          legendTitle: t('Bolus'),
         },
         {
           id: 'basal',
           value: ensureNumeric(data.basal),
-          title: 'Basal Insulin',
-          legendTitle: 'Basal',
+          title: t('Basal Insulin'),
+          legendTitle: t('Basal'),
         },
       ];
 
@@ -374,43 +382,45 @@ export const getStatTitle = (type, opts = {}) => {
 
   switch (type) {
     case commonStats.averageGlucose:
-      title = `Avg. Glucose (${statBgSourceLabels[bgSource]})`;
+      title = t('Avg. Glucose ({{bgSourceLabel}})', { bgSourceLabel: statBgSourceLabels[bgSource] });
       break;
 
     case commonStats.carbs:
-      title = `${days > 1 ? 'Avg. Daily ' : 'Total '}Carbs`;
+      title = (days > 1) ? t('Avg. Daily Carbs') : t('Total Carbs');
       break;
 
     case commonStats.coefficientOfVariation:
-      title = `CV (${statBgSourceLabels[bgSource]})`;
+      title = t('CV ({{bgSourceLabel}})', { bgSourceLabel: statBgSourceLabels[bgSource] });
       break;
 
     case commonStats.glucoseManagementIndicator:
-      title = `GMI (${statBgSourceLabels[bgSource]})`;
+      title = t('GMI ({{bgSourceLabel}})', { bgSourceLabel: statBgSourceLabels[bgSource] });
       break;
 
     case commonStats.readingsInRange:
-      title = `${days > 1 ? 'Avg. Daily ' : ''}Readings In Range`;
+      title = (days > 1) ? t('Avg. Daily Readings In Range') : t('Readings In Range');
       break;
 
     case commonStats.sensorUsage:
-      title = 'Sensor Usage';
+      title = t('Sensor Usage');
       break;
 
     case commonStats.standardDev:
-      title = `Std. Deviation (${statBgSourceLabels[bgSource]})`;
+      title = t('Std. Deviation ({{bgSourceLabel}})', { bgSourceLabel: statBgSourceLabels[bgSource] });
       break;
 
     case commonStats.timeInAuto:
-      title = `${days > 1 ? 'Avg. Daily ' : ''}Time In ${vocabulary[AUTOMATED_DELIVERY]}`;
+      title = (days > 1)
+        ? t('Avg. Daily Time In {{automatedLabel}}', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] })
+        : t('Time In {{automatedLabel}}', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] });
       break;
 
     case commonStats.timeInRange:
-      title = `${days > 1 ? 'Avg. Daily ' : ''}Time In Range`;
+      title = (days > 1) ? t('Avg. Daily Time In Range') : t('Time In Range');
       break;
 
     case commonStats.totalInsulin:
-      title = `${days > 1 ? 'Avg. Daily ' : ''}Total Insulin`;
+      title = (days > 1) ? t('Avg. Daily Total Insulin') : t('Total Insulin');
       break;
 
     default:
