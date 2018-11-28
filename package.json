@@ -67,6 +67,7 @@
     "react-markdown": "4.0.3",
     "react-motion": "0.5.2",
     "react-redux": "4.4.5",
+    "react-select": "2.0.0",
     "react-sizeme": "2.5.2",
     "react-transition-group-plus": "0.5.3",
     "redux": "3.5.2",
