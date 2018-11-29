@@ -138,11 +138,6 @@ export let PatientData = translate()(React.createClass({
     return state;
   },
 
-
-  getBgSource: function() {
-    return this.dataUtil.bgSource;
-  },
-
   log: bows('PatientData'),
 
   render: function() {
@@ -311,7 +306,6 @@ export let PatientData = translate()(React.createClass({
         return (
           <Basics
             bgPrefs={this.state.bgPrefs}
-            bgSource={this.getBgSource()}
             chartPrefs={this.state.chartPrefs}
             dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
@@ -340,7 +334,6 @@ export let PatientData = translate()(React.createClass({
         return (
           <Daily
             bgPrefs={this.state.bgPrefs}
-            bgSource={this.getBgSource()}
             chartPrefs={this.state.chartPrefs}
             dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
@@ -368,7 +361,6 @@ export let PatientData = translate()(React.createClass({
         return (
           <Trends
             bgPrefs={this.state.bgPrefs}
-            bgSource={this.getBgSource()}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
             dataUtil={this.dataUtil}
@@ -395,7 +387,6 @@ export let PatientData = translate()(React.createClass({
         return (
           <Weekly
             bgPrefs={this.state.bgPrefs}
-            bgSource={this.getBgSource()}
             chartPrefs={this.state.chartPrefs}
             dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}

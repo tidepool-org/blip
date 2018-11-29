@@ -123,7 +123,7 @@ class Basics extends Component {
             {this.state.endpoints.length && (
               <div>
                 <BgSourceToggle
-                  bgSource={this.props.bgSource}
+                  bgSource={this.props.dataUtil.bgSource}
                   bgSources={this.props.dataUtil.bgSources}
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
@@ -131,7 +131,7 @@ class Basics extends Component {
                 />
                 <Stats
                   bgPrefs={this.props.bgPrefs}
-                  bgSource={this.props.bgSource}
+                  bgSource={this.props.dataUtil.bgSource}
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
                   dataUtil={this.props.dataUtil}

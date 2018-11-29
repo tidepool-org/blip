@@ -288,12 +288,13 @@ const Trends = translate()(class Trends extends PureComponent {
       e.preventDefault();
     }
 
-    const changedTo = bgSource === 'cbg' ? 'CGM' : 'BGM';
+    const showingCbg = bgSource === 'cbg';
+    const changedTo = showingCbg ? 'CGM' : 'BGM';
     this.props.trackMetric(`Trends Click to ${changedTo}`);
 
     const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.trends.showingCbg = !prefs.trends.showingCbg;
-    prefs.trends.showingSmbg = !prefs.trends.showingSmbg;
+    prefs.trends.showingCbg = showingCbg;
+    prefs.trends.showingSmbg = !showingCbg;
     prefs.trends.bgSource = bgSource;
     this.props.updateChartPrefs(prefs);
   }
@@ -375,7 +376,7 @@ const Trends = translate()(class Trends extends PureComponent {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <BgSourceToggle
-                bgSource={this.props.bgSource}
+                bgSource={this.props.dataUtil.bgSource}
                 bgSources={this.props.dataUtil.bgSources}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
@@ -384,7 +385,7 @@ const Trends = translate()(class Trends extends PureComponent {
               />
               <Stats
                 bgPrefs={this.props.bgPrefs}
-                bgSource={this.props.bgSource}
+                bgSource={this.props.dataUtil.bgSource}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}

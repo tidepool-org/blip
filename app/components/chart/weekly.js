@@ -224,7 +224,7 @@ class Weekly extends Component {
             <div className="patient-data-sidebar-inner">
               <Stats
                 bgPrefs={this.props.bgPrefs}
-                bgSource={this.props.bgSource}
+                bgSource={this.props.dataUtil.bgSource}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}

@@ -304,7 +304,7 @@ class Daily extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <BgSourceToggle
-                bgSource={this.props.bgSource}
+                bgSource={this.props.dataUtil.bgSource}
                 bgSources={this.props.dataUtil.bgSources}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
@@ -312,7 +312,7 @@ class Daily extends Component {
               />
               <Stats
                 bgPrefs={this.props.bgPrefs}
-                bgSource={this.props.bgSource}
+                bgSource={this.props.dataUtil.bgSource}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
