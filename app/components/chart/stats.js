@@ -40,6 +40,7 @@ class Stats extends Component {
 
     this.dataFetchMethods = {
       [commonStats.averageGlucose]: 'getAverageGlucoseData',
+      [commonStats.averageDailyDose]: 'getTotalInsulinData',
       [commonStats.carbs]: 'getCarbsData',
       [commonStats.coefficientOfVariation]: 'getCoefficientOfVariationData',
       [commonStats.glucoseManagementIndicator]: 'getGlucoseManagementIndicatorData',
@@ -48,7 +49,7 @@ class Stats extends Component {
       [commonStats.standardDev]: 'getStandardDevData',
       [commonStats.timeInAuto]: 'getTimeInAutoData',
       [commonStats.timeInRange]: 'getTimeInRangeData',
-      [commonStats.totalInsulin]: 'getTotalInsulinData',
+      [commonStats.totalInsulin]: 'getBasalBolusData',
     };
 
     this.updateDataUtilEndpoints(this.props);
@@ -153,6 +154,7 @@ class Stats extends Component {
         addStat(commonStats.totalInsulin);
         isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
         addStat(commonStats.carbs);
+        addStat(commonStats.averageDailyDose);
         cbgSelected && addStat(commonStats.glucoseManagementIndicator);
         break;
 
