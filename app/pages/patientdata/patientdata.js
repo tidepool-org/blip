@@ -1071,8 +1071,14 @@ export let PatientData = translate()(React.createClass({
           { bgPrefs, timePrefs }
         );
 
+        // Set default bgSOurce for basics based on whether there is any cbg data in the current view.
+        const basicsChartPrefs = _.assign({}, this.state.chartPrefs.basics, {
+          bgSource: _.get(processedData, 'basicsData.data.cbg.data.length') ? 'cbg' : 'smbg',
+        });
+
         this.setState({
           bgPrefs,
+          chartPrefs: _.assign({}, this.state.chartPrefs, { basics: basicsChartPrefs }),
           lastDiabetesDatumProcessedIndex,
           lastDatumProcessedIndex,
           lastProcessedDateTarget: targetDatetime,
