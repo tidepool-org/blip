@@ -187,21 +187,12 @@
 // ====================================
 .patient-data .Stats {
   clear: both;
-  display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(calc(@patient-data-sidebar-width - 20px), 1fr)
-  );
-  grid-gap: 8px;
+  display: block;
+  margin: 0;
 
-  @media (min-width: @patient-data-sidebar-bp) {
-    display: block;
-    margin: 0;
-
-    > div {
-      margin: 0 0 8px;
-      max-width: 100%;
-    }
+  > div {
+    margin: 0 0 8px;
+    max-width: 100%;
   }
 }
 
