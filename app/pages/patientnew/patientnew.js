@@ -276,7 +276,7 @@ export let PatientNew = translate()(React.createClass({
 
       _.forEach(selectedAccounts, accountId => {
         accountId && addAccounts.push(`bigdata+${accountId}@tidepool.org`);
-      })
+      });
 
       this.props.onUpdateDataDonationAccounts(addAccounts);
 
