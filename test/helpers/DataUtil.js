@@ -76,9 +76,13 @@ export default class DataUtil {
       total: 0,
     });
 
-    this.getTotalInsulinData = sinon.stub().returns({
+    this.getBasalBolusData = sinon.stub().returns({
       basal: NaN,
       bolus: NaN,
+    });
+
+    this.getTotalInsulinData = sinon.stub().returns({
+      totalInsulin: NaN,
     });
   }
 

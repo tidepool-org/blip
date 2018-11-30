@@ -846,16 +846,6 @@ describe('PatientData', function () {
     });
   });
 
-  describe('getBgSource', () => {
-    it('should return the bgSource property of the `dataUtil`', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
-      const instance = wrapper.instance();
-      instance.dataUtil = new DataUtilStub();
-
-      expect(instance.getBgSource()).to.equal('cbg');
-    });
-  });
-
   describe('handleRefresh', function() {
     const props = {
       onRefresh: sinon.stub(),

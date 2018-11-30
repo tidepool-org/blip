@@ -104,6 +104,7 @@ describe('Stats', () => {
 
       expect(instance.dataFetchMethods).to.have.all.keys([
         'averageGlucose',
+        'averageDailyDose',
         'carbs',
         'coefficientOfVariation',
         'glucoseManagementIndicator',
@@ -151,7 +152,7 @@ describe('Stats', () => {
           bgSource: 'cbg',
         });
 
-        expect(wrapper.find('.Stats').children()).to.have.length(6);
+        expect(wrapper.find('.Stats').children()).to.have.length(7);
 
         const expectedStats = [
           'timeInRange',
@@ -159,6 +160,7 @@ describe('Stats', () => {
           'sensorUsage',
           'totalInsulin',
           'carbs',
+          'averageDailyDose',
           'glucoseManagementIndicator',
         ];
 
@@ -173,13 +175,14 @@ describe('Stats', () => {
           bgSource: 'smbg',
         });
 
-        expect(wrapper.find('.Stats').children()).to.have.length(4);
+        expect(wrapper.find('.Stats').children()).to.have.length(5);
 
         const expectedStats = [
           'readingsInRange',
-          'averageGlucose',
+          'averageDailyDose',
           'totalInsulin',
           'carbs',
+          'averageGlucose',
         ];
 
         _.each(expectedStats, statId => {
@@ -198,7 +201,7 @@ describe('Stats', () => {
           }),
         })} />);
 
-        expect(wrapper.find('.Stats').children()).to.have.length(7);
+        expect(wrapper.find('.Stats').children()).to.have.length(8);
         expect(wrapper.find('#Stat--timeInAuto')).to.have.length(1);
       });
     });
@@ -384,6 +387,7 @@ describe('Stats', () => {
           'sensorUsage',
           'totalInsulin',
           'carbs',
+          'averageDailyDose',
           'glucoseManagementIndicator',
         ];
 
@@ -401,6 +405,7 @@ describe('Stats', () => {
           'averageGlucose',
           'totalInsulin',
           'carbs',
+          'averageDailyDose',
         ];
 
         expect(_.map(stats, 'id')).to.have.ordered.members(expectedStats);
@@ -693,13 +698,13 @@ describe('Stats', () => {
       const setStateSpy = sinon.spy(instance, 'setState');
       sinon.assert.callCount(setStateSpy, 0);
 
-      expect(instance.state.stats.length).to.equal(6);
+      expect(instance.state.stats.length).to.equal(7);
 
       instance.updateStatData(baseProps);
 
-      sinon.assert.callCount(getStatAnnotations, 6);
-      sinon.assert.callCount(getStatData, 6);
-      sinon.assert.callCount(getStatTitle, 6);
+      sinon.assert.callCount(getStatAnnotations, 7);
+      sinon.assert.callCount(getStatData, 7);
+      sinon.assert.callCount(getStatTitle, 7);
 
       _.each(instance.state.stats, stat => {
         sinon.assert.calledWith(getStatAnnotations, sinon.match.object, stat.id);
