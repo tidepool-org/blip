@@ -46,7 +46,6 @@ module.exports = function(pool, opts) {
         status: 'suspended',
         reason: { suspended: 'automatic' }
       });
-      console.log(filteredData);
 
       var deviceEventGroup = selection
         .selectAll(`.d3-deviceevent-group`)
@@ -101,11 +100,11 @@ module.exports = function(pool, opts) {
 
         markers.exit().remove();
 
-        var markers = deviceEventGroup
+        markers = deviceEventGroup
           .selectAll(`.d3-basal-marker-group.d3-basal-marker-group-manual-${id}`)
           .data([`d3-basal-marker-group d3-basal-marker-group-manual-${id}`]);
 
-        var markersGroups = markers
+        markersGroups = markers
           .enter()
           .append('g')
           .attr('class', function(d) {
