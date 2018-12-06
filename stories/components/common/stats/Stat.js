@@ -125,15 +125,16 @@ const generateEmptyData = (data) => {
 };
 
 /* eslint-disable react/prop-types */
-const Container = (UI) => (
+const Container = (props) => (
   <div
     style={{
       background: '#f6f6f6',
       border: '1px solid #eee',
-      margin: '50px',
+      margin: props.responsive ? '50px' : '50px auto',
       padding: '20px',
+      width: props.responsive ? 'auto' : '320px',
     }}
-  >{UI.children}
+  >{props.children}
   </div>
 );
 /* eslint-enable react/prop-types */
@@ -183,10 +184,11 @@ timeInRangeData.dataPaths = {
 };
 
 stories.add('Time In Range', () => {
+  const responsive = boolean('responsive', false, 'UI');
   const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'UI');
   const bgUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
   const bgPrefs = bgPrefsValues[bgUnits];
-  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
+  const alwaysShowTooltips = boolean('alwaysShowTooltips', true, 'UI');
   const collapsible = boolean('collapsible', false, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
   const legend = boolean('legend', true, 'UI');
@@ -202,7 +204,7 @@ stories.add('Time In Range', () => {
   }, 'DATA');
 
   return (
-    <Container>
+    <Container responsive={responsive}>
       <Stat
         alwaysShowTooltips={alwaysShowTooltips}
         annotations={[
@@ -273,10 +275,11 @@ readingsInRangeData.dataPaths = {
 };
 
 stories.add('Readings In Range', () => {
+  const responsive = boolean('responsive', false, 'UI');
   const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'UI');
   const bgUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
   const bgPrefs = bgPrefsValues[bgUnits];
-  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
+  const alwaysShowTooltips = boolean('alwaysShowTooltips', true, 'UI');
   const collapsible = boolean('collapsible', false, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
   const legend = boolean('legend', true, 'UI');
@@ -292,7 +295,7 @@ stories.add('Readings In Range', () => {
   }, 'DATA');
 
   return (
-    <Container>
+    <Container responsive={responsive}>
       <Stat
         alwaysShowTooltips={alwaysShowTooltips}
         annotations={[
@@ -345,9 +348,10 @@ timeInAutoData.dataPaths = {
 };
 
 stories.add('Time In Auto', () => {
+  const responsive = boolean('responsive', false, 'UI');
   const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'UI');
   const collapsible = boolean('collapsible', false, 'UI');
-  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
+  const alwaysShowTooltips = boolean('alwaysShowTooltips', true, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
   const legend = boolean('legend', true, 'UI');
   const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
@@ -361,7 +365,7 @@ stories.add('Time In Auto', () => {
   }, 'DATA');
 
   return (
-    <Container>
+    <Container responsive={responsive}>
       <Stat
         alwaysShowTooltips={alwaysShowTooltips}
         annotations={[
@@ -408,9 +412,10 @@ totalInsulinData.dataPaths = {
 };
 
 stories.add('Total Insulin', () => {
+  const responsive = boolean('responsive', false, 'UI');
   const chartHeight = select('chartHeight', chartHeightOptions, chartHeightOptions['0 (default fluid)'], 'UI');
   const collapsible = boolean('collapsible', false, 'UI');
-  const alwaysShowTooltips = boolean('alwaysShowTooltips', false, 'UI');
+  const alwaysShowTooltips = boolean('alwaysShowTooltips', true, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
   const legend = boolean('legend', true, 'UI');
   const muteOthersOnHover = boolean('muteOthersOnHover', true, 'UI');
@@ -424,7 +429,7 @@ stories.add('Total Insulin', () => {
   }, 'DATA');
 
   return (
-    <Container>
+    <Container responsive={responsive}>
       <Stat
         alwaysShowTooltips={alwaysShowTooltips}
         annotations={[
@@ -467,6 +472,7 @@ let averageGlucoseDataMmol = _.assign({}, averageGlucoseData, {
 let averageGlucoseDataUnits = bgPrefsOptions[MGDL_UNITS];
 
 stories.add('Average Glucose', () => {
+  const responsive = boolean('responsive', false, 'UI');
   const collapsible = boolean('collapsible', false, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
   averageGlucoseDataUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
@@ -489,7 +495,7 @@ stories.add('Average Glucose', () => {
   }, 'DATA');
 
   return (
-    <Container>
+    <Container responsive={responsive}>
       <Stat
         annotations={[
           'Based on 70% CGM data availability for this view.',
@@ -536,6 +542,7 @@ let standardDevDataMmol = _.assign({}, standardDevData, {
 let standardDevDataUnits = bgPrefsOptions[MGDL_UNITS];
 
 stories.add('Standard Deviation', () => {
+  const responsive = boolean('responsive', false, 'UI');
   const collapsible = boolean('collapsible', false, 'UI');
   const isOpened = boolean('isOpened', true, 'UI');
   standardDevDataUnits = select('BG Units', bgPrefsOptions, bgPrefsOptions[MGDL_UNITS], 'DATA');
@@ -558,7 +565,7 @@ stories.add('Standard Deviation', () => {
   }, 'DATA');
 
   return (
-    <Container>
+    <Container responsive={responsive}>
       <Stat
         annotations={[
           'Based on 70% CGM data availability for this view.',
@@ -594,6 +601,7 @@ glucoseManagementIndicatorData.dataPaths = {
 };
 
 stories.add('Glucose Management Indicator', () => {
+  const responsive = boolean('responsive', false, 'UI');
   button('Random Data', () => {
     glucoseManagementIndicatorData = generateRandomData(glucoseManagementIndicatorData, 'gmi');
   }, 'DATA');
@@ -603,7 +611,7 @@ stories.add('Glucose Management Indicator', () => {
   }, 'DATA');
 
   return (
-    <Container>
+    <Container responsive={responsive}>
       <Stat
         annotations={[
           'Based on 70% CGM data availability for this view.',
@@ -633,6 +641,7 @@ coefficientOfVariationData.dataPaths = {
 };
 
 stories.add('Coefficient of Variation', () => {
+  const responsive = boolean('responsive', false, 'UI');
   button('Random Data', () => {
     coefficientOfVariationData = generateRandomData(coefficientOfVariationData, 'cv');
   }, 'DATA');
@@ -642,7 +651,7 @@ stories.add('Coefficient of Variation', () => {
   }, 'DATA');
 
   return (
-    <Container>
+    <Container responsive={responsive}>
       <Stat
         annotations={[
           'Based on 70% CGM data availability for this view.',
@@ -671,6 +680,7 @@ carbData.dataPaths = {
 };
 
 stories.add('Avg. Daily Carbs', () => {
+  const responsive = boolean('responsive', false, 'UI');
   button('Random Data', () => {
     carbData = generateRandomData(carbData, 'carb');
   }, 'DATA');
@@ -680,7 +690,7 @@ stories.add('Avg. Daily Carbs', () => {
   }, 'DATA');
 
   return (
-    <Container>
+    <Container responsive={responsive}>
       <Stat
         annotations={[
           'Based on 5 bolus wizard events for this view.',
@@ -691,6 +701,83 @@ stories.add('Avg. Daily Carbs', () => {
         }}
         title="Avg. Daily Carbs"
         type={statTypes.simple}
+      />
+    </Container>
+  );
+});
+
+const dailyDoseUnitOptions = [
+  {
+    label: 'kg',
+    value: 'kg',
+  },
+  {
+    label: 'lb',
+    value: 'lb',
+  },
+];
+
+let dailyDoseData = {
+  data: [
+    {
+      id: 'insulin',
+      input: {
+        id: 'weight',
+        label: 'Weight',
+        step: 1,
+        suffix: {
+          id: 'units',
+          options: dailyDoseUnitOptions,
+          value: dailyDoseUnitOptions[0],
+        },
+        type: 'number',
+      },
+      output: {
+        label: 'Daily Dose ÷ Weight',
+        type: 'divisor',
+        dataPaths: {
+          dividend: 'data.0',
+        },
+      },
+      value: 112.4,
+    },
+  ],
+};
+dailyDoseData.dataPaths = {
+  input: 'data.0.input',
+  output: 'data.0.output',
+  summary: 'data.0',
+};
+
+stories.add('Avg. Daily Insulin', () => {
+  const responsive = boolean('responsive', false, 'UI');
+  const collapsible = boolean('collapsible', false, 'UI');
+  const isOpened = boolean('isOpened', true, 'UI');
+
+  button('Random Data', () => {
+    dailyDoseData = generateRandomData(dailyDoseData, 'units');
+  }, 'DATA');
+
+  button('Empty Data', () => {
+    dailyDoseData = generateEmptyData(dailyDoseData);
+  }, 'DATA');
+
+  return (
+    <Container responsive={responsive}>
+      <Stat
+        alwaysShowSummary
+        annotations={[
+          'Based on 50% pump data availability for this view.',
+        ]}
+        collapsible={collapsible}
+        data={dailyDoseData}
+        dataFormat={{
+          output: statFormats.unitsPerWeight,
+          summary: statFormats.units,
+        }}
+        isOpened={isOpened}
+        title="Avg. Daily Dose"
+        type={statTypes.input}
       />
     </Container>
   );

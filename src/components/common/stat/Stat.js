@@ -1,20 +1,3 @@
-/*
- * == BSD2 LICENSE ==
- * Copyright (c) 2016, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
- */
-
 /* global document */
 
 import React, { PropTypes, PureComponent } from 'react';
@@ -41,6 +24,7 @@ import StatLegend from './StatLegend';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
 import InfoIcon from './assets/info-outline-24-px.svg';
+import InputGroup from '../controls/InputGroup';
 
 const dataPathPropType = PropTypes.oneOfType([
   PropTypes.string,
@@ -58,6 +42,7 @@ const statFormatPropType = PropTypes.oneOf(_.values(statFormats));
 class Stat extends PureComponent {
   static propTypes = {
     alwaysShowTooltips: PropTypes.bool,
+    alwaysShowSummary: PropTypes.bool,
     annotations: PropTypes.arrayOf(PropTypes.string),
     bgPrefs: bgPrefsPropType,
     categories: PropTypes.object,
@@ -67,6 +52,8 @@ class Stat extends PureComponent {
       data: PropTypes.arrayOf(datumPropType).isRequired,
       total: datumPropType,
       dataPaths: PropTypes.shape({
+        input: dataPathPropType,
+        output: dataPathPropType,
         summary: dataPathPropType,
         title: dataPathPropType,
       }),
@@ -89,11 +76,12 @@ class Stat extends PureComponent {
   };
 
   static defaultProps = {
-    alwaysShowTooltips: false,
+    alwaysShowSummary: false,
+    alwaysShowTooltips: true,
     bgPrefs: {},
     categories: {},
     chartHeight: 0,
-    collapsible: true,
+    collapsible: false,
     emptyDataPlaceholder: '--',
     isDisabled: false,
     isOpened: true,
@@ -109,7 +97,7 @@ class Stat extends PureComponent {
     this.log = bows('Stat');
 
     this.state = this.getStateByType(props);
-    this.setChartPropsByType(props);
+    this.chartProps = this.getChartPropsByType(props);
 
     this.setStatRef = ref => {
       this.stat = ref;
@@ -121,8 +109,8 @@ class Stat extends PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState(this.getStateByType(nextProps));
-    this.setChartPropsByType(nextProps);
+    this.setState(() => this.getStateByType(nextProps));
+    this.chartProps = this.getChartPropsByType(nextProps);
   }
 
   renderChartTitle = () => {
@@ -172,12 +160,14 @@ class Stat extends PureComponent {
 
   renderChartSummary = () => {
     const summaryData = this.getFormattedDataByKey('summary');
+    const showSummary = this.props.alwaysShowSummary || !this.state.isOpened;
+    const summaryDataValue = _.get(summaryData, 'value');
 
     return (
       <div className={styles.chartSummary}>
-        {summaryData && (
+        {summaryDataValue && showSummary && (
           <div
-            className={styles.summaryWrapper}
+            className={styles.summaryData}
             style={{
               color: colors[summaryData.id],
             }}
@@ -220,12 +210,13 @@ class Stat extends PureComponent {
 
   renderStatFooter = () => (
     <div className={styles.statFooter}>
-      {this.renderChartLegend()}
+      {this.props.type === statTypes.input && this.renderCalculatedOutput()}
+      {this.props.legend && this.renderStatLegend()}
       {this.props.units && this.renderStatUnits()}
     </div>
   );
 
-  renderChartLegend = () => {
+  renderStatLegend = () => {
     const items = _.map(
       this.props.data.data,
       datum => _.pick(datum, ['id', 'legendTitle'])
@@ -236,7 +227,7 @@ class Stat extends PureComponent {
     }
 
     return (
-      <div className={styles.chartLegend}>
+      <div className={styles.statLegend}>
         <StatLegend items={items} />
       </div>
     );
@@ -250,12 +241,80 @@ class Stat extends PureComponent {
         isOpened={this.state.isOpened}
         springConfig={{ stiffness: 200, damping: 23 }}
       >
-        <div className={styles.chartContainer}>
+        <div className={styles.chartWrapper}>
           <Renderer {...chartProps} width={size.width || 298} />
         </div>
       </Collapse>
     );
   };
+
+  renderInput = () => {
+    const input = _.get(this.props.data, this.props.data.dataPaths.input);
+
+    return (
+      <div className={styles.inputWrapper}>
+        <InputGroup
+          {...input}
+          onChange={this.handleInputChange}
+          onSuffixChange={this.handleSuffixChange}
+          suffix={this.state.inputSuffix}
+          defaultValue={this.state.inputValue}
+        />
+      </div>
+    );
+  };
+
+  renderCalculatedOutput = () => {
+    const outputPath = _.get(this.props.data, 'dataPaths.output');
+    const format = _.get(this.props.dataFormat, 'output');
+    const output = _.get(this.props.data, outputPath);
+
+    const calc = {
+      result: {
+        value: this.props.emptyDataPlaceholder,
+      },
+    };
+
+    const label = _.get(output, 'label');
+
+    const datum = {
+      value: this.state.inputValue,
+      suffix: _.get(this.state, 'inputSuffix.value.label'),
+    };
+
+    if (outputPath && output) {
+      switch (output.type) {
+        case 'divisor':
+          calc.dividend = _.get(this.props.data, _.get(output, 'dataPaths.dividend'), {}).value;
+          datum.value = calc.dividend / datum.value;
+          calc.result = this.formatDatum(datum, format);
+          break;
+
+        default:
+          calc.result = this.formatDatum(datum, format);
+          break;
+      }
+    }
+
+    const outputValueClasses = cx({
+      [styles.outputValue]: true,
+      [styles.outputValueDisabled]: calc.result.value === this.props.emptyDataPlaceholder,
+    });
+
+    return (
+      <div className={styles.outputWrapper}>
+        {label && <div className={styles.outputLabel}>{label}</div>}
+        <div className={styles.outputValueWrapper}>
+          <span className={outputValueClasses}>
+            {calc.result.value}
+          </span>
+          <span className={styles.outputSuffix}>
+            {calc.result.suffix}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   renderTooltip = () => (
     <div className={styles.StatTooltipWrapper}>
@@ -271,7 +330,6 @@ class Stat extends PureComponent {
   render = () => {
     const statClasses = cx({
       [styles.Stat]: true,
-      [styles[this.props.type]]: true,
       [styles.isOpen]: this.state.isOpened,
     });
 
@@ -284,6 +342,7 @@ class Stat extends PureComponent {
               <SizeMe render={({ size }) => (this.renderChart(size))} />
             </div>
           )}
+          {this.props.type === statTypes.input && this.renderInput()}
           {this.state.showFooter && this.renderStatFooter()}
         </div>
         {this.state.showMessages && this.renderTooltip()}
@@ -298,27 +357,43 @@ class Stat extends PureComponent {
     } = props;
 
     let isOpened;
+    let input;
 
     const state = {
       chartTitle: props.title,
       isDisabled: _.sum(_.map(data.data, d => _.get(d, 'deviation.value', d.value))) <= 0,
     };
 
-
     switch (props.type) {
-      case 'simple':
-        state.isCollapsible = false;
-        state.isOpened = false;
-        state.showFooter = false;
+      case 'input':
+        input = _.get(this.props.data, this.props.data.dataPaths.input, {});
+        isOpened = _.get(this.state, 'isOpened', props.isOpened);
+        state.inputSuffix = _.get(this.state, 'inputSuffix', input.suffix);
+        state.inputValue = _.get(this.state, 'inputValue', input.value);
+        state.isCollapsible = props.collapsible;
+        state.isOpened = isOpened;
+        state.showFooter = isOpened;
         break;
 
       case 'barHorizontal':
-      default:
         isOpened = _.get(this.state, 'isOpened', props.isOpened);
         state.isCollapsible = props.collapsible;
         state.isOpened = isOpened;
         state.hoveredDatumIndex = -1;
         state.showFooter = legend && isOpened;
+        break;
+
+      case 'barBg':
+        isOpened = _.get(this.state, 'isOpened', props.isOpened);
+        state.isCollapsible = props.collapsible;
+        state.isOpened = isOpened;
+        break;
+
+      case 'simple':
+      default:
+        state.isCollapsible = false;
+        state.isOpened = false;
+        state.showFooter = false;
         break;
     }
 
@@ -326,16 +401,10 @@ class Stat extends PureComponent {
   };
 
   getDefaultChartProps = props => {
-    const { data, chartHeight } = props;
-    const total = _.get(data, 'total.value');
+    const { chartHeight } = props;
 
     return {
       animate: { duration: 300, onLoad: { duration: 0 } },
-      data: _.map(data.data, (d, i) => ({
-        x: i + 1,
-        y: total > 0 ? d.value / total : d.value,
-        id: d.id,
-      })),
       height: chartHeight,
       labels: d => formatPercentage(d.y),
       renderer: null,
@@ -347,7 +416,7 @@ class Stat extends PureComponent {
     };
   };
 
-  setChartPropsByType = props => {
+  getChartPropsByType = props => {
     const { type, data, bgPrefs: { bgUnits } } = props;
 
     let barWidth;
@@ -357,13 +426,14 @@ class Stat extends PureComponent {
     let labelFontSize = 24;
     let chartLabelWidth = labelFontSize * 2.75;
     let padding;
+    let total;
 
-    this.chartProps = this.getDefaultChartProps(props);
+    const chartProps = this.getDefaultChartProps(props);
 
     switch (type) {
       case 'barBg':
         barWidth = 4;
-        height = this.chartProps.height || barWidth * 6;
+        height = chartProps.height || barWidth * 6;
 
         domain = {
           x: [0, bgUnits === MGDL_UNITS ? MGDL_CLAMP_TOP : MMOLL_CLAMP_TOP],
@@ -375,14 +445,13 @@ class Stat extends PureComponent {
           bottom: 10,
         };
 
-        _.assign(this.chartProps, {
+        _.assign(chartProps, {
           alignment: 'middle',
           containerComponent: <VictoryContainer responsive={false} />,
           cornerRadius: { topLeft: 2, bottomLeft: 2, topRight: 2, bottomRight: 2 },
           data: _.map(data.data, (d, i) => ({
             x: i + 1,
             y: d.value,
-            id: d.id,
             deviation: d.deviation,
           })),
           dataComponent: (
@@ -398,19 +467,18 @@ class Stat extends PureComponent {
           horizontal: true,
           labelComponent: (
             <BgBarLabel
-              active={props.alwaysShowTooltips}
               barWidth={barWidth}
               bgPrefs={props.bgPrefs}
               domain={domain}
-              text={datum => {
+              text={(datum = {}) => {
                 const datumRef = _.get(props.data, ['data', datum.eventKey]);
                 const { value } = this.formatDatum(
-                  datumRef.deviation || datumRef,
+                  _.get(datumRef, 'deviation', datumRef),
                   props.dataFormat.label
                 );
                 return `${value}`;
               }}
-              tooltipText={datum => {
+              tooltipText={(datum = {}) => {
                 const { value, suffix } = this.formatDatum(
                   _.get(props.data, ['data', datum.eventKey]),
                   props.dataFormat.tooltip,
@@ -441,7 +509,8 @@ class Stat extends PureComponent {
 
       case 'barHorizontal':
         barSpacing = 6;
-        height = this.chartProps.height;
+        height = chartProps.height;
+        total = _.get(data, 'total.value');
 
         if (height > 0) {
           barWidth = ((height - barSpacing) / props.data.data.length) - (barSpacing / 2);
@@ -462,16 +531,21 @@ class Stat extends PureComponent {
           bottom: barWidth / 2 * -1,
         };
 
-        _.assign(this.chartProps, {
+        _.assign(chartProps, {
           alignment: 'middle',
           containerComponent: <VictoryContainer responsive={false} />,
           cornerRadius: { topLeft: 2, bottomLeft: 2, topRight: 2, bottomRight: 2 },
+          data: _.map(data.data, (d, i) => ({
+            x: i + 1,
+            y: total > 0 ? d.value / total : d.value,
+            id: d.id,
+          })),
           dataComponent: (
             <HoverBar
-              domain={domain}
               barWidth={barWidth}
               barSpacing={barSpacing}
               chartLabelWidth={chartLabelWidth}
+              domain={domain}
             />
           ),
           domain,
@@ -511,18 +585,17 @@ class Stat extends PureComponent {
           horizontal: true,
           labelComponent: (
             <HoverBarLabel
-              active={props.alwaysShowTooltips}
               barWidth={barWidth}
               isDisabled={() => this.state.isDisabled}
               domain={domain}
-              text={datum => {
+              text={(datum = {}) => {
                 const { value, suffix } = this.formatDatum(
                   _.get(props.data, ['data', datum.eventKey]),
                   props.dataFormat.label,
                 );
                 return `${value}${suffix}`;
               }}
-              tooltipText={datum => {
+              tooltipText={(datum = {}) => {
                 const { value, suffix } = this.formatDatum(
                   _.get(props.data, ['data', datum.eventKey]),
                   props.dataFormat.tooltip,
@@ -531,7 +604,6 @@ class Stat extends PureComponent {
               }}
             />
           ),
-          legend: props.legend,
           padding,
           renderer: VictoryBar,
           style: {
@@ -555,6 +627,8 @@ class Stat extends PureComponent {
       default:
         break;
     }
+
+    return chartProps;
   };
 
   setChartTitle = (datum = {}) => {
@@ -562,7 +636,7 @@ class Stat extends PureComponent {
     const { title = this.props.title } = datum;
     const tooltipTitleFormat = _.get(this.props, 'dataFormat.tooltipTitle');
 
-    if (tooltipTitleFormat) {
+    if (tooltipTitleFormat && datum.index) {
       tooltipTitleData = this.getFormattedDataByDataPath(['data', datum.index], tooltipTitleFormat);
     }
 
@@ -601,7 +675,7 @@ class Stat extends PureComponent {
   formatDatum = (datum = {}, format) => {
     let id = datum.id;
     let value = datum.value;
-    let suffix = '';
+    let suffix = datum.suffix || '';
     let deviation;
     let lowerValue;
     let lowerColorId;
@@ -619,8 +693,13 @@ class Stat extends PureComponent {
 
     switch (format) {
       case statFormats.bgCount:
-        if (value < 0) disableStat();
-        value = +value.toFixed(1);
+        if (value >= 0) {
+          // Note: the + converts the rounded, fixed string back to a number
+          // This allows 2.67777777 to render as 2.7 and 3.0000001 to render as 3 (not 3.0)
+          value = +value.toFixed(1);
+        } else {
+          disableStat();
+        }
         break;
 
       case statFormats.bgRange:
@@ -736,6 +815,15 @@ class Stat extends PureComponent {
         }
         break;
 
+      case statFormats.unitsPerWeight:
+        suffix = `U/${suffix}`;
+        if (value > 0 && _.isFinite(value)) {
+          value = formatDecimalNumber(value, 2);
+        } else {
+          disableStat();
+        }
+        break;
+
       default:
         break;
     }
@@ -748,11 +836,9 @@ class Stat extends PureComponent {
   };
 
   handleCollapse = () => {
-    const isOpened = !this.state.isOpened;
-    this.setState({
-      isOpened,
-      showFooter: this.props.legend && isOpened,
-    });
+    this.setState(state => ({
+      isOpened: !state.isOpened,
+    }), () => this.setState(this.getStateByType(this.props)));
   };
 
   handleTooltipIconMouseOver = () => {
@@ -787,6 +873,21 @@ class Stat extends PureComponent {
     this.setState({
       showMessages: false,
     });
+  };
+
+  handleInputChange = event => {
+    event.persist();
+    this.setState(() => ({
+      inputValue: event.target.value,
+    }));
+  };
+
+  handleSuffixChange = value => {
+    this.setState((state) => ({
+      inputSuffix: _.assign({}, state.inputSuffix, {
+        value,
+      }),
+    }));
   };
 }
 

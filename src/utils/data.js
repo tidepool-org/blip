@@ -127,6 +127,12 @@ export class DataUtil {
     );
   };
 
+  clearFilters = () => {
+    this.dimension.byDate.filterAll();
+    this.dimension.byDayOfWeek.filterAll();
+    this.dimension.byType.filterAll();
+  };
+
   getAverageGlucoseData = (returnBgData = false) => {
     this.applyDateFilters();
 
@@ -144,10 +150,35 @@ export class DataUtil {
     return data;
   };
 
-  getBgSources = () => ({
-    cbg: this.filter.byType('cbg').top(Infinity).length > 0,
-    smbg: this.filter.byType('smbg').top(Infinity).length > 0,
-  });
+  getBasalBolusData = () => {
+    this.applyDateFilters();
+
+    const bolusData = this.filter.byType('bolus').top(Infinity);
+    let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity).reverse());
+    basalData = this.addBasalOverlappingStart(basalData);
+
+    const basalBolusData = {
+      basal: basalData.length
+        ? parseFloat(getTotalBasalFromEndpoints(basalData, this._endpoints))
+        : NaN,
+      bolus: bolusData.length ? getTotalBolus(bolusData) : NaN,
+    };
+
+    if (this.days > 1) {
+      basalBolusData.basal = basalBolusData.basal / this.days;
+      basalBolusData.bolus = basalBolusData.bolus / this.days;
+    }
+
+    return basalBolusData;
+  };
+
+  getBgSources = () => {
+    this.clearFilters();
+    return {
+      cbg: this.filter.byType('cbg').top(Infinity).length > 0,
+      smbg: this.filter.byType('smbg').top(Infinity).length > 0,
+    };
+  };
 
   getCarbsData = () => {
     this.applyDateFilters();
@@ -413,25 +444,16 @@ export class DataUtil {
   };
 
   getTotalInsulinData = () => {
-    this.applyDateFilters();
+    const { basal, bolus } = this.getBasalBolusData();
 
-    const bolusData = this.filter.byType('bolus').top(Infinity);
-    let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity).reverse());
-    basalData = this.addBasalOverlappingStart(basalData);
+    const totalInsulin = _.reduce([basal, bolus], (result, value) => {
+      const delivered = _.isNaN(value) ? 0 : value || 0;
+      return result + delivered;
+    }, 0);
 
-    const totalInsulin = {
-      basal: basalData.length
-        ? parseFloat(getTotalBasalFromEndpoints(basalData, this._endpoints))
-        : NaN,
-      bolus: bolusData.length ? getTotalBolus(bolusData) : NaN,
+    return {
+      totalInsulin,
     };
-
-    if (this.days > 1) {
-      totalInsulin.basal = totalInsulin.basal / this.days;
-      totalInsulin.bolus = totalInsulin.bolus / this.days;
-    }
-
-    return totalInsulin;
   };
 }
 

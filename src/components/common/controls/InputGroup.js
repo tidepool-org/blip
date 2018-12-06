@@ -6,51 +6,55 @@ import styles from './InputGroup.css';
 
 const InputGroup = (props) => {
   const {
-    name,
+    id,
     label,
-    min = 0,
-    max = 1000,
+    min,
+    max,
+    onChange,
+    onSuffixChange,
     step,
     suffix,
-    suffixValue,
     type,
     value,
   } = props;
 
-  const disableManualInput = (inputValue, { action }) => {
-    return (action === 'input-change') ? '' : inputValue;
-  };
+  const disableManualInput = (inputValue, { action }) => ((action === 'input-change')
+    ? ''
+    : inputValue
+  );
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.label}>
-        <label htmlFor={name} className={styles.label}>
+        <label htmlFor={id} className={styles.label}>
           {label}
         </label>
       </div>
       <div className={styles.inputs}>
         <input
           className={styles[`input-${type}`]}
-          name={name}
-          id={name}
-          type={type}
-          step={step}
+          id={id}
           max={max}
           min={min}
-          onChange={props.onChange}
+          name={id}
+          onChange={onChange}
+          step={step}
+          type={type}
           value={value}
         />
         {_.isString(suffix) && (
           <div className={styles.suffixText}>{suffix}</div>
         )}
-        {_.isArray(suffix) && (
+        {_.isPlainObject(suffix) && (
           <div className={styles.suffix}>
             <Select
               classNamePrefix="inputGroup-suffix"
-              value={suffixValue}
-              onChange={props.onSuffixChange}
+              id={suffix.id}
+              name={suffix.id}
+              onChange={onSuffixChange}
               onInputChange={disableManualInput}
-              options={suffix}
+              options={suffix.options}
+              value={suffix.value}
             />
           </div>
         )}
@@ -59,18 +63,29 @@ const InputGroup = (props) => {
   );
 };
 
+const suffixOptionPropType = PropTypes.shape({
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+});
+
 InputGroup.propTypes = {
-  name: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   max: PropTypes.number,
   min: PropTypes.number,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   onSuffixChange: PropTypes.func,
   step: PropTypes.number,
-  suffix: PropTypes.oneOf([PropTypes.string, PropTypes.array]),
-  suffixValue: PropTypes.string,
+  suffix: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      options: PropTypes.arrayOf(suffixOptionPropType),
+      value: suffixOptionPropType,
+    }),
+  ]),
   type: PropTypes.string.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default InputGroup;

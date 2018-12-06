@@ -7,7 +7,6 @@
   background-color: var(--bkgrnd-white);
   border-radius: 8px;
   border: 1px solid var(--stat--border);
-  overflow: hidden;
 }
 
 .Stat tspan {
@@ -21,10 +20,12 @@
   justify-content: space-between;
   height: 1.5em;
   margin: 0.25em 0.625em;
+  overflow: hidden;
 }
 
 .statMain {
   padding: 0 0.625em;
+  overflow: hidden;
 }
 
 .statFooter {
@@ -34,6 +35,7 @@
   justify-content: space-between;
   border-top: 1px solid var(--stat--border);
   padding: 0.25em 0.625em .375em;
+  overflow: hidden;
 }
 
 .chartTitle {
@@ -51,20 +53,9 @@
   justify-content: space-between;
 }
 
-/* .chartSummary .units {
-  position: relative;
-  top: 10px;
-  font-weight: normal;
-} */
-
-.summaryWrapper {
-  opacity: 1;
+.summaryData {
   display: inline;
-}
-
-.Stat.isOpen .summaryWrapper {
-  display: none;
-  color: var(--stat--dark);
+  white-space: nowrap;
 }
 
 .summaryValue {
@@ -126,8 +117,46 @@
   cursor: pointer;
 }
 
-.chartContainer {
+.chartWrapper {
   padding-bottom: .125em;
+}
+
+.inputWrapper {
+  padding: 0.5em 0.625em .5em;
+}
+
+.inputWrapper label {
+  font-weight: 600;
+  color: var(--stat--dark);
+}
+
+.outputWrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  color: var(--stat--dark);
+}
+
+.outputValue {
+  font-weight: 600;
+  color: var(--stat--dark);
+  margin-right: .25em;
+}
+
+.outputSuffix {
+  composes: smallSize from '../../../styles/typography.css';
+  color: var(--stat--default);
+}
+
+.outputValueDisabled {
+  color: var(--stat--default);
+}
+
+.outputLabel {
+  font-weight: 600;
+  color: var(--stat--default);
 }
 
 .tooltipIcon {

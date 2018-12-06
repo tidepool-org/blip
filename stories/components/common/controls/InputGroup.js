@@ -1,5 +1,5 @@
 import React from 'react';
-
+import _ from 'lodash';
 import { storiesOf } from '@storybook/react';
 
 import InputGroup from '../../../../src/components/common/controls/InputGroup';
@@ -17,12 +17,19 @@ const suffixOptions = [
   },
 ];
 
+const suffix = {
+  id: 'units',
+  options: suffixOptions,
+  value: suffixOptions[0],
+};
+
 const Wrapper = ({ children }) => (
   <div
     style={{
       maxWidth: '300px',
       border: '1px solid #ccc',
       padding: '30px',
+      margin: 'auto',
     }}
   >
     {children}
@@ -33,30 +40,33 @@ class InteractiveContainer extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      input: props.value,
-      suffix: props.suffixValue,
+      value: props.value,
+      suffix: props.suffix,
     };
   }
 
-  handleInputChange = (e, input) => {
-    this.setState({
-      input,
-    });
+  handleInputChange = event => {
+    event.persist();
+    this.setState(() => ({
+      value: event.target.value,
+    }));
   };
 
-  handleSuffixChange = suffix => {
-    this.setState({
-      suffix,
-    });
+  handleSuffixChange = value => {
+    this.setState((state) => ({
+      suffix: _.assign({}, state.suffix, {
+        value,
+      }),
+    }));
   };
 
   render = () => (
     <InputGroup
       {...this.props}
+      defaultValue={this.state.value}
       onChange={this.handleInputChange}
       onSuffixChange={this.handleSuffixChange}
-      suffixValue={this.state.suffix}
-      value={this.state.input}
+      suffix={this.state.suffix}
     />
   );
 }
@@ -64,11 +74,10 @@ class InteractiveContainer extends React.PureComponent {
 stories.add('Number, Suffix options', () => (
   <Wrapper>
     <InteractiveContainer
+      id="weight"
       label="Weight"
-      name="weight"
       step={1}
-      suffix={suffixOptions}
-      suffixValue={suffixOptions[0]}
+      suffix={suffix}
       type="number"
     />
   </Wrapper>
@@ -77,7 +86,7 @@ stories.add('Number, Suffix options', () => (
 stories.add('Number, Suffix string', () => (
   <Wrapper>
     <InputGroup
-      name="weight"
+      id="weight"
       label="Weight"
       step={1}
       suffix="kg"
