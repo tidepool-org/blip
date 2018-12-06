@@ -836,9 +836,9 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@0.12.0-aggregated-stats-widgets.7":
-  version "0.12.0-aggregated-stats-widgets.7"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.12.0-aggregated-stats-widgets.7.tgz#872cef7677bf6e12eb9e406e34c65cdfdc17183a"
+"@tidepool/viz@0.12.0-aggregated-stats-widgets.8":
+  version "0.12.0-aggregated-stats-widgets.8"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.12.0-aggregated-stats-widgets.8.tgz#b4e527f297ff48f8cb2164ce401bec524a479b12"
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -869,6 +869,7 @@
     react-markdown "4.0.3"
     react-motion "0.5.2"
     react-redux "4.4.5"
+    react-select "2.0.0"
     react-sizeme "2.5.2"
     react-transition-group-plus "0.5.3"
     redux "3.5.2"
