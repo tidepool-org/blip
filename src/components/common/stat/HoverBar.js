@@ -12,7 +12,10 @@ export const HoverBar = props => {
     cornerRadius,
     domain,
     index,
-    scale,
+    scale = {
+      x: _.noop,
+      y: _.noop,
+    },
     width,
     y,
   } = props;
@@ -22,7 +25,7 @@ export const HoverBar = props => {
   const widthCorrection = (width - chartLabelWidth) / width;
 
   return (
-    <g>
+    <g className="HoverBar">
       <g className="HoverBarTarget">
         <Rect
           {...props}

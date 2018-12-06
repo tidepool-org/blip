@@ -10,10 +10,13 @@ export const BgBar = props => {
     barWidth,
     bgPrefs: { bgBounds } = {},
     chartLabelWidth,
-    datum,
+    datum = {},
     domain,
     index,
-    scale,
+    scale = {
+      x: _.noop,
+      y: _.noop,
+    },
     width,
   } = props;
 
@@ -44,7 +47,7 @@ export const BgBar = props => {
   const isEnabled = renderMean ? datum.y >= 0 : deviation >= 0;
 
   return (
-    <g>
+    <g className="bgBar">
       <g className="bgScale">
         <Arc
           cx={barRadius}

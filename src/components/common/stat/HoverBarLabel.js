@@ -9,8 +9,11 @@ export const HoverBarLabel = props => {
     barWidth,
     isDisabled,
     domain,
-    scale,
-    style,
+    scale = {
+      x: _.noop,
+      y: _.noop,
+    },
+    style = {},
     tooltipText,
   } = props;
 
@@ -32,7 +35,7 @@ export const HoverBarLabel = props => {
   });
 
   return (
-    <g>
+    <g className="HoverBarLabel">
       <VictoryLabel
         {...props}
         renderInPortal={false}

@@ -468,6 +468,21 @@ describe('DataUtil', () => {
     });
   });
 
+  describe('clearFilters', () => {
+    it('should clear all of the dimension filters', () => {
+      const clearbyDateSpy = sinon.spy(dataUtil.dimension.byDate, 'filterAll');
+      const clearbyDayOfWeekSpy = sinon.spy(dataUtil.dimension.byDayOfWeek, 'filterAll');
+      const clearbyTypeSpy = sinon.spy(dataUtil.dimension.byType, 'filterAll');
+      sinon.assert.callCount(clearbyDateSpy, 0);
+      sinon.assert.callCount(clearbyDayOfWeekSpy, 0);
+      sinon.assert.callCount(clearbyTypeSpy, 0);
+      dataUtil.clearFilters();
+      sinon.assert.callCount(clearbyDateSpy, 1);
+      sinon.assert.callCount(clearbyDayOfWeekSpy, 1);
+      sinon.assert.callCount(clearbyTypeSpy, 1);
+    });
+  });
+
   describe('getAverageGlucoseData', () => {
     it('should return the median glucose for cbg data', () => {
       dataUtil.chartPrefs = { bgSource: 'cbg' };
@@ -488,6 +503,89 @@ describe('DataUtil', () => {
     it('should return the filtered bg data when `returnBgData` is true', () => {
       dataUtil.chartPrefs = { bgSource: 'smbg' };
       expect(dataUtil.getAverageGlucoseData(true).bgData).to.be.an('array').and.have.length(5);
+    });
+  });
+
+  describe('getBasalBolusData', () => {
+    it('should return the total basal and bolus insulin delivery when viewing 1 day', () => {
+      dataUtil.endpoints = dayEndpoints;
+      expect(dataUtil.getBasalBolusData()).to.eql({
+        basal: 1.5,
+        bolus: 15,
+      });
+    });
+
+    it('should return the avg daily total basal and bolus insulin delivery when viewing more than 1 day', () => {
+      dataUtil.endpoints = twoDayEndpoints;
+      expect(dataUtil.getBasalBolusData()).to.eql({
+        basal: 0.75,
+        bolus: 7.5,
+      });
+    });
+
+    context('basal delivery overlaps endpoints', () => {
+      it('should include the portion of delivery of a basal datum that overlaps the start endpoint', () => {
+        dataUtil.endpoints = dayEndpoints;
+        dataUtil.addData([basalDatumOverlappingStart]);
+        expect(dataUtil.getBasalBolusData()).to.eql({
+          basal: 2,
+          bolus: 15,
+        });
+      });
+
+      it('should include the portion of delivery of a basal datum that overlaps the start endpoint', () => {
+        dataUtil.endpoints = dayEndpoints;
+        dataUtil.addData([basalDatumOverlappingEnd]);
+        expect(dataUtil.getBasalBolusData()).to.eql({
+          basal: 2.5,
+          bolus: 15,
+        });
+      });
+    });
+  });
+
+  describe('getBgSources', () => {
+    it('should call the `clearFilters` method', () => {
+      const clearFiltersSpy = sinon.spy(dataUtil, 'clearFilters');
+      sinon.assert.callCount(clearFiltersSpy, 0);
+      dataUtil.getBgSources();
+      sinon.assert.callCount(clearFiltersSpy, 1);
+    });
+
+    it('should return true for `smbg` and false for `cbg` when only smbg data available', () => {
+      dataUtil = new DataUtil(smbgData, defaultOpts);
+
+      expect(dataUtil.getBgSources()).to.eql({
+        cbg: false,
+        smbg: true,
+      });
+    });
+
+    it('should return false for `smbg` and true for `cbg` when only cbg data available', () => {
+      dataUtil = new DataUtil(cbgData, defaultOpts);
+
+      expect(dataUtil.getBgSources()).to.eql({
+        cbg: true,
+        smbg: false,
+      });
+    });
+
+    it('should return true for `smbg` and true for `cbg` when both types of bg data available', () => {
+      dataUtil = new DataUtil([...cbgData, ...smbgData], defaultOpts);
+
+      expect(dataUtil.getBgSources()).to.eql({
+        cbg: true,
+        smbg: true,
+      });
+    });
+
+    it('should return false for `smbg` and false for `cbg` when neither type of bg data available', () => {
+      dataUtil = new DataUtil([], defaultOpts);
+
+      expect(dataUtil.getBgSources()).to.eql({
+        cbg: false,
+        smbg: false,
+      });
     });
   });
 
@@ -877,16 +975,14 @@ describe('DataUtil', () => {
     it('should return the total basal and bolus insulin delivery when viewing 1 day', () => {
       dataUtil.endpoints = dayEndpoints;
       expect(dataUtil.getTotalInsulinData()).to.eql({
-        basal: 1.5,
-        bolus: 15,
+        totalInsulin: 16.5,
       });
     });
 
     it('should return the avg daily total basal and bolus insulin delivery when viewing more than 1 day', () => {
       dataUtil.endpoints = twoDayEndpoints;
       expect(dataUtil.getTotalInsulinData()).to.eql({
-        basal: 0.75,
-        bolus: 7.5,
+        totalInsulin: 8.25,
       });
     });
 
@@ -895,8 +991,7 @@ describe('DataUtil', () => {
         dataUtil.endpoints = dayEndpoints;
         dataUtil.addData([basalDatumOverlappingStart]);
         expect(dataUtil.getTotalInsulinData()).to.eql({
-          basal: 2,
-          bolus: 15,
+          totalInsulin: 17,
         });
       });
 
@@ -904,8 +999,7 @@ describe('DataUtil', () => {
         dataUtil.endpoints = dayEndpoints;
         dataUtil.addData([basalDatumOverlappingEnd]);
         expect(dataUtil.getTotalInsulinData()).to.eql({
-          basal: 2.5,
-          bolus: 15,
+          totalInsulin: 17.5,
         });
       });
     });

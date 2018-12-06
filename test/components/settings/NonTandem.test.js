@@ -169,7 +169,6 @@ describe('NonTandem', () => {
         />
       );
       expect(copySettingsClicked.callCount).to.equal(0);
-      console.log(mounted.find(formatClassesAsSelector(styles.copyButton)));
       mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
       expect(copySettingsClicked).to.be.called;
     });

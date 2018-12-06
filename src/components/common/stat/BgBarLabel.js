@@ -6,7 +6,10 @@ export const BgBarLabel = props => {
   const {
     barWidth,
     domain,
-    scale,
+    scale = {
+      x: _.noop,
+      y: _.noop,
+    },
   } = props;
 
   const labelStyle = _.assign({}, props.style, {
@@ -14,7 +17,7 @@ export const BgBarLabel = props => {
   });
 
   return (
-    <g>
+    <g className="bgBarLabel">
       <VictoryLabel
         {...props}
         renderInPortal={false}

@@ -7,15 +7,33 @@ import { MGDL_UNITS } from '../../src/utils/constants';
 describe('stat', () => {
   const {
     commonStats,
+    dailyDoseUnitOptions,
     statFormats,
     statTypes,
   } = stat;
+
+  describe('dailyDoseUnitOptions', () => {
+    it('should export the `dailyDoseUnitOptions`', () => {
+      expect(stat.dailyDoseUnitOptions).to.be.an('array').and.have.length(2);
+
+      expect(stat.dailyDoseUnitOptions[0]).to.eql({
+        label: 'kg',
+        value: 'kg',
+      });
+
+      expect(stat.dailyDoseUnitOptions[1]).to.eql({
+        label: 'lb',
+        value: 'lb',
+      });
+    });
+  });
 
   describe('statTypes', () => {
     it('should export the `statTypes`', () => {
       expect(stat.statTypes).to.eql({
         barHorizontal: 'barHorizontal',
         barBg: 'barBg',
+        input: 'input',
         simple: 'simple',
       });
     });
@@ -44,6 +62,7 @@ describe('stat', () => {
         standardDevRange: 'standardDevRange',
         standardDevValue: 'standardDevValue',
         units: 'units',
+        unitsPerWeight: 'unitsPerWeight',
       });
     });
   });
@@ -52,8 +71,10 @@ describe('stat', () => {
     it('should export the `commonStats`', () => {
       expect(stat.commonStats).to.eql({
         averageGlucose: 'averageGlucose',
+        averageDailyDose: 'averageDailyDose',
         carbs: 'carbs',
         coefficientOfVariation: 'coefficientOfVariation',
+        dailyDose: 'dailyDose',
         glucoseManagementIndicator: 'glucoseManagementIndicator',
         readingsInRange: 'readingsInRange',
         sensorUsage: 'sensorUsage',
@@ -124,17 +145,31 @@ describe('stat', () => {
       });
     });
 
+    describe('averageDailyDose', () => {
+      it('should return annotations for `averageDailyDose` stat when viewing a single day of data', () => {
+        expect(stat.getStatAnnotations(data, commonStats.averageDailyDose, singleDayOpts)).to.have.ordered.members([
+          '**Daily Insulin:** All basal and bolus insulin delivery (in Units) added together.',
+        ]);
+      });
+
+      it('should return annotations for `averageDailyDose` stat when viewing multiple days of data', () => {
+        expect(stat.getStatAnnotations(data, commonStats.averageDailyDose, multiDayOpts)).to.have.ordered.members([
+          '**Avg. Daily Insulin:** All basal and bolus insulin delivery (in Units) added together, divided by the number of days in this view.',
+        ]);
+      });
+    });
+
     describe('carbs', () => {
       it('should return annotations for `carbs` stat when viewing a single day of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.carbs, singleDayOpts)).to.have.ordered.members([
-          '**Total Carbs**: All carb entries from bolus wizard events added together',
+          '**Total Carbs**: All carb entries from bolus wizard events added together.',
           'Derived from _**10**_ bolus wizard events.',
         ]);
       });
 
       it('should return annotations for `carbs` stat when viewing multiple days of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.carbs, multiDayOpts)).to.have.ordered.members([
-          '**Avg. Daily Carbs**: All carb entries from bolus wizard events added together, divided by the number of days in this view',
+          '**Avg. Daily Carbs**: All carb entries from bolus wizard events added together, divided by the number of days in this view.',
           'Derived from _**10**_ bolus wizard events.',
         ]);
       });
@@ -204,7 +239,7 @@ describe('stat', () => {
     describe('sensorUsage', () => {
       it('should return annotations for `sensorUsage` stat', () => {
         expect(stat.getStatAnnotations(data, commonStats.sensorUsage)).to.have.ordered.members([
-          '**Sensor Usage:** Time the CGM collected data, divided by the total time represented in this view',
+          '**Sensor Usage:** Time the CGM collected data, divided by the total time represented in this view.',
         ]);
       });
     });
@@ -238,14 +273,14 @@ describe('stat', () => {
     describe('timeInAuto', () => {
       it('should return annotations for `timeInAuto` stat when viewing a single day of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.timeInAuto, singleDayOpts)).to.have.ordered.members([
-          '**Time In Auto Mode:** Time spent in automated basal delivery',
+          '**Time In Auto Mode:** Time spent in automated basal delivery.',
           '**How we calculate this:**\n\n**(%)** is the duration in Auto Mode divided the total duration of basals for this time period.\n\n**(time)** is total duration of time in Auto Mode.',
         ]);
       });
 
       it('should return annotations for `timeInAuto` stat when viewing multiple days of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.timeInAuto, multiDayOpts)).to.have.ordered.members([
-          '**Time In Auto Mode:** Daily average of the time spent in automated basal delivery',
+          '**Time In Auto Mode:** Daily average of the time spent in automated basal delivery.',
           '**How we calculate this:**\n\n**(%)** is the duration in Auto Mode divided the total duration of basals for this time period.\n\n**(time)** is 24 hours multiplied by % in Auto Mode.',
         ]);
       });
@@ -254,14 +289,14 @@ describe('stat', () => {
     describe('timeInRange', () => {
       it('should return annotations for `timeInRange` stat when viewing a single day of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.timeInRange, singleDayOpts)).to.have.ordered.members([
-          '**Time In Range:**\n\nTime spent in range, based on CGM readings.',
+          '**Time In Range:** Time spent in range, based on CGM readings.',
           '**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is number of readings in range multiplied by the CGM sample frequency.',
         ]);
       });
 
       it('should return annotations for `timeInRange` stat when viewing multiple days of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.timeInRange, multiDayOpts)).to.have.ordered.members([
-          '**Time In Range:**\n\nDaily average of the time spent in range, based on CGM readings.',
+          '**Time In Range:** Daily average of the time spent in range, based on CGM readings.',
           '**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is 24 hours multiplied by % in range.',
         ]);
       });
@@ -270,15 +305,23 @@ describe('stat', () => {
     describe('totalInsulin', () => {
       it('should return annotations for `totalInsulin` stat when viewing a single day of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.totalInsulin, singleDayOpts)).to.have.ordered.members([
-          '**Total Insulin:**\n\nAll basal and bolus insulin delivery (in Units) added together',
+          '**Total Insulin:** All basal and bolus insulin delivery (in Units) added together',
           '**How we calculate this:**\n\n**(%)** is the respective total of basal or bolus delivery divided by total insulin delivered for this time period.',
         ]);
       });
 
       it('should return annotations for `totalInsulin` stat when viewing multiple days of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.totalInsulin, multiDayOpts)).to.have.ordered.members([
-          '**Total Insulin:**\n\nAll basal and bolus insulin delivery (in Units) added together, divided by the number of days in this view',
+          '**Total Insulin:** All basal and bolus insulin delivery (in Units) added together, divided by the number of days in this view',
           '**How we calculate this:**\n\n**(%)** is the respective total of basal or bolus delivery divided by total insulin delivered for this time period.',
+        ]);
+      });
+    });
+
+    describe('insufficientData', () => {
+      it('should return annotation for `insufficientData` stat when insufficient data was present', () => {
+        expect(stat.getStatAnnotations({ insufficientData: true }, null, singleDayOpts)).to.have.ordered.members([
+          '**Why is this stat empty?**\n\nThere is not enough data present in this view to calculate it.',
         ]);
       });
     });
@@ -312,6 +355,45 @@ describe('stat', () => {
       ]);
 
       expect(statData.dataPaths).to.eql({
+        summary: 'data.0',
+      });
+    });
+
+    it('should format and return `averageDailyDose` data', () => {
+      const data = {
+        totalInsulin: 80,
+      };
+
+      const statData = stat.getStatData(data, commonStats.averageDailyDose, opts);
+
+      expect(statData.data).to.eql([
+        {
+          id: 'insulin',
+          input: {
+            id: 'weight',
+            label: 'Weight',
+            step: 1,
+            suffix: {
+              id: 'units',
+              options: dailyDoseUnitOptions,
+              value: dailyDoseUnitOptions[0],
+            },
+            type: 'number',
+          },
+          output: {
+            label: 'Daily Dose ÷ Weight',
+            type: 'divisor',
+            dataPaths: {
+              dividend: 'data.0',
+            },
+          },
+          value: 80,
+        },
+      ]);
+
+      expect(statData.dataPaths).to.eql({
+        input: 'data.0.input',
+        output: 'data.0.output',
         summary: 'data.0',
       });
     });
@@ -602,6 +684,16 @@ describe('stat', () => {
       });
     });
 
+    describe('averageDailyDose', () => {
+      it('should return title for `averageDailyDose` stat when viewing a single day of data', () => {
+        expect(stat.getStatTitle(commonStats.averageDailyDose, singleDayOpts)).to.equal('Total Insulin');
+      });
+
+      it('should return title for `averageDailyDose` stat when viewing multiple days of data', () => {
+        expect(stat.getStatTitle(commonStats.averageDailyDose, multiDayOpts)).to.equal('Avg. Daily Insulin');
+      });
+    });
+
     describe('carbs', () => {
       it('should return title for `carbs` stat when viewing a single day of data', () => {
         expect(stat.getStatTitle(commonStats.carbs, singleDayOpts)).to.equal('Total Carbs');
@@ -733,6 +825,18 @@ describe('stat', () => {
       expect(def.type).to.equal(statTypes.simple);
       expect(def.dataFormat).to.eql({
         summary: statFormats.carbs,
+      });
+    });
+
+    it('should define the `averageDailyDose` stat', () => {
+      const def = stat.getStatDefinition(data, commonStats.averageDailyDose, opts);
+      expect(def).to.include.all.keys(commonStatProperties);
+      expect(def.id).to.equal(commonStats.averageDailyDose);
+      expect(def.alwaysShowSummary).to.be.true;
+      expect(def.type).to.equal(statTypes.input);
+      expect(def.dataFormat).to.eql({
+        output: statFormats.unitsPerWeight,
+        summary: statFormats.units,
       });
     });
 
