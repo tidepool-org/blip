@@ -55,7 +55,7 @@ describe('PatientNew', function () {
   describe('getInitialState', function() {
     it('should be in this expected format', function() {
       console.error = sinon.spy();
-      var elem = TestUtils.renderIntoDocument(<PatientNew/>);
+      var elem = TestUtils.renderIntoDocument(<PatientNew/>).getWrappedInstance();
       var initialState = elem.getInitialState();
       expect(initialState.working).to.equal(false);
       expect(initialState.formValues.isOtherPerson).to.equal(false);
@@ -92,7 +92,7 @@ describe('PatientNew', function () {
     });
 
     it('should call onSubmit with valid form values', function(){
-      wrapper.instance().handleSubmit(formValues);
+      wrapper.instance().getWrappedInstance().handleSubmit(formValues);
       expect(props.onSubmit.callCount).to.equal(1);
 
       sinon.assert.calledWith(props.onSubmit, {
@@ -110,7 +110,7 @@ describe('PatientNew', function () {
     });
 
     it('should should not submit diagnosisType if left blank', function(){
-      wrapper.instance().handleSubmit(_.assign({}, formValues, {
+      wrapper.instance().getWrappedInstance().handleSubmit(_.assign({}, formValues, {
         diagnosisType: ''
       }));
       expect(props.onSubmit.callCount).to.equal(1);
@@ -127,7 +127,7 @@ describe('PatientNew', function () {
     });
 
     it('should call onSubmit and onUpdateDataDonationAccounts with data donation values', function(){
-      wrapper.instance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: '' }));
+      wrapper.instance().getWrappedInstance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: '' }));
       expect(props.onSubmit.callCount).to.equal(1);
       expect(props.onUpdateDataDonationAccounts.callCount).to.equal(1);
       expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org'])).to.be.true;
@@ -136,7 +136,7 @@ describe('PatientNew', function () {
     });
 
     it('should call onSubmit and onUpdateDataDonationAccounts with specific values', function(){
-      wrapper.instance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: 'JDRF,ZZZ' }));
+      wrapper.instance().getWrappedInstance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: 'JDRF,ZZZ' }));
       expect(props.onSubmit.callCount).to.equal(1);
       expect(props.onUpdateDataDonationAccounts.callCount).to.equal(1);
       expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org', 'bigdata+JDRF@tidepool.org', 'bigdata+ZZZ@tidepool.org'])).to.be.true;
@@ -150,7 +150,7 @@ describe('PatientNew', function () {
         fetchingUser: true
       };
       // Try out using the spread props syntax in JSX
-      var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
+      var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>).getWrappedInstance();
 
       expect(elem.isFormDisabled()).to.equal(true);
     });
@@ -161,7 +161,7 @@ describe('PatientNew', function () {
         user: {}
       };
       // Try out using the spread props syntax in JSX
-      var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
+      var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>).getWrappedInstance();
 
       expect(elem.isFormDisabled()).to.equal(false);
     });

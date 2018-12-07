@@ -13,14 +13,15 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-var React = require('react');
-var _ = require('lodash');
+import React from 'react';
+import _ from 'lodash';
+import { translate } from 'react-i18next';
 var utils = require('../../core/utils');
 var cx = require('classnames');
 
 var personUtils = require('../../core/personutils');
 
-var Invitation = React.createClass({
+var Invitation = translate()(React.createClass({
   propTypes: {
     invitation: React.PropTypes.object.isRequired,
     onAcceptInvitation: React.PropTypes.func.isRequired,
@@ -36,7 +37,8 @@ var Invitation = React.createClass({
     this.props.onDismissInvitation(this.props.invitation);
   },
   render: function() {
-    var name = 'Not set';
+    const { t } = this.props;
+    var name = t('Not set');
     if (utils.getIn(this.props, ['invitation', 'creator'])) {
       name = personUtils.patientFullName(this.props.invitation.creator);
     }
@@ -44,36 +46,36 @@ var Invitation = React.createClass({
     if (utils.getIn(this.props, ['invitation', 'accepting'])) {
       return (
         <li className='invitation'>
-          <div className='invitation-message'>{'Joining ' + name + '\'s team...'}</div>
+          <div className='invitation-message'>{t('Joining {{name}}\'s team...', {name})}</div>
         </li>
       );
-      
+
     }
 
     if (utils.getIn(this.props, ['trackMetric'])) {
       this.props.trackMetric('Invite Displayed');
     }
 
-    
+
     return (
       <li className='invitation'>
-        <div className='invitation-message'>{'You have been invited to see ' + name + '\'s data!'}</div>
+        <div className='invitation-message'>{t('You have been invited to see {{name}}\'s data!', {name})}</div>
         <div className='invitation-action'>
           <button
             className="invitation-action-ignore btn js-form-submit"
             onClick={this.handleDismiss}
             disabled={this.state ? this.state.enable : false}
-            ref="ignoreButton">{'Ignore'}</button>
+            ref="ignoreButton">{t('Ignore')}</button>
           <button
             className='invitation-action-submit btn btn-primary js-form-submit'
             onClick={this.handleAccept}
             disabled={this.state ? this.state.enable : false}
-            ref="submitButton">{'Join the team!'}</button>
+            ref="submitButton">{t('Join the team!')}</button>
         </div>
       </li>
     );
-    
+
   }
-});
+}));
 
 module.exports = Invitation;

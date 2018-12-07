@@ -16,11 +16,14 @@ import _ from 'lodash';
 import moment from 'moment';
 import { mount, shallow } from 'enzyme';
 import { components as vizComponents } from '@tidepool/viz';
+import i18next from '../../../app/core/language';
 
 const { Loader } = vizComponents;
 
 var assert = chai.assert;
 var expect = chai.expect;
+
+const t = i18next.t.bind(i18next);
 
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
@@ -54,6 +57,7 @@ describe('PatientData', function () {
     updatePatientNote: sinon.stub(),
     uploadUrl: 'http://foo.com',
     viz: {},
+    t
   };
 
   before(() => {
@@ -93,7 +97,7 @@ describe('PatientData', function () {
       var props = defaultProps;
 
       console.error = sinon.spy();
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });
@@ -103,53 +107,36 @@ describe('PatientData', function () {
       let loader;
 
       beforeEach(() => {
-        wrapper = shallow(<PatientData {...defaultProps} />);
+        wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
         loader = () => wrapper.find(Loader);
       });
 
-      it('should render the loading message and image when fetchingPatient is true', function() {
+      it('should render the loading message and image with default default props set', function() {
         expect(loader().length).to.equal(1);
-        expect(loader().props().show).to.be.false;
-
-        wrapper.setProps({ fetchingPatient: true });
         expect(loader().props().show).to.be.true;
       });
 
-      it('should render the loading message and image when fetchingPatientData is true', function() {
+      it('should stop rendering the loading message and image when initialProcessing and missingPatientData are false', function() {
         expect(loader().length).to.equal(1);
+        expect(loader().props().show).to.be.true;
+
+        // Set initialProcessing to false - should hide loader
+        wrapper.setState({lastDatumProcessedIndex: 1});
         expect(loader().props().show).to.be.false;
 
-        wrapper.setProps({ fetchingPatientData: true });
+        // Set initialProcessing back to true - should show loader
+        wrapper.setState({lastDatumProcessedIndex: -1});
         expect(loader().props().show).to.be.true;
-      });
 
-      it('should render the loading message and image when both fetchingPatient and fetchingPatientData are true', function() {
-        expect(loader().length).to.equal(1);
+        // Set loadedPatientData to true - should hide loader
+        wrapper.setProps({ patientDataMap: {
+          [defaultProps.currentPatientInViewId]: ['some data'],
+        }});
         expect(loader().props().show).to.be.false;
 
-        wrapper.setProps({
-          fetchingPatient: true,
-          fetchingPatientData: true,
-        });
-        expect(loader().props().show).to.be.true;
-      });
-
-      it('should still render the loading message and image when fetching is done but data is being processed', function() {
-        var props = {
-          fetchingPatient: false,
-          fetchingPatientData: false,
-        };
-
-        var state = {
-          processingData: true,
-        };
-
-        expect(loader().length).to.equal(1);
+        // Set initialProcessing to false, so both are false - should hide loader
+        wrapper.setState({lastDatumProcessedIndex: -1});
         expect(loader().props().show).to.be.false;
-
-        wrapper.setProps(props);
-        wrapper.setState(state);
-        expect(loader().props().show).to.be.true;
       });
 
       // this is THE REGRESSION TEST for the "data mismatch" bug
@@ -175,25 +162,6 @@ describe('PatientData', function () {
         });
 
         expect(loader().props().show).to.be.true;
-      });
-
-      it('should NOT render the loading message and image when fetching is done and data is processed', function() {
-        var props = {
-          fetchingPatient: false,
-          fetchingPatientData: true,
-        };
-
-        wrapper.setProps(props);
-
-        expect(loader().length).to.equal(1);
-        expect(loader().props().show).to.be.true;
-
-        var props = {
-          fetchingPatientData: false,
-        };
-        wrapper.setProps(props);
-
-        expect(loader().props().show).to.be.false;
       });
 
       it('should only render the initial loading view when the initial data is being fetched', () => {
@@ -229,7 +197,6 @@ describe('PatientData', function () {
       let noData;
 
       beforeEach(() => {
-        wrapper = mount(<PatientData {...defaultProps} />);
         noData = () => wrapper.find('.patient-data-message-no-data');
       });
 
@@ -245,9 +212,9 @@ describe('PatientData', function () {
             fetchingPatientData: false
           });
 
-          wrapper.setProps(props);
+          wrapper = mount(<PatientData {...props} />);
 
-          wrapper.setState({
+          wrapper.instance().getWrappedInstance().setState({
             loading: false,
             processingData: false,
           });
@@ -275,9 +242,9 @@ describe('PatientData', function () {
             },
           });
 
-          wrapper.setProps(props);
+          wrapper = mount(<PatientData {...props} />);
 
-          wrapper.setState({
+          wrapper.instance().getWrappedInstance().setState({
             loading: false,
           });
 
@@ -294,8 +261,9 @@ describe('PatientData', function () {
             fetchingPatientData: false
           };
 
-          wrapper.setProps(props);
-          wrapper.setState({
+          wrapper = mount(<PatientData {...props} />);
+
+          wrapper.instance().getWrappedInstance().setState({
             loading: false,
           });
 
@@ -316,8 +284,9 @@ describe('PatientData', function () {
             fetchingPatientData: false
           };
 
-          wrapper.setProps(props);
-          wrapper.setState({
+          wrapper = mount(<PatientData {...props} />);
+
+          wrapper.instance().getWrappedInstance().setState({
             loading: false,
           });
 
@@ -345,8 +314,9 @@ describe('PatientData', function () {
             },
           };
 
-          wrapper.setProps(props);
-          wrapper.setState({
+          wrapper = mount(<PatientData {...props} />);
+
+          wrapper.instance().getWrappedInstance().setState({
             loading: false,
           });
 
@@ -376,8 +346,9 @@ describe('PatientData', function () {
             trackMetric: sinon.stub()
           };
 
-          wrapper.setProps(props);
-          wrapper.setState({
+          wrapper = mount(<PatientData {...props} />);
+
+          wrapper.instance().getWrappedInstance().setState({
             loading: false,
           });
 
@@ -435,7 +406,7 @@ describe('PatientData', function () {
       });
 
       beforeEach(() => {
-        elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+        elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
         sinon.spy(elem, 'deriveChartTypeFromLatestData');
 
         kickOffProcessing = (data, includeUploads = true) => {
@@ -719,7 +690,7 @@ describe('PatientData', function () {
           });
 
           // Try out using the spread props syntax in JSX
-          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+          var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props}/>), PatientData.WrappedComponent);
 
           // Setting data.type to 'cbg' should result in <Trends /> view rendering
           const data = [{ type: 'cbg' }];
@@ -769,7 +740,7 @@ describe('PatientData', function () {
           });
 
           // Try out using the spread props syntax in JSX
-          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+          var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props}/>), PatientData.WrappedComponent);
 
           // Setting data.type to 'basal' should result in <Basics /> view rendering
           const data = [{ type: 'basal' }];
@@ -810,7 +781,7 @@ describe('PatientData', function () {
     };
 
     it('should clear patient data upon refresh', function() {
-      const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+      const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
       const callCount = props.clearPatientData.callCount;
       elem.handleRefresh();
 
@@ -818,15 +789,15 @@ describe('PatientData', function () {
     });
 
     it('should clear generated pdfs upon refresh', function() {
-      const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+      const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
       const callCount = props.removeGeneratedPDFS.callCount;
       elem.handleRefresh();
       expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
     });
 
     it('should reset patient data processing state', function() {
-      const setStateSpy = sinon.spy(PatientData.prototype, 'setState');
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       instance.DEFAULT_TITLE = 'defaultTitle';
 
@@ -849,13 +820,13 @@ describe('PatientData', function () {
         title: 'defaultTitle'
       });
 
-      PatientData.prototype.setState.restore();
+      PatientData.WrappedComponent.prototype.setState.restore();
     });
   });
 
   describe('updateBasicsData', () => {
     it('should update the basicsdata portion of the processedPatientData state object', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({
@@ -873,7 +844,7 @@ describe('PatientData', function () {
     it('should not attempt to update the state object, if processedPatientData state is not present', () => {
       const assignSpy = sinon.spy(_, 'assign');
 
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({
@@ -890,7 +861,7 @@ describe('PatientData', function () {
     it('should update the processedPatientData state object, and not replace it with a new instance', () => {
       const assignSpy = sinon.spy(_, 'assign');
 
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({
@@ -919,7 +890,7 @@ describe('PatientData', function () {
     })
 
     it('should call `updateBasicsSettings` from props, but only if `canUpdateSettings` arg is true', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
       const settings = { siteChangeSource: 'prime' };
@@ -935,7 +906,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `updatedSiteChangeSource` to state if `siteChangeSource` differs from user settings', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
       expect(wrapper.state('updatedSiteChangeSource')).to.be.undefined;
@@ -948,7 +919,7 @@ describe('PatientData', function () {
     });
 
     it('should not set the `updatedSiteChangeSource` to state if `siteChangeSource` is unchanged from user settings', () => {
-      const setStateSpy = sinon.spy(PatientData.prototype, 'setState');
+      const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
 
       const settingsProps = _.assign({}, defaultProps, {
         patient: _.assign({}, defaultProps.patient, {
@@ -958,7 +929,7 @@ describe('PatientData', function () {
         }),
       });
 
-      const wrapper = shallow(<PatientData {...settingsProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
       const instance = wrapper.instance();
 
       setStateSpy.reset();
@@ -971,11 +942,11 @@ describe('PatientData', function () {
       let canUpdateSettings = false;
       instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
       sinon.assert.notCalled(setStateSpy);
-      PatientData.prototype.setState.restore();
+      PatientData.WrappedComponent.prototype.setState.restore();
     });
 
     it('should callback with `props.removeGeneratedPDFS` if `siteChangeSource` is changed from user settings', () => {
-      const setStateSpy = sinon.spy(PatientData.prototype, 'setState');
+      const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
 
       const settingsProps = _.assign({}, defaultProps, {
         patient: _.assign({}, defaultProps.patient, {
@@ -985,7 +956,7 @@ describe('PatientData', function () {
         }),
       });
 
-      const wrapper = shallow(<PatientData {...settingsProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
       const instance = wrapper.instance();
 
       setStateSpy.reset();
@@ -1003,7 +974,7 @@ describe('PatientData', function () {
         updatedSiteChangeSource: settings.siteChangeSource
       }, defaultProps.removeGeneratedPDFS);
 
-      PatientData.prototype.setState.restore();
+      PatientData.WrappedComponent.prototype.setState.restore();
     });
 
     describe('pdf removal', () => {
@@ -1016,7 +987,7 @@ describe('PatientData', function () {
           }),
         });
 
-        const wrapper = shallow(<PatientData {...settingsProps} />);
+        const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
         const instance = wrapper.instance();
 
         sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 0);
@@ -1039,7 +1010,7 @@ describe('PatientData', function () {
           }),
         });
 
-        const wrapper = shallow(<PatientData {...settingsProps} />);
+        const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
         const instance = wrapper.instance();
 
         sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 0);
@@ -1056,8 +1027,8 @@ describe('PatientData', function () {
 
   describe('updateDatetimeLocation', () => {
     it('should update the chartDateRange state', () => {
-      const setStateSpy = sinon.spy(PatientData.prototype, 'setState');
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
       setStateSpy.reset();
@@ -1069,14 +1040,14 @@ describe('PatientData', function () {
         datetimeLocation: 'new datetime',
       });
 
-      PatientData.prototype.setState.restore();
+      PatientData.WrappedComponent.prototype.setState.restore();
     });
   });
 
   describe('updateChartDateRange', () => {
     it('should update the chartDateRange state', () => {
-      const setStateSpy = sinon.spy(PatientData.prototype, 'setState');
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
       setStateSpy.reset();
@@ -1088,7 +1059,7 @@ describe('PatientData', function () {
         chartDateRange: 'new date range',
       });
 
-      PatientData.prototype.setState.restore();
+      PatientData.WrappedComponent.prototype.setState.restore();
     });
   });
 
@@ -1099,7 +1070,7 @@ describe('PatientData', function () {
     };
 
     it('should clear generated pdfs upon refresh', function() {
-      const elem = TestUtils.renderIntoDocument(<PatientData {...props} />);
+    const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
       const callCount = props.removeGeneratedPDFS.callCount;
       elem.componentWillUnmount();
       expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
@@ -1146,7 +1117,7 @@ describe('PatientData', function () {
           },
         });
 
-        wrapper = shallow(<PatientData {...initialProps} />);
+        wrapper = shallow(<PatientData.WrappedComponent {...initialProps} />);
         instance = wrapper.instance();
         processDataStub = sinon.stub(instance, 'processData');
         fetchEarlierDataStub = sinon.stub(instance, 'fetchEarlierData');
@@ -1309,10 +1280,10 @@ describe('PatientData', function () {
       };
 
       const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance();
+      const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.setState({ chartType: 'basics', processingData: false, processedPatientData });
+      wrapper.instance().getWrappedInstance().setState({ chartType: 'basics', processingData: false, processedPatientData });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1339,10 +1310,10 @@ describe('PatientData', function () {
       };
 
       const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance();
+      const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData });
+      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: false, processedPatientData });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1369,10 +1340,10 @@ describe('PatientData', function () {
       };
 
       const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance();
+      const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.setState({ chartType: 'settings', processingData: false, processedPatientData });
+      wrapper.instance().getWrappedInstance().setState({ chartType: 'settings', processingData: false, processedPatientData });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1399,10 +1370,10 @@ describe('PatientData', function () {
       };
 
       const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance();
+      const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.setState({ chartType: 'weekly', processingData: false, processedPatientData });
+      wrapper.instance().getWrappedInstance().setState({ chartType: 'weekly', processingData: false, processedPatientData });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1410,7 +1381,7 @@ describe('PatientData', function () {
       wrapper.update();
       expect(elem.generatePDF.callCount).to.equal(1);
 
-      wrapper.setState({ chartType: 'trends', processingData: false, processedPatientData });
+      wrapper.instance().getWrappedInstance().setState({ chartType: 'trends', processingData: false, processedPatientData });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1433,10 +1404,10 @@ describe('PatientData', function () {
       };
 
       const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance();
+      const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: true });
+      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: false, processedPatientData: true });
       wrapper.update();
 
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1456,12 +1427,12 @@ describe('PatientData', function () {
       };
 
       const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance();
+      const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
       var callCount = elem.generatePDF.callCount;
 
-      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: false });
+      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: false, processedPatientData: false });
       wrapper.update();
 
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1481,12 +1452,12 @@ describe('PatientData', function () {
       };
 
       const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance();
+      const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
       var callCount = elem.generatePDF.callCount;
 
-      wrapper.setState({ chartType: 'daily', processingData: true, processedPatientData: true });
+      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: true, processedPatientData: true });
       wrapper.update();
 
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1511,12 +1482,12 @@ describe('PatientData', function () {
       };
 
       const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance();
+      const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
       var callCount = elem.generatePDF.callCount;
 
-      wrapper.setState({ chartType: 'daily', processingData: false, processedPatientData: true });
+      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: false, processedPatientData: true });
       wrapper.update();
 
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1547,7 +1518,7 @@ describe('PatientData', function () {
         },
       };
 
-      const wrapper = shallow(<PatientData {...props} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...props} />);
 
       sinon.assert.callCount(filterStub, 0);
       sinon.assert.callCount(props.generatePDFRequest, 0);
@@ -1572,7 +1543,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData {...defaultProps} />);
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -1675,7 +1646,7 @@ describe('PatientData', function () {
         });
       };
 
-      wrapper = shallow(<PatientData {...defaultProps} />);
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
 
       wrapper.setProps({
         fetchingPatientData: false,
@@ -1999,20 +1970,20 @@ describe('PatientData', function () {
         props,
         refs: {
           tideline: {
-            createMessageThread: sinon.stub(),
+            getWrappedInstance: () => ({createMessageThread: sinon.stub()})
           },
         },
       });
     });
 
     it('should dispatch the message creation action', () => {
-      PatientData.prototype.handleMessageCreation.call(new BaseObject(), 'message');
+      PatientData.WrappedComponent.prototype.handleMessageCreation.call(new BaseObject(), 'message');
       sinon.assert.calledOnce(props.addPatientNote);
       sinon.assert.calledWith(props.addPatientNote, 'message');
     });
 
     it('should dispatch the track metric action', () => {
-      PatientData.prototype.handleMessageCreation.call(new BaseObject(), 'message');
+      PatientData.WrappedComponent.prototype.handleMessageCreation.call(new BaseObject(), 'message');
       sinon.assert.calledOnce(props.trackMetric);
       sinon.assert.calledWith(props.trackMetric, 'Created New Message');
     });
@@ -2032,20 +2003,20 @@ describe('PatientData', function () {
         props,
         refs: {
           tideline: {
-            editMessageThread: sinon.stub(),
+            getWrappedInstance: () => ({editMessageThread: sinon.stub()}),
           },
         },
       });
     });
 
     it('should dispatch the message creation action', () => {
-      PatientData.prototype.handleEditMessage.call(new BaseObject(), 'message');
+      PatientData.WrappedComponent.prototype.handleEditMessage.call(new BaseObject(), 'message');
       sinon.assert.calledOnce(props.updatePatientNote);
       sinon.assert.calledWith(props.updatePatientNote, 'message');
     });
 
     it('should dispatch the track metric action', () => {
-      PatientData.prototype.handleEditMessage.call(new BaseObject(), 'message');
+      PatientData.WrappedComponent.prototype.handleEditMessage.call(new BaseObject(), 'message');
       sinon.assert.calledOnce(props.trackMetric);
       sinon.assert.calledWith(props.trackMetric, 'Edit To Message');
     });
@@ -2063,7 +2034,7 @@ describe('PatientData', function () {
       });
 
 
-      wrapper = shallow(<PatientData {...props} />);
+      wrapper = shallow(<PatientData.WrappedComponent {...props} />);
       instance = wrapper.instance();
 
       setStateSpy = sinon.spy(instance, 'setState');
@@ -2281,7 +2252,7 @@ describe('PatientData', function () {
         },
       });
 
-      wrapper = shallow(<PatientData {...defaultProps} />);
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       instance = wrapper.instance();
 
 
@@ -2947,7 +2918,7 @@ describe('PatientData', function () {
     let setTimeoutSpy;
 
     before(() => {
-      wrapper = shallow(<PatientData {...defaultProps} />);
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       instance = wrapper.instance();
 
       setStateSpy = sinon.spy(instance, 'setState');
@@ -3004,7 +2975,7 @@ describe('PatientData', function () {
         trackMetric: sinon.stub()
       };
 
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToBasics();
@@ -3013,7 +2984,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `basics`', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({chartType: 'daily'});
 
@@ -3036,10 +3007,11 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        t
       };
 
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.renderIntoDocument(<PatientData.WrappedComponent {...props}/>);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
@@ -3048,7 +3020,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `daily`', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({chartType: 'basics'});
 
@@ -3057,7 +3029,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to noon for the provided datetime', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
@@ -3083,7 +3055,7 @@ describe('PatientData', function () {
         trackMetric: sinon.stub()
       };
 
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToTrends('2016-08-19T01:51:55.000Z');
@@ -3092,7 +3064,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `trends`', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({chartType: 'basics'});
 
@@ -3101,7 +3073,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to the end of the day for the provided datetime', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
@@ -3127,7 +3099,7 @@ describe('PatientData', function () {
         trackMetric: sinon.stub()
       };
 
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToWeekly('2016-08-19T01:51:55.000Z');
@@ -3136,7 +3108,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `weekly`', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({chartType: 'basics'});
 
@@ -3145,7 +3117,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to noon for the provided datetime', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
@@ -3171,7 +3143,7 @@ describe('PatientData', function () {
         trackMetric: sinon.stub()
       };
 
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToSettings();
@@ -3180,7 +3152,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `settings`', () => {
-      const wrapper = shallow(<PatientData {...defaultProps} />);
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({chartType: 'daily'});
 

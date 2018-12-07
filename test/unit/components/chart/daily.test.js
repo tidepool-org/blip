@@ -84,6 +84,7 @@ describe('Daily', () => {
     onSwitchToSettings: () => {},
     onSwitchToWeekly: () => {},
     onSwitchToTrends: () => {},
+    trackMetric: () => {},
     onUpdateChartDateRange: sinon.stub(),
     updateDatetimeLocation: sinon.stub(),
     patient: {
@@ -138,7 +139,8 @@ describe('Daily', () => {
         onSwitchToDaily: () => {},
         onSwitchToSettings: () => {},
         onSwitchToWeekly: () => {},
-        updateDatetimeLocation: () => {}
+        updateDatetimeLocation: () => {},
+        trackMetric: () => {},
       };
       var dailyElem = React.createElement(Daily, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -156,6 +158,7 @@ describe('Daily', () => {
         patientData: {},
         printReady: false,
         pdf: {},
+        trackMetric: () => {},
       };
 
       var dailyElem = React.createElement(Daily, props);
@@ -175,6 +178,7 @@ describe('Daily', () => {
           url: 'blobURL',
         },
         onClickPrint: sinon.spy(),
+        trackMetric: () => {},
       };
 
       var dailyElem = React.createElement(Daily, props);
@@ -198,9 +202,10 @@ describe('Daily', () => {
         },
         onClickPrint: sinon.spy(),
         loading: false,
+        trackMetric: () => {},
       };
 
-      const wrapper = shallow(<Daily {...props} />);
+      const wrapper = mount(<Daily {...props} />);
       const loader = () => wrapper.find(Loader);
 
       expect(loader().length).to.equal(1);
@@ -214,32 +219,33 @@ describe('Daily', () => {
   describe('handleDatetimeLocationChange', () => {
     let wrapper;
     let instance;
+    let state = () => instance.state;
 
     beforeEach(() => {
-      wrapper = shallow(<Daily {...baseProps} />);
-      instance = wrapper.instance();
+      wrapper = mount(<Daily {...baseProps} />);
+      instance = wrapper.instance().getWrappedInstance();
     });
 
     it('should set the `datetimeLocation` state', () => {
-      expect(wrapper.state().datetimeLocation).to.be.undefined;
+      expect(state().datetimeLocation).to.be.undefined;
 
       instance.handleDatetimeLocationChange([
         '2018-01-15T05:00:00.000Z',
         '2018-01-16T05:00:00.000Z',
       ]);
 
-      expect(wrapper.state().datetimeLocation).to.equal('2018-01-16T05:00:00.000Z');
+      expect(state().datetimeLocation).to.equal('2018-01-16T05:00:00.000Z');
     });
 
     it('should set the `title` state', () => {
-      expect(wrapper.state().title).to.equal('');
+      expect(state().title).to.equal('');
 
       instance.handleDatetimeLocationChange([
         '2018-01-15T05:00:00.000Z',
         '2018-01-16T05:00:00.000Z',
       ]);
 
-      expect(wrapper.state().title).to.equal('Tue, Jan 16, 2018');
+      expect(state().title).to.equal('Tue, Jan 16, 2018');
     });
 
     it('should call the `updateDatetimeLocation` prop method', () => {
@@ -258,7 +264,7 @@ describe('Daily', () => {
       sinon.spy(_, 'debounce');
       sinon.assert.callCount(_.debounce, 0);
 
-      expect(wrapper.state().debouncedDateRangeUpdate).to.be.undefined;
+      expect(state().debouncedDateRangeUpdate).to.be.undefined;
 
       instance.handleDatetimeLocationChange([
         '2018-01-15T05:00:00.000Z',
@@ -267,7 +273,7 @@ describe('Daily', () => {
 
       sinon.assert.callCount(_.debounce, 1);
       sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
-      expect(wrapper.state().debouncedDateRangeUpdate).to.be.a.function;
+      expect(state().debouncedDateRangeUpdate).to.be.a.function;
 
       _.debounce.restore();
     });

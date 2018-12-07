@@ -1,25 +1,99 @@
-var http = require('http');
-var https = require('https');
-var path = require('path');
-var express = require('express');
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const express = require('express');
+const helmet = require('helmet');
+const bodyParser = require('body-parser');
+const crypto = require('crypto');
 
-var config = require('./config.server.js');
+const config = require('./config.server.js');
 
-var buildDir = 'dist';
+const buildDir = 'dist';
 
-var app = express();
-var helmet = require('helmet');
+const app = express();
+
+const nonceMiddleware = (req, res, next) => {
+  // Cache static html file to avoid reading it from the filesystem on each request
+  if (!global.html) {
+    console.log('Caching static HTML');
+    global.html = fs.readFileSync(`${staticDir}/index.html`, 'utf8');
+  }
+
+  // Set a unique nonce for each request
+  res.locals.nonce = crypto.randomBytes(16).toString('base64');
+  res.locals.htmlWithNonces = global.html.replace(/<(script)/g, `<$1 nonce="${res.locals.nonce}"`);
+  next();
+}
+
 app.use(helmet());
+app.use(nonceMiddleware, helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'none'"],
+    baseUri: ['https://docs.helpscout.net'],
+    scriptSrc: [
+      "'self'",
+      "'strict-dynamic'",
+      (req, res) => {
+        return `'nonce-${res.locals.nonce}'`;
+      },
+      'https://beacon-v2.helpscout.net',
+      'https://d12wqas9hcki3z.cloudfront.net',
+      'https://d33v4339jhl8k0.cloudfront.net',
+    ],
+    styleSrc: [
+      "'self'",
+      "'unsafe-inline'",
+      'https://fonts.googleapis.com',
+      'https://beacon-v2.helpscout.net',
+      'https://djtflbt20bdde.cloudfront.net',
+    ],
+    imgSrc: [
+      "'self'",
+      'data:',
+      'https://d33v4339jhl8k0.cloudfront.net',
+      'https://*.gravatar.com',
+    ],
+    fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com'],
+    reportUri: '/event/csp-report/violation',
+    objectSrc: ['blob:', 'https://beacon-v2.helpscout.net'],
+    workerSrc: ["'self'", 'blob:'],
+    childSrc: ["'self'", 'blob:', 'https://docs.google.com'],
+    frameSrc: ['https://beacon-v2.helpscout.net', 'https://docs.google.com'],
+    connectSrc: [].concat([
+      process.env.API_HOST,
+      'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
+      'https://beaconapi.helpscout.net',
+      'https://chatapi.helpscout.net',
+      'https://d3hb14vkzrxvla.cloudfront.net',
+      'wss\://*.pusher.com',
+      '*.sumologic.com',
+      'sentry.io',
+    ]),
+  },
+  reportOnly: false,
+}));
 
+app.use(bodyParser.json({
+  type: ['json', 'application/csp-report']
+}))
 
-var staticDir = path.join(__dirname, buildDir);
-app.use(express.static(staticDir));
-
+const staticDir = path.join(__dirname, buildDir);
+app.use(express.static(staticDir, { index: false }));
 
 //So that we can use react-router and browser history
-app.get('*', function (request, response){
-  response.sendFile(staticDir + '/index.html');
+app.get('*', (req, res) => {
+  res.send(res.locals.htmlWithNonces);
 });
+
+app.post('/event/csp-report/violation', (req, res) => {
+  if (req.body) {
+    console.log('CSP Violation: ', req.body);
+  } else {
+    console.log('CSP Violation: No data received!');
+  }
+  res.status(204).end();
+})
 
 // If no ports specified, just start on default HTTP port
 if (!(config.httpPort || config.httpsPort)) {
@@ -27,24 +101,24 @@ if (!(config.httpPort || config.httpsPort)) {
 }
 
 if (config.httpPort) {
-  app.server = http.createServer(app).listen(config.httpPort, function() {
+  app.server = http.createServer(app).listen(config.httpPort, () => {
     console.log('Connect server started on port', config.httpPort);
     console.log('Serving static directory "' + staticDir + '/"');
   });
 }
 
 if (config.httpsPort) {
-  https.createServer(config.httpsConfig, app).listen(config.httpsPort, function() {
+  https.createServer(config.httpsConfig, app).listen(config.httpsPort, () => {
     console.log('Connect server started on HTTPS port', config.httpsPort);
     console.log('Serving static directory "' + staticDir + '/"');
   });
 }
 
 if (config.discovery && config.publishHost) {
-  var hakken = require('hakken')(config.discovery).client();
+  const hakken = require('hakken')(config.discovery).client();
   hakken.start();
 
-  var serviceDescriptor = {service: config.serviceName};
+  const serviceDescriptor = {service: config.serviceName};
 
   if (config.httpsPort) {
     serviceDescriptor.host = config.publishHost + ':' + config.httpsPort;
@@ -55,7 +129,7 @@ if (config.discovery && config.publishHost) {
     serviceDescriptor.protocol = 'http';
   }
 
-  console.log('Publishing to service discovery: ',serviceDescriptor);
+  console.log('Publishing to service discovery: ', serviceDescriptor);
   hakken.publish(serviceDescriptor);
 }
 

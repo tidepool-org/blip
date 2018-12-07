@@ -21,6 +21,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var sundial = require('sundial');
 var moment = require('moment');
+import { translate } from 'react-i18next';
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
@@ -30,13 +31,14 @@ var vizComponents = require('@tidepool/viz').components;
 var Loader = vizComponents.Loader;
 var BolusTooltip = vizComponents.BolusTooltip;
 var SMBGTooltip = vizComponents.SMBGTooltip;
+var CBGTooltip = vizComponents.CBGTooltip;
 
 var Header = require('./header');
 var Footer = require('./footer');
 
-var DailyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs', 'onBolusHover', 'onBolusOut', 
-    'onSMBGHover', 'onSMBGOut'],
+var DailyChart = translate()(React.createClass({
+  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs', 'onBolusHover', 'onBolusOut',
+    'onSMBGHover', 'onSMBGOut', 'onCBGHover', 'onCBGOut'],
   log: bows('Daily Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
@@ -58,6 +60,8 @@ var DailyChart = React.createClass({
     onBolusOut: React.PropTypes.func.isRequired,
     onSMBGHover: React.PropTypes.func.isRequired,
     onSMBGOut: React.PropTypes.func.isRequired,
+    onCBGHover: React.PropTypes.func.isRequired,
+    onCBGOut: React.PropTypes.func.isRequired,
   },
 
   getInitialState: function() {
@@ -96,9 +100,10 @@ var DailyChart = React.createClass({
   },
 
   initializeChart: function(datetime) {
+    const { t } = this.props;
     this.log('Initializing...');
     if (_.isEmpty(this.props.patientData)) {
-      throw new Error('Cannot create new chart with no data');
+      throw new Error(t('Cannot create new chart with no data'));
     }
 
     this.chart.load(this.props.patientData);
@@ -165,9 +170,9 @@ var DailyChart = React.createClass({
   editMessage: function(message) {
     return this.chart.editMessage(message);
   }
-});
+}));
 
-var Daily = React.createClass({
+var Daily = translate()(React.createClass({
   chartType: 'daily',
   log: bows('Daily View'),
   propTypes: {
@@ -192,10 +197,12 @@ var Daily = React.createClass({
     onSwitchToTrends: React.PropTypes.func.isRequired,
     // PatientData state updaters
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
-    updateDatetimeLocation: React.PropTypes.func.isRequired
+    updateDatetimeLocation: React.PropTypes.func.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
   },
 
   getInitialState: function() {
+    this.throttledMetric = _.throttle(this.props.trackMetric, 5000);
     return {
       atMostRecent: false,
       inTransition: false,
@@ -205,7 +212,7 @@ var Daily = React.createClass({
 
   componentWillReceiveProps:function (nextProps) {
     if (this.props.loading && !nextProps.loading) {
-      this.refs.chart.rerenderChart();
+      this.refs.chart.getWrappedInstance().rerenderChart();
     }
   },
 
@@ -257,6 +264,8 @@ var Daily = React.createClass({
                 onBolusOut={this.handleBolusOut}
                 onSMBGHover={this.handleSMBGHover}
                 onSMBGOut={this.handleSMBGOut}
+                onCBGHover={this.handleCBGHover}
+                onCBGOut={this.handleCBGOut}
                 ref="chart" />
             </div>
           </div>
@@ -285,19 +294,30 @@ var Daily = React.createClass({
             timePrefs={this.props.timePrefs}
             bgPrefs={this.props.bgPrefs}
           />}
+        {this.state.hoveredCBG && <CBGTooltip
+          position={{
+            top: this.state.hoveredCBG.top,
+            left: this.state.hoveredCBG.left
+          }}
+          side={this.state.hoveredCBG.side}
+          cbg={this.state.hoveredCBG.data}
+          timePrefs={this.props.timePrefs}
+          bgPrefs={this.props.bgPrefs}
+        />}
       </div>
       );
   },
 
   getTitle: function(datetime) {
-    var timePrefs = this.props.timePrefs, timezone;
+    const { timePrefs, t } = this.props;
+    let timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
     }
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-    return sundial.formatInTimezone(datetime, timezone, 'ddd, MMM D, YYYY');
+    return sundial.formatInTimezone(datetime, timezone, t('ddd, MMM D, YYYY'));
   },
 
   // handlers
@@ -305,7 +325,7 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart.getCurrentDay();
+    var datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
     this.props.onSwitchToTrends(datetime);
   },
 
@@ -313,7 +333,7 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.goToMostRecent();
+    this.refs.chart.getWrappedInstance().goToMostRecent();
   },
 
   handleClickOneDay: function(e) {
@@ -335,7 +355,7 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart.getCurrentDay();
+    var datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
     this.props.onSwitchToWeekly(datetime);
   },
 
@@ -413,6 +433,30 @@ var Daily = React.createClass({
     });
   },
 
+  handleCBGHover: function(cbg) {
+    this.throttledMetric('hovered over daily cgm tooltip');
+    var rect = cbg.rect;
+    // range here is -12 to 12 
+    var hoursOffset = sundial.dateDifference(cbg.data.normalTime, this.state.datetimeLocation, 'h');
+    cbg.top = rect.top + (rect.height / 2)
+    if(hoursOffset > 5) {
+      cbg.side = 'left';
+      cbg.left = rect.left;
+    } else {
+      cbg.side = 'right';
+      cbg.left = rect.left + rect.width;
+    }
+    this.setState({
+      hoveredCBG: cbg
+    });
+  },
+
+  handleCBGOut: function() {
+    this.setState({
+      hoveredCBG: false
+    });
+  },
+
   handleMostRecent: function(atMostRecent) {
     this.setState({
       atMostRecent: atMostRecent
@@ -423,28 +467,28 @@ var Daily = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.panBack();
+    this.refs.chart.getWrappedInstance().panBack();
   },
 
   handlePanForward: function(e) {
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.panForward();
+    this.refs.chart.getWrappedInstance().panForward();
   },
 
   // methods for messages
   closeMessageThread: function() {
-    return this.refs.chart.closeMessage();
+    return this.refs.chart.getWrappedInstance().closeMessage();
   },
 
   createMessageThread: function(message) {
-    return this.refs.chart.createMessage(message);
+    return this.refs.chart.getWrappedInstance().createMessage(message);
   },
 
   editMessageThread: function(message) {
-    return this.refs.chart.editMessage(message);
+    return this.refs.chart.getWrappedInstance().editMessage(message);
   }
-});
+}));
 
 module.exports = Daily;

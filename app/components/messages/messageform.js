@@ -15,20 +15,19 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 == BSD2 LICENSE ==
 */
 
-var React = require('react');
-var _ = require('lodash');
-var sundial = require('sundial');
+import React from 'react';
+import _ from 'lodash';
+import sundial from 'sundial';
+import { translate } from 'react-i18next';
 
 var MessageMixins = require('./messagemixins');
 
 // Form for creating new Notes or adding Comments
-var MessageForm = React.createClass({
+var MessageForm = translate()(React.createClass({
   mixins: [MessageMixins],
   propTypes: {
     formFields: React.PropTypes.object,
     messagePrompt: React.PropTypes.string,
-    saveBtnText: React.PropTypes.string,
-    cancelBtnText: React.PropTypes.string,
     onCancel: React.PropTypes.func,
     onSubmit: React.PropTypes.func,
     timePrefs: React.PropTypes.object.isRequired
@@ -59,10 +58,7 @@ var MessageForm = React.createClass({
     return {
       DATE_MASK: 'YYYY-MM-DD',
       TIME_MASK: 'HH:mm',
-      EDITED_DATE_MASK: 'YYYY-MM-DD HH:mm',
-      SENDING_TEXT: 'Sending...',
-      cancelBtnText: 'Cancel',
-      saveBtnText: 'Post',
+      EDITED_DATE_MASK: 'YYYY-MM-DD HH:mm'
     };
   },
   getEditableDateAndTime: function(ts) {
@@ -220,18 +216,19 @@ var MessageForm = React.createClass({
     var msg = this.state.msg;
     return !(msg && msg.length);
   },
-  
+
   /*
    * Just displays the notes date if it is set
    */
   renderDisplayDate: function(canEditTimestamp) {
+    const { t } = this.props;
     var displayDate;
     if (this.state.whenUtc) {
       var editLink;
 
       if (canEditTimestamp) {
         editLink = (
-          <a className='messageform-change-datetime' href='' ref='showDateTime' onClick={this.showEditDate}>Change</a>
+          <a className='messageform-change-datetime' href='' ref='showDateTime' onClick={this.showEditDate}>{t('Change')}</a>
         );
       }
 
@@ -270,10 +267,11 @@ var MessageForm = React.createClass({
     );
   },
   renderButtons: function() {
-    var saveBtnText = this.props.saveBtnText;
+    const { t } = this.props;
+    let saveBtnText = t('Post_submit');
 
     if (this.state.saving) {
-      saveBtnText = this.props.SENDING_TEXT;
+      saveBtnText = t('Sending...');
     }
 
     return (
@@ -282,7 +280,7 @@ var MessageForm = React.createClass({
           type='reset'
           className='messageform-button messageform-button-cancel'
           onClick={this.handleCancel}
-          ref='cancelBtn'>{this.props.cancelBtnText}</button>
+          ref='cancelBtn'>{t('Cancel')}</button>
         <button
           type='submit'
           className='messageform-button messageform-button-save'
@@ -328,7 +326,7 @@ var MessageForm = React.createClass({
       </form>
     );
   }
-  
-});
+
+}));
 
 module.exports = MessageForm;

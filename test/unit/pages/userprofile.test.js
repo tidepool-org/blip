@@ -47,7 +47,7 @@ describe('UserProfile', function () {
       };
       var elem = React.createElement(UserProfile, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var state = render.getInitialState();
+      var state = render.getWrappedInstance().getInitialState();
 
       expect(state.formValues.username).to.equal('foo@bar.com');
       expect(state.formValues.fullName).to.equal('Gordon Dent');

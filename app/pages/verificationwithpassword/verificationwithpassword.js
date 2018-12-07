@@ -16,6 +16,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
+import { translate } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
@@ -34,7 +35,7 @@ var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
 var formText = 'Welcome!';
 
-export let VerificationWithPassword = React.createClass({
+export let VerificationWithPassword = translate()(React.createClass({
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
     api: React.PropTypes.object.isRequired,
@@ -46,12 +47,15 @@ export let VerificationWithPassword = React.createClass({
     working: React.PropTypes.bool.isRequired
   },
 
-  formInputs:  [
-    { name: 'explanation', type: 'explanation', text: formText },
-    { name: 'birthday', label: 'Birthday', type: 'datepicker' },
-    { name: 'password', label: 'Create Password', type: 'password', placeholder: '' },
-    { name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '' }
-  ],
+  formInputs: function() {
+    const { t } = this.props;
+    return [
+      { name: 'explanation', type: 'explanation', text: formText },
+      { name: 'birthday', label: t('Birthday'), type: 'datepicker' },
+      { name: 'password', label: t('Create Password'), type: 'password', placeholder: '' },
+      { name: 'passwordConfirm', label: t('Confirm password'), type: 'password', placeholder: '' }
+    ];
+  },
 
   componentWillMount: function() {
     this.setState({ loading: false });
@@ -86,10 +90,11 @@ export let VerificationWithPassword = React.createClass({
   },
 
   getSubmitButtonText: function() {
+    const { t } = this.props;
     if (this.props.working) {
-      return 'Setting up...';
+      return t('Setting up...');
     }
-    return 'Ready!';
+    return t('Ready!');
   },
 
   render: function() {
@@ -103,7 +108,7 @@ export let VerificationWithPassword = React.createClass({
         <div className="container-small-outer VerificationWithPassword-form">
           <div className="container-small-inner VerificationWithPassword-form-box">
             <SimpleForm
-              inputs={this.formInputs}
+              inputs={this.formInputs()}
               formValues={this.state.formValues}
               validationErrors={this.state.validationErrors}
               submitButtonText={this.getSubmitButtonText()}
@@ -144,10 +149,11 @@ export let VerificationWithPassword = React.createClass({
   },
 
   validateFormValues: function(formValues) {
+    const { t } = this.props;
     var form = [
-      { type: 'date', name: 'birthday', label: 'birthday', value: formValues.birthday },
-      { type: 'password', name: 'password', label: 'password', value: formValues.password},
-      { type: 'confirmPassword', name: 'passwordConfirm', label: 'confirm password', value: formValues.passwordConfirm, prerequisites: { password: formValues.password } }
+      { type: 'date', name: 'birthday', label: t('birthday'), value: formValues.birthday },
+      { type: 'password', name: 'password', label: t('password'), value: formValues.password},
+      { type: 'confirmPassword', name: 'passwordConfirm', label: t('confirm password'), value: formValues.passwordConfirm, prerequisites: { password: formValues.password } }
     ];
     var validationErrors = validateForm(form);
 
@@ -156,7 +162,7 @@ export let VerificationWithPassword = React.createClass({
         validationErrors: validationErrors,
         notification: {
           type: 'error',
-          message:'Some entries are invalid.'
+          message: t('Some entries are invalid.')
         }
       });
     }
@@ -193,7 +199,7 @@ export let VerificationWithPassword = React.createClass({
       password: formValues.password
     };
   },
-});
+}));
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
