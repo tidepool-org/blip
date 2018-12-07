@@ -16,20 +16,31 @@
  */
 
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
 
 import styles from './NoData.css';
+
+import i18next from 'i18next';
+const t = i18next.t.bind(i18next);
+
+if (i18next.options.returnEmptyString === undefined) {
+  // Return key if no translation is present
+  i18next.init({ returnEmptyString: false, nsSeparator: '|' });
+}
 
 const NoData = (props) => {
   const {
     dataType,
     displayTypes,
-    messageString,
     position,
     unselectedAllData,
     unselectedAllDataString,
   } = props;
-  const noDataMessage = _.template(unselectedAllData ? unselectedAllDataString : messageString);
+
+  const noDataMessage = (displayType) => (
+    unselectedAllData
+      ? unselectedAllDataString
+      : t('There is no {{displayType}} data for this time period :(', { displayType })
+  );
 
   if (!position) {
     return null;
@@ -42,15 +53,14 @@ const NoData = (props) => {
 
   return (
     <text className={styles.noDataMsg} id="noDataMsg" x={position.x} y={position.y}>
-      {noDataMessage({ displayType })}
+      {noDataMessage(displayType)}
     </text>
   );
 };
 
 NoData.defaultProps = {
   displayTypes: { cbg: 'CGM', smbg: 'fingerstick' },
-  messageString: 'There is no <%= displayType %> data for this time period :(',
-  unselectedAllDataString: 'Hang on there, skippy! You unselected all of the data!',
+  unselectedAllDataString: t('Hang on there, skippy! You unselected all of the data!'),
 };
 
 NoData.propTypes = {

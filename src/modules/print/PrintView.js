@@ -20,6 +20,7 @@
 import _ from 'lodash';
 import PdfTable from 'voilab-pdf-table';
 import PdfTableFitColumn from 'voilab-pdf-table/plugins/fitcolumn';
+import i18next from 'i18next';
 
 import {
   getTimezoneFromTimePrefs,
@@ -42,6 +43,8 @@ import {
   LARGE_FONT_SIZE,
   SMALL_FONT_SIZE,
 } from './utils/constants';
+
+const t = i18next.t.bind(i18next);
 
 const logo = require('./images/tidepool-logo-408x46.png');
 
@@ -290,7 +293,9 @@ class PrintView {
   }
 
   getDateRange(startDate, endDate, format) {
-    return `Date range: ${formatDateRange(startDate, endDate, format)}`;
+    return t('Date range: {{dateRange}}', {
+      dateRange: formatDateRange(startDate, endDate, format),
+    });
   }
 
   setFill(color = 'black', opacity = 1) {
@@ -653,7 +658,7 @@ class PrintView {
       });
 
     const patientNameWidth = this.patientInfoBox.width = this.doc.widthOfString(patientName);
-    const patientDOB = `DOB: ${patientBirthdate}`;
+    const patientDOB = t('DOB: {{birthdate}}', { birthdate: patientBirthdate });
 
     this.doc
       .fontSize(10)
@@ -799,8 +804,8 @@ class PrintView {
   renderFooter() {
     this.doc.fontSize(this.footerFontSize);
 
-    const helpText = 'Questions or feedback? Please email support@tidepool.org ' +
-                     'or visit support.tidepool.org.';
+    const helpText = t('Questions or feedback? Please email support@tidepool.org' +
+    ' or visit support.tidepool.org.');
 
     const printDateText = `Printed on: ${formatCurrentDate()}`;
     const printDateWidth = this.doc.widthOfString(printDateText);
@@ -833,7 +838,7 @@ class PrintView {
       doc.switchToPage(page - 1);
       doc.fontSize(FOOTER_FONT_SIZE).fillColor('#979797').fillOpacity(1);
       doc.text(
-        `Page ${page} of ${pageCount}`,
+        t('Page {{page}} of {{pageCount}}', { page, pageCount }),
         MARGINS.left,
         (HEIGHT + MARGINS.top) - doc.currentLineHeight() * 1.5,
         { align: 'right' }
