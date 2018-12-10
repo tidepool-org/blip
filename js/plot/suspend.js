@@ -48,13 +48,13 @@ module.exports = function(pool, opts) {
       });
 
       var deviceEventGroup = selection
-        .selectAll(`.d3-deviceevent-group`)
-        .data([`d3-deviceevent-group`]);
+        .selectAll('.d3-deviceevent-group')
+        .data(['d3-deviceevent-group']);
 
       deviceEventGroup
         .enter()
         .append('g')
-        .attr('class', `d3-basal-path-group`);
+        .attr('class', 'd3-basal-path-group');
 
       _.each(filteredData, (data, index) => {
         var id = data.id;
