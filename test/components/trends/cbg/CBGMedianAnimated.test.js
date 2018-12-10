@@ -75,7 +75,7 @@ describe('CBGMedianAnimated', () => {
       const sliceWidth = median.prop('sliceWidth');
       const strokeWidth = sliceWidth / 8;
       const medianWidth = sliceWidth - strokeWidth;
-      const medianHeight = medianWidth * 0.758;
+      const medianHeight = medianWidth * 0.75;
 
       expect(wrapper.find(TransitionMotion).prop('styles')[0].style.median.val)
         .to.equal(yScale(median.prop('datum').median) - medianHeight / 2);
