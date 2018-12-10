@@ -50,7 +50,6 @@ const styleLoaderConfiguration = {
 const babelLoaderConfiguration = [
   {
     test: /\.js$/,
-    // exclude: /node_modules/,
     exclude: function(modulePath) {
       return /node_modules/.test(modulePath) && !/node_modules\/(tideline)/.test(modulePath);
     },
@@ -61,16 +60,6 @@ const babelLoaderConfiguration = [
       },
     },
   },
-  // {
-  //   test: /node_modules\/tideline\/.*\.js$/,
-  //   exclude: /tideline\/node_modules/,
-  //   use: {
-  //     loader: 'babel-loader',
-  //     options: {
-  //       cacheDirectory: true,
-  //     },
-  //   },
-  // },
 ];
 
 // This is needed for webpack to import static images in JavaScript files
@@ -221,7 +210,7 @@ module.exports = {
         },
         cache: true,
         parallel: true,
-        sourceMap: true // set to true if you want JS source maps
+        sourceMap: false // set to true if you want JS source maps
       }),
       new OptimizeCSSAssetsPlugin({})
     ]
