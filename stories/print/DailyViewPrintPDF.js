@@ -87,9 +87,6 @@ const notes = `Run \`window.downloadPrintViewData()\` from the console on a Tide
 Save the resulting file to the \`local/\` directory of viz as \`print-view.json\`,
 and then use this story to iterate on the Daily Print PDF outside of Tidepool Web!`;
 
-profiles.longName = _.cloneDeep(profiles.standard);
-profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
-
 storiesOf('Daily View PDF', module)
   .add(`standard account (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
