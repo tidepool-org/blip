@@ -10686,9 +10686,9 @@ thunky@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.0.2.tgz#a862e018e3fb1ea2ec3fce5d55605cf57f247371"
 
-tideline@1.9.0-aggregated-stats-widgets.10:
-  version "1.9.0-aggregated-stats-widgets.10"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.9.0-aggregated-stats-widgets.10.tgz#0b016ec704f0968c11f4bde02a7dbcc0ca26eccf"
+tideline@1.9.0-aggregated-stats-widgets.11:
+  version "1.9.0-aggregated-stats-widgets.11"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.9.0-aggregated-stats-widgets.11.tgz#e8b88b3ab39784c59010393488bb048562608ef7"
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
