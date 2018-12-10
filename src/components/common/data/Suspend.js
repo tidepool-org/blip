@@ -90,7 +90,7 @@ Suspend.propTypes = {
       duration: PropTypes.number.isRequired,
       utc: PropTypes.number.isRequired,
       id: PropTypes.string.isRequired,
-    }).isRequired
+    }).isRequired,
   ).isRequired,
   flushBottomOffset: PropTypes.number.isRequired,
   xScale: PropTypes.func.isRequired,
