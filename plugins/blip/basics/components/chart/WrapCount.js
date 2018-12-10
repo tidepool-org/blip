@@ -37,19 +37,17 @@ var WrapCount = React.createClass({
       </div>
     );
   },
-  generateDots: function(start, end, dotSize, pad) {
-    pad = pad || 0;
-    // pad = Math.ceil(pad) || 0;
-    pad = 0;
+  generateDots: function(start, end, dotSize) {
+    var count = this.getCount(this.props.subtotalType);
+    var dots = [];
+
     dotSize = Math.round(dotSize);
 
-    var dots = [];
-    var count = this.getCount(this.props.subtotalType);
     for (var i = start; i <= end; ++i) {
       if (i <= count) {
         dots.push(
           <svg key={i} width={dotSize} height={dotSize}>
-            <circle cx={dotSize/2} cy={dotSize/2} r={dotSize/2 - pad}/>
+            <circle cx={dotSize/2} cy={dotSize/2} r={dotSize/2}/>
           </svg>
         );
       }
@@ -63,14 +61,14 @@ var WrapCount = React.createClass({
 
     if (this.props.chartWidth) {
       var dotSize = this.props.chartWidth / 56;
-      var dotPadding = dotSize / 8;
+
       if (count > 9) {
-        dots = this.generateDots(1, 8, dotSize, dotPadding);
+        dots = this.generateDots(1, 8, dotSize);
         dots.push(<div key='nested' className='NestedCount'>
-          {this.generateDots(9, 17, dotSize / nestedShrinkFactor, dotPadding / nestedShrinkFactor)}
+          {this.generateDots(9, 17, dotSize / nestedShrinkFactor)}
         </div>);
       } else {
-        dots = this.generateDots(1, 9, dotSize, dotPadding);
+        dots = this.generateDots(1, 9, dotSize);
       }
     }
 
