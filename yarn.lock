@@ -836,9 +836,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@0.12.0-aggregated-stats-widgets.8":
-  version "0.12.0-aggregated-stats-widgets.8"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.12.0-aggregated-stats-widgets.8.tgz#b4e527f297ff48f8cb2164ce401bec524a479b12"
+"@tidepool/viz@0.12.0-aggregated-stats-widgets.10":
+  version "0.12.0-aggregated-stats-widgets.10"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.12.0-aggregated-stats-widgets.10.tgz#cd1c7b1d470b0ec37e39b33cde255d32a05c68c8"
+  integrity sha512-92strHCYAeyvw3rFVD2I2NzUIaOR9sksY7++WlmsBysHPsf6FxOfuV1FFFvbeMgo+9wvZC8S6uS7/0+zNjekLQ==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
