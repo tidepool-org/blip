@@ -111,7 +111,7 @@ export class CBGMedianAnimated extends PureComponent {
 
     const strokeWidth = sliceWidth / 8;
     const medianWidth = sliceWidth - strokeWidth;
-    const medianHeight = medianWidth * 0.758;
+    const medianHeight = medianWidth * 0.75;
     const binLeftX = xScale(datum.msX) - medianWidth / 2 + strokeWidth / 2;
     const width = medianWidth - strokeWidth;
 
