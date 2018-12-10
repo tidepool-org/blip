@@ -112,7 +112,7 @@ export let PatientData = translate()(React.createClass({
       printOpts: {
         numDays: {
           daily: 6,
-          weekly: 28,
+          weekly: 30,
         },
       },
       createMessage: null,
@@ -476,7 +476,7 @@ export let PatientData = translate()(React.createClass({
         mostRecent,
         _.pick(
           data.grouped,
-          ['cbg', 'smbg']
+          ['smbg']
         ),
         state.printOpts.numDays.weekly,
         state.timePrefs,
@@ -1158,7 +1158,7 @@ export let PatientData = translate()(React.createClass({
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
               data[bgUnits].grouped,
-              ['cbg', 'smbg']
+              ['smbg']
             ),
             this.state.printOpts.numDays.weekly,
             this.state.timePrefs,
