@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@0.12.0-auto-suspend.1":
-  version "0.12.0-auto-suspend.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.12.0-auto-suspend.1.tgz#221906d85bf0de4b84e91098254d0e2534c3afb6"
+"@tidepool/viz@0.12.0-auto-suspend.2":
+  version "0.12.0-auto-suspend.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.12.0-auto-suspend.2.tgz#36b3ac4b03f32cd9f1f68db8335974209fe04dc3"
   dependencies:
     bluebird "3.5.0"
     crossfilter "1.3.12"
@@ -7919,9 +7919,9 @@ thunkify@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@1.9.0-auto-suspend.1:
-  version "1.9.0-auto-suspend.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.9.0-auto-suspend.1.tgz#a86f6fd24474988252a2d4674e919dadaf329097"
+tideline@1.9.0-auto-suspend.2:
+  version "1.9.0-auto-suspend.2"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.9.0-auto-suspend.2.tgz#4bcc160b863ecd1a20d170f5d8027ce4957a60d0"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
