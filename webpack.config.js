@@ -214,32 +214,10 @@ module.exports = {
         uglifyOptions: {
           ie8: false,
           output: { comments: false },
-          // compress: {
-          //   inline: false,
-          //   keep_fnames: true, // eslint-disable-line camelcase
-          //   keep_infinity: true, // eslint-disable-line camelcase
-          //   negate_iife: false, // eslint-disable-line camelcase
-          //   loops: false,
-
-          //   reduce_funcs: false, // eslint-disable-line camelcase
-          //   reduce_vars: false, // eslint-disable-line camelcase
-          //   properties: false,
-          //   typeofs: false,
-          //   unused: false,
-
-          //   if_return: false, // eslint-disable-line camelcase
-          //   join_vars: false, // eslint-disable-line camelcase
-          //   hoist_props: false, // eslint-disable-line camelcase
-          //   directives: false,
-          //   dead_code: false, // eslint-disable-line camelcase
-
-          //   arguments: false,
-          //   booleans: false,
-          //   collapse_vars: false, // eslint-disable-line camelcase
-          //   comparisons: false,
-          //   conditionals: false,
-          // },
-          compress: false,
+          compress: {
+            inline: false,
+            conditionals: false,
+          },
         },
         cache: true,
         parallel: true,
