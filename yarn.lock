@@ -839,7 +839,6 @@
 "@tidepool/viz@0.12.0-aggregated-stats-widgets.10":
   version "0.12.0-aggregated-stats-widgets.10"
   resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.12.0-aggregated-stats-widgets.10.tgz#cd1c7b1d470b0ec37e39b33cde255d32a05c68c8"
-  integrity sha512-92strHCYAeyvw3rFVD2I2NzUIaOR9sksY7++WlmsBysHPsf6FxOfuV1FFFvbeMgo+9wvZC8S6uS7/0+zNjekLQ==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -5938,10 +5937,6 @@ jsesc@^2.5.1:
 jsesc@~0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
-
-json-loader@0.5.7:
-  version "0.5.7"
-  resolved "https://registry.yarnpkg.com/json-loader/-/json-loader-0.5.7.tgz#dca14a70235ff82f0ac9a3abeb60d337a365185d"
 
 json-parse-better-errors@^1.0.0, json-parse-better-errors@^1.0.1, json-parse-better-errors@^1.0.2:
   version "1.0.2"
