@@ -204,15 +204,14 @@ module.exports = {
         uglifyOptions: {
           ecma: 7,
           ie8: false,
-          output: {
-            comments: false
-          }
+          output: { comments: false },
+          compress: { inline: false },
         },
         cache: true,
         parallel: true,
-        sourceMap: false // set to true if you want JS source maps
+        sourceMap: false, // set to true if you want JS source maps
       }),
-      new OptimizeCSSAssetsPlugin({})
+      new OptimizeCSSAssetsPlugin({}),
     ]
   },
   output,

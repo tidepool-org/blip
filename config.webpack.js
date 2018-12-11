@@ -27,10 +27,10 @@ module.exports = {
     filename: 'config.js',
     library: 'config',
   },
+  // mode: isDev ? 'development' : 'production',
   module: {
     rules: [
       { test: /\.js$/, exclude: /(node_modules)/, use: [] },
-      { test: /\.json$/, use: { loader: 'json-loader' } },
     ],
   },
   plugins: [

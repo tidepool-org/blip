@@ -13,7 +13,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import config from '../config.app';
+import config from '../config.app'; // Initializes window.config
 import onerror from './onerror';
 import app from './bootstrap';
 import AppRoot from './redux/containers/Root';
