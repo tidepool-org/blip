@@ -28,19 +28,19 @@ const styleLoaderConfiguration = {
       query: {
         importLoaders: 2,
         localIdentName,
-        sourceMap: true,
+        sourceMap: isDev,
       },
     },
     {
       loader: 'postcss-loader',
       options: {
-        sourceMap: true,
+        sourceMap: isDev,
       },
     },
     {
       loader: 'less-loader',
       options: {
-        sourceMap: true,
+        sourceMap: isDev,
         javascriptEnabled: true,
       },
     },
@@ -127,7 +127,7 @@ const plugins = [
     __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false) //eslint-disable-line eqeqeq
   }),
   new MiniCssExtractPlugin({
-    filename: isDev ? 'style.css' : 'style.[hash].css',
+    filename: isDev ? 'style.css' : 'style.[contenthash].css',
   }),
   new CopyWebpackPlugin([
     {
@@ -199,20 +199,54 @@ module.exports = {
     ],
   },
   optimization: {
+    splitChunks: {
+      cacheGroups: {
+        styles: {
+          name: 'styles',
+          test: /\.css$/,
+          chunks: 'all',
+          enforce: true
+        }
+      }
+    },
     minimizer: [
       new UglifyJsPlugin({
         uglifyOptions: {
-          ecma: 7,
           ie8: false,
           output: { comments: false },
-          compress: { inline: false },
+          // compress: {
+          //   inline: false,
+          //   keep_fnames: true, // eslint-disable-line camelcase
+          //   keep_infinity: true, // eslint-disable-line camelcase
+          //   negate_iife: false, // eslint-disable-line camelcase
+          //   loops: false,
+
+          //   reduce_funcs: false, // eslint-disable-line camelcase
+          //   reduce_vars: false, // eslint-disable-line camelcase
+          //   properties: false,
+          //   typeofs: false,
+          //   unused: false,
+
+          //   if_return: false, // eslint-disable-line camelcase
+          //   join_vars: false, // eslint-disable-line camelcase
+          //   hoist_props: false, // eslint-disable-line camelcase
+          //   directives: false,
+          //   dead_code: false, // eslint-disable-line camelcase
+
+          //   arguments: false,
+          //   booleans: false,
+          //   collapse_vars: false, // eslint-disable-line camelcase
+          //   comparisons: false,
+          //   conditionals: false,
+          // },
+          compress: false,
         },
         cache: true,
         parallel: true,
         sourceMap: false, // set to true if you want JS source maps
       }),
       new OptimizeCSSAssetsPlugin({}),
-    ]
+    ],
   },
   output,
   plugins,
