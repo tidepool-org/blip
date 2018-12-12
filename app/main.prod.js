@@ -13,12 +13,12 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import config from '../config.app'; // Initializes window.config
-import onerror from './onerror';
+window.onerror = require('./onerror');
+
 import app from './bootstrap';
 import AppRoot from './redux/containers/Root';
 
-window.onerror = onerror;
 window.app = app;
+// NOTE: `window.config` is bundled separately
 
 app.start(AppRoot);

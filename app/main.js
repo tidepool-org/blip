@@ -13,16 +13,15 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import config from '../config.app'; // Initializes window.config
-import onerror from './onerror';
+window.config = require('../config.app.js');
+window.onerror = require('./onerror');
+
 import app from './bootstrap';
 import AppRoot from './redux/containers/Root';
 import i18n from 'i18next';
 
 import { setConfig } from 'react-hot-loader'
 setConfig({ logLevel: 'debug' });
-
-window.onerror = onerror;
 
 app.start(AppRoot);
 

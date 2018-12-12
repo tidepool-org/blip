@@ -13,6 +13,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+/* global __UPLOAD_API__ */
+/* global __API_HOST__ */
+/* global __INVITE_KEY__ */
+/* global __LATEST_TERMS__ */
 /* global __PASSWORD_MIN_LENGTH__ */
 /* global __PASSWORD_MAX_LENGTH__ */
 /* global __ABOUT_MAX_LENGTH__ */
@@ -42,7 +46,7 @@ function integerFromText(value, defaultValue) {
 
 // the constants below are defined in webpack.config.js -- they're aliases for
 // environment variables.
-export const config = window.config = {
+module.exports = {
   VERSION: pkg.version,
   UPLOAD_API: __UPLOAD_API__ || 'https://tidepool.org/uploader',
   API_HOST: __API_HOST__ || 'https://dev-api.tidepool.org',
@@ -53,5 +57,3 @@ export const config = window.config = {
   ABOUT_MAX_LENGTH: integerFromText(__ABOUT_MAX_LENGTH__, 256),
   I18N_ENABLED: booleanFromText(__I18N_ENABLED__, false)
 };
-
-export default config;
