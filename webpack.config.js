@@ -112,7 +112,7 @@ const plugins = [
   // individually.
   new webpack.DefinePlugin({
     'process.env': {
-      'NODE_ENV': isDev ? JSON.stringify('development') : JSON.stringify('production')
+      'NODE_ENV': isDev ? JSON.stringify('development') : JSON.stringify('production'),
     },
     __UPLOAD_API__: JSON.stringify(process.env.UPLOAD_API || null),
     __API_HOST__: JSON.stringify(process.env.API_HOST || null),
