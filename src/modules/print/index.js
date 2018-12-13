@@ -110,7 +110,7 @@ export function createPrintView(type, data, opts, doc) {
       Renderer = utils.WeeklyPrintView;
 
       renderOpts = _.assign(renderOpts, {
-        title: t('Weekly View'),
+        title: t('{{days}}-Day View', { days: _.keys(data.dataByDate).length }),
       });
       break;
 

@@ -48,22 +48,27 @@ class WeeklyPrintView extends PrintView {
       fillLightest: '#F8F9FA',
     });
 
+    this.dayCount = _.keys(data.dataByDate).length;
 
     this.doc.addPage();
-    this.initLayout();
+
+    // Auto-bind callback methods
+    this.RenderBgCell = this.RenderBgCell.bind(this);
   }
 
   newPage() {
     super.newPage(this.getDateRange(this.data.dateRange[0], this.data.dateRange[1]));
   }
 
-  initLayout() {
-    this.setLayoutColumns({
-      width: this.chartArea.width,
-      gutter: 15,
-      type: 'percentage',
-      widths: [25.5, 49, 25.5],
-    });
+  getBgChartRow(data, key) {
+    console.log('row data', data);
+    return [
+      {
+        value: {
+          text: key,
+        },
+      },
+    ];
   }
 
   render() {
@@ -71,23 +76,60 @@ class WeeklyPrintView extends PrintView {
   }
 
   renderBGChart() {
-    this.renderSectionHeading('Month Blood Glucose Charts');
+    this.renderSectionHeading(t('SMBG Readings'));
 
-    const columnWidth = this.getActiveColumnWidth();
-    const timeSlots = _.map(range(0, 8), i => (formatClocktimeFromMsPer24(i * THREE_HRS, 'h a')));
-    console.log('headers', timeSlots);
+    const bgChart = {};
 
-    const columns = _.map(timeSlots, label => ({
+    bgChart.labels = _.map(range(0, 8), i => (formatClocktimeFromMsPer24(i * THREE_HRS, 'h a')));
+    bgChart.labels.unshift('Date');
+
+    bgChart.columns = _.map(bgChart.labels, label => ({
       id: label,
       header: label,
-      width: columnWidth / timeSlots.length,
-      height: columnWidth / timeSlots.length,
-      // cache: false,
-      renderer: this.renderCalendarCell,
+      width: this.chartArea.width / bgChart.labels.length,
+      height: this.chartArea.width / bgChart.labels.length,
+      cache: false,
+      renderer: this.RenderBgCell,
       headerBorder: '',
       headerPadding: [4, 2, 0, 2],
       padding: [3, 2, 3, 2],
     }));
+
+    const rows = _.map(this.data.dataByDate, this.getBgChartRow);
+
+    console.log('bgChart', bgChart);
+
+    this.renderTable(bgChart.columns, rows, {
+      bottomMargin: 20,
+    });
+  }
+
+  RenderBgCell(tb, data, draw, column, pos, padding) {
+    if (draw) {
+      const {
+        color,
+        count,
+        type,
+        daysSince,
+        label,
+      } = data[column.id];
+
+      const xPos = pos.x + padding.left;
+      const yPos = pos.y + padding.top;
+
+      this.setFill(type === 'future' ? this.colors.lightGrey : 'black', 1);
+
+      this.doc
+        .fontSize(this.extraSmallFontSize)
+        .text(label, xPos, yPos);
+
+      const width = column.width - _.get(padding, 'left', 0) - _.get(padding, 'right', 0);
+      const height = column.height - _.get(padding, 'top', 0) - _.get(padding, 'bottom', 0);
+
+      this.resetText();
+    }
+
+    return ' ';
   }
 }
 
