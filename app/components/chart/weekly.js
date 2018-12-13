@@ -332,7 +332,7 @@ class Weekly extends Component {
   };
 
   handleWindowResize = () => {
-    this.refs.chart.rerenderChart();
+    this.refs.chart && this.refs.chart.rerenderChart();
   };
 
   isMissingSMBG = () => {

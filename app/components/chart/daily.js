@@ -387,7 +387,7 @@ class Daily extends Component {
   };
 
   handleWindowResize = () => {
-    this.refs.chart.getWrappedInstance().rerenderChart();
+    this.refs.chart && this.refs.chart.getWrappedInstance().rerenderChart();
   };
 
   handleClickTrends = e => {
