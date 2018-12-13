@@ -130,6 +130,10 @@
   color: var(--stat--dark);
 }
 
+.inputWrapper input[type="number"] {
+  width: 45px;
+}
+
 .outputWrapper {
   display: flex;
   flex-wrap: nowrap;
