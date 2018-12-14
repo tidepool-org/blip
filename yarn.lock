@@ -7933,9 +7933,9 @@ tideline@1.8.12:
     moment-timezone "0.5.5"
     sundial "1.5.0"
 
-tidepool-platform-client@0.39.0-export:
-  version "0.39.0-export"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.39.0-export.tgz#bc2ba0cff0262e9a8e98045b2134502992ee3765"
+tidepool-platform-client@0.39.0-export.1:
+  version "0.39.0-export.1"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.39.0-export.1.tgz#d005d1251fd0d217707cfb905138dc91b586d585"
   dependencies:
     async "0.9.0"
     lodash "3.3.1"

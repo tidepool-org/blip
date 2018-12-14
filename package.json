@@ -80,7 +80,7 @@
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
     "tideline": "1.8.12",
-    "tidepool-platform-client": "0.39.0-export",
+    "tidepool-platform-client": "0.39.0-export.1",
     "uglify-es": "3.0.13",
     "url-loader": "0.5.7",
     "webpack": "1.13.2",
