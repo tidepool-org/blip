@@ -1032,6 +1032,28 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Get URL for data export for a given user
+     * 
+     * @param {String} userId of the user to get data for
+     * @param {Object} options 
+     * @param {String} options.format 'json'|'excel'
+     * @param {String} options.startDate 
+     * @param {String} options.endDate
+     * @param cb
+     * @returns {cb} cb(err, response)
+     */
+    getExportDataURL: function (userId, options, cb){
+      common.assertArgumentsSize(arguments, 3);
+      user.createRestrictedTokenForUser(userId, {}, (err, response) => {
+        if (err) {
+          cb(err);
+        }
+        options.restricted_token = response.id;
+        var URL = common.makeExportUrl(userId, options);
+        cb(null, URL);
+      });
+    },
+    /**
      * User
      */
     acceptTerms: user.acceptTerms,
