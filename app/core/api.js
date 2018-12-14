@@ -37,7 +37,6 @@ api.init = function(cb) {
     host: config.API_HOST,
     dataHost: config.API_HOST + '/dataservices',
     uploadApi: config.UPLOAD_API,
-    exportHost: config.EXPORT_HOST,
     log: {
       warn: tidepoolLog,
       info: tidepoolLog,

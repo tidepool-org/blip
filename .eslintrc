@@ -19,7 +19,6 @@
     "console": false,
     "__UPLOAD_API__": false,
     "__API_HOST__": false,
-    "__EXPORT_HOST__": false,
     "__INVITE_KEY__": false,
     "__LATEST_TERMS__": false
   },
