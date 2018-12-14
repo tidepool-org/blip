@@ -47,10 +47,6 @@
     margin-top: 25px;
     margin-bottom: 30px;
     padding: 5px;
-    input {
-      margin-left: 20px;
-      margin-right: 5px;
-    }
     .hidden {
       display: none;
     }
@@ -63,7 +59,7 @@
       font-size: 15px;
       font-weight: bold;
       padding-left: 8px;
-      margin-right: 16px;
+      margin-right: 8px;
       transform: rotate(0deg);
 
       transition-duration: 0.25s;
@@ -72,6 +68,19 @@
 
     .opened::after {
       transform: rotate(90deg) translate(-20%, -15%);
+    }
+  }
+  .Export-optionEntry {
+    input {
+      margin-right: 5px;
+    }
+    margin-left: 20px;
+    padding-top: 20px;
+    label {
+      padding: 5px 0px;
+    }
+    .Export-optionDescription {
+      font-weight: 300;
     }
   }
 }

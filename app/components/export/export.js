@@ -107,13 +107,16 @@ class Export extends Component {
   }
 
   render() {
+    /* TODO: for upcoming export service support of anonymization
     const extraClassnames = cx({
-      hidden: !this.state.extraExpanded
+      hidden: !this.state.extraExpanded,
+      'Export-optionEntry': true
     });
     const norgieClasses = cx({
       norgie: true,
-      opened: this.state.extraExpanded
+      opened: this.state.extraExpanded,
     });
+    */
     return (
       <div className="Export">
         <form
@@ -162,7 +165,7 @@ class Export extends Component {
               onChange={this.handleInputChange}
             /> JSON
           </div>
-
+        {/* TODO: for upcoming export service support of anonymization
           <div className="Export-extraOption">
             <div className={norgieClasses}></div>
             <a onClick={this.toggleOptions}>Optional export settings</a>
@@ -176,10 +179,10 @@ class Export extends Component {
                 />
                 Anonymize my exported diabetes data
               </label>
-              <div>This will remove personally identifying information as well as any device make, model, and serial number from the export.</div>
+              <div className="Export-optionDescription">This will remove personally identifying information as well as any device make, model, and serial number from the export.</div>
             </div>
           </div>
-
+        */}
           <div className="Export-button">
             <input
               className="btn btn-primary"
