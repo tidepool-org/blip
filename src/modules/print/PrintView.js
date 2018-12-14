@@ -91,9 +91,11 @@ class PrintView {
       bolus: '#7CD0F0',
       smbg: '#6480FB',
       siteChange: '#fcd144',
+      veryLow: '#fb5951',
       low: '#FF8B7C',
       target: '#76D3A6',
       high: '#BB9AE7',
+      veryHigh: '#8c65d6',
       grey: '#6D6D6D',
       lightGrey: '#979797',
       darkGrey: '#4e4e4f',
@@ -531,7 +533,7 @@ class PrintView {
         align: 'left',
         padding: [7, 5, 3, 5],
         headerPadding: [7, 5, 3, 5],
-        fill: _.get(opts, 'columnDefaults.zebra', false),
+        fill: _.get(opts, 'columnDefaults.fill', _.get(opts, 'columnDefaults.zebra', false)),
       },
       bottomMargin: 20,
       pos: {
@@ -618,6 +620,17 @@ class PrintView {
 
       this.setFill(color, opacity);
     }
+
+    /* eslint-disable no-underscore-dangle */
+    if (row._fill) {
+      const {
+        color,
+        opacity,
+      } = row._fill;
+
+      this.setFill(color, opacity);
+    }
+    /* eslint-enable no-underscore-dangle */
   }
 
   onCellBackgroundAdded() {
