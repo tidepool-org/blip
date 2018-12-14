@@ -1044,7 +1044,7 @@ module.exports = function (config, deps) {
      */
     getExportDataURL: function (userId, options, cb){
       common.assertArgumentsSize(arguments, 3);
-      user.createRestrictedTokenForUser(userId, {}, (err, response) => {
+      user.createRestrictedTokenForUser(userId, {}, function(err, response){
         if (err) {
           cb(err);
         }
