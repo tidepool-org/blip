@@ -19,11 +19,12 @@
 
 import _ from 'lodash';
 import i18next from 'i18next';
-import { range } from 'd3-array';
+import { mean, range } from 'd3-array';
+import { scaleLinear } from 'd3-scale';
 import moment from 'moment';
 
 import PrintView from './PrintView';
-import { formatBgValue } from '../../utils/format';
+import { formatBgValue, formatDecimalNumber } from '../../utils/format';
 import { classifyBgValue, getOutOfRangeThreshold } from '../../utils/bloodglucose';
 import { formatClocktimeFromMsPer24, THREE_HRS } from '../../utils/datetime';
 import { MS_IN_HOUR } from '../../utils/constants';
@@ -81,16 +82,11 @@ class WeeklyPrintView extends PrintView {
 
   render() {
     this.renderBGChart();
+    this.renderSummary();
   }
 
   renderBGChart() {
     this.resetText();
-    this.renderSectionHeading({
-      text: t('SMBG Readings'),
-      subText: t('Units displayed in {{- units}}', { units: this.bgUnits }),
-    });
-
-    this.doc.fontSize(this.defaultFontSize);
 
     this.bgChart = {};
 
@@ -107,6 +103,8 @@ class WeeklyPrintView extends PrintView {
       text: '',
     });
 
+    this.bgChart.columnWidth = this.chartArea.width / this.bgChart.headers.length;
+
     this.bgChart.columns = _.map(this.bgChart.headers, ({ id, text }, index) => ({
       cache: false,
       border: index === 0 ? '' : 'TBLR',
@@ -121,7 +119,7 @@ class WeeklyPrintView extends PrintView {
       id,
       padding: [6, 2, 2, 2],
       renderer: this.RenderBgCell,
-      width: this.chartArea.width / this.bgChart.headers.length,
+      width: this.bgChart.columnWidth,
     }));
 
     this.bgChart.rows = _.map(this.data.dataByDate, this.getBgChartRow);
@@ -161,12 +159,16 @@ class WeeklyPrintView extends PrintView {
           });
       } else if (smbg.length) {
         _.each(smbg, datum => {
-          const xPos = pos.x + ((datum.msPer24 - id) * width / (MS_IN_HOUR * 3));
+          const xScale = scaleLinear()
+            .domain([id, id + (MS_IN_HOUR * 3)])
+            .range([pos.x, pos.x + width]);
+
+          const xPos = xScale(datum.msPer24);
           const yPos = pos.y + padding.top + (height / 2);
 
           this.doc
-          .circle(xPos, yPos, this.smbgRadius)
-          .fill(this.colors[classifyBgValue(this.bgBounds, datum.value, 'fiveWay')]);
+            .circle(xPos, yPos, this.smbgRadius)
+            .fill(this.colors[classifyBgValue(this.bgBounds, datum.value, 'fiveWay')]);
 
           const smbgLabel = formatBgValue(datum.value, this.bgPrefs, getOutOfRangeThreshold(datum));
           const labelWidth = this.doc.widthOfString(smbgLabel);
@@ -189,11 +191,11 @@ class WeeklyPrintView extends PrintView {
 
           this.doc
             .rect(
-              labelStartX - 1,
-              yPos + labelOffsetY - 1,
-              labelWidth + 2,
-              this.doc.currentLineHeight() + 2)
-            .fill('#f2f2f2');
+              labelStartX - 2,
+              yPos + labelOffsetY,
+              labelWidth + 4,
+              this.doc.currentLineHeight())
+            .fill('white');
 
           this.doc
             .fontSize(this.smallFontSize)
@@ -203,6 +205,8 @@ class WeeklyPrintView extends PrintView {
               labelStartX,
               yPos + labelOffsetY, {
                 lineBreak: false,
+                width: labelWidth,
+                align: 'center',
               },
             );
         });
@@ -212,6 +216,61 @@ class WeeklyPrintView extends PrintView {
     }
 
     return ' ';
+  }
+
+  renderSummary() {
+    this.resetText();
+
+    const xPos = this.chartArea.leftEdge + this.bgChart.columnWidth;
+    const yPos = this.doc.y;
+    const summaryWidth = this.chartArea.width - this.bgChart.columnWidth;
+
+    const allSMBG = _.reduce(
+      _.values(this.data.dataByDate),
+      (result, date) => result.concat(_.get(date, 'data.smbg', [])),
+      []
+    );
+
+    const avgSMBG = mean(allSMBG, (d) => (d.value));
+    const avgReadingsPerDay = Math.round(allSMBG.length / this.dayCount);
+
+    const avgSMBGText = allSMBG.length
+      ? formatBgValue(avgSMBG, this.bgPrefs)
+      : '--';
+
+    const avgSMBGColor = allSMBG.length
+      ? this.colors[classifyBgValue(this.bgBounds, avgSMBG, 'fiveWay')]
+      : 'black';
+
+    this.doc
+      .fontSize(this.defaultFontSize)
+      .text(t('Average BG: '), xPos, yPos, {
+        align: 'left',
+        width: summaryWidth,
+        continued: true,
+      })
+      .font(this.boldFont)
+      .fillColor(avgSMBGColor)
+      .text(avgSMBGText, {
+        continued: true,
+      })
+      .fillColor('black')
+      .text(` ${this.bgUnits}`, {
+        continued: true,
+      })
+      .font(this.boldFont)
+      .text(avgReadingsPerDay, {
+        align: 'right',
+      });
+
+    const avgReadingsPerDayWidth = this.doc.widthOfString(` ${avgReadingsPerDay}`);
+
+    this.doc
+      .font(this.font)
+      .text(t('Average Readings / Day:'), xPos, yPos, {
+        align: 'right',
+        width: summaryWidth - avgReadingsPerDayWidth,
+      });
   }
 }
 

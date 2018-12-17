@@ -553,6 +553,8 @@ class PrintView {
       }));
     }
 
+    table.onPageAdded(tb => tb.addHeader());
+
     table.onCellBackgroundAdd(this.onCellBackgroundAdd.bind(this));
 
     table.onCellBackgroundAdded(this.onCellBackgroundAdded.bind(this));
