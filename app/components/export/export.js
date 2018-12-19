@@ -29,10 +29,13 @@ class Export extends Component {
     this.state = {
       allTime: false,
       endDate,
-      startDate: moment(endDate).subtract(30, 'd').format(JS_DATE_FORMAT),
+      startDate: moment(endDate)
+        .subtract(30, 'd')
+        .format(JS_DATE_FORMAT),
       anonymizeData: false,
       format: 'json',
-      extraExpanded: false
+      extraExpanded: false,
+      error: false,
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -42,7 +45,13 @@ class Export extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    let options = _.pick(this.state, ['endDate', 'startDate', 'anonymizeData', 'format']);
+    this.setState({ error: null });
+    let options = _.pick(this.state, [
+      'endDate',
+      'startDate',
+      'anonymizeData',
+      'format',
+    ]);
     if (this.state.allTime) {
       options = _.omit(options, ['endDate', 'startDate']);
     } else {
@@ -50,18 +59,22 @@ class Export extends Component {
       options.startDate = moment.utc(this.state.startDate).toISOString();
     }
 
-    this.props.api.tidepool.getExportDataURL(this.props.patient.userid, options, (err, url) => {
-      if (err) {
-        console.log(err)
-        return;
+    this.props.api.tidepool.getExportDataURL(
+      this.props.patient.userid,
+      options,
+      (err, url) => {
+        if (err) {
+          this.setState({ error: err });
+          return;
+        }
+        let a = document.createElement('a');
+        a.style = 'display: none';
+        document.body.appendChild(a);
+        a.href = url;
+        a.click();
+        a.remove();
       }
-      let a = document.createElement('a');
-      a.style = 'display: none';
-      document.body.appendChild(a);
-      a.href = url;
-      a.click();
-      a.remove();
-    });
+    );
   }
 
   handleInputChange(event) {
@@ -80,7 +93,7 @@ class Export extends Component {
           value = this.state.startDate;
         }
         if (moment(value).isAfter(moment())) {
-          value = moment().format(JS_DATE_FORMAT)
+          value = moment().format(JS_DATE_FORMAT);
         }
       }
     }
@@ -98,11 +111,13 @@ class Export extends Component {
 
   setDateRange(range) {
     const toDate = moment(sundial.utcDateString()).format(JS_DATE_FORMAT);
-    const startDate = moment(toDate).subtract(range, 'd').format(JS_DATE_FORMAT);
+    const startDate = moment(toDate)
+      .subtract(range, 'd')
+      .format(JS_DATE_FORMAT);
     this.setState({
       allTime: false,
       toDate,
-      startDate
+      startDate,
     });
   }
 
@@ -117,11 +132,28 @@ class Export extends Component {
       opened: this.state.extraExpanded,
     });
     */
+
+    let errDisplay = null;
+    if (this.state.error) {
+      errDisplay = (
+        <div className="Export-error">
+          <div className="Export-error-title">
+            An error occured attempting to export your data. This may be
+            temporary and you can try the export again. If the error continues,
+            please contact support.
+          </div>
+          <div className="Export-error-details">
+            Details:{' '}
+            {this.state.error.message
+              ? this.state.error.message
+              : this.state.error.toString()}
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="Export">
-        <form
-          onSubmit={this.handleSubmit}
-        >
+        <form onSubmit={this.handleSubmit}>
           <div className="Export-dates">
             <div>Export my data from:</div>
             <input
@@ -156,16 +188,18 @@ class Export extends Component {
               value="excel"
               checked={this.state.format === 'excel'}
               onChange={this.handleInputChange}
-            /> Excel
+            />{' '}
+            Excel
             <input
               name="format"
               type="radio"
               value="json"
               checked={this.state.format === 'json'}
               onChange={this.handleInputChange}
-            /> JSON
+            />{' '}
+            JSON
           </div>
-        {/* TODO: for upcoming export service support of anonymization
+          {/* TODO: for upcoming export service support of anonymization
           <div className="Export-extraOption">
             <div className={norgieClasses}></div>
             <a onClick={this.toggleOptions}>Optional export settings</a>
@@ -182,15 +216,12 @@ class Export extends Component {
               <div className="Export-optionDescription">This will remove personally identifying information as well as any device make, model, and serial number from the export.</div>
             </div>
           </div>
-        */}
+          */}
           <div className="Export-button">
-            <input
-              className="btn btn-primary"
-              type="submit"
-              value="Export"
-            />
+            <input className="btn btn-primary" type="submit" value="Export" />
           </div>
         </form>
+        {errDisplay}
       </div>
     );
   }

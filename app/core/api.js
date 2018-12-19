@@ -566,17 +566,6 @@ api.patient.getAll = function(cb) {
   });
 };
 
-api.patient.export = function (patientId, options, cb) {
-  api.log('export');
-
-  tidepool.exportData(patientId, options, function (err, data) {
-    if (err) {
-      return cb(err);
-    }
-    return cb(null, data);
-  });
-}
-
 // ----- Metadata -----
 
 api.metadata = {};
