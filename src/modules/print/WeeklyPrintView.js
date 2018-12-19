@@ -24,7 +24,7 @@ import { scaleLinear } from 'd3-scale';
 import moment from 'moment';
 
 import PrintView from './PrintView';
-import { formatBgValue, formatDecimalNumber } from '../../utils/format';
+import { formatBgValue } from '../../utils/format';
 import { classifyBgValue, getOutOfRangeThreshold } from '../../utils/bloodglucose';
 import { formatClocktimeFromMsPer24, THREE_HRS } from '../../utils/datetime';
 import { MS_IN_HOUR } from '../../utils/constants';
@@ -41,12 +41,17 @@ class WeeklyPrintView extends PrintView {
     this.doc.addPage();
 
     // Auto-bind callback methods
+    this.getBGLabelYOffset = this.getBGLabelYOffset.bind(this);
     this.getBgChartRow = this.getBgChartRow.bind(this);
-    this.RenderBgCell = this.RenderBgCell.bind(this);
+    this.renderBgCell = this.renderBgCell.bind(this);
   }
 
   newPage() {
     super.newPage(this.getDateRange(this.data.dateRange[0], this.data.dateRange[1]));
+  }
+
+  getBGLabelYOffset() {
+    return _.get(this.bgChart, 'datumsRendered', 0) % 2 === 0 ? -12 : 5;
   }
 
   getBgChartRow(data = {}) {
@@ -88,7 +93,9 @@ class WeeklyPrintView extends PrintView {
   renderBGChart() {
     this.resetText();
 
-    this.bgChart = {};
+    this.bgChart = {
+      datumsRendered: 0,
+    };
 
     this.bgChart.headers = _.map(
       range(0, 8),
@@ -117,23 +124,41 @@ class WeeklyPrintView extends PrintView {
       headerPadding: [6, 2, 2, 2],
       height: this.doc.fontSize(this.defaultFontSize).currentLineHeight(),
       id,
-      padding: [6, 2, 2, 2],
-      renderer: this.RenderBgCell,
+      padding: [12, 2, 8, 2],
+      renderer: this.renderBgCell,
       width: this.bgChart.columnWidth,
     }));
 
     this.bgChart.rows = _.map(this.data.dataByDate, this.getBgChartRow);
 
+    this.bgChart.pos = {
+      x: this.doc.x,
+      y: this.doc.y,
+      currentPage: this.initialTotalPages + this.currentPageIndex,
+      currentPageIndex: this.currentPageIndex,
+    };
+
     this.renderTable(this.bgChart.columns, this.bgChart.rows, {
       bottomMargin: 20,
       columnDefaults: {
         fill: true,
+        skipDraw: true,
       },
+    });
+
+    this.doc.switchToPage(this.bgChart.pos.currentPage);
+    this.currentPageIndex = this.bgChart.pos.currentPageIndex;
+
+    this.doc.x = this.bgChart.pos.x;
+    this.doc.y = this.bgChart.pos.y;
+
+    this.renderTable(this.bgChart.columns, this.bgChart.rows, {
+      bottomMargin: 20,
     });
   }
 
-  RenderBgCell(tb, data, draw, column, pos, padding) {
-    if (draw) {
+  renderBgCell(tb, data, draw, column, pos, padding) {
+    if (draw && !column.skipDraw) {
       const {
         id,
         height,
@@ -142,7 +167,7 @@ class WeeklyPrintView extends PrintView {
 
       const {
         text,
-        smbg,
+        smbg = [],
       } = data[id];
 
       if (text) {
@@ -173,9 +198,11 @@ class WeeklyPrintView extends PrintView {
           const smbgLabel = formatBgValue(datum.value, this.bgPrefs, getOutOfRangeThreshold(datum));
           const labelWidth = this.doc.widthOfString(smbgLabel);
           const labelOffsetX = labelWidth / 2;
-          const labelOffsetY = -10;
+          const labelOffsetY = this.getBGLabelYOffset();
+
           let labelStartX = xPos - labelOffsetX;
           const labelEndX = labelStartX + labelWidth;
+
 
           // Ensure label is printed within chart area for the x-axis
           const chartLeftEdge = this.leftEdge + width;
@@ -191,9 +218,9 @@ class WeeklyPrintView extends PrintView {
 
           this.doc
             .rect(
-              labelStartX - 2,
+              labelStartX,
               yPos + labelOffsetY,
-              labelWidth + 4,
+              labelWidth,
               this.doc.currentLineHeight())
             .fill('white');
 
@@ -209,6 +236,8 @@ class WeeklyPrintView extends PrintView {
                 align: 'center',
               },
             );
+
+          this.bgChart.datumsRendered++;
         });
       }
 

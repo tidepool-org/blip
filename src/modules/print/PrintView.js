@@ -133,6 +133,7 @@ class PrintView {
 
     // Auto-bind callback methods
     this.newPage = this.newPage.bind(this);
+    this.setNewPageTablePosition = this.setNewPageTablePosition.bind(this);
     this.renderCustomTextCell = this.renderCustomTextCell.bind(this);
 
     // Clear previous and set up pageAdded listeners :/
@@ -151,6 +152,7 @@ class PrintView {
     };
 
     this.currentPageIndex++;
+    this.totalPages++;
 
     this.renderHeader(dateText).renderFooter();
     this.doc.x = this.chartArea.leftEdge;
@@ -164,16 +166,7 @@ class PrintView {
       .fontSize(currentFont.size);
 
     if (this.table) {
-      const xPos = this.layoutColumns
-        ? _.get(this, `layoutColumns.columns.${this.layoutColumns.activeIndex}.x`)
-        : this.chartArea.leftEdge;
-
-      this.table.pos = {
-        x: xPos,
-        y: this.chartArea.topEdge,
-      };
-
-      this.table.pdf.lineWidth(this.tableSettings.borderWidth);
+      this.setNewPageTablePosition();
     }
 
     if (this.layoutColumns) {
@@ -188,6 +181,17 @@ class PrintView {
 
       this.goToLayoutColumnPosition(this.layoutColumns.activeIndex);
     }
+  }
+
+  setNewPageTablePosition() {
+    const xPos = this.layoutColumns
+        ? _.get(this, `layoutColumns.columns.${this.layoutColumns.activeIndex}.x`)
+        : this.chartArea.leftEdge;
+
+    this.doc.x = xPos;
+    this.doc.y = this.chartArea.topEdge;
+
+    this.table.pdf.lineWidth(this.tableSettings.borderWidth);
   }
 
   setLayoutColumns(opts) {
@@ -552,6 +556,20 @@ class PrintView {
         column: flexColumn,
       }));
     }
+
+    table.onPageAdd((tb, row, ev) => {
+      const currentPageIndex = this.initialTotalPages + this.currentPageIndex;
+
+      if (currentPageIndex + 1 === this.totalPages) {
+        tb.pdf.addPage();
+      } else {
+        this.currentPageIndex++;
+        tb.pdf.switchToPage(this.initialTotalPages + this.currentPageIndex);
+        this.setNewPageTablePosition();
+      }
+      // cancel event so the automatic page add is not triggered
+      ev.cancel = true; // eslint-disable-line no-param-reassign
+    });
 
     table.onPageAdded(tb => tb.addHeader());
 
