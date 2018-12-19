@@ -87,9 +87,12 @@ class PrintView {
 
     this.colors = {
       basal: '#19A0D7',
+      basalHeader: '#dcf1f9',
       basalAutomated: '#00D3E6',
       bolus: '#7CD0F0',
+      bolusHeader: '#ebf7fc',
       smbg: '#6480FB',
+      smbgHeader: '#e8ecfe',
       siteChange: '#fcd144',
       veryLow: '#fb5951',
       low: '#FF8B7C',
@@ -722,8 +725,12 @@ class PrintView {
       this.margins.top + ((this.patientInfoBox.height - this.margins.top) / 2 - (lineHeight / 2))
     );
 
-    this.doc.text(this.title, xOffset, yOffset);
-    this.titleWidth = this.doc.widthOfString(this.title);
+    const title = this.currentPageIndex === 0
+      ? this.title
+      : t('{{title}} (cont.)', { title: this.title });
+
+    this.doc.text(title, xOffset, yOffset);
+    this.titleWidth = this.doc.widthOfString(title);
   }
 
   renderDateText(dateText = '') {

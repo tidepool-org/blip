@@ -94,7 +94,7 @@ export function createPrintView(type, data, opts, doc) {
         numDays: numDays.daily,
         summaryHeaderFontSize: 10,
         summaryWidthAsPercentage: 0.18,
-        title: t('Daily View'),
+        title: t('Daily Charts'),
       });
       break;
 
@@ -110,7 +110,7 @@ export function createPrintView(type, data, opts, doc) {
       Renderer = utils.WeeklyPrintView;
 
       renderOpts = _.assign(renderOpts, {
-        title: t('{{days}}-Day SMBG View', { days: _.keys(data.dataByDate).length }),
+        title: t('BG Readings'),
       });
       break;
 
