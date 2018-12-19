@@ -42,6 +42,7 @@ class WeeklyPrintView extends PrintView {
 
     // Auto-bind callback methods
     this.getBGLabelYOffset = this.getBGLabelYOffset.bind(this);
+    this.getBgChartColumns = this.getBgChartColumns.bind(this);
     this.getBgChartRow = this.getBgChartRow.bind(this);
     this.renderBgCell = this.renderBgCell.bind(this);
   }
@@ -52,6 +53,25 @@ class WeeklyPrintView extends PrintView {
 
   getBGLabelYOffset() {
     return _.get(this.bgChart, 'datumsRendered', 0) % 2 === 0 ? -12 : 5;
+  }
+
+  getBgChartColumns(opts = {}) {
+    return _.map(this.bgChart.headers, ({ id, text }, index) => ({
+      cache: false,
+      border: index === 0 || opts.border === false ? '' : 'TBLR',
+      header: text,
+      headerBorder: index === 0 ? '' : 'BL',
+      headerFill: index === 0 || opts.headerFill === false ? false : {
+        color: this.colors.smbgHeader,
+        opacity: 1,
+      },
+      headerPadding: [6, 2, 2, 2],
+      height: this.doc.fontSize(this.defaultFontSize).currentLineHeight(),
+      id,
+      padding: [12, 2, 8, 2],
+      renderer: this.renderBgCell,
+      width: this.bgChart.columnWidth,
+    }));
   }
 
   getBgChartRow(data = {}) {
@@ -80,6 +100,7 @@ class WeeklyPrintView extends PrintView {
 
     row._fill = { // eslint-disable-line no-underscore-dangle
       color: isWeekend ? this.tableSettings.colors.zebraEven : 'white',
+      opacity: 1,
     };
 
     return row;
@@ -87,7 +108,7 @@ class WeeklyPrintView extends PrintView {
 
   render() {
     this.renderBGChart();
-    this.renderSummary();
+    this.renderSummaryChart();
   }
 
   renderBGChart() {
@@ -112,22 +133,7 @@ class WeeklyPrintView extends PrintView {
 
     this.bgChart.columnWidth = this.chartArea.width / this.bgChart.headers.length;
 
-    this.bgChart.columns = _.map(this.bgChart.headers, ({ id, text }, index) => ({
-      cache: false,
-      border: index === 0 ? '' : 'TBLR',
-      header: text,
-      headerBorder: index === 0 ? '' : 'BL',
-      headerFill: index === 0 ? false : {
-        color: this.colors.smbg,
-        opacity: 0.1,
-      },
-      headerPadding: [6, 2, 2, 2],
-      height: this.doc.fontSize(this.defaultFontSize).currentLineHeight(),
-      id,
-      padding: [12, 2, 8, 2],
-      renderer: this.renderBgCell,
-      width: this.bgChart.columnWidth,
-    }));
+    this.bgChart.columns = this.getBgChartColumns();
 
     this.bgChart.rows = _.map(this.data.dataByDate, this.getBgChartRow);
 
@@ -138,6 +144,7 @@ class WeeklyPrintView extends PrintView {
       currentPageIndex: this.currentPageIndex,
     };
 
+    // First, we render the table, but don't render the data, to get the cell backgrounds filled
     this.renderTable(this.bgChart.columns, this.bgChart.rows, {
       bottomMargin: 20,
       columnDefaults: {
@@ -146,14 +153,85 @@ class WeeklyPrintView extends PrintView {
       },
     });
 
+    // Reposition to the original bgChart rendering postion, and render over top with the data
     this.doc.switchToPage(this.bgChart.pos.currentPage);
     this.currentPageIndex = this.bgChart.pos.currentPageIndex;
 
     this.doc.x = this.bgChart.pos.x;
     this.doc.y = this.bgChart.pos.y;
 
-    this.renderTable(this.bgChart.columns, this.bgChart.rows, {
+    this.renderTable(this.getBgChartColumns({
+      headerFill: false,
+      border: false,
+    }), this.bgChart.rows, {
       bottomMargin: 20,
+      columnDefaults: {
+        fill: false,
+      },
+    });
+  }
+
+  renderSummaryChart() {
+    this.resetText();
+
+    const allSMBG = _.reduce(
+      _.values(this.data.dataByDate),
+      (result, date) => result.concat(_.get(date, 'data.smbg', [])),
+      []
+    );
+
+    const avgSMBG = mean(allSMBG, (d) => (d.value));
+    const avgReadingsPerDay = Math.round(allSMBG.length / this.dayCount);
+
+    const avgSMBGText = allSMBG.length
+      ? formatBgValue(avgSMBG, this.bgPrefs)
+      : '--';
+
+    this.summaryChart = {};
+
+    this.doc.x = this.leftEdge + this.bgChart.columnWidth;
+
+    this.summaryChart.columnWidth = (this.chartArea.width - this.bgChart.columnWidth) / 4;
+
+    this.summaryChart.columns = [
+      {
+        id: 'totalDays',
+        header: t('Days In Report'),
+      },
+      {
+        id: 'totalReadings',
+        header: t('Total BG Readings'),
+      },
+      {
+        id: 'avgReadingsPerDay',
+        header: t('Avg. BG Readings / Day'),
+      },
+      {
+        id: 'avgBg',
+        header: t('Avg. BG ({{- units}})', { units: this.bgUnits }),
+      },
+    ];
+
+    this.summaryChart.rows = [
+      {
+        totalDays: this.dayCount,
+        totalReadings: allSMBG.length,
+        avgReadingsPerDay,
+        avgBg: avgSMBGText,
+      },
+    ];
+
+    this.renderTable(this.summaryChart.columns, this.summaryChart.rows, {
+      bottomMargin: 20,
+      columnDefaults: {
+        align: 'center',
+        headerAlign: 'center',
+        headerFill: {
+          color: this.colors.smbgHeader,
+          opacity: 1,
+        },
+        width: this.summaryChart.columnWidth,
+      },
     });
   }
 
@@ -219,7 +297,7 @@ class WeeklyPrintView extends PrintView {
           this.doc
             .rect(
               labelStartX,
-              yPos + labelOffsetY,
+              yPos + labelOffsetY - 1,
               labelWidth,
               this.doc.currentLineHeight())
             .fill('white');
@@ -245,61 +323,6 @@ class WeeklyPrintView extends PrintView {
     }
 
     return ' ';
-  }
-
-  renderSummary() {
-    this.resetText();
-
-    const xPos = this.chartArea.leftEdge + this.bgChart.columnWidth;
-    const yPos = this.doc.y;
-    const summaryWidth = this.chartArea.width - this.bgChart.columnWidth;
-
-    const allSMBG = _.reduce(
-      _.values(this.data.dataByDate),
-      (result, date) => result.concat(_.get(date, 'data.smbg', [])),
-      []
-    );
-
-    const avgSMBG = mean(allSMBG, (d) => (d.value));
-    const avgReadingsPerDay = Math.round(allSMBG.length / this.dayCount);
-
-    const avgSMBGText = allSMBG.length
-      ? formatBgValue(avgSMBG, this.bgPrefs)
-      : '--';
-
-    const avgSMBGColor = allSMBG.length
-      ? this.colors[classifyBgValue(this.bgBounds, avgSMBG, 'fiveWay')]
-      : 'black';
-
-    this.doc
-      .fontSize(this.defaultFontSize)
-      .text(t('Average BG: '), xPos, yPos, {
-        align: 'left',
-        width: summaryWidth,
-        continued: true,
-      })
-      .font(this.boldFont)
-      .fillColor(avgSMBGColor)
-      .text(avgSMBGText, {
-        continued: true,
-      })
-      .fillColor('black')
-      .text(` ${this.bgUnits}`, {
-        continued: true,
-      })
-      .font(this.boldFont)
-      .text(avgReadingsPerDay, {
-        align: 'right',
-      });
-
-    const avgReadingsPerDayWidth = this.doc.widthOfString(` ${avgReadingsPerDay}`);
-
-    this.doc
-      .font(this.font)
-      .text(t('Average Readings / Day:'), xPos, yPos, {
-        align: 'right',
-        width: summaryWidth - avgReadingsPerDayWidth,
-      });
   }
 }
 
