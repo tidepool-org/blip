@@ -159,14 +159,16 @@ var Weekly = translate()(React.createClass({
     chartPrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     isClinicAccount: React.PropTypes.bool.isRequired,
-    onClickRefresh: React.PropTypes.func.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
+    onClickRefresh: React.PropTypes.func.isRequired,
+    onClickPrint: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     patientData: React.PropTypes.object.isRequired,
+    pdf: React.PropTypes.object.isRequired,
     loading: React.PropTypes.bool.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -241,6 +243,7 @@ var Weekly = translate()(React.createClass({
       <Header
         chartType={this.chartType}
         patient={this.props.patient}
+        printReady={!!this.props.pdf.url}
         atMostRecent={this.state.atMostRecent}
         inTransition={this.state.inTransition}
         title={this.state.title}
@@ -255,6 +258,7 @@ var Weekly = translate()(React.createClass({
         onClickOneDay={this.handleClickOneDay}
         onClickSettings={this.props.onSwitchToSettings}
         onClickTwoWeeks={this.handleClickTwoWeeks}
+        onClickPrint={this.handleClickPrint}
       ref="header" />
     );
   },
@@ -341,6 +345,14 @@ var Weekly = translate()(React.createClass({
       datetime = this.refs.chart.getCurrentDay(this.props.timePrefs);
     }
     this.props.onSwitchToDaily(datetime);
+  },
+
+  handleClickPrint: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickPrint(this.props.pdf);
   },
 
   handleClickTwoWeeks: function(e) {

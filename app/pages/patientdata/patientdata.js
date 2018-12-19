@@ -386,6 +386,7 @@ export let PatientData = translate()(React.createClass({
             loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
+            onClickPrint={this.handleClickPrint}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
@@ -395,6 +396,7 @@ export let PatientData = translate()(React.createClass({
             trackMetric={this.props.trackMetric}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
+            pdf={this.props.pdf.combined || {}}
             ref="tideline"
             isClinicAccount={personUtils.isClinic(this.props.user)} />
           );
@@ -918,7 +920,7 @@ export let PatientData = translate()(React.createClass({
     this.setState({
       loading: true,
       requestedPatientDataRange,
-      fetchEarlierDataCount: count
+      fetchEarlierDataCount: count,
     });
 
     const fetchOpts = _.defaults(options, {
