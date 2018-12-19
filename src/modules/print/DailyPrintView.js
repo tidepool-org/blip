@@ -310,8 +310,6 @@ class DailyPrintView extends PrintView {
       }
     }
 
-    this.totalPages += 1;
-
     this.doc.addPage();
 
     return this;
