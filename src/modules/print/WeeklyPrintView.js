@@ -285,20 +285,21 @@ class WeeklyPrintView extends PrintView {
           // Ensure label is printed within chart area for the x-axis
           const chartLeftEdge = this.leftEdge + width;
 
-          if (labelStartX <= chartLeftEdge) {
-            labelStartX = labelStartX + (chartLeftEdge - labelStartX) + 1;
+          if (labelStartX - 1 <= chartLeftEdge) {
+            labelStartX = labelStartX + (chartLeftEdge - (labelStartX - 1)) + 1;
           }
-          if (labelEndX >= this.rightEdge) {
-            labelStartX = labelStartX - (labelEndX - this.rightEdge) - 1;
+
+          if (labelEndX + 1 >= this.rightEdge) {
+            labelStartX = labelStartX - ((labelEndX + 1) - this.rightEdge) - 1;
           }
 
           this.doc.fontSize(this.smallFontSize);
 
           this.doc
             .rect(
-              labelStartX,
+              labelStartX - 1,
               yPos + labelOffsetY - 1,
-              labelWidth,
+              labelWidth + 2,
               this.doc.currentLineHeight())
             .fill('white');
 
