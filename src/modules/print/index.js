@@ -110,6 +110,7 @@ export function createPrintView(type, data, opts, doc) {
       Renderer = utils.WeeklyPrintView;
 
       renderOpts = _.assign(renderOpts, {
+        numDays: numDays.weekly,
         title: t('BG Readings'),
       });
       break;

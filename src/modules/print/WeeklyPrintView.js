@@ -36,9 +36,13 @@ class WeeklyPrintView extends PrintView {
     super(doc, data, opts);
 
     this.smbgRadius = 3;
-    this.dayCount = _.keys(data.dataByDate).length;
+    this.numDays = opts.numDays;
 
     this.doc.addPage();
+
+    const dates = _.keys(data.dataByDate).sort();
+    const numDays = _.min([this.numDays, dates.length]);
+    this.chartDates = _.slice(dates, -Math.abs(numDays)).reverse();
 
     // Auto-bind callback methods
     this.getBGLabelYOffset = this.getBGLabelYOffset.bind(this);
@@ -74,9 +78,10 @@ class WeeklyPrintView extends PrintView {
     }));
   }
 
-  getBgChartRow(data = {}) {
-    const date = moment(data.date);
-    const isWeekend = _.includes(['0', '6'], date.format('d'));
+  getBgChartRow(date) {
+    const data = this.data.dataByDate[date];
+    const dateMoment = moment(date);
+    const isWeekend = _.includes(['0', '6'], dateMoment.format('d'));
     const timeSlots = _.filter(_.pluck(_.sortBy(this.bgChart.columns, 'id'), 'id'), _.isNumber);
 
     const smbgByTimeSlot = _.groupBy(
@@ -89,7 +94,7 @@ class WeeklyPrintView extends PrintView {
     _.each(this.bgChart.columns, ({ id }) => {
       if (id === 'date') {
         row[id] = {
-          text: date.format('ddd, MMM D'),
+          text: dateMoment.format('ddd, MMM D'),
         };
       } else {
         row[id] = {
@@ -135,7 +140,7 @@ class WeeklyPrintView extends PrintView {
 
     this.bgChart.columns = this.getBgChartColumns();
 
-    this.bgChart.rows = _.map(this.data.dataByDate, this.getBgChartRow);
+    this.bgChart.rows = _.map(this.chartDates, this.getBgChartRow);
 
     this.bgChart.pos = {
       x: this.doc.x,
@@ -181,7 +186,7 @@ class WeeklyPrintView extends PrintView {
     );
 
     const avgSMBG = mean(allSMBG, (d) => (d.value));
-    const avgReadingsPerDay = Math.round(allSMBG.length / this.dayCount);
+    const avgReadingsPerDay = Math.round(allSMBG.length / this.numDays);
 
     const avgSMBGText = allSMBG.length
       ? formatBgValue(avgSMBG, this.bgPrefs)
@@ -214,7 +219,7 @@ class WeeklyPrintView extends PrintView {
 
     this.summaryChart.rows = [
       {
-        totalDays: this.dayCount,
+        totalDays: this.numDays,
         totalReadings: allSMBG.length.toString(),
         avgReadingsPerDay: (avgReadingsPerDay || 0).toString(),
         avgBg: avgSMBGText,
