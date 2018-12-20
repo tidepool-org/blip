@@ -274,6 +274,8 @@ var Weekly = translate()(React.createClass({
         onClickTrends={this.handleClickTrends}
         onClickSettings={this.props.onSwitchToSettings}
         onClickTwoWeeks={this.handleClickTwoWeeks}
+        onClickPrint={this.handleClickPrint}
+        printReady={!!this.props.pdf.url}
       ref="header" />
     );
   },
