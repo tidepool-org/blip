@@ -215,7 +215,7 @@ class WeeklyPrintView extends PrintView {
     this.summaryChart.rows = [
       {
         totalDays: this.dayCount,
-        totalReadings: allSMBG.length,
+        totalReadings: allSMBG.length.toString(),
         avgReadingsPerDay: (avgReadingsPerDay || 0).toString(),
         avgBg: avgSMBGText,
       },
