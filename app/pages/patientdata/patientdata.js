@@ -961,7 +961,7 @@ export let PatientData = translate()(React.createClass({
 
       const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
       const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
-      const processDataMaxWeeks = isInitialProcessing ? 4 : 8;
+      const processDataMaxDays = isInitialProcessing ? 30 : 56;
 
       // Grab the first diabetes datum time on first process in case upload date is much later
       const firstDiabetesDatum = _.find(patientData, (d) => _.includes(DIABETES_DATA_TYPES, d.type));
@@ -977,7 +977,7 @@ export let PatientData = translate()(React.createClass({
         : utils.getTimezoneForDataProcessing(unprocessedPatientData, props.queryParams);
 
       const targetDatetime = this.subtractTimezoneOffset(
-        lastProcessedDatetime.subtract(processDataMaxWeeks, 'weeks').startOf('day').toISOString(),
+        lastProcessedDatetime.subtract(processDataMaxDays, 'days').startOf('day').toISOString(),
         timezoneSettings
       );
 
