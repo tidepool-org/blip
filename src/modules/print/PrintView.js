@@ -191,8 +191,8 @@ class PrintView {
         ? _.get(this, `layoutColumns.columns.${this.layoutColumns.activeIndex}.x`)
         : this.chartArea.leftEdge;
 
-    this.doc.x = xPos;
-    this.doc.y = this.chartArea.topEdge;
+    this.doc.x = this.table.pos.x = xPos;
+    this.doc.y = this.table.pos.y = this.chartArea.topEdge;
 
     this.table.pdf.lineWidth(this.tableSettings.borderWidth);
   }
@@ -560,21 +560,9 @@ class PrintView {
       }));
     }
 
-    table.onPageAdd((tb, row, ev) => {
-      const currentPageIndex = this.initialTotalPages + this.currentPageIndex;
+    table.onPageAdd(this.onPageAdd.bind(this));
 
-      if (currentPageIndex + 1 === this.totalPages) {
-        tb.pdf.addPage();
-      } else {
-        this.currentPageIndex++;
-        tb.pdf.switchToPage(this.initialTotalPages + this.currentPageIndex);
-        this.setNewPageTablePosition();
-      }
-      // cancel event so the automatic page add is not triggered
-      ev.cancel = true; // eslint-disable-line no-param-reassign
-    });
-
-    table.onPageAdded(tb => tb.addHeader());
+    table.onPageAdded(this.onPageAdded.bind(this));
 
     table.onCellBackgroundAdd(this.onCellBackgroundAdd.bind(this));
 
@@ -594,6 +582,25 @@ class PrintView {
       .setColumnsDefaults(opts.columnDefaults)
       .addColumns(columns)
       .addBody(rows);
+  }
+
+  onPageAdd(tb, row, ev) {
+    const currentPageIndex = this.initialTotalPages + this.currentPageIndex;
+
+    if (currentPageIndex + 1 === this.totalPages) {
+      tb.pdf.addPage();
+    } else {
+      this.currentPageIndex++;
+      tb.pdf.switchToPage(this.initialTotalPages + this.currentPageIndex);
+      this.setNewPageTablePosition();
+    }
+
+    // cancel event so the automatic page add is not triggered
+    ev.cancel = true; // eslint-disable-line no-param-reassign
+  }
+
+  onPageAdded(tb) {
+    tb.addHeader();
   }
 
   onBodyAdded(tb) {
