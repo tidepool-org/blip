@@ -16,7 +16,6 @@
  */
 
 import React from 'react';
-import _ from 'lodash';
 
 import { storiesOf } from '@kadira/storybook';
 import { WithNotes } from '@kadira/storybook-addon-notes';
