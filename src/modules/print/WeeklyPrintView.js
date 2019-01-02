@@ -64,7 +64,7 @@ class WeeklyPrintView extends PrintView {
       cache: false,
       border: index === 0 || opts.border === false ? '' : 'TBLR',
       header: text,
-      headerBorder: index === 0 ? '' : 'BL',
+      headerBorder: index === 0 || opts.headerBorder === false ? '' : 'BL',
       headerFill: index === 0 || opts.headerFill === false ? false : {
         color: this.colors.smbgHeader,
         opacity: 1,
@@ -113,7 +113,7 @@ class WeeklyPrintView extends PrintView {
 
   render() {
     this.renderBGChart();
-    this.renderSummaryChart();
+    this.renderSummaryTable();
   }
 
   renderBGChart() {
@@ -176,7 +176,7 @@ class WeeklyPrintView extends PrintView {
     });
   }
 
-  renderSummaryChart() {
+  renderSummaryTable() {
     this.resetText();
 
     const allSMBG = _.reduce(
@@ -192,13 +192,13 @@ class WeeklyPrintView extends PrintView {
       ? formatBgValue(avgSMBG, this.bgPrefs)
       : '--';
 
-    this.summaryChart = {};
+    this.summaryTable = {};
 
     this.doc.x = this.leftEdge + this.bgChart.columnWidth;
 
-    this.summaryChart.columnWidth = (this.chartArea.width - this.bgChart.columnWidth) / 4;
+    this.summaryTable.columnWidth = (this.chartArea.width - this.bgChart.columnWidth) / 4;
 
-    this.summaryChart.columns = [
+    this.summaryTable.columns = [
       {
         id: 'totalDays',
         header: t('Days In Report'),
@@ -217,7 +217,7 @@ class WeeklyPrintView extends PrintView {
       },
     ];
 
-    this.summaryChart.rows = [
+    this.summaryTable.rows = [
       {
         totalDays: this.numDays,
         totalReadings: allSMBG.length.toString(),
@@ -226,7 +226,7 @@ class WeeklyPrintView extends PrintView {
       },
     ];
 
-    this.renderTable(this.summaryChart.columns, this.summaryChart.rows, {
+    this.renderTable(this.summaryTable.columns, this.summaryTable.rows, {
       bottomMargin: 20,
       columnDefaults: {
         align: 'center',
@@ -235,7 +235,7 @@ class WeeklyPrintView extends PrintView {
           color: this.colors.smbgHeader,
           opacity: 1,
         },
-        width: this.summaryChart.columnWidth,
+        width: this.summaryTable.columnWidth,
       },
     });
   }
