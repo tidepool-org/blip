@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@0.11.10":
-  version "0.11.10"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.11.10.tgz#14ad9aee62ba43b757fca64fbac0aa08a992702c"
+"@tidepool/viz@0.11.11-weekly-print-view.1":
+  version "0.11.11-weekly-print-view.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.11.11-weekly-print-view.1.tgz#87cc8f8f4619edda7f67550a21181dcb37784e9e"
   dependencies:
     bluebird "3.5.0"
     crossfilter "1.3.12"
