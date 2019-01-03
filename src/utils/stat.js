@@ -96,11 +96,11 @@ export const getStatAnnotations = (data, type, opts = {}) => {
       break;
 
     case commonStats.coefficientOfVariation:
-      annotations.push(t('**CV (Coefficient of Variation):** How far apart (wide) glucose values are; ideally a low number.'));
+      annotations.push(t('**CV (Coefficient of Variation):** How far apart (wide) glucose values are; research suggests a target of 36% or lower.'));
       break;
 
     case commonStats.glucoseManagementIndicator:
-      annotations.push(t('**GMI (Glucose Management Indicator):** Calculated from average glucose; estimates your future lab A1c.'));
+      annotations.push(t('**GMI (Glucose Management Indicator):** Tells you what your approximate A1C level is likely to be, based on the average glucose level from your CGM readings.'));
       break;
 
     case commonStats.readingsInRange:
@@ -112,7 +112,7 @@ export const getStatAnnotations = (data, type, opts = {}) => {
       break;
 
     case commonStats.standardDev:
-      annotations.push(t('**SD (Standard Deviation):** How far values are from the average; ideally a low number.'));
+      annotations.push(t('**SD (Standard Deviation):** How far values are from the average.'));
       break;
 
     case commonStats.timeInAuto:

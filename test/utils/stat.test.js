@@ -161,14 +161,14 @@ describe('stat', () => {
     describe('coefficientOfVariation', () => {
       it('should return annotations for `coefficientOfVariation` stat when bgSource is `smgb`', () => {
         expect(stat.getStatAnnotations(data, commonStats.coefficientOfVariation, smbgOpts)).to.have.ordered.members([
-          '**CV (Coefficient of Variation):** How far apart (wide) glucose values are; ideally a low number.',
+          '**CV (Coefficient of Variation):** How far apart (wide) glucose values are; research suggests a target of 36% or lower.',
           'Derived from _**10**_ BGM readings.',
         ]);
       });
 
       it('should return annotations for `coefficientOfVariation` stat when bgSource is `cbg`', () => {
         expect(stat.getStatAnnotations(data, commonStats.coefficientOfVariation, cbgOpts)).to.have.ordered.members([
-          '**CV (Coefficient of Variation):** How far apart (wide) glucose values are; ideally a low number.',
+          '**CV (Coefficient of Variation):** How far apart (wide) glucose values are; research suggests a target of 36% or lower.',
         ]);
       });
 
@@ -185,16 +185,9 @@ describe('stat', () => {
     });
 
     describe('glucoseManagementIndicator', () => {
-      it('should return annotations for `glucoseManagementIndicator` stat when bgSource is `smgb`', () => {
-        expect(stat.getStatAnnotations(data, commonStats.glucoseManagementIndicator, smbgOpts)).to.have.ordered.members([
-          '**GMI (Glucose Management Indicator):** Calculated from average glucose; estimates your future lab A1c.',
-          'Derived from _**10**_ BGM readings.',
-        ]);
-      });
-
       it('should return annotations for `glucoseManagementIndicator` stat when bgSource is `cbg`', () => {
         expect(stat.getStatAnnotations(data, commonStats.glucoseManagementIndicator, cbgOpts)).to.have.ordered.members([
-          '**GMI (Glucose Management Indicator):** Calculated from average glucose; estimates your future lab A1c.',
+          '**GMI (Glucose Management Indicator):** Tells you what your approximate A1C level is likely to be, based on the average glucose level from your CGM readings.',
         ]);
       });
 
@@ -230,14 +223,14 @@ describe('stat', () => {
     describe('standardDev', () => {
       it('should return annotations for `standardDev` stat when bgSource is `smgb`', () => {
         expect(stat.getStatAnnotations(data, commonStats.standardDev, smbgOpts)).to.have.ordered.members([
-          '**SD (Standard Deviation):** How far values are from the average; ideally a low number.',
+          '**SD (Standard Deviation):** How far values are from the average.',
           'Derived from _**10**_ BGM readings.',
         ]);
       });
 
       it('should return annotations for `standardDev` stat when bgSource is `cbg`', () => {
         expect(stat.getStatAnnotations(data, commonStats.standardDev, cbgOpts)).to.have.ordered.members([
-          '**SD (Standard Deviation):** How far values are from the average; ideally a low number.',
+          '**SD (Standard Deviation):** How far values are from the average.',
         ]);
       });
 
