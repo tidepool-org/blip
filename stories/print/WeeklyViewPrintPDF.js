@@ -16,7 +16,6 @@
  */
 
 import React from 'react';
-import _ from 'lodash';
 
 import { storiesOf } from '@kadira/storybook';
 import { WithNotes } from '@kadira/storybook-addon-notes';
@@ -26,7 +25,6 @@ import { MARGIN } from '../../src/modules/print/utils/constants';
 import PrintView from '../../src/modules/print/PrintView';
 
 import * as profiles from '../../data/patient/profiles';
-import * as settings from '../../data/patient/settings';
 import { data as dataStub } from '../../data/patient/data';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
@@ -69,17 +67,12 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
       timezoneName: 'US/Eastern',
     },
     numDays: {
-      daily: 6,
       weekly: 30,
     },
     patient,
   };
 
-  createPrintView('basics', data[bgUnits].basics, opts, doc).render();
-  createPrintView('daily', data[bgUnits].daily, opts, doc).render();
   createPrintView('weekly', data[bgUnits].weekly, opts, doc).render();
-  createPrintView('settings', data[bgUnits].settings, opts, doc).render();
-
   PrintView.renderPageNumbers(doc);
 
   doc.end();
@@ -91,20 +84,12 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
 
 const notes = `Run \`window.downloadPrintViewData()\` from the console on a Tidepool Web data view.
 Save the resulting file to the \`local/\` directory of viz as \`print-view.json\`,
-and then use this story to iterate on the Combined Print PDF outside of Tidepool Web!`;
+and then use this story to iterate on the Weekly Print PDF outside of Tidepool Web!`;
 
-profiles.longName = _.cloneDeep(profiles.standard);
-profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
-
-storiesOf('Combined Views PDF', module)
+storiesOf('Weekly View PDF', module)
   .add(`standard account (${MGDL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button
-        onClick={() => openPDF({ patient: {
-          ...profiles.standard,
-          ...settings.cannulaPrimeSelected,
-        } })}
-      >
+      <button onClick={() => openPDF({ patient: profiles.standard })}>
         Open PDF in new tab
       </button>
     </WithNotes>
@@ -112,41 +97,7 @@ storiesOf('Combined Views PDF', module)
 
   .add(`standard account (${MMOLL_UNITS})`, () => (
     <WithNotes notes={notes}>
-      <button
-        onClick={() => openPDF({
-          patient: {
-            ...profiles.standard,
-            ...settings.cannulaPrimeSelected,
-          },
-          bgUnits: MMOLL_UNITS,
-        })}
-      >
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
-
-  .add('fake child account', () => (
-    <WithNotes notes={notes}>
-      <button
-        onClick={() => openPDF({ patient: {
-          ...profiles.fakeChildAcct,
-          ...settings.tubingPrimeSelected,
-        } })}
-      >
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
-
-  .add('long patient name', () => (
-    <WithNotes notes={notes}>
-      <button
-        onClick={() => openPDF({ patient: {
-          ...profiles.longName,
-          ...settings.tubingPrimeSelected,
-        } })}
-      >
+      <button onClick={() => openPDF({ patient: profiles.standard, bgUnits: MMOLL_UNITS })}>
         Open PDF in new tab
       </button>
     </WithNotes>

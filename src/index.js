@@ -34,7 +34,7 @@ import reducers from './redux/reducers/';
 
 import { formatBgValue } from './utils/format';
 import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
-import { selectDailyViewData } from './utils/print/data';
+import { selectDailyViewData, selectWeeklyViewData } from './utils/print/data';
 
 const i18next = require('i18next');
 
@@ -65,6 +65,7 @@ const utils = {
   formatBgValue,
   reshapeBgClassesToBgBounds,
   selectDailyViewData,
+  selectWeeklyViewData,
 };
 
 export {
