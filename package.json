@@ -20,7 +20,7 @@
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o ."
   },
   "dependencies": {
-    "@tidepool/viz": "0.12.1-weekly-print-view.1",
+    "@tidepool/viz": "0.12.1-weekly-print-view.2",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
