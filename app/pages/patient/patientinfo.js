@@ -58,7 +58,7 @@ var PatientInfo = translate()(React.createClass({
     connectDataSource: React.PropTypes.func,
     disconnectDataSource: React.PropTypes.func,
     authorizedDataSource: React.PropTypes.object,
-    api: React.PropTypes.object,
+    api: React.PropTypes.object.isRequired,
   },
 
   getInitialState: function() {
