@@ -3,7 +3,7 @@ sudo: false
 language: node_js
 
 node_js:
-  - "10.9.0"
+  - "10.14.2"
   - node
 
 cache: yarn
