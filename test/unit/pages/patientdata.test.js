@@ -2114,6 +2114,7 @@ describe('PatientData', function () {
           endDate: expectedEnd,
           carelink: undefined,
           dexcom: undefined,
+          medtronic: undefined,
           initial: false,
           useCache: false,
         }, 40);
@@ -2145,7 +2146,7 @@ describe('PatientData', function () {
         }, 40);
       });
 
-      it('should by default persist the `dexcom` and `carelink` data fetch api options from props', () => {
+      it('should by default persist the `carelink`, `dexcom`, and `medtronic` data fetch api options from props', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
         wrapper.setProps({
@@ -2155,10 +2156,12 @@ describe('PatientData', function () {
           },
           carelink: true,
           dexcom: true,
+          medtronic: true,
         });
 
-        assert.isTrue(instance.props.dexcom);
         assert.isTrue(instance.props.carelink);
+        assert.isTrue(instance.props.dexcom);
+        assert.isTrue(instance.props.medtronic);
 
         instance.fetchEarlierData();
 
@@ -2166,6 +2169,7 @@ describe('PatientData', function () {
         sinon.assert.calledWithMatch(props.onFetchEarlierData, {
           carelink: true,
           dexcom: true,
+          medtronic: true,
         }, 40);
 
         wrapper.setProps({
@@ -2175,16 +2179,19 @@ describe('PatientData', function () {
           },
           carelink: false,
           dexcom: false,
+          medtronic: false,
         });
 
-        assert.isFalse(instance.props.dexcom);
         assert.isFalse(instance.props.carelink);
+        assert.isFalse(instance.props.dexcom);
+        assert.isFalse(instance.props.medtronic);
 
         instance.fetchEarlierData();
 
         sinon.assert.calledWithMatch(props.onFetchEarlierData, {
           carelink: false,
           dexcom: false,
+          medtronic: false,
         }, 40);
       });
 

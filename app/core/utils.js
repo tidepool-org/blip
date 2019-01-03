@@ -250,6 +250,17 @@ utils.getDexcom = function(location) {
   return null;
 }
 
+utils.getMedtronic = function(location) {
+  if (location && location.query) {
+    let { medtronic } = location.query;
+
+    if (!_.isUndefined(medtronic)) {
+      return medtronic;
+    }
+  }
+  return null;
+}
+
 /**
  * Translate a BG value to the desired target unit
  *

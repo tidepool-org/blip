@@ -928,6 +928,7 @@ export let PatientData = translate()(React.createClass({
       endDate: requestedPatientDataRange.end,
       carelink: this.props.carelink,
       dexcom: this.props.dexcom,
+      medtronic: this.props.medtronic,
       useCache: false,
       initial: false,
     });
@@ -1187,6 +1188,11 @@ export let PatientData = translate()(React.createClass({
         this.props.trackMetric('Web - Dexcom Import URL Param', { dexcom });
       }
 
+      const medtronic = nextProps.medtronic;
+      if (!_.isEmpty(medtronic)) {
+        this.props.trackMetric('Web - Medtronic Import URL Param', { medtronic });
+      }
+
       const patientID = nextProps.currentPatientInViewId;
       this.props.trackMetric('Fetched initial patient data', { patientID });
       this.props.trackMetric('Viewed Data');
@@ -1286,6 +1292,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const carelink = utils.getCarelink(ownProps.location);
   const dexcom = utils.getDexcom(ownProps.location);
+  const medtronic = utils.getMedtronic(ownProps.location);
   const api = ownProps.routes[0].api;
   const assignedDispatchProps = [
     'addPatientNote',
@@ -1297,9 +1304,9 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, api, { carelink, dexcom }),
+    fetchers: getFetchers(dispatchProps, ownProps, api, { carelink, dexcom, medtronic }),
     uploadUrl: api.getUploadUrl(),
-    onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom }),
+    onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom, medtronic }),
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
     onCloseMessageThread: dispatchProps.closeMessageThread,
     onSaveComment: api.team.replyToMessageThread.bind(api),
@@ -1312,6 +1319,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onFetchEarlierData: dispatchProps.fetchPatientData.bind(null, api),
     carelink: carelink,
     dexcom: dexcom,
+    medtronic: medtronic,
   });
 };
 

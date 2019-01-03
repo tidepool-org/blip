@@ -80,7 +80,7 @@
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
     "tideline": "1.9.0",
-    "tidepool-platform-client": "0.37.0",
+    "tidepool-platform-client": "0.39.0-medtronic-query.1",
     "uglify-es": "3.0.13",
     "url-loader": "0.5.7",
     "webpack": "1.13.2",
