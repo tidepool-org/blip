@@ -636,7 +636,7 @@ class Stat extends PureComponent {
     const { title = this.props.title } = datum;
     const tooltipTitleFormat = _.get(this.props, 'dataFormat.tooltipTitle');
 
-    if (tooltipTitleFormat && datum.index) {
+    if (tooltipTitleFormat && datum.index >= 0) {
       tooltipTitleData = this.getFormattedDataByDataPath(['data', datum.index], tooltipTitleFormat);
     }
 
