@@ -717,20 +717,32 @@ const dailyDoseUnitOptions = [
   },
 ];
 
+const input = {
+  id: 'weight',
+  label: 'Weight',
+  step: 1,
+  type: 'number',
+};
+
+const staticSuffix = 'kg';
+
+const dynamicSuffix = {
+  id: 'units',
+  options: dailyDoseUnitOptions,
+  value: dailyDoseUnitOptions[0],
+};
+
 let dailyDoseData = {
   data: [
     {
       id: 'insulin',
-      input: {
-        id: 'weight',
-        label: 'Weight',
-        step: 1,
-        suffix: {
-          id: 'units',
-          options: dailyDoseUnitOptions,
-          value: dailyDoseUnitOptions[0],
-        },
-        type: 'number',
+      staticInput: {
+        ...input,
+        suffix: staticSuffix,
+      },
+      dynamicInput: {
+        ...input,
+        suffix: dynamicSuffix,
       },
       output: {
         label: 'Daily Dose ÷ Weight',
@@ -744,7 +756,8 @@ let dailyDoseData = {
   ],
 };
 dailyDoseData.dataPaths = {
-  input: 'data.0.input',
+  input: 'data.0.staticInput',
+  // input: 'data.0.dynamicInput',
   output: 'data.0.output',
   summary: 'data.0',
 };

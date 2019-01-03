@@ -279,7 +279,7 @@ class Stat extends PureComponent {
 
     const datum = {
       value: this.state.inputValue,
-      suffix: _.get(this.state, 'inputSuffix.value.label'),
+      suffix: _.get(this.state, 'inputSuffix.value.label', this.state.inputSuffix),
     };
 
     if (outputPath && output) {
@@ -366,7 +366,7 @@ class Stat extends PureComponent {
 
     switch (props.type) {
       case 'input':
-        input = _.get(this.props.data, this.props.data.dataPaths.input, {});
+        input = _.get(props.data, props.data.dataPaths.input, {});
         isOpened = _.get(this.state, 'isOpened', props.isOpened);
         state.inputSuffix = _.get(this.state, 'inputSuffix', input.suffix);
         state.inputValue = _.get(this.state, 'inputValue', input.value);

@@ -12,17 +12,6 @@ if (_.get(i18next, 'options.returnEmptyString') === undefined) {
   i18next.init({ returnEmptyString: false, nsSeparator: '|' });
 }
 
-export const dailyDoseUnitOptions = [
-  {
-    label: 'kg',
-    value: 'kg',
-  },
-  {
-    label: 'lb',
-    value: 'lb',
-  },
-];
-
 export const statTypes = {
   barHorizontal: 'barHorizontal',
   barBg: 'barBg',
@@ -197,11 +186,7 @@ export const getStatData = (data, type, opts = {}) => {
             id: 'weight',
             label: 'Weight',
             step: 1,
-            suffix: {
-              id: 'units',
-              options: dailyDoseUnitOptions,
-              value: dailyDoseUnitOptions[0],
-            },
+            suffix: 'kg',
             type: 'number',
           },
           output: {

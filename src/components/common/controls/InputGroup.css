@@ -80,4 +80,5 @@
   align-items: center;
   padding-left: 5px;
   min-width: 40px;
+  color: var(--input--disabled);
 }
