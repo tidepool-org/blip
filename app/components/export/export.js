@@ -18,10 +18,16 @@ import _ from 'lodash';
 import cx from 'classnames';
 import sundial from 'sundial';
 import moment from 'moment-timezone';
+import { translate, Trans } from 'react-i18next';
 
 const JS_DATE_FORMAT = 'YYYY-MM-DD';
 
-class Export extends Component {
+export default translate()(class Export extends Component {
+  static propTypes = {
+    api: React.PropTypes.object.isRequired,
+    patient: React.PropTypes.object.isRequired,
+  };
+
   constructor(props) {
     super(props);
 
@@ -82,21 +88,20 @@ class Export extends Component {
     let value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
 
-    if (name === 'endDate' || name === 'startDate') {
-      if (name === 'startDate') {
-        if (moment(value).isAfter(this.state.endDate)) {
-          value = this.state.endDate;
-        }
-      }
-      if (name === 'endDate') {
-        if (moment(value).isBefore(this.state.startDate)) {
-          value = this.state.startDate;
-        }
-        if (moment(value).isAfter(moment())) {
-          value = moment().format(JS_DATE_FORMAT);
-        }
+    if (name === 'startDate') {
+      if (moment(value).isAfter(this.state.endDate)) {
+        value = this.state.endDate;
       }
     }
+    if (name === 'endDate') {
+      if (moment(value).isBefore(this.state.startDate)) {
+        value = this.state.startDate;
+      }
+      if (moment(value).isAfter(moment())) {
+        value = moment().format(JS_DATE_FORMAT);
+      }
+    }
+    
 
     this.setState({
       [name]: value
@@ -225,6 +230,4 @@ class Export extends Component {
       </div>
     );
   }
-}
-
-export default Export;
+});
