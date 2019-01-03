@@ -37,7 +37,7 @@
   --bkgrnd: #F8F8F8;
   --bkgrnd-lines: #E7E7E7;
 
-  --bkgrnd-white: #ffffff;
+  --bkgrnd-white: #FFFFFF;
 
   --tooltip-title-bg: #EAEAEE;
 
@@ -45,7 +45,7 @@
 
   --text-medium-contrast: #727375;
   --text-high-contrast: #281946;
-  --text-black: #000;
+  --text-black: #000000;
 
   --bg-low: #FF8B7C;
   --bg-target: #76D3A6;
@@ -53,12 +53,12 @@
 
   --text-hover: #00D3D9;
 
-  --blue-green-light: #12d3d8;
+  --blue-green-light: #12D3D8;
   --gray-medium: #989897;
-  --gray-dark: #4e4e4f;
-  --white: #ffffff;
+  --gray-dark: #4E4E4F;
+  --white: #FFFFFF;
 
-  --brand-purple: #627cff;
+  --brand-purple: #627CFF;
   --brand-purple-dark: #281946;
 }
 

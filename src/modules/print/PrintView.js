@@ -87,21 +87,21 @@ class PrintView {
 
     this.colors = {
       basal: '#19A0D7',
-      basalHeader: '#dcf1f9',
+      basalHeader: '#DCF1F9',
       basalAutomated: '#00D3E6',
       bolus: '#7CD0F0',
-      bolusHeader: '#ebf7fc',
+      bolusHeader: '#EBF7FC',
       smbg: '#6480FB',
-      smbgHeader: '#e8ecfe',
-      siteChange: '#fcd144',
-      veryLow: '#fb5951',
+      smbgHeader: '#E8ECFE',
+      siteChange: '#FCD144',
+      veryLow: '#FB5951',
       low: '#FF8B7C',
       target: '#76D3A6',
       high: '#BB9AE7',
-      veryHigh: '#8c65d6',
+      veryHigh: '#8C65D6',
       grey: '#6D6D6D',
       lightGrey: '#979797',
-      darkGrey: '#4e4e4f',
+      darkGrey: '#4E4E4F',
     };
 
     this.tableSettings = {
