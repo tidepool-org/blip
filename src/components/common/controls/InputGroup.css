@@ -63,7 +63,14 @@
 }
 
 .input-number {
-  min-width: 45px;
+  min-width: 50px;
+  -moz-appearance: textfield;
+}
+
+.input-number::-webkit-outer-spin-button,
+.input-number::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .suffix {
