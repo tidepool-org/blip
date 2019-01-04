@@ -10,7 +10,7 @@ import { Collapse } from 'react-collapse';
 import { formatPercentage, formatDecimalNumber, formatBgValue } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
 import { generateBgRangeLabels, classifyBgValue, classifyCvValue } from '../../../utils/bloodglucose';
-import { MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
+import { LBS_PER_KG, MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
 import { statFormats, statTypes } from '../../../utils/stat';
 import styles from './Stat.css';
 import colors from '../../../styles/colors.css';
@@ -815,8 +815,11 @@ class Stat extends PureComponent {
         }
         break;
 
-      case statFormats.unitsPerWeight:
-        suffix = `U/${suffix}`;
+      case statFormats.unitsPerKg:
+        if (suffix === 'lb') {
+          value = value * LBS_PER_KG;
+        }
+        suffix = 'U/kg';
         if (value > 0 && _.isFinite(value)) {
           value = formatDecimalNumber(value, 2);
         } else {

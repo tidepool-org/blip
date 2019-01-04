@@ -756,8 +756,8 @@ let dailyDoseData = {
   ],
 };
 dailyDoseData.dataPaths = {
-  input: 'data.0.staticInput',
-  // input: 'data.0.dynamicInput',
+  // input: 'data.0.staticInput',
+  input: 'data.0.dynamicInput',
   output: 'data.0.output',
   summary: 'data.0',
 };
@@ -785,7 +785,7 @@ stories.add('Avg. Daily Insulin', () => {
         collapsible={collapsible}
         data={dailyDoseData}
         dataFormat={{
-          output: statFormats.unitsPerWeight,
+          output: statFormats.unitsPerKg,
           summary: statFormats.units,
         }}
         isOpened={isOpened}

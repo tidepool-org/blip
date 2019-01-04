@@ -40,6 +40,8 @@ export const MGDL_UNITS = t('mg/dL');
 export const MMOLL_UNITS = t('mmol/L');
 export const MGDL_PER_MMOLL = 18.01559;
 
+export const LBS_PER_KG = 2.2046226218;
+
 const ONE_WEEK = 7;
 const TWO_WEEKS = 14;
 const FOUR_WEEKS = 28;

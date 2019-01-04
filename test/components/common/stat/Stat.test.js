@@ -603,7 +603,7 @@ describe('Stat', () => {
           },
         }),
         dataFormat: {
-          output: statFormats.unitsPerWeight,
+          output: statFormats.unitsPerKg,
         },
         type: statTypes.input,
       }));
@@ -2403,29 +2403,39 @@ describe('Stat', () => {
       });
     });
 
-    context('unitsPerWeight format', () => {
+    context('unitsPerKg format', () => {
       it('should return correctly formatted data when `value >= 0`', () => {
         expect(instance.formatDatum({
           value: 10.678,
           suffix: 'kg',
-        }, statFormats.unitsPerWeight)).to.include({
+        }, statFormats.unitsPerKg)).to.include({
           value: '10.68',
           suffix: 'U/kg',
         });
 
         expect(instance.formatDatum({
           value: 11,
-          suffix: 'lb',
-        }, statFormats.unitsPerWeight)).to.include({
+          suffix: 'kg',
+        }, statFormats.unitsPerKg)).to.include({
           value: '11.00',
-          suffix: 'U/lb',
+          suffix: 'U/kg',
+        });
+      });
+
+      it('should convert `lb` values to `kg` by multiplying 2.2046226218, and format to 2 decimal places', () => {
+        expect(instance.formatDatum({
+          value: 1,
+          suffix: 'lb',
+        }, statFormats.unitsPerKg)).to.include({
+          value: '2.20',
+          suffix: 'U/kg',
         });
       });
 
       it('should return the empty placeholder text and id when `value < 0`', () => {
         expect(instance.formatDatum({
           value: -1,
-        }, statFormats.unitsPerWeight)).to.include({
+        }, statFormats.unitsPerKg)).to.include({
           id: 'statDisabled',
           value: '--',
         });

@@ -12,6 +12,17 @@ if (_.get(i18next, 'options.returnEmptyString') === undefined) {
   i18next.init({ returnEmptyString: false, nsSeparator: '|' });
 }
 
+export const dailyDoseUnitOptions = [
+  {
+    label: 'kg',
+    value: 'kg',
+  },
+  {
+    label: 'lb',
+    value: 'lb',
+  },
+];
+
 export const statTypes = {
   barHorizontal: 'barHorizontal',
   barBg: 'barBg',
@@ -36,7 +47,7 @@ export const statFormats = {
   standardDevRange: 'standardDevRange',
   standardDevValue: 'standardDevValue',
   units: 'units',
-  unitsPerWeight: 'unitsPerWeight',
+  unitsPerKg: 'unitsPerKg',
 };
 
 export const commonStats = {
@@ -186,7 +197,11 @@ export const getStatData = (data, type, opts = {}) => {
             id: 'weight',
             label: 'Weight',
             step: 1,
-            suffix: 'kg',
+            suffix: {
+              id: 'units',
+              options: dailyDoseUnitOptions,
+              value: dailyDoseUnitOptions[0],
+            },
             type: 'number',
           },
           output: {
@@ -499,7 +514,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
     case commonStats.averageDailyDose:
       stat.alwaysShowSummary = true;
       stat.dataFormat = {
-        output: statFormats.unitsPerWeight,
+        output: statFormats.unitsPerKg,
         summary: statFormats.units,
       };
       stat.type = statTypes.input;
