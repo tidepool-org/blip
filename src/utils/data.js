@@ -1,6 +1,8 @@
 import crossfilter from 'crossfilter'; // eslint-disable-line import/no-unresolved
 import moment from 'moment-timezone';
 import _ from 'lodash';
+import bows from 'bows';
+
 import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from './basal';
 import { getTotalBolus } from './bolus';
 import { cgmSampleFrequency, classifyBgValue, reshapeBgClassesToBgBounds } from './bloodglucose';
@@ -18,6 +20,8 @@ export class DataUtil {
    * @param {Array} endpoints Array ISO strings [start, end]
    */
   constructor(data, opts = {}) {
+    this.log = bows('DataUtil');
+
     this.data = crossfilter(data);
     this._endpoints = opts.endpoints || [];
     this._chartPrefs = opts.chartPrefs || {};
@@ -36,6 +40,10 @@ export class DataUtil {
     this.bgSources = this.getBgSources();
     this.defaultBgSource = this.getDefaultBgSource();
     this.latestPump = this.getLatestPump();
+
+    this.log('bgSource', this.bgSource);
+    this.log('timeZoneName', this.timeZoneName);
+    this.log('endpoints', this._endpoints);
   }
 
   get bgSource() {
@@ -49,6 +57,8 @@ export class DataUtil {
   set endpoints(endpoints = []) {
     this._endpoints = endpoints;
     this.days = this.getDayCountFromEndpoints();
+
+    this.log('endpoints', this._endpoints);
   }
 
   addData = data => {
