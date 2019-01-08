@@ -47,6 +47,10 @@ module.exports = function(pool, opts) {
         reason: { suspended: 'automatic' }
       });
 
+      filteredData = _.filter(filteredData, (data) => {
+        return !_.isUndefined(data.duration);
+      });
+
       var deviceEventGroup = selection
         .selectAll('.d3-deviceevent-group')
         .data(['d3-deviceevent-group']);
