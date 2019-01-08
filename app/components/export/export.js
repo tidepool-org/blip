@@ -115,13 +115,13 @@ export default translate()(class Export extends Component {
   }
 
   setDateRange(range) {
-    const toDate = moment(sundial.utcDateString()).format(JS_DATE_FORMAT);
-    const startDate = moment(toDate)
+    const endDate = moment(sundial.utcDateString()).format(JS_DATE_FORMAT);
+    const startDate = moment(endDate)
       .subtract(range, 'd')
       .format(JS_DATE_FORMAT);
     this.setState({
       allTime: false,
-      toDate,
+      endDate,
       startDate,
     });
   }
