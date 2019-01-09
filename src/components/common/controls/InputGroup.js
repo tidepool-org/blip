@@ -38,7 +38,7 @@ const InputGroup = (props) => {
           min={min}
           name={id}
           onChange={onChange}
-          step={step}
+          step={step || 'any'}
           type={type}
           value={value}
         />

@@ -365,7 +365,6 @@ describe('stat', () => {
           input: {
             id: 'weight',
             label: 'Weight',
-            step: 1,
             suffix: {
               id: 'units',
               options: dailyDoseUnitOptions,

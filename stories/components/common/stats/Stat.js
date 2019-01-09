@@ -720,7 +720,6 @@ const dailyDoseUnitOptions = [
 const input = {
   id: 'weight',
   label: 'Weight',
-  step: 1,
   type: 'number',
 };
 
