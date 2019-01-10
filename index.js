@@ -445,6 +445,7 @@ module.exports = function (config, deps) {
       var allowedParams = [
         'carelink',
         'dexcom',
+        'medtronic',
         'startDate',
         'endDate',
       ];
