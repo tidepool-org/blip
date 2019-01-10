@@ -16,7 +16,6 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
-import sundial from 'sundial';
 import moment from 'moment-timezone';
 import { translate, Trans } from 'react-i18next';
 
@@ -115,7 +114,7 @@ export default translate()(class Export extends Component {
   }
 
   setDateRange(range) {
-    const endDate = moment(sundial.utcDateString()).format(JS_DATE_FORMAT);
+    const endDate = moment().format(JS_DATE_FORMAT);
     const startDate = moment(endDate)
       .subtract(range, 'd')
       .format(JS_DATE_FORMAT);
