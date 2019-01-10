@@ -444,10 +444,13 @@ export class TrendsContainer extends PureComponent {
     if (touched) {
       return;
     }
-    const { currentCbgData } = this.state;
+    const { currentCbgData, currentSmbgData } = this.state;
     const { extentSize, showingCbg } = this.props;
     const minimumCbgs = (extentSize * CGM_READINGS_ONE_DAY) / 2;
-    if (showingCbg && weightedCGMCount(currentCbgData) < minimumCbgs) {
+
+    // If we're set to show CBG data, but have less than 50% coverage AND we have SMBG data,
+    // switch to SBMG view
+    if (showingCbg && weightedCGMCount(currentCbgData) < minimumCbgs && currentSmbgData.length) {
       this.props.onSwitchBgDataSource();
     }
     this.props.markTrendsViewed(currentPatientInViewId);

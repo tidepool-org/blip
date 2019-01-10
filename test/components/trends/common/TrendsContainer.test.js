@@ -195,22 +195,24 @@ describe('TrendsContainer', () => {
       }))
     );
 
-    function makeDataStubs(topStub) {
-      const byDate = {
+    const emptyStub = sinon.stub().returns([]);
+
+    function makeDataStubs(topStub, types = { cbg: true, smbg: true }) {
+      const byDate = stub => ({
         filter: () => {},
         filterAll: sinon.stub().returnsThis(),
-        top: (...args) => topStub(...args),
-      };
-      const byDayOfWeek = {
+        top: (...args) => stub(...args),
+      });
+      const byDayOfWeek = stub => ({
         filterAll: sinon.stub().returnsThis(),
         filterFunction: () => {},
-        top: (...args) => topStub(...args),
-      };
+        top: (...args) => stub(...args),
+      });
       return {
-        cbgByDate: _.assign({}, byDate),
-        cbgByDayOfWeek: _.assign({}, byDayOfWeek),
-        smbgByDate: _.assign({}, byDate),
-        smbgByDayOfWeek: _.assign({}, byDayOfWeek),
+        cbgByDate: _.assign({}, byDate(types.cbg ? topStub : emptyStub)),
+        cbgByDayOfWeek: _.assign({}, byDayOfWeek(types.cbg ? topStub : emptyStub)),
+        smbgByDate: _.assign({}, byDate(types.smbg ? topStub : emptyStub)),
+        smbgByDayOfWeek: _.assign({}, byDayOfWeek(types.smbg ? topStub : emptyStub)),
       };
     }
 
@@ -413,6 +415,18 @@ describe('TrendsContainer', () => {
             {..._.merge({}, props, { trendsState: { touched: true } })}
             {...mgdl}
             {...makeDataStubs(justOneDatum())}
+          />
+        );
+        expect(onSwitchBgDataSource.callCount).to.equal(0);
+      });
+
+      it('should not toggle BG data source even if not enough cbg data if there\'s no smbg data', () => {
+        expect(onSwitchBgDataSource.callCount).to.equal(0);
+        shallow(
+          <TrendsContainer
+            {...props}
+            {...mgdl}
+            {...makeDataStubs(justOneDatum(), { cbg: true, smbg: false })}
           />
         );
         expect(onSwitchBgDataSource.callCount).to.equal(0);
