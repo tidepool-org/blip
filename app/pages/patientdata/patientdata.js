@@ -112,6 +112,7 @@ export let PatientData = translate()(React.createClass({
       printOpts: {
         numDays: {
           daily: 6,
+          weekly: 30,
         },
       },
       createMessage: null,
@@ -385,6 +386,7 @@ export let PatientData = translate()(React.createClass({
             loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
+            onClickPrint={this.handleClickPrint}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
@@ -394,6 +396,7 @@ export let PatientData = translate()(React.createClass({
             trackMetric={this.props.trackMetric}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
+            pdf={this.props.pdf.combined || {}}
             ref="tideline"
             isClinicAccount={personUtils.isClinic(this.props.user)} />
           );
@@ -471,10 +474,21 @@ export let PatientData = translate()(React.createClass({
         state.timePrefs,
       );
 
+      const weeklyData = vizUtils.selectWeeklyViewData(
+        mostRecent,
+        _.pick(
+          data.grouped,
+          ['smbg']
+        ),
+        state.printOpts.numDays.weekly,
+        state.timePrefs,
+      );
+
       const pdfData = {
-        daily: dailyData,
         basics: data.basicsData,
+        daily: dailyData,
         settings: _.last(data.grouped.pumpSettings),
+        weekly: weeklyData,
       }
 
       props.generatePDFRequest(
@@ -906,7 +920,7 @@ export let PatientData = translate()(React.createClass({
     this.setState({
       loading: true,
       requestedPatientDataRange,
-      fetchEarlierDataCount: count
+      fetchEarlierDataCount: count,
     });
 
     const fetchOpts = _.defaults(options, {
@@ -914,6 +928,7 @@ export let PatientData = translate()(React.createClass({
       endDate: requestedPatientDataRange.end,
       carelink: this.props.carelink,
       dexcom: this.props.dexcom,
+      medtronic: this.props.medtronic,
       useCache: false,
       initial: false,
     });
@@ -947,7 +962,7 @@ export let PatientData = translate()(React.createClass({
 
       const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
       const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
-      const processDataMaxWeeks = isInitialProcessing ? 4 : 8;
+      const processDataMaxDays = isInitialProcessing ? 30 : 56;
 
       // Grab the first diabetes datum time on first process in case upload date is much later
       const firstDiabetesDatum = _.find(patientData, (d) => _.includes(DIABETES_DATA_TYPES, d.type));
@@ -963,7 +978,7 @@ export let PatientData = translate()(React.createClass({
         : utils.getTimezoneForDataProcessing(unprocessedPatientData, props.queryParams);
 
       const targetDatetime = this.subtractTimezoneOffset(
-        lastProcessedDatetime.subtract(processDataMaxWeeks, 'weeks').startOf('day').toISOString(),
+        lastProcessedDatetime.subtract(processDataMaxDays, 'days').startOf('day').toISOString(),
         timezoneSettings
       );
 
@@ -1131,6 +1146,7 @@ export let PatientData = translate()(React.createClass({
 
       const preparePrintData = (bgUnits) => {
         return {
+          basics: data[bgUnits].basicsData,
           daily: vizUtils.selectDailyViewData(
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
@@ -1140,8 +1156,16 @@ export let PatientData = translate()(React.createClass({
             this.state.printOpts.numDays.daily,
             this.state.timePrefs,
           ),
-          basics: data[bgUnits].basicsData,
           settings: _.last(data[bgUnits].grouped.pumpSettings),
+          weekly: vizUtils.selectWeeklyViewData(
+            dData[bgUnits][dData[bgUnits].length - 1].normalTime,
+            _.pick(
+              data[bgUnits].grouped,
+              ['smbg']
+            ),
+            this.state.printOpts.numDays.weekly,
+            this.state.timePrefs,
+          ),
         };
       };
 
@@ -1162,6 +1186,11 @@ export let PatientData = translate()(React.createClass({
       const dexcom = nextProps.dexcom;
       if (!_.isEmpty(dexcom)) {
         this.props.trackMetric('Web - Dexcom Import URL Param', { dexcom });
+      }
+
+      const medtronic = nextProps.medtronic;
+      if (!_.isEmpty(medtronic)) {
+        this.props.trackMetric('Web - Medtronic Import URL Param', { medtronic });
       }
 
       const patientID = nextProps.currentPatientInViewId;
@@ -1263,6 +1292,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const carelink = utils.getCarelink(ownProps.location);
   const dexcom = utils.getDexcom(ownProps.location);
+  const medtronic = utils.getMedtronic(ownProps.location);
   const api = ownProps.routes[0].api;
   const assignedDispatchProps = [
     'addPatientNote',
@@ -1274,9 +1304,9 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, api, { carelink, dexcom }),
+    fetchers: getFetchers(dispatchProps, ownProps, api, { carelink, dexcom, medtronic }),
     uploadUrl: api.getUploadUrl(),
-    onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom }),
+    onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom, medtronic }),
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
     onCloseMessageThread: dispatchProps.closeMessageThread,
     onSaveComment: api.team.replyToMessageThread.bind(api),
@@ -1289,6 +1319,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onFetchEarlierData: dispatchProps.fetchPatientData.bind(null, api),
     carelink: carelink,
     dexcom: dexcom,
+    medtronic: medtronic,
   });
 };
 

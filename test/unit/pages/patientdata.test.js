@@ -77,7 +77,8 @@ describe('PatientData', function () {
       }
     }));
     PD.__Rewire__('vizUtils', {
-      selectDailyViewData: sinon.stub().returns('stubbed filtered data'),
+      selectDailyViewData: sinon.stub().returns('stubbed filtered daily data'),
+      selectWeeklyViewData: sinon.stub().returns('stubbed filtered weekly data'),
     });
   });
 
@@ -1322,6 +1323,36 @@ describe('PatientData', function () {
       expect(elem.generatePDF.callCount).to.equal(1);
     });
 
+    it('should generate a pdf when view is weekly and patient data is processed', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        generatingPDF: false,
+      };
+
+      const processedPatientData = {
+        diabetesData: ['stub'],
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance().getWrappedInstance();
+      sinon.stub(elem, 'generatePDF');
+
+      wrapper.instance().getWrappedInstance().setState({ chartType: 'weekly', processingData: false, processedPatientData });
+
+      elem.generatePDF.reset()
+      expect(elem.generatePDF.callCount).to.equal(0);
+
+      wrapper.update();
+      expect(elem.generatePDF.callCount).to.equal(1);
+    });
+
     it('should generate a pdf when view is settings and patient data is processed', function () {
       var props = {
         currentPatientInViewId: 40,
@@ -1352,7 +1383,7 @@ describe('PatientData', function () {
       expect(elem.generatePDF.callCount).to.equal(1);
     });
 
-    it('should generate a pdf when view is weekly or trends and patient data is processed', function () {
+    it('should generate a pdf when view is trends and patient data is processed', function () {
       var props = {
         currentPatientInViewId: 40,
         isUserPatient: true,
@@ -1372,14 +1403,6 @@ describe('PatientData', function () {
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'weekly', processingData: false, processedPatientData });
-
-      elem.generatePDF.reset()
-      expect(elem.generatePDF.callCount).to.equal(0);
-
-      wrapper.update();
-      expect(elem.generatePDF.callCount).to.equal(1);
 
       wrapper.instance().getWrappedInstance().setState({ chartType: 'trends', processingData: false, processedPatientData });
 
@@ -1495,8 +1518,9 @@ describe('PatientData', function () {
   });
 
   describe('generatePDF', () => {
-    it('should filter the daily view data before dispatching the generate pdf action', () => {
-      const filterStub = PD.__get__('vizUtils').selectDailyViewData;
+    it('should filter the daily and weekly view data before dispatching the generate pdf action', () => {
+      const dailyFilterStub = PD.__get__('vizUtils').selectDailyViewData;
+      const weeklyFilterStub = PD.__get__('vizUtils').selectWeeklyViewData;
 
       const props = _.assign({}, defaultProps, {
         generatePDFRequest: sinon.stub(),
@@ -1520,19 +1544,22 @@ describe('PatientData', function () {
 
       const wrapper = shallow(<PatientData.WrappedComponent {...props} />);
 
-      sinon.assert.callCount(filterStub, 0);
+      sinon.assert.callCount(dailyFilterStub, 0);
+      sinon.assert.callCount(weeklyFilterStub, 0);
       sinon.assert.callCount(props.generatePDFRequest, 0);
 
       wrapper.instance().generatePDF(props, state);
 
-      sinon.assert.callCount(filterStub, 1);
+      sinon.assert.callCount(dailyFilterStub, 1);
+      sinon.assert.callCount(weeklyFilterStub, 1);
       sinon.assert.callCount(props.generatePDFRequest, 1);
 
-      assert(filterStub.calledBefore(props.generatePDFRequest));
+      assert(dailyFilterStub.calledBefore(props.generatePDFRequest));
       sinon.assert.calledWithMatch(props.generatePDFRequest,
         'combined',
         {
-          daily: 'stubbed filtered data',
+          daily: 'stubbed filtered daily data',
+          weekly: 'stubbed filtered weekly data',
         },
       );
     });
@@ -2087,6 +2114,7 @@ describe('PatientData', function () {
           endDate: expectedEnd,
           carelink: undefined,
           dexcom: undefined,
+          medtronic: undefined,
           initial: false,
           useCache: false,
         }, 40);
@@ -2118,7 +2146,7 @@ describe('PatientData', function () {
         }, 40);
       });
 
-      it('should by default persist the `dexcom` and `carelink` data fetch api options from props', () => {
+      it('should by default persist the `carelink`, `dexcom`, and `medtronic` data fetch api options from props', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
         wrapper.setProps({
@@ -2128,10 +2156,12 @@ describe('PatientData', function () {
           },
           carelink: true,
           dexcom: true,
+          medtronic: true,
         });
 
-        assert.isTrue(instance.props.dexcom);
         assert.isTrue(instance.props.carelink);
+        assert.isTrue(instance.props.dexcom);
+        assert.isTrue(instance.props.medtronic);
 
         instance.fetchEarlierData();
 
@@ -2139,6 +2169,7 @@ describe('PatientData', function () {
         sinon.assert.calledWithMatch(props.onFetchEarlierData, {
           carelink: true,
           dexcom: true,
+          medtronic: true,
         }, 40);
 
         wrapper.setProps({
@@ -2148,16 +2179,19 @@ describe('PatientData', function () {
           },
           carelink: false,
           dexcom: false,
+          medtronic: false,
         });
 
-        assert.isFalse(instance.props.dexcom);
         assert.isFalse(instance.props.carelink);
+        assert.isFalse(instance.props.dexcom);
+        assert.isFalse(instance.props.medtronic);
 
         instance.fetchEarlierData();
 
         sinon.assert.calledWithMatch(props.onFetchEarlierData, {
           carelink: false,
           dexcom: false,
+          medtronic: false,
         }, 40);
       });
 
@@ -2498,7 +2532,7 @@ describe('PatientData', function () {
             lastDatumProcessedIndex: -1, // no data has been processed
           });
 
-          const expectedTargetDateTime = moment(shouldProcessProps.patientDataMap[40][0].time).startOf('day').subtract(4, 'weeks').toISOString();
+          const expectedTargetDateTime = moment(shouldProcessProps.patientDataMap[40][0].time).startOf('day').subtract(30, 'days').toISOString();
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
@@ -2519,7 +2553,7 @@ describe('PatientData', function () {
             },
           });
 
-          const expectedTargetDateTime = moment(shouldProcessProps.patientDataMap[40][0].time).startOf('day').subtract(4, 'weeks').toISOString();
+          const expectedTargetDateTime = moment(shouldProcessProps.patientDataMap[40][0].time).startOf('day').subtract(30, 'days').toISOString();
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
