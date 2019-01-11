@@ -25,7 +25,7 @@ const { detailXScale, detailBasalScale } = detail;
 
 import Suspend from '../../../../src/components/common/data/Suspend';
 
-import { singleSuspend, multipleSuspends } from '../../../../data/deviceEvent/fixtures';
+import { singleSuspend, multipleSuspends, suspendsWithoutDuration } from '../../../../data/deviceEvent/fixtures';
 
 describe('Suspend', () => {
   it('should return `null` if input `suspends` prop is empty', () => {
@@ -50,5 +50,15 @@ describe('Suspend', () => {
     expect(multiWrapper.find('line').length).to.equal(multipleSuspends.length * 2);
     expect(multiWrapper.find('circle').length).to.equal(multipleSuspends.length * 2);
     expect(multiWrapper.find('text').length).to.equal(multipleSuspends.length * 2);
+  });
+
+  it('should not render suspend markers for suspends without durations', () => {
+    const wrapper = shallow(
+      <Suspend suspends={suspendsWithoutDuration} xScale={detailXScale} yScale={detailBasalScale} />
+    );
+    expect(wrapper.find(`#suspends-${suspendsWithoutDuration[0].id}-thru-${suspendsWithoutDuration[suspendsWithoutDuration.length - 1].id}`).length).to.equal(1);
+    expect(wrapper.find('line').length).to.equal(2);
+    expect(wrapper.find('circle').length).to.equal(2);
+    expect(wrapper.find('text').length).to.equal(2);
   });
 });

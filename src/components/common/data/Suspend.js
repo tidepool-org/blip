@@ -30,6 +30,7 @@ const Suspend = props => {
   const groupsToRender = [];
 
   _.each(suspends, suspend => {
+    if (_.isUndefined(suspend.duration)) return;
     const radius = 7;
     const xPos = xScale(suspend.utc);
     const yPos = radius + 2;
@@ -87,7 +88,7 @@ Suspend.propTypes = {
     PropTypes.shape({
       type: PropTypes.oneOf(['deviceEvent']).isRequired,
       subType: PropTypes.oneOf(['suspend']).isRequired,
-      duration: PropTypes.number.isRequired,
+      duration: PropTypes.number,
       utc: PropTypes.number.isRequired,
       id: PropTypes.string.isRequired,
     }).isRequired,
