@@ -20,7 +20,7 @@
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o ."
   },
   "dependencies": {
-    "@tidepool/viz": "0.13.0-suspend-duration.1",
+    "@tidepool/viz": "0.13.0-release.1",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
@@ -79,8 +79,8 @@
     "shelljs": "0.7.3",
     "style-loader": "0.13.1",
     "sundial": "1.5.1",
-    "tideline": "1.9.0",
-    "tidepool-platform-client": "0.39.0-export.2",
+    "tideline": "1.10.0-release.1",
+    "tidepool-platform-client": "0.40.0-release.1",
     "uglify-es": "3.0.13",
     "url-loader": "0.5.7",
     "webpack": "1.13.2",
