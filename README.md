@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/travis/com/tidepool-org/viz/master.svg)](https://travis-ci.com/tidepool-org/viz)
+[![Build Status](https://img.shields.io/travis/com/tidepool-org/viz.svg)](https://travis-ci.com/tidepool-org/viz)
 
 # @tidepool/viz
 
