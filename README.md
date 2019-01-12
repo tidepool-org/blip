@@ -1,6 +1,6 @@
 # tidepool-platform-client
 
-[![Build Status](https://travis-ci.org/tidepool-org/platform-client.png)](https://travis-ci.org/tidepool-org/platform-client)
+[![Build Status](https://travis-ci.com/tidepool-org/platform-client.png)](https://travis-ci.com/tidepool-org/platform-client)
 
 Client-side library to interact with the [Tidepool](http://tidepool.org/) platform.
 
