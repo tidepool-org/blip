@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/travis/tidepool-org/viz/master.svg)](https://travis-ci.org/tidepool-org/viz)
+[![Build Status](https://img.shields.io/com/travis/tidepool-org/viz/master.svg)](https://travis-ci.com/tidepool-org/viz)
 
 # @tidepool/viz
 
@@ -76,7 +76,7 @@ For more about the use of React Storybook in this repo, see [use of React Storyb
 
 ### Running the tests
 
-To run the unit tests in [PhantomJS](http://phantomjs.org/ 'PhantomJS') (as they run on [Travis CI](https://travis-ci.org/ 'Travis CI')):
+To run the unit tests in [PhantomJS](http://phantomjs.org/ 'PhantomJS') (as they run on [Travis CI](https://travis-ci.com/ 'Travis CI')):
 
 ```bash
 $ npm test
@@ -116,7 +116,7 @@ When a new feature(s) is/are complete (i.e., branch is synchronized with master,
 
 1. create a tag on the approved pull request using the `mversion` tool with the `-m` option to auto-commit the version bump and tag (e.g., `$ mversion patch -m` for a patch version bump)
 1. push the new commit and tag to the GitHub remote with `$ git push origin <branch-name>` and `$ git push origin --tags`
-1. check that the tag build has passed on [TravisCI](https://travis-ci.org/tidepool-org/viz)
+1. check that the tag build has passed on [TravisCI](https://travis-ci.com/tidepool-org/viz)
 1. `$ npm whoami` to check if you are logged in as yourself; if you are, skip to 7.
 1. if you are logged in as `tidepool-robot`, log out with `$ npm logout`
 1. then log in as yourself with `$ npm login`
