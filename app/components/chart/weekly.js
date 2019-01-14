@@ -381,7 +381,7 @@ class Weekly extends Component {
     return;
   };
 
-  handleDatetimeLocationChange = (datetimeLocationEndpoints) => {
+  handleDatetimeLocationChange = (datetimeLocationEndpoints, chart = this.refs.chart) => {
     const { timezoneAware, timezoneName } = this.props.timePrefs;
 
     const startMoment = moment
@@ -411,6 +411,8 @@ class Weekly extends Component {
       title: this.getTitle(datetimeLocationEndpoints),
       endpoints,
     });
+
+    this.props.updateDatetimeLocation(chart.getCurrentDay());
 
     // Update the chart date range in the patientData component.
     // We debounce this to avoid excessive updates while panning the view.

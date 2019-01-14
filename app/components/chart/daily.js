@@ -441,6 +441,8 @@ class Daily extends Component {
       endpoints,
     });
 
+    this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
+
     // Update the chart date range in the patientData component.
     // We debounce this to avoid excessive updates while panning the view.
     if (this.state.debouncedDateRangeUpdate) {
