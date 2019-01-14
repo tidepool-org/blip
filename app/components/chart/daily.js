@@ -200,6 +200,8 @@ class Daily extends Component {
     bgPrefs: React.PropTypes.object.isRequired,
     bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
+    dataUtil: React.PropTypes.object,
+    endpoints: React.PropTypes.arrayOf(React.PropTypes.string),
     timePrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
@@ -316,7 +318,7 @@ class Daily extends Component {
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
-                endpoints={this.state.endpoints}
+                endpoints={this.props.endpoints}
               />
             </div>
           </div>
@@ -437,9 +439,7 @@ class Daily extends Component {
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints[1]),
-      endpoints,
     });
-    this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
 
     // Update the chart date range in the patientData component.
     // We debounce this to avoid excessive updates while panning the view.

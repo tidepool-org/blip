@@ -24,6 +24,7 @@ class Basics extends Component {
     bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
     dataUtil: React.PropTypes.object,
+    endpoints: React.PropTypes.arrayOf(React.PropTypes.string),
     timePrefs: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
     patientData: React.PropTypes.object.isRequired,
@@ -54,15 +55,21 @@ class Basics extends Component {
     this.state = this.getInitialState();
   }
 
-  getInitialState = () => {
+  getInitialState = () => ({
+    atMostRecent: true,
+    inTransition: false,
+    title: this.getTitle(),
+  });
+
+  componentWillMount = () => {
     const { timezoneAware, timezoneName } = this.props.timePrefs;
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
-    let endpoints = [];
+    const basicsData = this.props.patientData.basicsData;
+    const dateRange = basicsData.dateRange;
 
     if (dateRange) {
+      let endpoints = [];
       const endMoment = moment
         .utc(dateRange[1])
-        .add(1, 'day')
         .startOf('day');
 
       let timezoneOffset = 0;
@@ -75,21 +82,8 @@ class Basics extends Component {
         this.props.patientData.basicsData.dateRange[0],
         endMoment.subtract(timezoneOffset, 'minutes').toISOString(),
       ];
-    }
 
-    return {
-      atMostRecent: true,
-      inTransition: false,
-      title: this.getTitle(),
-      endpoints,
-    };
-  };
-
-  componentWillMount = () => {
-    const basicsData = this.props.patientData.basicsData;
-
-    if (basicsData.dateRange) {
-      this.props.onUpdateChartDateRange(basicsData.dateRange);
+      this.props.onUpdateChartDateRange(endpoints);
     }
   };
 
@@ -120,7 +114,6 @@ class Basics extends Component {
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
-            {this.state.endpoints.length && (
               <div>
                 <BgSourceToggle
                   bgSource={this.props.dataUtil.bgSource}
@@ -135,10 +128,9 @@ class Basics extends Component {
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
                   dataUtil={this.props.dataUtil}
-                  endpoints={this.state.endpoints}
+                  endpoints={this.props.endpoints}
                 />
               </div>
-            )}
             </div>
           </div>
         </div>
@@ -250,14 +242,16 @@ class Basics extends Component {
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToTrends();
+    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
+    this.props.onSwitchToTrends(dateRange[1]);
   };
 
   handleClickOneDay = e => {
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToDaily();
+    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
+    this.props.onSwitchToDaily(dateRange[1]);
   };
 
   handleClickPrint = e => {
@@ -272,7 +266,8 @@ class Basics extends Component {
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToWeekly();
+    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
+    this.props.onSwitchToWeekly(dateRange[1]);
   };
 
   handleSelectDay = (date, title) => {

@@ -162,6 +162,8 @@ class Weekly extends Component {
     bgPrefs: React.PropTypes.object.isRequired,
     bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
+    dataUtil: React.PropTypes.object,
+    endpoints: React.PropTypes.arrayOf(React.PropTypes.string),
     initialDatetimeLocation: React.PropTypes.string,
     isClinicAccount: React.PropTypes.bool.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
@@ -190,7 +192,6 @@ class Weekly extends Component {
   getInitialState = () => {
     return {
       atMostRecent: false,
-      endpoints: [],
       inTransition: false,
       showingValues: this.props.isClinicAccount,
       title: ''
@@ -228,7 +229,7 @@ class Weekly extends Component {
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
-                endpoints={this.state.endpoints}
+                endpoints={this.props.endpoints}
               />
             </div>
           </div>
@@ -381,7 +382,7 @@ class Weekly extends Component {
     return;
   };
 
-  handleDatetimeLocationChange = (datetimeLocationEndpoints, chart = this.refs.chart) => {
+  handleDatetimeLocationChange = (datetimeLocationEndpoints) => {
     const { timezoneAware, timezoneName } = this.props.timePrefs;
 
     const startMoment = moment
@@ -409,9 +410,7 @@ class Weekly extends Component {
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints),
-      endpoints,
     });
-    this.props.updateDatetimeLocation(chart.getCurrentDay());
 
     // Update the chart date range in the patientData component.
     // We debounce this to avoid excessive updates while panning the view.
@@ -420,7 +419,7 @@ class Weekly extends Component {
     }
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate(datetimeLocationEndpoints, this.refs.chart);
+    debouncedDateRangeUpdate(endpoints, this.refs.chart);
 
     this.setState({ debouncedDateRangeUpdate });
   };

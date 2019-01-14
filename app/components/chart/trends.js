@@ -46,6 +46,8 @@ const Trends = translate()(class Trends extends PureComponent {
     bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: PropTypes.object.isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
+    dataUtil: PropTypes.object,
+    endpoints: PropTypes.arrayOf(PropTypes.string),
     timePrefs: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     patient: React.PropTypes.object,
@@ -74,7 +76,6 @@ const Trends = translate()(class Trends extends PureComponent {
 
     this.state = {
       atMostRecent: true,
-      endpoints: [],
       inTransition: false,
       title: '',
       visibleDays: 0,
@@ -263,9 +264,7 @@ const Trends = translate()(class Trends extends PureComponent {
     this.setState({
       atMostRecent: atMostRecent,
       title: this.getTitle(datetimeLocationEndpoints),
-      endpoints: datetimeLocationEndpoints,
     });
-    this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
 
     // Update the chart date range in the patientData component.
     // We debounce this to avoid excessive updates while panning the view.
@@ -389,7 +388,7 @@ const Trends = translate()(class Trends extends PureComponent {
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
-                endpoints={this.state.endpoints}
+                endpoints={this.props.endpoints}
               />
             </div>
           </div>
