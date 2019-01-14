@@ -19,6 +19,7 @@ const d3 = window.d3;
 
 import _ from 'lodash';
 import bows from 'bows';
+import moment from 'moment';
 import React, { PropTypes, PureComponent } from 'react';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
@@ -38,6 +39,8 @@ const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
 const TrendsContainer = viz.containers.TrendsContainer;
 const reshapeBgClassesToBgBounds = viz.utils.bg.reshapeBgClassesToBgBounds;
+const getTimezoneFromTimePrefs = viz.utils.datetime.getTimezoneFromTimePrefs;
+const getLocalizedCeiling = viz.utils.datetime.getLocalizedCeiling;
 const Loader = viz.components.Loader;
 
 const Trends = translate()(class Trends extends PureComponent {
@@ -113,28 +116,19 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   formatDate(datetime) {
-    const { timePrefs, t } = this.props;
-    let timezone;
-    if (!timePrefs.timezoneAware) {
-      timezone = 'UTC';
-    }
-    else {
-      timezone = timePrefs.timezoneName || 'UTC';
-    }
+    const { t } = this.props;
+    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
+
     return sundial.formatInTimezone(datetime, timezone, t('MMM D, YYYY'));
   }
 
   getNewDomain(current, extent) {
-    const { timePrefs } = this.props;
-    let timezone;
-    if (!timePrefs.timezoneAware) {
-      timezone = 'UTC';
-    }
-    else {
-      timezone = timePrefs.timezoneName || 'UTC';
-    }
-    current = sundial.ceil(current, 'day', timezone);
-    return [d3.time.day.utc.offset(current, -extent).toISOString(), current.toISOString()];
+    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
+    const end = getLocalizedCeiling(current.valueOf(), this.props.timePrefs);
+    const start = moment(end.toISOString()).tz(timezone).subtract(extent, 'days');
+    const dateDomain = [start.toISOString(), end.toISOString()];
+
+    return dateDomain;
   }
 
   getTitle(datetimeLocationEndpoints) {
