@@ -201,7 +201,6 @@ class Daily extends Component {
     bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
     dataUtil: React.PropTypes.object,
-    endpoints: React.PropTypes.arrayOf(React.PropTypes.string),
     timePrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
@@ -318,7 +317,7 @@ class Daily extends Component {
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
-                endpoints={this.props.endpoints}
+                endpoints={this.state.endpoints}
               />
             </div>
           </div>
@@ -439,6 +438,7 @@ class Daily extends Component {
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints[1]),
+      endpoints,
     });
 
     // Update the chart date range in the patientData component.

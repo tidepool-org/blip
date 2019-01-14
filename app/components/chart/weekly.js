@@ -163,7 +163,6 @@ class Weekly extends Component {
     bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
     dataUtil: React.PropTypes.object,
-    endpoints: React.PropTypes.arrayOf(React.PropTypes.string),
     initialDatetimeLocation: React.PropTypes.string,
     isClinicAccount: React.PropTypes.bool.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
@@ -229,7 +228,7 @@ class Weekly extends Component {
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
-                endpoints={this.props.endpoints}
+                endpoints={this.state.endpoints}
               />
             </div>
           </div>
@@ -410,6 +409,7 @@ class Weekly extends Component {
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints),
+      endpoints,
     });
 
     // Update the chart date range in the patientData component.
