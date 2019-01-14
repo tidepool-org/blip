@@ -329,10 +329,11 @@ export class TrendsContainer extends PureComponent {
 
     // find initial date domain (based on initialDatetimeLocation or current time)
     const { extentSize, initialDatetimeLocation, timePrefs } = props;
-    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    const mostRecent = datetime.getLocalizedCeiling(new Date().valueOf(), timezone);
-    const end = initialDatetimeLocation ?
-      datetime.getLocalizedCeiling(initialDatetimeLocation, timezone) : mostRecent;
+    const mostRecent = datetime.getLocalizedCeiling(new Date().valueOf(), timePrefs);
+    const end = initialDatetimeLocation
+      ? datetime.getLocalizedCeiling(initialDatetimeLocation, timePrefs)
+      : mostRecent;
+
     const start = utcDay.offset(end, -extentSize);
     const dateDomain = [start.toISOString(), end.toISOString()];
 
