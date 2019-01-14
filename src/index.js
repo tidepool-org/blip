@@ -38,6 +38,7 @@ import { formatBgValue } from './utils/format';
 import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
 import { getTotalBasalFromEndpoints, getGroupDurations } from './utils/basal';
 import { isAutomatedBasalDevice } from './utils/device';
+import { getLocalizedCeiling, getTimezoneFromTimePrefs } from './utils/datetime';
 import {
   commonStats,
   getStatAnnotations,
@@ -86,6 +87,10 @@ const utils = {
   data: {
     selectDailyViewData,
     DataUtil,
+  },
+  datetime: {
+    getLocalizedCeiling,
+    getTimezoneFromTimePrefs,
   },
   device: {
     isAutomatedBasalDevice,
