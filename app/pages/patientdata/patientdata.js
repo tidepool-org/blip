@@ -52,6 +52,7 @@ import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, BG_DATA_TYPES, DIABETES_DATA_T
 
 const { Loader } = vizComponents;
 const { DataUtil } = vizUtils.data;
+const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 
 export let PatientData = translate()(React.createClass({
   propTypes: {
@@ -121,6 +122,7 @@ export let PatientData = translate()(React.createClass({
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
+      endpoints: [],
       fetchEarlierDataCount: 0,
       lastDatumProcessedIndex: -1,
       lastDiabetesDatumProcessedIndex: -1,
@@ -308,6 +310,7 @@ export let PatientData = translate()(React.createClass({
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             dataUtil={this.dataUtil}
+            endpoints={this.state.endpoints}
             timePrefs={this.state.timePrefs}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
@@ -512,13 +515,13 @@ export let PatientData = translate()(React.createClass({
     return datetime;
   },
 
-  handleChartDateRangeUpdate: function(dateRange) {
-    this.updateChartDateRange(dateRange);
+  handleChartDateRangeUpdate: function(endpoints) {
+    this.updateChartEndpoints(endpoints);
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
       const patientID = this.props.currentPatientInViewId;
       const patientData = _.get(this.props, ['patientDataMap', patientID], []);
-      const dateRangeStart = moment.utc(dateRange[0]).startOf('day');
+      const dateRangeStart = moment.utc(endpoints[0]).startOf('day');
       const allDataFetched = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
 
       const lastProcessedDateTarget = this.state.lastProcessedDateTarget;
@@ -617,12 +620,19 @@ export let PatientData = translate()(React.createClass({
     });
 
     // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
-    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString());
+    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
+    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
+
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .tz(timezone)
+      .subtract(1, 'day')
+      .hours(12)
+      .toISOString();
 
     this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
     this.setState({
       chartType: 'daily',
-      datetimeLocation: datetime,
+      datetimeLocation,
     });
   },
 
@@ -631,12 +641,18 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).endOf('day').toISOString());
+    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
+    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
+    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
+
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .tz(timezone)
+      .toISOString();
 
     this.dataUtil.chartPrefs = this.state.chartPrefs['trends'];
     this.setState({
       chartType: 'trends',
-      datetimeLocation: datetime,
+      datetimeLocation,
     });
   },
 
@@ -645,12 +661,20 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString());
+    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
+    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
+    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
+
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .tz(timezone)
+      .subtract(1, 'day')
+      .hours(12)
+      .toISOString();
 
     this.dataUtil.chartPrefs = this.state.chartPrefs['weekly'];
     this.setState({
       chartType: 'weekly',
-      datetimeLocation: datetime,
+      datetimeLocation,
     });
   },
 
@@ -699,7 +723,7 @@ export let PatientData = translate()(React.createClass({
       this.props.removeGeneratedPDFS();
 
       this.setState({
-        chartDateRange: null,
+        endpoints: [],
         datetimeLocation: this.state.initialDatetimeLocation,
         fetchEarlierDataCount: 0,
         lastDatumProcessedIndex: -1,
@@ -750,9 +774,9 @@ export let PatientData = translate()(React.createClass({
     });
   },
 
-  updateChartDateRange: function(dateRange) {
+  updateChartEndpoints: function(endpoints) {
     this.setState({
-      chartDateRange: dateRange,
+      endpoints,
     });
   },
 
@@ -887,16 +911,23 @@ export let PatientData = translate()(React.createClass({
         this.deriveChartTypeFromLatestData(latestData, uploads)
       );
 
-      const datetimeByChart = chartType === 'daily'
-        ? this.subtractTimezoneOffset(moment.utc(latestData.time).hour(12).minute(0).second(0).toISOString())
-        : this.subtractTimezoneOffset(moment.utc(latestData.time).endOf('day').toISOString());
+      const latestDataDateCeiling = getLocalizedCeiling(latestData.time, this.state.timePrefs);
+      const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
-      const datetime = _.get(this.props, 'queryParams.datetime', datetimeByChart);
+      const datetimeLocation = _.get(this.props, 'queryParams.datetime', _.includes(['daily', 'weekly'], chartType)
+        ? moment.utc(latestDataDateCeiling.valueOf())
+          .tz(timezone)
+          .subtract(1, 'day')
+          .hours(12)
+          .toISOString()
+        : moment.utc(latestDataDateCeiling.valueOf())
+          .tz(timezone)
+          .toISOString());
 
       let state = {
         chartType,
-        datetimeLocation: datetime,
-        initialDatetimeLocation: datetime,
+        datetimeLocation,
+        initialDatetimeLocation: datetimeLocation,
       };
 
       this.dataUtil.chartPrefs = this.state.chartPrefs[chartType];
