@@ -132,8 +132,11 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   getTitle(datetimeLocationEndpoints) {
+    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
+
     // endpoint is exclusive, so need to subtract a day
-    const end = d3.time.day.utc.offset(new Date(datetimeLocationEndpoints[1]), -1);
+    const end = moment(datetimeLocationEndpoints[1]).tz(timezone).subtract(1, 'day');
+
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(end);
   }
 

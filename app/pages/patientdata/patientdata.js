@@ -759,12 +759,15 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  updateChartPrefs: function(newChartPrefs) {
-    var currentPrefs = _.clone(this.state.chartPrefs);
-    _.assign(currentPrefs, newChartPrefs);
-    this.dataUtil.chartPrefs = currentPrefs[this.state.chartType];
+  updateChartPrefs: function(updates) {
+    const newPrefs = {
+      ...this.state.chartPrefs,
+      ...updates,
+    };
+
+    this.dataUtil.chartPrefs = newPrefs[this.state.chartType];
     this.setState({
-      chartPrefs: currentPrefs,
+      chartPrefs: newPrefs,
     });
   },
 
@@ -1093,7 +1096,7 @@ export let PatientData = translate()(React.createClass({
           { bgPrefs, timePrefs }
         );
 
-        // Set default bgSOurce for basics based on whether there is any cbg data in the current view.
+        // Set default bgSource for basics based on whether there is any cbg data in the current view.
         const basicsChartPrefs = _.assign({}, this.state.chartPrefs.basics, {
           bgSource: _.get(processedData, 'basicsData.data.cbg.data.length') ? 'cbg' : 'smbg',
         });
