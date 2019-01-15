@@ -10,6 +10,7 @@ This README is focused on just the details of getting blip running locally. For 
 
 ### Table of contents
 
+- [Before you start](#beforeyoustart)
 - [Install](#install)
 - [Running locally](#running-locally)
    - ["Verifying" the e-mail of a new account locally](#getting-past-e-mail-verification-for-a-user-created-locally)
@@ -21,6 +22,10 @@ This README is focused on just the details of getting blip running locally. For 
 - [Build and deployment](#build-and-deployment)
 
 * * * * *
+
+## Before you start
+
+If this is the first time you're looking at Tidepool locally start with the [tidepool-org/development](https://github.com/tidepool-org/development) repository to setup before continuing here.
 
 ## Install
 
@@ -49,7 +54,13 @@ $ npm install
 
 ## Running locally
 
-If you're running the entire Tidepool platform locally as per [starting services](http://developer.tidepool.io/starting-up-services/ 'Tidepool developer portal: starting services'), you can start blip using your local platform with:
+If you're running the entire Tidepool platform locally with docker as per [tidepool-org/development](https://github.com/tidepool-org/development/#starting), you can start blip using your local platform with:
+
+```bash
+$ docker-compose up -d
+```
+
+If you're running the entire Tidepool platform locally without docker, you can start blip using your local platform with:
 
 ```bash
 $ source config/local.sh
