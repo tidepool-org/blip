@@ -1,6 +1,6 @@
 # Blip
 
-[![Build Status](https://img.shields.io/travis/tidepool-org/blip/master.svg)](https://travis-ci.org/tidepool-org/blip)
+[![Build Status](https://img.shields.io/travis/com/tidepool-org/blip.svg)](https://travis-ci.com/tidepool-org/blip)
 
 Blip is a web app for type 1 diabetes (T1D) built on top of the [Tidepool](http://tidepool.org/) platform. It allows patients and their "care team" (family, doctors) to visualize their diabetes device data (from insulin pumps, BGMs, and/or CGMs) and message each other.
 
