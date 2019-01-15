@@ -78,6 +78,7 @@ const Trends = translate()(class Trends extends PureComponent {
 
     this.state = {
       atMostRecent: true,
+      endpoints: [],
       inTransition: false,
       title: '',
       visibleDays: 0,

@@ -191,6 +191,7 @@ class Weekly extends Component {
   getInitialState = () => {
     return {
       atMostRecent: false,
+      endpoints: [],
       inTransition: false,
       showingValues: this.props.isClinicAccount,
       title: ''

@@ -882,7 +882,7 @@ describe('PatientData', function () {
       sinon.assert.callCount(setStateSpy, 0);
       instance.handleRefresh();
       sinon.assert.calledWithMatch(setStateSpy, {
-        chartDateRange: null,
+        endpoints: [],
         datetimeLocation: 'initialDate',
         fetchEarlierDataCount: 0,
         lastDatumProcessedIndex: -1,
@@ -1117,7 +1117,7 @@ describe('PatientData', function () {
     });
   });
 
-  describe('updateChartDateRange', () => {
+  describe('updateChartEndpoints', () => {
     it('should update the chartDateRange state', () => {
       const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
@@ -1126,10 +1126,10 @@ describe('PatientData', function () {
       setStateSpy.resetHistory();
       sinon.assert.callCount(setStateSpy, 0);
 
-      instance.updateChartDateRange('new date range');
+      instance.updateChartEndpoints('new date range');
 
       sinon.assert.calledWith(setStateSpy, {
-        chartDateRange: 'new date range',
+        endpoints: 'new date range',
       });
 
       PatientData.WrappedComponent.prototype.setState.restore();
@@ -1741,7 +1741,7 @@ describe('PatientData', function () {
 
       instance = wrapper.instance();
 
-      updateChartDateRangeSpy = sinon.spy(instance, 'updateChartDateRange');
+      updateChartDateRangeSpy = sinon.spy(instance, 'updateChartEndpoints');
       fetchEarlierDataSpy = sinon.stub(instance, 'fetchEarlierData');
       processDataSpy = sinon.stub(instance, 'processData');
     });
@@ -1759,12 +1759,12 @@ describe('PatientData', function () {
     });
 
     it('should update the chart date range state', () => {
-      sinon.assert.callCount(instance.updateChartDateRange, 0);
+      sinon.assert.callCount(instance.updateChartEndpoints, 0);
 
       instance.handleChartDateRangeUpdate(dateRange);
 
-      sinon.assert.callCount(instance.updateChartDateRange, 1);
-      sinon.assert.calledWith(instance.updateChartDateRange, dateRange);
+      sinon.assert.callCount(instance.updateChartEndpoints, 1);
+      sinon.assert.calledWith(instance.updateChartEndpoints, dateRange);
     });
 
     it('should not trigger data processing or fetching if data is currently fetching or processing (or both)', () => {
@@ -3178,7 +3178,7 @@ describe('PatientData', function () {
       expect(instance.dataUtil._chartPrefs).to.equal('daily prefs');
     });
 
-    it('should set the `datetimeLocation` state to noon for the provided datetime', () => {
+    it('should set the `datetimeLocation` state to noon for the previous day of the provided datetime', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       instance.dataUtil = new DataUtilStub();
@@ -3186,7 +3186,9 @@ describe('PatientData', function () {
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
       instance.handleSwitchToDaily('2018-03-03T00:00:00.000Z');
-      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T12:00:00.000Z');
+
+      // Should set to previous day because the provided datetime filter is exclusive
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
     });
   });
 
@@ -3240,7 +3242,18 @@ describe('PatientData', function () {
       expect(instance.dataUtil._chartPrefs).to.equal('trends prefs');
     });
 
-    it('should set the `datetimeLocation` state to the end of the day for the provided datetime', () => {
+    it('should set the `datetimeLocation` state to the start of the next day for the provided datetime if it\'s after the very start of the day', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+      instance.dataUtil = new DataUtilStub();
+
+      wrapper.setState({datetimeLocation: '2018-03-03T12:00:00.000Z'});
+
+      instance.handleSwitchToTrends('2018-03-03T12:00:00.000Z');
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-04T00:00:00.000Z');
+    });
+
+    it('should set the `datetimeLocation` state to the provided datetime as is if it\'s at the very start of the day', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       instance.dataUtil = new DataUtilStub();
@@ -3248,7 +3261,7 @@ describe('PatientData', function () {
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
       instance.handleSwitchToTrends('2018-03-03T00:00:00.000Z');
-      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T23:59:59.999Z');
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T00:00:00.000Z');
     });
   });
 
@@ -3302,7 +3315,7 @@ describe('PatientData', function () {
       expect(instance.dataUtil._chartPrefs).to.equal('weekly prefs');
     });
 
-    it('should set the `datetimeLocation` state to noon for the provided datetime', () => {
+    it('should set the `datetimeLocation` state to noon for the previous day of the provided datetime', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       instance.dataUtil = new DataUtilStub();
@@ -3310,7 +3323,9 @@ describe('PatientData', function () {
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
       instance.handleSwitchToWeekly('2018-03-03T00:00:00.000Z');
-      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T12:00:00.000Z');
+
+      // Should set to previous day because the provided datetime filter is exclusive
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
     });
   });
 

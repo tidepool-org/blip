@@ -171,6 +171,50 @@ describe('Trends', () => {
       expect(wrapper.state().title).to.equal('Jan 15, 2018 - Jan 28, 2018');
     });
 
+    it('should set the `title` state correctly when ending on a DST changeover date', () => {
+      const timezoneAwareProps = {
+        ...baseProps,
+        timePrefs: {
+          timezoneAware: true,
+          timezoneName: 'US/Pacific',
+        }
+      };
+
+      wrapper = shallow(<Trends.WrappedComponent { ...timezoneAwareProps } />);
+      instance = wrapper.instance();
+
+      expect(wrapper.state().title).to.equal('');
+
+      instance.handleDatetimeLocationChange([
+        '2018-03-05T08:00:00.000Z',
+        '2018-03-12T07:00:00.000Z',
+      ]);
+
+      expect(wrapper.state().title).to.equal('Mar 5, 2018 - Mar 11, 2018');
+    });
+
+    it('should set the `title` state correctly when starting on a DST changeover date', () => {
+      const timezoneAwareProps = {
+        ...baseProps,
+        timePrefs: {
+          timezoneAware: true,
+          timezoneName: 'US/Pacific',
+        }
+      };
+
+      wrapper = shallow(<Trends.WrappedComponent { ...timezoneAwareProps } />);
+      instance = wrapper.instance();
+
+      expect(wrapper.state().title).to.equal('');
+
+      instance.handleDatetimeLocationChange([
+        '2018-03-11T08:00:00.000Z',
+        '2018-03-18T07:00:00.000Z',
+      ]);
+
+      expect(wrapper.state().title).to.equal('Mar 11, 2018 - Mar 17, 2018');
+    });
+
     it('should set the `endpoints` state', () => {
       expect(wrapper.state().endpoints).to.eql([]);
 

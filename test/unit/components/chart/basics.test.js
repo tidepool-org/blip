@@ -31,6 +31,7 @@ import { mount, shallow } from 'enzyme';
 import DataUtilStub from '../../../helpers/DataUtil';
 import Basics from '../../../../app/components/chart/basics';
 import { MGDL_UNITS } from '../../../../app/core/constants';
+import i18next from '../../../../app/core/language';
 
 describe('Basics', () => {
   const bgPrefs = {
@@ -71,6 +72,7 @@ describe('Basics', () => {
       timezoneAware: false,
       timezoneName: 'US/Pacific',
     },
+    t: i18next.t.bind(i18next),
     trackMetric: sinon.stub(),
     updateChartPrefs: sinon.stub(),
   };
@@ -152,12 +154,7 @@ describe('Basics', () => {
       expect(props.onClickPrint.callCount).to.equal(1);
     });
 
-    it('should not render the bg toggle when dateRange is not set', () => {
-      const toggle = wrapper.find('BgSourceToggle');
-      expect(toggle.length).to.equal(0);
-    });
-
-    it('should render the bg toggle when dateRange is set', () => {
+    it('should render the bg toggle', () => {
       var props = _.assign({}, baseProps, {
         patientData: {
           basicsData: {
@@ -174,12 +171,7 @@ describe('Basics', () => {
       expect(toggle.length).to.equal(1);
     });
 
-    it('should not render the stats when dateRange is not set', () => {
-      const stats = wrapper.find('Stats');
-      expect(stats.length).to.equal(0);
-    });
-
-    it('should render the stats when dateRange is set', () => {
+    it('should render the stats', () => {
       var props = _.assign({}, baseProps, {
         patientData: {
           basicsData: {
@@ -198,51 +190,11 @@ describe('Basics', () => {
   });
 
   describe('getInitialState', () => {
-    it('should set the endpoints when dateRange available and timezoneAware is false', () => {
-      var props = _.assign({}, baseProps, {
-        patientData: {
-          basicsData: {
-            data: {},
-            dateRange: [
-              '2018-01-15T00:00:00.000Z',
-              '2018-01-30T03:46:52.000Z',
-            ],
-          },
-        },
-      });
-      wrapper = shallow(<Basics.WrappedComponent {...props} />);
-      expect(wrapper.state('endpoints')).to.eql([
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-31T00:00:00.000Z',
-      ]);
-    });
-
-    it('should set the endpoints when dateRange available and timezoneAware is true', () => {
-      var props = _.assign({}, baseProps, {
-        timePrefs: {
-          timezoneAware: true,
-          timezoneName: 'US/Pacific',
-        },
-        patientData: {
-          basicsData: {
-            data: {},
-            dateRange: [
-              '2018-01-15T08:00:00.000Z',
-              '2018-01-30T03:46:52.000Z',
-            ],
-          },
-        },
-      });
-      wrapper = shallow(<Basics.WrappedComponent {...props} />);
-      expect(wrapper.state('endpoints')).to.eql([
-        '2018-01-15T08:00:00.000Z',
-        '2018-01-31T08:00:00.000Z',
-      ]);
-    });
-
-    it('should set the endpoints to empty array when dateRange unavailable', () => {
+    it('should set the initial state', () => {
       wrapper = shallow(<Basics.WrappedComponent {...baseProps} />);
-      expect(wrapper.state('endpoints')).to.eql([]);
+      expect(wrapper.state('atMostRecent')).to.be.true;
+      expect(wrapper.state('inTransition')).to.be.false;
+      expect(wrapper.state('title')).to.be.a.string;
     });
   });
 
@@ -251,14 +203,14 @@ describe('Basics', () => {
       sinon.assert.notCalled(baseProps.onUpdateChartDateRange);
     });
 
-    it('should call the `onUpdateChartDateRange` method when dateRange is set', () => {
+    it('should call the `onUpdateChartDateRange` method with the end set to the start of the next day when dateRange is set', () => {
       var props = _.assign({}, baseProps, {
         patientData: {
           basicsData: {
             data: {},
             dateRange: [
-              '2018-01-15T05:00:00.000Z',
-              '2018-01-30T03:46:52.000Z',
+              '2018-01-15T00:00:00.000Z',
+              '2018-01-30T12:46:52.000Z',
             ],
           },
         },
@@ -266,6 +218,60 @@ describe('Basics', () => {
 
       let mountedWrapper = mount(<Basics {...props} />);
       sinon.assert.calledOnce(baseProps.onUpdateChartDateRange);
+      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, [
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-31T00:00:00.000Z',
+      ]);
+    });
+
+    it('should call the `onUpdateChartDateRange` method with an endpoint accounting for timezone offset when present', () => {
+      var props = _.assign({}, baseProps, {
+        patientData: {
+          basicsData: {
+            data: {},
+            dateRange: [
+              '2018-01-15T08:00:00.000Z',
+              '2018-01-30T12:46:52.000Z',
+            ],
+          },
+        },
+        timePrefs: {
+          timezoneAware: true,
+          timezoneName: 'US/Pacific',
+        },
+      });
+
+      let mountedWrapper = mount(<Basics {...props} />);
+      sinon.assert.calledOnce(baseProps.onUpdateChartDateRange);
+      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, [
+        '2018-01-15T08:00:00.000Z',
+        '2018-01-31T08:00:00.000Z',
+      ]);
+    });
+
+    it('should call the `onUpdateChartDateRange` method with an endpoint accounting for DST offset when applicable', () => {
+      var props = _.assign({}, baseProps, {
+        patientData: {
+          basicsData: {
+            data: {},
+            dateRange: [
+              '2018-03-05T08:00:00.000Z',
+              '2018-03-12T12:46:52.000Z', // DST changeover was March 11
+            ],
+          },
+        },
+        timePrefs: {
+          timezoneAware: true,
+          timezoneName: 'US/Pacific',
+        },
+      });
+
+      let mountedWrapper = mount(<Basics {...props} />);
+      sinon.assert.calledOnce(baseProps.onUpdateChartDateRange);
+      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, [
+        '2018-03-05T08:00:00.000Z',
+        '2018-03-13T07:00:00.000Z', // 7 hour offset on post-DST date
+      ]);
     });
   });
 

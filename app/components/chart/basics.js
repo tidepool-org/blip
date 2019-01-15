@@ -9,8 +9,10 @@ import { translate, Trans } from 'react-i18next';
 import tidelineBlip from 'tideline/plugins/blip';
 const BasicsChart = tidelineBlip.basics;
 
-import { components as vizComponents } from '@tidepool/viz';
+import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const Loader = vizComponents.Loader;
+const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
+const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
@@ -62,25 +64,12 @@ class Basics extends Component {
   });
 
   componentWillMount = () => {
-    const { timezoneAware, timezoneName } = this.props.timePrefs;
-    const basicsData = this.props.patientData.basicsData;
-    const dateRange = basicsData.dateRange;
+    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
 
     if (dateRange) {
-      let endpoints = [];
-      const endMoment = moment
-        .utc(dateRange[1])
-        .startOf('day');
-
-      let timezoneOffset = 0;
-
-      if (timezoneAware) {
-        timezoneOffset = sundial.getOffsetFromZone(endMoment.toISOString(), timezoneName);
-      }
-
-      endpoints = [
-        this.props.patientData.basicsData.dateRange[0],
-        endMoment.subtract(timezoneOffset, 'minutes').toISOString(),
+      const endpoints = [
+        dateRange[0],
+        getLocalizedCeiling(dateRange[1], this.props.timePrefs).toISOString(),
       ];
 
       this.props.onUpdateChartDateRange(endpoints);
