@@ -20,8 +20,8 @@
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o ."
   },
   "engines": {
-    "node": "10.x",
-    "npm": "6.x"
+    "node": ">=10.x",
+    "npm": ">=6.x"
   },
   "dependencies": {
     "@babel/cli": "7.1.0",
