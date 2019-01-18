@@ -381,6 +381,23 @@ describe('datetime', () => {
       expect(datetime.formatDuration(60 * 36e5, condensed)).to.equal('2d 12h');
     });
 
+    it.only('should properly round minute durations with condensed formatting', () => {
+      const ONE_MIN = 6e4;
+
+      expect(datetime.formatDuration(ONE_MIN * 1.49, condensed)).to.equal('1m');
+      expect(datetime.formatDuration(ONE_MIN * 1.5, condensed)).to.equal('2m');
+      expect(datetime.formatDuration(ONE_MIN * 59.4, condensed)).to.equal('59m');
+      expect(datetime.formatDuration(ONE_MIN * 59.5, condensed)).to.equal('1h');
+    });
+
+    it.only('should properly round 23+ hour durations to the next day when within 30 seconds of the next day with condensed formatting', () => {
+      const ONE_SEC = 1e3;
+      const ONE_MIN = 6e4;
+
+      expect(datetime.formatDuration(datetime.ONE_HR * 23 + ONE_MIN * 59 + ONE_SEC * 29, condensed)).to.equal('23h 59m');
+      expect(datetime.formatDuration(datetime.ONE_HR * 23 + ONE_MIN * 59 + ONE_SEC * 30, condensed)).to.equal('1d');
+    });
+
     it('should properly format a 2.55 day duration with condensed formatting', () => {
       expect(datetime.formatDuration(60 * 36e5 + 36e5 / 2, condensed)).to.equal('2d 12h 30m');
     });
