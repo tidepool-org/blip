@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "0.12.0-aggregated-stats-widgets.17",
+  "version": "0.12.0-aggregated-stats-widgets.16",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
@@ -29,8 +29,8 @@
     "url": "git+https://github.com/tidepool-org/viz.git"
   },
   "engines": {
-    "node": "10.x",
-    "npm": "6.x"
+    "node": ">=10.x",
+    "npm": ">=6.x"
   },
   "license": "BSD-2-Clause",
   "bugs": {
