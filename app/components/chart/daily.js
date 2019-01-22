@@ -249,6 +249,12 @@ class Daily extends Component {
     }
   };
 
+  componentWillUnmount = () => {
+    if (this.state.debouncedDateRangeUpdate) {
+      this.state.debouncedDateRangeUpdate.cancel();
+    }
+  };
+
   render = () => {
     return (
       <div id="tidelineMain" className="daily">

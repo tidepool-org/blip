@@ -116,6 +116,12 @@ const Trends = translate()(class Trends extends PureComponent {
     }
   }
 
+  componentWillUnmount = () => {
+    if (this.state.debouncedDateRangeUpdate) {
+      this.state.debouncedDateRangeUpdate.cancel();
+    }
+  };
+
   formatDate(datetime) {
     const { t } = this.props;
     const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
