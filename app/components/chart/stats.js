@@ -187,6 +187,8 @@ class Stats extends Component {
         break;
     }
 
+    this.log('stats', stats);
+
     return stats;
   };
 
@@ -222,6 +224,9 @@ class Stats extends Component {
       stats[i].annotations = getStatAnnotations(data, stat.id, opts);
       stats[i].title = getStatTitle(stat.id, opts);
     });
+
+
+    this.log('stats', stats);
 
     this.setState({ stats });
   };
