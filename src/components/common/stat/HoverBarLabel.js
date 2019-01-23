@@ -8,6 +8,7 @@ export const HoverBarLabel = props => {
   const {
     barWidth,
     isDisabled,
+    datum = { x: 0, y: 0 },
     domain,
     scale = {
       x: _.noop,
@@ -28,16 +29,16 @@ export const HoverBarLabel = props => {
     display: disabled ? 'none' : 'inherit',
   });
 
-  const tooltipTextSize = TextSize.approximateTextSize(tooltipText(props.datum), tooltipStyle);
+  const tooltipTextSize = TextSize.approximateTextSize(tooltipText(datum), tooltipStyle);
 
   const labelStyle = _.assign({}, style, {
     pointerEvents: 'none',
   });
 
   // Ensure that the datum y value isn't below zero, or the tooltip will be incorrectly positioned
-  const datum = {
-    ...props.datum,
-    y: _.max([props.datum.y, 0]),
+  const tooltipDatum = {
+    ...datum,
+    y: _.max([datum.y, 0]),
   };
 
   return (
@@ -54,7 +55,7 @@ export const HoverBarLabel = props => {
         <VictoryTooltip
           {...props}
           cornerRadius={tooltipRadius}
-          datum={datum}
+          datum={tooltipDatum}
           x={scale.y(domain.x[1]) - style.paddingLeft - tooltipTextSize.width - (tooltipRadius * 2)}
           flyoutStyle={{
             display: disabled ? 'none' : 'inherit',
@@ -76,6 +77,7 @@ export const HoverBarLabel = props => {
 };
 
 HoverBarLabel.propTypes = {
+  datum: PropTypes.object.isRequired,
   domain: PropTypes.object.isRequired,
   scale: PropTypes.object,
   text: PropTypes.func,
