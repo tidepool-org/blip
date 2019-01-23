@@ -381,7 +381,7 @@ describe('datetime', () => {
       expect(datetime.formatDuration(60 * 36e5, condensed)).to.equal('2d 12h');
     });
 
-    it.only('should properly round minute durations with condensed formatting', () => {
+    it('should properly round minute durations with condensed formatting', () => {
       const ONE_MIN = 6e4;
 
       expect(datetime.formatDuration(ONE_MIN * 1.49, condensed)).to.equal('1m');
@@ -390,7 +390,7 @@ describe('datetime', () => {
       expect(datetime.formatDuration(ONE_MIN * 59.5, condensed)).to.equal('1h');
     });
 
-    it.only('should properly round 23+ hour durations to the next day when within 30 seconds of the next day with condensed formatting', () => {
+    it('should properly round 23+ hour durations to the next day when within 30 seconds of the next day with condensed formatting', () => {
       const ONE_SEC = 1e3;
       const ONE_MIN = 6e4;
 
