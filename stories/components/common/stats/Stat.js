@@ -6,7 +6,7 @@ import { select, button, boolean } from '@storybook/addon-knobs';
 
 import Stat from '../../../../src/components/common/stat/Stat';
 import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP, MGDL_PER_MMOLL } from '../../../../src/utils/constants';
-import { statFormats, statTypes } from '../../../../src/utils/stat';
+import { getSum, statFormats, statTypes } from '../../../../src/utils/stat';
 
 const bgPrefsOptions = {
   [MGDL_UNITS]: MGDL_UNITS,
@@ -41,8 +41,6 @@ const chartHeightOptions = {
 };
 
 const convertPercentageToDayDuration = value => (value / 100) * MS_IN_DAY;
-
-const getSum = data => _.sum(_.map(data, d => d.value));
 
 const randomValueByType = (type, bgUnits, opts = {}) => {
   const isMGDL = bgUnits === MGDL_UNITS;
