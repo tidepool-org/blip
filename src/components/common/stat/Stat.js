@@ -576,7 +576,7 @@ class Stat extends PureComponent {
                   this.setState({ hoveredDatumIndex: -1 });
                   return {
                     target: 'labels',
-                    mutation: () => ({ active: props.alwaysalwaysShowTooltips }),
+                    mutation: () => ({ active: props.alwaysShowTooltips }),
                   };
                 },
               },
@@ -586,6 +586,7 @@ class Stat extends PureComponent {
           horizontal: true,
           labelComponent: (
             <HoverBarLabel
+              active={props.alwaysShowTooltips}
               barWidth={barWidth}
               isDisabled={() => this.state.isDisabled}
               domain={domain}
@@ -754,6 +755,7 @@ class Stat extends PureComponent {
 
       case statFormats.percentage:
         if (total && total >= 0) {
+          value = _.max([value, 0]);
           const percentage = (value / total) * 100;
           let precision = 0;
           // We want to show extra precision on very small percentages so that we avoid showing 0%
