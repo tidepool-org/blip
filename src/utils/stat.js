@@ -65,7 +65,7 @@ export const commonStats = {
   totalInsulin: 'totalInsulin',
 };
 
-export const getSum = data => _.sum(_.map(data, d => d.value));
+export const getSum = data => _.sum(_.map(data, d => _.max([d.value, 0])));
 
 export const ensureNumeric = value => (_.isNil(value) || _.isNaN(value) ? -1 : parseFloat(value));
 
