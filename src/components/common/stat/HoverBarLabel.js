@@ -34,6 +34,12 @@ export const HoverBarLabel = props => {
     pointerEvents: 'none',
   });
 
+  // Ensure that the datum y value isn't below zero, or the tooltip will be incorrectly positioned
+  const datum = {
+    ...props.datum,
+    y: _.max([props.datum.y, 0]),
+  };
+
   return (
     <g className="HoverBarLabel">
       <VictoryLabel
@@ -48,6 +54,7 @@ export const HoverBarLabel = props => {
         <VictoryTooltip
           {...props}
           cornerRadius={tooltipRadius}
+          datum={datum}
           x={scale.y(domain.x[1]) - style.paddingLeft - tooltipTextSize.width - (tooltipRadius * 2)}
           flyoutStyle={{
             display: disabled ? 'none' : 'inherit',
