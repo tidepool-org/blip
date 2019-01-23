@@ -425,7 +425,7 @@ class Stat extends PureComponent {
     let domain;
     let height;
     let labelFontSize = 24;
-    let chartLabelWidth = labelFontSize * 2.75;
+    let chartLabelWidth = labelFontSize * 2.85;
     let padding;
     let total;
 
@@ -516,7 +516,7 @@ class Stat extends PureComponent {
         if (height > 0) {
           barWidth = ((height - barSpacing) / props.data.data.length) - (barSpacing / 2);
           labelFontSize = _.min([barWidth * 0.833, labelFontSize]);
-          chartLabelWidth = labelFontSize * 2.75;
+          chartLabelWidth = labelFontSize * 2.85;
         } else {
           barWidth = 30;
           height = (barWidth + barSpacing) * props.data.data.length;
