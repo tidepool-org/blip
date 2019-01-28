@@ -15,6 +15,10 @@
 
 .signup {
   .flex-layout-for-logged-out-routes(575px, 650px);
+
+  @media(max-width: @screen-md-max) {
+    margin-bottom: 50px;
+  }
 }
 
 .signup-container {
@@ -160,4 +164,9 @@
 .signup-continue {
   display: flex;
   flex-direction: row-reverse;
+
+  @media(max-width: @screen-md-max) {
+    margin-left: @spacing-base;
+    margin-right: @spacing-base;
+  }
 }
