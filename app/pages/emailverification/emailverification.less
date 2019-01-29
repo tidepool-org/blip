@@ -61,6 +61,7 @@
     max-width: 100%;
     margin-left: @sideMargin;
     margin-right: @sideMargin;
+    word-break: break-word;
   }
 
   strong {
@@ -75,6 +76,10 @@
 
 .EmailVerification-form {
   margin-bottom: 10px;
+
+  @media(max-width: @screen-md-max) {
+    margin-bottom: 50px;
+  }
 }
 
 .EmailVerification-link {
