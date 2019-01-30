@@ -19,11 +19,8 @@ import Terms from './pages/terms';
 import UserProfile from './pages/userprofile';
 import VerificationWithPassword from './pages/verificationwithpassword';
 
-
 import utils from './core/utils';
 import personUtils from './core/personutils';
-
-import actions from './redux/actions';
 
 /**
  * This function checks if the user is using chrome - if they are not it will redirect
@@ -295,7 +292,7 @@ export const onRefreshViewToPatientData = (api) => (nextState, replace, cb) => {
   // For some reason, if the user is already authenticated
   // the replace() function do not works here.
   // So do reload of the page here.
-  window.location.href = newLocation;
+  window.location.href = newLocation + nextState.location.search;
 }
 
 /**
