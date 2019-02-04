@@ -34,7 +34,7 @@ export function noData(val) {
 
 /**
  * deviceName
- * @param  {String} manufacturer one of: animas, insulet, medtronic, tandem
+ * @param  {String} manufacturer one of: animas, insulet, medtronic, tandem, diabeloop
  *
  * @return {String}              name for given manufacturer
  */
@@ -44,6 +44,7 @@ export function deviceName(manufacturer) {
     insulet: 'OmniPod',
     medtronic: 'Medtronic',
     tandem: 'Tandem',
+    diabeloop: 'Diabeloop'
   };
   return DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturer] || manufacturer;
 }
