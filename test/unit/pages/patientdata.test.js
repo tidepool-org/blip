@@ -2469,7 +2469,34 @@ describe('PatientData', function () {
             processPatientDataStub,
             [
               { time: '2018-02-01T00:00:00.000Z', type: 'upload' },
-                { time: '2017-12-01T00:00:00.000Z', type: 'basal' },
+              { time: '2017-12-01T00:00:00.000Z', type: 'basal' },
+              ...shouldProcessProps.patientNotesMap[40],
+            ],
+          );
+        });
+
+        it('should call processPatientData with all remain of the lastProcessedDateTarget provided if no diabetes data is in that slice and the last unprocessed datum is the only diabetes datum', () => {
+          // This test catches an edge-case index out of range bug that was happening in this scenario
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+          });
+          wrapper.setProps(_.assign({}, shouldProcessProps, {
+            patientDataMap: {
+              40: [
+                { time: '2018-02-01T00:00:00.000Z', type: 'upload' },
+                { time: '2017-12-01T00:00:00.000Z', type: 'basal' }, // over 4 weeks back, but still should be included
+              ],
+            },
+          }));
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledOnce(processPatientDataStub);
+          sinon.assert.calledWith(
+            processPatientDataStub,
+            [
+              { time: '2018-02-01T00:00:00.000Z', type: 'upload' },
+              { time: '2017-12-01T00:00:00.000Z', type: 'basal' },
               ...shouldProcessProps.patientNotesMap[40],
             ],
           );
