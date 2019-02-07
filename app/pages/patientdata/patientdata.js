@@ -554,6 +554,7 @@ export let PatientData = translate()(React.createClass({
           || (isScrollChart && chartLimitReached)
         )
       ) {
+        this.log(`Limit of processed data reached, ${(patientData.length - 1) - this.state.lastDatumProcessedIndex} unprocessed remain. Processing more.`)
         return this.processData(this.props);
       }
     }
@@ -788,6 +789,7 @@ export let PatientData = translate()(React.createClass({
     // nextProps patient data exists
     if (patientSettings && nextPatientData) {
       if (newDiabetesDataReturned || this.state.lastDatumProcessedIndex < 0) {
+        this.log(`${nextFetchedDataRange.count - currentFetchedDataRange.count} new datums received and off to processing.`)
         this.processData(nextProps);
       }
       else if (!newDiabetesDataReturned && newDataRangeFetched) {
@@ -939,6 +941,36 @@ export let PatientData = translate()(React.createClass({
     this.props.trackMetric('Fetched earlier patient data', { patientID, count });
   },
 
+  getLastDatumToProcessIndex: function (data, targetDatetime) {
+    let diabetesDataCount = 0;
+
+    // First, we get the index of the first diabetes datum that falls outside of our processing window.
+    let targetIndex = _.findIndex(data, datum => {
+      const isDiabetesDatum = _.includes(DIABETES_DATA_TYPES, datum.type);
+
+      if (isDiabetesDatum) {
+        diabetesDataCount++;
+      }
+
+      return targetDatetime > datum.time && isDiabetesDatum;
+    });
+
+    if (targetIndex === -1) {
+      // If we didn't find a cutoff point (i.e. no diabetes datums beyond the cutoff time),
+      // we process all the remaining fetched, unprocessed data.
+      targetIndex = data.length;
+      this.log('No diabetes data found beyond current processing slice.  Processing all remaining unprocessed data');
+    } else if (diabetesDataCount === 1) {
+      // If the first diabetes datum found was outside of our processing window, we need to include it.
+      targetIndex++;
+      this.log('First diabetes datum found was outside current processing slice.  Adding it to slice');
+    }
+
+    // Because targetIndex was set to the first one outside of our processing window, and we're
+    // looking for the last datum to process, we decrement by one and return
+    return --targetIndex;
+  },
+
   processData: function(props = this.props) {
     const patientID = props.currentPatientInViewId;
     const patientData = _.get(props, ['patientDataMap', patientID], []);
@@ -982,36 +1014,6 @@ export let PatientData = translate()(React.createClass({
         timezoneSettings
       );
 
-      // Find a cutoff point for processing unprocessed data
-      let diabetesDataCount = 0;
-      let targetIndex = _.findIndex(unprocessedPatientData, datum => {
-        // We want to be sure that the slice of data includes at least one diabetes datum
-        if (isInitialProcessing && _.includes(DIABETES_DATA_TYPES, datum.type)) {
-          diabetesDataCount++;
-        }
-
-        // Return the index of the first item we don't want to process in this round
-        // This is what we want, as we will slice with this index as the end argument, which will not include this datum
-        return isInitialProcessing
-          ? diabetesDataCount && targetDatetime > datum.time
-          : targetDatetime > datum.time;
-      });
-
-      // If it didn't find a cutoff point, we process all the remaining unprocessed data
-      if (targetIndex === -1) {
-        targetIndex = unprocessedPatientData.length;
-      }
-
-      // If there's only 1 diabetes datum found up to the target index, and it's the last one,
-      // we need to make sure it's included in the data slice to process.
-      if (diabetesDataCount === 1 && _.includes(DIABETES_DATA_TYPES, unprocessedPatientData[targetIndex].type)) {
-        targetIndex++;
-      }
-
-      const targetData = targetIndex > 0
-        ? unprocessedPatientData.slice(0, targetIndex)
-        : unprocessedPatientData;
-
       // If there's only a week or less data to process, and not all the data has been fetched,
       // we just fetch instead of a tiny processing cycle followed by an immediate fetch
       const timeOfLastUnprocessedDatum = _.get(_.last(unprocessedPatientData), 'time');
@@ -1022,13 +1024,31 @@ export let PatientData = translate()(React.createClass({
         }, this.fetchEarlierData);
       }
 
-      this.log('processing data up to', targetDatetime);
+      // Find a cutoff point for processing unprocessed diabetes data
+      const lastDatumToProcessIndex = this.getLastDatumToProcessIndex(unprocessedPatientData, targetDatetime);
+      const dataToProcess = unprocessedPatientData.slice(0, lastDatumToProcessIndex + 1); // add 1 because the end index of the slice is not included
+      this.log(`Processing ${dataToProcess.length} of ${unprocessedPatientData.length}`);
+      this.log(`Processing window was set to ${targetDatetime}.  Actual time of last datum to process: ${_.get(_.last(dataToProcess), 'time')}`);
 
       // We need to track the last processed indexes for diabetes and bg data to help determine when
       // we've reached the scroll limits of the daily and weekly charts
-      const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + targetData.length + 1)), datum => {
+      const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + dataToProcess.length + 1)), datum => {
         return _.includes(DIABETES_DATA_TYPES, datum.type);
       });
+
+      // We will set `lastProcessedDateTarget` to the earliest of either the last processed datum
+      // time, or the `targetDateTime`. We can't just use `targetDateTime` because there are times
+      // where include and process datums that are outside of the scheduled processing time frame
+      // when no diabetes data is found within it.
+      const lastProcessedDateTargets = [
+        patientData[lastDiabetesDatumProcessedIndex].time,
+        targetDatetime,
+      ];
+
+      const sortedDateTargets = lastProcessedDateTargets.sort((a, b) => (a < b) ? -1 : ((a > b) ? 1 : 0));
+
+      const lastProcessedDateTarget = sortedDateTargets[0]
+      this.log('Setting lastProcessedDateTarget to:', lastProcessedDateTarget);
 
       window.downloadInputData = () => {
         console.save(patientData.concat(patientNotes), 'blip-input.json');
@@ -1037,7 +1057,7 @@ export let PatientData = translate()(React.createClass({
       // Process data fetched after the initial processing
       if (isInitialProcessing) {
         // Kick off the processing of the initial data fetch
-        const combinedData = targetData.concat(patientNotes);
+        const combinedData = dataToProcess.concat(patientNotes);
 
         const processedData = utils.processPatientData(
           combinedData,
@@ -1045,7 +1065,6 @@ export let PatientData = translate()(React.createClass({
           patientSettings,
         );
 
-        const lastDatumProcessedIndex = targetData.length - 1;
         const timePrefs = processedData.timePrefs || this.state.timePrefs;
 
         this.setState({
@@ -1054,8 +1073,8 @@ export let PatientData = translate()(React.createClass({
             bgUnits: processedData.bgUnits
           },
           lastDiabetesDatumProcessedIndex,
-          lastDatumProcessedIndex,
-          lastProcessedDateTarget: targetDatetime,
+          lastDatumProcessedIndex: lastDatumToProcessIndex,
+          lastProcessedDateTarget,
           loading: false,
           processedPatientData: processedData,
           processingData: false,
@@ -1073,19 +1092,19 @@ export let PatientData = translate()(React.createClass({
         // `deviceSerialNumber` properties will not be mapped. This will not result in duplication
         // of upload records, as deduplication will happen when `addData` is called.
         const previousUploadData = _.filter(patientData.slice(0, this.state.lastDatumProcessedIndex + 1), { type: 'upload' });
-        const newData = utils.filterPatientData(targetData.concat(previousUploadData), bgUnits).processedData;
+        const newData = utils.filterPatientData(dataToProcess.concat(previousUploadData), bgUnits).processedData;
 
         // Add and process the new data
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
         const processedPatientData = addData(newData.concat(_.map(patientNotes, nurseShark.reshapeMessage)));
 
-        const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + targetData.length;
+        const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + dataToProcess.length;
         const count = this.state.processEarlierDataCount + 1;
 
         this.setState({
           lastDiabetesDatumProcessedIndex,
           lastDatumProcessedIndex,
-          lastProcessedDateTarget: targetDatetime,
+          lastProcessedDateTarget,
           processEarlierDataCount: count,
           processedPatientData,
           processingData: false,
