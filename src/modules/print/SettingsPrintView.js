@@ -28,12 +28,12 @@ import {
 import {
   basal,
   bolusTitle,
-  customSettingsTitle,
-  diabeloopSettings,
   ratio,
   sensitivity,
   target,
 } from '../../utils/settings/nonTandemData';
+
+import { diabeloopSettings } from '../../utils/settings/diabeloopData';
 
 import {
   basalSchedules as profileSchedules,
@@ -47,7 +47,6 @@ class SettingsPrintView extends PrintView {
     this.source = _.get(data, 'source', '').toLowerCase();
     this.manufacturer = this.source === 'carelink' ? 'medtronic' : this.source;
 
-    this.isTandem = this.manufacturer === 'tandem';
     this.deviceMeta = getDeviceMeta(data, opts.timePrefs);
 
     this.doc.addPage();
@@ -60,12 +59,17 @@ class SettingsPrintView extends PrintView {
   render() {
     this.renderDeviceMeta();
 
-    if (this.isTandem) {
-      this.renderTandemProfiles();
-    } else {
-      this.renderBasalSchedules();
-      this.renderWizardSettings();
-      this.renderDiabeloopSettings();
+    switch (this.manufacturer) {
+      case 'tandem':
+        this.renderTandemProfiles();
+        break;
+      case 'diabeloop':
+        this.renderDiabeloopSettings();
+        break;
+      default:
+        this.renderBasalSchedules();
+        this.renderWizardSettings();
+        break;
     }
   }
 
@@ -326,15 +330,11 @@ class SettingsPrintView extends PrintView {
   }
 
   renderDiabeloopSettings() {
-    if (this.source !== 'diabeloop') {
-      return;
-    }
-
     this.doc.x = this.chartArea.leftEdge;
     this.doc.y = _.get(this.layoutColumns, ['columns', this.getLongestLayoutColumn(), 'y']);
     this.doc.moveDown();
 
-    this.renderSectionHeading(customSettingsTitle(this.manufacturer));
+    this.renderSectionHeading(this.manufacturer);
 
     this.setLayoutColumns({
       width: this.chartArea.width,

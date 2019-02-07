@@ -38,11 +38,6 @@
   flex-wrap: wrap;
 }
 
-.diabeloopPayloadContainer {
-  display: flex;
-  flex-wrap: wrap;
-}
-
 .categoryTitle {
   composes: mediumContrastText from '../../styles/typography.css';
   width: 100%;

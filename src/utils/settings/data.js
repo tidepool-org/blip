@@ -44,7 +44,7 @@ export function deviceName(manufacturer) {
     insulet: 'OmniPod',
     medtronic: 'Medtronic',
     tandem: 'Tandem',
-    diabeloop: 'Diabeloop'
+    diabeloop: 'Diabeloop',
   };
   return DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturer] || manufacturer;
 }

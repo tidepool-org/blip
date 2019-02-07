@@ -188,34 +188,6 @@ const NonTandem = (props) => {
     );
   }
 
-  function renderDiabeloopPayload() {
-    if (lookupKey !== 'diabeloop') {
-      return null;
-    }
-
-    const tableData = nonTandemData.diabeloopSettings(pumpSettings);
-
-    if (!tableData) {
-      return null;
-    }
-
-    return (<div className={styles.diabeloopPayloadContainer}>
-      <div className={styles.categoryTitle}>{nonTandemData.customSettingsTitle(lookupKey)}</div>
-        {buildTable(
-          tableData.rows,
-          tableData.columns,
-          {
-            label: {
-              main: tableData.title,
-              secondary: tableData.secondary,
-            },
-            className: styles.bolusSettingsHeader,
-          },
-          styles.settingsTable,
-        )}
-    </div>);
-  }
-
   return (
     <div>
       <ClipboardButton
@@ -243,7 +215,6 @@ const NonTandem = (props) => {
           {renderTargetData()}
           {renderRatioData()}
         </div>
-        {renderDiabeloopPayload()}
       </div>
       <pre className={styles.copyText} id="copySettingsText">
         {nonTandemText(user, pumpSettings, bgUnits, lookupKey)}
@@ -256,7 +227,7 @@ NonTandem.propTypes = {
   bgUnits: PropTypes.oneOf([MMOLL_UNITS, MGDL_UNITS]).isRequired,
   copySettingsClicked: PropTypes.func.isRequired,
   deviceKey: PropTypes.oneOf(['animas', 'carelink', 'insulet',
-    'medtronic', 'diabeloop']).isRequired,
+    'medtronic']).isRequired,
   openedSections: PropTypes.object.isRequired,
   pumpSettings: PropTypes.shape({
     activeSchedule: PropTypes.string.isRequired,
