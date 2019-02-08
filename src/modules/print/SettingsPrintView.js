@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash';
-
+import i18next from 'i18next';
 import PrintView from './PrintView';
 
 import {
@@ -33,12 +33,14 @@ import {
   target,
 } from '../../utils/settings/nonTandemData';
 
-import { diabeloopSettings } from '../../utils/settings/diabeloopData';
+import * as dblData from '../../utils/settings/diabeloopData';
 
 import {
   basalSchedules as profileSchedules,
   basal as tandemBasal,
 } from '../../utils/settings/tandemData';
+
+const t = i18next.t.bind(i18next);
 
 class SettingsPrintView extends PrintView {
   constructor(doc, data, opts) {
@@ -64,7 +66,7 @@ class SettingsPrintView extends PrintView {
         this.renderTandemProfiles();
         break;
       case 'diabeloop':
-        this.renderDiabeloopSettings();
+        this.renderDiabeloopProfiles();
         break;
       default:
         this.renderBasalSchedules();
@@ -74,7 +76,7 @@ class SettingsPrintView extends PrintView {
   }
 
   renderDeviceMeta() {
-    const device = deviceName(this.manufacturer) || 'Unknown';
+    const device = deviceName(this.manufacturer) || t('Unknown');
     this.doc
       .font(this.boldFont)
       .fontSize(this.defaultFontSize)
@@ -88,7 +90,7 @@ class SettingsPrintView extends PrintView {
   }
 
   renderTandemProfiles() {
-    this.renderSectionHeading('Profile Settings');
+    this.renderSectionHeading(t('Profile Settings'));
 
     const basalSchedules = profileSchedules(this.data);
 
@@ -199,8 +201,82 @@ class SettingsPrintView extends PrintView {
     });
   }
 
+  renderDiabeloopProfiles() {
+    // Device informations:
+    const device = _.get(this.data, 'payload.device', null);
+
+    // Device parameters:
+    const parameters = _.get(this.data, 'payload.parameters', null);
+
+    // Render the device informations table:
+    if (device !== null) {
+      const deviceTableData = dblData.getDeviceInfosData(device);
+
+      const deviceTableDataWidth = (this.chartArea.width * 0.6) | 0;
+
+      this.renderTableHeading(deviceTableData.heading, {
+        columnDefaults: {
+          fill: {
+            color: this.tableSettings.colors.zebraHeader,
+            opacity: 1,
+          },
+          width: deviceTableDataWidth,
+        },
+      });
+
+      deviceTableData.columns[0].width = (deviceTableDataWidth * 0.4) | 0;
+      deviceTableData.columns[1].width = (deviceTableDataWidth * 0.6) | 0;
+
+      this.renderTable(deviceTableData.columns, deviceTableData.rows, {
+        columnDefaults: {
+          zebra: false,
+          headerFill: false,
+          headerBorder: '',
+        },
+        flexColumn: 'start',
+        showHeaders: false,
+      });
+    } else {
+      this.renderSectionHeading(t('No diabeloop device informations available'));
+    }
+
+    // Render the device parameters tables:
+    if (parameters !== null) {
+      const parametersByLevel = dblData.getParametersByLevel(parameters);
+
+      // eslint-disable-next-line lodash/prefer-lodash-method
+      parametersByLevel.forEach((params, level) => {
+        const tableData = dblData.getDeviceParametersData(params,
+          { level, width: this.chartArea.width });
+
+        this.renderTableHeading(tableData.heading, {
+          columnDefaults: {
+            fill: {
+              color: this.tableSettings.colors.zebraHeader,
+              opacity: 1,
+            },
+            width: this.chartArea.width,
+          },
+        });
+
+        this.renderTable(tableData.columns, tableData.rows, {
+          columnDefaults: {
+            zebra: true,
+            headerFill: false,
+          },
+          flexColumn: 'start',
+          showHeaders: true,
+        });
+      });
+    } else {
+      this.renderSectionHeading(t('No diabeloop device parameters available'));
+    }
+
+    this.resetText();
+  }
+
   renderBasalSchedules() {
-    this.renderSectionHeading('Basal Rates');
+    this.renderSectionHeading(t('Basal Rates'));
 
     this.setLayoutColumns({
       width: this.chartArea.width,
@@ -325,26 +401,6 @@ class SettingsPrintView extends PrintView {
     this.renderTarget();
 
     this.renderRatio();
-
-    this.resetText();
-  }
-
-  renderDiabeloopSettings() {
-    this.doc.x = this.chartArea.leftEdge;
-    this.doc.y = _.get(this.layoutColumns, ['columns', this.getLongestLayoutColumn(), 'y']);
-    this.doc.moveDown();
-
-    this.renderSectionHeading(this.manufacturer);
-
-    this.setLayoutColumns({
-      width: this.chartArea.width,
-      count: 2,
-      gutter: 15,
-    });
-
-    const diabeloop = diabeloopSettings(this.data);
-
-    this.renderWizardSetting(diabeloop, diabeloop.secondary);
 
     this.resetText();
   }

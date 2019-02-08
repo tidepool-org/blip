@@ -14,7 +14,6 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import _ from 'lodash';
 import textTable from 'text-table';
 import i18next from 'i18next';
 
@@ -41,29 +40,22 @@ export function getParametersByLevel(parameters) {
 }
 
 /**
- *
- * @param {Object} device Device information
- * @return {Array} an array of arrays
- */
-function getDeviceRows(device) {
-  return [
-    [t('Manufacturer'), device.manufacturer],
-    [t('Identifier'), device.deviceId],
-    [t('IMEI'), device.imei],
-    [t('Software version'), device.swVersion],
-  ];
-}
-
-/**
  * Diabeloop text for clipboard copy.
  * @param {Object} device Diabeloop device informations
  *  (deviceId, imei, name, manufacturer, swVersion)
  * @param {Map} parametersByLevel Diabeloop patient parameters sorted by level.
  */
 export function diabeloopText(device, parametersByLevel, displayDeviceDate) {
+  const deviceRows = [
+    [t('Manufacturer'), device.manufacturer],
+    [t('Identifier'), device.deviceId],
+    [t('IMEI'), device.imei],
+    [t('Software version'), device.swVersion],
+  ];
+
   let deviceText = `-= ${t('Device')} =-\n`;
 
-  deviceText += textTable(getDeviceRows(device));
+  deviceText += textTable(deviceRows);
 
   let parametersText = '';
   // eslint-disable-next-line lodash/prefer-lodash-method
@@ -86,55 +78,90 @@ export function diabeloopText(device, parametersByLevel, displayDeviceDate) {
 }
 
 /**
- * Returns the data for the table of device informations.
- * @param {Object} device Diabeloop device informations
- *  (deviceId, imei, name, manufacturer, swVersion)
- * @returns {Object} An object: title,secondary, columns, rows
+ * Datas for PDF
+ * @param {Object} device Diabeloop device infos
  */
-export function diabeloopDevicesDataTable(device) {
+export function getDeviceInfosData(device) {
+  const heading = {
+    text: t('Device'),
+    subText: device.name,
+  };
+
+  const columns = [{
+    id: 'label',
+    headerFill: false,
+    cache: false,
+    align: 'left',
+    width: 150,
+  }, {
+    id: 'value',
+    headerFill: false,
+    cache: false,
+    align: 'right',
+    width: 150,
+  }];
+
+  const rows = [{
+    label: t('Manufacturer'),
+    value: device.manufacturer,
+  }, {
+    label: t('Identifier'),
+    value: device.deviceId,
+  }, {
+    label: t('IMEI'),
+    value: device.imei,
+  }, {
+    label: t('Software version'),
+    value: device.swVersion,
+  }];
+
   return {
-    title: t('Device'),
-    secondary: device.name,
-    columns: ['', ''],
-    rows: getDeviceRows(device),
+    heading,
+    columns,
+    rows,
   };
 }
 
 /**
- * diabeloopSettings
- *
- * Returns the data for the table of custom diabeloop data.
- *
- * @param {Object} settings object with pump settings data
+ * Return the information to make the PDF table for a level of parameters
+ * @param {Array} parameters Array of parameters (object: name, value, unit, level)
+ * @param {number} level Level of the parameter
+ * @param {number} width Width of the table
  */
-export function diabeloopSettings(settings) {
-  const params = _.get(settings, 'payload.parameters');
-  const device = _.get(settings, 'payload.device');
+export function getDeviceParametersData(parameters, opts) {
+  const {
+    level,
+    width,
+  } = opts;
 
-  if (!params || !device) {
-    return null;
-  }
+  const heading = {
+    text: t('Parameters'),
+    subText: t('level {{level}}', { level }),
+  };
 
-  const columns = [
-    {
-      key: 'name',
-      label: t('Parameter'),
-    },
-    {
-      key: 'value',
-      label: t('Value'),
-    },
-    {
-      key: 'unit',
-      label: t('Unit'),
-    },
-  ];
-  const rows = params;
+  const columns = [{
+    id: 'name',
+    header: t('Name'),
+    cache: false,
+    align: 'left',
+    width: (width * 0.7) | 0,
+  }, {
+    id: 'value',
+    header: t('Value'),
+    cache: false,
+    align: 'right',
+    width: (width * 0.2) | 0,
+  }, {
+    id: 'unit',
+    header: t('Unit'),
+    cache: false,
+    align: 'left',
+    width: (width * 0.1) | 0,
+  }];
 
   return {
-    title: t('Diabeloop'),
-    secondary: device.swVersion,
+    heading,
     columns,
-    rows,
+    rows: parameters,
   };
 }

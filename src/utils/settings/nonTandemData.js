@@ -44,7 +44,7 @@ export function deviceMeta(settings, timePrefs) {
 
 /**
  * bolusTitle
- * @param  {String} manufacturer one of: animas, carelink, insulet, medtronic, diabeloop
+ * @param  {String} manufacturer one of: animas, carelink, insulet, medtronic
  *
  * @return {String}              bolus title for given manufacturer
  */

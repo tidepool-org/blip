@@ -114,7 +114,7 @@ function formatTitle(patient) {
  * nonTandemText
  * @param  {Object} patient     the patient object that contains the profile
  * @param  {String} units         MGDL_UNITS or MMOLL_UNITS
- * @param  {String} manufacturer  one of: animas, carelink, insulet, medtronic, diabeloop
+ * @param  {String} manufacturer  one of: animas, carelink, insulet, medtronic
  *
  * @return {String}               non tandem settings as a string table
  */
@@ -149,15 +149,6 @@ export function nonTandemText(patient, settings, units, manufacturer) {
     ratio.rows,
     ratio.columns,
   );
-
-  const diabeloop = nonTandemData.diabeloopSettings(settings);
-  if (diabeloop) {
-    tablesString += buildTextTable(
-      `${diabeloop.title} ${diabeloop.secondary || ''}`,
-      diabeloop.rows,
-      diabeloop.columns,
-    );
-  }
 
   return tablesString;
 }
