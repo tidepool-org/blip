@@ -19,15 +19,12 @@ import _ from 'lodash';
 import React, { PropTypes, PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import i18next from 'i18next';
 
 import * as actions from '../../../redux/actions/';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import NonTandem from '../NonTandem';
 import Tandem from '../Tandem';
 import Diabeloop from '../Diabeloop';
-
-const t = i18next.t.bind(i18next);
 
 export class PumpSettingsContainer extends PureComponent {
   static propTypes = {
@@ -123,7 +120,7 @@ export class PumpSettingsContainer extends PureComponent {
       default:
         // eslint-disable-next-line no-console
         console.warn(`Unknown manufacturer key: [${manufacturerKey}]!`);
-        return (<div>{t('Unknown manufacturer')}</div>);
+        return null;
     }
   }
 }
