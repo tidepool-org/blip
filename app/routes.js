@@ -259,42 +259,6 @@ export const onOtherRouteEnter = (api) => (nextState, replace) => {
   }
 }
 
-export const onSetUserToken = (api, next) => (nextState, replace, cb) => {
-  const TOKEN_LOCAL_KEY = 'authToken';
-
-  if (!api.user.isAuthenticated()) {
-    let localStore = window.localStorage;
-    if (typeof nextState.params.tokenid === 'string') {
-      let tokenId = nextState.params.tokenid;
-      // Repad with "=" the token
-      tokenId = (tokenId + '===').slice(0, tokenId.length + (tokenId.length % 4));
-      // Conv from base64url to base64:
-      tokenId = tokenId.replace(/-/g, '+');
-      tokenId = tokenId.replace(/_/g, '/');
-      // Decode the token (base64):
-      tokenId = atob(nextState.params.tokenid);
-      localStore.setItem(TOKEN_LOCAL_KEY, tokenId);
-    }
-  }
-
-  next(nextState, replace, cb);
-}
-
-export const onRefreshViewToPatientData = (api) => (nextState, replace, cb) => {
-  let newLocation;
-
-  if (typeof nextState.params.userid === 'string') {
-    newLocation = '/patients/' + nextState.params.userid + '/data';
-  } else {
-    newLocation = '/patients';
-  }
-
-  // For some reason, if the user is already authenticated
-  // the replace() function do not works here.
-  // So do reload of the page here.
-  window.location.href = newLocation + nextState.location.search;
-}
-
 /**
  * Creates the route map with authentication associated with each route built in.
  *
@@ -304,13 +268,22 @@ export const onRefreshViewToPatientData = (api) => (nextState, replace, cb) => {
  * @return {Route} the react-router routes
  */
 export const getRoutes = (appContext, store) => {
+  const TOKEN_LOCAL_KEY = 'authToken';
+  const localStore = window.localStorage;
   let props = appContext.props;
   let api = props.api;
+
+  // If Blip is opened with portal-front, we may end-up having
+  // the localStorage key 'authToken' but not being authenticated yet.
+  // Set the user token to simulate the login process
+  let authToken = localStore.getItem(TOKEN_LOCAL_KEY);
+  if (!api.user.isAuthenticated() && authToken !== null) {
+    api.user.setToken(authToken);
+  }
 
   return (
     <Route path='/' component={AppComponent} {...props}>
       <IndexRoute component={Login} onEnter={onIndexRouteEnter(api, store)} />
-      <Route path='token/:tokenid/:userid' onEnter={onSetUserToken(api, onRefreshViewToPatientData(api))} />
       <Route path='login' component={Login} onEnter={requireNoAuth(api)} />
       <Route path='terms' components={Terms} />
       <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />

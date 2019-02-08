@@ -70,6 +70,14 @@ api.server.getTime = function(cb) {
 // ----- User -----
 api.user = {};
 
+api.user.setToken = function(token) {
+  if (typeof token === 'string') {
+    tidepool.syncToken(token);
+  } else {
+    tidepool.syncToken(null);
+  }
+}
+
 api.user.isAuthenticated = function() {
   return tidepool.isLoggedIn();
 };
