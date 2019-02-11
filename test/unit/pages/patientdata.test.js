@@ -2246,6 +2246,39 @@ describe('PatientData', function () {
     });
   });
 
+  describe('getLastDatumToProcessIndex', () => {
+    let wrapper;
+    let instance;
+
+    const unprocessedData = [
+      { id: 0, time: '2018-03-02T00:00:00.000Z', type: 'upload' },
+      { id: 1, time: '2018-02-02T00:00:00.000Z', type: 'cbg' },
+      { id: 2, time: '2018-01-02T00:00:00.000Z', type: 'bolus' },
+      { id: 3, time: '2017-12-02T00:00:00.000Z', type: 'deviceEvent' },
+      { id: 4, time: '2017-11-02T00:00:00.000Z', type: 'basal' },
+    ];
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should return the datum index prior to the first diabetes datum outside our range boundary', () => {
+      expect(instance.getLastDatumToProcessIndex(unprocessedData, '2018-02-01T00:00:00.000Z')).to.equal(1)
+      expect(instance.getLastDatumToProcessIndex(unprocessedData, '2018-01-01T00:00:00.000Z')).to.equal(3)
+      expect(instance.getLastDatumToProcessIndex(unprocessedData, '2017-12-01T00:00:00.000Z')).to.equal(3)
+    });
+
+    it('should return the last datum when no diabetes data found beyond our range boundary', () => {
+      expect(instance.getLastDatumToProcessIndex(unprocessedData, '2017-11-01T00:00:00.000Z')).to.equal(4)
+    });
+
+    it('should include first diabetes datum found outside of our processing window if it\'s the only one', () => {
+      expect(instance.getLastDatumToProcessIndex(unprocessedData, '2018-02-15T00:00:00.000Z')).to.equal(1)
+      expect(instance.getLastDatumToProcessIndex(unprocessedData, '2018-04-15T00:00:00.000Z')).to.equal(1)
+    });
+  });
+
   describe('processData', () => {
     let wrapper;
     let instance;
@@ -2717,6 +2750,7 @@ describe('PatientData', function () {
           sinon.assert.calledWith(
             addDataStub,
             [
+              sinon.match(propsWithPreviousUpload.patientDataMap[40][3]),
               sinon.match(propsWithPreviousUpload.patientDataMap[40][2]),
               sinon.match(previousUpload), // previously processed upload record included
               sinon.match({ messageText: 'hello' }),
@@ -2815,13 +2849,13 @@ describe('PatientData', function () {
           );
         });
 
-        it('should set the lastProcessedDateTarget to state', () => {
+        it('should set the lastProcessedDateTarget to state with the regularly processing target datetime when the last processed datum is within the target processing daterange', () => {
           wrapper.setState({
             lastDatumProcessedIndex: 0, // previous data has been processed
             lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
           });
 
-          const expectedTargetDateTime = moment('2018-01-10T00:00:00.000Z').startOf('day').subtract(8, 'weeks').toISOString();
+          const expectedTargetDateTime = moment('2018-01-10T00:00:00.000Z').startOf('day').subtract(56, 'days').toISOString();
           wrapper.setProps(shouldProcessProps);
           setStateSpy.reset();
 
@@ -2830,6 +2864,34 @@ describe('PatientData', function () {
           sinon.assert.calledWithMatch(
             setStateSpy,
             { lastProcessedDateTarget: expectedTargetDateTime }
+          );
+        });
+
+        it('should set the lastProcessedDateTarget to state with last diabetes datum time when the last processed datum is outside the target processing daterange', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: 0, // previous data has been processed
+            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
+          });
+
+          const dataOutsideRange = [
+            { id: 0, time: '2018-02-09T00:00:00.000Z', type: 'bolus' },
+            { id: 1, time: '2017-11-01T00:00:00.000Z', type: 'bolus' },
+          ];
+
+          const propsWithDataOutsideRange = _.assign({}, shouldProcessProps, {
+            patientDataMap: {
+              40: dataOutsideRange,
+            }
+          });
+
+          wrapper.setProps(propsWithDataOutsideRange);
+          setStateSpy.reset();
+
+          instance.processData();
+          sinon.assert.calledTwice(setStateSpy);
+          sinon.assert.calledWithMatch(
+            setStateSpy,
+            { lastProcessedDateTarget: dataOutsideRange[1].time }
           );
         });
 
