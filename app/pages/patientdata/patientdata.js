@@ -941,11 +941,11 @@ export let PatientData = translate()(React.createClass({
     this.props.trackMetric('Fetched earlier patient data', { patientID, count });
   },
 
-  getLastDatumToProcessIndex: function (data, targetDatetime) {
+  getLastDatumToProcessIndex: function (unprocessedData, targetDatetime) {
     let diabetesDataCount = 0;
 
     // First, we get the index of the first diabetes datum that falls outside of our processing window.
-    let targetIndex = _.findIndex(data, datum => {
+    let targetIndex = _.findIndex(unprocessedData, datum => {
       const isDiabetesDatum = _.includes(DIABETES_DATA_TYPES, datum.type);
 
       if (isDiabetesDatum) {
@@ -958,7 +958,7 @@ export let PatientData = translate()(React.createClass({
     if (targetIndex === -1) {
       // If we didn't find a cutoff point (i.e. no diabetes datums beyond the cutoff time),
       // we process all the remaining fetched, unprocessed data.
-      targetIndex = data.length;
+      targetIndex = unprocessedData.length;
       this.log('No diabetes data found beyond current processing slice.  Processing all remaining unprocessed data');
     } else if (diabetesDataCount === 1) {
       // If the first diabetes datum found was outside of our processing window, we need to include it.
