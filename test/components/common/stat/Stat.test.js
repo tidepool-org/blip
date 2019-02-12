@@ -1870,12 +1870,17 @@ describe('Stat', () => {
 
   describe('formatDatum', () => {
     context('bgCount format', () => {
-      it('should return correctly formatted data when `value >= 0`', () => {
-        // Want rounded to 1 decimal place
+      it('should return correctly formatted data when `value >= 0.05`', () => {
         expect(instance.formatDatum({
           value: 2.67777777,
         }, statFormats.bgCount)).to.include({
           value: 2.7,
+        });
+
+        expect(instance.formatDatum({
+          value: 0.05,
+        }, statFormats.bgCount)).to.include({
+          value: 0.1,
         });
 
         // Want 0 decimal places if would end in `.0`
@@ -1883,6 +1888,14 @@ describe('Stat', () => {
           value: 3.0000001,
         }, statFormats.bgCount)).to.include({
           value: 3,
+        });
+      });
+
+      it('should return correctly formatted data when `value < 0.05`', () => {
+        expect(instance.formatDatum({
+          value: 0.035,
+        }, statFormats.bgCount)).to.include({
+          value: 0.04,
         });
       });
 

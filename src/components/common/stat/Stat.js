@@ -696,9 +696,10 @@ class Stat extends PureComponent {
     switch (format) {
       case statFormats.bgCount:
         if (value >= 0) {
+          const precision = value < 0.05 ? 2 : 1;
           // Note: the + converts the rounded, fixed string back to a number
           // This allows 2.67777777 to render as 2.7 and 3.0000001 to render as 3 (not 3.0)
-          value = +value.toFixed(1);
+          value = +value.toFixed(precision);
         } else {
           disableStat();
         }
