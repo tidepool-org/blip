@@ -69,3 +69,21 @@ export const multipleSuspends = [
     id: '505fos0locslfpj0ps3g598p961cugs3',
   },
 ];
+
+export const suspendsWithoutDuration = [
+  {
+    type: 'deviceEvent',
+    subType: 'status',
+    status: 'suspended',
+    utc: MIDNIGHT,
+    id: 'p2nt1v2fbnolg91sivpj8me7fvv96v7u',
+  },
+  {
+    type: 'deviceEvent',
+    subType: 'status',
+    status: 'suspended',
+    duration: TWENTY_MINS,
+    utc: MIDNIGHT,
+    id: 'c2conf8pvuahc30rhtqdqnth9u2smef3',
+  },
+];

@@ -30,6 +30,7 @@ describe('print module', () => {
 
   const data = {
     daily: { type: 'daily' },
+    weekly: { type: 'weekly' },
     basics: { type: 'basics' },
     settings: { type: 'settings' },
   };
@@ -38,6 +39,7 @@ describe('print module', () => {
     bgPrefs: {},
     numDays: {
       daily: 6,
+      weekly: 30,
     },
     patient: {},
     timePrefs: {},
@@ -45,6 +47,10 @@ describe('print module', () => {
   };
 
   class DailyPrintView {
+    render() {}
+  }
+
+  class WeeklyPrintView {
     render() {}
   }
 
@@ -65,6 +71,7 @@ describe('print module', () => {
   sinon.stub(Module.utils.PrintView, 'renderPageNumbers');
   sinon.stub(Module.utils, 'BasicsPrintView').returns(new BasicsPrintView());
   sinon.stub(Module.utils, 'DailyPrintView').returns(new DailyPrintView());
+  sinon.stub(Module.utils, 'WeeklyPrintView').returns(new WeeklyPrintView());
   sinon.stub(Module.utils, 'SettingsPrintView').returns(new SettingsPrintView());
   sinon.stub(Module.utils, 'blobStream').returns(new MemoryStream());
 
@@ -80,6 +87,7 @@ describe('print module', () => {
     Module.utils.PrintView.renderPageNumbers.resetHistory();
     Module.utils.BasicsPrintView.resetHistory();
     Module.utils.DailyPrintView.resetHistory();
+    Module.utils.WeeklyPrintView.resetHistory();
     Module.utils.SettingsPrintView.resetHistory();
     Module.utils.blobStream.resetHistory();
   });
@@ -130,7 +138,21 @@ describe('print module', () => {
           patient: opts.patient,
           timePrefs: opts.timePrefs,
           bgPrefs: opts.bgPrefs,
-          title: 'Daily View',
+          title: 'Daily Charts',
+        },
+      );
+
+      sinon.assert.calledOnce(Module.utils.WeeklyPrintView);
+      sinon.assert.calledWithMatch(
+        Module.utils.WeeklyPrintView,
+        doc,
+        data.weekly,
+        {
+          numDays: opts.numDays.weekly,
+          patient: opts.patient,
+          timePrefs: opts.timePrefs,
+          bgPrefs: opts.bgPrefs,
+          title: 'BG Readings',
         },
       );
 
