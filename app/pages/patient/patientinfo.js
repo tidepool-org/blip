@@ -28,6 +28,7 @@ import PatientSettings from './patientsettings';
 import PatientBgUnits from '../../components/patientBgUnits';
 import DonateForm from '../../components/donateform';
 import DataSources from '../../components/datasources';
+import Export from '../../components/export';
 import { DIABETES_TYPES } from '../../core/constants';
 
 const t = i18next.t.bind(i18next);
@@ -57,6 +58,7 @@ var PatientInfo = translate()(React.createClass({
     connectDataSource: React.PropTypes.func,
     disconnectDataSource: React.PropTypes.func,
     authorizedDataSource: React.PropTypes.object,
+    api: React.PropTypes.object.isRequired,
   },
 
   getInitialState: function() {
@@ -151,6 +153,7 @@ var PatientInfo = translate()(React.createClass({
         {this.renderBgUnitSettings()}
         {this.renderDonateForm()}
         {this.renderDataSources()}
+        {/*this.renderExport()*/}
       </div>
     );
   },
@@ -441,6 +444,17 @@ var PatientInfo = translate()(React.createClass({
     }
 
     return null;
+  },
+
+  renderExport: function() {
+    return (
+      <div className="PatientPage-export">
+        <div className="PatientPage-sectionTitle">Export My Data</div>
+        <div className="PatientInfo-content">
+          <Export api={this.props.api} patient={this.props.patient} />
+        </div>
+      </div>
+    )
   },
 
   isSamePersonUserAndPatient: function() {
