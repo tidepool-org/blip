@@ -1004,7 +1004,7 @@ export let PatientData = translate()(React.createClass({
 
       // If there's only 1 diabetes datum found up to the target index, and it's the last one,
       // we need to make sure it's included in the data slice to process.
-      if (diabetesDataCount === 1 && _.includes(DIABETES_DATA_TYPES, unprocessedPatientData[targetIndex].type)) {
+      if (diabetesDataCount === 1 && _.includes(DIABETES_DATA_TYPES, _.get(unprocessedPatientData, [targetIndex, 'type']))) {
         targetIndex++;
       }
 
