@@ -2,9 +2,10 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@0.13.0-release.1":
-  version "0.13.0-release.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.13.0-release.1.tgz#495ce108005cf4b3185e49950e7d67da2d806e8b"
+"@tidepool/viz@0.13.0":
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.13.0.tgz#47ccff10f13fea6c69069d7bda63605d6de7d22a"
+  integrity sha512-7jm9bYjVjHeACjKxXqO+1OsH80eqJyzF8z+U89vHCvOsRm1uIaiKOG3DwdgOaKNCFj5KsmTdAuDXlFwYq50l4Q==
   dependencies:
     bluebird "3.5.0"
     crossfilter "1.3.12"
@@ -7919,9 +7920,10 @@ thunkify@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@1.10.0-release.1:
-  version "1.10.0-release.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.10.0-release.1.tgz#677da36f8771dae5503bef423d0ca767476b3a0e"
+tideline@1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.10.0.tgz#9babc31c38c2b14c9201ca5daa5e1a8470334499"
+  integrity sha512-jNiru43g3pdWMeaVMmwc/fJUsbrnvkJ2Vh9lpXUdjwPSPHjFfStCkmCbcLImryheeny0ar69/UU2mLQNuVUX6A==
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
@@ -7933,9 +7935,10 @@ tideline@1.10.0-release.1:
     moment-timezone "0.5.5"
     sundial "1.5.0"
 
-tidepool-platform-client@0.40.0-release.1:
-  version "0.40.0-release.1"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.40.0-release.1.tgz#712b86b8c7f7914d90c0322791254e70c8837da4"
+tidepool-platform-client@0.40.0:
+  version "0.40.0"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.40.0.tgz#823b5435e0e8da4410e9da01662bdb7897815717"
+  integrity sha512-bWATD83rB7HxbsRKJ5wvlqo3TAbWyjsUcY59P2iLG8fi5w0YsO6Q22+ZaL78FPVCjwyWS6wijCOwqpaKIbK0FQ==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"
