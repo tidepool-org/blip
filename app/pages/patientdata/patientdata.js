@@ -1038,7 +1038,7 @@ export let PatientData = translate()(React.createClass({
 
       // We will set `lastProcessedDateTarget` to the earliest of either the last processed datum
       // time, or the `targetDateTime`. We can't just use `targetDateTime` because there are times
-      // where include and process datums that are outside of the scheduled processing time frame
+      // where we include and process datums that are outside of the scheduled processing time frame
       // when no diabetes data is found within it.
       const lastProcessedDateTargets = [
         patientData[lastDiabetesDatumProcessedIndex].time,
