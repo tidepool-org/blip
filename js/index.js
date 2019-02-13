@@ -26,7 +26,7 @@ if (_.get(i18next, 'options.returnEmptyString') === undefined) {
 }
 
 module.exports = {
-  TidelineData: require('./tidelinedata'),
+  TidelineData: require('./tidelinedata'),  
   pool: require('./pool'),
   oneDay: require('./oneday'),
   twoWeek: require('./twoweek'),
@@ -55,6 +55,7 @@ module.exports = {
     timechange: require('./plot/timechange'),
     SMBGTime: require('./plot/smbgtime'),
     smbg: require('./plot/smbg'),
+    suspend: require('./plot/suspend'), 
     wizard: require('./plot/wizard'),
     stats: {
       puddle: require('./plot/stats/puddle'),
