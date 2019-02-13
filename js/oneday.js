@@ -41,7 +41,7 @@ module.exports = function(emitter, opts) {
 
   // basic attributes
   var id,
-    minWidth = 400, minHeight = 400,
+    minWidth = 300, minHeight = 400,
     width = minWidth, height = minHeight,
     poolScaleHeight,
     nav = {

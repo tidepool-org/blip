@@ -710,9 +710,9 @@ describe('TidelineData', function() {
       var fills = thisTd.grouped.fill;
       var toDSTAt = '2014-03-09T10:00:00.000Z';
       var inDST = '2014-03-09T11:00:00.000Z';
-      var endsAtInDST = _.findWhere(fills, {normalEnd: inDST});
-      var endsAtToDST = _.findWhere(fills, {normalTime: toDSTAt});
-      var startsAtToDST = _.findWhere(fills, {normalTime: toDSTAt});
+      var endsAtInDST = _.find(fills, {normalEnd: inDST});
+      var endsAtToDST = _.find(fills, {normalTime: toDSTAt});
+      var startsAtToDST = _.find(fills, {normalTime: toDSTAt});
       assert.isUndefined(endsAtInDST);
       assert.isObject(endsAtToDST);
       assert.isObject(startsAtToDST);
@@ -728,8 +728,8 @@ describe('TidelineData', function() {
       }});
       var fills = thisTd.grouped.fill;
       var afterChange = '2014-11-02T11:00:00.000Z';
-      var endsAtAfterChange = _.findWhere(fills, {normalEnd: afterChange});
-      var startsAtAfterChange = _.findWhere(fills, {normalTime: afterChange});
+      var endsAtAfterChange = _.find(fills, {normalEnd: afterChange});
+      var startsAtAfterChange = _.find(fills, {normalTime: afterChange});
       assert.isObject(endsAtAfterChange);
       assert.isObject(startsAtAfterChange);
     });
@@ -786,7 +786,7 @@ describe('TidelineData', function() {
         timezoneAware: true,
         timezoneName: 'US/Pacific'
       }});
-      var twoWeekFills = _.where(thisTd.twoWeekData, {type: 'fill'});
+      var twoWeekFills = _.filter(thisTd.twoWeekData, {type: 'fill'});
       var firstFill = twoWeekFills[0], lastFill = twoWeekFills[twoWeekFills.length - 1];
       expect(firstFill.normalTime).to.equal('2014-12-19T08:00:00.000Z');
       expect(lastFill.normalTime).to.equal('2015-03-19T04:00:00.000Z');
@@ -816,7 +816,7 @@ describe('TidelineData', function() {
         timezoneAware: true,
         timezoneName: 'Pacific/Auckland'
       }});
-      var twoWeekFills = _.where(thisTd.twoWeekData, {type: 'fill'});
+      var twoWeekFills = _.filter(thisTd.twoWeekData, {type: 'fill'});
       var firstFill = twoWeekFills[0], lastFill = twoWeekFills[twoWeekFills.length - 1];
       expect(firstFill.normalTime).to.equal('2014-12-19T11:00:00.000Z');
       expect(lastFill.normalTime).to.equal('2015-03-19T08:00:00.000Z');
@@ -913,14 +913,14 @@ describe('TidelineData', function() {
     });
 
     it('should normalize to fake UTC by default', function() {
-      var datum = _.findWhere(thisTd.data, {type: 'basal'});
+      var datum = _.find(thisTd.data, {type: 'basal'});
       expect(datum.normalTime).to.equal(datum.deviceTime + '.000Z');
     });
 
     it('should apply the timezone offset of the environment (browser) to a message time when not timezoneAware', function() {
       var data = [new types.SMBG({deviceTime: '2014-01-01T00:00:00'}), new types.Message()];
       var thisTd = new TidelineData(data);
-      var datum = _.findWhere(thisTd.data, {type: 'message'});
+      var datum = _.find(thisTd.data, {type: 'message'});
       var now = new Date();
       var offset = now.getTimezoneOffset();
       var adjusted = new Date(datum.time);
@@ -930,21 +930,21 @@ describe('TidelineData', function() {
 
     it('should not re-normalize to new timezone if timezoneAware is still false', function() {
       thisTd.applyNewTimePrefs({timezoneName: 'Pacific/Auckland'});
-      var datum = _.findWhere(thisTd.data, {type: 'basal'});
+      var datum = _.find(thisTd.data, {type: 'basal'});
       expect(datum.normalTime).to.equal(datum.deviceTime + '.000Z');
     });
 
     it('should re-normalize to US/Pacific by default on switch to timezoneAware', function() {
       thisTd.applyNewTimePrefs({timezoneAware: true});
-      var datum = _.findWhere(thisTd.data, {type: 'basal'});
+      var datum = _.find(thisTd.data, {type: 'basal'});
       expect(datum.normalTime).to.equal(moment(datum.deviceTime).tz('US/Pacific').toISOString());
     });
 
     it('should re-normalize to new timezone when new timezoneName', function() {
       thisTd.applyNewTimePrefs({timezoneName: 'Pacific/Auckland'});
       thisTd.addData([new types.Message()]);
-      var datum = _.findWhere(thisTd.data, {type: 'basal'});
-      var message = _.findWhere(thisTd.data, {type: 'message'});
+      var datum = _.find(thisTd.data, {type: 'basal'});
+      var message = _.find(thisTd.data, {type: 'message'});
       expect(datum.normalTime).to.equal(moment(datum.deviceTime).tz('Pacific/Auckland').toISOString());
       expect(message.normalTime).to.equal(moment(message.time).tz('Pacific/Auckland').toISOString());
     });

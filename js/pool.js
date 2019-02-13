@@ -42,7 +42,7 @@ function Pool (container) {
     var pool = this;
     plotTypes.forEach(function(plotType) {
       if (container.dataFill[plotType.type]) {
-        plotType.data = _.where(poolData, {'type': plotType.type});
+        plotType.data = _.filter(poolData, {'type': plotType.type});
         var dataGroup = group.selectAll('#' + id + '_' + plotType.type).data([plotType.data]);
         dataGroup.enter().append('g').attr('id', id + '_' + plotType.type);
         if (plotType.data.length !== 0) {

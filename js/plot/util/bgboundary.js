@@ -27,19 +27,19 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
     return function(datum) {
       var category = categorizeBg(datum);
       if (category === "verylow") {
-        return 'd3-bg-low';
+        return 'd3-bg-very-low';
       }
       else if (category === "low") {
-        return 'd3-bg-low d3-circle-open';
+        return 'd3-bg-low';
       }
       else if (category === "target") {
         return 'd3-bg-target';
       }
       else if (category === "high") {
-        return 'd3-bg-high d3-circle-open';
+        return 'd3-bg-high';
       }
       else if (category === "veryhigh") {
-        return 'd3-bg-high';
+        return 'd3-bg-very-high';
       }
     };
   }

@@ -20,7 +20,6 @@
 
 var _ = require('lodash');
 var chai = require('chai');
-var assert = chai.assert;
 var expect = chai.expect;
 
 var React = require('react');
@@ -32,7 +31,7 @@ var BasicsChart = require('../plugins/blip/basics/chartbasicsfactory');
 var TidelineData = require('../js/tidelinedata');
 var types = require('../dev/testpage/types');
 
-var { MGDL_UNITS, MMOLL_UNITS } = require('../js/data/util/constants');
+var { MGDL_UNITS } = require('../js/data/util/constants');
 
 describe('BasicsChart', function() {
   it('should render', function() {
@@ -50,10 +49,10 @@ describe('BasicsChart', function() {
       timePrefs: {},
       updateBasicsData: sinon.stub(),
       updateBasicsSettings: sinon.stub(),
-      trackMetric: sinon.stub()
+      trackMetric: sinon.stub(),
+      size: { width: 1000 }
     };
-    var elem = React.createElement(BasicsChart, props);
-    var render = TestUtils.renderIntoDocument(elem);
+    var elem = React.createElement(BasicsChart.inner, props);
     expect(elem).to.be.ok;
     expect(console.error.callCount).to.equal(0);
   });
@@ -61,12 +60,12 @@ describe('BasicsChart', function() {
   it('should console.error when required props are missing', function() {
     console.error = sinon.stub();
     var props = {};
-    var elem = React.createElement(BasicsChart, props);
+    var elem = React.createElement(BasicsChart.inner, props);
     try {
       TestUtils.renderIntoDocument(elem);
     }
     catch(e) {
-      expect(console.error.callCount).to.equal(10);
+      expect(console.error.callCount).to.equal(11);
     }
   });
 
@@ -79,11 +78,12 @@ describe('BasicsChart', function() {
       patientData: td,
       timePrefs: {},
       updateBasicsData: sinon.stub(),
-      trackMetric: sinon.stub()
+      trackMetric: sinon.stub(),
+      size: { width: 1000 }
     };
-    var elem = React.createElement(BasicsChart, props);
+    var elem = React.createElement(BasicsChart.inner, props);
     var render = TestUtils.renderIntoDocument(elem);
-    expect(render.state.sections === basicsState.sections).to.be.false;
+    expect(render.state.sections === basicsState().sections).to.be.false;
   });
 
   describe('_insulinDataAvailable', function() {
@@ -96,9 +96,11 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       expect(render._insulinDataAvailable()).to.be.false;
@@ -113,9 +115,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       expect(render._insulinDataAvailable()).to.be.true;
@@ -130,9 +133,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       expect(render._insulinDataAvailable()).to.be.true;
@@ -147,9 +151,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       expect(render._insulinDataAvailable()).to.be.true;
@@ -168,9 +173,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       expect(render._automatedBasalEventsAvailable()).to.be.false;
@@ -188,9 +194,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       expect(render._automatedBasalEventsAvailable()).to.be.true;
@@ -207,9 +214,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       // basals gets disabled when no data
@@ -260,10 +268,11 @@ describe('BasicsChart', function() {
         }),
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
 
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
 
       // basals remain enabled when data present
@@ -282,212 +291,9 @@ describe('BasicsChart', function() {
       expect(render.state.sections.siteChanges.active).to.be.true;
       expect(basicsState().sections.siteChanges.active).to.be.true;
     });
-
-    it('should collapse and grey out the aggregated data sections if empty', function() {
-      var td = new TidelineData([new types.CBG()]);
-      var props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
-        onSelectDay: sinon.stub(),
-        patientData: td,
-        timePrefs: {},
-        updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
-      };
-      var elem = React.createElement(BasicsChart, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
-      // averageDailyCarbs closed when no data
-      expect(render.state.sections.averageDailyCarbs.noData).to.be.true;
-      expect(render.state.sections.averageDailyCarbs.togglable).to.be.false;
-
-      // basalBolusRatio closed when no data
-      expect(render.state.sections.basalBolusRatio.noData).to.be.true;
-      expect(render.state.sections.basalBolusRatio.togglable).to.be.false;
-
-      // totalDailyDose closed when no data
-      expect(render.state.sections.totalDailyDose.noData).to.be.true;
-      expect(render.state.sections.totalDailyDose.togglable).to.be.false;
-    });
-
-    it('should remove the "time in auto" and activate the "basal:bolus" ratio when pump is incapable of automated delivery', function() {
-      var td = new TidelineData([
-        new types.SMBG(),
-        new types.Bolus(),
-        new types.Basal(),
-        new types.Upload({
-          deviceTags: ['insulin-pump'],
-          deviceModel: 'xxx',
-          source: 'Insulet',
-        }),
-        new types.DeviceEvent({ subType: 'reservoirChange' }),
-      ]);
-      var props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
-        onSelectDay: sinon.stub(),
-        patient: {
-          profile: {},
-        },
-        permsOfLoggedInUser: { root: true },
-        patientData: td,
-        timePrefs: {},
-        updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
-      };
-      var elem = React.createElement(BasicsChart, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
-      // averageDailyCarbs closed when no data
-      expect(render.state.sections.timeInAutoRatio).to.be.undefined;
-      expect(render.state.sections.basalBolusRatio.active).to.be.true;
-    });
-
-    it('should show both the "basal:bolus" and "time in auto" ratios when pump is capable of automated delivery', function() {
-      var td = new TidelineData([
-        new types.SMBG(),
-        new types.Bolus(),
-        new types.Basal(),
-        new types.Upload({
-          deviceTags: ['insulin-pump'],
-          deviceModel: '1780',
-          source: 'Medtronic',
-        }),
-        new types.DeviceEvent({ subType: 'reservoirChange' }),
-      ]);
-      var props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
-        onSelectDay: sinon.stub(),
-        patient: {
-          profile: {},
-        },
-        permsOfLoggedInUser: { root: true },
-        patientData: td,
-        timePrefs: {},
-        updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
-      };
-      var elem = React.createElement(BasicsChart, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
-      // averageDailyCarbs closed when no data
-      expect(render.state.sections.basalBolusRatio.active).to.be.true;
-      expect(render.state.sections.timeInAutoRatio.active).to.be.true;
-    });
-  });
-
-  it('should calculate bgDistribution for mmol/L data', function() {
-    var td = new TidelineData([new types.Bolus(), new types.Basal(), new types.SMBG({ units: MMOLL_UNITS })]);
-    var props = {
-      bgUnits: MMOLL_UNITS,
-      bgClasses: td.bgClasses,
-      onSelectDay: sinon.stub(),
-      patientData: td,
-      timePrefs: {},
-      updateBasicsData: sinon.stub(),
-      trackMetric: sinon.stub()
-    };
-    var elem = React.createElement(BasicsChart, props);
-    var render = TestUtils.renderIntoDocument(elem);
-    expect(render.state.data.bgDistribution.smbg.target).to.equal(1);
-  });
-
-  describe('_aggregatedDataEmpty', function() {
-    it('should return true if aggregated data is empty', function() {
-      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
-      var props = {
-        bgUnits: MGDL_UNITS,
-        bgClasses: td.bgClasses,
-        onSelectDay: sinon.stub(),
-        patientData: td,
-        timePrefs: {},
-        updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
-      };
-      var elem = React.createElement(BasicsChart, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
-      expect(render._aggregatedDataEmpty()).to.be.true;
-    });
-
-    it('should return false if aggregated data is present', function() {
-      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
-      var props = {
-        bgUnits: MGDL_UNITS,
-        bgClasses: td.bgClasses,
-        onSelectDay: sinon.stub(),
-        patientData: _.assign({}, td, {
-          basicsData: _.assign({}, td.basicsData, {
-            data: _.assign({}, td.basicsData.data, {
-              basalBolusRatio: {
-                basal: 25,
-                bolus: 75,
-              },
-              averageDailyDose: '10',
-              averageDailyCarbs: '80',
-            }),
-            sections: [],
-          }),
-        }),
-        timePrefs: {},
-        updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
-      };
-      var elem = React.createElement(BasicsChart, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
-      expect(render._aggregatedDataEmpty()).to.be.false;
-    });
   });
 
   describe('componentDidMount', function() {
-    it('should track pump vacation message metric if aggregated data is missing', function() {
-      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
-      var props = {
-        bgUnits: MGDL_UNITS,
-        bgClasses: td.bgClasses,
-        onSelectDay: sinon.stub(),
-        patientData: td,
-        timePrefs: {},
-        updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
-      };
-      var elem = React.createElement(BasicsChart, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
-      sinon.assert.calledWith(props.trackMetric, 'web - pump vacation message displayed');
-    });
-
-    it('should not track pump vacation message metric if aggregated data is present', function() {
-      var td = new TidelineData([new types.Bolus(), new types.Basal()]);
-      var props = {
-        bgUnits: MGDL_UNITS,
-        bgClasses: td.bgClasses,
-        onSelectDay: sinon.stub(),
-        patientData: _.assign({}, td, {
-          basicsData: _.assign({}, td.basicsData, {
-            data: _.assign({}, td.basicsData.data, {
-              basalBolusRatio: {
-                basal: 25,
-                bolus: 75,
-              },
-              averageDailyDose: '10',
-              averageDailyCarbs: '80',
-            }),
-            sections: [],
-          }),
-        }),
-        timePrefs: {},
-        updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
-      };
-      var elem = React.createElement(BasicsChart, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
-      sinon.assert.neverCalledWith(props.trackMetric, 'web - pump vacation message displayed');
-    });
-
     it('should track metrics which device data was available to the user when viewing', function() {
       this.timeout(8000); // Double timeout for this test, as it seems to fail often on travis
 
@@ -500,46 +306,47 @@ describe('BasicsChart', function() {
         timePrefs: {},
         updateBasicsData: sinon.stub(),
         trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
 
       props.patientData = td;
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'Pump only'});
 
       props.trackMetric.reset();
       props.patientData = new TidelineData([new types.SMBG()]);
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM only'});
 
       props.trackMetric.reset();
       props.patientData = new TidelineData([new types.CBG()]);
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'CGM only'});
 
       props.trackMetric.reset();
       props.patientData = new TidelineData([new types.CBG(), new types.SMBG()]);
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM+CGM'});
 
       props.trackMetric.reset();
       props.patientData = new TidelineData([new types.SMBG(), new types.Basal()]);
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM+Pump'});
 
       props.trackMetric.reset();
       props.patientData = new TidelineData([new types.CBG(), new types.Basal()]);
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'CGM+Pump'});
 
       props.trackMetric.reset();
       props.patientData = new TidelineData([new types.CBG(), new types.SMBG(), new types.Basal()]);
-      elem = React.createElement(BasicsChart, props);
+      elem = React.createElement(BasicsChart.inner, props);
       TestUtils.renderIntoDocument(elem);
       sinon.assert.calledWith(props.trackMetric, 'web - viewed basics data', {device: 'BGM+CGM+Pump'});
     });
@@ -555,9 +362,10 @@ describe('BasicsChart', function() {
         patientData: td,
         timePrefs: {},
         updateBasicsData: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
       };
-      var elem = React.createElement(BasicsChart, props);
+      var elem = React.createElement(BasicsChart.inner, props);
       var render = TestUtils.renderIntoDocument(elem);
       ReactDOM.unmountComponentAtNode(ReactDOM.findDOMNode(render).parentNode);
 
