@@ -153,7 +153,7 @@ var PatientInfo = translate()(React.createClass({
         {this.renderBgUnitSettings()}
         {this.renderDonateForm()}
         {this.renderDataSources()}
-        {/*this.renderExport()*/}
+        {this.renderExport()}
       </div>
     );
   },
