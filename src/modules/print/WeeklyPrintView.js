@@ -87,7 +87,7 @@ class WeeklyPrintView extends PrintView {
     const smbgByTimeSlot = _.groupBy(
       data.data.smbg,
       datum => _.findLast(timeSlots, slot => datum.msPer24 >= slot)
-      );
+    );
 
     const row = {};
 

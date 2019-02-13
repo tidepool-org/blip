@@ -17,8 +17,7 @@
 
 import React from 'react';
 
-import { storiesOf } from '@kadira/storybook';
-import { WithNotes } from '@kadira/storybook-addon-notes';
+import { storiesOf } from '@storybook/react';
 
 import { createPrintView } from '../../src/modules/print/index';
 import { MARGIN } from '../../src/modules/print/utils/constants';
@@ -29,7 +28,9 @@ import { data as dataStub } from '../../data/patient/data';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
-/* global PDFDocument, blobStream */
+/* global PDFDocument, blobStream, window */
+
+const stories = storiesOf('Weekly View PDF', module);
 
 let data;
 try {
@@ -86,19 +87,14 @@ const notes = `Run \`window.downloadPrintViewData()\` from the console on a Tide
 Save the resulting file to the \`local/\` directory of viz as \`print-view.json\`,
 and then use this story to iterate on the Weekly Print PDF outside of Tidepool Web!`;
 
-storiesOf('Weekly View PDF', module)
-  .add(`standard account (${MGDL_UNITS})`, () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.standard })}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add(`standard account (${MGDL_UNITS})`, () => (
+  <button onClick={() => openPDF({ patient: profiles.standard })}>
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add(`standard account (${MMOLL_UNITS})`, () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.standard, bgUnits: MMOLL_UNITS })}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ));
+stories.add(`standard account (${MMOLL_UNITS})`, () => (
+  <button onClick={() => openPDF({ patient: profiles.standard, bgUnits: MMOLL_UNITS })}>
+    Open PDF in new tab
+  </button>
+), { notes });
