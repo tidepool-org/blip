@@ -489,7 +489,7 @@ export let PatientData = translate()(React.createClass({
         state.timePrefs,
       );
 
-      const weeklyData = vizUtils.selectWeeklyViewData(
+      const weeklyData = vizUtils.data.selectWeeklyViewData(
         mostRecent,
         _.pick(
           data.grouped,
@@ -1225,7 +1225,7 @@ export let PatientData = translate()(React.createClass({
             this.state.timePrefs,
           ),
           settings: _.last(data[bgUnits].grouped.pumpSettings),
-          weekly: vizUtils.selectWeeklyViewData(
+          weekly: vizUtils.data.selectWeeklyViewData(
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
               data[bgUnits].grouped,

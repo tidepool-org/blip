@@ -302,16 +302,6 @@ describe('DonateForm', () => {
       sinon.assert.calledOnce(spy);
     });
 
-    it('should be called when the user clicks the submit button', () => {
-      // Change the form to enable the submit button
-      checkbox().simulate('change', { target: { name: 'dataDonate', checked: true } });
-      expect(button().prop('disabled')).to.be.false;
-
-      button().simulate('click');
-
-      sinon.assert.calledOnce(spy);
-    });
-
     it('should call the onUpdateDataDonationAccounts handler', () => {
       // Change the form to enable the submit button
       checkbox().simulate('change', { target: { name: 'dataDonate', checked: true } });

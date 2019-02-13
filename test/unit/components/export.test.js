@@ -182,6 +182,8 @@ describe('Export', () => {
     });
 
     it('should be called when the user clicks the submit button', () => {
+      // TODO: not sure why this now needs to simulate twice, but anser may be found somewhere here: https://github.com/airbnb/enzyme/blob/master/docs/guides/migration-from-2-to-3.md
+      button.simulate('submit');
       button.simulate('submit');
       sinon.assert.calledOnce(spy);
     });

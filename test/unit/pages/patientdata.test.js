@@ -79,7 +79,7 @@ describe('PatientData', function () {
     }));
     PD.__Rewire__('vizUtils', {
       data: {
-        selectDailyViewData: sinon.stub().returns('stubbed filtered data'),
+        selectDailyViewData: sinon.stub().returns('stubbed filtered daily data'),
         selectWeeklyViewData: sinon.stub().returns('stubbed filtered weekly data'),
         DataUtil: DataUtilStub,
       },
@@ -2564,7 +2564,7 @@ describe('PatientData', function () {
               ],
             },
           }));
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledOnce(processPatientDataStub);

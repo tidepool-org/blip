@@ -130,11 +130,11 @@ describe('Weekly', () => {
     it('should have a disabled print button and spinner when a pdf is not ready to print', () => {
       let mountedWrapper = mount(<Weekly {...baseProps} />);
 
-      var printLink = mountedWrapper.find('.printview-print-icon');
+      var printLink = mountedWrapper.find('.printview-print-icon').hostNodes();
       expect(printLink.length).to.equal(1);
       expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.true;
 
-      var spinner = mountedWrapper.find('.print-loading-spinner');
+      var spinner = mountedWrapper.find('.print-loading-spinner').hostNodes();
       expect(spinner.length).to.equal(1);
     });
 
