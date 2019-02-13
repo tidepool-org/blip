@@ -17,9 +17,7 @@
 
 import React from 'react';
 import { scaleLinear } from 'd3-scale';
-
-import { storiesOf } from '@kadira/storybook';
-import { WithNotes } from '@kadira/storybook-addon-notes';
+import { storiesOf } from '@storybook/react';
 
 import Suspend from '../../../../src/components/common/data/Suspend';
 
@@ -29,15 +27,12 @@ const yScale = scaleLinear().domain([0, 15]).range([HEIGHT, 0]);
 
 import * as suspends from '../../../../data/deviceEvent/fixtures';
 
-storiesOf('Suspend', module)
-  .addDecorator(SixHrScaleSVGDecorator)
-  .add('single automated suspend', () => (
-    <WithNotes notes="A single automated suspend">
-      <Suspend suspends={suspends.singleSuspend} xScale={xScale} yScale={yScale} />
-    </WithNotes>
-  ))
-  .add('multiple automated suspends', () => (
-    <WithNotes notes="A set of automated suspends">
-      <Suspend suspends={suspends.multipleSuspends} xScale={xScale} yScale={yScale} />
-    </WithNotes>
-  ));
+const stories = storiesOf('Suspend', module);
+stories.addDecorator(SixHrScaleSVGDecorator);
+
+stories.add('single automated suspend', () => (
+  <Suspend suspends={suspends.singleSuspend} xScale={xScale} yScale={yScale} />
+), { notes: 'A single automated suspend' });
+stories.add('multiple automated suspends', () => (
+  <Suspend suspends={suspends.multipleSuspends} xScale={xScale} yScale={yScale} />
+), { notes: 'A set of automated suspends' });

@@ -306,7 +306,6 @@ describe('DailyPrintView', () => {
 
   describe('render', () => {
     it('should call all the appropriate render methods for each page and chart', () => {
-      sinon.stub(Renderer, 'renderPageNumber');
       sinon.stub(Renderer, 'renderSummary').returns(Renderer);
       sinon.stub(Renderer, 'renderXAxes').returns(Renderer);
       sinon.stub(Renderer, 'renderYAxes').returns(Renderer);
@@ -406,22 +405,22 @@ describe('DailyPrintView', () => {
     });
 
     it('should render the Average BG with cbg data if available', () => {
-      const averageBG = formatDecimalNumber(mean(args.data.cbg, (d) => (d.value)), 0);
-      const averageBGText = `${averageBG} ${Renderer.bgUnits}`;
+      const averageGlucose = formatDecimalNumber(mean(args.data.cbg, (d) => (d.value)), 0);
+      const averageGlucoseText = `${averageGlucose} ${Renderer.bgUnits}`;
 
       sinon.assert.calledWith(Renderer.doc.text, 'Average BG');
-      sinon.assert.calledWith(Renderer.doc.text, averageBGText);
+      sinon.assert.calledWith(Renderer.doc.text, averageGlucoseText);
     });
 
     it('should render the Average BG with smbg data if available', () => {
       const noCbgArgs = _.cloneDeep(args);
       noCbgArgs.data.cbg = [];
       Renderer.renderSummary(noCbgArgs);
-      const averageBG = formatDecimalNumber(mean(noCbgArgs.data.smbg, (d) => (d.value)), 0);
-      const averageBGText = `${averageBG} ${Renderer.bgUnits}`;
+      const averageGlucose = formatDecimalNumber(mean(noCbgArgs.data.smbg, (d) => (d.value)), 0);
+      const averageGlucoseText = `${averageGlucose} ${Renderer.bgUnits}`;
 
       sinon.assert.calledWith(Renderer.doc.text, 'Average BG');
-      sinon.assert.calledWith(Renderer.doc.text, averageBGText);
+      sinon.assert.calledWith(Renderer.doc.text, averageGlucoseText);
     });
 
     it('should render the total daily insulin', () => {
@@ -462,11 +461,11 @@ describe('DailyPrintView', () => {
       });
 
       it('should render the Average BG in mmol/L with correct formatting', () => {
-        const averageBG = formatDecimalNumber(mean(args.data.cbg, (d) => (d.value)), 1);
-        const averageBGText = `${averageBG} mmol/L`;
+        const averageGlucose = formatDecimalNumber(mean(args.data.cbg, (d) => (d.value)), 1);
+        const averageGlucoseText = `${averageGlucose} mmol/L`;
 
         sinon.assert.calledWith(Renderer.doc.text, 'Average BG');
-        sinon.assert.calledWith(Renderer.doc.text, averageBGText);
+        sinon.assert.calledWith(Renderer.doc.text, averageGlucoseText);
       });
     });
   });

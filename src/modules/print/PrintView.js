@@ -188,8 +188,8 @@ class PrintView {
 
   setNewPageTablePosition() {
     const xPos = this.layoutColumns
-        ? _.get(this, `layoutColumns.columns.${this.layoutColumns.activeIndex}.x`)
-        : this.chartArea.leftEdge;
+      ? _.get(this, `layoutColumns.columns.${this.layoutColumns.activeIndex}.x`)
+      : this.chartArea.leftEdge;
 
     this.doc.x = this.table.pos.x = xPos;
     this.doc.y = this.table.pos.y = this.chartArea.topEdge;

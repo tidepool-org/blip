@@ -28,8 +28,7 @@ import styles from './CBGMedianAnimated.css';
 
 export class CBGMedianAnimated extends PureComponent {
   static defaultProps = {
-    medianHeight: 10,
-    medianWidth: 14,
+    sliceWidth: 16,
   };
 
   static propTypes = {
@@ -54,9 +53,8 @@ export class CBGMedianAnimated extends PureComponent {
     }).isRequired,
     defaultY: PropTypes.number.isRequired,
     displayingMedian: PropTypes.bool.isRequired,
-    medianHeight: PropTypes.number.isRequired,
-    medianWidth: PropTypes.number.isRequired,
     showingCbgDateTraces: PropTypes.bool.isRequired,
+    sliceWidth: PropTypes.number.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
@@ -94,9 +92,8 @@ export class CBGMedianAnimated extends PureComponent {
       datum,
       defaultY,
       displayingMedian,
-      medianHeight,
-      medianWidth,
       showingCbgDateTraces,
+      sliceWidth,
       xScale,
       yScale,
     } = this.props;
@@ -104,16 +101,19 @@ export class CBGMedianAnimated extends PureComponent {
     const medianClasses = datum.median ?
       cx({
         [styles.median]: true,
-        [styles[`${classifyBgValue(bgBounds, datum.median)}FadeIn`]]: !showingCbgDateTraces,
-        [styles[`${classifyBgValue(bgBounds, datum.median)}FadeOut`]]: showingCbgDateTraces,
+        [styles[`${classifyBgValue(bgBounds, datum.median, 'fiveWay')}FadeIn`]]: !showingCbgDateTraces,
+        [styles[`${classifyBgValue(bgBounds, datum.median, 'fiveWay')}FadeOut`]]: showingCbgDateTraces,
       }) :
       cx({
         [styles.median]: true,
         [styles.transparent]: true,
       });
 
-    const binLeftX = xScale(datum.msX) - medianWidth / 2 + styles.stroke / 2;
-    const width = medianWidth - styles.stroke;
+    const strokeWidth = sliceWidth / 8;
+    const medianWidth = sliceWidth - strokeWidth;
+    const medianHeight = medianWidth * 0.75;
+    const binLeftX = xScale(datum.msX) - medianWidth / 2 + strokeWidth / 2;
+    const width = medianWidth - strokeWidth;
 
     const shouldRender = displayingMedian && (_.get(datum, 'median') !== undefined);
 

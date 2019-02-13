@@ -18,6 +18,7 @@
 .container {
   composes: absolute smallHorizontalPadding from '../../../styles/layout.css';
   top: 0px;
+  z-index: 1;
 }
 
 .number {

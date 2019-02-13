@@ -30,6 +30,12 @@ class Tooltip extends PureComponent {
     this.calculateOffset(this.props);
   }
 
+  componentDidUpdate() {
+    // In cases where the tooltip width is not statically set, we may need to re-caculate
+    // the offset after updates to get the proper positioning after browser reflow is complete.
+    this.calculateOffset(this.props);
+  }
+
   componentWillReceiveProps(nextProps) {
     this.calculateOffset(nextProps);
   }
@@ -76,7 +82,11 @@ class Tooltip extends PureComponent {
       offset.left = leftOffset + horizontalOffset;
     }
 
-    this.setState({ offset });
+    // We only update the offset state when a change is required.  Otherwise, we'd end up in an
+    // infinite render loop since this method is invoked from componentDidUpdate
+    if (!_.isEqual(offset, this.state.offset)) {
+      this.setState({ offset });
+    }
   }
 
   renderTail(backgroundColor = 'white') {
@@ -105,9 +115,9 @@ class Tooltip extends PureComponent {
             marginTop: `-${tailHeight}px`,
             marginLeft: marginOuterValue,
             borderWidth: `${tailHeight}px ${2 * tailWidth}px`,
-            [`border${_.capitalize(borderSide)}Color`]: borderColor,
+            [`border${_.upperFirst(borderSide)}Color`]: borderColor,
           }}
-        ></div>
+        />
         {tailInnerColor !== borderColor && (
           <div
             className={styles.tail}
@@ -115,10 +125,10 @@ class Tooltip extends PureComponent {
               marginTop: `-${tailHeight}px`,
               marginLeft: marginInnerValue,
               borderWidth: `${tailHeight}px ${2 * tailWidth}px`,
-              [`border${_.capitalize(borderSide)}Color`]:
+              [`border${_.upperFirst(borderSide)}Color`]:
                 this.props.tailColor || this.props.backgroundColor || backgroundColor,
             }}
-          ></div>
+          />
         )}
       </div>
     );
@@ -170,6 +180,8 @@ class Tooltip extends PureComponent {
     );
   }
 }
+
+Tooltip.displayName = 'Tooltip';
 
 Tooltip.propTypes = {
   title: PropTypes.node,

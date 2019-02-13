@@ -26,6 +26,9 @@
   padding: 4px;
 }
 
+.active {
+  font-weight: bold;
+}
 
 .toggle {
   display: inline-block;

@@ -37,11 +37,11 @@ const Loader = (props) => {
   return (
     <div className={loaderOuterClasses}>
       <div className={loaderInnerClasses}>
-        <div className={styles.loaderDot}></div>
-        <div className={styles.loaderDot}></div>
-        <div className={styles.loaderDot}></div>
-        <div className={styles.loaderDot}></div>
-        <div className={styles.loaderDot}></div>
+        <div className={styles.loaderDot} />
+        <div className={styles.loaderDot} />
+        <div className={styles.loaderDot} />
+        <div className={styles.loaderDot} />
+        <div className={styles.loaderDot} />
 
         <div className={styles.loaderText}>{text}</div>
       </div>

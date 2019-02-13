@@ -169,8 +169,9 @@ export class CBGSliceAnimated extends PureComponent {
       topMargin,
     };
 
-    const binLeftX = xScale(datum.msX) - sliceWidth / 2 + styles.stroke / 2;
-    const width = sliceWidth - styles.stroke;
+    const strokeWidth = sliceWidth / 8;
+    const binLeftX = xScale(datum.msX) - sliceWidth / 2 + strokeWidth / 2;
+    const width = sliceWidth - strokeWidth;
 
     return (
       <TransitionMotion

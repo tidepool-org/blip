@@ -95,8 +95,8 @@ describe('SMBGDateLineAnimated', () => {
 
   describe('interactions', () => {
     afterEach(() => {
-      props.focusLine.reset();
-      props.unfocusLine.reset();
+      props.focusLine.resetHistory();
+      props.unfocusLine.resetHistory();
     });
 
     it('should call focusLine on mouseover of smbg line', () => {

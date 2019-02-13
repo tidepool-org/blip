@@ -94,7 +94,7 @@ export function calculateBasalPath(basalSequence, xScale, yScale, {
   return path.replace(/\n/g, '').replace(/\s\s+/g, ' ');
 }
 
- /**
+/**
   * getBasalSequencePaths
   * @param {Array} basalSequence - an array of Tidepool basal events to be rendered as one
   * @param {Function} xScale - xScale preconfigured with domain & range
@@ -110,7 +110,7 @@ export function getBasalSequencePaths(basalSequence, xScale, yScale) {
 
   const types = _.uniq(
     _.reject(
-      _.pluck(
+      _.map(
         basalSequence, 'subType'
       ),
       (d) => (!_.isString(d))

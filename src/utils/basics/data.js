@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import sundial from 'sundial';
-import crossfilter from 'crossfilter';
+import crossfilter from 'crossfilter'; // eslint-disable-line import/no-unresolved
 import i18next from 'i18next';
 
 import generateClassifiers from '../classifiers';
@@ -504,8 +504,8 @@ export function averageExcludingMostRecentDay(dataObj, total, mostRecentDay) {
  */
 export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
   const bgLabels = generateBgRangeLabels(bgPrefs);
-  bgLabels.veryLow = _.capitalize(bgLabels.veryLow);
-  bgLabels.veryHigh = _.capitalize(bgLabels.veryHigh);
+  bgLabels.veryLow = _.upperFirst(bgLabels.veryLow);
+  bgLabels.veryHigh = _.upperFirst(bgLabels.veryHigh);
 
   const deviceLabels = getPumpVocabulary(manufacturer);
 

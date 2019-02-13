@@ -76,8 +76,8 @@ describe('PumpSettingsContainer', () => {
     });
 
     afterEach(() => {
-      markSettingsViewed.reset();
-      toggleSettingsSection.reset();
+      markSettingsViewed.resetHistory();
+      toggleSettingsSection.resetHistory();
     });
 
     describe('componentWillMount', () => {

@@ -85,7 +85,7 @@ class SettingsPrintView extends PrintView {
 
     const basalSchedules = profileSchedules(this.data);
 
-    const sortedSchedules = _.sortByOrder(basalSchedules,
+    const sortedSchedules = _.orderBy(basalSchedules,
       [
         schedule => (schedule.name === this.data.activeSchedule ? 1 : 0),
         'position',
@@ -230,7 +230,7 @@ class SettingsPrintView extends PrintView {
       schedule => (schedule.isAutomated && schedule.scheduleName !== activeSchedule)
     );
 
-    const sortedSchedules = _.sortByOrder(
+    const sortedSchedules = _.orderBy(
       schedules,
       [
         schedule => (schedule.isAutomated ? 1 : 0),

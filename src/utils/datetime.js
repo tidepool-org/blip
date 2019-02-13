@@ -165,20 +165,59 @@ export function formatDateRange(startDate, endDate, format) {
 /**
  * formatDuration
  * @param {Number} duration - positive integer duration in milliseconds
- *
+ * @param {String} format - one of [hoursFractional, condensed]
  * @return {String} formatted duration, e.g., '1¼ hr'
  */
-export function formatDuration(duration) {
+export function formatDuration(duration, opts = {}) {
   const momentDuration = moment.duration(duration);
+  const days = momentDuration.days();
+  const hours = momentDuration.hours();
+  const minutes = momentDuration.minutes();
+  const seconds = momentDuration.seconds();
+
   const QUARTER = '¼';
   const THIRD = '⅓';
   const HALF = '½';
   const TWO_THIRDS = '⅔';
   const THREE_QUARTERS = '¾';
-  const hours = momentDuration.hours();
-  const minutes = momentDuration.minutes();
 
-  if (hours !== 0) {
+  if (opts.condensed) {
+    const formatted = {
+      days: '',
+      hours: '',
+      minutes: '',
+      seconds: '',
+    };
+
+    if (days + hours + minutes === 0) {
+      // Less than a minute
+      if (seconds > 0) {
+        formatted.seconds = `${seconds}s`;
+      } else {
+        formatted.minutes = '0m';
+      }
+    } else {
+      let roundedMinutes = seconds >= 30 ? minutes + 1 : minutes;
+      let roundedHours = hours;
+      let roundedDays = days;
+
+      if (roundedMinutes >= 60) {
+        roundedMinutes = roundedMinutes - 60;
+        roundedHours++;
+      }
+
+      if (roundedHours >= 24) {
+        roundedHours = roundedHours - 24;
+        roundedDays++;
+      }
+
+      formatted.days = roundedDays !== 0 ? `${roundedDays}d ` : '';
+      formatted.hours = roundedHours !== 0 ? `${roundedHours}h ` : '';
+      formatted.minutes = roundedMinutes !== 0 ? `${roundedMinutes}m ` : '';
+    }
+
+    return `${formatted.days}${formatted.hours}${formatted.minutes}${formatted.seconds}`.trim();
+  } else if (hours !== 0) {
     const suffix = (hours === 1) ? 'hr' : 'hrs';
     switch (minutes) {
       case 0:

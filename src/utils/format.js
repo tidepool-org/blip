@@ -115,11 +115,11 @@ export function formatInsulin(val) {
  *
  * @return {String} percentage
  */
-export function formatPercentage(val) {
+export function formatPercentage(val, precision = 0) {
   if (Number.isNaN(val)) {
     return '--%';
   }
-  return format('.0%')(val);
+  return format(`.${precision}%`)(val);
 }
 
 /**

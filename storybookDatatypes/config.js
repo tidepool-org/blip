@@ -1,5 +1,8 @@
 /* eslint-disable */
-import { configure } from '@kadira/storybook';
+import { configure, addDecorator } from '@storybook/react';
+import { withNotes } from '@storybook/addon-notes';
+
+addDecorator(withNotes);
 
 function loadStories() {
   const context = require.context('../storiesDatatypes', true, /.js$/); // Load .js files in /storybook

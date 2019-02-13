@@ -149,9 +149,9 @@ class BolusTooltip extends PureComponent {
         extendedLine = [
           !!normal && (
             <div className={styles.normal} key={'normal'}>
-              <div className={styles.label}>{t('Up Front ({{normalPercentage}})', {
-                normalPercentage,
-              })}</div>
+              <div className={styles.label}>
+                {t('Up Front ({{normalPercentage}})', { normalPercentage })}
+              </div>
               <div className={styles.value}>{`${formatInsulin(normal)}`}</div>
               <div className={styles.units}>U</div>
             </div>
@@ -220,7 +220,7 @@ class BolusTooltip extends PureComponent {
         <div className={styles.value}>{formatInsulin(suggested)}</div>
         <div className={styles.units}>U</div>
       </div>
-      );
+    );
     const bgLine = !!bg && (
       <div className={styles.bg}>
         <div className={styles.label}>{t('BG')}</div>
@@ -256,7 +256,7 @@ class BolusTooltip extends PureComponent {
         <div className={styles.value}>{`1:${carbRatio}`}</div>
         <div className={styles.units} />
       </div>
-      );
+    );
     const isfLine = !!isf &&
       !!bg && (
       <div className={styles.isf}>
@@ -264,7 +264,7 @@ class BolusTooltip extends PureComponent {
         <div className={styles.value}>{`${this.formatBgValue(isf)}`}</div>
         <div className={styles.units} />
       </div>
-      );
+    );
 
     return (
       <div className={styles.container}>
@@ -316,7 +316,7 @@ class BolusTooltip extends PureComponent {
         <div className={styles.value}>{`${formatInsulin(programmed)}`}</div>
         <div className={styles.units}>U</div>
       </div>
-      );
+    );
 
     return (
       <div className={styles.container}>

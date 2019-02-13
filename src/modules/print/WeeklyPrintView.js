@@ -82,12 +82,12 @@ class WeeklyPrintView extends PrintView {
     const data = this.data.dataByDate[date];
     const dateMoment = moment(date);
     const isWeekend = _.includes(['0', '6'], dateMoment.format('d'));
-    const timeSlots = _.filter(_.pluck(_.sortBy(this.bgChart.columns, 'id'), 'id'), _.isNumber);
+    const timeSlots = _.filter(_.map(_.sortBy(this.bgChart.columns, 'id'), 'id'), _.isNumber);
 
     const smbgByTimeSlot = _.groupBy(
       data.data.smbg,
       datum => _.findLast(timeSlots, slot => datum.msPer24 >= slot)
-      );
+    );
 
     const row = {};
 

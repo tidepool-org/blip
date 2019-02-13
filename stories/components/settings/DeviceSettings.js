@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { storiesOf } from '@kadira/storybook';
+import { storiesOf } from '@storybook/react';
 
 import { MMOLL_UNITS } from '../../../src/utils/constants';
 import NonTandem from '../../../src/components/settings/NonTandem';

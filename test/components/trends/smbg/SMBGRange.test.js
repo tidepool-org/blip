@@ -67,8 +67,8 @@ describe('SMBGRange', () => {
 
   describe('interactions', () => {
     afterEach(() => {
-      props.focusRange.reset();
-      props.unfocusRange.reset();
+      props.focusRange.resetHistory();
+      props.unfocusRange.resetHistory();
     });
 
     describe('onMouseOver', () => {
