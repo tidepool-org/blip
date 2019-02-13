@@ -29,7 +29,7 @@ var expect = chai.expect;
 import React from 'react';
 import _ from 'lodash';
 import Weekly from '../../../../app/components/chart/weekly';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../../app/core/language';
@@ -86,7 +86,13 @@ describe('Weekly', () => {
         smbg: [],
       },
     },
+    pdf: {},
+    printReady: false,
+    WeeklyState: {
+      '1234': {},
+    },
     loading: false,
+    onClickPrint: sinon.stub(),
     onUpdateChartDateRange: sinon.stub(),
     t: i18next.t.bind(i18next),
     updateDatetimeLocation: sinon.stub()
@@ -100,6 +106,7 @@ describe('Weekly', () => {
   })
 
   afterEach(() => {
+    baseProps.onClickPrint.reset();
     baseProps.onUpdateChartDateRange.reset();
     baseProps.updateDatetimeLocation.reset();
   });
@@ -118,6 +125,39 @@ describe('Weekly', () => {
     it('should render the stats', () => {
       const stats = wrapper.find('Stats');
       expect(stats.length).to.equal(1);
+    });
+
+    it('should have a disabled print button and spinner when a pdf is not ready to print', () => {
+      let mountedWrapper = mount(<Weekly {...baseProps} />);
+
+      var printLink = mountedWrapper.find('.printview-print-icon');
+      expect(printLink.length).to.equal(1);
+      expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.true;
+
+      var spinner = mountedWrapper.find('.print-loading-spinner');
+      expect(spinner.length).to.equal(1);
+    });
+
+    it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', () => {
+      var props = _.assign({}, baseProps, {
+        pdf: {
+          url: 'blobURL',
+        },
+      });
+
+      let mountedWrapper = mount(<Weekly {...props} />);
+      const instance = mountedWrapper.instance().getWrappedInstance();
+
+      var printLink = mountedWrapper.find('.printview-print-icon');
+      expect(printLink.length).to.equal(1);
+      expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.false;
+
+      var spinner = mountedWrapper.find('.print-loading-spinner');
+      expect(spinner.length).to.equal(0);
+
+      expect(baseProps.onClickPrint.callCount).to.equal(0);
+      printLink.simulate('click');
+      expect(baseProps.onClickPrint.callCount).to.equal(1);
     });
   });
 

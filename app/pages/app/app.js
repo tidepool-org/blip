@@ -330,7 +330,15 @@ export class AppComponent extends React.Component {
 
   renderFooter() {
     var shouldDisplayFooterLinks = !_.includes(
-      ['/signup', '/signup/personal', '/signup/clinician', '/email-verification', '/terms', '/patients/new'],
+      [
+        '/signup',
+        '/signup/personal',
+        '/signup/clinician',
+        '/email-verification',
+        '/request-password-reset',
+        '/terms',
+        '/patients/new'
+      ],
       this.props.location
     );
 
@@ -344,7 +352,6 @@ export class AppComponent extends React.Component {
           </div>
         </div>
       </div>
-
     );
   }
 

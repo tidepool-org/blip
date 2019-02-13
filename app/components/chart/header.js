@@ -56,6 +56,10 @@ const TidelineHeader = translate()(class TidelineHeader extends Component {
 
   renderStandard = () => {
     const { t } = this.props;
+
+    const printViews = ['basics', 'daily', 'weekly', 'settings'];
+    const showPrintLink = _.includes(printViews, this.props.chartType);
+
     const basicsLinkClass = cx({
       'js-basics': true,
       'patient-data-subnav-active': this.props.chartType === 'basics',
@@ -131,8 +135,8 @@ const TidelineHeader = translate()(class TidelineHeader extends Component {
       'printview-print-icon': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
-      'patient-data-subnav-active': _.includes(['daily', 'basics', 'settings'], this.props.chartType),
-      'patient-data-subnav-hidden': !_.includes(['daily', 'basics', 'settings'], this.props.chartType),
+      'patient-data-subnav-active': showPrintLink,
+      'patient-data-subnav-hidden': !showPrintLink,
       'patient-data-subnav-disabled': !this.props.printReady,
     });
 

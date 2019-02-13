@@ -966,12 +966,12 @@ export function fetchPatientData(api, options, id) {
 
           if (options.initial) {
             const range = utils.getDiabetesDataRange(patientData);
-            const minWeeks = 4;
+            const minDays = 30;
 
             if (range.spanInDays) {
-              const minStartDate = moment.utc(range.end).subtract(minWeeks, 'weeks').startOf('day').toISOString();
+              const minStartDate = moment.utc(range.end).subtract(minDays, 'days').startOf('day').toISOString();
 
-              if (range.spanInDays / 7 >= minWeeks) {
+              if (range.spanInDays >= minDays) {
                 // We have enough data for the initial rendering.
                 dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, minStartDate));
               }

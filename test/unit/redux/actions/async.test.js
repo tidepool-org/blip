@@ -2826,14 +2826,14 @@ describe('Actions', () => {
       beforeEach(() => {
         options = {
           startDate: '2018-01-01T00:00:00.000Z',
-          endDate: '2018-01-28T00:00:00.000Z',
+          endDate: '2018-01-30T00:00:00.000Z',
           useCache: true,
           initial: true,
         };
 
         patientData = [
           { id: 25, value: 540.4, type: 'smbg', time: '2018-01-01T00:00:00.000Z' },
-          { id: 25, value: 540.4, type: 'smbg', time: '2018-01-28T00:00:00.000Z' },
+          { id: 25, value: 540.4, type: 'smbg', time: '2018-01-30T00:00:00.000Z' },
         ];
 
         teamNotes = [
@@ -2854,9 +2854,9 @@ describe('Actions', () => {
 
         async.__Rewire__('utils', {
           getDiabetesDataRange: sinon.stub().returns({
-            spanInDays: 28,
+            spanInDays: 30,
             start: '2018-01-01T00:00:00.000Z',
-            end: '2018-01-28T00:00:00.000Z',
+            end: '2018-01-30T00:00:00.000Z',
           }),
         });
       });
@@ -2928,7 +2928,7 @@ describe('Actions', () => {
       it('should trigger FETCH_PATIENT_DATA_REQUEST twice for a successful request when not enough data is returned on first call', () => {
         async.__Rewire__('utils', {
           getDiabetesDataRange: sinon.stub().returns({
-            spanInDays: 27, // should trigger second fetch if less than 28
+            spanInDays: 29, // should trigger second fetch if less than 30
             start: '2018-01-01T00:00:00.000Z',
             end: '2018-01-01T00:14:00.000Z',
           }),
@@ -2948,7 +2948,7 @@ describe('Actions', () => {
               patientData: patientData,
               patientNotes: teamNotes,
               patientId: patientId,
-              fetchedUntil: '2017-12-04T00:00:00.000Z'
+              fetchedUntil: '2017-12-02T00:00:00.000Z'
             },
           },
         ];
@@ -2965,7 +2965,7 @@ describe('Actions', () => {
         expect(api.patientData.get.withArgs(patientId).callCount).to.equal(2);
         expect(api.patientData.get.firstCall.args[1]).to.eql(options);
         expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
-          startDate: '2017-12-04T00:00:00.000Z',
+          startDate: '2017-12-02T00:00:00.000Z',
           endDate: serverTimePlusOneDay,
           initial: false,
         }));
@@ -2976,9 +2976,9 @@ describe('Actions', () => {
           end: options.endDate,
         }));
         expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
-          startDate: '2017-12-04T00:00:00.000Z',
+          startDate: '2017-12-02T00:00:00.000Z',
           endDate: serverTimePlusOneDay,
-          start: '2017-12-04T00:00:00.000Z',
+          start: '2017-12-02T00:00:00.000Z',
           end: serverTimePlusOneDay,
           initial: false,
         }));

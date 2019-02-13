@@ -165,14 +165,16 @@ class Weekly extends Component {
     dataUtil: React.PropTypes.object,
     initialDatetimeLocation: React.PropTypes.string,
     isClinicAccount: React.PropTypes.bool.isRequired,
-    onClickRefresh: React.PropTypes.func.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
+    onClickRefresh: React.PropTypes.func.isRequired,
+    onClickPrint: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     patientData: React.PropTypes.object.isRequired,
+    pdf: React.PropTypes.object.isRequired,
     loading: React.PropTypes.bool.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -275,6 +277,7 @@ class Weekly extends Component {
       <Header
         chartType={this.chartType}
         patient={this.props.patient}
+        printReady={!!this.props.pdf.url}
         atMostRecent={this.state.atMostRecent}
         inTransition={this.state.inTransition}
         title={this.state.title}
@@ -289,6 +292,7 @@ class Weekly extends Component {
         onClickOneDay={this.handleClickOneDay}
         onClickSettings={this.props.onSwitchToSettings}
         onClickTwoWeeks={this.handleClickTwoWeeks}
+        onClickPrint={this.handleClickPrint}
       ref="header" />
     );
   };
@@ -304,6 +308,8 @@ class Weekly extends Component {
         onClickTrends={this.handleClickTrends}
         onClickSettings={this.props.onSwitchToSettings}
         onClickTwoWeeks={this.handleClickTwoWeeks}
+        onClickPrint={this.handleClickPrint}
+        printReady={!!this.props.pdf.url}
       ref="header" />
     );
   };
@@ -379,6 +385,14 @@ class Weekly extends Component {
       datetime = this.refs.chart.getCurrentDay(this.props.timePrefs);
     }
     this.props.onSwitchToDaily(datetime);
+  };
+
+  handleClickPrint = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickPrint(this.props.pdf);
   };
 
   handleClickTwoWeeks = e => {

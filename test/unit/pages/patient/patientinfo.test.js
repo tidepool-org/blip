@@ -920,4 +920,10 @@ describe('PatientInfo', function () {
       expect(wrapper.find('.PatientPage-dataSources').hostNodes()).to.have.length(1);
     });
   });
+
+  describe.skip('renderExport', function() {
+    it('should render the export UI', function(){
+      expect(wrapper.find('.PatientPage-export')).to.have.length(1);
+    })
+  });
 });

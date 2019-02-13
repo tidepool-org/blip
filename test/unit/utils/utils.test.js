@@ -338,6 +338,43 @@ describe('utils', () => {
     });
   });
 
+  describe('getMedtronic', () => {
+    it('should return medtronic from query property of location object', () => {
+      var location = {
+        query: {
+          medtronic: 'true'
+        }
+      };
+      expect(utils.getMedtronic(location)).to.equal('true');
+    });
+
+    it('should return empty string if empty medtronic in query property of location object', () => {
+      var location = {
+        query: {
+          medtronic: ''
+        }
+      };
+      expect(utils.getMedtronic(location)).to.equal('');
+    });
+
+    it('should return null if no location object', () => {
+      expect(utils.getMedtronic()).to.equal(null);
+    });
+
+    it('should return null if no query property of location object', () => {
+      expect(utils.getMedtronic({})).to.equal(null);
+    });
+
+    it('should return null if no medtronic in query property of location object', () => {
+      var location = {
+        query: {
+          signupEmail: 'jane@tidepool.org'
+        }
+      };
+      expect(utils.getMedtronic(location)).to.equal(null);
+    });
+  });
+
   describe('translateBg', () => {
     it('should translate a BG value to the desired target unit', () => {
       expect(utils.translateBg(180, MMOLL_UNITS)).to.equal(10);

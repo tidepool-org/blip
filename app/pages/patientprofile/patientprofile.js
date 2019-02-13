@@ -97,6 +97,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     disconnectDataSource: dispatchProps.disconnectDataSource.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric,
     queryParams: ownProps.location.query,
+    api: api
   });
 };
 
