@@ -48,7 +48,7 @@ import {
   statBgSourceLabels,
 } from './utils/stat';
 import DataUtil from './utils/data';
-import { selectDailyViewData } from './utils/print/data';
+import { selectDailyViewData, selectWeeklyViewData } from './utils/print/data';
 
 const i18next = require('i18next');
 if (_.get(i18next, 'options.returnEmptyString') === undefined) {
@@ -86,6 +86,7 @@ const utils = {
   },
   data: {
     selectDailyViewData,
+    selectWeeklyViewData,
     DataUtil,
   },
   datetime: {

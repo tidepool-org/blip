@@ -77,7 +77,7 @@ describe('BasicsPrintView', () => {
       timezoneName: 'US/Pacific',
     },
     width: 8.5 * DPI - (2 * MARGIN),
-    title: 'Device Settings',
+    title: 'The Basics',
   };
 
   const createRenderer = (renderData = data, renderOpts = opts) => (

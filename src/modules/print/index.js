@@ -21,8 +21,9 @@ import _ from 'lodash';
 
 import i18next from 'i18next';
 import PrintView from './PrintView';
-import DailyPrintView from './DailyPrintView';
 import BasicsPrintView from './BasicsPrintView';
+import DailyPrintView from './DailyPrintView';
+import WeeklyPrintView from './WeeklyPrintView';
 import SettingsPrintView from './SettingsPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
 
@@ -41,8 +42,9 @@ export const utils = {
   PDFDocument: class PDFDocumentStub {},
   blobStream: function blobStreamStub() {},
   PrintView,
-  DailyPrintView,
   BasicsPrintView,
+  DailyPrintView,
+  WeeklyPrintView,
   SettingsPrintView,
 };
 
@@ -92,7 +94,7 @@ export function createPrintView(type, data, opts, doc) {
         numDays: numDays.daily,
         summaryHeaderFontSize: 10,
         summaryWidthAsPercentage: 0.18,
-        title: t('Daily View'),
+        title: t('Daily Charts'),
       });
       break;
 
@@ -101,6 +103,15 @@ export function createPrintView(type, data, opts, doc) {
 
       renderOpts = _.assign(renderOpts, {
         title: t('The Basics'),
+      });
+      break;
+
+    case 'weekly':
+      Renderer = utils.WeeklyPrintView;
+
+      renderOpts = _.assign(renderOpts, {
+        numDays: numDays.weekly,
+        title: t('BG Readings'),
       });
       break;
 
@@ -154,6 +165,7 @@ export function createPrintPDFPackage(data, opts) {
 
     if (data.basics) createPrintView('basics', data.basics, pdfOpts, doc).render();
     if (data.daily) createPrintView('daily', data.daily, pdfOpts, doc).render();
+    if (data.weekly) createPrintView('weekly', data.weekly, pdfOpts, doc).render();
     if (data.settings) createPrintView('settings', data.settings, pdfOpts, doc).render();
 
     PrintView.renderPageNumbers(doc);

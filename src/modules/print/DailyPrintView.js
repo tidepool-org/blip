@@ -167,7 +167,7 @@ class DailyPrintView extends PrintView {
     }
 
     while (this.chartsPlaced < numDays) {
-      this.placeChartsOnPage(this.totalPages);
+      this.placeChartsOnPage();
     }
     _.each(this.chartsByDate, (dateChart) => {
       this.makeScales(dateChart);
@@ -278,7 +278,7 @@ class DailyPrintView extends PrintView {
     return this;
   }
 
-  placeChartsOnPage(pageIndex) {
+  placeChartsOnPage() {
     const { topEdge, bottomEdge } = this.chartArea;
     let totalChartHeight = 0;
     const dates = _.keys(this.chartsByDate);
@@ -299,7 +299,7 @@ class DailyPrintView extends PrintView {
     }
     for (let i = startingIndexThisPage; i < startingIndexThisPage + chartsOnThisPage; ++i) {
       const chart = this.chartsByDate[dates[i]];
-      chart.page = pageIndex;
+      chart.page = this.totalPages;
       if (i === startingIndexThisPage) {
         chart.topEdge = this.chartArea.topEdge;
         chart.bottomEdge = this.chartArea.topEdge + chart.chartHeight;
@@ -309,8 +309,6 @@ class DailyPrintView extends PrintView {
         chart.bottomEdge = chart.topEdge + chart.chartHeight;
       }
     }
-
-    this.totalPages += 1;
 
     this.doc.addPage();
 

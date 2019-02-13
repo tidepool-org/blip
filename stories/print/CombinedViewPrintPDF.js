@@ -43,16 +43,16 @@ try {
 
 const bgBounds = {
   [MGDL_UNITS]: {
-    veryHighThreshold: 300,
+    veryHighThreshold: 250,
     targetUpperBound: 180,
     targetLowerBound: 70,
     veryLowThreshold: 54,
   },
   [MMOLL_UNITS]: {
-    veryHighThreshold: 16.7,
+    veryHighThreshold: 13.9,
     targetUpperBound: 10,
     targetLowerBound: 3.9,
-    veryLowThreshold: 3.12345,
+    veryLowThreshold: 3.0,
   },
 };
 
@@ -70,12 +70,14 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
     },
     numDays: {
       daily: 6,
+      weekly: 30,
     },
     patient,
   };
 
   createPrintView('basics', data[bgUnits].basics, opts, doc).render();
   createPrintView('daily', data[bgUnits].daily, opts, doc).render();
+  createPrintView('weekly', data[bgUnits].weekly, opts, doc).render();
   createPrintView('settings', data[bgUnits].settings, opts, doc).render();
 
   PrintView.renderPageNumbers(doc);

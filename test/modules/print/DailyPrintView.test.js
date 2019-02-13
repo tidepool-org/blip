@@ -193,8 +193,7 @@ describe('DailyPrintView', () => {
       expect(Renderer.chartsPlaced).to.be.a('number');
       expect(Renderer.chartsPlaced > 0).to.be.true;
 
-      expect(Renderer.totalPages).to.be.a('number');
-      expect(Renderer.totalPages > 0).to.be.true;
+      sinon.assert.callCount(Renderer.doc.addPage, 2);
     });
 
     it('should make chart scales in preparation for rendering', () => {
@@ -258,7 +257,10 @@ describe('DailyPrintView', () => {
 
     it('should call the newPage method of the parent class with a date range string', () => {
       Renderer.newPage();
-      sinon.assert.calledWith(PrintView.prototype.newPage, 'Date range: Dec 28 - Dec 30, 2016');
+      sinon.assert.calledWith(
+        PrintView.prototype.newPage,
+        'Date range: Dec 28, 2016 - Jan 2, 2017'
+      );
     });
 
     it('should render a legend', () => {

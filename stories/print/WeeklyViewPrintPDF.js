@@ -16,22 +16,20 @@
  */
 
 import React from 'react';
-import _ from 'lodash';
-import { storiesOf } from '@storybook/react';
+
+import { storiesOf } from '@kadira/storybook';
+import { WithNotes } from '@kadira/storybook-addon-notes';
 
 import { createPrintView } from '../../src/modules/print/index';
 import { MARGIN } from '../../src/modules/print/utils/constants';
 import PrintView from '../../src/modules/print/PrintView';
 
 import * as profiles from '../../data/patient/profiles';
-import * as settings from '../../data/patient/settings';
 import { data as dataStub } from '../../data/patient/data';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
-/* global PDFDocument, blobStream, window */
-
-const stories = storiesOf('Basics View PDF', module);
+/* global PDFDocument, blobStream */
 
 let data;
 try {
@@ -68,10 +66,13 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
       timezoneAware: true,
       timezoneName: 'US/Eastern',
     },
+    numDays: {
+      weekly: 30,
+    },
     patient,
   };
 
-  createPrintView('basics', data[bgUnits].basics, opts, doc).render();
+  createPrintView('weekly', data[bgUnits].weekly, opts, doc).render();
   PrintView.renderPageNumbers(doc);
 
   doc.end();
@@ -83,60 +84,21 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
 
 const notes = `Run \`window.downloadPrintViewData()\` from the console on a Tidepool Web data view.
 Save the resulting file to the \`local/\` directory of viz as \`print-view.json\`,
-and then use this story to iterate on the Basics Print PDF outside of Tidepool Web!`;
+and then use this story to iterate on the Weekly Print PDF outside of Tidepool Web!`;
 
-profiles.longName = _.cloneDeep(profiles.standard);
-profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
+storiesOf('Weekly View PDF', module)
+  .add(`standard account (${MGDL_UNITS})`, () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: profiles.standard })}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ))
 
-stories.add(`cannula prime (${MGDL_UNITS})`, () => (
-  <button
-    onClick={() => openPDF({ patient: {
-      ...profiles.standard,
-      ...settings.cannulaPrimeSelected,
-    } })}
-  >
-    Open PDF in new tab
-  </button>
-), { notes });
-
-stories.add(`tubing prime (${MMOLL_UNITS})`, () => (
-  <button
-    onClick={() => openPDF({
-      patient: {
-        ...profiles.standard,
-        ...settings.tubingPrimeSelected,
-      },
-      bgUnits: MMOLL_UNITS,
-    })}
-  >
-    Open PDF in new tab
-  </button>
-), { notes });
-
-stories.add(`reservoir change (${MGDL_UNITS})`, () => (
-  <button
-    onClick={() => openPDF({
-      patient: {
-        ...profiles.standard,
-        ...settings.reservoirChangeSelected,
-      },
-      bgUnits: MGDL_UNITS,
-    })}
-  >
-    Open PDF in new tab
-  </button>
-), { notes });
-
-stories.add(`site change source undefined (${MMOLL_UNITS})`, () => (
-  <button
-    onClick={() => openPDF({
-      patient: {
-        ...profiles.standard,
-        ...settings.siteChangeSourceUndefined,
-      },
-      bgUnits: MMOLL_UNITS,
-    })}
-  >
-    Open PDF in new tab
-  </button>
-), { notes });
+  .add(`standard account (${MMOLL_UNITS})`, () => (
+    <WithNotes notes={notes}>
+      <button onClick={() => openPDF({ patient: profiles.standard, bgUnits: MMOLL_UNITS })}>
+        Open PDF in new tab
+      </button>
+    </WithNotes>
+  ));
