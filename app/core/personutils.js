@@ -171,8 +171,8 @@ personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, curren
 
   const now = new Date();
   currentDateObj = currentDateObj || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-  var birthdayDateObj = sundial.parseFromFormat(birthday, dateFormat);
-  var diagnosisDateObj = sundial.parseFromFormat(diagnosisDate, dateFormat);
+  var birthdayDateObj = birthday && sundial.parseFromFormat(birthday, dateFormat);
+  var diagnosisDateObj = diagnosisDate && sundial.parseFromFormat(diagnosisDate, dateFormat);
 
   if (!validationErrors.birthday && birthdayDateObj > currentDateObj) {
     validationErrors.birthday = INVALID_DATE_TEXT;

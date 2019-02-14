@@ -20,7 +20,7 @@ import cx from 'classnames';
 import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
 import { browserHistory } from 'react-router';
-import WindowSizeListener from 'react-window-size-listener'
+import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
 
 import { SortHeaderCell, SortTypes } from './sortheadercell';
@@ -115,7 +115,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
       };
     });
 
-    return _.sortByOrder(list, ['fullNameOrderable'], [SortTypes.DESC]);
+    return _.orderBy(list, ['fullNameOrderable'], [SortTypes.DESC]);
   }
 
   handleFilterChange(e) {
@@ -140,7 +140,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
   }
 
   handleSortChange(columnKey, sortDir, track) {
-    const sorted = _.sortByOrder(this.state.dataList, [columnKey], [sortDir]);
+    const sorted = _.orderBy(this.state.dataList, [columnKey], [sortDir]);
 
     if (track) {
       let metricMessage = 'Sort by ';
@@ -293,12 +293,13 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
     let tableWidth = 880;
 
     switch (true) {
-      case (windowSize.windowWidth < 650):
-        tableWidth = windowSize.windowWidth - 23;
+
+      case (windowSize.windowWidth < 480):
+        tableWidth = windowSize.windowWidth - 20;
         break;
 
-      case (windowSize.windowWidth < 1020):
-        tableWidth = 610;
+      case (windowSize.windowWidth < 934):
+        tableWidth = windowSize.windowWidth - 60;
         break;
     }
 

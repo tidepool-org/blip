@@ -55,6 +55,20 @@
 
 .container-box-outer {
   &:extend(.container-nav-outer all);
+
+  max-width: 100%;
+  width: 100%;
+
+  @media(min-width: @screen-md-min) {
+    padding-left: @spacing-base;
+    padding-right: @spacing-base;
+  }
+
+  @media(min-width: @screen-lg-min) {
+    width: @screen-lg-min;
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .container-box-inner {

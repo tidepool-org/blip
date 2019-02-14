@@ -72,7 +72,7 @@ export function signup(api, accountDetails) {
 
     api.user.signup(accountDetails, (err, user) => {
       if (err) {
-        let errMsg = ErrorMessages.SIGNUP_ERROR;
+        let errMsg = ErrorMessages.ERR_SIGNUP;
         if (err.status && err.status === 409) {
           errMsg = ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS;
         }
@@ -936,21 +936,33 @@ export function fetchPatientData(api, options, id) {
     function fetchData(options) {
       dispatch(sync.fetchPatientDataRequest());
 
-      async.parallel({
+      async.parallel(async.reflectAll({
         patientData: api.patientData.get.bind(api, id, options),
         teamNotes: api.team.getNotes.bind(api, id, _.assign({}, options, {
           start: options.startDate,
           end: options.endDate,
         })),
-      }, (err, results) => {
-        if (err) {
-          dispatch(sync.fetchPatientDataFailure(
-            createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
-          ));
+      }), (err, results) => {
+        const resultsErr = _.mapValues(results, ({error}) => error);
+        const resultsVal = _.mapValues(results, ({value}) => value);
+        const error = resultsErr.patientData || resultsErr.teamNotes;
+        if (error) {
+          if (resultsErr.patientData) {
+            dispatch(sync.fetchPatientDataFailure(
+              createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, resultsErr.patientData),
+              resultsErr.patientData
+            ));
+          }
+          if (resultsErr.teamNotes) {
+            dispatch(sync.fetchMessageThreadFailure(
+              createActionError(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD, resultsErr.teamNotes),
+              resultsErr.teamNotes
+            ));
+          }
         }
         else {
-          const patientData = results.patientData || [];
-          const notes = results.teamNotes || [];
+          const patientData = resultsVal.patientData || [];
+          const notes = resultsVal.teamNotes || [];
 
           if (options.initial) {
             const range = utils.getDiabetesDataRange(patientData);
@@ -1060,16 +1072,19 @@ export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts
       }
     }
 
-    async.parallel({
+    async.parallel(async.reflectAll({
       addAccounts:  cb => { async.map(addAccounts, addAccount, (err, results) => cb(err, results)) },
       removeAccounts: cb => { async.map(removeAccounts, removeAccount, (err, results) => cb(err, results)) },
-    }, (err, results) => {
-      if (err) {
+    }), (err, results) => {
+      const resultsErr = _.mapValues(results, ({error}) => error);
+      const resultsVal = _.mapValues(results, ({value}) => value);
+      const error = resultsErr.addAccounts || resultsErr.removeAccounts;
+      if (error) {
         dispatch(sync.updateDataDonationAccountsFailure(
-          createActionError(ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS, err), err
+          createActionError(ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS, error), error
         ));
       } else {
-        dispatch(sync.updateDataDonationAccountsSuccess(results));
+        dispatch(sync.updateDataDonationAccountsSuccess(resultsVal));
       }
     });
   };

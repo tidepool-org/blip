@@ -50,22 +50,17 @@ const FooterLinks = (props) => {
           </svg>
         </a>
       </div>
-      <div className='footer-link large-format-only'>
+      <div className='footer-link secondary large-format-only'>
         <a
           href="http://tidepool.org/products/tidepool-mobile/"
           id='mobile'
           onClick={metricFnMkr('Mobile App')}
-          target="_blank"
-        >Get Mobile App</a>
-      </div>
-      <div className='footer-link large-format-only'>
+          target="_blank">Get Mobile App</a>
         <a
           href="http://support.tidepool.org/"
           id='support'
           onClick={metricFnMkr('Support')}
           target="_blank">Get Support</a>
-      </div>
-      <div className='footer-link large-format-only'>
         <a
           href='http://tidepool.org/legal/'
           id='legal'

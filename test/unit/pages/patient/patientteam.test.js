@@ -100,7 +100,8 @@ describe('MemberInviteForm', function () {
   });
   describe('metric', function() {
     it('should be tracked when allowUpload is true', function() {
-      wrapper.ref('email').get(0).value = 'test@tidepool.org';
+      const emailInput = wrapper.find('input#email');
+      emailInput.instance().value = 'test@tidepool.org';
       expect(props.trackMetric.callCount).to.equal(0);
       wrapper.find('button.PatientInfo-button--primary').simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
@@ -108,7 +109,8 @@ describe('MemberInviteForm', function () {
       expect(props.trackMetric.calledWith('Clicked Invite')).to.be.true;
     });
     it('should be tracked when allowUpload is false', function() {
-      wrapper.ref('email').get(0).value = 'test@tidepool.org';
+      const emailInput = wrapper.find('input#email');
+      emailInput.instance().value = 'test@tidepool.org';
       wrapper.setState({ allowUpload: false });
       expect(wrapper.state().allowUpload).to.equal(false);
       expect(props.trackMetric.callCount).to.equal(0);
@@ -125,7 +127,7 @@ describe('MemberInviteForm', function () {
         pendingSentInvites: [
           { email: 'user@gmail.com' },
           { email: 'bigdata@tidepool.org' },
-          { email: 'bigdata+ZZZ@tidepool.org' },
+          { email: 'bigdata+NSF@tidepool.org' },
         ],
       });
 

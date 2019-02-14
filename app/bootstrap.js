@@ -20,14 +20,12 @@ import _ from 'lodash';
 
 import './core/language'; // Set the language before loading components
 import blipCreateStore from './redux/store';
-import AppRoot from './redux/containers/Root';
 
 import { getRoutes } from './routes';
 
 import config from './config';
 import api from './core/api';
 import personUtils from './core/personutils';
-import queryString from './core/querystring';
 import detectTouchScreen from './core/notouch';
 
 /* global __DEV_TOOLS__ */
@@ -35,7 +33,7 @@ import detectTouchScreen from './core/notouch';
 // For React developer tools
 window.React = React;
 
-var appContext = {
+export let appContext = {
   log: __DEV_TOOLS__ ? bows('App') : _.noop,
   api: api,
   personUtils: personUtils,
@@ -47,7 +45,7 @@ var appContext = {
 // the argument parameter used is not bound when using arrow functions
 // See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
 appContext.trackMetric = function() {
-  var args = Array.prototype.slice.call(arguments);
+  const args = Array.prototype.slice.call(arguments);
   return appContext.api.metrics.track.apply(appContext.api.metrics, args);
 };
 
@@ -78,6 +76,14 @@ appContext.init = callback => {
   beginInit();
 };
 
+appContext.render = Component => {
+  render(
+    <Component store={appContext.store} routing={appContext.routing} />,
+    document.getElementById('app'),
+  );
+};
+
+
 /**
  * Application start function. This is what should be called
  * by anything wanting to start Blip and bootstrap to the DOM
@@ -87,20 +93,17 @@ appContext.init = callback => {
  * are passed in!
  *
  */
-appContext.start = () => {
-
+appContext.start = (Component) => {
   appContext.init(() => {
     appContext.log('Starting app...');
 
-    const store = blipCreateStore(appContext.api);
+    appContext.store = blipCreateStore(appContext.api);
+    appContext.routing = getRoutes(appContext, appContext.store);
 
-    appContext.component = render(
-      <AppRoot store={store} routing={getRoutes(appContext, store)} />,
-      document.getElementById('app')
-    );
+    appContext.render(Component)
 
     appContext.log('App started');
   });
 };
 
-module.exports = appContext;
+export default appContext;

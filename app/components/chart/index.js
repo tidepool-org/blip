@@ -13,10 +13,14 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import Basics from './basics';
+import Daily from './daily';
+import Weekly from './weekly';
+
 module.exports = {
-  basics: require('./basics'),
-  daily: require('./daily'),
-  weekly: require('./weekly'),
+  basics: Basics,
+  daily: Daily,
+  weekly: Weekly,
   settings: require('./settings'),
   header: require('./header'),
   footer: require('./footer')
