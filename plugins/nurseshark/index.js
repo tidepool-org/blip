@@ -350,6 +350,10 @@ function getHandlers(bgUnits) {
       }
       return d;
     },
+    food: function(d) {
+      d = cloneDeep(d);
+      return d;
+    },
     message: function(d) {
       return nurseshark.reshapeMessage(d);
     },
