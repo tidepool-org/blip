@@ -30,7 +30,8 @@
 }
 
 :global(.inputGroup-suffix__value-container) {
-  padding: 2px 4px !important;
+  padding: 0 4px !important;
+  line-height: 1;
 }
 
 .wrapper {

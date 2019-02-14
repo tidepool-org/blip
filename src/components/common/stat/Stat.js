@@ -170,7 +170,7 @@ class Stat extends PureComponent {
           <div
             className={styles.summaryData}
             style={{
-              color: colors[summaryData.id],
+              color: colors[summaryData.id] || colors.statDark,
             }}
           >
             <span className={styles.summaryValue}>
@@ -501,7 +501,7 @@ class Stat extends PureComponent {
                 props.dataFormat.label,
               ))),
               fontSize: labelFontSize,
-              fontWeight: 600,
+              fontWeight: 500,
               paddingLeft: chartLabelWidth,
             },
           },
@@ -619,7 +619,7 @@ class Stat extends PureComponent {
                 props.dataFormat.label,
               ))),
               fontSize: labelFontSize,
-              fontWeight: 600,
+              fontWeight: 500,
               paddingLeft: chartLabelWidth,
             },
           },

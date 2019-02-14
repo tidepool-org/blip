@@ -10,7 +10,8 @@
 }
 
 .Stat tspan {
-  font-family: 'Open Sans' !important;
+  font-family: "Basis", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-weight: 500 !important;
 }
 
 .statHeader {
@@ -40,7 +41,7 @@
 
 .chartTitle {
   composes: largeSize from '../../../styles/typography.css';
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1;
   white-space: nowrap;
   margin-top: .25em;
@@ -62,7 +63,7 @@
   composes: extraLargeSize from '../../../styles/typography.css';
   opacity: 1;
   display: inline-block;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .summarySuffix {
@@ -126,7 +127,7 @@
 }
 
 .inputWrapper label {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--stat--dark);
 }
 
@@ -144,9 +145,11 @@
 }
 
 .outputValue {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--stat--dark);
   margin-right: .25em;
+  position: relative;
+  top: 1px;
 }
 
 .outputSuffix {
@@ -159,7 +162,7 @@
 }
 
 .outputLabel {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--stat--default);
 }
 
