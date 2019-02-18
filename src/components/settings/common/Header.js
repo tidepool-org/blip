@@ -19,6 +19,10 @@ import React, { PropTypes, PureComponent } from 'react';
 
 import styles from './Header.css';
 
+import i18next from 'i18next';
+const t = i18next.t.bind(i18next);
+
+
 class Header extends PureComponent {
   constructor(props) {
     super(props);
@@ -34,18 +38,22 @@ class Header extends PureComponent {
     const headerClass = this.state.serialNumberExpanded ?
       styles.headerExpanded : styles.headerClosed;
 
+    const title = typeof this.props.title === 'string' ? this.props.title : null;
+
     return (
       <div>
-        <ul className={`${styles.header} ${headerClass}`} onClick={this.handleClick}>
+        <ul className={`${styles.header} ${headerClass}`} onClick={this.handleClick} title={title}>
           <li className={styles.headerOuter}>
             <span className={styles.headerInner}>{this.props.deviceDisplayName}</span>
           </li>
           <li className={styles.headerOuter}>
-            <span className={styles.headerInner}>Uploaded on {this.props.deviceMeta.uploaded}</span>
+            <span className={styles.headerInner}>
+              {t('Uploaded on')} {this.props.deviceMeta.uploaded}
+            </span>
           </li>
           <li className={styles.headerOuter}>
             <span className={styles.headerInner}>
-              Serial Number: {this.props.deviceMeta.serial}
+              {t('Serial Number')}: {this.props.deviceMeta.serial}
             </span>
           </li>
         </ul>
@@ -57,6 +65,7 @@ class Header extends PureComponent {
 Header.propTypes = {
   deviceDisplayName: PropTypes.string.isRequired,
   deviceMeta: PropTypes.object.isRequired,
+  title: PropTypes.string,
 };
 
 export default Header;

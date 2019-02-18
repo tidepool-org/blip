@@ -14,10 +14,13 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-
 import _ from 'lodash';
+import i18next from 'i18next';
 import * as data from './data';
 import { pumpVocabulary, AUTOMATED_DELIVERY } from '../constants';
+
+const t = i18next.t.bind(i18next);
+
 /**
  * basalSchedules
  * @param  {Object} settings    object with basal schedule properties
@@ -47,11 +50,27 @@ export function deviceMeta(settings, timePrefs) {
  */
 export function bolusTitle(manufacturer) {
   const BOLUS_SETTINGS_LABEL_BY_MANUFACTURER = {
-    animas: 'ezCarb ezBG',
-    insulet: 'Bolus Calculator',
-    medtronic: 'Bolus Wizard',
+    animas: t('ezCarb ezBG'),
+    insulet: t('Bolus Calculator'),
+    medtronic: t('Bolus Wizard'),
   };
   return BOLUS_SETTINGS_LABEL_BY_MANUFACTURER[manufacturer];
+}
+
+/**
+ * deviceName
+ * @param  {String} manufacturer one of: animas, insulet, medtronic, diabeloop
+ *
+ * @return {String}              name for given manufacturer
+ */
+export function deviceName(manufacturer) {
+  const DEVICE_DISPLAY_NAME_BY_MANUFACTURER = {
+    animas: 'Animas',
+    insulet: 'OmniPod',
+    medtronic: 'Medtronic',
+    diabeloop: 'Diabeloop',
+  };
+  return DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturer];
 }
 
 /**
@@ -82,7 +101,7 @@ function basalColumns() {
  * basal
  *
  * @param  {Object} settings       object with pump settings data
- * @param  {String} manufacturer   one of: animas, carelink, insulet, medtronic
+ * @param  {String} manufacturer   one of: animas, carelink, insulet, medtronic, diabeloop
  * @return {Object}                object with basal title, columns and rows
  */
 export function basal(schedule, settings, manufacturer) {
@@ -110,9 +129,10 @@ export function basal(schedule, settings, manufacturer) {
  */
 function sensitivityTitle(manufacturer) {
   const ISF_BY_MANUFACTURER = {
-    animas: 'ISF',
-    insulet: 'Correction factor',
-    medtronic: 'Sensitivity',
+    animas: t('ISF'),
+    insulet: t('Correction factor'),
+    medtronic: t('Sensitivity'),
+    diabeloop: t('Sensitivity'),
   };
   return ISF_BY_MANUFACTURER[manufacturer];
 }
@@ -140,7 +160,7 @@ function sensitivityRows(settings, units) {
  * sensitivity
  *
  * @param  {Object} settings       object with pump settings data
- * @param  {String} manufacturer   one of: animas, carelink, insulet, medtronic
+ * @param  {String} manufacturer   one of: animas, carelink, insulet, medtronic, diabeloop
  * @param  {String} units          MGDL_UNITS or MMOLL_UNITS
  * @return {Object}                object with sensitivity title, columns and rows
  */
@@ -158,9 +178,10 @@ export function sensitivity(settings, manufacturer, units) {
  */
 function ratioTitle(manufacturer) {
   const CARB_RATIO_BY_MANUFACTURER = {
-    animas: 'I:C Ratio',
-    insulet: 'IC ratio',
-    medtronic: 'Carb Ratios',
+    animas: t('I:C Ratio'),
+    insulet: t('IC ratio'),
+    medtronic: t('Carb Ratios'),
+    diabeloop: t('Carb Ratios'),
   };
   return CARB_RATIO_BY_MANUFACTURER[manufacturer];
 }
@@ -185,7 +206,7 @@ function ratioRows(settings) {
  * ratio
  *
  * @param  {Object} settings       object with pump settings data
- * @param  {String} manufacturer   one of: animas, carelink, insulet, medtronic
+ * @param  {String} manufacturer   one of: animas, carelink, insulet, medtronic, diabeloop
  * @return {Object}                object with ratio title, columns and rows
  */
 export function ratio(settings, manufacturer) {
@@ -202,9 +223,10 @@ export function ratio(settings, manufacturer) {
  */
 function targetTitle(manufacturer) {
   const BG_TARGET_BY_MANUFACTURER = {
-    animas: 'BG Target',
-    insulet: 'Target BG',
-    medtronic: 'BG Target',
+    animas: t('BG Target'),
+    insulet: t('Target BG'),
+    medtronic: t('BG Target'),
+    diabeloop: t('BG Target'),
   };
   return BG_TARGET_BY_MANUFACTURER[manufacturer];
 }
@@ -216,19 +238,24 @@ function targetTitle(manufacturer) {
 function targetColumns(manufacturer) {
   const BG_TARGET_COLS_BY_MANUFACTURER = {
     animas: [
-      { key: 'start', label: 'Start time' },
-      { key: 'columnTwo', label: 'Target' },
-      { key: 'columnThree', label: 'Range' },
+      { key: 'start', label: t('Start time') },
+      { key: 'columnTwo', label: t('Target') },
+      { key: 'columnThree', label: t('Range') },
     ],
     insulet: [
-      { key: 'start', label: 'Start time' },
-      { key: 'columnTwo', label: 'Target' },
-      { key: 'columnThree', label: 'Correct Above' },
+      { key: 'start', label: t('Start time') },
+      { key: 'columnTwo', label: t('Target') },
+      { key: 'columnThree', label: t('Correct Above') },
     ],
     medtronic: [
-      { key: 'start', label: 'Start time' },
-      { key: 'columnTwo', label: 'Low' },
-      { key: 'columnThree', label: 'High' },
+      { key: 'start', label: t('Start time') },
+      { key: 'columnTwo', label: t('Low') },
+      { key: 'columnThree', label: t('High') },
+    ],
+    diabeloop: [
+      { key: 'start', label: t('Start time') },
+      { key: 'columnTwo', label: t('Low') },
+      { key: 'columnThree', label: t('High') },
     ],
   };
   return BG_TARGET_COLS_BY_MANUFACTURER[manufacturer];
@@ -243,6 +270,7 @@ function targetRows(settings, units, manufacturer) {
     animas: { columnTwo: 'target', columnThree: 'range' },
     insulet: { columnTwo: 'target', columnThree: 'high' },
     medtronic: { columnTwo: 'low', columnThree: 'high' },
+    diabeloop: { columnTwo: 'low', columnThree: 'high' },
   };
   return data.processBgTargetData(
     settings.bgTarget,
@@ -255,7 +283,7 @@ function targetRows(settings, units, manufacturer) {
  * target
  *
  * @param  {Object} settings       object with pump settings data
- * @param  {String} manufacturer   one of: animas, carelink, insulet, medtronic
+ * @param  {String} manufacturer   one of: animas, carelink, insulet, medtronic, diabeloop
  * @param  {String} units          MGDL_UNITS or MMOLL_UNITS
  * @return {Object}                object with target title, columns and rows
  */

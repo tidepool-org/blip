@@ -61,14 +61,6 @@
   color: var(--gray-dark);
 }
 
-.confirmBg {
-  composes: subType;
-}
-
-.source {
-  composes: subType;
-}
-
 .annotation {
   composes: subType;
 }

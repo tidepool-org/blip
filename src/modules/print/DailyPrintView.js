@@ -18,6 +18,7 @@
 /* eslint-disable lodash/prefer-lodash-method */
 
 import _ from 'lodash';
+import i18next from 'i18next';
 import { mean, range } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
@@ -61,6 +62,8 @@ import {
   AUTOMATED_DELIVERY,
   SCHEDULED_DELIVERY,
 } from '../../utils/constants';
+
+const t = i18next.t.bind(i18next);
 
 class DailyPrintView extends PrintView {
   constructor(doc, data, opts) {
@@ -385,7 +388,7 @@ class DailyPrintView extends PrintView {
       first = false;
       this.doc.fontSize(this.smallFontSize)
         .lineGap(this.doc.currentLineHeight() * 0.25)
-        .text('Time in Target', smallIndent, yPos.update());
+        .text(t('Time in Target'), smallIndent, yPos.update());
 
       yPos.update();
 
@@ -405,7 +408,9 @@ class DailyPrintView extends PrintView {
       yPos.update();
 
       this.doc.text(
-          `Below ${formatDecimalNumber(veryLowThreshold, bgPrecision)}`,
+          t('Below {{threshold}}', {
+            threshold: formatDecimalNumber(veryLowThreshold, bgPrecision),
+          }),
           { indent: statsIndent, continued: true, width: widthWithoutIndent },
         )
         .text(`${formatPercentage(cbgTimeInCategories.veryLow)}`, { align: 'right' });
@@ -423,11 +428,13 @@ class DailyPrintView extends PrintView {
       }
 
       const ratioTitle = this.isAutomatedBasalDevice
-        ? `Time in ${this.basalGroupLabels.automated}`
-        : 'Basal:Bolus Ratio';
+        ? t('Time in {{automatedLabel}}', {
+          automatedLabel: this.basalGroupLabels.automated,
+        })
+        : t('Basal:Bolus Ratio');
 
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
-      .text(ratioTitle, smallIndent, yPos.update());
+        .text(ratioTitle, smallIndent, yPos.update());
 
       yPos.update();
 
@@ -441,8 +448,8 @@ class DailyPrintView extends PrintView {
       };
 
       const labels = {
-        basal: 'Basal',
-        bolus: 'Bolus',
+        basal: t('Basal'),
+        bolus: t('Bolus'),
       };
 
       if (this.isAutomatedBasalDevice) {
@@ -501,7 +508,7 @@ class DailyPrintView extends PrintView {
 
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
         .text(
-          'Average BG',
+          t('Average BG'),
           smallIndent,
           yPos.update(),
           { continued: true, width: widthWithoutIndent }
@@ -524,7 +531,7 @@ class DailyPrintView extends PrintView {
 
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
         .text(
-          'Average BG',
+          t('Average BG'),
           smallIndent,
           yPos.update(),
           { continued: true, width: widthWithoutIndent }
@@ -549,7 +556,7 @@ class DailyPrintView extends PrintView {
 
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
         .text(
-          'Total Insulin',
+          t('Total Insulin'),
           smallIndent,
           yPos.update(),
           { continued: true, width: widthWithoutIndent }
@@ -574,7 +581,7 @@ class DailyPrintView extends PrintView {
 
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
         .text(
-          'Total Carbs',
+          t('Total Carbs'),
           smallIndent,
           yPos.update(),
           { continued: true, width: widthWithoutIndent }
@@ -675,8 +682,7 @@ class DailyPrintView extends PrintView {
     const renderedBounds = _.pick(this.bgBounds, bound => (bound <= this.bgScaleYLimit));
 
     _.each(renderedBounds, (bound, key) => {
-      const bgTick = this.bgUnits === MMOLL_UNITS ? parseFloat(bound).toFixed(1) : bound;
-
+      const bgTick = formatBgValue(bound, this.bgPrefs);
       const xPos = this.chartArea.leftEdge;
       const yPos = bgScale(bound);
 
@@ -1015,7 +1021,7 @@ class DailyPrintView extends PrintView {
     this.doc.fontSize(9);
     const lineHeight = this.doc.currentLineHeight();
     this.doc.fillColor('black').fillOpacity(1)
-      .text('Legend', this.margins.left, this.bottomEdge - lineHeight * 8);
+      .text(t('Legend'), this.margins.left, this.bottomEdge - lineHeight * 8);
 
     const legendHeight = lineHeight * 4;
     const legendTop = this.bottomEdge - lineHeight * 6;
@@ -1063,8 +1069,8 @@ class DailyPrintView extends PrintView {
         .fill(this.colors[fill]);
     });
     cursor += 16 + legendItemLabelOffset;
-    this.doc.fillColor('black').text('CGM', cursor, legendTextMiddle);
-    cursor += this.doc.widthOfString('CGM') + legendItemLeftOffset * 2;
+    this.doc.fillColor('black').text(t('CGM'), cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString(t('CGM')) + legendItemLeftOffset * 2;
 
     // smbg
     const smbgPositions = {
@@ -1079,8 +1085,8 @@ class DailyPrintView extends PrintView {
     this.doc.circle(smbgPositions.low[0], smbgPositions.low[1], this.smbgRadius)
       .fill(this.colors.low);
     cursor += this.smbgRadius * 3 + legendItemLabelOffset;
-    this.doc.fillColor('black').text('BGM', cursor, legendTextMiddle);
-    cursor += this.doc.widthOfString('BGM') + legendItemLeftOffset * 2;
+    this.doc.fillColor('black').text(t('BGM'), cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString(t('BGM')) + legendItemLeftOffset * 2;
 
     /* boluses */
     const bolusOpts = {
@@ -1107,8 +1113,8 @@ class DailyPrintView extends PrintView {
       this.renderEventPath(path);
     });
     cursor += this.bolusWidth + legendItemLabelOffset;
-    this.doc.fillColor('black').text('Bolus', cursor, legendTextMiddle);
-    cursor += this.doc.widthOfString('Bolus') + legendItemLeftOffset * 2;
+    this.doc.fillColor('black').text(t('Bolus'), cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString(t('Bolus')) + legendItemLeftOffset * 2;
 
     // underride & override boluses
     const rideBolusXScale = scaleLinear()
@@ -1155,8 +1161,8 @@ class DailyPrintView extends PrintView {
       this.renderEventPath(path);
     });
     cursor += this.bolusWidth * 3 + legendItemLabelOffset;
-    this.doc.fillColor('black').text('Override up & down', cursor, legendTextMiddle);
-    cursor += this.doc.widthOfString('Override up & down') + legendItemLeftOffset * 2;
+    this.doc.fillColor('black').text(t('Override up & down'), cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString(t('Override up & down')) + legendItemLeftOffset * 2;
 
     // interrupted bolus
     const interruptedBolusXScale = scaleLinear()
@@ -1176,8 +1182,8 @@ class DailyPrintView extends PrintView {
       this.renderEventPath(path);
     });
     cursor += this.bolusWidth + legendItemLabelOffset;
-    this.doc.fillColor('black').text('Interrupted', cursor, legendTextMiddle);
-    cursor += this.doc.widthOfString('Interrupted') + legendItemLeftOffset * 2;
+    this.doc.fillColor('black').text(t('Interrupted'), cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString(t('Interrupted')) + legendItemLeftOffset * 2;
 
     // extended bolus
     const extendedBolusXScale = scaleLinear()
@@ -1200,10 +1206,10 @@ class DailyPrintView extends PrintView {
     cursor += this.bolusWidth / 2 + 10 + legendItemLabelOffset;
     this.doc
       .fillColor('black')
-      .text('Combo /', cursor, legendTextMiddle - this.doc.currentLineHeight() / 2)
-      .text('Extended');
+      .text(t('Combo /'), cursor, legendTextMiddle - this.doc.currentLineHeight() / 2)
+      .text(t('Extended'));
 
-    cursor += this.doc.widthOfString('Extended') + legendItemLeftOffset * 2;
+    cursor += this.doc.widthOfString(t('Extended')) + legendItemLeftOffset * 2;
 
     // carbohydrates
     this.doc.circle(cursor, legendVerticalMiddle, this.carbRadius)
@@ -1218,8 +1224,8 @@ class DailyPrintView extends PrintView {
       );
     this.doc.fontSize(this.smallFontSize);
     cursor += this.carbRadius + legendItemLabelOffset;
-    this.doc.fillColor('black').text('Carbs', cursor, legendTextMiddle);
-    cursor += this.doc.widthOfString('Carbs') + legendItemLeftOffset * 2;
+    this.doc.fillColor('black').text(t('Carbs'), cursor, legendTextMiddle);
+    cursor += this.doc.widthOfString(t('Carbs')) + legendItemLeftOffset * 2;
 
     /* basals */
     const legendBasalYScale = scaleLinear()
@@ -1294,7 +1300,7 @@ class DailyPrintView extends PrintView {
       xScale: legendBasalXScale,
     });
     cursor += 50 + legendItemLabelOffset;
-    this.doc.fillColor('black').text('Basals', cursor, legendTextMiddle);
+    this.doc.fillColor('black').text(t('Basals'), cursor, legendTextMiddle);
 
     return this;
   }
