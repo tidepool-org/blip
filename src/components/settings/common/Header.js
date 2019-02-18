@@ -38,9 +38,11 @@ class Header extends PureComponent {
     const headerClass = this.state.serialNumberExpanded ?
       styles.headerExpanded : styles.headerClosed;
 
+    const title = typeof this.props.title === 'string' ? this.props.title : null;
+
     return (
       <div>
-        <ul className={`${styles.header} ${headerClass}`} onClick={this.handleClick}>
+        <ul className={`${styles.header} ${headerClass}`} onClick={this.handleClick} title={title}>
           <li className={styles.headerOuter}>
             <span className={styles.headerInner}>{this.props.deviceDisplayName}</span>
           </li>
@@ -63,6 +65,7 @@ class Header extends PureComponent {
 Header.propTypes = {
   deviceDisplayName: PropTypes.string.isRequired,
   deviceMeta: PropTypes.object.isRequired,
+  title: PropTypes.string,
 };
 
 export default Header;
