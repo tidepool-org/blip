@@ -84,6 +84,7 @@ describe('constants', function() {
       'basal',
       'bolus',
       'wizard',
+      'food',
     ]);
   });
 
