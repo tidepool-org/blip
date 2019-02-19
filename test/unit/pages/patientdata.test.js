@@ -3031,7 +3031,7 @@ describe('PatientData', function () {
           });
 
           wrapper.setProps(propsWithDataOutsideRange);
-          setStateSpy.reset();
+          setStateSpy.resetHistory();
 
           instance.processData();
           sinon.assert.calledTwice(setStateSpy);
