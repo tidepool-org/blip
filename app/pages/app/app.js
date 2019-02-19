@@ -41,12 +41,8 @@ import Version from '../../components/version';
 import { DATA_DONATION_NONPROFITS } from '../../core/constants';
 
 // Styles
-require('react-select/less/default.less');
 require('tideline/css/tideline.less');
 require('../../style.less');
-
-// Blip favicon
-require('../../../favicon.ico');
 
 export class AppComponent extends React.Component {
   static propTypes = {
@@ -334,7 +330,15 @@ export class AppComponent extends React.Component {
 
   renderFooter() {
     var shouldDisplayFooterLinks = !_.includes(
-      ['/signup', '/signup/personal', '/signup/clinician', '/email-verification', '/terms', '/patients/new'],
+      [
+        '/signup',
+        '/signup/personal',
+        '/signup/clinician',
+        '/email-verification',
+        '/request-password-reset',
+        '/terms',
+        '/patients/new'
+      ],
       this.props.location
     );
 
@@ -348,7 +352,6 @@ export class AppComponent extends React.Component {
           </div>
         </div>
       </div>
-
     );
   }
 
@@ -444,13 +447,13 @@ export function mapStateToProps(state) {
        state.blip.currentPatientInViewId,
        {}
       );
-    } 
+    }
 
     // Check to see if a data-donating patient has selected a nonprofit to support
     if (userIsDonor) {
       //eslint-disable-next-line new-cap
       let allDonationAccountEmails = _.map(DATA_DONATION_NONPROFITS(), nonprofit => `bigdata+${nonprofit.value}@tidepool.org`);
-      let userDonationAccountEmails = _.pluck(state.blip.dataDonationAccounts, 'email');
+      let userDonationAccountEmails = _.map(state.blip.dataDonationAccounts, 'email');
       userIsSupportingNonprofit = _.intersection(allDonationAccountEmails, userDonationAccountEmails).length > 0;
     }
   }

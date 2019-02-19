@@ -118,7 +118,7 @@ describe('utils', () => {
 
   describe('getDonationAccountCodeFromEmail', () => {
     it('should return a data donation code from an matching email', () => {
-      expect(utils.getDonationAccountCodeFromEmail('bigdata+ZZZ@tidepool.org')).to.equal('ZZZ');
+      expect(utils.getDonationAccountCodeFromEmail('bigdata+NSF@tidepool.org')).to.equal('NSF');
     });
 
     it('should return a null from a non matching email', () => {

@@ -14,11 +14,9 @@
  */
 
 import React from 'react';
-import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
-import { createSelector } from 'reselect';
 
 import _ from 'lodash';
 import bows from 'bows';
@@ -34,7 +32,7 @@ import { getfetchedPatientDataRange } from '../../redux/selectors';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
-import { URL_UPLOADER_DOWNLOAD_PAGE, URL_TIDEPOOL_MOBILE_APP_STORE } from '../../core/constants';
+import { URL_TIDEPOOL_MOBILE_APP_STORE } from '../../core/constants';
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
@@ -52,7 +50,9 @@ import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
 
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, BG_DATA_TYPES, DIABETES_DATA_TYPES } from '../../core/constants';
 
-const Loader = vizComponents.Loader;
+const { Loader } = vizComponents;
+const { DataUtil } = vizUtils.data;
+const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 
 export let PatientData = translate()(React.createClass({
   propTypes: {
@@ -88,6 +88,8 @@ export let PatientData = translate()(React.createClass({
   getInitialState: function() {
     var state = {
       chartPrefs: {
+        basics: {},
+        daily: {},
         trends: {
           activeDays: {
             monday: true,
@@ -107,7 +109,10 @@ export let PatientData = translate()(React.createClass({
           smbgGrouped: false,
           smbgLines: false,
           smbgRangeOverlay: true,
-        }
+        },
+        weekly: {
+          bgSource: 'smbg',
+        },
       },
       printOpts: {
         numDays: {
@@ -118,6 +123,7 @@ export let PatientData = translate()(React.createClass({
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
+      endpoints: [],
       fetchEarlierDataCount: 0,
       lastDatumProcessedIndex: -1,
       lastDiabetesDatumProcessedIndex: -1,
@@ -272,7 +278,7 @@ export let PatientData = translate()(React.createClass({
   renderSettings: function(){
     return (
       <div>
-        <div class="app-no-print">
+        <div className="app-no-print">
           <Settings
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
@@ -304,9 +310,12 @@ export let PatientData = translate()(React.createClass({
           <Basics
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            dataUtil={this.dataUtil}
+            endpoints={this.state.endpoints}
             timePrefs={this.state.timePrefs}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
+            loading={this.state.loading}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -320,6 +329,7 @@ export let PatientData = translate()(React.createClass({
             updateBasicsData={this.updateBasicsData}
             updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
+            updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
             ref="tideline" />
@@ -329,6 +339,7 @@ export let PatientData = translate()(React.createClass({
           <Daily
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
@@ -345,6 +356,7 @@ export let PatientData = translate()(React.createClass({
             onSwitchToWeekly={this.handleSwitchToWeekly}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             trackMetric={this.props.trackMetric}
+            updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             pdf={this.props.pdf.combined || {}}
             ref="tideline" />
@@ -355,6 +367,7 @@ export let PatientData = translate()(React.createClass({
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
+            dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
@@ -379,6 +392,7 @@ export let PatientData = translate()(React.createClass({
           <Weekly
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
@@ -394,6 +408,7 @@ export let PatientData = translate()(React.createClass({
             onSwitchToWeekly={this.handleSwitchToWeekly}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             trackMetric={this.props.trackMetric}
+            updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
@@ -464,7 +479,7 @@ export let PatientData = translate()(React.createClass({
         mostRecent,
       };
 
-      const dailyData = vizUtils.selectDailyViewData(
+      const dailyData = vizUtils.data.selectDailyViewData(
         mostRecent,
         _.pick(
           data.grouped,
@@ -474,7 +489,7 @@ export let PatientData = translate()(React.createClass({
         state.timePrefs,
       );
 
-      const weeklyData = vizUtils.selectWeeklyViewData(
+      const weeklyData = vizUtils.data.selectWeeklyViewData(
         mostRecent,
         _.pick(
           data.grouped,
@@ -514,13 +529,13 @@ export let PatientData = translate()(React.createClass({
     return datetime;
   },
 
-  handleChartDateRangeUpdate: function(dateRange) {
-    this.updateChartDateRange(dateRange);
+  handleChartDateRangeUpdate: function(endpoints) {
+    this.updateChartEndpoints(endpoints);
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
       const patientID = this.props.currentPatientInViewId;
       const patientData = _.get(this.props, ['patientDataMap', patientID], []);
-      const dateRangeStart = moment.utc(dateRange[0]).startOf('day');
+      const dateRangeStart = moment.utc(endpoints[0]).startOf('day');
       const allDataFetched = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
 
       const lastProcessedDateTarget = this.state.lastProcessedDateTarget;
@@ -607,6 +622,8 @@ export let PatientData = translate()(React.createClass({
     if (e) {
       e.preventDefault();
     }
+
+    this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
     this.setState({
       chartType: 'basics'
     });
@@ -618,11 +635,19 @@ export let PatientData = translate()(React.createClass({
     });
 
     // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
-    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString());
+    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
+    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .tz(timezone)
+      .subtract(1, 'day')
+      .hours(12)
+      .toISOString();
+
+    this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
     this.setState({
       chartType: 'daily',
-      datetimeLocation: datetime,
+      datetimeLocation,
     });
   },
 
@@ -631,11 +656,18 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).endOf('day').toISOString());
+    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
+    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
+    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .tz(timezone)
+      .toISOString();
+
+    this.dataUtil.chartPrefs = this.state.chartPrefs['trends'];
     this.setState({
       chartType: 'trends',
-      datetimeLocation: datetime,
+      datetimeLocation,
     });
   },
 
@@ -644,11 +676,20 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString());
+    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
+    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
+    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .tz(timezone)
+      .subtract(1, 'day')
+      .hours(12)
+      .toISOString();
+
+    this.dataUtil.chartPrefs = this.state.chartPrefs['weekly'];
     this.setState({
       chartType: 'weekly',
-      datetimeLocation: datetime,
+      datetimeLocation,
     });
   },
 
@@ -697,7 +738,7 @@ export let PatientData = translate()(React.createClass({
       this.props.removeGeneratedPDFS();
 
       this.setState({
-        chartDateRange: null,
+        endpoints: [],
         datetimeLocation: this.state.initialDatetimeLocation,
         fetchEarlierDataCount: 0,
         lastDatumProcessedIndex: -1,
@@ -733,11 +774,15 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  updateChartPrefs: function(newChartPrefs) {
-    var currentPrefs = _.clone(this.state.chartPrefs);
-    _.assign(currentPrefs, newChartPrefs);
+  updateChartPrefs: function(updates) {
+    const newPrefs = {
+      ...this.state.chartPrefs,
+      ...updates,
+    };
+
+    this.dataUtil.chartPrefs = newPrefs[this.state.chartType];
     this.setState({
-      chartPrefs: currentPrefs,
+      chartPrefs: newPrefs,
     });
   },
 
@@ -747,9 +792,9 @@ export let PatientData = translate()(React.createClass({
     });
   },
 
-  updateChartDateRange: function(dateRange) {
+  updateChartEndpoints: function(endpoints) {
     this.setState({
-      chartDateRange: dateRange,
+      endpoints,
     });
   },
 
@@ -827,7 +872,7 @@ export let PatientData = translate()(React.createClass({
       // Ideally, we determine the default view based on the device type
       // so that, for instance, if the latest data type is cgm, but comes from
       // an insulin-pump, we still direct them to the basics view
-      const deviceMap = _.indexBy(uploads, 'deviceId');
+      const deviceMap = _.keyBy(uploads, 'deviceId');
       const latestDataDevice = deviceMap[latestData.deviceId];
 
       if (latestDataDevice) {
@@ -885,17 +930,26 @@ export let PatientData = translate()(React.createClass({
         this.deriveChartTypeFromLatestData(latestData, uploads)
       );
 
-      const datetimeByChart = chartType === 'daily'
-        ? this.subtractTimezoneOffset(moment.utc(latestData.time).hour(12).minute(0).second(0).toISOString())
-        : this.subtractTimezoneOffset(moment.utc(latestData.time).endOf('day').toISOString());
+      const latestDataDateCeiling = getLocalizedCeiling(latestData.time, this.state.timePrefs);
+      const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
-      const datetime = _.get(this.props, 'queryParams.datetime', datetimeByChart);
+      const datetimeLocation = _.get(this.props, 'queryParams.datetime', _.includes(['daily', 'weekly'], chartType)
+        ? moment.utc(latestDataDateCeiling.valueOf())
+          .tz(timezone)
+          .subtract(1, 'day')
+          .hours(12)
+          .toISOString()
+        : moment.utc(latestDataDateCeiling.valueOf())
+          .tz(timezone)
+          .toISOString());
 
       let state = {
         chartType,
-        datetimeLocation: datetime,
-        initialDatetimeLocation: datetime,
+        datetimeLocation,
+        initialDatetimeLocation: datetimeLocation,
       };
+
+      this.dataUtil.chartPrefs = this.state.chartPrefs[chartType];
 
       this.setState(state);
       this.props.trackMetric(`web - default to ${chartType}`);
@@ -1066,12 +1120,24 @@ export let PatientData = translate()(React.createClass({
         );
 
         const timePrefs = processedData.timePrefs || this.state.timePrefs;
+        const bgPrefs = {
+          bgClasses: processedData.bgClasses,
+          bgUnits: processedData.bgUnits
+        };
+
+        this.dataUtil = new DataUtil(
+          processedData.data.concat(_.get(processedData, 'grouped.upload', [])),
+          { bgPrefs, timePrefs }
+        );
+
+        // Set default bgSource for basics based on whether there is any cbg data in the current view.
+        const basicsChartPrefs = _.assign({}, this.state.chartPrefs.basics, {
+          bgSource: _.get(processedData, 'basicsData.data.cbg.data.length') ? 'cbg' : 'smbg',
+        });
 
         this.setState({
-          bgPrefs: {
-            bgClasses: processedData.bgClasses,
-            bgUnits: processedData.bgUnits
-          },
+          bgPrefs,
+          chartPrefs: _.assign({}, this.state.chartPrefs, { basics: basicsChartPrefs }),
           lastDiabetesDatumProcessedIndex,
           lastDatumProcessedIndex: lastDatumToProcessIndex,
           lastProcessedDateTarget,
@@ -1096,7 +1162,9 @@ export let PatientData = translate()(React.createClass({
 
         // Add and process the new data
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
-        const processedPatientData = addData(newData.concat(_.map(patientNotes, nurseShark.reshapeMessage)));
+        const combinedNewData = newData.concat(_.map(patientNotes, nurseShark.reshapeMessage))
+        const processedPatientData = addData(combinedNewData);
+        this.dataUtil.addData(combinedNewData);
 
         const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + dataToProcess.length;
         const count = this.state.processEarlierDataCount + 1;
@@ -1166,7 +1234,7 @@ export let PatientData = translate()(React.createClass({
       const preparePrintData = (bgUnits) => {
         return {
           basics: data[bgUnits].basicsData,
-          daily: vizUtils.selectDailyViewData(
+          daily: vizUtils.data.selectDailyViewData(
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
               data[bgUnits].grouped,
@@ -1176,7 +1244,7 @@ export let PatientData = translate()(React.createClass({
             this.state.timePrefs,
           ),
           settings: _.last(data[bgUnits].grouped.pumpSettings),
-          weekly: vizUtils.selectWeeklyViewData(
+          weekly: vizUtils.data.selectWeeklyViewData(
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
               data[bgUnits].grouped,
