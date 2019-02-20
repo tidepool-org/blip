@@ -13,7 +13,12 @@ cache: yarn
 
 script:
   - npm test
-  - ./artifact.sh
+  
+deploy:
+  provider: npm
+  skip_cleanup: true
+  on:
+    tags: false
 
 matrix:
   allow_failures:
