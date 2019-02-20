@@ -14,7 +14,7 @@
     "build-storybooks": "./node_modules/.bin/build-storybook -c storybook -o web/stories && ./node_modules/.bin/build-storybook -c storybookDatatypes -o web/diabetes-data-stories",
     "clean": "./node_modules/.bin/rimraf ./dist/*",
     "lint": "./node_modules/.bin/eslint .storybook/ src/ stories/ test/ *.js",
-    "prepublishOnly": "./node_modules/.bin/rimraf ./node_modules && yarn install --frozen-lockfile && npm test && npm run build",
+    "prepublishOnly": "./node_modules/.bin/rimraf ./node_modules && yarn install --frozen-lockfile && npm run build",
     "pretest": "npm run lint",
     "serve-docs": "./node_modules/.bin/gitbook serve",
     "start": "./node_modules/.bin/webpack --config package.config.js --watch",
