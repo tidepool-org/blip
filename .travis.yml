@@ -9,19 +9,11 @@ node_js:
 services:
   - docker
 
-cache: yarn
-
 script:
+  - yarn 
   - npm test
+  - npm publish
   
-deploy:
-  provider: npm
-  email: "dev@diabeloop.fr"
-  skip_cleanup: true
-  on:
-    tags: false
-    all_branches: true
-
 matrix:
   allow_failures:
     - node_js: "stable"
