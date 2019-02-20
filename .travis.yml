@@ -16,6 +16,7 @@ script:
   
 deploy:
   provider: npm
+  email: "dev@diabeloop.fr"
   skip_cleanup: true
   on:
     tags: false
