@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "0.11.10",
+  "version": "0.1.0",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
@@ -14,7 +14,6 @@
     "build-storybooks": "./node_modules/.bin/build-storybook -c storybook -o web/stories && ./node_modules/.bin/build-storybook -c storybookDatatypes -o web/diabetes-data-stories",
     "clean": "./node_modules/.bin/rimraf ./dist/*",
     "lint": "./node_modules/.bin/eslint .storybook/ src/ stories/ test/ *.js",
-    "prepare": "npm run build",
     "prepublishOnly": "./node_modules/.bin/rimraf ./node_modules && yarn install --frozen-lockfile && npm test && npm run build",
     "pretest": "npm run lint",
     "serve-docs": "./node_modules/.bin/gitbook serve",
@@ -26,7 +25,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tidepool-org/viz.git"
+    "url": "git+https://github.com/mdblp/viz.git"
+  },
+  "publishConfig": {
+    "registry": "https://nexus.ci.diabeloop.eu/repository/your-loops-npm/"
   },
   "engines": {
     "node": ">=6.x",
