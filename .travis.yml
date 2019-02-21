@@ -11,10 +11,7 @@ services:
 
 script:
   - yarn 
-  - npm test
-  - ls -la
-  - npm publish
-  - ls -la
+  - ./artifact.sh
   
 matrix:
   allow_failures:
