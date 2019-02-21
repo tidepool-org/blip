@@ -9,6 +9,7 @@
     "browser-tests": "NODE_ENV=test ./node_modules/karma/bin/karma start --browsers Chrome",
     "test-watch": "NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run",
     "start": "NODE_ENV=development ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --cache --colors --progress --port 3000 --host 0.0.0.0",
+    "dblp": "NODE_ENV=development API_HOST='http://localhost:8009'  ALLOW_CHANGE_EMAIL=false I18N_ENABLED=true ALLOW_CHANGE_PASSWORD=false ALLOW_CHANGE_LANG=false HIDE_DONATE=true HIDE_DEXCOM_BANNER=true HIDE_UPLOAD_LINK=true BRANDING='diabeloop' ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --cache --colors --progress --port 3000 --host 0.0.0.0",
     "build": "NODE_ENV=production npm run build-app && npm run build-config",
     "build-app": "NODE_ENV=production node buildapp",
     "build-config": "NODE_ENV=production node buildconfig",
@@ -20,7 +21,7 @@
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o ."
   },
   "dependencies": {
-    "@tidepool/viz": "0.11.10",
+    "@tidepool/viz": "0.1.0",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",
