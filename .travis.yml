@@ -12,7 +12,9 @@ services:
 script:
   - yarn 
   - npm test
+  - ls -la
   - npm publish
+  - ls -la
   
 matrix:
   allow_failures:
