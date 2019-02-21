@@ -1,23 +1,15 @@
 #!/bin/bash -eu
 set -ev
 
-echo 'before test'
+echo 'Run testing'
 npm test
+npm run build
 
 if [ "${TRAVIS_NODE_VERSION}" != "6.10.2" ]; then
     exit 0
 fi
 
-echo 'after test/before build'
-ls -la
-npm run build
-echo 'after build'
-ls -la
-npm publish
-echo 'befor publish'
-ls -la
-
 if [ -n "${TRAVIS_TAG:-}" ]; then
-    npm pack
+    echo 'Publishinh on tag ${TRAVIS_TAG}'
     npm publish
 fi
