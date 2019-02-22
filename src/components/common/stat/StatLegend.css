@@ -18,4 +18,5 @@
 .StatLegendTitle {
   letter-spacing: -.01em;
   white-space: nowrap;
+  line-height: 16px;
 }
