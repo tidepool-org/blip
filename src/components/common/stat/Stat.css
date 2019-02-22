@@ -45,7 +45,7 @@
   line-height: 1;
   white-space: nowrap;
   margin-top: .25em;
-  color: var(--stat--dark);
+  color: var(--stat--default);
 }
 
 .chartSummary {
@@ -61,6 +61,7 @@
 
 .summaryValue {
   composes: extraLargeSize from '../../../styles/typography.css';
+  color: var(--stat--default);
   opacity: 1;
   display: inline-block;
   font-weight: 500;
@@ -100,6 +101,7 @@
 
 .chartTitleSuffix {
   font-weight: normal;
+  padding-left: 1px;
 }
 
 .Stat.isOpen .chartTitleData {
@@ -128,7 +130,6 @@
 
 .inputWrapper label {
   font-weight: 500;
-  color: var(--stat--dark);
 }
 
 .inputWrapper input[type="number"] {
