@@ -97,6 +97,33 @@ describe('DataUtil', () => {
     }),
   ];
 
+  const foodData = [
+    new Types.Food({
+      deviceTime: '2018-02-01T02:00:00',
+      nutrition: {
+        carbohydrate: {
+          net: 7,
+        },
+      },
+    }),
+    new Types.Food({
+      deviceTime: '2018-02-01T04:00:00',
+      nutrition: {
+        carbohydrate: {
+          net: 9,
+        },
+      },
+    }),
+    new Types.Food({
+      deviceTime: '2018-02-02T04:00:00',
+      nutrition: {
+        carbohydrate: {
+          net: 13,
+        },
+      },
+    }),
+  ];
+
   const smbgData = [
     new Types.SMBG({
       value: 60,
@@ -157,6 +184,7 @@ describe('DataUtil', () => {
     ...basalData,
     ...bolusData,
     ...cbgData,
+    ...foodData,
     ...smbgData,
     ...uploadData,
     ...wizardData,
@@ -590,19 +618,19 @@ describe('DataUtil', () => {
   });
 
   describe('getCarbsData', () => {
-    it('should return the total carbs from wizard data when viewing 1 day', () => {
+    it('should return the total carbs from wizard and food data when viewing 1 day', () => {
       dataUtil.endpoints = dayEndpoints;
       expect(dataUtil.getCarbsData()).to.eql({
-        carbs: 6,
-        total: 3,
+        carbs: 22,
+        total: 5,
       });
     });
 
-    it('should return the avg daily carbs from wizard data when viewing more than 1 day', () => {
+    it('should return the avg daily carbs from wizard and food data when viewing more than 1 day', () => {
       dataUtil.endpoints = twoDayEndpoints;
       expect(dataUtil.getCarbsData()).to.eql({
-        carbs: 8,
-        total: 4,
+        carbs: 22.5,
+        total: 7,
       });
     });
   });

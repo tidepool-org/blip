@@ -194,12 +194,21 @@ export class DataUtil {
     this.applyDateFilters();
 
     const wizardData = this.filter.byType('wizard').top(Infinity);
+    const foodData = this.filter.byType('food').top(Infinity);
 
-    let carbs = _.reduce(
+    const wizardCarbs = _.reduce(
       wizardData,
       (result, datum) => result + _.get(datum, 'carbInput', 0),
       0
     );
+
+    const foodCarbs = _.reduce(
+      foodData,
+      (result, datum) => result + _.get(datum, 'nutrition.carbohydrate.net', 0),
+      0
+    );
+
+    let carbs = wizardCarbs + foodCarbs;
 
     if (this.days > 1) {
       carbs = carbs / this.days;
@@ -207,7 +216,7 @@ export class DataUtil {
 
     return {
       carbs,
-      total: wizardData.length,
+      total: wizardData.length + foodData.length,
     };
   };
 

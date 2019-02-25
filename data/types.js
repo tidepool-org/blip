@@ -334,11 +334,31 @@ export class Wizard extends Common {
   }
 }
 
+export class Food extends Common {
+  constructor(opts = {}) {
+    super(opts);
+
+    _.defaults(opts, {
+      deviceTime: this.makeDeviceTime(),
+    });
+
+    this.type = 'food';
+    this.deviceTime = opts.deviceTime;
+    this.nutrition = opts.nutrition;
+
+    this.time = this.makeTime();
+    this.normalTime = this.makeNormalTime();
+    this.createdTime = this.makeTime();
+    this.timezoneOffset = this.makeTimezoneOffset();
+  }
+}
+
 export const types = {
   Basal,
   Bolus,
   CBG,
   DeviceEvent,
+  Food,
   Message,
   Settings,
   SMBG,
