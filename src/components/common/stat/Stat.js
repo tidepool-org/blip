@@ -142,7 +142,7 @@ class Stat extends PureComponent {
             &nbsp;)
           </span>
         )}
-        {this.props.astatDefaultations && !isDatumHovered && (
+        {this.props.annotations && !isDatumHovered && (
           <span
             className={styles.tooltipIcon}
           >
