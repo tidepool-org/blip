@@ -291,6 +291,13 @@ function chartDailyFactory(el, options) {
       onBolusOut: options.onBolusOut,
     }), true, true);
 
+    poolBolus.addPlotType('food', tideline.plot.carb(poolBolus, {
+      emitter: emitter,
+      timezoneAware: chart.options.timePrefs.timezoneAware,
+      onCarbHover: options.onCarbHover,
+      onCarbOut: options.onCarbOut,
+    }), true, true);
+
     // quick bolus data to wizard pool
     poolBolus.addPlotType('bolus', tideline.plot.quickbolus(poolBolus, {
       yScale: scaleBolus,
