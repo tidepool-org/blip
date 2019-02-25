@@ -1837,11 +1837,11 @@ describe('Stat', () => {
     });
 
     it('should return a default color when not given `datum.id`', () => {
-      expect(instance.getDatumColor({ foo: 'bar' })).to.equal(colors.statDark);
+      expect(instance.getDatumColor({ foo: 'bar' })).to.equal(colors.statDefault);
     });
 
     it('should return a default color when `datum.id` doesn\'t map to an available color', () => {
-      expect(instance.getDatumColor({ id: 'foo' })).to.equal(colors.statDark);
+      expect(instance.getDatumColor({ id: 'foo' })).to.equal(colors.statDefault);
     });
 
     it('should return the disabled color when `isDisabled` state is true', () => {
