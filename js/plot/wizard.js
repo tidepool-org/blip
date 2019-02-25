@@ -75,13 +75,13 @@ module.exports = function(pool, opts) {
       var carbs = wizardGroups.filter(function(d) {
         // truthiness working for us here
         // don't want carbInputs of 0 included in filter!
-        return d.carbInput && commonbolus.getDelivered(d);
+        return d.carbInput;
       });
 
       drawBolus.carb(carbs);
 
       var boluses = wizardGroups.filter(function(d) {
-        return d.bolus != null && (commonbolus.getDelivered(d) || commonbolus.getProgrammed(d));
+        return d.bolus != null;
       });
 
       drawBolus.bolus(boluses);
