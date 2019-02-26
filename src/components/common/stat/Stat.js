@@ -170,7 +170,7 @@ class Stat extends PureComponent {
           <div
             className={styles.summaryData}
             style={{
-              color: colors[summaryData.id] || colors.statDark,
+              color: colors[summaryData.id] || colors.statDefault,
             }}
           >
             <span className={styles.summaryValue}>
@@ -411,7 +411,7 @@ class Stat extends PureComponent {
       renderer: null,
       style: {
         data: {
-          fill: d => colors[d.id] || colors.statDark,
+          fill: d => colors[d.id] || colors.statDefault,
         },
       },
     };
@@ -665,7 +665,7 @@ class Stat extends PureComponent {
       && hoveredDatumIndex >= 0
       && hoveredDatumIndex !== datum.eventKey;
 
-    let color = colors[datum.id] || colors.statDark;
+    let color = colors[datum.id] || colors.statDefault;
 
     if (isDisabled || isMuted) {
       color = isDisabled ? colors.statDisabled : colors.muted;
