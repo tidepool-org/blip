@@ -10,8 +10,7 @@ services:
   - docker
 
 script:
-  - yarn 
-  - ./artifact.sh
+  - ./build.sh
   
 matrix:
   allow_failures:
