@@ -18,7 +18,7 @@
 :root {
   --basal: #19A0D7;
   --basal-automated: #00D3E6;
-  --bolus: #7CD0F0;
+  --bolus: #6fc3bb;
   --bolus--interrupted: #FF8B7C;
   --bolus--ride: #107EA8;
   --bolus--undelivered: #BCECFA;
@@ -63,7 +63,7 @@
 }
 
 :export {
-  bolus: #7CD0F0;
+  bolus: #6fc3bb;
   basal: #19A0D7;
   low: #FF8B7C;
   target: #76D3A6;
