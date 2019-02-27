@@ -61,7 +61,6 @@
 
 .summaryValue {
   composes: extraLargeSize from '../../../styles/typography.css';
-  color: var(--stat--default);
   opacity: 1;
   display: inline-block;
   font-weight: 500;

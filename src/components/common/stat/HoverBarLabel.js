@@ -39,6 +39,7 @@ export const HoverBarLabel = props => {
   const labelUnitsStyle = _.assign({}, labelStyle, {
     fontSize: labelStyle.fontSize / 2,
     baselineShift: -((labelStyle.fontSize / 2) * 0.25),
+    fill: colors.statDefault,
   });
 
   const labelText = text(datum);
@@ -60,7 +61,7 @@ export const HoverBarLabel = props => {
         textAnchor="end"
         verticalAnchor="middle"
         x={scale.y(domain.x[1])}
-        dx={-(labelUnitsTextSize.width * 2)}
+        dx={-(labelUnitsTextSize.width * 1.9)}
       />
       <VictoryLabel
         {...props}
