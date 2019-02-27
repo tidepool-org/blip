@@ -1,10 +1,13 @@
 {
   "name": "tideline",
-  "version": "1.8.12",
+  "version": "0.1.1",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
     "url": "https://github.com/tidepool-org/tideline.git"
+  },
+  "publishConfig": {
+    "registry": "https://nexus.ci.diabeloop.eu/repository/your-loops-npm/"
   },
   "main": "js/index.js",
   "license": "BSD-2-Clause",
