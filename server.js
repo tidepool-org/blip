@@ -43,6 +43,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     ],
     styleSrc: [
       "'self'",
+      'blob:',
       "'unsafe-inline'",
       'https://fonts.googleapis.com',
       'https://beacon-v2.helpscout.net',

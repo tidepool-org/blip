@@ -18,7 +18,7 @@ describe('FooterLinks', () => {
   });
 
   afterEach(() => {
-    props.trackMetric.reset();
+    props.trackMetric.resetHistory();
   });
 
   describe('render', () => {

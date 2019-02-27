@@ -9,6 +9,7 @@ config/*
 deploy
 dist
 test/bin
+coverage
 tmp
 web
 *.log

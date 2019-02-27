@@ -78,7 +78,7 @@ export default translate()(class DataSources extends Component {
   }
 
   getDataSourceForProvider(provider) {
-    return _.first(_.filter(this.props.dataSources, provider.dataSourceFilter))
+    return _.head(_.filter(this.props.dataSources, provider.dataSourceFilter));
   }
 
   calculateState(dataSource) {
@@ -287,7 +287,7 @@ export default translate()(class DataSources extends Component {
     let popups = this.state.popups;
     let changed = false;
 
-    popups = _.omit(popups, function(popup) {
+    popups = _.omitBy(popups, function(popup) {
       changed = changed || popup.closed;
       return popup.closed;
     })

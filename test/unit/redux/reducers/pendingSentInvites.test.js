@@ -87,7 +87,7 @@ describe('pendingSentInvites', () => {
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(initialStateForTest.length - 1);
-      expect(_.findWhere(state, {email: removedEmail})).to.be.undefined;
+      expect(_.find(state, {email: removedEmail})).to.be.undefined;
       expect(state[0].email).to.equal('a@a.com');
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });

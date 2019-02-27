@@ -65,12 +65,6 @@ utils.getIn = (obj, props, notFound) => {
   return result.child;
 };
 
-// concat([1, 2], 3, [4, 5]) -> [1, 2, 3, 4, 5]
-utils.concat = () => {
-  var args = Array.prototype.slice.call(arguments, 0);
-  return Array.prototype.concat.apply([], args);
-};
-
 utils.isChrome = () => {
   var userAgent = navigator.userAgent.toLowerCase();
   return (userAgent.indexOf('chrome') > -1 && userAgent.indexOf('edge') === -1);
@@ -458,7 +452,7 @@ utils.getLatestGithubRelease = (releases) => {
 utils.getDiabetesDataRange = (data) => {
   const sortedData = _.sortBy(_.filter(data, d => _.includes(DIABETES_DATA_TYPES, d.type)), 'time');
 
-  const start = _.get(_.first(sortedData), 'time');
+  const start = _.get(_.head(sortedData), 'time');
   const end = _.get(_.last(sortedData), 'time');
   const spanInDays = (start && end) ? sundial.dateDifference(end, start, 'days') : null;
   const count = sortedData.length;
