@@ -425,7 +425,7 @@ class Stat extends PureComponent {
     let domain;
     let height;
     let labelFontSize = 24;
-    let chartLabelWidth = labelFontSize * 2.85;
+    let chartLabelWidth = labelFontSize * 2.75;
     let padding;
     let total;
 
@@ -516,7 +516,7 @@ class Stat extends PureComponent {
         if (height > 0) {
           barWidth = ((height - barSpacing) / props.data.data.length) - (barSpacing / 2);
           labelFontSize = _.min([barWidth * 0.833, labelFontSize]);
-          chartLabelWidth = labelFontSize * 2.85;
+          chartLabelWidth = labelFontSize * 2.75;
         } else {
           barWidth = 30;
           height = (barWidth + barSpacing) * props.data.data.length;
@@ -595,7 +595,7 @@ class Stat extends PureComponent {
                   _.get(props.data, ['data', datum.eventKey]),
                   props.dataFormat.label,
                 );
-                return `${value}${suffix}`;
+                return [value, suffix];
               }}
               tooltipText={(datum = {}) => {
                 const { value, suffix } = this.formatDatum(

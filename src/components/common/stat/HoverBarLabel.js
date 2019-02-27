@@ -15,6 +15,7 @@ export const HoverBarLabel = props => {
       y: _.noop,
     },
     style = {},
+    text,
     tooltipText,
   } = props;
 
@@ -35,6 +36,14 @@ export const HoverBarLabel = props => {
     pointerEvents: 'none',
   });
 
+  const labelUnitsStyle = _.assign({}, labelStyle, {
+    fontSize: labelStyle.fontSize / 2,
+    baselineShift: -((labelStyle.fontSize / 2) * 0.25),
+  });
+
+  const labelText = text(datum);
+  const labelUnitsTextSize = TextSize.approximateTextSize(labelText[1] || '', labelUnitsStyle);
+
   // Ensure that the datum y value isn't below zero, or the tooltip will be incorrectly positioned
   const tooltipDatum = {
     ...datum,
@@ -45,11 +54,23 @@ export const HoverBarLabel = props => {
     <g className="HoverBarLabel">
       <VictoryLabel
         {...props}
+        text={labelText[0]}
         renderInPortal={false}
         style={labelStyle}
         textAnchor="end"
         verticalAnchor="middle"
         x={scale.y(domain.x[1])}
+        dx={-(labelUnitsTextSize.width * 2)}
+      />
+      <VictoryLabel
+        {...props}
+        text={labelText[1]}
+        renderInPortal={false}
+        style={labelUnitsStyle}
+        textAnchor="end"
+        verticalAnchor="middle"
+        x={scale.y(domain.x[1])}
+        dx={0}
       />
       {tooltipTextSize.width > 0 && (
         <VictoryTooltip
