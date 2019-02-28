@@ -12,6 +12,8 @@
   "main": "js/index.js",
   "license": "BSD-2-Clause",
   "scripts": {
+    "clean": "./node_modules/.bin/rimraf ./dist/*",
+    "build": "NODE_ENV=production npm run clean && ./node_modules/.bin/webpack --optimize-minimize",
     "test": "./node_modules/karma/bin/karma start",
     "browser-tests": "./node_modules/karma/bin/karma start --browsers Chrome",
     "test-watch": "./node_modules/karma/bin/karma start --no-single-run",
