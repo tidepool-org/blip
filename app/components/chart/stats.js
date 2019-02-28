@@ -145,7 +145,7 @@ class Stats extends Component {
         ...chartStatOpts,
       });
 
-      if (statType === 'averageDailyDose' && typeof props.onAverageDailyDoseInputChange === 'function') {
+      if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
         stat.onInputChange = props.onAverageDailyDoseInputChange;
       }
 
