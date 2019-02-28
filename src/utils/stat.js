@@ -199,9 +199,10 @@ export const getStatData = (data, type, opts = {}) => {
             suffix: {
               id: 'units',
               options: dailyDoseUnitOptions,
-              value: dailyDoseUnitOptions[0],
+              value: opts.suffixValue || dailyDoseUnitOptions[0],
             },
             type: 'number',
+            value: opts.inputValue ? ensureNumeric(opts.inputValue) : undefined,
           },
           output: {
             label: 'Daily Dose ÷ Weight',

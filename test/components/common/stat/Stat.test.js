@@ -570,6 +570,36 @@ describe('Stat', () => {
       expect(inputGroup().props().onChange).to.be.a.function;
       expect(inputGroup().props().onSuffixChange).to.be.a.function;
     });
+
+    it('should set the initial input and suffix values as provided by the `data.data.input` prop', () => {
+      const inputData = {
+        input: {
+          id: 'weight',
+          label: 'Weight',
+          step: 1,
+          suffix: {
+            id: 'units',
+            options: ['kg', 'lb'],
+            value: 'lb',
+          },
+          type: 'number',
+          value: 450,
+        },
+      };
+
+      wrapper.setProps(props({
+        data: _.assign({}, defaultProps.data, {
+          data: [inputData],
+          dataPaths: {
+            input: 'data.0.input',
+          },
+        }),
+        type: statTypes.input,
+      }));
+
+      expect(inputGroup().props().value).to.equal(450);
+      expect(inputGroup().props().suffix.value).to.equal('lb');
+    });
   });
 
   describe('renderCalculatedOutput', () => {
@@ -2550,6 +2580,27 @@ describe('Stat', () => {
       sinon.assert.callCount(eventStub.persist, 1);
       expect(wrapper.state().inputValue).to.equal(300);
     });
+
+    it('should call `propagateInputChange` immediately after setting `inputValue` to state', () => {
+      const setStateSpy = sinon.spy(instance, 'setState');
+      const propagateInputChangeSpy = sinon.spy(instance, 'propagateInputChange');
+      const eventStub = {
+        target: { value: 300 },
+        persist: sinon.stub(),
+      };
+
+      wrapper.setState({
+        inputValue: 200,
+      });
+
+      expect(wrapper.state().inputValue).to.equal(200);
+
+      instance.handleInputChange(eventStub);
+
+      sinon.assert.called(setStateSpy);
+      sinon.assert.callCount(propagateInputChangeSpy, 1);
+      expect(propagateInputChangeSpy.calledImmediatelyAfter(setStateSpy)).to.be.true;
+    });
   });
 
   describe('handleSuffixChange', () => {
@@ -2563,6 +2614,41 @@ describe('Stat', () => {
       instance.handleSuffixChange(600);
 
       expect(wrapper.state().inputSuffix.value).to.equal(600);
+    });
+
+    it('should call `propagateInputChange` immediately after setting `inputSuffix` to state', () => {
+      const setStateSpy = sinon.spy(instance, 'setState');
+      const propagateInputChangeSpy = sinon.spy(instance, 'propagateInputChange');
+
+      wrapper.setState({
+        inputSuffix: { value: 300 },
+      });
+
+      expect(wrapper.state().inputSuffix.value).to.equal(300);
+
+      instance.handleSuffixChange(600);
+
+      sinon.assert.called(setStateSpy);
+      sinon.assert.callCount(propagateInputChangeSpy, 1);
+      expect(propagateInputChangeSpy.calledImmediatelyAfter(setStateSpy)).to.be.true;
+    });
+  });
+
+  describe('propagateInputChange', () => {
+    it('should call the `onInputChange` prop with the input and suffix values when present', () => {
+      wrapper.setState({
+        inputSuffix: { value: 'suffix!' },
+        inputValue: 'value!',
+      });
+
+      wrapper.setProps(props({
+        onInputChange: sinon.stub(),
+      }));
+
+      instance.propagateInputChange();
+
+      sinon.assert.callCount(instance.props.onInputChange, 1);
+      sinon.assert.calledWithExactly(instance.props.onInputChange, 'value!', 'suffix!');
     });
   });
 });
