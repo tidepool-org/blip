@@ -899,7 +899,7 @@ class Stat extends PureComponent {
   };
 
   propagateInputChange = () => {
-    if (typeof this.props.onInputChange === 'function') {
+    if (_.isFunction(this.props.onInputChange)) {
       this.props.onInputChange(_.get(this.state, 'inputValue'), _.get(this.state, 'inputSuffix.value'));
     }
   };
