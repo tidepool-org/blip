@@ -141,12 +141,12 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  color: var(--stat--dark);
+  color: var(--stat--default);
 }
 
 .outputValue {
   font-weight: 500;
-  color: var(--stat--dark);
+  color: var(--stat--default);
   margin-right: .25em;
   position: relative;
   top: 1px;

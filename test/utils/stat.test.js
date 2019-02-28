@@ -352,7 +352,7 @@ describe('stat', () => {
       });
     });
 
-    it('should format and return `averageDailyDose` data', () => {
+    it('should format and return default `averageDailyDose` data', () => {
       const data = {
         totalInsulin: 80,
       };
@@ -371,6 +371,7 @@ describe('stat', () => {
               value: dailyDoseUnitOptions[0],
             },
             type: 'number',
+            value: undefined,
           },
           output: {
             label: 'Daily Dose ÷ Weight',
@@ -382,12 +383,80 @@ describe('stat', () => {
           value: 80,
         },
       ]);
+    });
 
-      expect(statData.dataPaths).to.eql({
-        input: 'data.0.input',
-        output: 'data.0.output',
-        summary: 'data.0',
+    it('should format and return `averageDailyDose` data with provided input value', () => {
+      const data = {
+        totalInsulin: 80,
+      };
+
+      const valueOpts = _.assign({}, opts, {
+        inputValue: '300',
       });
+
+      const statData = stat.getStatData(data, commonStats.averageDailyDose, valueOpts);
+
+      expect(statData.data).to.eql([
+        {
+          id: 'insulin',
+          input: {
+            id: 'weight',
+            label: 'Weight',
+            suffix: {
+              id: 'units',
+              options: dailyDoseUnitOptions,
+              value: dailyDoseUnitOptions[0],
+            },
+            type: 'number',
+            value: 300,
+          },
+          output: {
+            label: 'Daily Dose ÷ Weight',
+            type: 'divisor',
+            dataPaths: {
+              dividend: 'data.0',
+            },
+          },
+          value: 80,
+        },
+      ]);
+    });
+
+    it('should format and return `averageDailyDose` data with provided suffix value', () => {
+      const data = {
+        totalInsulin: 80,
+      };
+
+      const valueOpts = _.assign({}, opts, {
+        suffixValue: dailyDoseUnitOptions[1],
+      });
+
+      const statData = stat.getStatData(data, commonStats.averageDailyDose, valueOpts);
+
+      expect(statData.data).to.eql([
+        {
+          id: 'insulin',
+          input: {
+            id: 'weight',
+            label: 'Weight',
+            suffix: {
+              id: 'units',
+              options: dailyDoseUnitOptions,
+              value: dailyDoseUnitOptions[1],
+            },
+            type: 'number',
+            value: undefined,
+          },
+          output: {
+            label: 'Daily Dose ÷ Weight',
+            type: 'divisor',
+            dataPaths: {
+              dividend: 'data.0',
+            },
+          },
+          value: 80,
+        },
+      ]);
     });
 
     it('should format and return `carbs` data', () => {

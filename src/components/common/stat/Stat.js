@@ -71,6 +71,7 @@ class Stat extends PureComponent {
     isOpened: PropTypes.bool,
     legend: PropTypes.bool,
     muteOthersOnHover: PropTypes.bool,
+    onInputChange: PropTypes.func,
     reverseLegendOrder: PropTypes.bool,
     title: PropTypes.string.isRequired,
     type: PropTypes.oneOf(_.keys(statTypes)),
@@ -886,7 +887,7 @@ class Stat extends PureComponent {
     event.persist();
     this.setState(() => ({
       inputValue: event.target.value,
-    }));
+    }), this.propagateInputChange);
   };
 
   handleSuffixChange = value => {
@@ -894,7 +895,13 @@ class Stat extends PureComponent {
       inputSuffix: _.assign({}, state.inputSuffix, {
         value,
       }),
-    }));
+    }), this.propagateInputChange);
+  };
+
+  propagateInputChange = () => {
+    if (typeof this.props.onInputChange === 'function') {
+      this.props.onInputChange(_.get(this.state, 'inputValue'), _.get(this.state, 'inputSuffix.value'));
+    }
   };
 }
 
