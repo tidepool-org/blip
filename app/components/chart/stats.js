@@ -27,6 +27,7 @@ class Stats extends Component {
     chartType: PropTypes.oneOf(['basics', 'daily', 'weekly', 'trends']).isRequired,
     dataUtil: PropTypes.object.isRequired,
     endpoints: PropTypes.arrayOf(PropTypes.string),
+    onAverageDailyDoseInputChange: PropTypes.func,
   };
 
   constructor(props) {
@@ -103,7 +104,7 @@ class Stats extends Component {
       : false;
   };
 
-  renderStats = (stats) => (_.map(stats, (stat) => (
+  renderStats = stats => (_.map(stats, stat => (
     <div id={`Stat--${stat.id}`} key={stat.id}>
       <Stat bgPrefs={this.bgPrefs} {...stat} />
     </div>
@@ -131,7 +132,9 @@ class Stats extends Component {
     const stats = [];
 
     const addStat = statType => {
-      stats.push(getStatDefinition(dataUtil[this.dataFetchMethods[statType]](), statType, {
+      const chartStatOpts = _.get(props, ['chartPrefs', chartType, statType]);
+
+      const stat = getStatDefinition(dataUtil[this.dataFetchMethods[statType]](), statType, {
         bgSource,
         days,
         bgPrefs: {
@@ -139,7 +142,14 @@ class Stats extends Component {
           bgUnits,
         },
         manufacturer,
-      }));
+        ...chartStatOpts,
+      });
+
+      if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
+        stat.onInputChange = props.onAverageDailyDoseInputChange;
+      }
+
+      stats.push(stat);
     };
 
     const cbgSelected = bgSource === 'cbg';
