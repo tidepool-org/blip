@@ -54,7 +54,7 @@ function chartDailyFactory(el, options) {
   chart.emitter = emitter;
   chart.options = options;
 
-  var poolXAxis, poolMessages, poolBG, poolBolus, poolBasal, poolStats;
+  var poolXAxis, poolMessages, poolBG, poolBolus, poolBasal;
 
   var SMBG_SIZE = 16;
 
@@ -116,7 +116,7 @@ function chartDailyFactory(el, options) {
       .id('poolBolus', chart.poolGroup())
       .label([{
         'main': t('Bolus'),
-        'light': ' u'
+        'light': ' U'
       },
       {
         'main': ' & '+t('Carbohydrates'),
@@ -133,18 +133,11 @@ function chartDailyFactory(el, options) {
       .id('poolBasal', chart.poolGroup())
       .label([{
         main: t('Basal Rates'),
-        light: ' u/hr'
+        light: ' U/hr'
       }])
       .labelBaseline(options.labelBaseline)
       .legend(['basal'])
       .index(chart.pools().indexOf(poolBasal))
-      .heightRatio(1.0)
-      .gutterWeight(1.0);
-
-    // stats data pool
-    poolStats = chart.newPool()
-      .id('poolStats', chart.poolGroup())
-      .index(chart.pools().indexOf(poolStats))
       .heightRatio(1.0)
       .gutterWeight(1.0);
 
@@ -157,7 +150,6 @@ function chartDailyFactory(el, options) {
     chart.annotations().addGroup(chart.svg().select('#' + poolBolus.id()), 'bolus');
     chart.annotations().addGroup(chart.svg().select('#' + poolBolus.id()), 'wizard');
     chart.annotations().addGroup(chart.svg().select('#' + poolBasal.id()), 'basal');
-    chart.annotations().addGroup(chart.svg().select('#' + poolStats.id()), 'stats');
 
     // add tooltips
     chart.tooltips().addGroup(poolMessages, {
@@ -357,28 +349,6 @@ function chartDailyFactory(el, options) {
       emitter: emitter,
       timezone: chart.options.timePrefs.timezoneName
     }), true, true);
-
-    // stats pool
-    var latestPumpUpload = getLatestPumpUpload(tidelineData.grouped.upload);
-    poolStats.addPlotType('stats', tideline.plot.stats.widget(poolStats, {
-      classes: chart.options.bgClasses,
-      bgUnits: chart.options.bgUnits,
-      cbg: cbgUtil,
-      smbg: smbgUtil,
-      bolus: bolusUtil,
-      basal: basalUtil,
-      xPosition: chart.axisGutter(),
-      yPosition: 0,
-      emitter: emitter,
-      averageLabel: t('These 24 hours'),
-      manufacturer: _.get(latestPumpUpload, 'source'),
-      activeBasalRatio: isAutomatedBasalDevice(latestPumpUpload) ? 'timeInAuto' : 'basalBolus',
-      puddleWeights: {
-        ratio: 1.0,
-        range: 1.2,
-        average: 0.9
-      }
-    }), false, false);
 
     return chart;
   };

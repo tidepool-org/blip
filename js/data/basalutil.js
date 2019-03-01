@@ -108,101 +108,6 @@ function BasalUtil(data) {
     }
   };
 
-  this.getGroupDurations = function(s, e) {
-    var endpoints = this.getEndpoints(s, e, true);
-
-    var durations = {
-      automated: 0,
-      manual: 0,
-    };
-
-    if ((endpoints.start.index >= 0) && (endpoints.end.index >= 0)) {
-      var start = new Date(endpoints.start.datetime), end = new Date(endpoints.end.datetime);
-
-      // handle first segment, which may have started before the start endpoint
-      var segment = this.actual[endpoints.start.index];
-      var initialSegmentDuration = _.min([new Date(segment.normalEnd) - start, segment.duration]);
-      durations[this.getBasalPathGroupType(segment)] = initialSegmentDuration;
-
-      // add the durations of all subsequent basals, minus the last
-      var i = endpoints.start.index + 1;
-      while (i < endpoints.end.index) {
-        segment = this.actual[i];
-        durations[this.getBasalPathGroupType(segment)] += segment.duration;
-        i++;
-      }
-
-      // handle last segment, which may go past the end endpoint
-      segment = this.actual[endpoints.end.index];
-      durations[this.getBasalPathGroupType(segment)] += _.min([end - new Date(segment.normalTime), segment.duration]);
-    }
-
-    if (durations.automated + durations.manual === 0) {
-      durations.automated = NaN;
-      durations.manual = NaN;
-    }
-
-    return durations;
-  };
-
-  this.totalBasal = function(s, e, opts) {
-    opts = opts || {};
-    if (dt.verifyEndpoints(s, e, this.endpoints)) {
-      var endpoints;
-      if (dt.isTwentyFourHours(s, e)) {
-        endpoints = this.getContinuousEndpoints(s, e);
-        if (endpoints) {
-          return {total: this.subtotal(endpoints)};
-        }
-        else {
-          return {total: NaN};
-        }
-      }
-      else if (dt.isLessThanTwentyFourHours(s, e)) {
-        return {total: NaN};
-      }
-      else {
-        var dose = 0.0;
-        var excluded = [];
-        var start = new Date(s), end = new Date(e);
-        var n = dt.getNumDays(s, e);
-        for (var j = 0; j < n; j++) {
-          var dayStart = new Date(start);
-          var dayEnd = new Date(dayStart);
-          dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
-          endpoints = this.getContinuousEndpoints(dayStart.toISOString(), dayEnd.toISOString());
-          if (endpoints && dt.isTwentyFourHours(dayStart.toISOString(), dayEnd.toISOString())) {
-            if (isNaN(this.subtotal(endpoints))) {
-              excluded.push(dayStart.toISOString());
-            }
-            else {
-              dose += this.subtotal(endpoints);
-            }
-          }
-          else {
-            excluded.push(dayStart.toISOString());
-          }
-          start.setUTCDate(start.getUTCDate() + 1);
-        }
-        if (excluded.length <= opts.exclusionThreshold) {
-          return {
-            total: dose,
-            excluded: excluded
-          };
-        }
-        else {
-          return {
-            total: NaN,
-            excluded: excluded
-          };
-        }
-      }
-    }
-    else {
-      return {total: NaN};
-    }
-  };
-
   /**
    * getBasalPathGroupType
    * @param {Object} basal - single basal datum
@@ -211,7 +116,7 @@ function BasalUtil(data) {
   this.getBasalPathGroupType = function(datum) {
     var deliveryType = _.get(datum, 'deliveryType');
     var suppressedDeliveryType = _.get(datum, 'suppressed.deliveryType');
-    return _.contains([deliveryType, suppressedDeliveryType], 'automated') ? 'automated' : 'manual';
+    return _.includes([deliveryType, suppressedDeliveryType], 'automated') ? 'automated' : 'manual';
   };
 
   /**

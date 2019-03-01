@@ -192,7 +192,7 @@ var nurseshark = {
     var typeGroups = {}, overlappingUploads = {}, mostRecentFromOverlapping = null;
 
     function createUploadIDsMap() {
-      var uploads = _.where(data, {type: 'upload'});
+      var uploads = _.filter(data, {type: 'upload'});
       _.each(uploads, function(upload) {
         var source = 'Unknown';
         if (upload.hasOwnProperty('source')) {
@@ -300,7 +300,7 @@ var nurseshark = {
 
     var emoticon = erroredData.length ? ':(' : ':)';
     log(erroredData.length, 'items in the erroredData.', emoticon, _.countBy(erroredData, 'type'));
-    log('Unique error messages:', _.unique(_.pluck(erroredData, 'errorMessage')));
+    log('Unique error messages:', _.uniq(_.map(erroredData, 'errorMessage')));
     return {erroredData: erroredData, processedData: processedData};
   }
 };

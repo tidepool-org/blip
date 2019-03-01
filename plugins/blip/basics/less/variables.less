@@ -12,8 +12,8 @@
 @header-background-base-color: #E3E1E6;
 @left-column-background-color: #EEF5F9;
 
-@day-color: #e7f5f7;
-@future-day-color: lighten(#e7f5f7, 5%);
+@day-color: #eef5f9;
+@future-day-color: lighten(#eef5f9, 3%);
 
 @infusion-day-color: #fcd144;
 @infusion-line-color: lighten(@text, 10%);
@@ -24,35 +24,17 @@
 /*
  * Day sizing variables
  */
-@day-width: 76px + @small-pad;
 @day-height: 66px + @small-pad;
 @label-height: 20px;
 @dow-label-height: 12px;
 @day-between: 8px;
-
-@days-max: @day-width * 7 + @day-between * 6;
-
-@corner: 18px;
 
 @small-pad: 6px;
 
 /*
  * Infusion sizing variables
  */
-@infusion-line-y-base: @day-height / 2.3;
-@infusion-line-width: @day-width + @day-between;
-@infusion-line-height: 2px;
-@infusion-line-y: @infusion-line-y-base - (@infusion-line-height/2);
-
 @infusion-site-gap: 45px;
 @infusion-line-mark-size: 11px;
-
-@infusion-left-bias: 5px; /* Add more length to the end of a line on an infusion day */
-
-@infusion-line-end-x: 0px;
-@infusion-line-end-width: @day-width/2 + @infusion-left-bias - (@infusion-site-gap/2);
-
-@infusion-line-start-x: @day-width/2 + @infusion-left-bias + (@infusion-site-gap/2);
-@infusion-line-start-width: (@day-width/2 - 10px) + @day-between;
-
 @infusion-line-stop-size: 26px;
+@infusion-line-height: 2px;

@@ -119,11 +119,11 @@ module.exports = function(opts) {
 
     if (type === 'basal'){
       var basalSchedules = container.currentSettings().basalSchedules;
-      var scheduleLabels = _.pluck(basalSchedules, 'name');
+      var scheduleLabels = _.map(basalSchedules, 'name');
       var scheduleLabelsToKeep = [];
       // remove any basal schedules that are just an empty array
       for (var k = 0; k < scheduleLabels.length; k++) {
-        if (_.findWhere(basalSchedules, {'name': scheduleLabels[k]}).value.length !== 0) {
+        if (_.find(basalSchedules, {'name': scheduleLabels[k]}).value.length !== 0) {
           scheduleLabelsToKeep.push(scheduleLabels[k]);
         }
       }
@@ -263,7 +263,7 @@ module.exports = function(opts) {
     else {
       container.tableHeaders(columnTable, opts.rowHeadersByType.basalSchedules)
         .tableRows(columnTable,
-          _.findWhere(container.currentSettings().basalSchedules, {'name': datatype}).value,
+          _.find(container.currentSettings().basalSchedules, {'name': datatype}).value,
           'basal')
         .renderRows(columnTable, opts.mapsByType.basalSchedules);
     }
@@ -275,9 +275,9 @@ module.exports = function(opts) {
     if (container.data().length === 0) {
       return;
     }
-    _.each(Object.keys(opts.sections), function(key) {
+    _.each(Object.keys(opts.sections), _.bind(function(key) {
       container.section(key, opts.sections[key].label, opts.sections[key].columnTypes.length);
-    }, container);
+    }, container));
 
     mainDiv.selectAll('.d3-settings-basal-schedule').selectAll('.d3-settings-col-label')
       .on('click', function() {
