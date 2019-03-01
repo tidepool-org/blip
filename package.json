@@ -83,7 +83,7 @@
     "shelljs": "0.8.2",
     "style-loader": "0.23.0",
     "sundial": "1.6.0",
-    "tideline": "v1.11.0-release.2",
+    "tideline": "1.11.0",
     "tidepool-platform-client": "0.40.0",
     "uglify-es": "3.3.9",
     "uglifyjs-webpack-plugin": "2.0.1",
