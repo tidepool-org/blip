@@ -116,7 +116,7 @@ function chartDailyFactory(el, options) {
       .id('poolBolus', chart.poolGroup())
       .label([{
         'main': t('Bolus'),
-        'light': ' u'
+        'light': ' U'
       },
       {
         'main': ' & '+t('Carbohydrates'),
@@ -133,7 +133,7 @@ function chartDailyFactory(el, options) {
       .id('poolBasal', chart.poolGroup())
       .label([{
         main: t('Basal Rates'),
-        light: ' u/hr'
+        light: ' U/hr'
       }])
       .labelBaseline(options.labelBaseline)
       .legend(['basal'])

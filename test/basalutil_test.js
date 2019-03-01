@@ -43,7 +43,7 @@ describe('BasalUtil', function() {
       assert.isFunction(bu.subtotal);
     });
 
-    it('should return 4.5 on basal of rate 0.75 u/hr from 6am to 12pm', function() {
+    it('should return 4.5 on basal of rate 0.75 U/hr from 6am to 12pm', function() {
       var endpoints = {
         start: {
           datetime: '2014-02-12T06:00:00.000Z',
