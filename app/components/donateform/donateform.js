@@ -158,13 +158,13 @@ export default translate()(class DonateForm extends Component {
       [attributes.name]: attributes.value,
     });
 
-    if (attributes.name === 'dataDonateDestination' && !_.isEmpty(attributes.value)) {
+    if (attributes.name === 'dataDonateDestination') {
       // Sort the values so that we can accurately check see if the form values have changed
-      let sortedValue = attributes.value.split(',').sort().join(',');
+      let sortedValue = attributes.value.map(value => value.value).sort().join(',');
       formValues[attributes.name] = sortedValue;
 
       // Ensure that the donate checkbox is checked if there are nonprofits selected
-      if (!formValues.dataDonate) {
+      if (!_.isEmpty(attributes.value) && !formValues.dataDonate) {
         formValues.dataDonate = true;
       }
     }
@@ -177,7 +177,7 @@ export default translate()(class DonateForm extends Component {
       return;
     }
 
-    const existingAccounts = _.indexBy(this.props.dataDonationAccounts, 'email');
+    const existingAccounts = _.keyBy(this.props.dataDonationAccounts, 'email');
     const selectedAccounts = formValues.dataDonateDestination.split(',');
 
     const addAccounts = [];

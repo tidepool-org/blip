@@ -28,9 +28,6 @@ import _ from 'lodash';
 
 import PatientBgUnits from '../../../app/components/patientBgUnits';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../app/core/constants';
-import { DEFAULT_BG_SETTINGS } from '../../../app/pages/patient/patientsettings';
-
-import { togglePatientBgUnits } from '../../../app/core/personutils';
 
 const expect = chai.expect;
 
@@ -131,7 +128,7 @@ describe('PatientBgUnits', () => {
 
     beforeEach(() => {
       spy = sinon.spy(wrapper.instance(), 'handleChange');
-      wrapper.update();
+      wrapper.instance().forceUpdate();
 
       radio1 = wrapper.find('.simple-form').first().find('.input-group').first().find('input').first();
       radio2 = wrapper.find('.simple-form').first().find('.input-group').first().find('input').last();

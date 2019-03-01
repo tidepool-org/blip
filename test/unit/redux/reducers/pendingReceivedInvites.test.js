@@ -68,7 +68,7 @@ describe('pendingReceivedInvites', () => {
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(initialStateForTest.length - 1);
-      expect(_.findWhere(state, membership)).to.be.undefined;
+      expect(_.find(state, membership)).to.be.undefined;
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
@@ -88,7 +88,7 @@ describe('pendingReceivedInvites', () => {
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(initialStateForTest.length - 1);
-      expect(_.findWhere(state, membership)).to.be.undefined;
+      expect(_.find(state, membership)).to.be.undefined;
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });

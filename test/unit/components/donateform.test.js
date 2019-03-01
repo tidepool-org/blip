@@ -25,6 +25,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import _ from 'lodash';
+import Select from 'react-select';
 
 import DonateForm from '../../../app/components/donateform';
 import {
@@ -93,8 +94,8 @@ describe('DonateForm', () => {
     });
 
     it('should render a select list of nonprofits to support', () => {
-      const placeholder = wrapper.find('.Select-placeholder');
-      const select = wrapper.find('.Select-input > input');
+      const placeholder = wrapper.find('.Select__placeholder');
+      const select = wrapper.find('.Select__input > input');
 
       expect(placeholder).to.have.length(1);
       expect(placeholder.text()).contains('Choose which diabetes organization(s) to support');
@@ -149,14 +150,14 @@ describe('DonateForm', () => {
         dataDonationAccounts: [
           { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
           { email: 'bigdata+CWD@tidepool.org' },
-          { email: 'bigdata+ZZZ@tidepool.org' },
+          { email: 'bigdata+NSF@tidepool.org' },
           { email: 'bigdata+CARBDM@tidepool.org' },
         ],
       });
 
       const expectedFormValues = _.assign({}, expectedInitialFormValues, {
         dataDonate: true,
-        dataDonateDestination: 'CARBDM,CWD,ZZZ',
+        dataDonateDestination: 'CARBDM,CWD,NSF',
       });
 
       const element = mount(<DonateForm {...newProps} />);
@@ -208,30 +209,29 @@ describe('DonateForm', () => {
     let checkbox, button;
 
     beforeEach(() => {
-      checkbox = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
-      button = wrapper.find('.simple-form').first().find('button.simple-form-submit[disabled]');
+      checkbox = () => wrapper.find('.simple-form').find('.input-group').first().find('input').first();
+      button =  () => wrapper.find('.simple-form').find('button.simple-form-submit[disabled]');
     });
 
     it('should disable the submit button if the form values haven\'t changed', () => {
-      expect(checkbox).to.have.length(1);
-      expect(button).to.have.length(1);
+      expect(checkbox()).to.have.length(1);
+      expect(button()).to.have.length(1);
 
-      expect(button.prop('disabled')).to.be.true;
+      expect(button().prop('disabled')).to.be.true;
 
       // Change the form to enable the submit button
-      checkbox.simulate('change', { target: { name: 'dataDonate', checked: true } });
-
-      expect(button.prop('disabled')).to.be.false;
+      checkbox().simulate('change', { target: { name: 'dataDonate', checked: true } });
+      expect(button().prop('disabled')).to.be.false;
     });
 
     it('should disable the submit button if the form is processing', () => {
       // Change the form to enable the submit button
-      checkbox.simulate('change', { target: { name: 'dataDonate', checked: true } });
-      expect(button.prop('disabled')).to.be.false;
+      checkbox().simulate('change', { target: { name: 'dataDonate', checked: true } });
+      expect(button().prop('disabled')).to.be.false;
 
       // Set the form working state to true
       wrapper.setProps({ working: true });
-      expect(button.prop('disabled')).to.be.true;
+      expect(button().prop('disabled')).to.be.true;
     });
   });
 
@@ -240,7 +240,7 @@ describe('DonateForm', () => {
 
     beforeEach(() => {
       spy = sinon.spy(wrapper.instance().getWrappedInstance(), 'handleChange');
-      wrapper.update();
+      wrapper.instance().getWrappedInstance().forceUpdate();
 
       checkbox = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
       select = wrapper.find('.simple-form').first().find('.input-group').at(2).find('.Select').first().find('input');
@@ -260,9 +260,9 @@ describe('DonateForm', () => {
       expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonate).to.be.false;
 
       // Only way I could find of triggering change in React-Select element
-      // was to simulate arrow down then enter keystrokes
-      select.simulate('keyDown', { keyCode: 40 });
-      select.simulate('keyDown', { keyCode: 13 });
+      // was to simulate a tab after changing the value
+      select.simulate('change', { target: { value: 'CWD' } });
+      select.simulate('keyDown', { keyCode: 9, key: 'Tab' });
 
       sinon.assert.calledOnce(spy);
       expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.not.be.empty
@@ -274,10 +274,10 @@ describe('DonateForm', () => {
 
       wrapper.instance().getWrappedInstance().handleChange({
         name: 'dataDonateDestination',
-        value: 'CWD,ZZZ,CARBDM',
+        value: ['CWD', 'NSF', 'CARBDM'].map(value => ({ value }))
       });
 
-      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.equal('CARBDM,CWD,ZZZ');
+      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.equal('CARBDM,CWD,NSF');
     });
   });
 
@@ -288,36 +288,26 @@ describe('DonateForm', () => {
       spy = sinon.spy(wrapper.instance().getWrappedInstance(), 'handleSubmit');
       wrapper.update();
 
-      checkbox = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
-      button = wrapper.find('.simple-form').first().find('button.simple-form-submit[disabled]');
+      checkbox = () => wrapper.find('.simple-form').first().find('.input-group').first().find('input');
+      button = () => wrapper.find('.simple-form').first().find('button.simple-form-submit[disabled]');
     });
 
     it('should be called when the user clicks the submit button', () => {
       // Change the form to enable the submit button
-      checkbox.simulate('change', { target: { name: 'dataDonate', checked: true } });
-      expect(button.prop('disabled')).to.be.false;
+      checkbox().simulate('change', { target: { name: 'dataDonate', checked: true } });
+      expect(button().prop('disabled')).to.be.false;
 
-      button.simulate('click');
-
-      sinon.assert.calledOnce(spy);
-    });
-
-    it('should be called when the user clicks the submit button', () => {
-      // Change the form to enable the submit button
-      checkbox.simulate('change', { target: { name: 'dataDonate', checked: true } });
-      expect(button.prop('disabled')).to.be.false;
-
-      button.simulate('click');
+      button().simulate('click');
 
       sinon.assert.calledOnce(spy);
     });
 
     it('should call the onUpdateDataDonationAccounts handler', () => {
       // Change the form to enable the submit button
-      checkbox.simulate('change', { target: { name: 'dataDonate', checked: true } });
-      expect(button.prop('disabled')).to.be.false;
+      checkbox().simulate('change', { target: { name: 'dataDonate', checked: true } });
+      expect(button().prop('disabled')).to.be.false;
 
-      button.simulate('click');
+      button().simulate('click');
 
       sinon.assert.calledOnce(props.onUpdateDataDonationAccounts);
     });
