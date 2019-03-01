@@ -57,6 +57,7 @@ module.exports = {
     smbg: require('./plot/smbg'),
     suspend: require('./plot/suspend'), 
     wizard: require('./plot/wizard'),
+    carb: require('./plot/carb'),
     stats: {
       puddle: require('./plot/stats/puddle'),
     },
