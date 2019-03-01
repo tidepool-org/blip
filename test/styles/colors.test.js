@@ -7,7 +7,7 @@ describe('colors', () => {
     expect(_.toLower(colors.basal)).to.equal('#19a0d7');
     expect(_.toLower(colors.basalAutomated)).to.equal('#00e9fa');
     expect(_.toLower(colors.statDark)).to.equal('#27385b');
-    expect(_.toLower(colors.statDefault)).to.equal('#75849f');
+    expect(_.toLower(colors.statDefault)).to.equal('#727375');
     expect(_.toLower(colors.statDisabled)).to.equal('#e7e9ee');
     expect(_.toLower(colors.veryLow)).to.equal('#fb5951');
     expect(_.toLower(colors.low)).to.equal('#ff8b7c');
