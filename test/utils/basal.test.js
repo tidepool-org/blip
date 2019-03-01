@@ -409,6 +409,148 @@ describe('basal utilties', () => {
       }])).to.equal(11.25);
     });
   });
+
+  describe('getSegmentDose', () => {
+    it('should return the total insulin dose delivered in a given basal segment', () => {
+      expect(basalUtils.getSegmentDose(MS_IN_HOUR * 3, 0.25)).to.equal(0.75);
+    });
+  });
+
+  describe('getTotalBasalFromEndpoints', () => {
+    it('should return total basal delivered for a given time range, even when endpoints overlap a basal segment', () => {
+      const data = [
+        {
+          duration: MS_IN_HOUR * 3,
+          rate: 0.25,
+          normalTime: '2018-01-01T00:00:00.000Z',
+          normalEnd: '2018-01-01T03:00:00.000Z',
+        },
+        {
+          duration: MS_IN_HOUR * 2,
+          rate: 0.75,
+          normalTime: '2018-01-01T03:00:00.000Z',
+          normalEnd: '2018-01-01T05:00:00.000Z',
+        },
+        {
+          duration: MS_IN_HOUR * 7,
+          rate: 0.5,
+          normalTime: '2018-01-01T05:00:00.000Z',
+          normalEnd: '2018-01-02T00:00:00.000Z',
+        },
+        {
+          duration: MS_IN_HOUR * 3,
+          rate: 0.25,
+          normalTime: '2018-01-02T00:00:00.000Z',
+          normalEnd: '2018-01-02T03:00:00.000Z',
+        },
+      ];
+
+      // endpoints coincide with start and end times of basal segments
+      let endpoints = [
+        '2018-01-01T00:00:00.000Z',
+        '2018-01-02T00:00:00.000Z',
+      ];
+      expect(basalUtils.getTotalBasalFromEndpoints(data, endpoints)).to.equal('5.75');
+
+      // endpoints shifted to an hour after basal delivery begins
+      endpoints = [
+        '2018-01-01T01:00:00.000Z',
+        '2018-01-02T01:00:00.000Z',
+      ];
+      expect(basalUtils.getTotalBasalFromEndpoints(data, endpoints)).to.equal('5.75');
+
+
+      // endpoints shifted to an hour before basal delivery begins
+      endpoints = [
+        '2017-12-31T23:00:00.000Z',
+        '2018-01-01T23:00:00.000Z',
+      ];
+      expect(basalUtils.getTotalBasalFromEndpoints(data, endpoints)).to.equal('5.5');
+
+      // endpoints shifted to two hours after basal delivery ends
+      endpoints = [
+        '2018-01-01T05:00:00.000Z',
+        '2018-01-02T05:00:00.000Z',
+      ];
+      expect(basalUtils.getTotalBasalFromEndpoints(data, endpoints)).to.equal('5.25');
+    });
+  });
+
+  describe('getBasalGroupDurationsFromEndpoints', () => {
+    it('should return the automated and manual basal delivery time for a given time range', () => {
+      const data = [
+        {
+          duration: MS_IN_HOUR * 3,
+          rate: 0.25,
+          normalTime: '2018-01-01T00:00:00.000Z',
+          normalEnd: '2018-01-01T03:00:00.000Z',
+          subType: 'scheduled',
+        },
+        {
+          duration: MS_IN_HOUR * 2,
+          rate: 0.75,
+          normalTime: '2018-01-01T03:00:00.000Z',
+          normalEnd: '2018-01-01T05:00:00.000Z',
+          subType: 'automated',
+        },
+        {
+          duration: MS_IN_HOUR * 7,
+          rate: 0.5,
+          normalTime: '2018-01-01T05:00:00.000Z',
+          normalEnd: '2018-01-02T00:00:00.000Z',
+          subType: 'scheduled',
+        },
+        {
+          duration: MS_IN_HOUR * 3,
+          rate: 0.25,
+          normalTime: '2018-01-02T00:00:00.000Z',
+          normalEnd: '2018-01-02T03:00:00.000Z',
+          subType: 'scheduled',
+        },
+      ];
+
+      // endpoints coincide with start and end times of basal segments
+      let endpoints = [
+        '2018-01-01T00:00:00.000Z',
+        '2018-01-02T00:00:00.000Z',
+      ];
+      expect(basalUtils.getBasalGroupDurationsFromEndpoints(data, endpoints)).to.eql({
+        automated: MS_IN_HOUR * 2,
+        manual: MS_IN_HOUR * 10,
+      });
+
+      // endpoints shifted to an hour after basal delivery begins
+      endpoints = [
+        '2018-01-01T01:00:00.000Z',
+        '2018-01-02T01:00:00.000Z',
+      ];
+      expect(basalUtils.getBasalGroupDurationsFromEndpoints(data, endpoints)).to.eql({
+        automated: MS_IN_HOUR * 2,
+        manual: MS_IN_HOUR * 10,
+      });
+
+
+      // endpoints shifted to an hour before basal delivery begins
+      endpoints = [
+        '2017-12-31T23:00:00.000Z',
+        '2018-01-01T23:00:00.000Z',
+      ];
+      expect(basalUtils.getBasalGroupDurationsFromEndpoints(data, endpoints)).to.eql({
+        automated: MS_IN_HOUR * 2,
+        manual: MS_IN_HOUR * 9,
+      });
+
+      // endpoints shifted to two hours after basal delivery ends
+      endpoints = [
+        '2018-01-01T05:00:00.000Z',
+        '2018-01-02T05:00:00.000Z',
+      ];
+      expect(basalUtils.getBasalGroupDurationsFromEndpoints(data, endpoints)).to.eql({
+        automated: MS_IN_HOUR * 2,
+        manual: MS_IN_HOUR * 8,
+      });
+    });
+  });
 });
 
 /* eslint-enable max-len */

@@ -1,7 +1,7 @@
 import { scaleLinear } from 'd3-scale';
 import React from 'react';
 
-import { storiesOf } from '@kadira/storybook';
+import { storiesOf } from '@storybook/react';
 
 // eslint-disable-next-line max-len
 import Background from '../../../../src/components/trends/common/Background';

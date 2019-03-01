@@ -29,7 +29,7 @@ import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
 
 import * as constants from './utils/constants';
 
-if (i18next.options.returnEmptyString === undefined) {
+if (_.get(i18next, 'options.returnEmptyString') === undefined) {
   // Return key if no translation is present
   i18next.init({ returnEmptyString: false, nsSeparator: '|' });
 }

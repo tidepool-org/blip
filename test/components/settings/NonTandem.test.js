@@ -169,7 +169,7 @@ describe('NonTandem', () => {
         />
       );
       expect(copySettingsClicked.callCount).to.equal(0);
-      mounted.find(formatClassesAsSelector(styles.copyButton)).simulate('click');
+      mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
       expect(copySettingsClicked).to.be.called;
     });
     describe('bolus settings', () => {
@@ -427,7 +427,7 @@ describe('NonTandem', () => {
           />
         );
         expect(copySettingsClicked.callCount).to.equal(0);
-        mounted.find(formatClassesAsSelector(styles.copyButton)).simulate('click');
+        mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
         expect(copySettingsClicked).to.be.called;
       });
     });
@@ -570,7 +570,7 @@ describe('NonTandem', () => {
         />
       );
       expect(copySettingsClicked.callCount).to.equal(0);
-      mounted.find(formatClassesAsSelector(styles.copyButton)).simulate('click');
+      mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
       expect(copySettingsClicked).to.be.called;
     });
 

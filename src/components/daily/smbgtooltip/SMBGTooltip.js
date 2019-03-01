@@ -45,7 +45,7 @@ class SMBGTooltip extends PureComponent {
       </div>,
     ];
 
-    const source = !_.isEmpty(smbg.subType) ? `${_.capitalize(smbg.subType)}` : 'Meter';
+    const source = !_.isEmpty(smbg.subType) ? `${_.upperFirst(smbg.subType)}` : 'Meter';
     rows.push(
       <div key={'source'} className={styles.source}>
         <div className={styles.label}>Source</div>
@@ -68,7 +68,8 @@ class SMBGTooltip extends PureComponent {
     if (!_.isEmpty(outOfRangeMessage)) {
       const bgClass = classifyBgValue(
         reshapeBgClassesToBgBounds(this.props.bgPrefs),
-        this.props.smbg.value
+        this.props.smbg.value,
+        'fiveWay'
       );
       rows.push(
         <div
@@ -90,7 +91,8 @@ class SMBGTooltip extends PureComponent {
   render() {
     const bgClass = classifyBgValue(
       reshapeBgClassesToBgBounds(this.props.bgPrefs),
-      this.props.smbg.value
+      this.props.smbg.value,
+      'fiveWay'
     );
     const title = this.props.title ? this.props.title : (
       <div className={styles.title}>

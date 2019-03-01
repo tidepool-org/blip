@@ -51,7 +51,6 @@
 
 .settingsTable {
   composes: defaultSize mediumContrastText from '../../styles/typography.css';
-  min-width: 250px;
   width: 100%;
   border-spacing: 1px 0px;
   border-collapse: separate;
@@ -99,8 +98,8 @@
 }
 
 .settingsHeaderHeight {
-  height: 40px;
-  line-height: 40px;
+  line-height: 1.4;
+  padding: 8px 0;
 }
 
 .settingsHeaderLayout {

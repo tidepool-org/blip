@@ -20,6 +20,8 @@
 import _ from 'lodash';
 import * as bgUtils from '../../src/utils/bloodglucose';
 
+import { MS_IN_MIN } from '../../src/utils/constants';
+
 describe('blood glucose utilities', () => {
   const bgBounds = {
     veryHighThreshold: 300,
@@ -146,6 +148,17 @@ describe('blood glucose utilities', () => {
     });
   });
 
+  describe('classifyCvValue', () => {
+    it('should return `target` for any value <= 0.36', () => {
+      expect(bgUtils.classifyCvValue(36)).to.equal('target');
+      expect(bgUtils.classifyCvValue(35.9)).to.equal('target');
+    });
+
+    it('should return `high` for any value > 0.36', () => {
+      expect(bgUtils.classifyCvValue(36.1)).to.equal('high');
+    });
+  });
+
   describe('generateBgRangeLabels', () => {
     const bounds = {
       mgdl: {
@@ -162,7 +175,7 @@ describe('blood glucose utilities', () => {
       },
     };
 
-    it('should generate properly formatted range labels for mg/dL BG prefs', () => {
+    it('should generate formatted range labels for mg/dL BG prefs', () => {
       const bgPrefs = {
         bgBounds: bounds.mgdl,
         bgUnits: 'mg/dL',
@@ -179,7 +192,24 @@ describe('blood glucose utilities', () => {
       });
     });
 
-    it('should generate properly formatted range labels for mmol/L BG prefs', () => {
+    it('should generate condensed formatted range labels for mg/dL BG prefs when condensed option set', () => {
+      const bgPrefs = {
+        bgBounds: bounds.mgdl,
+        bgUnits: 'mg/dL',
+      };
+
+      const result = bgUtils.generateBgRangeLabels(bgPrefs, { condensed: true });
+
+      expect(result).to.eql({
+        veryLow: '<55',
+        low: '55-70',
+        target: '70-180',
+        high: '180-300',
+        veryHigh: '>300',
+      });
+    });
+
+    it('should generate formatted range labels for mmol/L BG prefs', () => {
       const bgPrefs = {
         bgBounds: bounds.mmoll,
         bgUnits: 'mmol/L',
@@ -193,6 +223,23 @@ describe('blood glucose utilities', () => {
         target: 'between 3.9 - 10.0 mmol/L',
         high: 'between 10.0 - 16.7 mmol/L',
         veryHigh: 'above 16.7 mmol/L',
+      });
+    });
+
+    it('should generate condensed formatted range labels for mmol/L BG prefs when condensed option set', () => {
+      const bgPrefs = {
+        bgBounds: bounds.mmoll,
+        bgUnits: 'mmol/L',
+      };
+
+      const result = bgUtils.generateBgRangeLabels(bgPrefs, { condensed: true });
+
+      expect(result).to.eql({
+        veryLow: '<3.1',
+        low: '3.1-3.9',
+        target: '3.9-10.0',
+        high: '10.0-16.7',
+        veryHigh: '>16.7',
       });
     });
   });
@@ -368,6 +415,20 @@ describe('blood glucose utilities', () => {
       })));
 
       expect(bgUtils.weightedCGMCount(data)).to.equal(40);
+    });
+  });
+
+  describe('cgmSampleFrequency', () => {
+    it('should get the CGM sample frequency in milliseconds from a CGM data point', () => {
+      const dexcomDatum = {
+        deviceId: 'Dexcom_XXXXXXX',
+      };
+      expect(bgUtils.cgmSampleFrequency(dexcomDatum)).to.equal(5 * MS_IN_MIN);
+
+      const libreDatum = {
+        deviceId: 'AbbottFreeStyleLibre_XXXXXXX',
+      };
+      expect(bgUtils.cgmSampleFrequency(libreDatum)).to.equal(15 * MS_IN_MIN);
     });
   });
 });

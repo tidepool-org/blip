@@ -42,12 +42,14 @@ export default class SMBGRangeAvgContainer extends PureComponent {
     smbgComponent: PropTypes.func.isRequired,
     someSmbgDataIsFocused: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
     binSize: THREE_HRS,
+    width: 108,
   };
 
   componentWillMount() {
@@ -80,7 +82,7 @@ export default class SMBGRangeAvgContainer extends PureComponent {
 
   render() {
     const { mungedData } = this.state;
-    const { smbgComponent: SMBGComponent } = this.props;
+    const { smbgComponent: SMBGComponent, width } = this.props;
 
     return (
       <g className="smbgAggContainer">
@@ -93,6 +95,7 @@ export default class SMBGRangeAvgContainer extends PureComponent {
             tooltipLeftThreshold={this.props.tooltipLeftThreshold}
             xScale={this.props.xScale}
             yScale={this.props.yScale}
+            width={width}
           />
         ))}
       </g>

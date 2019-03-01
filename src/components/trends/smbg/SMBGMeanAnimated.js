@@ -51,9 +51,9 @@ export class SMBGMeanAnimated extends PureComponent {
     }),
     defaultY: PropTypes.number.isRequired,
     meanHeight: PropTypes.number.isRequired,
-    meanWidth: PropTypes.number.isRequired,
     someSmbgDataIsFocused: PropTypes.bool.isRequired,
     tooltipLeftThreshold: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
   };
@@ -85,7 +85,7 @@ export class SMBGMeanAnimated extends PureComponent {
 
   render() {
     const {
-      bgBounds, datum, defaultY, meanHeight, meanWidth, someSmbgDataIsFocused, xScale, yScale,
+      bgBounds, datum, defaultY, meanHeight, someSmbgDataIsFocused, width, xScale, yScale,
     } = this.props;
 
     const xPos = xScale(datum.msX);
@@ -98,16 +98,16 @@ export class SMBGMeanAnimated extends PureComponent {
     const meanClasses = datum.mean ?
       cx({
         [styles.smbgMean]: true,
-        [styles[`${classifyBgValue(bgBounds, datum.mean)}FadeIn`]]: !someSmbgDataIsFocused,
-        [styles[`${classifyBgValue(bgBounds, datum.mean)}FadeOut`]]: someSmbgDataIsFocused,
+        [styles[`${classifyBgValue(bgBounds, datum.mean, 'fiveWay')}FadeIn`]]: !someSmbgDataIsFocused,
+        [styles[`${classifyBgValue(bgBounds, datum.mean, 'fiveWay')}FadeOut`]]: someSmbgDataIsFocused,
       }) :
       cx({
         [styles.smbgMean]: true,
         [styles.transparent]: true,
       });
 
-    const binLeftX = xScale(datum.msX) - meanWidth / 2 + styles.stroke / 2;
-    const width = meanWidth - styles.stroke;
+    const binLeftX = xScale(datum.msX) - width / 2 + styles.stroke / 2;
+    const meanWidth = width - styles.stroke;
 
     return (
       <TransitionMotion
@@ -130,25 +130,25 @@ export class SMBGMeanAnimated extends PureComponent {
         willEnter={this.willEnter}
         willLeave={this.willLeave}
       >
-      {(interpolated) => {
-        if (interpolated.length === 0) {
-          return null;
-        }
-        return (
-          <SMBGMean
-            classes={meanClasses}
-            datum={datum}
-            interpolated={interpolated[0]}
-            positionData={{
-              left: xPos,
-              tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
-              yPositions,
-            }}
-            width={width}
-            x={binLeftX}
-          />
-        );
-      }}
+        {(interpolated) => {
+          if (interpolated.length === 0) {
+            return null;
+          }
+          return (
+            <SMBGMean
+              classes={meanClasses}
+              datum={datum}
+              interpolated={interpolated[0]}
+              positionData={{
+                left: xPos,
+                tooltipLeft: datum.msX > this.props.tooltipLeftThreshold,
+                yPositions,
+              }}
+              width={meanWidth}
+              x={binLeftX}
+            />
+          );
+        }}
       </TransitionMotion>
     );
   }

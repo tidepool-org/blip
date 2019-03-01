@@ -69,7 +69,7 @@ export function findBinForTimeOfDay(binSize, msPer24) {
 export function findDatesIntersectingWithCbgSliceSegment(cbgData, focusedSlice, focusedSliceKeys) {
   const { data } = focusedSlice;
   return _.uniq(
-    _.pluck(
+    _.map(
       _.filter(
         cbgData,
         (d) => {
@@ -103,7 +103,7 @@ export function findOutOfRangeAnnotations(data) {
     ['threshold', 'value'],
   )));
   // the numerical `threshold` is our determiner of uniqueness
-  return _.uniq(annotations, (d) => (d.threshold));
+  return _.uniqBy(annotations, (d) => (d.threshold));
 }
 
 /**

@@ -35,6 +35,8 @@ import {
   MGDL_UNITS,
   MMOLL_UNITS,
   trends,
+  CGM_DATA_KEY,
+  BGM_DATA_KEY,
 } from '../../../utils/constants';
 
 import * as datetime from '../../../utils/datetime';
@@ -135,7 +137,7 @@ export class TrendsContainer extends PureComponent {
     smbgLines: PropTypes.bool.isRequired,
     timePrefs: PropTypes.shape({
       timezoneAware: PropTypes.bool.isRequired,
-      timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
+      timezoneName: React.PropTypes.string,
     }).isRequired,
     yScaleClampTop: PropTypes.shape({
       [MGDL_UNITS]: PropTypes.number.isRequired,
@@ -330,10 +332,12 @@ export class TrendsContainer extends PureComponent {
     // find initial date domain (based on initialDatetimeLocation or current time)
     const { extentSize, initialDatetimeLocation, timePrefs } = props;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    const mostRecent = datetime.getLocalizedCeiling(new Date().valueOf(), timezone);
-    const end = initialDatetimeLocation ?
-      datetime.getLocalizedCeiling(initialDatetimeLocation, timezone) : mostRecent;
-    const start = utcDay.offset(end, -extentSize);
+    const mostRecent = datetime.getLocalizedCeiling(new Date().valueOf(), timePrefs);
+    const end = initialDatetimeLocation
+      ? datetime.getLocalizedCeiling(initialDatetimeLocation, timePrefs)
+      : mostRecent;
+
+    const start = moment(end.toISOString()).tz(timezone).subtract(extentSize, 'days');
     const dateDomain = [start.toISOString(), end.toISOString()];
 
     // filter data according to current activeDays and dateDomain
@@ -444,11 +448,14 @@ export class TrendsContainer extends PureComponent {
     if (touched) {
       return;
     }
-    const { currentCbgData } = this.state;
+    const { currentCbgData, currentSmbgData } = this.state;
     const { extentSize, showingCbg } = this.props;
     const minimumCbgs = (extentSize * CGM_READINGS_ONE_DAY) / 2;
-    if (showingCbg && weightedCGMCount(currentCbgData) < minimumCbgs) {
-      this.props.onSwitchBgDataSource();
+
+    // If we're set to show CBG data, but have less than 50% coverage AND we have SMBG data,
+    // switch to SBMG view
+    if (showingCbg && weightedCGMCount(currentCbgData) < minimumCbgs && currentSmbgData.length) {
+      this.props.onSwitchBgDataSource(null, showingCbg ? BGM_DATA_KEY : CGM_DATA_KEY);
     }
     this.props.markTrendsViewed(currentPatientInViewId);
   }

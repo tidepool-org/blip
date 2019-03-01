@@ -93,9 +93,9 @@ const FocusedSMBGPointLabel = (props) => {
       <SMBGToolTip
         title={
           <span className={styles.tipWrapper}>
-            <span className={styles.dateTime}>{
-              `${shortDate}, ${formatClocktimeFromMsPer24(datum.msPer24)}`
-            }</span>
+            <span className={styles.dateTime}>
+              {`${shortDate}, ${formatClocktimeFromMsPer24(datum.msPer24)}`}
+            </span>
           </span>
         }
         position={position}
@@ -150,7 +150,7 @@ FocusedSMBGPointLabel.propTypes = {
   lines: React.PropTypes.bool.isRequired,
   timePrefs: PropTypes.shape({
     timezoneAware: React.PropTypes.bool.isRequired,
-    timezoneName: React.PropTypes.oneOfType([React.PropTypes.string, null]),
+    timezoneName: React.PropTypes.string,
   }).isRequired,
 };
 
