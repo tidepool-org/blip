@@ -62,6 +62,7 @@ export const DIABETES_DATA_TYPES = [
   'basal',
   'bolus',
   'wizard',
+  'food',
 ]
 
 export const MGDL_UNITS = t('mg/dL');

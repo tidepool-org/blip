@@ -37,6 +37,7 @@ const Loader = vizComponents.Loader;
 const BolusTooltip = vizComponents.BolusTooltip;
 const SMBGTooltip = vizComponents.SMBGTooltip;
 const CBGTooltip = vizComponents.CBGTooltip;
+const FoodTooltip = vizComponents.FoodTooltip;
 
 import Header from './header';
 import Footer from './footer';
@@ -64,6 +65,8 @@ const DailyChart = translate()(class DailyChart extends Component {
     onSMBGOut: React.PropTypes.func.isRequired,
     onCBGHover: React.PropTypes.func.isRequired,
     onCBGOut: React.PropTypes.func.isRequired,
+    onCarbHover: React.PropTypes.func.isRequired,
+    onCarbOut: React.PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -81,6 +84,8 @@ const DailyChart = translate()(class DailyChart extends Component {
       'onSMBGOut',
       'onCBGHover',
       'onCBGOut',
+      'onCarbHover',
+      'onCarbOut',
     ];
 
     this.log = bows('Daily Chart');
@@ -305,6 +310,8 @@ class Daily extends Component {
                 onSMBGOut={this.handleSMBGOut}
                 onCBGHover={this.handleCBGHover}
                 onCBGOut={this.handleCBGOut}
+                onCarbHover={this.handleCarbHover}
+                onCarbOut={this.handleCarbOut}
                 ref="chart" />
             </div>
           </div>
@@ -361,6 +368,16 @@ class Daily extends Component {
           cbg={this.state.hoveredCBG.data}
           timePrefs={this.props.timePrefs}
           bgPrefs={this.props.bgPrefs}
+        />}
+        {this.state.hoveredCarb && <FoodTooltip
+          position={{
+            top: this.state.hoveredCarb.top,
+            left: this.state.hoveredCarb.left
+          }}
+          side={this.state.hoveredCarb.side}
+          food={this.state.hoveredCarb.data}
+          bgPrefs={this.props.bgPrefs}
+          timePrefs={this.props.timePrefs}
         />}
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
@@ -534,6 +551,29 @@ class Daily extends Component {
   handleCBGOut = () => {
     this.setState({
       hoveredCBG: false
+    });
+  };
+
+  handleCarbHover = carb => {
+    var rect = carb.rect;
+    // range here is -12 to 12
+    var hoursOffset = sundial.dateDifference(carb.data.normalTime, this.state.datetimeLocation, 'h');
+    carb.top = rect.top + (rect.height / 2)
+    if(hoursOffset > 5) {
+      carb.side = 'left';
+      carb.left = rect.left;
+    } else {
+      carb.side = 'right';
+      carb.left = rect.left + rect.width;
+    }
+    this.setState({
+      hoveredCarb: carb
+    });
+  };
+
+  handleCarbOut = () => {
+    this.setState({
+      hoveredCarb: false
     });
   };
 
