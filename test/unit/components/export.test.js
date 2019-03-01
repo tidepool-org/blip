@@ -12,6 +12,7 @@ import _ from 'lodash';
 
 import Export from '../../../app/components/export';
 import moment from 'moment';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../app/core/constants';
 
 const JS_DATE_FORMAT = 'YYYY-MM-DD';
 const expect = chai.expect;
@@ -21,11 +22,26 @@ describe('Export', () => {
     api: {
       tidepool: {
         getExportDataURL: sinon.stub()
-      }
+      },
     },
     patient: {
       userId: 'abc123'
-    }
+    },
+  };
+  const mmollProps = {
+    api: {
+      tidepool: {
+        getExportDataURL: sinon.stub()
+      }
+    },
+    patient: {
+      userId: 'abc123',
+      settings: {
+        units: {
+          bg: MMOLL_UNITS,
+        },
+      },
+    },
   };
   const expectedInitialFormValues = {};
   const expectedInitialState = {
@@ -37,7 +53,20 @@ describe('Export', () => {
     anonymizeData: false,
     format: 'json',
     extraExpanded: false,
-    error: false
+    error: false,
+    bgUnits: MGDL_UNITS,
+  };
+  const expectedInitialStateMmoll = {
+    allTime: false,
+    endDate: moment().format(JS_DATE_FORMAT),
+    startDate: moment()
+      .subtract(30, 'd')
+      .format(JS_DATE_FORMAT),
+    anonymizeData: false,
+    format: 'json',
+    extraExpanded: false,
+    error: false,
+    bgUnits: MMOLL_UNITS,
   };
 
   let wrapper;
@@ -63,6 +92,13 @@ describe('Export', () => {
   it('should set the initial state', () => {
     expect(wrapper.instance().getWrappedInstance().state).to.eql(
       expectedInitialState
+    );
+  });
+
+  it('should accept bgUnits as prop', () => {
+    wrapper = mount(<Export {...mmollProps} />);
+    expect(wrapper.instance().getWrappedInstance().state).to.eql(
+      expectedInitialStateMmoll
     );
   });
 
