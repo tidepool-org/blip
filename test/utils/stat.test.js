@@ -162,15 +162,15 @@ describe('stat', () => {
     describe('carbs', () => {
       it('should return annotations for `carbs` stat when viewing a single day of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.carbs, singleDayOpts)).to.have.ordered.members([
-          '**Total Carbs**: All carb entries from bolus wizard events added together.',
-          'Derived from _**10**_ bolus wizard events.',
+          '**Total Carbs**: All carb entries from bolus wizard events or Apple Health records added together.',
+          'Derived from _**10**_ carb entries.',
         ]);
       });
 
       it('should return annotations for `carbs` stat when viewing multiple days of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.carbs, multiDayOpts)).to.have.ordered.members([
-          '**Avg. Daily Carbs**: All carb entries from bolus wizard events added together, divided by the number of days in this view.',
-          'Derived from _**10**_ bolus wizard events.',
+          '**Avg. Daily Carbs**: All carb entries added together, then divided by the number of days in this view. Note, these entries come from either bolus wizard events, or Apple Health records.',
+          'Derived from _**10**_ carb entries.',
         ]);
       });
     });
