@@ -836,10 +836,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.0.0.tgz#847a051aee1f87f906d9a8dcfa1694ee60169823"
-  integrity sha512-erddmd/NZytydidtUURqjU5m2ZVYYCUqXfS+hl1et14iOS92xSeWTVHvhCZE6PNh5UDNJGmkLs1QqFXlNPbD1g==
+"@tidepool/viz@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.1.0.tgz#b35b4c13e21318bf02ab1c3d950b0fe2bdb6fb3b"
+  integrity sha512-SdOz/oWqvXp0Itic8K81oDu7LU9B8jtABaeA6fZibn20HCzKlBt1pC15CwcfSTa2armm27k9t9KoBINBmuPysg==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -10683,10 +10683,10 @@ thunky@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.0.2.tgz#a862e018e3fb1ea2ec3fce5d55605cf57f247371"
 
-tideline@1.11.0:
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.11.0.tgz#bd1ff0d455623d734734343a48afee5a21f50abb"
-  integrity sha512-uiaNc0zur3aA5n+SXEzrS5sbQnHLTsz4XtsH+6sgysrG8CWoVS834ZLwx7O8ejYildwkIl5mUCI5zQjHUYvwAg==
+tideline@1.12.0:
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.12.0.tgz#6fa62d1d75cca7fc0b4102fa919310a56ad22845"
+  integrity sha512-zB/yb6soefwJyu4pnofiLVfICc87IQGmiA9537opaHjhuim1DWqdF9ftjYtuOxuI8Cb+dd4CYJEGVeMxJoGaeA==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
