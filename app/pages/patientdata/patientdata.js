@@ -506,6 +506,8 @@ export let PatientData = translate()(React.createClass({
         weekly: weeklyData,
       }
 
+      console.log('pdfData', pdfData);
+
       props.generatePDFRequest(
         'combined',
         pdfData,
@@ -860,7 +862,7 @@ export let PatientData = translate()(React.createClass({
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
-    if (userFetched && patientDataProcessed && hasDiabetesData && !pdfGenerating && !pdfGenerated) {
+    if (!pdfGenerated && !pdfGenerating && userFetched && patientDataProcessed && hasDiabetesData) {
       this.generatePDF(nextProps, nextState);
     }
   },
@@ -957,6 +959,8 @@ export let PatientData = translate()(React.createClass({
   },
 
   fetchEarlierData: function(options = {}) {
+    console.log('fetchEarlierData called with', options);
+
     // Return if we've already fetched all data, or are currently fetching
     if (_.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start') {
       return;

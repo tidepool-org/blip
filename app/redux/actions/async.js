@@ -896,6 +896,8 @@ export function fetchPatientData(api, options, id) {
   _.defaults(options, {
     useCache: true,
     initial: true,
+    // limit: 10,
+    // sort: '-time'
   });
 
   return (dispatch, getState) => {
@@ -936,13 +938,19 @@ export function fetchPatientData(api, options, id) {
     function fetchData(options) {
       dispatch(sync.fetchPatientDataRequest());
 
-      async.parallel(async.reflectAll({
+      const fetchers = {
         patientData: api.patientData.get.bind(api, id, options),
         teamNotes: api.team.getNotes.bind(api, id, _.assign({}, options, {
           start: options.startDate,
           end: options.endDate,
         })),
-      }), (err, results) => {
+      };
+
+      if (options.fetchLatestPumpSettings) {
+        fetchers.latestPumpSettings = api.patientData.get.bind(api, id, options); // TODO: Pass custom options here
+      }
+
+      async.parallel(async.reflectAll(fetchers), (err, results) => {
         const resultsErr = _.mapValues(results, ({error}) => error);
         const resultsVal = _.mapValues(results, ({value}) => value);
         const error = resultsErr.patientData || resultsErr.teamNotes;
@@ -959,12 +967,23 @@ export function fetchPatientData(api, options, id) {
               resultsErr.teamNotes
             ));
           }
+          if (resultsErr.latestPumpSettings) {
+            // dispatch(sync.fetchLatestPumpSettingsFailure( // TODO: not implemented
+            //   createActionError(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD, resultsErr.latestPumpSettings),
+            //   resultsErr.latestPumpSettings
+            // ));
+          }
         }
         else {
           const patientData = resultsVal.patientData || [];
           const notes = resultsVal.teamNotes || [];
 
           if (options.initial) {
+            let refetchRequired = false;
+            const refetchOptions = _.assign({}, options, {
+              initial: false,
+            });
+
             const range = utils.getDiabetesDataRange(patientData);
             const minDays = 30;
 
@@ -977,18 +996,30 @@ export function fetchPatientData(api, options, id) {
               }
               else {
                 // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
-                dispatch(fetchPatientData(api, _.assign({}, options, {
-                  initial: false,
-                  startDate: minStartDate,
-                }), id));
+                refetchOptions.startDate = minStartDate;
+                refetchRequired = true;
               }
             }
             else {
               // No data in first pull. Pull all data.
-              dispatch(fetchPatientData(api, _.assign({}, options, {
-                initial: false,
-                startDate: null,
-              }), id));
+              refetchOptions.startDate = null;
+              refetchRequired = true;
+            }
+
+            const latestPumpSettings = utils.getLatestPumpSettings(patientData);
+            console.log('latestPumpSettings', latestPumpSettings);
+            if (!latestPumpSettings.datum) {
+              refetchOptions.getLatestPumpSettings = true;
+              refetchRequired = true;
+            }
+
+            if (latestPumpSettings.missingUploadSource) {
+              refetchOptions.getLatestPumpSettings = true;
+              refetchRequired = true;
+            }
+
+            if (refetchRequired) {
+              dispatch(fetchPatientData(api, refetchOptions, id));
             }
           }
           else {

@@ -465,4 +465,19 @@ utils.getDiabetesDataRange = (data) => {
   };
 }
 
+/**
+ * Get the latest pump settings       data in a raw data set
+ * @param {Array} data - The raw unprocessed data
+ * @returns {Object | undefined}
+ */
+utils.getLatestPumpSettings = (data) => {
+  console.log('data', data);
+  const datum = _.find(_.sortBy(data, 'time'), { type: 'pumpSettings' });
+
+  return {
+    datum,
+    missingUploadSource: _.isUndefined(_.get(datum, 'source')),
+  }
+}
+
 module.exports = utils;
