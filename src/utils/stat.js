@@ -99,11 +99,11 @@ export const getStatAnnotations = (data, type, opts = {}) => {
 
     case commonStats.carbs:
       if (days > 1) {
-        annotations.push(t('**Avg. Daily Carbs**: All carb entries from bolus wizard events added together, divided by the number of days in this view.'));
+        annotations.push(t('**Avg. Daily Carbs**: All carb entries added together, then divided by the number of days in this view. Note, these entries come from either bolus wizard events, or Apple Health records.'));
       } else {
-        annotations.push(t('**Total Carbs**: All carb entries from bolus wizard events added together.'));
+        annotations.push(t('**Total Carbs**: All carb entries from bolus wizard events or Apple Health records added together.'));
       }
-      annotations.push(t('Derived from _**{{total}}**_ bolus wizard events.', { total: data.total }));
+      annotations.push(t('Derived from _**{{total}}**_ carb entries.', { total: data.total }));
       break;
 
     case commonStats.coefficientOfVariation:

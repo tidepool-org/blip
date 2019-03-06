@@ -31,6 +31,7 @@ import BolusTooltip from './components/daily/bolustooltip/BolusTooltip';
 import SMBGTooltip from './components/daily/smbgtooltip/SMBGTooltip';
 import Stat from './components/common/stat/Stat';
 import CBGTooltip from './components/daily/cbgtooltip/CBGTooltip';
+import FoodTooltip from './components/daily/foodtooltip/FoodTooltip';
 
 import reducers from './redux/reducers/';
 
@@ -68,6 +69,7 @@ const components = {
   SMBGTooltip,
   Stat,
   CBGTooltip,
+  FoodTooltip,
 };
 
 const containers = {
