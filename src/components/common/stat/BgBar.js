@@ -38,11 +38,15 @@ export const BgBar = props => {
   const datumY = yPos + (barWidth / 2);
   const datumX = scale.y(datum.y) * widthCorrection;
 
+  console.log('datumX', datumX);
+
   const dev1Value = datum.y - deviation;
   const dev1X = scale.y(datum.y - deviation) * widthCorrection;
+  console.log('dev1X', dev1X);
 
   const dev2Value = datum.y + deviation;
   const dev2X = scale.y(datum.y + deviation) * widthCorrection;
+  console.log('dev2X', dev2X);
 
   const isEnabled = renderMean ? datum.y >= 0 : deviation >= 0;
 
@@ -130,20 +134,20 @@ export const BgBar = props => {
         <g className="bgDeviation">
           <Rect
             {...props}
-            x={dev1X - 3}
+            x={_.max([dev1X - 3, 0])}
             y={datumY - barWidth * 2 - 1}
             width={4}
             height={barWidth * 4 + 2}
             style={{
               stroke: 'white',
               strokeWidth: 2,
-              fill: colors[classifyBgValue(bgBounds, dev1Value)],
+              fill: colors[classifyBgValue(bgBounds, _.max([dev1Value, 0.1]))],
             }}
           />
 
           <Rect
             {...props}
-            x={dev2X - 3}
+            x={_.min([dev2X - 3, width - chartLabelWidth - 3])}
             y={datumY - barWidth * 2 - 1}
             width={4}
             height={barWidth * 4 + 2}
