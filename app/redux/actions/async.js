@@ -16,14 +16,11 @@
  */
 
 import _ from 'lodash';
-import React from 'react';
-import { Link } from 'react-router';
 import sundial from 'sundial';
 import async from 'async';
 import moment from 'moment';
 import { checkCacheValid } from 'redux-cache';
 
-import * as ActionTypes from '../constants/actionTypes';
 import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
 import * as sync from './sync.js';
@@ -909,10 +906,6 @@ export function fetchPatientData(api, options, id) {
     }
 
     if (options.initial) {
-      options.limit = 3, // TODO: deleteme
-      // options.limit = 10, // TODO: deleteme
-      options.sort = '-time', // TODO: deleteme
-
       // On the initial fetch, we want to use the server time if we can in case the user's local
       // computer time is off and set the endDate to one day in the future since we can get `time`
       // fields that are slightly in the future due to incorrect device time and/or computer time
@@ -1074,9 +1067,6 @@ export function fetchPatientData(api, options, id) {
         }
         else {
           _.defaults(fetched, resultsVal);
-
-          this.log('Current Fetch Results', resultsVal);
-          this.log('Combined Fetch Results', fetched);
 
           const patientData = [
             ...fetched.patientData || [],
