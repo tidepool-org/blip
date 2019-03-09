@@ -896,17 +896,23 @@ export function fetchPatientData(api, options, id) {
   _.defaults(options, {
     useCache: true,
     initial: true,
-    // limit: 10,
-    // sort: '-time'
   });
 
+  // Container to persist all fetched data results between API calls until we're ready to
+  // dispatch the success action
+  const fetched = {};
+
   return (dispatch, getState) => {
-    // If we have a valid cache of the data, do not dispatch fetch action
+    // If we have a valid cache of the data in our redux store, return without dispatching the fetch
     if(options.useCache && checkCacheValid(getState, 'patientDataMap', cacheByIdOptions(id))) {
       return null;
     }
 
     if (options.initial) {
+      options.limit = 3, // TODO: deleteme
+      // options.limit = 10, // TODO: deleteme
+      options.sort = '-time', // TODO: deleteme
+
       // On the initial fetch, we want to use the server time if we can in case the user's local
       // computer time is off and set the endDate to one day in the future since we can get `time`
       // fields that are slightly in the future due to incorrect device time and/or computer time
@@ -935,6 +941,101 @@ export function fetchPatientData(api, options, id) {
       fetchData(options);
     }
 
+    function handleFetchErrors(errors) {
+      if (errors.patientData) {
+        dispatch(sync.fetchPatientDataFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, errors.patientData),
+          errors.patientData
+        ));
+      }
+      if (errors.teamNotes) {
+        dispatch(sync.fetchMessageThreadFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD, errors.teamNotes),
+          errors.teamNotes
+        ));
+      }
+      if (errors.latestPumpSettings) {
+        dispatch(sync.fetchLatestPumpSettingsFailure( // TODO: not implemented
+          createActionError(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD, errors.latestPumpSettings),
+          errors.latestPumpSettings
+        ));
+      }
+      if (errors.latestPumpSettingsUpload) {
+        dispatch(sync.fetchLatestPumpSettingsUploadFailure( // TODO: not implemented
+          createActionError(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD, errors.latestPumpSettingsUpload),
+          errors.latestPumpSettingsUpload
+        ));
+      }
+    }
+
+    function handleInitialFetchResults(patientData, options) {
+      let refetchRequired = false;
+      const refetchOptions = _.assign({}, options, {
+        initial: false,
+      });
+
+      const { latestPumpSettings, missingUploadRecord } = utils.getLatestPumpSettings(patientData);
+
+      const range = utils.getDiabetesDataRange(patientData);
+      const minDays = 30;
+      let minStartDate;
+
+      if (range.spanInDays) {
+        minStartDate = moment.utc(range.end).subtract(minDays, 'days').startOf('day').toISOString();
+
+        if (range.spanInDays < minDays) {
+          // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
+          refetchOptions.startDate = minStartDate;
+          refetchRequired = true;
+          delete(fetched.patientData);
+          delete(fetched.teamNotes);
+        }
+      }
+      else {
+        // No data in first pull. Pull all data.
+        refetchOptions.startDate = null;
+        refetchRequired = true;
+        delete(fetched.patientData);
+        delete(fetched.teamNotes);
+      }
+
+      if (!latestPumpSettings) {
+        // We need to ensure that we have some pump settings, and the corresponding upload
+        // record in order to be able to display and render the settings web and print views
+        refetchOptions.getLatestPumpSettings = true;
+        refetchRequired = true;
+      } else if (latestPumpSettings.uploadId && missingUploadRecord) {
+        // If we have pump settings, but we don't have the corresponing upload record used
+        // to get the device source, we need to fetch it
+        refetchOptions.getPumpSettingsUploadRecordById = latestPumpSettings.uploadId;
+        refetchRequired = true;
+      }
+
+      if (refetchRequired) {
+        fetchData(refetchOptions);
+      } else {
+        // We have enough data for the initial rendering.
+        dispatch(sync.fetchPatientDataSuccess(id, patientData, fetched.teamNotes, minStartDate));
+      }
+    }
+
+    function handlePumpSettingsFetchResults(patientData, options) {
+      // If we just fetched the latest pumpSettings, we should ensure we have the corresponding upload
+      const { latestPumpSettings, missingUploadRecord } = utils.getLatestPumpSettings(patientData);
+
+      if (_.get(latestPumpSettings, 'uploadId') && missingUploadRecord) {
+        // We now have the pumpSettings we were after, but no upload source. One final fetch for upload source
+        const refetchOptions = _.assign({}, options, {
+          getLatestPumpSettings: false,
+          getPumpSettingsUploadRecordById: latestPumpSettings.uploadId,
+        });
+        fetchData(refetchOptions);
+      } else {
+        // There either aren't any pump settings, or we have both the pumpSettings and upload. Dispatch results
+        dispatch(sync.fetchPatientDataSuccess(id, patientData, fetched.teamNotes, options.startDate));
+      }
+    }
+
     function fetchData(options) {
       dispatch(sync.fetchPatientDataRequest());
 
@@ -946,85 +1047,50 @@ export function fetchPatientData(api, options, id) {
         })),
       };
 
-      if (options.fetchLatestPumpSettings) {
-        fetchers.latestPumpSettings = api.patientData.get.bind(api, id, options); // TODO: Pass custom options here
+      if (options.getLatestPumpSettings) {
+        fetchers.latestPumpSettings = api.patientData.get.bind(api, id, {
+          type: 'pumpSettings',
+          limit: 1,
+          sort: '-time',
+        });
       }
 
-      async.parallel(async.reflectAll(fetchers), (err, results) => {
+      if (options.getPumpSettingsUploadRecordById) {
+        fetchers.latestPumpSettingsUpload = api.patientData.get.bind(api, id, {
+          type: 'upload',
+          uploadId: options.getPumpSettingsUploadRecordById,
+        });
+      }
+
+      const runFetchers = _.omitBy(fetchers, (value, key) => fetched[key])
+
+      async.parallel(async.reflectAll(runFetchers), (err, results) => {
         const resultsErr = _.mapValues(results, ({error}) => error);
         const resultsVal = _.mapValues(results, ({value}) => value);
-        const error = resultsErr.patientData || resultsErr.teamNotes;
-        if (error) {
-          if (resultsErr.patientData) {
-            dispatch(sync.fetchPatientDataFailure(
-              createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, resultsErr.patientData),
-              resultsErr.patientData
-            ));
-          }
-          if (resultsErr.teamNotes) {
-            dispatch(sync.fetchMessageThreadFailure(
-              createActionError(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD, resultsErr.teamNotes),
-              resultsErr.teamNotes
-            ));
-          }
-          if (resultsErr.latestPumpSettings) {
-            // dispatch(sync.fetchLatestPumpSettingsFailure( // TODO: not implemented
-            //   createActionError(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD, resultsErr.latestPumpSettings),
-            //   resultsErr.latestPumpSettings
-            // ));
-          }
+        const hasError = _.some(resultsErr, !_.isUndefined);
+
+        if (hasError) {
+          handleFetchErrors(resultsErr)
         }
         else {
-          const patientData = resultsVal.patientData || [];
-          const notes = resultsVal.teamNotes || [];
+          _.defaults(fetched, resultsVal);
+
+          this.log('Current Fetch Results', resultsVal);
+          this.log('Combined Fetch Results', fetched);
+
+          const patientData = [
+            ...fetched.patientData || [],
+            ...fetched.latestPumpSettings || [],
+            ...fetched.latestPumpSettingsUpload || [],
+          ];
 
           if (options.initial) {
-            let refetchRequired = false;
-            const refetchOptions = _.assign({}, options, {
-              initial: false,
-            });
-
-            const range = utils.getDiabetesDataRange(patientData);
-            const minDays = 30;
-
-            if (range.spanInDays) {
-              const minStartDate = moment.utc(range.end).subtract(minDays, 'days').startOf('day').toISOString();
-
-              if (range.spanInDays >= minDays) {
-                // We have enough data for the initial rendering.
-                dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, minStartDate));
-              }
-              else {
-                // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
-                refetchOptions.startDate = minStartDate;
-                refetchRequired = true;
-              }
-            }
-            else {
-              // No data in first pull. Pull all data.
-              refetchOptions.startDate = null;
-              refetchRequired = true;
-            }
-
-            const latestPumpSettings = utils.getLatestPumpSettings(patientData);
-            console.log('latestPumpSettings', latestPumpSettings);
-            if (!latestPumpSettings.datum) {
-              refetchOptions.getLatestPumpSettings = true;
-              refetchRequired = true;
-            }
-
-            if (latestPumpSettings.missingUploadSource) {
-              refetchOptions.getLatestPumpSettings = true;
-              refetchRequired = true;
-            }
-
-            if (refetchRequired) {
-              dispatch(fetchPatientData(api, refetchOptions, id));
-            }
-          }
-          else {
-            // Always dispatch the result if we're beyond the first data fetch
-            dispatch(sync.fetchPatientDataSuccess(id, patientData, notes, options.startDate));
+            handleInitialFetchResults(patientData, options)
+          } else if (options.getLatestPumpSettings) {
+            handlePumpSettingsFetchResults(patientData, options)
+          } else {
+            // Dispatch the result if we're beyond the first data fetch and we've fetched the pumpsettings and upload records we need
+            dispatch(sync.fetchPatientDataSuccess(id, patientData, fetched.teamNotes, options.startDate));
           }
         }
       });

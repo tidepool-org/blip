@@ -466,17 +466,19 @@ utils.getDiabetesDataRange = (data) => {
 }
 
 /**
- * Get the latest pump settings       data in a raw data set
+ * Get the latest pump settings data in a raw data set
  * @param {Array} data - The raw unprocessed data
- * @returns {Object | undefined}
+ * @returns {Object} An object with the following shape:
+ *    @property {Object} latestPumpSettings - The most recent pumpSettings datum
+ *    @property {Boolean} missingUploadRecord - Whether an upload record found matching latestPumpSettings.uploadId
  */
 utils.getLatestPumpSettings = (data) => {
-  console.log('data', data);
-  const datum = _.find(_.sortBy(data, 'time'), { type: 'pumpSettings' });
+  const latestPumpSettings = _.find(_.sortBy(data, 'time'), { type: 'pumpSettings' });
+  const uploadId = _.get(latestPumpSettings, 'uploadId');
 
   return {
-    datum,
-    missingUploadSource: _.isUndefined(_.get(datum, 'source')),
+    latestPumpSettings,
+    missingUploadRecord: uploadId && !_.some(data, { type: 'upload', uploadId }),
   }
 }
 
