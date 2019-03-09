@@ -1055,6 +1055,8 @@ export function fetchPatientData(api, options, id) {
         });
       }
 
+      // Only fetch data that we don't already have. i.e. if we may already have our patientData and
+      // teamNotes results, and only need to fetch the latest pumpSettings or upload record.
       const runFetchers = _.omitBy(fetchers, (value, key) => fetched[key])
 
       async.parallel(async.reflectAll(runFetchers), (err, results) => {
