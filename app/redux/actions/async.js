@@ -893,6 +893,7 @@ export function fetchPatientData(api, options, id) {
   _.defaults(options, {
     useCache: true,
     initial: true,
+    getLatestPumpSettings: false,
   });
 
   // Container to persist all fetched data results between API calls until we're ready to
@@ -948,14 +949,14 @@ export function fetchPatientData(api, options, id) {
         ));
       }
       if (errors.latestPumpSettings) {
-        dispatch(sync.fetchLatestPumpSettingsFailure( // TODO: not implemented
-          createActionError(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD, errors.latestPumpSettings),
+        dispatch(sync.fetchPatientDataFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS, errors.latestPumpSettings),
           errors.latestPumpSettings
         ));
       }
       if (errors.latestPumpSettingsUpload) {
-        dispatch(sync.fetchLatestPumpSettingsUploadFailure( // TODO: not implemented
-          createActionError(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD, errors.latestPumpSettingsUpload),
+        dispatch(sync.fetchPatientDataFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD, errors.latestPumpSettingsUpload),
           errors.latestPumpSettingsUpload
         ));
       }
@@ -1062,10 +1063,13 @@ export function fetchPatientData(api, options, id) {
       async.parallel(async.reflectAll(runFetchers), (err, results) => {
         const resultsErr = _.mapValues(results, ({error}) => error);
         const resultsVal = _.mapValues(results, ({value}) => value);
-        const hasError = _.some(resultsErr, !_.isUndefined);
+        const hasError = _.some(resultsErr, err => !_.isUndefined(err));
+
+        // console.log('resultsErr', resultsErr);
+        // console.log('resultsVal', resultsVal);
 
         if (hasError) {
-          handleFetchErrors(resultsErr)
+          handleFetchErrors(resultsErr);
         }
         else {
           _.defaults(fetched, resultsVal);
