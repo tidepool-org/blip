@@ -772,6 +772,10 @@ stories.add('Avg. Daily Insulin', () => {
     dailyDoseData = generateEmptyData(dailyDoseData);
   }, 'DATA');
 
+  const handleInputChange = (value, suffixValue) => {
+    console.log('onInputChange called with:', value, suffixValue); // eslint-disable-line no-console
+  };
+
   return (
     <Container responsive={responsive}>
       <Stat
@@ -786,6 +790,7 @@ stories.add('Avg. Daily Insulin', () => {
           summary: statFormats.units,
         }}
         isOpened={isOpened}
+        onInputChange={handleInputChange}
         title="Avg. Daily Dose"
         type={statTypes.input}
       />

@@ -71,6 +71,7 @@ class Stat extends PureComponent {
     isOpened: PropTypes.bool,
     legend: PropTypes.bool,
     muteOthersOnHover: PropTypes.bool,
+    onInputChange: PropTypes.func,
     reverseLegendOrder: PropTypes.bool,
     title: PropTypes.string.isRequired,
     type: PropTypes.oneOf(_.keys(statTypes)),
@@ -170,7 +171,7 @@ class Stat extends PureComponent {
           <div
             className={styles.summaryData}
             style={{
-              color: colors[summaryData.id],
+              color: colors[summaryData.id] || colors.statDefault,
             }}
           >
             <span className={styles.summaryValue}>
@@ -411,7 +412,7 @@ class Stat extends PureComponent {
       renderer: null,
       style: {
         data: {
-          fill: d => colors[d.id] || colors.statDark,
+          fill: d => colors[d.id] || colors.statDefault,
         },
       },
     };
@@ -425,7 +426,7 @@ class Stat extends PureComponent {
     let domain;
     let height;
     let labelFontSize = 24;
-    let chartLabelWidth = labelFontSize * 2.85;
+    let chartLabelWidth = labelFontSize * 2.75;
     let padding;
     let total;
 
@@ -501,7 +502,7 @@ class Stat extends PureComponent {
                 props.dataFormat.label,
               ))),
               fontSize: labelFontSize,
-              fontWeight: 600,
+              fontWeight: 500,
               paddingLeft: chartLabelWidth,
             },
           },
@@ -516,7 +517,7 @@ class Stat extends PureComponent {
         if (height > 0) {
           barWidth = ((height - barSpacing) / props.data.data.length) - (barSpacing / 2);
           labelFontSize = _.min([barWidth * 0.833, labelFontSize]);
-          chartLabelWidth = labelFontSize * 2.85;
+          chartLabelWidth = labelFontSize * 2.75;
         } else {
           barWidth = 30;
           height = (barWidth + barSpacing) * props.data.data.length;
@@ -595,7 +596,7 @@ class Stat extends PureComponent {
                   _.get(props.data, ['data', datum.eventKey]),
                   props.dataFormat.label,
                 );
-                return `${value}${suffix}`;
+                return [value, suffix];
               }}
               tooltipText={(datum = {}) => {
                 const { value, suffix } = this.formatDatum(
@@ -619,7 +620,7 @@ class Stat extends PureComponent {
                 props.dataFormat.label,
               ))),
               fontSize: labelFontSize,
-              fontWeight: 600,
+              fontWeight: 500,
               paddingLeft: chartLabelWidth,
             },
           },
@@ -665,7 +666,7 @@ class Stat extends PureComponent {
       && hoveredDatumIndex >= 0
       && hoveredDatumIndex !== datum.eventKey;
 
-    let color = colors[datum.id] || colors.statDark;
+    let color = colors[datum.id] || colors.statDefault;
 
     if (isDisabled || isMuted) {
       color = isDisabled ? colors.statDisabled : colors.muted;
@@ -886,7 +887,7 @@ class Stat extends PureComponent {
     event.persist();
     this.setState(() => ({
       inputValue: event.target.value,
-    }));
+    }), this.propagateInputChange);
   };
 
   handleSuffixChange = value => {
@@ -894,7 +895,13 @@ class Stat extends PureComponent {
       inputSuffix: _.assign({}, state.inputSuffix, {
         value,
       }),
-    }));
+    }), this.propagateInputChange);
+  };
+
+  propagateInputChange = () => {
+    if (_.isFunction(this.props.onInputChange)) {
+      this.props.onInputChange(_.get(this.state, 'inputValue'), _.get(this.state, 'inputSuffix.value'));
+    }
   };
 }
 

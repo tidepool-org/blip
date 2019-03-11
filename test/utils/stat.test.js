@@ -162,15 +162,15 @@ describe('stat', () => {
     describe('carbs', () => {
       it('should return annotations for `carbs` stat when viewing a single day of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.carbs, singleDayOpts)).to.have.ordered.members([
-          '**Total Carbs**: All carb entries from bolus wizard events added together.',
-          'Derived from _**10**_ bolus wizard events.',
+          '**Total Carbs**: All carb entries from bolus wizard events or Apple Health records added together.',
+          'Derived from _**10**_ carb entries.',
         ]);
       });
 
       it('should return annotations for `carbs` stat when viewing multiple days of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.carbs, multiDayOpts)).to.have.ordered.members([
-          '**Avg. Daily Carbs**: All carb entries from bolus wizard events added together, divided by the number of days in this view.',
-          'Derived from _**10**_ bolus wizard events.',
+          '**Avg. Daily Carbs**: All carb entries added together, then divided by the number of days in this view. Note, these entries come from either bolus wizard events, or Apple Health records.',
+          'Derived from _**10**_ carb entries.',
         ]);
       });
     });
@@ -352,7 +352,7 @@ describe('stat', () => {
       });
     });
 
-    it('should format and return `averageDailyDose` data', () => {
+    it('should format and return default `averageDailyDose` data', () => {
       const data = {
         totalInsulin: 80,
       };
@@ -371,6 +371,7 @@ describe('stat', () => {
               value: dailyDoseUnitOptions[0],
             },
             type: 'number',
+            value: undefined,
           },
           output: {
             label: 'Daily Dose ÷ Weight',
@@ -382,12 +383,80 @@ describe('stat', () => {
           value: 80,
         },
       ]);
+    });
 
-      expect(statData.dataPaths).to.eql({
-        input: 'data.0.input',
-        output: 'data.0.output',
-        summary: 'data.0',
+    it('should format and return `averageDailyDose` data with provided input value', () => {
+      const data = {
+        totalInsulin: 80,
+      };
+
+      const valueOpts = _.assign({}, opts, {
+        inputValue: '300',
       });
+
+      const statData = stat.getStatData(data, commonStats.averageDailyDose, valueOpts);
+
+      expect(statData.data).to.eql([
+        {
+          id: 'insulin',
+          input: {
+            id: 'weight',
+            label: 'Weight',
+            suffix: {
+              id: 'units',
+              options: dailyDoseUnitOptions,
+              value: dailyDoseUnitOptions[0],
+            },
+            type: 'number',
+            value: 300,
+          },
+          output: {
+            label: 'Daily Dose ÷ Weight',
+            type: 'divisor',
+            dataPaths: {
+              dividend: 'data.0',
+            },
+          },
+          value: 80,
+        },
+      ]);
+    });
+
+    it('should format and return `averageDailyDose` data with provided suffix value', () => {
+      const data = {
+        totalInsulin: 80,
+      };
+
+      const valueOpts = _.assign({}, opts, {
+        suffixValue: dailyDoseUnitOptions[1],
+      });
+
+      const statData = stat.getStatData(data, commonStats.averageDailyDose, valueOpts);
+
+      expect(statData.data).to.eql([
+        {
+          id: 'insulin',
+          input: {
+            id: 'weight',
+            label: 'Weight',
+            suffix: {
+              id: 'units',
+              options: dailyDoseUnitOptions,
+              value: dailyDoseUnitOptions[1],
+            },
+            type: 'number',
+            value: undefined,
+          },
+          output: {
+            label: 'Daily Dose ÷ Weight',
+            type: 'divisor',
+            dataPaths: {
+              dividend: 'data.0',
+            },
+          },
+          value: 80,
+        },
+      ]);
     });
 
     it('should format and return `carbs` data', () => {

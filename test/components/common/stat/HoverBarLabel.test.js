@@ -19,7 +19,7 @@ describe('HoverBarLabel', () => {
       x: val => val,
       y: val => val,
     },
-    text: () => 'text!',
+    text: () => ['text!', 'suffix!'],
     tooltipText: () => 'tooltip!',
   };
 
@@ -29,15 +29,16 @@ describe('HoverBarLabel', () => {
     wrapper = mount(<HoverBarLabel {...defaultProps} />);
   });
 
-  it('should render the text prop', () => {
-    expect(wrapper.find('VictoryLabel')).to.have.length(1);
-    expect(wrapper.find('VictoryLabel').text()).to.equal('text!');
+  it('should render the a text prop for the value and suffix text', () => {
+    expect(wrapper.find('VictoryLabel')).to.have.length(2);
+    expect(wrapper.find('VictoryLabel').at(0).text()).to.equal('text!');
+    expect(wrapper.find('VictoryLabel').at(1).text()).to.equal('suffix!');
   });
 
   it('should render the text element with the styles provided in the style prop', () => {
     wrapper.setProps(props({ style: { fill: 'mauve', fontSize: '40px' } }));
-    expect(wrapper.find('VictoryLabel').props().style.fill).to.equal('mauve');
-    expect(wrapper.find('VictoryLabel').props().style.fontSize).to.equal('40px');
+    expect(wrapper.find('VictoryLabel').at(0).props().style.fill).to.equal('mauve');
+    expect(wrapper.find('VictoryLabel').at(0).props().style.fontSize).to.equal('40px');
   });
 
   it('should render the tooltip text', () => {

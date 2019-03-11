@@ -10,7 +10,8 @@
 }
 
 .Stat tspan {
-  font-family: 'Open Sans' !important;
+  font-family: "Basis", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-weight: 500 !important;
 }
 
 .statHeader {
@@ -40,11 +41,11 @@
 
 .chartTitle {
   composes: largeSize from '../../../styles/typography.css';
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1;
   white-space: nowrap;
   margin-top: .25em;
-  color: var(--stat--dark);
+  color: var(--stat--default);
 }
 
 .chartSummary {
@@ -62,7 +63,7 @@
   composes: extraLargeSize from '../../../styles/typography.css';
   opacity: 1;
   display: inline-block;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .summarySuffix {
@@ -99,6 +100,7 @@
 
 .chartTitleSuffix {
   font-weight: normal;
+  padding-left: 1px;
 }
 
 .Stat.isOpen .chartTitleData {
@@ -126,8 +128,7 @@
 }
 
 .inputWrapper label {
-  font-weight: 600;
-  color: var(--stat--dark);
+  font-weight: 500;
 }
 
 .inputWrapper input[type="number"] {
@@ -140,13 +141,15 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  color: var(--stat--dark);
+  color: var(--stat--default);
 }
 
 .outputValue {
-  font-weight: 600;
-  color: var(--stat--dark);
+  font-weight: 500;
+  color: var(--stat--default);
   margin-right: .25em;
+  position: relative;
+  top: 1px;
 }
 
 .outputSuffix {
@@ -159,7 +162,7 @@
 }
 
 .outputLabel {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--stat--default);
 }
 
