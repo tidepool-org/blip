@@ -38,15 +38,11 @@ export const BgBar = props => {
   const datumY = yPos + (barWidth / 2);
   const datumX = scale.y(datum.y) * widthCorrection;
 
-  console.log('datumX', datumX);
-
   const dev1Value = datum.y - deviation;
   const dev1X = scale.y(datum.y - deviation) * widthCorrection;
-  console.log('dev1X', dev1X);
 
   const dev2Value = datum.y + deviation;
   const dev2X = scale.y(datum.y + deviation) * widthCorrection;
-  console.log('dev2X', dev2X);
 
   const isEnabled = renderMean ? datum.y >= 0 : deviation >= 0;
 
