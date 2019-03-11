@@ -836,10 +836,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.1.0.tgz#b35b4c13e21318bf02ab1c3d950b0fe2bdb6fb3b"
-  integrity sha512-SdOz/oWqvXp0Itic8K81oDu7LU9B8jtABaeA6fZibn20HCzKlBt1pC15CwcfSTa2armm27k9t9KoBINBmuPysg==
+"@tidepool/viz@1.2.0-negative-sd-range-fix.1":
+  version "1.2.0-negative-sd-range-fix.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.2.0-negative-sd-range-fix.1.tgz#991eeb202af775f3df8b85756faf62d521f88436"
+  integrity sha512-I2G5CAEe3qrmLY3xNeGsSxS4HxLEFFnMxiOBdNjiYoeLO8xYYkvL2pGgdCg7t7N8BujcUdEVSYzrLU7aMwfY+g==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
