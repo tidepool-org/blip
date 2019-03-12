@@ -300,15 +300,19 @@ export let Signup = translate()(React.createClass({
 
   renderTypeSelection: function() {
     const { t } = this.props;
-    if(this.state.madeSelection){
+    if (this.state.madeSelection) {
       return null;
     }
-    let personalClass = 'signup-selection' + (this.state.selected === 'personal' ? ' selected' : '');
-    let clinicanClass = 'signup-selection' + (this.state.selected === 'clinician' ? ' selected' : '');
-    return (
-      <div className="signup-container container-small-outer">
-        <div className="signup-title">{t('Sign Up for Tidepool')}</div>
-        <div className="signup-subtitle">{t('Which kind of account do you need?')}</div>
+    const personalClass = 'signup-selection' + (this.state.selected === 'personal' ? ' selected' : '');
+    const clinicanClass = 'signup-selection' + (this.state.selected === 'clinician' ? ' selected' : '');
+
+    let signUpSubtitle = null;
+    let signUpSelectionPersonal = null;
+
+    if ( _.get(window, 'config.ALLOW_SIGNUP_PATIENT', true)) {
+      signUpSubtitle = (<div className="signup-subtitle">{t('Which kind of account do you need?')}</div>);
+
+      signUpSelectionPersonal = (
         <div className={personalClass} onClick={_.partial(this.handleSelectionClick, 'personal')}>
           <div className="signup-selectionHeader">
             <div className="signup-selectionTitle">{t('Personal Account')}</div>
@@ -319,16 +323,28 @@ export let Signup = translate()(React.createClass({
           <div className="signup-selectionDescription">{t('You want to manage your diabetes data. You are caring for or supporting someone with diabetes.')}
           </div>
         </div>
-        <div className={clinicanClass} onClick={_.partial(this.handleSelectionClick, 'clinician')}>
-          <div className="signup-selectionHeader">
-            <div className="signup-selectionTitle">{t('Clinician Account')}</div>
-            <div className="signup-selectionCheck">
-              <img src={check} />
-            </div>
-          </div>
-          <div className="signup-selectionDescription">{t('You are a doctor, a clinic or other healthcare provider that wants to use Tidepool to help people in your care.')}
+      );
+    }
+
+    const signUpSelectionClinician = (
+      <div className={clinicanClass} onClick={_.partial(this.handleSelectionClick, 'clinician')}>
+        <div className="signup-selectionHeader">
+          <div className="signup-selectionTitle">{t('Clinician Account')}</div>
+          <div className="signup-selectionCheck">
+            <img src={check} />
           </div>
         </div>
+        <div className="signup-selectionDescription">{t('You are a doctor, a clinic or other healthcare provider that wants to use Tidepool to help people in your care.')}
+        </div>
+      </div>
+    );
+
+    return (
+      <div className="signup-container container-small-outer">
+        <div className="signup-title">{t('Sign Up for Tidepool')}</div>
+        { signUpSubtitle }
+        { signUpSelectionPersonal }
+        { signUpSelectionClinician }
         <div className="signup-continue">
           <button className="btn btn-primary" disabled={!this.state.selected} onClick={this.handleContinueClick}>{t('Continue')}</button>
         </div>
