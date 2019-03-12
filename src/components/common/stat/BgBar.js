@@ -130,20 +130,20 @@ export const BgBar = props => {
         <g className="bgDeviation">
           <Rect
             {...props}
-            x={dev1X - 3}
+            x={_.max([dev1X - 3, 0])}
             y={datumY - barWidth * 2 - 1}
             width={4}
             height={barWidth * 4 + 2}
             style={{
               stroke: 'white',
               strokeWidth: 2,
-              fill: colors[classifyBgValue(bgBounds, dev1Value)],
+              fill: colors[classifyBgValue(bgBounds, _.max([dev1Value, 0.1]))],
             }}
           />
 
           <Rect
             {...props}
-            x={dev2X - 3}
+            x={_.min([dev2X - 3, width - chartLabelWidth - 3])}
             y={datumY - barWidth * 2 - 1}
             width={4}
             height={barWidth * 4 + 2}

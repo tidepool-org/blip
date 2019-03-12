@@ -262,5 +262,30 @@ describe('BgBar', () => {
       expect(bgDeviation().childAt(0).props().style.fill).to.equal(colors.high);
       expect(bgDeviation().childAt(1).props().style.fill).to.equal(colors.high);
     });
+
+    it('should set the color to `low` when the deviation is > the mean, resulting in a negative low bar value', () => {
+      // -1 low value
+      wrapper.setProps(props({ datum: {
+        y: 50,
+        deviation: { value: 51 },
+      } }));
+
+      expect(bgDeviation().childAt(0).props().style.fill).to.equal(colors.low);
+    });
+
+    it('should constrain the bars to render within the scale when the deviation would cause them to render outside of it', () => {
+      // -50 to 450 -- scale only shows 0 to 400
+      wrapper.setProps(props({ datum: {
+        y: 200,
+        deviation: { value: 250 },
+      } }));
+
+      const scaleWidth = defaultProps.width - defaultProps.chartLabelWidth;
+
+      expect(bgDeviation().childAt(0).props().x).to.equal(0);
+
+      expect(scaleWidth).to.equal(220);
+      expect(bgDeviation().childAt(1).props().x).to.equal(217); // scaleWidth - 3 for bar thickness
+    });
   });
 });
