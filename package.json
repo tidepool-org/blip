@@ -9,7 +9,7 @@
     "browser-tests": "NODE_ENV=test ./node_modules/karma/bin/karma start --browsers Chrome",
     "test-watch": "NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run",
     "start": "NODE_ENV=development ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --cache --colors --progress --port 3000 --host 0.0.0.0",
-    "dblp": "NODE_ENV=development API_HOST='http://localhost:8009'  ALLOW_CHANGE_EMAIL=false I18N_ENABLED=true ALLOW_CHANGE_PASSWORD=false ALLOW_CHANGE_LANG=false HIDE_DONATE=true HIDE_DEXCOM_BANNER=true HIDE_UPLOAD_LINK=true BRANDING='diabeloop' ALLOW_SIGNUP_PATIENT=false ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --cache --colors --progress --port 3000 --host 0.0.0.0",
+    "dblp": "NODE_ENV=development API_HOST='http://localhost:8009'  ALLOW_SIGNUP_PATIENT=false ALLOW_PATIENT_CHANGE_EMAIL=false I18N_ENABLED=true ALLOW_PATIENT_CHANGE_PASSWORD=false ALLOW_CHANGE_LANG=false HIDE_DONATE=true HIDE_DEXCOM_BANNER=true HIDE_UPLOAD_LINK=true BRANDING='diabeloop' ALLOW_SIGNUP_PATIENT=false ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --cache --colors --progress --port 3000 --host 0.0.0.0",
     "build": "NODE_ENV=production npm run build-app && npm run build-config",
     "build-app": "NODE_ENV=production node buildapp",
     "build-config": "NODE_ENV=production node buildconfig",
