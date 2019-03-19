@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.12.5-dblp.0.2.0",
+  "version": "1.12.5-dblp.0.2.2",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -13,7 +13,7 @@
     "build": "NODE_ENV=production npm run build-app && npm run build-config",
     "build-app": "NODE_ENV=production node buildapp",
     "build-config": "NODE_ENV=production node buildconfig",
-    "server": "node server",
+    "server": "npm run build-config && node server",
     "lint": "eslint app test",
     "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0",
     "build-docs": "./update-gh-pages.sh",
@@ -21,7 +21,7 @@
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o ."
   },
   "dependencies": {
-    "@tidepool/viz": "0.1.1",
+    "@tidepool/viz": "mdblp/viz#dblp.0.1.2",
     "async": "1.5.2",
     "autoprefixer": "6.7.2",
     "babel-core": "6.13.2",

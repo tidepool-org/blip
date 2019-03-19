@@ -1,6 +1,6 @@
 # Blip 
 
-# [1.12.5-dblp.0.2.0] - 2019-03-19 
+# [1.12.5-dblp.0.2.2] - 2019-03-19 
 
 - Add/Update translations
 - Change e-mail & password can be disabled for patients. They cannot be disabled for clinical accounts.
