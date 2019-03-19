@@ -3,7 +3,7 @@ sudo: false
 language: node_js
 
 node_js:
-  - 10.15
+  - 10.15.3
   - node
 
 cache: npm
@@ -20,7 +20,7 @@ deploy:
   # builds of your repo's master branch (e.g., after you merge a PR).
   on:
     tags: true
-    node_js: 10.15
+    node_js: 10.15.3
 #    branch: dbl
   provider: s3
   # You can refer to environment variables from Travis repo settings!
