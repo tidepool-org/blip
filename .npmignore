@@ -16,3 +16,4 @@ loadtests.js
 package.config.js
 webpack.config.js
 yarn.lock
+.npmrc
