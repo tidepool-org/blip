@@ -8,13 +8,12 @@ RUN apk --no-cache update && \
     apk add --no-cache --virtual .build-dependencies curl git
 
 COPY package.json package.json
-RUN npm install npm@6
-
+#COPY package-lock.json package-lock.json
 
 RUN chown -R node:node .
 
 USER node
-RUN npm install --production
+RUN export nexus_token='' && npm install
 
 COPY . .
 
