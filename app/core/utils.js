@@ -473,12 +473,13 @@ utils.getDiabetesDataRange = (data) => {
  *    @property {Boolean} missingUploadRecord - Whether an upload record found matching latestPumpSettings.uploadId
  */
 utils.getLatestPumpSettings = (data) => {
-  const latestPumpSettings = _.find(_.sortBy(data, 'time'), { type: 'pumpSettings' });
+  const sortedData = _.sortBy(data, ['time']).reverse();
+  const latestPumpSettings = _.find(sortedData, { type: 'pumpSettings' });
   const uploadId = _.get(latestPumpSettings, 'uploadId');
 
   return {
     latestPumpSettings,
-    missingUploadRecord: uploadId && !_.some(data, { type: 'upload', uploadId }),
+    missingUploadRecord: !!(uploadId && !_.some(data, { type: 'upload', uploadId })),
   }
 }
 

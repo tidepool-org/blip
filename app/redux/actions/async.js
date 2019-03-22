@@ -925,8 +925,11 @@ export function fetchPatientData(api, options, id) {
           dispatch(sync.fetchServerTimeSuccess(serverTime));
         }
 
-        options.startDate = moment.utc(serverTime).subtract(8, 'weeks').startOf('day').toISOString();
-        options.endDate = moment.utc(serverTime).add(1, 'days').toISOString();
+        // Will set the start and end dates based on the server time when available, or fall back to
+        // browser time if server time is undefined. We allow falling back to a stubbed value to allow
+        // our unit tests to remain determinate.
+        options.startDate = moment.utc(serverTime || options.browserTimeStub).subtract(8, 'weeks').startOf('day').toISOString();
+        options.endDate = moment.utc(serverTime || options.browserTimeStub).add(1, 'days').toISOString();
 
         fetchData(options);
       });
@@ -972,22 +975,21 @@ export function fetchPatientData(api, options, id) {
 
       const range = utils.getDiabetesDataRange(patientData);
       const minDays = 30;
-      let minStartDate;
 
-      if (range.spanInDays) {
-        minStartDate = moment.utc(range.end).subtract(minDays, 'days').startOf('day').toISOString();
-
-        if (range.spanInDays < minDays) {
-          // Not enough data from first pull. Pull data from 4 weeks prior to latest data time.
-          refetchOptions.startDate = minStartDate;
-          refetchRequired = true;
-          delete(fetched.patientData);
-          delete(fetched.teamNotes);
-        }
-      }
-      else {
+      if (!range.spanInDays) {
         // No data in first pull. Pull all data.
         refetchOptions.startDate = null;
+        refetchRequired = true;
+        delete(fetched.patientData);
+        delete(fetched.teamNotes);
+      } else if (range.spanInDays < minDays) {
+        // Not enough data from first pull. Pull data from 30 days prior to latest data time.
+        refetchOptions.startDate = moment
+          .utc(range.end)
+          .subtract(minDays, 'days')
+          .startOf('day')
+          .toISOString();
+
         refetchRequired = true;
         delete(fetched.patientData);
         delete(fetched.teamNotes);
@@ -1009,7 +1011,7 @@ export function fetchPatientData(api, options, id) {
         fetchData(refetchOptions);
       } else {
         // We have enough data for the initial rendering.
-        dispatch(sync.fetchPatientDataSuccess(id, patientData, fetched.teamNotes, minStartDate));
+        dispatch(sync.fetchPatientDataSuccess(id, patientData, fetched.teamNotes, options.startDate));
       }
     }
 
@@ -1058,15 +1060,11 @@ export function fetchPatientData(api, options, id) {
 
       // Only fetch data that we don't already have. i.e. if we may already have our patientData and
       // teamNotes results, and only need to fetch the latest pumpSettings or upload record.
-      const runFetchers = _.omitBy(fetchers, (value, key) => fetched[key])
-
+      const runFetchers = _.omitBy(fetchers, (value, key) => !!fetched[key])
       async.parallel(async.reflectAll(runFetchers), (err, results) => {
         const resultsErr = _.mapValues(results, ({error}) => error);
         const resultsVal = _.mapValues(results, ({value}) => value);
         const hasError = _.some(resultsErr, err => !_.isUndefined(err));
-
-        // console.log('resultsErr', resultsErr);
-        // console.log('resultsVal', resultsVal);
 
         if (hasError) {
           handleFetchErrors(resultsErr);

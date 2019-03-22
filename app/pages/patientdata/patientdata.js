@@ -506,8 +506,6 @@ export let PatientData = translate()(React.createClass({
         weekly: weeklyData,
       }
 
-      console.log('pdfData', pdfData);
-
       props.generatePDFRequest(
         'combined',
         pdfData,
@@ -959,8 +957,6 @@ export let PatientData = translate()(React.createClass({
   },
 
   fetchEarlierData: function(options = {}) {
-    console.log('fetchEarlierData called with', options);
-
     // Return if we've already fetched all data, or are currently fetching
     if (_.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start') {
       return;

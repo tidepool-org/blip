@@ -25,7 +25,7 @@ import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS } from '../../../../a
 // need to require() async in order to rewire utils inside
 const async = require('../../../../app/redux/actions/async');
 
-describe.only('Actions', () => {
+describe('Actions', () => {
   const trackMetric = sinon.spy();
   const mockStore = configureStore([
     thunk,
@@ -2814,12 +2814,14 @@ describe.only('Actions', () => {
       });
     });
 
-    describe.only('fetchPatientData', () => {
+    describe('fetchPatientData', () => {
       const patientId = 300;
       const serverTime = '2018-01-28T00:00:11.000Z';
       const serverTimePlusOneDay = moment.utc(serverTime).add(1, 'days').toISOString();
 
-      const latestPumpSettings = { uploadId: 'abc123' };
+      const latestPumpSettings = { uploadId: 'abc123', time: '2017-11-15T00:00:00.000Z', type: 'pumpSettings' };
+      const latestUpload = { uploadId: 'abc123', time: '2017-11-01T00:00:00.000Z', type: 'upload' };
+
       const diabetesDataRangeSufficient = {
         spanInDays: 30,
         start: '2018-01-01T00:00:00.000Z',
@@ -2909,7 +2911,7 @@ describe.only('Actions', () => {
                   patientData: patientData,
                   patientNotes: teamNotes,
                   patientId: patientId,
-                  fetchedUntil: '2017-12-31T00:00:00.000Z'
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
                 },
               },
             ];
@@ -3051,6 +3053,10 @@ describe.only('Actions', () => {
 
         context('server time fetch fails', () => {
           it('should trigger FETCH_SERVER_TIME_FAILURE and when unable to fetch the server time, but continue on with fetching patientData', () => {
+            options = _.assign({}, options, {
+              browserTimeStub: '2018-01-28T00:01:00.000Z',
+            });
+
             api.server = {
               getTime: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null)
             };
@@ -3068,7 +3074,7 @@ describe.only('Actions', () => {
                   patientData,
                   patientNotes: teamNotes,
                   patientId: patientId,
-                  fetchedUntil: '2017-12-31T00:00:00.000Z',
+                  fetchedUntil: '2017-12-03T00:00:00.000Z',
                 },
               },
             ];
@@ -3088,8 +3094,8 @@ describe.only('Actions', () => {
           });
         });
 
-        context.only('missing pump settings', () => {
-          it.only('should trigger FETCH_PATIENT_DATA_REQUEST only twice if the upload record is present after fetching pump settings', () => {
+        context('missing pump settings', () => {
+          it('should trigger FETCH_PATIENT_DATA_REQUEST only twice if the upload record is present after fetching pump settings', () => {
             async.__Rewire__('utils', {
               getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
               getLatestPumpSettings: sinon.stub()
@@ -3115,8 +3121,7 @@ describe.only('Actions', () => {
                   patientData: patientData.concat(latestPumpSettings),
                   patientNotes: teamNotes,
                   patientId: patientId,
-                  // fetchedUntil: '2017-12-03T00:00:00.000Z'
-                  fetchedUntil: '2017-12-31T00:00:00.000Z'
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
                 },
               },
             ];
@@ -3128,7 +3133,6 @@ describe.only('Actions', () => {
             store.dispatch(async.fetchPatientData(api, options, patientId));
 
             const actions = store.getActions();
-            _.each(actions, (a,i) => console.log(i, a))
             expect(actions).to.eql(expectedActions);
             expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
             expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
@@ -3143,6 +3147,11 @@ describe.only('Actions', () => {
                 .onSecondCall().returns(latestPumpSettingsMissingUpload),
             });
 
+            api.patientData.get= sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData)
+              .onSecondCall().callsArgWith(2, null, [latestPumpSettings])
+              .onThirdCall().callsArgWith(2, null, [latestUpload]);
+
             let expectedActions = [
               { type: 'FETCH_SERVER_TIME_REQUEST' },
               {
@@ -3151,13 +3160,14 @@ describe.only('Actions', () => {
               },
               { type: 'FETCH_PATIENT_DATA_REQUEST' },
               { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
               {
                 type: 'FETCH_PATIENT_DATA_SUCCESS',
                 payload: {
-                  patientData: patientData,
+                  patientData: patientData.concat(latestPumpSettings).concat(latestUpload),
                   patientNotes: teamNotes,
                   patientId: patientId,
-                  fetchedUntil: '2017-12-31T00:00:00.000Z'
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
                 },
               },
             ];
@@ -3177,7 +3187,93 @@ describe.only('Actions', () => {
         });
 
         context('missing pump settings upload record', () => {
+          it('should trigger FETCH_PATIENT_DATA_REQUEST twice if an upload record is present after fetching', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+              getLatestPumpSettings: sinon.stub()
+                .onFirstCall().returns(latestPumpSettingsMissingUpload)
+                .onSecondCall().returns(latestPumpSettingsSufficient)
+            });
 
+            api.patientData.get= sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData.concat(latestPumpSettings))
+              .onSecondCall().callsArgWith(2, null, [latestUpload]);
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData.concat(latestPumpSettings).concat(latestUpload),
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+
+          it('should trigger FETCH_PATIENT_DATA_REQUEST twice if an upload record is missing after fetching, but still dispatch success', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+              getLatestPumpSettings: sinon.stub()
+                .onFirstCall().returns(latestPumpSettingsMissingUpload)
+                .onSecondCall().returns(latestPumpSettingsSufficient)
+            });
+
+            api.patientData.get= sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData.concat(latestPumpSettings))
+              .onSecondCall().callsArgWith(2, null, []); // no upload found -- oh well we tried
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData.concat(latestPumpSettings),
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
         });
       });
 
