@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "1.2.0-negative-sd-range-fix.1",
+  "version": "1.2.0-rc.1",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
