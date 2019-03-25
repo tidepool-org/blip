@@ -87,6 +87,10 @@ app.get('*', (req, res) => {
   res.send(res.locals.htmlWithNonces);
 });
 
+app.get('/healthz', (req, res) => {
+  res.status(200).end();
+});
+
 app.post('/event/csp-report/violation', (req, res) => {
   if (req.body) {
     console.log('CSP Violation: ', req.body);
