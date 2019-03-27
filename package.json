@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "1.2.0-negative-sd-range-fix.1",
+  "version": "1.2.0-trends-y-axis-fix.1",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
@@ -52,7 +52,7 @@
     "gsap": "2.0.2",
     "i18next": "11.9.0",
     "intl": "1.2.5",
-    "lodash": "4.17.10",
+    "lodash": "4.17.11",
     "memorystream": "0.3.1",
     "moment": "2.22.2",
     "moment-timezone": "0.5.21",
