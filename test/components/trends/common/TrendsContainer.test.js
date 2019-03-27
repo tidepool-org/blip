@@ -610,11 +610,11 @@ describe('TrendsContainer', () => {
           expect(yScale.clamp()).to.be.true;
         });
 
-        it('should have a minimum yScale domain: [targetLowerBound, yScaleClampTop]', () => {
+        it('should have a minimum yScale domain: [veryLowThreshold, yScaleClampTop]', () => {
           const { yScale } = minimalData.state();
           expect(yScale.domain())
             .to.deep.equal(
-              [mgdl.bgPrefs.bgBounds.targetLowerBound, props.yScaleClampTop[MGDL_UNITS]]
+              [mgdl.bgPrefs.bgBounds.veryLowThreshold, props.yScaleClampTop[MGDL_UNITS]]
             );
         });
 
@@ -640,11 +640,11 @@ describe('TrendsContainer', () => {
           expect(yScale.clamp()).to.be.true;
         });
 
-        it('should have a minimum yScale domain: [targetLowerBound, yScaleClampTop]', () => {
+        it('should have a minimum yScale domain: [veryLowThreshold, yScaleClampTop]', () => {
           const { yScale } = minimalDataMmol.state();
           expect(yScale.domain())
             .to.deep.equal(
-              [mmoll.bgPrefs.bgBounds.targetLowerBound, props.yScaleClampTop[MMOLL_UNITS]]
+              [mmoll.bgPrefs.bgBounds.veryLowThreshold, props.yScaleClampTop[MMOLL_UNITS]]
             );
         });
 
