@@ -17,7 +17,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 
 import * as actions from '../../redux/actions';
 
@@ -30,6 +30,8 @@ import { validateForm } from '../../core/validation';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
+
+import CookieConsent from 'react-cookie-consent';
 
 export let Login = translate()(React.createClass({
   propTypes: {
@@ -70,8 +72,18 @@ export let Login = translate()(React.createClass({
   },
 
   render: function() {
+    const { t } = this.props;
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
+
+    var cookieText = (
+      <Trans i18nKey="html.cookie-content">
+        <div>
+          Please consult our <a href="https://s3-eu-west-1.amazonaws.com/com.diabeloop.public-assets/data-privacy.pdf" className="link-cookieConsent" target="_blank" rel="noreferrer noopener">Data Privacy</a> and our <a href="https://s3-eu-west-1.amazonaws.com/com.diabeloop.public-assets/terms.pdf" className="link-cookieConsent" target="_blank" rel="noreferrer noopener">Terms of Use</a>
+        </div>
+      </Trans>
+    );
+    var acceptText = t('Accept');
 
     return (
       <div className="login">
@@ -86,6 +98,17 @@ export let Login = translate()(React.createClass({
             <div className="login-simpleform">{form}</div>
           </div>
         </div>
+        <CookieConsent
+          location="bottom"
+          buttonText={acceptText}
+          cookieName="CookieConsent"
+          disableStyles={true}
+          containerClasses="login-cookieConsent-container"
+          contentClasses="login-cookieConsent-content"
+          buttonClasses="simple-form-submit btn btn-primary js-form-submit"
+          expires={365}>
+          {cookieText}
+        </CookieConsent>
       </div>
     );
   },

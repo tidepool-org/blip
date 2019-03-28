@@ -60,6 +60,7 @@
     "react": "15.4.2",
     "react-addons-pure-render-mixin": "15.4.2",
     "react-addons-update": "15.4.2",
+    "react-cookie-consent": "^2.2.2",
     "react-dom": "15.4.2",
     "react-hot-loader": "3.0.0-beta.2",
     "react-i18next": "7.5.1",
