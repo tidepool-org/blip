@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "1.2.0-trends-y-axis-fix.1",
+  "version": "1.2.0",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
