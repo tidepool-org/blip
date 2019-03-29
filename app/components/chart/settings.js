@@ -151,7 +151,6 @@ const Settings = translate()(React.createClass({
     else if (_.isEmpty(pumpSettings)) {
       return true;
     }
-
     return false;
   },
 

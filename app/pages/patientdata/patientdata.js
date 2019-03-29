@@ -1095,7 +1095,7 @@ export let PatientData = translate()(React.createClass({
       // where we include and process datums that are outside of the scheduled processing time frame
       // when no diabetes data is found within it.
       const lastProcessedDateTargets = [
-        _.get(patientData, [lastDiabetesDatumProcessedIndex, 'time']),
+        patientData[lastDiabetesDatumProcessedIndex].time,
         targetDatetime,
       ];
 
