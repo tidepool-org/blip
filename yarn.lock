@@ -836,10 +836,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.1.0.tgz#b35b4c13e21318bf02ab1c3d950b0fe2bdb6fb3b"
-  integrity sha512-SdOz/oWqvXp0Itic8K81oDu7LU9B8jtABaeA6fZibn20HCzKlBt1pC15CwcfSTa2armm27k9t9KoBINBmuPysg==
+"@tidepool/viz@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.2.0.tgz#77f720930cd9c6f007cd55f925dd9859c502818f"
+  integrity sha512-2ksLI1wEThRuzQMCY64h7lahJjNWFR9yXLJZUPpsFJBA1nFI6/lLZq9SOCYK45cxnTomfqYGoRddt7lYQbRe+A==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -855,7 +855,7 @@
     gsap "2.0.2"
     i18next "11.9.0"
     intl "1.2.5"
-    lodash "4.17.10"
+    lodash "4.17.11"
     memorystream "0.3.1"
     moment "2.22.2"
     moment-timezone "0.5.21"
