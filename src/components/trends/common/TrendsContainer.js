@@ -324,8 +324,8 @@ export class TrendsContainer extends PureComponent {
     const { bgPrefs: { bgBounds, bgUnits }, yScaleClampTop } = props;
     const upperBound = yScaleClampTop[bgUnits];
     const yScaleDomain = [bgDomain[0], upperBound];
-    if (bgDomain[0] > bgBounds.targetLowerBound) {
-      yScaleDomain[0] = bgBounds.targetLowerBound;
+    if (bgDomain[0] > bgBounds.veryLowThreshold) {
+      yScaleDomain[0] = bgBounds.veryLowThreshold;
     }
     const yScale = scaleLinear().domain(yScaleDomain).clamp(true);
 
