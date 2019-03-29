@@ -207,11 +207,16 @@ const InputGroup = React.createClass({
       'Select': true,
     });
 
-    const labels = _.keyBy(this.props.items, 'value');
+    let valueArray = [];
 
-    const value = !_.isEmpty(this.props.value)
-      ? _.map(this.props.value.split(','), value => ({ value, label: labels[value].label }))
-      : [];
+    if (!_.isEmpty(this.props.value)) {
+      // Select all provided values that have a corresponding option value
+      valueArray = _.intersectionBy(
+        this.props.items,
+        _.map(this.props.value.split(','), value => ({ value })),
+        'value'
+      );
+    }
 
     return (
       <Select
@@ -223,7 +228,7 @@ const InputGroup = React.createClass({
         isClearable={isMultiSelect}
         closeMenuOnSelect={!isMultiSelect}
         placeholder={this.props.placeholder}
-        value={value}
+        value={valueArray}
         onChange={this.handleChange}
         isDisabled={this.props.disabled}
         options={this.props.items}
