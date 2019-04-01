@@ -44,6 +44,7 @@ export class DataUtil {
     this.log('bgSource', this.bgSource);
     this.log('timeZoneName', this.timeZoneName);
     this.log('endpoints', this._endpoints);
+    this.log('bgPrefs', { bgBounds: this.bgBounds, bgUnits: this.bgUnits });
   }
 
   get bgSource() {
@@ -61,10 +62,22 @@ export class DataUtil {
     this.log('endpoints', this._endpoints, 'days in range', this.days);
   }
 
+  set bgPrefs(bgPrefs = {}) {
+    this.bgUnits = bgPrefs.bgUnits;
+    this.bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
+
+    this.log('bgPrefs', { bgBounds: this.bgBounds, bgUnits: this.bgUnits });
+  }
+
   addData = data => {
     this.data.add(data);
     this.bgSources = this.getBgSources();
     this.defaultBgSource = this.getDefaultBgSource();
+  };
+
+  removeData = () => {
+    this.clearFilters();
+    this.data.remove();
   };
 
   addBasalOverlappingStart = (basalData) => {
