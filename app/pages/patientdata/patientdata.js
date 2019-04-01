@@ -52,7 +52,9 @@ import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, BG_DATA_TYPES, DIABETES_DATA_T
 
 const { Loader } = vizComponents;
 const { DataUtil } = vizUtils.data;
-const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
+const { addDuration, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
+const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
+const { commonStats, getStatDefinition, statFetchMethods } = vizUtils.stat;
 
 export let PatientData = translate()(React.createClass({
   propTypes: {
@@ -459,6 +461,82 @@ export let PatientData = translate()(React.createClass({
     this.props.trackMetric('Closed New Message Modal');
   },
 
+  generatePDFStats: function (data, state) {
+    const { bgBounds, bgUnits, latestPump = {} } = this.dataUtil;
+    const { manufacturer, deviceModel } = latestPump;
+    const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
+
+    const getStat = (statType) => {
+      const { bgSource, days } = this.dataUtil;
+
+      return getStatDefinition(this.dataUtil[statFetchMethods[statType]](), statType, {
+        bgSource,
+        days,
+        bgPrefs: {
+          bgBounds,
+          bgUnits,
+        },
+        manufacturer,
+      });
+    };
+
+    const basicsDateRange = _.get(data, 'basics.dateRange');
+    if (basicsDateRange) {
+      data.basics.endpoints = [
+        basicsDateRange[0],
+        getLocalizedCeiling(basicsDateRange[1], state.timePrefs).toISOString(),
+      ];
+
+      this.dataUtil.endpoints = data.basics.endpoints;
+      this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
+
+      data.basics.stats = {
+        [commonStats.timeInRange]: getStat(commonStats.timeInRange),
+        [commonStats.readingsInRange]: getStat(commonStats.readingsInRange),
+        [commonStats.totalInsulin]: getStat(commonStats.totalInsulin),
+        [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
+        [commonStats.carbs]: getStat(commonStats.carbs),
+        [commonStats.averageDailyDose]: getStat(commonStats.averageDailyDose),
+      }
+    }
+
+    const dailyDateRanges = _.get(data, 'daily.dataByDate');
+    if (dailyDateRanges) {
+      _.forIn(dailyDateRanges, _.bind(function(value, key) {
+        data.daily.dataByDate[key].endpoints = [
+          getLocalizedCeiling(dailyDateRanges[key].bounds[0], state.timePrefs).toISOString(),
+          getLocalizedCeiling(dailyDateRanges[key].bounds[1], state.timePrefs).toISOString(),
+        ];
+
+        this.dataUtil.endpoints = data.daily.dataByDate[key].endpoints;
+        this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
+
+        data.daily.dataByDate[key].stats = {
+          [commonStats.timeInRange]: getStat(commonStats.timeInRange),
+          [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
+          [commonStats.totalInsulin]: getStat(commonStats.totalInsulin),
+          [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
+          [commonStats.carbs]: getStat(commonStats.carbs),
+        };
+      }, this));
+    }
+
+    const weeklyDateRange = _.get(data, 'weekly.dateRange');
+    if (weeklyDateRange) {
+      data.weekly.endpoints = [
+        getLocalizedCeiling(weeklyDateRange[0], state.timePrefs).toISOString(),
+        addDuration(getLocalizedCeiling(weeklyDateRange[1], state.timePrefs).toISOString(), 864e5),
+      ];
+
+      this.dataUtil.endpoints = data.weekly.endpoints;
+      this.dataUtil.chartPrefs = this.state.chartPrefs['weekly'];
+
+      data.weekly.stats = {
+        [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
+      };
+    }
+  },
+
   generatePDF: function (props, state) {
     const data = state.processedPatientData;
     const diabetesData = data.diabetesData;
@@ -505,6 +583,10 @@ export let PatientData = translate()(React.createClass({
         settings: _.last(data.grouped.pumpSettings),
         weekly: weeklyData,
       }
+
+      this.generatePDFStats(pdfData, state);
+
+      this.log('PDF Data', pdfData);
 
       props.generatePDFRequest(
         'combined',
