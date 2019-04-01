@@ -47,6 +47,7 @@ import {
   getStatDefinition,
   getStatTitle,
   statBgSourceLabels,
+  statFetchMethods,
 } from './utils/stat';
 import DataUtil from './utils/data';
 import { selectDailyViewData, selectWeeklyViewData } from './utils/print/data';
@@ -106,6 +107,7 @@ const utils = {
     getStatDefinition,
     getStatTitle,
     statBgSourceLabels,
+    statFetchMethods,
   },
 };
 
