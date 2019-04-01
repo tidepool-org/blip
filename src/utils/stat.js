@@ -55,7 +55,6 @@ export const commonStats = {
   averageDailyDose: 'averageDailyDose',
   carbs: 'carbs',
   coefficientOfVariation: 'coefficientOfVariation',
-  dailyDose: 'dailyDose',
   glucoseManagementIndicator: 'glucoseManagementIndicator',
   readingsInRange: 'readingsInRange',
   sensorUsage: 'sensorUsage',
