@@ -174,7 +174,9 @@ export const getStatData = (data, type, opts = {}) => {
   const vocabulary = getPumpVocabulary(opts.manufacturer);
   const bgRanges = generateBgRangeLabels(opts.bgPrefs, { condensed: true });
 
-  let statData = {};
+  let statData = {
+    raw: data,
+  };
 
   switch (type) {
     case commonStats.averageGlucose:
