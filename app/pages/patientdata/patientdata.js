@@ -462,8 +462,7 @@ export let PatientData = translate()(React.createClass({
   },
 
   generatePDFStats: function (data, state) {
-    const { bgBounds, bgUnits, latestPump = {} } = this.dataUtil;
-    const { manufacturer, deviceModel } = latestPump;
+    const { bgBounds, bgUnits, latestPump: { manufacturer, deviceModel } } = this.dataUtil;
     const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
 
     const getStat = (statType) => {
@@ -535,6 +534,8 @@ export let PatientData = translate()(React.createClass({
         [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
       };
     }
+
+    return data;
   },
 
   generatePDF: function (props, state) {
@@ -1287,6 +1288,8 @@ export let PatientData = translate()(React.createClass({
     let combinedData = patientData.concat(patientNotes);
 
     window.downloadPrintViewData = () => {
+      const initialBgUnits = this.dataUtil.bgUnits;
+
       const prepareProcessedData = (bgUnits) => {
         const multiplier = bgUnits === MGDL_UNITS ? MGDL_PER_MMOLL : (1 / MGDL_PER_MMOLL);
 
@@ -1308,13 +1311,28 @@ export let PatientData = translate()(React.createClass({
         [MMOLL_UNITS]: prepareProcessedData(MMOLL_UNITS),
       };
 
+      const bgPrefs = {
+        [MGDL_UNITS]: {
+          bgClasses: data[MGDL_UNITS].bgClasses,
+          bgUnits: data[MGDL_UNITS].bgUnits
+        },
+        [MMOLL_UNITS]: {
+          bgClasses: data[MMOLL_UNITS].bgClasses,
+          bgUnits: data[MMOLL_UNITS].bgUnits
+        },
+      };
+
       const dData = {
         [MGDL_UNITS]: data[MGDL_UNITS].diabetesData,
         [MMOLL_UNITS]: data[MMOLL_UNITS].diabetesData,
       };
 
       const preparePrintData = (bgUnits) => {
-        return {
+        this.dataUtil.bgPrefs = bgPrefs[bgUnits];
+        this.dataUtil.removeData();
+        this.dataUtil.addData(data[bgUnits].data.concat(_.get(data[bgUnits], 'grouped.upload', [])))
+
+        return this.generatePDFStats({
           basics: data[bgUnits].basicsData,
           daily: vizUtils.data.selectDailyViewData(
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
@@ -1335,13 +1353,17 @@ export let PatientData = translate()(React.createClass({
             this.state.printOpts.numDays.weekly,
             this.state.timePrefs,
           ),
-        };
+        }, this.state);
       };
 
       console.save({
         [MGDL_UNITS]: preparePrintData(MGDL_UNITS),
         [MMOLL_UNITS]: preparePrintData(MMOLL_UNITS),
       }, 'print-view.json');
+
+      this.dataUtil.bgPrefs = bgPrefs[initialBgUnits];
+      this.dataUtil.removeData();
+      this.dataUtil.addData(data[initialBgUnits].data.concat(_.get(data[initialBgUnits], 'grouped.upload', [])))
     };
   },
 
