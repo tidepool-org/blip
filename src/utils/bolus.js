@@ -268,19 +268,6 @@ export function getTotalBolus(insulinEvents) {
 }
 
 /**
- * getTotalCarbs
- * @param {Array} insulinEvents - Array of Tidepool bolus or wizard objects
- *
- * @return {Number} total of carbs input into bolus calculator
- */
-export function getTotalCarbs(insulinEvents) {
-  return _.reduce(insulinEvents, (result, insulinEvent) => {
-    const carbs = getCarbs(insulinEvent);
-    return result + (_.inRange(carbs, Infinity) ? carbs : 0);
-  }, 0);
-}
-
-/**
  * hasExtended
  * @param {Object} insulinEvent - a Tidepool bolus or wizard object
  *
