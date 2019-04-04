@@ -336,6 +336,7 @@ class DailyPrintView extends PrintView {
         .renderCbgs(dateChart)
         .renderSmbgs(dateChart)
         .renderInsulinEvents(dateChart)
+        .renderFoodCarbs(dateChart)
         .renderBolusDetails(dateChart)
         .renderBasalPaths(dateChart)
         .renderBasalRates(dateChart)
@@ -772,6 +773,33 @@ class DailyPrintView extends PrintView {
       if (carbs) {
         const carbsX = xScale(getBolusFromInsulinEvent(insulinEvent).utc);
         const carbsY = bolusScale(getMaxValue(insulinEvent)) - this.carbRadius - circleOffset;
+        this.doc.circle(carbsX, carbsY, this.carbRadius)
+          .fill(this.colors.carbs);
+        this.doc.font(this.font)
+          .fontSize(this.carbsFontSize)
+          .fillColor('black')
+          .text(
+            carbs,
+            carbsX - this.carbRadius * 2,
+            carbsY - textOffset,
+            { align: 'center', width: this.carbRadius * 4 }
+          );
+      }
+    });
+
+    return this;
+  }
+
+  renderFoodCarbs({ bolusScale, data: { food }, xScale }) {
+    const circleOffset = 1;
+    const textOffset = 1.75;
+
+    _.each(food, foodEvent => {
+      const carbs = _.get(foodEvent, 'nutrition.carbohydrate.net');
+
+      if (carbs) {
+        const carbsX = xScale(foodEvent.utc);
+        const carbsY = bolusScale(0) - this.carbRadius - circleOffset;
         this.doc.circle(carbsX, carbsY, this.carbRadius)
           .fill(this.colors.carbs);
         this.doc.font(this.font)
