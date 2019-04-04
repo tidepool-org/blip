@@ -40,7 +40,7 @@ import { THREE_HRS } from '../../../src/utils/datetime';
 import Doc from '../../helpers/pdfDoc';
 import { MMOLL_UNITS } from '../../../src/utils/constants';
 
-describe('WeeklyPrintView', () => {
+describe.only('WeeklyPrintView', () => {
   let Renderer;
 
   const DPI = 72;
