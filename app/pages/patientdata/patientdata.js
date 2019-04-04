@@ -483,7 +483,7 @@ export let PatientData = translate()(React.createClass({
         mostRecent,
         _.pick(
           data.grouped,
-          ['basal', 'bolus', 'cbg', 'message', 'smbg', 'upload']
+          ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']
         ),
         state.printOpts.numDays.daily,
         state.timePrefs,
@@ -1238,7 +1238,7 @@ export let PatientData = translate()(React.createClass({
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
               data[bgUnits].grouped,
-              ['basal', 'bolus', 'cbg', 'message', 'smbg', 'upload']
+              ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']
             ),
             this.state.printOpts.numDays.daily,
             this.state.timePrefs,
