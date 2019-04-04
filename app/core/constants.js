@@ -38,7 +38,6 @@ export const DATA_DONATION_NONPROFITS = () => [
   { value: 'DYF', label: t('Diabetes Youth Families (DYF)') },
   { value: 'DIABETESSISTERS', label: t('DiabetesSisters') },
   { value: 'DIATRIBE', label: t('The diaTribe Foundation') },
-  { value: 'GINNY', label: t('The Ginny Foundation') },
   { value: 'JDRF', label: t('JDRF') },
   { value: 'NSF', label: t('Nightscout Foundation') },
   { value: 'T1DX', label: t('T1D Exchange') },

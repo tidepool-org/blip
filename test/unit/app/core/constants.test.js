@@ -52,7 +52,6 @@ describe('constants', function() {
       'DYF',
       'DIABETESSISTERS',
       'DIATRIBE',
-      'GINNY',
       'JDRF',
       'NSF',
       'T1DX',
