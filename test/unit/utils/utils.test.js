@@ -624,16 +624,16 @@ describe('utils', () => {
       expect(utils.getLatestPumpSettings(_.omitBy(data, {type: 'pumpSettings'})).latestPumpSettings).to.be.undefined;
     });
 
-    it('should return `false` for `missingUploadRecord` when pump settings are missing in data set', () => {
-      expect(utils.getLatestPumpSettings(_.omitBy(data, {type: 'pumpSettings'})).missingUploadRecord).to.be.false;
+    it('should return `undefined` for `uploadRecord` when pump settings are missing in data set', () => {
+      expect(utils.getLatestPumpSettings(_.omitBy(data, {type: 'pumpSettings'})).uploadRecord).to.be.undefined;
     });
 
-    it('should return `false` for `missingUploadRecord` when pump settings are present and the corresponding upload is in data set', () => {
-      expect(utils.getLatestPumpSettings(data).missingUploadRecord).to.be.false;
+    it('should return the upload record when pump settings are present and the corresponding upload is in data set', () => {
+      expect(utils.getLatestPumpSettings(data).uploadRecord).to.eql(data[0]);
     });
 
-    it('should return `true` for `missingUploadRecord` when pump settings are present and the corresponding upload is not in data set', () => {
-      expect(utils.getLatestPumpSettings(_.omitBy(data, { type: 'upload' })).missingUploadRecord).to.be.true;
+    it('should return `undefined` for `uploadRecord` when pump settings are present and the corresponding upload is not in data set', () => {
+      expect(utils.getLatestPumpSettings(_.omitBy(data, { type: 'upload' })).uploadRecord).to.be.undefined;
     });
   });
 });

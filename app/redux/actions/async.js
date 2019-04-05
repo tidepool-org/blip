@@ -971,7 +971,7 @@ export function fetchPatientData(api, options, id) {
         initial: false,
       });
 
-      const { latestPumpSettings, missingUploadRecord } = utils.getLatestPumpSettings(patientData);
+      const { latestPumpSettings, uploadRecord } = utils.getLatestPumpSettings(patientData);
 
       const range = utils.getDiabetesDataRange(patientData);
       const minDays = 30;
@@ -1000,7 +1000,7 @@ export function fetchPatientData(api, options, id) {
         // record in order to be able to display and render the settings web and print views
         refetchOptions.getLatestPumpSettings = true;
         refetchRequired = true;
-      } else if (latestPumpSettings.uploadId && missingUploadRecord) {
+      } else if (latestPumpSettings.uploadId && !uploadRecord) {
         // If we have pump settings, but we don't have the corresponing upload record used
         // to get the device source, we need to fetch it
         refetchOptions.getPumpSettingsUploadRecordById = latestPumpSettings.uploadId;
@@ -1017,9 +1017,9 @@ export function fetchPatientData(api, options, id) {
 
     function handlePumpSettingsFetchResults(patientData, options) {
       // If we just fetched the latest pumpSettings, we should ensure we have the corresponding upload
-      const { latestPumpSettings, missingUploadRecord } = utils.getLatestPumpSettings(patientData);
+      const { latestPumpSettings, uploadRecord } = utils.getLatestPumpSettings(patientData);
 
-      if (_.get(latestPumpSettings, 'uploadId') && missingUploadRecord) {
+      if (_.get(latestPumpSettings, 'uploadId') && !uploadRecord) {
         // We now have the pumpSettings we were after, but no upload source. One final fetch for upload source
         const refetchOptions = _.assign({}, options, {
           getLatestPumpSettings: false,

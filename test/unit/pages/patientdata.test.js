@@ -2362,6 +2362,7 @@ describe('PatientData', function () {
     let getTimezoneForDataProcessingStub;
     let handleInitialProcessedDataStub;
     let hideLoadingStub;
+    let utilsStubs;
 
     const processedPatientDataStub = {
       data: 'stubbed data',
@@ -2412,13 +2413,16 @@ describe('PatientData', function () {
       handleInitialProcessedDataStub = sinon.stub(instance, 'handleInitialProcessedData');
       hideLoadingStub = sinon.stub(instance, 'hideLoading');
 
-      PD.__Rewire__('utils', {
+      utilsStubs = {
         processPatientData: sinon.stub().returns(processedPatientDataStub),
         filterPatientData: sinon.stub().returns({
           processedData: 'stubbed filtered data',
         }),
         getTimezoneForDataProcessing: sinon.stub().returns('stubbed timezone'),
-      });
+        getLatestPumpSettings: sinon.stub().returns({}),
+      };
+
+      PD.__Rewire__('utils', utilsStubs);
 
       PD.__Rewire__('DataUtil', DataUtilStub);
 
@@ -2733,15 +2737,11 @@ describe('PatientData', function () {
           );
 
           // Rewire processPatientData util to return undefined
-          PD.__Rewire__('utils', {
+          PD.__Rewire__('utils', _.assign({}, utilsStubs, {
             processPatientData: sinon.stub().returns(_.assign({}, processedPatientDataStub, {
               timePrefs: undefined,
             })),
-            filterPatientData: sinon.stub().returns({
-              processedData: 'stubbed filtered data',
-            }),
-            getTimezoneForDataProcessing: sinon.stub().returns('stubbed timezone'),
-          });
+          }));
 
           wrapper.setState({
             processedPatientData: {
