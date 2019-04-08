@@ -511,6 +511,8 @@ export let PatientData = translate()(React.createClass({
         weekly: weeklyData,
       }
 
+      this.log('Generating PDF with', pdfData, opts);
+
       props.generatePDFRequest(
         'combined',
         pdfData,
