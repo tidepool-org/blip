@@ -2518,7 +2518,7 @@ describe('PatientData', function () {
         );
       });
 
-      context('processing initial data', () => {
+      context.only('processing initial data', () => {
         it('should call processPatientData util with a combined patient data and notes array, query params, and patient settings', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
@@ -2543,7 +2543,7 @@ describe('PatientData', function () {
           );
         });
 
-        it('should call processPatientData util on data that falls within the 4 weeks of the lastProcessedDateTarget provided', () => {
+        it('should call processPatientData util on diabetes data that falls within the 4 weeks of the lastProcessedDateTarget provided', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
           });
@@ -2557,6 +2557,34 @@ describe('PatientData', function () {
             [
               shouldProcessProps.patientDataMap[40][0], // second datum not processed as it is more than 4 weeks in the past
               ...shouldProcessProps.patientNotesMap[40],
+            ],
+          );
+        });
+
+        it('should ensure call to processPatientData util includes latest `pumpSettings` and corresponding `upload` datums', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.resetHistory();
+
+          // Rewire processPatientData util to return undefined
+          PD.__Rewire__('utils', _.assign({}, utilsStubs, {
+            getLatestPumpSettings: sinon.stub().returns({
+              latestPumpSettings: { type: 'pumpSettings' },
+              uploadRecord: { type: 'upload' },
+            }),
+          }));
+
+          instance.processData();
+          sinon.assert.calledOnce(processPatientDataStub);
+          sinon.assert.calledWith(
+            processPatientDataStub,
+            [
+              shouldProcessProps.patientDataMap[40][0], // second datum not processed as it is more than 4 weeks in the past
+              ...shouldProcessProps.patientNotesMap[40],
+              { type: 'pumpSettings' },
+              { type: 'upload' },
             ],
           );
         });
