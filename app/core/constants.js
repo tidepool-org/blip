@@ -16,6 +16,7 @@
  */
 
 import i18next from './language';
+import config from '../config'
 
 const t = i18next.t.bind(i18next);
 
@@ -38,12 +39,12 @@ export const CONFIG = {
     privacyText: t('Privacy Policy')
   },
   'diabeloop': {
-    name: 'Diabeloop',
+    name: 'YourLoops',
     support: 'http://www.diabeloop.fr/faq.php',
-    legal: 'http://www.diabeloop.fr/mentions-legales.php',
-    terms: 'add link',
+    legal: config.ASSETS_URL + 'terms.pdf',
+    terms: config.ASSETS_URL + 'terms.pdf',
     termsText: t('Diabeloop Applications Terms of Use'),
-    privacy: 'add link',
+    privacy: config.ASSETS_URL + 'data-privacy.pdf',
     privacyText: t('Privacy Policy')
   }
 };

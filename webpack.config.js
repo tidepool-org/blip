@@ -26,6 +26,8 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __ALLOW_SIGNUP_PATIENT__: JSON.stringify(process.env.ALLOW_SIGNUP_PATIENT || true),
   __ALLOW_PATIENT_CHANGE_EMAIL__: JSON.stringify(process.env.ALLOW_PATIENT_CHANGE_EMAIL || true),
   __ALLOW_PATIENT_CHANGE_PASSWORD__: JSON.stringify(process.env.ALLOW_PATIENT_CHANGE_PASSWORD || true),
+  __HELP_LINK__: JSON.stringify(process.env.HELP_LINK || null),
+  __ASSETS_URL__: JSON.stringify(process.env.ASSETS_URL || null),
   __HIDE_DONATE__: JSON.stringify(process.env.HIDE_DONATE || false),
   __HIDE_DEXCOM_BANNER__: JSON.stringify(process.env.HIDE_DEXCOM_BANNER || false),
   __HIDE_UPLOAD_LINK__: JSON.stringify(process.env.HIDE_UPLOAD_LINK || false),

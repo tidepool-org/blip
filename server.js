@@ -48,6 +48,8 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     connectSrc: [].concat([
       process.env.API_HOST,
       'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
+      '*.zdassets.com',
+      '*.zendesk.com'
     ]),
   },
   reportOnly: false,

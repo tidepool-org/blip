@@ -33,6 +33,8 @@ import SimpleForm from '../../components/simpleform';
 
 import CookieConsent from 'react-cookie-consent';
 
+import Config from '../../config'
+
 export let Login = translate()(React.createClass({
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
@@ -71,6 +73,20 @@ export let Login = translate()(React.createClass({
     };
   },
 
+  componentDidMount: function() {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('User Reached login page');
+    }
+
+    if (Config.HELP_LINK !== null) {
+      const script = document.createElement('script')
+      script.type = 'text/javascript';
+      // limit the search YourLoops category until you are logged on
+      script.text = 'window.zESettings = { webWidget: { helpCenter: { filter: { category: \'360001386093\' } } } };';
+      document.body.appendChild(script)
+    }
+  },
+
   render: function() {
     const { t } = this.props;
     var form = this.renderForm();
@@ -86,7 +102,7 @@ export let Login = translate()(React.createClass({
     var acceptText = t('Accept');
 
     return (
-      <div className="login">
+      <div>        
         <LoginNav
           page="login"
           hideLinks={Boolean(this.props.seedEmail)}
