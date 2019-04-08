@@ -2518,7 +2518,7 @@ describe('PatientData', function () {
         );
       });
 
-      context.only('processing initial data', () => {
+      context('processing initial data', () => {
         it('should call processPatientData util with a combined patient data and notes array, query params, and patient settings', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
