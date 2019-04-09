@@ -1594,6 +1594,7 @@ describe('PatientData', function () {
     it('should filter the daily and weekly view data before dispatching the generate pdf action', () => {
       const dailyFilterStub = PD.__get__('vizUtils').data.selectDailyViewData;
       const weeklyFilterStub = PD.__get__('vizUtils').data.selectWeeklyViewData;
+      const pickSpy = sinon.spy(_, 'pick');
 
       const props = _.assign({}, defaultProps, {
         generatePDFRequest: sinon.stub(),
@@ -1627,6 +1628,11 @@ describe('PatientData', function () {
       sinon.assert.callCount(weeklyFilterStub, 1);
       sinon.assert.callCount(props.generatePDFRequest, 1);
 
+      sinon.assert.callCount(pickSpy, 2);
+      assert(dailyFilterStub.calledBefore(weeklyFilterStub));
+      expect(pickSpy.firstCall.lastArg).to.have.members(['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']);
+      expect(pickSpy.secondCall.lastArg).to.have.members(['smbg']);
+
       assert(dailyFilterStub.calledBefore(props.generatePDFRequest));
       sinon.assert.calledWithMatch(props.generatePDFRequest,
         'combined',
@@ -1635,6 +1641,8 @@ describe('PatientData', function () {
           weekly: 'stubbed filtered weekly data',
         },
       );
+
+      pickSpy.restore();
     });
   });
 
