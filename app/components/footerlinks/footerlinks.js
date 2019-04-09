@@ -25,6 +25,8 @@ require('./images/jdrf_hover.png');
 var urlSupport = CONFIG[__BRANDING__].support;
 var urlLegal = CONFIG[__BRANDING__].legal;
 
+var SupportText = (__BRANDING__ !== 'diabeloop') ? 'Get Support' : 'Diabeloop';
+
 const FooterLinks = (props) => {
   const metricFnMkr = (link) => {
     return () => { props.trackMetric(`Clicked Footer ${link}`); };
@@ -72,7 +74,7 @@ const FooterLinks = (props) => {
           href={urlSupport}
           id='support'
           onClick={metricFnMkr('Support')}
-          target="_blank">Get Support</a>
+          target="_blank">{SupportText}</a>
       </div>
       <div className='footer-link large-format-only'>
         <a
@@ -87,7 +89,7 @@ const FooterLinks = (props) => {
             href='https://tidepool.org'
             id='jdrf'
             target='_blank'>
-            Made possible by <b>Tidepool</b>
+            Using Tidepool
           </a>
         </div>
       ):(

@@ -34,6 +34,8 @@ import SimpleForm from '../../components/simpleform';
 import CookieConsent from 'react-cookie-consent';
 
 import Config from '../../config'
+import { CONFIG } from '../../core/constants';
+
 
 export let Login = translate()(React.createClass({
   propTypes: {
@@ -92,10 +94,13 @@ export let Login = translate()(React.createClass({
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
 
+    var urlPrivacyPolicy = CONFIG[__BRANDING__].privacy;
+    var urlTermsOfUse = CONFIG[__BRANDING__].terms;
+
     var cookieText = (
       <Trans i18nKey="html.cookie-content">
         <div>
-          Please consult our <a href="https://s3-eu-west-1.amazonaws.com/com.diabeloop.public-assets/data-privacy.pdf" className="link-cookieConsent" target="_blank" rel="noreferrer noopener">Data Privacy</a> and our <a href="https://s3-eu-west-1.amazonaws.com/com.diabeloop.public-assets/terms.pdf" className="link-cookieConsent" target="_blank" rel="noreferrer noopener">Terms of Use</a>
+          Please consult our <a href={urlPrivacyPolicy} className="link-cookieConsent" target="_blank" rel="noreferrer noopener">Data Privacy</a> and our <a href={urlTermsOfUse} className="link-cookieConsent" target="_blank" rel="noreferrer noopener">Terms of Use</a>
         </div>
       </Trans>
     );

@@ -40,7 +40,7 @@ export const CONFIG = {
   },
   'diabeloop': {
     name: 'YourLoops',
-    support: 'http://www.diabeloop.fr/faq.php',
+    support: 'https://www.diabeloop.com',
     legal: config.ASSETS_URL + 'terms.pdf',
     terms: config.ASSETS_URL + 'terms.pdf',
     termsText: t('Diabeloop Applications Terms of Use'),
