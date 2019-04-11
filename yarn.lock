@@ -836,10 +836,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.2.0-trends-y-axis-fix.1":
-  version "1.2.0-trends-y-axis-fix.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.2.0-trends-y-axis-fix.1.tgz#45de8542dddbf3bd585af8d64ad0b560bba2df85"
-  integrity sha512-Ye/g3pgcxxDHTkZ1mXFIMx+NvtY/pE07v1LB1x3TTcGkyji+5cM+5XnOUOb276q+2R+nddFCzGEbUY2/77KA2w==
+"@tidepool/viz@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.2.0.tgz#77f720930cd9c6f007cd55f925dd9859c502818f"
+  integrity sha512-2ksLI1wEThRuzQMCY64h7lahJjNWFR9yXLJZUPpsFJBA1nFI6/lLZq9SOCYK45cxnTomfqYGoRddt7lYQbRe+A==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
