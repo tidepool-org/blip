@@ -1046,8 +1046,7 @@ export function fetchPatientData(api, options, id) {
       if (options.getLatestPumpSettings) {
         fetchers.latestPumpSettings = api.patientData.get.bind(api, id, {
           type: 'pumpSettings',
-          limit: 1,
-          sort: '-time',
+          latest: 1,
         });
       }
 
