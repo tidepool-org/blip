@@ -99,10 +99,10 @@ class BasicsPrintView extends PrintView {
 
     _.assign(this.data.data, {
       averageDailyCarbs,
-      totalDailyDose,
       averageDailyDose,
       basalBolusRatio,
       timeInAutoRatio,
+      totalDailyDose,
     });
 
     this.data = processInfusionSiteHistory(this.data, this.patient);

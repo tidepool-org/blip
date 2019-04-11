@@ -19,7 +19,7 @@
 
 import _ from 'lodash';
 import i18next from 'i18next';
-import { mean, range } from 'd3-array';
+import { range } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
 
@@ -340,7 +340,7 @@ class DailyPrintView extends PrintView {
     });
   }
 
-  renderSummary({ data, date, topEdge }) {
+  renderSummary({ date, topEdge }) {
     const smallIndent = this.margins.left + 4;
     const statsIndent = 6;
     const widthWithoutIndent = this.summaryArea.width - statsIndent;
@@ -514,29 +514,6 @@ class DailyPrintView extends PrintView {
         .font(this.font)
         .text(
           `${formatDecimalNumber(averageGlucose, bgPrecision)} ${this.bgUnits}`,
-          { align: 'right' }
-        );
-
-      yPos.small();
-    } else if (!_.isEmpty(data.smbg)) {
-      if (!first) {
-        this.doc.moveTo(this.margins.left, yPos.update())
-          .lineTo(this.summaryArea.rightEdge, yPos.current())
-          .stroke(this.colors.lightDividers);
-      } else {
-        first = false;
-      }
-
-      this.doc.fontSize(this.smallFontSize).font(this.boldFont)
-        .text(
-          t('Average BG'),
-          smallIndent,
-          yPos.update(),
-          { continued: true, width: widthWithoutIndent }
-        )
-        .font(this.font)
-        .text(
-          `${formatDecimalNumber(mean(data.smbg, (d) => (d.value)), bgPrecision)} ${this.bgUnits}`,
           { align: 'right' }
         );
 

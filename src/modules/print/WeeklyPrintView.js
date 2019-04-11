@@ -182,7 +182,7 @@ class WeeklyPrintView extends PrintView {
     const { stats = {} } = this.data;
     const { total, days, averageGlucose } = _.get(stats, 'averageGlucose.data.raw', {});
 
-    const totalDays = Math.ceil(days || 0);
+    const totalDays = Math.ceil(days || this.numDays || 0);
     const totalReadings = total || 0;
     const avgReadingsPerDay = Math.round(totalReadings / totalDays);
 
