@@ -8,9 +8,6 @@
 <dt><a href="#getBasalSequences">getBasalSequences(basals)</a> ⇒ <code>Array</code></dt>
 <dd><p>getBasalSequences</p>
 </dd>
-<dt><a href="#getTotalBasal">getTotalBasal(basals)</a> ⇒ <code>Number</code></dt>
-<dd><p>getTotalBasal</p>
-</dd>
 </dl>
 
 <a name="getBasalSequences"></a>
@@ -18,23 +15,10 @@
 ## getBasalSequences(basals) ⇒ <code>Array</code>
 getBasalSequences
 
-**Kind**: global function  
+**Kind**: global function
 **Returns**: <code>Array</code> - Array of Arrays where each component Array is a sequence of basals
-                of the same subType to be rendered as a unit  
+                of the same subType to be rendered as a unit
 
 | Param | Type | Description |
 | --- | --- | --- |
 | basals | <code>Array</code> | Array of preprocessed Tidepool basal objects |
-
-<a name="getTotalBasal"></a>
-
-## getTotalBasal(basals) ⇒ <code>Number</code>
-getTotalBasal
-
-**Kind**: global function  
-**Returns**: <code>Number</code> - total basal insulin in units  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| basals | <code>Array</code> | Array of preprocessed Tidepool basal objects                         trimmed to fit within the timespan the total basal                         is being calculated over |
-

@@ -87,20 +87,6 @@ export function getBasalPathGroups(basals) {
 }
 
 /**
- * getTotalBasal
- * @param {Array} basals - Array of preprocessed Tidepool basal objects
- *                         trimmed to fit within the timespan the total basal
- *                         is being calculated over
- *
- * @return {Number} total basal insulin in units
- */
-export function getTotalBasal(basals) {
-  return _.reduce(basals, (result, basal) => (
-    result + basal.rate * (basal.duration / ONE_HR)
-  ), 0);
-}
-
-/**
  * Get the start and end indexes and datetimes of basal datums within a given time range
  * @param {Array} data Array of Tidepool basal data
  * @param {String} s ISO date string for the start of the range

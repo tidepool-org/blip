@@ -17,7 +17,6 @@
 
 import _ from 'lodash';
 import moment from 'moment';
-import { mean } from 'd3-array';
 
 import DailyPrintView from '../../../src/modules/print/DailyPrintView';
 import PrintView from '../../../src/modules/print/PrintView';
@@ -33,11 +32,11 @@ import {
   EXTRA_SMALL_FONT_SIZE,
 } from '../../../src/modules/print/utils/constants';
 
-import { getTotalBasal, getBasalPathGroups } from '../../../src/utils/basal';
-import { getTotalBolus, getTotalCarbs } from '../../../src/utils/bolus';
-import { formatPercentage, formatDecimalNumber, formatBgValue } from '../../../src/utils/format';
+import { getBasalPathGroups } from '../../../src/utils/basal';
+import { formatDecimalNumber, formatBgValue } from '../../../src/utils/format';
 
 import Doc from '../../helpers/pdfDoc';
+import { MS_IN_HOUR } from '../../../src/utils/constants';
 
 describe('DailyPrintView', () => {
   let Renderer;
@@ -349,6 +348,29 @@ describe('DailyPrintView', () => {
 
     beforeEach(() => {
       args = setArgs(Renderer);
+      Renderer.data.dataByDate[sampleDate].stats = {
+        averageGlucose: { data: { raw: {
+          averageGlucose: 120,
+        } } },
+        carbs: { data: { raw: {
+          carbs: 10.2,
+        } } },
+        timeInRange: { data: {
+          raw: {
+            target: MS_IN_HOUR * 3,
+            veryLow: MS_IN_HOUR,
+          },
+          total: { value: MS_IN_HOUR * 4 },
+        } },
+        totalInsulin: { data: { raw: {
+          basal: 10,
+          bolus: 20,
+        } } },
+        timeInAuto: { data: { raw: {
+          manual: MS_IN_HOUR * 3,
+          automated: MS_IN_HOUR * 7,
+        } } },
+      };
       Renderer.renderSummary(args);
     });
 
@@ -371,86 +393,56 @@ describe('DailyPrintView', () => {
     });
 
     it('should render the basal to bolus ratio for non-automated-basal devices', () => {
-      const totalBasal = getTotalBasal(args.data.basal);
-      const totalBolus = getTotalBolus(args.data.bolus);
-      const totalInsulin = totalBasal + totalBolus;
-      const basalPercent = formatPercentage(totalBasal / totalInsulin);
-      const bolusPercent = formatPercentage(totalBolus / totalInsulin);
-      const basalPercentText = `${basalPercent}, ${formatDecimalNumber(totalBasal, 1)} U`;
-      const bolusPercentText = `${bolusPercent}, ${formatDecimalNumber(totalBolus, 1)} U`;
-
       sinon.assert.calledWith(Renderer.doc.text, 'Basal:Bolus Ratio');
 
       sinon.assert.calledWith(Renderer.doc.text, 'Basal');
-      sinon.assert.calledWith(Renderer.doc.text, basalPercentText);
+      sinon.assert.calledWith(Renderer.doc.text, '33%, 10.0 U');
 
       sinon.assert.calledWith(Renderer.doc.text, 'Bolus');
-      sinon.assert.calledWith(Renderer.doc.text, bolusPercentText);
+      sinon.assert.calledWith(Renderer.doc.text, '67%, 20.0 U');
     });
 
     it('should render the time in auto ratio for automated-basal devices', () => {
-      const { automated, manual } = args.data.timeInAutoRatio;
-      const totalBasalDuration = automated + manual;
-      const automatedPercentText = formatPercentage(automated / totalBasalDuration);
-      const manualPercentText = formatPercentage(manual / totalBasalDuration);
-
       Renderer.isAutomatedBasalDevice = true;
       Renderer.doc.text.resetHistory();
       Renderer.renderSummary(args);
       sinon.assert.calledWith(Renderer.doc.text, 'Time in Automated');
 
       sinon.assert.calledWith(Renderer.doc.text, 'Manual');
-      sinon.assert.calledWith(Renderer.doc.text, manualPercentText);
+      sinon.assert.calledWith(Renderer.doc.text, '30%');
 
       sinon.assert.calledWith(Renderer.doc.text, 'Automated');
-      sinon.assert.calledWith(Renderer.doc.text, automatedPercentText);
+      sinon.assert.calledWith(Renderer.doc.text, '70%');
     });
 
-    it('should render the Average BG with cbg data if available', () => {
-      const averageGlucose = formatDecimalNumber(mean(args.data.cbg, (d) => (d.value)), 0);
-      const averageGlucoseText = `${averageGlucose} ${Renderer.bgUnits}`;
-
+    it('should render the Average BG stat if available', () => {
       sinon.assert.calledWith(Renderer.doc.text, 'Average BG');
-      sinon.assert.calledWith(Renderer.doc.text, averageGlucoseText);
-    });
-
-    it('should render the Average BG with smbg data if available', () => {
-      const noCbgArgs = _.cloneDeep(args);
-      noCbgArgs.data.cbg = [];
-      Renderer.renderSummary(noCbgArgs);
-      const averageGlucose = formatDecimalNumber(mean(noCbgArgs.data.smbg, (d) => (d.value)), 0);
-      const averageGlucoseText = `${averageGlucose} ${Renderer.bgUnits}`;
-
-      sinon.assert.calledWith(Renderer.doc.text, 'Average BG');
-      sinon.assert.calledWith(Renderer.doc.text, averageGlucoseText);
+      sinon.assert.calledWith(Renderer.doc.text, '120 mg/dL');
     });
 
     it('should render the total daily insulin', () => {
-      const totalBasal = getTotalBasal(args.data.basal);
-      const totalBolus = getTotalBolus(args.data.bolus);
-      const totalInsulin = totalBasal + totalBolus;
-      const totalInsulinText = `${formatDecimalNumber(totalInsulin, 1)} U`;
-
       sinon.assert.calledWith(Renderer.doc.text, 'Total Insulin');
-      sinon.assert.calledWith(Renderer.doc.text, totalInsulinText);
+      sinon.assert.calledWith(Renderer.doc.text, '30.0 U');
     });
 
     it('should render the total carbs intake', () => {
-      const totalCarbs = getTotalCarbs(args.data.bolus);
-      const totalCarbsText = `${formatDecimalNumber(totalCarbs, 0)} g`;
-
       sinon.assert.calledWith(Renderer.doc.text, 'Total Carbs');
-      sinon.assert.calledWith(Renderer.doc.text, totalCarbsText);
+      sinon.assert.calledWith(Renderer.doc.text, '10 g');
     });
 
     context('mmol/L support', () => {
       beforeEach(() => {
         Renderer = new DailyPrintView(doc, data, mmollOpts);
         args = setArgs(Renderer);
+        Renderer.data.dataByDate[sampleDate].stats.averageGlucose = {
+          data: { raw: {
+            averageGlucose: 12.25,
+          } },
+        };
         Renderer.renderSummary(args);
       });
 
-      it('should render the time in target in mmol/L with correct formatting', () => {
+      it('should render the time in target range labels in mmol/L with correct formatting', () => {
         const { targetUpperBound, targetLowerBound, veryLowThreshold } = Renderer.bgBounds;
         const text = {
           targetUpper: formatDecimalNumber(targetUpperBound, 1),
@@ -463,11 +455,8 @@ describe('DailyPrintView', () => {
       });
 
       it('should render the Average BG in mmol/L with correct formatting', () => {
-        const averageGlucose = formatDecimalNumber(mean(args.data.cbg, (d) => (d.value)), 1);
-        const averageGlucoseText = `${averageGlucose} mmol/L`;
-
         sinon.assert.calledWith(Renderer.doc.text, 'Average BG');
-        sinon.assert.calledWith(Renderer.doc.text, averageGlucoseText);
+        sinon.assert.calledWith(Renderer.doc.text, '12.3 mmol/L');
       });
     });
   });

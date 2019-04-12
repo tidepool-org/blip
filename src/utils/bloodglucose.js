@@ -75,23 +75,6 @@ export function classifyCvValue(value) {
 }
 
 /**
- * calcBgPercentInCategories
- * @param {Array} data - Array of Tidepool cbg or smbg data
- * @param {Object} bgBounds - object describing boundaries for blood glucose categories
- *
- * @return {Object} bgPercentInCategories - object w/keys veryLow, low, target, high, veryHigh
- *                  and 0.0 to 1.0 percentage values
- */
-export function calcBgPercentInCategories(data, bgBounds) {
-  const bgPercentInCategories = {};
-  const grouped = _.groupBy(data, (d) => (classifyBgValue(bgBounds, d.value, 'fiveWay')));
-  _.each(['veryLow', 'low', 'target', 'high', 'veryHigh'], (key) => {
-    bgPercentInCategories[key] = ((grouped[key] && grouped[key].length) || 0) / data.length;
-  });
-  return bgPercentInCategories;
-}
-
-/**
  * convertToMmolL
  * @param {Number} bgVal - blood glucose value in mg/dL
  *

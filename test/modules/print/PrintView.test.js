@@ -154,6 +154,11 @@ describe('PrintView', () => {
       });
     });
 
+    it('should set data to an empty object when not provided to constructor', () => {
+      const noDataRenderer = new PrintView(doc, undefined, opts);
+      expect(noDataRenderer.data).to.eql({});
+    });
+
     it('should set it\'s own required initial instance properties', () => {
       const requiredProps = [
         { prop: 'font', type: 'string' },

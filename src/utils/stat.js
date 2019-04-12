@@ -55,7 +55,6 @@ export const commonStats = {
   averageDailyDose: 'averageDailyDose',
   carbs: 'carbs',
   coefficientOfVariation: 'coefficientOfVariation',
-  dailyDose: 'dailyDose',
   glucoseManagementIndicator: 'glucoseManagementIndicator',
   readingsInRange: 'readingsInRange',
   sensorUsage: 'sensorUsage',
@@ -63,6 +62,20 @@ export const commonStats = {
   timeInAuto: 'timeInAuto',
   timeInRange: 'timeInRange',
   totalInsulin: 'totalInsulin',
+};
+
+export const statFetchMethods = {
+  [commonStats.averageGlucose]: 'getAverageGlucoseData',
+  [commonStats.averageDailyDose]: 'getTotalInsulinData',
+  [commonStats.carbs]: 'getCarbsData',
+  [commonStats.coefficientOfVariation]: 'getCoefficientOfVariationData',
+  [commonStats.glucoseManagementIndicator]: 'getGlucoseManagementIndicatorData',
+  [commonStats.readingsInRange]: 'getReadingsInRangeData',
+  [commonStats.sensorUsage]: 'getSensorUsage',
+  [commonStats.standardDev]: 'getStandardDevData',
+  [commonStats.timeInAuto]: 'getTimeInAutoData',
+  [commonStats.timeInRange]: 'getTimeInRangeData',
+  [commonStats.totalInsulin]: 'getBasalBolusData',
 };
 
 export const getSum = data => _.sum(_.map(data, d => _.max([d.value, 0])));
@@ -174,7 +187,12 @@ export const getStatData = (data, type, opts = {}) => {
   const vocabulary = getPumpVocabulary(opts.manufacturer);
   const bgRanges = generateBgRangeLabels(opts.bgPrefs, { condensed: true });
 
-  let statData = {};
+  let statData = {
+    raw: {
+      days: opts.days,
+      ...data,
+    },
+  };
 
   switch (type) {
     case commonStats.averageGlucose:

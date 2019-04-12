@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import DataUtil from '../../src/utils/data';
 import Types from '../../data/types';
-import { MGDL_UNITS, MS_IN_DAY, MS_IN_HOUR, MS_IN_MIN } from '../../src/utils/constants';
+import { MGDL_UNITS, MS_IN_DAY, MS_IN_HOUR, MS_IN_MIN, MMOLL_UNITS } from '../../src/utils/constants';
 
 /* eslint-disable max-len, no-underscore-dangle */
 
@@ -321,6 +321,50 @@ describe('DataUtil', () => {
     });
   });
 
+  describe('bgPrefs setter', () => {
+    it('should set the `bgUnits` property as provided', () => {
+      expect(dataUtil.bgUnits).to.equal(MGDL_UNITS);
+
+      dataUtil.bgPrefs = {
+        bgClasses: {
+          'very-low': { boundary: 54 },
+          low: { boundary: 70 },
+          target: { boundary: 180 },
+          high: { boundary: 250 },
+        },
+        bgUnits: MMOLL_UNITS,
+      };
+
+      expect(dataUtil.bgUnits).to.eql(MMOLL_UNITS);
+    });
+
+    it('should set the `bgBounds` property from the provided `bgClasses', () => {
+      expect(dataUtil.bgBounds).to.eql({
+        veryHighThreshold: 250,
+        targetUpperBound: 180,
+        targetLowerBound: 70,
+        veryLowThreshold: 54,
+      });
+
+      dataUtil.bgPrefs = {
+        bgClasses: {
+          'very-low': { boundary: 50 },
+          low: { boundary: 60 },
+          target: { boundary: 70 },
+          high: { boundary: 80 },
+        },
+        bgUnits: MGDL_UNITS,
+      };
+
+      expect(dataUtil.bgBounds).to.eql({
+        veryHighThreshold: 80,
+        targetUpperBound: 70,
+        targetLowerBound: 60,
+        veryLowThreshold: 50,
+      });
+    });
+  });
+
   describe('chartPrefs setter', () => {
     it('should set the `_chartPrefs` property as provided', () => {
       expect(dataUtil._chartPrefs).to.equal(chartPrefs);
@@ -383,6 +427,21 @@ describe('DataUtil', () => {
       });
 
       expect(dataUtil.defaultBgSource).to.eql('cbg');
+    });
+  });
+
+  describe('removeData', () => {
+    it('should call the `clearFilters` method', () => {
+      const clearFiltersSpy = sinon.spy(dataUtil, 'clearFilters');
+      sinon.assert.callCount(clearFiltersSpy, 0);
+      dataUtil.removeData();
+      sinon.assert.callCount(clearFiltersSpy, 1);
+    });
+
+    it('should remove all data from the crossfilter', () => {
+      expect(dataUtil.data.size()).to.equal(25);
+      dataUtil.removeData();
+      expect(dataUtil.data.size()).to.equal(0);
     });
   });
 
