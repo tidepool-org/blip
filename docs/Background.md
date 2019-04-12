@@ -24,7 +24,7 @@ Blip still depends on tideline for:
 
 - Basics view
 - Daily view
-- Weekly view
+- BG Log view
 - data preprocessing (found in ["nurseshark"](https://github.com/tidepool-org/tideline/tree/master/plugins/nurseshark 'GitHub: tideline plugins/nurseshark/') and [the TidelineData constructor](https://github.com/tidepool-org/tideline/blob/master/js/tidelinedata.js 'GitHub: tideline js/tidelinedata.js'))
 
 Blip itself handles:

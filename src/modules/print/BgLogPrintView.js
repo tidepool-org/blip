@@ -31,7 +31,7 @@ import { MS_IN_HOUR } from '../../utils/constants';
 
 const t = i18next.t.bind(i18next);
 
-class WeeklyPrintView extends PrintView {
+class BgLogPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
 
@@ -332,4 +332,4 @@ class WeeklyPrintView extends PrintView {
   }
 }
 
-export default WeeklyPrintView;
+export default BgLogPrintView;

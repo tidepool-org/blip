@@ -36,9 +36,9 @@ In this document, we attempt to explain the architectural choices made for Tidep
 
 **Problem:** Effectively manage all the state shared across visualizations (listed below) with a minimum of duplicated code so that feature iteration can proceed as efficiently as possible.
 
-General principle, learned from experience: It is better to think about the Tidepool data visualizations as *one* (meta) interface between a user and a set of diabetes device (+ contextual) data with many different surface manifestations (daily, weekly, trends, basics, device settings) than to think of it as half a dozen *different* data visualizations (daily, weekly, etc.)
+General principle, learned from experience: It is better to think about the Tidepool data visualizations as *one* (meta) interface between a user and a set of diabetes device (+ contextual) data with many different surface manifestations (daily, bgLog, trends, basics, device settings) than to think of it as half a dozen *different* data visualizations (daily, bgLog, etc.)
 
-Another way to phrase this: there is more application state requiring code to manage that is *shared* between all of the separate data views in blip (daily, weekly, etc.) than there is that is separate. The shared state includes:
+Another way to phrase this: there is more application state requiring code to manage that is *shared* between all of the separate data views in blip (daily, bgLog, etc.) than there is that is separate. The shared state includes:
 
 - user display preference for blood glucose units (mg/dL or mmol/L)
 - user display preference for target blood glucose range
@@ -96,7 +96,7 @@ Some background documents particular to this problem area (Tidepool-internal):
 
 #### Modularity
 
-**Problem:** Empower internal and external developers to develop and iterate quickly on all aspects of data visualizations. This should encompass both the ability to iterate easily on details of low-level rendering (i.e., what shape to draw for an extended bolus) without having to touch other code *and* the ability to build entirely new data "views" parallel to the daily, weekly, basics, trends, and device settings views currently available by composing existing rendering components for the pieces.
+**Problem:** Empower internal and external developers to develop and iterate quickly on all aspects of data visualizations. This should encompass both the ability to iterate easily on details of low-level rendering (i.e., what shape to draw for an extended bolus) without having to touch other code *and* the ability to build entirely new data "views" parallel to the daily, bgLog, basics, trends, and device settings views currently available by composing existing rendering components for the pieces.
 
 **Solution:** "Componentize" visualization code, adhering to React (and redux) best practices, including:
 
