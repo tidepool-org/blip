@@ -311,6 +311,7 @@ describe('DailyPrintView', () => {
       sinon.stub(Renderer, 'renderCbgs').returns(Renderer);
       sinon.stub(Renderer, 'renderSmbgs').returns(Renderer);
       sinon.stub(Renderer, 'renderInsulinEvents').returns(Renderer);
+      sinon.stub(Renderer, 'renderFoodCarbs').returns(Renderer);
       sinon.stub(Renderer, 'renderBolusDetails').returns(Renderer);
       sinon.stub(Renderer, 'renderBasalPaths').returns(Renderer);
       sinon.stub(Renderer, 'renderBasalRates').returns(Renderer);
@@ -328,6 +329,7 @@ describe('DailyPrintView', () => {
       sinon.assert.callCount(Renderer.renderCbgs, numCharts);
       sinon.assert.callCount(Renderer.renderSmbgs, numCharts);
       sinon.assert.callCount(Renderer.renderInsulinEvents, numCharts);
+      sinon.assert.callCount(Renderer.renderFoodCarbs, numCharts);
       sinon.assert.callCount(Renderer.renderBolusDetails, numCharts);
       sinon.assert.callCount(Renderer.renderBasalPaths, numCharts);
       sinon.assert.callCount(Renderer.renderBasalRates, numCharts);
@@ -615,6 +617,15 @@ describe('DailyPrintView', () => {
       expect(Renderer.renderEventPath.callCount >= bolusCount).to.be.true;
       sinon.assert.calledOnce(Renderer.doc.circle);
       sinon.assert.calledWith(Renderer.doc.text, 80);
+    });
+  });
+
+  describe('renderFoodCarbs', () => {
+    it('should graph food carb events', () => {
+      Renderer.renderFoodCarbs(Renderer.chartsByDate[sampleDate]);
+
+      sinon.assert.calledOnce(Renderer.doc.circle);
+      sinon.assert.calledWith(Renderer.doc.text, 65);
     });
   });
 
