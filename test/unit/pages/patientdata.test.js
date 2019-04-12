@@ -72,15 +72,15 @@ describe('PatientData', function () {
         return (<div className='fake-trends-view'></div>);
       }
     }));
-    PD.__Rewire__('Weekly', React.createClass({
+    PD.__Rewire__('BgLog', React.createClass({
       render: function() {
-        return (<div className='fake-weekly-view'></div>);
+        return (<div className='fake-bgLog-view'></div>);
       }
     }));
     PD.__Rewire__('vizUtils', {
       data: {
         selectDailyViewData: sinon.stub().returns('stubbed filtered daily data'),
-        selectWeeklyViewData: sinon.stub().returns('stubbed filtered weekly data'),
+        selectBgLogViewData: sinon.stub().returns('stubbed filtered bgLog data'),
         DataUtil: DataUtilStub,
       },
     });
@@ -90,7 +90,7 @@ describe('PatientData', function () {
   after(() => {
     PD.__ResetDependency__('Basics');
     PD.__ResetDependency__('Trends');
-    PD.__ResetDependency__('Weekly');
+    PD.__ResetDependency__('BgLog');
     PD.__ResetDependency__('vizUtils');
     // PD.__ResetDependency__('DataUtil');
   });
@@ -525,7 +525,7 @@ describe('PatientData', function () {
           sinon.assert.calledWith(elem.props.trackMetric, 'web - default to trends');
         });
 
-        it('should set the default view to <Weekly /> when latest data is from a bgm', () => {
+        it('should set the default view to <BgLog /> when latest data is from a bgm', () => {
           const data = [{
             type: 'smbg',
             deviceId: 'bgm',
@@ -533,14 +533,14 @@ describe('PatientData', function () {
 
           kickOffProcessing(data);
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-weekly-view');
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-bgLog-view');
           expect(view).to.be.ok;
 
           sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
           sinon.assert.calledWith(elem.props.trackMetric, 'web - default to weekly');
         });
 
-        it('should set the default view to <Basics /> when latest data type is cbg but came from a pump', () => {
+        it('should set the default view to <BgLog /> when latest data type is cbg but came from a pump', () => {
           const data = [{
             type: 'cbg',
             deviceId: 'pump-cgm',
@@ -617,7 +617,7 @@ describe('PatientData', function () {
           sinon.assert.calledWith(elem.props.trackMetric, 'web - default to trends');
         });
 
-        it('should set the default view to <Weekly /> when type is smbg', () => {
+        it('should set the default view to <BgLog /> when type is smbg', () => {
           const data = [{
             type: 'smbg',
             deviceId: 'unknown',
@@ -625,7 +625,7 @@ describe('PatientData', function () {
 
           kickOffProcessing(data);
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-weekly-view');
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-bgLog-view');
           expect(view).to.be.ok;
 
           sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
@@ -694,7 +694,7 @@ describe('PatientData', function () {
           sinon.assert.calledWith(elem.props.trackMetric, 'web - default to trends');
         });
 
-        it('should set the default view to <Weekly /> when type is smbg', () => {
+        it('should set the default view to <BgLog /> when type is smbg', () => {
           const data = [{
             type: 'smbg',
             deviceId: 'unknown',
@@ -702,7 +702,7 @@ describe('PatientData', function () {
 
           kickOffProcessing(data, false);
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-weekly-view');
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-bgLog-view');
           expect(view).to.be.ok;
 
           sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
@@ -840,7 +840,7 @@ describe('PatientData', function () {
           smbgLines: false,
           smbgRangeOverlay: true,
         },
-        weekly: {
+        bgLog: {
           bgSource: 'smbg',
         },
       });
@@ -1396,7 +1396,7 @@ describe('PatientData', function () {
       expect(elem.generatePDF.callCount).to.equal(1);
     });
 
-    it('should generate a pdf when view is weekly and patient data is processed', function () {
+    it('should generate a pdf when view is bgLog and patient data is processed', function () {
       var props = {
         currentPatientInViewId: 40,
         isUserPatient: true,
@@ -1417,7 +1417,7 @@ describe('PatientData', function () {
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'weekly', processingData: false, processedPatientData });
+      wrapper.instance().getWrappedInstance().setState({ chartType: 'bgLog', processingData: false, processedPatientData });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1591,9 +1591,9 @@ describe('PatientData', function () {
   });
 
   describe('generatePDF', () => {
-    it('should filter the daily and weekly view data before dispatching the generate pdf action', () => {
+    it('should filter the daily and bgLog view data before dispatching the generate pdf action', () => {
       const dailyFilterStub = PD.__get__('vizUtils').data.selectDailyViewData;
-      const weeklyFilterStub = PD.__get__('vizUtils').data.selectWeeklyViewData;
+      const bgLogFilterStub = PD.__get__('vizUtils').data.selectBgLogViewData;
 
       const props = _.assign({}, defaultProps, {
         generatePDFRequest: sinon.stub(),
@@ -1618,13 +1618,13 @@ describe('PatientData', function () {
       const wrapper = shallow(<PatientData.WrappedComponent {...props} />);
 
       sinon.assert.callCount(dailyFilterStub, 0);
-      sinon.assert.callCount(weeklyFilterStub, 0);
+      sinon.assert.callCount(bgLogFilterStub, 0);
       sinon.assert.callCount(props.generatePDFRequest, 0);
 
       wrapper.instance().generatePDF(props, state);
 
       sinon.assert.callCount(dailyFilterStub, 1);
-      sinon.assert.callCount(weeklyFilterStub, 1);
+      sinon.assert.callCount(bgLogFilterStub, 1);
       sinon.assert.callCount(props.generatePDFRequest, 1);
 
       assert(dailyFilterStub.calledBefore(props.generatePDFRequest));
@@ -1632,7 +1632,7 @@ describe('PatientData', function () {
         'combined',
         {
           daily: 'stubbed filtered daily data',
-          weekly: 'stubbed filtered weekly data',
+          bgLog: 'stubbed filtered bgLog data',
         },
       );
     });
@@ -1902,9 +1902,9 @@ describe('PatientData', function () {
       });
     });
 
-    context('weekly chart', () => {
+    context('bgLog chart', () => {
       beforeEach(() => {
-        setChartType('weekly');
+        setChartType('bgLog');
       });
 
       it('should not trigger data fetching if all fetched data has not been processed', () => {
@@ -3388,7 +3388,7 @@ describe('PatientData', function () {
     });
   });
 
-  describe('handleSwitchToWeekly', function() {
+  describe('handleSwitchToBgLog', function() {
     it('should track a metric', function() {
       var props = {
         currentPatientInViewId: 40,
@@ -3409,33 +3409,33 @@ describe('PatientData', function () {
       elem.dataUtil = new DataUtilStub();
 
       var callCount = props.trackMetric.callCount;
-      elem.handleSwitchToWeekly('2016-08-19T01:51:55.000Z');
+      elem.handleSwitchToBgLog('2016-08-19T01:51:55.000Z');
       expect(props.trackMetric.callCount).to.equal(callCount + 1);
       expect(props.trackMetric.calledWith('Clicked Switch To Two Week')).to.be.true;
     });
 
-    it('should set the `chartType` state to `weekly`', () => {
+    it('should set the `chartType` state to `bgLog`', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       instance.dataUtil = new DataUtilStub();
 
       wrapper.setState({chartType: 'basics'});
 
-      instance.handleSwitchToWeekly();
-      expect(wrapper.state('chartType')).to.equal('weekly');
+      instance.handleSwitchToBgLog();
+      expect(wrapper.state('chartType')).to.equal('bgLog');
     });
 
-    it('should set `dataUtil._chartPrefs` to the `weekly.chartPrefs` state', () => {
+    it('should set `dataUtil._chartPrefs` to the `bgLog.chartPrefs` state', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
-      const chartPrefs = { weekly: 'weekly prefs' };
+      const chartPrefs = { bgLog: 'bgLog prefs' };
 
       wrapper.setState({ chartPrefs })
       instance.dataUtil = new DataUtilStub();
 
-      instance.handleSwitchToWeekly();
-      expect(instance.dataUtil._chartPrefs).to.equal('weekly prefs');
+      instance.handleSwitchToBgLog();
+      expect(instance.dataUtil._chartPrefs).to.equal('bgLog prefs');
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the provided datetime', () => {
@@ -3445,7 +3445,7 @@ describe('PatientData', function () {
 
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
-      instance.handleSwitchToWeekly('2018-03-03T00:00:00.000Z');
+      instance.handleSwitchToBgLog('2018-03-03T00:00:00.000Z');
 
       // Should set to previous day because the provided datetime filter is exclusive
       expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
