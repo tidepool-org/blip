@@ -101,20 +101,6 @@ describe('Stats', () => {
         'bgUnits',
         'bgBounds',
       ]);
-
-      expect(instance.dataFetchMethods).to.have.all.keys([
-        'averageGlucose',
-        'averageDailyDose',
-        'carbs',
-        'coefficientOfVariation',
-        'glucoseManagementIndicator',
-        'readingsInRange',
-        'sensorUsage',
-        'standardDev',
-        'timeInAuto',
-        'timeInRange',
-        'totalInsulin',
-      ]);
     });
 
     it('should set `stats` to state', () => {
