@@ -321,7 +321,7 @@ describe('bolus utilities', () => {
       );
     });
 
-    it(`should return the \`expectedNormal\` and \`expectedExtended\` for an immediately 
+    it(`should return the \`expectedNormal\` and \`expectedExtended\` for an immediately
         cancelled extended wizard`, () => {
       expect(bolusUtils.getProgrammed(immediatelyCancelledExtendedWizard)).to.equal(
         immediatelyCancelledExtendedWizard.bolus.expectedExtended +
@@ -434,7 +434,7 @@ describe('bolus utilities', () => {
       );
     });
 
-    it(`should return the \`normal\` and \`extended\` for an immediately 
+    it(`should return the \`normal\` and \`extended\` for an immediately
         cancelled extended wizard`, () => {
       expect(bolusUtils.getDelivered(immediatelyCancelledExtendedWizard)).to.equal(
         immediatelyCancelledExtendedWizard.bolus.extended +
@@ -701,24 +701,6 @@ describe('bolus utilities', () => {
         extendedUnderride, // 3,
         comboOverride, // 4
       ])).to.equal(10.5);
-    });
-  });
-
-  describe('getTotalCarbs', () => {
-    it('should be a function', () => {
-      assert.isFunction(bolusUtils.getTotalCarbs);
-    });
-
-    it('should return 0 on an empty array', () => {
-      expect(bolusUtils.getTotalCarbs([])).to.equal(0);
-    });
-
-    it('should return the total carbs input on an assortment of insulin events', () => {
-      expect(bolusUtils.getTotalCarbs([
-        withCarbInput,
-        normal,
-        comboOverride,
-      ])).to.equal(75);
     });
   });
 

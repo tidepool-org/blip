@@ -49,7 +49,7 @@ const t = i18next.t.bind(i18next);
 const logo = require('./images/tidepool-logo-408x46.png');
 
 class PrintView {
-  constructor(doc, data, opts) {
+  constructor(doc, data = {}, opts) {
     this.doc = doc;
 
     this.title = opts.title;
