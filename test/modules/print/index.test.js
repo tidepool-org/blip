@@ -152,7 +152,7 @@ describe('print module', () => {
           patient: opts.patient,
           timePrefs: opts.timePrefs,
           bgPrefs: opts.bgPrefs,
-          title: 'BG Readings',
+          title: 'BG Log',
         },
       );
 
