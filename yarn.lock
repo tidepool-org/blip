@@ -836,10 +836,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.3.0-rc.1":
-  version "1.3.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.3.0-rc.1.tgz#54037c0e7729262624bdc3af535b2ea8079deb8f"
-  integrity sha512-xzpnxGYzXCWhlNMcjrg9mrY1MK0ZrnluC6d50juEleRyGIG9Tfo6ByKbbVCFv0cxflUoFi/pLHw101vRmOBwzQ==
+"@tidepool/viz@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.2.0.tgz#77f720930cd9c6f007cd55f925dd9859c502818f"
+  integrity sha512-2ksLI1wEThRuzQMCY64h7lahJjNWFR9yXLJZUPpsFJBA1nFI6/lLZq9SOCYK45cxnTomfqYGoRddt7lYQbRe+A==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -10683,10 +10683,10 @@ thunky@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.0.2.tgz#a862e018e3fb1ea2ec3fce5d55605cf57f247371"
 
-tideline@1.13.0-rc.1:
-  version "1.13.0-rc.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.13.0-rc.1.tgz#6aecc701dc8c7d14c398386419b7f86a8bf60f00"
-  integrity sha512-bTLxUjTXwj4bWuIxrcNtTnirvZmyQYKwuM9PzZHmcmWlhQwKdAZ6ukvYKFVkxieRDDNUMJB5ti8f4qVRVTUNZw==
+tideline@1.12.0:
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.12.0.tgz#6fa62d1d75cca7fc0b4102fa919310a56ad22845"
+  integrity sha512-zB/yb6soefwJyu4pnofiLVfICc87IQGmiA9537opaHjhuim1DWqdF9ftjYtuOxuI8Cb+dd4CYJEGVeMxJoGaeA==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
@@ -10704,10 +10704,10 @@ tideline@1.13.0-rc.1:
     react-sizeme "2.5.2"
     sundial "1.6.0"
 
-tidepool-platform-client@0.41.0-rc.2:
-  version "0.41.0-rc.2"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.41.0-rc.2.tgz#4babfec4fbd45a8406bf5af5f539e9fab302656f"
-  integrity sha512-NBdjDtFMPcBPXVxBhENaaApWs/yUzHkEImJJoh/p+mKUOg1ZUU2YVeBBIDvfTPwxaplqcQX1+vRAvjeQS2vn/g==
+tidepool-platform-client@0.41.0:
+  version "0.41.0"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.41.0.tgz#8c23b3915ad2cf553387a7d87e581baca569c1e2"
+  integrity sha512-I4wN5H/MCe7PPpczahLIwB7nRJAK5pdtGPZIMQGFTLVU0TiBfBZFdOUCGumBBKUYFCNYuOlN04sTvOGrrVbcVA==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"
