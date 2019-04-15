@@ -448,8 +448,7 @@ module.exports = function (config, deps) {
         'medtronic',
         'startDate',
         'endDate',
-        'limit',
-        'sort',
+        'latest',
         'type',
         'uploadId',
       ];
