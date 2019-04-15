@@ -32,7 +32,6 @@ import { getfetchedPatientDataRange } from '../../redux/selectors';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
-import { URL_TIDEPOOL_MOBILE_APP_STORE } from '../../core/constants';
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
@@ -48,7 +47,13 @@ import UploaderButton from '../../components/uploaderbutton';
 
 import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
 
-import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, BG_DATA_TYPES, DIABETES_DATA_TYPES } from '../../core/constants';
+import {
+  MGDL_UNITS,
+  MMOLL_UNITS,
+  MGDL_PER_MMOLL,
+  DIABETES_DATA_TYPES,
+  URL_TIDEPOOL_MOBILE_APP_STORE,
+} from '../../core/constants';
 
 const { Loader } = vizComponents;
 const { DataUtil } = vizUtils.data;
@@ -505,6 +510,8 @@ export let PatientData = translate()(React.createClass({
         settings: _.last(data.grouped.pumpSettings),
         weekly: weeklyData,
       }
+
+      this.log('Generating PDF with', pdfData, opts);
 
       props.generatePDFRequest(
         'combined',
@@ -1095,7 +1102,7 @@ export let PatientData = translate()(React.createClass({
       // where we include and process datums that are outside of the scheduled processing time frame
       // when no diabetes data is found within it.
       const lastProcessedDateTargets = [
-        patientData[lastDiabetesDatumProcessedIndex].time,
+        _.get(patientData, [lastDiabetesDatumProcessedIndex, 'time']),
         targetDatetime,
       ];
 
@@ -1112,6 +1119,11 @@ export let PatientData = translate()(React.createClass({
       if (isInitialProcessing) {
         // Kick off the processing of the initial data fetch
         const combinedData = dataToProcess.concat(patientNotes);
+
+        // Ensure that the latest pump settings and upload datums, which may be outside of the
+        // processed date target, are included in the initial processing
+        const latestPumpSettings = utils.getLatestPumpSettings(unprocessedPatientData);
+        combinedData.push(..._.filter(_.values(latestPumpSettings), _.isPlainObject));
 
         const processedData = utils.processPatientData(
           combinedData,

@@ -465,4 +465,23 @@ utils.getDiabetesDataRange = (data) => {
   };
 }
 
+/**
+ * Get the latest pump settings data in a raw data set
+ * @param {Array} data - The raw unprocessed data
+ * @returns {Object} An object with the following shape:
+ *    @property {Object} latestPumpSettings - The most recent pumpSettings datum found, else undefined
+ *    @property {Object} uploadRecord - upload record matching latestPumpSettings.uploadId, else undefined
+ */
+utils.getLatestPumpSettings = (data) => {
+  const sortedData = _.sortBy(data, ['time']).reverse();
+  const latestPumpSettings = _.find(sortedData, { type: 'pumpSettings' });
+  const uploadId = _.get(latestPumpSettings, 'uploadId');
+  const uploadRecord = _.find(sortedData, { type: 'upload', uploadId });
+
+  return {
+    latestPumpSettings,
+    uploadRecord,
+  }
+}
+
 module.exports = utils;

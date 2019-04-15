@@ -424,7 +424,10 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
     case types.FETCH_PATIENT_DATA_SUCCESS: {
       const { patientId, patientData, fetchedUntil } = action.payload;
       const sortedData = _.filter(_.orderBy(patientData, 'time', 'desc'), datum => (
-        fetchedUntil ? datum.time >= fetchedUntil : true)
+        fetchedUntil
+          ? _.includes(['pumpSettings', 'upload'], datum.type) || datum.time >= fetchedUntil
+          : true
+        )
       );
       const method = state[patientId] ? '$push' : '$set';
       return update(state, {
