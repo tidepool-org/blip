@@ -444,6 +444,15 @@ export const dailyData = {
           automated: 1483314400000,
           manual: 1483314400000,
         },
+        food: [
+          {
+            nutrition: {
+              carbohydrate: {
+                net: 65,
+              },
+            },
+          },
+        ],
       },
     },
   },
@@ -497,4 +506,3 @@ export const bgLogData = {
     '2018-01-29': { data: { smbg: [{ value: 300 }] } },
   },
 };
-

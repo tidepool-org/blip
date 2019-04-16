@@ -44,9 +44,6 @@
 <dt><a href="#getTotalBolus">getTotalBolus(insulinEvents)</a> ⇒ <code>Number</code></dt>
 <dd><p>getTotalBolus</p>
 </dd>
-<dt><a href="#getTotalCarbs">getTotalCarbs(insulinEvents)</a> ⇒ <code>Number</code></dt>
-<dd><p>getTotalCarbs</p>
-</dd>
 <dt><a href="#hasExtended">hasExtended(insulinEvent)</a> ⇒ <code>Boolean</code></dt>
 <dd><p>hasExtended</p>
 </dd>
@@ -66,8 +63,8 @@
 ## fixFloatingPoint(numeric) ⇒ <code>Number</code>
 fixFloatingPoint
 
-**Kind**: global function  
-**Returns**: <code>Number</code> - numeric value rounded to 3 decimal places  
+**Kind**: global function
+**Returns**: <code>Number</code> - numeric value rounded to 3 decimal places
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -78,8 +75,8 @@ fixFloatingPoint
 ## getBolusFromInsulinEvent(insulinEvent) ⇒ <code>Object</code>
 getBolusFromInsulinEvent
 
-**Kind**: global function  
-**Returns**: <code>Object</code> - a Tidepool bolus object  
+**Kind**: global function
+**Returns**: <code>Object</code> - a Tidepool bolus object
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -90,9 +87,9 @@ getBolusFromInsulinEvent
 ## getCarbs(insulinEvent) ⇒ <code>Number</code>
 getCarbs
 
-**Kind**: global function  
+**Kind**: global function
 **Returns**: <code>Number</code> - grams of carbs input into bolus calculator
-                 NaN if bolus calculator not used; null if no carbInput  
+                 NaN if bolus calculator not used; null if no carbInput
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -103,8 +100,8 @@ getCarbs
 ## getProgrammed(insulinEvent) ⇒ <code>Number</code>
 getProgrammed
 
-**Kind**: global function  
-**Returns**: <code>Number</code> - value of insulin programmed for delivery in the given insulinEvent  
+**Kind**: global function
+**Returns**: <code>Number</code> - value of insulin programmed for delivery in the given insulinEvent
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -115,8 +112,8 @@ getProgrammed
 ## getRecommended(insulinEvent) ⇒ <code>Number</code>
 getRecommended
 
-**Kind**: global function  
-**Returns**: <code>Number</code> - total recommended insulin dose  
+**Kind**: global function
+**Returns**: <code>Number</code> - total recommended insulin dose
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -127,8 +124,8 @@ getRecommended
 ## getDelivered(insulinEvent) ⇒ <code>Number</code>
 getDelivered
 
-**Kind**: global function  
-**Returns**: <code>Number</code> - units of insulin delivered in this insulinEvent  
+**Kind**: global function
+**Returns**: <code>Number</code> - units of insulin delivered in this insulinEvent
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -139,8 +136,8 @@ getDelivered
 ## getDuration(insulinEvent) ⇒ <code>Number</code>
 getDuration
 
-**Kind**: global function  
-**Returns**: <code>Number</code> - duration value in milliseconds  
+**Kind**: global function
+**Returns**: <code>Number</code> - duration value in milliseconds
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -151,8 +148,8 @@ getDuration
 ## getExtended(insulinEvent) ⇒ <code>Number</code>
 getExtended
 
-**Kind**: global function  
-**Returns**: <code>Number</code> - units of insulin delivered over an extended duration  
+**Kind**: global function
+**Returns**: <code>Number</code> - units of insulin delivered over an extended duration
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -163,8 +160,8 @@ getExtended
 ## getExtendedPercentage(insulinEvent) ⇒ <code>String</code>
 getExtendedPercentage
 
-**Kind**: global function  
-**Returns**: <code>String</code> - percentage of combo bolus delivered later  
+**Kind**: global function
+**Returns**: <code>String</code> - percentage of combo bolus delivered later
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -175,8 +172,8 @@ getExtendedPercentage
 ## getMaxDuration(insulinEvent) ⇒ <code>Number</code>
 getMaxDuration
 
-**Kind**: global function  
-**Returns**: <code>Number</code> - duration value in milliseconds  
+**Kind**: global function
+**Returns**: <code>Number</code> - duration value in milliseconds
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -187,8 +184,8 @@ getMaxDuration
 ## getMaxValue(insulinEvent) ⇒ <code>Number</code>
 getMaxValue
 
-**Kind**: global function  
-**Returns**: <code>Number</code> - max programmed or recommended value wrt the insulinEvent  
+**Kind**: global function
+**Returns**: <code>Number</code> - max programmed or recommended value wrt the insulinEvent
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -199,8 +196,8 @@ getMaxValue
 ## getNormalPercentage(insulinEvent) ⇒ <code>String</code>
 getNormalPercentage
 
-**Kind**: global function  
-**Returns**: <code>String</code> - percentage of combo bolus delivered immediately  
+**Kind**: global function
+**Returns**: <code>String</code> - percentage of combo bolus delivered immediately
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -211,20 +208,8 @@ getNormalPercentage
 ## getTotalBolus(insulinEvents) ⇒ <code>Number</code>
 getTotalBolus
 
-**Kind**: global function  
-**Returns**: <code>Number</code> - total bolus insulin in units  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| insulinEvents | <code>Array</code> | Array of Tidepool bolus or wizard objects |
-
-<a name="getTotalCarbs"></a>
-
-## getTotalCarbs(insulinEvents) ⇒ <code>Number</code>
-getTotalCarbs
-
-**Kind**: global function  
-**Returns**: <code>Number</code> - total of carbs input into bolus calculator  
+**Kind**: global function
+**Returns**: <code>Number</code> - total bolus insulin in units
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -235,8 +220,8 @@ getTotalCarbs
 ## hasExtended(insulinEvent) ⇒ <code>Boolean</code>
 hasExtended
 
-**Kind**: global function  
-**Returns**: <code>Boolean</code> - whether the bolus has an extended delivery portion  
+**Kind**: global function
+**Returns**: <code>Boolean</code> - whether the bolus has an extended delivery portion
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -247,8 +232,8 @@ hasExtended
 ## isInterruptedBolus(insulinEvent) ⇒ <code>Boolean</code>
 isInterruptedBolus
 
-**Kind**: global function  
-**Returns**: <code>Boolean</code> - whether the bolus was interrupted or not  
+**Kind**: global function
+**Returns**: <code>Boolean</code> - whether the bolus was interrupted or not
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -259,8 +244,8 @@ isInterruptedBolus
 ## isOverride(insulinEvent) ⇒ <code>Boolean</code>
 isOverride
 
-**Kind**: global function  
-**Returns**: <code>Boolean</code> - whether the bolus programmed was larger than the calculated recommendation  
+**Kind**: global function
+**Returns**: <code>Boolean</code> - whether the bolus programmed was larger than the calculated recommendation
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -271,8 +256,8 @@ isOverride
 ## isUnderride(insulinEvent) ⇒ <code>Boolean</code>
 isUnderride
 
-**Kind**: global function  
-**Returns**: <code>Boolean</code> - whether the bolus programmed was smaller than the calculated recommendation  
+**Kind**: global function
+**Returns**: <code>Boolean</code> - whether the bolus programmed was smaller than the calculated recommendation
 
 | Param | Type | Description |
 | --- | --- | --- |

@@ -39,7 +39,7 @@ import { formatBgValue } from './utils/format';
 import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
 import { getTotalBasalFromEndpoints, getGroupDurations } from './utils/basal';
 import { isAutomatedBasalDevice } from './utils/device';
-import { getLocalizedCeiling, getTimezoneFromTimePrefs } from './utils/datetime';
+import { addDuration, getLocalizedCeiling, getTimezoneFromTimePrefs } from './utils/datetime';
 import {
   commonStats,
   getStatAnnotations,
@@ -47,6 +47,7 @@ import {
   getStatDefinition,
   getStatTitle,
   statBgSourceLabels,
+  statFetchMethods,
 } from './utils/stat';
 import DataUtil from './utils/data';
 import { selectDailyViewData, selectBgLogViewData } from './utils/print/data';
@@ -92,6 +93,7 @@ const utils = {
     DataUtil,
   },
   datetime: {
+    addDuration,
     getLocalizedCeiling,
     getTimezoneFromTimePrefs,
   },
@@ -105,6 +107,7 @@ const utils = {
     getStatDefinition,
     getStatTitle,
     statBgSourceLabels,
+    statFetchMethods,
   },
 };
 
