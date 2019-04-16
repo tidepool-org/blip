@@ -25,7 +25,7 @@ class Stats extends Component {
     bgPrefs: PropTypes.object.isRequired,
     bgSource: PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: PropTypes.object,
-    chartType: PropTypes.oneOf(['basics', 'daily', 'weekly', 'trends']).isRequired,
+    chartType: PropTypes.oneOf(['basics', 'daily', 'bgLog', 'trends']).isRequired,
     dataUtil: PropTypes.object.isRequired,
     endpoints: PropTypes.arrayOf(PropTypes.string),
     onAverageDailyDoseInputChange: PropTypes.func,
@@ -166,7 +166,7 @@ class Stats extends Component {
         cbgSelected && addStat(commonStats.coefficientOfVariation);
         break;
 
-      case 'weekly':
+      case 'bgLog':
         addStat(commonStats.readingsInRange);
         addStat(commonStats.averageGlucose);
         addStat(commonStats.standardDev);

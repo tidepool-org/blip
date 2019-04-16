@@ -78,7 +78,7 @@ describe('Stats', () => {
         grouped: true,
         showingLines: false
       },
-      weekly: {},
+      bgLog: {},
     },
     chartType: 'basics',
     dataUtil: new DataUtilStub(),
@@ -264,10 +264,10 @@ describe('Stats', () => {
       });
     });
 
-    context('weekly', () => {
+    context('bgLog', () => {
       beforeEach(() => {
         wrapper = shallow(<Stats {..._.assign({}, baseProps, {
-          chartType: 'weekly',
+          chartType: 'bgLog',
         })} />);
       });
 
@@ -483,10 +483,10 @@ describe('Stats', () => {
       });
     });
 
-    context('weekly', () => {
+    context('bgLog', () => {
       beforeEach(() => {
         wrapper = shallow(<Stats {..._.assign({}, baseProps, {
-          chartType: 'weekly',
+          chartType: 'bgLog',
         })} />);
         instance = wrapper.instance();
       });
