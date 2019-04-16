@@ -13,7 +13,8 @@ const {
   getStatAnnotations,
   getStatData,
   getStatDefinition,
-  getStatTitle
+  getStatTitle,
+  statFetchMethods,
 } = vizUtils.stat;
 
 const { reshapeBgClassesToBgBounds } = vizUtils.bg;
@@ -37,20 +38,6 @@ class Stats extends Component {
     this.bgPrefs = {
       bgUnits: this.props.bgPrefs.bgUnits,
       bgBounds: reshapeBgClassesToBgBounds(this.props.bgPrefs),
-    };
-
-    this.dataFetchMethods = {
-      [commonStats.averageGlucose]: 'getAverageGlucoseData',
-      [commonStats.averageDailyDose]: 'getTotalInsulinData',
-      [commonStats.carbs]: 'getCarbsData',
-      [commonStats.coefficientOfVariation]: 'getCoefficientOfVariationData',
-      [commonStats.glucoseManagementIndicator]: 'getGlucoseManagementIndicatorData',
-      [commonStats.readingsInRange]: 'getReadingsInRangeData',
-      [commonStats.sensorUsage]: 'getSensorUsage',
-      [commonStats.standardDev]: 'getStandardDevData',
-      [commonStats.timeInAuto]: 'getTimeInAutoData',
-      [commonStats.timeInRange]: 'getTimeInRangeData',
-      [commonStats.totalInsulin]: 'getBasalBolusData',
     };
 
     this.updateDataUtilEndpoints(this.props);
@@ -134,7 +121,7 @@ class Stats extends Component {
     const addStat = statType => {
       const chartStatOpts = _.get(props, ['chartPrefs', chartType, statType]);
 
-      const stat = getStatDefinition(dataUtil[this.dataFetchMethods[statType]](), statType, {
+      const stat = getStatDefinition(dataUtil[statFetchMethods[statType]](), statType, {
         bgSource,
         days,
         bgPrefs: {
@@ -219,7 +206,7 @@ class Stats extends Component {
     const { manufacturer } = latestPump;
 
     _.each(stats, (stat, i) => {
-      const data = dataUtil[this.dataFetchMethods[stat.id]]();
+      const data = dataUtil[statFetchMethods[stat.id]]();
       const opts = {
         bgSource: bgSource,
         bgPrefs: {

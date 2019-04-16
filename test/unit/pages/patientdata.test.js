@@ -61,6 +61,25 @@ describe('PatientData', function () {
     t
   };
 
+  const commonStats = {
+    averageGlucose: 'averageGlucose',
+    averageDailyDose: 'averageDailyDose',
+    carbs: 'carbs',
+    coefficientOfVariation: 'coefficientOfVariation',
+    glucoseManagementIndicator: 'glucoseManagementIndicator',
+    readingsInRange: 'readingsInRange',
+    sensorUsage: 'sensorUsage',
+    standardDev: 'standardDev',
+    timeInAuto: 'timeInAuto',
+    timeInRange: 'timeInRange',
+    totalInsulin: 'totalInsulin',
+  }
+
+  const statFetchMethods = _.transform(commonStats, (result, value, key) => {
+    result[value] = sinon.stub();
+  }, {});
+
+
   before(() => {
     PD.__Rewire__('Basics', React.createClass({
       render: function() {
@@ -83,8 +102,12 @@ describe('PatientData', function () {
         selectBgLogViewData: sinon.stub().returns('stubbed filtered bgLog data'),
         DataUtil: DataUtilStub,
       },
+      stat: {
+        commonStats,
+        statFetchMethods,
+        getStatDefinition: sinon.stub().callsFake((data, type) => `stubbed ${type} definition`),
+      }
     });
-    // PD.__Rewire__('DataUtil', DataUtilStub);
   });
 
   after(() => {
@@ -92,7 +115,6 @@ describe('PatientData', function () {
     PD.__ResetDependency__('Trends');
     PD.__ResetDependency__('BgLog');
     PD.__ResetDependency__('vizUtils');
-    // PD.__ResetDependency__('DataUtil');
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -1590,10 +1612,72 @@ describe('PatientData', function () {
     });
   });
 
+  describe('generatePDFStats', () => {
+    let wrapper;
+    let instance;
+    let data;
+
+    beforeEach(() => {
+      data = {
+        basics: {},
+        daily: {},
+        weekly: {},
+      },
+
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+      instance.dataUtil = new DataUtilStub();
+    });
+
+    it('should add basics stats to the provided data object if a `dateRange` property exists', () => {
+      instance.generatePDFStats(data, instance.state);
+      expect(data.basics.stats).to.be.undefined;
+
+      data.basics.dateRange = ['2019-01-01T00:00:00.000Z', '2019-02-01T00:00:00.000Z'];
+      instance.generatePDFStats(data, instance.state);
+      expect(data.basics.stats).to.be.an('object').and.have.keys([
+        'timeInRange',
+        'readingsInRange',
+        'totalInsulin',
+        'timeInAuto',
+        'carbs',
+        'averageDailyDose',
+      ]);
+    });
+
+    it('should add daily stats to the provided data object if the `dataByDate` object map is not empty', () => {
+      data.daily.dataByDate = {};
+      instance.generatePDFStats(data, instance.state);
+      expect(data.daily.dataByDate).to.be.eql({});
+
+      data.daily.dataByDate['2019-01-01'] = { bounds: [12345678, 23456789] };
+      instance.generatePDFStats(data, instance.state);
+      expect(data.daily.dataByDate['2019-01-01'].stats).to.be.an('object').and.have.keys([
+        'timeInRange',
+        'averageGlucose',
+        'totalInsulin',
+        'timeInAuto',
+        'carbs',
+      ]);
+    });
+
+    it('should add weekly stats to the provided data object if a `dateRange` property exists', () => {
+      instance.generatePDFStats(data, instance.state);
+      expect(data.weekly.stats).to.be.undefined;
+
+      data.weekly.dateRange = ['2019-01-01T00:00:00.000Z', '2019-02-01T00:00:00.000Z'];
+      instance.generatePDFStats(data, instance.state);
+      expect(data.weekly.stats).to.be.an('object').and.have.keys([
+        'averageGlucose',
+      ]);
+    });
+  });
+
   describe('generatePDF', () => {
     it('should filter the daily and bgLog view data before dispatching the generate pdf action', () => {
       const dailyFilterStub = PD.__get__('vizUtils').data.selectDailyViewData;
       const bgLogFilterStub = PD.__get__('vizUtils').data.selectBgLogViewData;
+      const pickSpy = sinon.spy(_, 'pick');
 
       const props = _.assign({}, defaultProps, {
         generatePDFRequest: sinon.stub(),
@@ -1616,16 +1700,23 @@ describe('PatientData', function () {
       };
 
       const wrapper = shallow(<PatientData.WrappedComponent {...props} />);
+      const instance = wrapper.instance();
 
       sinon.assert.callCount(dailyFilterStub, 0);
       sinon.assert.callCount(bgLogFilterStub, 0);
       sinon.assert.callCount(props.generatePDFRequest, 0);
 
-      wrapper.instance().generatePDF(props, state);
+      instance.generatePDFStats = sinon.stub().returns({});
+      instance.generatePDF(props, state);
 
       sinon.assert.callCount(dailyFilterStub, 1);
       sinon.assert.callCount(bgLogFilterStub, 1);
       sinon.assert.callCount(props.generatePDFRequest, 1);
+
+      sinon.assert.callCount(pickSpy, 2);
+      assert(dailyFilterStub.calledBefore(weeklyFilterStub));
+      expect(pickSpy.firstCall.lastArg).to.have.members(['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']);
+      expect(pickSpy.secondCall.lastArg).to.have.members(['smbg']);
 
       assert(dailyFilterStub.calledBefore(props.generatePDFRequest));
       sinon.assert.calledWithMatch(props.generatePDFRequest,
@@ -1633,6 +1724,55 @@ describe('PatientData', function () {
         {
           daily: 'stubbed filtered daily data',
           bgLog: 'stubbed filtered bgLog data',
+        },
+      );
+
+      pickSpy.restore();
+    });
+
+    it('should add stats to the pdf data object by passing it to `generatePDFStats`', () => {
+      const props = _.assign({}, defaultProps, {
+        generatePDFRequest: sinon.stub(),
+      });
+
+      const state = {
+        processedPatientData: {
+          diabetesData: [{
+            normalTime: '2018-02-02T00:00:00.000Z',
+          }],
+          grouped: {
+            pumpSettings: {},
+          },
+        },
+        printOpts: {
+          numDays: {
+            daily: 6,
+          },
+        },
+      };
+
+      const wrapper = shallow(<PatientData.WrappedComponent {...props} />);
+      const instance = wrapper.instance();
+
+      sinon.assert.callCount(props.generatePDFRequest, 0);
+
+
+      instance.generatePDFStats = sinon.stub().callsFake((data) => {
+        data.basics = { stats: 'stubbed basics stats' };
+        return data;
+      });
+
+      instance.generatePDF(props, state);
+
+      sinon.assert.callCount(props.generatePDFRequest, 1);
+      sinon.assert.callCount(instance.generatePDFStats, 1);
+
+      sinon.assert.calledWithMatch(props.generatePDFRequest,
+        'combined',
+        {
+          daily: 'stubbed filtered daily data',
+          weekly: 'stubbed filtered weekly data',
+          basics: { stats: 'stubbed basics stats' },
         },
       );
     });
