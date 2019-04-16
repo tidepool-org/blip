@@ -1714,7 +1714,7 @@ describe('PatientData', function () {
       sinon.assert.callCount(props.generatePDFRequest, 1);
 
       sinon.assert.callCount(pickSpy, 2);
-      assert(dailyFilterStub.calledBefore(weeklyFilterStub));
+      assert(dailyFilterStub.calledBefore(bgLogFilterStub));
       expect(pickSpy.firstCall.lastArg).to.have.members(['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']);
       expect(pickSpy.secondCall.lastArg).to.have.members(['smbg']);
 
@@ -1771,7 +1771,7 @@ describe('PatientData', function () {
         'combined',
         {
           daily: 'stubbed filtered daily data',
-          weekly: 'stubbed filtered weekly data',
+          bgLog: 'stubbed filtered bgLog data',
           basics: { stats: 'stubbed basics stats' },
         },
       );
