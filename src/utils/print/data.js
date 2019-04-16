@@ -264,16 +264,16 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
 }
 
 /**
- * selectWeeklyViewData
+ * selectBgLogViewData
  * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
  * @param {Array} groupedData - Object of tideline-preprocessed Tidepool smbg data;
  *                              grouped by type
  * @param {Number} numDays - number of days of data to select
  * @param {Object} timePrefs - object containing timezoneAware Boolean, timezoneName String or null
  *
- * @return {Object} selected data for weekly print view
+ * @return {Object} selected data for BG Log print view
  */
-export function selectWeeklyViewData(mostRecent, groupedData, numDays, timePrefs) {
+export function selectBgLogViewData(mostRecent, groupedData, numDays, timePrefs) {
   const selected = processDateBoundaries(mostRecent, groupedData, numDays, timePrefs);
   return selected;
 }

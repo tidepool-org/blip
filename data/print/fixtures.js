@@ -461,7 +461,7 @@ export const dailyData = {
   basalRange: [0, 0],
 };
 
-export const weeklyData = {
+export const bgLogData = {
   dateRange: ['2017-12-31', '2018-01-29'],
   timezone: 'America/Toronto',
   dataByDate: {

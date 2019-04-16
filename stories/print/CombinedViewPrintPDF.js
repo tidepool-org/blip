@@ -70,14 +70,14 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
     },
     numDays: {
       daily: 6,
-      weekly: 30,
+      bgLog: 30,
     },
     patient,
   };
 
   createPrintView('basics', data[bgUnits].basics, opts, doc).render();
   createPrintView('daily', data[bgUnits].daily, opts, doc).render();
-  createPrintView('weekly', data[bgUnits].weekly, opts, doc).render();
+  createPrintView('bgLog', data[bgUnits].bgLog, opts, doc).render();
   createPrintView('settings', data[bgUnits].settings, opts, doc).render();
 
   PrintView.renderPageNumbers(doc);
