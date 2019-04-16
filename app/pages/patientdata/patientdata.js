@@ -37,7 +37,7 @@ import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
 import Trends from '../../components/chart/trends';
-import { weekly as Weekly } from '../../components/chart';
+import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
@@ -112,14 +112,14 @@ export let PatientData = translate()(React.createClass({
           smbgLines: false,
           smbgRangeOverlay: true,
         },
-        weekly: {
+        bgLog: {
           bgSource: 'smbg',
         },
       },
       printOpts: {
         numDays: {
           daily: 6,
-          weekly: 30,
+          bgLog: 30,
         },
       },
       createMessage: null,
@@ -294,7 +294,7 @@ export let PatientData = translate()(React.createClass({
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToWeekly={this.handleSwitchToWeekly}
+            onSwitchToBgLog={this.handleSwitchToBgLog}
             onClickPrint={this.handleClickPrint}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
@@ -326,7 +326,7 @@ export let PatientData = translate()(React.createClass({
             onClickPrint={this.handleClickPrint}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToWeekly={this.handleSwitchToWeekly}
+            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             updateBasicsData={this.updateBasicsData}
             updateBasicsSettings={this.updateBasicsSettings}
@@ -355,7 +355,7 @@ export let PatientData = translate()(React.createClass({
             onClickPrint={this.handleClickPrint}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToWeekly={this.handleSwitchToWeekly}
+            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -380,7 +380,7 @@ export let PatientData = translate()(React.createClass({
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToWeekly={this.handleSwitchToWeekly}
+            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -389,9 +389,9 @@ export let PatientData = translate()(React.createClass({
             trendsState={this.props.viz.trends}
             ref="tideline" />
           );
-      case 'weekly':
+      case 'bgLog':
         return (
-          <Weekly
+          <BgLog
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             dataUtil={this.dataUtil}
@@ -407,7 +407,7 @@ export let PatientData = translate()(React.createClass({
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToWeekly={this.handleSwitchToWeekly}
+            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -568,13 +568,13 @@ export let PatientData = translate()(React.createClass({
         state.timePrefs,
       );
 
-      const weeklyData = vizUtils.data.selectWeeklyViewData(
+      const bgLogData = vizUtils.data.selectBgLogViewData(
         mostRecent,
         _.pick(
           data.grouped,
           ['smbg']
         ),
-        state.printOpts.numDays.weekly,
+        state.printOpts.numDays.bgLog,
         state.timePrefs,
       );
 
@@ -582,7 +582,7 @@ export let PatientData = translate()(React.createClass({
         basics: data.basicsData,
         daily: dailyData,
         settings: _.last(data.grouped.pumpSettings),
-        weekly: weeklyData,
+        bgLog: bgLogData,
       }
 
       this.generatePDFStats(pdfData, state);
@@ -625,7 +625,7 @@ export let PatientData = translate()(React.createClass({
       const lastDiabetesDatumProcessedTime = _.get(patientData, `${this.state.lastDiabetesDatumProcessedIndex}.time`);
       const allFetchedDatumsProcessed = this.state.lastDatumProcessedIndex === patientData.length - 1;
 
-      const isScrollChart = _.includes(['daily', 'weekly'], this.state.chartType);
+      const isScrollChart = _.includes(['daily', 'bgLog'], this.state.chartType);
       const chartLimitReached = lastDiabetesDatumProcessedTime && dateRangeStart.isSameOrBefore(moment.utc(lastDiabetesDatumProcessedTime), 'day');
 
       const comparator = this.state.chartType === 'trends' ? 'isBefore' : 'isSameOrBefore';
@@ -754,7 +754,7 @@ export let PatientData = translate()(React.createClass({
     });
   },
 
-  handleSwitchToWeekly: function(datetime) {
+  handleSwitchToBgLog: function(datetime) {
     this.props.trackMetric('Clicked Switch To Two Week', {
       fromChart: this.state.chartType
     });
@@ -769,9 +769,9 @@ export let PatientData = translate()(React.createClass({
       .hours(12)
       .toISOString();
 
-    this.dataUtil.chartPrefs = this.state.chartPrefs['weekly'];
+    this.dataUtil.chartPrefs = this.state.chartPrefs['bgLog'];
     this.setState({
-      chartType: 'weekly',
+      chartType: 'bgLog',
       datetimeLocation,
     });
   },
@@ -971,7 +971,7 @@ export let PatientData = translate()(React.createClass({
             break;
 
           case (_.includes(tags, 'bgm')):
-            chartType = 'weekly';
+            chartType = 'bgLog';
             break;
         }
       }
@@ -992,7 +992,7 @@ export let PatientData = translate()(React.createClass({
             break;
 
           case 'smbg':
-            chartType = 'weekly';
+            chartType = 'bgLog';
             break;
         }
       }
@@ -1016,7 +1016,7 @@ export let PatientData = translate()(React.createClass({
       const latestDataDateCeiling = getLocalizedCeiling(latestData.time, this.state.timePrefs);
       const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
-      const datetimeLocation = _.get(this.props, 'queryParams.datetime', _.includes(['daily', 'weekly'], chartType)
+      const datetimeLocation = _.get(this.props, 'queryParams.datetime', _.includes(['daily', 'bgLog'], chartType)
         ? moment.utc(latestDataDateCeiling.valueOf())
           .tz(timezone)
           .subtract(1, 'day')
@@ -1035,7 +1035,7 @@ export let PatientData = translate()(React.createClass({
       this.dataUtil.chartPrefs = this.state.chartPrefs[chartType];
 
       this.setState(state);
-      this.props.trackMetric(`web - default to ${chartType}`);
+      this.props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
     }
   },
 
@@ -1168,7 +1168,7 @@ export let PatientData = translate()(React.createClass({
       this.log(`Processing window was set to ${targetDatetime}.  Actual time of last datum to process: ${_.get(_.last(dataToProcess), 'time')}`);
 
       // We need to track the last processed indexes for diabetes and bg data to help determine when
-      // we've reached the scroll limits of the daily and weekly charts
+      // we've reached the scroll limits of the daily and bgLog charts
       const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + dataToProcess.length + 1)), datum => {
         return _.includes(DIABETES_DATA_TYPES, datum.type);
       });
@@ -1344,13 +1344,13 @@ export let PatientData = translate()(React.createClass({
             this.state.timePrefs,
           ),
           settings: _.last(data[bgUnits].grouped.pumpSettings),
-          weekly: vizUtils.data.selectWeeklyViewData(
+          bgLog: vizUtils.data.selectBgLogViewData(
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
               data[bgUnits].grouped,
               ['smbg']
             ),
-            this.state.printOpts.numDays.weekly,
+            this.state.printOpts.numDays.bgLog,
             this.state.timePrefs,
           ),
         }, this.state);

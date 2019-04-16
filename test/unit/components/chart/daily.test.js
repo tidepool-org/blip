@@ -63,7 +63,7 @@ describe('Daily', () => {
     onSwitchToBasics: () => {},
     onSwitchToDaily: () => {},
     onSwitchToSettings: () => {},
-    onSwitchToWeekly: () => {},
+    onSwitchToBgLog: () => {},
     onSwitchToTrends: () => {},
     trackMetric: () => {},
     onUpdateChartDateRange: sinon.stub(),

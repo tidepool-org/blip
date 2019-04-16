@@ -80,7 +80,7 @@ var TidelineFooter = translate()(React.createClass({
 
     var rightSide = null;
 
-    if (this.props.chartType === 'weekly') {
+    if (this.props.chartType === 'bgLog') {
       rightSide = showValues;
     }
     if (this.props.chartType === 'trends') {

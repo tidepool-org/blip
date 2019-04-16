@@ -40,7 +40,7 @@ describe('pdf reducer', () => {
         blob: 'someBlob',
       };
 
-      const initialState = { weekly: pdfObject }; // N.B. We currently don't have weekly pdfs
+      const initialState = { bgLog: pdfObject };
       const tracked = mutationTracker.trackObj(initialState);
 
       expect(reducer(initialState, {
@@ -49,7 +49,7 @@ describe('pdf reducer', () => {
           pdf: { daily: pdfObject },
         },
       })).to.deep.equal({
-        weekly: pdfObject,
+        bgLog: pdfObject,
         daily: pdfObject,
       });
 
@@ -64,7 +64,7 @@ describe('pdf reducer', () => {
         blob: 'someBlob',
       };
 
-      const initialState = { weekly: pdfObject }; // N.B. We currently don't have weekly pdfs
+      const initialState = { bgLog: pdfObject };
       const tracked = mutationTracker.trackObj(initialState);
 
       expect(reducer(initialState, {
