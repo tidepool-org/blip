@@ -2842,17 +2842,17 @@ describe('Actions', () => {
 
       const latestPumpSettingsSufficient = {
         latestPumpSettings,
-        missingUploadRecord: false,
+        uploadRecord: latestUpload,
       };
 
       const latestPumpSettingsMissing = {
         latestPumpSettings: undefined,
-        missingUploadRecord: false,
+        uploadRecord: undefined,
       };
 
       const latestPumpSettingsMissingUpload = {
         latestPumpSettings,
-        missingUploadRecord: true,
+        uploadRecord: undefined,
       };
 
       let options;
