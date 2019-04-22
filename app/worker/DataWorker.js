@@ -15,24 +15,26 @@
  * == BSD2 LICENSE ==
  */
 
-/* global importScripts, onmessage, postMessage */
-
+/* global importScripts, postMessage, __DEV__ */
+import '../core/language'; // Needed to load i18next config in the web worker
+import bows from 'bows';
 import _ from 'lodash';
-import PDFWorker from './PDFWorker';
-import DataWorker from './DataWorker';
 
-const pdfWorker = new PDFWorker();
-const dataWorker = new DataWorker();
+import * as actions from '../redux/actions/worker';
+import * as actionTypes from '../redux/constants/actionTypes';
 
-// eslint-disable-next-line no-native-reassign
-onmessage = (msg) => {
-  switch(_.get(msg, 'data.meta.worker')) {
-    case 'pdf':
-      pdfWorker.handleMessage(msg, postMessage);
-      break;
-
-    case 'data':
-      dataWorker.handleMessage(msg, postMessage);
-      break;
+export default class DataWorker {
+  constructor(importer) {
+    this.log = __DEV__ ? bows('DataWorker') : _.noop;
+    this.log('Ready!');
+    this.importer = importer;
   }
-};
+
+  handleMessage(msg, postMessage) {
+    const { data: action } = msg;
+    switch (action.type) {
+      default:
+        throw new Error(`Unhandled action type [${action.type}] passed to Web Worker!`);
+    }
+  }
+}
