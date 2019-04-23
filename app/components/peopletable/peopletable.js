@@ -107,7 +107,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
 
       return {
         fullName: personUtils.patientFullName(person),
-        fullNameOrderable: personUtils.patientFullName(person).toLowerCase(),
+        fullNameOrderable: (personUtils.patientFullName(person) || '').toLowerCase(),
         link: person.link,
         birthday: bday,
         birthdayOrderable: new Date(bday),
