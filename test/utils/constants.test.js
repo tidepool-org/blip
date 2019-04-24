@@ -231,7 +231,7 @@ describe('constants', () => {
   describe('AUTOMATED_BASAL_DEVICE_MODELS', () => {
     it('should define automated basal models per device manufacturer', () => {
       expect(constants.AUTOMATED_BASAL_DEVICE_MODELS).to.eql({
-        [constants.MEDTRONIC]: ['1780'],
+        [constants.MEDTRONIC]: ['1780', '1782'],
       });
     });
   });
