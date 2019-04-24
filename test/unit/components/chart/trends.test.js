@@ -84,7 +84,7 @@ describe('Trends', () => {
     onClickNoDataRefresh: sinon.stub(),
     onSwitchToBasics: sinon.stub(),
     onSwitchToDaily: sinon.stub(),
-    onSwitchToWeekly: sinon.stub(),
+    onSwitchToBgLog: sinon.stub(),
     onSwitchToTrends: sinon.stub(),
     onSwitchToSettings: sinon.stub(),
     onUpdateChartDateRange: sinon.stub(),

@@ -15,12 +15,12 @@
 
 import Basics from './basics';
 import Daily from './daily';
-import Weekly from './weekly';
+import BgLog from './bgLog';
 
 module.exports = {
   basics: Basics,
   daily: Daily,
-  weekly: Weekly,
+  bgLog: BgLog,
   settings: require('./settings'),
   header: require('./header'),
   footer: require('./footer')
