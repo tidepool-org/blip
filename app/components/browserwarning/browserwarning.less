@@ -17,10 +17,6 @@
 @browser-warning-text-zindex:  @zindex-overlay;
 @browser-warning-box-width:    530px;
 
-@blue-color: #6078ff;
-@grey-color: #837995;
-@dark-blue-color: #546a8f;
-
 .browser-warning {
   background: #fff;
   margin: 30px auto;
@@ -49,7 +45,7 @@
     font-weight: 500;
     padding-left: @spacing-small;
     padding-right: @spacing-small;
-    color: @dark-blue-color;
+    color: @gray-darker;
     margin-bottom: @spacing-large;
     text-align: center;
   }
@@ -61,12 +57,12 @@
       border: none;
       margin: 0 5px;
       text-align: center;
-      color: @grey-color;
+      color: @gray-darker;
       width: 130px;
     }
 
     .dark-text {
-      color: @dark-blue-color;
+      color: @gray-darker;
       font-weight: 600;
     }
 
@@ -74,7 +70,7 @@
   }
 
   .browser-warning-copy-button {
-    background-color: @blue-color;
+    background-color: @purple;
     color: @white-color;
     font-weight: 600;
     padding: 10px 30px;
@@ -85,11 +81,11 @@
 
   .browser-warning-download-text {
     font-size: 14px;
-    color: @dark-blue-color;
+    color: @gray-darker;
     font-weight: 500;
 
     a {
-      color: @blue-color;
+      color: @link-color;
     }
   }
 
@@ -102,9 +98,9 @@
   }
 
   .browser-warning-mobile {
-    color: @dark-blue-color;
+    color: @gray-darker;
     text-align: center;
-    border: solid 1px #EDEDED;
+    border: solid 1px @gray-light;
     box-shadow: 0 6px 10px 4px rgba(60, 64, 67, 0.08);
     border-radius: 8px;
     margin: 16px;
