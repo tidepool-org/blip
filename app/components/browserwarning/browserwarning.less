@@ -17,10 +17,6 @@
 @browser-warning-text-zindex:  @zindex-overlay;
 @browser-warning-box-width:    530px;
 
-@blue-color: #6078ff;
-@grey-color: #837995;
-@dark-blue-color: #281747;
-
 .browser-warning {
   background: #fff;
   margin: 30px auto;
@@ -44,10 +40,12 @@
   }
 
   .browser-warning-title {
-    font-size: 18px;
-    line-height: 20px;
-    font-weight: 600;
-    color: @dark-blue-color;
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: 500;
+    padding-left: @spacing-small;
+    padding-right: @spacing-small;
+    color: @gray-darker;
     margin-bottom: @spacing-large;
     text-align: center;
   }
@@ -59,12 +57,12 @@
       border: none;
       margin: 0 5px;
       text-align: center;
-      color: @grey-color;
+      color: @gray-darker;
       width: 130px;
     }
 
     .dark-text {
-      color: @dark-blue-color;
+      color: @gray-darker;
       font-weight: 600;
     }
 
@@ -72,7 +70,7 @@
   }
 
   .browser-warning-copy-button {
-    background-color: @blue-color;
+    background-color: @purple;
     color: @white-color;
     font-weight: 600;
     padding: 10px 30px;
@@ -83,20 +81,40 @@
 
   .browser-warning-download-text {
     font-size: 14px;
-    color: @dark-blue-color;
+    color: @gray-darker;
     font-weight: 500;
 
     a {
-      color: @blue-color;
+      color: @link-color;
     }
   }
 
   .browser-warning-chrome-image {
-    background: url('chrome-logo.png') no-repeat;
+    background: url('./images/chrome-logo.png') no-repeat;
     width: 100px;
     height: 100px;
     margin: 0 auto 30px;
-
     background-size: cover;
   }
+
+  .browser-warning-mobile {
+    color: @gray-darker;
+    text-align: center;
+    border: solid 1px @gray-light;
+    box-shadow: 0 6px 10px 4px rgba(60, 64, 67, 0.08);
+    border-radius: 8px;
+    margin: 16px;
+    padding: 16px;
+    line-height: 28px;
+
+    .browser-warning-mobile-appstore-container {
+      img {
+        height: 40px;
+        &.playstore-badge {
+          height: 60px;
+        }
+      }
+    }
+  }
+
 }
