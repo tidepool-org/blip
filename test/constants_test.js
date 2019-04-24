@@ -41,7 +41,7 @@ describe('constants', function() {
 
   it('should define the AUTOMATED_BASAL_DEVICE_MODELS mapping', function() {
     expect(constants.AUTOMATED_BASAL_DEVICE_MODELS).to.eql({
-      Medtronic: ['1780'],
+      Medtronic: ['1780', '1782'],
     });
   });
 
