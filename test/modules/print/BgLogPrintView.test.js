@@ -19,12 +19,12 @@
 
 import _ from 'lodash';
 
-import WeeklyPrintView from '../../../src/modules/print/WeeklyPrintView';
+import BgLogPrintView from '../../../src/modules/print/BgLogPrintView';
 import PrintView from '../../../src/modules/print/PrintView';
 import * as patients from '../../../data/patient/profiles';
 import * as settings from '../../../data/patient/settings';
 
-import { weeklyData as data } from '../../../data/print/fixtures';
+import { bgLogData as data } from '../../../data/print/fixtures';
 
 import {
   DEFAULT_FONT_SIZE,
@@ -40,7 +40,7 @@ import { THREE_HRS } from '../../../src/utils/datetime';
 import Doc from '../../helpers/pdfDoc';
 import { MMOLL_UNITS } from '../../../src/utils/constants';
 
-describe('WeeklyPrintView', () => {
+describe('BgLogPrintView', () => {
   let Renderer;
 
   const DPI = 72;
@@ -126,7 +126,7 @@ describe('WeeklyPrintView', () => {
   ];
 
   const createRenderer = (renderData = data, renderOpts = opts) => (
-    new WeeklyPrintView(doc, renderData, renderOpts)
+    new BgLogPrintView(doc, renderData, renderOpts)
   );
 
   beforeEach(() => {
@@ -495,15 +495,14 @@ describe('WeeklyPrintView', () => {
       ]);
     });
 
-    it('should define the summary table rows with results when mg/dL data is available', () => {
+    it('should define the summary table rows with results when all required stat data is provided', () => {
       Renderer = createRenderer(_.assign({}, data, {
-        dataByDate: {
-          '2017-12-31': { data: { smbg: [{ value: 60 }, { value: 70 }] } },
-          '2018-01-01': { data: { smbg: [{ value: 80 }] } },
-        },
-      }), _.assign({}, opts, {
-        numDays: 2,
-      }));
+        stats: { averageGlucose: { data: { raw: {
+          averageGlucose: 120,
+          total: 90,
+          days: 30,
+        } } } },
+      }), opts);
 
       Renderer.renderTable = sinon.stub();
       Renderer.bgChart = {
@@ -514,25 +513,19 @@ describe('WeeklyPrintView', () => {
 
       expect(Renderer.summaryTable.rows).to.eql([
         {
-          totalDays: 2,
-          totalReadings: '3',
-          avgReadingsPerDay: '2',
-          avgBg: '70',
+          totalDays: '30',
+          totalReadings: '90',
+          avgReadingsPerDay: '3',
+          avgBg: '120',
         },
       ]);
     });
 
-    it('should define the summary table rows with results when mmol/L data is available', () => {
+    it('should define the summary table rows with empty results when no stat data is provided', () => {
       Renderer = createRenderer(_.assign({}, data, {
-        dataByDate: {
-          '2017-12-31': { data: { smbg: [{ value: 3.2 }, { value: 4.2 }] } },
-          '2018-01-01': { data: { smbg: [{ value: 3.7 }] } },
-        },
+        stats: undefined,
       }), _.assign({}, opts, {
-        numDays: 2,
-        bgPrefs: {
-          bgUnits: MMOLL_UNITS,
-        },
+        numDays: 30,
       }));
 
       Renderer.renderTable = sinon.stub();
@@ -544,34 +537,7 @@ describe('WeeklyPrintView', () => {
 
       expect(Renderer.summaryTable.rows).to.eql([
         {
-          totalDays: 2,
-          totalReadings: '3',
-          avgReadingsPerDay: '2',
-          avgBg: '3.7',
-        },
-      ]);
-    });
-
-    it('should define the summary table rows with empty results when no data is available', () => {
-      Renderer = createRenderer(_.assign({}, data, {
-        dataByDate: {
-          '2017-12-31': { data: { smbg: [] } },
-          '2018-01-01': { data: { smbg: [] } },
-        },
-      }), _.assign({}, opts, {
-        numDays: 2,
-      }));
-
-      Renderer.renderTable = sinon.stub();
-      Renderer.bgChart = {
-        columnWidth: 200,
-      };
-
-      Renderer.renderSummaryTable();
-
-      expect(Renderer.summaryTable.rows).to.eql([
-        {
-          totalDays: 2,
+          totalDays: '30',
           totalReadings: '0',
           avgReadingsPerDay: '0',
           avgBg: '--',

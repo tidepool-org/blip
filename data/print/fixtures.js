@@ -444,6 +444,15 @@ export const dailyData = {
           automated: 1483314400000,
           manual: 1483314400000,
         },
+        food: [
+          {
+            nutrition: {
+              carbohydrate: {
+                net: 65,
+              },
+            },
+          },
+        ],
       },
     },
   },
@@ -452,7 +461,7 @@ export const dailyData = {
   basalRange: [0, 0],
 };
 
-export const weeklyData = {
+export const bgLogData = {
   dateRange: ['2017-12-31', '2018-01-29'],
   timezone: 'America/Toronto',
   dataByDate: {
@@ -497,4 +506,3 @@ export const weeklyData = {
     '2018-01-29': { data: { smbg: [{ value: 300 }] } },
   },
 };
-

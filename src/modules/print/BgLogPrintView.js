@@ -19,7 +19,7 @@
 
 import _ from 'lodash';
 import i18next from 'i18next';
-import { mean, range } from 'd3-array';
+import { range } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import moment from 'moment';
 
@@ -31,7 +31,7 @@ import { MS_IN_HOUR } from '../../utils/constants';
 
 const t = i18next.t.bind(i18next);
 
-class WeeklyPrintView extends PrintView {
+class BgLogPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
 
@@ -179,17 +179,15 @@ class WeeklyPrintView extends PrintView {
   renderSummaryTable() {
     this.resetText();
 
-    const allSMBG = _.reduce(
-      _.values(this.data.dataByDate),
-      (result, date) => result.concat(_.get(date, 'data.smbg', [])),
-      []
-    );
+    const { stats = {} } = this.data;
+    const { total, days, averageGlucose } = _.get(stats, 'averageGlucose.data.raw', {});
 
-    const avgSMBG = mean(allSMBG, (d) => (d.value));
-    const avgReadingsPerDay = Math.round(allSMBG.length / this.numDays);
+    const totalDays = Math.ceil(days || this.numDays || 0);
+    const totalReadings = total || 0;
+    const avgReadingsPerDay = Math.round(totalReadings / totalDays);
 
-    const avgSMBGText = allSMBG.length
-      ? formatBgValue(avgSMBG, this.bgPrefs)
+    const averageGlucoseText = averageGlucose
+      ? formatBgValue(averageGlucose, this.bgPrefs)
       : '--';
 
     this.summaryTable = {};
@@ -219,10 +217,10 @@ class WeeklyPrintView extends PrintView {
 
     this.summaryTable.rows = [
       {
-        totalDays: this.numDays,
-        totalReadings: allSMBG.length.toString(),
+        totalDays: totalDays.toString(),
+        totalReadings: totalReadings.toString(),
         avgReadingsPerDay: (avgReadingsPerDay || 0).toString(),
-        avgBg: avgSMBGText,
+        avgBg: averageGlucoseText,
       },
     ];
 
@@ -332,4 +330,4 @@ class WeeklyPrintView extends PrintView {
   }
 }
 
-export default WeeklyPrintView;
+export default BgLogPrintView;

@@ -30,7 +30,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
 /* global PDFDocument, blobStream, window */
 
-const stories = storiesOf('Weekly View PDF', module);
+const stories = storiesOf('BG Log View PDF', module);
 
 let data;
 try {
@@ -68,12 +68,12 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
       timezoneName: 'US/Eastern',
     },
     numDays: {
-      weekly: 30,
+      bgLog: 30,
     },
     patient,
   };
 
-  createPrintView('weekly', data[bgUnits].weekly, opts, doc).render();
+  createPrintView('bgLog', data[bgUnits].bgLog, opts, doc).render();
   PrintView.renderPageNumbers(doc);
 
   doc.end();
@@ -85,7 +85,7 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
 
 const notes = `Run \`window.downloadPrintViewData()\` from the console on a Tidepool Web data view.
 Save the resulting file to the \`local/\` directory of viz as \`print-view.json\`,
-and then use this story to iterate on the Weekly Print PDF outside of Tidepool Web!`;
+and then use this story to iterate on the BG Log Print PDF outside of Tidepool Web!`;
 
 stories.add(`standard account (${MGDL_UNITS})`, () => (
   <button onClick={() => openPDF({ patient: profiles.standard })}>

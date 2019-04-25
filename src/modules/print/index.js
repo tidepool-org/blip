@@ -23,7 +23,7 @@ import i18next from 'i18next';
 import PrintView from './PrintView';
 import BasicsPrintView from './BasicsPrintView';
 import DailyPrintView from './DailyPrintView';
-import WeeklyPrintView from './WeeklyPrintView';
+import BgLogPrintView from './BgLogPrintView';
 import SettingsPrintView from './SettingsPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
 
@@ -44,7 +44,7 @@ export const utils = {
   PrintView,
   BasicsPrintView,
   DailyPrintView,
-  WeeklyPrintView,
+  BgLogPrintView,
   SettingsPrintView,
 };
 
@@ -106,12 +106,12 @@ export function createPrintView(type, data, opts, doc) {
       });
       break;
 
-    case 'weekly':
-      Renderer = utils.WeeklyPrintView;
+    case 'bgLog':
+      Renderer = utils.BgLogPrintView;
 
       renderOpts = _.assign(renderOpts, {
-        numDays: numDays.weekly,
-        title: t('BG Readings'),
+        numDays: numDays.bgLog,
+        title: t('BG Log'),
       });
       break;
 
@@ -165,7 +165,7 @@ export function createPrintPDFPackage(data, opts) {
 
     if (data.basics) createPrintView('basics', data.basics, pdfOpts, doc).render();
     if (data.daily) createPrintView('daily', data.daily, pdfOpts, doc).render();
-    if (data.weekly) createPrintView('weekly', data.weekly, pdfOpts, doc).render();
+    if (data.bgLog) createPrintView('bgLog', data.bgLog, pdfOpts, doc).render();
     if (data.settings) createPrintView('settings', data.settings, pdfOpts, doc).render();
 
     PrintView.renderPageNumbers(doc);

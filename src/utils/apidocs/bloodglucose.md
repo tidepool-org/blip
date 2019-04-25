@@ -8,9 +8,6 @@
 <dt><a href="#classifyBgValue">classifyBgValue(bgBounds, bgValue, classificationType)</a> ⇒ <code>String</code></dt>
 <dd><p>classifyBgValue</p>
 </dd>
-<dt><a href="#calcBgPercentInCategories">calcBgPercentInCategories(data, bgBounds)</a> ⇒ <code>Object</code></dt>
-<dd><p>calcBgPercentInCategories</p>
-</dd>
 <dt><a href="#convertToMmolL">convertToMmolL(bgVal)</a> ⇒ <code>Number</code></dt>
 <dd><p>convertToMmolL</p>
 </dd>
@@ -24,8 +21,8 @@
 ## classifyBgValue(bgBounds, bgValue, classificationType) ⇒ <code>String</code>
 classifyBgValue
 
-**Kind**: global function  
-**Returns**: <code>String</code> - bgClassification - low, target, high  
+**Kind**: global function
+**Returns**: <code>String</code> - bgClassification - low, target, high
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -33,27 +30,13 @@ classifyBgValue
 | bgValue | <code>Number</code> | integer or float blood glucose value in either mg/dL or mmol/L |
 | classificationType | <code>String</code> | 'threeWay' or 'fiveWay' |
 
-<a name="calcBgPercentInCategories"></a>
-
-## calcBgPercentInCategories(data, bgBounds) ⇒ <code>Object</code>
-calcBgPercentInCategories
-
-**Kind**: global function  
-**Returns**: <code>Object</code> - bgPercentInCategories - object w/keys veryLow, low, target, high, veryHigh
-                 and 0.0 to 1.0 percentage values  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| data | <code>Array</code> | Array of Tidepool cbg or smbg data |
-| bgBounds | <code>Object</code> | object describing boundaries for blood glucose categories |
-
 <a name="convertToMmolL"></a>
 
 ## convertToMmolL(bgVal) ⇒ <code>Number</code>
 convertToMmolL
 
-**Kind**: global function  
-**Returns**: <code>Number</code> - convertedBgVal - blood glucose value in mmol/L, unrounded  
+**Kind**: global function
+**Returns**: <code>Number</code> - convertedBgVal - blood glucose value in mmol/L, unrounded
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -64,8 +47,8 @@ convertToMmolL
 ## reshapeBgClassesToBgBounds(bgPrefs) ⇒ <code>Object</code>
 reshapeBgClassesToBgBounds
 
-**Kind**: global function  
-**Returns**: <code>Object</code> - bgBounds - @tidepool/viz-style bgBounds  
+**Kind**: global function
+**Returns**: <code>Object</code> - bgBounds - @tidepool/viz-style bgBounds
 
 | Param | Type | Description |
 | --- | --- | --- |

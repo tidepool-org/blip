@@ -74,7 +74,6 @@ describe('stat', () => {
         averageDailyDose: 'averageDailyDose',
         carbs: 'carbs',
         coefficientOfVariation: 'coefficientOfVariation',
-        dailyDose: 'dailyDose',
         glucoseManagementIndicator: 'glucoseManagementIndicator',
         readingsInRange: 'readingsInRange',
         sensorUsage: 'sensorUsage',
@@ -82,6 +81,24 @@ describe('stat', () => {
         timeInAuto: 'timeInAuto',
         timeInRange: 'timeInRange',
         totalInsulin: 'totalInsulin',
+      });
+    });
+  });
+
+  describe('statFetchMethods', () => {
+    it('should export the common `statFetchMethods`', () => {
+      expect(stat.statFetchMethods).to.eql({
+        averageGlucose: 'getAverageGlucoseData',
+        averageDailyDose: 'getTotalInsulinData',
+        carbs: 'getCarbsData',
+        coefficientOfVariation: 'getCoefficientOfVariationData',
+        glucoseManagementIndicator: 'getGlucoseManagementIndicatorData',
+        readingsInRange: 'getReadingsInRangeData',
+        sensorUsage: 'getSensorUsage',
+        standardDev: 'getStandardDevData',
+        timeInAuto: 'getTimeInAutoData',
+        timeInRange: 'getTimeInRangeData',
+        totalInsulin: 'getBasalBolusData',
       });
     });
   });
@@ -333,6 +350,26 @@ describe('stat', () => {
         bgUnits: MGDL_UNITS,
       },
     };
+
+    it('should return the raw stat data as provided', () => {
+      const data = {
+        averageGlucose: 100,
+      };
+
+      const statData = stat.getStatData(data, commonStats.averageGlucose, opts);
+
+      expect(statData.raw.averageGlucose).to.eql(100);
+    });
+
+    it('should return the raw days option as provided', () => {
+      const data = {
+        averageGlucose: 100,
+      };
+
+      const statData = stat.getStatData(data, commonStats.averageGlucose, { ...opts, days: 123 });
+
+      expect(statData.raw.days).to.eql(123);
+    });
 
     it('should format and return `averageGlucose` data', () => {
       const data = {
