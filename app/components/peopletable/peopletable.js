@@ -130,7 +130,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
     const filterBy = e.target.value.toLowerCase();
 
     const filtered = _.filter(this.buildDataList(), (person) => {
-      return person.fullName.toLowerCase().indexOf(filterBy) !== -1;
+      return _.get(person, 'fullName', '').toLowerCase().indexOf(filterBy) !== -1;
     });
 
     this.setState({
