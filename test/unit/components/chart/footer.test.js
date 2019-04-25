@@ -124,9 +124,9 @@ describe('Footer', function () {
       expect(props.onClickLines.callCount).to.equal(1);
     });
 
-    it('should trigger onClickValues when weekly and valuesCheckbox changed', function () {
+    it('should trigger onClickValues when valuesCheckbox changed', function () {
       var props = {
-        chartType: 'weekly',
+        chartType: 'bgLog',
         onClickBoxOverlay: sinon.stub(),
         onClickGroup: sinon.stub(),
         onClickLines: sinon.stub(),
@@ -153,7 +153,7 @@ describe('Footer', function () {
 
     it('should trigger onClickRefresh when refresh button clicked', function () {
       var props = {
-        chartType: 'weekly',
+        chartType: 'bgLog',
         onClickBoxOverlay: sinon.stub(),
         onClickGroup: sinon.stub(),
         onClickLines: sinon.stub(),
