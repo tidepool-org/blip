@@ -55,6 +55,8 @@ export default translate()(class BrowserWarning extends Component {
       copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>{t('Please press Ctrl + C now')}</button>
     }
 
+    var url = (typeof window !== 'undefined') ? window.location.origin : 'https://www.your-loops.com';
+
     if (!utils.isMobile()) {
       downloadCopy = (<div>
         <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">
@@ -62,7 +64,7 @@ export default translate()(class BrowserWarning extends Component {
         </a>
         <Trans className="browser-warning-text" i18nKey="html.browser-warning-text">
           <span className="dark-text">Copy and paste</span>
-          <input type="text" className="blip-link-text" value="app.tidepool.org" readOnly={true}></input>
+          <input type="text" className="blip-link-text" value={url} readOnly={true}></input>
           <span className="dark-text">into Chrome.</span>
         </Trans>
         {copyButton}
