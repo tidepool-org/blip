@@ -19,11 +19,8 @@ import Terms from './pages/terms';
 import UserProfile from './pages/userprofile';
 import VerificationWithPassword from './pages/verificationwithpassword';
 
-
 import utils from './core/utils';
 import personUtils from './core/personutils';
-
-import actions from './redux/actions';
 
 /**
  * This function checks if the user is using chrome - if they are not it will redirect
@@ -271,8 +268,18 @@ export const onOtherRouteEnter = (api) => (nextState, replace) => {
  * @return {Route} the react-router routes
  */
 export const getRoutes = (appContext, store) => {
+  const TOKEN_LOCAL_KEY = 'authToken';
+  const localStore = window.localStorage;
   let props = appContext.props;
   let api = props.api;
+
+  // If Blip is opened with portal-front, we may end-up having
+  // the localStorage key 'authToken' but not being authenticated yet.
+  // Set the user token to simulate the login process
+  let authToken = localStore.getItem(TOKEN_LOCAL_KEY);
+  if (!api.user.isAuthenticated() && authToken !== null) {
+    api.user.setToken(authToken);
+  }
 
   return (
     <Route path='/' component={AppComponent} {...props}>

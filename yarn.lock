@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tidepool/viz@0.11.10":
-  version "0.11.10"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-0.11.10.tgz#14ad9aee62ba43b757fca64fbac0aa08a992702c"
+"@tidepool/viz@mdblp/viz#feature/fix-install":
+  version "0.1.1"
+  resolved "https://codeload.github.com/mdblp/viz/tar.gz/65c082633973f621e04bf98615d56cc0910ff383"
   dependencies:
     bluebird "3.5.0"
     crossfilter "1.3.12"
@@ -184,12 +184,6 @@ anymatch@^1.3.0:
   dependencies:
     micromatch "^2.1.5"
     normalize-path "^2.0.0"
-
-append-buffer@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/append-buffer/-/append-buffer-1.0.2.tgz#d8220cf466081525efea50614f3de6514dfa58f1"
-  dependencies:
-    buffer-equal "^1.0.0"
 
 append-buffer@^1.0.2:
   version "1.0.2"
@@ -1208,6 +1202,7 @@ block-stream@*, block-stream@0.0.9:
 bluebird@3.5.0, bluebird@^3.3.0, bluebird@^3.4.7:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.0.tgz#791420d7f551eea2897453a8a77653f96606d67c"
+  integrity sha1-eRQg1/VR7qKJdFOop3ZT+WYG1nw=
 
 bluebird@^2.10.2:
   version "2.11.0"
@@ -1275,10 +1270,6 @@ browser-locale@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/browser-locale/-/browser-locale-1.0.3.tgz#3c6646e6dd5f7a3c62ff51d4ae618a5dd3126911"
 
-browser-locale@1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/browser-locale/-/browser-locale-1.0.3.tgz#3c6646e6dd5f7a3c62ff51d4ae618a5dd3126911"
-
 browser-stdout@1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/browser-stdout/-/browser-stdout-1.3.0.tgz#f351d32969d32fa5d7a5567154263d928ae3bd1f"
@@ -1327,7 +1318,7 @@ buffer-from@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
 
-buffer-shims@^1.0.0:
+buffer-shims@^1.0.0, buffer-shims@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/buffer-shims/-/buffer-shims-1.0.0.tgz#9978ce317388c649ad8793028c3477ef044a8b51"
 
@@ -1550,6 +1541,7 @@ cli-width@^2.0.0:
 clipboard@^1.4.0:
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/clipboard/-/clipboard-1.7.1.tgz#360d6d6946e99a7a1fef395e42ba92b5e9b5a16b"
+  integrity sha1-Ng1taUbpmnof7zleQrqStem1oWs=
   dependencies:
     good-listener "^1.2.2"
     select "^1.1.2"
@@ -1574,14 +1566,6 @@ clone-stats@^1.0.0:
 clone@^1.0.0, clone@^1.0.2:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/clone/-/clone-1.0.4.tgz#da309cc263df15994c688ca902179ca3c7cd7c7e"
-
-cloneable-readable@^1.0.0:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/cloneable-readable/-/cloneable-readable-1.1.2.tgz#d591dee4a8f8bc15da43ce97dceeba13d43e2a65"
-  dependencies:
-    inherits "^2.0.1"
-    process-nextick-args "^2.0.0"
-    readable-stream "^2.3.5"
 
 cloneable-readable@^1.0.0:
   version "1.1.2"
@@ -2246,6 +2230,7 @@ delayed-stream@~1.0.0:
 delegate@^3.1.2:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/delegate/-/delegate-3.2.0.tgz#b66b71c3158522e8ab5744f720d8ca0c2af59166"
+  integrity sha512-IofjkYBZaZivn0V8nnsMJGBr4jVLxHDheKSW88PyxS5QC4Vo9ZbZVvhzlSxY87fVq3STR6r+4cGepyHkcWOQSw==
 
 delegates@^1.0.0:
   version "1.0.0"
@@ -2417,6 +2402,7 @@ electron-to-chromium@^1.2.7:
 element-resize-event@^2.0.4:
   version "2.0.9"
   resolved "https://registry.yarnpkg.com/element-resize-event/-/element-resize-event-2.0.9.tgz#2f5e1581a296eb5275210c141bc56342e218f876"
+  integrity sha1-L14VgaKW61J1IQwUG8VjQuIY+HY=
 
 emojis-list@^2.0.0:
   version "2.1.0"
@@ -2906,7 +2892,7 @@ faye-websocket@~0.11.0:
   dependencies:
     websocket-driver ">=0.5.1"
 
-fbjs@^0.8.1, fbjs@^0.8.4, fbjs@^0.8.9:
+fbjs@^0.8.1, fbjs@^0.8.4:
   version "0.8.17"
   resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.17.tgz#c4d598ead6949112653d6588b01a5cdcd9f90fdd"
   dependencies:
@@ -2918,7 +2904,7 @@ fbjs@^0.8.1, fbjs@^0.8.4, fbjs@^0.8.9:
     setimmediate "^1.0.5"
     ua-parser-js "^0.7.18"
 
-fbjs@^0.8.16, fbjs@^0.8.9:
+fbjs@^0.8.9:
   version "0.8.16"
   resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.16.tgz#5e67432f550dc41b572bf55847b8aca64e5337db"
   dependencies:
@@ -3427,6 +3413,7 @@ globby@^5.0.0:
 good-listener@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/good-listener/-/good-listener-1.2.2.tgz#d53b30cdf9313dffb7dc9a0d477096aa6d145c50"
+  integrity sha1-1TswzfkxPf+33JoNR3CWqm0UXFA=
   dependencies:
     delegate "^3.1.2"
 
@@ -3453,6 +3440,7 @@ growl@1.9.2:
 gsap@1.19.0:
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/gsap/-/gsap-1.19.0.tgz#f36b78c6b1a449028d89efbb4c161db29f5991dd"
+  integrity sha1-82t4xrGkSQKNie+7TBYdsp9Zkd0=
 
 gulp-sort@^2.0.0:
   version "2.0.0"
@@ -3656,12 +3644,6 @@ html-minifier@^3.2.3:
     param-case "2.1.x"
     relateurl "0.2.x"
     uglify-js "3.4.x"
-
-html-parse-stringify2@2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/html-parse-stringify2/-/html-parse-stringify2-2.0.1.tgz#dc5670b7292ca158b7bc916c9a6735ac8872834a"
-  dependencies:
-    void-elements "^2.0.1"
 
 html-parse-stringify2@2.0.1:
   version "2.0.1"
@@ -4447,12 +4429,6 @@ lead@^1.0.0:
   dependencies:
     flush-write-stream "^1.0.2"
 
-lead@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/lead/-/lead-1.0.0.tgz#6f14f99a37be3a9dd784f5495690e5903466ee42"
-  dependencies:
-    flush-write-stream "^1.0.2"
-
 less-loader@2.2.3:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/less-loader/-/less-loader-2.2.3.tgz#b6d8f8139c8493df09d992a93a00734b08f84528"
@@ -4663,6 +4639,7 @@ lodash.debounce@^3.1.1:
 lodash.debounce@^4.0.4, lodash.debounce@^4.0.6:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
+  integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
 
 lodash.deburr@^3.0.0:
   version "3.2.0"
@@ -4677,6 +4654,7 @@ lodash.defaultsdeep@^4.3.2:
 lodash.difference@^4.0.2:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.difference/-/lodash.difference-4.5.0.tgz#9ccb4e505d486b91651345772885a2df27fd017c"
+  integrity sha1-nMtOUF1Ia5FlE0V3KIWi3yf9AXw=
 
 lodash.every@4.2.1:
   version "4.2.1"
@@ -4796,13 +4774,18 @@ lodash@3.9.3:
   version "3.9.3"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.9.3.tgz#0159e86832feffc6d61d852b12a953b99496bd32"
 
-lodash@4.*, lodash@^4.0.0, lodash@^4.0.1, lodash@^4.1.0, lodash@^4.13.1, lodash@^4.17.10, lodash@^4.17.2, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.2.0, lodash@^4.2.1, lodash@^4.3.0, lodash@^4.5.0, lodash@^4.6.1, lodash@~4.17.4:
-  version "4.17.10"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
+lodash@4.*:
+  version "4.17.11"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
+  integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
 
 lodash@4.5.1:
   version "4.5.1"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.5.1.tgz#80e8a074ca5f3893a6b1c10b2a636492d710c316"
+
+lodash@^4.0.0, lodash@^4.0.1, lodash@^4.1.0, lodash@^4.13.1, lodash@^4.17.10, lodash@^4.17.2, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.2.0, lodash@^4.2.1, lodash@^4.3.0, lodash@^4.5.0, lodash@^4.6.1, lodash@~4.17.4:
+  version "4.17.10"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
 
 log4js@^0.6.31:
   version "0.6.38"
@@ -5828,6 +5811,7 @@ parse-key@^0.2.1:
 parse-svg-path@0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/parse-svg-path/-/parse-svg-path-0.1.2.tgz#7a7ec0d1eb06fa5325c7d3e009b859a09b5d49eb"
+  integrity sha1-en7A0esG+lMlx9PgCbhZoJtdSes=
 
 parse5@^1.5.1:
   version "1.5.1"
@@ -6220,6 +6204,7 @@ postcss-zindex@^2.0.1:
 postcss@^5.0.10, postcss@^5.0.11, postcss@^5.0.12, postcss@^5.0.13, postcss@^5.0.14, postcss@^5.0.16, postcss@^5.0.2, postcss@^5.0.4, postcss@^5.0.5, postcss@^5.0.6, postcss@^5.0.8, postcss@^5.2.11, postcss@^5.2.12:
   version "5.2.18"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-5.2.18.tgz#badfa1497d46244f6390f58b319830d9107853c5"
+  integrity sha512-zrUjRRe1bpXKsX1qAJNJjqZViErVuyEkMTRrwu4ud4sbTtIBRmtaYDrHmcGgmrbsW3MHfmtIf+vJumgQn+PrXg==
   dependencies:
     chalk "^1.1.3"
     js-base64 "^2.1.9"
@@ -6260,10 +6245,6 @@ pretty-error@^2.0.2:
 private@^0.1.6, private@^0.1.8:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/private/-/private-0.1.8.tgz#2381edb3689f7a53d653190060fcf822d2f368ff"
-
-process-nextick-args@^2.0.0, process-nextick-args@~2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.0.tgz#a37d732f4271b4ab1ad070d35508e8290788ffaa"
 
 process-nextick-args@^2.0.0, process-nextick-args@~2.0.0:
   version "2.0.0"
@@ -6510,12 +6491,14 @@ react-addons-update@15.4.2:
 react-clipboard.js@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-clipboard.js/-/react-clipboard.js-1.0.1.tgz#56dea0547c13977cd1a1650fc740e0349aa90bdf"
+  integrity sha1-Vt6gVHwTl3zRoWUPx0DgNJqpC98=
   dependencies:
     clipboard "^1.4.0"
 
 react-collapse@2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/react-collapse/-/react-collapse-2.3.1.tgz#2b164259ecd6fd749f4a187d35bdf0030bb60093"
+  integrity sha1-KxZCWezW/XSfShh9Nb3wAwu2AJM=
 
 react-deep-force-update@^2.0.1:
   version "2.1.1"
@@ -6524,6 +6507,7 @@ react-deep-force-update@^2.0.1:
 react-dimensions@2.0.0-alpha1:
   version "2.0.0-alpha1"
   resolved "https://registry.yarnpkg.com/react-dimensions/-/react-dimensions-2.0.0-alpha1.tgz#03c1a5265f0786311547954674379da90749d001"
+  integrity sha1-A8GlJl8HhjEVR5VGdDedqQdJ0AE=
   dependencies:
     element-resize-event "^2.0.4"
     lodash.debounce "^4.0.6"
@@ -6546,6 +6530,7 @@ react-dom@15.4.2:
 react-height@2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/react-height/-/react-height-2.1.1.tgz#14c27a8e3a7e43a17dd128c8f3ee00f03b0001c2"
+  integrity sha1-FMJ6jjp+Q6F90SjI8+4A8DsAAcI=
 
 react-hot-loader@3.0.0-beta.2:
   version "3.0.0-beta.2"
@@ -6651,6 +6636,7 @@ react-select@1.0.0-rc.5:
 react-transition-group-plus@0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/react-transition-group-plus/-/react-transition-group-plus-0.4.1.tgz#465162695985a408cb06147ae3967315bdbc8d5e"
+  integrity sha1-RlFiaVmFpAjLBhR645ZzFb28jV4=
   dependencies:
     lodash.difference "^4.0.2"
     object-assign "^4.0.1"
@@ -6716,7 +6702,7 @@ read@1, read@~1.0.1, read@~1.0.7:
   dependencies:
     mute-stream "~0.0.4"
 
-"readable-stream@1 || 2", readable-stream@2, readable-stream@^2.0.0, readable-stream@^2.0.1, readable-stream@^2.0.2, readable-stream@^2.0.4, readable-stream@^2.0.5, readable-stream@^2.0.6, readable-stream@^2.1.5, readable-stream@^2.2.2, readable-stream@^2.3.3, readable-stream@^2.3.5:
+"readable-stream@1 || 2", readable-stream@2, readable-stream@^2.0.0, readable-stream@^2.0.2, readable-stream@^2.0.4, readable-stream@^2.0.5, readable-stream@^2.0.6, readable-stream@^2.3.3, readable-stream@^2.3.5:
   version "2.3.6"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-2.3.6.tgz#b11c27d88b8ff1fbe070643cf94b0c79ae1b0aaf"
   dependencies:
@@ -7299,6 +7285,7 @@ script-loader@0.7.0:
 select@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/select/-/select-1.1.2.tgz#0e7350acdec80b1108528786ec1d4418d11b396d"
+  integrity sha1-DnNQrN7ICxEIUoeG7B1EGNEbOW0=
 
 selenium-standalone@5.5.0:
   version "5.5.0"
@@ -7361,6 +7348,7 @@ send@0.14.1:
 serialize-svg-path@0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/serialize-svg-path/-/serialize-svg-path-0.1.0.tgz#a72bf14fda69d6f76301648154d091ffc072299a"
+  integrity sha1-pyvxT9pp1vdjAWSBVNCR/8ByKZo=
 
 serve-index@^1.7.2:
   version "1.9.1"
@@ -7772,6 +7760,12 @@ string_decoder@~0.10.25, string_decoder@~0.10.x:
   version "0.10.31"
   resolved "https://registry.yarnpkg.com/string_decoder/-/string_decoder-0.10.31.tgz#62e203bc41766c6c28c9fc84301dab1c5310fa94"
 
+string_decoder@~1.0.0:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/string_decoder/-/string_decoder-1.0.3.tgz#0fc67d7c141825de94282dd536bec6b9bce860ab"
+  dependencies:
+    safe-buffer "~5.1.0"
+
 string_decoder@~1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/string_decoder/-/string_decoder-1.1.1.tgz#9cf1611ba62685d7030ae9e4ba34149c3af03fc8"
@@ -7823,6 +7817,7 @@ sundial@1.5.1:
 sundial@1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/sundial/-/sundial-1.6.0.tgz#b3bd3f61f3eed78d42723e1e5867052d48fbd1a8"
+  integrity sha1-s70/YfPu141Ccj4eWGcFLUj70ag=
   dependencies:
     moment-timezone "0.4.1"
 
@@ -7950,6 +7945,7 @@ text-encoding@0.6.4:
 text-table@0.2.0, text-table@~0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
+  integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
 
 throttleit@^1.0.0:
   version "1.0.0"
@@ -7969,7 +7965,6 @@ through2@^2.0.0, through2@^2.0.1, through2@^2.0.3, through2@~2.0.0, through2@~2.
     readable-stream "^2.1.5"
     xtend "~4.0.1"
 
-
 through@2, through@^2.3.6, through@~2.3, through@~2.3.1:
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
@@ -7978,9 +7973,9 @@ thunkify@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
 
-tideline@1.8.12:
-  version "1.8.12"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.8.12.tgz#64ac8c78e21cbbd8798b4a787d214c4ce0ecd8a7"
+tideline@mdblp/tideline#dblp.0.1.1:
+  version "0.1.1"
+  resolved "https://codeload.github.com/mdblp/tideline/tar.gz/9faa62e8ce352f97d6419d263f9b30b5db9d49cf"
   dependencies:
     bows "1.6.0"
     crossfilter "1.3.12"
@@ -8021,8 +8016,9 @@ timers-browserify@^1.0.1:
     process "~0.11.0"
 
 tiny-emitter@^2.0.0:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/tiny-emitter/-/tiny-emitter-2.0.2.tgz#82d27468aca5ade8e5fd1e6d22b57dd43ebdfb7c"
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/tiny-emitter/-/tiny-emitter-2.1.0.tgz#1d1a56edfc51c43e863cbb5382a72330e3555423"
+  integrity sha512-NB6Dk1A9xgQPMoGqC5CVXn123gWyte215ONT5Pp5a0yt4nlEoO1ZWeCwpncaekPHXO60i47ihFnZPiRPjRMq4Q==
 
 tmp@0.0.28, tmp@0.0.x:
   version "0.0.28"
@@ -8072,6 +8068,7 @@ tr46@~0.0.1:
 translate-svg-path@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/translate-svg-path/-/translate-svg-path-0.0.1.tgz#b4445537904215fb5cce1df019fd00e70e7c98e7"
+  integrity sha1-tERVN5BCFftczh3wGf0A5w58mOc=
 
 trim-right@^1.0.1:
   version "1.0.1"
@@ -8121,6 +8118,10 @@ typedarray@^0.0.6, typedarray@~0.0.5:
 ua-parser-js@^0.7.18:
   version "0.7.18"
   resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.18.tgz#a7bfd92f56edfb117083b69e31d2aa8882d4b1ed"
+
+ua-parser-js@^0.7.9:
+  version "0.7.19"
+  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.19.tgz#94151be4c0a7fb1d001af7022fdaca4642659e4b"
 
 uglify-es@3.0.13:
   version "3.0.13"
@@ -8388,6 +8389,7 @@ void-elements@^2.0.0, void-elements@^2.0.1:
 voilab-pdf-table@0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/voilab-pdf-table/-/voilab-pdf-table-0.4.0.tgz#3719bc3a580f6a120f775c49d1bcb59a41ac50e0"
+  integrity sha1-Nxm8OlgPahIPd1xJ0by1mkGsUOA=
   dependencies:
     lodash "4.*"
 

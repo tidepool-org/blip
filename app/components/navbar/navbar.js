@@ -14,6 +14,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+
 var React = require('react');
 var IndexLink = require('react-router').IndexLink;
 var Link = require('react-router').Link;
@@ -26,6 +27,10 @@ var personUtils = require('../../core/personutils');
 var NavbarPatientCard = require('../../components/navbarpatientcard');
 
 var logoSrc = require('./images/tidepool-logo-408x46.png');
+
+if(__BRANDING__ !== 'tidepool'){
+  logoSrc = require('./images/'+__BRANDING__+'/logo.png');
+}
 
 export default translate()(React.createClass({
   propTypes: {

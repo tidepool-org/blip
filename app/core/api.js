@@ -70,6 +70,14 @@ api.server.getTime = function(cb) {
 // ----- User -----
 api.user = {};
 
+api.user.setToken = function(token) {
+  if (typeof token === 'string') {
+    tidepool.syncToken(token);
+  } else {
+    tidepool.syncToken(null);
+  }
+}
+
 api.user.isAuthenticated = function() {
   return tidepool.isLoggedIn();
 };
@@ -254,7 +262,7 @@ api.user.put = function(user, cb) {
   const profile = profileFromUser(user);
   const preferences = preferencesFromUser(user);
 
-  async.parallel({
+  async.series({
     account: tidepool.updateCurrentUser.bind(tidepool, account),
     profile: tidepool.addOrUpdateProfile.bind(tidepool, user.userid, profile),
     preferences: tidepool.addOrUpdatePreferences.bind(tidepool, user.userid, preferences)

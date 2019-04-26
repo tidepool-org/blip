@@ -421,7 +421,7 @@ var PatientInfo = translate()(React.createClass({
 
   renderDataSources: function() {
     const { t } = this.props;
-    if (this.isSamePersonUserAndPatient()) {
+    if (this.isSamePersonUserAndPatient() && !__HIDE_DEXCOM_BANNER__) {
       return (
         <Element name="dexcomConnect" className="PatientPage-dataSources">
           <div className="PatientPage-sectionTitle">{t('My Data Sources')}</div>

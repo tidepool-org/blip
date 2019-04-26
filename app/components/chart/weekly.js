@@ -266,6 +266,7 @@ var Weekly = translate()(React.createClass({
         atMostRecent={this.state.atMostRecent}
         inTransition={this.state.inTransition}
         title={''}
+        onClickBasics={this.props.onSwitchToBasics}
         onClickOneDay={this.handleClickOneDay}
         onClickTrends={this.handleClickTrends}
         onClickSettings={this.props.onSwitchToSettings}

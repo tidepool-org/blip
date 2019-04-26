@@ -14,11 +14,9 @@
  */
 
 import React from 'react';
-import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
-import { createSelector } from 'reselect';
 
 import _ from 'lodash';
 import bows from 'bows';
@@ -34,7 +32,7 @@ import { getfetchedPatientDataRange } from '../../redux/selectors';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
-import { URL_UPLOADER_DOWNLOAD_PAGE, URL_TIDEPOOL_MOBILE_APP_STORE } from '../../core/constants';
+import { URL_TIDEPOOL_MOBILE_APP_STORE } from '../../core/constants';
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
@@ -301,7 +299,7 @@ export let PatientData = translate()(React.createClass({
   renderSettings: function(){
     return (
       <div>
-        <div class="app-no-print">
+        <div className="app-no-print">
           <Settings
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
@@ -789,7 +787,6 @@ export let PatientData = translate()(React.createClass({
   componentWillReceiveProps: function(nextProps) {
     const userId = this.props.currentPatientInViewId;
     const nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
-    const currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
 
     const nextFetchedDataRange = _.get(nextProps, 'fetchedPatientDataRange', {});

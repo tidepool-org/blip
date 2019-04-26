@@ -1,14 +1,15 @@
 .git
 .gitignore
-node_modules
 npm-debug.log
 _book
 artifact_node.sh
 config/*
 !config/local.sh
+!config/env.docker.sh
 deploy
-dist
 test/bin
 tmp
 web
 *.log
+node_modules
+dist

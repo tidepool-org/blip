@@ -38,7 +38,9 @@ import TidepoolNotification from '../../components/notification';
 import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
 
-import { DATA_DONATION_NONPROFITS } from '../../core/constants';
+import { DATA_DONATION_NONPROFITS, CONFIG } from '../../core/constants';
+
+import Config from '../../config';
 
 // Styles
 require('react-select/less/default.less');
@@ -47,6 +49,8 @@ require('../../style.less');
 
 // Blip favicon
 require('../../../favicon.ico');
+
+document.title = CONFIG[__BRANDING__].name;
 
 export class AppComponent extends React.Component {
   static propTypes = {
@@ -135,6 +139,27 @@ export class AppComponent extends React.Component {
     this.doFetching(this.props);
   }
 
+  componentDidMount() {
+    if (Config.HELP_LINK !== null) {
+      //An array of assets
+      let scripts = [
+        {
+          src: Config.HELP_LINK,
+          id: 'ze-snippet'
+        }
+      ]
+      //Append the script element on each iteration
+      scripts.map(item => {
+        const script = document.createElement('script')
+        script.src = item.src
+        script.id = item.id
+        script.async = true
+        document.body.appendChild(script)
+      })
+    }
+  }
+
+
   /**
    * Before any subsequent re-rendering
    * begin fetching any required data
@@ -189,6 +214,21 @@ export class AppComponent extends React.Component {
         this.props.hideBanner('dexcom');
       }
     }
+    if (Config.HELP_LINK !== null && this.props.authenticated) {
+      let name = this.props.user.profile.fullName;
+      console.log(this.props.user);
+      let email = this.props.user.emails[0];
+
+      const script = document.createElement('script')
+      script.type = 'text/javascript';
+      script.text = 'zE(\'webWidget\', \'prefill\', { name: { value: \''
+        + name
+        + '\', readOnly: true }, email: { value: \''
+        + email
+        + '\', readOnly: true } });'
+      document.body.appendChild(script)
+    }
+
   }
 
   /**
@@ -231,18 +271,18 @@ export class AppComponent extends React.Component {
           getUploadUrl = this.props.context.api.getUploadUrl.bind(this.props.context.api);
         }
         return (
-         <div className="App-navbar">
-          <Navbar
-            user={this.props.user}
-            fetchingUser={this.props.fetchingUser}
-            patient={patient}
-            fetchingPatient={this.props.fetchingPatient}
-            currentPage={this.props.location}
-            getUploadUrl={getUploadUrl}
-            onLogout={this.props.onLogout}
-            trackMetric={this.props.context.trackMetric}
-            permsOfLoggedInUser={this.props.permsOfLoggedInUser}
-            ref="navbar"/>
+          <div className="App-navbar">
+            <Navbar
+              user={this.props.user}
+              fetchingUser={this.props.fetchingUser}
+              patient={patient}
+              fetchingPatient={this.props.fetchingPatient}
+              currentPage={this.props.location}
+              getUploadUrl={getUploadUrl}
+              onLogout={this.props.onLogout}
+              trackMetric={this.props.context.trackMetric}
+              permsOfLoggedInUser={this.props.permsOfLoggedInUser}
+              ref="navbar" />
           </div>
         );
       }
@@ -342,7 +382,7 @@ export class AppComponent extends React.Component {
       <div className='container-nav-outer footer'>
         <div className='container-nav-inner'>
           {shouldDisplayFooterLinks ?
-              <FooterLinks trackMetric={this.props.context.trackMetric} /> : null}
+            <FooterLinks trackMetric={this.props.context.trackMetric} /> : null}
           <div className='footer-section'>
             {this.renderVersion()}
           </div>
@@ -440,11 +480,11 @@ export function mapStateToProps(state) {
         {}
       );
       permsOfLoggedInUser = _.get(
-       state.blip.membershipPermissionsInOtherCareTeams,
-       state.blip.currentPatientInViewId,
-       {}
+        state.blip.membershipPermissionsInOtherCareTeams,
+        state.blip.currentPatientInViewId,
+        {}
       );
-    } 
+    }
 
     // Check to see if a data-donating patient has selected a nonprofit to support
     if (userIsDonor) {

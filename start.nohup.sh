@@ -9,6 +9,6 @@ nvm ls "${START_NODE_VERSION}" > /dev/null || { echo "ERROR: Node version ${STAR
 nvm use --delete-prefix "${START_NODE_VERSION}"
 
 . config/env.sh
-
+echo "build-config"
 npm run build-config
 nohup node server > ../$service.log 2> ../$service.error.log <&- &
