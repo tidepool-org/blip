@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-wget -q -O artifact_none.sh 'https://raw.githubusercontent.com/tidepool-org/tools/master/artifact/artifact.sh'
-chmod +x artifact_none.sh
+wget -q -O artifact_docker.sh 'https://raw.githubusercontent.com/tidepool-org/tools/master/artifact/artifact.sh'
+chmod +x artifact_docker.sh
 
-./artifact_none.sh none
+./artifact_docker.sh docker
