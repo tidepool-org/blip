@@ -107,7 +107,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
 
       return {
         fullName: personUtils.patientFullName(person),
-        fullNameOrderable: personUtils.patientFullName(person).toLowerCase(),
+        fullNameOrderable: (personUtils.patientFullName(person) || '').toLowerCase(),
         link: person.link,
         birthday: bday,
         birthdayOrderable: new Date(bday),
@@ -130,7 +130,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
     const filterBy = e.target.value.toLowerCase();
 
     const filtered = _.filter(this.buildDataList(), (person) => {
-      return person.fullName.toLowerCase().indexOf(filterBy) !== -1;
+      return _.get(person, 'fullName', '').toLowerCase().indexOf(filterBy) !== -1;
     });
 
     this.setState({
