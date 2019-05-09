@@ -22,6 +22,9 @@ const COPY_STATUS_NULL = 0;
 const COPY_STATUS_SUCCESS = 10;
 const COPY_STATUS_FAIL = 20;
 
+const playstoreImageUrl = require('./images/google-play-badge.png');
+const appstoreImageUrl = require('./images/appstore-badge.svg');
+
 export default translate()(class BrowserWarning extends Component {
   static propTypes = {
     trackMetric: React.PropTypes.func.isRequired
@@ -73,8 +76,23 @@ export default translate()(class BrowserWarning extends Component {
     return (
       <div className="browser-warning js-terms">
         <div className="browser-warning-content browser-warning-box">
-          <h1 className="browser-warning-title">{t('Tidepool\'s visualizations are only certified to work in the Chrome browser, and on Mac or PC.')}</h1>
-          {downloadCopy}
+          <h1 className="browser-warning-title">
+            {t('Tidepool Web works with Chrome on Mac or Windows.')}
+          </h1>
+          {downloadCopy} 
+          <div className="browser-warning-mobile">
+            <div className="browser-warning-mobile-message">
+              {t('Download Tidepool Mobile for iOS or Android to see your data on the go:')}
+            </div>
+            <div className="browser-warning-mobile-appstore-container">
+              <a href='https://itunes.apple.com/us/app/tidepool-mobile/id1026395200'>
+                <img alt='Download on the App Store' src={appstoreImageUrl} className="appstore-badge" />
+              </a>
+              <a href='https://play.google.com/store/apps/details?id=io.tidepool.urchin'>
+                <img alt='Get it on Google Play' src={playstoreImageUrl} className="playstore-badge" />
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     );
