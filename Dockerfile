@@ -17,9 +17,11 @@ RUN apk --no-cache update && \
 USER node
 
 RUN yarn install && \
-  yarn cache clean
+  yarn cache clean 
 
 COPY . .
+
+RUN yarn build
 
 VOLUME /app
 
