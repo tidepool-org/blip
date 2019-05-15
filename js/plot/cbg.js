@@ -69,9 +69,13 @@ module.exports = function(pool, opts) {
             return 'cbg_' + d.id;
           }
         });
+      var cbgVeryLow = cbgGroups.filter(function(d) {
+        if (categorize(d) === "verylow") {
+          return d;
+        }
+      });
       var cbgLow = cbgGroups.filter(function(d) {
-        var category = categorize(d);
-        if (category === "low" || category === "verylow") {
+        if (categorize(d) === "low") {
           return d;
         }
       });
@@ -81,14 +85,20 @@ module.exports = function(pool, opts) {
         }
       });
       var cbgHigh = cbgGroups.filter(function(d) {
-        var category = categorize(d);
-        if (category === "high" || category === "veryhigh") {
+        if (categorize(d) === "high") {
           return d;
         }
       });
+      var cbgVeryHigh = cbgGroups.filter(function(d) {
+        if (categorize(d) === "veryhigh") {
+          return d;
+        }
+      });
+      cbgVeryLow.classed({'d3-circle-cbg': true, 'd3-bg-very-low': true});
       cbgLow.classed({'d3-circle-cbg': true, 'd3-bg-low': true});
       cbgTarget.classed({'d3-circle-cbg': true, 'd3-bg-target': true});
       cbgHigh.classed({'d3-circle-cbg': true, 'd3-bg-high': true});
+      cbgVeryHigh.classed({'d3-circle-cbg': true, 'd3-bg-very-high': true});
       allCBG.exit().remove();
 
       var highlight = pool.highlight(allCBG);
@@ -129,7 +139,7 @@ module.exports = function(pool, opts) {
         });
         if (_.get(opts, 'onCBGOut', false)) {
           opts.onCBGOut();
-        } 
+        }
       });
     });
   }
@@ -144,11 +154,11 @@ module.exports = function(pool, opts) {
 
   cbg.addTooltip = function(d, rect) {
     if (_.get(opts, 'onCBGHover', false)) {
-      opts.onCBGHover({ 
-        data: d, 
-        rect: rect, 
-        class: categorizer(opts.classes, opts.bgUnits)(d) 
-      }); 
+      opts.onCBGHover({
+        data: d,
+        rect: rect,
+        class: categorizer(opts.classes, opts.bgUnits)(d)
+      });
     }
   };
 

@@ -40,162 +40,6 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
   var weightedCGMCount = new BGUtil([], { DAILY_MIN: constants.CGM_IN_DAY * 0.75 }).weightedCGMCount;
 
   return {
-    bgDistribution: function(basicsData) {
-      var categorizeBg = classifiers.categorizeBg;
-      function reshapeAsPercentages(grouped, total) {
-        var distributionDefaults = {
-          verylow: 0,
-          low: 0,
-          target: 0,
-          high: 0,
-          veryhigh: 0
-        };
-        var reshaped = {};
-        for (var key in grouped) {
-          var group = grouped[key];
-          reshaped[key] = group.length/total;
-        }
-        return _.defaults(reshaped, distributionDefaults);
-      }
-
-      var cgm = basicsData.data.cbg;
-      var bgm = basicsData.data.smbg;
-      var bgDistribution = {};
-      if (cgm && !_.isEmpty(cgm.data)) {
-        var count = cgm.data.length;
-        var spanInDays = (Date.parse(basicsData.dateRange[1]) -
-          Date.parse(basicsData.dateRange[0]))/constants.MS_IN_DAY;
-
-        if (weightedCGMCount(cgm.data) < (constants.CGM_IN_DAY/2 * spanInDays)) {
-          bgDistribution.cgmStatus = constants.NOT_ENOUGH_CGM;
-        }
-        else {
-          var categorizedCGM = _.groupBy(cgm.data, categorizeBg);
-          bgDistribution.cbg = reshapeAsPercentages(categorizedCGM, count);
-          bgDistribution.cgmStatus = constants.CGM_CALCULATED;
-        }
-      }
-      else {
-        bgDistribution.cgmStatus = constants.NO_CGM;
-      }
-      var categorizedBGM = _.groupBy(bgm.data, categorizeBg);
-      bgDistribution.smbg = reshapeAsPercentages(categorizedBGM, bgm.data.length);
-
-      return bgDistribution;
-    },
-    calculateBasalBolusStats: function(basicsData, basalUtil) {
-      var pastDays = _.filter(basicsData.days, {type: 'past'});
-      var mostRecent = _.get(
-        _.filter(basicsData.days, {type: 'mostRecent'}),
-        [0, 'date'],
-        ''
-      );
-      var pastBolusDays = _.reject(
-        Object.keys(basicsData.data.bolus.dataByDate),
-        function(date) { return date === mostRecent; }
-      );
-
-      var boluses = basicsData.data.bolus.data;
-      var basals = basicsData.data.basal.data;
-      var carbs =  _.filter(basicsData.data.wizard.data, function(wizardEvent) {
-        return wizardEvent.carbInput && wizardEvent.carbInput > 0 ;
-      });
-
-      var start = _.get(basals[0], 'normalTime', basicsData.dateRange[0]);
-      if (start < basicsData.dateRange[0]) {
-        start = basicsData.dateRange[0];
-      }
-      var end = _.get(basals[basals.length - 1], 'normalEnd', basicsData.dateRange[1]);
-      if (end > basicsData.dateRange[1]) {
-        end = basicsData.dateRange[1];
-      }
-
-      var { automated, manual } = basalUtil.getGroupDurations(start, end);
-      var totalBasalDuration = automated + manual;
-      var timeInAutoRatio = {
-        automated: automated/totalBasalDuration,
-        manual: manual/totalBasalDuration,
-      };
-
-      // if three or more of the days (excepting most recent) don't have any boluses
-      // then don't calculate any bolus-related stats at all, since may be inaccurate if
-      // long-running basals exist
-      if (pastDays.length - pastBolusDays.length >= 3) {
-        return {
-          timeInAutoRatio,
-          basalBolusRatio: null,
-          averageDailyDose: null,
-          totalDailyDose: null,
-          averageDailyCarbs: null,
-        };
-      }
-
-      // find the duration of a basal segment that falls within the basicsData.dateRange
-      function getDurationInRange(d) {
-        if (d.normalTime >= start && d.normalEnd <= end) {
-          return d.duration;
-        }
-        else if (d.normalTime < start) {
-          if (d.normalEnd > start) {
-            if (d.normalEnd <= end) {
-              return Date.parse(d.normalEnd) - Date.parse(start);
-            }
-            else {
-              return Date.parse(end) - Date.parse(start);
-            }
-          }
-          return 0;
-        }
-        else if (d.normalEnd > end) {
-          if (d.normalTime < end) {
-            return Date.parse(end) - Date.parse(d.normalTime);
-          }
-          return 0;
-        }
-        else {
-          return 0;
-        }
-      }
-      var sumBasalInsulin = _.reduce(_.map(basals, function(d) {
-        return d.rate * (getDurationInRange(d)/constants.MS_IN_HOUR);
-      }), function(total, insulin) {
-        return total + insulin;
-      });
-
-      var sumBolusInsulin = _.reduce(_.map(boluses, function(d) {
-        if (d.normalTime >= start && d.normalTime <= end) {
-          return (d.extended || 0) + (d.normal || 0);
-        }
-        return 0;
-      }), function(total, insulin) {
-        return total + insulin;
-      });
-
-      var sumCarbs = _.reduce(_.map(carbs, function(d) {
-        if (d.normalTime >= start && d.normalTime <= end) {
-          return d.carbInput;
-        }
-        return 0;
-      }), function(total, carbs) {
-        return total + carbs;
-      });
-
-      var totalInsulin = sumBasalInsulin + sumBolusInsulin;
-
-      return {
-        timeInAutoRatio,
-        basalBolusRatio: {
-          basal: sumBasalInsulin/totalInsulin,
-          bolus: sumBolusInsulin/totalInsulin
-        },
-        averageDailyDose: {
-          basal: sumBasalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY),
-          bolus: sumBolusInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
-        },
-        totalDailyDose: totalInsulin/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY),
-        averageDailyCarbs: sumCarbs/((Date.parse(end) - Date.parse(start))/constants.MS_IN_DAY)
-      };
-    },
     getLatestPumpUploaded: function(patientData) {
       var latestPump = getLatestPumpUpload(patientData.grouped.upload);
 
@@ -396,7 +240,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
       };
     },
     _getRowKey: function(row) {
-      return _.pluck(row, 'key');
+      return _.map(row, 'key');
     },
     _averageExcludingMostRecentDay: function(dataObj, total, mostRecentDay) {
       var mostRecentTotal = dataObj.dataByDate[mostRecentDay] ?
@@ -535,7 +379,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         fingerstickData.summary = fsSummary;
 
         var fsTags = _.flatten(fsSection.selectorOptions.rows.map(function(row) {
-          return _.pluck(_.filter(row, function(opt) {
+          return _.map(_.filter(row, function(opt) {
             return opt.path === 'smbg';
           }), 'key');
         }));

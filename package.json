@@ -22,15 +22,21 @@
     "lint-watch": "gulp jshint-watch"
   },
   "dependencies": {
-    "bows": "1.6.0",
+    "bows": "1.7.0",
+    "classnames": "2.2.6",
     "crossfilter": "1.3.12",
     "d3": "3.5.17",
     "d3.chart": "0.3.0",
-    "duration-js": "3.6.0",
-    "i18next": "10.6.0",
-    "lodash": "3.10.1",
-    "moment-timezone": "0.5.5",
-    "sundial": "1.5.0"
+    "duration-js": "4.0.0",
+    "i18next": "11.9.0",
+    "intl": "1.2.5",
+    "lodash": "4.17.11",
+    "moment-timezone": "0.5.21",
+    "react": "15.6.2",
+    "react-addons-pure-render-mixin": "15.6.2",
+    "react-dom": "15.6.2",
+    "react-sizeme": "2.5.2",
+    "sundial": "1.6.0"
   },
   "devDependencies": {
     "autoprefixer-loader": "3.2.0",
@@ -42,15 +48,13 @@
     "babel-preset-stage-0": "6.5.0",
     "babel-preset-stage-2": "6.13.0",
     "chai": "3.5.0",
-    "classnames": "2.2.5",
     "css-loader": "0.23.1",
     "enzyme": "2.9.1",
     "file-loader": "0.9.0",
     "gulp": "3.9.1",
     "gulp-jshint": "2.0.1",
     "gulp-react": "3.1.0",
-    "intl": "1.2.5",
-    "jshint": "2.9.3",
+    "jshint": "2.9.6",
     "jshint-stylish": "2.2.1",
     "json-loader": "0.5.4",
     "karma": "1.2.0",
@@ -67,10 +71,7 @@
     "less-loader": "2.2.3",
     "mocha": "3.0.2",
     "phantomjs-prebuilt": "2.1.12",
-    "react": "15.2.1",
-    "react-addons-pure-render-mixin": "15.2.1",
-    "react-addons-test-utils": "15.2.1",
-    "react-dom": "15.2.1",
+    "react-addons-test-utils": "15.6.2",
     "rewire": "2.5.2",
     "rewire-webpack": "1.0.1",
     "script-loader": "0.7.0",
@@ -79,5 +80,8 @@
     "url-loader": "0.5.7",
     "webpack": "1.13.2",
     "webpack-dev-server": "1.15.0"
+  },
+  "resolutions": {
+    "sundial/moment-timezone": "0.5.21"
   }
 }

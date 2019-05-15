@@ -36,6 +36,7 @@ var schemas = {
   cbg: require('./bg'),
   common: require('./common'),
   deviceEvent: schema(),
+  food: schema(),
   message: require('./message'),
   pumpSettings: require('./pumpSettings'),
   smbg: require('./bg'),

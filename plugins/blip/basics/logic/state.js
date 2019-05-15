@@ -23,7 +23,7 @@ var React = require('react');
 var i18next = require('i18next');
 
 // Should be initialized in calling module
-if (i18next.options.returnEmptyString === undefined) {
+if (_.get(i18next, 'options.returnEmptyString') === undefined) {
   // Return key if no translation is present
   i18next.init({returnEmptyString: false});
 }
@@ -31,29 +31,20 @@ if (i18next.options.returnEmptyString === undefined) {
 var t = i18next.t.bind(i18next);
 
 
-var BasicContainer = require('../components/BasicContainer');
 var CalendarContainer = require('../components/CalendarContainer');
 var SummaryGroup = React.createFactory(require('../components/misc/SummaryGroup'));
 var SiteChangeSelector = React.createFactory(require('../components/sitechange/Selector'));
-var DailyDoseTitle = React.createFactory(require('../components/misc/DailyDoseTitle'));
 
-var BasalBolusRatio = React.createFactory(require('../components/chart/BasalBolusRatio'));
-var TimeInAutoRatio = React.createFactory(require('../components/chart/TimeInAutoRatio'));
-var BGDistribution = React.createFactory(require('../components/chart/BGDistribution'));
 var WrapCount = React.createFactory(require('../components/chart/WrapCount'));
 var SiteChange = React.createFactory(require('../components/chart/SiteChange'));
-var DailyDose = React.createFactory(require('../components/chart/DailyDose'));
-var DailyCarbs = React.createFactory(require('../components/chart/DailyCarbs'));
 var InfusionHoverDisplay = React.createFactory(require('../components/day/hover/InfusionHoverDisplay'));
 
-var basicsActions = require('./actions');
 var constants = require('./constants');
-var { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS } = require('../../../../js/data/util/constants');
+var { AUTOMATED_BASAL_LABELS } = require('../../../../js/data/util/constants');
 var togglableState = require('../TogglableState');
 
 var basicsState = function (manufacturer) {
   var automatedLabel = t(_.get(AUTOMATED_BASAL_LABELS, [manufacturer], AUTOMATED_BASAL_LABELS.default));
-  var manualLabel = t(_.get(SCHEDULED_BASAL_LABELS, [manufacturer], SCHEDULED_BASAL_LABELS.default));
 
   return {
     sections: {
@@ -80,45 +71,6 @@ var basicsState = function (manufacturer) {
         settingsTogglable: togglableState.off,
         title: 'Basals',
         type: 'basal'
-      },
-      basalBolusRatio: {
-        active: true,
-        chart: BasalBolusRatio,
-        container: BasicContainer,
-        column: 'left',
-        id: 'basalBolusRatio',
-        index: 3,
-        noData: false,
-        title: 'Insulin ratio',
-        togglable: togglableState.off,
-        settingsTogglable: togglableState.off,
-      },
-      timeInAutoRatio: {
-        active: true,
-        chart: TimeInAutoRatio,
-        container: BasicContainer,
-        column: 'left',
-        id: 'timeInAutoRatio',
-        index: 3,
-        noData: false,
-        labels: {
-          automated: automatedLabel,
-          manual: manualLabel,
-        },
-        title: t('Time in {{automatedLabel}} ratio', { automatedLabel }),
-        togglable: togglableState.off,
-        settingsTogglable: togglableState.off,
-      },
-      bgDistribution: {
-        active: true,
-        chart: BGDistribution,
-        container: BasicContainer,
-        column: 'left',
-        id: 'bgDistribution',
-        index: 1,
-        title: t('BG distribution'),
-        togglable: togglableState.off,
-        settingsTogglable: togglableState.off,
       },
       boluses: {
         active: true,
@@ -202,31 +154,7 @@ var basicsState = function (manufacturer) {
         title: t('Infusion site changes'),
         type: constants.SITE_CHANGE_RESERVOIR
       },
-      totalDailyDose: {
-        active: true,
-        chart: DailyDose,
-        container: BasicContainer,
-        column: 'left',
-        id: 'totalDailyDose',
-        index: 4,
-        noData: false,
-        title: DailyDoseTitle,
-        togglable: togglableState.closed,
-        settingsTogglable: togglableState.off,
-      },
-      averageDailyCarbs: {
-        active: true,
-        chart: DailyCarbs,
-        container: BasicContainer,
-        column: 'left',
-        id: 'averageDailyCarbs',
-        index: 2,
-        noData: false,
-        title: '',
-        togglable: togglableState.off,
-        settingsTogglable: togglableState.off,
-      }
-    }
+    },
   };
 };
 

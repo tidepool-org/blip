@@ -95,7 +95,7 @@ var legend = {
         opts.widths.push(opts.SHAPE_WIDTH);
         return opts.selection.append('circle')
           .attr({
-            'class': 'd3-smbg d3-circle-smbg d3-bg-high'
+            'class': 'd3-smbg d3-circle-smbg d3-bg-very-high'
           });
       },
       type: 'circle'
@@ -105,7 +105,7 @@ var legend = {
         opts.widths.push(opts.SHAPE_WIDTH);
         return opts.selection.append('circle')
           .attr({
-            'class': 'd3-smbg d3-circle-smbg d3-bg-high d3-circle-open'
+            'class': 'd3-smbg d3-circle-smbg d3-bg-high'
           });
       },
       type: 'circle'
@@ -125,7 +125,7 @@ var legend = {
         opts.widths.push(opts.SHAPE_WIDTH);
         return opts.selection.append('circle')
           .attr({
-            'class': 'd3-smbg d3-circle-smbg d3-bg-low d3-circle-open'
+            'class': 'd3-smbg d3-circle-smbg d3-bg-low'
           });
       },
       type: 'circle'
@@ -135,7 +135,7 @@ var legend = {
         opts.widths.push(opts.SHAPE_WIDTH);
         return opts.selection.append('circle')
           .attr({
-            'class': 'd3-smbg d3-circle-smbg d3-bg-low'
+            'class': 'd3-smbg d3-circle-smbg d3-bg-very-low'
           });
       },
       type: 'circle'
@@ -242,7 +242,7 @@ var legend = {
       SHAPE_WIDTH: this.SHAPE_WIDTH
     };
     var typeFns = this[type];
-    _.each(typeFns, function(fn, i) {
+    _.each(typeFns, _.bind(function(fn, i) {
       var created = fn.create(opts), w;
       if (fn.type === 'text') {
         if (opts.widths[i - 1]) {
@@ -285,7 +285,7 @@ var legend = {
           });
         }
       }
-    }, this);
+    }, this));
     if (type !== 'bg') {
       // a y-attribute of 0 would put the top of the rects *at* the text baseline
       // so an upward (negative) shift of half the shape width works well

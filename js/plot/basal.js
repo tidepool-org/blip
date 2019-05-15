@@ -334,7 +334,7 @@ module.exports = function(pool, opts) {
   };
 
   basal.rateString = function(d, cssClass) {
-    return format.tooltipValue(d.rate) + ' <span class="' + cssClass + '">u/hr</span>';
+    return format.tooltipValue(d.rate) + ' <span class="' + cssClass + '">U/hr</span>';
   };
 
   basal.tempPercentage = function(d) {
@@ -342,7 +342,7 @@ module.exports = function(pool, opts) {
       return format.percentage(d.percent);
     }
     else {
-      return format.tooltipValue(d.rate) + ' <span class="plain">u/hr</span>';
+      return format.tooltipValue(d.rate) + ' <span class="plain">U/hr</span>';
     }
   };
 
