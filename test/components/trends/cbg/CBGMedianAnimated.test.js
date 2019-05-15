@@ -51,6 +51,7 @@ describe('CBGMedianAnimated', () => {
     defaultY: 100,
     displayingMedian: true,
     showingCbgDateTraces: false,
+    sliceWidth: 10,
     xScale,
     yScale,
   };
@@ -71,8 +72,13 @@ describe('CBGMedianAnimated', () => {
 
     it('should vertically center the median <rect> on the value', () => {
       const median = wrapper.find(CBGMedianAnimated);
+      const sliceWidth = median.prop('sliceWidth');
+      const strokeWidth = sliceWidth / 8;
+      const medianWidth = sliceWidth - strokeWidth;
+      const medianHeight = medianWidth * 0.75;
+
       expect(wrapper.find(TransitionMotion).prop('styles')[0].style.median.val)
-        .to.equal(yScale(median.prop('datum').median) - median.prop('medianHeight') / 2);
+        .to.equal(yScale(median.prop('datum').median) - medianHeight / 2);
     });
   });
 });

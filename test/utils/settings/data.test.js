@@ -63,9 +63,9 @@ describe('[settings] data utils', () => {
         )
       )
       .to.have.length(3)
-      .to.contain({ start: '12:00 am', columnTwo: '3.9', columnThree: '7.8' })
-      .and.contain({ start: '11:30 am', columnTwo: '4.4', columnThree: '6.7' })
-      .and.contain({ start: '6:00 pm', columnTwo: '4.2', columnThree: '8.3' });
+      .to.deep.include({ start: '12:00 am', columnTwo: '3.9', columnThree: '7.8' })
+      .and.deep.include({ start: '11:30 am', columnTwo: '4.4', columnThree: '6.7' })
+      .and.deep.include({ start: '6:00 pm', columnTwo: '4.2', columnThree: '8.3' });
     });
 
     it('should return empty string for BG value if not found', () => {
@@ -77,9 +77,9 @@ describe('[settings] data utils', () => {
         )
       )
       .to.have.length(3)
-      .to.contain({ start: '12:00 am', columnTwo: '', columnThree: '7.8' })
-      .and.contain({ start: '11:30 am', columnTwo: '', columnThree: '6.7' })
-      .and.contain({ start: '6:00 pm', columnTwo: '', columnThree: '8.3' });
+      .to.deep.include({ start: '12:00 am', columnTwo: '', columnThree: '7.8' })
+      .and.deep.include({ start: '11:30 am', columnTwo: '', columnThree: '6.7' })
+      .and.deep.include({ start: '6:00 pm', columnTwo: '', columnThree: '8.3' });
     });
   });
 
@@ -91,10 +91,10 @@ describe('[settings] data utils', () => {
         )
       )
       .to.have.length(4)
-      .to.contain({ start: '12:00 am', amount: 24 })
-      .and.contain({ start: '2:30 am', amount: 22 })
-      .and.contain({ start: '6:00 am', amount: 17 })
-      .and.contain({ start: '5:30 pm', amount: 6 });
+      .to.deep.include({ start: '12:00 am', amount: 24 })
+      .and.deep.include({ start: '2:30 am', amount: 22 })
+      .and.deep.include({ start: '6:00 am', amount: 17 })
+      .and.deep.include({ start: '5:30 pm', amount: 6 });
     });
   });
 
@@ -107,7 +107,7 @@ describe('[settings] data utils', () => {
         )
       )
       .to.have.length(1)
-      .and.contain({ start: '12:00 am', amount: '1.8' });
+      .and.deep.include({ start: '12:00 am', amount: '1.8' });
     });
   });
 
@@ -119,12 +119,12 @@ describe('[settings] data utils', () => {
         )
       )
       .to.have.length(5)
-      .to.contain({ start: '12:00 am', rate: '0.750' })
-      .and.contain({ start: '2:30 am', rate: '0.850' })
-      .and.contain({ start: '6:00 am', rate: '0.900' })
-      .and.contain({ start: '5:30 pm', rate: '0.850' })
-      .and.contain({ start: '12:00 am', rate: '0.750' })
-      .and.contain({ start: 'Total', rate: '20.725' });
+      .to.deep.include({ start: '12:00 am', rate: '0.750' })
+      .and.deep.include({ start: '2:30 am', rate: '0.850' })
+      .and.deep.include({ start: '6:00 am', rate: '0.900' })
+      .and.deep.include({ start: '5:30 pm', rate: '0.850' })
+      .and.deep.include({ start: '12:00 am', rate: '0.750' })
+      .and.deep.include({ start: 'Total', rate: '20.725' });
     });
 
     it('should cope with empty shedules', () => {
@@ -134,7 +134,7 @@ describe('[settings] data utils', () => {
         )
       )
       .to.have.length(1)
-      .to.contain({ start: '-', rate: '-' });
+      .to.deep.include({ start: '-', rate: '-' });
       expect(
         data.processBasalRateData({
           name: 'Foo',
@@ -144,7 +144,7 @@ describe('[settings] data utils', () => {
         })
       )
       .to.have.length(1)
-      .to.contain({ start: '-', rate: '-' });
+      .to.deep.include({ start: '-', rate: '-' });
     });
 
     it('should cope with no schedule (empty array)', () => {
@@ -154,7 +154,7 @@ describe('[settings] data utils', () => {
         )
       )
       .to.have.length(1)
-      .to.contain({ start: '-', rate: '-' });
+      .to.deep.include({ start: '-', rate: '-' });
       expect(
         data.processBasalRateData({
           name: 'Foo',
@@ -164,7 +164,7 @@ describe('[settings] data utils', () => {
         })
       )
       .to.have.length(1)
-      .to.contain({ start: '-', rate: '-' });
+      .to.deep.include({ start: '-', rate: '-' });
     });
   });
 
@@ -178,35 +178,35 @@ describe('[settings] data utils', () => {
         )
       )
       .to.have.length(5)
-      .to.contain({
+      .to.deep.include({
         start: '12:00 am',
         rate: '0.350',
         bgTarget: '5.3',
         carbRatio: 7,
         insulinSensitivity: '2.6',
       })
-      .and.contain({
+      .and.deep.include({
         start: '3:30 am',
         rate: '0.225',
         bgTarget: '5.0',
         carbRatio: 10,
         insulinSensitivity: '4.5',
       })
-      .and.contain({
+      .and.deep.include({
         start: '10:00 am',
         rate: '1.075',
         bgTarget: '5.0',
         carbRatio: 10,
         insulinSensitivity: '4.5',
       })
-      .and.contain({
+      .and.deep.include({
         start: '8:00 pm',
         rate: '0.625',
         bgTarget: '5.0',
         carbRatio: 9,
         insulinSensitivity: '4.5',
       })
-      .and.contain({
+      .and.deep.include({
         start: 'Total',
         rate: '15.938',
         bgTarget: '',
@@ -264,8 +264,8 @@ describe('[settings] data utils', () => {
         data.getTimedSchedules(settingsData.basalSchedules)
       )
       .to.have.length(2)
-      .to.contain({ name: 'Normal', position: 0 })
-      .and.contain({ name: 'sick', position: 1 });
+      .to.deep.include({ name: 'Normal', position: 0 })
+      .and.deep.include({ name: 'sick', position: 1 });
     });
   });
 

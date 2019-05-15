@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* eslint-disable max-len */
+
 import _ from 'lodash';
 
 import PrintView from '../../../src/modules/print/PrintView';
@@ -152,6 +154,11 @@ describe('PrintView', () => {
       });
     });
 
+    it('should set data to an empty object when not provided to constructor', () => {
+      const noDataRenderer = new PrintView(doc, undefined, opts);
+      expect(noDataRenderer.data).to.eql({});
+    });
+
     it('should set it\'s own required initial instance properties', () => {
       const requiredProps = [
         { prop: 'font', type: 'string' },
@@ -202,12 +209,20 @@ describe('PrintView', () => {
       sinon.assert.called(Renderer.renderFooter);
     });
 
-    it('should increment the currentPageIndex each time it\'s called', () => {
+    it('should increment `currentPageIndex` each time it\'s called', () => {
       expect(Renderer.currentPageIndex).to.equal(-1);
       Renderer.newPage();
       expect(Renderer.currentPageIndex).to.equal(0);
       Renderer.newPage();
       expect(Renderer.currentPageIndex).to.equal(1);
+    });
+
+    it('should increment `totalPages` each time it\'s called', () => {
+      expect(Renderer.totalPages).to.equal(0);
+      Renderer.newPage();
+      expect(Renderer.totalPages).to.equal(1);
+      Renderer.newPage();
+      expect(Renderer.totalPages).to.equal(2);
     });
 
     it('should reset the font styles after rendering the footer', () => {
@@ -242,6 +257,28 @@ describe('PrintView', () => {
       expect(Renderer.layoutColumns.count).to.equal(3);
     });
 
+    it('should call `setNewPageTablePosition` when rendering a table', () => {
+      const setNewPageTablePositionSpy = sinon.spy(Renderer, 'setNewPageTablePosition');
+
+      Renderer.table = undefined;
+      Renderer.newPage();
+
+      sinon.assert.callCount(setNewPageTablePositionSpy, 0);
+
+      Renderer.table = {
+        pos: {
+          x: 100,
+          y: 100,
+        },
+        pdf: doc,
+      };
+
+      Renderer.newPage();
+      sinon.assert.callCount(setNewPageTablePositionSpy, 1);
+    });
+  });
+
+  describe('setNewPageTablePosition', () => {
     it('should maintain the previous page\'s table x position when in a layout column', () => {
       Renderer.setLayoutColumns({ width: 100, count: 3, gutter: 10 });
       Renderer.goToLayoutColumnPosition(1);
@@ -260,10 +297,36 @@ describe('PrintView', () => {
         pdf: doc,
       };
 
-      Renderer.newPage();
+      Renderer.setNewPageTablePosition();
 
+      expect(Renderer.doc.y).to.equal(Renderer.chartArea.topEdge);
       expect(Renderer.table.pos.y).to.equal(Renderer.chartArea.topEdge);
+
+      expect(Renderer.doc.x).to.equal(xPos);
       expect(Renderer.table.pos.x).to.equal(xPos);
+    });
+
+    it('should use the left edge as the x position when not in a layout column', () => {
+      Renderer.layoutColumns = undefined;
+
+      Renderer.doc.x = 200;
+      Renderer.doc.y = 100;
+
+      Renderer.table = {
+        pos: {
+          x: 200,
+          y: 100,
+        },
+        pdf: doc,
+      };
+
+      Renderer.setNewPageTablePosition();
+
+      expect(Renderer.doc.y).to.equal(Renderer.chartArea.topEdge);
+      expect(Renderer.table.pos.y).to.equal(Renderer.chartArea.topEdge);
+
+      expect(Renderer.doc.x).to.equal(Renderer.chartArea.leftEdge);
+      expect(Renderer.table.pos.x).to.equal(Renderer.chartArea.leftEdge);
     });
   });
 
@@ -562,7 +625,7 @@ describe('PrintView', () => {
     });
 
     afterEach(() => {
-      Renderer.setFill.reset();
+      Renderer.setFill.resetHistory();
     });
 
     it('should not render a fill stripe when missing column fill stripe definition', () => {
@@ -724,7 +787,7 @@ describe('PrintView', () => {
     });
 
     afterEach(() => {
-      Renderer.renderCellStripe.reset();
+      Renderer.renderCellStripe.resetHistory();
     });
 
     it('should make the call to render a cell stripe', () => {
@@ -1033,6 +1096,7 @@ describe('PrintView', () => {
 
     class Table {
       constructor() {
+        this.addHeader = sinon.stub().returns(this);
         this.addPlugin = sinon.stub().returns(this);
         this.onCellBackgroundAdd = sinon.stub().resolves(true);
         this.onCellBackgroundAdded = sinon.stub().resolves(true);
@@ -1040,11 +1104,17 @@ describe('PrintView', () => {
         this.onCellBorderAdded = sinon.stub().resolves(true);
         this.onRowAdd = sinon.stub().resolves(true);
         this.onRowAdded = sinon.stub().resolves(true);
+        this.onPageAdd = sinon.stub().resolves(true);
+        this.onPageAdded = sinon.stub().resolves(true);
         this.onBodyAdded = sinon.stub().resolves(true);
         this.setColumnsDefaults = sinon.stub().returns(this);
         this.addColumns = sinon.stub().returns(this);
         this.addBody = sinon.stub().returns(this);
         this.bottomMargin = 20;
+        this.pdf = {
+          addPage: sinon.stub(),
+          switchToPage: sinon.stub(),
+        };
       }
     }
 
@@ -1074,9 +1144,9 @@ describe('PrintView', () => {
     });
 
     afterEach(() => {
-      setFill.reset();
-      setStroke.reset();
-      resetText.reset();
+      setFill.resetHistory();
+      setStroke.resetHistory();
+      resetText.resetHistory();
     });
 
     it('should render a table with default settings when no args provided', () => {
@@ -1107,6 +1177,16 @@ describe('PrintView', () => {
       sinon.assert.calledOnce(Renderer.table.addPlugin);
       sinon.assert.calledWith(Renderer.table.addPlugin, new FitColumnStub());
       sinon.assert.calledWith(FitColumnStub, { column: 'test' });
+    });
+
+    it('should add a listener for the `onPageAdd` table event', () => {
+      Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
+      sinon.assert.calledOnce(Renderer.table.onPageAdd);
+    });
+
+    it('should add a listener for the `onPageAdded` table event', () => {
+      Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
+      sinon.assert.calledOnce(Renderer.table.onPageAdded);
     });
 
     it('should add a listener for the `onCellBackgroundAdd` table event', () => {
@@ -1142,6 +1222,58 @@ describe('PrintView', () => {
     it('should add a listener for the `onBodyAdded` table event', () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.onBodyAdded);
+    });
+
+    describe('onPageAdd', () => {
+      it('should call `addPage` and not `switchToPage` or `setNewPageTablePosition` when we are on the last page in the document', () => {
+        Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
+        sinon.spy(Renderer, 'setNewPageTablePosition');
+
+        Renderer.initialTotalPages = 2;
+        Renderer.totalPages = 4; // 2 pages have been added to the initial count
+        Renderer.currentPageIndex = 1; // zero-based index, so this is the last page
+
+        sinon.assert.notCalled(Renderer.table.pdf.addPage);
+
+        Renderer.onPageAdd(Renderer.table, {}, { cancel: false });
+        sinon.assert.calledOnce(Renderer.table.pdf.addPage);
+        sinon.assert.notCalled(Renderer.table.pdf.switchToPage);
+        sinon.assert.notCalled(Renderer.setNewPageTablePosition);
+      });
+
+      it('should call `switchToPage` and `setNewPageTablePosition` and not `addPage` when we are not on the last page in the document', () => {
+        Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
+        sinon.spy(Renderer, 'setNewPageTablePosition');
+
+        Renderer.table.pos = {
+          x: 100,
+          y: 100,
+        };
+
+        Renderer.table.pdf = Renderer.doc;
+
+        Renderer.initialTotalPages = 0;
+        Renderer.totalPages = 2; // 2 pages have been added to the initial count
+        Renderer.currentPageIndex = 0; // zero-based index, so this is the first of 2 pages
+
+        sinon.assert.notCalled(Renderer.table.pdf.switchToPage);
+        sinon.assert.notCalled(Renderer.setNewPageTablePosition);
+
+        Renderer.onPageAdd(Renderer.table, {}, { cancel: false });
+        sinon.assert.calledOnce(Renderer.table.pdf.switchToPage);
+        sinon.assert.calledOnce(Renderer.setNewPageTablePosition);
+        sinon.assert.notCalled(Renderer.table.pdf.addPage);
+      });
+    });
+
+    describe('onPageAdded', () => {
+      it('should add a table header', () => {
+        Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
+        sinon.assert.notCalled(Renderer.table.addHeader);
+
+        Renderer.onPageAdded(Renderer.table);
+        sinon.assert.calledOnce(Renderer.table.addHeader);
+      });
     });
 
     describe('onCellBackgroundAdd', () => {
@@ -1421,11 +1553,18 @@ describe('PrintView', () => {
       expect(Renderer.renderTitle).to.be.a('function');
     });
 
-    it('should render the page title', () => {
-      const title = 'Print View';
-
+    it('should render the page title as is for the first rendered page', () => {
+      Renderer.doc.text.reset();
+      Renderer.currentPageIndex = 0;
       Renderer.renderTitle();
-      sinon.assert.calledWith(Renderer.doc.text, title);
+      sinon.assert.calledWith(Renderer.doc.text, 'Print View');
+    });
+
+    it('should render the page title with (cont.)` for subsequent pages', () => {
+      Renderer.doc.text.reset();
+      Renderer.currentPageIndex = 1;
+      Renderer.renderTitle();
+      sinon.assert.calledWith(Renderer.doc.text, 'Print View (cont.)');
     });
 
     it('should calculate the width of the title', () => {

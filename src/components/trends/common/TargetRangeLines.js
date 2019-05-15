@@ -60,4 +60,6 @@ TargetRangeLines.propTypes = {
   yScale: PropTypes.func.isRequired,
 };
 
+TargetRangeLines.displayName = 'TargetRangeLines';
+
 export default TargetRangeLines;

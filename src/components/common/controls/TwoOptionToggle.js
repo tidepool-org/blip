@@ -16,16 +16,28 @@
  */
 
 import React, { PropTypes } from 'react';
+import cx from 'classnames';
 
 import styles from './TwoOptionToggle.css';
 
 const TwoOptionToggle = (props) => {
   const { disabled, left, right, toggleFn } = props;
+
+  const rightLabelClasses = cx({
+    [styles.active]: !disabled && right.state,
+    [styles.label]: true,
+  });
+
+  const leftLabelClasses = cx({
+    [styles.active]: !disabled && left.state,
+    [styles.label]: true,
+  });
+
   return (
     <div className={styles.container}>
-      <span className={styles.label}>{left.label}</span>
+      <span className={leftLabelClasses}>{left.label}</span>
       <Toggle disabled={disabled} leftOptionActive={left.state} toggleFn={toggleFn} />
-      <span className={styles.label}>{right.label}</span>
+      <span className={rightLabelClasses}>{right.label}</span>
     </div>
   );
 };
@@ -47,6 +59,9 @@ TwoOptionToggle.propTypes = {
   toggleFn: PropTypes.func.isRequired,
 };
 
+
+TwoOptionToggle.displayName = 'TwoOptionToggle';
+
 export const Toggle = (props) => {
   const { disabled, leftOptionActive, toggleFn } = props;
   return (
@@ -65,5 +80,7 @@ Toggle.propTypes = {
   leftOptionActive: PropTypes.bool.isRequired,
   toggleFn: PropTypes.func.isRequired,
 };
+
+Toggle.displayName = 'Toggle';
 
 export default TwoOptionToggle;

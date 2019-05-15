@@ -17,9 +17,7 @@
 
 import React from 'react';
 import _ from 'lodash';
-
-import { storiesOf } from '@kadira/storybook';
-import { WithNotes } from '@kadira/storybook-addon-notes';
+import { storiesOf } from '@storybook/react';
 
 import { createPrintView } from '../../src/modules/print/index';
 import { MARGIN } from '../../src/modules/print/utils/constants';
@@ -31,7 +29,9 @@ import { data as dataStub } from '../../data/patient/data';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
-/* global PDFDocument, blobStream */
+/* global PDFDocument, blobStream, window */
+
+const stories = storiesOf('Combined Views PDF', module);
 
 let data;
 try {
@@ -43,16 +43,16 @@ try {
 
 const bgBounds = {
   [MGDL_UNITS]: {
-    veryHighThreshold: 300,
+    veryHighThreshold: 250,
     targetUpperBound: 180,
     targetLowerBound: 70,
     veryLowThreshold: 54,
   },
   [MMOLL_UNITS]: {
-    veryHighThreshold: 16.7,
+    veryHighThreshold: 13.9,
     targetUpperBound: 10,
     targetLowerBound: 3.9,
-    veryLowThreshold: 3.12345,
+    veryLowThreshold: 3.0,
   },
 };
 
@@ -70,12 +70,14 @@ function openPDF({ patient, bgUnits = MGDL_UNITS }) {
     },
     numDays: {
       daily: 6,
+      bgLog: 30,
     },
     patient,
   };
 
   createPrintView('basics', data[bgUnits].basics, opts, doc).render();
   createPrintView('daily', data[bgUnits].daily, opts, doc).render();
+  createPrintView('bgLog', data[bgUnits].bgLog, opts, doc).render();
   createPrintView('settings', data[bgUnits].settings, opts, doc).render();
 
   PrintView.renderPageNumbers(doc);
@@ -94,58 +96,49 @@ and then use this story to iterate on the Combined Print PDF outside of Tidepool
 profiles.longName = _.cloneDeep(profiles.standard);
 profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
 
-storiesOf('Combined Views PDF', module)
-  .add(`standard account (${MGDL_UNITS})`, () => (
-    <WithNotes notes={notes}>
-      <button
-        onClick={() => openPDF({ patient: {
-          ...profiles.standard,
-          ...settings.cannulaPrimeSelected,
-        } })}
-      >
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add(`standard account (${MGDL_UNITS})`, () => (
+  <button
+    onClick={() => openPDF({ patient: {
+      ...profiles.standard,
+      ...settings.cannulaPrimeSelected,
+    } })}
+  >
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add(`standard account (${MMOLL_UNITS})`, () => (
-    <WithNotes notes={notes}>
-      <button
-        onClick={() => openPDF({
-          patient: {
-            ...profiles.standard,
-            ...settings.cannulaPrimeSelected,
-          },
-          bgUnits: MMOLL_UNITS,
-        })}
-      >
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add(`standard account (${MMOLL_UNITS})`, () => (
+  <button
+    onClick={() => openPDF({
+      patient: {
+        ...profiles.standard,
+        ...settings.cannulaPrimeSelected,
+      },
+      bgUnits: MMOLL_UNITS,
+    })}
+  >
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add('fake child account', () => (
-    <WithNotes notes={notes}>
-      <button
-        onClick={() => openPDF({ patient: {
-          ...profiles.fakeChildAcct,
-          ...settings.tubingPrimeSelected,
-        } })}
-      >
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add('fake child account', () => (
+  <button
+    onClick={() => openPDF({ patient: {
+      ...profiles.fakeChildAcct,
+      ...settings.tubingPrimeSelected,
+    } })}
+  >
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add('long patient name', () => (
-    <WithNotes notes={notes}>
-      <button
-        onClick={() => openPDF({ patient: {
-          ...profiles.longName,
-          ...settings.tubingPrimeSelected,
-        } })}
-      >
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ));
+stories.add('long patient name', () => (
+  <button
+    onClick={() => openPDF({ patient: {
+      ...profiles.longName,
+      ...settings.tubingPrimeSelected,
+    } })}
+  >
+    Open PDF in new tab
+  </button>
+), { notes });

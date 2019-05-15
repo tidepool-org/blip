@@ -17,9 +17,7 @@
 
 import React from 'react';
 import _ from 'lodash';
-
-import { storiesOf } from '@kadira/storybook';
-import { WithNotes } from '@kadira/storybook-addon-notes';
+import { storiesOf } from '@storybook/react';
 
 import { createPrintView } from '../../src/modules/print/index';
 import { MARGIN } from '../../src/modules/print/utils/constants';
@@ -31,7 +29,9 @@ import { data as dataStub } from '../../data/patient/data';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
-/* global PDFDocument, blobStream */
+/* global PDFDocument, blobStream, window */
+
+const stories = storiesOf('Basics View PDF', module);
 
 let data;
 try {
@@ -43,16 +43,16 @@ try {
 
 const bgBounds = {
   [MGDL_UNITS]: {
-    veryHighThreshold: 300,
+    veryHighThreshold: 250,
     targetUpperBound: 180,
     targetLowerBound: 70,
     veryLowThreshold: 54,
   },
   [MMOLL_UNITS]: {
-    veryHighThreshold: 16.7,
+    veryHighThreshold: 13.9,
     targetUpperBound: 10,
     targetLowerBound: 3.9,
-    veryLowThreshold: 3.12345,
+    veryLowThreshold: 3.0,
   },
 };
 
@@ -88,64 +88,55 @@ and then use this story to iterate on the Basics Print PDF outside of Tidepool W
 profiles.longName = _.cloneDeep(profiles.standard);
 profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
 
-storiesOf('Basics View PDF', module)
-  .add(`cannula prime (${MGDL_UNITS})`, () => (
-    <WithNotes notes={notes}>
-      <button
-        onClick={() => openPDF({ patient: {
-          ...profiles.standard,
-          ...settings.cannulaPrimeSelected,
-        } })}
-      >
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add(`cannula prime (${MGDL_UNITS})`, () => (
+  <button
+    onClick={() => openPDF({ patient: {
+      ...profiles.standard,
+      ...settings.cannulaPrimeSelected,
+    } })}
+  >
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add(`tubing prime (${MMOLL_UNITS})`, () => (
-    <WithNotes notes={notes}>
-      <button
-        onClick={() => openPDF({
-          patient: {
-            ...profiles.standard,
-            ...settings.tubingPrimeSelected,
-          },
-          bgUnits: MMOLL_UNITS,
-        })}
-      >
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add(`tubing prime (${MMOLL_UNITS})`, () => (
+  <button
+    onClick={() => openPDF({
+      patient: {
+        ...profiles.standard,
+        ...settings.tubingPrimeSelected,
+      },
+      bgUnits: MMOLL_UNITS,
+    })}
+  >
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add(`reservoir change (${MGDL_UNITS})`, () => (
-    <WithNotes notes={notes}>
-      <button
-        onClick={() => openPDF({
-          patient: {
-            ...profiles.standard,
-            ...settings.reservoirChangeSelected,
-          },
-          bgUnits: MGDL_UNITS,
-        })}
-      >
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add(`reservoir change (${MGDL_UNITS})`, () => (
+  <button
+    onClick={() => openPDF({
+      patient: {
+        ...profiles.standard,
+        ...settings.reservoirChangeSelected,
+      },
+      bgUnits: MGDL_UNITS,
+    })}
+  >
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add(`site change source undefined (${MMOLL_UNITS})`, () => (
-    <WithNotes notes={notes}>
-      <button
-        onClick={() => openPDF({
-          patient: {
-            ...profiles.standard,
-            ...settings.siteChangeSourceUndefined,
-          },
-          bgUnits: MMOLL_UNITS,
-        })}
-      >
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ));
+stories.add(`site change source undefined (${MMOLL_UNITS})`, () => (
+  <button
+    onClick={() => openPDF({
+      patient: {
+        ...profiles.standard,
+        ...settings.siteChangeSourceUndefined,
+      },
+      bgUnits: MMOLL_UNITS,
+    })}
+  >
+    Open PDF in new tab
+  </button>
+), { notes });

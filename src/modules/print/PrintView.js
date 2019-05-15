@@ -51,7 +51,7 @@ const t = i18next.t.bind(i18next);
 const logo = require('./images/diabeloop/ylp_logo_small.png');
 
 class PrintView {
-  constructor(doc, data, opts) {
+  constructor(doc, data = {}, opts) {
     this.doc = doc;
 
     this.title = opts.title;
@@ -89,16 +89,21 @@ class PrintView {
 
     this.colors = {
       basal: '#19A0D7',
+      basalHeader: '#DCF1F9',
       basalAutomated: '#00D3E6',
       bolus: '#7CD0F0',
+      bolusHeader: '#EBF7FC',
       smbg: '#6480FB',
-      siteChange: '#fcd144',
+      smbgHeader: '#E8ECFE',
+      siteChange: '#FCD144',
+      veryLow: '#FB5951',
       low: '#FF8B7C',
       target: '#76D3A6',
       high: '#BB9AE7',
+      veryHigh: '#8C65D6',
       grey: '#6D6D6D',
       lightGrey: '#979797',
-      darkGrey: '#4e4e4f',
+      darkGrey: '#4E4E4F',
     };
 
     this.tableSettings = {
@@ -133,6 +138,7 @@ class PrintView {
 
     // Auto-bind callback methods
     this.newPage = this.newPage.bind(this);
+    this.setNewPageTablePosition = this.setNewPageTablePosition.bind(this);
     this.renderCustomTextCell = this.renderCustomTextCell.bind(this);
 
     // Clear previous and set up pageAdded listeners :/
@@ -151,6 +157,7 @@ class PrintView {
     };
 
     this.currentPageIndex++;
+    this.totalPages++;
 
     this.renderHeader(dateText).renderFooter();
     this.doc.x = this.chartArea.leftEdge;
@@ -164,16 +171,7 @@ class PrintView {
       .fontSize(currentFont.size);
 
     if (this.table) {
-      const xPos = this.layoutColumns
-        ? _.get(this, `layoutColumns.columns.${this.layoutColumns.activeIndex}.x`)
-        : this.chartArea.leftEdge;
-
-      this.table.pos = {
-        x: xPos,
-        y: this.chartArea.topEdge,
-      };
-
-      this.table.pdf.lineWidth(this.tableSettings.borderWidth);
+      this.setNewPageTablePosition();
     }
 
     if (this.layoutColumns) {
@@ -188,6 +186,17 @@ class PrintView {
 
       this.goToLayoutColumnPosition(this.layoutColumns.activeIndex);
     }
+  }
+
+  setNewPageTablePosition() {
+    const xPos = this.layoutColumns
+      ? _.get(this, `layoutColumns.columns.${this.layoutColumns.activeIndex}.x`)
+      : this.chartArea.leftEdge;
+
+    this.doc.x = this.table.pos.x = xPos;
+    this.doc.y = this.table.pos.y = this.chartArea.topEdge;
+
+    this.table.pdf.lineWidth(this.tableSettings.borderWidth);
   }
 
   setLayoutColumns(opts) {
@@ -533,7 +542,7 @@ class PrintView {
         align: 'left',
         padding: [7, 5, 3, 5],
         headerPadding: [7, 5, 3, 5],
-        fill: _.get(opts, 'columnDefaults.zebra', false),
+        fill: _.get(opts, 'columnDefaults.fill', _.get(opts, 'columnDefaults.zebra', false)),
       },
       bottomMargin: 20,
       pos: {
@@ -553,6 +562,10 @@ class PrintView {
       }));
     }
 
+    table.onPageAdd(this.onPageAdd.bind(this));
+
+    table.onPageAdded(this.onPageAdded.bind(this));
+
     table.onCellBackgroundAdd(this.onCellBackgroundAdd.bind(this));
 
     table.onCellBackgroundAdded(this.onCellBackgroundAdded.bind(this));
@@ -571,6 +584,25 @@ class PrintView {
       .setColumnsDefaults(opts.columnDefaults)
       .addColumns(columns)
       .addBody(rows);
+  }
+
+  onPageAdd(tb, row, ev) {
+    const currentPageIndex = this.initialTotalPages + this.currentPageIndex;
+
+    if (currentPageIndex + 1 === this.totalPages) {
+      tb.pdf.addPage();
+    } else {
+      this.currentPageIndex++;
+      tb.pdf.switchToPage(this.initialTotalPages + this.currentPageIndex);
+      this.setNewPageTablePosition();
+    }
+
+    // cancel event so the automatic page add is not triggered
+    ev.cancel = true; // eslint-disable-line no-param-reassign
+  }
+
+  onPageAdded(tb) {
+    tb.addHeader();
   }
 
   onBodyAdded(tb) {
@@ -620,6 +652,17 @@ class PrintView {
 
       this.setFill(color, opacity);
     }
+
+    /* eslint-disable no-underscore-dangle */
+    if (row._fill) {
+      const {
+        color,
+        opacity,
+      } = row._fill;
+
+      this.setFill(color, opacity);
+    }
+    /* eslint-enable no-underscore-dangle */
   }
 
   onCellBackgroundAdded() {
@@ -691,8 +734,12 @@ class PrintView {
       this.margins.top + ((this.patientInfoBox.height - this.margins.top) / 2 - (lineHeight / 2))
     );
 
-    this.doc.text(this.title, xOffset, yOffset);
-    this.titleWidth = this.doc.widthOfString(this.title);
+    const title = this.currentPageIndex === 0
+      ? this.title
+      : t('{{title}} (cont.)', { title: this.title });
+
+    this.doc.text(title, xOffset, yOffset);
+    this.titleWidth = this.doc.widthOfString(title);
   }
 
   renderDateText(dateText = '') {

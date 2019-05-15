@@ -1,0 +1,25 @@
+.row {
+  composes: smallSize from '../../../styles/typography.css';
+  line-height: 20px;
+  max-width: 180px;
+  min-width: 160px;
+}
+
+.message {
+  composes: row;
+  color: var(--stat--default);
+}
+
+.message p {
+  margin: 0;
+}
+
+.message a {
+  pointer-events: all;
+}
+
+.divider {
+  height: 2px;
+  margin: 5px -10px;
+  background-color: var(--stat--default);
+}

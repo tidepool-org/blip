@@ -19,7 +19,7 @@
 
 import _ from 'lodash';
 import i18next from 'i18next';
-import { mean, range } from 'd3-array';
+import { range } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
 
@@ -27,10 +27,9 @@ import PrintView from './PrintView';
 
 import { calculateBasalPath, getBasalSequencePaths } from '../render/basal';
 import getBolusPaths from '../render/bolus';
-import { getTotalBasal, getBasalPathGroups, getBasalPathGroupType } from '../../utils/basal';
+import { getBasalPathGroups, getBasalPathGroupType } from '../../utils/basal';
 import { isAutomatedBasalDevice, getPumpVocabulary } from '../../utils/device';
 import {
-  calcBgPercentInCategories,
   classifyBgValue,
   getOutOfRangeThreshold,
 } from '../../utils/bloodglucose';
@@ -42,8 +41,6 @@ import {
   getMaxDuration,
   getMaxValue,
   getNormalPercentage,
-  getTotalBolus,
-  getTotalCarbs,
 } from '../../utils/bolus';
 import {
   formatLocalizedFromUTC,
@@ -167,7 +164,7 @@ class DailyPrintView extends PrintView {
     }
 
     while (this.chartsPlaced < numDays) {
-      this.placeChartsOnPage(this.totalPages);
+      this.placeChartsOnPage();
     }
     _.each(this.chartsByDate, (dateChart) => {
       this.makeScales(dateChart);
@@ -177,7 +174,7 @@ class DailyPrintView extends PrintView {
   newPage() {
     const pageIndex = this.currentPageIndex + this.initialTotalPages + 1;
     const charts = _.filter(this.chartsByDate, chart => chart.page === pageIndex);
-    const start = _.first(charts).date;
+    const start = _.head(charts).date;
     const end = _.last(charts).date;
 
     super.newPage(this.getDateRange(start, end, 'YYYY-MM-DD'));
@@ -278,7 +275,7 @@ class DailyPrintView extends PrintView {
     return this;
   }
 
-  placeChartsOnPage(pageIndex) {
+  placeChartsOnPage() {
     const { topEdge, bottomEdge } = this.chartArea;
     let totalChartHeight = 0;
     const dates = _.keys(this.chartsByDate);
@@ -299,7 +296,7 @@ class DailyPrintView extends PrintView {
     }
     for (let i = startingIndexThisPage; i < startingIndexThisPage + chartsOnThisPage; ++i) {
       const chart = this.chartsByDate[dates[i]];
-      chart.page = pageIndex;
+      chart.page = this.totalPages;
       if (i === startingIndexThisPage) {
         chart.topEdge = this.chartArea.topEdge;
         chart.bottomEdge = this.chartArea.topEdge + chart.chartHeight;
@@ -309,8 +306,6 @@ class DailyPrintView extends PrintView {
         chart.bottomEdge = chart.topEdge + chart.chartHeight;
       }
     }
-
-    this.totalPages += 1;
 
     this.doc.addPage();
 
@@ -338,6 +333,7 @@ class DailyPrintView extends PrintView {
         .renderCbgs(dateChart)
         .renderSmbgs(dateChart)
         .renderInsulinEvents(dateChart)
+        .renderFoodCarbs(dateChart)
         .renderBolusDetails(dateChart)
         .renderBasalPaths(dateChart)
         .renderBasalRates(dateChart)
@@ -345,24 +341,27 @@ class DailyPrintView extends PrintView {
     });
   }
 
-  renderSummary({ data, date, topEdge }) {
+  renderSummary({ date, topEdge }) {
     const smallIndent = this.margins.left + 4;
     const statsIndent = 6;
     const widthWithoutIndent = this.summaryArea.width - statsIndent;
     let first = true;
 
-    const totalBasal = getTotalBasal(data.basal);
-    const totalBolus = getTotalBolus(data.bolus);
-    const totalInsulin = totalBasal + totalBolus;
-
     const bgPrecision = this.bgUnits === MMOLL_UNITS ? 1 : 0;
+
+    const { stats = {} } = _.get(this.data, ['dataByDate', date], {});
+    const { target, veryLow } = _.get(stats, 'timeInRange.data.raw', {});
+    const totalCbgDuration = _.get(stats, 'timeInRange.data.total.value', {});
+    const { averageGlucose } = _.get(stats, 'averageGlucose.data.raw', {});
+    const { carbs } = _.get(stats, 'carbs.data.raw', {});
+    const { basal: totalBasal, bolus: totalBolus } = _.get(stats, 'totalInsulin.data.raw', {});
+    const totalInsulin = totalBasal + totalBolus;
 
     this.doc.fillColor('black')
       .fillOpacity(1)
       .font(this.boldFont)
       .fontSize(this.summaryHeaderFontSize)
       .text(moment(date, 'YYYY-MM-DD').format('ddd, MMM D, Y'), this.margins.left, topEdge);
-      // .text(moment(date, 'YYYY-MM-DD').format('dddd M/D/Y'), this.margins.left, topEdge);
 
     const yPos = (function (doc) { // eslint-disable-line func-names
       let value = topEdge + doc.currentLineHeight() * 1.5;
@@ -384,7 +383,7 @@ class DailyPrintView extends PrintView {
       .lineWidth(0.5)
       .stroke(this.colors.lightDividers);
 
-    if (!_.isEmpty(data.cbg)) {
+    if (totalCbgDuration > 0) {
       first = false;
       this.doc.fontSize(this.smallFontSize)
         .lineGap(this.doc.currentLineHeight() * 0.25)
@@ -394,7 +393,6 @@ class DailyPrintView extends PrintView {
 
       const { targetUpperBound, targetLowerBound, veryLowThreshold } = this.bgBounds;
 
-      const cbgTimeInCategories = calcBgPercentInCategories(data.cbg, this.bgBounds);
       const upperTarget = formatDecimalNumber(targetUpperBound, bgPrecision);
       const lowerTarget = formatDecimalNumber(targetLowerBound, bgPrecision);
 
@@ -403,22 +401,23 @@ class DailyPrintView extends PrintView {
           `${lowerTarget} - ${upperTarget}`,
           { indent: statsIndent, continued: true, width: widthWithoutIndent },
         )
-        .text(`${formatPercentage(cbgTimeInCategories.target)}`, { align: 'right' });
+        .text(`${formatPercentage(target / totalCbgDuration)}`, { align: 'right' });
 
       yPos.update();
 
-      this.doc.text(
+      this.doc
+        .text(
           t('Below {{threshold}}', {
             threshold: formatDecimalNumber(veryLowThreshold, bgPrecision),
           }),
           { indent: statsIndent, continued: true, width: widthWithoutIndent },
         )
-        .text(`${formatPercentage(cbgTimeInCategories.veryLow)}`, { align: 'right' });
+        .text(`${formatPercentage(veryLow / totalCbgDuration)}`, { align: 'right' });
 
       yPos.update();
     }
 
-    if (!_.isEmpty(data.basal)) {
+    if (totalInsulin > 0) {
       if (!first) {
         this.doc.moveTo(this.margins.left, yPos.update())
           .lineTo(this.summaryArea.rightEdge, yPos.current())
@@ -453,7 +452,7 @@ class DailyPrintView extends PrintView {
       };
 
       if (this.isAutomatedBasalDevice) {
-        const { automated, manual } = data.timeInAutoRatio;
+        const { automated, manual } = _.get(stats, 'timeInAuto.data.raw', {});
         const totalBasalDuration = automated + manual;
         percentages.automated = formatPercentage(automated / totalBasalDuration);
         percentages.manual = formatPercentage(manual / totalBasalDuration);
@@ -497,7 +496,7 @@ class DailyPrintView extends PrintView {
       yPos.update();
     }
 
-    if (!_.isEmpty(data.cbg)) {
+    if (averageGlucose) {
       if (!first) {
         this.doc.moveTo(this.margins.left, yPos.update())
           .lineTo(this.summaryArea.rightEdge, yPos.current())
@@ -515,37 +514,14 @@ class DailyPrintView extends PrintView {
         )
         .font(this.font)
         .text(
-          `${formatDecimalNumber(mean(data.cbg, (d) => (d.value)), bgPrecision)} ${this.bgUnits}`,
-          { align: 'right' }
-        );
-
-      yPos.small();
-    } else if (!_.isEmpty(data.smbg)) {
-      if (!first) {
-        this.doc.moveTo(this.margins.left, yPos.update())
-          .lineTo(this.summaryArea.rightEdge, yPos.current())
-          .stroke(this.colors.lightDividers);
-      } else {
-        first = false;
-      }
-
-      this.doc.fontSize(this.smallFontSize).font(this.boldFont)
-        .text(
-          t('Average BG'),
-          smallIndent,
-          yPos.update(),
-          { continued: true, width: widthWithoutIndent }
-        )
-        .font(this.font)
-        .text(
-          `${formatDecimalNumber(mean(data.smbg, (d) => (d.value)), bgPrecision)} ${this.bgUnits}`,
+          `${formatDecimalNumber(averageGlucose, bgPrecision)} ${this.bgUnits}`,
           { align: 'right' }
         );
 
       yPos.small();
     }
 
-    if (!_.isEmpty(data.basal)) {
+    if (totalInsulin > 0) {
       if (!first) {
         this.doc.moveTo(this.margins.left, yPos.update())
           .lineTo(this.summaryArea.rightEdge, yPos.current())
@@ -570,7 +546,7 @@ class DailyPrintView extends PrintView {
       yPos.small();
     }
 
-    if (!_.isEmpty(data.bolus)) {
+    if (carbs > 0) {
       if (!first) {
         this.doc.moveTo(this.margins.left, yPos.update())
           .lineTo(this.summaryArea.rightEdge, yPos.current())
@@ -588,7 +564,7 @@ class DailyPrintView extends PrintView {
         )
         .font(this.font)
         .text(
-          `${formatDecimalNumber(getTotalCarbs(data.bolus), 0)} g`,
+          `${formatDecimalNumber(carbs, 0)} g`,
           { align: 'right' }
         );
     }
@@ -615,8 +591,8 @@ class DailyPrintView extends PrintView {
     const bottomOfBolusDetails = bottomOfBgEtcChart + bolusDetailsHeight;
 
     this.doc.moveTo(this.chartArea.leftEdge, bottomOfBolusDetails)
-    .lineTo(this.rightEdge, bottomOfBolusDetails)
-    .stroke(this.colors.axes);
+      .lineTo(this.rightEdge, bottomOfBolusDetails)
+      .stroke(this.colors.axes);
 
     // render x-axis for basalChart
     const bottomOfBasalChart = bottomOfBolusDetails + basalChart;
@@ -679,7 +655,7 @@ class DailyPrintView extends PrintView {
       width: this.chartArea.leftEdge - this.summaryArea.rightEdge - 3,
     };
 
-    const renderedBounds = _.pick(this.bgBounds, bound => (bound <= this.bgScaleYLimit));
+    const renderedBounds = _.pickBy(this.bgBounds, bound => (bound <= this.bgScaleYLimit));
 
     _.each(renderedBounds, (bound, key) => {
       const bgTick = formatBgValue(bound, this.bgPrefs);
@@ -791,6 +767,33 @@ class DailyPrintView extends PrintView {
     return this;
   }
 
+  renderFoodCarbs({ bolusScale, data: { food }, xScale }) {
+    const circleOffset = 1;
+    const textOffset = 1.75;
+
+    _.each(food, foodEvent => {
+      const carbs = _.get(foodEvent, 'nutrition.carbohydrate.net');
+
+      if (carbs) {
+        const carbsX = xScale(foodEvent.utc);
+        const carbsY = bolusScale(0) - this.carbRadius - circleOffset;
+        this.doc.circle(carbsX, carbsY, this.carbRadius)
+          .fill(this.colors.carbs);
+        this.doc.font(this.font)
+          .fontSize(this.carbsFontSize)
+          .fillColor('black')
+          .text(
+            carbs,
+            carbsX - this.carbRadius * 2,
+            carbsY - textOffset,
+            { align: 'center', width: this.carbRadius * 4 }
+          );
+      }
+    });
+
+    return this;
+  }
+
   renderBolusDetails({
     bolusDetailPositions,
     bolusDetailWidths,
@@ -825,15 +828,15 @@ class DailyPrintView extends PrintView {
         const displayTime = formatLocalizedFromUTC(bolus.utc, this.timePrefs, 'h:mma')
           .slice(0, -1);
         this.doc.text(
-            displayTime,
-            groupXPos,
-            yPos.current(),
-            { continued: true, indent: 2, width: groupWidth },
-          )
-          .text(
-            removeTrailingZeroes(formatDecimalNumber(getDelivered(bolus), 2)),
-            { align: 'right' }
-          );
+          displayTime,
+          groupXPos,
+          yPos.current(),
+          { continued: true, indent: 2, width: groupWidth },
+        ).text(
+          removeTrailingZeroes(formatDecimalNumber(getDelivered(bolus), 2)),
+          { align: 'right' }
+        );
+
         if (bolus.extended != null) {
           const normalPercentage = getNormalPercentage(bolus);
           const extendedPercentage = getExtendedPercentage(bolus);

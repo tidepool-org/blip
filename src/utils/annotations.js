@@ -38,7 +38,7 @@ import i18next from 'i18next';
 
 const t = i18next.t.bind(i18next);
 
-if (i18next.options.returnEmptyString === undefined) {
+if (_.get(i18next, 'options.returnEmptyString') === undefined) {
   // Return key if no translation is present
   i18next.init({ returnEmptyString: false, nsSeparator: '|' });
 }
@@ -90,7 +90,7 @@ export function getMedtronic600AnnotationMessages(datum) {
   const medtronic600BGMessage = _.intersection(_.keys(medtronic600BGMessages), annotationCodes);
   if (medtronic600BGMessage.length > 0) {
     messages.push(
-      _.assign(_.find(annotations, { code: medtronic600BGMessage[0] }), {
+      _.assign({}, _.find(annotations, { code: medtronic600BGMessage[0] }), {
         message: {
           label: t('Confirm BG'),
           value: medtronic600BGMessages[medtronic600BGMessage[0]],
@@ -115,7 +115,7 @@ export function getOutOfRangeAnnotationMessage(datum) {
     if (_.get(annotation, 'code', '') === 'bg/out-of-range') {
       const value = annotation.value;
       messages.push(
-        _.assign(annotation, {
+        _.assign({}, annotation, {
           message: {
             value: t('* This BG value was {{value}}er than your device could record. Your actual BG value is {{value}}er than it appears here.', { value }),
           },
@@ -145,7 +145,7 @@ export function getAnnotationMessages(datum) {
     const code = _.get(annotation, 'code');
     if (_.has(simpleAnnotationMessages, code)) {
       messages.push(
-        _.assign(annotation, {
+        _.assign({}, annotation, {
           message: {
             value: simpleAnnotationMessages[code],
           },

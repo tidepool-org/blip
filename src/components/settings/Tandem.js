@@ -143,7 +143,7 @@ Tandem.propTypes = {
   }).isRequired,
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool.isRequired,
-    timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
+    timezoneName: PropTypes.string,
   }).isRequired,
   toggleProfileExpansion: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,

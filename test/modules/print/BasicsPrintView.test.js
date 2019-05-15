@@ -23,6 +23,7 @@ import * as patients from '../../../data/patient/profiles';
 import * as settings from '../../../data/patient/settings';
 
 import { basicsData as data } from '../../../data/print/fixtures';
+import { MS_IN_HOUR } from '../../../src/utils/constants';
 
 import {
   DEFAULT_FONT_SIZE,
@@ -77,7 +78,44 @@ describe('BasicsPrintView', () => {
       timezoneName: 'US/Pacific',
     },
     width: 8.5 * DPI - (2 * MARGIN),
-    title: 'Device Settings',
+    title: 'The Basics',
+  };
+
+  const stats = {
+    averageDailyDose: { data: { raw: {
+      totalInsulin: 30,
+    } } },
+    averageGlucose: { data: { raw: {
+      averageGlucose: 120,
+    } } },
+    carbs: { data: { raw: {
+      carbs: 10.2,
+    } } },
+    readingsInRange: { data: {
+      raw: {
+        target: MS_IN_HOUR * 3,
+        veryLow: MS_IN_HOUR,
+      },
+      total: { value: MS_IN_HOUR * 4 },
+    } },
+    timeInRange: { data: {
+      raw: {
+        target: MS_IN_HOUR * 3,
+        veryLow: MS_IN_HOUR,
+      },
+      total: { value: MS_IN_HOUR * 4 },
+    } },
+    timeInAuto: { data: {
+      raw: {
+        manual: MS_IN_HOUR * 3,
+        automated: MS_IN_HOUR * 7,
+      },
+      total: { value: MS_IN_HOUR * 10 },
+    } },
+    totalInsulin: { data: { raw: {
+      basal: 10,
+      bolus: 20,
+    } } },
   };
 
   const createRenderer = (renderData = data, renderOpts = opts) => (
@@ -86,7 +124,7 @@ describe('BasicsPrintView', () => {
 
   beforeEach(() => {
     doc = new Doc({ margin: MARGIN });
-    Renderer = createRenderer();
+    Renderer = createRenderer({ ...data, stats });
   });
 
   describe('class constructor', () => {
@@ -101,25 +139,6 @@ describe('BasicsPrintView', () => {
     const fingerstickTypes = [
       'smbg',
       'calibration',
-    ];
-
-    const aggregatedTypes = [
-      {
-        name: 'basalBolusRatio',
-        type: 'object',
-      },
-      {
-        name: 'averageDailyDose',
-        type: 'object',
-      },
-      {
-        name: 'totalDailyDose',
-        type: 'number',
-      },
-      {
-        name: 'averageDailyCarbs',
-        type: 'number',
-      },
     ];
 
     it('should instantiate without errors', () => {
@@ -144,18 +163,6 @@ describe('BasicsPrintView', () => {
       });
     });
 
-    it('should add calculated bg distribution data', () => {
-      expect(Renderer.data.data.bgDistribution).to.be.an('object');
-
-      expect(Renderer.data.data.bgDistribution).to.have.all.keys(
-        'veryLow',
-        'low',
-        'target',
-        'high',
-        'veryHigh'
-      );
-    });
-
     it('should add section data', () => {
       expect(Renderer.data.sections).to.be.an('object');
     });
@@ -172,10 +179,33 @@ describe('BasicsPrintView', () => {
       });
     });
 
-    _.forEach(aggregatedTypes, type => {
-      it(`should add the aggregated ${type.name} data`, () => {
-        expect(Renderer.data.data[type.name]).to.be.a(type.type);
+    it('should add the provided averageDailyCarbs stat data', () => {
+      expect(Renderer.data.data.averageDailyCarbs).to.equal(10.2);
+    });
+
+    it('should add the provided averageDailyDose stat data', () => {
+      expect(Renderer.data.data.averageDailyDose).to.eql({
+          basal: 10,
+          bolus: 20,
       });
+    });
+
+    it('should add the provided basalBolusRatio stat data', () => {
+      expect(Renderer.data.data.basalBolusRatio).to.eql({
+        basal: (10 / 30),
+        bolus: (20 / 30),
+      });
+    });
+
+    it('should add the provided timeInAutoRatio stat data', () => {
+      expect(Renderer.data.data.timeInAutoRatio).to.eql({
+        automated: 0.7,
+        manual: 0.3,
+      });
+    });
+
+    it('should add the provided totalDailyDose stat data', () => {
+      expect(Renderer.data.data.totalDailyDose).to.equal(30);
     });
 
     it('should process infusion site history', () => {
@@ -431,14 +461,14 @@ describe('BasicsPrintView', () => {
 
       Renderer.cgmStatus = 'noCGM';
 
-      Renderer.doc.text.reset();
+      Renderer.doc.text.resetHistory();
       Renderer.renderBgDistribution();
 
       sinon.assert.calledWith(Renderer.doc.text, 'Showing BGM data (no CGM)');
 
       Renderer.cgmStatus = 'notEnoughCGM';
 
-      Renderer.doc.text.reset();
+      Renderer.doc.text.resetHistory();
       Renderer.renderBgDistribution();
 
       sinon.assert.calledWith(Renderer.doc.text, 'Showing BGM data (not enough CGM)');

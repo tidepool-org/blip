@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import sundial from 'sundial';
-import crossfilter from 'crossfilter';
+import crossfilter from 'crossfilter'; // eslint-disable-line import/no-unresolved
 import i18next from 'i18next';
 
 import generateClassifiers from '../classifiers';
@@ -32,7 +32,6 @@ import {
   BGM_DATA_KEY,
   CGM_DATA_KEY,
   MS_IN_DAY,
-  MS_IN_HOUR,
   CGM_READINGS_ONE_DAY,
   NOT_ENOUGH_CGM,
   CGM_CALCULATED,
@@ -52,7 +51,7 @@ import {
   pumpVocabulary,
 } from '../constants';
 
-import { getBasalPathGroups, getGroupDurations } from '../basal';
+import { getBasalPathGroups } from '../basal';
 
 const t = i18next.t.bind(i18next);
 
@@ -106,129 +105,6 @@ export function cgmStatusMessage(cgmStatus) {
   };
 
   return statusMessages[cgmStatus] || '';
-}
-
-/**
- * Calculate aggregated basal and bolus stats
- *
- * @export
- * @param {Object} basicsData - the preprocessed basics data object
- * @returns {Object} stats - Aggregated stats
- */
-export function calculateBasalBolusStats(basicsData) {
-  const pastDays = _.filter(basicsData.days, { type: 'past' });
-
-  const mostRecent = _.get(
-    _.filter(basicsData.days, { type: 'mostRecent' }),
-    [0, 'date'],
-    ''
-  );
-
-  const pastBolusDays = _.reject(
-    _.keys(basicsData.data.bolus.dataByDate),
-    date => (date === mostRecent)
-  );
-
-  const boluses = basicsData.data.bolus.data;
-  const basals = basicsData.data.basal.data;
-  const carbs = _.filter(
-    basicsData.data.wizard.data,
-    wizardEvent => (wizardEvent.carbInput && wizardEvent.carbInput > 0)
-  );
-
-  let start = _.get(basals[0], 'normalTime', basicsData.dateRange[0]);
-  if (start < basicsData.dateRange[0]) {
-    start = basicsData.dateRange[0];
-  }
-
-  let end = _.get(basals[basals.length - 1], 'normalEnd', basicsData.dateRange[1]);
-  if (end > basicsData.dateRange[1]) {
-    end = basicsData.dateRange[1];
-  }
-
-  const { automated, manual } = getGroupDurations(basals, start, end);
-  const totalBasalDuration = automated + manual;
-  const timeInAutoRatio = {
-    automated: automated / totalBasalDuration,
-    manual: manual / totalBasalDuration,
-  };
-
-  // if three or more of the days (excepting most recent) don't have any boluses
-  // then don't calculate these stats at all, since may be inaccurate if
-  // long-running basals exist
-  if (pastDays.length - pastBolusDays.length >= 3 || !basals.length) {
-    return {
-      timeInAutoRatio,
-      basalBolusRatio: null,
-      averageDailyDose: null,
-      totalDailyDose: null,
-      averageDailyCarbs: null,
-    };
-  }
-
-  // find the duration of a basal segment that falls within the basicsData.dateRange
-  const getDurationInRange = datum => {
-    if (datum.normalTime >= start && datum.normalEnd <= end) {
-      return datum.duration;
-    } else if (datum.normalTime < start) {
-      if (datum.normalEnd > start) {
-        if (datum.normalEnd <= end) {
-          return Date.parse(datum.normalEnd) - Date.parse(start);
-        }
-        return Date.parse(end) - Date.parse(start);
-      }
-      return 0;
-    } else if (datum.normalEnd > end) {
-      if (datum.normalTime < end) {
-        return Date.parse(end) - Date.parse(datum.normalTime);
-      }
-      return 0;
-    }
-    return 0;
-  };
-
-  const sumBasalInsulin = _.reduce(
-    _.map(basals, datum => (datum.rate * (getDurationInRange(datum) / MS_IN_HOUR))),
-    (total, insulin) => (total + insulin)
-  );
-
-  const sumBolusInsulin = _.reduce(
-    _.map(boluses, datum => {
-      if (datum.normalTime >= start && datum.normalTime <= end) {
-        return (datum.extended || 0) + (datum.normal || 0);
-      }
-      return 0;
-    }),
-    (total, insulin) => (total + insulin)
-  );
-
-  const sumCarbs = _.reduce(
-    _.map(carbs, datum => {
-      if (datum.normalTime >= start && datum.normalTime <= end) {
-        return datum.carbInput;
-      }
-      return 0;
-    }),
-    (total, carbCount) => (total + carbCount)
-  );
-
-  const totalInsulin = sumBasalInsulin + sumBolusInsulin;
-
-  const stats = {
-    timeInAutoRatio,
-    basalBolusRatio: {
-      basal: sumBasalInsulin / totalInsulin,
-      bolus: sumBolusInsulin / totalInsulin,
-    },
-    averageDailyDose: {
-      basal: sumBasalInsulin / ((Date.parse(end) - Date.parse(start)) / MS_IN_DAY),
-      bolus: sumBolusInsulin / ((Date.parse(end) - Date.parse(start)) / MS_IN_DAY),
-    },
-    totalDailyDose: totalInsulin / ((Date.parse(end) - Date.parse(start)) / MS_IN_DAY),
-    averageDailyCarbs: sumCarbs / ((Date.parse(end) - Date.parse(start)) / MS_IN_DAY),
-  };
-
-  return stats;
 }
 
 /**
@@ -504,8 +380,8 @@ export function averageExcludingMostRecentDay(dataObj, total, mostRecentDay) {
  */
 export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
   const bgLabels = generateBgRangeLabels(bgPrefs);
-  bgLabels.veryLow = _.capitalize(bgLabels.veryLow);
-  bgLabels.veryHigh = _.capitalize(bgLabels.veryHigh);
+  bgLabels.veryLow = _.upperFirst(bgLabels.veryLow);
+  bgLabels.veryHigh = _.upperFirst(bgLabels.veryHigh);
 
   const deviceLabels = getPumpVocabulary(manufacturer);
 

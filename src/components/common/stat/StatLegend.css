@@ -1,0 +1,22 @@
+.StatLegend {
+  composes: smallSize from '../../../styles/typography.css';
+  position: relative;
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.StatLegendItem {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin: 0 1em 0 0;
+  border-bottom: 2px solid;
+}
+
+.StatLegendTitle {
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  line-height: 16px;
+}

@@ -226,7 +226,6 @@ export class SMBG extends Common {
 
     _.defaults(opts, {
       deviceTime: this.makeDeviceTime(),
-      normalTime: this.makeNormalTime(),
       displayOffset: 0,
       units: MGDL_UNITS,
       value: 100,
@@ -241,7 +240,7 @@ export class SMBG extends Common {
     this.time = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
     this.displayOffset = opts.displayOffset;
-    this.normalTime = opts.normalTime;
+    this.normalTime = this.makeNormalTime();
   }
 }
 
@@ -285,6 +284,7 @@ export class Upload extends Common {
     this.deviceTags = opts.deviceTags;
     this.source = opts.source;
     this.deviceTime = opts.deviceTime;
+    this.deviceModel = opts.deviceModel;
 
     this.time = this.makeTime();
     this.timezone = opts.timezone;
@@ -322,6 +322,7 @@ export class Wizard extends Common {
       deviceTime: this.deviceTime,
     });
 
+    this.carbInput = opts.carbInput;
     this.deviceTime = opts.deviceTime;
     this.insulinCarbRatio = opts.insulinCarbRatio;
     this.insulinSensitivity = opts.insulinSensitivity;
@@ -333,11 +334,31 @@ export class Wizard extends Common {
   }
 }
 
+export class Food extends Common {
+  constructor(opts = {}) {
+    super(opts);
+
+    _.defaults(opts, {
+      deviceTime: this.makeDeviceTime(),
+    });
+
+    this.type = 'food';
+    this.deviceTime = opts.deviceTime;
+    this.nutrition = opts.nutrition;
+
+    this.time = this.makeTime();
+    this.normalTime = this.makeNormalTime();
+    this.createdTime = this.makeTime();
+    this.timezoneOffset = this.makeTimezoneOffset();
+  }
+}
+
 export const types = {
   Basal,
   Bolus,
   CBG,
   DeviceEvent,
+  Food,
   Message,
   Settings,
   SMBG,

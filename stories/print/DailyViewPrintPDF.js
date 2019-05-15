@@ -17,9 +17,7 @@
 
 import React from 'react';
 import _ from 'lodash';
-
-import { storiesOf } from '@kadira/storybook';
-import { WithNotes } from '@kadira/storybook-addon-notes';
+import { storiesOf } from '@storybook/react';
 
 import { createPrintView } from '../../src/modules/print/index';
 import { MARGIN } from '../../src/modules/print/utils/constants';
@@ -30,7 +28,9 @@ import { data as dataStub } from '../../data/patient/data';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
-/* global PDFDocument, blobStream */
+/* global PDFDocument, blobStream, window */
+
+const stories = storiesOf('Daily View PDF', module);
 
 let data;
 try {
@@ -42,16 +42,16 @@ try {
 
 const bgBounds = {
   [MGDL_UNITS]: {
-    veryHighThreshold: 300,
+    veryHighThreshold: 250,
     targetUpperBound: 180,
     targetLowerBound: 70,
     veryLowThreshold: 54,
   },
   [MMOLL_UNITS]: {
-    veryHighThreshold: 16.7,
+    veryHighThreshold: 13.9,
     targetUpperBound: 10,
     targetLowerBound: 3.9,
-    veryLowThreshold: 3.12345,
+    veryLowThreshold: 3.0,
   },
 };
 
@@ -90,19 +90,14 @@ and then use this story to iterate on the Daily Print PDF outside of Tidepool We
 profiles.longName = _.cloneDeep(profiles.standard);
 profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
 
-storiesOf('Daily View PDF', module)
-  .add(`standard account (${MGDL_UNITS})`, () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.standard })}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add(`standard account (${MGDL_UNITS})`, () => (
+  <button onClick={() => openPDF({ patient: profiles.standard })}>
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add(`standard account (${MMOLL_UNITS})`, () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.standard, bgUnits: MMOLL_UNITS })}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ));
+stories.add(`standard account (${MMOLL_UNITS})`, () => (
+  <button onClick={() => openPDF({ patient: profiles.standard, bgUnits: MMOLL_UNITS })}>
+    Open PDF in new tab
+  </button>
+), { notes });

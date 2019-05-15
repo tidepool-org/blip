@@ -17,9 +17,7 @@
 
 import React from 'react';
 import _ from 'lodash';
-
-import { storiesOf } from '@kadira/storybook';
-import { WithNotes } from '@kadira/storybook-addon-notes';
+import { storiesOf } from '@storybook/react';
 
 import { createPrintView } from '../../src/modules/print/index';
 import { MARGIN } from '../../src/modules/print/utils/constants';
@@ -30,7 +28,9 @@ import { data as dataStub } from '../../data/patient/data';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
-/* global PDFDocument, blobStream */
+/* global PDFDocument, blobStream, window */
+
+const stories = storiesOf('Settings View PDF', module);
 
 let data;
 try {
@@ -52,16 +52,16 @@ import tandemDataFlatRate from '../../data/pumpSettings/tandem/flatrate.json';
 
 const bgBounds = {
   [MGDL_UNITS]: {
-    veryHighThreshold: 300,
+    veryHighThreshold: 250,
     targetUpperBound: 180,
     targetLowerBound: 70,
     veryLowThreshold: 54,
   },
   [MMOLL_UNITS]: {
-    veryHighThreshold: 16.7,
+    veryHighThreshold: 13.9,
     targetUpperBound: 10,
     targetLowerBound: 3.9,
-    veryLowThreshold: 3.12345,
+    veryLowThreshold: 3.0,
   },
 };
 
@@ -99,105 +99,80 @@ and then use this story to iterate on the Settings Print PDF outside of Tidepool
 profiles.longName = _.cloneDeep(profiles.standard);
 profiles.longName.profile.fullName = 'Super Duper Long Patient Name';
 
-storiesOf('Settings View PDF', module)
-  .add(`standard account (${MGDL_UNITS})`, () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.standard })}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add(`standard account (${MGDL_UNITS})`, () => (
+  <button onClick={() => openPDF({ patient: profiles.standard })}>
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add(`standard account (${MMOLL_UNITS})`, () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.standard, bgUnits: MMOLL_UNITS })}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add(`standard account (${MMOLL_UNITS})`, () => (
+  <button onClick={() => openPDF({ patient: profiles.standard, bgUnits: MMOLL_UNITS })}>
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add('animas flat rate', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.longName }, animasDataFlatRate)}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add('animas flat rate', () => (
+  <button onClick={() => openPDF({ patient: profiles.longName }, animasDataFlatRate)}>
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add('animas multi rate', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.longName }, animasDataMultiRate)}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add('animas multi rate', () => (
+  <button onClick={() => openPDF({ patient: profiles.longName }, animasDataMultiRate)}>
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add('medtronic flat rate', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.longName }, medtronicDataFlatRate)}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add('medtronic flat rate', () => (
+  <button onClick={() => openPDF({ patient: profiles.longName }, medtronicDataFlatRate)}>
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add('medtronic multi rate', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.longName }, medtronicDataMultiRate)}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add('medtronic multi rate', () => (
+  <button onClick={() => openPDF({ patient: profiles.longName }, medtronicDataMultiRate)}>
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add('medtronic automated rate', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.longName }, medtronicDataAutomated)}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add('medtronic automated rate', () => (
+  <button onClick={() => openPDF({ patient: profiles.longName }, medtronicDataAutomated)}>
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add('medtronic automated inactive rate', () => {
-    const inactiveAutomatedBasaldata = _.assign({}, medtronicDataAutomated, {
-      activeSchedule: 'Standard',
-    });
+stories.add('medtronic automated inactive rate', () => {
+  const inactiveAutomatedBasaldata = _.assign({}, medtronicDataAutomated, {
+    activeSchedule: 'Standard',
+  });
 
-    return (
-      <WithNotes notes={notes}>
-        <button onClick={() => openPDF({ patient: profiles.longName }, inactiveAutomatedBasaldata)}>
-          Open PDF in new tab
-        </button>
-      </WithNotes>
-    );
-  })
+  return (
+    <button onClick={() => openPDF({ patient: profiles.longName }, inactiveAutomatedBasaldata)}>
+      Open PDF in new tab
+    </button>
+  );
+}, { notes });
 
-  .add('omnipod flat rate', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.longName }, omnipodDataFlatRate)}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add('omnipod flat rate', () => (
+  <button onClick={() => openPDF({ patient: profiles.longName }, omnipodDataFlatRate)}>
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add('omnipod multi rate', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.longName }, omnipodDataMultiRate)}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add('omnipod multi rate', () => (
+  <button onClick={() => openPDF({ patient: profiles.longName }, omnipodDataMultiRate)}>
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add('tandem flat rate', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.longName }, tandemDataFlatRate)}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ))
+stories.add('tandem flat rate', () => (
+  <button onClick={() => openPDF({ patient: profiles.longName }, tandemDataFlatRate)}>
+    Open PDF in new tab
+  </button>
+), { notes });
 
-  .add('tandem multi rate', () => (
-    <WithNotes notes={notes}>
-      <button onClick={() => openPDF({ patient: profiles.longName }, tandemDataMultiRate)}>
-        Open PDF in new tab
-      </button>
-    </WithNotes>
-  ));
+stories.add('tandem multi rate', () => (
+  <button onClick={() => openPDF({ patient: profiles.longName }, tandemDataMultiRate)}>
+    Open PDF in new tab
+  </button>
+), { notes });

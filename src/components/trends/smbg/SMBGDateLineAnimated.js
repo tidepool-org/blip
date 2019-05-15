@@ -197,7 +197,7 @@ export class SMBGDateLineAnimated extends PureComponent {
             return (
               <path
                 // d3 line() expects an array of 2-member arrays of x, y coordinates
-                d={line()(_.map(_.pluck(interpolated, 'style'), (style) => (
+                d={line()(_.map(_.map(interpolated, 'style'), (style) => (
                   [_.get(style, ['x', 'val'], style.x), _.get(style, ['y', 'val'], style.y)]
                 )))}
                 className={classes}

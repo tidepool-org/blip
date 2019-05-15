@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/travis/tidepool-org/viz/master.svg)](https://travis-ci.org/tidepool-org/viz)
+[![Build Status](https://img.shields.io/travis/com/tidepool-org/viz.svg)](https://travis-ci.com/tidepool-org/viz)
 
 # @tidepool/viz
 
@@ -16,10 +16,10 @@ This README is focused on just the nuts & bolts of getting the code in this repo
     - [Running locally in React Storybook](#running-locally-in-react-storybook)
     - [Running the tests](#running-the-tests)
     - [Running the linter](#running-the-linter)
-  - [Production](#production)
-    - [Publishing examples to GitHub Pages with React Storybook](#publishing-examples-to-github-pages-with-react-storybook)
-    - [Building and publishing to `npm`](#building-and-publishing-to-npm)
-  - [Diabeloop Specifics](#diabeloop-specifics)
+ - [Production](#production)
+    - [Publishing examples](#publishing-examples-to-github-pages-with-react-storybook)
+    - [Publishing to npm](#building-and-publishing-to-npm)
+ - [Diabeloop Specifics](#diabeloop-specifics)
 
 * * * * *
 

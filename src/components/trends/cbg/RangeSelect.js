@@ -28,8 +28,8 @@ import styles from './RangeSelect.css';
 import i18next from 'i18next';
 const t = i18next.t.bind(i18next);
 
-export const RangeSelect = (props) =>
-  (<div className={styles.container}>
+export const RangeSelect = (props) => (
+  <div className={styles.container}>
     <LabeledCheckbox
       checked={props.displayFlags.cbg100Enabled}
       name="hundred"
@@ -58,7 +58,8 @@ export const RangeSelect = (props) =>
       onFn={_.partial(props.turnOnCbgRange, 'median')}
       offFn={_.partial(props.turnOffCbgRange, 'median')}
     />
-  </div>);
+  </div>
+);
 
 RangeSelect.propTypes = {
   displayFlags: PropTypes.shape({

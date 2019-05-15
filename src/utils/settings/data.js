@@ -154,7 +154,7 @@ export function getScheduleLabel(scheduleName, activeName, deviceKey, noUnits) {
   const CAPITALIZED = ['carelink', 'medtronic'];
   let displayName = scheduleName;
   if (_.includes(CAPITALIZED, deviceKey)) {
-    displayName = _.map(scheduleName.split(' '), (part) => (_.capitalize(part))).join(' ');
+    displayName = _.map(scheduleName.split(' '), (part) => (_.upperFirst(part))).join(' ');
   }
   return {
     main: displayName,

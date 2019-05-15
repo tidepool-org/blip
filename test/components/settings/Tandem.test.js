@@ -111,7 +111,7 @@ describe('Tandem', () => {
   it('should have a button to copy settings', () => {
     const mounted = mount(<Tandem {...props} />);
     expect(copySettingsClicked.callCount).to.equal(0);
-    mounted.find(formatClassesAsSelector(styles.copyButton)).simulate('click');
+    mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
     expect(copySettingsClicked).to.be.called;
   });
 

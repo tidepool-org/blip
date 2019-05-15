@@ -20,6 +20,11 @@
   stroke-width: 0.5px;
 }
 
+.veryLow {
+  composes: border;
+  composes: bgVeryLow from '../../../styles/diabetes.css';
+}
+
 .low {
   composes: border;
   composes: bgLow from '../../../styles/diabetes.css';
@@ -33,4 +38,9 @@
 .high {
   composes: border;
   composes: bgHigh from '../../../styles/diabetes.css';
+}
+
+.veryHigh {
+  composes: border;
+  composes: bgVeryHigh from '../../../styles/diabetes.css';
 }

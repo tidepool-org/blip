@@ -268,7 +268,8 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
         bolusCenter,
         bottomOfInterruptedLine,
         bottomOfInterruptedLine + interruptedLineThickness,
-    ));
+      )
+    );
 
     paths.push({
       d: path,

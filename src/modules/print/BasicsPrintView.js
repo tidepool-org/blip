@@ -23,7 +23,6 @@ import moment from 'moment';
 import PrintView from './PrintView';
 
 import {
-  calculateBasalBolusStats,
   cgmStatusMessage,
   determineBgDistributionSource,
   defineBasicsSections,
@@ -33,7 +32,7 @@ import {
   reduceByDay,
 } from '../../utils/basics/data';
 
-import { calcBgPercentInCategories, generateBgRangeLabels } from '../../utils/bloodglucose';
+import { generateBgRangeLabels } from '../../utils/bloodglucose';
 import { formatPercentage, formatDecimalNumber } from '../../utils/format';
 import { getLatestPumpUpload } from '../../utils/device';
 
@@ -43,6 +42,7 @@ import translate from 'translate-svg-path';
 import serialize from 'serialize-svg-path';
 
 import {
+  CGM_DATA_KEY,
   NO_SITE_CHANGE,
   SITE_CHANGE,
   SITE_CHANGE_CANNULA,
@@ -72,10 +72,6 @@ class BasicsPrintView extends PrintView {
     const { source: bgSource, cgmStatus } = determineBgDistributionSource(this.data);
     _.assign(this, { bgSource, cgmStatus });
 
-    this.data.data.bgDistribution = bgSource
-      ? calcBgPercentInCategories(_.get(this.data, ['data', bgSource, 'data'], []), this.bgBounds)
-      : null;
-
     this.data.sections = defineBasicsSections(
       this.bgPrefs,
       this.manufacturer,
@@ -84,7 +80,30 @@ class BasicsPrintView extends PrintView {
 
     this.data = reduceByDay(this.data, this.bgPrefs);
 
-    _.assign(this.data.data, calculateBasalBolusStats(this.data));
+    const averageDailyCarbs = _.get(this.data, 'stats.carbs.data.raw.carbs');
+    const totalDailyDose = _.get(this.data, 'stats.averageDailyDose.data.raw.totalInsulin');
+    const { basal, bolus } = _.get(this.data, 'stats.totalInsulin.data.raw', {});
+    const averageDailyDose = { basal, bolus };
+
+    const basalBolusRatio = {
+      basal: basal / totalDailyDose,
+      bolus: bolus / totalDailyDose,
+    };
+
+    const { automated, manual } = _.get(this.data, 'stats.timeInAuto.data.raw', {});
+    const totalBasalDuration = _.get(this.data, 'stats.timeInAuto.data.total.value');
+    const timeInAutoRatio = {
+      automated: automated / totalBasalDuration,
+      manual: manual / totalBasalDuration,
+    };
+
+    _.assign(this.data.data, {
+      averageDailyCarbs,
+      averageDailyDose,
+      basalBolusRatio,
+      timeInAutoRatio,
+      totalDailyDose,
+    });
 
     this.data = processInfusionSiteHistory(this.data, this.patient);
 
@@ -240,7 +259,9 @@ class BasicsPrintView extends PrintView {
     this.doc.fontSize(this.smallFontSize);
 
     if (this.bgSource) {
-      const distribution = this.data.data.bgDistribution;
+      const stat = this.bgSource === CGM_DATA_KEY ? 'timeInRange' : 'readingsInRange';
+      const rangeDurations = _.get(this.data, `stats.${stat}.data.raw`, {});
+      const totalDuration = _.get(this.data, `stats.${stat}.data.total.value`, {});
 
       this.doc.text(cgmStatusMessage(this.cgmStatus), { width: columnWidth });
 
@@ -259,7 +280,7 @@ class BasicsPrintView extends PrintView {
       ];
 
       const bgRangeLabels = generateBgRangeLabels(this.bgPrefs);
-      const bgRangeColors = _.mapValues(distribution, (value, key) => {
+      const bgRangeColors = _.mapValues(bgRangeLabels, (value, key) => {
         switch (key) {
           case 'veryLow':
           case 'low':
@@ -275,8 +296,8 @@ class BasicsPrintView extends PrintView {
         }
       });
 
-      const rows = _.map(_.keys(distribution), key => {
-        const value = distribution[key];
+      const rows = _.map(_.keys(bgRangeLabels), key => {
+        const value = rangeDurations[key] / totalDuration;
         const stripePadding = 2;
 
         return {
@@ -287,7 +308,7 @@ class BasicsPrintView extends PrintView {
           _fillStripe: {
             color: bgRangeColors[key],
             opacity: 0.75,
-            width: (columnWidth - (2 * stripePadding)) * distribution[key],
+            width: (columnWidth - (2 * stripePadding)) * value,
             background: true,
             padding: stripePadding,
           },
@@ -931,17 +952,11 @@ class BasicsPrintView extends PrintView {
         this.doc.y = this.calendar.pos[type].y;
       }
 
-      const headerColors = {
-        smbg: '#e8ecfe',
-        bolus: '#ebf7fc',
-        basal: '#dcf1f9',
-      };
-
       this.renderTable(tableColumns, rows, {
         columnDefaults: {
           zebra: true,
           headerFill: {
-            color: headerColors[type],
+            color: this.colors[`${type}Header`],
             opacity: 1,
           },
           headerRenderer: this.renderCustomTextCell,

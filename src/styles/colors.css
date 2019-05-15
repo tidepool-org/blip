@@ -26,46 +26,53 @@
   --collapsible--border: #EDEDED;
   --table-stripe--light: #F7F7F7;
   --table-stripe--dark: #ECECEC;
-
   --trends--light: #D0D0D0;
   --trends--light--faded: #F0F0F0;
   --trends--dark: #BCBCBC;
   --trends--dark--faded: #E3E3E3;
-
+  --input--border: #75849f;
+  --input--disabled: #75849f;
+  --stat--border: #75849f;
+  --stat--default: #727375;
+  --stat-disabled: #e7e9ee;
+  --stat--dark: #27385b;
   --axis-tick: #E7E7E7;
-
   --bkgrnd: #F8F8F8;
   --bkgrnd-lines: #E7E7E7;
-
-  --bkgrnd-white: #ffffff;
-
+  --bkgrnd-white: #FFFFFF;
   --tooltip-title-bg: #EAEAEE;
-
   --chrome: #989897;
-
   --text-medium-contrast: #727375;
   --text-high-contrast: #281946;
-  --text-black: #000;
-
+  --text-black: #000000;
+  --bg-very-low: #FB5951;
   --bg-low: #FF8B7C;
   --bg-target: #76D3A6;
   --bg-high: #BB9AE7;
-
+  --bg-very-high: #8c65d6;
   --text-hover: #00D3D9;
-
-  --blue-green-light: #12d3d8;
+  --blue-green-light: #12D3D8;
   --gray-medium: #989897;
-  --gray-dark: #4e4e4f;
-  --white: #ffffff;
-
-  --brand-purple: #627cff;
+  --gray-dark: #4E4E4F;
+  --white: #FFFFFF;
+  --brand-purple: #627CFF;
   --brand-purple-dark: #281946;
 }
 
 :export {
   bolus: #6fc3bb;
   basal: #19A0D7;
+  basalAutomated: #00e9fa;
+  statDark: #27385b;
+  statDefault: #727375;
+  statDisabled: #e7e9ee;
+  veryLow: #fb5951;
   low: #FF8B7C;
   target: #76D3A6;
   high: #BB9AE7;
+  veryHigh: #8c65d6;
+  insulin: #0096d1;
+  white: #ffffff;
+  axis: #e7e9ee;
+  muted: #c1c9d6;
 }
