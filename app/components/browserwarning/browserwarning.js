@@ -48,7 +48,13 @@ export default translate()(class BrowserWarning extends Component {
     var copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>{t('Copy link')}</button>;
     var handleClickDownload = function() {
       self.props.trackMetric('Clicked Download Chrome');
-    }
+    };
+    var handleClickiOS = function() {
+      self.props.trackMetric('No Data - Clicked iOS');
+    };
+    var handleClickAndroid = function() {
+      self.props.trackMetric('No Data - Clicked Android');
+    };
 
     if (this.state.copyStatus === COPY_STATUS_SUCCESS) {
       self.props.trackMetric('Clicked Copy blip.tidepool.org, automatically copied');
@@ -85,10 +91,10 @@ export default translate()(class BrowserWarning extends Component {
               {t('Download Tidepool Mobile for iOS or Android to see your data on the go:')}
             </div>
             <div className="browser-warning-mobile-appstore-container">
-              <a href='https://itunes.apple.com/us/app/tidepool-mobile/id1026395200'>
+              <a href='https://itunes.apple.com/us/app/tidepool-mobile/id1026395200' onClick={handleClickiOS}>
                 <img alt='Download on the App Store' src={appstoreImageUrl} className="appstore-badge" />
               </a>
-              <a href='https://play.google.com/store/apps/details?id=io.tidepool.urchin'>
+              <a href='https://play.google.com/store/apps/details?id=io.tidepool.urchin' onClick={handleClickAndroid}>
                 <img alt='Get it on Google Play' src={playstoreImageUrl} className="playstore-badge" />
               </a>
             </div>
