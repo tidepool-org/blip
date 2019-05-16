@@ -93,6 +93,7 @@ export let Login = translate()(React.createClass({
     const { t } = this.props;
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
+    var browserWarning = this.renderBrowserWarning();
 
     var urlPrivacyPolicy = CONFIG[__BRANDING__].privacy;
     var urlTermsOfUse = CONFIG[__BRANDING__].terms;
@@ -114,6 +115,7 @@ export let Login = translate()(React.createClass({
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
         {inviteIntro}
+        {browserWarning}
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
             <div className="login-simpleform">{form}</div>
@@ -134,7 +136,7 @@ export let Login = translate()(React.createClass({
     );
   },
 
-  renderInviteIntroduction: function() {
+  renderInviteIntroduction: function(){
     const { t } = this.props;
     if (!this.props.isInvite) {
       return null;
@@ -145,6 +147,19 @@ export let Login = translate()(React.createClass({
         <p>{t('You\'ve been invited to Tidepool.')}</p><p>{t('Log in to view the invitation.')}</p>
       </div>
     );
+  },
+
+  renderBrowserWarning: function() {
+    const { t } = this.props;
+
+    if (!utils.isChrome()) {
+      return (
+        <div className='login-browserWarning'>
+          <br></br>
+          <p>{t('BrowserWarning')}</p>
+        </div>
+      );
+    }
   },
 
   renderForm: function() {
