@@ -688,7 +688,7 @@ class PrintView {
   }
 
   renderPatientInfo() {
-    const patientName = getPatientFullName(this.patient);
+    const patientName = _.truncate(getPatientFullName(this.patient), { length: 32 });
     const patientBirthdate = formatBirthdate(this.patient);
     const xOffset = this.margins.left;
     const yOffset = this.margins.top;
