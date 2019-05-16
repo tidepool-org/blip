@@ -81,6 +81,7 @@
   "Because of how {{source}} reports bolus data, normal and square-wave boluses may not be properly combined to appear as a dual-wave bolus.": "",
   "Because of how {{source}} reports the data, we could not determine the duration of this basal rate segment.": "",
   "Because there was a time change during this basal, we split the basal into two segments.": "",
+  "BrowserWarning": "YourLoops works best with Google Chrome. Using another internet browser may not guarantee the highest level of experience.",
   "below": "",
   "between": "",
   "Beyond Type 1": "",

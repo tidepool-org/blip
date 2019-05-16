@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.12.5-dblp.0.3.1",
+  "version": "1.12.5-dblp.0.4.0",
   "private": true,
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",

@@ -83,6 +83,7 @@
   "Because of how {{source}} reports bolus data, normal and square-wave boluses may not be properly combined to appear as a dual-wave bolus.": "En raison des informations des bolus remontées par {{source}}, il se peut que les bolus standard et les bolus carrés ne soient pas correctement affichés et apparaissent comme un bolus duo.",
   "Because of how {{source}} reports the data, we could not determine the duration of this basal rate segment.": "En raison des données remontées par {{source}}, nous ne pouvons déterminer la durée de ce débit de base. ",
   "Because there was a time change during this basal, we split the basal into two segments.": "A cause d'un changement d'heure durant ce débit basal, nous avons séparé ce débit de base en 2 parties.",
+  "BrowserWarning": "YourLoops fonctionne avec Google Chrome. Utiliser un autre navigateur ne garantit pas la meilleure expérience d'utilisation.",
   "below": "en dessous de",
   "between": "entre",
   "Beyond Type 1": "Beyond Type 1",

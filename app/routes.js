@@ -30,7 +30,7 @@ import personUtils from './core/personutils';
  * @param  {Function} replace
  */
 export const requiresChrome = (utils, next) => (nextState, replace, cb)  => {
-  if (!utils.isChrome()) {
+  if (!utils.isAcceptedBrowser()) {
     replace('/browser-warning');
     return (!!cb) ? cb() : true;
   } else {
