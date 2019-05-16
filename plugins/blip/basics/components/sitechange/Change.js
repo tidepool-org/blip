@@ -28,7 +28,12 @@ var Change = React.createClass({
     type: React.PropTypes.string.isRequired,
   },
   render: function() {
-    var daysText = (this.props.daysSince === 1) ? 'day' : 'days';
+    var daysText = null;
+    var daysSinceNum = null;
+    if (!_.isNaN(this.props.daysSince)){
+      daysText = (this.props.daysSince === 1) ? 'day' : 'days';
+      daysSinceNum = this.props.daysSince;
+    }
     var countElement = null;
 
     if (this.props.count > 1) {
@@ -47,7 +52,7 @@ var Change = React.createClass({
     return (
       <div className={changeClass}>
         <div className='Change-daysSince-text'>
-          <span className='Change-daysSince-count'>{this.props.daysSince}</span>
+          <span className='Change-daysSince-count'>{daysSinceNum}</span>
           {daysText}
         </div>
         <div className='Change-line-end'></div>
