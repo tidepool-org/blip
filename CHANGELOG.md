@@ -1,6 +1,9 @@
 # Blip 
 
-## [Unreleased]
+## [0.4.0] - 2019-05-15
+
+### ADDED
+- PT-365 Add Firefox, Chrome on iOS and edge as authorized browsers. A warning message is displayed for any other browser than Chrome.
 
 ## [0.3.1] - 2019-04-17
 
