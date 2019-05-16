@@ -38,7 +38,7 @@ describe('trackingMiddleware', () => {
   const next = sinon.stub();
 
   beforeEach(() => {
-    api.metrics.track.reset();
+    api.metrics.track.resetHistory();
   });
 
   it('should be a function', () => {

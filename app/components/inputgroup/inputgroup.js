@@ -14,15 +14,15 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var _ = require('lodash');
-var cx = require('classnames');
-var Select = require('react-select');
+import React from 'react';
+import _ from 'lodash';
+import cx from 'classnames';
+import Select from 'react-select';
 
-var DatePicker = require('../datepicker');
+import DatePicker from '../datepicker';
 
 // Input with label and validation error message
-var InputGroup = React.createClass({
+const InputGroup = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
     label: React.PropTypes.node,
@@ -204,19 +204,33 @@ var InputGroup = React.createClass({
     var classNames = cx({
       'input-group-control': true,
       'form-control': true,
+      'Select': true,
     });
 
+    let valueArray = [];
+
+    if (!_.isEmpty(this.props.value)) {
+      // Select all provided values that have a corresponding option value
+      valueArray = _.intersectionBy(
+        this.props.items,
+        _.map(this.props.value.split(','), value => ({ value })),
+        'value'
+      );
+    }
+
     return (
-      <Select className={classNames}
+      <Select
+        className={classNames}
+        classNamePrefix="Select"
         name={this.props.name}
         id={this.props.name}
-        multi={isMultiSelect}
-        simpleValue={isMultiSelect}
-        clearable={isMultiSelect}
+        isMulti={isMultiSelect}
+        isClearable={isMultiSelect}
+        closeMenuOnSelect={!isMultiSelect}
         placeholder={this.props.placeholder}
-        value={this.props.value}
+        value={valueArray}
         onChange={this.handleChange}
-        disabled={this.props.disabled}
+        isDisabled={this.props.disabled}
         options={this.props.items}
       />
     );
@@ -272,7 +286,7 @@ var InputGroup = React.createClass({
     }
 
     if (this.props.type === 'select' && this.props.multi) {
-      // Target comes in as simple string when using react-select's 'multi' attribute
+      // Target comes in as an array of objects when using react-select's 'multi' attribute
       attributes.value = target;
     }
 

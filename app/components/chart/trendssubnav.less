@@ -16,32 +16,59 @@
  */
 
 #trendsSubNav {
-  width: 980px;
-  margin: 0 auto;
+  width: 100%;
+  margin: auto;
+  margin-top: 0;
+  margin-bottom: 0;
+
+  @media (min-width: @screen-lg-min) {
+    padding-left: 0;
+    padding-right: 0;
+  }
 
   background-color: white;
 
   .trendsSubNavContainer {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
 
-    width: 910px;
-
-    margin: 0px 20px 0px 50px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-
-    .flexed {
-      flex-grow: 2;
-      max-height: 50px;
+    @media (min-width: @screen-md-lg-min) {
+      justify-content: space-between;
+      padding-left: 30px;
     }
   }
 
+  .domainLinks {
+    padding: 0;
+    margin: @spacing-small 0;
+  }
+
+  .dayFilters {
+    padding: 0 @spacing-tiny;
+    margin: @spacing-small 0;
+  }
+
   .domainContainer {
+    display: flex;
+    justify-content: space-between;
     margin-top: @spacing-base;
 
     .active {
       font-weight: bold;
+    }
+
+    button {
+      padding-left: @spacing-base;
+      padding-right: @spacing-base;
+    }
+
+    @media (max-width: @screen-sm-max) {
+      button {
+        padding-left: @spacing-medium;
+        padding-right: @spacing-medium;
+      }
     }
   }
 
@@ -53,12 +80,15 @@
     padding-top: @spacing-tiny;
   }
 
-
   .daysGroupContainer {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: @spacing-small 0;
+  }
 
-    margin-top: @spacing-base;
+  .daysGroupContainer > div {
+    margin: @spacing-small @spacing-tiny;
   }
 
   .daysGroup {
@@ -79,7 +109,7 @@
 
     &.active {
       font-weight: bold;
-      opacity: 1.0;
+      opacity: 1;
     }
   }
 }

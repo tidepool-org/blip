@@ -61,6 +61,7 @@ const Patient = translate()(React.createClass({
     disconnectDataSource: React.PropTypes.func,
     authorizedDataSource: React.PropTypes.object,
     queryParams: React.PropTypes.object,
+    api: React.PropTypes.object,
   },
 
   getInitialState: function() {
@@ -117,6 +118,7 @@ const Patient = translate()(React.createClass({
     return (
       <div className="PatientPage-infoSection">
         <PatientInfo
+          api={this.props.api}
           user={this.props.user}
           fetchingUser={this.props.fetchingUser}
           patient={this.props.patient}

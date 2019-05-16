@@ -102,7 +102,7 @@ var PatientCard = translate()(React.createClass({
     var self = this;
 
     return (
-      <Link className={classes} to={this.props.href} onClick={self.handleViewClick}>{t('View')}</Link>
+      <Link className={classes} to={this.props.href} onMouseEnter={this.setHighlight('view')} onMouseLeave={this.setHighlight('')} onClick={self.handleViewClick}>{t('View')}</Link>
     );
   },
 
@@ -142,9 +142,10 @@ var PatientCard = translate()(React.createClass({
 
     if (_.isEmpty(patient.permissions) === false && !patient.permissions.root) {
       var title = 'Remove yourself from ' + this.getFullName() + '\'s care team.';
+      var getHighlight = () => this.state.showModalOverlay ? 'view' : '';
 
       return (
-        <a className={classes} href="" onMouseEnter={this.setHighlight('remove')} onMouseLeave={this.setHighlight('view')} onClick={this.handleRemove(patient)} title={title}>
+        <a className={classes} href="" onMouseEnter={this.setHighlight('remove')} onMouseLeave={this.setHighlight(getHighlight())} onClick={this.handleRemove(patient)} title={title}>
           <i className="Navbar-icon icon-delete"></i>
         </a>
       );
@@ -171,7 +172,7 @@ var PatientCard = translate()(React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root || _.has(patient.permissions, ['upload'])) {
       return (
-        <a className={classes} href='' onClick={handleClick} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} title={t('Upload data')}>{t('Upload')}</a>
+        <a className={classes} href='' onClick={handleClick} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('')} title={t('Upload data')}>{t('Upload')}</a>
       );
     }
 
@@ -197,7 +198,7 @@ var PatientCard = translate()(React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        <Link className={classes} onClick={handleClick} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} to={shareUrl} title={t('Share data')}>{t('Share')}</Link>
+        <Link className={classes} onClick={handleClick} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('')} to={shareUrl} title={t('Share data')}>{t('Share')}</Link>
       );
     }
 
@@ -264,6 +265,7 @@ var PatientCard = translate()(React.createClass({
     this.setState({
       showModalOverlay: false,
       showUploadOverlay: false,
+      highlight: '',
     });
   },
 

@@ -21,12 +21,7 @@ var cx = require('classnames');
 import { translate } from 'react-i18next';
 
 import { components } from '@tidepool/viz';
-const TwoOptionToggle = components.TwoOptionToggle;
 const RangeSelect = components.RangeSelect;
-
-var tideline = {
-  log: bows('Footer')
-};
 
 var TidelineFooter = translate()(React.createClass({
   propTypes: {
@@ -36,7 +31,6 @@ var TidelineFooter = translate()(React.createClass({
     onClickLines: React.PropTypes.func,
     onClickValues: React.PropTypes.func,
     onClickRefresh: React.PropTypes.func,
-    onClickBgDataToggle: React.PropTypes.func,
     boxOverlay: React.PropTypes.bool,
     grouped: React.PropTypes.bool,
     showingLines: React.PropTypes.bool,
@@ -85,9 +79,8 @@ var TidelineFooter = translate()(React.createClass({
     );
 
     var rightSide = null;
-    var bgDataToggle = null;
 
-    if (this.props.chartType === 'weekly') {
+    if (this.props.chartType === 'bgLog') {
       rightSide = showValues;
     }
     if (this.props.chartType === 'trends') {
@@ -99,15 +92,6 @@ var TidelineFooter = translate()(React.createClass({
           currentPatientInViewId={this.props.currentPatientInViewId}
         />;
       }
-      bgDataToggle = (
-        <span className="toggle-container">
-          <TwoOptionToggle
-            left={{ label: 'BGM', state: this.props.showingSmbg }}
-            right={{ label: 'CGM', state: this.props.showingCbg }}
-            toggleFn={this.props.onClickBgDataToggle}
-          />
-        </span>
-      );
     }
 
     return (
@@ -117,7 +101,6 @@ var TidelineFooter = translate()(React.createClass({
             <button className="btn btn-chart btn-refresh"
               onClick={this.props.onClickRefresh}>
               {t('Refresh')}</button>
-            {bgDataToggle}
           </div>
           <div className="patient-data-footer-right">{rightSide}</div>
         </div>

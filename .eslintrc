@@ -1,15 +1,7 @@
 {
-  // I want to use babel-eslint for parsing!
   "parser": "babel-eslint",
-  "ecmaFeatures": {
-    "jsx": true,
-    "classes": true,
-    "modules": true
-  },
   "env": {
-    // I write for browser
     "browser": true,
-    // in CommonJS
     "node": true
   },
   "globals": {
@@ -25,7 +17,6 @@
     "__HIDE_DEXCOM_BANNER__": false,
     "__BRANDING__": false
   },
-  // To give you an idea how to override rule options:
   "rules": {
     "quotes": [2, "single", {
       "avoidEscape": true

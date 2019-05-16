@@ -27,6 +27,8 @@ config/*
 test/bin
 web/
 artifact_node.sh
+coverage/
+
 
 # GitBook
 _book/

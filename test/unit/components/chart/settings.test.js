@@ -52,7 +52,7 @@ describe('Settings', function () {
         onSwitchToDaily: function() {},
         onSwitchToTrends: function() {},
         onSwitchToSettings: function() {},
-        onSwitchToWeekly: function() {},
+        onSwitchToBgLog: function() {},
         trackMetric: function() {},
         uploadUrl: '',
         pdf: {
@@ -76,7 +76,7 @@ describe('Settings', function () {
         onClickNoDataRefresh: sinon.spy(),
         onSwitchToDaily: sinon.spy(),
         onSwitchToSettings: sinon.spy(),
-        onSwitchToWeekly: sinon.spy(),
+        onSwitchToBgLog: sinon.spy(),
         trackMetric: sinon.spy(),
         uploadUrl: '',
         pdf: {
@@ -100,7 +100,7 @@ describe('Settings', function () {
         onClickNoDataRefresh: sinon.spy(),
         onSwitchToDaily: sinon.spy(),
         onSwitchToSettings: sinon.spy(),
-        onSwitchToWeekly: sinon.spy(),
+        onSwitchToBgLog: sinon.spy(),
         trackMetric: sinon.spy(),
         uploadUrl: '',
         pdf: {

@@ -43,7 +43,7 @@ export function mapStateToProps(state) {
 
       if (currentPatientInViewId === targetUserId && membersOfTargetCareTeam) {
         patient = update(patient, { team: { $set: [] } });
-        const sharedDonationAccountIds = _.pluck(state.blip.dataDonationAccounts, 'userid');
+        const sharedDonationAccountIds = _.map(state.blip.dataDonationAccounts, 'userid');
 
         membersOfTargetCareTeam.forEach((memberId) => {
           let member = allUsersMap[memberId];

@@ -113,6 +113,7 @@ describe('Signup', function () {
       );
 
       wrapper.instance().getWrappedInstance().setState({madeSelection:true, selected: 'personal'});
+      wrapper.update()
 
       expect(wrapper.find('.signup-form').length).to.equal(1)
       expect(wrapper.find('.signup-title-condensed').length).to.equal(1)
@@ -130,6 +131,7 @@ describe('Signup', function () {
       );
 
       wrapper.instance().getWrappedInstance().setState({ madeSelection: true, selected: 'clinician'});
+      wrapper.update();
 
       expect(wrapper.find('.signup-form').length).to.equal(1)
       expect(wrapper.find('.signup-title-condensed').length).to.equal(1)

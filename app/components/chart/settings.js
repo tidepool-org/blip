@@ -49,7 +49,7 @@ const Settings = translate()(React.createClass({
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToTrends: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToWeekly: React.PropTypes.func.isRequired,
+    onSwitchToBgLog: React.PropTypes.func.isRequired,
     onClickPrint: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
@@ -79,7 +79,7 @@ const Settings = translate()(React.createClass({
           onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.handleClickSettings}
-          onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickBgLog={this.handleClickBgLog}
           onClickPrint={this.handleClickPrint}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
@@ -151,6 +151,7 @@ const Settings = translate()(React.createClass({
     else if (_.isEmpty(pumpSettings)) {
       return true;
     }
+
     return false;
   },
 
@@ -191,11 +192,11 @@ const Settings = translate()(React.createClass({
     this.props.onClickPrint(this.props.pdf);
   },
 
-  handleClickTwoWeeks: function(e) {
+  handleClickBgLog: function(e) {
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToWeekly();
+    this.props.onSwitchToBgLog();
   }
 }));
 

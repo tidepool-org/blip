@@ -11,7 +11,6 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 
 import * as viz from '@tidepool/viz';
-const TwoOptionToggle = viz.components.TwoOptionToggle;
 const RangeSelect = viz.components.RangeSelect;
 
 var _ = require('lodash');
@@ -125,9 +124,9 @@ describe('Footer', function () {
       expect(props.onClickLines.callCount).to.equal(1);
     });
 
-    it('should trigger onClickValues when weekly and valuesCheckbox changed', function () {
+    it('should trigger onClickValues when valuesCheckbox changed', function () {
       var props = {
-        chartType: 'weekly',
+        chartType: 'bgLog',
         onClickBoxOverlay: sinon.stub(),
         onClickGroup: sinon.stub(),
         onClickLines: sinon.stub(),
@@ -154,7 +153,7 @@ describe('Footer', function () {
 
     it('should trigger onClickRefresh when refresh button clicked', function () {
       var props = {
-        chartType: 'weekly',
+        chartType: 'bgLog',
         onClickBoxOverlay: sinon.stub(),
         onClickGroup: sinon.stub(),
         onClickLines: sinon.stub(),
@@ -176,29 +175,6 @@ describe('Footer', function () {
       expect(props.onClickRefresh.callCount).to.equal(0);
       TestUtils.Simulate.click(refreshButton);
       expect(props.onClickRefresh.callCount).to.equal(1);
-    });
-
-    it('should render a TwoOptionToggle when trends', function () {
-      var props = {
-        chartType: 'trends',
-        onClickBoxOverlay: sinon.stub(),
-        onClickGroup: sinon.stub(),
-        onClickLines: sinon.stub(),
-        onClickValues: sinon.stub(),
-        onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
-        boxOverlay: false,
-        grouped: true,
-        showingLines: false,
-        showingCbg: false,
-        showingSmbg: true,
-        showingValues: false,
-      };
-      var footer = mount(
-        <Footer {...props} />
-      );
-
-      expect(footer.find(TwoOptionToggle).length).to.equal(1);
     });
 
     it('should render a RangeSelect when trends, showingCbg', function () {

@@ -106,7 +106,7 @@ describe('PeopleTable', () => {
     });
 
     it('should have instructions displayed by default', function () {
-      expect(wrapper.find('.peopletable-instructions')).to.have.length(1);
+      expect(wrapper.find('.peopletable-instructions').hostNodes()).to.have.length(1);
     });
 
     it('should default searching and showNames to be false', function () {
@@ -138,6 +138,7 @@ describe('PeopleTable', () => {
   describe('searching', function () {
     it('should show a row of data for each person', function () {
       wrapper.instance().getWrappedInstance().setState({ searching: true });
+      wrapper.update();
       // 5 people plus one row for the header
       expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(6);
     });
@@ -177,9 +178,9 @@ describe('PeopleTable', () => {
       const renderRemoveDialog = sinon.spy(wrapper.instance().getWrappedInstance(), 'renderRemoveDialog');
 
       // Modal should be hidden
-      const overlay = wrapper.find('.ModalOverlay');
-      expect(overlay).to.have.length(1);
-      expect(overlay.is('.ModalOverlay--show')).to.be.false;
+      const overlay = () => wrapper.find('.ModalOverlay').hostNodes();
+      expect(overlay()).to.have.length(1);
+      expect(overlay().is('.ModalOverlay--show')).to.be.false;
 
       // Click the remove link for the last patient
       const removeLink = wrapper.find('RemoveLinkCell').last().find('i.peopletable-icon-remove');
@@ -190,7 +191,7 @@ describe('PeopleTable', () => {
       const state = (key) => wrapper.instance().getWrappedInstance().state[key];
       const currentRow = state('currentRowIndex');
       expect(currentRow).to.equal(4);
-      const activeRow = wrapper.find('.peopletable-active-row');
+      const activeRow = wrapper.find('.peopletable-active-row').hostNodes();
       expect(activeRow).to.have.length(1);
       expect(activeRow.html()).to.contain('Zoe Doe');
 
@@ -202,7 +203,7 @@ describe('PeopleTable', () => {
       expect(state('dataList')[currentRow].fullName).to.equal('Zoe Doe');
 
       // Ensure the modal is showing
-      expect(overlay.is('.ModalOverlay--show')).to.be.true;
+      expect(overlay().is('.ModalOverlay--show')).to.be.true;
       expect(state('showModalOverlay')).to.equal(true);
     });
   });
@@ -212,9 +213,8 @@ describe('PeopleTable', () => {
     let overlay;
 
     beforeEach(() => {
-
       wrapper.find('.peopletable-names-toggle').simulate('click');
-      overlay = wrapper.find('.ModalOverlay');
+      overlay = () => wrapper.find('.ModalOverlay');
 
       removeLink = wrapper.find('RemoveLinkCell').last().find('i.peopletable-icon-remove');
       removeLink.simulate('click');
@@ -223,25 +223,25 @@ describe('PeopleTable', () => {
     it('should close the modal when the background overlay is clicked', function () {
       const overlayBackdrop = wrapper.find('.ModalOverlay-target');
 
-      expect(overlay.is('.ModalOverlay--show')).to.be.true;
+      expect(overlay().is('.ModalOverlay--show')).to.be.true;
       overlayBackdrop.simulate('click');
 
-      expect(overlay.is('.ModalOverlay--show')).to.be.false;
+      expect(overlay().is('.ModalOverlay--show')).to.be.false;
     });
 
     it('should close the modal when the cancel link is clicked', function () {
-      const cancelButton = overlay.find('.btn-secondary');
+      const cancelButton = overlay().find('.btn-secondary');
 
-      expect(overlay.is('.ModalOverlay--show')).to.be.true;
+      expect(overlay().is('.ModalOverlay--show')).to.be.true;
       cancelButton.simulate('click')
 
-      expect(overlay.is('.ModalOverlay--show')).to.be.false;
+      expect(overlay().is('.ModalOverlay--show')).to.be.false;
     });
 
     it('should remove the patient when the remove button is clicked', function () {
-      const removeButton = overlay.first().find('.btn-danger');
+      const removeButton = overlay().first().find('.btn-danger');
 
-      expect(overlay.is('.ModalOverlay--show')).to.be.true;
+      expect(overlay().is('.ModalOverlay--show')).to.be.true;
 
       // Ensure that onRemovePatient is called with the proper userid
       removeButton.simulate('click')

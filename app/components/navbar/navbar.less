@@ -20,11 +20,20 @@
 
 .Navbar {
   display: flex;
-  height: @Navbar-height;
+  min-height: @Navbar-height;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 
+  @media (min-width: @screen-md-lg-min) {
+    justify-content: space-between;
+  }
 }
 
 .Navbar-logoSection {
+  padding: 0 @spacing-small;
+  margin: @spacing-small 0;
+
   .Navbar-logo {
     display: block;
 
@@ -35,35 +44,28 @@
   }
 }
 
-.Navbar-menuSection {
-  // Magic number width: should contain whole menu,
-  // and put some space between menu an patient section
-  width: 330px;
-
-  padding: 0;
-  // Align child items to the right (flex-end)
-  // and to the top (default)
-  display: flex;
-  justify-content: flex-end;
-}
-
 .Navbar-patientSection {
-  // Use remaining space
-  flex-grow: 1;
-
-  // Align child items to the right (flex-end)
-  // and center vertically
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
+  padding: 0 @spacing-small;
+  margin: @spacing-small 0;
 
   .patientcard {
     padding: 0px;
+    width: auto;
 
     .icon-face-standin {
       color: @gray-darker;
     }
   }
+}
+
+.Navbar-menuSection {
+  padding: 0 @spacing-small;
+  margin: @spacing-small 0;
+  display: flex;
+  // justify-content: flex-end;
 }
 
 // Buttons, icons, labels
@@ -131,20 +133,20 @@
 // http://cssarrowplease.com/
 .Navbar-label--left.Navbar-label--withArrow {
   position: relative;
-  margin-right: @Navbar-buttonHeight/2;
+  margin-right: @Navbar-buttonHeight / 2;
 
   &:after {
-  	left: 100%;
-  	top: 50%;
-  	border: solid transparent;
-  	content: " ";
-  	height: 0;
-  	width: 0;
-  	position: absolute;
-  	pointer-events: none;
-	  border-left-color: @gray-dark;
-  	border-width: @Navbar-buttonHeight/2;
-  	margin-top: -@Navbar-buttonHeight/2;
+    left: 100%;
+    top: 50%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-left-color: @gray-dark;
+    border-width: @Navbar-buttonHeight / 2;
+    margin-top: -@Navbar-buttonHeight / 2;
   }
 
   .Navbar-button:hover &:after,
@@ -153,9 +155,9 @@
     background-color: @blue-green-light;
   }
 
-  .Navbar-button--blueBg:hover  &:after,
-  .Navbar-button--blueBg:focus  &:after,
-  .Navbar-button--blueBg:active  &:after {
+  .Navbar-button--blueBg:hover &:after,
+  .Navbar-button--blueBg:focus &:after,
+  .Navbar-button--blueBg:active &:after {
     border-left-color: @blue-green-light;
   }
 }
@@ -190,7 +192,6 @@
   list-style: none;
   vertical-align: top;
 }
-
 
 .Navbar-loggedInAs {
   // Everything inside the label needs to have
@@ -240,7 +241,7 @@
 @Navbar-patientPictureSize: 60px;
 
 .Navbar-patientPicture {
-  background-image: url('images/profile-120x120.png');
+  background-image: url("images/profile-120x120.png");
   background-repeat: no-repeat;
   background-size: @Navbar-patientPictureSize;
   width: @Navbar-patientPictureSize;
@@ -334,7 +335,7 @@
 
 .Navbar-menuDropdown:after,
 .Navbar-menuDropdown:before {
-	position: absolute;
+  position: absolute;
   top: -8px;
   right: 14px;
   display: inline-block;
@@ -343,7 +344,7 @@
   border-bottom: 7px solid #eee;
   border-left: 7px solid transparent;
   border-bottom-color: white;
-  content: '';
+  content: "";
   height: 0;
   width: 0;
 }
@@ -391,6 +392,7 @@
 }
 
 .Navbar-icon-down {
+  width: 15px;
   font-size: 5px;
   float: left;
 }

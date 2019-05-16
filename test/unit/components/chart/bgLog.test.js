@@ -28,14 +28,16 @@ var expect = chai.expect;
 
 import React from 'react';
 import _ from 'lodash';
-import Weekly from '../../../../app/components/chart/weekly';
-import { mount } from 'enzyme';
+import BgLog from '../../../../app/components/chart/bgLog';
+import { shallow, mount } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
+import i18next from '../../../../app/core/language';
+import DataUtilStub from '../../../helpers/DataUtil';
 
 const { Loader } = vizComponents;
 
-describe('Weekly', () => {
+describe('BG Log', () => {
   let baseProps = {
     bgPrefs: {
       bgClasses: {
@@ -61,30 +63,50 @@ describe('Weekly', () => {
       timezoneAware: false,
       timezoneName: 'US/Pacific'
     },
-    chartPrefs: {},
+    isClinicAccount: false,
+    onClickRefresh: sinon.stub(),
+    onClickNoDataRefresh: sinon.stub(),
+    onSwitchToBasics: sinon.stub(),
+    onSwitchToDaily: sinon.stub(),
+    onSwitchToBgLog: sinon.stub(),
+    onSwitchToTrends: sinon.stub(),
+    onSwitchToSettings: sinon.stub(),
+    trackMetric: sinon.stub(),
+    uploadUrl: '',
+    chartPrefs: {
+      bgLog: {},
+    },
+    dataUtil: new DataUtilStub(),
     currentPatientInViewId: 1234,
     patientData: {
-      WeeklyData: {
+      BgLogData: {
         data: {},
       },
       grouped: {
         smbg: [],
       },
     },
-    WeeklyState: {
+    pdf: {},
+    printReady: false,
+    BgLogState: {
       '1234': {},
     },
     loading: false,
+    onClickPrint: sinon.stub(),
     onUpdateChartDateRange: sinon.stub(),
+    t: i18next.t.bind(i18next),
     updateDatetimeLocation: sinon.stub()
   };
 
   let wrapper;
+  let instance;
   beforeEach(() => {
-    wrapper = mount(<Weekly {...baseProps} />);
+    wrapper = shallow(<BgLog.WrappedComponent {...baseProps} />);
+    instance = wrapper.instance();
   })
 
   afterEach(() => {
+    baseProps.onClickPrint.reset();
     baseProps.onUpdateChartDateRange.reset();
     baseProps.updateDatetimeLocation.reset();
   });
@@ -99,21 +121,52 @@ describe('Weekly', () => {
       wrapper.setProps({ loading: true });
       expect(loader().props().show).to.be.true;
     });
+
+    it('should render the stats', () => {
+      const stats = wrapper.find('Stats');
+      expect(stats.length).to.equal(1);
+    });
+
+    it('should have a disabled print button and spinner when a pdf is not ready to print', () => {
+      let mountedWrapper = mount(<BgLog {...baseProps} />);
+
+      var printLink = mountedWrapper.find('.printview-print-icon').hostNodes();
+      expect(printLink.length).to.equal(1);
+      expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.true;
+
+      var spinner = mountedWrapper.find('.print-loading-spinner').hostNodes();
+      expect(spinner.length).to.equal(1);
+    });
+
+    it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', () => {
+      var props = _.assign({}, baseProps, {
+        pdf: {
+          url: 'blobURL',
+        },
+      });
+
+      let mountedWrapper = mount(<BgLog {...props} />);
+      const instance = mountedWrapper.instance().getWrappedInstance();
+
+      var printLink = mountedWrapper.find('.printview-print-icon');
+      expect(printLink.length).to.equal(1);
+      expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.false;
+
+      var spinner = mountedWrapper.find('.print-loading-spinner');
+      expect(spinner.length).to.equal(0);
+
+      expect(baseProps.onClickPrint.callCount).to.equal(0);
+      printLink.simulate('click');
+      expect(baseProps.onClickPrint.callCount).to.equal(1);
+    });
   });
 
   describe('handleDatetimeLocationChange', () => {
-    let wrapper;
-    let instance;
     let state = () => instance.state;
 
     const chart = {
       getCurrentDay: sinon.stub().returns('current day'),
     };
-
-    beforeEach(() => {
-      wrapper = mount(<Weekly {...baseProps} />);
-      instance = wrapper.instance().getWrappedInstance();
-    });
 
     it('should set the `datetimeLocation` state', () => {
       expect(state().datetimeLocation).to.be.undefined;
@@ -135,6 +188,41 @@ describe('Weekly', () => {
       ], chart);
 
       expect(state().title).to.equal('Jan 15, 2018 - Jan 28, 2018');
+    });
+
+    it('should set the `endpoints` state correctly when timezoneAware is false', () => {
+      expect(state().endpoints).to.eql([]);
+
+      instance.handleDatetimeLocationChange([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-28T23:59:59.000Z',
+      ], chart);
+
+      expect(state().endpoints).to.eql([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-29T00:00:00.000Z',
+      ]);
+    });
+
+    it('should set the `endpoints` state correctly when timezoneAware is true', () => {
+      expect(state().endpoints).to.eql([]);
+
+      wrapper.setProps(_.assign({}, baseProps, {
+        timePrefs: {
+          timezoneAware: true,
+          timezoneName: 'US/Pacific',
+        },
+      }));
+
+      instance.handleDatetimeLocationChange([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-28T23:59:59.000Z',
+      ], chart);
+
+      expect(state().endpoints).to.eql([
+        '2018-01-15T08:00:00.000Z',
+        '2018-01-29T08:00:00.000Z',
+      ]);
     });
 
     it('should call the `updateDatetimeLocation` prop method', () => {

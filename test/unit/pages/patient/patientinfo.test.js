@@ -831,6 +831,7 @@ describe('PatientInfo', function () {
     beforeEach(() => {
       wrapper = mount(<PatientInfo {...props} />);
       wrapper.instance().getWrappedInstance().setState({ editing: true });
+      wrapper.update();
     });
 
     it('should render the renderDiagnosisTypeInput select while in editing mode', function() {
@@ -890,7 +891,7 @@ describe('PatientInfo', function () {
     });
 
     it('should render the bg unit settings value if editing is not allowed', function() {
-      const bgUnitSettings = wrapper.find('.PatientPage-bgUnitSettings');
+      const bgUnitSettings = wrapper.find('.PatientPage-bgUnitSettings').hostNodes();
 
       expect(bgUnitSettings).to.have.length(1);
       expect(bgUnitSettings.find('.bgUnits').text()).to.equal('mg/dL');
@@ -902,7 +903,7 @@ describe('PatientInfo', function () {
         permsOfLoggedInUser: { root: true },
       });
 
-      const bgUnitSettings = wrapper.find('.PatientPage-bgUnitSettings');
+      const bgUnitSettings = wrapper.find('.PatientPage-bgUnitSettings').hostNodes();
       expect(bgUnitSettings).to.have.length(1);
       expect(bgUnitSettings.find('.simple-form').length).to.equal(1);
     });
@@ -911,12 +912,18 @@ describe('PatientInfo', function () {
   describe('renderDataSources', function() {
     it('should not render the data sources if the patient is NOT the logged in user', function() {
       expect(wrapper.instance().getWrappedInstance().isSamePersonUserAndPatient()).to.equal(false);
-      expect(wrapper.find('.PatientPage-dataSources')).to.have.length(0);
+      expect(wrapper.find('.PatientPage-dataSources').hostNodes()).to.have.length(0);
     });
     it('should render the data sources if the patient is the logged in user', function() {
       wrapper.setProps({ patient: { userid: 5678 }});
       expect(wrapper.instance().getWrappedInstance().isSamePersonUserAndPatient()).to.equal(true);
-      expect(wrapper.find('.PatientPage-dataSources')).to.have.length(1);
+      expect(wrapper.find('.PatientPage-dataSources').hostNodes()).to.have.length(1);
     });
+  });
+
+  describe.skip('renderExport', function() {
+    it('should render the export UI', function(){
+      expect(wrapper.find('.PatientPage-export')).to.have.length(1);
+    })
   });
 });

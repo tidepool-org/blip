@@ -1,28 +1,58 @@
-var webpackConf = require('./test.config.js');
-var optional = require('optional');
-var mochaConf = optional('./config/mocha.opts.json') || {};
+const webpack = require('webpack');
+const _ = require('lodash');
+const optional = require('optional');
 
-module.exports = function (config) {
+const webpackConf = require('./webpack.config.js');
+const mochaConf = optional('./config/mocha.opts.json') || {};
+
+const testWebpackConf = _.assign({}, webpackConf, {
+  devtool: 'inline-source-map',
+  plugins: [
+    new webpack.DefinePlugin({
+      __DEV__: false,
+      __TEST__: true,
+    }),
+  ],
+});
+
+delete testWebpackConf.devServer;
+
+testWebpackConf.output = {
+  filename: '[name]',
+};
+
+testWebpackConf.mode = 'development';
+
+module.exports = function karmaConfig(config) {
   config.set({
-    browsers: [ 'PhantomJS' ], // Use PhantomJS for now (@gordyd - I'm using a VM)
+    browserNoActivityTimeout: 60000,
+    browsers: ['PhantomJS'],
     captureTimeout: 60000,
-    browserNoActivityTimeout: 60000, // We need to accept that Webpack may take a while to build!
-    singleRun: true,
     client: {
       mocha: mochaConf,
     },
     colors: true,
-    frameworks: [ 'mocha', 'sinon', 'chai', 'intl-shim' ], // Mocha is our testing framework of choice
-    files: [
-      'loadtests.js'
-    ],
-    preprocessors: {
-      'loadtests.js': [ 'webpack' ] // Preprocess with webpack and our sourcemap loader
+    coverageReporter: {
+      dir: 'coverage/',
+      reporters: [
+        { type: 'html' },
+        { type: 'text' },
+      ],
     },
-    reporters: [ 'mocha' ],
-    webpack: webpackConf,
-    webpackServer: {
-      noInfo: true // We don't want webpack output
-    }
+    files: [
+      'loadtests.js',
+    ],
+    frameworks: ['mocha', 'chai', 'sinon', 'intl-shim'],
+    logLevel: config.LOG_INFO,
+    preprocessors: {
+      'loadtests.js': ['webpack', 'sourcemap'],
+    },
+    reporters: ['mocha', 'coverage'],
+    singleRun: true,
+    webpack: testWebpackConf,
+    webpackMiddleware: {
+      noInfo: true,
+      stats: 'errors-only',
+    },
   });
 };

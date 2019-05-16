@@ -31,6 +31,7 @@ import { shallow } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../../app/core/language';
+import DataUtilStub from '../../../helpers/DataUtil';
 
 const { Loader } = vizComponents;
 
@@ -56,10 +57,6 @@ describe('Trends', () => {
       },
       bgUnits: MGDL_UNITS
     },
-    timePrefs: {
-      timezoneAware: false,
-      timezoneName: 'US/Pacific'
-    },
     chartPrefs: {
       trends: {
         activeDays: {
@@ -80,19 +77,34 @@ describe('Trends', () => {
         showingLines: false
       },
     },
-    currentPatientInViewId: 1234,
+    currentPatientInViewId: '1234',
+    dataUtil: new DataUtilStub(),
+    loading: false,
+    onClickRefresh: sinon.stub(),
+    onClickNoDataRefresh: sinon.stub(),
+    onSwitchToBasics: sinon.stub(),
+    onSwitchToDaily: sinon.stub(),
+    onSwitchToBgLog: sinon.stub(),
+    onSwitchToTrends: sinon.stub(),
+    onSwitchToSettings: sinon.stub(),
+    onUpdateChartDateRange: sinon.stub(),
     patientData: {
       TrendsData: {
         data: {},
       },
     },
-    trendsState: {
-      '1234': {},
-    },
     t: i18next.t.bind(i18next),
-    loading: false,
-    onUpdateChartDateRange: sinon.stub(),
+    timePrefs: {
+      timezoneAware: false,
+      timezoneName: 'US/Pacific'
+    },
+    trackMetric: sinon.stub(),
+    trendsState: {
+      1234: {},
+    },
+    updateChartPrefs: sinon.stub(),
     updateDatetimeLocation: sinon.stub(),
+    uploadUrl: '',
   };
 
   let wrapper;
@@ -102,6 +114,7 @@ describe('Trends', () => {
 
   afterEach(() => {
     baseProps.onUpdateChartDateRange.reset();
+    baseProps.updateChartPrefs.reset();
     baseProps.updateDatetimeLocation.reset();
   });
 
@@ -114,6 +127,16 @@ describe('Trends', () => {
 
       wrapper.setProps({ loading: true });
       expect(loader().props().show).to.be.true;
+    });
+
+    it('should render the bg toggle', () => {
+      const toggle = wrapper.find('BgSourceToggle');
+      expect(toggle.length).to.equal(1);
+    });
+
+    it('should render the stats', () => {
+      const stats = wrapper.find('Stats');
+      expect(stats.length).to.equal(1);
     });
   });
 
@@ -148,6 +171,64 @@ describe('Trends', () => {
       expect(wrapper.state().title).to.equal('Jan 15, 2018 - Jan 28, 2018');
     });
 
+    it('should set the `title` state correctly when ending on a DST changeover date', () => {
+      const timezoneAwareProps = {
+        ...baseProps,
+        timePrefs: {
+          timezoneAware: true,
+          timezoneName: 'US/Pacific',
+        }
+      };
+
+      wrapper = shallow(<Trends.WrappedComponent { ...timezoneAwareProps } />);
+      instance = wrapper.instance();
+
+      expect(wrapper.state().title).to.equal('');
+
+      instance.handleDatetimeLocationChange([
+        '2018-03-05T08:00:00.000Z',
+        '2018-03-12T07:00:00.000Z',
+      ]);
+
+      expect(wrapper.state().title).to.equal('Mar 5, 2018 - Mar 11, 2018');
+    });
+
+    it('should set the `title` state correctly when starting on a DST changeover date', () => {
+      const timezoneAwareProps = {
+        ...baseProps,
+        timePrefs: {
+          timezoneAware: true,
+          timezoneName: 'US/Pacific',
+        }
+      };
+
+      wrapper = shallow(<Trends.WrappedComponent { ...timezoneAwareProps } />);
+      instance = wrapper.instance();
+
+      expect(wrapper.state().title).to.equal('');
+
+      instance.handleDatetimeLocationChange([
+        '2018-03-11T08:00:00.000Z',
+        '2018-03-18T07:00:00.000Z',
+      ]);
+
+      expect(wrapper.state().title).to.equal('Mar 11, 2018 - Mar 17, 2018');
+    });
+
+    it('should set the `endpoints` state', () => {
+      expect(wrapper.state().endpoints).to.eql([]);
+
+      instance.handleDatetimeLocationChange([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-29T00:00:00.000Z',
+      ]);
+
+      expect(wrapper.state().endpoints).to.eql([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-29T00:00:00.000Z',
+      ]);
+    });
+
     it('should call the `updateDatetimeLocation` prop method', () => {
       sinon.assert.callCount(baseProps.updateDatetimeLocation, 0);
 
@@ -176,6 +257,36 @@ describe('Trends', () => {
       expect(wrapper.state().debouncedDateRangeUpdate).to.be.a.function;
 
       _.debounce.restore();
+    });
+  });
+
+  describe('toggleBgDataSource', () => {
+    it('should track metric when toggled', () => {
+      const instance = wrapper.instance();
+      instance.toggleBgDataSource(null, 'cbg');
+      sinon.assert.callCount(baseProps.trackMetric, 1);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Trends Click to CGM');
+
+      instance.toggleBgDataSource(null, 'smbg');
+      sinon.assert.callCount(baseProps.trackMetric, 2);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Trends Click to BGM');
+    });
+
+    it('should call the `updateChartPrefs` handler to update the bgSource', () => {
+      const instance = wrapper.instance();
+      instance.toggleBgDataSource(null, 'cbg');
+
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        trends: sinon.match({ bgSource: 'cbg' }),
+      });
+
+      instance.toggleBgDataSource(null, 'smbg');
+
+      sinon.assert.callCount(baseProps.updateChartPrefs, 2);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        trends: sinon.match({ bgSource: 'smbg' }),
+      });
     });
   });
 });

@@ -12,8 +12,6 @@ export const ERR_EMAIL_NOT_VERIFIED = t('Looks like your e-mail address has not 
 // relating to care team invitations
 export const ERR_ALREADY_SENT_TO_EMAIL = t('Looks like you\'ve already sent an invitation to that email.');
 
-export const SIGNUP_ERROR = t('An error occurred while signing up.');
-
 // these get assigned based on HTTP status codes
 // default
 export const ERR_GENERIC = t('Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to investigate.');
@@ -36,6 +34,8 @@ export const ERR_DSA_SETUP = t('Something went wrong while setting up data stora
 export const ERR_FETCHING_MESSAGE_THREAD = t('Something went wrong while fetching a message thread.');
 export const ERR_FETCHING_PATIENT = t('Something went wrong while fetching patient.');
 export const ERR_FETCHING_PATIENT_DATA = t('Something went wrong while fetching data for the current patient.');
+export const ERR_FETCHING_LATEST_PUMP_SETTINGS = t('Something went wrong while fetching latest pump settings for the current patient.');
+export const ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD = t('Something went wrong while fetching latest pump settings upload record for the current patient.');
 export const ERR_FETCHING_PATIENTS = t('Something went wrong while fetching patients.');
 export const ERR_FETCHING_PENDING_RECEIVED_INVITES = t('Something went wrong while fetching received invitations to others\' care teams.');
 export const ERR_FETCHING_PENDING_SENT_INVITES = t('Something went wrong while fetching pending outgoing care team invitations.');

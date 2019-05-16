@@ -65,12 +65,6 @@ utils.getIn = (obj, props, notFound) => {
   return result.child;
 };
 
-// concat([1, 2], 3, [4, 5]) -> [1, 2, 3, 4, 5]
-utils.concat = () => {
-  var args = Array.prototype.slice.call(arguments, 0);
-  return Array.prototype.concat.apply([], args);
-};
-
 utils.isChrome = () => {
   var userAgent = navigator.userAgent.toLowerCase();
   return (userAgent.indexOf('chrome') > -1 && userAgent.indexOf('edge') === -1);
@@ -245,6 +239,17 @@ utils.getDexcom = function(location) {
 
     if (!_.isUndefined(dexcom)) {
       return dexcom;
+    }
+  }
+  return null;
+}
+
+utils.getMedtronic = function(location) {
+  if (location && location.query) {
+    let { medtronic } = location.query;
+
+    if (!_.isUndefined(medtronic)) {
+      return medtronic;
     }
   }
   return null;
@@ -447,7 +452,7 @@ utils.getLatestGithubRelease = (releases) => {
 utils.getDiabetesDataRange = (data) => {
   const sortedData = _.sortBy(_.filter(data, d => _.includes(DIABETES_DATA_TYPES, d.type)), 'time');
 
-  const start = _.get(_.first(sortedData), 'time');
+  const start = _.get(_.head(sortedData), 'time');
   const end = _.get(_.last(sortedData), 'time');
   const spanInDays = (start && end) ? sundial.dateDifference(end, start, 'days') : null;
   const count = sortedData.length;
@@ -458,6 +463,25 @@ utils.getDiabetesDataRange = (data) => {
     spanInDays,
     count,
   };
+}
+
+/**
+ * Get the latest pump settings data in a raw data set
+ * @param {Array} data - The raw unprocessed data
+ * @returns {Object} An object with the following shape:
+ *    @property {Object} latestPumpSettings - The most recent pumpSettings datum found, else undefined
+ *    @property {Object} uploadRecord - upload record matching latestPumpSettings.uploadId, else undefined
+ */
+utils.getLatestPumpSettings = (data) => {
+  const sortedData = _.sortBy(data, ['time']).reverse();
+  const latestPumpSettings = _.find(sortedData, { type: 'pumpSettings' });
+  const uploadId = _.get(latestPumpSettings, 'uploadId');
+  const uploadRecord = _.find(sortedData, { type: 'upload', uploadId });
+
+  return {
+    latestPumpSettings,
+    uploadRecord,
+  }
 }
 
 module.exports = utils;

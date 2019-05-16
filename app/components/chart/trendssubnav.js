@@ -97,8 +97,7 @@ var TrendsSubNav = translate()(React.createClass({
     return (
       <div id="trendsSubNav">
         <div className="trendsSubNavContainer">
-          <div>{domainLinks}</div>
-          <div className="flexed" id="trendsScroll"></div>
+          <div className="domainLinks">{domainLinks}</div>
           <div className="dayFilters">{dayFilters}</div>
         </div>
       </div>

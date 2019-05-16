@@ -1740,7 +1740,7 @@ describe('Actions', () => {
       it('should be a TSA', () => {
         let dataDonationAccounts = [
           { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
-          { email: 'bigdata+ZZZ@tidepool.org' },
+          { email: 'bigdata+NSF@tidepool.org' },
         ];
 
         let action = sync.fetchDataDonationAccountsSuccess(dataDonationAccounts);
@@ -1751,7 +1751,7 @@ describe('Actions', () => {
       it('type should equal FETCH_DATA_DONATION_ACCOUNTS_SUCCESS', () => {
         let dataDonationAccounts = [
           { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
-          { email: 'bigdata+ZZZ@tidepool.org' },
+          { email: 'bigdata+NSF@tidepool.org' },
         ];
 
         let action = sync.fetchDataDonationAccountsSuccess(dataDonationAccounts);
@@ -1798,7 +1798,7 @@ describe('Actions', () => {
             { email: 'bigdata+YYY@tidepool.org' },
           ],
           removeAccounts: [
-            { removedEmail: 'bigdata+ZZZ@tidepool.org' },
+            { removedEmail: 'bigdata+NSF@tidepool.org' },
           ],
         };
 
@@ -1813,7 +1813,7 @@ describe('Actions', () => {
             { email: 'bigdata+YYY@tidepool.org' },
           ],
           removeAccounts: [
-            { removedEmail: 'bigdata+ZZZ@tidepool.org' },
+            { removedEmail: 'bigdata+NSF@tidepool.org' },
           ],
         };
 

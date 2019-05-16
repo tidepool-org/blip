@@ -21,14 +21,24 @@
 // Subnav
 // ====================================
 
-@patient-data-subnav-vertical-padding:    @spacing-small;
-@patient-data-subnav-horizontal-padding:  @spacing-small;
+@patient-data-subnav-vertical-padding: @spacing-small;
+@patient-data-subnav-horizontal-padding: @spacing-small;
 
 .patient-data-subnav-inner {
   color: #fff;
   background-color: @gray-dark;
 
-  padding: @patient-data-subnav-vertical-padding 0;
+  padding: 0;
+}
+
+.patient-data-subnav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @media (min-width: @screen-md-lg-min) {
+    justify-content: space-between;
+  }
 }
 
 .patient-data-subnav-text {
@@ -41,12 +51,12 @@
   width: 150px;
 }
 
-.patient-data-subnav-dates-weekly {
+.patient-data-subnav-dates-bgLog {
   width: 220px;
 }
 
 .patient-data-subnav-dates-trends {
-  width: 250px;
+  width: 220px;
 }
 
 .patient-data-subnav a {
@@ -86,15 +96,17 @@
 }
 
 .patient-data-subnav-center {
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  padding: @patient-data-subnav-vertical-padding @spacing-small;
 }
 
 .patient-data-subnav-left {
-  text-align: left;
+  padding: @patient-data-subnav-vertical-padding @spacing-small;
 }
 
 .patient-data-subnav-right {
-  text-align: right;
+  padding: @patient-data-subnav-vertical-padding @spacing-small;
 }
 
 .patient-data-subnav-right-label {
@@ -118,20 +130,47 @@
 // Content
 // ====================================
 
-@patient-data-chart-height:             500px;
+.patient-data-content-outer {
+  display: block;
+
+  @media (min-width: @patient-data-sidebar-bp) {
+    display: flex;
+    flex-wrap: nowrap;
+  }
+}
 
 .patient-data-content-inner {
+  width: 100%;
   background-color: #fff;
-
-  // Bug with message:
-  // If no padding top is set, message top margin will "push" this white block
-  // down, instead of "stretching" it
   padding-top: 5px;
   padding-bottom: 5px;
 }
 
 .patient-data-content {
   min-height: @patient-data-chart-height;
+  position: relative;
+}
+
+// Sidebar
+// ====================================
+
+.patient-data-sidebar {
+  width: 100%;
+  background-color: #fff;
+  padding: @spacing-small;
+
+  @media (min-width: @patient-data-sidebar-bp) {
+    flex-shrink: 0;
+    width: @patient-data-sidebar-width;
+  }
+
+  .toggle-container {
+    margin-bottom: 8px;
+    float: right;
+  }
+}
+
+.patient-data-sidebar-inner {
   position: relative;
 }
 
@@ -142,6 +181,19 @@
   position: absolute;
   top: 0;
   width: 100%;
+}
+
+// Stats
+// ====================================
+.patient-data .Stats {
+  clear: both;
+  display: block;
+  margin: 0;
+
+  > div {
+    margin: 0 0 8px;
+    max-width: 100%;
+  }
 }
 
 // Chart
@@ -176,10 +228,9 @@
   }
 
   i {
-      display: none;
+    display: none;
   }
 }
-
 
 // Messages
 // ====================================
@@ -191,7 +242,7 @@
   padding: 30px @spacing-small;
   margin-top: 80px;
 
-  @media(min-width: @patient-data-message-breakpoint) {
+  @media (min-width: @patient-data-message-breakpoint) {
     margin-left: auto;
     margin-right: auto;
     width: 480px;
@@ -212,7 +263,7 @@
   text-align: center;
   margin-top: 80px;
 
-  @media(min-width: @patient-data-message-breakpoint) {
+  @media (min-width: @patient-data-message-breakpoint) {
     margin-left: auto;
     margin-right: auto;
     width: 625px;
@@ -231,7 +282,8 @@
   .uploader-color-override {
     color: @purple-medium;
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       color: @purple-uploader;
       text-decoration: none;
     }
@@ -246,8 +298,8 @@
 // Footer
 // ====================================
 
-@patient-data-footer-vertical-padding:    @spacing-small;
-@patient-data-footer-horizontal-padding:  @spacing-small;
+@patient-data-footer-vertical-padding: @spacing-small;
+@patient-data-footer-horizontal-padding: @spacing-small;
 
 .patient-data-footer-inner {
   padding-left: 0;
@@ -255,13 +307,14 @@
   display: flex;
   justify-content: space-between;
 
-  min-height: (2*@spacing-small + @line-height-base);
+  min-height: (2 * @spacing-small + @line-height-base);
 }
 
 .patient-data-footer a {
   color: @gray-darkest;
   display: inline-block;
-  padding: @patient-data-footer-vertical-padding @patient-data-footer-horizontal-padding;
+  padding: @patient-data-footer-vertical-padding
+    @patient-data-footer-horizontal-padding;
 
   text-decoration: none;
 
@@ -308,7 +361,8 @@
     color: gray;
     background-color: transparent;
 
-    padding: @patient-data-subnav-vertical-padding @patient-data-subnav-horizontal-padding;
+    padding: @patient-data-subnav-vertical-padding
+      @patient-data-subnav-horizontal-padding;
   }
 
   .patient-data-subnav > div:last-child {
