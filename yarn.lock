@@ -10683,10 +10683,10 @@ thunky@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.0.2.tgz#a862e018e3fb1ea2ec3fce5d55605cf57f247371"
 
-tideline@1.13.1-show-autostat-time-670g-model-1782.1:
-  version "1.13.1-show-autostat-time-670g-model-1782.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.13.1-show-autostat-time-670g-model-1782.1.tgz#a4d8cf190af267d7c831ffacef80493d2e1d04b4"
-  integrity sha512-r58riDHhHgCueeFCLTNeNN1aBCgL12YA7rp2GuY73g5T/vY3SXOQJl0prQBnpAqDDbS0M2uZ7M52cTMQvYexag==
+tideline@1.13.0-nan-basicsview-infusionset.1:
+  version "1.13.0-nan-basicsview-infusionset.1"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.13.0-nan-basicsview-infusionset.1.tgz#7c4966f764da55fa1733e0241ef6f00aa90455f2"
+  integrity sha512-9d22ochP0nJ4n1kzI+1tUbnXqiuT3XEeSFWOhMNY0IvpH6WcCl4jFNNwUBP+XDSToXefLjoeaVb4BdQBlX4SLw==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
