@@ -30,14 +30,13 @@ app.use(helmet());
 app.use(nonceMiddleware, helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'none'"],
-    baseUri: ['https://docs.helpscout.net'],
+    baseUri: ["'none'"],
     scriptSrc: [
       "'self'",
       "'strict-dynamic'",
       (req, res) => {
         return `'nonce-${res.locals.nonce}'`;
       },
-      'https://beacon-v2.helpscout.net',
       'https://d12wqas9hcki3z.cloudfront.net',
       'https://d33v4339jhl8k0.cloudfront.net',
     ],
@@ -46,7 +45,6 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'blob:',
       "'unsafe-inline'",
       'https://fonts.googleapis.com',
-      'https://beacon-v2.helpscout.net',
       'https://djtflbt20bdde.cloudfront.net',
     ],
     imgSrc: [
@@ -57,17 +55,16 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     ],
     fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com'],
     reportUri: '/event/csp-report/violation',
-    objectSrc: ['blob:', 'https://beacon-v2.helpscout.net'],
+    objectSrc: ['blob:'],
     workerSrc: ["'self'", 'blob:'],
     childSrc: ["'self'", 'blob:', 'https://docs.google.com'],
-    frameSrc: ['https://beacon-v2.helpscout.net', 'https://docs.google.com'],
+    frameSrc: ['https://docs.google.com'],
     connectSrc: [].concat([
       process.env.API_HOST,
       'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
-      '*.zdassets.com',
-      '*.zendesk.com'
-      'https://beaconapi.helpscout.net',
-      'https://chatapi.helpscout.net',
+      'https://static.zdassets.com',
+      'https://ekr.zdassets.com',
+      'https://diabeloop.zendesk.com',
       'https://d3hb14vkzrxvla.cloudfront.net',
       'wss\://*.pusher.com',
       '*.sumologic.com',

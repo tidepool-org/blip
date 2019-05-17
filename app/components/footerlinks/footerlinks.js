@@ -33,6 +33,7 @@ const FooterLinks = (props) => {
   }
   return (
     <div className='footer-section footer-section-top'>
+    {__BRANDING__ !== 'diabeloop' &&
       <div className='footer-link social-media large-format-only'>
         <a
           className='footer-twitter'
@@ -76,7 +77,8 @@ const FooterLinks = (props) => {
           onClick={metricFnMkr('PP and TOU')}
           target='_blank'>Privacy and Terms of Use</a>
       </div>
-      {__BRANDING__ === 'diabeloop' ? (
+    }
+    {__BRANDING__ === 'diabeloop' ? (
         <div className='footer-link footer-jdrf'>
           <a
             href='https://tidepool.org'

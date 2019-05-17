@@ -1,9 +1,10 @@
 {
   "name": "blip",
-  "version": "1.12.5-dblp.0.4.0",
+  "version": "1.20.2-dblp.0.5.0-rc3",
   "private": true,
   "scripts": {
-    "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
+    "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma --log-level debug start",
+    "pretest": "NODE_ENV=test npm run lint",
     "nightwatch": "export API_HOST='http://localhost:8009' && npm run build && npm run install-selenium && ./node_modules/nightwatch/bin/nightwatch",
     "nightwatch-single": "./node_modules/nightwatch/bin/nightwatch",
     "browser-tests": "NODE_ENV=test ./node_modules/karma/bin/karma start --browsers Chrome",
@@ -30,7 +31,7 @@
     "@babel/polyfill": "7.0.0",
     "@babel/preset-env": "7.1.0",
     "@babel/preset-react": "7.0.0",
-    "@tidepool/viz": "mdblp/viz#dblp.0.1.3"
+    "@tidepool/viz": "mdblp/viz#tidepool/integrate-v1.3",
     "async": "2.6.1",
     "autoprefixer": "9.1.5",
     "babel-core": "7.0.0-bridge.0",
@@ -61,11 +62,13 @@
     "lodash": "4.17.10",
     "mini-css-extract-plugin": "0.5.0",
     "moment": "2.22.2",
+    "moment-timezone": "0.5.21",
     "optimize-css-assets-webpack-plugin": "5.0.1",
     "postcss-loader": "3.0.0",
     "qs": "6.5.2",
     "react": "15.6.2",
     "react-addons-update": "15.6.2",
+    "react-cookie-consent": "^2.2.2",
     "react-dom": "15.6.2",
     "react-i18next": "7.13.0",
     "react-loading": "2.0.3",
@@ -83,8 +86,8 @@
     "script-loader": "0.7.2",
     "shelljs": "0.8.2",
     "style-loader": "0.23.0",
-    "sundial": "1.6.0",
-    "tideline": "mdblp/tideline#dblp.0.1.1",
+    "sundial": "mdblp/sundial#feature/upgrade-moment-timezone",
+    "tideline": "mdblp/tideline#dblp.1.12.0-rc",
     "tidepool-platform-client": "0.41.0",
     "uglify-es": "3.3.9",
     "uglifyjs-webpack-plugin": "2.0.1",
@@ -94,10 +97,11 @@
     "worker-loader": "2.0.0"
   },
   "devDependencies": {
+    "acorn": "^6.1.1",
     "chai": "4.1.2",
     "chromedriver": "2.41.0",
-    "enzyme": "3.6.0",
-    "enzyme-adapter-react-15": "1.1.0",
+    "enzyme": "3.10.0",
+    "enzyme-adapter-react-15": "1.4.0",
     "eslint": "5.6.0",
     "eslint-plugin-react": "7.11.1",
     "gitbook-cli": "2.3.2",
@@ -140,8 +144,5 @@
   },
   "peerDependencies": {
     "babel-core": "6.x || ^7.0.0-bridge.0"
-  },
-  "resolutions": {
-    "sundial/moment-timezone": "0.5.21"
   }
 }
