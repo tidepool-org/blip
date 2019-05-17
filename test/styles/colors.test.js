@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 describe('colors', () => {
   it('should export all required colors', () => {
-    expect(_.toLower(colors.bolus)).to.equal('#7cd0f0');
+    expect(_.toLower(colors.bolus)).to.equal('#6fc3bb');
     expect(_.toLower(colors.basal)).to.equal('#19a0d7');
     expect(_.toLower(colors.basalAutomated)).to.equal('#00e9fa');
     expect(_.toLower(colors.statDark)).to.equal('#27385b');

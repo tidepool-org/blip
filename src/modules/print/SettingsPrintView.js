@@ -212,7 +212,7 @@ class SettingsPrintView extends PrintView {
     if (device !== null) {
       const deviceTableData = dblData.getDeviceInfosData(device);
 
-      const deviceTableDataWidth = (this.chartArea.width * 0.6) | 0;
+      const deviceTableDataWidth = (this.chartArea.width * 0.6);
 
       this.renderTableHeading(deviceTableData.heading, {
         columnDefaults: {
@@ -224,8 +224,8 @@ class SettingsPrintView extends PrintView {
         },
       });
 
-      deviceTableData.columns[0].width = (deviceTableDataWidth * 0.4) | 0;
-      deviceTableData.columns[1].width = (deviceTableDataWidth * 0.6) | 0;
+      deviceTableData.columns[0].width = (deviceTableDataWidth * 0.4);
+      deviceTableData.columns[1].width = (deviceTableDataWidth * 0.6);
 
       this.renderTable(deviceTableData.columns, deviceTableData.rows, {
         columnDefaults: {

@@ -144,19 +144,19 @@ export function getDeviceParametersData(parameters, opts) {
     header: t('Name'),
     cache: false,
     align: 'left',
-    width: (width * 0.7) | 0,
+    width: (width * 0.7),
   }, {
     id: 'value',
     header: t('Value'),
     cache: false,
     align: 'right',
-    width: (width * 0.2) | 0,
+    width: (width * 0.2),
   }, {
     id: 'unit',
     header: t('Unit'),
     cache: false,
     align: 'left',
-    width: (width * 0.1) | 0,
+    width: (width * 0.1),
   }];
 
   return {

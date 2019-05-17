@@ -64,7 +64,6 @@ function renderDiabeloopParameters(parametersByLevel) {
 
     tables.push(
       <Table
-        key={level}
         title={title}
         rows={parameters}
         columns={columns}
