@@ -91,11 +91,11 @@ export default translate()(class BrowserWarning extends Component {
               {t('Download Tidepool Mobile for iOS or Android to see your data on the go:')}
             </div>
             <div className="browser-warning-mobile-appstore-container">
-              <a href='https://itunes.apple.com/us/app/tidepool-mobile/id1026395200' onClick={handleClickiOS}>
-                <img alt='Download on the App Store' src={appstoreImageUrl} className="appstore-badge" />
+              <a href='https://itunes.apple.com/us/app/tidepool-mobile/id1026395200'>
+                <img alt='Download on the App Store' src={appstoreImageUrl} className="appstore-badge" onClick={handleClickiOS}/>
               </a>
-              <a href='https://play.google.com/store/apps/details?id=io.tidepool.urchin' onClick={handleClickAndroid}>
-                <img alt='Get it on Google Play' src={playstoreImageUrl} className="playstore-badge" />
+              <a href='https://play.google.com/store/apps/details?id=io.tidepool.urchin'>
+                <img alt='Get it on Google Play' src={playstoreImageUrl} className="playstore-badge" onClick={handleClickAndroid}/>
               </a>
             </div>
           </div>
