@@ -50,10 +50,14 @@ export default translate()(class BrowserWarning extends Component {
       self.props.trackMetric('Clicked Download Chrome');
     };
     var handleClickiOS = function() {
-      self.props.trackMetric('No Data - Clicked iOS');
+      self.props.trackMetric('No Data - Clicked iOS', {}, () => {
+        window.location.assign('https://itunes.apple.com/us/app/tidepool-mobile/id1026395200');
+      });
     };
     var handleClickAndroid = function() {
-      self.props.trackMetric('No Data - Clicked Android');
+      self.props.trackMetric('No Data - Clicked Android', {}, () => {
+        window.location.assign('https://play.google.com/store/apps/details?id=io.tidepool.urchin');
+      });
     };
 
     if (this.state.copyStatus === COPY_STATUS_SUCCESS) {
@@ -91,12 +95,8 @@ export default translate()(class BrowserWarning extends Component {
               {t('Download Tidepool Mobile for iOS or Android to see your data on the go:')}
             </div>
             <div className="browser-warning-mobile-appstore-container">
-              <a href='https://itunes.apple.com/us/app/tidepool-mobile/id1026395200'>
-                <img alt='Download on the App Store' src={appstoreImageUrl} className="appstore-badge" onClick={handleClickiOS}/>
-              </a>
-              <a href='https://play.google.com/store/apps/details?id=io.tidepool.urchin'>
-                <img alt='Get it on Google Play' src={playstoreImageUrl} className="playstore-badge" onClick={handleClickAndroid}/>
-              </a>
+              <img alt='Download on the App Store' src={appstoreImageUrl} className="appstore-badge" onClick={handleClickiOS}/>
+              <img alt='Get it on Google Play' src={playstoreImageUrl} className="playstore-badge" onClick={handleClickAndroid}/>
             </div>
           </div>
         </div>
