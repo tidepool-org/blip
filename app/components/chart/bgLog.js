@@ -305,6 +305,7 @@ class BgLog extends Component {
         inTransition={this.state.inTransition}
         title={''}
         onClickOneDay={this.handleClickOneDay}
+        onClickBasics={this.props.onSwitchToBasics}
         onClickTrends={this.handleClickTrends}
         onClickSettings={this.props.onSwitchToSettings}
         onClickBgLog={this.handleClickBgLog}
