@@ -2,14 +2,28 @@ sudo: false
 
 language: node_js
 
+dist: trusty
+
 node_js:
   - "10.14.2"
   - "stable"
 
+cache:
+  yarn: true
+  directories:
+    - node_modules
+
+before_install:
+  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+
+install:
+  - yarn install --frozen-lockfile
+
+addons:
+  chrome: stable
+
 services:
   - docker
-
-cache: yarn
 
 script:
   - npm test
