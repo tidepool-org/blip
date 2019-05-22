@@ -14,7 +14,6 @@
     "build-storybooks": "./node_modules/.bin/build-storybook -c storybook -o web/stories && ./node_modules/.bin/build-storybook -c storybookDatatypes -o web/diabetes-data-stories",
     "clean": "NODE_ENV=production ./node_modules/.bin/rimraf ./dist/*",
     "lint": "NODE_ENV=test ./node_modules/.bin/eslint src/ stories/ storiesDatatypes/ test/ *.js",
-    "prepare": "NODE_ENV=production npm run build",
     "prepublishOnly": "NODE_ENV=production ./node_modules/.bin/rimraf ./node_modules && yarn install --frozen-lockfile && npm test && NODE_ENV=production npm run build",
     "pretest": "NODE_ENV=test npm run lint",
     "serve-docs": "./node_modules/.bin/gitbook serve",

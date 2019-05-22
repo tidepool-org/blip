@@ -18,6 +18,7 @@ before_install:
 
 install:
   - yarn install --frozen-lockfile
+  - NODE_ENV=production npm run build
 
 addons:
   chrome: stable
