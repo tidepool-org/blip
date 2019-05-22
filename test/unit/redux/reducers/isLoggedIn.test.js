@@ -64,7 +64,7 @@ describe('isLoggedIn', () => {
 
       let state = reducer(initialStateForTest, action);
 
-      expect(state).to.be.lase;
+      expect(state).to.be.false;
     });
   });
 });
