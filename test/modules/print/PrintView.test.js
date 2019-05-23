@@ -150,7 +150,7 @@ describe('PrintView', () => {
       const strippedRenderer = new PrintView(doc, data, opts);
 
       _.each(fallbackOpts, opt => {
-        expect(strippedRenderer[opt]).to.be.defined;
+        expect(strippedRenderer[opt]).to.not.be.undefined;
       });
     });
 
