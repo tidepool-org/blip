@@ -63,12 +63,11 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     childSrc: ["'self'", 'blob:', 'https://docs.google.com'],
     frameSrc: ['https://beacon-v2.helpscout.net', 'https://docs.google.com'],
     connectSrc: [].concat([
-      process.env.API_HOST,
+      process.env.API_HOST || 'localhost',
       'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
       'https://beaconapi.helpscout.net',
       'https://chatapi.helpscout.net',
       'https://d3hb14vkzrxvla.cloudfront.net',
-      'localhost',
       'wss\://*.pusher.com',
       '*.tidepool.org',
       '*.sumologic.com',
