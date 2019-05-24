@@ -233,7 +233,7 @@ describe('BgLogPrintView', () => {
         expect(column.height).to.be.a('number');
         expect(column.padding).to.be.an('array');
         expect(column.renderer).to.be.a('function');
-        expect(column.renderer.name).to.equal('renderBgCell');
+        expect(column.renderer.name).to.contain('renderBgCell');
         expect(column.width).to.equal(100);
       });
     });
