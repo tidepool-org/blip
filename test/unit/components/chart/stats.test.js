@@ -104,7 +104,7 @@ describe('Stats', () => {
     });
 
     it('should set `stats` to state', () => {
-      expect(instance.state.stats).to.be.an.array;
+      expect(instance.state.stats).to.be.an('array');
     });
 
     it('should set the dataUtil endpoints', () => {
