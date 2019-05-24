@@ -1,28 +1,41 @@
-var webpack = require('webpack');
 var webpackConf = require('./test.config.js');
 
 module.exports = function (config) {
   config.set({
-    browsers: [ 'PhantomJS' ],
+    autoWatch: true,
+    browserNoActivityTimeout: 60000,
+    browsers: ['CustomChromeHeadless'],
     captureTimeout: 60000,
-    browserNoActivityTimeout: 60000, // We need to accept that Webpack may take a while to build!
-    singleRun: true,
-    colors: true,
     client: {
       mocha: {
         timeout: 4000
       },
     },
-    frameworks: [ 'mocha', 'sinon', 'chai', 'intl-shim' ], // Mocha is our testing framework of choice
+    colors: true,
+    concurrency: Infinity,
+    customLaunchers: {
+      CustomChromeHeadless: {
+        base: 'ChromeHeadless',
+        flags: [
+          '--headless',
+          '--disable-gpu',
+          '--no-sandbox',
+          '--remote-debugging-port=9222',
+        ],
+      },
+    },
     files: [
       'test/index.js'
     ],
+    frameworks: [ 'mocha', 'sinon', 'chai', 'intl-shim' ],
+    logLevel: config.LOG_INFO,
     preprocessors: {
       'test/index.js': [ 'webpack' ] // Preprocess with webpack and our sourcemap loader
     },
     reporters: [ 'mocha' ],
+    singleRun: true,
     webpack: webpackConf,
-    webpackServer: {
+    webpackMiddleware: {
       noInfo: true // We don't want webpack output
     }
   });
