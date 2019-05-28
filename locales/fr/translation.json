@@ -150,7 +150,7 @@
   "html.donate-form-explainer": " You own your data. Read all the details about Tidepool's Big Data Donation project <1>here</1>.",
   "html.emailverification-instructions": "<0>Keeping your data private and secure is important to us!</0><1><0>Please click the link in the email we just sent you at<1></1><2><0>{{sent}}</0></2><3></3>to verify and activate your account.</0></1>",
   "html.patient-delete-account": "If you are sure you want to delete your account, <1>send an email</1> to support@tidepool.org and we take care of it for you.",
-  "html.patient-info-fullname": "<0>{{fullName}}</0> (edit in<2>account</2>)",
+  "html.patient-info-fullname": "<0>{{fullName}}</0> (edit in <2>account</2>)",
   "html.patientdata-uploaded-message": "<0>To see your data, you’ll need the Tidepool Uploader</0><1></1><2>Already have the Tidepool Uploader? Launch it <1>here</1></2><3>To upload Dexcom with iPhone, get <1>Tidepool Mobile</1></3><4>Already uploaded? <1>Click to reload.</1><2></2><3>Need help?</3> Email us at <5>support@tidepool.org</5> or visit our <7>help page</7>.</4>",
   "html.patientinfo-units-used": "<0>The units I use are</0><1><0></0></1>",
   "html.patientnew-donate-explainer": " You own your data. Read all the details about Tidepool's Big Data Donation project <1>here</1>.",
