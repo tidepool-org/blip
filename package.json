@@ -124,7 +124,7 @@
     "sinon": "6.2.0",
     "style-loader": "0.23.0",
     "sundial": "1.6.0",
-    "tideline": "1.13.0-nan-basicsview-infusionset.1",
+    "tideline": "1.13.0-handle-negative-bg-values.1",
     "tidepool-platform-client": "0.41.0",
     "tidepool-standard-action": "0.1.1",
     "uglify-es": "3.3.9",

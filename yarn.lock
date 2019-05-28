@@ -10568,10 +10568,10 @@ thunky@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.0.2.tgz#a862e018e3fb1ea2ec3fce5d55605cf57f247371"
 
-tideline@1.13.0-nan-basicsview-infusionset.1:
-  version "1.13.0-nan-basicsview-infusionset.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.13.0-nan-basicsview-infusionset.1.tgz#7c4966f764da55fa1733e0241ef6f00aa90455f2"
-  integrity sha512-9d22ochP0nJ4n1kzI+1tUbnXqiuT3XEeSFWOhMNY0IvpH6WcCl4jFNNwUBP+XDSToXefLjoeaVb4BdQBlX4SLw==
+tideline@1.13.0-handle-negative-bg-values.1:
+  version "1.13.0-handle-negative-bg-values.1"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.13.0-handle-negative-bg-values.1.tgz#acc85f0466a0dd1a086603b652e82bf78b4785c3"
+  integrity sha512-P9Ny09p2jDa9p+iPKRX+mnUlu+u9ZY75BsnKdS+wUdWjby4gL4IC29qGUm3D/JcroXpuHsBrVTaTOs0F/Y9vhA==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
