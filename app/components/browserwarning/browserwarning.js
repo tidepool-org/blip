@@ -87,12 +87,13 @@ export default translate()(class BrowserWarning extends Component {
       <div className="browser-warning js-terms">
         <div className="browser-warning-content browser-warning-box">
           <h1 className="browser-warning-title">
-            {t('Tidepool Web works with Chrome on Mac or Windows.')}
+            {t('Tidepool Web works with Chrome on ')}
+            <span className="browser-warning-nowrap">{t('Mac or Windows.')}</span>
           </h1>
           {downloadCopy} 
           <div className="browser-warning-mobile">
             <div className="browser-warning-mobile-message">
-              {t('Download Tidepool Mobile for iOS or Android to see your data on the go:')}
+              {t('Download Tidepool Mobile for iOS or Android to add notes and see your data on the go:')}
             </div>
             <div className="browser-warning-mobile-appstore-container">
               <img alt='Download on the App Store' src={appstoreImageUrl} className="appstore-badge" onClick={handleClickiOS}/>
