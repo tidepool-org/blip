@@ -69,7 +69,6 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://chatapi.helpscout.net',
       'https://d3hb14vkzrxvla.cloudfront.net',
       'wss\://*.pusher.com',
-      '*.tidepool.org',
       '*.sumologic.com',
       'sentry.io',
     ]),
