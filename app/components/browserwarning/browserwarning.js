@@ -45,7 +45,7 @@ export default translate()(class BrowserWarning extends Component {
     const { t } = this.props;
     var self = this;
     var downloadCopy = <div className="browser-warning-chrome-image"></div>;
-    var copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>{t('Copy link')}</button>;
+    var copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>{t('Copy this page\’s URL')}</button>;
     var handleClickDownload = function() {
       self.props.trackMetric('Clicked Download Chrome');
     };
@@ -73,13 +73,13 @@ export default translate()(class BrowserWarning extends Component {
         <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">
           <div className="browser-warning-chrome-image"></div>
         </a>
-        <Trans className="browser-warning-text" i18nKey="html.browser-warning-text">
-          <span className="dark-text">Copy and paste</span>
-          <input type="text" className="blip-link-text" value="app.tidepool.org" readOnly={true}></input>
-          <span className="dark-text">into Chrome.</span>
-        </Trans>
         {copyButton}
-        <Trans className="browser-warning-download-text" i18nKey="html.browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">here</a>.</Trans>
+        <Trans className="browser-warning-text" i18nKey="html.browser-warning-text">
+          and paste it into <span className="dark-text">Chrome</span> to see this page on <span className="browser-warning-nowrap">your desktop computer.</span>
+        </Trans>
+        <div className="blip-link-text-wrap">
+          <input type="text" className="blip-link-text" value="app.tidepool.org" readOnly={true}></input>
+        </div>
       </div>);
     }
 

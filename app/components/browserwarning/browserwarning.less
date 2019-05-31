@@ -48,35 +48,38 @@
     padding-left: @spacing-small;
     padding-right: @spacing-small;
     color: @gray-darker;
-    margin-bottom: @spacing-large;
     text-align: center;
   }
 
   .browser-warning-text {
     text-align: center;
-
-    .blip-link-text {
-      border: none;
-      margin: 0 5px;
-      text-align: center;
-      color: @gray-darker;
-      width: 130px;
-    }
+    line-height: 28px;
 
     .dark-text {
       color: @gray-darker;
       font-weight: 600;
     }
-
-    margin-bottom: 30px;
+  }
+  .blip-link-text-wrap {
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+  }
+  .blip-link-text {
+    border: none;
+    margin: 0 5px;
+    text-align: center;
+    color: @gray-darker;
+    width: 130px;
   }
 
   .browser-warning-copy-button {
+    font-size: 16px;
     background-color: @purple;
     color: @white-color;
-    font-weight: 600;
-    padding: 10px 30px;
-    border-radius: 2px;
+    font-weight: 400;
+    padding: 6px 16px;
+    border-radius: 8px;
     border: none;
     margin: 0 auto 20px;
   }
@@ -85,6 +88,7 @@
     font-size: 14px;
     color: @gray-darker;
     font-weight: 500;
+    line-height: 28px;
 
     a {
       color: @link-color;
@@ -95,7 +99,7 @@
     background: url('./images/chrome-logo.svg') no-repeat;
     width: 100px;
     height: 100px;
-    margin: 0 auto 30px;
+    margin: 0 auto 16px;
     background-size: cover;
   }
 
