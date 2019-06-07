@@ -184,8 +184,10 @@ describe('PeopleTable', () => {
 
       // Click the remove link for the last patient
       const removeLink = wrapper.find('RemoveLinkCell').last().find('i.peopletable-icon-remove');
-      expect(wrapper.instance().getWrappedInstance().handleRemove).to.have.beenCalled;
+      const handleRemoveSpy = sinon.spy(wrapper.instance().getWrappedInstance(), 'handleRemove');
+      sinon.assert.notCalled(handleRemoveSpy);
       removeLink.simulate('click');
+      sinon.assert.called(handleRemoveSpy);
 
       // Ensure the currentRowIndex is set to highlight the proper patient
       const state = (key) => wrapper.instance().getWrappedInstance().state[key];
