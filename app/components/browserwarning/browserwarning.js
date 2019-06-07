@@ -45,10 +45,20 @@ export default translate()(class BrowserWarning extends Component {
     const { t } = this.props;
     var self = this;
     var downloadCopy = <div className="browser-warning-chrome-image"></div>;
-    var copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>{t('Copy link')}</button>;
+    var copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>{t('Copy this page\’s URL')}</button>;
     var handleClickDownload = function() {
       self.props.trackMetric('Clicked Download Chrome');
-    }
+    };
+    var handleClickiOS = function() {
+      self.props.trackMetric('No Data - Clicked iOS', {}, () => {
+        window.location.assign('https://itunes.apple.com/us/app/tidepool-mobile/id1026395200');
+      });
+    };
+    var handleClickAndroid = function() {
+      self.props.trackMetric('No Data - Clicked Android', {}, () => {
+        window.location.assign('https://play.google.com/store/apps/details?id=io.tidepool.urchin');
+      });
+    };
 
     if (this.state.copyStatus === COPY_STATUS_SUCCESS) {
       self.props.trackMetric('Clicked Copy blip.tidepool.org, automatically copied');
@@ -63,13 +73,13 @@ export default translate()(class BrowserWarning extends Component {
         <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">
           <div className="browser-warning-chrome-image"></div>
         </a>
-        <Trans className="browser-warning-text" i18nKey="html.browser-warning-text">
-          <span className="dark-text">Copy and paste</span>
-          <input type="text" className="blip-link-text" value="app.tidepool.org" readOnly={true}></input>
-          <span className="dark-text">into Chrome.</span>
-        </Trans>
         {copyButton}
-        <Trans className="browser-warning-download-text" i18nKey="html.browser-warning-download-text">Or download Chrome <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">here</a>.</Trans>
+        <Trans className="browser-warning-text" i18nKey="html.browser-warning-text">
+          and paste it into <span className="dark-text">Chrome</span> to see this page on <span className="browser-warning-nowrap">your desktop computer.</span>
+        </Trans>
+        <div className="blip-link-text-wrap">
+          <input type="text" className="blip-link-text" value="app.tidepool.org" readOnly={true}></input>
+        </div>
       </div>);
     }
 
@@ -77,20 +87,17 @@ export default translate()(class BrowserWarning extends Component {
       <div className="browser-warning js-terms">
         <div className="browser-warning-content browser-warning-box">
           <h1 className="browser-warning-title">
-            {t('Tidepool Web works with Chrome on Mac or Windows.')}
+            {t('Tidepool Web works with Chrome on ')}
+            <span className="browser-warning-nowrap">{t('Mac or Windows.')}</span>
           </h1>
           {downloadCopy} 
           <div className="browser-warning-mobile">
             <div className="browser-warning-mobile-message">
-              {t('Download Tidepool Mobile for iOS or Android to see your data on the go:')}
+              {t('Download Tidepool Mobile for iOS or Android to add notes and see your data on the go:')}
             </div>
             <div className="browser-warning-mobile-appstore-container">
-              <a href='https://itunes.apple.com/us/app/tidepool-mobile/id1026395200'>
-                <img alt='Download on the App Store' src={appstoreImageUrl} className="appstore-badge" />
-              </a>
-              <a href='https://play.google.com/store/apps/details?id=io.tidepool.urchin'>
-                <img alt='Get it on Google Play' src={playstoreImageUrl} className="playstore-badge" />
-              </a>
+              <img alt='Download on the App Store' src={appstoreImageUrl} className="appstore-badge" onClick={handleClickiOS}/>
+              <img alt='Get it on Google Play' src={playstoreImageUrl} className="playstore-badge" onClick={handleClickAndroid}/>
             </div>
           </div>
         </div>

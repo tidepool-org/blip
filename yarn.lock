@@ -836,10 +836,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.4.0-long-name-pdf.1":
-  version "1.4.0-long-name-pdf.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.4.0-long-name-pdf.1.tgz#c1282bd242461ede7bedf095717b9a1bfe90ee84"
-  integrity sha512-Vc+F1Vt5PvHft6nNIg6pzv3kEfERwpUenJpqFQ24y6io839rZICqdssPCKwKsW+SfrPBbX1TVTlnL55zu4fOWw==
+"@tidepool/viz@1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.4.0.tgz#34b44cf745876e029cffd120da7deb69a299f82c"
+  integrity sha512-htFpISqMacrmLondBy5QvZsXP6j+nhG7FTxwzyH29JF/V/VwF1BAyEsmLtpDG7M0PROYM5QVHLrTFhkX/H+N5g==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -10568,10 +10568,10 @@ thunky@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.0.2.tgz#a862e018e3fb1ea2ec3fce5d55605cf57f247371"
 
-tideline@1.13.0-handle-negative-bg-values.1:
-  version "1.13.0-handle-negative-bg-values.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.13.0-handle-negative-bg-values.1.tgz#acc85f0466a0dd1a086603b652e82bf78b4785c3"
-  integrity sha512-P9Ny09p2jDa9p+iPKRX+mnUlu+u9ZY75BsnKdS+wUdWjby4gL4IC29qGUm3D/JcroXpuHsBrVTaTOs0F/Y9vhA==
+tideline@1.13.1:
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.13.1.tgz#d18a79be4e036ac6fb0a27a239c68fd16d20d1ea"
+  integrity sha512-WT3Py5PN5dsgA2Ldr57p51QNeSld1Y5DWt/o0NxNByhrorANKqt3Jd03BNACdtFanPa2ii8UcXSw0agXa9KpQA==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
