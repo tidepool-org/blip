@@ -49,7 +49,7 @@ describe('Tandem', () => {
   beforeEach(() => {
     props = {
       bgUnits: MGDL_UNITS,
-      copySettingsClicked: sinon.spy(),
+      copySettingsClicked,
       openedSections: { [multirateData.activeSchedule]: true },
       pumpSettings: multirateData,
       timePrefs,
@@ -60,6 +60,10 @@ describe('Tandem', () => {
     wrapper = shallow(
       <Tandem {...props} />
     );
+  });
+
+  afterEach(() => {
+    copySettingsClicked.resetHistory();
   });
 
   it('should render without problems when required props provided', () => {
@@ -110,9 +114,10 @@ describe('Tandem', () => {
 
   it('should have a button to copy settings', () => {
     const mounted = mount(<Tandem {...props} />);
+    const clipBoardButton = mounted.find(formatClassesAsSelector(styles.copyButton)).at(0);
     expect(copySettingsClicked.callCount).to.equal(0);
-    mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
-    expect(copySettingsClicked).to.be.called;
+    clipBoardButton.prop('onSuccess')();
+    expect(copySettingsClicked.callCount).to.equal(1);
   });
 
   describe('timed settings', () => {
