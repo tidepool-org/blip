@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "1.13.0-handle-negative-bg-values.1",
+  "version": "1.13.1",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
