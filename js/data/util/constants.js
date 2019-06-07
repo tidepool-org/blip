@@ -8,7 +8,7 @@ const MGDL_PER_MMOLL = 18.01559;
 
 module.exports = {
   AUTOMATED_BASAL_DEVICE_MODELS: {
-    Medtronic: ['1780'],
+    Medtronic: ['1580', '1581', '1582', '1780', '1781', '1782'],
   },
   AUTOMATED_BASAL_LABELS: {
     Medtronic: t('Auto Mode'),
