@@ -28,7 +28,8 @@
     "body-parser": "1.18.3",
     "express": "4.16.3",
     "hakken": "0.1.11",
-    "helmet": "3.13.0"
+    "helmet": "3.13.0",
+    "shelljs": "0.8.3"
   },
   "devDependencies": {
     "@babel/cli": "7.1.0",
@@ -120,7 +121,6 @@
     "salinity": "0.0.8",
     "script-loader": "0.7.2",
     "selenium-standalone": "6.15.2",
-    "shelljs": "0.8.2",
     "sinon": "6.2.0",
     "style-loader": "0.23.0",
     "sundial": "1.6.0",
