@@ -126,7 +126,7 @@ var MemberInviteForm = translate()(React.createClass({
     }
 
     var self = this;
-    var email = self.refs.email.value;
+    var email = _.get(self, 'refs.email.value', '').trim();
     var allowUpload = self.refs.allowUpload.getWrappedInstance().getValue();
 
     var validateEmail = function(email) {
