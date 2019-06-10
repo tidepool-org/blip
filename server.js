@@ -28,6 +28,7 @@ const nonceMiddleware = (req, res, next) => {
 }
 
 app.use(helmet());
+
 app.use(nonceMiddleware, helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'none'"],
@@ -69,6 +70,9 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://chatapi.helpscout.net',
       'https://d3hb14vkzrxvla.cloudfront.net',
       'wss\://*.pusher.com',
+      '*.tidepool.org',
+      '*.integration-test.tidepool.org',
+      'http://*.integration-test.tidepool.org',
       '*.sumologic.com',
       'sentry.io',
     ]),
