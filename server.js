@@ -10,7 +10,6 @@ const crypto = require('crypto');
 const config = require('./config.server.js');
 
 const buildDir = 'dist';
-const staticDir = path.join(__dirname, buildDir);
 
 const app = express();
 
@@ -80,6 +79,7 @@ app.use(bodyParser.json({
   type: ['json', 'application/csp-report'],
 }));
 
+const staticDir = path.join(__dirname, buildDir);
 app.use(express.static(staticDir, { index: false }));
 
 //So that we can use react-router and browser history
