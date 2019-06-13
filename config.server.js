@@ -51,9 +51,9 @@ if (process.env.SKIP_HAKKEN) {
 } else if (process.env.DISCOVERY_HOST != null) {
   config.discovery = {
     host: process.env.DISCOVERY_HOST,
-    serviceName: process.env.SERVICE_NAME,
-    publishHost: process.env.PUBLISH_HOST,
   };
+  config.serviceName = process.env.SERVICE_NAME;
+  config.publishHost = process.env.PUBLISH_HOST;
 }
 
 module.exports = config;

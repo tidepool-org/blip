@@ -836,10 +836,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.4.0.tgz#34b44cf745876e029cffd120da7deb69a299f82c"
-  integrity sha512-htFpISqMacrmLondBy5QvZsXP6j+nhG7FTxwzyH29JF/V/VwF1BAyEsmLtpDG7M0PROYM5QVHLrTFhkX/H+N5g==
+"@tidepool/viz@1.5.0-rc.2":
+  version "1.5.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.5.0-rc.2.tgz#30024ef6ea2242d7ab2ccaeb41bbc92ae1ccfedc"
+  integrity sha512-fdXJU7T0f5PD8oXplK9cTUdULa0lcGRn734ebdk14BX2Qf2N9zy67l4ttCHiVb1NZScPstvY/hPiCGqoMndHmw==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -9865,9 +9865,10 @@ shebang-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-1.0.0.tgz#da42f49740c0b42db2ca9728571cb190c98efea3"
 
-shelljs@0.8.2:
-  version "0.8.2"
-  resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.8.2.tgz#345b7df7763f4c2340d584abb532c5f752ca9e35"
+shelljs@0.8.3:
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.8.3.tgz#a7f3319520ebf09ee81275b2368adb286659b097"
+  integrity sha512-fc0BKlAWiLpwZljmOvAOTE/gXawtCoNrP5oaY7KIaQbbyHeQVg01pSEuEGvGh3HEdBU4baCD7wQBwADmM/7f7A==
   dependencies:
     glob "^7.0.0"
     interpret "^1.0.0"
@@ -10568,10 +10569,17 @@ thunky@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.0.2.tgz#a862e018e3fb1ea2ec3fce5d55605cf57f247371"
 
+<<<<<<< HEAD
 tideline@1.14.0-xhandle-negative-bg-values.1:
   version "1.14.0-xhandle-negative-bg-values.1"
   resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.14.0-xhandle-negative-bg-values.1.tgz#d33d7ce8a5ebabf064d4d0284e03c324dd9a1e6f"
   integrity sha512-cbCyaebhYzTDQnSzUdylqGtRQaGNQuRoUoeYo3QXBQrNPNoYFX37XU1mJgWjVLCyEd9uZ1Yh8IKihRliTCPkSw==
+=======
+tideline@1.14.0-rc.2:
+  version "1.14.0-rc.2"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.14.0-rc.2.tgz#34821778f95d75ca54aa4eab6e128552ee70fc69"
+  integrity sha512-VA4Ky3/AdBPlt86OBpHFeMrwVJtBbzSybkYuVE+0YvOVl6sFErO5VsoObLzXLkCdcQ530nWpUPlhxHVq3AnHCQ==
+>>>>>>> 943d128f405247cc30138bb154912f3300d5cc76
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
