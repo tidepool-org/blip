@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "1.14.0-xhandle-negative-bg-values.1",
+  "version": "1.14.0-rc.2",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
@@ -9,10 +9,10 @@
   "main": "js/index.js",
   "license": "BSD-2-Clause",
   "scripts": {
-    "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
+    "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
     "pretest": "NODE_ENV=test npm run lint",
     "browser-tests": "./node_modules/karma/bin/karma start --browsers Chrome",
-    "test-watch": "NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run --reporters=mocha",
+    "test-watch": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run --reporters=mocha",
     "start": "BUILD_DEV=true webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
     "lint": "gulp jshint",
     "lint-watch": "gulp jshint-watch"
