@@ -256,17 +256,17 @@ describe('Terms', () => {
 
     it('result.termsAccepted should be true if valid date in allUsersMap.a1b2c3.termsAccepted, and LATEST_TERMS is null', () => {
       config.LATEST_TERMS = null;
-      expect(result.termsAccepted).to.equal.true;
+      expect(result.termsAccepted).to.be.true;
     });
 
     it('result.termsAccepted should be true if valid date in allUsersMap.a1b2c3.termsAccepted, and is later than LATEST_TERMS', () => {
       config.LATEST_TERMS = '2016-12-26T00:00:00.000Z';
-      expect(result.termsAccepted).to.equal.true;
+      expect(result.termsAccepted).to.be.true;
     });
 
     it('result.termsAccepted should be false if valid date in allUsersMap.a1b2c3.termsAccepted, and is earlier than LATEST_TERMS', () => {
       config.LATEST_TERMS = '2017-01-02T00:00:00.000Z';
-      expect(result.termsAccepted).to.equal.true;
+      expect(result.termsAccepted).to.be.true;
     });
 
     it('should map isLoggedIn to authenticated', () => {

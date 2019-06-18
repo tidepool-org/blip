@@ -44,15 +44,16 @@ if (config.httpsPort && !config.httpsConfig) {
 }
 
 // The host to contact for discovery
-if (process.env.DISCOVERY_HOST != null) {
-	config.discovery = {};
-	config.discovery.host = process.env.DISCOVERY_HOST;
-
-	// The service name to expose to discovery
-	config.serviceName = process.env.SERVICE_NAME;
-
-	// The local host to expose to discovery
-	config.publishHost = process.env.PUBLISH_HOST;
+if (process.env.SKIP_HAKKEN) {
+  config.discovery = {
+    skipHakken: true,
+  };
+} else if (process.env.DISCOVERY_HOST != null) {
+  config.discovery = {
+    host: process.env.DISCOVERY_HOST,
+  };
+  config.serviceName = process.env.SERVICE_NAME;
+  config.publishHost = process.env.PUBLISH_HOST;
 }
 
 module.exports = config;

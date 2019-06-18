@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const config = require('./config.server.js');
 
 const buildDir = 'dist';
+const staticDir = path.join(__dirname, buildDir);
 
 const app = express();
 
@@ -27,6 +28,7 @@ const nonceMiddleware = (req, res, next) => {
 }
 
 app.use(helmet());
+
 app.use(nonceMiddleware, helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'none'"],
@@ -62,12 +64,15 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     childSrc: ["'self'", 'blob:', 'https://docs.google.com'],
     frameSrc: ['https://beacon-v2.helpscout.net', 'https://docs.google.com'],
     connectSrc: [].concat([
-      process.env.API_HOST,
+      process.env.API_HOST || 'localhost',
       'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
       'https://beaconapi.helpscout.net',
       'https://chatapi.helpscout.net',
       'https://d3hb14vkzrxvla.cloudfront.net',
       'wss\://*.pusher.com',
+      '*.tidepool.org',
+      '*.integration-test.tidepool.org',
+      'http://*.integration-test.tidepool.org',
       '*.sumologic.com',
       'sentry.io',
     ]),
@@ -76,10 +81,9 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
 }));
 
 app.use(bodyParser.json({
-  type: ['json', 'application/csp-report']
-}))
+  type: ['json', 'application/csp-report'],
+}));
 
-const staticDir = path.join(__dirname, buildDir);
 app.use(express.static(staticDir, { index: false }));
 
 //So that we can use react-router and browser history
@@ -94,7 +98,7 @@ app.post('/event/csp-report/violation', (req, res) => {
     console.log('CSP Violation: No data received!');
   }
   res.status(204).end();
-})
+});
 
 // If no ports specified, just start on default HTTP port
 if (!(config.httpPort || config.httpsPort)) {
