@@ -49,6 +49,10 @@ const user = {
   },
 };
 
+afterEach(() => {
+  copySettingsClicked.resetHistory();
+});
+
 describe('NonTandem', () => {
   const activeAtUploadText = 'Active at upload';
 
@@ -168,9 +172,10 @@ describe('NonTandem', () => {
           toggleBasalScheduleExpansion={() => {}}
         />
       );
+      const clipBoardButton = mounted.find(formatClassesAsSelector(styles.copyButton)).at(0);
       expect(copySettingsClicked.callCount).to.equal(0);
-      mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
-      expect(copySettingsClicked).to.be.called;
+      clipBoardButton.prop('onSuccess')();
+      expect(copySettingsClicked.callCount).to.equal(1);
     });
     describe('bolus settings', () => {
       it('should surface the expected value for ISF', () => {
@@ -426,9 +431,10 @@ describe('NonTandem', () => {
             toggleBasalScheduleExpansion={() => {}}
           />
         );
+        const clipBoardButton = mounted.find(formatClassesAsSelector(styles.copyButton)).at(0);
         expect(copySettingsClicked.callCount).to.equal(0);
-        mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
-        expect(copySettingsClicked).to.be.called;
+        clipBoardButton.prop('onSuccess')();
+        expect(copySettingsClicked.callCount).to.equal(1);
       });
     });
   });
@@ -569,9 +575,10 @@ describe('NonTandem', () => {
           toggleBasalScheduleExpansion={() => {}}
         />
       );
+      const clipBoardButton = mounted.find(formatClassesAsSelector(styles.copyButton)).at(0);
       expect(copySettingsClicked.callCount).to.equal(0);
-      mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
-      expect(copySettingsClicked).to.be.called;
+      clipBoardButton.prop('onSuccess')();
+      expect(copySettingsClicked.callCount).to.equal(1);
     });
 
     describe('automated basal', () => {

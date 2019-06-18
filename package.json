@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
@@ -14,14 +14,13 @@
     "build-storybooks": "./node_modules/.bin/build-storybook -c storybook -o web/stories && ./node_modules/.bin/build-storybook -c storybookDatatypes -o web/diabetes-data-stories",
     "clean": "NODE_ENV=production ./node_modules/.bin/rimraf ./dist/*",
     "lint": "NODE_ENV=test ./node_modules/.bin/eslint src/ stories/ storiesDatatypes/ test/ *.js",
-    "prepare": "NODE_ENV=production npm run build",
     "prepublishOnly": "NODE_ENV=production ./node_modules/.bin/rimraf ./node_modules && yarn install --frozen-lockfile && npm test && NODE_ENV=production npm run build",
     "pretest": "NODE_ENV=test npm run lint",
     "serve-docs": "./node_modules/.bin/gitbook serve",
     "start": "NODE_ENV=development ./node_modules/.bin/webpack --config package.config.js --watch",
-    "stories": "NODE_ENV=development ./node_modules/.bin/start-storybook -c storybook -p 8081 -s ./static",
-    "test": "NODE_ENV=test ./node_modules/karma/bin/karma start",
-    "test-watch": "NODE_ENV=test ./node_modules/.bin/karma start --no-single-run --reporters=mocha",
+    "stories": "NODE_ENV=development ./node_modules/.bin/start-storybook -c storybook -p 8083 -s ./static",
+    "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
+    "test-watch": "TZ=UTC NODE_ENV=test ./node_modules/.bin/karma start --no-single-run --reporters=mocha",
     "typestories": "NODE_ENV=development ./node_modules/.bin/start-storybook -c storybookDatatypes -p 8082"
   },
   "repository": {
@@ -97,6 +96,7 @@
     "babel-plugin-istanbul": "5.0.1",
     "babel-preset-react-app": "4.0.0-next.2150693d",
     "chai": "4.1.2",
+    "chromedriver": "2.41.0",
     "chance": "1.0.16",
     "css-loader": "1.0.0",
     "enzyme": "3.6.0",
@@ -119,14 +119,12 @@
     "karma-intl-shim": "1.0.3",
     "karma-mocha": "1.3.0",
     "karma-mocha-reporter": "2.2.5",
-    "karma-phantomjs-launcher": "1.0.4",
     "karma-sinon": "1.0.5",
     "karma-sourcemap-loader": "0.3.7",
     "karma-webpack": "4.0.0-rc.2",
     "mocha": "5.2.0",
     "object-invariant-test-helper": "0.1.1",
     "optional": "0.1.4",
-    "phantomjs-prebuilt": "2.1.16",
     "postcss": "7.0.2",
     "postcss-calc": "6.0.1",
     "postcss-custom-properties": "7.0.0",

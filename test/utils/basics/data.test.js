@@ -848,7 +848,7 @@ describe('basics data utils', () => {
       expect(basicsData.sections.basalBolusRatio.active).to.be.true;
       expect(basicsData.sections.timeInAutoRatio.active).to.be.true;
       expect(basicsData.sections.averageDailyCarbs.active).to.be.true;
-      expect(_.find(basicsData.sections.fingersticks.filters, { path: 'calibration' })).to.be.defined;
+      expect(_.find(basicsData.sections.fingersticks.dimensions, { path: 'calibration' })).to.not.be.undefined;
       const processedBasicsData = dataUtils.processInfusionSiteHistory(basicsData, {});
       const result = dataUtils.disableEmptySections(processedBasicsData);
 
@@ -880,7 +880,7 @@ describe('basics data utils', () => {
       expect(result.sections.averageDailyCarbs.disabled).to.be.true;
 
       // calibration filter in fingerstick section gets removed when no data
-      expect(_.find(result.sections.fingersticks.filters, { path: 'calibration' })).to.be.undefined;
+      expect(_.find(result.sections.fingersticks.dimensions, { path: 'calibration' })).to.be.undefined;
     });
 
     it('should set empty text for sections for which there is no data available', () => {
