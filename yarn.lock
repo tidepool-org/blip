@@ -836,10 +836,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.4.0.tgz#34b44cf745876e029cffd120da7deb69a299f82c"
-  integrity sha512-htFpISqMacrmLondBy5QvZsXP6j+nhG7FTxwzyH29JF/V/VwF1BAyEsmLtpDG7M0PROYM5QVHLrTFhkX/H+N5g==
+"@tidepool/viz@1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.5.0.tgz#03b437aa01638a901364cd23f3bb2ebc39ca6fe4"
+  integrity sha512-uKSXhjYIHrNZDdpUG386UIR3jhyI55SpWIb/dDMbDiCvakWZViJ1Vej5reRH2rL69UH8El0j+T5XUZsJBxmJXA==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -9865,9 +9865,10 @@ shebang-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-1.0.0.tgz#da42f49740c0b42db2ca9728571cb190c98efea3"
 
-shelljs@0.8.2:
-  version "0.8.2"
-  resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.8.2.tgz#345b7df7763f4c2340d584abb532c5f752ca9e35"
+shelljs@0.8.3:
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.8.3.tgz#a7f3319520ebf09ee81275b2368adb286659b097"
+  integrity sha512-fc0BKlAWiLpwZljmOvAOTE/gXawtCoNrP5oaY7KIaQbbyHeQVg01pSEuEGvGh3HEdBU4baCD7wQBwADmM/7f7A==
   dependencies:
     glob "^7.0.0"
     interpret "^1.0.0"
@@ -10568,10 +10569,10 @@ thunky@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.0.2.tgz#a862e018e3fb1ea2ec3fce5d55605cf57f247371"
 
-tideline@1.13.1:
-  version "1.13.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.13.1.tgz#d18a79be4e036ac6fb0a27a239c68fd16d20d1ea"
-  integrity sha512-WT3Py5PN5dsgA2Ldr57p51QNeSld1Y5DWt/o0NxNByhrorANKqt3Jd03BNACdtFanPa2ii8UcXSw0agXa9KpQA==
+tideline@1.14.0:
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.14.0.tgz#10637955f264d47fb89d44a30ed63b2a0e690c03"
+  integrity sha512-H+3XfzSDwsnBxICnCd0cAEjuHjt9RoIA0d765mf5Gym3E8xD6P/NMapuKBn8HwsIGQCkrEkuJKKkGnGrJxbzHA==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"

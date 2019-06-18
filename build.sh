@@ -3,7 +3,7 @@
 rm -rf node_modules
 
 TIME="$(date +%s)"
-yarn --production
+yarn install --frozen-lockfile
 TIME="$(($(date +%s)-TIME))"
 
 echo "yarn install completed in ${TIME} seconds"
