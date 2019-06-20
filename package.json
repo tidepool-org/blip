@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "1.5.0",
+  "version": "1.6.0-idle-cpu-usage.1",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
