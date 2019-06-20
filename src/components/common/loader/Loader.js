@@ -34,14 +34,19 @@ const Loader = (props) => {
     [styles.overlay]: overlay,
   });
 
+  const loaderDotClasses = cx({
+    [styles.loaderDot]: true,
+    [styles.animating]: show,
+  });
+
   return (
     <div className={loaderOuterClasses}>
       <div className={loaderInnerClasses}>
-        <div className={styles.loaderDot} />
-        <div className={styles.loaderDot} />
-        <div className={styles.loaderDot} />
-        <div className={styles.loaderDot} />
-        <div className={styles.loaderDot} />
+        <div className={loaderDotClasses} />
+        <div className={loaderDotClasses} />
+        <div className={loaderDotClasses} />
+        <div className={loaderDotClasses} />
+        <div className={loaderDotClasses} />
 
         <div className={styles.loaderText}>{text}</div>
       </div>
