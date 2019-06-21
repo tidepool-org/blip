@@ -1621,7 +1621,7 @@ describe('PatientData', function () {
       data = {
         basics: {},
         daily: {},
-        weekly: {},
+        bgLog: {},
       },
 
       wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
@@ -1661,13 +1661,13 @@ describe('PatientData', function () {
       ]);
     });
 
-    it('should add weekly stats to the provided data object if a `dateRange` property exists', () => {
+    it('should add bgLog stats to the provided data object if a `dateRange` property exists', () => {
       instance.generatePDFStats(data, instance.state);
-      expect(data.weekly.stats).to.be.undefined;
+      expect(data.bgLog.stats).to.be.undefined;
 
-      data.weekly.dateRange = ['2019-01-01T00:00:00.000Z', '2019-02-01T00:00:00.000Z'];
+      data.bgLog.dateRange = ['2019-01-01T00:00:00.000Z', '2019-02-01T00:00:00.000Z'];
       instance.generatePDFStats(data, instance.state);
-      expect(data.weekly.stats).to.be.an('object').and.have.keys([
+      expect(data.bgLog.stats).to.be.an('object').and.have.keys([
         'averageGlucose',
       ]);
     });
