@@ -45,6 +45,9 @@
   border-radius: 50%;
   background: var(--brand-purple-dark);
   transform: scale(0.5);
+}
+
+.loaderDot.animating {
   animation: scale-dot 1.2s ease-out infinite;
 }
 
