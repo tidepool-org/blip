@@ -357,7 +357,7 @@ var PatientInfo = translate()(React.createClass({
 
     var charCountClass;
     if (this.state.bioLength > 256) {
-      charCountClass = "PatientInfo-error-message";
+      charCountClass = 'PatientInfo-error-message';
     }
 
     var charCount = <div className={charCountClass}>{this.state.bioLength === 0 ? '' : this.state.bioLength.toString() + '/256'}</div>;
