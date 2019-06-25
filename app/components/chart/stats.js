@@ -91,18 +91,16 @@ class Stats extends Component {
       : false;
   };
 
-  renderStats = (stats, animate) => (_.map(stats, stat => (
+  renderStats = stats => (_.map(stats, stat => (
     <div id={`Stat--${stat.id}`} key={stat.id}>
-      <Stat animate={animate} bgPrefs={this.bgPrefs} {...stat} />
+      <Stat bgPrefs={this.bgPrefs} {...stat} />
     </div>
   )));
 
   render = () => {
-    const { chartPrefs: { animateStats } } = this.props;
-
     return (
       <div className="Stats">
-        {this.renderStats(this.state.stats, animateStats)}
+        {this.renderStats(this.state.stats)}
       </div>
     );
   };
