@@ -64,7 +64,8 @@ var PatientInfo = translate()(React.createClass({
   getInitialState: function() {
     return {
       editing: false,
-      validationErrors: {}
+      validationErrors: {},
+      bioLength: 0
     };
   },
 
@@ -353,12 +354,21 @@ var PatientInfo = translate()(React.createClass({
       classes += ' PatientInfo-input-error';
       errorElem = <div className="PatientInfo-error-message">{error}</div>;
     }
+
+    var charCountClass;
+    if (this.state.bioLength > 256) {
+      charCountClass = 'PatientInfo-error-message';
+    }
+
+    var charCount = <div className={charCountClass}>{this.state.bioLength === 0 ? '' : this.state.bioLength.toString() + '/256'}</div>;
     return (<div className="PatientInfo-bio">
       <textarea className={classes} ref="about"
         placeholder={t('Anything you would like to share?')}
         rows="3"
-        defaultValue={formValues.about}>
+        defaultValue={formValues.about}
+        onChange={(event) => this.setState({ bioLength : event.target.value === undefined ? 0 : event.target.value.length })}>
       </textarea>
+      {charCount}
       {errorElem}
     </div>);
   },
