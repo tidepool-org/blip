@@ -174,7 +174,7 @@ export const typeValidators = {
     birthdayObj = new Date(prerequisites.birthday.year, prerequisites.birthday.month, prerequisites.birthday.day);
     diagnosisDateObj = new Date(fieldValue.year, fieldValue.month, fieldValue.day);
 
-    if (diagnosisDateObj > birthdayObj) {
+    if (diagnosisDateObj < birthdayObj) {
       return invalid(errors.mustBeAfterBirthday(fieldLabel));
     }
 
