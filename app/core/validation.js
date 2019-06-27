@@ -156,8 +156,8 @@ export const typeValidators = {
   diagnosisDate: (fieldLabel, fieldValue, prerequisites) => {
     let dateMask = t('M-D-YYYY');
     let validDateCheck = dateValidator(fieldLabel, fieldValue);
-    let birthdayObj, birthdayDateString;
-    let diagnosisDateObj, diagnosisDateString;
+    let birthdayObj;
+    let diagnosisDateObj;
     if (!validDateCheck.valid) {
       return validDateCheck;
     }
@@ -171,11 +171,10 @@ export const typeValidators = {
     }
     
     // checks to see if diagnosis date is earlier than birthdate (which is not allowed)
-    var invalidYear = prerequisites.birthday.year > fieldValue.year; 
-    var invalidMonth = prerequisites.birthday.month > fieldValue.month;
-    var invalidDay = prerequisites.birthday.day > fieldValue.day;
+    birthdayObj = new Date(prerequisites.birthday.year, prerequisites.birthday.month, prerequisites.birthday.day);
+    diagnosisDateObj = new Date(fieldValue.year, fieldValue.month, fieldValue.day);
 
-    if (invalidYear || invalidMonth || invalidDay) {
+    if (diagnosisDateObj > birthdayObj) {
       return invalid(errors.mustBeAfterBirthday(fieldLabel));
     }
 
