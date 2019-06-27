@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* global requestAnimationFrame */
+
 import React, { PropTypes, PureComponent } from 'react';
 import _ from 'lodash';
 
@@ -28,12 +30,14 @@ class Tooltip extends PureComponent {
 
   componentDidMount() {
     this.calculateOffset(this.props);
-  }
 
-  componentDidUpdate() {
-    // In cases where the tooltip width is not statically set, we may need to re-caculate
-    // the offset after updates to get the proper positioning after browser reflow is complete.
-    this.calculateOffset(this.props);
+    // In cases where the tooltip CSS width is not statically set, we may need to re-caculate
+    // the offset after updates to get the proper positioning after browser reflow is complete,
+    // but before repaint happens. The second call within requestAnimationFrame ensures the tooltip
+    // is properly positioned on the first render.
+    requestAnimationFrame(() => {
+      this.calculateOffset(this.props);
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -82,11 +86,7 @@ class Tooltip extends PureComponent {
       offset.left = leftOffset + horizontalOffset;
     }
 
-    // We only update the offset state when a change is required.  Otherwise, we'd end up in an
-    // infinite render loop since this method is invoked from componentDidUpdate
-    if (!_.isEqual(offset, this.state.offset)) {
-      this.setState({ offset });
-    }
+    this.setState({ offset });
   }
 
   renderTail(backgroundColor = 'white') {
