@@ -36,7 +36,7 @@
     "@babel/polyfill": "7.0.0",
     "@babel/preset-env": "7.1.0",
     "@babel/preset-react": "7.0.0",
-    "@tidepool/viz": "1.6.0-idle-cpu-usage.2",
+    "@tidepool/viz": "1.7.0-tooltip-fix.1",
     "async": "2.6.1",
     "autoprefixer": "9.1.5",
     "babel-core": "7.0.0-bridge.0",
