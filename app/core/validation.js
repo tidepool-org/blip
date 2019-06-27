@@ -169,14 +169,13 @@ export const typeValidators = {
     if (!dateValidator('', prerequisites.birthday).valid) {
       return invalid(errors.invalidBirthday());
     }
+    
+    // checks to see if diagnosis date is earlier than birthdate (which is not allowed)
+    var invalidYear = prerequisites.birthday.year > fieldValue.year; 
+    var invalidMonth = prerequisites.birthday.month > fieldValue.month;
+    var invalidDay = prerequisites.birthday.day > fieldValue.day;
 
-    birthdayDateString = t('{{month}}-{{day}}-{{year}}', {month: prerequisites.birthday.month, day: prerequisites.birthday.day, year: prerequisites.birthday.year});
-    birthdayObj = sundial.parseFromFormat(birthdayDateString, dateMask);
-
-    diagnosisDateString = t('{{month}}-{{day}}-{{year}}', {month: fieldValue.month, day: fieldValue.day, year: fieldValue.year});
-    diagnosisDateObj = sundial.parseFromFormat(diagnosisDateString, dateMask);
-
-    if (birthdayObj > diagnosisDateObj) {
+    if (invalidYear || invalidMonth || invalidDay) {
       return invalid(errors.mustBeAfterBirthday(fieldLabel));
     }
 
