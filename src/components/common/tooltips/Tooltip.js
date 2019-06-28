@@ -26,6 +26,14 @@ class Tooltip extends PureComponent {
   constructor(props) {
     super(props);
     this.state = { offset: { top: 0, left: 0 } };
+
+    this.setElementRef = ref => {
+      this.element = ref;
+    };
+
+    this.setTailElemRef = ref => {
+      this.tailElem = ref;
+    };
   }
 
   componentDidMount() {
@@ -45,48 +53,54 @@ class Tooltip extends PureComponent {
   }
 
   calculateOffset(currentProps) {
-    const { offset: propOffset, side, tail } = currentProps;
-    const offset = {};
-    const tooltipRect = this.element.getBoundingClientRect();
-    let horizontalOffset = (propOffset.left != null) ?
-      propOffset.left : (propOffset.horizontal || 0);
-    if (side === 'left') {
-      horizontalOffset = -horizontalOffset;
-    }
-    if (tail) {
-      const tailRect = this.tailElem.getBoundingClientRect();
-      const tailCenter = {
-        top: tailRect.top + (tailRect.height / 2),
-        left: tailRect.left + (tailRect.width / 2),
-      };
-      offset.top = -tailCenter.top + tooltipRect.top + propOffset.top;
-      offset.left = -tailCenter.left + tooltipRect.left + horizontalOffset;
-    } else {
-      let leftOffset;
-      let topOffset;
-      switch (side) {
-        case 'top':
-          leftOffset = -tooltipRect.width / 2;
-          topOffset = -tooltipRect.height;
-          break;
-        case 'bottom':
-          leftOffset = -tooltipRect.width / 2;
-          topOffset = 0;
-          break;
-        case 'right':
-          leftOffset = 0;
-          topOffset = -tooltipRect.height / 2;
-          break;
-        case 'left':
-        default:
-          leftOffset = -tooltipRect.width;
-          topOffset = -tooltipRect.height / 2;
-      }
-      offset.top = topOffset + propOffset.top;
-      offset.left = leftOffset + horizontalOffset;
-    }
+    if (this.element) {
+      const { offset: propOffset, side, tail } = currentProps;
+      const offset = {};
+      const tooltipRect = this.element.getBoundingClientRect();
 
-    this.setState({ offset });
+      let horizontalOffset = (propOffset.left != null)
+        ? propOffset.left
+        : (propOffset.horizontal || 0);
+
+      if (side === 'left') {
+        horizontalOffset = -horizontalOffset;
+      }
+
+      if (tail) {
+        const tailRect = this.tailElem.getBoundingClientRect();
+        const tailCenter = {
+          top: tailRect.top + (tailRect.height / 2),
+          left: tailRect.left + (tailRect.width / 2),
+        };
+        offset.top = -tailCenter.top + tooltipRect.top + propOffset.top;
+        offset.left = -tailCenter.left + tooltipRect.left + horizontalOffset;
+      } else {
+        let leftOffset;
+        let topOffset;
+        switch (side) {
+          case 'top':
+            leftOffset = -tooltipRect.width / 2;
+            topOffset = -tooltipRect.height;
+            break;
+          case 'bottom':
+            leftOffset = -tooltipRect.width / 2;
+            topOffset = 0;
+            break;
+          case 'right':
+            leftOffset = 0;
+            topOffset = -tooltipRect.height / 2;
+            break;
+          case 'left':
+          default:
+            leftOffset = -tooltipRect.width;
+            topOffset = -tooltipRect.height / 2;
+        }
+        offset.top = topOffset + propOffset.top;
+        offset.left = leftOffset + horizontalOffset;
+      }
+
+      this.setState({ offset });
+    }
   }
 
   renderTail(backgroundColor = 'white') {
@@ -109,7 +123,7 @@ class Tooltip extends PureComponent {
     return (
       <div>
         <div
-          ref={(ref) => { this.tailElem = ref; }}
+          ref={this.setTailElemRef}
           className={styles.tail}
           style={{
             marginTop: `-${tailHeight}px`,
@@ -172,7 +186,7 @@ class Tooltip extends PureComponent {
       <div
         className={styles.tooltip}
         style={{ top, left, backgroundColor, borderColor, borderWidth: `${borderWidth}px` }}
-        ref={(ref) => { this.element = ref; }}
+        ref={this.setElementRef}
       >
         {title && this.renderTitle(title)}
         {content && this.renderContent(content)}
