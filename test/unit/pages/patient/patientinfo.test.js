@@ -69,7 +69,7 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
 
       var initialState = elem.getInitialState();
-      expect(Object.keys(initialState).length).to.equal(2);
+      expect(Object.keys(initialState).length).to.equal(3);
       expect(initialState.editing).to.equal(false);
       expect(Object.keys(initialState.validationErrors).length).length.to.equal(0);
     });
