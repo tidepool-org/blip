@@ -63,6 +63,7 @@ describe('Stat', () => {
     expect(Stat.defaultProps).to.eql({
       alwaysShowSummary: false,
       alwaysShowTooltips: true,
+      animate: true,
       bgPrefs: {},
       categories: {},
       chartHeight: 0,

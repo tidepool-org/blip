@@ -80,6 +80,7 @@ class Stat extends PureComponent {
   static defaultProps = {
     alwaysShowSummary: false,
     alwaysShowTooltips: true,
+    animate: true,
     bgPrefs: {},
     categories: {},
     chartHeight: 0,
@@ -403,10 +404,10 @@ class Stat extends PureComponent {
   };
 
   getDefaultChartProps = props => {
-    const { chartHeight } = props;
+    const { chartHeight, animate } = props;
 
     return {
-      animate: { duration: 300, onLoad: { duration: 0 } },
+      animate: animate ? { duration: 300, onLoad: { duration: 0 } } : false,
       height: chartHeight,
       labels: d => formatPercentage(d.y),
       renderer: null,
