@@ -836,10 +836,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.7.0.tgz#41409d42034464fed9ca7887e566b5f59fff3c73"
-  integrity sha512-MkE+zEs0zW7SSYyPbBq+uuTFJ8uHhiHWCoZaDjR3fzAOQuwe//hXdLKYDsGhDF+n8lI2s1yCm4ciMt7ln91LAQ==
+"@tidepool/viz@1.7.0-tooltip-fix.2":
+  version "1.7.0-tooltip-fix.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.7.0-tooltip-fix.2.tgz#1f38c45cb3debc4683c5629ce5ad63fb25a96e31"
+  integrity sha512-2AWdf+vPDfexgR6f76LHiguTHU1rXXu7EBhuxjyX6llS6Dt7qPWLjmV3Mwadvdn3e5gi7RY4skBtS2XibVeYQw==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
