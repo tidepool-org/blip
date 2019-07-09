@@ -156,8 +156,8 @@ export const typeValidators = {
   diagnosisDate: (fieldLabel, fieldValue, prerequisites) => {
     let dateMask = t('M-D-YYYY');
     let validDateCheck = dateValidator(fieldLabel, fieldValue);
-    let birthdayObj, birthdayDateString;
-    let diagnosisDateObj, diagnosisDateString;
+    let birthdayObj;
+    let diagnosisDateObj;
     if (!validDateCheck.valid) {
       return validDateCheck;
     }
@@ -169,14 +169,12 @@ export const typeValidators = {
     if (!dateValidator('', prerequisites.birthday).valid) {
       return invalid(errors.invalidBirthday());
     }
+    
+    // checks to see if diagnosis date is earlier than birthdate (which is not allowed)
+    birthdayObj = new Date(prerequisites.birthday.year, prerequisites.birthday.month, prerequisites.birthday.day);
+    diagnosisDateObj = new Date(fieldValue.year, fieldValue.month, fieldValue.day);
 
-    birthdayDateString = t('{{month}}-{{day}}-{{year}}', {month: prerequisites.birthday.month, day: prerequisites.birthday.day, year: prerequisites.birthday.year});
-    birthdayObj = sundial.parseFromFormat(birthdayDateString, dateMask);
-
-    diagnosisDateString = t('{{month}}-{{day}}-{{year}}', {month: fieldValue.month, day: fieldValue.day, year: fieldValue.year});
-    diagnosisDateObj = sundial.parseFromFormat(diagnosisDateString, dateMask);
-
-    if (birthdayObj > diagnosisDateObj) {
+    if (diagnosisDateObj < birthdayObj) {
       return invalid(errors.mustBeAfterBirthday(fieldLabel));
     }
 
