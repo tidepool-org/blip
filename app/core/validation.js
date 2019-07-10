@@ -94,7 +94,7 @@ const dateValidator = (fieldLabel, fieldValue, currentDateObj) => {
 
 const ageVerification = (fieldLabel, fieldValue, prerequisites, isOtherPerson) => {
   //if making an account for yourself, you have to be at least 13 years old
-  if (!isOtherPerson) {
+  if (!isOtherPerson && fieldValue) {
     let now = new Date();
     let datePlusAge = new Date(parseInt(fieldValue.year) + 13, fieldValue.month, fieldValue.day);
     console.log(datePlusAge);
