@@ -3,6 +3,7 @@ FROM node:10.14.2-alpine as base
 WORKDIR /app
 RUN mkdir -p dist node_modules && chown -R node:node .
 
+
 ### Stage 1 - Base image for development image to install and configure Chromium for unit tests
 FROM base as developBase
 RUN \
@@ -12,8 +13,6 @@ RUN \
   && apk --no-cache  update \
   && apk --no-cache  upgrade \
   && apk add --no-cache fontconfig bash udev ttf-opensans chromium \
-  && mkdir -p /@tidepool/viz/node_modules /tideline/node_modules /tidepool-platform-client/node_modules \
-  && chown -R node:node /@tidepool /tideline /tidepool-platform-client \
   && rm -rf /var/cache/apk/* /tmp/*
 ENV \
   CHROME_BIN=/usr/bin/chromium-browser \
@@ -35,13 +34,12 @@ RUN \
 
 ### Stage 3 - Development root with Chromium installed for unit tests
 FROM developBase as develop
-WORKDIR /app
 USER node
+WORKDIR /app
 # Copy all `node_modules`
 COPY --chown=node:node --from=dependencies /app/node_modules ./node_modules
 # Copy source files
 COPY --chown=node:node . .
-VOLUME ["/app", "/app/node_modules", "/app/dist"]
 CMD ["npm", "start"]
 
 

@@ -27,6 +27,8 @@ test/bin
 web/
 artifact_node.sh
 coverage/
+tiltMounts/*
+!tiltMounts/README.txt
 
 
 # GitBook
