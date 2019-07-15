@@ -31,51 +31,30 @@ app.use(helmet());
 
 app.use(nonceMiddleware, helmet.contentSecurityPolicy({
   directives: {
-    defaultSrc: ["'none'"],
-    baseUri: ['https://docs.helpscout.net'],
+    defaultSrc: [
+    "'self'",
+    'https://static.zdassets.com',
+    'https://ekr.zdassets.com',
+    'https://{zendeskSubdomain}.zendesk.com',
+    'wss://{zendeskSubdomain}.zendesk.com',
+    'wss://*.zopim.com'
+    ],
     scriptSrc: [
       "'self'",
-      "'strict-dynamic'",
       (req, res) => {
         return `'nonce-${res.locals.nonce}'`;
-      },
-      'https://beacon-v2.helpscout.net',
-      'https://d12wqas9hcki3z.cloudfront.net',
-      'https://d33v4339jhl8k0.cloudfront.net',
+      }
     ],
     styleSrc: [
-      "'self'",
-      'blob:',
-      "'unsafe-inline'",
-      'https://fonts.googleapis.com',
-      'https://beacon-v2.helpscout.net',
-      'https://djtflbt20bdde.cloudfront.net',
+      "'unsafe-inline'"
     ],
     imgSrc: [
       "'self'",
+      'https://v2assets.zopim.io',
+      'https://static.zdassets.com',
       'data:',
-      'https://d33v4339jhl8k0.cloudfront.net',
-      'https://*.gravatar.com',
     ],
-    fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com'],
-    reportUri: '/event/csp-report/violation',
-    objectSrc: ['blob:', 'https://beacon-v2.helpscout.net'],
-    workerSrc: ["'self'", 'blob:'],
-    childSrc: ["'self'", 'blob:', 'https://docs.google.com'],
-    frameSrc: ['https://beacon-v2.helpscout.net', 'https://docs.google.com'],
-    connectSrc: [].concat([
-      process.env.API_HOST || 'localhost',
-      'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
-      'https://beaconapi.helpscout.net',
-      'https://chatapi.helpscout.net',
-      'https://d3hb14vkzrxvla.cloudfront.net',
-      'wss\://*.pusher.com',
-      '*.tidepool.org',
-      '*.integration-test.tidepool.org',
-      'http://*.integration-test.tidepool.org',
-      '*.sumologic.com',
-      'sentry.io',
-    ]),
+    workerSrc: ["'self'", 'blob:']
   },
   reportOnly: false,
 }));
