@@ -31,44 +31,48 @@ app.use(helmet());
 
 app.use(nonceMiddleware, helmet.contentSecurityPolicy({
   directives: {
-    defaultSrc: [
-    "'self'",
-    'https://static.zdassets.com',
-    'https://ekr.zdassets.com',
-    'https://{zendeskSubdomain}.zendesk.com',
-    'wss://{zendeskSubdomain}.zendesk.com',
-    'wss://*.zopim.com'
-    ],
+    defaultSrc: ["'none'"],
+    baseUri: ["'none'"],
     scriptSrc: [
       "'self'",
+      "'strict-dynamic'",
       (req, res) => {
         return `'nonce-${res.locals.nonce}'`;
-      }
+      },
+      'https://static.zdassets.com',
+      'https://ekr.zdassets.com',
+      'https://tidepool.zendesk.com',
+      'wss://tidepool.zendesk.com',
+      'wss://*.zopim.com'
     ],
     styleSrc: [
+      "'self'",
+      'blob:',
       "'unsafe-inline'"
     ],
     imgSrc: [
       "'self'",
-      'https://v2assets.zopim.io',
-      'https://static.zdassets.com',
       'data:',
+      'https://v2assets.zopim.io',
+      'https://static.zdassets.com'
     ],
-    fontSrc: ["'self'"],
+    fontSrc: ["'self'", 'data:'],
     reportUri: '/event/csp-report/violation',
     objectSrc: ['blob:'],
     workerSrc: ["'self'", 'blob:'],
-    childSrc: ["'self'", 'blob:', 'https://docs.google.com'],
-    frameSrc: ['https://docs.google.com'],
+    childSrc: ["'self'", 'blob:'],
+    frameSrc: ["'none'"],
     connectSrc: [].concat([
       process.env.API_HOST || 'localhost',
       'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
-      'wss\://*.pusher.com',
+      'https://static.zdassets.com',
+      'https://ekr.zdassets.com',
+      'https://tidepool.zendesk.com',
+      'wss://tidepool.zendesk.com',
+      'wss://*.zopim.com',
       '*.tidepool.org',
       '*.integration-test.tidepool.org',
-      'http://*.integration-test.tidepool.org',
-      '*.sumologic.com',
-      'sentry.io',
+      'http://*.integration-test.tidepool.org'
     ]),
   },
   reportOnly: false,
