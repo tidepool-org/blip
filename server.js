@@ -54,7 +54,22 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://static.zdassets.com',
       'data:',
     ],
-    workerSrc: ["'self'", 'blob:']
+    fontSrc: ["'self'"],
+    reportUri: '/event/csp-report/violation',
+    objectSrc: ['blob:'],
+    workerSrc: ["'self'", 'blob:'],
+    childSrc: ["'self'", 'blob:', 'https://docs.google.com'],
+    frameSrc: ['https://docs.google.com'],
+    connectSrc: [].concat([
+      process.env.API_HOST || 'localhost',
+      'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
+      'wss\://*.pusher.com',
+      '*.tidepool.org',
+      '*.integration-test.tidepool.org',
+      'http://*.integration-test.tidepool.org',
+      '*.sumologic.com',
+      'sentry.io',
+    ]),
   },
   reportOnly: false,
 }));
