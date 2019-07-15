@@ -48,7 +48,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     styleSrc: [
       "'self'",
       'blob:',
-      "'unsafe-inline'"
+      'unsafe-inline:'
     ],
     imgSrc: [
       "'self'",
