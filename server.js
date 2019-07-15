@@ -43,25 +43,24 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://ekr.zdassets.com',
       'https://tidepool.zendesk.com',
       'wss://tidepool.zendesk.com',
-      'wss://*.zopim.com'
+      'wss://*.zopim.com',
     ],
     styleSrc: [
       "'self'",
       'blob:',
-      'unsafe-inline:'
+      'unsafe-inline:',
     ],
     imgSrc: [
       "'self'",
       'data:',
       'https://v2assets.zopim.io',
-      'https://static.zdassets.com'
+      'https://static.zdassets.com',
     ],
-    fontSrc: ["'self'", 'data:'],
+    fontSrc: ["'self'", 'data:',],
     reportUri: '/event/csp-report/violation',
     objectSrc: ['blob:'],
-    workerSrc: ["'self'", 'blob:'],
-    childSrc: ["'self'", 'blob:'],
-    frameSrc: ["'none'"],
+    workerSrc: ["'self'", 'blob:',],
+    childSrc: ["'self'", 'blob:',],
     connectSrc: [].concat([
       process.env.API_HOST || 'localhost',
       'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
@@ -72,7 +71,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'wss://*.zopim.com',
       '*.tidepool.org',
       '*.integration-test.tidepool.org',
-      'http://*.integration-test.tidepool.org'
+      'http://*.integration-test.tidepool.org',
     ]),
   },
   reportOnly: false,
