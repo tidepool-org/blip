@@ -25,3 +25,4 @@ export const futureDate = (field = t('this field')) => capitalize(t('{{field}} c
 export const noBirthday = () => t('You have not specified your birthday!');
 export const invalidBirthday = () => t('You have not specified a valid birthday!');
 export const mustBeAfterBirthday = (field) => capitalize(t('Hmm, {{field}} usually comes after birthday.', {field}));
+export const underaged = () => t('You must be at least 13 years old.');

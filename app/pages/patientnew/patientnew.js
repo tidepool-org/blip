@@ -298,7 +298,7 @@ export let PatientNew = translate()(React.createClass({
       { type: 'diagnosisDate', name: 'diagnosisDate', label: t('diagnosis date'), value: formValues.diagnosisDate, prerequisites: { birthday: formValues.birthday } },
       { type: 'about', name: 'about', label: t('about'), value: formValues.about},
     ];
-    var validationErrors = validateForm(form);
+    var validationErrors = validateForm(form, this.state.formValues.isOtherPerson);
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
