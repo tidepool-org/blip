@@ -48,7 +48,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     styleSrc: [
       "'self'",
       'blob:',
-      'unsafe-inline:',
+      "'unsafe-inline'",
     ],
     imgSrc: [
       "'self'",
@@ -60,7 +60,8 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     reportUri: '/event/csp-report/violation',
     objectSrc: ['blob:'],
     workerSrc: ["'self'", 'blob:',],
-    childSrc: ["'self'", 'blob:',],
+    childSrc: ["'self'", 'blob:','https://docs.google.com',],
+    frameSrc: ['https://docs.google.com'],
     connectSrc: [].concat([
       process.env.API_HOST || 'localhost',
       'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
