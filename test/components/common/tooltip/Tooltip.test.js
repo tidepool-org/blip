@@ -262,8 +262,6 @@ describe('Tooltip', () => {
         />
       );
       const instance = wrapper.instance();
-      // We want to stub componentDidUpdate, as it also calls calculateOffset
-      instance.componentDidUpdate = sinon.stub();
 
       const calcSpy = sinon.spy(instance, 'calculateOffset');
       expect(Tooltip.prototype.componentWillReceiveProps.callCount).to.equal(0);
@@ -273,30 +271,6 @@ describe('Tooltip', () => {
       expect(calcSpy.calledOnce).to.be.true;
       expect(calcSpy.args[0][0]).to.deep.equal(wrapper.props());
       Tooltip.prototype.componentWillReceiveProps.restore();
-      instance.calculateOffset.restore();
-    });
-
-    it('calls componentDidUpdate (which calls calculateOffset) on props update', () => {
-      sinon.spy(Tooltip.prototype, 'componentDidUpdate');
-      const wrapper = mount(
-        <Tooltip
-          position={position}
-          title={title}
-          content={content}
-        />
-      );
-      const instance = wrapper.instance();
-      // We want to stub componentWillReceiveProps, as it also calls calculateOffset
-      instance.componentWillReceiveProps = sinon.stub();
-
-      const calcSpy = sinon.spy(instance, 'calculateOffset');
-      expect(Tooltip.prototype.componentDidUpdate.callCount).to.equal(0);
-      expect(calcSpy.callCount).to.equal(0);
-      wrapper.setProps({ title: 'New title!' });
-      expect(Tooltip.prototype.componentDidUpdate.calledOnce).to.be.true;
-      expect(calcSpy.calledOnce).to.be.true;
-      expect(calcSpy.args[0][0]).to.deep.equal(wrapper.props());
-      Tooltip.prototype.componentDidUpdate.restore();
       instance.calculateOffset.restore();
     });
   });
