@@ -27,9 +27,11 @@ test/bin
 web/
 artifact_node.sh
 coverage/
-tiltMounts/*
-!tiltMounts/README.txt
-
+packageMounts/*
+!packageMounts/README.txt
+**/package.json
+**/yarn.lock
+!**/package.json.placeholder
 
 # GitBook
 _book/
