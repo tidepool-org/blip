@@ -13,6 +13,7 @@ RUN \
   && apk --no-cache  update \
   && apk --no-cache  upgrade \
   && apk add --no-cache fontconfig bash udev ttf-opensans chromium \
+  && npm i -g nodemon \
   && rm -rf /var/cache/apk/* /tmp/*
 ENV \
   CHROME_BIN=/usr/bin/chromium-browser \
@@ -25,19 +26,19 @@ ENV \
 FROM base as dependencies
 USER node
 COPY package.json .
-# COPY yarn.lock .
+COPY yarn.lock .
 COPY --chown=node:node packageMountDeps/tideline/ /app/packageMounts/tideline/
 COPY --chown=node:node packageMountDeps/tidepool-platform-client/ /app/packageMounts/tidepool-platform-client/
 COPY --chown=node:node packageMountDeps/@tidepool/viz/ /app/packageMounts/@tidepool/viz/
 RUN \
   # Build and separate all dependancies required for production
-  npm install --production && cp -R node_modules production_node_modules \
+  yarn install --silent --production && cp -R node_modules production_node_modules \
   # Build all modules, including `devDependancies`
-  && npm install \
+  && yarn install --silent \
   # Build all modules for mounted packages (used when npm linking in development containers)
-  && [ -f /app/packageMounts/tideline/package.json ] && cd /app/packageMounts/tideline && npm install \
-  && [ -f /app/packageMounts/tidepool-platform-client/package.json ] && cd /app/packageMounts/tidepool-platform-client && npm install \
-  && [ -f /app/packageMounts/@tidepool/viz/package.json ] && cd /app/packageMounts/@tidepool/viz && npm install
+  && if [ -f /app/packageMounts/tideline/package.json ]; then cd /app/packageMounts/tideline && yarn install --silent; fi \
+  && if [ -f /app/packageMounts/tidepool-platform-client/package.json ]; then cd /app/packageMounts/tidepool-platform-client && yarn install --silent; fi \
+  && if [ -f /app/packageMounts/@tidepool/viz/package.json ]; then cd /app/packageMounts/@tidepool/viz && yarn install --silent; fi
 
 
 ### Stage 3 - Development root with Chromium installed for unit tests
@@ -47,6 +48,8 @@ WORKDIR /app
 # Copy all `node_modules`
 COPY --chown=node:node --from=dependencies /app/node_modules ./node_modules
 COPY --chown=node:node --from=dependencies /app/packageMounts ./packageMounts
+# Copy yarn cache
+COPY --chown=node:node --from=dependencies /home/node/.cache/yarn /home/node/.cache/yarn
 # Copy source files
 COPY --chown=node:node . .
 CMD ["npm", "start"]
