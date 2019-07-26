@@ -3,8 +3,8 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+import React from 'react';
+import TestUtils from 'react-dom/test-utils';
 var expect = chai.expect;
 
 var DatePicker = require('../../../app/components/datepicker');

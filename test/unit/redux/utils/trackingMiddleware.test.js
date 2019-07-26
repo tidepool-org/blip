@@ -42,7 +42,7 @@ describe('trackingMiddleware', () => {
   });
 
   it('should be a function', () => {
-    expect(trackingMiddleware).to.be.a.function;
+    expect(trackingMiddleware).to.be.a('function');
   });
 
   it('should call the metrics api for SIGNUP_SUCCESS', () => {

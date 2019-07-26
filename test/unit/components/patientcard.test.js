@@ -4,12 +4,13 @@
 /* global it */
 /* global beforeEach */
 
-var React = require('react');
-var ReactDOM = require('react-dom');
-var TestUtils = require('react-addons-test-utils');
-var expect = chai.expect;
+import React from 'react';
+import ReactDOM from 'react-dom';
+import TestUtils from 'react-dom/test-utils';
 import {shallow} from 'enzyme';
 import i18next from '../../../app/core/language';
+
+var expect = chai.expect;
 
 const t = i18next.t.bind(i18next);
 

@@ -7,9 +7,8 @@
 /* global afterEach */
 /* global after */
 
-var React = require('react');
-var _ = require('lodash');
-var expect = chai.expect;
+import _ from 'lodash';
+import React from 'react';
 
 import { shallow, mount } from 'enzyme';
 import { translate } from 'react-i18next';
@@ -20,6 +19,7 @@ import Daily from '../../../../app/components/chart/daily';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
 
+var expect = chai.expect;
 const { Loader } = vizComponents;
 
 require('tideline/css/tideline.less');
@@ -251,7 +251,7 @@ describe('Daily', () => {
 
       sinon.assert.callCount(_.debounce, 1);
       sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
-      expect(wrapper.state().debouncedDateRangeUpdate).to.be.a.function;
+      expect(wrapper.state().debouncedDateRangeUpdate).to.be.a('function');
 
       _.debounce.restore();
     });

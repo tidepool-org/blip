@@ -3,9 +3,9 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var ReactDOM = require('react-dom');
-var TestUtils = require('react-addons-test-utils');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import TestUtils from 'react-dom/test-utils';
 var expect = chai.expect;
 
 var PeopleList = require('../../../app/components/peoplelist');

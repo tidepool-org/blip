@@ -6,8 +6,8 @@
 /* global afterEach */
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
-import { mount, shallow } from 'enzyme';
+import TestUtils from 'react-dom/test-utils';
+import { mount } from 'enzyme';
 
 import PatientSettings from '../../../../app/pages/patient/patientsettings';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../../app/core/constants';

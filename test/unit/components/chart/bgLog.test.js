@@ -24,8 +24,6 @@
 /* global afterEach */
 /* global sinon */
 
-var expect = chai.expect;
-
 import React from 'react';
 import _ from 'lodash';
 import BgLog from '../../../../app/components/chart/bgLog';
@@ -35,6 +33,7 @@ import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../../app/core/language';
 import DataUtilStub from '../../../helpers/DataUtil';
 
+const expect = chai.expect;
 const { Loader } = vizComponents;
 
 describe('BG Log', () => {
@@ -250,7 +249,7 @@ describe('BG Log', () => {
 
       sinon.assert.callCount(_.debounce, 1);
       sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
-      expect(state().debouncedDateRangeUpdate).to.be.a.function;
+      expect(state().debouncedDateRangeUpdate).to.be.a('function');
 
       _.debounce.restore();
     });

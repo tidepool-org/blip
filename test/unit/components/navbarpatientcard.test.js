@@ -3,11 +3,11 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
-var expect = chai.expect;
+import React from 'react';
+import TestUtils from 'react-dom/test-utils';
 import { shallow } from 'enzyme';
 import i18next from '../../../app/core/language';
+var expect = chai.expect;
 
 const t = i18next.t.bind(i18next);
 

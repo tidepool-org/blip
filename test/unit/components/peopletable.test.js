@@ -175,7 +175,9 @@ describe('PeopleTable', () => {
     });
 
     it('should show open a modal for removing a patient when their remove icon is clicked', function () {
-      const renderRemoveDialog = sinon.spy(wrapper.instance().getWrappedInstance(), 'renderRemoveDialog');
+      const wrappedInstance = wrapper.instance().getWrappedInstance();
+      const renderRemoveDialog = sinon.spy(wrappedInstance, 'renderRemoveDialog');
+      const handleRemove = sinon.spy(wrappedInstance, 'handleRemove');
 
       // Modal should be hidden
       const overlay = () => wrapper.find('.ModalOverlay').hostNodes();
@@ -184,11 +186,11 @@ describe('PeopleTable', () => {
 
       // Click the remove link for the last patient
       const removeLink = wrapper.find('RemoveLinkCell').last().find('i.peopletable-icon-remove');
-      expect(wrapper.instance().getWrappedInstance().handleRemove).to.have.beenCalled;
+      expect(handleRemove.called);
       removeLink.simulate('click');
 
       // Ensure the currentRowIndex is set to highlight the proper patient
-      const state = (key) => wrapper.instance().getWrappedInstance().state[key];
+      const state = (key) => wrappedInstance.state[key];
       const currentRow = state('currentRowIndex');
       expect(currentRow).to.equal(4);
       const activeRow = wrapper.find('.peopletable-active-row').hostNodes();

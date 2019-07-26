@@ -9,8 +9,7 @@
 /* global after */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import _ from 'lodash';
 import moment from 'moment';
@@ -2206,14 +2205,14 @@ describe('PatientData', function () {
         trackMetric: sinon.stub(),
       });
 
-      BaseObject = () => ({
-        props,
-        refs: {
+      BaseObject = function() {
+        this.props = props;
+        this.refs = {
           tideline: {
             getWrappedInstance: () => ({createMessageThread: sinon.stub()})
           },
-        },
-      });
+        }
+      };
     });
 
     it('should dispatch the message creation action', () => {
@@ -2239,14 +2238,14 @@ describe('PatientData', function () {
         trackMetric: sinon.stub(),
       });
 
-      BaseObject = () => ({
-        props,
-        refs: {
+      BaseObject = function() {
+        this.props = props;
+        this.refs = {
           tideline: {
             getWrappedInstance: () => ({editMessageThread: sinon.stub()}),
           },
-        },
-      });
+        }
+      };
     });
 
     it('should dispatch the message creation action', () => {

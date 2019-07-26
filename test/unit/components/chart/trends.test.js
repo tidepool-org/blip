@@ -22,8 +22,6 @@
 /* global afterEach */
 /* global sinon */
 
-var expect = chai.expect;
-
 import React from 'react';
 import _ from 'lodash';
 import Trends from '../../../../app/components/chart/trends';
@@ -32,6 +30,8 @@ import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../../app/core/language';
 import DataUtilStub from '../../../helpers/DataUtil';
+
+var expect = chai.expect;
 
 const { Loader } = vizComponents;
 
@@ -254,7 +254,7 @@ describe('Trends', () => {
 
       sinon.assert.callCount(_.debounce, 1);
       sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
-      expect(wrapper.state().debouncedDateRangeUpdate).to.be.a.function;
+      expect(wrapper.state().debouncedDateRangeUpdate).to.be.a('function');
 
       _.debounce.restore();
     });

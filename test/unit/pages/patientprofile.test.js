@@ -3,11 +3,8 @@
 /* global sinon */
 /* global it */
 
-import React from 'react';
-import TestUtils from 'react-addons-test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 
-var assert = chai.assert;
 var expect = chai.expect;
 
 import { mapStateToProps } from '../../../app/pages/patientprofile/patientprofile';

@@ -43,7 +43,7 @@ services:
 
 script:
   - npm run lint
-  # - npm test
+  - npm test
   - ./artifact.sh
 
 matrix:

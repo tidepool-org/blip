@@ -13,13 +13,8 @@ import {
   hashToUrl,
   onIndexRouteEnter,
   onOtherRouteEnter,
-  onLogoutEnter,
   ensureNoAuth
 } from '../../app/routes';
-import React from 'react';
-import TestUtils from 'react-addons-test-utils';
-import createHistory from 'history/lib/createMemoryHistory';
-import { Router } from 'react-router'
 import config from '../../app/config';
 
 var expect = chai.expect;
