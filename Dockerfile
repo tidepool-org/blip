@@ -13,7 +13,6 @@ RUN \
   && apk --no-cache  update \
   && apk --no-cache  upgrade \
   && apk add --no-cache fontconfig bash udev ttf-opensans chromium \
-  && npm i -g nodemon \
   && rm -rf /var/cache/apk/* /tmp/*
 ENV \
   CHROME_BIN=/usr/bin/chromium-browser \
@@ -24,26 +23,28 @@ ENV \
 ### Stage 2 - Create cached `node_modules`
 # Only rebuild layer if `package.json` has changed
 FROM base as dependencies
-USER node
+# USER node
 COPY package.json .
 COPY yarn.lock .
-COPY --chown=node:node packageMountDeps/tideline/ /app/packageMounts/tideline/
-COPY --chown=node:node packageMountDeps/tidepool-platform-client/ /app/packageMounts/tidepool-platform-client/
-COPY --chown=node:node packageMountDeps/@tidepool/viz/ /app/packageMounts/@tidepool/viz/
+COPY packageMountDeps/tideline/ /app/packageMounts/tideline/
+COPY packageMountDeps/tidepool-platform-client/ /app/packageMounts/tidepool-platform-client/
+COPY packageMountDeps/@tidepool/viz/ /app/packageMounts/@tidepool/viz/
+ADD packageMountDeps/.yarn-cache.* /
 RUN \
+  mkdir -p /home/node/.cache/yarn && yarn config set cache-folder /home/node/.cache/yarn \
   # Build and separate all dependancies required for production
-  yarn install --silent --production && cp -R node_modules production_node_modules \
+  && yarn install --production && cp -R node_modules production_node_modules \
   # Build all modules, including `devDependancies`
-  && yarn install --silent \
+  && yarn cache dir \
+  && yarn install \
   # Build all modules for mounted packages (used when npm linking in development containers)
-  && if [ -f /app/packageMounts/tideline/package.json ]; then cd /app/packageMounts/tideline && yarn install --silent; fi \
-  && if [ -f /app/packageMounts/tidepool-platform-client/package.json ]; then cd /app/packageMounts/tidepool-platform-client && yarn install --silent; fi \
-  && if [ -f /app/packageMounts/@tidepool/viz/package.json ]; then cd /app/packageMounts/@tidepool/viz && yarn install --silent; fi
+  && if [ -f /app/packageMounts/tideline/package.json ]; then cd /app/packageMounts/tideline && yarn install; fi \
+  && if [ -f /app/packageMounts/tidepool-platform-client/package.json ]; then cd /app/packageMounts/tidepool-platform-client && yarn install; fi \
+  && if [ -f /app/packageMounts/@tidepool/viz/package.json ]; then cd /app/packageMounts/@tidepool/viz && yarn install; fi
 
 
 ### Stage 3 - Development root with Chromium installed for unit tests
 FROM developBase as develop
-USER node
 WORKDIR /app
 # Copy all `node_modules`
 COPY --chown=node:node --from=dependencies /app/node_modules ./node_modules
@@ -52,6 +53,7 @@ COPY --chown=node:node --from=dependencies /app/packageMounts ./packageMounts
 COPY --chown=node:node --from=dependencies /home/node/.cache/yarn /home/node/.cache/yarn
 # Copy source files
 COPY --chown=node:node . .
+USER node
 CMD ["npm", "start"]
 
 
