@@ -1,8 +1,11 @@
 /* global chai */
 /* global describe */
 /* global it */
+/* global before */
+/* global after */
 
 import * as validation from '../../../app/core/validation';
+import i18n from 'i18next';
 
 var expect = chai.expect;
 
@@ -267,6 +270,32 @@ describe('validation', () => {
       });
     });
 
+    describe('Specific date format: FR', () => {
+      before((done) => {
+        i18n.off('languageChanged');
+        i18n.changeLanguage('fr', (err, t) => {
+            if(err) console.log(err);
+            done();
+          });
+      });
+      it('should return valid object when fieldValue and prerequisite birthday are valid and in order', () => {
+        var diagnosis = { day: '21', month: '2', year: '2004' };
+        var birthday = { day: '22', month: '3', year: '1984' };
+        var response = validation.typeValidators.diagnosisDate('diagnosis date', diagnosis, { birthday : birthday });
+        expect(response.message).to.be.null;
+        expect(response.valid).to.be.true;       
+      });
+      after((done) => {
+        i18n.changeLanguage('en', (err, t) => {
+          if(err) console.log(err);
+          done();
+        });
+
+      });
+
+
+    });
+
     describe('date', () => {
       it('should be a function', () => {
         expect(validation.typeValidators.date).to.be.a('function');
@@ -350,6 +379,7 @@ describe('validation', () => {
       });
 
       it('should return valid object when fieldValue is valid date', () => {
+        
         var birthday = { day: '20', month: '2', year: '2002' };
         var response = validation.typeValidators.date('birthday', birthday);
 
