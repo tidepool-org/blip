@@ -18,7 +18,7 @@ webpackConf.output = {
 module.exports = function karmaConfig(config) {
   config.set({
     browserNoActivityTimeout: 60000,
-    browsers: ['PhantomJS'],
+    browsers: ['ChromiumHeadless'],
     captureTimeout: 60000,
     client: {
       mocha: mochaConf,

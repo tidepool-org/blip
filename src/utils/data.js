@@ -1,4 +1,4 @@
-import crossfilter from 'crossfilter'; // eslint-disable-line import/no-unresolved
+import crossfilter from 'crossfilter2';
 import moment from 'moment-timezone';
 import _ from 'lodash';
 import bows from 'bows';

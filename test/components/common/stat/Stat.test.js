@@ -392,29 +392,42 @@ describe('Stat', () => {
     });
 
     it('should call the `renderCalculatedOutput` method when the stat type is `input`', () => {
-      const renderCalculatedOutputSpy = sinon.spy(instance, 'renderCalculatedOutput');
+      const statProps = { ...defaultProps };
+      statProps.type = statTypes.input;
+
+      const statComp = shallow(<Stat {...statProps} />);
+      const statInstance = statComp.instance();
+
+      const renderCalculatedOutputSpy = sinon.spy(statInstance, 'renderCalculatedOutput');
       sinon.assert.callCount(renderCalculatedOutputSpy, 0);
 
-      instance.props.type = statTypes.input;
-      instance.renderStatFooter();
+      statInstance.renderStatFooter();
       sinon.assert.callCount(renderCalculatedOutputSpy, 1);
     });
 
     it('should call the `renderStatLegend` method when the `legend` prop is `true`', () => {
-      const renderStatLegendSpy = sinon.spy(instance, 'renderStatLegend');
+      const statProps = { ...defaultProps };
+      statProps.legend = true;
+      const statComp = shallow(<Stat {...statProps} />);
+      const statInstance = statComp.instance();
+
+      const renderStatLegendSpy = sinon.spy(statInstance, 'renderStatLegend');
       sinon.assert.callCount(renderStatLegendSpy, 0);
 
-      instance.props.legend = true;
-      instance.renderStatFooter();
+      statInstance.renderStatFooter();
       sinon.assert.callCount(renderStatLegendSpy, 1);
     });
 
     it('should call the `renderStatUnits` method when the stat type is `true`', () => {
-      const renderStatUnitsSpy = sinon.spy(instance, 'renderStatUnits');
+      const statProps = { ...defaultProps };
+      statProps.units = 'myUnits';
+      const statComp = shallow(<Stat {...statProps} />);
+      const statInstance = statComp.instance();
+
+      const renderStatUnitsSpy = sinon.spy(statInstance, 'renderStatUnits');
       sinon.assert.callCount(renderStatUnitsSpy, 0);
 
-      instance.props.units = 'myUnits';
-      instance.renderStatFooter();
+      statInstance.renderStatFooter();
       sinon.assert.callCount(renderStatUnitsSpy, 1);
     });
   });
@@ -567,8 +580,8 @@ describe('Stat', () => {
     });
 
     it('should pass `onChange` and `onSuffixChange` handler function to the component', () => {
-      expect(inputGroup().props().onChange).to.be.a.function;
-      expect(inputGroup().props().onSuffixChange).to.be.a.function;
+      expect(inputGroup().props().onChange).to.be.a('function');
+      expect(inputGroup().props().onSuffixChange).to.be.a('function');
     });
 
     it('should set the initial input and suffix values as provided by the `data.data.input` prop', () => {
@@ -1453,9 +1466,9 @@ describe('Stat', () => {
         const dataComponent = shallow(result.dataComponent);
 
         expect(dataComponent.is('.bgBar')).to.be.true;
-        expect(dataComponent.instance().props.barWidth).to.be.a.number;
+        expect(dataComponent.instance().props.barWidth).to.be.a('number');
         expect(dataComponent.instance().props.bgPrefs).to.eql(instance.props.bgPrefs);
-        expect(dataComponent.instance().props.chartLabelWidth).to.be.a.number;
+        expect(dataComponent.instance().props.chartLabelWidth).to.be.a('number');
         expect(dataComponent.instance().props.domain).to.eql(result.domain);
       });
 
@@ -1464,11 +1477,11 @@ describe('Stat', () => {
         const dataComponent = shallow(result.labelComponent);
 
         expect(dataComponent.is('.bgBarLabel')).to.be.true;
-        expect(dataComponent.instance().props.barWidth).to.be.a.number;
+        expect(dataComponent.instance().props.barWidth).to.be.a('number');
         expect(dataComponent.instance().props.bgPrefs).to.eql(instance.props.bgPrefs);
         expect(dataComponent.instance().props.domain).to.eql(result.domain);
-        expect(dataComponent.instance().props.text).to.be.a.function;
-        expect(dataComponent.instance().props.tooltipText).to.be.a.function;
+        expect(dataComponent.instance().props.text).to.be.a('function');
+        expect(dataComponent.instance().props.tooltipText).to.be.a('function');
       });
 
       it('should set `renderer` to a `VictoryBar` component', () => {
@@ -1530,13 +1543,13 @@ describe('Stat', () => {
           'labels',
         ]);
 
-        expect(result.style.data.fill).to.be.a.function;
-        expect(result.style.data.width).to.be.a.function;
+        expect(result.style.data.fill).to.be.a('function');
+        expect(result.style.data.width).to.be.a('function');
 
-        expect(result.style.labels.fill).to.be.a.function;
-        expect(result.style.labels.fontSize).to.be.a.number;
-        expect(result.style.labels.fontWeight).to.be.a.number;
-        expect(result.style.labels.paddingLeft).to.be.a.number;
+        expect(result.style.labels.fill).to.be.a('function');
+        expect(result.style.labels.fontSize).to.be.a('number');
+        expect(result.style.labels.fontWeight).to.be.a('number');
+        expect(result.style.labels.paddingLeft).to.be.a('number');
       });
     });
 
@@ -1626,9 +1639,9 @@ describe('Stat', () => {
         const dataComponent = shallow(result.dataComponent);
 
         expect(dataComponent.is('.HoverBar')).to.be.true;
-        expect(dataComponent.instance().props.barWidth).to.be.a.number;
-        expect(dataComponent.instance().props.barSpacing).to.be.a.number;
-        expect(dataComponent.instance().props.chartLabelWidth).to.be.a.number;
+        expect(dataComponent.instance().props.barWidth).to.be.a('number');
+        expect(dataComponent.instance().props.barSpacing).to.be.a('number');
+        expect(dataComponent.instance().props.chartLabelWidth).to.be.a('number');
         expect(dataComponent.instance().props.domain).to.eql(result.domain);
       });
 
@@ -1637,11 +1650,11 @@ describe('Stat', () => {
         const dataComponent = shallow(result.labelComponent);
 
         expect(dataComponent.is('.HoverBarLabel')).to.be.true;
-        expect(dataComponent.instance().props.barWidth).to.be.a.number;
+        expect(dataComponent.instance().props.barWidth).to.be.a('number');
         expect(dataComponent.instance().props.domain).to.eql(result.domain);
-        expect(dataComponent.instance().props.isDisabled).to.be.a.function;
-        expect(dataComponent.instance().props.text).to.be.a.function;
-        expect(dataComponent.instance().props.tooltipText).to.be.a.function;
+        expect(dataComponent.instance().props.isDisabled).to.be.a('function');
+        expect(dataComponent.instance().props.text).to.be.a('function');
+        expect(dataComponent.instance().props.tooltipText).to.be.a('function');
       });
 
       it('should set `renderer` to a `VictoryBar` component', () => {
@@ -1697,13 +1710,13 @@ describe('Stat', () => {
           'labels',
         ]);
 
-        expect(result.style.data.fill).to.be.a.function;
-        expect(result.style.data.width).to.be.a.function;
+        expect(result.style.data.fill).to.be.a('function');
+        expect(result.style.data.width).to.be.a('function');
 
-        expect(result.style.labels.fill).to.be.a.function;
-        expect(result.style.labels.fontSize).to.be.a.number;
-        expect(result.style.labels.fontWeight).to.be.a.number;
-        expect(result.style.labels.paddingLeft).to.be.a.number;
+        expect(result.style.labels.fill).to.be.a('function');
+        expect(result.style.labels.fontSize).to.be.a('number');
+        expect(result.style.labels.fontWeight).to.be.a('number');
+        expect(result.style.labels.paddingLeft).to.be.a('number');
       });
 
       it('should set `events` with `onMouseOver` and `onMouseOut` handlers', () => {
@@ -1721,8 +1734,8 @@ describe('Stat', () => {
           'onMouseOut',
         ]);
 
-        expect(result.events[0].eventHandlers.onMouseOver).to.be.a.function;
-        expect(result.events[0].eventHandlers.onMouseOut).to.be.a.function;
+        expect(result.events[0].eventHandlers.onMouseOver).to.be.a('function');
+        expect(result.events[0].eventHandlers.onMouseOut).to.be.a('function');
       });
     });
   });

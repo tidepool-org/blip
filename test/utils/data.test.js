@@ -242,12 +242,12 @@ describe('DataUtil', () => {
 
   describe('constructor', () => {
     it('should initialize the data crossfilter', () => {
-      expect(dataUtil.data).to.be.an.object;
+      expect(dataUtil.data).to.be.an('object');
       expect(dataUtil.data.size()).to.equal(data.length);
     });
 
     it('should set custom `endpoints` from provided opts', () => {
-      expect(dataUtil._endpoints).to.be.an.array;
+      expect(dataUtil._endpoints).to.be.an('array');
       expect(dataUtil._endpoints).to.eql(dayEndpoints);
     });
 
@@ -281,19 +281,19 @@ describe('DataUtil', () => {
     });
 
     it('should set `days` from endpoints', () => {
-      expect(dataUtil.days).to.be.a.number;
+      expect(dataUtil.days).to.be.a('number');
     });
 
     it('should set up crossfilter dimensions', () => {
-      expect(dataUtil.dimension).to.be.an.object;
+      expect(dataUtil.dimension).to.be.an('object');
     });
 
     it('should set up crossfilter filters', () => {
-      expect(dataUtil.filter).to.be.an.object;
+      expect(dataUtil.filter).to.be.an('object');
     });
 
     it('should set up crossfilter sorts', () => {
-      expect(dataUtil.sort).to.be.an.object;
+      expect(dataUtil.sort).to.be.an('object');
     });
 
     it('should set `bgSources`', () => {
@@ -531,9 +531,9 @@ describe('DataUtil', () => {
     it('should build the data dimensions', () => {
       dataUtil.dimension = {};
       dataUtil.buildDimensions();
-      expect(dataUtil.dimension.byDate).to.be.a.function;
-      expect(dataUtil.dimension.byDayOfWeek).to.be.a.function;
-      expect(dataUtil.dimension.byType).to.be.a.function;
+      expect(dataUtil.dimension.byDate).to.be.an('object', 'byDate');
+      expect(dataUtil.dimension.byDayOfWeek).to.be.an('object', 'byDayOfWeek');
+      expect(dataUtil.dimension.byType).to.be.an('object', 'byType');
     });
   });
 
@@ -541,9 +541,9 @@ describe('DataUtil', () => {
     it('should build the data filters', () => {
       dataUtil.filter = {};
       dataUtil.buildFilters();
-      expect(dataUtil.filter.byActiveDays).to.be.a.function;
-      expect(dataUtil.filter.byEndpoints).to.be.a.function;
-      expect(dataUtil.filter.byType).to.be.a.function;
+      expect(dataUtil.filter.byActiveDays).to.be.a('function');
+      expect(dataUtil.filter.byEndpoints).to.be.a('function');
+      expect(dataUtil.filter.byType).to.be.a('function');
     });
   });
 
@@ -551,7 +551,7 @@ describe('DataUtil', () => {
     it('should build the data sorters', () => {
       dataUtil.sort = {};
       dataUtil.buildSorts();
-      expect(dataUtil.sort.byDate).to.be.a.function;
+      expect(dataUtil.sort.byDate).to.be.a('function');
     });
   });
 

@@ -848,7 +848,7 @@ describe('basics data utils', () => {
       expect(basicsData.sections.basalBolusRatio.active).to.be.true;
       expect(basicsData.sections.timeInAutoRatio.active).to.be.true;
       expect(basicsData.sections.averageDailyCarbs.active).to.be.true;
-      expect(_.find(basicsData.sections.fingersticks.filters, { path: 'calibration' })).to.be.defined;
+      expect(_.find(basicsData.sections.fingersticks.dimensions, { path: 'calibration' })).to.exist;
       const processedBasicsData = dataUtils.processInfusionSiteHistory(basicsData, {});
       const result = dataUtils.disableEmptySections(processedBasicsData);
 

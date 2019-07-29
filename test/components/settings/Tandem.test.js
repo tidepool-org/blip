@@ -49,7 +49,7 @@ describe('Tandem', () => {
   beforeEach(() => {
     props = {
       bgUnits: MGDL_UNITS,
-      copySettingsClicked: sinon.spy(),
+      copySettingsClicked,
       openedSections: { [multirateData.activeSchedule]: true },
       pumpSettings: multirateData,
       timePrefs,
@@ -112,7 +112,7 @@ describe('Tandem', () => {
     const mounted = mount(<Tandem {...props} />);
     expect(copySettingsClicked.callCount).to.equal(0);
     mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
-    expect(copySettingsClicked).to.be.called;
+    expect(copySettingsClicked.callCount).to.equal(1);
   });
 
   describe('timed settings', () => {

@@ -3,12 +3,13 @@ const webpack = require('webpack');
 
 const appDirectory = path.resolve(__dirname);
 const isDev = (process.env.NODE_ENV === 'development');
+const isTest = (process.env.NODE_ENV === 'test');
 
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
 // but that will sometimes happen with the base64 hashes
 // so we leave them off in the test env
-const localIdentName = process.env.NODE_ENV === 'test'
+const localIdentName = isTest
   ? '[name]--[local]'
   : '[name]--[local]--[hash:base64:5]';
 
@@ -99,7 +100,7 @@ const plugins = [
   // builds to eliminate development checks and reduce build size. You may
   // wish to include additional optimizations.
   new webpack.DefinePlugin({
-    __DEV__: isDev,
+    __DEV__: isDev || isTest,
   }),
   new webpack.LoaderOptionsPlugin({
     debug: true,
@@ -128,7 +129,7 @@ const resolve = {
 module.exports = {
   devtool: 'sourcemap',
   entry,
-  mode: isDev ? 'development' : 'production',
+  mode: isDev || isTest ? 'development' : 'production',
   module: {
     rules: [
       babelLoaderConfiguration,

@@ -37,7 +37,6 @@ const omnipodMultiRateData = require('../../../data/pumpSettings/omnipod/multira
 const medtronicMultiRateData = require('../../../data/pumpSettings/medtronic/multirate.json');
 const medtronicAutomatedData = require('../../../data/pumpSettings/medtronic/automated.json');
 
-const copySettingsClicked = sinon.spy();
 const timePrefs = { timezoneAware: false, timezoneName: 'Europe/London' };
 const user = {
   profile: {
@@ -50,7 +49,16 @@ const user = {
 };
 
 describe('NonTandem', () => {
+  let copySettingsClicked;
   const activeAtUploadText = 'Active at upload';
+
+  before(() => {
+    copySettingsClicked = sinon.spy();
+  });
+
+  afterEach(() => {
+    copySettingsClicked.resetHistory();
+  });
 
   describe('Animas', () => {
     it('should have a header', () => {
@@ -170,7 +178,7 @@ describe('NonTandem', () => {
       );
       expect(copySettingsClicked.callCount).to.equal(0);
       mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
-      expect(copySettingsClicked).to.be.called;
+      expect(copySettingsClicked.callCount).to.equal(1);
     });
     describe('bolus settings', () => {
       it('should surface the expected value for ISF', () => {
@@ -428,7 +436,7 @@ describe('NonTandem', () => {
         );
         expect(copySettingsClicked.callCount).to.equal(0);
         mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
-        expect(copySettingsClicked).to.be.called;
+        expect(copySettingsClicked.callCount).to.equal(1);
       });
     });
   });
@@ -571,7 +579,7 @@ describe('NonTandem', () => {
       );
       expect(copySettingsClicked.callCount).to.equal(0);
       mounted.find(formatClassesAsSelector(styles.copyButton)).at(0).simulate('click');
-      expect(copySettingsClicked).to.be.called;
+      expect(copySettingsClicked.callCount).to.equal(1);
     });
 
     describe('automated basal', () => {
