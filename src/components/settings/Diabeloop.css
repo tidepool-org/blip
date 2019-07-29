@@ -42,3 +42,42 @@
 .bdlgSettingsHeader {
   composes: bolusHeaderBackground settingsHeader from './settings.css';
 }
+.settingsTable .spannedRow td {
+  text-align: center;
+  padding: 0.4em 0;
+  background-color: var(--brand-purple);
+  background-image: linear-gradient(to right, var(--brand-purple-dark) 0, var(--brand-purple-dark) 14px,var(--brand-purple) 14px, var(--white) 100%);
+  color: var(--gray-dark);
+}
+.clickableIcon
+{
+  cursor: pointer;
+}
+
+span.parameterHistory {
+  margin-left:5px;
+}
+span.historyValue {
+  display:inline-block;
+  width:100%;
+  padding-right:15px;
+  padding-left:15px;
+}
+span.valueDeleted {
+  background-image:
+    linear-gradient(to left, var(--bg-history-deleted-plain) 0, var(--bg-history-deleted-plain) 5px, var(--bg-history-deleted-plain) 15px),
+    linear-gradient(to right, var(--bg-history-deleted-plain) 0, var(--bg-history-deleted-plain) 5px, var(--bg-history-deleted-plain) 15px);
+  background-color: var(--bg-history-deleted-soft);
+}
+span.valueUpdated {
+  background-image:
+    linear-gradient(to left,var(--bg-history-updated-plain) 0, var(--bg-history-updated-plain) 5px, var(--bg-history-updated-soft) 15px),
+    linear-gradient(to right,var(--bg-history-updated-plain) 0, var(--bg-history-updated-plain) 5px, var(--bg-history-updated-soft) 15px);
+  background-color: var(--bg-history-updated-soft);
+}
+span.valueAdded {
+  background-image:
+    linear-gradient(to left,var(--bg-history-added-plain) 0, var(--bg-history-added-plain) 5px, var(--bg-history-added-soft) 15px),
+    linear-gradient(to right,var(--bg-history-added-plain) 0, var(--bg-history-added-plain) 5px, var(--bg-history-added-soft) 15px);
+  background-color: var(--bg-history-added-soft);
+}

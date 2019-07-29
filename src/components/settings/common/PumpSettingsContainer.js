@@ -44,6 +44,7 @@ export class PumpSettingsContainer extends PureComponent {
     }).isRequired,
     settingsState: PropTypes.object.isRequired,
     toggleSettingsSection: PropTypes.func.isRequired,
+    onSwitchToDaily: PropTypes.func,
   }
 
   componentWillMount() {
@@ -92,6 +93,7 @@ export class PumpSettingsContainer extends PureComponent {
           />
         );
       case 'diabeloop':
+
         return (
           <Diabeloop
             copySettingsClicked={copySettingsClicked}
@@ -99,6 +101,7 @@ export class PumpSettingsContainer extends PureComponent {
             pumpSettings={pumpSettings}
             timePrefs={timePrefs}
             user={user}
+            handleClickHistory={(dateTime, title) => this.props.onSwitchToDaily(dateTime, title)}
           />
         );
       case 'animas':

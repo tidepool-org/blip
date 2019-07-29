@@ -23,6 +23,7 @@ import i18next from 'i18next';
 
 import Header from './common/Header';
 import Table from './common/Table';
+import HistoryTable from './DiabeloopHistoryParameters';
 
 import * as datetime from '../../utils/datetime';
 import * as dblData from '../../utils/settings/diabeloopData';
@@ -85,6 +86,7 @@ const Diabeloop = (props) => {
     copySettingsClicked,
     pumpSettings,
     timePrefs,
+    handleClickHistory,
   } = props;
 
   const deviceDateISO =
@@ -94,6 +96,7 @@ const Diabeloop = (props) => {
 
   const parameters = _.get(pumpSettings, 'payload.parameters', null);
   const device = _.get(pumpSettings, 'payload.device', null);
+  const history = _.get(pumpSettings, 'payload.history', null);
 
   if (parameters === null || device === null) {
     return null;
@@ -132,6 +135,22 @@ const Diabeloop = (props) => {
           </table>
         </div>
         {renderDiabeloopParameters(parametersByLevel)}
+        <div className={styles.categoryContainer}>
+          <div className={styles.categoryTitle}>&nbsp;</div>
+          <HistoryTable
+            title={HistoryTable.title}
+            rows={history}
+            columns={HistoryTable.columns}
+            tableStyle={styles.settingsTable}
+            onSwitchToDaily={handleClickHistory}
+            unknownParameterIcon={<i className="icon-unsure-data" />}
+            addedParameterIcon={<i className="icon-add" />}
+            deletedParameterIcon={<i className="icon-remove" />}
+            updatedParameterIcon={<i className="icon-refresh" />}
+            changeValueArrowIcon={<i className="icon-next" />}
+            switchToDailyIconClass="icon-chart-line"
+            />
+        </div>
       </div>
       <pre className={styles.copyText} id="copySettingsText">
         {dblData.diabeloopText(device, parametersByLevel, displayDeviceDate)}
@@ -161,13 +180,29 @@ Diabeloop.propTypes = {
           level: PropTypes.number.isRequired,
         })
       ).isRequired,
+      history: PropTypes.arrayOf(
+        PropTypes.shape({
+          _id: PropTypes.string.isRequired,
+          createdAt: PropTypes.string.isRequired,
+          updatedAt: PropTypes.string.isRequired,
+          parameters: PropTypes.arrayOf(
+            PropTypes.shape({
+              _id: PropTypes.string.isRequired,
+              changeType: PropTypes.string.isRequired,
+              name: PropTypes.string.isRequired,
+              value: PropTypes.string.isRequired,
+              unit: PropTypes.string.isRequired,
+              level: PropTypes.number.isRequired,
+              effectiveDate: PropTypes.string.isRequired,
+            })
+          ),
+        })),
     }).isRequired,
   }),
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool.isRequired,
-    timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
+    timezoneName: PropTypes.oneOfType([PropTypes.string]),
   }).isRequired,
   user: PropTypes.object.isRequired,
 };
-
 export default Diabeloop;
