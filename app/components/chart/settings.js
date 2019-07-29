@@ -113,6 +113,7 @@ const Settings = translate()(React.createClass({
         bgUnits={this.props.bgPrefs.bgUnits}
         manufacturerKey={_.get(mostRecentSettings, 'source', '').toLowerCase()}
         pumpSettings={mostRecentSettings}
+        onSwitchToDaily={this.props.onSwitchToDaily}
         timePrefs={this.props.timePrefs}
         view='display'
       />

@@ -1,14 +1,17 @@
 # Blip 
 
-## [Unreleased]
+## [0.5.0] - 2019-07-29
+
+### Added
+- PT-376 Integrate latest change from [Tidepool 1.20.2](https://github.com/tidepool-org/blip/releases/tag/v1.20.2)
+- PT-513 Display history of parameters change in patient settings page.
 
 ### Fixed
-
 - PT-304 Validation of the patient diagnostic date and date of birth uses the wrong format
 
 ## [0.4.0] - 2019-05-15
 
-### ADDED
+### Added
 - PT-365 Add Firefox, Chrome on iOS and edge as authorized browsers. A warning message is displayed for any other browser than Chrome.
 
 ## [0.3.1] - 2019-04-17
@@ -19,7 +22,7 @@
 ## [0.3.0] - 2019-04-08
 Release candidate for pre-launch
 
-### ADDED
+### Added
  - Add favicon
  - Add HELP_LINK variable to configure external web widget for online help in the application. 
     - widget gives access to helpCenter
@@ -31,14 +34,14 @@ Release candidate for pre-launch
 
 # [0.2.2] - 2019-03-19 
 
-### ADDED
+### Added
 - Add/Update translations
 - Change e-mail & password can be disabled for patients. They cannot be disabled for clinical accounts.
 - Disable the create patient account page
 
 # [0.1.8]
 
-### ADDED
+### Added
 - Based on [Tidepool 1.12.5](https://github.com/tidepool-org/blip/releases/tag/v1.12.5)
 - MVP for Branding 
 - Add integration with external tool
