@@ -1,5 +1,11 @@
 # Blip 
 
+## [Unreleased]
+
+### Fixed
+
+- PT-304 Validation of the patient diagnostic date and date of birth uses the wrong format
+
 ## [0.4.0] - 2019-05-15
 
 ### ADDED

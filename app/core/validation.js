@@ -65,7 +65,9 @@ export const invalid = (message) => ({
  */
 const dateValidator = (fieldLabel, fieldValue, currentDateObj) => {
   let now = new Date();
-  let dateMask = t('M-D-YYYY');
+  // dateMask will be used for date validation
+  // it is static and does not depend on any locale here
+  let dateMask = 'M-D-YYYY';
   let dateString;
 
   currentDateObj = currentDateObj || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
@@ -78,8 +80,8 @@ const dateValidator = (fieldLabel, fieldValue, currentDateObj) => {
     return invalid(errors.incompleteDate(fieldLabel));
   }
 
+  // Build date as a string, dateMask-formatted for comparison
   let month = parseInt(fieldValue.month, 10) + 1; // month is zero indexed
-
   dateString = `${month}-${fieldValue.day}-${fieldValue.year}`;
   if (!sundial.isValidDateForMask(dateString, dateMask)) {
     return invalid(errors.invalidDate());
