@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import types from '../types';
+import { THREE_HRS } from '../../src/utils/datetime';
 
 const days = [
   {
@@ -443,10 +444,65 @@ export const dailyData = {
           automated: 1483314400000,
           manual: 1483314400000,
         },
+        food: [
+          {
+            nutrition: {
+              carbohydrate: {
+                net: 65,
+              },
+            },
+          },
+        ],
       },
     },
   },
   bgRange: [undefined, undefined],
   bolusRange: [undefined, undefined],
   basalRange: [0, 0],
+};
+
+export const bgLogData = {
+  dateRange: ['2017-12-31', '2018-01-29'],
+  timezone: 'America/Toronto',
+  dataByDate: {
+    '2017-12-31': { data: { smbg: [
+      { value: 50, msPer24: THREE_HRS * 0.5 },
+      { value: 70, msPer24: THREE_HRS * 1.5 },
+      { value: 90, msPer24: THREE_HRS * 2.5 },
+      { value: 150, msPer24: THREE_HRS * 3.5 },
+      { value: 170, msPer24: THREE_HRS * 4.5 },
+      { value: 190, msPer24: THREE_HRS * 5.5 },
+      { value: 210, msPer24: THREE_HRS * 6.5 },
+      { value: 260, msPer24: THREE_HRS * 7.5 },
+    ] } },
+    '2018-01-01': { data: { smbg: [{ value: 60 }] } },
+    '2018-01-02': { data: { smbg: [{ value: 100 }] } },
+    '2018-01-03': { data: { smbg: [{ value: 200 }] } },
+    '2018-01-04': { data: { smbg: [{ value: 300 }] } },
+    '2018-01-05': { data: { smbg: [{ value: 50 }] } },
+    '2018-01-06': { data: { smbg: [{ value: 60 }] } },
+    '2018-01-07': { data: { smbg: [{ value: 100 }] } },
+    '2018-01-08': { data: { smbg: [{ value: 200 }] } },
+    '2018-01-09': { data: { smbg: [{ value: 300 }] } },
+    '2018-01-10': { data: { smbg: [{ value: 50 }] } },
+    '2018-01-11': { data: { smbg: [{ value: 60 }] } },
+    '2018-01-12': { data: { smbg: [{ value: 100 }] } },
+    '2018-01-13': { data: { smbg: [{ value: 200 }] } },
+    '2018-01-14': { data: { smbg: [{ value: 300 }] } },
+    '2018-01-15': { data: { smbg: [{ value: 50 }] } },
+    '2018-01-16': { data: { smbg: [{ value: 60 }] } },
+    '2018-01-17': { data: { smbg: [{ value: 100 }] } },
+    '2018-01-18': { data: { smbg: [{ value: 200 }] } },
+    '2018-01-19': { data: { smbg: [{ value: 300 }] } },
+    '2018-01-20': { data: { smbg: [{ value: 50 }] } },
+    '2018-01-21': { data: { smbg: [{ value: 60 }] } },
+    '2018-01-22': { data: { smbg: [{ value: 100 }] } },
+    '2018-01-23': { data: { smbg: [{ value: 200 }] } },
+    '2018-01-24': { data: { smbg: [{ value: 300 }] } },
+    '2018-01-25': { data: { smbg: [{ value: 50 }] } },
+    '2018-01-26': { data: { smbg: [{ value: 60 }] } },
+    '2018-01-27': { data: { smbg: [{ value: 100 }] } },
+    '2018-01-28': { data: { smbg: [{ value: 200 }] } },
+    '2018-01-29': { data: { smbg: [{ value: 300 }] } },
+  },
 };

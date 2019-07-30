@@ -47,6 +47,11 @@
   stroke-dasharray: 1.5,3;
 }
 
+.bgVeryLow {
+  color: var(--bg-very-low);
+  fill: var(--bg-very-low);
+}
+
 .bgLow {
   color: var(--bg-low);
   fill: var(--bg-low);
@@ -60,6 +65,11 @@
 .bgHigh {
   color: var(--bg-high);
   fill: var(--bg-high);
+}
+
+.bgVeryHigh {
+  color: var(--bg-very-high);
+  fill: var(--bg-very-high);
 }
 
 .bolusDelivered {

@@ -194,7 +194,7 @@ const NonTandem = (props) => {
         className={styles.copyButton}
         button-title={t('For email or notes')}
         data-clipboard-target="#copySettingsText"
-        onSuccess={copySettingsClicked}
+        onClick={copySettingsClicked}
       >
         <p>{t('Copy as text')}</p>
       </ClipboardButton>
@@ -203,17 +203,17 @@ const NonTandem = (props) => {
         deviceMeta={nonTandemData.deviceMeta(pumpSettings, timePrefs)}
       />
       <div className={styles.settingsContainer}>
-        <div>
-          <div className={styles.basalSettingsContainer}>
-            <div className={styles.categoryTitle}>{t('Basal Rates')}</div>
-            {renderBasalsData()}
-          </div>
+        <div className={styles.basalSettingsContainer}>
+          <div className={styles.categoryTitle}>{t('Basal Rates')}</div>
+          {renderBasalsData()}
         </div>
         <div className={styles.bolusSettingsContainer}>
           <div className={styles.categoryTitle}>{nonTandemData.bolusTitle(lookupKey)}</div>
-          {renderSensitivityData()}
-          {renderTargetData()}
-          {renderRatioData()}
+          <div className={styles.bolusSettingsInnerContainer}>
+            {renderSensitivityData()}
+            {renderTargetData()}
+            {renderRatioData()}
+          </div>
         </div>
       </div>
       <pre className={styles.copyText} id="copySettingsText">
@@ -266,7 +266,7 @@ NonTandem.propTypes = {
   }).isRequired,
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool.isRequired,
-    timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
+    timezoneName: PropTypes.string,
   }).isRequired,
   toggleBasalScheduleExpansion: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,

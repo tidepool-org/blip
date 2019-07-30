@@ -17,6 +17,7 @@
 
 import _ from 'lodash';
 
+import { formatInsulin, formatDecimalNumber } from './format';
 import { ONE_HR } from './datetime';
 
 /**
@@ -62,7 +63,7 @@ export function getBasalPathGroupType(datum = {}) {
     'subType',
     _.get(datum.suppressed, 'deliveryType')
   );
-  return _.contains([deliveryType, suppressedDeliveryType], 'automated') ? 'automated' : 'manual';
+  return _.includes([deliveryType, suppressedDeliveryType], 'automated') ? 'automated' : 'manual';
 }
 
 /**
@@ -83,20 +84,6 @@ export function getBasalPathGroups(basals) {
   });
 
   return basalPathGroups;
-}
-
-/**
- * getTotalBasal
- * @param {Array} basals - Array of preprocessed Tidepool basal objects
- *                         trimmed to fit within the timespan the total basal
- *                         is being calculated over
- *
- * @return {Number} total basal insulin in units
- */
-export function getTotalBasal(basals) {
-  return _.reduce(basals, (result, basal) => (
-    result + basal.rate * (basal.duration / ONE_HR)
-  ), 0);
 }
 
 /**
@@ -174,6 +161,72 @@ export function getGroupDurations(data, s, e) {
       segment.duration,
     ]);
   }
+
+  return durations;
+}
+
+/**
+ * Calculate the total insulin dose delivered in a given basal segment
+ * @param {Number} duration Duration of segment in milliseconds
+ * @param {Number} rate Basal rate of segment
+ */
+export function getSegmentDose(duration, rate) {
+  const hours = duration / ONE_HR;
+  return parseFloat(formatDecimalNumber(hours * rate, 3));
+}
+
+/**
+ * Get total basal delivered for a given time range
+ * @param {Array} data Array of Tidepool basal data
+ * @param {[]String} enpoints ISO date strings for the start, end of the range, in that order
+ * @return {Number} Formatted total insulin dose
+ */
+export function getTotalBasalFromEndpoints(data, endpoints) {
+  const start = new Date(endpoints[0]);
+  const end = new Date(endpoints[1]);
+  let dose = 0;
+
+  _.each(data, (datum, index) => {
+    let duration = datum.duration;
+    if (index === 0) {
+      // handle first segment, which may have started before the start endpoint
+      duration = _.min([new Date(datum.normalEnd) - start, datum.duration]);
+    } else if (index === data.length - 1) {
+      // handle last segment, which may go past the end endpoint
+      duration = _.min([end - new Date(datum.normalTime), datum.duration]);
+    }
+    dose += getSegmentDose(duration, datum.rate);
+  });
+
+  return formatInsulin(dose);
+}
+
+/**
+ * Get automated and manual basal delivery time for a given time range
+ * @param {Array} data Array of Tidepool basal data
+ * @param {[]String} enpoints ISO date strings for the start, end of the range, in that order
+ * @return {Number} Formatted total insulin dose
+ */
+export function getBasalGroupDurationsFromEndpoints(data, endpoints) {
+  const start = new Date(endpoints[0]);
+  const end = new Date(endpoints[1]);
+
+  const durations = {
+    automated: 0,
+    manual: 0,
+  };
+
+  _.each(data, (datum, index) => {
+    let duration = datum.duration;
+    if (index === 0) {
+      // handle first segment, which may have started before the start endpoint
+      duration = _.min([new Date(datum.normalEnd) - start, datum.duration]);
+    } else if (index === data.length - 1) {
+      // handle last segment, which may go past the end endpoint
+      duration = _.min([end - new Date(datum.normalTime), datum.duration]);
+    }
+    durations[getBasalPathGroupType(datum)] += duration;
+  });
 
   return durations;
 }

@@ -17,6 +17,7 @@
 
 require('./styles/colors.css');
 
+import _ from 'lodash';
 import CBGDateTraceLabel from './components/trends/cbg/CBGDateTraceLabel';
 import FocusedRangeLabels from './components/trends/common/FocusedRangeLabels';
 import FocusedSMBGPointLabel from './components/trends/smbg/FocusedSMBGPointLabel';
@@ -28,17 +29,31 @@ import TrendsContainer from './components/trends/common/TrendsContainer';
 import Tooltip from './components/common/tooltips/Tooltip';
 import BolusTooltip from './components/daily/bolustooltip/BolusTooltip';
 import SMBGTooltip from './components/daily/smbgtooltip/SMBGTooltip';
+import Stat from './components/common/stat/Stat';
 import CBGTooltip from './components/daily/cbgtooltip/CBGTooltip';
+import FoodTooltip from './components/daily/foodtooltip/FoodTooltip';
 
 import reducers from './redux/reducers/';
 
 import { formatBgValue } from './utils/format';
 import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
-import { selectDailyViewData } from './utils/print/data';
+import { getTotalBasalFromEndpoints, getGroupDurations } from './utils/basal';
+import { isAutomatedBasalDevice } from './utils/device';
+import { addDuration, getLocalizedCeiling, getTimezoneFromTimePrefs } from './utils/datetime';
+import {
+  commonStats,
+  getStatAnnotations,
+  getStatData,
+  getStatDefinition,
+  getStatTitle,
+  statBgSourceLabels,
+  statFetchMethods,
+} from './utils/stat';
+import DataUtil from './utils/data';
+import { selectDailyViewData, selectBgLogViewData } from './utils/print/data';
 
 const i18next = require('i18next');
-
-if (i18next.options.returnEmptyString === undefined) {
+if (_.get(i18next, 'options.returnEmptyString') === undefined) {
   // Return key if no translation is present
   i18next.init({ returnEmptyString: false, nsSeparator: '|' });
 }
@@ -53,7 +68,9 @@ const components = {
   Tooltip,
   BolusTooltip,
   SMBGTooltip,
+  Stat,
   CBGTooltip,
+  FoodTooltip,
 };
 
 const containers = {
@@ -62,9 +79,36 @@ const containers = {
 };
 
 const utils = {
-  formatBgValue,
-  reshapeBgClassesToBgBounds,
-  selectDailyViewData,
+  basal: {
+    getGroupDurations,
+    getTotalBasalFromEndpoints,
+  },
+  bg: {
+    formatBgValue,
+    reshapeBgClassesToBgBounds,
+  },
+  data: {
+    selectDailyViewData,
+    selectBgLogViewData,
+    DataUtil,
+  },
+  datetime: {
+    addDuration,
+    getLocalizedCeiling,
+    getTimezoneFromTimePrefs,
+  },
+  device: {
+    isAutomatedBasalDevice,
+  },
+  stat: {
+    commonStats,
+    getStatAnnotations,
+    getStatData,
+    getStatDefinition,
+    getStatTitle,
+    statBgSourceLabels,
+    statFetchMethods,
+  },
 };
 
 export {

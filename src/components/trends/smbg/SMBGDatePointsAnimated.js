@@ -157,7 +157,7 @@ export class SMBGDatePointsAnimated extends PureComponent {
           return {
             key: smbg.id,
             data: {
-              classes: styles[classifyBgValue(bgBounds, smbg.value)],
+              classes: styles[classifyBgValue(bgBounds, smbg.value, 'fiveWay')],
               position,
               smbg,
             },

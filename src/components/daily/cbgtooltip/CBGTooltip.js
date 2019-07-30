@@ -44,7 +44,8 @@ class CBGTooltip extends PureComponent {
     if (!_.isEmpty(outOfRangeMessage)) {
       const bgClass = classifyBgValue(
         reshapeBgClassesToBgBounds(this.props.bgPrefs),
-        this.props.cbg.value
+        this.props.cbg.value,
+        'fiveWay'
       );
       rows.push(
         <div
@@ -66,7 +67,8 @@ class CBGTooltip extends PureComponent {
   render() {
     const bgClass = classifyBgValue(
       reshapeBgClassesToBgBounds(this.props.bgPrefs),
-      this.props.cbg.value
+      this.props.cbg.value,
+      'fiveWay'
     );
     const title = this.props.title ? this.props.title : (
       <div className={styles.title}>

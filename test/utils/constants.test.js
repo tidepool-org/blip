@@ -60,6 +60,12 @@ describe('constants', () => {
     });
   });
 
+  describe('LBS_PER_KG', () => {
+    it('should be `2.2046226218`', () => {
+      expect(constants.LBS_PER_KG).to.equal(2.2046226218);
+    });
+  });
+
   describe('CGM_READINGS_ONE_DAY', () => {
     it('should be `288`', () => {
       expect(constants.CGM_READINGS_ONE_DAY).to.equal(288);

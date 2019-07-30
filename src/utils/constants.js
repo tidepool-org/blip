@@ -15,10 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import i18next from 'i18next';
 const t = i18next.t.bind(i18next);
 
-if (i18next.options.returnEmptyString === undefined) {
+if (_.get(i18next, 'options.returnEmptyString') === undefined) {
   // Return key if no translation is present
   i18next.init({ returnEmptyString: false, nsSeparator: '|' });
 }
@@ -38,6 +39,8 @@ export const MMOLL_CLAMP_TOP = 22.5;
 export const MGDL_UNITS = t('mg/dL');
 export const MMOLL_UNITS = t('mmol/L');
 export const MGDL_PER_MMOLL = 18.01559;
+
+export const LBS_PER_KG = 2.2046226218;
 
 const ONE_WEEK = 7;
 const TWO_WEEKS = 14;

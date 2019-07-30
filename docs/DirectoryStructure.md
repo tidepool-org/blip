@@ -134,7 +134,7 @@ CSS particular to a component should be written using [CSS modules](https://gith
 
 #### views
 
-`views/` is a proposal for the eventual location of a top-level container component for each of blip's major data visualizations: (currently) basics, daily, weekly, trends, and device settings. A "view" will encompass more than just the rendered visualization; the navigation sub-header (currently containing links for navigating between views and arrows for navigating along the time dimension) and footer (containing options for some views like grouping for the `smbg` version of the trends view) will also be part of a top-level view component since some header and footer controls are specific to certain views or have specific behavior on certain views.
+`views/` is a proposal for the eventual location of a top-level container component for each of blip's major data visualizations: (currently) basics, daily, bgLog, trends, and device settings. A "view" will encompass more than just the rendered visualization; the navigation sub-header (currently containing links for navigating between views and arrows for navigating along the time dimension) and footer (containing options for some views like grouping for the `smbg` version of the trends view) will also be part of a top-level view component since some header and footer controls are specific to certain views or have specific behavior on certain views.
 
 ### Misc
 

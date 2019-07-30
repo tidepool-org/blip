@@ -116,7 +116,7 @@ describe('format', () => {
 
   describe('formatInsulin', () => {
     it('should be a function', () => {
-      assert.isFunction(format.formatPercentage);
+      assert.isFunction(format.formatInsulin);
     });
 
     it('should return a single digit fixed point float for integers', () => {
@@ -146,9 +146,14 @@ describe('format', () => {
       expect(format.formatPercentage(0.5)).to.equal('50%');
     });
 
-    it('should round to zero decimal places', () => {
+    it('should round to zero decimal places by default', () => {
       expect(format.formatPercentage(0.732)).to.equal('73%');
       expect(format.formatPercentage(0.736)).to.equal('74%');
+    });
+
+    it('should round to a provided number of decimal places', () => {
+      expect(format.formatPercentage(0.732, 2)).to.equal('73.20%');
+      expect(format.formatPercentage(0.736548, 3)).to.equal('73.655%');
     });
   });
 

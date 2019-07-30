@@ -17,7 +17,7 @@
 
 import _ from 'lodash';
 
-import { MGDL_PER_MMOLL } from './constants';
+import { MGDL_PER_MMOLL, MS_IN_MIN } from './constants';
 
 import { formatBgValue } from './format.js';
 
@@ -62,20 +62,16 @@ export function classifyBgValue(bgBounds, bgValue, classificationType = 'threeWa
 }
 
 /**
- * calcBgPercentInCategories
- * @param {Array} data - Array of Tidepool cbg or smbg data
- * @param {Object} bgBounds - object describing boundaries for blood glucose categories
- *
- * @return {Object} bgPercentInCategories - object w/keys veryLow, low, target, high, veryHigh
- *                  and 0.0 to 1.0 percentage values
+ * classifyCvValue
+ * @param {number} value - integer or float coefficient of variation (CV) value
+ * @return {String} cvClassification - target, high
  */
-export function calcBgPercentInCategories(data, bgBounds) {
-  const bgPercentInCategories = {};
-  const grouped = _.groupBy(data, (d) => (classifyBgValue(bgBounds, d.value, 'fiveWay')));
-  _.each(['veryLow', 'low', 'target', 'high', 'veryHigh'], (key) => {
-    bgPercentInCategories[key] = ((grouped[key] && grouped[key].length) || 0) / data.length;
-  });
-  return bgPercentInCategories;
+export function classifyCvValue(value) {
+  if (value <= 36) {
+    return 'target';
+  } else {
+    return 'high';
+  }
 }
 
 /**
@@ -113,9 +109,19 @@ export function reshapeBgClassesToBgBounds(bgPrefs) {
  * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds and the bgUnits
  * @returns {Object} bgRangeLabels - map of labels keyed by bgClassification
  */
-export function generateBgRangeLabels(bgPrefs) {
+export function generateBgRangeLabels(bgPrefs, opts = {}) {
   const { bgBounds, bgUnits } = bgPrefs;
   const thresholds = _.mapValues(bgBounds, threshold => formatBgValue(threshold, bgPrefs));
+
+  if (opts.condensed) {
+    return {
+      veryLow: `<${thresholds.veryLowThreshold}`,
+      low: `${thresholds.veryLowThreshold}-${thresholds.targetLowerBound}`,
+      target: `${thresholds.targetLowerBound}-${thresholds.targetUpperBound}`,
+      high: `${thresholds.targetUpperBound}-${thresholds.veryHighThreshold}`,
+      veryHigh: `>${thresholds.veryHighThreshold}`,
+    };
+  }
 
   return {
     veryLow: `below ${thresholds.veryLowThreshold} ${bgUnits}`,
@@ -161,4 +167,15 @@ export function weightedCGMCount(data) {
 
     return total + datumWeight;
   }, 0);
+}
+
+/**
+ * Get the CGM sample frequency in milliseconds from a CGM data point. Most devices default at a
+ * 5 minute interval, but others, such as the Abbot FreeStyle Libre, sample every 15 mins
+ *
+ * @param {Array} datum - a cgm data point
+ */
+export function cgmSampleFrequency(datum) {
+  const deviceId = _.get(datum, 'deviceId', '');
+  return deviceId.indexOf('AbbottFreeStyleLibre') === 0 ? 15 * MS_IN_MIN : 5 * MS_IN_MIN;
 }

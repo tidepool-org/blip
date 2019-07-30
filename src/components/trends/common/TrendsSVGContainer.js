@@ -40,7 +40,7 @@ const SMBG_OPTS = {
 };
 
 import React, { PropTypes, PureComponent } from 'react';
-import dimensions from 'react-dimensions';
+import sizeMe from 'react-sizeme';
 import _ from 'lodash';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
@@ -67,6 +67,8 @@ export class TrendsSVGContainer extends PureComponent {
 
     this.state = {
       focusedSegmentDataGroupedByDate: null,
+      size: this.props.size,
+      chartWidth: this.props.size.width - 70,
     };
   }
 
@@ -75,6 +77,17 @@ export class TrendsSVGContainer extends PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
+    const width = nextProps.size.width || this.state.size.width;
+    const height = nextProps.size.height || this.state.size.height;
+
+    this.setState({
+      size: {
+        width,
+        height,
+      },
+      chartWidth: width - 70,
+    });
+
     if (nextProps.yScale !== this.props.yScale) {
       this.setScales(nextProps);
     }
@@ -114,8 +127,8 @@ export class TrendsSVGContainer extends PureComponent {
   }
 
   setScales(props = this.props) {
-    const { containerHeight: height, containerWidth: width } = props;
     const { margins, smbgOpts, xScale, yScale } = props;
+    const { width, height } = this.state.size;
     xScale.range([
       margins.left + Math.round(smbgOpts.maxR),
       width - margins.right - Math.round(smbgOpts.maxR),
@@ -127,7 +140,9 @@ export class TrendsSVGContainer extends PureComponent {
   }
 
   renderNoDataMessage(dataType) {
-    const { activeDays, containerHeight: height, containerWidth: width, margins } = this.props;
+    const { activeDays, margins } = this.props;
+    const { width, height } = this.state.size;
+
     const xPos = (width / 2) + margins.right;
     const yPos = (height / 2) + margins.bottom;
     const messagePosition = { x: xPos, y: yPos };
@@ -157,6 +172,7 @@ export class TrendsSVGContainer extends PureComponent {
         tooltipLeftThreshold={this.props.tooltipLeftThreshold}
         xScale={this.props.xScale}
         yScale={this.props.yScale}
+        width={(this.state.chartWidth / 8) - 3}
       />
     );
   }
@@ -166,6 +182,7 @@ export class TrendsSVGContainer extends PureComponent {
       const slices = (
         <CBGSlicesContainer
           bgBounds={this.props.bgPrefs.bgBounds}
+          sliceWidth={this.state.chartWidth / 56}
           data={this.props.cbgData}
           displayFlags={this.props.displayFlags}
           showingCbgDateTraces={this.props.showingCbgDateTraces}
@@ -196,6 +213,7 @@ export class TrendsSVGContainer extends PureComponent {
           <FocusedCBGSliceSegment
             focusedSlice={focusedSlice}
             focusedSliceKeys={focusedSliceKeys}
+            sliceWidth={this.state.chartWidth / 56}
           />
         );
       }
@@ -255,10 +273,10 @@ export class TrendsSVGContainer extends PureComponent {
 
       return (
         <g id="smbgTrends">
-        {this.renderOverlay(SMBGRangeAnimated, 'SMBGRangeContainer')}
-        {allSmbgsByDate}
-        {this.renderOverlay(SMBGMeanAnimated, 'SMBGMeanContainer')}
-        {focusedSmbgDate}
+          {this.renderOverlay(SMBGRangeAnimated, 'SMBGRangeContainer')}
+          {allSmbgsByDate}
+          {this.renderOverlay(SMBGMeanAnimated, 'SMBGMeanContainer')}
+          {focusedSmbgDate}
         </g>
       );
     }
@@ -266,41 +284,44 @@ export class TrendsSVGContainer extends PureComponent {
   }
 
   render() {
-    const { containerHeight: height, containerWidth: width } = this.props;
+    const { width, height } = this.state.size;
+
     return (
-      <svg height={height} width={width}>
-        <Background
-          linesAtThreeHrs
-          margins={this.props.margins}
-          smbgOpts={this.props.smbgOpts}
-          svgDimensions={{ height, width }}
-          xScale={this.props.xScale}
-        />
-        <XAxisLabels
-          margins={this.props.margins}
-          useRangeLabels={false}
-          xScale={this.props.xScale}
-        />
-        <XAxisTicks
-          margins={this.props.margins}
-          xScale={this.props.xScale}
-        />
-        <YAxisLabelsAndTicks
-          bgPrefs={this.props.bgPrefs}
-          bgUnits={this.props.bgUnits}
-          margins={this.props.margins}
-          yScale={this.props.yScale}
-        />
-        {this.renderCbg()}
-        {this.renderSmbg()}
-        <TargetRangeLines
-          bgBounds={this.props.bgPrefs.bgBounds}
-          smbgOpts={this.props.smbgOpts}
-          xScale={this.props.xScale}
-          yScale={this.props.yScale}
-        />
-        {this.renderNoDataMessage(this.props.showingCbg ? 'cbg' : 'smbg')}
-      </svg>
+      <div>
+        <svg height={height} width="100%">
+          <Background
+            linesAtThreeHrs
+            margins={this.props.margins}
+            smbgOpts={this.props.smbgOpts}
+            svgDimensions={{ height, width }}
+            xScale={this.props.xScale}
+          />
+          <XAxisLabels
+            margins={this.props.margins}
+            useRangeLabels={false}
+            xScale={this.props.xScale}
+          />
+          <XAxisTicks
+            margins={this.props.margins}
+            xScale={this.props.xScale}
+          />
+          <YAxisLabelsAndTicks
+            bgPrefs={this.props.bgPrefs}
+            bgUnits={this.props.bgUnits}
+            margins={this.props.margins}
+            yScale={this.props.yScale}
+          />
+          {this.renderCbg()}
+          {this.renderSmbg()}
+          <TargetRangeLines
+            bgBounds={this.props.bgPrefs.bgBounds}
+            smbgOpts={this.props.smbgOpts}
+            xScale={this.props.xScale}
+            yScale={this.props.yScale}
+          />
+          {this.renderNoDataMessage(this.props.showingCbg ? 'cbg' : 'smbg')}
+        </svg>
+      </div>
     );
   }
 }
@@ -331,8 +352,10 @@ TrendsSVGContainer.propTypes = {
     }).isRequired,
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   }).isRequired,
-  containerHeight: PropTypes.number.isRequired,
-  containerWidth: PropTypes.number.isRequired,
+  size: PropTypes.shape({
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+  }).isRequired,
   smbgData: PropTypes.arrayOf(PropTypes.shape({
     // here only documenting the properties we actually use rather than the *whole* data model!
     id: PropTypes.string.isRequired,
@@ -427,4 +450,4 @@ TrendsSVGContainer.propTypes = {
   yScale: PropTypes.func.isRequired,
 };
 
-export default dimensions()(TrendsSVGContainer);
+export default sizeMe({ monitorHeight: true })(TrendsSVGContainer);

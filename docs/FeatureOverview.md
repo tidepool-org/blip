@@ -4,7 +4,7 @@ As of mid-November, 2016, Tidepool's main web application for PwD's and their ca
 
 - Basics
 - Daily
-- Weekly
+- BG Log
 - Trends
 - Device Settings
 
@@ -14,7 +14,7 @@ As of mid-November, 2016, Tidepool's main web application for PwD's and their ca
 - [Notes on the five views](#notes-on-the-five-views)
   - [Basics](#basics)
   - [Daily](#daily)
-  - [Weekly](#weekly)
+  - [BG Log](#bg-log)
   - [Trends](#trends)
   - [Device Settings](#device-settings)
 - [Data preprocessing](#data-preprocessing)
@@ -66,9 +66,9 @@ More detail about each datum displayed in the daily view is available through ho
 - the "virtual" rendering strategy employed in [@jebeck's zipline experiment](https://github.com/jebeck/zipline) (see also [her slides from a D3 meetup talk about this](http://janabeck.com/d3-meetup-talk/#/ 'tideline and zipline slides'))
 - using HTML5's `<canvas>` instead of SVG for all or part of the rendering
 
-#### Weekly
+#### BG Log
 
-The Weekly view shows two weeks of a PwD's fingerstick blood glucose readings at a time in a vertically-scrollable display of stacked days in reverse chronological order (most recent the top). Three "widgets" below the stacked days display summary statistics about the two weeks in view assuming the insulin pump or blood glucose data are sufficient to calculate them: the basal to bolus ratio, time in target range, and average (mean) blood glucose for the two weeks. As the user navigates the datetime dimension (using the same mechanisms as available for the Daily view, only the panning and scrolling are vertical instead of horizontal), these widgets update to reflect the newly selected time period.
+The BG Log view shows two weeks of a PwD's fingerstick blood glucose readings at a time in a vertically-scrollable display of stacked days in reverse chronological order (most recent the top). Three "widgets" below the stacked days display summary statistics about the two weeks in view assuming the insulin pump or blood glucose data are sufficient to calculate them: the basal to bolus ratio, time in target range, and average (mean) blood glucose for the two weeks. As the user navigates the datetime dimension (using the same mechanisms as available for the Daily view, only the panning and scrolling are vertical instead of horizontal), these widgets update to reflect the newly selected time period.
 
 [💣 tech debt 💣] The scrolling—i.e., essentially the same as for the Daily view.
 

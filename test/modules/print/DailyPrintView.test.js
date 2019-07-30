@@ -17,7 +17,6 @@
 
 import _ from 'lodash';
 import moment from 'moment';
-import { mean } from 'd3-array';
 
 import DailyPrintView from '../../../src/modules/print/DailyPrintView';
 import PrintView from '../../../src/modules/print/PrintView';
@@ -33,11 +32,11 @@ import {
   EXTRA_SMALL_FONT_SIZE,
 } from '../../../src/modules/print/utils/constants';
 
-import { getTotalBasal, getBasalPathGroups } from '../../../src/utils/basal';
-import { getTotalBolus, getTotalCarbs } from '../../../src/utils/bolus';
-import { formatPercentage, formatDecimalNumber, formatBgValue } from '../../../src/utils/format';
+import { getBasalPathGroups } from '../../../src/utils/basal';
+import { formatDecimalNumber, formatBgValue } from '../../../src/utils/format';
 
 import Doc from '../../helpers/pdfDoc';
+import { MS_IN_HOUR } from '../../../src/utils/constants';
 
 describe('DailyPrintView', () => {
   let Renderer;
@@ -193,8 +192,7 @@ describe('DailyPrintView', () => {
       expect(Renderer.chartsPlaced).to.be.a('number');
       expect(Renderer.chartsPlaced > 0).to.be.true;
 
-      expect(Renderer.totalPages).to.be.a('number');
-      expect(Renderer.totalPages > 0).to.be.true;
+      sinon.assert.callCount(Renderer.doc.addPage, 2);
     });
 
     it('should make chart scales in preparation for rendering', () => {
@@ -258,7 +256,10 @@ describe('DailyPrintView', () => {
 
     it('should call the newPage method of the parent class with a date range string', () => {
       Renderer.newPage();
-      sinon.assert.calledWith(PrintView.prototype.newPage, 'Date range: Dec 28 - Dec 30, 2016');
+      sinon.assert.calledWith(
+        PrintView.prototype.newPage,
+        'Date range: Dec 28, 2016 - Jan 2, 2017'
+      );
     });
 
     it('should render a legend', () => {
@@ -304,13 +305,13 @@ describe('DailyPrintView', () => {
 
   describe('render', () => {
     it('should call all the appropriate render methods for each page and chart', () => {
-      sinon.stub(Renderer, 'renderPageNumber');
       sinon.stub(Renderer, 'renderSummary').returns(Renderer);
       sinon.stub(Renderer, 'renderXAxes').returns(Renderer);
       sinon.stub(Renderer, 'renderYAxes').returns(Renderer);
       sinon.stub(Renderer, 'renderCbgs').returns(Renderer);
       sinon.stub(Renderer, 'renderSmbgs').returns(Renderer);
       sinon.stub(Renderer, 'renderInsulinEvents').returns(Renderer);
+      sinon.stub(Renderer, 'renderFoodCarbs').returns(Renderer);
       sinon.stub(Renderer, 'renderBolusDetails').returns(Renderer);
       sinon.stub(Renderer, 'renderBasalPaths').returns(Renderer);
       sinon.stub(Renderer, 'renderBasalRates').returns(Renderer);
@@ -328,6 +329,7 @@ describe('DailyPrintView', () => {
       sinon.assert.callCount(Renderer.renderCbgs, numCharts);
       sinon.assert.callCount(Renderer.renderSmbgs, numCharts);
       sinon.assert.callCount(Renderer.renderInsulinEvents, numCharts);
+      sinon.assert.callCount(Renderer.renderFoodCarbs, numCharts);
       sinon.assert.callCount(Renderer.renderBolusDetails, numCharts);
       sinon.assert.callCount(Renderer.renderBasalPaths, numCharts);
       sinon.assert.callCount(Renderer.renderBasalRates, numCharts);
@@ -346,6 +348,29 @@ describe('DailyPrintView', () => {
 
     beforeEach(() => {
       args = setArgs(Renderer);
+      Renderer.data.dataByDate[sampleDate].stats = {
+        averageGlucose: { data: { raw: {
+          averageGlucose: 120,
+        } } },
+        carbs: { data: { raw: {
+          carbs: 10.2,
+        } } },
+        timeInRange: { data: {
+          raw: {
+            target: MS_IN_HOUR * 3,
+            veryLow: MS_IN_HOUR,
+          },
+          total: { value: MS_IN_HOUR * 4 },
+        } },
+        totalInsulin: { data: { raw: {
+          basal: 10,
+          bolus: 20,
+        } } },
+        timeInAuto: { data: { raw: {
+          manual: MS_IN_HOUR * 3,
+          automated: MS_IN_HOUR * 7,
+        } } },
+      };
       Renderer.renderSummary(args);
     });
 
@@ -368,86 +393,56 @@ describe('DailyPrintView', () => {
     });
 
     it('should render the basal to bolus ratio for non-automated-basal devices', () => {
-      const totalBasal = getTotalBasal(args.data.basal);
-      const totalBolus = getTotalBolus(args.data.bolus);
-      const totalInsulin = totalBasal + totalBolus;
-      const basalPercent = formatPercentage(totalBasal / totalInsulin);
-      const bolusPercent = formatPercentage(totalBolus / totalInsulin);
-      const basalPercentText = `${basalPercent}, ${formatDecimalNumber(totalBasal, 1)} U`;
-      const bolusPercentText = `${bolusPercent}, ${formatDecimalNumber(totalBolus, 1)} U`;
-
       sinon.assert.calledWith(Renderer.doc.text, 'Basal:Bolus Ratio');
 
       sinon.assert.calledWith(Renderer.doc.text, 'Basal');
-      sinon.assert.calledWith(Renderer.doc.text, basalPercentText);
+      sinon.assert.calledWith(Renderer.doc.text, '33%, 10.0 U');
 
       sinon.assert.calledWith(Renderer.doc.text, 'Bolus');
-      sinon.assert.calledWith(Renderer.doc.text, bolusPercentText);
+      sinon.assert.calledWith(Renderer.doc.text, '67%, 20.0 U');
     });
 
     it('should render the time in auto ratio for automated-basal devices', () => {
-      const { automated, manual } = args.data.timeInAutoRatio;
-      const totalBasalDuration = automated + manual;
-      const automatedPercentText = formatPercentage(automated / totalBasalDuration);
-      const manualPercentText = formatPercentage(manual / totalBasalDuration);
-
       Renderer.isAutomatedBasalDevice = true;
       Renderer.doc.text.resetHistory();
       Renderer.renderSummary(args);
       sinon.assert.calledWith(Renderer.doc.text, 'Time in Automated');
 
       sinon.assert.calledWith(Renderer.doc.text, 'Manual');
-      sinon.assert.calledWith(Renderer.doc.text, manualPercentText);
+      sinon.assert.calledWith(Renderer.doc.text, '30%');
 
       sinon.assert.calledWith(Renderer.doc.text, 'Automated');
-      sinon.assert.calledWith(Renderer.doc.text, automatedPercentText);
+      sinon.assert.calledWith(Renderer.doc.text, '70%');
     });
 
-    it('should render the Average BG with cbg data if available', () => {
-      const averageBG = formatDecimalNumber(mean(args.data.cbg, (d) => (d.value)), 0);
-      const averageBGText = `${averageBG} ${Renderer.bgUnits}`;
-
+    it('should render the Average BG stat if available', () => {
       sinon.assert.calledWith(Renderer.doc.text, 'Average BG');
-      sinon.assert.calledWith(Renderer.doc.text, averageBGText);
-    });
-
-    it('should render the Average BG with smbg data if available', () => {
-      const noCbgArgs = _.cloneDeep(args);
-      noCbgArgs.data.cbg = [];
-      Renderer.renderSummary(noCbgArgs);
-      const averageBG = formatDecimalNumber(mean(noCbgArgs.data.smbg, (d) => (d.value)), 0);
-      const averageBGText = `${averageBG} ${Renderer.bgUnits}`;
-
-      sinon.assert.calledWith(Renderer.doc.text, 'Average BG');
-      sinon.assert.calledWith(Renderer.doc.text, averageBGText);
+      sinon.assert.calledWith(Renderer.doc.text, '120 mg/dL');
     });
 
     it('should render the total daily insulin', () => {
-      const totalBasal = getTotalBasal(args.data.basal);
-      const totalBolus = getTotalBolus(args.data.bolus);
-      const totalInsulin = totalBasal + totalBolus;
-      const totalInsulinText = `${formatDecimalNumber(totalInsulin, 1)} U`;
-
       sinon.assert.calledWith(Renderer.doc.text, 'Total Insulin');
-      sinon.assert.calledWith(Renderer.doc.text, totalInsulinText);
+      sinon.assert.calledWith(Renderer.doc.text, '30.0 U');
     });
 
     it('should render the total carbs intake', () => {
-      const totalCarbs = getTotalCarbs(args.data.bolus);
-      const totalCarbsText = `${formatDecimalNumber(totalCarbs, 0)} g`;
-
       sinon.assert.calledWith(Renderer.doc.text, 'Total Carbs');
-      sinon.assert.calledWith(Renderer.doc.text, totalCarbsText);
+      sinon.assert.calledWith(Renderer.doc.text, '10 g');
     });
 
     context('mmol/L support', () => {
       beforeEach(() => {
         Renderer = new DailyPrintView(doc, data, mmollOpts);
         args = setArgs(Renderer);
+        Renderer.data.dataByDate[sampleDate].stats.averageGlucose = {
+          data: { raw: {
+            averageGlucose: 12.25,
+          } },
+        };
         Renderer.renderSummary(args);
       });
 
-      it('should render the time in target in mmol/L with correct formatting', () => {
+      it('should render the time in target range labels in mmol/L with correct formatting', () => {
         const { targetUpperBound, targetLowerBound, veryLowThreshold } = Renderer.bgBounds;
         const text = {
           targetUpper: formatDecimalNumber(targetUpperBound, 1),
@@ -460,11 +455,8 @@ describe('DailyPrintView', () => {
       });
 
       it('should render the Average BG in mmol/L with correct formatting', () => {
-        const averageBG = formatDecimalNumber(mean(args.data.cbg, (d) => (d.value)), 1);
-        const averageBGText = `${averageBG} mmol/L`;
-
         sinon.assert.calledWith(Renderer.doc.text, 'Average BG');
-        sinon.assert.calledWith(Renderer.doc.text, averageBGText);
+        sinon.assert.calledWith(Renderer.doc.text, '12.3 mmol/L');
       });
     });
   });
@@ -625,6 +617,15 @@ describe('DailyPrintView', () => {
       expect(Renderer.renderEventPath.callCount >= bolusCount).to.be.true;
       sinon.assert.calledOnce(Renderer.doc.circle);
       sinon.assert.calledWith(Renderer.doc.text, 80);
+    });
+  });
+
+  describe('renderFoodCarbs', () => {
+    it('should graph food carb events', () => {
+      Renderer.renderFoodCarbs(Renderer.chartsByDate[sampleDate]);
+
+      sinon.assert.calledOnce(Renderer.doc.circle);
+      sinon.assert.calledWith(Renderer.doc.text, 65);
     });
   });
 

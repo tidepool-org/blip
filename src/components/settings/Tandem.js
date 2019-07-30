@@ -76,7 +76,7 @@ const Tandem = (props) => {
         className={styles.copyButton}
         button-title={t('For email or notes')}
         data-clipboard-target="#copySettingsText"
-        onSuccess={copySettingsClicked}
+        onClick={copySettingsClicked}
       >
         <p>{t('Copy as text')}</p>
       </ClipboardButton>
@@ -143,7 +143,7 @@ Tandem.propTypes = {
   }).isRequired,
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool.isRequired,
-    timezoneName: PropTypes.oneOfType([PropTypes.string, null]),
+    timezoneName: PropTypes.string,
   }).isRequired,
   toggleProfileExpansion: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,

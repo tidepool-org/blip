@@ -98,20 +98,32 @@ describe('CBGTooltip', () => {
 
   it('should render "target" color for target bg', () => {
     const wrapper = mount(<CBGTooltip {...props} cbg={target} />);
-    expect(wrapper.find('Tooltip').node.props.tailColor).to.equal(colors.target);
-    expect(wrapper.find('Tooltip').node.props.borderColor).to.equal(colors.target);
+    expect(wrapper.find('Tooltip').instance().props.tailColor).to.equal(colors.target);
+    expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.target);
   });
 
   it('should render "high" color for high bg', () => {
     const wrapper = mount(<CBGTooltip {...props} cbg={high} />);
-    expect(wrapper.find('Tooltip').node.props.tailColor).to.equal(colors.high);
-    expect(wrapper.find('Tooltip').node.props.borderColor).to.equal(colors.high);
+    expect(wrapper.find('Tooltip').instance().props.tailColor).to.equal(colors.high);
+    expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.high);
+  });
+
+  it('should render "veryHigh" color for high bg', () => {
+    const wrapper = mount(<CBGTooltip {...props} cbg={veryHigh} />);
+    expect(wrapper.find('Tooltip').instance().props.tailColor).to.equal(colors.veryHigh);
+    expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.veryHigh);
   });
 
   it('should render "low" color for low bg', () => {
     const wrapper = mount(<CBGTooltip {...props} cbg={low} />);
-    expect(wrapper.find('Tooltip').node.props.tailColor).to.equal(colors.low);
-    expect(wrapper.find('Tooltip').node.props.borderColor).to.equal(colors.low);
+    expect(wrapper.find('Tooltip').instance().props.tailColor).to.equal(colors.low);
+    expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.low);
+  });
+
+  it('should render "veryLow" color for low bg', () => {
+    const wrapper = mount(<CBGTooltip {...props} cbg={veryLow} />);
+    expect(wrapper.find('Tooltip').instance().props.tailColor).to.equal(colors.veryLow);
+    expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.veryLow);
   });
 
   it('should render "High" and an annotation for a "very-high" cbg', () => {

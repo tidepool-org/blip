@@ -95,19 +95,17 @@ export function filterPointInTimeFnMaker(dateStart, dateEnd) {
 }
 
 /**
- * selectDailyViewData
+ * processDateBoundaries
  * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
  * @param {Array} groupedData - Object of tideline-preprocessed Tidepool diabetes data & notes;
  *                              grouped by type
  * @param {Number} numDays - number of days of data to select
  * @param {Object} timePrefs - object containing timezoneAware Boolean, timezoneName String or null
- *
- * @return {Object} selected data for daily print view
+ * @returns {Object} the date boundaries for the provided data
  */
-export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs) {
+function processDateBoundaries(mostRecent, groupedData, numDays, timePrefs) {
   const timezone = getTimezoneFromTimePrefs(timePrefs);
   const end = getLocalizedCeiling(mostRecent, timePrefs);
-  let lastDate;
 
   const dateBoundaries = [end.toISOString()];
   let last = end;
@@ -123,8 +121,7 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
   }
   dateBoundaries.reverse();
 
-  const selected = { dataByDate: {} };
-  const { dataByDate: selectedDataByDate } = selected;
+  const selected = { dataByDate: {}, dateRange: [], timezone };
 
   for (let i = 0; i < numDays; ++i) {
     const thisDateStart = dateBoundaries[i];
@@ -156,14 +153,22 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
       }),
     };
 
-    if (i === numDays - 1) {
-      lastDate = date;
+    if (i === 0 || i === numDays - 1) {
+      selected.dateRange.push(date);
     }
     // TODO: select out infusion site changes, calibrations from deviceEvent array
     // (NB: deviceEvent not being passed through via blip yet!!)
   }
 
-  // TODO: properly factor out into own utility? API needs thinking about
+  return selected;
+}
+
+/**
+ * processBgRange
+ * @param {*} selectedDataByDate - Array of Tidepool datums
+ * @returns {Array} the extent of bg range values
+ */
+function processBgRange(selectedDataByDate) {
   const bgs = _.reduce(
     selectedDataByDate,
     (all, date) => (
@@ -171,14 +176,31 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
     ),
     []
   );
-  selected.bgRange = extent(bgs, (d) => (d.value));
+  return extent(bgs, (d) => (d.value));
+}
+
+/**
+ * selectDailyViewData
+ * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
+ * @param {Array} groupedData - Object of tideline-preprocessed Tidepool diabetes data & notes;
+ *                              grouped by type
+ * @param {Number} numDays - number of days of data to select
+ * @param {Object} timePrefs - object containing timezoneAware Boolean, timezoneName String or null
+ *
+ * @return {Object} selected data for daily print view
+ */
+export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs) {
+  const selected = processDateBoundaries(mostRecent, groupedData, numDays, timePrefs);
+  const { dataByDate: selectedDataByDate } = selected;
+
+  selected.bgRange = processBgRange(selectedDataByDate);
 
   const boluses = _.reduce(
     selectedDataByDate, (all, date) => (all.concat(_.get(date, ['data', 'bolus'], []))), []
   );
   _.each(boluses, (bolus) => {
     // eslint-disable-next-line no-param-reassign
-    bolus.threeHrBin = Math.floor(moment.utc(bolus.utc).tz(timezone).hours() / 3) * 3;
+    bolus.threeHrBin = Math.floor(moment.utc(bolus.utc).tz(selected.timezone).hours() / 3) * 3;
   });
   selected.bolusRange = extent(boluses, (d) => (d.normal + (d.extended || 0)));
 
@@ -214,7 +236,7 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
         basal.duration = basal.duration - (bounds[0] - basal.utc);
         basal.utc = bounds[0];
       }
-      if (i === basals.length - 1 && dateData.date !== lastDate) {
+      if (i === basals.length - 1 && dateData.date !== selected.dateRange[1]) {
         basal.duration = bounds[1] - basal.utc;
       }
       let nextBasal;
@@ -238,5 +260,20 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
     selected.latestPumpUpload = getLatestPumpUpload(groupedData.upload);
   }
 
+  return selected;
+}
+
+/**
+ * selectBgLogViewData
+ * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
+ * @param {Array} groupedData - Object of tideline-preprocessed Tidepool smbg data;
+ *                              grouped by type
+ * @param {Number} numDays - number of days of data to select
+ * @param {Object} timePrefs - object containing timezoneAware Boolean, timezoneName String or null
+ *
+ * @return {Object} selected data for BG Log print view
+ */
+export function selectBgLogViewData(mostRecent, groupedData, numDays, timePrefs) {
+  const selected = processDateBoundaries(mostRecent, groupedData, numDays, timePrefs);
   return selected;
 }
