@@ -35,7 +35,6 @@ RUN \
   # Build and separate all dependancies required for production
   && yarn install --production && cp -R node_modules production_node_modules \
   # Build all modules, including `devDependancies`
-  && yarn cache dir \
   && yarn install \
   # Build all modules for mounted packages (used when npm linking in development containers)
   && if [ -f /app/packageMounts/tideline/package.json ]; then cd /app/packageMounts/tideline && yarn install; fi \
@@ -44,7 +43,7 @@ RUN \
 
 
 ### Stage 3 - Development root with Chromium installed for unit tests
-FROM developBase as develop
+FROM developBase as development
 WORKDIR /app
 # Copy all `node_modules`
 COPY --chown=node:node --from=dependencies /app/node_modules ./node_modules
@@ -53,7 +52,10 @@ COPY --chown=node:node --from=dependencies /app/packageMounts ./packageMounts
 COPY --chown=node:node --from=dependencies /home/node/.cache/yarn /home/node/.cache/yarn
 # Copy source files
 COPY --chown=node:node . .
+# Link any packages as needed
 USER node
+ARG LINKED_PKGS=""
+RUN for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn link && cd /app && yarn link ${i}; done
 CMD ["npm", "start"]
 
 
