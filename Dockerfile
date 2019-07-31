@@ -43,7 +43,7 @@ RUN \
 FROM developBase as development
 ENV NODE_ENV=development
 WORKDIR /app
-# Copy all `node_modules` dependancies
+# Copy all `node_modules` dependencies
 COPY --chown=node:node --from=dependencies /app/node_modules ./node_modules
 COPY --chown=node:node --from=dependencies /app/packageMounts ./packageMounts
 # Copy source files
