@@ -32,12 +32,11 @@ import { getfetchedPatientDataRange } from '../../redux/selectors';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
-import { URL_TIDEPOOL_MOBILE_APP_STORE } from '../../core/constants';
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
 import Trends from '../../components/chart/trends';
-import { weekly as Weekly } from '../../components/chart';
+import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
@@ -48,9 +47,19 @@ import UploaderButton from '../../components/uploaderbutton';
 
 import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
 
-import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, BG_DATA_TYPES, DIABETES_DATA_TYPES } from '../../core/constants';
+import {
+  MGDL_UNITS,
+  MMOLL_UNITS,
+  MGDL_PER_MMOLL,
+  DIABETES_DATA_TYPES,
+  URL_TIDEPOOL_MOBILE_APP_STORE,
+} from '../../core/constants';
 
-const Loader = vizComponents.Loader;
+const { Loader } = vizComponents;
+const { DataUtil } = vizUtils.data;
+const { addDuration, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
+const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
+const { commonStats, getStatDefinition, statFetchMethods } = vizUtils.stat;
 
 export let PatientData = translate()(React.createClass({
   propTypes: {
@@ -86,6 +95,8 @@ export let PatientData = translate()(React.createClass({
   getInitialState: function() {
     var state = {
       chartPrefs: {
+        basics: {},
+        daily: {},
         trends: {
           activeDays: {
             monday: true,
@@ -105,16 +116,21 @@ export let PatientData = translate()(React.createClass({
           smbgGrouped: false,
           smbgLines: false,
           smbgRangeOverlay: true,
-        }
+        },
+        bgLog: {
+          bgSource: 'smbg',
+        },
       },
       printOpts: {
         numDays: {
           daily: 6,
+          bgLog: 30,
         },
       },
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
+      endpoints: [],
       fetchEarlierDataCount: 0,
       lastDatumProcessedIndex: -1,
       lastDiabetesDatumProcessedIndex: -1,
@@ -313,7 +329,7 @@ export let PatientData = translate()(React.createClass({
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToWeekly={this.handleSwitchToWeekly}
+            onSwitchToBgLog={this.handleSwitchToBgLog}
             onClickPrint={this.handleClickPrint}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
@@ -331,9 +347,12 @@ export let PatientData = translate()(React.createClass({
           <Basics
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            dataUtil={this.dataUtil}
+            endpoints={this.state.endpoints}
             timePrefs={this.state.timePrefs}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
+            loading={this.state.loading}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -342,11 +361,12 @@ export let PatientData = translate()(React.createClass({
             onClickPrint={this.handleClickPrint}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToWeekly={this.handleSwitchToWeekly}
+            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             updateBasicsData={this.updateBasicsData}
             updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
+            updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
             ref="tideline" />
@@ -356,6 +376,7 @@ export let PatientData = translate()(React.createClass({
           <Daily
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
@@ -369,9 +390,10 @@ export let PatientData = translate()(React.createClass({
             onClickPrint={this.handleClickPrint}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToWeekly={this.handleSwitchToWeekly}
+            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             trackMetric={this.props.trackMetric}
+            updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             pdf={this.props.pdf.combined || {}}
             ref="tideline" />
@@ -382,6 +404,7 @@ export let PatientData = translate()(React.createClass({
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
+            dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
@@ -392,7 +415,7 @@ export let PatientData = translate()(React.createClass({
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToWeekly={this.handleSwitchToWeekly}
+            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -401,11 +424,12 @@ export let PatientData = translate()(React.createClass({
             trendsState={this.props.viz.trends}
             ref="tideline" />
           );
-      case 'weekly':
+      case 'bgLog':
         return (
-          <Weekly
+          <BgLog
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
@@ -413,15 +437,18 @@ export let PatientData = translate()(React.createClass({
             loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
+            onClickPrint={this.handleClickPrint}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToWeekly={this.handleSwitchToWeekly}
+            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             trackMetric={this.props.trackMetric}
+            updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
+            pdf={this.props.pdf.combined || {}}
             ref="tideline"
             isClinicAccount={personUtils.isClinic(this.props.user)} />
           );
@@ -469,6 +496,83 @@ export let PatientData = translate()(React.createClass({
     this.props.trackMetric('Closed New Message Modal');
   },
 
+  generatePDFStats: function (data, state) {
+    const { bgBounds, bgUnits, latestPump: { manufacturer, deviceModel } } = this.dataUtil;
+    const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
+
+    const getStat = (statType) => {
+      const { bgSource, days } = this.dataUtil;
+
+      return getStatDefinition(this.dataUtil[statFetchMethods[statType]](), statType, {
+        bgSource,
+        days,
+        bgPrefs: {
+          bgBounds,
+          bgUnits,
+        },
+        manufacturer,
+      });
+    };
+
+    const basicsDateRange = _.get(data, 'basics.dateRange');
+    if (basicsDateRange) {
+      data.basics.endpoints = [
+        basicsDateRange[0],
+        getLocalizedCeiling(basicsDateRange[1], state.timePrefs).toISOString(),
+      ];
+
+      this.dataUtil.endpoints = data.basics.endpoints;
+      this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
+
+      data.basics.stats = {
+        [commonStats.timeInRange]: getStat(commonStats.timeInRange),
+        [commonStats.readingsInRange]: getStat(commonStats.readingsInRange),
+        [commonStats.totalInsulin]: getStat(commonStats.totalInsulin),
+        [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
+        [commonStats.carbs]: getStat(commonStats.carbs),
+        [commonStats.averageDailyDose]: getStat(commonStats.averageDailyDose),
+      }
+    }
+
+    const dailyDateRanges = _.get(data, 'daily.dataByDate');
+    if (dailyDateRanges) {
+      _.forIn(dailyDateRanges, _.bind(function(value, key) {
+        data.daily.dataByDate[key].endpoints = [
+          getLocalizedCeiling(dailyDateRanges[key].bounds[0], state.timePrefs).toISOString(),
+          getLocalizedCeiling(dailyDateRanges[key].bounds[1], state.timePrefs).toISOString(),
+        ];
+
+        this.dataUtil.endpoints = data.daily.dataByDate[key].endpoints;
+        this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
+
+        data.daily.dataByDate[key].stats = {
+          [commonStats.timeInRange]: getStat(commonStats.timeInRange),
+          [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
+          [commonStats.totalInsulin]: getStat(commonStats.totalInsulin),
+          [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
+          [commonStats.carbs]: getStat(commonStats.carbs),
+        };
+      }, this));
+    }
+
+    const weeklyDateRange = _.get(data, 'weekly.dateRange');
+    if (weeklyDateRange) {
+      data.weekly.endpoints = [
+        getLocalizedCeiling(weeklyDateRange[0], state.timePrefs).toISOString(),
+        addDuration(getLocalizedCeiling(weeklyDateRange[1], state.timePrefs).toISOString(), 864e5),
+      ];
+
+      this.dataUtil.endpoints = data.weekly.endpoints;
+      this.dataUtil.chartPrefs = this.state.chartPrefs['weekly'];
+
+      data.weekly.stats = {
+        [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
+      };
+    }
+
+    return data;
+  },
+
   generatePDF: function (props, state) {
     const data = state.processedPatientData;
     const diabetesData = data.diabetesData;
@@ -489,21 +593,36 @@ export let PatientData = translate()(React.createClass({
         mostRecent,
       };
 
-      const dailyData = vizUtils.selectDailyViewData(
+      const dailyData = vizUtils.data.selectDailyViewData(
         mostRecent,
         _.pick(
           data.grouped,
-          ['basal', 'bolus', 'cbg', 'message', 'smbg', 'upload']
+          ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']
         ),
         state.printOpts.numDays.daily,
         state.timePrefs,
       );
 
+      const bgLogData = vizUtils.data.selectBgLogViewData(
+        mostRecent,
+        _.pick(
+          data.grouped,
+          ['smbg']
+        ),
+        state.printOpts.numDays.bgLog,
+        state.timePrefs,
+      );
+
       const pdfData = {
-        daily: dailyData,
         basics: data.basicsData,
+        daily: dailyData,
         settings: _.last(data.grouped.pumpSettings),
+        bgLog: bgLogData,
       }
+
+      this.generatePDFStats(pdfData, state);
+
+      this.log('Generating PDF with', pdfData, opts);
 
       props.generatePDFRequest(
         'combined',
@@ -528,20 +647,20 @@ export let PatientData = translate()(React.createClass({
     return datetime;
   },
 
-  handleChartDateRangeUpdate: function(dateRange) {
-    this.updateChartDateRange(dateRange);
+  handleChartDateRangeUpdate: function(endpoints) {
+    this.updateChartEndpoints(endpoints);
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
       const patientID = this.props.currentPatientInViewId;
       const patientData = _.get(this.props, ['patientDataMap', patientID], []);
-      const dateRangeStart = moment.utc(dateRange[0]).startOf('day');
+      const dateRangeStart = moment.utc(endpoints[0]).startOf('day');
       const allDataFetched = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
 
       const lastProcessedDateTarget = this.state.lastProcessedDateTarget;
       const lastDiabetesDatumProcessedTime = _.get(patientData, `${this.state.lastDiabetesDatumProcessedIndex}.time`);
       const allFetchedDatumsProcessed = this.state.lastDatumProcessedIndex === patientData.length - 1;
 
-      const isScrollChart = _.includes(['daily', 'weekly'], this.state.chartType);
+      const isScrollChart = _.includes(['daily', 'bgLog'], this.state.chartType);
       const chartLimitReached = lastDiabetesDatumProcessedTime && dateRangeStart.isSameOrBefore(moment.utc(lastDiabetesDatumProcessedTime), 'day');
 
       const comparator = this.state.chartType === 'trends' ? 'isBefore' : 'isSameOrBefore';
@@ -568,6 +687,7 @@ export let PatientData = translate()(React.createClass({
           || (isScrollChart && chartLimitReached)
         )
       ) {
+        this.log(`Limit of processed data reached, ${(patientData.length - 1) - this.state.lastDatumProcessedIndex} unprocessed remain. Processing more.`)
         return this.processData(this.props);
       }
     }
@@ -620,6 +740,8 @@ export let PatientData = translate()(React.createClass({
     if (e) {
       e.preventDefault();
     }
+
+    this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
     this.setState({
       chartType: 'basics'
     });
@@ -631,11 +753,19 @@ export let PatientData = translate()(React.createClass({
     });
 
     // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
-    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString());
+    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
+    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .tz(timezone)
+      .subtract(1, 'day')
+      .hours(12)
+      .toISOString();
+
+    this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
     this.setState({
       chartType: 'daily',
-      datetimeLocation: datetime,
+      datetimeLocation,
     });
   },
 
@@ -644,24 +774,40 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).endOf('day').toISOString());
+    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
+    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
+    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .tz(timezone)
+      .toISOString();
+
+    this.dataUtil.chartPrefs = this.state.chartPrefs['trends'];
     this.setState({
       chartType: 'trends',
-      datetimeLocation: datetime,
+      datetimeLocation,
     });
   },
 
-  handleSwitchToWeekly: function(datetime) {
+  handleSwitchToBgLog: function(datetime) {
     this.props.trackMetric('Clicked Switch To Two Week', {
       fromChart: this.state.chartType
     });
 
-    datetime = this.subtractTimezoneOffset(moment.utc(datetime || this.state.datetimeLocation).hour(12).minute(0).second(0).toISOString());
+    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
+    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
+    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .tz(timezone)
+      .subtract(1, 'day')
+      .hours(12)
+      .toISOString();
+
+    this.dataUtil.chartPrefs = this.state.chartPrefs['bgLog'];
     this.setState({
-      chartType: 'weekly',
-      datetimeLocation: datetime,
+      chartType: 'bgLog',
+      datetimeLocation,
     });
   },
 
@@ -710,7 +856,7 @@ export let PatientData = translate()(React.createClass({
       this.props.removeGeneratedPDFS();
 
       this.setState({
-        chartDateRange: null,
+        endpoints: [],
         datetimeLocation: this.state.initialDatetimeLocation,
         fetchEarlierDataCount: 0,
         lastDatumProcessedIndex: -1,
@@ -746,11 +892,15 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  updateChartPrefs: function(newChartPrefs) {
-    var currentPrefs = _.clone(this.state.chartPrefs);
-    _.assign(currentPrefs, newChartPrefs);
+  updateChartPrefs: function(updates) {
+    const newPrefs = {
+      ...this.state.chartPrefs,
+      ...updates,
+    };
+
+    this.dataUtil.chartPrefs = newPrefs[this.state.chartType];
     this.setState({
-      chartPrefs: currentPrefs,
+      chartPrefs: newPrefs,
     });
   },
 
@@ -760,9 +910,9 @@ export let PatientData = translate()(React.createClass({
     });
   },
 
-  updateChartDateRange: function(dateRange) {
+  updateChartEndpoints: function(endpoints) {
     this.setState({
-      chartDateRange: dateRange,
+      endpoints,
     });
   },
 
@@ -787,6 +937,7 @@ export let PatientData = translate()(React.createClass({
   componentWillReceiveProps: function(nextProps) {
     const userId = this.props.currentPatientInViewId;
     const nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
+    const currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
 
     const nextFetchedDataRange = _.get(nextProps, 'fetchedPatientDataRange', {});
@@ -801,6 +952,7 @@ export let PatientData = translate()(React.createClass({
     // nextProps patient data exists
     if (patientSettings && nextPatientData) {
       if (newDiabetesDataReturned || this.state.lastDatumProcessedIndex < 0) {
+        this.log(`${nextFetchedDataRange.count - currentFetchedDataRange.count} new datums received and off to processing.`)
         this.processData(nextProps);
       }
       else if (!newDiabetesDataReturned && newDataRangeFetched) {
@@ -838,7 +990,7 @@ export let PatientData = translate()(React.createClass({
       // Ideally, we determine the default view based on the device type
       // so that, for instance, if the latest data type is cgm, but comes from
       // an insulin-pump, we still direct them to the basics view
-      const deviceMap = _.indexBy(uploads, 'deviceId');
+      const deviceMap = _.keyBy(uploads, 'deviceId');
       const latestDataDevice = deviceMap[latestData.deviceId];
 
       if (latestDataDevice) {
@@ -854,7 +1006,7 @@ export let PatientData = translate()(React.createClass({
             break;
 
           case (_.includes(tags, 'bgm')):
-            chartType = 'weekly';
+            chartType = 'bgLog';
             break;
         }
       }
@@ -875,7 +1027,7 @@ export let PatientData = translate()(React.createClass({
             break;
 
           case 'smbg':
-            chartType = 'weekly';
+            chartType = 'bgLog';
             break;
         }
       }
@@ -896,20 +1048,29 @@ export let PatientData = translate()(React.createClass({
         this.deriveChartTypeFromLatestData(latestData, uploads)
       );
 
-      const datetimeByChart = chartType === 'daily'
-        ? this.subtractTimezoneOffset(moment.utc(latestData.time).hour(12).minute(0).second(0).toISOString())
-        : this.subtractTimezoneOffset(moment.utc(latestData.time).endOf('day').toISOString());
+      const latestDataDateCeiling = getLocalizedCeiling(latestData.time, this.state.timePrefs);
+      const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
-      const datetime = _.get(this.props, 'queryParams.datetime', datetimeByChart);
+      const datetimeLocation = _.get(this.props, 'queryParams.datetime', _.includes(['daily', 'bgLog'], chartType)
+        ? moment.utc(latestDataDateCeiling.valueOf())
+          .tz(timezone)
+          .subtract(1, 'day')
+          .hours(12)
+          .toISOString()
+        : moment.utc(latestDataDateCeiling.valueOf())
+          .tz(timezone)
+          .toISOString());
 
       let state = {
         chartType,
-        datetimeLocation: datetime,
-        initialDatetimeLocation: datetime,
+        datetimeLocation,
+        initialDatetimeLocation: datetimeLocation,
       };
 
+      this.dataUtil.chartPrefs = this.state.chartPrefs[chartType];
+
       this.setState(state);
-      this.props.trackMetric(`web - default to ${chartType}`);
+      this.props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
     }
   },
 
@@ -933,7 +1094,7 @@ export let PatientData = translate()(React.createClass({
     this.setState({
       loading: true,
       requestedPatientDataRange,
-      fetchEarlierDataCount: count
+      fetchEarlierDataCount: count,
     });
 
     const fetchOpts = _.defaults(options, {
@@ -941,6 +1102,7 @@ export let PatientData = translate()(React.createClass({
       endDate: requestedPatientDataRange.end,
       carelink: this.props.carelink,
       dexcom: this.props.dexcom,
+      medtronic: this.props.medtronic,
       useCache: false,
       initial: false,
     });
@@ -949,6 +1111,36 @@ export let PatientData = translate()(React.createClass({
 
     const patientID = this.props.currentPatientInViewId;
     this.props.trackMetric('Fetched earlier patient data', { patientID, count });
+  },
+
+  getLastDatumToProcessIndex: function (unprocessedData, targetDatetime) {
+    let diabetesDataCount = 0;
+
+    // First, we get the index of the first diabetes datum that falls outside of our processing window.
+    let targetIndex = _.findIndex(unprocessedData, datum => {
+      const isDiabetesDatum = _.includes(DIABETES_DATA_TYPES, datum.type);
+
+      if (isDiabetesDatum) {
+        diabetesDataCount++;
+      }
+
+      return targetDatetime > datum.time && isDiabetesDatum;
+    });
+
+    if (targetIndex === -1) {
+      // If we didn't find a cutoff point (i.e. no diabetes datums beyond the cutoff time),
+      // we process all the remaining fetched, unprocessed data.
+      targetIndex = unprocessedData.length;
+      this.log('No diabetes data found beyond current processing slice.  Processing all remaining unprocessed data');
+    } else if (diabetesDataCount === 1) {
+      // If the first diabetes datum found was outside of our processing window, we need to include it.
+      targetIndex++;
+      this.log('First diabetes datum found was outside current processing slice.  Adding it to slice');
+    }
+
+    // Because targetIndex was set to the first one outside of our processing window, and we're
+    // looking for the last datum to process, we decrement by one and return
+    return --targetIndex;
   },
 
   processData: function(props = this.props) {
@@ -974,7 +1166,7 @@ export let PatientData = translate()(React.createClass({
 
       const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
       const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
-      const processDataMaxWeeks = isInitialProcessing ? 4 : 8;
+      const processDataMaxDays = isInitialProcessing ? 30 : 56;
 
       // Grab the first diabetes datum time on first process in case upload date is much later
       const firstDiabetesDatum = _.find(patientData, (d) => _.includes(DIABETES_DATA_TYPES, d.type));
@@ -990,39 +1182,9 @@ export let PatientData = translate()(React.createClass({
         : utils.getTimezoneForDataProcessing(unprocessedPatientData, props.queryParams);
 
       const targetDatetime = this.subtractTimezoneOffset(
-        lastProcessedDatetime.subtract(processDataMaxWeeks, 'weeks').startOf('day').toISOString(),
+        lastProcessedDatetime.subtract(processDataMaxDays, 'days').startOf('day').toISOString(),
         timezoneSettings
       );
-
-      // Find a cutoff point for processing unprocessed data
-      let diabetesDataCount = 0;
-      let targetIndex = _.findIndex(unprocessedPatientData, datum => {
-        // We want to be sure that the slice of data includes at least one diabetes datum
-        if (isInitialProcessing && _.includes(DIABETES_DATA_TYPES, datum.type)) {
-          diabetesDataCount++;
-        }
-
-        // Return the index of the first item we don't want to process in this round
-        // This is what we want, as we will slice with this index as the end argument, which will not include this datum
-        return isInitialProcessing
-          ? diabetesDataCount && targetDatetime > datum.time
-          : targetDatetime > datum.time;
-      });
-
-      // If it didn't find a cutoff point, we process all the remaining unprocessed data
-      if (targetIndex === -1) {
-        targetIndex = unprocessedPatientData.length;
-      }
-
-      // If there's only 1 diabetes datum found up to the target index, and it's the last one,
-      // we need to make sure it's included in the data slice to process.
-      if (diabetesDataCount === 1 && _.includes(DIABETES_DATA_TYPES, unprocessedPatientData[targetIndex].type)) {
-        targetIndex++;
-      }
-
-      const targetData = targetIndex > 0
-        ? unprocessedPatientData.slice(0, targetIndex)
-        : unprocessedPatientData;
 
       // If there's only a week or less data to process, and not all the data has been fetched,
       // we just fetch instead of a tiny processing cycle followed by an immediate fetch
@@ -1034,13 +1196,31 @@ export let PatientData = translate()(React.createClass({
         }, this.fetchEarlierData);
       }
 
-      this.log('processing data up to', targetDatetime);
+      // Find a cutoff point for processing unprocessed diabetes data
+      const lastDatumToProcessIndex = this.getLastDatumToProcessIndex(unprocessedPatientData, targetDatetime);
+      const dataToProcess = unprocessedPatientData.slice(0, lastDatumToProcessIndex + 1); // add 1 because the end index of the slice is not included
+      this.log(`Processing ${dataToProcess.length} of ${unprocessedPatientData.length}`);
+      this.log(`Processing window was set to ${targetDatetime}.  Actual time of last datum to process: ${_.get(_.last(dataToProcess), 'time')}`);
 
       // We need to track the last processed indexes for diabetes and bg data to help determine when
-      // we've reached the scroll limits of the daily and weekly charts
-      const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + targetData.length + 1)), datum => {
+      // we've reached the scroll limits of the daily and bgLog charts
+      const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + dataToProcess.length + 1)), datum => {
         return _.includes(DIABETES_DATA_TYPES, datum.type);
       });
+
+      // We will set `lastProcessedDateTarget` to the earliest of either the last processed datum
+      // time, or the `targetDateTime`. We can't just use `targetDateTime` because there are times
+      // where we include and process datums that are outside of the scheduled processing time frame
+      // when no diabetes data is found within it.
+      const lastProcessedDateTargets = [
+        _.get(patientData, [lastDiabetesDatumProcessedIndex, 'time']),
+        targetDatetime,
+      ];
+
+      const sortedDateTargets = lastProcessedDateTargets.sort((a, b) => (a < b) ? -1 : ((a > b) ? 1 : 0));
+
+      const lastProcessedDateTarget = sortedDateTargets[0]
+      this.log('Setting lastProcessedDateTarget to:', lastProcessedDateTarget);
 
       window.downloadInputData = () => {
         console.save(patientData.concat(patientNotes), 'blip-input.json');
@@ -1049,7 +1229,12 @@ export let PatientData = translate()(React.createClass({
       // Process data fetched after the initial processing
       if (isInitialProcessing) {
         // Kick off the processing of the initial data fetch
-        const combinedData = targetData.concat(patientNotes);
+        const combinedData = dataToProcess.concat(patientNotes);
+
+        // Ensure that the latest pump settings and upload datums, which may be outside of the
+        // processed date target, are included in the initial processing
+        const latestPumpSettings = utils.getLatestPumpSettings(unprocessedPatientData);
+        combinedData.push(..._.filter(_.values(latestPumpSettings), _.isPlainObject));
 
         const processedData = utils.processPatientData(
           combinedData,
@@ -1057,17 +1242,28 @@ export let PatientData = translate()(React.createClass({
           patientSettings,
         );
 
-        const lastDatumProcessedIndex = targetData.length - 1;
         const timePrefs = processedData.timePrefs || this.state.timePrefs;
+        const bgPrefs = {
+          bgClasses: processedData.bgClasses,
+          bgUnits: processedData.bgUnits
+        };
+
+        this.dataUtil = new DataUtil(
+          processedData.data.concat(_.get(processedData, 'grouped.upload', [])),
+          { bgPrefs, timePrefs }
+        );
+
+        // Set default bgSource for basics based on whether there is any cbg data in the current view.
+        const basicsChartPrefs = _.assign({}, this.state.chartPrefs.basics, {
+          bgSource: _.get(processedData, 'basicsData.data.cbg.data.length') ? 'cbg' : 'smbg',
+        });
 
         this.setState({
-          bgPrefs: {
-            bgClasses: processedData.bgClasses,
-            bgUnits: processedData.bgUnits
-          },
+          bgPrefs,
+          chartPrefs: _.assign({}, this.state.chartPrefs, { basics: basicsChartPrefs }),
           lastDiabetesDatumProcessedIndex,
-          lastDatumProcessedIndex,
-          lastProcessedDateTarget: targetDatetime,
+          lastDatumProcessedIndex: lastDatumToProcessIndex,
+          lastProcessedDateTarget,
           loading: false,
           processedPatientData: processedData,
           processingData: false,
@@ -1085,19 +1281,21 @@ export let PatientData = translate()(React.createClass({
         // `deviceSerialNumber` properties will not be mapped. This will not result in duplication
         // of upload records, as deduplication will happen when `addData` is called.
         const previousUploadData = _.filter(patientData.slice(0, this.state.lastDatumProcessedIndex + 1), { type: 'upload' });
-        const newData = utils.filterPatientData(targetData.concat(previousUploadData), bgUnits).processedData;
+        const newData = utils.filterPatientData(dataToProcess.concat(previousUploadData), bgUnits).processedData;
 
         // Add and process the new data
         const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
-        const processedPatientData = addData(newData.concat(_.map(patientNotes, nurseShark.reshapeMessage)));
+        const combinedNewData = newData.concat(_.map(patientNotes, nurseShark.reshapeMessage))
+        const processedPatientData = addData(combinedNewData);
+        this.dataUtil.addData(combinedNewData);
 
-        const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + targetData.length;
+        const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + dataToProcess.length;
         const count = this.state.processEarlierDataCount + 1;
 
         this.setState({
           lastDiabetesDatumProcessedIndex,
           lastDatumProcessedIndex,
-          lastProcessedDateTarget: targetDatetime,
+          lastProcessedDateTarget,
           processEarlierDataCount: count,
           processedPatientData,
           processingData: false,
@@ -1130,6 +1328,8 @@ export let PatientData = translate()(React.createClass({
     let combinedData = patientData.concat(patientNotes);
 
     window.downloadPrintViewData = () => {
+      const initialBgUnits = this.dataUtil.bgUnits;
+
       const prepareProcessedData = (bgUnits) => {
         const multiplier = bgUnits === MGDL_UNITS ? MGDL_PER_MMOLL : (1 / MGDL_PER_MMOLL);
 
@@ -1151,31 +1351,59 @@ export let PatientData = translate()(React.createClass({
         [MMOLL_UNITS]: prepareProcessedData(MMOLL_UNITS),
       };
 
+      const bgPrefs = {
+        [MGDL_UNITS]: {
+          bgClasses: data[MGDL_UNITS].bgClasses,
+          bgUnits: data[MGDL_UNITS].bgUnits
+        },
+        [MMOLL_UNITS]: {
+          bgClasses: data[MMOLL_UNITS].bgClasses,
+          bgUnits: data[MMOLL_UNITS].bgUnits
+        },
+      };
+
       const dData = {
         [MGDL_UNITS]: data[MGDL_UNITS].diabetesData,
         [MMOLL_UNITS]: data[MMOLL_UNITS].diabetesData,
       };
 
       const preparePrintData = (bgUnits) => {
-        return {
-          daily: vizUtils.selectDailyViewData(
+        this.dataUtil.bgPrefs = bgPrefs[bgUnits];
+        this.dataUtil.removeData();
+        this.dataUtil.addData(data[bgUnits].data.concat(_.get(data[bgUnits], 'grouped.upload', [])))
+
+        return this.generatePDFStats({
+          basics: data[bgUnits].basicsData,
+          daily: vizUtils.data.selectDailyViewData(
             dData[bgUnits][dData[bgUnits].length - 1].normalTime,
             _.pick(
               data[bgUnits].grouped,
-              ['basal', 'bolus', 'cbg', 'message', 'smbg', 'upload']
+              ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']
             ),
             this.state.printOpts.numDays.daily,
             this.state.timePrefs,
           ),
-          basics: data[bgUnits].basicsData,
           settings: _.last(data[bgUnits].grouped.pumpSettings),
-        };
+          bgLog: vizUtils.data.selectBgLogViewData(
+            dData[bgUnits][dData[bgUnits].length - 1].normalTime,
+            _.pick(
+              data[bgUnits].grouped,
+              ['smbg']
+            ),
+            this.state.printOpts.numDays.bgLog,
+            this.state.timePrefs,
+          ),
+        }, this.state);
       };
 
       console.save({
         [MGDL_UNITS]: preparePrintData(MGDL_UNITS),
         [MMOLL_UNITS]: preparePrintData(MMOLL_UNITS),
       }, 'print-view.json');
+
+      this.dataUtil.bgPrefs = bgPrefs[initialBgUnits];
+      this.dataUtil.removeData();
+      this.dataUtil.addData(data[initialBgUnits].data.concat(_.get(data[initialBgUnits], 'grouped.upload', [])))
     };
   },
 
@@ -1189,6 +1417,11 @@ export let PatientData = translate()(React.createClass({
       const dexcom = nextProps.dexcom;
       if (!_.isEmpty(dexcom)) {
         this.props.trackMetric('Web - Dexcom Import URL Param', { dexcom });
+      }
+
+      const medtronic = nextProps.medtronic;
+      if (!_.isEmpty(medtronic)) {
+        this.props.trackMetric('Web - Medtronic Import URL Param', { medtronic });
       }
 
       const patientID = nextProps.currentPatientInViewId;
@@ -1290,6 +1523,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const carelink = utils.getCarelink(ownProps.location);
   const dexcom = utils.getDexcom(ownProps.location);
+  const medtronic = utils.getMedtronic(ownProps.location);
   const api = ownProps.routes[0].api;
   const assignedDispatchProps = [
     'addPatientNote',
@@ -1301,9 +1535,9 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, api, { carelink, dexcom }),
+    fetchers: getFetchers(dispatchProps, ownProps, api, { carelink, dexcom, medtronic }),
     uploadUrl: api.getUploadUrl(),
-    onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom }),
+    onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom, medtronic }),
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
     onCloseMessageThread: dispatchProps.closeMessageThread,
     onSaveComment: api.team.replyToMessageThread.bind(api),
@@ -1316,6 +1550,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onFetchEarlierData: dispatchProps.fetchPatientData.bind(null, api),
     carelink: carelink,
     dexcom: dexcom,
+    medtronic: medtronic,
   });
 };
 

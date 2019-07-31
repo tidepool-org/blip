@@ -5,11 +5,11 @@
 /* global expect */
 /* global beforeEach */
 /* global afterEach */
+/* global context */
 
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
-import util from 'util';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -36,7 +36,7 @@ describe('Actions', () => {
     // very important to do this in an afterEach than in each test when __Rewire__ is used
     // if you try to reset within each test you'll make it impossible for tests to fail!
     async.__ResetDependency__('utils');
-    trackMetric.reset();
+    trackMetric.resetHistory();
   })
 
   describe('Asynchronous Actions', () => {
@@ -118,6 +118,8 @@ describe('Actions', () => {
         store.dispatch(async.signup(api, {foo: 'bar'}));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.signup.callCount).to.equal(1);
       });
@@ -144,6 +146,8 @@ describe('Actions', () => {
         store.dispatch(async.signup(api, {foo: 'bar'}));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SIGNUP });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.signup.callCount).to.equal(1);
       });
@@ -197,6 +201,8 @@ describe('Actions', () => {
         store.dispatch(async.confirmSignup(api, 'fakeSignupKey'));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CONFIRMING_SIGNUP });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.confirmSignUp.calledWith('fakeSignupKey')).to.be.true;
         expect(api.user.confirmSignUp.callCount).to.equal(1);
@@ -226,6 +232,8 @@ describe('Actions', () => {
         store.dispatch(async.confirmSignup(api, 'fakeSignupKey', 'g@a.com'));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CONFIRMING_SIGNUP });
+        expectedActions[1].error = actions[1].error;
 
         expect(actions).to.eql(expectedActions);
         expect(api.user.confirmSignUp.calledWith('fakeSignupKey')).to.be.true;
@@ -330,6 +338,8 @@ describe('Actions', () => {
         store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CONFIRMING_SIGNUP });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.custodialConfirmSignUp.calledWith(key, birthday, password)).to.be.true;
         expect(api.user.custodialConfirmSignUp.callCount).to.equal(1);
@@ -385,6 +395,8 @@ describe('Actions', () => {
         store.dispatch(async.resendEmailVerification(api, email));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_RESENDING_EMAIL_VERIFICATION });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.resendEmailVerification.calledWith(email)).to.be.true;
         expect(api.user.resendEmailVerification.callCount).to.equal(1);
@@ -488,7 +500,7 @@ describe('Actions', () => {
         expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
         expect(api.user.acceptTerms.callCount).to.equal(1);
 
-        expect(_.findWhere(actions, { type: '@@router/TRANSITION' })).to.be.undefined;
+        expect(_.find(actions, { type: '@@router/TRANSITION' })).to.be.undefined;
       });
 
       it('should trigger ACCEPT_TERMS_FAILURE and it should call acceptTerms once for a failed request', () => {
@@ -518,6 +530,8 @@ describe('Actions', () => {
         store.dispatch(async.acceptTerms(api, acceptedDate));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_ACCEPTING_TERMS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
         expect(api.user.acceptTerms.callCount).to.equal(1);
@@ -686,6 +700,8 @@ describe('Actions', () => {
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_LOGIN });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.login.callCount).to.equal(1);
@@ -716,6 +732,8 @@ describe('Actions', () => {
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_LOGIN_CREDS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.login.callCount).to.equal(1);
@@ -777,6 +795,8 @@ describe('Actions', () => {
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_USER });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.login.callCount).to.equal(1);
@@ -810,6 +830,8 @@ describe('Actions', () => {
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.login.callCount).to.equal(1);
@@ -900,6 +922,8 @@ describe('Actions', () => {
         store.dispatch(async.setupDataStorage(api, patient));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DSA_SETUP });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.post.calledWith(patient)).to.be.true;
         expect(api.patient.post.callCount).to.equal(1);
@@ -965,6 +989,8 @@ describe('Actions', () => {
         store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REMOVING_MEMBERSHIP });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.access.leaveGroup.calledWith(patientId)).to.be.true;
         expect(api.access.leaveGroup.callCount).to.equal(1)
@@ -1037,6 +1063,8 @@ describe('Actions', () => {
         store.dispatch(async.removeMemberFromTargetCareTeam(api, patientId, memberId, callback));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REMOVING_MEMBER });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.access.removeMember.calledWith(memberId)).to.be.true;
 
@@ -1145,6 +1173,8 @@ describe('Actions', () => {
         store.dispatch(async.sendInvite(api, email, permissions, callback));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_ALREADY_SENT_TO_EMAIL });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
 
@@ -1183,6 +1213,8 @@ describe('Actions', () => {
         store.dispatch(async.sendInvite(api, email, permissions, callback));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_INVITE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
 
@@ -1248,6 +1280,8 @@ describe('Actions', () => {
         store.dispatch(async.cancelSentInvite(api, email, callback));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CANCELLING_INVITE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.cancel.calledWith(email)).to.be.true;
 
@@ -1261,7 +1295,7 @@ describe('Actions', () => {
       it('should trigger FETCH_DATA_DONATION_ACCOUNTS_SUCCESS and it should call api.user.getDataDonationAccounts once for a successful request', () => {
         let dataDonationAccounts = [
           { email: 'bigdata@tidepool.org' },
-          { email: 'bigdata+ZZZ@tidepool.org' },
+          { email: 'bigdata+NSF@tidepool.org' },
         ];
 
         let api = {
@@ -1288,7 +1322,7 @@ describe('Actions', () => {
       it('should trigger FETCH_DATA_DONATION_ACCOUNTS_FAILURE and it should call error once for a failed request', () => {
         let dataDonationAccounts = [
           { email: 'bigdata@tidepool.org' },
-          { email: 'bigdata+ZZZ@tidepool.org' },
+          { email: 'bigdata+NSF@tidepool.org' },
         ];
 
         let api = {
@@ -1311,6 +1345,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchDataDonationAccounts(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_DATA_DONATION_ACCOUNTS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.getDataDonationAccounts.callCount).to.equal(1);
       });
@@ -1323,13 +1359,13 @@ describe('Actions', () => {
         ];
 
         let removeAccounts = [
-          { email: 'bigdata+ZZZ@tidepool.org' },
+          { email: 'bigdata+NSF@tidepool.org' },
         ];
 
         let api = {
           invitation: {
             send: sinon.stub().callsArgWith(2, null, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL }),
-            cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+ZZZ@tidepool.org' }),
+            cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+NSF@tidepool.org' }),
             getSent: sinon.stub(),
           }
         };
@@ -1340,7 +1376,7 @@ describe('Actions', () => {
           { type: 'FETCH_PENDING_SENT_INVITES_REQUEST'},
           { type: 'SEND_INVITE_SUCCESS', payload: { invite: { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL } } },
           { type: 'CANCEL_SENT_INVITE_REQUEST' },
-          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+ZZZ@tidepool.org' } },
+          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+NSF@tidepool.org' } },
           { type: 'UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS', payload: { accounts: {
             addAccounts: _.map(addAccounts, email => ({ email: email })),
             removeAccounts: _.map(removeAccounts, account => account.email),
@@ -1360,13 +1396,13 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
       });
 
-      it('should trigger FETCH_DATA_DONATION_ACCOUNTS_FAILURE and it should call error once for a failed add account request', () => {
+      it('should trigger UPDATE_DATA_DONATION_ACCOUNTS_FAILURE and it should call error once for a failed add account request', () => {
         let addAccounts = [
           TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
         ];
 
         let removeAccounts = [
-          { email: 'bigdata+ZZZ@tidepool.org' },
+          { email: 'bigdata+NSF@tidepool.org' },
         ];
 
         let err = new Error(ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS);
@@ -1378,7 +1414,7 @@ describe('Actions', () => {
         let api = {
           invitation: {
             send: sinon.stub().callsArgWith(2, { status: 500, body: 'Error!' } , null),
-            cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+ZZZ@tidepool.org' }),
+            cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+NSF@tidepool.org' }),
             getSent: sinon.stub(),
           }
         };
@@ -1386,10 +1422,10 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'UPDATE_DATA_DONATION_ACCOUNTS_REQUEST' },
           { type: 'SEND_INVITE_REQUEST' },
-          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_FAILURE', error: err, meta: { apiError: { status: 500, body: 'Error!' } } },
           { type: 'SEND_INVITE_FAILURE', error: sendErr, meta: { apiError: { status: 500, body: 'Error!' } } },
           { type: 'CANCEL_SENT_INVITE_REQUEST' },
-          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+ZZZ@tidepool.org' } },
+          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+NSF@tidepool.org' } },
+          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_FAILURE', error: err, meta: { apiError: { status: 500, body: 'Error!' } } },
         ];
 
         _.each(expectedActions, (action) => {
@@ -1403,6 +1439,10 @@ describe('Actions', () => {
         store.dispatch(async.updateDataDonationAccounts(api, addAccounts, removeAccounts));
 
         const actions = store.getActions();
+        expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_INVITE });
+        expectedActions[2].error = actions[2].error;
+        expect(actions[5].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS });
+        expectedActions[5].error = actions[5].error;
         expect(actions).to.eql(expectedActions);
       });
     });
@@ -1570,6 +1610,8 @@ describe('Actions', () => {
         store.dispatch(async.acceptReceivedInvite(api, invitation));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_ACCEPTING_INVITE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.accept.calledWith(invitation.key, invitation.creator.userid)).to.be.true;
       });
@@ -1622,6 +1664,8 @@ describe('Actions', () => {
         store.dispatch(async.rejectReceivedInvite(api, invitation));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REJECTING_INVITE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.dismiss.calledWith(invitation.key, invitation.creator.userid)).to.be.true;
       });
@@ -1693,6 +1737,8 @@ describe('Actions', () => {
         store.dispatch(async.setMemberPermissions(api, patientId, memberId, permissions));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CHANGING_PERMS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.access.setMemberPermissions.calledWith(memberId, permissions)).to.be.true;
       });
@@ -1746,6 +1792,8 @@ describe('Actions', () => {
         store.dispatch(async.updatePatient(api, patient));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_PATIENT });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.put.calledWith(patient)).to.be.true;
       });
@@ -1804,6 +1852,8 @@ describe('Actions', () => {
         store.dispatch(async.updatePreferences(api, patientId, preferences));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_PREFERENCES });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.metadata.preferences.put.calledWith(patientId, preferences)).to.be.true;
       });
@@ -1892,6 +1942,8 @@ describe('Actions', () => {
         store.dispatch(async.updateSettings(api, patientId, settings));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_SETTINGS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.metadata.settings.put.calledWith(patientId, settings)).to.be.true;
       });
@@ -1910,11 +1962,14 @@ describe('Actions', () => {
         let err = new Error(ErrorMessages.ERR_UPDATING_SETTINGS);
         err.status = 500;
 
+        let bgErr = new Error(ErrorMessages.ERR_UPDATING_PATIENT_BG_UNITS);
+        bgErr.status = 500;
+
         let expectedActions = [
           { type: 'UPDATE_SETTINGS_REQUEST' },
           { type: 'UPDATE_PATIENT_BG_UNITS_REQUEST' },
           { type: 'UPDATE_SETTINGS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
-          { type: 'UPDATE_PATIENT_BG_UNITS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
+          { type: 'UPDATE_PATIENT_BG_UNITS_FAILURE', error: bgErr, meta: { apiError: {status: 500, body: 'Error!'} } },
         ];
 
         _.each(expectedActions, (action) => {
@@ -1925,6 +1980,10 @@ describe('Actions', () => {
         store.dispatch(async.updateSettings(api, patientId, settings));
 
         const actions = store.getActions();
+        expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_SETTINGS });
+        expectedActions[2].error = actions[2].error;
+        expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_PATIENT_BG_UNITS });
+        expectedActions[3].error = actions[3].error;
         expect(actions).to.eql(expectedActions);
         expect(api.metadata.settings.put.calledWith(patientId, settings)).to.be.true;
       });
@@ -2074,6 +2133,8 @@ describe('Actions', () => {
         store.dispatch(async.updateUser(api, formValues));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_USER });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.put.calledWith(userUpdates)).to.be.true;
       });
@@ -2220,6 +2281,8 @@ describe('Actions', () => {
         store.dispatch(async.updateClinicianProfile(api, formValues));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_USER });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.put.calledWith(userUpdates)).to.be.true;
       });
@@ -2271,6 +2334,8 @@ describe('Actions', () => {
         store.dispatch(async.requestPasswordReset(api, email));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REQUESTING_PASSWORD_RESET });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.requestPasswordReset.calledWith(email)).to.be.true;
       });
@@ -2322,6 +2387,8 @@ describe('Actions', () => {
         store.dispatch(async.confirmPasswordReset(api, payload));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CONFIRMING_PASSWORD_RESET });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.confirmPasswordReset.calledWith(payload)).to.be.true;
       });
@@ -2432,6 +2499,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchUser(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_EMAIL_NOT_VERIFIED });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.get.callCount).to.equal(1);
       });
@@ -2484,6 +2553,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchUser(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_USER });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.get.callCount).to.equal(1);
       });
@@ -2537,6 +2608,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPendingSentInvites(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PENDING_SENT_INVITES });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.getSent.callCount).to.equal(1);
       });
@@ -2590,6 +2663,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPendingReceivedInvites(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PENDING_RECEIVED_INVITES });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.invitation.getReceived.callCount).to.equal(1);
       });
@@ -2629,7 +2704,7 @@ describe('Actions', () => {
           }
         };
 
-        let err = new Error(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD);
+        let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT);
         err.status = 500;
 
         let expectedActions = [
@@ -2643,6 +2718,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatient(api, 58686));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
@@ -2671,6 +2748,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatient(api, 58686));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
@@ -2714,7 +2793,7 @@ describe('Actions', () => {
           }
         };
 
-        let err = new Error(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD);
+        let err = new Error(ErrorMessages.ERR_FETCHING_PATIENTS);
         err.status = 500;
 
         let expectedActions = [
@@ -2728,6 +2807,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatients(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENTS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.getAll.callCount).to.equal(1);
       });
@@ -2737,27 +2818,63 @@ describe('Actions', () => {
       const patientId = 300;
       const serverTime = '2018-01-28T00:00:11.000Z';
       const serverTimePlusOneDay = moment.utc(serverTime).add(1, 'days').toISOString();
+
+      const latestPumpSettings = { uploadId: 'abc123', time: '2017-11-15T00:00:00.000Z', type: 'pumpSettings' };
+      const latestUpload = { uploadId: 'abc123', time: '2017-11-01T00:00:00.000Z', type: 'upload' };
+
+      const diabetesDataRangeSufficient = {
+        spanInDays: 30,
+        start: '2018-01-01T00:00:00.000Z',
+        end: '2018-01-30T00:00:00.000Z',
+      };
+
+      const diabetesDataRangeInsufficient = {
+        spanInDays: 29,
+        start: '2018-01-01T00:00:00.000Z',
+        end: '2018-01-29T00:00:00.000Z',
+      };
+
+      const diabetesDataMissing = {
+        spanInDays: null,
+        start: undefined,
+        end: undefined,
+      };
+
+      const latestPumpSettingsSufficient = {
+        latestPumpSettings,
+        uploadRecord: latestUpload,
+      };
+
+      const latestPumpSettingsMissing = {
+        latestPumpSettings: undefined,
+        uploadRecord: undefined,
+      };
+
+      const latestPumpSettingsMissingUpload = {
+        latestPumpSettings,
+        uploadRecord: undefined,
+      };
+
       let options;
       let patientData;
       let teamNotes;
       let api;
 
-
       beforeEach(() => {
         options = {
           startDate: '2018-01-01T00:00:00.000Z',
-          endDate: '2018-01-28T00:00:00.000Z',
+          endDate: '2018-01-30T00:00:00.000Z',
           useCache: true,
           initial: true,
         };
 
         patientData = [
           { id: 25, value: 540.4, type: 'smbg', time: '2018-01-01T00:00:00.000Z' },
-          { id: 25, value: 540.4, type: 'smbg', time: '2018-01-28T00:00:00.000Z' },
+          { id: 26, value: 30.8, type: 'smbg', time: '2018-01-30T00:00:00.000Z' },
         ];
 
         teamNotes = [
-          { id: 25, note: 'foo' }
+          { id: 28, note: 'foo' }
         ];
 
         api = {
@@ -2773,294 +2890,569 @@ describe('Actions', () => {
         };
 
         async.__Rewire__('utils', {
-          getDiabetesDataRange: sinon.stub().returns({
-            spanInDays: 28,
-            start: '2018-01-01T00:00:00.000Z',
-            end: '2018-01-28T00:00:00.000Z',
-          }),
+          getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+          getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsSufficient),
         });
       });
 
-      it('should trigger FETCH_PATIENT_DATA_REQUEST once for a successful request when enough data is returned', () => {
-        let expectedActions = [
-          { type: 'FETCH_SERVER_TIME_REQUEST' },
-          {
-            type: 'FETCH_SERVER_TIME_SUCCESS',
-            payload: { serverTime },
-          },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          {
-            type: 'FETCH_PATIENT_DATA_SUCCESS',
-            payload: {
-              patientData: patientData,
-              patientNotes: teamNotes,
-              patientId: patientId,
-              fetchedUntil: '2017-12-31T00:00:00.000Z'
+      context('initial data fetch', () => {
+        context('enough data returned', () => {
+          it('should trigger FETCH_PATIENT_DATA_REQUEST once for a successful request when enough data is returned', () => {
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData,
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+        });
+
+        context('not enough data returned', () => {
+          it('should trigger FETCH_PATIENT_DATA_REQUEST twice for a successful request when not enough data is returned on first call', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeInsufficient),
+              getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsSufficient),
+            });
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData,
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-30T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+
+            expect(api.patientData.get.withArgs(patientId).callCount).to.equal(2);
+            expect(api.patientData.get.firstCall.args[1]).to.eql(options);
+
+            expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
+              startDate: '2017-12-30T00:00:00.000Z',
+              endDate: serverTimePlusOneDay,
+              initial: false,
+            }));
+
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(2);
+            expect(api.team.getNotes.firstCall.args[1]).to.eql(_.assign({}, options, {
+              start: options.startDate,
+              end: options.endDate,
+            }));
+            expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
+              startDate: '2017-12-30T00:00:00.000Z',
+              endDate: serverTimePlusOneDay,
+              start: '2017-12-30T00:00:00.000Z',
+              end: serverTimePlusOneDay,
+              initial: false,
+            }));
+
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+
+          it('should trigger FETCH_PATIENT_DATA_REQUEST twice for a successful request when no data is returned on first call', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataMissing),
+              getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsSufficient),
+            });
+
+            api.patientData = {
+              get: sinon.stub().callsArgWith(2, null, []),
+            };
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: [],
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: null,
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+
+            expect(api.patientData.get.withArgs(patientId).callCount).to.equal(2);
+            expect(api.patientData.get.firstCall.args[1]).to.eql(options);
+            expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
+              startDate: null, // should fetch to the beginning by not specifying a start date
+              endDate: serverTimePlusOneDay,
+              initial: false,
+            }));
+
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(2);
+            expect(api.team.getNotes.firstCall.args[1]).to.eql(_.assign({}, options, {
+              start: options.startDate,
+              end: options.endDate,
+            }));
+            expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
+              startDate: null,
+              endDate: serverTimePlusOneDay,
+              start: null,
+              end: serverTimePlusOneDay,
+              initial: false,
+            }));
+          });
+        });
+
+        context('server time fetch fails', () => {
+          it('should trigger FETCH_SERVER_TIME_FAILURE and when unable to fetch the server time, but continue on with fetching patientData', () => {
+            options = _.assign({}, options, {
+              browserTimeStub: '2018-01-28T00:01:00.000Z',
+            });
+
+            api.server = {
+              getTime: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null)
+            };
+
+            let err = new Error(ErrorMessages.ERR_FETCHING_SERVER_TIME);
+            err.status = 500;
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              { type: 'FETCH_SERVER_TIME_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData,
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z',
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore(initialState);
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_SERVER_TIME });
+            expectedActions[1].error = actions[1].error;
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+          });
+        });
+
+        context('missing pump settings', () => {
+          it('should trigger FETCH_PATIENT_DATA_REQUEST only twice if the upload record is present after fetching pump settings', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+              getLatestPumpSettings: sinon.stub()
+                .onFirstCall().returns(latestPumpSettingsMissing)
+                .onSecondCall().returns(latestPumpSettingsSufficient)
+            });
+
+            api.patientData.get= sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData)
+              .onSecondCall().callsArgWith(2, null, [latestPumpSettings]);
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData.concat(latestPumpSettings),
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+
+          it('should trigger FETCH_PATIENT_DATA_REQUEST three times if the upload record is missing after fetching pump settings', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+              getLatestPumpSettings: sinon.stub()
+                .onFirstCall().returns(latestPumpSettingsMissing)
+                .onSecondCall().returns(latestPumpSettingsMissingUpload),
+            });
+
+            api.patientData.get= sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData)
+              .onSecondCall().callsArgWith(2, null, [latestPumpSettings])
+              .onThirdCall().callsArgWith(2, null, [latestUpload]);
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData.concat(latestPumpSettings).concat(latestUpload),
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+        });
+
+        context('missing pump settings upload record', () => {
+          it('should trigger FETCH_PATIENT_DATA_REQUEST twice if an upload record is present after fetching', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+              getLatestPumpSettings: sinon.stub()
+                .onFirstCall().returns(latestPumpSettingsMissingUpload)
+                .onSecondCall().returns(latestPumpSettingsSufficient)
+            });
+
+            api.patientData.get= sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData.concat(latestPumpSettings))
+              .onSecondCall().callsArgWith(2, null, [latestUpload]);
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData.concat(latestPumpSettings).concat(latestUpload),
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+
+          it('should trigger FETCH_PATIENT_DATA_REQUEST twice if an upload record is missing after fetching, but still dispatch success', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+              getLatestPumpSettings: sinon.stub()
+                .onFirstCall().returns(latestPumpSettingsMissingUpload)
+                .onSecondCall().returns(latestPumpSettingsSufficient)
+            });
+
+            api.patientData.get= sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData.concat(latestPumpSettings))
+              .onSecondCall().callsArgWith(2, null, []); // no upload found -- oh well we tried
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData.concat(latestPumpSettings),
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+        });
+      });
+
+      context('subsequent data fetch', () => {
+        it('should not consider the data range and trigger FETCH_PATIENT_DATA_REQUEST only once', () => {
+          options = _.assign({}, options, {
+            initial: false,
+          });
+
+          let expectedActions = [
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            {
+              type: 'FETCH_PATIENT_DATA_SUCCESS',
+              payload: {
+                patientData: patientData,
+                patientNotes: teamNotes,
+                patientId: patientId,
+                fetchedUntil: '2018-01-01T00:00:00.000Z'
+              },
             },
-          },
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+
+          let store = mockStore({ blip: initialState });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
+          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+          sinon.assert.notCalled(async.__get__('utils').getDiabetesDataRange);
         });
-
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPatientData(api, options, patientId));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-        sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
       });
 
+      context('handleFetchErrors', () => {
+        it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to patient data call returning error', () => {
+          api.patientData = {
+            get: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          };
 
-      it('should not consider the data range and trigger FETCH_PATIENT_DATA_REQUEST only once when not performing the initial data fetch', () => {
-        options = _.assign({}, options, {
-          initial: false,
-        });
+          let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA);
+          err.status = 500;
 
-        let expectedActions = [
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          {
-            type: 'FETCH_PATIENT_DATA_SUCCESS',
-            payload: {
-              patientData: patientData,
-              patientNotes: teamNotes,
-              patientId: patientId,
-              fetchedUntil: '2018-01-01T00:00:00.000Z'
+          let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_REQUEST' },
+            {
+              type: 'FETCH_SERVER_TIME_SUCCESS',
+              payload: { serverTime },
             },
-          },
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+          let store = mockStore({ blip: initialState });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA });
+          expectedActions[3].error = actions[3].error;
+          expect(actions).to.eql(expectedActions);
+          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
 
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPatientData(api, options, patientId));
+        it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to latest pump settings call returning error', () => {
+          async.__Rewire__('utils', {
+            getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+            getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsMissing),
+          });
 
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-        sinon.assert.notCalled(async.__get__('utils').getDiabetesDataRange);
-      });
+          api.patientData = {
+            get: sinon.stub(),
+          };
 
-      it('should trigger FETCH_PATIENT_DATA_REQUEST twice for a successful request when not enough data is returned on first call', () => {
-        async.__Rewire__('utils', {
-          getDiabetesDataRange: sinon.stub().returns({
-            spanInDays: 27, // should trigger second fetch if less than 28
-            start: '2018-01-01T00:00:00.000Z',
-            end: '2018-01-01T00:14:00.000Z',
-          }),
-        });
+          api.patientData.get
+            .onFirstCall().callsArgWith(2, null, [])
+            .onSecondCall().callsArgWith(2, {status: 500, body: 'Error!'}, null);
 
-        let expectedActions = [
-          { type: 'FETCH_SERVER_TIME_REQUEST' },
-          {
-            type: 'FETCH_SERVER_TIME_SUCCESS',
-            payload: { serverTime },
-          },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          {
-            type: 'FETCH_PATIENT_DATA_SUCCESS',
-            payload: {
-              patientData: patientData,
-              patientNotes: teamNotes,
-              patientId: patientId,
-              fetchedUntil: '2017-12-04T00:00:00.000Z'
+          let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA);
+          err.status = 500;
+
+          let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_REQUEST' },
+            {
+              type: 'FETCH_SERVER_TIME_SUCCESS',
+              payload: { serverTime },
             },
-          },
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+          let store = mockStore({ blip: initialState });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions[4].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS });
+          expectedActions[4].error = actions[4].error;
+          expect(actions).to.eql(expectedActions);
+          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
 
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPatientData(api, options, patientId));
+        it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to latest pump settings upload call returning error', () => {
+          async.__Rewire__('utils', {
+            getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+            getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsMissingUpload),
+          });
 
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
+          api.patientData = {
+            get: sinon.stub()
+              .onFirstCall().callsArgWith(2, null, [])
+              .onSecondCall().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          };
 
-        expect(api.patientData.get.withArgs(patientId).callCount).to.equal(2);
-        expect(api.patientData.get.firstCall.args[1]).to.eql(options);
-        expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
-          startDate: '2017-12-04T00:00:00.000Z',
-          endDate: serverTimePlusOneDay,
-          initial: false,
-        }));
+          let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA);
+          err.status = 500;
 
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(2);
-        expect(api.team.getNotes.firstCall.args[1]).to.eql(_.assign({}, options, {
-          start: options.startDate,
-          end: options.endDate,
-        }));
-        expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
-          startDate: '2017-12-04T00:00:00.000Z',
-          endDate: serverTimePlusOneDay,
-          start: '2017-12-04T00:00:00.000Z',
-          end: serverTimePlusOneDay,
-          initial: false,
-        }));
-
-        sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
-      });
-
-      it('should trigger FETCH_PATIENT_DATA_REQUEST twice for a successful request when no data is returned on first call', () => {
-        async.__Rewire__('utils', {
-          getDiabetesDataRange: sinon.stub().returns({
-            spanInDays: null,
-            start: undefined,
-            end: undefined,
-          }),
-        });
-
-        api.patientData = {
-          get: sinon.stub().callsArgWith(2, null, []),
-        };
-
-        let expectedActions = [
-          { type: 'FETCH_SERVER_TIME_REQUEST' },
-          {
-            type: 'FETCH_SERVER_TIME_SUCCESS',
-            payload: { serverTime },
-          },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          {
-            type: 'FETCH_PATIENT_DATA_SUCCESS',
-            payload: {
-              patientData: [],
-              patientNotes: teamNotes,
-              patientId: patientId,
-              fetchedUntil: null,
+          let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_REQUEST' },
+            {
+              type: 'FETCH_SERVER_TIME_SUCCESS',
+              payload: { serverTime },
             },
-          },
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+          let store = mockStore({ blip: initialState });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions[4].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD });
+          expectedActions[4].error = actions[4].error;
+          expect(actions).to.eql(expectedActions);
+          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
 
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPatientData(api, options, patientId));
+        it('should trigger FETCH_MESSAGE_THREAD_FAILURE and it should call error once for a failed request due to team notes call returning error', () => {
+          api.team = {
+            getNotes: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null)
+          };
 
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
+          let err = new Error(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD);
+          err.status = 500;
 
-        expect(api.patientData.get.withArgs(patientId).callCount).to.equal(2);
-        expect(api.patientData.get.firstCall.args[1]).to.eql(options);
-        expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
-          startDate: null, // should fetch to the beginning by not specifying a start date
-          endDate: serverTimePlusOneDay,
-          initial: false,
-        }));
-
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(2);
-        expect(api.team.getNotes.firstCall.args[1]).to.eql(_.assign({}, options, {
-          start: options.startDate,
-          end: options.endDate,
-        }));
-        expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
-          startDate: null,
-          endDate: serverTimePlusOneDay,
-          start: null,
-          end: serverTimePlusOneDay,
-          initial: false,
-        }));
-      });
-
-      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to patient data call returning error', () => {
-        api.patientData = {
-          get: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
-        };
-
-        let err = new Error(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD);
-        err.status = 500;
-
-        let expectedActions = [
-          { type: 'FETCH_SERVER_TIME_REQUEST' },
-          {
-            type: 'FETCH_SERVER_TIME_SUCCESS',
-            payload: { serverTime },
-          },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPatientData(api, options, patientId));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-      });
-
-      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to team notes call returning error', () => {
-        api.team = {
-          getNotes: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null)
-        };
-
-        let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA);
-        err.status = 500;
-
-        let expectedActions = [
-          { type: 'FETCH_SERVER_TIME_REQUEST' },
-          {
-            type: 'FETCH_SERVER_TIME_SUCCESS',
-            payload: { serverTime },
-          },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore(initialState);
-        store.dispatch(async.fetchPatientData(api, options, patientId));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-      });
-
-      it('should trigger FETCH_SERVER_TIME_FAILURE and when unable to fetch the server time, but continue on with fetching patientData', () => {
-        api.server = {
-          getTime: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null)
-        };
-
-        let err = new Error(ErrorMessages.ERR_FETCHING_SERVER_TIME);
-        err.status = 500;
-
-        let expectedActions = [
-          { type: 'FETCH_SERVER_TIME_REQUEST' },
-          { type: 'FETCH_SERVER_TIME_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          {
-            type: 'FETCH_PATIENT_DATA_SUCCESS',
-            payload: {
-              patientData,
-              patientNotes: teamNotes,
-              patientId: patientId,
-              fetchedUntil: '2017-12-31T00:00:00.000Z',
+          let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_REQUEST' },
+            {
+              type: 'FETCH_SERVER_TIME_SUCCESS',
+              payload: { serverTime },
             },
-          },
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_MESSAGE_THREAD_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+
+          let store = mockStore(initialState);
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_MESSAGE_THREAD });
+          expectedActions[3].error = actions[3].error;
+          expect(actions).to.eql(expectedActions);
+          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
-
-        let store = mockStore(initialState);
-        store.dispatch(async.fetchPatientData(api, options, patientId));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
     });
 
@@ -3116,6 +3508,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchSettings(api, patientId));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_SETTINGS });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.metadata.settings.get.calledWith(patientId)).to.be.true;
       });
@@ -3175,6 +3569,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchMessageThread(api, 400));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_MESSAGE_THREAD });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.team.getMessageThread.withArgs(400).callCount).to.equal(1);
       });
@@ -3230,6 +3626,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchDataSources(api));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_DATA_SOURCES });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.getDataSources.callCount).to.equal(1);
       });
@@ -3286,6 +3684,8 @@ describe('Actions', () => {
         store.dispatch(async.connectDataSource(api, 'strava', { path: [ '/v1/oauth/strava' ] }, { providerType: 'unexpected', providerName: 'strava' }));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CONNECTING_DATA_SOURCE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.createRestrictedToken.callCount).to.equal(0);
         expect(api.user.createOAuthProviderAuthorization.callCount).to.equal(0);
@@ -3313,6 +3713,8 @@ describe('Actions', () => {
         store.dispatch(async.connectDataSource(api, 'strava', { path: [ '/v1/oauth/strava' ] }, { providerType: 'oauth', providerName: 'strava' }));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CONNECTING_DATA_SOURCE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.createRestrictedToken.withArgs({ path: [ '/v1/oauth/strava' ] }).callCount).to.equal(1);
         expect(api.user.createOAuthProviderAuthorization.callCount).to.equal(0);
@@ -3351,7 +3753,7 @@ describe('Actions', () => {
           }
         };
 
-        let err = new Error(ErrorMessages.ERR_CONNECTING_DATA_SOURCE);
+        let err = new Error(ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE);
 
         let expectedActions = [
           { type: 'DISCONNECT_DATA_SOURCE_REQUEST' },
@@ -3364,6 +3766,8 @@ describe('Actions', () => {
         store.dispatch(async.disconnectDataSource(api, 'strava', { providerType: 'unexpected', providerName: 'strava' }));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.deleteOAuthProviderAuthorization.callCount).to.equal(0);
       });
@@ -3375,7 +3779,7 @@ describe('Actions', () => {
           }
         };
 
-        let err = new Error(ErrorMessages.ERR_CONNECTING_DATA_SOURCE);
+        let err = new Error(ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE);
         err.status = 500;
 
         let expectedActions = [
@@ -3389,6 +3793,8 @@ describe('Actions', () => {
         store.dispatch(async.disconnectDataSource(api, 'strava', { providerType: 'oauth', providerName: 'strava' }));
 
         const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE });
+        expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.deleteOAuthProviderAuthorization.withArgs('strava').callCount).to.equal(1);
       });

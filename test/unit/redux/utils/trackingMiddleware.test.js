@@ -38,11 +38,11 @@ describe('trackingMiddleware', () => {
   const next = sinon.stub();
 
   beforeEach(() => {
-    api.metrics.track.reset();
+    api.metrics.track.resetHistory();
   });
 
   it('should be a function', () => {
-    expect(trackingMiddleware).to.be.a.function;
+    expect(trackingMiddleware).to.be.a('function');
   });
 
   it('should call the metrics api for SIGNUP_SUCCESS', () => {

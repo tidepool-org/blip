@@ -44,7 +44,6 @@ export default (type) => {
 
     case types.LOGOUT_REQUEST:
     case types.LOGOUT_SUCCESS:
-    case types.LOGOUT_FAILURE:
       return 'loggingOut';
 
     case types.SIGNUP_REQUEST:

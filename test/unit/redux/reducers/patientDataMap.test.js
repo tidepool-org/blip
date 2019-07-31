@@ -62,6 +62,58 @@ describe('patientDataMap', () => {
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
 
+    it('should should exclude diabetes data that\'s prior to the `fetchedUtil` time', () => {
+      const initialStateForTest = {};
+      const tracked = mutationTracker.trackObj(initialStateForTest);
+
+      const patientId = 'a1b2c3';
+      const patientData = [
+        { value: 120, time: '2017-11-26:00:00:00.000Z', type: 'cbg' }, // should be excluded
+        { value: 100, time: '2018-01-01:00:00:00.000Z', type: 'cbg' },
+        { value: 20 , time: '2018-01-02:00:00:00.000Z', type: 'cbg' },
+      ];
+
+      const fetchedUntil = '2017-11-27:00:00:00.000Z';
+
+      const action = actions.sync.fetchPatientDataSuccess(patientId, patientData, [], fetchedUntil);
+
+      const state = reducer(initialStateForTest, action);
+
+      expect(state[patientId]).to.deep.equal([
+        { value: 20 , time: '2018-01-02:00:00:00.000Z', type: 'cbg' },
+        { value: 100, time: '2018-01-01:00:00:00.000Z', type: 'cbg' },
+      ]);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
+    it('should should include pumpSettings and upload data that\'s prior to the `fetchedUtil` time', () => {
+      const initialStateForTest = {};
+      const tracked = mutationTracker.trackObj(initialStateForTest);
+
+      const patientId = 'a1b2c3';
+      const patientData = [
+        { time: '2017-11-26:00:00:00.000Z', type: 'pumpSettings' }, // should be included
+        { time: '2017-11-26:01:00:00.000Z', type: 'upload' }, // should be included
+        { value: 120, time: '2017-11-26:00:00:00.000Z', type: 'cbg' }, // should be excluded
+        { value: 100, time: '2018-01-01:00:00:00.000Z', type: 'cbg' },
+        { value: 20 , time: '2018-01-02:00:00:00.000Z', type: 'cbg' },
+      ];
+
+      const fetchedUntil = '2017-11-27:00:00:00.000Z';
+
+      const action = actions.sync.fetchPatientDataSuccess(patientId, patientData, [], fetchedUntil);
+
+      const state = reducer(initialStateForTest, action);
+
+      expect(state[patientId]).to.deep.equal([
+        { value: 20 , time: '2018-01-02:00:00:00.000Z', type: 'cbg' },
+        { value: 100, time: '2018-01-01:00:00:00.000Z', type: 'cbg' },
+        { time: '2017-11-26:01:00:00.000Z', type: 'upload' },
+        { time: '2017-11-26:00:00:00.000Z', type: 'pumpSettings' },
+      ]);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
     it('should set a cache key for fetched data', () => {
       const initialStateForTest = {};
       const tracked = mutationTracker.trackObj(initialStateForTest);

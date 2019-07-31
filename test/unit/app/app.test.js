@@ -6,10 +6,10 @@
 /* global beforeEach */
 /* global afterEach */
 
-var React = require('react');
-var createFragment = require('react-addons-create-fragment');
-var _ = require('lodash');
-var TestUtils = require('react-addons-test-utils');
+import _ from 'lodash';
+import React from 'react';
+import createFragment from 'react-addons-create-fragment';
+import TestUtils from 'react-dom/test-utils';
 
 import { mount } from 'enzyme';
 import mutationTracker from 'object-invariant-test-helper';
@@ -630,7 +630,7 @@ describe('App',  () => {
 
       it('should return the current patient in view as patient and empty permissions', () => {
         expect(result.patient).to.deep.equal(Object.assign({}, loggedIn.allUsersMap.d4e5f6, { permissions: {} }));
-      }); 
+      });
 
       it('should return empty permsOfLoggedInUser if user does not have authorization', () => {
         expect(result.permsOfLoggedInUser).to.be.empty;
@@ -676,10 +676,10 @@ describe('App',  () => {
           }
         };
         const careTeamMemberUploadResult = mapStateToProps({blip: careTeamMemberUpload});
-  
+
         it('should return correct permsOfLoggedInUser permissions', () => {
           expect(careTeamMemberUploadResult.permsOfLoggedInUser).to.equal(careTeamMemberUpload.membershipPermissionsInOtherCareTeams.d4e5f6);
-        });  
+        });
       });
 
       context('Care team member without upload permissions', () => {
@@ -721,7 +721,7 @@ describe('App',  () => {
           }
         };
         const careTeamMemberNoUploadResult = mapStateToProps({blip: careTeamMemberNoUpload});
-  
+
         it('should return correct permsOfLoggedInUser permissions', () => {
           expect(careTeamMemberNoUploadResult.permsOfLoggedInUser).to.equal(careTeamMemberNoUpload.membershipPermissionsInOtherCareTeams.d4e5f6);
         });

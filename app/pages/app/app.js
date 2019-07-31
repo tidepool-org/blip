@@ -43,15 +43,10 @@ import { DATA_DONATION_NONPROFITS, CONFIG } from '../../core/constants';
 import Config from '../../config';
 
 // Styles
-require('react-select/less/default.less');
 require('tideline/css/tideline.less');
 require('../../style.less');
 
-// Blip favicon
-require('../../../favicon.ico');
-
 document.title = CONFIG[__BRANDING__].name;
-
 export class AppComponent extends React.Component {
   static propTypes = {
     authenticated: React.PropTypes.bool.isRequired,
@@ -271,18 +266,18 @@ export class AppComponent extends React.Component {
           getUploadUrl = this.props.context.api.getUploadUrl.bind(this.props.context.api);
         }
         return (
-          <div className="App-navbar">
-            <Navbar
-              user={this.props.user}
-              fetchingUser={this.props.fetchingUser}
-              patient={patient}
-              fetchingPatient={this.props.fetchingPatient}
-              currentPage={this.props.location}
-              getUploadUrl={getUploadUrl}
-              onLogout={this.props.onLogout}
-              trackMetric={this.props.context.trackMetric}
-              permsOfLoggedInUser={this.props.permsOfLoggedInUser}
-              ref="navbar" />
+         <div className="App-navbar">
+          <Navbar
+            user={this.props.user}
+            fetchingUser={this.props.fetchingUser}
+            patient={patient}
+            fetchingPatient={this.props.fetchingPatient}
+            currentPage={this.props.location}
+            getUploadUrl={getUploadUrl}
+            onLogout={this.props.onLogout}
+            trackMetric={this.props.context.trackMetric}
+            permsOfLoggedInUser={this.props.permsOfLoggedInUser}
+            ref="navbar"/>
           </div>
         );
       }
@@ -374,7 +369,15 @@ export class AppComponent extends React.Component {
 
   renderFooter() {
     var shouldDisplayFooterLinks = !_.includes(
-      ['/signup', '/signup/personal', '/signup/clinician', '/email-verification', '/terms', '/patients/new'],
+      [
+        '/signup',
+        '/signup/personal',
+        '/signup/clinician',
+        '/email-verification',
+        '/request-password-reset',
+        '/terms',
+        '/patients/new'
+      ],
       this.props.location
     );
 
@@ -382,13 +385,12 @@ export class AppComponent extends React.Component {
       <div className='container-nav-outer footer'>
         <div className='container-nav-inner'>
           {shouldDisplayFooterLinks ?
-            <FooterLinks trackMetric={this.props.context.trackMetric} /> : null}
+              <FooterLinks trackMetric={this.props.context.trackMetric} /> : null}
           <div className='footer-section'>
             {this.renderVersion()}
           </div>
         </div>
       </div>
-
     );
   }
 
@@ -480,9 +482,9 @@ export function mapStateToProps(state) {
         {}
       );
       permsOfLoggedInUser = _.get(
-        state.blip.membershipPermissionsInOtherCareTeams,
-        state.blip.currentPatientInViewId,
-        {}
+       state.blip.membershipPermissionsInOtherCareTeams,
+       state.blip.currentPatientInViewId,
+       {}
       );
     }
 
@@ -490,7 +492,7 @@ export function mapStateToProps(state) {
     if (userIsDonor) {
       //eslint-disable-next-line new-cap
       let allDonationAccountEmails = _.map(DATA_DONATION_NONPROFITS(), nonprofit => `bigdata+${nonprofit.value}@tidepool.org`);
-      let userDonationAccountEmails = _.pluck(state.blip.dataDonationAccounts, 'email');
+      let userDonationAccountEmails = _.map(state.blip.dataDonationAccounts, 'email');
       userIsSupportingNonprofit = _.intersection(allDonationAccountEmails, userDonationAccountEmails).length > 0;
     }
   }

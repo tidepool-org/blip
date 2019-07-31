@@ -244,12 +244,15 @@ export let PatientNew = translate()(React.createClass({
         fullName: fullName,
       });
     }
-    else if (key === 'dataDonateDestination' && !_.isEmpty(value)) {
+    else if (key === 'dataDonateDestination') {
+      // Sort the values so that we can accurately check see if the form values have changed
+      let sortedValue = attributes.value.map(value => value.value).sort().join(',');
+      formValues[key] = sortedValue;
+
       // Ensure that the donate checkbox is checked if there are nonprofits selected
-      if (!formValues.dataDonate) {
+      if (!_.isEmpty(value) && !formValues.dataDonate) {
         formValues.dataDonate = true;
       }
-      formValues[key] = value;
     }
     else {
       formValues[key] = value;
@@ -278,7 +281,7 @@ export let PatientNew = translate()(React.createClass({
 
       _.forEach(selectedAccounts, accountId => {
         accountId && addAccounts.push(`bigdata+${accountId}@tidepool.org`);
-      })
+      });
 
       this.props.onUpdateDataDonationAccounts(addAccounts);
 

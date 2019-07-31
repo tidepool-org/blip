@@ -14,14 +14,15 @@
  */
 
 .App-navbar {
+  width: 100%;
   margin: auto;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: @spacing-small;
+  margin-bottom: @spacing-small;
   padding-left: @spacing-small;
   padding-right: @spacing-small;
 
-  @media(min-width: @screen-lg-min) {
-    width: (@screen-lg-min - 2*20px);
+  @media (min-width: @screen-lg-min) {
+    width: (@screen-lg-min - 2 * 20px);
     padding-left: 0;
     padding-right: 0;
   }
@@ -63,5 +64,11 @@
 
   .app-print {
     display: block;
+  }
+}
+
+#beacon-container {
+  @media(max-width: @screen-md-max) {
+    display: none;
   }
 }

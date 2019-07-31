@@ -1,41 +1,32 @@
-
-/*
- * == BSD2 LICENSE ==
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
- */
-var _ = require('lodash');
-var bows = require('bows');
-var React = require('react');
-var sundial = require('sundial');
+import React, { Component } from 'react';
+import _ from 'lodash';
+import bows from 'bows';
+import moment from 'moment';
+import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
 
-var utils = require('../../core/utils');
-
 // tideline dependencies & plugins
-var tidelineBlip = require('tideline/plugins/blip');
-var BasicsChart = tidelineBlip.basics;
+import tidelineBlip from 'tideline/plugins/blip';
+const BasicsChart = tidelineBlip.basics;
 
-var Header = require('./header');
-var Footer = require('./footer');
+import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
+const Loader = vizComponents.Loader;
+const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
+const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 
-var Basics = translate()(React.createClass({
-  chartType: 'basics',
-  log: bows('Basics View'),
-  propTypes: {
+import Stats from './stats';
+import BgSourceToggle from './bgSourceToggle';
+import Header from './header';
+import Footer from './footer';
+import { BG_DATA_TYPES } from '../../core/constants';
+
+class Basics extends Component {
+  static propTypes = {
     bgPrefs: React.PropTypes.object.isRequired,
+    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
+    dataUtil: React.PropTypes.object,
+    endpoints: React.PropTypes.arrayOf(React.PropTypes.string),
     timePrefs: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
     patientData: React.PropTypes.object.isRequired,
@@ -47,33 +38,47 @@ var Basics = translate()(React.createClass({
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onClickPrint: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToWeekly: React.PropTypes.func.isRequired,
+    onSwitchToBgLog: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
+    updateChartPrefs: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
-  },
+  };
 
-  getInitialState: function() {
-    return {
-      atMostRecent: true,
-      inTransition: false,
-      title: this.getTitle(),
-    };
-  },
+  static displayName = 'Basics';
 
-  componentWillMount: function() {
-    var basicsData = this.props.patientData.basicsData;
+  constructor(props) {
+    super(props);
+    this.chartType = 'basics';
+    this.log = bows('Basics View');
 
-    if (basicsData.dateRange) {
-      this.props.onUpdateChartDateRange(basicsData.dateRange);
+    this.state = this.getInitialState();
+  }
+
+  getInitialState = () => ({
+    atMostRecent: true,
+    inTransition: false,
+    title: this.getTitle(),
+  });
+
+  componentWillMount = () => {
+    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
+
+    if (dateRange) {
+      const endpoints = [
+        dateRange[0],
+        getLocalizedCeiling(dateRange[1], this.props.timePrefs).toISOString(),
+      ];
+
+      this.props.onUpdateChartDateRange(endpoints);
     }
-  },
+  };
 
-  render: function() {
+  render = () => {
     return (
-      <div id="tidelineMain">
+      <div id="tidelineMain" className="basics">
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
@@ -86,14 +91,36 @@ var Basics = translate()(React.createClass({
           onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.props.onSwitchToSettings}
-          onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickBgLog={this.handleClickBgLog}
           onClickPrint={this.handleClickPrint}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              {this.isMissingBasics() ?
-                this.renderMissingBasicsMessage() : this.renderChart()}
+              <Loader show={this.props.loading} overlay={true} />
+              {this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart()}
+            </div>
+          </div>
+          <div className="container-box-inner patient-data-sidebar">
+            <div className="patient-data-sidebar-inner">
+              <div>
+                <BgSourceToggle
+                  bgSource={this.props.dataUtil.bgSource}
+                  bgSources={this.props.dataUtil.bgSources}
+                  chartPrefs={this.props.chartPrefs}
+                  chartType={this.chartType}
+                  onClickBgSourceToggle={this.toggleBgDataSource}
+                />
+                <Stats
+                  bgPrefs={this.props.bgPrefs}
+                  bgSource={this.props.dataUtil.bgSource}
+                  chartPrefs={this.props.chartPrefs}
+                  chartType={this.chartType}
+                  dataUtil={this.props.dataUtil}
+                  endpoints={this.props.endpoints}
+                  onAverageDailyDoseInputChange={this.handleAverageDailyDoseInputChange}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -103,9 +130,9 @@ var Basics = translate()(React.createClass({
         ref="footer" />
       </div>
       );
-  },
+  };
 
-  renderChart: function() {
+  renderChart = () => {
     return (
       <div id="tidelineContainer" className="patient-data-chart-growing">
         <BasicsChart
@@ -122,12 +149,12 @@ var Basics = translate()(React.createClass({
           trackMetric={this.props.trackMetric} />
       </div>
     );
-  },
+  };
 
-  renderMissingBasicsMessage: function() {
-    var self = this;
+  renderMissingBasicsMessage = () => {
+    const self = this;
     const { t } = this.props;
-    var handleClickUpload = function() {
+    const handleClickUpload = function() {
       self.props.trackMetric('Clicked Partial Data Upload, No Pump Data for Basics');
     };
 
@@ -142,30 +169,31 @@ var Basics = translate()(React.createClass({
         </p>
       </Trans>
     );
-  },
+  };
 
-  getTitle: function() {
+  getTitle = () => {
     const { t } = this.props;
     if (this.isMissingBasics()) {
       return '';
     }
-    var timePrefs = this.props.timePrefs, timezone;
+    const timePrefs = this.props.timePrefs
+    let timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
     }
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-    var basicsData = this.props.patientData.basicsData;
-    var dtMask = t('MMM D, YYYY');
+    const basicsData = this.props.patientData.basicsData;
+    const dtMask = t('MMM D, YYYY');
 
     return sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask) +
       ' - ' + sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask);
-  },
+  }
 
-  isMissingBasics: function() {
-    var basicsData = _.get(this.props, 'patientData.basicsData', {});
-    var data;
+  isMissingBasics = () => {
+    const basicsData = _.get(this.props, 'patientData.basicsData', {});
+    let data;
 
     if (basicsData.data) {
       data = basicsData.data;
@@ -175,50 +203,75 @@ var Basics = translate()(React.createClass({
     }
 
     // require at least one relevant data point to show The Basics
-    var basicsDataLength = _.flatten(_.pluck(_.values(data), 'data')).length;
+    const basicsDataLength = _.flatten(_.map(_.values(data), 'data')).length;
     return basicsDataLength === 0;
-  },
+  };
 
   // handlers
-  handleClickBasics: function(e) {
+  toggleBgDataSource = (e, bgSource) => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const bgSourceLabel = bgSource === 'cbg' ? 'CGM' : 'BGM';
+    this.props.trackMetric(`Basics Click to ${bgSourceLabel}`);
+
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.basics.bgSource = bgSource;
+    this.props.updateChartPrefs(prefs);
+  };
+
+  handleAverageDailyDoseInputChange = (inputValue, suffixValue) => {
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.basics.averageDailyDose = {
+      inputValue,
+      suffixValue,
+    };
+    this.props.updateChartPrefs(prefs);
+  };
+
+  handleClickBasics = e => {
     if (e) {
       e.preventDefault();
     }
     return;
-  },
+  };
 
-  handleClickTrends: function(e) {
+  handleClickTrends = e => {
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToTrends();
-  },
+    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
+    this.props.onSwitchToTrends(dateRange[1]);
+  };
 
-  handleClickOneDay: function(e) {
+  handleClickOneDay = e => {
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToDaily();
-  },
+    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
+    this.props.onSwitchToDaily(dateRange[1]);
+  };
 
-  handleClickPrint: function(e) {
+  handleClickPrint = e => {
     if (e) {
       e.preventDefault();
     }
 
     this.props.onClickPrint(this.props.pdf);
-  },
+  };
 
-  handleClickTwoWeeks: function(e) {
+  handleClickBgLog = e => {
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToWeekly();
-  },
+    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
+    this.props.onSwitchToBgLog(dateRange[1]);
+  };
 
-  handleSelectDay: function(date, title) {
+  handleSelectDay = (date, title) => {
     this.props.onSwitchToDaily(date, title);
-  },
-}));
+  };
+};
 
-module.exports = Basics;
+export default translate()(Basics);

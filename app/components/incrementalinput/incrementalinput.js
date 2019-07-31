@@ -53,7 +53,7 @@ const IncrementalInput = (props) => {
     [`IncrementalInput--${props.name}`]: true,
   });
 
-  let displayValue = utils.formatBgValue(props.value, { bgUnits: props.unit });
+  let displayValue = utils.bg.formatBgValue(props.value, { bgUnits: props.unit });
 
   return (
     <div className={classes}>

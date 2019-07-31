@@ -19,28 +19,37 @@ const d3 = window.d3;
 
 import _ from 'lodash';
 import bows from 'bows';
+import moment from 'moment';
 import React, { PropTypes, PureComponent } from 'react';
-import ReactDOM from 'react-dom';
 import sundial from 'sundial';
+import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
 
 import Header from './header';
 import SubNav from './trendssubnav';
+import Stats from './stats';
+import BgSourceToggle from './bgSourceToggle';
 import Footer from './footer';
+import { BG_DATA_TYPES } from '../../core/constants';
+
 
 import * as viz from '@tidepool/viz';
 const CBGDateTraceLabel = viz.components.CBGDateTraceLabel;
 const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
 const TrendsContainer = viz.containers.TrendsContainer;
-const reshapeBgClassesToBgBounds = viz.utils.reshapeBgClassesToBgBounds;
+const reshapeBgClassesToBgBounds = viz.utils.bg.reshapeBgClassesToBgBounds;
+const getTimezoneFromTimePrefs = viz.utils.datetime.getTimezoneFromTimePrefs;
+const getLocalizedCeiling = viz.utils.datetime.getLocalizedCeiling;
 const Loader = viz.components.Loader;
 
 const Trends = translate()(class Trends extends PureComponent {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
+    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: PropTypes.object.isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
+    dataUtil: PropTypes.object,
     timePrefs: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     patient: React.PropTypes.object,
@@ -52,7 +61,7 @@ const Trends = translate()(class Trends extends PureComponent {
     onSwitchToDaily: PropTypes.func.isRequired,
     onSwitchToTrends: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
-    onSwitchToWeekly: PropTypes.func.isRequired,
+    onSwitchToBgLog: PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
@@ -69,6 +78,7 @@ const Trends = translate()(class Trends extends PureComponent {
 
     this.state = {
       atMostRecent: true,
+      endpoints: [],
       inTransition: false,
       title: '',
       visibleDays: 0,
@@ -77,6 +87,7 @@ const Trends = translate()(class Trends extends PureComponent {
     this.formatDate = this.formatDate.bind(this);
     this.getNewDomain = this.getNewDomain.bind(this);
     this.getTitle = this.getTitle.bind(this);
+    this.handleWindowResize = this.handleWindowResize.bind(this);
     this.handleClickBack = this.handleClickBack.bind(this);
     this.handleClickDaily = this.handleClickDaily.bind(this);
     this.handleClickForward = this.handleClickForward.bind(this);
@@ -86,7 +97,7 @@ const Trends = translate()(class Trends extends PureComponent {
     this.handleClickSettings = this.handleClickSettings.bind(this);
     this.handleClickTrends = this.handleClickTrends.bind(this);
     this.handleClickTwoWeeks = this.handleClickTwoWeeks.bind(this);
-    this.handleClickWeekly = this.handleClickWeekly.bind(this);
+    this.handleClickBgLog = this.handleClickBgLog.bind(this);
     this.handleDatetimeLocationChange = this.handleDatetimeLocationChange.bind(this);
     this.handleSelectDate = this.handleSelectDate.bind(this);
     this.toggleBgDataSource = this.toggleBgDataSource.bind(this);
@@ -105,35 +116,39 @@ const Trends = translate()(class Trends extends PureComponent {
     }
   }
 
+  componentWillUnmount = () => {
+    if (this.state.debouncedDateRangeUpdate) {
+      this.state.debouncedDateRangeUpdate.cancel();
+    }
+  };
+
   formatDate(datetime) {
-    const { timePrefs, t } = this.props;
-    let timezone;
-    if (!timePrefs.timezoneAware) {
-      timezone = 'UTC';
-    }
-    else {
-      timezone = timePrefs.timezoneName || 'UTC';
-    }
+    const { t } = this.props;
+    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
+
     return sundial.formatInTimezone(datetime, timezone, t('MMM D, YYYY'));
   }
 
   getNewDomain(current, extent) {
-    const { timePrefs } = this.props;
-    let timezone;
-    if (!timePrefs.timezoneAware) {
-      timezone = 'UTC';
-    }
-    else {
-      timezone = timePrefs.timezoneName || 'UTC';
-    }
-    current = sundial.ceil(current, 'day', timezone);
-    return [d3.time.day.utc.offset(current, -extent).toISOString(), current.toISOString()];
+    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
+    const end = getLocalizedCeiling(current.valueOf(), this.props.timePrefs);
+    const start = moment(end.toISOString()).tz(timezone).subtract(extent, 'days');
+    const dateDomain = [start.toISOString(), end.toISOString()];
+
+    return dateDomain;
   }
 
   getTitle(datetimeLocationEndpoints) {
+    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
+
     // endpoint is exclusive, so need to subtract a day
-    const end = d3.time.day.utc.offset(new Date(datetimeLocationEndpoints[1]), -1);
+    const end = moment(datetimeLocationEndpoints[1]).tz(timezone).subtract(1, 'day');
+
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(end);
+  }
+
+  handleWindowResize(windowSize) {
+    this.chart.mountData();
   }
 
   handleClickBack(e) {
@@ -240,19 +255,21 @@ const Trends = translate()(class Trends extends PureComponent {
     this.chart.setExtent(newDomain, oldDomain);
   }
 
-  handleClickWeekly(e) {
+  handleClickBgLog(e) {
     if (e) {
       e.preventDefault();
     }
     const datetime = this.chart ? this.chart.getCurrentDay() : this.props.initialDatetimeLocation;
-    this.props.onSwitchToWeekly(datetime);
+    this.props.onSwitchToBgLog(datetime);
   }
 
   handleDatetimeLocationChange(datetimeLocationEndpoints, atMostRecent) {
     this.setState({
       atMostRecent: atMostRecent,
-      title: this.getTitle(datetimeLocationEndpoints)
+      title: this.getTitle(datetimeLocationEndpoints),
+      endpoints: datetimeLocationEndpoints,
     });
+
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
 
     // Update the chart date range in the patientData component.
@@ -271,18 +288,19 @@ const Trends = translate()(class Trends extends PureComponent {
     this.props.onSwitchToDaily(date);
   }
 
-  toggleBgDataSource(e) {
+  toggleBgDataSource(e, bgSource) {
     if (e) {
       e.preventDefault();
-      if (this.props.chartPrefs.trends.showingCbg) {
-        this.props.trackMetric('Trends Click to BGM');
-      } else {
-        this.props.trackMetric('Trends Click to CGM');
-      }
     }
+
+    const showingCbg = bgSource === 'cbg';
+    const changedTo = showingCbg ? 'CGM' : 'BGM';
+    this.props.trackMetric(`Trends Click to ${changedTo}`);
+
     const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.trends.showingCbg = !prefs.trends.showingCbg;
-    prefs.trends.showingSmbg = !prefs.trends.showingSmbg;
+    prefs.trends.showingCbg = showingCbg;
+    prefs.trends.showingSmbg = !showingCbg;
+    prefs.trends.bgSource = bgSource;
     this.props.updateChartPrefs(prefs);
   }
 
@@ -345,11 +363,11 @@ const Trends = translate()(class Trends extends PureComponent {
   render() {
     const { currentPatientInViewId } = this.props;
     return (
-      <div id="tidelineMain">
+      <div id="tidelineMain" className="trends grid">
         {this.renderHeader()}
-        {this.renderSubNav()}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
+            {this.renderSubNav()}
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
               <div id="tidelineContainer" className="patient-data-chart-trends">
@@ -360,6 +378,26 @@ const Trends = translate()(class Trends extends PureComponent {
               {this.renderFocusedRangeLabels()}
             </div>
           </div>
+          <div className="container-box-inner patient-data-sidebar">
+            <div className="patient-data-sidebar-inner">
+              <BgSourceToggle
+                bgSource={this.props.dataUtil.bgSource}
+                bgSources={this.props.dataUtil.bgSources}
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                dataUtil={this.props.dataUtil}
+                onClickBgSourceToggle={this.toggleBgDataSource}
+              />
+              <Stats
+                bgPrefs={this.props.bgPrefs}
+                bgSource={this.props.dataUtil.bgSource}
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                dataUtil={this.props.dataUtil}
+                endpoints={this.state.endpoints}
+              />
+            </div>
+          </div>
         </div>
         <Footer
          chartType={this.chartType}
@@ -367,7 +405,6 @@ const Trends = translate()(class Trends extends PureComponent {
          onClickGroup={this.toggleGrouping}
          onClickLines={this.toggleLines}
          onClickRefresh={this.props.onClickRefresh}
-         onClickBgDataToggle={this.toggleBgDataSource}
          boxOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}
          grouped={this.props.chartPrefs.trends.smbgGrouped}
          showingLines={this.props.chartPrefs.trends.smbgLines}
@@ -376,6 +413,7 @@ const Trends = translate()(class Trends extends PureComponent {
          displayFlags={this.props.trendsState[currentPatientInViewId].cbgFlags}
          currentPatientInViewId={currentPatientInViewId}
          ref="footer" />
+         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );
   }
@@ -397,7 +435,7 @@ const Trends = translate()(class Trends extends PureComponent {
         onClickMostRecent={this.handleClickMostRecent}
         onClickNext={this.handleClickForward}
         onClickOneDay={this.handleClickDaily}
-        onClickTwoWeeks={this.handleClickWeekly}
+        onClickBgLog={this.handleClickBgLog}
         onClickSettings={this.handleClickSettings}
       ref="header" />
     );
@@ -448,7 +486,8 @@ const Trends = translate()(class Trends extends PureComponent {
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDate={this.handleSelectDate}
         onSwitchBgDataSource={this.toggleBgDataSource}
-      ref="chart" />
+        ref="chart"
+      />
     );
   }
 

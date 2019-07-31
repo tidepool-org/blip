@@ -145,7 +145,7 @@ describe('personutils', () => {
   describe('isDataDonationAccount', () => {
     it('should return true if the account username or email matches the donation account format', function () {
       var account1 = { email: 'bigdata+CARBDM@tidepool.org' };
-      var account2 = { email: 'bigdata+ZZZ@tidepool.org' };
+      var account2 = { email: 'bigdata+NSF@tidepool.org' };
       var account3 = { username: 'bigdata@tidepool.org' };
 
       var result1 = personUtils.isDataDonationAccount(account1);

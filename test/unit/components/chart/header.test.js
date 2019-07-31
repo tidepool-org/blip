@@ -3,9 +3,9 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
-var _ = require('lodash');
+import _ from 'lodash';
+import React from 'react';
+import TestUtils from 'react-dom/test-utils';
 var expect = chai.expect;
 
 import Header from '../../../../app/components/chart/header'
@@ -34,7 +34,7 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickTwoWeeks: sinon.stub(),
+        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
       };
       var dailyElem = React.createElement(Header, props);
@@ -63,7 +63,7 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickTwoWeeks: sinon.stub(),
+        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
@@ -98,7 +98,7 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickTwoWeeks: sinon.stub(),
+        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
@@ -133,7 +133,7 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickTwoWeeks: sinon.stub(),
+        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
@@ -168,7 +168,7 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickTwoWeeks: sinon.stub(),
+        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
@@ -203,7 +203,7 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickTwoWeeks: sinon.stub(),
+        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
@@ -238,7 +238,7 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickTwoWeeks: sinon.stub(),
+        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
@@ -273,7 +273,7 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickTwoWeeks: sinon.stub(),
+        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
@@ -308,7 +308,7 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickTwoWeeks: sinon.stub(),
+        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
@@ -343,7 +343,7 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickTwoWeeks: sinon.stub(),
+        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
@@ -357,7 +357,7 @@ describe('Header', function () {
       expect(props.onClickOneDay.callCount).to.equal(1);
     });
 
-    it('should trigger onClickTwoWeeks when weekly button is clicked', function () {
+    it('should trigger onClickBgLog when BG Log button is clicked', function () {
       var props = {
         patient: {
           profile: {
@@ -378,18 +378,18 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickTwoWeeks: sinon.stub(),
+        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
 
-      var weekButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-weekly');
+      var bgLogButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-bgLog');
 
-      expect(props.onClickTwoWeeks.callCount).to.equal(0);
-      TestUtils.Simulate.click(weekButton);
-      expect(props.onClickTwoWeeks.callCount).to.equal(1);
+      expect(props.onClickBgLog.callCount).to.equal(0);
+      TestUtils.Simulate.click(bgLogButton);
+      expect(props.onClickBgLog.callCount).to.equal(1);
     });
 
     it('should trigger onClickSettings when settings button is clicked', function () {
@@ -413,7 +413,7 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickTwoWeeks: sinon.stub(),
+        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);

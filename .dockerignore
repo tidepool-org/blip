@@ -8,6 +8,7 @@ config/*
 !config/env.docker.sh
 deploy
 test/bin
+coverage
 tmp
 web
 *.log

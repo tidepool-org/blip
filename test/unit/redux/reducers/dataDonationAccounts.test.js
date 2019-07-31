@@ -41,7 +41,7 @@ describe('dataDonationAccounts', () => {
 
       let dataDonationAccounts = [
         { email: 'bigdata@tidepool.org', status: 'confirmed' },
-        { email: 'bigdata+ZZZ@tidepool.org', status: 'confirmed' },
+        { email: 'bigdata+NSF@tidepool.org', status: 'confirmed' },
       ];
 
       let action = actions.sync.fetchDataDonationAccountsSuccess(dataDonationAccounts);
@@ -60,8 +60,8 @@ describe('dataDonationAccounts', () => {
       let dataDonationAccounts = [
         { email: 'bigdata@tidepool.org' },
         { email: 'bigdata@tidepool.org' },
-        { email: 'bigdata+ZZZ@tidepool.org' },
-        { email: 'bigdata+ZZZ@tidepool.org' },
+        { email: 'bigdata+NSF@tidepool.org' },
+        { email: 'bigdata+NSF@tidepool.org' },
       ];
 
       let action = actions.sync.fetchDataDonationAccountsSuccess(dataDonationAccounts);
@@ -81,7 +81,7 @@ describe('dataDonationAccounts', () => {
       let pendingSentInvites = [
         { email: 'jill.jellyfish@gmail.com' },
         { email: 'bigdata@tidepool.org' },
-        { email: 'bigdata+ZZZ@tidepool.org' },
+        { email: 'bigdata+NSF@tidepool.org' },
       ];
 
       let action = actions.sync.fetchPendingSentInvitesSuccess(pendingSentInvites);
@@ -97,19 +97,19 @@ describe('dataDonationAccounts', () => {
   describe('cancelSentInviteSuccess', () => {
     it('should remove data donation account invitation from state array', () => {
       let initialStateForTest = [
-        { email: 'bigdata+ZZZ@tidepool.org', status: 'pending' },
+        { email: 'bigdata+NSF@tidepool.org', status: 'pending' },
         { email: 'bigdata@tidepool.org', status: 'pending' },
       ];
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let removedEmail = 'bigdata+ZZZ@tidepool.org';
+      let removedEmail = 'bigdata+NSF@tidepool.org';
 
       let action = actions.sync.cancelSentInviteSuccess(removedEmail);
 
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(initialStateForTest.length - 1);
-      expect(_.findWhere(state, {email: removedEmail})).to.be.undefined;
+      expect(_.find(state, {email: removedEmail})).to.be.undefined;
       expect(state[0].email).to.equal('bigdata@tidepool.org');
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
@@ -118,7 +118,7 @@ describe('dataDonationAccounts', () => {
   describe('removeMemberFromTargetCareTeamSuccess', () => {
     it('should remove data donation account invitation from state array', () => {
       let initialStateForTest = [
-        { userid: '123abc456', email: 'bigdata+ZZZ@tidepool.org', status: 'confirmed' },
+        { userid: '123abc456', email: 'bigdata+NSF@tidepool.org', status: 'confirmed' },
         { userid: '456abc123', email: 'bigdata@tidepool.org', status: 'confirmed' },
       ];
       let tracked = mutationTracker.trackObj(initialStateForTest);
@@ -130,7 +130,7 @@ describe('dataDonationAccounts', () => {
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(initialStateForTest.length - 1);
-      expect(_.findWhere(state, {id: removedMemberId})).to.be.undefined;
+      expect(_.find(state, {id: removedMemberId})).to.be.undefined;
       expect(state[0].userid).to.equal('456abc123');
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
@@ -139,7 +139,7 @@ describe('dataDonationAccounts', () => {
   describe('logoutRequest', () => {
     it('should set state to empty array', () => {
       let initialStateForTest = [
-        { email: 'bigdata+ZZZ@tidepool.org', status: 'pending' },
+        { email: 'bigdata+NSF@tidepool.org', status: 'pending' },
         { email: 'bigdata@tidepool.org', status: 'confirmed' },
       ];
       let tracked = mutationTracker.trackObj(initialStateForTest);

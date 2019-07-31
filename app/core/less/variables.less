@@ -17,49 +17,49 @@
 // ====================================
 
 @gray-darkest:           #6fc3bb; // Hover state for links, buttons, light green
-@gray-darker:            #6d6d6d; // Text on white background
+@gray-darker: #6d6d6d; // Text on white background
 @gray-dark:              #006c71; // Nav links, buttons, tabs, dark green
-@gray:                   #cccccc; // Container on gray background
+@gray: #cccccc; // Container on gray background
 @gray-light:             #6fc3bb; // Container on white background, light green
-@gray-lighter:           #f7f7f8; // Background
-@white-color:            #ffffff;
-@black-color:            #000;
+@gray-lighter: #f7f7f8; // Background
+@white-color: #ffffff;
+@black-color: #000;
 
 @purple:                 #109182; // dark green
-@purple-pale:            #dcdff9;
+@purple-pale: #dcdff9;
 @purple-dark:            #575756;
-@purple-light:           rgba(98, 124, 255, 0.2); // button disabled
+@purple-light: rgba(98, 124, 255, 0.2); // button disabled
 
-@purple-highcontrast:    @purple-dark;
+@purple-highcontrast: @purple-dark;
 @purple-success:         #6fc3bb; // light green
-@purple-blip:            #4E4490;
-@purple-uploader:        @purple-dark;
-@purple-medium:          @purple;
-@orange-alert:           #ffa70b;
-@red-error:              #de514b;
+@purple-blip:            #4e4490;
+@purple-uploader: @purple-dark;
+@purple-medium: @purple;
+@orange-alert: #ffa70b;
+@red-error: #de514b;
 
-@blue-green:             #0b9eb3;
+@blue-green: #0b9eb3;
 @blue-green-light:       #6fc3bb;
-@owned-account:          #b1eaf2;
-@owned-account-hover:    #81D7E4;
+@owned-account: #b1eaf2;
+@owned-account-hover: #81d7e4;
 
-@gray-text:              #545454;
-@gray-background:        #f2f2f2;
-@gray-title:             #808080;
-@gray-rule:              #D5D5D5;
+@gray-text: #545454;
+@gray-background: #f2f2f2;
+@gray-title: #808080;
+@gray-rule: #d5d5d5;
 
-@light-blue:             #EEF5F9; // Fill on chart buttons
+@light-blue: #eef5f9; // Fill on chart buttons
 
 // Brand Colors
-@brand-blue:             #00ebfa;
-@brand-green:            #2ce993;
-@brand-orange:           #ff5f37;
-@brand-coral:            #ff6f69;
-@brand-peach:            #ffcf9f;
+@brand-blue: #00ebfa;
+@brand-green: #2ce993;
+@brand-orange: #ff5f37;
+@brand-coral: #ff6f69;
+@brand-peach: #ffcf9f;
 
 // Modal Day
-@weekday:                #3D9998;
-@weekend:                #5DE8DE;
+@weekday: #3d9998;
+@weekend: #5de8de;
 
 @monday: @weekday;
 @tuesday: @weekday;
@@ -72,21 +72,20 @@
 // Scaffolding
 // ====================================
 
-@body-bg:                       @gray-lighter;
-@text-color:                    @gray-darker;
+@body-bg: @gray-lighter;
+@text-color: @gray-darker;
 
-@link-color:                    @blue-green;
-@link-hover-color:              @blue-green-light;
+@link-color: @blue-green;
+@link-hover-color: @blue-green-light;
 
-@link-alternative-color:        @purple-medium;
-@link-alternative-hover-color:  @purple-dark;
-
-
+@link-alternative-color: @purple-medium;
+@link-alternative-hover-color: @purple-dark;
 
 // Typography
 // ====================================
 
-@font-family-base:       "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-family-base:       "Basis", "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-family-mono:       "Basis Mono", "Andale Mono", monospace;
 @font-size-small:        14px;
 @font-size-base:         16px;
 @font-size-large:        24px;
@@ -97,43 +96,53 @@
 // Spacing
 // ====================================
 
-@spacing-large:          40px;
-@spacing-base:           20px;
-@spacing-medium:         15px;
-@spacing-small:          10px;
-@spacing-tiny:           5px;
+@spacing-large: 40px;
+@spacing-base: 20px;
+@spacing-medium: 15px;
+@spacing-small: 10px;
+@spacing-tiny: 5px;
 
 // Notification states
 // ====================================
 
-@state-success-text:             @gray-darker;
-@state-success-bg:               #fff;
-@state-success-border:           @purple-success;
+@state-success-text: @gray-darker;
+@state-success-bg: #fff;
+@state-success-border: @purple-success;
 
-@state-alert-text:               @gray-darker;
-@state-alert-bg:                 #fff;
-@state-alert-border:             @orange-alert;
+@state-alert-text: @gray-darker;
+@state-alert-bg: #fff;
+@state-alert-border: @orange-alert;
 
-@state-error-text:               @gray-darker;
-@state-error-bg:                 #fff;
-@state-error-border:             @red-error;
+@state-error-text: @gray-darker;
+@state-error-bg: #fff;
+@state-error-border: @red-error;
+
+// Patient data layout
+// ====================================
+
+@patient-data-chart-height: 500px;
+@patient-data-sidebar-bp: 980px;
+@patient-data-sidebar-width: 340px;
 
 // Media queries breakpoints
 // ====================================
 
 // Medium screen / tablet
-@screen-md-min:              480px;
+@screen-md-min: 480px;
+
+// Medium/Large screen
+@screen-md-lg-min: 780px;
 
 // Large screen / desktop
-@screen-lg-min:              1020px;
+@screen-lg-min: 1320px;
 
 // So media queries don't overlap when required, provide a maximum
-@screen-sm-max:              (@screen-md-min - 1);
-@screen-md-max:              (@screen-lg-min - 1);
+@screen-sm-max: (@screen-md-min - 1);
+@screen-md-max: (@screen-lg-min - 1);
 
 // Z-index master list
 // ====================================
 
-@zindex-notification:        1030;
-@zindex-overlay-background:  1040;
-@zindex-overlay:             1050;
+@zindex-notification: 1030;
+@zindex-overlay-background: 1040;
+@zindex-overlay: 1050;

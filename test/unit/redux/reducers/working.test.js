@@ -1562,7 +1562,7 @@ describe('working', () => {
         it('should set updatingUser to be false', () => {
           let accounts = [
             { email: 'bigdata@tidepool.org' },
-            { email: 'bigdata+ZZZ@tidepool.org' },
+            { email: 'bigdata+NSF@tidepool.org' },
           ];
 
           let initialStateForTest = _.merge({}, initialState, {
@@ -1627,7 +1627,7 @@ describe('working', () => {
               { email: 'bigdata+YYY@tidepool.org' },
             ],
             removeAccounts: [
-              { email: 'bigdata+ZZZ@tidepool.org' },
+              { email: 'bigdata+NSF@tidepool.org' },
             ],
           };
 

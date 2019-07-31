@@ -15,32 +15,35 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-var _ = require('lodash');
-var bows = require('bows');
-var React = require('react');
-var ReactDOM = require('react-dom');
-var sundial = require('sundial');
-var moment = require('moment');
+import React, { Component } from 'react';
+import _ from 'lodash';
+import bows from 'bows';
+import ReactDOM from 'react-dom';
+import sundial from 'sundial';
+import moment from 'moment';
+import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
 
+import Stats from './stats';
+import BgSourceToggle from './bgSourceToggle';
+import { BG_DATA_TYPES } from '../../core/constants';
+
 // tideline dependencies & plugins
-var tidelineBlip = require('tideline/plugins/blip');
-var chartDailyFactory = tidelineBlip.oneday;
+import tidelineBlip from 'tideline/plugins/blip';
+const chartDailyFactory = tidelineBlip.oneday;
 
-var vizComponents = require('@tidepool/viz').components;
-var Loader = vizComponents.Loader;
-var BolusTooltip = vizComponents.BolusTooltip;
-var SMBGTooltip = vizComponents.SMBGTooltip;
-var CBGTooltip = vizComponents.CBGTooltip;
+import { components as vizComponents } from '@tidepool/viz';
+const Loader = vizComponents.Loader;
+const BolusTooltip = vizComponents.BolusTooltip;
+const SMBGTooltip = vizComponents.SMBGTooltip;
+const CBGTooltip = vizComponents.CBGTooltip;
+const FoodTooltip = vizComponents.FoodTooltip;
 
-var Header = require('./header');
-var Footer = require('./footer');
+import Header from './header';
+import Footer from './footer';
 
-var DailyChart = translate()(React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs', 'onBolusHover', 'onBolusOut',
-    'onSMBGHover', 'onSMBGOut', 'onCBGHover', 'onCBGOut'],
-  log: bows('Daily Chart'),
-  propTypes: {
+const DailyChart = translate()(class DailyChart extends Component {
+  static propTypes = {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     bolusRatio: React.PropTypes.number,
@@ -62,44 +65,69 @@ var DailyChart = translate()(React.createClass({
     onSMBGOut: React.PropTypes.func.isRequired,
     onCBGHover: React.PropTypes.func.isRequired,
     onCBGOut: React.PropTypes.func.isRequired,
-  },
+    onCarbHover: React.PropTypes.func.isRequired,
+    onCarbOut: React.PropTypes.func.isRequired,
+  };
 
-  getInitialState: function() {
+  constructor(props) {
+    super(props);
+
+    this.chartOpts = [
+      'bgClasses',
+      'bgUnits',
+      'bolusRatio',
+      'dynamicCarbs',
+      'timePrefs',
+      'onBolusHover',
+      'onBolusOut',
+      'onSMBGHover',
+      'onSMBGOut',
+      'onCBGHover',
+      'onCBGOut',
+      'onCarbHover',
+      'onCarbOut',
+    ];
+
+    this.log = bows('Daily Chart');
+    this.state = this.getInitialState()
+  }
+
+  getInitialState = () => {
     return {
       datetimeLocation: null
     };
-  },
+  };
 
-  componentDidMount: function() {
+  componentDidMount = () => {
     this.mountChart();
     this.initializeChart(this.props.initialDatetimeLocation);
-  },
+  };
 
-  componentWillUnmount: function() {
+  componentWillUnmount = () => {
     this.unmountChart();
-  },
+  };
 
-  mountChart: function() {
+  mountChart = () => {
     this.log('Mounting...');
     this.chart = chartDailyFactory(ReactDOM.findDOMNode(this), _.pick(this.props, this.chartOpts))
       .setupPools();
     this.bindEvents();
-  },
+  };
 
-  unmountChart: function() {
+  unmountChart = () => {
     this.log('Unmounting...');
     this.chart.destroy();
-  },
+  };
 
-  bindEvents: function() {
+  bindEvents = () => {
     this.chart.emitter.on('createMessage', this.props.onCreateMessage);
     this.chart.emitter.on('inTransition', this.props.onTransition);
     this.chart.emitter.on('messageThread', this.props.onShowMessageThread);
     this.chart.emitter.on('mostRecent', this.props.onMostRecent);
     this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
-  },
+  };
 
-  initializeChart: function(datetime) {
+  initializeChart = datetime => {
     const { t } = this.props;
     this.log('Initializing...');
     if (_.isEmpty(this.props.patientData)) {
@@ -116,68 +144,68 @@ var DailyChart = translate()(React.createClass({
     else {
       this.chart.locate();
     }
-  },
+  };
 
-  render: function() {
+  render = () => {
     /* jshint ignore:start */
     return (
       <div id="tidelineContainer" className="patient-data-chart"></div>
       );
     /* jshint ignore:end */
-  },
+  };
 
   // handlers
-  handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
+  handleDatetimeLocationChange = datetimeLocationEndpoints => {
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1]
     });
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
-  },
+  };
 
-  rerenderChart: function() {
+  rerenderChart = () => {
     this.log('Rerendering...');
     this.unmountChart();
     this.mountChart();
     this.initializeChart();
     this.chart.emitter.emit('inTransition', false);
-  },
+  };
 
-  getCurrentDay: function() {
+  getCurrentDay = () => {
     return this.chart.getCurrentDay().toISOString();
-  },
+  };
 
-  goToMostRecent: function() {
+  goToMostRecent = () => {
     this.chart.setAtDate(null, true);
-  },
+  };
 
-  panBack: function() {
+  panBack = () => {
     this.chart.panBack();
-  },
+  };
 
-  panForward: function() {
+  panForward = () => {
     this.chart.panForward();
-  },
+  };
 
   // methods for messages
-  closeMessage: function() {
+  closeMessage = () => {
     return this.chart.closeMessage();
-  },
+  };
 
-  createMessage: function(message) {
+  createMessage = message => {
     return this.chart.createMessage(message);
-  },
+  };
 
-  editMessage: function(message) {
+  editMessage = message => {
     return this.chart.editMessage(message);
-  }
-}));
+  };
+});
 
-var Daily = translate()(React.createClass({
-  chartType: 'daily',
-  log: bows('Daily View'),
-  propTypes: {
+class Daily extends Component {
+  static propTypes = {
     bgPrefs: React.PropTypes.object.isRequired,
+    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
+    dataUtil: React.PropTypes.object,
     timePrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
@@ -193,32 +221,48 @@ var Daily = translate()(React.createClass({
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onClickPrint: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToWeekly: React.PropTypes.func.isRequired,
+    onSwitchToBgLog: React.PropTypes.func.isRequired,
     onSwitchToTrends: React.PropTypes.func.isRequired,
     // PatientData state updaters
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
+    updateChartPrefs: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-  },
+  };
 
-  getInitialState: function() {
+  constructor(props) {
+    super(props);
+
+    this.chartType = 'daily';
+    this.log = bows('Daily View');
+    this.state = this.getInitialState()
+  }
+
+  getInitialState = () => {
     this.throttledMetric = _.throttle(this.props.trackMetric, 5000);
     return {
       atMostRecent: false,
+      endpoints: [],
       inTransition: false,
       title: '',
     };
-  },
+  };
 
-  componentWillReceiveProps:function (nextProps) {
+  componentWillReceiveProps = nextProps => {
     if (this.props.loading && !nextProps.loading) {
       this.refs.chart.getWrappedInstance().rerenderChart();
     }
-  },
+  };
 
-  render: function() {
+  componentWillUnmount = () => {
+    if (this.state.debouncedDateRangeUpdate) {
+      this.state.debouncedDateRangeUpdate.cancel();
+    }
+  };
+
+  render = () => {
     return (
-      <div id="tidelineMain">
+      <div id="tidelineMain" className="daily">
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
@@ -236,7 +280,7 @@ var Daily = translate()(React.createClass({
           onClickNext={this.handlePanForward}
           onClickOneDay={this.handleClickOneDay}
           onClickSettings={this.props.onSwitchToSettings}
-          onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickBgLog={this.handleClickBgLog}
           onClickPrint={this.handleClickPrint}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
@@ -266,7 +310,28 @@ var Daily = translate()(React.createClass({
                 onSMBGOut={this.handleSMBGOut}
                 onCBGHover={this.handleCBGHover}
                 onCBGOut={this.handleCBGOut}
+                onCarbHover={this.handleCarbHover}
+                onCarbOut={this.handleCarbOut}
                 ref="chart" />
+            </div>
+          </div>
+          <div className="container-box-inner patient-data-sidebar">
+            <div className="patient-data-sidebar-inner">
+              <BgSourceToggle
+                bgSource={this.props.dataUtil.bgSource}
+                bgSources={this.props.dataUtil.bgSources}
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                onClickBgSourceToggle={this.toggleBgDataSource}
+              />
+              <Stats
+                bgPrefs={this.props.bgPrefs}
+                bgSource={this.props.dataUtil.bgSource}
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                dataUtil={this.props.dataUtil}
+                endpoints={this.state.endpoints}
+              />
             </div>
           </div>
         </div>
@@ -304,11 +369,22 @@ var Daily = translate()(React.createClass({
           timePrefs={this.props.timePrefs}
           bgPrefs={this.props.bgPrefs}
         />}
+        {this.state.hoveredCarb && <FoodTooltip
+          position={{
+            top: this.state.hoveredCarb.top,
+            left: this.state.hoveredCarb.left
+          }}
+          side={this.state.hoveredCarb.side}
+          food={this.state.hoveredCarb.data}
+          bgPrefs={this.props.bgPrefs}
+          timePrefs={this.props.timePrefs}
+        />}
+        <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
       );
-  },
+  };
 
-  getTitle: function(datetime) {
+  getTitle = datetime => {
     const { timePrefs, t } = this.props;
     let timezone;
     if (!timePrefs.timezoneAware) {
@@ -318,52 +394,76 @@ var Daily = translate()(React.createClass({
       timezone = timePrefs.timezoneName || 'UTC';
     }
     return sundial.formatInTimezone(datetime, timezone, t('ddd, MMM D, YYYY'));
-  },
+  };
 
   // handlers
-  handleClickTrends: function(e) {
+  toggleBgDataSource = (e, bgSource) => {
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
-    this.props.onSwitchToTrends(datetime);
-  },
 
-  handleClickMostRecent: function(e) {
+    const changedTo = bgSource === 'cbg' ? 'CGM' : 'BGM';
+    this.props.trackMetric(`Daily Click to ${changedTo}`);
+
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.daily.bgSource = bgSource;
+    this.props.updateChartPrefs(prefs);
+  };
+
+  handleWindowResize = () => {
+    this.refs.chart && this.refs.chart.getWrappedInstance().rerenderChart();
+  };
+
+  handleClickTrends = e => {
+    if (e) {
+      e.preventDefault();
+    }
+    const datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
+    this.props.onSwitchToTrends(datetime);
+  };
+
+  handleClickMostRecent = e => {
     if (e) {
       e.preventDefault();
     }
     this.refs.chart.getWrappedInstance().goToMostRecent();
-  },
+  };
 
-  handleClickOneDay: function(e) {
+  handleClickOneDay = e => {
     if (e) {
       e.preventDefault();
     }
     return;
-  },
+  };
 
-  handleClickPrint: function(e) {
+  handleClickPrint = e => {
     if (e) {
       e.preventDefault();
     }
 
     this.props.onClickPrint(this.props.pdf);
-  },
+  };
 
-  handleClickTwoWeeks: function(e) {
+  handleClickBgLog = e => {
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
-    this.props.onSwitchToWeekly(datetime);
-  },
+    const datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
+    this.props.onSwitchToBgLog(datetime);
+  };
 
-  handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
+  handleDatetimeLocationChange = datetimeLocationEndpoints => {
+    const endpoints = [
+      moment.utc(datetimeLocationEndpoints[0].start).toISOString(),
+      moment.utc(datetimeLocationEndpoints[0].end).toISOString(),
+    ];
+
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
-      title: this.getTitle(datetimeLocationEndpoints[1])
+      title: this.getTitle(datetimeLocationEndpoints[1]),
+      endpoints,
     });
+
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
 
     // Update the chart date range in the patientData component.
@@ -373,24 +473,21 @@ var Daily = translate()(React.createClass({
     }
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate([
-      moment.utc(datetimeLocationEndpoints[0].start).toISOString(),
-      moment.utc(datetimeLocationEndpoints[0].end).toISOString(),
-    ]);
+    debouncedDateRangeUpdate(endpoints);
 
     this.setState({ debouncedDateRangeUpdate });
-  },
+  };
 
-  handleInTransition: function(inTransition) {
+  handleInTransition = inTransition => {
     this.setState({
       inTransition: inTransition
     });
-  },
+  };
 
-  handleBolusHover: function(bolus) {
-    var rect = bolus.rect;
+  handleBolusHover = bolus => {
+    const rect = bolus.rect;
     // range here is -12 to 12
-    var hoursOffset = sundial.dateDifference(bolus.data.normalTime, this.state.datetimeLocation, 'h');
+    const hoursOffset = sundial.dateDifference(bolus.data.normalTime, this.state.datetimeLocation, 'h');
     bolus.top = rect.top + (rect.height / 2)
     if(hoursOffset > 5) {
       bolus.side = 'left';
@@ -402,18 +499,18 @@ var Daily = translate()(React.createClass({
     this.setState({
       hoveredBolus: bolus
     });
-  },
+  };
 
-  handleBolusOut: function() {
+  handleBolusOut = () => {
     this.setState({
       hoveredBolus: false
     });
-  },
+  };
 
-  handleSMBGHover: function(smbg) {
-    var rect = smbg.rect;
+  handleSMBGHover = smbg => {
+    const rect = smbg.rect;
     // range here is -12 to 12
-    var hoursOffset = sundial.dateDifference(smbg.data.normalTime, this.state.datetimeLocation, 'h');
+    const hoursOffset = sundial.dateDifference(smbg.data.normalTime, this.state.datetimeLocation, 'h');
     smbg.top = rect.top + (rect.height / 2)
     if(hoursOffset > 5) {
       smbg.side = 'left';
@@ -425,18 +522,18 @@ var Daily = translate()(React.createClass({
     this.setState({
       hoveredSMBG: smbg
     });
-  },
+  };
 
-  handleSMBGOut: function() {
+  handleSMBGOut = () => {
     this.setState({
       hoveredSMBG: false
     });
-  },
+  };
 
-  handleCBGHover: function(cbg) {
+  handleCBGHover = cbg => {
     this.throttledMetric('hovered over daily cgm tooltip');
     var rect = cbg.rect;
-    // range here is -12 to 12 
+    // range here is -12 to 12
     var hoursOffset = sundial.dateDifference(cbg.data.normalTime, this.state.datetimeLocation, 'h');
     cbg.top = rect.top + (rect.height / 2)
     if(hoursOffset > 5) {
@@ -449,46 +546,69 @@ var Daily = translate()(React.createClass({
     this.setState({
       hoveredCBG: cbg
     });
-  },
+  };
 
-  handleCBGOut: function() {
+  handleCBGOut = () => {
     this.setState({
       hoveredCBG: false
     });
-  },
+  };
 
-  handleMostRecent: function(atMostRecent) {
+  handleCarbHover = carb => {
+    var rect = carb.rect;
+    // range here is -12 to 12
+    var hoursOffset = sundial.dateDifference(carb.data.normalTime, this.state.datetimeLocation, 'h');
+    carb.top = rect.top + (rect.height / 2)
+    if(hoursOffset > 5) {
+      carb.side = 'left';
+      carb.left = rect.left;
+    } else {
+      carb.side = 'right';
+      carb.left = rect.left + rect.width;
+    }
+    this.setState({
+      hoveredCarb: carb
+    });
+  };
+
+  handleCarbOut = () => {
+    this.setState({
+      hoveredCarb: false
+    });
+  };
+
+  handleMostRecent = atMostRecent => {
     this.setState({
       atMostRecent: atMostRecent
     });
-  },
+  };
 
-  handlePanBack: function(e) {
+  handlePanBack = e => {
     if (e) {
       e.preventDefault();
     }
     this.refs.chart.getWrappedInstance().panBack();
-  },
+  };
 
-  handlePanForward: function(e) {
+  handlePanForward = e => {
     if (e) {
       e.preventDefault();
     }
     this.refs.chart.getWrappedInstance().panForward();
-  },
+  };
 
   // methods for messages
-  closeMessageThread: function() {
+  closeMessageThread = () => {
     return this.refs.chart.getWrappedInstance().closeMessage();
-  },
+  };
 
-  createMessageThread: function(message) {
+  createMessageThread = message => {
     return this.refs.chart.getWrappedInstance().createMessage(message);
-  },
+  };
 
-  editMessageThread: function(message) {
+  editMessageThread = message => {
     return this.refs.chart.getWrappedInstance().editMessage(message);
-  }
-}));
+  };
+}
 
-module.exports = Daily;
+export default translate()(Daily);

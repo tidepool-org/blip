@@ -95,7 +95,6 @@ export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 // user.logout
 export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
-// no such thing as LOGOUT_FAILURE - we destroy session no matter what!
 
 // user.signup
 export const SIGNUP_REQUEST = 'SIGNUP_REQUEST';

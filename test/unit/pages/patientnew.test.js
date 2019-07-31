@@ -8,7 +8,7 @@
 
 import _ from 'lodash';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import { mount } from 'enzyme';
 
@@ -46,8 +46,8 @@ describe('PatientNew', function () {
         <PatientNew {...props}/>
       );
       const label = wrapper.find('.input-group-label').at(2);
-      const select = wrapper.find('.Select-input > input').first();
-      const selectPlaceholder = wrapper.find('.Select-placeholder').first();
+      const select = wrapper.find('.Select__input > input').first();
+      const selectPlaceholder = wrapper.find('.Select__placeholder').first();
       expect(label.length).to.equal(1);
       expect(select.length).to.equal(1);
       expect(selectPlaceholder.length).to.equal(1);
@@ -177,10 +177,10 @@ describe('PatientNew', function () {
     });
 
     it('should call onSubmit and onUpdateDataDonationAccounts with specific values', function(){
-      wrapper.instance().getWrappedInstance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: 'JDRF,ZZZ' }));
+      wrapper.instance().getWrappedInstance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: 'JDRF,NSF' }));
       expect(props.onSubmit.callCount).to.equal(1);
       expect(props.onUpdateDataDonationAccounts.callCount).to.equal(1);
-      expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org', 'bigdata+JDRF@tidepool.org', 'bigdata+ZZZ@tidepool.org'])).to.be.true;
+      expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org', 'bigdata+JDRF@tidepool.org', 'bigdata+NSF@tidepool.org'])).to.be.true;
       expect(props.trackMetric.callCount).to.equal(3);
     });
   });

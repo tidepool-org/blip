@@ -25,7 +25,7 @@ var mockData = require('blip-mock-data');
 
 var Messages = require('../messages');
 
-var parentMessage = _.findWhere(mockData.messagenotes['11'], {id: '1141'});
+var parentMessage = _.find(mockData.messagenotes['11'], {id: '1141'});
 var mockMessages = mockData.messagethread['1141'].concat([parentMessage]);
 
 describe('Messages', function() {

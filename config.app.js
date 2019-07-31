@@ -13,15 +13,17 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+/* global __DEV__ */
+/* global __UPLOAD_API__ */
+/* global __API_HOST__ */
+/* global __INVITE_KEY__ */
+/* global __LATEST_TERMS__ */
 /* global __PASSWORD_MIN_LENGTH__ */
 /* global __PASSWORD_MAX_LENGTH__ */
 /* global __ABOUT_MAX_LENGTH__ */
 /* global __I18N_ENABLED__ */
-/* global __ALLOW_PATIENT_CHANGE_EMAIL__ */
-/* global __ALLOW_PATIENT_CHANGE_PASSWORD__ */
-/* global __HIDE_UPLOAD_LINK__ */
 
-var pkg = require('./package.json');
+const pkg = require('./package.json');
 
 function booleanFromText(value, defaultValue) {
   if (value === 'true') {
@@ -43,9 +45,7 @@ function integerFromText(value, defaultValue) {
   return value;
 }
 
-// the constants below are defined in webpack.config.js -- they're aliases for
-// environment variables.
-module.exports = {
+const config = {
   VERSION: pkg.version,
   UPLOAD_API: __UPLOAD_API__ || 'https://tidepool.org/uploader',
   API_HOST: __API_HOST__ || 'https://dev-api.tidepool.org',
@@ -64,4 +64,12 @@ module.exports = {
   HIDE_DEXCOM_BANNER: booleanFromText(__HIDE_DEXCOM_BANNER__ , false),
   HIDE_UPLOAD_LINK: booleanFromText(__HIDE_UPLOAD_LINK__, false),
   BRANDING: __BRANDING__ || 'tidepool'
-};
+}
+
+if (__DEV__) {
+  window.config = config;
+}
+
+// the constants below are defined in webpack.config.js -- they're aliases for
+// environment variables.
+module.exports = config;

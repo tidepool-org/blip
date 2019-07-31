@@ -1,0 +1,95 @@
+/**
+ * Copyright (c) 2017, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+.Export {
+  a {
+    cursor: pointer;
+  }
+  .Export-dates {
+    display: flex;
+    align-items: center;
+    padding-bottom: 5px;
+
+    input {
+      margin: 0 10px;
+      padding: 0 10px;
+      line-height: 30px;
+      width: 160px;
+      &:disabled {
+        background: #ccc;
+      }
+    }
+  }
+  .Export-filetype {
+    margin-top: 30px;
+    input {
+      margin-left: 20px;
+      margin-right: 3px;
+    }
+  }
+  .Export-button {
+    text-align: right;
+  }
+  .Export-extraOption {
+    border: solid 1px #cccccc;
+    margin-top: 25px;
+    margin-bottom: 30px;
+    padding: 5px;
+    .hidden {
+      display: none;
+    }
+    .norgie {
+      display: inline-block;
+    }
+    .norgie::after {
+      display: inline-block;
+      content: '›';
+      font-size: 15px;
+      font-weight: bold;
+      padding-left: 8px;
+      margin-right: 8px;
+      transform: rotate(0deg);
+
+      transition-duration: 0.25s;
+      transition-property: rotate, transform;
+    }
+
+    .opened::after {
+      transform: rotate(90deg) translate(-20%, -15%);
+    }
+  }
+  .Export-optionEntry {
+    input {
+      margin-right: 5px;
+    }
+    margin-left: 20px;
+    padding-top: 20px;
+    label {
+      padding: 5px 0px;
+    }
+    .Export-optionDescription {
+      font-weight: 300;
+    }
+  }
+  .Export-error {
+    padding: 10px;
+    .Export-error-title {
+      color: @red-error;
+    }
+    .Export-error-details {
+      color: @state-error-text;
+    }
+  }
+}

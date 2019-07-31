@@ -118,7 +118,7 @@ describe('utils', () => {
 
   describe('getDonationAccountCodeFromEmail', () => {
     it('should return a data donation code from an matching email', () => {
-      expect(utils.getDonationAccountCodeFromEmail('bigdata+ZZZ@tidepool.org')).to.equal('ZZZ');
+      expect(utils.getDonationAccountCodeFromEmail('bigdata+NSF@tidepool.org')).to.equal('NSF');
     });
 
     it('should return a null from a non matching email', () => {
@@ -338,6 +338,43 @@ describe('utils', () => {
     });
   });
 
+  describe('getMedtronic', () => {
+    it('should return medtronic from query property of location object', () => {
+      var location = {
+        query: {
+          medtronic: 'true'
+        }
+      };
+      expect(utils.getMedtronic(location)).to.equal('true');
+    });
+
+    it('should return empty string if empty medtronic in query property of location object', () => {
+      var location = {
+        query: {
+          medtronic: ''
+        }
+      };
+      expect(utils.getMedtronic(location)).to.equal('');
+    });
+
+    it('should return null if no location object', () => {
+      expect(utils.getMedtronic()).to.equal(null);
+    });
+
+    it('should return null if no query property of location object', () => {
+      expect(utils.getMedtronic({})).to.equal(null);
+    });
+
+    it('should return null if no medtronic in query property of location object', () => {
+      var location = {
+        query: {
+          signupEmail: 'jane@tidepool.org'
+        }
+      };
+      expect(utils.getMedtronic(location)).to.equal(null);
+    });
+  });
+
   describe('translateBg', () => {
     it('should translate a BG value to the desired target unit', () => {
       expect(utils.translateBg(180, MMOLL_UNITS)).to.equal(10);
@@ -538,6 +575,65 @@ describe('utils', () => {
         spanInDays: 19,
         count: 4,
       });
+    });
+  });
+
+  describe('getLatestPumpSettings', () => {
+    const data = [
+      {
+        type: 'upload',
+        uploadId: 'upload123',
+        time: '2018-03-01T00:00:00.000Z',
+      },
+      {
+        type: 'pumpSettings',
+        id: 'latestSettings123',
+        uploadId: 'upload123',
+        time: '2017-02-18T00:00:00.000Z',
+      },
+      {
+        type: 'cbg',
+        uploadId: 'upload123',
+        time: '2018-02-02T00:00:00.000Z',
+      },
+      {
+        type: 'pumpSettings',
+        id: 'oldSettings123',
+        uploadId: 'upload123',
+        time: '2017-01-10T00:00:00.000Z',
+      },
+    ];
+
+    it('should get the latest pump settings data in a randomly-ordered raw data set', () => {
+      expect(utils.getLatestPumpSettings(data).latestPumpSettings).to.deep.equal({
+        type: 'pumpSettings',
+        id: 'latestSettings123',
+        uploadId: 'upload123',
+        time: '2017-02-18T00:00:00.000Z',
+      });
+
+      expect(utils.getLatestPumpSettings([...data].reverse()).latestPumpSettings).to.deep.equal({
+        type: 'pumpSettings',
+        id: 'latestSettings123',
+        uploadId: 'upload123',
+        time: '2017-02-18T00:00:00.000Z',
+      });
+    });
+
+    it('should return `undefined` for `latestPumpSettings` when missing in data set', () => {
+      expect(utils.getLatestPumpSettings(_.omitBy(data, {type: 'pumpSettings'})).latestPumpSettings).to.be.undefined;
+    });
+
+    it('should return `undefined` for `uploadRecord` when pump settings are missing in data set', () => {
+      expect(utils.getLatestPumpSettings(_.omitBy(data, {type: 'pumpSettings'})).uploadRecord).to.be.undefined;
+    });
+
+    it('should return the upload record when pump settings are present and the corresponding upload is in data set', () => {
+      expect(utils.getLatestPumpSettings(data).uploadRecord).to.eql(data[0]);
+    });
+
+    it('should return `undefined` for `uploadRecord` when pump settings are present and the corresponding upload is not in data set', () => {
+      expect(utils.getLatestPumpSettings(_.omitBy(data, { type: 'upload' })).uploadRecord).to.be.undefined;
     });
   });
 });
