@@ -32,7 +32,6 @@ packageMounts/*
 .yarn-cache.tgz
 **/package.json
 **/yarn.lock
-!**/package.json.placeholder
 
 # GitBook
 _book/

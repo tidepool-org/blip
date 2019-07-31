@@ -23,33 +23,30 @@ ENV \
 ### Stage 2 - Create cached `node_modules`
 # Only rebuild layer if `package.json` has changed
 FROM base as dependencies
-# USER node
 COPY package.json .
 COPY yarn.lock .
 COPY packageMountDeps/tideline/ /app/packageMounts/tideline/
 COPY packageMountDeps/tidepool-platform-client/ /app/packageMounts/tidepool-platform-client/
 COPY packageMountDeps/@tidepool/viz/ /app/packageMounts/@tidepool/viz/
-ADD packageMountDeps/.yarn-cache.* /
 RUN \
-  mkdir -p /home/node/.cache/yarn && yarn config set cache-folder /home/node/.cache/yarn \
   # Build and separate all dependancies required for production
-  && yarn install --production && cp -R node_modules production_node_modules \
+  yarn install --production && cp -R node_modules production_node_modules \
   # Build all modules, including `devDependancies`
   && yarn install \
   # Build all modules for mounted packages (used when npm linking in development containers)
   && if [ -f /app/packageMounts/tideline/package.json ]; then cd /app/packageMounts/tideline && yarn install; fi \
   && if [ -f /app/packageMounts/tidepool-platform-client/package.json ]; then cd /app/packageMounts/tidepool-platform-client && yarn install; fi \
-  && if [ -f /app/packageMounts/@tidepool/viz/package.json ]; then cd /app/packageMounts/@tidepool/viz && yarn install; fi
+  && if [ -f /app/packageMounts/@tidepool/viz/package.json ]; then cd /app/packageMounts/@tidepool/viz && yarn install; fi \
+  && yarn cache clean
 
 
 ### Stage 3 - Development root with Chromium installed for unit tests
 FROM developBase as development
+ENV NODE_ENV=development
 WORKDIR /app
 # Copy all `node_modules`
 COPY --chown=node:node --from=dependencies /app/node_modules ./node_modules
 COPY --chown=node:node --from=dependencies /app/packageMounts ./packageMounts
-# Copy yarn cache
-COPY --chown=node:node --from=dependencies /home/node/.cache/yarn /home/node/.cache/yarn
 # Copy source files
 COPY --chown=node:node . .
 # Link any packages as needed
