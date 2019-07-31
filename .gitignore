@@ -28,10 +28,7 @@ web/
 artifact_node.sh
 coverage/
 packageMounts/*
-!packageMounts/README.txt
-.yarn-cache.tgz
-**/package.json
-**/yarn.lock
+!packageMounts/stub
 
 # GitBook
 _book/
