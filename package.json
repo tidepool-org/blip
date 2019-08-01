@@ -87,7 +87,6 @@
     "moment": "2.22.2",
     "ms": "2.1.1",
     "nightwatch": "0.9.21",
-    "nodemon": "^1.19.1",
     "object-invariant-test-helper": "0.1.1",
     "optimize-css-assets-webpack-plugin": "5.0.1",
     "optional": "0.1.4",

@@ -91,7 +91,7 @@ RUN npm run build
 
 
 ### Stage 7 - Serve production-ready release
-FROM buildBase as serve
+FROM buildBase as production
 USER node
 # Copy only `node_modules` and files needed to run the server
 COPY --from=dependencies /app/production_node_modules ./node_modules
