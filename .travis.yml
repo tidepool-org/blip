@@ -1,6 +1,12 @@
 language: node_js
 node_js:
-  - 6.10.2
+  - 10.15.3
   - node
+
+cache: npm
+
+install:
+  - npm install
+
 script:
-- npm test
+  - npm test
