@@ -56,7 +56,7 @@ CMD ["npm", "start"]
 
 
 ### Stage 4 - Linting and unit testing
-FROM develop as test
+FROM development as test
 ENV NODE_ENV=test
 USER node
 CMD ["npm", "test"]
