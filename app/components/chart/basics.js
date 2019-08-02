@@ -4,6 +4,7 @@ import bows from 'bows';
 import moment from 'moment';
 import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
+import ClipboardButton from 'react-clipboard.js';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -19,6 +20,7 @@ import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import Footer from './footer';
 import { BG_DATA_TYPES } from '../../core/constants';
+import basicsText from './basicsText';
 
 class Basics extends Component {
   static propTypes = {
@@ -122,6 +124,17 @@ class Basics extends Component {
                 />
               </div>
             </div>
+            <ClipboardButton
+              className='copyButton'
+              button-title={'For email or notes'}
+              data-clipboard-target="#copyBasicsText"
+              onSuccess = {this.copyBasicsClicked}
+            >
+            <p>{'Copy as text'}</p>
+            </ClipboardButton>
+            <pre className='copyText' id="copyBasicsText">
+                {basicsText(this.props.patient, this.props.patientData, this.props.dataUtil, this.props.chartPrefs)}
+            </pre>
           </div>
         </div>
         <Footer
@@ -271,6 +284,10 @@ class Basics extends Component {
 
   handleSelectDay = (date, title) => {
     this.props.onSwitchToDaily(date, title);
+  };
+
+  copyBasicsClicked = () => {
+    this.props.trackMetric('Clicked Basics Settings');
   };
 };
 
