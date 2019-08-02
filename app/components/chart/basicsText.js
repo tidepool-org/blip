@@ -14,7 +14,7 @@ function getCountAndPercent (n) {
 }
 
 function titleSection (patient) {
-  let fullname = patient.profile.fullName
+  let fullname = _.get(patient, 'profile.fullName')
   let bday = 'Date of birth: ' + formatDate(patient.profile.patient.birthday)
   let diagnosis = 'Date of diagnosis: ' + formatDate(patient.profile.patient.diagnosisDate)
   let currentDate = 'Exported from Tidepool: ' + formatDate(new Date())
