@@ -113,7 +113,7 @@ function basalEvents (patientData, dataUtil) {
 }
 
 export default function basicsText (patient, patientData, dataUtil, chartPrefs) {
-  let title = titleSection(patient)
+  let title = titleSection(_.get(patient))
 
   let startDate = formatDate(_.get(patientData, 'basicsData.dateRange[0]'))
   let endDate = formatDate(_.get(patientData, 'basicsData.dateRange[1]'))
