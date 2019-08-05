@@ -1,24 +1,20 @@
 .SummaryGroup-container {
-  padding: 0px 0px 5px;
-  margin: 0px 5px 10px;
-  width: 624px;
+  padding: 0;
+  margin: 0 0 1em;
   font-size: 12px;
   line-height: 21px;
   display: flex;
   justify-content: flex-start;
+  align-items: flex-end;
 
   .SummaryGroup-info, .SummaryGroup-info-primary {
-    align-self: flex-end;
-    width: 160px;
     flex-grow: 1;
     padding-top: 5px;
     cursor: pointer;
-    height: 32px;
     background-color: @day-color;
 
     .SummaryGroup-option-label {
-      float: left;
-      padding-left: 15px;
+      display: block;
 
       &::first-letter {
         text-transform: capitalize;
@@ -26,9 +22,7 @@
     }
 
     .SummaryGroup-option-count {
-      float: right;
-      text-align: right;
-      padding-right: 15px;
+      display: block;
       font-weight: bold;
     }
 
@@ -61,60 +55,54 @@
 
     &.SummaryGroup-info-tall {
       padding-top: 20px;
-      height: 67px;
     }
   }
 
   .SummaryGroup-info-others {
-    height: 70px;
-    width: 489px;
+    flex: 1 1 80%;
     display: flex;
+    width: 100%;
     flex-flow: row wrap;
   }
 
   .SummaryGroup-row {
     display: flex;
-    justify-content: space-around;
-    flex-flow: row wrap;
-    flex-grow: 1;
-    padding-top: 3px;
+    margin: 3px 0 0;
+    width: 100%;
 
     .SummaryGroup-info {
       margin-right: 3px;
+      flex-grow: 1;
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 15px;
+      width: 100%;
+
+      &:last-child {
+        margin: 0;
+      }
     }
   }
 
   .SummaryGroup-info-primary {
-    width: 132px;
-    height: 67px;
-    padding-top: 12px;
+    flex: 1 1 20%;
     font-size: 14px;
     text-align: center;
     margin-right: 3px;
+    justify-content: space-evenly;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    height: 67px;
 
     &.SummaryGroup-info-primary--average {
       padding-top: 3px;
     }
 
-    .SummaryGroup-option-count, .SummaryGroup-option-label {
-      display: block;
-      padding: 0;
-      width: 100%;
-      text-align: center;
-      float: none;
-    }
-
-    .SummaryGroup-option-label {
-      padding-bottom: 3px;
-    }
-
-    .SummaryGroup-option-count {
-      font-size: 18px;
-      line-height: 16px;
-    }
-
     .SummaryGroup-option-total {
       font-size: 11px;
+      display: block;
+
       span {
         padding-right: 5px;
       }

@@ -31,6 +31,7 @@ var DashboardSection = React.createClass({
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
+    chartWidth: React.PropTypes.number.isRequired,
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
     name: React.PropTypes.string.isRequired,
@@ -57,6 +58,7 @@ var DashboardSection = React.createClass({
             bgClasses={this.props.bgClasses}
             bgUnits={this.props.bgUnits}
             chart={section.chart}
+            chartWidth={this.props.chartWidth}
             data={this.props.data}
             days={this.props.days}
             hasHover={section.hasHover}

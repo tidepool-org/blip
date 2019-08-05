@@ -1,0 +1,16 @@
+// Media queries breakpoints
+// ====================================
+
+// Medium screen / tablet
+@screen-md-min: 480px;
+
+// Medium/Large screen
+@screen-md-lg-min: 780px;
+
+// Large screen / desktop
+@screen-lg-min: 1320px;
+
+// So media queries don't overlap when required, provide a maximum
+@screen-sm-max: (@screen-md-min - 1);
+@screen-md-max: (@screen-md-lg-min - 1);
+@screen-md-lg-max: (@screen-lg-min - 1);

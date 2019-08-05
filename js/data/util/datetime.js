@@ -180,7 +180,7 @@ var datetime = {
   },
 
   getOffset: function(d, timezoneName) {
-    return moment.tz.zone(timezoneName).offset(Date.parse(d));
+    return moment.tz.zone(timezoneName).utcOffset(Date.parse(d));
   },
 
   getNumDays: function(s, e) {

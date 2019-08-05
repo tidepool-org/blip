@@ -32,7 +32,7 @@ module.exports = function(emitter, timePrefs) {
 
   // basic attributes
   var id,
-    minWidth = 400, minHeight = 400,
+    minWidth = 300, minHeight = 400,
     width = minWidth, height = minHeight,
     nav = {
       axisHeight: 60,
@@ -741,7 +741,7 @@ module.exports = function(emitter, timePrefs) {
       last = new Date(dt.applyOffset(last, lastDatum.displayOffset));
     }
 
-    days = _.uniq(_.pluck(_.where(data, {type: 'fill'}), 'fillDate'));
+    days = _.uniq(_.map(_.filter(data, {type: 'fill'}), 'fillDate'));
     dataStartNoon = new Date(days[0]);
     dataStartNoon.setUTCHours(12);
     dataStartNoon.setUTCMinutes(0);

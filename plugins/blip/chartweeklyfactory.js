@@ -144,32 +144,6 @@ function chartWeeklyFactory(el, options) {
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);
     });
 
-    var latestPumpUpload = getLatestPumpUpload(tidelineData.grouped.upload);
-
-    chart.poolStats.addPlotType('stats', tideline.plot.stats.widget(chart.poolStats, {
-      classes: chart.options.bgClasses,
-      bgUnits: chart.options.bgUnits,
-      cbg: cbgUtil,
-      smbg: smbgUtil,
-      bolus: bolusUtil,
-      basal: basalUtil,
-      xPosition: 0,
-      yPosition: chart.poolStats.height() / 10,
-      emitter: emitter,
-      averageLabel: t('These two weeks'),
-      manufacturer: _.get(latestPumpUpload, 'source'),
-      activeBasalRatio: isAutomatedBasalDevice(latestPumpUpload) ? 'timeInAuto' : 'basalBolus',
-      puddleWeights : {
-        ratio: 1.1,
-        range: 1.2,
-        average: 1.0
-      }
-    }), false, false);
-
-    chart.poolStats.render(chart.poolGroup());
-
-    chart.annotations().addGroup(chart.svg().select('#' + chart.poolStats.id()), 'stats');
-
     chart.navString();
 
     return chart;

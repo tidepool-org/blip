@@ -38,91 +38,12 @@ describe('BasalUtil', function() {
     expect(bu).to.exist;
   });
 
-  describe('totalBasal', function() {
-    it('should be a function', function() {
-      assert.isFunction(bu.totalBasal);
-    });
-
-    it('should return total of NaN when given invalid date range', function() {
-      var res = bu.totalBasal('', '').total;
-      expect(isNaN(res)).to.be.true;
-    });
-
-    it('should return total of NaN when passed a valid but not long enough date range', function() {
-      var d = new Date().toISOString();
-      var later = dt.addDuration(d, 10);
-      var res = bu.totalBasal(d, later).total;
-      expect(isNaN(res)).to.be.true;
-    });
-
-    it('should return a total of 24.0 on basal of rate 1.0 u/hr for 24 hours', function() {
-      var data = patterns.basal.constant();
-      var constant = new BasalUtil(data);
-      var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
-      expect(constant.totalBasal(start, end).total).to.equal(24.0);
-    });
-
-    it('should return a total of 24.0 on basal of rate 0.5 u/hr for 48 hours', function() {
-      var data = patterns.basal.constant({days: 2, rate: 0.5, start: '2013-02-28T00:00:00'});
-      var constant = new BasalUtil(data);
-      var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY*2);
-      expect(constant.totalBasal(start, end, {
-        midnightToMidnight: true,
-        exclusionThreshold: 2
-      }).total).to.equal(24.0);
-    });
-
-    it('should return the same as subtotal on a 14-day span of data', function() {
-      var data = patterns.basal.constant({days: 14, rate: 0.75, start: '2013-05-01T00:00:00'});
-      var constant = new BasalUtil(data);
-      var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY*14);
-      expect(constant.totalBasal(start, end, {
-        midnightToMidnight: true,
-        exclusionThreshold: 7
-      }).total).to.equal(constant.subtotal(constant.getContinuousEndpoints(start, end)));
-    });
-
-    it('should return the same as subtotal on a 14-day span of data when not given midnight-to-midnight domain', function() {
-      var data = patterns.basal.constant({days: 14, rate: 0.75});
-      var constant = new BasalUtil(data);
-      var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY*14);
-      expect(constant.totalBasal(start, end, {
-        exclusionThreshold: 7
-      }).total).to.equal(constant.subtotal(constant.getContinuousEndpoints(start, end)));
-    });
-
-    it('should have an excluded of length 8 when span of 7 days of data removed', function() {
-      var data = patterns.basal.constant({days: 14});
-      var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY*14);
-      var toRemove = 7;
-      data.splice(1, (toRemove * 4));
-      var constant = new BasalUtil(data);
-      var res = constant.totalBasal(start, end, {
-        exclusionThreshold: 7
-      });
-      expect(res.excluded.length).to.equal(8);
-    });
-
-    it('should return total of NaN when a further day removed', function() {
-      var data = patterns.basal.constant({days: 14});
-      var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY*14);
-      var toRemove = 8;
-      data.splice(1, (toRemove * 4));
-      var constant = new BasalUtil(data);
-      var res = constant.totalBasal(start, end, {
-        exclusionThreshold: 7
-      });
-      expect(res.excluded.length).to.equal(9);
-      expect(isNaN(res.total)).to.be.true;
-    });
-  });
-
   describe('subtotal', function() {
     it('should be a function', function() {
       assert.isFunction(bu.subtotal);
     });
 
-    it('should return 4.5 on basal of rate 0.75 u/hr from 6am to 12pm', function() {
+    it('should return 4.5 on basal of rate 0.75 U/hr from 6am to 12pm', function() {
       var endpoints = {
         start: {
           datetime: '2014-02-12T06:00:00.000Z',
@@ -335,64 +256,6 @@ describe('BasalUtil', function() {
       };
       var bu = new BasalUtil(data);
       expect(bu.getEndpoints(now.toISOString(), new Date(now.valueOf() + MS_IN_DAY).toISOString())).to.eql(expected);
-    });
-  });
-
-  describe('getGroupDurations', function() {
-    it('should return an object with `automated` and `manual` keys', function() {
-      var data = patterns.basal.constant();
-      var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
-      var bu = new BasalUtil(data);
-      expect(_.keysIn(bu.getGroupDurations(start, end))).to.eql(['automated', 'manual']);
-    });
-
-    it('should return durations for `automated` and `manual` basal delivery', function() {
-      var halfAutomatedData = patterns.basal.constant().map(function(d, i) {
-        d.deliveryType = (i%2 === 0) ? 'automated' : 'scheduled';
-        return d;
-      });
-      var start = halfAutomatedData[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
-      var bu = new BasalUtil(halfAutomatedData);
-      var result = bu.getGroupDurations(start, end);
-      expect(result.automated).to.equal(result.manual);
-      expect(result.automated + result.manual).to.equal(MS_IN_DAY);
-    });
-
-    it('should set `automated` and `manual` values to `NaN` if the sum of them is 0', function() {
-      var zeroDurationData = _.map(patterns.basal.constant(), function (d) {
-        d.duration = 0;
-        return d;
-      });
-      var start = zeroDurationData[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
-      var bu = new BasalUtil(zeroDurationData);
-      var expected = {
-        automated: NaN,
-        manual: NaN,
-      };
-      expect(bu.getGroupDurations(start, end)).to.eql(expected);
-    });
-
-    it('should handle partial durations for `automated` and `manual` basals that fall partially outside the start of range', function() {
-      var data = patterns.basal.constant();
-      var firstDatum = data[0];
-      firstDatum.deliveryType = 'automated';
-      var start = dt.addDuration(firstDatum.normalTime, MS_IN_HOUR), end = dt.addDuration(start, MS_IN_DAY);
-      var bu = new BasalUtil(data);
-      var result = bu.getGroupDurations(start, end);
-      expect(result.automated).to.equal(firstDatum.duration - MS_IN_HOUR);
-      expect(result.automated + result.manual).to.equal(MS_IN_DAY - MS_IN_HOUR);
-    });
-
-    it('should handle partial durations for `automated` and `manual` basals that fall partially outside the end of range', function() {
-      var data = patterns.basal.constant();
-      var firstDatum = data[0];
-      var lastDatum = data[data.length - 1];
-      lastDatum.deliveryType = 'automated';
-      var start = dt.addDuration(firstDatum.normalTime, -MS_IN_HOUR), end = dt.addDuration(start, MS_IN_DAY);
-      var bu = new BasalUtil(data);
-      var result = bu.getGroupDurations(start, end);
-      expect(result.automated).to.equal(lastDatum.duration - MS_IN_HOUR);
-      expect(result.automated + result.manual).to.equal(MS_IN_DAY - MS_IN_HOUR);
     });
   });
 

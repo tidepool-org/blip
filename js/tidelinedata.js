@@ -181,10 +181,10 @@ function TidelineData(data, opts) {
   };
 
   this.deduplicateDataArrays = function() {
-    this.data = _.uniq(this.data, 'id');
-    this.diabetesData = _.uniq(this.diabetesData, 'id');
+    this.data = _.uniqBy(this.data, 'id');
+    this.diabetesData = _.uniqBy(this.diabetesData, 'id');
     _.each(this.grouped, (val, key) => {
-      this.grouped[key] = _.uniq(val, 'id');
+      this.grouped[key] = _.uniqBy(val, 'id');
     });
     return this;
   };
@@ -519,9 +519,9 @@ function TidelineData(data, opts) {
   endTimer('sort groupings');
 
   startTimer('diabetesData');
-  this.diabetesData = _.sortBy(_.flatten([].concat(_.map(opts.diabetesDataTypes, function(type) {
+  this.diabetesData = _.sortBy(_.flatten([].concat(_.map(opts.diabetesDataTypes, _.bind(function(type) {
     return this.grouped[type] || [];
-  }, this))), function(d) {
+  }, this)))), function(d) {
     return d.normalTime;
   });
   endTimer('diabetesData');

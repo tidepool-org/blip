@@ -214,7 +214,7 @@ module.exports = function() {
           }
           if (errors.length > (alts.length - 1)) {
             error('failed all schemas %j',
-              _.pluck(errors, 'message'),
+              _.map(errors, 'message'),
               typeof e === 'object' ? JSON.stringify(e) : e);
           }
         });

@@ -9,6 +9,7 @@ var ADay = React.createClass({
     dayAbbrevMask: React.PropTypes.string.isRequired,
     monthAbbrevMask: React.PropTypes.string.isRequired,
     chart: React.PropTypes.func.isRequired,
+    chartWidth: React.PropTypes.number.isRequired,
     data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired,
     future: React.PropTypes.bool.isRequired,
@@ -31,7 +32,7 @@ var ADay = React.createClass({
    * @return {boolean}
    */
   shouldComponentUpdate: function(nextProps, nextState) {
-    if (nextProps.subtotalType !== this.props.subtotalType) {
+    if (nextProps.subtotalType !== this.props.subtotalType || nextProps.chartWidth !== this.props.chartWidth) {
       return true;
     }
     return false;
@@ -86,16 +87,13 @@ var ADay = React.createClass({
       );
     }
 
-    var mask = (date.date() === 1 || this.props.isFirst) ?
-      this.props.firstDayAbbrevMask :
-      this.props.dayAbbrevMask;
-
     var chart;
     if (!isDisabled) {
       chart = this.props.chart({
+        chartWidth: this.props.chartWidth,
         data: this.props.data,
         date: this.props.date,
-        subtotalType: this.props.subtotalType
+        subtotalType: this.props.subtotalType,
       });
     }
 

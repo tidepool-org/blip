@@ -71,8 +71,8 @@ var shapes = {
       var usedTransform = used.attr('transform').split(' ');
       selection.append('text')
         .attr({
-          x: boundingBox.width/2 - (_.contains(usedTransform, 'scale(-1,1)') ? boundingBox.width : 0),
-          y: -boundingBox.height/2 + (_.contains(usedTransform, 'scale(1,-1)') ? boundingBox.height : 0),
+          x: boundingBox.width/2 - (_.includes(usedTransform, 'scale(-1,1)') ? boundingBox.width : 0),
+          y: -boundingBox.height/2 + (_.includes(usedTransform, 'scale(1,-1)') ? boundingBox.height : 0),
           'class': 'd3-tooltip-text'
         })
         .text(opts.datum.tooltipText ? opts.datum.tooltipText : opts.datum.value);
