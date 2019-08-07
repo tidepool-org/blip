@@ -2,12 +2,14 @@
 /* global sinon */
 /* global describe */
 /* global it */
+/* global before */
 
 import {
   requiresChrome,
   requireAuth,
   requireAuthAndNoPatient,
   requireNoAuth,
+  requireNoAuthAndPatientSignupAllowed,
   requireNotVerified,
   onUploaderPasswordReset,
   hashToUrl,
@@ -1013,5 +1015,85 @@ describe('routes', () => {
 
       expect(replace.withArgs('/login').callCount).to.equal(1);
     })
+  });
+
+  describe('requireNoAuthAndAllowedPatientSignup', () => {
+    describe('Configuration allowing signup of patient', () => {
+
+      before(() => {
+        config.ALLOW_SIGNUP_PATIENT = true;
+      });
+
+      it('should update route to /patients if user is authenticated', () => {
+        let api = {
+          user: {
+            isAuthenticated: sinon.stub().returns(true)
+          }
+        };
+
+        let replace = sinon.stub();
+
+        expect(replace.callCount).to.equal(0);
+
+        requireNoAuthAndPatientSignupAllowed(api)(null, replace);
+
+        expect(replace.withArgs('/patients').callCount).to.equal(1);
+      });
+
+      it('should not update route if user is not authenticated', () => {
+        let api = {
+          user: {
+            isAuthenticated: sinon.stub().returns(false)
+          }
+        };
+
+        let replace = sinon.stub();
+
+        expect(replace.callCount).to.equal(0);
+
+        requireNoAuthAndPatientSignupAllowed(api)(null, replace);
+
+        expect(replace.callCount).to.equal(0);
+      });
+    });
+
+    describe('Configuration NOT allowing signup of patient (only clinician)', () => {
+
+      before(() => {
+        config.ALLOW_SIGNUP_PATIENT = false;
+      });
+
+      it('should update route to /patients if user is authenticated', () => {
+        let api = {
+          user: {
+            isAuthenticated: sinon.stub().returns(true)
+          }
+        };
+
+        let replace = sinon.stub();
+
+        expect(replace.callCount).to.equal(0);
+
+        requireNoAuthAndPatientSignupAllowed(api)(null, replace);
+
+        expect(replace.withArgs('/patients').callCount).to.equal(1);
+      });
+
+      it('should update route to /signup if user is not authenticated', () => {
+        let api = {
+          user: {
+            isAuthenticated: sinon.stub().returns(false)
+          }
+        };
+
+        let replace = sinon.stub();
+
+        expect(replace.callCount).to.equal(0);
+
+        requireNoAuthAndPatientSignupAllowed(api)(null, replace);
+
+        expect(replace.withArgs('/signup').callCount).to.equal(1);
+      });
+    });
   });
 });

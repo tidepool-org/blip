@@ -21,6 +21,7 @@ import VerificationWithPassword from './pages/verificationwithpassword';
 
 import utils from './core/utils';
 import personUtils from './core/personutils';
+import config from './config';
 
 /**
  * This function checks if the user is using chrome - if they are not it will redirect
@@ -134,6 +135,27 @@ export const ensureNoAuth = (api) => (nextState, replace, cb) => {
 export const requireNoAuth = (api) => (nextState, replace, cb) => {
   if (api.user.isAuthenticated()) {
     replace('/patients');
+  }
+
+  if (!!cb) {
+    cb();
+  }
+};
+
+/**
+ * This function redirects any requests that land on pages that should only be
+ * visible when logged out (if the user is logged in) and allowed as per a boolean
+ *
+ * @param  {Object} nextState
+ * @param  {Function} replace
+ */
+export const requireNoAuthAndPatientSignupAllowed = (api) => (nextState, replace, cb) => {
+  if (api.user.isAuthenticated()) {
+    // If user is authenticated, there is no way he can go to signup
+    replace('/patients');
+  } else if (!config.ALLOW_SIGNUP_PATIENT) {
+    // if user is not authenticated, he needs to be allowed to create personal account per the configuration
+    replace('/signup');
   }
 
   if (!!cb) {
@@ -287,7 +309,7 @@ export const getRoutes = (appContext, store) => {
       <Route path='login' component={Login} onEnter={requireNoAuth(api)} />
       <Route path='terms' components={Terms} />
       <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />
-      <Route path='signup/personal' component={Signup} onEnter={requireNoAuth(api)} />
+      <Route path='signup/personal' component={Signup} onEnter={requireNoAuthAndPatientSignupAllowed(api)} />
       <Route path='signup/clinician' component={Signup} onEnter={requireNoAuth(api)} />
       <Route path='clinician-details' component={ClinicianDetails} onEnter={requireAuth(api, store)} />
       <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api, store)} />
