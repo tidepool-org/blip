@@ -167,7 +167,7 @@ const entry = isDev
 const output = {
   filename: 'bundle.js',
   path: path.join(__dirname, '/dist'),
-  publicPath: isDev ? 'http://localhost:3000/' : '/',
+  publicPath: isDev ? process.env.WEBPACK_PUBLIC_PATH || 'http://localhost:3000/' : '/',
   globalObject: `(typeof self !== 'undefined' ? self : this)`, // eslint-disable-line quotes
 };
 
