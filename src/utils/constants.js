@@ -74,6 +74,7 @@ export const INSULET = 'Insulet';
 export const TANDEM = 'Tandem';
 export const ANIMAS = 'Animas';
 export const MEDTRONIC = 'Medtronic';
+export const DIABELOOP = 'Diabeloop';
 
 export const pumpVocabulary = {
   [ANIMAS]: {

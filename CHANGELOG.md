@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data 
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## unreleased
+### Added
+- [PT-509] Display reservoir changes in Print view (PDF) for Diabeloop devices.
+
 ## 0.3.1 - 2019-07-30
 ### Fixed
 - Fix "Uncaught TypeError: Cannot read property 'returnEmptyString' of undefined". PRoblem discovered during
