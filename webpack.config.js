@@ -153,10 +153,12 @@ if (isDev) {
   plugins.push(new webpack.HotModuleReplacementPlugin());
 }
 
+const devPublicPath = process.env.WEBPACK_PUBLIC_PATH || 'http://localhost:3000/';
+
 const entry = isDev
   ? [
     '@babel/polyfill',
-    'webpack-dev-server/client?http://localhost:3000',
+    'webpack-dev-server/client?' + devPublicPath,
     'webpack/hot/only-dev-server',
     './app/main.js',
   ] : [
@@ -167,7 +169,7 @@ const entry = isDev
 const output = {
   filename: 'bundle.js',
   path: path.join(__dirname, '/dist'),
-  publicPath: isDev ? process.env.WEBPACK_PUBLIC_PATH || 'http://localhost:3000/' : '/',
+  publicPath: isDev ? devPublicPath : '/',
   globalObject: `(typeof self !== 'undefined' ? self : this)`, // eslint-disable-line quotes
 };
 
