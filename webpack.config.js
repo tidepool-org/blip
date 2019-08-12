@@ -55,9 +55,9 @@ const babelLoaderConfiguration = [
     },
     use: {
       loader: 'babel-loader',
-      options: {
-        cacheDirectory: true,
-      },
+      // options: {
+      //   cacheDirectory: true,
+      // },
     },
   },
 ];
@@ -174,7 +174,6 @@ const output = {
 };
 
 const resolve = {
-  symlinks: false,
   modules: [
     path.join(__dirname, 'node_modules'),
     'node_modules',
@@ -188,8 +187,10 @@ module.exports = {
     hot: isDev,
     // clientLogLevel: 'warning',
     clientLogLevel: 'info',
+    writeToDisk: true,
   },
-  devtool: process.env.WEBPACK_DEVTOOL || 'eval-source-map',
+  // devtool: process.env.WEBPACK_DEVTOOL || 'eval-source-map',
+  devtool: process.env.WEBPACK_DEVTOOL || false,
   entry,
   mode: isDev ? 'development' : 'production',
   module: {
@@ -232,4 +233,11 @@ module.exports = {
   plugins,
   resolve,
   resolveLoader: resolve,
+  cache: isDev,
+  watchOptions: {
+    ignored: [
+      /node_modules([\\]+|\/)+(?!(tideline|tidepool-platform-client|@tidepool\/viz))/,
+      /(tideline|tidepool-platform-client|@tidepool\/viz)([\\]+|\/)node_modules/
+    ]
+  },
 };
