@@ -217,6 +217,11 @@ describe('constants', () => {
           [constants.SITE_CHANGE_TUBING]: 'Fill Tubing',
           [constants.SITE_CHANGE_CANNULA]: 'Fill Cannula',
         },
+        [constants.DIABELOOP]: {
+          [constants.SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
+          [constants.AUTOMATED_DELIVERY]: 'Loop mode',
+          [constants.SCHEDULED_DELIVERY]: 'Loop mode off',
+        },
         default: {
           [constants.SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
           [constants.SITE_CHANGE_TUBING]: 'Fill Tubing',

@@ -8,6 +8,8 @@ This node package is a dependency of Blip and was forked from tidepool/viz.
 ## 0.4.0 - 2019-08-07
 ### Added
 - [PT-509] Display reservoir changes in Print view (PDF) for Diabeloop devices.
+- Add Diabeloop Profile
+- [PT-554] Start effort to make labels translatable in all languages.
 
 ## 0.3.1 - 2019-07-30
 ### Fixed

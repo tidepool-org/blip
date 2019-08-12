@@ -99,6 +99,11 @@ export const pumpVocabulary = {
     [SITE_CHANGE_TUBING]: t('Fill Tubing'),
     [SITE_CHANGE_CANNULA]: t('Fill Cannula'),
   },
+  [DIABELOOP]: {
+    [SITE_CHANGE_RESERVOIR]: t('Change Cartridge'),
+    [AUTOMATED_DELIVERY]: t('Loop mode'),
+    [SCHEDULED_DELIVERY]: t('Loop mode off'),
+  },
   default: {
     [SITE_CHANGE_RESERVOIR]: t('Change Cartridge'),
     [SITE_CHANGE_TUBING]: t('Fill Tubing'),
