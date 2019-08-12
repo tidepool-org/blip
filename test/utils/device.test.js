@@ -19,7 +19,7 @@
 
 import _ from 'lodash';
 
-import { ANIMAS, TANDEM, INSULET, MEDTRONIC, pumpVocabulary } from '../../src/utils/constants';
+import { ANIMAS, TANDEM, INSULET, MEDTRONIC, DIABELOOP, pumpVocabulary } from '../../src/utils/constants';
 
 import * as device from '../../src/utils/device';
 
@@ -63,6 +63,10 @@ describe('device utility functions', () => {
   describe('isAutomatedBasalDevice', () => {
     it('should return `true` for an upload record for a pump with automated basal delivery capabilities', () => {
       expect(device.isAutomatedBasalDevice(MEDTRONIC, '1780')).to.be.true;
+    });
+
+    it('should return `true` for an upload record for a DBLG1 system with automated basal delivery capabilities', () => {
+      expect(device.isAutomatedBasalDevice(DIABELOOP, 'DBLG1')).to.be.true;
     });
 
     it('should return `false` for an upload record for a pump without automated basal delivery capabilities', () => {
