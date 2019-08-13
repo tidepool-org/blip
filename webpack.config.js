@@ -60,6 +60,15 @@ const babelLoaderConfiguration = [
       },
     },
   },
+  {
+    test: /\.js?$/,
+    include: [
+      fs.realpathSync('./node_modules/@tidepool/viz')
+    ],
+    use: {
+      loader: 'source-map-loader',
+    },
+  },
 ];
 
 // This is needed for webpack to import static images in JavaScript files
