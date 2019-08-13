@@ -9,7 +9,7 @@
     "nightwatch-single": "./node_modules/nightwatch/bin/nightwatch",
     "browser-tests": "NODE_ENV=test ./node_modules/karma/bin/karma start --browsers Chrome",
     "test-watch": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run --reporters=mocha",
-    "start": "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --cache --colors --progress --port 3000 --host 0.0.0.0",
+    "start": "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --color --progress --port 3000 --host 0.0.0.0",
     "watchViz": "export NODE_OPTIONS='--max-old-space-size=4096' && cd ./packageMounts/@tidepool/viz && npm run start",
     "buildViz": "cd ./packageMounts/@tidepool/viz && npm run build-dev",
     "startWithViz": "npm run buildViz && ./node_modules/concurrently/bin/concurrently.js --kill-others --names viz,blip \"npm run watchViz\" \"npm run start\"",
