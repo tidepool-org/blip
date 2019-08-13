@@ -55,9 +55,9 @@ const babelLoaderConfiguration = [
     },
     use: {
       loader: 'babel-loader',
-      // options: {
-      //   cacheDirectory: true,
-      // },
+      options: {
+        cacheDirectory: true,
+      },
     },
   },
 ];
@@ -180,17 +180,17 @@ const resolve = {
   ],
 };
 
+let devtool = process.env.WEBPACK_DEVTOOL || 'eval-source-map';
+if (process.env.WEBPACK_DEVTOOL === false) devtool = undefined;
+
 module.exports = {
   devServer: {
     publicPath: output.publicPath,
     historyApiFallback: true,
     hot: isDev,
-    // clientLogLevel: 'warning',
     clientLogLevel: 'info',
-    writeToDisk: true,
   },
-  // devtool: process.env.WEBPACK_DEVTOOL || 'eval-source-map',
-  devtool: process.env.WEBPACK_DEVTOOL || false,
+  devtool,
   entry,
   mode: isDev ? 'development' : 'production',
   module: {
