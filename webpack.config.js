@@ -63,7 +63,7 @@ const babelLoaderConfiguration = [
   {
     test: /\.js?$/,
     include: [
-      fs.realpathSync('./node_modules/@tidepool/viz')
+      fs.realpathSync('./node_modules/@tidepool/viz'),
     ],
     use: {
       loader: 'source-map-loader',
