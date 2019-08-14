@@ -21,7 +21,8 @@ import { MGDL_UNITS } from '../../core/constants';
 
 const working = {
   inProgress: false,
-  notification: null
+  notification: null,
+  completed: null,
 };
 
 const initialState = {

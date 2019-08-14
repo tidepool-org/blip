@@ -83,7 +83,8 @@ export default (state = initialWorkingState, action) => {
           [key]: {
             $set: {
               inProgress: true,
-              notification: null
+              notification: null,
+              completed: state[key].completed,
             }
           }
         });
@@ -131,12 +132,23 @@ export default (state = initialWorkingState, action) => {
     case types.CONNECT_DATA_SOURCE_SUCCESS:
     case types.DISCONNECT_DATA_SOURCE_SUCCESS:
       key = actionWorkingMap(action.type);
-      if (key) {
+      if (key && action.type === types.LOGOUT_SUCCESS) {
+        return update(initialWorkingState, {
+          [key]: {
+            $set: {
+              inProgress: false,
+              notification: _.get(action, ['payload', 'notification'], null),
+              completed: true,
+            }
+          }
+        });
+      } else if (key) {
         return update(state, {
           [key]: {
             $set: {
               inProgress: false,
-              notification: _.get(action, ['payload', 'notification'], null)
+              notification: _.get(action, ['payload', 'notification'], null),
+              completed: true,
             }
           }
         });
@@ -190,7 +202,8 @@ export default (state = initialWorkingState, action) => {
               inProgress: false,
               notification: {
                 type: 'error',
-                message: _.get(action, ['error', 'message'], null)
+                message: _.get(action, ['error', 'message'], null),
+                completed: false,
               }
             }
           }
