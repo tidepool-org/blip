@@ -14,12 +14,18 @@ import Patient from '../patient/';
 let getFetchers = (dispatchProps, ownProps, stateProps, api) => {
   const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchPendingSentInvites.bind(null, api),
   ];
 
-  // Only fetch data donation accounts if patient in view is the logged-in user
-  if (_.get(stateProps, 'user.userid') === _.get(ownProps, 'params.id')) {
-    fetchers.push(dispatchProps.fetchDataDonationAccounts.bind(null, api));
+  // TODO: Check if in progress or completed for these...
+  if (!stateProps.fetchedPendingSentInvites) {
+    fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
+  }
+
+  if (!stateProps.fetchedDataDonationAccounts) {
+    // Only fetch patients and data donation accounts if patient in view is the logged-in user
+    if (_.get(stateProps, 'user.userid') === _.get(ownProps, 'params.id') ) {
+      fetchers.push(dispatchProps.fetchPatients.bind(null, api));
+    }
   }
 
   return fetchers;
@@ -74,12 +80,14 @@ export function mapStateToProps(state) {
     updatingPatientBgUnits: state.blip.working.updatingPatientBgUnits.inProgress,
     dataSources: state.blip.dataSources || [],
     authorizedDataSource: state.blip.authorizedDataSource,
+    fetchedPendingSentInvites: state.blip.working.fetchingPendingSentInvites.completed,
+    fetchedDataDonationAccounts: state.blip.working.fetchingPatients.completed,
   };
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   acknowledgeNotification: actions.sync.acknowledgeNotification,
-  fetchDataDonationAccounts: actions.async.fetchDataDonationAccounts,
+  fetchPatients: actions.async.fetchPatients,
   fetchPatient: actions.async.fetchPatient,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   fetchDataSources: actions.async.fetchDataSources,

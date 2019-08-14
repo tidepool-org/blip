@@ -265,7 +265,7 @@ export function login(api, credentials, options, postLoginAction) {
               dispatch(routeActions.push(redirectRoute));
             }
           }
-        });
+        }, 'login');
       }
     });
   };
@@ -777,7 +777,7 @@ export function fetchUser(api) {
           dispatch(sync.fetchUserSuccess(user));
         }
       }
-    });
+    }, 'fetchUser');
   };
 }
 
@@ -1109,27 +1109,6 @@ export function fetchMessageThread(api, id ) {
         ));
       } else {
         dispatch(sync.fetchMessageThreadSuccess(messageThread));
-      }
-    });
-  };
-}
-
-/**
- * Fetch Data Donation Accounts Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function fetchDataDonationAccounts(api) {
-  return (dispatch) => {
-    dispatch(sync.fetchDataDonationAccountsRequest());
-
-    api.user.getDataDonationAccounts((err, accounts) => {
-      if (err) {
-        dispatch(sync.fetchDataDonationAccountsFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_DATA_DONATION_ACCOUNTS, err), err
-        ));
-      } else {
-        dispatch(sync.fetchDataDonationAccountsSuccess(accounts));
       }
     });
   };

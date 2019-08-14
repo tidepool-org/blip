@@ -15,7 +15,7 @@ import Patient from '../patient';
 let getFetchers = (dispatchProps, ownProps, api) => {
   return [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchDataDonationAccounts.bind(null, api),
+    dispatchProps.fetchPatients.bind(null, api), // TODO: only if not already fetched...
     dispatchProps.fetchPendingSentInvites.bind(null, api),
   ];
 };
@@ -81,7 +81,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   inviteMember: actions.async.sendInvite,
   cancelInvite: actions.async.cancelSentInvite,
   fetchPatient: actions.async.fetchPatient,
-  fetchDataDonationAccounts: actions.async.fetchDataDonationAccounts,
+  fetchPatients: actions.async.fetchPatients,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
 }, dispatch);
 

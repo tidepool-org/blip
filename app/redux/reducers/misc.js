@@ -49,7 +49,6 @@ export const notification = (state = initialState.notification, action) => {
     case types.SET_MEMBER_PERMISSIONS_FAILURE:
     case types.UPDATE_PATIENT_FAILURE:
     case types.UPDATE_USER_FAILURE:
-    case types.FETCH_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.FETCH_DATA_SOURCES_FAILURE:
     case types.FETCH_SERVER_TIME_FAILURE:
@@ -540,8 +539,8 @@ export const pendingReceivedInvites = (state = initialState.pendingReceivedInvit
 export const dataDonationAccounts = (state = initialState.dataDonationAccounts, action) => {
   let accounts;
   switch(action.type) {
-    case types.FETCH_DATA_DONATION_ACCOUNTS_SUCCESS:
-      accounts = state.concat(_.get(action.payload, 'accounts', []));
+    case types.FETCH_PATIENTS_SUCCESS:
+      accounts = state.concat(_.get(action.payload, 'dataDonationAccounts', []));
       return update(state, { $set: _.uniqBy(accounts, 'email') });
 
     case types.FETCH_PENDING_SENT_INVITES_SUCCESS:

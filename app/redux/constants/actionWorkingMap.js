@@ -141,11 +141,6 @@ export default (type) => {
     case types.GENERATE_PDF_FAILURE:
       return 'generatingPDF';
 
-    case types.FETCH_DATA_DONATION_ACCOUNTS_REQUEST:
-    case types.FETCH_DATA_DONATION_ACCOUNTS_SUCCESS:
-    case types.FETCH_DATA_DONATION_ACCOUNTS_FAILURE:
-      return 'fetchingDataDonationAccounts';
-
     case types.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
