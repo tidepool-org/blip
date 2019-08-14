@@ -25,17 +25,18 @@ ENV \
 FROM base as dependencies
 COPY package.json .
 COPY yarn.lock .
+RUN \
+  # Build and separate all dependancies required for production
+  yarn install --production && cp -R node_modules production_node_modules \
+  # Build all modules, including `devDependancies`
+  && yarn install
 COPY packageMounts/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* /app/packageMounts/tideline/
 COPY packageMounts/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json*  /app/packageMounts/tidepool-platform-client/
 COPY packageMounts/stub packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* /app/packageMounts/@tidepool/viz/
 ARG LINKED_PKGS=""
 RUN \
-  # Build and separate all dependancies required for production
-  yarn install --production && cp -R node_modules production_node_modules \
-  # Build all modules, including `devDependancies`
-  && yarn install \
   # Build all modules for mounted packages (used when npm linking in development containers)
-  && for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn install; done \
+  for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn install; done \
   && yarn cache clean
 
 
