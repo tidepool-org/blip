@@ -11,12 +11,18 @@ import Patient from '../patient/';
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
-let getFetchers = (dispatchProps, ownProps, api) => {
-  return [
+let getFetchers = (dispatchProps, ownProps, stateProps, api) => {
+  const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchDataDonationAccounts.bind(null, api),
     dispatchProps.fetchPendingSentInvites.bind(null, api),
   ];
+
+  // Only fetch data donation accounts if patient in view is the logged-in user
+  if (_.get(stateProps, 'user.userid') === _.get(ownProps, 'params.id')) {
+    fetchers.push(dispatchProps.fetchDataDonationAccounts.bind(null, api));
+  }
+
+  return fetchers;
 };
 
 export function mapStateToProps(state) {
@@ -88,7 +94,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, _.pick(dispatchProps, 'acknowledgeNotification'), {
-    fetchers: getFetchers(dispatchProps, ownProps, api),
+    fetchers: getFetchers(dispatchProps, ownProps, stateProps, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     onUpdatePatient: dispatchProps.updatePatient.bind(null, api),
     onUpdatePatientSettings: dispatchProps.updatePatientSettings.bind(null, api),
