@@ -743,7 +743,7 @@ export function logError(api, error, message, properties) {
  *
  * @param  {Object} api an instance of the API wrapper
  */
-export function fetchUser(api, cb) {
+export function fetchUser(api, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.fetchUserRequest());
 
@@ -779,7 +779,7 @@ export function fetchUser(api, cb) {
       }
 
       // Invoke callback if provided
-      if (_.isFunction(cb)) cb(err,user);
+      cb(err,user);
     }, 'fetchUser');
   };
 }
@@ -832,7 +832,7 @@ export function fetchPendingReceivedInvites(api) {
  * @param  {Object} api an instance of the API wrapper
  * @param {String|Number} id
  */
-export function fetchPatient(api, id, cb) {
+export function fetchPatient(api, id, cb = _.noop) {
   return (dispatch, getState) => {
     // If we have a valid cache of the patient in our redux store, return without dispatching the fetch
     if(checkCacheValid(getState, 'allUsersMap', cacheByIdOptions(id))) {
@@ -842,7 +842,7 @@ export function fetchPatient(api, id, cb) {
         dispatch(sync.fetchPatientSuccess(patient));
 
         // Invoke callback if provided
-        if (_.isFunction(cb)) cb(null, patient);
+        cb(null, patient);
         return null;
       }
     }
@@ -874,7 +874,7 @@ export function fetchPatient(api, id, cb) {
       }
 
       // Invoke callback if provided
-      if (_.isFunction(cb)) cb(err, patient);
+      cb(err, patient);
     });
   };
 }
