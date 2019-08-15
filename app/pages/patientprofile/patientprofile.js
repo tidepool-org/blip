@@ -92,7 +92,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   updatePatient: actions.async.updatePatient,
   updatePatientSettings: actions.async.updateSettings,
-  fetchDataSources: actions.async.fetchDataSources,
   connectDataSource: actions.async.connectDataSource,
   disconnectDataSource: actions.async.disconnectDataSource,
 }, dispatch);

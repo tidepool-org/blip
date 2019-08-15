@@ -189,22 +189,26 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
     case types.FETCH_PATIENT_SUCCESS: {
       let newState;
       const { patient } = action.payload;
+      const patientCache = {[`${patient.userid}_cacheUntil`]: { $set: generateCacheTTL(36e5) }}; // Cache for 60 mins
       if (state[patient.userid]) {
         newState = update(state, {
-          [patient.userid]: { $merge: _.omit(patient, ['permissions', 'team'])}
+          [patient.userid]: { $merge: _.omit(patient, ['permissions', 'team'])},
+          ...patientCache,
         });
       } else {
         newState = update(state, {
-          [patient.userid]: { $set: _.omit(patient, ['permissions', 'team'])}
+          [patient.userid]: { $set: _.omit(patient, ['permissions', 'team'])},
+          ...patientCache,
         });
       }
 
       const { team } = patient;
       if (team) {
         let others = {};
-        action.payload.patient.team.forEach(
-          (member) => others[member.userid] = _.omit(member, 'permissions')
-        );
+        action.payload.patient.team.forEach(member => {
+          others[member.userid] = _.omit(member, 'permissions');
+          others[`${member.userid}_cacheUntil`] = generateCacheTTL(36e5); // Cache for 60 mins
+        });
         return update(newState, { $merge: others });
       }
       return newState;
@@ -215,12 +219,16 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
 
       patients.forEach((patient) => {
         patientsMap[patient.userid] = _.omit(patient, ['permissions', 'team']);
+        patientsMap[`${patient.userid}_cacheUntil`] = generateCacheTTL(36e5); // Cache for 60 mins
       });
 
       return update(state, { $merge: patientsMap });
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
       let { creator } = action.payload.acceptedReceivedInvite;
-      return update(state, { $merge: { [creator.userid]: creator } });
+      return update(state, { $merge: {
+        [creator.userid]: creator,
+        [`${creator.userid}_cacheUntil`]: { $set: generateCacheTTL(36e5) },
+      } });
     case types.ACCEPT_TERMS_SUCCESS:
       return update(state, { [action.payload.userId]: { $merge: { termsAccepted: action.payload.acceptedDate } } });
     case types.SETUP_DATA_STORAGE_SUCCESS:
@@ -287,7 +295,7 @@ export const membersOfTargetCareTeam = (state = initialState.membersOfTargetCare
   switch(action.type) {
     case types.FETCH_PATIENT_SUCCESS:
       const team = _.get(action.payload, ['patient', 'team'], []);
-      return team.map((member) => member.userid);
+      return team.length ? team.map((member) => member.userid) : state;
     case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
       return _.reject(state, (memberId) => {
         return memberId === _.get(action.payload, 'removedMemberId', null);
@@ -340,6 +348,7 @@ export const permissionsOfMembersInTargetCareTeam = (state = initialState.permis
         team.forEach((t) => permissions[t.userid] = t.permissions);
         return update(state, { $merge: permissions });
       }
+      return state;
     }
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS: {
@@ -371,11 +380,18 @@ export const membershipPermissionsInOtherCareTeams = (state = initialState.membe
     }
     case types.FETCH_PATIENT_SUCCESS: {
       const { patient } = action.payload;
-      return update(state, { $set: { [patient.userid]: patient.permissions } });
+      if (patient.permissions) {
+        return update(state, { $set: { [patient.userid]: patient.permissions } });
+      }
+      return state;
     }
     case types.FETCH_PATIENTS_SUCCESS: {
       let permissions = {};
-      action.payload.patients.forEach((p) => permissions[p.userid] = p.permissions);
+      action.payload.patients.forEach((patient) => {
+        if (patient.permissions) {
+          permissions[patient.userid] = patient.permissions;
+        }
+      });
 
       return update(state, { $set: permissions });
     }

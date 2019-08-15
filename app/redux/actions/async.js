@@ -834,6 +834,19 @@ export function fetchPendingReceivedInvites(api) {
  */
 export function fetchPatient(api, id, cb) {
   return (dispatch, getState) => {
+    // If we have a valid cache of the patient in our redux store, return without dispatching the fetch
+    if(checkCacheValid(getState, 'allUsersMap', cacheByIdOptions(id))) {
+      const patient = _.get(getState(), ['blip', 'allUsersMap', id]);
+      if (patient) {
+        console.log('Using cached patient:', id)
+        dispatch(sync.fetchPatientSuccess(patient));
+
+        // Invoke callback if provided
+        if (_.isFunction(cb)) cb(null, patient);
+        return null;
+      }
+    }
+
     dispatch(sync.fetchPatientRequest());
 
     api.patient.get(id, (err, patient) => {
