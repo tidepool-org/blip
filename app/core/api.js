@@ -194,8 +194,8 @@ api.user.destroySession = function() {
   tidepool.destroySession();
 };
 
-api.user.get = function(cb, source) {
-  api.log('GET /user [' + source + ']');
+api.user.get = function(cb) {
+  api.log('GET /user');
 
   var userId = tidepool.getUserId();
 

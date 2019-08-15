@@ -229,7 +229,7 @@ export function login(api, credentials, options, postLoginAction) {
           dispatch(sync.loginFailure(error, err));
         }
       } else {
-        api.user.get((err, user) => {
+        dispatch(fetchUser(api, (err, user) => {
           const isClinic = personUtils.isClinic(user);
 
           let redirectRoute = '/patients?justLoggedIn=true';
@@ -265,7 +265,7 @@ export function login(api, credentials, options, postLoginAction) {
               dispatch(routeActions.push(redirectRoute));
             }
           }
-        }, 'login');
+        }));
       }
     });
   };
