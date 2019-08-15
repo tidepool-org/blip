@@ -183,7 +183,8 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
     case types.LOGIN_SUCCESS: {
       const { user } = action.payload;
       return update(state, {
-        [user.userid]: { $set: _.omit(user, ['permissions', 'team'])}
+        [user.userid]: { $set: _.omit(user, ['permissions', 'team'])},
+        [`${user.userid}_cacheUntil`]: { $set: generateCacheTTL(36e5) }, // Cache for 60 mins
       });
     }
     case types.FETCH_PATIENT_SUCCESS: {
