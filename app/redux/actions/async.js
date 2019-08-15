@@ -763,7 +763,7 @@ export function fetchUser(api, cb) {
         ));
       } else {
         if (_.get(user, ['profile', 'patient'])) {
-          api.patient.get(user.userid, (err, patient) => {
+          dispatch(fetchPatient(api, user.userid, (err, patient) => {
             if (err) {
               dispatch(sync.fetchUserFailure(
                 createActionError(ErrorMessages.ERR_FETCHING_USER, err), err
@@ -772,7 +772,7 @@ export function fetchUser(api, cb) {
               user = update(user, { $merge: patient });
               dispatch(sync.fetchUserSuccess(user));
             }
-          });
+          }));
         } else {
           dispatch(sync.fetchUserSuccess(user));
         }
@@ -832,7 +832,7 @@ export function fetchPendingReceivedInvites(api) {
  * @param  {Object} api an instance of the API wrapper
  * @param {String|Number} id
  */
-export function fetchPatient(api, id) {
+export function fetchPatient(api, id, cb) {
   return (dispatch, getState) => {
     dispatch(sync.fetchPatientRequest());
 
@@ -859,6 +859,9 @@ export function fetchPatient(api, id) {
       } else {
         dispatch(sync.fetchPatientSuccess(patient));
       }
+
+      // Invoke callback if provided
+      if (_.isFunction(cb)) cb(err, patient);
     });
   };
 }
