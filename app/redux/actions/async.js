@@ -243,7 +243,7 @@ export function login(api, credentials, options, postLoginAction) {
             ));
           } else {
             if (_.get(user, ['profile', 'patient'])) {
-              api.patient.get(user.userid, (err, patient) => {
+              dispatch(fetchPatient(api, user.userid, (err, patient) => {
                 if (err) {
                   dispatch(sync.loginFailure(
                     createActionError(ErrorMessages.ERR_FETCHING_PATIENT, err), err
@@ -256,7 +256,7 @@ export function login(api, credentials, options, postLoginAction) {
                   }
                   dispatch(routeActions.push(redirectRoute));
                 }
-              });
+              }));
             } else {
               dispatch(sync.loginSuccess(user));
               if (postLoginAction) {
