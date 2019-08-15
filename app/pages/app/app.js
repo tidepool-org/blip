@@ -15,14 +15,12 @@
 
 import _ from 'lodash';
 import React from 'react';
-import async from 'async';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
 
 import * as actions from '../../redux/actions';
 
-import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
 
 import * as ErrorMessages from '../../redux/constants/errorMessages';
@@ -398,7 +396,7 @@ export function getFetchers(stateProps, dispatchProps, api) {
     fetchers.push(dispatchProps.fetchUser.bind(null, api));
   }
 
-  if (stateProps.authenticated) {
+  if (stateProps.authenticated && !stateProps.fetchingDataSources.inProgress && !stateProps.fetchingDataSources.completed) {
     fetchers.push(dispatchProps.fetchDataSources.bind(null, api));
   }
 
@@ -507,6 +505,7 @@ export function mapStateToProps(state) {
   return {
     authenticated: state.blip.isLoggedIn,
     fetchingUser: state.blip.working.fetchingUser,
+    fetchingDataSources: state.blip.working.fetchingDataSources,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites.inProgress,
     loggingOut: state.blip.working.loggingOut.inProgress,
