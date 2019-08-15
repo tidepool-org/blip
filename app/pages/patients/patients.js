@@ -362,11 +362,18 @@ export let Patients = translate()(React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let getFetchers = (dispatchProps, ownProps, api) => {
-  return [
-    dispatchProps.fetchPendingReceivedInvites.bind(null, api),
-    dispatchProps.fetchPatients.bind(null, api)
-  ];
+let getFetchers = (dispatchProps, ownProps, stateProps, api) => {
+  const fetchers = [];
+
+  if (!stateProps.fetchingPendingReceivedInvites.inProgress && !stateProps.fetchingPendingReceivedInvites.completed) {
+    fetchers.push(dispatchProps.fetchPendingReceivedInvites.bind(null, api));
+  }
+
+  if (!stateProps.fetchingPatients.inProgress && !stateProps.fetchingPatients.completed) {
+    fetchers.push(dispatchProps.fetchPatients.bind(null, api));
+  }
+
+  return fetchers;
 };
 
 
@@ -411,15 +418,17 @@ export function mapStateToProps(state) {
 
   let {
     fetchingUser: { inProgress: fetchingUser },
-    fetchingPatients: { inProgress: fetchingPatients },
-    fetchingPendingReceivedInvites: { inProgress: fetchingInvites },
+    fetchingPatients,
+    fetchingPendingReceivedInvites,
   } = state.blip.working;
 
   return {
     currentPatientInViewId: state.blip.currentPatientInViewId,
     invites: state.blip.pendingReceivedInvites,
     fetchingUser: fetchingUser,
-    loading: fetchingUser || fetchingPatients || fetchingInvites,
+    fetchingPendingReceivedInvites,
+    fetchingPatients,
+    loading: fetchingUser || fetchingPatients.inProgress || fetchingPendingReceivedInvites.inProgress,
     loggedInUserId: state.blip.loggedInUserId,
     patients: _.keys(patientMap).map((key) => patientMap[key]),
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
@@ -451,7 +460,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     ]),
     stateProps,
     {
-      fetchers: getFetchers(dispatchProps, ownProps, api),
+      fetchers: getFetchers(dispatchProps, ownProps, stateProps, api),
       location: ownProps.location,
       uploadUrl: api.getUploadUrl(),
       onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
