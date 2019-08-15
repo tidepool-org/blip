@@ -1414,13 +1414,21 @@ export let PatientData = translate()(React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let getFetchers = (dispatchProps, ownProps, api, options) => {
-  return [
+let getFetchers = (dispatchProps, ownProps, stateProps, api, options) => {
+  const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
     dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id),
-    dispatchProps.fetchPatients.bind(null, api), // TODO: only if not already fetched....
-    dispatchProps.fetchPendingSentInvites.bind(null, api),
   ];
+
+  if (!stateProps.fetchingPendingSentInvites.inProgress && !stateProps.fetchingPendingSentInvites.completed) {
+    fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
+  }
+
+  if (!stateProps.fetchingPatients.inProgress && !stateProps.fetchingPatients.completed) {
+    fetchers.push(dispatchProps.fetchPatients.bind(null, api));
+  }
+
+  return fetchers;
 };
 
 export function mapStateToProps(state, props) {
@@ -1470,6 +1478,8 @@ export function mapStateToProps(state, props) {
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
+    fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
+    fetchingPatients: state.blip.working.fetchingPatients,
     generatingPDF: state.blip.working.generatingPDF.inProgress,
     pdf: state.blip.pdf,
     viz: state.viz,
@@ -1506,7 +1516,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, api, { carelink, dexcom, medtronic }),
+    fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
     uploadUrl: api.getUploadUrl(),
     onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom, medtronic }),
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),

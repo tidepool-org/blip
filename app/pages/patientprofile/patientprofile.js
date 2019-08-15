@@ -16,13 +16,11 @@ let getFetchers = (dispatchProps, ownProps, stateProps, api) => {
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
   ];
 
-  // TODO: Check if in progress or completed for these...
-  if (!stateProps.fetchedPendingSentInvites) {
+  if (!stateProps.fetchingPendingSentInvites.inProgress && !stateProps.fetchingPendingSentInvites.completed) {
     fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
   }
 
-  if (!stateProps.fetchedDataDonationAccounts) {
-    // Only fetch patients and data donation accounts if patient in view is the logged-in user
+  if (!stateProps.fetchingPatients.inProgress && !stateProps.fetchingPatients.completed) {
     if (_.get(stateProps, 'user.userid') === _.get(ownProps, 'params.id') ) {
       fetchers.push(dispatchProps.fetchPatients.bind(null, api));
     }
@@ -75,13 +73,13 @@ export function mapStateToProps(state) {
     patient: { permissions, ...patient },
     permsOfLoggedInUser: permsOfLoggedInUser,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
+    fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
+    fetchingPatients: state.blip.working.fetchingPatients,
     dataDonationAccounts: state.blip.dataDonationAccounts,
     updatingDataDonationAccounts: state.blip.working.updatingDataDonationAccounts.inProgress,
     updatingPatientBgUnits: state.blip.working.updatingPatientBgUnits.inProgress,
     dataSources: state.blip.dataSources || [],
     authorizedDataSource: state.blip.authorizedDataSource,
-    fetchedPendingSentInvites: state.blip.working.fetchingPendingSentInvites.completed,
-    fetchedDataDonationAccounts: state.blip.working.fetchingPatients.completed,
   };
 }
 
