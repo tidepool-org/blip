@@ -743,7 +743,7 @@ export function logError(api, error, message, properties) {
  *
  * @param  {Object} api an instance of the API wrapper
  */
-export function fetchUser(api) {
+export function fetchUser(api, cb) {
   return (dispatch) => {
     dispatch(sync.fetchUserRequest());
 
@@ -777,6 +777,9 @@ export function fetchUser(api) {
           dispatch(sync.fetchUserSuccess(user));
         }
       }
+
+      // Invoke callback if provided
+      if (_.isFunction(cb)) cb(err,user);
     }, 'fetchUser');
   };
 }

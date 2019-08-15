@@ -23,7 +23,7 @@ import VerificationWithPassword from './pages/verificationwithpassword';
 import utils from './core/utils';
 import personUtils from './core/personutils';
 
-import actions from './redux/actions';
+import * as actions from './redux/actions';
 
 /**
  * This function checks if the user is using chrome - if they are not it will redirect
@@ -56,7 +56,8 @@ export const requiresChrome = (utils, next) => (nextState, replace, cb)  => {
  * @return {boolean|null} returns true if hash mapping happened
  */
 export const requireAuth = (api, store) => (nextState, replace, cb) => {
-  let { blip: state } = store.getState();
+  const { blip: state } = store.getState();
+  const { dispatch } = store;
 
   if (!api.user.isAuthenticated()) {
     replace('/login');
@@ -66,9 +67,7 @@ export const requireAuth = (api, store) => (nextState, replace, cb) => {
     if (!_.isEmpty(user)) {
       checkIfAcceptedTerms(user);
     } else {
-      api.user.get(function(err, user) {
-        checkIfAcceptedTerms(user);
-      });
+      dispatch(actions.async.fetchUser(api, (err, user) => checkIfAcceptedTerms(user)));
     }
     function checkIfAcceptedTerms(user) {
       if (!personUtils.hasAcceptedTerms(user)) {
@@ -88,7 +87,8 @@ export const requireAuth = (api, store) => (nextState, replace, cb) => {
  *
  */
 export const requireAuthAndNoPatient = (api, store) => (nextState, replace, cb) => {
-  let { blip: state } = store.getState();
+  const { blip: state } = store.getState();
+  const { dispatch } = store;
 
   if (!api.user.isAuthenticated()) {
     replace('/login');
@@ -98,9 +98,7 @@ export const requireAuthAndNoPatient = (api, store) => (nextState, replace, cb) 
     if (!_.isEmpty(user)) {
       checkUserStatus(user);
     } else {
-      api.user.get(function(err, user) {
-        checkUserStatus(user);
-      });
+      dispatch(actions.async.fetchUser(api, (err, user) => checkUserStatus(user)));
     }
     function checkUserStatus(user) {
       if (!personUtils.hasAcceptedTerms(user)) {
@@ -153,12 +151,13 @@ export const requireNoAuth = (api) => (nextState, replace, cb) => {
  * @param  {Function} replace
  */
 export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
-  let { blip: state } = store.getState();
+  const { blip: state } = store.getState();
+  const { dispatch } = store;
   const user = _.get(state.allUsersMap, state.loggedInUserId, {});
   if (!_.isEmpty(user)) {
     checkIfVerified(user);
   } else {
-    api.user.get(function(err, user) {
+    dispatch(actions.async.fetchUser(api, (err, user) => {
       if (err) {
         // we expect a 401 Unauthorized when navigating to /email-verification
         // when not logged in (e.g., in a new tab after initial sign-up)
@@ -169,7 +168,7 @@ export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
       }
 
       checkIfVerified(user);
-    });
+    }));
   }
 
   function checkIfVerified(userToCheck) {
