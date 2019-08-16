@@ -192,6 +192,11 @@ personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, curren
     validationErrors.about = t('Please keep "about" text under {{maxLength}} characters', {maxLength});
   }
 
+  const email = formValues.email;
+  if (email && !utils.validateEmail(email)) {
+    validationErrors.email = t('Email address is invalid');
+  }
+
   return validationErrors;
 };
 

@@ -470,17 +470,60 @@ function setPatientSettings(person, cb) {
 function updatePatient(patient, cb) {
   var patientId = patient.userid;
 
-  var profile = patient.profile;
-  tidepool.addOrUpdateProfile(patientId, profile, function(err, profile) {
-    if (err) {
-      return cb(err);
-    }
+  const profile = profileFromUser(patient);
+  const loggedInUserId = tidepool.getUserId();
+  const updatedEmails = _.get(patient, 'emails');
+  const newEmail = _.get(updatedEmails, '[0]');
+
+  if(loggedInUserId !== patientId){
+    tidepool.findProfile(patientId, function(err, currentProfile){
+      if(err){
+        return cb(err);
+      }
+      const currentEmail = _.get(currentProfile, 'emails[0]');
+      const isEmailUpdated = newEmail !== currentEmail;
+      if(isEmailUpdated){
+        return async.series([
+          function(callback){
+            tidepool.updateCustodialUser({username: newEmail, emails: updatedEmails}, patientId, callback);
+          },
+          function(callback){
+            tidepool.addOrUpdateProfile(patientId, profile, callback);
+          },
+          function(callback){
+            tidepool.signupStart(patient.userid, callback);
+          }
+        ], function(err, results){
+          if(err){
+            return cb(err);
+          }
+          const updatedPatient = userFromAccountAndProfile({ account: results[0], profile: results[1] });
+
+          return cb(null, updatedPatient)
+        })
+      } else {
+        tidepool.addOrUpdateProfile(patientId, profile, function(err, profile) {
+          if (err) {
+            return cb(err);
+          }
+
+          patient = _.assign({}, patient, {profile});
+          return cb(null, patient);
+        });
+      }
+    })
+  } else {
+    tidepool.addOrUpdateProfile(patientId, profile, function(err, profile) {
+      if (err) {
+        return cb(err);
+      }
 
     patient = _.assign({}, patient, {
       profile: profile,
+      });
+      return cb(null, patient);
     });
-    return cb(null, patient);
-  });
+  }
 }
 
 api.patient.get = function(patientId, cb) {

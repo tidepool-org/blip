@@ -23,6 +23,9 @@ describe('api', () => {
       getCurrentUser: sinon.stub(),
       getAssociatedUsersDetails: sinon.stub(),
       findProfile: sinon.stub(),
+      updateCustodialUser: sinon.stub(),
+      addOrUpdateProfile: sinon.stub(),
+      signupStart: sinon.stub(),
     };
 
     api.__Rewire__('tidepool', tidepool)
@@ -34,6 +37,9 @@ describe('api', () => {
     tidepool.getCurrentUser.resetHistory();
     tidepool.getAssociatedUsersDetails.resetHistory();
     tidepool.findProfile.resetHistory();
+    tidepool.updateCustodialUser.resetHistory();
+    tidepool.addOrUpdateProfile.resetHistory();
+    tidepool.signupStart.resetHistory();
   });
 
   after(() => {
@@ -288,6 +294,93 @@ describe('api', () => {
           profile: { patient: { fullName: 'Jenny Doe' } },
           settings: 'settings',
         });
+      });
+    });
+
+    describe('put', () => {
+      it('should call `tidepool.addOrUpdateProfile` if patient is current user', () => {
+        const cb = sinon.stub();
+        const patient = {
+          userid: currentUserId,
+          profile: {
+            patient: {
+              fullName: 'Jenny Doe'
+            },
+          },
+        };
+        api.patient.put(patient, cb);
+        sinon.assert.calledOnce(tidepool.addOrUpdateProfile);
+        sinon.assert.calledWith(tidepool.addOrUpdateProfile, currentUserId, {
+          patient: {
+            fullName: 'Jenny Doe'
+          },
+        });
+      });
+
+      it('should call `tidepool.addOrUpdateProfile` if patient is not current user but email not updated', () => {
+        const cb = sinon.stub();
+        const patient = {
+          userid: 'abc1234',
+          profile: {
+            patient: {
+              fullName: 'Jenny Doe'
+            },
+            emails: ['jdoe2@example.com']
+          },
+          emails: ['jdoe2@example.com']
+        };
+        tidepool.findProfile.callsArgWith(1, null, patient.profile);
+        api.patient.put(patient, cb);
+        sinon.assert.calledOnce(tidepool.findProfile);
+        sinon.assert.calledWith(tidepool.findProfile, 'abc1234');
+        sinon.assert.calledOnce(tidepool.addOrUpdateProfile);
+        sinon.assert.calledWith(tidepool.addOrUpdateProfile, 'abc1234', {
+          patient: {
+            fullName: 'Jenny Doe'
+          },
+          emails: ['jdoe2@example.com']
+        });
+      });
+      
+      it('should call `updateCustodialUser`, `addOrUpdateProfile` and `signupStart` if patient is not current user and email updated', () => {
+        const cb = sinon.stub();
+        const patient = {
+          userid: 'abc1234',
+          profile: {
+            patient: {
+              fullName: 'Jenny Doe'
+            },
+            emails: ['jdoe2@example.com']
+          },
+          emails: ['jdoe2@example.com']
+        };
+        const oldPatient = {
+          userid: 'abc1234',
+          profile: {
+            patient: {
+              fullName: 'Jenny Doe'
+            },
+            emails: ['jdoe@example.com']
+          },
+          emails: ['jdoe@example.com']
+        }
+        tidepool.findProfile.callsArgWith(1, null, oldPatient.profile);
+        tidepool.updateCustodialUser.callsArgWith(2, null, 1);
+        tidepool.addOrUpdateProfile.callsArgWith(2, null, 1);
+        api.patient.put(patient, cb);
+        sinon.assert.calledOnce(tidepool.findProfile);
+        sinon.assert.calledWith(tidepool.findProfile, 'abc1234');
+        sinon.assert.calledOnce(tidepool.updateCustodialUser);
+        sinon.assert.calledWith(tidepool.updateCustodialUser, {username: 'jdoe2@example.com', emails: ['jdoe2@example.com']}, 'abc1234');
+        sinon.assert.calledOnce(tidepool.addOrUpdateProfile);
+        sinon.assert.calledWith(tidepool.addOrUpdateProfile, 'abc1234', {
+          patient: {
+            fullName: 'Jenny Doe'
+          },
+          emails: ['jdoe2@example.com']
+        });
+        sinon.assert.calledOnce(tidepool.signupStart);
+        sinon.assert.calledWith(tidepool.signupStart, 'abc1234');
       });
     });
   });
