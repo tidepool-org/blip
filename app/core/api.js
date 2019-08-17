@@ -243,7 +243,23 @@ api.user.get = function(cb) {
       return cb(err);
     }
 
-    cb(null, userFromAccountAndProfile(results));
+    var user = userFromAccountAndProfile(results);
+
+    // Set permissions for patient profiles
+    if (_.get(user, ['profile', 'patient'])) {
+      // Attach the logged-in user's permissions for that patient
+      setPatientPermissions(user, (err, patient) => {
+        if (err) {
+          return cb(err);
+        }
+
+        // Fetch the patient's team
+        return getPatientTeam(patient, cb);
+      });
+    } else {
+      cb(null, user);
+    }
+
   });
 };
 
@@ -387,26 +403,74 @@ function getPatient(patientId, cb) {
     if (!personUtils.isPatient(person)) {
       return cb();
     }
+
     // Attach the logged-in user's permissions for that patient
-    var userId = tidepool.getUserId();
-    tidepool.getAccessPermissionsForGroup(patientId, userId, function(err, permissions) {
+    setPatientPermissions(person, cb);
+  });
+}
+
+function setPatientPermissions(person, cb) {
+  var userId = tidepool.getUserId();
+  var patientId = person.userid;
+  tidepool.getAccessPermissionsForGroup(patientId, userId, function(err, permissions) {
+    if (err) {
+      return cb(err);
+    }
+
+    person.permissions = permissions;
+
+    api.metadata.settings.get(patientId, function(err, settings) {
       if (err) {
         return cb(err);
       }
 
-      person.permissions = permissions;
+      person.settings = settings || {};
 
-      api.metadata.settings.get(patientId, function(err, settings) {
+      return cb(null, person);
+    });
+  });
+}
+
+function getPatientTeam(patient, cb) {
+  var userId = patient.userid;
+
+  tidepool.getTeamMembers(userId, function(err, permissions) {
+    if (err) {
+      return cb(err);
+    }
+    if (_.isEmpty(permissions)) {
+      return cb(null, patient);
+    }
+
+    // A user is always part of her own team:
+    // filter her id from set of permissions
+    permissions = _.omit(permissions, userId);
+    // Convert to array of user ids
+    var memberIds = Object.keys(permissions);
+
+    async.map(memberIds, getPerson, function(err, members) {
+      if (err) {
+        return cb(err);
+      }
+      // Filter any member ids that returned nothing
+      members = _.filter(members);
+      // Add each member's permissions
+      members = _.map(members, function(member) {
+        member.permissions = permissions[member.userid];
+        return member;
+      });
+      patient.team = members;
+
+      api.metadata.settings.get(userId, function(err, settings) {
         if (err) {
           return cb(err);
         }
 
-        person.settings = settings || {};
+        patient.settings = settings;
 
-        return cb(null, person);
+        return cb(null, patient);
       });
     });
-
   });
 }
 
@@ -432,7 +496,7 @@ function updatePatient(patient, cb) {
 api.patient.get = function(patientId, cb) {
   api.log('GET /patients/' + patientId);
 
-  var userId = tidepool.getUserId();
+  // var userId = tidepool.getUserId();
 
   getPatient(patientId, function(err, patient) {
     if (err) {
@@ -445,49 +509,12 @@ api.patient.get = function(patientId, cb) {
     }
 
     // If patient doesn't belong to current user, we're done
-    if (patientId !== userId) {
+    // if (patientId !== userId) {
       return cb(null, patient);
-    }
+    // }
 
     // Fetch the patient's team
-    tidepool.getTeamMembers(userId, function(err, permissions) {
-      if (err) {
-        return cb(err);
-      }
-      if (_.isEmpty(permissions)) {
-        return cb(null, patient);
-      }
-
-      // A user is always part of her own team:
-      // filter her id from set of permissions
-      permissions = _.omit(permissions, userId);
-      // Convert to array of user ids
-      var memberIds = Object.keys(permissions);
-
-      async.map(memberIds, getPerson, function(err, members) {
-        if (err) {
-          return cb(err);
-        }
-        // Filter any member ids that returned nothing
-        members = _.filter(members);
-        // Add each member's permissions
-        members = _.map(members, function(member) {
-          member.permissions = permissions[member.userid];
-          return member;
-        });
-        patient.team = members;
-
-        api.metadata.settings.get(userId, function(err, settings) {
-          if (err) {
-            return cb(err);
-          }
-
-          patient.settings = settings;
-
-          return cb(null, patient);
-        });
-      });
-    });
+    // getPatientTeam(patient, cb)
   });
 };
 

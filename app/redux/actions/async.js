@@ -762,25 +762,16 @@ export function fetchUser(api, cb = _.noop) {
           createActionError(ErrorMessages.ERR_EMAIL_NOT_VERIFIED)
         ));
       } else {
-        if (_.get(user, ['profile', 'patient'])) {
-          dispatch(fetchPatient(api, user.userid, (err, patient) => {
-            if (err) {
-              dispatch(sync.fetchUserFailure(
-                createActionError(ErrorMessages.ERR_FETCHING_USER, err), err
-              ));
-            } else {
-              user = update(user, { $merge: patient });
-              dispatch(sync.fetchUserSuccess(user));
-            }
-          }));
-        } else {
-          dispatch(sync.fetchUserSuccess(user));
+        dispatch(sync.fetchUserSuccess(user));
+
+        if (personUtils.isPatient(user)) {
+          dispatch(sync.fetchPatientSuccess(user));
         }
       }
 
       // Invoke callback if provided
       cb(err,user);
-    }, 'fetchUser');
+    });
   };
 }
 
