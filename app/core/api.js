@@ -448,6 +448,7 @@ function getPatientTeam(patient, cb) {
     // Convert to array of user ids
     var memberIds = Object.keys(permissions);
 
+    // TODO: don't call if a data donation account... no idea how to avoid, though
     async.map(memberIds, getPerson, function(err, members) {
       if (err) {
         return cb(err);
@@ -508,13 +509,7 @@ api.patient.get = function(patientId, cb) {
       return cb({status: 404, response: 'Not found'});
     }
 
-    // If patient doesn't belong to current user, we're done
-    // if (patientId !== userId) {
-      return cb(null, patient);
-    // }
-
-    // Fetch the patient's team
-    // getPatientTeam(patient, cb)
+    return cb(null, patient);
   });
 };
 
