@@ -248,7 +248,7 @@ api.user.get = function(cb) {
     // Set permissions for patient profiles
     if (_.get(user, ['profile', 'patient'])) {
       // Attach the logged-in user's permissions for that patient
-      setPatientPermissions(user, (err, patient) => {
+      setPatientPermissionsAndSettings(user, (err, patient) => {
         if (err) {
           return cb(err);
         }
@@ -405,11 +405,11 @@ function getPatient(patientId, cb) {
     }
 
     // Attach the logged-in user's permissions for that patient
-    setPatientPermissions(person, cb);
+    setPatientPermissionsAndSettings(person, cb);
   });
 }
 
-function setPatientPermissions(person, cb) {
+function setPatientPermissionsAndSettings(person, cb) {
   var userId = tidepool.getUserId();
   var patientId = person.userid;
   tidepool.getAccessPermissionsForGroup(patientId, userId, function(err, permissions) {
