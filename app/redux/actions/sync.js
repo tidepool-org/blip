@@ -802,12 +802,13 @@ export function fetchPatientsRequest() {
   };
 }
 
-export function fetchPatientsSuccess({ patients, dataDonationAccounts }) {
+export function fetchPatientsSuccess({ patients, dataDonationAccounts, careTeam }) {
   return {
     type: ActionTypes.FETCH_PATIENTS_SUCCESS,
     payload: {
       patients,
       dataDonationAccounts,
+      careTeam,
     },
   };
 }

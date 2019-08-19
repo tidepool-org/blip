@@ -21,6 +21,7 @@ let getFetchers = (dispatchProps, ownProps, stateProps, api) => {
   }
 
   if (!stateProps.fetchingPatients.inProgress && !stateProps.fetchingPatients.completed) {
+    // Need fetchPatients here because the result includes of data donation accounts sharing info
     if (_.get(stateProps, 'user.userid') === _.get(ownProps, 'params.id') ) {
       fetchers.push(dispatchProps.fetchPatients.bind(null, api));
     }

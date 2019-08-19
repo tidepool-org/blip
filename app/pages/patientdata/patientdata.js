@@ -1424,6 +1424,7 @@ let getFetchers = (dispatchProps, ownProps, stateProps, api, options) => {
     fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
   }
 
+  // Need fetchPatients here because the result includes of data donation accounts sharing info
   if (!stateProps.fetchingPatients.inProgress && !stateProps.fetchingPatients.completed) {
     fetchers.push(dispatchProps.fetchPatients.bind(null, api));
   }

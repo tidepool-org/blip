@@ -878,7 +878,7 @@ export function fetchPatient(api, id, cb = _.noop) {
  *
  * @param  {Object} api an instance of the API wrapper
  */
-export function fetchPatients(api) {
+export function fetchPatients(api) { // TODO: rename to fetchAssociatedUsers
   return (dispatch) => {
     dispatch(sync.fetchPatientsRequest());
 

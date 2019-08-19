@@ -247,14 +247,16 @@ api.user.get = function(cb) {
 
     // Set permissions for patient profiles
     if (_.get(user, ['profile', 'patient'])) {
-      // Attach the logged-in user's permissions for that patient
-      setPatientPermissionsAndSettings(user, (err, patient) => {
+      // The logged-in user's permissions are always root
+      user.permissions = { root: {} };
+
+      // Attach the logged-in user's patient settings
+      setPatientSettings(user, (err, patient) => {
         if (err) {
           return cb(err);
         }
 
-        // Fetch the patient's team
-        return getPatientTeam(patient, cb);
+        cb(err, patient)
       });
     } else {
       cb(null, user);
@@ -404,81 +406,26 @@ function getPatient(patientId, cb) {
       return cb();
     }
 
-    // Attach the logged-in user's permissions for that patient
-    setPatientPermissionsAndSettings(person, cb);
+    // Attach the settings for the patient
+    setPatientSettings(person, cb);
   });
 }
 
-function setPatientPermissionsAndSettings(person, cb) {
-  var userId = tidepool.getUserId();
-  var patientId = person.userid;
-  tidepool.getAccessPermissionsForGroup(patientId, userId, function(err, permissions) {
+function setPatientSettings(person, cb) {
+
+  api.metadata.settings.get(person.userid, function(err, settings) {
     if (err) {
       return cb(err);
     }
 
-    person.permissions = permissions;
+    person.settings = settings || {};
 
-    api.metadata.settings.get(patientId, function(err, settings) {
-      if (err) {
-        return cb(err);
-      }
-
-      person.settings = settings || {};
-
-      return cb(null, person);
-    });
-  });
-}
-
-function getPatientTeam(patient, cb) {
-  var userId = patient.userid;
-
-  tidepool.getTeamMembers(userId, function(err, permissions) {
-    if (err) {
-      return cb(err);
-    }
-    if (_.isEmpty(permissions)) {
-      return cb(null, patient);
-    }
-
-    // A user is always part of her own team:
-    // filter her id from set of permissions
-    permissions = _.omit(permissions, userId);
-    // Convert to array of user ids
-    var memberIds = Object.keys(permissions);
-
-    // TODO: don't call if a data donation account... no idea how to avoid, though
-    async.map(memberIds, getPerson, function(err, members) {
-      if (err) {
-        return cb(err);
-      }
-      // Filter any member ids that returned nothing
-      members = _.filter(members);
-      // Add each member's permissions
-      members = _.map(members, function(member) {
-        member.permissions = permissions[member.userid];
-        return member;
-      });
-      patient.team = members;
-
-      api.metadata.settings.get(userId, function(err, settings) {
-        if (err) {
-          return cb(err);
-        }
-
-        patient.settings = settings;
-
-        return cb(null, patient);
-      });
-    });
+    return cb(null, person);
   });
 }
 
 function updatePatient(patient, cb) {
   var patientId = patient.userid;
-  // Hang on to team, we'll add back later
-  var team = patient.team || [];
 
   var profile = patient.profile;
   tidepool.addOrUpdateProfile(patientId, profile, function(err, profile) {
@@ -488,7 +435,6 @@ function updatePatient(patient, cb) {
 
     patient = _.assign({}, patient, {
       profile: profile,
-      team: team
     });
     return cb(null, patient);
   });
@@ -496,8 +442,6 @@ function updatePatient(patient, cb) {
 
 api.patient.get = function(patientId, cb) {
   api.log('GET /patients/' + patientId);
-
-  // var userId = tidepool.getUserId();
 
   getPatient(patientId, function(err, patient) {
     if (err) {
@@ -536,9 +480,10 @@ api.patient.getAll = function(cb) {
       return cb(err);
     }
 
-    // Filter out viewable users and data donations accounts separately
+    // Filter out viewable users, data donation, and care team accounts separately
     var viewableUsers = [];
     var dataDonationAccounts = [];
+    var careTeam = [];
 
     _.each(users, function(user) {
       if (personUtils.isDataDonationAccount(user)) {
@@ -553,12 +498,19 @@ api.patient.getAll = function(cb) {
         user.permissions = user.trustorPermissions
         delete user.trustorPermissions
         viewableUsers.push(user);
+      } else if (!_.isEmpty(user.trusteePermissions)) {
+        // These are accounts with which the user has shared access to their data, exluding the
+        // data donation accounts
+        user.permissions = user.trusteePermissions
+        delete user.trusteePermissions
+        careTeam.push(user);
       }
     });
 
     return cb(null, {
       patients: viewableUsers,
       dataDonationAccounts,
+      careTeam
     });
   });
 };
