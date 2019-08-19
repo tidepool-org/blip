@@ -796,15 +796,15 @@ export function fetchPatientFailure(error, apiError, link) {
   };
 }
 
-export function fetchPatientsRequest() {
+export function fetchAssociatedAccountsRequest() {
   return {
-    type: ActionTypes.FETCH_PATIENTS_REQUEST,
+    type: ActionTypes.FETCH_ASSOCIATED_ACCOUNTS_REQUEST,
   };
 }
 
-export function fetchPatientsSuccess({ patients, dataDonationAccounts, careTeam }) {
+export function fetchAssociatedAccountsSuccess({ patients, dataDonationAccounts, careTeam }) {
   return {
-    type: ActionTypes.FETCH_PATIENTS_SUCCESS,
+    type: ActionTypes.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS,
     payload: {
       patients,
       dataDonationAccounts,
@@ -813,9 +813,9 @@ export function fetchPatientsSuccess({ patients, dataDonationAccounts, careTeam 
   };
 }
 
-export function fetchPatientsFailure(error, apiError) {
+export function fetchAssociatedAccountsFailure(error, apiError) {
   return {
-    type: ActionTypes.FETCH_PATIENTS_FAILURE,
+    type: ActionTypes.FETCH_ASSOCIATED_ACCOUNTS_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null

@@ -549,53 +549,53 @@ describe('working', () => {
       });
     });
 
-    describe('fetchPatients', () => {
+    describe('fetchAssociatedAccounts', () => {
       describe('request', () => {
-        it('should set fetchingPatients to be true', () => {
-          let action = actions.sync.fetchPatientsRequest();
+        it('should set fetchingAssociatedAccounts to be true', () => {
+          let action = actions.sync.fetchAssociatedAccountsRequest();
 
-          expect(initialState.fetchingPatients.inProgress).to.be.false;
+          expect(initialState.fetchingAssociatedAccounts.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.fetchingPatients.inProgress).to.be.true;
+          expect(state.fetchingAssociatedAccounts.inProgress).to.be.true;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });
 
       describe('failure', () => {
-        it('should set fetchingPatients to be false and set error', () => {
-          let initialStateForTest = _.merge({}, { fetchingPatients: { inProgress : true, notification: null } });
+        it('should set fetchingAssociatedAccounts to be false and set error', () => {
+          let initialStateForTest = _.merge({}, { fetchingAssociatedAccounts: { inProgress : true, notification: null } });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let error = new Error('Something bad happened :(');
-          let action = actions.sync.fetchPatientsFailure(error);
+          let action = actions.sync.fetchAssociatedAccountsFailure(error);
 
-          expect(initialStateForTest.fetchingPatients.inProgress).to.be.true;
-          expect(initialStateForTest.fetchingPatients.notification).to.be.null;
+          expect(initialStateForTest.fetchingAssociatedAccounts.inProgress).to.be.true;
+          expect(initialStateForTest.fetchingAssociatedAccounts.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
 
-          expect(state.fetchingPatients.inProgress).to.be.false;
-          expect(state.fetchingPatients.notification.type).to.equal('error');
-          expect(state.fetchingPatients.notification.message).to.equal(error.message);
+          expect(state.fetchingAssociatedAccounts.inProgress).to.be.false;
+          expect(state.fetchingAssociatedAccounts.notification.type).to.equal('error');
+          expect(state.fetchingAssociatedAccounts.notification.message).to.equal(error.message);
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });
 
       describe('success', () => {
-        it('should set fetchingPatients to be false', () => {
-          let initialStateForTest = _.merge({}, { fetchingPatients: { inProgress : true, notification: null } });
+        it('should set fetchingAssociatedAccounts to be false', () => {
+          let initialStateForTest = _.merge({}, { fetchingAssociatedAccounts: { inProgress : true, notification: null } });
           let tracked = mutationTracker.trackObj(initialStateForTest);
           let patients = [
             { userid: 2020, name: 'Megan Durrant'},
             { userid: 501, name: 'Jamie Blake'}
           ];
-          let action = actions.sync.fetchPatientsSuccess(patients);
+          let action = actions.sync.fetchAssociatedAccountsSuccess(patients);
 
-          expect(initialStateForTest.fetchingPatients.inProgress).to.be.true;
+          expect(initialStateForTest.fetchingAssociatedAccounts.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
 
-          expect(state.fetchingPatients.inProgress).to.be.false;
+          expect(state.fetchingAssociatedAccounts.inProgress).to.be.false;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
         });
       });

@@ -327,7 +327,7 @@ export function removeMembershipInOtherCareTeam(api, patientId) {
         ));
       } else {
         dispatch(sync.removeMembershipInOtherCareTeamSuccess(patientId));
-        dispatch(fetchPatients(api));
+        dispatch(fetchAssociatedAccounts(api));
       }
     });
   }
@@ -874,21 +874,21 @@ export function fetchPatient(api, id, cb = _.noop) {
 }
 
 /**
- * Fetch Patients Action Creator
+ * Fetch Associated Accounts Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
  */
-export function fetchPatients(api) { // TODO: rename to fetchAssociatedUsers
+export function fetchAssociatedAccounts(api) {
   return (dispatch) => {
-    dispatch(sync.fetchPatientsRequest());
+    dispatch(sync.fetchAssociatedAccountsRequest());
 
-    api.patient.getAll((err, patients) => {
+    api.user.getAssociatedAccounts((err, accounts) => {
       if (err) {
-        dispatch(sync.fetchPatientsFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_PATIENTS, err), err
+        dispatch(sync.fetchAssociatedAccountsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS, err), err
         ));
       } else {
-        dispatch(sync.fetchPatientsSuccess(patients));
+        dispatch(sync.fetchAssociatedAccountsSuccess(accounts));
       }
     });
   };

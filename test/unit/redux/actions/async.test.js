@@ -949,8 +949,8 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
           { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS', payload: { removedPatientId: patientId } },
-          { type: 'FETCH_PATIENTS_REQUEST' },
-          { type: 'FETCH_PATIENTS_SUCCESS', payload: { patients: patients } }
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: patients } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -2755,8 +2755,8 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchPatients', () => {
-      it('should trigger FETCH_PATIENTS_SUCCESS and it should call error once for a successful request', () => {
+    describe('fetchAssociatedAccounts', () => {
+      it('should trigger FETCH_ASSOCIATED_ACCOUNTS_SUCCESS and it should call error once for a successful request', () => {
         let patients = [
           { id: 58686, name: 'Buddy Holly', age: 65 }
         ]
@@ -2768,21 +2768,21 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'FETCH_PATIENTS_REQUEST' },
-          { type: 'FETCH_PATIENTS_SUCCESS', payload: { patients : patients } }
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients : patients } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore(initialState);
-        store.dispatch(async.fetchPatients(api));
+        store.dispatch(async.fetchAssociatedAccounts(api));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.patient.getAll.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PATIENTS_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger FETCH_ASSOCIATED_ACCOUNTS_FAILURE and it should call error once for a failed request', () => {
         let patients = [
           { id: 58686, name: 'Buddy Holly', age: 65 }
         ]
@@ -2797,14 +2797,14 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'FETCH_PATIENTS_REQUEST' },
-          { type: 'FETCH_PATIENTS_FAILURE', error: err, meta: { apiError: {status: 500, body: {status: 500, body: 'Error!'}} } }
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_FAILURE', error: err, meta: { apiError: {status: 500, body: {status: 500, body: 'Error!'}} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore(initialState);
-        store.dispatch(async.fetchPatients(api));
+        store.dispatch(async.fetchAssociatedAccounts(api));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENTS });

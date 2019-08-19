@@ -47,7 +47,7 @@ describe('membershipPermissionsInOtherCareTeams', () => {
       let initialStateForTest = {};
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
-      
+
       let action = actions.sync.acceptReceivedInviteSuccess(acceptedReceivedInvite);
 
       let state = reducer(initialStateForTest, action);
@@ -87,7 +87,7 @@ describe('membershipPermissionsInOtherCareTeams', () => {
     });
   });
 
-  describe('fetchPatientsSuccess', () => {
+  describe('fetchAssociatedAccountsSuccess', () => {
     it('should set state to a hash map of permissions in other care teams', () => {
       let patients = [
         { userid: 'a1b2c3', permissions: { view: {} } },
@@ -97,8 +97,8 @@ describe('membershipPermissionsInOtherCareTeams', () => {
       let initialStateForTest = {};
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
-      
-      let action = actions.sync.fetchPatientsSuccess(patients);
+
+      let action = actions.sync.fetchAssociatedAccountsSuccess(patients);
 
       let state = reducer(initialStateForTest, action);
 
@@ -124,7 +124,7 @@ describe('membershipPermissionsInOtherCareTeams', () => {
       };
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
-      
+
       let action = actions.sync.removeMembershipInOtherCareTeamSuccess(patientId);
 
       let state = reducer(initialStateForTest, action);
@@ -143,7 +143,7 @@ describe('membershipPermissionsInOtherCareTeams', () => {
       };
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
-      
+
       let action = actions.sync.logoutRequest()
 
       let state = reducer(initialStateForTest, action);

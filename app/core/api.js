@@ -358,6 +358,50 @@ api.user.deleteOAuthProviderAuthorization = function(provider, cb) {
   tidepool.deleteOAuthProviderAuthorization(provider, cb);
 }
 
+// Get all accounts associated with the current user
+api.user.getAssociatedAccounts = function(cb) {
+  api.log('GET /patients');
+
+  tidepool.getAssociatedUsersDetails(tidepool.getUserId(), function(err, users) {
+    if (err) {
+      return cb(err);
+    }
+
+    // Filter out viewable users, data donation, and care team accounts separately
+    var viewableUsers = [];
+    var dataDonationAccounts = [];
+    var careTeam = [];
+
+    _.each(users, function(user) {
+      if (personUtils.isDataDonationAccount(user)) {
+        dataDonationAccounts.push({
+          userid: user.userid,
+          email: user.username,
+          status: 'confirmed',
+        });
+      } else if (!_.isEmpty(user.trustorPermissions)) {
+        // These are the accounts that have shared their data
+        // with a given set of permissions.
+        user.permissions = user.trustorPermissions
+        delete user.trustorPermissions
+        viewableUsers.push(user);
+      } else if (!_.isEmpty(user.trusteePermissions)) {
+        // These are accounts with which the user has shared access to their data, exluding the
+        // data donation accounts
+        user.permissions = user.trusteePermissions
+        delete user.trusteePermissions
+        careTeam.push(user);
+      }
+    });
+
+    return cb(null, {
+      patients: viewableUsers,
+      dataDonationAccounts,
+      careTeam
+    });
+  });
+};
+
 // ----- Patient -----
 
 api.patient = {};
@@ -469,50 +513,6 @@ api.patient.put = function(patient, cb) {
   api.log('PUT /patients/' + patient.userid);
 
   return updatePatient(patient, cb);
-};
-
-// Get all patients in current user's "patients" group
-api.patient.getAll = function(cb) {
-  api.log('GET /patients');
-
-  tidepool.getAssociatedUsersDetails(tidepool.getUserId(), function(err, users) {
-    if (err) {
-      return cb(err);
-    }
-
-    // Filter out viewable users, data donation, and care team accounts separately
-    var viewableUsers = [];
-    var dataDonationAccounts = [];
-    var careTeam = [];
-
-    _.each(users, function(user) {
-      if (personUtils.isDataDonationAccount(user)) {
-        dataDonationAccounts.push({
-          userid: user.userid,
-          email: user.username,
-          status: 'confirmed',
-        });
-      } else if (!_.isEmpty(user.trustorPermissions)) {
-        // These are the accounts that have shared their data
-        // with a given set of permissions.
-        user.permissions = user.trustorPermissions
-        delete user.trustorPermissions
-        viewableUsers.push(user);
-      } else if (!_.isEmpty(user.trusteePermissions)) {
-        // These are accounts with which the user has shared access to their data, exluding the
-        // data donation accounts
-        user.permissions = user.trusteePermissions
-        delete user.trusteePermissions
-        careTeam.push(user);
-      }
-    });
-
-    return cb(null, {
-      patients: viewableUsers,
-      dataDonationAccounts,
-      careTeam
-    });
-  });
 };
 
 // ----- Metadata -----

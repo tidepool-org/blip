@@ -21,8 +21,8 @@ let getFetchers = (dispatchProps, ownProps, stateProps, api) => {
     fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
   }
 
-  if (!stateProps.fetchingPatients.inProgress && !stateProps.fetchingPatients.completed) {
-    fetchers.push(dispatchProps.fetchPatients.bind(null, api));
+  if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
+    fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
   }
 
   return fetchers;
@@ -74,7 +74,7 @@ export function mapStateToProps(state) {
     patient: patient,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
-    fetchingPatients: state.blip.working.fetchingPatients,
+    fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
     pendingSentInvites: state.blip.pendingSentInvites,
     changingMemberPermissions: state.blip.working.settingMemberPermissions.inProgress,
     removingMember: state.blip.working.removingMemberFromTargetCareTeam.inProgress,
@@ -91,7 +91,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   inviteMember: actions.async.sendInvite,
   cancelInvite: actions.async.cancelSentInvite,
   fetchPatient: actions.async.fetchPatient,
-  fetchPatients: actions.async.fetchPatients,
+  fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
 }, dispatch);
 

@@ -28,7 +28,7 @@ export const notification = (state = initialState.notification, action) => {
     case types.FETCH_USER_FAILURE:
     case types.FETCH_PENDING_SENT_INVITES_FAILURE:
     case types.FETCH_PENDING_RECEIVED_INVITES_FAILURE:
-    case types.FETCH_PATIENTS_FAILURE:
+    case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
@@ -205,7 +205,7 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
 
       return newState;
     }
-    case types.FETCH_PATIENTS_SUCCESS:
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
       const { patients = [], careTeam = [] } = action.payload;
       let patientsMap = {};
 
@@ -285,7 +285,7 @@ export const loggedInUserId = (state = initialState.loggedInUserId, action) => {
 
 export const membersOfTargetCareTeam = (state = initialState.membersOfTargetCareTeam, action) => {
   switch(action.type) {
-    case types.FETCH_PATIENTS_SUCCESS:
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
       const team = _.get(action.payload, 'careTeam', []);
       return team.length ? team.map((member) => member.userid) : state;
     case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
@@ -301,7 +301,7 @@ export const membersOfTargetCareTeam = (state = initialState.membersOfTargetCare
 
 export const membershipInOtherCareTeams = (state = initialState.membershipInOtherCareTeams, action) => {
   switch(action.type) {
-    case types.FETCH_PATIENTS_SUCCESS:
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
       const patients = _.get(action.payload, ['patients'], []);
       return patients.map((patient) => patient.userid);
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
@@ -333,7 +333,7 @@ export const permissionsOfMembersInTargetCareTeam = (state = initialState.permis
         return state;
       }
     }
-    case types.FETCH_PATIENTS_SUCCESS: {
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS: {
       const team = _.get(action.payload, 'careTeam');
       if (!_.isEmpty(team)) {
         let permissions = {};
@@ -380,7 +380,7 @@ export const membershipPermissionsInOtherCareTeams = (state = initialState.membe
       const { context } = action.payload.acceptedReceivedInvite;
       return update(state, { $merge: { [creatorId]: context }});
     }
-    case types.FETCH_PATIENTS_SUCCESS: {
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS: {
       let permissions = {};
       action.payload.patients.forEach((patient) => {
         if (patient.permissions) {
@@ -552,7 +552,7 @@ export const pendingReceivedInvites = (state = initialState.pendingReceivedInvit
 export const dataDonationAccounts = (state = initialState.dataDonationAccounts, action) => {
   let accounts;
   switch(action.type) {
-    case types.FETCH_PATIENTS_SUCCESS:
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
       accounts = state.concat(_.get(action.payload, 'dataDonationAccounts', []));
       return update(state, { $set: _.uniqBy(accounts, 'email') });
 

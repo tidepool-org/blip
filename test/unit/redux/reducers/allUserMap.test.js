@@ -130,7 +130,7 @@ describe('allUsersMap', () => {
     });
   });
 
-  describe('fetchPatientsSuccess', () => {
+  describe('fetchAssociatedAccountsSuccess', () => {
     it('should add fetched patients to state when they do not currently exist in state', () => {
       let initialStateForTest = {};
       let tracked = mutationTracker.trackObj(initialStateForTest);
@@ -140,7 +140,7 @@ describe('allUsersMap', () => {
         {userid: 'd4e5f6'}
       ];
 
-      let action = actions.sync.fetchPatientsSuccess(patients);
+      let action = actions.sync.fetchAssociatedAccountsSuccess(patients);
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(2);
@@ -217,7 +217,7 @@ describe('allUsersMap', () => {
       let initialStateForTest = {
         a1b2c3:  { userid: 'a1b2c3' }
       };
-      
+
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let user = { userid: 'a1b2c3', name: 'Xavier', profile: { foo: 'bar' } };

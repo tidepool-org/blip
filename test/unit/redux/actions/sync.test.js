@@ -1485,57 +1485,57 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchPatientsRequest', () => {
+    describe('fetchAssociatedAccountsRequest', () => {
       it('should be a TSA', () => {
-        let action = sync.fetchPatientsRequest();
+        let action = sync.fetchAssociatedAccountsRequest();
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PATIENTS_REQUEST', () => {
-        let action = sync.fetchPatientsRequest();
-        expect(action.type).to.equal('FETCH_PATIENTS_REQUEST');
+      it('type should equal FETCH_ASSOCIATED_ACCOUNTS_REQUEST', () => {
+        let action = sync.fetchAssociatedAccountsRequest();
+        expect(action.type).to.equal('FETCH_ASSOCIATED_ACCOUNTS_REQUEST');
       });
     });
 
-    describe('fetchPatientsSuccess', () => {
+    describe('fetchAssociatedAccountsSuccess', () => {
       it('should be a TSA', () => {
         let patients = [{
           id: 20,
           name: 'Bruce Lee',
           age: 24
         }];
-        let action = sync.fetchPatientsSuccess(patients);
+        let action = sync.fetchAssociatedAccountsSuccess(patients);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PATIENTS_SUCCESS', () => {
+      it('type should equal FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', () => {
         let patients = [{
           id: 20,
           name: 'Jackie Chan',
           age: 24
         }];
-        let action = sync.fetchPatientsSuccess(patients);
+        let action = sync.fetchAssociatedAccountsSuccess(patients);
 
-        expect(action.type).to.equal('FETCH_PATIENTS_SUCCESS');
+        expect(action.type).to.equal('FETCH_ASSOCIATED_ACCOUNTS_SUCCESS');
         expect(action.payload.patients).to.equal(patients);
       });
     });
 
-    describe('fetchPatientsFailure', () => {
+    describe('fetchAssociatedAccountsFailure', () => {
       it('should be a TSA', () => {
         let error = new Error(':(');
-        let action = sync.fetchPatientsFailure(error);
+        let action = sync.fetchAssociatedAccountsFailure(error);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PATIENTS_FAILURE and error should equal passed error', () => {
+      it('type should equal FETCH_ASSOCIATED_ACCOUNTS_FAILURE and error should equal passed error', () => {
         let error = new Error(':(');
-        let action = sync.fetchPatientsFailure(error);
+        let action = sync.fetchAssociatedAccountsFailure(error);
 
-        expect(action.type).to.equal('FETCH_PATIENTS_FAILURE');
+        expect(action.type).to.equal('FETCH_ASSOCIATED_ACCOUNTS_FAILURE');
         expect(action.error).to.equal(error);
       });
     });

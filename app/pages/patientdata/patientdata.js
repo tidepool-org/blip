@@ -1424,9 +1424,9 @@ let getFetchers = (dispatchProps, ownProps, stateProps, api, options) => {
     fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
   }
 
-  // Need fetchPatients here because the result includes of data donation accounts sharing info
-  if (!stateProps.fetchingPatients.inProgress && !stateProps.fetchingPatients.completed) {
-    fetchers.push(dispatchProps.fetchPatients.bind(null, api));
+  // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
+  if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
+    fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
   }
 
   return fetchers;
@@ -1480,7 +1480,7 @@ export function mapStateToProps(state, props) {
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
-    fetchingPatients: state.blip.working.fetchingPatients,
+    fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
     generatingPDF: state.blip.working.generatingPDF.inProgress,
     pdf: state.blip.pdf,
     viz: state.viz,
@@ -1491,7 +1491,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   addPatientNote: actions.sync.addPatientNote,
   clearPatientData: actions.sync.clearPatientData,
   closeMessageThread: actions.sync.closeMessageThread,
-  fetchPatients: actions.async.fetchPatients,
+  fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,

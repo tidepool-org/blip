@@ -17,10 +17,10 @@ export default (type) => {
     case types.FETCH_PENDING_RECEIVED_INVITES_FAILURE:
       return 'fetchingPendingReceivedInvites';
 
-    case types.FETCH_PATIENTS_REQUEST:
-    case types.FETCH_PATIENTS_SUCCESS:
-    case types.FETCH_PATIENTS_FAILURE:
-      return 'fetchingPatients';
+    case types.FETCH_ASSOCIATED_ACCOUNTS_REQUEST:
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
+    case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
+      return 'fetchingAssociatedAccounts';
 
     case types.FETCH_PATIENT_REQUEST:
     case types.FETCH_PATIENT_SUCCESS:

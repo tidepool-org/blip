@@ -369,8 +369,8 @@ let getFetchers = (dispatchProps, ownProps, stateProps, api) => {
     fetchers.push(dispatchProps.fetchPendingReceivedInvites.bind(null, api));
   }
 
-  if (!stateProps.fetchingPatients.inProgress && !stateProps.fetchingPatients.completed) {
-    fetchers.push(dispatchProps.fetchPatients.bind(null, api));
+  if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
+    fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
   }
 
   return fetchers;
@@ -418,7 +418,7 @@ export function mapStateToProps(state) {
 
   let {
     fetchingUser: { inProgress: fetchingUser },
-    fetchingPatients,
+    fetchingAssociatedAccounts,
     fetchingPendingReceivedInvites,
   } = state.blip.working;
 
@@ -427,8 +427,8 @@ export function mapStateToProps(state) {
     invites: state.blip.pendingReceivedInvites,
     fetchingUser: fetchingUser,
     fetchingPendingReceivedInvites,
-    fetchingPatients,
-    loading: fetchingUser || fetchingPatients.inProgress || fetchingPendingReceivedInvites.inProgress,
+    fetchingAssociatedAccounts,
+    loading: fetchingUser || fetchingAssociatedAccounts.inProgress || fetchingPendingReceivedInvites.inProgress,
     loggedInUserId: state.blip.loggedInUserId,
     patients: _.keys(patientMap).map((key) => patientMap[key]),
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
@@ -441,7 +441,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   rejectReceivedInvite: actions.async.rejectReceivedInvite,
   removePatient: actions.async.removeMembershipInOtherCareTeam,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
-  fetchPatients: actions.async.fetchPatients,
+  fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   clearPatientData: actions.sync.clearPatientData,
   clearPatientInView: actions.sync.clearPatientInView,
   showWelcomeMessage: actions.sync.showWelcomeMessage,

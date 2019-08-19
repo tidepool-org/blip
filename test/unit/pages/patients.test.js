@@ -267,7 +267,7 @@ describe('Patients', () => {
         showingWelcomeMessage: true,
         targetUserId: 'a1b2c3',
         working: {
-          fetchingPatients: {inProgress: false},
+          fetchingAssociatedAccounts: {inProgress: false},
           fetchingPendingReceivedInvites: {inProgress: true},
           fetchingUser: {inProgress: false}
         }
@@ -314,7 +314,7 @@ describe('Patients', () => {
         expect(result.pendingReceivedInvites)
       });
 
-      it('should map fetchingPendingReceivedInvites + fetchingUser + fetchingPatients inProgress fields to loading', () => {
+      it('should map fetchingPendingReceivedInvites + fetchingUser + fetchingAssociatedAccounts inProgress fields to loading', () => {
         expect(result.loading).to.equal(true);
       });
 
@@ -342,7 +342,7 @@ describe('Patients', () => {
         showingWelcomeMessage: true,
         targetUserId: null,
         working: {
-          fetchingPatients: {inProgress: false},
+          fetchingAssociatedAccounts: {inProgress: false},
           fetchingPendingReceivedInvites: {inProgress: false},
           fetchingUser: {inProgress: false}
         }
@@ -377,7 +377,7 @@ describe('Patients', () => {
         expect(result.pendingReceivedInvites)
       });
 
-      it('should map fetchingPendingReceivedInvites + fetchingUser + fetchingPatients inProgress fields to loading', () => {
+      it('should map fetchingPendingReceivedInvites + fetchingUser + fetchingAssociatedAccounts inProgress fields to loading', () => {
         expect(result.loading).to.equal(false);
       });
 

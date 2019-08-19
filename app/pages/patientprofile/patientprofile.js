@@ -20,10 +20,10 @@ let getFetchers = (dispatchProps, ownProps, stateProps, api) => {
     fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
   }
 
-  if (!stateProps.fetchingPatients.inProgress && !stateProps.fetchingPatients.completed) {
-    // Need fetchPatients here because the result includes of data donation accounts sharing info
+  if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
+    // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
     if (_.get(stateProps, 'user.userid') === _.get(ownProps, 'params.id') ) {
-      fetchers.push(dispatchProps.fetchPatients.bind(null, api));
+      fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
     }
   }
 
@@ -75,7 +75,7 @@ export function mapStateToProps(state) {
     permsOfLoggedInUser: permsOfLoggedInUser,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
-    fetchingPatients: state.blip.working.fetchingPatients,
+    fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
     dataDonationAccounts: state.blip.dataDonationAccounts,
     updatingDataDonationAccounts: state.blip.working.updatingDataDonationAccounts.inProgress,
     updatingPatientBgUnits: state.blip.working.updatingPatientBgUnits.inProgress,
@@ -86,7 +86,7 @@ export function mapStateToProps(state) {
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   acknowledgeNotification: actions.sync.acknowledgeNotification,
-  fetchPatients: actions.async.fetchPatients,
+  fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   fetchDataSources: actions.async.fetchDataSources,
