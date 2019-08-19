@@ -36,11 +36,21 @@ export function mapStateToProps(state) {
   let permissions = {};
   let permsOfLoggedInUser = {};
 
-  let {
+  const {
     allUsersMap,
     loggedInUserId,
     currentPatientInViewId,
+    working,
   } = state.blip;
+
+  const {
+    fetchingUser,
+    fetchingPatient,
+    fetchingPendingSentInvites,
+    fetchingAssociatedAccounts,
+    updatingDataDonationAccounts,
+    updatingPatientBgUnits,
+  } = working;
 
   if (allUsersMap){
     if (loggedInUserId) {
@@ -70,15 +80,16 @@ export function mapStateToProps(state) {
 
   return {
     user: user,
-    fetchingUser: state.blip.working.fetchingUser.inProgress,
+    fetchingUser: fetchingUser.inProgress,
     patient: { permissions, ...patient },
     permsOfLoggedInUser: permsOfLoggedInUser,
-    fetchingPatient: state.blip.working.fetchingPatient.inProgress,
-    fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
-    fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
+    fetchingPatient: fetchingPatient.inProgress,
+    fetchingPendingSentInvites: fetchingPendingSentInvites,
+    fetchingAssociatedAccounts: fetchingAssociatedAccounts,
     dataDonationAccounts: state.blip.dataDonationAccounts,
-    updatingDataDonationAccounts: state.blip.working.updatingDataDonationAccounts.inProgress,
-    updatingPatientBgUnits: state.blip.working.updatingPatientBgUnits.inProgress,
+    dataDonationAccountsFetched: fetchingAssociatedAccounts.completed && fetchingAssociatedAccounts.completed,
+    updatingDataDonationAccounts: updatingDataDonationAccounts.inProgress,
+    updatingPatientBgUnits: updatingPatientBgUnits.inProgress,
     dataSources: state.blip.dataSources || [],
     authorizedDataSource: state.blip.authorizedDataSource,
   };

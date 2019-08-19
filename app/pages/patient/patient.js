@@ -128,6 +128,7 @@ const Patient = translate()(React.createClass({
           onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           dataDonationAccounts={this.props.dataDonationAccounts || []}
+          dataDonationAccountsFetched={this.props.dataDonationAccountsFetched}
           updatingDataDonationAccounts={this.props.updatingDataDonationAccounts}
           updatingPatientBgUnits={this.props.updatingPatientBgUnits}
           dataSources={this.props.dataSources}

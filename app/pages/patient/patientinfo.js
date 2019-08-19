@@ -419,7 +419,8 @@ var PatientInfo = translate()(React.createClass({
           <div className="PatientPage-sectionTitle">{t('Donate my data?')}</div>
           <div className="PatientInfo-content">
             <DonateForm
-              dataDonationAccounts={this.props.dataDonationAccounts || []}
+              dataDonationAccounts={this.props.dataDonationAccounts}
+              dataDonationAccountsFetched={this.props.dataDonationAccountsFetched || false}
               onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
               working={this.props.updatingDataDonationAccounts || false}
               trackMetric={this.props.trackMetric}
