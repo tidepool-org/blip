@@ -155,7 +155,7 @@ export let VerificationWithPassword = translate()(React.createClass({
       { type: 'password', name: 'password', label: t('password'), value: formValues.password},
       { type: 'confirmPassword', name: 'passwordConfirm', label: t('confirm password'), value: formValues.passwordConfirm, prerequisites: { password: formValues.password } }
     ];
-    var validationErrors = validateForm(form);
+    var validationErrors = validateForm(form, true);
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
