@@ -34,7 +34,7 @@ import {
 
 const expect = chai.expect;
 
-describe.only('DonateForm', () => {
+describe('DonateForm', () => {
   const props = {
     dataDonationAccounts: [],
     onUpdateDataDonationAccounts: sinon.stub(),
