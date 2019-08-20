@@ -35,6 +35,7 @@ const Patient = translate()(React.createClass({
     acknowledgeNotification: React.PropTypes.func.isRequired,
     cancellingInvite: React.PropTypes.bool,
     dataDonationAccounts: React.PropTypes.array,
+    dataDonationAccountsFetched: React.PropTypes.bool,
     changingMemberPermissions: React.PropTypes.bool,
     fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
