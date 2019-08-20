@@ -10,9 +10,114 @@ import mutationTracker from 'object-invariant-test-helper';
 var assert = chai.assert;
 var expect = chai.expect;
 
-import { mapStateToProps } from '../../../app/pages/patientprofile/patientprofile';
+import { mapStateToProps, getFetchers } from '../../../app/pages/patientprofile/patientprofile';
 
 describe('PatientProfile', () => {
+  describe('getFetchers', () => {
+    const stateProps = {
+      user: { userid: '12345' },
+      fetchingPendingSentInvites: {
+        inProgress: false,
+        completed: null,
+      },
+      fetchingAssociatedAccounts: {
+        inProgress: false,
+        completed: null,
+      },
+    };
+
+    const ownProps = {
+      routeParams: { id: '12345' }
+    };
+
+    const dispatchProps = {
+      fetchPatient: sinon.stub().returns('fetchPatient'),
+      fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
+      fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
+    };
+
+    const api = {};
+
+    it('should return an array containing the user fetcher from dispatchProps', () => {
+      const result = getFetchers(dispatchProps, ownProps, stateProps, api);
+      expect(result[0]).to.be.a('function');
+      expect(result[0]()).to.equal('fetchPatient');
+      expect(result[1]).to.be.a('function');
+      expect(result[1]()).to.equal('fetchPendingSentInvites');
+      expect(result[2]).to.be.a('function');
+      expect(result[2]()).to.equal('fetchAssociatedAccounts');
+    });
+
+    it('should only add the associated accounts and pending invites fetchers if fetches are not already in progress or completed', () => {
+      const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
+      expect(standardResult.length).to.equal(3);
+
+      const inProgressResult = getFetchers(dispatchProps, ownProps, {
+        user: { userid: '12345' },
+        fetchingPendingSentInvites: {
+          inProgress: true,
+          completed: null,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: true,
+          completed: null,
+        },
+      }, api);
+
+      expect(inProgressResult.length).to.equal(1);
+
+      const completedResult = getFetchers(dispatchProps, ownProps, {
+        user: { userid: '12345' },
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+      }, api);
+      expect(completedResult.length).to.equal(1);
+    });
+
+    it('should only add the associated accounts fetcher when viewing the profile of the logged-in user', () => {
+      const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
+      expect(standardResult.length).to.equal(3);
+
+      const loggedInUserResult = getFetchers(dispatchProps, {
+        routeParams: { id: '12345' }
+      }, {
+        user: { userid: '12345' },
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: null,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: null,
+        },
+      }, dispatchProps, api);
+
+      expect(loggedInUserResult.length).to.equal(3);
+
+      const otherUserResult = getFetchers(dispatchProps, {
+        routeParams: { id: '56789' }
+      }, {
+        user: { userid: '12345' },
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: null,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: null,
+        },
+      }, dispatchProps, api);
+
+      expect(otherUserResult.length).to.equal(2);
+    });
+  });
+
   describe('mapStateToProps', () => {
     describe('logged-in user is PWD viewing own profile', () => {
       const state = {
@@ -52,6 +157,14 @@ describe('PatientProfile', () => {
 
       it('should map working.fetchingPatient.inProgress to fetchingPatient', () => {
         expect(result.fetchingPatient).to.deep.equal(state.working.fetchingPatient.inProgress)
+      });
+
+      it('should map working.fetchingPendingSentInvites to fetchingPendingSentInvites', () => {
+        expect(result.fetchingPendingSentInvites).to.deep.equal(state.working.fetchingPendingSentInvites)
+      });
+
+      it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
+        expect(result.fetchingAssociatedAccounts).to.deep.equal(state.working.fetchingAssociatedAccounts)
       });
     });
 
@@ -94,6 +207,14 @@ describe('PatientProfile', () => {
 
       it('should map working.fetchingPatient.inProgress to fetchingPatient', () => {
         expect(result.fetchingPatient).to.deep.equal(state.working.fetchingPatient.inProgress)
+      });
+
+      it('should map working.fetchingPendingSentInvites to fetchingPendingSentInvites', () => {
+        expect(result.fetchingPendingSentInvites).to.deep.equal(state.working.fetchingPendingSentInvites)
+      });
+
+      it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
+        expect(result.fetchingAssociatedAccounts).to.deep.equal(state.working.fetchingAssociatedAccounts)
       });
     });
   });

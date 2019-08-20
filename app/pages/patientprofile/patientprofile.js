@@ -11,7 +11,7 @@ import Patient from '../patient/';
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
-let getFetchers = (dispatchProps, ownProps, stateProps, api) => {
+export function getFetchers(dispatchProps, ownProps, stateProps, api) {
   const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
   ];
@@ -22,7 +22,7 @@ let getFetchers = (dispatchProps, ownProps, stateProps, api) => {
 
   if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
     // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
-    if (_.get(stateProps, 'user.userid') === _.get(ownProps, 'params.id') ) {
+    if (_.get(stateProps, 'user.userid') === _.get(ownProps, 'routeParams.id') ) {
       fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
     }
   }
