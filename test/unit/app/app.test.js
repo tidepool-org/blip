@@ -537,8 +537,8 @@ describe('App', () => {
         expect(result.authenticated).to.equal(initialState.isLoggedIn);
       });
 
-      it('should map working.fetchingUser.inProgress to fetchingUser', () => {
-        expect(result.fetchingUser).to.equal(initialState.working.fetchingUser.inProgress);
+      it('should map working.fetchingUser to fetchingUser', () => {
+        expect(result.fetchingUser).to.eql(initialState.working.fetchingUser);
       });
 
       it('should map working.fetchingPatient.inProgress to fetchingPatient', () => {
@@ -613,8 +613,8 @@ describe('App', () => {
         expect(result.authenticated).to.equal(loggedIn.isLoggedIn);
       });
 
-      it('should map working.fetchingUser.inProgress to fetchingUser', () => {
-        expect(result.fetchingUser).to.equal(loggedIn.working.fetchingUser.inProgress);
+      it('should map working.fetchingUser to fetchingUser', () => {
+        expect(result.fetchingUser).to.eql(loggedIn.working.fetchingUser);
       });
 
       it('should map working.fetchingPatient.inProgress to fetchingPatient', () => {
@@ -744,6 +744,14 @@ describe('App', () => {
       describe('getFetchers', () => {
         const stateProps = {
           authenticated: false,
+          fetchingUser: {
+            inProgress: false,
+            completed: null,
+          },
+          fetchingDataSources: {
+            inProgress: false,
+            completed: null,
+          },
         };
 
         const dispatchProps ={
@@ -757,6 +765,35 @@ describe('App', () => {
           const result = getFetchers(stateProps, dispatchProps, api);
           expect(result[0]).to.be.a('function');
           expect(result[0]()).to.equal('fetchUser');
+        });
+
+        it('should only add the user and data source fetchers if fetch is not already in progress or completed', () => {
+          const inProgressResult = getFetchers({
+            authenticated: true,
+            fetchingUser: {
+              inProgress: true,
+              completed: null,
+            },
+            fetchingDataSources: {
+              inProgress: true,
+              completed: null,
+            },
+          }, dispatchProps, api);
+
+          expect(inProgressResult.length).to.equal(0);
+
+          const completedResult = getFetchers({
+            authenticated: true,
+            fetchingUser: {
+              inProgress: false,
+              completed: true,
+            },
+            fetchingDataSources: {
+              inProgress: false,
+              completed: true,
+            },
+          }, dispatchProps, api);
+          expect(completedResult.length).to.equal(0);
         });
 
         it('should return an array containing the data sources fetcher from dispatchProps, but only if authenticated', () => {
