@@ -743,7 +743,7 @@ describe('App', () => {
 
       describe('getFetchers', () => {
         const stateProps = {
-          authenticated: false,
+          authenticated: true,
           fetchingUser: {
             inProgress: false,
             completed: null,
@@ -754,7 +754,7 @@ describe('App', () => {
           },
         };
 
-        const dispatchProps ={
+        const dispatchProps = {
           fetchUser: sinon.stub().returns('fetchUser'),
           fetchDataSources: sinon.stub().returns('fetchDataSources'),
         };
@@ -765,9 +765,14 @@ describe('App', () => {
           const result = getFetchers(stateProps, dispatchProps, api);
           expect(result[0]).to.be.a('function');
           expect(result[0]()).to.equal('fetchUser');
+          expect(result[1]).to.be.a('function');
+          expect(result[1]()).to.equal('fetchDataSources');
         });
 
-        it('should only add the user and data source fetchers if fetch is not already in progress or completed', () => {
+        it('should only add the user and data source fetchers if fetches are not already in progress or completed', () => {
+          const standardResult = getFetchers(stateProps, dispatchProps, api);
+          expect(standardResult.length).to.equal(2);
+
           const inProgressResult = getFetchers({
             authenticated: true,
             fetchingUser: {
@@ -797,7 +802,7 @@ describe('App', () => {
         });
 
         it('should return an array containing the data sources fetcher from dispatchProps, but only if authenticated', () => {
-          const result = getFetchers(stateProps, dispatchProps, api);
+          const result = getFetchers(_.assign({}, stateProps, { authenticated: false } ), dispatchProps, api);
           expect(result[1]).to.be.undefined;
 
           const loggedInResult = getFetchers(_.assign({}, stateProps, { authenticated: true } ), dispatchProps, api);

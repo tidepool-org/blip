@@ -1414,7 +1414,7 @@ export let PatientData = translate()(React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let getFetchers = (dispatchProps, ownProps, stateProps, api, options) => {
+export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
   const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
     dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id),
