@@ -87,7 +87,7 @@ export function mapStateToProps(state) {
     fetchingPendingSentInvites: fetchingPendingSentInvites,
     fetchingAssociatedAccounts: fetchingAssociatedAccounts,
     dataDonationAccounts: state.blip.dataDonationAccounts,
-    dataDonationAccountsFetched: fetchingAssociatedAccounts.completed && fetchingAssociatedAccounts.completed,
+    dataDonationAccountsFetched: fetchingPendingSentInvites.completed && fetchingAssociatedAccounts.completed,
     updatingDataDonationAccounts: updatingDataDonationAccounts.inProgress,
     updatingPatientBgUnits: updatingPatientBgUnits.inProgress,
     dataSources: state.blip.dataSources || [],

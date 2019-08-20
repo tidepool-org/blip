@@ -24,6 +24,8 @@ describe('PatientProfile', () => {
         working: {
           fetchingPatient: {inProgress: false, notification: null},
           fetchingUser: {inProgress: false, notification: null},
+          fetchingPendingSentInvites: { inProgress: false, completed: null },
+          fetchingAssociatedAccounts: { inProgress: false, completed: null },
           updatingDataDonationAccounts: { inProgress: false },
           updatingPatientBgUnits: { inProgress: false },
         },
@@ -64,6 +66,8 @@ describe('PatientProfile', () => {
         working: {
           fetchingPatient: {inProgress: true, notification: null},
           fetchingUser: { inProgress: false, notification: null },
+          fetchingPendingSentInvites: { inProgress: false, completed: null },
+          fetchingAssociatedAccounts: { inProgress: false, completed: null },
           updatingDataDonationAccounts: { inProgress: false },
           updatingPatientBgUnits: { inProgress: false },
         },

@@ -52,7 +52,11 @@ export class AppComponent extends React.Component {
     fetchingUser: React.PropTypes.shape({
       inProgress: React.PropTypes.bool.isRequired,
       completed: React.PropTypes.oneOfType([null, React.PropTypes.bool]),
-    }),
+    }).isRequired,
+    fetchingDataSources: React.PropTypes.shape({
+      inProgress: React.PropTypes.bool.isRequired,
+      completed: React.PropTypes.oneOfType([null, React.PropTypes.bool]),
+    }).isRequired,
     location: React.PropTypes.string.isRequired,
     loggingOut: React.PropTypes.bool.isRequired,
     updatingDataDonationAccounts: React.PropTypes.bool.isRequired,
@@ -221,7 +225,7 @@ export class AppComponent extends React.Component {
     ];
     if (!_.includes(LOGIN_NAV_ROUTES, this.props.location)) {
       if (this.props.authenticated ||
-        (this.props.fetchingUser.inProgress || this.props.fetchingPatient)) {
+        (_.get(this.props.fetchingUser, 'inProgress') || this.props.fetchingPatient)) {
         var patient, getUploadUrl;
         if (this.isPatientVisibleInNavbar()) {
           patient = this.props.patient;
@@ -231,7 +235,7 @@ export class AppComponent extends React.Component {
          <div className="App-navbar">
           <Navbar
             user={this.props.user}
-            fetchingUser={this.props.fetchingUser.inProgress}
+            fetchingUser={_.get(this.props.fetchingUser, 'inProgress')}
             patient={patient}
             fetchingPatient={this.props.fetchingPatient}
             currentPage={this.props.location}

@@ -28,7 +28,7 @@ var personUtils = require('../../../app/core/personutils');
 var assert = chai.assert;
 var expect = chai.expect;
 
-describe('App',  () => {
+describe('App', () => {
 
   api.log = sinon.stub();
 
@@ -40,7 +40,7 @@ describe('App',  () => {
       log: sinon.stub(),
       personUtils: personUtils,
       trackMetric: sinon.stub()
-    }
+    },
   };
 
   describe('constructor', () => {
@@ -49,7 +49,14 @@ describe('App',  () => {
       children: createFragment({}),
       fetchers: [],
       fetchingPatient: false,
-      fetchingUser: false,
+      fetchingUser: {
+        inProgress: false,
+        completed: null,
+      },
+      fetchingDataSources: {
+        inProgress: false,
+        completed: null,
+      },
       location: '/foo',
       loggingOut: false,
       onAcceptTerms: sinon.stub(),
@@ -75,7 +82,14 @@ describe('App',  () => {
         children: createFragment({}),
         fetchers: [],
         fetchingPatient: false,
-        fetchingUser: false,
+        fetchingUser: {
+          inProgress: false,
+          completed: null,
+        },
+        fetchingDataSources: {
+          inProgress: false,
+          completed: null,
+        },
         location: '/foo',
         loggingOut: false,
         onAcceptTerms: sinon.stub(),
@@ -95,7 +109,7 @@ describe('App',  () => {
 
       var elem = TestUtils.renderIntoDocument(<App {...baseProps}/>);
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(10);
+      expect(console.error.callCount).to.equal(11);
       var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
       expect(app).to.be.ok;
     });
@@ -630,7 +644,7 @@ describe('App',  () => {
 
       it('should return the current patient in view as patient and empty permissions', () => {
         expect(result.patient).to.deep.equal(Object.assign({}, loggedIn.allUsersMap.d4e5f6, { permissions: {} }));
-      }); 
+      });
 
       it('should return empty permsOfLoggedInUser if user does not have authorization', () => {
         expect(result.permsOfLoggedInUser).to.be.empty;
@@ -676,10 +690,10 @@ describe('App',  () => {
           }
         };
         const careTeamMemberUploadResult = mapStateToProps({blip: careTeamMemberUpload});
-  
+
         it('should return correct permsOfLoggedInUser permissions', () => {
           expect(careTeamMemberUploadResult.permsOfLoggedInUser).to.equal(careTeamMemberUpload.membershipPermissionsInOtherCareTeams.d4e5f6);
-        });  
+        });
       });
 
       context('Care team member without upload permissions', () => {
@@ -721,7 +735,7 @@ describe('App',  () => {
           }
         };
         const careTeamMemberNoUploadResult = mapStateToProps({blip: careTeamMemberNoUpload});
-  
+
         it('should return correct permsOfLoggedInUser permissions', () => {
           expect(careTeamMemberNoUploadResult.permsOfLoggedInUser).to.equal(careTeamMemberNoUpload.membershipPermissionsInOtherCareTeams.d4e5f6);
         });
