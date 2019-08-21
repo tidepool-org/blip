@@ -3,6 +3,7 @@ FROM node:10.14.2-alpine as base
 WORKDIR /app
 RUN mkdir -p dist node_modules && chown -R node:node .
 
+
 ### Stage 1 - Base image for development image to install and configure Chromium for unit tests
 FROM base as developBase
 RUN \
@@ -12,8 +13,6 @@ RUN \
   && apk --no-cache  update \
   && apk --no-cache  upgrade \
   && apk add --no-cache fontconfig bash udev ttf-opensans chromium \
-  && mkdir -p /@tidepool/viz/node_modules /tideline/node_modules /tidepool-platform-client/node_modules \
-  && chown -R node:node /@tidepool /tideline /tidepool-platform-client \
   && rm -rf /var/cache/apk/* /tmp/*
 ENV \
   CHROME_BIN=/usr/bin/chromium-browser \
@@ -24,29 +23,41 @@ ENV \
 ### Stage 2 - Create cached `node_modules`
 # Only rebuild layer if `package.json` has changed
 FROM base as dependencies
-USER node
 COPY package.json .
+COPY yarn.lock .
 RUN \
   # Build and separate all dependancies required for production
-  npm install --production && cp -R node_modules production_node_modules \
+  yarn install --production && cp -R node_modules production_node_modules \
   # Build all modules, including `devDependancies`
-  && npm install
+  && yarn install
+COPY packageMounts/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* /app/packageMounts/tideline/
+COPY packageMounts/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json*  /app/packageMounts/tidepool-platform-client/
+COPY packageMounts/stub packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* /app/packageMounts/@tidepool/viz/
+ARG LINKED_PKGS=""
+RUN \
+  # Build all modules for mounted packages (used when npm linking in development containers)
+  for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn install; done \
+  && yarn cache clean
 
 
 ### Stage 3 - Development root with Chromium installed for unit tests
-FROM developBase as develop
+FROM developBase as development
+ENV NODE_ENV=development
 WORKDIR /app
-USER node
-# Copy all `node_modules`
+# Copy all `node_modules` dependencies
 COPY --chown=node:node --from=dependencies /app/node_modules ./node_modules
+COPY --chown=node:node --from=dependencies /app/packageMounts ./packageMounts
 # Copy source files
 COPY --chown=node:node . .
-VOLUME ["/app", "/app/node_modules", "/app/dist"]
+# Link any packages as needed
+USER node
+ARG LINKED_PKGS=""
+RUN for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn link && cd /app && yarn link ${i}; done
 CMD ["npm", "start"]
 
 
 ### Stage 4 - Linting and unit testing
-FROM develop as test
+FROM development as test
 ENV NODE_ENV=test
 USER node
 CMD ["npm", "test"]
@@ -81,7 +92,7 @@ RUN npm run build
 
 
 ### Stage 7 - Serve production-ready release
-FROM buildBase as serve
+FROM buildBase as production
 USER node
 # Copy only `node_modules` and files needed to run the server
 COPY --from=dependencies /app/production_node_modules ./node_modules
