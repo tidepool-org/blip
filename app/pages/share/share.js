@@ -12,7 +12,7 @@ import Patient from '../patient';
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let getFetchers = (dispatchProps, ownProps, stateProps, api) => {
+export function getFetchers (dispatchProps, ownProps, stateProps, api) {
   const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
   ];

@@ -65,6 +65,7 @@ describe('PatientProfile', () => {
       }, api);
 
       expect(inProgressResult.length).to.equal(1);
+      expect(inProgressResult[0]()).to.equal('fetchPatient');
 
       const completedResult = getFetchers(dispatchProps, ownProps, {
         user: { userid: '12345' },
@@ -77,7 +78,9 @@ describe('PatientProfile', () => {
           completed: true,
         },
       }, api);
+
       expect(completedResult.length).to.equal(1);
+      expect(completedResult[0]()).to.equal('fetchPatient');
     });
 
     it('should only add the associated accounts fetcher when viewing the profile of the logged-in user', () => {

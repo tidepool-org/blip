@@ -3711,6 +3711,8 @@ describe('PatientData', function () {
       }, api);
 
       expect(inProgressResult.length).to.equal(2);
+      expect(inProgressResult[0]()).to.equal('fetchPatient');
+      expect(inProgressResult[1]()).to.equal('fetchPatientData');
 
       const completedResult = getFetchers(dispatchProps, ownProps, {
         fetchingPendingSentInvites: {
@@ -3722,7 +3724,10 @@ describe('PatientData', function () {
           completed: true,
         },
       }, api);
+
       expect(completedResult.length).to.equal(2);
+      expect(completedResult[0]()).to.equal('fetchPatient');
+      expect(completedResult[1]()).to.equal('fetchPatientData');
     });
   });
 
