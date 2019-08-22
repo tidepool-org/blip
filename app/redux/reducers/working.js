@@ -200,8 +200,8 @@ export default (state = initialWorkingState, action) => {
               notification: {
                 type: 'error',
                 message: _.get(action, ['error', 'message'], null),
-                completed: false,
-              }
+              },
+              completed: false,
             }
           }
         });
