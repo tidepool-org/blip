@@ -827,8 +827,7 @@ export function fetchPatient(api, id, cb = _.noop) {
       // In cases where the patient was set via the results from getPatients, the settings will not
       // be present, and we need them for the data views, so we bypass the cache to ensure we get
       // the complete patient object
-      if (patient && patient.settings) {
-        console.log('Using cached patient:', id)
+      if (_.get(patient, 'settings')) {
         dispatch(sync.fetchPatientSuccess(patient));
 
         // Invoke callback if provided

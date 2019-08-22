@@ -2630,6 +2630,65 @@ describe.only('Actions', () => {
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
 
+      it('should trigger FETCH_PATIENT_SUCCESS without fetching patient if complete patient record is in cache', () => {
+        let patient = { id: 58686, name: 'Buddy Holly', age: 65, settings: {} };
+
+        let api = {
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENT_SUCCESS', payload: { patient : patient } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: {
+          ...initialState,
+          allUsersMap: {
+            58686: patient,
+            '58686_cacheUntil': 9999999999999,
+          }
+        } });
+        store.dispatch(async.fetchPatient(api, 58686));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.patient.get.callCount).to.equal(0);
+      });
+
+      it('should skip the cache and fetch patient if settings are missing in cached patient record', () => {
+        let patient = { id: 58686, name: 'Buddy Holly', age: 65, settings: undefined };
+
+        let api = {
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENT_REQUEST' },
+          { type: 'FETCH_PATIENT_SUCCESS', payload: { patient : patient } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: {
+          ...initialState,
+          allUsersMap: {
+            58686: patient,
+            '58686_cacheUntil': 9999999999999,
+          }
+        } });
+        store.dispatch(async.fetchPatient(api, 58686));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
+      });
+
       it('[500] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
         let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
 
@@ -2827,6 +2886,50 @@ describe.only('Actions', () => {
         async.__Rewire__('utils', {
           getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
           getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsSufficient),
+        });
+      });
+
+      context.only('data is available in cache', () => {
+        it('should not trigger FETCH_PATIENT_DATA_REQUEST by default', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+            patientDataMap: {
+              [patientId]: [{ foo: 'bar' }],
+              [`${patientId}_cacheUntil`]: 9999999999999,
+            }
+          } });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions).to.not.deep.include({ type: 'FETCH_PATIENT_DATA_REQUEST' });
+        });
+
+        it('should not trigger FETCH_PATIENT_DATA_REQUEST if options.useCache is true', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+            patientDataMap: {
+              [patientId]: [{ foo: 'bar' }],
+              [`${patientId}_cacheUntil`]: 9999999999999,
+            }
+          } });
+          store.dispatch(async.fetchPatientData(api, { ...options, useCache: true }, patientId));
+
+          const actions = store.getActions();
+          expect(actions).to.not.deep.include({ type: 'FETCH_PATIENT_DATA_REQUEST' });
+        });
+
+        it('should still trigger FETCH_PATIENT_DATA_REQUEST if options.useCache is false', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+            patientDataMap: {
+              [patientId]: [],
+              [`${patientId}_cacheUntil`]: 9999999999999,
+            }
+          } });
+          store.dispatch(async.fetchPatientData(api, { ...options, useCache: false }, patientId));
+
+          const actions = store.getActions();
+          expect(actions).to.deep.include({ type: 'FETCH_PATIENT_DATA_REQUEST' });
         });
       });
 
