@@ -802,14 +802,10 @@ export function fetchAssociatedAccountsRequest() {
   };
 }
 
-export function fetchAssociatedAccountsSuccess({ patients, dataDonationAccounts, careTeam }) {
+export function fetchAssociatedAccountsSuccess(accounts) {
   return {
     type: ActionTypes.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS,
-    payload: {
-      patients,
-      dataDonationAccounts,
-      careTeam,
-    },
+    payload: accounts,
   };
 }
 

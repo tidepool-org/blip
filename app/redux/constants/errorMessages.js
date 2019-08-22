@@ -58,7 +58,6 @@ export const ERR_UPDATING_PATIENT_BG_UNITS = t('Something went wrong while savin
 export const ERR_UPDATING_USER = t('Something went wrong while updating user account.');
 export const ERR_YOUR_ACCOUNT_NOT_CONFIGURED = t('Sorry! It appears that your account hasn\'t been fully set up.');
 export const ERR_GENERATING_PDF = t('Something went wrong while generating your report.');
-export const ERR_FETCHING_DATA_DONATION_ACCOUNTS = t('Something went wrong while fetching your data donation preferences.');
 export const ERR_UPDATING_DATA_DONATION_ACCOUNTS = t('Something went wrong while updating your data donation preferences.');
 export const ERR_FETCHING_DATA_SOURCES = t('Something went wrong while fetching your data sources.');
 export const ERR_CONNECTING_DATA_SOURCE = t('Something went wrong while connecting the data source.');
