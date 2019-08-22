@@ -25,7 +25,7 @@ import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS } from '../../../../a
 // need to require() async in order to rewire utils inside
 const async = require('../../../../app/redux/actions/async');
 
-describe.only('Actions', () => {
+describe('Actions', () => {
   const trackMetric = sinon.spy();
   const mockStore = configureStore([
     thunk,
@@ -2889,7 +2889,7 @@ describe.only('Actions', () => {
         });
       });
 
-      context.only('data is available in cache', () => {
+      context('data is available in cache', () => {
         it('should not trigger FETCH_PATIENT_DATA_REQUEST by default', () => {
           let store = mockStore({ blip: {
             ...initialState,
