@@ -37,17 +37,19 @@ var expect = chai.expect;
 describe('memberInOtherCareTeams', () => {
   describe('fetchAssociatedAccountsSuccess', () => {
     it('should populate an array of patient ids', () => {
-      let patients = [
-        { userid: 'a1b2c3', name: 'Frank Jones' },
-        { userid: 'd4e5f6', name: 'Jenny Jones' },
-      ];
+      let accounts = {
+        patients: [
+          { userid: 'a1b2c3', name: 'Frank Jones' },
+          { userid: 'd4e5f6', name: 'Jenny Jones' },
+        ],
+      };
 
-      let action = actions.sync.fetchAssociatedAccountsSuccess(patients);
+      let action = actions.sync.fetchAssociatedAccountsSuccess(accounts);
       let state = reducer(initialState, action);
 
       expect(state.length).to.equal(2);
-      expect(state[0]).to.equal(patients[0].userid);
-      expect(state[1]).to.equal(patients[1].userid);
+      expect(state[0]).to.equal(accounts.patients[0].userid);
+      expect(state[1]).to.equal(accounts.patients[1].userid);
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });

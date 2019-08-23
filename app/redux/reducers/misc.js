@@ -219,7 +219,7 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       let { creator } = action.payload.acceptedReceivedInvite;
       return update(state, { $merge: {
         [creator.userid]: creator,
-        [`${creator.userid}_cacheUntil`]: { $set: generateCacheTTL(36e5) },
+        [`${creator.userid}_cacheUntil`]: generateCacheTTL(36e5),
       } });
     case types.ACCEPT_TERMS_SUCCESS:
       return update(state, { [action.payload.userId]: { $merge: { termsAccepted: action.payload.acceptedDate } } });

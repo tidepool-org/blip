@@ -29,10 +29,6 @@ import { permissionsOfMembersInTargetCareTeam as reducer } from '../../../../app
 
 import * as actions from '../../../../app/redux/actions/index';
 
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
-
-import { notification as initialState } from '../../../../app/redux/reducers/initialState';
-
 var expect = chai.expect;
 
 describe('permissionsOfMembersInTargetCareTeam', () => {
@@ -55,10 +51,10 @@ describe('permissionsOfMembersInTargetCareTeam', () => {
     });
   });
 
-  describe('fetchPatientSuccess', () => {
+  describe('fetchAssociatedAccountsSuccess', () => {
     it('should set state to a hash map representing the team of a patient', () => {
-      let patient = {
-        team: [
+      let accounts = {
+        careTeam: [
           { userid: 'a1b2c3', permissions: { view: {} } },
           { userid: 'd4e5f6', permissions: { view: {}, note: {} } }
         ]
@@ -66,8 +62,8 @@ describe('permissionsOfMembersInTargetCareTeam', () => {
 
       let initialStateForTest = {};
       let tracked = mutationTracker.trackObj(initialStateForTest);
-      
-      let action = actions.sync.fetchPatientSuccess(patient);
+
+      let action = actions.sync.fetchAssociatedAccountsSuccess(accounts);
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(2);
@@ -81,8 +77,8 @@ describe('permissionsOfMembersInTargetCareTeam', () => {
     });
 
     it('ditto, logged-in user already had perms on self set', () => {
-      let patient = {
-        team: [
+      let accounts = {
+        careTeam: [
           { userid: 'd4e5f6', permissions: { view: {}, note: {} } }
         ]
       };
@@ -90,7 +86,7 @@ describe('permissionsOfMembersInTargetCareTeam', () => {
       let initialStateForTest = {'a1b2c3': {root: {}}};
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.fetchPatientSuccess(patient);
+      let action = actions.sync.fetchAssociatedAccountsSuccess(accounts);
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(2);
@@ -190,13 +186,56 @@ describe('permissionsOfMembersInTargetCareTeam', () => {
         'd4e5f6': { a: 1 }
       };
       let tracked = mutationTracker.trackObj(initialStateForTest);
-      
+
       let action = actions.sync.removeMemberFromTargetCareTeamSuccess(patientId);
 
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(1);
       expect(state['a1b2c3']).to.be.undefined;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
+  describe('setMemberPermissionsSuccess', () => {
+    it('should update existing member permissions', () => {
+      let patientId = 'a1b2c3';
+
+      let initialStateForTest = {
+        [patientId]: { foo: 'bar' },
+      };
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      const newPermissions = { foo: 'baz' };
+
+      let action = actions.sync.setMemberPermissionsSuccess(patientId, newPermissions);
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(1);
+      expect(state['a1b2c3']).to.eql(newPermissions);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
+    it('should not update state if userId or permissions missing in payload', () => {
+      let patientId = 'a1b2c3';
+
+      let initialStateForTest = {
+        [patientId]: { foo: 'bar' },
+      };
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let missingPermsAction = actions.sync.setMemberPermissionsSuccess('e4f5g6', {});
+      let missingUserIdAction = actions.sync.setMemberPermissionsSuccess(null, { foo: 'baz' });
+
+      let state = reducer(initialStateForTest, missingPermsAction);
+      expect(Object.keys(state).length).to.equal(1);
+      expect(state).to.eql(initialStateForTest);
+
+      let state2 = reducer(initialStateForTest, missingUserIdAction);
+      expect(Object.keys(state2).length).to.equal(1);
+      expect(state2).to.eql(initialStateForTest);
+
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
