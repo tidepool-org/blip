@@ -3,6 +3,9 @@
 /* global describe */
 /* global it */
 
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+
 import {
   requiresChrome,
   requireAuth,
@@ -13,18 +16,19 @@ import {
   hashToUrl,
   onIndexRouteEnter,
   onOtherRouteEnter,
-  onLogoutEnter,
   ensureNoAuth
 } from '../../app/routes';
-import React from 'react';
-import TestUtils from 'react-addons-test-utils';
-import createHistory from 'history/lib/createMemoryHistory';
-import { Router } from 'react-router'
+
 import config from '../../app/config';
 
 var expect = chai.expect;
 
+
 describe('routes', () => {
+  const mockStore = configureStore([
+    thunk,
+  ]);
+
   describe('requiresChrome', () => {
     it('should not redirect and call next when isChrome is true', () => {
       let utils = {
@@ -67,15 +71,14 @@ describe('routes', () => {
     it('should update route to /login if user is not authenticated', (done) => {
       let api = {
         user: {
-          isAuthenticated: sinon.stub().returns(false)
+          isAuthenticated: sinon.stub().returns(false),
+          get:sinon.stub(),
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
@@ -107,11 +110,9 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
@@ -132,22 +133,20 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {
-            allUsersMap: {
-              a1b2c3: {
-                userid: 'a1b2c3',
-                profile: {
-                  patient: {}
-                },
-                termsAccepted: '2015-01-01T00:00:00-08:00'
-              }
-            },
-            loggedInUserId: 'a1b2c3'
-          }
-        })
-      };
+      let store = mockStore({
+        blip: {
+          allUsersMap: {
+            a1b2c3: {
+              userid: 'a1b2c3',
+              profile: {
+                patient: {}
+              },
+              termsAccepted: '2015-01-01T00:00:00-08:00'
+            }
+          },
+          loggedInUserId: 'a1b2c3'
+        }
+      });
 
       let replace = sinon.stub();
 
@@ -180,11 +179,9 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
@@ -216,11 +213,9 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
@@ -241,11 +236,9 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
@@ -276,11 +269,9 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
@@ -300,22 +291,20 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {
-            allUsersMap: {
-              a1b2c3: {
-                userid: 'a1b2c3',
-                termsAccepted: '2016-01-01T05:00:00-08:00',
-                profile: {
-                  patient: {}
-                }
+      let store = mockStore({
+        blip: {
+          allUsersMap: {
+            a1b2c3: {
+              userid: 'a1b2c3',
+              termsAccepted: '2016-01-01T05:00:00-08:00',
+              profile: {
+                patient: {}
               }
-            },
-            loggedInUserId: 'a1b2c3'
-          }
-        })
-      };
+            }
+          },
+          loggedInUserId: 'a1b2c3'
+        }
+      });
 
       let replace = sinon.stub();
 
@@ -341,11 +330,9 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
@@ -365,19 +352,17 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {
-            allUsersMap: {
-              a1b2c3: {
-                userid: 'a1b2c3',
-                termsAccepted: ''
-              }
-            },
-            loggedInUserId: 'a1b2c3'
-          }
-        })
-      };
+      let store = mockStore({
+        blip: {
+          allUsersMap: {
+            a1b2c3: {
+              userid: 'a1b2c3',
+              termsAccepted: ''
+            }
+          },
+          loggedInUserId: 'a1b2c3'
+        }
+      });
 
       let replace = sinon.stub();
 
@@ -409,11 +394,9 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
@@ -433,22 +416,20 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {
-            allUsersMap: {
-              a1b2c3: {
-                userid: 'a1b2c3',
-                termsAccepted: '2016-01-01T05:00:00-08:00',
-                profile: {
-                  about: 'Foo bar'
-                }
+      let store = mockStore({
+        blip: {
+          allUsersMap: {
+            a1b2c3: {
+              userid: 'a1b2c3',
+              termsAccepted: '2016-01-01T05:00:00-08:00',
+              profile: {
+                about: 'Foo bar'
               }
-            },
-            loggedInUserId: 'a1b2c3'
-          }
-        })
-      };
+            }
+          },
+          loggedInUserId: 'a1b2c3'
+        }
+      });
 
       let replace = sinon.stub();
 
@@ -526,11 +507,9 @@ describe('routes', () => {
         logout: sinon.stub()
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
@@ -559,11 +538,9 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
@@ -582,20 +559,18 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {
-            allUsersMap: {
-              a1b2c3: {
-                userid: 'a1b2c3',
-                emailVerified: true,
-                termsAccepted: '2015-01-01T00:00:00-08:00'
-              }
-            },
-            loggedInUserId: 'a1b2c3'
-          }
-        })
-      };
+      let store = mockStore({
+        blip: {
+          allUsersMap: {
+            a1b2c3: {
+              userid: 'a1b2c3',
+              emailVerified: true,
+              termsAccepted: '2015-01-01T00:00:00-08:00'
+            }
+          },
+          loggedInUserId: 'a1b2c3'
+        }
+      });
 
       let replace = sinon.stub();
 
@@ -624,11 +599,9 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replaceState = sinon.stub();
 
@@ -647,20 +620,18 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {
-            allUsersMap: {
-              a1b2c3: {
-                userid: 'a1b2c3',
-                emailVerified: true,
-                termsAccepted: ''
-              }
-            },
-            loggedInUserId: 'a1b2c3'
-          }
-        })
-      };
+      let store = mockStore({
+        blip: {
+          allUsersMap: {
+            a1b2c3: {
+              userid: 'a1b2c3',
+              emailVerified: true,
+              termsAccepted: ''
+            }
+          },
+          loggedInUserId: 'a1b2c3'
+        }
+      });
 
       let replaceState = sinon.stub();
 
@@ -690,11 +661,9 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
@@ -715,19 +684,17 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {
-            allUsersMap: {
-              a1b2c3: {
-                userid: 'a1b2c3',
-                emailVerified: false
-              }
-            },
-            loggedInUserId: 'a1b2c3'
-          }
-        })
-      };
+      let store = mockStore({
+        blip: {
+          allUsersMap: {
+            a1b2c3: {
+              userid: 'a1b2c3',
+              emailVerified: false
+            }
+          },
+          loggedInUserId: 'a1b2c3'
+        }
+      });
 
       let replace = sinon.stub();
 
@@ -844,13 +811,11 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {
-            isLoggedIn: true
-          }
-        })
-      };
+      let store = mockStore({
+        blip: {
+          isLoggedIn: true
+        }
+      });
 
       let replace = sinon.stub();
 
@@ -875,13 +840,11 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {
-            isLoggedIn: false
-          }
-        })
-      };
+      let store = mockStore({
+        blip: {
+          isLoggedIn: false
+        }
+      });
 
       let replace = sinon.stub();
 
@@ -906,13 +869,11 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {
-            isLoggedIn: false
-          }
-        })
-      };
+      let store = mockStore({
+        blip: {
+          isLoggedIn: false
+        }
+      });
 
       let replace = sinon.stub();
       let cb = sinon.stub();
@@ -940,11 +901,9 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
@@ -969,11 +928,9 @@ describe('routes', () => {
         }
       };
 
-      let store = {
-        getState: () => ({
-          blip: {}
-        })
-      };
+      let store = mockStore({
+        blip: {}
+      });
 
       let replace = sinon.stub();
 
