@@ -456,7 +456,6 @@ function getPatient(patientId, cb) {
 }
 
 function setPatientSettings(person, cb) {
-
   api.metadata.settings.get(person.userid, function(err, settings) {
     if (err) {
       return cb(err);
