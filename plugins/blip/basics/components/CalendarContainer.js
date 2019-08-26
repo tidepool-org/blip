@@ -33,6 +33,8 @@ var HoverDay = require('./day/HoverDay');
 var constants = require('../logic/constants');
 var togglableState = require('../TogglableState');
 
+var { DDD_FORMAT } = require('../../../../js/data/util/constants');
+
 var CalendarContainer = React.createClass({
   mixins: [BasicsUtils],
   propTypes: {
@@ -160,7 +162,7 @@ var CalendarContainer = React.createClass({
     // of the week.
     var firstDay = moment(this.props.days[0].date).day();
     return _.range(firstDay, firstDay + 7).map(function(dow) {
-      var day = moment().day(dow).format('ddd');
+      var day = moment().day(dow).format(DDD_FORMAT);
       return (
         <div key={moment().day(dow)} className='Calendar-day-label'>
           <div className='Calendar-dayofweek'>
