@@ -229,6 +229,29 @@ describe('Trends', () => {
       ]);
     });
 
+    it('should update the endpoints after loading is completed', () => {
+      const loadingProps = {
+        ...baseProps,
+        loading: true,
+      }
+      wrapper = shallow(<Trends.WrappedComponent { ...loadingProps }/>)
+      instance = wrapper.instance()
+      instance.handleDatetimeLocationChange([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-29T00:00:00.000Z',
+      ]);
+
+      expect(instance.props.loading).to.be.true;
+      expect(wrapper.state().endpoints).to.eql([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-29T00:00:00.000Z',
+      ]);
+
+      sinon.spy(instance, 'componentWillReceiveProps')
+      wrapper.setProps({loading: false})
+      sinon.assert.calledOnce(instance.componentWillReceiveProps)
+    });
+
     it('should call the `updateDatetimeLocation` prop method', () => {
       sinon.assert.callCount(baseProps.updateDatetimeLocation, 0);
 
