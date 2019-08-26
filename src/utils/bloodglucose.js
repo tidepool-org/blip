@@ -21,6 +21,9 @@ import { MGDL_PER_MMOLL, MS_IN_MIN } from './constants';
 
 import { formatBgValue } from './format.js';
 
+import i18next from 'i18next';
+const t = i18next.t.bind(i18next);
+
 /**
  * classifyBgValue
  * @param {Object} bgBounds - object describing boundaries for blood glucose categories
@@ -124,11 +127,11 @@ export function generateBgRangeLabels(bgPrefs, opts = {}) {
   }
 
   return {
-    veryLow: `below ${thresholds.veryLowThreshold} ${bgUnits}`,
-    low: `between ${thresholds.veryLowThreshold} - ${thresholds.targetLowerBound} ${bgUnits}`,
-    target: `between ${thresholds.targetLowerBound} - ${thresholds.targetUpperBound} ${bgUnits}`,
-    high: `between ${thresholds.targetUpperBound} - ${thresholds.veryHighThreshold} ${bgUnits}`,
-    veryHigh: `above ${thresholds.veryHighThreshold} ${bgUnits}`,
+    veryLow: t('below {{value}} {{- units}}', { value: thresholds.veryLowThreshold, units: bgUnits }),
+    low: t('between {{low}} - {{high}} {{- units}}', { low: thresholds.veryLowThreshold, high: thresholds.targetLowerBound, units: bgUnits }),
+    target: t('between {{low}} - {{high}} {{- units}}', { low: thresholds.targetLowerBound, high: thresholds.targetUpperBound, units: bgUnits }),
+    high: t('between {{low}} - {{high}} {{- units}}', { low: thresholds.targetUpperBound, high: thresholds.veryHighThreshold, units: bgUnits }),
+    veryHigh: t('above {{value}} {{- units}}', { value: thresholds.veryHighThreshold, units: bgUnits }),
   };
 }
 

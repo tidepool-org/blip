@@ -19,7 +19,11 @@ import _ from 'lodash';
 import { range } from 'd3-array';
 import React, { PropTypes } from 'react';
 
-import { formatClocktimeFromMsPer24, THREE_HRS } from '../../../utils/datetime';
+import {
+  formatClocktimeFromMsPer24,
+  THREE_HRS,
+  SIMPLE_HOUR_FORMAT_SPACE,
+} from '../../../utils/datetime';
 
 import styles from './XAxisLabels.css';
 
@@ -30,7 +34,7 @@ const XAxisLabels = (props) => {
   return (
     <g id="xAxisLabels">
       {_.map(data, (msInDay) => {
-        const displayTime = formatClocktimeFromMsPer24(msInDay, 'h a');
+        const displayTime = formatClocktimeFromMsPer24(msInDay, SIMPLE_HOUR_FORMAT_SPACE);
         return (
           <text
             className={styles.text}

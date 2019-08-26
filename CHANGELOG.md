@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data 
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## 0.4.2
+### Fixed
+- [PT-590] Fix translations
+
 ## 0.4.1
 ### Fixed
 - [PT-549] Time in Closed Loop is not displayed anymore for Diabeloop device.

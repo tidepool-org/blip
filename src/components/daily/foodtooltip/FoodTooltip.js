@@ -18,7 +18,7 @@
 import React, { PropTypes, PureComponent } from 'react';
 import _ from 'lodash';
 
-import { formatLocalizedFromUTC } from '../../../utils/datetime';
+import { formatLocalizedFromUTC, HOUR_MINUTE_FORMAT } from '../../../utils/datetime';
 
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
@@ -50,7 +50,12 @@ class FoodTooltip extends PureComponent {
   render() {
     const title = this.props.title ? this.props.title : (
       <div className={styles.title}>
-        {formatLocalizedFromUTC(this.props.food.normalTime, this.props.timePrefs, 'h:mm a')}
+        {
+          formatLocalizedFromUTC(
+            this.props.food.normalTime,
+            this.props.timePrefs,
+            HOUR_MINUTE_FORMAT)
+          }
       </div>
     );
     return (
