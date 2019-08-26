@@ -211,7 +211,6 @@ export class AppComponent extends React.Component {
     }
     if (Config.HELP_LINK !== null && this.props.authenticated) {
       let name = this.props.user.profile.fullName;
-      console.log(this.props.user);
       let email = this.props.user.emails[0];
 
       const script = document.createElement('script')

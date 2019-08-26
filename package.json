@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.20.2-dblp.0.6.0",
+  "version": "1.20.2-dblp.0.6.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma --log-level debug start",
@@ -32,7 +32,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/plugin-transform-modules-commonjs": "^7.5.0",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@tidepool/viz": "mdblp/viz#dblp.0.4.0",
+    "@tidepool/viz": "mdblp/viz#dblp.0.4.2",
     "core-js": "3.1.4",
     "async": "2.6.1",
     "autoprefixer": "9.1.5",
@@ -88,7 +88,7 @@
     "shelljs": "0.8.2",
     "style-loader": "0.23.0",
     "sundial": "mdblp/sundial#dblp.1.7.0",
-    "tideline": "mdblp/tideline#dblp.1.1.0",
+    "tideline": "mdblp/tideline#dblp.1.1.2",
     "tidepool-platform-client": "0.41.0",
     "uglify-es": "3.3.9",
     "uglifyjs-webpack-plugin": "2.0.1",

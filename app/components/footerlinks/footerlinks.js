@@ -66,20 +66,24 @@ const FooterLinks = (props) => {
           id='mobile'
           onClick={metricFnMkr('Mobile App')}
           target="_blank">Get Mobile App</a>
+      </div>
+    }
+    <div className='footer-link large-format-only'>       
         <a
           href={urlSupport}
           id='support'
           onClick={metricFnMkr('Support')}
           target="_blank">{SupportText}</a>
+    </div>
+    <div className='footer-link'>       
         <a
           href={urlLegal}
           id='legal'
           onClick={metricFnMkr('PP and TOU')}
           target='_blank'>Privacy and Terms of Use</a>
       </div>
-    }
     {__BRANDING__ === 'diabeloop' ? (
-        <div className='footer-link footer-jdrf'>
+        <div className='footer-link large-format-only'>
           <a
             href='https://tidepool.org'
             id='jdrf'

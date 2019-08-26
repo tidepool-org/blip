@@ -102,7 +102,7 @@ var MemberInviteForm = translate()(React.createClass({
               <div className="PatientTeam-buttonHolder">
                 <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
                   onClick={this.props.onCancel}
-                  disabled={this.props.working}>Cancel</button>
+                  disabled={this.props.working}>{t('Cancel')}</button>
                 <button className="PatientInfo-button PatientInfo-button--primary" type="submit"
                   onClick={this.handleSubmit}
                   disabled={this.props.working}>
