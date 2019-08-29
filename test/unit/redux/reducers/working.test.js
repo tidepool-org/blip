@@ -185,8 +185,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set loggingIn.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.loggingIn.completed).to.be.null;
 
         let successAction = actions.sync.loginSuccess('foo');
@@ -276,8 +274,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set signingUp.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.signingUp.completed).to.be.null;
 
         let successAction = actions.sync.signupSuccess('foo');
@@ -369,8 +365,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set confirmingSignup.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.confirmingSignup.completed).to.be.null;
 
         let successAction = actions.sync.confirmSignupSuccess('foo');
@@ -463,8 +457,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set requestingPasswordReset.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.requestingPasswordReset.completed).to.be.null;
 
         let successAction = actions.sync.requestPasswordResetSuccess('foo');
@@ -556,8 +548,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set confirmingPasswordReset.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.confirmingPasswordReset.completed).to.be.null;
 
         let successAction = actions.sync.confirmPasswordResetSuccess('foo');
@@ -650,8 +640,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set acceptingTerms.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.acceptingTerms.completed).to.be.null;
 
         let successAction = actions.sync.acceptTermsSuccess('foo');
@@ -746,8 +734,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set resendingEmailVerification.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.resendingEmailVerification.completed).to.be.null;
 
         let successAction = actions.sync.resendEmailVerificationSuccess('foo');
@@ -837,8 +823,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set fetchingUser.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.fetchingUser.completed).to.be.null;
 
         let successAction = actions.sync.fetchUserSuccess('foo');
@@ -927,8 +911,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set fetchingPatient.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.fetchingPatient.completed).to.be.null;
 
         let successAction = actions.sync.fetchPatientSuccess('foo');
@@ -1018,8 +1000,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set fetchingAssociatedAccounts.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.fetchingAssociatedAccounts.completed).to.be.null;
 
         let successAction = actions.sync.fetchAssociatedAccountsSuccess('foo');
@@ -1112,8 +1092,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set fetchingPatientData.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.fetchingPatientData.completed).to.be.null;
 
         let successAction = actions.sync.fetchPatientDataSuccess('foo');
@@ -1207,8 +1185,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set fetchingPendingSentInvites.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.fetchingPendingSentInvites.completed).to.be.null;
 
         let successAction = actions.sync.fetchPendingSentInvitesSuccess('foo');
@@ -1301,8 +1277,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set fetchingPendingReceivedInvites.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.fetchingPendingReceivedInvites.completed).to.be.null;
 
         let successAction = actions.sync.fetchPendingReceivedInvitesSuccess('foo');
@@ -1395,8 +1369,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set fetchingMessageThread.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.fetchingMessageThread.completed).to.be.null;
 
         let successAction = actions.sync.fetchMessageThreadSuccess('foo');
@@ -1486,8 +1458,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set generatingPDF.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.generatingPDF.completed).to.be.null;
 
         let successAction = actions.worker.generatePDFSuccess('foo');
@@ -1583,8 +1553,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set settingUpDataStorage.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.settingUpDataStorage.completed).to.be.null;
 
         let successAction = actions.sync.setupDataStorageSuccess('foo');
@@ -1679,8 +1647,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set removingMembershipInOtherCareTeam.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.removingMembershipInOtherCareTeam.completed).to.be.null;
 
         let successAction = actions.sync.removeMembershipInOtherCareTeamSuccess('foo');
@@ -1775,8 +1741,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set removingMemberFromTargetCareTeam.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.removingMemberFromTargetCareTeam.completed).to.be.null;
 
         let successAction = actions.sync.removeMemberFromTargetCareTeamSuccess('foo');
@@ -1877,8 +1841,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set sendingInvite.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.sendingInvite.completed).to.be.null;
 
         let successAction = actions.sync.sendInviteSuccess('foo');
@@ -1986,8 +1948,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set cancellingSentInvite.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.cancellingSentInvite.completed).to.be.null;
 
         let successAction = actions.sync.cancelSentInviteSuccess('foo');
@@ -2098,8 +2058,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set settingMemberPermissions.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.settingMemberPermissions.completed).to.be.null;
 
         let successAction = actions.sync.setMemberPermissionsSuccess('foo');
@@ -2203,8 +2161,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set acceptingReceivedInvite.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.acceptingReceivedInvite.completed).to.be.null;
 
         let successAction = actions.sync.acceptReceivedInviteSuccess('foo');
@@ -2303,8 +2259,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set rejectingReceivedInvite.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.rejectingReceivedInvite.completed).to.be.null;
 
         let successAction = actions.sync.rejectReceivedInviteSuccess('foo');
@@ -2403,8 +2357,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set updatingPatient.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.updatingPatient.completed).to.be.null;
 
         let successAction = actions.sync.updatePatientSuccess('foo');
@@ -2501,8 +2453,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set updatingPatientBgUnits.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.updatingPatientBgUnits.completed).to.be.null;
 
         let successAction = actions.sync.updatePatientBgUnitsSuccess('foo');
@@ -2606,8 +2556,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set updatingUser.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.updatingUser.completed).to.be.null;
 
         let successAction = actions.sync.updateUserSuccess('foo');
@@ -2709,8 +2657,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set updatingDataDonationAccounts.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.updatingDataDonationAccounts.completed).to.be.null;
 
         let successAction = actions.sync.updateDataDonationAccountsSuccess('foo');
@@ -2817,8 +2763,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set fetchingDataSources.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.fetchingDataSources.completed).to.be.null;
 
         let successAction = actions.sync.fetchDataSourcesSuccess('foo');
@@ -2921,8 +2865,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set fetchingServerTime.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.fetchingServerTime.completed).to.be.null;
 
         let successAction = actions.sync.fetchServerTimeSuccess('foo');
@@ -3025,8 +2967,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set connectingDataSource.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.connectingDataSource.completed).to.be.null;
 
         let successAction = actions.sync.connectDataSourceSuccess('foo');
@@ -3125,8 +3065,6 @@ describe('working', () => {
 
     describe('success', () => {
       it('should set disconnectingDataSource.completed to be true', () => {
-        let error = new Error('Something bad happened :(');
-
         expect(initialState.disconnectingDataSource.completed).to.be.null;
 
         let successAction = actions.sync.disconnectDataSourceSuccess('foo');
