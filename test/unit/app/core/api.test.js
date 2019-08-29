@@ -136,9 +136,9 @@ describe('api', () => {
       it('should call back with an error if `api.metadata.settings.get` fails', () => {
         const cb = sinon.stub();
         tidepool.getCurrentUser.callsArgWith(0, null);
-        tidepool.findProfile.callsArgWith(1, null);
+        tidepool.findProfile.callsArgWith(1, null, { patient: { fullName: 'Jenny Doe' } });
         api.metadata.preferences.get.callsArgWith(1, null);
-        api.metadata.preferences.get.callsArgWith(1, 'settings error');
+        api.metadata.settings.get.callsArgWith(1, 'settings error');
 
         api.user.get(cb);
 
