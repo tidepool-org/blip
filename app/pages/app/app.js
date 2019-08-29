@@ -15,14 +15,12 @@
 
 import _ from 'lodash';
 import React from 'react';
-import async from 'async';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
 
 import * as actions from '../../redux/actions';
 
-import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
 
 import * as ErrorMessages from '../../redux/constants/errorMessages';
@@ -51,7 +49,14 @@ export class AppComponent extends React.Component {
     fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingPendingSentInvites: React.PropTypes.bool.isRequired,
-    fetchingUser: React.PropTypes.bool.isRequired,
+    fetchingUser: React.PropTypes.shape({
+      inProgress: React.PropTypes.bool.isRequired,
+      completed: React.PropTypes.oneOfType([null, React.PropTypes.bool]),
+    }).isRequired,
+    fetchingDataSources: React.PropTypes.shape({
+      inProgress: React.PropTypes.bool.isRequired,
+      completed: React.PropTypes.oneOfType([null, React.PropTypes.bool]),
+    }).isRequired,
     location: React.PropTypes.string.isRequired,
     loggingOut: React.PropTypes.bool.isRequired,
     updatingDataDonationAccounts: React.PropTypes.bool.isRequired,
@@ -220,7 +225,7 @@ export class AppComponent extends React.Component {
     ];
     if (!_.includes(LOGIN_NAV_ROUTES, this.props.location)) {
       if (this.props.authenticated ||
-        (this.props.fetchingUser || this.props.fetchingPatient)) {
+        (_.get(this.props.fetchingUser, 'inProgress') || this.props.fetchingPatient)) {
         var patient, getUploadUrl;
         if (this.isPatientVisibleInNavbar()) {
           patient = this.props.patient;
@@ -230,7 +235,7 @@ export class AppComponent extends React.Component {
          <div className="App-navbar">
           <Navbar
             user={this.props.user}
-            fetchingUser={this.props.fetchingUser}
+            fetchingUser={_.get(this.props.fetchingUser, 'inProgress')}
             patient={patient}
             fetchingPatient={this.props.fetchingPatient}
             currentPage={this.props.location}
@@ -389,11 +394,13 @@ export class AppComponent extends React.Component {
 }
 
 export function getFetchers(stateProps, dispatchProps, api) {
-  const fetchers = [
-    dispatchProps.fetchUser.bind(null, api),
-  ];
+  const fetchers = [];
 
-  if (stateProps.authenticated) {
+  if (!stateProps.fetchingUser.inProgress && !stateProps.fetchingUser.completed) {
+    fetchers.push(dispatchProps.fetchUser.bind(null, api));
+  }
+
+  if (stateProps.authenticated && !stateProps.fetchingDataSources.inProgress && !stateProps.fetchingDataSources.completed) {
     fetchers.push(dispatchProps.fetchDataSources.bind(null, api));
   }
 
@@ -501,7 +508,8 @@ export function mapStateToProps(state) {
 
   return {
     authenticated: state.blip.isLoggedIn,
-    fetchingUser: state.blip.working.fetchingUser.inProgress,
+    fetchingUser: state.blip.working.fetchingUser,
+    fetchingDataSources: state.blip.working.fetchingDataSources,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites.inProgress,
     loggingOut: state.blip.working.loggingOut.inProgress,

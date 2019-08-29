@@ -1414,13 +1414,22 @@ export let PatientData = translate()(React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let getFetchers = (dispatchProps, ownProps, api, options) => {
-  return [
+export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
+  const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
     dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id),
-    dispatchProps.fetchDataDonationAccounts.bind(null, api),
-    dispatchProps.fetchPendingSentInvites.bind(null, api),
   ];
+
+  if (!stateProps.fetchingPendingSentInvites.inProgress && !stateProps.fetchingPendingSentInvites.completed) {
+    fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
+  }
+
+  // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
+  if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
+    fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
+  }
+
+  return fetchers;
 };
 
 export function mapStateToProps(state, props) {
@@ -1470,6 +1479,8 @@ export function mapStateToProps(state, props) {
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
+    fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
+    fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
     generatingPDF: state.blip.working.generatingPDF.inProgress,
     pdf: state.blip.pdf,
     viz: state.viz,
@@ -1480,7 +1491,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   addPatientNote: actions.sync.addPatientNote,
   clearPatientData: actions.sync.clearPatientData,
   closeMessageThread: actions.sync.closeMessageThread,
-  fetchDataDonationAccounts: actions.async.fetchDataDonationAccounts,
+  fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
@@ -1506,7 +1517,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, api, { carelink, dexcom, medtronic }),
+    fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
     uploadUrl: api.getUploadUrl(),
     onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom, medtronic }),
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),

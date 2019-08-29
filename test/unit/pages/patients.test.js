@@ -13,7 +13,7 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 import { Patients } from '../../../app/pages/patients';
-import { mapStateToProps } from '../../../app/pages/patients';
+import { mapStateToProps, getFetchers } from '../../../app/pages/patients';
 
 describe('Patients', () => {
   it('should be exposed as a module and be of type function', () => {
@@ -237,6 +237,65 @@ describe('Patients', () => {
     });
   });
 
+  describe('getFetchers', () => {
+    const stateProps = {
+      fetchingPendingReceivedInvites: {
+        inProgress: false,
+        completed: null,
+      },
+      fetchingAssociatedAccounts: {
+        inProgress: false,
+        completed: null,
+      },
+    };
+
+    const dispatchProps = {
+      fetchPendingReceivedInvites: sinon.stub().returns('fetchPendingReceivedInvites'),
+      fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
+    };
+
+    const api = {};
+
+    it('should return an array containing the pending invites and associated accounts fetchers from dispatchProps', () => {
+      const result = getFetchers(dispatchProps, stateProps, api);
+      expect(result[0]).to.be.a('function');
+      expect(result[0]()).to.equal('fetchPendingReceivedInvites');
+      expect(result[1]).to.be.a('function');
+      expect(result[1]()).to.equal('fetchAssociatedAccounts');
+    });
+
+    it('should only add the associated accounts and pending invites fetchers if fetches are not already in progress or completed', () => {
+      const standardResult = getFetchers(dispatchProps, stateProps, api);
+      expect(standardResult.length).to.equal(2);
+
+      const inProgressResult = getFetchers(dispatchProps, {
+        fetchingPendingReceivedInvites: {
+          inProgress: true,
+          completed: null,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: true,
+          completed: null,
+        },
+      }, api);
+
+      expect(inProgressResult.length).to.equal(0);
+
+      const completedResult = getFetchers(dispatchProps, {
+        user: { userid: '12345' },
+        fetchingPendingReceivedInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+      }, api);
+      expect(completedResult.length).to.equal(0);
+    });
+  });
+
   describe('mapStateToProps', () => {
     it('should be a function', () => {
       assert.isFunction(mapStateToProps);
@@ -267,7 +326,7 @@ describe('Patients', () => {
         showingWelcomeMessage: true,
         targetUserId: 'a1b2c3',
         working: {
-          fetchingPatients: {inProgress: false},
+          fetchingAssociatedAccounts: {inProgress: false},
           fetchingPendingReceivedInvites: {inProgress: true},
           fetchingUser: {inProgress: false}
         }
@@ -314,12 +373,20 @@ describe('Patients', () => {
         expect(result.pendingReceivedInvites)
       });
 
-      it('should map fetchingPendingReceivedInvites + fetchingUser + fetchingPatients inProgress fields to loading', () => {
+      it('should map fetchingPendingReceivedInvites + fetchingUser + fetchingAssociatedAccounts inProgress fields to loading', () => {
         expect(result.loading).to.equal(true);
       });
 
       it('should map showingWelcomeMessage to showingWelcomeMessage', () => {
         expect(result.showingWelcomeMessage).to.equal(state.showingWelcomeMessage);
+      });
+
+      it('should map working.fetchingPendingReceivedInvites to fetchingPendingReceivedInvites', () => {
+        expect(result.fetchingPendingReceivedInvites).to.deep.equal(state.working.fetchingPendingReceivedInvites)
+      });
+
+      it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
+        expect(result.fetchingAssociatedAccounts).to.deep.equal(state.working.fetchingAssociatedAccounts)
       });
     });
 
@@ -342,7 +409,7 @@ describe('Patients', () => {
         showingWelcomeMessage: true,
         targetUserId: null,
         working: {
-          fetchingPatients: {inProgress: false},
+          fetchingAssociatedAccounts: {inProgress: false},
           fetchingPendingReceivedInvites: {inProgress: false},
           fetchingUser: {inProgress: false}
         }
@@ -377,12 +444,20 @@ describe('Patients', () => {
         expect(result.pendingReceivedInvites)
       });
 
-      it('should map fetchingPendingReceivedInvites + fetchingUser + fetchingPatients inProgress fields to loading', () => {
+      it('should map fetchingPendingReceivedInvites + fetchingUser + fetchingAssociatedAccounts inProgress fields to loading', () => {
         expect(result.loading).to.equal(false);
       });
 
       it('should map showingWelcomeMessage to showingWelcomeMessage', () => {
         expect(result.showingWelcomeMessage).to.equal(state.showingWelcomeMessage);
+      });
+
+      it('should map working.fetchingPendingReceivedInvites to fetchingPendingReceivedInvites', () => {
+        expect(result.fetchingPendingReceivedInvites).to.deep.equal(state.working.fetchingPendingReceivedInvites)
+      });
+
+      it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
+        expect(result.fetchingAssociatedAccounts).to.deep.equal(state.working.fetchingAssociatedAccounts)
       });
     });
   });

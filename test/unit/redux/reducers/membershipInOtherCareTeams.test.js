@@ -35,19 +35,21 @@ let tracked = mutationTracker.trackObj(initialState);
 var expect = chai.expect;
 
 describe('memberInOtherCareTeams', () => {
-  describe('fetchPatientsSuccess', () => {
+  describe('fetchAssociatedAccountsSuccess', () => {
     it('should populate an array of patient ids', () => {
-      let patients = [
-        { userid: 'a1b2c3', name: 'Frank Jones' },
-        { userid: 'd4e5f6', name: 'Jenny Jones' },
-      ];
+      let accounts = {
+        patients: [
+          { userid: 'a1b2c3', name: 'Frank Jones' },
+          { userid: 'd4e5f6', name: 'Jenny Jones' },
+        ],
+      };
 
-      let action = actions.sync.fetchPatientsSuccess(patients);
+      let action = actions.sync.fetchAssociatedAccountsSuccess(accounts);
       let state = reducer(initialState, action);
 
       expect(state.length).to.equal(2);
-      expect(state[0]).to.equal(patients[0].userid);
-      expect(state[1]).to.equal(patients[1].userid);
+      expect(state[0]).to.equal(accounts.patients[0].userid);
+      expect(state[1]).to.equal(accounts.patients[1].userid);
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
@@ -58,7 +60,7 @@ describe('memberInOtherCareTeams', () => {
 
       let initialStateForTest = [ 'a1b2c3', 'd4e5f6', 'x1y2z3' ];
       let tracked = mutationTracker.trackObj(initialStateForTest);
-      
+
       let action = actions.sync.removeMembershipInOtherCareTeamSuccess(patientId);
 
       let state = reducer(initialStateForTest, action);
@@ -74,7 +76,7 @@ describe('memberInOtherCareTeams', () => {
     it('should set state to null', () => {
       let initialStateForTest = [ 'a1b2c3', 'd4e5f6', 'x1y2z3' ];
       let tracked = mutationTracker.trackObj(initialStateForTest);
-      
+
       let action = actions.sync.logoutRequest();
 
       let state = reducer(initialStateForTest, action);
