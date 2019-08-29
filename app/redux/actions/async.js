@@ -229,7 +229,7 @@ export function login(api, credentials, options, postLoginAction) {
           dispatch(sync.loginFailure(error, err));
         }
       } else {
-        dispatch(fetchUser(api, (err, user) => { // TODO: requires that email be verified.  Do we want to require that?
+        dispatch(fetchUser(api, (err, user) => {
           const isClinic = personUtils.isClinic(user);
 
           let redirectRoute = '/patients?justLoggedIn=true';
