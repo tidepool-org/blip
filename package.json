@@ -12,7 +12,7 @@
     "start": "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --color --progress --port 3000 --host 0.0.0.0",
     "watchViz": "export NODE_OPTIONS='--max-old-space-size=4096' && cd ./packageMounts/@tidepool/viz && npm run start",
     "buildViz": "cd ./packageMounts/@tidepool/viz && npm run build-dev",
-    "startWithViz": "npm run buildViz && ./node_modules/concurrently/bin/concurrently.js --kill-others --names blip,viz \"npm run start\" \"until wget -q -S -O - localhost:3000; do sleep 1; done; npm run watchViz\"",
+    "startWithViz": "./node_modules/concurrently/bin/concurrently.js --kill-others --names viz,blip \"npm run watchViz\" \"while ! test -f './packageMounts/@tidepool/viz/dist/index.js'; do sleep 1; done; npm run start\"",
     "build": "NODE_ENV=production npm run build-app && npm run build-config",
     "build-app": "NODE_ENV=production node buildapp",
     "build-config": "NODE_ENV=production node buildconfig",
