@@ -243,7 +243,25 @@ api.user.get = function(cb) {
       return cb(err);
     }
 
-    cb(null, userFromAccountAndProfile(results));
+    var user = userFromAccountAndProfile(results);
+
+    // Set permissions for patient profiles
+    if (_.get(user, ['profile', 'patient'])) {
+      // The logged-in user's permissions are always root
+      user.permissions = { root: {} };
+
+      // Attach the logged-in user's patient settings
+      setPatientSettings(user, (err, patient) => {
+        if (err) {
+          return cb(err);
+        }
+
+        cb(err, patient)
+      });
+    } else {
+      cb(null, user);
+    }
+
   });
 };
 
@@ -320,38 +338,6 @@ api.user.custodialConfirmSignUp = function(key, birthday, password, callback) {
   return tidepool.custodialSignupConfirm(key, birthday, password, callback);
 };
 
-
-// Get all patients in current user's "patients" group
-api.user.getDataDonationAccounts = function (cb) {
-  api.log('GET /patients');
-
-  tidepool.getAssociatedUsersDetails(tidepool.getUserId(), function (err, users) {
-    if (err) {
-      return cb(err);
-    }
-
-    //these are the accounts that have shared their data
-    //with a given set of permissions.
-    let dataDonationAccounts = _.filter(users, function (user) {
-      return personUtils.isDataDonationAccount(user);
-    });
-
-    dataDonationAccounts = _.map(dataDonationAccounts, function (user) {
-      return {
-        userid: user.userid,
-        email: user.username,
-        status: 'confirmed',
-      };
-    });
-
-    if (_.isEmpty(dataDonationAccounts)) {
-      return cb(null, []);
-    }
-
-    return cb(null, dataDonationAccounts);
-  });
-};
-
 api.user.getDataSources = function(cb) {
   api.log('GET /v1/users/:userId/data_sources');
 
@@ -371,6 +357,50 @@ api.user.createOAuthProviderAuthorization = function(provider, restrictedToken, 
 api.user.deleteOAuthProviderAuthorization = function(provider, cb) {
   tidepool.deleteOAuthProviderAuthorization(provider, cb);
 }
+
+// Get all accounts associated with the current user
+api.user.getAssociatedAccounts = function(cb) {
+  api.log('GET /patients');
+
+  tidepool.getAssociatedUsersDetails(tidepool.getUserId(), function(err, users) {
+    if (err) {
+      return cb(err);
+    }
+
+    // Filter out viewable users, data donation, and care team accounts separately
+    var viewableUsers = [];
+    var dataDonationAccounts = [];
+    var careTeam = [];
+
+    _.each(users, function(user) {
+      if (personUtils.isDataDonationAccount(user)) {
+        dataDonationAccounts.push({
+          userid: user.userid,
+          email: user.username,
+          status: 'confirmed',
+        });
+      } else if (!_.isEmpty(user.trustorPermissions)) {
+        // These are the accounts that have shared their data
+        // with a given set of permissions.
+        user.permissions = user.trustorPermissions
+        delete user.trustorPermissions
+        viewableUsers.push(user);
+      } else if (!_.isEmpty(user.trusteePermissions)) {
+        // These are accounts with which the user has shared access to their data, exluding the
+        // data donation accounts
+        user.permissions = user.trusteePermissions
+        delete user.trusteePermissions
+        careTeam.push(user);
+      }
+    });
+
+    return cb(null, {
+      patients: viewableUsers,
+      dataDonationAccounts,
+      careTeam
+    });
+  });
+};
 
 // ----- Patient -----
 
@@ -419,33 +449,26 @@ function getPatient(patientId, cb) {
     if (!personUtils.isPatient(person)) {
       return cb();
     }
-    // Attach the logged-in user's permissions for that patient
-    var userId = tidepool.getUserId();
-    tidepool.getAccessPermissionsForGroup(patientId, userId, function(err, permissions) {
-      if (err) {
-        return cb(err);
-      }
 
-      person.permissions = permissions;
+    // Attach the settings for the patient
+    setPatientSettings(person, cb);
+  });
+}
 
-      api.metadata.settings.get(patientId, function(err, settings) {
-        if (err) {
-          return cb(err);
-        }
+function setPatientSettings(person, cb) {
+  api.metadata.settings.get(person.userid, function(err, settings) {
+    if (err) {
+      return cb(err);
+    }
 
-        person.settings = settings || {};
+    person.settings = settings || {};
 
-        return cb(null, person);
-      });
-    });
-
+    return cb(null, person);
   });
 }
 
 function updatePatient(patient, cb) {
   var patientId = patient.userid;
-  // Hang on to team, we'll add back later
-  var team = patient.team || [];
 
   var profile = patient.profile;
   tidepool.addOrUpdateProfile(patientId, profile, function(err, profile) {
@@ -455,7 +478,6 @@ function updatePatient(patient, cb) {
 
     patient = _.assign({}, patient, {
       profile: profile,
-      team: team
     });
     return cb(null, patient);
   });
@@ -463,8 +485,6 @@ function updatePatient(patient, cb) {
 
 api.patient.get = function(patientId, cb) {
   api.log('GET /patients/' + patientId);
-
-  var userId = tidepool.getUserId();
 
   getPatient(patientId, function(err, patient) {
     if (err) {
@@ -476,50 +496,7 @@ api.patient.get = function(patientId, cb) {
       return cb({status: 404, response: 'Not found'});
     }
 
-    // If patient doesn't belong to current user, we're done
-    if (patientId !== userId) {
-      return cb(null, patient);
-    }
-
-    // Fetch the patient's team
-    tidepool.getTeamMembers(userId, function(err, permissions) {
-      if (err) {
-        return cb(err);
-      }
-      if (_.isEmpty(permissions)) {
-        return cb(null, patient);
-      }
-
-      // A user is always part of her own team:
-      // filter her id from set of permissions
-      permissions = _.omit(permissions, userId);
-      // Convert to array of user ids
-      var memberIds = Object.keys(permissions);
-
-      async.map(memberIds, getPerson, function(err, members) {
-        if (err) {
-          return cb(err);
-        }
-        // Filter any member ids that returned nothing
-        members = _.filter(members);
-        // Add each member's permissions
-        members = _.map(members, function(member) {
-          member.permissions = permissions[member.userid];
-          return member;
-        });
-        patient.team = members;
-
-        api.metadata.settings.get(userId, function(err, settings) {
-          if (err) {
-            return cb(err);
-          }
-
-          patient.settings = settings;
-
-          return cb(null, patient);
-        });
-      });
-    });
+    return cb(null, patient);
   });
 };
 
@@ -537,35 +514,6 @@ api.patient.put = function(patient, cb) {
   return updatePatient(patient, cb);
 };
 
-// Get all patients in current user's "patients" group
-api.patient.getAll = function(cb) {
-  api.log('GET /patients');
-
-  tidepool.getAssociatedUsersDetails(tidepool.getUserId(), function(err, users) {
-    if (err) {
-      return cb(err);
-    }
-
-    //these are the accounts that have shared their data
-    //with a given set of permissions.
-    var viewableUsers = _.filter(users, function(user) {
-      return !_.isEmpty(user.trustorPermissions);
-    });
-
-    viewableUsers = _.map(viewableUsers, function(user) {
-      user.permissions = user.trustorPermissions
-      delete user.trustorPermissions
-      return user;
-    });
-
-    if (_.isEmpty(viewableUsers)) {
-      return cb(null, []);
-    }
-
-    return cb(null, viewableUsers);
-  });
-};
-
 // ----- Metadata -----
 
 api.metadata = {};
@@ -573,6 +521,8 @@ api.metadata = {};
 api.metadata.preferences = {};
 
 api.metadata.preferences.get = function(patientId, cb) {
+  api.log('GET /metadata/' + patientId + '/preferences');
+
   tidepool.findPreferences(patientId, function(err, payload) {
     // We don't want to fire an error if the patient has no preferences saved yet,
     // so we check if the error status is not 404 first.
@@ -587,6 +537,8 @@ api.metadata.preferences.get = function(patientId, cb) {
 };
 
 api.metadata.preferences.put = function(patientId, preferences, cb) {
+  api.log('PUT /metadata/' + patientId + '/preferences');
+
   tidepool.addOrUpdatePreferences(patientId, preferences, function(err, payload) {
     if (err) {
       return cb(err);
@@ -599,6 +551,8 @@ api.metadata.preferences.put = function(patientId, preferences, cb) {
 api.metadata.settings = {};
 
 api.metadata.settings.get = function(patientId, cb) {
+  api.log('GET /metadata/' + patientId + '/settings');
+
   // We don't want to fire an error if the patient has no settings saved yet,
   // so we check if the error status is not 404 first.
   tidepool.findSettings(patientId, function(err, payload) {
@@ -613,6 +567,8 @@ api.metadata.settings.get = function(patientId, cb) {
 };
 
 api.metadata.settings.put = function(patientId, settings, cb) {
+  api.log('PUT /metadata/' + patientId + '/settings');
+
   tidepool.addOrUpdateSettings(patientId, settings, function(err, payload) {
     if (err) {
       return cb(err);

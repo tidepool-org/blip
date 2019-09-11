@@ -31,6 +31,7 @@ import { getDonationAccountCodeFromEmail } from '../../core/utils';
 export default translate()(class DonateForm extends Component {
   static propTypes = {
     dataDonationAccounts: React.PropTypes.array.isRequired,
+    dataDonationAccountsFetched: React.PropTypes.bool.isRequired,
     onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
     working: React.PropTypes.bool.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -38,8 +39,6 @@ export default translate()(class DonateForm extends Component {
 
   constructor(props) {
     super(props);
-
-    this.nonprofitAccounts = _.reject(props.dataDonationAccounts, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL });
     const initialFormValues = this.getInitialFormValues();
 
     this.state = {
@@ -47,6 +46,21 @@ export default translate()(class DonateForm extends Component {
       initialFormValues: initialFormValues,
       formSubmitted: false,
     };
+  }
+
+  getNonProfitAccounts = (dataDonationAccounts) => {
+    return _.reject(dataDonationAccounts, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL });
+  }
+
+  componentWillReceiveProps = nextProps => {
+    if (!this.props.dataDonationAccountsFetched && nextProps.dataDonationAccountsFetched ) {
+      const initialFormValues = this.getInitialFormValues(nextProps);
+
+      this.setState({
+        formValues: initialFormValues,
+        initialFormValues,
+      });
+    }
   }
 
   render() {
@@ -76,7 +90,7 @@ export default translate()(class DonateForm extends Component {
       {
         name: 'dataDonate',
         label: t('Donate my anonymized data'),
-        disabled: !_.isEmpty(this.state.formValues.dataDonateDestination),
+        disabled: !this.props.dataDonationAccountsFetched || !_.isEmpty(this.state.formValues.dataDonateDestination),
         value: this.state.formValues.dataDonate,
         type: 'checkbox'
       },
@@ -95,6 +109,7 @@ export default translate()(class DonateForm extends Component {
         type: 'select',
         multi: true,
         value: this.state.formValues.dataDonateDestination,
+        disabled: !this.props.dataDonationAccountsFetched,
         placeholder: t('Choose which diabetes organization(s) to support'),
         items: DATA_DONATION_NONPROFITS(), //eslint-disable-line new-cap
       },
@@ -110,15 +125,16 @@ export default translate()(class DonateForm extends Component {
     ];
   }
 
-  getInitialFormValues = () => {
+  getInitialFormValues = (props = this.props) => {
     let selectedNonprofits = '';
+    const nonprofitAccounts = this.getNonProfitAccounts(props.dataDonationAccounts);
 
     // Extract nonprofit account identifiers from email addresses,
     // and format as comma-separated string for the multi-select input
-    if (this.nonprofitAccounts.length) {
+    if (nonprofitAccounts.length) {
       selectedNonprofits = [];
 
-      _.forEach(this.nonprofitAccounts, account => {
+      _.forEach(nonprofitAccounts, account => {
         let code = getDonationAccountCodeFromEmail(account.email);
         code && selectedNonprofits.push(code);
       });
@@ -127,7 +143,7 @@ export default translate()(class DonateForm extends Component {
     }
 
     return {
-      dataDonate: !_.isEmpty(this.props.dataDonationAccounts),
+      dataDonate: !_.isEmpty(props.dataDonationAccounts),
       dataDonateDestination: selectedNonprofits,
     };
   }
@@ -150,7 +166,7 @@ export default translate()(class DonateForm extends Component {
   }
 
   submitIsDisabled = () => {
-    return this.props.working || !this.formIsUpdated();
+    return this.props.working || !this.props.dataDonationAccountsFetched || !this.formIsUpdated();
   }
 
   handleChange = (attributes) => {

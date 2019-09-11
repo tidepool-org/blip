@@ -23,7 +23,7 @@ Each of these pages defines a `mapDispatchToProps` function for use as the secon
 let getFetchers = (dispatchProps, ownProps, api) => {
   return [
     dispatchProps.fetchPendingReceivedInvites.bind(null, api),
-    dispatchProps.fetchPatients.bind(null, api)
+    dispatchProps.fetchAssociatedAccounts.bind(null, api)
   ];
 };
 ```

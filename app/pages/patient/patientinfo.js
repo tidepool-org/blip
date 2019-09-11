@@ -42,6 +42,7 @@ var PatientInfo = translate()(React.createClass({
   // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
   propTypes: {
     dataDonationAccounts: React.PropTypes.array,
+    dataDonationAccountsFetched: React.PropTypes.bool,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
     onUpdateDataDonationAccounts: React.PropTypes.func,
@@ -420,6 +421,7 @@ var PatientInfo = translate()(React.createClass({
           <div className="PatientInfo-content">
             <DonateForm
               dataDonationAccounts={this.props.dataDonationAccounts || []}
+              dataDonationAccountsFetched={this.props.dataDonationAccountsFetched || false}
               onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
               working={this.props.updatingDataDonationAccounts || false}
               trackMetric={this.props.trackMetric}

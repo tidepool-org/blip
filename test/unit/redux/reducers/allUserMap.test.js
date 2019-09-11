@@ -35,7 +35,7 @@ var expect = chai.expect;
 
 describe('allUsersMap', () => {
   describe('fetchUserSuccess', () => {
-    it('should add fetched user to state without team or permissions attributes present', () => {
+    it('should add and cache fetched user to state without team or permissions attributes present', () => {
       let initialStateForTest = {};
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
@@ -54,16 +54,17 @@ describe('allUsersMap', () => {
 
       let state = reducer(initialStateForTest, action);
 
-      expect(Object.keys(state).length).to.equal(1);
+      expect(Object.keys(state).length).to.equal(2);
 
       expect(state[user.userid].name).to.equal(user.name);
       expect(state[user.userid].team).to.be.undefined;
+      expect(state[`${user.userid}_cacheUntil`]).to.be.a('number');
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('loginSuccess', () => {
-    it('should add logged in user to state without team or permissions attributes present', () => {
+    it('should add and cache logged in user to state without team or permissions attributes present', () => {
       let initialStateForTest = {};
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
@@ -82,16 +83,17 @@ describe('allUsersMap', () => {
 
       let state = reducer(initialStateForTest, action);
 
-      expect(Object.keys(state).length).to.equal(1);
+      expect(Object.keys(state).length).to.equal(2);
 
       expect(state[user.userid].name).to.equal(user.name);
       expect(state[user.userid].team).to.be.undefined;
+      expect(state[`${user.userid}_cacheUntil`]).to.be.a('number');
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('fetchPatientSuccess', () => {
-    it('should add fetched patient to state when it does not currently exist in state', () => {
+    it('should add and cache fetched patient to state when it does not currently exist in state', () => {
       let initialStateForTest = {};
 
       let user = {
@@ -102,21 +104,24 @@ describe('allUsersMap', () => {
       let action = actions.sync.fetchPatientSuccess(user);
       let state = reducer(initialStateForTest, action);
 
-      expect(Object.keys(state).length).to.equal(1);
+      expect(Object.keys(state).length).to.equal(2);
       expect(state[user.userid].name).to.equal(user.name);
       expect(state[user.userid].team).to.be.undefined;
+      expect(state[`${user.userid}_cacheUntil`]).to.be.a('number');
     });
 
-    it('should merged fetched patient & team into state when it does not currently exist in state', () => {
-      let initialStateForTest = {};
+    it('should merge and cache fetched patient into state when it already exists in state', () => {
+      let initialStateForTest = {
+        'a1b2c3': {
+          userid: 'a1b2c3',
+          name: 'Jenny',
+        },
+      };
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let user = {
         userid: 'a1b2c3',
-        name: 'Jenny',
-        team: [
-          { userid: 'd4e5f6', name: 'Frank' }
-        ]
+        name: 'Jennifer',
       };
 
       let action = actions.sync.fetchPatientSuccess(user)
@@ -124,34 +129,49 @@ describe('allUsersMap', () => {
 
       expect(Object.keys(state).length).to.equal(2);
       expect(state[user.userid].name).to.equal(user.name);
-      expect(state[user.userid].team).to.be.undefined;
-      expect(state[user.team[0].userid].name).to.equal(user.team[0].name);
+      expect(state[`${user.userid}_cacheUntil`]).to.be.a('number');
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
-  describe('fetchPatientsSuccess', () => {
-    it('should add fetched patients to state when they do not currently exist in state', () => {
+  describe('fetchAssociatedAccountsSuccess', () => {
+    it('should add and cache fetched patients and care team members to state when they do not currently exist in state', () => {
       let initialStateForTest = {};
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let patients = [
         {userid: 'a1b2c3'},
-        {userid: 'd4e5f6'}
+        {userid: 'd4e5f6'},
       ];
 
-      let action = actions.sync.fetchPatientsSuccess(patients);
+      let careTeam = [
+        {userid: '12345'},
+        {userid: '678910'},
+      ];
+
+      let accounts = {
+        patients,
+        careTeam,
+      };
+
+      let action = actions.sync.fetchAssociatedAccountsSuccess(accounts);
       let state = reducer(initialStateForTest, action);
 
-      expect(Object.keys(state).length).to.equal(2);
+      expect(Object.keys(state).length).to.equal(8);
       expect(state[patients[0].userid]).to.exist;
+      expect(state[`${patients[0].userid}_cacheUntil`]).to.be.a('number');
       expect(state[patients[1].userid]).to.exist;
+      expect(state[`${patients[1].userid}_cacheUntil`]).to.be.a('number');
+      expect(state[careTeam[0].userid]).to.exist;
+      expect(state[`${careTeam[0].userid}_cacheUntil`]).to.be.a('number');
+      expect(state[careTeam[1].userid]).to.exist;
+      expect(state[`${careTeam[1].userid}_cacheUntil`]).to.be.a('number');
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('acceptReceivedInviteSuccess', () => {
-    it('should add the invite creator when it does not currently exist in state', () => {
+    it('should add and cache the invite creator when it does not currently exist in state', () => {
       let initialStateForTest = {};
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
@@ -166,8 +186,9 @@ describe('allUsersMap', () => {
       let action = actions.sync.acceptReceivedInviteSuccess(acceptedReceivedInvite);
       let state = reducer(initialStateForTest, action);
 
-      expect(Object.keys(state).length).to.equal(1);
+      expect(Object.keys(state).length).to.equal(2);
       expect(state[acceptedReceivedInvite.creator.userid]).to.exist;
+      expect(state[`${acceptedReceivedInvite.creator.userid}_cacheUntil`]).to.be.a('number');
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
@@ -217,7 +238,7 @@ describe('allUsersMap', () => {
       let initialStateForTest = {
         a1b2c3:  { userid: 'a1b2c3' }
       };
-      
+
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let user = { userid: 'a1b2c3', name: 'Xavier', profile: { foo: 'bar' } };
@@ -234,14 +255,14 @@ describe('allUsersMap', () => {
   });
 
   describe('updatePatientSuccess', () => {
-    it('should update the patient info for the user, excluding permissions and team', () => {
+    it('should update the patient info for the user', () => {
       let initialStateForTest = {
         a1b2c3:  { userid: 'a1b2c3' }
       };
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let patient = { userid: 'a1b2c3', name: 'Xavier', profile: { patient: { birthday: '1980-01-01'} }, permissions: 'all', team: [] };
+      let patient = { userid: 'a1b2c3', name: 'Xavier', profile: { patient: { birthday: '1980-01-01'} } };
 
       let action = actions.sync.updatePatientSuccess(patient);
 
@@ -250,8 +271,6 @@ describe('allUsersMap', () => {
       expect(Object.keys(state).length).to.equal(1);
 
       expect(state[patient.userid].profile).to.equal(patient.profile);
-      expect(state[patient.userid].permissions).to.be.undefined;
-      expect(state[patient.userid].team).to.be.undefined;
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });

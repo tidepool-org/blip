@@ -11,9 +11,77 @@ var expect = chai.expect;
 
 import mutationTracker from 'object-invariant-test-helper';
 
-import { mapStateToProps } from '../../../app/pages/share/share';
+import { mapStateToProps, getFetchers } from '../../../app/pages/share/share';
 
 describe('PatientCareTeam', () => {
+  describe('getFetchers', () => {
+    const stateProps = {
+      fetchingPendingSentInvites: {
+        inProgress: false,
+        completed: null,
+      },
+      fetchingAssociatedAccounts: {
+        inProgress: false,
+        completed: null,
+      },
+    };
+
+    const ownProps = {
+      routeParams: { id: '12345' }
+    };
+
+    const dispatchProps = {
+      fetchPatient: sinon.stub().returns('fetchPatient'),
+      fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
+      fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
+    };
+
+    const api = {};
+
+    it('should return an array containing the user fetcher from dispatchProps', () => {
+      const result = getFetchers(dispatchProps, ownProps, stateProps, api);
+      expect(result[0]).to.be.a('function');
+      expect(result[0]()).to.equal('fetchPatient');
+      expect(result[1]).to.be.a('function');
+      expect(result[1]()).to.equal('fetchPendingSentInvites');
+      expect(result[2]).to.be.a('function');
+      expect(result[2]()).to.equal('fetchAssociatedAccounts');
+    });
+
+    it('should only add the associated accounts and pending invites fetchers if fetches are not already in progress or completed', () => {
+      const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
+      expect(standardResult.length).to.equal(3);
+
+      const inProgressResult = getFetchers(dispatchProps, ownProps, {
+        fetchingPendingSentInvites: {
+          inProgress: true,
+          completed: null,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: true,
+          completed: null,
+        },
+      }, api);
+
+      expect(inProgressResult.length).to.equal(1);
+      expect(inProgressResult[0]()).to.equal('fetchPatient');
+
+      const completedResult = getFetchers(dispatchProps, ownProps, {
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+      }, api);
+
+      expect(completedResult.length).to.equal(1);
+      expect(completedResult[0]()).to.equal('fetchPatient');
+    });
+  });
+
   describe('mapStateToProps', () => {
     const state = {
       allUsersMap: {
@@ -39,6 +107,8 @@ describe('PatientCareTeam', () => {
         cancellingSentInvite: {inProgress: true, notification: null},
         fetchingPatient: {inProgress: false, notification: null},
         fetchingUser: {inProgress: false, notification: null},
+        fetchingPendingSentInvites: { inProgress: false, completed: null },
+        fetchingAssociatedAccounts: { inProgress: false, completed: null },
         removingMemberFromTargetCareTeam: {inProgress: true, notification: null},
         sendingInvite: {inProgress: false, notification: null},
         settingMemberPermissions: {inProgress: false, notification: null}
@@ -126,6 +196,14 @@ describe('PatientCareTeam', () => {
 
     it('should map working.cancellingSentInvite.inProgress to cancellingInvite', () => {
       expect(result.cancellingInvite).to.equal(state.working.cancellingSentInvite.inProgress);
+    });
+
+    it('should map working.fetchingPendingSentInvites to fetchingPendingSentInvites', () => {
+      expect(result.fetchingPendingSentInvites).to.deep.equal(state.working.fetchingPendingSentInvites)
+    });
+
+    it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
+      expect(result.fetchingAssociatedAccounts).to.deep.equal(state.working.fetchingAssociatedAccounts)
     });
   });
 });
